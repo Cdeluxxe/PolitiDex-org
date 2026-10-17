@@ -37,9 +37,13 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { execHeld } from "./vr-exec-later.mjs";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { preAudit } from "./vr-effect-audit.mjs";
+import { coverageLine } from "./vr-effect-coverage.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const R = (f) => readFileSync(join(ROOT, f), "utf8");
+// consistency.js as it stood before the v387 provisions audit; see
+// scripts/vr-effect-audit.mjs and scripts/test-effect-line-audit.mjs.
+const R = (f) => (f === "consistency.js" ? preAudit(readFileSync(join(ROOT, f), "utf8")) : readFileSync(join(ROOT, f), "utf8"));
 const J = (f) => JSON.parse(R(f));
 const MARK = "// RIDER ROWS (v320)";
 const FILES = [
@@ -105,7 +109,7 @@ function blockKeys(src) {
   return [...src.slice(a, next > 0 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
 }
 const headSrc = (() => {
-  try { return execFileSync("git", ["show", "HEAD:consistency.js"], { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 28, stdio: ["ignore", "pipe", "ignore"] }); }
+  try { return preAudit(execFileSync("git", ["show", "HEAD:consistency.js"], { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 28, stdio: ["ignore", "pipe", "ignore"] })); }
   catch { return null; }
 })();
 
@@ -197,8 +201,13 @@ function check(src) {
   ok(block.length === new Set(block).size && block.slice().sort().join(",") === lines.map((r) => r.key).sort().join(","),
     "the RIDER ROWS block is not exactly the ledger's line rows");
   for (const k of block) ok(FILED.has(k), `${k}: a line in the rider block on a pair the rider passes did not file`);
+  // A blank was a ruling on the stored summary. The coverage pass (v388) read the
+  // bill's own text, and where its ledger writes the pair, that line supersedes
+  // the blank and must be exactly the ledger's (scripts/vr-effect-coverage.mjs).
+  const superseded = (r) => (r.congress != null ? coverageLine(r.number, r.congress, r.leaf) : "");
   for (const r of blanks) {
-    ok(!(r.key in E.map), `${r.key}: a blank row now stores a line`);
+    if (superseded(r)) ok(E.map[r.key] === superseded(r), `${r.key}: superseded by the coverage pass, but the stored line is not that ledger's`);
+    else ok(!(r.key in E.map), `${r.key}: a blank row now stores a line`);
     ok(!(M.map[r.key] && M.map[r.key].did), `${r.key}: a blank row now stores a description`);
     ok(typeof r.reason === "string" && r.reason.length > 30, `${r.key}: a blank row does not say why`);
     ok(/states no|does not say|says nothing|label only/.test(r.reason), `${r.key}: a blank's reason is not that the text does not explain it`);
@@ -219,6 +228,7 @@ function check(src) {
       const g = rr.out.get(r.key);
       if (!g || !g.found) { ok(false, `${r.key}: the row did not reach the drawer`); continue; }
       if (r.decision === "line") ok(g.effs.length === 1 && g.effs[0] === norm(r.line), `${r.key}: prints ${JSON.stringify(g.effs)}, stored ${JSON.stringify(r.line)}`);
+      else if (superseded(r)) ok(g.effs.length === 1 && g.effs[0] === norm(superseded(r)), `${r.key}: prints ${JSON.stringify(g.effs)}, the coverage ledger says ${JSON.stringify(superseded(r))}`);
       else ok(g.effs.length === 0, `${r.key}: a blank row prints ${JSON.stringify(g.effs[0])}`);
     }
   }
@@ -269,8 +279,8 @@ const MUTANTS = [
     edit: swap("H.R. 1319|117|housing_support", "Funded emergency rental and homeowner assistance, mapped here; the House cleared it 220-211, the Senate 50-49."),
     expect: /method word/ },
   { name: "a line written on a blank row",
-    edit: (s) => s.replace("    'H.R. 1968|119|border_security':\n", "    'H.R. 7148|119|healthcare':\n      'Carried Health Care Extenders; the House concurred 217-214.',\n    'H.R. 1968|119|border_security':\n"),
-    expect: /blank row now stores a line|not exactly the ledger/ },
+    edit: (s) => s.replace("'Extended community health center funding, special diabetes programs and Medicare telehealth flexibilities; the House concurred 217-214.'", "'Carried Health Care Extenders; the House concurred 217-214.'"),
+    expect: /blank row now stores a line|not exactly the ledger|not that ledger/ },
   { name: "a shipped line rewritten",
     edit: swap("H.R. 3746|118|gov_services", "Tightened TANF work rules; the House cleared it 314-117, the Senate 63-36."),
     expect: /shipped line was rewritten/ },

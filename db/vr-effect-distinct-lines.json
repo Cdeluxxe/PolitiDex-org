@@ -1,0 +1,1329 @@
+{
+ "_comment": "Effect lines from a distinct section (v390). After v389, 80 pairs still printed nothing. This pass reopened the 52 silent only because a sibling line was judged to cover the act’s only change on the issue (`category: \"sibling\"`) or the act was judged to have no bearing on it (`\"unrelated\"`), and searched the whole bill for a separate requirement or prohibition on that issue that no line on the same act already states. Utah text is the bill at `textFrom` with `[-…-]` for struck and `[+…+]` for inserted text; only a change the bill makes counts. Federal text is the engrossed or enrolled bill on GovInfo; the twelve House amendments have no text there and are read from their stored purpose. `siblingLines` is every line the act already printed, by issue, when the pass ran; `distinctFrom` says why the new line is a different change. Every `terms` phrase is in the quoted text and the line; every other content word is in that text, the title, a `plain` restatement or an effect verb; every qualifier in `bounds` stays in the line. The other 28 (`notReopened`) were confirmed silent after a body read, already read by v386, carry a status conflict, are a forecast or confirmation, or have no vote row, and were not reopened. Lines are stored once in consistency.js _DOS_EFFECT under the EFFECT DISTINCT SECTION SLICE 19 marker. No score, weight, mapping or key is read from or written to here.",
+ "counts": {
+  "reopened": 52,
+  "lines": 6,
+  "stillSilent": 46,
+  "notReopened": 28
+ },
+ "rows": [
+  {
+   "key": "H.R. 6703|119|healthcare_costs",
+   "lane": "federal",
+   "number": "H.R. 6703",
+   "sitting": "119",
+   "issue": "healthcare_costs",
+   "title": "Lower Health Care Premiums for All Americans Act",
+   "category": "sibling",
+   "priorWhy": "the rationale states an aim only (\"a market-based approach to lowering premiums\"); the mechanism is the healthcare_market row's subject. (Recorded in db/vr-blank-rows-slice9.json; reread against the measure’s text on file, which changes nothing here.)",
+   "siblingLines": {
+    "healthcare": "Would restructure individual and small-group health-coverage rules; the House passed it 216-211.",
+    "healthcare_market": "Would expand association health plans and individual-coverage arrangements; the House passed it 216-211.",
+    "health_drug_prices": "Would add pharmacy-benefit-manager transparency standards on drug prices and rebates; the House passed it 216-211."
+   },
+   "status": "passed_house",
+   "members": 109,
+   "textFrom": "https://www.govinfo.gov/content/pkg/BILLS-119hr6703eh/html/BILLS-119hr6703eh.htm",
+   "decision": "line",
+   "line": "Would fund cost sharing reduction payments from 2027, except for plans covering abortion other than life, rape or incest cases.",
+   "terms": [
+    "cost sharing reduction payments",
+    "rape or incest"
+   ],
+   "plain": {
+    "fund": "There are appropriated",
+    "from 2027": "for plan years beginning on or after January 1, 2027",
+    "except": "may not be used",
+    "cases": "if the pregnancy is a result of an act"
+   },
+   "section": "Sec. 202",
+   "distinctFrom": "The healthcare, healthcare_market and health_drug_prices lines cover coverage rules, association plans/HRAs and PBM transparency; this is a separate appropriation for cost-sharing reductions.",
+   "bounds": [
+    "except"
+   ],
+   "sources": [
+    {
+     "from": "https://www.govinfo.gov/content/pkg/BILLS-119hr6703eh/html/BILLS-119hr6703eh.htm",
+     "section": "Sec. 202",
+     "quote": "FUNDING COST SHARING REDUCTION PAYMENTS"
+    },
+    {
+     "from": "https://www.govinfo.gov/content/pkg/BILLS-119hr6703eh/html/BILLS-119hr6703eh.htm",
+     "section": "Sec. 202",
+     "quote": "There are appropriated out of any monies in the Treasury not otherwise appropriated such sums as may be necessary for purposes of making payments under this section for plan years beginning on or after January 1, 2027."
+    },
+    {
+     "from": "https://www.govinfo.gov/content/pkg/BILLS-119hr6703eh/html/BILLS-119hr6703eh.htm",
+     "section": "Sec. 202",
+     "quote": "may not be used for purposes of making payments under this section for a qualified health plan that provides health benefit coverage that includes coverage of abortion."
+    },
+    {
+     "from": "https://www.govinfo.gov/content/pkg/BILLS-119hr6703eh/html/BILLS-119hr6703eh.htm",
+     "section": "Sec. 202",
+     "quote": "coverage of abortion only if necessary to save the life of the mother or if the pregnancy is a result of an act of rape or incest."
+    }
+   ],
+   "tense": "Passed the House only; the act’s other lines open “Would”."
+  },
+  {
+   "key": "H.R. 21|119|pro_life",
+   "lane": "federal",
+   "number": "H.R. 21",
+   "sitting": "119",
+   "issue": "pro_life",
+   "title": "Born-Alive Abortion Survivors Protection Act",
+   "category": "sibling",
+   "priorWhy": "the rationale states a direction only (\"advances abortion restrictions\"); the act's one concrete requirement is the healthcare row's own line. (Recorded in db/vr-blank-rows-slice9.json; reread against the measure’s text on file, which changes nothing here.)",
+   "siblingLines": {
+    "healthcare": "Would require medical care for an infant born alive after an attempted abortion; the House passed it 217-204."
+   },
+   "status": "passed_house",
+   "members": 109,
+   "textFrom": "https://www.govinfo.gov/content/pkg/BILLS-119hr21eh/html/BILLS-119hr21eh.htm",
+   "decision": "line",
+   "line": "Would punish an overt act that kills a child born alive after an abortion as intentionally killing a human being.",
+   "terms": [
+    "overt act that kills a child born alive",
+    "intentionally killing"
+   ],
+   "plain": {
+    "punish": "shall be punished as under section 1111",
+    "after an abortion": "In the case of an abortion or attempted abortion that results in a child born alive"
+   },
+   "section": "Sec. 3(a), new 18 U.S.C. 1532(b)(2)",
+   "distinctFrom": "The healthcare line covers the duty to give medical care; this is a separate homicide-level penalty for an act that kills the surviving child.",
+   "bounds": [],
+   "sources": [
+    {
+     "from": "https://www.govinfo.gov/content/pkg/BILLS-119hr21eh/html/BILLS-119hr21eh.htm",
+     "section": "Sec. 3(a), new 18 U.S.C. 1532(b)(2)",
+     "quote": "Whoever intentionally performs or attempts to perform an overt act that kills a child born alive described under subsection (a), shall be punished as under section 1111 of this title for intentionally killing or attempting to kill a human being."
+    },
+    {
+     "from": "https://www.govinfo.gov/content/pkg/BILLS-119hr21eh/html/BILLS-119hr21eh.htm",
+     "section": "Sec. 3(a), new 18 U.S.C. 1532(b)(2)",
+     "quote": "In the case of an abortion or attempted abortion that results in a child born alive"
+    }
+   ],
+   "tense": "Passed the House only; the act’s other lines open “Would”."
+  },
+  {
+   "key": "H.R. 3633|119|tech_innovation",
+   "lane": "federal",
+   "number": "H.R. 3633",
+   "sitting": "119",
+   "issue": "tech_innovation",
+   "title": "Digital Asset Market Clarity Act of 2025",
+   "category": "sibling",
+   "priorWhy": "The rationale's one fact, a comprehensive market-structure regime for digital assets, is what the act's crypto_cbdc line already says; the rest is how supporters describe it. (Recorded in db/vr-blank-rows-slice9.json; reread against the measure’s text on file, which changes nothing here.)",
+   "siblingLines": {
+    "crypto_cbdc": "Would set a market-structure framework for digital assets, splitting oversight between the CFTC and the SEC; the House passed it 294-134.",
+    "econ_growth": "Would bar treating a non-controlling blockchain developer as a money transmitter solely for creating or publishing blockchain software."
+   },
+   "status": "passed_house",
+   "members": 109,
+   "textFrom": "https://www.govinfo.gov/content/pkg/BILLS-119hr3633eh/html/BILLS-119hr3633eh.htm",
+   "decision": "line",
+   "line": "Would exempt validating, running a node or building a blockchain system from the Exchange Act, save anti-fraud and anti-manipulation rules.",
+   "terms": [
+    "validating",
+    "blockchain system",
+    "anti-manipulation"
+   ],
+   "plain": {
+    "exempt": "shall not be subject to this Act",
+    "except": "shall not apply to the anti-fraud",
+    "Securities Exchange Act": "The Securities Exchange Act of 1934",
+    "running": "operating a node",
+    "building": "Developing",
+    "save": "Subsection (a) shall not apply to",
+    "rules": "authorities of the Commission",
+    "Exchange Act": "The Securities Exchange Act of 1934",
+    "node": "operating a node"
+   },
+   "section": "Sec. 309, new Securities Exchange Act sec. 15H",
+   "distinctFrom": "crypto_cbdc states the overall CFTC/SEC split and econ_growth the money-transmitter bar; this is a separate securities-law exclusion for decentralized finance activities.",
+   "bounds": [
+    "save"
+   ],
+   "sources": [
+    {
+     "from": "https://www.govinfo.gov/content/pkg/BILLS-119hr3633eh/html/BILLS-119hr3633eh.htm",
+     "section": "Sec. 309, new Securities Exchange Act sec. 15H",
+     "quote": "a person shall not be subject to this Act and the regulations"
+    },
+    {
+     "from": "https://www.govinfo.gov/content/pkg/BILLS-119hr3633eh/html/BILLS-119hr3633eh.htm",
+     "section": "Sec. 309, new Securities Exchange Act sec. 15H",
+     "quote": "Compiling network transactions or relaying, searching, sequencing, validating, or acting in a similar capacity."
+    },
+    {
+     "from": "https://www.govinfo.gov/content/pkg/BILLS-119hr3633eh/html/BILLS-119hr3633eh.htm",
+     "section": "Sec. 309, new Securities Exchange Act sec. 15H",
+     "quote": "Providing computational work, operating a node or oracle service"
+    },
+    {
+     "from": "https://www.govinfo.gov/content/pkg/BILLS-119hr3633eh/html/BILLS-119hr3633eh.htm",
+     "section": "Sec. 309, new Securities Exchange Act sec. 15H",
+     "quote": "Developing, publishing, constituting, administering, maintaining, or otherwise distributing a blockchain system"
+    },
+    {
+     "from": "https://www.govinfo.gov/content/pkg/BILLS-119hr3633eh/html/BILLS-119hr3633eh.htm",
+     "section": "Sec. 309, new Securities Exchange Act sec. 15H",
+     "quote": "Subsection (a) shall not apply to the anti-fraud and anti-manipulation authorities of the Commission."
+    },
+    {
+     "from": "https://www.govinfo.gov/content/pkg/BILLS-119hr3633eh/html/BILLS-119hr3633eh.htm",
+     "section": "Sec. 309, new Securities Exchange Act sec. 15H",
+     "quote": "The Securities Exchange Act of 1934"
+    }
+   ],
+   "tense": "Passed the House only; the act’s other lines open “Would”."
+  },
+  {
+   "key": "S.B. 181|2025GS|housing_build",
+   "lane": "utah",
+   "number": "S.B. 181",
+   "sitting": "2025GS",
+   "issue": "housing_build",
+   "title": "Housing Affordability Amendments",
+   "category": "sibling",
+   "priorWhy": "The provisions say only that the bill enacts land use regulations on certain types of parking spaces with exceptions; the one concrete change is already stated by the shipped housing line.",
+   "siblingLines": {
+    "housing": "Barred cities and counties from requiring a garage for an owner-occupied affordable single-family home."
+   },
+   "enacted": true,
+   "enactedPer": "Governor Signed",
+   "provisions": "This bill: defines and amends terms; enacts provisions of certain land use regulations with regard to certain types of parking spaces; provides certain exceptions; and makes technical and conforming changes.",
+   "provisionsFrom": "https://le.utah.gov/data/2025GS/SB0181.json",
+   "textFrom": "https://le.utah.gov/Session/2025/bills/enrolled/SB0181.xml",
+   "decision": "line",
+   "line": "Barred specified cities and counties from stopping an unobstructed tandem parking space from counting as two required parking spaces.",
+   "terms": [
+    "unobstructed tandem parking space"
+   ],
+   "plain": {
+    "stopping": "restrict",
+    "counting": "satisfying",
+    "required": "minimum parking space requirement",
+    "cities": "municipality"
+   },
+   "section": "10-9a-534(4)(b); 17-27a-530(4)(b)",
+   "distinctFrom": "The housing line covers the garage ban for owner-occupied affordable homes; this is a separate subsection on counting tandem spaces toward minimum parking for any home in a specified city or county.",
+   "bounds": [
+    "specified"
+   ],
+   "textQuote": [
+    "[+(b)restrict an unobstructed tandem parking space from satisfying two parking spaces as part of a minimum parking space requirement; and+]",
+    "[+(4)A municipality that is a specified municipality may not:",
+    "[+(4)A county that is a specified county may not:"
+   ]
+  },
+  {
+   "key": "H.B. 119|2025GS|property_rights",
+   "lane": "utah",
+   "number": "H.B. 119",
+   "sitting": "2025GS",
+   "issue": "property_rights",
+   "title": "Solar Panel Restrictions in Homeowners Associations Amendments",
+   "category": "sibling",
+   "priorWhy": "The bill’s only provision, barring an association from prohibiting solar panel installation, is already stated by the enviro_energy line; nothing else touches owner property rights.",
+   "siblingLines": {
+    "enviro_energy": "Stopped a homeowners association from prohibiting solar panel installation, while letting it restrict installation."
+   },
+   "enacted": true,
+   "enactedPer": "Governor Signed",
+   "provisions": "This bill: stops a homeowners association from prohibiting solar panel installation; and authorizes a homeowners association to restrict solar panel installation.",
+   "provisionsFrom": "https://le.utah.gov/data/2025GS/HB0119.json",
+   "textFrom": "https://le.utah.gov/Session/2025/bills/enrolled/HB0119.xml",
+   "decision": "line",
+   "line": "Lowered the vote needed to amend a declaration’s solar energy system prohibition on a detached dwelling lot from over 67% to at least 51%.",
+   "terms": [
+    "solar energy system",
+    "detached dwelling",
+    "at least 51%"
+   ],
+   "plain": {
+    "over": "greater than",
+    "67%": "greater than 67%",
+    "vote": "by a vote of",
+    "needed": "if the association approves the amendment by a vote of"
+   },
+   "section": "57-8a-701(3)(b)",
+   "distinctFrom": "The enviro_energy line covers the bar on governing documents prohibiting installation; this is the lowered owner vote needed to remove an existing declaration prohibition.",
+   "bounds": [
+    "at least"
+   ],
+   "textQuote": [
+    "An association may amend an existing provision in a declaration that prohibits the installation of a solar energy system on a lot with a detached dwelling if the association approves the amendment by a vote of [-greater than 67%-] [+at least 51%+] of the allocated voting interests of the lot owners in the association."
+   ]
+  },
+  {
+   "key": "H.B. 332|2025GS|voting_access",
+   "lane": "utah",
+   "number": "H.B. 332",
+   "sitting": "2025GS",
+   "issue": "voting_access",
+   "title": "Amendments to Voting Provisions",
+   "category": "sibling",
+   "priorWhy": "The provisions contain nothing about shortening a cure or return window; the access-related change, proof of citizenship with a federal-only ballot, is already the election_security line.",
+   "siblingLines": {
+    "election_security": "Would have required proof of United States citizenship to vote in a state election, with a federal-only ballot for those without it."
+   },
+   "enacted": false,
+   "enactedPer": "House/ filed",
+   "provisions": "This bill: requires certain reporting to the Government Operations Interim Committee; clarifies reporting requirements for the lieutenant governor and county clerks; modifies the lieutenant governor's authority to cooperate or enter into an agreement with another state or third-party to share voter registration information; establishes requirements for the maintenance of voter registration records; authorizes the lieutenant governor to contract with a third-party to maintain voter rolls; authorizes the lieutenant governor to enter into agreements with the federal courts; requires the lieutenant governor to register with the federal Systemic Alien Verification for Entitlements Program for voter registration and voter list maintenance; requires county clerks to investigate certain registered voters in certain circumstances; addresses ballot video surveillance requirements; requires proof of United States citizenship to vote in a state election; provides for a ballot relating to only federal elections if a voter does not provide proof of United States citizenship; provides for removing an individual from the voter registration roll if evidence is discovered, and not refuted, that the individual is not a citizen of the United States; and makes technical and conforming amendments.",
+   "provisionsFrom": "https://le.utah.gov/data/2025GS/HB0332.json",
+   "textFrom": "https://le.utah.gov/Session/2025/bills/introduced/HB0332S06.xml",
+   "decision": "line",
+   "line": "Would have had an election officer remove a federal-only voter shown by evidence to be a noncitizen who fails to give proof of citizenship.",
+   "terms": [
+    "election officer",
+    "proof of citizenship"
+   ],
+   "plain": {
+    "federal-only": "a ballot containing only federal races",
+    "voter": "registered voter",
+    "shown": "obtains evidence",
+    "evidence": "obtains evidence",
+    "noncitizen": "is not a United States citizen",
+    "remove": "remove the voter from the list of registered voters",
+    "fails": "fails to provide proof",
+    "give": "provide proof"
+   },
+   "section": "20A-3a-201(8)",
+   "distinctFrom": "The election_security line covers proof of citizenship to vote a state ballot; this is a separate rule removing a registered voter from the rolls on evidence of noncitizenship.",
+   "bounds": [],
+   "textQuote": [
+    "[+(8)If an election officer obtains evidence that a registered voter described in Subsection (7) is not a United States citizen, the election officer shall:(a)inform the voter of the evidence;+]",
+    "[+(b)give a reasonable opportunity for the voter to provide proof of United States citizenship; and+]",
+    "[+(c)if the voter fails to provide proof of citizenship under this Subsection (8), remove the voter from the list of registered voters.+]",
+    "[+(b)a ballot containing only federal races in which a voter who resides in the precinct is eligible to vote.+]",
+    "[+(7)Except as provided in Subsection (8), an election officer may not require a voter to provide proof of United States citizenship to vote a ballot described in Subsection (3)(b).+]"
+   ]
+  },
+  {
+   "key": "H.Amdt. 232|119|america_first_fp",
+   "lane": "federal",
+   "number": "H.Amdt. 232",
+   "sitting": "119",
+   "issue": "america_first_fp",
+   "title": "H.Amdt. 232 (Boebert) to H.R. 8595 — eliminate funding for the Fulbright Program",
+   "category": "sibling",
+   "priorWhy": "The rationale's one effect, ending U.S. funding for an international exchange program, is the zeroed-out appropriation the act's cut_spending line states. The America First leaf also holds its database-only pairs, which store no `did`, blank (scripts/test-america-first-effect-lines.mjs names H.Amdt. 232, 237 and 251 among them), and requires its lines to name the foreign aid or commitment moved. (Recorded in db/vr-blank-rows-slice11.json; reread against the measure’s text on file, which changes nothing here.)",
+   "siblingLines": {
+    "cut_spending": "Would have zeroed out the existing federal appropriation for the Fulbright Program."
+   },
+   "status": "failed",
+   "members": 107,
+   "textFrom": null,
+   "decision": "refuse",
+   "why": "No amendment text is on GovInfo; the amendment’s stored purpose (“eliminate funding for the Fulbright Program”) names one change, and the line cut_spending already prints is that change."
+  },
+  {
+   "key": "H.Amdt. 234|119|america_first_fp",
+   "lane": "federal",
+   "number": "H.Amdt. 234",
+   "sitting": "119",
+   "issue": "america_first_fp",
+   "title": "H.Amdt. 234 (Fine) to H.R. 8595 — strike the $139,575,000 for the Global Environment Facility",
+   "category": "sibling",
+   "priorWhy": "The rationale's one effect, ending the contribution to the Global Environment Facility, is the struck appropriation the act's climate_action line already says; the rest frames it. The America First leaf also holds its database-only pairs, which store no `did`, blank (scripts/test-america-first-effect-lines.mjs names H.Amdt. 232, 237 and 251 among them), and requires its lines to name the foreign aid or commitment moved. (Recorded in db/vr-blank-rows-slice11.json; reread against the measure’s text on file, which changes nothing here.)",
+   "siblingLines": {
+    "climate_action": "Proposed striking the $139,575,000 for the Global Environment Facility from the bill; the House rejected it 178-247."
+   },
+   "status": "failed",
+   "members": 107,
+   "textFrom": null,
+   "decision": "refuse",
+   "why": "No amendment text is on GovInfo; the amendment’s stored purpose (“strike the $139,575,000 for the Global Environment Facility”) names one change, and the line climate_action already prints is that change."
+  },
+  {
+   "key": "H.Amdt. 234|119|cut_spending",
+   "lane": "federal",
+   "number": "H.Amdt. 234",
+   "sitting": "119",
+   "issue": "cut_spending",
+   "title": "H.Amdt. 234 (Fine) to H.R. 8595 — strike the $139,575,000 for the Global Environment Facility",
+   "category": "sibling",
+   "priorWhy": "The rationale's one effect, striking the $139,575,000 appropriation, is what the act's climate_action line already says. (Recorded in db/vr-blank-rows-slice11.json; reread against the measure’s text on file, which changes nothing here.)",
+   "siblingLines": {
+    "climate_action": "Proposed striking the $139,575,000 for the Global Environment Facility from the bill; the House rejected it 178-247."
+   },
+   "status": "failed",
+   "members": 107,
+   "textFrom": null,
+   "decision": "refuse",
+   "why": "No amendment text is on GovInfo; the amendment’s stored purpose (“strike the $139,575,000 for the Global Environment Facility”) names one change, and the line climate_action already prints is that change."
+  },
+  {
+   "key": "H.Amdt. 237|119|america_first_fp",
+   "lane": "federal",
+   "number": "H.Amdt. 237",
+   "sitting": "119",
+   "issue": "america_first_fp",
+   "title": "H.Amdt. 237 (Roy) to H.R. 8595 — prohibit any funds from being made available to the United Nations",
+   "category": "sibling",
+   "priorWhy": "The rationale's one effect, barring funds to the United Nations, is what the act's cut_spending line states, and its stored text names no foreign aid. The America First leaf also holds its database-only pairs, which store no `did`, blank (scripts/test-america-first-effect-lines.mjs names H.Amdt. 232, 237 and 251 among them), and requires its lines to name the foreign aid or commitment moved. (Recorded in db/vr-blank-rows-slice11.json; reread against the measure’s text on file, which changes nothing here.)",
+   "siblingLines": {
+    "cut_spending": "Would have removed U.S. contributions to the U.N. from the appropriation."
+   },
+   "status": "failed",
+   "members": 107,
+   "textFrom": null,
+   "decision": "refuse",
+   "why": "No amendment text is on GovInfo; the amendment’s stored purpose (“prohibit any funds from being made available to the United Nations”) names one change, and the line cut_spending already prints is that change."
+  },
+  {
+   "key": "H.Amdt. 251|119|america_first_fp",
+   "lane": "federal",
+   "number": "H.Amdt. 251",
+   "sitting": "119",
+   "issue": "america_first_fp",
+   "title": "H.Amdt. 251 (Crane) to H.R. 8800 — prohibit the Department of Defense from using taxpayer funds to cover the costs of foreign military personnel participating in bilateral or…",
+   "category": "sibling",
+   "priorWhy": "The rationale's one effect, ending U.S. payment of partners' exercise costs, is the expenditure bar the act's cut_spending line states. The America First leaf also holds its database-only pairs, which store no `did`, blank (scripts/test-america-first-effect-lines.mjs names H.Amdt. 232, 237 and 251 among them), and requires its lines to name the foreign aid or commitment moved. (Recorded in db/vr-blank-rows-slice11.json; reread against the measure’s text on file, which changes nothing here.)",
+   "siblingLines": {
+    "cut_spending": "Would have barred Department of Defense expenditure covering the costs of participating foreign military personnel."
+   },
+   "status": "failed",
+   "members": 107,
+   "textFrom": null,
+   "decision": "refuse",
+   "why": "No amendment text is on GovInfo; the amendment’s stored purpose (“prohibit the Department of Defense from using taxpayer funds to cover the costs of foreign military personnel participating in bilateral or…”) names one change, and the line cut_spending already prints is that change."
+  },
+  {
+   "key": "H.Amdt. 251|119|foreign_balance",
+   "lane": "federal",
+   "number": "H.Amdt. 251",
+   "sitting": "119",
+   "issue": "foreign_balance",
+   "title": "H.Amdt. 251 (Crane) to H.R. 8800 — prohibit the Department of Defense from using taxpayer funds to cover the costs of foreign military personnel participating in bilateral or…",
+   "category": "sibling",
+   "priorWhy": "The rationale states a consequence reading (exercises become \"harder to run with partners\"), not something the amendment does; the one act it names, paying partners' exercise costs, is the cut_spending line's subject. (Recorded in db/vr-blank-rows-slice11.json; reread against the measure’s text on file, which changes nothing here.)",
+   "siblingLines": {
+    "cut_spending": "Would have barred Department of Defense expenditure covering the costs of participating foreign military personnel."
+   },
+   "status": "failed",
+   "members": 107,
+   "textFrom": null,
+   "decision": "refuse",
+   "why": "No amendment text is on GovInfo; the amendment’s stored purpose (“prohibit the Department of Defense from using taxpayer funds to cover the costs of foreign military personnel participating in bilateral or…”) names one change, and the line cut_spending already prints is that change."
+  },
+  {
+   "key": "H.Amdt. 252|119|america_first_fp",
+   "lane": "federal",
+   "number": "H.Amdt. 252",
+   "sitting": "119",
+   "issue": "america_first_fp",
+   "title": "H.Amdt. 252 (Crane) to H.R. 8800 — prohibit funds for Ukraine Security Assistance except for U.S. embassy security in Ukraine",
+   "category": "sibling",
+   "priorWhy": "The rationale's one effect, cutting off U.S. security assistance to Ukraine, is what the act's ukraine_policy line already says. The America First leaf also holds its database-only pairs, which store no `did`, blank (scripts/test-america-first-effect-lines.mjs names H.Amdt. 232, 237 and 251 among them), and requires its lines to name the foreign aid or commitment moved. (Recorded in db/vr-blank-rows-slice11.json; reread against the measure’s text on file, which changes nothing here.)",
+   "siblingLines": {
+    "ukraine_policy": "Proposed prohibiting funds for Ukraine Security Assistance except U.S. embassy security in Ukraine; the House rejected it 76-350."
+   },
+   "status": "failed",
+   "members": 107,
+   "textFrom": null,
+   "decision": "refuse",
+   "why": "No amendment text is on GovInfo; the amendment’s stored purpose (“prohibit funds for Ukraine Security Assistance except for U.S. embassy security in Ukraine”) names one change, and the line ukraine_policy already prints is that change."
+  },
+  {
+   "key": "H.Amdt. 252|119|foreign_balance",
+   "lane": "federal",
+   "number": "H.Amdt. 252",
+   "sitting": "119",
+   "issue": "foreign_balance",
+   "title": "H.Amdt. 252 (Crane) to H.R. 8800 — prohibit funds for Ukraine Security Assistance except for U.S. embassy security in Ukraine",
+   "category": "sibling",
+   "priorWhy": "The rationale's one effect, withdrawing the security assistance, is what the act's ukraine_policy line already says; that NATO partners coordinate it describes the aid, not the amendment. (Recorded in db/vr-blank-rows-slice11.json; reread against the measure’s text on file, which changes nothing here.)",
+   "siblingLines": {
+    "ukraine_policy": "Proposed prohibiting funds for Ukraine Security Assistance except U.S. embassy security in Ukraine; the House rejected it 76-350."
+   },
+   "status": "failed",
+   "members": 107,
+   "textFrom": null,
+   "decision": "refuse",
+   "why": "No amendment text is on GovInfo; the amendment’s stored purpose (“prohibit funds for Ukraine Security Assistance except for U.S. embassy security in Ukraine”) names one change, and the line ukraine_policy already prints is that change."
+  },
+  {
+   "key": "H.Amdt. 252|119|restraint",
+   "lane": "federal",
+   "number": "H.Amdt. 252",
+   "sitting": "119",
+   "issue": "restraint",
+   "title": "H.Amdt. 252 (Crane) to H.R. 8800 — prohibit funds for Ukraine Security Assistance except for U.S. embassy security in Ukraine",
+   "category": "sibling",
+   "priorWhy": "The rationale's one effect, ending U.S. military assistance to the conflict, is what the act's ukraine_policy line already says. (Recorded in db/vr-blank-rows-slice11.json; reread against the measure’s text on file, which changes nothing here.)",
+   "siblingLines": {
+    "ukraine_policy": "Proposed prohibiting funds for Ukraine Security Assistance except U.S. embassy security in Ukraine; the House rejected it 76-350."
+   },
+   "status": "failed",
+   "members": 107,
+   "textFrom": null,
+   "decision": "refuse",
+   "why": "No amendment text is on GovInfo; the amendment’s stored purpose (“prohibit funds for Ukraine Security Assistance except for U.S. embassy security in Ukraine”) names one change, and the line ukraine_policy already prints is that change."
+  },
+  {
+   "key": "H.Amdt. 252|119|strong_defense",
+   "lane": "federal",
+   "number": "H.Amdt. 252",
+   "sitting": "119",
+   "issue": "strong_defense",
+   "title": "H.Amdt. 252 (Crane) to H.R. 8800 — prohibit funds for Ukraine Security Assistance except for U.S. embassy security in Ukraine",
+   "category": "sibling",
+   "priorWhy": "The rationale restates the ukraine_policy line's own fact: no funds for the Ukraine Security Assistance Initiative except embassy security. (Recorded in db/vr-blank-rows-slice11.json; reread against the measure’s text on file, which changes nothing here.)",
+   "siblingLines": {
+    "ukraine_policy": "Proposed prohibiting funds for Ukraine Security Assistance except U.S. embassy security in Ukraine; the House rejected it 76-350."
+   },
+   "status": "failed",
+   "members": 107,
+   "textFrom": null,
+   "decision": "refuse",
+   "why": "No amendment text is on GovInfo; the amendment’s stored purpose (“prohibit funds for Ukraine Security Assistance except for U.S. embassy security in Ukraine”) names one change, and the line ukraine_policy already prints is that change."
+  },
+  {
+   "key": "H.Amdt. 255|119|healthcare",
+   "lane": "federal",
+   "number": "H.Amdt. 255",
+   "sitting": "119",
+   "issue": "healthcare",
+   "title": "H.Amdt. 255 (Mace) to H.R. 8800 — prohibit gender-related medical care under TRICARE and prevents TRICARE from covering certain gender-related medical procedures and treatments",
+   "category": "sibling",
+   "priorWhy": "The rationale's one effect, removing a category of care from TRICARE coverage, is what the act's lgbtq_rights line already says. (Recorded in db/vr-blank-rows-slice11.json; reread against the measure’s text on file, which changes nothing here.)",
+   "siblingLines": {
+    "lgbtq_rights": "Would prevent TRICARE from covering certain gender-related medical procedures and treatments; the House agreed to it 219-208."
+   },
+   "status": "passed_house",
+   "members": 107,
+   "textFrom": null,
+   "decision": "refuse",
+   "why": "No amendment text is on GovInfo; the amendment’s stored purpose (“prohibit gender-related medical care under TRICARE and prevents TRICARE from covering certain gender-related medical procedures and treatments”) names one change, and the line lgbtq_rights already prints is that change."
+  },
+  {
+   "key": "H.Amdt. 266|119|gov_waste",
+   "lane": "federal",
+   "number": "H.Amdt. 266",
+   "sitting": "119",
+   "issue": "gov_waste",
+   "title": "H.Amdt. 266 (Grothman) to H.R. 8800 — require the Secretary of Defense to submit a report detailing options for reducing the number of civilians employed by the Department of Defense by…",
+   "category": "sibling",
+   "priorWhy": "The title asks for a report on options for reducing Defense Department civilian staff; it names no waste, savings or spending outcome on this leaf. (Recorded in db/vr-title-effect-lines.json; reread against the measure’s text on file, which changes nothing here.)",
+   "siblingLines": {
+    "cut_spending": "Proposed a Pentagon report on options for cutting 200,000 civilian positions and the savings each yields; the House rejected it 175-254."
+   },
+   "status": "failed",
+   "members": 107,
+   "textFrom": null,
+   "decision": "refuse",
+   "why": "No amendment text is on GovInfo; the amendment’s stored purpose (“require the Secretary of Defense to submit a report detailing options for reducing the number of civilians employed by the Department of Defense by…”) names one change, and the line cut_spending already prints is that change."
+  },
+  {
+   "key": "H.B. 114|2023GS|rural_ag",
+   "lane": "utah",
+   "number": "H.B. 114",
+   "sitting": "2023GS",
+   "issue": "rural_ag",
+   "title": "Theft Defense Amendments",
+   "category": "sibling",
+   "priorWhy": "The bill's only provision is the closed theft-of-livestock defense, already stated on this bill's tough-on-crime line; it does nothing else for farms or ranches.",
+   "siblingLines": {
+    "tough_on_crime": "Provided that it is not a defense to theft of livestock that the livestock is sick, injured, or a liability to the owner."
+   },
+   "enacted": true,
+   "enactedPer": "Governor Signed",
+   "provisions": "This bill: provides that it is not a defense to theft of livestock that the livestock is sick, injured, or a liability to the owner; and makes technical changes.",
+   "provisionsFrom": "https://le.utah.gov/data/2023GS/HB0114.json",
+   "textFrom": "https://le.utah.gov/~2023/bills/hbillenr/HB0114.htm",
+   "decision": "refuse",
+   "why": "Read the single amended section 76-6-402; the only inserted change is the livestock theft defense bar already on the tough_on_crime line, plus a wording change on the livestock guardian dog presumption that alters nothing."
+  },
+  {
+   "key": "H.B. 165|2023GS|property_rights",
+   "lane": "utah",
+   "number": "H.B. 165",
+   "sitting": "2023GS",
+   "issue": "property_rights",
+   "title": "Firearm Discharge on Private Property Amendments",
+   "category": "sibling",
+   "priorWhy": "The only relevant provision is the occupant liability shield already stated in the gun_rights line for this bill; there is no separate property-rights provision.",
+   "siblingLines": {
+    "gun_rights": "Made a private property occupant not liable, in certain circumstances, for firearm discharge there by someone in lawful possession."
+   },
+   "enacted": true,
+   "enactedPer": "Governor Signed",
+   "provisions": "This bill: defines terms; provides that a private property occupant is not liable for the discharge of a firearm on the property by an individual in lawful possession of the firearm under certain circumstances; and makes technical and conforming changes.",
+   "provisionsFrom": "https://le.utah.gov/data/2023GS/HB0165.json",
+   "textFrom": "https://le.utah.gov/~2023/bills/hbillenr/HB0165.htm",
+   "decision": "refuse",
+   "why": "Read all of 53-5a-103; besides the occupant liability shield on the gun_rights line, the only addition is a clause that the section does not alter tenant duties under a lease, which changes nothing."
+  },
+  {
+   "key": "H.B. 209|2025GS|school_choice",
+   "lane": "utah",
+   "number": "H.B. 209",
+   "sitting": "2025GS",
+   "issue": "school_choice",
+   "title": "Homeschool Amendments",
+   "category": "sibling",
+   "priorWhy": "The only provision bearing on schooling options is the removed homeschool affidavit paperwork, already stated on the parental-rights line; the bill funds or creates no schooling alternative.",
+   "siblingLines": {
+    "edu_parental": "Removed affidavits for students who begin homeschooling at the start of an academic year and the parent criminal background attestation."
+   },
+   "enacted": true,
+   "enactedPer": "Governor Signed",
+   "provisions": "This bill: clarifies when a letter of intent to homeschool is required from parents; removes the requirement for parents to submit an affidavit for students who begin homeschooling at the start of an academic year; removes the requirement for parents to attest to criminal background history; establishes procedures for local school boards to process letters of intent; removes liability from local school boards after student unenrollment; and makes technical changes.",
+   "provisionsFrom": "https://le.utah.gov/data/2025GS/HB0209.json",
+   "textFrom": "https://le.utah.gov/Session/2025/bills/enrolled/HB0209.xml",
+   "decision": "refuse",
+   "why": "Read all of 53G-6-204; changes concern homeschool notification, record-keeping, and board liability; nothing funds vouchers or charters, and the notification change is homeschool paperwork already covered by the edu_parental line."
+  },
+  {
+   "key": "H.B. 219|2023GS|states_federal_power",
+   "lane": "utah",
+   "number": "H.B. 219",
+   "sitting": "2023GS",
+   "issue": "states_federal_power",
+   "title": "Firearms Regulations",
+   "category": "sibling",
+   "priorWhy": "The only provision tied to state-versus-federal authority is the refusal to enforce federal firearms regulations, which the gun_rights line already states; a second line would repeat it.",
+   "siblingLines": {
+    "gun_rights": "Declared that the state and its political subdivisions will not enforce federal regulations that purport to restrict or ban some firearms."
+   },
+   "enacted": true,
+   "enactedPer": "Governor Signed",
+   "provisions": "This bill: declares the state's commitment to the Second Amendment to the United States Constitution; and declares that the state and its political subdivisions will not enforce federal regulations that purport to restrict or ban certain firearms, ammunition, or firearms accessories.",
+   "provisionsFrom": "https://le.utah.gov/data/2023GS/HB0219.json",
+   "textFrom": "https://le.utah.gov/~2023/bills/hbillenr/HB0219.htm",
+   "decision": "refuse",
+   "why": "Read 53-5a-201 to 203; findings and the funding/resources bar are part of the same non-enforcement of federal firearm regulations already stated on the gun_rights line."
+  },
+  {
+   "key": "H.B. 246|2025GS|gov_transparency",
+   "lane": "utah",
+   "number": "H.B. 246",
+   "sitting": "2025GS",
+   "issue": "gov_transparency",
+   "title": "Statewide Online Education Program Amendments",
+   "category": "unrelated",
+   "priorWhy": "Line concerns a report card and performance reporting for online course providers (\"requires the state board to establish a report card for an authorized online course provider\"); nothing bears on government disclosure, member stock trading or ethics rules.",
+   "siblingLines": {},
+   "enacted": true,
+   "enactedPer": "Governor Signed",
+   "provisions": "This bill: authorizes the State Board of Education (state board) to conduct sample audits of online courses; expands performance reporting requirements for an authorized online course provider; requires the state board to establish a report card for an authorized online course provider; facilitates regular communication between an authorized online course provider and a primary LEA of enrollment; implements a model syllabus template for online courses; requires the state board to create a centralized registration system for parents and students; and makes technical changes.",
+   "provisionsFrom": "https://le.utah.gov/data/2025GS/HB0246.json",
+   "textFrom": "https://le.utah.gov/Session/2025/bills/enrolled/HB0246.xml",
+   "decision": "refuse",
+   "why": "Read all three sections; changes are performance reports, report cards, registration and dashboards for online course providers; nothing on government disclosure, ethics or official trading."
+  },
+  {
+   "key": "H.B. 256|2025GS|lands_local",
+   "lane": "utah",
+   "number": "H.B. 256",
+   "sitting": "2025GS",
+   "issue": "lands_local",
+   "title": "Municipal and County Zoning Amendments",
+   "category": "unrelated",
+   "priorWhy": "The issue concerns moving federal land decisions to states and counties; the provisions only address city and county regulation of short-term rentals, with no federal land element.",
+   "siblingLines": {
+    "property_rights": "Let cities and counties require a short-term rental owner to get a business license and request rental websites remove violating listings."
+   },
+   "enacted": true,
+   "enactedPer": "Governor Signed",
+   "provisions": "This bill: defines terms and modifies definitions; clarifies that a municipality or county that regulates short-term rentals may use a listing or offering on a short-term rental website as evidence that a short-term rental took place so long as the municipality or county has additional information to support its position that an owner or lessee violated a municipality or county ordinance; provides that a municipality or county may require the owner of a short-term rental to obtain a business license or other permit from the municipality or county to operate a short-term rental in the municipality or in an unincorporated area of the county; provides that a municipality or county may request a short-term rental website remove a listing or offering that violates business licensing requirements or zoning requirements; provides that a municipality or county that imposes transient room tax on short-term rentals may provide a listing or offering on a short-term rental website to the county auditor as evidence that a short-term rental owner or lessee may be subject to the transient room tax; and makes technical and conforming changes.",
+   "provisionsFrom": "https://le.utah.gov/data/2025GS/HB0256.json",
+   "textFrom": "https://le.utah.gov/Session/2025/bills/enrolled/HB0256.xml",
+   "decision": "refuse",
+   "why": "Read both sections; all changes concern city and county short-term rental regulation; nothing involves federal land."
+  },
+  {
+   "key": "H.B. 257|2024GS|privacy_rights",
+   "lane": "utah",
+   "number": "H.B. 257",
+   "sitting": "2024GS",
+   "issue": "privacy_rights",
+   "title": "Sex-based Designations for Privacy, Anti-bullying, and Women's Opportunities",
+   "category": "unrelated",
+   "priorWhy": "The privacy in this bill is physical privacy in restrooms, showers, and locker rooms; nothing in the provisions concerns personal data or Big Tech.",
+   "siblingLines": {
+    "lgbtq_rights": "Set a legal standard for sex-based distinctions in certain public settings and applied it to sex-designated restrooms and locker rooms."
+   },
+   "enacted": true,
+   "enactedPer": "Governor Signed",
+   "provisions": "This bill: defines terms; defines certain terms for the entire Utah Code; establishes a legal standard for distinctions on the basis of sex in certain publicly owned or controlled circumstances; establishes acceptable and prohibited distinctions on the basis of sex; enacts provisions regarding sex-designated restroom, shower, or locker room facilities that students use within the public education system; requires local education agencies to establish a privacy plan with parents and students in certain cases to address gender identity and fear of bullying; enacts provisions regarding sex-designated shower or locker room facilities where the general public has an expectation of privacy; establishes components of the crimes of voyeurism and criminal trespass for certain actions within a covered sex-designated shower or locker room; requires government entities to: report allegations of certain criminal offenses to law enforcement; adopt a privacy compliance plan; provide a single-occupant facility in new construction; and consider the feasibility of certain retrofit or remodel projects; provides indemnification for government entities for certain claims; requires the state auditor to investigate government entity compliance with certain requirements; requires the attorney general to impose fines on political subdivisions that fail to cure noncompliance that the state auditor identifies; amends certain crimes to establish a reasonable expectation of privacy in public restrooms, including enhanced penalties for: committing multiple offenses concurrently within a public restroom, shower, or locker room; and committing certain offenses within a public restroom, shower, or locker room that is designated for the opposite sex; enacts a criminal offense for loitering in a restroom, shower, or locker room where the general public has an expectation of privacy; establishes elements of the crime of emergency reporting abuse for making repeated false reports alleging a violation of a sex-designation in a publicly owned or controlled shower or locker room facility where the general public has an expectation of privacy; and makes technical and conforming changes.",
+   "provisionsFrom": "https://le.utah.gov/data/2024GS/HB0257.json",
+   "textFrom": "https://le.utah.gov/~2024/bills/hbillenr/HB0257.htm",
+   "decision": "refuse",
+   "why": "Searched the full bill for data, records, recording and electronic provisions; the changes concern physical privacy in restrooms and locker rooms, including voyeurism penalties there; nothing on personal data or Big Tech."
+  },
+  {
+   "key": "H.B. 269|2024GS|edu_parental",
+   "lane": "utah",
+   "number": "H.B. 269",
+   "sitting": "2024GS",
+   "issue": "edu_parental",
+   "title": "Public School History Curricula Amendments",
+   "category": "unrelated",
+   "priorWhy": "The bill only adds documents to a list curricula may include; it grants parents no right or say, so no line fits this issue.",
+   "siblingLines": {
+    "religious_liberty": "Added the Ten Commandments and the Magna Carta to the historical documents school curricula and activities may include for study."
+   },
+   "enacted": true,
+   "enactedPer": "Governor Signed",
+   "provisions": "This bill: defines terms; adds the \"Ten Commandments\" and the Magna Carta to a list of historical documents and principles that school curricula and activities may include for a thorough study; and makes technical and conforming changes.",
+   "provisionsFrom": "https://le.utah.gov/data/2024GS/HB0269.json",
+   "textFrom": "https://le.utah.gov/~2024/bills/hbillint/HB0269S01.htm",
+   "decision": "refuse",
+   "why": "Read 53G-10-302; the only change adds the Ten Commandments and Magna Carta to the study list, already the religious_liberty line; no parental right is added."
+  },
+  {
+   "key": "H.B. 273|2024GS|justice_reform",
+   "lane": "utah",
+   "number": "H.B. 273",
+   "sitting": "2024GS",
+   "issue": "justice_reform",
+   "title": "Sentencing Modifications for Certain DUI Offenses",
+   "category": "sibling",
+   "priorWhy": "The only sentencing provision is a new sentencing guideline for automobile homicide, already stated on the tough_on_crime line, and the provisions give no reform direction.",
+   "siblingLines": {
+    "tough_on_crime": "Created a sentencing guideline for automobile homicide and renamed the offense of negligently operating a vehicle resulting in death."
+   },
+   "enacted": true,
+   "enactedPer": "Governor Signed",
+   "provisions": "This bill: renames the offense of negligently operating a vehicle resulting in death; creates a sentencing guideline for automobile homicide; modifies the fee for an impounded vehicle; modifies who may elect to become an ignition interlock restricted driver; and makes technical changes.",
+   "provisionsFrom": "https://le.utah.gov/data/2024GS/HB0273.json",
+   "textFrom": "https://le.utah.gov/~2024/bills/hbillint/HB0273S04.htm",
+   "decision": "refuse",
+   "why": "Read all inserted text; the 5-to-15-year term with 3-year and suspension-on-record options is the automobile homicide sentencing guideline on the tough_on_crime line; other changes are renaming, an impound fee and interlock license cross-references."
+  },
+  {
+   "key": "H.B. 348|2023GS|edu_parental",
+   "lane": "utah",
+   "number": "H.B. 348",
+   "sitting": "2023GS",
+   "issue": "edu_parental",
+   "title": "Participation Waiver Amendments",
+   "category": "sibling",
+   "priorWhy": "The only operative provision concerns school response to religious or conscience-based non-participation, stated on the religious_liberty pair; nothing on parental say over curriculum is stated.",
+   "siblingLines": {
+    "religious_liberty": "Let a student refrain from any aspect of school violating a religious belief or right of conscience, without being required to justify it."
+   },
+   "enacted": true,
+   "enactedPer": "Governor Signed",
+   "provisions": "This bill: defines terms; clarifies how a school responds when a student refrains from participation in school due to a student's or a student's parent's religious belief or right of conscience, consistent with Utah Constitution, Article I, Section 4; grants the State Board of Education rulemaking authority; and makes technical and conforming changes.",
+   "provisionsFrom": "https://le.utah.gov/data/2023GS/HB0348.json",
+   "textFrom": "https://le.utah.gov/~2023/bills/hbillenr/HB0348.htm",
+   "decision": "refuse",
+   "why": "Read both sections; the parent waiver in 53G-10-205(4) and parent notice are the same religious/conscience opt-out already stated on the religious_liberty line, differing only in who invokes it; nothing gives parents say over curriculum content or materials."
+  },
+  {
+   "key": "H.B. 400|2023GS|public_schools",
+   "lane": "utah",
+   "number": "H.B. 400",
+   "sitting": "2023GS",
+   "issue": "public_schools",
+   "title": "School Absenteeism Amendments",
+   "category": "unrelated",
+   "priorWhy": "The issue is funding schools and raising teacher pay; the provisions only direct absenteeism strategies and duties, with no funding or pay change.",
+   "siblingLines": {},
+   "enacted": true,
+   "enactedPer": "Governor Signed",
+   "provisions": "This bill: directs local education agencies to include certain evidence-based strategies for children as part of their efforts to reduce student absenteeism; enacts new duties for the State Board of Education with respect to addressing chronic absenteeism prevention and intervention; and amends the responsibilities of the Division of Juvenile Justice and Youth Services to require the use of evidence-informed and research-informed interventions.",
+   "provisionsFrom": "https://le.utah.gov/data/2023GS/HB0400.json",
+   "textFrom": "https://le.utah.gov/~2023/bills/hbillenr/HB0400.htm",
+   "decision": "refuse",
+   "why": "Read all sections; changes direct absenteeism interventions and state board duties; no funding, appropriation or teacher pay change."
+  },
+  {
+   "key": "H.B. 42|2023GS|econ_growth",
+   "lane": "utah",
+   "number": "H.B. 42",
+   "sitting": "2023GS",
+   "issue": "econ_growth",
+   "title": "Technology Commercialization Amendments",
+   "category": "sibling",
+   "priorWhy": "The only provision tied to this issue is the Utah innovation fund investing in technology commercialization, which the tech_innovation line already states; nothing touches regulation or taxes.",
+   "siblingLines": {
+    "tech_innovation": "Required the Utah Innovation Lab to run the Utah innovation fund for investing in businesses developed through technology commercialization."
+   },
+   "enacted": true,
+   "enactedPer": "Governor Signed",
+   "provisions": "This bill: enacts the Utah Innovation Lab Act; defines terms; creates the Utah Innovation Lab (innovation lab) and provides for the innovation lab's powers and purposes; establishes a board to govern the innovation lab and provides for the board membership, terms, and responsibilities, and provides certain limits on board members; requires the innovation lab to organize and administer the Utah innovation fund for the purpose of investing in businesses developed in the state through technology commercialization; provides for the Utah innovation fund's powers and purposes; and requires the innovation lab to comply with certain audit and reporting requirements.",
+   "provisionsFrom": "https://le.utah.gov/data/2023GS/HB0042.json",
+   "textFrom": "https://le.utah.gov/~2023/bills/hbillenr/HB0042.htm",
+   "decision": "refuse",
+   "why": "Read all seven enacted sections and the appropriation: board, fund, investment purposes, report and audit duties and a $15,000,000 one-time appropriation; no section cuts a regulation or a tax, so nothing beyond the tech_innovation fund line bears on deregulation."
+  },
+  {
+   "key": "H.B. 497|2025GS|public_schools",
+   "lane": "utah",
+   "number": "H.B. 497",
+   "sitting": "2025GS",
+   "issue": "public_schools",
+   "title": "Public Education Compliance",
+   "category": "unrelated",
+   "priorWhy": "The provisions set board compliance, complaint and publication duties and data-reporting duties for districts; nothing in them funds schools or raises teacher pay, and the publication duty is already stated on the transparency line.",
+   "siblingLines": {
+    "gov_transparency": "Required the State Board of Education to post meeting information on its website and use a compliance framework for noncompliance."
+   },
+   "enacted": true,
+   "enactedPer": "Governor Signed",
+   "provisions": "This bill: requires the state board to: use an existing compliance framework to address reports or allegations of noncompliance; develop a system to address complaints to the Utah Professional Practices Advisory Commission in a timely and expedient manner; and publish information related to state board meetings on the state board's website; may require the state board to issue a report; requires a school district or charter school to provide information to the state board that is necessary for the state board to fulfill a statutory data gathering, compliance, or reporting requirement; and makes technical and conforming changes.",
+   "provisionsFrom": "https://le.utah.gov/data/2025GS/HB0497.json",
+   "textFrom": "https://le.utah.gov/Session/2025/bills/enrolled/HB0497.xml",
+   "decision": "refuse",
+   "why": "Checked every insert and strike: compliance procedures and remedies (including reimbursement instead of future allocations), vote-record posting, UPPAC complaints, and district/charter data duties; none raises teacher pay or funds schools or classrooms."
+  },
+  {
+   "key": "H.B. 512|2025GS|judicial_check",
+   "lane": "utah",
+   "number": "H.B. 512",
+   "sitting": "2025GS",
+   "issue": "judicial_check",
+   "title": "Judicial Retention Changes",
+   "category": "unrelated",
+   "priorWhy": "The provisions create a legislative committee to evaluate state judges for retention; they say nothing about courts checking executive action, which is what this issue covers.",
+   "siblingLines": {},
+   "enacted": false,
+   "enactedPer": "House/ filed",
+   "provisions": "This bill: modifies the ballot requirements for judicial retention elections; modifies the information contained in the voter information pamphlet for judicial retention elections; requires the lieutenant governor to transmit a retention recommendation from the Joint Legislative Committee on Judicial Performance to a county clerk; amends the ballot language for a judicial retention election to address a retention recommendation from the Joint Legislative Committee on Judicial Performance; provides that certain records for the Joint Legislative Committee on Judicial Performance are private; requires the Judicial Conduct Committee to provide records to the Joint Legislative Committee on Judicial Performance under certain conditions; defines terms related to judicial performance evaluations; requires the Judicial Performance Evaluation Commission to provide the Joint Legislative Committee on Judicial Performance with a list of judges who are subject to a retention election in the next scheduled regular general election; creates the Joint Legislative Committee on Judicial Performance; addresses the membership, length of appointment, selection of the chairs, quorum requirements, and compensation for the Joint Legislative Committee on Judicial Performance; allows the Joint Legislative Committee on Judicial Performance to evaluate a judge and provide a recommendation to the public as to whether the judge should be retained for another term; provides the evaluation and recommendation process for the Joint Legislative Committee on Judicial Performance, including requiring the Joint Legislative Committee on Judicial Performance to: hold any committee meeting to evaluate a judge before August 15 of the year in which the judge is subject to a retention election in a regular general election; and provide a retention recommendation for a judge to the lieutenant governor on or before August 15 of the year in which the judge is subject to a retention election in a regular general election; and makes technical and conforming changes.",
+   "provisionsFrom": "https://le.utah.gov/data/2025GS/HB0512.json",
+   "textFrom": "https://le.utah.gov/Session/2025/bills/introduced/HB0512S01.xml",
+   "decision": "refuse",
+   "why": "The body amends 78A-12-206 (a public education campaign on judicial performance evaluations) plus a $14,400 appropriation; it concerns state judge retention and says nothing about courts halting executive action."
+  },
+  {
+   "key": "H.B. 562|2025GS|back_police",
+   "lane": "utah",
+   "number": "H.B. 562",
+   "sitting": "2025GS",
+   "issue": "back_police",
+   "title": "Law Enforcement and Criminal Justice Amendments",
+   "category": "unrelated",
+   "priorWhy": "The provisions cover probation standards, debt collection, pretrial release procedure and restitution; none funds police or raises penalties for violent crime.",
+   "siblingLines": {
+    "tough_on_crime": "Let the Office of State Debt Collection collect a civil judgment of restitution and extended garnishments to wages held by a third party."
+   },
+   "enacted": true,
+   "enactedPer": "Governor Signed",
+   "provisions": "This bill: requires that counties offering probation services adopt certain probation standards and practices; modifies definitions; provides that the Office of State Debt Collection has the authority to collect civil accounts receivable or a civil judgment of restitution and interest thereon; provides that administrative garnishments also apply to a debtor's property or wages that are under control of a third party; requires the Office of State Debt Collection to provide an accounting of the unpaid balance of a defendant's criminal accounts receivable at the time of termination of the defendant's sentence; provides repayment procedures for any unpaid balance of a defendant's criminal accounts receivable upon termination of a sentence; provides circumstances that constitute a material change in circumstances; adds requirements for temporary pretrial status orders of detention; modifies provisions relating to factors for pretrial release requirements; provides that a request for a pretrial release at an initial appearance does not constitute a pretrial detention hearing; requires a court to make findings of fact when making a determination regarding pretrial release; adds a financial condition schedule to aid a court in determining the amount of a fixed financial condition; requires a judge to take certain actions if the judge is unable to hold a pretrial detention hearing before a certain deadline; provides for required procedures when a no bail hold is requested; provides that certain Board of Pardons and Parole decisions on restitution are final and not subject to judicial review; codifies order of restitution procedures that apply to certain offenders sentenced before July 1, 2021; provides procedures for the accounting and payment of restitution owed to various state governmental entities; permits a sentencing court to authorize the deposit of funds in certain interest-bearing accounts when distribution to a victim is pending; permits the Board of Pardons and Parole to order recovery of fees incurred on behalf of a sentenced offender in addition to the existing ability to recover costs; makes coordinating modifications related to docket entry and interest assessments; permits a court to set restitution for a juvenile sentenced to prison; includes a coordination clause that requires changes to a section of this bill supersede the changes to that section in H.B. 312, Criminal Justice Amendments; and makes technical and grammatical changes.",
+   "provisionsFrom": "https://le.utah.gov/data/2025GS/HB0562.json",
+   "textFrom": "https://le.utah.gov/Session/2025/bills/enrolled/HB0562.xml",
+   "decision": "refuse",
+   "why": "Read probation, debt collection, pretrial and restitution changes; the closest is detention keyed to habitual offender status and a bail schedule, which are pretrial rules, not police funding or tougher penalties for violent crime."
+  },
+  {
+   "key": "H.B. 68|2024GS|justice_reform",
+   "lane": "utah",
+   "number": "H.B. 68",
+   "sitting": "2024GS",
+   "issue": "justice_reform",
+   "title": "Drug Sentencing Modifications",
+   "category": "sibling",
+   "priorWhy": "The bill’s only operative provision is the required indeterminate prison term for armed drug distribution, which the tough_on_crime line states; the provisions contain no separate sentencing-reform change.",
+   "siblingLines": {
+    "tough_on_crime": "Required, with certain exceptions, an indeterminate prison term for distributing drugs with a dangerous weapon readily accessible."
+   },
+   "enacted": true,
+   "enactedPer": "Governor Signed",
+   "provisions": "This bill: requires a court, with certain exceptions, to sentence an individual convicted of distributing drugs to an indeterminate prison term if the individual, while distributing the drugs, intentionally or knowingly: had a dangerous weapon readily accessible for immediate use; or distributed a firearm or possessed a firearm with intent to distribute the firearm; and makes technical and conforming changes.",
+   "provisionsFrom": "https://le.utah.gov/data/2024GS/HB0068.json",
+   "textFrom": "https://le.utah.gov/~2024/bills/hbillamd/HB0068S02.htm",
+   "decision": "refuse",
+   "why": "The struck one-year consecutive firearm term in 58-37-8(1)(c) is replaced in the same subsection by the required indeterminate prison term the tough_on_crime line states; a line saying only that the term was struck would read as lighter sentencing, which the subsection as a whole does not do."
+  },
+  {
+   "key": "H.Con.Res. 108|119|strong_defense",
+   "lane": "federal",
+   "number": "H.Con.Res. 108",
+   "sitting": "119",
+   "issue": "strong_defense",
+   "title": "Directing the President pursuant to section 5(c) of the War Powers Resolution to remove United States Armed Forces from hostilities in Lebanon.",
+   "category": "sibling",
+   "priorWhy": "The rationale's one effect, removing U.S. forces from hostilities in Lebanon, is what the act's restraint line already says; the rest only describes a yea's direction. (Recorded in db/vr-blank-rows-slice10.json; reread against the measure’s text on file, which changes nothing here.)",
+   "siblingLines": {
+    "restraint": "Would have directed U.S. forces out of any hostilities in Lebanon within seven days; the House rejected it 189-235.",
+    "war_powers": "Would have invoked the War Powers Resolution on Lebanon hostilities absent congressional authorization; the House rejected it 189-235."
+   },
+   "status": "failed",
+   "members": 108,
+   "textFrom": "https://www.govinfo.gov/content/pkg/BILLS-119hconres108ih/html/BILLS-119hconres108ih.htm",
+   "decision": "refuse",
+   "why": "Read all three sections: the only operative clause is the 7-day removal from Lebanon hostilities (restraint/war_powers lines); Secs. 2-3 are rules of construction preserving security cooperation and denying authorization, not separate requirements."
+  },
+  {
+   "key": "H.Con.Res. 89|119|strong_defense",
+   "lane": "federal",
+   "number": "H.Con.Res. 89",
+   "sitting": "119",
+   "issue": "strong_defense",
+   "title": "Directing the President, pursuant to section 5(c) of the War Powers Resolution, to remove United States Armed Forces from hostilities with Iran.",
+   "category": "sibling",
+   "priorWhy": "The rationale's one effect, removing U.S. forces from hostilities with Iran absent authorization, is what the act's iran_policy and restraint lines already say; the rest only describes a yea's direction. (Recorded in db/vr-blank-rows-slice10.json; reread against the measure’s text on file, which changes nothing here.)",
+   "siblingLines": {
+    "iran_policy": "Directs the President to remove U.S. forces from hostilities with Iran, keeping self-defense; the House agreed to it 214-208.",
+    "restraint": "Would direct U.S. forces out of Iran hostilities, keeping self-defense and intelligence sharing; the House agreed to it 214-208.",
+    "war_powers": "Would invoke the War Powers Resolution against hostilities with Iran absent congressional authorization; the House agreed to it 214-208."
+   },
+   "status": "passed_house",
+   "members": 108,
+   "textFrom": "https://www.govinfo.gov/content/pkg/BILLS-119hconres89eh/html/BILLS-119hconres89eh.htm",
+   "decision": "refuse",
+   "why": "Sec. 1(a) removal from Iran hostilities is already the iran_policy/restraint/war_powers lines; Sec. 1(b), 2 and 3 are rules of construction (self-defense, troop presence, intelligence sharing, no authorization) that siblings already note or that impose nothing."
+  },
+  {
+   "key": "H.R. 1949|119|econ_trade",
+   "lane": "federal",
+   "number": "H.R. 1949",
+   "sitting": "119",
+   "issue": "econ_trade",
+   "title": "Unlocking our Domestic LNG Potential Act of 2025",
+   "category": "sibling",
+   "priorWhy": "The rationale states an aim only (\"Aims to grow U.S. energy exports\"), not something the bill does. (Recorded in db/vr-blank-rows-slice9.json; reread against the measure’s text on file, which changes nothing here.)",
+   "siblingLines": {
+    "energy_production": "Would give FERC exclusive authority over natural gas export and import facilities and deem those exports and imports in the public interest.",
+    "permitting_reform": "Would eliminate the Energy Department’s separate approval step and consolidate permitting at FERC.",
+    "climate_action": "Would end the review stage at which the emissions and price effects of an export are weighed."
+   },
+   "status": "passed_house",
+   "members": 109,
+   "textFrom": "https://www.govinfo.gov/content/pkg/BILLS-119hr1949eh/html/BILLS-119hr1949eh.htm",
+   "decision": "refuse",
+   "why": "Sec. 2 only moves export/import approval to FERC and deems it in the public interest (sibling lines); new subsection (d) is a savings clause keeping presidential sanctions authority, not a tariff or trade-rule change."
+  },
+  {
+   "key": "H.R. 26|119|gov_regulation",
+   "lane": "federal",
+   "number": "H.R. 26",
+   "sitting": "119",
+   "issue": "gov_regulation",
+   "title": "Protecting American Energy Production Act",
+   "category": "sibling",
+   "priorWhy": "the rationale's one fact, barring a federal fracking ban, is the enviro_energy line's own subject. (Recorded in db/vr-blank-rows-slice9.json; reread against the measure’s text on file, which changes nothing here.)",
+   "siblingLines": {
+    "enviro_energy": "Would bar a federal fracking moratorium to protect and expand domestic oil and gas production; the House passed it 226-188.",
+    "energy_production": "Would bar the President from declaring a fracking moratorium unless an Act of Congress authorizes it; the House passed it 226-188.",
+    "states_federal_power": "Would keep the decision with the states rather than Washington on regulating hydraulic fracturing; the House passed it 226-188."
+   },
+   "status": "passed_house",
+   "members": 109,
+   "textFrom": "https://www.govinfo.gov/content/pkg/BILLS-119hr26eh/html/BILLS-119hr26eh.htm",
+   "decision": "refuse",
+   "why": "Sec. 2 has only a sense of Congress on state primacy and the bar on a presidential fracking moratorium absent an Act of Congress, both already the energy_production/states_federal_power lines; no regulatory-review or regulation-cutting provision."
+  },
+  {
+   "key": "H.R. 26|119|lands_energy",
+   "lane": "federal",
+   "number": "H.R. 26",
+   "sitting": "119",
+   "issue": "lands_energy",
+   "title": "Protecting American Energy Production Act",
+   "category": "sibling",
+   "priorWhy": "the rationale (\"Concerns energy development on and under public and private lands\") states a topic, not an effect. (Recorded in db/vr-blank-rows-slice9.json; reread against the measure’s text on file, which changes nothing here.)",
+   "siblingLines": {
+    "enviro_energy": "Would bar a federal fracking moratorium to protect and expand domestic oil and gas production; the House passed it 226-188.",
+    "energy_production": "Would bar the President from declaring a fracking moratorium unless an Act of Congress authorizes it; the House passed it 226-188.",
+    "states_federal_power": "Would keep the decision with the states rather than Washington on regulating hydraulic fracturing; the House passed it 226-188."
+   },
+   "status": "passed_house",
+   "members": 109,
+   "textFrom": "https://www.govinfo.gov/content/pkg/BILLS-119hr26eh/html/BILLS-119hr26eh.htm",
+   "decision": "refuse",
+   "why": "The single operative clause (Sec. 2(b), no presidential fracking moratorium without an Act of Congress) is already the energy_production and enviro_energy lines; nothing else in the act touches resource development."
+  },
+  {
+   "key": "H.R. 27|119|health_mental",
+   "lane": "federal",
+   "number": "H.R. 27",
+   "sitting": "119",
+   "issue": "health_mental",
+   "title": "HALT Fentanyl Act",
+   "category": "sibling",
+   "priorWhy": "the rationale's one effect, permanent scheduling of fentanyl-related substances, is the immig_fentanyl line's own subject; the rest names a topic. (Recorded in db/vr-blank-rows-slice9.json; reread against the measure’s text on file, which changes nothing here.)",
+   "siblingLines": {
+    "immig_fentanyl": "Would toughen federal scheduling of fentanyl-related substances to fight the overdose crisis; the House passed it 312-108.",
+    "tough_on_crime": "Would make Schedule I placement permanent and attach mandatory penalties; the House passed it 312-108."
+   },
+   "status": "passed_house",
+   "members": 109,
+   "textFrom": "https://www.govinfo.gov/content/pkg/BILLS-119hr27eh/html/BILLS-119hr27eh.htm",
+   "decision": "refuse",
+   "why": "Checked Secs. 2-7: scheduling and penalties are the sibling lines; Sec. 3 streamlines Schedule I research registration, Sec. 4 fixes cross-references, Sec. 5 rulemaking; none expands mental-health or addiction treatment as such."
+  },
+  {
+   "key": "H.R. 28|119|edu_parental",
+   "lane": "federal",
+   "number": "H.R. 28",
+   "sitting": "119",
+   "issue": "edu_parental",
+   "title": "Protection of Women and Girls in Sports Act",
+   "category": "sibling",
+   "priorWhy": "the rationale states only how a vote aligns with a position; its one fact, the sex-at-birth definition, is the edu_balance row's own subject. (Recorded in db/vr-blank-rows-slice9.json; reread against the measure’s text on file, which changes nothing here.)",
+   "siblingLines": {
+    "lgbtq_rights": "Would restrict transgender athletes’ participation in school and college sports for women and girls; the House passed it 218-206.",
+    "public_schools": "Would apply to federally funded school and college athletic programs under Title IX; the House passed it 218-206.",
+    "edu_balance": "Would set a federal rule for how sex is defined in school sports eligibility; the House passed it 218-206."
+   },
+   "status": "passed_house",
+   "members": 110,
+   "textFrom": "https://www.govinfo.gov/content/pkg/BILLS-119hr28eh/html/BILLS-119hr28eh.htm",
+   "decision": "refuse",
+   "why": "Sec. 2 only sets the Title IX sports rule, sex definition, a training/practice carve-out and a GAO study; nothing gives parents a say over curriculum, library materials or instruction."
+  },
+  {
+   "key": "H.R. 4|119|america_first",
+   "lane": "federal",
+   "number": "H.R. 4",
+   "sitting": "119",
+   "issue": "america_first",
+   "title": "Rescissions Act of 2025",
+   "category": "sibling",
+   "priorWhy": "the rationale restates the $7.9 billion foreign-assistance rescission that the act's cut-spending and America First foreign policy lines already carry, so a line would borrow a sibling's fact. (Recorded in db/vr-blank-rows-slice9.json; reread against the measure’s text on file, which changes nothing here.)",
+   "siblingLines": {
+    "america_first_fp": "Rescinded about $7.9 billion in foreign-assistance balances, development aid among them; the House passed it 214-212, the Senate 51-48.",
+    "cut_spending": "Cancelled unobligated balances for the State Department, USAID and public broadcasting; the House cleared it 214-212, the Senate 51-48.",
+    "gov_waste": "Returned roughly $9 billion of enacted budget authority to the Treasury unspent; the House cleared it 214-212, the Senate 51-48.",
+    "national_debt": "Reduced federal outlays by the rescinded balances, below the House’s $9.4 billion; the House cleared it 214-212, the Senate 51-48.",
+    "audit_spending": "Codified DOGE-identified cuts through the Impoundment Control Act’s rescission process; the House cleared it 214-212, the Senate 51-48.",
+    "gov_services": "Cut funding for public-media and international programs, reducing those services; the House cleared it 214-212, the Senate 51-48.",
+    "free_speech": "Ended federal funding for NPR and PBS member stations; the House cleared it 214-212, the Senate 51-48."
+   },
+   "status": "enacted",
+   "members": 210,
+   "textFrom": "https://www.govinfo.gov/content/pkg/BILLS-119hr4enr/html/BILLS-119hr4enr.htm",
+   "decision": "refuse",
+   "why": "Sec. 2(b) rescinds unobligated balances for Contributions to International Organizations and peacekeeping, which are State Department accounts: the act’s cut_spending line (“Cancelled unobligated balances for the State Department, USAID and public broadcasting”) already states them, so a line would restate a part of a sibling’s total."
+  },
+  {
+   "key": "H.R. 8|117|gun_rights",
+   "lane": "federal",
+   "number": "H.R. 8",
+   "sitting": "117",
+   "issue": "gun_rights",
+   "title": "Bipartisan Background Checks Act of 2021",
+   "category": "sibling",
+   "priorWhy": "“Bipartisan Background Checks Act of 2021” names its subject but not what it would change about background checks. (Recorded in db/vr-title-effect-lines.json; reread against the measure’s text on file, which changes nothing here.)",
+   "siblingLines": {
+    "gun_safety": "Would have extended background checks to the private-sale channel, routing unlicensed transfers through a licensed dealer."
+   },
+   "status": "passed_house",
+   "members": 101,
+   "textFrom": "https://www.govinfo.gov/content/pkg/BILLS-117hr8eh/html/BILLS-117hr8eh.htm",
+   "decision": "refuse",
+   "why": "Sec. 3 routes unlicensed transfers through a dealer (gun_safety line); the remaining clauses are exceptions, a dealer notice/certification form supporting that regime, a penalty cross-reference, and rules of construction (no registry); no clearly separate gun-rights change."
+  },
+  {
+   "key": "S.B. 102|2025GS|gov_transparency",
+   "lane": "utah",
+   "number": "S.B. 102",
+   "sitting": "2025GS",
+   "issue": "gov_transparency",
+   "title": "Public Education Reporting Amendments",
+   "category": "unrelated",
+   "priorWhy": "Provision only \"mandates regular program reviews by the Education Interim Committee for certain programs\"; nothing on disclosure, stock trading or ethics rules.",
+   "siblingLines": {},
+   "enacted": true,
+   "enactedPer": "Governor Signed",
+   "provisions": "This bill: mandates regular program reviews by the Education Interim Committee for certain programs; and makes technical changes.",
+   "provisionsFrom": "https://le.utah.gov/data/2025GS/SB0102.json",
+   "textFrom": "https://le.utah.gov/Session/2025/bills/enrolled/SB0102.xml",
+   "decision": "refuse",
+   "why": "The only change adds five-year Education Interim Committee reviews of listed education programs (plus a conjunction edit); it adds no disclosure, trading ban, or ethics rule."
+  },
+  {
+   "key": "S.B. 102|2025GS|public_schools",
+   "lane": "utah",
+   "number": "S.B. 102",
+   "sitting": "2025GS",
+   "issue": "public_schools",
+   "title": "Public Education Reporting Amendments",
+   "category": "sibling",
+   "priorWhy": "The only operative provision is the Education Interim Committee program review, already stated on the transparency pair; the provisions do not say the programs are public school programs or change them.",
+   "siblingLines": {},
+   "enacted": true,
+   "enactedPer": "Governor Signed",
+   "provisions": "This bill: mandates regular program reviews by the Education Interim Committee for certain programs; and makes technical changes.",
+   "provisionsFrom": "https://le.utah.gov/data/2025GS/SB0102.json",
+   "textFrom": "https://le.utah.gov/Session/2025/bills/enrolled/SB0102.xml",
+   "decision": "refuse",
+   "why": "The inserted Subsection (3) only schedules five-year Education Interim Committee reviews of programs such as the Teacher and Student Success Program; reviewing a program neither funds schools nor raises teacher pay."
+  },
+  {
+   "key": "S.B. 208|2024GS|transit",
+   "lane": "utah",
+   "number": "S.B. 208",
+   "sitting": "2024GS",
+   "issue": "transit",
+   "title": "Housing and Transit Reinvestment Zone Amendments",
+   "category": "unrelated",
+   "priorWhy": "The provisions change zone size, affordability thresholds and tax increment capture; none states a change to transit service, and the increment change is on the other pair’s line.",
+   "siblingLines": {
+    "housing": "Required 12% of the homes proposed in a housing and transit reinvestment zone to be reserved for set income levels.",
+    "dev_district_finance": "Limited a housing and transit reinvestment zone to one sales and use tax increment period and required it to be at least 10 acres."
+   },
+   "enacted": true,
+   "enactedPer": "Governor Signed",
+   "provisions": "This bill: amends definitions related to housing and transit reinvestment zones; amends provisions related to affordable housing thresholds to require 12% of the proposed dwelling units be reserved for certain levels of income; requires affordable housing requirements be met in each phase of development; requires that a housing and transit reinvestment zone be at least 10 acres; clarifies notice requirements to certain entities regarding the commencement of collection of tax increment; clarifies information required in a housing and transit reinvestment zone proposal; adds two additional members of the Legislature to the housing and transit reinvestment zone committee; amends provisions regarding overlap of a housing and transit reinvestment zone with a community reinvestment project area; amends provisions related to the sales and use tax increment captured within a housing and transit reinvestment zone, including: how base year is established; contiguity of affected sales and use tax boundaries; and limiting a housing and transit reinvestment zone to only one sales and use tax increment period; amends the amount of housing and transit reinvestment zone funds allowed for administration of the housing and transit reinvestment zone; allows minor adjustments to a housing and transit reinvestment zone if the county assessor or county auditor adjusts parcel boundaries; and makes technical changes.",
+   "provisionsFrom": "https://le.utah.gov/data/2024GS/SB0208.json",
+   "textFrom": "https://le.utah.gov/~2024/bills/sbillamd/SB0208S02.htm",
+   "decision": "refuse",
+   "why": "Checked all inserts: affordability thresholds, density at transit hubs and BRT stations, light rail radius for two stations, 10-acre minimum and tax increment rules; these govern housing zones around transit, not transit service itself."
+  },
+  {
+   "key": "S.B. 210|2024GS|gov_regulation",
+   "lane": "utah",
+   "number": "S.B. 210",
+   "sitting": "2024GS",
+   "issue": "gov_regulation",
+   "title": "Optometrist Practice Amendments",
+   "category": "unrelated",
+   "priorWhy": "The provisions create a state certification for optometrist laser procedures with training and reporting duties; nothing concerns federal regulations, so no faithful line fits this issue.",
+   "siblingLines": {},
+   "enacted": false,
+   "enactedPer": "Senate/ filed",
+   "provisions": "This bill: creates a certification for an optometrist to perform certain laser procedures; requires an optometrist to obtain training to obtain the certification; requires a certified optometrist to comply with reporting requirements and other standards; requires the Office of Professional Licensure Review to make a recommendation after reviewing outcome data on whether optometrists should continue performing the laser procedures; and creates a sunset date.",
+   "provisionsFrom": "https://le.utah.gov/data/2024GS/SB0210.json",
+   "textFrom": "https://le.utah.gov/~2024/bills/sbillint/SB0210.htm",
+   "decision": "refuse",
+   "why": "The bill creates a state optometrist laser-procedure certification with training, reporting and a sunset; no text mentions federal regulations or their review."
+  },
+  {
+   "key": "S.B. 262|2025GS|housing_first_time",
+   "lane": "utah",
+   "number": "S.B. 262",
+   "sitting": "2025GS",
+   "issue": "housing_first_time",
+   "title": "Housing Affordability Modifications",
+   "category": "sibling",
+   "priorWhy": "The first-time homebuyer provisions (lender rules and the shared appreciation loan program) are what the bill’s shipped Housing line already says; the insurance incentive is only a rule the corporation is directed to make, and is not tied to first-time buyers.",
+   "siblingLines": {
+    "housing": "Created a shared appreciation loan program and had the Utah Housing Corporation set rules for lenders of first-time homebuyer loans.",
+    "housing_support": "Let counties and municipalities use home ownership promotion zone funds for water exaction, street lighting, and environmental remediation."
+   },
+   "enacted": true,
+   "enactedPer": "Governor Signed",
+   "provisions": "This bill: defines terms; amends provisions allowing revenue from a home ownership promotion zone to be used for certain purposes; enacts provisions allowing legislative bodies to settle certain litigation through a consent agreement; allows a county and municipality to use home ownership promotion zone funds for all or part of water exaction, street lighting, and environmental remediation costs; requires a county to comply with land use provisions for all pending and new land use applications; directs the Utah Housing Corporation to make rules regarding: procedures, qualifications, and requirements for private financial institutions that offer certain mortgage loans to first-time homebuyers; and the creation of an incentive program for qualified buyers to assist certain borrowers with the purchase of liability insurance for certain qualifying projects; provides that first-time home buyers may use certain mortgage loans for specified purposes; creates a subordinate shared appreciation loan program to be administered by the Department of Workforce Services to assist borrowers for certain purposes; and makes technical and conforming changes.",
+   "provisionsFrom": "https://le.utah.gov/data/2025GS/SB0262.json",
+   "textFrom": "https://le.utah.gov/Session/2025/bills/enrolled/SB0262.xml",
+   "decision": "refuse",
+   "why": "Read the First-Time Homebuyer Assistance Program and shared appreciation loan sections; the only other change there is a construction liability insurance incentive for qualified borrowers on condominium projects, a rule directive not tied to first-time buyers beyond the sibling line."
+  },
+  {
+   "key": "S.B. 272|2025GS|edu_parental",
+   "lane": "utah",
+   "number": "S.B. 272",
+   "sitting": "2025GS",
+   "issue": "edu_parental",
+   "title": "Micro-education Entity Amendments",
+   "category": "unrelated",
+   "priorWhy": "The provisions concern facility occupancy and square footage rules and the definition of school; nothing in them changes parental say over curriculum or instruction.",
+   "siblingLines": {
+    "school_choice": "Removed certain square footage requirements and expanded facilities where a micro-education entity or home-based microschool may operate."
+   },
+   "enacted": true,
+   "enactedPer": "Governor Signed",
+   "provisions": "This bill: expands the types of facilities in which a micro-education entity or home-based microschool may operate by expanding the sets of occupancy requirements the facility may satisfy; removes certain square footage requirements; and excludes a micro-education entity or home-based microschool from a definition of \"school\" that subjects schools to certain administrative regulations.",
+   "provisionsFrom": "https://le.utah.gov/data/2025GS/SB0272.json",
+   "textFrom": "https://le.utah.gov/Session/2025/bills/enrolled/SB0272.xml",
+   "decision": "refuse",
+   "why": "Changes strike square footage rules, expand facility occupancy options, and exclude microschools from a health-code definition of school; none gives parents say over curriculum or materials."
+  },
+  {
+   "key": "S.B. 296|2025GS|judicial_check",
+   "lane": "utah",
+   "number": "S.B. 296",
+   "sitting": "2025GS",
+   "issue": "judicial_check",
+   "title": "Judicial Amendments",
+   "category": "unrelated",
+   "priorWhy": "The bill changes who appoints the chief justice; it says nothing about court orders on executive action, which is this issue.",
+   "siblingLines": {},
+   "enacted": false,
+   "enactedPer": "Governor Vetoed",
+   "provisions": "This bill: modifies provisions governing the membership and internal management of the Supreme Court; provides that the governor shall appoint a chief justice of the Supreme Court (chief justice) when a vacancy in the office occurs; modifies provisions related to an interim chief justice and appointment procedures; requires that a governor's selection for chief justice is subject to the advice and consent of the Senate; and makes conforming changes.",
+   "provisionsFrom": "https://le.utah.gov/data/2025GS/SB0296.json",
+   "textFrom": "https://le.utah.gov/Session/2025/bills/enrolled/SB0296.xml",
+   "decision": "refuse",
+   "why": "The only change moves chief justice selection to governor appointment with Senate consent and adjusts interim rules; nothing concerns court orders on executive action."
+  },
+  {
+   "key": "S.J.Res. 37|119|cost_living",
+   "lane": "federal",
+   "number": "S.J.Res. 37",
+   "sitting": "119",
+   "issue": "cost_living",
+   "title": "A joint resolution to terminate the national emergency declared to impose duties on articles imported from Canada",
+   "category": "sibling",
+   "priorWhy": "The rationale's one effect, removing the import taxes by ending the tariff emergency, is what the act's tariffs_prices line already says; the rest reports what supporters say about prices. (Recorded in db/vr-blank-rows-slice13.json; reread against the measure’s text on file, which changes nothing here.)",
+   "siblingLines": {
+    "tariffs_prices": "Would have ended the emergency behind the tariffs on Canadian imports, lifting those duties; the Senate passed it 51-48."
+   },
+   "status": "passed_senate",
+   "members": 100,
+   "textFrom": "https://www.govinfo.gov/content/pkg/BILLS-119sjres37es/html/BILLS-119sjres37es.htm",
+   "decision": "refuse",
+   "why": "Single clause terminating the Canada tariff emergency under the National Emergencies Act; that is the tariffs_prices line and nothing else in the text bears on prices."
+  },
+  {
+   "key": "S.J.Res. 59|119|foreign_balance",
+   "lane": "federal",
+   "number": "S.J.Res. 59",
+   "sitting": "119",
+   "issue": "foreign_balance",
+   "title": "A joint resolution to direct the removal of United States Armed Forces from hostilities against the Islamic Republic of Iran that have not been authorized by Congress",
+   "category": "sibling",
+   "priorWhy": "The rationale (\"Concerns the scope and restraint of U.S. military involvement abroad\") states a topic, not an effect; the act's one effect is already the iran_policy and strong_defense lines' subject. (Recorded in db/vr-blank-rows-slice13.json; reread against the measure’s text on file, which changes nothing here.)",
+   "siblingLines": {
+    "iran_policy": "Would have ordered U.S. forces out of hostilities against Iran that Congress had not authorized; the Senate refused to discharge it 47-53.",
+    "strong_defense": "Would have pulled U.S. forces from Iran hostilities until Congress authorized them; the Senate refused to discharge it 47-53."
+   },
+   "status": "failed",
+   "members": 100,
+   "textFrom": "https://www.govinfo.gov/content/pkg/BILLS-119sjres59is/html/BILLS-119sjres59is.htm",
+   "decision": "refuse",
+   "why": "Sec. 1 is findings; Sec. 2 directs termination of unauthorized Iran hostilities with a self-defense rule of construction, already the iran_policy/strong_defense lines; nothing on NATO, allies or diplomacy."
+  }
+ ],
+ "notReopened": [
+  {
+   "key": "H.B. 307|2023GS|water",
+   "category": "earlierPass",
+   "why": "Read against its bill’s provisions and body text in v386, which found no clear change; not reopened."
+  },
+  {
+   "key": "H.B. 413|2025GS|cannabis_reform",
+   "category": "bodyConfirmed",
+   "why": "Read in its bill body by v389 and confirmed silent there; not reopened."
+  },
+  {
+   "key": "H.B. 538|2023GS|water",
+   "category": "earlierPass",
+   "why": "Read against its bill’s provisions and body text in v386, which found no clear change; not reopened."
+  },
+  {
+   "key": "H.B. 62|2024GS|water",
+   "category": "earlierPass",
+   "why": "Read against its bill’s provisions and body text in v386, which found no clear change; not reopened."
+  },
+  {
+   "key": "H.J. Res. 46|116|border_security",
+   "category": "execOnly",
+   "why": "No vote row: the only row is the President’s own act or one sponsor’s position; not reopened."
+  },
+  {
+   "key": "H.R. 1|115|lower_taxes",
+   "category": "execOnly",
+   "why": "No vote row: the only row is the President’s own act or one sponsor’s position; not reopened."
+  },
+  {
+   "key": "H.R. 3838|119|national_debt",
+   "category": "statusConflict",
+   "why": "Status conflict (the FY2026 NDAA became law as S. 1071); not reopened."
+  },
+  {
+   "key": "H.R. 3838|119|strong_defense",
+   "category": "statusConflict",
+   "why": "Status conflict (the FY2026 NDAA became law as S. 1071); not reopened."
+  },
+  {
+   "key": "H.R. 3838|119|veterans",
+   "category": "statusConflict",
+   "why": "Status conflict (the FY2026 NDAA became law as S. 1071); not reopened."
+  },
+  {
+   "key": "H.R. 5371|119|cut_spending",
+   "category": "execOnly",
+   "why": "No vote row: the only row is the President’s own act or one sponsor’s position; not reopened."
+  },
+  {
+   "key": "H.R. 6395|116|america_first",
+   "category": "execOnly",
+   "why": "No vote row: the only row is the President’s own act or one sponsor’s position; not reopened."
+  },
+  {
+   "key": "H.R. 748|116|cut_spending",
+   "category": "execOnly",
+   "why": "No vote row: the only row is the President’s own act or one sponsor’s position; not reopened."
+  },
+  {
+   "key": "H.R. 82|118|national_debt",
+   "category": "notAnEffect",
+   "why": "A forecast about the act or a confirmation with no text stating a change; not reopened."
+  },
+  {
+   "key": "H.R. 9311|119|housing_build",
+   "category": "execOnly",
+   "why": "No vote row: the only row is the President’s own act or one sponsor’s position; not reopened."
+  },
+  {
+   "key": "McMahon — ED|119|school_choice",
+   "category": "notAnEffect",
+   "why": "A forecast about the act or a confirmation with no text stating a change; not reopened."
+  },
+  {
+   "key": "Rubio — State|119|strong_defense",
+   "category": "notAnEffect",
+   "why": "A forecast about the act or a confirmation with no text stating a change; not reopened."
+  },
+  {
+   "key": "S.B. 153|2023GS|econ_growth",
+   "category": "bodyConfirmed",
+   "why": "Read in its bill body by v389 and confirmed silent there; not reopened."
+  },
+  {
+   "key": "S.B. 203|2025GS|judicial_check",
+   "category": "bodyConfirmed",
+   "why": "Read in its bill body by v389 and confirmed silent there; not reopened."
+  },
+  {
+   "key": "S.B. 23|2025GS|housing",
+   "category": "earlierPass",
+   "why": "Read against its bill’s provisions and body text in v386, which found no clear change; not reopened."
+  },
+  {
+   "key": "S.B. 26|2025GS|transit",
+   "category": "bodyConfirmed",
+   "why": "Read in its bill body by v389 and confirmed silent there; not reopened."
+  },
+  {
+   "key": "S.B. 97|2023GS|israel_support",
+   "category": "bodyConfirmed",
+   "why": "Read in its bill body by v389 and confirmed silent there; not reopened."
+  },
+  {
+   "key": "S.J. Res. 68|116|iran_policy",
+   "category": "execOnly",
+   "why": "No vote row: the only row is the President’s own act or one sponsor’s position; not reopened."
+  },
+  {
+   "key": "S.J. Res. 68|116|restraint",
+   "category": "execOnly",
+   "why": "No vote row: the only row is the President’s own act or one sponsor’s position; not reopened."
+  },
+  {
+   "key": "S.J. Res. 68|116|war_powers",
+   "category": "execOnly",
+   "why": "No vote row: the only row is the President’s own act or one sponsor’s position; not reopened."
+  },
+  {
+   "key": "S.J. Res. 7|116|restraint",
+   "category": "execOnly",
+   "why": "No vote row: the only row is the President’s own act or one sponsor’s position; not reopened."
+  },
+  {
+   "key": "S.J. Res. 7|116|war_powers",
+   "category": "execOnly",
+   "why": "No vote row: the only row is the President’s own act or one sponsor’s position; not reopened."
+  },
+  {
+   "key": "S.J. Res. 7|116|yemen_policy",
+   "category": "execOnly",
+   "why": "No vote row: the only row is the President’s own act or one sponsor’s position; not reopened."
+  },
+  {
+   "key": "Vought — OMB|119|cut_spending",
+   "category": "notAnEffect",
+   "why": "A forecast about the act or a confirmation with no text stating a change; not reopened."
+  }
+ ]
+}

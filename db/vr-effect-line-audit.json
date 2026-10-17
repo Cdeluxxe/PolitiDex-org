@@ -1,0 +1,469 @@
+{
+ "_comment": "Provisions audit (v387) of every effect line printing on Water Conservation, Housing Affordability, Protect Public Lands and Expand Domestic Energy Production: 48 lines. Each was read against its bill's own text: the enrolled or engrossed text on GovInfo for a federal act, the Congress.gov purpose for an amendment, the Utah Legislature's Highlighted Provisions for a Utah bill (quoted in db/vr-five-issue-effect-lines.json), and the pair's stored did where one exists. A Congressional Review Act line's \"barred a substantially similar rule\" is the statute's own consequence, quoted in `lawQuotes` from `lawSource`. A line broader, narrower or different from what the bill did is `rewritten`: `was` is the shipped line, `quotes` are verbatim from `source`, every `terms` phrase is in those quotes and in the new line, and `plain` ties each plain-language restatement to the bill's word. Every other line is `kept`, byte for byte, with what it was checked against. Read by scripts/test-effect-line-audit.mjs and by the shipped-line pins through scripts/vr-effect-audit.mjs. No score, weight, mapping or key is read from or written to here.",
+ "rows": [
+  {
+   "key": "H.Amdt. 248|119|energy_production",
+   "decision": "kept",
+   "line": "Wrote into the defense bill that the Santa Ynez offshore production unit keeps operating; the House agreed to it 215-214.",
+   "why": "Matches the pair's stored did: kept the Santa Ynez production unit operating, as a House amendment to the defence authorisation."
+  },
+  {
+   "key": "H.Amdt. 97|119|lands_preserve",
+   "decision": "rewritten",
+   "was": "Would have barred designating military and some Guard lands as Endangered Species Act critical habitat; the House rejected it 200-228.",
+   "line": "Would have barred Endangered Species Act critical habitat on military and some Guard lands when the Defense Department deems it necessary.",
+   "source": "https://www.congress.gov/amendment/119th-congress/house-amendment/97",
+   "quotes": [
+    "Amendment sought to prohibit the designation of military and certain National Guard lands as critical habitats under the Endangered Species Act when deemed necessary by the Department of Defense"
+   ],
+   "terms": [
+    "critical habitat",
+    "military",
+    "Guard lands",
+    "Defense Department deems it necessary"
+   ],
+   "plain": {
+    "Guard": "National Guard",
+    "Defense Department deems it necessary": "when deemed necessary by the Department of Defense",
+    "barred": "prohibit"
+   },
+   "why": "The old line said the amendment would have barred critical habitat on those lands outright; the amendment's purpose limits the bar to where the Department of Defense deems it necessary."
+  },
+  {
+   "key": "H.B. 11|2024GS|water",
+   "decision": "rewritten",
+   "was": "Imposed water efficient landscaping requirements under Utah law.",
+   "line": "Restricted the use of overhead spray irrigation by certain governmental entities.",
+   "source": "https://le.utah.gov/data/2024GS/HB0011.json",
+   "quotes": [
+    "restricts the use of overhead spray irrigation by certain governmental entities"
+   ],
+   "terms": [
+    "overhead spray irrigation by certain governmental entities"
+   ],
+   "plain": {},
+   "why": "The old line, written from the title, said the act imposed water efficient landscaping requirements; it restricts overhead spray irrigation by certain governmental entities and nothing broader."
+  },
+  {
+   "key": "H.B. 144|2023GS|energy_production",
+   "decision": "kept",
+   "line": "Extended the high cost infrastructure tax credit to underground mine projects and to the storage or production of all fuels.",
+   "source": "https://le.utah.gov/data/2023GS/HB0144.json",
+   "why": "Written in v386 from this bill's own Highlighted Provisions (db/vr-five-issue-effect-lines.json), and every phrase still matches them."
+  },
+  {
+   "key": "H.B. 150|2023GS|water",
+   "decision": "kept",
+   "line": "Set a process for declaring a temporary water shortage emergency and the water use preferences that apply during one.",
+   "source": "https://le.utah.gov/data/2023GS/HB0150.json",
+   "why": "Written in v386 from this bill's own Highlighted Provisions (db/vr-five-issue-effect-lines.json), and every phrase still matches them."
+  },
+  {
+   "key": "H.B. 191|2024GS|energy_production",
+   "decision": "kept",
+   "line": "Required the Public Service Commission to make specific determinations before authorizing a generating plant’s early retirement.",
+   "source": "https://le.utah.gov/data/2024GS/HB0191.json",
+   "why": "Written in v386 from this bill's own Highlighted Provisions (db/vr-five-issue-effect-lines.json), and every phrase still matches them."
+  },
+  {
+   "key": "H.B. 201|2025GS|energy_production",
+   "decision": "kept",
+   "line": "Required full cost attribution for supplemental resources in utility resource plans and barred some involuntary demand programs.",
+   "source": "https://le.utah.gov/Session/2025/bills/enrolled/HB0201.xml",
+   "why": "Written in v386 from this bill's own Highlighted Provisions (db/vr-five-issue-effect-lines.json), and every phrase still matches them."
+  },
+  {
+   "key": "H.B. 217|2023GS|water",
+   "decision": "kept",
+   "line": "Authorized state school board grants to cut school energy and water use, with outdoor water conservation projects first.",
+   "source": "https://le.utah.gov/data/2023GS/HB0217.json",
+   "why": "Written in v386 from this bill's own Highlighted Provisions (db/vr-five-issue-effect-lines.json), and every phrase still matches them."
+  },
+  {
+   "key": "H.B. 242|2024GS|water",
+   "decision": "kept",
+   "line": "Would have required state agencies to report their water use and had the state study public school water use.",
+   "source": "https://le.utah.gov/data/2024GS/HB0242.json",
+   "why": "Written in v386 from this bill's own Highlighted Provisions (db/vr-five-issue-effect-lines.json), and every phrase still matches them."
+  },
+  {
+   "key": "H.B. 274|2025GS|water",
+   "decision": "kept",
+   "line": "Set when a city may vary water rates for conservation and presumed rates reasonable when conservation is part of them.",
+   "source": "https://le.utah.gov/Session/2025/bills/enrolled/HB0274.xml",
+   "why": "Written in v386 from this bill's own Highlighted Provisions (db/vr-five-issue-effect-lines.json), and every phrase still matches them."
+  },
+  {
+   "key": "H.B. 360|2025GS|housing",
+   "decision": "kept",
+   "line": "Extended the Utah Homes Investment Program by a year and allowed some school surplus land to be used for affordable housing.",
+   "source": "https://le.utah.gov/Session/2025/bills/enrolled/HB0360.xml",
+   "why": "Written in v386 from this bill's own Highlighted Provisions (db/vr-five-issue-effect-lines.json), and every phrase still matches them."
+  },
+  {
+   "key": "H.B. 364|2023GS|housing",
+   "decision": "kept",
+   "line": "Raised the yearly amount of state low-income housing tax credits that may be allocated in certain years.",
+   "source": "https://le.utah.gov/data/2023GS/HB0364.json",
+   "why": "Written in v386 from this bill's own Highlighted Provisions (db/vr-five-issue-effect-lines.json), and every phrase still matches them."
+  },
+  {
+   "key": "H.B. 374|2024GS|energy_production",
+   "decision": "kept",
+   "line": "Made encouraging dispatchable energy resources part of Utah’s state energy policy.",
+   "source": "https://le.utah.gov/data/2024GS/HB0374.json",
+   "why": "Written in v386 from this bill's own Highlighted Provisions (db/vr-five-issue-effect-lines.json), and every phrase still matches them."
+  },
+  {
+   "key": "H.B. 37|2025GS|housing",
+   "decision": "kept",
+   "line": "Let cities and counties offer incentives for owner-occupied affordable housing and required a state housing plan by the end of 2025.",
+   "source": "https://le.utah.gov/Session/2025/bills/enrolled/HB0037.xml",
+   "why": "Written in v386 from this bill's own Highlighted Provisions (db/vr-five-issue-effect-lines.json), and every phrase still matches them."
+  },
+  {
+   "key": "H.B. 425|2023GS|energy_production",
+   "decision": "kept",
+   "line": "Required a project entity to give lawmakers 180 days’ notice before decommissioning a coal-powered generating plant.",
+   "source": "https://le.utah.gov/data/2023GS/HB0425.json",
+   "why": "Written in v386 from this bill's own Highlighted Provisions (db/vr-five-issue-effect-lines.json), and every phrase still matches them."
+  },
+  {
+   "key": "H.B. 513|2023GS|water",
+   "decision": "kept",
+   "line": "Required Great Salt Lake brine leases to minimize water depletion and let the state curtail production in a lake emergency.",
+   "source": "https://le.utah.gov/data/2023GS/HB0513.json",
+   "why": "Written in v386 from this bill's own Highlighted Provisions (db/vr-five-issue-effect-lines.json), and every phrase still matches them."
+  },
+  {
+   "key": "H.B. 70|2025GS|energy_production",
+   "decision": "kept",
+   "line": "Created the Utah Energy Council to manage decommissioned power plants and pick their operators through a competitive process.",
+   "source": "https://le.utah.gov/Session/2025/bills/enrolled/HB0070.xml",
+   "why": "Written in v386 from this bill's own Highlighted Provisions (db/vr-five-issue-effect-lines.json), and every phrase still matches them."
+  },
+  {
+   "key": "H.J.Res. 131|119|energy_production",
+   "decision": "kept",
+   "line": "Struck the BLM’s December 2024 Record of Decision for the Arctic refuge coastal plain and barred a substantially similar rule.",
+   "why": "Matches the pair's stored did and the resolution's subject, the BLM's December 2024 Record of Decision for the coastal plain."
+  },
+  {
+   "key": "H.J.Res. 131|119|lands_preserve",
+   "decision": "kept",
+   "line": "Removed the conservation withdrawal from roughly 1.2 million acres inside the Arctic National Wildlife Refuge.",
+   "why": "Matches the pair's stored did word for word up to its explanatory clause."
+  },
+  {
+   "key": "H.J.Res. 140|119|lands_preserve",
+   "decision": "kept",
+   "line": "Struck the order closing about 225,504 acres of Minnesota national forest above the Boundary Waters to mineral and geothermal leasing.",
+   "why": "Matches the pair's stored did: Public Land Order 7917 withdrew about 225,504 acres from mineral and geothermal leasing."
+  },
+  {
+   "key": "H.J.Res. 78|119|lands_preserve",
+   "decision": "kept",
+   "line": "Removed Endangered Species Act protection from the San Francisco Bay-Delta population of longfin smelt by nullifying the listing rule.",
+   "why": "The pair's own stored did, printed as is."
+  },
+  {
+   "key": "H.J.Res. 88|119|energy_production",
+   "decision": "kept",
+   "line": "Struck the EPA waiver for California’s Advanced Clean Cars II regulations and barred a substantially similar rule.",
+   "why": "Matches the enrolled text, which disapproves the waiver for California's Advanced Clean Cars II."
+  },
+  {
+   "key": "H.J.Res. 89|119|energy_production",
+   "decision": "rewritten",
+   "was": "Struck the EPA waiver for California’s Advanced Clean Trucks regulations and barred a substantially similar rule.",
+   "line": "Struck the EPA waiver for California’s Omnibus Low NOx regulation and barred a substantially similar rule.",
+   "source": "https://www.govinfo.gov/content/pkg/BILLS-119hjres89enr/html/BILLS-119hjres89enr.htm",
+   "quotes": [
+    "Congress disapproves the rule submitted by the Environmental Protection Agency relating to `California State Motor Vehicle and Engine and Nonroad Engine Pollution Control Standards; The `Omnibus' Low NOX Regulation; Waiver of Preemption; Notice of Decision'",
+    "and such rule shall have no force or effect"
+   ],
+   "lawSource": "https://www.law.cornell.edu/uscode/text/5/801",
+   "lawQuotes": [
+    "a new rule that is substantially the same as such a rule may not be issued"
+   ],
+   "terms": [
+    "Omnibus",
+    "Low NOx",
+    "waiver"
+   ],
+   "plain": {
+    "EPA": "Environmental Protection Agency",
+    "struck": "no force or effect",
+    "barred": "may not be issued",
+    "similar": "substantially the same"
+   },
+   "why": "The old line named the Advanced Clean Trucks waiver, which is H.J.Res. 87. H.J.Res. 89's enrolled text disapproves the waiver for California's Omnibus Low NOx Regulation."
+  },
+  {
+   "key": "H.R. 1047|119|energy_production",
+   "decision": "rewritten",
+   "was": "Would let new dispatchable power projects move to the front of the grid interconnection queue; the House passed it 216-206.",
+   "line": "Would have FERC open a rulemaking letting transmission providers move new dispatchable power projects up the interconnection queue.",
+   "source": "https://www.govinfo.gov/content/pkg/BILLS-119hr1047eh/html/BILLS-119hr1047eh.htm",
+   "quotes": [
+    "The term `Commission' means the Federal Energy Regulatory Commission.",
+    "the Commission shall initiate a rulemaking",
+    "to authorize transmission providers to submit proposals to the Commission to adjust the interconnection queue of the transmission provider to prioritize new dispatchable power projects that will improve grid reliability and resource adequacy by assigning those projects higher positions in the interconnection queue"
+   ],
+   "terms": [
+    "rulemaking",
+    "transmission providers",
+    "new dispatchable power projects",
+    "interconnection queue"
+   ],
+   "plain": {
+    "FERC": "Federal Energy Regulatory Commission",
+    "move": "adjust",
+    "up": "higher positions"
+   },
+   "why": "The old line said the bill would let dispatchable projects move to the front of the queue; the bill orders a FERC rulemaking that lets transmission providers propose that prioritization."
+  },
+  {
+   "key": "H.R. 1949|119|energy_production",
+   "decision": "rewritten",
+   "was": "Would speed approval of LNG export terminals to expand U.S. natural-gas production and shipments.",
+   "line": "Would give FERC exclusive authority over natural gas export and import facilities and deem those exports and imports in the public interest.",
+   "source": "https://www.govinfo.gov/content/pkg/BILLS-119hr1949eh/html/BILLS-119hr1949eh.htm",
+   "quotes": [
+    "The Federal Energy Regulatory Commission (in this subsection referred to as the `Commission') shall have the exclusive authority to approve or deny an application for authorization for the siting, construction, expansion, or operation of a facility to export natural gas from the United States to a foreign country or import natural gas from a foreign country",
+    "the Commission shall deem the exportation or importation of natural gas to be consistent with the public interest"
+   ],
+   "terms": [
+    "exclusive authority",
+    "natural gas",
+    "public interest"
+   ],
+   "plain": {
+    "FERC": "Federal Energy Regulatory Commission",
+    "facilities": "facility"
+   },
+   "why": "The old line said the bill would speed terminal approval to expand production, a purpose the text does not state; the text gives FERC exclusive authority over export and import facilities and deems the trade in the public interest."
+  },
+  {
+   "key": "H.R. 1|119|energy_production",
+   "decision": "rewritten",
+   "was": "Expanded onshore and offshore oil, gas and coal leasing and sped fossil-fuel permitting; the House cleared it 218-214, the Senate 50-50.",
+   "line": "Required quarterly onshore oil and gas lease sales, at least 30 Gulf lease sales and lease sales on pending coal lease applications.",
+   "source": "https://www.govinfo.gov/content/pkg/BILLS-119hr1enr/html/BILLS-119hr1enr.htm",
+   "quotes": [
+    "The Secretary of the Interior shall immediately resume quarterly onshore oil and gas lease sales",
+    "(1) Gulf of america region.--",
+    "the Secretary of the Interior shall conduct a minimum of 30 region-wide oil and gas lease sales",
+    "an application for a coal lease pending as of the date of enactment of this Act",
+    "hold a lease sale with respect to the applicable coal tract"
+   ],
+   "terms": [
+    "quarterly onshore oil and gas lease sales",
+    "30",
+    "coal"
+   ],
+   "plain": {
+    "Gulf": "Gulf of america region",
+    "pending": "pending",
+    "applications": "application",
+    "at least": "a minimum of"
+   },
+   "why": "The old line said the act sped fossil-fuel permitting; its environmental-review fee applies to any project and its permit-to-drill change sets a term, so the line now names the leasing it required."
+  },
+  {
+   "key": "H.R. 26|119|energy_production",
+   "decision": "rewritten",
+   "was": "Would affirm state authority over hydraulic fracturing to keep energy output flowing; the House passed it 226-188.",
+   "line": "Would bar the President from declaring a fracking moratorium unless an Act of Congress authorizes it; the House passed it 226-188.",
+   "source": "https://www.govinfo.gov/content/pkg/BILLS-119hr26eh/html/BILLS-119hr26eh.htm",
+   "quotes": [
+    "the President may not declare a moratorium on the use of hydraulic fracturing unless such moratorium is authorized by an Act of Congress"
+   ],
+   "terms": [
+    "President",
+    "moratorium",
+    "Act of Congress"
+   ],
+   "plain": {
+    "fracking": "hydraulic fracturing",
+    "bar": "may not"
+   },
+   "why": "The old line said the bill would affirm state authority over fracking to keep output flowing; state primacy is only a sense of Congress, and the operative provision bars a presidential fracking moratorium Congress has not authorized."
+  },
+  {
+   "key": "H.R. 3616|119|energy_production",
+   "decision": "kept",
+   "line": "Would require public notice of power generation shortfalls and grid-reliability review of agency rules; the House passed it 225-203.",
+   "why": "Matches the pair's stored did: public notice of generation shortfalls and reliability review of agency rules."
+  },
+  {
+   "key": "H.R. 3628|119|energy_production",
+   "decision": "kept",
+   "line": "Would make state utility regulators consider reliable power generation as a ratemaking standard; the House passed it 218-207.",
+   "why": "Matches the pair's stored did: a reliable-generation ratemaking standard state regulators must consider."
+  },
+  {
+   "key": "H.R. 3632|119|energy_production",
+   "decision": "kept",
+   "line": "Would require power plant owners to give notice before retiring a generating unit; the House passed it 222-202.",
+   "why": "Matches the retirement-notice half of the pair's stored did, the half on this issue."
+  },
+  {
+   "key": "H.R. 3684|117|water",
+   "decision": "kept",
+   "line": "Funded drinking-water and wastewater systems, lead pipe removal and Western water storage; the House cleared it 228-206, the Senate 69-30.",
+   "why": "Matches the pair's stored did: drinking-water and wastewater systems, lead service lines and Western water storage."
+  },
+  {
+   "key": "H.R. 3746|118|energy_production",
+   "decision": "kept",
+   "line": "Ratified all federal approvals for the Mountain Valley Pipeline and barred court review; the House cleared it 314-117, the Senate 63-36.",
+   "why": "Matches the pair's stored did for Sec. 324: ratified Mountain Valley Pipeline approvals and removed them from judicial review."
+  },
+  {
+   "key": "H.R. 5376|117|energy_production",
+   "decision": "rewritten",
+   "was": "Required new Gulf of Mexico oil and gas lease sales before wind and solar rights-of-way; the House cleared it 220-207, the Senate 50-50.",
+   "line": "Reinstated Lease Sale 257, ordered sales 258, 259 and 261, and barred federal wind and solar rights-of-way without recent onshore sales.",
+   "source": "https://www.govinfo.gov/content/pkg/BILLS-117hr5376enr/html/BILLS-117hr5376enr.htm",
+   "quotes": [
+    "Lease Sale 257 Reinstatement",
+    "The term `Lease Sale 258' means the lease sale numbered 258",
+    "The term `Lease Sale 259' means the lease sale numbered 259",
+    "The term `Lease Sale 261' means the lease sale numbered 261",
+    "the Secretary may not issue a right-of-way for wind or solar energy development on Federal land unless-- (A) an onshore lease sale has been held during the 120-day period"
+   ],
+   "terms": [
+    "Lease Sale 257",
+    "wind",
+    "solar",
+    "onshore"
+   ],
+   "plain": {
+    "rights-of-way": "right-of-way",
+    "sales": "lease sale",
+    "barred": "may not",
+    "federal": "Federal land",
+    "recent": "120-day period"
+   },
+   "why": "The old line said the act required new Gulf of Mexico lease sales before wind and solar rights-of-way; Lease Sale 258 is not in the Gulf, and wind and solar rights-of-way on federal land wait on recent onshore lease sales, not Gulf ones."
+  },
+  {
+   "key": "H.R. 6644|119|housing",
+   "decision": "kept",
+   "line": "Reauthorized the HOME program and Rural Housing Service and widened HUD-VASH eligibility; the House cleared it 358-32, the Senate 89-10.",
+   "why": "Matches the pair's stored did: HOME and Rural Housing Service reauthorized, VA disability benefits excluded from the HUD-VASH income test."
+  },
+  {
+   "key": "S.B. 118|2023GS|water",
+   "decision": "rewritten",
+   "was": "Provided water efficient landscaping incentives under Utah law.",
+   "line": "Let water conservancy districts receive grants to fund water efficient landscaping incentives, and set when an owner may get one.",
+   "source": "https://le.utah.gov/data/2023GS/SB0118.json",
+   "quotes": [
+    "authorizes water conservancy districts to receive grants to provide incentives",
+    "provides conditions on when an owner may receive an incentive",
+    "incentives to install and maintain water efficient landscaping"
+   ],
+   "terms": [
+    "water conservancy districts",
+    "receive grants",
+    "incentives"
+   ],
+   "plain": {
+    "fund": "provide",
+    "get": "receive"
+   },
+   "why": "The old line, written from the title, said the act provided landscaping incentives itself; it authorizes water conservancy districts to receive grants to provide them and sets when an owner may receive one."
+  },
+  {
+   "key": "S.B. 118|2024GS|water",
+   "decision": "kept",
+   "line": "Would have provided incentives to use water efficient landscaping in new residential development.",
+   "source": "https://le.utah.gov/data/2024GS/SB0118.json",
+   "why": "Written in v386 from this bill's own Highlighted Provisions (db/vr-five-issue-effect-lines.json), and every phrase still matches them."
+  },
+  {
+   "key": "S.B. 161|2024GS|energy_production",
+   "decision": "kept",
+   "line": "Gave the state the option to buy a power plant slated for decommissioning and created an authority to manage it.",
+   "source": "https://le.utah.gov/data/2024GS/SB0161.json",
+   "why": "Written in v386 from this bill's own Highlighted Provisions (db/vr-five-issue-effect-lines.json), and every phrase still matches them."
+  },
+  {
+   "key": "S.B. 181|2025GS|housing",
+   "decision": "kept",
+   "line": "Barred cities and counties from requiring a garage for an owner-occupied affordable single-family home.",
+   "source": "https://le.utah.gov/Session/2025/bills/enrolled/SB0181.xml",
+   "why": "Written in v386 from this bill's own Highlighted Provisions (db/vr-five-issue-effect-lines.json), and every phrase still matches them."
+  },
+  {
+   "key": "S.B. 208|2024GS|housing",
+   "decision": "kept",
+   "line": "Required 12% of the homes proposed in a housing and transit reinvestment zone to be reserved for set income levels.",
+   "source": "https://le.utah.gov/data/2024GS/SB0208.json",
+   "why": "Written in v386 from this bill's own Highlighted Provisions (db/vr-five-issue-effect-lines.json), and every phrase still matches them."
+  },
+  {
+   "key": "S.B. 224|2024GS|energy_production",
+   "decision": "kept",
+   "line": "Set the terms for a utility to recover its costs for proven dispatchable generation resources located in Utah.",
+   "source": "https://le.utah.gov/data/2024GS/SB0224.json",
+   "why": "Written in v386 from this bill's own Highlighted Provisions (db/vr-five-issue-effect-lines.json), and every phrase still matches them."
+  },
+  {
+   "key": "S.B. 252|2023GS|water",
+   "decision": "kept",
+   "line": "Would have created tax credits for homebuilders who buy and install water efficient landscaping and fixtures.",
+   "source": "https://le.utah.gov/data/2023GS/SB0252.json",
+   "why": "Written in v386 from this bill's own Highlighted Provisions (db/vr-five-issue-effect-lines.json), and every phrase still matches them."
+  },
+  {
+   "key": "S.B. 262|2025GS|housing",
+   "decision": "kept",
+   "line": "Created a shared appreciation loan program and had the Utah Housing Corporation set rules for lenders of first-time homebuyer loans.",
+   "source": "https://le.utah.gov/Session/2025/bills/enrolled/SB0262.xml",
+   "why": "Written in v386 from this bill's own Highlighted Provisions (db/vr-five-issue-effect-lines.json), and every phrase still matches them."
+  },
+  {
+   "key": "S.B. 26|2025GS|housing",
+   "decision": "kept",
+   "line": "Measured a housing and transit zone’s affordable homes against county median income by household size, as part of a convention center bill.",
+   "source": "https://le.utah.gov/Session/2025/bills/enrolled/SB0026.xml",
+   "why": "Written in v386 from this bill's own Highlighted Provisions (db/vr-five-issue-effect-lines.json), and every phrase still matches them."
+  },
+  {
+   "key": "S.B. 271|2023GS|housing",
+   "decision": "kept",
+   "line": "Barred cities and counties from regulating co-owned homes differently from other residential units.",
+   "source": "https://le.utah.gov/data/2023GS/SB0271.json",
+   "why": "Written in v386 from this bill's own Highlighted Provisions (db/vr-five-issue-effect-lines.json), and every phrase still matches them."
+  },
+  {
+   "key": "S.B. 305|2025GS|water",
+   "decision": "kept",
+   "line": "Would have imposed landscaping requirements on state government facilities.",
+   "source": "https://le.utah.gov/Session/2025/bills/enrolled/SB0305.xml",
+   "why": "Written in v386 from this bill's own Highlighted Provisions (db/vr-five-issue-effect-lines.json), and every phrase still matches them."
+  },
+  {
+   "key": "S.B. 80|2025GS|water",
+   "decision": "kept",
+   "line": "Required the Department of Environmental Quality to set a water fee schedule, with net fees going to the Water Infrastructure Fund.",
+   "source": "https://le.utah.gov/Session/2025/bills/enrolled/SB0080.xml",
+   "why": "Written in v386 from this bill's own Highlighted Provisions (db/vr-five-issue-effect-lines.json), and every phrase still matches them."
+  },
+  {
+   "key": "S.J.Res. 10|119|energy_production",
+   "decision": "kept",
+   "line": "Would have ended the January 2025 national energy emergency that expedites energy projects; the Senate rejected it 47-52.",
+   "why": "Matches the pair's stored did: ending the Executive Order 14156 energy emergency; rejected 47-52."
+  },
+  {
+   "key": "S.J.Res. 71|119|energy_production",
+   "decision": "kept",
+   "line": "Would have ended the Executive Order 14156 energy emergency on its second try; the Senate rejected it 47-51.",
+   "why": "Matches the pair's stored did: the same termination, back eight months later; rejected 47-51."
+  }
+ ]
+}

@@ -9801,7 +9801,92 @@
 //     version. No route, gate, store or BOARD_ROUTES row moved. No location key
 //     is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v383';
+// v384 - THE ROOMS STAY WITH THE PEOPLE WHO LIVE THERE. Every board prints
+//     one sentence under its general room, and every /voice card for a seat
+//     with a board prints the same sentence under its Open board door: "This
+//     room is for the people who live in this district. Outside noise stays
+//     outside." The locked line is unchanged; no gate, route, store, composer
+//     or BOARD_ROUTES row moved. district-board.js, district-board.css,
+//     district-voice.js, voice-room.js and /voice are precached and changed,
+//     so the shell moves one version. No location key is migrated, renamed or
+//     copied.
+//     MIGRATION COST: none.
+// v385 - EFFECT LINES ON FIVE ISSUES. Water Conservation rows for two Utah
+//     acts now print the one-line effect under the row, written from each
+//     pair's own stored title: S.B. 118 (2023GS) and H.B. 11 (2024GS). Every
+//     federal pair on Data Centers, Water Conservation, Housing Affordability,
+//     Protect Public Lands and Energy already printed one; the other 29 Utah
+//     pairs have titles that name no effect and stay silent. consistency.js is
+//     precached and changed, so the shell moves one version. No score, weight,
+//     mapping, pole or shipped line moved. No location key is migrated,
+//     renamed or copied.
+//     MIGRATION COST: none.
+// v386 - EFFECT LINES FROM THE BILL ITSELF. The Utah rows on Water
+//     Conservation, Housing Affordability and Energy now print a one-line effect
+//     written from each bill's own Highlighted Provisions on the Legislature's
+//     record, not its title: 25 pairs that printed nothing. v385's two lines
+//     (S.B. 118 of 2023GS, H.B. 11 of 2024GS) stay byte-identical. Four pairs
+//     whose provisions state no clear change stay silent. No measure
+//     on file changes data-center law, so no Data Centers mapping was added.
+//     consistency.js is precached and changed, so the shell moves one version.
+//     No score, weight, mapping, pole or federal line moved. No location key is
+//     migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v387 - EFFECT LINES CHECKED AGAINST THE BILL. Every effect line on Water
+//     Conservation, Housing Affordability, Protect Public Lands and Expand
+//     Domestic Energy Production was read against its bill's own text, and the
+//     nine that were broader, narrower or different were rewritten in place:
+//     H.Amdt. 97, H.J.Res. 89 (the Omnibus Low NOx waiver, not Advanced Clean
+//     Trucks), H.R. 1, H.R. 26, H.R. 1047, H.R. 1949, H.R. 5376, S.B. 118 of
+//     2023GS and H.B. 11 of 2024GS. The other 39 are byte-identical.
+//     consistency.js is precached and changed, so the shell moves one version.
+//     No score, weight, mapping, pole or other issue's line moved.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v388 - EFFECT LINES BEYOND THE FIVE ISSUES. Every mapped pair that still
+//     printed nothing under its vote row was read against its bill: 344 Utah
+//     pairs, from each bill's Highlighted Provisions on the Legislature's
+//     record, and 53 federal, from the enrolled or House-passed text. 291 now
+//     carry a one-line effect (284 Utah, 7 federal); the rest stay silent with
+//     the reason in db/vr-effect-coverage-lines.json. Every shipped line is
+//     byte-identical. consistency.js is precached and changed, so the shell
+//     moves one version. No score, weight, mapping or pole moved.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v389 - EFFECT LINES FROM THE BILL BODY. The 31 pairs v388 left silent only
+//     because the stored text was too thin were read one layer deeper: the
+//     Utah bill's own body, and H.R. 3633's House-passed text. 26 now carry a
+//     line resting on what the bill inserts, strikes or newly enacts; five stay
+//     silent with the reason, and the 75 silent for a stronger reason were not
+//     reopened (db/vr-effect-body-lines.json). Every shipped line is
+//     byte-identical. consistency.js is precached and changed, so the shell
+//     moves one version. No score, weight, mapping or pole moved.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v390 - EFFECT LINES FROM A DISTINCT SECTION. The 52 pairs left silent
+//     because a sibling line was judged to cover the act's only change, or the
+//     act no bearing on the issue, were searched section by section for a
+//     separate change on that issue. Six now carry a line (H.R. 21, H.R. 3633,
+//     H.R. 6703, H.B. 119, H.B. 332, S.B. 181 of 2025); 46 stay silent, and the
+//     28 confirmed silent after a body read or closed for a status conflict,
+//     forecast or no vote row were not reopened (db/vr-effect-distinct-lines.json).
+//     Every shipped line is byte-identical. consistency.js is precached and
+//     changed, so the shell moves one version. No score, weight, mapping or
+//     pole moved. No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v391 - CURRENT BILLS, FULL LENS. H.R. 8352 (119th), the Criminal History
+//     Access Act of 2026 (passed both chambers, awaiting presentment), the six
+//     public laws signed in October 2026 (H.R. 5345, S. 766, S. 195, S. 240,
+//     S. 283, S. 2403) and Utah 2026GS H.B. 76 and H.B. 507 are now in the
+//     archive, each mapped on every issue its enrolled text touches, with 12
+//     effect lines where the text makes a concrete change (db/vr-current-bills.json).
+//     Every shipped line is byte-identical. consistency.js is precached and
+//     changed, so the shell moves one version. No score, weight, pole or
+//     existing mapping moved; no roll call or position was added.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: one migration, 20261118000000_vr_current_bills_full_lens,
+//     adding 9 vr_measures rows and 17 vr_measure_issues rows.
+const CACHE_VERSION = 'v391';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

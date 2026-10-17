@@ -281,6 +281,9 @@
       'internet. Anyone can read. Only a verified resident of that seat gets a voice that ' +
       'counts. This page lists the seats for the location on file.',
     boardOpen: 'Open board',
+    // Under the Open board door on a boarded seat's card, and on that board
+    // under its general room. Never on a seat without a board.
+    boardRoomFor: 'This room is for the people who live in this district. Outside noise stays outside.',
     boardNone: 'Board not on hand for this seat.',
     boardWhy: 'we have the seat; this room is not open.'
   };

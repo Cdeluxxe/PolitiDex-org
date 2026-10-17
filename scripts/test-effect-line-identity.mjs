@@ -35,11 +35,15 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { execHeld, execLaterKeys } from "./vr-exec-later.mjs";
+import { COVERAGE_LINES } from "./vr-effect-coverage.mjs";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
+import { preAudit, AUDITED } from "./vr-effect-audit.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const R = (f) => readFileSync(join(ROOT, f), "utf8");
+// consistency.js as it stood before the v387 provisions audit; see
+// scripts/vr-effect-audit.mjs and scripts/test-effect-line-audit.mjs.
+const R = (f) => (f === "consistency.js" ? preAudit(readFileSync(join(ROOT, f), "utf8")) : readFileSync(join(ROOT, f), "utf8"));
 const J = (f) => JSON.parse(R(f));
 const FILES = [
   "cmp-data.js", "politician-stances-core.js", "politician-stances-ext.js",
@@ -58,7 +62,7 @@ const norm = (x) => String(x || "").replace(/\s+/g, " ").trim();
 
 const CONS = R("consistency.js");
 const HEAD = (() => {
-  try { return execFileSync("git", ["show", "HEAD:consistency.js"], { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 28, stdio: ["ignore", "pipe", "ignore"] }); }
+  try { return preAudit(execFileSync("git", ["show", "HEAD:consistency.js"], { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 28, stdio: ["ignore", "pipe", "ignore"] })); }
   catch { return null; }
 })();
 function mapOf(src, name) {
@@ -123,7 +127,18 @@ section("2 · every shipped federal line still reaches its own act");
 if (HEAD) must(OLD, "HEAD's _dosEffectLine could not be lifted for the old-key comparison");
 const keys = Object.keys(E.map);
 must(keys.length > 200, `only ${keys.length} lines in _DOS_EFFECT — the table was not read`);
-for (const k of keys) {
+// Utah lines (from Five Issues slice 16, v386) sit under number|session|issue;
+// each reaches its own session's row and no other.
+for (const k of keys.filter((x) => /\|\d{4}[A-Z]{2}\|/.test(x))) {
+  const m = /^(.+)\|(\d{4}[A-Z]{2})\|([a-z0-9_]+)$/.exec(k);
+  ok(!!m, `${k}: a shipped Utah line is not under a number|session|issue key`);
+  if (!m) continue;
+  eq(NEW.key(utah(m[1], m[2]), m[3]), k, `${k}: the Utah row's key is not the line's key`);
+  ok(norm(NEW.line(utah(m[1], m[2]), m[3], null)) !== "", `${k}: the Utah line does not reach its own row`);
+  const other = String(Number(m[2].slice(0, 4)) + 1) + m[2].slice(4);
+  ok(NEW.line(utah(m[1], other), m[3], null) !== NEW.line(utah(m[1], m[2]), m[3], null), `${k}: the line reaches the same number in ${other}`);
+}
+for (const k of keys.filter((x) => !/\|\d{4}[A-Z]{2}\|/.test(x))) {
   const m = /^(.+)\|(\d+)\|([a-z0-9_]+)$/.exec(k);
   ok(!!m, `${k}: a shipped line is not under a number|congress|issue key`);
   if (!m) continue;
@@ -173,9 +188,15 @@ for (const [, d] of Object.entries(docs)) {
     // The page prints the table's line, else the pair's own short `did` — both
     // under the same number|sitting|issue identity, both through the row rule.
     const id = `${d.n}|${d.s}|${key}`;
-    const want = NEW.line({ number: d.n, congress: Number(d.s) }, key, MECH[id] || null);
-    ok(key && want === norm(x.l), `${d.s}/${d.n} × ${x.i}: the bill page prints a line the table does not hold under that identity`);
-    ok(/^\d+$/.test(d.s), `${d.s}/${d.n}: a bill page prints a line for a non-federal sitting, and none is stored`);
+    // A Utah sitting is a session code, read the way the row reads it.
+    const item = /^\d+$/.test(d.s) ? { number: d.n, congress: Number(d.s) } : utah(d.n, d.s);
+    const want = NEW.line(item, key, MECH[id] || null);
+    // The bill pages are generated from the live table, so an audited pair's page
+    // carries the audit's rewrite while this suite reads the pre-audit table.
+    const aud = AUDITED.find((r) => r.key === id);
+    ok(key && (want === norm(x.l) || (aud && want === norm(aud.was) && norm(x.l) === norm(aud.line))),
+      `${d.s}/${d.n} × ${x.i}: the bill page prints a line the table does not hold under that identity`);
+    ok(/^\d+$/.test(d.s) || (id in E.map), `${d.s}/${d.n}: a bill page prints a line for a non-federal sitting, and none is stored`);
   }
 }
 ok(docLines > 200, `only ${docLines} lines on bill pages — the projection was not read`);
@@ -184,9 +205,20 @@ section("5 · the twelve rider blanks stay blank");
 const RIDER = J("db/vr-rider-effect-lines.json").rows;
 const blanks = RIDER.filter((r) => r.decision === "blank");
 eq(blanks.length, 12, "twelve rider rows are recorded blank");
+// A blank was a ruling on the stored summary. Five Issues slice 16 (v386) reads
+// the bill's own provisions instead, and where its ledger writes the pair from
+// them, that line supersedes the blank — and must be exactly that ledger's line.
+// The coverage pass (v388) did the same for every remaining silent pair, from
+// the bill's provisions or its enrolled text (scripts/vr-effect-coverage.mjs).
+const FIVE_LINES = new Map([...J("db/vr-five-issue-effect-lines.json").rows
+  .filter((r) => r.decision === "line").map((r) => [r.key, r.line]), ...COVERAGE_LINES]);
 for (const r of blanks) {
   const item = r.congress != null ? fed(r.number, r.congress) : utah(r.number, r.utahSession);
   const k = NEW.key(item, r.leaf);
+  if (k && FIVE_LINES.has(k)) {
+    eq(norm(E.map[k]), norm(FIVE_LINES.get(k)), `${r.key}: superseded by slice 16 or 17, but the stored line is not that ledger's`);
+    continue;
+  }
   ok(!!k && !(k in E.map), `${r.key}: ${k || "(no key)"} now stores a line`);
   eq(NEW.line(item, r.leaf, null), "", `${r.key}: a blank rider row prints a line`);
 }

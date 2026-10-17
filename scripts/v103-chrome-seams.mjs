@@ -1921,12 +1921,13 @@ export function assertConsistencyExportSeams(bodies, api) {
   has(lgFns, "if ((said || r.stance.label) && !(opts && opts.noSaid)) {",
     "the summary's They-said line is no longer suppressible — the ledger prints that quote beside the acts, " +
     "and two copies of it on one screen read as two claims");
-  ok(!/MIN_|FLOOR|publishable|NEVER_FEEDS|\.toFixed|Math\.round|party/.test(strip(lgFns)),
-    "a ledger reader reads a floor, a publication rule, a weight or a party — it counts rows, and nothing else");
   // The effect-line tables sit inside this span and are prose — "a 15% minimum
   // tax" is what an act did, held line by line by the effect-line suites — so
-  // they are lifted out before the code is read for a computed percentage.
+  // they are lifted out before the code is read for a computed percentage, or
+  // for a party ("a third party", "political parties" is what an act did too).
   const lgCode = lgFns.replace(/  var _DOS_EFFECT = \{[\s\S]*?\n  \};/, "").replace(/  var _DOS_EXEC_EFFECT = \{[\s\S]*?\n  \};/, "");
+  ok(!/MIN_|FLOOR|publishable|NEVER_FEEDS|\.toFixed|Math\.round|party/.test(strip(lgCode)),
+    "a ledger reader reads a floor, a publication rule, a weight or a party — it counts rows, and nothing else");
   ok(!/\d\s*%/.test(strip(lgCode)), "a percentage appeared in the ledger's readers");
   // C3. THE INVENTORY DECIDES THE SHAPE, and a sheet with no roll calls behind it
   // takes none of this.

@@ -47,9 +47,12 @@ import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 import { keysAfter } from "./vr-slice-blocks.mjs";
+import { preAudit } from "./vr-effect-audit.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const R = (f) => readFileSync(join(ROOT, f), "utf8");
+// consistency.js as it stood before the v387 provisions audit; see
+// scripts/vr-effect-audit.mjs and scripts/test-effect-line-audit.mjs.
+const R = (f) => (f === "consistency.js" ? preAudit(readFileSync(join(ROOT, f), "utf8")) : readFileSync(join(ROOT, f), "utf8"));
 const FILES = [
   "cmp-data.js", "politician-stances-core.js", "politician-stances-ext.js",
   "state-senate-stances.js", "stance-helpers.js", "alignment-tool.js",

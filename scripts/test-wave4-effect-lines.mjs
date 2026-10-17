@@ -41,9 +41,12 @@ import vm from "node:vm";
 import { execHeld } from "./vr-exec-later.mjs";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
+import { preAudit } from "./vr-effect-audit.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const R = (f) => readFileSync(join(ROOT, f), "utf8");
+// consistency.js as it stood before the v387 provisions audit; see
+// scripts/vr-effect-audit.mjs and scripts/test-effect-line-audit.mjs.
+const R = (f) => (f === "consistency.js" ? preAudit(readFileSync(join(ROOT, f), "utf8")) : readFileSync(join(ROOT, f), "utf8"));
 const FILES = [
   "cmp-data.js", "politician-stances-core.js", "politician-stances-ext.js",
   "state-senate-stances.js", "stance-helpers.js", "alignment-tool.js",
@@ -93,7 +96,7 @@ const citedLaw = (row) => {
 
 const corpus = buildCorpus(ROOT);
 const headSrc = (() => {
-  try { return execFileSync("git", ["show", "HEAD:consistency.js"], { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 28, stdio: ["ignore", "pipe", "ignore"] }); }
+  try { return preAudit(execFileSync("git", ["show", "HEAD:consistency.js"], { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 28, stdio: ["ignore", "pipe", "ignore"] })); }
   catch { return null; }
 })();
 function mapOf(src, name) {

@@ -1,0 +1,923 @@
+{
+ "_comment": "Current bills, full lens (v391). The anchor is H.R. 8352 (119th), the Criminal History Access Act of 2026, which passed both chambers (Senate by unanimous consent on 2026-09-30) and awaits presentment. The sweep is every public law signed in October 2026 — GovInfo's BILLSTATUS records show exactly six: H.R. 5345 (119-119), S. 766 (119-120), S. 195 (119-121), S. 240 (119-122), S. 283 (119-123) and S. 2403 (119-124) — and the Utah 2026 General Session data-center bills with enrolled text: H.B. 76 and H.B. 507, both signed. Every 2026GS House and Senate bill record on le.utah.gov was read for data centers and large loads; the three others found (`notEnrolled`) were filed and never passed. Each measure is created in netlify/database/migrations/20261118000000_vr_current_bills_full_lens.sql with every issue its enrolled text touches as a vr_measure_issues row (no primary gate: secondary rows carry their own weight; exactly one row per measure is flagged primary for surfacing). A mapping is pinned by verbatim `sources` quotes from the enrolled text (and, for S. 240's Yellowtail row, the base law it amends) and by `touches`, each a phrase in those quotes tied to a word of the issue's own label, chip or keywords. An effect line is written only where the text makes a concrete insert, strike or new requirement on that issue; a mapped pair whose only change another line on the same act already states is `silent` with `why`. A measure no issue fits has `noMappingWhy` and no rows. `considered` lists issues read and declined. No roll call, member vote or presidential or gubernatorial position is added, so no member's file, score or Direction Match moves; S. 2403's House roll 119/2/314 is noted, not seeded. Lines are stored once in consistency.js _DOS_EFFECT under the CURRENT BILLS SLICE 20 marker.",
+ "verifiedOn": "2026-10-17",
+ "octoberPublicLaws": [
+  "H.R. 5345",
+  "S. 766",
+  "S. 195",
+  "S. 240",
+  "S. 283",
+  "S. 2403"
+ ],
+ "utahScan": {
+  "session": "2026GS",
+  "recordsRead": 931,
+  "matched": [
+   "H.B. 76",
+   "H.B. 507",
+   "H.B. 585",
+   "S.B. 282",
+   "S.B. 318"
+  ],
+  "terms": [
+   "data center",
+   "datacenter",
+   "large load",
+   "hyperscale"
+  ]
+ },
+ "counts": {
+  "measures": 9,
+  "mappings": 17,
+  "lines": 12
+ },
+ "measures": [
+  {
+   "lane": "federal",
+   "sitting": "119",
+   "measureType": "bill",
+   "number": "H.R. 8352",
+   "chamber": "house",
+   "title": "Criminal History Access Act of 2026",
+   "status": "passed_senate",
+   "statusPer": "Passed the House; passed the Senate without amendment by Unanimous Consent on 2026-09-30; message on Senate action sent to the House on 2026-10-14; not yet presented to the President (GovInfo BILLSTATUS).",
+   "statusFrom": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr8352.xml",
+   "textFrom": "https://www.govinfo.gov/content/pkg/BILLS-119hr8352enr/html/BILLS-119hr8352enr.htm",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/8352",
+   "summary": "Amends 28 U.S.C. 534 so the Attorney General exchanges criminal history records with state peace officer standards and training agencies — state agencies that set standards for hiring, training, ethical conduct and retention of law enforcement officers — and directs the Attorney General to amend 28 CFR part 20 within 180 days. Passed both chambers (Senate by unanimous consent on 2026-09-30); awaiting presentment.",
+   "tense": "Passed both chambers and is not yet law, so its line opens “Would”.",
+   "mappings": [
+    {
+     "issue": "justice_balance",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The act adds state peace officer standards and training agencies — agencies with authority \"to set standards for the hiring, training, ethical conduct, and retention of the law enforcement officers of the State\" — to those the FBI exchanges criminal history records with, so the agencies that certify officers can check the records behind those standards. Training and accountability for officers is this key's own pairing.",
+     "touches": {
+      "training": "training",
+      "law enforcement officers": "police",
+      "ethical conduct": "accountability"
+     },
+     "decision": "line",
+     "line": "Would let state agencies that set police hiring, training and ethical conduct standards receive FBI criminal history records.",
+     "terms": [
+      "training",
+      "ethical conduct",
+      "criminal history records"
+     ],
+     "plain": {
+      "police": "law enforcement officers",
+      "receive": "exchange such records and information with",
+      "FBI": "FEDERAL BUREAU OF INVESTIGATION",
+      "state agencies": "an agency of a State",
+      "let": "for the official use of"
+     },
+     "key": "H.R. 8352|119|justice_balance",
+     "sources": [
+      {
+       "from": "https://www.govinfo.gov/content/pkg/BILLS-119hr8352enr/html/BILLS-119hr8352enr.htm",
+       "quote": "To authorize peace officer standards and training agencies to access criminal history records, and for other purposes."
+      },
+      {
+       "from": "https://www.govinfo.gov/content/pkg/BILLS-119hr8352enr/html/BILLS-119hr8352enr.htm",
+       "quote": "SEC. 2. FEDERAL BUREAU OF INVESTIGATION."
+      },
+      {
+       "from": "https://www.govinfo.gov/content/pkg/BILLS-119hr8352enr/html/BILLS-119hr8352enr.htm",
+       "quote": "exchange such records and information with, and for the official use of, authorized officials of the Federal Government, including the United States Sentencing Commission, the States, including State sentencing commissions and peace officer standards and training agencies, Indian tribes, cities, and penal and other institutions"
+      },
+      {
+       "from": "https://www.govinfo.gov/content/pkg/BILLS-119hr8352enr/html/BILLS-119hr8352enr.htm",
+       "quote": "the term `peace officer standards and training agency' means an agency of a State with the statutory authority under State law to set standards for the hiring, training, ethical conduct, and retention of the law enforcement officers of the State through certification, licensing, or other similar qualification process"
+      }
+     ],
+     "bounds": []
+    },
+    {
+     "issue": "privacy_rights",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "The same clause widens the set of agencies the federal government transfers criminal history records to — a government's transfer of records about a person, which is inside this key's scope — so a yea widens that sharing rather than narrowing it.",
+     "touches": {
+      "exchange such records and information": "data"
+     },
+     "decision": "silent",
+     "why": "The act’s one change on this issue is the same widened exchange the justice_balance line states; a second line would restate it.",
+     "key": "H.R. 8352|119|privacy_rights",
+     "sources": [
+      {
+       "from": "https://www.govinfo.gov/content/pkg/BILLS-119hr8352enr/html/BILLS-119hr8352enr.htm",
+       "quote": "exchange such records and information with, and for the official use of, authorized officials of the Federal Government, including the United States Sentencing Commission, the States, including State sentencing commissions and peace officer standards and training agencies, Indian tribes, cities, and penal and other institutions"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "lane": "federal",
+   "sitting": "119",
+   "measureType": "bill",
+   "number": "S. 240",
+   "chamber": "senate",
+   "title": "Crow Tribe Water Rights Settlement Amendments Act of 2025",
+   "status": "enacted",
+   "publicLaw": "119-122",
+   "statusPer": "Signed by the President and became Public Law 119-122 on 2026-10-15 (GovInfo BILLSTATUS).",
+   "statusFrom": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/s/BILLSTATUS-119s240.xml",
+   "textFrom": "https://www.govinfo.gov/content/pkg/BILLS-119s240enr/html/BILLS-119s240enr.htm",
+   "baseLawFrom": "https://www.govinfo.gov/content/pkg/PLAW-111publ291/html/PLAW-111publ291.htm",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/240",
+   "summary": "Amends the Crow Tribe Water Rights Settlement Act of 2010: repeals the MR&I System section, creates an MR&I Projects Account the Tribe must use first for water production, treatment or delivery infrastructure, keeps title to those projects in the Tribe with no federal operation and maintenance obligation, and extends from 15 to 20 years the deadline in section 412(b)(1) for the Tribe’s exclusive right to develop power at Yellowtail Afterbay Dam. Public Law 119-122, signed 2026-10-15.",
+   "tense": "Public Law 119-122, so its lines read as done.",
+   "mappings": [
+    {
+     "issue": "water_storage",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The new MR&I Projects Account must be used first \"to plan, permit, design, engineer, construct, reconstruct, replace, rehabilitate, operate, or repair water production, treatment, or delivery infrastructure\" — building the supply side of water, which is this key.",
+     "touches": {
+      "water production, treatment, or delivery infrastructure": "water supply"
+     },
+     "decision": "line",
+     "line": "Created an MR&I Projects Account the Crow Tribe must use first for water production, treatment or delivery infrastructure.",
+     "terms": [
+      "MR&I Projects Account",
+      "delivery infrastructure"
+     ],
+     "plain": {
+      "Crow Tribe": "Crow Tribe Water Rights Settlement",
+      "must use first": "Priority use of funds.--The Tribe shall use funds",
+      "created": "to be established"
+     },
+     "key": "S. 240|119|water_storage",
+     "sources": [
+      {
+       "from": "https://www.govinfo.gov/content/pkg/BILLS-119s240enr/html/BILLS-119s240enr.htm",
+       "quote": "MR&I Projects Account, to be established as soon as practicable after the date of enactment of the Crow Tribe Water Rights Settlement Amendments Act of 2025"
+      },
+      {
+       "from": "https://www.govinfo.gov/content/pkg/BILLS-119s240enr/html/BILLS-119s240enr.htm",
+       "quote": "Priority use of funds.--The Tribe shall use funds from the MR&I Projects Account-- ``(I) to plan, permit, design, engineer, construct, reconstruct, replace, rehabilitate, operate, or repair water production, treatment, or delivery infrastructure, including for domestic and municipal use or wastewater infrastructure"
+      }
+     ],
+     "bounds": []
+    },
+    {
+     "issue": "infrastructure",
+     "weight": 50,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The same account funds water production, treatment, delivery and wastewater infrastructure, which this key names as \"water systems\".",
+     "touches": {
+      "delivery infrastructure": "water systems"
+     },
+     "decision": "silent",
+     "why": "The act’s one change on this issue is the MR&I Projects Account the water_storage line states; a second line would restate it.",
+     "key": "S. 240|119|infrastructure",
+     "sources": [
+      {
+       "from": "https://www.govinfo.gov/content/pkg/BILLS-119s240enr/html/BILLS-119s240enr.htm",
+       "quote": "Priority use of funds.--The Tribe shall use funds from the MR&I Projects Account-- ``(I) to plan, permit, design, engineer, construct, reconstruct, replace, rehabilitate, operate, or repair water production, treatment, or delivery infrastructure, including for domestic and municipal use or wastewater infrastructure"
+      }
+     ]
+    },
+    {
+     "issue": "enviro_energy",
+     "weight": 35,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Section 412(b)(1) gives the Tribe \"the exclusive right to develop and market power generation on the Yellowtail Afterbay Dam\", lost if construction is not substantially complete within the period; the act lengthens that period from 15 to 20 years, keeping a hydropower project open.",
+     "touches": {
+      "power generation": "energy"
+     },
+     "decision": "line",
+     "line": "Extended the Crow Tribe’s exclusive right to develop power at Yellowtail Afterbay Dam from 15 to 20 years absent substantial construction.",
+     "terms": [
+      "exclusive right",
+      "Yellowtail Afterbay Dam",
+      "20 years"
+     ],
+     "plain": {
+      "Crow Tribe": "Crow Tribe Water Rights Settlement",
+      "extended": "striking ``15 years'' and inserting ``20 years''",
+      "develop power": "develop and market power generation",
+      "absent": "if construction has not been substantially completed",
+      "substantial": "substantially completed"
+     },
+     "key": "S. 240|119|enviro_energy",
+     "sources": [
+      {
+       "from": "https://www.govinfo.gov/content/pkg/BILLS-119s240enr/html/BILLS-119s240enr.htm",
+       "quote": "Subsection (b)(1) of section 412 of the Crow Tribe Water Rights Settlement Act of 2010 (Public Law 111-291; 124 Stat. 3116) is amended by striking ``15 years'' and inserting ``20 years''."
+      },
+      {
+       "from": "https://www.govinfo.gov/content/pkg/PLAW-111publ291/html/PLAW-111publ291.htm",
+       "quote": "the Tribe shall have the exclusive right to develop and market power generation on the Yellowtail Afterbay Dam, provided that this exclusive right shall expire 15 years after the date of enactment of this Act if construction has not been substantially completed on the power generation project of the Tribe."
+      }
+     ],
+     "bounds": [
+      "absent"
+     ]
+    }
+   ]
+  },
+  {
+   "lane": "federal",
+   "sitting": "119",
+   "measureType": "bill",
+   "number": "S. 766",
+   "chamber": "senate",
+   "title": "Billion Dollar Boondoggle Act of 2025",
+   "status": "enacted",
+   "publicLaw": "119-120",
+   "statusPer": "Signed by the President and became Public Law 119-120 on 2026-10-07 (GovInfo BILLSTATUS).",
+   "statusFrom": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/s/BILLSTATUS-119s766.xml",
+   "textFrom": "https://www.govinfo.gov/content/pkg/BILLS-119s766enr/html/BILLS-119s766enr.htm",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/766",
+   "summary": "Requires the OMB Director to issue guidance under which executive and independent regulatory agencies report each year on every project more than 5 years behind schedule or at least $1 billion over its original cost estimate (projects funded through direct spending excluded), and to submit and post an annual report. Public Law 119-120, signed 2026-10-07.",
+   "tense": "Public Law 119-120, so its line reads as done.",
+   "mappings": [
+    {
+     "issue": "gov_waste",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The act requires an annual public report of \"taxpayer-funded projects that are over budget and behind schedule\" — cost overruns and delays named project by project, with the explanation for each — which is the waste-and-accountability work this key describes.",
+     "touches": {
+      "over budget and behind schedule": "waste"
+     },
+     "decision": "line",
+     "line": "Required OMB to report yearly on projects not funded by direct spending that are over 5 years late or $1 billion or more over cost estimate.",
+     "terms": [
+      "direct spending",
+      "cost estimate"
+     ],
+     "plain": {
+      "OMB": "Office of Management and Budget",
+      "yearly": "annual report",
+      "late": "behind schedule",
+      "$1 billion": "$1,000,000,000",
+      "or more": "not less than",
+      "over 5": "more than 5"
+     },
+     "key": "S. 766|119|gov_waste",
+     "sources": [
+      {
+       "from": "https://www.govinfo.gov/content/pkg/BILLS-119s766enr/html/BILLS-119s766enr.htm",
+       "quote": "To require an annual report of taxpayer-funded projects that are over budget and behind schedule."
+      },
+      {
+       "from": "https://www.govinfo.gov/content/pkg/BILLS-119s766enr/html/BILLS-119s766enr.htm",
+       "quote": "(A) that is more than 5 years behind schedule, as measured against the original expected date for completion; or (B) for which the amount spent on the project is not less than $1,000,000,000 more than the original cost estimate for the project;"
+      },
+      {
+       "from": "https://www.govinfo.gov/content/pkg/BILLS-119s766enr/html/BILLS-119s766enr.htm",
+       "quote": "that is not funded through direct spending"
+      },
+      {
+       "from": "https://www.govinfo.gov/content/pkg/BILLS-119s766enr/html/BILLS-119s766enr.htm",
+       "quote": "(2) Report.--The Director shall submit to Congress and post on the website of the Office of Management and Budget an annual report containing the information submitted under paragraph (1) for the relevant year."
+      }
+     ],
+     "bounds": []
+    },
+    {
+     "issue": "audit_spending",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Each covered agency must submit, every year, the original and current cost estimate, the federal share, each contractor and grant recipient, and the amount of and rationale for any award or bonus on the project — an audit of agency spending by project.",
+     "touches": {
+      "submit to the Director information": "accountability"
+     },
+     "decision": "silent",
+     "why": "The act’s one change on this issue is the annual project report the gov_waste line states; a second line would restate it.",
+     "key": "S. 766|119|audit_spending",
+     "sources": [
+      {
+       "from": "https://www.govinfo.gov/content/pkg/BILLS-119s766enr/html/BILLS-119s766enr.htm",
+       "quote": "submit to the Director information relating to each covered project of the covered agency"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "lane": "federal",
+   "sitting": "119",
+   "measureType": "bill",
+   "number": "H.R. 5345",
+   "chamber": "house",
+   "title": "Improving Social Security’s Service to Victims of Identity Theft Act",
+   "status": "enacted",
+   "publicLaw": "119-119",
+   "statusPer": "Signed by the President and became Public Law 119-119 on 2026-10-07 (GovInfo BILLSTATUS).",
+   "statusFrom": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr5345.xml",
+   "textFrom": "https://www.govinfo.gov/content/pkg/BILLS-119hr5345enr/html/BILLS-119hr5345enr.htm",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/5345",
+   "summary": "Adds section 714 to the Social Security Act: the Commissioner must give any individual whose Social Security number has been misused, or whose card was lost in transmission, a single point of contact — a team of specially trained employees accountable for the case until it is resolved. Takes effect 180 days after enactment. Public Law 119-119, signed 2026-10-07.",
+   "tense": "Public Law 119-119, so its line reads as done.",
+   "mappings": [
+    {
+     "issue": "social_security",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The act changes how the Social Security Administration handles beneficiaries and card holders whose numbers were misused, including \"to fraudulently obtain benefits\": one accountable contact until the case is resolved. It protects the program's beneficiaries and their records, which is this key.",
+     "touches": {
+      "Commissioner of Social Security": "social security",
+      "fraudulently obtain benefits": "benefits"
+     },
+     "decision": "line",
+     "line": "Required Social Security to give anyone whose Social Security number was misused a single point of contact until the case is resolved.",
+     "terms": [
+      "single point of contact",
+      "misused"
+     ],
+     "plain": {
+      "anyone": "any individual",
+      "number": "social security account number",
+      "resolved": "throughout the resolution of the individual's case",
+      "give": "shall establish and implement procedures to ensure",
+      "case": "the individual's case"
+     },
+     "key": "H.R. 5345|119|social_security",
+     "sources": [
+      {
+       "from": "https://www.govinfo.gov/content/pkg/BILLS-119hr5345enr/html/BILLS-119hr5345enr.htm",
+       "quote": "The Commissioner of Social Security shall establish and implement procedures to ensure that any individual whose social security account number has been misused (such as to fraudulently obtain benefits under title II, VIII, or XVI of this Act"
+      },
+      {
+       "from": "https://www.govinfo.gov/content/pkg/BILLS-119hr5345enr/html/BILLS-119hr5345enr.htm",
+       "quote": "has a single point of contact at the Social Security Administration throughout the resolution of the individual's case."
+      }
+     ],
+     "bounds": []
+    },
+    {
+     "issue": "gov_services",
+     "weight": 50,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The single point of contact is a public service the Social Security Administration must now provide to identity-theft victims.",
+     "touches": {
+      "single point of contact at the Social Security Administration": "public service"
+     },
+     "decision": "silent",
+     "why": "The act’s one change on this issue is the single point of contact the social_security line states; a second line would restate it.",
+     "key": "H.R. 5345|119|gov_services",
+     "sources": [
+      {
+       "from": "https://www.govinfo.gov/content/pkg/BILLS-119hr5345enr/html/BILLS-119hr5345enr.htm",
+       "quote": "has a single point of contact at the Social Security Administration throughout the resolution of the individual's case."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "lane": "federal",
+   "sitting": "119",
+   "measureType": "bill",
+   "number": "S. 283",
+   "chamber": "senate",
+   "title": "Illegal Red Snapper and Tuna Enforcement Act",
+   "status": "enacted",
+   "publicLaw": "119-123",
+   "statusPer": "Signed by the President and became Public Law 119-123 on 2026-10-15 (GovInfo BILLSTATUS).",
+   "statusFrom": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/s/BILLSTATUS-119s283.xml",
+   "textFrom": "https://www.govinfo.gov/content/pkg/BILLS-119s283enr/html/BILLS-119s283enr.htm",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/283",
+   "summary": "Directs NIST and NOAA, consulting CBP and the Coast Guard, to develop a chemical-analysis method and portable field kit for identifying the country of origin of seafood to support enforcement against illegal, unreported and unregulated fishing and seafood fraud, with pilot studies on red snapper and tuna and a report within 2 years. Public Law 119-123, signed 2026-10-15.",
+   "mappings": [],
+   "noMappingWhy": "No issue in the vocabulary covers fisheries enforcement or seafood fraud. The trade keys are about tariffs, manufacturing and China, and the text names neither imports nor domestic industry; the environment keys are about air, water, land and energy. Mapping it would invent an issue the text does not touch."
+  },
+  {
+   "lane": "federal",
+   "sitting": "119",
+   "measureType": "bill",
+   "number": "S. 195",
+   "chamber": "senate",
+   "title": "American Music Tourism Act of 2025",
+   "status": "enacted",
+   "publicLaw": "119-121",
+   "statusPer": "Signed by the President and became Public Law 119-121 on 2026-10-09 (GovInfo BILLSTATUS).",
+   "statusFrom": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/s/BILLSTATUS-119s195.xml",
+   "textFrom": "https://www.govinfo.gov/content/pkg/BILLS-119s195enr/html/BILLS-119s195enr.htm",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/195",
+   "summary": "Adds music tourism to the Assistant Secretary of Commerce for Travel and Tourism’s duties to promote domestic and international travel, rewrites the international travel facilitation subsection, defines music tourism, and adds a biennial report. Public Law 119-121, signed 2026-10-09.",
+   "mappings": [],
+   "noMappingWhy": "No issue in the vocabulary covers tourism promotion. The act directs an office to identify and promote destinations and report; it changes no tax, regulation, wage, trade or spending rule that an economic key reads."
+  },
+  {
+   "lane": "federal",
+   "sitting": "119",
+   "measureType": "bill",
+   "number": "S. 2403",
+   "chamber": "senate",
+   "title": "Retire through Ownership Act",
+   "status": "enacted",
+   "publicLaw": "119-124",
+   "statusPer": "Signed by the President and became Public Law 119-124 on 2026-10-15 (GovInfo BILLSTATUS); the House roll call is 119/2/314 on 2026-09-16.",
+   "statusFrom": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/s/BILLSTATUS-119s2403.xml",
+   "textFrom": "https://www.govinfo.gov/content/pkg/BILLS-119s2403enr/html/BILLS-119s2403enr.htm",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/2403",
+   "summary": "Amends ERISA section 3(18) so a fiduciary of an employee ownership plan may rely in good faith on an independent appraiser’s valuation that follows IRS Revenue Ruling 59-60 when determining the fair market value of closely held shares, without expanding the Labor Secretary’s authority or modifying fiduciary duties under section 404. Public Law 119-124, signed 2026-10-15.",
+   "mappings": [],
+   "noMappingWhy": "The keys that come near — Raise Wages & Protect Workers, Balanced Prosperity, Protect Social Security — state no side on how a retirement-plan fiduciary values closely held shares. The text adds a good-faith reliance rule while expressly leaving fiduciary obligations under section 404 unchanged, so no direction on any of them can be read from it without inventing one."
+  },
+  {
+   "lane": "utah",
+   "sitting": "2026GS",
+   "measureType": "bill",
+   "status": "enacted",
+   "number": "H.B. 76",
+   "chamber": "utah house",
+   "utahBill": "HB0076",
+   "title": "Data Center Water Transparency Amendments",
+   "statusPer": "Governor Signed 3/23/2026 (le.utah.gov action history); effective May 6, 2026.",
+   "enactedPer": "Governor Signed",
+   "statusFrom": "https://le.utah.gov/data/2026GS/HB0076.json",
+   "textFrom": "https://le.utah.gov/Session/2026/bills/enrolled/HB0076.xml",
+   "sourceUrl": "https://le.utah.gov/~2026/bills/static/HB0076.html",
+   "primeSponsor": "Rep. Koford, Jill",
+   "floorSponsor": "Sen. Sandall, Scott D.",
+   "summary": "This bill addresses reporting related to water use and large data centers.",
+   "mappings": [
+    {
+     "issue": "datacenter_water",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Enacted 73-5-8.3 makes the operator of a new large data center (annual water withdrawal of 75 acre feet or more) report its estimated withdrawals before construction and its actual withdrawals every year, and the Division of Water Rights must publish each center's withdrawal data, \"and not in the aggregate\", with a fine of up to $100 a day for a missing report. Requiring data centers to account for the water they draw is this key's protective position.",
+     "section": "73-5-8.3 (enacted)",
+     "touches": {
+      "annual water withdrawal": "water use",
+      "large data center": "data center"
+     },
+     "decision": "line",
+     "line": "Required operators of new large data centers to report water withdrawals before construction and yearly, and the state to publish them.",
+     "terms": [
+      "new large data center",
+      "withdrawal"
+     ],
+     "plain": {
+      "operators": "the operator of the large data center",
+      "yearly": "for the calendar year",
+      "state": "Division of Water Rights",
+      "publish": "shall publish",
+      "construction": "before the operator of a large data center begins construction activities"
+     },
+     "key": "H.B. 76|2026GS|datacenter_water",
+     "sources": [
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0076.xml",
+       "quote": "[+(d)\"Large data center\" means a facility with an annual water withdrawal of 75 acre feet per year or more that:(i)houses a group of networked server computers in one physical location to disseminate, manage, and store data and information as the primary service of the facility;+]"
+      },
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0076.xml",
+       "quote": "[+(f)\"New large data center\" means a large data center that begins operations on or after July 1, 2026.+]"
+      },
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0076.xml",
+       "quote": "[+(b)report to the division:(i)the municipality, if applicable, and county in which the new large data center will be located;+]"
+      },
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0076.xml",
+       "quote": "[+(ii)the estimated withdrawal amount of water that the new large data center will withdraw annually;+]"
+      },
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0076.xml",
+       "quote": "[+(4)(a)Subject to Subsection (4)(b), after a new large data center begins operation, the operator of the large data center shall report to the division for the calendar year being reported on:(i)efforts made to reduce water consumption over the calendar year;+]"
+      },
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0076.xml",
+       "quote": "[+(ii)actual withdrawals for the calendar year;+]"
+      },
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0076.xml",
+       "quote": "[+(5)(a)The division shall publish water withdrawal data for each new large data center that is reported under Subsection (3)(b) or (4)(a) on the division's public website by no later than September 1 for the previous calendar year, and not in the aggregate.+]"
+      },
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0076.xml",
+       "quote": "[+(b)\"Division\" means the Division of Water Rights.+]"
+      },
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0076.xml",
+       "quote": "[+(3)On or after July 1, 2026, at least 90 days, but no sooner than 360 days, before the operator of a large data center begins construction activities related to a new large data center, the operator of the large data center shall:"
+      }
+     ],
+     "bounds": [
+      "new"
+     ]
+    },
+    {
+     "issue": "water",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Before construction, the operator must tell the water provider the new center's \"anticipated water consumption needs\" so the provider can judge whether that consumption \"is compatible with the location\" — measuring water demand at the point of siting, which is inside this key's demand-side scope.",
+     "section": "73-5-8.3(3)(a) (enacted)",
+     "touches": {
+      "anticipated water consumption needs": "water"
+     },
+     "decision": "line",
+     "line": "Made each new data center using 75 acre feet a year or more notify its water provider of anticipated consumption before building.",
+     "terms": [
+      "water provider",
+      "75 acre feet",
+      "anticipated"
+     ],
+     "plain": {
+      "made": "shall:(a)notify",
+      "using": "annual water withdrawal",
+      "year": "per year",
+      "building": "begins construction activities",
+      "consumption": "anticipated water consumption needs"
+     },
+     "key": "H.B. 76|2026GS|water",
+     "sources": [
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0076.xml",
+       "quote": "[+(3)On or after July 1, 2026, at least 90 days, but no sooner than 360 days, before the operator of a large data center begins construction activities related to a new large data center, the operator of the large data center shall:(a)notify in writing the water provider that provides water to the area where the new large data center will be located to detail the anticipated water consumption needs of the new large data center so that the water provider can determine whether the anticipated water consumption of the new large data center is compatible with the location in which the new large data center is being located; and+]"
+      },
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0076.xml",
+       "quote": "[+(d)\"Large data center\" means a facility with an annual water withdrawal of 75 acre feet per year or more that:(i)houses a group of networked server computers in one physical location to disseminate, manage, and store data and information as the primary service of the facility;+]"
+      },
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0076.xml",
+       "quote": "[+(f)\"New large data center\" means a large data center that begins operations on or after July 1, 2026.+]"
+      }
+     ],
+     "bounds": [
+      "new"
+     ]
+    }
+   ],
+   "considered": [
+    {
+     "issue": "datacenter_growth",
+     "why": "The act changes no incentive, siting permission or tax treatment for data centers; it adds reporting duties only."
+    },
+    {
+     "issue": "datacenter_power",
+     "why": "The act is about water withdrawal and discharge; it says nothing about power demand or utility costs."
+    }
+   ]
+  },
+  {
+   "lane": "utah",
+   "sitting": "2026GS",
+   "measureType": "bill",
+   "status": "enacted",
+   "number": "H.B. 507",
+   "chamber": "utah house",
+   "utahBill": "HB0507",
+   "title": "State Coordination of Regional and Local Economic Development Projects Amendments",
+   "statusPer": "Governor Signed 3/25/2026 (le.utah.gov action history); effective May 6, 2026, with the data-center incentive bar from May 6, 2027.",
+   "enactedPer": "Governor Signed",
+   "statusFrom": "https://le.utah.gov/data/2026GS/HB0507.json",
+   "textFrom": "https://le.utah.gov/Session/2026/bills/enrolled/HB0507.xml",
+   "sourceUrl": "https://le.utah.gov/~2026/bills/static/HB0507.html",
+   "primeSponsor": "Rep. Roberts, Calvin",
+   "floorSponsor": "Sen. Cullimore, Kirk A.",
+   "summary": "This bill addresses local and regional economic development projects and related provisions.",
+   "mappings": [
+    {
+     "issue": "dev_district_finance",
+     "weight": 90,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The larger operative change creates a new capture district: a county may distribute to the agency \"the percentage of property tax increment established by the committee... not to exceed: (A)70%\" and the agency \"may issue bonds\". Counter-provision: after January 1, 2028 the committee \"may not approve a proposal for a housing and transit reinvestment zone, a first home investment zone, or a convention center reinvestment zone\" unless pending, and new home ownership promotion zones end.",
+     "section": "63N-3a-204; 17C-6-202, 17C-6-203; 63N-3-605(12); 10-21-501; 17-80-501",
+     "touches": {
+      "property tax increment": "tax increment"
+     },
+     "decision": "line",
+     "line": "Created regionally significant development zones that capture property tax increment and let their agencies issue bonds.",
+     "terms": [
+      "property tax increment",
+      "issue bonds"
+     ],
+     "plain": {
+      "zones": "regionally significant development zone",
+      "capture": "distribute to the creating entity's agency",
+      "agencies": "An agency may issue bonds"
+     },
+     "key": "H.B. 507|2026GS|dev_district_finance",
+     "sources": [
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0507.xml",
+       "quote": "[+(5)(a)A county that collects property tax on property located within a qualified development zone boundary shall, in accordance with Section 59-2-1365, distribute to the creating entity's agency:(i)the percentage of property tax increment established by the committee as described in Subsection 63N-3a-203(4), not to exceed:(A)70% for a regionally significant transit-oriented zone;+]"
+      },
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0507.xml",
+       "quote": "[+(3)An agency may issue bonds, or cause bonds to be issued, as permitted by law, to pay all or part of the costs incurred for the purposes described in Subsection (2), including the cost to issue and repay the bonds including interest and reserves.+]"
+      },
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0507.xml",
+       "quote": "[+(12)(a)Beginning January 1, 2028, the committee may not approve a proposal for a housing and transit reinvestment zone, a first home investment zone, or a convention center reinvestment zone unless the proposal was pending on December 31, 2027.+]"
+      },
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0507.xml",
+       "quote": "[+(41)(a)\"Regionally significant development zone\" means an area:(i)created as described in Part 2, Creation of Regionally Significant Development Zones;"
+      }
+     ],
+     "bounds": []
+    },
+    {
+     "issue": "datacenter_growth",
+     "weight": 75,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "\"Beginning on May 6, 2027, except as provided in Subsections (2) and (3), a political subdivision may not provide an incentive to a large load data center\" cuts against welcoming data-center investment with local incentives. Counter-provision: incentives remain allowed inside a regionally significant development zone and from up to 80% of county energy excise tax revenue, and pre-May 6, 2027 agreements continue.",
+     "section": "11-41-201, 11-41-202; 63N-3a-402, 63N-3a-403",
+     "touches": {
+      "large load data center": "data center",
+      "incentive": "investment"
+     },
+     "decision": "line",
+     "line": "Barred local tax-increment incentives to large load data centers starting May 6, 2027, with exceptions.",
+     "terms": [
+      "large load data center",
+      "May 6, 2027"
+     ],
+     "plain": {
+      "barred": "may not provide an incentive",
+      "local": "a political subdivision",
+      "tax-increment": "funded by tax increment",
+      "incentives": "provide an incentive",
+      "exceptions": "except as provided in Subsections (2) and (3)",
+      "starting": "Beginning on May 6, 2027"
+     },
+     "key": "H.B. 507|2026GS|datacenter_growth",
+     "sources": [
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0507.xml",
+       "quote": "[+(1)Beginning on May 6, 2027, except as provided in Subsections (2) and (3), a political subdivision may not provide an incentive to a large load data center.+]"
+      },
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0507.xml",
+       "quote": "[+(3)\"Large load data center\" means a large load customer that is also a qualifying data center.+]"
+      },
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0507.xml",
+       "quote": "[+(c)A county that levies the county energy excise tax authorized in Section 59-35-201 may provide up to 80% of the revenue generated by the county energy excise tax as an incentive to a large load data center.+]"
+      },
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0507.xml",
+       "quote": "[+As used in this part:(1)\"Incentive\" means a payment of public funds, funded by tax increment or personal property tax revenue:(a)from a political subdivision to a person;+]"
+      }
+     ],
+     "bounds": [
+      "starting",
+      "with exceptions"
+     ]
+    },
+    {
+     "issue": "datacenter_power",
+     "weight": 50,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "A county \"may levy an excise tax for the delivered value of energy upon a high-impact consumer\" at \"a maximum rate of 6%\", and the banned \"incentive\" includes public funds for infrastructure \"that wholly or primarily support a large load customer\", making these users pay for their own energy footprint. Counter-provision: a levying county \"may provide up to 80% of the revenue generated by the county energy excise tax as an incentive to a large load data center\".",
+     "section": "59-35-101, 59-35-201, 59-35-301; 11-41-201(1)(c)(ii)",
+     "touches": {
+      "delivered value of energy": "electricity",
+      "large load customer": "data center"
+     },
+     "decision": "line",
+     "line": "Let counties levy an energy excise tax of up to 6% on large load customers and qualifying data centers on unincorporated land.",
+     "terms": [
+      "excise tax",
+      "6%",
+      "unincorporated land"
+     ],
+     "plain": {
+      "let": "A county may levy",
+      "counties": "A county",
+      "energy excise tax": "excise tax for the delivered value of energy",
+      "up to": "a maximum rate of",
+      "qualifying data centers": "a qualifying data center",
+      "large load customers": "a large load customer"
+     },
+     "key": "H.B. 507|2026GS|datacenter_power",
+     "sources": [
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0507.xml",
+       "quote": "[+(1)A county may levy an excise tax for the delivered value of energy upon a high-impact consumer located:(a)within the county; and+]"
+      },
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0507.xml",
+       "quote": "[+(2)(a)Subject to Section 59-35-202, a county may impose the tax levied under Subsection (1) at a maximum rate of 6% of the delivered value of the energy to the high-impact consumer.+]"
+      },
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0507.xml",
+       "quote": "[+(ii)a payment of public funds for the development, construction, renovation, or operation of public infrastructure and improvements that wholly or primarily support a large load customer.+]"
+      },
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0507.xml",
+       "quote": "[+(b)on unincorporated land.+]"
+      },
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0507.xml",
+       "quote": "[+(4)\"High-impact consumer\" means:(a)a large load customer; or+]"
+      },
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0507.xml",
+       "quote": "[+(b)a qualifying data center.+]"
+      }
+     ],
+     "bounds": [
+      "up to",
+      "qualifying"
+     ]
+    },
+    {
+     "issue": "gov_transparency",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "New 63G-2-305(2)(b) protects \"confidential economic development information\" including a record \"that takes the form of a nondisclosure agreement between a person and a governmental entity exploring an economic development opportunity\", reducing public access. Counter-provisions: new PID cost disclosure at closing and zone reporting and audit duties, which are smaller.",
+     "section": "63G-2-305(2)(b); 63G-2-206(4); 63G-2-309; 63G-2-802(2); 63G-7-605(5)",
+     "touches": {
+      "nondisclosure agreement": "disclosure"
+     },
+     "decision": "line",
+     "line": "Let confidential economic development information, including nondisclosure agreements, be withheld as protected records.",
+     "terms": [
+      "confidential economic development information",
+      "nondisclosure agreement"
+     ],
+     "plain": {
+      "withheld": "records are protected",
+      "protected records": "records are protected",
+      "including": "that takes the form of"
+     },
+     "key": "H.B. 507|2026GS|gov_transparency",
+     "sources": [
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0507.xml",
+       "quote": "[+(b)confidential economic development information:(i)(A)if the information is related to an economic development opportunity;+]"
+      },
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0507.xml",
+       "quote": "[+(ii)that takes the form of a nondisclosure agreement between a person and a governmental entity exploring an economic development opportunity;+]"
+      },
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0507.xml",
+       "quote": "[+(ii)damages for an improper disclosure, subject to the limits set by rule in accordance with Subsection 63G-7-605(5).+]"
+      },
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0507.xml",
+       "quote": "The following records are protected if properly classified by a governmental entity:"
+      }
+     ],
+     "bounds": []
+    },
+    {
+     "issue": "enviro_energy",
+     "weight": 35,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The outside-zone incentive prohibition gains a new exception for \"(C)an electrical energy project that is not a nuclear energy project\", freeing localities to incentivize non-nuclear baseload generation, an all-sources posture. The State Reinvestment Restricted Account may also be used for \"development of energy resources\".",
+     "section": "79-6-1104(2)(b); 51-9-1003(1)(e)",
+     "touches": {
+      "electrical energy project": "energy"
+     },
+     "decision": "line",
+     "line": "Narrowed the bar on county and city incentives for baseload power projects outside energy development zones to nuclear projects.",
+     "terms": [
+      "nuclear"
+     ],
+     "plain": {
+      "bar": "may not offer financial incentives",
+      "county": "a county or municipality",
+      "city": "municipality",
+      "baseload": "baseload electrical energy project",
+      "power": "electrical energy project",
+      "energy development zones": "designated electrical energy development zone",
+      "outside": "not located within",
+      "projects": "electrical energy project"
+     },
+     "key": "H.B. 507|2026GS|enviro_energy",
+     "sources": [
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0507.xml",
+       "quote": "[+(C)an electrical energy project that is not a nuclear energy project; or+]"
+      },
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0507.xml",
+       "quote": "[+(e)development of energy resources, as described in Title 79, Chapter 6, Utah Energy Act.+]"
+      },
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0507.xml",
+       "quote": "(2)(a)Except as provided in Subsection (2)(b), a county or municipality may not offer financial incentives for a baseload electrical energy project that is not located within a designated electrical energy development zone."
+      },
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0507.xml",
+       "quote": "(b)Subsection (2)(a) does not apply to:(i)financial incentives offered for:(A)a municipal power project;"
+      }
+     ],
+     "bounds": []
+    },
+    {
+     "issue": "lower_taxes",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "The bill creates a new tax rather than cutting one: \"A county may levy an excise tax for the delivered value of energy upon a high-impact consumer\" that \"is in addition to any sales and use tax imposed by the county\". Counter-provision: the new account lists \"income tax relief\" as a use, subject to appropriation, with no rate change.",
+     "section": "59-35-201; 51-9-1003(1)(a)",
+     "touches": {
+      "excise tax": "tax"
+     },
+     "decision": "silent",
+     "why": "The act’s one change on this issue is the new county energy excise tax the datacenter_power line states; a second line would restate it.",
+     "key": "H.B. 507|2026GS|lower_taxes",
+     "sources": [
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0507.xml",
+       "quote": "[+(6)A county excise tax imposed under this chapter is in addition to any sales and use tax imposed by the county under Title 59, Chapter 12, Sales and Use Tax Act.+]"
+      },
+      {
+       "from": "https://le.utah.gov/Session/2026/bills/enrolled/HB0507.xml",
+       "quote": "[+(1)Money in the account is to be used, subject to appropriation, for:(a)income tax relief;+]"
+      }
+     ]
+    }
+   ],
+   "considered": [
+    {
+     "issue": "water",
+     "why": "Rests only on uses the new State Reinvestment Restricted Account “is to be used, subject to appropriation, for”, including water infrastructure and the Great Salt Lake watershed; the bill appropriates nothing to either, so it makes no concrete change on water."
+    },
+    {
+     "issue": "transit",
+     "why": "Rests only on the same account’s permitted use for regionally significant transit and on objectives a transit-oriented zone proposal must address; the bill funds no transit, and the zone itself is the development-district row."
+    },
+    {
+     "issue": "datacenter_water",
+     "why": "Only water link is that an energy-implication zone is approved if land is suitable for a large load data center based on access to electricity and \"adequate water supply\" (63N-3a-403(1)(a)(ii)); a siting criterion, not a water-use limit, cooling rule or ag-water restriction."
+    },
+    {
+     "issue": "housing_first_time",
+     "why": "First home investment zone and home ownership promotion zone creation ends after 2027 while a new first home village zone type with owner-occupancy terms is created; per SCOPE (dev_district_finance) these are tightened and loosened in the same text and are secondary to the financing tool."
+    },
+    {
+     "issue": "housing_build",
+     "why": "Density and housing minimums ride inside the new increment zones (63N-3a-301/302) while older housing zones sunset; mixed and secondary to the financing mechanism per SCOPE; no zoning or permitting loosening."
+    },
+    {
+     "issue": "housing_support",
+     "why": "Affordable-unit percentages are conditions of zone proposals, not funding or renter protections; mixed and secondary per SCOPE."
+    },
+    {
+     "issue": "prop_tax",
+     "why": "Bill reallocates property tax increment and regulates PIDs (dissolution, closing disclosure) but does not lower or cap what households pay; SCOPE says a PID levy is not property tax relief."
+    },
+    {
+     "issue": "cost_living",
+     "why": "No change to rent, grocery, gas or utility prices; the energy excise tax applies only to high-impact consumers."
+    },
+    {
+     "issue": "climate_action",
+     "why": "The 79-6-1104 exception reaches all non-nuclear projects (fossil and clean alike; intermittent projects were already exempt), so direction on clean energy is indeterminate; no emissions provisions."
+    },
+    {
+     "issue": "econ_growth",
+     "why": "Chip is federal business deregulation; per SCOPE, tax-increment districts are targeted subsidy, not rollback. Nothing federal."
+    },
+    {
+     "issue": "states_federal_power",
+     "why": "Bill allocates authority between the state and local governments, not state versus federal."
+    },
+    {
+     "issue": "property_rights",
+     "why": "No eminent domain or takings change; PID 100% surface-owner consent for creation/annexation is pre-existing law; dissolution asset distribution to owners is incidental."
+    }
+   ]
+  }
+ ],
+ "notEnrolled": [
+  {
+   "number": "H.B. 585",
+   "title": "Data Center Amendments",
+   "lastAction": "House/ filed",
+   "why": "Filed, never passed: no enrolled text."
+  },
+  {
+   "number": "S.B. 282",
+   "title": "Electrical Grid Amendments",
+   "lastAction": "Senate/ filed",
+   "why": "Filed, never passed: no enrolled text."
+  },
+  {
+   "number": "S.B. 318",
+   "title": "Data Center Non Disclosure Amendments",
+   "lastAction": "Senate/ filed",
+   "why": "Filed, never passed: no enrolled text."
+  }
+ ]
+}

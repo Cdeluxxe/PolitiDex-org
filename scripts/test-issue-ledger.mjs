@@ -60,9 +60,12 @@ import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 import { deOrigin } from "./v103-chrome-seams.mjs";
 import { measureAddresses } from "./vr-measure-addresses.mjs";
+import { preAudit } from "./vr-effect-audit.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const R = (f) => readFileSync(join(ROOT, f), "utf8");
+// consistency.js as it stood before the v387 provisions audit; see
+// scripts/vr-effect-audit.mjs and scripts/test-effect-line-audit.mjs.
+const R = (f) => (f === "consistency.js" ? preAudit(readFileSync(join(ROOT, f), "utf8")) : readFileSync(join(ROOT, f), "utf8"));
 const HEAD = (f) => {
   try {
     return execFileSync("git", ["show", `HEAD:${f}`], { cwd: ROOT, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
@@ -1398,12 +1401,14 @@ section("14 · the harvest — every stored did, read against the effect rule");
     const end = src.indexOf("\n  };", at), next = src.indexOf("// BLANK ROWS SLICE 15 (v374)", at);
     return new Set([...src.slice(at, next !== -1 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
   })();
-  // BLANK ROWS SLICE 15 (v374), from its marker to the end of the table, held by
-  // scripts/test-blank-rows-slice15.mjs.
+  // BLANK ROWS SLICE 15 (v374), from its marker to the next slice marker or the
+  // end of the table, held by scripts/test-blank-rows-slice15.mjs. Five Issues
+  // slice 16 (v386) follows it and is scripts/test-five-issue-effect-lines.mjs's.
   const S15_KEYS = (() => {
     const src = R("consistency.js"), at = src.indexOf("// BLANK ROWS SLICE 15 (v374)");
     if (at === -1) return new Set();
-    return new Set([...src.slice(at, src.indexOf("\n  };", at)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
+    const end = src.indexOf("\n  };", at), next = src.indexOf("// FIVE ISSUES SLICE 16 (v386)", at);
+    return new Set([...src.slice(at, next !== -1 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
   })();
   const IRAN = Object.keys(EFFECT).filter((k) => /\|iran_policy$/.test(k) && !RIDER_KEYS.has(k));
   const TALLY = (() => {
@@ -1657,7 +1662,13 @@ section("14 · the harvest — every stored did, read against the effect rule");
   // line names Israel, carries a term its own `did` stores, is no other leaf's
   // line for the act, ends on the rolls the vote seeds hold, and takes the tense
   // its recorded outcome allows. The arms-sale disapprovals never left committee.
-  const ISR = Object.keys(EFFECT).filter((k) => /\|israel_support$/.test(k));
+  // A line the coverage pass (v388) wrote on this leaf is held by
+  // scripts/test-effect-coverage-lines.mjs and counted with slice 17 below.
+  const S17_EARLY = (() => {
+    const src = R("consistency.js"), at = src.indexOf("// EFFECT COVERAGE SLICE 17 (v388)");
+    return new Set(at === -1 ? [] : [...src.slice(at, src.indexOf("\n  };", at)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));  // slices 17 and 18
+  })();
+  const ISR = Object.keys(EFFECT).filter((k) => /\|israel_support$/.test(k) && !S17_EARLY.has(k));
   const ISR_SPEC = {
     "H.R. 5323|117": ["Iron Dome interceptors", [["house", 275]], "passed"],
     "S. 1605|117": ["$200 million", [["house", 405], ["senate", 499]], "cleared"],
@@ -2065,9 +2076,85 @@ section("14 · the harvest — every stored did, read against the effect rule");
     ok(!(MECH[k] && MECH[k].did), `${k}: a slice-15 line on a pair that stores a did`);
     ok(/^Confirmed [A-Z][a-z]+ as\b/.test(v) && !/\d+-\d+/.test(v), `${k}: does not open "Confirmed <nominee> as" with no tally`);
   }
-  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !FISCAL.includes(k) && !LONGDID.includes(k) && !EPA.includes(k) && !VEN.includes(k) && !S6.includes(k) && !S7.includes(k) && !S8.includes(k) && !S9.includes(k) && !S10.includes(k) && !S11.includes(k) && !S12.includes(k) && !S13.includes(k) && !S15.includes(k) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k) && !WAVE1.includes(k) && !WAVE2.includes(k) && !RIDER.includes(k) && !WAVE3.includes(k) && !WAVE4.includes(k));
+  // FIVE ISSUES SLICE 16 (v386). The Utah pairs on Water Conservation, Housing
+  // Affordability and Energy whose bills' own provisions state a clear change,
+  // held in detail by scripts/test-five-issue-effect-lines.mjs; here the batch
+  // rules. Each is keyed by a Utah session and names no tally.
+  const S16 = (() => {
+    const src = R("consistency.js"), at = src.indexOf("// FIVE ISSUES SLICE 16 (v386)");
+    if (at === -1) return [];
+    const end = src.indexOf("\n  };", at), next = src.indexOf("// EFFECT COVERAGE SLICE 17 (v388)", at);
+    return [...src.slice(at, next !== -1 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
+  })();
+  ok(S16.length === 27, `${S16.length} slice-16 line(s) — the slice holds 27 (25 written, 2 kept from v385)`);
+  for (const k of S16) {
+    const v = EFFECT[k] || "";
+    eq(harvestFault(v), "", `${k}: the slice-16 effect line`);
+    ok(!(MECH[k] && MECH[k].did), `${k}: a slice-16 line on a pair that stores a did`);
+    ok(/^[^|]+\|\d{4}GS\|(?:water|housing|energy_production)$/.test(k) && !/\d+-\d+/.test(v), `${k}: not a Utah pair on the slice's issues, or names a tally`);
+  }
+  // EFFECT COVERAGE SLICE 17 (v388). Every remaining silent pair, read against
+  // its bill: Utah lines from the Highlighted Provisions, federal lines from the
+  // enrolled or House-passed text, held in detail by
+  // scripts/test-effect-coverage-lines.mjs; here the batch rules. A Utah line
+  // names no tally; a federal line is keyed by its congress.
+  const S17 = (() => {
+    const src = R("consistency.js"), at = src.indexOf("// EFFECT COVERAGE SLICE 17 (v388)");
+    if (at === -1) return [];
+    const end = src.indexOf("\n  };", at), next = src.indexOf("// EFFECT BODY TEXT SLICE 18 (v389)", at);
+    return [...src.slice(at, next !== -1 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
+  })();
+  // EFFECT BODY TEXT SLICE 18 (v389). Pairs slice 17 left silent for thin text,
+  // written from the bill's own body; held in detail by
+  // scripts/test-effect-body-lines.mjs, here the batch rules.
+  const S18 = (() => {
+    const src = R("consistency.js"), at = src.indexOf("// EFFECT BODY TEXT SLICE 18 (v389)");
+    if (at === -1) return [];
+    const end = src.indexOf("\n  };", at), next = src.indexOf("// EFFECT DISTINCT SECTION SLICE 19 (v390)", at);
+    return [...src.slice(at, next !== -1 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
+  })();
+  // EFFECT DISTINCT SECTION SLICE 19 (v390). Pairs a sibling or no-bearing
+  // reason held silent, written from a separate section of the bill; held in
+  // detail by scripts/test-effect-distinct-lines.mjs, here the batch rules.
+  const S19 = (() => {
+    const src = R("consistency.js"), at = src.indexOf("// EFFECT DISTINCT SECTION SLICE 19 (v390)");
+    if (at === -1) return [];
+    const end = src.indexOf("\n  };", at), next = src.indexOf("// CURRENT BILLS SLICE 20 (v391)", at);
+    return [...src.slice(at, next !== -1 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
+  })();
+  // CURRENT BILLS SLICE 20 (v391). H.R. 8352, the October 2026 public laws and
+  // Utah 2026GS H.B. 76 and H.B. 507, mapped and lined from their enrolled text;
+  // held in detail by scripts/test-current-bills.mjs, here the batch rules.
+  const S20 = (() => {
+    const src = R("consistency.js"), at = src.indexOf("// CURRENT BILLS SLICE 20 (v391)");
+    if (at === -1) return [];
+    return [...src.slice(at, src.indexOf("\n  };", at)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
+  })();
+  ok(S20.length === JSON.parse(R("db/vr-current-bills.json")).measures.flatMap((m) => m.mappings).filter((x) => x.decision === "line").length, `${S20.length} slice-20 line(s) — not the current-bills ledger's count`);
+  for (const k of S20) {
+    eq(harvestFault(EFFECT[k] || ""), "", `${k}: the slice-20 effect line`);
+    ok(!(MECH[k] && MECH[k].did), `${k}: a slice-20 line on a pair that stores a did`);
+  }
+  ok(S19.length === JSON.parse(R("db/vr-effect-distinct-lines.json")).rows.filter((r) => r.decision === "line").length, `${S19.length} slice-19 line(s) — not the distinct ledger's count`);
+  for (const k of S19) {
+    eq(harvestFault(EFFECT[k] || ""), "", `${k}: the slice-19 effect line`);
+    ok(!(MECH[k] && MECH[k].did), `${k}: a slice-19 line on a pair that stores a did`);
+  }
+  ok(S18.length === JSON.parse(R("db/vr-effect-body-lines.json")).rows.filter((r) => r.decision === "line").length, `${S18.length} slice-18 line(s) — not the body ledger's count`);
+  for (const k of S18) {
+    eq(harvestFault(EFFECT[k] || ""), "", `${k}: the slice-18 effect line`);
+    ok(!(MECH[k] && MECH[k].did), `${k}: a slice-18 line on a pair that stores a did`);
+  }
+  ok(S17.length === JSON.parse(R("db/vr-effect-coverage-lines.json")).rows.filter((r) => r.decision === "line").length, `${S17.length} slice-17 line(s) — not the coverage ledger's count`);
+  for (const k of S17) {
+    const v = EFFECT[k] || "";
+    eq(harvestFault(v), "", `${k}: the slice-17 effect line`);
+    ok(!(MECH[k] && MECH[k].did), `${k}: a slice-17 line on a pair that stores a did`);
+    ok(/^[^|]+\|(?:\d{4}GS|\d{3})\|[a-z_]+$/.test(k) && (!/\|\d{4}GS\|/.test(k) || !/\d+-\d+/.test(v)), `${k}: not a Utah or federal pair, or a Utah line names a tally`);
+  }
+  const BATCH = Object.keys(EFFECT).filter((k) => !S17.includes(k) && !S18.includes(k) && !S19.includes(k) && !S20.includes(k) && !(k in SHIPPED) && !FISCAL.includes(k) && !LONGDID.includes(k) && !EPA.includes(k) && !VEN.includes(k) && !S6.includes(k) && !S7.includes(k) && !S8.includes(k) && !S9.includes(k) && !S10.includes(k) && !S11.includes(k) && !S12.includes(k) && !S13.includes(k) && !S15.includes(k) && !S16.includes(k) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k) && !WAVE1.includes(k) && !WAVE2.includes(k) && !RIDER.includes(k) && !WAVE3.includes(k) && !WAVE4.includes(k));
   ok(BATCH.length > 0 && BATCH.length <= 30, `${BATCH.length} new effect line(s) — the CRA batch is capped at 30`);
-  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length + WAVE1.length + WAVE2.length + RIDER.length + WAVE3.length + WAVE4.length + FISCAL.length + LONGDID.length + EPA.length + VEN.length + S6.length + S7.length + S8.length + S9.length + S10.length + S11.length + S12.length + S13.length + S15.length, "the effect table lost a shipped line");
+  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length + WAVE1.length + WAVE2.length + RIDER.length + WAVE3.length + WAVE4.length + FISCAL.length + LONGDID.length + EPA.length + VEN.length + S6.length + S7.length + S8.length + S9.length + S10.length + S11.length + S12.length + S13.length + S15.length + S16.length + S17.filter((k) => ![IRAN, UKRAINE, WAR, AF, PTS, ISR, DR].some((g) => g.includes(k))).length + S18.filter((k) => ![IRAN, UKRAINE, WAR, AF, PTS, ISR, DR].some((g) => g.includes(k))).length + S19.filter((k) => ![IRAN, UKRAINE, WAR, AF, PTS, ISR, DR].some((g) => g.includes(k))).length + S20.filter((k) => ![IRAN, UKRAINE, WAR, AF, PTS, ISR, DR].some((g) => g.includes(k))).length, "the effect table lost a shipped line");
   for (const k of BATCH) eq(craFault(k, EFFECT[k]), "", `${k}: the CRA effect line`);
   // Same resolution, different issue: the line is that pair's own, never a
   // sibling's, except where neither pair has a `did` and the title is the only source.

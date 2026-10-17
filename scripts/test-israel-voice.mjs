@@ -15,9 +15,11 @@
  *   4. ABSENT WHEN NOTHING IS STORED. With every israel_support line taken out, a
  *      row prints nothing unless its own pair stores a one-sentence description
  *      short enough to stand (the drawer's own fallback), and then only that.
- *   5. H.R. 815 (118th) STAYS BLANK. The rider audit filed its israel_support
- *      row and recorded it blank because its own text names Division A only by
- *      title; no line was written for it, and none is borrowed from a sibling.
+ *   5. H.R. 815 (118th) IS WRITTEN FROM ITS TEXT OR NOT AT ALL. The rider audit
+ *      filed its israel_support row and recorded it blank because its own text
+ *      names Division A only by title. The coverage pass (v388) read Division A
+ *      of the enacted text and wrote the line from it; any line it carries is
+ *      exactly that ledger's, and none is borrowed from a sibling.
  *   6. THE POLL GATE. Counts are readable signed out; an unverified vote is 403
  *      and writes nothing; a verified resident of the seat writes one row; an
  *      option from another issue's list is 400 and writes nothing.
@@ -36,6 +38,7 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
+import { coverageLine } from "./vr-effect-coverage.mjs";
 import { handle as pollHandle } from "../netlify/lib/district-board-poll-core.mjs";
 import { handle as voiceHandle, seatHash } from "../netlify/lib/district-board-voice-core.mjs";
 
@@ -207,7 +210,7 @@ section("4 · absent when nothing is stored");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("5 · H.R. 815 (118th) stays blank");
+section("5 · H.R. 815 (118th) is written from its text or not at all");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const ledger = JSON.parse(R("db/vr-rider-effect-lines.json")).rows || [];
@@ -215,7 +218,9 @@ section("5 · H.R. 815 (118th) stays blank");
   must(row, "the rider ledger no longer records H.R. 815 × israel_support");
   eq(row.decision, "blank", "the rider ledger records H.R. 815 × israel_support blank");
   ok(norm(row.reason).length > 20, "…with its reason");
-  ok(!("H.R. 815|118|israel_support" in E), "no line was written for it");
+  const cov = coverageLine("H.R. 815", "118", "israel_support");
+  if (cov) ok(E["H.R. 815|118|israel_support"] === cov && !Object.entries(E).some(([k, v]) => k !== "H.R. 815|118|israel_support" && v === cov), "its line is the coverage ledger's, written from Division A, and no sibling's");
+  else ok(!("H.R. 815|118|israel_support" in E), "no line was written for it");
   ok(!("H.R. 815|118|israel_support" in M), "…and no description was invented for it");
 }
 

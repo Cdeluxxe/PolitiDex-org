@@ -49,9 +49,12 @@ import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 import { keysAfter } from "./vr-slice-blocks.mjs";
 import { measureAddresses } from "./vr-measure-addresses.mjs";
+import { preAudit } from "./vr-effect-audit.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const R = (f) => readFileSync(join(ROOT, f), "utf8");
+// consistency.js as it stood before the v387 provisions audit; see
+// scripts/vr-effect-audit.mjs and scripts/test-effect-line-audit.mjs.
+const R = (f) => (f === "consistency.js" ? preAudit(readFileSync(join(ROOT, f), "utf8")) : readFileSync(join(ROOT, f), "utf8"));
 const FILES = [
   "cmp-data.js", "politician-stances-core.js", "politician-stances-ext.js",
   "state-senate-stances.js", "stance-helpers.js", "alignment-tool.js",
@@ -468,7 +471,11 @@ MUTANTS.push({ name: "an edited rationale", edit: (s) => s,
   ledger: { ...LEDGER, rows: LEDGER.rows.map((r) => (r.key === "Gabbard — DNI|119|foreign_balance" ? { ...r, rationale: r.rationale.replace("intelligence community", "intelligence agencies") } : r)) },
   expect: /does not hold the quoted rationale|is not the mapping's|not in its own rationale/ });
 MUTANTS.push({ name: "a line on a skipped pair",
-  edit: (s) => s.replace("\n  };\n  var _DOS_EFFECT_METHOD", "\n    'Rubio — State|119|strong_defense':\n      'Confirmed Rubio unanimously across both parties.',\n  };\n  var _DOS_EFFECT_METHOD"),
+  // Inside this slice's own block: before the next slice's marker when one
+  // follows (Five Issues slice 16, v386), else at the end of the table.
+  edit: (s) => s.includes("\n    // FIVE ISSUES SLICE 16 (v386).")
+    ? s.replace("\n    // FIVE ISSUES SLICE 16 (v386).", "\n    'Rubio — State|119|strong_defense':\n      'Confirmed Rubio unanimously across both parties.',\n    // FIVE ISSUES SLICE 16 (v386).")
+    : s.replace("\n  };\n  var _DOS_EFFECT_METHOD", "\n    'Rubio — State|119|strong_defense':\n      'Confirmed Rubio unanimously across both parties.',\n  };\n  var _DOS_EFFECT_METHOD"),
   expect: /a skipped pair carries a line|the block holds/ });
 MUTANTS.push({ name: "a chip for the issue being read",
   edit: (s) => s.replace("if (!k || k === issueKey || seen[k] || !_DOS_REL_KEY.test(k)) continue;", "if (!k || seen[k] || !_DOS_REL_KEY.test(k)) continue;"),

@@ -306,7 +306,8 @@
       // the allow-list's, asked for by seat key; this file composes none of it.
       door = '<p class="pdxvr-doors">' +
         '<a class="pdxvr-door" href="' + esc(board) + '">' +
-        esc(copy('boardOpen') || 'Open board') + '</a></p>';
+        esc(copy('boardOpen') || 'Open board') + '</a></p>' +
+        (copy('boardRoomFor') ? '<p class="pdxvr-roomfor">' + esc(copy('boardRoomFor')) + '</p>' : '');
     } else {
       // THE EMPTY GRAMMAR. Two sentences and no shape: no door onto nothing, no
       // disabled control, no table of no rows. Both strings are

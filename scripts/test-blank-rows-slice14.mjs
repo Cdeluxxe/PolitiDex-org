@@ -37,10 +37,14 @@ import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 import { keysAfter } from "./vr-slice-blocks.mjs";
+import { coverageLine } from "./vr-effect-coverage.mjs";
 import { measureAddresses } from "./vr-measure-addresses.mjs";
+import { preAudit } from "./vr-effect-audit.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const R = (f) => readFileSync(join(ROOT, f), "utf8");
+// consistency.js as it stood before the v387 provisions audit; see
+// scripts/vr-effect-audit.mjs and scripts/test-effect-line-audit.mjs.
+const R = (f) => (f === "consistency.js" ? preAudit(readFileSync(join(ROOT, f), "utf8")) : readFileSync(join(ROOT, f), "utf8"));
 const FILES = [
   "cmp-data.js", "politician-stances-core.js", "politician-stances-ext.js",
   "state-senate-stances.js", "stance-helpers.js", "alignment-tool.js",
@@ -370,7 +374,13 @@ function check(src, ledger, { pids = ALL_PIDS, base = null } = {}) {
         ok(!r.rationales.some((x) => low(x) === low(r.eff)), `${dk}: ${r.pair} prints a mapping rationale under the row`);
         ok(!rendererRule.test(r.eff), `${dk}: ${r.pair} prints a method sentence under the row`);
       }
-      if (skippedKeys.has(r.pair)) {
+      if (skippedKeys.has(r.pair) && laterE.has(r.pair)) {
+        // Written by a later slice from the bill's own text: that slice's line,
+        // held by its own test, and the chips under it are its own.
+        seenSkip.set(r.pair, (seenSkip.get(r.pair) || 0) + 1);
+        const [cn, cs, ci] = r.pair.split("|");
+        ok(!!coverageLine(cn, cs, ci) && r.eff === norm(coverageLine(cn, cs, ci)), `${dk}: ${r.pair} is a later slice's pair and prints ${JSON.stringify(r.eff)}, not that slice's ledger line`);
+      } else if (skippedKeys.has(r.pair)) {
         seenSkip.set(r.pair, (seenSkip.get(r.pair) || 0) + 1);
         // The chips sit under an effect line and belong to it, so a row with no
         // line prints neither, exactly as before this slice.
@@ -436,8 +446,12 @@ const relined = (k, line) => ({ ...LEDGER, rows: LEDGER.rows.map((r) => (r.key =
 const MUTANTS = [];
 const L = (k, line, name, expect) => MUTANTS.push({ name, edit: swap(k, line), expect, line: [k, line] });
 MUTANTS.push({ name: "a line written on the skipped pair",
-  edit: (s) => s.replace("\n  };\n  var _DOS_EFFECT_METHOD", "\n    'H.R. 815|118|israel_support':\n      'Carried the Israel Security Supplemental Appropriations Act as Division A; the Senate concurred 79-18.',\n  };\n  var _DOS_EFFECT_METHOD"),
-  expect: /a skipped pair carries a line|is skipped and prints|shipped _DOS_EFFECT line/ });
+  // The coverage pass (v388) since wrote this pair from Division A's enacted
+  // text, so the mutant now writes over that line, or adds one where none is.
+  edit: (s) => (coverageLine("H.R. 815", "118", "israel_support") && s.includes(`'${coverageLine("H.R. 815", "118", "israel_support")}'`)
+    ? s.replace(`'${coverageLine("H.R. 815", "118", "israel_support")}'`, "'Carried the Israel Security Supplemental Appropriations Act as Division A; the Senate concurred 79-18.'")
+    : s.replace("\n  };\n  var _DOS_EFFECT_METHOD", "\n    'H.R. 815|118|israel_support':\n      'Carried the Israel Security Supplemental Appropriations Act as Division A; the Senate concurred 79-18.',\n  };\n  var _DOS_EFFECT_METHOD")),
+  expect: /a skipped pair carries a line|is skipped and prints|shipped _DOS_EFFECT line|not that slice's ledger line/ });
 MUTANTS.push({ name: "a shipped line on the same act rewritten",
   edit: swap("H.R. 815|118|ukraine_policy", "Carried the Ukraine security supplemental; the Senate concurred 79-18."),
   expect: /shipped _DOS_EFFECT line|prints .*, stored/ });

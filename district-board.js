@@ -619,6 +619,9 @@
     // The general room's frame, before district-composer.js fills it.
     generalHd: 'General',
     generalWait: 'Reading the general room…',
+    // The reason under the locked line, printed under the general room. It
+    // adds no gate and replaces nothing: the locked line stays as it is.
+    roomFor: 'This room is for the people who live in this district. Outside noise stays outside.',
     tableUnfiled: 'Not filed under an issue',
     // How many issue categories have at least one measure on this seat. A count
     // of the groups the table actually prints, never a total of every topic the
@@ -1675,7 +1678,10 @@
         '<h2 class="pdxdb-h2">' + esc(COPY.generalHd) + '</h2>' +
         '<p class="pdxdb-wait" role="status"><span class="pdxdb-dot" aria-hidden="true"></span>' +
           esc(COPY.generalWait) + '</p>' +
-      '</section>';
+      '</section>' +
+      // A sibling of the frame, not inside it: district-composer.js rewrites
+      // the frame's contents on every paint, and this sentence is not its.
+      '<p class="pdxdb-room-for" data-pdxdb-room-for="">' + esc(COPY.roomFor) + '</p>';
   }
 
   function anyShown(G, mrows) {
