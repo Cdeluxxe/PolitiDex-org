@@ -48,6 +48,7 @@ import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 import { preAudit, AUDITED } from "./vr-effect-audit.mjs";
+import { keysAfter } from "./vr-slice-blocks.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -280,7 +281,9 @@ function check(src) {
       const a = AUDITED.find((r) => r.key === k);
       need(E.map[k] === v || (a && preAudit(src) !== src && a.line === E.map[k] && (a.was === v || a.line === v)), `${k}: a shipped line changed`);
     }
-    for (const k of Object.keys(E.map)) need(k in hE.map || block.includes(k), `${k}: a new line outside the FIVE ISSUES block`);
+    // A later slice's own block (vr-slice-blocks.mjs) is that slice's to pin.
+    const later = keysAfter(src, "_DOS_EFFECT", 386);
+    for (const k of Object.keys(E.map)) need(k in hE.map || block.includes(k) || later.has(k), `${k}: a new line outside the FIVE ISSUES block`);
     need(X.text === hX.text, "_DOS_EXEC_EFFECT changed");
     need(M.text === hM.text, "_DOS_MECH changed");
     need(P.text === hP.text, "_DOS_POINTER changed");

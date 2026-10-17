@@ -35,6 +35,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { execHeld, execLaterKeys } from "./vr-exec-later.mjs";
+import { COVERAGE_LINES } from "./vr-effect-coverage.mjs";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 import { preAudit, AUDITED } from "./vr-effect-audit.mjs";
@@ -207,13 +208,15 @@ eq(blanks.length, 12, "twelve rider rows are recorded blank");
 // A blank was a ruling on the stored summary. Five Issues slice 16 (v386) reads
 // the bill's own provisions instead, and where its ledger writes the pair from
 // them, that line supersedes the blank — and must be exactly that ledger's line.
-const FIVE_LINES = new Map(J("db/vr-five-issue-effect-lines.json").rows
-  .filter((r) => r.decision === "line").map((r) => [r.key, r.line]));
+// The coverage pass (v388) did the same for every remaining silent pair, from
+// the bill's provisions or its enrolled text (scripts/vr-effect-coverage.mjs).
+const FIVE_LINES = new Map([...J("db/vr-five-issue-effect-lines.json").rows
+  .filter((r) => r.decision === "line").map((r) => [r.key, r.line]), ...COVERAGE_LINES]);
 for (const r of blanks) {
   const item = r.congress != null ? fed(r.number, r.congress) : utah(r.number, r.utahSession);
   const k = NEW.key(item, r.leaf);
   if (k && FIVE_LINES.has(k)) {
-    eq(norm(E.map[k]), norm(FIVE_LINES.get(k)), `${r.key}: superseded by slice 16, but the stored line is not that ledger's`);
+    eq(norm(E.map[k]), norm(FIVE_LINES.get(k)), `${r.key}: superseded by slice 16 or 17, but the stored line is not that ledger's`);
     continue;
   }
   ok(!!k && !(k in E.map), `${r.key}: ${k || "(no key)"} now stores a line`);

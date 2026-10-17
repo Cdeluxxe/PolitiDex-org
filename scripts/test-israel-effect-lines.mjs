@@ -35,6 +35,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { execHeld } from "./vr-exec-later.mjs";
+import { coverageLine } from "./vr-effect-coverage.mjs";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 import { measureAddresses } from "./vr-measure-addresses.mjs";
@@ -207,7 +208,11 @@ function check(src, base) {
   for (const p of seenPairs) ok(!!(E.map[p] || rowRule(didOf(p))), `${p}: a member-voted pair on Support for Israel prints no line`);
   ok(DB_PAIRS.length >= 19, `only ${DB_PAIRS.length} database-mapped pairs on Support for Israel — the projection thinned out`);
   for (const p of DB_PAIRS) {
-    if (!didOf(p)) ok(!E.map[p], `${p}: stores no did on Support for Israel but carries a line`);
+    // The coverage pass (v388) writes a did-less pair from its enrolled text,
+    // and its line must be exactly that ledger's (scripts/vr-effect-coverage.mjs).
+    const [num, sit] = p.split("|");
+    if (coverageLine(num, sit, "israel_support")) ok(E.map[p] === coverageLine(num, sit, "israel_support"), `${p}: the coverage pass's line is not the stored one`);
+    else if (!didOf(p)) ok(!E.map[p], `${p}: stores no did on Support for Israel but carries a line`);
   }
   return { faults, pass, printed };
 }

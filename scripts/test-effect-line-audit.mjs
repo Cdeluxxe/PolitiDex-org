@@ -260,7 +260,7 @@ section("the tree");
   ok(out.length === 0, `the tree:\n      ${out.slice(0, 12).join("\n      ")}`);
   if (!out.length) console.log(`      ✓ 48 lines read, 9 rewritten from the bill, 39 kept; ${HEAD_RENDER.out.size} drawers across ${PIDS.length} members unchanged outside the audited rows`);
   const sw = R("sw.js");
-  ok(/const CACHE_VERSION = 'v387';/.test(sw) && sw.includes("// v387 - EFFECT LINES CHECKED AGAINST THE BILL."), "the shell moved to v387 with its note");
+  ok(Number((/const CACHE_VERSION = 'v(\d+)';/.exec(sw) || [])[1]) >= 387 && sw.includes("// v387 - EFFECT LINES CHECKED AGAINST THE BILL."), "the shell moved to v387 or later, with the v387 note");
 }
 
 section("mutations");

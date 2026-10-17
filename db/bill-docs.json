@@ -571,7 +571,8 @@
     },
     {
      "i": "Support for Israel",
-     "k": "israel_support"
+     "k": "israel_support",
+     "l": "Provided $5.2 billion for Iron Dome, David’s Sling and Iron Beam and $3.5 billion in Israel military financing; the Senate concurred 79-18."
     },
     {
      "i": "Ukraine",
@@ -1947,7 +1948,8 @@
    "m": [
     {
      "i": "Balanced Land Use",
-     "k": "lands_balance"
+     "k": "lands_balance",
+     "l": "Would designate high-risk fireshed management areas and have the Forest Service use livestock grazing to reduce wildfire risk."
     },
     {
      "i": "Faster Permits & Reviews",
@@ -2099,7 +2101,8 @@
     },
     {
      "i": "Practical Government Reform",
-     "k": "reform_balance"
+     "k": "reform_balance",
+     "l": "Would send a case brought by two or more states challenging an executive action to a randomly selected three-judge panel."
     }
    ]
   },
@@ -2562,7 +2565,8 @@
    "m": [
     {
      "i": "Affordable Housing & Renters",
-     "k": "housing_support"
+     "k": "housing_support",
+     "l": "Made the Rental Assistance Demonstration permanent, raised its cap to 555,000 units and made new affordable housing construction a CDBG use."
     },
     {
      "i": "Build More Housing",
@@ -2571,11 +2575,13 @@
     },
     {
      "i": "Cryptocurrency Rules & Digital Dollar",
-     "k": "crypto_cbdc"
+     "k": "crypto_cbdc",
+     "l": "Barred the Federal Reserve from issuing or creating a central bank digital currency until the bar sunsets at the end of 2030."
     },
     {
      "i": "Faster Permits & Reviews",
-     "k": "permitting_reform"
+     "k": "permitting_reform",
+     "l": "Let Indian Tribes assume HUD environmental review duties and directed NEPA streamlining for HUD housing-related activities."
     },
     {
      "i": "Housing Affordability",
@@ -2666,7 +2672,8 @@
    "m": [
     {
      "i": "Expand Healthcare Access",
-     "k": "healthcare"
+     "k": "healthcare",
+     "l": "Extended community health center funding, special diabetes programs and Medicare telehealth flexibilities; the House concurred 217-214."
     },
     {
      "i": "Lower Prescription Drug Prices",
@@ -3729,7 +3736,8 @@
    "m": [
     {
      "i": "Criminal Justice Reform",
-     "k": "justice_reform"
+     "k": "justice_reform",
+     "l": "Would have reduced the penalty, in certain circumstances, for a restricted person in possession of marijuana."
     }
    ]
   },
@@ -3741,7 +3749,8 @@
    "m": [
     {
      "i": "Innovation & Light Rules",
-     "k": "tech_innovation"
+     "k": "tech_innovation",
+     "l": "Required the Utah Innovation Lab to run the Utah innovation fund for investing in businesses developed through technology commercialization."
     },
     {
      "i": "Pro-Growth Deregulation",
@@ -3761,7 +3770,8 @@
     },
     {
      "i": "Middle-Class Tax Relief",
-     "k": "tax_middle_class"
+     "k": "tax_middle_class",
+     "l": "Expanded eligibility for the social security benefits tax credit by increasing the thresholds for the income-based phaseout."
     }
    ]
   },
@@ -3773,7 +3783,8 @@
    "m": [
     {
      "i": "Corporate Accountability",
-     "k": "econ_corp_account"
+     "k": "econ_corp_account",
+     "l": "Would have barred courts from enforcing agreements to waive or limit punitive damages liability, exempting certain financial institutions."
     }
    ]
   },
@@ -3785,7 +3796,8 @@
    "m": [
     {
      "i": "Parental Rights in Schools",
-     "k": "edu_parental"
+     "k": "edu_parental",
+     "l": "Would have required local education agencies to give parents prior notice of certain school assemblies."
     }
    ]
   },
@@ -3797,7 +3809,8 @@
    "m": [
     {
      "i": "Corporate Accountability",
-     "k": "econ_corp_account"
+     "k": "econ_corp_account",
+     "l": "Cut the reverse mortgage cooling off period from seven days to five and waived some foreclosure prerequisites if the borrower is deceased."
     }
    ]
   },
@@ -3809,7 +3822,8 @@
    "m": [
     {
      "i": "Mental Health & Addiction",
-     "k": "health_mental"
+     "k": "health_mental",
+     "l": "Set a three-year pilot granting the same disability benefit for a mental objective medical impairment as for a physical one."
     }
    ]
   },
@@ -3821,7 +3835,8 @@
    "m": [
     {
      "i": "Protect Gun Rights",
-     "k": "gun_rights"
+     "k": "gun_rights",
+     "l": "Waived the concealed weapons permit fee for a school employee in certain circumstances."
     }
    ]
   },
@@ -3837,7 +3852,8 @@
     },
     {
      "i": "Tough on Crime",
-     "k": "tough_on_crime"
+     "k": "tough_on_crime",
+     "l": "Provided that it is not a defense to theft of livestock that the livestock is sick, injured, or a liability to the owner."
     }
    ]
   },
@@ -3849,7 +3865,8 @@
    "m": [
     {
      "i": "Tough on Crime",
-     "k": "tough_on_crime"
+     "k": "tough_on_crime",
+     "l": "Would have made it a crime to transport, provide, sell, or possess a communication device at a correctional facility against its policy."
     }
    ]
   },
@@ -3861,7 +3878,8 @@
    "m": [
     {
      "i": "Medical Freedom",
-     "k": "medical_freedom"
+     "k": "medical_freedom",
+     "l": "Barred governmental entities and employers from requiring a vaccine and, with certain exceptions, from requiring proof of immunity status."
     }
    ]
   },
@@ -3873,7 +3891,8 @@
    "m": [
     {
      "i": "Protect LGBTQ+ Rights",
-     "k": "lgbtq_rights"
+     "k": "lgbtq_rights",
+     "l": "Would have made it unprofessional conduct, under most circumstances, for a provider to perform a procedure on a minor for sex transitioning."
     }
    ]
   },
@@ -3885,7 +3904,8 @@
    "m": [
     {
      "i": "Parental Rights in Schools",
-     "k": "edu_parental"
+     "k": "edu_parental",
+     "l": "Would have required schools to finish reviews of challenged instructional material and provided for ending vendor contracts over it."
     }
    ]
   },
@@ -3910,11 +3930,13 @@
    "m": [
     {
      "i": "Free Speech Protections",
-     "k": "free_speech"
+     "k": "free_speech",
+     "l": "Would have barred distributing a recording of a crime unless the crime had been reported to law enforcement."
     },
     {
      "i": "Tough on Crime",
-     "k": "tough_on_crime"
+     "k": "tough_on_crime",
+     "l": "Would have identified circumstances where it is a crime to fail to aid a crime victim."
     }
    ]
   },
@@ -3939,7 +3961,8 @@
    "m": [
     {
      "i": "Election Integrity",
-     "k": "election_integrity"
+     "k": "election_integrity",
+     "l": "Would have required the lieutenant governor to contract with an independent accounting firm to evaluate certain election audits and results."
     }
    ]
   },
@@ -3951,7 +3974,8 @@
    "m": [
     {
      "i": "Privacy & Big-Tech Accountability",
-     "k": "privacy_rights"
+     "k": "privacy_rights",
+     "l": "Would have let law enforcement obtain a specific category of electronic information or data with a subpoena under certain conditions."
     }
    ]
   },
@@ -3967,7 +3991,8 @@
     },
     {
      "i": "Protect Gun Rights",
-     "k": "gun_rights"
+     "k": "gun_rights",
+     "l": "Made a private property occupant not liable, in certain circumstances, for firearm discharge there by someone in lawful possession."
     }
    ]
   },
@@ -3979,7 +4004,8 @@
    "m": [
     {
      "i": "Invest in Public Schools",
-     "k": "public_schools"
+     "k": "public_schools",
+     "l": "Would have barred local education agencies from charging a general fee or charging grade 6 students a fee for a remediation program."
     }
    ]
   },
@@ -3991,7 +4017,8 @@
    "m": [
     {
      "i": "Farmers & Rural Communities",
-     "k": "rural_ag"
+     "k": "rural_ag",
+     "l": "Exempted certain individuals who test a bovine for pregnancy from licensure under the Veterinary Practice Act."
     }
    ]
   },
@@ -4003,7 +4030,8 @@
    "m": [
     {
      "i": "Raise Wages & Protect Workers",
-     "k": "econ_workers"
+     "k": "econ_workers",
+     "l": "Would have given school employees under criminal investigation paid leave at part salary, with back pay if wrongdoing is not substantiated."
     }
    ]
   },
@@ -4015,7 +4043,8 @@
    "m": [
     {
      "i": "Stronger Gun Safety Laws",
-     "k": "gun_safety"
+     "k": "gun_safety",
+     "l": "Barred law enforcement from returning a firearm given for safekeeping to a restricted person or certain domestic violence arrestees."
     }
    ]
   },
@@ -4027,11 +4056,13 @@
    "m": [
     {
      "i": "Private Property Rights",
-     "k": "property_rights"
+     "k": "property_rights",
+     "l": "Provided statutory damages, attorney fees, and court costs for certain criminal trespass."
     },
     {
      "i": "Tough on Crime",
-     "k": "tough_on_crime"
+     "k": "tough_on_crime",
+     "l": "Established the elements of and penalty for certain criminal trespass, with certain defenses."
     }
    ]
   },
@@ -4043,7 +4074,8 @@
    "m": [
     {
      "i": "School Choice & Education Freedom",
-     "k": "school_choice"
+     "k": "school_choice",
+     "l": "Created the Utah Fits All Scholarship Program, with scholarship accounts for eligible students to pay for approved education goods."
     }
    ]
   },
@@ -4068,7 +4100,8 @@
    "m": [
     {
      "i": "Protect Gun Rights",
-     "k": "gun_rights"
+     "k": "gun_rights",
+     "l": "Declared that the state and its political subdivisions will not enforce federal regulations that purport to restrict or ban some firearms."
     },
     {
      "i": "Whose Rule Governs: State or Federal",
@@ -4084,7 +4117,8 @@
    "m": [
     {
      "i": "Paid Family & Medical Leave",
-     "k": "paid_leave"
+     "k": "paid_leave",
+     "l": "Would have required local education agencies to give employees certain paid leave at least equal to state employee leave and leave sharing."
     }
    ]
   },
@@ -4096,7 +4130,8 @@
    "m": [
     {
      "i": "Cannabis Reform",
-     "k": "cannabis_reform"
+     "k": "cannabis_reform",
+     "l": "Created the Center for Medical Cannabis Research within the University of Utah, fundable by the Qualified Patient Enterprise Fund."
     }
    ]
   },
@@ -4108,7 +4143,8 @@
    "m": [
     {
      "i": "Affordable Housing & Renters",
-     "k": "housing_support"
+     "k": "housing_support",
+     "l": "Set when a private owner of permanent supportive housing qualifies as a nonprofit entity for the exclusive use property tax exemption."
     }
    ]
   },
@@ -4120,7 +4156,8 @@
    "m": [
     {
      "i": "Raise Wages & Protect Workers",
-     "k": "econ_workers"
+     "k": "econ_workers",
+     "l": "Excluded confidential employees, managerial employees, and supervisors of a public transit district from the right to bargain collectively."
     }
    ]
   },
@@ -4132,7 +4169,8 @@
    "m": [
     {
      "i": "Mental Health & Addiction",
-     "k": "health_mental"
+     "k": "health_mental",
+     "l": "Required the Department of Health and Human Services to create a long-term, statewide assertive community treatment team plan."
     }
    ]
   },
@@ -4144,7 +4182,8 @@
    "m": [
     {
      "i": "Cut Federal Red Tape",
-     "k": "gov_regulation"
+     "k": "gov_regulation",
+     "l": "Removed an examination requirement for licensure as a certified social worker or social service worker."
     }
    ]
   },
@@ -4156,7 +4195,8 @@
    "m": [
     {
      "i": "Property Tax Relief",
-     "k": "prop_tax"
+     "k": "prop_tax",
+     "l": "Would have raised the income limit for a claimant to qualify for a homeowner’s credit and for a renter’s credit."
     }
    ]
   },
@@ -4168,7 +4208,8 @@
    "m": [
     {
      "i": "Privacy & Big-Tech Accountability",
-     "k": "privacy_rights"
+     "k": "privacy_rights",
+     "l": "Barred a governmental entity from using a social credit system that causes adverse or preferential treatment of a person."
     }
    ]
   },
@@ -4192,7 +4233,8 @@
    "m": [
     {
      "i": "Cryptocurrency Rules & Digital Dollar",
-     "k": "crypto_cbdc"
+     "k": "crypto_cbdc",
+     "l": "Created the Noncustodial Blockchain Registry in the Utah Office of Regulatory Relief and had the office issue certificates of registration."
     }
    ]
   },
@@ -4204,7 +4246,8 @@
    "m": [
     {
      "i": "Transparency & Anti-Corruption",
-     "k": "gov_transparency"
+     "k": "gov_transparency",
+     "l": "Would have required certain state and local government entities to disclose certain information relating to their budgets."
     }
    ]
   },
@@ -4228,7 +4271,8 @@
    "m": [
     {
      "i": "Corporate Accountability",
-     "k": "econ_corp_account"
+     "k": "econ_corp_account",
+     "l": "Barred a social media company from using a design or feature that causes a minor to have an addiction, and allowed private suits."
     }
    ]
   },
@@ -4240,7 +4284,8 @@
    "m": [
     {
      "i": "Tough on Crime",
-     "k": "tough_on_crime"
+     "k": "tough_on_crime",
+     "l": "Provided an increased penalty for certain metal thefts."
     }
    ]
   },
@@ -4252,7 +4297,8 @@
    "m": [
     {
      "i": "Expand Healthcare Access",
-     "k": "healthcare"
+     "k": "healthcare",
+     "l": "Required the state to apply for a Medicaid waiver or state plan amendment to expand coverage for recreational therapy services."
     }
    ]
   },
@@ -4264,7 +4310,8 @@
    "m": [
     {
      "i": "Free Speech Protections",
-     "k": "free_speech"
+     "k": "free_speech",
+     "l": "Would have required a public entity to give public notice, under certain conditions, of a permitted event with an adult theme."
     }
    ]
   },
@@ -4276,7 +4323,8 @@
    "m": [
     {
      "i": "Help Small Businesses",
-     "k": "econ_smallbiz"
+     "k": "econ_smallbiz",
+     "l": "Would have required a political subdivision to allow a microenterprise home kitchen that meets the permit requirements to operate."
     }
    ]
   },
@@ -4288,7 +4336,8 @@
    "m": [
     {
      "i": "Parental Rights in Schools",
-     "k": "edu_parental"
+     "k": "edu_parental",
+     "l": "Would have required each LEA governing board to set a course content transparency policy and post it on the LEA’s website."
     }
    ]
   },
@@ -4300,7 +4349,8 @@
    "m": [
     {
      "i": "Election Integrity",
-     "k": "election_integrity"
+     "k": "election_integrity",
+     "l": "Increased the criminal penalty for taking, concealing, removing, or destroying a ballot drop box or the contents of a ballot drop box."
     }
    ]
   },
@@ -4328,7 +4378,8 @@
    "m": [
     {
      "i": "Cryptocurrency Rules & Digital Dollar",
-     "k": "crypto_cbdc"
+     "k": "crypto_cbdc",
+     "l": "Enacted the Decentralized Autonomous Organization Act, setting requirements for such an organization to be recognized by the state."
     }
    ]
   },
@@ -4340,7 +4391,8 @@
    "m": [
     {
      "i": "Affordable Housing & Renters",
-     "k": "housing_support"
+     "k": "housing_support",
+     "l": "Let low-income housing tax credits go by pass-through to certain business entities and sometimes be claimed before final certification."
     },
     {
      "i": "Housing Affordability",
@@ -4357,7 +4409,8 @@
    "m": [
     {
      "i": "Expand Voting Access",
-     "k": "voting_access"
+     "k": "voting_access",
+     "l": "Barred voting in the primary elections of multiple registered political parties and amended the even-year party affiliation deadline."
     }
    ]
   },
@@ -4369,7 +4422,8 @@
    "m": [
     {
      "i": "Tough on Crime",
-     "k": "tough_on_crime"
+     "k": "tough_on_crime",
+     "l": "Made it a criminal offense to destroy, damage, or tamper with a critical infrastructure facility or impersonate its officer or employee."
     }
    ]
   },
@@ -4381,7 +4435,8 @@
    "m": [
     {
      "i": "Farmers & Rural Communities",
-     "k": "rural_ag"
+     "k": "rural_ag",
+     "l": "Established the LeRay McAllister Working Farm and Ranch Fund."
     }
    ]
   },
@@ -4393,7 +4448,8 @@
    "m": [
     {
      "i": "Expand Healthcare Access",
-     "k": "healthcare"
+     "k": "healthcare",
+     "l": "Would have created a grant program to establish new clinical experience opportunities for healthcare students."
     }
    ]
   },
@@ -4405,7 +4461,8 @@
    "m": [
     {
      "i": "School Choice & Education Freedom",
-     "k": "school_choice"
+     "k": "school_choice",
+     "l": "Expanded allowed scholarship expenses and increased the donations a scholarship granting organization may carry forward in a fiscal year."
     }
    ]
   },
@@ -4429,7 +4486,8 @@
    "m": [
     {
      "i": "Transparency & Anti-Corruption",
-     "k": "gov_transparency"
+     "k": "gov_transparency",
+     "l": "Would have required state agencies issuing tax credit certificates to list claimant names and credit amounts on a linked webpage."
     }
    ]
   },
@@ -4441,7 +4499,8 @@
    "m": [
     {
      "i": "Control of the Civil Service",
-     "k": "civil_service_control"
+     "k": "civil_service_control",
+     "l": "Would have let certain career service employees elect to convert to career service exempt status and made schedule AY positions exempt."
     }
    ]
   },
@@ -4494,7 +4553,8 @@
    "m": [
     {
      "i": "Corporate Accountability",
-     "k": "econ_corp_account"
+     "k": "econ_corp_account",
+     "l": "Barred companies, with exceptions, from coordinating to destroy certain companies by eliminating their options for a product or service."
     }
    ]
   },
@@ -4518,7 +4578,8 @@
    "m": [
     {
      "i": "Protect Gun Rights",
-     "k": "gun_rights"
+     "k": "gun_rights",
+     "l": "Restricted prosecutors seeking forfeiture of a firearm in certain circumstances and set when a firearm seized at an airport may be returned."
     }
    ]
   },
@@ -4530,7 +4591,8 @@
    "m": [
     {
      "i": "Parental Rights in Schools",
-     "k": "edu_parental"
+     "k": "edu_parental",
+     "l": "Would have required local education agencies to review a parent’s allegation that instructional material is prohibited by state law."
     }
    ]
   },
@@ -4542,7 +4604,8 @@
    "m": [
     {
      "i": "Parental Rights in Schools",
-     "k": "edu_parental"
+     "k": "edu_parental",
+     "l": "Required local education agencies with school libraries to provide an online platform showing a parent materials the child borrows."
     }
    ]
   },
@@ -4554,7 +4617,8 @@
    "m": [
     {
      "i": "Control of the Civil Service",
-     "k": "civil_service_control"
+     "k": "civil_service_control",
+     "l": "Would have denied career service status to Office of the Attorney General employees hired after a specified date."
     }
    ]
   },
@@ -4566,7 +4630,8 @@
    "m": [
     {
      "i": "Pro-Life Protections",
-     "k": "pro_life"
+     "k": "pro_life",
+     "l": "Required abortions to be performed in a hospital, with some exceptions, and barred rape or incest abortions from 18 weeks gestational age."
     }
    ]
   },
@@ -4578,7 +4643,8 @@
    "m": [
     {
      "i": "Criminal Justice Reform",
-     "k": "justice_reform"
+     "k": "justice_reform",
+     "l": "Barred certain public employers hiring a mental health professional from considering certain arrests or criminal convictions."
     }
    ]
   },
@@ -4590,7 +4656,8 @@
    "m": [
     {
      "i": "Invest in Public Schools",
-     "k": "public_schools"
+     "k": "public_schools",
+     "l": "Changed kindergarten funding formulas to reflect a full-day class and required LEA boards to provide an optional half-day class on request."
     }
    ]
   },
@@ -4602,7 +4669,8 @@
    "m": [
     {
      "i": "Transparency & Anti-Corruption",
-     "k": "gov_transparency"
+     "k": "gov_transparency",
+     "l": "Required the state auditor to post certain information on required policies and let it inquire into compliance with certain recent laws."
     }
    ]
   },
@@ -4639,7 +4707,8 @@
    "m": [
     {
      "i": "Criminal Justice Reform",
-     "k": "justice_reform"
+     "k": "justice_reform",
+     "l": "Would have required an incentive program for inmates to complete their programs by their earliest estimated release date."
     }
    ]
   },
@@ -4651,7 +4720,8 @@
    "m": [
     {
      "i": "Free Speech Protections",
-     "k": "free_speech"
+     "k": "free_speech",
+     "l": "Would have barred a social media company from censoring user expression or banning a user in certain circumstances, with exceptions."
     }
    ]
   },
@@ -4663,7 +4733,8 @@
    "m": [
     {
      "i": "Cut Income & Business Taxes",
-     "k": "lower_taxes"
+     "k": "lower_taxes",
+     "l": "Would have exempted corrective eyeglasses and contact lenses from sales and use tax by defining them as prosthetic devices."
     }
    ]
   },
@@ -4675,7 +4746,8 @@
    "m": [
     {
      "i": "Privacy & Big-Tech Accountability",
-     "k": "privacy_rights"
+     "k": "privacy_rights",
+     "l": "Would have let the Department of Health and Human Services and local health departments obtain records of a customer’s shopping history."
     }
    ]
   },
@@ -4687,7 +4759,8 @@
    "m": [
     {
      "i": "Expand Healthcare Access",
-     "k": "healthcare"
+     "k": "healthcare",
+     "l": "Would have required insurers to pay 90% or more of the in-person rate for telemedicine if the network provider also provides it in-person."
     }
    ]
   },
@@ -4699,7 +4772,8 @@
    "m": [
     {
      "i": "Tobacco & Vaping Rules",
-     "k": "tobacco_nicotine"
+     "k": "tobacco_nicotine",
+     "l": "Would have let a school issue a citation to a student who possesses a tobacco, electronic cigarette, or nicotine product on school property."
     }
    ]
   },
@@ -4723,7 +4797,8 @@
    "m": [
     {
      "i": "Protect LGBTQ+ Rights",
-     "k": "lgbtq_rights"
+     "k": "lgbtq_rights",
+     "l": "Barred sex characteristic surgical procedures on minors for a sex change and hormonal transgender treatment for certain new patients."
     }
    ]
   },
@@ -4735,7 +4810,8 @@
    "m": [
     {
      "i": "Expand Healthcare Access",
-     "k": "healthcare"
+     "k": "healthcare",
+     "l": "Required the state to request authorization to provide dental services to Medicaid-eligible adults not already eligible for them."
     }
    ]
   },
@@ -4747,7 +4823,8 @@
    "m": [
     {
      "i": "Stronger Gun Safety Laws",
-     "k": "gun_safety"
+     "k": "gun_safety",
+     "l": "Would have created a waiting period, with exceptions, between buying an assault weapon from a dealer and its delivery to the purchaser."
     }
    ]
   },
@@ -4759,7 +4836,8 @@
    "m": [
     {
      "i": "Criminal Justice Reform",
-     "k": "justice_reform"
+     "k": "justice_reform",
+     "l": "Would have set graduated deadlines for a law enforcement agency to expunge criminal records that qualify for automatic expungement."
     }
    ]
   },
@@ -4771,7 +4849,8 @@
    "m": [
     {
      "i": "Protect Reproductive Rights",
-     "k": "pro_choice"
+     "k": "pro_choice",
+     "l": "Would have removed the rule that a physician verify a report to law enforcement before an abortion on a woman pregnant from rape or incest."
     }
    ]
   },
@@ -4795,7 +4874,8 @@
    "m": [
     {
      "i": "Parental Rights in Schools",
-     "k": "edu_parental"
+     "k": "edu_parental",
+     "l": "Barred a school or local education agency from prohibiting a parent’s access to the education record of the parent’s child."
     }
    ]
   },
@@ -4807,7 +4887,8 @@
    "m": [
     {
      "i": "Farmers & Rural Communities",
-     "k": "rural_ag"
+     "k": "rural_ag",
+     "l": "Barred cities and counties, with certain exceptions, from prohibiting the operation of an animal enterprise or use of a working animal."
     }
    ]
   },
@@ -4832,7 +4913,8 @@
    "m": [
     {
      "i": "Privacy & Big-Tech Accountability",
-     "k": "privacy_rights"
+     "k": "privacy_rights",
+     "l": "Would have required consent to share individually identifiable social care information and set privacy and security rules for handling it."
     }
    ]
   },
@@ -4844,7 +4926,8 @@
    "m": [
     {
      "i": "Expand Healthcare Access",
-     "k": "healthcare"
+     "k": "healthcare",
+     "l": "Required Medicaid to seek waivers to extend postpartum coverage for certain women and expand certain family planning eligibility."
     }
    ]
   },
@@ -4856,7 +4939,8 @@
    "m": [
     {
      "i": "Criminal Justice Reform",
-     "k": "justice_reform"
+     "k": "justice_reform",
+     "l": "Would have removed enticing a minor from the crimes requiring an offender to register for life on the Sex and Kidnap Offender Registry."
     }
    ]
   },
@@ -4868,7 +4952,8 @@
    "m": [
     {
      "i": "Audit Spending & the Fed",
-     "k": "audit_spending"
+     "k": "audit_spending",
+     "l": "Let the legislative auditor general subpoena financial institutions and run systemic performance audits of some executive branch entities."
     }
    ]
   },
@@ -4892,7 +4977,8 @@
    "m": [
     {
      "i": "Privacy & Big-Tech Accountability",
-     "k": "privacy_rights"
+     "k": "privacy_rights",
+     "l": "Set requirements for police to request investigative genetic genealogy services and limited arrests based on certain genetic information."
     }
    ]
   },
@@ -4904,7 +4990,8 @@
    "m": [
     {
      "i": "Build More Housing",
-     "k": "housing_build"
+     "k": "housing_build",
+     "l": "Defined when a garage may count as an internal accessory dwelling unit and enacted a new process for subdivision review and approval."
     }
    ]
   },
@@ -4916,7 +5003,8 @@
    "m": [
     {
      "i": "Tough on Crime",
-     "k": "tough_on_crime"
+     "k": "tough_on_crime",
+     "l": "Would have created the criminal offense of nonconsensual removal of a sexually protective device, with criminal penalties."
     }
    ]
   },
@@ -4928,7 +5016,8 @@
    "m": [
     {
      "i": "Expand Voting Access",
-     "k": "voting_access"
+     "k": "voting_access",
+     "l": "Disallowed referral of a referendum to voters for municipal land use laws passed by a unanimous vote of the local legislative body."
     }
    ]
   },
@@ -4940,7 +5029,8 @@
    "m": [
     {
      "i": "Expand Healthcare Access",
-     "k": "healthcare"
+     "k": "healthcare",
+     "l": "Required the Department of Health and Human Services to request a Medicaid state plan amendment covering autism treatment services."
     }
    ]
   },
@@ -4952,7 +5042,8 @@
    "m": [
     {
      "i": "Expand Healthcare Access",
-     "k": "healthcare"
+     "k": "healthcare",
+     "l": "Created alternative eligibility requirements for the Children’s Health Insurance Program and allowed a waiting list for those applicants."
     }
    ]
   },
@@ -4964,7 +5055,8 @@
    "m": [
     {
      "i": "Transparency & Anti-Corruption",
-     "k": "gov_transparency"
+     "k": "gov_transparency",
+     "l": "Let a governmental entity petition for relief against a vexatious requester, with a hearing before the State Records Committee."
     }
    ]
   },
@@ -4976,7 +5068,8 @@
    "m": [
     {
      "i": "Help First-Time Buyers",
-     "k": "housing_first_time"
+     "k": "housing_first_time",
+     "l": "Created the First-Time Homebuyer Assistance Program for the Utah Housing Corporation to help first-time homebuyers buy certain housing."
     }
    ]
   },
@@ -4988,7 +5081,8 @@
    "m": [
     {
      "i": "Energy Independence",
-     "k": "enviro_energy"
+     "k": "enviro_energy",
+     "l": "Would have created an income tax credit for installing a commercial energy storage system for use by commercial entities."
     }
    ]
   },
@@ -5013,7 +5107,8 @@
    "m": [
     {
      "i": "Tough on Crime",
-     "k": "tough_on_crime"
+     "k": "tough_on_crime",
+     "l": "Would have created the offense of drug-induced homicide."
     }
    ]
   },
@@ -5025,11 +5120,13 @@
    "m": [
     {
      "i": "Affordable Housing & Renters",
-     "k": "housing_support"
+     "k": "housing_support",
+     "l": "Required a city to comply with moderate income housing plan requirements to receive a local option sales and use tax distribution."
     },
     {
      "i": "Public Transit & Transportation",
-     "k": "transit"
+     "k": "transit",
+     "l": "Let part of a local option sales and use tax in a county of the first class fund or provide loans for public transit projects."
     }
    ]
   },
@@ -5046,7 +5143,8 @@
     },
     {
      "i": "Private Property Rights",
-     "k": "property_rights"
+     "k": "property_rights",
+     "l": "Barred cities and counties from using a land use regulation to punish individuals for owning or using a co-owned home."
     }
    ]
   },
@@ -5058,7 +5156,8 @@
    "m": [
     {
      "i": "Tackle the Cost of Living",
-     "k": "cost_living"
+     "k": "cost_living",
+     "l": "Created a Utility Bill Assistance Program paying large-scale utilities for bill credits to customers who meet income requirements."
     }
    ]
   },
@@ -5070,7 +5169,8 @@
    "m": [
     {
      "i": "Development Districts & Public Financing",
-     "k": "dev_district_finance"
+     "k": "dev_district_finance",
+     "l": "Would have let a dedicated infrastructure district issue bonds and levy taxes, with certain limitations, to finance infrastructure."
     }
    ]
   },
@@ -5095,7 +5195,8 @@
    "m": [
     {
      "i": "Expand Voting Access",
-     "k": "voting_access"
+     "k": "voting_access",
+     "l": "Would have let a voter assisting with an emergency outside the voter’s county of residence on election day cast an electronic ballot."
     }
    ]
   },
@@ -5107,7 +5208,8 @@
    "m": [
     {
      "i": "Parental Rights in Schools",
-     "k": "edu_parental"
+     "k": "edu_parental",
+     "l": "Required certain statewide action, subject to a state board vote to overturn it, if a threshold of LEAs find objective sensitive material."
     }
    ]
   },
@@ -5119,7 +5221,8 @@
    "m": [
     {
      "i": "Wildfire & Disaster Resilience",
-     "k": "disaster_resilience"
+     "k": "disaster_resilience",
+     "l": "Would have extended the sunset date of provisions related to the Utah Seismic Safety Commission."
     }
    ]
   },
@@ -5131,7 +5234,8 @@
    "m": [
     {
      "i": "Whose Rule Governs: State or Federal",
-     "k": "states_federal_power"
+     "k": "states_federal_power",
+     "l": "Required agencies seeking federal funds above a certain threshold to file a contingency disclosure, plan, and state jurisdiction evaluation."
     }
    ]
   },
@@ -5159,7 +5263,8 @@
     },
     {
      "i": "Tough on Crime",
-     "k": "tough_on_crime"
+     "k": "tough_on_crime",
+     "l": "Required, with certain exceptions, an indeterminate prison term for distributing drugs with a dangerous weapon readily accessible."
     }
    ]
   },
@@ -5171,7 +5276,8 @@
    "m": [
     {
      "i": "Stronger Gun Safety Laws",
-     "k": "gun_safety"
+     "k": "gun_safety",
+     "l": "Would have created a waiting period, with exceptions, between buying a firearm from a dealer and its delivery to the purchaser."
     }
    ]
   },
@@ -5183,7 +5289,8 @@
    "m": [
     {
      "i": "Stronger Gun Safety Laws",
-     "k": "gun_safety"
+     "k": "gun_safety",
+     "l": "Would have required a firearm to be securely stored or rendered inoperable by a locking device, with civil penalties."
     }
    ]
   },
@@ -5195,7 +5302,8 @@
    "m": [
     {
      "i": "End DEI Programs",
-     "k": "end_dei"
+     "k": "end_dei",
+     "l": "Would have barred, as employment discrimination, training or other requirements that compel adherence to or belief in certain concepts."
     }
    ]
   },
@@ -5207,7 +5315,8 @@
    "m": [
     {
      "i": "Protect Gun Rights",
-     "k": "gun_rights"
+     "k": "gun_rights",
+     "l": "Created the Educator-Protector Program to incentivize school teachers to responsibly secure or carry a firearm on school grounds."
     }
    ]
   },
@@ -5219,7 +5328,8 @@
    "m": [
     {
      "i": "Expand Healthcare Access",
-     "k": "healthcare"
+     "k": "healthcare",
+     "l": "Would have required the health department to seek a Medicaid waiver for wraparound services to qualified individuals with a disability."
     }
    ]
   },
@@ -5231,7 +5341,8 @@
    "m": [
     {
      "i": "Affordable Housing & Renters",
-     "k": "housing_support"
+     "k": "housing_support",
+     "l": "Would have required an annual transfer of state liquor sale revenues from the Liquor Control Fund to the Olene Walker Housing Loan Fund."
     }
    ]
   },
@@ -5243,7 +5354,8 @@
    "m": [
     {
      "i": "Middle-Class Tax Relief",
-     "k": "tax_middle_class"
+     "k": "tax_middle_class",
+     "l": "Would have made the state earned income tax credit refundable."
     }
    ]
   },
@@ -5255,7 +5367,8 @@
    "m": [
     {
      "i": "Affordable Child Care",
-     "k": "child_care"
+     "k": "child_care",
+     "l": "Made optional the certificate for residential child care and limited how many children under three an unlicensed provider may care for."
     }
    ]
   },
@@ -5267,7 +5380,8 @@
    "m": [
     {
      "i": "Free Speech Protections",
-     "k": "free_speech"
+     "k": "free_speech",
+     "l": "Repealed the offense of criminal defamation."
     }
    ]
   },
@@ -5279,7 +5393,8 @@
    "m": [
     {
      "i": "Expand Voting Access",
-     "k": "voting_access"
+     "k": "voting_access",
+     "l": "Would have let a local school board law, with exceptions and other than a tax increase, be referred to district voters."
     }
    ]
   },
@@ -5291,7 +5406,8 @@
    "m": [
     {
      "i": "Cryptocurrency Rules & Digital Dollar",
-     "k": "crypto_cbdc"
+     "k": "crypto_cbdc",
+     "l": "Excluded certain digital currencies from the definition of money."
     }
    ]
   },
@@ -5303,7 +5419,8 @@
    "m": [
     {
      "i": "Strong Border & Enforcement",
-     "k": "border_security"
+     "k": "border_security",
+     "l": "Required a federal officer to follow certain procedures before releasing an alien within the state."
     }
    ]
   },
@@ -5315,7 +5432,8 @@
    "m": [
     {
      "i": "Expand Voting Access",
-     "k": "voting_access"
+     "k": "voting_access",
+     "l": "Would have let a local school board law that increases or imposes a new tax be referred to the school district’s voters, with exceptions."
     }
    ]
   },
@@ -5327,7 +5445,8 @@
    "m": [
     {
      "i": "Parental Rights in Schools",
-     "k": "edu_parental"
+     "k": "edu_parental",
+     "l": "Required an LEA to obtain written parental consent annually for certain student surveys and give parents a list of data recipients."
     }
    ]
   },
@@ -5339,7 +5458,8 @@
    "m": [
     {
      "i": "Free Speech Protections",
-     "k": "free_speech"
+     "k": "free_speech",
+     "l": "Would have barred the Motor Vehicle Division from issuing a personalized license plate that is indecent, obscene, or profane."
     }
    ]
   },
@@ -5364,7 +5484,8 @@
    "m": [
     {
      "i": "Corporate Accountability",
-     "k": "econ_corp_account"
+     "k": "econ_corp_account",
+     "l": "Gave solar customers a four business day cancellation period and added Division of Consumer Protection enforcement against solar retailers."
     }
    ]
   },
@@ -5376,7 +5497,8 @@
    "m": [
     {
      "i": "Energy Independence",
-     "k": "enviro_energy"
+     "k": "enviro_energy",
+     "l": "Changed the term renewable to clean where appropriate in statute."
     }
    ]
   },
@@ -5405,7 +5527,8 @@
     },
     {
      "i": "Protect LGBTQ+ Rights",
-     "k": "lgbtq_rights"
+     "k": "lgbtq_rights",
+     "l": "Set a legal standard for sex-based distinctions in certain public settings and applied it to sex-designated restrooms and locker rooms."
     }
    ]
   },
@@ -5417,7 +5540,8 @@
    "m": [
     {
      "i": "End DEI Programs",
-     "k": "end_dei"
+     "k": "end_dei",
+     "l": "Barred schools, colleges and public employers, with limited exceptions, from requiring certain training promoting differential treatment."
     }
    ]
   },
@@ -5429,7 +5553,8 @@
    "m": [
     {
      "i": "Expand Healthcare Access",
-     "k": "healthcare"
+     "k": "healthcare",
+     "l": "Would have conditionally required a health benefit plan to reimburse telemedicine services at minimum 90% of its in-person rate."
     }
    ]
   },
@@ -5445,7 +5570,8 @@
     },
     {
      "i": "Religious Liberty Focus",
-     "k": "religious_liberty"
+     "k": "religious_liberty",
+     "l": "Added the Ten Commandments and the Magna Carta to the historical documents school curricula and activities may include for study."
     }
    ]
   },
@@ -5461,7 +5587,8 @@
     },
     {
      "i": "Tough on Crime",
-     "k": "tough_on_crime"
+     "k": "tough_on_crime",
+     "l": "Created a sentencing guideline for automobile homicide and renamed the offense of negligently operating a vehicle resulting in death."
     }
    ]
   },
@@ -5485,7 +5612,8 @@
    "m": [
     {
      "i": "Private Property Rights",
-     "k": "property_rights"
+     "k": "property_rights",
+     "l": "Made a party who prevails in court on an issue the Property Rights Ombudsman already decided in its favor eligible for attorney fees."
     }
    ]
   },
@@ -5497,7 +5625,8 @@
    "m": [
     {
      "i": "Free Speech Protections",
-     "k": "free_speech"
+     "k": "free_speech",
+     "l": "Would have provided indemnification for claims arising from the ban on school staff endorsing, promoting, or disparaging certain viewpoints."
     }
    ]
   },
@@ -5509,7 +5638,8 @@
    "m": [
     {
      "i": "Stronger Gun Safety Laws",
-     "k": "gun_safety"
+     "k": "gun_safety",
+     "l": "Would have required law enforcement agencies to report lost or stolen firearms used in a crime and had the state commission publish it."
     }
    ]
   },
@@ -5521,7 +5651,8 @@
    "m": [
     {
      "i": "Protect Gun Rights",
-     "k": "gun_rights"
+     "k": "gun_rights",
+     "l": "Would have let a driver license showing a concealed firearm permit number be presented in place of the concealed firearm permit."
     }
    ]
   },
@@ -5533,7 +5664,8 @@
    "m": [
     {
      "i": "Protect LGBTQ+ Rights",
-     "k": "lgbtq_rights"
+     "k": "lgbtq_rights",
+     "l": "Barred, with limited exceptions, the Department of Corrections or county jails from housing inmates of the opposite biological sex together."
     }
    ]
   },
@@ -5545,7 +5677,8 @@
    "m": [
     {
      "i": "Criminal Justice Reform",
-     "k": "justice_reform"
+     "k": "justice_reform",
+     "l": "Would have let an officer stop a vehicle for improper side window tinting only if the officer has stopped it for another offense."
     }
    ]
   },
@@ -5557,7 +5690,8 @@
    "m": [
     {
      "i": "Stronger Gun Safety Laws",
-     "k": "gun_safety"
+     "k": "gun_safety",
+     "l": "Would have enacted a nonrefundable income tax credit, limited to one per household, for the purchase of a firearm safety device."
     }
    ]
   },
@@ -5569,7 +5703,8 @@
    "m": [
     {
      "i": "Audit Spending & the Fed",
-     "k": "audit_spending"
+     "k": "audit_spending",
+     "l": "Required a grant recipient to give a proposed budget and agree to deliverables, reporting, audit, and clawback requirements before funding."
     }
    ]
   },
@@ -5581,7 +5716,8 @@
    "m": [
     {
      "i": "Gold & Sound Money",
-     "k": "sound_money"
+     "k": "sound_money",
+     "l": "Let the state treasurer invest a portion of the funds in certain budget reserve accounts in precious metals."
     }
    ]
   },
@@ -5593,7 +5729,8 @@
    "m": [
     {
      "i": "Affordable Housing & Renters",
-     "k": "housing_support"
+     "k": "housing_support",
+     "l": "Would have required a landlord to provide a tenant a notice of rent increase by a set period of time."
     }
    ]
   },
@@ -5618,7 +5755,8 @@
    "m": [
     {
      "i": "Mental Health & Addiction",
-     "k": "health_mental"
+     "k": "health_mental",
+     "l": "Broadened who is eligible for first responder mental health resources and required agencies to designate a mental health resources liaison."
     }
    ]
   },
@@ -5630,7 +5768,8 @@
    "m": [
     {
      "i": "Religious Liberty Focus",
-     "k": "religious_liberty"
+     "k": "religious_liberty",
+     "l": "Barred an employer from compelling an employee to act in a manner the employee believes would burden sincerely held religious beliefs."
     }
    ]
   },
@@ -5642,7 +5781,8 @@
    "m": [
     {
      "i": "Medical Freedom",
-     "k": "medical_freedom"
+     "k": "medical_freedom",
+     "l": "Repealed an exception for medical students related to vaccination and face covering requirements set by an institution of higher education."
     }
    ]
   },
@@ -5654,7 +5794,8 @@
    "m": [
     {
      "i": "Protect Gun Rights",
-     "k": "gun_rights"
+     "k": "gun_rights",
+     "l": "Prohibited the use of a firearms merchant category code, with civil penalties enforced by the attorney general."
     }
    ]
   },
@@ -5666,7 +5807,8 @@
    "m": [
     {
      "i": "Whose Rule Governs: State or Federal",
-     "k": "states_federal_power"
+     "k": "states_federal_power",
+     "l": "Would have kept jurisdiction over matters not enumerated to the federal government with Utah absent specific constitutional authorization."
     }
    ]
   },
@@ -5690,7 +5832,8 @@
    "m": [
     {
      "i": "Lower Prescription Drug Prices",
-     "k": "health_drug_prices"
+     "k": "health_drug_prices",
+     "l": "Would have required health benefit plans to ensure pharmaceutical rebates are used for certain purposes."
     }
    ]
   },
@@ -5702,7 +5845,8 @@
    "m": [
     {
      "i": "Control of the Civil Service",
-     "k": "civil_service_control"
+     "k": "civil_service_control",
+     "l": "Would have classified a state employee as exempt from career service status beginning January 1, 2025, with certain exceptions."
     }
    ]
   },
@@ -5714,7 +5858,8 @@
    "m": [
     {
      "i": "Public Transit & Transportation",
-     "k": "transit"
+     "k": "transit",
+     "l": "Let certain local option sales tax revenue and Transit Transportation Investment Fund money be used for public transit innovation grants."
     }
    ]
   },
@@ -5726,7 +5871,8 @@
    "m": [
     {
      "i": "Criminal Justice Reform",
-     "k": "justice_reform"
+     "k": "justice_reform",
+     "l": "Barred courts from accepting a plea blended between a juvenile adjudication and an adult criminal conviction, and voided such convictions."
     }
    ]
   },
@@ -5738,7 +5884,8 @@
    "m": [
     {
      "i": "Religious Liberty Focus",
-     "k": "religious_liberty"
+     "k": "religious_liberty",
+     "l": "Required a governmental entity to grant an employee’s request to be relieved from a certain task when it places no undue hardship."
     }
    ]
   },
@@ -5750,7 +5897,8 @@
    "m": [
     {
      "i": "Affordable Child Care",
-     "k": "child_care"
+     "k": "child_care",
+     "l": "Let the Office of Child Care award a full child care subsidy or grant to a child with a parent working full-time at a child care provider."
     }
    ]
   },
@@ -5762,7 +5910,8 @@
    "m": [
     {
      "i": "Expand Healthcare Access",
-     "k": "healthcare"
+     "k": "healthcare",
+     "l": "Would have set cost control measures for the Medicaid program and Medicaid expansion to take effect in the event of a Medicaid shortfall."
     }
    ]
   },
@@ -5774,7 +5923,8 @@
    "m": [
     {
      "i": "Affordable Housing & Renters",
-     "k": "housing_support"
+     "k": "housing_support",
+     "l": "Let redevelopment and community development agencies fund income targeted housing in certain cases and required pass-through funding deals."
     }
    ]
   },
@@ -5786,11 +5936,13 @@
    "m": [
     {
      "i": "Local Land Control",
-     "k": "lands_local"
+     "k": "lands_local",
+     "l": "Asserted ownership and jurisdiction over roads on a county’s class B and class D road map or travel plan unless closed by adjudication."
     },
     {
      "i": "Whose Rule Governs: State or Federal",
-     "k": "states_federal_power"
+     "k": "states_federal_power",
+     "l": "Put the burden of proof on the federal government to show the need to close a road or to claim ownership."
     }
    ]
   },
@@ -5802,7 +5954,8 @@
    "m": [
     {
      "i": "Public Transit & Transportation",
-     "k": "transit"
+     "k": "transit",
+     "l": "Would have created the Transit Access Pass for Students pilot grant program, with a sunset date."
     }
    ]
   },
@@ -5814,7 +5967,8 @@
    "m": [
     {
      "i": "Climate Action & Clean Energy",
-     "k": "climate_action"
+     "k": "climate_action",
+     "l": "Would have created a tax credit for locomotive idle-reduction devices and modified the credit for alternative fuel heavy duty vehicles."
     }
    ]
   },
@@ -5826,7 +5980,8 @@
    "m": [
     {
      "i": "Balanced Land Use",
-     "k": "lands_balance"
+     "k": "lands_balance",
+     "l": "Required promoting multiple use and sustained yield on federal public lands and barred natural asset companies from buying state lands."
     }
    ]
   },
@@ -5838,7 +5993,8 @@
    "m": [
     {
      "i": "Religious Liberty Focus",
-     "k": "religious_liberty"
+     "k": "religious_liberty",
+     "l": "Would have let an LEA permit a chaplain in its schools under policies and requirements the LEA develops."
     }
    ]
   },
@@ -5850,7 +6006,8 @@
    "m": [
     {
      "i": "Parental Rights in Schools",
-     "k": "edu_parental"
+     "k": "edu_parental",
+     "l": "Required LEA boards to inform parents of the half-day kindergarten option and provide a designated class when enrollment hits a threshold."
     }
    ]
   },
@@ -5862,7 +6019,8 @@
    "m": [
     {
      "i": "School Choice & Education Freedom",
-     "k": "school_choice"
+     "k": "school_choice",
+     "l": "Let a foster parent who has initiated a process to adopt the foster child apply for a Utah Fits All scholarship account."
     }
    ]
   },
@@ -5874,7 +6032,8 @@
    "m": [
     {
      "i": "Cut Waste, Not Services",
-     "k": "gov_waste"
+     "k": "gov_waste",
+     "l": "Repealed boards and commissions including the Labor Relations Board and the Board of State Parks, and consolidated licensing boards."
     }
    ]
   },
@@ -5886,7 +6045,8 @@
    "m": [
     {
      "i": "Protect Reproductive Rights",
-     "k": "pro_choice"
+     "k": "pro_choice",
+     "l": "Allowed the licensing of abortion clinics and let abortions be performed in licensed abortion clinics."
     }
    ]
   },
@@ -5898,7 +6058,8 @@
    "m": [
     {
      "i": "Development Districts & Public Financing",
-     "k": "dev_district_finance"
+     "k": "dev_district_finance",
+     "l": "Created the Utah Fairpark Area Investment and Restoration District, let it levy a transient room tax and other taxes and own a stadium."
     }
    ]
   },
@@ -5910,7 +6071,8 @@
    "m": [
     {
      "i": "School Choice & Education Freedom",
-     "k": "school_choice"
+     "k": "school_choice",
+     "l": "Combined the Carson Smith and Special Needs Opportunity scholarships and let home school and preschool aged students receive a scholarship."
     }
    ]
   },
@@ -5922,7 +6084,8 @@
    "m": [
     {
      "i": "Whose Rule Governs: State or Federal",
-     "k": "states_federal_power"
+     "k": "states_federal_power",
+     "l": "Let the Legislature, by concurrent resolution, bar government officers from enforcing a federal directive that violates state sovereignty."
     }
    ]
   },
@@ -5934,7 +6097,8 @@
    "m": [
     {
      "i": "Criminal Justice Reform",
-     "k": "justice_reform"
+     "k": "justice_reform",
+     "l": "Provided for dismissal of a charge of possession of certain drug paraphernalia under specified conditions."
     }
    ]
   },
@@ -5946,7 +6110,8 @@
    "m": [
     {
      "i": "Tobacco & Vaping Rules",
-     "k": "tobacco_nicotine"
+     "k": "tobacco_nicotine",
+     "l": "Banned the sale of flavored electronic cigarette products and of products without federal market authorization, and set a nicotine limit."
     }
    ]
   },
@@ -5970,7 +6135,8 @@
    "m": [
     {
      "i": "Cannabis Reform",
-     "k": "cannabis_reform"
+     "k": "cannabis_reform",
+     "l": "Would have enacted a nonrefundable income tax credit for business expenses related to selling medical cannabis within the state."
     }
    ]
   },
@@ -5982,7 +6148,8 @@
    "m": [
     {
      "i": "Back Law Enforcement",
-     "k": "back_police"
+     "k": "back_police",
+     "l": "Would have created the Law Enforcement Canine Grant Program for law enforcement agencies, with funding priority to small agencies."
     }
    ]
   },
@@ -6031,7 +6198,8 @@
    "m": [
     {
      "i": "Invest in Public Schools",
-     "k": "public_schools"
+     "k": "public_schools",
+     "l": "Would have had the state board award grants for local education agencies to employ an additional first year educator in a high-need school."
     }
    ]
   },
@@ -6068,7 +6236,8 @@
    "m": [
     {
      "i": "Invest in Public Schools",
-     "k": "public_schools"
+     "k": "public_schools",
+     "l": "Created the Excellence in Education and Leadership Supplement for eligible teachers, with funds disbursed by the State Board of Education."
     }
    ]
   },
@@ -6092,7 +6261,8 @@
    "m": [
     {
      "i": "Property Tax Relief",
-     "k": "prop_tax"
+     "k": "prop_tax",
+     "l": "Gave additional remedies to a property owner if valuation rises over a certain threshold with no significant changes to the property."
     }
    ]
   },
@@ -6104,11 +6274,13 @@
    "m": [
     {
      "i": "Privacy & Big-Tech Accountability",
-     "k": "privacy_rights"
+     "k": "privacy_rights",
+     "l": "Required a social media service to enable maximum default privacy settings on a Utah minor’s account and protect minors’ data."
     },
     {
      "i": "Smart Tech Guardrails",
-     "k": "tech_balance"
+     "k": "tech_balance",
+     "l": "Required social media companies to verify a new account holder’s age using an approved system."
     }
    ]
   },
@@ -6120,7 +6292,8 @@
    "m": [
     {
      "i": "Congress as a Check on the Executive",
-     "k": "checks_balances"
+     "k": "checks_balances",
+     "l": "Required the Legislature to approve sentencing and supervision length guidelines and juvenile disposition guidelines."
     }
    ]
   },
@@ -6132,7 +6305,8 @@
    "m": [
     {
      "i": "Development Districts & Public Financing",
-     "k": "dev_district_finance"
+     "k": "dev_district_finance",
+     "l": "Limited a housing and transit reinvestment zone to one sales and use tax increment period and required it to be at least 10 acres."
     },
     {
      "i": "Housing Affordability",
@@ -6165,7 +6339,8 @@
    "m": [
     {
      "i": "Water Storage & Infrastructure",
-     "k": "water_storage"
+     "k": "water_storage",
+     "l": "Directed the creation of the Water District Water Development Council and provided for the appointment of the Utah water agent."
     }
    ]
   },
@@ -6194,7 +6369,8 @@
    "m": [
     {
      "i": "Cannabis Reform",
-     "k": "cannabis_reform"
+     "k": "cannabis_reform",
+     "l": "Allowed the delivery of medical cannabis to more address types and targeted marketing by medical cannabis pharmacies."
     }
    ]
   },
@@ -6206,7 +6382,8 @@
    "m": [
     {
      "i": "Property Tax Relief",
-     "k": "prop_tax"
+     "k": "prop_tax",
+     "l": "Aligned the maximum annual renter’s credit with the amount allowed for a homeowner’s credit."
     }
    ]
   },
@@ -6218,11 +6395,13 @@
    "m": [
     {
      "i": "Build More Housing",
-     "k": "housing_build"
+     "k": "housing_build",
+     "l": "Set certain housing density, affordability, and development size requirements for a first home investment zone."
     },
     {
      "i": "Help First-Time Buyers",
-     "k": "housing_first_time"
+     "k": "housing_first_time",
+     "l": "Let a municipality create a first home investment zone that captures tax increment to finance affordable, owner-occupied housing."
     }
    ]
   },
@@ -6234,7 +6413,8 @@
    "m": [
     {
      "i": "Farmers & Rural Communities",
-     "k": "rural_ag"
+     "k": "rural_ag",
+     "l": "Would have required agricultural equipment makers to give owners and independent repairers access to certain data, software, and parts."
     }
    ]
   },
@@ -6246,7 +6426,8 @@
    "m": [
     {
      "i": "Pro-Growth Deregulation",
-     "k": "econ_growth"
+     "k": "econ_growth",
+     "l": "Let a qualifying local government levy a sales and use tax, subject to approvals, for infrastructure in a revitalization zone project area."
     }
    ]
   },
@@ -6258,7 +6439,8 @@
    "m": [
     {
      "i": "Expand Healthcare Access",
-     "k": "healthcare"
+     "k": "healthcare",
+     "l": "Would have created deadlines for a managed care organization to respond to certain authorization requests."
     }
    ]
   },
@@ -6270,7 +6452,8 @@
    "m": [
     {
      "i": "Build More Housing",
-     "k": "housing_build"
+     "k": "housing_build",
+     "l": "Let cities and counties authorize additional housing density in exchange for certain requirements."
     },
     {
      "i": "Housing Affordability",
@@ -6287,7 +6470,8 @@
    "m": [
     {
      "i": "Gold & Sound Money",
-     "k": "sound_money"
+     "k": "sound_money",
+     "l": "Let the state treasurer deduct administrative costs for investing in precious metals from investment earnings in certain funds."
     }
    ]
   },
@@ -6312,7 +6496,8 @@
    "m": [
     {
      "i": "Tackle the Cost of Living",
-     "k": "cost_living"
+     "k": "cost_living",
+     "l": "Would have barred recovering costs from Utah ratepayers for facilities and programs primarily benefiting other states."
     }
    ]
   },
@@ -6324,7 +6509,8 @@
    "m": [
     {
      "i": "Medical Freedom",
-     "k": "medical_freedom"
+     "k": "medical_freedom",
+     "l": "Prohibited adding fluoride to public water systems and allowed a pharmacist to prescribe fluoride."
     }
    ]
   },
@@ -6336,7 +6522,8 @@
    "m": [
     {
      "i": "Medical Freedom",
-     "k": "medical_freedom"
+     "k": "medical_freedom",
+     "l": "Designated food intended for human consumption that intentionally contains a vaccine or vaccine material as a drug."
     }
    ]
   },
@@ -6348,7 +6535,8 @@
    "m": [
     {
      "i": "Faster Permits & Reviews",
-     "k": "permitting_reform"
+     "k": "permitting_reform",
+     "l": "Required the Division of Air Quality to include at least five new categories of sources in its permit by rule program."
     }
    ]
   },
@@ -6360,7 +6548,8 @@
    "m": [
     {
      "i": "Tough on Crime",
-     "k": "tough_on_crime"
+     "k": "tough_on_crime",
+     "l": "Increased the penalty for defrauding of creditors based on the value of the fraud."
     }
    ]
   },
@@ -6372,7 +6561,8 @@
    "m": [
     {
      "i": "Help Families with Kids",
-     "k": "family_support"
+     "k": "family_support",
+     "l": "Provided certain students lunch at no charge and barred an LEA from stigmatizing students who cannot afford meals."
     }
    ]
   },
@@ -6384,7 +6574,8 @@
    "m": [
     {
      "i": "Local Land Control",
-     "k": "lands_local"
+     "k": "lands_local",
+     "l": "Barred the Division of Wildlife Resources from permanently closing a road without consent of the county legislative body."
     }
    ]
   },
@@ -6396,7 +6587,8 @@
    "m": [
     {
      "i": "Affordable Child Care",
-     "k": "child_care"
+     "k": "child_care",
+     "l": "Enacted income tax credits for employer-provided child care and let taxpayers claim the child tax credit for dependents under one year old."
     },
     {
      "i": "Cut Income & Business Taxes",
@@ -6412,7 +6604,8 @@
    "m": [
     {
      "i": "Property Tax Relief",
-     "k": "prop_tax"
+     "k": "prop_tax",
+     "l": "Repealed the WPU value rate from the combination of property tax rates that fund public education."
     }
    ]
   },
@@ -6424,7 +6617,8 @@
    "m": [
     {
      "i": "Energy Independence",
-     "k": "enviro_energy"
+     "k": "enviro_energy",
+     "l": "Stopped a homeowners association from prohibiting solar panel installation, while letting it restrict installation."
     },
     {
      "i": "Private Property Rights",
@@ -6440,7 +6634,8 @@
    "m": [
     {
      "i": "Privacy & Big-Tech Accountability",
-     "k": "privacy_rights"
+     "k": "privacy_rights",
+     "l": "Restricted a local education agency from selling or transferring certain contact information without consent."
     }
    ]
   },
@@ -6452,7 +6647,8 @@
    "m": [
     {
      "i": "Stronger Gun Safety Laws",
-     "k": "gun_safety"
+     "k": "gun_safety",
+     "l": "Would have set a criminal penalty, in certain circumstances, when an individual fails to lawfully store firearms and a minor accesses one."
     }
    ]
   },
@@ -6464,7 +6660,8 @@
    "m": [
     {
      "i": "Protect Gun Rights",
-     "k": "gun_rights"
+     "k": "gun_rights",
+     "l": "Would have removed the crime of carrying a loaded firearm on a public street and the provision on a loaded rifle or shotgun in a vehicle."
     }
    ]
   },
@@ -6476,7 +6673,8 @@
    "m": [
     {
      "i": "Tough on Crime",
-     "k": "tough_on_crime"
+     "k": "tough_on_crime",
+     "l": "Would have created an aggravating factor for an assault or threat of violence offense committed against a referee."
     }
    ]
   },
@@ -6488,7 +6686,8 @@
    "m": [
     {
      "i": "Stronger Gun Safety Laws",
-     "k": "gun_safety"
+     "k": "gun_safety",
+     "l": "Would have set a sales tax holiday for firearm safety devices and firearm storage devices for one week each year."
     }
    ]
   },
@@ -6500,7 +6699,8 @@
    "m": [
     {
      "i": "Affordable Housing & Renters",
-     "k": "housing_support"
+     "k": "housing_support",
+     "l": "Would have set a period of time by which a landlord must give a tenant notice of a rent increase."
     }
    ]
   },
@@ -6512,7 +6712,8 @@
    "m": [
     {
      "i": "Stronger Gun Safety Laws",
-     "k": "gun_safety"
+     "k": "gun_safety",
+     "l": "Would have created an infraction for a minor, after a written warning, to possess an altered toy or imitation firearm."
     }
    ]
   },
@@ -6524,7 +6725,8 @@
    "m": [
     {
      "i": "Protect Gun Rights",
-     "k": "gun_rights"
+     "k": "gun_rights",
+     "l": "Required seized firearms be returned to an individual who may lawfully possess them and is not charged with a crime making them restricted."
     }
    ]
   },
@@ -6549,7 +6751,8 @@
    "m": [
     {
      "i": "Cannabis Reform",
-     "k": "cannabis_reform"
+     "k": "cannabis_reform",
+     "l": "Would have allowed additional medical cannabis pharmacies and created a new license for independent medical cannabis pharmacies."
     }
    ]
   },
@@ -6561,7 +6764,8 @@
    "m": [
     {
      "i": "Tough on Crime",
-     "k": "tough_on_crime"
+     "k": "tough_on_crime",
+     "l": "Required mandatory imprisonment for repeat and habitual sex offenders and expanded the offense of sexual exploitation of a minor."
     }
    ]
   },
@@ -6573,7 +6777,8 @@
    "m": [
     {
      "i": "Parental Rights in Schools",
-     "k": "edu_parental"
+     "k": "edu_parental",
+     "l": "Removed affidavits for students who begin homeschooling at the start of an academic year and the parent criminal background attestation."
     },
     {
      "i": "School Choice & Education Freedom",
@@ -6589,7 +6794,8 @@
    "m": [
     {
      "i": "Strong Border & Enforcement",
-     "k": "border_security"
+     "k": "border_security",
+     "l": "Made sheriffs and the Department of Corrections notify federal immigration authority before releasing certain unlawfully present inmates."
     }
    ]
   },
@@ -6601,7 +6807,8 @@
    "m": [
     {
      "i": "Cryptocurrency Rules & Digital Dollar",
-     "k": "crypto_cbdc"
+     "k": "crypto_cbdc",
+     "l": "Barred state and local governmental entities from restricting the acceptance or custody of digital assets."
     }
    ]
   },
@@ -6613,7 +6820,8 @@
    "m": [
     {
      "i": "Pro-Life Protections",
-     "k": "pro_life"
+     "k": "pro_life",
+     "l": "Barred schools from letting entities that perform elective abortions provide health-related instruction or materials in public schools."
     }
    ]
   },
@@ -6625,7 +6833,8 @@
    "m": [
     {
      "i": "Transparency & Anti-Corruption",
-     "k": "gov_transparency"
+     "k": "gov_transparency",
+     "l": "Set professional requirements for a county auditor, and for candidates for that office, in a county of the first class."
     }
    ]
   },
@@ -6637,7 +6846,8 @@
    "m": [
     {
      "i": "Property Tax Relief",
-     "k": "prop_tax"
+     "k": "prop_tax",
+     "l": "Let land qualify for urban farming assessment based on gross sales and repealed the annual renewal application for approved land."
     }
    ]
   },
@@ -6661,7 +6871,8 @@
    "m": [
     {
      "i": "Protect LGBTQ+ Rights",
-     "k": "lgbtq_rights"
+     "k": "lgbtq_rights",
+     "l": "Would have barred a public employer from disciplining an employee for using gender-specific language in certain circumstances."
     }
    ]
   },
@@ -6689,7 +6900,8 @@
     },
     {
      "i": "Private Property Rights",
-     "k": "property_rights"
+     "k": "property_rights",
+     "l": "Let cities and counties require a short-term rental owner to get a business license and request rental websites remove violating listings."
     }
    ]
   },
@@ -6701,7 +6913,8 @@
    "m": [
     {
      "i": "Election Security & Ballot Safeguards",
-     "k": "election_security"
+     "k": "election_security",
+     "l": "Required an election officer to retain and preserve ballot chain of custody documentation created during an election."
     }
    ]
   },
@@ -6713,7 +6926,8 @@
    "m": [
     {
      "i": "Climate Action & Clean Energy",
-     "k": "climate_action"
+     "k": "climate_action",
+     "l": "Repealed tax credits for qualifying solar projects and alternative energy development, and limited clean energy credits to pre-2035 systems."
     }
    ]
   },
@@ -6725,7 +6939,8 @@
    "m": [
     {
      "i": "Raise Wages & Protect Workers",
-     "k": "econ_workers"
+     "k": "econ_workers",
+     "l": "Barred public employers from recognizing a labor organization as a bargaining agent or entering into collective bargaining contracts."
     }
    ]
   },
@@ -6737,7 +6952,8 @@
    "m": [
     {
      "i": "Protect LGBTQ+ Rights",
-     "k": "lgbtq_rights"
+     "k": "lgbtq_rights",
+     "l": "Removed a medical treatment documentation provision from the evidence supporting access to certain sex-designated privacy spaces."
     }
    ]
   },
@@ -6762,7 +6978,8 @@
    "m": [
     {
      "i": "Parental Rights in Schools",
-     "k": "edu_parental"
+     "k": "edu_parental",
+     "l": "Required any health care provider to obtain informed parental consent before providing telehealth to a student within a public school."
     }
    ]
   },
@@ -6774,7 +6991,8 @@
    "m": [
     {
      "i": "Public Transit & Transportation",
-     "k": "transit"
+     "k": "transit",
+     "l": "Restricted obstructing a bicycle lane."
     }
    ]
   },
@@ -6786,7 +7004,8 @@
    "m": [
     {
      "i": "Cut Income & Business Taxes",
-     "k": "lower_taxes"
+     "k": "lower_taxes",
+     "l": "Would have exempted the lower priced motor vehicle from sales and use tax when a person buys and sells two in separate transactions."
     }
    ]
   },
@@ -6798,11 +7017,13 @@
    "m": [
     {
      "i": "Expand Voting Access",
-     "k": "voting_access"
+     "k": "voting_access",
+     "l": "Provided that, beginning in 2029, a voter will not receive a ballot by mail unless the voter requests one, with certain exceptions."
     },
     {
      "i": "Voter ID & Election Integrity",
-     "k": "voter_id"
+     "k": "voter_id",
+     "l": "Required mail voters with a Utah driver license or state identification card to put its last four digits on the return envelope."
     }
    ]
   },
@@ -6814,7 +7035,8 @@
    "m": [
     {
      "i": "Privacy & Big-Tech Accountability",
-     "k": "privacy_rights"
+     "k": "privacy_rights",
+     "l": "Would have required a local education agency to share directory information with another local education agency upon request."
     }
    ]
   },
@@ -6826,7 +7048,8 @@
    "m": [
     {
      "i": "Gold & Sound Money",
-     "k": "sound_money"
+     "k": "sound_money",
+     "l": "Would have required the state treasurer to issue a competitive procurement for a precious metals-backed electronic payment system."
     }
    ]
   },
@@ -6838,7 +7061,8 @@
    "m": [
     {
      "i": "Expand Healthcare Access",
-     "k": "healthcare"
+     "k": "healthcare",
+     "l": "Required the health department to apply for a Medicaid waiver to provide wraparound services to qualified individuals with a disability."
     }
    ]
   },
@@ -6850,7 +7074,8 @@
    "m": [
     {
      "i": "Tough on Crime",
-     "k": "tough_on_crime"
+     "k": "tough_on_crime",
+     "l": "Added strangulation or choking as an offense included in the crime of commission of domestic violence in the presence of a child."
     }
    ]
   },
@@ -6862,7 +7087,8 @@
    "m": [
     {
      "i": "Help Families with Kids",
-     "k": "family_support"
+     "k": "family_support",
+     "l": "Would have let a taxpayer claim the nonrefundable child tax credit for child dependents under one year old and up to five years old."
     }
    ]
   },
@@ -6874,7 +7100,8 @@
    "m": [
     {
      "i": "Parental Rights in Schools",
-     "k": "edu_parental"
+     "k": "edu_parental",
+     "l": "Would have created a three-year pilot program for parent access to learning materials, starting with elementary schools."
     }
    ]
   },
@@ -6886,7 +7113,8 @@
    "m": [
     {
      "i": "Election Security & Ballot Safeguards",
-     "k": "election_security"
+     "k": "election_security",
+     "l": "Would have required proof of United States citizenship to vote in a state election, with a federal-only ballot for those without it."
     },
     {
      "i": "Expand Voting Access",
@@ -6902,7 +7130,8 @@
    "m": [
     {
      "i": "Energy Independence",
-     "k": "enviro_energy"
+     "k": "enviro_energy",
+     "l": "Added district energy systems as qualifying projects for high cost infrastructure tax credits, with investment thresholds to qualify."
     }
    ]
   },
@@ -6926,7 +7155,8 @@
    "m": [
     {
      "i": "Tough on Crime",
-     "k": "tough_on_crime"
+     "k": "tough_on_crime",
+     "l": "Would have barred a court from expunging a juvenile record if the petitioner had certain drug offenses within two years before the petition."
     }
    ]
   },
@@ -6938,7 +7168,8 @@
    "m": [
     {
      "i": "Affordable Housing & Renters",
-     "k": "housing_support"
+     "k": "housing_support",
+     "l": "Let a city of the first or second class, under certain conditions, qualify for Utah Homes Investment Program funds to rehabilitate homes."
     },
     {
      "i": "Housing Affordability",
@@ -6955,7 +7186,8 @@
    "m": [
     {
      "i": "Mental Health & Addiction",
-     "k": "health_mental"
+     "k": "health_mental",
+     "l": "Had the Department of Health and Human Services seek a study of wait times and barriers for a child to see a therapist."
     }
    ]
   },
@@ -6967,7 +7199,8 @@
    "m": [
     {
      "i": "Practical Government Reform",
-     "k": "reform_balance"
+     "k": "reform_balance",
+     "l": "Would have had a conflict of interest elections officer act on election complaints tied to a governor or lieutenant governor race."
     }
    ]
   },
@@ -6979,7 +7212,8 @@
    "m": [
     {
      "i": "Climate Action & Clean Energy",
-     "k": "climate_action"
+     "k": "climate_action",
+     "l": "Imposed a tax on certain wind or solar electric generation facilities, deposited into the Species Protection Account."
     }
    ]
   },
@@ -6991,7 +7225,8 @@
    "m": [
     {
      "i": "Stronger Gun Safety Laws",
-     "k": "gun_safety"
+     "k": "gun_safety",
+     "l": "Would have created the criminal offenses of unlawful possession, manufacture, distribution or sale of a machinegun firearm attachment."
     }
    ]
   },
@@ -7003,7 +7238,8 @@
    "m": [
     {
      "i": "Affordable Child Care",
-     "k": "child_care"
+     "k": "child_care",
+     "l": "Would have enacted nonrefundable corporate and individual income tax credits for employer-provided child care."
     }
    ]
   },
@@ -7043,7 +7279,8 @@
    "m": [
     {
      "i": "Tough on Crime",
-     "k": "tough_on_crime"
+     "k": "tough_on_crime",
+     "l": "Increased penalties for certain human trafficking offenses."
     }
    ]
   },
@@ -7055,7 +7292,8 @@
    "m": [
     {
      "i": "Expand Voting Access",
-     "k": "voting_access"
+     "k": "voting_access",
+     "l": "Would have let district voters, with certain exceptions, hold a referendum on any school board legislative action, including tax hikes."
     }
    ]
   },
@@ -7067,7 +7305,8 @@
    "m": [
     {
      "i": "Affordable Child Care",
-     "k": "child_care"
+     "k": "child_care",
+     "l": "Authorized housing and transit reinvestment zone funds to include expansion of child care facilities within the zone."
     }
    ]
   },
@@ -7095,7 +7334,8 @@
    "m": [
     {
      "i": "Practical Stewardship",
-     "k": "enviro_balance"
+     "k": "enviro_balance",
+     "l": "Required the Division of Air Quality to complete a best available control technology emissions reduction plan for major halogen sources."
     }
    ]
   },
@@ -7107,7 +7347,8 @@
    "m": [
     {
      "i": "Transparency & Anti-Corruption",
-     "k": "gov_transparency"
+     "k": "gov_transparency",
+     "l": "Would have required the state school board to publish information related to its meetings on its website."
     }
    ]
   },
@@ -7131,7 +7372,8 @@
    "m": [
     {
      "i": "Parental Rights in Schools",
-     "k": "edu_parental"
+     "k": "edu_parental",
+     "l": "Would have required filters blocking sensitive material on school-provided devices and databases, and parent notice at student registration."
     }
    ]
   },
@@ -7143,7 +7385,8 @@
    "m": [
     {
      "i": "Cut Federal Red Tape",
-     "k": "gov_regulation"
+     "k": "gov_regulation",
+     "l": "Set a limit on the cost of implementing an agency generated rule and had the office gather feedback on existing occupational regulations."
     }
    ]
   },
@@ -7155,7 +7398,8 @@
    "m": [
     {
      "i": "Free Speech Protections",
-     "k": "free_speech"
+     "k": "free_speech",
+     "l": "Barred public comment at a local school board meeting that complies with certain restrictions from being the basis for criminal trespass."
     }
    ]
   },
@@ -7167,7 +7411,8 @@
    "m": [
     {
      "i": "Whose Rule Governs: State or Federal",
-     "k": "states_federal_power"
+     "k": "states_federal_power",
+     "l": "Expanded the Federalism Commission and had a Utah Valley University center develop federalism training for government employees."
     }
    ]
   },
@@ -7183,7 +7428,8 @@
     },
     {
      "i": "Transparency & Anti-Corruption",
-     "k": "gov_transparency"
+     "k": "gov_transparency",
+     "l": "Required the State Board of Education to post meeting information on its website and use a compliance framework for noncompliance."
     }
    ]
   },
@@ -7195,7 +7441,8 @@
    "m": [
     {
      "i": "Privacy & Big-Tech Accountability",
-     "k": "privacy_rights"
+     "k": "privacy_rights",
+     "l": "Required the state board to study LEA practices for collection and retention of student personally identifiable information."
     }
    ]
   },
@@ -7219,7 +7466,8 @@
    "m": [
     {
      "i": "Wildfire & Disaster Resilience",
-     "k": "disaster_resilience"
+     "k": "disaster_resilience",
+     "l": "Would have created the Utah Commission for Earthquake Preparedness, staffed by the Department of Natural Resources, until 2031."
     }
    ]
   },
@@ -7231,7 +7479,8 @@
    "m": [
     {
      "i": "Gold & Sound Money",
-     "k": "sound_money"
+     "k": "sound_money",
+     "l": "Would have let a person pay gold mining severance and income taxes in gold, with a reduced severance tax rate for specified years."
     }
    ]
   },
@@ -7243,7 +7492,8 @@
    "m": [
     {
      "i": "Help Families with Kids",
-     "k": "family_support"
+     "k": "family_support",
+     "l": "Required the health department to award grants, within appropriations, to nonprofit entities that provide free diapering supplies."
     }
    ]
   },
@@ -7255,7 +7505,8 @@
    "m": [
     {
      "i": "Privacy & Big-Tech Accountability",
-     "k": "privacy_rights"
+     "k": "privacy_rights",
+     "l": "Would have restricted the storage of genetic sequencing data and barred the use of certain genetic sequencers."
     }
    ]
   },
@@ -7271,7 +7522,8 @@
     },
     {
      "i": "Tough on Crime",
-     "k": "tough_on_crime"
+     "k": "tough_on_crime",
+     "l": "Let the Office of State Debt Collection collect a civil judgment of restitution and extended garnishments to wages held by a third party."
     }
    ]
   },
@@ -7299,7 +7551,8 @@
    "m": [
     {
      "i": "Development Districts & Public Financing",
-     "k": "dev_district_finance"
+     "k": "dev_district_finance",
+     "l": "Set a process to propose a convention center reinvestment zone in a first class county that may capture sales and property tax increment."
     },
     {
      "i": "Housing Affordability",
@@ -7320,7 +7573,8 @@
    "m": [
     {
      "i": "Private Property Rights",
-     "k": "property_rights"
+     "k": "property_rights",
+     "l": "Required an infrastructure siting analysis and federal agency coordination before condemning private lands for a high voltage power line."
     }
    ]
   },
@@ -7332,7 +7586,8 @@
    "m": [
     {
      "i": "Lower Prescription Drug Prices",
-     "k": "health_drug_prices"
+     "k": "health_drug_prices",
+     "l": "Barred certain conduct by pharmaceutical manufacturers involving the 340B drug discount program."
     }
    ]
   },
@@ -7344,7 +7599,8 @@
    "m": [
     {
      "i": "Cut Income & Business Taxes",
-     "k": "lower_taxes"
+     "k": "lower_taxes",
+     "l": "Raised the thresholds for the income-based phaseout of the social security benefits tax credit, expanding eligibility."
     }
    ]
   },
@@ -7356,7 +7612,8 @@
    "m": [
     {
      "i": "Expand Voting Access",
-     "k": "voting_access"
+     "k": "voting_access",
+     "l": "Barred counting votes cast for or against an initiative if its sponsors fail to publish the initiative application as required."
     }
    ]
   },
@@ -7368,7 +7625,8 @@
    "m": [
     {
      "i": "Homelessness Policy",
-     "k": "homeless"
+     "k": "homeless",
+     "l": "Created a homeless services provider ombudsman within the Office of Homeless Services, with a sunset review after five years."
     }
    ]
   },
@@ -7393,7 +7651,8 @@
    "m": [
     {
      "i": "Tough on Crime",
-     "k": "tough_on_crime"
+     "k": "tough_on_crime",
+     "l": "Required a mandatory jail sentence for certain drug and theft crimes under certain conditions and with specified prior criminal convictions."
     }
    ]
   },
@@ -7405,7 +7664,8 @@
    "m": [
     {
      "i": "Wildfire & Disaster Resilience",
-     "k": "disaster_resilience"
+     "k": "disaster_resilience",
+     "l": "Would have required each county, city, or town emergency operations plan to designate at least one shelter for personal animals."
     }
    ]
   },
@@ -7433,7 +7693,8 @@
    "m": [
     {
      "i": "Take Care of Veterans",
-     "k": "veterans"
+     "k": "veterans",
+     "l": "Would have offered resident qualified veterans an annual state parks pass at least 25% off, as funding allows, for three years."
     }
    ]
   },
@@ -7445,7 +7706,8 @@
    "m": [
     {
      "i": "Mental Health & Addiction",
-     "k": "health_mental"
+     "k": "health_mental",
+     "l": "Required state correctional facilities and county jails to screen inmates for substance use disorders and use the screenings in treatment."
     }
    ]
   },
@@ -7457,7 +7719,8 @@
    "m": [
     {
      "i": "Climate Action & Clean Energy",
-     "k": "climate_action"
+     "k": "climate_action",
+     "l": "Would have required, under certain conditions, that procured landscape maintenance equipment be electric-powered."
     }
    ]
   },
@@ -7469,7 +7732,8 @@
    "m": [
     {
      "i": "Affordable Housing & Renters",
-     "k": "housing_support"
+     "k": "housing_support",
+     "l": "Would have barred an owner from imposing a rent increase for the first 90 days the owner owns a multifamily unit building."
     }
    ]
   },
@@ -7481,7 +7745,8 @@
    "m": [
     {
      "i": "Stronger Gun Safety Laws",
-     "k": "gun_safety"
+     "k": "gun_safety",
+     "l": "Would have created a waiting period, with exemptions, for dealer firearm sales and, from 2027, offenses for certain semiautomatic firearms."
     }
    ]
   },
@@ -7493,7 +7758,8 @@
    "m": [
     {
      "i": "School Choice & Education Freedom",
-     "k": "school_choice"
+     "k": "school_choice",
+     "l": "Created an online course choice program for private school students, administered by an independent program manager."
     }
    ]
   },
@@ -7505,7 +7771,8 @@
    "m": [
     {
      "i": "Tough on Crime",
-     "k": "tough_on_crime"
+     "k": "tough_on_crime",
+     "l": "Expanded the offense of sexual exploitation of a minor to include accessing child sexual abuse material with the intent to view."
     }
    ]
   },
@@ -7517,7 +7784,8 @@
    "m": [
     {
      "i": "Transparency & Anti-Corruption",
-     "k": "gov_transparency"
+     "k": "gov_transparency",
+     "l": "Required an entity withholding privileged items from the legislative auditor general to expressly assert a privilege."
     }
    ]
   },
@@ -7529,7 +7797,8 @@
    "m": [
     {
      "i": "Criminal Justice Reform",
-     "k": "justice_reform"
+     "k": "justice_reform",
+     "l": "Would have reduced the wait before offenders requiring lifetime registration may petition for early removal from the offender registry."
     }
    ]
   },
@@ -7541,7 +7810,8 @@
    "m": [
     {
      "i": "Criminal Justice Reform",
-     "k": "justice_reform"
+     "k": "justice_reform",
+     "l": "Created the Youth Defense Fund to pay for indigent defense services for a minor referred to the juvenile court for an offense."
     }
    ]
   },
@@ -7570,7 +7840,8 @@
    "m": [
     {
      "i": "Homelessness Policy",
-     "k": "homeless"
+     "k": "homeless",
+     "l": "Would have required a code red alert for certain weather events that may pose a danger to individuals experiencing homelessness."
     }
    ]
   },
@@ -7582,7 +7853,8 @@
    "m": [
     {
      "i": "Tobacco & Vaping Rules",
-     "k": "tobacco_nicotine"
+     "k": "tobacco_nicotine",
+     "l": "Would have created penalties for general tobacco retailers that sell flavored electronic cigarette products and raised permit fees."
     }
    ]
   },
@@ -7594,7 +7866,8 @@
    "m": [
     {
      "i": "Energy & Resource Development",
-     "k": "lands_energy"
+     "k": "lands_energy",
+     "l": "Allowed a loan or grant from the Throughput Infrastructure Fund for certain mining activity."
     }
    ]
   },
@@ -7606,7 +7879,8 @@
    "m": [
     {
      "i": "Affordable Child Care",
-     "k": "child_care"
+     "k": "child_care",
+     "l": "Would have created the Child Care Capacity Expansion Act and limited liability from operations of an expanded child care facility."
     }
    ]
   },
@@ -7618,7 +7892,8 @@
    "m": [
     {
      "i": "Lower Healthcare Costs",
-     "k": "healthcare_costs"
+     "k": "healthcare_costs",
+     "l": "Extended the prohibition of balance billing for workers’ compensation claims to health care providers."
     }
    ]
   },
@@ -7630,7 +7905,8 @@
    "m": [
     {
      "i": "Public Transit & Transportation",
-     "k": "transit"
+     "k": "transit",
+     "l": "Extended a deadline for certain sales and use taxes to be allocated for public transit innovation grants."
     }
    ]
   },
@@ -7654,7 +7930,8 @@
    "m": [
     {
      "i": "Court Orders on the Executive",
-     "k": "judicial_check"
+     "k": "judicial_check",
+     "l": "Granted a right to appeal, in certain circumstances, a trial court’s injunctive order restraining enforcement of a state law."
     }
    ]
   },
@@ -7666,7 +7943,8 @@
    "m": [
     {
      "i": "Expand Healthcare Access",
-     "k": "healthcare"
+     "k": "healthcare",
+     "l": "Would have expanded the diagnosis of autism spectrum disorder definition to include assessments by additional licensed professionals."
     }
    ]
   },
@@ -7678,7 +7956,8 @@
    "m": [
     {
      "i": "Privacy & Big-Tech Accountability",
-     "k": "privacy_rights"
+     "k": "privacy_rights",
+     "l": "Would have let a voter’s name and address be publicly disclosed if a voter with a private registration record signs a petition."
     }
    ]
   },
@@ -7690,11 +7969,13 @@
    "m": [
     {
      "i": "Cut Income & Business Taxes",
-     "k": "lower_taxes"
+     "k": "lower_taxes",
+     "l": "Would have imposed a separate income tax rate on individual, estate, and trust income over $1,000,000, adjusted for inflation."
     },
     {
      "i": "Middle-Class Tax Relief",
-     "k": "tax_middle_class"
+     "k": "tax_middle_class",
+     "l": "Would have made the earned income tax credit refundable."
     }
    ]
   },
@@ -7706,7 +7987,8 @@
    "m": [
     {
      "i": "Religious Liberty Focus",
-     "k": "religious_liberty"
+     "k": "religious_liberty",
+     "l": "Designated certain days of special religious significance as state holy days and made Easter Sunday a legal holiday."
     }
    ]
   },
@@ -7718,7 +8000,8 @@
    "m": [
     {
      "i": "Affordable Housing & Renters",
-     "k": "housing_support"
+     "k": "housing_support",
+     "l": "Let counties and municipalities use home ownership promotion zone funds for water exaction, street lighting, and environmental remediation."
     },
     {
      "i": "Help First-Time Buyers",
@@ -7739,7 +8022,8 @@
    "m": [
     {
      "i": "Affordable Child Care",
-     "k": "child_care"
+     "k": "child_care",
+     "l": "Would have created a Child Care Center Business Management Certificate Program at Utah State University to teach licensing requirements."
     }
    ]
   },
@@ -7755,7 +8039,8 @@
     },
     {
      "i": "School Choice & Education Freedom",
-     "k": "school_choice"
+     "k": "school_choice",
+     "l": "Removed certain square footage requirements and expanded facilities where a micro-education entity or home-based microschool may operate."
     }
    ]
   },
@@ -7767,7 +8052,8 @@
    "m": [
     {
      "i": "Expand Healthcare Access",
-     "k": "healthcare"
+     "k": "healthcare",
+     "l": "Required health insurers to provide preauthorization information to the Department of Insurance, patients and health care providers."
     }
    ]
   },
@@ -7804,7 +8090,8 @@
    "m": [
     {
      "i": "Development Districts & Public Financing",
-     "k": "dev_district_finance"
+     "k": "dev_district_finance",
+     "l": "Let the authority agree with the state to use revenue from a project area outside that area if the project area is on state-owned land."
     }
    ]
   },
@@ -7816,7 +8103,8 @@
    "m": [
     {
      "i": "Invest in Public Schools",
-     "k": "public_schools"
+     "k": "public_schools",
+     "l": "Would have removed a hold harmless provision for voted and board levies, with a graduated phase out."
     }
    ]
   },
@@ -7828,7 +8116,8 @@
    "m": [
     {
      "i": "Corporate Accountability",
-     "k": "econ_corp_account"
+     "k": "econ_corp_account",
+     "l": "Would have extended the time to rescind a deferred deposit loan and required lenders to give a notice of default in the loan’s language."
     }
    ]
   },
@@ -7840,7 +8129,8 @@
    "m": [
     {
      "i": "Help Small Businesses",
-     "k": "econ_smallbiz"
+     "k": "econ_smallbiz",
+     "l": "Established standards for apprenticeship in cosmetology and let schools get curriculum approval from the Division of Professional Licensing."
     }
    ]
   },
@@ -7852,7 +8142,8 @@
    "m": [
     {
      "i": "Development Districts & Public Financing",
-     "k": "dev_district_finance"
+     "k": "dev_district_finance",
+     "l": "Let a public infrastructure district created by the fairpark district levy property taxes and use bond proceeds for utility infrastructure."
     }
    ]
   }

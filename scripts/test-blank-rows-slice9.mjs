@@ -320,7 +320,9 @@ function check(src, ledger, { pids = ALL_PIDS, base = null } = {}) {
     for (const r of a.rolls) for (const h of (SEED[act] || []).filter((x) => x.ch === r.chamber && Number(x.roll) === r.roll && x.tl)) {
       ok(h.tl[0] === r.yea && h.tl[1] === r.nay, `${act}: ${h.file} counts ${r.chamber} roll ${r.roll} ${h.tl.join("-")}, the record ${r.yea}-${r.nay}`);
     }
-    const sibLines = Object.entries(E.map).filter(([j]) => j !== k && j.startsWith(act + "|") && !NEW.has(j));
+    // A later slice's line on the same act is that slice's to hold, and does not
+    // set this slice's form after the fact.
+    const sibLines = Object.entries(E.map).filter(([j]) => j !== k && j.startsWith(act + "|") && !NEW.has(j) && !keysAfter(src, "_DOS_EFFECT", VERSION).has(j));
     // An act that already carries lines sets the "Would" or "Would have" form.
     if (st !== "enacted" && st !== "failed" && sibLines.length) {
       ok(sibLines.every(([, v]) => /^Would have\b/.test(v) === /^Would have\b/.test(s)), `${k}: its tense is not the tense of the act's other lines`);

@@ -18485,6 +18485,598 @@
       'Would have imposed landscaping requirements on state government facilities.',
     'S.B. 80|2025GS|water':
       'Required the Department of Environmental Quality to set a water fee schedule, with net fees going to the Water Infrastructure Fund.',
+    // EFFECT COVERAGE SLICE 17 (v388). Every mapped pair beyond the five issues
+    // that still printed nothing: 344 Utah pairs and 53 federal. A Utah line is
+    // written from the bill’s own Highlighted Provisions on the Legislature’s
+    // record, never its title, and reads as done only where that record shows the
+    // act became law; otherwise it opens "Would have". A federal line is written
+    // from the enrolled or House-passed text and takes its sibling lines’ tense.
+    // 284 Utah and 7 federal pairs carry a line. The rest stay silent: their
+    // text states no clear change on the issue, their one provision is a sibling
+    // line’s already, or their only row is the President’s own act.
+    // db/vr-effect-coverage-lines.json quotes the source of each and says why.
+    'H.R. 7148|119|healthcare':
+      'Extended community health center funding, special diabetes programs and Medicare telehealth flexibilities; the House concurred 217-214.',
+    'H.R. 6644|119|crypto_cbdc':
+      'Barred the Federal Reserve from issuing or creating a central bank digital currency until the bar sunsets at the end of 2030.',
+    'H.R. 6644|119|housing_support':
+      'Made the Rental Assistance Demonstration permanent, raised its cap to 555,000 units and made new affordable housing construction a CDBG use.',
+    'H.R. 815|118|israel_support':
+      'Provided $5.2 billion for Iron Dome, David’s Sling and Iron Beam and $3.5 billion in Israel military financing; the Senate concurred 79-18.',
+    'H.R. 471|119|lands_balance':
+      'Would designate high-risk fireshed management areas and have the Forest Service use livestock grazing to reduce wildfire risk.',
+    'H.R. 6644|119|permitting_reform':
+      'Let Indian Tribes assume HUD environmental review duties and directed NEPA streamlining for HUD housing-related activities.',
+    'H.R. 1526|119|reform_balance':
+      'Would send a case brought by two or more states challenging an executive action to a randomly selected three-judge panel.',
+    'H.B. 264|2025GS|climate_action':
+      'Repealed tax credits for qualifying solar projects and alternative energy development, and limited clean energy credits to pre-2035 systems.',
+    'H.B. 378|2025GS|climate_action':
+      'Imposed a tax on certain wind or solar electric generation facilities, deposited into the Species Protection Account.',
+    'H.B. 481|2024GS|climate_action':
+      'Would have created a tax credit for locomotive idle-reduction devices and modified the credit for alternative fuel heavy duty vehicles.',
+    'S.B. 124|2025GS|climate_action':
+      'Would have required, under certain conditions, that procured landscape maintenance equipment be electric-powered.',
+    'H.B. 119|2025GS|enviro_energy':
+      'Stopped a homeowners association from prohibiting solar panel installation, while letting it restrict installation.',
+    'H.B. 241|2024GS|enviro_energy':
+      'Changed the term renewable to clean where appropriate in statute.',
+    'H.B. 350|2025GS|enviro_energy':
+      'Added district energy systems as qualifying projects for high cost infrastructure tax credits, with investment thresholds to qualify.',
+    'S.B. 249|2023GS|enviro_energy':
+      'Would have created an income tax credit for installing a commercial energy storage system for use by commercial entities.',
+    'H.B. 420|2025GS|enviro_balance':
+      'Required the Division of Air Quality to complete a best available control technology emissions reduction plan for major halogen sources.',
+    'H.B. 165|2024GS|border_security':
+      'Required a federal officer to follow certain procedures before releasing an alien within the state.',
+    'H.B. 226|2025GS|border_security':
+      'Made sheriffs and the Department of Corrections notify federal immigration authority before releasing certain unlawfully present inmates.',
+    'H.B. 137|2024GS|healthcare':
+      'Would have required the health department to seek a Medicaid waiver for wraparound services to qualified individuals with a disability.',
+    'H.B. 267|2024GS|healthcare':
+      'Would have conditionally required a health benefit plan to reimburse telemedicine services at minimum 90% of its in-person rate.',
+    'H.B. 310|2025GS|healthcare':
+      'Required the health department to apply for a Medicaid waiver to provide wraparound services to qualified individuals with a disability.',
+    'H.B. 315|2023GS|healthcare':
+      'Required the state to apply for a Medicaid waiver or state plan amendment to expand coverage for recreational therapy services.',
+    'H.B. 386|2023GS|healthcare':
+      'Would have created a grant program to establish new clinical experience opportunities for healthcare students.',
+    'H.B. 463|2024GS|healthcare':
+      'Would have set cost control measures for the Medicaid program and Medicaid expansion to take effect in the event of a Medicaid shortfall.',
+    'H.B. 534|2023GS|healthcare':
+      'Would have required insurers to pay 90% or more of the in-person rate for telemedicine if the network provider also provides it in-person.',
+    'S.B. 133|2023GS|healthcare':
+      'Required Medicaid to seek waivers to extend postpartum coverage for certain women and expand certain family planning eligibility.',
+    'S.B. 19|2023GS|healthcare':
+      'Required the state to request authorization to provide dental services to Medicaid-eligible adults not already eligible for them.',
+    'S.B. 204|2023GS|healthcare':
+      'Required the Department of Health and Human Services to request a Medicaid state plan amendment covering autism treatment services.',
+    'S.B. 214|2025GS|healthcare':
+      'Would have expanded the diagnosis of autism spectrum disorder definition to include assessments by additional licensed professionals.',
+    'S.B. 217|2023GS|healthcare':
+      'Created alternative eligibility requirements for the Children’s Health Insurance Program and allowed a waiting list for those applicants.',
+    'S.B. 274|2025GS|healthcare':
+      'Required health insurers to provide preauthorization information to the Department of Insurance, patients and health care providers.',
+    'S.B. 275|2024GS|healthcare':
+      'Would have created deadlines for a managed care organization to respond to certain authorization requests.',
+    'S.B. 190|2025GS|healthcare_costs':
+      'Extended the prohibition of balance billing for workers’ compensation claims to health care providers.',
+    'H.B. 425|2024GS|health_drug_prices':
+      'Would have required health benefit plans to ensure pharmaceutical rebates are used for certain purposes.',
+    'S.B. 69|2025GS|health_drug_prices':
+      'Barred certain conduct by pharmaceutical manufacturers involving the 340B drug discount program.',
+    'H.B. 105|2023GS|health_mental':
+      'Set a three-year pilot granting the same disability benefit for a mental objective medical impairment as for a physical one.',
+    'H.B. 248|2023GS|health_mental':
+      'Required the Department of Health and Human Services to create a long-term, statewide assertive community treatment team plan.',
+    'H.B. 365|2025GS|health_mental':
+      'Had the Department of Health and Human Services seek a study of wait times and barriers for a child to see a therapist.',
+    'H.B. 378|2024GS|health_mental':
+      'Broadened who is eligible for first responder mental health resources and required agencies to designate a mental health resources liaison.',
+    'S.B. 115|2025GS|health_mental':
+      'Required state correctional facilities and county jails to screen inmates for substance use disorders and use the screenings in treatment.',
+    'H.B. 175|2023GS|public_schools':
+      'Would have barred local education agencies from charging a general fee or charging grade 6 students a fee for a remediation program.',
+    'H.B. 477|2023GS|public_schools':
+      'Changed kindergarten funding formulas to reflect a full-day class and required LEA boards to provide an optional half-day class on request.',
+    'S.B. 138|2024GS|public_schools':
+      'Would have had the state board award grants for local education agencies to employ an additional first year educator in a high-need school.',
+    'S.B. 173|2024GS|public_schools':
+      'Created the Excellence in Education and Leadership Supplement for eligible teachers, with funds disbursed by the State Board of Education.',
+    'S.B. 321|2025GS|public_schools':
+      'Would have removed a hold harmless provision for voted and board levies, with a graduated phase out.',
+    'H.B. 215|2023GS|school_choice':
+      'Created the Utah Fits All Scholarship Program, with scholarship accounts for eligible students to pay for approved education goods.',
+    'H.B. 398|2023GS|school_choice':
+      'Expanded allowed scholarship expenses and increased the donations a scholarship granting organization may carry forward in a fiscal year.',
+    'H.B. 529|2024GS|school_choice':
+      'Let a foster parent who has initiated a process to adopt the foster child apply for a Utah Fits All scholarship account.',
+    'S.B. 137|2025GS|school_choice':
+      'Created an online course choice program for private school students, administered by an independent program manager.',
+    'S.B. 272|2025GS|school_choice':
+      'Removed certain square footage requirements and expanded facilities where a micro-education entity or home-based microschool may operate.',
+    'S.B. 44|2024GS|school_choice':
+      'Combined the Carson Smith and Special Needs Opportunity scholarships and let home school and preschool aged students receive a scholarship.',
+    'H.B. 138|2023GS|edu_parental':
+      'Would have required schools to finish reviews of challenged instructional material and provided for ending vendor contracts over it.',
+    'H.B. 182|2024GS|edu_parental':
+      'Required an LEA to obtain written parental consent annually for certain student surveys and give parents a list of data recipients.',
+    'H.B. 209|2025GS|edu_parental':
+      'Removed affidavits for students who begin homeschooling at the start of an academic year and the parent criminal background attestation.',
+    'H.B. 281|2025GS|edu_parental':
+      'Required any health care provider to obtain informed parental consent before providing telehealth to a student within a public school.',
+    'H.B. 29|2024GS|edu_parental':
+      'Required certain statewide action, subject to a state board vote to overturn it, if a threshold of LEAs find objective sensitive material.',
+    'H.B. 325|2025GS|edu_parental':
+      'Would have created a three-year pilot program for parent access to learning materials, starting with elementary schools.',
+    'H.B. 344|2023GS|edu_parental':
+      'Would have required each LEA governing board to set a course content transparency policy and post it on the LEA’s website.',
+    'H.B. 464|2023GS|edu_parental':
+      'Would have required local education agencies to review a parent’s allegation that instructional material is prohibited by state law.',
+    'H.B. 465|2023GS|edu_parental':
+      'Required local education agencies with school libraries to provide an online platform showing a parent materials the child borrows.',
+    'H.B. 473|2025GS|edu_parental':
+      'Would have required filters blocking sensitive material on school-provided devices and databases, and parent notice at student registration.',
+    'H.B. 517|2024GS|edu_parental':
+      'Required LEA boards to inform parents of the half-day kindergarten option and provide a designated class when enrollment hits a threshold.',
+    'H.B. 82|2023GS|edu_parental':
+      'Would have required local education agencies to give parents prior notice of certain school assemblies.',
+    'S.B. 100|2023GS|edu_parental':
+      'Barred a school or local education agency from prohibiting a parent’s access to the education record of the parent’s child.',
+    'H.B. 72|2025GS|cost_living':
+      'Would have barred recovering costs from Utah ratepayers for facilities and programs primarily benefiting other states.',
+    'S.B. 288|2023GS|cost_living':
+      'Created a Utility Bill Assistance Program paying large-scale utilities for bill credits to customers who meet income requirements.',
+    'H.B. 293|2025GS|lower_taxes':
+      'Would have exempted the lower priced motor vehicle from sales and use tax when a person buys and sells two in separate transactions.',
+    'H.B. 525|2023GS|lower_taxes':
+      'Would have exempted corrective eyeglasses and contact lenses from sales and use tax by defining them as prosthetic devices.',
+    'S.B. 244|2025GS|lower_taxes':
+      'Would have imposed a separate income tax rate on individual, estate, and trust income over $1,000,000, adjusted for inflation.',
+    'S.B. 71|2025GS|lower_taxes':
+      'Raised the thresholds for the income-based phaseout of the social security benefits tax credit, expanding eligibility.',
+    'H.B. 149|2024GS|tax_middle_class':
+      'Would have made the state earned income tax credit refundable.',
+    'H.B. 54|2023GS|tax_middle_class':
+      'Expanded eligibility for the social security benefits tax credit by increasing the thresholds for the income-based phaseout.',
+    'S.B. 244|2025GS|tax_middle_class':
+      'Would have made the earned income tax credit refundable.',
+    'H.B. 110|2025GS|prop_tax':
+      'Repealed the WPU value rate from the combination of property tax rates that fund public education.',
+    'H.B. 240|2025GS|prop_tax':
+      'Let land qualify for urban farming assessment based on gross sales and repealed the annual renewal application for approved land.',
+    'H.B. 260|2023GS|prop_tax':
+      'Would have raised the income limit for a claimant to qualify for a homeowner’s credit and for a renter’s credit.',
+    'S.B. 182|2024GS|prop_tax':
+      'Gave additional remedies to a property owner if valuation rises over a certain threshold with no significant changes to the property.',
+    'S.B. 250|2024GS|prop_tax':
+      'Aligned the maximum annual renter’s credit with the amount allowed for a homeowner’s credit.',
+    'H.B. 335|2024GS|audit_spending':
+      'Required a grant recipient to give a proposed budget and agree to deliverables, reporting, audit, and clawback requirements before funding.',
+    'S.B. 136|2023GS|audit_spending':
+      'Let the legislative auditor general subpoena financial institutions and run systemic performance audits of some executive branch entities.',
+    'S.B. 111|2024GS|back_police':
+      'Would have created the Law Enforcement Canine Grant Program for law enforcement agencies, with funding priority to small agencies.',
+    'H.B. 203|2025GS|cannabis_reform':
+      'Would have allowed additional medical cannabis pharmacies and created a new license for independent medical cannabis pharmacies.',
+    'H.B. 230|2023GS|cannabis_reform':
+      'Created the Center for Medical Cannabis Research within the University of Utah, fundable by the Qualified Patient Enterprise Fund.',
+    'S.B. 233|2024GS|cannabis_reform':
+      'Allowed the delivery of medical cannabis to more address types and targeted marketing by medical cannabis pharmacies.',
+    'S.B. 71|2024GS|cannabis_reform':
+      'Would have enacted a nonrefundable income tax credit for business expenses related to selling medical cannabis within the state.',
+    'S.B. 200|2024GS|checks_balances':
+      'Required the Legislature to approve sentencing and supervision length guidelines and juvenile disposition guidelines.',
+    'H.B. 106|2025GS|child_care':
+      'Enacted income tax credits for employer-provided child care and let taxpayers claim the child tax credit for dependents under one year old.',
+    'H.B. 153|2024GS|child_care':
+      'Made optional the certificate for residential child care and limited how many children under three an unlicensed provider may care for.',
+    'H.B. 389|2025GS|child_care':
+      'Would have enacted nonrefundable corporate and individual income tax credits for employer-provided child care.',
+    'H.B. 410|2025GS|child_care':
+      'Authorized housing and transit reinvestment zone funds to include expansion of child care facilities within the zone.',
+    'H.B. 461|2024GS|child_care':
+      'Let the Office of Child Care award a full child care subsidy or grant to a child with a parent working full-time at a child care provider.',
+    'S.B. 189|2025GS|child_care':
+      'Would have created the Child Care Capacity Expansion Act and limited liability from operations of an expanded child care facility.',
+    'S.B. 264|2025GS|child_care':
+      'Would have created a Child Care Center Business Management Certificate Program at Utah State University to teach licensing requirements.',
+    'H.B. 412|2023GS|civil_service_control':
+      'Would have let certain career service employees elect to convert to career service exempt status and made schedule AY positions exempt.',
+    'H.B. 429|2024GS|civil_service_control':
+      'Would have classified a state employee as exempt from career service status beginning January 1, 2025, with certain exceptions.',
+    'H.B. 466|2023GS|civil_service_control':
+      'Would have denied career service status to Office of the Attorney General employees hired after a specified date.',
+    'H.B. 164|2024GS|crypto_cbdc':
+      'Excluded certain digital currencies from the definition of money.',
+    'H.B. 230|2025GS|crypto_cbdc':
+      'Barred state and local governmental entities from restricting the acceptance or custody of digital assets.',
+    'H.B. 289|2023GS|crypto_cbdc':
+      'Created the Noncustodial Blockchain Registry in the Utah Office of Regulatory Relief and had the office issue certificates of registration.',
+    'H.B. 357|2023GS|crypto_cbdc':
+      'Enacted the Decentralized Autonomous Organization Act, setting requirements for such an organization to be recognized by the state.',
+    'H.B. 562|2024GS|dev_district_finance':
+      'Created the Utah Fairpark Area Investment and Restoration District, let it levy a transient room tax and other taxes and own a stadium.',
+    'S.B. 208|2024GS|dev_district_finance':
+      'Limited a housing and transit reinvestment zone to one sales and use tax increment period and required it to be at least 10 acres.',
+    'S.B. 26|2025GS|dev_district_finance':
+      'Set a process to propose a convention center reinvestment zone in a first class county that may capture sales and property tax increment.',
+    'S.B. 295|2023GS|dev_district_finance':
+      'Would have let a dedicated infrastructure district issue bonds and levy taxes, with certain limitations, to finance infrastructure.',
+    'S.B. 316|2025GS|dev_district_finance':
+      'Let the authority agree with the state to use revenue from a project area outside that area if the project area is on state-owned land.',
+    'S.B. 336|2025GS|dev_district_finance':
+      'Let a public infrastructure district created by the fairpark district levy property taxes and use bond proceeds for utility infrastructure.',
+    'H.B. 47|2024GS|disaster_resilience':
+      'Would have extended the sunset date of provisions related to the Utah Seismic Safety Commission.',
+    'H.B. 513|2025GS|disaster_resilience':
+      'Would have created the Utah Commission for Earthquake Preparedness, staffed by the Department of Natural Resources, until 2031.',
+    'S.B. 97|2025GS|disaster_resilience':
+      'Would have required each county, city, or town emergency operations plan to designate at least one shelter for personal animals.',
+    'H.B. 215|2024GS|econ_corp_account':
+      'Gave solar customers a four business day cancellation period and added Division of Consumer Protection enforcement against solar retailers.',
+    'H.B. 311|2023GS|econ_corp_account':
+      'Barred a social media company from using a design or feature that causes a minor to have an addiction, and allowed private suits.',
+    'H.B. 449|2023GS|econ_corp_account':
+      'Barred companies, with exceptions, from coordinating to destroy certain companies by eliminating their options for a product or service.',
+    'H.B. 64|2023GS|econ_corp_account':
+      'Would have barred courts from enforcing agreements to waive or limit punitive damages liability, exempting certain financial institutions.',
+    'H.B. 94|2023GS|econ_corp_account':
+      'Cut the reverse mortgage cooling off period from seven days to five and waived some foreclosure prerequisites if the borrower is deceased.',
+    'S.B. 329|2025GS|econ_corp_account':
+      'Would have extended the time to rescind a deferred deposit loan and required lenders to give a notice of default in the loan’s language.',
+    'S.B. 272|2024GS|econ_growth':
+      'Let a qualifying local government levy a sales and use tax, subject to approvals, for infrastructure in a revitalization zone project area.',
+    'H.B. 331|2023GS|econ_smallbiz':
+      'Would have required a political subdivision to allow a microenterprise home kitchen that meets the permit requirements to operate.',
+    'S.B. 330|2025GS|econ_smallbiz':
+      'Established standards for apprenticeship in cosmetology and let schools get curriculum approval from the Division of Professional Licensing.',
+    'H.B. 195|2023GS|econ_workers':
+      'Would have given school employees under criminal investigation paid leave at part salary, with back pay if wrongdoing is not substantiated.',
+    'H.B. 243|2023GS|econ_workers':
+      'Excluded confidential employees, managerial employees, and supervisors of a public transit district from the right to bargain collectively.',
+    'H.B. 267|2025GS|econ_workers':
+      'Barred public employers from recognizing a labor organization as a bargaining agent or entering into collective bargaining contracts.',
+    'H.B. 155|2023GS|election_integrity':
+      'Would have required the lieutenant governor to contract with an independent accounting firm to evaluate certain election audits and results.',
+    'H.B. 347|2023GS|election_integrity':
+      'Increased the criminal penalty for taking, concealing, removing, or destroying a ballot drop box or the contents of a ballot drop box.',
+    'H.B. 263|2025GS|election_security':
+      'Required an election officer to retain and preserve ballot chain of custody documentation created during an election.',
+    'H.B. 332|2025GS|election_security':
+      'Would have required proof of United States citizenship to vote in a state election, with a federal-only ballot for those without it.',
+    'H.B. 111|2024GS|end_dei':
+      'Would have barred, as employment discrimination, training or other requirements that compel adherence to or belief in certain concepts.',
+    'H.B. 261|2024GS|end_dei':
+      'Barred schools, colleges and public employers, with limited exceptions, from requiring certain training promoting differential treatment.',
+    'H.B. 100|2025GS|family_support':
+      'Provided certain students lunch at no charge and barred an LEA from stigmatizing students who cannot afford meals.',
+    'H.B. 316|2025GS|family_support':
+      'Would have let a taxpayer claim the nonrefundable child tax credit for child dependents under one year old and up to five years old.',
+    'H.B. 547|2025GS|family_support':
+      'Required the health department to award grants, within appropriations, to nonprofit entities that provide free diapering supplies.',
+    'H.B. 147|2023GS|free_speech':
+      'Would have barred distributing a recording of a crime unless the crime had been reported to law enforcement.',
+    'H.B. 158|2024GS|free_speech':
+      'Repealed the offense of criminal defamation.',
+    'H.B. 186|2024GS|free_speech':
+      'Would have barred the Motor Vehicle Division from issuing a personalized license plate that is indecent, obscene, or profane.',
+    'H.B. 303|2024GS|free_speech':
+      'Would have provided indemnification for claims arising from the ban on school staff endorsing, promoting, or disparaging certain viewpoints.',
+    'H.B. 329|2023GS|free_speech':
+      'Would have required a public entity to give public notice, under certain conditions, of a permitted event with an adult theme.',
+    'H.B. 477|2025GS|free_speech':
+      'Barred public comment at a local school board meeting that complies with certain restrictions from being the basis for criminal trespass.',
+    'H.B. 524|2023GS|free_speech':
+      'Would have barred a social media company from censoring user expression or banning a user in certain circumstances, with exceptions.',
+    'H.B. 250|2023GS|gov_regulation':
+      'Removed an examination requirement for licensure as a certified social worker or social service worker.',
+    'H.B. 474|2025GS|gov_regulation':
+      'Set a limit on the cost of implementing an agency generated rule and had the office gather feedback on existing occupational regulations.',
+    'H.B. 235|2025GS|gov_transparency':
+      'Set professional requirements for a county auditor, and for candidates for that office, in a county of the first class.',
+    'H.B. 294|2023GS|gov_transparency':
+      'Would have required certain state and local government entities to disclose certain information relating to their budgets.',
+    'H.B. 407|2023GS|gov_transparency':
+      'Would have required state agencies issuing tax credit certificates to list claimant names and credit amounts on a linked webpage.',
+    'H.B. 453|2025GS|gov_transparency':
+      'Would have required the state school board to publish information related to its meetings on its website.',
+    'H.B. 497|2025GS|gov_transparency':
+      'Required the State Board of Education to post meeting information on its website and use a compliance framework for noncompliance.',
+    'H.B. 506|2023GS|gov_transparency':
+      'Required the state auditor to post certain information on required policies and let it inquire into compliance with certain recent laws.',
+    'S.B. 154|2025GS|gov_transparency':
+      'Required an entity withholding privileged items from the legislative auditor general to expressly assert a privilege.',
+    'S.B. 231|2023GS|gov_transparency':
+      'Let a governmental entity petition for relief against a vexatious requester, with a hearing before the State Records Committee.',
+    'H.B. 534|2024GS|gov_waste':
+      'Repealed boards and commissions including the Labor Relations Board and the Board of State Parks, and consolidated licensing boards.',
+    'H.B. 107|2023GS|gun_rights':
+      'Waived the concealed weapons permit fee for a school employee in certain circumstances.',
+    'H.B. 119|2024GS|gun_rights':
+      'Created the Educator-Protector Program to incentivize school teachers to responsibly secure or carry a firearm on school grounds.',
+    'H.B. 133|2025GS|gun_rights':
+      'Would have removed the crime of carrying a loaded firearm on a public street and the provision on a loaded rifle or shotgun in a vehicle.',
+    'H.B. 165|2023GS|gun_rights':
+      'Made a private property occupant not liable, in certain circumstances, for firearm discharge there by someone in lawful possession.',
+    'H.B. 195|2025GS|gun_rights':
+      'Required seized firearms be returned to an individual who may lawfully possess them and is not charged with a crime making them restricted.',
+    'H.B. 219|2023GS|gun_rights':
+      'Declared that the state and its political subdivisions will not enforce federal regulations that purport to restrict or ban some firearms.',
+    'H.B. 309|2024GS|gun_rights':
+      'Would have let a driver license showing a concealed firearm permit number be presented in place of the concealed firearm permit.',
+    'H.B. 406|2024GS|gun_rights':
+      'Prohibited the use of a firearms merchant category code, with civil penalties enforced by the attorney general.',
+    'H.B. 461|2023GS|gun_rights':
+      'Restricted prosecutors seeking forfeiture of a firearm in certain circumstances and set when a firearm seized at an airport may be returned.',
+    'H.B. 132|2025GS|gun_safety':
+      'Would have set a criminal penalty, in certain circumstances, when an individual fails to lawfully store firearms and a minor accesses one.',
+    'H.B. 143|2025GS|gun_safety':
+      'Would have set a sales tax holiday for firearm safety devices and firearm storage devices for one week each year.',
+    'H.B. 187|2025GS|gun_safety':
+      'Would have created an infraction for a minor, after a written warning, to possess an altered toy or imitation firearm.',
+    'H.B. 199|2023GS|gun_safety':
+      'Barred law enforcement from returning a firearm given for safekeeping to a restricted person or certain domestic violence arrestees.',
+    'H.B. 307|2024GS|gun_safety':
+      'Would have required law enforcement agencies to report lost or stolen firearms used in a crime and had the state commission publish it.',
+    'H.B. 326|2024GS|gun_safety':
+      'Would have enacted a nonrefundable income tax credit, limited to one per household, for the purchase of a firearm safety device.',
+    'H.B. 387|2025GS|gun_safety':
+      'Would have created the criminal offenses of unlawful possession, manufacture, distribution or sale of a machinegun firearm attachment.',
+    'H.B. 97|2024GS|gun_safety':
+      'Would have created a waiting period, with exceptions, between buying a firearm from a dealer and its delivery to the purchaser.',
+    'H.B. 98|2024GS|gun_safety':
+      'Would have required a firearm to be securely stored or rendered inoperable by a locking device, with civil penalties.',
+    'S.B. 130|2025GS|gun_safety':
+      'Would have created a waiting period, with exemptions, for dealer firearm sales and, from 2027, offenses for certain semiautomatic firearms.',
+    'S.B. 50|2023GS|gun_safety':
+      'Would have created a waiting period, with exceptions, between buying an assault weapon from a dealer and its delivery to the purchaser.',
+    'S.B. 182|2025GS|homeless':
+      'Would have required a code red alert for certain weather events that may pose a danger to individuals experiencing homelessness.',
+    'S.B. 78|2025GS|homeless':
+      'Created a homeless services provider ombudsman within the Office of Homeless Services, with a sunset review after five years.',
+    'H.B. 37|2025GS|housing_build':
+      'Let cities and counties authorize additional housing density in exchange for certain requirements.',
+    'S.B. 174|2023GS|housing_build':
+      'Defined when a garage may count as an internal accessory dwelling unit and enacted a new process for subdivision review and approval.',
+    'S.B. 268|2024GS|housing_build':
+      'Set certain housing density, affordability, and development size requirements for a first home investment zone.',
+    'S.B. 240|2023GS|housing_first_time':
+      'Created the First-Time Homebuyer Assistance Program for the Utah Housing Corporation to help first-time homebuyers buy certain housing.',
+    'S.B. 268|2024GS|housing_first_time':
+      'Let a municipality create a first home investment zone that captures tax increment to finance affordable, owner-occupied housing.',
+    'H.B. 141|2024GS|housing_support':
+      'Would have required an annual transfer of state liquor sale revenues from the Liquor Control Fund to the Olene Walker Housing Loan Fund.',
+    'H.B. 182|2025GS|housing_support':
+      'Would have set a period of time by which a landlord must give a tenant notice of a rent increase.',
+    'H.B. 231|2023GS|housing_support':
+      'Set when a private owner of permanent supportive housing qualifies as a nonprofit entity for the exclusive use property tax exemption.',
+    'H.B. 355|2024GS|housing_support':
+      'Would have required a landlord to provide a tenant a notice of rent increase by a set period of time.',
+    'H.B. 360|2025GS|housing_support':
+      'Let a city of the first or second class, under certain conditions, qualify for Utah Homes Investment Program funds to rehabilitate homes.',
+    'H.B. 364|2023GS|housing_support':
+      'Let low-income housing tax credits go by pass-through to certain business entities and sometimes be claimed before final certification.',
+    'H.B. 465|2024GS|housing_support':
+      'Let redevelopment and community development agencies fund income targeted housing in certain cases and required pass-through funding deals.',
+    'S.B. 125|2025GS|housing_support':
+      'Would have barred an owner from imposing a rent increase for the first 90 days the owner owns a multifamily unit building.',
+    'S.B. 260|2023GS|housing_support':
+      'Required a city to comply with moderate income housing plan requirements to receive a local option sales and use tax distribution.',
+    'S.B. 262|2025GS|housing_support':
+      'Let counties and municipalities use home ownership promotion zone funds for water exaction, street lighting, and environmental remediation.',
+    'S.B. 204|2025GS|judicial_check':
+      'Granted a right to appeal, in certain circumstances, a trial court’s injunctive order restraining enforcement of a state law.',
+    'H.B. 27|2023GS|justice_reform':
+      'Would have reduced the penalty, in certain circumstances, for a restricted person in possession of marijuana.',
+    'H.B. 323|2024GS|justice_reform':
+      'Would have let an officer stop a vehicle for improper side window tinting only if the officer has stopped it for another offense.',
+    'H.B. 459|2024GS|justice_reform':
+      'Barred courts from accepting a plea blended between a juvenile adjudication and an adult criminal conviction, and voided such convictions.',
+    'H.B. 468|2023GS|justice_reform':
+      'Barred certain public employers hiring a mental health professional from considering certain arrests or criminal convictions.',
+    'H.B. 517|2023GS|justice_reform':
+      'Would have required an incentive program for inmates to complete their programs by their earliest estimated release date.',
+    'S.B. 134|2023GS|justice_reform':
+      'Would have removed enticing a minor from the crimes requiring an offender to register for life on the Sex and Kidnap Offender Registry.',
+    'S.B. 155|2025GS|justice_reform':
+      'Would have reduced the wait before offenders requiring lifetime registration may petition for early removal from the offender registry.',
+    'S.B. 171|2025GS|justice_reform':
+      'Created the Youth Defense Fund to pay for indigent defense services for a minor referred to the juvenile court for an offense.',
+    'S.B. 58|2023GS|justice_reform':
+      'Would have set graduated deadlines for a law enforcement agency to expunge criminal records that qualify for automatic expungement.',
+    'S.B. 60|2024GS|justice_reform':
+      'Provided for dismissal of a charge of possession of certain drug paraphernalia under specified conditions.',
+    'H.B. 496|2024GS|lands_balance':
+      'Required promoting multiple use and sustained yield on federal public lands and barred natural asset companies from buying state lands.',
+    'S.B. 187|2025GS|lands_energy':
+      'Allowed a loan or grant from the Throughput Infrastructure Fund for certain mining activity.',
+    'H.B. 103|2025GS|lands_local':
+      'Barred the Division of Wildlife Resources from permanently closing a road without consent of the county legislative body.',
+    'H.B. 471|2024GS|lands_local':
+      'Asserted ownership and jurisdiction over roads on a county’s class B and class D road map or travel plan unless closed by adjudication.',
+    'H.B. 132|2023GS|lgbtq_rights':
+      'Would have made it unprofessional conduct, under most circumstances, for a provider to perform a procedure on a minor for sex transitioning.',
+    'H.B. 250|2025GS|lgbtq_rights':
+      'Would have barred a public employer from disciplining an employee for using gender-specific language in certain circumstances.',
+    'H.B. 257|2024GS|lgbtq_rights':
+      'Set a legal standard for sex-based distinctions in certain public settings and applied it to sex-designated restrooms and locker rooms.',
+    'H.B. 269|2025GS|lgbtq_rights':
+      'Removed a medical treatment documentation provision from the evidence supporting access to certain sex-designated privacy spaces.',
+    'H.B. 316|2024GS|lgbtq_rights':
+      'Barred, with limited exceptions, the Department of Corrections or county jails from housing inmates of the opposite biological sex together.',
+    'S.B. 16|2023GS|lgbtq_rights':
+      'Barred sex characteristic surgical procedures on minors for a sex change and hormonal transgender treatment for certain new patients.',
+    'H.B. 131|2023GS|medical_freedom':
+      'Barred governmental entities and employers from requiring a vaccine and, with certain exceptions, from requiring proof of immunity status.',
+    'H.B. 405|2024GS|medical_freedom':
+      'Repealed an exception for medical students related to vaccination and face covering requirements set by an institution of higher education.',
+    'H.B. 81|2025GS|medical_freedom':
+      'Prohibited adding fluoride to public water systems and allowed a pharmacist to prescribe fluoride.',
+    'H.B. 84|2025GS|medical_freedom':
+      'Designated food intended for human consumption that intentionally contains a vaccine or vaccine material as a drug.',
+    'H.B. 229|2023GS|paid_leave':
+      'Would have required local education agencies to give employees certain paid leave at least equal to state employee leave and leave sharing.',
+    'H.B. 85|2025GS|permitting_reform':
+      'Required the Division of Air Quality to include at least five new categories of sources in its permit by rule program.',
+    'H.B. 124|2025GS|privacy_rights':
+      'Restricted a local education agency from selling or transferring certain contact information without consent.',
+    'H.B. 158|2023GS|privacy_rights':
+      'Would have let law enforcement obtain a specific category of electronic information or data with a subpoena under certain conditions.',
+    'H.B. 281|2023GS|privacy_rights':
+      'Barred a governmental entity from using a social credit system that causes adverse or preferential treatment of a person.',
+    'H.B. 303|2025GS|privacy_rights':
+      'Would have required a local education agency to share directory information with another local education agency upon request.',
+    'H.B. 508|2025GS|privacy_rights':
+      'Required the state board to study LEA practices for collection and retention of student personally identifiable information.',
+    'H.B. 529|2023GS|privacy_rights':
+      'Would have let the Department of Health and Human Services and local health departments obtain records of a customer’s shopping history.',
+    'H.B. 548|2025GS|privacy_rights':
+      'Would have restricted the storage of genetic sequencing data and barred the use of certain genetic sequencers.',
+    'S.B. 130|2023GS|privacy_rights':
+      'Would have required consent to share individually identifiable social care information and set privacy and security rules for handling it.',
+    'S.B. 156|2023GS|privacy_rights':
+      'Set requirements for police to request investigative genetic genealogy services and limited arrests based on certain genetic information.',
+    'S.B. 194|2024GS|privacy_rights':
+      'Required a social media service to enable maximum default privacy settings on a Utah minor’s account and protect minors’ data.',
+    'S.B. 218|2025GS|privacy_rights':
+      'Would have let a voter’s name and address be publicly disclosed if a voter with a private registration record signs a petition.',
+    'H.B. 560|2024GS|pro_choice':
+      'Allowed the licensing of abortion clinics and let abortions be performed in licensed abortion clinics.',
+    'S.B. 88|2023GS|pro_choice':
+      'Would have removed the rule that a physician verify a report to law enforcement before an abortion on a woman pregnant from rape or incest.',
+    'H.B. 233|2025GS|pro_life':
+      'Barred schools from letting entities that perform elective abortions provide health-related instruction or materials in public schools.',
+    'H.B. 467|2023GS|pro_life':
+      'Required abortions to be performed in a hospital, with some exceptions, and barred rape or incest abortions from 18 weeks gestational age.',
+    'H.B. 208|2023GS|property_rights':
+      'Provided statutory damages, attorney fees, and court costs for certain criminal trespass.',
+    'H.B. 256|2025GS|property_rights':
+      'Let cities and counties require a short-term rental owner to get a business license and request rental websites remove violating listings.',
+    'H.B. 289|2024GS|property_rights':
+      'Made a party who prevails in court on an issue the Property Rights Ombudsman already decided in its favor eligible for attorney fees.',
+    'S.B. 271|2023GS|property_rights':
+      'Barred cities and counties from using a land use regulation to punish individuals for owning or using a co-owned home.',
+    'S.B. 61|2025GS|property_rights':
+      'Required an infrastructure siting analysis and federal agency coordination before condemning private lands for a high voltage power line.',
+    'H.B. 369|2025GS|reform_balance':
+      'Would have had a conflict of interest elections officer act on election complaints tied to a governor or lieutenant governor race.',
+    'H.B. 269|2024GS|religious_liberty':
+      'Added the Ten Commandments and the Magna Carta to the historical documents school curricula and activities may include for study.',
+    'H.B. 396|2024GS|religious_liberty':
+      'Barred an employer from compelling an employee to act in a manner the employee believes would burden sincerely held religious beliefs.',
+    'H.B. 460|2024GS|religious_liberty':
+      'Required a governmental entity to grant an employee’s request to be relieved from a certain task when it places no undue hardship.',
+    'H.B. 514|2024GS|religious_liberty':
+      'Would have let an LEA permit a chaplain in its schools under policies and requirements the LEA develops.',
+    'S.B. 259|2025GS|religious_liberty':
+      'Designated certain days of special religious significance as state holy days and made Easter Sunday a legal holiday.',
+    'H.B. 187|2023GS|rural_ag':
+      'Exempted certain individuals who test a bovine for pregnancy from licensure under the Veterinary Practice Act.',
+    'H.B. 371|2023GS|rural_ag':
+      'Established the LeRay McAllister Working Farm and Ranch Fund.',
+    'S.B. 113|2023GS|rural_ag':
+      'Barred cities and counties, with certain exceptions, from prohibiting the operation of an animal enterprise or use of a working animal.',
+    'S.B. 269|2024GS|rural_ag':
+      'Would have required agricultural equipment makers to give owners and independent repairers access to certain data, software, and parts.',
+    'H.B. 306|2025GS|sound_money':
+      'Would have required the state treasurer to issue a competitive procurement for a precious metals-backed electronic payment system.',
+    'H.B. 348|2024GS|sound_money':
+      'Let the state treasurer invest a portion of the funds in certain budget reserve accounts in precious metals.',
+    'H.B. 528|2025GS|sound_money':
+      'Would have let a person pay gold mining severance and income taxes in gold, with a reduced severance tax rate for specified years.',
+    'H.B. 67|2025GS|sound_money':
+      'Let the state treasurer deduct administrative costs for investing in precious metals from investment earnings in certain funds.',
+    'H.B. 409|2024GS|states_federal_power':
+      'Would have kept jurisdiction over matters not enumerated to the federal government with Utah absent specific constitutional authorization.',
+    'H.B. 471|2024GS|states_federal_power':
+      'Put the burden of proof on the federal government to show the need to close a road or to claim ownership.',
+    'H.B. 488|2025GS|states_federal_power':
+      'Expanded the Federalism Commission and had a Utah Valley University center develop federalism training for government employees.',
+    'H.B. 59|2024GS|states_federal_power':
+      'Required agencies seeking federal funds above a certain threshold to file a contingency disclosure, plan, and state jurisdiction evaluation.',
+    'S.B. 57|2024GS|states_federal_power':
+      'Let the Legislature, by concurrent resolution, bar government officers from enforcing a federal directive that violates state sovereignty.',
+    'S.B. 194|2024GS|tech_balance':
+      'Required social media companies to verify a new account holder’s age using an approved system.',
+    'H.B. 42|2023GS|tech_innovation':
+      'Required the Utah Innovation Lab to run the Utah innovation fund for investing in businesses developed through technology commercialization.',
+    'H.B. 536|2023GS|tobacco_nicotine':
+      'Would have let a school issue a citation to a student who possesses a tobacco, electronic cigarette, or nicotine product on school property.',
+    'S.B. 186|2025GS|tobacco_nicotine':
+      'Would have created penalties for general tobacco retailers that sell flavored electronic cigarette products and raised permit fees.',
+    'S.B. 61|2024GS|tobacco_nicotine':
+      'Banned the sale of flavored electronic cigarette products and of products without federal market authorization, and set a nicotine limit.',
+    'H.B. 114|2023GS|tough_on_crime':
+      'Provided that it is not a defense to theft of livestock that the livestock is sick, injured, or a liability to the owner.',
+    'H.B. 129|2023GS|tough_on_crime':
+      'Would have made it a crime to transport, provide, sell, or possess a communication device at a correctional facility against its policy.',
+    'H.B. 140|2025GS|tough_on_crime':
+      'Would have created an aggravating factor for an assault or threat of violence offense committed against a referee.',
+    'H.B. 147|2023GS|tough_on_crime':
+      'Would have identified circumstances where it is a crime to fail to aid a crime victim.',
+    'H.B. 207|2025GS|tough_on_crime':
+      'Required mandatory imprisonment for repeat and habitual sex offenders and expanded the offense of sexual exploitation of a minor.',
+    'H.B. 208|2023GS|tough_on_crime':
+      'Established the elements of and penalty for certain criminal trespass, with certain defenses.',
+    'H.B. 273|2024GS|tough_on_crime':
+      'Created a sentencing guideline for automobile homicide and renamed the offense of negligently operating a vehicle resulting in death.',
+    'H.B. 312|2025GS|tough_on_crime':
+      'Added strangulation or choking as an offense included in the crime of commission of domestic violence in the presence of a child.',
+    'H.B. 313|2023GS|tough_on_crime':
+      'Provided an increased penalty for certain metal thefts.',
+    'H.B. 359|2025GS|tough_on_crime':
+      'Would have barred a court from expunging a juvenile record if the petitioner had certain drug offenses within two years before the petition.',
+    'H.B. 370|2023GS|tough_on_crime':
+      'Made it a criminal offense to destroy, damage, or tamper with a critical infrastructure facility or impersonate its officer or employee.',
+    'H.B. 405|2025GS|tough_on_crime':
+      'Increased penalties for certain human trafficking offenses.',
+    'H.B. 562|2025GS|tough_on_crime':
+      'Let the Office of State Debt Collection collect a civil judgment of restitution and extended garnishments to wages held by a third party.',
+    'H.B. 68|2024GS|tough_on_crime':
+      'Required, with certain exceptions, an indeterminate prison term for distributing drugs with a dangerous weapon readily accessible.',
+    'H.B. 96|2025GS|tough_on_crime':
+      'Increased the penalty for defrauding of creditors based on the value of the fraud.',
+    'S.B. 144|2025GS|tough_on_crime':
+      'Expanded the offense of sexual exploitation of a minor to include accessing child sexual abuse material with the intent to view.',
+    'S.B. 178|2023GS|tough_on_crime':
+      'Would have created the criminal offense of nonconsensual removal of a sexually protective device, with criminal penalties.',
+    'S.B. 254|2023GS|tough_on_crime':
+      'Would have created the offense of drug-induced homicide.',
+    'S.B. 90|2025GS|tough_on_crime':
+      'Required a mandatory jail sentence for certain drug and theft crimes under certain conditions and with specified prior criminal convictions.',
+    'H.B. 290|2025GS|transit':
+      'Restricted obstructing a bicycle lane.',
+    'H.B. 430|2024GS|transit':
+      'Let certain local option sales tax revenue and Transit Transportation Investment Fund money be used for public transit innovation grants.',
+    'H.B. 473|2024GS|transit':
+      'Would have created the Transit Access Pass for Students pilot grant program, with a sunset date.',
+    'S.B. 195|2025GS|transit':
+      'Extended a deadline for certain sales and use taxes to be allocated for public transit innovation grants.',
+    'S.B. 260|2023GS|transit':
+      'Let part of a local option sales and use tax in a county of the first class fund or provide loans for public transit projects.',
+    'S.B. 114|2025GS|veterans':
+      'Would have offered resident qualified veterans an annual state parks pass at least 25% off, as funding allows, for three years.',
+    'H.B. 300|2025GS|voter_id':
+      'Required mail voters with a Utah driver license or state identification card to put its last four digits on the return envelope.',
+    'H.B. 161|2024GS|voting_access':
+      'Would have let a local school board law, with exceptions and other than a tax increase, be referred to district voters.',
+    'H.B. 173|2024GS|voting_access':
+      'Would have let a local school board law that increases or imposes a new tax be referred to the school district’s voters, with exceptions.',
+    'H.B. 28|2024GS|voting_access':
+      'Would have let a voter assisting with an emergency outside the voter’s county of residence on election day cast an electronic ballot.',
+    'H.B. 300|2025GS|voting_access':
+      'Provided that, beginning in 2029, a voter will not receive a ballot by mail unless the voter requests one, with certain exceptions.',
+    'H.B. 365|2023GS|voting_access':
+      'Barred voting in the primary elections of multiple registered political parties and amended the even-year party affiliation deadline.',
+    'H.B. 408|2025GS|voting_access':
+      'Would have let district voters, with certain exceptions, hold a referendum on any school board legislative action, including tax hikes.',
+    'S.B. 199|2023GS|voting_access':
+      'Disallowed referral of a referendum to voters for municipal land use laws passed by a unanimous vote of the local legislative body.',
+    'S.B. 73|2025GS|voting_access':
+      'Barred counting votes cast for or against an initiative if its sponsors fail to publish the initiative application as required.',
+    'S.B. 211|2024GS|water_storage':
+      'Directed the creation of the Water District Water Development Council and provided for the appointment of the Utah water agent.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // THE KEY IS THE MEASURE'S OWN IDENTITY: number, sitting, issue. The sitting is
