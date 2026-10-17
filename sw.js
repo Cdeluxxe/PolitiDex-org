@@ -9904,7 +9904,36 @@
 //     MIGRATION COST: one migration,
 //     20261119000000_vr_utah_2026gs_failed_datacenter_bills, adding 3
 //     vr_measures rows and nothing else.
-const CACHE_VERSION = 'v392';
+// v393 - A "BILLS SPONSORED" JUMP ON THE PERSON-FILE LETTERHEAD. One control
+//     in the letterhead row, after the money pills and before the party, that
+//     scrolls to the existing "Bills sponsored and co-sponsored" section. On a
+//     person with no sponsored bill on file it stays, disabled, and says "none
+//     on file"; no list is made for it. Not a money pill: no 💰, no money
+//     colours. The list, its groups and its rows are unchanged, and no data
+//     file moved. person-bills.js is precached and changed, so the shell moves
+//     one version. No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v394 - A QUILL ON THE "BILLS SPONSORED" JUMP, AND AN OUTCOME TALLY IN THE
+//     SECTION. The letterhead jump leads with a quill drawn in its own neutral
+//     ink, in the enabled and the "none on file" state alike — no 💰, no gold.
+//     The sponsored-bills section gains one line under its heading counting
+//     the rows already in the list: "6 failed · 0 passed" (passed is Enacted
+//     plus Passed; pending is added only when there is one). No bill is added,
+//     dropped or regrouped, and a person with no list has no tally.
+//     person-bills.js is precached and changed, so the shell moves one
+//     version. No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v395 - THE SPONSORED LIST, EASY TO SCAN. Each row in "Bills sponsored and
+//     co-sponsored" now leads with one line: the number, a small sitting label
+//     ("2026 General Session"; "119th Congress · 2025–26", the years read off
+//     the congress number) and a small role label, with the short title and
+//     the status below. The heading and the outcome tally sit in one sticky
+//     header held under the profile's sticky nav, so a reader deep in a long
+//     list still sees it. Same rows, same groups, same tally; the letterhead
+//     jump is where it was. person-bills.js is precached and changed, so the
+//     shell moves one version. No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v395';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

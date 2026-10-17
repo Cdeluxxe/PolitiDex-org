@@ -17,6 +17,10 @@
        to, computed from the shared _measureComponentBreakdown engine (one vote →
        many per-issue effects), with the say-vs-do verdict added on the topics
        where a stated stance exists.
+     • From the official record — origin, sponsors linked to their files and the
+       key actions in the record's own words, the same three blocks the bill's
+       own page prints, read from bill-official.json (scripts/gen-bill-docs.mjs).
+       Printed on every bill that has a record, roll calls or not.
      • Sponsors / cosponsors — from vr_positions.
      • Key actions — a lightweight timeline synthesized from introducedAt + the
        roll calls + status (a real vr_measure_actions table is a Phase-3 add).
@@ -673,6 +677,136 @@
   }
   function statusLabelResult(r) { return String(r || '').replace(/_/g, ' ').replace(/\b\w/, function (c) { return c.toUpperCase(); }); }
 
+  // ── FROM THE OFFICIAL RECORD ──────────────────────────────────────────────
+  // The bill page (/b/<sitting>/<number>) prints three blocks from the official
+  // record: origin, sponsors and a dated history. This panel opens over that
+  // page and over every other surface, and on a bill with no roll calls it used
+  // to carry the number, the chamber, a summary and the status and nothing else.
+  // bill-official.json is the same entries the page is written from (generated in
+  // the same run as db/bill-docs.json), so the panel prints what the page prints:
+  // the roster's own name for each linked sponsor, a count for anyone else the
+  // record lists, the record's own action text. Nothing here is derived, and a
+  // bill with no entry prints no block at all — nothing is filled in for it.
+  var OFFICIAL_SRC = '/bill-official.json';
+  var _official = null, _officialDocs = null;
+  function loadOfficial() {
+    if (!_official) {
+      _official = (typeof fetch === 'function'
+        ? fetch(OFFICIAL_SRC, { headers: { accept: 'application/json' } })
+            .then(function (r) { return r.ok ? r.json() : null; })
+        : Promise.resolve(null))
+        .then(function (d) { _officialDocs = (d && d.docs) || {}; return _officialDocs; })
+        .catch(function () { _official = null; return null; });
+    }
+    return _official;
+  }
+  var OFF_MONTHS = ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May', 'June', 'July', 'Aug.', 'Sept.', 'Oct.', 'Nov.', 'Dec.'];
+  function offDay(iso) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ''));
+    return m ? OFF_MONTHS[Number(m[2]) - 1] + ' ' + Number(m[3]) + ', ' + m[1] : '';
+  }
+  function offSitting(s) {
+    s = String(s || '');
+    var g = /^(\d{4})GS$/i.exec(s);
+    return /^\d+$/.test(s) ? s + 'th Congress' : g ? g[1] + ' General Session' : s;
+  }
+  var OFF_ROLE = { s: ['Sponsor', 'Sponsors', 'sponsor'], f: ['Floor sponsor', 'Floor sponsors', 'floor_sponsor'], c: ['Co-sponsor', 'Co-sponsors', 'cosponsor'] };
+  function officialHtml(e, sitting, number) {
+    if (!e) return '';
+    var state = /GS$/i.test(String(sitting || ''));
+    var out = '';
+    // ORIGIN. The chamber, the sitting, the date introduced — and where the
+    // record carries no date, no date: the line is shorter, never guessed.
+    var o = e.o || ['', ''];
+    var ch = o[0] === 'house' ? (state ? 'Utah House' : 'House') : o[0] === 'senate' ? (state ? 'Utah Senate' : 'Senate') : '';
+    var when = offDay(o[1]);
+    var verb = /\u2014|^PN/.test(number) ? 'Received' : /Amdt\./.test(number) ? 'Submitted' : 'Introduced';
+    var parts = [ch, offSitting(sitting), when ? verb + ' ' + when : ''].filter(Boolean);
+    if (e.o && parts.length) {
+      out += '<p class="bd-off-origin" data-bd-official-origin><span class="bd-off-k">Origin</span> ' + parts.map(esc).join(' \u00b7 ') + '</p>';
+    }
+    // SPONSORS. Only people already on file, each a door to that file; anyone
+    // else the record names is counted, never named.
+    var sp = e.sp || [], su = e.su || {};
+    if (!sp.length && !su.s && !su.f && !su.c) {
+      out += '<section class="bd-sec bd-off-sponsors" data-bd-official-sponsors data-none="1"><h3 class="bd-h">Sponsors</h3><p class="bd-off-none">' +
+        (/\u2014|^PN/.test(number) ? 'A nomination has no congressional sponsor: the President submits it to the Senate.' : 'The official record names no sponsor for this measure.') +
+        '</p></section>';
+    } else {
+      var rows = '';
+      ['s', 'f', 'c'].forEach(function (r) {
+        var who = sp.filter(function (x) { return x && x[0] === r && x[1] && x[2]; });
+        var more = su[r] || 0;
+        if (!who.length && !more) return;
+        var links = who.map(function (x) {
+          return '<a class="bd-off-person" href="/p/' + escAttr(encodeURIComponent(x[1])) + '" data-pid="' + escAttr(x[1]) + '" data-bd-official-sponsor="' + escAttr(x[1]) + '" data-role="' + OFF_ROLE[r][2] + '">' + esc(x[2]) + '</a>';
+        }).join(', ');
+        var note = !more ? '' : '<span class="bd-off-more">' + (who.length
+          ? 'and ' + more + ' more on the official record, not on file in PolitiDex'
+          : more === 1 ? 'named on the official record; not on file in PolitiDex'
+          : more + ' named on the official record; none on file in PolitiDex') + '</span>';
+        var label = OFF_ROLE[r][who.length + more === 1 ? 0 : 1];
+        var body = who.length > 24
+          ? '<details><summary>' + who.length + ' on file in PolitiDex</summary>' + links + '</details>' + (note ? ' ' + note : '')
+          : [links, note].filter(Boolean).join(' ');
+        rows += '<p class="bd-off-role" data-bd-official-role="' + OFF_ROLE[r][2] + '"><span class="bd-off-k">' + esc(label) + '</span> ' + body + '</p>';
+      });
+      out += '<section class="bd-sec bd-off-sponsors" data-bd-official-sponsors><h3 class="bd-h">Sponsors</h3>' + rows + '</section>';
+    }
+    // HISTORY. The key actions with their dates: the stage label and, beside it,
+    // the action entry exactly as the record prints it. An undated row prints no date.
+    var h = (e.h || []).filter(function (x) { return x && x[1]; });
+    if (h.length) {
+      var host = '';
+      try { host = e.rs ? new URL(e.rs).hostname.replace(/^www\./, '') : ''; } catch (err) { host = ''; }
+      out += '<section class="bd-sec bd-off-history" data-bd-official-history><h3 class="bd-h">History \u00b7 from the official record</h3><ol class="bd-off-steps">' +
+        h.map(function (x) {
+          var d = offDay(x[0]);
+          return '<li data-bd-official-step>' +
+            (d ? '<time datetime="' + escAttr(x[0]) + '">' + esc(d) + '</time> ' : '') +
+            '<b>' + esc(x[1]) + '</b>' +
+            (x[2] ? ' <span class="bd-off-x">' + esc(x[2]) + '</span>' : '') + '</li>';
+        }).join('') + '</ol>' +
+        (e.rs && /^https:\/\/(www\.congress\.gov|le\.utah\.gov)\//.test(e.rs)
+          ? '<p class="bd-off-src">Record: <a class="bd-src" href="' + escAttr(e.rs) + '" target="_blank" rel="noopener" data-bd-official-record>' + esc(host) + '</a></p>' : '') +
+        '</section>';
+    }
+    return out ? '<div class="bd-official" data-bd-official-for="' + escAttr(sitting + '|' + number) + '">' + out + '</div>' : '';
+  }
+  // Fill the panel's seam for the bill now on screen. The table may still be on
+  // its way; when it lands the seam is filled only if the same bill is still open.
+  // Sponsors the record block already links are not repeated in the
+  // vr_positions chips below it; any chip the record does not carry stays.
+  function fillOfficial() {
+    var cur = _current;
+    if (!cur || !cur.number) return;
+    var key = String(cur.sitting || cur.congress || '') + '|' + cur.number;
+    var put = function (docs) {
+      if (_current !== cur || !docs) return;
+      if (typeof document.querySelector !== 'function') return;
+      var seam = document.querySelector('#pdx-bd-scroll [data-bd-official-seam]');
+      if (!seam || seam.childNodes.length) return;
+      var html = officialHtml(docs[key], String(cur.sitting || cur.congress || ''), cur.number);
+      if (!html) return;
+      seam.innerHTML = html;
+      var linked = {};
+      var as = seam.querySelectorAll('[data-bd-official-sponsor]');
+      for (var i = 0; i < as.length; i++) linked[as[i].getAttribute('data-bd-official-sponsor')] = 1;
+      var sec = document.querySelector('#pdx-bd-scroll [data-bd-sponsors]');
+      if (sec) {
+        var chips = sec.querySelectorAll('[data-pid]');
+        var left = chips.length;
+        for (var j = 0; j < chips.length; j++) {
+          if (linked[chips[j].getAttribute('data-pid')]) { chips[j].parentNode.removeChild(chips[j]); left--; }
+        }
+        if (!left) sec.parentNode.removeChild(sec);
+      }
+    };
+    if (_officialDocs) put(_officialDocs);
+    else loadOfficial().then(put);
+  }
+  var OFFICIAL_SEAM = '<div class="bd-official-seam" data-bd-official-seam></div>';
+
   function sponsorsSection(m, positions) {
     var sponsors = [];
     var seen = {};
@@ -689,7 +823,7 @@
         '<span class="bd-person-name">' + esc(nameFor(s.pid)) + '</span>' +
         '<span class="bd-person-role">' + esc(s.role) + '</span></button>';
     }).join('');
-    return '<section class="bd-sec"><h3 class="bd-h">✍️ Sponsors &amp; cosponsors</h3><div class="bd-people">' + chips + '</div></section>';
+    return '<section class="bd-sec" data-bd-sponsors><h3 class="bd-h">✍️ Sponsors &amp; cosponsors</h3><div class="bd-people">' + chips + '</div></section>';
   }
 
   // Key member actions that aren't roll-call votes or sponsorships: on-record
@@ -1532,6 +1666,7 @@
         identityFacts(m, data) +
         actionsBar +
       '</div>' +
+      OFFICIAL_SEAM +
       letterheadHtml(m, issues, data) +
       foldSection(m) +
       glanceStrip(m, issues, data) +
@@ -1565,7 +1700,7 @@
     // Delegated actions: open a profile or a spotlight from inside the panel.
     ov.addEventListener('click', function (e) {
       var pb = e.target.closest ? e.target.closest('[data-pid]') : null;
-      if (pb) { var pid = pb.getAttribute('data-pid'); if (pid && typeof window.showProfile === 'function') { close(); window.showProfile(pid); } return; }
+      if (pb) { var pid = pb.getAttribute('data-pid'); if (pid && typeof window.showProfile === 'function') { if (pb.tagName === 'A' && !(e.metaKey || e.ctrlKey || e.shiftKey)) e.preventDefault(); else if (pb.tagName === 'A') return; close(); window.showProfile(pid); } return; }
       var sb = e.target.closest ? e.target.closest('[data-slug]') : null;
       if (sb) { var slug = sb.getAttribute('data-slug'); if (slug && window.PDXSpotlight && window.PDXSpotlight.open) { close(); window.PDXSpotlight.open(slug); } return; }
       var ib = e.target.closest ? e.target.closest('[data-bd-view-set]') : null;
@@ -1729,6 +1864,7 @@
     if (scroll) { scroll.innerHTML = html; scroll.scrollTop = 0; }
     ov.hidden = false;
     document.documentElement.classList.add('bd-lock');
+    if (scroll && typeof scroll.querySelector === 'function' && scroll.querySelector('[data-bd-official-seam]')) fillOfficial();
   }
   function close(opts) {
     var ov = document.getElementById('pdx-bd-overlay');
@@ -1800,6 +1936,7 @@
           : '<p class="bd-summary bd-summary-gap">No plain-language summary on file yet</p>') +
         src +
       '</div>' +
+      OFFICIAL_SEAM +
       breakdown +
       // A CARD FOR A SOLO INSTRUMENT IS NOT WAITING ON ANYTHING. "Live roll-call
       // votes and sponsors aren't available right now" is true of a bill whose
@@ -1827,6 +1964,7 @@
   // can't be loaded, so a click never dead-ends.
   function open(ref, sitting, opts) {
     _nav = opts || null;
+    loadOfficial(); // on its way while the measure loads
     var bills = G('PDXBills');
     var inlineCard = (bills && bills.listSync) ? findByNumber(bills.listSync().items, ref) : null;
     if (!bills || typeof bills.get !== 'function') { // no client module → best-effort
@@ -1906,6 +2044,18 @@
       '.bd-src{display:inline-block;font:600 .78rem/1.3 "Barlow",sans-serif;color:#7fb4ff;text-decoration:none;}' +
       '.bd-src:hover{text-decoration:underline;}' +
       '.bd-src-top{margin-top:.3rem;}' +
+      // From the official record: the bill page's three blocks, in the panel's ink.
+      '.bd-off-origin{font:500 .86rem/1.5 "Barlow",sans-serif;color:#dce6f7;margin:.9rem 0 0;}' +
+      '.bd-off-k{font:700 .62rem/1.5 "Barlow Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#8aa0c4;margin-right:.4rem;}' +
+      '.bd-off-role,.bd-off-none{font:500 .86rem/1.55 "Barlow",sans-serif;color:#dce6f7;margin:.2rem 0;}' +
+      '.bd-off-none,.bd-off-more{color:#9fb4d4;font-style:italic;}' +
+      '.bd-off-person{color:#7fb4ff;text-decoration:none;}' +
+      '.bd-off-person:hover{text-decoration:underline;}' +
+      '.bd-off-steps{margin:.3rem 0 0;padding-left:1.1rem;font:500 .84rem/1.5 "Barlow",sans-serif;color:#dce6f7;}' +
+      '.bd-off-steps li{margin:.18rem 0;}' +
+      '.bd-off-steps time{color:#8aa0c4;margin-right:.25rem;}' +
+      '.bd-off-x{color:#9fb4d4;}' +
+      '.bd-off-src{font:500 .78rem/1.4 "Barlow",sans-serif;color:#8aa0c4;margin:.4rem 0 0;}' +
       '.bd-sec{margin-top:1.5rem;}' +
       // ── the letterhead ────────────────────────────────────────────────────
       // Flat, quiet, and above the fold: a census reads better as a list of facts
