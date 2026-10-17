@@ -205,7 +205,9 @@ section("3. the letterhead is unchanged around it");
     };
     const A = run(prev), B = run(SRC);
     for (const pid of [UTAH, FED, ...Object.keys(TABLE.people).slice(0, 40)]) {
-      ok(A.html(A.rowsFor(TABLE, pid)) === B.html(B.rowsFor(TABLE, pid)), `${pid}: the sponsored list renders differently`);
+      // The tally line is the one addition; everything else is the list as it was.
+      const strip = (h) => h.replace(/<p class="pdx-spb-tally"[^>]*>[^<]*<\/p>/, "");
+      ok(strip(A.html(A.rowsFor(TABLE, pid))) === strip(B.html(B.rowsFor(TABLE, pid))), `${pid}: the sponsored list renders differently`);
     }
   }
   ok(/^const CACHE_VERSION = 'v(\d+)';$/m.test(R("sw.js")), "CACHE_VERSION is not readable");
@@ -237,6 +239,52 @@ section("4. mutations fail");
     ok(bad.length > 0, `mutation not caught: ${name}`);
     console.log(`      mutation: ${name} → ${bad.length ? "caught" : "MISSED"}`);
   }
+}
+
+section("5. the quill on the control, the tally in the section");
+{
+  const QUILL = /<svg class="pdx-spj-ico" data-pdx-spj-quill[^>]*>[\s\S]*?<\/svg>/;
+  const on = await bootFile(UTAH), none = await bootFile(NONE);
+  for (const [label, f] of [["enabled", on], ["none on file", none]]) {
+    const inner = f.btn ? f.btn.innerHTML : "";
+    ok(QUILL.test(inner), `the ${label} control has no quill`);
+    ok(inner.indexOf("<svg") < inner.indexOf("Bills sponsored"), `the ${label} control's quill is not left of the label`);
+    ok(/stroke="currentColor"/.test(inner) && !/fill="(?!none)[^"]+"|stroke="#/.test((QUILL.exec(inner) || [""])[0]), `the ${label} quill is not drawn in the control's own ink`);
+    ok(!/\u{1F4B0}|\u{1FAB6}|\u2712|\u{1F58B}/u.test(inner), `the ${label} control carries a colour emoji`);
+  }
+  ok(/\.pdx-spj-ico\{[^}]*width:0\.7rem;height:0\.7rem;color:currentColor;/.test(SRC), "the quill is not the money glyph's size in currentColor");
+  ok(!/\.pdx-spj[^{]*\{[^}]*(money|#f[0-9a-f]{2}c|gold)/i.test(SRC), "the control picked up a money colour");
+
+  // Counts off the rows the list prints. 6 failed · 0 passed is Nate Blouin.
+  const B = (() => { const sb = { window: {}, document: { readyState: "loading", addEventListener() {}, getElementById: () => null, querySelector: () => null } }; sb.window.document = sb.document; vm.runInNewContext(SRC, sb); return sb.window.PDXPersonBills; })();
+  const tally = (pid) => { const m = /<p class="pdx-spb-tally"[^>]*>([^<]*)<\/p>/.exec(B.html(B.rowsFor(TABLE, pid))); return m ? m[1] : null; };
+  const expect = (pid) => {
+    const g = TABLE.people[pid].map(([i]) => TABLE.bills[i][4]);
+    const f = g.filter((x) => x === "failed").length, p = g.filter((x) => x === "enacted" || x === "passed").length, q = g.filter((x) => x === "pending").length;
+    return `${f} failed · ${p} passed` + (q ? ` · ${q} pending` : "");
+  };
+  ok(tally(UTAH) === "6 failed · 0 passed", `${UTAH}'s tally reads ${JSON.stringify(tally(UTAH))}, not "6 failed · 0 passed"`);
+  const mixed = Object.keys(TABLE.people).filter((p) => new Set(TABLE.people[p].map(([i]) => TABLE.bills[i][4])).size >= 3);
+  ok(mixed.length > 0, "no mixed-outcome person to test");
+  let checked = 0;
+  for (const pid of Object.keys(TABLE.people)) { ok(tally(pid) === expect(pid), `${pid}: tally ${JSON.stringify(tally(pid))}, rows say ${JSON.stringify(expect(pid))}`); checked++; }
+  console.log(`      ${mixed[0]}: ${tally(mixed[0])} · ${checked} tallies matched their own rows`);
+  ok(B.html([]).indexOf("pdx-spb-tally") < 0, "a person with no bills gets a tally");
+  const host = none.doc.getElementById("pdx-sponsored");
+  ok(!host || !/pdx-spb-tally/.test(host.innerHTML), `${NONE}: a tally is on the page of a person with none`);
+  const onHost = on.doc.getElementById("pdx-sponsored");
+  ok(onHost && /6 failed · 0 passed/.test(onHost.innerHTML), `${UTAH}: the mounted section does not carry the tally`);
+
+  // Mutations on the tally and the quill.
+  const mut = (from, to) => { ok(SRC.split(from).length === 2, `mutation anchor not unique: ${from.slice(0, 40)}`); return SRC.split(from).join(to); };
+  const run = (src) => { const sb = { window: {}, document: { readyState: "loading", addEventListener() {}, getElementById: () => null, querySelector: () => null } }; sb.window.document = sb.document; vm.runInNewContext(src, sb); return sb.window.PDXPersonBills; };
+  const tallyOf = (P, pid) => { const m = /<p class="pdx-spb-tally"[^>]*>([^<]*)<\/p>/.exec(P.html(P.rowsFor(TABLE, pid))); return m ? m[1] : null; };
+  const M1 = run(mut("else if (g === 'enacted' || g === 'passed') n.passed++;", "else if (g === 'passed') n.passed++;"));
+  ok(Object.keys(TABLE.people).some((p) => tallyOf(M1, p) !== expect(p)), "mutation not caught: enacted bills dropped from passed");
+  const M2 = run(mut("if (!rows || !rows.length) return '';", "if (!rows) return '';"));
+  ok(/pdx-spb-tally/.test(M2.html([])), "mutation setup: empty tally mutant did not render");
+  const M3 = run(mut("QUILL + 'Bills sponsored'", "'Bills sponsored'"));
+  ok(!QUILL.test(M3.jumpHtml(UTAH, "none")), "mutation not caught: the quill dropped from the control");
 }
 
 console.log("");

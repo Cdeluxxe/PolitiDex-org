@@ -36,6 +36,14 @@
    says "none on file" — no list is made for it and the section stays absent.
    Until the table has answered it is disabled and says nothing about the
    person. It is not a money pill: no 💰, none of the money lane's colours.
+   It leads with a quill (an inline SVG drawn in currentColor, so it takes the
+   control's own neutral ink in both states, never a colour emoji).
+
+   THE TALLY. Under the section heading, one line counting the rows already in
+   the list by outcome: "6 failed · 0 passed". Passed counts the Enacted and
+   Passed groups; Pending is added only when there is one. It counts the list
+   and nothing else, so it cannot name a bill the list does not show, and a
+   person with no list has no tally.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -87,6 +95,22 @@
     return out;
   }
 
+  // The outcome line, counted off the rows the groups below print.
+  function tallyHtml(rows) {
+    if (!rows || !rows.length) return '';
+    var n = { failed: 0, passed: 0, pending: 0 };
+    for (var i = 0; i < rows.length; i++) {
+      var g = rows[i].g;
+      if (g === 'failed') n.failed++;
+      else if (g === 'enacted' || g === 'passed') n.passed++;
+      else if (g === 'pending') n.pending++;
+    }
+    var bits = [n.failed + ' failed', n.passed + ' passed'];
+    if (n.pending) bits.push(n.pending + ' pending');
+    return '<p class="pdx-spb-tally" data-pdx-sponsored-tally data-failed="' + n.failed + '" data-passed="' + n.passed + '" data-pending="' + n.pending + '">' +
+      esc(bits.join(' \u00b7 ')) + '</p>';
+  }
+
   function html(rows) {
     var parts = [];
     for (var g = 0; g < GROUPS.length; g++) {
@@ -109,6 +133,7 @@
     }
     return '<div class="modal-section-title">\u{1F4DC} Bills sponsored and co-sponsored</div>' +
       '<p class="modal-section-sub">The bills on file that name this person as a sponsor or co-sponsor on the official record, by what happened to them. Each opens the bill’s page, which links back here.</p>' +
+      tallyHtml(rows) +
       parts.join('');
   }
 
@@ -137,6 +162,8 @@
       '.pdx-spj:focus-visible{outline:2px solid rgba(96,165,250,0.8);outline-offset:2px;}' +
       '.pdx-spj[disabled]{cursor:default;color:#8aa0c4;background:transparent;}' +
       '.pdx-spj-none{opacity:0.8;}' +
+      '.pdx-spj-ico{flex:none;width:0.7rem;height:0.7rem;color:currentColor;}' +
+      '#pdx-sponsored .pdx-spb-tally{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.78rem;letter-spacing:0.06em;text-transform:uppercase;color:#9fb4d4;margin:0 0 0.6rem;}' +
       '@media (hover: none), (pointer: coarse){.pdx-spj{min-height:1.9rem;padding:0.22rem 0.6rem;}}';
     (document.head || document.documentElement).appendChild(st);
   }
@@ -145,12 +172,16 @@
   // state: "wait" (the table has not answered), "on" (bills on file — enabled),
   // "none" (the table answered and lists none — disabled, says so).
   var TARGET = 'pdx-sponsored';
+  // A quill, stroked in currentColor at the money chip's glyph size.
+  var QUILL = '<svg class="pdx-spj-ico" data-pdx-spj-quill viewBox="0 0 16 16" width="11" height="11" aria-hidden="true" focusable="false">' +
+    '<path d="M14.5 1.5C9 2 4.6 5.8 3.2 11.4L2 14.5l3-1.4C10.4 11.6 14 7.2 14.5 1.5z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>' +
+    '<path d="M2.6 13.4 9.5 6.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>';
   function jumpHtml(pid, state) {
     return '<button type="button" class="pdx-spj" data-pdx-sponsored-jump="' + esc(TARGET) + '"' +
       ' data-pdx-sponsored-jump-pid="' + esc(pid) + '" data-state="' + state + '"' +
       (state === 'on' ? '' : ' disabled aria-disabled="true"') +
       ' aria-label="' + (state === 'none' ? 'Bills sponsored: no sponsored bills on file' : 'Bills sponsored: jump to the bills this person sponsored or co-sponsored') + '">' +
-      'Bills sponsored' +
+      QUILL + 'Bills sponsored' +
       (state === 'none' ? ' <span class="pdx-spj-none">· none on file</span>' : '') +
       '</button>';
   }

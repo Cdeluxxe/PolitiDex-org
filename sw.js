@@ -9913,7 +9913,17 @@
 //     file moved. person-bills.js is precached and changed, so the shell moves
 //     one version. No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v393';
+// v394 - A QUILL ON THE "BILLS SPONSORED" JUMP, AND AN OUTCOME TALLY IN THE
+//     SECTION. The letterhead jump leads with a quill drawn in its own neutral
+//     ink, in the enabled and the "none on file" state alike — no 💰, no gold.
+//     The sponsored-bills section gains one line under its heading counting
+//     the rows already in the list: "6 failed · 0 passed" (passed is Enacted
+//     plus Passed; pending is added only when there is one). No bill is added,
+//     dropped or regrouped, and a person with no list has no tally.
+//     person-bills.js is precached and changed, so the shell moves one
+//     version. No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v394';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
