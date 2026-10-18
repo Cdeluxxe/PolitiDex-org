@@ -1,0 +1,25 @@
+{
+  "_comment": "Same-text families: measures that carry the same (or substantially the same) operative text and were voted on more than once. Hand-curated; every claim is read off a record already in this repository. A member marked counted:true is an act of record whose rows score; counted:false is a repeat — it carries the same topic rows (with no primary) so its own bill page reads in full, but a member's vote on it scores only when it is that member's only record of that position on the text (runbook rule 34). The Senate held each vote on these resolutions as a motion to discharge, which is the decisive vote on a 50 U.S.C. 1544(c) resolution. scripts/gen-same-text.mjs builds the client tables from this file (the SAME_TEXT block in voting-record.js and bill-official.json's `same`), adding each member's outcome from db/bill-record.json and the Related list from the applied migrations. Pinned by scripts/test-war-powers-same-text.mjs.",
+  "families": [
+    {
+      "id": "iran-withdrawal-119",
+      "label": "Iran withdrawal resolution (119th Congress)",
+      "sameTextEvidence": "db/vr-federal-mapping-seed-f7.json and 20261023000000_vr_federal_wave_f7: eleven Senate joint resolutions directing removal of United States Armed Forces from hostilities within or against Iran not authorized by Congress, with a different sponsor on the cover and identical operative language.",
+      "topics": ["restraint", "war_powers", "strong_defense", "iran_policy"],
+      "members": [
+        { "congress": 119, "chamber": "senate", "number": "S.J.Res. 104", "counted": true },
+        { "congress": 119, "chamber": "senate", "number": "S.J.Res. 118", "counted": false },
+        { "congress": 119, "chamber": "senate", "number": "S.J.Res. 116", "counted": false },
+        { "congress": 119, "chamber": "senate", "number": "S.J.Res. 123", "counted": false },
+        { "congress": 119, "chamber": "senate", "number": "S.J.Res. 114", "counted": false },
+        { "congress": 119, "chamber": "senate", "number": "S.J.Res. 184", "counted": true },
+        { "congress": 119, "chamber": "senate", "number": "S.J.Res. 163", "counted": true },
+        { "congress": 119, "chamber": "senate", "number": "S.J.Res. 185", "counted": true },
+        { "congress": 119, "chamber": "senate", "number": "S.J.Res. 172", "counted": false },
+        { "congress": 119, "chamber": "senate", "number": "S.J.Res. 180", "counted": false },
+        { "congress": 119, "chamber": "senate", "number": "S.J.Res. 181", "counted": false }
+      ],
+      "relatedRule": "Measures on file that share at least two of the family's topics and are not members of it, most shared topics first, then most recent."
+    }
+  ]
+}

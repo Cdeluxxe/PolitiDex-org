@@ -101,6 +101,86 @@ window.PDX_BILLS_INDEX = [
     source: { url: 'https://www.congress.gov/bill/119th-congress/senate-joint-resolution/59', label: 'Congress.gov' }
   },
   {
+    number: 'H.Con.Res. 89', title: 'Directing the President, pursuant to section 5(c) of the War Powers Resolution, to remove United States Armed Forces from hostilities with Iran.',
+    shortTitle: 'Iran War Powers Resolution (House)',
+    measureType: 'resolution', chamber: 'house', congress: 119, status: 'failed',
+    primaryIssue: 'restraint',
+    issueKeys: ['restraint', 'war_powers', 'strong_defense', 'iran_policy'], isOmnibus: false,
+    keywords: 'iran war powers resolution section 5(c) concurrent resolution remove armed forces hostilities ' +
+      'use of force military authorization congress jayapal house middle east',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/house-concurrent-resolution/89', label: 'Congress.gov' }
+  },
+  {
+    number: 'S.J.Res. 114', title: 'A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.',
+    shortTitle: 'Iran War Powers Resolution (S.J.Res. 114)',
+    measureType: 'resolution', chamber: 'senate', congress: 119, status: 'failed',
+    primaryIssue: null,
+    issueKeys: ['restraint', 'war_powers', 'strong_defense', 'iran_policy'], isOmnibus: false,
+    keywords: 'iran war powers resolution remove armed forces hostilities use of force military authorization ' +
+      'congress discharge senate same text baldwin',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/senate-joint-resolution/114', label: 'Congress.gov' }
+  },
+  {
+    number: 'S.J.Res. 116', title: 'A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.',
+    shortTitle: 'Iran War Powers Resolution (S.J.Res. 116)',
+    measureType: 'resolution', chamber: 'senate', congress: 119, status: 'failed',
+    primaryIssue: null,
+    issueKeys: ['restraint', 'war_powers', 'strong_defense', 'iran_policy'], isOmnibus: false,
+    keywords: 'iran war powers resolution remove armed forces hostilities use of force military authorization ' +
+      'congress discharge senate same text murphy',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/senate-joint-resolution/116', label: 'Congress.gov' }
+  },
+  {
+    number: 'S.J.Res. 118', title: 'A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.',
+    shortTitle: 'Iran War Powers Resolution (S.J.Res. 118)',
+    measureType: 'resolution', chamber: 'senate', congress: 119, status: 'failed',
+    primaryIssue: null,
+    issueKeys: ['restraint', 'war_powers', 'strong_defense', 'iran_policy'], isOmnibus: false,
+    keywords: 'iran war powers resolution remove armed forces hostilities use of force military authorization ' +
+      'congress discharge senate same text booker',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/senate-joint-resolution/118', label: 'Congress.gov' }
+  },
+  {
+    number: 'S.J.Res. 123', title: 'A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.',
+    shortTitle: 'Iran War Powers Resolution (S.J.Res. 123)',
+    measureType: 'resolution', chamber: 'senate', congress: 119, status: 'failed',
+    primaryIssue: null,
+    issueKeys: ['restraint', 'war_powers', 'strong_defense', 'iran_policy'], isOmnibus: false,
+    keywords: 'iran war powers resolution remove armed forces hostilities use of force military authorization ' +
+      'congress discharge senate same text duckworth',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/senate-joint-resolution/123', label: 'Congress.gov' }
+  },
+  {
+    number: 'S.J.Res. 172', title: 'A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.',
+    shortTitle: 'Iran War Powers Resolution (S.J.Res. 172)',
+    measureType: 'resolution', chamber: 'senate', congress: 119, status: 'failed',
+    primaryIssue: null,
+    issueKeys: ['restraint', 'war_powers', 'strong_defense', 'iran_policy'], isOmnibus: false,
+    keywords: 'iran war powers resolution remove armed forces hostilities use of force military authorization ' +
+      'congress discharge senate same text warnock',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/senate-joint-resolution/172', label: 'Congress.gov' }
+  },
+  {
+    number: 'S.J.Res. 180', title: 'A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.',
+    shortTitle: 'Iran War Powers Resolution (S.J.Res. 180)',
+    measureType: 'resolution', chamber: 'senate', congress: 119, status: 'failed',
+    primaryIssue: null,
+    issueKeys: ['restraint', 'war_powers', 'strong_defense', 'iran_policy'], isOmnibus: false,
+    keywords: 'iran war powers resolution remove armed forces hostilities use of force military authorization ' +
+      'congress discharge senate same text van hollen',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/senate-joint-resolution/180', label: 'Congress.gov' }
+  },
+  {
+    number: 'S.J.Res. 181', title: 'A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.',
+    shortTitle: 'Iran War Powers Resolution (S.J.Res. 181)',
+    measureType: 'resolution', chamber: 'senate', congress: 119, status: 'failed',
+    primaryIssue: null,
+    issueKeys: ['restraint', 'war_powers', 'strong_defense', 'iran_policy'], isOmnibus: false,
+    keywords: 'iran war powers resolution remove armed forces hostilities use of force military authorization ' +
+      'congress discharge senate same text gillibrand',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/senate-joint-resolution/181', label: 'Congress.gov' }
+  },
+  {
     number: 'S. 129', title: 'No Tax on Tips Act', shortTitle: 'No Tax on Tips Act',
     measureType: 'bill', chamber: 'senate', congress: 119, status: 'passed_senate',
     primaryIssue: 'tax_middle_class',

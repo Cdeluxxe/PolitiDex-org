@@ -743,14 +743,14 @@
   // record lists, the record's own action text. Nothing here is derived, and a
   // bill with no entry prints no block at all — nothing is filled in for it.
   var OFFICIAL_SRC = '/bill-official.json';
-  var _official = null, _officialDocs = null, _officialEffects = null;
+  var _official = null, _officialDocs = null, _officialEffects = null, _officialSame = null;
   function loadOfficial() {
     if (!_official) {
       _official = (typeof fetch === 'function'
         ? fetch(OFFICIAL_SRC, { headers: { accept: 'application/json' } })
             .then(function (r) { return r.ok ? r.json() : null; })
         : Promise.resolve(null))
-        .then(function (d) { _officialDocs = (d && d.docs) || {}; _officialEffects = (d && d.effects) || {}; fillEffects(); return _officialDocs; })
+        .then(function (d) { _officialDocs = (d && d.docs) || {}; _officialEffects = (d && d.effects) || {}; _officialSame = (d && d.same) || null; fillEffects(); return _officialDocs; })
         .catch(function () { _official = null; return null; });
     }
     return _official;
@@ -766,6 +766,36 @@
     return /^\d+$/.test(s) ? s + 'th Congress' : g ? g[1] + ' General Session' : s;
   }
   var OFF_ROLE = { s: ['Sponsor', 'Sponsors', 'sponsor'], f: ['Floor sponsor', 'Floor sponsors', 'floor_sponsor'], c: ['Co-sponsor', 'Co-sponsors', 'cosponsor'] };
+  // ── THE SAME TEXT, AND WHAT TOUCHES THE SAME SUBJECT ────────────────────────
+  // bill-official.json's `same` (scripts/gen-same-text.mjs, from
+  // db/vr-text-families.json): when this measure's text was voted on more than
+  // once, History lists every vote on it — this one marked — with its outcome
+  // and a door to its page, and Related names the other measures on file that
+  // share at least two of its topics. A measure in no family prints neither.
+  var ST_WHAT = {
+    'discharge rejected': 'Senate refused to discharge it', discharged: 'Senate voted to discharge it',
+    'motion to proceed rejected': 'Senate refused to take it up', 'failed of passage': 'failed', passed: 'passed'
+  };
+  function sameTextHtml(key) {
+    var st = _officialSame, fid = st && st.byMeasure && st.byMeasure[key], fm = fid && st.families[fid];
+    if (!fm) return '';
+    var hist = fm.members.map(function (m) {
+      var v = m.votes[0] || null;
+      var what = m.votes.map(function (x) { return (ST_WHAT[x.what] || x.what) + ' ' + x.tally; }).join('; ');
+      var self = m.key === key;
+      return '<li data-bd-same-m="' + escAttr(m.key) + '"' + (self ? ' data-self="1"' : '') + '>' +
+        (self ? '<b>' + esc(m.number) + '</b> (this measure)' : '<a href="' + escAttr(m.href) + '">' + esc(m.number) + '</a>') +
+        ' (' + esc(m.status) + ')' + (v ? ' \u00b7 ' + esc(offDay(v.date)) : '') + (what ? ' \u00b7 ' + esc(what) : '') + '</li>';
+    }).join('');
+    var rel = fm.related.map(function (r) {
+      return '<li data-bd-same-r="' + escAttr(r.key) + '"><a href="' + escAttr(r.href) + '">' + esc(r.number) + '</a> (' +
+        esc(r.status) + ')' + (r.title ? ' \u00b7 ' + esc(r.title) : '') + '</li>';
+    }).join('');
+    return '<section class="bd-sec bd-same" data-bd-same="' + escAttr(fid) + '"><h3 class="bd-h">History \u00b7 the same text</h3>' +
+      '<p class="bd-off-none">The same text was voted on ' + fm.members.length + ' times. A position counts once, however many times it was cast.</p>' +
+      '<ol class="bd-off-steps" data-bd-same-history>' + hist + '</ol></section>' +
+      (rel ? '<section class="bd-sec bd-same-rel" data-bd-same-related><h3 class="bd-h">Related \u00b7 not the same text</h3><ul class="bd-off-steps">' + rel + '</ul></section>' : '');
+  }
   function officialHtml(e, sitting, number) {
     if (!e) return '';
     var state = /GS$/i.test(String(sitting || ''));
@@ -826,6 +856,7 @@
           ? '<p class="bd-off-src">Record: <a class="bd-src" href="' + escAttr(e.rs) + '" target="_blank" rel="noopener" data-bd-official-record>' + esc(host) + '</a></p>' : '') +
         '</section>';
     }
+    out += sameTextHtml(String(sitting) + '|' + number);
     return out ? '<div class="bd-official" data-bd-official-for="' + escAttr(sitting + '|' + number) + '">' + out + '</div>' : '';
   }
   // Fill the panel's seam for the bill now on screen. The table may still be on

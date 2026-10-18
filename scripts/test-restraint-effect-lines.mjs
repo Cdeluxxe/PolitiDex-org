@@ -41,6 +41,7 @@ import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 import { measureAddresses } from "./vr-measure-addresses.mjs";
 import { preAudit } from "./vr-effect-audit.mjs";
+import { keysAfter } from "./vr-slice-blocks.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 // consistency.js as it stood before the v387 provisions audit; see
@@ -225,7 +226,10 @@ function check(src, base) {
   for (const [p, v] of Object.entries(TRUMP)) ok(X.map[p] === v, `${p}: Trump's shipped line changed`);
   ok(DB_PAIRS.length >= 14, `only ${DB_PAIRS.length} database-mapped pairs on Diplomacy & Restraint — the projection thinned out`);
   for (const p of DB_PAIRS) {
-    if (!didOf(p)) ok(!E.map[p], `${p}: stores no did on Diplomacy & Restraint but carries a line`);
+    // A later marked slice that writes a line for a database-only pair from its
+    // stored text holds that line in its own test (v407: the seven Iran
+    // withdrawal repeats, scripts/test-war-powers-same-text.mjs).
+    if (!didOf(p) && !keysAfter(src, "_DOS_EFFECT", 406).has(p)) ok(!E.map[p], `${p}: stores no did on Diplomacy & Restraint but carries a line`);
   }
   return { faults, pass, printed };
 }

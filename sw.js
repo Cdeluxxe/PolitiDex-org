@@ -10098,7 +10098,28 @@
 //     issue key moved.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v406';
+// v407 - THE IRAN WITHDRAWAL RESOLUTION, ONE TEXT VOTED ELEVEN TIMES. The
+//     seven Senate repeat votes (S.J.Res. 118, 116, 123, 114, 172, 180, 181)
+//     now carry the four topics their counted siblings carry — Diplomacy &
+//     Restraint, Congress and War Powers, Peace Through Strength (a yea cuts
+//     against it) and Iran, at the same weights — with no primary, and a short
+//     line on each. db/vr-text-families.json names the eleven as one text, and
+//     the record client counts a senator's position once per text: a repeat
+//     vote is held out of every scored list unless it is that senator's only
+//     record of that position, which today it never is, so no score moved. The
+//     bill page and the issue drawer gain History (every vote on the same text,
+//     its outcome and a link, and in the drawer the senator's own vote) and
+//     Related (measures sharing two or more of its topics). H.Con.Res. 89 keeps
+//     its rows and gains its Peace Through Strength line. consistency.js and
+//     voting-record.js are precached and changed, so the shell moves one
+//     version; bill-detail.js, bill-official.json and bills-index.js are
+//     runtime entries. No weight, primary flag, pole or issue key moved on any
+//     row already filed.
+//     No location key is migrated, renamed or copied. One migration
+//     (20261127000000_vr_iran_withdrawal_same_text_family: 28 vr_measure_issues
+//     rows); the seed carries the same rows.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v407';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
