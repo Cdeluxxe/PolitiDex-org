@@ -271,7 +271,10 @@ function check(src, ledger, base) {
     }
     if (base) {
       for (const [r, v] of base.printed) ok(printed.get(r) === v, `${r}: printed ${JSON.stringify(v)} at HEAD and now prints ${JSON.stringify(printed.get(r) || "")}`);
-      for (const [r, v] of base.ptrs) ok(ptrs.get(r) === v, `${r}: the pointer printed ${JSON.stringify(v)} at HEAD and now prints ${JSON.stringify(ptrs.get(r) || "")}`);
+      // A pointer whose own pair has since gained a stored line prints that line
+      // instead (Laken Riley Act slice 26, v405); held by that pass's own test.
+      const ownNow = (r) => { const pair = r.split("|").slice(1).join("|"); return pair in P.map && !!E.map[pair] && printed.get(r) === E.map[pair]; };
+      for (const [r, v] of base.ptrs) if (!ownNow(r)) ok(ptrs.get(r) === v, `${r}: the pointer printed ${JSON.stringify(v)} at HEAD and now prints ${JSON.stringify(ptrs.get(r) || "")}`);
     }
   } else {
     console.log("   (no git baseline — the unchanged-lines check did not run)");

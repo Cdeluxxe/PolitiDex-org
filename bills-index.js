@@ -31,10 +31,19 @@ window.PDX_BILLS_INDEX = [
   },
   {
     number: 'H.R. 29', title: 'Laken Riley Act', shortTitle: 'Laken Riley Act',
-    measureType: 'bill', chamber: 'house', congress: 119, status: 'enacted',
-    primaryIssue: 'deportations', issueKeys: ['deportations', 'border_security'], isOmnibus: true,
-    keywords: 'laken riley immigration detention deportation border ICE crime immigrant',
+    measureType: 'bill', chamber: 'house', congress: 119, status: 'passed_house',
+    primaryIssue: 'deportations', issueKeys: ['deportations', 'border_security', 'tough_on_crime', 'state_standing'], isOmnibus: true,
+    keywords: 'laken riley immigration detention deportation border ICE crime immigrant ' +
+      'mandatory detention detainer theft burglary shoplifting state attorney general house companion',
     source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/29', label: 'Congress.gov' }
+  },
+  {
+    number: 'S. 5', title: 'Laken Riley Act', shortTitle: 'Laken Riley Act',
+    measureType: 'bill', chamber: 'senate', congress: 119, status: 'enacted',
+    primaryIssue: 'deportations', issueKeys: ['deportations', 'border_security', 'tough_on_crime', 'state_standing'], isOmnibus: true,
+    keywords: 'laken riley immigration detention deportation border ICE crime immigrant public law 119-1 ' +
+      'mandatory detention detainer theft burglary shoplifting assault police officer state attorney general britt first law',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/senate-bill/5', label: 'Congress.gov' }
   },
   {
     number: 'H.R. 26', title: 'Protecting American Energy Production Act', shortTitle: 'Protecting American Energy Production Act',
@@ -90,6 +99,93 @@ window.PDX_BILLS_INDEX = [
     issueKeys: ['restraint', 'america_first_fp', 'strong_defense'], isOmnibus: true,
     keywords: 'iran war powers military force authorization foreign policy middle east strikes',
     source: { url: 'https://www.congress.gov/bill/119th-congress/senate-joint-resolution/59', label: 'Congress.gov' }
+  },
+  {
+    number: 'H.Con.Res. 89', title: 'Directing the President, pursuant to section 5(c) of the War Powers Resolution, to remove United States Armed Forces from hostilities with Iran.',
+    shortTitle: 'Iran War Powers Resolution (House)',
+    measureType: 'resolution', chamber: 'house', congress: 119, status: 'failed',
+    primaryIssue: 'restraint',
+    issueKeys: ['restraint', 'war_powers', 'strong_defense', 'iran_policy'], isOmnibus: false,
+    keywords: 'iran war powers resolution section 5(c) concurrent resolution remove armed forces hostilities ' +
+      'use of force military authorization congress jayapal house middle east',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/house-concurrent-resolution/89', label: 'Congress.gov' }
+  },
+  {
+    number: 'S.J.Res. 114', title: 'A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.',
+    shortTitle: 'Iran War Powers Resolution (S.J.Res. 114)',
+    summary: 'Directs the President to remove United States Armed Forces from hostilities within or against Iran unless a declaration of war or a specific authorization for the use of military force has been enacted. Its saving clause preserves only defense against an attack already under way or imminent.',
+    measureType: 'resolution', chamber: 'senate', congress: 119, status: 'failed',
+    primaryIssue: null,
+    issueKeys: ['restraint', 'war_powers', 'strong_defense', 'iran_policy'], isOmnibus: false,
+    keywords: 'iran war powers resolution remove armed forces hostilities use of force military authorization ' +
+      'congress discharge senate same text baldwin',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/senate-joint-resolution/114', label: 'Congress.gov' }
+  },
+  {
+    number: 'S.J.Res. 116', title: 'A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.',
+    shortTitle: 'Iran War Powers Resolution (S.J.Res. 116)',
+    summary: 'Directs the President to remove United States Armed Forces from hostilities within or against Iran unless a declaration of war or a specific authorization for the use of military force has been enacted. Its saving clause preserves only defense against an attack already under way or imminent.',
+    measureType: 'resolution', chamber: 'senate', congress: 119, status: 'failed',
+    primaryIssue: null,
+    issueKeys: ['restraint', 'war_powers', 'strong_defense', 'iran_policy'], isOmnibus: false,
+    keywords: 'iran war powers resolution remove armed forces hostilities use of force military authorization ' +
+      'congress discharge senate same text murphy',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/senate-joint-resolution/116', label: 'Congress.gov' }
+  },
+  {
+    number: 'S.J.Res. 118', title: 'A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.',
+    shortTitle: 'Iran War Powers Resolution (S.J.Res. 118)',
+    summary: 'Directs the President to remove United States Armed Forces from hostilities within or against Iran unless a declaration of war or a specific authorization for the use of military force has been enacted. Its saving clause preserves only defense against an attack already under way or imminent.',
+    measureType: 'resolution', chamber: 'senate', congress: 119, status: 'failed',
+    primaryIssue: null,
+    issueKeys: ['restraint', 'war_powers', 'strong_defense', 'iran_policy'], isOmnibus: false,
+    keywords: 'iran war powers resolution remove armed forces hostilities use of force military authorization ' +
+      'congress discharge senate same text booker',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/senate-joint-resolution/118', label: 'Congress.gov' }
+  },
+  {
+    number: 'S.J.Res. 123', title: 'A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.',
+    shortTitle: 'Iran War Powers Resolution (S.J.Res. 123)',
+    summary: 'Directs the President to remove United States Armed Forces from hostilities within or against Iran unless a declaration of war or a specific authorization for the use of military force has been enacted. Its saving clause preserves only defense against an attack already under way or imminent.',
+    measureType: 'resolution', chamber: 'senate', congress: 119, status: 'failed',
+    primaryIssue: null,
+    issueKeys: ['restraint', 'war_powers', 'strong_defense', 'iran_policy'], isOmnibus: false,
+    keywords: 'iran war powers resolution remove armed forces hostilities use of force military authorization ' +
+      'congress discharge senate same text duckworth',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/senate-joint-resolution/123', label: 'Congress.gov' }
+  },
+  {
+    number: 'S.J.Res. 172', title: 'A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.',
+    shortTitle: 'Iran War Powers Resolution (S.J.Res. 172)',
+    summary: 'Directs the President to remove United States Armed Forces from hostilities within or against Iran unless a declaration of war or a specific authorization for the use of military force has been enacted. Its saving clause preserves only defense against an attack already under way or imminent.',
+    measureType: 'resolution', chamber: 'senate', congress: 119, status: 'failed',
+    primaryIssue: null,
+    issueKeys: ['restraint', 'war_powers', 'strong_defense', 'iran_policy'], isOmnibus: false,
+    keywords: 'iran war powers resolution remove armed forces hostilities use of force military authorization ' +
+      'congress discharge senate same text warnock',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/senate-joint-resolution/172', label: 'Congress.gov' }
+  },
+  {
+    number: 'S.J.Res. 180', title: 'A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.',
+    shortTitle: 'Iran War Powers Resolution (S.J.Res. 180)',
+    summary: 'Directs the President to remove United States Armed Forces from hostilities within or against Iran unless a declaration of war or a specific authorization for the use of military force has been enacted. Its saving clause preserves only defense against an attack already under way or imminent.',
+    measureType: 'resolution', chamber: 'senate', congress: 119, status: 'failed',
+    primaryIssue: null,
+    issueKeys: ['restraint', 'war_powers', 'strong_defense', 'iran_policy'], isOmnibus: false,
+    keywords: 'iran war powers resolution remove armed forces hostilities use of force military authorization ' +
+      'congress discharge senate same text van hollen',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/senate-joint-resolution/180', label: 'Congress.gov' }
+  },
+  {
+    number: 'S.J.Res. 181', title: 'A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.',
+    shortTitle: 'Iran War Powers Resolution (S.J.Res. 181)',
+    summary: 'Directs the President to remove United States Armed Forces from hostilities within or against Iran unless a declaration of war or a specific authorization for the use of military force has been enacted. Its saving clause preserves only defense against an attack already under way or imminent.',
+    measureType: 'resolution', chamber: 'senate', congress: 119, status: 'failed',
+    primaryIssue: null,
+    issueKeys: ['restraint', 'war_powers', 'strong_defense', 'iran_policy'], isOmnibus: false,
+    keywords: 'iran war powers resolution remove armed forces hostilities use of force military authorization ' +
+      'congress discharge senate same text gillibrand',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/senate-joint-resolution/181', label: 'Congress.gov' }
   },
   {
     number: 'S. 129', title: 'No Tax on Tips Act', shortTitle: 'No Tax on Tips Act',
@@ -172,6 +268,16 @@ window.PDX_BILLS_INDEX = [
     source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/1048', label: 'Congress.gov' }
   },
   {
+    number: 'H.R. 7008', title: 'Stop Insider Trading Act', shortTitle: 'Stop Insider Trading Act',
+    measureType: 'bill', chamber: 'house', congress: 119, status: 'passed_house',
+    primaryIssue: 'stock_trading_ban',
+    issueKeys: ['stock_trading_ban', 'gov_transparency'], isOmnibus: false,
+    keywords: 'stop insider trading act congressional stock trading ban stock ban stocks individual stocks ' +
+      'members of congress member spouses dependent children ethics penalty forced sale covered investment ' +
+      'advance public notice clerk financial disclosure transparency steil',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/7008', label: 'Congress.gov' }
+  },
+  {
     number: 'H.R. 1919', title: 'Anti-CBDC Surveillance State Act', shortTitle: 'Anti-CBDC Surveillance State Act',
     measureType: 'bill', chamber: 'house', congress: 119, status: 'passed_house',
     primaryIssue: 'privacy_rights',
@@ -179,6 +285,16 @@ window.PDX_BILLS_INDEX = [
     keywords: 'anti cbdc surveillance state act central bank digital currency federal reserve digital dollar ' +
       'financial privacy emmer crypto week retail accounts',
     source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/1919', label: 'Congress.gov' }
+  },
+  {
+    number: 'H.R. 1181', title: 'Protecting Privacy in Purchases Act', shortTitle: 'Protecting Privacy in Purchases Act',
+    measureType: 'bill', chamber: 'house', congress: 119, status: 'passed_house',
+    primaryIssue: 'gun_rights',
+    issueKeys: ['gun_rights', 'privacy_rights', 'states_federal_power', 'econ_corp_account'], isOmnibus: false,
+    keywords: 'gun guns firearm firearms gun store firearms retailer gun purchase purchase tracking ' +
+      'merchant category code mcc payment card network payment network credit card card network ' +
+      'financial privacy purchase privacy second amendment preemption attorney general riley moore',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/1181', label: 'Congress.gov' }
   },
   {
     number: 'H.R. 3633', title: 'Digital Asset Market Clarity Act of 2025', shortTitle: 'CLARITY Act',

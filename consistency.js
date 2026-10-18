@@ -2381,6 +2381,21 @@
       '.pdxlg-tally b{color:#e8eefc;font-weight:700;}' +
       '.pdxlg-side{font-size:0.72rem;color:#8fa2c0;line-height:1.5;}' +
       '.pdxlg-same{margin-top:0.2rem;font-size:0.72rem;color:#f0cd8c;line-height:1.5;}' +
+      '.pdxst{margin-top:0.6rem;font-size:0.73rem;line-height:1.5;color:#c6d4ec;}' +
+      '.pdxst-fold{border-top:1px solid rgba(143,162,192,0.2);}' +
+      '.pdxst-sum{display:flex;align-items:center;gap:0.5rem;min-height:44px;cursor:pointer;list-style:none;}' +
+      '.pdxst-sum::-webkit-details-marker{display:none;}' +
+      '.pdxst-sum::after{content:"\\25B8";margin-left:0.3rem;color:#8fa2c0;transition:transform .15s;}' +
+      '.pdxst-fold[open]>.pdxst-sum::after{transform:rotate(90deg);}' +
+      '.pdxst-sum:focus-visible{outline:2px solid #c6d4ec;outline-offset:2px;border-radius:4px;}' +
+      '.pdxst-h{font-family:"Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:0.08em;font-size:0.68rem;color:#c6d4ec;}' +
+      '.pdxst-c{margin-left:auto;color:#8fa2c0;}' +
+      '.pdxst-n{margin:0 0 0.2rem;color:#8fa2c0;}' +
+      '.pdxst ul{list-style:none;margin:0 0 0.5rem;padding:0;}' +
+      '.pdxst li{padding:0.4rem 0;border-top:1px solid rgba(143,162,192,0.14);}' +
+      '.pdxst li:first-child{border-top:0;}' +
+      '.pdxst a{color:#e8eefc;}' +
+      '.pdxst-me{color:#f0cd8c;}' +
       '.pdxlg-termf{display:flex;flex-wrap:wrap;align-items:center;gap:0.3rem 0.4rem;margin-top:0.3rem;font-size:0.72rem;color:#8fa2c0;}' +
       '.pdxlg-termf button{font:inherit;color:#c6d4ec;background:transparent;border:1px solid rgba(143,162,192,0.35);border-radius:999px;padding:0.15rem 0.6rem;min-height:28px;cursor:pointer;}' +
       '.pdxlg-termf button[aria-pressed="true"]{background:rgba(143,162,192,0.18);border-color:#c6d4ec;}' +
@@ -17240,6 +17255,65 @@
     } catch (e) {}
   }
 
+  // ── SAME TEXT, AND WHAT TOUCHES THE SAME SUBJECT ────────────────────────────
+  // One text voted on more than once (PDXVotingRecord.sameText, generated from
+  // db/vr-text-families.json). The ledger above lists only the votes that count;
+  // a repeat of a position already on record is held out of it and out of every
+  // score, and listed here instead, with each vote's outcome, this member's own
+  // vote and a door to the bill page. Related names the other measures on file
+  // that share at least two of the text's topics. Prints on the text's own topics
+  // for a member who voted on it, and nothing anywhere else.
+  var _DOS_ST_POS = { yea: 'Voted Yea', nay: 'Voted Nay', not_voting: 'Did not vote', present: 'Voted Present' };
+  var _DOS_ST_WHAT = {
+    'discharge rejected': 'Senate refused to discharge it', discharged: 'Senate voted to discharge it',
+    'motion to proceed rejected': 'Senate refused to take it up', 'failed of passage': 'failed', passed: 'passed'
+  };
+  var _DOS_ST_MON = ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May', 'June', 'July', 'Aug.', 'Sept.', 'Oct.', 'Nov.', 'Dec.'];
+  function _dosStDay(iso) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ''));
+    return m ? _DOS_ST_MON[+m[2] - 1] + ' ' + (+m[3]) + ', ' + m[1] : String(iso || '');
+  }
+  function _dosSameTextHtml(pid, issueKey) {
+    var VR = window.PDXVotingRecord;
+    if (!VR || !VR.sameText || typeof VR.memberRepeats !== 'function') return '';
+    var all = (VR.memberRecords(pid) || []).concat(VR.memberRepeats(pid) || []);
+    var mine = {}, fids = [];
+    for (var i = 0; i < all.length; i++) {
+      var s = VR.sameTextOf(all[i]);
+      if (!s) continue;
+      var fam = VR.sameText.families[s.fid];
+      if (!fam || fam.topics.indexOf(issueKey) < 0) continue;
+      if (fids.indexOf(s.fid) < 0) fids.push(s.fid);
+      mine[s.member.key] = all[i].position;
+    }
+    var out = '';
+    for (var f = 0; f < fids.length; f++) {
+      var fm = VR.sameText.families[fids[f]];
+      var hist = fm.members.map(function (m) {
+        var v = m.votes[0] || null;
+        var what = m.votes.map(function (x) { return (_DOS_ST_WHAT[x.what] || x.what) + ' ' + x.tally; }).join('; ');
+        var me = mine[m.key] ? ' · <span class="pdxst-me">' + esc(_DOS_ST_POS[mine[m.key]] || mine[m.key]) + '</span>' : '';
+        return '<li data-pdxst-m="' + escAttr(m.key) + '"><a href="' + escAttr(m.href) + '">' + esc(m.number) + '</a> (' +
+          esc(m.status) + ')' + (v ? ' · ' + esc(_dosStDay(v.date)) : '') + (what ? ' · ' + esc(what) : '') + me + '</li>';
+      }).join('');
+      var rel = fm.related.map(function (r) {
+        return '<li data-pdxst-r="' + escAttr(r.key) + '"><a href="' + escAttr(r.href) + '">' + esc(r.number) + '</a> (' +
+          esc(r.status) + ')' + (r.title ? ' · ' + esc(r.title) : '') + '</li>';
+      }).join('');
+      // Both lists fold shut, complete when opened.
+      out += '<div class="pdxst" data-pdxst="' + escAttr(fids[f]) + '">' +
+        '<details class="pdxst-fold" data-pdxst-fold="history"><summary class="pdxst-sum">' +
+          '<span class="pdxst-h">History · the same text</span><span class="pdxst-c">' + fm.members.length + ' votes</span></summary>' +
+          '<p class="pdxst-n">The same text was voted on ' + fm.members.length + ' times. A position counts once, however many times it was cast.</p>' +
+          '<ul data-pdxst-history="1">' + hist + '</ul></details>' +
+        (rel ? '<details class="pdxst-fold" data-pdxst-fold="related"><summary class="pdxst-sum">' +
+          '<span class="pdxst-h">Related · not the same text</span><span class="pdxst-c">' + fm.related.length + ' measures</span></summary>' +
+          '<ul data-pdxst-related="1">' + rel + '</ul></details>' : '') +
+        '</div>';
+    }
+    return out;
+  }
+
   function _dosLedgerHtml(pid, issueKey, r, t, opts) {
     r = r || issueRow(pid, issueKey);
     t = t || _dosTally(pid, issueKey, r && r.ov);
@@ -19249,6 +19323,83 @@
       'Let project sponsors pay for environmental reviews due within 180 days or one year; the House cleared it 218-214, the Senate 50-50.',
     'H.R. 1|119|water_storage':
       'Appropriated $1 billion to expand Bureau of Reclamation canal and reservoir capacity; the House cleared it 218-214, the Senate 50-50.',
+    // PROTECTING PRIVACY IN PURCHASES ACT SLICE 25 (v404). H.R. 1181 (119th),
+    // passed by the House and not law, so it opens "Would". Written from Sec.
+    // 2(a)-(b) as its mapping row reads them, in its siblings' tally. Its three
+    // other lines above are unchanged.
+    'H.R. 1181|119|econ_corp_account':
+      'Would let the Attorney General enjoin payment card networks that require a firearms merchant category code; the House passed it 221-201.',
+    // LAKEN RILEY ACT SLICE 26 (v405). H.R. 29 (119th), the House companion of
+    // S. 5: passed by the House and placed on the Senate calendar, so it opens
+    // "Would". Each written from that pair's own stored mapping rationale, in
+    // its siblings' tally. Its two other lines and S. 5's four are unchanged.
+    'H.R. 29|119|deportations':
+      'Would mandate detention and removal proceedings for covered unauthorized immigrants; the House passed it 264-159.',
+    'H.R. 29|119|state_standing':
+      'Would give state attorneys general standing to sue Homeland Security over detention and removal violations; the House passed it 264-159.',
+    // IRAN WITHDRAWAL SAME-TEXT SLICE 27 (v407). The seven repeat votes on the
+    // Iran withdrawal resolution (db/vr-text-families.json), each pair written in
+    // the words its counted sibling S.J.Res. 104 prints for the identical text and
+    // stored rationale, ending on that measure's own discharge tally.
+    // H.Con.Res. 89 × Peace Through Strength stays silent, as
+    // db/vr-blank-rows-slice10.json recorded. No line shipped before this
+    // block moves.
+    'S.J.Res. 118|119|restraint':
+      'Would have directed the President to end U.S. hostilities against Iran absent Congress’s approval; the Senate refused to discharge it 47-53.',
+    'S.J.Res. 118|119|war_powers':
+      'Would have used the War Powers Resolution to end unauthorized U.S. hostilities against Iran; the Senate refused to discharge it 47-53.',
+    'S.J.Res. 118|119|strong_defense':
+      'Would have pulled U.S. forces from unauthorized Iran hostilities, save self-defense; the Senate refused to discharge it 47-53.',
+    'S.J.Res. 118|119|iran_policy':
+      'Would have ordered U.S. forces out of hostilities against Iran that Congress had not authorized; the Senate refused to discharge it 47-53.',
+    'S.J.Res. 116|119|restraint':
+      'Would have directed the President to end U.S. hostilities against Iran absent Congress’s approval; the Senate refused to discharge it 47-53.',
+    'S.J.Res. 116|119|war_powers':
+      'Would have used the War Powers Resolution to end unauthorized U.S. hostilities against Iran; the Senate refused to discharge it 47-53.',
+    'S.J.Res. 116|119|strong_defense':
+      'Would have pulled U.S. forces from unauthorized Iran hostilities, save self-defense; the Senate refused to discharge it 47-53.',
+    'S.J.Res. 116|119|iran_policy':
+      'Would have ordered U.S. forces out of hostilities against Iran that Congress had not authorized; the Senate refused to discharge it 47-53.',
+    'S.J.Res. 123|119|restraint':
+      'Would have directed the President to end U.S. hostilities against Iran absent Congress’s approval; the Senate refused to discharge it 47-52.',
+    'S.J.Res. 123|119|war_powers':
+      'Would have used the War Powers Resolution to end unauthorized U.S. hostilities against Iran; the Senate refused to discharge it 47-52.',
+    'S.J.Res. 123|119|strong_defense':
+      'Would have pulled U.S. forces from unauthorized Iran hostilities, save self-defense; the Senate refused to discharge it 47-52.',
+    'S.J.Res. 123|119|iran_policy':
+      'Would have ordered U.S. forces out of hostilities against Iran that Congress had not authorized; the Senate refused to discharge it 47-52.',
+    'S.J.Res. 114|119|restraint':
+      'Would have directed the President to end U.S. hostilities against Iran absent Congress’s approval; the Senate refused to discharge it 46-51.',
+    'S.J.Res. 114|119|war_powers':
+      'Would have used the War Powers Resolution to end unauthorized U.S. hostilities against Iran; the Senate refused to discharge it 46-51.',
+    'S.J.Res. 114|119|strong_defense':
+      'Would have pulled U.S. forces from unauthorized Iran hostilities, save self-defense; the Senate refused to discharge it 46-51.',
+    'S.J.Res. 114|119|iran_policy':
+      'Would have ordered U.S. forces out of hostilities against Iran that Congress had not authorized; the Senate refused to discharge it 46-51.',
+    'S.J.Res. 172|119|restraint':
+      'Would have directed the President to end U.S. hostilities against Iran absent Congress’s approval; the Senate refused to discharge it 47-48.',
+    'S.J.Res. 172|119|war_powers':
+      'Would have used the War Powers Resolution to end unauthorized U.S. hostilities against Iran; the Senate refused to discharge it 47-48.',
+    'S.J.Res. 172|119|strong_defense':
+      'Would have pulled U.S. forces from unauthorized Iran hostilities, save self-defense; the Senate refused to discharge it 47-48.',
+    'S.J.Res. 172|119|iran_policy':
+      'Would have ordered U.S. forces out of hostilities against Iran that Congress had not authorized; the Senate refused to discharge it 47-48.',
+    'S.J.Res. 180|119|restraint':
+      'Would have directed the President to end U.S. hostilities against Iran absent Congress’s approval; the Senate refused to discharge it 47-49.',
+    'S.J.Res. 180|119|war_powers':
+      'Would have used the War Powers Resolution to end unauthorized U.S. hostilities against Iran; the Senate refused to discharge it 47-49.',
+    'S.J.Res. 180|119|strong_defense':
+      'Would have pulled U.S. forces from unauthorized Iran hostilities, save self-defense; the Senate refused to discharge it 47-49.',
+    'S.J.Res. 180|119|iran_policy':
+      'Would have ordered U.S. forces out of hostilities against Iran that Congress had not authorized; the Senate refused to discharge it 47-49.',
+    'S.J.Res. 181|119|restraint':
+      'Would have directed the President to end U.S. hostilities against Iran absent Congress’s approval; the Senate refused to discharge it 49-50.',
+    'S.J.Res. 181|119|war_powers':
+      'Would have used the War Powers Resolution to end unauthorized U.S. hostilities against Iran; the Senate refused to discharge it 49-50.',
+    'S.J.Res. 181|119|strong_defense':
+      'Would have pulled U.S. forces from unauthorized Iran hostilities, save self-defense; the Senate refused to discharge it 49-50.',
+    'S.J.Res. 181|119|iran_policy':
+      'Would have ordered U.S. forces out of hostilities against Iran that Congress had not authorized; the Senate refused to discharge it 49-50.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // THE KEY IS THE MEASURE'S OWN IDENTITY: number, sitting, issue. The sitting is
@@ -20086,7 +20237,7 @@
       // The table carries the landing hook the "see the votes" tap scrolls to, and
       // the door into the full voting record sits at its foot.
       (_lgOn ? '<div class="pdxgap-list" data-pdxgap-record="ledger">' + _dosLedgerHtml(pid, issueKey, _dosRow, _lgT) +
-          _dosVrLinkHtml(pid, issueKey, off) + '</div>' + _dosSaidHtml(_dosRow) + _gapUnder : '') +
+          _dosVrLinkHtml(pid, issueKey, off) + '</div>' + _dosSameTextHtml(pid, issueKey) + _dosSaidHtml(_dosRow) + _gapUnder : '') +
       (_lgOn
         ? '<details class="pdxgap-how" data-pdxgap-how="1">' +
             '<summary><span aria-hidden="true">⚖️</span> How this is scored</summary>' +
@@ -21055,6 +21206,7 @@
     // scripts/test-receipt-cards.mjs can assert what an arrival actually reads
     // rather than assert on the source text of the function that writes it.
     gapViewHtml: _gapViewHtml,
+    sameTextHtml: _dosSameTextHtml,
     // The issue dossier's own pieces, exported so each level can be checked on its
     // own terms rather than only through the assembled sheet: the normalised item
     // list (L2's data), one item's expanded detail (L3+L4), and the L1 summary.

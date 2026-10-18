@@ -18,8 +18,11 @@
 //   S.J.Res. 59 × Diplomacy & Restraint, × Congress and War Powers
 //       → Peace Through Strength (shorter), also Iran
 //   H.R. 29 × Mass Deportations & Border Security, × States Suing Washington
-//       → Strong Border & Enforcement (shorter), also Tough on Crime, which
-//         gained its own line in wave 3 (v322).
+//       → pointed at Strong Border & Enforcement until Laken Riley Act slice 26
+//         (v405) wrote each from its own stored mapping rationale. Their
+//         _DOS_POINTER entries stay (other suites pin that table by hash) and are
+//         dormant: a pair with its own line never prints a pointer, and OWN_LINE
+//         below holds them to that.
 //
 // The rows with no description anywhere printed nothing at all. H.Con.Res. 14's
 // three leaves were on this list until budget and fiscal slice 1 (v360) wrote each
@@ -69,9 +72,10 @@ const WANT = {
   "S.J.Res. 37|119|econ_trade": { to: "tariffs_prices", also: [] },
   "S.J.Res. 59|119|restraint": { to: "strong_defense", also: ["iran_policy"] },
   "S.J.Res. 59|119|war_powers": { to: "strong_defense", also: ["iran_policy"] },
-  "H.R. 29|119|deportations": { to: "border_security", also: ["tough_on_crime"] },
-  "H.R. 29|119|state_standing": { to: "border_security", also: ["tough_on_crime"] },
 };
+// Pointer rows that have since gained a line of their own: they print that line
+// and no pointer. scripts/test-laken-riley-full-lens.mjs holds the lines.
+const OWN_LINE = new Set(["H.R. 29|119|deportations", "H.R. 29|119|state_standing"]);
 const NO_FACTS = [
   // H.Amdt. 87 × lgbtq_rights left this set in blank rows slice 10 (v370),
   // written from its mapping rationale, which quotes the Rules Committee report;
@@ -162,6 +166,12 @@ function check(src, base) {
   for (const row of r.rows) {
     if (row.eff.length) printed.set(`${row.pid}|${row.pair}`, row.eff[0]);
     const want = WANT[row.pair];
+    if (OWN_LINE.has(row.pair)) {
+      ok(row.eff.length === 1 && row.eff[0] === E.map[row.pair], `${row.pid} × ${row.k}: ${row.pair} does not print its own stored line`);
+      ok(row.ptr.length === 0, `${row.pid} × ${row.k}: ${row.pair} has its own line but still prints a pointer`);
+      seenPtr.set(row.pair, (seenPtr.get(row.pair) || 0) + 1);
+      continue;
+    }
     if (!want) {
       ok(row.ptr.length === 0, `${row.pid} × ${row.k}: ${row.pair} prints a pointer though it is not one of the six — ${JSON.stringify(row.ptr[0])}`);
       continue;
@@ -196,7 +206,7 @@ function check(src, base) {
     }
     ok(!(row.pair in E.map), `${row.pair}: the pointed-at line was copied into this leaf's store`);
   }
-  for (const pair of Object.keys(WANT)) ok((seenPtr.get(pair) || 0) > 0, `${pair}: no member row prints its pointer`);
+  for (const pair of [...Object.keys(WANT), ...OWN_LINE]) ok((seenPtr.get(pair) || 0) > 0, `${pair}: no member row prints its pointer`);
 
   // ── 4 · the six no-facts rows ────────────────────────────────────────────
   for (const pair of NO_FACTS) {

@@ -1411,7 +1411,10 @@ section("14 · the harvest — every stored did, read against the effect rule");
     const end = src.indexOf("\n  };", at), next = src.indexOf("// FIVE ISSUES SLICE 16 (v386)", at);
     return new Set([...src.slice(at, next !== -1 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
   })();
-  const IRAN = Object.keys(EFFECT).filter((k) => /\|iran_policy$/.test(k) && !RIDER_KEYS.has(k));
+  // v407's marked block (the Iran withdrawal repeats) is held by
+  // scripts/test-war-powers-same-text.mjs, not by these batches.
+  const V407 = keysAfter(R("consistency.js"), "_DOS_EFFECT", 406);
+  const IRAN = Object.keys(EFFECT).filter((k) => !V407.has(k) && /\|iran_policy$/.test(k) && !RIDER_KEYS.has(k));
   const TALLY = (() => {
     const t = {};
     const seed = JSON.parse(R("db/vr-issue-seed.json"));
@@ -1426,6 +1429,12 @@ section("14 · the harvest — every stored did, read against the effect rule");
     }
     for (const v of JSON.parse(R("db/vr-house-seed-119-s2.json")).votes || []) {
       if (v.measure && v.measure.number === "H.Con.Res. 89") t["H.Con.Res. 89|119"] = [v.totals.yea, v.totals.nay];
+    }
+    // The seven Iran withdrawal repeats (v407) are mapped by migration only, so
+    // their tallies are read from the F7 vote seed that ingested their rolls.
+    for (const v of JSON.parse(R("db/vr-federal-wave-f7-vote-seed.json")).votes || []) {
+      const k = v.measure && `${v.measure.number}|${v.measure.congress}`;
+      if (k && !t[k] && v.totals) t[k] = [v.totals.yea, v.totals.nay];
     }
     return t;
   })();
@@ -1493,7 +1502,7 @@ section("14 · the harvest — every stored did, read against the effect rule");
   // tally the issue seed records for that roll, in the shape its outcome allows —
   // a discharge refused ("Would have used …"), a discharge carried, or a House
   // amendment agreed to.
-  const WAR = Object.keys(EFFECT).filter((k) => /\|war_powers$/.test(k) && !S10_KEYS.has(k));
+  const WAR = Object.keys(EFFECT).filter((k) => !V407.has(k) && /\|war_powers$/.test(k) && !S10_KEYS.has(k));
   const warFault = (k, v) => {
     const f = harvestFault(v);
     if (f) return f;
@@ -1574,7 +1583,7 @@ section("14 · the harvest — every stored did, read against the effect rule");
   // the outcome the archive records: an act with a public law on file in
   // db/vr-measure-identity.json may read as done; anything else — failed, or
   // passed one chamber and never enacted — must open "Would" or "Proposed".
-  const PTS = Object.keys(EFFECT).filter((k) => /\|strong_defense$/.test(k) && !RIDER_KEYS.has(k) && !FISCAL_KEYS.has(k) && !S8_KEYS.has(k) && !S9_KEYS.has(k) && !S10_KEYS.has(k) && !S13_KEYS.has(k));
+  const PTS = Object.keys(EFFECT).filter((k) => !V407.has(k) && /\|strong_defense$/.test(k) && !RIDER_KEYS.has(k) && !FISCAL_KEYS.has(k) && !S8_KEYS.has(k) && !S9_KEYS.has(k) && !S10_KEYS.has(k) && !S13_KEYS.has(k));
   const PTS_ROLL = (() => {
     const t = {};
     const files = ["vr-phase-a-vote-seed", "vr-israel-vote-seed", "vr-house-seed-119-s2", "vr-landmark-vote-seed",
@@ -1739,7 +1748,7 @@ section("14 · the harvest — every stored did, read against the effect rule");
   // other leaf's line for the act, ends on the rolls the vote seeds hold, and
   // takes the tense its outcome allows. S.J.Res. 59 stores no `did` here and H.R.
   // 8035's short `did` already prints, so neither is in the table.
-  const DR = Object.keys(EFFECT).filter((k) => /\|restraint$/.test(k));
+  const DR = Object.keys(EFFECT).filter((k) => !V407.has(k) && /\|restraint$/.test(k));
   const DR_SPEC = {
     "H.R. 815|118": ["three security", [["senate", 154]], "concurred"],
     "H.Amdt. 99|119": ["1991", [["house", 244]], "agreed"],

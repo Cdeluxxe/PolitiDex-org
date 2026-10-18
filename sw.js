@@ -10046,7 +10046,102 @@
 //     and changed, so the shell moves one version. No location key is
 //     migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v403';
+// v404 - THE PROTECTING PRIVACY IN PURCHASES ACT, FULLY HOOKED UP. H.R. 1181
+//     (119th), passed by the House 221-201 (roll 240) and not law, keeps its
+//     three rows exactly as filed (gun_rights 100 primary, privacy_rights and
+//     states_federal_power 40 yea_opposes) and the three short lines they
+//     print. Its Sec. 2(a)-(b) bar on payment card networks requiring a
+//     firearms merchant category code, enforced by the Attorney General, is
+//     now a secondary Corporate Accountability row (30, yea_supports) with one
+//     short line on the bill page and in every voter's issue drawer.
+//     gun_safety stays declined, as the firearms pass recorded. The
+//     Legislation library's curated index gains the bill's card, so the eye
+//     answers gun, firearms, MCC, merchant category code and payment network
+//     with it. consistency.js is precached and changed, so the shell moves one
+//     version; bills-index.js, bill-search-index.js and bill-official.json are
+//     runtime entries. No weight, primary flag, pole or issue key moved.
+//     No location key is migrated, renamed or copied. The row arrives by one
+//     migration (20261125000000_vr_hr1181_payment_network_lens: 1
+//     vr_measure_issues row); the seed is unchanged.
+//     MIGRATION COST: none.
+// v405 - THE LAKEN RILEY ACT, BOTH VEHICLES. S. 5 (119th), Public Law 119-1,
+//     and its House companion H.R. 29 (passed 264-159, left on the Senate
+//     calendar) keep the four rows they share exactly as filed: Mass
+//     Deportations 100 primary, Strong Border 70, Tough on Crime 55 and States
+//     Suing Washington 40, all a yea advancing. H.R. 29 gains a short line on
+//     its two topics that printed only a pointer (Mass Deportations, States
+//     Suing Washington), each from its own stored rationale; S. 5's four lines
+//     are unchanged. H.R. 29 now has its own /b/ page, a sitemap entry and a
+//     door from every voter's drawer, and the Legislation library carries a
+//     card for each vehicle — H.R. 29's corrected from "enacted" to "passed
+//     the House". No balance key: the Act has only the enforcement half.
+//     consistency.js and bill-pages.js are precached and changed, so the shell
+//     moves one version; bills-index.js, bill-search-index.js and
+//     bill-official.json are runtime entries. No weight, primary flag, pole or
+//     issue key moved.
+//     No location key is migrated, renamed or copied. One guarded migration
+//     (20261126000000_vr_laken_riley_hr29_identity_and_lens) re-asserts H.R.
+//     29's identity and four rows so the bill-page projection can address it;
+//     on the live branch it writes nothing.
+//     MIGRATION COST: none.
+// v406 - THE STOP INSIDER TRADING ACT IN THE LEGISLATION LIBRARY. H.R. 7008
+//     (119th), passed by the House 232-198 (roll 280) and stopped in the
+//     Senate at cloture 53-47, keeps its two rows exactly as filed (Ban
+//     Congressional Stock Trading 100 primary, Transparency & Anti-Corruption
+//     60) and the short line each already prints on its bill page and in
+//     every voter's drawer. The curated Legislation index gains its card, so
+//     the eye answers members of Congress, ethics, stocks, stock ban and
+//     financial disclosure with it. Congressional Oversight was read and not
+//     filed: it is the executive answering Congress, not Members' own ethics.
+//     bills-index.js changed, and the doors that read it ship with the shell,
+//     so the shell moves one version. No weight, primary flag, pole, line or
+//     issue key moved.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v407 - THE IRAN WITHDRAWAL RESOLUTION, ONE TEXT VOTED ELEVEN TIMES. The
+//     seven Senate repeat votes (S.J.Res. 118, 116, 123, 114, 172, 180, 181)
+//     now carry the four topics their counted siblings carry — Diplomacy &
+//     Restraint, Congress and War Powers, Peace Through Strength (a yea cuts
+//     against it) and Iran, at the same weights — with no primary, and a short
+//     line on each. db/vr-text-families.json names the eleven as one text, and
+//     the record client counts a senator's position once per text: a repeat
+//     vote is held out of every scored list unless it is that senator's only
+//     record of that position, which today it never is, so no score moved. The
+//     bill page and the issue drawer gain History (every vote on the same text,
+//     its outcome and a link, and in the drawer the senator's own vote) and
+//     Related (measures sharing two or more of its topics). H.Con.Res. 89 keeps
+//     its rows and gains its Peace Through Strength line. consistency.js and
+//     voting-record.js are precached and changed, so the shell moves one
+//     version; bill-detail.js, bill-official.json and bills-index.js are
+//     runtime entries. No weight, primary flag, pole or issue key moved on any
+//     row already filed.
+//     No location key is migrated, renamed or copied. One migration
+//     (20261127000000_vr_iran_withdrawal_same_text_family: 28 vr_measure_issues
+//     rows); the seed carries the same rows.
+//     MIGRATION COST: none.
+// v408 - THE SAME-TEXT HOLD, IN THE WORDS THE RECORD CLIENT IS PINNED TO.
+//     voting-record.js holds a repeat vote out before filing the rows, then
+//     files them as `items.slice()` and announces a gain on `items.length`, as
+//     the cold-boot and crawl-block suites require; behaviour is unchanged.
+//     consistency.js publishes the drawer's History section as sameTextHtml
+//     beside gapViewHtml, outside the ledger's pinned export list. Both files
+//     are precached and changed, so the shell moves one version. No row,
+//     line, weight, primary flag, pole or issue key moved.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v409 - THE IRAN WITHDRAWAL PAGES, EASIER TO READ. The eleven bill pages for
+//     the Iran withdrawal text open on a two-sentence plain-language summary
+//     (vr_measures.summary, filled by 20261128000000 from F7's stored
+//     description and the saving clause its rationale records) instead of "No
+//     plain-language summary on file yet". History and Related, on the page and
+//     in the issue drawer, are now closed folds with a labelled control and a
+//     count; opened, every entry is still there, set apart by spacing and a
+//     light divider. consistency.js is precached and changed, so the shell
+//     moves one version; bill-detail.js and bills-index.js are runtime
+//     entries. No row, line, weight, primary flag, pole or issue key moved.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v409';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

@@ -69,7 +69,9 @@ const KEYS = [
   "school_choice", "public_schools", "edu_parental", "edu_college_cost",
 ];
 const BLANK = new Set([
-  "S.J.Res. 37|119|tariffs_authority", "H.R. 29|119|deportations",
+  "S.J.Res. 37|119|tariffs_authority",
+  // H.R. 29 × deportations left this set in Laken Riley Act slice 26 (v405),
+  // written from its own stored mapping rationale.
 ]);
 // Lines a later pass wrote on these leaves, read from that pass's own block in
 // _DOS_EFFECT and held by that pass's own test.

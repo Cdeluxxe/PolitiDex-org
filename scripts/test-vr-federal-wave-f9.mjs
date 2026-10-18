@@ -2734,11 +2734,17 @@ const swNote = swWaveNote();
       // drifted or invented address fails that; a bill somebody actually signed
       // does not.
       const admitted = measureAddresses(ROOT).published;
+      const RECORDS = JSON.parse(R("db/bill-record.json")).records;
       const opens = new Map(admitted.map((a) => [billPath(a), a]));
       const strayGain = gained.filter((l) => /\/b\//.test(l)).filter((l) => {
         const u = /<loc>[^<]*?(\/b\/[^<]*)<\/loc>/.exec(l);
         const a = u ? opens.get(u[1]) : null;
-        return !a || !(a.acts > 0);
+        // H.R. 29 (119th) was created inside the directory-form first migration,
+        // which the projection does not read, so its House roll 6 is not counted
+        // in `acts`; its official record on file shows the floor passage. An
+        // address opens onto a real act when either says so.
+        const rec = a ? (RECORDS[`${a.sitting}|${a.number}`] || { a: [] }) : { a: [] };
+        return !a || !(a.acts > 0 || rec.a.some((x) => /^(?:passed|failed|law|signed|vetoed)$/.test(x.s)));
       });
       eq(strayGain.join(" | "), "", `${strayGain.length} measure address(es) appeared in a sitemap regeneration that opened no act`);
     }

@@ -743,14 +743,14 @@
   // record lists, the record's own action text. Nothing here is derived, and a
   // bill with no entry prints no block at all — nothing is filled in for it.
   var OFFICIAL_SRC = '/bill-official.json';
-  var _official = null, _officialDocs = null, _officialEffects = null;
+  var _official = null, _officialDocs = null, _officialEffects = null, _officialSame = null;
   function loadOfficial() {
     if (!_official) {
       _official = (typeof fetch === 'function'
         ? fetch(OFFICIAL_SRC, { headers: { accept: 'application/json' } })
             .then(function (r) { return r.ok ? r.json() : null; })
         : Promise.resolve(null))
-        .then(function (d) { _officialDocs = (d && d.docs) || {}; _officialEffects = (d && d.effects) || {}; fillEffects(); return _officialDocs; })
+        .then(function (d) { _officialDocs = (d && d.docs) || {}; _officialEffects = (d && d.effects) || {}; _officialSame = (d && d.same) || null; fillEffects(); return _officialDocs; })
         .catch(function () { _official = null; return null; });
     }
     return _official;
@@ -766,6 +766,43 @@
     return /^\d+$/.test(s) ? s + 'th Congress' : g ? g[1] + ' General Session' : s;
   }
   var OFF_ROLE = { s: ['Sponsor', 'Sponsors', 'sponsor'], f: ['Floor sponsor', 'Floor sponsors', 'floor_sponsor'], c: ['Co-sponsor', 'Co-sponsors', 'cosponsor'] };
+  // ── THE SAME TEXT, AND WHAT TOUCHES THE SAME SUBJECT ────────────────────────
+  // bill-official.json's `same` (scripts/gen-same-text.mjs, from
+  // db/vr-text-families.json): when this measure's text was voted on more than
+  // once, History lists every vote on it — this one marked — with its outcome
+  // and a door to its page, and Related names the other measures on file that
+  // share at least two of its topics. A measure in no family prints neither.
+  var ST_WHAT = {
+    'discharge rejected': 'Senate refused to discharge it', discharged: 'Senate voted to discharge it',
+    'motion to proceed rejected': 'Senate refused to take it up', 'failed of passage': 'failed', passed: 'passed'
+  };
+  function sameTextHtml(key) {
+    var st = _officialSame, fid = st && st.byMeasure && st.byMeasure[key], fm = fid && st.families[fid];
+    if (!fm) return '';
+    var hist = fm.members.map(function (m) {
+      var v = m.votes[0] || null;
+      var what = m.votes.map(function (x) { return (ST_WHAT[x.what] || x.what) + ' ' + x.tally; }).join('; ');
+      var self = m.key === key;
+      return '<li data-bd-same-m="' + escAttr(m.key) + '"' + (self ? ' data-self="1"' : '') + '>' +
+        (self ? '<b>' + esc(m.number) + '</b> (this measure)' : '<a href="' + escAttr(m.href) + '">' + esc(m.number) + '</a>') +
+        ' (' + esc(m.status) + ')' + (v ? ' \u00b7 ' + esc(offDay(v.date)) : '') + (what ? ' \u00b7 ' + esc(what) : '') + '</li>';
+    }).join('');
+    var rel = fm.related.map(function (r) {
+      return '<li data-bd-same-r="' + escAttr(r.key) + '"><a href="' + escAttr(r.href) + '">' + esc(r.number) + '</a> (' +
+        esc(r.status) + ')' + (r.title ? ' \u00b7 ' + esc(r.title) : '') + '</li>';
+    }).join('');
+    // Both lists fold shut. They are complete when opened — every vote, every
+    // related measure — and take one line each until a reader asks for them.
+    return '<section class="bd-sec bd-same" data-bd-same="' + escAttr(fid) + '">' +
+      '<details class="bd-same-fold" data-bd-same-fold="history"><summary class="bd-same-sum">' +
+        '<span class="bd-same-t">History \u00b7 the same text</span><span class="bd-same-n">' + fm.members.length + ' votes</span></summary>' +
+        '<p class="bd-off-none">The same text was voted on ' + fm.members.length + ' times. A position counts once, however many times it was cast.</p>' +
+        '<ol class="bd-same-list" data-bd-same-history>' + hist + '</ol></details>' +
+      (rel ? '<details class="bd-same-fold" data-bd-same-fold="related" data-bd-same-related><summary class="bd-same-sum">' +
+        '<span class="bd-same-t">Related \u00b7 not the same text</span><span class="bd-same-n">' + fm.related.length + ' measures</span></summary>' +
+        '<ul class="bd-same-list">' + rel + '</ul></details>' : '') +
+      '</section>';
+  }
   function officialHtml(e, sitting, number) {
     if (!e) return '';
     var state = /GS$/i.test(String(sitting || ''));
@@ -826,6 +863,7 @@
           ? '<p class="bd-off-src">Record: <a class="bd-src" href="' + escAttr(e.rs) + '" target="_blank" rel="noopener" data-bd-official-record>' + esc(host) + '</a></p>' : '') +
         '</section>';
     }
+    out += sameTextHtml(String(sitting) + '|' + number);
     return out ? '<div class="bd-official" data-bd-official-for="' + escAttr(sitting + '|' + number) + '">' + out + '</div>' : '';
   }
   // Fill the panel's seam for the bill now on screen. The table may still be on
@@ -2111,6 +2149,19 @@
       '.bd-off-person:hover{text-decoration:underline;}' +
       '.bd-off-steps{margin:.3rem 0 0;padding-left:1.1rem;font:500 .84rem/1.5 "Barlow",sans-serif;color:#dce6f7;}' +
       '.bd-off-steps li{margin:.18rem 0;}' +
+      '.bd-same-fold{border-top:1px solid rgba(158,200,255,.14);}' +
+      '.bd-same-fold+.bd-same-fold{margin-top:0;}' +
+      '.bd-same-sum{display:flex;align-items:center;justify-content:space-between;gap:.6rem;min-height:44px;cursor:pointer;list-style:none;}' +
+      '.bd-same-sum::-webkit-details-marker{display:none;}' +
+      '.bd-same-sum::after{content:"\\25B8";color:#9ec8ff;font-size:.8rem;transition:transform .15s;}' +
+      '.bd-same-fold[open]>.bd-same-sum::after{transform:rotate(90deg);}' +
+      '.bd-same-sum:focus-visible{outline:2px solid #9ec8ff;outline-offset:2px;border-radius:4px;}' +
+      '.bd-same-t{font:700 .78rem/1.2 "Barlow Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#dce6f7;}' +
+      '.bd-same-n{margin-left:auto;font:600 .72rem/1.2 "Barlow",sans-serif;color:#9ec8ff;}' +
+      '.bd-same-list{list-style:none;margin:.1rem 0 .6rem;padding:0;font:500 .84rem/1.5 "Barlow",sans-serif;color:#dce6f7;}' +
+      '.bd-same-list li{padding:.45rem 0;border-top:1px solid rgba(158,200,255,.1);}' +
+      '.bd-same-list li:first-child{border-top:0;}' +
+      '.bd-same-list a{color:#9ec8ff;}' +
       '.bd-off-steps time{color:#8aa0c4;margin-right:.25rem;}' +
       '.bd-off-x{color:#9fb4d4;}' +
       '.bd-off-src{font:500 .78rem/1.4 "Barlow",sans-serif;color:#8aa0c4;margin:.4rem 0 0;}' +

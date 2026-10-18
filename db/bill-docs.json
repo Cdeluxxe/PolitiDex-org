@@ -7618,6 +7618,116 @@
    ],
    "rs": "https://www.congress.gov/bill/119th-congress/house-bill/28"
   },
+  "119|H.R. 29": {
+   "s": "119",
+   "n": "H.R. 29",
+   "c": "house",
+   "t": "Laken Riley Act",
+   "m": [
+    {
+     "i": "Mass Deportations & Border Security",
+     "k": "deportations",
+     "l": "Would mandate detention and removal proceedings for covered unauthorized immigrants; the House passed it 264-159."
+    },
+    {
+     "i": "States Suing Washington",
+     "k": "state_standing",
+     "l": "Would give state attorneys general standing to sue Homeland Security over detention and removal violations; the House passed it 264-159."
+    },
+    {
+     "i": "Strong Border & Enforcement",
+     "k": "border_security",
+     "l": "Would require detention of inadmissible immigrants charged with theft or burglary, and their removal; the House passed it 264-159."
+    },
+    {
+     "i": "Tough on Crime",
+     "k": "tough_on_crime",
+     "l": "Would mandate federal custody for inadmissible immigrants charged with burglary, theft, larceny or shoplifting; the House passed it 264-159."
+    }
+   ],
+   "st": "passed_house",
+   "sl": "Passed the House — not law",
+   "o": {
+    "c": "house",
+    "d": "2025-01-03"
+   },
+   "sp": {
+    "s": [
+     "mike_collins"
+    ],
+    "c": [
+     "rick_allen",
+     "mtg",
+     "andrew_clyde",
+     "buddy_carter",
+     "barry_loudermilk",
+     "austin_scott",
+     "rich_mccormick",
+     "mike_bost",
+     "brian_babin",
+     "randy_feenstra",
+     "nancy_mace",
+     "ben_cline",
+     "troy_nehls",
+     "andrew_ogles",
+     "dan_crenshaw",
+     "michael_mccaul",
+     "brad_finstad",
+     "david_kustoff",
+     "ashley_hinson",
+     "erin_houchin",
+     "nicole_malliotakis",
+     "mike_ezell",
+     "claudia_tenney",
+     "luna",
+     "owens",
+     "scott_fitzgerald",
+     "robert_aderholt",
+     "randy_weber",
+     "dusty_johnson",
+     "pete_stauber",
+     "jefferson_van_drew",
+     "zach_nunn",
+     "brian_jack",
+     "rob_bresnahan",
+     "vern_buchanan",
+     "tom_mcclintock",
+     "diana_harshbarger",
+     "john_joyce",
+     "michelle_fischbach",
+     "pete_sessions",
+     "riley_moore",
+     "wesley_hunt",
+     "nicholas_langworthy",
+     "henry_cuellar",
+     "derek_schmidt",
+     "troy_downing",
+     "john_mcguire",
+     "juan_ciscomani",
+     "brandon_gill",
+     "john_rose",
+     "mark_messmer",
+     "mary_miller",
+     "andy_barr"
+    ]
+   },
+   "su": {
+    "c": 1
+   },
+   "h": [
+    {
+     "d": "2025-01-03",
+     "a": "Introduced in the House",
+     "x": "Introduced in House"
+    },
+    {
+     "d": "2025-01-07",
+     "a": "Passed the House",
+     "x": "On passage Passed by the Yeas and Nays: 264 - 159 (Roll no. 6). (text: CR H53-54)"
+    }
+   ],
+   "rs": "https://www.congress.gov/bill/119th-congress/house-bill/29"
+  },
   "119|H.R. 139": {
    "s": "119",
    "n": "H.R. 139",
@@ -8256,6 +8366,11 @@
    "c": "house",
    "t": "Protecting Privacy in Purchases Act",
    "m": [
+    {
+     "i": "Corporate Accountability",
+     "k": "econ_corp_account",
+     "l": "Would let the Attorney General enjoin payment card networks that require a firearms merchant category code; the House passed it 221-201."
+    },
     {
      "i": "Privacy & Big-Tech Accountability",
      "k": "privacy_rights",
@@ -14048,6 +14163,28 @@
    "n": "S.J.Res. 114",
    "c": "senate",
    "t": "A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.",
+   "m": [
+    {
+     "i": "Congress and War Powers",
+     "k": "war_powers",
+     "l": "Would have used the War Powers Resolution to end unauthorized U.S. hostilities against Iran; the Senate refused to discharge it 46-51."
+    },
+    {
+     "i": "Diplomacy & Restraint",
+     "k": "restraint",
+     "l": "Would have directed the President to end U.S. hostilities against Iran absent Congress’s approval; the Senate refused to discharge it 46-51."
+    },
+    {
+     "i": "Iran",
+     "k": "iran_policy",
+     "l": "Would have ordered U.S. forces out of hostilities against Iran that Congress had not authorized; the Senate refused to discharge it 46-51."
+    },
+    {
+     "i": "Peace Through Strength",
+     "k": "strong_defense",
+     "l": "Would have pulled U.S. forces from unauthorized Iran hostilities, save self-defense; the Senate refused to discharge it 46-51."
+    }
+   ],
    "st": "failed",
    "sl": "Failed — stopped on the Senate floor",
    "o": {
@@ -14091,6 +14228,28 @@
    "n": "S.J.Res. 116",
    "c": "senate",
    "t": "A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.",
+   "m": [
+    {
+     "i": "Congress and War Powers",
+     "k": "war_powers",
+     "l": "Would have used the War Powers Resolution to end unauthorized U.S. hostilities against Iran; the Senate refused to discharge it 47-53."
+    },
+    {
+     "i": "Diplomacy & Restraint",
+     "k": "restraint",
+     "l": "Would have directed the President to end U.S. hostilities against Iran absent Congress’s approval; the Senate refused to discharge it 47-53."
+    },
+    {
+     "i": "Iran",
+     "k": "iran_policy",
+     "l": "Would have ordered U.S. forces out of hostilities against Iran that Congress had not authorized; the Senate refused to discharge it 47-53."
+    },
+    {
+     "i": "Peace Through Strength",
+     "k": "strong_defense",
+     "l": "Would have pulled U.S. forces from unauthorized Iran hostilities, save self-defense; the Senate refused to discharge it 47-53."
+    }
+   ],
    "st": "failed",
    "sl": "Failed — stopped on the Senate floor",
    "o": {
@@ -14132,6 +14291,28 @@
    "n": "S.J.Res. 118",
    "c": "senate",
    "t": "A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.",
+   "m": [
+    {
+     "i": "Congress and War Powers",
+     "k": "war_powers",
+     "l": "Would have used the War Powers Resolution to end unauthorized U.S. hostilities against Iran; the Senate refused to discharge it 47-53."
+    },
+    {
+     "i": "Diplomacy & Restraint",
+     "k": "restraint",
+     "l": "Would have directed the President to end U.S. hostilities against Iran absent Congress’s approval; the Senate refused to discharge it 47-53."
+    },
+    {
+     "i": "Iran",
+     "k": "iran_policy",
+     "l": "Would have ordered U.S. forces out of hostilities against Iran that Congress had not authorized; the Senate refused to discharge it 47-53."
+    },
+    {
+     "i": "Peace Through Strength",
+     "k": "strong_defense",
+     "l": "Would have pulled U.S. forces from unauthorized Iran hostilities, save self-defense; the Senate refused to discharge it 47-53."
+    }
+   ],
    "st": "failed",
    "sl": "Failed — stopped on the Senate floor",
    "o": {
@@ -14170,6 +14351,28 @@
    "n": "S.J.Res. 123",
    "c": "senate",
    "t": "A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.",
+   "m": [
+    {
+     "i": "Congress and War Powers",
+     "k": "war_powers",
+     "l": "Would have used the War Powers Resolution to end unauthorized U.S. hostilities against Iran; the Senate refused to discharge it 47-52."
+    },
+    {
+     "i": "Diplomacy & Restraint",
+     "k": "restraint",
+     "l": "Would have directed the President to end U.S. hostilities against Iran absent Congress’s approval; the Senate refused to discharge it 47-52."
+    },
+    {
+     "i": "Iran",
+     "k": "iran_policy",
+     "l": "Would have ordered U.S. forces out of hostilities against Iran that Congress had not authorized; the Senate refused to discharge it 47-52."
+    },
+    {
+     "i": "Peace Through Strength",
+     "k": "strong_defense",
+     "l": "Would have pulled U.S. forces from unauthorized Iran hostilities, save self-defense; the Senate refused to discharge it 47-52."
+    }
+   ],
    "st": "failed",
    "sl": "Failed — stopped on the Senate floor",
    "o": {
@@ -14315,6 +14518,28 @@
    "n": "S.J.Res. 172",
    "c": "senate",
    "t": "A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.",
+   "m": [
+    {
+     "i": "Congress and War Powers",
+     "k": "war_powers",
+     "l": "Would have used the War Powers Resolution to end unauthorized U.S. hostilities against Iran; the Senate refused to discharge it 47-48."
+    },
+    {
+     "i": "Diplomacy & Restraint",
+     "k": "restraint",
+     "l": "Would have directed the President to end U.S. hostilities against Iran absent Congress’s approval; the Senate refused to discharge it 47-48."
+    },
+    {
+     "i": "Iran",
+     "k": "iran_policy",
+     "l": "Would have ordered U.S. forces out of hostilities against Iran that Congress had not authorized; the Senate refused to discharge it 47-48."
+    },
+    {
+     "i": "Peace Through Strength",
+     "k": "strong_defense",
+     "l": "Would have pulled U.S. forces from unauthorized Iran hostilities, save self-defense; the Senate refused to discharge it 47-48."
+    }
+   ],
    "st": "failed",
    "sl": "Failed — stopped on the Senate floor",
    "o": {
@@ -14348,6 +14573,28 @@
    "n": "S.J.Res. 180",
    "c": "senate",
    "t": "A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.",
+   "m": [
+    {
+     "i": "Congress and War Powers",
+     "k": "war_powers",
+     "l": "Would have used the War Powers Resolution to end unauthorized U.S. hostilities against Iran; the Senate refused to discharge it 47-49."
+    },
+    {
+     "i": "Diplomacy & Restraint",
+     "k": "restraint",
+     "l": "Would have directed the President to end U.S. hostilities against Iran absent Congress’s approval; the Senate refused to discharge it 47-49."
+    },
+    {
+     "i": "Iran",
+     "k": "iran_policy",
+     "l": "Would have ordered U.S. forces out of hostilities against Iran that Congress had not authorized; the Senate refused to discharge it 47-49."
+    },
+    {
+     "i": "Peace Through Strength",
+     "k": "strong_defense",
+     "l": "Would have pulled U.S. forces from unauthorized Iran hostilities, save self-defense; the Senate refused to discharge it 47-49."
+    }
+   ],
    "st": "failed",
    "sl": "Failed — stopped on the Senate floor",
    "o": {
@@ -14389,6 +14636,28 @@
    "n": "S.J.Res. 181",
    "c": "senate",
    "t": "A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.",
+   "m": [
+    {
+     "i": "Congress and War Powers",
+     "k": "war_powers",
+     "l": "Would have used the War Powers Resolution to end unauthorized U.S. hostilities against Iran; the Senate refused to discharge it 49-50."
+    },
+    {
+     "i": "Diplomacy & Restraint",
+     "k": "restraint",
+     "l": "Would have directed the President to end U.S. hostilities against Iran absent Congress’s approval; the Senate refused to discharge it 49-50."
+    },
+    {
+     "i": "Iran",
+     "k": "iran_policy",
+     "l": "Would have ordered U.S. forces out of hostilities against Iran that Congress had not authorized; the Senate refused to discharge it 49-50."
+    },
+    {
+     "i": "Peace Through Strength",
+     "k": "strong_defense",
+     "l": "Would have pulled U.S. forces from unauthorized Iran hostilities, save self-defense; the Senate refused to discharge it 49-50."
+    }
+   ],
    "st": "failed",
    "sl": "Failed — stopped on the Senate floor",
    "o": {
