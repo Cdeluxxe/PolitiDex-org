@@ -510,6 +510,13 @@ const urls = [
   "/mandate",
   "/voice",
   "/money",
+  // ── THE UTAH 2026 STATEWIDE BALLOT QUESTIONS ──────────────────────────────
+  // Two public record pages, one per question on the November 3, 2026 ballot,
+  // each its own document with its own canonical. Appended last on the same
+  // convention. The slash and .html spellings are not listed: one canonical
+  // spelling each.
+  "/ballot/ut-amendment-a",
+  "/ballot/ut-amendment-b",
 ];
 
 // Two addresses reaching the same page would be this file recommending a record

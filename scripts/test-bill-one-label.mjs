@@ -122,7 +122,8 @@ async function panel(data, { scripts = DOC_SCRIPTS, bd = BD_SRC } = {}) {
   return capture.innerHTML;
 }
 const chipsOf = (h) => [...h.matchAll(/<span class="bd-lh-chip-l">([\s\S]*?)<\/span>/g)].map((m) => plain(m[1]));
-const rowsOf = (h) => [...h.matchAll(/<button type="button" class="bd-omni-issue bd-omni-link"[^>]*>([\s\S]*?)<\/button>/g)].map((m) => plain(m[1]));
+// The row chip may carry the issue's colour class (pdxc-ic) after its own two.
+const rowsOf = (h) => [...h.matchAll(/<button type="button" class="bd-omni-issue bd-omni-link(?: pdxc-ic)?"[^>]*>([\s\S]*?)<\/button>/g)].map((m) => plain(m[1]));
 const exploreOf = (h) => [...h.matchAll(/<span class="bd-person-name">🔎 ([\s\S]*?)<\/span>/g)].map((m) => plain(m[1]));
 
 // What is wrong with a panel, as a list, so a mutation can be shown to fail it.

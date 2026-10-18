@@ -624,7 +624,9 @@
 # segment, so there is nothing for a /ballot/* rule to match that a typo would
 # not also match. An unknown seat key is answered inside the document — the desk
 # honours ?seat= only when it names a seat on THIS voter's own resolved list,
-# and falls through to their first undecided seat otherwise.
+# and falls through to their first undecided seat otherwise. The two Utah
+# ballot-question pages declared right after this block are exact paths of
+# their own documents, not sub-addresses of the desk.
 #
 # ORDER MATTERS AND THIS BLOCK IS AFTER ALL THREE OTHER SHELLS. Netlify is
 # first-match-wins: /p/* (the person file), /i/* (the Issue File) and /issue/*
@@ -647,6 +649,46 @@
 [[redirects]]
   from = "/ballot/"
   to = "/ballot.html"
+  status = 200
+
+# ─────────────────────────────────────────────────────────────────────────────
+# UTAH 2026 STATEWIDE BALLOT QUESTIONS: /ballot/ut-amendment-a, /ballot/ut-amendment-b
+# ─────────────────────────────────────────────────────────────────────────────
+# Two record pages, one per question on the November 3, 2026 Utah ballot. Each
+# states the official question, what a Yes and a No do, the text change, the
+# sponsors and the votes, and what each side has published. No comments, no
+# composer, no residency gate; one line points at /voice.
+#
+# EXACT PATHS, NOT A /ballot/* SPLAT. Three spellings each — bare, trailing
+# slash and .html — and nothing else, so /ballot/senate and every other typo
+# under /ballot/ stay a 404 instead of a page that names a question nobody
+# asked about. The desk above is still /ballot and /ballot/ alone; these six
+# rules are after it and cannot match either of its two paths. Every
+# same-origin path inside both documents is root-absolute for the reason given
+# beside /ballot/ above.
+[[redirects]]
+  from = "/ballot/ut-amendment-a"
+  to = "/ballot-ut-amendment-a.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/ut-amendment-a/"
+  to = "/ballot-ut-amendment-a.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/ut-amendment-a.html"
+  to = "/ballot-ut-amendment-a.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/ut-amendment-b"
+  to = "/ballot-ut-amendment-b.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/ut-amendment-b/"
+  to = "/ballot-ut-amendment-b.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/ut-amendment-b.html"
+  to = "/ballot-ut-amendment-b.html"
   status = 200
 
 # ═════════════════════════════════════════════════════════════════════════════

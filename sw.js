@@ -9994,7 +9994,59 @@
 //     vr_measure_issues, 11 vr_measure_provisions and 1 vr_positions row), as
 //     this Act's other secondary rows did; the seed is unchanged.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v399';
+// v400 - UTAH 2026 BALLOT QUESTIONS: AMENDMENT A AND AMENDMENT B. Two new
+//     record pages, /ballot/ut-amendment-a (H.J.R. 10, how proposed amendments
+//     are published) and /ballot/ut-amendment-b (S.J.R. 2, a 60% vote for
+//     citizen initiatives that raise taxes), each with the official question,
+//     a Yes and a No line, the text change, the sponsors and floor votes, what
+//     each side has published, background and official sources. No comments,
+//     no composer, no residency gate; one line points at /voice. Both
+//     documents and their shared sheet, ballot-measure.css, are new
+//     precached shell entries, so the shell moves one version; offline each
+//     address is answered with its own document. No issue key, mapping or
+//     score moved. No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v401 - BILL-PANEL TOPIC CHIPS IN THE ISSUE'S OWN COLOUR, AND SHORT LINES BY
+//     DEFAULT. Every topic chip on the bill panel — "Every topic this act
+//     touches", the bottom "Explore these issues" and the fallback chip row —
+//     now carries the person-file drawer's pdxc-ic class and the
+//     PDXIssueColors.styleFor() properties for its key; no new colour map.
+//     Under each topic the visible text is the bill page's own short effect
+//     line (read from a new `effects` table in bill-official.json, generated
+//     from the same `l` db/bill-docs.json prints), and the longer stored
+//     rationale sits behind a closed "More" control. Labels, order, links,
+//     direction chips, statuses, roll calls and provisions are unchanged.
+//     bill-detail.js (which carries the panel's own sheet) is a runtime entry,
+//     not a SHELL_ASSETS one, so it is refreshed behind the paint; the shell
+//     moves one version anyway so a warm device re-fetches the /b/ shell,
+//     bill.html, in the same pass as the panel it opens. bill-official.json is
+//     runtime-cached too. No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v402 - "More" ON THE /b/ PAGE ITSELF. bill.html now loads
+//     reader-rationale.js: receipt-cards.js's rationale scrubber (tidyRemainder
+//     through readerRationale), copied byte for byte by
+//     scripts/gen-reader-rationale.mjs, 12 KB instead of 239 KB of share cards.
+//     With it the panel on a pure /b/ page puts a topic's longer stored
+//     rationale behind the same closed "More" it already used on the front
+//     page; short lines from bill-official.json's effects stay the default.
+//     Chips, colours, labels, order, links, statuses, roll calls and provisions
+//     are unchanged. bill.html is precached and changed, so the shell moves one
+//     version; reader-rationale.js, like bill-detail.js, is a runtime entry.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v403 - THE UTAH AMENDMENT PAGES, EASIER TO SCAN. On /ballot/ut-amendment-a
+//     and /ballot/ut-amendment-b, "What each side says" is now two sides
+//     labelled For and Against, each block of argument under the source it
+//     comes from, every default line 140 characters or fewer and anything
+//     longer behind a closed "More". The hallway line is the homepage's District
+//     Voice card (.pdxhv-card: forest ground, gold edge, gold door), its rules
+//     copied byte for byte into ballot-measure.css. The question, the Yes/No
+//     lines, the sponsors and the votes are unchanged and open. Neither page
+//     prints a topic chip. Both documents and ballot-measure.css are precached
+//     and changed, so the shell moves one version. No location key is
+//     migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v403';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -10060,6 +10112,14 @@ const SHELL_ASSETS = [
   // static assets the runtime bucket already holds, so a voter who has opened
   // their ballot once can open it again on a train.
   '/ballot.html',
+  // THE TWO UTAH 2026 BALLOT-QUESTION PAGES and the one sheet they share.
+  // netlify.toml rewrites /ballot/ut-amendment-a and /ballot/ut-amendment-b (bare,
+  // slash and .html) here. Static record pages with no script, so the precached
+  // document is the whole page offline. BALLOT_MEASURE_DOCS maps each path to
+  // its own file; navDocKey gives neither a key.
+  '/ballot-ut-amendment-a.html',
+  '/ballot-ut-amendment-b.html',
+  '/ballot-measure.css',
   // THE SIXTH SHELL: the reader's own file. netlify.toml rewrites /me and /me/
   // here, so this is the document the desk actually receives, and like /ballot it
   // is a SINGLE address — a region of the desk is a query (?tab=positions, stars,
@@ -11175,6 +11235,16 @@ const COURTS_NAV_RE = /^\/courts\/?$/;
 const MANDATE_NAV_RE = /^\/mandate\/?$/;
 const VOICE_NAV_RE = /^\/voice\/?$/;
 const MONEY_NAV_RE = /^\/money\/?$/;
+// The two Utah 2026 ballot-question pages: three exact spellings each, matching
+// the six exact rules netlify.toml declares with no /ballot/* splat. A FALLBACK
+// selector only — never a cache slot. /ballot/senate is not one of them.
+const BALLOT_MEASURE_NAV_RE = /^\/ballot\/(ut-amendment-a|ut-amendment-b)(?:\/|\.html)?$/;
+// Each path's OWN document: offline, Amendment A's address must never be
+// answered with Amendment B's question.
+const BALLOT_MEASURE_DOCS = {
+  'ut-amendment-a': '/ballot-ut-amendment-a.html',
+  'ut-amendment-b': '/ballot-ut-amendment-b.html',
+};
 // The bill document's addresses: /b/<sitting>/<number> and /b/<number>. A
 // FALLBACK selector only, like the nine above — never a cache slot.
 const BILL_NAV_RE = /^\/b\/.+/;
@@ -11488,6 +11558,10 @@ async function handleNavigate(req) {
   // Fourteenth of the same kind: a bill address. navDocKey gives it no key, so
   // this chooses a FALLBACK only, and the one precached template answers.
   const isBill = !isHome && !!(url && url.origin === self.location.origin && BILL_NAV_RE.test(url.pathname));
+  // A Utah ballot-question page. navDocKey gives it no key, so this chooses a
+  // FALLBACK only, and BALLOT_MEASURE_DOCS picks that path's own document.
+  const ballotMeasure = (!isHome && url && url.origin === self.location.origin)
+    ? BALLOT_MEASURE_NAV_RE.exec(url.pathname) : null;
 
   // A PERSON DOCUMENT IS A RUNTIME ENTRY, NOT A SHELL ONE. It is keyed to a single
   // address, it is not on SHELL_ASSETS, and nothing on the precache list depends on
@@ -11687,6 +11761,13 @@ async function handleNavigate(req) {
   // would have returned for this path; its seam names no measure on its own.
   // Before '/', which since this split does not serve /b/ at all and would hand
   // a reader who followed a bill citation the front page.
+  // Offline on a Utah ballot-question page. Its own precached document, never
+  // the other question's and never '/'.
+  if (ballotMeasure && Object.prototype.hasOwnProperty.call(BALLOT_MEASURE_DOCS, ballotMeasure[1])) {
+    const measureDoc = await shell.match(BALLOT_MEASURE_DOCS[ballotMeasure[1]]);
+    if (measureDoc) return measureDoc;
+  }
+
   if (isBill) {
     const billDoc = await shell.match('/bill.html');
     if (billDoc) return billDoc;
