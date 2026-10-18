@@ -472,7 +472,10 @@ section("5 · twin boot — no scrubber is a quieter page, never a leaking one")
   eq(count(COLD, /class="bd-omni-row/g), N, "the no-scrubber boot dropped a ledger row");
   eq(count(COLD, /A Yea (?:advances|cuts against) this/g), count(HTML, /A Yea (?:advances|cuts against) this/g),
     "the no-scrubber boot changed which way a Yea cuts on some row");
-  const strip = (h) => h.replace(/<div class="bd-omni-why">[^<]*<\/div>/g, "")
+  // A scope sentence now sits behind its row's "More" disclosure, so the whole
+  // disclosure is what goes when the sentence does.
+  const strip = (h) => h.replace(/<details class="bd-omni-more" data-bd-more><summary class="bd-omni-more-sum">More<\/summary><div class="bd-omni-why">[^<]*<\/div><\/details>/g, "")
+    .replace(/<div class="bd-omni-why">[^<]*<\/div>/g, "")
     .replace(/<p class="bd-lh-gap">[^<]*<\/p>/g, "");
   eq(strip(COLD), strip(HTML), "the two boots differ somewhere other than the scope sentences");
   // And it says so: with nothing publishable on any row, the letterhead declares

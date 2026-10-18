@@ -392,7 +392,12 @@ section("6 · the act face hides nothing to fit");
     "which act this is ships behind a disclosure, so a phone reader has to tap to find out what they opened");
   const ledger = SRC.slice(SRC.indexOf("function omnibusSection"), SRC.indexOf("  // ── the optional view filter"));
   must(ledger.length > 400, "omnibusSection moved");
-  ok(!/<details/.test(ledger), "the topic ledger ships collapsed");
+  // The ROWS never fold. The one disclosure the ledger carries is each row's
+  // "More", which holds only the longer stored text under the short line; the
+  // topic, its direction and its short line stay on screen.
+  ok(!/<details(?! class="bd-omni-more" data-bd-more>)/.test(ledger), "the topic ledger ships collapsed");
+  ok(/<details class="bd-omni-more" data-bd-more><summary class="bd-omni-more-sum">More<\/summary><div class="bd-omni-why">/.test(ledger),
+    "the ledger's only disclosure is a row's More around its longer text");
   // The two that do fold, folded the honest way: a real disclosure element with
   // no `open` attribute, rather than CSS that hides text from find-in-page too.
   for (const [what, mark] of [["the prose fold", '<details class="bd-fold">'],

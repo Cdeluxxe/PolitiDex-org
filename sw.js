@@ -10006,7 +10006,23 @@
 //     address is answered with its own document. No issue key, mapping or
 //     score moved. No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v400';
+// v401 - BILL-PANEL TOPIC CHIPS IN THE ISSUE'S OWN COLOUR, AND SHORT LINES BY
+//     DEFAULT. Every topic chip on the bill panel — "Every topic this act
+//     touches", the bottom "Explore these issues" and the fallback chip row —
+//     now carries the person-file drawer's pdxc-ic class and the
+//     PDXIssueColors.styleFor() properties for its key; no new colour map.
+//     Under each topic the visible text is the bill page's own short effect
+//     line (read from a new `effects` table in bill-official.json, generated
+//     from the same `l` db/bill-docs.json prints), and the longer stored
+//     rationale sits behind a closed "More" control. Labels, order, links,
+//     direction chips, statuses, roll calls and provisions are unchanged.
+//     bill-detail.js (which carries the panel's own sheet) is a runtime entry,
+//     not a SHELL_ASSETS one, so it is refreshed behind the paint; the shell
+//     moves one version anyway so a warm device re-fetches the /b/ shell,
+//     bill.html, in the same pass as the panel it opens. bill-official.json is
+//     runtime-cached too. No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v401';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

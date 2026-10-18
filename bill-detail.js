@@ -442,6 +442,56 @@
     try { return fn(raw) || ''; } catch (e) { return ''; }
   }
 
+  // ── THE ISSUE'S OWN COLOUR ──────────────────────────────────────────────────
+  // The same treatment a person-file drawer gives the same key: the `pdxc-ic`
+  // class and PDXIssueColors.styleFor()'s inline properties (the string
+  // issueTint() above also prints), and nothing at all for a key that does not
+  // resolve to a core issue — it stays the plain chip it always was. No colour
+  // is decided here; issue-colors.js owns every hex.
+  function icSkin(key) {
+    var IC = window.PDXIssueColors;
+    if (!IC || typeof IC.styleFor !== 'function' || !key) return { style: '', cls: '', on: false };
+    var on = false;
+    try {
+      on = (typeof IC.isCore === 'function') ? IC.isCore(key) : !!IC.getIssueColor(key).mapped;
+    } catch (e) { on = false; }
+    var style = '';
+    if (on) { try { style = IC.styleFor(key) || ''; } catch (e2) { style = ''; } }
+    return style ? { style: style, cls: ' pdxc-ic', on: true } : { style: '', cls: '', on: false };
+  }
+  function icAttr(sk) { return sk && sk.style ? ' data-ic="on" style="' + escAttr(sk.style) + '"' : ''; }
+
+  // ── THE SHORT LINE, AND THE LONGER TEXT BEHIND "More" ───────────────────────
+  // Under each topic the row shows the effect line the bill's own page prints
+  // for that pair (one sentence, 140 characters or fewer, the act as subject),
+  // read from bill-official.json's `effects` — the same `l` the page is written
+  // from. A pair with no line shows nothing by default. The scrubbed rationale,
+  // when one is stored and says something the line does not, sits behind a
+  // closed "More" control; it is never open on arrival.
+  function billKeyOf(cur) {
+    return cur && cur.number ? String(cur.sitting || cur.congress || '') + '|' + cur.number : '';
+  }
+  function effectLineFor(bill, issueKey) {
+    var fx = _officialEffects;
+    if (!fx || !bill || !issueKey) return '';
+    var e = fx[bill];
+    var l = e && e[issueKey];
+    return typeof l === 'string' ? l : '';
+  }
+  // Fill every empty effect slot on the panel now on screen, once the table has
+  // landed. Safe to call more than once.
+  function fillEffects() {
+    if (typeof document === 'undefined' || typeof document.querySelectorAll !== 'function') return;
+    var bill = billKeyOf(_current);
+    if (!bill || !_officialEffects) return;
+    var slots = document.querySelectorAll('#pdx-bd-scroll [data-bd-eff-for]');
+    for (var i = 0; i < slots.length; i++) {
+      if (slots[i].textContent) continue;
+      var l = effectLineFor(bill, slots[i].getAttribute('data-bd-eff-for'));
+      if (l) slots[i].textContent = l;
+    }
+  }
+
   // ── AN EXECUTIVE MEASURE IS NOT VOTED ON ────────────────────────────────────
   // WHAT WAS WRONG. The topic chips on an executive order said "A Yea advances
   // this". There is no Yea. Nobody voted on it, the sheet's own letterhead says
@@ -476,6 +526,8 @@
       // summarised, and never composed — a row with nothing publishable left says
       // nothing, and the letterhead's tally counts it as unexplained.
       var why = scopeSentence(it);
+      var line = effectLineFor(billKeyOf(_current), it.issueKey);
+      var sk = icSkin(it.issueKey);
       // `data-bd-lane` is a FILTER KEY AND NOTHING ELSE. It carries the row's
       // axis so the optional view control below has something to slice on; it
       // sets no default, hides nothing on its own, and no styling reads it except
@@ -484,11 +536,14 @@
       return '<div class="bd-omni-row' + (opposes ? ' bd-omni-opp' : '') + '"' +
           ' data-bd-lane="' + (a || 'on') + '">' +
         '<div class="bd-omni-head">' +
-          '<button type="button" class="bd-omni-issue bd-omni-link" data-issue="' + escAttr(it.issueKey) + '" title="See the ' + escAttr(issueLabel(it.issueKey)) + ' spotlight">' + esc(issueLabel(it.issueKey)) + '</button>' +
+          '<button type="button" class="bd-omni-issue bd-omni-link' + sk.cls + '"' + icAttr(sk) + ' data-issue="' + escAttr(it.issueKey) + '" title="See the ' + escAttr(issueLabel(it.issueKey)) + ' spotlight">' + esc(issueLabel(it.issueKey)) + '</button>' +
           (a ? '<span class="bd-omni-lane-l" data-pdx-axis="' + a + '" title="' + escAttr(axisTip(a)) + '">' + esc(laneLabel(a)) + '</span>' : '') +
           effectChip(m, opposes) +
         '</div>' +
-        (why ? '<div class="bd-omni-why">' + esc(why) + '</div>' : '') +
+        '<div class="bd-omni-eff" data-bd-eff-for="' + escAttr(it.issueKey) + '">' + esc(line) + '</div>' +
+        (why && why !== line
+          ? '<details class="bd-omni-more" data-bd-more><summary class="bd-omni-more-sum">More</summary><div class="bd-omni-why">' + esc(why) + '</div></details>'
+          : '') +
       '</div>';
     }).join('');
     return '<section class="bd-sec"><h3 class="bd-h">📦 Every topic this act touches</h3>' +
@@ -688,14 +743,14 @@
   // record lists, the record's own action text. Nothing here is derived, and a
   // bill with no entry prints no block at all — nothing is filled in for it.
   var OFFICIAL_SRC = '/bill-official.json';
-  var _official = null, _officialDocs = null;
+  var _official = null, _officialDocs = null, _officialEffects = null;
   function loadOfficial() {
     if (!_official) {
       _official = (typeof fetch === 'function'
         ? fetch(OFFICIAL_SRC, { headers: { accept: 'application/json' } })
             .then(function (r) { return r.ok ? r.json() : null; })
         : Promise.resolve(null))
-        .then(function (d) { _officialDocs = (d && d.docs) || {}; return _officialDocs; })
+        .then(function (d) { _officialDocs = (d && d.docs) || {}; _officialEffects = (d && d.effects) || {}; fillEffects(); return _officialDocs; })
         .catch(function () { _official = null; return null; });
     }
     return _official;
@@ -783,6 +838,7 @@
     var key = String(cur.sitting || cur.congress || '') + '|' + cur.number;
     var put = function (docs) {
       if (_current !== cur || !docs) return;
+      fillEffects();
       if (typeof document.querySelector !== 'function') return;
       var seam = document.querySelector('#pdx-bd-scroll [data-bd-official-seam]');
       if (!seam || seam.childNodes.length) return;
@@ -1088,7 +1144,8 @@
       var ordered = bigPictureOrder(issues);
       var leadKey = (ordered[0] || {}).issueKey || '';
       var chips = ordered.map(function (it) {
-        return '<button type="button" class="bd-person bd-issuejump" data-issue="' + escAttr(it.issueKey) + '">' +
+        var sk = icSkin(it.issueKey);
+        return '<button type="button" class="bd-person bd-issuejump' + sk.cls + '"' + icAttr(sk) + ' data-issue="' + escAttr(it.issueKey) + '">' +
           '<span class="bd-person-name">🔎 ' + esc(issueLabel(it.issueKey)) + '</span>' +
           '<span class="bd-person-role">Issue spotlight</span></button>';
       }).join('');
@@ -1913,7 +1970,8 @@
     var src = (card.source && card.source.url)
       ? '<a class="bd-src bd-src-top" href="' + escAttr(card.source.url) + '" target="_blank" rel="noopener">🔗 ' + esc((card.source && card.source.label) || 'Official record') + '</a>' : '';
     var chips = ordered.map(function (k) {
-      return '<button type="button" class="bd-omni-issue bd-omni-link" data-issue="' + escAttr(k) + '" title="See the ' + escAttr(issueLabel(k)) + ' spotlight">' + esc(issueLabel(k)) + '</button>';
+      var sk = icSkin(k);
+      return '<button type="button" class="bd-omni-issue bd-omni-link' + sk.cls + '"' + icAttr(sk) + ' data-issue="' + escAttr(k) + '" title="See the ' + escAttr(issueLabel(k)) + ' spotlight">' + esc(issueLabel(k)) + '</button>';
     }).join('');
     var breakdown = ordered.length
       ? '<section class="bd-sec"><h3 class="bd-h">📦 What’s inside this vote</h3>' +
@@ -2153,6 +2211,24 @@
       '.bd-eff-adv{color:#93c5fd;background:rgba(96,165,250,.14);border:1px solid rgba(96,165,250,.3);}' +
       '.bd-eff-opp{color:#fdba74;background:rgba(251,146,60,.14);border:1px solid rgba(251,146,60,.32);}' +
       '.bd-omni-why{font:500 .78rem/1.45 "Barlow",sans-serif;color:#9fb4d4;margin-top:.35rem;}' +
+      // The short line is the row's default text; an empty one takes no space.
+      '.bd-omni-eff{font:500 .8rem/1.45 "Barlow",sans-serif;color:#c9d6ec;margin-top:.35rem;}' +
+      '.bd-omni-eff:empty{display:none;}' +
+      // "More" is the same native disclosure the prose fold and the roll drawers
+      // use, with a 44px target; it opens only the longer text, never the row.
+      '.bd-omni-more{margin-top:.1rem;}' +
+      '.bd-omni-more-sum{display:inline-flex;align-items:center;min-height:44px;cursor:pointer;list-style:none;font:700 .66rem/1.2 "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;color:#9ec8ff;}' +
+      '.bd-omni-more-sum::-webkit-details-marker{display:none;}' +
+      '.bd-omni-more-sum::before{content:"\\25B8";margin-right:.3rem;}' +
+      '.bd-omni-more[open] .bd-omni-more-sum::before{content:"\\25BE";}' +
+      '.bd-omni-more-sum:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;}' +
+      '.bd-omni-more .bd-omni-why{margin-top:0;}' +
+      // The issue's own colour, from issue-colors.js through --pdx-ic*, on the
+      // same pdxc-ic class a person-file drawer uses.
+      '.bd-omni-issue.pdxc-ic{color:var(--pdx-ic-ink,#e6eefc);text-decoration-color:var(--pdx-ic,rgba(126,180,255,.35));border-left:3px solid var(--pdx-ic);padding-left:.4rem;}' +
+      '.bd-lite-chips .bd-omni-issue.pdxc-ic{background:var(--pdx-ic-soft,transparent);border:1px solid var(--pdx-ic);border-radius:999px;padding:.25rem .6rem;}' +
+      '.bd-issuejump.pdxc-ic{border-color:var(--pdx-ic);background:var(--pdx-ic-soft,transparent);}' +
+      '.bd-issuejump.pdxc-ic .bd-person-name{color:var(--pdx-ic-ink,#9ec8ff);}' +
       '.bd-rc{border:1px solid rgba(159,180,212,.12);border-radius:.7rem;padding:.7rem .8rem;margin-bottom:.7rem;background:rgba(10,15,30,.4);}' +
       '.bd-rc-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.4rem;align-items:baseline;}' +
       '.bd-rc-q{font:700 .9rem/1.25 "Barlow Condensed",sans-serif;color:#fff;}' +
