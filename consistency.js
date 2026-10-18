@@ -21194,6 +21194,7 @@
     // scripts/test-receipt-cards.mjs can assert what an arrival actually reads
     // rather than assert on the source text of the function that writes it.
     gapViewHtml: _gapViewHtml,
+    sameTextHtml: _dosSameTextHtml,
     // The issue dossier's own pieces, exported so each level can be checked on its
     // own terms rather than only through the assembled sheet: the normalised item
     // list (L2's data), one item's expanded detail (L3+L4), and the L1 summary.
@@ -21210,7 +21211,6 @@
     dossierActKind: _dosActKind,
     dossierActVote: _dosActVote,
     dossierLedgerHtml: _dosLedgerHtml,
-    dossierSameTextHtml: _dosSameTextHtml,
     dossierLedgerMoreHtml: _dosLedgerMoreHtml,
     congressGovUrl: _congressGovUrl,
     dossierSaidHtml: _dosSaidHtml,

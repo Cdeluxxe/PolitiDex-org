@@ -528,9 +528,12 @@
       var src = gen ? String(gen) : this._LIVE_GEN;
       if (src !== this._LIVE_GEN && !this._packMayApply(key, src)) return false;
       var had = this._records[key];
+      // One position per text: repeats are held before the rows are filed, so
+      // everything below sees only the votes that count.
       var split = _holdRepeats(items);
-      this._records[key] = split.kept;
       this._repeats[key] = split.held;
+      items = split.kept;
+      this._records[key] = items.slice();
       // Provenance travels with the rows, so a later payload can be judged against
       // what is actually held rather than against arrival order alone.
       this._recordGen[key] = src;
@@ -574,7 +577,7 @@
       // repaint for exactly the alias arrivals person-file.js works hardest to get
       // right. `pid` is the caller's id, `canon` is the cache key; a listener may
       // match either.
-      var gained = items.length ? (!had || had.length < split.kept.length) : !had;
+      var gained = items.length ? (!had || had.length < items.length) : !had;
       try {
         if (gained &&
             typeof window.dispatchEvent === 'function' && typeof window.CustomEvent === 'function') {

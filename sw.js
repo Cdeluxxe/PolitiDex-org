@@ -10119,7 +10119,17 @@
 //     (20261127000000_vr_iran_withdrawal_same_text_family: 28 vr_measure_issues
 //     rows); the seed carries the same rows.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v407';
+// v408 - THE SAME-TEXT HOLD, IN THE WORDS THE RECORD CLIENT IS PINNED TO.
+//     voting-record.js holds a repeat vote out before filing the rows, then
+//     files them as `items.slice()` and announces a gain on `items.length`, as
+//     the cold-boot and crawl-block suites require; behaviour is unchanged.
+//     consistency.js publishes the drawer's History section as sameTextHtml
+//     beside gapViewHtml, outside the ledger's pinned export list. Both files
+//     are precached and changed, so the shell moves one version. No row,
+//     line, weight, primary flag, pole or issue key moved.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v408';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
