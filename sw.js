@@ -10129,7 +10129,19 @@
 //     line, weight, primary flag, pole or issue key moved.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v408';
+// v409 - THE IRAN WITHDRAWAL PAGES, EASIER TO READ. The eleven bill pages for
+//     the Iran withdrawal text open on a two-sentence plain-language summary
+//     (vr_measures.summary, filled by 20261128000000 from F7's stored
+//     description and the saving clause its rationale records) instead of "No
+//     plain-language summary on file yet". History and Related, on the page and
+//     in the issue drawer, are now closed folds with a labelled control and a
+//     count; opened, every entry is still there, set apart by spacing and a
+//     light divider. consistency.js is precached and changed, so the shell
+//     moves one version; bill-detail.js and bills-index.js are runtime
+//     entries. No row, line, weight, primary flag, pole or issue key moved.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v409';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

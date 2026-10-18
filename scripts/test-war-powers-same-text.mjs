@@ -101,6 +101,9 @@ const E = tableOf(CONS, "_DOS_EFFECT");
 const lineOf = (n, k) => E[`${n}|119|${k}`] || "";
 const BLOCK = sliceBlocks(CONS, "_DOS_EFFECT").find((b) => b.version === 407);
 must(BLOCK, "consistency.js carries the IRAN WITHDRAWAL SAME-TEXT SLICE 27 (v407) block");
+const SUM_SQL = R("netlify/database/migrations/20261128000000_vr_iran_withdrawal_same_text_summary.sql");
+const SUMMARY = (/s constant text := '((?:[^']|'')*)';/.exec(SUM_SQL) || [])[1] || "";
+const GAP = "No plain-language summary on file yet";
 const NEW_PAIRS = REPEATS.flatMap((n) => KEYS.map((k) => `${n}|119|${k}`));
 // H.Con.Res. 89 × Peace Through Strength is a recorded silence (blank rows slice
 // 10, and the body, coverage and distinct ledgers after it): its one effect is
@@ -370,7 +373,7 @@ const unescape = (s) => s.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&
 const BILL_HTML = R("bill.html"), BD_SRC = R("bill-detail.js");
 const DOC_SCRIPTS = [...BILL_HTML.matchAll(/<script\b[^>]*\bsrc="\/([^"]+)"[^>]*><\/script>/g)].map((m) => m[1]);
 const ORIGIN = "https://politidex.fyi";
-async function panel(n, { official = OFFICIAL, bd = BD_SRC } = {}) {
+async function panel(n, { official = OFFICIAL, bd = BD_SRC, summary = FAMILY.includes(n) ? SUMMARY : null } = {}) {
   const win = makeSandbox();
   win.__PDX_BILL_DOC = true;
   const p = "/b/119/" + encodeURIComponent(n);
@@ -395,7 +398,7 @@ async function panel(n, { official = OFFICIAL, bd = BD_SRC } = {}) {
   const issues = (seedOf(n) || { issues: [] }).issues.length === KEYS.length ? seedOf(n).issues
     : KEYS.map((k) => ({ issueKey: k, supportMeaning: SHAPE[k][1], rationale: "" }));
   const data = {
-    measure: { id: 50000 + Number(n.replace(/\D/g, "")), number: n, congress: 119, chamber: n === HCR ? "house" : "senate", status: "failed", title: DOCS[`119|${n}`].t },
+    measure: { id: 50000 + Number(n.replace(/\D/g, "")), number: n, congress: 119, chamber: n === HCR ? "house" : "senate", status: "failed", title: DOCS[`119|${n}`].t, summary },
     issues: issues.map((i) => ({ issueKey: i.issueKey, supportMeaning: i.supportMeaning, rationale: i.rationale })),
     rollcalls: [], positions: [], provisions: [], actions: [],
   };
@@ -421,7 +424,21 @@ function panelFaults(html, n) {
     if (/bd-omni-why/.test(shut)) out.push(`${k}: the longer text is visible by default`);
   }
   if (FAMILY.includes(n)) {
-    const hist = (/<ol class="bd-off-steps" data-bd-same-history>([\s\S]*?)<\/ol>/.exec(html) || [])[1] || "";
+    // The summary, at the top, and no gap line.
+    if (!html.includes(`<span class="bd-ident-sum">${SUMMARY}</span>`)) out.push("the plain-language summary is not at the top of the page");
+    if (html.includes(GAP)) out.push("the page still says it has no plain-language summary");
+    // Both lists fold shut, with a labelled control and a count, and stay complete.
+    const fold = (which) => (new RegExp(`<details class="bd-same-fold" data-bd-same-fold="${which}"[^>]*>`).exec(html) || [])[0] || "";
+    for (const which of ["history", "related"]) {
+      const f = fold(which);
+      if (!f) { out.push(`${which}: not a fold`); continue; }
+      if (/\bopen\b/.test(f)) out.push(`${which}: open on arrival`);
+    }
+    if (!new RegExp(`<summary class="bd-same-sum"><span class="bd-same-t">History · the same text</span><span class="bd-same-n">${FAMILY.length} votes</span></summary>`).test(html)) out.push("History's control does not name the section and its count");
+    const relN = OFF.same.families[FID].related.length;
+    if (!new RegExp(`<span class="bd-same-t">Related · not the same text</span><span class="bd-same-n">${relN} measures</span>`).test(html)) out.push("Related's control does not name the section and its count");
+    if ((html.match(/<li data-bd-same-r="/g) || []).length !== relN) out.push("Related dropped an entry");
+    const hist = (/<ol class="bd-same-list" data-bd-same-history>([\s\S]*?)<\/ol>/.exec(html) || [])[1] || "";
     const items = [...hist.matchAll(/<li data-bd-same-m="119\|([^"]+)"( data-self="1")?>([\s\S]*?)<\/li>/g)];
     if (items.length !== FAMILY.length) out.push(`History lists ${items.length} votes`);
     for (const [, num, self, body] of items) {
@@ -458,8 +475,16 @@ function drawerFaults(win, pids, keys = KEYS) {
       const rows = (CS.dossierItems(pid, k) || []).filter((r) => FAMILY.includes(r.ident));
       if (rows.some((r) => REPEATS.includes(r.ident))) out.push(`${pid} ${k}: a repeat vote is a ledger row`);
       const html = CS.gapViewHtml(pid, k) || "";
-      const sec = (/<div class="pdxst" data-pdxst="iran-withdrawal-119">([\s\S]*?)<\/ul><\/div>/.exec(html) || [])[1] || "";
+      const sec = (/<div class="pdxst" data-pdxst="iran-withdrawal-119">([\s\S]*?)<\/details><\/div>/.exec(html) || [])[1] || "";
       if (!sec) { out.push(`${pid} ${k}: no History section`); continue; }
+      for (const which of ["history", "related"]) {
+        const f = (new RegExp(`<details class="pdxst-fold" data-pdxst-fold="${which}"[^>]*>`).exec(sec) || [])[0] || "";
+        if (!f) out.push(`${pid} ${k}: ${which} is not a fold`);
+        else if (/\bopen\b/.test(f)) out.push(`${pid} ${k}: ${which} is open on arrival`);
+      }
+      if (!sec.includes(`<span class="pdxst-h">History · the same text</span><span class="pdxst-c">${FAMILY.length} votes</span>`)) out.push(`${pid} ${k}: History's control does not name the section and its count`);
+      const relN = OFF.same.families[FID].related.length;
+      if ((sec.match(/<li data-pdxst-r="/g) || []).length !== relN) out.push(`${pid} ${k}: Related dropped an entry`);
       const hist = (/<ul data-pdxst-history="1">([\s\S]*?)<\/ul>/.exec(sec) || [])[1] || "";
       for (const fm of FAMILY) {
         const li = (new RegExp(`<li data-pdxst-m="119\\|${fm.replace(/\./g, "\\.")}">([\\s\\S]*?)</li>`).exec(hist) || [])[1];
@@ -486,6 +511,38 @@ function drawerFaults(win, pids, keys = KEYS) {
     if (!rows.length || rows.some((r) => r.effLine !== lineOf(HCR, "restraint"))) bad.push(pid);
   }
   eq(JSON.stringify(bad.slice(0, 5)), "[]", `on all ${house.length} House voters' Diplomacy & Restraint drawers, H.Con.Res. 89 prints its Diplomacy & Restraint line`);
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("6b · the summary, and the folds' separation");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  const f7 = R("netlify/database/migrations/20261023000000_vr_federal_wave_f7.sql").replace(/\n\s*--\s+/g, " ");
+  const first = SUMMARY.split(". ")[0] + ".";
+  for (const n of FAMILY) ok(f7.includes(`${n} — A joint resolution to direct the removal`) && f7.includes(first), `${n}: the summary's first sentence is F7's stored description`);
+  ok(/saving clause preserves only defen[cs]e against an attack already under way or imminent/.test(SQL) && /saving clause preserves only defense against an attack already under way or imminent/.test(SUMMARY), "the second sentence is the stored rationale's saving clause");
+  eq(SUMMARY.split(/(?<=\.)\s+(?=[A-Z])/).length, 2, "the summary is two sentences");
+  const body = stripComments(SUM_SQL);
+  ok(/UPDATE vr_measures\s+SET summary = s, updated_at = now\(\)\s+WHERE id = m_id\s+AND \(summary IS NULL OR btrim\(summary\) = ''\);/.test(body), "the migration fills only an empty summary");
+  ok(!/INSERT INTO|DELETE|vr_measure_issues/i.test(body), "the summary migration creates, deletes and maps nothing");
+  for (const n of FAMILY) ok(SUM_SQL.includes(`('${n}')`), `${n}: the migration writes its summary`);
+  const INLINE7 = (() => { const w = {}; vm.runInNewContext(R("bills-index.js"), { window: w }); return w.PDX_BILLS_INDEX; })();
+  for (const n of REPEATS) eq((INLINE7.find((b) => b.number === n) || {}).summary, SUMMARY, `${n}: the library card carries the same summary`);
+  ok(/'\.bd-same-list li\{padding:[^}]*border-top:1px solid/.test(BD_SRC), "bill page: each listed bill is set apart by spacing and a light divider");
+  ok(/'\.pdxst li\{padding:[^}]*border-top:1px solid/.test(CONS), "drawer: each listed bill is set apart by spacing and a light divider");
+  ok(/'\.bd-same-sum\{[^}]*min-height:44px/.test(BD_SRC) && /'\.pdxst-sum\{[^}]*min-height:44px/.test(CONS), "both expand controls keep a 44px target");
+  // Mutations.
+  const noSum = await panel("S.J.Res. 114", { summary: null });
+  ok(panelFaults(noSum, "S.J.Res. 114").some((x) => /summary/.test(x)), "a page with no summary fails");
+  const openBd = BD_SRC.replace(`'<details class="bd-same-fold" data-bd-same-fold="history">`, `'<details class="bd-same-fold" data-bd-same-fold="history" open>`);
+  must(openBd !== BD_SRC, "the open-History mutation found its target");
+  ok(panelFaults(await panel("S.J.Res. 114", { bd: openBd }), "S.J.Res. 114").some((x) => /open on arrival/.test(x)), "History open on arrival fails on the bill page");
+  const openCs = CONS.replace(`'<details class="pdxst-fold" data-pdxst-fold="related">`, `'<details class="pdxst-fold" data-pdxst-fold="related" open>`);
+  must(openCs !== CONS, "the open-Related mutation found its target");
+  ok(drawerFaults(bootFiles({ cons: openCs }), VOTERS.slice(0, 1), ["restraint"]).some((x) => /open on arrival/.test(x)), "Related open on arrival fails in the drawer");
+  const dropCs = CONS.replace("var rel = fm.related.map(", "var rel = fm.related.slice(1).map(");
+  must(dropCs !== CONS, "the dropped-entry mutation found its target");
+  ok(drawerFaults(bootFiles({ cons: dropCs }), VOTERS.slice(0, 1), ["restraint"]).some((x) => /dropped an entry/.test(x)), "a Related entry dropped from the drawer fails");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

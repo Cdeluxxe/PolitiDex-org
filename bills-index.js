@@ -113,6 +113,7 @@ window.PDX_BILLS_INDEX = [
   {
     number: 'S.J.Res. 114', title: 'A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.',
     shortTitle: 'Iran War Powers Resolution (S.J.Res. 114)',
+    summary: 'Directs the President to remove United States Armed Forces from hostilities within or against Iran unless a declaration of war or a specific authorization for the use of military force has been enacted. Its saving clause preserves only defense against an attack already under way or imminent.',
     measureType: 'resolution', chamber: 'senate', congress: 119, status: 'failed',
     primaryIssue: null,
     issueKeys: ['restraint', 'war_powers', 'strong_defense', 'iran_policy'], isOmnibus: false,
@@ -123,6 +124,7 @@ window.PDX_BILLS_INDEX = [
   {
     number: 'S.J.Res. 116', title: 'A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.',
     shortTitle: 'Iran War Powers Resolution (S.J.Res. 116)',
+    summary: 'Directs the President to remove United States Armed Forces from hostilities within or against Iran unless a declaration of war or a specific authorization for the use of military force has been enacted. Its saving clause preserves only defense against an attack already under way or imminent.',
     measureType: 'resolution', chamber: 'senate', congress: 119, status: 'failed',
     primaryIssue: null,
     issueKeys: ['restraint', 'war_powers', 'strong_defense', 'iran_policy'], isOmnibus: false,
@@ -133,6 +135,7 @@ window.PDX_BILLS_INDEX = [
   {
     number: 'S.J.Res. 118', title: 'A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.',
     shortTitle: 'Iran War Powers Resolution (S.J.Res. 118)',
+    summary: 'Directs the President to remove United States Armed Forces from hostilities within or against Iran unless a declaration of war or a specific authorization for the use of military force has been enacted. Its saving clause preserves only defense against an attack already under way or imminent.',
     measureType: 'resolution', chamber: 'senate', congress: 119, status: 'failed',
     primaryIssue: null,
     issueKeys: ['restraint', 'war_powers', 'strong_defense', 'iran_policy'], isOmnibus: false,
@@ -143,6 +146,7 @@ window.PDX_BILLS_INDEX = [
   {
     number: 'S.J.Res. 123', title: 'A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.',
     shortTitle: 'Iran War Powers Resolution (S.J.Res. 123)',
+    summary: 'Directs the President to remove United States Armed Forces from hostilities within or against Iran unless a declaration of war or a specific authorization for the use of military force has been enacted. Its saving clause preserves only defense against an attack already under way or imminent.',
     measureType: 'resolution', chamber: 'senate', congress: 119, status: 'failed',
     primaryIssue: null,
     issueKeys: ['restraint', 'war_powers', 'strong_defense', 'iran_policy'], isOmnibus: false,
@@ -153,6 +157,7 @@ window.PDX_BILLS_INDEX = [
   {
     number: 'S.J.Res. 172', title: 'A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.',
     shortTitle: 'Iran War Powers Resolution (S.J.Res. 172)',
+    summary: 'Directs the President to remove United States Armed Forces from hostilities within or against Iran unless a declaration of war or a specific authorization for the use of military force has been enacted. Its saving clause preserves only defense against an attack already under way or imminent.',
     measureType: 'resolution', chamber: 'senate', congress: 119, status: 'failed',
     primaryIssue: null,
     issueKeys: ['restraint', 'war_powers', 'strong_defense', 'iran_policy'], isOmnibus: false,
@@ -163,6 +168,7 @@ window.PDX_BILLS_INDEX = [
   {
     number: 'S.J.Res. 180', title: 'A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.',
     shortTitle: 'Iran War Powers Resolution (S.J.Res. 180)',
+    summary: 'Directs the President to remove United States Armed Forces from hostilities within or against Iran unless a declaration of war or a specific authorization for the use of military force has been enacted. Its saving clause preserves only defense against an attack already under way or imminent.',
     measureType: 'resolution', chamber: 'senate', congress: 119, status: 'failed',
     primaryIssue: null,
     issueKeys: ['restraint', 'war_powers', 'strong_defense', 'iran_policy'], isOmnibus: false,
@@ -173,6 +179,7 @@ window.PDX_BILLS_INDEX = [
   {
     number: 'S.J.Res. 181', title: 'A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.',
     shortTitle: 'Iran War Powers Resolution (S.J.Res. 181)',
+    summary: 'Directs the President to remove United States Armed Forces from hostilities within or against Iran unless a declaration of war or a specific authorization for the use of military force has been enacted. Its saving clause preserves only defense against an attack already under way or imminent.',
     measureType: 'resolution', chamber: 'senate', congress: 119, status: 'failed',
     primaryIssue: null,
     issueKeys: ['restraint', 'war_powers', 'strong_defense', 'iran_policy'], isOmnibus: false,

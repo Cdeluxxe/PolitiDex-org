@@ -2382,10 +2382,18 @@
       '.pdxlg-side{font-size:0.72rem;color:#8fa2c0;line-height:1.5;}' +
       '.pdxlg-same{margin-top:0.2rem;font-size:0.72rem;color:#f0cd8c;line-height:1.5;}' +
       '.pdxst{margin-top:0.6rem;font-size:0.73rem;line-height:1.5;color:#c6d4ec;}' +
-      '.pdxst-h{font-family:"Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:0.08em;font-size:0.64rem;color:#8fa2c0;margin:0.4rem 0 0.15rem;}' +
+      '.pdxst-fold{border-top:1px solid rgba(143,162,192,0.2);}' +
+      '.pdxst-sum{display:flex;align-items:center;gap:0.5rem;min-height:44px;cursor:pointer;list-style:none;}' +
+      '.pdxst-sum::-webkit-details-marker{display:none;}' +
+      '.pdxst-sum::after{content:"\\25B8";margin-left:0.3rem;color:#8fa2c0;transition:transform .15s;}' +
+      '.pdxst-fold[open]>.pdxst-sum::after{transform:rotate(90deg);}' +
+      '.pdxst-sum:focus-visible{outline:2px solid #c6d4ec;outline-offset:2px;border-radius:4px;}' +
+      '.pdxst-h{font-family:"Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:0.08em;font-size:0.68rem;color:#c6d4ec;}' +
+      '.pdxst-c{margin-left:auto;color:#8fa2c0;}' +
       '.pdxst-n{margin:0 0 0.2rem;color:#8fa2c0;}' +
-      '.pdxst ul{margin:0;padding-left:1.1rem;}' +
-      '.pdxst li{margin:0.1rem 0;}' +
+      '.pdxst ul{list-style:none;margin:0 0 0.5rem;padding:0;}' +
+      '.pdxst li{padding:0.4rem 0;border-top:1px solid rgba(143,162,192,0.14);}' +
+      '.pdxst li:first-child{border-top:0;}' +
       '.pdxst a{color:#e8eefc;}' +
       '.pdxst-me{color:#f0cd8c;}' +
       '.pdxlg-termf{display:flex;flex-wrap:wrap;align-items:center;gap:0.3rem 0.4rem;margin-top:0.3rem;font-size:0.72rem;color:#8fa2c0;}' +
@@ -17292,11 +17300,15 @@
         return '<li data-pdxst-r="' + escAttr(r.key) + '"><a href="' + escAttr(r.href) + '">' + esc(r.number) + '</a> (' +
           esc(r.status) + ')' + (r.title ? ' · ' + esc(r.title) : '') + '</li>';
       }).join('');
+      // Both lists fold shut, complete when opened.
       out += '<div class="pdxst" data-pdxst="' + escAttr(fids[f]) + '">' +
-        '<div class="pdxst-h">History · the same text</div>' +
-        '<p class="pdxst-n">The same text was voted on ' + fm.members.length + ' times. A position counts once, however many times it was cast.</p>' +
-        '<ul data-pdxst-history="1">' + hist + '</ul>' +
-        (rel ? '<div class="pdxst-h">Related · not the same text</div><ul data-pdxst-related="1">' + rel + '</ul>' : '') +
+        '<details class="pdxst-fold" data-pdxst-fold="history"><summary class="pdxst-sum">' +
+          '<span class="pdxst-h">History · the same text</span><span class="pdxst-c">' + fm.members.length + ' votes</span></summary>' +
+          '<p class="pdxst-n">The same text was voted on ' + fm.members.length + ' times. A position counts once, however many times it was cast.</p>' +
+          '<ul data-pdxst-history="1">' + hist + '</ul></details>' +
+        (rel ? '<details class="pdxst-fold" data-pdxst-fold="related"><summary class="pdxst-sum">' +
+          '<span class="pdxst-h">Related · not the same text</span><span class="pdxst-c">' + fm.related.length + ' measures</span></summary>' +
+          '<ul data-pdxst-related="1">' + rel + '</ul></details>' : '') +
         '</div>';
     }
     return out;
