@@ -19205,7 +19205,11 @@
     'H.R. 9694|119|gov_transparency':
       'Would give state attorneys general and survivors standing to sue the Attorney General over withheld or redacted Epstein records.',
     'S. 5005|119|gov_transparency':
-      'Would let state attorneys general and victims sue the Attorney General over Epstein records withheld under the original Act.',
+      'Would let state attorneys general and victims sue the Attorney General over Epstein records withheld under the original Act.',    // 21ST CENTURY ROAD TO HOUSING ACT, TITLE X. H.R. 6644 (119th), Public Law
+    // 119-101, Sec. 1001 "Homes are for people, not corporations". Its five other
+    // lines above are unchanged.
+    'H.R. 6644|119|econ_corp_account':
+      'Barred investors controlling 350 or more single-family homes from buying more, except build-to-rent, renovation and rent-to-own purchases.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // THE KEY IS THE MEASURE'S OWN IDENTITY: number, sitting, issue. The sitting is

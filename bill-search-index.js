@@ -141,7 +141,7 @@ window.PDX_BILL_SEARCH = [
   ["119","H.R. 5362","To name the Department of Veterans Affairs multispecialty clinic in Marietta, Georgia, as the \"Colonel Michael H. Boyce Department of Veterans Affairs Multispecialty Clinic\".","passed_house","house",[]],
   ["119","H.R. 5408","To amend the National Labor Relations Act to establish an efficient process for reaching a first collective bargaining agreement, and for other purposes.","passed_house","house",["econ_workers"]],
   ["119","H.R. 6329","Information Quality Assurance Act of 2025","passed_house","house",["gov_regulation","gov_transparency"]],
-  ["119","H.R. 6644","21st Century ROAD to Housing Act","enacted","house",["housing_support","housing_build","crypto_cbdc","permitting_reform","housing"]],
+  ["119","H.R. 6644","21st Century ROAD to Housing Act","enacted","house",["housing_support","housing_build","econ_corp_account","crypto_cbdc","permitting_reform","housing"]],
   ["119","H.R. 6703","Lower Health Care Premiums for All Americans Act","passed_house","house",["healthcare","healthcare_costs","health_drug_prices","healthcare_market"]],
   ["119","H.R. 6955","Main Street Capital Access Act","passed_house","house",["econ_corp_account","gov_regulation","econ_smallbiz"]],
   ["119","H.R. 7008","Stop Insider Trading Act","passed_house","house",["stock_trading_ban","gov_transparency"]],
