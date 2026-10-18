@@ -265,6 +265,7 @@ export async function buildMemberPack(politicianId: string) {
       parentId: vrMeasures.parentId,
       status: vrMeasures.status,
       chamber: vrMeasures.chamber,
+      congress: vrMeasures.congress,
       actionType: vrPositions.actionType,
       supports: vrPositions.supports,
       actedAt: vrPositions.actedAt,
@@ -339,8 +340,9 @@ export async function buildMemberPack(politicianId: string) {
       isAmendment: p.measureType === "amendment",
       parentMeasureId: p.parentId ?? null,
       rollcallId: null,
-      // A co-sponsorship / amicus has no roll call, so it has no roll-call page.
-      congress: null,
+      // A co-sponsorship / amicus has no roll call, so it has no roll-call page;
+      // the congress is the measure's, the same as the live read carries.
+      congress: p.congress ?? null,
       session: null,
       rollNumber: null,
       measureIdent: measureIdent(p.externalIds),

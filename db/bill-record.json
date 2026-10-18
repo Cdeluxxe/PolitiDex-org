@@ -30927,6 +30927,69 @@
     }
    ]
   },
+  "119|H.R. 9694": {
+   "src": "https://www.congress.gov/bill/119th-congress/house-bill/9694",
+   "ch": "house",
+   "in": "2026-07-15",
+   "sp": [
+    {
+     "r": "sponsor",
+     "id": "M001184",
+     "n": "Rep. Massie, Thomas [R-KY-4]",
+     "h": "H"
+    },
+    {
+     "r": "cosponsor",
+     "id": "K000389",
+     "n": "Rep. Khanna, Ro [D-CA-17]",
+     "h": "H"
+    },
+    {
+     "r": "cosponsor",
+     "id": "L000273",
+     "n": "Rep. Leger Fernandez, Teresa [D-NM-3]",
+     "h": "H"
+    },
+    {
+     "r": "cosponsor",
+     "id": "A000381",
+     "n": "Rep. Ansari, Yassamin [D-AZ-3]",
+     "h": "H"
+    },
+    {
+     "r": "cosponsor",
+     "id": "M000194",
+     "n": "Rep. Mace, Nancy [R-SC-1]",
+     "h": "H"
+    },
+    {
+     "r": "cosponsor",
+     "id": "B001324",
+     "n": "Rep. Bell, Wesley [D-MO-1]",
+     "h": "H"
+    },
+    {
+     "r": "cosponsor",
+     "id": "S001218",
+     "n": "Rep. Stansbury, Melanie A. [D-NM-1]",
+     "h": "H"
+    },
+    {
+     "r": "cosponsor",
+     "id": "G000553",
+     "n": "Rep. Green, Al [D-TX-9]",
+     "h": "H"
+    }
+   ],
+   "a": [
+    {
+     "d": "2026-07-15",
+     "s": "introduced",
+     "c": "house",
+     "x": "Introduced in House"
+    }
+   ]
+  },
   "119|H.R. 9770": {
    "src": "https://www.congress.gov/bill/119th-congress/house-bill/9770",
    "ch": "house",
@@ -32662,6 +32725,33 @@
      "s": "law",
      "c": "",
      "x": "Became Public Law No: 119-124."
+    }
+   ]
+  },
+  "119|S. 5005": {
+   "src": "https://www.congress.gov/bill/119th-congress/senate-bill/5005",
+   "ch": "senate",
+   "in": "2026-07-15",
+   "sp": [
+    {
+     "r": "sponsor",
+     "id": "M001176",
+     "n": "Sen. Merkley, Jeff [D-OR]",
+     "h": "S"
+    },
+    {
+     "r": "cosponsor",
+     "id": "L000570",
+     "n": "Sen. Luján, Ben Ray [D-NM]",
+     "h": "S"
+    }
+   ],
+   "a": [
+    {
+     "d": "2026-07-15",
+     "s": "introduced",
+     "c": "senate",
+     "x": "Introduced in Senate"
     }
    ]
   },

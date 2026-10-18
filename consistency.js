@@ -13859,6 +13859,10 @@
   // read; federal rows get the page and no version claim, because nothing on file
   // records which text a federal mapping was read against and inventing that
   // provenance would be worse than omitting it.
+  function _dosIsSponsorship(item) {
+    var a = item && item.kind === 'position' ? String(item.actionType || '').toLowerCase() : '';
+    return a === 'sponsor' || a === 'cosponsor';
+  }
   function _dosBillUrl(item) {
     var mi = item && item.measureIdent;
     return (mi && typeof mi.billUrl === 'string') ? mi.billUrl.trim() : '';
@@ -14016,7 +14020,10 @@
           // the same vote on all of them — so the row carries the measure's own
           // address and slot 1 opens it. A number without its sitting is not an
           // address, so both travel together.
-          billNum: (b.isPosition ? '' : (b.bill || '')),
+          // A sponsorship is filed ON a bill, so its number is a door too (and,
+          // with the measure's congress now on the row, a Congress.gov one); any
+          // other non-ballot position keeps no door.
+          billNum: ((b.isPosition && !_dosIsSponsorship(p.item)) ? '' : (b.bill || '')),
           billSit: _dosSittingKey(p.item),
           readFrom: _dosReadFrom(p.item),
           officialTitle: _dosOfficialTitle(p.item, b.title || p.item.title || ''),
@@ -19191,6 +19198,14 @@
       'Let confidential economic development information, including nondisclosure agreements, be withheld as protected records.',
     'H.B. 507|2026GS|enviro_energy':
       'Narrowed the bar on county and city incentives for baseload power projects outside energy development zones to nuclear projects.',
+    // EPSTEIN FILES TRANSPARENCY ACT II. H.R. 9694 (119th) and its Senate
+    // companion S. 5005, both introduced 2026-07-15 and still in committee, so
+    // each opens "Would". Each amends H.R. 4405 (Public Law 119-38), whose line
+    // above is untouched; the text read is the introduced version on GovInfo.
+    'H.R. 9694|119|gov_transparency':
+      'Would give state attorneys general and survivors standing to sue the Attorney General over withheld or redacted Epstein records.',
+    'S. 5005|119|gov_transparency':
+      'Would let state attorneys general and victims sue the Attorney General over Epstein records withheld under the original Act.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // THE KEY IS THE MEASURE'S OWN IDENTITY: number, sitting, issue. The sitting is

@@ -526,8 +526,11 @@ function assembleRecordItems(
       isAmendment: p.measureType === "amendment",
       parentMeasureId: p.parentId ?? null,
       rollcallId: null,
-      // A co-sponsorship / amicus has no roll call, so it has no roll-call page.
-      congress: null,
+      // A co-sponsorship / amicus has no roll call, so it has no roll-call page:
+      // session and roll number stay null. The congress is the MEASURE's, so a
+      // bill on file only through its sponsors still has a sitting — the key its
+      // effect line and its Congress.gov door are read by.
+      congress: p.congress ?? null,
       session: null,
       rollNumber: null,
       // …which is exactly why this one matters more here than on a vote row: a
@@ -615,6 +618,7 @@ const POSITION_COLUMNS = {
   parentId: vrMeasures.parentId,
   status: vrMeasures.status,
   chamber: vrMeasures.chamber,
+  congress: vrMeasures.congress,
   actionType: vrPositions.actionType,
   supports: vrPositions.supports,
   actedAt: vrPositions.actedAt,

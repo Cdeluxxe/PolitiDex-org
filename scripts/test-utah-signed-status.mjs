@@ -117,7 +117,12 @@ section("1 · the migration is status only");
 // ═════════════════════════════════════════════════════════════════════════════
 const shape = parseMigration(MIG);
 eq(shape.bad.length, 0, `the migration sets five statuses and nothing else${shape.bad.length ? ": " + shape.bad.join("; ") : ""}`);
-eq(readdirSync(MIG_DIR).filter((f) => f > MIG_NAME).length, 0, "no migration sorts after this one");
+// A later migration may add rows; none may rewrite a measure's status after this one.
+{
+  const later = readdirSync(MIG_DIR).filter((f) => f > MIG_NAME && f.endsWith(".sql"));
+  const rewrites = later.filter((f) => /\bUPDATE\s+vr_measures\b/i.test(readFileSync(join(MIG_DIR, f), "utf8").replace(/^--.*$/gm, "")));
+  eq(rewrites.length, 0, `no migration after this one rewrites a measure${rewrites.length ? ": " + rewrites.join(", ") : ""}`);
+}
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("2 · replayed, it moves those five and no other");

@@ -11474,6 +11474,47 @@
    ],
    "rs": "https://www.congress.gov/bill/119th-congress/house-bill/9237"
   },
+  "119|H.R. 9694": {
+   "s": "119",
+   "n": "H.R. 9694",
+   "c": "house",
+   "t": "Epstein Files Transparency Act II",
+   "m": [
+    {
+     "i": "Transparency & Anti-Corruption",
+     "k": "gov_transparency",
+     "l": "Would give state attorneys general and survivors standing to sue the Attorney General over withheld or redacted Epstein records."
+    }
+   ],
+   "st": "pending",
+   "sl": "Pending — no final action yet",
+   "o": {
+    "c": "house",
+    "d": "2026-07-15"
+   },
+   "sp": {
+    "s": [
+     "massie"
+    ],
+    "c": [
+     "khanna",
+     "teresa_leger_fernandez",
+     "yassamin_ansari",
+     "nancy_mace",
+     "wesley_bell",
+     "melanie_stansbury",
+     "al_green"
+    ]
+   },
+   "h": [
+    {
+     "d": "2026-07-15",
+     "a": "Introduced in the House",
+     "x": "Introduced in House"
+    }
+   ],
+   "rs": "https://www.congress.gov/bill/119th-congress/house-bill/9694"
+  },
   "119|H.R. 9770": {
    "s": "119",
    "n": "H.R. 9770",
@@ -12833,6 +12874,41 @@
     }
    ],
    "rs": "https://www.congress.gov/bill/119th-congress/senate-bill/2403"
+  },
+  "119|S. 5005": {
+   "s": "119",
+   "n": "S. 5005",
+   "c": "senate",
+   "t": "Epstein Files Transparency Act II",
+   "m": [
+    {
+     "i": "Transparency & Anti-Corruption",
+     "k": "gov_transparency",
+     "l": "Would let state attorneys general and victims sue the Attorney General over Epstein records withheld under the original Act."
+    }
+   ],
+   "st": "pending",
+   "sl": "Pending — no final action yet",
+   "o": {
+    "c": "senate",
+    "d": "2026-07-15"
+   },
+   "sp": {
+    "s": [
+     "merkley"
+    ],
+    "c": [
+     "lujan"
+    ]
+   },
+   "h": [
+    {
+     "d": "2026-07-15",
+     "a": "Introduced in the Senate",
+     "x": "Introduced in Senate"
+    }
+   ],
+   "rs": "https://www.congress.gov/bill/119th-congress/senate-bill/5005"
   },
   "119|S.Amdt. 8": {
    "s": "119",
