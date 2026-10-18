@@ -99,16 +99,54 @@ body {
   padding: 0.9rem 1rem; border-radius: 0.6rem;
   border: 1px solid rgba(159, 180, 212, 0.22); background: rgba(18, 27, 48, 0.6);
 }
-.pdxbm-side .pdxbm-h3 { margin-top: 0; }
-.pdxbm-side blockquote { margin: 0.5rem 0 0; padding-left: 0.75rem; border-left: 2px solid rgba(159, 180, 212, 0.35); color: #e7eefb; }
-.pdxbm-from { display: block; margin-top: 0.25rem; font-size: 0.85rem; color: #9fb4d4; }
+.pdxbm-side .pdxbm-h3 {
+  margin-top: 0;
+  font: 700 0.95rem/1.2 'Barlow Condensed', system-ui, sans-serif;
+  letter-spacing: 0.1em; text-transform: uppercase; color: #f5d77a;
+}
+/* One block per named source: the source line, then its short lines. */
+.pdxbm-group + .pdxbm-group { margin-top: 0.9rem; padding-top: 0.8rem; border-top: 1px solid rgba(159, 180, 212, 0.14); }
+.pdxbm-from { margin: 0 0 0.4rem; font-size: 0.82rem; line-height: 1.45; color: #9fb4d4; }
+.pdxbm-from-k {
+  margin-right: 0.35rem;
+  font: 700 0.68rem/1 'Barlow Condensed', system-ui, sans-serif;
+  letter-spacing: 0.1em; text-transform: uppercase; color: #cfdcf2;
+}
+.pdxbm-sec .pdxbm-args { margin: 0; padding-left: 1.1rem; }
+.pdxbm-args li { color: #e7eefb; }
+/* The longer text, closed on arrival: the same native disclosure and 44px
+   target the bill panel's "More" uses. */
+.pdxbm-more-sum {
+  display: inline-flex; align-items: center; min-height: 44px; cursor: pointer; list-style: none;
+  font: 700 0.7rem/1.2 'Barlow Condensed', system-ui, sans-serif;
+  letter-spacing: 0.06em; text-transform: uppercase; color: #9ec8ff;
+}
+.pdxbm-more-sum::-webkit-details-marker { display: none; }
+.pdxbm-more-sum::before { content: "\25B8"; margin-right: 0.3rem; }
+.pdxbm-more[open] .pdxbm-more-sum::before { content: "\25BE"; }
+.pdxbm-more-sum:focus-visible { outline: 2px solid #7fb4ff; outline-offset: 2px; }
+.pdxbm-more p { margin: 0 0 0.3rem; color: #c9d6ec; font-size: 0.92rem; }
 .pdxbm-none { margin: 0; font-style: italic; color: #9fb4d4; }
+.pdxbm-none + .pdxbm-none { margin-top: 0.35rem; }
 
 .pdxbm-src li { word-break: break-word; }
 
-/* The one line that points at District Voice. These pages take no comments. */
-.pdxbm-hall {
-  margin: 2rem 0 0; padding: 0.9rem 1rem; border-radius: 0.6rem;
-  border: 1px dashed rgba(159, 180, 212, 0.3); color: #cfdcf2;
-}
-.pdxbm-hall p { margin: 0; }
+/* The one line that points at District Voice, on the Voice card itself. The
+   rules between the two marks are index.html's pdx:home-voice-gate rules,
+   copied byte for byte (as me.html's are) so this reads as the same door:
+   forest fill, gold edge, gold eyebrow, gold control.
+   scripts/test-ballot-measures.mjs fails if they drift. These pages take no
+   comments. */
+/* home:begin */
+.pdxhv-card{max-width:40rem;margin:0.5rem auto 2rem;padding:1.5rem 1.6rem 1.4rem;text-align:left;border:1.5px solid rgba(245,200,66,0.55);border-left-width:4px;border-radius:0.9rem;background:linear-gradient(135deg,rgba(18,58,42,0.82),rgba(14,30,40,0.9));box-shadow:0 0 0 1px rgba(245,200,66,0.08),0 0 28px rgba(245,200,66,0.14),0 8px 24px rgba(0,0,0,0.28);}
+.pdxhv-kick{margin:0 0 0.55rem;font:800 0.9rem/1 'Barlow Condensed','Barlow',sans-serif;letter-spacing:0.18em;text-transform:uppercase;color:#f5c842;}.pdxhv-title{margin:0 0 0.6rem;font:800 clamp(1.45rem,4.2vw,1.95rem)/1.15 'Barlow Condensed','Barlow',sans-serif;letter-spacing:0.01em;color:#fff7dc;}
+.pdxhv-line{margin:0 0 1.1rem;font:400 1rem/1.6 'Barlow',system-ui,sans-serif;color:#d8e8dc;}
+.pdxhv-door{display:inline-flex;align-items:center;min-height:44px;padding:0.6rem 1.15rem;border:1.5px solid rgba(245,200,66,0.9);border-radius:999px;font:700 0.95rem/1 'Barlow',system-ui,sans-serif;color:#0a0f1e;text-decoration:none;background:linear-gradient(135deg,#fad96a,#e6b800);transition:filter 0.2s ease;}
+.pdxhv-door:hover,.pdxhv-door:focus-visible{filter:brightness(1.06);}.pdxhv-door:focus-visible{outline:2px solid #fff7dc;outline-offset:3px;}
+.pdxhv-note{margin:0.95rem 0 0;font:400 0.85rem/1.55 'Barlow',system-ui,sans-serif;color:#9fb5a8;}
+@media (prefers-reduced-motion:reduce){.pdxhv-door{transition:none;}}
+/* home:end */
+/* This page's fit, and nothing else: the reading column instead of the
+   hero's centred rail. */
+.pdxbm-hall.pdxhv-card { max-width: none; margin: 2rem 0 0; }
+.pdxbm-hall .pdxhv-kick { margin-bottom: 0.8rem; }

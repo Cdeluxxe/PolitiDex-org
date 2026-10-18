@@ -10034,7 +10034,19 @@
 //     version; reader-rationale.js, like bill-detail.js, is a runtime entry.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v402';
+// v403 - THE UTAH AMENDMENT PAGES, EASIER TO SCAN. On /ballot/ut-amendment-a
+//     and /ballot/ut-amendment-b, "What each side says" is now two sides
+//     labelled For and Against, each block of argument under the source it
+//     comes from, every default line 140 characters or fewer and anything
+//     longer behind a closed "More". The hallway line is the homepage's District
+//     Voice card (.pdxhv-card: forest ground, gold edge, gold door), its rules
+//     copied byte for byte into ballot-measure.css. The question, the Yes/No
+//     lines, the sponsors and the votes are unchanged and open. Neither page
+//     prints a topic chip. Both documents and ballot-measure.css are precached
+//     and changed, so the shell moves one version. No location key is
+//     migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v403';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

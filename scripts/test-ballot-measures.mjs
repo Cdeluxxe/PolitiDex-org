@@ -104,8 +104,8 @@ for (const [slug, P] of Object.entries(PAGES)) {
   ok(P.house.test(visible(block(html, "house-vote"))), `${slug}: the House vote is recorded as ${P.house}`);
   ok(P.senate.test(visible(block(html, "senate-vote"))), `${slug}: the Senate vote is recorded as ${P.senate}`);
   ok(/What each side says/.test(txt), `${slug}: has the "What each side says" block`);
-  ok(/Arguments for/.test(visible(block(html, "for"))), `${slug}: has an arguments-for side`);
-  ok(/Arguments against/.test(visible(block(html, "against"))), `${slug}: has an arguments-against side`);
+  ok(/<h3 class="pdxbm-h3">For<\/h3>/.test(block(html, "for")), `${slug}: has a side labelled For`);
+  ok(/<h3 class="pdxbm-h3">Against<\/h3>/.test(block(html, "against")), `${slug}: has a side labelled Against`);
   ok(/Background/.test(txt), `${slug}: has a background section`);
   ok(/le\.utah\.gov\//.test(body) && /vote\.utah\.gov/.test(body), `${slug}: links the Utah Legislature and the voter pamphlet`);
   ok(new RegExp(`<link rel="canonical" href="https://politidex\\.fyi/ballot/${slug}"`).test(html), `${slug}: canonical is its own address`);
@@ -125,7 +125,7 @@ for (const [slug, P] of Object.entries(PAGES)) {
 
   // ── 4. The hallway ─────────────────────────────────────────────────────────
   const hall = block(html, "hallway");
-  ok(/<a href="\/voice">Discuss in your district room\.<\/a>/.test(hall), `${slug}: the District Voice hallway line is present`);
+  ok(/<a class="pdxhv-door" href="\/voice">Discuss in your district room\.<\/a>/.test(hall), `${slug}: the District Voice hallway line is present`);
   ok((txt.match(/Discuss in your district room/g) || []).length === 1, `${slug}: the hallway line appears once`);
 }
 
