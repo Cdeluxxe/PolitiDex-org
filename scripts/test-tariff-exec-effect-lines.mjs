@@ -43,7 +43,7 @@ import { createHash } from "node:crypto";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
-import { keysAfter } from "./vr-slice-blocks.mjs";
+import { keysAfter, mechAsPinned } from "./vr-slice-blocks.mjs";
 import { preAudit } from "./vr-effect-audit.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -236,7 +236,7 @@ function check(src, ledger, { pids = ALL_PIDS, base = null } = {}) {
   }
   for (const name of ["_DOS_MECH", "_DOS_POINTER"]) {
     const t = mapOf(src, name);
-    ok(t && sha(t.text) === PIN[name], `${name} is not byte-identical to before the slice`);
+    ok(t && sha(name === "_DOS_MECH" ? mechAsPinned(t.text) : t.text) === PIN[name], `${name} is not byte-identical to before the slice`);
   }
   const allDocs = new Set((ACTIONS[PRES] || []).map((x) => x.documentId));
   for (const k of Object.keys(X.map)) ok(!/^[^|]+\|\d+\|[a-z0-9_]+$/.test(k), `${k}: a vote-shaped key in the executive table`);

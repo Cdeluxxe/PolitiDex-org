@@ -39,3 +39,24 @@ export function keysAfter(src, name, version) {
   for (const b of sliceBlocks(src, name)) if (b.version > version) for (const k of b.keys) out.add(k);
   return out;
 }
+
+// _DOS_MECH carries no slice markers, and two suites pin it by hash
+// (test-fiscal-effect-lines, test-long-did-effect-lines) to prove no stored did
+// was EDITED. A later pass that files a new (measure, issue) pair on a judged
+// roll-call act owes that pair a did/why (test-mechanism-completeness) and edits
+// nothing already stored. Its key is listed here, and mechAsPinned() takes that
+// entry back out before hashing, so an addition is not mistaken for an edit and
+// an edit anywhere else still moves the hash.
+//   v398 · H.R. 22 (119th), the SAVE Act — states_federal_power.
+export const MECH_ADDED = ["H.R. 22|119|states_federal_power"];
+export function mechAsPinned(text) {
+  let s = String(text == null ? "" : text);
+  for (const k of MECH_ADDED) {
+    const at = s.indexOf(`    '${k}': {\n`);
+    if (at < 0) continue;
+    const end = s.indexOf("\n    },\n", at);
+    if (end < 0) continue;
+    s = s.slice(0, at) + s.slice(end + "\n    },\n".length);
+  }
+  return s;
+}

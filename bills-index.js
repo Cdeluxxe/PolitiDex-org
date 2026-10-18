@@ -22,9 +22,11 @@ window.PDX_BILLS_INDEX = [
     primaryIssue: 'lower_taxes',
     issueKeys: ['lower_taxes', 'national_debt', 'cut_spending', 'healthcare', 'border_security',
       'climate_action', 'tax_middle_class', 'deportations', 'lands_energy', 'strong_defense',
-      'energy_production', 'family_support', 'edu_college_cost', 'school_choice'],
+      'energy_production', 'family_support', 'edu_college_cost', 'school_choice',
+      'gov_services', 'rural_ag', 'lands_preserve', 'child_care', 'health_drug_prices', 'pro_life',
+      'housing_support', 'econ_corp_account', 'econ_smallbiz', 'permitting_reform', 'water_storage'],
     isOmnibus: true,
-    keywords: 'obbba one big beautiful bill reconciliation taxes tax cuts spending megabill omnibus budget medicaid border energy',
+    keywords: 'obbba obbb one big beautiful bill public law 119-21 reconciliation taxes tax cuts spending megabill omnibus budget medicaid snap border energy no tax on tips overtime debt limit child tax credit healthcare medicare defense military school choice scholarship oil gas leasing drilling energy production farm bill',
     source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/1', label: 'Congress.gov' }
   },
   {

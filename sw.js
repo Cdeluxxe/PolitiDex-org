@@ -9977,7 +9977,24 @@
 //     (20261123000000_vr_save_act_hr22_sponsors_and_state_rule: 1
 //     vr_measure_issues and 110 vr_positions rows).
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v398';
+// v399 - THE ONE BIG BEAUTIFUL BILL ACT, FULLY HOOKED UP. H.R. 1 (119th),
+//     Public Law 119-21, keeps its fourteen rows exactly as filed (lower_taxes
+//     100 primary and thirteen secondaries) and every line they print. Its
+//     enacted text, read title by title, touches eleven more topics, each now
+//     a secondary row with one effect line and a provision row naming its
+//     section: Invest in Public Services, Farmers & Rural Communities, Protect
+//     Public Lands, Affordable Child Care, Lower Prescription Drug Prices,
+//     Pro-Life Protections, Affordable Housing & Renters, Corporate
+//     Accountability, Help Small Businesses, Faster Permits & Reviews and Water
+//     Storage & Infrastructure. Its sponsor, Rep. Arrington, has a sponsorship
+//     row; the record lists no co-sponsors. consistency.js is precached and
+//     changed, so the shell moves one version. No weight, primary flag, pole or
+//     issue key moved. No location key is migrated, renamed or copied. The rows
+//     arrive by one migration (20261124000000_vr_obbba_hr1_full_lens: 11
+//     vr_measure_issues, 11 vr_measure_provisions and 1 vr_positions row), as
+//     this Act's other secondary rows did; the seed is unchanged.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v399';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

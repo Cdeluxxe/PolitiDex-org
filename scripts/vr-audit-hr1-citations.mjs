@@ -329,7 +329,10 @@ export function auditHr1Citations() {
   const prior = idx > 0 ? files[idx - 1] : null;
 
   const before = replay(prior);
-  const after = replay(null);
+  // "after" is the corpus as of THIS pass, not the whole corpus: a later pass that
+  // adds H.R. 1 topics (20261124000000_vr_obbba_hr1_full_lens) is that pass's to
+  // pin, and its own test holds every topic it adds to the same citation standard.
+  const after = replay(THIS_PASS);
 
   const keys = [...after.mappings.keys()];
   const bShape = shape(before);
@@ -471,4 +474,13 @@ if (process.argv[1] && process.argv[1].endsWith("vr-audit-hr1-citations.mjs")) {
     console.log("\n  scoring drift: " + (drift.length ? drift.map((d) => d.issueKey).join(", ") : "none — weight/is_primary/support_meaning identical on all " + rep.scoring.length));
     console.log("");
   }
+}
+
+// The whole corpus, every pass included — what the bill face shows today. Each
+// mapping, and the set of keys a provision row owns. Read by later passes' tests
+// (scripts/test-obbba-hr1.mjs) so a topic they add is held to this file's standard.
+export function hr1CorpusCitations() {
+  const s = replay(null);
+  const sh = shape(s);
+  return { mappings: s.mappings, provisions: s.provisions, owned: sh.owned };
 }
