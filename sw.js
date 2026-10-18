@@ -10022,7 +10022,19 @@
 //     bill.html, in the same pass as the panel it opens. bill-official.json is
 //     runtime-cached too. No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v401';
+// v402 - "More" ON THE /b/ PAGE ITSELF. bill.html now loads
+//     reader-rationale.js: receipt-cards.js's rationale scrubber (tidyRemainder
+//     through readerRationale), copied byte for byte by
+//     scripts/gen-reader-rationale.mjs, 12 KB instead of 239 KB of share cards.
+//     With it the panel on a pure /b/ page puts a topic's longer stored
+//     rationale behind the same closed "More" it already used on the front
+//     page; short lines from bill-official.json's effects stay the default.
+//     Chips, colours, labels, order, links, statuses, roll calls and provisions
+//     are unchanged. bill.html is precached and changed, so the shell moves one
+//     version; reader-rationale.js, like bill-detail.js, is a runtime entry.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v402';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

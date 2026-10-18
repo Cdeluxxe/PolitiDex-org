@@ -10,8 +10,9 @@
 // H.R. 22, a paragraph of quoted statute under "Whose Rule Governs".
 //
 // What must stay true, on H.R. 1 and H.R. 22, booted with bill.html's own scripts
-// (and again with receipt-cards.js, the reader-copy scrubber the front page
-// carries, which is what lets a rationale print at all):
+// (which since v402 include reader-rationale.js, the scrubber copied out of
+// receipt-cards.js), and again with receipt-cards.js itself, as the front page
+// boots it):
 //
 //   1. THE DRAWER'S COLOUR. Every topic chip in both sections carries exactly the
 //      treatment a person-file drawer gives the same key: the `pdxc-ic` class and
@@ -215,7 +216,9 @@ section("3 · the short line by default, the longer text behind More");
 // ═════════════════════════════════════════════════════════════════════════════
 for (const b of BILLS) {
   for (const scrubber of [false, true]) {
-    eq(textProblems(BOOTS[b.number + (scrubber ? "+s" : "")].html, b, { scrubber }), [],
+    // bill.html carries reader-rationale.js (the scrubber, copied out of
+    // receipt-cards.js), so both boots can print the longer text behind More.
+    eq(textProblems(BOOTS[b.number + (scrubber ? "+s" : "")].html, b, { scrubber: true }), [],
       `${b.number}${scrubber ? " (with the scrubber)" : ""}: default text`);
   }
 }
