@@ -13357,6 +13357,10 @@
       did: 'Wrote the documentary-proof-of-citizenship rule into federal law for every registration channel a state runs, fixed the acceptable-document list federally, and extended the requirement to states that had been outside the National Voter Registration Act altogether.',
       why: 'On this chip the question is who sets the rule rather than whether the rule is good, and a yea swaps each state’s own registration procedure for a uniform federal one. Narrow link: preemption here is a by-product of the citizenship mandate, which the elections rows score.'
     },
+    'H.R. 22|119|states_federal_power': {
+      did: 'The SAVE Act as reintroduced in the 119th Congress: wrote the documentary-proof-of-citizenship rule into federal law for every registration channel a state runs, fixed the acceptable-document list federally, and extended the requirement to states that had been outside the National Voter Registration Act altogether.',
+      why: 'On this chip the question is who sets the rule rather than whether the rule is good, and a yea swaps each state’s own registration procedure for a uniform federal one. Narrow link: preemption here is a by-product of the citizenship mandate, which the elections rows score.'
+    },
     'H.R. 4|117|states_federal_power': {
       did: 'Restored Voting Rights Act preclearance on a rolling twenty-five-year coverage formula and added a nationwide step: a state must identify each newly enacted covered election practice and may not implement it until it has been cleared federally.',
       why: 'A yea puts a state’s own enacted election law behind federal approval before it can take effect, and a nay leaves the state’s rule governing on its own. Only that preemption question is coded here — the merits of the Voting Rights Act are the access row on the same bill.'
@@ -19198,6 +19202,7 @@
       'Let confidential economic development information, including nondisclosure agreements, be withheld as protected records.',
     'H.B. 507|2026GS|enviro_energy':
       'Narrowed the bar on county and city incentives for baseload power projects outside energy development zones to nuclear projects.',
+    // EPSTEIN FILES SLICE 21 (v396).
     // EPSTEIN FILES TRANSPARENCY ACT II. H.R. 9694 (119th) and its Senate
     // companion S. 5005, both introduced 2026-07-15 and still in committee, so
     // each opens "Would". Each amends H.R. 4405 (Public Law 119-38), whose line
@@ -19205,11 +19210,45 @@
     'H.R. 9694|119|gov_transparency':
       'Would give state attorneys general and survivors standing to sue the Attorney General over withheld or redacted Epstein records.',
     'S. 5005|119|gov_transparency':
-      'Would let state attorneys general and victims sue the Attorney General over Epstein records withheld under the original Act.',    // 21ST CENTURY ROAD TO HOUSING ACT, TITLE X. H.R. 6644 (119th), Public Law
+      'Would let state attorneys general and victims sue the Attorney General over Epstein records withheld under the original Act.',
+    // ROAD TO HOUSING SLICE 22 (v397).
+    // 21ST CENTURY ROAD TO HOUSING ACT, TITLE X. H.R. 6644 (119th), Public Law
     // 119-101, Sec. 1001 "Homes are for people, not corporations". Its five other
     // lines above are unchanged.
     'H.R. 6644|119|econ_corp_account':
       'Barred investors controlling 350 or more single-family homes from buying more, except build-to-rent, renovation and rent-to-own purchases.',
+    // SAVE ACT SLICE 23 (v398). H.R. 22 (119th), passed by the House and
+    // received in the Senate, so it opens "Would". Its engrossed text is word
+    // for word H.R. 8281's, and this line follows that act's own line on the
+    // same leaf. Its four other lines above are unchanged.
+    'H.R. 22|119|states_federal_power':
+      'Would write the proof-of-citizenship rule into federal law for every registration channel a state runs; the House passed it 220-208.',
+    // ONE BIG BEAUTIFUL BILL ACT SLICE 24 (v399). H.R. 1 (119th), Public Law
+    // 119-21: the eleven topics its enacted text touches that were not on file,
+    // each written from the section its provision row names, in its siblings'
+    // tense and tally. Its fourteen other lines are unchanged.
+    'H.R. 1|119|gov_services':
+      'Cut Medicaid through work rules and provider-tax limits and shifted SNAP costs to states; the House cleared it 218-214, the Senate 50-50.',
+    'H.R. 1|119|rural_ag':
+      'Raised farm reference prices, added up to 30 million base acres and lifted crop-insurance premium support; the House cleared it 218-214.',
+    'H.R. 1|119|lands_preserve':
+      'Required four more Arctic refuge coastal plain lease sales and rescinded park and BLM conservation funds; the House cleared it 218-214.',
+    'H.R. 1|119|child_care':
+      'Raised the dependent care benefit cap to $7,500 and enlarged the child care and employer child care credits; the House cleared it 218-214.',
+    'H.R. 1|119|health_drug_prices':
+      'Exempted more orphan drugs from Medicare drug price negotiation, including those for several rare diseases; the House cleared it 218-214.',
+    'H.R. 1|119|pro_life':
+      'Barred federal Medicaid payments for one year to large nonprofit abortion providers; the House cleared it 218-214, the Senate 50-50.',
+    'H.R. 1|119|housing_support':
+      'Permanently raised state low-income housing tax credit allocations by 12% and eased the bond-financing test; the House cleared it 218-214.',
+    'H.R. 1|119|econ_corp_account':
+      'Cut the cap on Consumer Financial Protection Bureau funding from 12% to 6.5% of Federal Reserve costs; the House cleared it 218-214.',
+    'H.R. 1|119|econ_smallbiz':
+      'Raised the 1099 reporting threshold from $600 to $2,000 and restored the $20,000 payment-app reporting floor; the House cleared it 218-214.',
+    'H.R. 1|119|permitting_reform':
+      'Let project sponsors pay for environmental reviews due within 180 days or one year; the House cleared it 218-214, the Senate 50-50.',
+    'H.R. 1|119|water_storage':
+      'Appropriated $1 billion to expand Bureau of Reclamation canal and reservoir capacity; the House cleared it 218-214, the Senate 50-50.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // THE KEY IS THE MEASURE'S OWN IDENTITY: number, sitting, issue. The sitting is

@@ -131,6 +131,9 @@ const SW = R("sw.js");
 const TOML = R("netlify.toml");
 
 const KEY = "lands_preserve";
+// Four measures when this file was written; five since v399 filed H.R. 1 (119th)
+// on lands_preserve (Sec. 50104, the Arctic refuge coastal plain lease sales).
+const N_MEASURES = 5;
 const EMPTY = "lands_keep_public";
 const MISS = "not_a_key";
 const ORIGIN = "https://politidex.fyi";
@@ -489,8 +492,8 @@ const ARRIVED = await (async () => {
   must(led.people > 0, `${KEY} no longer has a readable formal row — pick another key`);
   eq((led.measures || []).length, (tapLed.measures || []).length,
     "the measures list differs between the two doors");
-  eq((led.measures || []).length, 4,
-    `${KEY} no longer maps to the four measures the smoke counts`);
+  eq((led.measures || []).length, N_MEASURES,
+    `${KEY} no longer maps to the ${N_MEASURES} measures the smoke counts`);
   has(html, `<b>${led.people}</b>`, "the arrival's census does not print the row count");
 
   // THE PICK IS THE SAME PICK. It went through window.pdxDoor1Issue, so the desk
@@ -875,10 +878,10 @@ const FILED = await (async () => {
 
   // ── THE SAME CENSUS CONTRACT AS THE DESK ──────────────────────────────────
   const ldg = w.PDXDoor1._ledger(null, KEY);
-  eq((ldg.measures || []).length, 4, `${KEY} no longer maps to the four measures the smoke counts`);
+  eq((ldg.measures || []).length, N_MEASURES, `${KEY} no longer maps to the ${N_MEASURES} measures the smoke counts`);
   has(led.innerHTML, `<b>${ldg.people}</b>`, "the file does not print the census row count");
-  has(led.innerHTML, "<b>4</b> measures on file map here.",
-    "the file does not print the four measures the desk prints");
+  has(led.innerHTML, `<b>${N_MEASURES}</b> measures on file map here.`,
+    `the file does not print the ${N_MEASURES} measures the desk prints`);
 
   // ── THE CHROME · PERSON-FILE ANALOG, AND NOT A SECOND READING ─────────────
   const chrome = w.document.getElementById("pdx-issue-file-chrome");

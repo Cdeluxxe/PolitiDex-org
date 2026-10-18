@@ -6639,9 +6639,24 @@
    "t": "H.R. 1 — One Big Beautiful Bill Act (reconciliation, title II of H. Con. Res. 14)",
    "m": [
     {
+     "i": "Affordable Child Care",
+     "k": "child_care",
+     "l": "Raised the dependent care benefit cap to $7,500 and enlarged the child care and employer child care credits; the House cleared it 218-214."
+    },
+    {
+     "i": "Affordable Housing & Renters",
+     "k": "housing_support",
+     "l": "Permanently raised state low-income housing tax credit allocations by 12% and eased the bond-financing test; the House cleared it 218-214."
+    },
+    {
      "i": "Climate Action & Clean Energy",
      "k": "climate_action",
      "l": "Phased out and repealed the 2022 clean-energy and electric-vehicle tax credits; the House cleared it 218-214, the Senate 50-50."
+    },
+    {
+     "i": "Corporate Accountability",
+     "k": "econ_corp_account",
+     "l": "Cut the cap on Consumer Financial Protection Bureau funding from 12% to 6.5% of Federal Reserve costs; the House cleared it 218-214."
     },
     {
      "i": "Cut Federal Spending & Reduce Debt",
@@ -6669,14 +6684,39 @@
      "l": "Reduced federal Medicaid spending and tightened Medicaid enrolment and eligibility processes."
     },
     {
+     "i": "Farmers & Rural Communities",
+     "k": "rural_ag",
+     "l": "Raised farm reference prices, added up to 30 million base acres and lifted crop-insurance premium support; the House cleared it 218-214."
+    },
+    {
+     "i": "Faster Permits & Reviews",
+     "k": "permitting_reform",
+     "l": "Let project sponsors pay for environmental reviews due within 180 days or one year; the House cleared it 218-214, the Senate 50-50."
+    },
+    {
      "i": "Help Families with Kids",
      "k": "family_support",
      "l": "Raised the child tax credit to $2,200 per child and made it permanent; the House cleared it 218-214, the Senate 50-50."
     },
     {
+     "i": "Help Small Businesses",
+     "k": "econ_smallbiz",
+     "l": "Raised the 1099 reporting threshold from $600 to $2,000 and restored the $20,000 payment-app reporting floor; the House cleared it 218-214."
+    },
+    {
+     "i": "Invest in Public Services",
+     "k": "gov_services",
+     "l": "Cut Medicaid through work rules and provider-tax limits and shifted SNAP costs to states; the House cleared it 218-214, the Senate 50-50."
+    },
+    {
      "i": "Lower College & Trade Costs",
      "k": "edu_college_cost",
      "l": "Eliminated several income-driven student-loan repayment plans and capped graduate borrowing; the House cleared it 218-214."
+    },
+    {
+     "i": "Lower Prescription Drug Prices",
+     "k": "health_drug_prices",
+     "l": "Exempted more orphan drugs from Medicare drug price negotiation, including those for several rare diseases; the House cleared it 218-214."
     },
     {
      "i": "Mass Deportations & Border Security",
@@ -6694,6 +6734,16 @@
      "l": "Added a large increase in defense and military spending; the House cleared it 218-214, the Senate 50-50."
     },
     {
+     "i": "Pro-Life Protections",
+     "k": "pro_life",
+     "l": "Barred federal Medicaid payments for one year to large nonprofit abortion providers; the House cleared it 218-214, the Senate 50-50."
+    },
+    {
+     "i": "Protect Public Lands",
+     "k": "lands_preserve",
+     "l": "Required four more Arctic refuge coastal plain lease sales and rescinded park and BLM conservation funds; the House cleared it 218-214."
+    },
+    {
      "i": "School Choice & Education Freedom",
      "k": "school_choice",
      "l": "Created a federal tax credit for donations to K-12 private-school scholarship organizations; the House cleared it 218-214, the Senate 50-50."
@@ -6707,6 +6757,11 @@
      "i": "Tackle the National Debt",
      "k": "national_debt",
      "l": "Raised the statutory debt ceiling by $5 trillion; the House cleared it 218-214, the Senate 50-50."
+    },
+    {
+     "i": "Water Storage & Infrastructure",
+     "k": "water_storage",
+     "l": "Appropriated $1 billion to expand Bureau of Reclamation canal and reservoir capacity; the House cleared it 218-214, the Senate 50-50."
     }
    ],
    "st": "enacted",
@@ -7094,6 +7149,11 @@
      "i": "Voter ID & Election Integrity",
      "k": "voter_id",
      "l": "Would require a passport, a citizenship-showing REAL ID, or a birth certificate with photo ID to register; the House passed it 220-208."
+    },
+    {
+     "i": "Whose Rule Governs: State or Federal",
+     "k": "states_federal_power",
+     "l": "Would write the proof-of-citizenship rule into federal law for every registration channel a state runs; the House passed it 220-208."
     }
    ],
    "st": "passed_house",

@@ -61,6 +61,7 @@ import { buildCorpus } from "./vr-record-corpus.mjs";
 import { deOrigin } from "./v103-chrome-seams.mjs";
 import { measureAddresses } from "./vr-measure-addresses.mjs";
 import { preAudit } from "./vr-effect-audit.mjs";
+import { keysAfter } from "./vr-slice-blocks.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 // consistency.js as it stood before the v387 provisions audit; see
@@ -2128,7 +2129,10 @@ section("14 · the harvest — every stored did, read against the effect rule");
   const S20 = (() => {
     const src = R("consistency.js"), at = src.indexOf("// CURRENT BILLS SLICE 20 (v391)");
     if (at === -1) return [];
-    return [...src.slice(at, src.indexOf("\n  };", at)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
+    // To the next slice marker, as S19 stops at this one: the passes after v391
+    // write their own marked blocks and are theirs to pin.
+    const end = src.indexOf("\n  };", at), next = src.slice(at + 1).search(/\n {4}\/\/ [A-Z][A-Z -]* SLICE \d+ \(v\d+\)\./);
+    return [...src.slice(at, next !== -1 && at + 1 + next < end ? at + 1 + next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
   })();
   ok(S20.length === JSON.parse(R("db/vr-current-bills.json")).measures.flatMap((m) => m.mappings).filter((x) => x.decision === "line").length, `${S20.length} slice-20 line(s) — not the current-bills ledger's count`);
   for (const k of S20) {
@@ -2152,9 +2156,13 @@ section("14 · the harvest — every stored did, read against the effect rule");
     ok(!(MECH[k] && MECH[k].did), `${k}: a slice-17 line on a pair that stores a did`);
     ok(/^[^|]+\|(?:\d{4}GS|\d{3})\|[a-z_]+$/.test(k) && (!/\|\d{4}GS\|/.test(k) || !/\d+-\d+/.test(v)), `${k}: not a Utah or federal pair, or a Utah line names a tally`);
   }
-  const BATCH = Object.keys(EFFECT).filter((k) => !S17.includes(k) && !S18.includes(k) && !S19.includes(k) && !S20.includes(k) && !(k in SHIPPED) && !FISCAL.includes(k) && !LONGDID.includes(k) && !EPA.includes(k) && !VEN.includes(k) && !S6.includes(k) && !S7.includes(k) && !S8.includes(k) && !S9.includes(k) && !S10.includes(k) && !S11.includes(k) && !S12.includes(k) && !S13.includes(k) && !S15.includes(k) && !S16.includes(k) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k) && !WAVE1.includes(k) && !WAVE2.includes(k) && !RIDER.includes(k) && !WAVE3.includes(k) && !WAVE4.includes(k));
+  // Marked blocks after slice 20 (v391): each later pass's lines, held by that
+  // pass's own test (test-epstein-files-act-ii, test-road-to-housing,
+  // test-save-act-hr22, test-obbba-hr1). Not the CRA batch.
+  const LATER = [...keysAfter(R("consistency.js"), "_DOS_EFFECT", 391)];
+  const BATCH = Object.keys(EFFECT).filter((k) => !LATER.includes(k) && !S17.includes(k) && !S18.includes(k) && !S19.includes(k) && !S20.includes(k) && !(k in SHIPPED) && !FISCAL.includes(k) && !LONGDID.includes(k) && !EPA.includes(k) && !VEN.includes(k) && !S6.includes(k) && !S7.includes(k) && !S8.includes(k) && !S9.includes(k) && !S10.includes(k) && !S11.includes(k) && !S12.includes(k) && !S13.includes(k) && !S15.includes(k) && !S16.includes(k) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k) && !WAVE1.includes(k) && !WAVE2.includes(k) && !RIDER.includes(k) && !WAVE3.includes(k) && !WAVE4.includes(k));
   ok(BATCH.length > 0 && BATCH.length <= 30, `${BATCH.length} new effect line(s) — the CRA batch is capped at 30`);
-  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length + WAVE1.length + WAVE2.length + RIDER.length + WAVE3.length + WAVE4.length + FISCAL.length + LONGDID.length + EPA.length + VEN.length + S6.length + S7.length + S8.length + S9.length + S10.length + S11.length + S12.length + S13.length + S15.length + S16.length + S17.filter((k) => ![IRAN, UKRAINE, WAR, AF, PTS, ISR, DR].some((g) => g.includes(k))).length + S18.filter((k) => ![IRAN, UKRAINE, WAR, AF, PTS, ISR, DR].some((g) => g.includes(k))).length + S19.filter((k) => ![IRAN, UKRAINE, WAR, AF, PTS, ISR, DR].some((g) => g.includes(k))).length + S20.filter((k) => ![IRAN, UKRAINE, WAR, AF, PTS, ISR, DR].some((g) => g.includes(k))).length, "the effect table lost a shipped line");
+  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length + WAVE1.length + WAVE2.length + RIDER.length + WAVE3.length + WAVE4.length + FISCAL.length + LONGDID.length + EPA.length + VEN.length + S6.length + S7.length + S8.length + S9.length + S10.length + S11.length + S12.length + S13.length + S15.length + S16.length + S17.filter((k) => ![IRAN, UKRAINE, WAR, AF, PTS, ISR, DR].some((g) => g.includes(k))).length + S18.filter((k) => ![IRAN, UKRAINE, WAR, AF, PTS, ISR, DR].some((g) => g.includes(k))).length + S19.filter((k) => ![IRAN, UKRAINE, WAR, AF, PTS, ISR, DR].some((g) => g.includes(k))).length + S20.filter((k) => ![IRAN, UKRAINE, WAR, AF, PTS, ISR, DR].some((g) => g.includes(k))).length + LATER.length, "the effect table lost a shipped line");
   for (const k of BATCH) eq(craFault(k, EFFECT[k]), "", `${k}: the CRA effect line`);
   // Same resolution, different issue: the line is that pair's own, never a
   // sibling's, except where neither pair has a `did` and the title is the only source.

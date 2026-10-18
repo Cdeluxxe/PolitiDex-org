@@ -45,7 +45,7 @@ import { createHash } from "node:crypto";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
-import { keysAfter } from "./vr-slice-blocks.mjs";
+import { keysAfter, mechAsPinned } from "./vr-slice-blocks.mjs";
 import { preAudit } from "./vr-effect-audit.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -236,7 +236,7 @@ function check(src, ledger, { pids = ALL_PIDS, base = null } = {}) {
     "_DOS_EXEC_EFFECT is not byte-identical to before the slice");
   for (const name of ["_DOS_MECH", "_DOS_POINTER"]) {
     const t = mapOf(src, name);
-    ok(t && sha(t.text) === PIN[name], `${name} is not byte-identical to before the slice${name === "_DOS_MECH" ? " — a stored did was edited" : ""}`);
+    ok(t && sha(name === "_DOS_MECH" ? mechAsPinned(t.text) : t.text) === PIN[name], `${name} is not byte-identical to before the slice${name === "_DOS_MECH" ? " — a stored did was edited" : ""}`);
   }
 
   // ── 2–4 · line by line ────────────────────────────────────────────────────
