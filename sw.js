@@ -10084,7 +10084,21 @@
 //     29's identity and four rows so the bill-page projection can address it;
 //     on the live branch it writes nothing.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v405';
+// v406 - THE STOP INSIDER TRADING ACT IN THE LEGISLATION LIBRARY. H.R. 7008
+//     (119th), passed by the House 232-198 (roll 280) and stopped in the
+//     Senate at cloture 53-47, keeps its two rows exactly as filed (Ban
+//     Congressional Stock Trading 100 primary, Transparency & Anti-Corruption
+//     60) and the short line each already prints on its bill page and in
+//     every voter's drawer. The curated Legislation index gains its card, so
+//     the eye answers members of Congress, ethics, stocks, stock ban and
+//     financial disclosure with it. Congressional Oversight was read and not
+//     filed: it is the executive answering Congress, not Members' own ethics.
+//     bills-index.js changed, and the doors that read it ship with the shell,
+//     so the shell moves one version. No weight, primary flag, pole, line or
+//     issue key moved.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v406';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

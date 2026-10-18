@@ -181,6 +181,16 @@ window.PDX_BILLS_INDEX = [
     source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/1048', label: 'Congress.gov' }
   },
   {
+    number: 'H.R. 7008', title: 'Stop Insider Trading Act', shortTitle: 'Stop Insider Trading Act',
+    measureType: 'bill', chamber: 'house', congress: 119, status: 'passed_house',
+    primaryIssue: 'stock_trading_ban',
+    issueKeys: ['stock_trading_ban', 'gov_transparency'], isOmnibus: false,
+    keywords: 'stop insider trading act congressional stock trading ban stock ban stocks individual stocks ' +
+      'members of congress member spouses dependent children ethics penalty forced sale covered investment ' +
+      'advance public notice clerk financial disclosure transparency steil',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/7008', label: 'Congress.gov' }
+  },
+  {
     number: 'H.R. 1919', title: 'Anti-CBDC Surveillance State Act', shortTitle: 'Anti-CBDC Surveillance State Act',
     measureType: 'bill', chamber: 'house', congress: 119, status: 'passed_house',
     primaryIssue: 'privacy_rights',
