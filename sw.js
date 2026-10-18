@@ -10046,7 +10046,25 @@
 //     and changed, so the shell moves one version. No location key is
 //     migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v403';
+// v404 - THE PROTECTING PRIVACY IN PURCHASES ACT, FULLY HOOKED UP. H.R. 1181
+//     (119th), passed by the House 221-201 (roll 240) and not law, keeps its
+//     three rows exactly as filed (gun_rights 100 primary, privacy_rights and
+//     states_federal_power 40 yea_opposes) and the three short lines they
+//     print. Its Sec. 2(a)-(b) bar on payment card networks requiring a
+//     firearms merchant category code, enforced by the Attorney General, is
+//     now a secondary Corporate Accountability row (30, yea_supports) with one
+//     short line on the bill page and in every voter's issue drawer.
+//     gun_safety stays declined, as the firearms pass recorded. The
+//     Legislation library's curated index gains the bill's card, so the eye
+//     answers gun, firearms, MCC, merchant category code and payment network
+//     with it. consistency.js is precached and changed, so the shell moves one
+//     version; bills-index.js, bill-search-index.js and bill-official.json are
+//     runtime entries. No weight, primary flag, pole or issue key moved.
+//     No location key is migrated, renamed or copied. The row arrives by one
+//     migration (20261125000000_vr_hr1181_payment_network_lens: 1
+//     vr_measure_issues row); the seed is unchanged.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v404';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

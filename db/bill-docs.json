@@ -8257,6 +8257,11 @@
    "t": "Protecting Privacy in Purchases Act",
    "m": [
     {
+     "i": "Corporate Accountability",
+     "k": "econ_corp_account",
+     "l": "Would let the Attorney General enjoin payment card networks that require a firearms merchant category code; the House passed it 221-201."
+    },
+    {
      "i": "Privacy & Big-Tech Accountability",
      "k": "privacy_rights",
      "l": "Would stop card networks from building records that flag a customer as having shopped at a gun store; the House passed it 221-201."

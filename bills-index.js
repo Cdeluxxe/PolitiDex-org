@@ -181,6 +181,16 @@ window.PDX_BILLS_INDEX = [
     source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/1919', label: 'Congress.gov' }
   },
   {
+    number: 'H.R. 1181', title: 'Protecting Privacy in Purchases Act', shortTitle: 'Protecting Privacy in Purchases Act',
+    measureType: 'bill', chamber: 'house', congress: 119, status: 'passed_house',
+    primaryIssue: 'gun_rights',
+    issueKeys: ['gun_rights', 'privacy_rights', 'states_federal_power', 'econ_corp_account'], isOmnibus: false,
+    keywords: 'gun guns firearm firearms gun store firearms retailer gun purchase purchase tracking ' +
+      'merchant category code mcc payment card network payment network credit card card network ' +
+      'financial privacy purchase privacy second amendment preemption attorney general riley moore',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/1181', label: 'Congress.gov' }
+  },
+  {
     number: 'H.R. 3633', title: 'Digital Asset Market Clarity Act of 2025', shortTitle: 'CLARITY Act',
     measureType: 'bill', chamber: 'house', congress: 119, status: 'passed_house',
     primaryIssue: 'tech_innovation',

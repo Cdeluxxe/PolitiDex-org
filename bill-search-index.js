@@ -108,7 +108,7 @@ window.PDX_BILL_SEARCH = [
   ["119","H.R. 1047","To require the Federal Energy Regulatory Commission to reform the interconnection queue process for the prioritization and approval of certain projects.","passed_house","house",["energy_production"]],
   ["119","H.R. 1048","Defending Education Transparency and Ending Rogue Regimes Engaging in Nefarious Transactions (DETERRENT) Act","passed_house","house",["edu_balance","gov_transparency"]],
   ["119","H.R. 1118","Value Over Cost Act of 2026","passed_house","house",[]],
-  ["119","H.R. 1181","Protecting Privacy in Purchases Act","passed_house","house",["privacy_rights","gun_rights","states_federal_power"]],
+  ["119","H.R. 1181","Protecting Privacy in Purchases Act","passed_house","house",["econ_corp_account","privacy_rights","gun_rights","states_federal_power"]],
   ["119","H.R. 1366","To provide for the location of multiple hardrock mining mill sites, to establish the Abandoned Hardrock Mine Fund, and for other purposes.","passed_house","house",["lands_energy"]],
   ["119","H.R. 1526","No Rogue Rulings Act of 2025","passed_house","house",["judicial_check","reform_balance"]],
   ["119","H.R. 1919","Anti-CBDC Surveillance State Act","passed_house","house",["crypto_cbdc","privacy_rights","tech_balance"]],

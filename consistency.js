@@ -19249,6 +19249,12 @@
       'Let project sponsors pay for environmental reviews due within 180 days or one year; the House cleared it 218-214, the Senate 50-50.',
     'H.R. 1|119|water_storage':
       'Appropriated $1 billion to expand Bureau of Reclamation canal and reservoir capacity; the House cleared it 218-214, the Senate 50-50.',
+    // PROTECTING PRIVACY IN PURCHASES ACT SLICE 25 (v404). H.R. 1181 (119th),
+    // passed by the House and not law, so it opens "Would". Written from Sec.
+    // 2(a)-(b) as its mapping row reads them, in its siblings' tally. Its three
+    // other lines above are unchanged.
+    'H.R. 1181|119|econ_corp_account':
+      'Would let the Attorney General enjoin payment card networks that require a firearms merchant category code; the House passed it 221-201.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // THE KEY IS THE MEASURE'S OWN IDENTITY: number, sitting, issue. The sitting is
