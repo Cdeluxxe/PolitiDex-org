@@ -9962,7 +9962,22 @@
 //     vr_measure_issues and 31 vr_positions rows), as this Act's other
 //     secondary rows did; the seed is unchanged.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v397';
+// v398 - THE SAVE ACT, FULLY HOOKED UP. H.R. 22 (119th), passed by the House
+//     220-208 on 2025-04-10 and received in the Senate, keeps its four rows
+//     exactly as filed (election_integrity 100 primary, election_security 100,
+//     voter_id 70, voting_access 60) and their four effect lines. Its sponsor
+//     and the 109 co-sponsors who are roster files now have sponsorship rows,
+//     as Congress.gov lists them (Rep. Mark E. Green is not a roster file and
+//     gets none). Its text — word for word H.R. 8281's — is filed on Whose
+//     Rule Governs: State or Federal as a secondary row (45, yea_opposes) with
+//     one effect line, as H.R. 8281 already is. consistency.js is precached
+//     and changed, so the shell moves one version. No weight, primary flag,
+//     pole or issue key moved. No location key is migrated, renamed or copied.
+//     The rows arrive by the usual seed + migration pair
+//     (20261123000000_vr_save_act_hr22_sponsors_and_state_rule: 1
+//     vr_measure_issues and 110 vr_positions rows).
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v398';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

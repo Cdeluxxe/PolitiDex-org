@@ -13357,6 +13357,10 @@
       did: 'Wrote the documentary-proof-of-citizenship rule into federal law for every registration channel a state runs, fixed the acceptable-document list federally, and extended the requirement to states that had been outside the National Voter Registration Act altogether.',
       why: 'On this chip the question is who sets the rule rather than whether the rule is good, and a yea swaps each state’s own registration procedure for a uniform federal one. Narrow link: preemption here is a by-product of the citizenship mandate, which the elections rows score.'
     },
+    'H.R. 22|119|states_federal_power': {
+      did: 'The SAVE Act as reintroduced in the 119th Congress: wrote the documentary-proof-of-citizenship rule into federal law for every registration channel a state runs, fixed the acceptable-document list federally, and extended the requirement to states that had been outside the National Voter Registration Act altogether.',
+      why: 'On this chip the question is who sets the rule rather than whether the rule is good, and a yea swaps each state’s own registration procedure for a uniform federal one. Narrow link: preemption here is a by-product of the citizenship mandate, which the elections rows score.'
+    },
     'H.R. 4|117|states_federal_power': {
       did: 'Restored Voting Rights Act preclearance on a rolling twenty-five-year coverage formula and added a nationwide step: a state must identify each newly enacted covered election practice and may not implement it until it has been cleared federally.',
       why: 'A yea puts a state’s own enacted election law behind federal approval before it can take effect, and a nay leaves the state’s rule governing on its own. Only that preemption question is coded here — the merits of the Voting Rights Act are the access row on the same bill.'
@@ -19210,6 +19214,12 @@
     // lines above are unchanged.
     'H.R. 6644|119|econ_corp_account':
       'Barred investors controlling 350 or more single-family homes from buying more, except build-to-rent, renovation and rent-to-own purchases.',
+    // SAVE ACT. H.R. 22 (119th), passed by the House and received in the Senate,
+    // so it opens "Would". Its engrossed text is word for word H.R. 8281's, and
+    // this line follows that act's own line on the same leaf. Its four other
+    // lines above are unchanged.
+    'H.R. 22|119|states_federal_power':
+      'Would write the proof-of-citizenship rule into federal law for every registration channel a state runs; the House passed it 220-208.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // THE KEY IS THE MEASURE'S OWN IDENTITY: number, sitting, issue. The sitting is

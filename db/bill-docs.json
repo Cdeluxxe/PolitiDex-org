@@ -7094,6 +7094,11 @@
      "i": "Voter ID & Election Integrity",
      "k": "voter_id",
      "l": "Would require a passport, a citizenship-showing REAL ID, or a birth certificate with photo ID to register; the House passed it 220-208."
+    },
+    {
+     "i": "Whose Rule Governs: State or Federal",
+     "k": "states_federal_power",
+     "l": "Would write the proof-of-citizenship rule into federal law for every registration channel a state runs; the House passed it 220-208."
     }
    ],
    "st": "passed_house",

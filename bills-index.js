@@ -53,7 +53,7 @@ window.PDX_BILLS_INDEX = [
     number: 'H.R. 22', title: 'Safeguard American Voter Eligibility (SAVE) Act', shortTitle: 'SAVE Act',
     measureType: 'bill', chamber: 'house', congress: 119, status: 'passed_house',
     primaryIssue: 'election_integrity',
-    issueKeys: ['election_integrity', 'voter_id', 'voting_access'], isOmnibus: true,
+    issueKeys: ['election_integrity', 'election_security', 'voter_id', 'voting_access', 'states_federal_power'], isOmnibus: true,
     keywords: 'save act voter registration proof of citizenship noncitizen voting elections voter id',
     source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/22', label: 'Congress.gov' }
   },

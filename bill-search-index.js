@@ -95,7 +95,7 @@ window.PDX_BILL_SEARCH = [
   ["119","H.R. 1","H.R. 1 — One Big Beautiful Bill Act (reconciliation, title II of H. Con. Res. 14)","enacted","house",["climate_action","cut_spending","lower_taxes","lands_energy","energy_production","healthcare","family_support","edu_college_cost","deportations","tax_middle_class","strong_defense","school_choice","border_security","national_debt"]],
   ["119","H.R. 4","Rescissions Act of 2025","enacted","house",["america_first","america_first_fp","audit_spending","cut_spending","gov_waste","free_speech","gov_services","national_debt"]],
   ["119","H.R. 21","Born-Alive Abortion Survivors Protection Act","passed_house","house",["healthcare","pro_life"]],
-  ["119","H.R. 22","Safeguard American Voter Eligibility (SAVE) Act","passed_house","house",["election_integrity","election_security","voting_access","voter_id"]],
+  ["119","H.R. 22","Safeguard American Voter Eligibility (SAVE) Act","passed_house","house",["election_integrity","election_security","voting_access","voter_id","states_federal_power"]],
   ["119","H.R. 26","Protecting American Energy Production Act","passed_house","house",["gov_regulation","lands_energy","enviro_energy","energy_production","states_federal_power"]],
   ["119","H.R. 27","HALT Fentanyl Act","passed_house","house",["health_mental","immig_fentanyl","tough_on_crime"]],
   ["119","H.R. 28","Protection of Women and Girls in Sports Act","passed_house","house",["public_schools","edu_parental","lgbtq_rights","edu_balance"]],
