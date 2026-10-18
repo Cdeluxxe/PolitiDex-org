@@ -1,0 +1,114 @@
+/* ═════════════════════════════════════════════════════════════════════════════
+   ballot-measure.css — THE SHAPE OF A STATEWIDE BALLOT-QUESTION PAGE
+   ────────────────────────────────────────────────────────────────────────────
+   Read by /ballot/ut-amendment-a and /ballot/ut-amendment-b, and by nothing
+   else. Two documents, one sheet, because both pages are the same record in
+   the same order: the official question, a Yes line and a No line, the text
+   change, the sponsors and the votes, what each side has published, the
+   background, and the sources. A second copy of these rules is a second layout
+   that drifts.
+
+   The bar is /shell-chrome.css. --pdx-chrome, and the body's padding under the
+   bar, are declared by each document, not here, on the contract that sheet
+   states.
+
+   SELF-SUFFICIENT: every colour is a literal. No app.css loads on these pages.
+   ═════════════════════════════════════════════════════════════════════════════ */
+
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--pdx-chrome) + 0.5rem); }
+html, body { background: #070b16; color: #e7eefb; }
+body {
+  margin: 0;
+  font-family: 'Barlow', system-ui, -apple-system, sans-serif;
+}
+
+.pdxbm-wrap { max-width: 46rem; margin: 0 auto; padding: 0.75rem 1.1rem 3rem; }
+
+.pdxbm-kick {
+  margin: 0.5rem 0 0.25rem;
+  font: 600 0.8rem/1.2 'Barlow Condensed', system-ui, sans-serif;
+  letter-spacing: 0.12em; text-transform: uppercase; color: #9fb4d4;
+}
+.pdxbm-h1 {
+  margin: 0 0 0.35rem;
+  font: 400 2.4rem/1.05 'Bebas Neue', 'Barlow Condensed', system-ui, sans-serif;
+  letter-spacing: 0.02em; color: #f5d77a;
+}
+.pdxbm-meta { margin: 0 0 1.25rem; color: #9fb4d4; font-size: 0.95rem; }
+
+.pdxbm-sec { margin: 1.75rem 0 0; }
+.pdxbm-h2 {
+  margin: 0 0 0.6rem;
+  font: 700 1.05rem/1.25 'Barlow Condensed', system-ui, sans-serif;
+  letter-spacing: 0.08em; text-transform: uppercase; color: #cfdcf2;
+}
+.pdxbm-h3 {
+  margin: 1rem 0 0.4rem;
+  font: 600 1rem/1.3 'Barlow', system-ui, sans-serif; color: #e7eefb;
+}
+.pdxbm-sec p, .pdxbm-sec li { line-height: 1.6; color: #d3def2; }
+.pdxbm-sec ul { margin: 0.4rem 0 0; padding-left: 1.2rem; }
+.pdxbm-sec li + li { margin-top: 0.35rem; }
+.pdxbm-sec a, .pdxbm-hall a { color: #f5d77a; }
+
+/* The official question: the one block quoted word for word from the ballot. */
+.pdxbm-question {
+  margin: 0; padding: 1rem 1.1rem;
+  border: 1px solid rgba(245, 215, 122, 0.35); border-radius: 0.6rem;
+  background: rgba(245, 215, 122, 0.06);
+  font-size: 1.1rem; line-height: 1.55; color: #f3f6fc;
+}
+.pdxbm-question cite { display: block; margin-top: 0.5rem; font-size: 0.85rem; font-style: normal; color: #9fb4d4; }
+
+/* The two parallel lines. Same width, same weight, neither colour a verdict:
+   the Yes and No cards differ only by their label. */
+.pdxbm-yn { display: grid; gap: 0.75rem; grid-template-columns: 1fr; }
+@media (min-width: 40rem) { .pdxbm-yn { grid-template-columns: 1fr 1fr; } }
+.pdxbm-yn > div {
+  padding: 0.9rem 1rem; border-radius: 0.6rem;
+  border: 1px solid rgba(159, 180, 212, 0.22); background: rgba(18, 27, 48, 0.6);
+}
+.pdxbm-yn p { margin: 0; }
+.pdxbm-yn strong { color: #f3f6fc; }
+
+/* The text change. Struck words are struck and inserted words are underlined,
+   the convention the Legislature's own enrolled copy uses. */
+.pdxbm-text {
+  margin: 0; padding: 0.9rem 1rem; border-radius: 0.6rem;
+  border-left: 3px solid rgba(159, 180, 212, 0.45); background: rgba(18, 27, 48, 0.45);
+  font-family: Georgia, 'Times New Roman', serif; font-size: 0.98rem; line-height: 1.65; color: #e7eefb;
+}
+.pdxbm-text p { margin: 0 0 0.6rem; color: inherit; }
+.pdxbm-text p:last-child { margin-bottom: 0; }
+.pdxbm-text del { color: #f0a3a3; text-decoration: line-through; }
+.pdxbm-text ins { color: #a8e6b8; text-decoration: underline; }
+.pdxbm-key { margin: 0.5rem 0 0; font-size: 0.85rem; color: #9fb4d4; }
+
+/* Sponsors and votes. */
+.pdxbm-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.pdxbm-table th, .pdxbm-table td {
+  padding: 0.5rem 0.4rem; text-align: left; vertical-align: top;
+  border-bottom: 1px solid rgba(159, 180, 212, 0.16); color: #d3def2;
+}
+.pdxbm-table th { font-weight: 600; color: #9fb4d4; }
+
+/* What each side says. Two columns of equal weight; an empty side is a sentence. */
+.pdxbm-sides { display: grid; gap: 0.75rem; grid-template-columns: 1fr; }
+@media (min-width: 40rem) { .pdxbm-sides { grid-template-columns: 1fr 1fr; } }
+.pdxbm-side {
+  padding: 0.9rem 1rem; border-radius: 0.6rem;
+  border: 1px solid rgba(159, 180, 212, 0.22); background: rgba(18, 27, 48, 0.6);
+}
+.pdxbm-side .pdxbm-h3 { margin-top: 0; }
+.pdxbm-side blockquote { margin: 0.5rem 0 0; padding-left: 0.75rem; border-left: 2px solid rgba(159, 180, 212, 0.35); color: #e7eefb; }
+.pdxbm-from { display: block; margin-top: 0.25rem; font-size: 0.85rem; color: #9fb4d4; }
+.pdxbm-none { margin: 0; font-style: italic; color: #9fb4d4; }
+
+.pdxbm-src li { word-break: break-word; }
+
+/* The one line that points at District Voice. These pages take no comments. */
+.pdxbm-hall {
+  margin: 2rem 0 0; padding: 0.9rem 1rem; border-radius: 0.6rem;
+  border: 1px dashed rgba(159, 180, 212, 0.3); color: #cfdcf2;
+}
+.pdxbm-hall p { margin: 0; }

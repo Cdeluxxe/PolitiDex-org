@@ -228,8 +228,13 @@ for (const room of ROOMS) {
 for (const priv of ["/ballot", "/me"])
   ok(!locs.some((u) => u === ORIGIN + priv),
     `${priv} is NOT advertised — it is one reader's own desk, not a public record`);
+// THE UTAH 2026 STATEWIDE BALLOT QUESTIONS. Two public record pages, one
+// document each, named here the way the rooms are named: adding one means
+// naming it. /ballot itself stays unadvertised above — these are not the desk.
+const BALLOT_QUESTIONS = [ORIGIN + "/ballot/ut-amendment-a", ORIGIN + "/ballot/ut-amendment-b"];
+for (const q of BALLOT_QUESTIONS) eq(locs.filter((u) => u === q).length, 1, `${q} is advertised exactly once`);
 const unaccounted = locs.filter((u) =>
-  u !== ORIGIN + "/" && !ROOMS.includes(u) && !u.startsWith(ORIGIN + "/p/") &&
+  u !== ORIGIN + "/" && !ROOMS.includes(u) && !BALLOT_QUESTIONS.includes(u) && !u.startsWith(ORIGIN + "/p/") &&
   !u.startsWith(ORIGIN + "/issue/") && !u.startsWith(ORIGIN + "/b/") &&
   !u.startsWith(ORIGIN + "/i/") && !u.startsWith(ORIGIN + "/d/"));
 eq(unaccounted.length, 0, `the sitemap carries ${unaccounted.length} address(es) of an unaccounted kind (e.g. ${unaccounted.slice(0, 3).join(", ")})`);

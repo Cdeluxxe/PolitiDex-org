@@ -422,9 +422,18 @@ section("7 · neighbours, routes, migration, copy, shell");
   // its byte pin narrowed to the part this room depends on: BOARD_ROUTES itself.
   const routesBody = (src) => (/var BOARD_ROUTES = \{([\s\S]*?)\n  \};/.exec(src || "") || [])[1];
   if (head) eq(routesBody(R("district-voice.js")), routesBody(head), "BOARD_ROUTES is byte-identical");
-  for (const f of ["netlify/functions/district-board.mts", "netlify.toml", "district-poll.js"]) {
+  for (const f of ["netlify/functions/district-board.mts", "district-poll.js"]) {
     const h = HEAD(f);
     if (h && f !== "netlify/functions/district-board.mts") eq(R(f), h, `${f} is byte-identical`);
+  }
+  // netlify.toml's pin narrowed to the part this room depends on — the generated
+  // district-board routes — once the Utah ballot-question pages added rules of
+  // their own elsewhere in the file.
+  const boardRules = (src) => (/# @generated district-boards begin[\s\S]*?# @generated district-boards end/.exec(src || "") || [])[0];
+  const tomlHead = HEAD("netlify.toml");
+  if (tomlHead) {
+    ok(!!boardRules(R("netlify.toml")), "netlify.toml still carries the generated district-board routes");
+    eq(boardRules(R("netlify.toml")), boardRules(tomlHead), "netlify.toml's district-board routes are byte-identical");
   }
   const headCore = HEAD("netlify/lib/district-board-voice-core.mjs");
   if (headCore) {
