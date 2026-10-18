@@ -3753,6 +3753,42 @@
           "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/207"
         }
       ]
+    },
+    {
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 9694",
+      "_comment": "Epstein Files Transparency Act II (Massie, for himself, Khanna and Leger Fernández; introduced 2026-07-15, referred to House Judiciary). Amends Public Law 119-38 (H.R. 4405) to give State attorneys general and other State officers, victims and Members of Congress standing to sue the Attorney General over withheld or redacted Epstein records. Secondary row only, beside H.R. 4405 on gov_transparency; no roll call. Mirrors netlify/database/migrations/20261121000000_vr_epstein_files_transparency_act_ii.sql.",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/9694",
+      "issues": [
+        {
+          "issueKey": "gov_transparency",
+          "weight": 55,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill adds a Sec. 4 to the Epstein Files Transparency Act under which \"the attorney general of a State, a district attorney, or other authorized State officer\" and \"a victim\" may sue the Attorney General of the United States \"alleging an unlawful withholding, redaction, delay, removal, concealment, failure to publish, failure to produce, or failure to justify a withholding or redaction\" of the records the act requires released. Forcing out records the executive branch holds back is this key's subject, so a yea supports it. Weighted 55, secondary: it enforces disclosure H.R. 4405 already ordered rather than ordering new disclosure.",
+          "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr9694ih/html/BILLS-119hr9694ih.htm"
+        }
+      ]
+    },
+    {
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S. 5005",
+      "_comment": "Epstein Files Transparency Act II, Senate companion to H.R. 9694 (Merkley, for himself and Luján; introduced 2026-07-15, referred to Senate Judiciary). Secondary row only, beside H.R. 4405 on gov_transparency; no roll call. Mirrors netlify/database/migrations/20261121000000_vr_epstein_files_transparency_act_ii.sql.",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/5005",
+      "issues": [
+        {
+          "issueKey": "gov_transparency",
+          "weight": 55,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill adds a Sec. 4 to the Epstein Files Transparency Act under which \"the attorney general of a State, a district attorney, or any other authorized State officer\" and \"a victim\" may bring an action \"against the Attorney General of the United States\" over the withholding or redaction of the records the act requires released. Forcing out records the executive branch holds back is this key's subject, so a yea supports it. Weighted 55, secondary: it enforces disclosure H.R. 4405 already ordered rather than ordering new disclosure.",
+          "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5005is/html/BILLS-119s5005is.htm"
+        }
+      ]
     }
   ],
   "_phase12_overlap_priority": {

@@ -24,6 +24,15 @@
       });
     }
     function norm(s) { return String(s == null ? '' : s).toLowerCase(); }
+    // The Arabic digits of a title's standalone capital Roman numerals, II to IX
+    // ("… Act II" → "2"), space-separated; '' when it has none. A lone I, V or X
+    // is left alone: it is a pronoun, a letter or a "Title V" far more often
+    // than it is a sequel.
+    var ROMAN_W = { II: 2, III: 3, IV: 4, VI: 6, VII: 7, VIII: 8, IX: 9 };
+    function romanDigits(s) {
+      var m = String(s == null ? '' : s).match(/\b(?:II|III|IV|VI|VII|VIII|IX)\b/g) || [];
+      return m.map(function (w) { return String(ROMAN_W[w]); }).join(' ');
+    }
     // A chip that names a vocabulary key is painted by that key, from the one
     // table every other surface reads (issue-colors.js). Same strength as a bill
     // letterhead chip: soft fill, solid border, ink text. Fails open to the
@@ -1169,14 +1178,21 @@
             var chamberW = b.chamber === 'senate' ? 'senate' : b.chamber === 'house' ? 'house' : (b.chamber || '');
             var typeW = (b.measureType === 'resolution' ? 'resolution' : b.measureType === 'nomination' ? 'nomination' :
               b.measureType === 'litigation' ? 'litigation lawsuit court case' : b.measureType === 'amendment' ? 'amendment' : 'bill') + ' legislation measure';
-            var parts = [numRaw, numCompact, numDigits, b.title, b.shortTitle, kw, typeW, chamberW,
+            // A SEQUEL'S NUMERAL IS ALSO ITS NUMBER. "Epstein Files Transparency Act
+            // II" is the second Act, and a reader types "epstein 2". The title's own
+            // Roman numerals (II to IX, standing alone and in capitals, the way a
+            // short title prints them) are indexed beside it as Arabic digits, so
+            // the digit lands on the title the way a bill number's digits do. One
+            // rule for every bill; the printed title is not changed.
+            var romanW = romanDigits([b.title, b.shortTitle].filter(Boolean).join(' '));
+            var parts = [numRaw, numCompact, numDigits, b.title, b.shortTitle, romanW, kw, typeW, chamberW,
               ('congress ' + (b.congress || '')), b.status].concat(ikeys).concat(issueLabels);
             var chamberLbl = chamberW === 'senate' ? 'Senate' : chamberW === 'house' ? 'House' : '';
             bills.push({
               kind: 'bill', number: numRaw, id: (b.id != null ? b.id : null), sitting: sitting,
               title: disp,
               titleLc: norm(numRaw + ' ' + disp),
-              tokens: norm(numRaw + ' ' + numCompact + ' ' + disp + ' ' + kw).split(/[^\p{L}\p{N}]+/u).filter(Boolean),
+              tokens: norm(numRaw + ' ' + numCompact + ' ' + disp + ' ' + romanW + ' ' + kw).split(/[^\p{L}\p{N}]+/u).filter(Boolean),
               sub: numRaw + (chamberLbl ? ' · ' + chamberLbl : '') +
                 (sitting ? ' · ' + (/^\d+$/.test(sitting) ? sitting + 'th Congress' : (/GS$/i.test(sitting) ? 'Utah ' + sitting.slice(0, 4) : sitting)) : '') +
                 (b.isOmnibus ? ' · omnibus' : ''),

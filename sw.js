@@ -9933,7 +9933,36 @@
 //     jump is where it was. person-bills.js is precached and changed, so the
 //     shell moves one version. No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v395';
+// v396 - EPSTEIN FILES TRANSPARENCY ACT II. H.R. 9694 (119th) and its Senate
+//     companion S. 5005, both introduced 2026-07-15, are filed beside H.R. 4405
+//     on Transparency & Anti-Corruption as secondary rows, each with one effect
+//     line, with the sponsors and co-sponsors the Congress.gov record names (9
+//     sponsorship rows; nobody else). A sponsorship row now carries its
+//     measure's congress, so a bill on file only through its sponsors gets its
+//     effect line and its Congress.gov door on a member's file. consistency.js
+//     and bill-pages.js are precached and changed, so the shell moves one
+//     version. H.R. 4405 and every shipped line are unchanged; no issue key,
+//     pole, score input or roll call was added. No location key is migrated,
+//     renamed or copied. The rows arrive by the usual seed + migration pair
+//     (20261121000000_vr_epstein_files_transparency_act_ii: 2 vr_measures,
+//     2 vr_measure_issues and 9 vr_positions rows).
+//     MIGRATION COST: none.
+// v397 - THE ROAD TO HOUSING ACT'S SPONSORS, AND ITS TITLE X. H.R. 6644
+//     (119th), Public Law 119-101, keeps its Housing Affordability row exactly
+//     as filed (weight 80, primary) and its five effect lines. Its sponsor and
+//     the 30 co-sponsors who are roster files now have sponsorship rows, as
+//     Congress.gov lists them (Rep. David Scott is not a roster file and gets
+//     none). Title X, Sec. 1001 — the bar on large institutional investors
+//     buying single-family homes — is filed on Corporate Accountability as a
+//     secondary row with one effect line. consistency.js is precached and
+//     changed, so the shell moves one version. No weight, primary flag, pole
+//     or issue key moved. No location key is migrated, renamed or copied. The
+//     rows arrive by one migration
+//     (20261122000000_vr_road_to_housing_sponsors_and_corp_account: 1
+//     vr_measure_issues and 31 vr_positions rows), as this Act's other
+//     secondary rows did; the seed is unchanged.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v397';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
