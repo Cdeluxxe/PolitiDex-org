@@ -19255,6 +19255,14 @@
     // other lines above are unchanged.
     'H.R. 1181|119|econ_corp_account':
       'Would let the Attorney General enjoin payment card networks that require a firearms merchant category code; the House passed it 221-201.',
+    // LAKEN RILEY ACT SLICE 26 (v405). H.R. 29 (119th), the House companion of
+    // S. 5: passed by the House and placed on the Senate calendar, so it opens
+    // "Would". Each written from that pair's own stored mapping rationale, in
+    // its siblings' tally. Its two other lines and S. 5's four are unchanged.
+    'H.R. 29|119|deportations':
+      'Would mandate detention and removal proceedings for covered unauthorized immigrants; the House passed it 264-159.',
+    'H.R. 29|119|state_standing':
+      'Would give state attorneys general standing to sue Homeland Security over detention and removal violations; the House passed it 264-159.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // THE KEY IS THE MEASURE'S OWN IDENTITY: number, sitting, issue. The sitting is

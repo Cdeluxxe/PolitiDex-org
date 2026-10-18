@@ -46,6 +46,7 @@ import vm from "node:vm";
 import { ENGINE_FILES, makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 import { measureAddresses } from "./vr-measure-addresses.mjs";
+import { sliceBlocks, keysAfter } from "./vr-slice-blocks.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -79,6 +80,7 @@ const tableOf = (src, name) => {
 };
 const CONS = R("consistency.js");
 const E = tableOf(CONS, "_DOS_EFFECT");
+const mine = new Set((sliceBlocks(CONS, "_DOS_EFFECT").find((b) => b.version === 404) || { keys: [] }).keys);
 
 // The three rows on file before this pass, as the live branch holds them
 // (privacy_rights' weight is left to the earlier migrations that wrote it).
@@ -158,8 +160,12 @@ ok(/^-- pack-generation: derived\b/m.test(SQL), "the migration declares its pack
     eq(JSON.stringify(seedNow), JSON.stringify(was), "seed: H.R. 1181 is byte-identical to HEAD");
     const HE = tableOf(headCons, "_DOS_EFFECT");
     for (const [k, v] of Object.entries(HE)) eq(E[k], v, `effect line ${k} is unchanged`);
-    eq(Object.keys(E).length, Object.keys(HE).length + Object.keys(NEW).length, "one effect line is added and none removed");
-    for (const k of Object.keys(NEW)) ok(!(`${NUM}|119|${k}` in HE), `${k}: no line was stored before this pass`);
+    // Read from the marked blocks, not from HEAD's count, so the check holds
+    // once this pass is committed and after later passes add blocks of their own.
+    const later = keysAfter(CONS, "_DOS_EFFECT", 404);
+    for (const k of Object.keys(E)) ok(k in HE || later.has(k) || mine.has(k), `${k}: a new line outside any marked block`);
+    for (const k of Object.keys(NEW)) ok(mine.has(`${NUM}|119|${k}`), `${k}: its line is stored in this pass's block`);
+    eq(JSON.stringify([...mine]), JSON.stringify(Object.keys(NEW).map((k) => `${NUM}|119|${k}`)), "this pass's block holds exactly its new line");
     ok(JSON.stringify(tableOf(CONS, "_DOS_MECH")) === JSON.stringify(tableOf(headCons, "_DOS_MECH")), "_DOS_MECH is unchanged");
     ok(gitShow("issue-map.js") === R("issue-map.js"), "issue-map.js is unchanged: no new issue key");
     ok(gitShow("db/issue-keys.json") === R("db/issue-keys.json"), "db/issue-keys.json is unchanged");

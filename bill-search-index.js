@@ -99,6 +99,7 @@ window.PDX_BILL_SEARCH = [
   ["119","H.R. 26","Protecting American Energy Production Act","passed_house","house",["gov_regulation","lands_energy","enviro_energy","energy_production","states_federal_power"]],
   ["119","H.R. 27","HALT Fentanyl Act","passed_house","house",["health_mental","immig_fentanyl","tough_on_crime"]],
   ["119","H.R. 28","Protection of Women and Girls in Sports Act","passed_house","house",["public_schools","edu_parental","lgbtq_rights","edu_balance"]],
+  ["119","H.R. 29","Laken Riley Act","passed_house","house",["deportations","state_standing","border_security","tough_on_crime"]],
   ["119","H.R. 139","Sunshine Protection Act of 2025","passed_house","house",[]],
   ["119","H.R. 276","Gulf of America Act of 2025","passed_house","house",["america_first"]],
   ["119","H.R. 471","Fix Our Forests Act","passed_house","house",["lands_balance","permitting_reform","enviro_balance","disaster_resilience"]],

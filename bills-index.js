@@ -31,10 +31,19 @@ window.PDX_BILLS_INDEX = [
   },
   {
     number: 'H.R. 29', title: 'Laken Riley Act', shortTitle: 'Laken Riley Act',
-    measureType: 'bill', chamber: 'house', congress: 119, status: 'enacted',
-    primaryIssue: 'deportations', issueKeys: ['deportations', 'border_security'], isOmnibus: true,
-    keywords: 'laken riley immigration detention deportation border ICE crime immigrant',
+    measureType: 'bill', chamber: 'house', congress: 119, status: 'passed_house',
+    primaryIssue: 'deportations', issueKeys: ['deportations', 'border_security', 'tough_on_crime', 'state_standing'], isOmnibus: true,
+    keywords: 'laken riley immigration detention deportation border ICE crime immigrant ' +
+      'mandatory detention detainer theft burglary shoplifting state attorney general house companion',
     source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/29', label: 'Congress.gov' }
+  },
+  {
+    number: 'S. 5', title: 'Laken Riley Act', shortTitle: 'Laken Riley Act',
+    measureType: 'bill', chamber: 'senate', congress: 119, status: 'enacted',
+    primaryIssue: 'deportations', issueKeys: ['deportations', 'border_security', 'tough_on_crime', 'state_standing'], isOmnibus: true,
+    keywords: 'laken riley immigration detention deportation border ICE crime immigrant public law 119-1 ' +
+      'mandatory detention detainer theft burglary shoplifting assault police officer state attorney general britt first law',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/senate-bill/5', label: 'Congress.gov' }
   },
   {
     number: 'H.R. 26', title: 'Protecting American Energy Production Act', shortTitle: 'Protecting American Energy Production Act',

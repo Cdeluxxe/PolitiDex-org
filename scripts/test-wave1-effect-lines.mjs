@@ -77,7 +77,9 @@ const KEYS = [
 const BLANK = new Set([
   "S.J.Res. 37|119|tariffs_authority", "S.J.Res. 37|119|econ_trade",
   "S.J.Res. 59|119|restraint", "S.J.Res. 59|119|war_powers",
-  "H.R. 29|119|deportations", "H.R. 29|119|state_standing",
+  // H.R. 29 × deportations and × state_standing left this set in Laken Riley
+  // Act slice 26 (v405), each written from its own stored mapping rationale;
+  // scripts/test-laken-riley-full-lens.mjs holds the lines.
   // H.Amdt. 87 × lgbtq_rights left this set in blank rows slice 10 (v370),
   // written from its mapping rationale, which quotes the Rules Committee report;
   // db/vr-blank-rows-slice10.json records the source.

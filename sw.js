@@ -10064,7 +10064,27 @@
 //     migration (20261125000000_vr_hr1181_payment_network_lens: 1
 //     vr_measure_issues row); the seed is unchanged.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v404';
+// v405 - THE LAKEN RILEY ACT, BOTH VEHICLES. S. 5 (119th), Public Law 119-1,
+//     and its House companion H.R. 29 (passed 264-159, left on the Senate
+//     calendar) keep the four rows they share exactly as filed: Mass
+//     Deportations 100 primary, Strong Border 70, Tough on Crime 55 and States
+//     Suing Washington 40, all a yea advancing. H.R. 29 gains a short line on
+//     its two topics that printed only a pointer (Mass Deportations, States
+//     Suing Washington), each from its own stored rationale; S. 5's four lines
+//     are unchanged. H.R. 29 now has its own /b/ page, a sitemap entry and a
+//     door from every voter's drawer, and the Legislation library carries a
+//     card for each vehicle — H.R. 29's corrected from "enacted" to "passed
+//     the House". No balance key: the Act has only the enforcement half.
+//     consistency.js and bill-pages.js are precached and changed, so the shell
+//     moves one version; bills-index.js, bill-search-index.js and
+//     bill-official.json are runtime entries. No weight, primary flag, pole or
+//     issue key moved.
+//     No location key is migrated, renamed or copied. One guarded migration
+//     (20261126000000_vr_laken_riley_hr29_identity_and_lens) re-asserts H.R.
+//     29's identity and four rows so the bill-page projection can address it;
+//     on the live branch it writes nothing.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v405';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

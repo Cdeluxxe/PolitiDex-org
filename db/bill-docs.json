@@ -7618,6 +7618,116 @@
    ],
    "rs": "https://www.congress.gov/bill/119th-congress/house-bill/28"
   },
+  "119|H.R. 29": {
+   "s": "119",
+   "n": "H.R. 29",
+   "c": "house",
+   "t": "Laken Riley Act",
+   "m": [
+    {
+     "i": "Mass Deportations & Border Security",
+     "k": "deportations",
+     "l": "Would mandate detention and removal proceedings for covered unauthorized immigrants; the House passed it 264-159."
+    },
+    {
+     "i": "States Suing Washington",
+     "k": "state_standing",
+     "l": "Would give state attorneys general standing to sue Homeland Security over detention and removal violations; the House passed it 264-159."
+    },
+    {
+     "i": "Strong Border & Enforcement",
+     "k": "border_security",
+     "l": "Would require detention of inadmissible immigrants charged with theft or burglary, and their removal; the House passed it 264-159."
+    },
+    {
+     "i": "Tough on Crime",
+     "k": "tough_on_crime",
+     "l": "Would mandate federal custody for inadmissible immigrants charged with burglary, theft, larceny or shoplifting; the House passed it 264-159."
+    }
+   ],
+   "st": "passed_house",
+   "sl": "Passed the House — not law",
+   "o": {
+    "c": "house",
+    "d": "2025-01-03"
+   },
+   "sp": {
+    "s": [
+     "mike_collins"
+    ],
+    "c": [
+     "rick_allen",
+     "mtg",
+     "andrew_clyde",
+     "buddy_carter",
+     "barry_loudermilk",
+     "austin_scott",
+     "rich_mccormick",
+     "mike_bost",
+     "brian_babin",
+     "randy_feenstra",
+     "nancy_mace",
+     "ben_cline",
+     "troy_nehls",
+     "andrew_ogles",
+     "dan_crenshaw",
+     "michael_mccaul",
+     "brad_finstad",
+     "david_kustoff",
+     "ashley_hinson",
+     "erin_houchin",
+     "nicole_malliotakis",
+     "mike_ezell",
+     "claudia_tenney",
+     "luna",
+     "owens",
+     "scott_fitzgerald",
+     "robert_aderholt",
+     "randy_weber",
+     "dusty_johnson",
+     "pete_stauber",
+     "jefferson_van_drew",
+     "zach_nunn",
+     "brian_jack",
+     "rob_bresnahan",
+     "vern_buchanan",
+     "tom_mcclintock",
+     "diana_harshbarger",
+     "john_joyce",
+     "michelle_fischbach",
+     "pete_sessions",
+     "riley_moore",
+     "wesley_hunt",
+     "nicholas_langworthy",
+     "henry_cuellar",
+     "derek_schmidt",
+     "troy_downing",
+     "john_mcguire",
+     "juan_ciscomani",
+     "brandon_gill",
+     "john_rose",
+     "mark_messmer",
+     "mary_miller",
+     "andy_barr"
+    ]
+   },
+   "su": {
+    "c": 1
+   },
+   "h": [
+    {
+     "d": "2025-01-03",
+     "a": "Introduced in the House",
+     "x": "Introduced in House"
+    },
+    {
+     "d": "2025-01-07",
+     "a": "Passed the House",
+     "x": "On passage Passed by the Yeas and Nays: 264 - 159 (Roll no. 6). (text: CR H53-54)"
+    }
+   ],
+   "rs": "https://www.congress.gov/bill/119th-congress/house-bill/29"
+  },
   "119|H.R. 139": {
    "s": "119",
    "n": "H.R. 139",

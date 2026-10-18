@@ -265,6 +265,13 @@ if (HEAD) {
   // A later executive slice's lines, the same allowance (scripts/vr-exec-later.mjs).
   { const XM = mapOf(CONS, "_DOS_EXEC_EFFECT").map; for (const k of execLaterKeys(CONS)) laterLines.add("effr:" + norm(XM[k])); }
   const bare = (r) => r.replace(/ \(also filed on [^)]*\)/, "");
+  // A pointer row whose own pair later gained a stored line of its own prints
+  // that line instead (Laken Riley Act slice 26, v405: H.R. 29 × deportations
+  // and × state_standing). The pointer may give way only to that line.
+  const ownNow = (() => {
+    const P = mapOf(CONS, "_DOS_POINTER").map;
+    return new Set(Object.keys(P).filter((k) => E.map[k]).map((k) => "effr:" + norm(E.map[k])));
+  })();
   let moved = 0;
   const miss = (m) => { moved++; if (moved <= 5) ok(false, m); };
   for (const [k, v] of was.out) {
@@ -272,6 +279,7 @@ if (HEAD) {
     for (const r of v.split("\n")) {
       if (nowRows.includes(r)) continue;
       if (r.startsWith("ptrr:") && nowRows.some((x) => x.startsWith("ptrr:") && bare(x) === bare(r))) continue;
+      if (r.startsWith("ptrr:") && nowRows.some((x) => ownNow.has(x))) continue;
       miss(`${k}: printed ${JSON.stringify(r)} at HEAD and no longer does`);
     }
   }
