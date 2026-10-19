@@ -10265,7 +10265,17 @@
 //     person shells pick them up. No score, no Direction Match figure, no new key.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v419';
+// v420 - FEDERAL THIRD-PARTY LIGHT PROFILES, FINISH. stance-tree.js
+//     (precached) prints an entry's own "Campaign claim, not a vote — …" line,
+//     with a sibling source link, in a topic leaf's Record slot when every
+//     entry on that issue is marked claim:'campaign' and nothing formal is on
+//     file; a landed vote or action brings the Record chip back unchanged.
+//     politician-stances-ext.js marks the nine federal nominees' 41 claims and
+//     adds Todd Achilles's firearms claim. stance-tree.js is precached and
+//     changed, so the shell moves one version. No score, no new key.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v420';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

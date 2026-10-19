@@ -701,6 +701,32 @@
   // WHAT STILL DOES NOT APPEAR: an issue with no stated position AND no formal
   // item on file. Two absences are not a finding, and there is nothing behind the
   // door.
+  // ── A CAMPAIGN CLAIM IS NOT A RECORD WAITING TO ARRIVE ─────────────────────
+  // A nominee who has never held the office has no formal record to put beside
+  // what they said, and "🏛 Record: No formal record on this issue yet" printed
+  // over every one of their rows reads as a gap in our file rather than the fact
+  // it is. A curated entry marked `claim: 'campaign'` carries its own sentence for
+  // that slot — "Campaign claim, not a vote — <source>." in `detail` — and its
+  // source. Only where EVERY entry on this issue is so marked, each with its
+  // line and a source, AND nothing formal is on file does the leaf print the
+  // claim line in the Record slot; the moment a vote or action lands, the Record
+  // chip comes back unchanged. Nothing here is a score or a direction.
+  var CLAIM_LINE = /^Campaign claim, not a vote \u2014 /;
+  function claimOf(pid, key) {
+    var D = window.ISSUE_STANCE_DATA;
+    var list = D && pid && Object.prototype.hasOwnProperty.call(D, pid) ? D[pid] : null;
+    if (!list || typeof list.filter !== 'function') return null;
+    var hits = list.filter(function (e) { return e && e.issueKey === key; });
+    if (!hits.length) return null;
+    for (var i = 0; i < hits.length; i++) {
+      var e = hits[i];
+      if (e.claim !== 'campaign' || !CLAIM_LINE.test(String(e.detail || '')) ||
+          !e.source || !e.source.url || 'evidence' in e) return null;
+    }
+    return { line: String(hits[0].detail), label: String(hits[0].source.label || ''),
+             url: String(hits[0].source.url) };
+  }
+
   function leafOf(row) {
     if (!row || !row.key) return null;
     var CS = window.PDXConsistency;
@@ -768,7 +794,7 @@
     var rank = rankOf(band, rec ? rec.weight : 'flat');
 
     var topic = coreKeyOf(row.key);
-    return {
+    var out = {
       pid: row.pid, key: row.key, label: row.label || row.key,
       topic: topic,
       group: row.category || 'other', groupLabel: row.categoryLabel || 'Other',
@@ -804,6 +830,11 @@
       rank: rank,
       skin: skinFor(row.key)
     };
+    if (!onRecord) {
+      var claim = claimOf(row.pid, row.key);
+      if (claim) out.claim = claim;
+    }
+    return out;
   }
 
   // ONE COMPARATOR, used by the branch panels, the flat list and the default-open
@@ -936,7 +967,9 @@
     // and none of them is silence: a screen reader that hears the Said half and
     // then nothing cannot tell "we hold no formal record" apart from "we did not
     // print one".
-    if (rc && rc.state === 'scored') {
+    if (lf.claim) {
+      s += lf.claim.line + ' ';
+    } else if (rc && rc.state === 'scored') {
       s += 'Direction match on this issue: ' + rc.label +
         ((rc.pct === null) ? '' : ', ' + rc.pct + '%') +
         (rc.depth ? ', from ' + rc.depth + ' on file' : '') + '. ';
@@ -1009,6 +1042,18 @@
         early +
       '</span>';
   }
+  // The campaign-claim slot, in the Record chip's place: the entry's own line,
+  // word for word. Its source is a real link, so it sits beside the face button
+  // rather than inside it (claimSrcHtml), the same rule the issue-file door keeps.
+  function claimHtml(cl) {
+    return '<span class="pdxtree-pat st-claim t-none w-flat tone-muted" data-pdxtree-claim="1">' +
+      esc(cl.line) + '</span>';
+  }
+  function claimSrcHtml(cl) {
+    if (!cl || !/^https:\/\//.test(cl.url)) return '';
+    return '<a class="pdxtree-src" data-pdxtree-src="1" href="' + escAttr(cl.url) + '"' +
+      ' target="_blank" rel="noopener noreferrer">Source: ' + esc(cl.label) + ' \u2197</a>';
+  }
   // The one percentage a leaf may carry, and only in the one state that earned it.
   function pctHtml(rc) {
     if (!rc || rc.state !== 'scored' || typeof rc.pct !== 'number') return '';
@@ -1050,7 +1095,7 @@
                   '<i class="pdxtree-basefrom"> \u00b7 ' + esc(BASELINE_FROM) + '</i></span>'
               : '<span class="pdxtree-said s-' + escAttr(lf.said.key) + '">' +
                   '<b>Said:</b> ' + esc(lf.said.label) + '</span>') +
-            recHtml(rc) +
+            (lf.claim ? claimHtml(lf.claim) : recHtml(rc)) +
             pctHtml(rc) +
             (lf.cue ? '<span class="pdxtree-cue c-' + escAttr(lf.cue.key) + '">' +
                         esc(lf.cue.label) + '</span>' : '') +
@@ -1060,6 +1105,7 @@
           '</span>' +
           '<span class="pdxtree-go" aria-hidden="true">›</span>' +
         '</button>' +
+        claimSrcHtml(lf.claim) +
         scopeCtlHtml(lf) +
         issueFileHtml(lf) +
       '</div>';

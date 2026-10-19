@@ -3242,9 +3242,13 @@ export const DECLARED_STANCE_PASSES = [
   {
     pass: "third_party_light_profiles_oct2026",
     pids: ["josh_smith", "julie_quinlan", "colin_smith", "annette_mcrae", "wayne_woodfield", "jesse_west", "taylor_wright", "cassie_easley"],
-  },  {
+  },
+  {
     pass: "federal_third_party_light_profiles_b1_oct2026",
-    pids: ["dan_osborn", "brian_bengs", "todd_achilles", "sarah_zabel", "bill_hill", "will_johanson", "monica_alponte", "shawn_johnson", "brandon_daugherty"],
+    // All twelve: nine carry claims; Cory Robertson, Jeffrey Haggit and Tom
+    // Schmitz are bio-only, named so their detail rows are this pass's too.
+    pids: ["dan_osborn", "brian_bengs", "todd_achilles", "sarah_zabel", "bill_hill", "will_johanson", "monica_alponte",
+      "shawn_johnson", "brandon_daugherty", "cory_robertson", "jeff_haggit", "tom_schmitz"],
   },
 ];
 export const DECLARED_STANCE_PIDS = DECLARED_STANCE_PASSES.flatMap((d) => d.pids);
