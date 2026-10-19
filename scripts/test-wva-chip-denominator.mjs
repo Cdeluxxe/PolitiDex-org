@@ -79,6 +79,7 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox, ENGINE_FILES } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
+import { declaredStanceMovesAtHead } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -354,6 +355,7 @@ section("4 · twin boot — the arithmetic never saw this");
     const drift = [];
     let swept = 0;
     for (const pid of ROSTER) {
+      if (declaredStanceMovesAtHead().moved.has(pid)) continue; // a declared stance pass (v103-chrome-seams.mjs)
       swept++;
       if (WITHDRAWN[pid]) {
         const a = A.PDXWordAction.read(pid, A.CMP_DATA[pid]);

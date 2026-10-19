@@ -125,6 +125,7 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox, ENGINE_FILES } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
+import { declaredStanceMovesAtHead } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -1775,6 +1776,7 @@ section("L · twin boot — the arithmetic never saw any of this");
     const drift = [];
     let n = 0;
     for (const pid of Object.keys(B.CMP_DATA)) {
+      if (declaredStanceMovesAtHead().moved.has(pid)) continue; // a declared stance pass (v103-chrome-seams.mjs)
       if (!A.CMP_DATA[pid]) continue;
       n++;
       if (JSON.stringify(A.PDXWordAction.read(pid)) !== JSON.stringify(B.PDXWordAction.read(pid))) drift.push(`${pid}/ledger`);

@@ -33,6 +33,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { declaredStanceMovesAtHead } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -458,6 +459,7 @@ const WITHDRAWN = {
 
 let published = 0, thinPerfect = 0, curated = 0, lifted = 0, withdrawn = 0;
 for (const pid of PIDS) {
+  if (declaredStanceMovesAtHead().moved.has(pid)) continue; // a declared stance pass (v103-chrome-seams.mjs)
   const p = before.CMP_DATA[pid];
   let a = null, b = null;
   try { a = before.PDXWordAction.read(pid, p); } catch (e) { a = { __err: String(e) }; }
@@ -590,6 +592,7 @@ section("scopedRead() — the current-term slice reads the same too");
 // ═════════════════════════════════════════════════════════════════════════════
 let scoped = 0;
 for (const pid of PIDS) {
+  if (declaredStanceMovesAtHead().moved.has(pid)) continue; // a declared stance pass (v103-chrome-seams.mjs)
   let a = null, b = null;
   try { a = before.PDXWordAction.scopedRead(pid, before.CMP_DATA[pid]); } catch (e) { continue; }
   try { b = after.PDXWordAction.scopedRead(pid, after.CMP_DATA[pid]); } catch (e) { b = null; }
@@ -640,6 +643,7 @@ section("rowResult() — every issue row, one at a time");
 // state, metric or percentage, the marker would be editing the finding.
 let rows = 0, tested = 0;
 for (const pid of PIDS) {
+  if (declaredStanceMovesAtHead().moved.has(pid)) continue; // a declared stance pass (v103-chrome-seams.mjs)
   let ra = [], rb = [];
   try { ra = before.PDXConsistency.issueRows(pid) || []; } catch (e) { continue; }
   try { rb = after.PDXConsistency.issueRows(pid) || []; } catch (e) { rb = []; }

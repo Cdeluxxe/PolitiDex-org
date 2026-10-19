@@ -10233,7 +10233,19 @@
 //     seat field. cmp-data.js is precached and changed, so the shell moves one
 //     version. No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v416';
+// v417 - THIRD-PARTY LIGHT PROFILES. Eight 2026 third-party nominees gain a
+//     one-sentence bio (cmp-data-detail.js) and three to five sourced campaign
+//     claims on existing issue keys (politician-stances-ext.js, regenerated
+//     from politician-stances.js), and sitemap.xml names their eight files.
+//     Neither data file is in the shell precache: both are runtime entries,
+//     refreshed by handleStatic's stale-while-revalidate write, so a warm
+//     device paints the new profiles on its next visit. The shell moves one
+//     version because person.html, index.html and spotlight.html read these
+//     records through shells their guards pin to a version past HEAD's.
+//     No score, no Direction Match figure, no new key.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v417';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

@@ -46,6 +46,7 @@ import { buildCrawlRecord } from "./gen-crawl-record.mjs";
 import { CJ_SEAMS_ALL as CJ_SEAMS, SH_SEAMS, WA_SEAMS, PF_SEAMS, carveSeams, assertConsistencySeams,
   assertStanceHelpersSeam, assertWordActionSeams, assertPublicationFloorSeams,
   assertParentTableIsTheOnlyMove, deOrigin } from "./v103-chrome-seams.mjs";
+import { declaredStanceMovesAtHead, withoutDeclaredStanceChunks } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -559,10 +560,10 @@ section("6 · no Direction Match or formal-brief drift — twin boot, HEAD vs th
   // scripts/v103-chrome-seams.mjs, is shared by every wave harness that asks this
   // question, so all of them answer it the same way; a real behavioural edit to
   // any of these files still differs after normalisation and still fails here.
-  const touched = FILES.filter((f) => {
+  const touched = withoutDeclaredStanceChunks(FILES.filter((f) => {
     const h = HEAD(f);
     return h !== null && deOrigin(h) !== deOrigin(R(f));
-  });
+  }));
   // THE WALL AND THE WAVE ARE TWO CLAIMS. "The booted files differing from HEAD are
   // exactly cmp-data.js" asserts both that nothing but the roster moved — the wall,
   // and permanent — and that the roster IS moving, which is only true while R2 is
@@ -609,6 +610,7 @@ section("6 · no Direction Match or formal-brief drift — twin boot, HEAD vs th
       "notIssueLinked", "recordDerived", "warming"];
     let dm = 0, dmBad = 0;
     for (const pid of PIDS) {
+      if (declaredStanceMovesAtHead().moved.has(pid)) continue; // a declared stance pass (v103-chrome-seams.mjs)
       let a = null, b = null;
       try { a = head.PDXWordAction.read(pid); } catch { continue; }
       try { b = work.PDXWordAction.read(pid); } catch { b = null; }
@@ -637,6 +639,7 @@ section("6 · no Direction Match or formal-brief drift — twin boot, HEAD vs th
     // Nobody's judged surface moved, on the whole roster, not just the four.
     let judged = 0;
     for (const pid of PIDS) {
+      if (declaredStanceMovesAtHead().moved.has(pid)) continue; // a declared stance pass (v103-chrome-seams.mjs)
       const a = head.CMP_DATA[pid], b = work.CMP_DATA[pid];
       if (!a || !b) continue;
       if (pid === "mullin") continue;            // section 4 owns this one, field by field
@@ -780,7 +783,9 @@ section("7 · ship discipline — cache, census, floor, and the identity wall");
     const houseNine = ADM.filter((a) => a.chamber === "house").map((a) => a.slug).sort();
     eq(houseNine.filter((sl) => !afterU.has(sl)).join(", "), "",
       "the sitemap does not advertise all nine House members the existing floor admits");
-    eq(gained.filter((pid) => !houseNine.includes(pid)).join(", "), "",
+    // A person a declared stance pass gave a published file (v103-chrome-seams.mjs)
+    // earns an address there, not here.
+    eq(gained.filter((pid) => !houseNine.includes(pid) && !declaredStanceMovesAtHead().moved.has(pid)).join(", "), "",
       "the sitemap gained an address this wave did not admit");
     eq(lost.join(", "), "", "the sitemap lost an address — this wave publishes, it does not unpublish");
     for (const a of ADM.filter((x) => x.chamber === "senate")) {
@@ -851,6 +856,8 @@ section("7 · ship discipline — cache, census, floor, and the identity wall");
     // never for membership, and they reach no rule and no threshold at all.
     ];
   for (const f of untouched) {
+    // A stance chunk that moved only for declared people is a declared stance pass's edit.
+    if (withoutDeclaredStanceChunks([f]).length === 0) { passed++; continue; }
     const h = HEAD(f);
     if (!ok(h !== null, `${f} is not in HEAD, so "unchanged" could not be checked — if the file moved, fix this list`)) continue;
     eq(R(f), h, `${f} was modified — this wave admits identity and nothing else`);

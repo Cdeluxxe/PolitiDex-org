@@ -62,6 +62,7 @@ import { deOrigin, DECLARED_ADMISSION_PIDS } from "./v103-chrome-seams.mjs";
 import { measureAddresses } from "./vr-measure-addresses.mjs";
 import { preAudit } from "./vr-effect-audit.mjs";
 import { keysAfter } from "./vr-slice-blocks.mjs";
+import { declaredStanceMovesAtHead } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 // consistency.js as it stood before the v387 provisions audit; see
@@ -498,6 +499,7 @@ section("7 · a drawer with no roll call renders exactly as it did before");
   let same = 0;
   const drift = [];
   for (const x of WITHOUT) {
+    if (declaredStanceMovesAtHead().moved.has(x.pid)) continue; // a declared stance pass (v103-chrome-seams.mjs)
     // A person HEAD's roster did not hold (a declared admission) had no drawer
     // "before" to compare: the person was missing, not the shape.
     if (DECLARED_ADMISSION_PIDS.includes(x.pid) && !(A.CMP_DATA || {})[x.pid]) continue;
@@ -543,6 +545,7 @@ section("7 · a drawer with no roll call renders exactly as it did before");
 
   const rdrift = [];
   for (const x of ALL) {
+    if (declaredStanceMovesAtHead().moved.has(x.pid)) continue; // a declared stance pass (v103-chrome-seams.mjs)
     // A key HEAD's vocabulary does not carry (a country leaf added since) has no
     // HEAD read to compare against; its no-pole contract is pinned by its own test.
     if (!(A.ISSUE_MAP || {})[x.key]) continue;
@@ -569,6 +572,7 @@ section("7 · a drawer with no roll call renders exactly as it did before");
   };
   const pdrift = [];
   for (const x of ALL) {
+    if (declaredStanceMovesAtHead().moved.has(x.pid)) continue; // a declared stance pass (v103-chrome-seams.mjs)
     let before = "";
     try { before = A.PDXConsistency.gapViewHtml(x.pid, x.key) || ""; } catch { continue; }
     const now = drawer(x.pid, x.key);
