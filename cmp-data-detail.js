@@ -1524,7 +1524,19 @@
  "wayne_woodfield": { "bio": "Wayne Woodfield is the Forward Party nominee for Utah Senate District 21, born in Provo, raised in Mapleton and living in Lehi, running on integrity, civility and good governance." },
  "jesse_west": { "bio": "Jesse West is the Libertarian nominee for Utah's 1st Congressional District, a 30-year-old Salt Lake City family-law attorney and skier who chairs the Salt Lake City Libertarian Party." },
  "taylor_wright": { "bio": "Taylor Wright is the Libertarian nominee for Utah's 4th Congressional District, a physical education teacher who works extensively with adults with special needs." },
- "cassie_easley": { "bio": "Cassie Easley is the Constitution Party nominee for Utah's 3rd Congressional District, running on a federal government limited to the powers the Constitution lists." }
+ "cassie_easley": { "bio": "Cassie Easley is the Constitution Party nominee for Utah's 3rd Congressional District, running on a federal government limited to the powers the Constitution lists." },
+ "dan_osborn": { "bio": "Dan Osborn is the Independent nominee for U.S. Senate in Nebraska, a Navy veteran, former Nebraska National Guardsman, industrial mechanic and union leader." },
+ "brian_bengs": { "bio": "Brian Bengs is the Independent nominee for U.S. Senate in South Dakota, a retired Air Force lieutenant colonel and former national park ranger at Wind Cave who lives in Hot Springs." },
+ "todd_achilles": { "bio": "Todd Achilles is the Independent nominee for U.S. Senate in Idaho, a former Army tank commander and technology executive who grew up on a family farm and served in the Idaho House." },
+ "sarah_zabel": { "bio": "Sarah Zabel is the Independent nominee for Idaho's 1st Congressional District, a retired Air Force major general who served 31 years and helped shape national cyberspace policy." },
+ "bill_hill": { "bio": "Bill Hill is the Independent nominee for Alaska's at-large U.S. House seat, a Dena'ina Athabascan Bristol Bay commercial fisherman and former Bristol Bay Borough School District superintendent." },
+ "will_johanson": { "bio": "Will Johanson is the Libertarian nominee for Idaho's 2nd Congressional District, a Navy veteran and Boise State materials-science graduate who works as a semiconductor engineer in Boise." },
+ "cory_robertson": { "bio": "Cory Robertson is the Libertarian nominee for Colorado's 3rd Congressional District, a stay-at-home father from Aurora nominated at the Colorado Libertarian Party's April 2026 convention." },
+ "monica_alponte": { "bio": "Monica Alponte is the Libertarian nominee for Arizona's 1st Congressional District, a Scottsdale retired business owner, writer and former political TV talk show co-host." },
+ "shawn_johnson": { "bio": "Shawn Johnson is the Libertarian nominee for Wyoming's at-large U.S. House seat, a 21-year Army combat medic in the Wyoming National Guard, former Casper vice mayor and practicing attorney." },
+ "jeff_haggit": { "bio": "Jeffrey Haggit is the Constitution Party nominee for Wyoming's at-large U.S. House seat, a retired instrumentation technician and former chairman of the Constitution Party of Wyoming." },
+ "tom_schmitz": { "bio": "Tom Schmitz is the Libertarian nominee for Missouri's 1st Congressional District, who advanced unopposed from the party's August 4, 2026 primary." },
+ "brandon_daugherty": { "bio": "Brandon Daugherty is the Libertarian nominee for Missouri's 2nd Congressional District, executive director of the Libertarian Party of Missouri and co-host of the Missouri Liberty Report." }
 };
   Object.keys(X).forEach(function (k) {
     var src = X[k], dst = D[k] || (D[k] = {});

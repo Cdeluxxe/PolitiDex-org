@@ -10256,7 +10256,16 @@
 //     cmp-data.js is precached and changed, so the shell moves one version.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v418';
+// v419 - FEDERAL THIRD-PARTY LIGHT PROFILES, BATCH 1. The twelve federal
+//     independent and third-party nominees gain a one-sentence bio
+//     (cmp-data-detail.js) and, for nine of them, three to five sourced
+//     campaign claims on existing issue keys (politician-stances-ext.js,
+//     regenerated from politician-stances.js); sitemap.xml names their files.
+//     Both data files are runtime entries; the shell moves one version so the
+//     person shells pick them up. No score, no Direction Match figure, no new key.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v419';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
