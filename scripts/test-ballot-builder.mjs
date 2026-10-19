@@ -235,45 +235,105 @@ section("2 · Every person on the ballot is a door to /p/");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("2b · Every seat lists everyone on file, and invents nobody");
+section("2b · Every seat lists every candidate on file this cycle, and invents nobody");
+// Each seat's roster, as painted: [pid, role] in order, and the printed count.
+const rosterRoles = (html) => [...html.matchAll(/data-bw-roster="([^"]+)"[\s\S]*?data-bw-role="([a-z]+)"/g)].map((m) => [m[1], m[2]]);
+const rosterCount = (html) => +((/On file for this race · (\d+) (?:person|people)/.exec(html) || [])[1] || -1);
+const at = (area, city, county, extra) => boot(Object.assign({ store: { politidex_keyraces_location: area }, location: { state: "Utah", city, county } }, extra || {}));
+const seatHtml = (w, key) => { w.pdxBallotWorkspaceOpen(key); const full = paint(w); return { full, d: desk(full), g: glance(full, key) }; };
 {
+  // THE RULE, OVER EVERY SEAT A PROVO READER WORKS: incumbents are the resolver's
+  // holders; every other name is a current-cycle candidate on that seat's key or
+  // the race row; nobody former, retired or not running; the count is the list.
   const w = boot();
   const r = w.pdxRepsForMe();
   const canon = (p) => w.PDXPersonLink.pid(p);
-  let multi = 0, solo = 0;
+  const st = (p) => w.PDXStatus.resolve(w.CMP_DATA[canon(p)]);
   for (const s of SEATS) {
     if (w.PDXBallotWorkspace._gate(s, r) !== "ok") continue;
-    w.pdxBallotWorkspaceOpen(s.key);
-    const full = paint(w);
-    const d = desk(full);
+    const { d, g } = seatHtml(w, s.key);
+    const roles = rosterRoles(d);
+    if (!roles.length) continue;
+    eq(rosterCount(d), roles.length, `${s.key}: "On file for this race · N" matches the list`);
     const holders = w.PDXBallotWorkspace._holders(s, r).map(canon);
-    const want = [...new Set(holders.concat(w.PDXRaceSheet._field(s.key).map((c) => canon(c.pid))))];
-    const got = rosterOf(d);
-    eq(JSON.stringify(got), JSON.stringify(want), `${s.key}: the seat lists exactly the holders and the field on file, holders first`);
-    for (const p of got) has(d, `href="/p/${encodeURIComponent(p)}" data-pdx-person-link="${p}"`, `${s.key}: ${p} on the roster links to /p/`);
-    const others = want.filter((p) => !holders.includes(p));
-    if (want.length > 1 && others.length) {
-      multi++;
-      lacks(d, "data-bw-roster-none", `${s.key}: a seat with other people on file does not say there are none`);
-      const g = glance(full, s.key);
-      for (const p of want) has(g, `href="/p/${encodeURIComponent(p)}"`, `${s.key}: the at-a-glance row links ${p}`);
+    for (const [p, role] of roles) {
+      has(d, `href="/p/${encodeURIComponent(p)}" data-pdx-person-link="${p}"`, `${s.key}: ${p} links to /p/`);
+      has(g, `href="/p/${encodeURIComponent(p)}"`, `${s.key}: the at-a-glance row links ${p} too`);
+      if (role === "incumbent") ok(holders.length ? holders.includes(p) : st(p) === "incumbent", `${s.key}: ${p} is marked incumbent without holding the seat`);
+      else eq(st(p), "current_candidate", `${s.key}: ${p} is listed as a candidate`);
     }
-    if (!others.length && holders.length) {
-      solo++;
-      has(d, "No other person on file for this seat.", `${s.key}: only the sitting member on file still says so`);
-      has(glance(full, s.key), "No other person on file for this seat.", `${s.key}: …in the at-a-glance row too`);
-      eq(got.length, holders.length, `${s.key}: no name is invented beside the sitting member`);
-    }
+    for (const h of holders) ok(roles.some(([p, role]) => p === h && role === "incumbent"), `${s.key}: the holder ${h} is not marked incumbent`);
+    const fieldCands = w.PDXRaceSheet._field(s.key).map((c) => canon(c.pid)).filter((p) => st(p) === "current_candidate");
+    for (const c of fieldCands) ok(roles.some(([p]) => p === c), `${s.key}: ${c} is a current candidate on this seat and is not listed`);
   }
-  ok(multi >= 1, "the Provo fixture has a seat with more than one person on file");
-  ok(solo >= 1, "the Provo fixture has a seat with only the sitting member on file");
-  // Every seat on the rail has an at-a-glance row.
+}
+{
+  // A RACE WITH CANDIDATES FROM MORE THAN ONE PARTY: Salt Lake City's U.S. House
+  // seat, UT-1 — the sitting member and the candidate on file for that district.
+  const w = at("slc", "Salt Lake City", "Salt Lake County");
+  const { d, g } = seatHtml(w, "house");
+  eq(JSON.stringify(rosterRoles(d)), JSON.stringify([["bmoore", "incumbent"], ["dballard", "candidate"]]), "UT-1 lists its incumbent and its candidate");
+  eq(rosterCount(d), 2, "…and counts two people");
+  lacks(d, "data-bw-roster-none", "…and does not say there is nobody else");
+  const parties = new Set(rosterRoles(d).map(([p]) => w.CMP_DATA[p].party));
+  ok(parties.size >= 2, `UT-1's list spans more than one party (got ${[...parties].join(", ")})`);
+  has(g, 'href="/p/dballard"', "…and the at-a-glance row names the candidate");
+  has(g, 'data-bw-role="candidate"', "…as a candidate");
+  // Party is a fact on the record, never printed on the ballot.
+  ok(!/\b(Republican|Democrat(?:ic)?|Libertarian)\b|\((?:R|D|I)\)/.test(d.replace(/<[^>]+>/g, " ")), "the roster prints no party");
+}
+{
+  // A LOCAL RACE WITH A NOMINEE BESIDE THREE SITTING MEMBERS: Davis County Commission.
+  const w = at("davis", "Layton", "Davis County");
+  const key = "local_county_commission";
+  if (w.PDXBallotWorkspace._seats().some((s) => s.key === key)) {
+    const { d } = seatHtml(w, key);
+    const roles = rosterRoles(d);
+    ok(roles.some(([p, role]) => p === "susan_lee" && role === "candidate"), "the Davis County Commission lists its nominee as a candidate");
+    eq(roles.filter(([, role]) => role === "incumbent").length, 3, "…beside its three sitting commissioners");
+    eq(rosterCount(d), roles.length, "…and counts all of them");
+  } else failures.push("the Davis fixture no longer carries a County Commission seat");
+}
+{
+  // ONLY THE SITTING MEMBER ON FILE: the honest empty stays, and a former holder
+  // of the seat is not passed off as a candidate. Provo's State Senate holds
+  // Keven Stratton and, from the seat's history, Curt Bramble.
+  const w = boot();
+  const { d, g } = seatHtml(w, "statesenate");
+  eq(JSON.stringify(rosterRoles(d)), JSON.stringify([["kstratton", "incumbent"]]), "Provo's State Senate lists only its sitting member");
+  eq(rosterCount(d), 1, "…counted as one person");
+  has(d, "No other person on file for this seat.", "…with the honest empty");
+  has(g, "No other person on file for this seat.", "…at a glance too");
+  ok(w.PDXRaceSheet._field("statesenate").some((c) => c.pid === "cbramble"), "the fixture still has a former holder in the seat's history");
+  lacks(d.slice(d.indexOf("bw-roster"), d.indexOf("bw-roster-none") + 20), "cbramble", "a former holder is not listed as on file for the race");
+  // A row whose field is from an earlier cycle adds nobody: the governor's 2024 challenger.
+  const gv = seatHtml(w, "governor");
+  ok(/2024/.test(w._pdxRaceFile("governor").candidatesLabel) && w._pdxRaceFile("governor").candidates.includes("lyman"), "the governor row still files a 2024 challenger");
+  eq(JSON.stringify(rosterRoles(gv.d)), JSON.stringify([["cox", "incumbent"]]), "an earlier cycle's challenger is not listed for this race");
+  has(gv.d, "No other person on file for this seat.", "…and the honest empty stays");
+}
+{
+  // A CANDIDATE ADDED TO THE ARCHIVE FOR THE SAME DISTRICT APPEARS, whatever the
+  // party, and the count moves with it; one for another district does not.
+  const w = boot();
+  w.CMP_DATA.fx_ut3 = { name: "Fixture Candidate", office: "U.S. House Candidate (UT-3)", state: "Utah", party: "Forward" };
+  w.CMP_DATA.fx_ut2 = { name: "Elsewhere Candidate", office: "U.S. House Candidate (UT-2)", state: "Utah", party: "Libertarian" };
+  w.CMP_DATA.fx_gone = { name: "Gone Candidate", office: "Former U.S. House Candidate (UT-3)", state: "Utah", party: "Independent" };
+  const { d } = seatHtml(w, "house");
+  const roles = rosterRoles(d);
+  ok(roles.some(([p, role]) => p === "fx_ut3" && role === "candidate"), "a candidate filed for UT-3 is listed for a UT-3 reader");
+  ok(!roles.some(([p]) => p === "fx_ut2"), "a candidate for another district is not");
+  ok(!roles.some(([p]) => p === "fx_gone"), "a former candidate is not");
+  eq(rosterCount(d), roles.length, "the count matches the longer list");
+  ok(roles.length >= 3, `UT-3 now lists its incumbent and two candidates (got ${roles.length})`);
+}
+{
+  // Every seat on the rail has an at-a-glance row; an unmapped district names nobody.
+  const w = boot();
   const full = paint(w);
   for (const s of SEATS) has(full, `data-bw-glance="${s.key}"`, `${s.key} has an at-a-glance row`);
-  // An unmapped district names nobody, at a glance either.
   const oh = boot({ location: { state: "Ohio", city: "Columbus", county: "Franklin County" } });
-  const ohHtml = paint(oh);
-  const g = glance(ohHtml, "house");
+  const g = glance(paint(oh), "house");
   has(g, "District not mapped for your area.", "an Ohio reader's House row says the district is not mapped");
   lacks(g, 'href="/p/', "…and names nobody");
 }

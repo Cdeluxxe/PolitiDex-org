@@ -10169,7 +10169,21 @@
 //     the seats; residency and membership are not read.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v411';
+// v412 - EVERY CANDIDATE ON FILE FOR THE RACE, MARKED BY ROLE. A seat's "On
+//     file for this race" list on the ballot workspace now reads the race, not
+//     just the sitting-member resolver: the incumbents, then every person the
+//     archive files as a current-cycle candidate for that exact district (the
+//     seat's roster key, read through PDXStatus, and the curated race row via
+//     the new window._pdxRaceFile in ballot-breakdown.js when the row is for
+//     the same district and not an earlier cycle), whatever their party, which
+//     is never read or printed. Former holders and former candidates are no
+//     longer listed as on file for the race; they stay in the compare field.
+//     Each name is marked incumbent or candidate and links to /p/; the count
+//     is the list. ballot-workspace.js is precached and changed, so the shell
+//     moves one version; ballot-breakdown.js is a runtime entry.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v412';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

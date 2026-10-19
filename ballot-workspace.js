@@ -608,23 +608,64 @@
       '<span>No current officeholder resolved for this seat</span></span>';
   }
 
-  // ── EVERYONE ON FILE FOR THIS RACE ────────────────────────────────────────
-  // The sitting member(s) the resolver names, then every other person the race
-  // file holds for this seat, each a link to their person file. Only for a seat
-  // whose field this reader can work (gate 'ok'): an unmapped district has no
-  // field to name, and naming one would be someone else's district. Nobody is
-  // added that the resolver or the field did not return.
+  // ── EVERYONE ON FILE FOR THIS RACE, THIS CYCLE ────────────────────────────
+  // Incumbents first, then every candidate the archive holds for this exact
+  // seat in the current cycle — whatever their party, which is never read.
+  //   · INCUMBENTS: the resolver's holders (namedHolders), plus anyone else on
+  //     the seat's own roster key whose record files them as holding the office.
+  //   · CANDIDATES: everyone on that key the app's status model
+  //     (PDXStatus.resolve) reads as a current candidate, and the curated race
+  //     row's candidates (window._pdxRaceFile) when the row is for the same
+  //     district and does not label its field as an earlier cycle.
+  //   · NOT LISTED: former holders, former candidates, retirees and anyone not
+  //     running. They are still in the compare field below, which is the
+  //     seat's whole history; this list is the race.
+  // Only for a seat whose field this reader can work (gate 'ok'): an unmapped
+  // district has no roster to read, and naming one would be someone else's.
+  var CYCLE_YEAR = 2026;
+  function statusOf(pid) {
+    var rec = null;
+    try { rec = fn('_pdxBallotRecord') ? window._pdxBallotRecord(pid) : null; } catch (e) {}
+    if (!rec) rec = personOf(pid);
+    if (!rec) return '';
+    try {
+      if (window.PDXStatus && typeof window.PDXStatus.resolve === 'function') return window.PDXStatus.resolve(rec);
+    } catch (e) {}
+    var s = fn('_pdxOfficeStatus') ? window._pdxOfficeStatus(rec) : 'office';
+    return s === 'candidate' ? 'current_candidate' : s === 'former' ? 'retired' : 'incumbent';
+  }
+  function rowIsThisRace(seat, row) {
+    if (!row) return false;
+    var yrs = String(row.candidatesLabel || '').match(/\b(19|20)\d{2}\b/g) || [];
+    for (var i = 0; i < yrs.length; i++) if (+yrs[i] < CYCLE_YEAR) return false;
+    if (row.statewide) return true;
+    var d = null;
+    try {
+      var sf = fn('pdxSeatField') ? window.pdxSeatField(seat.key) : null;
+      if (sf && sf.answerable && sf.district != null) d = +sf.district;
+    } catch (e) {}
+    return d != null && row.district === d;
+  }
   function onFile(seat, r, gate) {
     if (gate !== 'ok') return { holders: [], others: [] };
     var seen = {}, holders = [], others = [];
-    namedHolders(seat, r).forEach(function (p) {
+    var add = function (list, p) {
       var c = canonPid(p);
-      if (c && !seen[c]) { seen[c] = 1; holders.push(p); }
-    });
-    fieldFor(seat.key).forEach(function (cand) {
-      var c = cand && canonPid(cand.pid);
-      if (c && !seen[c]) { seen[c] = 1; others.push(cand.pid); }
-    });
+      if (!c || seen[c] || !personOf(c)) return;
+      seen[c] = 1; list.push(c);
+    };
+    namedHolders(seat, r).forEach(function (p) { add(holders, p); });
+    var field = fieldFor(seat.key).map(function (c) { return c && c.pid; });
+    // A district seat the resolver names a holder for has its incumbent; another
+    // officeholder on the same key is someone else's record (a predecessor
+    // filed under the old map), never a second incumbent.
+    if (!holders.length) field.forEach(function (p) { if (statusOf(p) === 'incumbent') add(holders, p); });
+    field.forEach(function (p) { if (statusOf(p) === 'current_candidate') add(others, p); });
+    var row = null;
+    try { row = fn('_pdxRaceFile') ? window._pdxRaceFile(seat.key) : null; } catch (e) { row = null; }
+    if (rowIsThisRace(seat, row)) {
+      row.candidates.forEach(function (p) { if (statusOf(p) === 'current_candidate') add(others, p); });
+    }
     return { holders: holders, others: others };
   }
   function personLink(pid) {
@@ -637,10 +678,10 @@
     if (!f.holders.length && !f.others.length) return '';
     var rows = f.holders.map(function (p) {
       return '<li class="bw-roster-p is-holder" data-bw-roster="' + esc(canonPid(p)) + '">' + personLink(p) +
-        ' <span class="bw-roster-r">holds this seat</span></li>';
+        ' <span class="bw-roster-r" data-bw-role="incumbent">incumbent</span></li>';
     }).concat(f.others.map(function (p) {
       return '<li class="bw-roster-p" data-bw-roster="' + esc(canonPid(p)) + '">' + personLink(p) +
-        ' <span class="bw-roster-r">on file for this race</span></li>';
+        ' <span class="bw-roster-r" data-bw-role="candidate">candidate</span></li>';
     })).join('');
     var none = (!f.others.length && f.holders.length)
       ? '<p class="bw-roster-none" data-bw-roster-none>No other person on file for this seat.</p>' : '';
@@ -712,8 +753,11 @@
       var body;
       if (gate === 'ok') {
         var f = onFile(s, r, gate);
-        var names = f.holders.map(function (p) { return '<b>' + personLink(p) + '</b>'; })
-          .concat(f.others.map(personLink));
+        var names = f.holders.map(function (p) {
+          return '<b>' + personLink(p) + '</b> <span class="bw-roster-r" data-bw-role="incumbent">incumbent</span>';
+        }).concat(f.others.map(function (p) {
+          return personLink(p) + ' <span class="bw-roster-r" data-bw-role="candidate">candidate</span>';
+        }));
         body = names.length
           ? '<span class="bw-glance-names">' + names.join(' \u00b7 ') + '</span>' +
             (!f.others.length ? ' <span class="bw-glance-none">No other person on file for this seat.</span>' : '')
