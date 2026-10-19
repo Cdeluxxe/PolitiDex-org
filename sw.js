@@ -10141,7 +10141,71 @@
 //     entries. No row, line, weight, primary flag, pole or issue key moved.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v409';
+// v410 - THE BALLOT NAMES ITS MEASURES. The ballot workspace now lists, under
+//     its seats, the statewide questions the reader's saved location puts on
+//     the ballot (ballot-measures.js): each with its official wording, its
+//     ballot page, the topics its record is mapped to, the archive's
+//     plain-language summary (or the honest "No plain-language summary on file
+//     yet"), and, where its text was voted on more than once, a link to the
+//     bill page's History fold (/b/<sitting>/<number>#history). Location alone
+//     decides the list; residency and membership are not read. ballot.html,
+//     ballot-workspace.js and ballot-workspace.css are precached and changed,
+//     and ballot-measures.js joins the precache, so the shell moves one
+//     version; bill-detail.js (which now honours #history) is a runtime entry.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v411 - EVERY SEAT NAMES EVERYONE ON FILE, AND WHEN IT IS DECIDED. Each seat
+//     on the ballot workspace lists the sitting member(s) and every other
+//     person the race file holds for it, each linked to /p/, with "No other
+//     person on file for this seat" when only the sitting member is held. An
+//     election line prints a date and "election in N days" only when one is
+//     stored (the race row's electionDate, read through the new
+//     window._pdxRaceElection in ballot-breakdown.js, or a person record's
+//     nextElection); otherwise "No election date on file", with the row's own
+//     ballot-status label where it has one. A new "Every seat at a glance"
+//     list carries the same for all seats. ballot-workspace.js and
+//     ballot-workspace.css are precached and changed, so the shell moves one
+//     version; ballot-breakdown.js is a runtime entry. Location alone decides
+//     the seats; residency and membership are not read.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v412 - EVERY CANDIDATE ON FILE FOR THE RACE, MARKED BY ROLE. A seat's "On
+//     file for this race" list on the ballot workspace now reads the race, not
+//     just the sitting-member resolver: the incumbents, then every person the
+//     archive files as a current-cycle candidate for that exact district (the
+//     seat's roster key, read through PDXStatus, and the curated race row via
+//     the new window._pdxRaceFile in ballot-breakdown.js when the row is for
+//     the same district and not an earlier cycle), whatever their party, which
+//     is never read or printed. Former holders and former candidates are no
+//     longer listed as on file for the race; they stay in the compare field.
+//     Each name is marked incumbent or candidate and links to /p/; the count
+//     is the list. ballot-workspace.js is precached and changed, so the shell
+//     moves one version; ballot-breakdown.js is a runtime entry.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v413 - /BALLOT READS THE LIVE CANDIDATE PROFILES. ballot-live-roster.js
+//     reads the live Firestore politicians list the homepage reads (same REST
+//     list call, no SDK, key from /firebase-config.js) once the reader is
+//     located, and merges it into the roster by the homepage's rule, so each
+//     race lists the non-incumbent candidates those profiles hold. Its mask
+//     adds candidacyStatus, so a candidate whose race concluded (lost a
+//     primary, eliminated at convention) stays off; a live document filed
+//     under another key for a roster person merges into that person. If the
+//     list cannot load, the desk says the lists are the page's own.
+//     AND THE ROSTER KEYERS MOVED. seat-field.js keyed records to a seat with
+//     three functions that lived in compare-hub.js, which /ballot does not
+//     load, so on /ballot every seat field was its holder alone — bundled
+//     challengers included. They now live in roster-keys.js (precached, loaded
+//     by index.html before compare-hub.js and by ballot.html before
+//     seat-field.js) and compare-hub.js delegates to them. One rule changed: a
+//     bare "Senate … District N" title is a state senate seat, not the U.S.
+//     Senate, on both documents.
+//     ballot.html, index.html, compare-hub.js and ballot-workspace.js are
+//     precached and changed, and ballot-live-roster.js and roster-keys.js join
+//     the precache, so the shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v413';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -10665,6 +10729,10 @@ const SHELL_ASSETS = [
   // those two now ASK it who is on a seat before falling back to their own
   // keying — offline without this file the Compare Field of a redistricted seat
   // reverts to the curated ballot's district and names the wrong member.
+  // The chamber / state / district keyers seat-field.js reads (moved out of
+  // compare-hub.js so /ballot, which does not load that file, keys the roster
+  // the same way). Offline without it every seat field is its holder alone.
+  '/roster-keys.js',
   '/seat-field.js',
   '/race-sheet.js',
   // Door 2's ballot workspace: the seat rail, the running "N of 6 decided"
@@ -10673,6 +10741,14 @@ const SHELL_ASSETS = [
   // every fact it prints — offline with one and not the other, the mount paints
   // nothing at all.
   '/ballot-workspace.js',
+  // The measures the reader's location puts on the ballot, painted by the desk
+  // under its seats. Precached with the desk: offline without it the desk still
+  // paints, with no measures section.
+  '/ballot-measures.js',
+  // The live candidate-profile reader for the desk's race lists. The module is
+  // precached; the live list it reads is cross-origin and never cached here,
+  // and offline it fails soft to the bundled roster with a line saying so.
+  '/ballot-live-roster.js',
   // The stance studio: the self-tutorial on /my-stances for a reader with
   // nothing on file, and the library of held positions for a reader who has
   // something. It replaces door2-first-run.js, which did the first half of that

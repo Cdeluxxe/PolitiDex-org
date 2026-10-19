@@ -1383,6 +1383,9 @@ async function getMeasureRef(sitting: string, number: string): Promise<Response>
       title: measure.title,
       shortTitle: measure.shortTitle,
       status: measure.status,
+      // The archive's plain-language description (the column the bill page
+      // prints), so a ballot entry can show it without the full detail call.
+      summary: measure.summary ?? null,
       sourceUrl: measure.sourceUrl,
     },
   });

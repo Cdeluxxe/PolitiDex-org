@@ -437,3 +437,74 @@ a.bw-cand-name:hover, a.bw-cand-name:focus-visible { color: #93c5fd; text-decora
 /* The heading and its one-paragraph promise stay — that is the section's title,
    not brochure copy — but they stop being a full screen of hero. */
 #voter-hub[data-bw-working="1"] .vh-intro { margin-bottom: 1.5rem; }
+
+/* ── The measures on the same ballot (ballot-measures.js) ──────────────────
+   Under the seats, one card per question. Neutral colours only: a measure is
+   a yes or a no, and nothing here leans either way. */
+.bw-measures {
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  padding: 1rem 1.15rem 1.2rem;
+}
+.bw-m-title {
+  font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 1.05rem;
+  color: #fff; margin: 0; letter-spacing: 0.02em;
+}
+.bw-m-sub { font-size: 0.76rem; color: #8fa2bd; margin: 0.15rem 0 0.75rem; }
+.bw-m-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.65rem; }
+.bw-m {
+  padding: 0.75rem 0.85rem; border-radius: 0.8rem;
+  background: rgba(255, 255, 255, 0.035); border: 1px solid rgba(255, 255, 255, 0.09);
+  min-width: 0;
+}
+.bw-m-hd { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 0.6rem; }
+.bw-m-name { font-weight: 700; font-size: 0.95rem; color: #fff; text-decoration: none; }
+.bw-m-name:hover, .bw-m-name:focus-visible { text-decoration: underline; }
+.bw-m-what { font-size: 0.74rem; color: #9fb4d4; }
+.bw-m-q { font-size: 0.82rem; line-height: 1.45; color: #d6e0ee; margin: 0.45rem 0 0; }
+.bw-m-topics { list-style: none; margin: 0.5rem 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.bw-m-topic {
+  font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12); color: #cdd8e8;
+}
+.bw-m-sum { font-size: 0.8rem; line-height: 1.5; color: #c3cfe0; margin: 0.5rem 0 0; }
+.bw-m-gap { font-size: 0.76rem; color: #8fa2bd; font-style: italic; margin: 0.45rem 0 0; }
+.bw-m-gap a { color: #93c5fd; }
+.bw-m-hist {
+  display: inline-block; margin: 0.5rem 0 0; font-size: 0.78rem; font-weight: 600;
+  color: #93c5fd; text-decoration: none;
+}
+.bw-m-hist:hover, .bw-m-hist:focus-visible { text-decoration: underline; }
+.bw-m-links { display: flex; flex-wrap: wrap; gap: 0.4rem 0.9rem; margin: 0.55rem 0 0; }
+.bw-m-go { font-size: 0.76rem; color: #93c5fd; text-decoration: none; min-height: 24px; }
+.bw-m-go:hover, .bw-m-go:focus-visible { text-decoration: underline; }
+
+/* ── Everyone on file for a race, and when it is decided ─────────────────── */
+.bw-elect { font-size: 0.78rem; color: #c3cfe0; margin: 0.6rem 0 0; }
+.bw-elect b { color: #fff; }
+.bw-elect.is-none { color: #8fa2bd; font-style: italic; }
+.bw-roster { margin: 0.6rem 0 0; }
+.bw-roster-h { font-size: 0.74rem; color: #9fb4d4; margin: 0 0 0.3rem; font-weight: 600; }
+.bw-roster-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.bw-roster-p {
+  font-size: 0.8rem; padding: 0.3rem 0.55rem; border-radius: 0.6rem;
+  background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.09); color: #d6e0ee;
+}
+.bw-roster-p.is-holder { border-color: rgba(255, 255, 255, 0.2); }
+.bw-roster-p .bw-cand-name { font-size: 0.8rem; }
+.bw-roster-r { color: #8fa2bd; font-size: 0.7rem; }
+.bw-roster-none, .bw-glance-none { font-size: 0.76rem; color: #8fa2bd; font-style: italic; margin: 0.35rem 0 0; }
+.bw-glance { border-top: 1px solid rgba(255, 255, 255, 0.07); padding: 1rem 1.15rem 1.2rem; }
+.bw-glance-ul { list-style: none; margin: 0.6rem 0 0; padding: 0; display: grid; gap: 0.55rem; }
+.bw-glance-s {
+  padding: 0.6rem 0.8rem; border-radius: 0.8rem; font-size: 0.8rem; color: #d6e0ee;
+  background: rgba(255, 255, 255, 0.035); border: 1px solid rgba(255, 255, 255, 0.09);
+}
+.bw-glance-t {
+  background: none; border: 0; padding: 0; cursor: pointer; font: inherit;
+  font-weight: 700; color: #fff; margin-right: 0.35rem; min-height: 24px;
+}
+.bw-glance-t:hover, .bw-glance-t:focus-visible { text-decoration: underline; }
+.bw-glance-names .bw-cand-name { font-size: 0.8rem; }
+.bw-glance .bw-elect { margin-top: 0.3rem; }
+.bw-live { font-size: 0.74rem; color: #8fa2bd; margin: 0.2rem 0 0; }
+.bw-live.is-off { font-style: italic; }

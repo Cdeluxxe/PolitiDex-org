@@ -2546,6 +2546,61 @@
     // ballot (their specific U.S. House, State Senate and State House seats),
     // plus the statewide seats every voter in the state shares. Computed here in
     // the Key Races module because this is where the authoritative data lives.
+    // ── WHEN A RACE IS DECIDED, AS THE CURATED ROW STATES IT ───────────────
+    // The ballot desk's election line reads this and nothing else from the race
+    // table: an exact `electionDate` (YYYY-MM-DD) when the row carries one, and
+    // the row's own ballot-status label ("Next Election · 2028"). Neither is
+    // derived — a row with no date returns no date. Read for the reader's
+    // resolved area first, then the statewide rows.
+    window._pdxRaceElection = function(raceKey) {
+      try {
+        var k = String(raceKey || '');
+        if (!k) return null;
+        var locId = _krCurrentLocationId();
+        var rows = (KEY_RACES_BY_LOCATION[locId] || []).concat(KEY_RACES_STATEWIDE || []);
+        for (var i = 0; i < rows.length; i++) {
+          var r = rows[i];
+          if (!r || r.raceKey !== k) continue;
+          var d = /^\d{4}-\d{2}-\d{2}$/.test(String(r.electionDate || '')) ? String(r.electionDate) : '';
+          return { date: d, label: (r.ballot && r.ballot.label) ? String(r.ballot.label) : '' };
+        }
+      } catch (e) {}
+      return null;
+    };
+
+    // ── WHO THE CURATED ROW FILES FOR A RACE ───────────────────────────────
+    // The ballot desk's "On file for this race" list reads this beside the
+    // roster field: the row's incumbents and candidates, the district number
+    // the row is for (null on a statewide row), and the row's candidatesLabel,
+    // which is where a row says its field is from an earlier cycle ("Challenged
+    // for This Seat · 2024"). Read for the reader's resolved area first, then
+    // the statewide rows. Nothing is derived; the caller decides what counts.
+    window._pdxRaceFile = function(raceKey) {
+      try {
+        var k = String(raceKey || '');
+        if (!k) return null;
+        var locId = _krCurrentLocationId();
+        var local = KEY_RACES_BY_LOCATION[locId] || [];
+        var rows = local.concat(KEY_RACES_STATEWIDE || []);
+        for (var i = 0; i < rows.length; i++) {
+          var r = rows[i];
+          if (!r || r.raceKey !== k) continue;
+          var m = String(r.district || r.short || '').match(/(\d+)\s*$/);
+          var inc = [];
+          if (r.incumbentPid) inc.push(r.incumbentPid);
+          (r.incumbentPids || []).forEach(function(p) { if (p && inc.indexOf(p) === -1) inc.push(p); });
+          return {
+            district: (local.indexOf(r) >= 0 && m) ? parseInt(m[1], 10) : null,
+            statewide: local.indexOf(r) < 0,
+            incumbents: inc,
+            candidates: (r.candidates || []).slice(),
+            candidatesLabel: String(r.candidatesLabel || '')
+          };
+        }
+      } catch (e) {}
+      return null;
+    };
+
     window.keyRacesRelevantData = function() {
       try {
         var locId = _krCurrentLocationId();

@@ -608,6 +608,197 @@
       '<span>No current officeholder resolved for this seat</span></span>';
   }
 
+  // ── EVERYONE ON FILE FOR THIS RACE, THIS CYCLE ────────────────────────────
+  // Incumbents first, then every candidate the archive holds for this exact
+  // seat in the current cycle — whatever their party, which is never read.
+  //   · INCUMBENTS: the resolver's holders (namedHolders), plus anyone else on
+  //     the seat's own roster key whose record files them as holding the office.
+  //   · CANDIDATES: everyone on that key the app's status model
+  //     (PDXStatus.resolve) reads as a current candidate, and the curated race
+  //     row's candidates (window._pdxRaceFile) when the row is for the same
+  //     district and does not label its field as an earlier cycle.
+  //   · NOT LISTED: former holders, former candidates, retirees and anyone not
+  //     running. They are still in the compare field below, which is the
+  //     seat's whole history; this list is the race.
+  // Only for a seat whose field this reader can work (gate 'ok'): an unmapped
+  // district has no roster to read, and naming one would be someone else's.
+  var CYCLE_YEAR = 2026;
+  function statusOf(pid) {
+    var rec = null;
+    try { rec = fn('_pdxBallotRecord') ? window._pdxBallotRecord(pid) : null; } catch (e) {}
+    if (!rec) rec = personOf(pid);
+    if (!rec) return '';
+    try {
+      if (window.PDXStatus && typeof window.PDXStatus.resolve === 'function') return window.PDXStatus.resolve(rec);
+    } catch (e) {}
+    var s = fn('_pdxOfficeStatus') ? window._pdxOfficeStatus(rec) : 'office';
+    return s === 'candidate' ? 'current_candidate' : s === 'former' ? 'retired' : 'incumbent';
+  }
+  function rowIsThisRace(seat, row) {
+    if (!row) return false;
+    var yrs = String(row.candidatesLabel || '').match(/\b(19|20)\d{2}\b/g) || [];
+    for (var i = 0; i < yrs.length; i++) if (+yrs[i] < CYCLE_YEAR) return false;
+    if (row.statewide) return true;
+    var d = null;
+    try {
+      var sf = fn('pdxSeatField') ? window.pdxSeatField(seat.key) : null;
+      if (sf && sf.answerable && sf.district != null) d = +sf.district;
+    } catch (e) {}
+    return d != null && row.district === d;
+  }
+  function onFile(seat, r, gate) {
+    if (gate !== 'ok') return { holders: [], others: [] };
+    var seen = {}, holders = [], others = [];
+    var add = function (list, p) {
+      var c = canonPid(p);
+      if (!c || seen[c] || !personOf(c)) return;
+      seen[c] = 1; list.push(c);
+    };
+    namedHolders(seat, r).forEach(function (p) { add(holders, p); });
+    var field = fieldFor(seat.key).map(function (c) { return c && c.pid; });
+    // A district seat the resolver names a holder for has its incumbent; another
+    // officeholder on the same key is someone else's record (a predecessor
+    // filed under the old map), never a second incumbent.
+    if (!holders.length) field.forEach(function (p) { if (statusOf(p) === 'incumbent') add(holders, p); });
+    field.forEach(function (p) { if (statusOf(p) === 'current_candidate') add(others, p); });
+    var row = null;
+    try { row = fn('_pdxRaceFile') ? window._pdxRaceFile(seat.key) : null; } catch (e) { row = null; }
+    if (rowIsThisRace(seat, row)) {
+      row.candidates.forEach(function (p) { if (statusOf(p) === 'current_candidate') add(others, p); });
+    }
+    return { holders: holders, others: others };
+  }
+  function personLink(pid) {
+    return candOpen(pid, ' aria-label="Open ' + esc(nameOf(pid)) + '\u2019s full record"') +
+      esc(nameOf(pid)) + candClose(pid);
+  }
+  function rosterHtml(seat, r, gate) {
+    if (gate !== 'ok') return '';
+    var f = onFile(seat, r, gate);
+    if (!f.holders.length && !f.others.length) return '';
+    var rows = f.holders.map(function (p) {
+      return '<li class="bw-roster-p is-holder" data-bw-roster="' + esc(canonPid(p)) + '">' + personLink(p) +
+        ' <span class="bw-roster-r" data-bw-role="incumbent">incumbent</span></li>';
+    }).concat(f.others.map(function (p) {
+      return '<li class="bw-roster-p" data-bw-roster="' + esc(canonPid(p)) + '">' + personLink(p) +
+        ' <span class="bw-roster-r" data-bw-role="candidate">candidate</span></li>';
+    })).join('');
+    var none = (!f.others.length && f.holders.length)
+      ? '<p class="bw-roster-none" data-bw-roster-none>No other person on file for this seat.</p>' : '';
+    var n = f.holders.length + f.others.length;
+    return '<div class="bw-roster" data-bw-roster-for="' + esc(seat.key) + '">' +
+      '<p class="bw-roster-h">On file for this race \u00b7 ' + n + (n === 1 ? ' person' : ' people') + '</p>' +
+      '<ul class="bw-roster-list">' + rows + '</ul>' + none + '</div>';
+  }
+
+  // ── WHEN THIS RACE IS DECIDED ─────────────────────────────────────────────
+  // A date is printed only when one is stored: the race row's electionDate
+  // (window._pdxRaceElection), else the earliest upcoming nextElection on the
+  // records of the people on file for the seat. No date is inferred from a
+  // year, a label or the calendar. A stored ballot-status label still prints,
+  // because it is the row's own words.
+  var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
+    'August', 'September', 'October', 'November', 'December'];
+  function isoDay(v) { var s = String(v == null ? '' : v).slice(0, 10); return /^\d{4}-\d{2}-\d{2}$/.test(s) ? s : ''; }
+  // The reader's local calendar day. window.__pdxToday pins it in a harness.
+  function todayIso() {
+    if (isoDay(window.__pdxToday)) return isoDay(window.__pdxToday);
+    var d = new Date();
+    return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+  }
+  function daysBetween(a, b) {
+    var pa = a.split('-'), pb = b.split('-');
+    return Math.round((Date.UTC(+pb[0], +pb[1] - 1, +pb[2]) - Date.UTC(+pa[0], +pa[1] - 1, +pa[2])) / 86400000);
+  }
+  function recordOf(pid) {
+    try { if (fn('_pdxBallotRecord')) { var b = window._pdxBallotRecord(pid); if (b) return b; } } catch (e) {}
+    return personOf(pid);
+  }
+  function electionOf(seat, r, gate) {
+    var race = null;
+    try { race = fn('_pdxRaceElection') ? window._pdxRaceElection(seat.key) : null; } catch (e) { race = null; }
+    var today = todayIso();
+    var date = race && isoDay(race.date);
+    if (date && daysBetween(today, date) < 0) date = '';
+    if (!date) {
+      var f = onFile(seat, r, gate);
+      f.holders.concat(f.others).forEach(function (p) {
+        var rec = recordOf(p);
+        var d = rec && isoDay(rec.nextElection);
+        if (d && daysBetween(today, d) >= 0 && (!date || d < date)) date = d;
+      });
+    }
+    return { date: date || '', days: date ? daysBetween(today, date) : null, label: (race && race.label) || '' };
+  }
+  function electionHtml(seat, r, gate) {
+    var e = electionOf(seat, r, gate);
+    if (e.date) {
+      var p = e.date.split('-');
+      var when = MONTHS[+p[1] - 1] + ' ' + (+p[2]) + ', ' + p[0];
+      var cd = e.days === 0 ? 'election day is today' : 'election in ' + e.days + ' day' + (e.days === 1 ? '' : 's');
+      return '<p class="bw-elect" data-bw-elect="' + esc(e.date) + '"><span aria-hidden="true">\u{1F5D3}</span> ' +
+        '<b>Election: ' + esc(when) + '</b> \u00b7 <span data-bw-countdown>' + esc(cd) + '</span></p>';
+    }
+    return '<p class="bw-elect is-none" data-bw-elect-none><span aria-hidden="true">\u{1F5D3}</span> ' +
+      'No election date on file' + (e.label ? ' \u00b7 <span data-bw-elect-label>' + esc(e.label) + '</span>' : '') + '</p>';
+  }
+
+  // ── WHERE THE NAMES COME FROM ─────────────────────────────────────────────
+  // ballot-live-roster.js reads the live candidate profiles the homepage reads.
+  // Until it lands, or if it cannot, the lists are the bundled roster's, and
+  // this line says so rather than letting a short list read as the whole field.
+  function liveState() {
+    try {
+      var L = window.PDXBallotLiveRoster;
+      return (L && typeof L.ensure === 'function') ? L.ensure() : 'absent';
+    } catch (e) { return 'absent'; }
+  }
+  function liveNote() {
+    var st = liveState();
+    if (st === 'loading' || st === 'idle') {
+      return '<p class="bw-live" data-bw-live="loading">Loading the live candidate profiles\u2026</p>';
+    }
+    if (st === 'failed' || st === 'nokey') {
+      return '<p class="bw-live is-off" data-bw-live="off">The live candidate profiles could not be loaded, ' +
+        'so each race lists only the people this page carries.</p>';
+    }
+    return '';
+  }
+
+  // ── EVERY SEAT AT A GLANCE ────────────────────────────────────────────────
+  // The desk opens one seat; this lists all of them, so a reader can scan the
+  // whole ballot — who is on file and when each is decided — without opening
+  // each. A seat with no field to work says why in the gate's own short words.
+  function glanceHtml(list, r) {
+    var rows = list.map(function (s) {
+      var gate = fieldGate(s, r);
+      var body;
+      if (gate === 'ok') {
+        var f = onFile(s, r, gate);
+        var names = f.holders.map(function (p) {
+          return '<b>' + personLink(p) + '</b> <span class="bw-roster-r" data-bw-role="incumbent">incumbent</span>';
+        }).concat(f.others.map(function (p) {
+          return personLink(p) + ' <span class="bw-roster-r" data-bw-role="candidate">candidate</span>';
+        }));
+        body = names.length
+          ? '<span class="bw-glance-names">' + names.join(' \u00b7 ') + '</span>' +
+            (!f.others.length ? ' <span class="bw-glance-none">No other person on file for this seat.</span>' : '')
+          : '<span class="bw-glance-none">Nobody is on file for this seat yet.</span>';
+      } else if (gate === 'district') {
+        body = '<span class="bw-glance-none">District not mapped for your area.</span>';
+      } else {
+        body = '<span class="bw-glance-none">Not mapped for your area yet.</span>';
+      }
+      return '<li class="bw-glance-s" data-bw-glance="' + esc(s.key) + '">' +
+        '<button type="button" class="bw-glance-t" onclick="window.pdxBallotWorkspaceOpen(\'' + jsq(s.key) + '\')">' +
+          esc(s.label) + '</button> ' + body + electionHtml(s, r, gate) + '</li>';
+    }).join('');
+    return '<section class="bw-glance" data-bw-glance-list aria-labelledby="bw-glance-h">' +
+      '<h4 class="bw-m-title" id="bw-glance-h">Every seat at a glance</h4>' +
+      liveNote() +
+      '<ul class="bw-glance-ul">' + rows + '</ul></section>';
+  }
+
   function pickFact(seat) {
     var pid = pickedFor(seat.key);
     if (!pid) {
@@ -991,6 +1182,8 @@
           '</div>' +
         '</div>' +
         '<div class="bw-facts">' + facts + '</div>' +
+        electionHtml(seat, r, gate) +
+        rosterHtml(seat, r, gate) +
         linesNote(seat, r) +
         body +
         footHtml(seat, list, canCompare) +
@@ -1156,6 +1349,17 @@
     return '';
   }
 
+  // ── The measures on the same ballot ───────────────────────────────────────
+  // ballot-measures.js owns them: which ones the reader's location puts on the
+  // ballot, their topics, their summary and their History link. This desk only
+  // gives them a place under the seats. No module, no section.
+  function measuresHtml() {
+    try {
+      var M = window.PDXBallotMeasures;
+      return (M && typeof M.html === 'function') ? (M.html() || '') : '';
+    } catch (e) { return ''; }
+  }
+
   function sync() {
     var mount = document.getElementById(MOUNT_ID);
     if (!mount) return;
@@ -1228,7 +1432,9 @@
         progHtml +
       '</div>' +
       '<div class="bw-body">' + railHtml(list, seat ? seat.key : '') +
-        (seat ? deskHtml(seat, list, r) : '') + '</div>';
+        (seat ? deskHtml(seat, list, r) : '') + '</div>' +
+      glanceHtml(list, r) +
+      measuresHtml();
     revealSeat(host, seat ? seat.key : '', railWas);
     try { mount.setAttribute('data-located', '1'); } catch (e) {}
   }

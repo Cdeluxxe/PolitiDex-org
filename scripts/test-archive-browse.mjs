@@ -69,15 +69,17 @@ const CH = CODE("compare-hub.js");
 // a paraphrase would only prove this file agrees with itself.
 // ─────────────────────────────────────────────────────────────────────────────
 const TYPE_FROM_TEXT = (() => {
-  const src = R("compare-hub.js");
+  // The classifier moved to roster-keys.js (compare-hub.js delegates to it), so
+  // /ballot keys the roster by the same doctrine.
+  const src = R("roster-keys.js");
   const start = src.indexOf("function _classifyBrowseType(pid)");
-  must(start !== -1, "_classifyBrowseType is gone from compare-hub — this probe is stale");
-  const end = src.indexOf("\n    }", src.indexOf("return 'other';", start));
+  must(start !== -1, "_classifyBrowseType is gone from roster-keys.js — this probe is stale");
+  const end = src.indexOf("\n  }", src.indexOf("return 'other';", start));
   must(end > start, "_classifyBrowseType could not be sliced — this probe is stale");
-  const body = src.slice(start, end + 6);
+  const body = src.slice(start, end + 4);
   const ctx = vm.createContext({});
   ctx.window = ctx;
-  new vm.Script("var CMP_DATA = {};\n" + body +
+  new vm.Script("var CMP_DATA = window.CMP_DATA = {};\n" + body +
                 "\nthis.run = function (office) { CMP_DATA.probe = { office: office, state: '' }; " +
                 "return _classifyBrowseType('probe'); };",
                 { filename: "classify-browse-type" }).runInContext(ctx);

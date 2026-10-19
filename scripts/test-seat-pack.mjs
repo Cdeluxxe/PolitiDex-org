@@ -70,6 +70,7 @@ const FILES = [
   "issue-colors.js",
   "my-stances.js",
   "voter-hub-location.js",
+  "roster-keys.js",
   "compare-hub.js",
   "seat-field.js",
   "ballot-breakdown.js",

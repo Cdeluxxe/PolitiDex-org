@@ -222,7 +222,11 @@ const DENY = [
   // The homepage: its own weight, its own products.
   "app.css", "app-2.css", "tailwind.css", "compare-hub.js", "hero-showcase",
   "who-represents-me.js", "my-stances.js", "district-room.js", "archive",
-  "pdx-lazy-data.js", "pdx-stability.js", "firebase", "door2-spine.js",
+  "pdx-lazy-data.js", "pdx-stability.js", "door2-spine.js",
+  // No Firebase SDK and no firebase-boot.js: the desk reads the live candidate
+  // profiles over one REST list (ballot-live-roster.js), keyed by the
+  // edge-injected /firebase-config.js, which is the one Firebase file allowed.
+  "firebasejs", "firebase-app", "firebase-auth", "firebase-firestore", "firebase-boot",
   // Voice.
   "voice.js", "pdx-voice", "district-voice",
 ];
