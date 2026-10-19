@@ -608,6 +608,130 @@
       '<span>No current officeholder resolved for this seat</span></span>';
   }
 
+  // ── EVERYONE ON FILE FOR THIS RACE ────────────────────────────────────────
+  // The sitting member(s) the resolver names, then every other person the race
+  // file holds for this seat, each a link to their person file. Only for a seat
+  // whose field this reader can work (gate 'ok'): an unmapped district has no
+  // field to name, and naming one would be someone else's district. Nobody is
+  // added that the resolver or the field did not return.
+  function onFile(seat, r, gate) {
+    if (gate !== 'ok') return { holders: [], others: [] };
+    var seen = {}, holders = [], others = [];
+    namedHolders(seat, r).forEach(function (p) {
+      var c = canonPid(p);
+      if (c && !seen[c]) { seen[c] = 1; holders.push(p); }
+    });
+    fieldFor(seat.key).forEach(function (cand) {
+      var c = cand && canonPid(cand.pid);
+      if (c && !seen[c]) { seen[c] = 1; others.push(cand.pid); }
+    });
+    return { holders: holders, others: others };
+  }
+  function personLink(pid) {
+    return candOpen(pid, ' aria-label="Open ' + esc(nameOf(pid)) + '\u2019s full record"') +
+      esc(nameOf(pid)) + candClose(pid);
+  }
+  function rosterHtml(seat, r, gate) {
+    if (gate !== 'ok') return '';
+    var f = onFile(seat, r, gate);
+    if (!f.holders.length && !f.others.length) return '';
+    var rows = f.holders.map(function (p) {
+      return '<li class="bw-roster-p is-holder" data-bw-roster="' + esc(canonPid(p)) + '">' + personLink(p) +
+        ' <span class="bw-roster-r">holds this seat</span></li>';
+    }).concat(f.others.map(function (p) {
+      return '<li class="bw-roster-p" data-bw-roster="' + esc(canonPid(p)) + '">' + personLink(p) +
+        ' <span class="bw-roster-r">on file for this race</span></li>';
+    })).join('');
+    var none = (!f.others.length && f.holders.length)
+      ? '<p class="bw-roster-none" data-bw-roster-none>No other person on file for this seat.</p>' : '';
+    var n = f.holders.length + f.others.length;
+    return '<div class="bw-roster" data-bw-roster-for="' + esc(seat.key) + '">' +
+      '<p class="bw-roster-h">On file for this race \u00b7 ' + n + (n === 1 ? ' person' : ' people') + '</p>' +
+      '<ul class="bw-roster-list">' + rows + '</ul>' + none + '</div>';
+  }
+
+  // ── WHEN THIS RACE IS DECIDED ─────────────────────────────────────────────
+  // A date is printed only when one is stored: the race row's electionDate
+  // (window._pdxRaceElection), else the earliest upcoming nextElection on the
+  // records of the people on file for the seat. No date is inferred from a
+  // year, a label or the calendar. A stored ballot-status label still prints,
+  // because it is the row's own words.
+  var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
+    'August', 'September', 'October', 'November', 'December'];
+  function isoDay(v) { var s = String(v == null ? '' : v).slice(0, 10); return /^\d{4}-\d{2}-\d{2}$/.test(s) ? s : ''; }
+  // The reader's local calendar day. window.__pdxToday pins it in a harness.
+  function todayIso() {
+    if (isoDay(window.__pdxToday)) return isoDay(window.__pdxToday);
+    var d = new Date();
+    return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+  }
+  function daysBetween(a, b) {
+    var pa = a.split('-'), pb = b.split('-');
+    return Math.round((Date.UTC(+pb[0], +pb[1] - 1, +pb[2]) - Date.UTC(+pa[0], +pa[1] - 1, +pa[2])) / 86400000);
+  }
+  function recordOf(pid) {
+    try { if (fn('_pdxBallotRecord')) { var b = window._pdxBallotRecord(pid); if (b) return b; } } catch (e) {}
+    return personOf(pid);
+  }
+  function electionOf(seat, r, gate) {
+    var race = null;
+    try { race = fn('_pdxRaceElection') ? window._pdxRaceElection(seat.key) : null; } catch (e) { race = null; }
+    var today = todayIso();
+    var date = race && isoDay(race.date);
+    if (date && daysBetween(today, date) < 0) date = '';
+    if (!date) {
+      var f = onFile(seat, r, gate);
+      f.holders.concat(f.others).forEach(function (p) {
+        var rec = recordOf(p);
+        var d = rec && isoDay(rec.nextElection);
+        if (d && daysBetween(today, d) >= 0 && (!date || d < date)) date = d;
+      });
+    }
+    return { date: date || '', days: date ? daysBetween(today, date) : null, label: (race && race.label) || '' };
+  }
+  function electionHtml(seat, r, gate) {
+    var e = electionOf(seat, r, gate);
+    if (e.date) {
+      var p = e.date.split('-');
+      var when = MONTHS[+p[1] - 1] + ' ' + (+p[2]) + ', ' + p[0];
+      var cd = e.days === 0 ? 'election day is today' : 'election in ' + e.days + ' day' + (e.days === 1 ? '' : 's');
+      return '<p class="bw-elect" data-bw-elect="' + esc(e.date) + '"><span aria-hidden="true">\u{1F5D3}</span> ' +
+        '<b>Election: ' + esc(when) + '</b> \u00b7 <span data-bw-countdown>' + esc(cd) + '</span></p>';
+    }
+    return '<p class="bw-elect is-none" data-bw-elect-none><span aria-hidden="true">\u{1F5D3}</span> ' +
+      'No election date on file' + (e.label ? ' \u00b7 <span data-bw-elect-label>' + esc(e.label) + '</span>' : '') + '</p>';
+  }
+
+  // ── EVERY SEAT AT A GLANCE ────────────────────────────────────────────────
+  // The desk opens one seat; this lists all of them, so a reader can scan the
+  // whole ballot — who is on file and when each is decided — without opening
+  // each. A seat with no field to work says why in the gate's own short words.
+  function glanceHtml(list, r) {
+    var rows = list.map(function (s) {
+      var gate = fieldGate(s, r);
+      var body;
+      if (gate === 'ok') {
+        var f = onFile(s, r, gate);
+        var names = f.holders.map(function (p) { return '<b>' + personLink(p) + '</b>'; })
+          .concat(f.others.map(personLink));
+        body = names.length
+          ? '<span class="bw-glance-names">' + names.join(' \u00b7 ') + '</span>' +
+            (!f.others.length ? ' <span class="bw-glance-none">No other person on file for this seat.</span>' : '')
+          : '<span class="bw-glance-none">Nobody is on file for this seat yet.</span>';
+      } else if (gate === 'district') {
+        body = '<span class="bw-glance-none">District not mapped for your area.</span>';
+      } else {
+        body = '<span class="bw-glance-none">Not mapped for your area yet.</span>';
+      }
+      return '<li class="bw-glance-s" data-bw-glance="' + esc(s.key) + '">' +
+        '<button type="button" class="bw-glance-t" onclick="window.pdxBallotWorkspaceOpen(\'' + jsq(s.key) + '\')">' +
+          esc(s.label) + '</button> ' + body + electionHtml(s, r, gate) + '</li>';
+    }).join('');
+    return '<section class="bw-glance" data-bw-glance-list aria-labelledby="bw-glance-h">' +
+      '<h4 class="bw-m-title" id="bw-glance-h">Every seat at a glance</h4>' +
+      '<ul class="bw-glance-ul">' + rows + '</ul></section>';
+  }
+
   function pickFact(seat) {
     var pid = pickedFor(seat.key);
     if (!pid) {
@@ -991,6 +1115,8 @@
           '</div>' +
         '</div>' +
         '<div class="bw-facts">' + facts + '</div>' +
+        electionHtml(seat, r, gate) +
+        rosterHtml(seat, r, gate) +
         linesNote(seat, r) +
         body +
         footHtml(seat, list, canCompare) +
@@ -1240,6 +1366,7 @@
       '</div>' +
       '<div class="bw-body">' + railHtml(list, seat ? seat.key : '') +
         (seat ? deskHtml(seat, list, r) : '') + '</div>' +
+      glanceHtml(list, r) +
       measuresHtml();
     revealSeat(host, seat ? seat.key : '', railWas);
     try { mount.setAttribute('data-located', '1'); } catch (e) {}

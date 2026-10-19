@@ -10154,7 +10154,22 @@
 //     version; bill-detail.js (which now honours #history) is a runtime entry.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v410';
+// v411 - EVERY SEAT NAMES EVERYONE ON FILE, AND WHEN IT IS DECIDED. Each seat
+//     on the ballot workspace lists the sitting member(s) and every other
+//     person the race file holds for it, each linked to /p/, with "No other
+//     person on file for this seat" when only the sitting member is held. An
+//     election line prints a date and "election in N days" only when one is
+//     stored (the race row's electionDate, read through the new
+//     window._pdxRaceElection in ballot-breakdown.js, or a person record's
+//     nextElection); otherwise "No election date on file", with the row's own
+//     ballot-status label where it has one. A new "Every seat at a glance"
+//     list carries the same for all seats. ballot-workspace.js and
+//     ballot-workspace.css are precached and changed, so the shell moves one
+//     version; ballot-breakdown.js is a runtime entry. Location alone decides
+//     the seats; residency and membership are not read.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v411';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

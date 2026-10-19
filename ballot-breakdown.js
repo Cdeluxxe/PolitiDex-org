@@ -2546,6 +2546,28 @@
     // ballot (their specific U.S. House, State Senate and State House seats),
     // plus the statewide seats every voter in the state shares. Computed here in
     // the Key Races module because this is where the authoritative data lives.
+    // ── WHEN A RACE IS DECIDED, AS THE CURATED ROW STATES IT ───────────────
+    // The ballot desk's election line reads this and nothing else from the race
+    // table: an exact `electionDate` (YYYY-MM-DD) when the row carries one, and
+    // the row's own ballot-status label ("Next Election · 2028"). Neither is
+    // derived — a row with no date returns no date. Read for the reader's
+    // resolved area first, then the statewide rows.
+    window._pdxRaceElection = function(raceKey) {
+      try {
+        var k = String(raceKey || '');
+        if (!k) return null;
+        var locId = _krCurrentLocationId();
+        var rows = (KEY_RACES_BY_LOCATION[locId] || []).concat(KEY_RACES_STATEWIDE || []);
+        for (var i = 0; i < rows.length; i++) {
+          var r = rows[i];
+          if (!r || r.raceKey !== k) continue;
+          var d = /^\d{4}-\d{2}-\d{2}$/.test(String(r.electionDate || '')) ? String(r.electionDate) : '';
+          return { date: d, label: (r.ballot && r.ballot.label) ? String(r.ballot.label) : '' };
+        }
+      } catch (e) {}
+      return null;
+    };
+
     window.keyRacesRelevantData = function() {
       try {
         var locId = _krCurrentLocationId();

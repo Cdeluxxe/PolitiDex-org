@@ -160,6 +160,11 @@ const entry = (html, id) => {
   const end = [b, c].filter((x) => x > 0).sort((x, y) => x - y)[0] || html.length;
   return html.slice(a, end);
 };
+// The open seat's desk alone — the at-a-glance list below it carries every seat.
+const desk = (html) => { const a = html.indexOf('<div class="bw-desk">'), b = html.indexOf('data-bw-glance-list'); return a < 0 ? "" : html.slice(a, b > a ? b : html.length); };
+// One seat's row in the at-a-glance list.
+const glance = (html, key) => { const a = html.indexOf(`data-bw-glance="${key}"`); if (a < 0) return ""; const b = html.indexOf("</li>", a); return html.slice(a, b); };
+const rosterOf = (html) => [...html.matchAll(/data-bw-roster="([^"]+)"/g)].map((m) => m[1]);
 const measureIds = (html) => [...html.matchAll(/data-bw-measure="([^"]+)"/g)].map((m) => m[1]);
 
 const probe = boot();
@@ -208,7 +213,8 @@ section("2 · Every person on the ballot is a door to /p/");
   let links = 0;
   for (const s of SEATS) {
     w.pdxBallotWorkspaceOpen(s.key);
-    const html = paint(w);
+    const full = paint(w);
+    const html = desk(full);
     const field = w.PDXRaceSheet._field(s.key).map((c) => href(w, c.pid));
     const holders = w.PDXBallotWorkspace._holders(s, r).map((p) => href(w, p));
     const names = [...html.matchAll(/<a class="bw-cand-name" href="([^"]+)" data-pdx-person-link="([^"]+)"/g)];
@@ -226,6 +232,91 @@ section("2 · Every person on the ballot is a door to /p/");
     }
   }
   ok(links >= 4, `the ballot carries person links (got ${links})`);
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("2b · Every seat lists everyone on file, and invents nobody");
+{
+  const w = boot();
+  const r = w.pdxRepsForMe();
+  const canon = (p) => w.PDXPersonLink.pid(p);
+  let multi = 0, solo = 0;
+  for (const s of SEATS) {
+    if (w.PDXBallotWorkspace._gate(s, r) !== "ok") continue;
+    w.pdxBallotWorkspaceOpen(s.key);
+    const full = paint(w);
+    const d = desk(full);
+    const holders = w.PDXBallotWorkspace._holders(s, r).map(canon);
+    const want = [...new Set(holders.concat(w.PDXRaceSheet._field(s.key).map((c) => canon(c.pid))))];
+    const got = rosterOf(d);
+    eq(JSON.stringify(got), JSON.stringify(want), `${s.key}: the seat lists exactly the holders and the field on file, holders first`);
+    for (const p of got) has(d, `href="/p/${encodeURIComponent(p)}" data-pdx-person-link="${p}"`, `${s.key}: ${p} on the roster links to /p/`);
+    const others = want.filter((p) => !holders.includes(p));
+    if (want.length > 1 && others.length) {
+      multi++;
+      lacks(d, "data-bw-roster-none", `${s.key}: a seat with other people on file does not say there are none`);
+      const g = glance(full, s.key);
+      for (const p of want) has(g, `href="/p/${encodeURIComponent(p)}"`, `${s.key}: the at-a-glance row links ${p}`);
+    }
+    if (!others.length && holders.length) {
+      solo++;
+      has(d, "No other person on file for this seat.", `${s.key}: only the sitting member on file still says so`);
+      has(glance(full, s.key), "No other person on file for this seat.", `${s.key}: …in the at-a-glance row too`);
+      eq(got.length, holders.length, `${s.key}: no name is invented beside the sitting member`);
+    }
+  }
+  ok(multi >= 1, "the Provo fixture has a seat with more than one person on file");
+  ok(solo >= 1, "the Provo fixture has a seat with only the sitting member on file");
+  // Every seat on the rail has an at-a-glance row.
+  const full = paint(w);
+  for (const s of SEATS) has(full, `data-bw-glance="${s.key}"`, `${s.key} has an at-a-glance row`);
+  // An unmapped district names nobody, at a glance either.
+  const oh = boot({ location: { state: "Ohio", city: "Columbus", county: "Franklin County" } });
+  const ohHtml = paint(oh);
+  const g = glance(ohHtml, "house");
+  has(g, "District not mapped for your area.", "an Ohio reader's House row says the district is not mapped");
+  lacks(g, 'href="/p/', "…and names nobody");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("2c · Election timing: stored, or honestly absent");
+{
+  // Nothing on /ballot stores a date today: every seat says so, and prints no countdown.
+  const w = boot({ extra: { __pdxToday: "2026-10-19" } });
+  const full = paint(w);
+  for (const s of SEATS) {
+    const g = glance(full, s.key);
+    has(g, "No election date on file", `${s.key}: no stored date says so`);
+    lacks(g, "election in", `${s.key}: no countdown is invented without a date`);
+  }
+  // The race row's own status label rides along, word for word.
+  const sen = w._pdxRaceElection("senate");
+  ok(sen && sen.label === "Neither Seat Up in 2026" && sen.date === "", "the Senate row's stored status is read, with no date");
+  has(glance(full, "senate"), "Neither Seat Up in 2026", "…and printed beside the honest no-date line");
+
+  // A stored race date prints with its countdown.
+  const w2 = boot({ extra: { __pdxToday: "2026-10-19" } });
+  const orig = w2._pdxRaceElection;
+  w2._pdxRaceElection = (k) => (k === "house" ? { date: "2026-11-03", label: "" } : orig(k));
+  w2.pdxBallotWorkspaceOpen("house");
+  const h2 = paint(w2);
+  has(desk(h2), 'data-bw-elect="2026-11-03"', "a stored race date is printed on the open seat");
+  has(desk(h2), "Election: November 3, 2026", "…as a date");
+  has(desk(h2), "election in 15 days", "…with the days until it");
+  has(glance(h2, "house"), "election in 15 days", "…and on the seat's at-a-glance row");
+  lacks(glance(h2, "governor"), "election in", "a seat with no stored date borrows none from another");
+
+  // A person record's stored nextElection is the fallback; a past date is not a countdown.
+  const w3 = boot({ extra: { __pdxToday: "2026-10-19" } });
+  const pid = w3.PDXBallotWorkspace._holders(SEATS.find((s) => s.key === "statesenate"), w3.pdxRepsForMe())[0];
+  w3.CMP_DATA[pid].nextElection = "2026-11-03";
+  has(glance(paint(w3), "statesenate"), "election in 15 days", "a holder's stored nextElection sets the seat's date");
+  w3.CMP_DATA[pid].nextElection = "2024-11-05";
+  const h3 = glance(paint(w3), "statesenate");
+  has(h3, "No election date on file", "a stored date already past is not printed as upcoming");
+  lacks(h3, "election in", "…and has no countdown");
+  w3.__pdxToday = "2026-11-03"; w3.CMP_DATA[pid].nextElection = "2026-11-03";
+  has(glance(paint(w3), "statesenate"), "election day is today", "on the day itself the line says so");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -253,6 +344,10 @@ section("3 · Location sets the measures, and only location");
   }));
   eq(JSON.stringify(measureIds(door)), JSON.stringify(measureIds(ut)), "verified residency and an active membership do not change the measures");
   eq(entry(door, "ut-amendment-a"), entry(ut, "ut-amendment-a"), "…nor any entry's text");
+  const gl = (h) => h.slice(h.indexOf("data-bw-glance-list"), h.indexOf("data-bw-measures"));
+  eq(gl(door), gl(ut), "…nor any seat, name or election line at a glance");
+  const wcode = WORK.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
+  ok(!/residen|PDXMembership|membership/i.test(wcode), "ballot-workspace.js reads no residency or membership state");
   const code = MEAS.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
   ok(!/residen|membership|PDXMembership|member_?ship/i.test(code), "ballot-measures.js reads no residency or membership state");
 
