@@ -181,6 +181,34 @@ const ADDED = {
   james_rich:     "HD-6 Forward nominee — the race list held only the sitting member",
   libby_shelton:  "HD-8 Forward nominee — the race list held only the sitting member",
   tony_de_mille:  "HD-13 Forward nominee — the race list held his opponents and not him",
+
+  // October 2026 Utah statewide third-party and unaffiliated nominees: same
+  // shape, same reason — identity-only rows for nominees the race lists lacked.
+  jesse_west: "Libertarian nominee, U.S. House Candidate (UT-1)",
+  elias_montgomery: "Unaffiliated nominee, U.S. House Candidate (UT-1)",
+  carlton_bowen: "Independent American nominee, U.S. House Candidate (UT-2)",
+  daniel_cottam: "Libertarian nominee, U.S. House Candidate (UT-2)",
+  robert_moesinger: "Unaffiliated nominee, U.S. House Candidate (UT-2)",
+  cassie_easley: "Constitution nominee, U.S. House Candidate (UT-3)",
+  michael_stoddard: "Libertarian nominee, U.S. House Candidate (UT-3)",
+  adonis_hooslyn: "Unaffiliated nominee, U.S. House Candidate (UT-3)",
+  ayden_scott: "Unaffiliated nominee, U.S. House Candidate (UT-3)",
+  taylor_wright: "Libertarian nominee, U.S. House Candidate (UT-4)",
+  steven_burt: "Unaffiliated nominee, U.S. House Candidate (UT-4)",
+  julie_quinlan: "Forward nominee, Utah State Senate Candidate (District 1)",
+  j_lowry_snow: "Forward nominee, Utah State Senate Candidate (District 9)",
+  colin_smith: "Forward nominee, Utah State Senate Candidate (District 13)",
+  annette_mcrae: "Forward nominee, Utah State Senate Candidate (District 20)",
+  wayne_woodfield: "Forward nominee, Utah State Senate Candidate (District 21)",
+  jason_odell: "Constitution nominee, Utah State House Candidate (District 1)",
+  patrick_belmont: "Unaffiliated nominee, Utah State House Candidate (District 3)",
+  cabot_nelson: "Forward nominee, Utah State House Candidate (District 23)",
+  wales_nematollahi: "Forward nominee, Utah State House Candidate (District 28)",
+  tynley_bean: "Forward nominee, Utah State House Candidate (District 29)",
+  john_boyd: "Forward nominee, Utah State House Candidate (District 53)",
+  julie_smith: "Forward nominee, Utah State House Candidate (District 63)",
+  alan_wessman: "Unaffiliated nominee, Utah State House Candidate (District 64)",
+  zeno_parry: "Forward nominee, Utah State House Candidate (District 70)",
 };
 // ── The same allowance, at roster-wave scale, sourced instead of typed ───────
 // ADDED above works because each entry is a line a reviewer reads. A FEDERAL roster wave

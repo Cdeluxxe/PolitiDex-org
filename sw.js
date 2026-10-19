@@ -10217,7 +10217,16 @@
 //     cmp-data.js and ballot-workspace.js are precached and changed, so the
 //     shell moves one version. No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v414';
+// v415 - UTAH STATEWIDE THIRD-PARTY AND UNAFFILIATED NOMINEES. cmp-data.js
+//     gains twenty-five identity-only roster rows: eleven U.S. House nominees
+//     across UT-1 to UT-4 and fourteen Forward, Constitution and unaffiliated
+//     legislative nominees, each keyed by office, state and district so the
+//     shared seat field places them on their own seat on /ballot and the
+//     homepage. Emily Buss (Forward, SD-11) already holds that seat's row and
+//     is its incumbent. cmp-data.js is precached and changed, so the shell
+//     moves one version. No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v415';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

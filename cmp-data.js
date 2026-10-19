@@ -15660,5 +15660,215 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "party": "Forward", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
   "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
+ },
+// ── Utah statewide third-party and unaffiliated nominees, 2026 general election (Oct 2026)
+// Libertarian, Constitution, Independent American, Forward and unaffiliated
+// nominees on the November 3, 2026 ballot for the four U.S. House seats and
+// eleven Utah legislative seats, per the Utah Lt. Governor's 2026 candidate
+// filings (https://vote.utah.gov/2026-candidate-filings/). Same shape as the
+// Davis batch above: identity rows only — office, district and party as filed,
+// `score` null, an empty ledger, `issues` empty rather than guessed. Emily Buss
+// (Forward, SD-11) is not here: she is SD-11's sitting senator and already has
+// her own row (`emily_buss`), so she is that seat's incumbent, not a second
+// person on it.
+ // UT-1 · Libertarian
+ "jesse_west": {
+  "name": "Jesse West", "office": "U.S. House Candidate (UT-1)",
+  "state": "Utah", "district": "1",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // UT-1 · Unaffiliated
+ "elias_montgomery": {
+  "name": "Elias Montgomery", "office": "U.S. House Candidate (UT-1)",
+  "state": "Utah", "district": "1",
+  "party": "Unaffiliated", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // UT-2 · Independent American
+ "carlton_bowen": {
+  "name": "Carlton Bowen", "office": "U.S. House Candidate (UT-2)",
+  "state": "Utah", "district": "2",
+  "party": "Independent American", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // UT-2 · Libertarian
+ "daniel_cottam": {
+  "name": "Daniel Cottam", "office": "U.S. House Candidate (UT-2)",
+  "state": "Utah", "district": "2",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // UT-2 · Unaffiliated
+ "robert_moesinger": {
+  "name": "Robert Moesinger", "office": "U.S. House Candidate (UT-2)",
+  "state": "Utah", "district": "2",
+  "party": "Unaffiliated", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // UT-3 · Constitution
+ "cassie_easley": {
+  "name": "Cassie Easley", "office": "U.S. House Candidate (UT-3)",
+  "state": "Utah", "district": "3",
+  "party": "Constitution", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // UT-3 · Libertarian
+ "michael_stoddard": {
+  "name": "Michael Stoddard", "office": "U.S. House Candidate (UT-3)",
+  "state": "Utah", "district": "3",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // UT-3 · Unaffiliated
+ "adonis_hooslyn": {
+  "name": "Adonis Hooslyn", "office": "U.S. House Candidate (UT-3)",
+  "state": "Utah", "district": "3",
+  "party": "Unaffiliated", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // UT-3 · Unaffiliated
+ "ayden_scott": {
+  "name": "Ayden Scott", "office": "U.S. House Candidate (UT-3)",
+  "state": "Utah", "district": "3",
+  "party": "Unaffiliated", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // UT-4 · Libertarian
+ "taylor_wright": {
+  "name": "Taylor Wright", "office": "U.S. House Candidate (UT-4)",
+  "state": "Utah", "district": "4",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // UT-4 · Unaffiliated
+ "steven_burt": {
+  "name": "Steven Burt", "office": "U.S. House Candidate (UT-4)",
+  "state": "Utah", "district": "4",
+  "party": "Unaffiliated", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SD-1 · Forward
+ "julie_quinlan": {
+  "name": "Julie Quinlan", "office": "Utah State Senate Candidate (District 1)",
+  "state": "Utah", "district": "1",
+  "party": "Forward", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SD-9 · Forward
+ "j_lowry_snow": {
+  "name": "J. Lowry Snow", "office": "Utah State Senate Candidate (District 9)",
+  "state": "Utah", "district": "9",
+  "party": "Forward", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SD-13 · Forward
+ "colin_smith": {
+  "name": "Colin Smith", "office": "Utah State Senate Candidate (District 13)",
+  "state": "Utah", "district": "13",
+  "party": "Forward", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SD-20 · Forward
+ "annette_mcrae": {
+  "name": "Annette McRae", "office": "Utah State Senate Candidate (District 20)",
+  "state": "Utah", "district": "20",
+  "party": "Forward", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SD-21 · Forward
+ "wayne_woodfield": {
+  "name": "Wayne Woodfield", "office": "Utah State Senate Candidate (District 21)",
+  "state": "Utah", "district": "21",
+  "party": "Forward", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-1 · Constitution
+ "jason_odell": {
+  "name": "Jason O’Dell", "office": "Utah State House Candidate (District 1)",
+  "state": "Utah", "district": "1",
+  "party": "Constitution", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-3 · Unaffiliated
+ "patrick_belmont": {
+  "name": "Patrick Belmont", "office": "Utah State House Candidate (District 3)",
+  "state": "Utah", "district": "3",
+  "party": "Unaffiliated", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-23 · Forward
+ "cabot_nelson": {
+  "name": "Cabot Nelson", "office": "Utah State House Candidate (District 23)",
+  "state": "Utah", "district": "23",
+  "party": "Forward", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-28 · Forward
+ "wales_nematollahi": {
+  "name": "Wales Nematollahi", "office": "Utah State House Candidate (District 28)",
+  "state": "Utah", "district": "28",
+  "party": "Forward", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-29 · Forward
+ "tynley_bean": {
+  "name": "Tynley Bean", "office": "Utah State House Candidate (District 29)",
+  "state": "Utah", "district": "29",
+  "party": "Forward", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-53 · Forward
+ "john_boyd": {
+  "name": "John Boyd", "office": "Utah State House Candidate (District 53)",
+  "state": "Utah", "district": "53",
+  "party": "Forward", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-63 · Forward
+ "julie_smith": {
+  "name": "Julie Smith", "office": "Utah State House Candidate (District 63)",
+  "state": "Utah", "district": "63",
+  "party": "Forward", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-64 · Unaffiliated
+ "alan_wessman": {
+  "name": "Alan Wessman", "office": "Utah State House Candidate (District 64)",
+  "state": "Utah", "district": "64",
+  "party": "Unaffiliated", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-70 · Forward
+ "zeno_parry": {
+  "name": "Zeno Parry", "office": "Utah State House Candidate (District 70)",
+  "state": "Utah", "district": "70",
+  "party": "Forward", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
  }
 });
