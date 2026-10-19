@@ -33,6 +33,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { declaredStanceMovesAtHead } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -171,6 +172,52 @@ const ADDED = {
   mark_wheatley:     "HD-35 — 2023GS and 2024GS committee votes were parsed and dropped for want of a roster record",
   jacob_anderegg:    "SD-22 seated 2023 only; heidi_balderree holds the seat — 2023GS committee votes were parsed and dropped for want of a roster record",
   quinn_kotter:      "HD-26 seated 2023 only; matt_macpherson holds the seat — 2023GS committee votes were parsed and dropped for want of a roster record",
+
+  // October 2026 Davis County third-party nominees. Five Forward / Constitution
+  // nominees on the November 3, 2026 ballot whose seats' race lists showed only
+  // the major-party field. Identity-only: score null, kept/broken/pending 0, no
+  // issues. See the comment block in cmp-data.js.
+  josh_smith:     "SD-6 Forward nominee — the race list held his opponents and not him",
+  jeffrey_ostler: "SD-7 Constitution nominee — the race list held his opponents and not him",
+  james_rich:     "HD-6 Forward nominee — the race list held only the sitting member",
+  libby_shelton:  "HD-8 Forward nominee — the race list held only the sitting member",
+  tony_de_mille:  "HD-13 Forward nominee — the race list held his opponents and not him",
+
+  // October 2026 Utah statewide third-party and unaffiliated nominees: same
+  // shape, same reason — identity-only rows for nominees the race lists lacked.
+  jesse_west: "Libertarian nominee, U.S. House Candidate (UT-1)",
+  elias_montgomery: "Unaffiliated nominee, U.S. House Candidate (UT-1)",
+  carlton_bowen: "Independent American nominee, U.S. House Candidate (UT-2)",
+  daniel_cottam: "Libertarian nominee, U.S. House Candidate (UT-2)",
+  robert_moesinger: "Unaffiliated nominee, U.S. House Candidate (UT-2)",
+  cassie_easley: "Constitution nominee, U.S. House Candidate (UT-3)",
+  michael_stoddard: "Libertarian nominee, U.S. House Candidate (UT-3)",
+  adonis_hooslyn: "Unaffiliated nominee, U.S. House Candidate (UT-3)",
+  ayden_scott: "Unaffiliated nominee, U.S. House Candidate (UT-3)",
+  taylor_wright: "Libertarian nominee, U.S. House Candidate (UT-4)",
+  steven_burt: "Unaffiliated nominee, U.S. House Candidate (UT-4)",
+  julie_quinlan: "Forward nominee, Utah State Senate Candidate (District 1)",
+  j_lowry_snow: "Forward nominee, Utah State Senate Candidate (District 9)",
+  colin_smith: "Forward nominee, Utah State Senate Candidate (District 13)",
+  annette_mcrae: "Forward nominee, Utah State Senate Candidate (District 20)",
+  wayne_woodfield: "Forward nominee, Utah State Senate Candidate (District 21)",
+  jason_odell: "Constitution nominee, Utah State House Candidate (District 1)",
+  patrick_belmont: "Unaffiliated nominee, Utah State House Candidate (District 3)",
+  cabot_nelson: "Forward nominee, Utah State House Candidate (District 23)",
+  wales_nematollahi: "Forward nominee, Utah State House Candidate (District 28)",
+  tynley_bean: "Forward nominee, Utah State House Candidate (District 29)",
+  john_boyd: "Forward nominee, Utah State House Candidate (District 53)",
+  julie_smith: "Forward nominee, Utah State House Candidate (District 63)",
+  alan_wessman: "Unaffiliated nominee, Utah State House Candidate (District 64)",
+  zeno_parry: "Forward nominee, Utah State House Candidate (District 70)",
+
+  // October 2026 Utah House third-party nominees, wave 3: same shape, same reason.
+  jonathan_garrard: "Constitution nominee, Utah State House Candidate (District 29)",
+  sergio_sotelo: "Unaffiliated nominee, Utah State House Candidate (District 38)",
+  jennifer_doud: "Constitution nominee, Utah State House Candidate (District 61)",
+  russ_hatch: "Constitution nominee, Utah State House Candidate (District 66)",
+  sonya_ray: "Constitution nominee, Utah State House Candidate (District 68)",
+  april_pinkston: "Constitution nominee, Utah State House Candidate (District 72)",
 };
 // ── The same allowance, at roster-wave scale, sourced instead of typed ───────
 // ADDED above works because each entry is a line a reviewer reads. A FEDERAL roster wave
@@ -412,6 +459,7 @@ const WITHDRAWN = {
 
 let published = 0, thinPerfect = 0, curated = 0, lifted = 0, withdrawn = 0;
 for (const pid of PIDS) {
+  if (declaredStanceMovesAtHead().moved.has(pid)) continue; // a declared stance pass (v103-chrome-seams.mjs)
   const p = before.CMP_DATA[pid];
   let a = null, b = null;
   try { a = before.PDXWordAction.read(pid, p); } catch (e) { a = { __err: String(e) }; }
@@ -544,6 +592,7 @@ section("scopedRead() — the current-term slice reads the same too");
 // ═════════════════════════════════════════════════════════════════════════════
 let scoped = 0;
 for (const pid of PIDS) {
+  if (declaredStanceMovesAtHead().moved.has(pid)) continue; // a declared stance pass (v103-chrome-seams.mjs)
   let a = null, b = null;
   try { a = before.PDXWordAction.scopedRead(pid, before.CMP_DATA[pid]); } catch (e) { continue; }
   try { b = after.PDXWordAction.scopedRead(pid, after.CMP_DATA[pid]); } catch (e) { b = null; }
@@ -594,6 +643,7 @@ section("rowResult() — every issue row, one at a time");
 // state, metric or percentage, the marker would be editing the finding.
 let rows = 0, tested = 0;
 for (const pid of PIDS) {
+  if (declaredStanceMovesAtHead().moved.has(pid)) continue; // a declared stance pass (v103-chrome-seams.mjs)
   let ra = [], rb = [];
   try { ra = before.PDXConsistency.issueRows(pid) || []; } catch (e) { continue; }
   try { rb = after.PDXConsistency.issueRows(pid) || []; } catch (e) { rb = []; }

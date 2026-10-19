@@ -32,8 +32,10 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { execFileSync } from "node:child_process";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { DECLARED_ADMISSION_PIDS } from "./v103-chrome-seams.mjs";
 import { CJ_SEAMS_ALL as CJ_SEAMS, SH_SEAMS, WA_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam,
   assertWordActionSeams, assertParentTableIsTheOnlyMove, deOrigin } from "./v103-chrome-seams.mjs";
+import { declaredStanceMovesAtHead, withoutDeclaredStanceChunks } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -140,8 +142,9 @@ let CMP = null;
   CMP = win.CMP_DATA || null;
   if (ok(!!CMP, "CMP_DATA did not boot")) {
     // 1108 after R1; 1120 after R2 added the twelve mapped-but-rosterless members
-    // (scripts/test-vr-federal-roster-r2.mjs owns that count and its arithmetic).
-    eq(Object.keys(CMP).length, 1120, "the roster is not the size this wave leaves it");
+    // (scripts/test-vr-federal-roster-r2.mjs owns that count and its arithmetic),
+    // plus the admissions later waves declared by name in v103-chrome-seams.mjs.
+    eq(Object.keys(CMP).length, 1120 + DECLARED_ADMISSION_PIDS.length, "the roster is not the size this wave and the declared admissions after it leave it");
 
     // Every admission has a file. The IDENTITY-ONLY rule binds the 307 rows this wave
     // CREATED — it cannot bind the 8 that reused a file that already existed and already
@@ -478,7 +481,7 @@ section("6 · no Direction Match drift — twin boot, HEAD against this tree");
   // wave editing an engine, and the site collapsing onto one public origin moved a
   // baked share host and nothing else. See deOrigin in scripts/v103-chrome-seams.mjs
   // for why that is normalised rather than waived. Every other byte still compared.
-  const touched = FILES.filter((f) => { const h = headSrc(f); return h !== null && deOrigin(h) !== deOrigin(R(f)); });
+  const touched = withoutDeclaredStanceChunks(FILES.filter((f) => { const h = headSrc(f); return h !== null && deOrigin(h) !== deOrigin(R(f)); }));
   // TWO CLAIMS WERE WELDED INTO ONE LINE, AND ONLY ONE OF THEM LASTS. "The set of
   // booted files that differ from HEAD is exactly cmp-data.js" says both "nothing
   // but the roster moved" — which is what a roster wave promises, forever — and
@@ -524,6 +527,7 @@ section("6 · no Direction Match drift — twin boot, HEAD against this tree");
       "notIssueLinked", "recordDerived", "warming"];
     let dm = 0, dmBad = 0;
     for (const pid of PIDS) {
+      if (declaredStanceMovesAtHead().moved.has(pid)) continue; // a declared stance pass (v103-chrome-seams.mjs)
       let a = null, b = null;
       try { a = head.PDXWordAction.read(pid); } catch { continue; }
       try { b = work.PDXWordAction.read(pid); } catch { b = null; }

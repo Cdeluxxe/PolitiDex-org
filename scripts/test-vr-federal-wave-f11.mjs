@@ -75,6 +75,7 @@ import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { createHash } from "node:crypto";
 import { WA_SEAMS, CJ_SEAMS_ALL, AT_SEAMS, SH_SEAMS, carveSeams, assertConsistencySeams,
   assertStanceHelpersSeam, assertRosterOfficeIsTheOnlyMove, deOrigin } from "./v103-chrome-seams.mjs";
+import { declaredStanceMovesAtHead, withoutDeclaredStanceChunks } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -317,7 +318,7 @@ const NO_POLE = (() => {
   // wave editing an engine, and the site collapsing onto one public origin moved a
   // baked share host and nothing else. See deOrigin in scripts/v103-chrome-seams.mjs
   // for why that is normalised rather than waived. Every other byte still compared.
-  const touched = FILES.filter((f) => { const h = headSrc(f); return h !== null && deOrigin(h) !== deOrigin(nowSrc(f)); });
+  const touched = withoutDeclaredStanceChunks(FILES.filter((f) => { const h = headSrc(f); return h !== null && deOrigin(h) !== deOrigin(nowSrc(f)); }));
 
   // THE WAIVER THE NOTE ABOVE ASKS FOR, WRITTEN DOWN, AND NARROWED TO ONE SPAN.
   // word-action.js moved after this wave landed, for a reason that has nothing to
@@ -507,6 +508,7 @@ const NO_POLE = (() => {
       + `another audit rewrote the file while this one read it — rerun alone. Unequal counts mean a boot did not finish.`);
     let dm = 0, dmBad = 0;
     for (const pid of PIDS) {
+      if (declaredStanceMovesAtHead().moved.has(pid)) continue; // a declared stance pass (v103-chrome-seams.mjs)
       let a = null, b = null;
       try { a = head.PDXWordAction.read(pid); } catch { continue; }
       try { b = work.PDXWordAction.read(pid); } catch { b = null; }
@@ -533,6 +535,7 @@ const NO_POLE = (() => {
     let rows = 0, rowBad = 0;
     const tiers = new Map();
     for (const pid of PIDS) {
+      if (declaredStanceMovesAtHead().moved.has(pid)) continue; // a declared stance pass (v103-chrome-seams.mjs)
       let ra = [], rb = [];
       try { ra = head.PDXConsistency.issueRows(pid) || []; } catch { continue; }
       try { rb = work.PDXConsistency.issueRows(pid) || []; } catch { rb = []; }

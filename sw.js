@@ -10205,7 +10205,47 @@
 //     the precache, so the shell moves one version.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v413';
+// v414 - DAVIS COUNTY THIRD-PARTY NOMINEES. cmp-data.js gains roster rows for
+//     five Forward / Constitution nominees on Davis-area legislative seats
+//     (SD-6 Josh Smith, SD-7 Jeffrey Ostler, HD-6 James Rich, HD-8 Libby
+//     Shelton, HD-13 Tony De Mille), keyed by office, state and district so the
+//     shared seat field places each on its seat on /ballot and the homepage.
+//     AND ONE GATE. ballot-workspace.js treated a district seat with a known
+//     number but no seated-member entry (HD-8, HD-13) as "not mapped" and
+//     painted no field; such a seat now lists the people on its roster key,
+//     and the fact line names the incumbent the list names ("on file as").
+//     cmp-data.js and ballot-workspace.js are precached and changed, so the
+//     shell moves one version. No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v415 - UTAH STATEWIDE THIRD-PARTY AND UNAFFILIATED NOMINEES. cmp-data.js
+//     gains twenty-five identity-only roster rows: eleven U.S. House nominees
+//     across UT-1 to UT-4 and fourteen Forward, Constitution and unaffiliated
+//     legislative nominees, each keyed by office, state and district so the
+//     shared seat field places them on their own seat on /ballot and the
+//     homepage. Emily Buss (Forward, SD-11) already holds that seat's row and
+//     is its incumbent. cmp-data.js is precached and changed, so the shell
+//     moves one version. No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v416 - UTAH HOUSE THIRD-PARTY NOMINEES, WAVE 3. cmp-data.js gains six
+//     identity-only roster rows: the last non-major-party "Election Candidate"
+//     filings on the Lt. Governor's 2026 list the roster did not hold (HD-29,
+//     38, 61, 66, 68, 72), keyed by office, state and district for the shared
+//     seat field. cmp-data.js is precached and changed, so the shell moves one
+//     version. No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v417 - THIRD-PARTY LIGHT PROFILES. Eight 2026 third-party nominees gain a
+//     one-sentence bio (cmp-data-detail.js) and three to five sourced campaign
+//     claims on existing issue keys (politician-stances-ext.js, regenerated
+//     from politician-stances.js), and sitemap.xml names their eight files.
+//     Neither data file is in the shell precache: both are runtime entries,
+//     refreshed by handleStatic's stale-while-revalidate write, so a warm
+//     device paints the new profiles on its next visit. The shell moves one
+//     version because person.html, index.html and spotlight.html read these
+//     records through shells their guards pin to a version past HEAD's.
+//     No score, no Direction Match figure, no new key.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v417';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

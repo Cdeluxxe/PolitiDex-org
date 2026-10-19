@@ -297,8 +297,8 @@ const seatHtml = (w, key) => { w.pdxBallotWorkspaceOpen(key); const full = paint
   // seat, UT-1 — the sitting member and the candidate on file for that district.
   const w = at("slc", "Salt Lake City", "Salt Lake County");
   const { d, g } = seatHtml(w, "house");
-  eq(JSON.stringify(rosterRoles(d)), JSON.stringify([["bmoore", "incumbent"], ["dballard", "candidate"]]), "UT-1 lists its incumbent and its candidate");
-  eq(rosterCount(d), 2, "…and counts two people");
+  eq(JSON.stringify(rosterRoles(d)), JSON.stringify([["bmoore", "incumbent"], ["dballard", "candidate"], ["elias_montgomery", "candidate"], ["jesse_west", "candidate"]]), "UT-1 lists its incumbent and its candidates");
+  eq(rosterCount(d), 4, "…and counts four people");
   lacks(d, "data-bw-roster-none", "…and does not say there is nobody else");
   const parties = new Set(rosterRoles(d).map(([p]) => w.CMP_DATA[p].party));
   ok(parties.size >= 2, `UT-1's list spans more than one party (got ${[...parties].join(", ")})`);
@@ -399,7 +399,7 @@ const homepage = (w, key) => { const sf = w.pdxSeatField(key); return sf && sf.a
   // BOX ELDER, SENATE DISTRICT 1: the bundled roster holds only the sitting member.
   const before = at("box_elder", "Brigham City", "Box Elder County", { noLive: true });
   const b0 = seatHtml(before, "statesenate");
-  eq(JSON.stringify(rosterRoles(b0.d).map(([p]) => p)), JSON.stringify(["ssandall"]), "without the live profiles SD-1 holds only its sitting member");
+  eq(JSON.stringify(rosterRoles(b0.d).map(([p]) => p)), JSON.stringify(["ssandall", "julie_quinlan"]), "without the live profiles SD-1 holds its sitting member and the bundled Forward nominee");
 
   const w = await live("box_elder", "Brigham City", "Box Elder County");
   ok((w.__firestore || 0) >= 2, "the live list is read, every page of it");
@@ -493,7 +493,7 @@ function homepageCard(area, city, county, key) {
   const full = paint(w);
   eq(w.PDXBallotLiveRoster.state(), "failed", "a refused live list is recorded as failed");
   has(full, 'data-bw-live="off"', "…and the glance list says the lists are the page's own");
-  eq(JSON.stringify(rosterRoles(seatHtml(w, "statesenate").d).map(([p]) => p)), JSON.stringify(["ssandall"]), "…which are the bundled roster's");
+  eq(JSON.stringify(rosterRoles(seatHtml(w, "statesenate").d).map(([p]) => p)), JSON.stringify(["ssandall", "julie_quinlan"]), "…which are the bundled roster's");
   const nk = boot();
   const nkHtml = paint(nk);
   eq(nk.PDXBallotLiveRoster.state(), "nokey", "no public key, no request");
@@ -520,12 +520,229 @@ function homepageCard(area, city, county, key) {
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
+section("2e · Davis County third-party nominees: the full field, on /ballot and the homepage");
+// Five Forward / Constitution nominees filed in the bundled roster for their exact
+// Davis-area seat. A Layton reader works SD-6, a Brigham City reader HD-6; the
+// other three seats are reached by a reader whose map pin carries the numbers.
+// No live list (it is rate-limited in production as often as not): the bundled
+// rows alone must fill the field, on both documents.
+const pinned = (sd, hd, extra) => boot(Object.assign({ location: { state: "Utah", stateSenateDistrict: String(sd), stateHouseDistrict: String(hd) } }, extra || {}));
+const DAVIS_THIRD = [
+  { pid: "josh_smith", seat: "statesenate", dist: 6, party: "Forward", reader: (x) => at("davis", "Layton", "Davis County", x) },
+  { pid: "jeffrey_ostler", seat: "statesenate", dist: 7, party: "Constitution", reader: (x) => pinned(7, 13, x) },
+  { pid: "james_rich", seat: "statehouse", dist: 6, party: "Forward", reader: (x) => at("box_elder", "Brigham City", "Box Elder County", x) },
+  { pid: "libby_shelton", seat: "statehouse", dist: 8, party: "Forward", reader: (x) => pinned(3, 8, x) },
+  { pid: "tony_de_mille", seat: "statehouse", dist: 13, party: "Forward", reader: (x) => pinned(7, 13, x) },
+];
+{
+  const w0 = boot();
+  for (const c of DAVIS_THIRD) {
+    const r = w0.CMP_DATA[c.pid];
+    ok(!!r, `${c.pid} has a roster row`);
+    if (!r) continue;
+    eq(r.party, c.party, `${c.pid}: party label`);
+    eq(w0._pdxBrowseType(c.pid), c.seat === "statesenate" ? "state_senator" : "state_rep", `${c.pid}: office title keys to the right chamber`);
+    eq(w0._pdxRelevantDistNum(c.pid), c.dist, `${c.pid}: district`);
+    eq(w0.PDXStatus.resolve(r), "current_candidate", `${c.pid}: a current-cycle candidate`);
+    eq(r.score, null, `${c.pid}: no score`);
+    eq((r.issues || []).length, 0, `${c.pid}: no issue keys`);
+  }
+  // Each row keys to its own district and no other.
+  for (const c of DAVIS_THIRD) {
+    const other = c.dist === 6 ? 9 : 6;
+    const w = c.seat === "statesenate" ? pinned(other, 1) : pinned(1, other);
+    ok(!rosterRoles(seatHtml(w, c.seat).d).some(([p]) => p === c.pid), `${c.pid} is not on ${c.seat} District ${other}`);
+  }
+}
+for (const c of DAVIS_THIRD) {
+  const w = c.reader({ noLive: true });
+  const sf = w.pdxSeatField(c.seat);
+  eq(sf && sf.district, c.dist, `${c.pid}: the reader's ${c.seat} seat is District ${c.dist}`);
+  const { d, g } = seatHtml(w, c.seat);
+  const roles = rosterRoles(d);
+  ok(roles.some(([p, role]) => p === c.pid && role === "candidate"), `${c.seat} District ${c.dist} lists ${c.pid} as a candidate (got ${roles.map((x) => x.join(":")).join(", ")})`);
+  has(d, `href="/p/${c.pid}" data-pdx-person-link="${c.pid}"`, `${c.pid} links to /p/`);
+  has(g, `href="/p/${c.pid}"`, `…and at a glance`);
+  eq(rosterCount(d), roles.length, `${c.pid}: the count is the list`);
+  lacks(d, "data-bw-roster-none", `${c.seat} District ${c.dist} does not print the honest empty`);
+  lacks(d, "District not mapped for your area", `${c.seat} District ${c.dist} is not called unmapped`);
+  if (d.indexOf("Holds this seat now:") < 0) {
+    const inc = (roles.find(([, role]) => role === "incumbent") || [])[0];
+    ok(!inc || d.indexOf(`On file as holding this seat: <b><a class="bw-cand-name" href="/p/${inc}"`) >= 0, `${c.seat} District ${c.dist}: the fact line names the incumbent the list names`);
+    lacks(d, "No current officeholder resolved", `${c.seat} District ${c.dist}: no fact line contradicts the listed incumbent`);
+  }
+  // The homepage's race card for the same seat, on its own keyers.
+  const h = c.reader({ homepage: true, noLive: true });
+  const hsf = h.pdxSeatField(c.seat);
+  const card = (hsf && hsf.answerable ? hsf.pids : []).filter((p) => ["incumbent", "current_candidate"].includes(h.PDXStatus.resolve(h.CMP_DATA[p] || {})));
+  ok(card.includes(c.pid), `the homepage card for ${c.seat} District ${c.dist} holds ${c.pid}`);
+  eq(JSON.stringify(roles.map(([p]) => p).slice().sort()), JSON.stringify(card.slice().sort()), `${c.seat} District ${c.dist}: /ballot lists the homepage card's people`);
+}
+{
+  // SD-6 BESIDE THE MAJOR-PARTY NOMINEES: the live profiles hold Tran and Neal;
+  // Josh Smith is there with them, once, even when a live document for him lands.
+  const docs = {
+    tami_tran: { name: "Tami Tran", office: "Utah Senate candidate, District 6", party: "Republican", state: "Utah", candidacyStatus: "active" },
+    jared_neal: { name: "Jared Neal", office: "Utah Senate candidate, District 6", party: "Democrat", state: "Utah", candidacyStatus: "active" },
+    josh_smith: { name: "Josh Smith", office: "Utah Senate candidate, District 6", party: "", state: "Utah" },
+  };
+  const w = at("davis", "Layton", "Davis County", { live: docs });
+  paint(w);
+  await w.PDXBallotLiveRoster.ready();
+  const ids = rosterRoles(seatHtml(w, "statesenate").d).map(([p]) => p);
+  ok(["tami_tran", "jared_neal", "josh_smith"].every((p) => ids.includes(p)), `SD-6 lists Josh Smith alongside the major-party candidates (got ${ids.join(", ")})`);
+  eq(ids.filter((p) => p === "josh_smith").length, 1, "…once");
+  eq(w.CMP_DATA.josh_smith.party, "Forward", "…and a blank live party does not erase his label");
+}
+{
+  // A SEAT WITH ONLY ITS SITTING MEMBER KEEPS THE HONEST EMPTY.
+  const w = at("clearfield", "Clearfield", "Davis County", { noLive: true });
+  const { d } = seatHtml(w, "statesenate");
+  eq(rosterRoles(d).length, 1, "Clearfield's SD-5 still lists only its sitting member");
+  has(d, "No other person on file for this seat.", "…with the honest empty");
+}
+{
+  // LOCATION DECIDES; residency and membership change nothing.
+  const a = at("davis", "Layton", "Davis County", { noLive: true });
+  const b = at("davis", "Layton", "Davis County", {
+    noLive: true,
+    store: { politidex_keyraces_location: "davis", pdx_residency: JSON.stringify({ verified: true, state: "OH" }), pdx_membership: JSON.stringify({ active: true }) },
+    extra: { PDXMembership: { active: () => true }, _pdxResidency: { state: "OH" } },
+  });
+  eq(seatHtml(b, "statesenate").d, seatHtml(a, "statesenate").d, "residency and membership change no Davis race list");
+  const oh = boot({ location: { state: "Ohio", city: "Columbus", county: "Franklin County" }, noLive: true });
+  let all = "";
+  for (const s of SEATS) { oh.pdxBallotWorkspaceOpen(s.key); all += paint(oh); }
+  ok(!DAVIS_THIRD.some((c) => all.indexOf(`/p/${c.pid}"`) >= 0), "an Ohio reader is shown none of them");
+  const EQ = /\bequity\b|\bstocks?\b|earn (?:a|your) share|\bshareholder|\bdividend/i;
+  let davis = "";
+  for (const c of DAVIS_THIRD) { const w = c.reader({ noLive: true }); davis += seatHtml(w, c.seat).full; }
+  ok(!EQ.test(davis.replace(/<[^>]+>/g, " ")), "the Davis race lists carry no equity language");
+  const rows = DAVIS_THIRD.map((c) => JSON.stringify(a.CMP_DATA[c.pid])).join(" ");
+  ok(!EQ.test(rows), "the five roster rows carry no equity language");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("2f · Utah statewide third-party and unaffiliated nominees: each on its own seat");
+// Thirty-one rows, each reached by a reader whose map pin carries the seat's
+// number (U.S. House district, State Senate and State House districts). Bundled
+// roster only — no live list — on both documents.
+const pin3 = (cd, sd, hd, extra) => boot(Object.assign({ location: { state: "Utah", district: String(cd), stateSenateDistrict: String(sd), stateHouseDistrict: String(hd) } }, extra || {}));
+const UT_THIRD = [
+  ["jesse_west", "house", 1, "Libertarian"], ["elias_montgomery", "house", 1, "Unaffiliated"],
+  ["carlton_bowen", "house", 2, "Independent American"], ["daniel_cottam", "house", 2, "Libertarian"], ["robert_moesinger", "house", 2, "Unaffiliated"],
+  ["cassie_easley", "house", 3, "Constitution"], ["michael_stoddard", "house", 3, "Libertarian"], ["adonis_hooslyn", "house", 3, "Unaffiliated"], ["ayden_scott", "house", 3, "Unaffiliated"],
+  ["taylor_wright", "house", 4, "Libertarian"], ["steven_burt", "house", 4, "Unaffiliated"],
+  ["julie_quinlan", "statesenate", 1, "Forward"], ["j_lowry_snow", "statesenate", 9, "Forward"], ["colin_smith", "statesenate", 13, "Forward"],
+  ["annette_mcrae", "statesenate", 20, "Forward"], ["wayne_woodfield", "statesenate", 21, "Forward"],
+  ["jason_odell", "statehouse", 1, "Constitution"], ["patrick_belmont", "statehouse", 3, "Unaffiliated"], ["cabot_nelson", "statehouse", 23, "Forward"],
+  ["wales_nematollahi", "statehouse", 28, "Forward"], ["tynley_bean", "statehouse", 29, "Forward"], ["john_boyd", "statehouse", 53, "Forward"],
+  ["julie_smith", "statehouse", 63, "Forward"], ["alan_wessman", "statehouse", 64, "Unaffiliated"], ["zeno_parry", "statehouse", 70, "Forward"],
+  // Wave 3: the last "Election Candidate" filings outside the two major parties.
+  // HD-29 now has two (Bean and Garrard), both listed beside the seat's member.
+  ["jonathan_garrard", "statehouse", 29, "Constitution"], ["sergio_sotelo", "statehouse", 38, "Unaffiliated"],
+  ["jennifer_doud", "statehouse", 61, "Constitution"], ["russ_hatch", "statehouse", 66, "Constitution"],
+  ["sonya_ray", "statehouse", 68, "Constitution"], ["april_pinkston", "statehouse", 72, "Constitution"],
+].map(([pid, seat, dist, party]) => ({ pid, seat, dist, party }));
+// A reader for district `d` of `seat`; the other two numbers are fixed seats none of these rows is on.
+const readerFor = (seat, d, extra) => seat === "house" ? pin3(d, 5, 14, extra) : seat === "statesenate" ? pin3(2, d, 14, extra) : pin3(2, 5, d, extra);
+const KIND = { house: "representative", statesenate: "state_senator", statehouse: "state_rep" };
+{
+  const w0 = boot();
+  for (const c of UT_THIRD) {
+    const r = w0.CMP_DATA[c.pid];
+    if (!ok(!!r, `${c.pid} has a roster row`)) continue;
+    eq(r.party, c.party, `${c.pid}: party label`);
+    eq(w0._pdxBrowseType(c.pid), KIND[c.seat], `${c.pid}: office title keys to the right chamber`);
+    eq(w0._pdxRelevantDistNum(c.pid), c.dist, `${c.pid}: district`);
+    eq(w0.PDXStatus.resolve(r), "current_candidate", `${c.pid}: a current-cycle candidate`);
+    eq(r.score, null, `${c.pid}: no score`);
+    eq((r.issues || []).length, 0, `${c.pid}: no issue keys`);
+  }
+}
+const seatCache = {};
+for (const c of UT_THIRD) {
+  const k = c.seat + c.dist;
+  if (!seatCache[k]) {
+    const w = readerFor(c.seat, c.dist, { noLive: true });
+    const sf = w.pdxSeatField(c.seat);
+    const { d, g } = seatHtml(w, c.seat);
+    const h = readerFor(c.seat, c.dist, { homepage: true, noLive: true });
+    const hsf = h.pdxSeatField(c.seat);
+    const card = (hsf && hsf.answerable ? hsf.pids : []).filter((p) => ["incumbent", "current_candidate"].includes(h.PDXStatus.resolve(h.CMP_DATA[p] || {})));
+    seatCache[k] = { sf, d, g, card, roles: rosterRoles(d) };
+    const s = seatCache[k];
+    eq(sf && sf.district, c.dist, `the ${c.seat} reader's seat is District ${c.dist}`);
+    eq(rosterCount(d), s.roles.length, `${c.seat} District ${c.dist}: the count is the list`);
+    lacks(d, "data-bw-roster-none", `${c.seat} District ${c.dist} does not print the honest empty`);
+    eq(JSON.stringify(s.roles.map(([p]) => p).slice().sort()), JSON.stringify(card.slice().sort()), `${c.seat} District ${c.dist}: /ballot lists the homepage card's people`);
+  }
+  const s = seatCache[k];
+  ok(s.roles.some(([p, role]) => p === c.pid && role === "candidate"), `${c.seat} District ${c.dist} lists ${c.pid} as a candidate (got ${s.roles.map((x) => x.join(":")).join(", ")})`);
+  has(s.d, `href="/p/${c.pid}" data-pdx-person-link="${c.pid}"`, `${c.pid} links to /p/`);
+  has(s.g, `href="/p/${c.pid}"`, `…and at a glance`);
+  ok(s.card.includes(c.pid), `the homepage card for ${c.seat} District ${c.dist} holds ${c.pid}`);
+  // AND NOT A NEIGHBOURING ONE: the next district over in the same chamber.
+  const nb = c.seat === "house" ? (c.dist === 4 ? 3 : c.dist + 1) : c.dist + 1;
+  const n = readerFor(c.seat, nb, { noLive: true });
+  ok(!rosterRoles(seatHtml(n, c.seat).d).some(([p]) => p === c.pid), `${c.pid} is not on ${c.seat} District ${nb}`);
+  ok(!(n.pdxSeatField(c.seat).pids || []).includes(c.pid), `…nor in that seat's field`);
+}
+{
+  // EMILY BUSS (Forward, SD-11) IS THE SEAT'S SITTING SENATOR, already on file:
+  // she is listed once, as the incumbent, under her own row.
+  const w = pin3(2, 11, 14, { noLive: true });
+  const roles = rosterRoles(seatHtml(w, "statesenate").d);
+  ok(roles.some(([p, role]) => p === "emily_buss" && role === "incumbent"), `SD-11 lists Emily Buss as its incumbent (got ${roles.map((x) => x.join(":")).join(", ")})`);
+  eq(roles.filter(([p]) => /buss/.test(p)).length, 1, "…once");
+  eq(w.CMP_DATA.emily_buss.party, "F", "…with her Forward label");
+}
+{
+  // HD-29 LISTS BOTH OF ITS THIRD-PARTY NOMINEES, ONCE EACH.
+  const ids = rosterRoles(seatHtml(readerFor("statehouse", 29, { noLive: true }), "statehouse").d).map(([p]) => p);
+  ok(ids.includes("tynley_bean") && ids.includes("jonathan_garrard"), `HD-29 lists Tynley Bean and Jonathan Garrard (got ${ids.join(", ")})`);
+  eq(ids.length, new Set(ids).size, "…and nobody twice");
+}
+{
+  // A SEAT HOLDING ONLY ITS SITTING MEMBER STILL SAYS SO: Provo's SD-24 and Clearfield's SD-5.
+  for (const w of [boot({ noLive: true }), at("clearfield", "Clearfield", "Davis County", { noLive: true })]) {
+    const { d, g } = seatHtml(w, "statesenate");
+    eq(rosterRoles(d).length, 1, `${w._currentVoterLocation.city}'s State Senate still lists only its sitting member`);
+    has(d, "No other person on file for this seat.", "…with the honest empty");
+    has(g, "No other person on file for this seat.", "…at a glance too");
+  }
+}
+{
+  // LOCATION DECIDES; residency and membership change nothing; no equity language.
+  const doors = { noLive: true, store: { pdx_residency: JSON.stringify({ verified: true, state: "OH" }), pdx_membership: JSON.stringify({ active: true }) },
+    extra: { PDXMembership: { active: () => true }, _pdxResidency: { state: "OH" } } };
+  for (const seat of ["house", "statesenate", "statehouse"]) {
+    const a = pin3(3, 9, 63, { noLive: true }), b = pin3(3, 9, 63, doors);
+    eq(seatHtml(b, seat).d, seatHtml(a, seat).d, `residency and membership change no ${seat} race list`);
+  }
+  const oh = boot({ location: { state: "Ohio", city: "Columbus", county: "Franklin County", district: "3" }, noLive: true });
+  let all = "";
+  for (const s of SEATS) { oh.pdxBallotWorkspaceOpen(s.key); all += paint(oh); }
+  ok(!UT_THIRD.some((c) => all.indexOf(`/p/${c.pid}"`) >= 0), "an Ohio reader in its own District 3 is shown none of them");
+  const EQ = /\bequity\b|\bstocks?\b|earn (?:a|your) share|\bshareholder|\bdividend/i;
+  let html = "";
+  for (const k of Object.keys(seatCache)) html += seatCache[k].d + seatCache[k].g;
+  ok(!EQ.test(html.replace(/<[^>]+>/g, " ")), "the statewide race lists carry no equity language");
+  const w0 = boot();
+  ok(!EQ.test(UT_THIRD.map((c) => JSON.stringify(w0.CMP_DATA[c.pid])).join(" ")), "the thirty-one roster rows carry no equity language");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
 section("2c · Election timing: stored, or honestly absent");
 {
-  // Nothing on /ballot stores a date today: every seat says so, and prints no countdown.
+  // A seat with no stored date says so, and prints no countdown. Provo's U.S.
+  // House seat is the exception: its third-party nominees' rows store the
+  // November 3 date, so it is held to the stored-date rule below instead.
   const w = boot({ extra: { __pdxToday: "2026-10-19" } });
   const full = paint(w);
+  has(glance(full, "house"), "Election: November 3, 2026", "house: a nominee's stored nextElection sets UT-3's date");
   for (const s of SEATS) {
+    if (s.key === "house") continue;
     const g = glance(full, s.key);
     has(g, "No election date on file", `${s.key}: no stored date says so`);
     lacks(g, "election in", `${s.key}: no countdown is invented without a date`);
@@ -699,7 +916,7 @@ section("7 · Shipped");
   has(list, "'/ballot-workspace.js'", "…beside the desk");
   const ver = (s) => (/const CACHE_VERSION = '(v\d+)'/.exec(s || "") || [])[1];
   const head = gitShow("sw.js");
-  const changed = ["ballot.html", "ballot-workspace.js", "ballot-workspace.css", "ballot-measures.js", "ballot-live-roster.js"].some((f) => gitShow(f) !== R(f));
+  const changed = ["ballot.html", "ballot-workspace.js", "ballot-workspace.css", "ballot-measures.js", "ballot-live-roster.js", "cmp-data.js"].some((f) => gitShow(f) !== R(f));
   if (head && changed) ok(ver(head) !== ver(SW), `precached ballot files changed and the shell version did not move (${ver(SW)})`);
   else passed++;
 }

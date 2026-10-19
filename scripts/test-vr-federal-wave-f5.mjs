@@ -60,6 +60,7 @@ import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { CJ_SEAMS_ALL as CJ_SEAMS, SH_SEAMS, WA_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam,
   assertWordActionSeams, assertParentTableIsTheOnlyMove,
   PARENT_TABLE_MARK as TABLE_MARK, deOrigin } from "./v103-chrome-seams.mjs";
+import { declaredStanceMovesAtHead, withoutDeclaredStanceChunks } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -531,6 +532,7 @@ function boot(get, label) {
     if (h === null) continue;
     if (deOrigin(h) !== deOrigin(nowSrc(f))) touched.push(f);
   }
+  touched = withoutDeclaredStanceChunks(touched);
   const stray = touched.filter((f) => !LATER_WAVE_WAIVER[f]);
   eq(stray.length, 0, `F5 changed a booted file (${stray.join(", ")}) — a wave that writes no row has no business editing the engine`);
   const has = (x, n, m2) => ok(String(x).includes(n), `${m2} — missing ${JSON.stringify(n)}`);
@@ -636,6 +638,7 @@ function boot(get, label) {
     const COV_KEYS = ["word", "scorable", "tested", "untested", "issueLinked", "notIssueLinked", "recordDerived", "warming"];
     let dm = 0, dmBad = 0;
     for (const pid of PIDS) {
+      if (declaredStanceMovesAtHead().moved.has(pid)) continue; // a declared stance pass (v103-chrome-seams.mjs)
       let a = null, b = null;
       try { a = head.PDXWordAction.read(pid); } catch (e) { continue; }
       try { b = work.PDXWordAction.read(pid); } catch (e) { b = null; }
@@ -651,6 +654,7 @@ function boot(get, label) {
 
     let scoped = 0, scopedBad = 0;
     for (const pid of PIDS) {
+      if (declaredStanceMovesAtHead().moved.has(pid)) continue; // a declared stance pass (v103-chrome-seams.mjs)
       let a = null, b = null;
       try { a = head.PDXWordAction.scopedRead(pid, head.CMP_DATA[pid]); } catch (e) { continue; }
       try { b = work.PDXWordAction.scopedRead(pid, work.CMP_DATA[pid]); } catch (e) { b = null; }
@@ -682,6 +686,7 @@ function boot(get, label) {
     const WITHDRAWN = { lyman: "lands_local" };
     let rows = 0, rowBad = 0;
     for (const pid of PIDS) {
+      if (declaredStanceMovesAtHead().moved.has(pid)) continue; // a declared stance pass (v103-chrome-seams.mjs)
       let ra = [], rb = [];
       try { ra = head.PDXConsistency.issueRows(pid) || []; } catch (e) { continue; }
       try { rb = work.PDXConsistency.issueRows(pid) || []; } catch (e) { rb = []; }

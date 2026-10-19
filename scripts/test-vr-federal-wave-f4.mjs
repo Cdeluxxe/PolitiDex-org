@@ -58,6 +58,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { declaredStanceMovesAtHead, withoutDeclaredStanceChunks } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -532,6 +533,7 @@ function boot(get, label) {
     if (h === null) continue;
     if (h !== nowSrc(f)) touched.push(f);
   }
+  touched = withoutDeclaredStanceChunks(touched);
   if (touched.length) console.log(`      (booted files differing from HEAD: ${touched.join(", ")} — outputs compared below)`);
 
   const head = boot(headSrc, "HEAD");
@@ -568,6 +570,7 @@ function boot(get, label) {
       "notIssueLinked", "recordDerived", "warming"];
     let dm = 0, dmBad = 0;
     for (const pid of PIDS) {
+      if (declaredStanceMovesAtHead().moved.has(pid)) continue; // a declared stance pass (v103-chrome-seams.mjs)
       let a = null, b = null;
       try { a = head.PDXWordAction.read(pid); } catch (e) { continue; }
       try { b = work.PDXWordAction.read(pid); } catch (e) { b = null; }
@@ -583,6 +586,7 @@ function boot(get, label) {
 
     let scoped = 0, scopedBad = 0;
     for (const pid of PIDS) {
+      if (declaredStanceMovesAtHead().moved.has(pid)) continue; // a declared stance pass (v103-chrome-seams.mjs)
       let a = null, b = null;
       try { a = head.PDXWordAction.scopedRead(pid, head.CMP_DATA[pid]); } catch (e) { continue; }
       try { b = work.PDXWordAction.scopedRead(pid, work.CMP_DATA[pid]); } catch (e) { b = null; }
@@ -614,6 +618,7 @@ function boot(get, label) {
     const WITHDRAWN = { lyman: "lands_local" };
     let rows = 0, rowBad = 0;
     for (const pid of PIDS) {
+      if (declaredStanceMovesAtHead().moved.has(pid)) continue; // a declared stance pass (v103-chrome-seams.mjs)
       let ra = [], rb = [];
       try { ra = head.PDXConsistency.issueRows(pid) || []; } catch (e) { continue; }
       try { rb = work.PDXConsistency.issueRows(pid) || []; } catch (e) { rb = []; }
