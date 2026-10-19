@@ -10280,7 +10280,16 @@
 //     MI, NC, TX), keyed by office and state so the shared seat field lists
 //     each on their own state's Senate race. cmp-data.js is precached and
 //     changed, so the shell moves one version. MIGRATION COST: none.
-const CACHE_VERSION = 'v421';
+// v422 - FEDERAL THIRD-PARTY LIGHT PROFILES, BATCH 2. The twelve Senate
+//     nominees from v421 gain a one-sentence bio (cmp-data-detail.js) and three
+//     to five sourced campaign claims each, marked claim:'campaign' on existing
+//     issue keys (politician-stances-ext.js, regenerated), so the topic tree
+//     prints the claim line where the empty Record chip stood; sitemap.xml
+//     names their files. The shell moves one version so the person shells
+//     pick them up. No score, no Direction Match figure, no new key.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v422';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

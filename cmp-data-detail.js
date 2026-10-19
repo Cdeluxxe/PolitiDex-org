@@ -1536,7 +1536,19 @@
  "shawn_johnson": { "bio": "Shawn Johnson is the Libertarian nominee for Wyoming's at-large U.S. House seat, a 21-year Army combat medic in the Wyoming National Guard, former Casper vice mayor and practicing attorney." },
  "jeff_haggit": { "bio": "Jeffrey Haggit is the Constitution Party nominee for Wyoming's at-large U.S. House seat, a retired instrumentation technician and former chairman of the Constitution Party of Wyoming." },
  "tom_schmitz": { "bio": "Tom Schmitz is the Libertarian nominee for Missouri's 1st Congressional District, who advanced unopposed from the party's August 4, 2026 primary." },
- "brandon_daugherty": { "bio": "Brandon Daugherty is the Libertarian nominee for Missouri's 2nd Congressional District, executive director of the Libertarian Party of Missouri and co-host of the Missouri Liberty Report." }
+ "brandon_daugherty": { "bio": "Brandon Daugherty is the Libertarian nominee for Missouri's 2nd Congressional District, executive director of the Libertarian Party of Missouri and co-host of the Missouri Liberty Report." },
+ "seth_bodnar": { "bio": "Seth Bodnar is the Independent nominee for U.S. Senate in Montana, a West Point graduate, Rhodes Scholar and former Green Beret who served eight years as president of the University of Montana." },
+ "ty_pinkins": { "bio": "Ty Pinkins is the Independent nominee for U.S. Senate in Mississippi, a Rolling Fork native and 21-year Army veteran with three combat tours in Iraq who earned his law degrees at Georgetown." },
+ "rebecca_whiting": { "bio": "Rebecca Whiting is the Libertarian nominee for U.S. Senate in Minnesota, a Bemidji farmer, small business owner and Army combat medic who served two tours in Iraq and chairs the Libertarian Party of Minnesota." },
+ "marisa_simonetti": { "bio": "Marisa Simonetti is the Independent nominee for U.S. Senate in Minnesota, a 33-year-old chief executive from Plymouth." },
+ "jeff_wadlin": { "bio": "Jeff Wadlin is the Libertarian nominee for U.S. Senate in Arkansas, a Bentonville engineer and consultant who once ran membership nationwide at Sam's Club." },
+ "natalie_fleming": { "bio": "Natalie Fleming is the Independent nominee for U.S. Senate in Idaho, a Treasure Valley single mother of four with Boise State degrees in IT management and supply chain management." },
+ "matt_loesby": { "bio": "Matt Loesby is the Libertarian nominee for U.S. Senate in Idaho, a former video game developer raised in Centennial, Colorado, who now lives in Eagle." },
+ "kyle_austin": { "bio": "Kyle Austin is the Libertarian nominee for U.S. Senate in Montana, a fourth-generation Montanan and 18-year pharmacist who owns Pharm406 in Billings." },
+ "lydia_christensen": { "bio": "Lydia Christensen is the Libertarian nominee for U.S. Senate in Michigan, an Ironwood technology-company founder who grew up in the foster care system." },
+ "douglas_marsh": { "bio": "Douglas P. Marsh is the Green Party nominee for U.S. Senate in Michigan, a Traverse City-born community journalist and volunteer firefighter who lectured at a university in Thailand for five years." },
+ "shannon_bray": { "bio": "Shannon W. Bray is the Libertarian nominee for U.S. Senate in North Carolina, a Navy veteran and cybersecurity professional." },
+ "ted_brown": { "bio": "Ted Brown is the Libertarian nominee for U.S. Senate in Texas, a UCLA political science graduate and retired independent insurance adjuster who lives in Austin's Wells Branch neighborhood." }
 };
   Object.keys(X).forEach(function (k) {
     var src = X[k], dst = D[k] || (D[k] = {});

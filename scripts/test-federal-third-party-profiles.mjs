@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // ─────────────────────────────────────────────────────────────────────────────
-// test-federal-third-party-profiles.mjs — light profiles for the twelve federal
-// independent and third-party nominees: a bio, and campaign claims that read
+// test-federal-third-party-profiles.mjs — light profiles for the twenty-four federal
+// independent and third-party nominees (two batches of twelve): a bio, and campaign claims that read
 // as campaign claims everywhere the person file prints them
 // ─────────────────────────────────────────────────────────────────────────────
 // What must stay true:
@@ -58,11 +58,36 @@ const PEOPLE = {
   tom_schmitz:       { keys: [], hosts: [], bio: "Libertarian nominee" },
   brandon_daugherty: { keys: ["restraint", "gov_transparency", "national_debt", "gun_rights", "free_speech"], hosts: ["www.bcd4mo.com"], bio: "Missouri Liberty Report" },
 };
+// Batch 2: the twelve U.S. Senate nominees admitted in v421.
+const BATCH2 = {
+  seth_bodnar: { keys: ["tariffs_prices",  "health_drug_prices",  "health_rural",  "stock_trading_ban",  "campaign_finance"], hosts: ["www.sethformontana.com"], bio: "Green Beret" },
+  ty_pinkins: { keys: ["healthcare",  "rural_ag",  "public_schools",  "housing",  "tax_middle_class"], hosts: ["www.typinkins.com"], bio: "Rolling Fork" },
+  rebecca_whiting: { keys: ["restraint",  "gov_regulation",  "lower_taxes",  "immig_legal"], hosts: ["whiting4senate.us",  "www.kaxe.org"], bio: "combat medic" },
+  marisa_simonetti: { keys: ["privacy_rights",  "gov_transparency",  "econ_corp_account"], hosts: ["www.kaxe.org"], bio: "chief executive" },
+  jeff_wadlin: { keys: ["healthcare_costs",  "national_debt",  "gun_rights",  "restraint"], hosts: ["www.jeffwadlin.com"], bio: "Sam's Club" },
+  natalie_fleming: { keys: ["immig_balance",  "privacy_rights",  "public_schools",  "rural_ag"], hosts: ["idahonews.com",  "nataliefleming.info"], bio: "single mother of four" },
+  matt_loesby: { keys: ["border_security",  "restraint",  "cannabis_reform"], hosts: ["www.loesby.us"], bio: "video game developer" },
+  kyle_austin: { keys: ["war_powers",  "tariffs_prices",  "voter_id",  "cut_spending"], hosts: ["projects.montanafreepress.org",  "www.mtpr.org"], bio: "pharmacist" },
+  lydia_christensen: { keys: ["tax_middle_class",  "gun_rights",  "privacy_rights",  "healthcare"], hosts: ["www.lydialynnchristensen.com"], bio: "foster care" },
+  douglas_marsh: { keys: ["healthcare",  "restraint",  "econ_corp_account"], hosts: ["ballotpedia.org",  "www.electmarsh.org"], bio: "community journalist" },
+  shannon_bray: { keys: ["war_powers",  "privacy_rights",  "healthcare_market",  "national_debt",  "immig_balance"], hosts: ["web.archive.org"], bio: "cybersecurity" },
+  ted_brown: { keys: ["lower_taxes",  "restraint",  "cannabis_reform",  "privacy_rights"], hosts: ["tedbrown.org"], bio: "insurance adjuster" },
+};
+const PASS_OF = {};
+Object.keys(PEOPLE).forEach((p) => { PASS_OF[p] = "federal_third_party_light_profiles_b1_oct2026"; });
+Object.keys(BATCH2).forEach((p) => { PASS_OF[p] = "federal_third_party_light_profiles_b2_oct2026"; });
+Object.assign(PEOPLE, BATCH2);
 // Topics the user asked about that these sources do not state, or state with
 // no key to hold them: no card may sit on these keys.
 const NOT_IN_SOURCE = {
   todd_achilles: ["healthcare_costs", "housing", "veterans"],
   bill_hill: ["rural_ag"],
+  // Batch 2: positions these sources state that no existing key holds, or holds
+  // only by stretching its chip — left out rather than forced onto one.
+  matt_loesby: ["deportations", "lgbtq_rights", "rights_balance"],
+  douglas_marsh: ["iran_policy", "family_support", "water", "housing"],
+  lydia_christensen: ["water", "enviro_balance"],
+  ted_brown: ["justice_reform", "edu_parental", "school_choice"],
   will_johanson: ["border_security", "lands_keep_public"],
   shawn_johnson: ["gun_rights", "cut_spending"],
 };
@@ -70,7 +95,9 @@ const EQUITY = /\bequity\b|\bstocks?\b|earn (?:a|your) share|\bshareholder|\bdiv
 // A stock-trading ban for members of Congress is the candidate's position, not
 // equity language: in a sentence that names Congress, "stocks" / "stock trading"
 // is set aside, and every other use of "stock" still fails.
-const equityIn = (t) => EQUITY.test(String(t).split(/(?<=[.!?])\s+/).map((x) =>
+// Likewise "private equity" names a kind of investment firm in a candidate's
+// position on who may own homes; that phrase alone is set aside.
+const equityIn = (t) => EQUITY.test(String(t).replace(/\bprivate[- ]equity\b/gi, " ").split(/(?<=[.!?])\s+/).map((x) =>
   /\bCongress(?:ional)?\b/i.test(x) ? x.replace(/\b(?:individual\s+)?stocks?(?:\s+trad(?:e|ing))?\b/gi, " ") : x).join(" "));
 
 const FILES = [
@@ -137,7 +164,7 @@ for (const [pid, want] of Object.entries(PEOPLE)) {
   const rec = w.CMP_DATA[pid];
   if (!ok(!!rec, `${pid} has a roster row`)) continue;
   ok(typeof rec.bio === "string" && rec.bio.length > 40 && rec.bio.length <= 280, `${pid}: one short bio sentence`);
-  eq((rec.bio.replace(/\bU\.S\./g, "US").match(/[.!?](\s|$)/g) || []).length, 1, `${pid}: the bio is one sentence`);
+  eq((rec.bio.replace(/\bU\.S\./g, "US").replace(/\b[A-Z]\.(?= [A-Z])/g, "X").match(/[.!?](\s|$)/g) || []).length, 1, `${pid}: the bio is one sentence`);
   has(rec.bio, want.bio, `${pid}: the bio says who they are`);
   has(rec.bio, rec.name, `${pid}: the bio names them`);
   let threw = "";
@@ -230,6 +257,7 @@ for (const pid of Object.keys(PEOPLE)) {
   for (const lf of T.leaves(pid)) ok(!equityIn(visible(T.leafHtml(lf))), `${pid}/${lf.key}: the leaf carries no equity language`);
 }
 ok(equityIn("earn a share of PolitiDex stock"), "the equity check still catches equity language");
+ok(equityIn("members earn equity in PolitiDex"), "…and the bare word equity outside the private-equity phrase");
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("5 · everyone else is unchanged, and so are the twelve roster rows");
@@ -248,11 +276,14 @@ section("5 · everyone else is unchanged, and so are the twelve roster rows");
     eq(moved.join(", "), "", "cmp-data-detail.js: no other person's bio or detail moved");
   } else passed++;
   const c = HEAD("cmp-data.js");
-  if (c != null) eq(c, R("cmp-data.js"), "cmp-data.js (the roster, the twelve rows included) is unchanged by this pass");
+  if (c != null) eq(c, R("cmp-data.js"), "cmp-data.js (the roster, every nominee row included) is unchanged by this pass");
   else passed++;
   // The pass that may move these files is declared, by name, with exactly these people.
-  const pass = DECLARED_STANCE_PASSES.find((d) => d.pass === "federal_third_party_light_profiles_b1_oct2026");
-  eq(pass ? pass.pids.slice().sort().join(",") : "", Object.keys(PEOPLE).sort().join(","), "the stance pass declares exactly the twelve");
+  for (const name of [...new Set(Object.values(PASS_OF))]) {
+    const pass = DECLARED_STANCE_PASSES.find((d) => d.pass === name);
+    const want = Object.keys(PASS_OF).filter((p) => PASS_OF[p] === name).sort().join(",");
+    eq(pass ? pass.pids.slice().sort().join(",") : "", want, `${name} declares exactly its twelve`);
+  }
 }
 {
   // The service worker moved past HEAD's, since stance-tree.js is precached.

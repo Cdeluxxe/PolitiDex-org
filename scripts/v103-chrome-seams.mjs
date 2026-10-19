@@ -3253,6 +3253,9 @@ export const DECLARED_STANCE_PASSES = [
     // Schmitz are bio-only, named so their detail rows are this pass's too.
     pids: ["dan_osborn", "brian_bengs", "todd_achilles", "sarah_zabel", "bill_hill", "will_johanson", "monica_alponte",
       "shawn_johnson", "brandon_daugherty", "cory_robertson", "jeff_haggit", "tom_schmitz"],
+  },  {
+    pass: "federal_third_party_light_profiles_b2_oct2026",
+    pids: ["seth_bodnar", "ty_pinkins", "rebecca_whiting", "marisa_simonetti", "jeff_wadlin", "natalie_fleming", "matt_loesby", "kyle_austin", "lydia_christensen", "douglas_marsh", "shannon_bray", "ted_brown"],
   },
 ];
 export const DECLARED_STANCE_PIDS = DECLARED_STANCE_PASSES.flatMap((d) => d.pids);
