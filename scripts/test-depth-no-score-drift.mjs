@@ -209,6 +209,14 @@ const ADDED = {
   julie_smith: "Forward nominee, Utah State House Candidate (District 63)",
   alan_wessman: "Unaffiliated nominee, Utah State House Candidate (District 64)",
   zeno_parry: "Forward nominee, Utah State House Candidate (District 70)",
+
+  // October 2026 Utah House third-party nominees, wave 3: same shape, same reason.
+  jonathan_garrard: "Constitution nominee, Utah State House Candidate (District 29)",
+  sergio_sotelo: "Unaffiliated nominee, Utah State House Candidate (District 38)",
+  jennifer_doud: "Constitution nominee, Utah State House Candidate (District 61)",
+  russ_hatch: "Constitution nominee, Utah State House Candidate (District 66)",
+  sonya_ray: "Constitution nominee, Utah State House Candidate (District 68)",
+  april_pinkston: "Constitution nominee, Utah State House Candidate (District 72)",
 };
 // ── The same allowance, at roster-wave scale, sourced instead of typed ───────
 // ADDED above works because each entry is a line a reviewer reads. A FEDERAL roster wave

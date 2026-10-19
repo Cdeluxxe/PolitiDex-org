@@ -15870,5 +15870,61 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "party": "Forward", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
   "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
+ },
+// ── Utah House third-party and unaffiliated nominees, wave 3, 2026 general election (Oct 2026)
+// The last non-major-party nominees the Utah Lt. Governor's 2026 candidate
+// filings list as "Election Candidate" (https://vote.utah.gov/2026-candidate-filings/,
+// last updated 10/05/2026) that the roster did not hold — every other one is
+// in the two batches above or, for Emily Buss (SD-11), is that seat's sitting
+// senator. Write-in and disqualified filers are not nominees and are not here.
+// Identity rows only: office, district and party as filed, `score` null, an
+// empty ledger, `issues` empty rather than guessed.
+ // HD-29 · Constitution
+ "jonathan_garrard": {
+  "name": "Jonathan Garrard", "office": "Utah State House Candidate (District 29)",
+  "state": "Utah", "district": "29",
+  "party": "Constitution", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-38 · Unaffiliated
+ "sergio_sotelo": {
+  "name": "Sergio Sotelo", "office": "Utah State House Candidate (District 38)",
+  "state": "Utah", "district": "38",
+  "party": "Unaffiliated", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-61 · Constitution
+ "jennifer_doud": {
+  "name": "Jennifer K. Doud", "office": "Utah State House Candidate (District 61)",
+  "state": "Utah", "district": "61",
+  "party": "Constitution", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-66 · Constitution
+ "russ_hatch": {
+  "name": "Russ Hatch", "office": "Utah State House Candidate (District 66)",
+  "state": "Utah", "district": "66",
+  "party": "Constitution", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-68 · Constitution
+ "sonya_ray": {
+  "name": "Sonya Ray", "office": "Utah State House Candidate (District 68)",
+  "state": "Utah", "district": "68",
+  "party": "Constitution", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-72 · Constitution
+ "april_pinkston": {
+  "name": "April A. Pinkston", "office": "Utah State House Candidate (District 72)",
+  "state": "Utah", "district": "72",
+  "party": "Constitution", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
  }
 });

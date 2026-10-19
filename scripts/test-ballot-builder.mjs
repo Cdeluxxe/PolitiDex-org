@@ -624,7 +624,7 @@ for (const c of DAVIS_THIRD) {
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("2f · Utah statewide third-party and unaffiliated nominees: each on its own seat");
-// Twenty-five rows, each reached by a reader whose map pin carries the seat's
+// Thirty-one rows, each reached by a reader whose map pin carries the seat's
 // number (U.S. House district, State Senate and State House districts). Bundled
 // roster only — no live list — on both documents.
 const pin3 = (cd, sd, hd, extra) => boot(Object.assign({ location: { state: "Utah", district: String(cd), stateSenateDistrict: String(sd), stateHouseDistrict: String(hd) } }, extra || {}));
@@ -638,6 +638,11 @@ const UT_THIRD = [
   ["jason_odell", "statehouse", 1, "Constitution"], ["patrick_belmont", "statehouse", 3, "Unaffiliated"], ["cabot_nelson", "statehouse", 23, "Forward"],
   ["wales_nematollahi", "statehouse", 28, "Forward"], ["tynley_bean", "statehouse", 29, "Forward"], ["john_boyd", "statehouse", 53, "Forward"],
   ["julie_smith", "statehouse", 63, "Forward"], ["alan_wessman", "statehouse", 64, "Unaffiliated"], ["zeno_parry", "statehouse", 70, "Forward"],
+  // Wave 3: the last "Election Candidate" filings outside the two major parties.
+  // HD-29 now has two (Bean and Garrard), both listed beside the seat's member.
+  ["jonathan_garrard", "statehouse", 29, "Constitution"], ["sergio_sotelo", "statehouse", 38, "Unaffiliated"],
+  ["jennifer_doud", "statehouse", 61, "Constitution"], ["russ_hatch", "statehouse", 66, "Constitution"],
+  ["sonya_ray", "statehouse", 68, "Constitution"], ["april_pinkston", "statehouse", 72, "Constitution"],
 ].map(([pid, seat, dist, party]) => ({ pid, seat, dist, party }));
 // A reader for district `d` of `seat`; the other two numbers are fixed seats none of these rows is on.
 const readerFor = (seat, d, extra) => seat === "house" ? pin3(d, 5, 14, extra) : seat === "statesenate" ? pin3(2, d, 14, extra) : pin3(2, 5, d, extra);
@@ -693,6 +698,12 @@ for (const c of UT_THIRD) {
   eq(w.CMP_DATA.emily_buss.party, "F", "…with her Forward label");
 }
 {
+  // HD-29 LISTS BOTH OF ITS THIRD-PARTY NOMINEES, ONCE EACH.
+  const ids = rosterRoles(seatHtml(readerFor("statehouse", 29, { noLive: true }), "statehouse").d).map(([p]) => p);
+  ok(ids.includes("tynley_bean") && ids.includes("jonathan_garrard"), `HD-29 lists Tynley Bean and Jonathan Garrard (got ${ids.join(", ")})`);
+  eq(ids.length, new Set(ids).size, "…and nobody twice");
+}
+{
   // A SEAT HOLDING ONLY ITS SITTING MEMBER STILL SAYS SO: Provo's SD-24 and Clearfield's SD-5.
   for (const w of [boot({ noLive: true }), at("clearfield", "Clearfield", "Davis County", { noLive: true })]) {
     const { d, g } = seatHtml(w, "statesenate");
@@ -718,7 +729,7 @@ for (const c of UT_THIRD) {
   for (const k of Object.keys(seatCache)) html += seatCache[k].d + seatCache[k].g;
   ok(!EQ.test(html.replace(/<[^>]+>/g, " ")), "the statewide race lists carry no equity language");
   const w0 = boot();
-  ok(!EQ.test(UT_THIRD.map((c) => JSON.stringify(w0.CMP_DATA[c.pid])).join(" ")), "the twenty-five roster rows carry no equity language");
+  ok(!EQ.test(UT_THIRD.map((c) => JSON.stringify(w0.CMP_DATA[c.pid])).join(" ")), "the thirty-one roster rows carry no equity language");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

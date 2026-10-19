@@ -1277,7 +1277,7 @@ lead on a document, not a replacement for reading it — a human verifies agains
 the filing and hand-updates the map, so nothing unverified ships. It touches no
 issue key, stated position, formal action, tier or publication floor: there is
 no finance → Direction Match path here either. And it cannot make the lane
-complete — refreshing the 13 filings we hold does not change the 13-of-1150
+complete — refreshing the 13 filings we hold does not change the 13-of-1156
 ratio, which the script prints, labelled incomplete, every run. The denominator
 moved when roster wave `federal_roster_r1_sep2026` admitted 315 sitting House
 members whose recorded votes had nowhere to land, and again when
@@ -1287,7 +1287,8 @@ members and three senators whose votes were already resolving through
 arrived with a filing, so the lane got wider without getting any less complete,
 which is the honest shape of it. Five Davis County third-party legislative
 nominees (October 2026) moved it from 1120 to 1125, also with no filing; twenty-five statewide
-third-party and unaffiliated nominees moved it to 1150, again with no filing.
+third-party and unaffiliated nominees moved it to 1150, and six more House
+nominees to 1156, again with no filing.
 
 **State and local.** `disclosures.utah.gov` publishes no open JSON API, so there
 is no live state refresh to wire. The script prints the committee-search URL for

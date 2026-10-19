@@ -10226,7 +10226,14 @@
 //     is its incumbent. cmp-data.js is precached and changed, so the shell
 //     moves one version. No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v415';
+// v416 - UTAH HOUSE THIRD-PARTY NOMINEES, WAVE 3. cmp-data.js gains six
+//     identity-only roster rows: the last non-major-party "Election Candidate"
+//     filings on the Lt. Governor's 2026 list the roster did not hold (HD-29,
+//     38, 61, 66, 68, 72), keyed by office, state and district for the shared
+//     seat field. cmp-data.js is precached and changed, so the shell moves one
+//     version. No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v416';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

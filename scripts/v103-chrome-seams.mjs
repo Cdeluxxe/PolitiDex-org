@@ -3198,6 +3198,11 @@ export const DECLARED_ADMISSIONS = [
       "zeno_parry",
     ],
   },
+  {
+    wave: "utah_house_third_party_w3_oct2026",
+    banner: "// ── Utah House third-party and unaffiliated nominees, wave 3, 2026 general election (Oct 2026)",
+    pids: ["jonathan_garrard", "sergio_sotelo", "jennifer_doud", "russ_hatch", "sonya_ray", "april_pinkston"],
+  },
 ];
 export const DECLARED_ADMISSION_PIDS = DECLARED_ADMISSIONS.flatMap((d) => d.pids);
 const ROSTER_KEY = /^\s*"([a-z0-9_]+)":\s*\{$/gm;
