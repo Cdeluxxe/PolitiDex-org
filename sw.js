@@ -10275,7 +10275,12 @@
 //     changed, so the shell moves one version. No score, no new key.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v420';
+// v421 - FEDERAL THIRD-PARTY AND INDEPENDENT NOMINEES, BATCH 2. cmp-data.js
+//     gains twelve identity-only U.S. Senate nominee rows (MT, MS, MN, AR, ID,
+//     MI, NC, TX), keyed by office and state so the shared seat field lists
+//     each on their own state's Senate race. cmp-data.js is precached and
+//     changed, so the shell moves one version. MIGRATION COST: none.
+const CACHE_VERSION = 'v421';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

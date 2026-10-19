@@ -16032,5 +16032,107 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
   "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
+ },
+// ── Federal third-party and independent nominees, batch 2, 2026 general election (Oct 2026)
+// Independent, Libertarian and Green U.S. Senate nominees on the November 3,
+// 2026 ballot, per Ballotpedia's 2026 general-election candidate lists. Same
+// shape as batch 1: identity rows only — office, state and party as listed,
+// `score` null, an empty ledger, `issues` empty. Office is "U.S. Senate
+// Candidate", which the statewide resolver never counts as a sitting senator.
+ // Montana U.S. Senate · Independent
+ "seth_bodnar": {
+  "name": "Seth Bodnar", "office": "U.S. Senate Candidate",
+  "state": "Montana",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Mississippi U.S. Senate · Independent
+ "ty_pinkins": {
+  "name": "Ty Pinkins", "office": "U.S. Senate Candidate",
+  "state": "Mississippi",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Minnesota U.S. Senate · Libertarian
+ "rebecca_whiting": {
+  "name": "Rebecca Whiting", "office": "U.S. Senate Candidate",
+  "state": "Minnesota",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Minnesota U.S. Senate · Independent
+ "marisa_simonetti": {
+  "name": "Marisa Simonetti", "office": "U.S. Senate Candidate",
+  "state": "Minnesota",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Arkansas U.S. Senate · Libertarian
+ "jeff_wadlin": {
+  "name": "Jeff Wadlin", "office": "U.S. Senate Candidate",
+  "state": "Arkansas",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Idaho U.S. Senate · Independent
+ "natalie_fleming": {
+  "name": "Natalie Fleming", "office": "U.S. Senate Candidate",
+  "state": "Idaho",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Idaho U.S. Senate · Libertarian
+ "matt_loesby": {
+  "name": "Matt Loesby", "office": "U.S. Senate Candidate",
+  "state": "Idaho",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Montana U.S. Senate · Libertarian
+ "kyle_austin": {
+  "name": "Kyle Austin", "office": "U.S. Senate Candidate",
+  "state": "Montana",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Michigan U.S. Senate · Libertarian
+ "lydia_christensen": {
+  "name": "Lydia Christensen", "office": "U.S. Senate Candidate",
+  "state": "Michigan",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Michigan U.S. Senate · Green
+ "douglas_marsh": {
+  "name": "Douglas P. Marsh", "office": "U.S. Senate Candidate",
+  "state": "Michigan",
+  "party": "Green", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // North Carolina U.S. Senate · Libertarian
+ "shannon_bray": {
+  "name": "Shannon W. Bray", "office": "U.S. Senate Candidate",
+  "state": "North Carolina",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Texas U.S. Senate · Libertarian
+ "ted_brown": {
+  "name": "Ted Brown", "office": "U.S. Senate Candidate",
+  "state": "Texas",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
  }
 });
