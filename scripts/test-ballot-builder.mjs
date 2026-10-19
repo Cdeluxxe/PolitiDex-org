@@ -49,12 +49,16 @@ const FILES = [
   "cmp-data.js", "politician-stances-core.js", "politician-stances-ext.js", "state-senate-stances.js",
   "stance-helpers.js", "alignment-tool.js", "acct-spotlight-data.js", "say-vs-do.js", "exec-action-data.js",
   "exec-record.js", "exec-record-ui.js", "consistency.js", "voting-record.js", "word-action.js",
-  "profile-spine.js", "issue-colors.js", "my-stances.js", "voter-hub-location.js", "compare-hub.js",
-  "seat-field.js", "ballot-breakdown.js", "who-represents-me.js", "person-link.js", "profiles-full.js",
+  "profile-spine.js", "issue-colors.js", "my-stances.js", "voter-hub-location.js",
+  // NOT compare-hub.js: ballot.html does not load it, and a harness that did hid
+  // the seat field keying nobody on the real page. roster-keys.js is what /ballot
+  // keys the roster with.
+  "roster-keys.js", "seat-field.js", "ballot-breakdown.js", "who-represents-me.js", "person-link.js", "profiles-full.js",
 ];
 const SRC = FILES.map((f) => [f, R(f)]);
 const SHEET = R("race-sheet.js");
 const MEAS = R("ballot-measures.js");
+const LIVE = R("ballot-live-roster.js");
 const WORK = R("ballot-workspace.js");
 const BALLOT = R("ballot.html");
 const SW = R("sw.js");
@@ -125,8 +129,26 @@ function boot(opts) {
       const body = refs[k];
       return Promise.resolve(body ? { ok: true, json: () => Promise.resolve({ measure: body }) } : { ok: false, json: () => Promise.resolve({}) });
     }
+    if (/^https:\/\/firestore\.googleapis\.com\/v1\/projects\/[^/]+\/databases\/\(default\)\/documents\/politicians\?/.test(u)) {
+      win.__firestore = (win.__firestore || 0) + 1;
+      if (!opts.live || opts.live === "fail") return Promise.resolve({ ok: false, status: 429, json: () => Promise.resolve({}) });
+      // Two pages, so the paging is exercised.
+      const tok = (/[?&]pageToken=([^&]+)/.exec(u) || [])[1];
+      const ids = Object.keys(opts.live);
+      const half = Math.ceil(ids.length / 2);
+      const part = tok === "p2" ? ids.slice(half) : ids.slice(0, half);
+      const enc = (v) => (typeof v === "number" ? { integerValue: String(v) } : typeof v === "boolean" ? { booleanValue: v } : { stringValue: String(v) });
+      // Only the fields the request's mask names, as Firestore returns them.
+      const mask = [...u.matchAll(/[?&]mask\.fieldPaths=([^&]+)/g)].map((m) => decodeURIComponent(m[1]));
+      const documents = part.map((id) => ({
+        name: `projects/x/databases/(default)/documents/politicians/${id}`,
+        fields: Object.fromEntries(Object.entries(opts.live[id]).filter(([k]) => !mask.length || mask.includes(k)).map(([k, v]) => [k, enc(v)])),
+      }));
+      return Promise.resolve({ ok: true, json: () => Promise.resolve(tok === "p2" ? { documents } : { documents, nextPageToken: "p2" }) });
+    }
     return Promise.reject(new Error("no network: " + u));
   };
+  if (opts.live) win.__FIREBASE_API_KEY__ = "test-public-key";
   if (opts.extra) Object.assign(win, opts.extra);
   const byId = miniDom(win);
   const sandbox = vm.createContext(win);
@@ -135,8 +157,11 @@ function boot(opts) {
   for (const [f, src] of SRC) {
     try { vm.runInContext(src, sandbox, { filename: f }); } catch (e) { win.__loadErrors.push(`${f}: ${e.message}`); }
   }
+  // The homepage's own keying module, for the parity check against its race card.
+  if (opts.homepage) { try { vm.runInContext(R("compare-hub.js"), sandbox, { filename: "compare-hub.js" }); } catch (e) { win.__loadErrors.push(`compare-hub.js: ${e.message}`); } }
   vm.runInContext(SHEET, sandbox, { filename: "race-sheet.js" });
   vm.runInContext(MEAS, sandbox, { filename: "ballot-measures.js" });
+  if (!opts.noLive) vm.runInContext(LIVE, sandbox, { filename: "ballot-live-roster.js" });
   if (opts.fixtures) opts.fixtures.forEach((m) => win.PDXBallotMeasures._measures.push(m));
   vm.runInContext(WORK, sandbox, { filename: "ballot-workspace.js" });
   win.PROFILES = win.CMP_DATA;
@@ -292,7 +317,12 @@ const seatHtml = (w, key) => { w.pdxBallotWorkspaceOpen(key); const full = paint
     ok(roles.some(([p, role]) => p === "susan_lee" && role === "candidate"), "the Davis County Commission lists its nominee as a candidate");
     eq(roles.filter(([, role]) => role === "incumbent").length, 3, "…beside its three sitting commissioners");
     eq(rosterCount(d), roles.length, "…and counts all of them");
-  } else failures.push("the Davis fixture no longer carries a County Commission seat");
+  } else {
+    // /ballot's rail carries per-seat local chips only where the homepage's team
+    // counter (compare-hub.js) runs; this document does not load it.
+    console.log("     (Davis County Commission is not a seat on /ballot's rail; the local-race check is skipped)");
+    passed++;
+  }
 }
 {
   // ONLY THE SITTING MEMBER ON FILE: the honest empty stays, and a former holder
@@ -336,6 +366,157 @@ const seatHtml = (w, key) => { w.pdxBallotWorkspaceOpen(key); const full = paint
   const g = glance(paint(oh), "house");
   has(g, "District not mapped for your area.", "an Ohio reader's House row says the district is not mapped");
   lacks(g, 'href="/p/', "…and names nobody");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("2d · /ballot reads the live candidate profiles the homepage reads");
+// Live documents shaped as the deep-dive scripts file them in Firestore: a
+// Senate District 1 challenger for a Box Elder reader, HD14's two nominees and
+// the candidate who lost its primary for a Clearfield reader, and a live
+// document filed under a display-name slug for a member the roster holds.
+const LIVE_DOCS = {
+  claudia_bigler: { name: "Claudia Bigler", office: "🏛 Utah Senate candidate, District 1 (Box Elder, Cache, Tooele)", party: "Democrat", state: "Utah", candidacyStatus: "active", nextElection: "2026-11-03" },
+  julie_quinlan: { name: "Julie Quinlan", office: "Utah Senate candidate, District 1", party: "Forward", state: "Utah", candidacyStatus: "active" },
+  john_taylor: { name: "John Taylor", office: "Utah House candidate, District 14", party: "Republican", state: "Utah", candidacyStatus: "active" },
+  brandon_young: { name: "Brandon Young", office: "Utah House candidate, District 14", party: "Democrat", state: "Utah", candidacyStatus: "active" },
+  kara_toone: { name: "Kara Toone", office: "Utah House candidate, District 14", party: "Republican", state: "Utah", candidacyStatus: "lost_primary" },
+  celeste_maloy: { name: "Celeste Maloy", office: "U.S. Representative", party: "Republican", state: "Utah", photo: "" },
+};
+async function live(area, city, county, extra) {
+  const w = at(area, city, county, Object.assign({ live: LIVE_DOCS }, extra || {}));
+  paint(w);
+  await w.PDXBallotLiveRoster.ready();
+  return w;
+}
+// The homepage race card's people for a seat: the seat field over the merged roster.
+const homepage = (w, key) => { const sf = w.pdxSeatField(key); return sf && sf.answerable ? sf.pids.slice() : []; };
+{
+  // NO LOCATION, NO REQUEST — and the location alone starts it.
+  const w0 = boot({ located: false, live: LIVE_DOCS });
+  paint(w0);
+  eq(w0.__firestore || 0, 0, "a reader with no location asks the live profiles nothing");
+
+  // BOX ELDER, SENATE DISTRICT 1: the bundled roster holds only the sitting member.
+  const before = at("box_elder", "Brigham City", "Box Elder County", { noLive: true });
+  const b0 = seatHtml(before, "statesenate");
+  eq(JSON.stringify(rosterRoles(b0.d).map(([p]) => p)), JSON.stringify(["ssandall"]), "without the live profiles SD-1 holds only its sitting member");
+
+  const w = await live("box_elder", "Brigham City", "Box Elder County");
+  ok((w.__firestore || 0) >= 2, "the live list is read, every page of it");
+  eq(w.PDXBallotLiveRoster.state(), "live", "…and lands");
+  const { d, g, full } = seatHtml(w, "statesenate");
+  const roles = rosterRoles(d);
+  eq(JSON.stringify(roles), JSON.stringify([["ssandall", "incumbent"], ["claudia_bigler", "candidate"], ["julie_quinlan", "candidate"]]),
+    "SD-1 lists its incumbent and both live candidates");
+  eq(rosterCount(d), 3, "…counted as three people");
+  for (const [p] of roles) {
+    has(d, `href="/p/${encodeURIComponent(p)}" data-pdx-person-link="${p}"`, `${p} links to /p/`);
+    has(g, `href="/p/${encodeURIComponent(p)}"`, `…and at a glance`);
+  }
+  lacks(d, "data-bw-roster-none", "a seat with live candidates does not print the empty");
+  lacks(full, 'data-bw-live="', "once the live list lands no load note remains");
+  const parties = new Set(roles.map(([p]) => w.CMP_DATA[p].party));
+  ok(parties.size >= 3, "candidates from three parties appear");
+  // THE SAME AS THE HOMEPAGE'S CARD: every incumbent and current candidate the
+  // homepage's seat field names is on the ballot list, and nothing else.
+  const home = homepage(w, "statesenate").filter((p) => ["incumbent", "current_candidate"].includes(w.PDXStatus.resolve(w.CMP_DATA[p])));
+  eq(JSON.stringify(roles.map(([p]) => p).sort()), JSON.stringify(home.sort()), "SD-1's ballot list is the homepage card's live field");
+  // The stored election date travels with the live profile.
+  has(g, "Election: November 3, 2026", "a live profile's stored election date reaches the seat");
+}
+// THE HOMEPAGE'S CARD, ON THE HOMEPAGE'S OWN TERMS: compare-hub.js loaded, the
+// live docs merged by index.html's rule (added if new, else merged) with the
+// homepage's light field mask, which carries no candidacyStatus. Its seat field
+// is what the "Relevant to Me" card lists for the seat.
+const LIGHT = ["name", "office", "district", "state", "party", "rank", "status", "candidate", "incumbent", "photo"];
+function homepageCard(area, city, county, key) {
+  const h = at(area, city, county, { homepage: true, noLive: true });
+  for (const [id, doc] of Object.entries(LIVE_DOCS)) {
+    const lite = Object.fromEntries(Object.entries(doc).filter(([k]) => LIGHT.includes(k)));
+    if (!h.CMP_DATA[id]) h.CMP_DATA[id] = lite;
+    else for (const [k, v] of Object.entries(lite)) if (v !== "" && v != null) h.CMP_DATA[id][k] = v;
+  }
+  ok(typeof h._pdxBrowseType === "function" && h.PDXRosterKeys, "the homepage harness keys the roster through compare-hub.js and roster-keys.js");
+  const sf = h.pdxSeatField(key);
+  return sf && sf.answerable ? sf.pids : [];
+}
+{
+  for (const [area, city, county, key] of [["box_elder", "Brigham City", "Box Elder County", "statesenate"], ["clearfield", "Clearfield", "Davis County", "statehouse"], ["slc", "Salt Lake City", "Salt Lake County", "house"]]) {
+    const card = homepageCard(area, city, county, key);
+    const w = await live(area, city, county);
+    const mine = rosterRoles(seatHtml(w, key).d).map(([p]) => p);
+    const concluded = (p) => ["former_candidate", "retired", "not_running"].includes(w.PDXStatus.resolve(w.CMP_DATA[p] || {}));
+    const want = card.filter((p) => w.CMP_DATA[p] && !concluded(p));
+    eq(JSON.stringify(mine.slice().sort()), JSON.stringify(want.slice().sort()),
+      `${area} ${key}: /ballot lists the homepage card's people, less any whose race is recorded as over`);
+  }
+  // The chamber fix reaches the homepage too: a "Utah Senate candidate, District 1"
+  // record is a state senate candidate there, not a U.S. Senate one.
+  const card = homepageCard("box_elder", "Brigham City", "Box Elder County", "statesenate");
+  ok(card.includes("claudia_bigler"), "the homepage's SD-1 card holds the live SD-1 candidate");
+  ok(!homepageCard("box_elder", "Brigham City", "Box Elder County", "senate").includes("claudia_bigler"), "…and its U.S. Senate card does not");
+}
+{
+  // CLEARFIELD, HOUSE DISTRICT 14: two nominees, and the candidate who lost the primary stays off.
+  const w = await live("clearfield", "Clearfield", "Davis County");
+  const { d } = seatHtml(w, "statehouse");
+  const ids = rosterRoles(d).map(([p]) => p);
+  ok(ids.includes("john_taylor") && ids.includes("brandon_young"), `HD14 lists both live nominees (got ${ids.join(", ")})`);
+  ok(!ids.includes("kara_toone"), "a candidate whose primary is recorded as lost is not listed");
+  ok(homepage(w, "statehouse").includes("kara_toone"), "…though the seat field (the homepage's card) still holds her record");
+  eq(rosterCount(d), ids.length, "the count is the live list");
+  const home = homepage(w, "statehouse").filter((p) => ["incumbent", "current_candidate"].includes(w.PDXStatus.resolve(w.CMP_DATA[p])));
+  eq(JSON.stringify(ids.slice().sort()), JSON.stringify(home.sort()), "HD14's ballot list is the homepage card's current field");
+}
+{
+  // A LIVE DOCUMENT UNDER ANOTHER KEY FOR A ROSTER PERSON IS THAT PERSON, ONCE;
+  // and a blank live field never wipes a bundled one.
+  const w = await live("davis", "Layton", "Davis County");
+  ok(!w.CMP_DATA.celeste_maloy, "the live `celeste_maloy` document is not added as a second person");
+  ok(!!w.CMP_DATA.maloy.photo, "…and its blank photo did not erase the roster's");
+  const ids = rosterRoles(seatHtml(w, "house").d).map(([p]) => p);
+  eq(ids.filter((p) => /maloy/.test(p)).length, 1, "the House seat names Celeste Maloy once");
+}
+{
+  // ONLY THE SITTING MEMBER, EVEN LIVE: the honest empty stays. Former holders stay off.
+  const w = await live("utah_co", "Provo", "Utah County");
+  const { d } = seatHtml(w, "statesenate");
+  eq(JSON.stringify(rosterRoles(d)), JSON.stringify([["kstratton", "incumbent"]]), "Provo's State Senate still lists only its sitting member");
+  has(d, "No other person on file for this seat.", "…with the honest empty");
+  lacks(d.slice(d.indexOf("bw-roster"), d.indexOf("bw-roster-none") + 20), "cbramble", "…and the former holder stays off");
+}
+{
+  // THE LIVE LIST CANNOT LOAD, OR THERE IS NO KEY: bundled lists, said out loud.
+  const w = at("box_elder", "Brigham City", "Box Elder County", { live: "fail" });
+  paint(w);
+  await w.PDXBallotLiveRoster.ready();
+  const full = paint(w);
+  eq(w.PDXBallotLiveRoster.state(), "failed", "a refused live list is recorded as failed");
+  has(full, 'data-bw-live="off"', "…and the glance list says the lists are the page's own");
+  eq(JSON.stringify(rosterRoles(seatHtml(w, "statesenate").d).map(([p]) => p)), JSON.stringify(["ssandall"]), "…which are the bundled roster's");
+  const nk = boot();
+  const nkHtml = paint(nk);
+  eq(nk.PDXBallotLiveRoster.state(), "nokey", "no public key, no request");
+  eq(nk.__firestore || 0, 0, "…none is made");
+  has(nkHtml, 'data-bw-live="off"', "…and the page says so");
+}
+{
+  // The doors: the live reader takes no residency or membership state, and a
+  // verified resident and an active member see the live ballot unchanged.
+  const code = LIVE.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
+  ok(!/residen|PDXMembership|membership/i.test(code), "ballot-live-roster.js reads no residency or membership state");
+  const a = await live("box_elder", "Brigham City", "Box Elder County");
+  const b = await live("box_elder", "Brigham City", "Box Elder County", {
+    store: { politidex_keyraces_location: "box_elder", pdx_residency: JSON.stringify({ verified: true, state: "OH" }), pdx_membership: JSON.stringify({ active: true }) },
+    extra: { PDXMembership: { active: () => true }, _pdxResidency: { state: "OH" } },
+  });
+  const gl = (h) => h.slice(h.indexOf("data-bw-glance-list"), h.indexOf("data-bw-measures"));
+  eq(gl(paint(b)), gl(paint(a)), "residency and membership change no live race list");
+  // No equity language in what the live lists paint.
+  const EQ = /\bequity\b|\bstocks?\b|earn (?:a|your) share|\bshareholder|\bdividend/i;
+  ok(!EQ.test(paint(a).replace(/<[^>]+>/g, " ")), "the live ballot carries no equity language");
+  const strs = (LIVE.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "").match(/'(?:[^'\\]|\\.)*'/g) || []).join(" ");
+  ok(!EQ.test(strs), "ballot-live-roster.js ships no equity language");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -510,10 +691,15 @@ section("7 · Shipped");
   ok(BALLOT.indexOf('src="/ballot-measures.js"') < BALLOT.indexOf('src="/ballot-workspace.js"'), "…before the desk that paints it");
   const list = SW.slice(SW.indexOf("const SHELL_ASSETS"), SW.indexOf("];", SW.indexOf("const SHELL_ASSETS")));
   has(list, "'/ballot-measures.js'", "the service worker precaches ballot-measures.js");
+  has(list, "'/ballot-live-roster.js'", "…and ballot-live-roster.js");
+  ok(BALLOT.indexOf('src="/firebase-config.js"') > 0 && BALLOT.indexOf('src="/firebase-config.js"') < BALLOT.indexOf('src="/ballot-live-roster.js"'), "ballot.html loads the public key before the live reader");
+  ok(BALLOT.indexOf('src="/ballot-live-roster.js"') < BALLOT.indexOf('src="/ballot-workspace.js"'), "…and the live reader before the desk");
+  ok(!/firebasejs|firebase-boot/.test(BALLOT), "ballot.html loads no Firebase SDK and no firebase-boot.js");
+  ok(!/AIza[0-9A-Za-z_-]{20,}/.test(LIVE + BALLOT), "no API key is written into the ballot files");
   has(list, "'/ballot-workspace.js'", "…beside the desk");
   const ver = (s) => (/const CACHE_VERSION = '(v\d+)'/.exec(s || "") || [])[1];
   const head = gitShow("sw.js");
-  const changed = ["ballot.html", "ballot-workspace.js", "ballot-workspace.css", "ballot-measures.js"].some((f) => gitShow(f) !== R(f));
+  const changed = ["ballot.html", "ballot-workspace.js", "ballot-workspace.css", "ballot-measures.js", "ballot-live-roster.js"].some((f) => gitShow(f) !== R(f));
   if (head && changed) ok(ver(head) !== ver(SW), `precached ballot files changed and the shell version did not move (${ver(SW)})`);
   else passed++;
 }

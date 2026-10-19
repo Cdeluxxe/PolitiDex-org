@@ -506,3 +506,5 @@ a.bw-cand-name:hover, a.bw-cand-name:focus-visible { color: #93c5fd; text-decora
 .bw-glance-t:hover, .bw-glance-t:focus-visible { text-decoration: underline; }
 .bw-glance-names .bw-cand-name { font-size: 0.8rem; }
 .bw-glance .bw-elect { margin-top: 0.3rem; }
+.bw-live { font-size: 0.74rem; color: #8fa2bd; margin: 0.2rem 0 0; }
+.bw-live.is-off { font-style: italic; }

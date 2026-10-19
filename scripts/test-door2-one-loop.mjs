@@ -72,7 +72,7 @@ const FILES = [
   "acct-spotlight-data.js", "say-vs-do.js", "exec-action-data.js", "exec-record.js",
   "exec-record-ui.js", "consistency.js", "voting-record.js", "word-action.js",
   "profile-spine.js", "issue-colors.js", "my-stances.js", "voter-hub-location.js",
-  "compare-hub.js", "seat-field.js", "ballot-breakdown.js", "who-represents-me.js",
+  "roster-keys.js", "compare-hub.js", "seat-field.js", "ballot-breakdown.js", "who-represents-me.js",
   "person-file.js", "person-link.js",
 ];
 const TAIL = ["race-sheet.js", "ballot-workspace.js"];

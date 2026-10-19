@@ -743,6 +743,28 @@
       'No election date on file' + (e.label ? ' \u00b7 <span data-bw-elect-label>' + esc(e.label) + '</span>' : '') + '</p>';
   }
 
+  // ── WHERE THE NAMES COME FROM ─────────────────────────────────────────────
+  // ballot-live-roster.js reads the live candidate profiles the homepage reads.
+  // Until it lands, or if it cannot, the lists are the bundled roster's, and
+  // this line says so rather than letting a short list read as the whole field.
+  function liveState() {
+    try {
+      var L = window.PDXBallotLiveRoster;
+      return (L && typeof L.ensure === 'function') ? L.ensure() : 'absent';
+    } catch (e) { return 'absent'; }
+  }
+  function liveNote() {
+    var st = liveState();
+    if (st === 'loading' || st === 'idle') {
+      return '<p class="bw-live" data-bw-live="loading">Loading the live candidate profiles\u2026</p>';
+    }
+    if (st === 'failed' || st === 'nokey') {
+      return '<p class="bw-live is-off" data-bw-live="off">The live candidate profiles could not be loaded, ' +
+        'so each race lists only the people this page carries.</p>';
+    }
+    return '';
+  }
+
   // ── EVERY SEAT AT A GLANCE ────────────────────────────────────────────────
   // The desk opens one seat; this lists all of them, so a reader can scan the
   // whole ballot — who is on file and when each is decided — without opening
@@ -773,6 +795,7 @@
     }).join('');
     return '<section class="bw-glance" data-bw-glance-list aria-labelledby="bw-glance-h">' +
       '<h4 class="bw-m-title" id="bw-glance-h">Every seat at a glance</h4>' +
+      liveNote() +
       '<ul class="bw-glance-ul">' + rows + '</ul></section>';
   }
 

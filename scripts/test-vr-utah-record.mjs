@@ -1018,10 +1018,12 @@ has(stateBlock, "WAF", "the note names the fetch obstacle, so the next person do
 // contains 'senate' and not 'state', so the Utah Senate's presiding officer was
 // classifying as a U.S. senator and appearing under "U.S. Senate · Utah".
 section("No plausible strangers in the browse");
-has(HUB, "!o.includes('senate president')",
-  "compare-hub.js keeps a state presiding officer out of the federal Senate bucket");
-const senClause = HUB.slice(HUB.indexOf("// Federal Senate —"),
-  HUB.indexOf("return 'senator';") + 20);
+// The chamber classifier lives in roster-keys.js now (compare-hub.js delegates).
+const KEYS = R("roster-keys.js");
+has(KEYS, "!o.includes('senate president')",
+  "roster-keys.js keeps a state presiding officer out of the federal Senate bucket");
+const senClause = KEYS.slice(KEYS.indexOf("// Federal Senate —"),
+  KEYS.indexOf("return 'senator';") + 20);
 must(senClause.length > 100, "could not isolate the federal Senate clause");
 has(senClause, "!o.includes('state')", "the federal Senate clause still excludes 'state'");
 

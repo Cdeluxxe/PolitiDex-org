@@ -731,6 +731,9 @@ const VERIFIED_OPTS = { uid: "u_7", loc: { state: "Utah", city: "Layton", county
     // The first-visit coach rode in behind first-run.js on the same line (v375);
     // that is a script tag, not money markup.
     .replace('<script defer src="/first-visit-coach.js"></script>', "")
+    // The shared roster keyers rode in ahead of compare-hub.js on the same line
+    // (v413); that is a script tag, not money markup.
+    .replace('<script src="/roster-keys.js"></script>', "")
     // The disclosures block later carried the range-band graph (v350/v351), and
     // its year drawing (v352/v353): the renderer, its call inside the on-file
     // branch, its export, and its rules in finance-lane.css. That is the disclosure block's own graph, not pill markup;
