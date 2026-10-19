@@ -10141,7 +10141,20 @@
 //     entries. No row, line, weight, primary flag, pole or issue key moved.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v409';
+// v410 - THE BALLOT NAMES ITS MEASURES. The ballot workspace now lists, under
+//     its seats, the statewide questions the reader's saved location puts on
+//     the ballot (ballot-measures.js): each with its official wording, its
+//     ballot page, the topics its record is mapped to, the archive's
+//     plain-language summary (or the honest "No plain-language summary on file
+//     yet"), and, where its text was voted on more than once, a link to the
+//     bill page's History fold (/b/<sitting>/<number>#history). Location alone
+//     decides the list; residency and membership are not read. ballot.html,
+//     ballot-workspace.js and ballot-workspace.css are precached and changed,
+//     and ballot-measures.js joins the precache, so the shell moves one
+//     version; bill-detail.js (which now honours #history) is a runtime entry.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v410';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -10673,6 +10686,10 @@ const SHELL_ASSETS = [
   // every fact it prints — offline with one and not the other, the mount paints
   // nothing at all.
   '/ballot-workspace.js',
+  // The measures the reader's location puts on the ballot, painted by the desk
+  // under its seats. Precached with the desk: offline without it the desk still
+  // paints, with no measures section.
+  '/ballot-measures.js',
   // The stance studio: the self-tutorial on /my-stances for a reader with
   // nothing on file, and the library of held positions for a reader who has
   // something. It replaces door2-first-run.js, which did the first half of that

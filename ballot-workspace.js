@@ -1156,6 +1156,17 @@
     return '';
   }
 
+  // ── The measures on the same ballot ───────────────────────────────────────
+  // ballot-measures.js owns them: which ones the reader's location puts on the
+  // ballot, their topics, their summary and their History link. This desk only
+  // gives them a place under the seats. No module, no section.
+  function measuresHtml() {
+    try {
+      var M = window.PDXBallotMeasures;
+      return (M && typeof M.html === 'function') ? (M.html() || '') : '';
+    } catch (e) { return ''; }
+  }
+
   function sync() {
     var mount = document.getElementById(MOUNT_ID);
     if (!mount) return;
@@ -1228,7 +1239,8 @@
         progHtml +
       '</div>' +
       '<div class="bw-body">' + railHtml(list, seat ? seat.key : '') +
-        (seat ? deskHtml(seat, list, r) : '') + '</div>';
+        (seat ? deskHtml(seat, list, r) : '') + '</div>' +
+      measuresHtml();
     revealSeat(host, seat ? seat.key : '', railWas);
     try { mount.setAttribute('data-located', '1'); } catch (e) {}
   }

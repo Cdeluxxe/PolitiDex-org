@@ -866,6 +866,23 @@
     out += sameTextHtml(String(sitting) + '|' + number);
     return out ? '<div class="bd-official" data-bd-official-for="' + escAttr(sitting + '|' + number) + '">' + out + '</div>' : '';
   }
+  // ── #history: A LINK THAT ASKS FOR THE SAME-TEXT HISTORY ────────────────
+  // The ballot's measure entries link to /b/<sitting>/<number>#history. On the
+  // bill document that address opens the panel (an explicit ask, unlike a bare
+  // arrival, which still leaves the document as the page) and, once the
+  // official block lands, opens the History fold and brings it into view.
+  // Asked once: a later open of the same panel is the reader's own.
+  var _wantHistory = false;
+  function openHistoryIfAsked(seam) {
+    if (!_wantHistory) return;
+    _wantHistory = false;
+    try {
+      var f = seam.querySelector('[data-bd-same-fold="history"]');
+      if (!f) return;
+      f.open = true;
+      if (typeof f.scrollIntoView === 'function') f.scrollIntoView({ block: 'start' });
+    } catch (e) {}
+  }
   // Fill the panel's seam for the bill now on screen. The table may still be on
   // its way; when it lands the seam is filled only if the same bill is still open.
   // Sponsors the record block already links are not repeated in the
@@ -883,6 +900,7 @@
       var html = officialHtml(docs[key], String(cur.sitting || cur.congress || ''), cur.number);
       if (!html) return;
       seam.innerHTML = html;
+      openHistoryIfAsked(seam);
       var linked = {};
       var as = seam.querySelectorAll('[data-bd-official-sponsor]');
       for (var i = 0; i < as.length; i++) linked[as[i].getAttribute('data-bd-official-sponsor')] = 1;
@@ -2516,7 +2534,16 @@
     open(b.number, b.sitting, opts || { arrival: true });
     return true;
   }
-  function route() { if (!routeHash()) routePath(); }
+  function routeHistory() {
+    if (!onOwnDocument() || String(location.hash || '') !== '#history') return false;
+    var b = pathBill();
+    if (!b) return false;
+    try { if (document.querySelector('[data-pdx-bill-empty]')) return false; } catch (e) {}
+    _wantHistory = true;
+    open(b.number, b.sitting, { arrival: true });
+    return true;
+  }
+  function route() { if (!routeHash() && !routeHistory()) routePath(); }
   window.addEventListener('hashchange', routeHash);
   // Back and Forward. A /b/ entry this panel pushed reopens its bill; stepping
   // off one closes the panel without writing to the bar the browser just moved.
