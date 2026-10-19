@@ -15926,5 +15926,111 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "party": "Constitution", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
   "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
+ },
+// ── Federal third-party and independent nominees, batch 1, 2026 general election (Oct 2026)
+// Independent, Libertarian and Constitution nominees on the November 3, 2026
+// ballot for U.S. House and U.S. Senate seats the roster already covers, per
+// Ballotpedia's 2026 general-election candidate lists and the states' own
+// filings. Users in these districts saw only the major-party field. Same shape
+// as the Utah batches above: identity rows only — office, district and party as
+// filed, `score` null, an empty ledger, `issues` empty rather than guessed.
+// A single-district state is stored as district 1, the number the location
+// resolver gives an at-large seat; the office label still says AL. Write-in
+// and disqualified filers are not nominees and are not here.
+ // ID-2 · Libertarian
+ "will_johanson": {
+  "name": "Will Johanson", "office": "U.S. House Candidate (ID-2)",
+  "state": "Idaho", "district": "2",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CO-3 · Libertarian
+ "cory_robertson": {
+  "name": "Cory Robertson", "office": "U.S. House Candidate (CO-3)",
+  "state": "Colorado", "district": "3",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // AZ-1 · Libertarian
+ "monica_alponte": {
+  "name": "Monica Alponte", "office": "U.S. House Candidate (AZ-1)",
+  "state": "Arizona", "district": "1",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WY-AL · Libertarian
+ "shawn_johnson": {
+  "name": "Shawn Johnson", "office": "U.S. House Candidate (WY-AL)",
+  "state": "Wyoming", "district": "1",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WY-AL · Constitution
+ "jeff_haggit": {
+  "name": "Jeffrey Haggit", "office": "U.S. House Candidate (WY-AL)",
+  "state": "Wyoming", "district": "1",
+  "party": "Constitution", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MO-1 · Libertarian
+ "tom_schmitz": {
+  "name": "Tom Schmitz", "office": "U.S. House Candidate (MO-1)",
+  "state": "Missouri", "district": "1",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MO-2 · Libertarian
+ "brandon_daugherty": {
+  "name": "Brandon Daugherty", "office": "U.S. House Candidate (MO-2)",
+  "state": "Missouri", "district": "2",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // AK-AL · Independent
+ "bill_hill": {
+  "name": "Bill Hill", "office": "U.S. House Candidate (AK-AL)",
+  "state": "Alaska", "district": "1",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // ID-1 · Independent
+ "sarah_zabel": {
+  "name": "Sarah Zabel", "office": "U.S. House Candidate (ID-1)",
+  "state": "Idaho", "district": "1",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Nebraska U.S. Senate · Independent
+ "dan_osborn": {
+  "name": "Dan Osborn", "office": "U.S. Senate Candidate",
+  "state": "Nebraska",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // South Dakota U.S. Senate · Independent
+ "brian_bengs": {
+  "name": "Brian Bengs", "office": "U.S. Senate Candidate",
+  "state": "South Dakota",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Idaho U.S. Senate · Independent
+ "todd_achilles": {
+  "name": "Todd Achilles", "office": "U.S. Senate Candidate",
+  "state": "Idaho",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
  }
 });

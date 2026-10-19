@@ -733,6 +733,120 @@ for (const c of UT_THIRD) {
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
+section("2g · Federal third-party and independent nominees, batch 1: each on its own seat");
+// Twelve identity-only rows on U.S. House and U.S. Senate seats outside Utah that
+// the roster already covers. Each is reached by a reader whose map pin carries
+// the state and the congressional district; a single-district state's district
+// is 1, the number the resolver gives an at-large seat. Bundled roster only.
+const fed = (state, cd, extra) => boot(Object.assign({ location: { state, district: String(cd) } }, extra || {}));
+const FED_THIRD = [
+  ["will_johanson", "house", "Idaho", 2, "Libertarian", ["Idaho", 1]],
+  ["cory_robertson", "house", "Colorado", 3, "Libertarian", ["Colorado", 5]],
+  ["monica_alponte", "house", "Arizona", 1, "Libertarian", ["Arizona", 2]],
+  ["shawn_johnson", "house", "Wyoming", 1, "Libertarian", ["Montana", 1]],
+  ["jeff_haggit", "house", "Wyoming", 1, "Constitution", ["Montana", 1]],
+  ["tom_schmitz", "house", "Missouri", 1, "Libertarian", ["Missouri", 2]],
+  ["brandon_daugherty", "house", "Missouri", 2, "Libertarian", ["Missouri", 1]],
+  ["bill_hill", "house", "Alaska", 1, "Independent", ["Washington", 1]],
+  ["sarah_zabel", "house", "Idaho", 1, "Independent", ["Idaho", 2]],
+  ["dan_osborn", "senate", "Nebraska", 2, "Independent", ["Iowa", 2]],
+  ["brian_bengs", "senate", "South Dakota", 1, "Independent", ["North Dakota", 1]],
+  ["todd_achilles", "senate", "Idaho", 1, "Independent", ["Montana", 1]],
+].map(([pid, seat, state, dist, party, nb]) => ({ pid, seat, state, dist, party, nb }));
+const FED_KIND = { house: "representative", senate: "senator" };
+{
+  const w0 = boot();
+  for (const c of FED_THIRD) {
+    const r = w0.CMP_DATA[c.pid];
+    if (!ok(!!r, `${c.pid} has a roster row`)) continue;
+    eq(r.party, c.party, `${c.pid}: party label`);
+    eq(w0._pdxBrowseType(c.pid), FED_KIND[c.seat], `${c.pid}: office title keys to the right chamber`);
+    eq(w0._pdxBrowseStateOf(c.pid), c.state, `${c.pid}: state`);
+    eq(w0._pdxRelevantDistNum(c.pid), c.seat === "house" ? c.dist : null, `${c.pid}: district`);
+    eq(w0.PDXStatus.resolve(r), "current_candidate", `${c.pid}: a current-cycle candidate`);
+    eq(r.nextElection, "2026-11-03", `${c.pid}: the November 3 election date`);
+    eq(r.score, null, `${c.pid}: no score`);
+    eq(r.kept + r.broken + r.pending, 0, `${c.pid}: an empty ledger`);
+    eq((r.issues || []).length, 0, `${c.pid}: no issue keys`);
+  }
+}
+const fedCache = {};
+for (const c of FED_THIRD) {
+  const k = c.seat + c.state + c.dist;
+  if (!fedCache[k]) {
+    const w = fed(c.state, c.dist, { noLive: true });
+    const sf = w.pdxSeatField(c.seat);
+    const { d, g } = seatHtml(w, c.seat);
+    const h = fed(c.state, c.dist, { homepage: true, noLive: true });
+    const hsf = h.pdxSeatField(c.seat);
+    const card = (hsf && hsf.answerable ? hsf.pids : []).filter((p) => ["incumbent", "current_candidate"].includes(h.PDXStatus.resolve(h.CMP_DATA[p] || {})));
+    fedCache[k] = { sf, d, g, card, roles: rosterRoles(d), holders: (sf && sf.holders) || [] };
+    const s = fedCache[k];
+    ok(!!(sf && sf.answerable), `${c.state} ${c.seat}${c.seat === "house" ? " District " + c.dist : ""} is answerable (${sf && sf.reason})`);
+    if (c.seat === "house") eq(sf && sf.district, c.dist, `the ${c.state} reader's House seat is District ${c.dist}`);
+    eq(rosterCount(d), s.roles.length, `${c.state} ${c.seat}: the count is the list`);
+    lacks(d, "data-bw-roster-none", `${c.state} ${c.seat} does not print the honest empty`);
+    ok(s.roles.some(([, role]) => role === "incumbent"), `${c.state} ${c.seat}: the sitting member is still listed as incumbent`);
+    eq(JSON.stringify(s.roles.map(([p]) => p).slice().sort()), JSON.stringify(card.slice().sort()), `${c.state} ${c.seat}: /ballot lists the homepage card's people`);
+  }
+  const s = fedCache[k];
+  ok(s.roles.some(([p, role]) => p === c.pid && role === "candidate"), `${c.state} ${c.seat} lists ${c.pid} as a candidate (got ${s.roles.map((x) => x.join(":")).join(", ")})`);
+  ok(!s.holders.includes(c.pid), `${c.pid} is not resolved as holding the seat`);
+  has(s.d, `href="/p/${c.pid}" data-pdx-person-link="${c.pid}"`, `${c.pid} links to /p/`);
+  has(s.g, `href="/p/${c.pid}"`, `…and at a glance`);
+  ok(s.card.includes(c.pid), `the homepage card for ${c.state} ${c.seat} holds ${c.pid}`);
+  // AND NOT A NEIGHBOURING ONE: the next district over, or the next state over for a statewide or at-large seat.
+  const n = fed(c.nb[0], c.nb[1], { noLive: true });
+  ok(!rosterRoles(seatHtml(n, c.seat).d).some(([p]) => p === c.pid), `${c.pid} is not on ${c.nb[0]} ${c.seat} ${c.nb[1]}`);
+  ok(!(n.pdxSeatField(c.seat).pids || []).includes(c.pid), `…nor in that seat's field`);
+}
+{
+  // A SENATE CANDIDATE IS NOT A THIRD SENATOR. Each state's two sitting senators
+  // still resolve, and none of the nominees is named as the reader's senator.
+  const w = boot();
+  for (const st of ["Nebraska", "South Dakota", "Idaho"]) {
+    const s = w._pdxStatewideSeats(st);
+    eq(s.ambiguous, false, `${st}: the Senate seats are not called ambiguous`);
+    eq(s.senators.length, 2, `${st}: both sitting senators still resolve`);
+    ok(!s.senators.some((p) => FED_THIRD.some((c) => c.pid === p)), `${st}: no nominee is named a sitting senator`);
+  }
+  // Nor is a House nominee the reader's member: Wyoming and Alaska still resolve their own.
+  eq(w._pdxUsHouseSeat("Wyoming", "1"), "harriet_hageman", "WY-AL still resolves Harriet Hageman");
+  eq(w._pdxUsHouseSeat("Alaska", "1"), "nicholas_begich", "AK-AL still resolves Nicholas Begich");
+  eq(w._pdxUsHouseSeat("Idaho", "2"), "mike_simpson", "ID-2 still resolves Mike Simpson");
+}
+{
+  // A SEAT WITH ONLY ITS SITTING MEMBER STILL SAYS SO: Arizona's District 2, beside AZ-1.
+  const w = fed("Arizona", 2, { noLive: true });
+  const { d } = seatHtml(w, "house");
+  eq(rosterRoles(d).length, 1, "AZ-2 still lists only its sitting member");
+  has(d, "No other person on file for this seat.", "…with the honest empty");
+}
+{
+  // LOCATION DECIDES; residency and membership change nothing; no equity language.
+  const doors = { noLive: true, store: { pdx_residency: JSON.stringify({ verified: true, state: "OH" }), pdx_membership: JSON.stringify({ active: true }) },
+    extra: { PDXMembership: { active: () => true }, _pdxResidency: { state: "OH" } } };
+  for (const seat of ["house", "senate"]) {
+    const a = fed("Idaho", 1, { noLive: true }), b = fed("Idaho", 1, doors);
+    eq(seatHtml(b, seat).d, seatHtml(a, seat).d, `residency and membership change no Idaho ${seat} race list`);
+  }
+  for (const [st, cd] of [["Ohio", 3], ["Utah", 1]]) {
+    const o = boot({ location: { state: st, district: String(cd) }, noLive: true });
+    let all = "";
+    for (const s of SEATS) { o.pdxBallotWorkspaceOpen(s.key); all += paint(o); }
+    ok(!FED_THIRD.some((c) => all.indexOf(`/p/${c.pid}"`) >= 0), `a ${st} reader in District ${cd} is shown none of them`);
+  }
+  const EQ = /\bequity\b|\bstocks?\b|earn (?:a|your) share|\bshareholder|\bdividend/i;
+  let html = "";
+  for (const k of Object.keys(fedCache)) html += fedCache[k].d + fedCache[k].g;
+  ok(!EQ.test(html.replace(/<[^>]+>/g, " ")), "the federal race lists carry no equity language");
+  const w0 = boot();
+  ok(!EQ.test(FED_THIRD.map((c) => JSON.stringify(w0.CMP_DATA[c.pid])).join(" ")), "the twelve roster rows carry no equity language");
+  // The Utah batches are where they were.
+  ok(UT_THIRD.every((c) => w0._pdxRelevantDistNum(c.pid) === c.dist && w0.CMP_DATA[c.pid].party === c.party), "the Utah third-party rows are unchanged");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
 section("2c · Election timing: stored, or honestly absent");
 {
   // A seat with no stored date says so, and prints no countdown. Provo's U.S.

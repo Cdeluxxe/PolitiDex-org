@@ -10245,7 +10245,18 @@
 //     No score, no Direction Match figure, no new key.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v417';
+// v418 - FEDERAL THIRD-PARTY AND INDEPENDENT NOMINEES, BATCH 1. cmp-data.js
+//     gains twelve identity-only roster rows: nine U.S. House nominees (ID-1,
+//     ID-2, CO-3, AZ-1, WY-AL, MO-1, MO-2, AK-AL) and three U.S. Senate
+//     independents (Nebraska, South Dakota, Idaho), keyed by office, state and
+//     district so the shared seat field places each on their own seat on
+//     /ballot and the homepage. voter-hub-location.js (runtime-cached, not
+//     precached) stops counting a "U.S. Senate Candidate" as a sitting senator,
+//     which would have made three Senate records and blanked both real seats.
+//     cmp-data.js is precached and changed, so the shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v418';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

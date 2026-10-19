@@ -3205,6 +3205,24 @@ export const DECLARED_ADMISSIONS = [
     banner: "// ── Utah House third-party and unaffiliated nominees, wave 3, 2026 general election (Oct 2026)",
     pids: ["jonathan_garrard", "sergio_sotelo", "jennifer_doud", "russ_hatch", "sonya_ray", "april_pinkston"],
   },
+  {
+    wave: "federal_third_party_b1_oct2026",
+    banner: "// ── Federal third-party and independent nominees, batch 1, 2026 general election (Oct 2026)",
+    pids: [
+      "will_johanson",
+      "cory_robertson",
+      "monica_alponte",
+      "shawn_johnson",
+      "jeff_haggit",
+      "tom_schmitz",
+      "brandon_daugherty",
+      "bill_hill",
+      "sarah_zabel",
+      "dan_osborn",
+      "brian_bengs",
+      "todd_achilles",
+    ],
+  },
 ];
 /**
  * DECLARED STANCE PASSES — people whose curated stance list a pass rewrote ON

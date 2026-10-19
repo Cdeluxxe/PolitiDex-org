@@ -218,6 +218,21 @@ const ADDED = {
   russ_hatch: "Constitution nominee, Utah State House Candidate (District 66)",
   sonya_ray: "Constitution nominee, Utah State House Candidate (District 68)",
   april_pinkston: "Constitution nominee, Utah State House Candidate (District 72)",
+
+  // October 2026 federal third-party and independent nominees, batch 1: same
+  // shape, same reason, on U.S. House and U.S. Senate seats outside Utah.
+  will_johanson: "Libertarian nominee, U.S. House Candidate (ID-2)",
+  cory_robertson: "Libertarian nominee, U.S. House Candidate (CO-3)",
+  monica_alponte: "Libertarian nominee, U.S. House Candidate (AZ-1)",
+  shawn_johnson: "Libertarian nominee, U.S. House Candidate (WY-AL)",
+  jeff_haggit: "Constitution nominee, U.S. House Candidate (WY-AL)",
+  tom_schmitz: "Libertarian nominee, U.S. House Candidate (MO-1)",
+  brandon_daugherty: "Libertarian nominee, U.S. House Candidate (MO-2)",
+  bill_hill: "Independent nominee, U.S. House Candidate (AK-AL)",
+  sarah_zabel: "Independent nominee, U.S. House Candidate (ID-1)",
+  dan_osborn: "Independent nominee, U.S. Senate Candidate (Nebraska)",
+  brian_bengs: "Independent nominee, U.S. Senate Candidate (South Dakota)",
+  todd_achilles: "Independent nominee, U.S. Senate Candidate (Idaho)",
 };
 // ── The same allowance, at roster-wave scale, sourced instead of typed ───────
 // ADDED above works because each entry is a line a reviewer reads. A FEDERAL roster wave

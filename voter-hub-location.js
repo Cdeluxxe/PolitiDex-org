@@ -2239,6 +2239,10 @@
     if (/\bstate\s+senat/i.test(o)) return false;
     if (/^(utah|ut)\s+senate\b/i.test(o)) return false;
     if (/\bformer\b/i.test(o)) return false;
+    // A challenger is not a senator. "U.S. Senate Candidate" names the seat being
+    // sought, and counting it here made a third Senate record in the state, so the
+    // walk refused both real seats as ambiguous. Same rule as _pdxIsUsRepOffice.
+    if (/\bcandidate\b|\bnominee\b/i.test(o)) return false;
     // Then let the federal chamber in: the plain title, the four elected floor
     // leaders, and the committee chairs / ranking members that only U.S. Senators
     // hold. Every one of these is a seat in the United States Senate.
