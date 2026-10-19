@@ -32,6 +32,7 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { execFileSync } from "node:child_process";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { DECLARED_ADMISSION_PIDS } from "./v103-chrome-seams.mjs";
 import { CJ_SEAMS_ALL as CJ_SEAMS, SH_SEAMS, WA_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam,
   assertWordActionSeams, assertParentTableIsTheOnlyMove, deOrigin } from "./v103-chrome-seams.mjs";
 
@@ -140,8 +141,9 @@ let CMP = null;
   CMP = win.CMP_DATA || null;
   if (ok(!!CMP, "CMP_DATA did not boot")) {
     // 1108 after R1; 1120 after R2 added the twelve mapped-but-rosterless members
-    // (scripts/test-vr-federal-roster-r2.mjs owns that count and its arithmetic).
-    eq(Object.keys(CMP).length, 1120, "the roster is not the size this wave leaves it");
+    // (scripts/test-vr-federal-roster-r2.mjs owns that count and its arithmetic),
+    // plus the admissions later waves declared by name in v103-chrome-seams.mjs.
+    eq(Object.keys(CMP).length, 1120 + DECLARED_ADMISSION_PIDS.length, "the roster is not the size this wave and the declared admissions after it leave it");
 
     // Every admission has a file. The IDENTITY-ONLY rule binds the 307 rows this wave
     // CREATED — it cannot bind the 8 that reused a file that already existed and already

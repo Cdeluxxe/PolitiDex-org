@@ -41,6 +41,7 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { execFileSync } from "node:child_process";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { DECLARED_ADMISSION_PIDS } from "./v103-chrome-seams.mjs";
 import { buildCrawlRecord } from "./gen-crawl-record.mjs";
 import { CJ_SEAMS_ALL as CJ_SEAMS, SH_SEAMS, WA_SEAMS, PF_SEAMS, carveSeams, assertConsistencySeams,
   assertStanceHelpersSeam, assertWordActionSeams, assertPublicationFloorSeams,
@@ -58,6 +59,9 @@ const HEAD = (f) => {
 
 const WAVE = "federal_roster_r2_sep2026";
 const ROSTER_SIZE = 1120;          // 1108 after R1 + the twelve below
+// The roster today: this wave's size plus every admission a later wave declared
+// by name (scripts/v103-chrome-seams.mjs DECLARED_ADMISSIONS).
+const ROSTER_NOW = ROSTER_SIZE + DECLARED_ADMISSION_PIDS.length;
 const HOUSE_ADMITTED = 9;
 const SENATE_ADMITTED = 3;
 
@@ -95,7 +99,7 @@ let CMP = null;
 }
 
 if (ok(!!CMP, "CMP_DATA did not boot")) {
-  eq(Object.keys(CMP).length, ROSTER_SIZE, "the roster is not the size this wave leaves it");
+  eq(Object.keys(CMP).length, ROSTER_NOW, "the roster is not the size this wave and the declared admissions after it leave it");
 
   // EXACTLY ONE ROW EACH. A roster key cannot literally repeat — an object literal with a
   // duplicate key keeps the last one silently — so "exactly one" is checked the way a
@@ -583,7 +587,9 @@ section("6 · no Direction Match or formal-brief drift — twin boot, HEAD vs th
     // themselves are then checked by NAME against the roster this tree ships, which
     // is the claim the count was standing in for and the one that does not expire.
     const fresh = ADM.filter((a) => !head.CMP_DATA[a.slug]);
-    eq(Object.keys(work.CMP_DATA || {}).length, PIDS.length + fresh.length,
+    // A later wave's declared admissions (by name) are the only other growth allowed.
+    const later = DECLARED_ADMISSION_PIDS.filter((p) => !head.CMP_DATA[p] && work.CMP_DATA[p]);
+    eq(Object.keys(work.CMP_DATA || {}).length, PIDS.length + fresh.length + later.length,
       `the roster did not grow by exactly the ${fresh.length} of this wave's ${ADM.length} admissions HEAD was missing`);
     eq(PIDS.filter((p) => !work.CMP_DATA[p]).length, 0, "the wave dropped someone HEAD had");
     eq(ADM.filter((a) => !work.CMP_DATA[a.slug]).map((a) => a.slug).join(", "), "",

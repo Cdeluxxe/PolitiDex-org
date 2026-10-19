@@ -10205,7 +10205,19 @@
 //     the precache, so the shell moves one version.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v413';
+// v414 - DAVIS COUNTY THIRD-PARTY NOMINEES. cmp-data.js gains roster rows for
+//     five Forward / Constitution nominees on Davis-area legislative seats
+//     (SD-6 Josh Smith, SD-7 Jeffrey Ostler, HD-6 James Rich, HD-8 Libby
+//     Shelton, HD-13 Tony De Mille), keyed by office, state and district so the
+//     shared seat field places each on its seat on /ballot and the homepage.
+//     AND ONE GATE. ballot-workspace.js treated a district seat with a known
+//     number but no seated-member entry (HD-8, HD-13) as "not mapped" and
+//     painted no field; such a seat now lists the people on its roster key,
+//     and the fact line names the incumbent the list names ("on file as").
+//     cmp-data.js and ballot-workspace.js are precached and changed, so the
+//     shell moves one version. No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v414';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

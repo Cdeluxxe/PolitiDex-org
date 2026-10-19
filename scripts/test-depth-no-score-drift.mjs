@@ -171,6 +171,16 @@ const ADDED = {
   mark_wheatley:     "HD-35 — 2023GS and 2024GS committee votes were parsed and dropped for want of a roster record",
   jacob_anderegg:    "SD-22 seated 2023 only; heidi_balderree holds the seat — 2023GS committee votes were parsed and dropped for want of a roster record",
   quinn_kotter:      "HD-26 seated 2023 only; matt_macpherson holds the seat — 2023GS committee votes were parsed and dropped for want of a roster record",
+
+  // October 2026 Davis County third-party nominees. Five Forward / Constitution
+  // nominees on the November 3, 2026 ballot whose seats' race lists showed only
+  // the major-party field. Identity-only: score null, kept/broken/pending 0, no
+  // issues. See the comment block in cmp-data.js.
+  josh_smith:     "SD-6 Forward nominee — the race list held his opponents and not him",
+  jeffrey_ostler: "SD-7 Constitution nominee — the race list held his opponents and not him",
+  james_rich:     "HD-6 Forward nominee — the race list held only the sitting member",
+  libby_shelton:  "HD-8 Forward nominee — the race list held only the sitting member",
+  tony_de_mille:  "HD-13 Forward nominee — the race list held his opponents and not him",
 };
 // ── The same allowance, at roster-wave scale, sourced instead of typed ───────
 // ADDED above works because each entry is a line a reviewer reads. A FEDERAL roster wave

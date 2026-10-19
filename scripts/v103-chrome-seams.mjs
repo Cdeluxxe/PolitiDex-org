@@ -3150,9 +3150,51 @@ const isSubsequence = (small, big) => {
  * the line rather than the file. Callers: F10, F11 and the All-Seeing Eye's
  * record-first suite, each of which boots this file to measure something else.
  */
+/**
+ * DECLARED ADMISSIONS — roster rows a wave admitted ON PURPOSE, by name.
+ *
+ * The office-only check below exists so an admission never arrives as a side
+ * effect. A wave whose product IS an admission declares it here: the comment
+ * banner its block opens with and the exact pids the block holds. The block is
+ * carved out of both sides before the walk, and only when its pid keys are
+ * exactly the declared ones — a sixth row slipped into it is not carved, so it
+ * still fails as an undeclared admission. Roster-size pins
+ * (test-vr-federal-roster-r1/r2) count these too.
+ */
+export const DECLARED_ADMISSIONS = [
+  {
+    wave: "davis_third_party_oct2026",
+    banner: "// ── Davis County third-party nominees, 2026 general election (Oct 2026)",
+    pids: ["josh_smith", "jeffrey_ostler", "james_rich", "libby_shelton", "tony_de_mille"],
+  },
+];
+export const DECLARED_ADMISSION_PIDS = DECLARED_ADMISSIONS.flatMap((d) => d.pids);
+const ROSTER_KEY = /^\s*"([a-z0-9_]+)":\s*\{$/gm;
+// The source with every declared admission block removed. Each block is the
+// banner up to the next banner or the file's close; the comma that joined it to
+// the row before goes with it.
+export function carveDeclaredAdmissions(src) {
+  let out = String(src);
+  for (const d of DECLARED_ADMISSIONS) {
+    const at = out.indexOf(d.banner);
+    if (at < 0) continue;
+    const nextBanner = out.indexOf("\n// ── ", at + d.banner.length);
+    const close = out.lastIndexOf("\n});");
+    const end = nextBanner > at ? nextBanner : close;
+    const block = out.slice(at, end);
+    const keys = [...block.matchAll(ROSTER_KEY)].map((m) => m[1]).sort();
+    if (keys.join(",") !== d.pids.slice().sort().join(",")) continue;
+    const start = out.lastIndexOf(",\n", at) === at - 2 ? at - 2 : at;
+    out = out.slice(0, start) + (nextBanner > at && start === at - 2 ? "," : "") + out.slice(end);
+  }
+  return out;
+}
+
 export function assertRosterOfficeIsTheOnlyMove(api, headSrc, treeSrc, allowed, wave) {
   const { ok, eq } = api;
   const tag = wave ? `${wave}: ` : "";
+  headSrc = carveDeclaredAdmissions(headSrc);
+  treeSrc = carveDeclaredAdmissions(treeSrc);
   // THE PORTRAIT FIELD IS NOT IDENTITY. The one-portrait pass (v294) put each
   // person's `photo` on their roster row, one line per row, and later passes may
   // add one where a face is found. A `"photo": "https://…"` line admits nobody
@@ -3164,7 +3206,7 @@ export function assertRosterOfficeIsTheOnlyMove(api, headSrc, treeSrc, allowed, 
   const b = String(treeSrc).split("\n").filter((l) => !PHOTO.test(l));
   // A tree whose only move is portraits takes the unmoved file's short path: no
   // office was corrected, and no waiver is being spent.
-  if (a.join("\n") === b.join("\n")) { ok(true, `${tag}cmp-data.js moved in its portrait field only`); return; }
+  if (a.join("\n") === b.join("\n")) { ok(true, `${tag}cmp-data.js moved in its portrait field and declared admissions only`); return; }
   if (!eq(b.length, a.length,
     `${tag}cmp-data.js gained or lost lines — an office correction rewrites one value in place, and a ` +
     "roster that changed length has admitted or dropped somebody")) return;

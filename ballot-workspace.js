@@ -395,7 +395,19 @@
     // A district seat is gated on its own level resolving, not on the state-wide
     // districtsResolvable flag, so one unmapped seat cannot silence a mapped one.
     var district = hold.filter(function (lv) { return !lv.statewide; });
-    if (district.length && !district.some(function (lv) { return lv.resolved; })) return 'district';
+    // A level resolves when the resolver names its holder — or when the reader's
+    // district NUMBER is known and the roster holds people on that exact key.
+    // HD-8 and HD-13 have a number and a field but no entry in the seated-member
+    // table, and "not mapped for your area" was false of them: the district is
+    // mapped, only its holder lookup is missing. onFile() takes the incumbent
+    // from the field when the resolver names none.
+    var keyed = function () {
+      try {
+        var sf = fn('pdxSeatField') ? window.pdxSeatField(seat.key) : null;
+        return !!(sf && sf.answerable && sf.district != null && sf.pids.length);
+      } catch (e) { return false; }
+    };
+    if (district.length && !district.some(function (lv) { return lv.resolved || (lv.district && keyed()); })) return 'district';
     return 'ok';
   }
 
@@ -603,6 +615,16 @@
           '<span><b>' + n + '</b> local seat' + (n === 1 ? '' : 's') + ' on file for ' + esc(cov.area || 'your area') + '</span></span>';
       }
       return '';
+    }
+    // A DISTRICT SEAT THE RESOLVER NAMES NOBODY FOR, whose roster key files a
+    // sitting member: the same "on file as" words as a local seat, because it is
+    // the same kind of claim — about our file, not the resolver's answer.
+    var fh = (gate === 'ok') ? (onFile(seat, r, gate).holders[0] || null) : null;
+    if (fh) {
+      return '<span class="bw-fact"><span aria-hidden="true">\u{1F3DB}</span>' +
+        '<span>On file as holding this seat: <b>' +
+        candOpen(fh, ' style="font-size:0.8rem;" aria-label="Open ' + esc(nameOf(fh)) + '’s full record"') +
+        esc(nameOf(fh)) + candClose(fh) + '</b></span></span>';
     }
     return '<span class="bw-fact"><span aria-hidden="true">\u{1F3DB}</span>' +
       '<span>No current officeholder resolved for this seat</span></span>';

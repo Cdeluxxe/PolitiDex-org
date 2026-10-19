@@ -520,6 +520,109 @@ function homepageCard(area, city, county, key) {
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
+section("2e · Davis County third-party nominees: the full field, on /ballot and the homepage");
+// Five Forward / Constitution nominees filed in the bundled roster for their exact
+// Davis-area seat. A Layton reader works SD-6, a Brigham City reader HD-6; the
+// other three seats are reached by a reader whose map pin carries the numbers.
+// No live list (it is rate-limited in production as often as not): the bundled
+// rows alone must fill the field, on both documents.
+const pinned = (sd, hd, extra) => boot(Object.assign({ location: { state: "Utah", stateSenateDistrict: String(sd), stateHouseDistrict: String(hd) } }, extra || {}));
+const DAVIS_THIRD = [
+  { pid: "josh_smith", seat: "statesenate", dist: 6, party: "Forward", reader: (x) => at("davis", "Layton", "Davis County", x) },
+  { pid: "jeffrey_ostler", seat: "statesenate", dist: 7, party: "Constitution", reader: (x) => pinned(7, 13, x) },
+  { pid: "james_rich", seat: "statehouse", dist: 6, party: "Forward", reader: (x) => at("box_elder", "Brigham City", "Box Elder County", x) },
+  { pid: "libby_shelton", seat: "statehouse", dist: 8, party: "Forward", reader: (x) => pinned(3, 8, x) },
+  { pid: "tony_de_mille", seat: "statehouse", dist: 13, party: "Forward", reader: (x) => pinned(7, 13, x) },
+];
+{
+  const w0 = boot();
+  for (const c of DAVIS_THIRD) {
+    const r = w0.CMP_DATA[c.pid];
+    ok(!!r, `${c.pid} has a roster row`);
+    if (!r) continue;
+    eq(r.party, c.party, `${c.pid}: party label`);
+    eq(w0._pdxBrowseType(c.pid), c.seat === "statesenate" ? "state_senator" : "state_rep", `${c.pid}: office title keys to the right chamber`);
+    eq(w0._pdxRelevantDistNum(c.pid), c.dist, `${c.pid}: district`);
+    eq(w0.PDXStatus.resolve(r), "current_candidate", `${c.pid}: a current-cycle candidate`);
+    eq(r.score, null, `${c.pid}: no score`);
+    eq((r.issues || []).length, 0, `${c.pid}: no issue keys`);
+  }
+  // Each row keys to its own district and no other.
+  for (const c of DAVIS_THIRD) {
+    const other = c.dist === 6 ? 9 : 6;
+    const w = c.seat === "statesenate" ? pinned(other, 1) : pinned(1, other);
+    ok(!rosterRoles(seatHtml(w, c.seat).d).some(([p]) => p === c.pid), `${c.pid} is not on ${c.seat} District ${other}`);
+  }
+}
+for (const c of DAVIS_THIRD) {
+  const w = c.reader({ noLive: true });
+  const sf = w.pdxSeatField(c.seat);
+  eq(sf && sf.district, c.dist, `${c.pid}: the reader's ${c.seat} seat is District ${c.dist}`);
+  const { d, g } = seatHtml(w, c.seat);
+  const roles = rosterRoles(d);
+  ok(roles.some(([p, role]) => p === c.pid && role === "candidate"), `${c.seat} District ${c.dist} lists ${c.pid} as a candidate (got ${roles.map((x) => x.join(":")).join(", ")})`);
+  has(d, `href="/p/${c.pid}" data-pdx-person-link="${c.pid}"`, `${c.pid} links to /p/`);
+  has(g, `href="/p/${c.pid}"`, `…and at a glance`);
+  eq(rosterCount(d), roles.length, `${c.pid}: the count is the list`);
+  lacks(d, "data-bw-roster-none", `${c.seat} District ${c.dist} does not print the honest empty`);
+  lacks(d, "District not mapped for your area", `${c.seat} District ${c.dist} is not called unmapped`);
+  if (d.indexOf("Holds this seat now:") < 0) {
+    const inc = (roles.find(([, role]) => role === "incumbent") || [])[0];
+    ok(!inc || d.indexOf(`On file as holding this seat: <b><a class="bw-cand-name" href="/p/${inc}"`) >= 0, `${c.seat} District ${c.dist}: the fact line names the incumbent the list names`);
+    lacks(d, "No current officeholder resolved", `${c.seat} District ${c.dist}: no fact line contradicts the listed incumbent`);
+  }
+  // The homepage's race card for the same seat, on its own keyers.
+  const h = c.reader({ homepage: true, noLive: true });
+  const hsf = h.pdxSeatField(c.seat);
+  const card = (hsf && hsf.answerable ? hsf.pids : []).filter((p) => ["incumbent", "current_candidate"].includes(h.PDXStatus.resolve(h.CMP_DATA[p] || {})));
+  ok(card.includes(c.pid), `the homepage card for ${c.seat} District ${c.dist} holds ${c.pid}`);
+  eq(JSON.stringify(roles.map(([p]) => p).slice().sort()), JSON.stringify(card.slice().sort()), `${c.seat} District ${c.dist}: /ballot lists the homepage card's people`);
+}
+{
+  // SD-6 BESIDE THE MAJOR-PARTY NOMINEES: the live profiles hold Tran and Neal;
+  // Josh Smith is there with them, once, even when a live document for him lands.
+  const docs = {
+    tami_tran: { name: "Tami Tran", office: "Utah Senate candidate, District 6", party: "Republican", state: "Utah", candidacyStatus: "active" },
+    jared_neal: { name: "Jared Neal", office: "Utah Senate candidate, District 6", party: "Democrat", state: "Utah", candidacyStatus: "active" },
+    josh_smith: { name: "Josh Smith", office: "Utah Senate candidate, District 6", party: "", state: "Utah" },
+  };
+  const w = at("davis", "Layton", "Davis County", { live: docs });
+  paint(w);
+  await w.PDXBallotLiveRoster.ready();
+  const ids = rosterRoles(seatHtml(w, "statesenate").d).map(([p]) => p);
+  ok(["tami_tran", "jared_neal", "josh_smith"].every((p) => ids.includes(p)), `SD-6 lists Josh Smith alongside the major-party candidates (got ${ids.join(", ")})`);
+  eq(ids.filter((p) => p === "josh_smith").length, 1, "…once");
+  eq(w.CMP_DATA.josh_smith.party, "Forward", "…and a blank live party does not erase his label");
+}
+{
+  // A SEAT WITH ONLY ITS SITTING MEMBER KEEPS THE HONEST EMPTY.
+  const w = at("clearfield", "Clearfield", "Davis County", { noLive: true });
+  const { d } = seatHtml(w, "statesenate");
+  eq(rosterRoles(d).length, 1, "Clearfield's SD-5 still lists only its sitting member");
+  has(d, "No other person on file for this seat.", "…with the honest empty");
+}
+{
+  // LOCATION DECIDES; residency and membership change nothing.
+  const a = at("davis", "Layton", "Davis County", { noLive: true });
+  const b = at("davis", "Layton", "Davis County", {
+    noLive: true,
+    store: { politidex_keyraces_location: "davis", pdx_residency: JSON.stringify({ verified: true, state: "OH" }), pdx_membership: JSON.stringify({ active: true }) },
+    extra: { PDXMembership: { active: () => true }, _pdxResidency: { state: "OH" } },
+  });
+  eq(seatHtml(b, "statesenate").d, seatHtml(a, "statesenate").d, "residency and membership change no Davis race list");
+  const oh = boot({ location: { state: "Ohio", city: "Columbus", county: "Franklin County" }, noLive: true });
+  let all = "";
+  for (const s of SEATS) { oh.pdxBallotWorkspaceOpen(s.key); all += paint(oh); }
+  ok(!DAVIS_THIRD.some((c) => all.indexOf(`/p/${c.pid}"`) >= 0), "an Ohio reader is shown none of them");
+  const EQ = /\bequity\b|\bstocks?\b|earn (?:a|your) share|\bshareholder|\bdividend/i;
+  let davis = "";
+  for (const c of DAVIS_THIRD) { const w = c.reader({ noLive: true }); davis += seatHtml(w, c.seat).full; }
+  ok(!EQ.test(davis.replace(/<[^>]+>/g, " ")), "the Davis race lists carry no equity language");
+  const rows = DAVIS_THIRD.map((c) => JSON.stringify(a.CMP_DATA[c.pid])).join(" ");
+  ok(!EQ.test(rows), "the five roster rows carry no equity language");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
 section("2c · Election timing: stored, or honestly absent");
 {
   // Nothing on /ballot stores a date today: every seat says so, and prints no countdown.
@@ -699,7 +802,7 @@ section("7 · Shipped");
   has(list, "'/ballot-workspace.js'", "…beside the desk");
   const ver = (s) => (/const CACHE_VERSION = '(v\d+)'/.exec(s || "") || [])[1];
   const head = gitShow("sw.js");
-  const changed = ["ballot.html", "ballot-workspace.js", "ballot-workspace.css", "ballot-measures.js", "ballot-live-roster.js"].some((f) => gitShow(f) !== R(f));
+  const changed = ["ballot.html", "ballot-workspace.js", "ballot-workspace.css", "ballot-measures.js", "ballot-live-roster.js", "cmp-data.js"].some((f) => gitShow(f) !== R(f));
   if (head && changed) ok(ver(head) !== ver(SW), `precached ballot files changed and the shell version did not move (${ver(SW)})`);
   else passed++;
 }

@@ -15611,5 +15611,54 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "state": "Oklahoma",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
+ },
+// ── Davis County third-party nominees, 2026 general election (Oct 2026) ─────
+// Forward and Constitution Party nominees on the November 3, 2026 ballot for
+// five Davis-area legislative seats, per the Utah Lt. Governor's 2026 candidate
+// filings (https://vote.utah.gov/2026-candidate-filings/). The live profiles
+// held their major-party opponents but not them, so the /ballot race list and
+// the homepage race card showed a partial field for each seat. Identity rows
+// only: office, district and party as filed. `score` is null and the ledger
+// is zero because no promise record exists for any of them; `issues` is empty
+// rather than guessed. Josh Smith keeps his existing `josh_smith` stance key.
+ // SD-6 · Forward · faces Tami Tran (R) and Jared Neal (D)
+ "josh_smith": {
+  "name": "Josh Smith", "office": "Utah State Senate Candidate (District 6)",
+  "state": "Utah", "district": "6",
+  "party": "Forward", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SD-7 · Constitution · faces Stephanie Hollist (R) and Garret Rushforth (D)
+ "jeffrey_ostler": {
+  "name": "Jeffrey Ostler", "office": "Utah State Senate Candidate (District 7)",
+  "state": "Utah", "district": "7",
+  "party": "Constitution", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-6 · Forward
+ "james_rich": {
+  "name": "James Rich", "office": "Utah State House Candidate (District 6)",
+  "state": "Utah", "district": "6",
+  "party": "Forward", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-8 · Forward
+ "libby_shelton": {
+  "name": "Libby Shelton", "office": "Utah State House Candidate (District 8)",
+  "state": "Utah", "district": "8",
+  "party": "Forward", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-13 · Forward · faces Erik Craythorne (R) and Jeffrey Anderson (D)
+ "tony_de_mille": {
+  "name": "Tony De Mille", "office": "Utah State House Candidate (District 13)",
+  "state": "Utah", "district": "13",
+  "party": "Forward", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
  }
 });
