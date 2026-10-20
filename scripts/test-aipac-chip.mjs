@@ -9,12 +9,16 @@
 //   4. The scorecard side only counts roll calls already in the archive.
 //   5. No other letterhead chip changes: the two money mounts are untouched and
 //      still adjacent, and the AIPAC mount sits after them, before the party.
-//   6. The shipped scorecard table is empty and every shipped filing reads
-//      "No AIPAC file on hand" — no relationship is invented.
+//   6. The shipped data invents no relationship: every scorecard row passes the
+//      gate and names a roll call the archive's vote seeds carry (same chamber,
+//      congress, session, roll number and bill), and no shipped donor row reads
+//      as AIPAC-affiliated.
+//   7. Three or more scored votes read from the scorecard and name it; fewer
+//      stay on the unchanged empty state.
 //
 //   node scripts/test-aipac-chip.mjs
 
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
@@ -27,6 +31,7 @@ const PFF = R("profiles-full.js");
 let passed = 0;
 const failures = [];
 const ok = (c, m) => { if (c) passed++; else failures.push(m); };
+const eq = (a, b, m) => ok(a === b, `${m} — expected ${JSON.stringify(b)}, got ${JSON.stringify(a)}`);
 const section = (t) => console.log(`\n   ── ${t}`);
 const visible = (h) => String(h).replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 const aria = (h) => ((/aria-label="([^"]*)"/.exec(String(h)) || [])[1] || "").replace(/&#39;/g, "'");
@@ -42,6 +47,18 @@ function boot({ filings = {}, records = {} } = {}) {
   vm.runInNewContext(SRC, win, { filename: "pdx-aipac.js" });
   return win;
 }
+
+// An archive vote item, the shape voting-record.mts emits, and the scorecard
+// row that names the same roll call.
+const vote = (roll, position, extra = {}) => ({
+  kind: "vote", chamber: "house", congress: 119, session: 1, rollNumber: roll,
+  number: "H.R. " + (100 + roll), position, ...extra,
+});
+const row = (roll, position = "support") => ({
+  chamber: "house", congress: 119, session: 1, rollNumber: roll,
+  measure: "H.R. " + (100 + roll), position, source: "https://www.aipac.org/",
+});
+const CARD = [1, 2, 3, 4, 5].map((i) => row(i));
 
 const BACKED = {
   topDonors: [
@@ -84,10 +101,13 @@ section("2 · no AIPAC data → No AIPAC file on hand");
 
 section("3 · never a dollar amount or a percentage");
 {
-  const recs = { s: [1, 2, 3, 4, 5].map((i) => ({ rollcallId: "rc" + i, position: "yea" })) };
+  const recs = {
+    s: [1, 2, 3, 4, 5].map((i) => vote(i, "yea")),
+    m: [1, 2, 3, 4, 5].map((i) => vote(i, i % 2 ? "yea" : "nay")),
+  };
   const w = boot({ filings: { a: BACKED, o: OLD, n: NONE }, records: recs });
-  w.PDXAipac.SCORECARD.push(...[1, 2, 3, 4, 5].map((i) => ({ rollcallId: "rc" + i, position: "yea", source: "https://www.aipac.org/" })));
-  for (const pid of ["a", "o", "n", "s", "nobody"]) {
+  w.PDXAipac.SCORECARD.push(...CARD);
+  for (const pid of ["a", "o", "n", "s", "m", "nobody"]) {
     const html = w.PDXAipac.chipMount(pid);
     const text = visible(html) + " " + aria(html);
     ok(!/\$|%|\bpercent\b|\d/i.test(text), `${pid}: the chip prints a figure: ${text}`);
@@ -96,18 +116,28 @@ section("3 · never a dollar amount or a percentage");
 
 section("4 · the scorecard counts only formal acts already in the archive");
 {
-  const card = [1, 2, 3, 4, 5].map((i) => ({ rollcallId: "rc" + i, position: "yea", source: "https://www.aipac.org/" }));
-  const mk = (positions) => positions.map((p, i) => ({ rollcallId: "rc" + (i + 1), position: p }));
+  const mk = (positions) => positions.map((p, i) => vote(i + 1, p));
   const w = boot({ records: {
     hi: mk(["yea", "yea", "yea", "yea", "nay"]),
     lo: mk(["yea", "nay", "nay", "yea", "nay"]),
     thin: mk(["yea", "yea"]),
-    other: [{ rollcallId: "elsewhere", position: "yea" }],
+    other: [vote(40, "yea"), vote(41, "yea"), vote(42, "yea")],
+    // Same roll numbers, wrong bill / wrong congress / not a vote: not the act.
+    wrongbill: [1, 2, 3].map((i) => vote(i, "yea", { number: "H.R. 9999" })),
+    oldcong: [1, 2, 3].map((i) => vote(i, "yea", { congress: 118 })),
+    cosponsor: [1, 2, 3].map((i) => vote(i, "yea", { kind: "position" })),
+    // A motion to table: nay is the vote that backs the act.
+    inverted: [1, 2, 3].map((i) => vote(i, "nay", { advanceInverted: true })),
   } });
-  ok(w.PDXAipac.read("hi").state === "empty", "an empty shipped scorecard produced a read");
-  w.PDXAipac.SCORECARD.push(...card);
-  ok(w.PDXAipac.scorecardDefects(card).length === 0, "valid scorecard rows were flagged");
-  ok(w.PDXAipac.scorecardDefects([{ rollcallId: "", position: "maybe" }]).length >= 2, "invalid scorecard rows passed");
+  ok(w.PDXAipac.read("hi").state === "empty", "an empty scorecard produced a read");
+  w.PDXAipac.SCORECARD.push(...CARD);
+  ok(w.PDXAipac.scorecardDefects(CARD).length === 0, `valid scorecard rows were flagged: ${w.PDXAipac.scorecardDefects(CARD)}`);
+  ok(w.PDXAipac.scorecardDefects([{ chamber: "joint", congress: 118, position: "yea" }]).length >= 5, "invalid scorecard rows passed");
+  ok(w.PDXAipac.scorecardDefects([row(1), row(1)]).some((d) => /duplicate/.test(d)), "a duplicate roll call passed");
+  for (const pid of ["wrongbill", "oldcong", "cosponsor"]) ok(w.PDXAipac.read(pid).state === "empty", `${pid}: counted as a scored formal act`);
+  ok(w.PDXAipac.read("inverted").state === "backed", "an advance-inverted roll call was not flipped");
+  w.PDXAipac.SCORECARD.push(row(6, "oppose"));
+  ok(w.PDXAipac.read("hi").state === "backed", "an oppose row changed an unrelated read");
   const hi = w.PDXAipac.chipHtml("hi");
   ok(w.PDXAipac.read("hi").state === "backed" && /AIPAC scorecard/.test(aria(hi)), "a matching record is not AIPAC-backed with the scorecard named");
   ok(/pdxsec-voting/.test(hi), "a scorecard-only chip does not open the voting record");
@@ -139,12 +169,47 @@ section("5 · the letterhead: other chips untouched, AIPAC after the money, befo
 section("6 · shipped data invents no relationship");
 {
   const w = boot();
-  ok(w.PDXAipac.SCORECARD.length === 0, "the shipped scorecard is not empty");
+  const SHIPPED = w.PDXAipac.SCORECARD;
+  ok(w.PDXAipac.scorecardDefects(SHIPPED).length === 0, `shipped scorecard rows fail the gate: ${w.PDXAipac.scorecardDefects(SHIPPED)}`);
+  // Every shipped row is an existing formal act: a roll call one of the
+  // archive's JSON vote seeds carries — same chamber, congress, session, roll
+  // number AND bill. Deliberately the conservative half of the archive: a roll
+  // call seeded only in SQL fails here until it is checked by hand, which is the
+  // direction to fail in.
+  const norm = (m) => String(m || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const ARCHIVE = new Set();
+  for (const f of readdirSync(join(ROOT, "db")).filter((f) => /vote-seed.*\.json$/.test(f))) {
+    for (const v of JSON.parse(R("db/" + f)).votes || []) {
+      ARCHIVE.add([v.chamber, v.congress, v.session, v.rollNumber, norm(v.measure && v.measure.number)].join("|"));
+    }
+  }
+  ok(ARCHIVE.size > 100, "the archive's vote seeds were not read");
+  for (const r of SHIPPED) {
+    const k = [r.chamber, r.congress, r.session, r.rollNumber, norm(r.measure)].join("|");
+    ok(ARCHIVE.has(k), `scorecard row ${k} is not a formal act in the archive`);
+  }
   // Every shipped donor name, run through the affiliation filter.
   const names = [...R("ftm-data.js").matchAll(/\{\s*name:'([^']+)',\s*amount:/g)].map((m) => m[1]);
   ok(names.length > 20, "the shipped donor rows were not found");
   const hits = names.filter((n) => w.PDXAipac.isAffiliated(n));
   ok(hits.length === 0, `shipped donor rows read as AIPAC-affiliated: ${hits.join(", ")}`);
+}
+
+section("7 · three scored votes read from the scorecard, fewer stay empty");
+{
+  const w = boot({ records: {
+    three: [1, 2, 3].map((i) => vote(i, "yea")),
+    two: [1, 2].map((i) => vote(i, "yea")),
+  } });
+  w.PDXAipac.SCORECARD.push(...CARD);
+  const three = w.PDXAipac.chipHtml("three");
+  ok(!/data-pdx-aipac-state="empty"/.test(three), "three scored votes still read empty");
+  ok(/AIPAC scorecard/.test(aria(three)) && /AIPAC scorecard/.test(visible(three)), "a scorecard read does not name the scorecard");
+  const two = w.PDXAipac.chipHtml("two");
+  ok(/data-pdx-aipac-state="empty"/.test(two), "two scored votes produced a read");
+  // The empty-state wording, pinned word for word.
+  eq(visible(two), "💰 No AIPAC file on hand", "empty-state visible text");
+  eq(aria(two), "AIPAC relationship: No AIPAC file on hand. No AIPAC or AIPAC-affiliated PAC receipts in the OpenSecrets or FEC data on file, and no AIPAC scorecard votes mapped to this archive. This is not a finding that there is no relationship.", "empty-state accessible name");
 }
 
 console.log(`\n   ${passed} passed, ${failures.length} failed`);

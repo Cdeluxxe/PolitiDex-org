@@ -10386,7 +10386,17 @@
 //     No dollar figure, no percentage, no score, no new key.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v431';
+// v432 - THE AIPAC SCORECARD IS KEYED TO THE ARCHIVE'S OWN ROLL-CALL IDENTITY.
+//     pdx-aipac.js's scorecard table now names a roll call by chamber, congress,
+//     session, roll number and bill, and records AIPAC's stance as support or
+//     oppose, instead of keying on the archive's database serial. The table is
+//     still empty: AIPAC publishes no vote scorecard for the 119th Congress, so
+//     there is nothing of its own to transcribe. pdx-aipac.js is precached and
+//     changed. The chip's text and accessible name are unchanged.
+//     No dollar figure, no percentage, no score, no new key.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v432';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

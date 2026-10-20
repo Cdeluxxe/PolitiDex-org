@@ -26,12 +26,22 @@
         files.
 
      2. AIPAC SCORECARDS. SCORECARD is AIPAC's own published position per roll
-        call for the current Congress, keyed by an archive rollcallId. A row only
-        counts for a person when that roll call is ALREADY a formal act in their
-        voting record (PDXVotingRecord.memberRecords) with a yea or nay. Nothing
-        here creates a vote. The table ships EMPTY: transcribing AIPAC's
-        scorecard against archive ids is its own hand-verified wave, and until it
-        runs, the scorecard side answers "nothing on file" for everybody.
+        call for the current Congress, keyed by the archive's identity for that
+        roll call: chamber, congress, session, roll number, and the bill it
+        voted on. A row only counts for a person when that roll call is ALREADY
+        a formal act in their voting record (PDXVotingRecord.memberRecords) with
+        a yea or nay. Nothing here creates a vote.
+
+        THE TABLE IS STILL EMPTY, AND THAT IS A FACT ABOUT AIPAC, NOT A BACKLOG.
+        A fill pass (October 2026) went looking for the scorecard to transcribe
+        and found that AIPAC publishes none: no key-vote list, no member ratings,
+        no roll-call positions on aipac.org. Its bill-summary pages describe a
+        handful of 119th-Congress bills favourably without stating "supports"
+        or naming a vote, and none of those bills is in the archive. The
+        scorecards that do exist for this Congress (USCPR, IMEU, AJP, Track
+        AIPAC) are other organisations' readings, and printing one as "AIPAC
+        scorecard" would put words in AIPAC's mouth. So: no rows until AIPAC
+        itself publishes a position on a roll call the archive carries.
 
    WHAT IT NEVER PRINTS. No dollar figure, no percentage, no score, no count — in
    the visible text or in the accessible name. The chip names a relationship and
@@ -68,8 +78,13 @@
   var MIN_SCORED = 3;
 
   // AIPAC's published scorecard for the current Congress, one row per scored
-  // roll call: { rollcallId, position: 'yea'|'nay', source }. rollcallId must be
-  // an id the voting-record archive already carries. EMPTY ON PURPOSE — see the
+  // roll call:
+  //   { chamber: 'house'|'senate', congress: 119, session: 1|2, rollNumber,
+  //     measure: 'H.R. 23', position: 'support'|'oppose', source: 'https://…' }
+  // `position` is AIPAC's stance on the ACT; the matching vote is yea for
+  // support and nay for oppose, flipped on a roll call the archive marks as
+  // advance-inverted (a motion to table, say). Not the archive's database id:
+  // that is a serial number, and it does not survive a reseed. EMPTY — see the
   // header. scorecardDefects() is the gate a curator's rows must pass.
   var SCORECARD = [];
 
@@ -85,16 +100,30 @@
     return false;
   }
 
+  // "H.R. 23", "HR23", "h.r.23" → "hr23". The archive item carries its bill
+  // as `number`; both sides are reduced the same way before comparing.
+  function normMeasure(m) {
+    return String(m || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  }
+  function rowKey(r) {
+    return [r.chamber, r.congress, r.session, r.rollNumber].join('|');
+  }
+
   function scorecardDefects(rows) {
     var out = [];
     var seen = {};
     (rows || []).forEach(function (r, i) {
       var at = 'row ' + i;
       if (!r || typeof r !== 'object') { out.push(at + ': not an object'); return; }
-      if (!r.rollcallId || typeof r.rollcallId !== 'string') out.push(at + ': no archive rollcallId');
-      else if (seen[r.rollcallId]) out.push(at + ': duplicate rollcallId ' + r.rollcallId);
-      else seen[r.rollcallId] = true;
-      if (r.position !== 'yea' && r.position !== 'nay') out.push(at + ': position must be yea or nay');
+      if (r.chamber !== 'house' && r.chamber !== 'senate') out.push(at + ': chamber must be house or senate');
+      if (String(r.congress) !== CONGRESS) out.push(at + ': not the current Congress');
+      if (r.session !== 1 && r.session !== 2) out.push(at + ': session must be 1 or 2');
+      if (!(r.rollNumber > 0) || Math.floor(r.rollNumber) !== r.rollNumber) out.push(at + ': no roll number');
+      if (!normMeasure(r.measure)) out.push(at + ': no bill number');
+      var k = rowKey(r);
+      if (seen[k]) out.push(at + ': duplicate roll call ' + k);
+      seen[k] = true;
+      if (r.position !== 'support' && r.position !== 'oppose') out.push(at + ': position must be support or oppose');
       if (!/^https:\/\//.test(String(r.source || ''))) out.push(at + ': no https source');
     });
     return out;
@@ -137,13 +166,18 @@
     var items = VR && typeof VR.memberRecords === 'function' ? VR.memberRecords(pid) : null;
     if (!items || !items.length) return null;
     var want = {};
-    SCORECARD.forEach(function (r) { want[r.rollcallId] = r.position; });
+    SCORECARD.forEach(function (r) { want[rowKey(r)] = r; });
     var scored = 0, matched = 0;
     items.forEach(function (it) {
-      var pos = it && want[it.rollcallId];
-      if (!pos || (it.position !== 'yea' && it.position !== 'nay')) return;
+      if (!it || it.kind !== 'vote' || String(it.congress) !== CONGRESS) return;
+      var row = want[rowKey(it)];
+      if (!row || (it.position !== 'yea' && it.position !== 'nay')) return;
+      // Same roll call AND same bill, or it is not the act AIPAC scored.
+      if (normMeasure(it.number) !== normMeasure(row.measure)) return;
+      var aligned = row.position === 'support' ? 'yea' : 'nay';
+      if (it.advanceInverted) aligned = aligned === 'yea' ? 'nay' : 'yea';
       scored++;
-      if (it.position === pos) matched++;
+      if (it.position === aligned) matched++;
     });
     if (scored < MIN_SCORED) return null;
     return { state: matched / scored >= BACKED_SHARE ? 'backed' : 'mixed', source: 'AIPAC scorecard' };
