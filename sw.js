@@ -10415,7 +10415,17 @@
 //     No dollar figure, no percentage, no score, no new key.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v434';
+// v435 - THE AIPAC CHIP GAINS A MONEY SIDE FOR THE WHOLE ROSTER. pdx-aipac.js
+//     carries a generated table (scripts/gen-aipac-pac.mjs) of AIPAC PAC's own
+//     direct contributions reported to the FEC (C00797670, type 24K, earmarks
+//     excluded), netted over the current cycles: 351 roster people with a net
+//     above zero read AIPAC-backed, and the chip names "Reported AIPAC PAC
+//     contributions (FEC)". The IMEU vote rows are unchanged. pdx-aipac.js is
+//     precached and changed.
+//     No dollar figure, no percentage, no score, no new key.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v435';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
