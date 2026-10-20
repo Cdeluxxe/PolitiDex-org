@@ -10289,7 +10289,20 @@
 //     pick them up. No score, no Direction Match figure, no new key.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v422';
+// v423 - /find: A DEVICE FIX SETS THE DISTRICTS OR OFFERS ONE BUTTON. find.html
+//     (precached) used to leave the info line on "No State House district
+//     selected yet" whenever the phone's accuracy circle crossed a line or was
+//     too wide, with nothing to press but the pin. A tight fix still commits all
+//     three seats at once; any other accepted fix keeps the pin and shows
+//     "📍 Use this location" directly under the map, which is a map tap at the
+//     pin (tapAt → resolveAllAt → selectDistrict, the one writer). The info line
+//     reads "Location found — use this location" from the moment the fix is
+//     accepted until it is used or replaced. Address search and map taps are
+//     unchanged and retire a waiting point. find.html is precached and changed,
+//     so the shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v423';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

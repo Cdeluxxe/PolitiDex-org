@@ -857,6 +857,8 @@
           text-transform:uppercase;color:#fff;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.22);border-radius:999px;
           padding:0.05rem 0.5rem;margin-left:0.15rem;transition:all 0.15s ease;}
         .pdx-result-altbtn:hover{background:rgba(255,255,255,0.22);border-color:rgba(255,255,255,0.4);}
+        .pdx-map-detect-use{margin:0.55rem 0 0;}
+        .pdx-map-detect-use .pdx-map-result-use{width:100%;}
         .pdx-map-result-use{flex-shrink:0;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.05em;
           text-transform:uppercase;font-size:0.82rem;color:#062018;border:none;border-radius:0.65rem;padding:0.6rem 0.95rem;min-height:46px;
           background:linear-gradient(135deg,#34d399,#22d3ee);box-shadow:0 5px 18px rgba(52,211,153,0.34);transition:transform 0.15s ease,box-shadow 0.2s ease,opacity 0.2s ease;white-space:nowrap;}
@@ -1124,6 +1126,14 @@
               <div id="pdx-map-status-text">Loading Utah district boundaries…</div>
             </div>
           </div>
+          <!-- USE THIS LOCATION. Shown once the phone's point is on the map and has
+               not been committed (its circle was too wide, crossed a line, or the
+               check is still running). The press is a map tap at the pin — same
+               resolver, same writer — so the reader never has to find the pin. -->
+          <div id="pdx-map-detect-use" class="pdx-map-detect-use" style="display:none;">
+            <button type="button" id="pdx-map-detect-use-btn" class="pdx-map-result-use"
+                    onclick="window.pdxMapUseDetected&amp;&amp;window.pdxMapUseDetected()">📍 Use this location</button>
+          </div>
           <div class="pdx-map-foot">
             <p class="pdx-map-hint" id="pdx-map-hint">Showing <strong style="color:#cfe0f7;">State House</strong> districts — search your address or tap the area where you live.</p>
             <div id="pdx-map-info" class="pdx-map-info">
@@ -1291,6 +1301,7 @@
     var _detectCircle = null;                          // the phone's accuracy circle, when drawn
     var _detectCommit = false;                         // a detect point is being committed
     var _placedThisVisit = false;                      // a tap or an address placed a point here
+    var _detectPending = null;                         // a phone point on the map, not yet used
     var SEARCH_DEADLINE_MS = 12000;                    // one ceiling over a whole search
     // WHOSE LINES ARE LOADED. Utah by default, and deliberately so: this document
     // opens with a location record that may be empty, the Utah legislative layers
@@ -1884,6 +1895,7 @@
       // tap is the reader's answer, and from here on Detect will not move it.
       _placedThisVisit = true;
       clearDetectCircle();
+      clearDetectPending();
 
       // A load is already on the wire. The pin has moved, which is the whole of
       // what this tap can honestly change until that load lands.
@@ -2215,7 +2227,8 @@
             (utahScope() ? 'the 2026 map' : escapeHtml(_scopeState) + '’s district lines') + '</span>';
         } else {
           panel.classList.remove('is-set');
-          val.textContent = 'Search your address, or tap your area, for your U.S. House district';
+          val.textContent = _detectPending ? DETECT_FOUND
+            : 'Search your address, or tap your area, for your U.S. House district';
         }
         return;
       }
@@ -2228,7 +2241,10 @@
       } else {
         panel.classList.remove('is-set');
         if (ico) ico.textContent = '📍';
-        val.textContent = 'No ' + LABEL[_activeLayer] + ' district selected yet';
+        // A phone point that is on the map but not yet used is an answer waiting
+        // for one press, not an empty panel — say so, and point at the button.
+        val.textContent = _detectPending ? DETECT_FOUND
+          : 'No ' + LABEL[_activeLayer] + ' district selected yet';
       }
     }
 
@@ -3145,8 +3161,45 @@
     }
     var DETECT_PLACED = 'You already placed your location on the map, so Detect won’t move it. ' +
       'To change it, tap your house, search your address, or press Clear first.';
-    var DETECT_COARSE = 'Your phone’s location covers more than one district, so nothing was set. ' +
-      'Tap your house on the map or search your address.';
+    var DETECT_COARSE = 'Your phone’s location covers more than one district, so nothing was set yet. ' +
+      'Press <strong>Use this location</strong> under the map to set the districts at the pin, ' +
+      'or tap your house or search your address.';
+    var DETECT_USE = 'Press <strong>Use this location</strong> under the map to set the districts at the pin, ' +
+      'or tap your house or search your address.';
+    var DETECT_FOUND = 'Location found — use this location';
+
+    // ── THE PHONE POINT WAITING FOR ONE PRESS ────────────────────────────────
+    // Set the moment a fix is accepted, cleared the moment anything answers:
+    // the detect committing, a tap, an address search, or Clear. While it is
+    // set the info line reads DETECT_FOUND and the button under the map is up,
+    // so a successful fix never leaves the reader on "No … district selected yet".
+    function setDetectUse(on){
+      var box = document.getElementById('pdx-map-detect-use');
+      if (box) box.style.display = on ? '' : 'none';
+    }
+    function setDetectPending(pt){
+      _detectPending = pt ? { lat: pt.lat, lng: pt.lng } : null;
+      setDetectUse(!!_detectPending);
+      refreshInfoPanel();
+    }
+    function clearDetectPending(){
+      if (!_detectPending) { setDetectUse(false); return; }
+      setDetectPending(null);
+    }
+    // THE PRESS IS A MAP TAP AT THE PIN. tapAt() is the one picker: it places
+    // the point, retires the circle and this pending state, and resolves all
+    // three seats through resolveAllAt() → selectDistrict(), exactly as a tap
+    // on the canvas would. The sequence bump first retires a detect check that
+    // is still on the wire, so it cannot land after the reader's answer.
+    window.pdxMapUseDetected = function(){
+      var pt = _detectPending;
+      if (!pt) return false;
+      _searchSeq++;
+      hideStatus();
+      var ll = (typeof L !== 'undefined' && L.latLng) ? L.latLng(pt.lat, pt.lng) : { lat: pt.lat, lng: pt.lng };
+      tapAt(ll, null);
+      return true;
+    };
 
     // pt: { lat, lng, acc } from the Detect handler, or null with a sentence to
     // print (declined, unavailable, or a placed point it will not move).
@@ -3159,13 +3212,13 @@
       var tok = ++_searchSeq;
       var framed = !!_map;
       showDetect(pt, acc, true);
+      setDetectPending(pt);
       setSearchNote('Checking your phone’s location' + (acc ? ' (within about ' + Math.round(acc) + ' m)' : '') +
         ' against the district lines…');
       return censusAtPoint(pt.lat, pt.lng).then(function(extra){
         if (stale(tok)) return false;
         if (!extra || !extra.state || !stateInfo(extra.state)) {
-          setSearchNote('We couldn’t tell which state your phone’s location is in. ' +
-            'Tap your house on the map or search your address.', 'is-warn');
+          setSearchNote('We couldn’t tell which state your phone’s location is in yet. ' + DETECT_USE, 'is-warn');
           return false;
         }
         setScopeState(extra.state);
@@ -3177,7 +3230,7 @@
           if (stale(tok)) return false;
           // Checked again: a tap or an address may have landed while the lines
           // were loading, and it wins.
-          if (placedAlready()) { setSearchNote(escapeHtml(DETECT_PLACED), 'is-warn'); return false; }
+          if (placedAlready()) { clearDetectPending(); setSearchNote(escapeHtml(DETECT_PLACED), 'is-warn'); return false; }
           try { showLayer(_activeLayer, true); } catch (e) {}
           showDetect(pt, acc, !framed);   // back on top of the freshly drawn lines
           var fits = {}, crossed = [], lost = [];
@@ -3188,25 +3241,25 @@
             else if (f.fit !== 'inside') lost.push(t);
           });
           if (!acc) {
-            setSearchNote('Your phone didn’t say how precise its location is, so nothing was set. ' +
-              'Tap your house on the map or search your address.', 'is-warn');
+            setSearchNote('Your phone didn’t say how precise its location is, so nothing was set yet. ' + DETECT_USE, 'is-warn');
             return false;
           }
           if (crossed.length) {
-            setSearchNote(escapeHtml(DETECT_COARSE) + '<br><span style="opacity:0.85;">The circle crosses a ' +
+            setSearchNote(DETECT_COARSE + '<br><span style="opacity:0.85;">The circle crosses a ' +
               crossed.map(function(t){ return LABEL[t]; }).join(' and a ') + ' line.</span>', 'is-warn');
             return false;
           }
           if (lost.length) {
             setSearchNote('We couldn’t place your phone’s location inside a ' +
-              lost.map(function(t){ return LABEL[t]; }).join(' or ') + ' district, so nothing was set. ' +
-              'Tap your house on the map or search your address.', 'is-warn');
+              lost.map(function(t){ return LABEL[t]; }).join(' or ') + ' district, so nothing was set yet. ' +
+              DETECT_USE, 'is-warn');
             return false;
           }
           // ONE DISTRICT OF EACH CHAMBER HOLDS THE WHOLE CIRCLE: commit, same as
           // a tap. The address-derived banner does not describe this point.
           _searchAreaId = null; _hasSearchView = false; _searchHit = null;
           if (extra.city || extra.county) _searchHit = { lat: pt.lat, lng: pt.lng, name: '', city: extra.city || '', county: extra.county || '' };
+          clearDetectPending();
           _detectCommit = true;
           try {
             SEATS.forEach(function(t){
@@ -3222,7 +3275,7 @@
         });
       }).catch(function(){
         hideStatus();
-        if (!stale(tok)) setSearchNote(escapeHtml(DETECT_COARSE), 'is-warn');
+        if (!stale(tok)) setSearchNote(DETECT_COARSE, 'is-warn');
         return false;
       });
     };
@@ -3240,6 +3293,7 @@
       // A SECOND SEARCH REPLACES THE FIRST. This used to return early while busy,
       // so a reader who fixed a typo was still waiting on the typo.
       var tok = ++_searchSeq;
+      clearDetectPending();
       PDXF.abort();
       setSearchBusy(true);
       setSearchNote('Finding “' + escapeHtml(q) + '”…');
@@ -3428,6 +3482,7 @@
       // Clear forgets the placed point too, so Detect may answer again.
       _placedThisVisit = false;
       clearDetectCircle();
+      clearDetectPending();
       // The congressional district is a map pick now, so Clear clears it too.
       // Leaving it behind would have the record keep one seat out of three from a
       // selection the reader just deleted — which is the same partial-record
