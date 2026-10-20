@@ -16,6 +16,10 @@
 //   7. Three or more scored votes read from the scorecard and name Track AIPAC; fewer
 //      stay on the empty state.
 //   8. All four states, and none of them ever says "AIPAC scorecard".
+//   9. The cutoffs, at their exact boundaries: >= 45% aligned is AIPAC-backed,
+//      <= 12% is Not AIPAC-aligned, between is Mixed.
+//  10. The shipped IMEU rows, read against the archive's own Senate votes:
+//      three or more scored votes name IMEU, fewer stay empty.
 //
 //   node scripts/test-aipac-chip.mjs
 
@@ -55,11 +59,14 @@ const vote = (roll, position, extra = {}) => ({
   kind: "vote", chamber: "house", congress: 119, session: 1, rollNumber: roll,
   number: "H.R. " + (100 + roll), position, ...extra,
 });
-const row = (roll, position = "support") => ({
-  chamber: "house", congress: 119, session: 1, rollNumber: roll,
-  measure: "H.R. " + (100 + roll), position, source: "https://www.trackaipac.com/",
+// Synthetic rows go under the Track AIPAC reading (which ships with none), on
+// House roll calls the shipped IMEU Senate rows never touch. credits "nay"
+// makes "yea" the AIPAC-aligned vote, so a fixture's yeas are its aligned votes.
+const row = (roll, credits = "nay") => ({
+  reading: "trackaipac", chamber: "house", congress: 119, session: 1, rollNumber: roll,
+  measure: "H.R. " + (100 + roll), credits, source: "https://www.trackaipac.com/",
 });
-const CARD = [1, 2, 3, 4, 5].map((i) => row(i));
+const CARD = Array.from({ length: 25 }, (_, i) => row(i + 1));
 
 const BACKED = {
   topDonors: [
@@ -131,14 +138,16 @@ section("4 · the scorecard counts only formal acts already in the archive");
     // A motion to table: nay is the vote that backs the act.
     inverted: [1, 2, 3].map((i) => vote(i, "nay", { advanceInverted: true })),
   } });
-  ok(w.PDXAipac.read("hi").state === "empty", "an empty scorecard produced a read");
+  ok(w.PDXAipac.read("hi").state === "empty", "a House record was read off the Senate-only shipped rows");
   w.PDXAipac.SCORECARD.push(...CARD);
   ok(w.PDXAipac.scorecardDefects(CARD).length === 0, `valid scorecard rows were flagged: ${w.PDXAipac.scorecardDefects(CARD)}`);
-  ok(w.PDXAipac.scorecardDefects([{ chamber: "joint", congress: 118, position: "yea" }]).length >= 5, "invalid scorecard rows passed");
+  ok(w.PDXAipac.scorecardDefects([{ reading: "aipac", chamber: "joint", congress: 118, credits: "support" }]).length >= 6, "invalid scorecard rows passed");
   ok(w.PDXAipac.scorecardDefects([row(1), row(1)]).some((d) => /duplicate/.test(d)), "a duplicate roll call passed");
   for (const pid of ["wrongbill", "oldcong", "cosponsor"]) ok(w.PDXAipac.read(pid).state === "empty", `${pid}: counted as a scored formal act`);
-  ok(w.PDXAipac.read("inverted").state === "backed", "an advance-inverted roll call was not flipped");
-  w.PDXAipac.SCORECARD.push(row(6, "oppose"));
+  // The publisher names the vote itself, so the archive's inversion flag is
+  // not applied on top of it: three nays against an aligned yea are not aligned.
+  ok(w.PDXAipac.read("inverted").state === "notaligned", "a credited vote was flipped a second time");
+  w.PDXAipac.SCORECARD.push(row(26, "yea"));
   ok(w.PDXAipac.read("hi").state === "backed", "an oppose row changed an unrelated read");
   const hi = w.PDXAipac.chipHtml("hi");
   ok(w.PDXAipac.read("hi").state === "backed" && /Track AIPAC reading/.test(aria(hi)), "a matching record is not AIPAC-backed with Track AIPAC named");
@@ -190,6 +199,23 @@ section("6 · shipped data invents no relationship");
     }
   }
   ok(ARCHIVE.size > 100, "the archive's vote seeds were not read");
+  // What IMEU's 119th-Congress Senate scorecard itself states
+  // (imeupolicyproject.org/senate2025): "Senators receiving a positive score
+  // voted for at least one of these resolutions", for the April 2025 pair and
+  // the July 2025 pair. Transcribed here so a row cannot drift from it.
+  const IMEU_STATES = new Map([
+    ["senate|119|1|165|sjres33", "yea"], ["senate|119|1|166|sjres26", "yea"],
+    ["senate|119|1|454|sjres41", "yea"], ["senate|119|1|455|sjres34", "yea"],
+  ]);
+  const imeuRows = SHIPPED.filter((r) => r.reading === "imeu");
+  ok(imeuRows.length === IMEU_STATES.size, `IMEU rows: ${imeuRows.length}`);
+  ok(SHIPPED.every((r) => r.reading === "imeu"), "the shipped table holds a row from a publisher other than IMEU");
+  for (const r of imeuRows) {
+    const k = [r.chamber, r.congress, r.session, r.rollNumber, norm(r.measure)].join("|");
+    ok(IMEU_STATES.get(k) === r.credits, `${k}: not a roll call and side IMEU states`);
+    ok(r.source === "https://www.imeupolicyproject.org/senate2025", `${k}: source is not IMEU's Senate scorecard`);
+  }
+  ok(w.PDXAipac.READINGS.trackaipac && !SHIPPED.some((r) => r.reading === "trackaipac"), "the Track AIPAC path is gone, or ships invented rows");
   for (const r of SHIPPED) {
     const k = [r.chamber, r.congress, r.session, r.rollNumber, norm(r.measure)].join("|");
     ok(ARCHIVE.has(k), `scorecard row ${k} is not a formal act in the archive`);
@@ -210,17 +236,66 @@ section("7 · three scored votes read from the scorecard, fewer stay empty");
   w.PDXAipac.SCORECARD.push(...CARD);
   const three = w.PDXAipac.chipHtml("three");
   ok(!/data-pdx-aipac-state="empty"/.test(three), "three scored votes still read empty");
-  ok(/Track AIPAC reading/.test(aria(three)) && /Track AIPAC reading/.test(visible(three)), "a scorecard read does not name Track AIPAC");
+  ok(/Track AIPAC reading/.test(aria(three)) && /Track AIPAC reading/.test(visible(three)), "a reading does not name its publisher");
   const two = w.PDXAipac.chipHtml("two");
   ok(/data-pdx-aipac-state="empty"/.test(two), "two scored votes produced a read");
   // The empty-state wording, pinned word for word.
   eq(visible(two), "💰 No AIPAC file on hand", "empty-state visible text");
-  eq(aria(two), "AIPAC relationship: No AIPAC file on hand. No AIPAC or AIPAC-affiliated PAC receipts in the OpenSecrets or FEC data on file, and no Track AIPAC vote readings mapped to this archive. This is not a finding that there is no relationship.", "empty-state accessible name");
+  eq(aria(two), "AIPAC relationship: No AIPAC file on hand. No AIPAC or AIPAC-affiliated PAC receipts in the OpenSecrets or FEC data on file, and fewer than three IMEU or Track AIPAC scored votes mapped to this archive. This is not a finding that there is no relationship.", "empty-state accessible name");
+}
+
+section("9 · the cutoffs: >= 45 backed, 12 < x < 45 mixed, <= 12 not aligned");
+{
+  // Exact boundaries over 20 and 25 scored votes.
+  const mk = (n, yeas) => Array.from({ length: n }, (_, i) => vote(i + 1, i < yeas ? "yea" : "nay"));
+  const w = boot({ records: {
+    at45: mk(20, 9), under45: mk(20, 8), at12: mk(25, 3), over12: mk(25, 4), zero: mk(3, 0), three: mk(3, 3),
+  } });
+  w.PDXAipac.SCORECARD.push(...CARD);
+  const st = (pid) => w.PDXAipac.read(pid).state;
+  ok(st("at45") === "backed", `45% aligned is ${st("at45")}`);
+  ok(st("under45") === "mixed", `40% aligned is ${st("under45")}`);
+  ok(st("over12") === "mixed", `16% aligned is ${st("over12")}`);
+  ok(st("at12") === "notaligned", `12% aligned is ${st("at12")}`);
+  ok(st("zero") === "notaligned" && st("three") === "backed", "the ends of the range");
+  eq(JSON.stringify(w.PDXAipac.CUTOFFS), JSON.stringify({ backed: 0.45, notAligned: 0.12, minScored: 3 }), "published cutoffs");
+}
+
+section("10 · the shipped IMEU rows, read against the archive's own senators");
+{
+  // Each senator's record on the four roll calls, exactly as the archive's
+  // Israel vote seed attributes it.
+  const seed = JSON.parse(R("db/vr-israel-vote-seed.json"));
+  const records = {};
+  for (const v of seed.votes) {
+    if (v.congress !== 119 || v.chamber !== "senate") continue;
+    for (const m of v.memberVotes || []) {
+      (records[m.politicianId] ||= []).push({ kind: "vote", chamber: "senate", congress: 119, session: v.session,
+        rollNumber: v.rollNumber, number: v.measure.number, position: m.position });
+    }
+  }
+  const w = boot({ records });
+  const st = (pid) => w.PDXAipac.read(pid).state;
+  ok(Object.keys(records).length >= 30, "the archive's senators were not read");
+  // barrasso: nay on all four → aligned 4/4. sanders: yea on all four → 0/4.
+  // shaheen: nay, nay, yea, yea → 2/4. gallego: two yea/nay votes on file.
+  ok(st("barrasso") === "backed", `barrasso is ${st("barrasso")}`);
+  ok(st("sanders") === "notaligned", `sanders is ${st("sanders")}`);
+  ok(st("shaheen") === "backed", `shaheen (half aligned) is ${st("shaheen")}`);
+  ok(st("gallego") === "empty", `gallego (two scored) is ${st("gallego")}`);
+  for (const pid of ["barrasso", "sanders", "shaheen"]) {
+    const html = w.PDXAipac.chipHtml(pid);
+    ok(visible(html).includes("IMEU reading"), `${pid}: visible text does not name IMEU: ${visible(html)}`);
+    ok(/IMEU/.test(aria(html)) && /not AIPAC/.test(aria(html)), `${pid}: accessible name: ${aria(html)}`);
+    ok(/pdxsec-voting/.test(html), `${pid}: a vote-only chip does not open the voting record`);
+    ok(!/AIPAC scorecard/i.test(html) && !/\$|%|\d/.test(visible(html) + " " + aria(html)), `${pid}: figure or "AIPAC scorecard" on the chip`);
+  }
+  eq(visible(w.PDXAipac.chipHtml("gallego")), "💰 No AIPAC file on hand", "gallego empty text");
 }
 
 section("8 · the chip never says \"AIPAC scorecard\"");
 {
-  const card = [1, 2, 3, 4, 5].map((i) => row(i));
+  const card = CARD;
   const recs = {};
   for (const [pid, ps] of Object.entries({ b: "yyyyy", m: "yynnn", n: "nnnnn", t: "yy" })) {
     recs[pid] = [...ps].map((c, i) => vote(i + 1, c === "y" ? "yea" : "nay"));

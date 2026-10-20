@@ -28,28 +28,39 @@
         person have a filing" and the money lane's seam sweep still sees two
         files.
 
-     2. A THIRD-PARTY READING. AIPAC publishes no scorecard of its own, so
-        SCORECARD holds one named outside publisher's reading — READING.name,
-        Track AIPAC — of which side of a roll call is AIPAC-aligned, for the
-        current Congress, keyed by the archive's identity for that
-        roll call: chamber, congress, session, roll number, and the bill it
-        voted on. A row only counts for a person when that roll call is ALREADY
-        a formal act in their voting record (PDXVotingRecord.memberRecords) with
-        a yea or nay. Nothing here creates a vote.
+     2. THIRD-PARTY VOTE READINGS. AIPAC publishes no scorecard of its own,
+        so SCORECARD holds rows from named outside publishers (READINGS), each
+        row tagged with the publisher it came from. A row quotes one roll call
+        the publisher itself names — chamber, congress, session, roll number and
+        bill — and the vote on it the publisher CREDITS, exactly as published.
+        A row only counts for a person when that roll call is ALREADY a formal
+        act in their voting record (PDXVotingRecord.memberRecords) with a yea
+        or nay. Nothing here creates a vote.
 
         The chip names the publisher, never AIPAC, as the author of the
-        reading: "Track AIPAC reading", in the visible text and the accessible
-        name alike. It never says "AIPAC scorecard".
+        reading — "IMEU reading" — in the visible text and the accessible name,
+        and says the positions are the publisher's. It never says "AIPAC
+        scorecard".
 
-        THE TABLE IS STILL EMPTY, AND THAT IS A FACT ABOUT THE PUBLISHER. A fill
-        pass (October 2026) found that AIPAC publishes no vote positions, and
-        that Track AIPAC publishes none either: its member pages carry
-        pro-Israel PAC and independent-expenditure totals from FEC data and a
-        red / green graphic, and its methodology says those graphics draw on a
-        voting record without listing which roll calls or which side. A row
-        here must quote a roll call and a side the publisher itself names, so
-        there is nothing of Track AIPAC's to transcribe. No rows until it
-        publishes one for a roll call the archive carries.
+        IMEU. The IMEU Policy Project's 119th-Congress Senate scorecard
+        (imeupolicyproject.org/senate2025) gives a positive score to senators
+        who voted for the April 2025 disapproval resolutions S.J.Res. 33 and 26
+        (roll calls 165, 166) and the July 2025 ones S.J.Res. 41 and 34 (454,
+        455), all four of which the archive carries as discharge votes. IMEU
+        credits a yea. It frames that credit as support for Palestinian rights,
+        not as anything about AIPAC; THIS SITE reads the credited vote as the
+        side that is not AIPAC-aligned (READINGS.imeu.credited), and the
+        accessible name says so. IMEU scores each April and July pair as one
+        item ("voted for at least one"); here each roll call is its own row,
+        because each is its own formal act. The April 2026 discharge votes
+        (S.J.Res. 32, 138; rolls 80, 81) are in the archive but were not
+        confirmed on IMEU's page, so they are not rows.
+
+        TRACK AIPAC. Kept as a reading with no rows. Its member pages carry
+        pro-Israel PAC and independent-expenditure totals and a red / green
+        graphic, and name no roll call and no side, so there is nothing of its
+        own to transcribe. Rows go in under `reading: 'trackaipac'` if it ever
+        publishes per-vote positions.
 
    WHAT IT NEVER PRINTS. No dollar figure, no percentage, no score, no count — in
    the visible text or in the accessible name. The chip names a relationship and
@@ -78,33 +89,62 @@
   var CONGRESS = '119';
   var CURRENT_CYCLES = ['2024', '2026'];
 
-  // "Backed" off the scorecard alone: four scored votes in five with AIPAC's
-  // published position, over at least MIN_SCORED roll calls already in the
-  // archive. Fewer than that is not a voting record, it is an anecdote, and the
-  // scorecard side reads as nothing on file.
-  var BACKED_SHARE = 0.8;
+  // The share of a person's scored votes on the AIPAC-aligned side, per
+  // reading, over at least MIN_SCORED roll calls already in the archive.
+  // Fewer than that is not a voting record and reads as nothing on file.
+  //   >= BACKED_SHARE                       AIPAC-backed
+  //   > NOT_ALIGNED_SHARE, < BACKED_SHARE   Mixed
+  //   <= NOT_ALIGNED_SHARE                  Not AIPAC-aligned
+  var BACKED_SHARE = 0.45;
+  var NOT_ALIGNED_SHARE = 0.12;
   var MIN_SCORED = 3;
-  // "Not AIPAC-aligned": one scored vote in five or fewer on the aligned side.
-  // Between the two is Mixed — a record that genuinely splits.
-  var NOT_ALIGNED_SHARE = 0.2;
 
-  // Whose reading the table holds. The chip prints `label` as the source.
-  var READING = {
-    name: 'Track AIPAC',
-    label: 'Track AIPAC reading',
-    url: 'https://www.trackaipac.com/'
+  // The publishers whose readings the table may hold. `label` is what the
+  // chip prints as the source. `credited` says which side the publisher's
+  // CREDITED vote is on: both of these credit the vote they count in a
+  // member's favour on Palestinian rights, which this site reads as the side
+  // that is not AIPAC-aligned.
+  var READINGS = {
+    imeu: {
+      name: 'IMEU',
+      label: 'IMEU reading',
+      longName: 'the IMEU Policy Project',
+      url: 'https://www.imeupolicyproject.org/senate2025',
+      credited: 'not_aligned'
+    },
+    trackaipac: {
+      name: 'Track AIPAC',
+      label: 'Track AIPAC reading',
+      longName: 'Track AIPAC',
+      url: 'https://www.trackaipac.com/',
+      credited: 'not_aligned'
+    }
   };
 
-  // READING's published positions for the current Congress, one row per scored
-  // roll call:
-  //   { chamber: 'house'|'senate', congress: 119, session: 1|2, rollNumber,
-  //     measure: 'H.R. 23', position: 'support'|'oppose', source: 'https://…' }
-  // `position` is the side READING calls AIPAC-aligned on the ACT; the matching vote is yea for
-  // support and nay for oppose, flipped on a roll call the archive marks as
-  // advance-inverted (a motion to table, say). Not the archive's database id:
-  // that is a serial number, and it does not survive a reseed. EMPTY — see the
-  // header. scorecardDefects() is the gate a curator's rows must pass.
-  var SCORECARD = [];
+  // One row per roll call a publisher names, for the current Congress:
+  //   { reading: 'imeu'|'trackaipac', chamber: 'house'|'senate', congress: 119,
+  //     session: 1|2, rollNumber, measure: 'S.J.Res. 33',
+  //     credits: 'yea'|'nay', source: 'https://…' }
+  // `credits` is the vote ON THIS ROLL CALL the publisher credits, as it
+  // publishes it — no inversion is applied, because the publisher already
+  // named the vote and not the motion's effect. Keyed by the archive's roll-
+  // call identity, not its database id: that is a serial number and does not
+  // survive a reseed. scorecardDefects() is the gate every row must pass.
+  var IMEU_SENATE = 'https://www.imeupolicyproject.org/senate2025';
+  var SCORECARD = [
+    // April 2025 — would have blocked JDAMs and 2,000-pound, 500-pound and
+    // small diameter bombs. IMEU: positive score for voting for either.
+    { reading: 'imeu', chamber: 'senate', congress: 119, session: 1, rollNumber: 165,
+      measure: 'S.J.Res. 33', credits: 'yea', source: IMEU_SENATE },
+    { reading: 'imeu', chamber: 'senate', congress: 119, session: 1, rollNumber: 166,
+      measure: 'S.J.Res. 26', credits: 'yea', source: IMEU_SENATE },
+    // July 2025 — would have blocked JDAMs, 1,000-pound bombs and fully
+    // automatic carbine rifles. IMEU: positive score for voting for either.
+    { reading: 'imeu', chamber: 'senate', congress: 119, session: 1, rollNumber: 454,
+      measure: 'S.J.Res. 41', credits: 'yea', source: IMEU_SENATE },
+    { reading: 'imeu', chamber: 'senate', congress: 119, session: 1, rollNumber: 455,
+      measure: 'S.J.Res. 34', credits: 'yea', source: IMEU_SENATE }
+  ];
 
   function esc(s) {
     return String(s == null ? '' : s)
@@ -126,6 +166,12 @@
   function rowKey(r) {
     return [r.chamber, r.congress, r.session, r.rollNumber].join('|');
   }
+  // The vote on a row's roll call that is on the AIPAC-aligned side.
+  function alignedVote(row) {
+    var rd = READINGS[row.reading];
+    var other = row.credits === 'yea' ? 'nay' : 'yea';
+    return rd && rd.credited === 'not_aligned' ? other : row.credits;
+  }
 
   function scorecardDefects(rows) {
     var out = [];
@@ -138,10 +184,11 @@
       if (r.session !== 1 && r.session !== 2) out.push(at + ': session must be 1 or 2');
       if (!(r.rollNumber > 0) || Math.floor(r.rollNumber) !== r.rollNumber) out.push(at + ': no roll number');
       if (!normMeasure(r.measure)) out.push(at + ': no bill number');
-      var k = rowKey(r);
+      if (!READINGS[r.reading]) out.push(at + ': unknown reading ' + r.reading);
+      var k = r.reading + '|' + rowKey(r);
       if (seen[k]) out.push(at + ': duplicate roll call ' + k);
       seen[k] = true;
-      if (r.position !== 'support' && r.position !== 'oppose') out.push(at + ': position must be support or oppose');
+      if (r.credits !== 'yea' && r.credits !== 'nay') out.push(at + ': credits must be yea or nay');
       if (!/^https:\/\//.test(String(r.source || ''))) out.push(at + ': no https source');
     });
     return out;
@@ -178,38 +225,40 @@
   }
 
   // ── SCORECARD ──────────────────────────────────────────────────────────────
-  function scorecardRead(pid) {
-    if (!SCORECARD.length) return null;
+  function stateFor(share) {
+    return share >= BACKED_SHARE ? 'backed' : share <= NOT_ALIGNED_SHARE ? 'notaligned' : 'mixed';
+  }
+
+  // One read per publisher with at least MIN_SCORED matching formal acts.
+  function scorecardReads(pid) {
+    if (!SCORECARD.length) return [];
     var VR = W.PDXVotingRecord;
     var items = VR && typeof VR.memberRecords === 'function' ? VR.memberRecords(pid) : null;
-    if (!items || !items.length) return null;
-    var want = {};
-    SCORECARD.forEach(function (r) { want[rowKey(r)] = r; });
-    var scored = 0, matched = 0;
-    items.forEach(function (it) {
-      if (!it || it.kind !== 'vote' || String(it.congress) !== CONGRESS) return;
-      var row = want[rowKey(it)];
-      if (!row || (it.position !== 'yea' && it.position !== 'nay')) return;
-      // Same roll call AND same bill, or it is not the act the reading scored.
-      if (normMeasure(it.number) !== normMeasure(row.measure)) return;
-      var aligned = row.position === 'support' ? 'yea' : 'nay';
-      if (it.advanceInverted) aligned = aligned === 'yea' ? 'nay' : 'yea';
-      scored++;
-      if (it.position === aligned) matched++;
+    if (!items || !items.length) return [];
+    var out = [];
+    Object.keys(READINGS).forEach(function (key) {
+      var want = {};
+      SCORECARD.forEach(function (r) { if (r.reading === key) want[rowKey(r)] = r; });
+      var scored = 0, matched = 0;
+      items.forEach(function (it) {
+        if (!it || it.kind !== 'vote' || String(it.congress) !== CONGRESS) return;
+        var row = want[rowKey(it)];
+        if (!row || (it.position !== 'yea' && it.position !== 'nay')) return;
+        // Same roll call AND same bill, or it is not the act the reading scored.
+        if (normMeasure(it.number) !== normMeasure(row.measure)) return;
+        scored++;
+        if (it.position === alignedVote(row)) matched++;
+      });
+      if (scored >= MIN_SCORED) out.push({ state: stateFor(matched / scored), source: READINGS[key].label, reading: key });
     });
-    if (scored < MIN_SCORED) return null;
-    var share = matched / scored;
-    return {
-      state: share >= BACKED_SHARE ? 'backed' : share <= NOT_ALIGNED_SHARE ? 'notaligned' : 'mixed',
-      source: READING.label
-    };
+    return out;
   }
 
   // The whole read: a state and the sources behind it. No figure leaves here.
   function read(pid) {
     var reads = [];
     try { var m = receiptsRead(pid); if (m) reads.push(m); } catch (e) {}
-    try { var s = scorecardRead(pid); if (s) reads.push(s); } catch (e) {}
+    try { reads = reads.concat(scorecardReads(pid)); } catch (e) {}
     if (!reads.length) return { state: 'empty', sources: [] };
     var backed = reads.filter(function (r) { return r.state === 'backed'; });
     if (backed.length) return { state: 'backed', sources: backed.map(function (r) { return r.source; }) };
@@ -225,20 +274,36 @@
   // ── THE CHIP ───────────────────────────────────────────────────────────────
   var STATE_TEXT = { backed: 'AIPAC-backed', mixed: 'Mixed', notaligned: 'Not AIPAC-aligned', empty: 'No AIPAC file on hand' };
 
+  function readingFor(label) {
+    for (var k in READINGS) if (READINGS[k].label === label) return READINGS[k];
+    return null;
+  }
+  function readingNames() {
+    return Object.keys(READINGS).map(function (k) { return READINGS[k].name; }).join(' or ');
+  }
+
   function label(r) {
     if (r.state === 'empty') {
       return 'AIPAC relationship: No AIPAC file on hand. No AIPAC or AIPAC-affiliated PAC ' +
-        'receipts in the OpenSecrets or FEC data on file, and no ' + READING.name + ' vote readings ' +
-        'mapped to this archive. This is not a finding that there is no relationship.';
+        'receipts in the OpenSecrets or FEC data on file, and fewer than three ' + readingNames() +
+        ' scored votes mapped to this archive. This is not a finding that there is no relationship.';
     }
     var src = r.sources.join(' and ');
+    var votes = r.sources.map(readingFor).filter(Boolean);
+    var money = r.sources.length > votes.length;
     var why = r.state === 'backed'
-      ? 'AIPAC or AIPAC-affiliated PAC money in the current cycle, or votes on the side ' + READING.name + ' reads as AIPAC-aligned'
+      ? (money ? 'AIPAC or AIPAC-affiliated PAC money in the current cycle' : '') +
+        (money && votes.length ? ', or ' : '') +
+        (votes.length ? 'votes mostly against the side the publisher credits' : '')
       : r.state === 'notaligned'
-        ? 'votes against the side ' + READING.name + ' reads as AIPAC-aligned'
-        : 'some AIPAC-affiliated money, or votes split across the sides ' + READING.name + ' reads';
-    var by = r.sources.indexOf(READING.label) >= 0
-      ? ' The vote positions are ' + READING.name + '\u2019s, not AIPAC\u2019s.' : '';
+        ? 'votes almost all on the side the publisher credits'
+        : (money ? 'AIPAC-affiliated money outside the current cycle' : '') +
+          (money && votes.length ? ', or ' : '') +
+          (votes.length ? 'votes split across the side the publisher credits' : '');
+    var by = votes.map(function (rd) {
+      return ' The vote positions are ' + rd.longName + '\u2019s, not AIPAC\u2019s: it credits ' +
+        'votes it counts for Palestinian rights, and this site reads the other side as AIPAC-aligned.';
+    }).join('');
     return 'AIPAC relationship: ' + STATE_TEXT[r.state] + '. Source: ' + src + '. ' +
       'Based on ' + why + '.' + by + ' Not a score and not a dollar figure.';
   }
@@ -252,7 +317,7 @@
   // Receipts open the money section; a scorecard-only read opens the voting
   // record it was built from.
   function targetFor(r) {
-    return r.sources.length === 1 && r.sources[0] === READING.label ? 'pdxsec-voting' : 'pdxsec-funding';
+    return r.sources.length && r.sources.every(readingFor) ? 'pdxsec-voting' : 'pdxsec-funding';
   }
 
   function open(id) {
@@ -332,7 +397,8 @@
     isAffiliated: isAffiliated,
     scorecardDefects: scorecardDefects,
     SCORECARD: SCORECARD,
-    READING: READING,
+    READINGS: READINGS,
+    CUTOFFS: { backed: BACKED_SHARE, notAligned: NOT_ALIGNED_SHARE, minScored: MIN_SCORED },
     CONGRESS: CONGRESS,
     scored: false,
     NEVER_FEEDS: ['directionMatch', 'wordVsAction', 'formalPatternTier',

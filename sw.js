@@ -10405,7 +10405,17 @@
 //     No dollar figure, no percentage, no score, no new key.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v433';
+// v434 - THE AIPAC CHIP READS IMEU'S SENATE SCORECARD. pdx-aipac.js's vote
+//     table gains four rows from the IMEU Policy Project's 119th-Congress Senate
+//     scorecard: the 2025 arms-sale disapproval discharge votes it credits a yea
+//     on (S.J.Res. 33, 26, 41, 34; rolls 165, 166, 454, 455), all formal acts
+//     already in the archive. The chip names "IMEU reading" and never "AIPAC
+//     scorecard"; the Track AIPAC reading stays in place with no rows. Cutoffs
+//     move to 45% / 12%. pdx-aipac.js is precached and changed.
+//     No dollar figure, no percentage, no score, no new key.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v434';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
