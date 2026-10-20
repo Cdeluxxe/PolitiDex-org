@@ -530,7 +530,19 @@ ok(CLIENT.includes("Prove you live here"), "the composer carries the Prove you l
 ok(/reason !== 'unverified'/.test(CLIENT), "…shown only to a signed-in, unverified reader");
 ok(/function canProve\(\)[\s\S]*?reason === 'unverified'[\s\S]*?!canPost\(\)/.test(CLIENT),
    "…and never to a reader the server already counts as verified (the function decides who may start)");
-ok(!/\/api\/membership/.test(CLIENT), "…which the composer never asks /api/membership for");
+// The composer reads /api/membership for ONE thing — whether to show the plain
+// "Become a member" link (v428). The residency check itself never asks it.
+{
+  const fnText = (name) => {
+    const at = CLIENT.indexOf(`\n  function ${name}(`);
+    if (at < 0) return "";
+    const ends = ["\n  function ", "\n  // ── ", "\n  var "].map((m) => CLIENT.indexOf(m, at + 1)).filter((x) => x > at);
+    return CLIENT.slice(at, ends.length ? Math.min(...ends) : CLIENT.length);
+  };
+  ok(["canProve", "prove", "proveHtml"].every((f) => fnText(f).length > 20 && !/MEMBER_API|loadMember|(?<![a-z])_member\b|\/api\/membership/.test(fnText(f))),
+     "…which the residency check never asks /api/membership for");
+  ok((CLIENT.match(/fetch\(MEMBER_API/g) || []).length === 1, "…the one membership read is the link's");
+}
 ok(!/localStorage|sessionStorage/.test(CLIENT), "…and keeps nothing on the device");
 
 ok(/v281 - A MEMBER CAN START THE SEAT CHECK[\s\S]*?MIGRATION COST: none - no one-check counter is[\s\S]*?needed/.test(SW),
@@ -724,7 +736,15 @@ const NON_MEMBERS = [
   // The board's one cap sentence names the $20 membership and links nothing; it
   // is lifted out first, so any other $20, checkout or membership call fails.
   const CAP_LINE = /Verified residents get one comment and five poll votes a month on this seat\. (?:' \+\s*')?A \$20 yearly membership removes the monthly cap\./g;
-  const pay = boards.filter((f) => /\/api\/membership|checkout\.stripe|\$20|become a member/i.test(R(f).replace(CAP_LINE, "")));
+  // THE ONE PLAIN MEMBERSHIP LINK (v428): district-composer.js names /api/membership
+  // and "Become a member" for the link under the locked line — no price, no
+  // checkout. Exactly those three places are set aside; any other $20, checkout,
+  // membership call or join wording on a board still fails.
+  const PLAIN_LINK = (src) => src
+    .replace(/   ONE PLAIN DOOR TO MEMBERSHIP \(v428\)\.[\s\S]*?it never opens a seat\./, "")
+    .replace("var MEMBER_API = '/api/membership';", "")
+    .replace("var MEMBER_LINK = 'Become a member';", "");
+  const pay = boards.filter((f) => /\/api\/membership|checkout\.stripe|\$20|become a member/i.test(PLAIN_LINK(R(f).replace(CAP_LINE, ""))));
   eq(pay.length, 0, `no board has a pay button — ${JSON.stringify(pay)}`);
 }
 

@@ -124,8 +124,15 @@ must(GATE.length > 600, `the gate slice is too thin to test (${GATE.length} char
 section("1 · one anchor, and its address is /voice");
 // ═════════════════════════════════════════════════════════════════════════════
 
-const ANCHORS = [...GATE.matchAll(/<a\b[^>]*>(?:(?!<\/a>)[\s\S])*?<\/a>/g)].map((m) => m[0]);
-eq(ANCHORS.length, 1, `the gate carries ${ANCHORS.length} anchors — it is one card with one door`);
+// THE ONE OTHER LINK THE CARD MAY CARRY (v428): the membership line, exactly
+// this paragraph, pointing at /me#membership. It is set aside before the door
+// is counted, so the card is still one card with one door to /voice, and any
+// other anchor added to it still fails.
+const MEMBER_P = /<p class="pdxvm-member" data-pdxvm-member="1"><a href="\/me#membership">Membership lifts the monthly cap for verified residents\.<\/a><\/p>/;
+eq((GATE.match(new RegExp(MEMBER_P.source, "g")) || []).length, 1, "the card carries the membership line exactly once");
+const DOORS_OF = (g) => String(g).replace(MEMBER_P, "");
+const ANCHORS = [...DOORS_OF(GATE).matchAll(/<a\b[^>]*>(?:(?!<\/a>)[\s\S])*?<\/a>/g)].map((m) => m[0]);
+eq(ANCHORS.length, 1, `the gate carries ${ANCHORS.length} anchors besides the membership line — it is one card with one door`);
 const DOOR = ANCHORS[0] || "";
 const DOOR_HREF = (/href="([^"]*)"/.exec(DOOR) || [, ""])[1];
 eq(DOOR_HREF, "/voice", "the door's href is not /voice");
@@ -718,7 +725,7 @@ section("10 · mutations: the fences above actually bite");
     return text.indexOf(`${spellCap(N)} seats have a board on file today`) >= 0;
   };
   const hrefOk = (gate) => {
-    const as = [...gate.matchAll(/<a\b[^>]*>(?:(?!<\/a>)[\s\S])*?<\/a>/g)].map((m) => m[0]);
+    const as = [...DOORS_OF(gate).matchAll(/<a\b[^>]*>(?:(?!<\/a>)[\s\S])*?<\/a>/g)].map((m) => m[0]);
     return as.length === 1 && (/href="([^"]*)"/.exec(as[0]) || [, ""])[1] === "/voice" &&
       gate.indexOf("#who-represents-me") < 0;
   };

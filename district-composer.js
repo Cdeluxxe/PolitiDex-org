@@ -39,9 +39,16 @@
 
    THE LOCKED LINE, AND NOTHING ABOUT PRICE. Every state carries the locked
    line exactly once: as the locked notice while the box is off, and under the
-   heading once it opens. No membership, price, or cap copy is painted on any
-   board — a monthly-cap refusal from the server is shown as a neutral line
+   heading once it opens. No price or cap copy is painted on any board — a
+   monthly-cap refusal from the server is shown as a neutral line
    (COPY.notTaken), never the server's own wording.
+
+   ONE PLAIN DOOR TO MEMBERSHIP (v428). Under the locked line, a signed-in
+   reader whom GET /api/membership calls not a member gets one link, "Become
+   a member", to /me#membership — no price, no cap, no promise. A signed-out
+   reader and a member get none. That read decides the link and nothing
+   else: canProve() and prove() never ask it, membership never gates the
+   residency check, and it never opens a seat.
 
    THE GENERAL ROOM. Every board's first thread, painted into the frame
    district-board.js prints under the seat (#pdx-general-room) and repainted on
@@ -199,6 +206,10 @@
     likeFailed: 'That like did not go through.'
   };
   var VERIFY_API = '/api/residency-verify';
+  // The caller's own membership flag, read ONLY to decide the one link below.
+  var MEMBER_API = '/api/membership';
+  var MEMBER_HREF = '/me#membership';
+  var MEMBER_LINK = 'Become a member';
 
   function fn(v) { return typeof v === 'function'; }
   function esc(s) {
@@ -681,6 +692,32 @@
     });
   }
 
+  // ── THE MEMBERSHIP LINK ───────────────────────────────────────────────────
+  // null until the server answers for a signed-in caller; false only when it
+  // says signed in and not a member. Anything else — signed out, a member, a
+  // failed read — shows no link.
+  var _member = null;
+  var _memberAsked = false;
+  function loadMember() {
+    if (_memberAsked || !tokenUser()) return Promise.resolve(_member);
+    _memberAsked = true;
+    return bearer().then(function (t) {
+      if (!t) return null;
+      return fetch(MEMBER_API, { method: 'GET', headers: { 'Accept': 'application/json', 'Authorization': 'Bearer ' + t }, cache: 'no-store' })
+        .then(function (res) { return res.ok ? res.json() : null; });
+    }).catch(function () { return null; }).then(function (d) {
+      _member = (d && d.signedIn === true) ? (d.member === true) : null;
+      if (_member === null) _memberAsked = false;   // a failed read may be asked again
+      render();
+      return _member;
+    });
+  }
+  function memberHtml() {
+    if (_member !== false || !tokenUser()) return '';
+    return '<p class="pdxdc-member" data-pdxdc-member="1"><a class="pdxdc-member-a" href="' + esc(MEMBER_HREF) + '">' +
+      esc(MEMBER_LINK) + '</a></p>';
+  }
+
   function render() {
     if (!_host) return;
     var open = canPost() && !_busy;
@@ -696,6 +733,7 @@
         '<h2 class="pdxdb-h2">' + esc(COPY.label) + '</h2>' +
         (line ? '<p class="pdxdc-locked" data-pdxdc-locked="1">' + esc(line) + '</p>'
               : '<p class="pdxdb-foot" data-pdxdc-locked="1">' + esc(LOCKED_LINE) + '</p>') +
+        memberHtml() +
         '<form class="pdxdc-form" novalidate>' +
           '<label class="pdxdc-l" for="pdxdc-issue">' + esc(COPY.issue) + '</label>' +
           '<select class="pdxdc-sel" id="pdxdc-issue" name="issueKey"' + dis + '>' + optionsHtml() + '</select>' +
@@ -780,6 +818,7 @@
       }
       render();
       jumpToTopic();
+      loadMember();
       // The server just opened this seat: let the poll re-ask too.
       if (!was && canPost()) {
         try {

@@ -5421,9 +5421,11 @@ window.PDXLazy = (function () {
       .pdxhv-note{margin:0.95rem 0 0;font:400 0.85rem/1.55 'Barlow',system-ui,sans-serif;color:#9fb5a8;}
       @media (prefers-reduced-motion:reduce){.pdxhv-door{transition:none;}}
     </style>
+    <style>/* The membership line, in the card's own ballot gold (#f5c842). Its own prefix and block, so the card rules /me and /measure mirror stay byte for byte. */.pdxvm-member{margin:-0.4rem 0 1.1rem;font:600 0.95rem/1.5 'Barlow',system-ui,sans-serif;}.pdxvm-member a{color:#f5c842;text-decoration:underline;text-underline-offset:3px;}.pdxvm-member a:hover,.pdxvm-member a:focus-visible{color:#fad96a;}</style>
     <div class="pdxhv-card">
       <p class="pdxhv-kick">District Voice</p><p class="pdxhv-title">The voice of your district.</p>
       <p class="pdxhv-line" data-pdxhv-room="1">This room is only the people who live in the seat. Neighbors read the same record and speak to that seat, not the internet. Anyone can read. Only a verified resident of that seat gets a voice that counts.</p>
+      <p class="pdxvm-member" data-pdxvm-member="1"><a href="/me#membership">Membership lifts the monthly cap for verified residents.</a></p>
       <a class="pdxhv-door" id="pdx-home-voice-door" data-pdxhv-standing="unplaced" href="/voice">Find your rooms</a>
       <p class="pdxhv-note">Eighty-eight seats have a board on file today. Every other seat says the room is not open.</p>
     </div>

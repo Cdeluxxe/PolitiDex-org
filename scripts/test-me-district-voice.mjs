@@ -734,6 +734,10 @@ const VERIFIED_OPTS = { uid: "u_7", loc: { state: "Utah", city: "Layton", county
     // The shared roster keyers rode in ahead of compare-hub.js on the same line
     // (v413); that is a script tag, not money markup.
     .replace('<script src="/roster-keys.js"></script>', "")
+    // The District Voice card later carried the membership line and its own small
+    // style block (v428); that is the Voice card's copy, not money markup.
+    .replace(/\n    <style>\/\* The membership line, in the card's own ballot gold[^\n]*<\/style>/, "")
+    .replace(/\n      <p class="pdxvm-member" data-pdxvm-member="1">[^\n]*<\/p>/, "")
     // The disclosures block later carried the range-band graph (v350/v351), and
     // its year drawing (v352/v353): the renderer, its call inside the on-file
     // branch, its export, and its rules in finance-lane.css. That is the disclosure block's own graph, not pill markup;

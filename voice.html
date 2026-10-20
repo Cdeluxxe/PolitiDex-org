@@ -233,6 +233,10 @@
       margin: 0 0 1.5rem; max-width: 38rem;
       font: 400 1rem/1.6 'Barlow', system-ui, sans-serif; color: #9fb4d4;
     }
+    /* The membership line under the intro, in the District Voice card's gold. */
+    .pdxvm-member { margin: -1rem 0 1.5rem; font: 600 0.95rem/1.5 'Barlow', system-ui, sans-serif; }
+    .pdxvm-member a { color: #f5c842; text-decoration: underline; text-underline-offset: 3px; }
+    .pdxvm-member a:hover, .pdxvm-member a:focus-visible { color: #fad96a; }
 
     .pdxvr-card {
       margin: 0 0 1.5rem; padding: 1.1rem 1.15rem;
@@ -529,6 +533,7 @@
         only the people who live in the seat. Neighbors read the same record and
         speak to that seat, not the internet. Anyone can read. Only a verified
         resident of that seat gets a voice that counts. This page lists the seats for the location on file.</p>
+      <p class="pdxvm-member" data-pdxvm-member="1"><a href="/me#membership">Membership lifts the monthly cap for verified residents.</a></p>
 
       <!-- THE STANDING, AND ITS FIRST PAINT IS THE QUIET ONE. This markup is the
            same card voice-room.js's checkingHtml() produces, in the document, so

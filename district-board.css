@@ -268,3 +268,9 @@
   font: 600 0.78rem/1.4 'Barlow', sans-serif; text-decoration: none;
 }
 .pdxdb-holder-a:hover, .pdxdb-holder-a:focus-visible { color: #f2f7ff; border-color: #7fb2ff; }
+
+/* The one membership door under the composer's locked line (district-composer.js):
+   a plain link, shown only to a signed-in reader who is not a member. */
+.pdxdc-member { margin: 0.35rem 0 0.6rem; font-size: 0.88rem; }
+.pdxdc-member-a { color: #7fb2ff; text-decoration: underline; text-underline-offset: 2px; }
+.pdxdc-member-a:hover, .pdxdc-member-a:focus-visible { color: #b8d4ff; }

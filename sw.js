@@ -10342,7 +10342,21 @@
 //     cmp-data.js is precached and changed, so the shell moves one version.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v427';
+// v428 - MEMBERSHIP NEXT TO DISTRICT VOICE. The homepage District Voice card
+//     (index.html) and the /voice hallway intro (voice.html) each gain one gold
+//     line, "Membership lifts the monthly cap for verified residents.", linking
+//     to /me#membership; me.html gains that #membership anchor. On the boards,
+//     district-composer.js prints a plain "Become a member" link under the
+//     locked line for a signed-in reader GET /api/membership calls not a member
+//     (styled in district-board.css) — never for a signed-out reader or a
+//     member, and that read decides the link only: the residency check never
+//     asks it. me-membership.js makes "Become a member — $20 a year" the
+//     block's primary control (me-desk.css) with "See your district rooms"
+//     (/voice) under it. Every one of these files is precached and changed, so
+//     the shell moves one version. The residency gate and the cap are unchanged.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v428';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
