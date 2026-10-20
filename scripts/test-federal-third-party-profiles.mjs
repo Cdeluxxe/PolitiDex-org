@@ -90,6 +90,57 @@ const BATCH3 = {
 };
 Object.keys(BATCH3).forEach((p) => { PASS_OF[p] = "federal_third_party_light_profiles_b3_oct2026"; });
 Object.assign(PEOPLE, BATCH3);
+// Batch 4: forty-three of the fifty-three nominees admitted in v427.
+const BATCH4 = {
+  ron_meinhardt: { keys: ["war_powers",  "border_security",  "medical_freedom",  "national_debt"], hosts: ["running4ok.com"], bio: "a registered nurse and regis" },
+  curtis_stinnett: { keys: ["campaign_finance",  "healthcare",  "pro_choice",  "econ_workers",  "climate_action"], hosts: ["web.archive.org",  "www.stinnettforsenate.org"], bio: "a community pharmacist of 15" },
+  gary_dye: { keys: ["america_first_fp",  "restraint",  "gun_rights",  "cut_spending"], hosts: ["garydye2020.wordpress.com"], bio: "a chemical engineer who work" },
+  chris_henry: { keys: ["healthcare",  "campaign_finance",  "restraint",  "econ_workers"], hosts: ["www.chrishenry.org"], bio: "a long-haul truck driver and" },
+  michael_bahry: { keys: ["restraint",  "term_limits",  "pro_life",  "immig_balance"], hosts: ["bahryforsenate.com"], bio: "a native Rhode Islander, for" },
+  kasie_whitener: { keys: ["national_debt",  "cut_spending",  "restraint",  "war_powers"], hosts: ["kasiesouthcarolina.com"], bio: "a University of South Caroli" },
+  tharon_chandler: { keys: ["transit",  "climate_action",  "restraint",  "econ_corp_account",  "stock_trading_ban"], hosts: ["web.archive.org"], bio: "a Lawrenceburg farmer and Ar" },
+  andrew_gerena: { keys: ["america_first_fp",  "enviro_energy",  "veterans",  "transit",  "lands_preserve"], hosts: ["www.jeranimo4senate.org"], bio: "campaigning as “Jeranimo,” a" },
+  robert_jones: { keys: ["housing",  "pro_choice",  "restraint"], hosts: ["www.robertfortn.com"], bio: "a Jonesborough small-busines" },
+  james_macon: { keys: ["health_mental",  "justice_balance",  "national_debt"], hosts: ["ballotpedia.org"], bio: "a Memphis medical-technology" },
+  catherine_whitson: { keys: ["health_rural",  "edu_college_cost",  "transit",  "child_care"], hosts: ["senatorbarcy.org"], bio: "a former insurance professio" },
+  neil_gillespie: { keys: ["checks_balances",  "healthcare",  "immig_balance"], hosts: ["web.archive.org"], bio: "founder of Justice Network a" },
+  christopher_campbell: { keys: ["healthcare",  "america_first_fp",  "pro_choice",  "voting_access"], hosts: ["candidates.goodparty.org"], bio: "a Marion County native, East" },
+  edmond_laplante: { keys: ["america_first_fp",  "veterans",  "audit_spending",  "edu_parental"], hosts: ["laplante4constitutionalnh.com"], bio: "a mechanic of more than 40 y" },
+  veronica_fernandez: { keys: ["campaign_finance",  "healthcare",  "america_first_fp",  "gun_safety"], hosts: ["veronicaforsenate.com"], bio: "Veronica Fernandez is the no" },
+  shiva_ayyadurai: { keys: ["medical_freedom",  "election_integrity",  "restraint",  "free_speech",  "term_limits"], hosts: ["shiva4senate.com"], bio: "founder and CEO of CytoSolve" },
+  joseph_tache: { keys: ["climate_action",  "immigration_reform",  "restraint",  "pro_choice",  "housing_support"], hosts: ["www.tache4ma.com"], bio: "a Roxbury youth worker and c" },
+  whitfield_harrington: { keys: ["tariffs_prices",  "edu_college_cost",  "term_limits",  "immig_balance",  "enviro_energy"], hosts: ["whit4ilsenate.com"], bio: "a Chicago pastor and former" },
+  thomas_laehn: { keys: ["campaign_finance",  "property_rights",  "war_powers",  "national_debt",  "cannabis_reform"], hosts: ["laehn4iowa.org"], bio: "the Greene County Attorney a" },
+  david_graham: { keys: ["lower_taxes",  "gov_regulation",  "cannabis_reform",  "war_powers",  "pro_life"], hosts: ["johnsoncountypost.com"], bio: "an Overland Park attorney wi" },
+  geral_staten: { keys: ["tariffs_authority",  "pro_choice",  "housing_support",  "healthcare"], hosts: ["www.vpm.org"], bio: "a Suffolk native, father of" },
+  j_matt_baker: { keys: ["datacenter_power",  "pro_choice",  "immigration_reform",  "war_powers",  "tariffs_authority"], hosts: ["www.mattbakerindependent.com",  "www.vpm.org"], bio: "a retired Marine Corps infan" },
+  taner_demirci_lopez: { keys: ["immig_balance",  "healthcare_market",  "veterans",  "datacenter_power",  "cut_spending"], hosts: ["lopezforva.com"], bio: "a former college professor w" },
+  shelly_arnoldi: { keys: ["edu_parental",  "term_limits",  "datacenter_power",  "econ_smallbiz"], hosts: ["www.arlnow.com"], bio: "a Navy veteran and licensed" },
+  tyler_davis: { keys: ["enviro_energy",  "housing",  "national_debt",  "disaster_resilience",  "econ_smallbiz"], hosts: ["www.tylerdavisforcongress.com"], bio: "a Pensacola resident raising" },
+  andrew_parrott: { keys: ["cut_spending",  "lower_taxes",  "veterans"], hosts: ["web.archive.org"], bio: "a 25-year Ocala resident wit" },
+  christopher_dennison: { keys: ["restraint",  "america_first_fp",  "privacy_rights",  "veterans",  "gun_rights"], hosts: ["dennison4congress.com",  "ivoterguide.com"], bio: "an Air Force veteran and fat" },
+  ralph_groves: { keys: ["war_powers",  "guard_authority",  "social_security",  "gun_rights",  "medical_freedom"], hosts: ["www.grovesforcongress.com"], bio: "an Ocoee resident who retire" },
+  kedner_maxime: { keys: ["health_drug_prices",  "immig_balance",  "public_schools",  "econ_smallbiz",  "housing_first_time"], hosts: ["www.maximeforcongress.com"], bio: "who came to the United State" },
+  jeremy_todd: { keys: ["restraint",  "gun_rights",  "free_speech",  "cut_spending",  "pro_life"], hosts: ["jeremy-todd.com"], bio: "the son of a truck driver an" },
+  gerardo_serrano: { keys: ["war_powers",  "immig_balance",  "social_security",  "property_rights",  "national_debt"], hosts: ["serranoforamerica.com"], bio: "a Jackson County resident of" },
+  mikel_wein: { keys: ["healthcare",  "war_powers",  "econ_workers",  "campaign_finance",  "disaster_resilience"], hosts: ["www.weinforky5.com"], bio: "who lives in Letcher County" },
+  jay_bowman: { keys: ["tax_middle_class",  "healthcare",  "datacenter_power",  "gun_rights",  "pro_choice"], hosts: ["www.bowman2026.com"], bio: "a Michigan-born, Utah-raised" },
+  pete_lynch: { keys: ["stock_trading_ban",  "campaign_finance",  "datacenter_power",  "healthcare",  "war_powers"], hosts: ["petelynchforkentucky.com"], bio: "a University of Kentucky lec" },
+  ramon_mora: { keys: ["healthcare",  "health_drug_prices",  "stock_trading_ban",  "campaign_finance",  "paid_leave"], hosts: ["www.southjerseygrit.com"], bio: "a South Jersey native who wa" },
+  rick_stewart: { keys: ["gun_rights",  "property_rights",  "cannabis_reform"], hosts: ["www.rickstewart.com"], bio: "a Postville native and forme" },
+  dave_bushaw: { keys: ["healthcare",  "stock_trading_ban",  "campaign_finance",  "cannabis_reform",  "immigration_reform"], hosts: ["www.davebushaw.com"], bio: "a West Union native, first-g" },
+  john_hauer: { keys: ["restraint",  "lower_taxes",  "america_first_fp",  "cut_spending"], hosts: ["ballotpedia.org",  "www.hauerforcongress.com"], bio: "a Topeka veteran of two Iraq" },
+  steve_hohe: { keys: ["cut_spending",  "lower_taxes",  "school_choice"], hosts: ["stevehoheforkansas.wordpress.com"], bio: "a Shawnee resident who serve" },
+  chris_getty: { keys: ["social_security",  "pro_choice",  "immig_balance",  "stock_trading_ban",  "tariffs_prices"], hosts: ["www.chrisgettyforcongress.com"], bio: "the mayor of the Village of" },
+  michael_bridgford: { keys: ["term_limits",  "stock_trading_ban",  "campaign_finance",  "healthcare_market",  "rural_ag"], hosts: ["bridgfordforiowa.com"], bio: "who grew up on a seventh-gen" },
+  ryan_kelly: { keys: ["healthcare",  "econ_workers",  "housing_support",  "gun_balance",  "pro_choice"], hosts: ["www.kellyfornj03.com"], bio: "Accountability, People,” a f" },
+  alan_bond: { keys: ["social_security",  "cost_living",  "housing",  "edu_college_cost",  "veterans"], hosts: ["hopefortomorrownj.org"], bio: "Alan B. Bond is the nominee" },
+};
+Object.keys(BATCH4).forEach((p) => { PASS_OF[p] = "federal_third_party_light_profiles_b4_oct2026"; });
+Object.assign(PEOPLE, BATCH4);
+// …and the other ten, who have no usable primary source or fewer than three
+// positions an existing key holds. Their files stay empty: no bio, no claim.
+const EMPTY_B4 = ["sevier_white", "mark_hackett", "jeremy_hearn", "yoshi_matthews", "david_sutman", "joanne_kuniansky", "dianne_blais", "terrisa_bukovinac", "ed_hershey", "thomas_loecken"];
 // Topics the user asked about that these sources do not state, or state with
 // no key to hold them: no card may sit on these keys.
 const NOT_IN_SOURCE = {
@@ -183,7 +234,7 @@ for (const [pid, want] of Object.entries(PEOPLE)) {
   const rec = w.CMP_DATA[pid];
   if (!ok(!!rec, `${pid} has a roster row`)) continue;
   ok(typeof rec.bio === "string" && rec.bio.length > 40 && rec.bio.length <= 280, `${pid}: one short bio sentence`);
-  eq((rec.bio.replace(/\bU\.S\./g, "US").replace(/\b[A-Z]\.(?= [A-Z])/g, "X").replace(/\b(?:Jr|Sr)\./g, "X").match(/[.!?](\s|$)/g) || []).length, 1, `${pid}: the bio is one sentence`);
+  eq((rec.bio.replace(/\bU\.S\./g, "US").replace(/\b[A-Z]\.(?= [A-Z“"])/g, "X").replace(/\b(?:Jr|Sr)\./g, "X").match(/[.!?](\s|$)/g) || []).length, 1, `${pid}: the bio is one sentence`);
   has(rec.bio, want.bio, `${pid}: the bio says who they are`);
   has(rec.bio, rec.name, `${pid}: the bio names them`);
   let threw = "";
@@ -277,6 +328,18 @@ for (const pid of Object.keys(PEOPLE)) {
 }
 ok(equityIn("earn a share of PolitiDex stock"), "the equity check still catches equity language");
 ok(equityIn("members earn equity in PolitiDex"), "…and the bare word equity outside the private-equity phrase");
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("4b · batch 4's people with no usable source stay empty");
+for (const pid of EMPTY_B4) {
+  const rec = w.CMP_DATA[pid];
+  if (!ok(!!rec, `${pid} has a roster row`)) continue;
+  ok(!rec.bio, `${pid}: no bio`);
+  eq((S[pid] || []).length, 0, `${pid}: no claim`);
+  eq(T.leaves(pid).length, 0, `${pid}: no topic-tree row`);
+  ok(!PEOPLE[pid], `${pid}: not in the reviewed list`);
+}
+eq(EMPTY_B4.length + Object.keys(BATCH4).length, 53, "batch 4's 53 people are all accounted for: profiled or empty");
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("5 · everyone else is unchanged, and so are the twelve roster rows");
