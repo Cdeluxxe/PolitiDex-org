@@ -992,6 +992,149 @@ for (const c of FED_B3) {
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
+section("2j · Federal third-party and independent nominees, batch 4: each on its own race card");
+// Twenty-six U.S. Senate nominees in states whose lists showed only the two
+// major parties, and twenty-seven U.S. House nominees, each confirmed on the
+// November 3, 2026 ballot. Bundled roster only, both documents.
+const FED_B4 = [
+  ["sevier_white", "senate", "Oklahoma", 1, "Libertarian", ["Texas", 1]],
+  ["ron_meinhardt", "senate", "Oklahoma", 1, "Independent", ["Texas", 1]],
+  ["curtis_stinnett", "senate", "Oklahoma", 1, "Independent", ["Texas", 1]],
+  ["gary_dye", "senate", "Oregon", 1, "Libertarian", ["Washington", 1]],
+  ["chris_henry", "senate", "Oregon", 1, "Pacific Green / Progressive", ["Washington", 1]],
+  ["michael_bahry", "senate", "Rhode Island", 1, "Independent", ["Connecticut", 1]],
+  ["mark_hackett", "senate", "South Carolina", 1, "Constitution", ["Georgia", 1]],
+  ["kasie_whitener", "senate", "South Carolina", 1, "Libertarian", ["Georgia", 1]],
+  ["tharon_chandler", "senate", "Tennessee", 1, "Independent", ["Alabama", 1]],
+  ["andrew_gerena", "senate", "Tennessee", 1, "Independent", ["Alabama", 1]],
+  ["jeremy_hearn", "senate", "Tennessee", 1, "Independent", ["Alabama", 1]],
+  ["robert_jones", "senate", "Tennessee", 1, "Independent", ["Alabama", 1]],
+  ["james_macon", "senate", "Tennessee", 1, "Independent", ["Alabama", 1]],
+  ["yoshi_matthews", "senate", "Tennessee", 1, "Independent", ["Alabama", 1]],
+  ["david_sutman", "senate", "Tennessee", 1, "Independent", ["Alabama", 1]],
+  ["catherine_whitson", "senate", "Tennessee", 1, "Independent", ["Alabama", 1]],
+  ["neil_gillespie", "senate", "Florida", 1, "No Party Affiliation", ["Alabama", 1]],
+  ["christopher_campbell", "senate", "Kentucky", 1, "Kentucky Party", ["Ohio", 1]],
+  ["shiva_ayyadurai", "senate", "Massachusetts", 1, "Unenrolled", ["Connecticut", 1]],
+  ["joseph_tache", "senate", "Massachusetts", 1, "Party for Socialism and Liberation", ["Connecticut", 1]],
+  ["edmond_laplante", "senate", "New Hampshire", 1, "Constitution", ["Vermont", 1]],
+  ["veronica_fernandez", "senate", "New Jersey", 1, "End the Corruption!", ["Delaware", 1]],
+  ["joanne_kuniansky", "senate", "New Jersey", 1, "Socialist Workers Party", ["Delaware", 1]],
+  ["whitfield_harrington", "senate", "Illinois", 1, "American Center Party", ["Wisconsin", 1]],
+  ["thomas_laehn", "senate", "Iowa", 1, "Libertarian", ["Nebraska", 1]],
+  ["david_graham", "senate", "Kansas", 1, "Libertarian", ["Missouri", 1]],
+  ["geral_staten", "house", "Virginia", 2, "Independent", ["Virginia", 3]],
+  ["j_matt_baker", "house", "Virginia", 2, "Independent", ["Virginia", 3]],
+  ["taner_demirci_lopez", "house", "Virginia", 7, "Libertarian", ["Virginia", 8]],
+  ["shelly_arnoldi", "house", "Virginia", 8, "Libertarian", ["Virginia", 9]],
+  ["dianne_blais", "house", "Virginia", 11, "Green", ["Virginia", 10]],
+  ["tyler_davis", "house", "Florida", 1, "No Party Affiliation", ["Florida", 2]],
+  ["andrew_parrott", "house", "Florida", 6, "Libertarian", ["Florida", 7]],
+  ["christopher_dennison", "house", "Florida", 7, "Libertarian", ["Florida", 8]],
+  ["ralph_groves", "house", "Florida", 11, "Libertarian", ["Florida", 12]],
+  ["kedner_maxime", "house", "Florida", 20, "Independent", ["Florida", 21]],
+  ["thomas_loecken", "house", "Kentucky", 2, "Independent", ["Kentucky", 3]],
+  ["jeremy_todd", "house", "Kentucky", 4, "Libertarian", ["Kentucky", 5]],
+  ["gerardo_serrano", "house", "Kentucky", 5, "Independent", ["Kentucky", 6]],
+  ["mikel_wein", "house", "Kentucky", 5, "Independent", ["Kentucky", 6]],
+  ["jay_bowman", "house", "Kentucky", 6, "Independent", ["Kentucky", 7]],
+  ["pete_lynch", "house", "Kentucky", 6, "Kentucky Party", ["Kentucky", 7]],
+  ["ramon_mora", "house", "New Jersey", 2, "Independent", ["New Jersey", 3]],
+  ["ryan_kelly", "house", "New Jersey", 3, "Affordability, Accountability, People", ["New Jersey", 4]],
+  ["terrisa_bukovinac", "house", "New Jersey", 9, "Save Our Babies", ["New Jersey", 10]],
+  ["alan_bond", "house", "New Jersey", 11, "Hope for Tomorrow", ["New Jersey", 12]],
+  ["ed_hershey", "house", "Illinois", 4, "Working Class Party", ["Illinois", 5]],
+  ["chris_getty", "house", "Illinois", 4, "Independent", ["Illinois", 5]],
+  ["michael_bridgford", "house", "Iowa", 1, "No Party", ["Iowa", 2]],
+  ["rick_stewart", "house", "Iowa", 2, "Libertarian", ["Iowa", 3]],
+  ["dave_bushaw", "house", "Iowa", 2, "No Party", ["Iowa", 3]],
+  ["john_hauer", "house", "Kansas", 2, "Libertarian", ["Kansas", 3]],
+  ["steve_hohe", "house", "Kansas", 3, "Libertarian", ["Kansas", 4]],
+].map(([pid, seat, state, dist, party, nb]) => ({ pid, seat, state, dist, party, nb }));
+{
+  const w0 = boot();
+  const EQ = /\bequity\b|\bstocks?\b|earn (?:a|your) share|\bshareholder|\bdividend/i;
+  for (const c of FED_B4) {
+    const r = w0.CMP_DATA[c.pid];
+    if (!ok(!!r, `${c.pid} has a roster row`)) continue;
+    eq(r.party, c.party, `${c.pid}: party label`);
+    eq(w0._pdxBrowseType(c.pid), c.seat === "senate" ? "senator" : "representative", `${c.pid}: keys to the right chamber`);
+    eq(w0._pdxBrowseStateOf(c.pid), c.state, `${c.pid}: state`);
+    if (c.seat === "house") eq(w0._pdxRelevantDistNum(c.pid), c.dist, `${c.pid}: district`);
+    eq(w0.PDXStatus.resolve(r), "current_candidate", `${c.pid}: a current-cycle candidate`);
+    eq(r.nextElection, "2026-11-03", `${c.pid}: the November 3 election date`);
+    eq(r.score, null, `${c.pid}: no score`);
+    eq(r.kept + r.broken + r.pending, 0, `${c.pid}: an empty ledger`);
+    eq((r.issues || []).length, 0, `${c.pid}: no issue keys`);
+    ok(!EQ.test(JSON.stringify(r)), `${c.pid}: no equity language on the row`);
+    eq(w0.PDXPersonLink.pid(c.pid), c.pid, `/p/${c.pid} resolves to its own file`);
+  }
+  // A SENATE CANDIDATE IS NOT A SITTING SENATOR, in any of the thirteen states.
+  for (const st of [...new Set(FED_B4.filter((c) => c.seat === "senate").map((c) => c.state))]) {
+    const s = w0._pdxStatewideSeats(st);
+    eq(s.ambiguous, false, `${st}: the Senate seats are not called ambiguous`);
+    eq(s.senators.length, 2, `${st}: both sitting senators still resolve`);
+    ok(!s.senators.some((p) => FED_B4.some((c) => c.pid === p)), `${st}: no nominee is named a sitting senator`);
+  }
+  // EACH AFFECTED HOUSE SEAT STILL RESOLVES ITS SITTING MEMBER — exactly the
+  // answer it gave without this batch, and never a new nominee. Three seats
+  // resolved nobody before the batch and still do, for reasons in their own
+  // rows (KY-2: Brett Guthrie's row names no district; KY-4: Thomas Massie
+  // and Ed Gallrein both claim it; FL-20: no member row). Those rows are not
+  // this batch's to change, so they are pinned as they are.
+  const before = boot();
+  for (const c of FED_B4) delete before.CMP_DATA[c.pid];
+  const UNRESOLVED_BEFORE = ["Florida|20", "Kentucky|2", "Kentucky|4"];
+  for (const k of [...new Set(FED_B4.filter((c) => c.seat === "house").map((c) => c.state + "|" + c.dist))]) {
+    const [st, d] = k.split("|");
+    const holder = w0._pdxUsHouseSeat(st, d), was = before._pdxUsHouseSeat(st, d);
+    eq(holder, was, `${st}-${d}: the seat resolves the same member it did without this batch`);
+    ok(!FED_B4.some((c) => c.pid === holder), `${st}-${d}: no new nominee is named the seat's member`);
+    if (UNRESOLVED_BEFORE.includes(k)) eq(holder, null, `${st}-${d}: still unresolved, as before the batch`);
+    else ok(!!holder, `${st}-${d}: the sitting member resolves (got ${holder})`);
+  }
+  // NO EXISTING ROW CHANGED, and the roster grew by exactly this batch.
+  const headSrc = gitShow("cmp-data.js");
+  if (headSrc) {
+    const hw = { CMP_DATA: {} }; new Function("window", headSrc)(hw);
+    const head = hw.CMP_DATA;
+    if (!FED_B4.some((c) => head[c.pid])) {
+      const changed = Object.keys(head).filter((p) => JSON.stringify(head[p]) !== JSON.stringify(w0.CMP_DATA[p]));
+      eq(changed.join(", "), "", "no existing roster row changed");
+      const added = Object.keys(w0.CMP_DATA).filter((p) => !head[p]);
+      eq(added.slice().sort().join(","), FED_B4.map((c) => c.pid).sort().join(","), "the roster grew by exactly this batch's fifty-three ids");
+    } else passed += 2; // HEAD already holds this batch: the pin belongs to the commit that added it
+  } else passed++;
+}
+const b4Cache = {};
+for (const c of FED_B4) {
+  const k = c.seat + c.state + c.dist;
+  if (!b4Cache[k]) {
+    const w = fed(c.state, c.dist, { noLive: true });
+    const sf = w.pdxSeatField(c.seat);
+    const { d, g } = seatHtml(w, c.seat);
+    const h = fed(c.state, c.dist, { homepage: true, noLive: true });
+    const hsf = h.pdxSeatField(c.seat);
+    const card = (hsf && hsf.answerable ? hsf.pids : []).filter((p) => ["incumbent", "current_candidate"].includes(h.PDXStatus.resolve(h.CMP_DATA[p] || {})));
+    b4Cache[k] = { sf, d, g, card, roles: rosterRoles(d) };
+    const s = b4Cache[k];
+    ok(!!(sf && sf.answerable), `${c.state} ${c.seat} ${c.dist} is answerable (${sf && sf.reason})`);
+    eq(rosterCount(d), s.roles.length, `${c.state} ${c.seat} ${c.dist}: the count is the list`);
+    if (!(c.seat === "house" && ["Florida|20", "Kentucky|2", "Kentucky|4"].includes(c.state + "|" + c.dist))) {
+      ok(s.roles.some(([, role]) => role === "incumbent"), `${c.state} ${c.seat} ${c.dist}: the sitting member is still listed as incumbent`);
+    } else passed++;
+    eq(JSON.stringify(s.roles.map(([p]) => p).slice().sort()), JSON.stringify(card.slice().sort()), `${c.state} ${c.seat} ${c.dist}: /ballot lists the homepage card's people`);
+  }
+  const s = b4Cache[k];
+  ok(s.roles.some(([p, role]) => p === c.pid && role === "candidate"), `${c.state} ${c.seat} ${c.dist} lists ${c.pid} as a candidate (got ${s.roles.map((x) => x.join(":")).join(", ")})`);
+  has(s.d, `href="/p/${c.pid}" data-pdx-person-link="${c.pid}"`, `${c.pid} links to /p/`);
+  has(s.g, `href="/p/${c.pid}"`, `…and at a glance`);
+  ok(s.card.includes(c.pid), `the homepage card for ${c.state} ${c.seat} ${c.dist} holds ${c.pid}`);
+  const n = fed(c.nb[0], c.nb[1], { noLive: true });
+  ok(!(n.pdxSeatField(c.seat).pids || []).includes(c.pid), `${c.pid} is not on ${c.nb[0]} ${c.seat} ${c.nb[1]}`);
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
 section("2c · Election timing: stored, or honestly absent");
 {
   // A seat with no stored date says so, and prints no countdown. Provo's U.S.
