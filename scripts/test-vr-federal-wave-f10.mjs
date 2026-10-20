@@ -53,7 +53,7 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { SH_SEAMS, carveSeams, assertStanceHelpersSeam,
-  assertRosterOfficeIsTheOnlyMove, deOrigin } from "./v103-chrome-seams.mjs";
+  assertRosterOfficeIsTheOnlyMove, deOrigin, withoutDeclaredStanceChunks, declaredStanceMovesAtHead } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -448,7 +448,10 @@ const C = decide._counts || {};
   // wave editing an engine, and the site collapsing onto one public origin moved a
   // baked share host and nothing else. See deOrigin in scripts/v103-chrome-seams.mjs
   // for why that is normalised rather than waived. Every other byte still compared.
-  const touched = FILES.filter((f) => { const h = headSrc(f); return h !== null && deOrigin(h) !== deOrigin(nowSrc(f)); });
+  // A stance chunk that moved only for a declared stance pass (v103-chrome-seams.mjs)
+  // is that pass's edit, not this wave's; the rows of exactly those people are
+  // set aside below and every other row is still compared.
+  const touched = withoutDeclaredStanceChunks(FILES).filter((f) => { const h = headSrc(f); return h !== null && deOrigin(h) !== deOrigin(nowSrc(f)); });
   // WHOSE EDIT THIS IS, AND WHY IT DOES NOT DISSOLVE THE CHECK. The sentence above
   // is about F10: a wave whose product is a measurement has no business editing the
   // thing it measured, and if F10's own diff reached one of these files the audit
@@ -617,6 +620,7 @@ const C = decide._counts || {};
     let rows = 0, rowBad = 0, tiers = new Map();
     for (const pid of PIDS) {
       let ra = [], rb = [];
+      if (declaredStanceMovesAtHead().moved.has(pid)) continue; // a declared stance pass (v103-chrome-seams.mjs)
       try { ra = head.PDXConsistency.issueRows(pid) || []; } catch (e) { continue; }
       try { rb = work.PDXConsistency.issueRows(pid) || []; } catch (e) { rb = []; }
       if (rb.map((r) => r.key).join("|") !== ra.map((r) => r.key).join("|")) { rowBad++; failures.push(`${pid}: the issue-row list changed`); }

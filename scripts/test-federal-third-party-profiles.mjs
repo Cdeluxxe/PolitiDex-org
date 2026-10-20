@@ -138,9 +138,51 @@ const BATCH4 = {
 };
 Object.keys(BATCH4).forEach((p) => { PASS_OF[p] = "federal_third_party_light_profiles_b4_oct2026"; });
 Object.assign(PEOPLE, BATCH4);
+// The below-floor pass: thirty-one of the thirty-eight third-party and
+// independent nominees the sitemap left out (the Davis, Utah, Utah House w3 and
+// batch-4 remainders) whose own published material states three or more
+// positions an existing key holds.
+const BELOW_FLOOR = {
+  jeffrey_ostler: { keys: ["lower_taxes",  "prop_tax",  "sound_money",  "gov_waste"], hosts: ["www.sltrib.com"], bio: "a Davis County candidate who" },
+  james_rich: { keys: ["housing_first_time",  "water",  "gov_transparency"], hosts: ["www.forwardwith.us",  "www.sltrib.com"], bio: "president of the business so" },
+  libby_shelton: { keys: ["housing_build",  "climate_action",  "water",  "voting_access",  "gov_transparency"], hosts: ["www.sltrib.com",  "www.libbyforutah.com"], bio: "a Pleasant View therapist wh" },
+  tony_de_mille: { keys: ["housing_first_time",  "water",  "gov_transparency"], hosts: ["www.voteforbigtony.com"], bio: "a Davis County Realtor and l" },
+  elias_montgomery: { keys: ["housing",  "housing_build",  "lower_taxes",  "healthcare_costs",  "privacy_rights"], hosts: ["www.eliasmontgomery.com"], bio: "a policy analyst who graduat" },
+  carlton_bowen: { keys: ["national_debt",  "immig_legal",  "strong_defense",  "privacy_rights"], hosts: ["onyourballot.vote411.org",  "bowenforcongress.com"], bio: "an Air Force veteran and for" },
+  daniel_cottam: { keys: ["gov_balance",  "health_drug_prices",  "privacy_rights",  "war_powers"], hosts: ["ballotpedia.org"], bio: "a Salt Lake City-born bariat" },
+  robert_moesinger: { keys: ["housing_build",  "immigration_reform",  "congress_oversight",  "permitting_reform",  "war_powers"], hosts: ["onyourballot.vote411.org",  "bountifulfarmingtonrecord.com"], bio: "an Ogden automation engineer" },
+  michael_stoddard: { keys: ["audit_spending",  "sound_money",  "guard_authority",  "healthcare_market"], hosts: ["web.archive.org"], bio: "a certified public accountan" },
+  adonis_hooslyn: { keys: ["healthcare",  "stock_trading_ban",  "immigration_reform",  "scotus_reform",  "housing_support"], hosts: ["www.hooslynforhouse.com",  "onyourballot.vote411.org"], bio: "an Ogden-raised Full Sail Un" },
+  ayden_scott: { keys: ["gun_rights",  "pro_life",  "gov_balance",  "energy_production",  "immig_balance"], hosts: ["aydenscott4congress.com"], bio: "a 26-year-old firefighter an" },
+  steven_burt: { keys: ["term_limits",  "stock_trading_ban",  "gov_balance",  "checks_balances",  "housing"], hosts: ["onyourballot.vote411.org"], bio: "a South Jordan attorney who " },
+  j_lowry_snow: { keys: ["housing_build",  "child_care",  "econ_workers",  "tech_balance",  "water"], hosts: ["jlowrysnow.com",  "www.sltrib.com"], bio: "who says he works in the art" },
+  jason_odell: { keys: ["property_rights",  "sound_money",  "housing_build",  "lower_taxes"], hosts: ["votejasonodell.org",  "www.sltrib.com"], bio: "a Texas native and 2015 Utah" },
+  patrick_belmont: { keys: ["housing_first_time",  "water",  "climate_action",  "lands_keep_public",  "gov_transparency"], hosts: ["www.belmont4utah.org",  "www.sltrib.com"], bio: "a Utah State University prof" },
+  cabot_nelson: { keys: ["housing_build",  "water",  "public_schools"], hosts: ["votecabotnelson.com"], bio: "a native Utahn raised in Wes" },
+  wales_nematollahi: { keys: ["housing_support",  "water",  "public_schools",  "transit"], hosts: ["www.sltrib.com",  "walesforutah.com"], bio: "a Tooele resident since 2004" },
+  tynley_bean: { keys: ["public_schools",  "gov_waste",  "datacenter_power",  "housing_build",  "transit"], hosts: ["tynleybeanforutah.com",  "www.sltrib.com"], bio: "an art educator and small bu" },
+  john_boyd: { keys: ["public_schools",  "voting_access",  "tech_balance",  "water",  "lands_preserve"], hosts: ["lehifreepress.com"], bio: "a Marine Corps veteran and t" },
+  julie_smith: { keys: ["housing_first_time",  "datacenter_water",  "water",  "gov_transparency",  "transit"], hosts: ["docs.google.com"], bio: "a U.S. history teacher who h" },
+  alan_wessman: { keys: ["voting_access",  "water",  "public_schools",  "transit",  "climate_action"], hosts: ["electawessman.com"], bio: "a software engineer for a cy" },
+  sergio_sotelo: { keys: ["econ_workers",  "housing_build",  "edu_balance",  "enviro_balance",  "gov_transparency"], hosts: ["www.electsergiosotelo.com",  "www.sltrib.com"], bio: "a union electrician and trea" },
+  russ_hatch: { keys: ["pro_life",  "school_choice",  "edu_parental",  "religious_liberty",  "econ_smallbiz"], hosts: ["freedomvoterguide.com",  "chooseruss.weebly.com"], bio: "a retiree living in Manti wh" },
+  april_pinkston: { keys: ["lower_taxes",  "edu_parental",  "property_rights",  "election_integrity",  "pro_life"], hosts: ["www.sltrib.com",  "freedomvoterguide.com"], bio: "a retired American history t" },
+  mark_hackett: { keys: ["national_debt",  "america_first_fp",  "war_powers"], hosts: ["www.scconstitutionparty.com"], bio: "a Greenville resident who pr" },
+  jeremy_hearn: { keys: ["national_debt",  "immigration_reform",  "econ_workers"], hosts: ["www.jeremydeanhearnforsenate.com"], bio: "a self-described development" },
+  yoshi_matthews: { keys: ["prop_tax",  "immig_balance",  "cost_living"], hosts: ["yoshimatthewssenate.com"], bio: "the founder of FTP Nonprofit" },
+  david_sutman: { keys: ["term_limits",  "gov_transparency",  "cost_living",  "econ_smallbiz"], hosts: ["www.sutmanjr4senate.com"], bio: "a candidate from Gray who de" },
+  joanne_kuniansky: { keys: ["econ_workers",  "immigration_reform",  "restraint",  "israel_support"], hosts: ["shorthillssentinel.com"], bio: "a West New York resident who" },
+  dianne_blais: { keys: ["restraint",  "healthcare",  "econ_workers",  "transit",  "housing_support"], hosts: ["www.vpm.org",  "dianneforcongress.org"], bio: "a Fairfax County volunteer a" },
+  ed_hershey: { keys: ["econ_workers",  "restraint",  "immigration_reform",  "national_debt",  "public_schools"], hosts: ["chicago.suntimes.com",  "workingclassfight.com"], bio: "a teacher at Lindblom High S" },
+};
+Object.keys(BELOW_FLOOR).forEach((p) => { PASS_OF[p] = "third_party_light_profiles_below_floor_oct2026"; });
+Object.assign(PEOPLE, BELOW_FLOOR);
 // …and the other ten, who have no usable primary source or fewer than three
 // positions an existing key holds. Their files stay empty: no bio, no claim.
-const EMPTY_B4 = ["sevier_white", "mark_hackett", "jeremy_hearn", "yoshi_matthews", "david_sutman", "joanne_kuniansky", "dianne_blais", "terrisa_bukovinac", "ed_hershey", "thomas_loecken"];
+const EMPTY_B4 = ["sevier_white", "terrisa_bukovinac", "thomas_loecken"];
+// The Utah below-floor nominees whose own material states no position, or only
+// questions: no bio, no claim.
+const EMPTY_UT = ["zeno_parry", "jonathan_garrard", "jennifer_doud", "sonya_ray"];
 // Topics the user asked about that these sources do not state, or state with
 // no key to hold them: no card may sit on these keys.
 const NOT_IN_SOURCE = {
@@ -330,8 +372,8 @@ ok(equityIn("earn a share of PolitiDex stock"), "the equity check still catches 
 ok(equityIn("members earn equity in PolitiDex"), "…and the bare word equity outside the private-equity phrase");
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("4b · batch 4's people with no usable source stay empty");
-for (const pid of EMPTY_B4) {
+section("4b · the people with no usable source stay empty");
+for (const pid of [...EMPTY_B4, ...EMPTY_UT]) {
   const rec = w.CMP_DATA[pid];
   if (!ok(!!rec, `${pid} has a roster row`)) continue;
   ok(!rec.bio, `${pid}: no bio`);
@@ -339,7 +381,7 @@ for (const pid of EMPTY_B4) {
   eq(T.leaves(pid).length, 0, `${pid}: no topic-tree row`);
   ok(!PEOPLE[pid], `${pid}: not in the reviewed list`);
 }
-eq(EMPTY_B4.length + Object.keys(BATCH4).length, 53, "batch 4's 53 people are all accounted for: profiled or empty");
+eq(EMPTY_B4.length + Object.keys(BATCH4).length + ["mark_hackett", "jeremy_hearn", "yoshi_matthews", "david_sutman", "joanne_kuniansky", "dianne_blais", "ed_hershey"].filter((p) => BELOW_FLOOR[p]).length, 53, "batch 4's 53 people are all accounted for: profiled or empty");
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("5 · everyone else is unchanged, and so are the twelve roster rows");

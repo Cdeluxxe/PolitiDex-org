@@ -10367,7 +10367,18 @@
 //     Match figure, no new key.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v429';
+// v430 - THIRD-PARTY LIGHT PROFILES BELOW THE FLOOR. Thirty-one of the
+//     thirty-eight third-party and independent nominees the sitemap left out
+//     (Davis, Utah statewide, Utah House w3 and the batch-4 remainder) gain a
+//     one-sentence bio (cmp-data-detail.js) and three to five campaign claims
+//     each from their own site or a questionnaire they answered, marked
+//     claim:'campaign' on existing issue keys (politician-stances-ext.js,
+//     regenerated); sitemap.xml names their files. The other seven have no
+//     usable primary source and stay empty. The shell moves one version so the
+//     person shells pick them up. No score, no Direction Match figure, no new key.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v430';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
