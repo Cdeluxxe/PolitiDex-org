@@ -13,8 +13,9 @@
 //      gate and names a roll call the archive's vote seeds carry (same chamber,
 //      congress, session, roll number and bill), and no shipped donor row reads
 //      as AIPAC-affiliated.
-//   7. Three or more scored votes read from the scorecard and name it; fewer
-//      stay on the unchanged empty state.
+//   7. Three or more scored votes read from the scorecard and name Track AIPAC; fewer
+//      stay on the empty state.
+//   8. All four states, and none of them ever says "AIPAC scorecard".
 //
 //   node scripts/test-aipac-chip.mjs
 
@@ -56,7 +57,7 @@ const vote = (roll, position, extra = {}) => ({
 });
 const row = (roll, position = "support") => ({
   chamber: "house", congress: 119, session: 1, rollNumber: roll,
-  measure: "H.R. " + (100 + roll), position, source: "https://www.aipac.org/",
+  measure: "H.R. " + (100 + roll), position, source: "https://www.trackaipac.com/",
 });
 const CARD = [1, 2, 3, 4, 5].map((i) => row(i));
 
@@ -120,6 +121,7 @@ section("4 · the scorecard counts only formal acts already in the archive");
   const w = boot({ records: {
     hi: mk(["yea", "yea", "yea", "yea", "nay"]),
     lo: mk(["yea", "nay", "nay", "yea", "nay"]),
+    none: mk(["nay", "nay", "nay", "nay", "nay"]),
     thin: mk(["yea", "yea"]),
     other: [vote(40, "yea"), vote(41, "yea"), vote(42, "yea")],
     // Same roll numbers, wrong bill / wrong congress / not a vote: not the act.
@@ -139,9 +141,13 @@ section("4 · the scorecard counts only formal acts already in the archive");
   w.PDXAipac.SCORECARD.push(row(6, "oppose"));
   ok(w.PDXAipac.read("hi").state === "backed", "an oppose row changed an unrelated read");
   const hi = w.PDXAipac.chipHtml("hi");
-  ok(w.PDXAipac.read("hi").state === "backed" && /AIPAC scorecard/.test(aria(hi)), "a matching record is not AIPAC-backed with the scorecard named");
+  ok(w.PDXAipac.read("hi").state === "backed" && /Track AIPAC reading/.test(aria(hi)), "a matching record is not AIPAC-backed with Track AIPAC named");
   ok(/pdxsec-voting/.test(hi), "a scorecard-only chip does not open the voting record");
   ok(w.PDXAipac.read("lo").state === "mixed", "a mixed record is not Mixed");
+  const none = w.PDXAipac.chipHtml("none");
+  ok(w.PDXAipac.read("none").state === "notaligned", "a record entirely against the aligned side is not Not AIPAC-aligned");
+  ok(visible(none).includes("Not AIPAC-aligned") && visible(none).includes("Track AIPAC reading"), `not-aligned visible text: ${visible(none)}`);
+  ok(/Not AIPAC-aligned/.test(aria(none)) && /Track AIPAC/.test(aria(none)) && /not AIPAC/.test(aria(none)), `not-aligned accessible name: ${aria(none)}`);
   ok(w.PDXAipac.read("thin").state === "empty", "two votes made a voting record");
   ok(w.PDXAipac.read("other").state === "empty", "a vote outside the scorecard was counted");
 }
@@ -204,12 +210,33 @@ section("7 · three scored votes read from the scorecard, fewer stay empty");
   w.PDXAipac.SCORECARD.push(...CARD);
   const three = w.PDXAipac.chipHtml("three");
   ok(!/data-pdx-aipac-state="empty"/.test(three), "three scored votes still read empty");
-  ok(/AIPAC scorecard/.test(aria(three)) && /AIPAC scorecard/.test(visible(three)), "a scorecard read does not name the scorecard");
+  ok(/Track AIPAC reading/.test(aria(three)) && /Track AIPAC reading/.test(visible(three)), "a scorecard read does not name Track AIPAC");
   const two = w.PDXAipac.chipHtml("two");
   ok(/data-pdx-aipac-state="empty"/.test(two), "two scored votes produced a read");
   // The empty-state wording, pinned word for word.
   eq(visible(two), "💰 No AIPAC file on hand", "empty-state visible text");
-  eq(aria(two), "AIPAC relationship: No AIPAC file on hand. No AIPAC or AIPAC-affiliated PAC receipts in the OpenSecrets or FEC data on file, and no AIPAC scorecard votes mapped to this archive. This is not a finding that there is no relationship.", "empty-state accessible name");
+  eq(aria(two), "AIPAC relationship: No AIPAC file on hand. No AIPAC or AIPAC-affiliated PAC receipts in the OpenSecrets or FEC data on file, and no Track AIPAC vote readings mapped to this archive. This is not a finding that there is no relationship.", "empty-state accessible name");
+}
+
+section("8 · the chip never says \"AIPAC scorecard\"");
+{
+  const card = [1, 2, 3, 4, 5].map((i) => row(i));
+  const recs = {};
+  for (const [pid, ps] of Object.entries({ b: "yyyyy", m: "yynnn", n: "nnnnn", t: "yy" })) {
+    recs[pid] = [...ps].map((c, i) => vote(i + 1, c === "y" ? "yea" : "nay"));
+  }
+  const w = boot({ filings: { a: BACKED, o: OLD }, records: { ...recs, o: recs.n } });
+  w.PDXAipac.SCORECARD.push(...card);
+  const states = new Set();
+  for (const pid of ["a", "o", "b", "m", "n", "t", "nobody"]) {
+    const html = w.PDXAipac.chipMount(pid);
+    states.add(w.PDXAipac.read(pid).state);
+    ok(!/AIPAC scorecard/i.test(html), `${pid}: the chip says "AIPAC scorecard"`);
+    ok(!/\$|%|\d/.test(visible(html) + " " + aria(html)), `${pid}: the chip prints a figure`);
+  }
+  ok(states.size === 4, `all four states were not exercised: ${[...states]}`);
+  ok(w.PDXAipac.read("o").state === "mixed", "old AIPAC money beside a not-aligned record is not Mixed");
+  ok(!/AIPAC scorecard/i.test(SRC.replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, "")), "pdx-aipac.js code says \"AIPAC scorecard\"");
 }
 
 console.log(`\n   ${passed} passed, ${failures.length} failed`);

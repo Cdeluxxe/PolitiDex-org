@@ -2,17 +2,20 @@
    pdx-aipac.js — THE AIPAC CHIP ON THE PERSON-FILE LETTERHEAD
    ============================================================================
    WHAT IT ANSWERS. One question a reader could not answer from a person file:
-   has this person taken AIPAC money, or voted with AIPAC's published positions?
+   has this person taken AIPAC money, or voted the way an AIPAC tracker reads
+   as AIPAC-aligned?
    The 💰 pills answer "what did the campaign raise" and "is an in-office
    disclosure on file"; the stance pills answer issue positions. Neither names the
-   AIPAC relationship, so this chip does, in one of three states:
+   AIPAC relationship, so this chip does, in one of four states:
 
        AIPAC-backed           AIPAC or AIPAC-affiliated PAC money in the filing
-                              on file for the current cycle, OR a voting record
-                              that matches AIPAC's published scorecard positions
+                              on file for the current cycle, OR scored votes on
+                              the side the reading publisher calls AIPAC-aligned
                               at or above BACKED_SHARE.
        Mixed                  some AIPAC-affiliated money (not the current
-                              cycle), or a scorecard record below BACKED_SHARE.
+                              cycle), or scored votes split between the sides.
+       Not AIPAC-aligned      scored votes on the other side at or below
+                              NOT_ALIGNED_SHARE, and no AIPAC money on file.
        No AIPAC file on hand  neither source holds anything for this person.
 
    TWO SOURCES, BOTH ALREADY ON THE SITE OR EMPTY ON PURPOSE.
@@ -25,23 +28,28 @@
         person have a filing" and the money lane's seam sweep still sees two
         files.
 
-     2. AIPAC SCORECARDS. SCORECARD is AIPAC's own published position per roll
-        call for the current Congress, keyed by the archive's identity for that
+     2. A THIRD-PARTY READING. AIPAC publishes no scorecard of its own, so
+        SCORECARD holds one named outside publisher's reading — READING.name,
+        Track AIPAC — of which side of a roll call is AIPAC-aligned, for the
+        current Congress, keyed by the archive's identity for that
         roll call: chamber, congress, session, roll number, and the bill it
         voted on. A row only counts for a person when that roll call is ALREADY
         a formal act in their voting record (PDXVotingRecord.memberRecords) with
         a yea or nay. Nothing here creates a vote.
 
-        THE TABLE IS STILL EMPTY, AND THAT IS A FACT ABOUT AIPAC, NOT A BACKLOG.
-        A fill pass (October 2026) went looking for the scorecard to transcribe
-        and found that AIPAC publishes none: no key-vote list, no member ratings,
-        no roll-call positions on aipac.org. Its bill-summary pages describe a
-        handful of 119th-Congress bills favourably without stating "supports"
-        or naming a vote, and none of those bills is in the archive. The
-        scorecards that do exist for this Congress (USCPR, IMEU, AJP, Track
-        AIPAC) are other organisations' readings, and printing one as "AIPAC
-        scorecard" would put words in AIPAC's mouth. So: no rows until AIPAC
-        itself publishes a position on a roll call the archive carries.
+        The chip names the publisher, never AIPAC, as the author of the
+        reading: "Track AIPAC reading", in the visible text and the accessible
+        name alike. It never says "AIPAC scorecard".
+
+        THE TABLE IS STILL EMPTY, AND THAT IS A FACT ABOUT THE PUBLISHER. A fill
+        pass (October 2026) found that AIPAC publishes no vote positions, and
+        that Track AIPAC publishes none either: its member pages carry
+        pro-Israel PAC and independent-expenditure totals from FEC data and a
+        red / green graphic, and its methodology says those graphics draw on a
+        voting record without listing which roll calls or which side. A row
+        here must quote a roll call and a side the publisher itself names, so
+        there is nothing of Track AIPAC's to transcribe. No rows until it
+        publishes one for a roll call the archive carries.
 
    WHAT IT NEVER PRINTS. No dollar figure, no percentage, no score, no count — in
    the visible text or in the accessible name. The chip names a relationship and
@@ -76,12 +84,22 @@
   // scorecard side reads as nothing on file.
   var BACKED_SHARE = 0.8;
   var MIN_SCORED = 3;
+  // "Not AIPAC-aligned": one scored vote in five or fewer on the aligned side.
+  // Between the two is Mixed — a record that genuinely splits.
+  var NOT_ALIGNED_SHARE = 0.2;
 
-  // AIPAC's published scorecard for the current Congress, one row per scored
+  // Whose reading the table holds. The chip prints `label` as the source.
+  var READING = {
+    name: 'Track AIPAC',
+    label: 'Track AIPAC reading',
+    url: 'https://www.trackaipac.com/'
+  };
+
+  // READING's published positions for the current Congress, one row per scored
   // roll call:
   //   { chamber: 'house'|'senate', congress: 119, session: 1|2, rollNumber,
   //     measure: 'H.R. 23', position: 'support'|'oppose', source: 'https://…' }
-  // `position` is AIPAC's stance on the ACT; the matching vote is yea for
+  // `position` is the side READING calls AIPAC-aligned on the ACT; the matching vote is yea for
   // support and nay for oppose, flipped on a roll call the archive marks as
   // advance-inverted (a motion to table, say). Not the archive's database id:
   // that is a serial number, and it does not survive a reseed. EMPTY — see the
@@ -172,7 +190,7 @@
       if (!it || it.kind !== 'vote' || String(it.congress) !== CONGRESS) return;
       var row = want[rowKey(it)];
       if (!row || (it.position !== 'yea' && it.position !== 'nay')) return;
-      // Same roll call AND same bill, or it is not the act AIPAC scored.
+      // Same roll call AND same bill, or it is not the act the reading scored.
       if (normMeasure(it.number) !== normMeasure(row.measure)) return;
       var aligned = row.position === 'support' ? 'yea' : 'nay';
       if (it.advanceInverted) aligned = aligned === 'yea' ? 'nay' : 'yea';
@@ -180,7 +198,11 @@
       if (it.position === aligned) matched++;
     });
     if (scored < MIN_SCORED) return null;
-    return { state: matched / scored >= BACKED_SHARE ? 'backed' : 'mixed', source: 'AIPAC scorecard' };
+    var share = matched / scored;
+    return {
+      state: share >= BACKED_SHARE ? 'backed' : share <= NOT_ALIGNED_SHARE ? 'notaligned' : 'mixed',
+      source: READING.label
+    };
   }
 
   // The whole read: a state and the sources behind it. No figure leaves here.
@@ -190,40 +212,47 @@
     try { var s = scorecardRead(pid); if (s) reads.push(s); } catch (e) {}
     if (!reads.length) return { state: 'empty', sources: [] };
     var backed = reads.filter(function (r) { return r.state === 'backed'; });
-    var use = backed.length ? backed : reads;
+    if (backed.length) return { state: 'backed', sources: backed.map(function (r) { return r.source; }) };
+    // "Not AIPAC-aligned" only when every read on file says so: AIPAC money
+    // in an earlier cycle beside a not-aligned voting record is Mixed.
+    var notAligned = reads.every(function (r) { return r.state === 'notaligned'; });
     return {
-      state: backed.length ? 'backed' : 'mixed',
-      sources: use.map(function (r) { return r.source; })
+      state: notAligned ? 'notaligned' : 'mixed',
+      sources: reads.map(function (r) { return r.source; })
     };
   }
 
   // ── THE CHIP ───────────────────────────────────────────────────────────────
-  var STATE_TEXT = { backed: 'AIPAC-backed', mixed: 'Mixed', empty: 'No AIPAC file on hand' };
+  var STATE_TEXT = { backed: 'AIPAC-backed', mixed: 'Mixed', notaligned: 'Not AIPAC-aligned', empty: 'No AIPAC file on hand' };
 
   function label(r) {
     if (r.state === 'empty') {
       return 'AIPAC relationship: No AIPAC file on hand. No AIPAC or AIPAC-affiliated PAC ' +
-        'receipts in the OpenSecrets or FEC data on file, and no AIPAC scorecard votes ' +
+        'receipts in the OpenSecrets or FEC data on file, and no ' + READING.name + ' vote readings ' +
         'mapped to this archive. This is not a finding that there is no relationship.';
     }
     var src = r.sources.join(' and ');
     var why = r.state === 'backed'
-      ? 'AIPAC or AIPAC-affiliated PAC money in the current cycle, or votes matching AIPAC’s published scorecard positions'
-      : 'some AIPAC-affiliated money, or a voting record mixed against AIPAC’s published scorecard';
+      ? 'AIPAC or AIPAC-affiliated PAC money in the current cycle, or votes on the side ' + READING.name + ' reads as AIPAC-aligned'
+      : r.state === 'notaligned'
+        ? 'votes against the side ' + READING.name + ' reads as AIPAC-aligned'
+        : 'some AIPAC-affiliated money, or votes split across the sides ' + READING.name + ' reads';
+    var by = r.sources.indexOf(READING.label) >= 0
+      ? ' The vote positions are ' + READING.name + '\u2019s, not AIPAC\u2019s.' : '';
     return 'AIPAC relationship: ' + STATE_TEXT[r.state] + '. Source: ' + src + '. ' +
-      'Based on ' + why + '. Not a score and not a dollar figure.';
+      'Based on ' + why + '.' + by + ' Not a score and not a dollar figure.';
   }
 
   function segments(r) {
     if (r.state === 'empty') return [STATE_TEXT.empty];
-    if (r.state === 'backed') return [STATE_TEXT.backed].concat(r.sources);
+    if (r.state === 'backed' || r.state === 'notaligned') return [STATE_TEXT[r.state]].concat(r.sources);
     return ['AIPAC', STATE_TEXT.mixed].concat(r.sources);
   }
 
   // Receipts open the money section; a scorecard-only read opens the voting
   // record it was built from.
   function targetFor(r) {
-    return r.sources.length === 1 && r.sources[0] === 'AIPAC scorecard' ? 'pdxsec-voting' : 'pdxsec-funding';
+    return r.sources.length === 1 && r.sources[0] === READING.label ? 'pdxsec-voting' : 'pdxsec-funding';
   }
 
   function open(id) {
@@ -303,6 +332,7 @@
     isAffiliated: isAffiliated,
     scorecardDefects: scorecardDefects,
     SCORECARD: SCORECARD,
+    READING: READING,
     CONGRESS: CONGRESS,
     scored: false,
     NEVER_FEEDS: ['directionMatch', 'wordVsAction', 'formalPatternTier',
