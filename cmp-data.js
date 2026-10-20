@@ -15926,5 +15926,719 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "party": "Constitution", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
   "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
+ },
+// ── Federal third-party and independent nominees, batch 1, 2026 general election (Oct 2026)
+// Independent, Libertarian and Constitution nominees on the November 3, 2026
+// ballot for U.S. House and U.S. Senate seats the roster already covers, per
+// Ballotpedia's 2026 general-election candidate lists and the states' own
+// filings. Users in these districts saw only the major-party field. Same shape
+// as the Utah batches above: identity rows only — office, district and party as
+// filed, `score` null, an empty ledger, `issues` empty rather than guessed.
+// A single-district state is stored as district 1, the number the location
+// resolver gives an at-large seat; the office label still says AL. Write-in
+// and disqualified filers are not nominees and are not here.
+ // ID-2 · Libertarian
+ "will_johanson": {
+  "name": "Will Johanson", "office": "U.S. House Candidate (ID-2)",
+  "state": "Idaho", "district": "2",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CO-3 · Libertarian
+ "cory_robertson": {
+  "name": "Cory Robertson", "office": "U.S. House Candidate (CO-3)",
+  "state": "Colorado", "district": "3",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // AZ-1 · Libertarian
+ "monica_alponte": {
+  "name": "Monica Alponte", "office": "U.S. House Candidate (AZ-1)",
+  "state": "Arizona", "district": "1",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WY-AL · Libertarian
+ "shawn_johnson": {
+  "name": "Shawn Johnson", "office": "U.S. House Candidate (WY-AL)",
+  "state": "Wyoming", "district": "1",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WY-AL · Constitution
+ "jeff_haggit": {
+  "name": "Jeffrey Haggit", "office": "U.S. House Candidate (WY-AL)",
+  "state": "Wyoming", "district": "1",
+  "party": "Constitution", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MO-1 · Libertarian
+ "tom_schmitz": {
+  "name": "Tom Schmitz", "office": "U.S. House Candidate (MO-1)",
+  "state": "Missouri", "district": "1",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MO-2 · Libertarian
+ "brandon_daugherty": {
+  "name": "Brandon Daugherty", "office": "U.S. House Candidate (MO-2)",
+  "state": "Missouri", "district": "2",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // AK-AL · Independent
+ "bill_hill": {
+  "name": "Bill Hill", "office": "U.S. House Candidate (AK-AL)",
+  "state": "Alaska", "district": "1",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // ID-1 · Independent
+ "sarah_zabel": {
+  "name": "Sarah Zabel", "office": "U.S. House Candidate (ID-1)",
+  "state": "Idaho", "district": "1",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Nebraska U.S. Senate · Independent
+ "dan_osborn": {
+  "name": "Dan Osborn", "office": "U.S. Senate Candidate",
+  "state": "Nebraska",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // South Dakota U.S. Senate · Independent
+ "brian_bengs": {
+  "name": "Brian Bengs", "office": "U.S. Senate Candidate",
+  "state": "South Dakota",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Idaho U.S. Senate · Independent
+ "todd_achilles": {
+  "name": "Todd Achilles", "office": "U.S. Senate Candidate",
+  "state": "Idaho",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+// ── Federal third-party and independent nominees, batch 2, 2026 general election (Oct 2026)
+// Independent, Libertarian and Green U.S. Senate nominees on the November 3,
+// 2026 ballot, per Ballotpedia's 2026 general-election candidate lists. Same
+// shape as batch 1: identity rows only — office, state and party as listed,
+// `score` null, an empty ledger, `issues` empty. Office is "U.S. Senate
+// Candidate", which the statewide resolver never counts as a sitting senator.
+ // Montana U.S. Senate · Independent
+ "seth_bodnar": {
+  "name": "Seth Bodnar", "office": "U.S. Senate Candidate",
+  "state": "Montana",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Mississippi U.S. Senate · Independent
+ "ty_pinkins": {
+  "name": "Ty Pinkins", "office": "U.S. Senate Candidate",
+  "state": "Mississippi",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Minnesota U.S. Senate · Libertarian
+ "rebecca_whiting": {
+  "name": "Rebecca Whiting", "office": "U.S. Senate Candidate",
+  "state": "Minnesota",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Minnesota U.S. Senate · Independent
+ "marisa_simonetti": {
+  "name": "Marisa Simonetti", "office": "U.S. Senate Candidate",
+  "state": "Minnesota",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Arkansas U.S. Senate · Libertarian
+ "jeff_wadlin": {
+  "name": "Jeff Wadlin", "office": "U.S. Senate Candidate",
+  "state": "Arkansas",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Idaho U.S. Senate · Independent
+ "natalie_fleming": {
+  "name": "Natalie Fleming", "office": "U.S. Senate Candidate",
+  "state": "Idaho",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Idaho U.S. Senate · Libertarian
+ "matt_loesby": {
+  "name": "Matt Loesby", "office": "U.S. Senate Candidate",
+  "state": "Idaho",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Montana U.S. Senate · Libertarian
+ "kyle_austin": {
+  "name": "Kyle Austin", "office": "U.S. Senate Candidate",
+  "state": "Montana",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Michigan U.S. Senate · Libertarian
+ "lydia_christensen": {
+  "name": "Lydia Christensen", "office": "U.S. Senate Candidate",
+  "state": "Michigan",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Michigan U.S. Senate · Green
+ "douglas_marsh": {
+  "name": "Douglas P. Marsh", "office": "U.S. Senate Candidate",
+  "state": "Michigan",
+  "party": "Green", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // North Carolina U.S. Senate · Libertarian
+ "shannon_bray": {
+  "name": "Shannon W. Bray", "office": "U.S. Senate Candidate",
+  "state": "North Carolina",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Texas U.S. Senate · Libertarian
+ "ted_brown": {
+  "name": "Ted Brown", "office": "U.S. Senate Candidate",
+  "state": "Texas",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+// ── Federal third-party and independent nominees, batch 3, 2026 general election (Oct 2026)
+// Libertarian, Constitution, Green and Independent nominees on the November 3,
+// 2026 ballot, per Ballotpedia's 2026 general-election candidate lists. Same
+// shape as batches 1 and 2: identity rows only — office, district and party as
+// listed, `score` null, an empty ledger, `issues` empty. A single-district state
+// is stored as district 1; the office label still says AL. Monica Alponte
+// (AZ-1), Carlton Bowen (UT-2), Jesse West (UT-1) and Shawn Johnson (WY-AL)
+// were already on file with these seats and labels, so they are not repeated.
+ // Colorado U.S. Senate · Libertarian
+ "blake_huber": {
+  "name": "Blake Huber", "office": "U.S. Senate Candidate",
+  "state": "Colorado",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Ohio U.S. Senate · Libertarian
+ "bill_redpath": {
+  "name": "Bill Redpath", "office": "U.S. Senate Candidate",
+  "state": "Ohio",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // West Virginia U.S. Senate · Constitution
+ "s_marshall_wilson": {
+  "name": "S. Marshall Wilson", "office": "U.S. Senate Candidate",
+  "state": "West Virginia",
+  "party": "Constitution", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // AK-AL · Libertarian
+ "jim_mcdermott": {
+  "name": "Jim McDermott", "office": "U.S. House Candidate (AK-AL)",
+  "state": "Alaska", "district": "1",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // AZ-6 · Green
+ "gary_swing": {
+  "name": "Gary Swing", "office": "U.S. House Candidate (AZ-6)",
+  "state": "Arizona", "district": "6",
+  "party": "Green", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CO-5 · Libertarian
+ "mark_elworth": {
+  "name": "Mark Elworth Jr.", "office": "U.S. House Candidate (CO-5)",
+  "state": "Colorado", "district": "5",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-4 · Independent
+ "jacob_anders": {
+  "name": "Jacob Anders", "office": "U.S. House Candidate (TN-4)",
+  "state": "Tennessee", "district": "4",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // ND-AL · Independent
+ "helene_neville": {
+  "name": "Helene Neville", "office": "U.S. House Candidate (ND-AL)",
+  "state": "North Dakota", "district": "1",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+// ── Federal third-party and independent nominees, batch 4, 2026 general election (Oct 2026)
+// Independent and minor-party U.S. Senate nominees in states whose race lists
+// showed only the two major parties, and U.S. House nominees in districts with
+// a third option on the ballot, each confirmed as on the November 3, 2026
+// general-election ballot by the state's official certified candidate list or
+// Ballotpedia's race page (Kansas from Kansas Public Radio's ballot guide).
+// The party label is the one the list prints; New Jersey prints a candidate's
+// ballot slogan in that place. Same shape as batches 1–3: identity rows only —
+// office, district and party as listed, `score` null, an empty ledger,
+// `issues` empty. Write-ins, withdrawn and disqualified filers are not here.
+ // Oklahoma U.S. Senate · Libertarian
+ "sevier_white": {
+  "name": "Sevier White", "office": "U.S. Senate Candidate",
+  "state": "Oklahoma",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Oklahoma U.S. Senate · Independent
+ "ron_meinhardt": {
+  "name": "Ron Meinhardt", "office": "U.S. Senate Candidate",
+  "state": "Oklahoma",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Oklahoma U.S. Senate · Independent
+ "curtis_stinnett": {
+  "name": "Curtis Stinnett", "office": "U.S. Senate Candidate",
+  "state": "Oklahoma",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Oregon U.S. Senate · Libertarian
+ "gary_dye": {
+  "name": "Gary Dye", "office": "U.S. Senate Candidate",
+  "state": "Oregon",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Oregon U.S. Senate · Pacific Green / Progressive
+ "chris_henry": {
+  "name": "Chris Henry", "office": "U.S. Senate Candidate",
+  "state": "Oregon",
+  "party": "Pacific Green / Progressive", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Rhode Island U.S. Senate · Independent
+ "michael_bahry": {
+  "name": "Michael Bahry", "office": "U.S. Senate Candidate",
+  "state": "Rhode Island",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // South Carolina U.S. Senate · Constitution
+ "mark_hackett": {
+  "name": "Mark Hackett", "office": "U.S. Senate Candidate",
+  "state": "South Carolina",
+  "party": "Constitution", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // South Carolina U.S. Senate · Libertarian
+ "kasie_whitener": {
+  "name": "Kasie Whitener", "office": "U.S. Senate Candidate",
+  "state": "South Carolina",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Tennessee U.S. Senate · Independent
+ "tharon_chandler": {
+  "name": "Tharon Chandler", "office": "U.S. Senate Candidate",
+  "state": "Tennessee",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Tennessee U.S. Senate · Independent
+ "andrew_gerena": {
+  "name": "Andrew Gerena", "office": "U.S. Senate Candidate",
+  "state": "Tennessee",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Tennessee U.S. Senate · Independent
+ "jeremy_hearn": {
+  "name": "Jeremy Dean Hearn", "office": "U.S. Senate Candidate",
+  "state": "Tennessee",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Tennessee U.S. Senate · Independent
+ "robert_jones": {
+  "name": "Robert Jones", "office": "U.S. Senate Candidate",
+  "state": "Tennessee",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Tennessee U.S. Senate · Independent
+ "james_macon": {
+  "name": "James William Macon III", "office": "U.S. Senate Candidate",
+  "state": "Tennessee",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Tennessee U.S. Senate · Independent
+ "yoshi_matthews": {
+  "name": "Yoshi D. Matthews", "office": "U.S. Senate Candidate",
+  "state": "Tennessee",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Tennessee U.S. Senate · Independent
+ "david_sutman": {
+  "name": "David Sutman Jr.", "office": "U.S. Senate Candidate",
+  "state": "Tennessee",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Tennessee U.S. Senate · Independent
+ "catherine_whitson": {
+  "name": "Catherine Barcel “Barcy” Whitson", "office": "U.S. Senate Candidate",
+  "state": "Tennessee",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Florida U.S. Senate · No Party Affiliation
+ "neil_gillespie": {
+  "name": "Neil J. Gillespie", "office": "U.S. Senate Candidate",
+  "state": "Florida",
+  "party": "No Party Affiliation", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Kentucky U.S. Senate · Kentucky Party
+ "christopher_campbell": {
+  "name": "Christopher Campbell", "office": "U.S. Senate Candidate",
+  "state": "Kentucky",
+  "party": "Kentucky Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Massachusetts U.S. Senate · Unenrolled
+ "shiva_ayyadurai": {
+  "name": "Shiva Ayyadurai", "office": "U.S. Senate Candidate",
+  "state": "Massachusetts",
+  "party": "Unenrolled", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Massachusetts U.S. Senate · Party for Socialism and Liberation
+ "joseph_tache": {
+  "name": "Joseph Tache", "office": "U.S. Senate Candidate",
+  "state": "Massachusetts",
+  "party": "Party for Socialism and Liberation", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // New Hampshire U.S. Senate · Constitution
+ "edmond_laplante": {
+  "name": "Edmond Laplante", "office": "U.S. Senate Candidate",
+  "state": "New Hampshire",
+  "party": "Constitution", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // New Jersey U.S. Senate · End the Corruption!
+ "veronica_fernandez": {
+  "name": "Veronica Fernandez", "office": "U.S. Senate Candidate",
+  "state": "New Jersey",
+  "party": "End the Corruption!", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // New Jersey U.S. Senate · Socialist Workers Party
+ "joanne_kuniansky": {
+  "name": "Joanne Kuniansky", "office": "U.S. Senate Candidate",
+  "state": "New Jersey",
+  "party": "Socialist Workers Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Illinois U.S. Senate · American Center Party
+ "whitfield_harrington": {
+  "name": "Whitfield Harrington Jr.", "office": "U.S. Senate Candidate",
+  "state": "Illinois",
+  "party": "American Center Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Iowa U.S. Senate · Libertarian
+ "thomas_laehn": {
+  "name": "Thomas Laehn", "office": "U.S. Senate Candidate",
+  "state": "Iowa",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Kansas U.S. Senate · Libertarian
+ "david_graham": {
+  "name": "David Graham", "office": "U.S. Senate Candidate",
+  "state": "Kansas",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-2 · Independent
+ "geral_staten": {
+  "name": "Geral D. “Bishop” Staten", "office": "U.S. House Candidate (VA-2)",
+  "state": "Virginia", "district": "2",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-2 · Independent
+ "j_matt_baker": {
+  "name": "J. Matt Baker", "office": "U.S. House Candidate (VA-2)",
+  "state": "Virginia", "district": "2",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-7 · Libertarian
+ "taner_demirci_lopez": {
+  "name": "Taner E. Demirci Lopez", "office": "U.S. House Candidate (VA-7)",
+  "state": "Virginia", "district": "7",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-8 · Libertarian
+ "shelly_arnoldi": {
+  "name": "Shelly M. Arnoldi", "office": "U.S. House Candidate (VA-8)",
+  "state": "Virginia", "district": "8",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-11 · Green
+ "dianne_blais": {
+  "name": "Dianne L. Blais", "office": "U.S. House Candidate (VA-11)",
+  "state": "Virginia", "district": "11",
+  "party": "Green", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-1 · No Party Affiliation
+ "tyler_davis": {
+  "name": "Tyler L. Davis", "office": "U.S. House Candidate (FL-1)",
+  "state": "Florida", "district": "1",
+  "party": "No Party Affiliation", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-6 · Libertarian
+ "andrew_parrott": {
+  "name": "Andrew Parrott", "office": "U.S. House Candidate (FL-6)",
+  "state": "Florida", "district": "6",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-7 · Libertarian
+ "christopher_dennison": {
+  "name": "Christopher Dennison", "office": "U.S. House Candidate (FL-7)",
+  "state": "Florida", "district": "7",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-11 · Libertarian
+ "ralph_groves": {
+  "name": "Ralph Groves", "office": "U.S. House Candidate (FL-11)",
+  "state": "Florida", "district": "11",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-20 · Independent
+ "kedner_maxime": {
+  "name": "Kedner Maxime", "office": "U.S. House Candidate (FL-20)",
+  "state": "Florida", "district": "20",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // KY-2 · Independent
+ "thomas_loecken": {
+  "name": "Thomas A. Loecken", "office": "U.S. House Candidate (KY-2)",
+  "state": "Kentucky", "district": "2",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // KY-4 · Libertarian
+ "jeremy_todd": {
+  "name": "Jeremy Todd", "office": "U.S. House Candidate (KY-4)",
+  "state": "Kentucky", "district": "4",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // KY-5 · Independent
+ "gerardo_serrano": {
+  "name": "Gerardo Serrano", "office": "U.S. House Candidate (KY-5)",
+  "state": "Kentucky", "district": "5",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // KY-5 · Independent
+ "mikel_wein": {
+  "name": "Mikel Wein", "office": "U.S. House Candidate (KY-5)",
+  "state": "Kentucky", "district": "5",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // KY-6 · Independent
+ "jay_bowman": {
+  "name": "Jay J. Bowman", "office": "U.S. House Candidate (KY-6)",
+  "state": "Kentucky", "district": "6",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // KY-6 · Kentucky Party
+ "pete_lynch": {
+  "name": "Pete Lynch", "office": "U.S. House Candidate (KY-6)",
+  "state": "Kentucky", "district": "6",
+  "party": "Kentucky Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NJ-2 · Independent
+ "ramon_mora": {
+  "name": "Ramon Mora Jr.", "office": "U.S. House Candidate (NJ-2)",
+  "state": "New Jersey", "district": "2",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NJ-3 · Affordability, Accountability, People
+ "ryan_kelly": {
+  "name": "Ryan Michael Kelly", "office": "U.S. House Candidate (NJ-3)",
+  "state": "New Jersey", "district": "3",
+  "party": "Affordability, Accountability, People", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NJ-9 · Save Our Babies
+ "terrisa_bukovinac": {
+  "name": "Terrisa Bukovinac", "office": "U.S. House Candidate (NJ-9)",
+  "state": "New Jersey", "district": "9",
+  "party": "Save Our Babies", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NJ-11 · Hope for Tomorrow
+ "alan_bond": {
+  "name": "Alan B. Bond", "office": "U.S. House Candidate (NJ-11)",
+  "state": "New Jersey", "district": "11",
+  "party": "Hope for Tomorrow", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-4 · Working Class Party
+ "ed_hershey": {
+  "name": "Ed Hershey", "office": "U.S. House Candidate (IL-4)",
+  "state": "Illinois", "district": "4",
+  "party": "Working Class Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-4 · Independent
+ "chris_getty": {
+  "name": "Chris Getty", "office": "U.S. House Candidate (IL-4)",
+  "state": "Illinois", "district": "4",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IA-1 · No Party
+ "michael_bridgford": {
+  "name": "Michael Bridgford", "office": "U.S. House Candidate (IA-1)",
+  "state": "Iowa", "district": "1",
+  "party": "No Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IA-2 · Libertarian
+ "rick_stewart": {
+  "name": "Rick Stewart", "office": "U.S. House Candidate (IA-2)",
+  "state": "Iowa", "district": "2",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IA-2 · No Party
+ "dave_bushaw": {
+  "name": "Dave Bushaw", "office": "U.S. House Candidate (IA-2)",
+  "state": "Iowa", "district": "2",
+  "party": "No Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // KS-2 · Libertarian
+ "john_hauer": {
+  "name": "John Hauer", "office": "U.S. House Candidate (KS-2)",
+  "state": "Kansas", "district": "2",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // KS-3 · Libertarian
+ "steve_hohe": {
+  "name": "Steve Hohe", "office": "U.S. House Candidate (KS-3)",
+  "state": "Kansas", "district": "3",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
  }
 });

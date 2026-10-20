@@ -717,3 +717,13 @@
 .pdxmm-join:hover, .pdxmm-join:focus-visible { border-color: #7dd3fc; }
 .pdxmm-join:focus-visible { outline: 2px solid #f1f5f9; outline-offset: 3px; }
 .pdxmm-join[disabled] { opacity: 0.6; cursor: default; }
+/* The block's primary control: the District Voice gold, solid. */
+.pdxmm-join--primary {
+  border-color: rgba(245, 200, 66, 0.9);
+  background: linear-gradient(135deg, #fad96a, #e6b800);
+  color: #0a0f1e;
+}
+.pdxmm-join--primary:hover, .pdxmm-join--primary:focus-visible { border-color: #fad96a; filter: brightness(1.06); }
+.pdxmm-rooms { margin: 0.6rem 0 0; font-size: 0.92rem; }
+.pdxmm-rooms a { color: #7fb2ff; text-decoration: underline; text-underline-offset: 2px; }
+.pdxmm-anchor { display: block; position: relative; top: -5rem; visibility: hidden; }

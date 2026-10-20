@@ -125,13 +125,23 @@ section("1 · every parent starts collapsed, its issues hidden inside it");
 const first = C.tableHtml("ok", ITEMS, [], MANDATES);
 const P1 = parseParents(first);
 eq(P1.length, 4, "four parents: Economy, Education, Climate and Foreign Policy");
+// THE VISITOR'S SIDE OPENS ITS GROUP AND ITS PARENT (v425); every other
+// parent starts closed. The fixture holds a side on water, under Climate.
 for (const p of P1) {
+  if (p.key === "climate_energy") {
+    ok(p.open && !p.collapsed && p.aria === "true" && !p.bodyHidden, `${p.key}: open, because the visitor holds a side on an issue inside it`);
+    continue;
+  }
   ok(!p.open && p.collapsed && p.aria === "false" && p.bodyHidden, `${p.key}: closed, collapsed class, aria-expanded false, body hidden`);
   ok(!p.hidden, `${p.key}: listed under All`);
   eq(p.count, p.groups.length, `${p.key}: the header counts the issues inside`);
 }
 eq(P1.find((p) => p.key === "economy_cost_of_living").count, 2, "Economy holds two issues: housing and property tax");
-ok(P1.find((p) => p.key === "climate_energy").groups.every((g) => !g.open), "the visitor's stance group is collapsed inside its collapsed parent");
+{
+  const clim = P1.find((p) => p.key === "climate_energy");
+  ok(clim.groups.some((g) => g.key === "water" && g.open), "the visitor's stance group (water) starts open inside its open parent");
+  ok(clim.groups.every((g) => g.key === "water" || !g.open), "…and only that group");
+}
 eq(JSON.stringify(topGroups(first).map((g) => g.key)), '[""]', "only the unfiled rows sit outside a parent");
 eq(JSON.stringify(topChips(first)), JSON.stringify(["", MK]), "the top chip row is All and Mandates");
 ok(first.indexOf('data-pdxdb-cat="housing"') > first.indexOf('data-pdxdb-parent="economy_cost_of_living"'), "the housing chip sits inside the Economy parent");
@@ -214,7 +224,8 @@ section("3 · search and issue chips open the matching parent and group");
   ok(topGroups(hm).every((g) => g.hidden), "…and the unfiled rows");
   C.setCategory("");
   const back = C.tableHtml("ok", ITEMS, [], MANDATES);
-  ok(parseParents(back).every((p) => !p.open && p.collapsed && !p.hidden), "back to All: every parent listed and collapsed");
+  ok(parseParents(back).every((p) => !p.hidden && (p.key === "climate_energy" ? p.open : (!p.open && p.collapsed))),
+    "back to All: every parent listed, collapsed except the one holding the visitor's side");
   ok(mandateShown(back), "…and the mandate rows shown");
 }
 

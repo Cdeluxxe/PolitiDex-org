@@ -596,6 +596,8 @@
                'Reading this board needs no account, no location and no verification.',
 
     tableBand: 'On the table',
+    utPinsLabel: 'Top issues in Utah',
+    utPinEmpty: 'No measures on this seat for this issue yet.',
     tableNote: 'Measures and acts already in this archive for this seat. Each row links to ' +
                'the record. Poll and comment counts are counts of people, never a majority ' +
                'and never this district’s position.',
@@ -945,7 +947,42 @@
   //   type  'topics' hides the mandate rows; 'mandates' hides every measure.
   //   time  'current' keeps the measures from the seat's latest sitting (see
   //         sitOf()); 'past' keeps the older ones. Open mandates are current.
-  var _view = { cat: '', q: '', open: {}, type: '', time: '' };
+  var _view = { cat: '', q: '', open: {}, type: '', time: '', pin: '' };
+
+  // ── UTAH'S THREE PINNED ISSUES ────────────────────────────────────────────
+  // Hard-coded, Utah boards only (a seat key that opens "ut-"): a short row
+  // above the category list naming the three issues that matter most in Utah
+  // right now. NOT A SECOND TAXONOMY. Each pin is a button onto the existing
+  // issue groups for its keys — existing ISSUE_MAP keys, no new one — and
+  // wears the colour those groups' chips already wear. Data Centers opens all
+  // three data-center groups together (growth, power, water), so the pin names
+  // the topic without picking a side of it. A pin whose keys have no measure
+  // on this seat still shows, and opens an empty group that says so.
+  var UTAH_PINS = [
+    { id: 'datacenters', label: 'Data Centers', keys: ['datacenter_growth', 'datacenter_power', 'datacenter_water'] },
+    { id: 'public_lands', label: 'Protect Public Lands', keys: ['lands_preserve'] },
+    { id: 'gsl_water', label: 'Great Salt Lake Water', keys: ['water'] }
+  ];
+  function utahSeat(seatKey) { return /^ut-/.test(String(seatKey || '')); }
+  function pinsFor(seatKey) { return utahSeat(seatKey) ? UTAH_PINS : []; }
+  // The seat this board is identified as — by its host element or its
+  // document — the same way composerSeatDeclared() asks. A composer host whose
+  // seat is not named reads the active board. A render that cannot say which
+  // seat it is for prints no pins rather than borrowing the default seat's.
+  function boardPins() {
+    var b = board(hostSeat(_el)) || board(docSeat());
+    if (!b && composerOwned()) b = ACTIVE;
+    return pinsFor(b && b.seat);
+  }
+  function pinById(id) {
+    for (var i = 0; i < UTAH_PINS.length; i++) if (UTAH_PINS[i].id === id) return UTAH_PINS[i];
+    return null;
+  }
+  // The keys the pressed pin opens, or null when no pin is pressed.
+  function pinKeys() {
+    var p = _view.pin ? pinById(_view.pin) : null;
+    return p ? p.keys : null;
+  }
 
   function rowIssues(item) {
     var arr = (item && Array.isArray(item.issues)) ? item.issues : [];
@@ -1137,6 +1174,14 @@
   // both the first render and every later filter change.
   function groupState(key, hits, stance) {
     var q = normQuery(_view.q);
+    var pk = pinKeys();
+    if (pk) {
+      // A PRESSED PIN shows and opens exactly its own groups, like a chip
+      // that covers more than one key; the search and toggles still narrow.
+      var pshown = pk.indexOf(key) !== -1;
+      if (pshown && narrowing() && !hits) pshown = false;
+      return { shown: pshown, open: pshown };
+    }
     var shown = !_view.cat || _view.cat === key;
     if (key === '') shown = !_view.cat;          // the unfiled rows: All only
     if (shown && narrowing() && !hits) shown = false;
@@ -1147,7 +1192,10 @@
     // collapsed rather than open behind the filter.
     else if (_view.cat) open = composerBoard() ? _view.cat === key : true;
     else if (Object.prototype.hasOwnProperty.call(_view.open, key)) open = !!_view.open[key];
-    else if (composerBoard()) open = false;   // the composer boards: every group starts collapsed
+    // The composer boards: every group starts collapsed, except one the
+    // visitor already holds a side on, which opens the way it always did on
+    // the other boards.
+    else if (composerBoard()) open = !!(key && stance[key]);
     else open = !!(key && stance[key]);
     return { shown: shown, open: open };
   }
@@ -1280,7 +1328,7 @@
   }
 
   function mandateState(hits) {
-    var shown = !_view.cat || _view.cat === MANDATE_KEY;
+    var shown = !_view.pin && (!_view.cat || _view.cat === MANDATE_KEY);
     if (_view.type === 'topics' || !timeOk('current')) shown = false;
     if (shown && narrowing() && !hits) shown = false;
     return { shown: shown };
@@ -1307,6 +1355,54 @@
     return '<button type="button" class="pdxdb-cat' + (icClass ? ' ' + esc(icClass) : '') + '" data-pdxdb-cat="' + esc(key) + '"' +
         ' aria-pressed="' + (on ? 'true' : 'false') + '"' + (skin || '') + '>' +
         esc(label) + '<span class="pdxdb-cat-n">' + n + '</span></button>';
+  }
+
+  // THE UTAH PIN ROW. One button per pin, in the colour class and inline
+  // token its first key's chip already wears (the same issueSkin() and the
+  // same palette class a parent's chips carry). No count: a pin is a door
+  // onto the groups, and the groups print their own.
+  function pinSkin(p) { return issueSkin(p.keys[0]); }
+  function pinIc(p) {
+    var c = coreFor(p.keys[0]);
+    return (c && paletteHas(c.key) && pinSkin(p)) ? IC_PREFIX + c.key : '';
+  }
+  function utahPinsHtml(pins, groups) {
+    if (!pins || !pins.length) return '';
+    var body = '';
+    for (var i = 0; i < pins.length; i++) {
+      var p = pins[i], ic = pinIc(p);
+      body += '<button type="button" class="pdxdb-cat pdxdb-utpin' + (ic ? ' ' + esc(ic) : '') + '"' +
+        ' data-pdxdb-utpin="' + esc(p.id) + '"' +
+        ' aria-pressed="' + (_view.pin === p.id ? 'true' : 'false') + '"' + pinSkin(p) + '>' +
+        esc(p.label) + '</button>';
+    }
+    return '<div class="pdxdb-utpins" data-pdxdb-utpins="" role="group" aria-label="' + esc(COPY.utPinsLabel) + '">' +
+        '<span class="pdxdb-utpins-l">' + esc(COPY.utPinsLabel) + '</span>' + body + '</div>';
+  }
+  // Does this seat print a group for any of the pin's keys?
+  function pinHasGroup(p, groups) {
+    for (var i = 0; i < groups.length; i++) if (p.keys.indexOf(groups[i].key) !== -1) return true;
+    return false;
+  }
+  // THE EMPTY GROUP a pin opens on a seat with no measure on its issue: the
+  // group's own shape, open, holding one line, and shown only while its pin
+  // is pressed. It carries no data-pdxdb-group, so no count, chip or poll
+  // ever reads it as a group of measures.
+  function pinEmptyHtml(pins, groups) {
+    var out = '';
+    for (var i = 0; i < (pins || []).length; i++) {
+      var p = pins[i];
+      if (pinHasGroup(p, groups)) continue;
+      out += '<details class="pdxdb-group pdxdb-group--pinempty" data-pdxdb-pin-empty="' + esc(p.id) + '" open' +
+          (_view.pin === p.id ? '' : ' hidden') + '>' +
+          '<summary class="pdxdb-group-h" aria-expanded="true">' +
+            '<span class="pdxdb-group-l"' + pinSkin(p) + '>' + esc(p.label) + '</span>' +
+            '<span class="pdxdb-group-n">' + esc(measuresWord(0)) + '</span>' +
+          '</summary>' +
+          '<p class="pdxdb-none">' + esc(COPY.utPinEmpty) + '</p>' +
+        '</details>';
+    }
+    return out;
   }
 
   // `mandates` is optional: a caller that passes three arguments gets the
@@ -1385,12 +1481,15 @@
           ' placeholder="' + esc(composer ? COPY.findPlaceholderComposer : COPY.findPlaceholder) + '" value="' + esc(_view.q) + '" /></label>';
 
     var toggles = togglesHtml();
+    var pins = boardPins();
+    var utPins = utahPinsHtml(pins, G.groups);
+    groups = pinEmptyHtml(pins, G.groups) + groups;
     return band('table', COPY.tableBand, COPY.tableNote,
-      (composer ? find + toggles + cats + (P ? pinnedHtml(mrows, G.groups, tally) : '') : cats + find + toggles) +
+      (composer ? find + toggles + utPins + cats + (P ? pinnedHtml(mrows, G.groups, tally) : '') : cats + find + toggles + utPins) +
       '<div class="pdxdb-groups"' + (P ? ' data-pdxdb-layout="parents"' : '') + '>' + groups + '</div>' +
       '<p class="pdxdb-none pdxdb-find-none" data-pdxdb-find-none' +
-        (anyShown(G, mrows) ? ' hidden' : '') + '>' + esc(COPY.findNone) + '</p>' +
-      generalDoorHtml(anyShown(G, mrows)),
+        (anyShown(G, mrows, pins) ? ' hidden' : '') + '>' + esc(COPY.findNone) + '</p>' +
+      generalDoorHtml(anyShown(G, mrows, pins)),
       COPY.voiceFoot);
   }
 
@@ -1455,12 +1554,14 @@
   // Mandates chip shows none, and a search shows the parents it hit); open
   // only while a chip or a search is choosing, or when the reader opened it by
   // hand. Otherwise collapsed. One function for the render and for applyView.
-  function parentState(coreKey, anyChildShown) {
+  function parentState(coreKey, anyChildShown, anyChildOpen) {
     var shown = !!anyChildShown;
     var open;
-    if (normQuery(_view.q) || _view.cat) open = shown;
+    if (normQuery(_view.q) || _view.cat || _view.pin) open = shown;
     else if (Object.prototype.hasOwnProperty.call(_view.open, PARENT_PREFIX + coreKey)) open = !!_view.open[PARENT_PREFIX + coreKey];
-    else open = false;
+    // A child group open on the visitor's own side would be invisible inside a
+    // closed parent, so its parent opens with it. Otherwise collapsed.
+    else open = !!(shown && anyChildOpen);
     return { shown: shown, open: open };
   }
   var PARENT_PREFIX = '^';
@@ -1483,14 +1584,16 @@
     var skin = par.groups.length ? issueSkin(par.groups[0].key) : '';
     var icName = (skin && paletteHas(par.key)) ? IC_PREFIX + par.key : '';
     var icClass = icName ? ' ' + icName : '';
-    var any = false, chips = '', body = '';
+    var any = false, anyOpen = false, chips = '', body = '';
     for (var i = 0; i < par.groups.length; i++) {
       var g = par.groups[i];
-      if (groupState(g.key, rowHits(g.rows, g.key), stance).shown) any = true;
+      var gst = groupState(g.key, rowHits(g.rows, g.key), stance);
+      if (gst.shown) any = true;
+      if (gst.shown && gst.open) anyOpen = true;
       chips += catChip(g.key, g.label, g.rows.length, issueSkin(g.key), icName);
       body += groupHtml(g.key, g.label, g.rows, tally, stance);
     }
-    var st = parentState(par.key, any);
+    var st = parentState(par.key, any, anyOpen);
     return '<details class="pdxdb-parent" data-pdxdb-parent="' + esc(par.key) + '"' +
         (st.open ? ' open' : '') + (st.shown ? '' : ' hidden') + '>' +
         '<summary class="pdxdb-parent-h' + esc(icClass) + (st.open ? '' : ' ' + PARENT_COLLAPSED) + '"' +
@@ -1684,7 +1787,10 @@
       '<p class="pdxdb-room-for" data-pdxdb-room-for="">' + esc(COPY.roomFor) + '</p>';
   }
 
-  function anyShown(G, mrows) {
+  function anyShown(G, mrows, pins) {
+    // A pressed pin with no group on this seat shows its empty group.
+    var pp = _view.pin ? pinById(_view.pin) : null;
+    if (pp && (pins || []).indexOf(pp) !== -1 && !pinHasGroup(pp, G.groups)) return true;
     if (mrows && mrows.length) {
       var mh = 0;
       for (var m = 0; m < mrows.length; m++) if (mandateShown(mrows[m])) mh++;
@@ -1708,10 +1814,23 @@
     var stance = stanceKeys();
     var chips = el.querySelectorAll('[data-pdxdb-cat]');
     for (var c = 0; c < chips.length; c++) {
+      if (chips[c].hasAttribute && chips[c].hasAttribute('data-pdxdb-utpin')) continue;
       chips[c].setAttribute('aria-pressed', chips[c].getAttribute('data-pdxdb-cat') === _view.cat ? 'true' : 'false');
     }
-    var groups = el.querySelectorAll('[data-pdxdb-group]');
     var any = false;
+    // The Utah pins say which is pressed, and an empty pin group shows only
+    // while its own pin is.
+    var ups = el.querySelectorAll('[data-pdxdb-utpin]');
+    for (var u = 0; u < ups.length; u++) {
+      ups[u].setAttribute('aria-pressed', ups[u].getAttribute('data-pdxdb-utpin') === _view.pin ? 'true' : 'false');
+    }
+    var pes = el.querySelectorAll('[data-pdxdb-pin-empty]');
+    for (var pe = 0; pe < pes.length; pe++) {
+      var peOn = pes[pe].getAttribute('data-pdxdb-pin-empty') === _view.pin;
+      pes[pe].hidden = !peOn;
+      if (peOn) any = true;
+    }
+    var groups = el.querySelectorAll('[data-pdxdb-group]');
     for (var g = 0; g < groups.length; g++) {
       var key = groups[g].getAttribute('data-pdxdb-group') || '';
       var rows = groups[g].querySelectorAll('[data-pdxdb-find]');
@@ -1732,9 +1851,12 @@
     var pars = el.querySelectorAll('[data-pdxdb-parent]');
     for (var p = 0; p < pars.length; p++) {
       var kids = fn(pars[p].querySelectorAll) ? pars[p].querySelectorAll('[data-pdxdb-group]') : [];
-      var anyKid = false;
-      for (var k = 0; k < kids.length; k++) if (!kids[k].hidden) anyKid = true;
-      var ps = parentState(pars[p].getAttribute('data-pdxdb-parent') || '', anyKid);
+      var anyKid = false, anyKidOpen = false;
+      for (var k = 0; k < kids.length; k++) {
+        if (!kids[k].hidden) anyKid = true;
+        if (!kids[k].hidden && kids[k].open) anyKidOpen = true;
+      }
+      var ps = parentState(pars[p].getAttribute('data-pdxdb-parent') || '', anyKid, anyKidOpen);
       pars[p].hidden = !ps.shown;
       syncParent(pars[p], ps.open);
     }
@@ -1783,6 +1905,14 @@
   // mounted board if there is one.
   function setCategory(key) {
     _view.cat = String(key == null ? '' : key);
+    _view.pin = '';   // a chip and a pin are one choice: picking one clears the other
+    applyView(_el);
+  }
+  // A Utah pin. Pressing the pressed pin again clears it; an unknown id is none.
+  function setPin(id) {
+    id = String(id == null ? '' : id);
+    _view.pin = (id && pinById(id) && id !== _view.pin) ? id : '';
+    if (_view.pin) _view.cat = '';
     applyView(_el);
   }
   function setQuery(q) {
@@ -1824,6 +1954,8 @@
     }, true);
     el.addEventListener('click', function (ev) {
       var t = ev && ev.target;
+      var utp = t && fn(t.closest) ? t.closest('[data-pdxdb-utpin]') : null;
+      if (utp) { setPin(utp.getAttribute('data-pdxdb-utpin') || ''); return; }
       var chip = t && fn(t.closest) ? t.closest('[data-pdxdb-cat]') : null;
       if (chip) { setCategory(chip.getAttribute('data-pdxdb-cat') || ''); return; }
       var tgy = t && fn(t.closest) ? t.closest('[' + TG_TYPE + ']') : null;
@@ -1833,7 +1965,7 @@
       // A header opened or closed by hand is remembered for the next repaint —
       // only while no search is forcing groups open.
       var psum = t && fn(t.closest) ? t.closest('.pdxdb-parent-h') : null;
-      if (psum && !normQuery(_view.q) && !_view.cat) {
+      if (psum && !normQuery(_view.q) && !_view.cat && !_view.pin) {
         var pd = psum.parentNode;
         if (pd && pd.getAttribute) _view.open[PARENT_PREFIX + (pd.getAttribute('data-pdxdb-parent') || '')] = !pd.open;
         return;
@@ -2685,6 +2817,9 @@
     seatHtml: seatHtml,
     roomHtml: roomHtml,
     tableHtml: tableHtml,
+    UTAH_PINS: UTAH_PINS,
+    pinsFor: pinsFor,
+    setPin: setPin,
     stanceHtml: stanceHtml,
     stanceDoor: stanceDoor,
     readOnlyHtml: readOnlyHtml,

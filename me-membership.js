@@ -23,10 +23,12 @@
 (function () {
   'use strict';
   var API = '/api/membership';
+  var ROOMS_HREF = '/voice';
   var COPY = {
     checking: 'Checking membership…',
     signedOut: 'Sign in to become a member.',
     join: 'Become a member — $20 a year',
+    rooms: 'See your district rooms',
     joining: 'Opening checkout…',
     active: 'You are a member. The monthly cap is off on every seat you are verified for.',
     returned: 'Thanks. Your membership turns on as soon as Stripe confirms the payment.',
@@ -103,8 +105,10 @@
     } else if (!_state.signedIn) {
       html += '<p class="pdxmm-note">' + esc(COPY.signedOut) + '</p>';
     } else {
-      html += '<button type="button" class="pdxmm-join" data-pdxmm-join="1"' + (_busy ? ' disabled' : '') + '>' +
-        esc(_busy ? COPY.joining : COPY.join) + '</button>';
+      // THE PRIMARY CONTROL of the block, and the district rooms one line under it.
+      html += '<button type="button" class="pdxmm-join pdxmm-join--primary" data-pdxmm-join="1"' + (_busy ? ' disabled' : '') + '>' +
+        esc(_busy ? COPY.joining : COPY.join) + '</button>' +
+        '<p class="pdxmm-rooms" data-pdxmm-rooms="1"><a href="' + esc(ROOMS_HREF) + '">' + esc(COPY.rooms) + '</a></p>';
     }
     if (_status) html += '<p class="pdxmm-status" role="status">' + esc(_status) + '</p>';
     _host.innerHTML = html;

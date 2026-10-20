@@ -6,8 +6,9 @@
 // collapsed, and say so in the markup rather than only through <details>:
 //
 //   1. ON A COMPOSER BOARD every group header starts with the collapsed class
-//      and aria-expanded="false", and the body is hidden — even the group the
-//      visitor holds a side on.
+//      and aria-expanded="false", and the body is hidden — except the group the
+//      visitor holds a side on, which starts open (v425: the same rule the
+//      other boards always had), in all four places.
 //   2. A CHIP OPENS ONLY THAT GROUP; a search opens only the groups it
 //      matches. The same answer re-applied in place keeps header, aria and
 //      body in step, and a hand toggle does too.
@@ -101,13 +102,21 @@ function parseGroups(html) {
   }
   return out;
 }
-// Problems with "every group starts collapsed"; [] means it holds.
-function checkCollapsed(html) {
+// Problems with "every group starts collapsed, except the visitor's stance
+// groups (`open`), which start expanded"; [] means it holds.
+function checkCollapsed(html, open = []) {
   const problems = [];
   const gs = parseGroups(html);
   if (!gs.length) problems.push("no groups rendered");
   for (const g of gs) {
     const id = g.key || "(unfiled)";
+    if (open.includes(g.key)) {
+      if (!g.open) problems.push(`${id}: the stance group is not open`);
+      if (g.collapsedClass) problems.push(`${id}: the stance group's header wears the collapsed class`);
+      if (g.aria !== "true") problems.push(`${id}: the stance group's aria-expanded is ${JSON.stringify(g.aria)}`);
+      if (g.hasBody && g.bodyHidden) problems.push(`${id}: the stance group's body is hidden`);
+      continue;
+    }
     if (g.open) problems.push(`${id}: the <details> is open`);
     if (!g.collapsedClass) problems.push(`${id}: the header lacks the collapsed class`);
     if (g.aria !== "false") problems.push(`${id}: aria-expanded is ${JSON.stringify(g.aria)}, not "false"`);
@@ -123,12 +132,13 @@ must(C && G && typeof C.tableHtml === "function", "PDXDistrictBoard did not publ
 must(!!C.issueLabel("water"), "ISSUE_MAP no longer labels water — the stance fixture would be vacuous");
 
 // ── 1 ───────────────────────────────────────────────────────────────────────
-section("1 · a composer board starts with every group collapsed");
+section("1 · a composer board starts with every group collapsed but the visitor's own");
 const first = C.tableHtml("ok", ITEMS, []);
 const gs1 = parseGroups(first);
 eq(gs1.length, 4, "housing, schools, water and the unfiled rows all render");
-eq(JSON.stringify(checkCollapsed(first)), "[]", "every group header is collapsed and every body hidden");
-ok(gs1.find((g) => g.key === "water") && !gs1.find((g) => g.key === "water").open, "even the visitor's stance group starts collapsed");
+eq(JSON.stringify(checkCollapsed(first, ["water"])), "[]", "every group header is collapsed and every body hidden, except the stance group");
+ok(gs1.find((g) => g.key === "water") && gs1.find((g) => g.key === "water").open, "the visitor's stance group starts open");
+ok(checkCollapsed(first).some((x) => /^water: the <details> is open/.test(x)), "…which the strict all-collapsed reading refuses, so the exception is real");
 ok(gs1.every((g) => !g.hidden), "every group is still listed under All");
 
 // ── 2 ───────────────────────────────────────────────────────────────────────
@@ -142,7 +152,7 @@ section("2 · a chip or a search opens only the matching groups");
   ok(!h.collapsedClass && h.aria === "true" && !h.bodyHidden, "…and its header is expanded and its body visible");
   ok(gs.filter((g) => g.key !== "housing").every((g) => g.hidden && !g.open), "every other group is hidden and closed");
   C.setCategory("");
-  eq(JSON.stringify(checkCollapsed(C.tableHtml("ok", ITEMS, []))), "[]", "back to All: collapsed again");
+  eq(JSON.stringify(checkCollapsed(C.tableHtml("ok", ITEMS, []), ["water"])), "[]", "back to All: collapsed again, the stance group open");
 
   C.setQuery("S.B. 57");
   const gq = parseGroups(C.tableHtml("ok", ITEMS, []));
@@ -183,7 +193,8 @@ section("2 · a chip or a search opens only the matching groups");
   eq(JSON.stringify(st(groups[2])), JSON.stringify({ open: true, aria: "true", cls: false, body: false }), "in place: the water chip expands water in all four places");
   eq(JSON.stringify(st(groups[0])), JSON.stringify({ open: false, aria: "false", cls: true, body: true }), "in place: housing stays collapsed in all four places");
   C.setCategory("");
-  ok(groups.every((x) => !x.d.open && x.sum.attrs["aria-expanded"] === "false" && x.body.hidden), "in place: All collapses every group");
+  ok(groups.slice(0, 2).every((x) => !x.d.open && x.sum.attrs["aria-expanded"] === "false" && x.body.hidden), "in place: All collapses every group but the stance one");
+  eq(JSON.stringify(st(groups[2])), JSON.stringify({ open: true, aria: "true", cls: false, body: false }), "in place: …which stays open on the visitor's side");
   // A hand toggle: the <details> opens, the header and body follow.
   groups[0].d.open = true;
   for (const f of listeners.toggle || []) f({ target: groups[0].d });
@@ -203,24 +214,28 @@ section("3 · a generated board still opens the visitor's stance group");
 // ── 4 ───────────────────────────────────────────────────────────────────────
 section("4 · mutation: a renderer that leaves groups open on load fails");
 {
-  // A. The module with the composer collapse removed: the stance group opens.
-  const GATE = "else if (composerBoard()) open = false;";
+  // A. The stance exception removed: the visitor's group stays shut.
+  const GATE = "else if (composerBoard()) open = !!(key && stance[key]);";
   must(MOD.includes(GATE), "the composer collapse gate is not where the mutation expects it");
-  const M1 = boot({ composer: true, desk: DESK, src: MOD.replace(GATE, "") });
-  const p1 = checkCollapsed(M1.tableHtml("ok", ITEMS, []));
-  ok(p1.some((x) => /^water: the <details> is open/.test(x)), `a renderer that opens the stance group on load fails (${p1.join("; ")})`);
+  const M1 = boot({ composer: true, desk: DESK, src: MOD.replace(GATE, "else if (composerBoard()) open = false;") });
+  const p1 = checkCollapsed(M1.tableHtml("ok", ITEMS, []), ["water"]);
+  ok(p1.some((x) => /^water: the stance group is not open/.test(x)), `a renderer that shuts the stance group on load fails (${p1.join("; ")})`);
+  // A2. The gate removed outright: composer boards fall through to the flat
+  // boards' rule, which opens the same stance group — still exactly one open.
+  const M1b = boot({ composer: true, desk: DESK, src: MOD.replace(GATE, "") });
+  eq(JSON.stringify(checkCollapsed(M1b.tableHtml("ok", ITEMS, []), ["water"])), "[]", "without the gate the stance rule still holds (the same rule)");
   // B. Every group forced open on load.
   const M2 = boot({ composer: true, desk: DESK, src: MOD.replace("var st = groupState(key, hits, stance);\n    var head", "var st = groupState(key, hits, stance); st.open = true;\n    var head") });
-  const p2 = checkCollapsed(M2.tableHtml("ok", ITEMS, []));
-  eq(p2.filter((x) => /is open/.test(x)).length, 4, "a renderer that opens every group fails for every group");
+  const p2 = checkCollapsed(M2.tableHtml("ok", ITEMS, []), ["water"]);
+  eq(p2.filter((x) => /is open/.test(x)).length, 3, "a renderer that opens every group fails for every group but the stance one");
   // C. Markup mutations the checker must refuse.
-  ok(checkCollapsed(first.replace(/ data-pdxdb-group-body="" hidden>/, ' data-pdxdb-group-body="">')).some((x) => /body is visible/.test(x)),
+  ok(checkCollapsed(first.replace(/ data-pdxdb-group-body="" hidden>/, ' data-pdxdb-group-body="">'), ["water"]).some((x) => /body is visible/.test(x)),
     "a visible body fails");
-  ok(checkCollapsed(first.replace('pdxdb-group-h--collapsed" aria-expanded="false"', 'pdxdb-group-h--collapsed" aria-expanded="true"')).some((x) => /aria-expanded/.test(x)),
+  ok(checkCollapsed(first.replace('pdxdb-group-h--collapsed" aria-expanded="false"', 'pdxdb-group-h--collapsed" aria-expanded="true"'), ["water"]).some((x) => /aria-expanded/.test(x)),
     "an expanded header fails");
-  ok(checkCollapsed(first.replace(" pdxdb-group-h--collapsed", "")).some((x) => /collapsed class/.test(x)),
+  ok(checkCollapsed(first.replace(" pdxdb-group-h--collapsed", ""), ["water"]).some((x) => /collapsed class/.test(x)),
     "a header without the collapsed class fails");
-  ok(checkCollapsed(first.replace(/(data-pdxdb-group="water")>/, "$1 open>")).some((x) => /water: the <details> is open/.test(x)),
+  ok(checkCollapsed(first.replace(/(data-pdxdb-group="housing")>/, "$1 open>"), ["water"]).some((x) => /housing: the <details> is open/.test(x)),
     "an open <details> fails");
 }
 

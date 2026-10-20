@@ -412,7 +412,15 @@ section("6 · the public wire: no flag, no account id, no pay button on a board"
   // $20 membership and links nothing); that sentence is lifted out first, so any
   // other $20, checkout or membership call on a board still fails.
   const CAP_LINE = /Verified residents get one comment and five poll votes a month on this seat\. (?:' \+\s*')?A \$20 yearly membership removes the monthly cap\./g;
-  const payOnBoard = boards.filter((f) => /\/api\/membership|checkout\.stripe|\$20|become a member/i.test(R(f).replace(CAP_LINE, "")));
+  // THE ONE PLAIN MEMBERSHIP LINK (v428): district-composer.js names /api/membership
+  // and "Become a member" for the link under the locked line — no price, no
+  // checkout. Exactly those three places are set aside; any other $20, checkout,
+  // membership call or join wording on a board still fails.
+  const PLAIN_LINK = (src) => src
+    .replace(/   ONE PLAIN DOOR TO MEMBERSHIP \(v428\)\.[\s\S]*?it never opens a seat\./, "")
+    .replace("var MEMBER_API = '/api/membership';", "")
+    .replace("var MEMBER_LINK = 'Become a member';", "");
+  const payOnBoard = boards.filter((f) => /\/api\/membership|checkout\.stripe|\$20|become a member/i.test(PLAIN_LINK(R(f).replace(CAP_LINE, ""))));
   eq(payOnBoard.length, 0, `no board grows a pay button — ${JSON.stringify(payOnBoard)}`);
 }
 

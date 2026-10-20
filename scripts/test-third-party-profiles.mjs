@@ -29,6 +29,7 @@ import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { carveDeclaredAdmissions, DECLARED_STANCE_PASSES } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -197,7 +198,10 @@ for (const pid of Object.keys(PEOPLE)) {
 section("5 · every other profile is unchanged");
 {
   const load = (src, pick) => { if (src == null) return null; const x = { CMP_DATA: {} }; new Function("window", src)(x); return pick(x); };
-  const ours = new Set(Object.keys(PEOPLE));
+  // This pass's people, plus the people a LATER declared stance pass moved
+  // (v103-chrome-seams.mjs) — that pass's own suite pins them.
+  const ours = new Set([...Object.keys(PEOPLE),
+    ...DECLARED_STANCE_PASSES.filter((d) => d.pass !== "third_party_light_profiles_oct2026").flatMap((d) => d.pids)]);
   for (const f of ["politician-stances-core.js", "politician-stances-ext.js", "politician-stances.js"]) {
     const h = load(HEAD(f), (x) => x.ISSUE_STANCE_DATA), n = load(R(f), (x) => x.ISSUE_STANCE_DATA);
     if (!h) { console.log(`      (no git baseline for ${f} — the unchanged check did not run)`); passed++; continue; }
@@ -210,7 +214,9 @@ section("5 · every other profile is unchanged");
     eq(moved.join(", "), "", "cmp-data-detail.js: no other person's bio or detail moved");
   } else passed++;
   const c = HEAD("cmp-data.js");
-  if (c != null) eq(c, R("cmp-data.js"), "cmp-data.js (the roster) is unchanged by this pass");
+  // A later roster batch declared by name (v103-chrome-seams.mjs DECLARED_ADMISSIONS)
+  // is the only growth allowed; every other byte of the roster still compares.
+  if (c != null) eq(carveDeclaredAdmissions(c), carveDeclaredAdmissions(R("cmp-data.js")), "cmp-data.js (the roster) is unchanged by this pass");
   else passed++;
 }
 

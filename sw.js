@@ -10245,7 +10245,129 @@
 //     No score, no Direction Match figure, no new key.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v417';
+// v418 - FEDERAL THIRD-PARTY AND INDEPENDENT NOMINEES, BATCH 1. cmp-data.js
+//     gains twelve identity-only roster rows: nine U.S. House nominees (ID-1,
+//     ID-2, CO-3, AZ-1, WY-AL, MO-1, MO-2, AK-AL) and three U.S. Senate
+//     independents (Nebraska, South Dakota, Idaho), keyed by office, state and
+//     district so the shared seat field places each on their own seat on
+//     /ballot and the homepage. voter-hub-location.js (runtime-cached, not
+//     precached) stops counting a "U.S. Senate Candidate" as a sitting senator,
+//     which would have made three Senate records and blanked both real seats.
+//     cmp-data.js is precached and changed, so the shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v419 - FEDERAL THIRD-PARTY LIGHT PROFILES, BATCH 1. The twelve federal
+//     independent and third-party nominees gain a one-sentence bio
+//     (cmp-data-detail.js) and, for nine of them, three to five sourced
+//     campaign claims on existing issue keys (politician-stances-ext.js,
+//     regenerated from politician-stances.js); sitemap.xml names their files.
+//     Both data files are runtime entries; the shell moves one version so the
+//     person shells pick them up. No score, no Direction Match figure, no new key.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v420 - FEDERAL THIRD-PARTY LIGHT PROFILES, FINISH. stance-tree.js
+//     (precached) prints an entry's own "Campaign claim, not a vote — …" line,
+//     with a sibling source link, in a topic leaf's Record slot when every
+//     entry on that issue is marked claim:'campaign' and nothing formal is on
+//     file; a landed vote or action brings the Record chip back unchanged.
+//     politician-stances-ext.js marks the nine federal nominees' 41 claims and
+//     adds Todd Achilles's firearms claim. stance-tree.js is precached and
+//     changed, so the shell moves one version. No score, no new key.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v421 - FEDERAL THIRD-PARTY AND INDEPENDENT NOMINEES, BATCH 2. cmp-data.js
+//     gains twelve identity-only U.S. Senate nominee rows (MT, MS, MN, AR, ID,
+//     MI, NC, TX), keyed by office and state so the shared seat field lists
+//     each on their own state's Senate race. cmp-data.js is precached and
+//     changed, so the shell moves one version. MIGRATION COST: none.
+// v422 - FEDERAL THIRD-PARTY LIGHT PROFILES, BATCH 2. The twelve Senate
+//     nominees from v421 gain a one-sentence bio (cmp-data-detail.js) and three
+//     to five sourced campaign claims each, marked claim:'campaign' on existing
+//     issue keys (politician-stances-ext.js, regenerated), so the topic tree
+//     prints the claim line where the empty Record chip stood; sitemap.xml
+//     names their files. The shell moves one version so the person shells
+//     pick them up. No score, no Direction Match figure, no new key.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v423 - /find: A DEVICE FIX SETS THE DISTRICTS OR OFFERS ONE BUTTON. find.html
+//     (precached) used to leave the info line on "No State House district
+//     selected yet" whenever the phone's accuracy circle crossed a line or was
+//     too wide, with nothing to press but the pin. A tight fix still commits all
+//     three seats at once; any other accepted fix keeps the pin and shows
+//     "📍 Use this location" directly under the map, which is a map tap at the
+//     pin (tapAt → resolveAllAt → selectDistrict, the one writer). The info line
+//     reads "Location found — use this location" from the moment the fix is
+//     accepted until it is used or replaced. Address search and map taps are
+//     unchanged and retire a waiting point. find.html is precached and changed,
+//     so the shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v424 - FEDERAL THIRD-PARTY AND INDEPENDENT NOMINEES, BATCH 3. cmp-data.js
+//     gains eight identity-only rows: three U.S. Senate nominees (CO, OH, WV)
+//     and five U.S. House nominees (AK-AL, AZ-6, CO-5, TN-4, ND-AL), keyed by
+//     office, state and district so the shared seat field lists each on their
+//     own race. Alponte, Bowen, West and Johnson were already on file and are
+//     not repeated. cmp-data.js is precached and changed, so the shell moves
+//     one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v425 - UTAH BOARDS: THREE PINNED ISSUES, AND THE TOPIC LIST COLLAPSED.
+//     district-board.js (precached) prints a row of three hard-coded Utah pins
+//     above the category list on every ut- board — Data Centers (the three
+//     data-center keys together), Protect Public Lands (lands_preserve) and
+//     Great Salt Lake Water (water) — each a button onto the existing issue
+//     groups for its keys, in their own chip colours; a pin with no measure on
+//     the seat opens an empty group that says so. Every group still starts
+//     collapsed, but a group the visitor holds a side on now opens (and its
+//     parent with it), as on the other boards. district-board.css carries the
+//     row's layout. Both files are precached and changed, so the shell moves
+//     one version. No composer, poll, residency or count change.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v426 - FEDERAL THIRD-PARTY LIGHT PROFILES, BATCH 3. The eight nominees from
+//     v424 gain a one-sentence bio (cmp-data-detail.js) and three to five
+//     sourced campaign claims each, marked claim:'campaign' on existing issue
+//     keys (politician-stances-ext.js, regenerated), so the topic tree prints
+//     the claim line where the empty Record chip stood; sitemap.xml names their
+//     files. The shell moves one version so the person shells pick them up.
+//     No score, no Direction Match figure, no new key.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v427 - FEDERAL THIRD-PARTY AND INDEPENDENT NOMINEES, BATCH 4. cmp-data.js
+//     gains fifty-three identity-only rows: twenty-six U.S. Senate nominees in
+//     thirteen states whose race lists showed only the two major parties (OK,
+//     OR, RI, SC, TN, FL, KY, MA, NH, NJ, IL, IA, KS) and twenty-seven U.S.
+//     House nominees (VA, FL, KY, NJ, IL, IA, KS), each keyed by office, state
+//     and district so the shared seat field lists them on their own race.
+//     cmp-data.js is precached and changed, so the shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v428 - MEMBERSHIP NEXT TO DISTRICT VOICE. The homepage District Voice card
+//     (index.html) and the /voice hallway intro (voice.html) each gain one gold
+//     line, "Membership lifts the monthly cap for verified residents.", linking
+//     to /me#membership; me.html gains that #membership anchor. On the boards,
+//     district-composer.js prints a plain "Become a member" link under the
+//     locked line for a signed-in reader GET /api/membership calls not a member
+//     (styled in district-board.css) — never for a signed-out reader or a
+//     member, and that read decides the link only: the residency check never
+//     asks it. me-membership.js makes "Become a member — $20 a year" the
+//     block's primary control (me-desk.css) with "See your district rooms"
+//     (/voice) under it. Every one of these files is precached and changed, so
+//     the shell moves one version. The residency gate and the cap are unchanged.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v429 - FEDERAL THIRD-PARTY LIGHT PROFILES, BATCH 4. Forty-three of the
+//     fifty-three nominees from v427 gain a one-sentence bio (cmp-data-detail.js)
+//     and three to five sourced campaign claims each, marked claim:'campaign' on
+//     existing issue keys (politician-stances-ext.js, regenerated), so the topic
+//     tree prints the claim line where the empty Record chip stood; sitemap.xml
+//     names their files. The other ten have no usable primary source, or fewer
+//     than three positions an existing key holds, and stay empty. The shell
+//     moves one version so the person shells pick them up. No score, no Direction
+//     Match figure, no new key.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v429';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

@@ -105,12 +105,14 @@ const MK = C.MANDATE_KEY;
 must(!!C.issueLabel("water") && !!C.issueLabel("housing"), "ISSUE_MAP no longer labels the fixture's issues");
 
 // ── 1 ───────────────────────────────────────────────────────────────────────
-section("1 · every issue group starts collapsed on a composer board");
+section("1 · every issue group starts collapsed on a composer board, but the visitor's own");
 {
   const h = C.tableHtml("ok", ITEMS, [], MANDATES);
   const gs = parseGroups(h);
   eq(gs.length, 4, "housing, schools, water and the unfiled rows all render");
-  ok(gs.every((g) => !g.open), "no issue group is open on first paint — not even the one the visitor holds a side on");
+  // v425: collapsed on first paint, except the group the visitor holds a side
+  // on — the same rule the generated boards keep below.
+  eq(JSON.stringify(gs.filter((g) => g.open).map((g) => g.key)), '["water"]', "no issue group is open on first paint except the visitor's own side");
   ok(gs.every((g) => !g.hidden), "…and every one is shown under All");
   const hg = G.tableHtml("ok", ITEMS, []);
   eq(JSON.stringify(parseGroups(hg).filter((g) => g.open).map((g) => g.key)), '["water"]',

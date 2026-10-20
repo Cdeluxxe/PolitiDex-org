@@ -269,7 +269,7 @@ const mutate = (name, from, to) => {
 mutate("invent an issue",
   "    var groups = [];\n    for (var g = 0; g < keys.length; g++) {",
   "    var groups = [];\n    var ak = aliasKeys(_view.q); for (var ik in ak) if (keys.indexOf(ik) === -1 && issueLabel(ik)) groups.push({ key: ik, label: issueLabel(ik), rows: [] });\n    for (var g = 0; g < keys.length; g++) {");
-mutate("drop the door", "      generalDoorHtml(anyShown(G, mrows)),", "      '',");
+mutate("drop the door", "      generalDoorHtml(anyShown(G, mrows, pins)),", "      '',");
 mutate("door always hidden", "'<p class=\"pdxdb-find-door\" data-pdxdb-find-door=\"\"' + (hidden ? ' hidden' : '')",
   "'<p class=\"pdxdb-find-door\" data-pdxdb-find-door=\"\"' + ' hidden'");
 mutate("in-place door never shown", "if (door) door.hidden = any;", "if (door) door.hidden = true;");
