@@ -10311,7 +10311,20 @@
 //     one version.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v424';
+// v425 - UTAH BOARDS: THREE PINNED ISSUES, AND THE TOPIC LIST COLLAPSED.
+//     district-board.js (precached) prints a row of three hard-coded Utah pins
+//     above the category list on every ut- board — Data Centers (the three
+//     data-center keys together), Protect Public Lands (lands_preserve) and
+//     Great Salt Lake Water (water) — each a button onto the existing issue
+//     groups for its keys, in their own chip colours; a pin with no measure on
+//     the seat opens an empty group that says so. Every group still starts
+//     collapsed, but a group the visitor holds a side on now opens (and its
+//     parent with it), as on the other boards. district-board.css carries the
+//     row's layout. Both files are precached and changed, so the shell moves
+//     one version. No composer, poll, residency or count change.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v425';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

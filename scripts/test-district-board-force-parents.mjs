@@ -61,7 +61,10 @@ function boot({ host, seat, src, noCoreReader } = {}) {
   for (const f of BOOT_FILES) vm.runInContext(R(f), ctx, { filename: f });
   if (noCoreReader) { delete win.coreIssueForKey; delete win.PDXIssueFamily; }
   win.PDXStances = { all: () => [], count: () => 0 };
-  win.PDXYourFile = { answered: () => ["water"], position: (k) => (k === "water" ? "support" : null) };
+  // No side on file: this suite checks the parent layout's first paint, and a
+  // side the visitor holds now opens its group and parent (v425) — that rule
+  // is held by test-district-board-collapsed.mjs and test-district-board-utah-pins.mjs.
+  win.PDXYourFile = { answered: () => [], position: () => null };
   win.PDXVotingRecord = { fetchMember: () => Promise.resolve({ items: [], summary: {} }) };
   if (seat) win.__PDX_DISTRICT_BOARD_SEAT = seat;
   if (host) win.document.getElementById = (id) => (id === "pdx-district-composer" ? {} : null);

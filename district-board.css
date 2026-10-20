@@ -35,6 +35,11 @@
 }
 .pdxdb-cat:focus-visible { outline: 2px solid #7fb2ff; outline-offset: 2px; }
 .pdxdb-cat-n { font-variant-numeric: tabular-nums; opacity: 0.75; font-weight: 500; }
+/* Utah's three pinned issues: the same chip, in the same colours, on one row
+   above the category list. */
+.pdxdb-utpins { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin: 0 0 0.75rem; }
+.pdxdb-utpins-l { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #8496b0; margin-right: 0.15rem; }
+.pdxdb-group--pinempty .pdxdb-none { margin: 0.5rem 0.75rem 0.75rem; }
 
 /* The one search field: measure title or bill number, inside the visible groups. */
 .pdxdb-find { display: block; margin: 0 0 0.8rem; }
