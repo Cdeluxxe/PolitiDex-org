@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // ─────────────────────────────────────────────────────────────────────────────
-// test-federal-third-party-profiles.mjs — light profiles for the twenty-four federal
-// independent and third-party nominees (two batches of twelve): a bio, and campaign claims that read
+// test-federal-third-party-profiles.mjs — light profiles for the thirty-two federal
+// independent and third-party nominees (batches of twelve, twelve and eight): a bio, and campaign claims that read
 // as campaign claims everywhere the person file prints them
 // ─────────────────────────────────────────────────────────────────────────────
 // What must stay true:
@@ -77,6 +77,19 @@ const PASS_OF = {};
 Object.keys(PEOPLE).forEach((p) => { PASS_OF[p] = "federal_third_party_light_profiles_b1_oct2026"; });
 Object.keys(BATCH2).forEach((p) => { PASS_OF[p] = "federal_third_party_light_profiles_b2_oct2026"; });
 Object.assign(PEOPLE, BATCH2);
+// Batch 3: the eight House and Senate nominees admitted in v424.
+const BATCH3 = {
+  blake_huber: { keys: ["cut_spending",  "states_federal_power",  "gun_rights",  "pro_choice"], hosts: ["ivoterguide.com"], bio: "Navy Reserve" },
+  bill_redpath: { keys: ["tariffs_prices",  "lower_taxes",  "cut_spending",  "cannabis_reform",  "restraint"], hosts: ["billredpath.com"], bio: "business valuation" },
+  s_marshall_wilson: { keys: ["energy_production",  "econ_smallbiz",  "national_debt"], hosts: ["wilsonwv.com"], bio: "infantry officer" },
+  jim_mcdermott: { keys: ["tariffs_prices",  "privacy_rights",  "restraint",  "national_debt",  "term_limits"], hosts: ["jamesmcdermott.org"], bio: "master sergeant" },
+  gary_swing: { keys: ["restraint",  "healthcare",  "edu_college_cost"], hosts: ["theswingvote.wixsite.com"], bio: "caregiver" },
+  mark_elworth: { keys: ["lower_taxes",  "gov_regulation",  "tariffs_prices",  "privacy_rights"], hosts: ["web.archive.org"], bio: "lifelong activist" },
+  jacob_anders: { keys: ["stock_trading_ban",  "tax_middle_class",  "healthcare",  "pro_choice"], hosts: ["jacobanders.org"], bio: "historian" },
+  helene_neville: { keys: ["healthcare_costs",  "social_security",  "pro_choice",  "stock_trading_ban",  "tariffs_prices"], hosts: ["web.archive.org",  "www.heleneforcongress.com"], bio: "nurse" },
+};
+Object.keys(BATCH3).forEach((p) => { PASS_OF[p] = "federal_third_party_light_profiles_b3_oct2026"; });
+Object.assign(PEOPLE, BATCH3);
 // Topics the user asked about that these sources do not state, or state with
 // no key to hold them: no card may sit on these keys.
 const NOT_IN_SOURCE = {
@@ -88,17 +101,23 @@ const NOT_IN_SOURCE = {
   douglas_marsh: ["iran_policy", "family_support", "water", "housing"],
   lydia_christensen: ["water", "enviro_balance"],
   ted_brown: ["justice_reform", "edu_parental", "school_choice"],
+  // Batch 3: positions with no key that holds them without stretching it.
+  bill_redpath: ["immig_legal", "immigration_reform"],
+  gary_swing: ["datacenter_water", "climate_action", "democracy_balance", "immigration_reform"],
+  jacob_anders: ["immig_balance", "family_support"],
+  blake_huber: ["tariffs_china", "voter_id"],
   will_johanson: ["border_security", "lands_keep_public"],
   shawn_johnson: ["gun_rights", "cut_spending"],
 };
 const EQUITY = /\bequity\b|\bstocks?\b|earn (?:a|your) share|\bshareholder|\bdividend/i;
-// A stock-trading ban for members of Congress is the candidate's position, not
-// equity language: in a sentence that names Congress, "stocks" / "stock trading"
+// A stock-trading ban for members of Congress (or for elected officials) is the
+// candidate's position, not equity language: in a sentence that names Congress
+// or elected officials, "stocks" / "stock trading"
 // is set aside, and every other use of "stock" still fails.
 // Likewise "private equity" names a kind of investment firm in a candidate's
 // position on who may own homes; that phrase alone is set aside.
 const equityIn = (t) => EQUITY.test(String(t).replace(/\bprivate[- ]equity\b/gi, " ").split(/(?<=[.!?])\s+/).map((x) =>
-  /\bCongress(?:ional)?\b/i.test(x) ? x.replace(/\b(?:individual\s+)?stocks?(?:\s+trad(?:e|ing))?\b/gi, " ") : x).join(" "));
+  /\bCongress(?:ional)?\b|\belected officials\b/i.test(x) ? x.replace(/\b(?:individual\s+)?stocks?(?:\s+trad(?:e|ing))?\b/gi, " ") : x).join(" "));
 
 const FILES = [
   "cmp-data.js", "cmp-data-detail.js", "politician-stances-core.js", "politician-stances-ext.js", "state-senate-stances.js",
@@ -164,7 +183,7 @@ for (const [pid, want] of Object.entries(PEOPLE)) {
   const rec = w.CMP_DATA[pid];
   if (!ok(!!rec, `${pid} has a roster row`)) continue;
   ok(typeof rec.bio === "string" && rec.bio.length > 40 && rec.bio.length <= 280, `${pid}: one short bio sentence`);
-  eq((rec.bio.replace(/\bU\.S\./g, "US").replace(/\b[A-Z]\.(?= [A-Z])/g, "X").match(/[.!?](\s|$)/g) || []).length, 1, `${pid}: the bio is one sentence`);
+  eq((rec.bio.replace(/\bU\.S\./g, "US").replace(/\b[A-Z]\.(?= [A-Z])/g, "X").replace(/\b(?:Jr|Sr)\./g, "X").match(/[.!?](\s|$)/g) || []).length, 1, `${pid}: the bio is one sentence`);
   has(rec.bio, want.bio, `${pid}: the bio says who they are`);
   has(rec.bio, rec.name, `${pid}: the bio names them`);
   let threw = "";
@@ -284,7 +303,7 @@ section("5 · everyone else is unchanged, and so are the twelve roster rows");
   for (const name of [...new Set(Object.values(PASS_OF))]) {
     const pass = DECLARED_STANCE_PASSES.find((d) => d.pass === name);
     const want = Object.keys(PASS_OF).filter((p) => PASS_OF[p] === name).sort().join(",");
-    eq(pass ? pass.pids.slice().sort().join(",") : "", want, `${name} declares exactly its twelve`);
+    eq(pass ? pass.pids.slice().sort().join(",") : "", want, `${name} declares exactly its people`);
   }
 }
 {

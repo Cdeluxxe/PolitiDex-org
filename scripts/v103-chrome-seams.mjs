@@ -3262,6 +3262,10 @@ export const DECLARED_STANCE_PASSES = [
     pass: "federal_third_party_light_profiles_b2_oct2026",
     pids: ["seth_bodnar", "ty_pinkins", "rebecca_whiting", "marisa_simonetti", "jeff_wadlin", "natalie_fleming", "matt_loesby", "kyle_austin", "lydia_christensen", "douglas_marsh", "shannon_bray", "ted_brown"],
   },
+  {
+    pass: "federal_third_party_light_profiles_b3_oct2026",
+    pids: ["blake_huber", "bill_redpath", "s_marshall_wilson", "jim_mcdermott", "gary_swing", "mark_elworth", "jacob_anders", "helene_neville"],
+  },
 ];
 export const DECLARED_STANCE_PIDS = DECLARED_STANCE_PASSES.flatMap((d) => d.pids);
 const stanceTable = (src) => {

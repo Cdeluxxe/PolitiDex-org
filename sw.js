@@ -10324,7 +10324,16 @@
 //     one version. No composer, poll, residency or count change.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v425';
+// v426 - FEDERAL THIRD-PARTY LIGHT PROFILES, BATCH 3. The eight nominees from
+//     v424 gain a one-sentence bio (cmp-data-detail.js) and three to five
+//     sourced campaign claims each, marked claim:'campaign' on existing issue
+//     keys (politician-stances-ext.js, regenerated), so the topic tree prints
+//     the claim line where the empty Record chip stood; sitemap.xml names their
+//     files. The shell moves one version so the person shells pick them up.
+//     No score, no Direction Match figure, no new key.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v426';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

@@ -1548,7 +1548,15 @@
  "lydia_christensen": { "bio": "Lydia Christensen is the Libertarian nominee for U.S. Senate in Michigan, an Ironwood technology-company founder who grew up in the foster care system." },
  "douglas_marsh": { "bio": "Douglas P. Marsh is the Green Party nominee for U.S. Senate in Michigan, a Traverse City-born community journalist and volunteer firefighter who lectured at a university in Thailand for five years." },
  "shannon_bray": { "bio": "Shannon W. Bray is the Libertarian nominee for U.S. Senate in North Carolina, a Navy veteran and cybersecurity professional." },
- "ted_brown": { "bio": "Ted Brown is the Libertarian nominee for U.S. Senate in Texas, a UCLA political science graduate and retired independent insurance adjuster who lives in Austin's Wells Branch neighborhood." }
+ "ted_brown": { "bio": "Ted Brown is the Libertarian nominee for U.S. Senate in Texas, a UCLA political science graduate and retired independent insurance adjuster who lives in Austin's Wells Branch neighborhood." },
+ "blake_huber": { "bio": "Blake Huber is the Libertarian nominee for U.S. Senate in Colorado, a Kansas Air National Guard and Navy Reserve veteran who has run for Colorado secretary of state and for president." },
+ "bill_redpath": { "bio": "Bill Redpath is the Libertarian nominee for U.S. Senate in Ohio, a Findlay native with a 38-year career in business valuation who chaired the Libertarian National Committee from 2006 to 2010." },
+ "s_marshall_wilson": { "bio": "S. Marshall Wilson is the Constitution Party nominee for U.S. Senate in West Virginia, a retired Army infantry officer and combat veteran who represented southern Berkeley County as a state delegate." },
+ "jim_mcdermott": { "bio": "Jim McDermott is the Libertarian nominee for Alaska's at-large U.S. House seat, a Fairbanks resident who retired from the Air Force as a master sergeant and teaches business at the University of Alaska Fairbanks." },
+ "gary_swing": { "bio": "Gary Swing is the Green Party nominee for Arizona's 6th Congressional District, a caregiver who has run for office in Arizona and Colorado since 1996, including for president in 2020." },
+ "mark_elworth": { "bio": "Mark Elworth Jr. is the Libertarian nominee for Colorado's 5th Congressional District, a lifelong activist who began collecting medical-marijuana petition signatures in 1995 and ran for Nebraska governor in 2014." },
+ "jacob_anders": { "bio": "Jacob Anders is the Independent nominee for Tennessee's 4th Congressional District, an author, historian and researcher who lives in Tullahoma with his wife and two young children." },
+ "helene_neville": { "bio": "Helene Neville is the Independent nominee for North Dakota's at-large U.S. House seat, a Jamestown nurse, public health leader, author and former professional athlete running for office for the first time." }
 };
   Object.keys(X).forEach(function (k) {
     var src = X[k], dst = D[k] || (D[k] = {});
