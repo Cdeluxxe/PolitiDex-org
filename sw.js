@@ -10302,7 +10302,16 @@
 //     so the shell moves one version.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v423';
+// v424 - FEDERAL THIRD-PARTY AND INDEPENDENT NOMINEES, BATCH 3. cmp-data.js
+//     gains eight identity-only rows: three U.S. Senate nominees (CO, OH, WV)
+//     and five U.S. House nominees (AK-AL, AZ-6, CO-5, TN-4, ND-AL), keyed by
+//     office, state and district so the shared seat field lists each on their
+//     own race. Alponte, Bowen, West and Johnson were already on file and are
+//     not repeated. cmp-data.js is precached and changed, so the shell moves
+//     one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v424';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

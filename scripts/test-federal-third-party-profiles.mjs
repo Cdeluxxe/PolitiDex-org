@@ -25,7 +25,7 @@ import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
-import { DECLARED_STANCE_PASSES } from "./v103-chrome-seams.mjs";
+import { DECLARED_STANCE_PASSES, carveDeclaredAdmissions } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -276,7 +276,9 @@ section("5 · everyone else is unchanged, and so are the twelve roster rows");
     eq(moved.join(", "), "", "cmp-data-detail.js: no other person's bio or detail moved");
   } else passed++;
   const c = HEAD("cmp-data.js");
-  if (c != null) eq(c, R("cmp-data.js"), "cmp-data.js (the roster, every nominee row included) is unchanged by this pass");
+  // A later roster batch declared by name (v103-chrome-seams.mjs DECLARED_ADMISSIONS)
+  // is the only growth allowed; every other byte of the roster still compares.
+  if (c != null) eq(carveDeclaredAdmissions(c), carveDeclaredAdmissions(R("cmp-data.js")), "cmp-data.js (the roster, every nominee row included) is unchanged by this pass");
   else passed++;
   // The pass that may move these files is declared, by name, with exactly these people.
   for (const name of [...new Set(Object.values(PASS_OF))]) {

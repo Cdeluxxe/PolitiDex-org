@@ -16134,5 +16134,77 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
   "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
+ },
+// ── Federal third-party and independent nominees, batch 3, 2026 general election (Oct 2026)
+// Libertarian, Constitution, Green and Independent nominees on the November 3,
+// 2026 ballot, per Ballotpedia's 2026 general-election candidate lists. Same
+// shape as batches 1 and 2: identity rows only — office, district and party as
+// listed, `score` null, an empty ledger, `issues` empty. A single-district state
+// is stored as district 1; the office label still says AL. Monica Alponte
+// (AZ-1), Carlton Bowen (UT-2), Jesse West (UT-1) and Shawn Johnson (WY-AL)
+// were already on file with these seats and labels, so they are not repeated.
+ // Colorado U.S. Senate · Libertarian
+ "blake_huber": {
+  "name": "Blake Huber", "office": "U.S. Senate Candidate",
+  "state": "Colorado",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Ohio U.S. Senate · Libertarian
+ "bill_redpath": {
+  "name": "Bill Redpath", "office": "U.S. Senate Candidate",
+  "state": "Ohio",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // West Virginia U.S. Senate · Constitution
+ "s_marshall_wilson": {
+  "name": "S. Marshall Wilson", "office": "U.S. Senate Candidate",
+  "state": "West Virginia",
+  "party": "Constitution", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // AK-AL · Libertarian
+ "jim_mcdermott": {
+  "name": "Jim McDermott", "office": "U.S. House Candidate (AK-AL)",
+  "state": "Alaska", "district": "1",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // AZ-6 · Green
+ "gary_swing": {
+  "name": "Gary Swing", "office": "U.S. House Candidate (AZ-6)",
+  "state": "Arizona", "district": "6",
+  "party": "Green", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CO-5 · Libertarian
+ "mark_elworth": {
+  "name": "Mark Elworth Jr.", "office": "U.S. House Candidate (CO-5)",
+  "state": "Colorado", "district": "5",
+  "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-4 · Independent
+ "jacob_anders": {
+  "name": "Jacob Anders", "office": "U.S. House Candidate (TN-4)",
+  "state": "Tennessee", "district": "4",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // ND-AL · Independent
+ "helene_neville": {
+  "name": "Helene Neville", "office": "U.S. House Candidate (ND-AL)",
+  "state": "North Dakota", "district": "1",
+  "party": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
  }
 });

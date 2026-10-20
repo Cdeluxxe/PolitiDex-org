@@ -3227,6 +3227,11 @@ export const DECLARED_ADMISSIONS = [
     banner: "// ── Federal third-party and independent nominees, batch 2, 2026 general election (Oct 2026)",
     pids: ["seth_bodnar", "ty_pinkins", "rebecca_whiting", "marisa_simonetti", "jeff_wadlin", "natalie_fleming", "matt_loesby", "kyle_austin", "lydia_christensen", "douglas_marsh", "shannon_bray", "ted_brown"],
   },
+  {
+    wave: "federal_third_party_b3_oct2026",
+    banner: "// ── Federal third-party and independent nominees, batch 3, 2026 general election (Oct 2026)",
+    pids: ["blake_huber", "bill_redpath", "s_marshall_wilson", "jim_mcdermott", "gary_swing", "mark_elworth", "jacob_anders", "helene_neville"],
+  },
 ];
 /**
  * DECLARED STANCE PASSES — people whose curated stance list a pass rewrote ON

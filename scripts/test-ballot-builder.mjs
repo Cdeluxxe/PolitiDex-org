@@ -906,6 +906,92 @@ for (const c of FED_B2) {
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
+section("2i · Federal third-party and independent nominees, batch 3: each on its own race card");
+// The eight new rows, and the four this request named that were already on file
+// with the same seat and label (Alponte, Bowen, West, Johnson) — those are read,
+// not re-added, and their rows must be byte-identical to HEAD.
+const FED_B3 = [
+  ["blake_huber", "senate", "Colorado", 1, "Libertarian", ["Wyoming", 1], true],
+  ["bill_redpath", "senate", "Ohio", 1, "Libertarian", ["Indiana", 1], true],
+  ["s_marshall_wilson", "senate", "West Virginia", 1, "Constitution", ["Virginia", 1], true],
+  ["jim_mcdermott", "house", "Alaska", 1, "Libertarian", ["Washington", 1], true],
+  ["gary_swing", "house", "Arizona", 6, "Green", ["Arizona", 5], true],
+  ["mark_elworth", "house", "Colorado", 5, "Libertarian", ["Colorado", 6], true],
+  ["jacob_anders", "house", "Tennessee", 4, "Independent", ["Tennessee", 5], true],
+  ["helene_neville", "house", "North Dakota", 1, "Independent", ["South Dakota", 1], true],
+  ["monica_alponte", "house", "Arizona", 1, "Libertarian", ["Arizona", 2], false],
+  ["carlton_bowen", "house", "Utah", 2, "Independent American", ["Utah", 3], false],
+  ["jesse_west", "house", "Utah", 1, "Libertarian", ["Utah", 2], false],
+  ["shawn_johnson", "house", "Wyoming", 1, "Libertarian", ["Montana", 1], false],
+].map(([pid, seat, state, dist, party, nb, fresh]) => ({ pid, seat, state, dist, party, nb, fresh }));
+{
+  const w0 = boot();
+  const EQ = /\bequity\b|\bstocks?\b|earn (?:a|your) share|\bshareholder|\bdividend/i;
+  for (const c of FED_B3) {
+    const r = w0.CMP_DATA[c.pid];
+    if (!ok(!!r, `${c.pid} has a roster row`)) continue;
+    eq(r.party, c.party, `${c.pid}: party label`);
+    eq(w0._pdxBrowseType(c.pid), c.seat === "senate" ? "senator" : "representative", `${c.pid}: keys to the right chamber`);
+    eq(w0._pdxBrowseStateOf(c.pid), c.state, `${c.pid}: state`);
+    if (c.seat === "house") eq(w0._pdxRelevantDistNum(c.pid), c.dist, `${c.pid}: district`);
+    eq(w0.PDXStatus.resolve(r), "current_candidate", `${c.pid}: a current-cycle candidate`);
+    eq(r.score, null, `${c.pid}: no score`);
+    eq(r.kept + r.broken + r.pending, 0, `${c.pid}: an empty ledger`);
+    eq((r.issues || []).length, 0, `${c.pid}: no issue keys`);
+    ok(!EQ.test(JSON.stringify(r)), `${c.pid}: no equity language on the row`);
+    eq(w0.PDXPersonLink.pid(c.pid), c.pid, `/p/${c.pid} resolves to its own file`);
+  }
+  for (const st of ["Colorado", "Ohio", "West Virginia"]) {
+    const s = w0._pdxStatewideSeats(st);
+    eq(s.ambiguous, false, `${st}: the Senate seats are not called ambiguous`);
+    ok(!s.senators.some((p) => FED_B3.some((c) => c.pid === p)), `${st}: no nominee is named a sitting senator`);
+  }
+  for (const [st, d] of [["Alaska", "1"], ["Arizona", "6"], ["Colorado", "5"], ["Tennessee", "4"], ["North Dakota", "1"]]) {
+    const holder = w0._pdxUsHouseSeat(st, d);
+    ok(!!holder && !FED_B3.some((c) => c.pid === holder), `${st}-${d}: the sitting member still resolves (got ${holder})`);
+  }
+  // THE FOUR ALREADY ON FILE ARE NOT TOUCHED, and the rows HEAD held are all still there.
+  const headSrc = gitShow("cmp-data.js");
+  if (headSrc) {
+    const hw = { CMP_DATA: {} }; new Function("window", headSrc)(hw);
+    const head = hw.CMP_DATA;
+    const fresh = FED_B3.filter((c) => c.fresh).map((c) => c.pid);
+    const freshAtHead = fresh.filter((p) => head[p]);
+    if (freshAtHead.length === 0) {
+      for (const c of FED_B3.filter((x) => !x.fresh)) eq(JSON.stringify(w0.CMP_DATA[c.pid]), JSON.stringify(head[c.pid]), `${c.pid}: the existing row is unchanged`);
+      const changed = Object.keys(head).filter((p) => JSON.stringify(head[p]) !== JSON.stringify(w0.CMP_DATA[p]));
+      eq(changed.join(", "), "", "no existing roster row changed");
+      const added = Object.keys(w0.CMP_DATA).filter((p) => !head[p]);
+      eq(added.slice().sort().join(","), fresh.slice().sort().join(","), "the roster grew by exactly the eight new nominees");
+    } else passed += 3; // HEAD already holds this batch: the pin above belongs to the commit that added it
+  } else passed++;
+}
+const b3Cache = {};
+for (const c of FED_B3) {
+  const k = c.seat + c.state + c.dist;
+  if (!b3Cache[k]) {
+    const w = fed(c.state, c.dist, { noLive: true });
+    const sf = w.pdxSeatField(c.seat);
+    const { d, g } = seatHtml(w, c.seat);
+    const h = fed(c.state, c.dist, { homepage: true, noLive: true });
+    const hsf = h.pdxSeatField(c.seat);
+    const card = (hsf && hsf.answerable ? hsf.pids : []).filter((p) => ["incumbent", "current_candidate"].includes(h.PDXStatus.resolve(h.CMP_DATA[p] || {})));
+    b3Cache[k] = { sf, d, g, card, roles: rosterRoles(d) };
+    const s = b3Cache[k];
+    ok(!!(sf && sf.answerable), `${c.state} ${c.seat} ${c.dist} is answerable (${sf && sf.reason})`);
+    eq(rosterCount(d), s.roles.length, `${c.state} ${c.seat} ${c.dist}: the count is the list`);
+    eq(JSON.stringify(s.roles.map(([p]) => p).slice().sort()), JSON.stringify(card.slice().sort()), `${c.state} ${c.seat} ${c.dist}: /ballot lists the homepage card's people`);
+  }
+  const s = b3Cache[k];
+  ok(s.roles.some(([p, role]) => p === c.pid && role === "candidate"), `${c.state} ${c.seat} ${c.dist} lists ${c.pid} as a candidate (got ${s.roles.map((x) => x.join(":")).join(", ")})`);
+  has(s.d, `href="/p/${c.pid}" data-pdx-person-link="${c.pid}"`, `${c.pid} links to /p/`);
+  has(s.g, `href="/p/${c.pid}"`, `…and at a glance`);
+  ok(s.card.includes(c.pid), `the homepage card for ${c.state} ${c.seat} ${c.dist} holds ${c.pid}`);
+  const n = fed(c.nb[0], c.nb[1], { noLive: true });
+  ok(!(n.pdxSeatField(c.seat).pids || []).includes(c.pid), `${c.pid} is not on ${c.nb[0]} ${c.seat} ${c.nb[1]}`);
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
 section("2c · Election timing: stored, or honestly absent");
 {
   // A seat with no stored date says so, and prints no countdown. Provo's U.S.

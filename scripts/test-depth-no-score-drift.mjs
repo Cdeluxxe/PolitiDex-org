@@ -247,6 +247,16 @@ const ADDED = {
   douglas_marsh: "Green nominee, U.S. Senate Candidate (Michigan)",
   shannon_bray: "Libertarian nominee, U.S. Senate Candidate (North Carolina)",
   ted_brown: "Libertarian nominee, U.S. Senate Candidate (Texas)",
+
+  // October 2026 federal third-party and independent nominees, batch 3.
+  blake_huber: "Libertarian nominee, U.S. Senate Candidate (Colorado)",
+  bill_redpath: "Libertarian nominee, U.S. Senate Candidate (Ohio)",
+  s_marshall_wilson: "Constitution nominee, U.S. Senate Candidate (West Virginia)",
+  jim_mcdermott: "Libertarian nominee, U.S. House Candidate (AK-AL)",
+  gary_swing: "Green nominee, U.S. House Candidate (AZ-6)",
+  mark_elworth: "Libertarian nominee, U.S. House Candidate (CO-5)",
+  jacob_anders: "Independent nominee, U.S. House Candidate (TN-4)",
+  helene_neville: "Independent nominee, U.S. House Candidate (ND-AL)",
 };
 // ── The same allowance, at roster-wave scale, sourced instead of typed ───────
 // ADDED above works because each entry is a line a reviewer reads. A FEDERAL roster wave
