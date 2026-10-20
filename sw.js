@@ -10378,7 +10378,15 @@
 //     person shells pick them up. No score, no Direction Match figure, no new key.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v430';
+// v431 - THE AIPAC CHIP. The person-file letterhead gains one chip after the two
+//     money pills: AIPAC-backed / Mixed / No AIPAC file on hand, read from the
+//     money lane's filings (AIPAC-affiliated PAC names only) and an AIPAC
+//     scorecard table that ships empty. pdx-aipac.js is new and precached;
+//     profiles-full.js, person.html and index.html are shell assets and changed.
+//     No dollar figure, no percentage, no score, no new key.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v431';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -11157,6 +11165,8 @@ const SHELL_ASSETS = [
   '/pdx-finance.js',
   '/finance-lane.js',
   '/finance-lane.css',
+  // The AIPAC letterhead chip. Precached beside the lane it reads through.
+  '/pdx-aipac.js',
   // THE EXECUTIVE LANE. Not optional once /p/* serves one document for every
   // person address: without these, a governor's or a president's file answers a
   // real address with a congressional "nothing on file".
