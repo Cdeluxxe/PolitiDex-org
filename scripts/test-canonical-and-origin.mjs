@@ -609,7 +609,8 @@ section("6 · a hostname change moved a hostname and nothing else");
   const routesAt = DV.indexOf("var BOARD_ROUTES = {");
   must(routesAt > 0, "district-voice.js no longer declares BOARD_ROUTES as an object literal");
   const routesLit = DV.slice(routesAt, DV.indexOf("}", routesAt) + 1);
-  const boardRows = [...routesLit.matchAll(/'([a-z0-9-]+)':\s*'(\/district\/[a-z0-9-]+)'/g)]
+  // `_` is allowed: a U.S. Senate board is keyed by its holder's pid.
+  const boardRows = [...routesLit.matchAll(/'([a-z0-9_-]+)':\s*'(\/district\/[a-z0-9_-]+)'/g)]
     .map((m) => ({ seat: m[1], route: m[2] }));
   eq(boardRows.length, (routesLit.match(/:/g) || []).length,
      "every BOARD_ROUTES row is a literal seat key mapped to a literal /district/ path — no computed row, no pattern");

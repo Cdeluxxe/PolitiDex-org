@@ -36,6 +36,16 @@
 // no /district/* splat: a skipped seat has no document, no rewrite and no row,
 // so /voice keeps saying "this room is not open" for it.
 //
+// EVERY OTHER STATE'S U.S. HOUSE AND U.S. SENATE SEATS (see planFederal()) are
+// opened on the same gate, the same template and the same composer contract as
+// a Utah board — a row on all three composer lists, so a comment and a poll vote
+// are taken from a Didit-verified resident of that seat and from nobody else —
+// with two differences, each a refusal rather than a feature:
+//   · NO OFFLINE COPY. Four hundred documents are not precached onto a phone;
+//     sw.js's three blocks stay Utah's, and a board outside Utah is a network
+//     page like any other address the worker does not know.
+//   · NO STATE LEGISLATIVE SEATS. This app draws legislative lines in Utah only.
+//
 // THE SIX HAND-OPENED DOCUMENTS ARE NEVER WRITTEN. Their rows stay above each
 // generated block, byte for byte; the suite pins their bytes.
 //
@@ -69,6 +79,29 @@ const CHAMBERS = [
   { chamber: "statesenate", code: "sd", count: 29 },
   { chamber: "house", code: "cd", count: 4 },
 ];
+
+// ── EVERY OTHER STATE: U.S. HOUSE SEATS PER STATE, 2020 APPORTIONMENT ─────
+// The number of districts each state has — a fact of the apportionment, not a
+// list of who holds them. Each number is only how far planFederal() asks
+// window._pdxUsHouseSeat(); a district the roster names nobody for is skipped.
+// A single-district state is asked for district 1, the number this app stores
+// for an at-large seat (see _pdxCdKey() in voter-hub-location.js). Utah is not
+// here: its four districts are planned above.
+export const FEDERAL_STATES = [
+  ["al", "Alabama", 7], ["ak", "Alaska", 1], ["az", "Arizona", 9], ["ar", "Arkansas", 4],
+  ["ca", "California", 52], ["co", "Colorado", 8], ["ct", "Connecticut", 5], ["de", "Delaware", 1],
+  ["fl", "Florida", 28], ["ga", "Georgia", 14], ["hi", "Hawaii", 2], ["id", "Idaho", 2],
+  ["il", "Illinois", 17], ["in", "Indiana", 9], ["ia", "Iowa", 4], ["ks", "Kansas", 4],
+  ["ky", "Kentucky", 6], ["la", "Louisiana", 6], ["me", "Maine", 2], ["md", "Maryland", 8],
+  ["ma", "Massachusetts", 9], ["mi", "Michigan", 13], ["mn", "Minnesota", 8], ["ms", "Mississippi", 4],
+  ["mo", "Missouri", 8], ["mt", "Montana", 2], ["ne", "Nebraska", 3], ["nv", "Nevada", 4],
+  ["nh", "New Hampshire", 2], ["nj", "New Jersey", 12], ["nm", "New Mexico", 3], ["ny", "New York", 26],
+  ["nc", "North Carolina", 14], ["nd", "North Dakota", 1], ["oh", "Ohio", 15], ["ok", "Oklahoma", 5],
+  ["or", "Oregon", 6], ["pa", "Pennsylvania", 17], ["ri", "Rhode Island", 2], ["sc", "South Carolina", 7],
+  ["sd", "South Dakota", 1], ["tn", "Tennessee", 9], ["tx", "Texas", 38], ["vt", "Vermont", 1],
+  ["va", "Virginia", 11], ["wa", "Washington", 10], ["wv", "West Virginia", 2], ["wi", "Wisconsin", 8],
+  ["wy", "Wyoming", 1],
+].map(([code, name, seats]) => ({ code, name, seats }));
 
 const BEGIN = "@generated district-boards begin";
 const END = "@generated district-boards end";
@@ -144,6 +177,7 @@ export function planBoards() {
     }
   }
   planStatewide(win, boards, skipped);
+  planFederal(win, boards, skipped);
   for (const b of boards) {
     b.route = `/district/${b.alias}`;
     b.doc = `district-${b.alias}.html`;
@@ -196,6 +230,67 @@ function planStatewide(win, boards, skipped) {
   }
 }
 
+// ── EVERY OTHER STATE'S U.S. HOUSE AND U.S. SENATE SEATS ────────────────────
+// The same two lookups the Utah rows use, asked with the roster's own state
+// name, and the same refusal: no holder, no board.
+//   U.S. House   window._pdxUsHouseSeat(<State>, n) answers somebody with a
+//                cmp-data.js row. The row carries NO pid, as UT-2's does.
+//   U.S. Senate  window._pdxStatewideSeats(<State>) names the pid, it has a
+//                cmp-data.js row whose own state is <State>, and its office is
+//                a U.S. Senate seat (a leadership or committee title included —
+//                the resolver's own classifier already admitted it — and never a
+//                state senate, a former member or a candidate). Keyed by pid,
+//                exactly as Utah's two are: `<code>-us-senate-<pid>`.
+// The governor is NOT opened outside Utah. Every board here is `federal`, which
+// only keeps it out of sw.js; it takes a voice like any Utah board.
+const US_SENATE_OFFICE_RE = /\bsenat(?:e|or)\b/i;
+const NOT_US_SENATE_RE = /\bstate\s+senat|\bformer\b|\bex-|\bcandidate\b|\bnominee\b|-elect\b/i;
+function planFederal(win, boards, skipped) {
+  const RO = win.CMP_DATA;
+  for (const { code, name, seats } of FEDERAL_STATES) {
+    for (let n = 1; n <= seats; n++) {
+      const seat = `${code}-house-${n}`;
+      const alias = `${code}-cd-${n}`;
+      const holder = win._pdxUsHouseSeat(name, n) || "";
+      const row = holder && RO[holder];
+      if (!row) { skipped.push({ seat, alias, reason: "no sitting U.S. Representative on the roster" }); continue; }
+      const atLarge = seats === 1;
+      boards.push({
+        seat, alias, chamber: "house", district: n, pid: "", joinPid: holder, federal: true,
+        usHouse: { state: name, district: n },
+        member: row.name, office: row.office,
+        h1: atLarge ? `${name}’s At-Large Congressional District` : `${name}’s ${ORD(n)} Congressional District`,
+        where: atLarge ? `The whole State of ${name}, one at-large seat` : "The district as the current congressional map draws it",
+        kick: atLarge ? `${code.toUpperCase()} at-large district board` : `${code.toUpperCase()}-${n} district board`,
+      });
+    }
+    const sw = win._pdxStatewideSeats(name);
+    if (!sw || sw.ambiguous) {
+      skipped.push({ seat: `${code}-us-senate`, alias: `${code}-us-senate`, reason: `the statewide walk did not answer for ${name}` });
+      continue;
+    }
+    for (const p of sw.senators || []) {
+      const pid = String(p || "");
+      const key = `${code}-us-senate-${pid}`;
+      const row = pid && RO[pid];
+      if (!row) { skipped.push({ seat: key, alias: key, pid, reason: "no sitting pid with a cmp-data.js row" }); continue; }
+      const office = String(row.office || "");
+      if (String(row.state || "") !== name || !US_SENATE_OFFICE_RE.test(office) ||
+          NOT_US_SENATE_RE.test(office) || !STATEWIDE_KEY_RE.test(key)) {
+        skipped.push({ seat: key, alias: key, pid, reason: `roster record does not claim this seat (${office})` });
+        continue;
+      }
+      boards.push({
+        seat: key, alias: key, chamber: "senate", district: 0, pid, statewide: true, federal: true,
+        member: row.name, office: row.office,
+        h1: `U.S. Senate · ${row.name}`,
+        where: `Statewide · the whole State of ${name}`,
+        kick: "U.S. Senate board",
+      });
+    }
+  }
+}
+
 // ── RENDERING ───────────────────────────────────────────────────────────────
 const html = (s) => String(s)
   .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")
@@ -236,7 +331,7 @@ export function renderDoc(b, template = R("scripts/district-board.template.html"
     ? [
         `        <p class="pdx-sh-note">`,
         `          This is the district board for ${h1}, as the`,
-        `          court-ordered 2026 map draws it. It needs`,
+        `          ${b.federal ? "current congressional" : "court-ordered 2026"} map draws it. It needs`,
         `          JavaScript to read who holds the seat, the count of who is in the`,
         `          room, and the measures on this district&rsquo;s table — and which`,
         `          member holds a congressional district is a lookup, so there is no`,
@@ -262,7 +357,7 @@ export function renderDoc(b, template = R("scripts/district-board.template.html"
     FILE: b.doc,
     H1_CAPS: b.h1.toUpperCase(),
     ROSTER_NOTE: b.usHouse
-      ? `the U.S. House join _pdxUsHouseSeat('Utah', ${b.district}), which names no pid here`
+      ? `the U.S. House join _pdxUsHouseSeat('${b.usHouse.state}', ${b.district}), which names no pid here`
       : b.statewide ? `${b.chamber} (statewide) → ${b.pid}`
       : `${b.chamber} ${b.district} → ${b.pid}`,
     ALIAS: b.alias,
@@ -288,7 +383,7 @@ function boardsRows(boards) {
     const f = [
       `seat: ${js(b.seat)}`, "composer: true", `alias: ${js(b.alias)}`, `route: ${js(b.route)}`, `pid: ${js(b.pid)}`,
     ];
-    if (b.usHouse) f.push(`usHouse: { state: 'Utah', district: ${b.district} }`);
+    if (b.usHouse) f.push(`usHouse: { state: ${js(b.usHouse.state)}, district: ${b.district} }`);
     if (b.statewide) f.push("statewide: true");
     f.push(`h1: ${js(b.h1)}`, `where: ${js(b.where)}`, `kick: ${js(b.kick)}`, `kickTitle: ${js(b.kickTitle)}`);
     return `    ${js(b.seat)}: { ${f.join(", ")} },`;
@@ -314,8 +409,9 @@ function navReLine(boards) {
   return `  /^\\/district\\/(?:${all.join("|")})(?:\\/|\\.html)?$/;`;
 }
 
-// Every document this generator may own: a district seat's, or a statewide one's.
-export const BOARD_DOC_RE = /^district-ut-(?:(?:hd|sd|cd)-\d+|gov|us-senate-[a-z][a-z0-9_]*)\.html$/;
+// Every document this generator may own: a Utah district seat's or statewide
+// seat's, or another state's U.S. House or U.S. Senate seat's.
+export const BOARD_DOC_RE = /^district-(?:ut-(?:(?:hd|sd|cd)-\d+|gov|us-senate-[a-z][a-z0-9_]*)|[a-z]{2}-(?:cd-\d+|us-senate-[a-z][a-z0-9_]*))\.html$/;
 
 export function renderAll() {
   const { boards, skipped } = planBoards();
@@ -326,6 +422,9 @@ export function renderAll() {
     boards.map((b) => `    ${js(b.seat)}: ${js(b.route)},`)));
   out.set("netlify/functions/district-board.mts", splice(R("netlify/functions/district-board.mts"),
     "district-board.mts", boards.map((b) => `  "${b.seat}": 1,`)));
+  // Every board is on the composer's three lists. Only the sw.js blocks below
+  // are Utah's alone.
+  const utah = boards.filter((b) => !b.federal);
   out.set("netlify/lib/district-board-voice-core.mjs", splice(R("netlify/lib/district-board-voice-core.mjs"),
     "district-board-voice-core.mjs", boards.map((b) => `  "${b.seat}": "${b.alias}",`)));
   out.set("district-composer.js", splice(R("district-composer.js"), "district-composer.js",
@@ -352,9 +451,9 @@ export function renderAll() {
     const from = src.indexOf("\n", a) + 1, to = src.lastIndexOf("\n", z) + 1;
     return src.slice(0, from) + (lines.length ? lines.join("\n") + "\n" : "") + src.slice(to);
   };
-  sw = swBlock(sw, "precache", boards.map((b) => `  '/${b.doc}',`));
-  sw = swBlock(sw, "nav-re", ["const DISTRICT_BOARD_NAV_RE =", navReLine(boards)]);
-  sw = swBlock(sw, "docs", boards.map((b) => `  ${js(b.alias)}: '/${b.doc}',`));
+  sw = swBlock(sw, "precache", utah.map((b) => `  '/${b.doc}',`));
+  sw = swBlock(sw, "nav-re", ["const DISTRICT_BOARD_NAV_RE =", navReLine(utah)]);
+  sw = swBlock(sw, "docs", utah.map((b) => `  ${js(b.alias)}: '/${b.doc}',`));
   out.set("sw.js", sw);
 
   const tpl = R("scripts/district-board.template.html");
@@ -383,7 +482,8 @@ function main() {
     drift.push(`${f} (stale)`);
     if (!check) unlinkSync(join(ROOT, f));
   }
-  console.log(`gen-district-boards: ${boards.length} generated boards, ${skipped.length} seats skipped (no sitting pid)`);
+  const fed = boards.filter((b) => b.federal).length;
+  console.log(`gen-district-boards: ${boards.length} generated boards (${boards.length - fed} Utah, ${fed} other states), ${skipped.length} seats skipped (no sitting pid)`);
   if (check) {
     if (drift.length) {
       console.log(`  out of date: ${drift.join(", ")}\n  run: node scripts/gen-district-boards.mjs`);

@@ -71,6 +71,7 @@ import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
+import { HAND_SEATS, planBoards } from "./gen-district-boards.mjs";
 
 import {
   VOICE_STATES,
@@ -738,6 +739,11 @@ const VERIFIED_OPTS = { uid: "u_7", loc: { state: "Utah", city: "Layton", county
     // style block (v428); that is the Voice card's copy, not money markup.
     .replace(/\n    <style>\/\* The membership line, in the card's own ballot gold[^\n]*<\/style>/, "")
     .replace(/\n      <p class="pdxvm-member" data-pdxvm-member="1">[^\n]*<\/p>/, "")
+    // The card's coverage count later moved to every state's U.S. House and
+    // U.S. Senate boards (v437): its one counted sentence and the comment that
+    // describes it. That is the Voice card's copy, not money markup.
+    .replace(/<p class="pdxhv-note">[^<]*<\/p>/, "<NOTE>")
+    .replace(/AND IT DESCRIBES WHAT EXISTS\.[\s\S]*?; every other seat a location/, "<EXISTS>")
     // The disclosures block later carried the range-band graph (v350/v351), and
     // its year drawing (v352/v353): the renderer, its call inside the on-file
     // branch, its export, and its rules in finance-lane.css. That is the disclosure block's own graph, not pill markup;
@@ -830,7 +836,8 @@ function seatLinkFaults(win) {
 {
   const win = bootDesk(LAYTON_OPTS);
   ok(!win.__err, `layton: the desk boots — ${win.__err}`);
-  eq(Object.keys(win.PDXVoice.BOARD_ROUTES).length, 88, "BOARD_ROUTES is not 88");
+  eq(Object.keys(win.PDXVoice.BOARD_ROUTES).length, HAND_SEATS.length + planBoards().boards.length,
+    "BOARD_ROUTES is not the generator's plan");
   const f = seatLinkFaults(win);
   eq(f.length, 0, `layton: Senate 7, House 16 and U.S. House 2 link their boards — ${JSON.stringify(f)}`);
   const slot = slotOf(win);

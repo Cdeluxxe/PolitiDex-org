@@ -20,6 +20,12 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { HAND_SEATS, planBoards } from "./gen-district-boards.mjs";
+// The board count is the generator's plan: the six hand rows plus every
+// generated Utah and federal board.
+const PLAN_BOARDS = planBoards().boards;
+const BOARD_TOTAL = HAND_SEATS.length + PLAN_BOARDS.length;
+const FEDERAL_TOTAL = PLAN_BOARDS.filter((b) => b.federal).length;
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -90,11 +96,11 @@ section("2 · mutation: putting \"free tier\" back fails");
   ok(failuresFor(mutated).length > 0, "a footer saying \"free tier\" passed the checks");
 }
 
-section("3 · scope: 88 boards, no splat, the shell moved, no migration");
+section("3 · scope: the planned boards, no splat, the shell moved, no migration");
 {
   const w = makeSandbox();
   vm.runInContext(DV, vm.createContext(w), { filename: "district-voice.js" });
-  eq(Object.keys(w.PDXVoice.BOARD_ROUTES).length, 88, "BOARD_ROUTES stays 88");
+  eq(Object.keys(w.PDXVoice.BOARD_ROUTES).length, BOARD_TOTAL, "BOARD_ROUTES is the generator's plan");
   ok(!/from = "\/district\/[^"]*\*/.test(R("netlify.toml")), "no /district/* splat");
   ok(Number(((SW.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1]) || 0) >= 274, "the shell moved at least to v274");
   ok(/v274 - THE BOARD FOOTER NAMES THE REAL GATE[\s\S]*?MIGRATION COST: none/.test(SW), "v274's log says no migration");

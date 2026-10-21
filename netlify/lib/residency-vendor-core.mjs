@@ -4,7 +4,7 @@
 // The one writer of voice_residency.method = 'vendor'. Two handlers:
 //
 //   handleStart(req, deps)    POST /api/residency-verify { seat, seats? }
-//     Any signed-in reader on a composer board (every Utah board) asks to prove
+//     Any signed-in reader on a composer board (every board) asks to prove
 //     they live in that seat AND in every other composer seat their saved
 //     location resolves. Membership is never asked: it only lifts the monthly
 //     comment/poll cap. ONE CHECK COVERS THEM ALL: an account that already
@@ -14,7 +14,8 @@
 //     pattern) and the uid from the verified Firebase token. `seats` is what the
 //     hallway's resolver (district-voice.js seatsForMe() over pdxRepsForMe())
 //     named for the reader's saved location; it is filtered to the composer
-//     canonical keys and the board's own seat is always first, and the
+//     canonical keys IN THE BOARD'S OWN STATE and the board's own seat is
+//     always first, and the
 //     governor and both U.S. Senate seats of the board's state are always
 //     bound too (statewideSeatsFor()), so one check opens the statewide boards
 //     beside the districts. A Didit session
@@ -35,8 +36,9 @@
 //          proof-of-address verification, and every one of them is 'Approved'
 //          (the document check and the address check both ran and passed).
 //       4. vendor_data parses to { uid, seat, seats? } and seat is EXACTLY one
-//          of the composer seats (COMPOSER_SEATS). `seats` entries outside them are
-//          dropped, so a session can never verify a seat without a composer.
+//          of the composer seats (COMPOSER_SEATS). `seats` entries outside them,
+//          or in another state than `seat`, are dropped, so a session can never
+//          verify a seat without a composer or a seat in a second state.
 //          vendor_data was written by handleStart and comes back inside the
 //          signed payload, so nothing the browser sends after start reaches it.
 //     Anything else — unsigned, stale, In Review, Declined, Expired, Abandoned,
@@ -143,13 +145,20 @@ export function statewideSeatsFor(seatKey) {
   const st = own ? own.slice(0, 3) : "";
   return st ? Object.keys(COMPOSER_SEATS).filter((k) => k.slice(0, 3) === st && STATEWIDE_KEY_RE.test(k)) : [];
 }
+//
+// AND ONLY SEATS IN THE BOARD'S OWN STATE. One proof of address is one
+// address, and an address is in one state, so a resolved seat from any other
+// state is dropped rather than bound: a Missouri check can never verify a Texas
+// seat, whatever the browser sends. Every seat key opens with its state's
+// postal code, so this is a prefix comparison and not a second map.
 export function coveredSeats(seatKey, resolved) {
   const own = composerSeat(seatKey);
   if (!own) return [];
+  const st = own.slice(0, 3);
   const out = [own];
   for (const raw of Array.isArray(resolved) ? resolved.slice(0, 32) : []) {
     const k = typeof raw === "string" ? composerSeat(raw) : "";
-    if (k && out.indexOf(k) < 0) out.push(k);
+    if (k && k.slice(0, 3) === st && out.indexOf(k) < 0) out.push(k);
   }
   for (const k of statewideSeatsFor(own)) if (out.indexOf(k) < 0) out.push(k);
   return out;
@@ -175,6 +184,7 @@ export function parseVendorData(raw) {
   const seats = [seat];
   for (const k of Array.isArray(v.seats) ? v.seats : []) {
     if (typeof k !== "string" || !Object.prototype.hasOwnProperty.call(COMPOSER_SEATS, k)) continue;
+    if (k.slice(0, 3) !== seat.slice(0, 3)) continue;
     if (seats.indexOf(k) < 0) seats.push(k);
   }
   return { uid, seat, seats };

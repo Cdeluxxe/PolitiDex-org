@@ -414,22 +414,36 @@ section("6 · the search miss lands in the general section");
 // ── 7 ───────────────────────────────────────────────────────────────────────
 section("7 · neighbours, routes, migration, copy, shell");
 {
-  const routes = (src) => { const m = /var BOARD_ROUTES = \{([\s\S]*?)\n  \};/.exec(src || ""); return m ? [...m[1].matchAll(/^\s*'([a-z0-9-]+)'\s*:/gm)].length : -1; };
+  // THE PIN IS UTAH'S. Every other state's U.S. House and U.S. Senate boards
+  // are rows appended after Utah's, composer rows included (scripts/test-
+  // district-boards-federal*.mjs read them); what this room pins is Utah's
+  // rows, which none of that may move.
+  // A generated list row whose key names a state other than Utah.
+  const nonUtahRow = (l) => /^\s*['"](?!ut-)[a-z]{2}-[a-z0-9_-]+['"]\s*:/.test(l);
+  const utahOnly = (src) => String(src == null ? "" : src).split("\n").filter((l) => !nonUtahRow(l)).join("\n");
+  const routes = (src) => { const m = /var BOARD_ROUTES = \{([\s\S]*?)\n  \};/.exec(src || ""); return m ? [...m[1].matchAll(/^\s*'(ut-[a-z0-9_-]+)'\s*:/gm)].length : -1; };
   const head = HEAD("district-voice.js");
-  if (head) eq(routes(R("district-voice.js")), routes(head), "BOARD_ROUTES length unchanged");
+  if (head) eq(routes(R("district-voice.js")), routes(head), "BOARD_ROUTES' Utah rows unchanged in number");
   ok(routes(R("district-voice.js")) > 80, "BOARD_ROUTES still lists every board");
   // district-voice.js later took the seat-line wording (seatLine(), v381), so
   // its byte pin narrowed to the part this room depends on: BOARD_ROUTES itself.
-  const routesBody = (src) => (/var BOARD_ROUTES = \{([\s\S]*?)\n  \};/.exec(src || "") || [])[1];
-  if (head) eq(routesBody(R("district-voice.js")), routesBody(head), "BOARD_ROUTES is byte-identical");
+  const routesBody = (src) => String((/var BOARD_ROUTES = \{([\s\S]*?)\n  \};/.exec(src || "") || [])[1] || "")
+    .split("\n").filter((l) => !/^\s*'(?!ut-)[a-z]{2}-[a-z0-9_-]+'\s*:/.test(l)).join("\n");
+  if (head) eq(routesBody(R("district-voice.js")), routesBody(head), "BOARD_ROUTES' Utah rows are byte-identical");
   for (const f of ["netlify/functions/district-board.mts", "district-poll.js"]) {
     const h = HEAD(f);
-    if (h && f !== "netlify/functions/district-board.mts") eq(R(f), h, `${f} is byte-identical`);
+    if (h && f !== "netlify/functions/district-board.mts") eq(utahOnly(R(f)), utahOnly(h), `${f} is byte-identical, Utah's rows included`);
   }
   // netlify.toml's pin narrowed to the part this room depends on — the generated
   // district-board routes — once the Utah ballot-question pages added rules of
   // their own elsewhere in the file.
-  const boardRules = (src) => (/# @generated district-boards begin[\s\S]*?# @generated district-boards end/.exec(src || "") || [])[0];
+  // Each generated board is one comment line, three rewrites and a blank line;
+  // the blocks whose rewrites name a non-Utah alias are set aside on both sides.
+  const boardRules = (src) => {
+    const blk = (/# @generated district-boards begin[\s\S]*?# @generated district-boards end/.exec(src || "") || [])[0];
+    if (!blk) return blk;
+    return blk.split(/\n(?=# )/).filter((part) => !/from = "\/district\/(?!ut-)[a-z]{2}-/.test(part)).join("\n");
+  };
   const tomlHead = HEAD("netlify.toml");
   if (tomlHead) {
     ok(!!boardRules(R("netlify.toml")), "netlify.toml still carries the generated district-board routes");
@@ -438,12 +452,25 @@ section("7 · neighbours, routes, migration, copy, shell");
   const headCore = HEAD("netlify/lib/district-board-voice-core.mjs");
   if (headCore) {
     const seatsOf = (s) => (/export const COMPOSER_SEATS = \{([\s\S]*?)\n\};/.exec(s) || [])[1];
-    eq(seatsOf(R("netlify/lib/district-board-voice-core.mjs")), seatsOf(headCore), "the server's composer seats are unchanged");
+    eq(utahOnly(seatsOf(R("netlify/lib/district-board-voice-core.mjs"))), utahOnly(seatsOf(headCore)), "the server's Utah composer seats are unchanged");
   }
   const docs = readdirSync(ROOT).filter((f) => /^district-ut-.*\.html$/.test(f));
   for (const d of docs) { const h = HEAD(d); if (h) ok(R(d) === h, `${d} is unchanged`); }
   const res = R("netlify/lib/residency-vendor-core.mjs"), resH = HEAD("netlify/lib/residency-vendor-core.mjs");
-  if (resH) eq(res, resH, "the residency gate did not move");
+  // The one tightening since: a check binds only seats in the board's own
+  // state (every Utah seat is ut-, so Utah's binding is unchanged). Its comment
+  // lines and its three state filters are folded out on both sides; every
+  // other byte of the gate stays pinned.
+  const sameState = (src) => String(src || "")
+    .replace("(every Utah board) asks to prove", "(every board) asks to prove")
+    .replace("canonical keys IN THE BOARD'S OWN STATE and the board's own seat is\n//     always first, and the", "canonical keys and the board's own seat is always first, and the")
+    .replace("`seats` entries outside them,\n//          or in another state than `seat`, are dropped, so a session can never\n//          verify a seat without a composer or a seat in a second state.",
+      "`seats` entries outside them are\n//          dropped, so a session can never verify a seat without a composer.")
+    .replace(/\n\/\/\n\/\/ AND ONLY SEATS IN THE BOARD'S OWN STATE\.[\s\S]*?not a second map\./, "")
+    .replace("\n  const st = own.slice(0, 3);", "")
+    .replace(" && k.slice(0, 3) === st && ", " && ")
+    .replace("\n    if (k.slice(0, 3) !== seat.slice(0, 3)) continue;", "");
+  if (resH) eq(sameState(res), sameState(resH), "the residency gate did not move, but for the same-state binding");
   const mem = R("netlify/lib/membership-core.mjs"), memH = HEAD("netlify/lib/membership-core.mjs");
   if (memH) eq(mem, memH, "the membership cap did not move");
 

@@ -58,7 +58,7 @@ const ROUTES = VOICE.PDXVoice.BOARD_ROUTES;
 must(Object.keys(BOARDS).length >= 88, "BOARDS shrank below the 88 rows this pass counted");
 eq(Object.keys(ROUTES).sort().join(","), Object.keys(BOARDS).sort().join(","), "BOARDS and BOARD_ROUTES name the same seats");
 
-let linked = 0, usHouse = 0;
+let linked = 0, usHouse = 0, federalHouse = 0;
 for (const [seat, row] of Object.entries(BOARDS)) {
   eq(ROUTES[seat], row.route, `${seat}: the control's route is BOARD_ROUTES' row`);
   const pid = row.pid || (row.usHouse ? BOARDDOC._pdxUsHouseSeat(row.usHouse.state, row.usHouse.district) : "");
@@ -67,6 +67,21 @@ for (const [seat, row] of Object.entries(BOARDS)) {
   const canon = PERSON.PDXProfilePid(pid) || pid;
   const html = PERSON.PDXDistrictBoard.personLinkHtml(canon);
   const hrefs = [...html.matchAll(/href="([^"]+)"/g)].map((m) => m[1]);
+  // ANOTHER STATE'S U.S. HOUSE ROW ON A DOCUMENT WITHOUT THE JOIN. person.html
+  // carries no voter-hub-location.js, and seated-member.js's congressional
+  // table is Utah's four districts keyed by number — so the door is absent, a
+  // degradation, and it is never borrowed: no Utah member's file opens this
+  // state's board.
+  if (row.usHouse && row.usHouse.state !== "Utah") {
+    federalHouse++;
+    ok(hrefs.indexOf(row.route) < 0, `${seat}: ${canon}'s person file opens a board the person file cannot confirm`);
+    for (const n of [1, 2, 3, 4]) {
+      const ut = PERSON.pdxSeatedMemberFor(`ut-house-${n}`);
+      ok(PERSON.PDXDistrictBoard.personLinkHtml(ut).indexOf(`"${row.route}"`) < 0,
+        `${seat}: Utah's ${ut} carries a door onto another state's board`);
+    }
+    continue;
+  }
   eq(hrefs.join(" "), row.route, `${seat}: ${canon}'s person file carries the board's own path, once`);
   if (hrefs.length === 1 && hrefs[0] === row.route) linked++;
   if (row.usHouse) {
@@ -74,8 +89,9 @@ for (const [seat, row] of Object.entries(BOARDS)) {
     eq(PERSON.pdxSeatedMemberFor(seat), pid, `${seat}: seated-member.js's table and the _pdxUsHouseSeat() join name one person`);
   }
 }
-eq(linked, Object.keys(BOARDS).length, "every board's member links back");
-eq(usHouse, 4, "four congressional boards ride the fallback");
+eq(linked + federalHouse, Object.keys(BOARDS).length, "every board's member links back, outside Utah's House rows elsewhere");
+ok(federalHouse > 0, "no other state's U.S. House board was weighed");
+eq(usHouse, 4, "four congressional boards ride the fallback, all Utah's");
 // Band 1 never takes the fallback: without the join a UT-N board still names
 // nobody, so pidOf() must not know the table exists.
 {

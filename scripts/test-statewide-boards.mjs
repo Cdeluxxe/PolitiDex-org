@@ -25,13 +25,14 @@
 //   6. HD-29 and SD-6 are unchanged.
 //   7. MUTATION: a fourth statewide seat with no row still prints "this room is
 //      not open" and never "yet".
-//   8. The homepage count is BOARD_ROUTES.length (88).
+//   8. The homepage and /voice count is BOARD_ROUTES.length (the generator's plan).
 // ─────────────────────────────────────────────────────────────────────────────
 import { existsSync, readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { HAND_SEATS, planBoards } from "./gen-district-boards.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -402,9 +403,25 @@ section("8 · the homepage counts BOARD_ROUTES");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const n = Object.keys(V.BOARD_ROUTES).length;
-  eq(n, 88, "BOARD_ROUTES holds 85 district rows and the three statewide ones");
-  has(HOME, '<p class="pdxhv-note">Eighty-eight seats have a board on file today. Every other seat says the room is not open.</p>',
-    "the homepage count is BOARD_ROUTES.length, spelled");
+  const keys = Object.keys(V.BOARD_ROUTES);
+  const ut = keys.filter((k) => /^ut-/.test(k));
+  const STATEWIDE = /^[a-z]{2}-(?:gov|us-senate-[a-z][a-z0-9_]*)$/;
+  eq(ut.filter((k) => !STATEWIDE.test(k)).length, 85, "Utah: BOARD_ROUTES holds 85 district rows");
+  eq(ut.filter((k) => STATEWIDE.test(k)).length, 3, "Utah: …and the three statewide ones");
+  // Outside Utah: only U.S. House and U.S. Senate rows, never a governor.
+  const other = keys.filter((k) => !/^ut-/.test(k));
+  ok(other.every((k) => /^[a-z]{2}-(?:house-[1-9][0-9]*|us-senate-[a-z][a-z0-9_]*)$/.test(k)),
+    "outside Utah BOARD_ROUTES holds U.S. House and U.S. Senate rows only");
+  eq(n, HAND_SEATS.length + planBoards().boards.length, "BOARD_ROUTES length is the generator's plan");
+  const ONES = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven",
+    "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];
+  const TENS = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
+  const under100 = (k) => k < 20 ? ONES[k] : TENS[Math.floor(k / 10)] + (k % 10 ? "-" + ONES[k % 10] : "");
+  const spell = (k) => k < 100 ? under100(k) : ONES[Math.floor(k / 100)] + " hundred" + (k % 100 ? " " + under100(k % 100) : "");
+  const word = spell(n);
+  const sentence = `${word[0].toUpperCase() + word.slice(1)} seats have a board on file today. Every other seat says the room is not open.`;
+  has(HOME, `<p class="pdxhv-note">${sentence}</p>`, "the homepage count is BOARD_ROUTES.length, spelled");
+  has(R("voice.html"), `<p class="pdxvr-cover" data-pdxvr-cover="1">${sentence}</p>`, "/voice's count is BOARD_ROUTES.length, spelled");
   has(SW, "// v259 - ", "the SW moved one version (v259 entry filed)");
 }
 

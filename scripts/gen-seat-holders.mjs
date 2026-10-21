@@ -45,13 +45,19 @@ export function rosterHolders() {
   const win = loadRoster();
   const RO = win.CMP_DATA || {};
   const statewide = {};
-  for (const b of planBoards().boards) if (b.statewide) statewide[b.seat] = b.pid;
+  // Every other state's U.S. House seat: the holder the plan's join named.
+  const federalHouse = {};
+  for (const b of planBoards().boards) {
+    if (b.statewide) statewide[b.seat] = b.pid;
+    else if (b.federal && b.usHouse) federalHouse[b.seat] = b.usHouse;
+  }
   const out = {};
   for (const seat of Object.keys(COMPOSER_SEATS)) {
     let pid = "";
     const m = /^ut-(statehouse|statesenate|house)-(\d+)$/.exec(seat);
     if (m && m[1] === "house") pid = win._pdxUsHouseSeat("Utah", Number(m[2])) || "";
     else if (m) pid = win.pdxSeatedMemberFor(seat, Number(m[2])) || "";
+    else if (federalHouse[seat]) pid = win._pdxUsHouseSeat(federalHouse[seat].state, federalHouse[seat].district) || "";
     else pid = statewide[seat] || "";
     if (pid && RO[pid]) out[seat] = { pid, name: String(RO[pid].name || pid) };
   }

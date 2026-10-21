@@ -204,6 +204,12 @@ const PLANNED = planBoards().boards;
 const ALL_SEATS = BOARDS.map((b) => b.seat).concat(PLANNED.map((b) => b.seat)).sort().join(",");
 const ALL_ALIASES = BOARDS.map((b) => b.alias).concat(PLANNED.map((b) => b.alias)).sort().join(",");
 const ALL_COUNT = BOARDS.length + PLANNED.length;
+// THE OFFLINE COPIES ARE UTAH'S. Every other state's U.S. House and U.S. Senate
+// boards are network pages by design (scripts/gen-district-boards.mjs says
+// why), so sw.js holds the six and Utah's generated boards and no other.
+const UT_PLANNED = PLANNED.filter((b) => !b.federal);
+const UT_ALIASES = BOARDS.map((b) => b.alias).concat(UT_PLANNED.map((b) => b.alias)).sort().join(",");
+const UT_COUNT = BOARDS.length + UT_PLANNED.length;
 // THE NEIGHBOURS ARE SEATS THE ROSTER NAMES NOBODY FOR. Every Senate seat and
 // every congressional seat now has a sitting member and so a board; the House
 // seats below have no pid, so they have no board, and the out-of-range seats
@@ -307,7 +313,7 @@ for (const b of BOARDS) {
 const fnSeats = (() => {
   const m = /const BOARD_SEATS: Record<string, 1> = \{([\s\S]*?)\};/.exec(FN);
   must(!!m, "district-board.mts no longer declares BOARD_SEATS in a shape this suite can read");
-  return [...m[1].matchAll(/"([a-z0-9-]+)":\s*1/g)].map((x) => x[1]).sort();
+  return [...m[1].matchAll(/"([a-z0-9_-]+)":\s*1/g)].map((x) => x[1]).sort();
 })();
 eq(fnSeats.join(","), ALL_SEATS,
   "district-board.mts: BOARD_SEATS is the same seats the client holds");
@@ -408,9 +414,9 @@ ok(!/shell\.match\(["']\/district-ut-sd-3\.html["']\)/.test(SW),
   const off = vm.runInNewContext(
     slice + "\n;({ re: DISTRICT_BOARD_NAV_RE, docs: DISTRICT_BOARD_DOCS, doc: districtBoardDoc })");
 
-  eq(Object.keys(off.docs).sort().join(","), ALL_ALIASES,
-    "sw.js: DISTRICT_BOARD_DOCS is not exactly the six plus the generated aliases");
-  eq(new Set(Object.values(off.docs)).size, ALL_COUNT,
+  eq(Object.keys(off.docs).sort().join(","), UT_ALIASES,
+    "sw.js: DISTRICT_BOARD_DOCS is not exactly the six plus Utah's generated aliases");
+  eq(new Set(Object.values(off.docs)).size, UT_COUNT,
     "sw.js: two board addresses point at one document offline — one of them would print the other's seat");
 
   for (const b of BOARDS) {

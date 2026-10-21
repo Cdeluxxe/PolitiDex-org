@@ -524,7 +524,7 @@ section("10 · /voice, SD-3, the allow-list and the engines");
     const open = DV.indexOf("{", a);
     return DV.slice(open, DV.indexOf("};", open) + 2);
   })();
-  const rows = (ROUTES.match(/['"]\/district\/[a-z0-9-]+['"]/g) || []);
+  const rows = (ROUTES.match(/['"]\/district\/[a-z0-9_-]+['"]/g) || []);
   eq(rows.length, (ROUTES.match(/:/g) || []).length,
      `routes: ${(ROUTES.match(/:/g) || []).length} BOARD_ROUTES rows but ${rows.length} literal board addresses — a row is computed`);
   ok(rows.length >= 1, "routes: BOARD_ROUTES routes no board at all");

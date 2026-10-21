@@ -238,7 +238,7 @@ section("6 · one composer seat list, and the shell moved");
 {
   const theirs = /var COMPOSER_SEATS = \{([^}]*)\}/.exec(R("district-composer.js"));
   must(!!theirs, "district-composer.js's COMPOSER_SEATS not found");
-  const keys = (src) => [...src.matchAll(/'([a-z0-9-]+)'\s*:/g)].map((x) => x[1]).sort().join(",");
+  const keys = (src) => [...src.matchAll(/'([a-z0-9_-]+)'\s*:/g)].map((x) => x[1]).sort().join(",");
   eq(Object.keys(C.COMPOSER_SEATS).sort().join(","), keys(theirs[1]), "district-board.js's composer seats equal district-composer.js's");
   ok(Number(((SW.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1]) || 0) >= 339, "the shell moved at least to v339");
   ok(/v339 - [\s\S]*?MIGRATION COST: none/.test(SW), "v339's log says no migration");

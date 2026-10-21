@@ -801,7 +801,8 @@ section("4 · named board rows, an untouched engine contract, and no new surface
 // widening the board table instead of adding to it.
 const BR = (/var BOARD_ROUTES = \{([\s\S]*?)\n  \};/.exec(DV) || [, ""])[1];
 must(!!BR, "district-voice.js no longer declares BOARD_ROUTES as one literal");
-const brRows = [...BR.matchAll(/'([a-z0-9-]+)':\s*'(\/district\/[a-z0-9-]+)'/g)];
+// `_` is admitted: a U.S. Senate key carries its holder's pid (dan_sullivan).
+const brRows = [...BR.matchAll(/'([a-z0-9_-]+)':\s*'(\/district\/[a-z0-9_-]+)'/g)];
 eq(brRows.length, (BR.match(/:\s*'\//g) || []).length,
   "boards: a BOARD_ROUTES row is not a literal seat key mapped to a literal address");
 ok(brRows.length >= 1, "boards: BOARD_ROUTES routes nothing at all");

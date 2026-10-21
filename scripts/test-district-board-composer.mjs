@@ -27,6 +27,12 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { HAND_SEATS, planBoards } from "./gen-district-boards.mjs";
+// The board count is the generator's plan: the six hand rows plus every
+// generated Utah and federal board.
+const PLAN_BOARDS = planBoards().boards;
+const BOARD_TOTAL = HAND_SEATS.length + PLAN_BOARDS.length;
+const FEDERAL_TOTAL = PLAN_BOARDS.filter((b) => b.federal).length;
 import {
   COMPOSER_SEATS,
   LOCKED_LINE,
@@ -76,7 +82,7 @@ for (const alias of Object.keys(CLUSTER)) {
 }
 const hostBlock = Object.values(hostBlocks).join("\n");
 
-const boards = readdirSync(ROOT).filter((f) => /^district-ut-.*\.html$/.test(f));
+const boards = readdirSync(ROOT).filter((f) => /^district-[a-z]{2}-(?:(?:hd|sd|cd)-\d+|gov|us-senate-[a-z][a-z0-9_]*)\.html$/.test(f));
 ok(boards.length > 80, `every board document is swept (${boards.length})`);
 const docSeat = (f) => (/data-pdxdb-seat="([^"]+)"/.exec(R(f)) || [, ""])[1];
 const missing = boards.filter((f) => {
@@ -107,7 +113,7 @@ eq(Object.values(COMPOSER_SEATS).sort().join(","), boards.map(docSeat).sort().jo
    "the server's composer seats are exactly the board documents' seats");
 const CLIENT_SEATS = (() => {
   const m = /var COMPOSER_SEATS = \{([^}]*)\}/.exec(R("district-composer.js"));
-  return m ? [...m[1].matchAll(/'([a-z0-9-]+)'\s*:/g)].map((x) => x[1]).sort() : [];
+  return m ? [...m[1].matchAll(/'([a-z0-9_-]+)'\s*:/g)].map((x) => x[1]).sort() : [];
 })();
 eq(CLIENT_SEATS.join(","), Object.values(COMPOSER_SEATS).sort().join(","), "the client paints on the same named rows as the server");
 ok(!/\/district\/\*|RegExp|\bmatch\(/.test(R("netlify/lib/district-board-voice-core.mjs").split("export const COMPOSER_SEATS")[1].split("};")[0]),
@@ -323,7 +329,8 @@ const dvWin = makeSandbox();
 vm.runInContext(R("district-voice.js"), vm.createContext(dvWin), { filename: "district-voice.js" });
 // 85 district rows + the three statewide Utah seats (governor, both U.S. Senate
 // seats), which open as readers with no composer of their own.
-eq(Object.keys(dvWin.PDXVoice.BOARD_ROUTES).length, 88, "BOARD_ROUTES length is unchanged");
+eq(Object.keys(dvWin.PDXVoice.BOARD_ROUTES).length, BOARD_TOTAL, "BOARD_ROUTES length is the generator's plan");
+// `boards` is Utah's documents; the federal boards are the rest of the rows.
 eq(Object.keys(dvWin.PDXVoice.BOARD_ROUTES).length, boards.length, "…one row per board document");
 ok(!/from\s*=\s*"\/district\/\*"/.test(R("netlify.toml")), "no /district/* splat");
 

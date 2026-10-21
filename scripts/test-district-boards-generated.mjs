@@ -22,6 +22,11 @@
 //      refuses a pid on the wrong seat.
 //   7. Driven /voice smoke: Layton 16/7/2 still open; Fillmore HD-29 opens a
 //      board and names the member; a seat with no pid says the room is not open.
+//
+// Every other state's U.S. House and U.S. Senate boards are in the same plan
+// and every assertion above covers them too, except the sw.js offline blocks,
+// which are Utah's only. scripts/test-district-boards-federal.mjs reads those
+// boards closely.
 // ─────────────────────────────────────────────────────────────────────────────
 import { existsSync, readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
@@ -68,6 +73,9 @@ const HAND_ALIAS = { "ut-statesenate-3": "ut-sd-3", "ut-statesenate-6": "ut-sd-6
 const ALL = HAND_SEATS.map((s) => ({ seat: s, alias: HAND_ALIAS[s] })).concat(PLAN);
 const ALL_SEATS = ALL.map((b) => b.seat).sort().join(",");
 const ALL_ALIASES = ALL.map((b) => b.alias).sort().join(",");
+// The boards sw.js holds offline: the six and Utah's generated ones.
+const UT_PLAN = PLAN.filter((b) => !b.federal);
+const UT_ALIASES = HAND_SEATS.map((s) => HAND_ALIAS[s]).concat(UT_PLAN.map((b) => b.alias)).sort().join(",");
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("1 · the generator would change nothing");
@@ -88,9 +96,12 @@ for (const b of PLAN) {
 // THE PLAN COVERS EVERY SEAT ONCE: opened, hand-authored or skipped with a reason.
 // The three statewide seats (governor, two U.S. Senate) are planned beside the
 // district seats and counted on their own.
-const SW_PLAN = PLAN.filter((b) => b.statewide);
-const SW_SKIPPED = SKIPPED.filter((b) => /^ut-(?:gov|us-senate-)/.test(b.seat));
-eq(PLAN.length - SW_PLAN.length + SKIPPED.length - SW_SKIPPED.length + HAND_SEATS.length, 75 + 29 + 4,
+// Utah's own seats. Every other state's federal rows are counted in
+// scripts/test-district-boards-federal.mjs.
+const UT_SKIPPED = SKIPPED.filter((b) => /^ut-/.test(b.seat));
+const SW_PLAN = UT_PLAN.filter((b) => b.statewide);
+const SW_SKIPPED = UT_SKIPPED.filter((b) => /^ut-(?:gov|us-senate-)/.test(b.seat));
+eq(UT_PLAN.length - SW_PLAN.length + UT_SKIPPED.length - SW_SKIPPED.length + HAND_SEATS.length, 75 + 29 + 4,
   "every Utah House, Senate and U.S. House seat is exactly one of opened / hand / skipped");
 eq(SW_PLAN.length + SW_SKIPPED.length, 3, "the governor and both U.S. Senate seats are each opened or skipped");
 
@@ -113,7 +124,7 @@ eq(Object.keys(B.BOARD_SEATS).sort().join(","), ALL_SEATS, "district-board.js BO
 const fnSeats = (() => {
   const m = /const BOARD_SEATS: Record<string, 1> = \{([\s\S]*?)\};/.exec(FN);
   must(!!m, "district-board.mts no longer declares BOARD_SEATS in a readable shape");
-  return [...m[1].matchAll(/"([a-z0-9-]+)":\s*1/g)].map((x) => x[1]).sort().join(",");
+  return [...m[1].matchAll(/"([a-z0-9_-]+)":\s*1/g)].map((x) => x[1]).sort().join(",");
 })();
 eq(fnSeats, ALL_SEATS, "the Function's BOARD_SEATS holds the same seats");
 
@@ -142,8 +153,8 @@ for (const b of PLAN) {
     SW.indexOf("\n}", SW.indexOf("function districtBoardDoc(")) + 2);
   must(slice.indexOf("function districtBoardDoc(") > 0, "sw.js: the offline board block moved apart");
   const off = vm.runInNewContext(slice + "\n;({ re: DISTRICT_BOARD_NAV_RE, docs: DISTRICT_BOARD_DOCS, doc: districtBoardDoc })");
-  eq(Object.keys(off.docs).sort().join(","), ALL_ALIASES, "sw.js: DISTRICT_BOARD_DOCS holds the same aliases");
-  for (const b of PLAN) {
+  eq(Object.keys(off.docs).sort().join(","), UT_ALIASES, "sw.js: DISTRICT_BOARD_DOCS holds Utah's aliases");
+  for (const b of UT_PLAN) {
     for (const sp of [`/district/${b.alias}`, `/district/${b.alias}/`, `/district/${b.alias}.html`]) {
       eq(off.doc(sp), `/${b.doc}`, `sw.js: ${sp} offline is its own document`);
     }
@@ -156,9 +167,9 @@ section("3 · every generated document is the seat its path names");
 // ═════════════════════════════════════════════════════════════════════════════
 const onDisk = (() => {
   const out = execFileSync("ls", [ROOT], { encoding: "utf8" }).split("\n");
-  return out.filter((f) => /^district-ut-(?:(?:hd|sd|cd)-\d+|gov|us-senate-[a-z][a-z0-9_]*)\.html$/.test(f));
+  return out.filter((f) => /^district-(?:ut-(?:(?:hd|sd|cd)-\d+|gov|us-senate-[a-z][a-z0-9_]*)|[a-z]{2}-(?:cd-\d+|us-senate-[a-z][a-z0-9_]*))\.html$/.test(f));
 })();
-eq(onDisk.length, ALL.length, "one district-ut-*.html per board and no orphan document");
+eq(onDisk.length, ALL.length, "one district-*.html per board and no orphan document");
 for (const f of onDisk) {
   const alias = f.replace(/^district-/, "").replace(/\.html$/, "");
   const doc = R(f);
@@ -177,7 +188,7 @@ for (const b of PLAN) {
     no(doc, b.member, `${b.doc}: a congressional document writes no representative's name down`);
   } else {
     has(doc, `<a href="/p/${b.pid}">`, `${b.doc}: noscript links the sitting member's file`);
-    has(doc, `<span data-pdxdb-roster-office>${b.office}</span>`, `${b.doc}: noscript office is the roster's string`);
+    has(doc, `<span data-pdxdb-roster-office>${String(b.office).replace(/&/g, "&amp;")}</span>`, `${b.doc}: noscript office is the roster's string`);
   }
   // ROOT-ABSOLUTE ONLY: /district/<alias>/ is served 200.
   for (const u of [...doc.matchAll(/\b(?:src|href)="([^"]*)"/g)].map((m) => m[1])) {
@@ -193,6 +204,10 @@ const ROSTER = (() => {
   vm.runInContext(R("cmp-data.js"), vm.createContext(w), { filename: "cmp-data.js" });
   return w.CMP_DATA;
 })();
+// Band 1 prints through the module's esc(), so a name with quotes or an office
+// with an ampersand is compared as the markup spells it.
+const escHtml = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+  .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 function band1(alias, withJoin) {
   const win = makeSandbox();
   win.__PDX_DISTRICT_BOARD_SEAT = alias;
@@ -241,8 +256,8 @@ for (const b of PLAN) {
   const pid = b.usHouse ? b.joinPid : b.pid;
   eq(M.SEAT, b.seat, `${b.alias}: the module resolved this document's seat`);
   eq(M.PID, pid, `${b.alias}: band 1's holder is the planned pid`);
-  has(html, `<p class="pdxdb-seat-office">${ROSTER[pid].office}</p>`, `${b.alias}: band 1 prints the roster's office verbatim`);
-  has(html, ROSTER[pid].name, `${b.alias}: band 1 names ${ROSTER[pid].name}`);
+  has(html, `<p class="pdxdb-seat-office">${escHtml(ROSTER[pid].office)}</p>`, `${b.alias}: band 1 prints the roster's office verbatim`);
+  has(html, escHtml(ROSTER[pid].name), `${b.alias}: band 1 names ${ROSTER[pid].name}`);
 }
 {
   const hd29 = PLAN.filter((b) => b.alias === "ut-hd-29")[0];

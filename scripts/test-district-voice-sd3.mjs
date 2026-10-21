@@ -649,7 +649,7 @@ ok(FN.indexOf("BOARD_SEATS") > 0, "the endpoint declares a BOARD_SEATS allow-lis
 {
   const lit = (/const BOARD_SEATS: Record<string, 1> = \{([\s\S]*?)\};/.exec(FN) || [, ""])[1];
   must(lit.length > 0, "the endpoint's BOARD_SEATS literal could not be bounded");
-  const fnSeats = [...lit.matchAll(/"([a-z0-9-]+)":\s*1/g)].map((m) => m[1]).sort();
+  const fnSeats = [...lit.matchAll(/"([a-z0-9_-]+)":\s*1/g)].map((m) => m[1]).sort();
   const clientSeats = Object.keys(B.BOARD_SEATS).sort();
   ok(clientSeats.includes(SEAT), "the client's allow-list still holds this seat");
   eq(JSON.stringify(clientSeats), JSON.stringify(fnSeats),

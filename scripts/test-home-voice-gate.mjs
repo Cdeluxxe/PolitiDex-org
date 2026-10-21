@@ -176,7 +176,7 @@ const UNPLACED = "Find your rooms";
 const PLACED = "See your rooms";
 // The count in this sentence is pinned to BOARD_ROUTES in section 6, not here:
 // this line is the SHAPE of the sentence, and that block is the arithmetic.
-const NOTE = "Eighty-eight seats have a board on file today. Every other seat says the room is not open.";
+const NOTE = "Five hundred twenty-four seats have a board on file today. Every other seat says the room is not open.";
 
 // The visible copy, with the comments, the style block and the script stripped
 // the way a reader sees it.
@@ -515,13 +515,15 @@ section("6 · the allow-listed boards, and the person-file control is untouched"
   // AND THE CARD'S THIRD SENTENCE IS A COUNT OF THAT TABLE, not a description
   // somebody remembered to update. The number is spelled as a word, so the
   // assertion reads the word back. Section 2 bans a digit on the card face, so
-  // a count past nine is spelled too ("Eighty-eight"), never printed as a figure.
+  // a count past nine is spelled too ("Eighty-eight", "Five hundred twenty-four"),
+  // never printed as a figure.
   const ONES = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
     "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen",
     "eighteen", "nineteen"];
   const TENS = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
-  const spell = (n) => n < 20 ? ONES[n]
-    : n < 100 ? TENS[Math.floor(n / 10)] + (n % 10 ? "-" + ONES[n % 10] : "")
+  const under100 = (n) => n < 20 ? ONES[n] : TENS[Math.floor(n / 10)] + (n % 10 ? "-" + ONES[n % 10] : "");
+  const spell = (n) => n < 100 ? under100(n)
+    : n < 1000 ? ONES[Math.floor(n / 100)] + " hundred" + (n % 100 ? " " + under100(n % 100) : "")
     : String(n);
   const spelled = spell(rows.length);
   const seatWord = rows.length === 0 ? spelled : spelled[0].toUpperCase() + spelled.slice(1);
@@ -706,7 +708,7 @@ section("10 · mutations: the fences above actually bite");
 // ═════════════════════════════════════════════════════════════════════════════
 
 // THE TWO FAILURES THE BRIEF NAMES, re-run against a mutated copy of the gate.
-// A fence that passes a door pointed at "/" or an eighty-ninth seat invented in
+// A fence that passes a door pointed at "/" or a five hundred twenty-fifth seat invented in
 // the count is decoration, so each mutant must trip the same check the real
 // card passes above.
 {
@@ -715,10 +717,14 @@ section("10 · mutations: the fences above actually bite");
   win.document = Object.assign({}, win.document, { getElementById: () => null });
   vm.runInContext(DV, vm.createContext(win), { filename: "district-voice.js" });
   const N = Object.keys(win.PDXVoice.BOARD_ROUTES).length;
-  const TENS = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
-  const ONES = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
-  const spellCap = (n) => TENS[Math.floor(n / 10)] + (n % 10 ? "-" + ONES[n % 10] : "");
-  must(N >= 20 && N < 99, `BOARD_ROUTES holds ${N} rows; the mutation speller covers 20–98`);
+  const TENS = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
+  const ONES = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven",
+    "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];
+  const under100 = (n) => n < 20 ? ONES[n] : TENS[Math.floor(n / 10)] + (n % 10 ? "-" + ONES[n % 10] : "");
+  const spellLow = (n) => n < 100 ? under100(n)
+    : ONES[Math.floor(n / 100)] + " hundred" + (n % 100 ? " " + under100(n % 100) : "");
+  const spellCap = (n) => { const w = spellLow(n); return w[0].toUpperCase() + w.slice(1); };
+  must(N >= 20 && N < 999, `BOARD_ROUTES holds ${N} rows; the mutation speller covers 20–998`);
   const countOk = (gate) => {
     const text = textOf(stripComments(gate).replace(/<script\b[\s\S]*?<\/script>/gi, " ")
       .replace(/<style\b[\s\S]*?<\/style>/gi, " "));

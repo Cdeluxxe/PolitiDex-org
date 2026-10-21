@@ -66,11 +66,12 @@
   ];
 
   // UTAH FIRST, said once, under the District Voice point. True to the site as
-  // it stands: every district board is a Utah seat and state legislative lines
-  // are drawn only for Utah, while the U.S. House and statewide seats resolve
-  // nationally — so the sentence names boards and state legislative mapping,
-  // not "your representatives".
-  var SCOPE_NOTE = 'District boards and state legislative mapping are live in Utah first. Other states will be added over time.';
+  // it stands: state legislative lines are drawn only for Utah, so every State
+  // House and State Senate board is a Utah seat, while every state's U.S. House
+  // and U.S. Senate seat the roster names a member for has a read-only board —
+  // so the sentence names legislative boards and mapping, then says the federal
+  // boards are everywhere, and never says "your representatives".
+  var SCOPE_NOTE = 'State legislative boards and mapping are live in Utah first. Other states will be added over time. U.S. House and U.S. Senate boards are open in every state.';
   // Inline as well as in the sheet below, so the line renders the same whether
   // or not the injected rules arrived — a plain muted line, never hidden.
   var SCOPE_STYLE = 'display:block;visibility:visible;opacity:1;margin-top:0.35rem;font-size:0.9rem;line-height:1.5;color:#9fb5a8;';

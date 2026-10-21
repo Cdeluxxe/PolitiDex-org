@@ -282,12 +282,14 @@ section("copy, routes and the shell");
   const { B } = boot("ut-gov");
   const newCopy = [B.COPY.findDoor, B.COPY.findDoorThread].join(" ");
   ok(!/equity|stock|share|membership|member|premium|subscri/i.test(newCopy), "the door copy carries no equity, stock, membership or premium language");
+  const utahRows = (T) => Object.keys(T).filter((k) => /^ut-/.test(k)).map((k) => [k, T[k]]);
   let headBoards = null;
   try {
     const head = execFileSync("git", ["show", "HEAD:district-board.js"], { cwd: ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
-    headBoards = JSON.stringify(boot("ut-gov", head).B.BOARDS);
+    headBoards = JSON.stringify(utahRows(boot("ut-gov", head).B.BOARDS));
   } catch (e) { headBoards = null; }
-  if (headBoards) ok(headBoards === JSON.stringify(B.BOARDS), "the board table and its routes are unchanged");
+  // Utah's rows are pinned; other states' U.S. House and Senate rows may follow them.
+  if (headBoards) ok(headBoards === JSON.stringify(utahRows(B.BOARDS)), "the board table and its routes are unchanged");
   ok(/const CACHE_VERSION = 'v(\d+)'/.test(SW) && Number(/const CACHE_VERSION = 'v(\d+)'/.exec(SW)[1]) >= 379, "the shell is at v379 or later");
   ok(SW.includes("// v379 - FIND A TOPIC OR MANDATE READS EVERYDAY WORDS."), "the worker carries the v379 note");
 }

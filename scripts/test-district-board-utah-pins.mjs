@@ -108,8 +108,19 @@ const reset = () => { B.setPin(""); B.setCategory(""); B.setQuery(""); B.setType
 // ═════════════════════════════════════════════════════════════════════════════
 section("1 · every Utah board shows the three pins above the category list");
 {
-  const seats = Object.keys(B.BOARDS);
+  // Utah's boards only; every other state's U.S. House and Senate boards are
+  // checked below to carry no pins at all.
+  const all = Object.keys(B.BOARDS);
+  const seats = all.filter((k) => /^ut-/.test(k));
   eq(seats.length, 88, "the board table holds every Utah board");
+  const others = all.filter((k) => !/^ut-/.test(k));
+  ok(others.length > 0, "the board table holds boards outside Utah");
+  for (const seat of others) {
+    reset();
+    const h = render(seat);
+    eq(pinButtons(h).length, 0, `${B.BOARDS[seat].alias}: a board outside Utah shows no Utah pins`);
+    ok(h.indexOf('class="pdxdb-utpins"') < 0, `${B.BOARDS[seat].alias}: …and no pin row`);
+  }
   const kinds = { hd: 0, sd: 0, cd: 0, statewide: 0 };
   for (const seat of seats) {
     const al = B.BOARDS[seat].alias;
