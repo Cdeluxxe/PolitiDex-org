@@ -17385,5 +17385,6994 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
   "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
+ },
+// ── Current candidates outside Utah, 2026 general election, official state lists (Oct 2026)
+// Every nominee on the November 3, 2026 general-election ballot for U.S. Senate,
+// U.S. House, and the statewide offices the roster already tracks (Governor,
+// Lieutenant Governor, Attorney General, Secretary of State), in every state
+// outside Utah whose official candidate list or certified ballot could be read,
+// and whom the roster did not already hold under any spelling. Each state's
+// source, and every state skipped and why, is in db/roster-candidates-2026-oct.json.
+// Identity rows only: the candidate's own name, the office (and district) they
+// are running for, `partyFiled` exactly as the official source prints it, and
+// `party` as the roster's R/D code where the source names a Republican or
+// Democratic nomination. `candidate: true` on every row, so no seat lookup names
+// one as a sitting member. `score` null, an empty ledger, `issues` empty.
+ // Alaska — https://www.elections.alaska.gov/candidates/?election=26genr
+ // U.S. Senate · Registered Republican
+ "gerald_heikes": {
+  "name": "Gerald L. Heikes", "office": "U.S. Senate Candidate",
+  "state": "Alaska",
+  "party": "Registered Republican", "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. Senate · Registered Democrat
+ "mary_peltola": {
+  "name": "Mary Peltola", "office": "U.S. Senate Candidate",
+  "state": "Alaska",
+  "party": "Registered Democrat", "partyFiled": "Registered Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Registered Republican
+ "bernadette_wilson": {
+  "name": "Bernadette M. Wilson", "office": "Governor Candidate",
+  "state": "Alaska",
+  "party": "Registered Republican", "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Registered Republican
+ "dave_bronson": {
+  "name": "Dave Bronson", "office": "Governor Candidate",
+  "state": "Alaska",
+  "party": "Registered Republican", "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Registered Democrat / Nonpartisan
+ "jonathan_tomkins": {
+  "name": "Jonathan S. “JKT” Kreiss-Tomkins", "office": "Governor Candidate",
+  "state": "Alaska",
+  "party": "Registered Democrat / Nonpartisan", "partyFiled": "Registered Democrat / Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // AK-AL · Registered Democrat
+ "eric_hafner": {
+  "name": "Eric Hafner", "office": "U.S. House Candidate (AK-AL)",
+  "state": "Alaska", "district": "1",
+  "party": "Registered Democrat", "partyFiled": "Registered Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Arkansas — https://enr-results-api.totalresults.com/Contest/GetContestSearchList?cId=arkansas&electionID=11b07106-031e-4d7c-911a-d01fb473d6dd
+ // U.S. Senate · Democratic
+ "hallie_shoffner": {
+  "name": "Hallie Shoffner", "office": "U.S. Senate Candidate",
+  "state": "Arkansas",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Libertarian
+ "colt_shelby": {
+  "name": "Colt Shelby", "office": "Governor Candidate",
+  "state": "Arkansas",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Democratic
+ "fred_love": {
+  "name": "Fred Love", "office": "Governor Candidate",
+  "state": "Arkansas",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // AR-1 · Libertarian
+ "steve_parsons": {
+  "name": "Steve G. Parsons", "office": "U.S. House Candidate (AR-1)",
+  "state": "Arkansas", "district": "1",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // AR-1 · Democratic
+ "terri_green": {
+  "name": "Terri Yarbrough Green", "office": "U.S. House Candidate (AR-1)",
+  "state": "Arkansas", "district": "1",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // AR-2 · Democratic
+ "chris_jones": {
+  "name": "Chris Jones", "office": "U.S. House Candidate (AR-2)",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Chris_Jones%2C_Arkansas_gubernatorial_candidate.jpg/500px-Chris_Jones%2C_Arkansas_gubernatorial_candidate.jpg",
+  "state": "Arkansas", "district": "2",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // AR-3 · Libertarian
+ "bobby_wilson": {
+  "name": "Bobby Wilson", "office": "U.S. House Candidate (AR-3)",
+  "state": "Arkansas", "district": "3",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // AR-3 · Democratic
+ "robb_ryerse": {
+  "name": "Robb Ryerse", "office": "U.S. House Candidate (AR-3)",
+  "state": "Arkansas", "district": "3",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // AR-4 · Democratic
+ "james_russell": {
+  "name": "James \"Rus\" Russell, III", "office": "U.S. House Candidate (AR-4)",
+  "state": "Arkansas", "district": "4",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // California — https://elections.cdn.sos.ca.gov/statewide-elections/2026-general/cert-list-candidates.pdf
+ // Governor · Republican
+ "steve_hilton": {
+  "name": "Steve Hilton", "office": "Governor Candidate",
+  "state": "California",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Democratic
+ "xavier_becerra": {
+  "name": "Xavier Becerra", "office": "Governor Candidate",
+  "state": "California",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Lieutenant Governor · Democratic
+ "fiona_ma": {
+  "name": "Fiona Ma", "office": "Lieutenant Governor Candidate",
+  "state": "California",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Lieutenant Governor · Republican
+ "gloria_romero": {
+  "name": "Gloria Romero", "office": "Lieutenant Governor Candidate",
+  "state": "California",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Republican
+ "michael_gates": {
+  "name": "Michael E. Gates", "office": "Attorney General Candidate",
+  "state": "California",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Secretary of State · Republican
+ "donald_wagner": {
+  "name": "Donald P. (Don) Wagner", "office": "Secretary of State Candidate",
+  "state": "California",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-2 · Republican
+ "robin_littau": {
+  "name": "Robin Littau", "office": "U.S. House Candidate (CA-2)",
+  "state": "California", "district": "2",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-3 · Republican
+ "robb_tucker": {
+  "name": "Robb Tucker", "office": "U.S. House Candidate (CA-3)",
+  "state": "California", "district": "3",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-4 · Democratic
+ "eric_jones": {
+  "name": "Eric Jones", "office": "U.S. House Candidate (CA-4)",
+  "state": "California", "district": "4",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-5 · Democratic
+ "michael_masuda": {
+  "name": "Michael Masuda", "office": "U.S. House Candidate (CA-5)",
+  "state": "California", "district": "5",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-6 · Democratic
+ "richard_pan": {
+  "name": "Richard Pan", "office": "U.S. House Candidate (CA-6)",
+  "state": "California", "district": "6",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-7 · Democratic
+ "mai_vang": {
+  "name": "Mai Vang", "office": "U.S. House Candidate (CA-7)",
+  "state": "California", "district": "7",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-8 · Republican
+ "rudy_recile": {
+  "name": "Rudy Recile", "office": "U.S. House Candidate (CA-8)",
+  "state": "California", "district": "8",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-9 · Republican
+ "john_mcbride": {
+  "name": "John McBride", "office": "U.S. House Candidate (CA-9)",
+  "state": "California", "district": "9",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-10 · Republican
+ "jeff_frese": {
+  "name": "Jeff Frese", "office": "U.S. House Candidate (CA-10)",
+  "state": "California", "district": "10",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-11 · Democratic
+ "connie_chan": {
+  "name": "Connie Chan", "office": "U.S. House Candidate (CA-11)",
+  "state": "California", "district": "11",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-12 · Democratic
+ "jamie_joyce": {
+  "name": "Jamie Joyce", "office": "U.S. House Candidate (CA-12)",
+  "state": "California", "district": "12",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-13 · Republican
+ "kevin_lincoln": {
+  "name": "Kevin Lincoln", "office": "U.S. House Candidate (CA-13)",
+  "state": "California", "district": "13",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-14 · Democratic
+ "aisha_wahab": {
+  "name": "Aisha Wahab", "office": "U.S. House Candidate (CA-14)",
+  "state": "California", "district": "14",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-14 · Democratic
+ "melissa_hernandez": {
+  "name": "Melissa Hernandez", "office": "U.S. House Candidate (CA-14)",
+  "state": "California", "district": "14",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-15 · Republican
+ "charles_hoelter": {
+  "name": "Charles Hoelter", "office": "U.S. House Candidate (CA-15)",
+  "state": "California", "district": "15",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-16 · Republican
+ "peter_soule": {
+  "name": "Peter Sundin Soulé", "office": "U.S. House Candidate (CA-16)",
+  "state": "California", "district": "16",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-17 · Republican
+ "ritesh_tandon": {
+  "name": "Ritesh Tandon", "office": "U.S. House Candidate (CA-17)",
+  "state": "California", "district": "17",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-18 · Republican
+ "shane_lewis": {
+  "name": "Shane Lewis", "office": "U.S. House Candidate (CA-18)",
+  "state": "California", "district": "18",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-19 · Republican
+ "peter_verbica": {
+  "name": "Peter Coe Verbica", "office": "U.S. House Candidate (CA-19)",
+  "state": "California", "district": "19",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-20 · Democratic
+ "sandra_scotter": {
+  "name": "Sandra Van Scotter", "office": "U.S. House Candidate (CA-20)",
+  "state": "California", "district": "20",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-21 · Republican
+ "kyle_kirkland": {
+  "name": "Kyle Kirkland", "office": "U.S. House Candidate (CA-21)",
+  "state": "California", "district": "21",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-22 · Democratic
+ "randy_villegas": {
+  "name": "Randy Villegas", "office": "U.S. House Candidate (CA-22)",
+  "state": "California", "district": "22",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-23 · Democratic
+ "tessa_hodge": {
+  "name": "Tessa Lynn Hodge", "office": "U.S. House Candidate (CA-23)",
+  "state": "California", "district": "23",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-24 · Republican
+ "bob_smith": {
+  "name": "Bob Smith", "office": "U.S. House Candidate (CA-24)",
+  "state": "California", "district": "24",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-25 · Republican
+ "joe_males": {
+  "name": "Joe Males", "office": "U.S. House Candidate (CA-25)",
+  "state": "California", "district": "25",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-26 · Democratic
+ "jacqui_irwin": {
+  "name": "Jacqui Irwin", "office": "U.S. House Candidate (CA-26)",
+  "state": "California", "district": "26",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-26 · Republican
+ "sam_gallucci": {
+  "name": "Sam Gallucci", "office": "U.S. House Candidate (CA-26)",
+  "state": "California", "district": "26",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-27 · Republican
+ "jason_gibbs": {
+  "name": "Jason Gibbs", "office": "U.S. House Candidate (CA-27)",
+  "state": "California", "district": "27",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-28 · Republican
+ "april_verlato": {
+  "name": "April A. Verlato", "office": "U.S. House Candidate (CA-28)",
+  "state": "California", "district": "28",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-29 · Democratic
+ "angelica_duenas": {
+  "name": "Angélica María Dueñas", "office": "U.S. House Candidate (CA-29)",
+  "state": "California", "district": "29",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-30 · Republican
+ "scott_meyers": {
+  "name": "Scott Alan Meyers", "office": "U.S. House Candidate (CA-30)",
+  "state": "California", "district": "30",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-31 · Republican
+ "eric_ching": {
+  "name": "Eric Ching", "office": "U.S. House Candidate (CA-31)",
+  "state": "California", "district": "31",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-32 · Republican
+ "larry_thompson": {
+  "name": "Larry Thompson", "office": "U.S. House Candidate (CA-32)",
+  "state": "California", "district": "32",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-33 · Republican
+ "stephanie_vargas": {
+  "name": "Stephanie M. Vargas", "office": "U.S. House Candidate (CA-33)",
+  "state": "California", "district": "33",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-34 · Democratic
+ "angela_torres": {
+  "name": "Angela Gonzales-Torres", "office": "U.S. House Candidate (CA-34)",
+  "state": "California", "district": "34",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-35 · Republican
+ "mike_cargile": {
+  "name": "Mike Cargile", "office": "U.S. House Candidate (CA-35)",
+  "state": "California", "district": "35",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-36 · Republican
+ "houston_brignano": {
+  "name": "Houston Brignano", "office": "U.S. House Candidate (CA-36)",
+  "state": "California", "district": "36",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-37 · Democratic
+ "samantha_mota": {
+  "name": "Samantha Mota", "office": "U.S. House Candidate (CA-37)",
+  "state": "California", "district": "37",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-38 · Democratic
+ "hilda_solis": {
+  "name": "Hilda Solis", "office": "U.S. House Candidate (CA-38)",
+  "state": "California", "district": "38",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-38 · Republican
+ "pedro_casas": {
+  "name": "Pedro Antonio Casas", "office": "U.S. House Candidate (CA-38)",
+  "state": "California", "district": "38",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-39 · Republican
+ "steve_manos": {
+  "name": "Steve Manos", "office": "U.S. House Candidate (CA-39)",
+  "state": "California", "district": "39",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-41 · Republican
+ "mitch_clemmons": {
+  "name": "Mitch Clemmons", "office": "U.S. House Candidate (CA-41)",
+  "state": "California", "district": "41",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-42 · Republican
+ "brian_burley": {
+  "name": "Brian Burley", "office": "U.S. House Candidate (CA-42)",
+  "state": "California", "district": "42",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-43 · Republican
+ "cristian_morales": {
+  "name": "Cristian Morales", "office": "U.S. House Candidate (CA-43)",
+  "state": "California", "district": "43",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-44 · Republican
+ "genevieve_angel": {
+  "name": "Genevieve Angel", "office": "U.S. House Candidate (CA-44)",
+  "state": "California", "district": "44",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-45 · Republican
+ "chuong_vo": {
+  "name": "Chuong V. Vo", "office": "U.S. House Candidate (CA-45)",
+  "state": "California", "district": "45",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-46 · Republican
+ "david_pan": {
+  "name": "David Pan", "office": "U.S. House Candidate (CA-46)",
+  "state": "California", "district": "46",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-47 · Republican
+ "jenny_roux": {
+  "name": "Jenny Rae Le Roux", "office": "U.S. House Candidate (CA-47)",
+  "state": "California", "district": "47",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-48 · Republican
+ "jim_desmond": {
+  "name": "Jim Desmond", "office": "U.S. House Candidate (CA-48)",
+  "state": "California", "district": "48",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-48 · Democratic
+ "marni_wilpert": {
+  "name": "Marni von Wilpert", "office": "U.S. House Candidate (CA-48)",
+  "state": "California", "district": "48",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-49 · Republican
+ "armen_kurdian": {
+  "name": "Armen Kurdian", "office": "U.S. House Candidate (CA-49)",
+  "state": "California", "district": "49",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-51 · Republican
+ "ricardo_cabrera": {
+  "name": "Ricardo Cabrera", "office": "U.S. House Candidate (CA-51)",
+  "state": "California", "district": "51",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-52 · Republican
+ "jeff_belle": {
+  "name": "Jeff Belle", "office": "U.S. House Candidate (CA-52)",
+  "state": "California", "district": "52",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Colorado — https://www.coloradosos.gov/pubs/elections/vote/generalCandidates.html
+ // U.S. Senate · Unity Party
+ "adam_withrow": {
+  "name": "Adam Withrow", "office": "U.S. Senate Candidate",
+  "state": "Colorado",
+  "party": "Unity Party", "partyFiled": "Unity Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. Senate · Forward Party
+ "bob_chew": {
+  "name": "Bob Chew", "office": "U.S. Senate Candidate",
+  "state": "Colorado",
+  "party": "Forward Party", "partyFiled": "Forward Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. Senate · Approval Voting Party
+ "christopher_baum": {
+  "name": "Christopher Baum", "office": "U.S. Senate Candidate",
+  "state": "Colorado",
+  "party": "Approval Voting Party", "partyFiled": "Approval Voting Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. Senate · Republican Party
+ "mark_baisley": {
+  "name": "Mark Baisley", "office": "U.S. Senate Candidate",
+  "state": "Colorado",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Libertarian Party
+ "eric_mulder": {
+  "name": "Eric Mulder", "office": "Governor Candidate",
+  "state": "Colorado",
+  "party": "Libertarian Party", "partyFiled": "Libertarian Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Approval Voting Party
+ "erik_underwood": {
+  "name": "Erik Underwood", "office": "Governor Candidate",
+  "state": "Colorado",
+  "party": "Approval Voting Party", "partyFiled": "Approval Voting Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Unaffiliated
+ "greg_lopez": {
+  "name": "Greg Lopez", "office": "Governor Candidate",
+  "state": "Colorado",
+  "party": "Unaffiliated", "partyFiled": "Unaffiliated", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Unity Party
+ "jeff_peckman": {
+  "name": "Jeff Peckman", "office": "Governor Candidate",
+  "state": "Colorado",
+  "party": "Unity Party", "partyFiled": "Unity Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · American Constitution Party
+ "stephen_hamilton": {
+  "name": "Stephen T. Hamilton", "office": "Governor Candidate",
+  "state": "Colorado",
+  "party": "American Constitution Party", "partyFiled": "American Constitution Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Republican Party
+ "victor_marx": {
+  "name": "Victor Marx", "office": "Governor Candidate",
+  "state": "Colorado",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Republican Party
+ "michael_allen": {
+  "name": "Michael J. Allen", "office": "Attorney General Candidate",
+  "state": "Colorado",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Secretary of State · American Constitution Party
+ "amanda_campbell": {
+  "name": "Amanda Campbell", "office": "Secretary of State Candidate",
+  "state": "Colorado",
+  "party": "American Constitution Party", "partyFiled": "American Constitution Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Secretary of State · Democratic Party
+ "amanda_gonzalez": {
+  "name": "Amanda Gonzalez", "office": "Secretary of State Candidate",
+  "state": "Colorado",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Secretary of State · Forward Party
+ "celeste_landry": {
+  "name": "Celeste Landry", "office": "Secretary of State Candidate",
+  "state": "Colorado",
+  "party": "Forward Party", "partyFiled": "Forward Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Secretary of State · Republican Party
+ "james_wiley": {
+  "name": "James Wiley", "office": "Secretary of State Candidate",
+  "state": "Colorado",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Secretary of State · Libertarian Party
+ "sean_vadney": {
+  "name": "Sean Vadney", "office": "Secretary of State Candidate",
+  "state": "Colorado",
+  "party": "Libertarian Party", "partyFiled": "Libertarian Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CO-1 · Libertarian Party
+ "chad_humphrey": {
+  "name": "Chad Humphrey", "office": "U.S. House Candidate (CO-1)",
+  "state": "Colorado", "district": "1",
+  "party": "Libertarian Party", "partyFiled": "Libertarian Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CO-1 · Republican Party
+ "christy_peterson": {
+  "name": "Christy Peterson", "office": "U.S. House Candidate (CO-1)",
+  "state": "Colorado", "district": "1",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CO-1 · Unity Party
+ "critter_milton": {
+  "name": "Critter Milton", "office": "U.S. House Candidate (CO-1)",
+  "state": "Colorado", "district": "1",
+  "party": "Unity Party", "partyFiled": "Unity Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CO-1 · Democratic Party
+ "melat_kiros": {
+  "name": "Melat Kiros", "office": "U.S. House Candidate (CO-1)",
+  "state": "Colorado", "district": "1",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CO-1 · Unaffiliated
+ "shimon_blau": {
+  "name": "Shimon Blau", "office": "U.S. House Candidate (CO-1)",
+  "state": "Colorado", "district": "1",
+  "party": "Unaffiliated", "partyFiled": "Unaffiliated", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CO-2 · Libertarian Party
+ "gaylon_kent": {
+  "name": "Gaylon Kent", "office": "U.S. House Candidate (CO-2)",
+  "state": "Colorado", "district": "2",
+  "party": "Libertarian Party", "partyFiled": "Libertarian Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CO-2 · Republican Party
+ "kelley_dennison": {
+  "name": "Kelley Anne Dennison", "office": "U.S. House Candidate (CO-2)",
+  "state": "Colorado", "district": "2",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CO-3 · Unaffiliated
+ "clifton_brown": {
+  "name": "Clifton Brown", "office": "U.S. House Candidate (CO-3)",
+  "state": "Colorado", "district": "3",
+  "party": "Unaffiliated", "partyFiled": "Unaffiliated", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CO-3 · Democratic Party
+ "dwayne_romero": {
+  "name": "Dwayne L. Romero", "office": "U.S. House Candidate (CO-3)",
+  "state": "Colorado", "district": "3",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CO-4 · Libertarian Party
+ "douglas_mangeris": {
+  "name": "Douglas Mangeris", "office": "U.S. House Candidate (CO-4)",
+  "state": "Colorado", "district": "4",
+  "party": "Libertarian Party", "partyFiled": "Libertarian Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CO-4 · Democratic Party
+ "eileen_laubacher": {
+  "name": "Eileen Laubacher", "office": "U.S. House Candidate (CO-4)",
+  "state": "Colorado", "district": "4",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CO-5 · American Constitution Party
+ "christopher_mitchell": {
+  "name": "Christopher Mitchell", "office": "U.S. House Candidate (CO-5)",
+  "state": "Colorado", "district": "5",
+  "party": "American Constitution Party", "partyFiled": "American Constitution Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CO-5 · Democratic Party
+ "jessica_killin": {
+  "name": "Jessica Killin", "office": "U.S. House Candidate (CO-5)",
+  "state": "Colorado", "district": "5",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CO-6 · Republican Party
+ "jason_clark": {
+  "name": "Jason Clark", "office": "U.S. House Candidate (CO-6)",
+  "state": "Colorado", "district": "6",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CO-6 · Unity Party
+ "meredith_ryan": {
+  "name": "Meredith Ryan", "office": "U.S. House Candidate (CO-6)",
+  "state": "Colorado", "district": "6",
+  "party": "Unity Party", "partyFiled": "Unity Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CO-6 · Libertarian Party
+ "patty_mcmahon": {
+  "name": "Patty McMahon", "office": "U.S. House Candidate (CO-6)",
+  "state": "Colorado", "district": "6",
+  "party": "Libertarian Party", "partyFiled": "Libertarian Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CO-6 · Unaffiliated
+ "samir_witta": {
+  "name": "Samir Ezzeldin Witta", "office": "U.S. House Candidate (CO-6)",
+  "state": "Colorado", "district": "6",
+  "party": "Unaffiliated", "partyFiled": "Unaffiliated", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CO-7 · Libertarian Party
+ "dan_sallis": {
+  "name": "Dan \"Kilo\" Sallis", "office": "U.S. House Candidate (CO-7)",
+  "state": "Colorado", "district": "7",
+  "party": "Libertarian Party", "partyFiled": "Libertarian Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CO-7 · Unaffiliated
+ "joe_krzeczkowski": {
+  "name": "Joe Krzeczkowski", "office": "U.S. House Candidate (CO-7)",
+  "state": "Colorado", "district": "7",
+  "party": "Unaffiliated", "partyFiled": "Unaffiliated", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CO-7 · American Constitution Party
+ "lawrence_clark": {
+  "name": "Lawrence Kyle Clark", "office": "U.S. House Candidate (CO-7)",
+  "state": "Colorado", "district": "7",
+  "party": "American Constitution Party", "partyFiled": "American Constitution Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CO-7 · Unity Party
+ "susan_hall": {
+  "name": "Susan Hall", "office": "U.S. House Candidate (CO-7)",
+  "state": "Colorado", "district": "7",
+  "party": "Unity Party", "partyFiled": "Unity Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CO-7 · Republican Party
+ "tim_bennett": {
+  "name": "Tim Bennett", "office": "U.S. House Candidate (CO-7)",
+  "state": "Colorado", "district": "7",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CO-8 · Libertarian Party
+ "dave_wood": {
+  "name": "Dave Wood", "office": "U.S. House Candidate (CO-8)",
+  "state": "Colorado", "district": "8",
+  "party": "Libertarian Party", "partyFiled": "Libertarian Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CO-8 · Democratic Party
+ "manny_rutinel": {
+  "name": "Manny Rutinel", "office": "U.S. House Candidate (CO-8)",
+  "state": "Colorado", "district": "8",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Connecticut — https://portal.ct.gov/sots/election-services/town-ballots/2026-november-town-election-ballots
+ // Governor · Republican Party, Independent Party
+ "ryan_fazio": {
+  "name": "Ryan Fazio", "office": "Governor Candidate",
+  "state": "Connecticut",
+  "party": "R", "partyFiled": "Republican Party, Independent Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Republican Party
+ "john_bolton": {
+  "name": "John Bolton", "office": "Attorney General Candidate",
+  "state": "Connecticut",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CT-1 · Republican Party
+ "amy_chai": {
+  "name": "Amy Chai", "office": "U.S. House Candidate (CT-1)",
+  "state": "Connecticut", "district": "1",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CT-1 · Democratic Party
+ "luke_bronin": {
+  "name": "Luke Bronin", "office": "U.S. House Candidate (CT-1)",
+  "state": "Connecticut", "district": "1",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CT-1 · Green Party
+ "mary_sanders": {
+  "name": "Mary L. Sanders", "office": "U.S. House Candidate (CT-1)",
+  "state": "Connecticut", "district": "1",
+  "party": "Green Party", "partyFiled": "Green Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CT-2 · Republican Party, Independent Party
+ "george_austin": {
+  "name": "George Patrick Austin", "office": "U.S. House Candidate (CT-2)",
+  "state": "Connecticut", "district": "2",
+  "party": "R", "partyFiled": "Republican Party, Independent Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CT-3 · Republican Party
+ "christopher_lancia": {
+  "name": "Christopher Lancia", "office": "U.S. House Candidate (CT-3)",
+  "state": "Connecticut", "district": "3",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CT-3 · Independent Party
+ "thomas_egan": {
+  "name": "Thomas Egan", "office": "U.S. House Candidate (CT-3)",
+  "state": "Connecticut", "district": "3",
+  "party": "Independent Party", "partyFiled": "Independent Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CT-4 · Independent Party
+ "benjamin_wesley": {
+  "name": "Benjamin Wesley", "office": "U.S. House Candidate (CT-4)",
+  "state": "Connecticut", "district": "4",
+  "party": "Independent Party", "partyFiled": "Independent Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CT-4 · Republican Party
+ "michael_goldstein": {
+  "name": "Michael Ted Goldstein", "office": "U.S. House Candidate (CT-4)",
+  "state": "Connecticut", "district": "4",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CT-5 · Republican Party
+ "chris_shea": {
+  "name": "Chris Shea", "office": "U.S. House Candidate (CT-5)",
+  "state": "Connecticut", "district": "5",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Delaware — https://elections.delaware.gov/candidates/candidatelist/genl_fcddt_2026.html
+ // U.S. Senate · Republican
+ "michael_katz": {
+  "name": "Michael \"Dr. Mike\" Katz", "office": "U.S. Senate Candidate",
+  "state": "Delaware",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Republican
+ "david_graham_de": {
+  "name": "David C. \"Dave\" Graham", "office": "Attorney General Candidate",
+  "state": "Delaware",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // DE-AL · Republican
+ "joseph_arminio": {
+  "name": "Joseph \"Dr. Joe\" Arminio", "office": "U.S. House Candidate (DE-AL)",
+  "state": "Delaware", "district": "1",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Florida — https://dos.elections.myflorida.com/candidates/extractCanList.asp (POST from https://dos.elections.myflorida.com/candidates/downloadcanlist.asp, elecID=20261103-GEN, office=ALL, status=ALL, cantype=STA)
+ // U.S. Senate · Florida Democratic Party
+ "angie_nixon": {
+  "name": "Angie Nixon", "office": "U.S. Senate Candidate",
+  "state": "Florida",
+  "party": "D", "partyFiled": "Florida Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · No Party Affiliation (Partisan)
+ "charles_burkett": {
+  "name": "Charles Burkett", "office": "Governor Candidate",
+  "state": "Florida",
+  "party": "No Party Affiliation (Partisan)", "partyFiled": "No Party Affiliation (Partisan)", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Florida Democratic Party
+ "david_jolly": {
+  "name": "David Jolly", "office": "Governor Candidate",
+  "state": "Florida",
+  "party": "D", "partyFiled": "Florida Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · No Party Affiliation (Partisan)
+ "dean_abrams": {
+  "name": "Dean Ocean Abrams", "office": "Governor Candidate",
+  "state": "Florida",
+  "party": "No Party Affiliation (Partisan)", "partyFiled": "No Party Affiliation (Partisan)", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · No Party Affiliation (Partisan)
+ "frank_russo": {
+  "name": "Frank J. Russo", "office": "Governor Candidate",
+  "state": "Florida",
+  "party": "No Party Affiliation (Partisan)", "partyFiled": "No Party Affiliation (Partisan)", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · No Party Affiliation (Partisan)
+ "jeffrey_datto": {
+  "name": "Jeffrey Peter \"Dr. Jeff\" Datto", "office": "Governor Candidate",
+  "state": "Florida",
+  "party": "No Party Affiliation (Partisan)", "partyFiled": "No Party Affiliation (Partisan)", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · No Party Affiliation (Partisan)
+ "moliere_dimanche": {
+  "name": "Moliere Moe Dimanche", "office": "Governor Candidate",
+  "state": "Florida",
+  "party": "No Party Affiliation (Partisan)", "partyFiled": "No Party Affiliation (Partisan)", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Libertarian Party of Florida
+ "scott_jewett": {
+  "name": "Scott Eckhard Jewett", "office": "Governor Candidate",
+  "state": "Florida",
+  "party": "Libertarian Party of Florida", "partyFiled": "Libertarian Party of Florida", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Florida Democratic Party
+ "jose_rodriguez": {
+  "name": "Jose Javier Rodriguez", "office": "Attorney General Candidate",
+  "state": "Florida",
+  "party": "D", "partyFiled": "Florida Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-1 · Florida Democratic Party
+ "gay_valimont": {
+  "name": "Gay Valimont", "office": "U.S. House Candidate (FL-1)",
+  "state": "Florida", "district": "1",
+  "party": "D", "partyFiled": "Florida Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-2 · Florida Democratic Party
+ "amanda_green": {
+  "name": "Amanda Marie Green", "office": "U.S. House Candidate (FL-2)",
+  "state": "Florida", "district": "2",
+  "party": "D", "partyFiled": "Florida Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-2 · Republican Party of Florida
+ "austin_rogers": {
+  "name": "Austin Rogers", "office": "U.S. House Candidate (FL-2)",
+  "state": "Florida", "district": "2",
+  "party": "R", "partyFiled": "Republican Party of Florida", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-3 · No Party Affiliation (Partisan)
+ "mike_klein": {
+  "name": "Mike Klein", "office": "U.S. House Candidate (FL-3)",
+  "state": "Florida", "district": "3",
+  "party": "No Party Affiliation (Partisan)", "partyFiled": "No Party Affiliation (Partisan)", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-3 · Florida Democratic Party
+ "seth_harp": {
+  "name": "Seth Harp", "office": "U.S. House Candidate (FL-3)",
+  "state": "Florida", "district": "3",
+  "party": "D", "partyFiled": "Florida Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-4 · Florida Democratic Party
+ "lashonda_holloway": {
+  "name": "LaShonda L.J. Holloway", "office": "U.S. House Candidate (FL-4)",
+  "state": "Florida", "district": "4",
+  "party": "D", "partyFiled": "Florida Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-4 · Florida Forward Party
+ "mike_sell": {
+  "name": "Mike Sell", "office": "U.S. House Candidate (FL-4)",
+  "state": "Florida", "district": "4",
+  "party": "Florida Forward Party", "partyFiled": "Florida Forward Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-4 · No Party Affiliation (Partisan)
+ "todd_schaefer": {
+  "name": "Todd Schaefer", "office": "U.S. House Candidate (FL-4)",
+  "state": "Florida", "district": "4",
+  "party": "No Party Affiliation (Partisan)", "partyFiled": "No Party Affiliation (Partisan)", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-5 · Florida Democratic Party
+ "rachel_grage": {
+  "name": "Rachel Grage", "office": "U.S. House Candidate (FL-5)",
+  "state": "Florida", "district": "5",
+  "party": "D", "partyFiled": "Florida Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-6 · Florida Democratic Party
+ "eric_yonce": {
+  "name": "Eric Yonce", "office": "U.S. House Candidate (FL-6)",
+  "state": "Florida", "district": "6",
+  "party": "D", "partyFiled": "Florida Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-7 · Florida Democratic Party
+ "bale_dalton": {
+  "name": "Bale Dalton", "office": "U.S. House Candidate (FL-7)",
+  "state": "Florida", "district": "7",
+  "party": "D", "partyFiled": "Florida Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-7 · Republican Party of Florida
+ "ryan_elijah": {
+  "name": "Ryan Elijah", "office": "U.S. House Candidate (FL-7)",
+  "state": "Florida", "district": "7",
+  "party": "R", "partyFiled": "Republican Party of Florida", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-8 · Florida Democratic Party
+ "jennifer_jenkins": {
+  "name": "Jennifer Jenkins", "office": "U.S. House Candidate (FL-8)",
+  "state": "Florida", "district": "8",
+  "party": "D", "partyFiled": "Florida Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-9 · Republican Party of Florida
+ "dan_green": {
+  "name": "Dan Green", "office": "U.S. House Candidate (FL-9)",
+  "state": "Florida", "district": "9",
+  "party": "R", "partyFiled": "Republican Party of Florida", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-11 · Florida Democratic Party
+ "james_pericola": {
+  "name": "James Pericola", "office": "U.S. House Candidate (FL-11)",
+  "state": "Florida", "district": "11",
+  "party": "D", "partyFiled": "Florida Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-11 · Republican Party of Florida
+ "joe_strada": {
+  "name": "Joe Strada", "office": "U.S. House Candidate (FL-11)",
+  "state": "Florida", "district": "11",
+  "party": "R", "partyFiled": "Republican Party of Florida", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-12 · No Party Affiliation (Partisan)
+ "branden_scrivener": {
+  "name": "Branden Scrivener", "office": "U.S. House Candidate (FL-12)",
+  "state": "Florida", "district": "12",
+  "party": "No Party Affiliation (Partisan)", "partyFiled": "No Party Affiliation (Partisan)", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-12 · Florida Democratic Party
+ "kimberly_overman": {
+  "name": "Kimberly Overman", "office": "U.S. House Candidate (FL-12)",
+  "state": "Florida", "district": "12",
+  "party": "D", "partyFiled": "Florida Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-13 · Florida Democratic Party
+ "leela_gray": {
+  "name": "Leela Gray", "office": "U.S. House Candidate (FL-13)",
+  "state": "Florida", "district": "13",
+  "party": "D", "partyFiled": "Florida Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-13 · No Party Affiliation (Partisan)
+ "tony_darrigo": {
+  "name": "Tony D'Arrigo", "office": "U.S. House Candidate (FL-13)",
+  "state": "Florida", "district": "13",
+  "party": "No Party Affiliation (Partisan)", "partyFiled": "No Party Affiliation (Partisan)", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-14 · Libertarian Party of Florida
+ "brian_lambert": {
+  "name": "Brian Lambert", "office": "U.S. House Candidate (FL-14)",
+  "state": "Florida", "district": "14",
+  "party": "Libertarian Party of Florida", "partyFiled": "Libertarian Party of Florida", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-14 · Republican Party of Florida
+ "mike_beltran": {
+  "name": "Mike Beltran", "office": "U.S. House Candidate (FL-14)",
+  "state": "Florida", "district": "14",
+  "party": "R", "partyFiled": "Republican Party of Florida", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-15 · Florida Democratic Party
+ "robert_people": {
+  "name": "Robert People", "office": "U.S. House Candidate (FL-15)",
+  "state": "Florida", "district": "15",
+  "party": "D", "partyFiled": "Florida Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-16 · Florida Democratic Party
+ "kelly_kirschner": {
+  "name": "Kelly Kirschner", "office": "U.S. House Candidate (FL-16)",
+  "state": "Florida", "district": "16",
+  "party": "D", "partyFiled": "Florida Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-16 · No Party Affiliation (Partisan)
+ "mark_davis": {
+  "name": "Mark Davis", "office": "U.S. House Candidate (FL-16)",
+  "state": "Florida", "district": "16",
+  "party": "No Party Affiliation (Partisan)", "partyFiled": "No Party Affiliation (Partisan)", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-16 · Republican Party of Florida
+ "sydney_gruters": {
+  "name": "Sydney Gruters", "office": "U.S. House Candidate (FL-16)",
+  "state": "Florida", "district": "16",
+  "party": "R", "partyFiled": "Republican Party of Florida", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-17 · Florida Democratic Party
+ "matthew_montavon": {
+  "name": "Matthew Montavon", "office": "U.S. House Candidate (FL-17)",
+  "state": "Florida", "district": "17",
+  "party": "D", "partyFiled": "Florida Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-17 · No Party Affiliation (Partisan)
+ "michael_quirk": {
+  "name": "Michael J. Quirk", "office": "U.S. House Candidate (FL-17)",
+  "state": "Florida", "district": "17",
+  "party": "No Party Affiliation (Partisan)", "partyFiled": "No Party Affiliation (Partisan)", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-18 · Florida Democratic Party
+ "curtis_gibson": {
+  "name": "Curtis Gibson", "office": "U.S. House Candidate (FL-18)",
+  "state": "Florida", "district": "18",
+  "party": "D", "partyFiled": "Florida Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-18 · No Party Affiliation (Partisan)
+ "deva_simmons": {
+  "name": "Deva Simmons", "office": "U.S. House Candidate (FL-18)",
+  "state": "Florida", "district": "18",
+  "party": "No Party Affiliation (Partisan)", "partyFiled": "No Party Affiliation (Partisan)", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-19 · Republican Party of Florida
+ "jim_schwartzel": {
+  "name": "Jim Schwartzel", "office": "U.S. House Candidate (FL-19)",
+  "state": "Florida", "district": "19",
+  "party": "R", "partyFiled": "Republican Party of Florida", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-19 · No Party Affiliation (Partisan)
+ "seth_haskin": {
+  "name": "Seth Haskin", "office": "U.S. House Candidate (FL-19)",
+  "state": "Florida", "district": "19",
+  "party": "No Party Affiliation (Partisan)", "partyFiled": "No Party Affiliation (Partisan)", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-19 · Florida Democratic Party
+ "victor_arias": {
+  "name": "Victor Arias", "office": "U.S. House Candidate (FL-19)",
+  "state": "Florida", "district": "19",
+  "party": "D", "partyFiled": "Florida Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-20 · Republican Party of Florida
+ "brent_andersen": {
+  "name": "Brent Andersen", "office": "U.S. House Candidate (FL-20)",
+  "state": "Florida", "district": "20",
+  "party": "R", "partyFiled": "Republican Party of Florida", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-21 · No Party Affiliation (Partisan)
+ "alexander_cooke": {
+  "name": "Alexander Cooke", "office": "U.S. House Candidate (FL-21)",
+  "state": "Florida", "district": "21",
+  "party": "No Party Affiliation (Partisan)", "partyFiled": "No Party Affiliation (Partisan)", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-21 · Florida Democratic Party
+ "james_martin": {
+  "name": "James T. Martin", "office": "U.S. House Candidate (FL-21)",
+  "state": "Florida", "district": "21",
+  "party": "D", "partyFiled": "Florida Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-22 · Republican Party of Florida
+ "casey_askar": {
+  "name": "Casey Askar", "office": "U.S. House Candidate (FL-22)",
+  "state": "Florida", "district": "22",
+  "party": "R", "partyFiled": "Republican Party of Florida", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-22 · Florida Democratic Party
+ "pia_dandiya": {
+  "name": "Pia Dandiya", "office": "U.S. House Candidate (FL-22)",
+  "state": "Florida", "district": "22",
+  "party": "D", "partyFiled": "Florida Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-23 · Republican Party of Florida
+ "deborah_adeimy": {
+  "name": "Deborah Adeimy", "office": "U.S. House Candidate (FL-23)",
+  "state": "Florida", "district": "23",
+  "party": "R", "partyFiled": "Republican Party of Florida", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-24 · Florida Democratic Party
+ "oliver_gilbert": {
+  "name": "Oliver G. Gilbert III", "office": "U.S. House Candidate (FL-24)",
+  "state": "Florida", "district": "24",
+  "party": "D", "partyFiled": "Florida Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-24 · Republican Party of Florida
+ "te_brown": {
+  "name": "Te Mayonna Brown", "office": "U.S. House Candidate (FL-24)",
+  "state": "Florida", "district": "24",
+  "party": "R", "partyFiled": "Republican Party of Florida", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-25 · Libertarian Party of Florida
+ "peter_jassenoff": {
+  "name": "Peter Jassenoff", "office": "U.S. House Candidate (FL-25)",
+  "state": "Florida", "district": "25",
+  "party": "Libertarian Party of Florida", "partyFiled": "Libertarian Party of Florida", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-25 · Republican Party of Florida
+ "scott_singer": {
+  "name": "Scott Singer", "office": "U.S. House Candidate (FL-25)",
+  "state": "Florida", "district": "25",
+  "party": "R", "partyFiled": "Republican Party of Florida", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-26 · No Party Affiliation (Partisan)
+ "deborah_hosey": {
+  "name": "Deborah Ann Meidinger Hosey", "office": "U.S. House Candidate (FL-26)",
+  "state": "Florida", "district": "26",
+  "party": "No Party Affiliation (Partisan)", "partyFiled": "No Party Affiliation (Partisan)", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-26 · Florida Democratic Party
+ "nicole_locklin": {
+  "name": "Nicole Locklin", "office": "U.S. House Candidate (FL-26)",
+  "state": "Florida", "district": "26",
+  "party": "D", "partyFiled": "Florida Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-27 · Florida Democratic Party
+ "eliott_rodriguez": {
+  "name": "Eliott Rodriguez", "office": "U.S. House Candidate (FL-27)",
+  "state": "Florida", "district": "27",
+  "party": "D", "partyFiled": "Florida Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-28 · No Party Affiliation (Partisan)
+ "eddy_rojas": {
+  "name": "Eddy Rojas", "office": "U.S. House Candidate (FL-28)",
+  "state": "Florida", "district": "28",
+  "party": "No Party Affiliation (Partisan)", "partyFiled": "No Party Affiliation (Partisan)", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-28 · Florida Democratic Party
+ "phil_ehr": {
+  "name": "Phil Felipe Ehr", "office": "U.S. House Candidate (FL-28)",
+  "state": "Florida", "district": "28",
+  "party": "D", "partyFiled": "Florida Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Georgia — https://www.fultoncountyga.gov/-/media/2026-Election/November-3-Election/Sample-Ballot--Consolidated--Nov-32026-General--Special-Election--1082026.pdf
+ // Governor · Democrat
+ "keisha_bottoms": {
+  "name": "Keisha Lance Bottoms", "office": "Governor Candidate",
+  "state": "Georgia",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Republican
+ "rick_jackson": {
+  "name": "Rick Jackson", "office": "Governor Candidate",
+  "state": "Georgia",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Lieutenant Governor · Republican
+ "greg_dolezal": {
+  "name": "Greg Dolezal", "office": "Lieutenant Governor Candidate",
+  "state": "Georgia",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Lieutenant Governor · Democrat
+ "josh_mclaurin": {
+  "name": "Josh McLaurin", "office": "Lieutenant Governor Candidate",
+  "state": "Georgia",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Republican
+ "brian_strickland": {
+  "name": "Brian Strickland", "office": "Attorney General Candidate",
+  "state": "Georgia",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Democrat
+ "tanya_miller": {
+  "name": "Tanya Miller", "office": "Attorney General Candidate",
+  "state": "Georgia",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Secretary of State · Democrat
+ "penny_reynolds": {
+  "name": "Penny Brown Reynolds", "office": "Secretary of State Candidate",
+  "state": "Georgia",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Secretary of State · Republican
+ "tim_fleming": {
+  "name": "Tim Fleming", "office": "Secretary of State Candidate",
+  "state": "Georgia",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // GA-1 · Democrat
+ "amanda_hollowell": {
+  "name": "Amanda Hollowell", "office": "U.S. House Candidate (GA-1)",
+  "state": "Georgia", "district": "1",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // GA-1 · Republican
+ "james_kingston": {
+  "name": "James “Jim” Kingston", "office": "U.S. House Candidate (GA-1)",
+  "state": "Georgia", "district": "1",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // GA-2 · Republican
+ "matt_day": {
+  "name": "Matt Day", "office": "U.S. House Candidate (GA-2)",
+  "state": "Georgia", "district": "2",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // GA-3 · Democrat
+ "maura_keller": {
+  "name": "Maura Keller", "office": "U.S. House Candidate (GA-3)",
+  "state": "Georgia", "district": "3",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // GA-4 · Rep
+ "jim_duffie": {
+  "name": "Jim Duffie", "office": "U.S. House Candidate (GA-4)",
+  "state": "Georgia", "district": "4",
+  "party": "R", "partyFiled": "Rep", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // GA-5 · Republican
+ "john_salvesen": {
+  "name": "John “BONGO” Salvesen", "office": "U.S. House Candidate (GA-5)",
+  "state": "Georgia", "district": "5",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // GA-6 · Republican
+ "kevin_martin": {
+  "name": "Kevin E. Martin", "office": "U.S. House Candidate (GA-6)",
+  "state": "Georgia", "district": "6",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // GA-7 · Democrat
+ "tony_kozycki": {
+  "name": "Tony Kozycki", "office": "U.S. House Candidate (GA-7)",
+  "state": "Georgia", "district": "7",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // GA-8 · Democrat
+ "kelly_esti": {
+  "name": "Kelly Esti", "office": "U.S. House Candidate (GA-8)",
+  "state": "Georgia", "district": "8",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // GA-9 · Dem
+ "caitlyn_gegen": {
+  "name": "Caitlyn Gegen", "office": "U.S. House Candidate (GA-9)",
+  "state": "Georgia", "district": "9",
+  "party": "D", "partyFiled": "Dem", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // GA-10 · Republican
+ "houston_gaines": {
+  "name": "Houston Gaines", "office": "U.S. House Candidate (GA-10)",
+  "state": "Georgia", "district": "10",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // GA-10 · Democrat
+ "pamela_delancy": {
+  "name": "Pamela \"Pam\" Delancy", "office": "U.S. House Candidate (GA-10)",
+  "state": "Georgia", "district": "10",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // GA-11 · Democrat
+ "chris_harden": {
+  "name": "Chris Harden", "office": "U.S. House Candidate (GA-11)",
+  "state": "Georgia", "district": "11",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // GA-11 · Republican
+ "john_cowan": {
+  "name": "John Cowan", "office": "U.S. House Candidate (GA-11)",
+  "state": "Georgia", "district": "11",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // GA-12 · Democrat
+ "ceretta_smith": {
+  "name": "Ceretta Smith", "office": "U.S. House Candidate (GA-12)",
+  "state": "Georgia", "district": "12",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // GA-13 · Democrat
+ "jasmine_clark": {
+  "name": "Jasmine Clark", "office": "U.S. House Candidate (GA-13)",
+  "state": "Georgia", "district": "13",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // GA-13 · Republican
+ "jonathan_chavez": {
+  "name": "Jonathan Chavez", "office": "U.S. House Candidate (GA-13)",
+  "state": "Georgia", "district": "13",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // GA-14 · Democrat
+ "shawn_harris": {
+  "name": "Shawn Harris", "office": "U.S. House Candidate (GA-14)",
+  "state": "Georgia", "district": "14",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Hawaii — https://olvr.hawaii.gov/Controls/CandidateFiling.aspx?elid=94
+ // Governor · REPUBLICAN
+ "gary_cordery": {
+  "name": "Gary CORDERY", "office": "Governor Candidate",
+  "state": "Hawaii",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HI-1 · REPUBLICAN
+ "adriel_lam": {
+  "name": "Adriel C. LAM", "office": "U.S. House Candidate (HI-1)",
+  "state": "Hawaii", "district": "1",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HI-1 · GREEN
+ "jordan_conley": {
+  "name": "Jordan S. CONLEY", "office": "U.S. House Candidate (HI-1)",
+  "state": "Hawaii", "district": "1",
+  "party": "GREEN", "partyFiled": "GREEN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HI-1 · NONPARTISAN
+ "nathan_berning": {
+  "name": "Nathan M. BERNING", "office": "U.S. House Candidate (HI-1)",
+  "state": "Hawaii", "district": "1",
+  "party": "NONPARTISAN", "partyFiled": "NONPARTISAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HI-2 · REPUBLICAN
+ "brenton_awa": {
+  "name": "Brenton AWA", "office": "U.S. House Candidate (HI-2)",
+  "state": "Hawaii", "district": "2",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Idaho — https://run.voteidaho.gov/
+ // Governor · Independent
+ "john_stegner": {
+  "name": "John R. Stegner", "office": "Governor Candidate",
+  "state": "Idaho",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Libertarian
+ "paul_sand": {
+  "name": "Paul Sand", "office": "Governor Candidate",
+  "state": "Idaho",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Constitution
+ "pro_life": {
+  "name": "Pro-Life", "office": "Governor Candidate",
+  "state": "Idaho",
+  "party": "Constitution", "partyFiled": "Constitution", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Democratic
+ "terri_pickens": {
+  "name": "Terri Pickens", "office": "Governor Candidate",
+  "state": "Idaho",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Democratic
+ "lori_hickman": {
+  "name": "Lori Hickman", "office": "Attorney General Candidate",
+  "state": "Idaho",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // ID-1 · Constitution
+ "brendan_gomez": {
+  "name": "Brendan J. Gomez", "office": "U.S. House Candidate (ID-1)",
+  "state": "Idaho", "district": "1",
+  "party": "Constitution", "partyFiled": "Constitution", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // ID-1 · Democratic
+ "kaylee_peterson": {
+  "name": "Kaylee Peterson", "office": "U.S. House Candidate (ID-1)",
+  "state": "Idaho", "district": "1",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // ID-2 · Democratic
+ "ellie_gilbreath": {
+  "name": "Ellie Gilbreath", "office": "U.S. House Candidate (ID-2)",
+  "state": "Idaho", "district": "2",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // ID-2 · Independent
+ "emre_houser": {
+  "name": "Emre Houser", "office": "U.S. House Candidate (ID-2)",
+  "state": "Idaho", "district": "2",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // ID-2 · Independent
+ "tripp_hutchinson": {
+  "name": "Tripp Charles Hutchinson", "office": "U.S. House Candidate (ID-2)",
+  "state": "Idaho", "district": "2",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Illinois — https://www.elections.il.gov/ElectionOperations/DownloadCandidates.aspx?ID=sejIrI%2bQmww%3d
+ // U.S. Senate · REPUBLICAN
+ "don_tracy": {
+  "name": "Don Tracy", "office": "U.S. Senate Candidate",
+  "state": "Illinois",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. Senate · DEMOCRATIC
+ "juliana_stratton": {
+  "name": "Juliana Stratton", "office": "U.S. Senate Candidate",
+  "state": "Illinois",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · INDEPENDENT
+ "collin_corbett": {
+  "name": "Collin Corbett", "office": "Governor Candidate",
+  "state": "Illinois",
+  "party": "INDEPENDENT", "partyFiled": "INDEPENDENT", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · REPUBLICAN
+ "darren_bailey": {
+  "name": "Darren Bailey", "office": "Governor Candidate",
+  "state": "Illinois",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · REPUBLICAN
+ "robert_fioretti": {
+  "name": "Robert W. Fioretti", "office": "Attorney General Candidate",
+  "state": "Illinois",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-1 · REPUBLICAN
+ "christian_maxwell": {
+  "name": "Christian Maxwell", "office": "U.S. House Candidate (IL-1)",
+  "state": "Illinois", "district": "1",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-2 · DEMOCRATIC
+ "donna_miller": {
+  "name": "Donna Miller", "office": "U.S. House Candidate (IL-2)",
+  "state": "Illinois", "district": "2",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-2 · REPUBLICAN
+ "michael_noack": {
+  "name": "Michael Scott Noack", "office": "U.S. House Candidate (IL-2)",
+  "state": "Illinois", "district": "2",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-3 · REPUBLICAN
+ "angel_oakley": {
+  "name": "Angel Oakley", "office": "U.S. House Candidate (IL-3)",
+  "state": "Illinois", "district": "3",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-4 · REPUBLICAN
+ "lupe_castillo": {
+  "name": "Lupe Castillo", "office": "U.S. House Candidate (IL-4)",
+  "state": "Illinois", "district": "4",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-4 · DEMOCRATIC
+ "patty_garcia": {
+  "name": "Patty Garcia", "office": "U.S. House Candidate (IL-4)",
+  "state": "Illinois", "district": "4",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-5 · REPUBLICAN
+ "tommy_hanson": {
+  "name": "Tommy Hanson", "office": "U.S. House Candidate (IL-5)",
+  "state": "Illinois", "district": "5",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-6 · REPUBLICAN
+ "niki_conforti": {
+  "name": "Niki Conforti", "office": "U.S. House Candidate (IL-6)",
+  "state": "Illinois", "district": "6",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-7 · REPUBLICAN
+ "chad_koppie": {
+  "name": "Chad Koppie", "office": "U.S. House Candidate (IL-7)",
+  "state": "Illinois", "district": "7",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-7 · DEMOCRATIC
+ "la_ford": {
+  "name": "La Shawn K. Ford", "office": "U.S. House Candidate (IL-7)",
+  "state": "Illinois", "district": "7",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-8 · REPUBLICAN
+ "jennifer_davis": {
+  "name": "Jennifer Davis", "office": "U.S. House Candidate (IL-8)",
+  "state": "Illinois", "district": "8",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-8 · DEMOCRATIC
+ "melissa_bean": {
+  "name": "Melissa L. Bean", "office": "U.S. House Candidate (IL-8)",
+  "state": "Illinois", "district": "8",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-9 · DEMOCRATIC
+ "daniel_biss": {
+  "name": "Daniel Biss", "office": "U.S. House Candidate (IL-9)",
+  "state": "Illinois", "district": "9",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-9 · REPUBLICAN
+ "john_elleson": {
+  "name": "John Elleson", "office": "U.S. House Candidate (IL-9)",
+  "state": "Illinois", "district": "9",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-10 · REPUBLICAN
+ "carl_lambrecht": {
+  "name": "Carl Lambrecht", "office": "U.S. House Candidate (IL-10)",
+  "state": "Illinois", "district": "10",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-11 · REPUBLICAN
+ "jeff_walter": {
+  "name": "Jeff Walter", "office": "U.S. House Candidate (IL-11)",
+  "state": "Illinois", "district": "11",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-12 · DEMOCRATIC
+ "julie_fortier": {
+  "name": "Julie Fortier", "office": "U.S. House Candidate (IL-12)",
+  "state": "Illinois", "district": "12",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-13 · REPUBLICAN
+ "jeff_wilson": {
+  "name": "Jeff Wilson", "office": "U.S. House Candidate (IL-13)",
+  "state": "Illinois", "district": "13",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-14 · REPUBLICAN
+ "james_marter": {
+  "name": "James T. \"Jim\" Marter", "office": "U.S. House Candidate (IL-14)",
+  "state": "Illinois", "district": "14",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-15 · DEMOCRATIC
+ "jennifer_todd": {
+  "name": "Jennifer Todd", "office": "U.S. House Candidate (IL-15)",
+  "state": "Illinois", "district": "15",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-16 · DEMOCRATIC
+ "paul_nolley": {
+  "name": "Paul Nolley", "office": "U.S. House Candidate (IL-16)",
+  "state": "Illinois", "district": "16",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-17 · REPUBLICAN
+ "dillan_vancil": {
+  "name": "Dillan S. Vancil", "office": "U.S. House Candidate (IL-17)",
+  "state": "Illinois", "district": "17",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Indiana — https://www.in.gov/sos/elections/files/Candidate_List_Abbreviated_20260922_011251PM.xlsx
+ // Secretary of State · Democratic
+ "beau_bayh": {
+  "name": "Beau Bayh", "office": "Secretary of State Candidate",
+  "state": "Indiana",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Secretary of State · Lincoln Party
+ "greg_ballard": {
+  "name": "Greg Ballard", "office": "Secretary of State Candidate",
+  "state": "Indiana",
+  "party": "Lincoln Party", "partyFiled": "Lincoln Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Secretary of State · Libertarian
+ "lauri_shillings": {
+  "name": "Lauri A. Shillings", "office": "Secretary of State Candidate",
+  "state": "Indiana",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Secretary of State · Republican
+ "max_engling": {
+  "name": "Max Engling", "office": "Secretary of State Candidate",
+  "state": "Indiana",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IN-1 · Republican
+ "barb_regnitz": {
+  "name": "Barb Regnitz", "office": "U.S. House Candidate (IN-1)",
+  "state": "Indiana", "district": "1",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IN-2 · Democratic
+ "jamee_decio": {
+  "name": "Jamee Decio", "office": "U.S. House Candidate (IN-2)",
+  "state": "Indiana", "district": "2",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IN-2 · Libertarian
+ "william_henry": {
+  "name": "William Eric Henry", "office": "U.S. House Candidate (IN-2)",
+  "state": "Indiana", "district": "2",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IN-3 · Democratic
+ "kelly_thompson": {
+  "name": "Kelly Thompson", "office": "U.S. House Candidate (IN-3)",
+  "state": "Indiana", "district": "3",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IN-4 · Democratic
+ "drew_cox": {
+  "name": "Drew Cox", "office": "U.S. House Candidate (IN-4)",
+  "state": "Indiana", "district": "4",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IN-5 · Democratic
+ "jd_ford": {
+  "name": "J.D. Ford", "office": "U.S. House Candidate (IN-5)",
+  "state": "Indiana", "district": "5",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IN-6 · Democratic
+ "cynthia_wirth": {
+  "name": "Cynthia (Cinde) Wirth", "office": "U.S. House Candidate (IN-6)",
+  "state": "Indiana", "district": "6",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IN-7 · Libertarian
+ "james_sceniak": {
+  "name": "James M Sceniak", "office": "U.S. House Candidate (IN-7)",
+  "state": "Indiana", "district": "7",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IN-7 · Republican
+ "patrick_mcauley": {
+  "name": "Patrick McAuley", "office": "U.S. House Candidate (IN-7)",
+  "state": "Indiana", "district": "7",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IN-8 · Democratic
+ "mary_allen": {
+  "name": "Mary Allen", "office": "U.S. House Candidate (IN-8)",
+  "state": "Indiana", "district": "8",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IN-9 · Democratic
+ "brad_meyer": {
+  "name": "Brad A. Meyer", "office": "U.S. House Candidate (IN-9)",
+  "state": "Indiana", "district": "9",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IN-9 · Libertarian
+ "tonya_hudson": {
+  "name": "Tonya L. Hudson", "office": "U.S. House Candidate (IN-9)",
+  "state": "Indiana", "district": "9",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Iowa — https://sos.iowa.gov/sites/default/files/2026-08/2026%20General%20-%20Candidate%20List%20Database%20-%20All%20Elections_1.pdf
+ // U.S. Senate · Democratic
+ "josh_turek": {
+  "name": "Josh Turek", "office": "U.S. Senate Candidate",
+  "state": "Iowa",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Democratic
+ "rob_sand": {
+  "name": "Rob Sand", "office": "Governor Candidate",
+  "state": "Iowa",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Republican
+ "zach_lahn": {
+  "name": "Zach Lahn", "office": "Governor Candidate",
+  "state": "Iowa",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Democratic
+ "nate_willems": {
+  "name": "Nate Willems", "office": "Attorney General Candidate",
+  "state": "Iowa",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IA-1 · Democratic
+ "christina_bohannan": {
+  "name": "Christina Bohannan", "office": "U.S. House Candidate (IA-1)",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/ChristinaBohannan.jpg/500px-ChristinaBohannan.jpg",
+  "state": "Iowa", "district": "1",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IA-2 · Republican
+ "joe_mitchell": {
+  "name": "Joe Mitchell", "office": "U.S. House Candidate (IA-2)",
+  "state": "Iowa", "district": "2",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IA-2 · Democratic
+ "lindsay_james": {
+  "name": "Lindsay James", "office": "U.S. House Candidate (IA-2)",
+  "state": "Iowa", "district": "2",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IA-3 · Democratic
+ "sarah_trone_garriott": {
+  "name": "Sarah Trone Garriott", "office": "U.S. House Candidate (IA-3)",
+  "state": "Iowa", "district": "3",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IA-4 · Republican
+ "chris_mcgowan": {
+  "name": "Chris McGowan", "office": "U.S. House Candidate (IA-4)",
+  "state": "Iowa", "district": "4",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IA-4 · Democratic
+ "dave_dawson": {
+  "name": "Dave Dawson", "office": "U.S. House Candidate (IA-4)",
+  "state": "Iowa", "district": "4",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Kentucky — https://web.sos.ky.gov/CandidateFilings/Default.aspx?id=3
+ // U.S. Senate · Democratic Party
+ "charles_booker": {
+  "name": "Charles Booker", "office": "U.S. Senate Candidate",
+  "state": "Kentucky",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // KY-1 · Democratic Party
+ "john_williams": {
+  "name": "John \"Drew\" Williams", "office": "U.S. House Candidate (KY-1)",
+  "state": "Kentucky", "district": "1",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // KY-2 · Democratic Party
+ "megan_wingfield": {
+  "name": "Megan Wingfield", "office": "U.S. House Candidate (KY-2)",
+  "state": "Kentucky", "district": "2",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // KY-3 · Republican Party
+ "maria_rodriguez": {
+  "name": "Maria Teresa Rodriguez", "office": "U.S. House Candidate (KY-3)",
+  "state": "Kentucky", "district": "3",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // KY-4 · Democratic Party
+ "melissa_strange": {
+  "name": "Melissa Claire Strange", "office": "U.S. House Candidate (KY-4)",
+  "state": "Kentucky", "district": "4",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // KY-5 · Democratic Party
+ "ned_pillersdorf": {
+  "name": "Ned Pillersdorf", "office": "U.S. House Candidate (KY-5)",
+  "state": "Kentucky", "district": "5",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // KY-6 · Republican Party
+ "ralph_alvarado": {
+  "name": "Ralph Alvarado", "office": "U.S. House Candidate (KY-6)",
+  "state": "Kentucky", "district": "6",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // KY-6 · Democratic Party
+ "zach_dembo": {
+  "name": "Zach Dembo", "office": "U.S. House Candidate (KY-6)",
+  "state": "Kentucky", "district": "6",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Louisiana — https://voterportal.sos.la.gov/ElectionResults/ElectionResults/Data?blob=20261103/RacesCandidates_Multiparish.htm
+ // U.S. Senate · Democrat
+ "davis": {
+  "name": "\"Jamie\" Davis", "office": "U.S. Senate Candidate",
+  "state": "Louisiana",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-1 · No Party
+ "glass": {
+  "name": "E. \"Liddy\" Glass", "office": "U.S. House Candidate (LA-1)",
+  "state": "Louisiana", "district": "1",
+  "party": "No Party", "partyFiled": "No Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-1 · Democrat
+ "lauren_jewett": {
+  "name": "Lauren Jewett", "office": "U.S. House Candidate (LA-1)",
+  "state": "Louisiana", "district": "1",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-1 · Republican
+ "randall_arrington": {
+  "name": "Randall Arrington", "office": "U.S. House Candidate (LA-1)",
+  "state": "Louisiana", "district": "1",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-2 · Libertarian
+ "lisa_ballay": {
+  "name": "Lisa Ballay", "office": "U.S. House Candidate (LA-2)",
+  "state": "Louisiana", "district": "2",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-2 · Republican
+ "peter_williams": {
+  "name": "Peter Williams", "office": "U.S. House Candidate (LA-2)",
+  "state": "Louisiana", "district": "2",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-2 · No Party
+ "renada_collins": {
+  "name": "Renada \"Honey\" Collins", "office": "U.S. House Candidate (LA-2)",
+  "state": "Louisiana", "district": "2",
+  "party": "No Party", "partyFiled": "No Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-2 · No Party
+ "walter_beach": {
+  "name": "Walter \"Rocky\" Beach", "office": "U.S. House Candidate (LA-2)",
+  "state": "Louisiana", "district": "2",
+  "party": "No Party", "partyFiled": "No Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-3 · Republican
+ "cotten": {
+  "name": "\"Kate\" Cotten", "office": "U.S. House Candidate (LA-3)",
+  "state": "Louisiana", "district": "3",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-3 · Democrat
+ "caleb_walker": {
+  "name": "Caleb \"With a C\" Walker", "office": "U.S. House Candidate (LA-3)",
+  "state": "Louisiana", "district": "3",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-3 · Democrat
+ "john_day": {
+  "name": "John Day", "office": "U.S. House Candidate (LA-3)",
+  "state": "Louisiana", "district": "3",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-3 · Democrat
+ "priscilla_gonzalez": {
+  "name": "Priscilla Gonzalez", "office": "U.S. House Candidate (LA-3)",
+  "state": "Louisiana", "district": "3",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-3 · No Party
+ "tia_lebrun": {
+  "name": "Tia LeBrun", "office": "U.S. House Candidate (LA-3)",
+  "state": "Louisiana", "district": "3",
+  "party": "No Party", "partyFiled": "No Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-4 · Democrat
+ "gromlich": {
+  "name": "\"Matt\" Gromlich", "office": "U.S. House Candidate (LA-4)",
+  "state": "Louisiana", "district": "4",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-4 · Republican
+ "nichols": {
+  "name": "\"Mike\" Nichols", "office": "U.S. House Candidate (LA-4)",
+  "state": "Louisiana", "district": "4",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-4 · Democrat
+ "conrad_cable": {
+  "name": "Conrad Cable", "office": "U.S. House Candidate (LA-4)",
+  "state": "Louisiana", "district": "4",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-4 · Republican
+ "gordon_heslop": {
+  "name": "Gordon Heslop", "office": "U.S. House Candidate (LA-4)",
+  "state": "Louisiana", "district": "4",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-5 · Republican
+ "firment": {
+  "name": "\"Gabe\" Firment", "office": "U.S. House Candidate (LA-5)",
+  "state": "Louisiana", "district": "5",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-5 · Democrat
+ "antonio_wilson": {
+  "name": "Antonio Wilson", "office": "U.S. House Candidate (LA-5)",
+  "state": "Louisiana", "district": "5",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-5 · Republican
+ "austin_magee": {
+  "name": "Austin Magee", "office": "U.S. House Candidate (LA-5)",
+  "state": "Louisiana", "district": "5",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-5 · Democrat
+ "dan_mckay": {
+  "name": "Dan McKay", "office": "U.S. House Candidate (LA-5)",
+  "state": "Louisiana", "district": "5",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-5 · Republican
+ "michael_echols": {
+  "name": "Michael Echols", "office": "U.S. House Candidate (LA-5)",
+  "state": "Louisiana", "district": "5",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-5 · Republican
+ "misti_cordell": {
+  "name": "Misti Cordell", "office": "U.S. House Candidate (LA-5)",
+  "state": "Louisiana", "district": "5",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-5 · Republican
+ "oscar_dantzler": {
+  "name": "Oscar \"Omar\" Dantzler", "office": "U.S. House Candidate (LA-5)",
+  "state": "Louisiana", "district": "5",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-5 · Democrat
+ "patricia_moore": {
+  "name": "Patricia \"Pat\" Moore", "office": "U.S. House Candidate (LA-5)",
+  "state": "Louisiana", "district": "5",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-5 · Republican
+ "stewart_cathey": {
+  "name": "Stewart Cathey, Jr.", "office": "U.S. House Candidate (LA-5)",
+  "state": "Louisiana", "district": "5",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-6 · Republican
+ "edmonds": {
+  "name": "\"Rick\" Edmonds", "office": "U.S. House Candidate (LA-6)",
+  "state": "Louisiana", "district": "6",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-6 · Republican
+ "blake_miguez": {
+  "name": "Blake Miguez", "office": "U.S. House Candidate (LA-6)",
+  "state": "Louisiana", "district": "6",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-6 · Democrat
+ "chauna_banks": {
+  "name": "Chauna Banks", "office": "U.S. House Candidate (LA-6)",
+  "state": "Louisiana", "district": "6",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-6 · Republican
+ "larry_davis": {
+  "name": "Larry Davis III", "office": "U.S. House Candidate (LA-6)",
+  "state": "Louisiana", "district": "6",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-6 · Democrat
+ "lindsay_garcia": {
+  "name": "Lindsay \"Rubia\" Garcia", "office": "U.S. House Candidate (LA-6)",
+  "state": "Louisiana", "district": "6",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-6 · Republican
+ "michael_mebruer": {
+  "name": "Michael Mebruer", "office": "U.S. House Candidate (LA-6)",
+  "state": "Louisiana", "district": "6",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-6 · Republican
+ "monique_appeaning": {
+  "name": "Monique Appeaning", "office": "U.S. House Candidate (LA-6)",
+  "state": "Louisiana", "district": "6",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-6 · Democrat
+ "patrick_forbes": {
+  "name": "Patrick \"Pat\" Forbes", "office": "U.S. House Candidate (LA-6)",
+  "state": "Louisiana", "district": "6",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-6 · Libertarian
+ "rufus_craig": {
+  "name": "Rufus Craig", "office": "U.S. House Candidate (LA-6)",
+  "state": "Louisiana", "district": "6",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-6 · Republican
+ "stephen_wagley": {
+  "name": "Stephen Wagley", "office": "U.S. House Candidate (LA-6)",
+  "state": "Louisiana", "district": "6",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Maine — https://www.maine.gov/sos/sites/maine.gov.sos/files/inline-files/2026%20General%20Candidate%20List%20-%20FINAL.xlsx
+ // U.S. Senate · D
+ "troy_jackson": {
+  "name": "Troy D. Jackson", "office": "U.S. Senate Candidate",
+  "state": "Maine",
+  "party": "D", "partyFiled": "D", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · D
+ "hannah_pingree": {
+  "name": "Hannah M. Pingree", "office": "Governor Candidate",
+  "state": "Maine",
+  "party": "D", "partyFiled": "D", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Independent
+ "rick_bennett": {
+  "name": "Rick Bennett", "office": "Governor Candidate",
+  "state": "Maine",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · R
+ "robert_charles": {
+  "name": "Robert B. Charles", "office": "Governor Candidate",
+  "state": "Maine",
+  "party": "R", "partyFiled": "R", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // ME-1 · R
+ "ronald_russell_me": {
+  "name": "Ronald C. Russell", "office": "U.S. House Candidate (ME-1)",
+  "state": "Maine", "district": "1",
+  "party": "R", "partyFiled": "R", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // ME-2 · D
+ "matthew_dunlap": {
+  "name": "Matthew G. Dunlap", "office": "U.S. House Candidate (ME-2)",
+  "state": "Maine", "district": "2",
+  "party": "D", "partyFiled": "D", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // ME-2 · R
+ "paul_lepage": {
+  "name": "Paul R. LePage", "office": "U.S. House Candidate (ME-2)",
+  "state": "Maine", "district": "2",
+  "party": "R", "partyFiled": "R", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Maryland — https://elections.maryland.gov/elections/2026/general_candidates/2026_GG_attorneygeneral_candidatelist.csv
+ // Governor · Green
+ "andy_ellis": {
+  "name": "Andy Ellis", "office": "Governor Candidate",
+  "state": "Maryland",
+  "party": "Green", "partyFiled": "Green", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Working Class Party
+ "cathy_white": {
+  "name": "Cathy White", "office": "Governor Candidate",
+  "state": "Maryland",
+  "party": "Working Class Party", "partyFiled": "Working Class Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Republican
+ "dan_cox": {
+  "name": "Dan Cox", "office": "Governor Candidate",
+  "state": "Maryland",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Republican
+ "james_rutledge": {
+  "name": "James B. Rutledge, III", "office": "Attorney General Candidate",
+  "state": "Maryland",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MD-1 · Democratic
+ "dan_schwartz": {
+  "name": "Dan Schwartz", "office": "U.S. House Candidate (MD-1)",
+  "state": "Maryland", "district": "1",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MD-2 · Republican
+ "dave_wallace": {
+  "name": "Dave Wallace", "office": "U.S. House Candidate (MD-2)",
+  "state": "Maryland", "district": "2",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MD-3 · Republican
+ "berney_flowers": {
+  "name": "Berney Flowers", "office": "U.S. House Candidate (MD-3)",
+  "state": "Maryland", "district": "3",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MD-4 · Republican
+ "george_mcdermott": {
+  "name": "George E. McDermott", "office": "U.S. House Candidate (MD-4)",
+  "state": "Maryland", "district": "4",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MD-4 · Green
+ "sam_husseini": {
+  "name": "Sam Husseini", "office": "U.S. House Candidate (MD-4)",
+  "state": "Maryland", "district": "4",
+  "party": "Green", "partyFiled": "Green", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MD-5 · Democratic
+ "adrian_boafo": {
+  "name": "Adrian Boafo", "office": "U.S. House Candidate (MD-5)",
+  "state": "Maryland", "district": "5",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MD-5 · Republican
+ "chris_chaffee": {
+  "name": "Chris Chaffee", "office": "U.S. House Candidate (MD-5)",
+  "state": "Maryland", "district": "5",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MD-6 · Green
+ "moshe_landman": {
+  "name": "Moshe Y. Landman", "office": "U.S. House Candidate (MD-6)",
+  "state": "Maryland", "district": "6",
+  "party": "Green", "partyFiled": "Green", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MD-6 · Republican
+ "robin_ficker": {
+  "name": "Robin Ficker", "office": "U.S. House Candidate (MD-6)",
+  "state": "Maryland", "district": "6",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MD-7 · Republican
+ "scott_collier": {
+  "name": "Scott M. Collier", "office": "U.S. House Candidate (MD-7)",
+  "state": "Maryland", "district": "7",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MD-8 · Republican
+ "cheryl_riley": {
+  "name": "Cheryl Riley", "office": "U.S. House Candidate (MD-8)",
+  "state": "Maryland", "district": "8",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MD-8 · Green
+ "nancy_wallace": {
+  "name": "Nancy Wallace", "office": "U.S. House Candidate (MD-8)",
+  "state": "Maryland", "district": "8",
+  "party": "Green", "partyFiled": "Green", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Massachusetts — https://www.sec.state.ma.us/divisions/elections/research-and-statistics/2026-state-election-candidates.htm
+ // U.S. Senate · Republican
+ "john_deaton": {
+  "name": "John Deaton", "office": "U.S. Senate Candidate",
+  "state": "Massachusetts",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Republican
+ "michael_walsh": {
+  "name": "Michael C. Walsh", "office": "Attorney General Candidate",
+  "state": "Massachusetts",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MA-1 · Independent/Unenrolled
+ "nadia_milleron": {
+  "name": "Nadia Donya Milleron", "office": "U.S. House Candidate (MA-1)",
+  "state": "Massachusetts", "district": "1",
+  "party": "Independent/Unenrolled", "partyFiled": "Independent/Unenrolled", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MA-3 · Unenrolled
+ "dennis_conlon": {
+  "name": "Dennis R. Conlon", "office": "U.S. House Candidate (MA-3)",
+  "state": "Massachusetts", "district": "3",
+  "party": "Unenrolled", "partyFiled": "Unenrolled", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MA-3 · Republican
+ "gary_grossi": {
+  "name": "Gary J. Grossi", "office": "U.S. House Candidate (MA-3)",
+  "state": "Massachusetts", "district": "3",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MA-4 · Republican
+ "thomas_stalcup": {
+  "name": "Thomas Stalcup", "office": "U.S. House Candidate (MA-4)",
+  "state": "Massachusetts", "district": "4",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MA-6 · Democratic
+ "dan_koh": {
+  "name": "Dan Koh", "office": "U.S. House Candidate (MA-6)",
+  "state": "Massachusetts", "district": "6",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MA-6 · Republican
+ "micah_jones": {
+  "name": "Micah Quinney Jones", "office": "U.S. House Candidate (MA-6)",
+  "state": "Massachusetts", "district": "6",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MA-8 · Independent
+ "rasheed_walters": {
+  "name": "Rasheed Nicholas Walters", "office": "U.S. House Candidate (MA-8)",
+  "state": "Massachusetts", "district": "8",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MA-8 · Republican
+ "robert_burke": {
+  "name": "Robert G. Burke", "office": "U.S. House Candidate (MA-8)",
+  "state": "Massachusetts", "district": "8",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MA-9 · Republican
+ "tyler_macallister": {
+  "name": "R. Tyler Macallister", "office": "U.S. House Candidate (MA-9)",
+  "state": "Massachusetts", "district": "9",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Michigan — https://mi-boe.entellitrak.com/etk-mi-boe-prod/page.request.do?page=page.miboePublicReport&electionType=GEN&electionYear=2026
+ // U.S. Senate · Democratic Party
+ "abdul_el_sayed": {
+  "name": "Abdul El-Sayed", "office": "U.S. Senate Candidate",
+  "state": "Michigan",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. Senate · U.S. Taxpayers Party
+ "tim_long": {
+  "name": "Tim Long", "office": "U.S. Senate Candidate",
+  "state": "Michigan",
+  "party": "U.S. Taxpayers Party", "partyFiled": "U.S. Taxpayers Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. Senate · Natural Law Party
+ "walter_kristy": {
+  "name": "Walter P. Kristy", "office": "U.S. Senate Candidate",
+  "state": "Michigan",
+  "party": "Natural Law Party", "partyFiled": "Natural Law Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Libertarian Party
+ "anthony_hudson": {
+  "name": "Anthony Hudson", "office": "Governor Candidate",
+  "state": "Michigan",
+  "party": "Libertarian Party", "partyFiled": "Libertarian Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · U.S. Taxpayers Party
+ "donna_brandenburg": {
+  "name": "Donna Brandenburg", "office": "Governor Candidate",
+  "state": "Michigan",
+  "party": "U.S. Taxpayers Party", "partyFiled": "U.S. Taxpayers Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Green Party
+ "douglas_campbell": {
+  "name": "Douglas Campbell", "office": "Governor Candidate",
+  "state": "Michigan",
+  "party": "Green Party", "partyFiled": "Green Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Lieutenant Governor · Libertarian Party
+ "beau_parmenter": {
+  "name": "Beau Parmenter", "office": "Lieutenant Governor Candidate",
+  "state": "Michigan",
+  "party": "Libertarian Party", "partyFiled": "Libertarian Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Lieutenant Governor · Green Party
+ "bobbie_clay": {
+  "name": "Bobbie Clay", "office": "Lieutenant Governor Candidate",
+  "state": "Michigan",
+  "party": "Green Party", "partyFiled": "Green Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Lieutenant Governor · Republican Party
+ "jay_deboyer": {
+  "name": "Jay DeBoyer", "office": "Lieutenant Governor Candidate",
+  "state": "Michigan",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Lieutenant Governor · U.S. Taxpayers Party
+ "robert_cowper": {
+  "name": "Robert Donald Cowper II", "office": "Lieutenant Governor Candidate",
+  "state": "Michigan",
+  "party": "U.S. Taxpayers Party", "partyFiled": "U.S. Taxpayers Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Natural Law Party
+ "doug_dern": {
+  "name": "Doug Dern", "office": "Attorney General Candidate",
+  "state": "Michigan",
+  "party": "Natural Law Party", "partyFiled": "Natural Law Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Republican Party
+ "doug_lloyd": {
+  "name": "Doug Lloyd", "office": "Attorney General Candidate",
+  "state": "Michigan",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Democratic Party
+ "eli_savit": {
+  "name": "Eli Savit", "office": "Attorney General Candidate",
+  "state": "Michigan",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Libertarian Party
+ "jason_dye": {
+  "name": "Jason Dye", "office": "Attorney General Candidate",
+  "state": "Michigan",
+  "party": "Libertarian Party", "partyFiled": "Libertarian Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Green Party
+ "jeff_polonowski": {
+  "name": "Jeff Polonowski", "office": "Attorney General Candidate",
+  "state": "Michigan",
+  "party": "Green Party", "partyFiled": "Green Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · U.S. Taxpayers Party
+ "john_ludtke": {
+  "name": "John Perry Ludtke Jr.", "office": "Attorney General Candidate",
+  "state": "Michigan",
+  "party": "U.S. Taxpayers Party", "partyFiled": "U.S. Taxpayers Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Secretary of State · Republican Party
+ "anthony_forlini": {
+  "name": "Anthony G. Forlini", "office": "Secretary of State Candidate",
+  "state": "Michigan",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Secretary of State · Libertarian Party
+ "christine_sloan": {
+  "name": "Christine Sloan", "office": "Secretary of State Candidate",
+  "state": "Michigan",
+  "party": "Libertarian Party", "partyFiled": "Libertarian Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Secretary of State · Green Party
+ "eric_borregard": {
+  "name": "Eric Borregard", "office": "Secretary of State Candidate",
+  "state": "Michigan",
+  "party": "Green Party", "partyFiled": "Green Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Secretary of State · U.S. Taxpayers Party
+ "scott_aughney": {
+  "name": "Scott E. Aughney", "office": "Secretary of State Candidate",
+  "state": "Michigan",
+  "party": "U.S. Taxpayers Party", "partyFiled": "U.S. Taxpayers Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-1 · Libertarian Party
+ "arnett_satterla": {
+  "name": "Arnett Satterla", "office": "U.S. House Candidate (MI-1)",
+  "state": "Michigan", "district": "1",
+  "party": "Libertarian Party", "partyFiled": "Libertarian Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-1 · Democratic Party
+ "callie_barr": {
+  "name": "Callie Barr", "office": "U.S. House Candidate (MI-1)",
+  "state": "Michigan", "district": "1",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-1 · U.S. Taxpayers Party
+ "doc_kovaly": {
+  "name": "Doc Kovaly", "office": "U.S. House Candidate (MI-1)",
+  "state": "Michigan", "district": "1",
+  "party": "U.S. Taxpayers Party", "partyFiled": "U.S. Taxpayers Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-1 · Green Party
+ "laveta_davenport": {
+  "name": "LaVeta Davenport", "office": "U.S. House Candidate (MI-1)",
+  "state": "Michigan", "district": "1",
+  "party": "Green Party", "partyFiled": "Green Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-1 · Working Class Party
+ "liz_hakola": {
+  "name": "Liz Hakola", "office": "U.S. House Candidate (MI-1)",
+  "state": "Michigan", "district": "1",
+  "party": "Working Class Party", "partyFiled": "Working Class Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-1 · No Party Affiliation
+ "zebulon_featherly": {
+  "name": "Zebulon Featherly", "office": "U.S. House Candidate (MI-1)",
+  "state": "Michigan", "district": "1",
+  "party": "No Party Affiliation", "partyFiled": "No Party Affiliation", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-2 · Democratic Party
+ "ben_ambrose": {
+  "name": "Ben Ambrose", "office": "U.S. House Candidate (MI-2)",
+  "state": "Michigan", "district": "2",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-2 · Green Party
+ "charlotte_magoon": {
+  "name": "Charlotte Magoon", "office": "U.S. House Candidate (MI-2)",
+  "state": "Michigan", "district": "2",
+  "party": "Green Party", "partyFiled": "Green Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-2 · Natural Law Party
+ "richard_sills": {
+  "name": "Richard Sills", "office": "U.S. House Candidate (MI-2)",
+  "state": "Michigan", "district": "2",
+  "party": "Natural Law Party", "partyFiled": "Natural Law Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-3 · Green Party
+ "joe_jock": {
+  "name": "Joe Jock", "office": "U.S. House Candidate (MI-3)",
+  "state": "Michigan", "district": "3",
+  "party": "Green Party", "partyFiled": "Green Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-3 · Republican Party
+ "terri_deboer": {
+  "name": "Terri DeBoer", "office": "U.S. House Candidate (MI-3)",
+  "state": "Michigan", "district": "3",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-4 · Democratic Party
+ "sean_mccann": {
+  "name": "Sean McCann", "office": "U.S. House Candidate (MI-4)",
+  "state": "Michigan", "district": "4",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-4 · Green Party
+ "shafina_barnett": {
+  "name": "Shafina Che Barnett", "office": "U.S. House Candidate (MI-4)",
+  "state": "Michigan", "district": "4",
+  "party": "Green Party", "partyFiled": "Green Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-5 · Democratic Party
+ "christian_vukasovich": {
+  "name": "Christian Vukasovich", "office": "U.S. House Candidate (MI-5)",
+  "state": "Michigan", "district": "5",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-5 · Green Party
+ "jim_bronke": {
+  "name": "Jim Bronke", "office": "U.S. House Candidate (MI-5)",
+  "state": "Michigan", "district": "5",
+  "party": "Green Party", "partyFiled": "Green Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-5 · Libertarian Party
+ "ronald_muszynski": {
+  "name": "Ronald A Muszynski", "office": "U.S. House Candidate (MI-5)",
+  "state": "Michigan", "district": "5",
+  "party": "Libertarian Party", "partyFiled": "Libertarian Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-5 · U.S. Taxpayers Party
+ "sharon_renier": {
+  "name": "Sharon Marie Renier", "office": "U.S. House Candidate (MI-5)",
+  "state": "Michigan", "district": "5",
+  "party": "U.S. Taxpayers Party", "partyFiled": "U.S. Taxpayers Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-6 · Green Party
+ "clyde_shabazz": {
+  "name": "Clyde Shabazz", "office": "U.S. House Candidate (MI-6)",
+  "state": "Michigan", "district": "6",
+  "party": "Green Party", "partyFiled": "Green Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-6 · Republican Party
+ "heather_smiley": {
+  "name": "Heather Smiley", "office": "U.S. House Candidate (MI-6)",
+  "state": "Michigan", "district": "6",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-6 · Working Class Party
+ "linda_rayburn": {
+  "name": "Linda Rayburn", "office": "U.S. House Candidate (MI-6)",
+  "state": "Michigan", "district": "6",
+  "party": "Working Class Party", "partyFiled": "Working Class Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-6 · U.S. Taxpayers Party
+ "mike_mickevicius": {
+  "name": "Mike Mickevicius", "office": "U.S. House Candidate (MI-6)",
+  "state": "Michigan", "district": "6",
+  "party": "U.S. Taxpayers Party", "partyFiled": "U.S. Taxpayers Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-6 · Libertarian Party
+ "timothy_teagan": {
+  "name": "Timothy A. Teagan", "office": "U.S. House Candidate (MI-6)",
+  "state": "Michigan", "district": "6",
+  "party": "Libertarian Party", "partyFiled": "Libertarian Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-7 · Green Party
+ "shane_dedrick": {
+  "name": "Shane Dedrick", "office": "U.S. House Candidate (MI-7)",
+  "state": "Michigan", "district": "7",
+  "party": "Green Party", "partyFiled": "Green Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-7 · Democratic Party
+ "william_lawrence": {
+  "name": "William Lawrence", "office": "U.S. House Candidate (MI-7)",
+  "state": "Michigan", "district": "7",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-8 · Libertarian Party
+ "mia_pettus": {
+  "name": "C. Mia Pettus", "office": "U.S. House Candidate (MI-8)",
+  "state": "Michigan", "district": "8",
+  "party": "Libertarian Party", "partyFiled": "Libertarian Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-8 · Green Party
+ "jim_casha": {
+  "name": "Jim Casha", "office": "U.S. House Candidate (MI-8)",
+  "state": "Michigan", "district": "8",
+  "party": "Green Party", "partyFiled": "Green Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-8 · Working Class Party
+ "kathy_goodwin": {
+  "name": "Kathy Goodwin", "office": "U.S. House Candidate (MI-8)",
+  "state": "Michigan", "district": "8",
+  "party": "Working Class Party", "partyFiled": "Working Class Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-8 · Republican Party
+ "thomas_smith": {
+  "name": "Thomas J. Smith", "office": "U.S. House Candidate (MI-8)",
+  "state": "Michigan", "district": "8",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-9 · Green Party
+ "destiny_clayton": {
+  "name": "Destiny Clayton", "office": "U.S. House Candidate (MI-9)",
+  "state": "Michigan", "district": "9",
+  "party": "Green Party", "partyFiled": "Green Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-9 · Working Class Party
+ "jim_walkowicz": {
+  "name": "Jim Walkowicz", "office": "U.S. House Candidate (MI-9)",
+  "state": "Michigan", "district": "9",
+  "party": "Working Class Party", "partyFiled": "Working Class Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-9 · U.S. Taxpayers Party
+ "john_vlahos": {
+  "name": "John Vlahos", "office": "U.S. House Candidate (MI-9)",
+  "state": "Michigan", "district": "9",
+  "party": "U.S. Taxpayers Party", "partyFiled": "U.S. Taxpayers Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-9 · Libertarian Party
+ "kevin_vayko": {
+  "name": "Kevin Vayko", "office": "U.S. House Candidate (MI-9)",
+  "state": "Michigan", "district": "9",
+  "party": "Libertarian Party", "partyFiled": "Libertarian Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-9 · Democratic Party
+ "ray_pooley": {
+  "name": "Ray Pooley", "office": "U.S. House Candidate (MI-9)",
+  "state": "Michigan", "district": "9",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-10 · Working Class Party
+ "andrea_kirby": {
+  "name": "Andrea L. Kirby", "office": "U.S. House Candidate (MI-10)",
+  "state": "Michigan", "district": "10",
+  "party": "Working Class Party", "partyFiled": "Working Class Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-10 · Democratic Party
+ "christina_hines": {
+  "name": "Christina Bertrand Hines", "office": "U.S. House Candidate (MI-10)",
+  "state": "Michigan", "district": "10",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-10 · Green Party
+ "kwabena_nkromo": {
+  "name": "Kwabena Nkromo", "office": "U.S. House Candidate (MI-10)",
+  "state": "Michigan", "district": "10",
+  "party": "Green Party", "partyFiled": "Green Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-10 · Republican Party
+ "michael_bouchard": {
+  "name": "Michael Bouchard", "office": "U.S. House Candidate (MI-10)",
+  "state": "Michigan", "district": "10",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-10 · Libertarian Party
+ "mike_saliba": {
+  "name": "Mike Saliba", "office": "U.S. House Candidate (MI-10)",
+  "state": "Michigan", "district": "10",
+  "party": "Libertarian Party", "partyFiled": "Libertarian Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-11 · No Party Affiliation
+ "anil_kumar": {
+  "name": "Anil Kumar", "office": "U.S. House Candidate (MI-11)",
+  "state": "Michigan", "district": "11",
+  "party": "No Party Affiliation", "partyFiled": "No Party Affiliation", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-11 · Republican Party
+ "ethan_baker": {
+  "name": "Ethan Baker", "office": "U.S. House Candidate (MI-11)",
+  "state": "Michigan", "district": "11",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-11 · Libertarian Party
+ "farid_ishac": {
+  "name": "Farid Ishac", "office": "U.S. House Candidate (MI-11)",
+  "state": "Michigan", "district": "11",
+  "party": "Libertarian Party", "partyFiled": "Libertarian Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-11 · Green Party
+ "ryan_teasdale": {
+  "name": "Ryan Teasdale", "office": "U.S. House Candidate (MI-11)",
+  "state": "Michigan", "district": "11",
+  "party": "Green Party", "partyFiled": "Green Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-12 · Green Party
+ "brenda_sanders": {
+  "name": "Brenda K. Sanders", "office": "U.S. House Candidate (MI-12)",
+  "state": "Michigan", "district": "12",
+  "party": "Green Party", "partyFiled": "Green Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-12 · Working Class Party
+ "gary_walkowicz": {
+  "name": "Gary Walkowicz", "office": "U.S. House Candidate (MI-12)",
+  "state": "Michigan", "district": "12",
+  "party": "Working Class Party", "partyFiled": "Working Class Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-12 · Republican Party
+ "james_hooper": {
+  "name": "James D. Hooper", "office": "U.S. House Candidate (MI-12)",
+  "state": "Michigan", "district": "12",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-12 · U.S. Taxpayers Party
+ "marc_sosnowski": {
+  "name": "Marc Joseph Sosnowski", "office": "U.S. House Candidate (MI-12)",
+  "state": "Michigan", "district": "12",
+  "party": "U.S. Taxpayers Party", "partyFiled": "U.S. Taxpayers Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-13 · U.S. Taxpayers Party
+ "chris_dardzinski": {
+  "name": "Chris Dardzinski", "office": "U.S. House Candidate (MI-13)",
+  "state": "Michigan", "district": "13",
+  "party": "U.S. Taxpayers Party", "partyFiled": "U.S. Taxpayers Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-13 · Democratic Party
+ "donavan_mckinney": {
+  "name": "Donavan McKinney", "office": "U.S. House Candidate (MI-13)",
+  "state": "Michigan", "district": "13",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-13 · Green Party
+ "raelyn_light": {
+  "name": "Raelyn Light", "office": "U.S. House Candidate (MI-13)",
+  "state": "Michigan", "district": "13",
+  "party": "Green Party", "partyFiled": "Green Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-13 · Working Class Party
+ "simone_coleman": {
+  "name": "Simone R. Coleman", "office": "U.S. House Candidate (MI-13)",
+  "state": "Michigan", "district": "13",
+  "party": "Working Class Party", "partyFiled": "Working Class Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-13 · Republican Party
+ "tp_nykoriak": {
+  "name": "T.P. Nykoriak", "office": "U.S. House Candidate (MI-13)",
+  "state": "Michigan", "district": "13",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Minnesota — https://electionresultsfiles.sos.mn.gov/20261103/cand.txt
+ // U.S. Senate · Republican
+ "michele_tafoya": {
+  "name": "Michele Tafoya", "office": "U.S. Senate Candidate",
+  "state": "Minnesota",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Green
+ "steven_young": {
+  "name": "Steven Young", "office": "Governor Candidate",
+  "state": "Minnesota",
+  "party": "Green", "partyFiled": "Green", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Lieutenant Governor · Democratic-Farmer-Labor
+ "ben_schierer": {
+  "name": "Ben Schierer", "office": "Lieutenant Governor Candidate",
+  "state": "Minnesota",
+  "party": "D", "partyFiled": "Democratic-Farmer-Labor", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Lieutenant Governor · Green
+ "jane_kirby": {
+  "name": "Jane Kirby", "office": "Lieutenant Governor Candidate",
+  "state": "Minnesota",
+  "party": "Green", "partyFiled": "Green", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Lieutenant Governor · Republican
+ "ryan_wilson": {
+  "name": "Ryan Wilson", "office": "Lieutenant Governor Candidate",
+  "state": "Minnesota",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Republican
+ "ronald_schutz": {
+  "name": "Ronald J. Schutz", "office": "Attorney General Candidate",
+  "state": "Minnesota",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Secretary of State · Libertarian
+ "george_tangen": {
+  "name": "George \"Chip\" Tangen", "office": "Secretary of State Candidate",
+  "state": "Minnesota",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Secretary of State · Green
+ "seth_stennes": {
+  "name": "Seth Kuhl-Stennes", "office": "Secretary of State Candidate",
+  "state": "Minnesota",
+  "party": "Green", "partyFiled": "Green", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Secretary of State · Republican
+ "tad_jude": {
+  "name": "Tad Jude", "office": "Secretary of State Candidate",
+  "state": "Minnesota",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MN-1 · Democratic-Farmer-Labor
+ "jake_johnson": {
+  "name": "Jake Johnson", "office": "U.S. House Candidate (MN-1)",
+  "state": "Minnesota", "district": "1",
+  "party": "D", "partyFiled": "Democratic-Farmer-Labor", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MN-2 · Republican
+ "eric_pratt": {
+  "name": "Eric Pratt", "office": "U.S. House Candidate (MN-2)",
+  "state": "Minnesota", "district": "2",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MN-2 · Democratic-Farmer-Labor
+ "matt_little": {
+  "name": "Matt Little", "office": "U.S. House Candidate (MN-2)",
+  "state": "Minnesota", "district": "2",
+  "party": "D", "partyFiled": "Democratic-Farmer-Labor", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MN-3 · Republican
+ "tyler_bass": {
+  "name": "Tyler Bass", "office": "U.S. House Candidate (MN-3)",
+  "state": "Minnesota", "district": "3",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MN-4 · Republican
+ "paul_wikstrom": {
+  "name": "Paul Wikstrom", "office": "U.S. House Candidate (MN-4)",
+  "state": "Minnesota", "district": "4",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MN-5 · Independent
+ "develle_jackson": {
+  "name": "DeVelle L. Jackson", "office": "U.S. House Candidate (MN-5)",
+  "state": "Minnesota", "district": "5",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MN-5 · Republican
+ "john_nagel": {
+  "name": "John Nagel", "office": "U.S. House Candidate (MN-5)",
+  "state": "Minnesota", "district": "5",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MN-6 · Democratic-Farmer-Labor
+ "doug_chapin": {
+  "name": "Doug Chapin", "office": "U.S. House Candidate (MN-6)",
+  "state": "Minnesota", "district": "6",
+  "party": "D", "partyFiled": "Democratic-Farmer-Labor", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MN-7 · Democratic-Farmer-Labor
+ "erik_osberg": {
+  "name": "Erik Osberg", "office": "U.S. House Candidate (MN-7)",
+  "state": "Minnesota", "district": "7",
+  "party": "D", "partyFiled": "Democratic-Farmer-Labor", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MN-8 · Democratic-Farmer-Labor
+ "trina_swanson": {
+  "name": "Trina Swanson", "office": "U.S. House Candidate (MN-8)",
+  "state": "Minnesota", "district": "8",
+  "party": "D", "partyFiled": "Democratic-Farmer-Labor", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Mississippi — https://sos.ms.gov/content/CandidateQualifying/default.aspx
+ // U.S. Senate · Democratic
+ "scott_colom": {
+  "name": "Scott Colom", "office": "U.S. Senate Candidate",
+  "state": "Mississippi",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MS-1 · Democratic
+ "cliff_johnson": {
+  "name": "Cliff Johnson", "office": "U.S. House Candidate (MS-1)",
+  "state": "Mississippi", "district": "1",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MS-1 · Libertarian
+ "johnny_baucom": {
+  "name": "Johnny Baucom", "office": "U.S. House Candidate (MS-1)",
+  "state": "Mississippi", "district": "1",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MS-2 · Independent
+ "bennie_foster": {
+  "name": "Bennie Foster", "office": "U.S. House Candidate (MS-2)",
+  "state": "Mississippi", "district": "2",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MS-2 · Republican
+ "ron_eller": {
+  "name": "Ron Eller", "office": "U.S. House Candidate (MS-2)",
+  "state": "Mississippi", "district": "2",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MS-3 · Libertarian
+ "erik_kiehle": {
+  "name": "Erik Kiehle", "office": "U.S. House Candidate (MS-3)",
+  "state": "Mississippi", "district": "3",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MS-3 · Democratic
+ "michael_chiaradio": {
+  "name": "Michael A. Chiaradio", "office": "U.S. House Candidate (MS-3)",
+  "state": "Mississippi", "district": "3",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MS-4 · Independent
+ "carl_boyanton": {
+  "name": "Carl Boyanton", "office": "U.S. House Candidate (MS-4)",
+  "state": "Mississippi", "district": "4",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MS-4 · Democratic
+ "jeffrey_hulum": {
+  "name": "Jeffrey Hulum III", "office": "U.S. House Candidate (MS-4)",
+  "state": "Mississippi", "district": "4",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Missouri — https://www.sos.mo.gov/CMSImages/ElectionCandidates/2026GeneralElectionCertifiedCandidates.pdf
+ // MO-1 · Republican
+ "paul_berry": {
+  "name": "Paul Berry III", "office": "U.S. House Candidate (MO-1)",
+  "state": "Missouri", "district": "1",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MO-2 · Democratic
+ "fred_wellman": {
+  "name": "Fred Wellman", "office": "U.S. House Candidate (MO-2)",
+  "state": "Missouri", "district": "2",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MO-3 · Democratic
+ "bethany_mann": {
+  "name": "Bethany E Mann", "office": "U.S. House Candidate (MO-3)",
+  "state": "Missouri", "district": "3",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MO-3 · Libertarian
+ "jim_higgins": {
+  "name": "Jim Higgins", "office": "U.S. House Candidate (MO-3)",
+  "state": "Missouri", "district": "3",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MO-4 · Democratic
+ "jordan_herrera": {
+  "name": "Jordan Herrera", "office": "U.S. House Candidate (MO-4)",
+  "state": "Missouri", "district": "4",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MO-4 · Libertarian
+ "thomas_holbrook": {
+  "name": "Thomas Holbrook", "office": "U.S. House Candidate (MO-4)",
+  "state": "Missouri", "district": "4",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MO-5 · Libertarian
+ "randall_langkraehr": {
+  "name": "Randall (Randy) Langkraehr", "office": "U.S. House Candidate (MO-5)",
+  "state": "Missouri", "district": "5",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MO-5 · Republican
+ "rick_brattin": {
+  "name": "Rick Brattin", "office": "U.S. House Candidate (MO-5)",
+  "state": "Missouri", "district": "5",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MO-6 · Libertarian
+ "andy_maidment": {
+  "name": "Andy Maidment", "office": "U.S. House Candidate (MO-6)",
+  "state": "Missouri", "district": "6",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MO-6 · Republican
+ "chris_stigall": {
+  "name": "Chris Stigall", "office": "U.S. House Candidate (MO-6)",
+  "state": "Missouri", "district": "6",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MO-6 · Democratic
+ "josh_smead": {
+  "name": "Josh Smead", "office": "U.S. House Candidate (MO-6)",
+  "state": "Missouri", "district": "6",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MO-7 · Libertarian
+ "kevin_craig": {
+  "name": "Kevin Craig", "office": "U.S. House Candidate (MO-7)",
+  "state": "Missouri", "district": "7",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MO-7 · Democratic
+ "missi_hesketh": {
+  "name": "Missi Hesketh", "office": "U.S. House Candidate (MO-7)",
+  "state": "Missouri", "district": "7",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MO-8 · Democratic
+ "chris_reichard": {
+  "name": "Chris Reichard", "office": "U.S. House Candidate (MO-8)",
+  "state": "Missouri", "district": "8",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MO-8 · Libertarian
+ "rebecca_lombard": {
+  "name": "Rebecca Sharpe Lombard", "office": "U.S. House Candidate (MO-8)",
+  "state": "Missouri", "district": "8",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Montana — https://candidatefiling.mt.gov/candidatefiling/CandidateList.aspx?e=450002987
+ // U.S. Senate · Democratic
+ "alani_bankhead": {
+  "name": "Alani Bankhead", "office": "U.S. Senate Candidate",
+  "state": "Montana",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. Senate · Republican
+ "kurt_alme": {
+  "name": "Kurt Alme", "office": "U.S. Senate Candidate",
+  "state": "Montana",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MT-1 · Republican
+ "aaron_flint": {
+  "name": "Aaron Flint", "office": "U.S. House Candidate (MT-1)",
+  "state": "Montana", "district": "1",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MT-1 · Libertarian
+ "nick_sheedy": {
+  "name": "Nick Sheedy", "office": "U.S. House Candidate (MT-1)",
+  "state": "Montana", "district": "1",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MT-1 · Democratic
+ "sam_forstag": {
+  "name": "Sam Forstag", "office": "U.S. House Candidate (MT-1)",
+  "state": "Montana", "district": "1",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MT-2 · Democratic
+ "brian_miller": {
+  "name": "Brian J. Miller", "office": "U.S. House Candidate (MT-2)",
+  "state": "Montana", "district": "2",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MT-2 · Independent
+ "michael_eisenhauer": {
+  "name": "Michael D. Eisenhauer", "office": "U.S. House Candidate (MT-2)",
+  "state": "Montana", "district": "2",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MT-2 · Libertarian
+ "patrick_mccracken": {
+  "name": "Patrick McCracken", "office": "U.S. House Candidate (MT-2)",
+  "state": "Montana", "district": "2",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Nebraska — https://sos.nebraska.gov/sites/default/files/doc/elections/2026/Final_Statewide_General_Candidate_Filing_List_9.11.26.pdf
+ // U.S. Senate · America First
+ "chuck_conboy": {
+  "name": "Chuck Conboy", "office": "U.S. Senate Candidate",
+  "state": "Nebraska",
+  "party": "America First", "partyFiled": "America First", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. Senate · Legal Marijuana NOW
+ "mike_marvin": {
+  "name": "Mike Marvin", "office": "U.S. Senate Candidate",
+  "state": "Nebraska",
+  "party": "Legal Marijuana NOW", "partyFiled": "Legal Marijuana NOW", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. Senate · Nebraska Working People
+ "robin_richards": {
+  "name": "Robin Richards", "office": "U.S. Senate Candidate",
+  "state": "Nebraska",
+  "party": "Nebraska Working People", "partyFiled": "Nebraska Working People", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · America First
+ "brett_lindstrom": {
+  "name": "Brett Lindstrom", "office": "Governor Candidate",
+  "state": "Nebraska",
+  "party": "America First", "partyFiled": "America First", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Democratic
+ "lynne_walz": {
+  "name": "Lynne Walz", "office": "Governor Candidate",
+  "state": "Nebraska",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Legal Marijuana NOW
+ "rick_beard": {
+  "name": "Rick Beard", "office": "Governor Candidate",
+  "state": "Nebraska",
+  "party": "Legal Marijuana NOW", "partyFiled": "Legal Marijuana NOW", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Democratic
+ "jocelyn_brasher": {
+  "name": "Jocelyn Brasher", "office": "Attorney General Candidate",
+  "state": "Nebraska",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NE-1 · Democratic
+ "chris_backemeyer": {
+  "name": "Chris Backemeyer", "office": "U.S. House Candidate (NE-1)",
+  "state": "Nebraska", "district": "1",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NE-1 · America First
+ "dan_hartong": {
+  "name": "Dan Hartong", "office": "U.S. House Candidate (NE-1)",
+  "state": "Nebraska", "district": "1",
+  "party": "America First", "partyFiled": "America First", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NE-1 · Libertarian
+ "nik_sandman": {
+  "name": "Nik Sandman", "office": "U.S. House Candidate (NE-1)",
+  "state": "Nebraska", "district": "1",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NE-2 · Republican
+ "brinker_harding": {
+  "name": "Brinker Harding", "office": "U.S. House Candidate (NE-2)",
+  "state": "Nebraska", "district": "2",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NE-2 · Democratic
+ "denise_powell": {
+  "name": "Denise Powell", "office": "U.S. House Candidate (NE-2)",
+  "state": "Nebraska", "district": "2",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NE-2 · Libertarian
+ "eric_foreman": {
+  "name": "Eric Michael Foreman", "office": "U.S. House Candidate (NE-2)",
+  "state": "Nebraska", "district": "2",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NE-3 · Democratic
+ "becky_stille": {
+  "name": "Becky Kelly Stille", "office": "U.S. House Candidate (NE-3)",
+  "state": "Nebraska", "district": "3",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NE-3 · Legal Marijuana NOW
+ "david_else": {
+  "name": "David J. Else", "office": "U.S. House Candidate (NE-3)",
+  "state": "Nebraska", "district": "3",
+  "party": "Legal Marijuana NOW", "partyFiled": "Legal Marijuana NOW", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NE-3 · Nebraska Working People
+ "macey_budke": {
+  "name": "Macey Budke", "office": "U.S. House Candidate (NE-3)",
+  "state": "Nebraska", "district": "3",
+  "party": "Nebraska Working People", "partyFiled": "Nebraska Working People", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NE-3 · By Petition
+ "mark_cohen": {
+  "name": "Mark Cohen", "office": "U.S. House Candidate (NE-3)",
+  "state": "Nebraska", "district": "3",
+  "party": "By Petition", "partyFiled": "By Petition", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Nevada — https://www.nvsos.gov/home/showpublisheddocument/20105/639232733439300000
+ // Governor · No Political Party
+ "danielle_ford": {
+  "name": "Danielle Ford", "office": "Governor Candidate",
+  "state": "Nevada",
+  "party": "No Political Party", "partyFiled": "No Political Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Republican Party
+ "adriana_fralick": {
+  "name": "Adriana Guzman Fralick", "office": "Attorney General Candidate",
+  "state": "Nevada",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Secretary of State · Independent American Party
+ "brad_barnhill": {
+  "name": "Brad Lee Barnhill", "office": "Secretary of State Candidate",
+  "state": "Nevada",
+  "party": "Independent American Party", "partyFiled": "Independent American Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Secretary of State · Republican Party
+ "james_marchant": {
+  "name": "James \"Jim\" Marchant", "office": "Secretary of State Candidate",
+  "state": "Nevada",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Secretary of State · Libertarian Party of Nevada
+ "john_kennedy": {
+  "name": "John T Kennedy", "office": "Secretary of State Candidate",
+  "state": "Nevada",
+  "party": "Libertarian Party of Nevada", "partyFiled": "Libertarian Party of Nevada", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NV-1 · No Political Party
+ "afzal_khan": {
+  "name": "Afzal Khan", "office": "U.S. House Candidate (NV-1)",
+  "state": "Nevada", "district": "1",
+  "party": "No Political Party", "partyFiled": "No Political Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NV-1 · Republican Party
+ "carrie_buck": {
+  "name": "Carrie Ann Buck", "office": "U.S. House Candidate (NV-1)",
+  "state": "Nevada", "district": "1",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NV-1 · No Political Party
+ "steven_john": {
+  "name": "Steven St John", "office": "U.S. House Candidate (NV-1)",
+  "state": "Nevada", "district": "1",
+  "party": "No Political Party", "partyFiled": "No Political Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NV-2 · Republican Party
+ "david_flippo": {
+  "name": "David Flippo", "office": "U.S. House Candidate (NV-2)",
+  "state": "Nevada", "district": "2",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NV-2 · Independent American Party
+ "lynn_chapman": {
+  "name": "Lynn Chapman", "office": "U.S. House Candidate (NV-2)",
+  "state": "Nevada", "district": "2",
+  "party": "Independent American Party", "partyFiled": "Independent American Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NV-2 · Democratic Party
+ "teresa_benitez_thompson": {
+  "name": "Teresa Francisca Benitez-Thompson", "office": "U.S. House Candidate (NV-2)",
+  "state": "Nevada", "district": "2",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NV-3 · Independent American Party
+ "jon_kamerath": {
+  "name": "Jon Kamerath", "office": "U.S. House Candidate (NV-3)",
+  "state": "Nevada", "district": "3",
+  "party": "Independent American Party", "partyFiled": "Independent American Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NV-3 · Republican Party
+ "martin_odonnell": {
+  "name": "Martin O'Donnell", "office": "U.S. House Candidate (NV-3)",
+  "state": "Nevada", "district": "3",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NV-4 · Republican Party
+ "cody_whipple": {
+  "name": "Cody Kent Whipple", "office": "U.S. House Candidate (NV-4)",
+  "state": "Nevada", "district": "4",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NV-4 · Independent American Party
+ "russell_best": {
+  "name": "Russell Best", "office": "U.S. House Candidate (NV-4)",
+  "state": "Nevada", "district": "4",
+  "party": "Independent American Party", "partyFiled": "Independent American Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NV-4 · No Political Party
+ "william_johnson": {
+  "name": "William Johnson", "office": "U.S. House Candidate (NV-4)",
+  "state": "Nevada", "district": "4",
+  "party": "No Political Party", "partyFiled": "No Political Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // New Jersey — https://www.nj.gov/state/elections/assets/pdf/election-results/2026/2026-official-general-candidates-us-senate.pdf
+ // U.S. Senate · Republican
+ "justin_murphy": {
+  "name": "Justin Murphy", "office": "U.S. Senate Candidate",
+  "state": "New Jersey",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NJ-1 · Republican
+ "damon_galdo": {
+  "name": "Damon Galdo", "office": "U.S. House Candidate (NJ-1)",
+  "state": "New Jersey", "district": "1",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NJ-2 · Democratic
+ "zack_mullock": {
+  "name": "Zack Mullock", "office": "U.S. House Candidate (NJ-2)",
+  "state": "New Jersey", "district": "2",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NJ-3 · Republican
+ "michael_mcguire": {
+  "name": "Michael P. McGuire", "office": "U.S. House Candidate (NJ-3)",
+  "state": "New Jersey", "district": "3",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NJ-3 · Green Party
+ "steven_welzer": {
+  "name": "Steven Welzer", "office": "U.S. House Candidate (NJ-3)",
+  "state": "New Jersey", "district": "3",
+  "party": "Green Party", "partyFiled": "Green Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NJ-4 · Democratic
+ "rachel_peace": {
+  "name": "Rachel Peace", "office": "U.S. House Candidate (NJ-4)",
+  "state": "New Jersey", "district": "4",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NJ-5 · HUMANE SUSTAINABLE FUTURE
+ "adam_rueda": {
+  "name": "Adam Rueda", "office": "U.S. House Candidate (NJ-5)",
+  "state": "New Jersey", "district": "5",
+  "party": "HUMANE SUSTAINABLE FUTURE", "partyFiled": "HUMANE SUSTAINABLE FUTURE", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NJ-5 · Republican
+ "sean_kirrane": {
+  "name": "Sean Kirrane", "office": "U.S. House Candidate (NJ-5)",
+  "state": "New Jersey", "district": "5",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NJ-6 · Republican
+ "hillary_herzig": {
+  "name": "Hillary Herzig", "office": "U.S. House Candidate (NJ-6)",
+  "state": "New Jersey", "district": "6",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NJ-7 · Democratic
+ "rebecca_bennett": {
+  "name": "Rebecca Bennett", "office": "U.S. House Candidate (NJ-7)",
+  "state": "New Jersey", "district": "7",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NJ-7 · STOP ISRAEL'S GENOCIDE
+ "seamus_otoole": {
+  "name": "Seamus Patrick O’Toole", "office": "U.S. House Candidate (NJ-7)",
+  "state": "New Jersey", "district": "7",
+  "party": "STOP ISRAEL'S GENOCIDE", "partyFiled": "STOP ISRAEL'S GENOCIDE", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NJ-8 · INDEPENDENT
+ "aristotle_eliopoulos": {
+  "name": "Aristotle Eliopoulos", "office": "U.S. House Candidate (NJ-8)",
+  "state": "New Jersey", "district": "8",
+  "party": "INDEPENDENT", "partyFiled": "INDEPENDENT", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NJ-8 · SOCIALIST WORKERS PARTY
+ "craig_honts": {
+  "name": "Craig Honts", "office": "U.S. House Candidate (NJ-8)",
+  "state": "New Jersey", "district": "8",
+  "party": "SOCIALIST WORKERS PARTY", "partyFiled": "SOCIALIST WORKERS PARTY", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NJ-8 · WE THE PEOPLE
+ "dashone_hughey": {
+  "name": "Da'shone Hughey", "office": "U.S. House Candidate (NJ-8)",
+  "state": "New Jersey", "district": "8",
+  "party": "WE THE PEOPLE", "partyFiled": "WE THE PEOPLE", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NJ-9 · Republican
+ "rosie_pino": {
+  "name": "Rosie Pino", "office": "U.S. House Candidate (NJ-9)",
+  "state": "New Jersey", "district": "9",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NJ-10 · Republican
+ "carmen_bucco": {
+  "name": "Carmen Bucco", "office": "U.S. House Candidate (NJ-10)",
+  "state": "New Jersey", "district": "10",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NJ-11 · Republican
+ "joe_hathaway": {
+  "name": "Joe Hathaway", "office": "U.S. House Candidate (NJ-11)",
+  "state": "New Jersey", "district": "11",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NJ-12 · Democratic
+ "adam_hamawy": {
+  "name": "Adam Hamawy", "office": "U.S. House Candidate (NJ-12)",
+  "state": "New Jersey", "district": "12",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NJ-12 · Green Party
+ "andres_jinete": {
+  "name": "Andres Jinete", "office": "U.S. House Candidate (NJ-12)",
+  "state": "New Jersey", "district": "12",
+  "party": "Green Party", "partyFiled": "Green Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NJ-12 · Republican
+ "gregg_mele": {
+  "name": "Gregg Mele", "office": "U.S. House Candidate (NJ-12)",
+  "state": "New Jersey", "district": "12",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NJ-12 · GET MONEY OUT
+ "winston_jordan": {
+  "name": "Winston Jordan", "office": "U.S. House Candidate (NJ-12)",
+  "state": "New Jersey", "district": "12",
+  "party": "GET MONEY OUT", "partyFiled": "GET MONEY OUT", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // New Mexico — https://candidateportal.servis.sos.state.nm.us/CandidateList.aspx?eid=2917&cty=99
+ // U.S. Senate · REP
+ "larry_marker": {
+  "name": "Larry E. Marker", "office": "U.S. Senate Candidate",
+  "state": "New Mexico",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · DEM
+ "deb_haaland": {
+  "name": "Deb Haaland", "office": "Governor Candidate",
+  "state": "New Mexico",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · REP
+ "greggory_hull": {
+  "name": "Greggory D. Hull", "office": "Governor Candidate",
+  "state": "New Mexico",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · REP
+ "samuel_kane": {
+  "name": "Samuel Isaiah Kane, Sr.", "office": "Attorney General Candidate",
+  "state": "New Mexico",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Secretary of State · DEM
+ "amanda_askin": {
+  "name": "Amanda López Askin", "office": "Secretary of State Candidate",
+  "state": "New Mexico",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Secretary of State · REP
+ "ramona_goolsby": {
+  "name": "Ramona L. Goolsby", "office": "Secretary of State Candidate",
+  "state": "New Mexico",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NM-1 · REP
+ "ndidiamaka_okpareke": {
+  "name": "Ndidiamaka Ekwua Charlene Okpareke", "office": "U.S. House Candidate (NM-1)",
+  "state": "New Mexico", "district": "1",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NM-2 · REP
+ "gregory_cunningham": {
+  "name": "Gregory G. Cunningham", "office": "U.S. House Candidate (NM-2)",
+  "state": "New Mexico", "district": "2",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NM-3 · REP
+ "martin_zamora": {
+  "name": "Martin Zamora", "office": "U.S. House Candidate (NM-3)",
+  "state": "New Mexico", "district": "3",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // New York — https://elections.ny.gov/system/files/documents/2026/10/accessible-2026-general-ballot-certification-10.7.2026.pdf
+ // Governor · Republican, Conservative, Vote Affordable
+ "bruce_blakeman": {
+  "name": "Bruce A. Blakeman", "office": "Governor Candidate",
+  "state": "New York",
+  "party": "R", "partyFiled": "Republican, Conservative, Vote Affordable", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Republican, Conservative
+ "saritha_komatireddy": {
+  "name": "Saritha Komatireddy", "office": "Attorney General Candidate",
+  "state": "New York",
+  "party": "R", "partyFiled": "Republican, Conservative", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-1 · Democratic
+ "christopher_gallant": {
+  "name": "Christopher J. Gallant", "office": "U.S. House Candidate (NY-1)",
+  "state": "New York", "district": "1",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-2 · Democratic, Working Families
+ "patrick_halpin": {
+  "name": "Patrick Halpin", "office": "U.S. House Candidate (NY-2)",
+  "state": "New York", "district": "2",
+  "party": "D", "partyFiled": "Democratic, Working Families", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-3 · Republican, Conservative
+ "michael_lipetri": {
+  "name": "Michael J. LiPetri Jr", "office": "U.S. House Candidate (NY-3)",
+  "state": "New York", "district": "3",
+  "party": "R", "partyFiled": "Republican, Conservative", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-4 · Libertarian
+ "blay_tarnoff": {
+  "name": "Blay Tarnoff", "office": "U.S. House Candidate (NY-4)",
+  "state": "New York", "district": "4",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-4 · Republican, Conservative
+ "jeanine_driscoll": {
+  "name": "Jeanine C. Driscoll", "office": "U.S. House Candidate (NY-4)",
+  "state": "New York", "district": "4",
+  "party": "R", "partyFiled": "Republican, Conservative", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-5 · Republican, Queens United
+ "george_marsh": {
+  "name": "George Marsh", "office": "U.S. House Candidate (NY-5)",
+  "state": "New York", "district": "5",
+  "party": "R", "partyFiled": "Republican, Queens United", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-6 · Republican, Conservative
+ "joseph_chou": {
+  "name": "Joseph Chou", "office": "U.S. House Candidate (NY-6)",
+  "state": "New York", "district": "6",
+  "party": "R", "partyFiled": "Republican, Conservative", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-7 · Democratic, Working Families
+ "claire_valdez": {
+  "name": "Claire Valdez", "office": "U.S. House Candidate (NY-7)",
+  "state": "New York", "district": "7",
+  "party": "D", "partyFiled": "Democratic, Working Families", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-7 · Republican, Conservative
+ "melvin_rivera": {
+  "name": "Melvin Rivera", "office": "U.S. House Candidate (NY-7)",
+  "state": "New York", "district": "7",
+  "party": "R", "partyFiled": "Republican, Conservative", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-7 · Our Future
+ "priscilla_ghaznavi": {
+  "name": "Priscilla Ghaznavi", "office": "U.S. House Candidate (NY-7)",
+  "state": "New York", "district": "7",
+  "party": "Our Future", "partyFiled": "Our Future", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-8 · Republican, Conservative
+ "lewis_mizrahi": {
+  "name": "Lewis Mizrahi", "office": "U.S. House Candidate (NY-8)",
+  "state": "New York", "district": "8",
+  "party": "R", "partyFiled": "Republican, Conservative", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-9 · Republican, Conservative
+ "joel_azumah": {
+  "name": "Joel Azumah", "office": "U.S. House Candidate (NY-9)",
+  "state": "New York", "district": "9",
+  "party": "R", "partyFiled": "Republican, Conservative", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-10 · Democratic, Working Families
+ "brad_lander": {
+  "name": "Brad Lander", "office": "U.S. House Candidate (NY-10)",
+  "state": "New York", "district": "10",
+  "party": "D", "partyFiled": "Democratic, Working Families", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-10 · Republican, Conservative
+ "jennifer_moore": {
+  "name": "Jennifer E. Moore", "office": "U.S. House Candidate (NY-10)",
+  "state": "New York", "district": "10",
+  "party": "R", "partyFiled": "Republican, Conservative", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-11 · Democratic
+ "mike_decillis": {
+  "name": "Mike DeCillis", "office": "U.S. House Candidate (NY-11)",
+  "state": "New York", "district": "11",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-12 · Republican, Conservative
+ "caroline_shinkle": {
+  "name": "Caroline Shinkle", "office": "U.S. House Candidate (NY-12)",
+  "state": "New York", "district": "12",
+  "party": "R", "partyFiled": "Republican, Conservative", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-12 · Karen Ortiz
+ "karen_ortiz": {
+  "name": "Karen Ortiz", "office": "U.S. House Candidate (NY-12)",
+  "state": "New York", "district": "12",
+  "party": "Karen Ortiz", "partyFiled": "Karen Ortiz", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-12 · Democratic
+ "micah_lasher": {
+  "name": "Micah C. Lasher", "office": "U.S. House Candidate (NY-12)",
+  "state": "New York", "district": "12",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-12 · For All of Us
+ "wilneida_negron": {
+  "name": "Wilneida Negron", "office": "U.S. House Candidate (NY-12)",
+  "state": "New York", "district": "12",
+  "party": "For All of Us", "partyFiled": "For All of Us", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-13 · Democratic, Working Families
+ "darializa_chevalier": {
+  "name": "Darializa Avila Chevalier", "office": "U.S. House Candidate (NY-13)",
+  "state": "New York", "district": "13",
+  "party": "D", "partyFiled": "Democratic, Working Families", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-13 · Republican
+ "jomo_williams": {
+  "name": "Jomo M. Williams", "office": "U.S. House Candidate (NY-13)",
+  "state": "New York", "district": "13",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-14 · Republican, Conservative
+ "diamant_hysenaj": {
+  "name": "Diamant Hysenaj", "office": "U.S. House Candidate (NY-14)",
+  "state": "New York", "district": "14",
+  "party": "R", "partyFiled": "Republican, Conservative", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-15 · Socialism PSL
+ "andre_easton": {
+  "name": "Andre Easton", "office": "U.S. House Candidate (NY-15)",
+  "state": "New York", "district": "15",
+  "party": "Socialism PSL", "partyFiled": "Socialism PSL", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-15 · Conservative
+ "gonzalo_duran": {
+  "name": "Gonzalo Duran", "office": "U.S. House Candidate (NY-15)",
+  "state": "New York", "district": "15",
+  "party": "Conservative", "partyFiled": "Conservative", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-15 · Speak The Truth
+ "jose_vega": {
+  "name": "Jose Vega", "office": "U.S. House Candidate (NY-15)",
+  "state": "New York", "district": "15",
+  "party": "Speak The Truth", "partyFiled": "Speak The Truth", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-15 · Republican
+ "stylo_sapaskis": {
+  "name": "Stylo Sapaskis", "office": "U.S. House Candidate (NY-15)",
+  "state": "New York", "district": "15",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-16 · Republican
+ "joseph_cinquemani": {
+  "name": "Joseph J. Cinquemani", "office": "U.S. House Candidate (NY-16)",
+  "state": "New York", "district": "16",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-17 · Democratic, Working Families
+ "cait_conley": {
+  "name": "Cait Conley", "office": "U.S. House Candidate (NY-17)",
+  "state": "New York", "district": "17",
+  "party": "D", "partyFiled": "Democratic, Working Families", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-18 · Republican, Conservative
+ "jackie_auringer": {
+  "name": "Jackie Mary Auringer", "office": "U.S. House Candidate (NY-18)",
+  "state": "New York", "district": "18",
+  "party": "R", "partyFiled": "Republican, Conservative", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-19 · Republican, Conservative
+ "peter_oberacker": {
+  "name": "Peter K. Oberacker", "office": "U.S. House Candidate (NY-19)",
+  "state": "New York", "district": "19",
+  "party": "R", "partyFiled": "Republican, Conservative", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-20 · Republican, Conservative
+ "ralph_ambrosio": {
+  "name": "Ralph F. Ambrosio", "office": "U.S. House Candidate (NY-20)",
+  "state": "New York", "district": "20",
+  "party": "R", "partyFiled": "Republican, Conservative", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-21 · Republican, Taxpayer Rights
+ "anthony_constantino": {
+  "name": "Anthony Constantino", "office": "U.S. House Candidate (NY-21)",
+  "state": "New York", "district": "21",
+  "party": "R", "partyFiled": "Republican, Taxpayer Rights", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-21 · Democratic
+ "blake_gendebien": {
+  "name": "Blake Gendebien", "office": "U.S. House Candidate (NY-21)",
+  "state": "New York", "district": "21",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-22 · Republican, Conservative
+ "kailee_buller": {
+  "name": "Kailee Buller", "office": "U.S. House Candidate (NY-22)",
+  "state": "New York", "district": "22",
+  "party": "R", "partyFiled": "Republican, Conservative", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-23 · Democratic, Working Families
+ "aaron_gies": {
+  "name": "Aaron Gies", "office": "U.S. House Candidate (NY-23)",
+  "state": "New York", "district": "23",
+  "party": "D", "partyFiled": "Democratic, Working Families", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-24 · Democratic, Working Families
+ "alissa_ellman": {
+  "name": "Alissa J. Ellman", "office": "U.S. House Candidate (NY-24)",
+  "state": "New York", "district": "24",
+  "party": "D", "partyFiled": "Democratic, Working Families", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-25 · Republican, Conservative
+ "virginia_mcintyre": {
+  "name": "Virginia E. McIntyre", "office": "U.S. House Candidate (NY-25)",
+  "state": "New York", "district": "25",
+  "party": "R", "partyFiled": "Republican, Conservative", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-26 · Republican, Conservative
+ "dennis_hannon": {
+  "name": "Dennis E. Hannon", "office": "U.S. House Candidate (NY-26)",
+  "state": "New York", "district": "26",
+  "party": "R", "partyFiled": "Republican, Conservative", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // North Carolina — https://s3.amazonaws.com/dl.ncsbe.gov/Elections/2026/Candidate%20Filing/Candidate_Listing_2026.csv
+ // U.S. Senate · GRE
+ "michael_dublin": {
+  "name": "Michael Dublin", "office": "U.S. Senate Candidate",
+  "state": "North Carolina",
+  "party": "GRE", "partyFiled": "GRE", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. Senate · REP
+ "michael_whatley": {
+  "name": "Michael Whatley", "office": "U.S. Senate Candidate",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Michael_Whatley_(54670563614)_(cropped).jpg/500px-Michael_Whatley_(54670563614)_(cropped).jpg",
+  "state": "North Carolina",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. Senate · DEM
+ "roy_cooper": {
+  "name": "Roy Cooper", "office": "U.S. Senate Candidate",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Roy_Cooper_in_November_2023_(cropped2).jpg/500px-Roy_Cooper_in_November_2023_(cropped2).jpg",
+  "state": "North Carolina",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-1 · REP
+ "laurie_buckhout": {
+  "name": "Laurie Buckhout", "office": "U.S. House Candidate (NC-1)",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Laurie_Buckhout.jpg/500px-Laurie_Buckhout.jpg",
+  "state": "North Carolina", "district": "1",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-1 · LIB
+ "tom_bailey": {
+  "name": "Tom Bailey", "office": "U.S. House Candidate (NC-1)",
+  "state": "North Carolina", "district": "1",
+  "party": "LIB", "partyFiled": "LIB", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-2 · REP
+ "eugene_douglass": {
+  "name": "Eugene F. Douglass", "office": "U.S. House Candidate (NC-2)",
+  "state": "North Carolina", "district": "2",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-2 · LIB
+ "matthew_laszacs": {
+  "name": "Matthew Laszacs", "office": "U.S. House Candidate (NC-2)",
+  "state": "North Carolina", "district": "2",
+  "party": "LIB", "partyFiled": "LIB", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-3 · LIB
+ "daniel_cavender": {
+  "name": "Daniel Cavender", "office": "U.S. House Candidate (NC-3)",
+  "state": "North Carolina", "district": "3",
+  "party": "LIB", "partyFiled": "LIB", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-3 · DEM
+ "raymond_smith": {
+  "name": "Raymond Smith", "office": "U.S. House Candidate (NC-3)",
+  "state": "North Carolina", "district": "3",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-4 · LIB
+ "guy_meilleur": {
+  "name": "Guy Meilleur", "office": "U.S. House Candidate (NC-4)",
+  "state": "North Carolina", "district": "4",
+  "party": "LIB", "partyFiled": "LIB", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-4 · REP
+ "mahesh_ganorkar": {
+  "name": "Mahesh (Max) Ganorkar", "office": "U.S. House Candidate (NC-4)",
+  "state": "North Carolina", "district": "4",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-5 · DEM
+ "chuck_hubbard": {
+  "name": "Chuck Hubbard", "office": "U.S. House Candidate (NC-5)",
+  "state": "North Carolina", "district": "5",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-5 · LIB
+ "robert_luffman": {
+  "name": "Robert B. Luffman", "office": "U.S. House Candidate (NC-5)",
+  "state": "North Carolina", "district": "5",
+  "party": "LIB", "partyFiled": "LIB", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-6 · DEM
+ "cyril_jefferson": {
+  "name": "Cyril Jefferson", "office": "U.S. House Candidate (NC-6)",
+  "state": "North Carolina", "district": "6",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-7 · DEM
+ "kimberly_hardy": {
+  "name": "Kimberly Hardy", "office": "U.S. House Candidate (NC-7)",
+  "state": "North Carolina", "district": "7",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-7 · LIB
+ "maad_ghazalah": {
+  "name": "Maad Abu-Ghazalah", "office": "U.S. House Candidate (NC-7)",
+  "state": "North Carolina", "district": "7",
+  "party": "LIB", "partyFiled": "LIB", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-8 · GRE
+ "bo_whitehead": {
+  "name": "Bo Whitehead", "office": "U.S. House Candidate (NC-8)",
+  "state": "North Carolina", "district": "8",
+  "party": "GRE", "partyFiled": "GRE", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-8 · DEM
+ "colby_watson": {
+  "name": "Colby Watson", "office": "U.S. House Candidate (NC-8)",
+  "state": "North Carolina", "district": "8",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-9 · DEM
+ "richard_ojeda": {
+  "name": "Richard N. Ojeda II", "office": "U.S. House Candidate (NC-9)",
+  "state": "North Carolina", "district": "9",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-10 · DEM
+ "ashley_bell": {
+  "name": "Ashley Bell", "office": "U.S. House Candidate (NC-10)",
+  "state": "North Carolina", "district": "10",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-10 · LIB
+ "steven_feldman": {
+  "name": "Steven Feldman", "office": "U.S. House Candidate (NC-10)",
+  "state": "North Carolina", "district": "10",
+  "party": "LIB", "partyFiled": "LIB", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-11 · DEM
+ "jamie_ager": {
+  "name": "Jamie Ager", "office": "U.S. House Candidate (NC-11)",
+  "state": "North Carolina", "district": "11",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-11 · REP
+ "jennifer_balkcom": {
+  "name": "Jennifer Capps Balkcom", "office": "U.S. House Candidate (NC-11)",
+  "state": "North Carolina", "district": "11",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-11 · LIB
+ "travis_groo": {
+  "name": "Travis Groo", "office": "U.S. House Candidate (NC-11)",
+  "state": "North Carolina", "district": "11",
+  "party": "LIB", "partyFiled": "LIB", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-12 · REP
+ "jack_codiga": {
+  "name": "Jack Codiga", "office": "U.S. House Candidate (NC-12)",
+  "state": "North Carolina", "district": "12",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-13 · DEM
+ "paul_barringer": {
+  "name": "Paul Barringer", "office": "U.S. House Candidate (NC-13)",
+  "state": "North Carolina", "district": "13",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-13 · LIB
+ "steven_swinton": {
+  "name": "Steven Swinton", "office": "U.S. House Candidate (NC-13)",
+  "state": "North Carolina", "district": "13",
+  "party": "LIB", "partyFiled": "LIB", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-14 · DEM
+ "lakesha_womack": {
+  "name": "Lakesha Womack", "office": "U.S. House Candidate (NC-14)",
+  "state": "North Carolina", "district": "14",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // North Dakota — https://vip.sos.nd.gov/candidatelist.aspx?eid=348
+ // Attorney General · Democratic-NPL
+ "tim_lamb": {
+  "name": "Tim Lamb", "office": "Attorney General Candidate",
+  "state": "North Dakota",
+  "party": "D", "partyFiled": "Democratic-NPL", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // ND-AL · independent nomination
+ "charles_tuttle": {
+  "name": "Charles Tuttle", "office": "U.S. House Candidate (ND-AL)",
+  "state": "North Dakota", "district": "1",
+  "party": "independent nomination", "partyFiled": "independent nomination", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // ND-AL · Democratic-NPL
+ "trygve_hammer": {
+  "name": "Trygve Hammer", "office": "U.S. House Candidate (ND-AL)",
+  "state": "North Dakota", "district": "1",
+  "party": "D", "partyFiled": "Democratic-NPL", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Oklahoma — http://hosting.okelections.us/electionlist.html
+ // U.S. Senate · Democrat
+ "nkiyla_thomas": {
+  "name": "N'kiyla Jasmine Thomas", "office": "U.S. Senate Candidate",
+  "state": "Oklahoma",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Democrat
+ "cyndi_munson": {
+  "name": "Cyndi Munson", "office": "Governor Candidate",
+  "state": "Oklahoma",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Independent
+ "jerry_griffin": {
+  "name": "Jerry Griffin", "office": "Governor Candidate",
+  "state": "Oklahoma",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Republican
+ "mike_mazzei": {
+  "name": "Mike Mazzei", "office": "Governor Candidate",
+  "state": "Oklahoma",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Independent
+ "orlando_bush": {
+  "name": "Orlando Lynn Bush", "office": "Governor Candidate",
+  "state": "Oklahoma",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Independent
+ "robert_brooks": {
+  "name": "Robert E. Brooks Sr.", "office": "Governor Candidate",
+  "state": "Oklahoma",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Lieutenant Governor · Democrat
+ "kelly_forbes": {
+  "name": "Kelly Forbes", "office": "Lieutenant Governor Candidate",
+  "state": "Oklahoma",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Lieutenant Governor · Republican
+ "shannon": {
+  "name": "T. W. Shannon", "office": "Lieutenant Governor Candidate",
+  "state": "Oklahoma",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Republican
+ "jon_echols": {
+  "name": "Jon Echols", "office": "Attorney General Candidate",
+  "state": "Oklahoma",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Democrat
+ "nick_coffey": {
+  "name": "Nick Coffey", "office": "Attorney General Candidate",
+  "state": "Oklahoma",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OK-1 · Democrat
+ "john_croisant": {
+  "name": "John Croisant", "office": "U.S. House Candidate (OK-1)",
+  "state": "Oklahoma", "district": "1",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OK-1 · Republican
+ "mark_tedford": {
+  "name": "Mark Tedford", "office": "U.S. House Candidate (OK-1)",
+  "state": "Oklahoma", "district": "1",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OK-2 · Democrat
+ "brandon_wade": {
+  "name": "Brandon Wade", "office": "U.S. House Candidate (OK-2)",
+  "state": "Oklahoma", "district": "2",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OK-2 · Independent
+ "ronnie_hopkins": {
+  "name": "Ronnie Hopkins", "office": "U.S. House Candidate (OK-2)",
+  "state": "Oklahoma", "district": "2",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OK-3 · Democrat
+ "suzie_byrd": {
+  "name": "Suzie Byrd", "office": "U.S. House Candidate (OK-3)",
+  "state": "Oklahoma", "district": "3",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OK-4 · Democrat
+ "mitchell_jacob": {
+  "name": "Mitchell Jacob", "office": "U.S. House Candidate (OK-4)",
+  "state": "Oklahoma", "district": "4",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OK-4 · Independent
+ "rocco_bonacci": {
+  "name": "Rocco Bonacci", "office": "U.S. House Candidate (OK-4)",
+  "state": "Oklahoma", "district": "4",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OK-5 · Independent
+ "austin_nieves": {
+  "name": "Austin Nieves", "office": "U.S. House Candidate (OK-5)",
+  "state": "Oklahoma", "district": "5",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OK-5 · Democrat
+ "jena_nelson": {
+  "name": "Jena Nelson", "office": "U.S. House Candidate (OK-5)",
+  "state": "Oklahoma", "district": "5",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OK-5 · Independent
+ "robert_henri": {
+  "name": "Robert P. Henri", "office": "U.S. House Candidate (OK-5)",
+  "state": "Oklahoma", "district": "5",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Oregon — https://secure.sos.state.or.us/orestar/XcelCFSearch?ut=2&srtOrder=asc&by=BALLOT_NAME&cfDisqualifiedCandidates=false&cfSearchButtonName=currentElection
+ // U.S. Senate · Republican
+ "david_smith": {
+  "name": "David Brock Smith", "office": "U.S. Senate Candidate",
+  "state": "Oregon",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Pacific Green
+ "brett_smith": {
+  "name": "Brett Smith", "office": "Governor Candidate",
+  "state": "Oregon",
+  "party": "Pacific Green", "partyFiled": "Pacific Green", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Republican, Libertarian
+ "christine_drazan": {
+  "name": "Christine Drazan", "office": "Governor Candidate",
+  "state": "Oregon",
+  "party": "R", "partyFiled": "Republican, Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OR-1 · Republican
+ "barbara_kahl": {
+  "name": "Barbara J Kahl", "office": "U.S. House Candidate (OR-1)",
+  "state": "Oregon", "district": "1",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OR-2 · Democrat, Independent
+ "chris_beck": {
+  "name": "Chris Beck", "office": "U.S. House Candidate (OR-2)",
+  "state": "Oregon", "district": "2",
+  "party": "D", "partyFiled": "Democrat, Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OR-3 · Republican
+ "loran_ayles": {
+  "name": "Loran Ayles", "office": "U.S. House Candidate (OR-3)",
+  "state": "Oregon", "district": "3",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OR-4 · Pacific Green, Progressive
+ "justin_filip": {
+  "name": "Justin Filip", "office": "U.S. House Candidate (OR-4)",
+  "state": "Oregon", "district": "4",
+  "party": "Pacific Green, Progressive", "partyFiled": "Pacific Green, Progressive", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OR-4 · Republican, Libertarian
+ "monique_despain": {
+  "name": "Monique DeSpain", "office": "U.S. House Candidate (OR-4)",
+  "state": "Oregon", "district": "4",
+  "party": "R", "partyFiled": "Republican, Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OR-5 · Pacific Green
+ "andrea_townsend": {
+  "name": "Andrea Townsend", "office": "U.S. House Candidate (OR-5)",
+  "state": "Oregon", "district": "5",
+  "party": "Pacific Green", "partyFiled": "Pacific Green", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OR-5 · Republican, Libertarian
+ "patti_adair": {
+  "name": "Patti Adair", "office": "U.S. House Candidate (OR-5)",
+  "state": "Oregon", "district": "5",
+  "party": "R", "partyFiled": "Republican, Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OR-6 · Republican
+ "david_russ": {
+  "name": "David Russ", "office": "U.S. House Candidate (OR-6)",
+  "state": "Oregon", "district": "6",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Rhode Island — https://vote.sos.ri.gov/Forms/elections/Reports/Candidates.xlsx
+ // U.S. Senate · Republican
+ "raymond_mckay": {
+  "name": "Raymond T. McKay", "office": "U.S. Senate Candidate",
+  "state": "Rhode Island",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Republican
+ "aaron_guckian": {
+  "name": "Aaron C. Guckian", "office": "Governor Candidate",
+  "state": "Rhode Island",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Independent
+ "reynolds": {
+  "name": "C D Reynolds", "office": "Governor Candidate",
+  "state": "Rhode Island",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Democrat
+ "helena_foulkes": {
+  "name": "Helena Buonanno Foulkes", "office": "Governor Candidate",
+  "state": "Rhode Island",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Independent
+ "jasjit_gotra": {
+  "name": "Jasjit S Gotra", "office": "Governor Candidate",
+  "state": "Rhode Island",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Independent
+ "kenneth_block": {
+  "name": "Kenneth Block", "office": "Governor Candidate",
+  "state": "Rhode Island",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Republican
+ "alan_gordon": {
+  "name": "Alan Leonard Gordon", "office": "Attorney General Candidate",
+  "state": "Rhode Island",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Democrat
+ "kimberly_ahern": {
+  "name": "Kimberly Ahern", "office": "Attorney General Candidate",
+  "state": "Rhode Island",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // RI-1 · Republican
+ "kellie_keenan": {
+  "name": "Kellie Keenan", "office": "U.S. House Candidate (RI-1)",
+  "state": "Rhode Island", "district": "1",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // RI-1 · Independent
+ "pedro_desouza": {
+  "name": "Pedro DeSouza", "office": "U.S. House Candidate (RI-1)",
+  "state": "Rhode Island", "district": "1",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // RI-2 · Republican
+ "victor_mellor": {
+  "name": "Victor Mellor", "office": "U.S. House Candidate (RI-2)",
+  "state": "Rhode Island", "district": "2",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // South Carolina — https://vrems.scvotes.sc.gov/Candidate/CandidateSearch?electionId=22596
+ // U.S. Senate · Democratic
+ "annie_andrews": {
+  "name": "Annie Andrews", "office": "U.S. Senate Candidate",
+  "state": "South Carolina",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. Senate · Republican
+ "darline_graham": {
+  "name": "Darline Graham", "office": "U.S. Senate Candidate",
+  "state": "South Carolina",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Democratic
+ "jermaine_johnson": {
+  "name": "Jermaine Johnson", "office": "Governor Candidate",
+  "state": "South Carolina",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · United Citizens
+ "michael_addison": {
+  "name": "Michael Addison", "office": "Governor Candidate",
+  "state": "South Carolina",
+  "party": "United Citizens", "partyFiled": "United Citizens", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Green
+ "walid_hakim": {
+  "name": "Walid Hakim", "office": "Governor Candidate",
+  "state": "South Carolina",
+  "party": "Green", "partyFiled": "Green", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Republican
+ "david_stumbo": {
+  "name": "David Stumbo", "office": "Attorney General Candidate",
+  "state": "South Carolina",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Democratic
+ "richard_hricik": {
+  "name": "Richard Hricik", "office": "Attorney General Candidate",
+  "state": "South Carolina",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SC-1 · Libertarian
+ "bill_reeside": {
+  "name": "Bill Reeside", "office": "U.S. House Candidate (SC-1)",
+  "state": "South Carolina", "district": "1",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SC-1 · Republican
+ "jenny_honeycutt": {
+  "name": "Jenny Costa Honeycutt", "office": "U.S. House Candidate (SC-1)",
+  "state": "South Carolina", "district": "1",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SC-1 · Democratic
+ "nancy_lacore": {
+  "name": "Nancy Lacore", "office": "U.S. House Candidate (SC-1)",
+  "state": "South Carolina", "district": "1",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SC-2 · Workers
+ "dayna_smith": {
+  "name": "Dayna Alane Smith", "office": "U.S. House Candidate (SC-2)",
+  "state": "South Carolina", "district": "2",
+  "party": "Workers", "partyFiled": "Workers", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SC-2 · Democratic
+ "zyon_khalifa": {
+  "name": "Zyon Khalifa", "office": "U.S. House Candidate (SC-2)",
+  "state": "South Carolina", "district": "2",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SC-3 · Libertarian
+ "brian_corriea": {
+  "name": "Brian Corriea", "office": "U.S. House Candidate (SC-3)",
+  "state": "South Carolina", "district": "3",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SC-3 · Democratic
+ "eunice_lehmacher": {
+  "name": "Eunice Lehmacher", "office": "U.S. House Candidate (SC-3)",
+  "state": "South Carolina", "district": "3",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SC-4 · Democratic
+ "courtney_mcclain": {
+  "name": "Courtney McClain", "office": "U.S. House Candidate (SC-4)",
+  "state": "South Carolina", "district": "4",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SC-4 · Libertarian
+ "jessica_ethridge": {
+  "name": "Jessica Ethridge", "office": "U.S. House Candidate (SC-4)",
+  "state": "South Carolina", "district": "4",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SC-5 · Democratic
+ "mallory_dittmer": {
+  "name": "Mallory Dittmer", "office": "U.S. House Candidate (SC-5)",
+  "state": "South Carolina", "district": "5",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SC-5 · Republican
+ "wes_climer": {
+  "name": "Wes Climer", "office": "U.S. House Candidate (SC-5)",
+  "state": "South Carolina", "district": "5",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SC-6 · Republican
+ "john_peterson": {
+  "name": "John Peterson", "office": "U.S. House Candidate (SC-6)",
+  "state": "South Carolina", "district": "6",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SC-7 · Democratic
+ "john_vincent": {
+  "name": "John Gregory Vincent", "office": "U.S. House Candidate (SC-7)",
+  "state": "South Carolina", "district": "7",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // South Dakota — https://vip.sdsos.gov/candidatelist.aspx?eid=774
+ // Governor · DEM
+ "dan_ahlers": {
+  "name": "Dan Ahlers", "office": "Governor Candidate",
+  "state": "South Dakota",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · REP
+ "lance_russell": {
+  "name": "Lance Russell", "office": "Attorney General Candidate",
+  "state": "South Dakota",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SD-AL · DEM
+ "nicole_gronli": {
+  "name": "Nicole \"Nikki\" Gronli", "office": "U.S. House Candidate (SD-AL)",
+  "state": "South Dakota", "district": "1",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Tennessee — https://sos-prod.tnsosgovfiles.com/s3fs-public/document/USSenate_Nov2026.pdf
+ // U.S. Senate · Democratic
+ "marquita_bradshaw": {
+  "name": "Marquita Bradshaw", "office": "U.S. Senate Candidate",
+  "state": "Tennessee",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Independent
+ "charles_morgan": {
+  "name": "Charles Van Morgan", "office": "Governor Candidate",
+  "state": "Tennessee",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Independent
+ "dave_seeman": {
+  "name": "Dave Seeman", "office": "Governor Candidate",
+  "state": "Tennessee",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Independent
+ "david_hatley": {
+  "name": "David Hatley", "office": "Governor Candidate",
+  "state": "Tennessee",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Independent
+ "dean_brewer": {
+  "name": "Dean Brewer", "office": "Governor Candidate",
+  "state": "Tennessee",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Independent
+ "eddie_murphy": {
+  "name": "Eddie Lee Murphy", "office": "Governor Candidate",
+  "state": "Tennessee",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Democratic
+ "jerri_green": {
+  "name": "Jerri Green", "office": "Governor Candidate",
+  "state": "Tennessee",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Independent
+ "karl_smithson": {
+  "name": "Karl Knox Smithson", "office": "Governor Candidate",
+  "state": "Tennessee",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Independent
+ "webb_taylor": {
+  "name": "L. Webb Taylor", "office": "Governor Candidate",
+  "state": "Tennessee",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Independent
+ "lauren_pinkston": {
+  "name": "Lauren Pinkston", "office": "Governor Candidate",
+  "state": "Tennessee",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Independent
+ "misam_abidi": {
+  "name": "Misam Abidi", "office": "Governor Candidate",
+  "state": "Tennessee",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Independent
+ "ray_brown": {
+  "name": "Ray Brown", "office": "Governor Candidate",
+  "state": "Tennessee",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Independent
+ "robert_vick": {
+  "name": "Robert C. Vick", "office": "Governor Candidate",
+  "state": "Tennessee",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Independent
+ "victor_scoggin": {
+  "name": "Victor L. Scoggin", "office": "Governor Candidate",
+  "state": "Tennessee",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Independent
+ "wendell_jackson": {
+  "name": "Wendell Jackson", "office": "Governor Candidate",
+  "state": "Tennessee",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-1 · Independent
+ "billy_cody": {
+  "name": "Billy Cody", "office": "U.S. House Candidate (TN-1)",
+  "state": "Tennessee", "district": "1",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-1 · Independent
+ "chris_campbell": {
+  "name": "Chris Campbell", "office": "U.S. House Candidate (TN-1)",
+  "state": "Tennessee", "district": "1",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-1 · Independent
+ "joshua_ashburn": {
+  "name": "Joshua Ray Ashburn", "office": "U.S. House Candidate (TN-1)",
+  "state": "Tennessee", "district": "1",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-1 · Democratic
+ "kristi_burke": {
+  "name": "Kristi Burke", "office": "U.S. House Candidate (TN-1)",
+  "state": "Tennessee", "district": "1",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-1 · Independent
+ "richard_baker": {
+  "name": "Richard G. Baker", "office": "U.S. House Candidate (TN-1)",
+  "state": "Tennessee", "district": "1",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-1 · Independent
+ "tyler_mcclain": {
+  "name": "Tyler Brice Mitchell McClain", "office": "U.S. House Candidate (TN-1)",
+  "state": "Tennessee", "district": "1",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-2 · Independent
+ "adam_heimerman": {
+  "name": "Adam Heimerman", "office": "U.S. House Candidate (TN-2)",
+  "state": "Tennessee", "district": "2",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-2 · Independent
+ "bruce_fine": {
+  "name": "Bruce Fine", "office": "U.S. House Candidate (TN-2)",
+  "state": "Tennessee", "district": "2",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-2 · Democratic
+ "michaela_barnett": {
+  "name": "Michaela Barnett", "office": "U.S. House Candidate (TN-2)",
+  "state": "Tennessee", "district": "2",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-3 · Democratic
+ "anna_golladay": {
+  "name": "Anna Golladay", "office": "U.S. House Candidate (TN-3)",
+  "state": "Tennessee", "district": "3",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-3 · Independent
+ "dean_arnold": {
+  "name": "Dean Arnold", "office": "U.S. House Candidate (TN-3)",
+  "state": "Tennessee", "district": "3",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-3 · Independent
+ "donnie_ownby": {
+  "name": "Donnie Lynn Ownby", "office": "U.S. House Candidate (TN-3)",
+  "state": "Tennessee", "district": "3",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-3 · Independent
+ "edward_roland": {
+  "name": "Edward John Roland", "office": "U.S. House Candidate (TN-3)",
+  "state": "Tennessee", "district": "3",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-3 · Independent
+ "jean_hill": {
+  "name": "Jean Howard-Hill", "office": "U.S. House Candidate (TN-3)",
+  "state": "Tennessee", "district": "3",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-3 · Independent
+ "rodney_king": {
+  "name": "Rodney Joe King", "office": "U.S. House Candidate (TN-3)",
+  "state": "Tennessee", "district": "3",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-4 · Independent
+ "clay_faircloth": {
+  "name": "Clay Faircloth", "office": "U.S. House Candidate (TN-4)",
+  "state": "Tennessee", "district": "4",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-4 · Democratic
+ "victoria_broderick": {
+  "name": "Victoria Broderick", "office": "U.S. House Candidate (TN-4)",
+  "state": "Tennessee", "district": "4",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-5 · Republican
+ "charlie_hatcher": {
+  "name": "Charlie Hatcher", "office": "U.S. House Candidate (TN-5)",
+  "state": "Tennessee", "district": "5",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-5 · Democratic
+ "chaz_molder": {
+  "name": "Chaz Molder", "office": "U.S. House Candidate (TN-5)",
+  "state": "Tennessee", "district": "5",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-5 · Independent
+ "james_johnson": {
+  "name": "James A. Johnson", "office": "U.S. House Candidate (TN-5)",
+  "state": "Tennessee", "district": "5",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-5 · Independent
+ "micheal_oleary": {
+  "name": "Micheál (Me-Haul) O'Leary", "office": "U.S. House Candidate (TN-5)",
+  "state": "Tennessee", "district": "5",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-6 · Independent
+ "angus_purdy": {
+  "name": "Angus Purdy", "office": "U.S. House Candidate (TN-6)",
+  "state": "Tennessee", "district": "6",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-6 · Independent
+ "christopher_monday": {
+  "name": "Christopher B. Monday", "office": "U.S. House Candidate (TN-6)",
+  "state": "Tennessee", "district": "6",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-6 · Republican
+ "johnny_garrett": {
+  "name": "Johnny Garrett", "office": "U.S. House Candidate (TN-6)",
+  "state": "Tennessee", "district": "6",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-6 · Democratic
+ "mike_croley": {
+  "name": "Mike Croley", "office": "U.S. House Candidate (TN-6)",
+  "state": "Tennessee", "district": "6",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-7 · Independent
+ "andrew_koontz": {
+  "name": "Andrew J. Koontz", "office": "U.S. House Candidate (TN-7)",
+  "state": "Tennessee", "district": "7",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-7 · Democratic
+ "darden_copeland": {
+  "name": "Darden Copeland", "office": "U.S. House Candidate (TN-7)",
+  "state": "Tennessee", "district": "7",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-7 · Independent
+ "lowell_reynolds": {
+  "name": "Lowell Reynolds", "office": "U.S. House Candidate (TN-7)",
+  "state": "Tennessee", "district": "7",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-8 · Independent
+ "adam_austill": {
+  "name": "Adam D. Austill", "office": "U.S. House Candidate (TN-8)",
+  "state": "Tennessee", "district": "8",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-8 · Independent
+ "antonio_futch": {
+  "name": "Antonio Futch", "office": "U.S. House Candidate (TN-8)",
+  "state": "Tennessee", "district": "8",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-8 · Democratic
+ "heidi_kuhn": {
+  "name": "Heidi Kuhn", "office": "U.S. House Candidate (TN-8)",
+  "state": "Tennessee", "district": "8",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-8 · Independent
+ "henry_ward": {
+  "name": "Henry J. Ward, III", "office": "U.S. House Candidate (TN-8)",
+  "state": "Tennessee", "district": "8",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-8 · Independent
+ "horace_taylor": {
+  "name": "Horace Taylor", "office": "U.S. House Candidate (TN-8)",
+  "state": "Tennessee", "district": "8",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-8 · Independent
+ "pamela_moses": {
+  "name": "Pamela Jeanine \"P.\" Moses", "office": "U.S. House Candidate (TN-8)",
+  "state": "Tennessee", "district": "8",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-8 · Independent
+ "wendell_blankenship": {
+  "name": "Wendell \"Wells\" Blankenship", "office": "U.S. House Candidate (TN-8)",
+  "state": "Tennessee", "district": "8",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-9 · Republican
+ "brent_taylor": {
+  "name": "Brent Taylor", "office": "U.S. House Candidate (TN-9)",
+  "state": "Tennessee", "district": "9",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-9 · Independent
+ "dennis_clark": {
+  "name": "Dennis Clark", "office": "U.S. House Candidate (TN-9)",
+  "state": "Tennessee", "district": "9",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-9 · Democratic
+ "justin_pearson": {
+  "name": "Justin J. Pearson", "office": "U.S. House Candidate (TN-9)",
+  "state": "Tennessee", "district": "9",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-9 · Independent
+ "michelle_head": {
+  "name": "Michelle Davis Head", "office": "U.S. House Candidate (TN-9)",
+  "state": "Tennessee", "district": "9",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Texas — https://www.sos.state.tx.us/elections/forms/2026-ballot-cert.pdf
+ // U.S. Senate · Democratic
+ "james_talarico": {
+  "name": "James Talarico", "office": "U.S. Senate Candidate",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/James_Talarico_Press_Conference_(cropped).jpg/500px-James_Talarico_Press_Conference_(cropped).jpg",
+  "state": "Texas",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Democratic
+ "gina_hinojosa": {
+  "name": "Gina Hinojosa", "office": "Governor Candidate",
+  "state": "Texas",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Libertarian
+ "pat_dixon": {
+  "name": "Pat Dixon", "office": "Governor Candidate",
+  "state": "Texas",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Lieutenant Governor · Libertarian
+ "anthony_cristo": {
+  "name": "Anthony Cristo", "office": "Lieutenant Governor Candidate",
+  "state": "Texas",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Lieutenant Governor · Green
+ "kevin_mccormick": {
+  "name": "Kevin McCormick", "office": "Lieutenant Governor Candidate",
+  "state": "Texas",
+  "party": "Green", "partyFiled": "Green", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Lieutenant Governor · Democratic
+ "vikki_goodwin": {
+  "name": "Vikki Goodwin", "office": "Lieutenant Governor Candidate",
+  "state": "Texas",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Republican
+ "mayes_middleton": {
+  "name": "Mayes Middleton", "office": "Attorney General Candidate",
+  "state": "Texas",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Democratic
+ "nathan_johnson": {
+  "name": "Nathan Johnson", "office": "Attorney General Candidate",
+  "state": "Texas",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Libertarian
+ "tom_oxford": {
+  "name": "Tom Oxford", "office": "Attorney General Candidate",
+  "state": "Texas",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-1 · Democratic
+ "yolanda_prince": {
+  "name": "Yolanda R. Prince", "office": "U.S. House Candidate (TX-1)",
+  "state": "Texas", "district": "1",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-2 · Democratic
+ "shaun_finnie": {
+  "name": "Shaun Finnie", "office": "U.S. House Candidate (TX-2)",
+  "state": "Texas", "district": "2",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-2 · Republican
+ "steve_toth": {
+  "name": "Steve Toth", "office": "U.S. House Candidate (TX-2)",
+  "state": "Texas", "district": "2",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-3 · Democratic
+ "evan_hunt": {
+  "name": "Evan Hunt", "office": "U.S. House Candidate (TX-3)",
+  "state": "Texas", "district": "3",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-4 · Democratic
+ "jason_pearce": {
+  "name": "Jason Pearce", "office": "U.S. House Candidate (TX-4)",
+  "state": "Texas", "district": "4",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-5 · Democratic
+ "chelsey_hockett": {
+  "name": "Chelsey Hockett", "office": "U.S. House Candidate (TX-5)",
+  "state": "Texas", "district": "5",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-6 · Democratic
+ "danny_minton": {
+  "name": "Danny Minton", "office": "U.S. House Candidate (TX-6)",
+  "state": "Texas", "district": "6",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-7 · Republican
+ "alexander_hale": {
+  "name": "Alexander Hale", "office": "U.S. House Candidate (TX-7)",
+  "state": "Texas", "district": "7",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-7 · Green
+ "espoir_ngabo": {
+  "name": "Espoir Ngabo", "office": "U.S. House Candidate (TX-7)",
+  "state": "Texas", "district": "7",
+  "party": "Green", "partyFiled": "Green", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-8 · Republican
+ "jessica_steinmann": {
+  "name": "Jessica Hart Steinmann", "office": "U.S. House Candidate (TX-8)",
+  "state": "Texas", "district": "8",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-8 · Democratic
+ "laura_jones": {
+  "name": "Laura Jones", "office": "U.S. House Candidate (TX-8)",
+  "state": "Texas", "district": "8",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-9 · Republican
+ "alex_mealer": {
+  "name": "Alex Mealer", "office": "U.S. House Candidate (TX-9)",
+  "state": "Texas", "district": "9",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-9 · Democratic
+ "leticia_gutierrez": {
+  "name": "Leticia Gutierrez", "office": "U.S. House Candidate (TX-9)",
+  "state": "Texas", "district": "9",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-10 · Democratic
+ "caitlin_rourk": {
+  "name": "Caitlin Rourk", "office": "U.S. House Candidate (TX-10)",
+  "state": "Texas", "district": "10",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-10 · Republican
+ "chris_gober": {
+  "name": "Chris Gober", "office": "U.S. House Candidate (TX-10)",
+  "state": "Texas", "district": "10",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-11 · Democratic
+ "claire_reynolds": {
+  "name": "Claire Reynolds", "office": "U.S. House Candidate (TX-11)",
+  "state": "Texas", "district": "11",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-12 · Democratic
+ "angela_prilliman": {
+  "name": "Angela \"Heli\" Rodriguez Prilliman", "office": "U.S. House Candidate (TX-12)",
+  "state": "Texas", "district": "12",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-13 · Democratic
+ "mark_nair": {
+  "name": "Mark Nair", "office": "U.S. House Candidate (TX-13)",
+  "state": "Texas", "district": "13",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-14 · Democratic
+ "thurman_bartie": {
+  "name": "Thurman Bill Bartie", "office": "U.S. House Candidate (TX-14)",
+  "state": "Texas", "district": "14",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-15 · Democratic
+ "bobby_pulido": {
+  "name": "Bobby Pulido", "office": "U.S. House Candidate (TX-15)",
+  "state": "Texas", "district": "15",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-16 · Republican
+ "adam_bauman": {
+  "name": "Adam Bauman", "office": "U.S. House Candidate (TX-16)",
+  "state": "Texas", "district": "16",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-17 · Democratic
+ "casey_shepard": {
+  "name": "Casey Shepard", "office": "U.S. House Candidate (TX-17)",
+  "state": "Texas", "district": "17",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-18 · Republican
+ "ronald_whitfield": {
+  "name": "Ronald Dwayne Whitfield", "office": "U.S. House Candidate (TX-18)",
+  "state": "Texas", "district": "18",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-19 · Democratic
+ "kyle_rable": {
+  "name": "Kyle Rable", "office": "U.S. House Candidate (TX-19)",
+  "state": "Texas", "district": "19",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-19 · Republican
+ "tom_sell": {
+  "name": "Tom Sell", "office": "U.S. House Candidate (TX-19)",
+  "state": "Texas", "district": "19",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-20 · Republican
+ "edgardo_baez": {
+  "name": "Edgardo Rafael Baez", "office": "U.S. House Candidate (TX-20)",
+  "state": "Texas", "district": "20",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-21 · Democratic
+ "kristin_hook": {
+  "name": "Kristin Hook", "office": "U.S. House Candidate (TX-21)",
+  "state": "Texas", "district": "21",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-21 · Republican
+ "mark_teixeira": {
+  "name": "Mark Teixeira", "office": "U.S. House Candidate (TX-21)",
+  "state": "Texas", "district": "21",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-22 · Democratic
+ "marquette_scott": {
+  "name": "Marquette Greene-Scott", "office": "U.S. House Candidate (TX-22)",
+  "state": "Texas", "district": "22",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-22 · Republican
+ "trever_nehls": {
+  "name": "Trever Nehls", "office": "U.S. House Candidate (TX-22)",
+  "state": "Texas", "district": "22",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-23 · Independent
+ "ben_mendoza": {
+  "name": "Ben Mendoza", "office": "U.S. House Candidate (TX-23)",
+  "state": "Texas", "district": "23",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-23 · Republican
+ "brandon_herrera": {
+  "name": "Brandon Herrera", "office": "U.S. House Candidate (TX-23)",
+  "state": "Texas", "district": "23",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-23 · Democratic
+ "katy_stout": {
+  "name": "Katy Padilla Stout", "office": "U.S. House Candidate (TX-23)",
+  "state": "Texas", "district": "23",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-24 · Democratic
+ "kevin_burge": {
+  "name": "Kevin Burge", "office": "U.S. House Candidate (TX-24)",
+  "state": "Texas", "district": "24",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-25 · Democratic
+ "dione_sims": {
+  "name": "Dione Sims", "office": "U.S. House Candidate (TX-25)",
+  "state": "Texas", "district": "25",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-26 · Libertarian
+ "phil_gray": {
+  "name": "Phil Gray", "office": "U.S. House Candidate (TX-26)",
+  "state": "Texas", "district": "26",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-26 · Democratic
+ "steven_shook": {
+  "name": "Steven Shook", "office": "U.S. House Candidate (TX-26)",
+  "state": "Texas", "district": "26",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-27 · Democratic
+ "tanya_lloyd": {
+  "name": "Tanya Lloyd", "office": "U.S. House Candidate (TX-27)",
+  "state": "Texas", "district": "27",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-28 · Green
+ "marlon_duran": {
+  "name": "Marlón Durán", "office": "U.S. House Candidate (TX-28)",
+  "state": "Texas", "district": "28",
+  "party": "Green", "partyFiled": "Green", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-28 · Republican
+ "tano_tijerina": {
+  "name": "Tano E. Tijerina", "office": "U.S. House Candidate (TX-28)",
+  "state": "Texas", "district": "28",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-29 · Republican
+ "martha_fierro": {
+  "name": "Martha Fierro", "office": "U.S. House Candidate (TX-29)",
+  "state": "Texas", "district": "29",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-30 · Republican
+ "everett_jackson": {
+  "name": "Everett Jackson", "office": "U.S. House Candidate (TX-30)",
+  "state": "Texas", "district": "30",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-30 · Democratic
+ "frederick_haynes": {
+  "name": "Frederick D. Haynes III", "office": "U.S. House Candidate (TX-30)",
+  "state": "Texas", "district": "30",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-31 · Green
+ "greg_stoker": {
+  "name": "Greg Stoker", "office": "U.S. House Candidate (TX-31)",
+  "state": "Texas", "district": "31",
+  "party": "Green", "partyFiled": "Green", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-31 · Democratic
+ "justin_early": {
+  "name": "Justin Early", "office": "U.S. House Candidate (TX-31)",
+  "state": "Texas", "district": "31",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-32 · Democratic
+ "dan_barrios": {
+  "name": "Dan Barrios", "office": "U.S. House Candidate (TX-32)",
+  "state": "Texas", "district": "32",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-32 · Republican
+ "jace_yarbrough": {
+  "name": "Jace Yarbrough", "office": "U.S. House Candidate (TX-32)",
+  "state": "Texas", "district": "32",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-33 · Democratic
+ "colin_allred": {
+  "name": "Colin Allred", "office": "U.S. House Candidate (TX-33)",
+  "state": "Texas", "district": "33",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-33 · Republican
+ "patrick_gillespie": {
+  "name": "Patrick David Gillespie", "office": "U.S. House Candidate (TX-33)",
+  "state": "Texas", "district": "33",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-34 · Libertarian
+ "chris_royal": {
+  "name": "Chris Royal", "office": "U.S. House Candidate (TX-34)",
+  "state": "Texas", "district": "34",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-34 · Green
+ "eddie_espinoza": {
+  "name": "Eddie Espinoza", "office": "U.S. House Candidate (TX-34)",
+  "state": "Texas", "district": "34",
+  "party": "Green", "partyFiled": "Green", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-34 · Republican
+ "eric_flores": {
+  "name": "Eric Flores", "office": "U.S. House Candidate (TX-34)",
+  "state": "Texas", "district": "34",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-35 · Democratic
+ "johnny_garcia": {
+  "name": "Johnny C. Garcia", "office": "U.S. House Candidate (TX-35)",
+  "state": "Texas", "district": "35",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-36 · Democratic
+ "rhonda_hart": {
+  "name": "Rhonda Hart", "office": "U.S. House Candidate (TX-36)",
+  "state": "Texas", "district": "36",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-37 · Republican
+ "lauren_pena": {
+  "name": "Lauren B. Peña", "office": "U.S. House Candidate (TX-37)",
+  "state": "Texas", "district": "37",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-38 · Green
+ "alex_mcmenemy": {
+  "name": "Alex McMenemy", "office": "U.S. House Candidate (TX-38)",
+  "state": "Texas", "district": "38",
+  "party": "Green", "partyFiled": "Green", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-38 · Republican
+ "jon_bonck": {
+  "name": "Jon Bonck", "office": "U.S. House Candidate (TX-38)",
+  "state": "Texas", "district": "38",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-38 · Democratic
+ "melissa_mcdonough": {
+  "name": "Melissa McDonough", "office": "U.S. House Candidate (TX-38)",
+  "state": "Texas", "district": "38",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Vermont — https://outside.vermont.gov/dept/sos/Elections_Division/election_info_resources/candidates/2026_general_election_qualified_candidates.xlsx
+ // Governor · DEM/PROG
+ "amanda_janoo": {
+  "name": "Amanda Janoo", "office": "Governor Candidate",
+  "state": "Vermont",
+  "party": "D", "partyFiled": "DEM/PROG", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · INDEPENDENT
+ "brian_judd": {
+  "name": "Brian Judd", "office": "Governor Candidate",
+  "state": "Vermont",
+  "party": "INDEPENDENT", "partyFiled": "INDEPENDENT", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · FREEDOM AND UNITY
+ "dean_roy": {
+  "name": "Dean Roy", "office": "Governor Candidate",
+  "state": "Vermont",
+  "party": "FREEDOM AND UNITY", "partyFiled": "FREEDOM AND UNITY", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · PEACE AND JUSTICE
+ "june_goodband": {
+  "name": "June Goodband", "office": "Governor Candidate",
+  "state": "Vermont",
+  "party": "PEACE AND JUSTICE", "partyFiled": "PEACE AND JUSTICE", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · REPUBLICAN
+ "edwin_kemon": {
+  "name": "Edwin Howell Kemon", "office": "Attorney General Candidate",
+  "state": "Vermont",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VT-AL · INDEPENDENT
+ "adam_ortiz": {
+  "name": "Adam Ortiz", "office": "U.S. House Candidate (VT-AL)",
+  "state": "Vermont", "district": "1",
+  "party": "INDEPENDENT", "partyFiled": "INDEPENDENT", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VT-AL · REPUBLICAN
+ "gerald_malloy": {
+  "name": "Gerald Malloy", "office": "U.S. House Candidate (VT-AL)",
+  "state": "Vermont", "district": "1",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VT-AL · INDEPENDENT
+ "phoenix_altair": {
+  "name": "Phoenix K. Altair", "office": "U.S. House Candidate (VT-AL)",
+  "state": "Vermont", "district": "1",
+  "party": "INDEPENDENT", "partyFiled": "INDEPENDENT", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VT-AL · INDEPENDENT
+ "ryan_walton": {
+  "name": "Ryan P. Walton", "office": "U.S. House Candidate (VT-AL)",
+  "state": "Vermont", "district": "1",
+  "party": "INDEPENDENT", "partyFiled": "INDEPENDENT", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VT-AL · INDEPENDENT
+ "suzanne_seymour": {
+  "name": "Suzanne \"Suz\" Seymour", "office": "U.S. House Candidate (VT-AL)",
+  "state": "Vermont", "district": "1",
+  "party": "INDEPENDENT", "partyFiled": "INDEPENDENT", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Virginia — https://www.elections.virginia.gov/casting-a-ballot/candidate-list/november-3-2026-gen-elect-federal-offices/
+ // U.S. Senate · Republican
+ "bert_mizusawa": {
+  "name": "Bert Mizusawa", "office": "U.S. Senate Candidate",
+  "state": "Virginia",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-1 · Democratic
+ "shannon_taylor": {
+  "name": "Shannon L. Taylor", "office": "U.S. House Candidate (VA-1)",
+  "state": "Virginia", "district": "1",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-2 · Democratic
+ "elaine_luria": {
+  "name": "Elaine G. Luria", "office": "U.S. House Candidate (VA-2)",
+  "state": "Virginia", "district": "2",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-3 · Republican
+ "edwin_rivera": {
+  "name": "Edwin Rivera, Jr.", "office": "U.S. House Candidate (VA-3)",
+  "state": "Virginia", "district": "3",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-3 · Independent
+ "makiba_gaines": {
+  "name": "Makiba A. Gaines", "office": "U.S. House Candidate (VA-3)",
+  "state": "Virginia", "district": "3",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-3 · Independent
+ "stephen_woll": {
+  "name": "Stephen C. Woll", "office": "U.S. House Candidate (VA-3)",
+  "state": "Virginia", "district": "3",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-4 · Independent
+ "joan_bell": {
+  "name": "Joan E. \"Andrews\" Bell", "office": "U.S. House Candidate (VA-4)",
+  "state": "Virginia", "district": "4",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-4 · Republican
+ "robert_murray": {
+  "name": "Robert P. \"Family Man\" Murray, Jr.", "office": "U.S. House Candidate (VA-4)",
+  "state": "Virginia", "district": "4",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-5 · Independent
+ "cooke_harvey": {
+  "name": "Cooke C. Harvey", "office": "U.S. House Candidate (VA-5)",
+  "state": "Virginia", "district": "5",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-5 · Democratic
+ "tom_perriello": {
+  "name": "Tom S. P. Perriello", "office": "U.S. House Candidate (VA-5)",
+  "state": "Virginia", "district": "5",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-6 · Democratic
+ "beth_macy": {
+  "name": "Beth A. Macy", "office": "U.S. House Candidate (VA-6)",
+  "state": "Virginia", "district": "6",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-7 · Independent
+ "alaha_ahrar": {
+  "name": "Alaha Ahrar", "office": "U.S. House Candidate (VA-7)",
+  "state": "Virginia", "district": "7",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-7 · Republican
+ "doug_ollivant": {
+  "name": "Doug A. Ollivant", "office": "U.S. House Candidate (VA-7)",
+  "state": "Virginia", "district": "7",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-7 · Independent
+ "joshua_ertle": {
+  "name": "Joshua E. Ertle", "office": "U.S. House Candidate (VA-7)",
+  "state": "Virginia", "district": "7",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-7 · Independent
+ "randall_terry": {
+  "name": "Randall A. Terry", "office": "U.S. House Candidate (VA-7)",
+  "state": "Virginia", "district": "7",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-8 · Independent
+ "tim_sharman": {
+  "name": "Tim S. Sharman", "office": "U.S. House Candidate (VA-8)",
+  "state": "Virginia", "district": "8",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-8 · Republican
+ "tony_sabio": {
+  "name": "Tony A. Sabio", "office": "U.S. House Candidate (VA-8)",
+  "state": "Virginia", "district": "8",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-9 · Democratic
+ "joy_powers": {
+  "name": "Joy A. Powers", "office": "U.S. House Candidate (VA-9)",
+  "state": "Virginia", "district": "9",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-10 · Independent
+ "ahsen_malik": {
+  "name": "Ahsen Mujeeb Malik", "office": "U.S. House Candidate (VA-10)",
+  "state": "Virginia", "district": "10",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-10 · Republican
+ "dave_beckwith": {
+  "name": "Dave T. Beckwith", "office": "U.S. House Candidate (VA-10)",
+  "state": "Virginia", "district": "10",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-11 · Republican
+ "arthur_purves": {
+  "name": "Arthur G. Purves", "office": "U.S. House Candidate (VA-11)",
+  "state": "Virginia", "district": "11",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Washington — https://voter.votewa.gov/CandidateList.aspx?e=899
+ // WA-1 · REPUBLICAN
+ "mary_silva": {
+  "name": "Mary Silva", "office": "U.S. House Candidate (WA-1)",
+  "state": "Washington", "district": "1",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WA-2 · REPUBLICAN
+ "edwin_feller": {
+  "name": "Edwin H. Feller", "office": "U.S. House Candidate (WA-2)",
+  "state": "Washington", "district": "2",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WA-4 · REPUBLICAN
+ "amanda_mckinney": {
+  "name": "Amanda McKinney", "office": "U.S. House Candidate (WA-4)",
+  "state": "Washington", "district": "4",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WA-4 · DEMOCRATIC
+ "john_duresky": {
+  "name": "John Duresky", "office": "U.S. House Candidate (WA-4)",
+  "state": "Washington", "district": "4",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WA-5 · DEMOCRATIC
+ "carmela_conroy": {
+  "name": "Carmela Conroy", "office": "U.S. House Candidate (WA-5)",
+  "state": "Washington", "district": "5",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WA-6 · REPUBLICAN
+ "teresa_fox": {
+  "name": "Teresa Fox", "office": "U.S. House Candidate (WA-6)",
+  "state": "Washington", "district": "6",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WA-7 · REPUBLICAN
+ "nirav_sheth": {
+  "name": "Nirav Sheth", "office": "U.S. House Candidate (WA-7)",
+  "state": "Washington", "district": "7",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WA-8 · REPUBLICAN
+ "spencer_meline": {
+  "name": "Spencer Meline", "office": "U.S. House Candidate (WA-8)",
+  "state": "Washington", "district": "8",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WA-9 · REPUBLICAN
+ "doug_basler": {
+  "name": "Doug Basler", "office": "U.S. House Candidate (WA-9)",
+  "state": "Washington", "district": "9",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WA-10 · REPUBLICAN
+ "chris_chung": {
+  "name": "Chris D. Chung", "office": "U.S. House Candidate (WA-10)",
+  "state": "Washington", "district": "10",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // West Virginia — https://candidates.wvsos.gov/regular
+ // U.S. Senate · DEMOCRAT
+ "rachel_anderson": {
+  "name": "Rachel Fetty Anderson", "office": "U.S. Senate Candidate",
+  "state": "West Virginia",
+  "party": "D", "partyFiled": "DEMOCRAT", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WV-1 · CONSTITUTION
+ "belinda_spencer": {
+  "name": "Belinda Fox-Spencer", "office": "U.S. House Candidate (WV-1)",
+  "state": "West Virginia", "district": "1",
+  "party": "CONSTITUTION", "partyFiled": "CONSTITUTION", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WV-1 · DEMOCRAT
+ "vince_george": {
+  "name": "Vince George", "office": "U.S. House Candidate (WV-1)",
+  "state": "West Virginia", "district": "1",
+  "party": "D", "partyFiled": "DEMOCRAT", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WV-2 · DEMOCRAT
+ "ace_parsi": {
+  "name": "Ace Parsi", "office": "U.S. House Candidate (WV-2)",
+  "state": "West Virginia", "district": "2",
+  "party": "D", "partyFiled": "DEMOCRAT", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Wisconsin — https://elections.wi.gov/media/40951/download
+ // Governor · Democratic
+ "david_crowley": {
+  "name": "David Crowley", "office": "Governor Candidate",
+  "state": "Wisconsin",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Republican
+ "eric_toney": {
+  "name": "Eric Toney", "office": "Attorney General Candidate",
+  "state": "Wisconsin",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WI-1 · Democratic
+ "mitchell_berman": {
+  "name": "Mitchell Berman", "office": "U.S. House Candidate (WI-1)",
+  "state": "Wisconsin", "district": "1",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WI-3 · Independent
+ "alexander_kent": {
+  "name": "Alexander Valiensi Kent", "office": "U.S. House Candidate (WI-3)",
+  "state": "Wisconsin", "district": "3",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WI-3 · Democratic
+ "rebecca_cooke": {
+  "name": "Rebecca Cooke", "office": "U.S. House Candidate (WI-3)",
+  "state": "Wisconsin", "district": "3",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WI-3 · Independent
+ "rustin_provance": {
+  "name": "Rustin Provance", "office": "U.S. House Candidate (WI-3)",
+  "state": "Wisconsin", "district": "3",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WI-4 · Independent
+ "arthur_burks": {
+  "name": "Arthur Burks", "office": "U.S. House Candidate (WI-4)",
+  "state": "Wisconsin", "district": "4",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WI-4 · Republican
+ "tim_rogers": {
+  "name": "Tim Rogers", "office": "U.S. House Candidate (WI-4)",
+  "state": "Wisconsin", "district": "4",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WI-5 · Democratic
+ "andrew_beck": {
+  "name": "Andrew Beck", "office": "U.S. House Candidate (WI-5)",
+  "state": "Wisconsin", "district": "5",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WI-6 · Democratic
+ "brad_smith": {
+  "name": "Brad Smith", "office": "U.S. House Candidate (WI-6)",
+  "state": "Wisconsin", "district": "6",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WI-6 · Independent
+ "elizabeth_fitzgibbon": {
+  "name": "Elizabeth Anne Fitzgibbon", "office": "U.S. House Candidate (WI-6)",
+  "state": "Wisconsin", "district": "6",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WI-6 · Wisconsin Green
+ "matthew_arndt": {
+  "name": "Matthew Arndt", "office": "U.S. House Candidate (WI-6)",
+  "state": "Wisconsin", "district": "6",
+  "party": "Wisconsin Green", "partyFiled": "Wisconsin Green", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WI-6 · Independent
+ "mike_thurow": {
+  "name": "Mike Thurow", "office": "U.S. House Candidate (WI-6)",
+  "state": "Wisconsin", "district": "6",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WI-7 · Democratic
+ "fred_clark": {
+  "name": "Fred Clark", "office": "U.S. House Candidate (WI-7)",
+  "state": "Wisconsin", "district": "7",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WI-7 · Republican
+ "michael_alfonso": {
+  "name": "Michael Alfonso", "office": "U.S. House Candidate (WI-7)",
+  "state": "Wisconsin", "district": "7",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WI-8 · Democratic
+ "rick_crosson": {
+  "name": "Rick Crosson", "office": "U.S. House Candidate (WI-8)",
+  "state": "Wisconsin", "district": "8",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Wyoming — https://sos.wyo.gov/Elections/Docs/2026/2026_WY_General_Election_Candidates.csv
+ // U.S. Senate · Democratic
+ "james_byrd": {
+  "name": "James Byrd", "office": "U.S. Senate Candidate",
+  "state": "Wyoming",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Republican
+ "eric_barlow": {
+  "name": "Eric Barlow", "office": "Governor Candidate",
+  "state": "Wyoming",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Democratic
+ "kenneth_casner": {
+  "name": "Kenneth R. Casner", "office": "Governor Candidate",
+  "state": "Wyoming",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Constitution
+ "rebecca_bextel": {
+  "name": "Rebecca Bextel", "office": "Governor Candidate",
+  "state": "Wyoming",
+  "party": "Constitution", "partyFiled": "Constitution", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WY-AL · Republican
+ "chuck_gray": {
+  "name": "Chuck Gray", "office": "U.S. House Candidate (WY-AL)",
+  "state": "Wyoming", "district": "1",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WY-AL · Democratic
+ "lisa_kinney": {
+  "name": "Lisa Kinney", "office": "U.S. House Candidate (WY-AL)",
+  "state": "Wyoming", "district": "1",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
  }
 });

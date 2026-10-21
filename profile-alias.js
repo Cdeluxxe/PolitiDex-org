@@ -54,7 +54,7 @@
 (function () {
   'use strict';
 
-  // COPIED VERBATIM FROM profile-evidence.js LINES 364–455.
+  // COPIED VERBATIM FROM profile-evidence.js LINES 370–469.
     window.PDX_PROFILE_ALIAS = window.PDX_PROFILE_ALIAS || {
       // curated keys with no roster record of their own
       kivory:    'ivory_h39',
@@ -146,5 +146,13 @@
       jim_dunnigan:     'james_dunnigan',
       norm_thurston:    'nthurston',
       raymond_ward:     'rward',
+      // Sitting members on other states' official 2026 candidate lists under
+      // another form of their own name (db/roster-candidates-2026-oct.json).
+      francisco_aguilar: 'cisco_aguilar',
+      gil_cisneros:     'gilbert_cisneros',
+      herb_conaway:     'herbert_conaway',
+      lou_correa:       'j_correa',
+      nelida_pou:       'nellie_pou',
+      suzanne_lee:      'susie_lee',
     };
 })();

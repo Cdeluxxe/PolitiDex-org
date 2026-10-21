@@ -10488,7 +10488,18 @@
 //     cmp-data.js is precached and changed, so the shell moves one version.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v440';
+// v441 - CURRENT CANDIDATES OUTSIDE UTAH, ROSTER ROWS. cmp-data.js gains 869
+//     identity-only candidate rows: every nominee for U.S. Senate, U.S. House and
+//     the tracked statewide offices on the official 2026 candidate list of 43
+//     states, whom the roster did not already hold. Each is `candidate: true`,
+//     so no seat lookup, board or /voice card names one as a sitting member, and
+//     no board, composer or residency check opens for any of them. Six
+//     filing-spelling bridges to sitting members join both alias tables and the
+//     prefetch mirror in index.html and person.html. cmp-data.js is precached and
+//     changed, so the shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v441';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

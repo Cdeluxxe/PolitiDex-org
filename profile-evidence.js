@@ -280,6 +280,12 @@
       jen_plumb: 'jennifer_plumb',
       jim_dunnigan: 'james_dunnigan',
       norm_thurston: 'nthurston',
+      francisco_aguilar: 'cisco_aguilar',
+      gil_cisneros: 'gilbert_cisneros',
+      herb_conaway: 'herbert_conaway',
+      lou_correa: 'j_correa',
+      nelida_pou: 'nellie_pou',
+      suzanne_lee: 'susie_lee',
       snider: 'snider_h5',
       lisonbee: 'klisonbee',
       ken_ivory: 'kivory',
@@ -452,6 +458,14 @@
       jim_dunnigan:     'james_dunnigan',
       norm_thurston:    'nthurston',
       raymond_ward:     'rward',
+      // Sitting members on other states' official 2026 candidate lists under
+      // another form of their own name (db/roster-candidates-2026-oct.json).
+      francisco_aguilar: 'cisco_aguilar',
+      gil_cisneros:     'gilbert_cisneros',
+      herb_conaway:     'herbert_conaway',
+      lou_correa:       'j_correa',
+      nelida_pou:       'nellie_pou',
+      suzanne_lee:      'susie_lee',
     };
 
     // Resolve any id to one a profile can actually open, in a single step.

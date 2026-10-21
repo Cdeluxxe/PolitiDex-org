@@ -458,7 +458,21 @@ const rosterWaveAdmissions = (() => {
   eq(gone.join("|"), "", "the pass removed someone from the roster");
 
   const added = now.filter((p) => PIDS.indexOf(p) < 0);
-  const unnamed = added.filter((p) => !ADDED[p] && !rosterWaveAdmissions.has(p));
+  // The October 2026 candidates outside Utah: 869 identity rows, each named with its
+  // official source in db/roster-candidates-2026-oct.json, and held to the same inert
+  // rule as a roster wave — plus `candidate: true`, so none can read as a member.
+  const candidateBatch = (() => {
+    try { return new Set(JSON.parse(readFileSync(join(ROOT, "db/roster-candidates-2026-oct.json"), "utf8")).rows.map((r) => r.pid)); }
+    catch { return new Set(); }
+  })();
+  const notInertCandidates = added.filter((p) => candidateBatch.has(p)).filter((p) => {
+    const r = (after.CMP_DATA || {})[p] || {};
+    return r.candidate !== true || r.score !== null || r.kept !== 0 || r.broken !== 0 || r.pending !== 0
+      || !Array.isArray(r.issues) || r.issues.length !== 0;
+  });
+  eq(notInertCandidates.join("|"), "",
+    "a 2026 candidate row arrived carrying a judged surface or without candidate: true");
+  const unnamed = added.filter((p) => !ADDED[p] && !rosterWaveAdmissions.has(p) && !candidateBatch.has(p));
 
   // Clause 3: every sourced admission is inert. Typed ADDED entries are not held to this —
   // kstratton and the Utah waves predate the rule and are audited by their own line.

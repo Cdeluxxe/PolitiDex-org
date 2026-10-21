@@ -21,8 +21,8 @@
 //      running for, labelled "2026 Candidate" and "Active Candidate — on the
 //      2026 ballot", and never as the seat's holder.
 //   4. No candidate is seated on any lookup, board or /voice card.
-//   5. Nothing grew: the roster is 1,332 rows, the last declared admission is
-//      still the Republican and Democratic batch, and that batch is intact.
+//   5. Nothing grew: no Utah row followed the Republican and Democratic batch,
+//      without later batches the roster is 1,332 rows, and that batch is intact.
 // ─────────────────────────────────────────────────────────────────────────────
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
@@ -279,16 +279,24 @@ for (const [chamber, count] of [["statehouse", 75], ["statesenate", 29]]) {
 section("5 · nothing grew, and the Republican and Democratic batch is intact");
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  eq(Object.keys(RO).length, 1332, "the roster is 1,332 rows — this pass added none");
-  const last = DECLARED_ADMISSIONS[DECLARED_ADMISSIONS.length - 1];
-  eq(last.wave, "utah_major_party_nominees_oct2026", "no admission was declared after the Republican and Democratic batch");
-  eq(last.pids.length, 91, "…which still declares its 91 pids");
-  for (const p of last.pids) {
+  // No Utah row was added after the Republican and Democratic batch. A later
+  // batch outside Utah is allowed; with every later block carved out, the roster
+  // is the 1,332 rows this pass found.
+  const i = DECLARED_ADMISSIONS.findIndex((d) => d.wave === "utah_major_party_nominees_oct2026");
+  must(i >= 0, "the Republican and Democratic batch is no longer declared");
+  const rd = DECLARED_ADMISSIONS[i];
+  eq(rd.pids.length, 91, "…which still declares its 91 pids");
+  const later = DECLARED_ADMISSIONS.slice(i + 1);
+  const laterPids = new Set(later.flatMap((d) => d.pids));
+  for (const p of laterPids) ok(!/^(?:Utah|UT\b)/.test(String((RO[p] || {}).state || "")), `${p}: a later batch added no Utah row`);
+  eq(Object.keys(RO).filter((p) => !laterPids.has(p)).length, 1332, "without later batches the roster is 1,332 rows — this pass added none");
+  for (const p of rd.pids) {
     const r = RO[p];
     ok(!!r && r.candidate === true && /^[RD]$/.test(r.party) && /^(Republican|Democratic)$/.test(r.partyFiled), `${p}: still a Republican or Democratic candidate row`);
   }
-  const at = SRC.indexOf(last.banner);
-  ok(at > 0 && SRC.indexOf("\n// ── ", at + last.banner.length) < 0, "the Republican and Democratic block is still the last block in cmp-data.js");
+  const at = SRC.indexOf(rd.banner);
+  const next = SRC.indexOf("\n// ── ", at + rd.banner.length);
+  ok(at > 0 && (next < 0 || later.some((d) => SRC.indexOf(d.banner) === next + 1)), "only later declared batches follow the Republican and Democratic block");
 }
 
 report();

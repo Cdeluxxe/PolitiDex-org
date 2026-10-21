@@ -262,12 +262,15 @@ for (const pid of NEW) eq(W.PDXProfilePid(pid), pid, `/p/${pid} opens ${pid}'s o
 section("3 · no sitting member's row moved, and the roster grew by exactly the new candidates");
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  // THIS batch carved out, and only this one: it is the last block in the file,
-  // so it runs from its banner (and the comma that joined it) to the close.
+  // THIS batch carved out, and only this one: from its banner (and the comma
+  // that joined it to the row before) to the next declared banner, or to the
+  // close when it is the last block. A later batch after it changes nothing here.
   const at = SRC.indexOf(BANNER);
-  must(at > 0 && SRC.lastIndexOf(",\n", at) === at - 2 && SRC.indexOf("\n// ── ", at + BANNER.length) < 0,
-    "the batch is not the last declared block in cmp-data.js");
-  const carved = SRC.slice(0, at - 2) + SRC.slice(SRC.lastIndexOf("\n});"));
+  must(at > 0 && SRC.lastIndexOf(",\n", at) === at - 2, "the batch's block could not be located in cmp-data.js");
+  const nextBanner = SRC.indexOf("\n// ── ", at + BANNER.length);
+  const carved = nextBanner > at
+    ? SRC.slice(0, at - 2) + "," + SRC.slice(nextBanner)
+    : SRC.slice(0, at - 2) + SRC.slice(SRC.lastIndexOf("\n});"));
   const base = roster(carved);
   const baseKeys = Object.keys(base);
   eq(Object.keys(RO).length, baseKeys.length + NEW.length, "roster length = the roster without this batch + the new candidates");

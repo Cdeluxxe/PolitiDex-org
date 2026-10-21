@@ -3388,6 +3388,13 @@ export const DECLARED_ADMISSIONS = [
       "rebecca_winsor",
     ],
   },
+  {
+    // Too many rows to type here, so the list is the committed record of
+    // the pass itself, which also names each state's official source.
+    wave: "candidates_outside_utah_oct2026",
+    banner: "// ── Current candidates outside Utah, 2026 general election, official state lists (Oct 2026)",
+    pids: JSON.parse(_readFileSync(new URL("../db/roster-candidates-2026-oct.json", import.meta.url), "utf8")).rows.map((r) => r.pid),
+  },
 ];
 /**
  * DECLARED STANCE PASSES — people whose curated stance list a pass rewrote ON
