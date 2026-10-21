@@ -5780,6 +5780,13 @@
                  $0: see the walls in pdx-finance.js and over the chips in
                  finance-lane.js. -->
             ${(window.PDXFinanceLane && typeof window.PDXFinanceLane.wealthLetterheadChipMount === 'function') ? window.PDXFinanceLane.wealthLetterheadChipMount(id, p) : ''}
+            <!-- THE AIPAC CHIP. Same money token, after the two 💰 pills and before
+                 the party. It names a relationship and its source (OpenSecrets / FEC
+                 receipts filtered to AIPAC-affiliated PACs, or AIPAC's own scorecard
+                 against formal acts already in the archive) and never prints a
+                 dollar figure or a percentage. Renders on every profile; the empty
+                 state is "No AIPAC file on hand". See pdx-aipac.js. -->
+            ${(window.PDXAipac && typeof window.PDXAipac.chipMount === 'function') ? window.PDXAipac.chipMount(id) : ''}
             ${p.party ? `<span class="profile-party">${p.party}</span>` : ''}
           </div>
         </div>

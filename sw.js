@@ -10378,7 +10378,65 @@
 //     person shells pick them up. No score, no Direction Match figure, no new key.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v430';
+// v431 - THE AIPAC CHIP. The person-file letterhead gains one chip after the two
+//     money pills: AIPAC-backed / Mixed / No AIPAC file on hand, read from the
+//     money lane's filings (AIPAC-affiliated PAC names only) and an AIPAC
+//     scorecard table that ships empty. pdx-aipac.js is new and precached;
+//     profiles-full.js, person.html and index.html are shell assets and changed.
+//     No dollar figure, no percentage, no score, no new key.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v432 - THE AIPAC SCORECARD IS KEYED TO THE ARCHIVE'S OWN ROLL-CALL IDENTITY.
+//     pdx-aipac.js's scorecard table now names a roll call by chamber, congress,
+//     session, roll number and bill, and records AIPAC's stance as support or
+//     oppose, instead of keying on the archive's database serial. The table is
+//     still empty: AIPAC publishes no vote scorecard for the 119th Congress, so
+//     there is nothing of its own to transcribe. pdx-aipac.js is precached and
+//     changed. The chip's text and accessible name are unchanged.
+//     No dollar figure, no percentage, no score, no new key.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v433 - THE AIPAC CHIP NAMES ITS VOTE SOURCE. pdx-aipac.js reads its vote
+//     table as Track AIPAC's reading, not AIPAC's: the chip says "Track AIPAC
+//     reading" in its text and accessible name and never "AIPAC scorecard", and
+//     gains a fourth state, Not AIPAC-aligned. The table is still empty: Track
+//     AIPAC publishes no per-roll-call positions to transcribe. pdx-aipac.js is
+//     precached and changed.
+//     No dollar figure, no percentage, no score, no new key.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v434 - THE AIPAC CHIP READS IMEU'S SENATE SCORECARD. pdx-aipac.js's vote
+//     table gains four rows from the IMEU Policy Project's 119th-Congress Senate
+//     scorecard: the 2025 arms-sale disapproval discharge votes it credits a yea
+//     on (S.J.Res. 33, 26, 41, 34; rolls 165, 166, 454, 455), all formal acts
+//     already in the archive. The chip names "IMEU reading" and never "AIPAC
+//     scorecard"; the Track AIPAC reading stays in place with no rows. Cutoffs
+//     move to 45% / 12%. pdx-aipac.js is precached and changed.
+//     No dollar figure, no percentage, no score, no new key.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v435 - THE AIPAC CHIP GAINS A MONEY SIDE FOR THE WHOLE ROSTER. pdx-aipac.js
+//     carries a generated table (scripts/gen-aipac-pac.mjs) of AIPAC PAC's own
+//     direct contributions reported to the FEC (C00797670, type 24K, earmarks
+//     excluded), netted over the current cycles: 351 roster people with a net
+//     above zero read AIPAC-backed, and the chip names "Reported AIPAC PAC
+//     contributions (FEC)". The IMEU vote rows are unchanged. pdx-aipac.js is
+//     precached and changed.
+//     No dollar figure, no percentage, no score, no new key.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v436 - THE AIPAC CHIP'S MONEY SIDE READS NORPAC AND PRO-ISRAEL AMERICA PAC.
+//     The generated table in pdx-aipac.js now sums the same direct, net-of-
+//     refunds FEC contributions for NORPAC (C00247403) and Pro-Israel America
+//     PAC (C00699470) beside AIPAC PAC: 356 roster people on file, five of them
+//     through NORPAC alone. Pro-Israel America PAC files no committee-to-
+//     candidate rows in either cycle. The chip names the committees in each
+//     person's source. The IMEU vote rows are unchanged. pdx-aipac.js is
+//     precached and changed.
+//     No dollar figure, no percentage, no score, no new key.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v436';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -11157,6 +11215,8 @@ const SHELL_ASSETS = [
   '/pdx-finance.js',
   '/finance-lane.js',
   '/finance-lane.css',
+  // The AIPAC letterhead chip. Precached beside the lane it reads through.
+  '/pdx-aipac.js',
   // THE EXECUTIVE LANE. Not optional once /p/* serves one document for every
   // person address: without these, a governor's or a president's file answers a
   // real address with a congressional "nothing on file".
