@@ -10466,7 +10466,17 @@
 //     voice_poll_votes and voice_residency, keyed by seat, as Utah's already do.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v438';
+// v439 - THE GENERATOR ASKS EVERY OTHER STATE'S STATE LEGISLATIVE SEATS, AND
+//     OPENS NONE. scripts/gen-district-boards.mjs now puts every State House and
+//     State Senate member the roster holds outside Utah to the location
+//     resolver, and opens a read-only board only where that resolver already
+//     maps the state's legislative lines and seats that member. It maps Utah's
+//     alone, so zero boards opened: no document, no rewrite, no row, and every
+//     Utah and federal board is byte-identical. Shell bumped so the generator's
+//     pass ships on a fresh shell.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v439';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

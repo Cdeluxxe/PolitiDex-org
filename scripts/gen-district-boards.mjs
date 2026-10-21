@@ -44,7 +44,17 @@
 //   · NO OFFLINE COPY. Four hundred documents are not precached onto a phone;
 //     sw.js's three blocks stay Utah's, and a board outside Utah is a network
 //     page like any other address the worker does not know.
-//   · NO STATE LEGISLATIVE SEATS. This app draws legislative lines in Utah only.
+//   · NO STATE LEGISLATIVE SEATS HERE. Those are planStateLegislative()'s, below.
+//
+// EVERY OTHER STATE'S STATE HOUSE AND STATE SENATE SEATS (see
+// planStateLegislative()) are asked for too, and opened only when all three are
+// true: the roster names a sitting member for the seat, the location resolver
+// (window.pdxRepsForMe) already maps that state's legislative lines and seats
+// that very member on that very number, and nothing about the seat's geometry
+// is supplied here. Such a board is READ-ONLY — composer: false, on none of the
+// three composer lists, no poll, no residency check — and, like a federal
+// board, has no offline copy. TODAY THE RESOLVER MAPS LEGISLATIVE LINES IN UTAH
+// ONLY, so this plan opens ZERO boards and logs every roster seat it refused.
 //
 // THE SIX HAND-OPENED DOCUMENTS ARE NEVER WRITTEN. Their rows stay above each
 // generated block, byte for byte; the suite pins their bytes.
@@ -107,7 +117,7 @@ const BEGIN = "@generated district-boards begin";
 const END = "@generated district-boards end";
 
 // ── THE ROSTER, RUN ONCE ────────────────────────────────────────────────────
-function loadRoster() {
+export function loadRoster() {
   const win = makeSandbox();
   const ctx = vm.createContext(win);
   for (const f of ["cmp-data.js", "voter-hub-location.js", "seated-member.js"]) {
@@ -178,6 +188,7 @@ export function planBoards() {
   }
   planStatewide(win, boards, skipped);
   planFederal(win, boards, skipped);
+  planStateLegislative(win, boards, skipped);
   for (const b of boards) {
     b.route = `/district/${b.alias}`;
     b.doc = `district-${b.alias}.html`;
@@ -291,6 +302,95 @@ function planFederal(win, boards, skipped) {
   }
 }
 
+// ── EVERY OTHER STATE'S STATE HOUSE AND STATE SENATE SEATS ──────────────────
+// THE CANDIDATES ARE THE ROSTER'S, NOT A SEAT COUNT. Utah's loop above walks
+// 1..75 because Utah's plan is drawn here; no other state's is, so the only
+// seats asked about are the ones a sitting roster record names: a record whose
+// own state is <State>, whose office is a state senate or state house seat, and
+// whose own district string carries the number. Nothing is numbered that the
+// roster did not number.
+//
+// THE RESOLVER IS THE GATE. Each candidate is put to window.pdxRepsForMe() —
+// the app's one answer to "which seats is this location in, and who holds
+// them" — as a location in <State> on that district. The board opens only if
+// the matching level comes back `mapped` (the resolver draws that state's
+// legislative lines), on the same number, with this very pid seated on it. A
+// state the resolver does not map is refused for every one of its seats, and
+// the reason is logged; no geometry, pid or seat is supplied to get past it.
+//
+// THE ROW IS READ-ONLY: `stateLeg`, kept off the composer's three lists and
+// written `composer: false`, so the document prints the seat and the record and
+// takes no comment, no poll vote and no residency claim. `stateLeg` keeps it
+// out of sw.js too, exactly as an out-of-state congressional board is kept out.
+const STATE_LEG_OFFICE_RE = /\b(?:state\s+senat(?:e|or)|state\s+(?:house|representative|rep\.?|assembly(?:member)?)|assemblymember|house\s+of\s+delegates|delegate)\b/i;
+const STATE_LEG_NOT_SITTING_RE = /\bformer\b|\bex-|\bcandidate\b|\bnominee\b|-elect\b/i;
+function stateLegCandidates(RO, name) {
+  const out = [];
+  for (const pid of Object.keys(RO)) {
+    const row = RO[pid] || {};
+    if (String(row.state || "") !== name) continue;
+    const office = String(row.office || "");
+    if (!STATE_LEG_OFFICE_RE.test(office) || STATE_LEG_NOT_SITTING_RE.test(office)) continue;
+    const chamber = /senat/i.test(office) ? "statesenate" : "statehouse";
+    const m = /^\s*(?:(?:SD|HD|AD|LD)\s*|District\s+)?([1-9][0-9]*)[A-Z]?\s*$/i.exec(String(row.district == null ? "" : row.district));
+    out.push({ pid, row, office, chamber, district: m ? parseInt(m[1], 10) : 0 });
+  }
+  return out;
+}
+// One walk of the resolver, as a reader placed in <State> on district n of both
+// chambers. The sandbox's location is restored after, so no walk leaks into the
+// next one.
+function resolverLevel(win, name, chamber, n) {
+  const prevLoc = win._currentVoterLocation, prevHas = win._hasUserLocation;
+  try {
+    win._currentVoterLocation = { state: name, district: "", stateHouseDistrict: String(n || ""), stateSenateDistrict: String(n || "") };
+    win._hasUserLocation = true;
+    const r = typeof win.pdxRepsForMe === "function" ? win.pdxRepsForMe() : null;
+    return ((r && r.levels) || []).find((l) => l && l.key === chamber) || null;
+  } catch (e) {
+    return null;
+  } finally {
+    win._currentVoterLocation = prevLoc;
+    win._hasUserLocation = prevHas;
+  }
+}
+export const STATE_LEG_REFUSAL = "the location resolver does not map this state's legislative lines";
+export function planStateLegislative(win, boards, skipped, states = FEDERAL_STATES) {
+  const RO = win.CMP_DATA;
+  for (const { code, name } of states) {
+    const opened = new Map();
+    for (const c of stateLegCandidates(RO, name)) {
+      const short = c.chamber === "statesenate" ? "sd" : "hd";
+      const seat = c.district ? `${code}-${c.chamber}-${c.district}` : `${code}-${c.chamber}`;
+      const alias = c.district ? `${code}-${short}-${c.district}` : `${code}-${short}`;
+      const base = { seat, alias, pid: c.pid, stateLeg: true };
+      const lvl = resolverLevel(win, name, c.chamber, c.district);
+      if (!lvl || !lvl.mapped) { skipped.push({ ...base, reason: STATE_LEG_REFUSAL }); continue; }
+      if (!c.district) { skipped.push({ ...base, reason: "roster record names no district number" }); continue; }
+      if (String(lvl.district || "") !== String(c.district) || lvl.pid !== c.pid) {
+        skipped.push({ ...base, reason: `the location resolver does not seat this member on this number (${lvl.pid || "nobody"})` });
+        continue;
+      }
+      const body = c.chamber === "statesenate" ? "Senate" : "House";
+      const list = opened.get(seat) || [];
+      list.push({
+        seat, alias, chamber: c.chamber, district: c.district, pid: c.pid,
+        stateLeg: true, readOnly: true,
+        member: c.row.name, office: c.row.office,
+        h1: `${name} ${body} District ${c.district}`,
+        where: `District ${c.district} as ${name}’s current legislative plan draws it`,
+        kick: `${body} District ${c.district} board`,
+      });
+      opened.set(seat, list);
+    }
+    // Two records on one seat is a roster question, not a board: neither opens.
+    for (const list of opened.values()) {
+      if (list.length === 1) { boards.push(list[0]); continue; }
+      for (const b of list) skipped.push({ seat: b.seat, alias: b.alias, pid: b.pid, stateLeg: true, reason: "two roster records claim this seat" });
+    }
+  }
+}
+
 // ── RENDERING ───────────────────────────────────────────────────────────────
 const html = (s) => String(s)
   .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")
@@ -381,7 +481,7 @@ export function renderDoc(b, template = R("scripts/district-board.template.html"
 function boardsRows(boards) {
   return boards.map((b) => {
     const f = [
-      `seat: ${js(b.seat)}`, "composer: true", `alias: ${js(b.alias)}`, `route: ${js(b.route)}`, `pid: ${js(b.pid)}`,
+      `seat: ${js(b.seat)}`, b.readOnly ? "composer: false" : "composer: true", `alias: ${js(b.alias)}`, `route: ${js(b.route)}`, `pid: ${js(b.pid)}`,
     ];
     if (b.usHouse) f.push(`usHouse: { state: ${js(b.usHouse.state)}, district: ${b.district} }`);
     if (b.statewide) f.push("statewide: true");
@@ -410,8 +510,9 @@ function navReLine(boards) {
 }
 
 // Every document this generator may own: a Utah district seat's or statewide
-// seat's, or another state's U.S. House or U.S. Senate seat's.
-export const BOARD_DOC_RE = /^district-(?:ut-(?:(?:hd|sd|cd)-\d+|gov|us-senate-[a-z][a-z0-9_]*)|[a-z]{2}-(?:cd-\d+|us-senate-[a-z][a-z0-9_]*))\.html$/;
+// seat's, or another state's U.S. House, U.S. Senate, State House or State
+// Senate seat's.
+export const BOARD_DOC_RE = /^district-(?:ut-(?:(?:hd|sd|cd)-\d+|gov|us-senate-[a-z][a-z0-9_]*)|[a-z]{2}-(?:(?:cd|hd|sd)-\d+|us-senate-[a-z][a-z0-9_]*))\.html$/;
 
 export function renderAll() {
   const { boards, skipped } = planBoards();
@@ -422,15 +523,16 @@ export function renderAll() {
     boards.map((b) => `    ${js(b.seat)}: ${js(b.route)},`)));
   out.set("netlify/functions/district-board.mts", splice(R("netlify/functions/district-board.mts"),
     "district-board.mts", boards.map((b) => `  "${b.seat}": 1,`)));
-  // Every board is on the composer's three lists. Only the sw.js blocks below
-  // are Utah's alone.
-  const utah = boards.filter((b) => !b.federal);
+  // Every board but a read-only one is on the composer's three lists. Only the
+  // sw.js blocks below are Utah's alone.
+  const utah = boards.filter((b) => !b.federal && !b.stateLeg);
+  const voiced = boards.filter((b) => !b.readOnly);
   out.set("netlify/lib/district-board-voice-core.mjs", splice(R("netlify/lib/district-board-voice-core.mjs"),
-    "district-board-voice-core.mjs", boards.map((b) => `  "${b.seat}": "${b.alias}",`)));
+    "district-board-voice-core.mjs", voiced.map((b) => `  "${b.seat}": "${b.alias}",`)));
   out.set("district-composer.js", splice(R("district-composer.js"), "district-composer.js",
-    boards.map((b) => `    ${js(b.alias)}: 1,`)));
+    voiced.map((b) => `    ${js(b.alias)}: 1,`)));
   out.set("district-poll.js", splice(R("district-poll.js"), "district-poll.js",
-    boards.map((b) => `    ${js(b.alias)}: 1,`)));
+    voiced.map((b) => `    ${js(b.alias)}: 1,`)));
   out.set("netlify.toml", splice(R("netlify.toml"), "netlify.toml", boards.flatMap((b) => [
     `# ${b.h1.replace("’", "'").replace("·", "-")} — ${b.usHouse ? "U.S. House join" : b.pid}`,
     ...["", "/", ".html"].flatMap((sfx) => [
@@ -482,8 +584,14 @@ function main() {
     drift.push(`${f} (stale)`);
     if (!check) unlinkSync(join(ROOT, f));
   }
+  const leg = boards.filter((b) => b.stateLeg).length;
   const fed = boards.filter((b) => b.federal).length;
-  console.log(`gen-district-boards: ${boards.length} generated boards (${boards.length - fed} Utah, ${fed} other states), ${skipped.length} seats skipped (no sitting pid)`);
+  const legSkipped = skipped.filter((s) => s.stateLeg);
+  console.log(`gen-district-boards: ${boards.length} generated boards (${boards.length - fed - leg} Utah, ${fed} other states' U.S. House and U.S. Senate, ${leg} other states' state legislative), ${skipped.length} seats skipped`);
+  if (!leg) {
+    const states = new Set(legSkipped.map((s) => s.seat.slice(0, 2)));
+    console.log(`  0 state legislative boards outside Utah: ${legSkipped.length} roster seats in ${states.size} states refused (${STATE_LEG_REFUSAL})`);
+  }
   if (check) {
     if (drift.length) {
       console.log(`  out of date: ${drift.join(", ")}\n  run: node scripts/gen-district-boards.mjs`);
