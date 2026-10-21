@@ -271,6 +271,15 @@
       teuscher: 'jteuscher',
       hollins: 'hollins_h24',
       ray_ward: 'rward',
+      // Filing spellings of running incumbents (Utah Lt. Governor's 2026 list),
+      // the same ruling PDX_PROFILE_ALIAS's FILING SPELLINGS block bridges.
+      raymond_ward: 'rward',
+      cal_roberts: 'calvin_roberts',
+      clint_okerlund: 'clinton_okerlund',
+      jen_dailey_provost: 'jennifer_dailey_provost',
+      jen_plumb: 'jennifer_plumb',
+      jim_dunnigan: 'james_dunnigan',
+      norm_thurston: 'nthurston',
       snider: 'snider_h5',
       lisonbee: 'klisonbee',
       ken_ivory: 'kivory',
@@ -431,6 +440,18 @@
       // "The member who holds this seat is on file" over a person one key away.
       trevor_lee:       'tlee',
       troy_shelley:     'shelley_h66',
+      // FILING SPELLINGS. Each key is the slug of the name a running incumbent
+      // filed under on the Utah Lt. Governor's 2026 candidate list, and each
+      // value is that same person's existing roster record. Seven filers, one
+      // record each: a candidacy under a shorter or longer first name is not a
+      // second person, so it gets a bridge here and not a row in cmp-data.js.
+      cal_roberts:      'calvin_roberts',
+      clint_okerlund:   'clinton_okerlund',
+      jen_dailey_provost:'jennifer_dailey_provost',
+      jen_plumb:        'jennifer_plumb',
+      jim_dunnigan:     'james_dunnigan',
+      norm_thurston:    'nthurston',
+      raymond_ward:     'rward',
     };
 
     // Resolve any id to one a profile can actually open, in a single step.

@@ -297,8 +297,8 @@ const seatHtml = (w, key) => { w.pdxBallotWorkspaceOpen(key); const full = paint
   // seat, UT-1 — the sitting member and the candidate on file for that district.
   const w = at("slc", "Salt Lake City", "Salt Lake County");
   const { d, g } = seatHtml(w, "house");
-  eq(JSON.stringify(rosterRoles(d)), JSON.stringify([["bmoore", "incumbent"], ["dballard", "candidate"], ["elias_montgomery", "candidate"], ["jesse_west", "candidate"]]), "UT-1 lists its incumbent and its candidates");
-  eq(rosterCount(d), 4, "…and counts four people");
+  eq(JSON.stringify(rosterRoles(d)), JSON.stringify([["bmoore", "incumbent"], ["ben_mcadams", "candidate"], ["dballard", "candidate"], ["elias_montgomery", "candidate"], ["jesse_west", "candidate"], ["riley_owen", "candidate"]]), "UT-1 lists its incumbent and its candidates");
+  eq(rosterCount(d), 6, "…and counts six people");
   lacks(d, "data-bw-roster-none", "…and does not say there is nobody else");
   const parties = new Set(rosterRoles(d).map(([p]) => w.CMP_DATA[p].party));
   ok(parties.size >= 2, `UT-1's list spans more than one party (got ${[...parties].join(", ")})`);
@@ -399,7 +399,7 @@ const homepage = (w, key) => { const sf = w.pdxSeatField(key); return sf && sf.a
   // BOX ELDER, SENATE DISTRICT 1: the bundled roster holds only the sitting member.
   const before = at("box_elder", "Brigham City", "Box Elder County", { noLive: true });
   const b0 = seatHtml(before, "statesenate");
-  eq(JSON.stringify(rosterRoles(b0.d).map(([p]) => p)), JSON.stringify(["ssandall", "julie_quinlan"]), "without the live profiles SD-1 holds its sitting member and the bundled Forward nominee");
+  eq(JSON.stringify(rosterRoles(b0.d).map(([p]) => p)), JSON.stringify(["ssandall", "claudia_bigler", "julie_quinlan"]), "without the live profiles SD-1 holds its sitting member and the bundled Democratic and Forward nominees");
 
   const w = await live("box_elder", "Brigham City", "Box Elder County");
   ok((w.__firestore || 0) >= 2, "the live list is read, every page of it");
@@ -493,7 +493,7 @@ function homepageCard(area, city, county, key) {
   const full = paint(w);
   eq(w.PDXBallotLiveRoster.state(), "failed", "a refused live list is recorded as failed");
   has(full, 'data-bw-live="off"', "…and the glance list says the lists are the page's own");
-  eq(JSON.stringify(rosterRoles(seatHtml(w, "statesenate").d).map(([p]) => p)), JSON.stringify(["ssandall", "julie_quinlan"]), "…which are the bundled roster's");
+  eq(JSON.stringify(rosterRoles(seatHtml(w, "statesenate").d).map(([p]) => p)), JSON.stringify(["ssandall", "claudia_bigler", "julie_quinlan"]), "…which are the bundled roster's");
   const nk = boot();
   const nkHtml = paint(nk);
   eq(nk.PDXBallotLiveRoster.state(), "nokey", "no public key, no request");
@@ -595,11 +595,13 @@ for (const c of DAVIS_THIRD) {
   eq(w.CMP_DATA.josh_smith.party, "Forward", "…and a blank live party does not erase his label");
 }
 {
-  // A SEAT WITH ONLY ITS SITTING MEMBER KEEPS THE HONEST EMPTY.
+  // CLEARFIELD'S SD-5 NOW HOLDS ITS DEMOCRATIC NOMINEE BESIDE ITS SITTING MEMBER
+  // (the Utah major-party nominees batch), so the honest empty is gone there.
   const w = at("clearfield", "Clearfield", "Davis County", { noLive: true });
   const { d } = seatHtml(w, "statesenate");
-  eq(rosterRoles(d).length, 1, "Clearfield's SD-5 still lists only its sitting member");
-  has(d, "No other person on file for this seat.", "…with the honest empty");
+  eq(JSON.stringify(rosterRoles(d).map(([p, role]) => role)), JSON.stringify(["incumbent", "candidate"]), "Clearfield's SD-5 lists its sitting member and one candidate");
+  ok(rosterRoles(d).some(([p, role]) => p === "christina_cj_hernandez" && role === "candidate"), "…Christina “CJ” Hernandez, as a candidate");
+  lacks(d, "No other person on file for this seat.", "…and no longer says nobody else is on file");
 }
 {
   // LOCATION DECIDES; residency and membership change nothing.
@@ -704,8 +706,9 @@ for (const c of UT_THIRD) {
   eq(ids.length, new Set(ids).size, "…and nobody twice");
 }
 {
-  // A SEAT HOLDING ONLY ITS SITTING MEMBER STILL SAYS SO: Provo's SD-24 and Clearfield's SD-5.
-  for (const w of [boot({ noLive: true }), at("clearfield", "Clearfield", "Davis County", { noLive: true })]) {
+  // A SEAT HOLDING ONLY ITS SITTING MEMBER STILL SAYS SO: Provo's SD-24.
+  // (Clearfield's SD-5 gained its Democratic nominee; see above.)
+  for (const w of [boot({ noLive: true })]) {
     const { d, g } = seatHtml(w, "statesenate");
     eq(rosterRoles(d).length, 1, `${w._currentVoterLocation.city}'s State Senate still lists only its sitting member`);
     has(d, "No other person on file for this seat.", "…with the honest empty");
@@ -1138,13 +1141,14 @@ for (const c of FED_B4) {
 section("2c · Election timing: stored, or honestly absent");
 {
   // A seat with no stored date says so, and prints no countdown. Provo's U.S.
-  // House seat is the exception: its third-party nominees' rows store the
-  // November 3 date, so it is held to the stored-date rule below instead.
+  // House and State House seats are the exceptions: their nominees' rows store
+  // the November 3 date, so they are held to the stored-date rule below instead.
   const w = boot({ extra: { __pdxToday: "2026-10-19" } });
   const full = paint(w);
   has(glance(full, "house"), "Election: November 3, 2026", "house: a nominee's stored nextElection sets UT-3's date");
+  has(glance(full, "statehouse"), "Election: November 3, 2026", "statehouse: a nominee's stored nextElection sets the seat's date");
   for (const s of SEATS) {
-    if (s.key === "house") continue;
+    if (s.key === "house" || s.key === "statehouse") continue;
     const g = glance(full, s.key);
     has(g, "No election date on file", `${s.key}: no stored date says so`);
     lacks(g, "election in", `${s.key}: no countdown is invented without a date`);

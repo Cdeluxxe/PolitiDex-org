@@ -10476,7 +10476,19 @@
 //     pass ships on a fresh shell.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v439';
+// v440 - UTAH MAJOR-PARTY NOMINEES, ROSTER ROWS. cmp-data.js gains ninety-one
+//     identity-only candidate rows: the Republican and Democratic "Election
+//     Candidate" filers on the Utah Lt. Governor's 2026 list for the four U.S.
+//     House seats and the Legislature whom the roster did not hold under any
+//     spelling. Each is `candidate: true`, so no seat lookup, board or /voice
+//     card names one as a sitting member, and no board, composer or residency
+//     check is opened for any of them. profile-evidence.js, profile-alias.js and
+//     index.html's PROFILE_ALIASES mirror gain seven filing-spelling bridges to
+//     running incumbents' existing records (jen_plumb, jim_dunnigan, ...).
+//     cmp-data.js is precached and changed, so the shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v440';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

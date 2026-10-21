@@ -16640,5 +16640,750 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "party": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
   "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
+ },
+// ── Utah major-party nominees not yet on the roster, 2026 general election (Oct 2026)
+// Republican and Democratic nominees the Utah Lt. Governor's 2026 candidate
+// filings list with status "Election Candidate" (https://vote.utah.gov/2026-candidate-filings/,
+// read 10/21/2026) for the four U.S. House seats and the Utah State Senate and
+// State House seats the roster already keys, and that the roster did not hold
+// under any spelling. Same shape as the third-party batches above: identity
+// rows only — the filer's own name, the office and district they are running
+// for, `score` null, an empty ledger, `issues` empty rather than guessed. Every
+// one is `candidate: true`, so no seat lookup can name them as the sitting
+// member. `party` is the roster's R/D code and `partyFiled` is the filing's
+// own word for it. Where the live roster already filed this person under a
+// pid, that pid is reused rather than minted twice. Not here: filers the
+// roster already holds (every running incumbent, Bob Stevenson, Luke Searle,
+// and the Forward/Libertarian/Constitution nominees above), Tami Tran (held
+// as tamara_tran_kaysville and as a separate live tami_tran document — an
+// identity question, not a row), and anyone out in convention or primary,
+// withdrawn, disqualified or write-in.
+ // UT-1 · Democratic
+ "ben_mcadams": {
+  "name": "Ben McAdams", "office": "U.S. House Candidate (UT-1)",
+  "state": "Utah", "district": "1",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // UT-1 · Republican
+ "riley_owen": {
+  "name": "Riley Owen", "office": "U.S. House Candidate (UT-1)",
+  "state": "Utah", "district": "1",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // UT-2 · Democratic
+ "peter_crosby": {
+  "name": "Peter Crosby", "office": "U.S. House Candidate (UT-2)",
+  "state": "Utah", "district": "2",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // UT-3 · Democratic
+ "kent_udell": {
+  "name": "Kent S. Udell", "office": "U.S. House Candidate (UT-3)",
+  "state": "Utah", "district": "3",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // UT-4 · Democratic
+ "jonny_larsen": {
+  "name": "Jonny Larsen", "office": "U.S. House Candidate (UT-4)",
+  "state": "Utah", "district": "4",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SD-1 · Democratic
+ "claudia_bigler": {
+  "name": "Claudia Bigler", "office": "Utah State Senate Candidate (District 1)",
+  "state": "Utah", "district": "1",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SD-5 · Democratic
+ "christina_cj_hernandez": {
+  "name": "Christina “CJ” Hernandez", "office": "Utah State Senate Candidate (District 5)",
+  "state": "Utah", "district": "5",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SD-6 · Democratic
+ "jared_neal": {
+  "name": "Jared Neal", "office": "Utah State Senate Candidate (District 6)",
+  "state": "Utah", "district": "6",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SD-7 · Democratic
+ "garret_rushforth": {
+  "name": "Garret Rushforth", "office": "Utah State Senate Candidate (District 7)",
+  "state": "Utah", "district": "7",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SD-7 · Republican
+ "stephanie_hollist": {
+  "name": "Stephanie Hollist", "office": "Utah State Senate Candidate (District 7)",
+  "state": "Utah", "district": "7",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SD-9 · Republican
+ "thaddeus_a_evans": {
+  "name": "Thaddeus A. Evans", "office": "Utah State Senate Candidate (District 9)",
+  "state": "Utah", "district": "9",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SD-11 · Republican
+ "brooks_benson": {
+  "name": "Brooks Benson", "office": "Utah State Senate Candidate (District 11)",
+  "state": "Utah", "district": "11",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SD-12 · Republican
+ "deidre_tyler": {
+  "name": "Deidre Tyler", "office": "Utah State Senate Candidate (District 12)",
+  "state": "Utah", "district": "12",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SD-13 · Republican
+ "ryan_l_mahoney": {
+  "name": "Ryan L. Mahoney", "office": "Utah State Senate Candidate (District 13)",
+  "state": "Utah", "district": "13",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SD-13 · Democratic
+ "silvia_catten": {
+  "name": "Silvia Catten", "office": "Utah State Senate Candidate (District 13)",
+  "state": "Utah", "district": "13",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SD-18 · Democratic
+ "a_dane_anderson": {
+  "name": "A. Dane Anderson", "office": "Utah State Senate Candidate (District 18)",
+  "state": "Utah", "district": "18",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SD-19 · Democratic
+ "shana_anderson": {
+  "name": "Shana Anderson", "office": "Utah State Senate Candidate (District 19)",
+  "state": "Utah", "district": "19",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SD-21 · Democratic
+ "kandee_myers": {
+  "name": "Kandee Myers", "office": "Utah State Senate Candidate (District 21)",
+  "state": "Utah", "district": "21",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SD-23 · Democratic
+ "tucker_smith": {
+  "name": "Tucker Smith", "office": "Utah State Senate Candidate (District 23)",
+  "state": "Utah", "district": "23",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SD-28 · Democratic
+ "richard_robillard": {
+  "name": "Richard S. Robillard", "office": "Utah State Senate Candidate (District 28)",
+  "state": "Utah", "district": "28",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-1 · Democratic
+ "chris_reid": {
+  "name": "Chris Reid", "office": "Utah State House Candidate (District 1)",
+  "state": "Utah", "district": "1",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-2 · Democratic
+ "barbara_haggerty": {
+  "name": "Barbara J. Haggerty", "office": "Utah State House Candidate (District 2)",
+  "state": "Utah", "district": "2",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-4 · Democratic
+ "zane_woolstenhulme": {
+  "name": "Zane Woolstenhulme", "office": "Utah State House Candidate (District 4)",
+  "state": "Utah", "district": "4",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-5 · Democratic
+ "kendra_penry": {
+  "name": "Kendra Penry", "office": "Utah State House Candidate (District 5)",
+  "state": "Utah", "district": "5",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-7 · Democratic
+ "bianca_mittendorf": {
+  "name": "Bianca Mittendorf", "office": "Utah State House Candidate (District 7)",
+  "state": "Utah", "district": "7",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-8 · Democratic
+ "kim_james": {
+  "name": "Kim James", "office": "Utah State House Candidate (District 8)",
+  "state": "Utah", "district": "8",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-9 · Democratic
+ "angela_choberka": {
+  "name": "Angela Choberka", "office": "Utah State House Candidate (District 9)",
+  "state": "Utah", "district": "9",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-10 · Republican
+ "jim_alvey": {
+  "name": "Jim Alvey", "office": "Utah State House Candidate (District 10)",
+  "state": "Utah", "district": "10",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-11 · Democratic
+ "dave_calder": {
+  "name": "Dave Calder", "office": "Utah State House Candidate (District 11)",
+  "state": "Utah", "district": "11",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-12 · Democratic
+ "anna_graff": {
+  "name": "Anna Graff", "office": "Utah State House Candidate (District 12)",
+  "state": "Utah", "district": "12",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-13 · Republican
+ "erik_r_craythorne": {
+  "name": "Erik R. Craythorne", "office": "Utah State House Candidate (District 13)",
+  "state": "Utah", "district": "13",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-13 · Democratic
+ "jeffrey_anderson": {
+  "name": "Jeffrey Anderson", "office": "Utah State House Candidate (District 13)",
+  "state": "Utah", "district": "13",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-14 · Democratic
+ "brandon_young": {
+  "name": "Brandon Young", "office": "Utah State House Candidate (District 14)",
+  "state": "Utah", "district": "14",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-14 · Republican
+ "john_taylor": {
+  "name": "John Taylor", "office": "Utah State House Candidate (District 14)",
+  "state": "Utah", "district": "14",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-15 · Democratic
+ "anne_berbert": {
+  "name": "Anne Berbert", "office": "Utah State House Candidate (District 15)",
+  "state": "Utah", "district": "15",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-16 · Democratic
+ "abigail_treasure": {
+  "name": "Abigail Treasure", "office": "Utah State House Candidate (District 16)",
+  "state": "Utah", "district": "16",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-17 · Democratic
+ "eric_last": {
+  "name": "Eric Last", "office": "Utah State House Candidate (District 17)",
+  "state": "Utah", "district": "17",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-17 · Republican
+ "lili_bitner": {
+  "name": "Lili Bitner", "office": "Utah State House Candidate (District 17)",
+  "state": "Utah", "district": "17",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-18 · Democratic
+ "scott_troxel": {
+  "name": "Scott Troxel", "office": "Utah State House Candidate (District 18)",
+  "state": "Utah", "district": "18",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-20 · Democratic
+ "phil_graves": {
+  "name": "Phil Graves", "office": "Utah State House Candidate (District 20)",
+  "state": "Utah", "district": "20",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-21 · Democratic
+ "stephen_otterstrom": {
+  "name": "Stephen Otterstrom", "office": "Utah State House Candidate (District 21)",
+  "state": "Utah", "district": "21",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-22 · Republican
+ "char_varga": {
+  "name": "Char Varga", "office": "Utah State House Candidate (District 22)",
+  "state": "Utah", "district": "22",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-23 · Republican
+ "franklin_robinson": {
+  "name": "Franklin D. Robinson", "office": "Utah State House Candidate (District 23)",
+  "state": "Utah", "district": "23",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-24 · Republican
+ "braeden_oswald": {
+  "name": "Braeden J. Oswald", "office": "Utah State House Candidate (District 24)",
+  "state": "Utah", "district": "24",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-25 · Republican
+ "richard_nowak": {
+  "name": "Richard T. Nowak", "office": "Utah State House Candidate (District 25)",
+  "state": "Utah", "district": "25",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-26 · Democratic
+ "michael_finch": {
+  "name": "Michael E. Finch", "office": "Utah State House Candidate (District 26)",
+  "state": "Utah", "district": "26",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-27 · Democratic
+ "liz_oates": {
+  "name": "Liz Oates", "office": "Utah State House Candidate (District 27)",
+  "state": "Utah", "district": "27",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-28 · Democratic
+ "anita_dalrymple": {
+  "name": "Anita Dalrymple", "office": "Utah State House Candidate (District 28)",
+  "state": "Utah", "district": "28",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-29 · Democratic
+ "sara_snow": {
+  "name": "Sara Snow", "office": "Utah State House Candidate (District 29)",
+  "state": "Utah", "district": "29",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-29 · Republican
+ "sheldon_birch": {
+  "name": "Sheldon Birch", "office": "Utah State House Candidate (District 29)",
+  "state": "Utah", "district": "29",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-30 · Republican
+ "dave_parke": {
+  "name": "Dave Parke", "office": "Utah State House Candidate (District 30)",
+  "state": "Utah", "district": "30",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-31 · Republican
+ "melody_jones": {
+  "name": "Melody Jones", "office": "Utah State House Candidate (District 31)",
+  "state": "Utah", "district": "31",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-32 · Republican
+ "aileen_hampton": {
+  "name": "Aileen Hampton", "office": "Utah State House Candidate (District 32)",
+  "state": "Utah", "district": "32",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-33 · Republican
+ "anna_reeves": {
+  "name": "Anna Reeves", "office": "Utah State House Candidate (District 33)",
+  "state": "Utah", "district": "33",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-34 · Democratic
+ "julie_jackson": {
+  "name": "Julie Jackson", "office": "Utah State House Candidate (District 34)",
+  "state": "Utah", "district": "34",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-35 · Republican
+ "monique_ketcham": {
+  "name": "Monique I. Ketcham", "office": "Utah State House Candidate (District 35)",
+  "state": "Utah", "district": "35",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-36 · Democratic
+ "blake_townsend": {
+  "name": "Blake Townsend", "office": "Utah State House Candidate (District 36)",
+  "state": "Utah", "district": "36",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-37 · Republican
+ "casey_saxton": {
+  "name": "Casey Saxton", "office": "Utah State House Candidate (District 37)",
+  "state": "Utah", "district": "37",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-38 · Republican
+ "chris_mcconnehey": {
+  "name": "Chris McConnehey", "office": "Utah State House Candidate (District 38)",
+  "state": "Utah", "district": "38",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-39 · Democratic
+ "drew_howells": {
+  "name": "Drew Howells", "office": "Utah State House Candidate (District 39)",
+  "state": "Utah", "district": "39",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-41 · Republican
+ "darren_croft": {
+  "name": "Darren Croft", "office": "Utah State House Candidate (District 41)",
+  "state": "Utah", "district": "41",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-42 · Democratic
+ "iva_williams": {
+  "name": "Iva Williams", "office": "Utah State House Candidate (District 42)",
+  "state": "Utah", "district": "42",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-43 · Democratic
+ "ofa_matagi": {
+  "name": "Ofa Matagi", "office": "Utah State House Candidate (District 43)",
+  "state": "Utah", "district": "43",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-44 · Democratic
+ "jess_birtcher": {
+  "name": "Jess Birtcher", "office": "Utah State House Candidate (District 44)",
+  "state": "Utah", "district": "44",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-45 · Democratic
+ "rod_moser": {
+  "name": "Rod Moser", "office": "Utah State House Candidate (District 45)",
+  "state": "Utah", "district": "45",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-46 · Democratic
+ "braxten_rutherford": {
+  "name": "Braxten Rutherford", "office": "Utah State House Candidate (District 46)",
+  "state": "Utah", "district": "46",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-48 · Democratic
+ "benyde_walker": {
+  "name": "Benyde Walker", "office": "Utah State House Candidate (District 48)",
+  "state": "Utah", "district": "48",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-48 · Republican
+ "jake_hunsaker": {
+  "name": "Jake Hunsaker", "office": "Utah State House Candidate (District 48)",
+  "state": "Utah", "district": "48",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-49 · Democratic
+ "lillian_bowles": {
+  "name": "Lillian Bowles", "office": "Utah State House Candidate (District 49)",
+  "state": "Utah", "district": "49",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-50 · Democratic
+ "kristin_meyer": {
+  "name": "Kristin Meyer", "office": "Utah State House Candidate (District 50)",
+  "state": "Utah", "district": "50",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-51 · Democratic
+ "brett_nielsen": {
+  "name": "Brett Nielsen", "office": "Utah State House Candidate (District 51)",
+  "state": "Utah", "district": "51",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-52 · Democratic
+ "nicole_melling": {
+  "name": "Nicole Melling", "office": "Utah State House Candidate (District 52)",
+  "state": "Utah", "district": "52",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-53 · Democratic
+ "kevin_slater": {
+  "name": "Kevin R. Slater", "office": "Utah State House Candidate (District 53)",
+  "state": "Utah", "district": "53",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-54 · Democratic
+ "kristina_robinson": {
+  "name": "Kristina Robinson", "office": "Utah State House Candidate (District 54)",
+  "state": "Utah", "district": "54",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-55 · Democratic
+ "travis_hysell": {
+  "name": "Travis Hysell", "office": "Utah State House Candidate (District 55)",
+  "state": "Utah", "district": "55",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-56 · Democratic
+ "natassja_grossman": {
+  "name": "Natassja Grossman", "office": "Utah State House Candidate (District 56)",
+  "state": "Utah", "district": "56",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-58 · Democratic
+ "karli_black": {
+  "name": "Karli Black", "office": "Utah State House Candidate (District 58)",
+  "state": "Utah", "district": "58",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-59 · Democratic
+ "celeste_johnson": {
+  "name": "Celeste T. Johnson", "office": "Utah State House Candidate (District 59)",
+  "state": "Utah", "district": "59",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-61 · Democratic
+ "alan_jimenez": {
+  "name": "Alan Jimenez", "office": "Utah State House Candidate (District 61)",
+  "state": "Utah", "district": "61",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-62 · Democratic
+ "david_chappell": {
+  "name": "David Chappell", "office": "Utah State House Candidate (District 62)",
+  "state": "Utah", "district": "62",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-63 · Democratic
+ "mark_youngquist": {
+  "name": "Mark Youngquist", "office": "Utah State House Candidate (District 63)",
+  "state": "Utah", "district": "63",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-66 · Democratic
+ "breanne_mashek": {
+  "name": "Breanne Mashek", "office": "Utah State House Candidate (District 66)",
+  "state": "Utah", "district": "66",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-67 · Democratic
+ "carl_ingwell": {
+  "name": "Carl Ingwell", "office": "Utah State House Candidate (District 67)",
+  "state": "Utah", "district": "67",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-67 · Republican
+ "jr_bird": {
+  "name": "JR Bird", "office": "Utah State House Candidate (District 67)",
+  "state": "Utah", "district": "67",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-69 · Democratic
+ "tracie_yellowman_tso": {
+  "name": "Tracie Yellowman Tso", "office": "Utah State House Candidate (District 69)",
+  "state": "Utah", "district": "69",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-70 · Democratic
+ "stacey_pendergraft": {
+  "name": "Stacey D. Pendergraft", "office": "Utah State House Candidate (District 70)",
+  "state": "Utah", "district": "70",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-71 · Democratic
+ "thomas_loveheart": {
+  "name": "Thomas Loveheart", "office": "Utah State House Candidate (District 71)",
+  "state": "Utah", "district": "71",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-72 · Democratic
+ "eva_weldon": {
+  "name": "Eva M. Weldon", "office": "Utah State House Candidate (District 72)",
+  "state": "Utah", "district": "72",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-73 · Democratic
+ "glenn_webb": {
+  "name": "Glenn D. Webb", "office": "Utah State House Candidate (District 73)",
+  "state": "Utah", "district": "73",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-74 · Democratic
+ "jeffrey_lipe": {
+  "name": "Jeffrey N. Lipe", "office": "Utah State House Candidate (District 74)",
+  "state": "Utah", "district": "74",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HD-75 · Democratic
+ "rebecca_winsor": {
+  "name": "Rebecca Winsor", "office": "Utah State House Candidate (District 75)",
+  "state": "Utah", "district": "75",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
  }
 });
