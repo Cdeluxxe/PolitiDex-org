@@ -61,7 +61,7 @@ function report() {
 }
 
 const FIVE = ["ut-sd-3", "ut-hd-16", "ut-sd-7", "ut-hd-15", "ut-cd-2"];
-const DOCS = readdirSync(ROOT).filter((f) => /^district-ut-.*\.html$/.test(f)).sort();
+const DOCS = readdirSync(ROOT).filter((f) => /^district-[a-z]{2}-(?:(?:hd|sd|cd)-\d+|gov|us-senate-[a-z][a-z0-9_]*)\.html$/.test(f)).sort();
 const seatOf = (f) => (/data-pdxdb-seat="([^"]+)"/.exec(R(f)) || [, ""])[1];
 const NEW = DOCS.map(seatOf).filter((a) => !FIVE.includes(a));
 ok(NEW.length >= 80, `the newly opened boards are swept (${NEW.length})`);
@@ -319,7 +319,7 @@ section("5 · named rows only, the generator is the source, every seat has a dis
     const p = existsSync(join(migDir, f, "migration.sql")) ? join(migDir, f, "migration.sql") : join(migDir, f);
     return /\.sql$/.test(p) ? readFileSync(p, "utf8") : "";
   }).join("\n");
-  const missing = Object.keys(COMPOSER_SEATS).filter((k) => sql.indexOf(`('${k}', 'UT'`) < 0);
+  const missing = Object.keys(COMPOSER_SEATS).filter((k) => sql.indexOf(`('${k}', '${k.slice(0, 2).toUpperCase()}'`) < 0);
   eq(missing.length, 0, `every composer seat has a dd_districts row — ${JSON.stringify(missing)}`);
 }
 

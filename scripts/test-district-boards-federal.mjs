@@ -3,19 +3,20 @@
 // test-district-boards-federal.mjs — every other state's U.S. House and Senate
 // boards
 // ─────────────────────────────────────────────────────────────────────────────
-// scripts/gen-district-boards.mjs's planFederal() opens a READ-ONLY board for
-// every U.S. House and U.S. Senate seat outside Utah that the roster names a
-// sitting member for, from the same template, on the same three-band contract
-// and the same allow-lists as Utah's — and with no composer, no poll, no
-// residency check and no offline copy.
+// scripts/gen-district-boards.mjs's planFederal() opens a board for every U.S.
+// House and U.S. Senate seat outside Utah that the roster names a sitting
+// member for, from the same template, on the same three-band contract, the same
+// allow-lists and the same composer, poll and Didit residency check as Utah's —
+// with no offline copy.
 //
 // WHAT THIS SUITE PROVES:
 //   1. The plan: every federal board is a named row of BOARD_ROUTES, BOARDS,
 //      the Function's BOARD_SEATS and netlify.toml (three exact 200 rewrites),
 //      and BOARD_ROUTES' length is the generator's plan. No splat.
-//   2. The refusals: no federal seat is on a composer list or in sw.js, no
-//      federal row says `composer`, and no federal document carries a composer
-//      host, a poll host, either module, an identity vendor or equity language.
+//   2. Every federal seat is on all three composer lists and has its
+//      dd_districts row; every federal document carries the composer and poll
+//      hosts and the locked line, no equity language, and no offline copy. The
+//      gate itself is scripts/test-district-boards-federal-voice.mjs.
 //   3. Band 1 on every federal board names the sitting member the roster's own
 //      join names, and a handful of fixtures are who they should be.
 //   4. A seat the roster names nobody for has no board, and /voice says "Board
@@ -111,7 +112,7 @@ for (const b of FED) {
   eq(V.boardPath(b.seat), `/district/${b.alias}`, `${b.seat}: boardPath() answers it`);
   const row = B.board(b.alias);
   ok(!!row && row.seat === b.seat, `${b.alias}: BOARDS has the row`);
-  ok(!!row && !row.composer, `${b.alias}: the BOARDS row carries no composer flag`);
+  ok(!!row && row.composer === true, `${b.alias}: the BOARDS row carries the composer flag`);
   ok(fnSeats.has(b.seat), `${b.seat}: on the Function's BOARD_SEATS`);
   for (const sfx of ["", "/", ".html"]) {
     const r = RULES.filter((x) => x.from === `/district/${b.alias}${sfx}`);
@@ -138,7 +139,7 @@ for (const b of FED) {
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("2 · no composer, no identity vendor, no equity language, no offline copy");
+section("2 · the composer, the poll and the residency check, and no offline copy");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const listOf = (src, re) => { const m = re.exec(src); return m ? m[1] : ""; };
@@ -147,45 +148,61 @@ section("2 · no composer, no identity vendor, no equity language, no offline co
   const DP = listOf(R("district-poll.js"), /@generated district-boards begin([\s\S]*?)@generated district-boards end/);
   must(CORE.length > 0 && DC.length > 0 && DP.length > 0, "a composer list could not be located");
   for (const b of FED) {
-    no(CORE, `"${b.seat}"`, `${b.seat}: not on the server's COMPOSER_SEATS`);
-    no(DC, `'${b.alias}'`, `${b.alias}: not on district-composer.js's list`);
-    no(DP, `'${b.alias}'`, `${b.alias}: not on district-poll.js's list`);
+    has(CORE, `"${b.seat}": "${b.alias}"`, `${b.seat}: on the server's COMPOSER_SEATS`);
+    has(DC, `'${b.alias}': 1`, `${b.alias}: on district-composer.js's list`);
+    has(DP, `'${b.alias}': 1`, `${b.alias}: on district-poll.js's list`);
     no(SW, `/${b.doc}`, `${b.doc}: not precached`);
     no(SW, `'${b.alias}'`, `${b.alias}: not in sw.js's offline map`);
   }
   for (const b of UT) has(CORE, `"${b.seat}"`, `${b.seat}: Utah's generated board keeps its composer`);
   const navRe = (SW.match(/const DISTRICT_BOARD_NAV_RE =\s*\n\s*(\/.*\/);/) || [])[1] || "";
   must(navRe.length > 0, "sw.js: DISTRICT_BOARD_NAV_RE could not be read");
-  ok(!/\/district\/(?!ut-)[a-z]{2}-/.test(navRe.replace(/\\\//g, "/").replace(/\(\?:/, "(?:|")) &&
-    FED.every((b) => navRe.indexOf(b.alias + "|") < 0 && navRe.indexOf(b.alias + ")") < 0),
+  ok(FED.every((b) => navRe.indexOf(b.alias + "|") < 0 && navRe.indexOf(b.alias + ")") < 0),
     "sw.js: no federal alias in DISTRICT_BOARD_NAV_RE");
 }
-const VENDOR = [/didit/i, /residency-verify/i, /stripe identity/i, /veriff/i, /prove you live here/i];
-const COMPOSER_MARKS = ["pdx-district-composer", "pdx-district-poll", "/district-composer.js", "/district-poll.js",
-  "data-pdxdc-", "data-pdxdp-", "Say something to this district", "{{"];
-const EQUITY = /\bequity\b|\bstocks?\b|earn (?:a|your) share|\bshareholder|\bdividend|\binvestors?\b/i;
+// The same contract every Utah board's document carries: both hosts, both
+// modules, the served state locked, and the locked line verbatim.
+const COMPOSER_MARKS = [
+  '<div id="pdx-district-poll" data-pdxdp-seat="{A}" hidden></div>',
+  '<div id="pdx-district-composer" data-pdxdc-seat="{A}" data-pdxdc-state="locked">',
+  '<script defer src="/district-composer.js"></script>',
+  '<script defer src="/district-poll.js"></script>',
+  '<script defer src="/district-voice.js"></script>',
+  '<p class="pdxdc-locked" data-pdxdc-locked="1">Only verified residents of this seat get a voice that counts.</p>',
+  'disabled aria-disabled="true"',
+];
+const EQUITY = /\bequity\b|\bstocks?\b|earn (?:a|your) share|\bshareholders?\b|\bdividends?\b|\binvest(?:or|ment)s?\b|\bunits?\b|\bform c\b|\bcrowdfund/i;
 const textOf = (h) => String(h).replace(/<!--[\s\S]*?-->/g, " ").replace(/<script\b[\s\S]*?<\/script>/gi, " ")
   .replace(/<style\b[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " ");
 for (const b of FED) {
   const doc = R(b.doc);
-  for (const m of COMPOSER_MARKS) no(doc, m, `${b.doc}: no composer or poll`);
-  for (const re of VENDOR) ok(!re.test(doc), `${b.doc}: no identity vendor (${re})`);
-  ok(!EQUITY.test(doc), `${b.doc}: no equity language`);
+  for (const m of COMPOSER_MARKS) has(doc, m.replace(/\{A\}/g, b.alias), `${b.doc}: carries the composer contract`);
+  no(doc, "{{", `${b.doc}: no unrendered template slot`);
+  // ONE COPY OF THE RESOLVER. A congressional board already loads it for band 1.
+  eq((doc.match(/src="\/voter-hub-location\.js"/g) || []).length, 1, `${b.doc}: voter-hub-location.js loaded once`);
+  ok(!EQUITY.test(doc), `${b.doc}: no equity, stock, unit, share or Form C language`);
   ok(!/\byet\b/i.test(textOf(doc)), `${b.doc}: the visible copy never says "yet"`);
   has(doc, `window.__PDX_DISTRICT_BOARD_SEAT = '${b.alias}'`, `${b.doc}: declares its seat in the head`);
   has(doc, `data-pdxdb-seat="${b.alias}"`, `${b.doc}: declares its seat on the host`);
   has(doc, '<script defer src="/district-board.js"></script>', `${b.doc}: the three bands' module`);
-  has(doc, "This board is a READER", `${b.doc}: the head says it is a reader`);
 }
-// What the board module prints where a composer would sit, on a document with
-// no composer host: the one read-only line, and no equity word in its copy.
+// Every federal seat has the dd_districts row the voice tables' foreign key needs.
+{
+  const MIG = R("netlify/database/migrations/20261129000000_dd_districts_federal_board_seats.sql");
+  for (const b of FED) {
+    const re = b.usHouse
+      ? new RegExp(`\\('${b.seat}', '${b.seat.slice(0, 2).toUpperCase()}', 'house', ${b.district}, '`)
+      : new RegExp(`\\('${b.seat}', '${b.seat.slice(0, 2).toUpperCase()}', 'us-senate', 0, '`);
+    ok(re.test(MIG), `${b.seat}: dd_districts row`);
+  }
+  ok(!/\b(?:CREATE|ALTER|DROP)\b/i.test(MIG.replace(/^--.*$/gm, "")), "the seat migration writes rows only — no schema change");
+  ok(/ON CONFLICT \("district_id"\) DO NOTHING;\s*$/.test(MIG), "…and overwrites nothing");
+}
 {
   const w = makeSandbox();
   vm.runInContext(R("district-board.js"), vm.createContext(w), { filename: "district-board.js" });
   const C = w.PDXDistrictBoard.COPY || {};
-  ok(typeof C.readOnlyLine === "string" && C.readOnlyLine.length > 0, "district-board.js still has its read-only line");
-  ok(!/\byet\b/i.test(String(C.readOnlyLine)), "the read-only line promises nothing");
-  ok(!EQUITY.test(JSON.stringify(C)), "nothing the board module can print is equity language");
+  ok(!EQUITY.test(JSON.stringify(C).replace(/\bunit\b/gi, "")), "nothing the board module can print is equity language");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -352,8 +369,10 @@ const opens = (who, html, alias, pid) => {
   const gov = seats.filter((s) => s.key === "governor")[0];
   ok(!!gov && gov.board === "", "Kansas City: the governor's card has no board outside Utah");
   eq(seats.filter((s) => s.board).length, 3, "Kansas City: exactly three doors — the U.S. House seat and both Senate seats");
-  ok(seats.every((s) => s.boardKey === "" || /^ut-/.test(s.boardKey)),
-    "Kansas City: no card hands a non-Utah key to the residency check");
+  // THE CHECK NAMES EXACTLY THE THREE BOARDED SEATS, Missouri's and no other.
+  eq(seats.filter((s) => s.boardKey).map((s) => s.boardKey).sort().join(","),
+    ["mo-house-5"].concat(sw.senators.map((p) => `mo-us-senate-${p}`)).sort().join(","),
+    "Kansas City: the residency check is handed MO-5 and both Missouri Senate seats");
   ok(!/\byet\b/i.test(html.replace(/<[^>]+>/g, " ")), "Kansas City: the hallway never says \"yet\"");
 }
 {

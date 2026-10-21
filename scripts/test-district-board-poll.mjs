@@ -55,7 +55,7 @@ for (const alias of Object.keys(CLUSTER)) {
   eq(doc.split(SCRIPT).length - 1, 1, `${alias}: …and loads district-poll.js once`);
   ok(doc.indexOf(SCRIPT) > doc.indexOf('src="/district-board.js"'), `${alias}: …after district-board.js`);
 }
-const boards = readdirSync(ROOT).filter((f) => /^district-ut-.*\.html$/.test(f));
+const boards = readdirSync(ROOT).filter((f) => /^district-[a-z]{2}-(?:(?:hd|sd|cd)-\d+|gov|us-senate-[a-z][a-z0-9_]*)\.html$/.test(f));
 const docSeat = (f) => (/data-pdxdb-seat="([^"]+)"/.exec(R(f)) || [, ""])[1];
 const missing = boards.filter((f) => {
   const d = R(f); const alias = docSeat(f);
@@ -72,7 +72,7 @@ ok(R("scripts/district-board.template.html").includes('<div id="pdx-district-pol
 const CLIENT = R("district-poll.js");
 const CLIENT_SEATS = (() => {
   const m = /var POLL_SEATS = \{([^}]*)\}/.exec(CLIENT);
-  return m ? [...m[1].matchAll(/'([a-z0-9-]+)'\s*:/g)].map((x) => x[1]).sort() : [];
+  return m ? [...m[1].matchAll(/'([a-z0-9_-]+)'\s*:/g)].map((x) => x[1]).sort() : [];
 })();
 eq(CLIENT_SEATS.join(","), Object.values(COMPOSER_SEATS).sort().join(","), "the client paints on the server's named rows");
 eq(Object.keys(COMPOSER_SEATS).length, boards.length, "the server gate lists one seat per board document");

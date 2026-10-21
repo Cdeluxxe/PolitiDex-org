@@ -10451,7 +10451,22 @@
 //     precached and changed.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v437';
+// v438 - EVERY U.S. HOUSE AND U.S. SENATE BOARD TAKES A VOICE.
+//     The 436 boards outside Utah now carry the same composer, issue poll and
+//     Didit residency check as every Utah board: their seats are rows on the
+//     three composer lists (the server's COMPOSER_SEATS, district-composer.js
+//     and district-poll.js), the documents carry both hosts, and the general
+//     room is keyed to each seat's sitting member. The gate is unchanged: a
+//     post or vote needs a signed-in account and a vendor-verified residency
+//     row for THAT seat. One check now binds only seats in the board's own
+//     state. district-voice.js, district-composer.js, district-poll.js and
+//     district-board.js are precached and changed. The federal documents
+//     are still not precached.
+//     NO NEW TABLE: the posts, votes and residency rows land in voice_takes,
+//     voice_poll_votes and voice_residency, keyed by seat, as Utah's already do.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v438';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

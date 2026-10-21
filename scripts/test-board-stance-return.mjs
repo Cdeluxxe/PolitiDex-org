@@ -319,20 +319,19 @@ section("4 · the walls: copy, composers, allow-lists, the shell");
   vm.runInContext(R("district-voice.js"), vm.createContext(dv), { filename: "district-voice.js" });
   eq(Object.keys(dv.PDXVoice.BOARD_ROUTES).length, BOARD_TOTAL, "BOARD_ROUTES length is the generator's plan");
   ok(!/from\s*=\s*"\/district\/\*"/.test(R("netlify.toml")), "no /district/* splat");
-  // Every Utah board carries the locked composer and the poll, the five
-  // included; no board outside Utah carries either.
-  const without = utahDocs.filter((f) => {
+  // Every board carries the locked composer and the poll — Utah's, the five
+  // included, and every other state's U.S. House and U.S. Senate board.
+  const has3 = (f) => {
     const s = R(f);
-    return !(s.includes('src="/district-composer.js"') && s.includes('src="/district-poll.js"') &&
-      s.includes('id="pdx-district-composer"'));
-  });
+    return s.includes('src="/district-composer.js"') && s.includes('src="/district-poll.js"') &&
+      s.includes('id="pdx-district-composer"') && s.includes('id="pdx-district-poll"');
+  };
+  const without = utahDocs.filter((f) => !has3(f));
   eq(without.length, 0, `every Utah board keeps the locked composer and the poll — ${JSON.stringify(without)}`);
-  const withComposer = boardDocs.filter((f) => !/^district-ut-/.test(f)).filter((f) => {
-    const s = R(f);
-    return s.includes('src="/district-composer.js"') || s.includes('src="/district-poll.js"') ||
-      s.includes('id="pdx-district-composer"');
-  });
-  eq(withComposer.length, 0, `no board outside Utah carries a composer or a poll — ${JSON.stringify(withComposer)}`);
+  const federal = boardDocs.filter((f) => !/^district-ut-/.test(f));
+  ok(federal.length > 400, `the boards outside Utah are swept (${federal.length})`);
+  const fedWithout = federal.filter((f) => !has3(f));
+  eq(fedWithout.length, 0, `every board outside Utah carries the locked composer and the poll — ${JSON.stringify(fedWithout)}`);
 }
 {
   const bare = MS_DOC.replace(/<!--[\s\S]*?-->/g, "");

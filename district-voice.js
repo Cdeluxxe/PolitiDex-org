@@ -1333,7 +1333,11 @@
         // statewide card's board key (ut-gov, ut-us-senate-<pid>), so the
         // composer's proof button names the governor and both U.S. Senate seats
         // alongside the districts. '' when neither composes.
-        boardKey: lv.statewide ? statewideKeyForLevel(lv, reps.state, pid) : seatKey,
+        // A U.S. House or U.S. Senate card outside Utah has no Utah key, so its
+        // federal board key is the one the check binds — only when that key has
+        // a board, so the check never names a seat with no composer behind it.
+        boardKey: (lv.statewide ? statewideKeyForLevel(lv, reps.state, pid) : seatKey) ||
+          (boardPath(federalKeyForLevel(lv, reps.state, pid)) ? federalKeyForLevel(lv, reps.state, pid) : ''),
         // The sitting member's display name, '' when the roster cannot name the
         // pid, and the seat line both /me and /voice print. See seatLine().
         holder: holderName(pid)

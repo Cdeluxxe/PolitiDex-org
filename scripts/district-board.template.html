@@ -14,7 +14,7 @@
      (scripts/test-district-boards-generated.mjs) fails on any drift between
      this file and what the generator would write.
 
-{{#COMPOSER}}     IT IS district-ut-hd-15.html WITH A DIFFERENT SEAT DECLARED. Same shell,
+     IT IS district-ut-hd-15.html WITH A DIFFERENT SEAT DECLARED. Same shell,
      same three bands, same district-board.js parameterised by the seat this
      document declares twice (the sync flag in the head and data-pdxdb-seat on
      the host), and the same composer and polls: "On the table" nests its issue
@@ -24,17 +24,7 @@
      residency row for THIS seat. The long-form rationale for every rule lives in
      district-ut-sd-3.html's head and is not restated here, because two copies
      of a rule is two rules.
-{{/COMPOSER}}{{#READONLY}}     IT IS district-ut-hd-15.html'S SHELL WITH THE COMPOSER LEFT OUT. Same
-     three bands, same district-board.js parameterised by the seat this
-     document declares twice (the sync flag in the head and data-pdxdb-seat on
-     the host). This board is a READER: it carries no composer host, no poll
-     host and neither of their modules, so nothing on it writes, nothing on it
-     asks for a residency check, and district-board.js prints its one read-only
-     line where a composer would sit. Band 2 asks the same counts endpoint every
-     board asks, and with no write path into this seat they stand at zero. The
-     long-form rationale for every rule lives in district-ut-sd-3.html's head
-     and is not restated here, because two copies of a rule is two rules.
-{{/READONLY}}
+
      STILL NOT A SPLAT. This seat has a document because the roster names who
      sits in it. A seat the roster cannot name gets no document, no rewrite,
      no BOARDS / BOARD_ROUTES / BOARD_SEATS row, and /voice keeps printing
@@ -149,7 +139,7 @@
       font-size: 0.8rem; line-height: 1.5; color: #7d8fa9;
     }
 
-{{#COMPOSER}}    /* THE COMPOSER (district-composer.js), the same rules the five Layton-cluster
+    /* THE COMPOSER (district-composer.js), the same rules the five Layton-cluster
        boards carry. `pdxdc-` was checked against every shipped file: nothing
        else defines it. */
     .pdxdb-wrap--compose { padding-top: 0; }
@@ -185,7 +175,7 @@
     .pdxdc-post-mine { color: #c4b58a; }
     .pdxdc-post-body { margin: 0; font-size: 0.93rem; line-height: 1.5; color: #dbe6f7; white-space: pre-wrap; overflow-wrap: anywhere; }
 
-{{/COMPOSER}}    /* Band 1 */
+    /* Band 1 */
     .pdxdb-seat-name { margin: 0 0 0.15rem; font-size: 1.15rem; font-weight: 600; }
     .pdxdb-seat-link { color: #cfe0fa; text-decoration: none; border-bottom: 1px solid #2b3f63; }
     .pdxdb-seat-link:hover, .pdxdb-seat-link:focus-visible { color: #fff; border-bottom-color: #7fb2ff; }
@@ -447,7 +437,7 @@
   <script defer src="/your-file.js"></script>
   <!-- The board itself. Everything above is a source it reads. -->
 {{US_HOUSE_SCRIPT}}  <script defer src="/district-board.js"></script>
-{{RETURN_SCRIPT}}{{#COMPOSER}}  <!-- THIS BOARD'S COMPOSER AND ITS POLLS, the same modules the five
+{{RETURN_SCRIPT}}  <!-- THIS BOARD'S COMPOSER AND ITS POLLS, the same modules the five
        Layton-cluster boards load. district-composer.js mounts only on the
        #pdx-district-composer host below and asks POST /api/residency-verify for
        the Didit check; district-poll.js mounts only on #pdx-district-poll and
@@ -459,7 +449,7 @@
 {{COMPOSER_VHL_SCRIPT}}  <script defer src="/district-voice.js"></script>
   <script defer src="/district-composer.js"></script>
   <script defer src="/district-poll.js"></script>
-{{/COMPOSER}}  <!-- The account chip, answering the same three-state contract compare-hub.js
+  <!-- The account chip, answering the same three-state contract compare-hub.js
        does on the front page in 9 KB instead of 758 KB. -->
   <script defer src="/shell-account-chip.js"></script>
 
@@ -520,7 +510,7 @@
       </div>
     </div>
 
-{{#COMPOSER}}    <!-- THE POLL HOST. A marker: district-poll.js reads the seat from it and
+    <!-- THE POLL HOST. A marker: district-poll.js reads the seat from it and
          paints one Support / Oppose / Not sure poll inside each OPEN issue group
          of "On the table", and "n votes" on every group's header. Same gate as
          the composer; the buttons stay disabled without the server's word. -->
@@ -540,7 +530,7 @@
             placeholder="Only verified residents of this seat can post here."></textarea>
         </section>
       </div>
-{{/COMPOSER}}    </div>
+    </div>
 
     <noscript>
       <div class="pdxdb-wrap">

@@ -37,12 +37,10 @@
 // so /voice keeps saying "this room is not open" for it.
 //
 // EVERY OTHER STATE'S U.S. HOUSE AND U.S. SENATE SEATS (see planFederal()) are
-// opened on the same gate and the same template, with three differences, each
-// a refusal rather than a feature:
-//   · NO COMPOSER. The row carries no `composer: true`, the document carries no
-//     composer host, no poll host and neither module, and the seat is on none
-//     of the three composer lists — so no residency check can be asked for it,
-//     nothing can be written to it, and its counts are zero by construction.
+// opened on the same gate, the same template and the same composer contract as
+// a Utah board — a row on all three composer lists, so a comment and a poll vote
+// are taken from a Didit-verified resident of that seat and from nobody else —
+// with two differences, each a refusal rather than a feature:
 //   · NO OFFLINE COPY. Four hundred documents are not precached onto a phone;
 //     sw.js's three blocks stay Utah's, and a board outside Utah is a network
 //     page like any other address the worker does not know.
@@ -88,7 +86,7 @@ const CHAMBERS = [
 // window._pdxUsHouseSeat(); a district the roster names nobody for is skipped.
 // A single-district state is asked for district 1, the number this app stores
 // for an at-large seat (see _pdxCdKey() in voter-hub-location.js). Utah is not
-// here: its four districts are planned above, with composers.
+// here: its four districts are planned above.
 export const FEDERAL_STATES = [
   ["al", "Alabama", 7], ["ak", "Alaska", 1], ["az", "Arizona", 9], ["ar", "Arkansas", 4],
   ["ca", "California", 52], ["co", "Colorado", 8], ["ct", "Connecticut", 5], ["de", "Delaware", 1],
@@ -243,8 +241,8 @@ function planStatewide(win, boards, skipped) {
 //                the resolver's own classifier already admitted it — and never a
 //                state senate, a former member or a candidate). Keyed by pid,
 //                exactly as Utah's two are: `<code>-us-senate-<pid>`.
-// The governor is NOT opened outside Utah. Every board here is `federal`: a
-// reader with no composer.
+// The governor is NOT opened outside Utah. Every board here is `federal`, which
+// only keeps it out of sw.js; it takes a voice like any Utah board.
 const US_SENATE_OFFICE_RE = /\bsenat(?:e|or)\b/i;
 const NOT_US_SENATE_RE = /\bstate\s+senat|\bformer\b|\bex-|\bcandidate\b|\bnominee\b|-elect\b/i;
 function planFederal(win, boards, skipped) {
@@ -374,15 +372,7 @@ export function renderDoc(b, template = R("scripts/district-board.template.html"
     RETURN_SCRIPT: b.usHouse ? "" : RETURN_TAG,
     NOSCRIPT: noscript.join("\n"),
   };
-  // The composer's regions are sections, not slots: a composer board keeps
-  // every byte between {{#COMPOSER}} and {{/COMPOSER}}, a federal board keeps
-  // every byte between {{#READONLY}} and {{/READONLY}}, and neither keeps the
-  // other's.
-  const composer = !b.federal;
-  const sectioned = template
-    .replace(/\{\{#COMPOSER\}\}([\s\S]*?)\{\{\/COMPOSER\}\}/g, (m, body) => (composer ? body : ""))
-    .replace(/\{\{#READONLY\}\}([\s\S]*?)\{\{\/READONLY\}\}/g, (m, body) => (composer ? "" : body));
-  return sectioned.replace(/\{\{([A-Z0-9_]+)\}\}/g, (m, k) => {
+  return template.replace(/\{\{([A-Z0-9_]+)\}\}/g, (m, k) => {
     if (!(k in vars)) throw new Error(`gen-district-boards: unknown template slot ${m}`);
     return vars[k];
   });
@@ -391,7 +381,7 @@ export function renderDoc(b, template = R("scripts/district-board.template.html"
 function boardsRows(boards) {
   return boards.map((b) => {
     const f = [
-      `seat: ${js(b.seat)}`, ...(b.federal ? [] : ["composer: true"]), `alias: ${js(b.alias)}`, `route: ${js(b.route)}`, `pid: ${js(b.pid)}`,
+      `seat: ${js(b.seat)}`, "composer: true", `alias: ${js(b.alias)}`, `route: ${js(b.route)}`, `pid: ${js(b.pid)}`,
     ];
     if (b.usHouse) f.push(`usHouse: { state: ${js(b.usHouse.state)}, district: ${b.district} }`);
     if (b.statewide) f.push("statewide: true");
@@ -432,14 +422,15 @@ export function renderAll() {
     boards.map((b) => `    ${js(b.seat)}: ${js(b.route)},`)));
   out.set("netlify/functions/district-board.mts", splice(R("netlify/functions/district-board.mts"),
     "district-board.mts", boards.map((b) => `  "${b.seat}": 1,`)));
-  // The composer's three lists, and the sw.js blocks below, are Utah's only.
+  // Every board is on the composer's three lists. Only the sw.js blocks below
+  // are Utah's alone.
   const utah = boards.filter((b) => !b.federal);
   out.set("netlify/lib/district-board-voice-core.mjs", splice(R("netlify/lib/district-board-voice-core.mjs"),
-    "district-board-voice-core.mjs", utah.map((b) => `  "${b.seat}": "${b.alias}",`)));
+    "district-board-voice-core.mjs", boards.map((b) => `  "${b.seat}": "${b.alias}",`)));
   out.set("district-composer.js", splice(R("district-composer.js"), "district-composer.js",
-    utah.map((b) => `    ${js(b.alias)}: 1,`)));
+    boards.map((b) => `    ${js(b.alias)}: 1,`)));
   out.set("district-poll.js", splice(R("district-poll.js"), "district-poll.js",
-    utah.map((b) => `    ${js(b.alias)}: 1,`)));
+    boards.map((b) => `    ${js(b.alias)}: 1,`)));
   out.set("netlify.toml", splice(R("netlify.toml"), "netlify.toml", boards.flatMap((b) => [
     `# ${b.h1.replace("’", "'").replace("·", "-")} — ${b.usHouse ? "U.S. House join" : b.pid}`,
     ...["", "/", ".html"].flatMap((sfx) => [
