@@ -10425,7 +10425,18 @@
 //     No dollar figure, no percentage, no score, no new key.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v435';
+// v436 - THE AIPAC CHIP'S MONEY SIDE READS NORPAC AND PRO-ISRAEL AMERICA PAC.
+//     The generated table in pdx-aipac.js now sums the same direct, net-of-
+//     refunds FEC contributions for NORPAC (C00247403) and Pro-Israel America
+//     PAC (C00699470) beside AIPAC PAC: 356 roster people on file, five of them
+//     through NORPAC alone. Pro-Israel America PAC files no committee-to-
+//     candidate rows in either cycle. The chip names the committees in each
+//     person's source. The IMEU vote rows are unchanged. pdx-aipac.js is
+//     precached and changed.
+//     No dollar figure, no percentage, no score, no new key.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v436';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
