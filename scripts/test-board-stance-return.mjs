@@ -24,9 +24,15 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { returnSlice, renderReturn } from "./gen-pdx-return.mjs";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { HAND_SEATS, planBoards, BOARD_DOC_RE } from "./gen-district-boards.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
+// The board count is the generator's plan: the six hand rows plus every
+// generated Utah and federal board.
+const PLAN = planBoards().boards;
+const BOARD_TOTAL = HAND_SEATS.length + PLAN.length;
+const UT_TOTAL = HAND_SEATS.length + PLAN.filter((b) => !b.federal).length;
 
 let passed = 0;
 const failures = [];
@@ -76,8 +82,11 @@ eq(PDX_RETURN_FILE, renderReturn(LOC), "pdx-return.js is byte-for-byte its owner
 // ═════════════════════════════════════════════════════════════════════════════
 section("2 · every board document's control names its own path");
 // ═════════════════════════════════════════════════════════════════════════════
-const boardDocs = readdirSync(ROOT).filter((f) => /^district-ut-.*\.html$/.test(f));
-ok(boardDocs.length === 88, `every board document is swept (${boardDocs.length})`);
+// Every board document, Utah's and every other state's U.S. House and Senate.
+const boardDocs = readdirSync(ROOT).filter((f) => BOARD_DOC_RE.test(f));
+const utahDocs = boardDocs.filter((f) => /^district-ut-/.test(f));
+ok(boardDocs.length === BOARD_TOTAL, `every board document is swept (${boardDocs.length})`);
+ok(utahDocs.length === UT_TOTAL, `every Utah board document is swept (${utahDocs.length})`);
 for (const f of boardDocs) {
   const s = R(f);
   const alias = f.replace(/^district-/, "").replace(/\.html$/, "");
@@ -109,7 +118,7 @@ function paintStance(alias, count, sides) {
 {
   const w0 = paintStance("ut-sd-9", 0);
   const routes = Object.values(w0.PDXDistrictBoard.BOARDS).map((b) => b.route);
-  eq(routes.length, 88, "district-board.js's BOARDS length is unchanged");
+  eq(routes.length, BOARD_TOTAL, "district-board.js's BOARDS length is the generator's plan");
   for (const b of Object.values(w0.PDXDistrictBoard.BOARDS)) {
     const none = paintStance(b.alias, 0).PDXDistrictBoard;
     eq(none.ROUTE, b.route, `${b.alias}: the board mounted is the one the document declared`);
@@ -308,15 +317,22 @@ section("4 · the walls: copy, composers, allow-lists, the shell");
 {
   const dv = makeSandbox();
   vm.runInContext(R("district-voice.js"), vm.createContext(dv), { filename: "district-voice.js" });
-  eq(Object.keys(dv.PDXVoice.BOARD_ROUTES).length, 88, "BOARD_ROUTES length is unchanged");
+  eq(Object.keys(dv.PDXVoice.BOARD_ROUTES).length, BOARD_TOTAL, "BOARD_ROUTES length is the generator's plan");
   ok(!/from\s*=\s*"\/district\/\*"/.test(R("netlify.toml")), "no /district/* splat");
-  // Every board carries the locked composer and the poll, the five included.
-  const without = boardDocs.filter((f) => {
+  // Every Utah board carries the locked composer and the poll, the five
+  // included; no board outside Utah carries either.
+  const without = utahDocs.filter((f) => {
     const s = R(f);
     return !(s.includes('src="/district-composer.js"') && s.includes('src="/district-poll.js"') &&
       s.includes('id="pdx-district-composer"'));
   });
-  eq(without.length, 0, `every board keeps the locked composer and the poll — ${JSON.stringify(without)}`);
+  eq(without.length, 0, `every Utah board keeps the locked composer and the poll — ${JSON.stringify(without)}`);
+  const withComposer = boardDocs.filter((f) => !/^district-ut-/.test(f)).filter((f) => {
+    const s = R(f);
+    return s.includes('src="/district-composer.js"') || s.includes('src="/district-poll.js"') ||
+      s.includes('id="pdx-district-composer"');
+  });
+  eq(withComposer.length, 0, `no board outside Utah carries a composer or a poll — ${JSON.stringify(withComposer)}`);
 }
 {
   const bare = MS_DOC.replace(/<!--[\s\S]*?-->/g, "");

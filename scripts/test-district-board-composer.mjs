@@ -27,6 +27,12 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { HAND_SEATS, planBoards } from "./gen-district-boards.mjs";
+// The board count is the generator's plan: the six hand rows plus every
+// generated Utah and federal board.
+const PLAN_BOARDS = planBoards().boards;
+const BOARD_TOTAL = HAND_SEATS.length + PLAN_BOARDS.length;
+const FEDERAL_TOTAL = PLAN_BOARDS.filter((b) => b.federal).length;
 import {
   COMPOSER_SEATS,
   LOCKED_LINE,
@@ -323,8 +329,9 @@ const dvWin = makeSandbox();
 vm.runInContext(R("district-voice.js"), vm.createContext(dvWin), { filename: "district-voice.js" });
 // 85 district rows + the three statewide Utah seats (governor, both U.S. Senate
 // seats), which open as readers with no composer of their own.
-eq(Object.keys(dvWin.PDXVoice.BOARD_ROUTES).length, 88, "BOARD_ROUTES length is unchanged");
-eq(Object.keys(dvWin.PDXVoice.BOARD_ROUTES).length, boards.length, "…one row per board document");
+eq(Object.keys(dvWin.PDXVoice.BOARD_ROUTES).length, BOARD_TOTAL, "BOARD_ROUTES length is the generator's plan");
+// `boards` is Utah's documents; the federal boards are the rest of the rows.
+eq(Object.keys(dvWin.PDXVoice.BOARD_ROUTES).length, boards.length + FEDERAL_TOTAL, "…one row per board document");
 ok(!/from\s*=\s*"\/district\/\*"/.test(R("netlify.toml")), "no /district/* splat");
 
 // ═════════════════════════════════════════════════════════════════════════════

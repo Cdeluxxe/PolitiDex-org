@@ -37,13 +37,14 @@
 //   3. No named row (a thin row only): the on-file sentence stays, with a working
 //      person-file link, no name and no "yet".
 //   4. HD-16 still names Trevor Lee and HD-15 still names Ariel Defay.
-//   5. BOARD_ROUTES is still 88, and voice.html still loads no bundled roster.
+//   5. BOARD_ROUTES is still the generator's plan, and voice.html still loads no bundled roster.
 // ─────────────────────────────────────────────────────────────────────────────
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { HAND_SEATS, planBoards } from "./gen-district-boards.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -251,7 +252,9 @@ section("5 · nothing else moved");
 {
   const w = makeSandbox();
   vm.runInContext(DV, vm.createContext(w), { filename: "district-voice.js" });
-  eq(Object.keys(w.PDXVoice.BOARD_ROUTES).length, 88, "BOARD_ROUTES length");
+  // The generator's plan: the six hand rows, Utah's generated boards and every
+  // other state's U.S. House and U.S. Senate boards.
+  eq(Object.keys(w.PDXVoice.BOARD_ROUTES).length, HAND_SEATS.length + planBoards().boards.length, "BOARD_ROUTES length");
   const VOICE = R("voice.html");
   for (const f of ["/cmp-data.js", "/ballot-breakdown.js", "/profile-evidence.js", "/compare-hub.js"]) {
     no(VOICE, `src="${f}"`, `voice.html loads ${f}`);

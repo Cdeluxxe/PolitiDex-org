@@ -10436,7 +10436,22 @@
 //     No dollar figure, no percentage, no score, no new key.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v436';
+// v437 - DISTRICT VOICE BOARDS FOR EVERY U.S. HOUSE AND U.S. SENATE SEAT.
+//     scripts/gen-district-boards.mjs now also opens a read-only board for
+//     every other state's U.S. House and U.S. Senate seat the roster names a
+//     sitting member for: 436 documents, each a named row with three exact
+//     rewrites, and no composer, poll or residency check on any of them.
+//     district-voice.js composes those cards' board keys in every state, and
+//     the /voice and homepage coverage sentences count 524 boards. The new
+//     documents are NOT precached and are not in DISTRICT_BOARD_NAV_RE or
+//     DISTRICT_BOARD_DOCS: four hundred pages are not pushed onto a phone, and
+//     an address this worker does not know is a network page. The three
+//     generated blocks below are Utah's, byte for byte as before.
+//     district-voice.js, district-board.js, voice.html and index.html are
+//     precached and changed.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v437';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

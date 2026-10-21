@@ -415,7 +415,7 @@ section("4b · one Utah-first sentence under District Voice, and it is true");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const v = visit();
-  const NOTE = "District boards and state legislative mapping are live in Utah first. Other states will be added over time.";
+  const NOTE = "State legislative boards and mapping are live in Utah first. Other states will be added over time. U.S. House and U.S. Senate boards are open in every state.";
   eq(v.C.SCOPE_NOTE, NOTE, "the Utah-first sentence drifted");
   // The three points are exactly as they were, and the note is not one of them.
   eq(JSON.stringify(v.C.POINTS), JSON.stringify([
@@ -439,7 +439,7 @@ section("4b · one Utah-first sentence under District Voice, and it is true");
   ok(items[0].indexOf(NOTE) < 0 && items[1].indexOf(NOTE) < 0, "the Utah-first sentence sits under the wrong point");
   // One sentence, not a disclaimer block: a plain span, no heading, no box —
   // and VISIBLE whatever the stylesheet does: its own inline styles say so.
-  const span = (/<span class="pdxfc-scope"[^>]*>District boards/.exec(h) || [""])[0];
+  const span = (/<span class="pdxfc-scope"[^>]*>State legislative boards/.exec(h) || [""])[0];
   ok(span.length > 0, "the Utah-first sentence is not a plain span");
   const inline = (/style="([^"]*)"/.exec(span) || [, ""])[1];
   for (const want of ["display:block", "visibility:visible", "opacity:1", "color:#9fb5a8"]) {
@@ -451,7 +451,7 @@ section("4b · one Utah-first sentence under District Voice, and it is true");
   // Nothing on the path to it hides it: not its <li>, not the list, not the card.
   const path = h.slice(0, h.indexOf(NOTE));
   no(path, " hidden", "an element around the Utah-first sentence is hidden");
-  no(path, "aria-hidden=\"true\">District", "the Utah-first sentence is aria-hidden");
+  no(path, "aria-hidden=\"true\">State legislative", "the Utah-first sentence is aria-hidden");
   for (const cls of ["pdxfc-points", "pdxfc-point", "pdxfc-card"]) {
     const r = (new RegExp(`\\.${cls}\\{[^}]*\\}`).exec(SRC) || [""])[0];
     for (const hide of ["display:none", "visibility:hidden", "max-height:0", "height:0", "overflow:hidden"]) {
@@ -471,12 +471,16 @@ section("4b · one Utah-first sentence under District Voice, and it is true");
   ok(colors.length > 0 && colors.every((c) => gate.toLowerCase().indexOf(c.toLowerCase()) >= 0),
     `the Utah-first sentence uses a color the District Voice card does not (${colors.join(", ")})`);
 
-  // TRUE TO THE SITE. Every district board document is a Utah seat; the finder
-  // says state legislative lines are drawn in Utah; and the U.S. House resolves
+  // TRUE TO THE SITE. Every State House and State Senate board document is a
+  // Utah seat, and every board outside Utah is a U.S. House or U.S. Senate seat
+  // (district-<code>-cd-<n>, district-<code>-us-senate-<pid>); the finder says
+  // state legislative lines are drawn in Utah; and the U.S. House resolves
   // outside Utah (so the sentence does not claim representatives are Utah-only).
   const boards = readdirSync(ROOT).filter((f) => /^district-.*\.html$/.test(f));
-  ok(boards.length > 0 && boards.every((f) => f.startsWith("district-ut-")),
-    `a district board outside Utah exists, so "Utah first" is out of date: ${boards.filter((f) => !f.startsWith("district-ut-")).join(", ")}`);
+  const outside = boards.filter((f) => !f.startsWith("district-ut-"));
+  ok(boards.length > 0 && outside.every((f) => /^district-[a-z]{2}-(?:cd-[1-9][0-9]*|us-senate-[a-z][a-z0-9_]*)\.html$/.test(f)),
+    `a state legislative board outside Utah exists, so "Utah first" is out of date: ${outside.filter((f) => !/^district-[a-z]{2}-(?:cd-|us-senate-)/.test(f)).join(", ")}`);
+  ok(outside.length > 0, "no U.S. House or U.S. Senate board exists outside Utah, so the sentence's last clause is false");
   ok(/State Senate and State House<\/strong> seats need\s+district lines, which we map in <strong>Utah<\/strong>/.test(R("find.html")),
     "the finder no longer says state legislative lines are mapped in Utah — recheck the Utah-first sentence");
   ok(existsSync(join(ROOT, "scripts/test-federal-house-locator.mjs")) &&

@@ -33,6 +33,12 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { HAND_SEATS, planBoards } from "./gen-district-boards.mjs";
+// The board count is the generator's plan: the six hand rows plus every
+// generated Utah and federal board.
+const PLAN_BOARDS = planBoards().boards;
+const BOARD_TOTAL = HAND_SEATS.length + PLAN_BOARDS.length;
+const FEDERAL_TOTAL = PLAN_BOARDS.filter((b) => b.federal).length;
 import { COMPOSER_SEATS, LOCKED_LINE, handle as handleVoice, seatHash } from "../netlify/lib/district-board-voice-core.mjs";
 import { handle as handlePoll } from "../netlify/lib/district-board-poll-core.mjs";
 import { handleStart, handleWebhook, sign, canonicalJson } from "../netlify/lib/residency-vendor-core.mjs";
@@ -298,7 +304,7 @@ section("5 · named rows only, the generator is the source, every seat has a dis
 {
   const dv = makeSandbox();
   vm.runInContext(R("district-voice.js"), vm.createContext(dv), { filename: "district-voice.js" });
-  eq(Object.keys(dv.PDXVoice.BOARD_ROUTES).length, 88, "BOARD_ROUTES length is unchanged");
+  eq(Object.keys(dv.PDXVoice.BOARD_ROUTES).length, BOARD_TOTAL, "BOARD_ROUTES length is the generator's plan");
   eq(Object.keys(COMPOSER_SEATS).length, DOCS.length, "one composer seat per board document");
   ok(!/from\s*=\s*"\/district\/\*"/.test(R("netlify.toml")), "no /district/* splat in netlify.toml");
   ok(!/\/district\/\*/.test(R("sw.js").replace(/\/\/[^\n]*/g, "")), "no /district/* splat in sw.js");

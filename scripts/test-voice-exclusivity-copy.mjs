@@ -22,13 +22,15 @@
 //      (generated, statewide, hand-written composer boards).
 //   4. The /me cap sentence stays, and the 429 cap lines carry no pitch.
 //   5. MUTATION: deleting any one sentence fails the checks.
-//   6. The homepage coverage count is BOARD_ROUTES.length, which is 88.
+//   6. The homepage and /voice coverage count is BOARD_ROUTES.length, the
+//      generator's plan.
 // ─────────────────────────────────────────────────────────────────────────────
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { HAND_SEATS, planBoards } from "./gen-district-boards.mjs";
 import { CAP_COPY } from "../netlify/lib/membership-core.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -232,21 +234,24 @@ section("4 · mutation: deleting any one sentence fails");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("5 · nothing new: BOARD_ROUTES is 88 and the homepage counts it");
+section("5 · BOARD_ROUTES is the generator's plan and the homepage and /voice count it");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const w = makeSandbox();
   vm.runInContext(TREE.dv, vm.createContext(w), { filename: "district-voice.js" });
   const n = Object.keys(w.PDXVoice.BOARD_ROUTES).length;
-  eq(n, 88, "BOARD_ROUTES length");
+  eq(n, HAND_SEATS.length + planBoards().boards.length, "BOARD_ROUTES length");
   const ONES = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
     "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];
   const TENS = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
-  const spell = (k) => k < 20 ? ONES[k] : k < 100 ? TENS[Math.floor(k / 10)] + (k % 10 ? "-" + ONES[k % 10] : "") : String(k);
+  const under100 = (k) => k < 20 ? ONES[k] : TENS[Math.floor(k / 10)] + (k % 10 ? "-" + ONES[k % 10] : "");
+  const spell = (k) => k < 100 ? under100(k) : ONES[Math.floor(k / 100)] + " hundred" + (k % 100 ? " " + under100(k % 100) : "");
   const word = spell(n);
   const card = textOf(homeSlice(TREE.index));
   ok(card.indexOf(`${word[0].toUpperCase() + word.slice(1)} seats have a board on file today.`) >= 0,
     "the homepage coverage sentence counts BOARD_ROUTES.length");
+  ok(R("voice.html").indexOf(`<p class="pdxvr-cover" data-pdxvr-cover="1">${word[0].toUpperCase() + word.slice(1)} seats have a board on file today.`) >= 0,
+    "the /voice coverage sentence counts BOARD_ROUTES.length");
   ok(!/from\s*=\s*"\/district\/\*"/.test(R("netlify.toml")), "no /district/* splat");
   ok(R("district-composer.js").indexOf("var COMPOSER_SEATS") >= 0, "the composer allow-list is still where it was");
 }

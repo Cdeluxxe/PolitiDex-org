@@ -52,9 +52,10 @@
 //      goes back to the empty sentence, so rule 3 is not passing for some other
 //      reason and the empty copy is not dead.
 //   5. STATE GATING IS NOT OPTIONAL. A Missouri reader's CONGRESSIONAL card is
-//      named off the roster; their State House and State Senate cards name
+//      named off the roster and opens MO-5's read-only board, and both U.S.
+//      Senate cards open theirs; their State House and State Senate cards name
 //      nobody and offer no room, because that table is keyed on a district
-//      number with no state of its own.
+//      number with no state of its own, and the governor's card opens none.
 //   6. A REAL EMPTY FILE STILL GETS THE EMPTY SENTENCE.
 //   7. NOTHING ELSE MOVED. BOARD_ROUTES is six named rows, no splat, no
 //      composer, no equity, no score, and ballot-breakdown.js is byte-identical
@@ -321,7 +322,15 @@ const PEOPLE = {
   maloy: { name: "Celeste Maloy", office: "U.S. Representative", state: "Utah · District 2", party: "R" },
   chew_h68: { name: "Scott Chew", office: "Utah State Representative", state: "UT District 68", party: "R" },
   mo_rep5: { name: "Emanuel Cleaver", office: "U.S. Representative", state: "Missouri · MO-5", party: "D" },
+  // Missouri's two U.S. Senate seats, under the roster pids their boards are
+  // keyed by (mo-us-senate-hawley, mo-us-senate-schmitt).
+  hawley: { name: "Josh Hawley", office: "U.S. Senator", state: "Missouri", party: "R" },
+  schmitt: { name: "Eric Schmitt", office: "U.S. Senator", state: "Missouri", party: "R" },
 };
+// Every board door a Kansas City hallway may print: its U.S. House seat and its
+// two U.S. Senate seats. Never a legislative seat, never the governor's.
+const MO_DOOR_RE = /^\/district\/mo-(?:cd-[1-9][0-9]*|us-senate-[a-z][a-z0-9_]*)$/;
+const doorsOf = (html) => [...String(html).matchAll(/<a\b[^>]*href="(\/district\/[^"]+)"[^>]*>Open board<\/a>/g)].map((m) => m[1]);
 
 // THE READERS. Both pinned in the finder — no curated area, no memo, no ballot,
 // which is the shape /find leaves behind and the shape the defect lives in.
@@ -557,7 +566,7 @@ section("4 · with the join off the page, the empty sentence comes back");
 // ═════════════════════════════════════════════════════════════════════════════
 // 5 · STATE GATING: A MISSOURI READER GETS A NAMED CD AND NO LEGISLATURE
 // ═════════════════════════════════════════════════════════════════════════════
-section("5 · Missouri's congressional seat is named; its legislature is not");
+section("5 · Missouri's congressional and Senate seats are named and open; its legislature is not");
 {
   const v = voiceCtx(KC);
   v.paint();
@@ -571,15 +580,25 @@ section("5 · Missouri's congressional seat is named; its legislature is not");
   eq(cd.pid, "mo_rep5",
     "Missouri: the U.S. House card names nobody though the roster holds a record that says it holds MO-5 —\n" +
     "    the congressional join is not Utah-only and must not become so");
-  eq(cd.board, "",
-    "Missouri: a Missouri CD was given a board — BOARD_ROUTES holds four named Utah rows and nothing\n" +
-    "    computes a fifth");
+  // EVERY STATE'S U.S. HOUSE SEAT HAS A BOARD WHERE THE ROSTER NAMES ITS
+  // MEMBER, and MO-5's is a named BOARD_ROUTES row — a read-only room.
+  eq(cd.board, "/district/mo-cd-5",
+    "Missouri: MO-5's card does not open its board — BOARD_ROUTES names /district/mo-cd-5");
   const cdCard = cardFor(html, "U.S. House", "5");
   must(!!cdCard, "Missouri: no U.S. House District 5 card was painted");
   has(cdCard, 'Sitting member: <a class="pdxvr-name" href="/p/mo_rep5">Emanuel Cleaver</a>',
     "Missouri: the U.S. House card does not name the member the roster holds for MO-5");
-  no(cdCard, ">Open board</a>",
-    "Missouri: the U.S. House card offers a board — there is no board for MO-5 and no room to walk into");
+  has(cdCard, ">Open board</a>", "Missouri: the U.S. House card offers no board door");
+  has(cdCard, 'href="/district/mo-cd-5"', "Missouri: the U.S. House door is not MO-5's board");
+  // BOTH U.S. SENATE CARDS OPEN THEIR OWN BOARDS, keyed by the holder's pid.
+  const sens = ["ussenate1", "ussenate2"].map((k) => seatOf(v.win, k)).filter(Boolean);
+  eq(sens.map((x) => x.pid).sort().join(","), "hawley,schmitt", "Missouri: the two U.S. Senate cards name Hawley and Schmitt");
+  for (const x of sens) {
+    eq(x.board, `/district/mo-us-senate-${x.pid}`, `Missouri: ${x.pid}'s Senate card does not open its own board`);
+  }
+  // THE GOVERNOR'S CARD DOES NOT: governors' boards are Utah's alone.
+  const gov = seatOf(v.win, "governor");
+  if (gov) eq(gov.board, "", "Missouri: the governor's card was given a board"); else passed++;
 
   // AND THE LEGISLATURE IS NOT, which is the half that matters. That table is
   // keyed on a district NUMBER inside a chamber with no state of its own: asked
@@ -601,8 +620,8 @@ section("5 · Missouri's congressional seat is named; its legislature is not");
     "    else's member");
   no(html, "Stuart Adams",
     "Missouri: Stuart Adams — Utah Senate District 7 — appears on a Kansas City reader's hallway");
-  eq((html.match(/>Open board<\/a>/g) || []).length, 0,
-    "Missouri: a door opened on a hallway where no seat is in the allow-list");
+  eq(doorsOf(html).sort().join(","), "/district/mo-cd-5,/district/mo-us-senate-hawley,/district/mo-us-senate-schmitt",
+    "Missouri: the hallway's doors are not exactly MO-5's and both U.S. Senate boards");
   has(html, "No sitting member on hand for this seat",
     "Missouri: nothing on the hallway prints the empty sentence, so the legislative cards are claiming\n" +
     "    something about seats this app cannot resolve");
@@ -689,7 +708,8 @@ section("7 · six named board rows, an untouched owner, and no new surface");
 // Six, not five, because SD-6 opened the same way — section 9 drives it.
 const BR = (/var BOARD_ROUTES = \{([\s\S]*?)\n  \};/.exec(DV) || [, ""])[1];
 must(!!BR, "district-voice.js no longer declares BOARD_ROUTES as one literal");
-const brRows = [...BR.matchAll(/'([a-z0-9-]+)':\s*'(\/district\/[a-z0-9-]+)'/g)];
+// `_` is admitted: a U.S. Senate key carries its holder's pid (dan_sullivan).
+const brRows = [...BR.matchAll(/'([a-z0-9_-]+)':\s*'(\/district\/[a-z0-9_-]+)'/g)];
 // AND THE GENERATED ROWS: every other seat the roster names a sitting member
 // for, written by scripts/gen-district-boards.mjs. The count is six hand rows
 // plus that plan, exactly — naming a member in seated-member.js without the
@@ -800,7 +820,7 @@ const HEAD = (f) => {
   // neither list may become a pattern.
   const dbTbl = DB.slice(DB.indexOf("var BOARDS = {"), DB.indexOf("\n  };", DB.indexOf("var BOARDS = {")));
   must(!!dbTbl, "district-board.js no longer declares BOARDS as one literal");
-  const dbSeats = [...dbTbl.matchAll(/^    '([a-z0-9-]+)':\s*\{/gm)].map((m) => m[1]).sort();
+  const dbSeats = [...dbTbl.matchAll(/^    '([a-z0-9_-]+)':\s*\{/gm)].map((m) => m[1]).sort();
   eq(dbSeats.join(","), brRows.map(([, k]) => k).sort().join(","),
     "engine: district-board.js's BOARDS and district-voice.js's BOARD_ROUTES no longer name the same seats");
   ok(!/\\d\+|\[0-9\]\+|RegExp/.test(dbTbl),
@@ -1041,8 +1061,8 @@ const DAVIS_SLATE = {
   }
   ["Trevor Lee", "Stuart Adams", "/p/tlee", "/p/sadams"].forEach((t) => no(html, t,
     `Missouri: ${t} appears on a Kansas City reader's hallway`));
-  eq((html.match(/>Open board<\/a>/g) || []).length, 0,
-    "Missouri: a door opened on a hallway where no seat is in the allow-list");
+  ok(doorsOf(html).every((d) => MO_DOOR_RE.test(d)),
+    "Missouri: a door opened onto something other than a Missouri U.S. House or U.S. Senate board");
   // AND THE LEGISLATIVE TABLE IS STILL NOT READ FOR THEM. The correction may not
   // become a reason to ask a district-number-keyed table on behalf of a reader in
   // a state this app draws no legislative lines for.

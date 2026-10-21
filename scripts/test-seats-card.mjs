@@ -780,7 +780,8 @@ for (const w of ['vh-loc-mapbadge', 'pdxPaintStateShape', 'data-pdxhome']) {
   const DB = read('district-board.js');
   const TOML = read('netlify.toml');
   const tbl = DV.slice(DV.indexOf('var BOARD_ROUTES = {'), DV.indexOf('};', DV.indexOf('var BOARD_ROUTES = {')));
-  const routes = [...tbl.matchAll(/'\/district\/([a-z0-9-]+)'/g)].map((m) => m[1]);
+  // `_` is admitted: a U.S. Senate board's alias carries its holder's pid.
+  const routes = [...tbl.matchAll(/'\/district\/([a-z0-9_-]+)'/g)].map((m) => m[1]);
   must(routes.length > 0, 'BOARD_ROUTES no longer lists board paths the way this assertion reads them');
   // Six hand rows plus exactly the rows the roster generator plans — every
   // seat the roster names a sitting member for, and not one more.

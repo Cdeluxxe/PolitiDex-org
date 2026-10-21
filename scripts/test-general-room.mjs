@@ -414,14 +414,19 @@ section("6 · the search miss lands in the general section");
 // ── 7 ───────────────────────────────────────────────────────────────────────
 section("7 · neighbours, routes, migration, copy, shell");
 {
-  const routes = (src) => { const m = /var BOARD_ROUTES = \{([\s\S]*?)\n  \};/.exec(src || ""); return m ? [...m[1].matchAll(/^\s*'([a-z0-9-]+)'\s*:/gm)].length : -1; };
+  // THE PIN IS UTAH'S. Every other state's U.S. House and U.S. Senate boards
+  // are read-only rows appended after Utah's (scripts/test-district-boards-
+  // federal.mjs reads them); this room is a composer room, so what it pins is
+  // Utah's rows, which none of that may move.
+  const routes = (src) => { const m = /var BOARD_ROUTES = \{([\s\S]*?)\n  \};/.exec(src || ""); return m ? [...m[1].matchAll(/^\s*'(ut-[a-z0-9_-]+)'\s*:/gm)].length : -1; };
   const head = HEAD("district-voice.js");
-  if (head) eq(routes(R("district-voice.js")), routes(head), "BOARD_ROUTES length unchanged");
+  if (head) eq(routes(R("district-voice.js")), routes(head), "BOARD_ROUTES' Utah rows unchanged in number");
   ok(routes(R("district-voice.js")) > 80, "BOARD_ROUTES still lists every board");
   // district-voice.js later took the seat-line wording (seatLine(), v381), so
   // its byte pin narrowed to the part this room depends on: BOARD_ROUTES itself.
-  const routesBody = (src) => (/var BOARD_ROUTES = \{([\s\S]*?)\n  \};/.exec(src || "") || [])[1];
-  if (head) eq(routesBody(R("district-voice.js")), routesBody(head), "BOARD_ROUTES is byte-identical");
+  const routesBody = (src) => String((/var BOARD_ROUTES = \{([\s\S]*?)\n  \};/.exec(src || "") || [])[1] || "")
+    .split("\n").filter((l) => !/^\s*'(?!ut-)[a-z]{2}-[a-z0-9_-]+'\s*:/.test(l)).join("\n");
+  if (head) eq(routesBody(R("district-voice.js")), routesBody(head), "BOARD_ROUTES' Utah rows are byte-identical");
   for (const f of ["netlify/functions/district-board.mts", "district-poll.js"]) {
     const h = HEAD(f);
     if (h && f !== "netlify/functions/district-board.mts") eq(R(f), h, `${f} is byte-identical`);
@@ -429,7 +434,13 @@ section("7 · neighbours, routes, migration, copy, shell");
   // netlify.toml's pin narrowed to the part this room depends on — the generated
   // district-board routes — once the Utah ballot-question pages added rules of
   // their own elsewhere in the file.
-  const boardRules = (src) => (/# @generated district-boards begin[\s\S]*?# @generated district-boards end/.exec(src || "") || [])[0];
+  // Each generated board is one comment line, three rewrites and a blank line;
+  // the blocks whose rewrites name a non-Utah alias are set aside on both sides.
+  const boardRules = (src) => {
+    const blk = (/# @generated district-boards begin[\s\S]*?# @generated district-boards end/.exec(src || "") || [])[0];
+    if (!blk) return blk;
+    return blk.split(/\n(?=# )/).filter((part) => !/from = "\/district\/(?!ut-)[a-z]{2}-/.test(part)).join("\n");
+  };
   const tomlHead = HEAD("netlify.toml");
   if (tomlHead) {
     ok(!!boardRules(R("netlify.toml")), "netlify.toml still carries the generated district-board routes");

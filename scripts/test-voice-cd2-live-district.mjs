@@ -33,13 +33,14 @@
 //      prints the empty sentence while the named row exists fails them too.
 //   4. No named row: the on-file sentence stays, never "yet".
 //   5. HD-16 names Trevor Lee, HD-15 names Ariel Defay, Clearfield's SD-6 and
-//      HD-14 name Stevenson and Lisonbee. BOARD_ROUTES is 88.
+//      HD-14 name Stevenson and Lisonbee. BOARD_ROUTES is the generator's plan.
 // ─────────────────────────────────────────────────────────────────────────────
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { HAND_SEATS, planBoards } from "./gen-district-boards.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -273,7 +274,9 @@ section("5 · the other cards");
     'Sitting member: <a class="pdxvr-name" href="/p/defay_h15">Ariel Defay</a>', "Layton HD-15 names Ariel Defay");
   const w = makeSandbox();
   vm.runInContext(R("district-voice.js"), vm.createContext(w), { filename: "district-voice.js" });
-  eq(Object.keys(w.PDXVoice.BOARD_ROUTES).length, 88, "BOARD_ROUTES length");
+  // The generator's plan: the six hand rows, Utah's generated boards and every
+  // other state's U.S. House and U.S. Senate boards.
+  eq(Object.keys(w.PDXVoice.BOARD_ROUTES).length, HAND_SEATS.length + planBoards().boards.length, "BOARD_ROUTES length");
 }
 
 if (failures.length) {
