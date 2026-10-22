@@ -461,7 +461,7 @@
       var d = recOf(c.pid);
       out.push({ pid: c.pid, name: c.name || (d && d.name) || c.pid, d: d,
                  office: c.office || (d && d.office) || '', icon: c.icon || (d && d.icon) || '\u{1F3DB}',
-                 incumbent: !!inc[c.pid] });
+                 incumbent: !!inc[c.pid], candidacy: !!c.candidacy && !inc[c.pid] });
     });
 
     // PINNED CANDIDATES — the sender's field, carried by a shared link.

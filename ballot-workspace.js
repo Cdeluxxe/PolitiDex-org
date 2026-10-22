@@ -678,11 +678,19 @@
     };
     namedHolders(seat, r).forEach(function (p) { add(holders, p); });
     var field = fieldFor(seat.key).map(function (c) { return c && c.pid; });
+    // Someone on this field by a candidacy holds ANOTHER office. Their own status
+    // reads as in office, which must never make them this seat's incumbent.
+    var running = [];
+    try {
+      var sfr = fn('pdxSeatField') ? window.pdxSeatField(seat.key) : null;
+      running = (sfr && sfr.candidacies) || [];
+    } catch (e) { running = []; }
+    var runs = function (p) { return running.indexOf(p) !== -1; };
     // A district seat the resolver names a holder for has its incumbent; another
     // officeholder on the same key is someone else's record (a predecessor
     // filed under the old map), never a second incumbent.
-    if (!holders.length) field.forEach(function (p) { if (statusOf(p) === 'incumbent') add(holders, p); });
-    field.forEach(function (p) { if (statusOf(p) === 'current_candidate') add(others, p); });
+    if (!holders.length) field.forEach(function (p) { if (!runs(p) && statusOf(p) === 'incumbent') add(holders, p); });
+    field.forEach(function (p) { if (runs(p) || statusOf(p) === 'current_candidate') add(others, p); });
     var row = null;
     try { row = fn('_pdxRaceFile') ? window._pdxRaceFile(seat.key) : null; } catch (e) { row = null; }
     if (rowIsThisRace(seat, row)) {
@@ -1018,6 +1026,7 @@
     // (window._pdxOfficeStatus), travelling on the row.
     var tags = '';
     if (c.incumbent) tags += '<span class="bw-tag is-inc">Holds this seat</span>';
+    else if (c.candidacy) tags += '<span class="bw-tag is-cand">Running</span>';
     else if (c.status === 'former') tags += '<span class="bw-tag is-former">Former · not in office</span>';
     else if (c.status === 'office') tags += '<span class="bw-tag is-inc">In office</span>';
     else if (c.status === 'candidate') tags += '<span class="bw-tag is-cand">Running</span>';

@@ -1,0 +1,749 @@
+{
+ "_note": "Sitting officeholders on the roster who are official 2026 general-election nominees for a different office the roster tracks in their state (U.S. Senate, U.S. House, and the statewide offices the roster already holds a sitting row for), read from the same official state candidate lists as db/roster-candidates-2026-oct.json. Each is a candidacy attached to the person's existing roster id in window.CMP_CANDIDACIES (cmp-data.js); no roster row is added, renamed or changed. Read by scripts/test-roster-cross-office-candidacies-2026.mjs.",
+ "read": "2026-10-22",
+ "states": {
+  "al": {
+   "state": "Alabama",
+   "checked": false,
+   "candidacies": 0,
+   "reason": "Skipped, as in db/roster-candidates-2026-oct.json: no readable official candidate list."
+  },
+  "ak": {
+   "state": "Alaska",
+   "checked": true,
+   "sources": [
+    "https://www.elections.alaska.gov/candidates/?election=26genr"
+   ],
+   "candidacies": 1
+  },
+  "az": {
+   "state": "Arizona",
+   "checked": false,
+   "candidacies": 0,
+   "reason": "Skipped, as in db/roster-candidates-2026-oct.json: no readable official candidate list."
+  },
+  "ar": {
+   "state": "Arkansas",
+   "checked": true,
+   "sources": [
+    "https://enr-results-api.totalresults.com/Contest/GetContestSearchList?cId=arkansas&electionID=11b07106-031e-4d7c-911a-d01fb473d6dd"
+   ],
+   "candidacies": 0
+  },
+  "ca": {
+   "state": "California",
+   "checked": true,
+   "sources": [
+    "https://elections.cdn.sos.ca.gov/statewide-elections/2026-general/cert-list-candidates.pdf"
+   ],
+   "candidacies": 2
+  },
+  "co": {
+   "state": "Colorado",
+   "checked": true,
+   "sources": [
+    "https://www.coloradosos.gov/pubs/elections/vote/generalCandidates.html"
+   ],
+   "candidacies": 2
+  },
+  "ct": {
+   "state": "Connecticut",
+   "checked": true,
+   "sources": [
+    "https://portal.ct.gov/sots/election-services/town-ballots/2026-november-town-election-ballots",
+    "https://portal.ct.gov/-/media/sots/electionservices/voter_guide/2026/2026_voter_guide_final.pdf"
+   ],
+   "candidacies": 0
+  },
+  "de": {
+   "state": "Delaware",
+   "checked": true,
+   "sources": [
+    "https://elections.delaware.gov/candidates/candidatelist/genl_fcddt_2026.html"
+   ],
+   "candidacies": 0
+  },
+  "fl": {
+   "state": "Florida",
+   "checked": true,
+   "sources": [
+    "https://dos.elections.myflorida.com/candidates/extractCanList.asp (POST from https://dos.elections.myflorida.com/candidates/downloadcanlist.asp, elecID=20261103-GEN, office=ALL, status=ALL, cantype=STA)"
+   ],
+   "candidacies": 1
+  },
+  "ga": {
+   "state": "Georgia",
+   "checked": true,
+   "sources": [
+    "https://www.fultoncountyga.gov/-/media/2026-Election/November-3-Election/Sample-Ballot--Consolidated--Nov-32026-General--Special-Election--1082026.pdf",
+    "https://www.whitecountyga.gov/DocumentCenter/View/3746/11032026-Consolidated-Sample-Ballot-Write-Ins",
+    "https://www.augustaga.gov/DocumentCenter/View/21864/Composite-Sample-Ballot-Nov-2026",
+    "https://www.co.camden.ga.us/DocumentCenter/View/19546/Sample-Ballot-11-03-2026",
+    "https://www.maconbibb.us/wp-content/uploads/2026/09/Sample-Ballot-for-November-3-2026-General-and-Special-Election-rev-9-17.pdf",
+    "https://fayettecountyga.gov/Documents/Departments/Elections/Sample%20Ballots/November%203-2026%20Composite%20Sample%20Ballot.pdf",
+    "https://www.houstoncountyga.gov/skins/userfiles/files/November%202026%20Sample%20Ballot.pdf",
+    "https://barrowga.org/DocumentCenter/View/1792/Consolidated-SAMPLE-Ballot",
+    "https://assets.cobbcounty.gov/files/2026-09/SAMPLE%20BALLOT%20DRAFT%20v4%20WEB.pdf",
+    "https://www.claytoncountyga.gov/wp-content/uploads/2026/09/11.3.26-Composite-Sample-Ballot-Final.pdf",
+    "https://www.gwinnettcounty.com/documents/d/gwinnett-county/nov-3-general-election-special-election-consolidated-sample-ballot-english-asian-lang"
+   ],
+   "candidacies": 1
+  },
+  "hi": {
+   "state": "Hawaii",
+   "checked": true,
+   "sources": [
+    "https://olvr.hawaii.gov/Controls/CandidateFiling.aspx?elid=94",
+    "https://elections.hawaii.gov/candidates/candidate-reports/"
+   ],
+   "candidacies": 0
+  },
+  "id": {
+   "state": "Idaho",
+   "checked": true,
+   "sources": [
+    "https://run.voteidaho.gov/"
+   ],
+   "candidacies": 0
+  },
+  "il": {
+   "state": "Illinois",
+   "checked": true,
+   "sources": [
+    "https://www.elections.il.gov/ElectionOperations/DownloadCandidates.aspx?ID=sejIrI%2bQmww%3d"
+   ],
+   "candidacies": 0
+  },
+  "in": {
+   "state": "Indiana",
+   "checked": true,
+   "sources": [
+    "https://www.in.gov/sos/elections/files/Candidate_List_Abbreviated_20260922_011251PM.xlsx"
+   ],
+   "candidacies": 0
+  },
+  "ia": {
+   "state": "Iowa",
+   "checked": true,
+   "sources": [
+    "https://sos.iowa.gov/sites/default/files/2026-08/2026%20General%20-%20Candidate%20List%20Database%20-%20All%20Elections_1.pdf"
+   ],
+   "candidacies": 1
+  },
+  "ks": {
+   "state": "Kansas",
+   "checked": false,
+   "candidacies": 0,
+   "reason": "Skipped, as in db/roster-candidates-2026-oct.json: no readable official candidate list."
+  },
+  "ky": {
+   "state": "Kentucky",
+   "checked": true,
+   "sources": [
+    "https://web.sos.ky.gov/CandidateFilings/Default.aspx?id=3",
+    "https://web.sos.ky.gov/CandidateFilings/Default.aspx?id=4",
+    "https://web.sos.ky.gov/CandidateFilings/Default.aspx?withdrawn=1"
+   ],
+   "candidacies": 1
+  },
+  "la": {
+   "state": "Louisiana",
+   "checked": true,
+   "sources": [
+    "https://voterportal.sos.la.gov/ElectionResults/ElectionResults/Data?blob=20261103/RacesCandidates_Multiparish.htm"
+   ],
+   "candidacies": 1
+  },
+  "me": {
+   "state": "Maine",
+   "checked": true,
+   "sources": [
+    "https://www.maine.gov/sos/sites/maine.gov.sos/files/inline-files/2026%20General%20Candidate%20List%20-%20FINAL.xlsx",
+    "https://www.maine.gov/sos/sites/maine.gov.sos/files/inline-files/2026%20Post%20Primary%20Withdrawals%20%26%20Replacement%20Candidates%20-%20Updated%209.22.26_0.pdf"
+   ],
+   "candidacies": 0
+  },
+  "md": {
+   "state": "Maryland",
+   "checked": true,
+   "sources": [
+    "https://elections.maryland.gov/elections/2026/general_candidates/2026_GG_attorneygeneral_candidatelist.csv",
+    "https://elections.maryland.gov/elections/2026/general_candidates/2026_GG_representativeincongressbydistrict_candidatelist.csv",
+    "https://elections.maryland.gov/elections/2026/general_candidates/2026_GG_governorlt.governor_candidatelist.csv"
+   ],
+   "candidacies": 0
+  },
+  "ma": {
+   "state": "Massachusetts",
+   "checked": true,
+   "sources": [
+    "https://www.sec.state.ma.us/divisions/elections/research-and-statistics/2026-state-election-candidates.htm"
+   ],
+   "candidacies": 0
+  },
+  "mi": {
+   "state": "Michigan",
+   "checked": true,
+   "sources": [
+    "https://mi-boe.entellitrak.com/etk-mi-boe-prod/page.request.do?page=page.miboePublicReport&electionType=GEN&electionYear=2026"
+   ],
+   "candidacies": 5
+  },
+  "mn": {
+   "state": "Minnesota",
+   "checked": true,
+   "sources": [
+    "https://electionresultsfiles.sos.mn.gov/20261103/cand.txt",
+    "https://electionresultsfiles.sos.mn.gov/20261103/PartyTbl.txt"
+   ],
+   "candidacies": 3
+  },
+  "ms": {
+   "state": "Mississippi",
+   "checked": true,
+   "sources": [
+    "https://sos.ms.gov/content/CandidateQualifying/default.aspx",
+    "https://www.sos.ms.gov/content/documents/Elections/2026/Sample%20Ballot%209-9-26.pdf"
+   ],
+   "candidacies": 0
+  },
+  "mo": {
+   "state": "Missouri",
+   "checked": true,
+   "sources": [
+    "https://www.sos.mo.gov/CMSImages/ElectionCandidates/2026GeneralElectionCertifiedCandidates.pdf"
+   ],
+   "candidacies": 0
+  },
+  "mt": {
+   "state": "Montana",
+   "checked": true,
+   "sources": [
+    "https://candidatefiling.mt.gov/candidatefiling/CandidateList.aspx?e=450002987"
+   ],
+   "candidacies": 0
+  },
+  "ne": {
+   "state": "Nebraska",
+   "checked": true,
+   "sources": [
+    "https://sos.nebraska.gov/sites/default/files/doc/elections/2026/Final_Statewide_General_Candidate_Filing_List_9.11.26.pdf"
+   ],
+   "candidacies": 0
+  },
+  "nv": {
+   "state": "Nevada",
+   "checked": true,
+   "sources": [
+    "https://www.nvsos.gov/home/showpublisheddocument/20105/639232733439300000"
+   ],
+   "candidacies": 2
+  },
+  "nh": {
+   "state": "New Hampshire",
+   "checked": false,
+   "candidacies": 0,
+   "reason": "Skipped, as in db/roster-candidates-2026-oct.json: no readable official candidate list."
+  },
+  "nj": {
+   "state": "New Jersey",
+   "checked": true,
+   "sources": [
+    "https://www.nj.gov/state/elections/assets/pdf/election-results/2026/2026-official-general-candidates-us-senate.pdf",
+    "https://www.nj.gov/state/elections/assets/pdf/election-results/2026/2026-official-general-candidates-us-house-0904.pdf"
+   ],
+   "candidacies": 0
+  },
+  "nm": {
+   "state": "New Mexico",
+   "checked": true,
+   "sources": [
+    "https://candidateportal.servis.sos.state.nm.us/CandidateList.aspx?eid=2917&cty=99"
+   ],
+   "candidacies": 0
+  },
+  "ny": {
+   "state": "New York",
+   "checked": true,
+   "sources": [
+    "https://elections.ny.gov/system/files/documents/2026/10/accessible-2026-general-ballot-certification-10.7.2026.pdf"
+   ],
+   "candidacies": 0
+  },
+  "nc": {
+   "state": "North Carolina",
+   "checked": true,
+   "sources": [
+    "https://s3.amazonaws.com/dl.ncsbe.gov/Elections/2026/Candidate%20Filing/Candidate_Listing_2026.csv",
+    "https://s3.amazonaws.com/dl.ncsbe.gov/Elections/2026/Candidate%20Filing/2026_general_candidate_list_by_contest_federal_and_state.pdf"
+   ],
+   "candidacies": 0
+  },
+  "nd": {
+   "state": "North Dakota",
+   "checked": true,
+   "sources": [
+    "https://vip.sos.nd.gov/candidatelist.aspx?eid=348"
+   ],
+   "candidacies": 0
+  },
+  "oh": {
+   "state": "Ohio",
+   "checked": false,
+   "candidacies": 0,
+   "reason": "Skipped, as in db/roster-candidates-2026-oct.json: no readable official candidate list."
+  },
+  "ok": {
+   "state": "Oklahoma",
+   "checked": true,
+   "sources": [
+    "http://hosting.okelections.us/electionlist.html"
+   ],
+   "candidacies": 1
+  },
+  "or": {
+   "state": "Oregon",
+   "checked": true,
+   "sources": [
+    "https://secure.sos.state.or.us/orestar/XcelCFSearch?ut=2&srtOrder=asc&by=BALLOT_NAME&cfDisqualifiedCandidates=false&cfSearchButtonName=currentElection",
+    "https://secure.sos.state.or.us/orestar/cfFilings.do?cfSearchButtonName=currentElection"
+   ],
+   "candidacies": 0
+  },
+  "pa": {
+   "state": "Pennsylvania",
+   "checked": false,
+   "candidacies": 0,
+   "reason": "Skipped, as in db/roster-candidates-2026-oct.json: no readable official candidate list."
+  },
+  "ri": {
+   "state": "Rhode Island",
+   "checked": true,
+   "sources": [
+    "https://vote.sos.ri.gov/Forms/elections/Reports/Candidates.xlsx",
+    "https://electionresults.ri.gov/results/public/api/elections/RhodeIsland/RI2026StatewidePrimary/ballot-items"
+   ],
+   "candidacies": 0
+  },
+  "sc": {
+   "state": "South Carolina",
+   "checked": true,
+   "sources": [
+    "https://vrems.scvotes.sc.gov/Candidate/CandidateSearch?electionId=22596"
+   ],
+   "candidacies": 1
+  },
+  "sd": {
+   "state": "South Dakota",
+   "checked": true,
+   "sources": [
+    "https://vip.sdsos.gov/candidatelist.aspx?eid=774"
+   ],
+   "candidacies": 1
+  },
+  "tn": {
+   "state": "Tennessee",
+   "checked": true,
+   "sources": [
+    "https://sos-prod.tnsosgovfiles.com/s3fs-public/document/USSenate_Nov2026.pdf",
+    "https://sos-prod.tnsosgovfiles.com/s3fs-public/document/Governor_Nov2026.pdf",
+    "https://sos-prod.tnsosgovfiles.com/s3fs-public/document/USHouse_Nov2026.pdf"
+   ],
+   "candidacies": 1
+  },
+  "tx": {
+   "state": "Texas",
+   "checked": true,
+   "sources": [
+    "https://www.sos.state.tx.us/elections/forms/2026-ballot-cert.pdf"
+   ],
+   "candidacies": 1
+  },
+  "vt": {
+   "state": "Vermont",
+   "checked": true,
+   "sources": [
+    "https://outside.vermont.gov/dept/sos/Elections_Division/election_info_resources/candidates/2026_general_election_qualified_candidates.xlsx"
+   ],
+   "candidacies": 0
+  },
+  "va": {
+   "state": "Virginia",
+   "checked": true,
+   "sources": [
+    "https://www.elections.virginia.gov/casting-a-ballot/candidate-list/november-3-2026-gen-elect-federal-offices/"
+   ],
+   "candidacies": 0
+  },
+  "wa": {
+   "state": "Washington",
+   "checked": true,
+   "sources": [
+    "https://voter.votewa.gov/CandidateList.aspx?e=899",
+    "https://www.sos.wa.gov/about-office/news/2026/secretary-state-certifies-candidates-and-measures-november-general-election"
+   ],
+   "candidacies": 1
+  },
+  "wv": {
+   "state": "West Virginia",
+   "checked": true,
+   "sources": [
+    "https://candidates.wvsos.gov/regular"
+   ],
+   "candidacies": 0
+  },
+  "wi": {
+   "state": "Wisconsin",
+   "checked": true,
+   "sources": [
+    "https://elections.wi.gov/media/40951/download"
+   ],
+   "candidacies": 1
+  },
+  "wy": {
+   "state": "Wyoming",
+   "checked": true,
+   "sources": [
+    "https://sos.wyo.gov/Elections/Docs/2026/2026_WY_General_Election_Candidates.csv",
+    "https://sos.wyo.gov/Elections/Docs/2026/2026_WY_General_Election_Candidates.pdf"
+   ],
+   "candidacies": 1
+  }
+ },
+ "rows": [
+  {
+   "pid": "treg_taylor",
+   "state": "ak",
+   "name": "Treg Taylor",
+   "nameAsFiled": "Taylor, Treg",
+   "holds": "State Attorney General",
+   "office": "Governor Candidate",
+   "district": null,
+   "partyAsFiled": "Registered Republican",
+   "source": "https://www.elections.alaska.gov/candidates/?election=26genr"
+  },
+  {
+   "pid": "mike_mcguire",
+   "state": "ca",
+   "name": "Mike McGuire",
+   "nameAsFiled": "Mike McGuire",
+   "holds": "State Senate President pro Tem",
+   "office": "U.S. House Candidate (CA-1)",
+   "district": "1",
+   "partyAsFiled": "Democratic",
+   "source": "https://elections.cdn.sos.ca.gov/statewide-elections/2026-general/cert-list-candidates.pdf"
+  },
+  {
+   "pid": "wiener_ca",
+   "state": "ca",
+   "name": "Scott Wiener",
+   "nameAsFiled": "Scott Wiener",
+   "holds": "California State Senator",
+   "office": "U.S. House Candidate (CA-11)",
+   "district": "11",
+   "partyAsFiled": "Democratic",
+   "source": "https://elections.cdn.sos.ca.gov/statewide-elections/2026-general/cert-list-candidates.pdf"
+  },
+  {
+   "pid": "jena_griswold",
+   "state": "co",
+   "name": "Jena Griswold",
+   "nameAsFiled": "Jena Griswold",
+   "holds": "Secretary of State",
+   "office": "Attorney General Candidate",
+   "district": null,
+   "partyAsFiled": "Democratic Party",
+   "source": "https://www.coloradosos.gov/pubs/elections/vote/generalCandidates.html"
+  },
+  {
+   "pid": "phil_weiser",
+   "state": "co",
+   "name": "Phil Weiser",
+   "nameAsFiled": "Phil Weiser",
+   "holds": "State Attorney General",
+   "office": "Governor Candidate",
+   "district": null,
+   "partyAsFiled": "Democratic Party",
+   "source": "https://www.coloradosos.gov/pubs/elections/vote/generalCandidates.html"
+  },
+  {
+   "pid": "donalds",
+   "state": "fl",
+   "name": "Byron Donalds",
+   "nameAsFiled": "Donalds, Byron",
+   "holds": "U.S. Representative",
+   "office": "Governor Candidate",
+   "district": null,
+   "partyAsFiled": "Republican Party of Florida",
+   "source": "https://dos.elections.myflorida.com/candidates/extractCanList.asp (POST from https://dos.elections.myflorida.com/candidates/downloadcanlist.asp, elecID=20261103-GEN, office=ALL, status=ALL, cantype=STA)"
+  },
+  {
+   "pid": "mike_collins",
+   "state": "ga",
+   "name": "Mike Collins",
+   "nameAsFiled": "Mike Collins",
+   "holds": "U.S. Representative",
+   "office": "U.S. Senate Candidate",
+   "district": null,
+   "partyAsFiled": "Republican",
+   "source": "https://www.fultoncountyga.gov/-/media/2026-Election/November-3-Election/Sample-Ballot--Consolidated--Nov-32026-General--Special-Election--1082026.pdf"
+  },
+  {
+   "pid": "ashley_hinson",
+   "state": "ia",
+   "name": "Ashley Hinson",
+   "nameAsFiled": "Ashley Hinson",
+   "holds": "U.S. Representative",
+   "office": "U.S. Senate Candidate",
+   "district": null,
+   "partyAsFiled": "Republican",
+   "source": "https://sos.iowa.gov/sites/default/files/2026-08/2026%20General%20-%20Candidate%20List%20Database%20-%20All%20Elections_1.pdf"
+  },
+  {
+   "pid": "andy_barr",
+   "state": "ky",
+   "name": "Andy Barr",
+   "nameAsFiled": "Andy Barr",
+   "holds": "U.S. Representative",
+   "office": "U.S. Senate Candidate",
+   "district": null,
+   "partyAsFiled": "Republican Party",
+   "source": "https://web.sos.ky.gov/CandidateFilings/Default.aspx?id=3"
+  },
+  {
+   "pid": "julia_letlow",
+   "state": "la",
+   "name": "Julia Letlow",
+   "nameAsFiled": "Julia Letlow",
+   "holds": "U.S. Representative",
+   "office": "U.S. Senate Candidate",
+   "district": null,
+   "partyAsFiled": "Republican",
+   "source": "https://voterportal.sos.la.gov/ElectionResults/ElectionResults/Data?blob=20261103/RacesCandidates_Multiparish.htm"
+  },
+  {
+   "pid": "garlin_gilchrist",
+   "state": "mi",
+   "name": "Garlin Gilchrist",
+   "nameAsFiled": "Gilchrist II, Garlin",
+   "holds": "Lieutenant Governor",
+   "office": "Secretary of State Candidate",
+   "district": null,
+   "partyAsFiled": "Democratic Party",
+   "source": "https://mi-boe.entellitrak.com/etk-mi-boe-prod/page.request.do?page=page.miboePublicReport&electionType=GEN&electionYear=2026"
+  },
+  {
+   "pid": "jocelyn_benson",
+   "state": "mi",
+   "name": "Jocelyn Benson",
+   "nameAsFiled": "Benson, Jocelyn",
+   "holds": "Secretary of State",
+   "office": "Governor Candidate",
+   "district": null,
+   "partyAsFiled": "Democratic Party",
+   "source": "https://mi-boe.entellitrak.com/etk-mi-boe-prod/page.request.do?page=page.miboePublicReport&electionType=GEN&electionYear=2026"
+  },
+  {
+   "pid": "winnie_brinks",
+   "state": "mi",
+   "name": "Winnie Brinks",
+   "nameAsFiled": "Brinks, Winnie",
+   "holds": "State Senate Majority Leader",
+   "office": "Lieutenant Governor Candidate",
+   "district": null,
+   "partyAsFiled": "Democratic Party",
+   "source": "https://mi-boe.entellitrak.com/etk-mi-boe-prod/page.request.do?page=page.miboePublicReport&electionType=GEN&electionYear=2026"
+  },
+  {
+   "pid": "jeremy_moss",
+   "state": "mi",
+   "name": "Jeremy Moss",
+   "nameAsFiled": "Moss, Jeremy",
+   "holds": "Michigan State Senator",
+   "office": "U.S. House Candidate (MI-11)",
+   "district": "11",
+   "partyAsFiled": "Democratic Party",
+   "source": "https://mi-boe.entellitrak.com/etk-mi-boe-prod/page.request.do?page=page.miboePublicReport&electionType=GEN&electionYear=2026"
+  },
+  {
+   "pid": "john_james",
+   "state": "mi",
+   "name": "John James",
+   "nameAsFiled": "James, John",
+   "holds": "U.S. Representative",
+   "office": "Governor Candidate",
+   "district": null,
+   "partyAsFiled": "Republican Party",
+   "source": "https://mi-boe.entellitrak.com/etk-mi-boe-prod/page.request.do?page=page.miboePublicReport&electionType=GEN&electionYear=2026"
+  },
+  {
+   "pid": "peggy_flanagan",
+   "state": "mn",
+   "name": "Peggy Flanagan",
+   "nameAsFiled": "Peggy Flanagan",
+   "holds": "Lieutenant Governor",
+   "office": "U.S. Senate Candidate",
+   "district": null,
+   "partyAsFiled": "Democratic-Farmer-Labor",
+   "source": "https://electionresultsfiles.sos.mn.gov/20261103/cand.txt"
+  },
+  {
+   "pid": "klobuchar",
+   "state": "mn",
+   "name": "Amy Klobuchar",
+   "nameAsFiled": "Amy Klobuchar",
+   "holds": "U.S. Senator",
+   "office": "Governor Candidate",
+   "district": null,
+   "partyAsFiled": "Democratic-Farmer-Labor",
+   "source": "https://electionresultsfiles.sos.mn.gov/20261103/cand.txt"
+  },
+  {
+   "pid": "lisa_demuth",
+   "state": "mn",
+   "name": "Lisa Demuth",
+   "nameAsFiled": "Lisa Demuth",
+   "holds": "State House Speaker",
+   "office": "Governor Candidate",
+   "district": null,
+   "partyAsFiled": "Republican",
+   "source": "https://electionresultsfiles.sos.mn.gov/20261103/cand.txt"
+  },
+  {
+   "pid": "nicole_cannizzaro",
+   "state": "nv",
+   "name": "Nicole Cannizzaro",
+   "nameAsFiled": "Nicole Jeanette Cannizzaro",
+   "holds": "State Senate Majority Leader",
+   "office": "Attorney General Candidate",
+   "district": null,
+   "partyAsFiled": "Democratic Party",
+   "source": "https://www.nvsos.gov/home/showpublisheddocument/20105/639232733439300000"
+  },
+  {
+   "pid": "aaron_ford",
+   "state": "nv",
+   "name": "Aaron Ford",
+   "nameAsFiled": "Aaron Darnell Ford",
+   "holds": "Attorney General",
+   "office": "Governor Candidate",
+   "district": null,
+   "partyAsFiled": "Democratic Party",
+   "source": "https://www.nvsos.gov/home/showpublisheddocument/20105/639232733439300000"
+  },
+  {
+   "pid": "kevin_hern",
+   "state": "ok",
+   "name": "Kevin Hern",
+   "nameAsFiled": "KEVIN HERN",
+   "holds": "U.S. Representative",
+   "office": "U.S. Senate Candidate",
+   "district": null,
+   "partyAsFiled": "Republican",
+   "source": "http://hosting.okelections.us/electionlist.html"
+  },
+  {
+   "pid": "alan_wilson",
+   "state": "sc",
+   "name": "Alan Wilson",
+   "nameAsFiled": "Alan Wilson",
+   "holds": "State Attorney General",
+   "office": "Governor Candidate",
+   "district": null,
+   "partyAsFiled": "Republican",
+   "source": "https://vrems.scvotes.sc.gov/Candidate/CandidateSearch?electionId=22596"
+  },
+  {
+   "pid": "marty_jackley",
+   "state": "sd",
+   "name": "Marty Jackley",
+   "nameAsFiled": "Marty Jackley",
+   "holds": "State Attorney General",
+   "office": "U.S. House Candidate (SD-AL)",
+   "district": "1",
+   "partyAsFiled": "REP",
+   "source": "https://vip.sdsos.gov/candidatelist.aspx?eid=774"
+  },
+  {
+   "pid": "blackburn",
+   "state": "tn",
+   "name": "Marsha Blackburn",
+   "nameAsFiled": "Marsha Blackburn",
+   "holds": "U.S. Senator",
+   "office": "Governor Candidate",
+   "district": null,
+   "partyAsFiled": "Republican",
+   "source": "https://sos-prod.tnsosgovfiles.com/s3fs-public/document/USSenate_Nov2026.pdf"
+  },
+  {
+   "pid": "ken_paxton",
+   "state": "tx",
+   "name": "Ken Paxton",
+   "nameAsFiled": "KEN PAXTON",
+   "holds": "State Attorney General",
+   "office": "U.S. Senate Candidate",
+   "district": null,
+   "partyAsFiled": "Republican",
+   "source": "https://www.sos.state.tx.us/elections/forms/2026-ballot-cert.pdf"
+  },
+  {
+   "pid": "john_braun",
+   "state": "wa",
+   "name": "John Braun",
+   "nameAsFiled": "John Braun",
+   "holds": "Washington State Senator",
+   "office": "U.S. House Candidate (WA-3)",
+   "district": "3",
+   "partyAsFiled": "REPUBLICAN",
+   "source": "https://voter.votewa.gov/CandidateList.aspx?e=899"
+  },
+  {
+   "pid": "thomas_tiffany",
+   "state": "wi",
+   "name": "Thomas P. Tiffany",
+   "nameAsFiled": "Tom Tiffany",
+   "holds": "U.S. Representative",
+   "office": "Governor Candidate",
+   "district": null,
+   "partyAsFiled": "Republican",
+   "source": "https://elections.wi.gov/media/40951/download"
+  },
+  {
+   "pid": "harriet_hageman",
+   "state": "wy",
+   "name": "Harriet M. Hageman",
+   "nameAsFiled": "Harriet Hageman",
+   "holds": "U.S. Representative",
+   "office": "U.S. Senate Candidate",
+   "district": null,
+   "partyAsFiled": "Republican",
+   "source": "https://sos.wyo.gov/Elections/Docs/2026/2026_WY_General_Election_Candidates.csv"
+  }
+ ],
+ "excluded": [
+  {
+   "state": "sc",
+   "nameAsFiled": "Nancy Mace",
+   "pid": "nancy_mace",
+   "why": "listed for Governor with status 'Defeated In Primary'"
+  },
+  {
+   "state": "sc",
+   "nameAsFiled": "Ralph W Norman",
+   "pid": "ralph_norman",
+   "why": "listed for Governor with status 'Defeated In Primary'"
+  },
+  {
+   "state": "il",
+   "nameAsFiled": "Juliana Stratton",
+   "pid": "juliana_stratton",
+   "why": "the roster already holds her as a U.S. Senate candidate row, so she is already in that race"
+  },
+  {
+   "state": "nm",
+   "nameAsFiled": "Maggie Toulouse Oliver",
+   "pid": "maggie_toulouse_oliver",
+   "why": "Lieutenant Governor nominee; New Mexico's Lieutenant Governor is not an office the roster tracks there (no sitting row), the batch's own scope"
+  }
+ ]
+}
