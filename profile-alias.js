@@ -54,7 +54,7 @@
 (function () {
   'use strict';
 
-  // COPIED VERBATIM FROM profile-evidence.js LINES 355–434.
+  // COPIED VERBATIM FROM profile-evidence.js LINES 370–469.
     window.PDX_PROFILE_ALIAS = window.PDX_PROFILE_ALIAS || {
       // curated keys with no roster record of their own
       kivory:    'ivory_h39',
@@ -134,5 +134,25 @@
       // "The member who holds this seat is on file" over a person one key away.
       trevor_lee:       'tlee',
       troy_shelley:     'shelley_h66',
+      // FILING SPELLINGS. Each key is the slug of the name a running incumbent
+      // filed under on the Utah Lt. Governor's 2026 candidate list, and each
+      // value is that same person's existing roster record. Seven filers, one
+      // record each: a candidacy under a shorter or longer first name is not a
+      // second person, so it gets a bridge here and not a row in cmp-data.js.
+      cal_roberts:      'calvin_roberts',
+      clint_okerlund:   'clinton_okerlund',
+      jen_dailey_provost:'jennifer_dailey_provost',
+      jen_plumb:        'jennifer_plumb',
+      jim_dunnigan:     'james_dunnigan',
+      norm_thurston:    'nthurston',
+      raymond_ward:     'rward',
+      // Sitting members on other states' official 2026 candidate lists under
+      // another form of their own name (db/roster-candidates-2026-oct.json).
+      francisco_aguilar: 'cisco_aguilar',
+      gil_cisneros:     'gilbert_cisneros',
+      herb_conaway:     'herbert_conaway',
+      lou_correa:       'j_correa',
+      nelida_pou:       'nellie_pou',
+      suzanne_lee:      'susie_lee',
     };
 })();

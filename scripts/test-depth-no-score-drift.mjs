@@ -312,6 +312,100 @@ const ADDED = {
   dave_bushaw: "No Party nominee, U.S. House Candidate (IA-2)",
   john_hauer: "Libertarian nominee, U.S. House Candidate (KS-2)",
   steve_hohe: "Libertarian nominee, U.S. House Candidate (KS-3)",
+
+  // October 2026 Utah major-party nominees the roster did not hold: same
+  // shape, same reason, per the Utah Lt. Governor's 2026 candidate filings.
+  ben_mcadams: "Democratic nominee, U.S. House Candidate (UT-1)",
+  riley_owen: "Republican nominee, U.S. House Candidate (UT-1)",
+  peter_crosby: "Democratic nominee, U.S. House Candidate (UT-2)",
+  kent_udell: "Democratic nominee, U.S. House Candidate (UT-3)",
+  jonny_larsen: "Democratic nominee, U.S. House Candidate (UT-4)",
+  claudia_bigler: "Democratic nominee, Utah State Senate Candidate (District 1)",
+  christina_cj_hernandez: "Democratic nominee, Utah State Senate Candidate (District 5)",
+  jared_neal: "Democratic nominee, Utah State Senate Candidate (District 6)",
+  garret_rushforth: "Democratic nominee, Utah State Senate Candidate (District 7)",
+  stephanie_hollist: "Republican nominee, Utah State Senate Candidate (District 7)",
+  thaddeus_a_evans: "Republican nominee, Utah State Senate Candidate (District 9)",
+  brooks_benson: "Republican nominee, Utah State Senate Candidate (District 11)",
+  deidre_tyler: "Republican nominee, Utah State Senate Candidate (District 12)",
+  ryan_l_mahoney: "Republican nominee, Utah State Senate Candidate (District 13)",
+  silvia_catten: "Democratic nominee, Utah State Senate Candidate (District 13)",
+  a_dane_anderson: "Democratic nominee, Utah State Senate Candidate (District 18)",
+  shana_anderson: "Democratic nominee, Utah State Senate Candidate (District 19)",
+  kandee_myers: "Democratic nominee, Utah State Senate Candidate (District 21)",
+  tucker_smith: "Democratic nominee, Utah State Senate Candidate (District 23)",
+  richard_robillard: "Democratic nominee, Utah State Senate Candidate (District 28)",
+  chris_reid: "Democratic nominee, Utah State House Candidate (District 1)",
+  barbara_haggerty: "Democratic nominee, Utah State House Candidate (District 2)",
+  zane_woolstenhulme: "Democratic nominee, Utah State House Candidate (District 4)",
+  kendra_penry: "Democratic nominee, Utah State House Candidate (District 5)",
+  bianca_mittendorf: "Democratic nominee, Utah State House Candidate (District 7)",
+  kim_james: "Democratic nominee, Utah State House Candidate (District 8)",
+  angela_choberka: "Democratic nominee, Utah State House Candidate (District 9)",
+  jim_alvey: "Republican nominee, Utah State House Candidate (District 10)",
+  dave_calder: "Democratic nominee, Utah State House Candidate (District 11)",
+  anna_graff: "Democratic nominee, Utah State House Candidate (District 12)",
+  erik_r_craythorne: "Republican nominee, Utah State House Candidate (District 13)",
+  jeffrey_anderson: "Democratic nominee, Utah State House Candidate (District 13)",
+  brandon_young: "Democratic nominee, Utah State House Candidate (District 14)",
+  john_taylor: "Republican nominee, Utah State House Candidate (District 14)",
+  anne_berbert: "Democratic nominee, Utah State House Candidate (District 15)",
+  abigail_treasure: "Democratic nominee, Utah State House Candidate (District 16)",
+  eric_last: "Democratic nominee, Utah State House Candidate (District 17)",
+  lili_bitner: "Republican nominee, Utah State House Candidate (District 17)",
+  scott_troxel: "Democratic nominee, Utah State House Candidate (District 18)",
+  phil_graves: "Democratic nominee, Utah State House Candidate (District 20)",
+  stephen_otterstrom: "Democratic nominee, Utah State House Candidate (District 21)",
+  char_varga: "Republican nominee, Utah State House Candidate (District 22)",
+  franklin_robinson: "Republican nominee, Utah State House Candidate (District 23)",
+  braeden_oswald: "Republican nominee, Utah State House Candidate (District 24)",
+  richard_nowak: "Republican nominee, Utah State House Candidate (District 25)",
+  michael_finch: "Democratic nominee, Utah State House Candidate (District 26)",
+  liz_oates: "Democratic nominee, Utah State House Candidate (District 27)",
+  anita_dalrymple: "Democratic nominee, Utah State House Candidate (District 28)",
+  sara_snow: "Democratic nominee, Utah State House Candidate (District 29)",
+  sheldon_birch: "Republican nominee, Utah State House Candidate (District 29)",
+  dave_parke: "Republican nominee, Utah State House Candidate (District 30)",
+  melody_jones: "Republican nominee, Utah State House Candidate (District 31)",
+  aileen_hampton: "Republican nominee, Utah State House Candidate (District 32)",
+  anna_reeves: "Republican nominee, Utah State House Candidate (District 33)",
+  julie_jackson: "Democratic nominee, Utah State House Candidate (District 34)",
+  monique_ketcham: "Republican nominee, Utah State House Candidate (District 35)",
+  blake_townsend: "Democratic nominee, Utah State House Candidate (District 36)",
+  casey_saxton: "Republican nominee, Utah State House Candidate (District 37)",
+  chris_mcconnehey: "Republican nominee, Utah State House Candidate (District 38)",
+  drew_howells: "Democratic nominee, Utah State House Candidate (District 39)",
+  darren_croft: "Republican nominee, Utah State House Candidate (District 41)",
+  iva_williams: "Democratic nominee, Utah State House Candidate (District 42)",
+  ofa_matagi: "Democratic nominee, Utah State House Candidate (District 43)",
+  jess_birtcher: "Democratic nominee, Utah State House Candidate (District 44)",
+  rod_moser: "Democratic nominee, Utah State House Candidate (District 45)",
+  braxten_rutherford: "Democratic nominee, Utah State House Candidate (District 46)",
+  benyde_walker: "Democratic nominee, Utah State House Candidate (District 48)",
+  jake_hunsaker: "Republican nominee, Utah State House Candidate (District 48)",
+  lillian_bowles: "Democratic nominee, Utah State House Candidate (District 49)",
+  kristin_meyer: "Democratic nominee, Utah State House Candidate (District 50)",
+  brett_nielsen: "Democratic nominee, Utah State House Candidate (District 51)",
+  nicole_melling: "Democratic nominee, Utah State House Candidate (District 52)",
+  kevin_slater: "Democratic nominee, Utah State House Candidate (District 53)",
+  kristina_robinson: "Democratic nominee, Utah State House Candidate (District 54)",
+  travis_hysell: "Democratic nominee, Utah State House Candidate (District 55)",
+  natassja_grossman: "Democratic nominee, Utah State House Candidate (District 56)",
+  karli_black: "Democratic nominee, Utah State House Candidate (District 58)",
+  celeste_johnson: "Democratic nominee, Utah State House Candidate (District 59)",
+  alan_jimenez: "Democratic nominee, Utah State House Candidate (District 61)",
+  david_chappell: "Democratic nominee, Utah State House Candidate (District 62)",
+  mark_youngquist: "Democratic nominee, Utah State House Candidate (District 63)",
+  breanne_mashek: "Democratic nominee, Utah State House Candidate (District 66)",
+  carl_ingwell: "Democratic nominee, Utah State House Candidate (District 67)",
+  jr_bird: "Republican nominee, Utah State House Candidate (District 67)",
+  tracie_yellowman_tso: "Democratic nominee, Utah State House Candidate (District 69)",
+  stacey_pendergraft: "Democratic nominee, Utah State House Candidate (District 70)",
+  thomas_loveheart: "Democratic nominee, Utah State House Candidate (District 71)",
+  eva_weldon: "Democratic nominee, Utah State House Candidate (District 72)",
+  glenn_webb: "Democratic nominee, Utah State House Candidate (District 73)",
+  jeffrey_lipe: "Democratic nominee, Utah State House Candidate (District 74)",
+  rebecca_winsor: "Democratic nominee, Utah State House Candidate (District 75)",
 };
 // ── The same allowance, at roster-wave scale, sourced instead of typed ───────
 // ADDED above works because each entry is a line a reviewer reads. A FEDERAL roster wave
@@ -364,7 +458,21 @@ const rosterWaveAdmissions = (() => {
   eq(gone.join("|"), "", "the pass removed someone from the roster");
 
   const added = now.filter((p) => PIDS.indexOf(p) < 0);
-  const unnamed = added.filter((p) => !ADDED[p] && !rosterWaveAdmissions.has(p));
+  // The October 2026 candidates outside Utah: 869 identity rows, each named with its
+  // official source in db/roster-candidates-2026-oct.json, and held to the same inert
+  // rule as a roster wave — plus `candidate: true`, so none can read as a member.
+  const candidateBatch = (() => {
+    try { return new Set(JSON.parse(readFileSync(join(ROOT, "db/roster-candidates-2026-oct.json"), "utf8")).rows.map((r) => r.pid)); }
+    catch { return new Set(); }
+  })();
+  const notInertCandidates = added.filter((p) => candidateBatch.has(p)).filter((p) => {
+    const r = (after.CMP_DATA || {})[p] || {};
+    return r.candidate !== true || r.score !== null || r.kept !== 0 || r.broken !== 0 || r.pending !== 0
+      || !Array.isArray(r.issues) || r.issues.length !== 0;
+  });
+  eq(notInertCandidates.join("|"), "",
+    "a 2026 candidate row arrived carrying a judged surface or without candidate: true");
+  const unnamed = added.filter((p) => !ADDED[p] && !rosterWaveAdmissions.has(p) && !candidateBatch.has(p));
 
   // Clause 3: every sourced admission is inert. Typed ADDED entries are not held to this —
   // kstratton and the Utah waves predate the rule and are audited by their own line.

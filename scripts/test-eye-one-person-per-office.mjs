@@ -355,7 +355,11 @@ section("3 · the stub does not outrank the canonical file");
   // findable twice.
   const clean = boot({ noStub: true });
   clean.lane("formal");
-  eq(ROW_IDS(clean.search("chew"))[0], PID, "without the stub the canonical row stopped leading 'chew'");
+  // "chew" also finds other people who share the surname (Colorado's Bob Chew, a
+  // 2026 U.S. Senate candidate); the claim is about THIS person's rows, so it is
+  // read over his rows only: the canonical file leads, and no other id for him does.
+  const his = ROW_IDS(clean.search("chew")).filter((id) => id === PID || id === "scott_chew");
+  eq(his[0], PID, "without the stub the canonical row stopped leading 'chew'");
   console.log(`      "uinta basin" → ${PID} (${rec.name}), record letterhead, stub bio unprinted`);
 }
 

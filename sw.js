@@ -10466,7 +10466,40 @@
 //     voice_poll_votes and voice_residency, keyed by seat, as Utah's already do.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v438';
+// v439 - THE GENERATOR ASKS EVERY OTHER STATE'S STATE LEGISLATIVE SEATS, AND
+//     OPENS NONE. scripts/gen-district-boards.mjs now puts every State House and
+//     State Senate member the roster holds outside Utah to the location
+//     resolver, and opens a read-only board only where that resolver already
+//     maps the state's legislative lines and seats that member. It maps Utah's
+//     alone, so zero boards opened: no document, no rewrite, no row, and every
+//     Utah and federal board is byte-identical. Shell bumped so the generator's
+//     pass ships on a fresh shell.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v440 - UTAH MAJOR-PARTY NOMINEES, ROSTER ROWS. cmp-data.js gains ninety-one
+//     identity-only candidate rows: the Republican and Democratic "Election
+//     Candidate" filers on the Utah Lt. Governor's 2026 list for the four U.S.
+//     House seats and the Legislature whom the roster did not hold under any
+//     spelling. Each is `candidate: true`, so no seat lookup, board or /voice
+//     card names one as a sitting member, and no board, composer or residency
+//     check is opened for any of them. profile-evidence.js, profile-alias.js and
+//     index.html's PROFILE_ALIASES mirror gain seven filing-spelling bridges to
+//     running incumbents' existing records (jen_plumb, jim_dunnigan, ...).
+//     cmp-data.js is precached and changed, so the shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v441 - CURRENT CANDIDATES OUTSIDE UTAH, ROSTER ROWS. cmp-data.js gains 869
+//     identity-only candidate rows: every nominee for U.S. Senate, U.S. House and
+//     the tracked statewide offices on the official 2026 candidate list of 43
+//     states, whom the roster did not already hold. Each is `candidate: true`,
+//     so no seat lookup, board or /voice card names one as a sitting member, and
+//     no board, composer or residency check opens for any of them. Six
+//     filing-spelling bridges to sitting members join both alias tables and the
+//     prefetch mirror in index.html and person.html. cmp-data.js is precached and
+//     changed, so the shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v441';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
