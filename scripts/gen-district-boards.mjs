@@ -57,7 +57,8 @@
 // state's code is in STATE_LEG_BOARD_STATES, which is empty. The resolver maps
 // the legislative lines of Utah, Texas, California, Florida, New York,
 // Illinois, Pennsylvania, Ohio, Georgia, Michigan, North Carolina, Virginia,
-// Washington, Arizona, New Jersey, Massachusetts and Tennessee; no
+// Washington, Arizona, New Jersey, Massachusetts, Tennessee, Colorado,
+// Maryland and Minnesota; no
 // board was opened with those maps, so this plan opens ZERO boards outside Utah
 // and logs every roster seat it refused.
 //
@@ -363,7 +364,8 @@ export const STATE_LEG_REFUSAL = "the location resolver does not map this state'
 // MAPPING A STATE'S LINES IS NOT OPENING ITS BOARDS. Texas's legislative lines
 // (and California's, Florida's, New York's, Illinois's, Pennsylvania's,
 // Ohio's, Georgia's, Michigan's, North Carolina's, Virginia's, Washington's,
-// Arizona's, New Jersey's, Massachusetts's and Tennessee's since)
+// Arizona's, New Jersey's, Massachusetts's, Tennessee's, Colorado's,
+// Maryland's and Minnesota's since)
 // are drawn by /find and resolved by pdxRepsForMe now, so the resolver gate
 // below would seat its members — but that pass was scoped to the map and the
 // seat card, with no new boards. Opening one is its own decision, made by

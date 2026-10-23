@@ -1232,8 +1232,8 @@
     // The same service publishes every state's legislative districts, and the
     // same state-scoped query loads one state's worth. Texas, California,
     // Florida, New York, Illinois, Pennsylvania, Ohio, Georgia, Michigan, North
-    // Carolina, Virginia, Washington, Arizona, New Jersey, Massachusetts and
-    // Tennessee are drawn this way (Washington, Arizona and New Jersey elect
+    // Carolina, Virginia, Washington, Arizona, New Jersey, Massachusetts,
+    // Tennessee, Colorado, Maryland and Minnesota are drawn this way (Washington, Arizona and New Jersey elect
     // both chambers from one set of legislative districts, so TIGERweb's two
     // layers carry the same numbers there; Massachusetts names its districts
     // rather than numbering them — see LEG_NAMED_STATES)
@@ -1261,7 +1261,8 @@
                              'Illinois': 1, 'Pennsylvania': 1, 'Ohio': 1,
                              'Georgia': 1, 'Michigan': 1, 'North Carolina': 1,
                              'Virginia': 1, 'Washington': 1, 'Arizona': 1,
-                             'New Jersey': 1, 'Massachusetts': 1, 'Tennessee': 1 };
+                             'New Jersey': 1, 'Massachusetts': 1, 'Tennessee': 1,
+                             'Colorado': 1, 'Maryland': 1, 'Minnesota': 1 };
     // ══ A STATE WHOSE DISTRICTS HAVE NAMES ══════════════════════════════════
     // Massachusetts calls its seats "First Essex and Middlesex" and "1st
     // Barnstable", never "District 21". TIGERweb codes them D01–D40 (Senate) and
@@ -1272,7 +1273,15 @@
     // (pdxLegDistrictName), which is what the cards read too, so the finder and
     // the cards cannot name one seat two ways; the layer's own NAME field is the
     // fallback. A named seat is never printed as "District N".
-    var LEG_NAMED_STATES = { 'Massachusetts': 1 };
+    //
+    // AND LETTERED SEATS ARE NAMED THE SAME WAY, ONE CHAMBER AT A TIME.
+    // Maryland's House of Delegates ("3", "47A") and Minnesota's House ("1A",
+    // "1B") carry a letter a digits-only record cannot hold. Their polygon's
+    // code goes through pdxLegDistrictKey() to the record's key, and the label
+    // ("District 47A") through the same name table. Both Senates are numbered.
+    var LEG_NAMED_STATES = { 'Massachusetts': { senate: 1, house: 1 },
+                             'Maryland': { house: 1 }, 'Minnesota': { house: 1 } };
+    var LEG_CODED_STATES = { 'Maryland': { house: 1 }, 'Minnesota': { house: 1 } };
 
     // name : state FIPS : USPS. Packed because fifty-one object literals is a
     // screen of noise, and every consumer wants a lookup rather than a list.
@@ -1364,7 +1373,8 @@
     function legScope(){ return utahScope() || !!LEG_TIGER_STATES[_scopeState]; }
     function tigerLegScope(){ return !utahScope() && !!LEG_TIGER_STATES[_scopeState]; }
     function namedScope(){ return !!LEG_NAMED_STATES[_scopeState]; }
-    function namedSeat(t){ return t !== 'congress' && namedScope(); }
+    function namedSeat(t){ return t !== 'congress' && !!(LEG_NAMED_STATES[_scopeState] || {})[t]; }
+    function codedSeat(t){ return !!(LEG_CODED_STATES[_scopeState] || {})[t]; }
     // The name of a legislative seat in a named-district state, or ''.
     function districtName(t, d){
       if (!namedSeat(t) || d == null) return '';
@@ -1558,6 +1568,19 @@
       // Massachusetts writes its Senate codes "D01"–"D40"; the letter is set
       // aside. "ZZZ" (water, or no district defined) is still no district.
       if (p.SLDU != null || p.SLDL != null) {
+        // A lettered seat ("01A") is looked up, never truncated to its number:
+        // "1A" and "1B" are two seats. With no lookup on the page, it is no
+        // district rather than a guess.
+        var lt = p.SLDU != null ? 'senate' : 'house';
+        if (codedSeat(lt)) {
+          var ck = 0;
+          try {
+            if (typeof window.pdxLegDistrictKey === 'function') {
+              ck = window.pdxLegDistrictKey(_scopeState, lt === 'senate' ? 'statesenate' : 'statehouse', p.SLDU != null ? p.SLDU : p.SLDL);
+            }
+          } catch (e) { ck = 0; }
+          return ck > 0 ? ck : null;
+        }
         var lm = /^[A-Z]?(\d+)$/.exec(String(p.SLDU != null ? p.SLDU : p.SLDL));
         var ln = lm ? parseInt(lm[1], 10) : NaN;
         return (isNaN(ln) || ln <= 0) ? null : ln;
@@ -1919,7 +1942,7 @@
           var dist = distOf(feature);
           if (dist == null) return;
           path.bindTooltip(namedSeat(layerType)
-              ? LABEL[layerType] + ' · ' + ((feature.properties && feature.properties.NAME) || districtName(layerType, dist) || 'district')
+              ? LABEL[layerType] + ' · ' + (districtName(layerType, dist) || (feature.properties && feature.properties.NAME) || 'district')
               : LABEL[layerType] + ' District ' + dist, {
             sticky: true, direction: 'top', className: 'pdx-dist-tip', opacity: 1
           });

@@ -2714,7 +2714,8 @@
   // /find now loads the State Senate and State House (Assembly) districts of
   // Texas, California, Florida, New York, Illinois, Pennsylvania, Ohio,
   // Georgia, Michigan, North Carolina, Virginia, Washington, Arizona, New
-  // Jersey, Massachusetts and Tennessee from TIGERweb, scoped to one state
+  // Jersey, Massachusetts, Tennessee, Colorado, Maryland and Minnesota from
+  // TIGERweb, scoped to one state
   // by its FIPS, once a geocode has named it — the same pattern as the
   // congressional layer. This table is the list of states
   // whose legislative lines the finder can load. It is the ONE place that list
@@ -2724,7 +2725,8 @@
                          illinois: 1, pennsylvania: 1, ohio: 1,
                          georgia: 1, michigan: 1, 'north carolina': 1,
                          virginia: 1, washington: 1, arizona: 1,
-                         'new jersey': 1, massachusetts: 1, tennessee: 1 };
+                         'new jersey': 1, massachusetts: 1, tennessee: 1,
+                         colorado: 1, maryland: 1, minnesota: 1 };
   window._pdxLegMapped = function (stateName) {
     return !!_PDX_LEG_MAPPED[_pdxStateName(stateName)];
   };
@@ -2817,6 +2819,91 @@
       '15th Worcester District', '16th Worcester District', '17th Worcester District',
       '18th Worcester District', '19th Worcester District'
       ]
+    },
+    // LETTERED SEATS. Maryland's House of Delegates mixes whole districts ("3")
+    // with subdistricts ("47A"); Minnesota's House is all lettered ("1A",
+    // "1B"). A digits-only field cannot hold "1A", and stripping the letter
+    // would merge 1A and 1B into one seat — so, as for Massachusetts, the
+    // record keeps a plain key (the seat's place in _PDX_LEG_CODES below,
+    // from 1) and this table gives the seat its real label. Only the lettered
+    // chamber is here: both states' Senates are plain numbers and stay so.
+    maryland: {
+      statehouse: [
+      'District 3', 'District 4', 'District 5', 'District 6', 'District 8', 'District 10',
+      'District 13', 'District 14', 'District 15', 'District 16', 'District 17', 'District 18',
+      'District 19', 'District 1A', 'District 1B', 'District 1C', 'District 20', 'District 21',
+      'District 22', 'District 23', 'District 24', 'District 25', 'District 26', 'District 28',
+      'District 2A', 'District 2B', 'District 31', 'District 32', 'District 36', 'District 39',
+      'District 40', 'District 41', 'District 45', 'District 46', 'District 7A', 'District 7B',
+      'District 9A', 'District 9B', 'District 11A', 'District 11B', 'District 12A', 'District 12B',
+      'District 27A', 'District 27B', 'District 27C', 'District 29A', 'District 29B',
+      'District 29C', 'District 30A', 'District 30B', 'District 33A', 'District 33B',
+      'District 33C', 'District 34A', 'District 34B', 'District 35A', 'District 35B',
+      'District 37A', 'District 37B', 'District 38A', 'District 38B', 'District 38C',
+      'District 42A', 'District 42B', 'District 42C', 'District 43A', 'District 43B',
+      'District 44A', 'District 44B', 'District 47A', 'District 47B'
+      ]
+    },
+    minnesota: {
+      statehouse: [
+      'District 1A', 'District 1B', 'District 2A', 'District 2B', 'District 3A', 'District 3B',
+      'District 4A', 'District 4B', 'District 5A', 'District 5B', 'District 6A', 'District 6B',
+      'District 7A', 'District 7B', 'District 8A', 'District 8B', 'District 9A', 'District 9B',
+      'District 10A', 'District 10B', 'District 11A', 'District 11B', 'District 12A',
+      'District 12B', 'District 13A', 'District 13B', 'District 14A', 'District 14B',
+      'District 15A', 'District 15B', 'District 16A', 'District 16B', 'District 17A',
+      'District 17B', 'District 18A', 'District 18B', 'District 19A', 'District 19B',
+      'District 20A', 'District 20B', 'District 21A', 'District 21B', 'District 22A',
+      'District 22B', 'District 23A', 'District 23B', 'District 24A', 'District 24B',
+      'District 25A', 'District 25B', 'District 26A', 'District 26B', 'District 27A',
+      'District 27B', 'District 28A', 'District 28B', 'District 29A', 'District 29B',
+      'District 30A', 'District 30B', 'District 31A', 'District 31B', 'District 32A',
+      'District 32B', 'District 33A', 'District 33B', 'District 34A', 'District 34B',
+      'District 35A', 'District 35B', 'District 36A', 'District 36B', 'District 37A',
+      'District 37B', 'District 38A', 'District 38B', 'District 39A', 'District 39B',
+      'District 40A', 'District 40B', 'District 41A', 'District 41B', 'District 42A',
+      'District 42B', 'District 43A', 'District 43B', 'District 44A', 'District 44B',
+      'District 45A', 'District 45B', 'District 46A', 'District 46B', 'District 47A',
+      'District 47B', 'District 48A', 'District 48B', 'District 49A', 'District 49B',
+      'District 50A', 'District 50B', 'District 51A', 'District 51B', 'District 52A',
+      'District 52B', 'District 53A', 'District 53B', 'District 54A', 'District 54B',
+      'District 55A', 'District 55B', 'District 56A', 'District 56B', 'District 57A',
+      'District 57B', 'District 58A', 'District 58B', 'District 59A', 'District 59B',
+      'District 60A', 'District 60B', 'District 61A', 'District 61B', 'District 62A',
+      'District 62B', 'District 63A', 'District 63B', 'District 64A', 'District 64B',
+      'District 65A', 'District 65B', 'District 66A', 'District 66B', 'District 67A',
+      'District 67B'
+      ]
+    }
+  };
+  // TIGERweb's own SLDL code for each lettered seat, in key order (key = index
+  // + 1). The finder reads a polygon's code through pdxLegDistrictKey(), so the
+  // map and the record agree on the key without the finder carrying a table.
+  var _PDX_LEG_CODES = {
+    maryland: {
+      statehouse: [
+      '003', '004', '005', '006', '008', '010', '013', '014', '015', '016', '017', '018', '019',
+      '01A', '01B', '01C', '020', '021', '022', '023', '024', '025', '026', '028', '02A', '02B',
+      '031', '032', '036', '039', '040', '041', '045', '046', '07A', '07B', '09A', '09B', '11A',
+      '11B', '12A', '12B', '27A', '27B', '27C', '29A', '29B', '29C', '30A', '30B', '33A', '33B',
+      '33C', '34A', '34B', '35A', '35B', '37A', '37B', '38A', '38B', '38C', '42A', '42B', '42C',
+      '43A', '43B', '44A', '44B', '47A', '47B'
+      ]
+    },
+    minnesota: {
+      statehouse: [
+      '01A', '01B', '02A', '02B', '03A', '03B', '04A', '04B', '05A', '05B', '06A', '06B', '07A',
+      '07B', '08A', '08B', '09A', '09B', '10A', '10B', '11A', '11B', '12A', '12B', '13A', '13B',
+      '14A', '14B', '15A', '15B', '16A', '16B', '17A', '17B', '18A', '18B', '19A', '19B', '20A',
+      '20B', '21A', '21B', '22A', '22B', '23A', '23B', '24A', '24B', '25A', '25B', '26A', '26B',
+      '27A', '27B', '28A', '28B', '29A', '29B', '30A', '30B', '31A', '31B', '32A', '32B', '33A',
+      '33B', '34A', '34B', '35A', '35B', '36A', '36B', '37A', '37B', '38A', '38B', '39A', '39B',
+      '40A', '40B', '41A', '41B', '42A', '42B', '43A', '43B', '44A', '44B', '45A', '45B', '46A',
+      '46B', '47A', '47B', '48A', '48B', '49A', '49B', '50A', '50B', '51A', '51B', '52A', '52B',
+      '53A', '53B', '54A', '54B', '55A', '55B', '56A', '56B', '57A', '57B', '58A', '58B', '59A',
+      '59B', '60A', '60B', '61A', '61B', '62A', '62B', '63A', '63B', '64A', '64B', '65A', '65B',
+      '66A', '66B', '67A', '67B'
+      ]
     }
   };
   function _pdxLegChamber(c) {
@@ -2829,13 +2916,35 @@
   window.pdxLegDistrictsNamed = function (stateName) {
     return !!_PDX_LEG_NAMES[_pdxStateName(stateName)];
   };
-  // The name of one seat in a named-district state, or ''.
+  // Whether ONE chamber's seats are named or lettered rather than plainly
+  // numbered (Massachusetts both; Maryland and Minnesota the House only).
+  window.pdxLegChamberNamed = function (stateName, chamber) {
+    var t = _PDX_LEG_NAMES[_pdxStateName(stateName)];
+    var ch = _pdxLegChamber(chamber);
+    return !!(t && ch && t[ch]);
+  };
+  // The name of one seat in a named-district state, or ''. A plainly numbered
+  // chamber of such a state (Maryland's Senate) reads "District N".
   window.pdxLegDistrictName = function (stateName, chamber, key) {
     var t = _PDX_LEG_NAMES[_pdxStateName(stateName)];
     var ch = _pdxLegChamber(chamber);
     if (!t || !ch) return '';
     var n = parseInt(String(key == null ? '' : key).replace(/[^0-9]/g, ''), 10);
-    return (!isNaN(n) && n > 0 && t[ch][n - 1]) ? t[ch][n - 1] : '';
+    if (isNaN(n) || n <= 0) return '';
+    if (!t[ch]) return 'District ' + n;
+    return t[ch][n - 1] || '';
+  };
+  // A TIGERweb SLDU/SLDL code → the record's key for that seat, or 0. Lettered
+  // chambers look the code up; every other chamber is its number ("D21" → 21,
+  // "007" → 7). "ZZZ" (water, no district defined) is 0.
+  window.pdxLegDistrictKey = function (stateName, chamber, code) {
+    var c = String(code == null ? '' : code).trim().toUpperCase();
+    var t = _PDX_LEG_CODES[_pdxStateName(stateName)];
+    var ch = _pdxLegChamber(chamber);
+    if (t && ch && t[ch]) return t[ch].indexOf(c) + 1;
+    var m = /^[A-Z]?(\d+)$/.exec(c);
+    var n = m ? parseInt(m[1], 10) : 0;
+    return n > 0 ? n : 0;
   };
   // How a legislative seat is written for a reader: the name in a named state,
   // "District N" everywhere else. A named state's key with no name is '' — a
@@ -2856,7 +2965,7 @@
     eighteenth: '18th', nineteenth: '19th' };
   function _pdxLegNameKey(v) {
     return String(v == null ? '' : v).toLowerCase().replace(/&/g, ' and ').replace(/[-,.]/g, ' ')
-      .split(/\s+/).filter(function (w) { return w && w !== 'and' && w !== 'district'; })
+      .split(/\s+/).filter(function (w) { return w && w !== 'and' && w !== 'district' && !/^(?:sd|hd|ld)$/.test(w); })
       .map(function (w) { return _PDX_ORD[w] || w; }).join(' ');
   }
   function _pdxLegKeyOfName(st, chamber, v) {
@@ -2909,7 +3018,7 @@
       if (!/\bstate\b|\bassembly/i.test(String(rec.office || ''))) continue;
       // A named-district state matches the record's district NAME and nothing
       // else; a number on such a record would be a number the state never uses.
-      var key = _PDX_LEG_NAMES[st] ? _pdxLegKeyOfName(st, ch, rec.district)
+      var key = (_PDX_LEG_NAMES[st] && _PDX_LEG_NAMES[st][ch]) ? _pdxLegKeyOfName(st, ch, rec.district)
               : (_pdxLegDistrictOfRosterState(rec.state) || _pdxLegDistrictOfRosterDistrict(rec.district, ch));
       if (!key) continue;
       if (!_pdxArchiveInOffice(rec)) continue;
@@ -3765,7 +3874,7 @@
       // A named-district state (Massachusetts) prints the seat's name; its key
       // is never written as "District N".
       var named = (seat === 'statesenate' || seat === 'statehouse') && !utah && n &&
-                  window.pdxLegDistrictsNamed(state);
+                  window.pdxLegChamberNamed(state, seat);
       var nm = named ? window.pdxLegDistrictName(state, seat, n) : '';
       return {
         key: key,

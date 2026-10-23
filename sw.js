@@ -10606,7 +10606,21 @@
 //     ballot-breakdown.js) all changed; the shell moves one version for all.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v450';
+// v451 - COLORADO, MARYLAND AND MINNESOTA STATE LEGISLATIVE LINES, AND
+//     LETTERED SEATS. /find's TIGERweb legislative list gains those three
+//     states, on the same 2024 layers (5 and 6), scoped to the one state by
+//     FIPS and loaded only after a geocode, tap or phone point has named it.
+//     Nothing is painted on open and no national layer is asked for. Maryland's
+//     House of Delegates ("3", "47A") and Minnesota's House ("1A", "1B") carry a
+//     letter a digits-only record cannot hold: as for Massachusetts (v450) the
+//     record keeps a plain key and voter-hub-location.js's tables turn it into
+//     "District 47A"; the finder reads a polygon's code through
+//     pdxLegDistrictKey(), so 1A and 1B are never one seat. Colorado and both
+//     Senates are numbered as before. find.html and seat-field.js are precached
+//     and changed, so the shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v451';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

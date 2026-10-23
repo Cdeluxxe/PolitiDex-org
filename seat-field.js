@@ -262,7 +262,8 @@
     var dname = '';
     if (!spec.statewide && (rk === 'statesenate' || rk === 'statehouse')) {
       try {
-        if (typeof window.pdxLegDistrictsNamed === 'function' && window.pdxLegDistrictsNamed(st)) {
+        var namedFn = (typeof window.pdxLegChamberNamed === 'function') ? window.pdxLegChamberNamed : null;
+        if (namedFn ? namedFn(st, rk) : (typeof window.pdxLegDistrictsNamed === 'function' && window.pdxLegDistrictsNamed(st))) {
           dname = window.pdxLegDistrictName(st, rk, dist) || '';
         }
       } catch (e) { dname = ''; }

@@ -167,7 +167,7 @@ section("4 · no legislative layer outside the mapped states; Utah keeps UGRC");
   has(MAP, "TIGERweb/Legislative/MapServer/6/query", "source: the State House layer is not TIGERweb's 2024 lower layer");
   lacks(MAP, "MapServer/1/query", "source: the 2026 upper layer is being queried");
   lacks(MAP, "MapServer/2/query", "source: the 2026 lower layer is being queried");
-  has(MAP, "var LEG_TIGER_STATES = { 'Texas': 1, 'California': 1, 'Florida': 1, 'New York': 1,\n                             'Illinois': 1, 'Pennsylvania': 1, 'Ohio': 1,\n                             'Georgia': 1, 'Michigan': 1, 'North Carolina': 1,\n                             'Virginia': 1, 'Washington': 1, 'Arizona': 1,\n                             'New Jersey': 1, 'Massachusetts': 1, 'Tennessee': 1 };", "source: the TIGERweb legislative state list changed");
+  has(MAP, "var LEG_TIGER_STATES = { 'Texas': 1, 'California': 1, 'Florida': 1, 'New York': 1,\n                             'Illinois': 1, 'Pennsylvania': 1, 'Ohio': 1,\n                             'Georgia': 1, 'Michigan': 1, 'North Carolina': 1,\n                             'Virginia': 1, 'Washington': 1, 'Arizona': 1,\n                             'New Jersey': 1, 'Massachusetts': 1, 'Tennessee': 1,\n                             'Colorado': 1, 'Maryland': 1, 'Minnesota': 1 };", "source: the TIGERweb legislative state list changed");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -259,7 +259,7 @@ section("6 · Utah's legislative resolution is identical to HEAD's");
 // The two lists that say "Texas" agree, and the shell moved.
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  has(R("voter-hub-location.js"), "var _PDX_LEG_MAPPED = { texas: 1, california: 1, florida: 1, 'new york': 1,\n                         illinois: 1, pennsylvania: 1, ohio: 1,\n                         georgia: 1, michigan: 1, 'north carolina': 1,\n                         virginia: 1, washington: 1, arizona: 1,\n                         'new jersey': 1, massachusetts: 1, tennessee: 1 };", "lists: the resolver's legislative state list changed");
+  has(R("voter-hub-location.js"), "var _PDX_LEG_MAPPED = { texas: 1, california: 1, florida: 1, 'new york': 1,\n                         illinois: 1, pennsylvania: 1, ohio: 1,\n                         georgia: 1, michigan: 1, 'north carolina': 1,\n                         virginia: 1, washington: 1, arizona: 1,\n                         'new jersey': 1, massachusetts: 1, tennessee: 1,\n                         colorado: 1, maryland: 1, minnesota: 1 };", "lists: the resolver's legislative state list changed");
   const SW = R("sw.js");
   const v = Number((SW.match(/const CACHE_VERSION = 'v(\d+)';/) || [])[1]);
   ok(v >= 445, `sw: find.html changed and CACHE_VERSION is v${v}`);
