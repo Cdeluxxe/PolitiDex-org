@@ -10578,7 +10578,19 @@
 //     the shell moves one version.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v448';
+// v449 - VIRGINIA, WASHINGTON AND ARIZONA STATE LEGISLATIVE LINES. /find's
+//     TIGERweb legislative list gains those three states, on the same 2024
+//     layers (5 and 6), scoped to the one state by FIPS and loaded only after a
+//     geocode, tap or phone point has named it. Washington and Arizona elect
+//     both chambers from one set of legislative districts, so both layers carry
+//     the same numbers there. Nothing is painted on open and no national layer
+//     is asked for. voter-hub-location.js reads a roster record's "LD N"
+//     district as a number for the chamber its office names, and still names a
+//     sitting member only from an in-office record for that chamber and number.
+//     find.html is precached and changed, so the shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v449';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

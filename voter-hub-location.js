@@ -2713,7 +2713,8 @@
   // this pass no other state's did, because no other state's lines were drawn.
   // /find now loads the State Senate and State House (Assembly) districts of
   // Texas, California, Florida, New York, Illinois, Pennsylvania, Ohio,
-  // Georgia, Michigan and North Carolina from TIGERweb, scoped to one state
+  // Georgia, Michigan, North Carolina, Virginia, Washington and Arizona from
+  // TIGERweb, scoped to one state
   // by its FIPS, once a geocode has named it — the same pattern as the
   // congressional layer. This table is the list of states
   // whose legislative lines the finder can load. It is the ONE place that list
@@ -2721,15 +2722,18 @@
   // it, so a state cannot be drawn without being resolved, or the reverse.
   var _PDX_LEG_MAPPED = { texas: 1, california: 1, florida: 1, 'new york': 1,
                          illinois: 1, pennsylvania: 1, ohio: 1,
-                         georgia: 1, michigan: 1, 'north carolina': 1 };
+                         georgia: 1, michigan: 1, 'north carolina': 1,
+                         virginia: 1, washington: 1, arizona: 1 };
   window._pdxLegMapped = function (stateName) {
     return !!_PDX_LEG_MAPPED[_pdxStateName(stateName)];
   };
 
   // The legislative district a record names in its own `district` field —
-  // "SD 7", "HD 95", "District 7", "7". A chamber prefix has to agree with the
-  // chamber being asked: an "SD 7" record says nothing about State House 7, and
-  // reading it there would seat a senator in the lower chamber.
+  // "SD 7", "HD 95", "LD 18", "District 7", "7". A chamber prefix has to agree
+  // with the chamber being asked: an "SD 7" record says nothing about State
+  // House 7, and reading it there would seat a senator in the lower chamber.
+  // "LD" is a legislative district both chambers are elected from (Washington,
+  // Arizona), so it names a number and leaves the chamber to the office.
   function _pdxLegDistrictOfRosterDistrict(v, chamber) {
     var s = String(v == null ? '' : v).trim();
     if (!s) return '';
@@ -2738,7 +2742,7 @@
       var want = chamber === 'statesenate' ? 'SD' : 'HD';
       return m[1].toUpperCase() === want ? String(parseInt(m[2], 10)) : '';
     }
-    m = s.match(/^(?:district\s+)?(\d{1,3})$/i);
+    m = s.match(/^(?:LD\s*-?\s*|district\s+)?(\d{1,3})$/i);
     return m ? String(parseInt(m[1], 10)) : '';
   }
 

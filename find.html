@@ -1231,8 +1231,10 @@
     // ══ AND STATE LEGISLATIVE LINES, ONE MORE STATE AT A TIME ═════════════════
     // The same service publishes every state's legislative districts, and the
     // same state-scoped query loads one state's worth. Texas, California,
-    // Florida, New York, Illinois, Pennsylvania, Ohio, Georgia, Michigan and
-    // North Carolina are drawn this way
+    // Florida, New York, Illinois, Pennsylvania, Ohio, Georgia, Michigan, North
+    // Carolina, Virginia, Washington and Arizona are drawn this way (Washington
+    // and Arizona elect both chambers from one set of legislative districts, so
+    // TIGERweb's two layers carry the same numbers there)
     // (California's and New York's lower chamber is the Assembly, TIGERweb's
     // SLDL; Illinois's lines include a "ZZZ" Lake Michigan polygon, which distOf
     // reads as no district); the list below is the whole of the widening, and it must agree with voter-hub-location.js's _PDX_LEG_MAPPED,
@@ -1255,7 +1257,8 @@
     };
     var LEG_TIGER_STATES = { 'Texas': 1, 'California': 1, 'Florida': 1, 'New York': 1,
                              'Illinois': 1, 'Pennsylvania': 1, 'Ohio': 1,
-                             'Georgia': 1, 'Michigan': 1, 'North Carolina': 1 };
+                             'Georgia': 1, 'Michigan': 1, 'North Carolina': 1,
+                             'Virginia': 1, 'Washington': 1, 'Arizona': 1 };
 
     // name : state FIPS : USPS. Packed because fifty-one object literals is a
     // screen of noise, and every consumer wants a lookup rather than a list.
