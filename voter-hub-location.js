@@ -2715,7 +2715,8 @@
   // Texas, California, Florida, New York, Illinois, Pennsylvania, Ohio,
   // Georgia, Michigan, North Carolina, Virginia, Washington, Arizona, New
   // Jersey, Massachusetts, Tennessee, Colorado, Maryland, Minnesota,
-  // Wisconsin, Indiana and Missouri from TIGERweb, scoped to one state
+  // Wisconsin, Indiana, Missouri, Kentucky, Alabama and South Carolina from
+  // TIGERweb, scoped to one state
   // by its FIPS, once a geocode has named it — the same pattern as the
   // congressional layer. This table is the list of states
   // whose legislative lines the finder can load. It is the ONE place that list
@@ -2727,7 +2728,8 @@
                          virginia: 1, washington: 1, arizona: 1,
                          'new jersey': 1, massachusetts: 1, tennessee: 1,
                          colorado: 1, maryland: 1, minnesota: 1,
-                         wisconsin: 1, indiana: 1, missouri: 1 };
+                         wisconsin: 1, indiana: 1, missouri: 1,
+                         kentucky: 1, alabama: 1, 'south carolina': 1 };
   window._pdxLegMapped = function (stateName) {
     return !!_PDX_LEG_MAPPED[_pdxStateName(stateName)];
   };

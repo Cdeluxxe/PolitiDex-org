@@ -129,19 +129,19 @@ section("3 · a seam miss is asked of the unsimplified lines, not guessed");
 section("4 · no legislative layer outside the mapped states; Utah keeps UGRC");
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  const LOU = { lat: 38.2527, lng: -85.7585 };
+  const LOU = { lat: 41.5868, lng: -93.6250 };
   const F = await driveFinder({
-    state: "Kentucky",
-    hit: { lat: LOU.lat, lng: LOU.lng, name: "527 W Jefferson St, Louisville, KY", city: "Louisville", county: "Jefferson", state: "Kentucky" },
+    state: "Iowa",
+    hit: { lat: LOU.lat, lng: LOU.lng, name: "400 Robert D Ray Dr, Des Moines, IA", city: "Des Moines", county: "Polk", state: "Iowa" },
     tiger: { 4: { features: [sq(LOU.lng - 0.2, LOU.lat - 0.2, LOU.lng + 0.2, LOU.lat + 0.2, { CD119: "03" })] } },
   });
-  await F.search("527 W Jefferson St, Louisville");
-  eq(F.chip("congress"), "District 3", "kentucky: the U.S. House stopped resolving in Kentucky");
+  await F.search("400 Robert D Ray Dr, Des Moines");
+  eq(F.chip("congress"), "District 3", "iowa: the U.S. House stopped resolving in Iowa");
   const T = tigerUrls(F.wire);
-  ok(T.length > 0 && T.every((u) => layerOf(u) === "4"), `kentucky: a legislative layer was fetched for a Kentucky pin (${T.map(layerOf).join(",")})`);
-  T.forEach((u) => has(u, "where=STATE%3D%2721%27", "kentucky: a TIGERweb request is not scoped to Kentucky"));
-  eq(F.els["pdx-layer-house"].style.display, "none", "kentucky: the State House toggle is offered in Kentucky");
-  eq(F.win._currentVoterLocation.stateHouseDistrict, "", "kentucky: a State House number was written for a Kentucky save");
+  ok(T.length > 0 && T.every((u) => layerOf(u) === "4"), `iowa: a legislative layer was fetched for an Iowa pin (${T.map(layerOf).join(",")})`);
+  T.forEach((u) => has(u, "where=STATE%3D%2719%27", "iowa: a TIGERweb request is not scoped to Iowa"));
+  eq(F.els["pdx-layer-house"].style.display, "none", "iowa: the State House toggle is offered in Iowa");
+  eq(F.win._currentVoterLocation.stateHouseDistrict, "", "iowa: a State House number was written for an Iowa save");
 
   const UT = { lat: 40.7, lng: -111.9 };
   const U = await driveFinder({
@@ -167,7 +167,7 @@ section("4 · no legislative layer outside the mapped states; Utah keeps UGRC");
   has(MAP, "TIGERweb/Legislative/MapServer/6/query", "source: the State House layer is not TIGERweb's 2024 lower layer");
   lacks(MAP, "MapServer/1/query", "source: the 2026 upper layer is being queried");
   lacks(MAP, "MapServer/2/query", "source: the 2026 lower layer is being queried");
-  has(MAP, "var LEG_TIGER_STATES = { 'Texas': 1, 'California': 1, 'Florida': 1, 'New York': 1,\n                             'Illinois': 1, 'Pennsylvania': 1, 'Ohio': 1,\n                             'Georgia': 1, 'Michigan': 1, 'North Carolina': 1,\n                             'Virginia': 1, 'Washington': 1, 'Arizona': 1,\n                             'New Jersey': 1, 'Massachusetts': 1, 'Tennessee': 1,\n                             'Colorado': 1, 'Maryland': 1, 'Minnesota': 1,\n                             'Wisconsin': 1, 'Indiana': 1, 'Missouri': 1 };", "source: the TIGERweb legislative state list changed");
+  has(MAP, "var LEG_TIGER_STATES = { 'Texas': 1, 'California': 1, 'Florida': 1, 'New York': 1,\n                             'Illinois': 1, 'Pennsylvania': 1, 'Ohio': 1,\n                             'Georgia': 1, 'Michigan': 1, 'North Carolina': 1,\n                             'Virginia': 1, 'Washington': 1, 'Arizona': 1,\n                             'New Jersey': 1, 'Massachusetts': 1, 'Tennessee': 1,\n                             'Colorado': 1, 'Maryland': 1, 'Minnesota': 1,\n                             'Wisconsin': 1, 'Indiana': 1, 'Missouri': 1,\n                             'Kentucky': 1, 'Alabama': 1, 'South Carolina': 1 };", "source: the TIGERweb legislative state list changed");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -215,7 +215,7 @@ section("5 · the card names a member when the roster has one, and nobody otherw
     "roster: the set of Texas legislators the lookup can name is not exactly the district-keyed records on file");
   eq(W._pdxStateLegSeat("Texas", "statesenate", 1), null, "roster: a member with no district on their record was placed in SD 1");
   eq(W._pdxStateLegSeat("Texas", "statehouse", 7), null, "roster: a State Senate record (SD 7) was seated in State House 7");
-  eq(W._pdxStateLegSeat("Kentucky", "statesenate", 7), null, "roster: an unmapped state resolved a legislator");
+  eq(W._pdxStateLegSeat("Iowa", "statesenate", 7), null, "roster: an unmapped state resolved a legislator");
 
   // A Texas reader who has not pinned the legislative seats yet: mapped, blank, no number.
   const N = boot({ state: "Texas", city: "Houston", county: "Harris County", district: "7" });
@@ -246,12 +246,12 @@ section("6 · Utah's legislative resolution is identical to HEAD's");
     eq(now.districtsResolvable, was.districtsResolvable, `utah: ${loc.city || "state-only"}'s districtsResolvable changed`);
   }
   // And a state that is neither keeps its honest unmapped rows.
-  const O = boot({ state: "Kentucky", city: "Louisville", county: "Jefferson County", district: "3", stateHouseDistrict: "41", stateSenateDistrict: "33" });
+  const O = boot({ state: "Iowa", city: "Des Moines", county: "Polk County", district: "3", stateHouseDistrict: "32", stateSenateDistrict: "16" });
   for (const k of ["statesenate", "statehouse"]) {
     const l = levelOf(O, k);
-    eq(l.mapped, false, `kentucky: ${k} claims to be mapped`);
-    eq(l.district, null, `kentucky: ${k} carries a stray district number`);
-    eq(l.pid, null, `kentucky: ${k} named someone`);
+    eq(l.mapped, false, `iowa: ${k} claims to be mapped`);
+    eq(l.district, null, `iowa: ${k} carries a stray district number`);
+    eq(l.pid, null, `iowa: ${k} named someone`);
   }
 }
 
@@ -259,7 +259,7 @@ section("6 · Utah's legislative resolution is identical to HEAD's");
 // The two lists that say "Texas" agree, and the shell moved.
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  has(R("voter-hub-location.js"), "var _PDX_LEG_MAPPED = { texas: 1, california: 1, florida: 1, 'new york': 1,\n                         illinois: 1, pennsylvania: 1, ohio: 1,\n                         georgia: 1, michigan: 1, 'north carolina': 1,\n                         virginia: 1, washington: 1, arizona: 1,\n                         'new jersey': 1, massachusetts: 1, tennessee: 1,\n                         colorado: 1, maryland: 1, minnesota: 1,\n                         wisconsin: 1, indiana: 1, missouri: 1 };", "lists: the resolver's legislative state list changed");
+  has(R("voter-hub-location.js"), "var _PDX_LEG_MAPPED = { texas: 1, california: 1, florida: 1, 'new york': 1,\n                         illinois: 1, pennsylvania: 1, ohio: 1,\n                         georgia: 1, michigan: 1, 'north carolina': 1,\n                         virginia: 1, washington: 1, arizona: 1,\n                         'new jersey': 1, massachusetts: 1, tennessee: 1,\n                         colorado: 1, maryland: 1, minnesota: 1,\n                         wisconsin: 1, indiana: 1, missouri: 1,\n                         kentucky: 1, alabama: 1, 'south carolina': 1 };", "lists: the resolver's legislative state list changed");
   const SW = R("sw.js");
   const v = Number((SW.match(/const CACHE_VERSION = 'v(\d+)';/) || [])[1]);
   ok(v >= 445, `sw: find.html changed and CACHE_VERSION is v${v}`);
