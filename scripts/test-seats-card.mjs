@@ -476,7 +476,7 @@ ok(moCard.notes.length >= 2,
   'card: the Missouri card states fewer than two gaps. The U.S. House seat is unpinned and the\n' +
   '    legislative seats are unmapped — two different admissions, and only one is something the\n' +
   '    reader can fix: ' + JSON.stringify(moCard.notes));
-ok(moCard.notes.some((n) => /legislative lines in Utah, Texas, California, Florida, New York, Illinois, Pennsylvania, Ohio, Georgia, Michigan, North Carolina, Virginia, Washington, Arizona, New Jersey, Massachusetts, Tennessee, Colorado, Maryland and Minnesota only/.test(n)),
+ok(moCard.notes.some((n) => /legislative lines in Utah, Texas, California, Florida, New York, Illinois, Pennsylvania, Ohio, Georgia, Michigan, North Carolina, Virginia, Washington, Arizona, New Jersey, Massachusetts, Tennessee, Colorado, Maryland, Minnesota, Wisconsin, Indiana and Missouri only/.test(n)),
   'card: the card does not say WHY the legislative seats are absent. "Nothing here" reads as "this\n' +
   '    site knows nothing about Missouri"; the truth is narrower and much better: ' +
   JSON.stringify(moCard.notes));
@@ -507,7 +507,7 @@ for (const n of moCard.notes) {
   ok(c.notes.some((n) => /not pinned in this record/.test(n)),
     'card: a Utah reader whose legislative lines WE DRAW was told we do not draw them, which is a\n' +
     '    false statement about our own coverage: ' + JSON.stringify(c.notes));
-  ok(!c.notes.some((n) => /legislative lines in Utah, Texas, California, Florida, New York, Illinois, Pennsylvania, Ohio, Georgia, Michigan, North Carolina, Virginia, Washington, Arizona, New Jersey, Massachusetts, Tennessee, Colorado, Maryland and Minnesota only/.test(n)),
+  ok(!c.notes.some((n) => /legislative lines in Utah, Texas, California, Florida, New York, Illinois, Pennsylvania, Ohio, Georgia, Michigan, North Carolina, Virginia, Washington, Arizona, New Jersey, Massachusetts, Tennessee, Colorado, Maryland, Minnesota, Wisconsin, Indiana and Missouri only/.test(n)),
     'card: a Utah reader was told Utah is not mapped: ' + JSON.stringify(c.notes));
 }
 // A statewide seat with no file on hand is the third kind, and it says so.

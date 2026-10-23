@@ -136,9 +136,10 @@ const levelOf = (w, key) => (w.pdxRepsForMe().levels || []).filter((lv) => lv.ke
 const COLUMBUS   = { state: "Ohio", city: "Columbus", county: "Franklin County", district: "3" };
 const COLUMBUS_0 = { state: "Ohio", city: "Columbus", county: "Franklin County" };
 // Ohio's legislative lines are drawn now (v447), so the "a state whose legislative
-// lines we do not draw" half of this file is asked of Missouri, which is not.
-const KC   = { state: "Missouri", city: "Kansas City", county: "Jackson County", district: "5" };
-const KC_0 = { state: "Missouri", city: "Kansas City", county: "Jackson County" };
+// lines we do not draw" half of this file is asked of Kentucky, which is not
+// (Missouri until v452 drew Missouri's).
+const KC   = { state: "Kentucky", city: "Louisville", county: "Jefferson County", district: "3" };
+const KC_0 = { state: "Kentucky", city: "Louisville", county: "Jefferson County" };
 const LAYTON     = { state: "Utah", city: "Layton", county: "Davis County", district: "2" };
 
 const W = boot(COLUMBUS);
@@ -212,7 +213,7 @@ section("2 · the congressional map widened and the legislative one did not");
   eq(house.mapped, true, "flags: the U.S. House level is not marked as mapped, so its blank state reads as our gap");
 
   const M = boot(KC);
-  eq(M.pdxRepsForMe().districtsResolvable, false, "flags: districtsResolvable went true in Missouri");
+  eq(M.pdxRepsForMe().districtsResolvable, false, "flags: districtsResolvable went true in Kentucky");
   for (const key of ["statesenate", "statehouse"]) {
     const lv = levelOf(M, key);
     must(lv, `the ${key} level is gone from the resolver`);

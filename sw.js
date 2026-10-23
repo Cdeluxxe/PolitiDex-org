@@ -10620,7 +10620,21 @@
 //     and changed, so the shell moves one version.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v451';
+// v452 - WISCONSIN, INDIANA AND MISSOURI STATE LEGISLATIVE LINES. /find's
+//     TIGERweb legislative list gains those three states, on the same 2024
+//     layers (5 and 6), scoped to the one state by FIPS and loaded only after a
+//     geocode, tap or phone point has named it. All three number their seats
+//     plainly; Wisconsin's "ZZZ" water polygons are no district. Nothing is
+//     painted on open and no national layer is asked for. voter-hub-location.js
+//     names a sitting member only from an in-office roster record for that
+//     chamber and number. district-voice.js's seatPidFor() also refuses a
+//     legislative pid whose record names another state, which pdxSeatClaim()
+//     (chamber and number only) cannot tell apart once a non-Utah seat carries
+//     a district number. find.html and district-voice.js are precached and
+//     changed, so the shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v452';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

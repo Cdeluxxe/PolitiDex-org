@@ -109,14 +109,14 @@ eq(Object.keys(V.BOARD_ROUTES).length, HAND_SEATS.length + PLAN.length,
   for (const p of want) ok(asked.has(p), `${p} (${ROSTER[p].office}, ${ROSTER[p].state}): the planner asked about this seat`);
   // Texas, California, Florida, New York, Illinois, Pennsylvania, Ohio,
   // Georgia, Michigan, North Carolina, Virginia, Washington, Arizona, New
-  // Jersey, Massachusetts, Tennessee, Colorado, Maryland and Minnesota have
-  // mapped lines now, so their
+  // Jersey, Massachusetts, Tennessee, Colorado, Maryland, Minnesota,
+  // Wisconsin, Indiana and Missouri have mapped lines now, so their
   // seats are refused by the board list rather than the resolver; every other
   // state is still the resolver's refusal.
-  const MAPPED_LEG = /^(?:tx|ca|fl|ny|il|pa|oh|ga|mi|nc|va|wa|az|nj|ma|tn|co|md|mn)-/;
+  const MAPPED_LEG = /^(?:tx|ca|fl|ny|il|pa|oh|ga|mi|nc|va|wa|az|nj|ma|tn|co|md|mn|wi|in|mo)-/;
   ok(LEG_SKIPPED.every((s) => s.reason === (MAPPED_LEG.test(s.seat) ? STATE_LEG_BOARD_REFUSAL : STATE_LEG_REFUSAL)),
     "every refusal is the board list's in a mapped state and the resolver's everywhere else");
-  for (const code of ["tx", "ca", "fl", "ny", "il", "pa", "oh", "ga", "mi", "nc", "va", "wa", "az", "nj", "ma", "tn", "co", "md", "mn"]) {
+  for (const code of ["tx", "ca", "fl", "ny", "il", "pa", "oh", "ga", "mi", "nc", "va", "wa", "az", "nj", "ma", "tn", "co", "md", "mn", "wi", "in", "mo"]) {
     ok(LEG_SKIPPED.some((s) => s.seat.indexOf(code + "-") === 0 && s.reason === STATE_LEG_BOARD_REFUSAL),
       `${code}: a mapped seat is refused by the board list`);
   }
