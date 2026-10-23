@@ -3302,12 +3302,19 @@
       if (matched && krd.byRace && krd.byRace[seatKey]) return krd.byRace[seatKey].district;
       return (fallback != null ? fallback : null);
     };
-    var inc = function (seatKey, vbOffice) {
+    // `d` is the district the row prints. The area's Key Races row is one race
+    // per COUNTY (Weber's is HD-9, Davis's is HD-15), so when the reader's own
+    // district is another one its incumbent is somebody else's member: a North
+    // Ogden reader in HD-7 was told Jake Sawyer (HD-9) holds their seat, and the
+    // HD-7 member and Republican nominee, Ryan Wilcox, was dropped from the race.
+    // A row whose number disagrees with `d` answers nothing.
+    var inc = function (seatKey, vbOffice, d) {
       var pid = null;
       if (vb && vb.byOffice && vbOffice && vb.byOffice[vbOffice]) pid = vb.byOffice[vbOffice].incumbentPid;
       if (!pid && matched && krd.byRace && krd.byRace[seatKey]) {
         var br = krd.byRace[seatKey];
-        pid = br.incumbentPid || ((br.incumbentPids || [])[0]);
+        var want = _pdxDigits(d), has = _pdxDigits(br.district);
+        if (!(want && has && want !== has)) pid = br.incumbentPid || ((br.incumbentPids || [])[0]);
       }
       return pid || null;
     };
@@ -3395,7 +3402,7 @@
     // curated race is about this very district and its incumbent is its answer.
     var curatedHouse = function () {
       if (!utah || hd == null) return null;
-      var p = inc('house', 'representative');
+      var p = inc('house', 'representative', hd);
       if (!p) return null;
       if (!_pdxRosterSize()) return p;
       var rep = vb && vb.byOffice && vb.byOffice.representative;
@@ -3437,9 +3444,9 @@
           ? (window.pdxSeatedMemberFor(seatKey, n) || null) : null;
       } catch (e) { return null; }
     };
-    var sp = utah ? (inc('statesenate', 'state_senator') || _pdxResolvedPid(mem, 'statesenate', sd)
+    var sp = utah ? (inc('statesenate', 'state_senator', sd) || _pdxResolvedPid(mem, 'statesenate', sd)
                      || seated('statesenate', sd)) : null;
-    var lp = utah ? (inc('statehouse', 'state_rep') || _pdxResolvedPid(mem, 'statehouse', ld)
+    var lp = utah ? (inc('statehouse', 'state_rep', ld) || _pdxResolvedPid(mem, 'statehouse', ld)
                      || seated('statehouse', ld)) : null;
     var redrawn = false;
 

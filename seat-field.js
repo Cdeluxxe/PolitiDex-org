@@ -154,7 +154,7 @@
   function no(rk, reason, extra) {
     var out = { answerable: false, reason: reason, seat: rk || '', state: '', district: null,
                 statewide: false, districtGap: false, located: false, redrawn: false,
-                holders: [], pids: [], sole: false, scope: '', label: '' };
+                holders: [], pids: [], candidacies: [], sole: false, scope: '', label: '' };
     if (extra) { for (var k in extra) out[k] = extra[k]; }
     return out;
   }
@@ -226,6 +226,21 @@
       if (R[pid] && pids.indexOf(pid) === -1) pids.push(pid);
     });
 
+    // A sitting officeholder running for THIS seat from another office (Ken
+    // Paxton, Attorney General, for Texas's Senate seat). Their row keys them to
+    // the office they hold, so the walk above cannot find them; the candidacy
+    // table names the seat they seek. They are on the field as a candidate and
+    // never in `holders`, which only the resolver fills.
+    var running = [];
+    try {
+      if (typeof window.pdxCandidaciesFor === 'function') running = window.pdxCandidaciesFor(rk, st, wantDist) || [];
+    } catch (e) { running = []; }
+    running = running.filter(function (pid) { return R[pid] && holders.indexOf(pid) === -1; });
+    running.forEach(function (pid) {
+      if (pids.indexOf(pid) === -1) pids.push(pid);
+    });
+    var rankOf = function (pid) { return running.indexOf(pid) !== -1 ? 'candidate' : statusOf(pid); };
+
     pids.sort(function (a, b) {
       var ha = holders.indexOf(a), hb = holders.indexOf(b);
       if (ha !== -1 || hb !== -1) {
@@ -233,8 +248,8 @@
         if (hb === -1) return -1;
         return ha - hb;
       }
-      var ra = STATUS_RANK[statusOf(a)]; if (ra === undefined) ra = 1;
-      var rb = STATUS_RANK[statusOf(b)]; if (rb === undefined) rb = 1;
+      var ra = STATUS_RANK[rankOf(a)]; if (ra === undefined) ra = 1;
+      var rb = STATUS_RANK[rankOf(b)]; if (rb === undefined) rb = 1;
       if (ra !== rb) return ra - rb;
       return nameOf(a).localeCompare(nameOf(b));
     });
@@ -259,6 +274,8 @@
       redrawn: !!(reps.redrawn && rk === 'house'),
       holders: holders,
       pids: pids,
+      // The subset of `pids` on this field by a candidacy for another office.
+      candidacies: running,
       // One person on file is not an unopposed race, and no caller may say it is.
       sole: pids.length === 1,
       scope: scope,

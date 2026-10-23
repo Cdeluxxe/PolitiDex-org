@@ -24376,3 +24376,67 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "issues": []
  }
 });
+/* Sitting officeholders who are 2026 nominees for a different office (Oct 2026)
+   Each key is the person's existing roster id; the row above it is untouched.
+   This is the office they are running for, read from the same official state
+   candidate lists as the batch above (db/roster-cross-office-candidacies-2026-oct.json
+   is the record). ballot-breakdown.js's pdxCandidaciesFor() puts them in that
+   race's field as a candidate; pdxSeatHolders() never names them for it. */
+window.CMP_CANDIDACIES = {
+ // AK Governor · Registered Republican
+ "treg_taylor": { "office": "Governor Candidate", "state": "Alaska", "partyFiled": "Registered Republican", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // CA-1 · Democratic
+ "mike_mcguire": { "office": "U.S. House Candidate (CA-1)", "state": "California", "district": "1", "partyFiled": "Democratic", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // CA-11 · Democratic
+ "wiener_ca": { "office": "U.S. House Candidate (CA-11)", "state": "California", "district": "11", "partyFiled": "Democratic", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // CO Attorney General · Democratic Party
+ "jena_griswold": { "office": "Attorney General Candidate", "state": "Colorado", "partyFiled": "Democratic Party", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // CO Governor · Democratic Party
+ "phil_weiser": { "office": "Governor Candidate", "state": "Colorado", "partyFiled": "Democratic Party", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // FL Governor · Republican Party of Florida
+ "donalds": { "office": "Governor Candidate", "state": "Florida", "partyFiled": "Republican Party of Florida", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // GA U.S. Senate · Republican
+ "mike_collins": { "office": "U.S. Senate Candidate", "state": "Georgia", "partyFiled": "Republican", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // IA U.S. Senate · Republican
+ "ashley_hinson": { "office": "U.S. Senate Candidate", "state": "Iowa", "partyFiled": "Republican", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // KY U.S. Senate · Republican Party
+ "andy_barr": { "office": "U.S. Senate Candidate", "state": "Kentucky", "partyFiled": "Republican Party", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // LA U.S. Senate · Republican
+ "julia_letlow": { "office": "U.S. Senate Candidate", "state": "Louisiana", "partyFiled": "Republican", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // MI Secretary of State · Democratic Party
+ "garlin_gilchrist": { "office": "Secretary of State Candidate", "state": "Michigan", "partyFiled": "Democratic Party", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // MI Governor · Democratic Party
+ "jocelyn_benson": { "office": "Governor Candidate", "state": "Michigan", "partyFiled": "Democratic Party", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // MI Lieutenant Governor · Democratic Party
+ "winnie_brinks": { "office": "Lieutenant Governor Candidate", "state": "Michigan", "partyFiled": "Democratic Party", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // MI-11 · Democratic Party
+ "jeremy_moss": { "office": "U.S. House Candidate (MI-11)", "state": "Michigan", "district": "11", "partyFiled": "Democratic Party", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // MI Governor · Republican Party
+ "john_james": { "office": "Governor Candidate", "state": "Michigan", "partyFiled": "Republican Party", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // MN U.S. Senate · Democratic-Farmer-Labor
+ "peggy_flanagan": { "office": "U.S. Senate Candidate", "state": "Minnesota", "partyFiled": "Democratic-Farmer-Labor", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // MN Governor · Democratic-Farmer-Labor
+ "klobuchar": { "office": "Governor Candidate", "state": "Minnesota", "partyFiled": "Democratic-Farmer-Labor", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // MN Governor · Republican
+ "lisa_demuth": { "office": "Governor Candidate", "state": "Minnesota", "partyFiled": "Republican", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // NV Attorney General · Democratic Party
+ "nicole_cannizzaro": { "office": "Attorney General Candidate", "state": "Nevada", "partyFiled": "Democratic Party", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // NV Governor · Democratic Party
+ "aaron_ford": { "office": "Governor Candidate", "state": "Nevada", "partyFiled": "Democratic Party", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // OK U.S. Senate · Republican
+ "kevin_hern": { "office": "U.S. Senate Candidate", "state": "Oklahoma", "partyFiled": "Republican", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // SC Governor · Republican
+ "alan_wilson": { "office": "Governor Candidate", "state": "South Carolina", "partyFiled": "Republican", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // SD-AL · REP
+ "marty_jackley": { "office": "U.S. House Candidate (SD-AL)", "state": "South Dakota", "district": "1", "partyFiled": "REP", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // TN Governor · Republican
+ "blackburn": { "office": "Governor Candidate", "state": "Tennessee", "partyFiled": "Republican", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // TX U.S. Senate · Republican
+ "ken_paxton": { "office": "U.S. Senate Candidate", "state": "Texas", "partyFiled": "Republican", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // WA-3 · REPUBLICAN
+ "john_braun": { "office": "U.S. House Candidate (WA-3)", "state": "Washington", "district": "3", "partyFiled": "REPUBLICAN", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // WI Governor · Republican
+ "thomas_tiffany": { "office": "Governor Candidate", "state": "Wisconsin", "partyFiled": "Republican", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // WY U.S. Senate · Republican
+ "harriet_hageman": { "office": "U.S. Senate Candidate", "state": "Wyoming", "partyFiled": "Republican", "candidacyStatus": "active", "nextElection": "2026-11-03" }
+};

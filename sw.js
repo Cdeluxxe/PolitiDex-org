@@ -10499,7 +10499,28 @@
 //     changed, so the shell moves one version.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v441';
+// v442 - SITTING OFFICEHOLDERS RUNNING FOR ANOTHER OFFICE, CANDIDACIES.
+//     cmp-data.js gains window.CMP_CANDIDACIES after the roster's close: 28
+//     sitting members who are official 2026 nominees for a different tracked
+//     office on the same state lists v441 read (Ken Paxton for Texas's U.S.
+//     Senate seat, Byron Donalds for Florida Governor, ...), keyed by their own
+//     roster id. No row is added, renamed or changed. ballot-breakdown.js and
+//     seat-field.js put each one in that race's field as a candidate, never as
+//     its holder; race-sheet.js carries that flag to ballot-workspace.js,
+//     whose row says Running.
+//     cmp-data.js is precached and changed, so the shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v443 - THE PERSON FILE SAYS WHICH OTHER OFFICE THEY ARE RUNNING FOR. A file
+//     whose id is in window.CMP_CANDIDACIES prints one line under its office
+//     line, "Running for U.S. Senate · Texas · Nov 3, 2026", from
+//     profiles-full.js's _pdxCandidacyLine(); app.css styles it. The office
+//     held stays the label, nothing says they hold the race, and a file with no
+//     candidacy is byte-identical. Both files are precached and changed, so the
+//     shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v443';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

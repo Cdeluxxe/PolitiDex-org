@@ -17,6 +17,25 @@
   // PROFILES is now defined at the top of the file as an empty object
   // and dynamically populated from Firestore.
 
+  // ── THE OFFICE THEY ARE RUNNING FOR, WHEN IT IS NOT THE ONE THEY HOLD ─────
+  // Ken Paxton's file opened on "State Attorney General" and said nothing about
+  // the U.S. Senate race he is the nominee in. window.CMP_CANDIDACIES
+  // (cmp-data.js) is the one record of that, keyed by the person's own id; this
+  // prints one line from it under the office line, and nothing for anyone the
+  // table does not name. The office held stays the file's label; this says
+  // running, never holding.
+  window._pdxCandidacyLine = function (id) {
+    var C = window.CMP_CANDIDACIES;
+    var c = (C && id && Object.prototype.hasOwnProperty.call(C, id)) ? C[id] : null;
+    if (!c || c.candidacyStatus !== 'active' || !/ Candidate(?: \([A-Z]{2}-(?:AL|\d+)\))?$/.test(String(c.office || ''))) return '';
+    var race = String(c.office).replace(/ Candidate(?= \(|$)/, '');
+    var esc = function (s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
+    return '<div class="profile-running" data-pdx-candidacy="' + esc(id) + '">' +
+      '<span class="profile-running-ico" aria-hidden="true">\u{1F5F3}</span>' +
+      'Running for ' + esc(race) + (c.state ? ' · ' + esc(c.state) : '') +
+      (c.nextElection === '2026-11-03' ? ' · Nov 3, 2026' : '') + '</div>';
+  };
+
   // ════════════════════════════════════════════════════════════
   // ONE ACCESSOR FOR A RECORD'S SIGNATURE ISSUES
   // ────────────────────────────────────────────────────────────
@@ -5698,6 +5717,7 @@
           <div class="profile-eyebrow">${p.office || 'Public Official'}</div>
           <h2 class="profile-name">${p.name}</h2>
           ${(function(){ var parts=[p.district,p.state].filter(Boolean); return parts.length ? '<div class="profile-office">' + parts.join('<span class="po-sep">·</span>') + '</div>' : ''; })()}
+          ${(typeof window._pdxCandidacyLine === 'function') ? window._pdxCandidacyLine(id) : ''}
           ${(function(){ var tp=(typeof window._pdxTenurePill==='function')?window._pdxTenurePill(p):''; return tp ? '<div class="profile-tenure">' + tp + '</div>' : ''; })()}
           <div class="profile-meta">
             ${(typeof window._pdxStatusBadge === 'function') ? window._pdxStatusBadge(p) : ''}

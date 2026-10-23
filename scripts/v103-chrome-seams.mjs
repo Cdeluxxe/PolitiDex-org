@@ -3556,6 +3556,15 @@ export function withoutDeclaredStanceChunks(files) {
 }
 
 export const DECLARED_ADMISSION_PIDS = DECLARED_ADMISSIONS.flatMap((d) => d.pids);
+// The candidacy table cmp-data.js carries after the roster's close. It admits
+// nobody and moves no row: each key is a sitting member's existing id, and the
+// value is the office they are running for. It is set aside with the declared
+// blocks, and only when its keys are exactly the record's.
+export const DECLARED_CANDIDACIES = {
+  banner: "/* Sitting officeholders who are 2026 nominees for a different office (Oct 2026)",
+  pids: JSON.parse(_readFileSync(new URL("../db/roster-cross-office-candidacies-2026-oct.json", import.meta.url), "utf8")).rows.map((r) => r.pid),
+};
+const CANDIDACY_KEY = /^ "([a-z0-9_]+)": \{ "office"/gm;
 const ROSTER_KEY = /^\s*"([a-z0-9_]+)":\s*\{$/gm;
 // The source with every declared admission block removed. Each block is the
 // banner up to the next banner or the file's close; the comma that joined it to
@@ -3573,6 +3582,11 @@ export function carveDeclaredAdmissions(src) {
     if (keys.join(",") !== d.pids.slice().sort().join(",")) continue;
     const start = out.lastIndexOf(",\n", at) === at - 2 ? at - 2 : at;
     out = out.slice(0, start) + (nextBanner > at && start === at - 2 ? "," : "") + out.slice(end);
+  }
+  const ct = out.indexOf(DECLARED_CANDIDACIES.banner);
+  if (ct > out.lastIndexOf("\n});")) {
+    const keys = [...out.slice(ct).matchAll(CANDIDACY_KEY)].map((m) => m[1]).sort();
+    if (keys.join(",") === DECLARED_CANDIDACIES.pids.slice().sort().join(",")) out = out.slice(0, ct);
   }
   return out;
 }

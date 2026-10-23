@@ -177,6 +177,48 @@
       return 'candidate';
     }
 
+    // ── A SITTING OFFICEHOLDER RUNNING FOR A DIFFERENT OFFICE ─────────────────
+    // Ken Paxton is Texas's Attorney General and its Republican nominee for U.S.
+    // Senate. His roster row says Attorney General, every keyer above reads the
+    // row, and so the Senate field never listed him. window.CMP_CANDIDACIES
+    // (cmp-data.js) holds the office such a person is running for, keyed by
+    // their own roster id, beside a row it does not touch. This is its one
+    // reader: the field for that race includes them, as a candidate, and
+    // nothing here makes them its holder — that is pdxSeatHolders() alone.
+    var _CANDIDACY_SEAT = [
+      [/^U\.S\. Senate Candidate$/, 'senate'],
+      [/^U\.S\. House Candidate\b/, 'house'],
+      [/^Governor Candidate$/, 'governor'],
+      [/^Lieutenant Governor Candidate$/, 'ltgovernor'],
+      [/^Attorney General Candidate$/, 'attorneygeneral'],
+      [/^Secretary of State Candidate$/, 'secretaryofstate']
+    ];
+    function _candidacySeat(office) {
+      for (var i = 0; i < _CANDIDACY_SEAT.length; i++) {
+        if (_CANDIDACY_SEAT[i][0].test(String(office || ''))) return _CANDIDACY_SEAT[i][1];
+      }
+      return '';
+    }
+    window.pdxCandidacy = function (pid) {
+      var C = window.CMP_CANDIDACIES;
+      var c = (C && pid && Object.prototype.hasOwnProperty.call(C, pid)) ? C[pid] : null;
+      return (c && c.candidacyStatus === 'active' && typeof CMP_DATA !== 'undefined' && CMP_DATA[pid]) ? c : null;
+    };
+    // The ids running for `raceKey` in `state` (and, for a U.S. House seat, in
+    // that district number). A House seat with no district answers nobody, the
+    // same refusal the House field makes everywhere else.
+    window.pdxCandidaciesFor = function (raceKey, state, district) {
+      var rk = raceKey === 'secstate' ? 'secretaryofstate' : String(raceKey || '');
+      var st = String(state || '').trim().toLowerCase();
+      var dn = String(district == null ? '' : district).replace(/[^0-9]/g, '');
+      if (!rk || !st || (rk === 'house' && !dn)) return [];
+      return Object.keys(window.CMP_CANDIDACIES || {}).filter(function (pid) {
+        var c = window.pdxCandidacy(pid);
+        if (!c || String(c.state || '').toLowerCase() !== st || _candidacySeat(c.office) !== rk) return false;
+        return rk !== 'house' || parseInt(c.district, 10) === parseInt(dn, 10);
+      });
+    };
+
     function _ballotCandidates(raceKey) {
       if (typeof CMP_DATA === 'undefined') return [];
 
@@ -207,12 +249,16 @@
         if (typeof window.pdxSeatField === 'function') {
           var _sf = window.pdxSeatField(raceKey);
           if (_sf && _sf.answerable) {
+            // A person in the field by a candidacy is a candidate HERE, whatever
+            // office their own row holds, and the row says the office they seek.
+            var _run = _sf.candidacies || [];
             return _sf.pids.map(function (pid) {
               var sd = CMP_DATA[pid] || {};
-              return { pid: pid, name: sd.name, office: sd.office,
+              var cy = (_run.indexOf(pid) !== -1) ? window.pdxCandidacy(pid) : null;
+              return { pid: pid, name: sd.name, office: cy ? cy.office : sd.office,
                        score: _liveDirectionMatch(pid, sd).pct,
-                       status: _cStatus(sd), icon: sd.icon,
-                       incumbent: _sf.holders.indexOf(pid) !== -1 };
+                       status: cy ? 'candidate' : _cStatus(sd), icon: sd.icon,
+                       incumbent: _sf.holders.indexOf(pid) !== -1, candidacy: !!cy };
             });
           }
         }
@@ -415,6 +461,20 @@
                          status: _cStatus(d), icon: d.icon });
         }
       });
+      // The same candidacies the keyed seats carry, for every race this matcher
+      // answers. Outside Utah the House needs the reader's district; in Utah the
+      // curated ballot owns that seat, so it is left to it.
+      var _seen = {};
+      results.forEach(function (r) { _seen[r.pid] = 1; });
+      if (raceKey !== 'house' || userState !== 'Utah') {
+        window.pdxCandidaciesFor(raceKey, userState, userDistrict).forEach(function (pid) {
+          if (_seen[pid]) return;
+          var d = CMP_DATA[pid], cy = window.pdxCandidacy(pid);
+          results.push({ pid: pid, name: d.name, office: cy.office,
+                         score: _liveDirectionMatch(pid, d).pct,
+                         status: 'candidate', icon: d.icon, candidacy: true });
+        });
+      }
       // ── ORDER: OFFICEHOLDER FIRST, THEN ALPHABETICAL ──────────────────────
       // This list USED to come back sorted by Direction Match, descending. That
       // made an integrity read — "did this person keep their own word" — decide

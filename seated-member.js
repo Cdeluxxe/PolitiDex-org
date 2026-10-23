@@ -70,7 +70,7 @@
 (function () {
   'use strict';
 
-  // COPIED VERBATIM FROM ballot-breakdown.js LINES 1895–1900.
+  // COPIED VERBATIM FROM ballot-breakdown.js LINES 1955–1960.
     var KR_CONGRESSIONAL_INCUMBENTS = {
       1: { pid: 'bmoore', label: 'Incumbent — current Utah U.S. Representative' },
       2: { pid: 'maloy',  label: 'Incumbent — current Utah U.S. Representative' },
@@ -78,7 +78,7 @@
       4: { pid: 'owens',  label: 'Incumbent — current Utah U.S. Representative' }
     };
 
-  // COPIED VERBATIM FROM ballot-breakdown.js LINES 2024–2036.
+  // COPIED VERBATIM FROM ballot-breakdown.js LINES 2084–2096.
     var KR_STATE_HOUSE_INCUMBENTS = {
       4:'auxier_h4', 5:'snider_h5', 6:'rob_bishop', 9:'jake_sawyer', 10:'koford_h10',
       11:'hall_h11', 12:'mschultz', 14:'lisonbee_h14', 15:'defay_h15', 16:'tlee',
@@ -93,7 +93,7 @@
       75:'walt_brooks'
     };
 
-  // COPIED VERBATIM FROM ballot-breakdown.js LINES 2077–2084.
+  // COPIED VERBATIM FROM ballot-breakdown.js LINES 2137–2144.
     var KR_STATE_SENATE_INCUMBENTS = {
       1:'ssandall', 2:'cwilson', 3:'john_johnson', 4:'cmusselman', 5:'amillner',
       6:'jstevenson', 7:'sadams', 8:'tweiler', 9:'jennifer_plumb', 10:'lescamilla',
@@ -106,7 +106,7 @@
   // The guard. See the header: the owner's assignment is unguarded and pinned,
   // so this side is the one that yields.
   if (typeof window.pdxSeatedMemberFor !== 'function') {
-  // COPIED VERBATIM FROM ballot-breakdown.js LINES 2468–2496.
+  // COPIED VERBATIM FROM ballot-breakdown.js LINES 2528–2556.
     function _pdxSeatKeyOf(raw) {
       var s = String(raw == null ? '' : raw).toLowerCase();
       // 'statehouse' before 'house', because 'ut-statehouse-68' contains both and
