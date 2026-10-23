@@ -7810,6 +7810,14 @@
     /* In the profile modal hero the tenure line gets a touch more presence. */
     .profile-tenure { margin-top: 0.5rem; }
     .profile-tenure .pdx-tenure { font-size: 0.7rem; padding: 0.2rem 0.7rem; }
+    /* A sitting officeholder's candidacy for another office, under the office line. */
+    .profile-running {
+      display: inline-flex; align-items: center; gap: 0.35rem; margin-top: 0.45rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.74rem;
+      letter-spacing: 0.04em; line-height: 1.2; padding: 0.22rem 0.7rem; border-radius: 999px;
+      background: rgba(96,165,250,0.12); border: 1px solid rgba(96,165,250,0.42); color: #bfdbfe;
+    }
+    .profile-running-ico { font-size: 0.9em; line-height: 1; }
     .pdx-snap-badges { display: flex; align-items: center; gap: 0.34rem; flex-wrap: wrap; margin-top: 0.42rem; }
     .pdx-snap-score {
       flex-shrink: 0;

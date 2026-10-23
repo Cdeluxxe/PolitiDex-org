@@ -10511,7 +10511,16 @@
 //     cmp-data.js is precached and changed, so the shell moves one version.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v442';
+// v443 - THE PERSON FILE SAYS WHICH OTHER OFFICE THEY ARE RUNNING FOR. A file
+//     whose id is in window.CMP_CANDIDACIES prints one line under its office
+//     line, "Running for U.S. Senate · Texas · Nov 3, 2026", from
+//     profiles-full.js's _pdxCandidacyLine(); app.css styles it. The office
+//     held stays the label, nothing says they hold the race, and a file with no
+//     candidacy is byte-identical. Both files are precached and changed, so the
+//     shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v443';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
