@@ -297,9 +297,14 @@
     var sn = distNum(sl && sl.district) || distNum(loc.stateSenateDistrict);
     out.push(distRow('State Senate', legText('statesenate', sn), DIST_NOMAP));
 
-    var ll = levelFor(r, 'statehouse');
-    var ln = distNum(ll && ll.district) || distNum(loc.stateHouseDistrict);
-    out.push(distRow('State House', legText('statehouse', ln), DIST_NOMAP));
+    // A one-chamber Legislature (Nebraska) has no State House line at all.
+    var oneChamber = false;
+    try { oneChamber = typeof window.pdxLegUnicameral === 'function' && window.pdxLegUnicameral(state); } catch (e) {}
+    if (!oneChamber) {
+      var ll = levelFor(r, 'statehouse');
+      var ln = distNum(ll && ll.district) || distNum(loc.stateHouseDistrict);
+      out.push(distRow('State House', legText('statehouse', ln), DIST_NOMAP));
+    }
 
     // LOCAL IS A JURISDICTION, NOT A NUMBER. The municipality this location
     // names is the local ballot's scope — mayor, council, school board — and it

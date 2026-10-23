@@ -31,7 +31,7 @@
 //      them offers the record jump to /p/<pid>.
 //   4. Three payload shapes that used to break the match do not: a title-only
 //      office, an abbreviated state, and a fully flattened record.
-//   5. The scope did not widen. A Las Vegas reader still gets their statewide
+//   5. The scope did not widen. A Portland reader still gets their statewide
 //      seats and three BLANK district rows carrying the district-map copy, and
 //      no Utah district officeholder reaches them.
 //   6. No party sort, no score, no new verdict on any of it.
@@ -70,9 +70,9 @@ const FILES = [
 
 const LAYTON = { state: "Utah", city: "Layton", county: "Davis County" };
 // Ohio's legislative lines are drawn now (v447); the "three honest blanks" reader
-// is in Nevada, whose legislative lines are not (Missouri until v452, Kentucky
-// until v453, Iowa until v454).
-const KANSAS_CITY = { state: "Nevada", city: "Las Vegas", county: "Clark County" };
+// is in Oregon, whose legislative lines are not (Missouri until v452, Kentucky
+// until v453, Iowa until v454, Nevada until v455).
+const KANSAS_CITY = { state: "Oregon", city: "Portland", county: "Multnomah County" };
 const CANON = { senators: ["curtis", "lee"], governor: "cox" };
 const BLANK = "No record on file yet";
 const BLANK_WHY = "rather leave this blank than name the wrong person";
@@ -327,35 +327,35 @@ REWRITES.forEach((c) => {
 });
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("5 · The scope did not widen: Las Vegas keeps three honest blanks");
+section("5 · The scope did not widen: Portland keeps three honest blanks");
 
 {
   const O = boot({ location: KANSAS_CITY });
   const reps = O.pdxRepsForMe();
-  eq(reps.districtsResolvable, false, "Nevada now claims curated district geometry");
+  eq(reps.districtsResolvable, false, "Oregon now claims curated district geometry");
   ["house", "statesenate", "statehouse"].forEach((key) => {
     eq(pidFor(O, key), null,
-      `the ${key} seat resolved an officeholder for a Nevada reader — district seats outside Utah have no map`);
+      `the ${key} seat resolved an officeholder for an Oregon reader — district seats outside Utah have no map`);
     const lv = levelsOf(O).filter((l) => l.key === key)[0] || {};
-    eq(lv.district, null, `the ${key} row carries a district number for a Nevada reader`);
+    eq(lv.district, null, `the ${key} row carries a district number for an Oregon reader`);
   });
   // Statewide coverage is national and stays national: this pass did not take
-  // Nevada's two Senate seats and its Governor away to fix Utah's.
-  ok(senatePids(O).length === 2, "a Nevada reader lost a U.S. Senate seat to this pass");
-  ok(!!pidFor(O, "governor"), "a Nevada reader lost their Governor to this pass");
-  // And no Utah pid leaks into a Nevada answer.
+  // Oregon's two Senate seats and its Governor away to fix Utah's.
+  ok(senatePids(O).length === 2, "an Oregon reader lost a U.S. Senate seat to this pass");
+  ok(!!pidFor(O, "governor"), "an Oregon reader lost their Governor to this pass");
+  // And no Utah pid leaks into an Oregon answer.
   const utahish = CANON.senators.concat(CANON.governor, ["maloy", "moore", "stevenson", "ward"]);
   levelsOf(O).forEach((lv) => {
     if (!lv.pid) return;
-    ok(utahish.indexOf(lv.pid) === -1, `a Nevada reader's ${lv.key} row names the Utah record ${lv.pid}`);
+    ok(utahish.indexOf(lv.pid) === -1, `an Oregon reader's ${lv.key} row names the Utah record ${lv.pid}`);
   });
 
   const text = strip(band(O));
   has(text, "Not resolved for your area yet",
-    "a Nevada reader's district rows do not say they are unresolved");
+    "an Oregon reader's district rows do not say they are unresolved");
   has(text, "rather leave this blank than guess at your seat",
-    "the district-blank copy changed — a Nevada reader's blank rows must still explain themselves");
-  has(text, "3 of 6 seats resolved", "the Nevada count no longer reports three of six");
+    "the district-blank copy changed — an Oregon reader's blank rows must still explain themselves");
+  has(text, "3 of 6 seats resolved", "the Oregon count no longer reports three of six");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -385,4 +385,4 @@ if (failures.length) {
   failures.forEach((f) => console.error("  · " + f));
   process.exit(1);
 }
-console.log(`\n✓ utah statewide named: ${passed} checks passed — Layton resolves Curtis, Lee and Cox, the archive agrees, the blank sentence is gone, and Las Vegas keeps its district blanks`);
+console.log(`\n✓ utah statewide named: ${passed} checks passed — Layton resolves Curtis, Lee and Cox, the archive agrees, the blank sentence is gone, and Portland keeps its district blanks`);

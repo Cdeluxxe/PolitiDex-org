@@ -10654,7 +10654,19 @@
 //     and changed, so the shell moves one version.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v454';
+// v455 - NEVADA, NEBRASKA AND ARKANSAS STATE LEGISLATIVE LINES. /find's
+//     TIGERweb legislative list gains those three states, on the same 2024
+//     layers (5 and 6), scoped to the one state by FIPS and loaded only after a
+//     geocode, tap or phone point has named it. Nothing is painted on open and
+//     no national layer is asked for. NEBRASKA HAS A ONE-CHAMBER LEGISLATURE:
+//     the finder offers its State Senate and U.S. House seats only, never asks
+//     for a lower layer, and saves no State House number; voter-hub-location.js
+//     publishes no State House row for it; me-desk.js drops its State House
+//     line. find.html and me-desk.js are precached and changed, so the shell
+//     moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v455';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

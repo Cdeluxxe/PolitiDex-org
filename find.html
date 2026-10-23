@@ -1234,8 +1234,8 @@
     // Florida, New York, Illinois, Pennsylvania, Ohio, Georgia, Michigan, North
     // Carolina, Virginia, Washington, Arizona, New Jersey, Massachusetts,
     // Tennessee, Colorado, Maryland, Minnesota, Wisconsin, Indiana, Missouri,
-    // Kentucky, Alabama, South Carolina, Iowa, Oklahoma and Kansas are drawn
-    // this way (Washington, Arizona and New Jersey elect
+    // Kentucky, Alabama, South Carolina, Iowa, Oklahoma, Kansas, Nevada,
+    // Nebraska and Arkansas are drawn this way (Washington, Arizona and New Jersey elect
     // both chambers from one set of legislative districts, so TIGERweb's two
     // layers carry the same numbers there; Massachusetts names its districts
     // rather than numbering them — see LEG_NAMED_STATES)
@@ -1267,7 +1267,15 @@
                              'Colorado': 1, 'Maryland': 1, 'Minnesota': 1,
                              'Wisconsin': 1, 'Indiana': 1, 'Missouri': 1,
                              'Kentucky': 1, 'Alabama': 1, 'South Carolina': 1,
-                             'Iowa': 1, 'Oklahoma': 1, 'Kansas': 1 };
+                             'Iowa': 1, 'Oklahoma': 1, 'Kansas': 1,
+                             'Nevada': 1, 'Nebraska': 1, 'Arkansas': 1 };
+    // ══ A ONE-CHAMBER LEGISLATURE HAS NO STATE HOUSE ════════════════════════
+    // Nebraska's Legislature is a single chamber of 49 senators; TIGERweb's
+    // lower layer holds no Nebraska districts at all. So the State House seat is
+    // not "missing" there — it does not exist. It is left out of SEATS, its
+    // toggle and chip are hidden, its layer is never asked for, and no State
+    // House number is saved.
+    var LEG_UNICAMERAL = { 'Nebraska': 1 };
     // ══ A STATE WHOSE DISTRICTS HAVE NAMES ══════════════════════════════════
     // Massachusetts calls its seats "First Essex and Middlesex" and "1st
     // Barnstable", never "District 21". TIGERweb codes them D01–D40 (Senate) and
@@ -1514,8 +1522,11 @@
       dropSeat('congress');
       dropSeat('house');
       dropSeat('senate');
-      SEATS = legScope() ? ALL_SEATS.slice() : ['congress'];
+      SEATS = legScope()
+        ? (LEG_UNICAMERAL[_scopeState] ? ['senate', 'congress'] : ALL_SEATS.slice())
+        : ['congress'];
       if (!legScope()) _activeLayer = 'congress';
+      else if (SEATS.indexOf(_activeLayer) < 0) _activeLayer = SEATS[0];
       syncScopeChrome();
       return true;
     }
@@ -1523,8 +1534,9 @@
     // Utah they are hidden rather than disabled: a greyed-out control is a
     // promise that it will light up, and these never will.
     function syncScopeChrome(){
-      var u = legScope();
       ['house', 'senate'].forEach(function(t){
+        // A chamber is shown only where this state has it (Nebraska: no House).
+        var u = SEATS.indexOf(t) !== -1;
         var btn = document.getElementById('pdx-layer-' + t);
         if (btn) btn.style.display = u ? '' : 'none';
         var chip = document.getElementById('pdx-sel-' + t);
@@ -1859,6 +1871,7 @@
       if (layerType !== 'congress' && tigerLegScope()) {
         var ls = stateInfo(_scopeState), spec = TIGER_SLD[layerType];
         if (!ls || !spec) return null;
+        if (layerType === 'house' && LEG_UNICAMERAL[_scopeState]) return null;
         return spec.url + '?where=STATE%3D%27' + ls.fips + '%27&outFields=' + spec.field +
                (namedScope() ? ',NAME' : '') +
                '&returnGeometry=true&outSR=4326&maxAllowableOffset=0.003' +
@@ -2581,7 +2594,8 @@
       // Senators, the Governor) is answered from on the way back.
       loc.state = _scopeState || 'Utah';
       if (legScope()) {
-        if (_selected.house)  loc.stateHouseDistrict  = String(_selected.house);
+        if (_selected.house && SEATS.indexOf('house') !== -1) loc.stateHouseDistrict = String(_selected.house);
+        else if (SEATS.indexOf('house') === -1) loc.stateHouseDistrict = '';
         if (_selected.senate) loc.stateSenateDistrict = String(_selected.senate);
       } else {
         // AND THE LEGISLATIVE FIELDS ARE BLANKED, NOT LEFT. They are Utah numbers
@@ -3123,12 +3137,13 @@
           // that answers nothing stays empty and the bar says it is missing.
           var legFill = Promise.resolve();
           if (tigerLegScope()) {
-            h = districtAt('house', hit.lng, hit.lat);
+            var noHouse = SEATS.indexOf('house') === -1;
+            h = noHouse ? null : districtAt('house', hit.lng, hit.lat);
             s = districtAt('senate', hit.lng, hit.lat);
             hExact = h != null; sExact = s != null;
-            if (h == null || s == null) {
+            if ((h == null && !noHouse) || s == null) {
               legFill = Promise.all([
-                h == null ? sldAtPointRemote('house', hit.lat, hit.lng) : Promise.resolve(h),
+                (h == null && !noHouse) ? sldAtPointRemote('house', hit.lat, hit.lng) : Promise.resolve(h),
                 s == null ? sldAtPointRemote('senate', hit.lat, hit.lng) : Promise.resolve(s)
               ]).then(function(r){ h = r[0]; s = r[1]; }, function(){});
             }
@@ -3627,6 +3642,7 @@
       // button in some browsers. Refusing here means there is exactly one answer
       // to "can a Utah legislative map be requested for an Ohio pin" — no.
       if (!legScope() && layerType !== 'congress') return;
+      if (SEATS.indexOf(layerType) === -1) return;
       _activeLayer = layerType;
       setLayerChrome(layerType);
       // PRESSING A TOGGLE IS A TAP: every caller here is a reader choosing a
@@ -3651,7 +3667,9 @@
       var hint = document.getElementById('pdx-map-hint');
       if (hint) hint.innerHTML = 'Selection cleared — search your address or tap a district to set it again.';
       setSearchNote(legScope()
-        ? 'Type an address to jump straight to your House &amp; Senate districts.'
+        ? (SEATS.indexOf('house') === -1
+            ? 'Type an address to jump straight to your State Senate district.'
+            : 'Type an address to jump straight to your House &amp; Senate districts.')
         : 'Type an address to set your U.S. House district.');
       var input = document.getElementById('pdx-map-search-input');
       if (input) input.value = '';
@@ -3710,7 +3728,7 @@
         // Out of Utah scope these two are not seats with missing numbers — they
         // are not seats this finder has, so they are not seeded from a record
         // that may still carry a previous Utah save.
-        _selected.house  = (legScope() && !isNaN(h)) ? h : null;
+        _selected.house  = (legScope() && SEATS.indexOf('house') !== -1 && !isNaN(h)) ? h : null;
         _selected.senate = (legScope() && !isNaN(s)) ? s : null;
         // Seeded from the record so a reader who comes back to fix one seat is
         // not told the other two are missing. loc.district is only read inside
@@ -3734,7 +3752,9 @@
         setSearchNote(confirmState().any
           ? 'Search a new address, or tap the map to adjust your districts.'
           : (legScope()
-              ? 'Type an address to set your House, Senate and U.S. House districts at once.'
+              ? (SEATS.indexOf('house') === -1
+                  ? 'Type an address to set your State Senate and U.S. House districts at once.'
+                  : 'Type an address to set your House, Senate and U.S. House districts at once.')
               : 'Type an address to set your U.S. House district.'));
       }
 
