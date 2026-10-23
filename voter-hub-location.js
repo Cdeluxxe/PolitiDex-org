@@ -2713,8 +2713,8 @@
   // this pass no other state's did, because no other state's lines were drawn.
   // /find now loads the State Senate and State House (Assembly) districts of
   // Texas, California, Florida, New York, Illinois, Pennsylvania, Ohio,
-  // Georgia, Michigan, North Carolina, Virginia, Washington and Arizona from
-  // TIGERweb, scoped to one state
+  // Georgia, Michigan, North Carolina, Virginia, Washington, Arizona, New
+  // Jersey, Massachusetts and Tennessee from TIGERweb, scoped to one state
   // by its FIPS, once a geocode has named it — the same pattern as the
   // congressional layer. This table is the list of states
   // whose legislative lines the finder can load. It is the ONE place that list
@@ -2723,10 +2723,152 @@
   var _PDX_LEG_MAPPED = { texas: 1, california: 1, florida: 1, 'new york': 1,
                          illinois: 1, pennsylvania: 1, ohio: 1,
                          georgia: 1, michigan: 1, 'north carolina': 1,
-                         virginia: 1, washington: 1, arizona: 1 };
+                         virginia: 1, washington: 1, arizona: 1,
+                         'new jersey': 1, massachusetts: 1, tennessee: 1 };
   window._pdxLegMapped = function (stateName) {
     return !!_PDX_LEG_MAPPED[_pdxStateName(stateName)];
   };
+
+  // ── A STATE WHOSE DISTRICTS HAVE NAMES, NOT NUMBERS ────────────────────────
+  // Massachusetts calls its seats "First Essex and Middlesex" and "1st
+  // Barnstable", never "District 21". The location record's district fields are
+  // digits only everywhere in this app, so the record keeps TIGERweb's own
+  // sequence for the seat (Senate D21 → 21, House 001 → 1) as an internal key,
+  // and THIS TABLE turns that key back into the name every time a district is
+  // shown. The key itself is never printed for a named state: a surface asks
+  // pdxLegDistrictText(), which answers with the name, and a key with no name
+  // here answers ''.
+  //
+  // The names are TIGERweb's NAME field for the 2024 layers (5 and 6), index =
+  // key − 1. House code ZZZ ("State House Districts not defined") is no seat.
+  var _PDX_LEG_NAMES = {
+    massachusetts: {
+      statesenate: [
+      'Berkshire-Hampden-Franklin-Hampshire District', 'Hampden and Hampshire District',
+      'Hampden District', 'Hampden-Hampshire-Worcester District',
+      'Hampshire-Franklin-Worcester District', 'Worcester and Hampshire District',
+      'Worcester and Hampden District', 'Second Worcester District', 'First Worcester District',
+      'Worcester and Middlesex District', 'First Middlesex District',
+      'Middlesex and Worcester District', 'Middlesex and Norfolk District',
+      'Norfolk-Worcester-Middlesex District', 'Third Middlesex District',
+      'Fourth Middlesex District', 'Norfolk and Middlesex District',
+      'Norfolk and Suffolk District', 'First Essex District',
+      'Second Essex and Middlesex District', 'First Essex and Middlesex District',
+      'Second Essex District', 'Fifth Middlesex District', 'Third Essex District',
+      'Third Suffolk District', 'Middlesex and Suffolk District', 'Second Middlesex District',
+      'Suffolk and Middlesex District', 'Second Suffolk District', 'First Suffolk District',
+      'First Plymouth and Norfolk District', 'Norfolk and Plymouth District',
+      'Norfolk-Plymouth-Bristol District', 'Second Plymouth and Norfolk District',
+      'Bristol and Norfolk District', 'Third Bristol and Plymouth District',
+      'First Bristol and Plymouth District', 'Second Bristol and Plymouth District',
+      'Plymouth and Barnstable District', 'Cape and Islands District'
+      ],
+      statehouse: [
+      '1st Barnstable District', '2nd Barnstable District', '3rd Barnstable District',
+      '4th Barnstable District', '5th Barnstable District', 'Barnstable-Dukes-Nantucket District',
+      '1st Berkshire District', '2nd Berkshire District', '3rd Berkshire District',
+      '1st Bristol District', '2nd Bristol District', '3rd Bristol District',
+      '4th Bristol District', '5th Bristol District', '6th Bristol District',
+      '7th Bristol District', '8th Bristol District', '9th Bristol District',
+      '10th Bristol District', '11th Bristol District', '12th Bristol District',
+      '13th Bristol District', '14th Bristol District', '1st Essex District', '2nd Essex District',
+      '3rd Essex District', '4th Essex District', '5th Essex District', '6th Essex District',
+      '7th Essex District', '8th Essex District', '9th Essex District', '10th Essex District',
+      '11th Essex District', '12th Essex District', '13th Essex District', '14th Essex District',
+      '15th Essex District', '16th Essex District', '17th Essex District', '18th Essex District',
+      '1st Franklin District', '2nd Franklin District', '1st Hampden District',
+      '2nd Hampden District', '3rd Hampden District', '4th Hampden District',
+      '5th Hampden District', '6th Hampden District', '7th Hampden District',
+      '8th Hampden District', '9th Hampden District', '10th Hampden District',
+      '11th Hampden District', '12th Hampden District', '1st Hampshire District',
+      '2nd Hampshire District', '3rd Hampshire District', '1st Middlesex District',
+      '2nd Middlesex District', '3rd Middlesex District', '4th Middlesex District',
+      '5th Middlesex District', '6th Middlesex District', '7th Middlesex District',
+      '8th Middlesex District', '9th Middlesex District', '10th Middlesex District',
+      '11th Middlesex District', '12th Middlesex District', '13th Middlesex District',
+      '14th Middlesex District', '15th Middlesex District', '16th Middlesex District',
+      '17th Middlesex District', '18th Middlesex District', '19th Middlesex District',
+      '20th Middlesex District', '21st Middlesex District', '22nd Middlesex District',
+      '23rd Middlesex District', '24th Middlesex District', '25th Middlesex District',
+      '26th Middlesex District', '27th Middlesex District', '28th Middlesex District',
+      '29th Middlesex District', '30th Middlesex District', '31st Middlesex District',
+      '32nd Middlesex District', '33rd Middlesex District', '34th Middlesex District',
+      '35th Middlesex District', '36th Middlesex District', '37th Middlesex District',
+      '1st Norfolk District', '2nd Norfolk District', '3rd Norfolk District',
+      '4th Norfolk District', '5th Norfolk District', '6th Norfolk District',
+      '7th Norfolk District', '8th Norfolk District', '9th Norfolk District',
+      '10th Norfolk District', '11th Norfolk District', '12th Norfolk District',
+      '13th Norfolk District', '14th Norfolk District', '15th Norfolk District',
+      '1st Plymouth District', '2nd Plymouth District', '3rd Plymouth District',
+      '4th Plymouth District', '5th Plymouth District', '6th Plymouth District',
+      '7th Plymouth District', '8th Plymouth District', '9th Plymouth District',
+      '10th Plymouth District', '11th Plymouth District', '12th Plymouth District',
+      '1st Suffolk District', '2nd Suffolk District', '3rd Suffolk District',
+      '4th Suffolk District', '5th Suffolk District', '6th Suffolk District',
+      '7th Suffolk District', '8th Suffolk District', '9th Suffolk District',
+      '10th Suffolk District', '11th Suffolk District', '12th Suffolk District',
+      '13th Suffolk District', '14th Suffolk District', '15th Suffolk District',
+      '16th Suffolk District', '17th Suffolk District', '18th Suffolk District',
+      '19th Suffolk District', '1st Worcester District', '2nd Worcester District',
+      '3rd Worcester District', '4th Worcester District', '5th Worcester District',
+      '6th Worcester District', '7th Worcester District', '8th Worcester District',
+      '9th Worcester District', '10th Worcester District', '11th Worcester District',
+      '12th Worcester District', '13th Worcester District', '14th Worcester District',
+      '15th Worcester District', '16th Worcester District', '17th Worcester District',
+      '18th Worcester District', '19th Worcester District'
+      ]
+    }
+  };
+  function _pdxLegChamber(c) {
+    var k = String(c == null ? '' : c).toLowerCase();
+    if (k === 'senate' || k === 'statesenate' || k === 'state_senator') return 'statesenate';
+    if (k === 'house' || k === 'statehouse' || k === 'state_rep') return 'statehouse';
+    return '';
+  }
+  // Whether this state's legislative seats are named rather than numbered.
+  window.pdxLegDistrictsNamed = function (stateName) {
+    return !!_PDX_LEG_NAMES[_pdxStateName(stateName)];
+  };
+  // The name of one seat in a named-district state, or ''.
+  window.pdxLegDistrictName = function (stateName, chamber, key) {
+    var t = _PDX_LEG_NAMES[_pdxStateName(stateName)];
+    var ch = _pdxLegChamber(chamber);
+    if (!t || !ch) return '';
+    var n = parseInt(String(key == null ? '' : key).replace(/[^0-9]/g, ''), 10);
+    return (!isNaN(n) && n > 0 && t[ch][n - 1]) ? t[ch][n - 1] : '';
+  };
+  // How a legislative seat is written for a reader: the name in a named state,
+  // "District N" everywhere else. A named state's key with no name is '' — a
+  // blank, never "District 21".
+  window.pdxLegDistrictText = function (stateName, chamber, key) {
+    if (window.pdxLegDistrictsNamed(stateName)) return window.pdxLegDistrictName(stateName, chamber, key);
+    var n = String(key == null ? '' : key).replace(/[^0-9]/g, '');
+    return n ? 'District ' + String(parseInt(n, 10)) : '';
+  };
+  // A roster record's own district NAME ("First Essex & Middlesex") → the key,
+  // compared on one spelling: case, "&" for "and", hyphens, commas and a
+  // trailing "District" set aside, ordinal words read as "1st". Word order is
+  // kept, because "Middlesex and Norfolk" and "Norfolk and Middlesex" are two
+  // different seats.
+  var _PDX_ORD = { first: '1st', second: '2nd', third: '3rd', fourth: '4th', fifth: '5th', sixth: '6th',
+    seventh: '7th', eighth: '8th', ninth: '9th', tenth: '10th', eleventh: '11th', twelfth: '12th',
+    thirteenth: '13th', fourteenth: '14th', fifteenth: '15th', sixteenth: '16th', seventeenth: '17th',
+    eighteenth: '18th', nineteenth: '19th' };
+  function _pdxLegNameKey(v) {
+    return String(v == null ? '' : v).toLowerCase().replace(/&/g, ' and ').replace(/[-,.]/g, ' ')
+      .split(/\s+/).filter(function (w) { return w && w !== 'and' && w !== 'district'; })
+      .map(function (w) { return _PDX_ORD[w] || w; }).join(' ');
+  }
+  function _pdxLegKeyOfName(st, chamber, v) {
+    var t = _PDX_LEG_NAMES[st];
+    if (!t || !t[chamber]) return '';
+    var want = _pdxLegNameKey(v);
+    if (!want) return '';
+    for (var i = 0; i < t[chamber].length; i++) {
+      if (_pdxLegNameKey(t[chamber][i]) === want) return String(i + 1);
+    }
+    return '';
+  }
 
   // The legislative district a record names in its own `district` field —
   // "SD 7", "HD 95", "LD 18", "District 7", "7". A chamber prefix has to agree
@@ -2765,7 +2907,10 @@
       // classifies as a lower chamber by its words alone. Only an office that
       // says it is a STATE chamber may hold a legislative seat here.
       if (!/\bstate\b|\bassembly/i.test(String(rec.office || ''))) continue;
-      var key = _pdxLegDistrictOfRosterState(rec.state) || _pdxLegDistrictOfRosterDistrict(rec.district, ch);
+      // A named-district state matches the record's district NAME and nothing
+      // else; a number on such a record would be a number the state never uses.
+      var key = _PDX_LEG_NAMES[st] ? _pdxLegKeyOfName(st, ch, rec.district)
+              : (_pdxLegDistrictOfRosterState(rec.state) || _pdxLegDistrictOfRosterDistrict(rec.district, ch));
       if (!key) continue;
       if (!_pdxArchiveInOffice(rec)) continue;
       if (_pdxSlugShared(pid)) continue;
@@ -3118,7 +3263,7 @@
       var mem = book[lv.key];
 
       if (lv.pid) {
-        book[lv.key] = { pid: lv.pid, district: lv.district, distLabel: lv.distLabel };
+        book[lv.key] = { pid: lv.pid, district: lv.district, distLabel: lv.distLabel, districtName: lv.districtName || null };
         return lv;
       }
       if (!mem || !mem.pid) return lv;
@@ -3137,6 +3282,7 @@
       if (!lv.statewide && lv.district == null && mem.district != null) {
         out.district = mem.district;
         out.distLabel = mem.distLabel;
+        if (mem.districtName) out.districtName = mem.districtName;
       }
       taken[mem.pid] = true;
       return out;
@@ -3616,6 +3762,11 @@
     // once; now each row carries its own answer.
     var level = function (key, seat, label, tierLabel, color, d, pid, mapped) {
       var n = num(d);
+      // A named-district state (Massachusetts) prints the seat's name; its key
+      // is never written as "District N".
+      var named = (seat === 'statesenate' || seat === 'statehouse') && !utah && n &&
+                  window.pdxLegDistrictsNamed(state);
+      var nm = named ? window.pdxLegDistrictName(state, seat, n) : '';
       return {
         key: key,
         seat: seat,
@@ -3624,8 +3775,9 @@
         color: color,
         statewide: false,
         mapped: !!mapped,
-        district: n || null,
-        distLabel: n ? (label + ' · District ' + n) : label,
+        district: (named && !nm) ? null : (n || null),
+        distLabel: named ? (nm ? label + ' · ' + nm : label) : (n ? (label + ' · District ' + n) : label),
+        districtName: nm || null,
         pid: pid || null,
         resolved: !!pid
       };

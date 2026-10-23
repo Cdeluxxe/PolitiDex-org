@@ -1337,8 +1337,18 @@
       var place = [loc.city, loc.state].filter(Boolean).join(', ');
       if (place) parts.push(place);
       if (loc.district) parts.push('U.S. House ' + loc.district);
-      if (loc.stateSenateDistrict) parts.push('State Sen. ' + loc.stateSenateDistrict);
-      if (loc.stateHouseDistrict) parts.push('State House ' + loc.stateHouseDistrict);
+      // A named-district state (Massachusetts) is written by the seat's name.
+      var named = false;
+      try { named = typeof window.pdxLegDistrictsNamed === 'function' && window.pdxLegDistrictsNamed(loc.state); } catch (e) {}
+      var legName = function (ch, v) { try { return window.pdxLegDistrictName(loc.state, ch, v) || ''; } catch (e) { return ''; } };
+      if (loc.stateSenateDistrict) {
+        if (!named) parts.push('State Sen. ' + loc.stateSenateDistrict);
+        else if (legName('statesenate', loc.stateSenateDistrict)) parts.push('State Sen. ' + legName('statesenate', loc.stateSenateDistrict));
+      }
+      if (loc.stateHouseDistrict) {
+        if (!named) parts.push('State House ' + loc.stateHouseDistrict);
+        else if (legName('statehouse', loc.stateHouseDistrict)) parts.push('State House ' + legName('statehouse', loc.stateHouseDistrict));
+      }
       return parts.join(' · ');
     }
 

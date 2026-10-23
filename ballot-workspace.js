@@ -1107,7 +1107,7 @@
       var one = '';
       try {
         var sf1 = (typeof window.pdxSeatField === 'function') ? window.pdxSeatField(seat.key) : null;
-        if (sf1 && sf1.answerable && sf1.district != null) one = 'District ' + sf1.district;
+        if (sf1 && sf1.answerable && sf1.district != null) one = sf1.districtName || ('District ' + sf1.district);
       } catch (e) {}
       return '<div class="bw-honest">' +
         '<p><b>No other person on file' + (one ? ' for ' + esc(one) : ' for this seat') +

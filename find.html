@@ -1232,9 +1232,11 @@
     // The same service publishes every state's legislative districts, and the
     // same state-scoped query loads one state's worth. Texas, California,
     // Florida, New York, Illinois, Pennsylvania, Ohio, Georgia, Michigan, North
-    // Carolina, Virginia, Washington and Arizona are drawn this way (Washington
-    // and Arizona elect both chambers from one set of legislative districts, so
-    // TIGERweb's two layers carry the same numbers there)
+    // Carolina, Virginia, Washington, Arizona, New Jersey, Massachusetts and
+    // Tennessee are drawn this way (Washington, Arizona and New Jersey elect
+    // both chambers from one set of legislative districts, so TIGERweb's two
+    // layers carry the same numbers there; Massachusetts names its districts
+    // rather than numbering them — see LEG_NAMED_STATES)
     // (California's and New York's lower chamber is the Assembly, TIGERweb's
     // SLDL; Illinois's lines include a "ZZZ" Lake Michigan polygon, which distOf
     // reads as no district); the list below is the whole of the widening, and it must agree with voter-hub-location.js's _PDX_LEG_MAPPED,
@@ -1258,7 +1260,19 @@
     var LEG_TIGER_STATES = { 'Texas': 1, 'California': 1, 'Florida': 1, 'New York': 1,
                              'Illinois': 1, 'Pennsylvania': 1, 'Ohio': 1,
                              'Georgia': 1, 'Michigan': 1, 'North Carolina': 1,
-                             'Virginia': 1, 'Washington': 1, 'Arizona': 1 };
+                             'Virginia': 1, 'Washington': 1, 'Arizona': 1,
+                             'New Jersey': 1, 'Massachusetts': 1, 'Tennessee': 1 };
+    // ══ A STATE WHOSE DISTRICTS HAVE NAMES ══════════════════════════════════
+    // Massachusetts calls its seats "First Essex and Middlesex" and "1st
+    // Barnstable", never "District 21". TIGERweb codes them D01–D40 (Senate) and
+    // 001–160 (House); the code's number is kept as the record's internal key,
+    // because every district field in this app is digits only, and the NAME is
+    // what the reader sees — on the chips, the tooltips, the banner and the
+    // confirm button. The name comes from voter-hub-location.js's table
+    // (pdxLegDistrictName), which is what the cards read too, so the finder and
+    // the cards cannot name one seat two ways; the layer's own NAME field is the
+    // fallback. A named seat is never printed as "District N".
+    var LEG_NAMED_STATES = { 'Massachusetts': 1 };
 
     // name : state FIPS : USPS. Packed because fifty-one object literals is a
     // screen of noise, and every consumer wants a lookup rather than a list.
@@ -1349,6 +1363,37 @@
     // own UGRC layers, or a state drawn from TIGERweb's legislative layers.
     function legScope(){ return utahScope() || !!LEG_TIGER_STATES[_scopeState]; }
     function tigerLegScope(){ return !utahScope() && !!LEG_TIGER_STATES[_scopeState]; }
+    function namedScope(){ return !!LEG_NAMED_STATES[_scopeState]; }
+    function namedSeat(t){ return t !== 'congress' && namedScope(); }
+    // The name of a legislative seat in a named-district state, or ''.
+    function districtName(t, d){
+      if (!namedSeat(t) || d == null) return '';
+      try {
+        if (typeof window.pdxLegDistrictName === 'function') {
+          var nm = window.pdxLegDistrictName(_scopeState, t === 'senate' ? 'statesenate' : 'statehouse', d);
+          if (nm) return nm;
+        }
+      } catch (e) {}
+      var geo = _geoCache[t];
+      if (geo && geo.features) {
+        for (var i = 0; i < geo.features.length; i++) {
+          var f = geo.features[i];
+          if (distOf(f) === d && f.properties && f.properties.NAME) return String(f.properties.NAME);
+        }
+      }
+      return '';
+    }
+    // "District 15" — or, for a named seat, its name. A named seat whose name
+    // cannot be found reads as set without inventing a number for it.
+    function distWord(t, d){
+      if (namedSeat(t)) return districtName(t, d) || 'District set';
+      return 'District ' + d;
+    }
+    // "State House 15" — or "State Senate · First Essex and Middlesex District".
+    function seatWord(t, d){
+      if (namedSeat(t)) return LABEL[t] + ' · ' + (districtName(t, d) || 'district set');
+      return LABEL[t] + ' ' + d;
+    }
 
     // THE FINDER'S GATE AND ITS NETWORK MANNERS LIVE IN voter-hub-location.js,
     // which owns the location record: PDXF.isOpen() is why a pick behind the
@@ -1510,8 +1555,11 @@
         return (cn === 0 || cn === 98) ? 1 : cn;
       }
       // TIGERweb's legislative layers write the district zero-padded ("007").
+      // Massachusetts writes its Senate codes "D01"–"D40"; the letter is set
+      // aside. "ZZZ" (water, or no district defined) is still no district.
       if (p.SLDU != null || p.SLDL != null) {
-        var ln = parseInt(p.SLDU != null ? p.SLDU : p.SLDL, 10);
+        var lm = /^[A-Z]?(\d+)$/.exec(String(p.SLDU != null ? p.SLDU : p.SLDL));
+        var ln = lm ? parseInt(lm[1], 10) : NaN;
         return (isNaN(ln) || ln <= 0) ? null : ln;
       }
       // House/Senate layers expose DIST; the congressional layer exposes DISTRICT.
@@ -1784,6 +1832,7 @@
         var ls = stateInfo(_scopeState), spec = TIGER_SLD[layerType];
         if (!ls || !spec) return null;
         return spec.url + '?where=STATE%3D%27' + ls.fips + '%27&outFields=' + spec.field +
+               (namedScope() ? ',NAME' : '') +
                '&returnGeometry=true&outSR=4326&maxAllowableOffset=0.003' +
                '&geometryPrecision=5&f=geojson';
       }
@@ -1869,7 +1918,9 @@
         onEachFeature: function(feature, path){
           var dist = distOf(feature);
           if (dist == null) return;
-          path.bindTooltip(LABEL[layerType] + ' District ' + dist, {
+          path.bindTooltip(namedSeat(layerType)
+              ? LABEL[layerType] + ' · ' + ((feature.properties && feature.properties.NAME) || districtName(layerType, dist) || 'district')
+              : LABEL[layerType] + ' District ' + dist, {
             sticky: true, direction: 'top', className: 'pdx-dist-tip', opacity: 1
           });
           path.on({
@@ -2191,7 +2242,7 @@
         var val = card.querySelector('.pdx-sel-val');
         if (_selected[t]) {
           card.classList.add('is-set');
-          val.textContent = 'District ' + _selected[t];
+          val.textContent = distWord(t, _selected[t]);
           val.classList.remove('is-empty');
         } else {
           card.classList.remove('is-set');
@@ -2212,7 +2263,7 @@
         // seat was already resolved to go and resolve it, and it never mentioned
         // the congressional seat at all.
         var miss = missingSeats();
-        hint.innerHTML = '✅ <strong style="color:#7ee7b8;">' + LABEL[justSet] + ' District ' + dist +
+        hint.innerHTML = '✅ <strong style="color:#7ee7b8;">' + LABEL[justSet] + ' ' + escapeHtml(distWord(justSet, dist)) +
           '</strong> selected — it’s now part of your location.' +
           (miss.length
             ? ' Still to set: <strong style="color:#cfe0f7;">' +
@@ -2251,7 +2302,7 @@
       var dist  = _selected[_activeLayer];
       if (label) label.textContent = LABEL[_activeLayer];
       if (val) {
-        if (dist != null) { val.textContent = 'District ' + dist; val.classList.remove('is-none'); }
+        if (dist != null) { val.textContent = distWord(_activeLayer, dist); val.classList.remove('is-none'); }
         else { val.textContent = 'No district here'; val.classList.add('is-none'); }
       }
       // "Also matched" names the OTHER TWO seats, because there are three.
@@ -2260,7 +2311,7 @@
         if (others.length) {
           altEl.style.display = 'block';
           altEl.innerHTML = 'Also matched ' + others.map(function(t){
-            return '<strong>' + LABEL[t] + ' District ' + _selected[t] +
+            return '<strong>' + LABEL[t] + ' ' + escapeHtml(distWord(t, _selected[t])) +
               '</strong> <button type="button" class="pdx-result-altbtn" onclick="window.pdxMapSetLayer(\'' + t + '\')">switch</button>';
           }).join(' · ');
         } else {
@@ -2320,7 +2371,7 @@
       if (dist) {
         panel.classList.add('is-set');
         if (ico) ico.textContent = '🏛️';
-        val.innerHTML = LABEL[_activeLayer] + ' <span class="pdx-info-dist">District ' + dist + '</span>';
+        val.innerHTML = LABEL[_activeLayer] + ' <span class="pdx-info-dist">' + escapeHtml(distWord(_activeLayer, dist)) + '</span>';
       } else {
         panel.classList.remove('is-set');
         if (ico) ico.textContent = '📍';
@@ -2384,7 +2435,7 @@
         // Singular in a one-seat state: "these districts" over a single number
         // reads like something is missing from the button.
         label = (set.length === 1 ? 'Use this district: ' : 'Use these districts: ') +
-          set.map(function(t){ return LABEL[t] + ' ' + _selected[t]; }).join(' · ');
+          set.map(function(t){ return seatWord(t, _selected[t]); }).join(' · ');
       } else {
         // NOT A COMMIT. An incomplete answer turns this button into the next
         // step, and it says so — "Next:" rather than "Use:" — because a button
@@ -3148,8 +3199,8 @@
           // Clear, explicit feedback naming every district detected for the point.
           var seats = [];
           if (_selected.congress != null) seats.push('U.S. House ' + _selected.congress);
-          if (s != null) seats.push('State Senate ' + s + (approxS ? '*' : ''));
-          if (h != null) seats.push('State House ' + h + (approxH ? '*' : ''));
+          if (s != null) seats.push(escapeHtml(seatWord('senate', s)) + (approxS ? '*' : ''));
+          if (h != null) seats.push(escapeHtml(seatWord('house', h)) + (approxH ? '*' : ''));
           var approx = approxH || approxS;
           // Two independent kinds of imprecision are surfaced separately:
           //  · approx  → the DISTRICT was a nearest-match (exact lookup unavailable)
@@ -3371,7 +3422,7 @@
           } finally { _detectCommit = false; }
           refreshResultBanner();
           setSearchNote('✅ Your phone’s location (within about ' + Math.round(acc) + ' m) sits inside one district of each: <strong>' +
-            SEATS.map(function(t){ return LABEL[t] + ' ' + fits[t].dist; }).join('</strong> · <strong>') +
+            SEATS.map(function(t){ return escapeHtml(seatWord(t, fits[t].dist)); }).join('</strong> · <strong>') +
             '</strong>.<br><span style="opacity:0.85;">A tap on your house or your address will replace it.</span>', 'is-ok');
           return true;
         });

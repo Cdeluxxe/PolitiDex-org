@@ -10590,7 +10590,23 @@
 //     find.html is precached and changed, so the shell moves one version.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v449';
+// v450 - NEW JERSEY, MASSACHUSETTS AND TENNESSEE STATE LEGISLATIVE LINES, AND
+//     NAMED DISTRICTS. /find's TIGERweb legislative list gains those three
+//     states, on the same 2024 layers (5 and 6), scoped to the one state by FIPS
+//     and loaded only after a geocode, tap or phone point has named it. Nothing
+//     is painted on open and no national layer is asked for. Massachusetts
+//     names its districts ("First Essex and Middlesex") rather than numbering
+//     them: the record keeps TIGERweb's sequence as an internal key, and
+//     voter-hub-location.js's name table (pdxLegDistrictName) turns it back into
+//     the name on the finder's chips and on every card; Massachusetts senators
+//     are matched by their record's district name. The name reaches every
+//     surface that prints a reader's legislative seat, so the precached
+//     find.html, seat-field.js, ballot-workspace.js, district-voice.js,
+//     me-desk.js and seated-member.js (its declared line ranges into
+//     ballot-breakdown.js) all changed; the shell moves one version for all.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v450';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

@@ -284,13 +284,22 @@
     var hn = distNum(hl && hl.district) || distNum(loc.district);
     out.push(distRow('U.S. House', hn ? ('District ' + hn) : '', DIST_NOMAP));
 
+    // A named-district state (Massachusetts) prints the seat's name; its key is
+    // never written as a number.
+    var legText = function (ch, n) {
+      if (!n) return '';
+      try {
+        if (typeof window.pdxLegDistrictText === 'function') return window.pdxLegDistrictText(state, ch, n);
+      } catch (e) {}
+      return 'District ' + n;
+    };
     var sl = levelFor(r, 'statesenate');
     var sn = distNum(sl && sl.district) || distNum(loc.stateSenateDistrict);
-    out.push(distRow('State Senate', sn ? ('District ' + sn) : '', DIST_NOMAP));
+    out.push(distRow('State Senate', legText('statesenate', sn), DIST_NOMAP));
 
     var ll = levelFor(r, 'statehouse');
     var ln = distNum(ll && ll.district) || distNum(loc.stateHouseDistrict);
-    out.push(distRow('State House', ln ? ('District ' + ln) : '', DIST_NOMAP));
+    out.push(distRow('State House', legText('statehouse', ln), DIST_NOMAP));
 
     // LOCAL IS A JURISDICTION, NOT A NUMBER. The municipality this location
     // names is the local ballot's scope — mayor, council, school board — and it

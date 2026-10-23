@@ -1267,7 +1267,9 @@
     var who = String(s.holder || '').trim();
     if (!s.board || !who) return plain;
     var label = String(s.label || '').trim();
-    var where = s.statewide ? label : (label && s.district ? label + ' District ' + s.district : '');
+    var where = s.statewide ? label
+      : (label && s.districtName ? label + ' \u00b7 ' + s.districtName
+      : (label && s.district ? label + ' District ' + s.district : ''));
     return where ? where + ' \u00b7 ' + who : plain;
   }
 
@@ -1318,9 +1320,13 @@
         district: n,
         county: county,
         statewide: !!lv.statewide,
+        districtName: lv.districtName || null,
+        // A named-district state (Massachusetts) names the seat, never a
+        // "District N" built from its internal key.
         name: lv.statewide
           ? String(lv.distLabel || label)
-          : (label + ' District ' + n + (county ? ' \u00b7 ' + county : '')),
+          : (lv.districtName ? label + ' \u00b7 ' + lv.districtName
+                             : (label + ' District ' + n)) + (county ? ' \u00b7 ' + county : ''),
         seatKey: seatKey,
         pid: pid,
         // A statewide card's door is its own key's row, or nothing. See

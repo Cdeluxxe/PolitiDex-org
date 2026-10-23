@@ -377,7 +377,9 @@
       var located = !lv.statewide && lv.district != null && String(lv.district) !== '';
       var headline = lv.statewide
         ? 'No record on file yet'
-        : (located ? 'District ' + esc(lv.district) + ' \u2014 no member on file yet'
+        // A named-district state (Massachusetts) says the seat's name, never a
+        // "District N" built from the record's internal key.
+        : (located ? (lv.districtName ? esc(lv.districtName) : 'District ' + esc(lv.district)) + ' \u2014 no member on file yet'
                    : 'Not resolved for your area yet');
       // A FOURTH DISTINCTION, AND IT IS ABOUT OUR MAP RATHER THAN THEIR ADDRESS.
       // lv.mapped says whether this seat's geography is one we draw for the
@@ -757,7 +759,7 @@
         : 'My U.S. House district could not be drawn from this record, so that seat is not on this card.');
     }
     if (legUnmapped) {
-      notes.push('PolitiDex draws state legislative lines in Utah, Texas, California, Florida, New York, Illinois, Pennsylvania, Ohio, Georgia, Michigan, North Carolina, Virginia, Washington and Arizona only, so ' +
+      notes.push('PolitiDex draws state legislative lines in Utah, Texas, California, Florida, New York, Illinois, Pennsylvania, Ohio, Georgia, Michigan, North Carolina, Virginia, Washington, Arizona, New Jersey, Massachusetts and Tennessee only, so ' +
         (st ? st + '’s' : 'my state’s') + ' legislative seats are not on this card.');
     }
     if (legUnpinned) {
@@ -1100,7 +1102,8 @@
     if (!blanks) return '';
     // A state whose legislative lines we DO draw (Texas, California, Florida,
     // New York, Illinois, Pennsylvania, Ohio, Georgia, Michigan, North
-    // Carolina, Virginia, Washington, Arizona) gets no sentence about
+    // Carolina, Virginia, Washington, Arizona, New Jersey, Massachusetts,
+    // Tennessee) gets no sentence about
     // lines we do not: its blank legislative rows already say, on the row,
     // whether the district is set and nobody is on file or the address is not
     // pinned yet. The note then only speaks for a blank U.S. House row.
@@ -1129,7 +1132,7 @@
         : '') +
       (legMapped ? '' :
       'Your <strong>State Senate and State House</strong> seats need state legislative district ' +
-      'lines, and PolitiDex only maps state legislative districts in Utah, Texas, California, Florida, New York, Illinois, Pennsylvania, Ohio, Georgia, Michigan, North Carolina, Virginia, Washington and Arizona so far. Those rows are ' +
+      'lines, and PolitiDex only maps state legislative districts in Utah, Texas, California, Florida, New York, Illinois, Pennsylvania, Ohio, Georgia, Michigan, North Carolina, Virginia, Washington, Arizona, New Jersey, Massachusetts and Tennessee so far. Those rows are ' +
       'left blank on purpose: we would rather show you nothing than show you someone else&rsquo;s ' +
       'district.') +
     '</p>';

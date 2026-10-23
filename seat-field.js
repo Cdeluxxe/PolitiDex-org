@@ -257,7 +257,17 @@
     // The scope line names what the reader is looking at: the state for a
     // statewide seat, the DISTRICT for a district seat. It used to read "your
     // districts" — plural, possessive, and true of no single seat on the page.
-    var scope = spec.statewide ? st : (st + ' · District ' + dist);
+    // A named-district state (Massachusetts) names the seat; its key is never
+    // printed as a number.
+    var dname = '';
+    if (!spec.statewide && (rk === 'statesenate' || rk === 'statehouse')) {
+      try {
+        if (typeof window.pdxLegDistrictsNamed === 'function' && window.pdxLegDistrictsNamed(st)) {
+          dname = window.pdxLegDistrictName(st, rk, dist) || '';
+        }
+      } catch (e) { dname = ''; }
+    }
+    var scope = spec.statewide ? st : (dname ? st + ' · ' + dname : (st + ' · District ' + dist));
 
     return {
       answerable: true,
@@ -265,6 +275,7 @@
       seat: rk,
       state: st,
       district: spec.statewide ? null : dist,
+      districtName: dname || null,
       statewide: !!spec.statewide,
       districtGap: !!(held && held.districtGap),
       located: true,
