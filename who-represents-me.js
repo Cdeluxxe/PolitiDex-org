@@ -757,7 +757,7 @@
         : 'My U.S. House district could not be drawn from this record, so that seat is not on this card.');
     }
     if (legUnmapped) {
-      notes.push('PolitiDex draws state legislative lines in Utah, Texas, California, Florida, New York, Illinois, Pennsylvania and Ohio only, so ' +
+      notes.push('PolitiDex draws state legislative lines in Utah, Texas, California, Florida, New York, Illinois, Pennsylvania, Ohio, Georgia, Michigan and North Carolina only, so ' +
         (st ? st + '’s' : 'my state’s') + ' legislative seats are not on this card.');
     }
     if (legUnpinned) {
@@ -1099,7 +1099,8 @@
     var blanks = reps.levels.filter(function (l) { return !l.statewide && !l.resolved; }).length;
     if (!blanks) return '';
     // A state whose legislative lines we DO draw (Texas, California, Florida,
-    // New York, Illinois, Pennsylvania, Ohio) gets no sentence about
+    // New York, Illinois, Pennsylvania, Ohio, Georgia, Michigan, North
+    // Carolina) gets no sentence about
     // lines we do not: its blank legislative rows already say, on the row,
     // whether the district is set and nobody is on file or the address is not
     // pinned yet. The note then only speaks for a blank U.S. House row.
@@ -1128,7 +1129,7 @@
         : '') +
       (legMapped ? '' :
       'Your <strong>State Senate and State House</strong> seats need state legislative district ' +
-      'lines, and PolitiDex only maps state legislative districts in Utah, Texas, California, Florida, New York, Illinois, Pennsylvania and Ohio so far. Those rows are ' +
+      'lines, and PolitiDex only maps state legislative districts in Utah, Texas, California, Florida, New York, Illinois, Pennsylvania, Ohio, Georgia, Michigan and North Carolina so far. Those rows are ' +
       'left blank on purpose: we would rather show you nothing than show you someone else&rsquo;s ' +
       'district.') +
     '</p>';

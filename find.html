@@ -1231,7 +1231,8 @@
     // ══ AND STATE LEGISLATIVE LINES, ONE MORE STATE AT A TIME ═════════════════
     // The same service publishes every state's legislative districts, and the
     // same state-scoped query loads one state's worth. Texas, California,
-    // Florida, New York, Illinois, Pennsylvania and Ohio are drawn this way
+    // Florida, New York, Illinois, Pennsylvania, Ohio, Georgia, Michigan and
+    // North Carolina are drawn this way
     // (California's and New York's lower chamber is the Assembly, TIGERweb's
     // SLDL; Illinois's lines include a "ZZZ" Lake Michigan polygon, which distOf
     // reads as no district); the list below is the whole of the widening, and it must agree with voter-hub-location.js's _PDX_LEG_MAPPED,
@@ -1240,7 +1241,9 @@
     // THE VINTAGE IS PINNED FOR THE SAME REASON AS LAYER 4. Layers 5 and 6 are
     // the 2024 State Legislative Districts — the lines the sitting Legislature
     // was elected on, which is what the roster's "SD 7" means. Layers 1 and 2 are
-    // the 2026 vintage, a map nobody sits in yet.
+    // the 2026 vintage, a map nobody sits in yet — Michigan's court-ordered
+    // Detroit-area Senate remap is one (Royal Oak is SD 8 on layer 5, SD 10 on
+    // layer 1).
     //
     // Fetched only after a geocode, a tap or a phone point has named one of those
     // states, and
@@ -1251,7 +1254,8 @@
       house:  { url: 'https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/Legislative/MapServer/6/query', field: 'SLDL' }
     };
     var LEG_TIGER_STATES = { 'Texas': 1, 'California': 1, 'Florida': 1, 'New York': 1,
-                             'Illinois': 1, 'Pennsylvania': 1, 'Ohio': 1 };
+                             'Illinois': 1, 'Pennsylvania': 1, 'Ohio': 1,
+                             'Georgia': 1, 'Michigan': 1, 'North Carolina': 1 };
 
     // name : state FIPS : USPS. Packed because fifty-one object literals is a
     // screen of noise, and every consumer wants a lookup rather than a list.
