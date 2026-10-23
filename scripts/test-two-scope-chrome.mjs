@@ -214,7 +214,7 @@ section("5 · every blank still says which fact is missing");
 // so the sentence that explains the blanks has to be about the STATE legislative
 // lines, which are still Utah's alone. A note that still called the U.S. House
 // unmappable would understate the band's own coverage to the reader who has it.
-has(CODE("who-represents-me.js"), "PolitiDex only maps state legislative districts in Utah so far",
+has(CODE("who-represents-me.js"), "PolitiDex only maps state legislative districts in Utah and Texas so far",
     "who-represents-me.js no longer explains why the state legislative rows are blank");
 has(CODE("who-represents-me.js"), "l.key === 'house' && !l.resolved",
     "the scope note no longer treats a blank U.S. House row as a seat it can offer a way out of");

@@ -312,7 +312,7 @@ section("4 · /find loads one state's congressional lines, after it has a state"
 
   // Outside Utah the seat set narrows, so no Utah FeatureServer is ever asked
   // for an out-of-state pin.
-  has(MAPC, "SEATS = utahScope() ? ALL_SEATS.slice() : ['congress'];",
+  has(MAPC, "SEATS = legScope() ? ALL_SEATS.slice() : ['congress'];",
     "map: the seat set does not narrow outside Utah, so an Ohio address fetches Utah's state house and\n" +
     "    state senate boundaries — 50 states' worth of files this pass exists not to fetch");
   has(MAPC, "function setScopeState(", "map: nothing sets the finder's state scope");

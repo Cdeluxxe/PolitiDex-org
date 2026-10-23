@@ -2708,6 +2708,90 @@
     return (pid && _pdxRosterKeeps(pid)) ? pid : null;
   };
 
+  // ── STATE LEGISLATIVE LINES OUTSIDE UTAH, ONE STATE AT A TIME ──────────────
+  // Utah's two chambers resolve through the curated tables above, and until
+  // this pass no other state's did, because no other state's lines were drawn.
+  // /find now loads Texas's State Senate and State House districts from
+  // TIGERweb, scoped to Texas by its FIPS, once a geocode has said Texas — the
+  // same pattern as the congressional layer. This table is the list of states
+  // whose legislative lines the finder can load. It is the ONE place that list
+  // lives: the resolver's `mapped` flag and the finder's seat set both follow
+  // it, so a state cannot be drawn without being resolved, or the reverse.
+  var _PDX_LEG_MAPPED = { texas: 1 };
+  window._pdxLegMapped = function (stateName) {
+    return !!_PDX_LEG_MAPPED[_pdxStateName(stateName)];
+  };
+
+  // The legislative district a record names in its own `district` field —
+  // "SD 7", "HD 95", "District 7", "7". A chamber prefix has to agree with the
+  // chamber being asked: an "SD 7" record says nothing about State House 7, and
+  // reading it there would seat a senator in the lower chamber.
+  function _pdxLegDistrictOfRosterDistrict(v, chamber) {
+    var s = String(v == null ? '' : v).trim();
+    if (!s) return '';
+    var m = s.match(/^(SD|HD)\s*-?\s*(\d{1,3})$/i);
+    if (m) {
+      var want = chamber === 'statesenate' ? 'SD' : 'HD';
+      return m[1].toUpperCase() === want ? String(parseInt(m[2], 10)) : '';
+    }
+    m = s.match(/^(?:district\s+)?(\d{1,3})$/i);
+    return m ? String(parseInt(m[1], 10)) : '';
+  }
+
+  // chamber → district → pid, for one state, memoised on roster size like the
+  // congressional index. Placement rules are that index's: a record is placed
+  // only in a district it NAMES, only by an office that reads as THIS chamber,
+  // only while in office, and two claimants on one seat place nobody.
+  var _pdxLegCache = {};
+  function _pdxLegIndex(st) {
+    var idx = { statesenate: {}, statehouse: {} };
+    var T = _pdxRosterTable();
+    if (!T) return idx;
+    for (var pid in T) {
+      if (!Object.prototype.hasOwnProperty.call(T, pid)) continue;
+      var rec = T[pid];
+      if (!rec || rec.candidate === true || _pdxStateName(rec.state) !== st) continue;
+      var ch = _pdxStateChamberOfOffice(rec.office);
+      if (!ch) continue;
+      var key = _pdxLegDistrictOfRosterState(rec.state) || _pdxLegDistrictOfRosterDistrict(rec.district, ch);
+      if (!key) continue;
+      if (!_pdxArchiveInOffice(rec)) continue;
+      if (_pdxSlugShared(pid)) continue;
+      var tbl = idx[ch];
+      if (Object.prototype.hasOwnProperty.call(tbl, key)) {
+        var held = tbl[key];
+        if (held && _pdxCanonPid(held) === _pdxCanonPid(pid)) {
+          if (_pdxCanonPid(pid) === pid) tbl[key] = pid;
+          continue;
+        }
+        tbl[key] = null;
+        continue;
+      }
+      tbl[key] = _pdxCanonPid(pid);
+    }
+    return idx;
+  }
+
+  // Who holds one state legislative seat outside Utah, or null. Only for a
+  // state in _PDX_LEG_MAPPED, and only from a roster record that names this
+  // chamber and this number — a seat nobody on file claims stays blank, and
+  // the row says so rather than borrowing a neighbour.
+  window._pdxStateLegSeat = function (stateName, chamber, district) {
+    var st = _pdxStateName(stateName);
+    if (!_PDX_LEG_MAPPED[st]) return null;
+    if (chamber !== 'statesenate' && chamber !== 'statehouse') return null;
+    var n = parseInt(String(district == null ? '' : district).replace(/[^0-9]/g, ''), 10);
+    if (isNaN(n) || n <= 0) return null;
+    var rn = _pdxRosterSize();
+    var hit = _pdxLegCache[st];
+    if (!hit || hit.n !== rn) {
+      hit = { n: rn, idx: _pdxLegIndex(st) };
+      if (rn) _pdxLegCache[st] = hit;
+    }
+    var pid = hit.idx[chamber][String(n)] || null;
+    return (pid && _pdxRosterKeeps(pid)) ? pid : null;
+  };
+
   // ── window.pdxSeatClaim(pid, seatKey, district) — DOES THIS RECORD CLAIM
   //    THIS SEAT? ────────────────────────────────────────────────────────────
   // A district card is keyed by CHAMBER + NUMBER, and a pid that belongs to a
@@ -3360,8 +3444,18 @@
     var ownCd = cdMapped ? _pdxCdKey(loc.district) : '';
     var hd = utah ? dist('house', 'house', _pdxResolvedDist(mem, 'house', loc.district))
                   : (ownCd ? (ownCd === 'AL' ? '1' : ownCd) : null);
-    var sd = utah ? dist('statesenate', 'senate', _pdxResolvedDist(mem, 'statesenate', loc.stateSenateDistrict || null)) : null;
-    var ld = utah ? dist('statehouse', 'lower', _pdxResolvedDist(mem, 'statehouse', loc.stateHouseDistrict || null)) : null;
+    // A state whose legislative lines the finder loads from TIGERweb (Texas):
+    // the reader's own pinned numbers are the answer, exactly as the U.S. House
+    // number is outside Utah, because there is no curated ballot to consult.
+    var legMapped = utah || (!national && window._pdxLegMapped(state));
+    var ownLeg = function (v) {
+      var n = String(v == null ? '' : v).replace(/[^0-9]/g, '');
+      return (n && n !== '0' && !/^0+$/.test(n)) ? String(parseInt(n, 10)) : null;
+    };
+    var sd = utah ? dist('statesenate', 'senate', _pdxResolvedDist(mem, 'statesenate', loc.stateSenateDistrict || null))
+                  : (legMapped ? ownLeg(loc.stateSenateDistrict) : null);
+    var ld = utah ? dist('statehouse', 'lower', _pdxResolvedDist(mem, 'statehouse', loc.stateHouseDistrict || null))
+                  : (legMapped ? ownLeg(loc.stateHouseDistrict) : null);
     // AND THE MEMBER FOR THAT NUMBER COMES FROM THE NUMBER, IN UTAH TOO.
     //
     // Utah used to take this pid from the curated ballot FIRST — inc('house',
@@ -3444,10 +3538,14 @@
           ? (window.pdxSeatedMemberFor(seatKey, n) || null) : null;
       } catch (e) { return null; }
     };
+    // Outside Utah the member comes from the district-keyed roster read and
+    // nothing else; a seat it holds nobody for stays blank.
     var sp = utah ? (inc('statesenate', 'state_senator', sd) || _pdxResolvedPid(mem, 'statesenate', sd)
-                     || seated('statesenate', sd)) : null;
+                     || seated('statesenate', sd))
+                  : (legMapped && sd ? window._pdxStateLegSeat(state, 'statesenate', sd) : null);
     var lp = utah ? (inc('statehouse', 'state_rep', ld) || _pdxResolvedPid(mem, 'statehouse', ld)
-                     || seated('statehouse', ld)) : null;
+                     || seated('statehouse', ld))
+                  : (legMapped && ld ? window._pdxStateLegSeat(state, 'statehouse', ld) : null);
     var redrawn = false;
 
     try {
@@ -3554,8 +3652,8 @@
       swLevel('ussenate2', 'senate', 'U.S. Senate', 'U.S. Senate', '#f0abfc', sw.senators[1]),
       level('house', 'house', 'U.S. House', 'U.S. House of Representatives', '#60a5fa', hd, hp, cdMapped),
       swLevel('governor', 'governor', 'Governor', 'Governor', '#fbbf24', sw.governor),
-      level('statesenate', 'statesenate', 'State Senate', 'State Senate', '#a78bfa', sd, sp, utah),
-      level('statehouse', 'statehouse', 'State House', 'State House', '#2dd4bf', ld, lp, utah)
+      level('statesenate', 'statesenate', 'State Senate', 'State Senate', '#a78bfa', sd, sp, legMapped),
+      level('statehouse', 'statehouse', 'State House', 'State House', '#2dd4bf', ld, lp, legMapped)
     ];
     if (located && !national) levels = _pdxStickLevels(levels, loc, state);
     // AND THE WALK IS REMEMBERED IN MEMORY — NOT WRITTEN TO THE STORE.
@@ -3601,6 +3699,11 @@
       // reads the old flag for the U.S. House row would blank a row this reader
       // can fill, which is the opposite of the honesty the flag exists for.
       congressMapped: cdMapped,
+      // Whether this reader's STATE LEGISLATIVE lines are drawable: Utah, and
+      // the states the finder loads from TIGERweb (Texas). Narrower than
+      // congressMapped and wider than districtsResolvable, which still means
+      // Utah's curated geometry and still gates the local-offices handoff.
+      legislativeMapped: legMapped,
       statewideAmbiguous: !!sw.ambiguous,
       levels: levels
     };

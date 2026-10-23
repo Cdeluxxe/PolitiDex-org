@@ -169,7 +169,9 @@ section("1 · a plain candidate (no cross-office candidacy) says Running");
   const plain = Object.keys(rows).filter((p) => roles[p] === "candidate" && running.indexOf(p) === -1);
   ok(plain.length >= 1, `Texas Senate has a candidate on file by record status alone (${plain.join(", ")})`);
   plain.forEach((p) => eq(rows[p][0], "Running", `Texas Senate: ${p} says Running`));
-  if (HEAD_WORK) {
+  // Only meaningful while the change is uncommitted: once it is HEAD, there is
+  // no "before" to compare against.
+  if (HEAD_WORK && HEAD_WORK !== R("ballot-workspace.js")) {
     const h0 = pickRows(deskOf(boot({ state: "Texas", city: "Fort Worth", county: "Tarrant County", district: "12" }, HEAD_WORK), "senate"));
     ok(plain.some((p) => (h0[p] || []).length === 0), "at least one of them had no tag before this change");
   }

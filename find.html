@@ -1228,6 +1228,27 @@
     // bridge in voter-hub-location.js), and UGRC is the authority for it.
     var TIGER_CD = 'https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/Legislative/MapServer/4/query';
 
+    // ══ AND STATE LEGISLATIVE LINES, ONE MORE STATE AT A TIME ═════════════════
+    // The same service publishes every state's legislative districts, and the
+    // same state-scoped query loads one state's worth. Texas is the second state
+    // whose two chambers this finder draws; the list below is the whole of the
+    // widening, and it must agree with voter-hub-location.js's _PDX_LEG_MAPPED,
+    // which is what lets the resolver name a member for the numbers drawn here.
+    //
+    // THE VINTAGE IS PINNED FOR THE SAME REASON AS LAYER 4. Layers 5 and 6 are
+    // the 2024 State Legislative Districts — the lines the sitting Legislature
+    // was elected on, which is what the roster's "SD 7" means. Layers 1 and 2 are
+    // the 2026 vintage, a map nobody sits in yet.
+    //
+    // Fetched only after a geocode, a tap or a phone point has said Texas, and
+    // never with a where clause that is not one state's FIPS: there is no
+    // national legislative layer, and nothing here may ever ask for one.
+    var TIGER_SLD = {
+      senate: { url: 'https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/Legislative/MapServer/5/query', field: 'SLDU' },
+      house:  { url: 'https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/Legislative/MapServer/6/query', field: 'SLDL' }
+    };
+    var LEG_TIGER_STATES = { 'Texas': 1 };
+
     // name : state FIPS : USPS. Packed because fifty-one object literals is a
     // screen of noise, and every consumer wants a lookup rather than a list.
     var US_STATES = {}, US_BY_ABBR = {};
@@ -1313,6 +1334,10 @@
     // the wrong state costs a round trip and never costs a wrong answer.
     var _scopeState = 'Utah';
     function utahScope(){ return _scopeState === 'Utah'; }
+    // Whether this scope has State House and State Senate lines at all: Utah's
+    // own UGRC layers, or a state drawn from TIGERweb's legislative layers.
+    function legScope(){ return utahScope() || !!LEG_TIGER_STATES[_scopeState]; }
+    function tigerLegScope(){ return !utahScope() && !!LEG_TIGER_STATES[_scopeState]; }
 
     // THE FINDER'S GATE AND ITS NETWORK MANNERS LIVE IN voter-hub-location.js,
     // which owns the location record: PDXF.isOpen() is why a pick behind the
@@ -1418,8 +1443,8 @@
       dropSeat('congress');
       dropSeat('house');
       dropSeat('senate');
-      SEATS = utahScope() ? ALL_SEATS.slice() : ['congress'];
-      if (!utahScope()) _activeLayer = 'congress';
+      SEATS = legScope() ? ALL_SEATS.slice() : ['congress'];
+      if (!legScope()) _activeLayer = 'congress';
       syncScopeChrome();
       return true;
     }
@@ -1427,7 +1452,7 @@
     // Utah they are hidden rather than disabled: a greyed-out control is a
     // promise that it will light up, and these never will.
     function syncScopeChrome(){
-      var u = utahScope();
+      var u = legScope();
       ['house', 'senate'].forEach(function(t){
         var btn = document.getElementById('pdx-layer-' + t);
         if (btn) btn.style.display = u ? '' : 'none';
@@ -1472,6 +1497,11 @@
         var cn = parseInt(p.CD119, 10);
         if (isNaN(cn)) return null;
         return (cn === 0 || cn === 98) ? 1 : cn;
+      }
+      // TIGERweb's legislative layers write the district zero-padded ("007").
+      if (p.SLDU != null || p.SLDL != null) {
+        var ln = parseInt(p.SLDU != null ? p.SLDU : p.SLDL, 10);
+        return (isNaN(ln) || ln <= 0) ? null : ln;
       }
       // House/Senate layers expose DIST; the congressional layer exposes DISTRICT.
       var d = p.DIST != null ? p.DIST
@@ -1544,6 +1574,28 @@
           var a = f && f.attributes;
           if (!a || a.CD119 == null) return null;
           return distOf({ properties: { CD119: a.CD119 } });
+        })
+        .catch(function(){ return null; });
+    }
+    // The same exact-or-empty question for a legislative chamber drawn from
+    // TIGERweb. Utah's chambers are answered by their own UGRC layers and never
+    // come here; a seam miss in Texas is asked of the unsimplified lines rather
+    // than guessed from the nearest centroid.
+    function sldAtPointRemote(layerType, lat, lng){
+      var st = stateInfo(_scopeState), spec = TIGER_SLD[layerType];
+      if (!st || !spec || !tigerLegScope()) return Promise.resolve(null);
+      var pt = encodeURIComponent(JSON.stringify({ x: lng, y: lat, spatialReference: { wkid: 4326 } }));
+      var url = spec.url + '?geometry=' + pt + '&geometryType=esriGeometryPoint&inSR=4326' +
+                '&spatialRel=esriSpatialRelIntersects&where=STATE%3D%27' + st.fips + '%27' +
+                '&outFields=' + spec.field + '&returnGeometry=false&f=json';
+      return PDXF.fetch(url, { cache: 'force-cache' })
+        .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function(j){
+          var f = j && j.features && j.features[0];
+          var a = f && f.attributes;
+          if (!a || a[spec.field] == null) return null;
+          var props = {}; props[spec.field] = a[spec.field];
+          return distOf({ properties: props });
         })
         .catch(function(){ return null; });
     }
@@ -1715,6 +1767,15 @@
     // has one per state, and Utah's is UGRC's rather than TIGER's for the vintage
     // reason written over TIGER_CD.
     function geoUrl(layerType){
+      // A legislative chamber in a TIGERweb-drawn state (Texas): one state's
+      // lines by FIPS, at the same simplification as the congressional layer.
+      if (layerType !== 'congress' && tigerLegScope()) {
+        var ls = stateInfo(_scopeState), spec = TIGER_SLD[layerType];
+        if (!ls || !spec) return null;
+        return spec.url + '?where=STATE%3D%27' + ls.fips + '%27&outFields=' + spec.field +
+               '&returnGeometry=true&outSR=4326&maxAllowableOffset=0.003' +
+               '&geometryPrecision=5&f=geojson';
+      }
       if (layerType !== 'congress' || utahScope()) return GEO_URLS[layerType];
       var st = stateInfo(_scopeState);
       if (!st) return null;
@@ -2059,10 +2120,14 @@
         try { window.pdxMapSetLayer(cs.next); } catch (e) {}
       };
       return Promise.all(reqs).then(function(){
-        var got = false, seam = false;
+        var got = false, seam = false, legSeam = [];
         SEATS.forEach(function(t){
           var d = districtAt(t, pt.lng, pt.lat);
-          if (d == null) { if (t === 'congress') seam = true; return; }
+          if (d == null) {
+            if (t === 'congress') seam = true;
+            else if (tigerLegScope()) legSeam.push(t);
+            return;
+          }
           if (_selected[t] === d) return;
           got = true;
           selectDistrict(t, d, pathForDist(t, d));
@@ -2070,13 +2135,20 @@
         // The drawn lines had no congressional district for this point. That is
         // either a seam or a point in another state; cdAtPointRemote answers the
         // first exactly and the second with nothing, and nothing is correct —
-        // scopeFromPoint is what handles the second.
-        if (!seam) { settle(); return got; }
-        return cdAtPointRemote(pt.lat, pt.lng).then(function(d){
-          if (d != null && _selected.congress !== d) {
-            got = true;
-            selectDistrict('congress', d, pathForDist('congress', d));
-          }
+        // scopeFromPoint is what handles the second. A TIGERweb legislative
+        // chamber (Texas) that missed is asked the same way, never guessed.
+        if (!seam && !legSeam.length) { settle(); return got; }
+        var asks = (seam ? ['congress'] : []).concat(legSeam);
+        return Promise.all(asks.map(function(t){
+          return t === 'congress' ? cdAtPointRemote(pt.lat, pt.lng) : sldAtPointRemote(t, pt.lat, pt.lng);
+        })).then(function(ds){
+          asks.forEach(function(t, i){
+            var d = ds[i];
+            if (d != null && _selected[t] !== d) {
+              got = true;
+              selectDistrict(t, d, pathForDist(t, d));
+            }
+          });
           settle();
           return got;
         });
@@ -2418,7 +2490,7 @@
       // congressional layer, and it is what every statewide seat (both U.S.
       // Senators, the Governor) is answered from on the way back.
       loc.state = _scopeState || 'Utah';
-      if (utahScope()) {
+      if (legScope()) {
         if (_selected.house)  loc.stateHouseDistrict  = String(_selected.house);
         if (_selected.senate) loc.stateSenateDistrict = String(_selected.senate);
       } else {
@@ -2903,7 +2975,7 @@
         // Then backfill anything the geocoder didn't carry from the Census point
         // lookup, unless it was already asked above.
         var need = (!hit.city || !hit.county || hit.congress == null ||
-                    (utahScope() && (hit.house == null || hit.senate == null)));
+                    (legScope() && (hit.house == null || hit.senate == null)));
         var enrich = (need && haveState) ? censusAtPoint(hit.lat, hit.lng) : Promise.resolve(null);
         // A congress-layer failure must not block House/Senate — and outside Utah
         // it is the only layer, where its failure has to become an honest empty
@@ -2956,6 +3028,22 @@
             if (s == null) { s = nearestDistrict('senate', hit.lng, hit.lat); approxS = s != null; }
           }
 
+          // TEXAS: the same point-in-polygon against TIGERweb's lines, and a seam
+          // miss is asked of the unsimplified service, never guessed. A chamber
+          // that answers nothing stays empty and the bar says it is missing.
+          var legFill = Promise.resolve();
+          if (tigerLegScope()) {
+            h = districtAt('house', hit.lng, hit.lat);
+            s = districtAt('senate', hit.lng, hit.lat);
+            hExact = h != null; sExact = s != null;
+            if (h == null || s == null) {
+              legFill = Promise.all([
+                h == null ? sldAtPointRemote('house', hit.lat, hit.lng) : Promise.resolve(h),
+                s == null ? sldAtPointRemote('senate', hit.lat, hit.lng) : Promise.resolve(s)
+              ]).then(function(r){ h = r[0]; s = r[1]; }, function(){});
+            }
+          }
+
           // U.S. House — resolved from the ACTUAL 2026 congressional boundary by
           // point-in-polygon. This is the trusted, map-based answer: it ignores county
           // lines and the stale Census "Current" map, so a Davis County address such as
@@ -2997,6 +3085,8 @@
           // either, the seat stays empty: there is deliberately no nearest-
           // centroid fallback for congress, because the nearest centroid across a
           // whole state is a coin toss between two sitting members.
+          legFill.then(function(){
+          if (stale(tok)) return;
           if (cd == null && !utahScope()) {
             showStatus('Locating your U.S. House district…', true);
             cdAtPointRemote(hit.lat, hit.lng).then(function(d){
@@ -3007,6 +3097,7 @@
           } else {
             paint(cd);
           }
+          });
 
           function paint(cdFinal){
           // NOTHING RESOLVED IS ITS OWN ANSWER, and it reads differently in each
@@ -3445,7 +3536,7 @@
       // published window function, and the keyboard can still reach a hidden
       // button in some browsers. Refusing here means there is exactly one answer
       // to "can a Utah legislative map be requested for an Ohio pin" — no.
-      if (!utahScope() && layerType !== 'congress') return;
+      if (!legScope() && layerType !== 'congress') return;
       _activeLayer = layerType;
       setLayerChrome(layerType);
       // PRESSING A TOGGLE IS A TAP: every caller here is a reader choosing a
@@ -3469,7 +3560,7 @@
       updateSelectionUI();
       var hint = document.getElementById('pdx-map-hint');
       if (hint) hint.innerHTML = 'Selection cleared — search your address or tap a district to set it again.';
-      setSearchNote(utahScope()
+      setSearchNote(legScope()
         ? 'Type an address to jump straight to your House &amp; Senate districts.'
         : 'Type an address to set your U.S. House district.');
       var input = document.getElementById('pdx-map-search-input');
@@ -3529,8 +3620,8 @@
         // Out of Utah scope these two are not seats with missing numbers — they
         // are not seats this finder has, so they are not seeded from a record
         // that may still carry a previous Utah save.
-        _selected.house  = (utahScope() && !isNaN(h)) ? h : null;
-        _selected.senate = (utahScope() && !isNaN(s)) ? s : null;
+        _selected.house  = (legScope() && !isNaN(h)) ? h : null;
+        _selected.senate = (legScope() && !isNaN(s)) ? s : null;
         // Seeded from the record so a reader who comes back to fix one seat is
         // not told the other two are missing. loc.district is only read inside
         // this mapSelected branch, so a county-derived congressional number from
@@ -3552,7 +3643,7 @@
       if (!_lastQuery) {
         setSearchNote(confirmState().any
           ? 'Search a new address, or tap the map to adjust your districts.'
-          : (utahScope()
+          : (legScope()
               ? 'Type an address to set your House, Senate and U.S. House districts at once.'
               : 'Type an address to set your U.S. House district.'));
       }

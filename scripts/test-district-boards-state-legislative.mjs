@@ -39,7 +39,7 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import {
-  FEDERAL_STATES, HAND_SEATS, STATE_LEG_REFUSAL, loadRoster, planBoards, planStateLegislative, renderAll, renderDoc,
+  FEDERAL_STATES, HAND_SEATS, STATE_LEG_REFUSAL, STATE_LEG_BOARD_REFUSAL, loadRoster, planBoards, planStateLegislative, renderAll, renderDoc,
 } from "./gen-district-boards.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -95,7 +95,7 @@ const LEG_ALIAS_RE = /^([a-z]{2})-(?:hd|sd)-\d+$/;
 // ═════════════════════════════════════════════════════════════════════════════
 section("1 · the plan asks every roster state legislator outside Utah, and opens none");
 // ═════════════════════════════════════════════════════════════════════════════
-eq(LEG.length, 0, "the resolver maps no state's legislative lines but Utah's, so no board opens outside Utah");
+eq(LEG.length, 0, "no state's legislative boards are opened outside Utah, so no board opens there");
 eq(Object.keys(V.BOARD_ROUTES).length, HAND_SEATS.length + PLAN.length,
   "BOARD_ROUTES length = the six hand rows + the generator's plan");
 {
@@ -107,7 +107,11 @@ eq(Object.keys(V.BOARD_ROUTES).length, HAND_SEATS.length + PLAN.length,
   must(want.length > 0, "the roster holds no state legislator outside Utah, so this suite tests nothing");
   const asked = new Set(LEG_SKIPPED.map((s) => s.pid));
   for (const p of want) ok(asked.has(p), `${p} (${ROSTER[p].office}, ${ROSTER[p].state}): the planner asked about this seat`);
-  ok(LEG_SKIPPED.every((s) => s.reason === STATE_LEG_REFUSAL), "every refusal is the resolver's: it does not map that state's lines");
+  // Texas's lines are mapped now, so its seats are refused by the board list
+  // rather than the resolver; every other state is still the resolver's refusal.
+  ok(LEG_SKIPPED.every((s) => s.reason === (/^tx-/.test(s.seat) ? STATE_LEG_BOARD_REFUSAL : STATE_LEG_REFUSAL)),
+    "every refusal is the board list's in Texas and the resolver's everywhere else");
+  ok(LEG_SKIPPED.some((s) => s.reason === STATE_LEG_BOARD_REFUSAL), "Texas's mapped seats are refused by the board list");
   ok(LEG_SKIPPED.every((s) => !/^ut-/.test(s.seat)), "no Utah seat is on the out-of-state plan");
 }
 {
@@ -158,7 +162,7 @@ function mutantPlan(seatPid, extraRows) {
     return r;
   };
   const boards = [], skipped = [];
-  planStateLegislative(win, boards, skipped, FEDERAL_STATES.filter((s) => s.code === "tx"));
+  planStateLegislative(win, boards, skipped, FEDERAL_STATES.filter((s) => s.code === "tx"), new Set(["tx"]));
   return { boards, skipped };
 }
 {
@@ -269,21 +273,24 @@ function voice(loc) {
 }
 const cards = (html) => String(html).split('<li class="pdxvr-seat"').slice(1);
 const visible = (h) => String(h).replace(/<[^>]+>/g, " ");
-// OUTSIDE UTAH THERE IS NO STATE LEGISLATIVE CARD TO OPEN. The resolver
-// publishes those two levels with no district (it does not map the lines), and
-// seatsForMe() drops a district row with no number rather than print a chamber
-// as a seat. So a Texas or Oregon reader's hallway holds the federal and
-// statewide cards only, and no state legislative door can appear on it.
-for (const [who, loc] of [
+// OUTSIDE UTAH AND TEXAS THERE IS NO STATE LEGISLATIVE CARD TO OPEN. The
+// resolver publishes those two levels with no district (it does not map the
+// lines), and seatsForMe() drops a district row with no number rather than
+// print a chamber as a seat. Texas's lines ARE mapped, so its reader gets the
+// two legislative cards — but no board was opened with that map, so neither
+// card has a door. Either way no state legislative door can appear.
+for (const [who, loc, legCards] of [
   // Texas SD-7 and Oregon SD-19 both have a sitting member on the roster.
-  ["Houston", { state: "Texas", city: "Houston", county: "Harris County", district: "7", stateSenateDistrict: "7", stateHouseDistrict: "134" }],
-  ["Lake Oswego", { state: "Oregon", city: "Lake Oswego", county: "Clackamas County", district: "5", stateSenateDistrict: "19", stateHouseDistrict: "38" }],
+  ["Houston", { state: "Texas", city: "Houston", county: "Harris County", district: "7", stateSenateDistrict: "7", stateHouseDistrict: "134" }, true],
+  ["Lake Oswego", { state: "Oregon", city: "Lake Oswego", county: "Clackamas County", district: "5", stateSenateDistrict: "19", stateHouseDistrict: "38" }, false],
 ]) {
   const { html, seats } = voice(loc);
   must(seats.length > 0, `${who}: the hallway resolved no seats`);
-  ok(!seats.some((x) => x.key === "statesenate" || x.key === "statehouse"),
-    `${who}: no state legislative card — the resolver does not map this state's lines`);
-  ok(!cards(html).some((c) => /State (?:Senate|House)/.test(c)), `${who}: no state legislative card painted`);
+  eq(seats.some((x) => x.key === "statesenate" || x.key === "statehouse"), legCards,
+    `${who}: state legislative cards appear exactly where the resolver maps the lines`);
+  eq(cards(html).some((c) => /State (?:Senate|House)/.test(c)), legCards, `${who}: state legislative cards painted only where mapped`);
+  ok(seats.filter((x) => x.key === "statesenate" || x.key === "statehouse").every((x) => !x.board),
+    `${who}: no state legislative card has a board`);
   // Open board appears only where a board exists: every door the hallway
   // prints is a BOARD_ROUTES row, and only the federal cards have one.
   const doors = [...html.matchAll(/href="(\/district\/[^"]+)"/g)].map((m) => m[1]);

@@ -10530,7 +10530,19 @@
 //     version.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v444';
+// v445 - TEXAS STATE LEGISLATIVE LINES. /find loads Texas's State Senate and
+//     State House districts from TIGERweb's 2024 legislative layers (5 and 6),
+//     scoped to Texas by its FIPS, only after a geocode, tap or phone point has
+//     said Texas - the same pattern as the congressional layer. Nothing is
+//     painted on open and no national layer is asked for. voter-hub-location.js
+//     names a sitting member for those two seats only from a roster record
+//     that claims that chamber and number; a seat nobody on file claims says
+//     so. who-represents-me.js stops telling a Texas reader their legislative
+//     lines are not drawn. find.html is precached and changed, so the shell
+//     moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v445';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
