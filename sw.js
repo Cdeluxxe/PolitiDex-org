@@ -10542,7 +10542,19 @@
 //     moves one version.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v445';
+// v446 - CALIFORNIA, FLORIDA AND NEW YORK STATE LEGISLATIVE LINES. /find's
+//     TIGERweb legislative list (v445, Texas) gains those three states: their
+//     State Senate and State House / Assembly districts load from the same 2024
+//     layers (5 and 6), scoped to the one state by FIPS, only after a geocode,
+//     tap or phone point has named it. Nothing is painted on open and no
+//     national layer is asked for. voter-hub-location.js names a sitting member
+//     only from an in-office roster record whose office names a STATE chamber
+//     and whose district field names that number; otherwise the seat reads
+//     "no member on file yet". find.html is precached and changed, so the
+//     shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v446';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

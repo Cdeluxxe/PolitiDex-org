@@ -2711,13 +2711,14 @@
   // ── STATE LEGISLATIVE LINES OUTSIDE UTAH, ONE STATE AT A TIME ──────────────
   // Utah's two chambers resolve through the curated tables above, and until
   // this pass no other state's did, because no other state's lines were drawn.
-  // /find now loads Texas's State Senate and State House districts from
-  // TIGERweb, scoped to Texas by its FIPS, once a geocode has said Texas — the
-  // same pattern as the congressional layer. This table is the list of states
+  // /find now loads the State Senate and State House (Assembly) districts of
+  // Texas, California, Florida and New York from TIGERweb, scoped to one state
+  // by its FIPS, once a geocode has named it — the same pattern as the
+  // congressional layer. This table is the list of states
   // whose legislative lines the finder can load. It is the ONE place that list
   // lives: the resolver's `mapped` flag and the finder's seat set both follow
   // it, so a state cannot be drawn without being resolved, or the reverse.
-  var _PDX_LEG_MAPPED = { texas: 1 };
+  var _PDX_LEG_MAPPED = { texas: 1, california: 1, florida: 1, 'new york': 1 };
   window._pdxLegMapped = function (stateName) {
     return !!_PDX_LEG_MAPPED[_pdxStateName(stateName)];
   };
@@ -2753,6 +2754,10 @@
       if (!rec || rec.candidate === true || _pdxStateName(rec.state) !== st) continue;
       var ch = _pdxStateChamberOfOffice(rec.office);
       if (!ch) continue;
+      // A U.S. House committee title ("House Foreign Affairs Committee Chair")
+      // classifies as a lower chamber by its words alone. Only an office that
+      // says it is a STATE chamber may hold a legislative seat here.
+      if (!/\bstate\b|\bassembly/i.test(String(rec.office || ''))) continue;
       var key = _pdxLegDistrictOfRosterState(rec.state) || _pdxLegDistrictOfRosterDistrict(rec.district, ch);
       if (!key) continue;
       if (!_pdxArchiveInOffice(rec)) continue;

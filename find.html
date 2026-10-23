@@ -1230,9 +1230,10 @@
 
     // ══ AND STATE LEGISLATIVE LINES, ONE MORE STATE AT A TIME ═════════════════
     // The same service publishes every state's legislative districts, and the
-    // same state-scoped query loads one state's worth. Texas is the second state
-    // whose two chambers this finder draws; the list below is the whole of the
-    // widening, and it must agree with voter-hub-location.js's _PDX_LEG_MAPPED,
+    // same state-scoped query loads one state's worth. Texas, California,
+    // Florida and New York are drawn this way (California's and New York's lower
+    // chamber is the Assembly, TIGERweb's SLDL); the list below is the whole of
+    // the widening, and it must agree with voter-hub-location.js's _PDX_LEG_MAPPED,
     // which is what lets the resolver name a member for the numbers drawn here.
     //
     // THE VINTAGE IS PINNED FOR THE SAME REASON AS LAYER 4. Layers 5 and 6 are
@@ -1240,14 +1241,15 @@
     // was elected on, which is what the roster's "SD 7" means. Layers 1 and 2 are
     // the 2026 vintage, a map nobody sits in yet.
     //
-    // Fetched only after a geocode, a tap or a phone point has said Texas, and
+    // Fetched only after a geocode, a tap or a phone point has named one of those
+    // states, and
     // never with a where clause that is not one state's FIPS: there is no
     // national legislative layer, and nothing here may ever ask for one.
     var TIGER_SLD = {
       senate: { url: 'https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/Legislative/MapServer/5/query', field: 'SLDU' },
       house:  { url: 'https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/Legislative/MapServer/6/query', field: 'SLDL' }
     };
-    var LEG_TIGER_STATES = { 'Texas': 1 };
+    var LEG_TIGER_STATES = { 'Texas': 1, 'California': 1, 'Florida': 1, 'New York': 1 };
 
     // name : state FIPS : USPS. Packed because fifty-one object literals is a
     // screen of noise, and every consumer wants a lookup rather than a list.
