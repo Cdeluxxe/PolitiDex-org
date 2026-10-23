@@ -2712,13 +2712,15 @@
   // Utah's two chambers resolve through the curated tables above, and until
   // this pass no other state's did, because no other state's lines were drawn.
   // /find now loads the State Senate and State House (Assembly) districts of
-  // Texas, California, Florida and New York from TIGERweb, scoped to one state
+  // Texas, California, Florida, New York, Illinois, Pennsylvania and Ohio from
+  // TIGERweb, scoped to one state
   // by its FIPS, once a geocode has named it — the same pattern as the
   // congressional layer. This table is the list of states
   // whose legislative lines the finder can load. It is the ONE place that list
   // lives: the resolver's `mapped` flag and the finder's seat set both follow
   // it, so a state cannot be drawn without being resolved, or the reverse.
-  var _PDX_LEG_MAPPED = { texas: 1, california: 1, florida: 1, 'new york': 1 };
+  var _PDX_LEG_MAPPED = { texas: 1, california: 1, florida: 1, 'new york': 1,
+                         illinois: 1, pennsylvania: 1, ohio: 1 };
   window._pdxLegMapped = function (stateName) {
     return !!_PDX_LEG_MAPPED[_pdxStateName(stateName)];
   };

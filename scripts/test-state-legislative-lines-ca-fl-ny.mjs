@@ -93,9 +93,9 @@ for (const p of PLACES) {
   lacks(all, "UtahSenateDistricts", `${p.state}: Utah's State Senate layer was fetched`);
 }
 {
-  has(MAP, "var LEG_TIGER_STATES = { 'Texas': 1, 'California': 1, 'Florida': 1, 'New York': 1 };",
+  has(MAP, "var LEG_TIGER_STATES = { 'Texas': 1, 'California': 1, 'Florida': 1, 'New York': 1,\n                             'Illinois': 1, 'Pennsylvania': 1, 'Ohio': 1 };",
     "source: the finder's TIGERweb legislative list is not exactly these four states");
-  has(R("voter-hub-location.js"), "var _PDX_LEG_MAPPED = { texas: 1, california: 1, florida: 1, 'new york': 1 };",
+  has(R("voter-hub-location.js"), "var _PDX_LEG_MAPPED = { texas: 1, california: 1, florida: 1, 'new york': 1,\n                         illinois: 1, pennsylvania: 1, ohio: 1 };",
     "source: the resolver's legislative list does not match the finder's");
 }
 
@@ -178,7 +178,7 @@ section("4 · Utah and Texas are identical to HEAD's");
     { state: "Texas", city: "Plano", county: "Collin County", district: "3", stateSenateDistrict: "8", stateHouseDistrict: "66", mapSelected: true },
     { state: "Texas", city: "Fort Worth", county: "Tarrant County", district: "12", stateSenateDistrict: "10", stateHouseDistrict: "95", mapSelected: true },
     { state: "Texas", city: "Houston", county: "Harris County", district: "7" },
-    { state: "Ohio", city: "Columbus", county: "Franklin County", district: "3", stateSenateDistrict: "15", stateHouseDistrict: "18" },
+    { state: "Missouri", city: "Kansas City", county: "Jackson County", district: "5", stateSenateDistrict: "9", stateHouseDistrict: "24" },
   ];
   must(headVhl, "no git baseline for voter-hub-location.js");
   const pick = (r) => JSON.stringify([r.legislativeMapped, r.districtsResolvable, r.levels.map((l) => [l.key, l.district, l.pid, l.mapped])]);
@@ -190,7 +190,7 @@ section("4 · Utah and Texas are identical to HEAD's");
   const W = boot(LOCS[3]);
   eq(levelOf(W, "statesenate").pid, "bettencourt_tx", "Texas SD 7 stopped naming its member");
   const O = boot(LOCS[7]);
-  eq(levelOf(O, "statehouse").mapped, false, "Ohio's legislative seats claim to be mapped");
+  eq(levelOf(O, "statehouse").mapped, false, "Missouri's legislative seats claim to be mapped");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

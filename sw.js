@@ -10554,7 +10554,19 @@
 //     shell moves one version.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v446';
+// v447 - ILLINOIS, PENNSYLVANIA AND OHIO STATE LEGISLATIVE LINES. /find's
+//     TIGERweb legislative list (v445 Texas; v446 California, Florida, New
+//     York) gains those three states, on the same 2024 layers (5 and 6), scoped
+//     to the one state by FIPS, loaded only after a geocode, tap or phone point
+//     has named it. Nothing is painted on open and no national layer is asked
+//     for. Illinois's "ZZZ" Lake Michigan polygon resolves to no district.
+//     voter-hub-location.js names a sitting member only from an in-office
+//     roster record that names that chamber and number; otherwise the seat
+//     reads "no member on file yet". find.html is precached and changed, so
+//     the shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v447';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

@@ -31,7 +31,7 @@
 //      them offers the record jump to /p/<pid>.
 //   4. Three payload shapes that used to break the match do not: a title-only
 //      office, an abbreviated state, and a fully flattened record.
-//   5. The scope did not widen. A Columbus reader still gets their statewide
+//   5. The scope did not widen. A Kansas City reader still gets their statewide
 //      seats and three BLANK district rows carrying the district-map copy, and
 //      no Utah district officeholder reaches them.
 //   6. No party sort, no score, no new verdict on any of it.
@@ -69,7 +69,9 @@ const FILES = [
 ];
 
 const LAYTON = { state: "Utah", city: "Layton", county: "Davis County" };
-const COLUMBUS = { state: "Ohio", city: "Columbus", county: "Franklin County" };
+// Ohio's legislative lines are drawn now (v447); the "three honest blanks" reader
+// is in Missouri, whose legislative lines are not.
+const KANSAS_CITY = { state: "Missouri", city: "Kansas City", county: "Jackson County" };
 const CANON = { senators: ["curtis", "lee"], governor: "cox" };
 const BLANK = "No record on file yet";
 const BLANK_WHY = "rather leave this blank than name the wrong person";
@@ -324,35 +326,35 @@ REWRITES.forEach((c) => {
 });
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("5 · The scope did not widen: Columbus keeps three honest blanks");
+section("5 · The scope did not widen: Kansas City keeps three honest blanks");
 
 {
-  const O = boot({ location: COLUMBUS });
+  const O = boot({ location: KANSAS_CITY });
   const reps = O.pdxRepsForMe();
-  eq(reps.districtsResolvable, false, "Ohio now claims curated district geometry");
+  eq(reps.districtsResolvable, false, "Missouri now claims curated district geometry");
   ["house", "statesenate", "statehouse"].forEach((key) => {
     eq(pidFor(O, key), null,
-      `the ${key} seat resolved an officeholder for an Ohio reader — district seats outside Utah have no map`);
+      `the ${key} seat resolved an officeholder for a Missouri reader — district seats outside Utah have no map`);
     const lv = levelsOf(O).filter((l) => l.key === key)[0] || {};
-    eq(lv.district, null, `the ${key} row carries a district number for an Ohio reader`);
+    eq(lv.district, null, `the ${key} row carries a district number for a Missouri reader`);
   });
   // Statewide coverage is national and stays national: this pass did not take
-  // Ohio's two Senate seats and its Governor away to fix Utah's.
-  ok(senatePids(O).length === 2, "an Ohio reader lost a U.S. Senate seat to this pass");
-  ok(!!pidFor(O, "governor"), "an Ohio reader lost their Governor to this pass");
-  // And no Utah pid leaks into an Ohio answer.
+  // Missouri's two Senate seats and its Governor away to fix Utah's.
+  ok(senatePids(O).length === 2, "a Missouri reader lost a U.S. Senate seat to this pass");
+  ok(!!pidFor(O, "governor"), "a Missouri reader lost their Governor to this pass");
+  // And no Utah pid leaks into a Missouri answer.
   const utahish = CANON.senators.concat(CANON.governor, ["maloy", "moore", "stevenson", "ward"]);
   levelsOf(O).forEach((lv) => {
     if (!lv.pid) return;
-    ok(utahish.indexOf(lv.pid) === -1, `an Ohio reader's ${lv.key} row names the Utah record ${lv.pid}`);
+    ok(utahish.indexOf(lv.pid) === -1, `a Missouri reader's ${lv.key} row names the Utah record ${lv.pid}`);
   });
 
   const text = strip(band(O));
   has(text, "Not resolved for your area yet",
-    "an Ohio reader's district rows do not say they are unresolved");
+    "a Missouri reader's district rows do not say they are unresolved");
   has(text, "rather leave this blank than guess at your seat",
-    "the district-blank copy changed — an Ohio reader's blank rows must still explain themselves");
-  has(text, "3 of 6 seats resolved", "the Ohio count no longer reports three of six");
+    "the district-blank copy changed — a Missouri reader's blank rows must still explain themselves");
+  has(text, "3 of 6 seats resolved", "the Missouri count no longer reports three of six");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -382,4 +384,4 @@ if (failures.length) {
   failures.forEach((f) => console.error("  · " + f));
   process.exit(1);
 }
-console.log(`\n✓ utah statewide named: ${passed} checks passed — Layton resolves Curtis, Lee and Cox, the archive agrees, the blank sentence is gone, and Columbus keeps its district blanks`);
+console.log(`\n✓ utah statewide named: ${passed} checks passed — Layton resolves Curtis, Lee and Cox, the archive agrees, the blank sentence is gone, and Kansas City keeps its district blanks`);

@@ -55,7 +55,8 @@
 // three composer lists, no poll, no residency check — and, like a federal
 // board, has no offline copy. A fourth condition sits on top of those three: the
 // state's code is in STATE_LEG_BOARD_STATES, which is empty. The resolver maps
-// the legislative lines of Utah, Texas, California, Florida and New York; no
+// the legislative lines of Utah, Texas, California, Florida, New York,
+// Illinois, Pennsylvania and Ohio; no
 // board was opened with those maps, so this plan opens ZERO boards outside Utah
 // and logs every roster seat it refused.
 //
@@ -359,7 +360,8 @@ function resolverLevel(win, name, chamber, n) {
 }
 export const STATE_LEG_REFUSAL = "the location resolver does not map this state's legislative lines";
 // MAPPING A STATE'S LINES IS NOT OPENING ITS BOARDS. Texas's legislative lines
-// (and California's, Florida's and New York's since)
+// (and California's, Florida's, New York's, Illinois's, Pennsylvania's and
+// Ohio's since)
 // are drawn by /find and resolved by pdxRepsForMe now, so the resolver gate
 // below would seat its members — but that pass was scoped to the map and the
 // seat card, with no new boards. Opening one is its own decision, made by

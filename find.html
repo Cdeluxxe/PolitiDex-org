@@ -1231,9 +1231,10 @@
     // ══ AND STATE LEGISLATIVE LINES, ONE MORE STATE AT A TIME ═════════════════
     // The same service publishes every state's legislative districts, and the
     // same state-scoped query loads one state's worth. Texas, California,
-    // Florida and New York are drawn this way (California's and New York's lower
-    // chamber is the Assembly, TIGERweb's SLDL); the list below is the whole of
-    // the widening, and it must agree with voter-hub-location.js's _PDX_LEG_MAPPED,
+    // Florida, New York, Illinois, Pennsylvania and Ohio are drawn this way
+    // (California's and New York's lower chamber is the Assembly, TIGERweb's
+    // SLDL; Illinois's lines include a "ZZZ" Lake Michigan polygon, which distOf
+    // reads as no district); the list below is the whole of the widening, and it must agree with voter-hub-location.js's _PDX_LEG_MAPPED,
     // which is what lets the resolver name a member for the numbers drawn here.
     //
     // THE VINTAGE IS PINNED FOR THE SAME REASON AS LAYER 4. Layers 5 and 6 are
@@ -1249,7 +1250,8 @@
       senate: { url: 'https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/Legislative/MapServer/5/query', field: 'SLDU' },
       house:  { url: 'https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/Legislative/MapServer/6/query', field: 'SLDL' }
     };
-    var LEG_TIGER_STATES = { 'Texas': 1, 'California': 1, 'Florida': 1, 'New York': 1 };
+    var LEG_TIGER_STATES = { 'Texas': 1, 'California': 1, 'Florida': 1, 'New York': 1,
+                             'Illinois': 1, 'Pennsylvania': 1, 'Ohio': 1 };
 
     // name : state FIPS : USPS. Packed because fifty-one object literals is a
     // screen of noise, and every consumer wants a lookup rather than a list.
