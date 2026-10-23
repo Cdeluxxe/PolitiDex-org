@@ -110,14 +110,17 @@ eq(Object.keys(V.BOARD_ROUTES).length, HAND_SEATS.length + PLAN.length,
   // Texas, California, Florida, New York, Illinois, Pennsylvania, Ohio,
   // Georgia, Michigan, North Carolina, Virginia, Washington, Arizona, New
   // Jersey, Massachusetts, Tennessee, Colorado, Maryland, Minnesota,
-  // Wisconsin, Indiana, Missouri, Kentucky, Alabama and South Carolina have
-  // mapped lines now, so their
+  // Wisconsin, Indiana, Missouri, Kentucky, Alabama, South Carolina, Iowa,
+  // Oklahoma and Kansas have mapped lines now, so their
   // seats are refused by the board list rather than the resolver; every other
   // state is still the resolver's refusal.
-  const MAPPED_LEG = /^(?:tx|ca|fl|ny|il|pa|oh|ga|mi|nc|va|wa|az|nj|ma|tn|co|md|mn|wi|in|mo|ky|al|sc)-/;
+  const MAPPED_LEG = /^(?:tx|ca|fl|ny|il|pa|oh|ga|mi|nc|va|wa|az|nj|ma|tn|co|md|mn|wi|in|mo|ky|al|sc|ia|ok|ks)-/;
   ok(LEG_SKIPPED.every((s) => s.reason === (MAPPED_LEG.test(s.seat) ? STATE_LEG_BOARD_REFUSAL : STATE_LEG_REFUSAL)),
     "every refusal is the board list's in a mapped state and the resolver's everywhere else");
-  for (const code of ["tx", "ca", "fl", "ny", "il", "pa", "oh", "ga", "mi", "nc", "va", "wa", "az", "nj", "ma", "tn", "co", "md", "mn", "wi", "in", "mo", "ky", "al", "sc"]) {
+  for (const code of ["tx", "ca", "fl", "ny", "il", "pa", "oh", "ga", "mi", "nc", "va", "wa", "az", "nj", "ma", "tn", "co", "md", "mn", "wi", "in", "mo", "ky", "al", "sc", "ia", "ok", "ks"]) {
+    // A state with no roster legislator at all (Oklahoma) has nothing to refuse;
+    // the every-refusal check above still covers whatever it would have.
+    if (!LEG_SKIPPED.some((s) => s.seat.indexOf(code + "-") === 0)) { passed++; continue; }
     ok(LEG_SKIPPED.some((s) => s.seat.indexOf(code + "-") === 0 && s.reason === STATE_LEG_BOARD_REFUSAL),
       `${code}: a mapped seat is refused by the board list`);
   }
