@@ -698,6 +698,20 @@
     }
     return { holders: holders, others: others };
   }
+  // Whether a pick-list row is running for THIS seat, by the same two reads the
+  // roster above uses to call someone a candidate: the cross-office candidacy
+  // table (pdxSeatField's candidacies) or the record's own candidate status.
+  // Nothing else makes a row "Running", and a row neither of them names gets no
+  // tag at all.
+  function runsHere(rk, c) {
+    if (!c || !c.pid) return false;
+    if (c.candidacy) return true;
+    try {
+      var sf = fn('pdxSeatField') ? window.pdxSeatField(rk) : null;
+      if (sf && sf.candidacies && sf.candidacies.indexOf(c.pid) !== -1) return true;
+    } catch (e) {}
+    return statusOf(c.pid) === 'current_candidate';
+  }
   function personLink(pid) {
     return candOpen(pid, ' aria-label="Open ' + esc(nameOf(pid)) + '\u2019s full record"') +
       esc(nameOf(pid)) + candClose(pid);
@@ -1014,22 +1028,18 @@
                   : 'No formal record on your issues yet'
         ) + '</span>'
       : '';
-    // THREE DIFFERENT FACTS, THREE DIFFERENT WORDS. A field is a mix of the
-    // person sitting in the seat, people running for it, and people who once
-    // held an office and are on file for reference — and printing them as one
-    // undifferentiated list invites the reader to assume the whole list is on
-    // the ballot. "Holds this seat" is the resolver's answer for THIS seat
-    // (pdxSeatHolders, never a scan of the row's own office text); "In office"
-    // is someone whose record says they hold an office that is not this one;
-    // "Running" is a filing; "Former" is neither of those and must never be
-    // read as either. The status vocabulary is the app's one status vocabulary
-    // (window._pdxOfficeStatus), travelling on the row.
+    // TWO FACTS, TWO WORDS, AND SILENCE FOR EVERYONE ELSE. A field is a mix of
+    // the person sitting in the seat, people running for it, and people on file
+    // for reference — and printing them as one undifferentiated list invites the
+    // reader to assume the whole list is on the ballot. "Holds this seat" is the
+    // resolver's answer for THIS seat (pdxSeatHolders, never a scan of the row's
+    // own office text); "Running" is runsHere(), the same read the roster above
+    // uses. The field rows carry no status of their own, so a third branch
+    // keyed on one used to leave every plain candidate untagged; a row that is
+    // neither gets no tag rather than a guessed one.
     var tags = '';
     if (c.incumbent) tags += '<span class="bw-tag is-inc">Holds this seat</span>';
-    else if (c.candidacy) tags += '<span class="bw-tag is-cand">Running</span>';
-    else if (c.status === 'former') tags += '<span class="bw-tag is-former">Former · not in office</span>';
-    else if (c.status === 'office') tags += '<span class="bw-tag is-inc">In office</span>';
-    else if (c.status === 'candidate') tags += '<span class="bw-tag is-cand">Running</span>';
+    else if (runsHere(rk, c)) tags += '<span class="bw-tag is-cand">Running</span>';
     if (mine) tags += '<span class="bw-tag is-mine">⭐ Your pick</span>';
 
     var lbl = mine ? '✓ Your pick' : (picked ? 'Replace my pick' : '➕ Add to ballot');
