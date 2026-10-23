@@ -377,7 +377,9 @@
       var located = !lv.statewide && lv.district != null && String(lv.district) !== '';
       var headline = lv.statewide
         ? 'No record on file yet'
-        : (located ? 'District ' + esc(lv.district) + ' \u2014 no member on file yet'
+        // A named-district state (Massachusetts) says the seat's name, never a
+        // "District N" built from the record's internal key.
+        : (located ? (lv.districtName ? esc(lv.districtName) : 'District ' + esc(lv.district)) + ' \u2014 no member on file yet'
                    : 'Not resolved for your area yet');
       // A FOURTH DISTINCTION, AND IT IS ABOUT OUR MAP RATHER THAN THEIR ADDRESS.
       // lv.mapped says whether this seat's geography is one we draw for the
@@ -757,7 +759,7 @@
         : 'My U.S. House district could not be drawn from this record, so that seat is not on this card.');
     }
     if (legUnmapped) {
-      notes.push('PolitiDex draws state legislative lines in Utah only, so ' +
+      notes.push('PolitiDex draws state legislative lines in Utah, Texas, California, Florida, New York, Illinois, Pennsylvania, Ohio, Georgia, Michigan, North Carolina, Virginia, Washington, Arizona, New Jersey, Massachusetts, Tennessee, Colorado, Maryland, Minnesota, Wisconsin, Indiana, Missouri, Kentucky, Alabama, South Carolina, Iowa, Oklahoma, Kansas, Nevada, Nebraska and Arkansas only, so ' +
         (st ? st + '’s' : 'my state’s') + ' legislative seats are not on this card.');
     }
     if (legUnpinned) {
@@ -1098,11 +1100,22 @@
     if (reps.districtsResolvable) return '';
     var blanks = reps.levels.filter(function (l) { return !l.statewide && !l.resolved; }).length;
     if (!blanks) return '';
+    // A state whose legislative lines we DO draw (Texas, California, Florida,
+    // New York, Illinois, Pennsylvania, Ohio, Georgia, Michigan, North
+    // Carolina, Virginia, Washington, Arizona, New Jersey, Massachusetts,
+    // Tennessee, Colorado, Maryland, Minnesota, Wisconsin, Indiana, Missouri,
+    // Kentucky, Alabama, South Carolina, Iowa, Oklahoma, Kansas, Nevada,
+    // Nebraska, Arkansas) gets no sentence about
+    // lines we do not: its blank legislative rows already say, on the row,
+    // whether the district is set and nobody is on file or the address is not
+    // pinned yet. The note then only speaks for a blank U.S. House row.
+    var legMapped = !!reps.legislativeMapped;
     var st = reps.state ? esc(reps.state) : 'your state';
     var swFilled = reps.levels.filter(function (l) { return l.statewide && l.resolved; }).length;
     // The U.S. House row is the one district seat this note can now offer a way
     // out of, so it is only addressed while it is actually blank.
     var houseBlank = reps.levels.some(function (l) { return l.key === 'house' && !l.resolved; });
+    if (legMapped && !houseBlank) return '';
     return '<p class="wrm-scopenote">' +
       (swFilled
         ? 'Your <strong>statewide seats</strong> are resolved &mdash; those are elected by all of ' + st +
@@ -1119,10 +1132,11 @@
         ? 'Your <strong>U.S. House</strong> seat is resolved from district lines, and we have them '
           + 'for ' + st + ' &mdash; set your address in the district finder and that row fills in. '
         : '') +
+      (legMapped ? '' :
       'Your <strong>State Senate and State House</strong> seats need state legislative district ' +
-      'lines, and PolitiDex only maps state legislative districts in Utah so far. Those rows are ' +
+      'lines, and PolitiDex only maps state legislative districts in Utah, Texas, California, Florida, New York, Illinois, Pennsylvania, Ohio, Georgia, Michigan, North Carolina, Virginia, Washington, Arizona, New Jersey, Massachusetts, Tennessee, Colorado, Maryland, Minnesota, Wisconsin, Indiana, Missouri, Kentucky, Alabama, South Carolina, Iowa, Oklahoma, Kansas, Nevada, Nebraska and Arkansas so far. Those rows are ' +
       'left blank on purpose: we would rather show you nothing than show you someone else&rsquo;s ' +
-      'district.' +
+      'district.') +
     '</p>';
   }
 

@@ -613,9 +613,11 @@ section("7 · Honest holes: the lines may move, and one name is not 'unopposed'"
   });
   if (!single.length) passed++;
 
-  // Running, holding and having run are three different facts.
+  // Running and holding are two different facts; a row that is neither gets no
+  // tag (scripts/test-ballot-pick-running-tag.mjs paints all three cases).
   has(WORK, "Holds this seat", "the desk no longer distinguishes the holder");
-  has(WORK, "Former", "the desk no longer distinguishes a former officeholder from a candidate");
+  has(WORK, ">Running<", "the desk no longer distinguishes a candidate from the holder");
+  lacks(WORK, "Former · not in office", "the desk tags a row that is neither holding nor running");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

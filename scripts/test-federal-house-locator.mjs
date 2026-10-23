@@ -135,6 +135,11 @@ const levelOf = (w, key) => (w.pdxRepsForMe().levels || []).filter((lv) => lv.ke
 
 const COLUMBUS   = { state: "Ohio", city: "Columbus", county: "Franklin County", district: "3" };
 const COLUMBUS_0 = { state: "Ohio", city: "Columbus", county: "Franklin County" };
+// Ohio's legislative lines are drawn now (v447), so the "a state whose legislative
+// lines we do not draw" half of this file is asked of Oregon, which is not
+// (Missouri until v452, Kentucky until v453, Iowa until v454, Nevada until v455).
+const KC   = { state: "Oregon", city: "Portland", county: "Multnomah County", district: "3" };
+const KC_0 = { state: "Oregon", city: "Portland", county: "Multnomah County" };
 const LAYTON     = { state: "Utah", city: "Layton", county: "Davis County", district: "2" };
 
 const W = boot(COLUMBUS);
@@ -207,8 +212,10 @@ section("2 · the congressional map widened and the legislative one did not");
   eq(String(house.district), "3", "flags: the U.S. House level lost the district it resolved from");
   eq(house.mapped, true, "flags: the U.S. House level is not marked as mapped, so its blank state reads as our gap");
 
+  const M = boot(KC);
+  eq(M.pdxRepsForMe().districtsResolvable, false, "flags: districtsResolvable went true in Oregon");
   for (const key of ["statesenate", "statehouse"]) {
-    const lv = levelOf(W, key);
+    const lv = levelOf(M, key);
     must(lv, `the ${key} level is gone from the resolver`);
     eq(lv.pid, null, `flags: the ${key} seat resolved a person outside Utah, where we draw no lines for it`);
     eq(lv.district, null, `flags: the ${key} seat carries a district outside Utah`);
@@ -245,25 +252,26 @@ section("3 · a mapped blank and an unmapped blank do not read the same");
   eq(nh.mapped, true, "band: the unplaced U.S. House seat is not marked mapped, so it cannot offer a way forward");
 
   const out = band(N);
+  const outM = band(boot(KC_0));
   has(out, "Not resolved for your area yet",
     "band: an unplaced district seat stopped saying so — there is no district number to print, and\n" +
     "    nothing may imply there is one");
   has(out, "set your address in the district finder",
     "band: a seat we CAN map but have not placed no longer points at the thing that would place it,\n" +
     "    so our own coverage reads as our own gap");
-  has(out, "State Senate and State House",
+  has(outM, "State Senate and State House",
     "band: the scope note no longer names the two seats that actually need lines we do not draw");
-  lacks(out, "U.S. House, State Senate and State House",
+  lacks(outM, "U.S. House, State Senate and State House",
     "band: the scope note still groups the U.S. House with the unmapped seats, which understates the\n" +
     "    coverage this pass added");
-  has(out, "someone else",
+  has(outM, "someone else",
     "band: the scope note dropped the promise that the remaining blanks are deliberate");
 
   // Ohio WITH a district: the row resolves, and the note stops offering the
   // finder for a seat that is already answered.
   const filled = band(boot(COLUMBUS));
   has(filled, "Joyce Beatty", "band: a resolved out-of-state U.S. House member is not painted");
-  lacks(filled, "set your address in the district finder",
+  lacks(band(boot(KC)), "set your address in the district finder",
     "band: the finder prompt is printed for a reader whose U.S. House seat is already resolved");
 
   // A district we located with nobody on file keeps its own third sentence:
@@ -312,7 +320,7 @@ section("4 · /find loads one state's congressional lines, after it has a state"
 
   // Outside Utah the seat set narrows, so no Utah FeatureServer is ever asked
   // for an out-of-state pin.
-  has(MAPC, "SEATS = utahScope() ? ALL_SEATS.slice() : ['congress'];",
+  has(MAPC, "SEATS = legScope()\n        ? (LEG_UNICAMERAL[_scopeState] ? ['senate', 'congress'] : ALL_SEATS.slice())\n        : ['congress'];",
     "map: the seat set does not narrow outside Utah, so an Ohio address fetches Utah's state house and\n" +
     "    state senate boundaries — 50 states' worth of files this pass exists not to fetch");
   has(MAPC, "function setScopeState(", "map: nothing sets the finder's state scope");

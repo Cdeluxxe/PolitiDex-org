@@ -53,8 +53,15 @@
 // that very member on that very number, and nothing about the seat's geometry
 // is supplied here. Such a board is READ-ONLY — composer: false, on none of the
 // three composer lists, no poll, no residency check — and, like a federal
-// board, has no offline copy. TODAY THE RESOLVER MAPS LEGISLATIVE LINES IN UTAH
-// ONLY, so this plan opens ZERO boards and logs every roster seat it refused.
+// board, has no offline copy. A fourth condition sits on top of those three: the
+// state's code is in STATE_LEG_BOARD_STATES, which is empty. The resolver maps
+// the legislative lines of Utah, Texas, California, Florida, New York,
+// Illinois, Pennsylvania, Ohio, Georgia, Michigan, North Carolina, Virginia,
+// Washington, Arizona, New Jersey, Massachusetts, Tennessee, Colorado,
+// Maryland, Minnesota, Wisconsin, Indiana, Missouri, Kentucky, Alabama and
+// South Carolina, Iowa, Oklahoma, Kansas, Nevada, Nebraska and Arkansas; no
+// board was opened with those maps, so this plan opens ZERO boards outside Utah
+// and logs every roster seat it refused.
 //
 // THE SIX HAND-OPENED DOCUMENTS ARE NEVER WRITTEN. Their rows stay above each
 // generated block, byte for byte; the suite pins their bytes.
@@ -355,7 +362,21 @@ function resolverLevel(win, name, chamber, n) {
   }
 }
 export const STATE_LEG_REFUSAL = "the location resolver does not map this state's legislative lines";
-export function planStateLegislative(win, boards, skipped, states = FEDERAL_STATES) {
+// MAPPING A STATE'S LINES IS NOT OPENING ITS BOARDS. Texas's legislative lines
+// (and California's, Florida's, New York's, Illinois's, Pennsylvania's,
+// Ohio's, Georgia's, Michigan's, North Carolina's, Virginia's, Washington's,
+// Arizona's, New Jersey's, Massachusetts's, Tennessee's, Colorado's,
+// Maryland's, Minnesota's, Wisconsin's, Indiana's, Missouri's, Kentucky's,
+// Alabama's, South Carolina's, Iowa's, Oklahoma's, Kansas's, Nevada's,
+// Nebraska's and Arkansas's since)
+// are drawn by /find and resolved by pdxRepsForMe now, so the resolver gate
+// below would seat its members — but that pass was scoped to the map and the
+// seat card, with no new boards. Opening one is its own decision, made by
+// adding the state's code here; until then a mapped seat is refused with this
+// reason rather than the resolver's.
+export const STATE_LEG_BOARD_STATES = new Set();
+export const STATE_LEG_BOARD_REFUSAL = "state legislative boards are not opened in this state";
+export function planStateLegislative(win, boards, skipped, states = FEDERAL_STATES, boardStates = STATE_LEG_BOARD_STATES) {
   const RO = win.CMP_DATA;
   for (const { code, name } of states) {
     const opened = new Map();
@@ -366,6 +387,7 @@ export function planStateLegislative(win, boards, skipped, states = FEDERAL_STAT
       const base = { seat, alias, pid: c.pid, stateLeg: true };
       const lvl = resolverLevel(win, name, c.chamber, c.district);
       if (!lvl || !lvl.mapped) { skipped.push({ ...base, reason: STATE_LEG_REFUSAL }); continue; }
+      if (!boardStates.has(code)) { skipped.push({ ...base, reason: STATE_LEG_BOARD_REFUSAL }); continue; }
       if (!c.district) { skipped.push({ ...base, reason: "roster record names no district number" }); continue; }
       if (String(lvl.district || "") !== String(c.district) || lvl.pid !== c.pid) {
         skipped.push({ ...base, reason: `the location resolver does not seat this member on this number (${lvl.pid || "nobody"})` });

@@ -10520,7 +10520,153 @@
 //     shell moves one version.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v443';
+// v444 - EVERY CANDIDATE ROW ON THE BALLOT DESK SAYS RUNNING. The desk's
+//     pick list tagged a row "Running" only from the cross-office candidacy
+//     flag, so a plain candidate showed no tag under a roster that called them a
+//     candidate. ballot-workspace.js now reads the same two signals the roster
+//     does (the candidacy table and the record's candidate status); sitting
+//     members still say "Holds this seat" and anyone else gets no tag.
+//     ballot-workspace.js is precached and changed, so the shell moves one
+//     version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v445 - TEXAS STATE LEGISLATIVE LINES. /find loads Texas's State Senate and
+//     State House districts from TIGERweb's 2024 legislative layers (5 and 6),
+//     scoped to Texas by its FIPS, only after a geocode, tap or phone point has
+//     said Texas - the same pattern as the congressional layer. Nothing is
+//     painted on open and no national layer is asked for. voter-hub-location.js
+//     names a sitting member for those two seats only from a roster record
+//     that claims that chamber and number; a seat nobody on file claims says
+//     so. who-represents-me.js stops telling a Texas reader their legislative
+//     lines are not drawn. find.html is precached and changed, so the shell
+//     moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v446 - CALIFORNIA, FLORIDA AND NEW YORK STATE LEGISLATIVE LINES. /find's
+//     TIGERweb legislative list (v445, Texas) gains those three states: their
+//     State Senate and State House / Assembly districts load from the same 2024
+//     layers (5 and 6), scoped to the one state by FIPS, only after a geocode,
+//     tap or phone point has named it. Nothing is painted on open and no
+//     national layer is asked for. voter-hub-location.js names a sitting member
+//     only from an in-office roster record whose office names a STATE chamber
+//     and whose district field names that number; otherwise the seat reads
+//     "no member on file yet". find.html is precached and changed, so the
+//     shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v447 - ILLINOIS, PENNSYLVANIA AND OHIO STATE LEGISLATIVE LINES. /find's
+//     TIGERweb legislative list (v445 Texas; v446 California, Florida, New
+//     York) gains those three states, on the same 2024 layers (5 and 6), scoped
+//     to the one state by FIPS, loaded only after a geocode, tap or phone point
+//     has named it. Nothing is painted on open and no national layer is asked
+//     for. Illinois's "ZZZ" Lake Michigan polygon resolves to no district.
+//     voter-hub-location.js names a sitting member only from an in-office
+//     roster record that names that chamber and number; otherwise the seat
+//     reads "no member on file yet". find.html is precached and changed, so
+//     the shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v448 - GEORGIA, MICHIGAN AND NORTH CAROLINA STATE LEGISLATIVE LINES. /find's
+//     TIGERweb legislative list gains those three states, on the same 2024
+//     layers (5 and 6) - the map the sitting legislators were elected on, which
+//     in Michigan is not the court-ordered 2026 Senate remap - scoped to the one
+//     state by FIPS and loaded only after a geocode, tap or phone point has
+//     named it. Nothing is painted on open and no national layer is asked for.
+//     voter-hub-location.js names a sitting member only from an in-office
+//     roster record that names that chamber and number; otherwise the seat
+//     reads "no member on file yet". find.html is precached and changed, so
+//     the shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v449 - VIRGINIA, WASHINGTON AND ARIZONA STATE LEGISLATIVE LINES. /find's
+//     TIGERweb legislative list gains those three states, on the same 2024
+//     layers (5 and 6), scoped to the one state by FIPS and loaded only after a
+//     geocode, tap or phone point has named it. Washington and Arizona elect
+//     both chambers from one set of legislative districts, so both layers carry
+//     the same numbers there. Nothing is painted on open and no national layer
+//     is asked for. voter-hub-location.js reads a roster record's "LD N"
+//     district as a number for the chamber its office names, and still names a
+//     sitting member only from an in-office record for that chamber and number.
+//     find.html is precached and changed, so the shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v450 - NEW JERSEY, MASSACHUSETTS AND TENNESSEE STATE LEGISLATIVE LINES, AND
+//     NAMED DISTRICTS. /find's TIGERweb legislative list gains those three
+//     states, on the same 2024 layers (5 and 6), scoped to the one state by FIPS
+//     and loaded only after a geocode, tap or phone point has named it. Nothing
+//     is painted on open and no national layer is asked for. Massachusetts
+//     names its districts ("First Essex and Middlesex") rather than numbering
+//     them: the record keeps TIGERweb's sequence as an internal key, and
+//     voter-hub-location.js's name table (pdxLegDistrictName) turns it back into
+//     the name on the finder's chips and on every card; Massachusetts senators
+//     are matched by their record's district name. The name reaches every
+//     surface that prints a reader's legislative seat, so the precached
+//     find.html, seat-field.js, ballot-workspace.js, district-voice.js,
+//     me-desk.js and seated-member.js (its declared line ranges into
+//     ballot-breakdown.js) all changed; the shell moves one version for all.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v451 - COLORADO, MARYLAND AND MINNESOTA STATE LEGISLATIVE LINES, AND
+//     LETTERED SEATS. /find's TIGERweb legislative list gains those three
+//     states, on the same 2024 layers (5 and 6), scoped to the one state by
+//     FIPS and loaded only after a geocode, tap or phone point has named it.
+//     Nothing is painted on open and no national layer is asked for. Maryland's
+//     House of Delegates ("3", "47A") and Minnesota's House ("1A", "1B") carry a
+//     letter a digits-only record cannot hold: as for Massachusetts (v450) the
+//     record keeps a plain key and voter-hub-location.js's tables turn it into
+//     "District 47A"; the finder reads a polygon's code through
+//     pdxLegDistrictKey(), so 1A and 1B are never one seat. Colorado and both
+//     Senates are numbered as before. find.html and seat-field.js are precached
+//     and changed, so the shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v452 - WISCONSIN, INDIANA AND MISSOURI STATE LEGISLATIVE LINES. /find's
+//     TIGERweb legislative list gains those three states, on the same 2024
+//     layers (5 and 6), scoped to the one state by FIPS and loaded only after a
+//     geocode, tap or phone point has named it. All three number their seats
+//     plainly; Wisconsin's "ZZZ" water polygons are no district. Nothing is
+//     painted on open and no national layer is asked for. voter-hub-location.js
+//     names a sitting member only from an in-office roster record for that
+//     chamber and number. district-voice.js's seatPidFor() also refuses a
+//     legislative pid whose record names another state, which pdxSeatClaim()
+//     (chamber and number only) cannot tell apart once a non-Utah seat carries
+//     a district number. find.html and district-voice.js are precached and
+//     changed, so the shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v453 - KENTUCKY, ALABAMA AND SOUTH CAROLINA STATE LEGISLATIVE LINES. /find's
+//     TIGERweb legislative list gains those three states, on the same 2024
+//     layers (5 and 6), scoped to the one state by FIPS and loaded only after a
+//     geocode, tap or phone point has named it. All three number their seats
+//     plainly. Nothing is painted on open and no national layer is asked for.
+//     voter-hub-location.js names a sitting member only from an in-office
+//     roster record for that chamber and number. find.html is precached and
+//     changed, so the shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v454 - IOWA, OKLAHOMA AND KANSAS STATE LEGISLATIVE LINES. /find's TIGERweb
+//     legislative list gains those three states, on the same 2024 layers (5
+//     and 6), scoped to the one state by FIPS and loaded only after a geocode,
+//     tap or phone point has named it. All three number their seats plainly.
+//     Nothing is painted on open and no national layer is asked for. The
+//     roster holds no district-keyed legislator for any of them, so every seat
+//     reads "no member on file yet" until one is added. find.html is precached
+//     and changed, so the shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v455 - NEVADA, NEBRASKA AND ARKANSAS STATE LEGISLATIVE LINES. /find's
+//     TIGERweb legislative list gains those three states, on the same 2024
+//     layers (5 and 6), scoped to the one state by FIPS and loaded only after a
+//     geocode, tap or phone point has named it. Nothing is painted on open and
+//     no national layer is asked for. NEBRASKA HAS A ONE-CHAMBER LEGISLATURE:
+//     the finder offers its State Senate and U.S. House seats only, never asks
+//     for a lower layer, and saves no State House number; voter-hub-location.js
+//     publishes no State House row for it; me-desk.js drops its State House
+//     line. find.html and me-desk.js are precached and changed, so the shell
+//     moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v455';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

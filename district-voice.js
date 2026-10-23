@@ -1204,6 +1204,18 @@
     } catch (e) { return false; }
   }
 
+  function foreignLegislator(level, pid, stateName) {
+    var seat = String((level && (level.seat || level.key)) || '').toLowerCase();
+    if (seat !== 'statesenate' && seat !== 'statehouse') return false;
+    var st = String(stateName == null ? '' : stateName).trim().toLowerCase();
+    if (!st || st === 'utah') return false;
+    var rec = null;
+    try { if (fn(window.pdxRosterRec)) rec = window.pdxRosterRec(pid) || null; } catch (e) { rec = null; }
+    try { if (!rec && window.CMP_DATA && window.CMP_DATA[pid]) rec = window.CMP_DATA[pid]; } catch (e2) {}
+    var rs = rec ? String(rec.state == null ? '' : rec.state).split('\u00b7')[0].trim().toLowerCase() : '';
+    return !!rs && rs !== st;
+  }
+
   // THE ONE WALK FROM A RESOLVED LEVEL TO THE PID THAT MAY SIT ON ITS CARD.
   // Exported, because who-represents-me.js prints the same seats from the same
   // levels and took the same pid on sight; two copies of this would be two
@@ -1217,6 +1229,13 @@
     // A STATEWIDE ROW HAS NO NUMBER TO DISAGREE WITH. Both U.S. Senate seats and
     // the governor are held statewide; there is no card key to check a claim
     // against and nothing here may touch those pids.
+    // A LEGISLATIVE SEAT IS HELD IN ONE STATE. pdxSeatClaim() weighs chamber and
+    // number and has no state to weigh, and "UT District 16" agrees with House
+    // District 16 in every state that has one. Outside Utah, whose roster
+    // writes its legislators "UT District N", a record that names a different
+    // state cannot sit on this card. A record that names no state says nothing
+    // and is left to the claim below.
+    if (pid && !level.statewide && n && foreignLegislator(level, pid, stateName)) pid = '';
     if (pid && !level.statewide && n) {
       var claim = claimOf(pid, key || String((level.seat || level.key) || ''), n);
       if (claim === 'mismatch') {
@@ -1267,7 +1286,9 @@
     var who = String(s.holder || '').trim();
     if (!s.board || !who) return plain;
     var label = String(s.label || '').trim();
-    var where = s.statewide ? label : (label && s.district ? label + ' District ' + s.district : '');
+    var where = s.statewide ? label
+      : (label && s.districtName ? label + ' \u00b7 ' + s.districtName
+      : (label && s.district ? label + ' District ' + s.district : ''));
     return where ? where + ' \u00b7 ' + who : plain;
   }
 
@@ -1318,9 +1339,13 @@
         district: n,
         county: county,
         statewide: !!lv.statewide,
+        districtName: lv.districtName || null,
+        // A named-district state (Massachusetts) names the seat, never a
+        // "District N" built from its internal key.
         name: lv.statewide
           ? String(lv.distLabel || label)
-          : (label + ' District ' + n + (county ? ' \u00b7 ' + county : '')),
+          : (lv.districtName ? label + ' \u00b7 ' + lv.districtName
+                             : (label + ' District ' + n)) + (county ? ' \u00b7 ' + county : ''),
         seatKey: seatKey,
         pid: pid,
         // A statewide card's door is its own key's row, or nothing. See
