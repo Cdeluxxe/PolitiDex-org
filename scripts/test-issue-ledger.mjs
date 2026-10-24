@@ -58,7 +58,7 @@ import { execFileSync } from "node:child_process";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
-import { deOrigin, DECLARED_ADMISSION_PIDS, DECLARED_DISTRICTS } from "./v103-chrome-seams.mjs";
+import { deOrigin, DECLARED_ADMISSION_PIDS, DECLARED_DISTRICTS, DECLARED_OFFICES } from "./v103-chrome-seams.mjs";
 import { measureAddresses } from "./vr-measure-addresses.mjs";
 import { preAudit } from "./vr-effect-audit.mjs";
 import { keysAfter } from "./vr-slice-blocks.mjs";
@@ -514,10 +514,16 @@ section("7 · a drawer with no roll call renders exactly as it did before");
     // it to one note at the top of the sheet. Those two pieces — the list block
     // and the note — are folded out on both sides; everything else on the sheet is
     // still compared byte for byte. test-drawer-record-first.mjs holds the list.
-    // A DECLARED DISTRICT (v103-chrome-seams.mjs) is printed in the header's
-    // office · district · state line; that one value is folded out on both sides.
+    // A DECLARED DISTRICT OR OFFICE (v103-chrome-seams.mjs) is printed in the
+    // header's office · district · state line; that one value is folded out on
+    // both sides.
     const dd = DECLARED_DISTRICTS.find((d) => d.pid === x.pid);
-    const sansDist = (h) => dd ? dd.values.reduce((t, v) => t.split(" · " + v).join(""), h) : h;
+    const dof = DECLARED_OFFICES.find((d) => d.pid === x.pid);
+    const sansDist = (h) => {
+      let t = dd ? dd.values.reduce((u, v) => u.split(" · " + v).join(""), h) : h;
+      if (dof) t = dof.values.slice().sort((p, q) => q.length - p.length).reduce((u, v) => u.split(v).join("OFFICE"), t);
+      return t;
+    };
     if (sansDist(sansList(before)) === sansDist(sansList(drawer(x.pid, x.key)))) same++; else drift.push(key(x));
   }
   eq(drift.slice(0, 6).join(" | "), "", `${drift.length} roll-call-free drawer(s) changed shape`);

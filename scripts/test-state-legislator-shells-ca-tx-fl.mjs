@@ -138,24 +138,26 @@ section("3 · every seat in all six chambers names the record's pid or nobody");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("4 · the other 47 states and D.C. are identical to HEAD's");
+section("4 · every state but these three, and the later pass's three, is identical to HEAD's");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const headData = HEAD("cmp-data.js");
   must(headData, "no git baseline for cmp-data.js");
   const STATES = ["Alabama", "Alaska", "Arizona", "Arkansas", "Colorado", "Connecticut", "Delaware", "Georgia", "Hawaii", "Idaho",
-    "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota",
-    "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York",
-    "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina",
+    "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota",
+    "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico",
+    "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Rhode Island", "South Carolina",
     "South Dakota", "Tennessee", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming",
     "District of Columbia"];
-  eq(STATES.length, 48, "fixture: not 47 states and D.C.");
+  // New York, Pennsylvania and Illinois moved in their own later pass
+  // (test-state-legislator-shells-ny-pa-il.mjs holds them), so they are set aside here.
+  eq(STATES.length, 45, "fixture: not 44 states and D.C.");
   const now = boot(at("Utah", "Layton", "Davis County", "2", "7", "16"));
   const was = boot(at("Utah", "Layton", "Davis County", "2", "7", "16"), { "cmp-data.js": headData });
   // Every non-CA/TX/FL roster row is byte-identical.
   const ctx = (src) => { const w = { }; w.window = w; vm.createContext(w); vm.runInContext(src, w); return w.CMP_DATA; };
   const A = ctx(R("cmp-data.js")), B = ctx(headData);
-  const OURS = /^(California|Texas|Florida)\b/;
+  const OURS = /^(California|Texas|Florida|New York|Pennsylvania|Illinois)\b/;
   const outside = (T) => Object.keys(T).filter((k) => !OURS.test(String(T[k].state || ""))).sort();
   eq(JSON.stringify(outside(A)), JSON.stringify(outside(B)), "roster: rows outside the three states were added or removed");
   for (const k of outside(B)) if (JSON.stringify(A[k]) !== JSON.stringify(B[k])) ok(false, `roster: ${k} changed`);

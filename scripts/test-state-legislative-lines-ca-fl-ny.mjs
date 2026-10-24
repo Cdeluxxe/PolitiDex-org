@@ -109,7 +109,7 @@ const NAMED = [
   // [place, senate district, lower district, expected senate pid, expected name, expected lower pid]
   [CA, "11", "17", "wiener_ca", "Scott Wiener", "haney_ca"],
   [FL, "37", "106", "pizzo_fl", null, "basabe_fl"],
-  [NY, "12", "36", "gianaris_ny", "Michael Gianaris", null],
+  [NY, "59", "36", "gonzalez_ny", "Kristen Gonzalez", "moreno_ny"],
 ];
 for (const [p, sd, hd, pid, nm, lpid] of NAMED) {
   const W = boot(at(p, sd, hd));
@@ -132,10 +132,11 @@ for (const [p, sd, hd, pid, nm, lpid] of NAMED) {
   ok(!EQUITY.test(out.replace(/<[^>]+>/g, " ")), `${p.state}: the card carries equity language`);
 }
 {
-  // A seat nobody claims: the address's own SD in New York (59) and Florida HD 106.
-  const W = boot(at(NY, "59", "36"));
-  eq(levelOf(W, "statesenate").pid, null, "New York SD 59: a member was invented");
-  has(band(W), "District 59 — no member on file yet", "New York SD 59: the row does not say nobody is on file");
+  // A seat nobody claims: New York SD 12, vacant on the Senate's own roster since
+  // Michael Gianaris left on 2026-08-10. His record now reads "Former".
+  const W = boot(at(NY, "12", "36"));
+  eq(levelOf(W, "statesenate").pid, null, "New York SD 12: a member was named for a vacant seat");
+  has(band(W), "District 12 — no member on file yet", "New York SD 12: the row does not say nobody is on file");
 }
 {
   // Every seat in all six chambers.
@@ -156,16 +157,17 @@ for (const [p, sd, hd, pid, nm, lpid] of NAMED) {
       }
     }
   }
-  // California's and Florida's sitting members are the official-roster shells
-  // and the existing records given their district (see that record).
-  const REC = JSON.parse(R("db/roster-state-legislators-ca-tx-fl-2026-oct.json"));
-  const onFile = [...REC.rows, ...REC.alreadyHeld, ...REC.districtSet].filter((r) => r.state !== "Texas").map((r) => r.pid);
+  // Each state's sitting members are the official-roster shells and the existing
+  // records given their district (see those records).
+  const onFile = ["db/roster-state-legislators-ca-tx-fl-2026-oct.json", "db/roster-state-legislators-ny-pa-il-2026-oct.json"]
+    .flatMap((f) => { const REC = JSON.parse(R(f)); return [...REC.rows, ...REC.alreadyHeld, ...REC.districtSet]; })
+    .filter((r) => ["California", "Florida", "New York"].includes(r.state)).map((r) => r.pid);
   eq(JSON.stringify([...named].sort()),
-    JSON.stringify([...new Set([...onFile, "gianaris_ny", "ortt_ny"])].sort()),
+    JSON.stringify([...new Set(onFile)].sort()),
     "roster: the members the lookup can name are not exactly the district-keyed state legislators on file");
-  // Leaders whose records name no district, and U.S. House members whose titles
-  // say "House", are never placed in a legislative seat.
-  for (const p of ["daniel_perez_fl", "stewart_cousins", "carl_heastie", "brian_mast", "meeks"]) {
+  // A leader whose record names no district, a former senator, and U.S. House
+  // members whose titles say "House", are never placed in a legislative seat.
+  for (const p of ["daniel_perez_fl", "gianaris_ny", "brian_mast", "meeks"]) {
     ok(!named.has(p), `roster: ${p} was placed in a legislative seat`);
   }
 }

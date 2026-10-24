@@ -123,12 +123,12 @@ const at = (p, sd, hd) => ({ state: p.state, city: p.city, county: p.county + " 
   stateSenateDistrict: sd, stateHouseDistrict: hd, mapSelected: true });
 const [IL, PA, OH] = PLACES;
 const NAMED = [
-  // [place, senate district, lower district, expected senate pid, expected name]
-  [IL, "4", "6", "kimberly_lightford", "Kimberly Lightford"],
-  [PA, "3", "182", "sharif_street", "Sharif Street"],
-  [OH, "2", "1", "theresa_gavarone", "Theresa Gavarone"],
+  // [place, senate district, lower district, expected senate pid, expected name, expected lower pid]
+  [IL, "4", "6", "kimberly_lightford", "Kimberly Lightford", "harper_il"],
+  [PA, "3", "182", "sharif_street", "Sharif Street", "waxman_pa"],
+  [OH, "2", "1", "theresa_gavarone", "Theresa Gavarone", null],
 ];
-for (const [p, sd, hd, pid, nm] of NAMED) {
+for (const [p, sd, hd, pid, nm, lpid] of NAMED) {
   const W = boot(at(p, sd, hd));
   must(typeof W._pdxStateLegSeat === "function", "the resolver did not load");
   const reps = W.pdxRepsForMe();
@@ -138,12 +138,13 @@ for (const [p, sd, hd, pid, nm] of NAMED) {
   eq(ss.district, sd, `${p.state}: the State Senate district did not reach the level`);
   eq(ss.pid, pid, `${p.state}: SD ${sd}'s member on file was not named`);
   eq(sh.district, hd, `${p.state}: the lower-chamber district did not reach the level`);
-  eq(sh.pid, null, `${p.state}: a lower-chamber member was named for a seat no record claims`);
+  eq(sh.pid, lpid, lpid ? `${p.state}: the lower-chamber member on file was not named` : `${p.state}: a lower-chamber member was named for a seat no record claims`);
   ok(ss.mapped && sh.mapped, `${p.state}: a legislative level is not marked mapped`);
   const out = band(W);
   has(out, W.CMP_DATA[pid].name, `${p.state}: the State Senate member is not on the card`);
   if (nm) eq(W.CMP_DATA[pid].name, nm, `${p.state}: fixture name drifted`);
-  has(out, `District ${hd} — no member on file yet`, `${p.state}: the unclaimed lower-chamber seat does not say nobody is on file`);
+  if (lpid) has(out, W.CMP_DATA[lpid].name, `${p.state}: the lower-chamber member is not on the card`);
+  else has(out, `District ${hd} — no member on file yet`, `${p.state}: the unclaimed lower-chamber seat does not say nobody is on file`);
   lacks(out, "only maps state legislative districts in", `${p.state}: the reader is told their lines are not drawn`);
   ok(!EQUITY.test(out.replace(/<[^>]+>/g, " ")), `${p.state}: the card carries equity language`);
 }
@@ -167,19 +168,21 @@ for (const [p, sd, hd, pid, nm] of NAMED) {
         const rec = W.CMP_DATA[pid];
         ok(rec && String(rec.state).indexOf(st) === 0, `roster: ${pid} is not a ${st} record`);
         ok(rec && /\bstate\b|\bassembly/i.test(rec.office), `roster: ${pid}'s office (${rec && rec.office}) does not name a state chamber`);
-        ok(rec && new RegExp("^(SD|HD)?\\s*" + d + "$").test(String(rec.district || "").trim()), `roster: ${pid}'s record does not name ${ch} ${d}`);
+        ok(rec && new RegExp("^(SD|HD|District)?\\s*" + d + "$").test(String(rec.district || "").trim()), `roster: ${pid}'s record does not name ${ch} ${d}`);
         eq(W.pdxSeatClaim(pid, ch, d) === "mismatch", false, `roster: ${pid} seated in ${st} ${ch} ${d}, which its record contradicts`);
       }
     }
   }
+  // Illinois's and Pennsylvania's sitting members are the official-roster shells
+  // and the existing records (db/roster-state-legislators-ny-pa-il-2026-oct.json).
+  const REC = JSON.parse(R("db/roster-state-legislators-ny-pa-il-2026-oct.json"));
+  const onFile = [...REC.rows, ...REC.alreadyHeld, ...REC.districtSet].filter((r) => r.state !== "New York").map((r) => r.pid);
   eq(JSON.stringify([...named].sort()),
-    JSON.stringify(["doug_mastriano", "joe_pittman", "john_curran_il", "kimberly_lightford", "nickie_antonio",
-      "robert_peters_il", "sharif_street", "theresa_gavarone"]),
+    JSON.stringify([...new Set([...onFile, "nickie_antonio", "theresa_gavarone"])].sort()),
     "roster: the members the lookup can name are not exactly the district-keyed state legislators on file");
   // Leaders whose records name no district, and U.S. House members whose titles
   // say "House", are never placed in a legislative seat.
-  for (const p of ["matt_huffman", "rob_mccolley", "jay_costa", "joanna_mcclinton", "kim_ward", "don_harmon", "chris_welch",
-                   "jim_jordan", "mike_bost", "glenn_thompson"]) {
+  for (const p of ["matt_huffman", "rob_mccolley", "jim_jordan", "mike_bost", "glenn_thompson"]) {
     ok(!named.has(p), `roster: ${p} was placed in a legislative seat`);
   }
 }
@@ -215,7 +218,7 @@ section("4 · the five states already mapped are identical to HEAD's");
   const W = boot(LOCS[3]);
   eq(levelOf(W, "statesenate").pid, "bettencourt_tx", "Texas SD 7 stopped naming its member");
   eq(levelOf(boot(LOCS[7]), "statesenate").pid, "wiener_ca", "California SD 11 stopped naming its member");
-  eq(levelOf(boot(LOCS[11]), "statesenate").pid, "gianaris_ny", "New York SD 12 stopped naming its member");
+  eq(levelOf(boot(LOCS[11]), "statesenate").pid, null, "New York SD 12 (vacant on the Senate roster since 2026-08-10) named somebody");
   const O = boot(LOCS[13]);
   eq(levelOf(O, "statehouse").mapped, false, "the District of Columbia's legislative seats claim to be mapped");
 }

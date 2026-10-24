@@ -10761,7 +10761,22 @@
 //     and changed, so the shell moves one version.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v463';
+// v464 - NEW YORK, PENNSYLVANIA AND ILLINOIS STATE LEGISLATOR ROSTER SHELLS.
+//     cmp-data.js gains 624 identity-only rows (name, office, state, exact
+//     district, `candidate: false`) for the members each chamber's official
+//     roster listed as seated on 2026-10-24, and seven sitting leaders already
+//     on file gain the district their record was missing. Michael Gianaris's
+//     record reads "Former New York State Senator": the Senate lists him as
+//     serving to 2026-08-10 and SD 12 as vacant, so that seat now reads
+//     "District 12 — no member on file yet" instead of naming him. A seat whose
+//     member is held only as a 2026 candidate row stays empty too.
+//     db/roster-state-legislators-ny-pa-il-2026-oct.json is the record. The
+//     California, Texas and Florida rows are unchanged. No board, composer or
+//     voting record is opened. cmp-data.js is precached and changed, so the
+//     shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v464';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

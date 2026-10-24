@@ -205,7 +205,7 @@ section("4 · the eight states already mapped are identical to HEAD's");
   }
   const LOC = (st, sd) => LOCS.find((l) => l.state === st && l.stateSenateDistrict === sd);
   for (const [st, sd, pid] of [["Texas", "7", "bettencourt_tx"], ["California", "11", "wiener_ca"], ["Florida", "37", "pizzo_fl"],
-                               ["New York", "12", "gianaris_ny"], ["Illinois", "4", "kimberly_lightford"],
+                               ["New York", "12", null /* vacant on the Senate roster since 2026-08-10 */], ["Illinois", "4", "kimberly_lightford"],
                                ["Pennsylvania", "33", "doug_mastriano"], ["Ohio", "2", "theresa_gavarone"]]) {
     eq(levelOf(boot(LOC(st, sd)), "statesenate").pid, pid, `${st} SD ${sd} stopped naming its member`);
   }

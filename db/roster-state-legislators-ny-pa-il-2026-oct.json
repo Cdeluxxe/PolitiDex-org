@@ -1,0 +1,5169 @@
+{
+ "_note": "Sitting New York, Pennsylvania and Illinois state legislators, read from each chamber's official member roster on 2026-10-24. cmp-data.js carries a roster shell for every \"rows\" entry; \"districtSet\" names existing records that gained their district; \"onFileAsCandidate\" seats are left empty because the member is held only as a 2026 candidate row under another office; \"officeCorrected\" names an existing record whose holder the chamber lists as no longer serving.",
+ "read": "2026-10-24",
+ "sources": {
+  "New York": {
+   "statesenate": "https://www.nysenate.gov/senators-committees",
+   "statehouse": "https://nyassembly.gov/mem/"
+  },
+  "Pennsylvania": {
+   "statesenate": "https://www.palegis.us/senate/members",
+   "statehouse": "https://www.palegis.us/house/members"
+  },
+  "Illinois": {
+   "statesenate": "https://www.ilga.gov/Senate/Members",
+   "statehouse": "https://www.ilga.gov/House/Members"
+  }
+ },
+ "vacant": {
+  "New York": {
+   "statesenate": [
+    12
+   ],
+   "statehouse": []
+  },
+  "Pennsylvania": {
+   "statesenate": [],
+   "statehouse": []
+  },
+  "Illinois": {
+   "statesenate": [],
+   "statehouse": []
+  }
+ },
+ "rows": [
+  {
+   "pid": "addabbo_ny",
+   "name": "Joseph P. Addabbo Jr.",
+   "officialListing": "Joseph P. Addabbo Jr.",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 15
+  },
+  {
+   "pid": "ashby_ny",
+   "name": "Jacob Ashby",
+   "officialListing": "Jacob Ashby",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 43
+  },
+  {
+   "pid": "jamaal_bailey_ny",
+   "name": "Jamaal T. Bailey",
+   "officialListing": "Jamaal T. Bailey",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 36
+  },
+  {
+   "pid": "baskin_ny",
+   "name": "April N.M. Baskin",
+   "officialListing": "April N.M. Baskin",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 63
+  },
+  {
+   "pid": "borrello_ny",
+   "name": "George M. Borrello",
+   "officialListing": "George M. Borrello",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 57
+  },
+  {
+   "pid": "bottcher_ny",
+   "name": "Erik Bottcher",
+   "officialListing": "Erik Bottcher",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 47
+  },
+  {
+   "pid": "brisport_ny",
+   "name": "Jabari Brisport",
+   "officialListing": "Jabari Brisport",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 25
+  },
+  {
+   "pid": "brouk_ny",
+   "name": "Samra G. Brouk",
+   "officialListing": "Samra G. Brouk",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 55
+  },
+  {
+   "pid": "bynoe_ny",
+   "name": "Siela A. Bynoe",
+   "officialListing": "Siela A. Bynoe",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 6
+  },
+  {
+   "pid": "canzoneri_fitzpatrick_ny",
+   "name": "Patricia Canzoneri-Fitzpatrick",
+   "officialListing": "Patricia Canzoneri-Fitzpatrick",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 9
+  },
+  {
+   "pid": "chan_ny",
+   "name": "Stephen T. Chan",
+   "officialListing": "Stephen T. Chan",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 17
+  },
+  {
+   "pid": "cleare_ny",
+   "name": "Cordell Cleare",
+   "officialListing": "Cordell Cleare",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 30
+  },
+  {
+   "pid": "comrie_ny",
+   "name": "Leroy Comrie",
+   "officialListing": "Leroy Comrie",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 14
+  },
+  {
+   "pid": "cooney_ny",
+   "name": "Jeremy Cooney",
+   "officialListing": "Jeremy Cooney",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 56
+  },
+  {
+   "pid": "fahy_ny",
+   "name": "Patricia Fahy",
+   "officialListing": "Patricia Fahy",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 46
+  },
+  {
+   "pid": "fernandez_ny",
+   "name": "Nathalia Fernandez",
+   "officialListing": "Nathalia Fernandez",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 34
+  },
+  {
+   "pid": "gallivan_ny",
+   "name": "Patrick M. Gallivan",
+   "officialListing": "Patrick M. Gallivan",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 60
+  },
+  {
+   "pid": "gonzalez_ny",
+   "name": "Kristen Gonzalez",
+   "officialListing": "Kristen Gonzalez",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 59
+  },
+  {
+   "pid": "gounardes_ny",
+   "name": "Andrew Gounardes",
+   "officialListing": "Andrew Gounardes",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 26
+  },
+  {
+   "pid": "griffo_ny",
+   "name": "Joseph A. Griffo",
+   "officialListing": "Joseph A. Griffo",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 53
+  },
+  {
+   "pid": "harckham_ny",
+   "name": "Pete Harckham",
+   "officialListing": "Pete Harckham",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 40
+  },
+  {
+   "pid": "helming_ny",
+   "name": "Pamela Helming",
+   "officialListing": "Pamela Helming",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 54
+  },
+  {
+   "pid": "hinchey_ny",
+   "name": "Michelle Hinchey",
+   "officialListing": "Michelle Hinchey",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 41
+  },
+  {
+   "pid": "robert_jackson_ny",
+   "name": "Robert Jackson",
+   "officialListing": "Robert Jackson",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 31
+  },
+  {
+   "pid": "kavanagh_ny",
+   "name": "Brian Kavanagh",
+   "officialListing": "Brian Kavanagh",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 27
+  },
+  {
+   "pid": "krueger_ny",
+   "name": "Liz Krueger",
+   "officialListing": "Liz Krueger",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 28
+  },
+  {
+   "pid": "lanza_ny",
+   "name": "Andrew J. Lanza",
+   "officialListing": "Andrew J. Lanza",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 24
+  },
+  {
+   "pid": "liu_ny",
+   "name": "John C. Liu",
+   "officialListing": "John C. Liu",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 16
+  },
+  {
+   "pid": "martinez_ny",
+   "name": "Monica R. Martinez",
+   "officialListing": "Monica R. Martinez",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 4
+  },
+  {
+   "pid": "martins_ny",
+   "name": "Jack M. Martins",
+   "officialListing": "Jack M. Martins",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 7
+  },
+  {
+   "pid": "mattera_ny",
+   "name": "Mario R. Mattera",
+   "officialListing": "Mario R. Mattera",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 2
+  },
+  {
+   "pid": "may_ny",
+   "name": "Rachel May",
+   "officialListing": "Rachel May",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 48
+  },
+  {
+   "pid": "mayer_ny",
+   "name": "Shelley B. Mayer",
+   "officialListing": "Shelley B. Mayer",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 37
+  },
+  {
+   "pid": "murray_ny",
+   "name": "Dean Murray",
+   "officialListing": "Dean Murray",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 3
+  },
+  {
+   "pid": "myrie_ny",
+   "name": "Zellnor Myrie",
+   "officialListing": "Zellnor Myrie",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 20
+  },
+  {
+   "pid": "omara_ny",
+   "name": "Thomas F. O'Mara",
+   "officialListing": "Thomas F. O'Mara",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 58
+  },
+  {
+   "pid": "palumbo_ny",
+   "name": "Anthony H. Palumbo",
+   "officialListing": "Anthony H. Palumbo",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 1
+  },
+  {
+   "pid": "parker_ny",
+   "name": "Kevin S. Parker",
+   "officialListing": "Kevin S. Parker",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 21
+  },
+  {
+   "pid": "persaud_ny",
+   "name": "Roxanne J. Persaud",
+   "officialListing": "Roxanne J. Persaud",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 19
+  },
+  {
+   "pid": "jessica_ramos_ny",
+   "name": "Jessica Ramos",
+   "officialListing": "Jessica Ramos",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 13
+  },
+  {
+   "pid": "rhoads_ny",
+   "name": "Steven D. Rhoads",
+   "officialListing": "Steven D. Rhoads",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 5
+  },
+  {
+   "pid": "gustavo_rivera_ny",
+   "name": "Gustavo Rivera",
+   "officialListing": "Gustavo Rivera",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 33
+  },
+  {
+   "pid": "rolison_ny",
+   "name": "Rob Rolison",
+   "officialListing": "Rob Rolison",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 39
+  },
+  {
+   "pid": "ryan_ny",
+   "name": "Christopher J. Ryan",
+   "officialListing": "Christopher J. Ryan",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 50
+  },
+  {
+   "pid": "salazar_ny",
+   "name": "Julia Salazar",
+   "officialListing": "Julia Salazar",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 18
+  },
+  {
+   "pid": "sanders_ny",
+   "name": "James Sanders Jr.",
+   "officialListing": "James Sanders Jr.",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 10
+  },
+  {
+   "pid": "scarcella_spanton_ny",
+   "name": "Jessica Scarcella-Spanton",
+   "officialListing": "Jessica Scarcella-Spanton",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 23
+  },
+  {
+   "pid": "sepulveda_ny",
+   "name": "Luis R. Sepúlveda",
+   "officialListing": "Luis R. Sepúlveda",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 32
+  },
+  {
+   "pid": "serrano_ny",
+   "name": "José M. Serrano",
+   "officialListing": "José M. Serrano",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 29
+  },
+  {
+   "pid": "skoufis_ny",
+   "name": "James Skoufis",
+   "officialListing": "James Skoufis",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 42
+  },
+  {
+   "pid": "stavisky_ny",
+   "name": "Toby Ann Stavisky",
+   "officialListing": "Toby Ann Stavisky",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 11
+  },
+  {
+   "pid": "stec_ny",
+   "name": "Daniel G. Stec",
+   "officialListing": "Daniel G. Stec",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 45
+  },
+  {
+   "pid": "sutton_ny",
+   "name": "Sam Sutton",
+   "officialListing": "Sam Sutton",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 22
+  },
+  {
+   "pid": "tedisco_ny",
+   "name": "Mr. James Tedisco",
+   "officialListing": "Mr. James Tedisco",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 44
+  },
+  {
+   "pid": "walczyk_ny",
+   "name": "Mark Walczyk",
+   "officialListing": "Mark Walczyk",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 49
+  },
+  {
+   "pid": "webb_ny",
+   "name": "Lea Webb",
+   "officialListing": "Lea Webb",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 52
+  },
+  {
+   "pid": "weber_ny",
+   "name": "Bill Weber",
+   "officialListing": "Bill Weber",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 38
+  },
+  {
+   "pid": "weik_ny",
+   "name": "Alexis Weik",
+   "officialListing": "Alexis Weik",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 8
+  },
+  {
+   "pid": "zellner_ny",
+   "name": "Jeremy J. Zellner",
+   "officialListing": "Jeremy J. Zellner",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 61
+  },
+  {
+   "pid": "alvarez_ny",
+   "name": "George Alvarez",
+   "officialListing": "George Alvarez",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 78
+  },
+  {
+   "pid": "anderson_ny",
+   "name": "Khaleel M. Anderson",
+   "officialListing": "Khaleel M. Anderson",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 31
+  },
+  {
+   "pid": "angelino_ny",
+   "name": "Joe Angelino",
+   "officialListing": "Joe Angelino",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 121
+  },
+  {
+   "pid": "andrea_bailey_ny",
+   "name": "Andrea K. Bailey",
+   "officialListing": "Andrea K. Bailey",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 133
+  },
+  {
+   "pid": "barclay_ny",
+   "name": "William A. Barclay",
+   "officialListing": "William A. Barclay",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 120
+  },
+  {
+   "pid": "barrett_ny",
+   "name": "Didi Barrett",
+   "officialListing": "Didi Barrett",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 106
+  },
+  {
+   "pid": "beephan_ny",
+   "name": "Anil Beephan, Jr.",
+   "officialListing": "Anil Beephan, Jr.",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 105
+  },
+  {
+   "pid": "bendett_ny",
+   "name": "Scott Bendett",
+   "officialListing": "Scott Bendett",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 107
+  },
+  {
+   "pid": "benedetto_ny",
+   "name": "Michael Benedetto",
+   "officialListing": "Michael Benedetto",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 82
+  },
+  {
+   "pid": "berger_ny",
+   "name": "Sam Berger",
+   "officialListing": "Sam Berger",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 27
+  },
+  {
+   "pid": "hermelyn_ny",
+   "name": "Rodneyse Bichotte Hermelyn",
+   "officialListing": "Rodneyse Bichotte Hermelyn",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 42
+  },
+  {
+   "pid": "blankenbush_ny",
+   "name": "Ken Blankenbush",
+   "officialListing": "Ken Blankenbush",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 117
+  },
+  {
+   "pid": "blumencranz_ny",
+   "name": "Jake Blumencranz",
+   "officialListing": "Jake Blumencranz",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 15
+  },
+  {
+   "pid": "bologna_ny",
+   "name": "Paul A. Bologna",
+   "officialListing": "Paul A. Bologna",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 144
+  },
+  {
+   "pid": "bores_ny",
+   "name": "Alex Bores",
+   "officialListing": "Alex Bores",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 73
+  },
+  {
+   "pid": "brabenec_ny",
+   "name": "Karl Brabenec",
+   "officialListing": "Karl Brabenec",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 98
+  },
+  {
+   "pid": "braunstein_ny",
+   "name": "Edward C. Braunstein",
+   "officialListing": "Edward C. Braunstein",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 26
+  },
+  {
+   "pid": "bronson_ny",
+   "name": "Harry B. Bronson",
+   "officialListing": "Harry B. Bronson",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 138
+  },
+  {
+   "pid": "brook_krasny_ny",
+   "name": "Alec Brook-Krasny",
+   "officialListing": "Alec Brook-Krasny",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 46
+  },
+  {
+   "pid": "ari_brown_ny",
+   "name": "Ari Brown",
+   "officialListing": "Ari Brown",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 20
+  },
+  {
+   "pid": "keith_brown_ny",
+   "name": "Keith P. Brown",
+   "officialListing": "Keith P. Brown",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 12
+  },
+  {
+   "pid": "burdick_ny",
+   "name": "Chris Burdick",
+   "officialListing": "Chris Burdick",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 93
+  },
+  {
+   "pid": "burke_ny",
+   "name": "Patrick Burke",
+   "officialListing": "Patrick Burke",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 142
+  },
+  {
+   "pid": "burroughs_ny",
+   "name": "Noah Burroughs",
+   "officialListing": "Noah Burroughs",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 18
+  },
+  {
+   "pid": "buttenschon_ny",
+   "name": "Marianne Buttenschon",
+   "officialListing": "Marianne Buttenschon",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 119
+  },
+  {
+   "pid": "patrick_carroll_ny",
+   "name": "Patrick J. Carroll",
+   "officialListing": "Patrick J. Carroll",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 96
+  },
+  {
+   "pid": "robert_carroll_ny",
+   "name": "Robert C. Carroll",
+   "officialListing": "Robert C. Carroll",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 44
+  },
+  {
+   "pid": "cashman_ny",
+   "name": "Michael S. Cashman",
+   "officialListing": "Michael S. Cashman",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 115
+  },
+  {
+   "pid": "chandler_waterman_ny",
+   "name": "Monique Chandler-Waterman",
+   "officialListing": "Monique Chandler-Waterman",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 58
+  },
+  {
+   "pid": "chang_ny",
+   "name": "Lester Chang",
+   "officialListing": "Lester Chang",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 49
+  },
+  {
+   "pid": "chludzinski_ny",
+   "name": "Patrick J. Chludzinski",
+   "officialListing": "Patrick J. Chludzinski",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 143
+  },
+  {
+   "pid": "clark_ny",
+   "name": "Sarah Clark",
+   "officialListing": "Sarah Clark",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 136
+  },
+  {
+   "pid": "colton_ny",
+   "name": "William Colton",
+   "officialListing": "William Colton",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 47
+  },
+  {
+   "pid": "conrad_ny",
+   "name": "William Conrad",
+   "officialListing": "William Conrad",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 140
+  },
+  {
+   "pid": "cook_ny",
+   "name": "Vivian E. Cook",
+   "officialListing": "Vivian E. Cook",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 32
+  },
+  {
+   "pid": "cruz_ny",
+   "name": "Catalina Cruz",
+   "officialListing": "Catalina Cruz",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 39
+  },
+  {
+   "pid": "cunningham_ny",
+   "name": "Brian Cunningham",
+   "officialListing": "Brian Cunningham",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 43
+  },
+  {
+   "pid": "dais_ny",
+   "name": "Landon C. Dais",
+   "officialListing": "Landon C. Dais",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 77
+  },
+  {
+   "pid": "davila_ny",
+   "name": "Maritza Davila",
+   "officialListing": "Maritza Davila",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 53
+  },
+  {
+   "pid": "santos_ny",
+   "name": "Manny De Los Santos",
+   "officialListing": "Manny De Los Santos",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 72
+  },
+  {
+   "pid": "destefano_ny",
+   "name": "Joe DeStefano",
+   "officialListing": "Joe DeStefano",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 3
+  },
+  {
+   "pid": "dilan_ny",
+   "name": "Erik M. Dilan",
+   "officialListing": "Erik M. Dilan",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 54
+  },
+  {
+   "pid": "dinowitz_ny",
+   "name": "Jeffrey Dinowitz",
+   "officialListing": "Jeffrey Dinowitz",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 81
+  },
+  {
+   "pid": "dipietro_ny",
+   "name": "David DiPietro",
+   "officialListing": "David DiPietro",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 147
+  },
+  {
+   "pid": "durso_ny",
+   "name": "Michael Durso",
+   "officialListing": "Michael Durso",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 9
+  },
+  {
+   "pid": "eachus_ny",
+   "name": "Chris Eachus",
+   "officialListing": "Chris Eachus",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 99
+  },
+  {
+   "pid": "eichenstein_ny",
+   "name": "Simcha Eichenstein",
+   "officialListing": "Simcha Eichenstein",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 48
+  },
+  {
+   "pid": "fall_ny",
+   "name": "Charles D. Fall",
+   "officialListing": "Charles D. Fall",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 61
+  },
+  {
+   "pid": "fitzpatrick_ny",
+   "name": "Michael J. Fitzpatrick",
+   "officialListing": "Michael J. Fitzpatrick",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 8
+  },
+  {
+   "pid": "forrest_ny",
+   "name": "Phara Souffrant Forrest",
+   "officialListing": "Phara Souffrant Forrest",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 57
+  },
+  {
+   "pid": "friend_ny",
+   "name": "Christopher S. Friend",
+   "officialListing": "Christopher S. Friend",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 124
+  },
+  {
+   "pid": "gallagher_ny",
+   "name": "Emily Gallagher",
+   "officialListing": "Emily Gallagher",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 50
+  },
+  {
+   "pid": "gallahan_ny",
+   "name": "Jeff Gallahan",
+   "officialListing": "Jeff Gallahan",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 131
+  },
+  {
+   "pid": "gandolfo_ny",
+   "name": "Jarett Gandolfo",
+   "officialListing": "Jarett Gandolfo",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 7
+  },
+  {
+   "pid": "gibbs_ny",
+   "name": "Edward Gibbs",
+   "officialListing": "Edward Gibbs",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 68
+  },
+  {
+   "pid": "giglio_ny",
+   "name": "Jodi Giglio",
+   "officialListing": "Jodi Giglio",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 2
+  },
+  {
+   "pid": "glick_ny",
+   "name": "Deborah J. Glick",
+   "officialListing": "Deborah J. Glick",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 66
+  },
+  {
+   "pid": "gonzalez_rojas_ny",
+   "name": "Jessica González-Rojas",
+   "officialListing": "Jessica González-Rojas",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 34
+  },
+  {
+   "pid": "gray_ny",
+   "name": "Scott Gray",
+   "officialListing": "Scott Gray",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 116
+  },
+  {
+   "pid": "griffin_ny",
+   "name": "Judy Griffin",
+   "officialListing": "Judy Griffin",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 21
+  },
+  {
+   "pid": "hawley_ny",
+   "name": "Stephen Hawley",
+   "officialListing": "Stephen Hawley",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 139
+  },
+  {
+   "pid": "hevesi_ny",
+   "name": "Andrew Hevesi",
+   "officialListing": "Andrew Hevesi",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 28
+  },
+  {
+   "pid": "hooks_ny",
+   "name": "Larinda C. Hooks",
+   "officialListing": "Larinda C. Hooks",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 35
+  },
+  {
+   "pid": "hunter_ny",
+   "name": "Pamela J. Hunter",
+   "officialListing": "Pamela J. Hunter",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 128
+  },
+  {
+   "pid": "hyndman_ny",
+   "name": "Alicia Hyndman",
+   "officialListing": "Alicia Hyndman",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 29
+  },
+  {
+   "pid": "chantel_jackson_ny",
+   "name": "Chantel Jackson",
+   "officialListing": "Chantel Jackson",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 79
+  },
+  {
+   "pid": "jacobson_ny",
+   "name": "Jonathan G. Jacobson",
+   "officialListing": "Jonathan G. Jacobson",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 104
+  },
+  {
+   "pid": "jensen_ny",
+   "name": "Josh Jensen",
+   "officialListing": "Josh Jensen",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 134
+  },
+  {
+   "pid": "kassay_ny",
+   "name": "Rebecca Kassay",
+   "officialListing": "Rebecca Kassay",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 4
+  },
+  {
+   "pid": "kay_ny",
+   "name": "Paula Elaine Kay",
+   "officialListing": "Paula Elaine Kay",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 100
+  },
+  {
+   "pid": "kelles_ny",
+   "name": "Anna R. Kelles",
+   "officialListing": "Dr. Anna R. Kelles",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 125
+  },
+  {
+   "pid": "kim_ny",
+   "name": "Ron Kim",
+   "officialListing": "Ron Kim",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 40
+  },
+  {
+   "pid": "lavine_ny",
+   "name": "Charles D. Lavine",
+   "officialListing": "Charles D. Lavine",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 13
+  },
+  {
+   "pid": "lee_ny",
+   "name": "Grace Lee",
+   "officialListing": "Grace Lee",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 65
+  },
+  {
+   "pid": "lemondes_ny",
+   "name": "John Lemondes",
+   "officialListing": "John Lemondes",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 126
+  },
+  {
+   "pid": "levenberg_ny",
+   "name": "Dana Levenberg",
+   "officialListing": "Dana Levenberg",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 95
+  },
+  {
+   "pid": "lucas_ny",
+   "name": "Nikki Lucas",
+   "officialListing": "Nikki Lucas",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 60
+  },
+  {
+   "pid": "lunsford_ny",
+   "name": "Jen Lunsford",
+   "officialListing": "Jen Lunsford",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 135
+  },
+  {
+   "pid": "lupardo_ny",
+   "name": "Donna A. Lupardo",
+   "officialListing": "Donna A. Lupardo",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 123
+  },
+  {
+   "pid": "magnarelli_ny",
+   "name": "William B. Magnarelli",
+   "officialListing": "William B. Magnarelli",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 129
+  },
+  {
+   "pid": "maher_ny",
+   "name": "Brian Maher",
+   "officialListing": "Brian Maher",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 101
+  },
+  {
+   "pid": "manktelow_ny",
+   "name": "Brian Manktelow",
+   "officialListing": "Brian Manktelow",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 130
+  },
+  {
+   "pid": "mcdonald_ny",
+   "name": "John T. McDonald III",
+   "officialListing": "John T. McDonald III",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 108
+  },
+  {
+   "pid": "mcdonough_ny",
+   "name": "David G. McDonough",
+   "officialListing": "David G. McDonough",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 14
+  },
+  {
+   "pid": "mcmahon_ny",
+   "name": "Karen McMahon",
+   "officialListing": "Karen McMahon",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 146
+  },
+  {
+   "pid": "meeks_ny",
+   "name": "Demond Meeks",
+   "officialListing": "Demond Meeks",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 137
+  },
+  {
+   "pid": "mikulin_ny",
+   "name": "John K. Mikulin",
+   "officialListing": "John K. Mikulin",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 17
+  },
+  {
+   "pid": "miller_ny",
+   "name": "Brian D. Miller",
+   "officialListing": "Brian D. Miller",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 122
+  },
+  {
+   "pid": "mitaynes_ny",
+   "name": "Marcela Mitaynes",
+   "officialListing": "Marcela Mitaynes",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 51
+  },
+  {
+   "pid": "molitor_ny",
+   "name": "Andrew M. Molitor",
+   "officialListing": "Andrew M. Molitor",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 150
+  },
+  {
+   "pid": "moreno_ny",
+   "name": "Diana C. Moreno",
+   "officialListing": "Diana C. Moreno",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 36
+  },
+  {
+   "pid": "morinello_ny",
+   "name": "Angelo J. Morinello",
+   "officialListing": "Angelo J. Morinello",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 145
+  },
+  {
+   "pid": "norber_ny",
+   "name": "Daniel J. Norber",
+   "officialListing": "Daniel J. Norber",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 16
+  },
+  {
+   "pid": "novakhov_ny",
+   "name": "Michael Novakhov",
+   "officialListing": "Michael Novakhov",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 45
+  },
+  {
+   "pid": "opharrow_ny",
+   "name": "Kwani B. O'Pharrow",
+   "officialListing": "Kwani B. O'Pharrow",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 11
+  },
+  {
+   "pid": "otis_ny",
+   "name": "Steven Otis",
+   "officialListing": "Steven Otis",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 91
+  },
+  {
+   "pid": "palmesano_ny",
+   "name": "Philip A. Palmesano",
+   "officialListing": "Philip A. Palmesano",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 132
+  },
+  {
+   "pid": "paulin_ny",
+   "name": "Amy Paulin",
+   "officialListing": "Amy Paulin",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 88
+  },
+  {
+   "pid": "peoples_stokes_ny",
+   "name": "Crystal D. Peoples-Stokes",
+   "officialListing": "Crystal D. Peoples-Stokes",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 141
+  },
+  {
+   "pid": "amato_ny",
+   "name": "Stacey Pheffer Amato",
+   "officialListing": "Stacey Pheffer Amato",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 23
+  },
+  {
+   "pid": "pirozzolo_ny",
+   "name": "Sam Pirozzolo",
+   "officialListing": "Sam Pirozzolo",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 63
+  },
+  {
+   "pid": "powers_ny",
+   "name": "Keith Powers",
+   "officialListing": "Keith Powers",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 74
+  },
+  {
+   "pid": "pretlow_ny",
+   "name": "J. Gary Pretlow",
+   "officialListing": "J. Gary Pretlow",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 89
+  },
+  {
+   "pid": "ra_ny",
+   "name": "Edward P. Ra",
+   "officialListing": "Edward P. Ra",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 19
+  },
+  {
+   "pid": "raga_ny",
+   "name": "Steven Raga",
+   "officialListing": "Steven Raga",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 30
+  },
+  {
+   "pid": "rajkumar_ny",
+   "name": "Jenifer Rajkumar",
+   "officialListing": "Jenifer Rajkumar",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 38
+  },
+  {
+   "pid": "phil_ramos_ny",
+   "name": "Phil Ramos",
+   "officialListing": "Phil Ramos",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 6
+  },
+  {
+   "pid": "reilly_ny",
+   "name": "Michael Reilly",
+   "officialListing": "Michael Reilly",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 62
+  },
+  {
+   "pid": "reyes_ny",
+   "name": "Karines Reyes",
+   "officialListing": "Karines Reyes",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 87
+  },
+  {
+   "pid": "jonathan_rivera_ny",
+   "name": "Jonathan Rivera",
+   "officialListing": "Jonathan Rivera",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 149
+  },
+  {
+   "pid": "romero_ny",
+   "name": "Gabriella A. Romero",
+   "officialListing": "Gabriella A. Romero",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 109
+  },
+  {
+   "pid": "rosenthal_ny",
+   "name": "Linda B. Rosenthal",
+   "officialListing": "Linda B. Rosenthal",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 67
+  },
+  {
+   "pid": "rozic_ny",
+   "name": "Nily Rozic",
+   "officialListing": "Nily Rozic",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 25
+  },
+  {
+   "pid": "santabarbara_ny",
+   "name": "Angelo Santabarbara",
+   "officialListing": "Angelo Santabarbara",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 111
+  },
+  {
+   "pid": "sayegh_ny",
+   "name": "Nader J. Sayegh",
+   "officialListing": "Nader J. Sayegh",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 90
+  },
+  {
+   "pid": "schiavoni_ny",
+   "name": "Tommy John Schiavoni",
+   "officialListing": "Tommy John Schiavoni",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 1
+  },
+  {
+   "pid": "seawright_ny",
+   "name": "Rebecca A. Seawright",
+   "officialListing": "Rebecca A. Seawright",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 76
+  },
+  {
+   "pid": "sempolinski_ny",
+   "name": "Joe Sempolinski",
+   "officialListing": "Joe Sempolinski",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 148
+  },
+  {
+   "pid": "septimo_ny",
+   "name": "Amanda Septimo",
+   "officialListing": "Amanda Septimo",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 84
+  },
+  {
+   "pid": "shimsky_ny",
+   "name": "MaryJane Shimsky",
+   "officialListing": "MaryJane Shimsky",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 92
+  },
+  {
+   "pid": "shrestha_ny",
+   "name": "Sarahana Shrestha",
+   "officialListing": "Sarahana Shrestha",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 103
+  },
+  {
+   "pid": "simon_ny",
+   "name": "Jo Anne Simon",
+   "officialListing": "Jo Anne Simon",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 52
+  },
+  {
+   "pid": "simone_ny",
+   "name": "Tony Simone",
+   "officialListing": "Tony Simone",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 75
+  },
+  {
+   "pid": "simpson_ny",
+   "name": "Matthew Simpson",
+   "officialListing": "Matthew Simpson",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 114
+  },
+  {
+   "pid": "slater_ny",
+   "name": "Matt Slater",
+   "officialListing": "Matt Slater",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 94
+  },
+  {
+   "pid": "smith_ny",
+   "name": "Doug Smith",
+   "officialListing": "Doug Smith",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 5
+  },
+  {
+   "pid": "smullen_ny",
+   "name": "Robert Smullen",
+   "officialListing": "Robert Smullen",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 118
+  },
+  {
+   "pid": "solages_ny",
+   "name": "Michaelle C. Solages",
+   "officialListing": "Michaelle C. Solages",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 22
+  },
+  {
+   "pid": "steck_ny",
+   "name": "Phil Steck",
+   "officialListing": "Phil Steck",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 110
+  },
+  {
+   "pid": "stern_ny",
+   "name": "Steve Stern",
+   "officialListing": "Steve Stern",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 10
+  },
+  {
+   "pid": "stirpe_ny",
+   "name": "Al Stirpe",
+   "officialListing": "Al Stirpe",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 127
+  },
+  {
+   "pid": "tague_ny",
+   "name": "Chris Tague",
+   "officialListing": "Chris Tague",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 102
+  },
+  {
+   "pid": "tannousis_ny",
+   "name": "Michael Tannousis",
+   "officialListing": "Michael Tannousis",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 64
+  },
+  {
+   "pid": "tapia_ny",
+   "name": "Yudelka Tapia",
+   "officialListing": "Yudelka Tapia",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 86
+  },
+  {
+   "pid": "taylor_ny",
+   "name": "Al Taylor",
+   "officialListing": "Al Taylor",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 71
+  },
+  {
+   "pid": "torres_ny",
+   "name": "Emérita Torres",
+   "officialListing": "Emérita Torres",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 85
+  },
+  {
+   "pid": "vanel_ny",
+   "name": "Clyde Vanel",
+   "officialListing": "Clyde Vanel",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 33
+  },
+  {
+   "pid": "walker_ny",
+   "name": "Latrice M. Walker",
+   "officialListing": "Latrice M. Walker",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 55
+  },
+  {
+   "pid": "walsh_ny",
+   "name": "Mary Beth Walsh",
+   "officialListing": "Mary Beth Walsh",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 112
+  },
+  {
+   "pid": "weprin_ny",
+   "name": "David I. Weprin",
+   "officialListing": "David I. Weprin",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 24
+  },
+  {
+   "pid": "wieder_ny",
+   "name": "Aron Wieder",
+   "officialListing": "Aron Wieder",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 97
+  },
+  {
+   "pid": "williams_ny",
+   "name": "Jaime R. Williams",
+   "officialListing": "Jaime R. Williams",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 59
+  },
+  {
+   "pid": "woerner_ny",
+   "name": "Carrie Woerner",
+   "officialListing": "Carrie Woerner",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 113
+  },
+  {
+   "pid": "wright_ny",
+   "name": "Jordan J.G. Wright",
+   "officialListing": "Jordan J.G. Wright",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 70
+  },
+  {
+   "pid": "yeger_ny",
+   "name": "Kalman Yeger",
+   "officialListing": "Kalman Yeger",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 41
+  },
+  {
+   "pid": "zaccaro_ny",
+   "name": "John Zaccaro, Jr.",
+   "officialListing": "John Zaccaro, Jr.",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 80
+  },
+  {
+   "pid": "zinerman_ny",
+   "name": "Stefani Zinerman",
+   "officialListing": "Stefani Zinerman",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 56
+  },
+  {
+   "pid": "argall_pa",
+   "name": "David G. Argall",
+   "officialListing": "David G. Argall",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 29
+  },
+  {
+   "pid": "baker_pa",
+   "name": "Lisa Baker",
+   "officialListing": "Lisa Baker",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 20
+  },
+  {
+   "pid": "bartolotta_pa",
+   "name": "Camera Bartolotta",
+   "officialListing": "Camera Bartolotta",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 46
+  },
+  {
+   "pid": "boscola_pa",
+   "name": "Lisa M. Boscola",
+   "officialListing": "Lisa M. Boscola",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 18
+  },
+  {
+   "pid": "brooks_pa",
+   "name": "Michele Brooks",
+   "officialListing": "Michele Brooks",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 50
+  },
+  {
+   "pid": "rosemary_brown_pa",
+   "name": "Rosemary M. Brown",
+   "officialListing": "Rosemary M. Brown",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 40
+  },
+  {
+   "pid": "cappelletti_pa",
+   "name": "Amanda M. Cappelletti",
+   "officialListing": "Amanda M. Cappelletti",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 17
+  },
+  {
+   "pid": "coleman_pa",
+   "name": "Jarrett Coleman",
+   "officialListing": "Jarrett Coleman",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 16
+  },
+  {
+   "pid": "collett_pa",
+   "name": "Maria Collett",
+   "officialListing": "Maria Collett",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 12
+  },
+  {
+   "pid": "comitta_pa",
+   "name": "Carolyn T. Comitta",
+   "officialListing": "Carolyn T. Comitta",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 19
+  },
+  {
+   "pid": "culver_pa",
+   "name": "Lynda Schlegel Culver",
+   "officialListing": "Lynda Schlegel Culver",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 27
+  },
+  {
+   "pid": "dush_pa",
+   "name": "Cris Dush",
+   "officialListing": "Cris Dush",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 25
+  },
+  {
+   "pid": "farry_pa",
+   "name": "Frank A. Farry",
+   "officialListing": "Frank A. Farry",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 6
+  },
+  {
+   "pid": "flynn_pa",
+   "name": "Marty Flynn",
+   "officialListing": "Marty Flynn",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 22
+  },
+  {
+   "pid": "fontana_pa",
+   "name": "Wayne D. Fontana",
+   "officialListing": "Wayne D. Fontana",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 42
+  },
+  {
+   "pid": "gebhard_pa",
+   "name": "Chris Gebhard",
+   "officialListing": "Chris Gebhard",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 48
+  },
+  {
+   "pid": "haywood_pa",
+   "name": "Art Haywood",
+   "officialListing": "Art Haywood",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 4
+  },
+  {
+   "pid": "hughes_pa",
+   "name": "Vincent J. Hughes",
+   "officialListing": "Vincent J. Hughes",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 7
+  },
+  {
+   "pid": "hutchinson_pa",
+   "name": "Scott E. Hutchinson",
+   "officialListing": "Scott E. Hutchinson",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 21
+  },
+  {
+   "pid": "kane_pa",
+   "name": "John I. Kane",
+   "officialListing": "John I. Kane",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 9
+  },
+  {
+   "pid": "kearney_pa",
+   "name": "Timothy P. Kearney",
+   "officialListing": "Timothy P. Kearney",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 26
+  },
+  {
+   "pid": "keefer_pa",
+   "name": "Dawn W. Keefer",
+   "officialListing": "Dawn W. Keefer",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 31
+  },
+  {
+   "pid": "kim_pa",
+   "name": "Patty Kim",
+   "officialListing": "Patty Kim",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 15
+  },
+  {
+   "pid": "langerholc_pa",
+   "name": "Wayne Langerholc",
+   "officialListing": "Wayne Langerholc",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 35
+  },
+  {
+   "pid": "laughlin_pa",
+   "name": "Daniel Laughlin",
+   "officialListing": "Daniel Laughlin",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 49
+  },
+  {
+   "pid": "malone_pa",
+   "name": "James Andrew Malone",
+   "officialListing": "James Andrew Malone",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 36
+  },
+  {
+   "pid": "martin_pa",
+   "name": "Scott Martin",
+   "officialListing": "Scott Martin",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 13
+  },
+  {
+   "pid": "nick_miller_pa",
+   "name": "Nick Miller",
+   "officialListing": "Nick Miller",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 14
+  },
+  {
+   "pid": "muth_pa",
+   "name": "Katie J. Muth",
+   "officialListing": "Katie J. Muth",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 44
+  },
+  {
+   "pid": "pennycuick_pa",
+   "name": "Tracy Pennycuick",
+   "officialListing": "Tracy Pennycuick",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 24
+  },
+  {
+   "pid": "phillips_hill_pa",
+   "name": "Kristin Phillips-Hill",
+   "officialListing": "Kristin Phillips-Hill",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 28
+  },
+  {
+   "pid": "picozzi_pa",
+   "name": "Joe Picozzi",
+   "officialListing": "Joe Picozzi",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 5
+  },
+  {
+   "pid": "pisciottano_pa",
+   "name": "Nick Pisciottano",
+   "officialListing": "Nick Pisciottano",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 45
+  },
+  {
+   "pid": "robinson_pa",
+   "name": "Devlin J. Robinson",
+   "officialListing": "Devlin J. Robinson",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 37
+  },
+  {
+   "pid": "rothman_pa",
+   "name": "Greg Rothman",
+   "officialListing": "Greg Rothman",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 34
+  },
+  {
+   "pid": "santarsiero_pa",
+   "name": "Steven J. Santarsiero",
+   "officialListing": "Steven J. Santarsiero",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 10
+  },
+  {
+   "pid": "saval_pa",
+   "name": "Nikil Saval",
+   "officialListing": "Nikil Saval",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 1
+  },
+  {
+   "pid": "schwank_pa",
+   "name": "Judith L. Schwank",
+   "officialListing": "Judith L. Schwank",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 11
+  },
+  {
+   "pid": "stefano_pa",
+   "name": "Patrick J. Stefano",
+   "officialListing": "Patrick J. Stefano",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 32
+  },
+  {
+   "pid": "tartaglione_pa",
+   "name": "Christine M. Tartaglione",
+   "officialListing": "Christine M. Tartaglione",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 2
+  },
+  {
+   "pid": "vogel_pa",
+   "name": "Elder A. Vogel",
+   "officialListing": "Elder A. Vogel",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 47
+  },
+  {
+   "pid": "judy_ward_pa",
+   "name": "Judy Ward",
+   "officialListing": "Judy Ward",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 30
+  },
+  {
+   "pid": "anthony_williams_pa",
+   "name": "Anthony H. Williams",
+   "officialListing": "Anthony H. Williams",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 8
+  },
+  {
+   "pid": "lindsey_williams_pa",
+   "name": "Lindsey M. Williams",
+   "officialListing": "Lindsey M. Williams",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 38
+  },
+  {
+   "pid": "yaw_pa",
+   "name": "Gene Yaw",
+   "officialListing": "Gene Yaw",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 23
+  },
+  {
+   "pid": "abney_pa",
+   "name": "Aerion Abney",
+   "officialListing": "Aerion Abney",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 19
+  },
+  {
+   "pid": "anderson_pa",
+   "name": "Marc S. Anderson",
+   "officialListing": "Marc S. Anderson",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 92
+  },
+  {
+   "pid": "armanini_pa",
+   "name": "Mike Armanini",
+   "officialListing": "Mike Armanini",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 75
+  },
+  {
+   "pid": "banta_pa",
+   "name": "Jacob D. Banta",
+   "officialListing": "Jacob D. Banta",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 4
+  },
+  {
+   "pid": "barger_pa",
+   "name": "Scott Barger",
+   "officialListing": "Scott Barger",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 80
+  },
+  {
+   "pid": "barton_pa",
+   "name": "Jamie Barton",
+   "officialListing": "Jamie Barton",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 124
+  },
+  {
+   "pid": "bashline_pa",
+   "name": "Josh Bashline",
+   "officialListing": "Josh Bashline",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 63
+  },
+  {
+   "pid": "bellmon_pa",
+   "name": "Anthony A. Bellmon",
+   "officialListing": "Anthony A. Bellmon",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 203
+  },
+  {
+   "pid": "benham_pa",
+   "name": "Jessica Benham",
+   "officialListing": "Jessica Benham",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 36
+  },
+  {
+   "pid": "benninghoff_pa",
+   "name": "Kerry A. Benninghoff",
+   "officialListing": "Kerry A. Benninghoff",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 171
+  },
+  {
+   "pid": "bernstine_pa",
+   "name": "Aaron Bernstine",
+   "officialListing": "Aaron Bernstine",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 8
+  },
+  {
+   "pid": "bizzarro_pa",
+   "name": "Ryan A. Bizzarro",
+   "officialListing": "Ryan A. Bizzarro",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 3
+  },
+  {
+   "pid": "bonner_pa",
+   "name": "Timothy R. Bonner",
+   "officialListing": "Timothy R. Bonner",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 17
+  },
+  {
+   "pid": "borowicz_pa",
+   "name": "Stephanie Borowicz",
+   "officialListing": "Stephanie Borowicz",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 76
+  },
+  {
+   "pid": "borowski_pa",
+   "name": "Lisa A. Borowski",
+   "officialListing": "Lisa A. Borowski",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 168
+  },
+  {
+   "pid": "boyd_pa",
+   "name": "Heather Boyd",
+   "officialListing": "Heather Boyd",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 163
+  },
+  {
+   "pid": "bradford_pa",
+   "name": "Matthew D. Bradford",
+   "officialListing": "Matthew D. Bradford",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 70
+  },
+  {
+   "pid": "brennan_pa",
+   "name": "Tim Brennan",
+   "officialListing": "Tim Brennan",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 29
+  },
+  {
+   "pid": "briggs_pa",
+   "name": "Tim Briggs",
+   "officialListing": "Tim Briggs",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 149
+  },
+  {
+   "pid": "amen_brown_pa",
+   "name": "Amen Brown",
+   "officialListing": "Amen Brown",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 10
+  },
+  {
+   "pid": "marla_brown_pa",
+   "name": "Marla Brown",
+   "officialListing": "Marla Brown",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 9
+  },
+  {
+   "pid": "burgos_pa",
+   "name": "Danilo Burgos",
+   "officialListing": "Danilo Burgos",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 197
+  },
+  {
+   "pid": "burns_pa",
+   "name": "Frank Burns",
+   "officialListing": "Frank Burns",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 72
+  },
+  {
+   "pid": "carroll_pa",
+   "name": "Andre D. Carroll",
+   "officialListing": "Andre D. Carroll",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 201
+  },
+  {
+   "pid": "causer_pa",
+   "name": "Martin T. Causer",
+   "officialListing": "Martin T. Causer",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 67
+  },
+  {
+   "pid": "cepeda_freytiz_pa",
+   "name": "Johanny Cepeda-Freytiz",
+   "officialListing": "Johanny Cepeda-Freytiz",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 129
+  },
+  {
+   "pid": "cephas_pa",
+   "name": "Morgan Cephas",
+   "officialListing": "Morgan Cephas",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 192
+  },
+  {
+   "pid": "cerrato_pa",
+   "name": "Melissa Cerrato",
+   "officialListing": "Melissa Cerrato",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 151
+  },
+  {
+   "pid": "ciresi_pa",
+   "name": "Joe Ciresi",
+   "officialListing": "Joe Ciresi",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 146
+  },
+  {
+   "pid": "conklin_pa",
+   "name": "Scott Conklin",
+   "officialListing": "Scott Conklin",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 77
+  },
+  {
+   "pid": "cook_pa",
+   "name": "Bud Cook",
+   "officialListing": "Bud Cook",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 50
+  },
+  {
+   "pid": "cooper_pa",
+   "name": "Jill N. Cooper",
+   "officialListing": "Jill N. Cooper",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 55
+  },
+  {
+   "pid": "curry_pa",
+   "name": "Gina H. Curry",
+   "officialListing": "Gina H. Curry",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 164
+  },
+  {
+   "pid": "cutler_pa",
+   "name": "Bryan Cutler",
+   "officialListing": "Bryan Cutler",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 100
+  },
+  {
+   "pid": "dorsie_pa",
+   "name": "Joseph D'Orsie",
+   "officialListing": "Joseph D'Orsie",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 47
+  },
+  {
+   "pid": "daley_pa",
+   "name": "Mary Jo Daley",
+   "officialListing": "Mary Jo Daley",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 148
+  },
+  {
+   "pid": "davanzo_pa",
+   "name": "Eric Davanzo",
+   "officialListing": "Eric Davanzo",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 58
+  },
+  {
+   "pid": "davidson_pa",
+   "name": "Nathan Davidson",
+   "officialListing": "Nathan Davidson",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 103
+  },
+  {
+   "pid": "davis_pa",
+   "name": "Tina M. Davis",
+   "officialListing": "Tina M. Davis",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 141
+  },
+  {
+   "pid": "dawkins_pa",
+   "name": "Jason Dawkins",
+   "officialListing": "Jason Dawkins",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 179
+  },
+  {
+   "pid": "day_pa",
+   "name": "Gary W. Day",
+   "officialListing": "Gary W. Day",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 187
+  },
+  {
+   "pid": "deasy_pa",
+   "name": "Daniel J. Deasy",
+   "officialListing": "Daniel J. Deasy",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 27
+  },
+  {
+   "pid": "delloso_pa",
+   "name": "David M. Delloso",
+   "officialListing": "David M. Delloso",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 162
+  },
+  {
+   "pid": "delozier_pa",
+   "name": "Sheryl M. Delozier",
+   "officialListing": "Sheryl M. Delozier",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 88
+  },
+  {
+   "pid": "diamond_pa",
+   "name": "Russ Diamond",
+   "officialListing": "Russ Diamond",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 102
+  },
+  {
+   "pid": "donahue_pa",
+   "name": "Kyle Donahue",
+   "officialListing": "Kyle Donahue",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 113
+  },
+  {
+   "pid": "dougherty_pa",
+   "name": "Sean Dougherty",
+   "officialListing": "Sean Dougherty",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 172
+  },
+  {
+   "pid": "dukes_pa",
+   "name": "Brandon Dukes",
+   "officialListing": "Brandon Dukes",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 12
+  },
+  {
+   "pid": "emrick_pa",
+   "name": "Joe Emrick",
+   "officialListing": "Joe Emrick",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 137
+  },
+  {
+   "pid": "fee_pa",
+   "name": "Mindy Fee",
+   "officialListing": "Mindy Fee",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 37
+  },
+  {
+   "pid": "fiedler_pa",
+   "name": "Elizabeth Fiedler",
+   "officialListing": "Elizabeth Fiedler",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 184
+  },
+  {
+   "pid": "fink_pa",
+   "name": "Wendy Fink",
+   "officialListing": "Wendy Fink",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 94
+  },
+  {
+   "pid": "fleming_pa",
+   "name": "Justin C. Fleming",
+   "officialListing": "Justin C. Fleming",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 105
+  },
+  {
+   "pid": "flick_pa",
+   "name": "Jamie L. Flick",
+   "officialListing": "Jamie L. Flick",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 83
+  },
+  {
+   "pid": "flood_pa",
+   "name": "Ann Flood",
+   "officialListing": "Ann Flood",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 138
+  },
+  {
+   "pid": "frankel_pa",
+   "name": "Dan Frankel",
+   "officialListing": "Dan Frankel",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 23
+  },
+  {
+   "pid": "freeman_pa",
+   "name": "Robert Freeman",
+   "officialListing": "Robert Freeman",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 136
+  },
+  {
+   "pid": "friel_pa",
+   "name": "Paul Friel",
+   "officialListing": "Paul Friel",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 26
+  },
+  {
+   "pid": "fritz_pa",
+   "name": "Jonathan Fritz",
+   "officialListing": "Jonathan Fritz",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 111
+  },
+  {
+   "pid": "gallagher_pa",
+   "name": "Pat Gallagher",
+   "officialListing": "Pat Gallagher",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 173
+  },
+  {
+   "pid": "gaydos_pa",
+   "name": "Valerie S. Gaydos",
+   "officialListing": "Valerie S. Gaydos",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 44
+  },
+  {
+   "pid": "gillen_pa",
+   "name": "Mark M. Gillen",
+   "officialListing": "Mark M. Gillen",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 128
+  },
+  {
+   "pid": "giral_pa",
+   "name": "Jose Giral",
+   "officialListing": "Jose Giral",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 180
+  },
+  {
+   "pid": "gleim_pa",
+   "name": "Barbara Gleim",
+   "officialListing": "Barbara Gleim",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 199
+  },
+  {
+   "pid": "goughnour_pa",
+   "name": "Dan Goughnour",
+   "officialListing": "Dan Goughnour",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 35
+  },
+  {
+   "pid": "green_pa",
+   "name": "G. Roni Green",
+   "officialListing": "G. Roni Green",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 190
+  },
+  {
+   "pid": "greiner_pa",
+   "name": "Keith J. Greiner",
+   "officialListing": "Keith J. Greiner",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 43
+  },
+  {
+   "pid": "guenst_pa",
+   "name": "Nancy Guenst",
+   "officialListing": "Nancy Guenst",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 152
+  },
+  {
+   "pid": "guzman_pa",
+   "name": "Manuel Guzman",
+   "officialListing": "Manuel Guzman",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 127
+  },
+  {
+   "pid": "haddock_pa",
+   "name": "Jim Haddock",
+   "officialListing": "Jim Haddock",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 118
+  },
+  {
+   "pid": "hamm_pa",
+   "name": "Joe Hamm",
+   "officialListing": "Joe Hamm",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 84
+  },
+  {
+   "pid": "hanbidge_pa",
+   "name": "Liz Hanbidge",
+   "officialListing": "Liz Hanbidge",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 61
+  },
+  {
+   "pid": "harkins_pa",
+   "name": "Patrick J. Harkins",
+   "officialListing": "Patrick J. Harkins",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 1
+  },
+  {
+   "pid": "jordan_harris_pa",
+   "name": "Jordan A. Harris",
+   "officialListing": "Jordan A. Harris",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 186
+  },
+  {
+   "pid": "keith_harris_pa",
+   "name": "Keith S. Harris",
+   "officialListing": "Keith S. Harris",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 195
+  },
+  {
+   "pid": "heffley_pa",
+   "name": "Doyle Heffley",
+   "officialListing": "Doyle Heffley",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 122
+  },
+  {
+   "pid": "hill_evans_pa",
+   "name": "Carol Hill-Evans",
+   "officialListing": "Carol Hill-Evans",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 95
+  },
+  {
+   "pid": "hogan_pa",
+   "name": "Joe Hogan",
+   "officialListing": "Joe Hogan",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 142
+  },
+  {
+   "pid": "hohenstein_pa",
+   "name": "Joseph C. Hohenstein",
+   "officialListing": "Joseph C. Hohenstein",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 177
+  },
+  {
+   "pid": "howard_pa",
+   "name": "Kristine C. Howard",
+   "officialListing": "Kristine C. Howard",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 167
+  },
+  {
+   "pid": "inglis_pa",
+   "name": "John C. Inglis III",
+   "officialListing": "John C. Inglis III",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 38
+  },
+  {
+   "pid": "irvin_pa",
+   "name": "Rich Irvin",
+   "officialListing": "Rich Irvin",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 81
+  },
+  {
+   "pid": "isaacson_pa",
+   "name": "MaryLouise Isaacson",
+   "officialListing": "MaryLouise Isaacson",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 175
+  },
+  {
+   "pid": "james_pa",
+   "name": "R. Lee James",
+   "officialListing": "R. Lee James",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 64
+  },
+  {
+   "pid": "mike_jones_pa",
+   "name": "Mike Jones",
+   "officialListing": "Mike Jones",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 93
+  },
+  {
+   "pid": "tom_jones_pa",
+   "name": "Tom Jones",
+   "officialListing": "Tom Jones",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 98
+  },
+  {
+   "pid": "kail_pa",
+   "name": "Joshua D. Kail",
+   "officialListing": "Joshua D. Kail",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 15
+  },
+  {
+   "pid": "kauffman_pa",
+   "name": "Rob W. Kauffman",
+   "officialListing": "Rob W. Kauffman",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 89
+  },
+  {
+   "pid": "kazeem_pa",
+   "name": "Carol Kazeem",
+   "officialListing": "Carol Kazeem",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 159
+  },
+  {
+   "pid": "kenyatta_pa",
+   "name": "Malcolm Kenyatta",
+   "officialListing": "Malcolm Kenyatta",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 181
+  },
+  {
+   "pid": "kephart_pa",
+   "name": "Dallas Kephart",
+   "officialListing": "Dallas Kephart",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 73
+  },
+  {
+   "pid": "kerwin_pa",
+   "name": "Joe Kerwin",
+   "officialListing": "Joe Kerwin",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 125
+  },
+  {
+   "pid": "khan_pa",
+   "name": "Tarik Khan",
+   "officialListing": "Tarik Khan",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 194
+  },
+  {
+   "pid": "kinkead_pa",
+   "name": "Emily Kinkead",
+   "officialListing": "Emily Kinkead",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 20
+  },
+  {
+   "pid": "klunk_pa",
+   "name": "Kate A. Klunk",
+   "officialListing": "Kate A. Klunk",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 169
+  },
+  {
+   "pid": "kosierowski_pa",
+   "name": "Bridget M. Kosierowski",
+   "officialListing": "Bridget M. Kosierowski",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 114
+  },
+  {
+   "pid": "kozak_pa",
+   "name": "Roman Kozak",
+   "officialListing": "Roman Kozak",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 14
+  },
+  {
+   "pid": "krajewski_pa",
+   "name": "Rick Krajewski",
+   "officialListing": "Rick Krajewski",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 188
+  },
+  {
+   "pid": "krueger_pa",
+   "name": "Leanne Krueger",
+   "officialListing": "Leanne Krueger",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 161
+  },
+  {
+   "pid": "krupa_pa",
+   "name": "Charity Grimm Krupa",
+   "officialListing": "Charity Grimm Krupa",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 51
+  },
+  {
+   "pid": "kulik_pa",
+   "name": "Anita Astorino Kulik",
+   "officialListing": "Anita Astorino Kulik",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 45
+  },
+  {
+   "pid": "kutz_pa",
+   "name": "Thomas H. Kutz",
+   "officialListing": "Thomas H. Kutz",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 87
+  },
+  {
+   "pid": "kuzma_pa",
+   "name": "Andrew Kuzma",
+   "officialListing": "Andrew Kuzma",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 39
+  },
+  {
+   "pid": "labs_pa",
+   "name": "Shelby Labs",
+   "officialListing": "Shelby Labs",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 143
+  },
+  {
+   "pid": "lawrence_pa",
+   "name": "John A. Lawrence",
+   "officialListing": "John A. Lawrence",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 13
+  },
+  {
+   "pid": "leadbeter_pa",
+   "name": "Robert Leadbeter",
+   "officialListing": "Robert Leadbeter",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 109
+  },
+  {
+   "pid": "mackenzie_pa",
+   "name": "Milou Mackenzie",
+   "officialListing": "Milou Mackenzie",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 131
+  },
+  {
+   "pid": "madden_pa",
+   "name": "Maureen E. Madden",
+   "officialListing": "Maureen E. Madden",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 115
+  },
+  {
+   "pid": "madsen_pa",
+   "name": "Dave Madsen",
+   "officialListing": "Dave Madsen",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 104
+  },
+  {
+   "pid": "major_pa",
+   "name": "Abby Major",
+   "officialListing": "Abby Major",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 60
+  },
+  {
+   "pid": "mako_pa",
+   "name": "Zachary Mako",
+   "officialListing": "Zachary Mako",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 183
+  },
+  {
+   "pid": "malagari_pa",
+   "name": "Steven R. Malagari",
+   "officialListing": "Steven R. Malagari",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 53
+  },
+  {
+   "pid": "maloney_pa",
+   "name": "David M. Maloney",
+   "officialListing": "David M. Maloney",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 130
+  },
+  {
+   "pid": "marcell_pa",
+   "name": "Kristin Marcell",
+   "officialListing": "Kristin Marcell",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 178
+  },
+  {
+   "pid": "margetas_pa",
+   "name": "George H Margetas",
+   "officialListing": "George H Margetas",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 196
+  },
+  {
+   "pid": "markosek_pa",
+   "name": "Brandon J. Markosek",
+   "officialListing": "Brandon J. Markosek",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 25
+  },
+  {
+   "pid": "matzie_pa",
+   "name": "Robert F. Matzie",
+   "officialListing": "Robert F. Matzie",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 16
+  },
+  {
+   "pid": "mayes_pa",
+   "name": "La'Tasha D. Mayes",
+   "officialListing": "La'Tasha D. Mayes",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 24
+  },
+  {
+   "pid": "mazzocco_pa",
+   "name": "Jen Mazzocco",
+   "officialListing": "Jen Mazzocco",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 42
+  },
+  {
+   "pid": "mcandrew_pa",
+   "name": "Joe McAndrew",
+   "officialListing": "Joe McAndrew",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 32
+  },
+  {
+   "pid": "mcneill_pa",
+   "name": "Jeanne McNeill",
+   "officialListing": "Jeanne McNeill",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 133
+  },
+  {
+   "pid": "mehaffie_pa",
+   "name": "Thomas L. Mehaffie",
+   "officialListing": "Thomas L. Mehaffie",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 106
+  },
+  {
+   "pid": "mentzer_pa",
+   "name": "Steven C. Mentzer",
+   "officialListing": "Steven C. Mentzer",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 97
+  },
+  {
+   "pid": "merski_pa",
+   "name": "Robert E. Merski",
+   "officialListing": "Robert E. Merski",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 2
+  },
+  {
+   "pid": "metzgar_pa",
+   "name": "Carl Walker Metzgar",
+   "officialListing": "Carl Walker Metzgar",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 69
+  },
+  {
+   "pid": "mihalek_pa",
+   "name": "Natalie Mihalek",
+   "officialListing": "Natalie Mihalek",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 40
+  },
+  {
+   "pid": "brett_miller_pa",
+   "name": "Brett R. Miller",
+   "officialListing": "Brett R. Miller",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 41
+  },
+  {
+   "pid": "moul_pa",
+   "name": "Dan Moul",
+   "officialListing": "Dan Moul",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 91
+  },
+  {
+   "pid": "mullins_pa",
+   "name": "Kyle J. Mullins",
+   "officialListing": "Kyle J. Mullins",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 112
+  },
+  {
+   "pid": "munroe_pa",
+   "name": "Brian Munroe",
+   "officialListing": "Brian Munroe",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 144
+  },
+  {
+   "pid": "mustello_pa",
+   "name": "Marci Mustello",
+   "officialListing": "Marci Mustello",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 11
+  },
+  {
+   "pid": "neilson_pa",
+   "name": "Ed Neilson",
+   "officialListing": "Ed Neilson",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 174
+  },
+  {
+   "pid": "eric_nelson_pa",
+   "name": "Eric R. Nelson",
+   "officialListing": "Eric R. Nelson",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 57
+  },
+  {
+   "pid": "napoleon_nelson_pa",
+   "name": "Napoleon J. Nelson",
+   "officialListing": "Napoleon J. Nelson",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 154
+  },
+  {
+   "pid": "omara_pa",
+   "name": "Jennifer O'Mara",
+   "officialListing": "Jennifer O'Mara",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 165
+  },
+  {
+   "pid": "oneal_pa",
+   "name": "Timothy J. O'Neal",
+   "officialListing": "Timothy J. O'Neal",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 48
+  },
+  {
+   "pid": "olsommer_pa",
+   "name": "Jeff Olsommer",
+   "officialListing": "Jeff Olsommer",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 139
+  },
+  {
+   "pid": "ortitay_pa",
+   "name": "Jason Ortitay",
+   "officialListing": "Jason Ortitay",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 46
+  },
+  {
+   "pid": "otten_pa",
+   "name": "Danielle Friel Otten",
+   "officialListing": "Danielle Friel Otten",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 155
+  },
+  {
+   "pid": "owlett_pa",
+   "name": "Clint Owlett",
+   "officialListing": "Clint Owlett",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 68
+  },
+  {
+   "pid": "parker_pa",
+   "name": "Darisha K. Parker",
+   "officialListing": "Darisha K. Parker",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 198
+  },
+  {
+   "pid": "pashinski_pa",
+   "name": "Eddie Day Pashinski",
+   "officialListing": "Eddie Day Pashinski",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 121
+  },
+  {
+   "pid": "pickett_pa",
+   "name": "Tina Pickett",
+   "officialListing": "Tina Pickett",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 110
+  },
+  {
+   "pid": "pielli_pa",
+   "name": "Chris Pielli",
+   "officialListing": "Chris Pielli",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 156
+  },
+  {
+   "pid": "powell_pa",
+   "name": "Lindsay Powell",
+   "officialListing": "Lindsay Powell",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 21
+  },
+  {
+   "pid": "probst_pa",
+   "name": "Tarah Probst",
+   "officialListing": "Tarah Probst",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 189
+  },
+  {
+   "pid": "prokopiak_pa",
+   "name": "Jim Prokopiak",
+   "officialListing": "Jim Prokopiak",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 140
+  },
+  {
+   "pid": "pugh_pa",
+   "name": "Brenda M. Pugh",
+   "officialListing": "Brenda M. Pugh",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 120
+  },
+  {
+   "pid": "rabb_pa",
+   "name": "Christopher M. Rabb",
+   "officialListing": "Christopher M. Rabb",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 200
+  },
+  {
+   "pid": "rader_pa",
+   "name": "Jack Rader",
+   "officialListing": "Jack Rader",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 176
+  },
+  {
+   "pid": "rapp_pa",
+   "name": "Kathy L. Rapp",
+   "officialListing": "Kathy L. Rapp",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 65
+  },
+  {
+   "pid": "rasel_pa",
+   "name": "Brian C. Rasel",
+   "officialListing": "Brian C. Rasel",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 56
+  },
+  {
+   "pid": "reichard_pa",
+   "name": "Chad G. Reichard",
+   "officialListing": "Chad G. Reichard",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 90
+  },
+  {
+   "pid": "rigby_pa",
+   "name": "Jim Rigby",
+   "officialListing": "Jim Rigby",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 71
+  },
+  {
+   "pid": "rivera_pa",
+   "name": "Nikki Rivera",
+   "officialListing": "Nikki Rivera",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 96
+  },
+  {
+   "pid": "roae_pa",
+   "name": "Brad Roae",
+   "officialListing": "Brad Roae",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 6
+  },
+  {
+   "pid": "rossi_pa",
+   "name": "Leslie Rossi",
+   "officialListing": "Leslie Rossi",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 59
+  },
+  {
+   "pid": "rowe_pa",
+   "name": "David H. Rowe",
+   "officialListing": "David H. Rowe",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 85
+  },
+  {
+   "pid": "rusnock_pa",
+   "name": "Jacklyn Rusnock",
+   "officialListing": "Jacklyn Rusnock",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 126
+  },
+  {
+   "pid": "ryncavage_pa",
+   "name": "Alec J. Ryncavage",
+   "officialListing": "Alec J. Ryncavage",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 119
+  },
+  {
+   "pid": "salisbury_pa",
+   "name": "Abigail Salisbury",
+   "officialListing": "Abigail Salisbury",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 34
+  },
+  {
+   "pid": "samuelson_pa",
+   "name": "Steve Samuelson",
+   "officialListing": "Steve Samuelson",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 135
+  },
+  {
+   "pid": "sanchez_pa",
+   "name": "Benjamin V. Sanchez",
+   "officialListing": "Benjamin V. Sanchez",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 153
+  },
+  {
+   "pid": "sappey_pa",
+   "name": "Christina D. Sappey",
+   "officialListing": "Christina D. Sappey",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 158
+  },
+  {
+   "pid": "scheuren_pa",
+   "name": "Donna Scheuren",
+   "officialListing": "Donna Scheuren",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 147
+  },
+  {
+   "pid": "schlegel_pa",
+   "name": "John A. Schlegel",
+   "officialListing": "John A. Schlegel",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 101
+  },
+  {
+   "pid": "schlossberg_pa",
+   "name": "Michael H. Schlossberg",
+   "officialListing": "Michael H. Schlossberg",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 132
+  },
+  {
+   "pid": "schweyer_pa",
+   "name": "Peter Schweyer",
+   "officialListing": "Peter Schweyer",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 134
+  },
+  {
+   "pid": "scott_pa",
+   "name": "Greg Scott",
+   "officialListing": "Greg Scott",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 54
+  },
+  {
+   "pid": "shaffer_pa",
+   "name": "Jeremy Shaffer",
+   "officialListing": "Jeremy Shaffer",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 28
+  },
+  {
+   "pid": "shusterman_pa",
+   "name": "Melissa L. Shusterman",
+   "officialListing": "Melissa L. Shusterman",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 157
+  },
+  {
+   "pid": "smith_pa",
+   "name": "Brian Smith",
+   "officialListing": "Brian Smith",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 66
+  },
+  {
+   "pid": "smith_wade_el_pa",
+   "name": "Ismail Smith-Wade-El",
+   "officialListing": "Ismail Smith-Wade-El",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 49
+  },
+  {
+   "pid": "solomon_pa",
+   "name": "Jared G. Solomon",
+   "officialListing": "Jared G. Solomon",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 202
+  },
+  {
+   "pid": "staats_pa",
+   "name": "Craig T. Staats",
+   "officialListing": "Craig T. Staats",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 145
+  },
+  {
+   "pid": "stambaugh_pa",
+   "name": "Perry A. Stambaugh",
+   "officialListing": "Perry A. Stambaugh",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 86
+  },
+  {
+   "pid": "steele_pa",
+   "name": "Mandy Steele",
+   "officialListing": "Mandy Steele",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 33
+  },
+  {
+   "pid": "stehr_pa",
+   "name": "Joanne Stehr",
+   "officialListing": "Joanne Stehr",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 107
+  },
+  {
+   "pid": "stender_pa",
+   "name": "Michael Stender",
+   "officialListing": "Michael Stender",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 108
+  },
+  {
+   "pid": "struzzi_pa",
+   "name": "James B. Struzzi",
+   "officialListing": "James B. Struzzi",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 62
+  },
+  {
+   "pid": "takac_pa",
+   "name": "Paul Takac",
+   "officialListing": "Paul Takac",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 82
+  },
+  {
+   "pid": "tiburcio_pa",
+   "name": "Ana Tiburcio",
+   "officialListing": "Ana Tiburcio",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 22
+  },
+  {
+   "pid": "tomlinson_pa",
+   "name": "Kathleen C. Tomlinson",
+   "officialListing": "Kathleen C. Tomlinson",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 18
+  },
+  {
+   "pid": "topper_pa",
+   "name": "Jesse Topper",
+   "officialListing": "Jesse Topper",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 78
+  },
+  {
+   "pid": "twardzik_pa",
+   "name": "Tim Twardzik",
+   "officialListing": "Tim Twardzik",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 123
+  },
+  {
+   "pid": "venkat_pa",
+   "name": "Arvind Venkat",
+   "officialListing": "Arvind Venkat",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 30
+  },
+  {
+   "pid": "verobish_pa",
+   "name": "Andrea C. Verobish",
+   "officialListing": "Andrea C. Verobish",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 79
+  },
+  {
+   "pid": "vitali_pa",
+   "name": "Greg Vitali",
+   "officialListing": "Greg Vitali",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 166
+  },
+  {
+   "pid": "wallen_pa",
+   "name": "Catherine I Wallen",
+   "officialListing": "Catherine I Wallen",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 193
+  },
+  {
+   "pid": "walsh_pa",
+   "name": "Jamie Walsh",
+   "officialListing": "Jamie Walsh",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 117
+  },
+  {
+   "pid": "warner_pa",
+   "name": "Ryan Warner",
+   "officialListing": "Ryan Warner",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 52
+  },
+  {
+   "pid": "warren_pa",
+   "name": "Perry S. Warren",
+   "officialListing": "Perry S. Warren",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 31
+  },
+  {
+   "pid": "watro_pa",
+   "name": "Dane Watro",
+   "officialListing": "Dane Watro",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 116
+  },
+  {
+   "pid": "waxman_pa",
+   "name": "Ben Waxman",
+   "officialListing": "Ben Waxman",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 182
+  },
+  {
+   "pid": "weaknecht_pa",
+   "name": "Eric J. Weaknecht",
+   "officialListing": "Eric J. Weaknecht",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 5
+  },
+  {
+   "pid": "webster_pa",
+   "name": "Joe Webster",
+   "officialListing": "Joe Webster",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 150
+  },
+  {
+   "pid": "wentling_pa",
+   "name": "Parke Wentling",
+   "officialListing": "Parke Wentling",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 7
+  },
+  {
+   "pid": "white_pa",
+   "name": "Martina A. White",
+   "officialListing": "Martina A. White",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 170
+  },
+  {
+   "pid": "craig_williams_pa",
+   "name": "Craig Williams",
+   "officialListing": "Craig Williams",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 160
+  },
+  {
+   "pid": "dan_williams_pa",
+   "name": "Dan K. Williams",
+   "officialListing": "Dan K. Williams",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 74
+  },
+  {
+   "pid": "young_pa",
+   "name": "Regina G. Young",
+   "officialListing": "Regina G. Young",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 185
+  },
+  {
+   "pid": "zimmerman_pa",
+   "name": "David H. Zimmerman",
+   "officialListing": "David H. Zimmerman",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 99
+  },
+  {
+   "pid": "anderson_il",
+   "name": "Neil Anderson",
+   "officialListing": "Neil Anderson",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 47
+  },
+  {
+   "pid": "aquino_il",
+   "name": "Omar Aquino",
+   "officialListing": "Omar Aquino",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 2
+  },
+  {
+   "pid": "arellano_il",
+   "name": "Li Arellano, Jr.",
+   "officialListing": "Li Arellano, Jr.",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 37
+  },
+  {
+   "pid": "balkema_il",
+   "name": "Chris Balkema",
+   "officialListing": "Chris Balkema",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 53
+  },
+  {
+   "pid": "belt_il",
+   "name": "Christopher Belt",
+   "officialListing": "Christopher Belt",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 57
+  },
+  {
+   "pid": "bryant_il",
+   "name": "Terri Bryant",
+   "officialListing": "Terri Bryant",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 58
+  },
+  {
+   "pid": "castro_il",
+   "name": "Cristina Castro",
+   "officialListing": "Cristina Castro",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 22
+  },
+  {
+   "pid": "cervantes_il",
+   "name": "Javier L. Cervantes",
+   "officialListing": "Javier L. Cervantes",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 1
+  },
+  {
+   "pid": "chesney_il",
+   "name": "Andrew S. Chesney",
+   "officialListing": "Andrew S. Chesney",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 45
+  },
+  {
+   "pid": "collins_il",
+   "name": "Lakesia Collins",
+   "officialListing": "Lakesia Collins",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 5
+  },
+  {
+   "pid": "cunningham_il",
+   "name": "Bill Cunningham",
+   "officialListing": "Bill Cunningham",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 18
+  },
+  {
+   "pid": "dewitte_il",
+   "name": "Donald P. DeWitte",
+   "officialListing": "Donald P. DeWitte",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 33
+  },
+  {
+   "pid": "edly_allen_il",
+   "name": "Mary Edly-Allen",
+   "officialListing": "Mary Edly-Allen",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 31
+  },
+  {
+   "pid": "ellman_il",
+   "name": "Laura Ellman",
+   "officialListing": "Laura Ellman",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 21
+  },
+  {
+   "pid": "faraci_il",
+   "name": "Paul Faraci",
+   "officialListing": "Paul Faraci",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 52
+  },
+  {
+   "pid": "feigenholtz_il",
+   "name": "Sara Feigenholtz",
+   "officialListing": "Sara Feigenholtz",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 6
+  },
+  {
+   "pid": "fine_il",
+   "name": "Laura Fine",
+   "officialListing": "Laura Fine",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 9
+  },
+  {
+   "pid": "hilton_il",
+   "name": "Suzy Glowiak Hilton",
+   "officialListing": "Suzy Glowiak Hilton",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 23
+  },
+  {
+   "pid": "guzman_il",
+   "name": "Graciela Guzmán",
+   "officialListing": "Graciela Guzmán",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 20
+  },
+  {
+   "pid": "halpin_il",
+   "name": "Michael W. Halpin",
+   "officialListing": "Michael W. Halpin",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 36
+  },
+  {
+   "pid": "harris_il",
+   "name": "Napoleon Harris III",
+   "officialListing": "Napoleon Harris III",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 15
+  },
+  {
+   "pid": "harriss_il",
+   "name": "Erica Harriss",
+   "officialListing": "Erica Harriss",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 56
+  },
+  {
+   "pid": "hastings_il",
+   "name": "Michael E. Hastings",
+   "officialListing": "Michael E. Hastings",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 19
+  },
+  {
+   "pid": "hills_il",
+   "name": "Darby A. Hills",
+   "officialListing": "Darby A. Hills",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 26
+  },
+  {
+   "pid": "holmes_il",
+   "name": "Linda Holmes",
+   "officialListing": "Linda Holmes",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 42
+  },
+  {
+   "pid": "hunter_il",
+   "name": "Mattie Hunter",
+   "officialListing": "Mattie Hunter",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 3
+  },
+  {
+   "pid": "jacobs_il",
+   "name": "Paul Jacobs",
+   "officialListing": "Paul Jacobs",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 59
+  },
+  {
+   "pid": "adriane_johnson_il",
+   "name": "Adriane L. Johnson",
+   "officialListing": "Adriane L. Johnson",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 30
+  },
+  {
+   "pid": "emil_jones_il",
+   "name": "Emil Jones, III",
+   "officialListing": "Emil Jones, III",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 14
+  },
+  {
+   "pid": "joyce_il",
+   "name": "Patrick J. Joyce",
+   "officialListing": "Patrick J. Joyce",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 40
+  },
+  {
+   "pid": "koehler_il",
+   "name": "David Koehler",
+   "officialListing": "David Koehler",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 46
+  },
+  {
+   "pid": "lewis_il",
+   "name": "Seth Lewis",
+   "officialListing": "Seth Lewis",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 24
+  },
+  {
+   "pid": "cappel_il",
+   "name": "Meg Loughran Cappel",
+   "officialListing": "Meg Loughran Cappel",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 49
+  },
+  {
+   "pid": "martwick_il",
+   "name": "Robert F. Martwick",
+   "officialListing": "Robert F. Martwick",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 10
+  },
+  {
+   "pid": "mcclure_il",
+   "name": "Steve McClure",
+   "officialListing": "Steve McClure",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 54
+  },
+  {
+   "pid": "morrison_il",
+   "name": "Julie A. Morrison",
+   "officialListing": "Julie A. Morrison",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 29
+  },
+  {
+   "pid": "murphy_il",
+   "name": "Laura M. Murphy",
+   "officialListing": "Laura M. Murphy",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 28
+  },
+  {
+   "pid": "plummer_il",
+   "name": "Jason Plummer",
+   "officialListing": "Jason Plummer",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 55
+  },
+  {
+   "pid": "porfirio_il",
+   "name": "Mike Porfirio",
+   "officialListing": "Mike Porfirio",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 11
+  },
+  {
+   "pid": "preston_il",
+   "name": "Willie Preston",
+   "officialListing": "Willie Preston",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 16
+  },
+  {
+   "pid": "rezin_il",
+   "name": "Sue Rezin",
+   "officialListing": "Sue Rezin",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 38
+  },
+  {
+   "pid": "rose_il",
+   "name": "Chapin Rose",
+   "officialListing": "Chapin Rose",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 51
+  },
+  {
+   "pid": "simmons_il",
+   "name": "Mike Simmons",
+   "officialListing": "Mike Simmons",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 7
+  },
+  {
+   "pid": "sims_il",
+   "name": "Elgie R. Sims, Jr.",
+   "officialListing": "Elgie R. Sims, Jr.",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 17
+  },
+  {
+   "pid": "stadelman_il",
+   "name": "Steve Stadelman",
+   "officialListing": "Steve Stadelman",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 34
+  },
+  {
+   "pid": "syverson_il",
+   "name": "Dave Syverson",
+   "officialListing": "Dave Syverson",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 35
+  },
+  {
+   "pid": "tracy_il",
+   "name": "Jil Tracy",
+   "officialListing": "Jil Tracy",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 50
+  },
+  {
+   "pid": "doris_turner_il",
+   "name": "Doris Turner",
+   "officialListing": "Doris Turner",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 48
+  },
+  {
+   "pid": "sally_turner_il",
+   "name": "Sally J. Turner",
+   "officialListing": "Sally J. Turner",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 44
+  },
+  {
+   "pid": "ventura_il",
+   "name": "Rachel Ventura",
+   "officialListing": "Rachel Ventura",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 43
+  },
+  {
+   "pid": "villa_il",
+   "name": "Karina Villa",
+   "officialListing": "Karina Villa",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 25
+  },
+  {
+   "pid": "villanueva_il",
+   "name": "Celina Villanueva",
+   "officialListing": "Celina Villanueva",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 12
+  },
+  {
+   "pid": "villivalam_il",
+   "name": "Ram Villivalam",
+   "officialListing": "Ram Villivalam",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 8
+  },
+  {
+   "pid": "walker_il",
+   "name": "Mark L. Walker",
+   "officialListing": "Mark L. Walker",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 27
+  },
+  {
+   "pid": "wilcox_il",
+   "name": "Craig Wilcox",
+   "officialListing": "Craig Wilcox",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 32
+  },
+  {
+   "pid": "ammons_il",
+   "name": "Carol Ammons",
+   "officialListing": "Carol Ammons",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 103
+  },
+  {
+   "pid": "andrade_il",
+   "name": "Jaime M. Andrade, Jr.",
+   "officialListing": "Jaime M. Andrade, Jr.",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 40
+  },
+  {
+   "pid": "avelar_il",
+   "name": "Dagmara Avelar",
+   "officialListing": "Dagmara Avelar",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 85
+  },
+  {
+   "pid": "blair_sherlock_il",
+   "name": "Diane Blair-Sherlock",
+   "officialListing": "Diane Blair-Sherlock",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 46
+  },
+  {
+   "pid": "briel_il",
+   "name": "Amy Briel",
+   "officialListing": "Amy Briel",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 76
+  },
+  {
+   "pid": "buckner_il",
+   "name": "Kam Buckner",
+   "officialListing": "Kam Buckner",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 26
+  },
+  {
+   "pid": "bunting_il",
+   "name": "Jason R. Bunting",
+   "officialListing": "Jason R. Bunting",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 106
+  },
+  {
+   "pid": "cabello_il",
+   "name": "John M. Cabello",
+   "officialListing": "John M. Cabello",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 90
+  },
+  {
+   "pid": "canty_il",
+   "name": "Mary Beth Canty",
+   "officialListing": "Mary Beth Canty",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 54
+  },
+  {
+   "pid": "cassidy_il",
+   "name": "Kelly M. Cassidy",
+   "officialListing": "Kelly M. Cassidy",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 14
+  },
+  {
+   "pid": "chung_il",
+   "name": "Sharon Chung",
+   "officialListing": "Sharon Chung",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 91
+  },
+  {
+   "pid": "cochran_il",
+   "name": "Justin Cochran",
+   "officialListing": "Justin Cochran",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 55
+  },
+  {
+   "pid": "coffey_il",
+   "name": "Michael J. Coffey, Jr.",
+   "officialListing": "Michael J. Coffey, Jr.",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 95
+  },
+  {
+   "pid": "crawford_il",
+   "name": "Michael Crawford",
+   "officialListing": "Michael Crawford",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 31
+  },
+  {
+   "pid": "crespo_il",
+   "name": "Fred Crespo",
+   "officialListing": "Fred Crespo",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 44
+  },
+  {
+   "pid": "croke_il",
+   "name": "Margaret Croke",
+   "officialListing": "Margaret Croke",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 12
+  },
+  {
+   "pid": "davidsmeyer_il",
+   "name": "C.D. Davidsmeyer",
+   "officialListing": "Christopher \"C.D.\" Davidsmeyer",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 100
+  },
+  {
+   "pid": "jed_davis_il",
+   "name": "Jed Davis",
+   "officialListing": "Jed Davis",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 75
+  },
+  {
+   "pid": "lisa_davis_il",
+   "name": "Lisa Davis",
+   "officialListing": "Lisa Davis",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 32
+  },
+  {
+   "pid": "will_davis_il",
+   "name": "Will Davis",
+   "officialListing": "William \"Will\" Davis",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 30
+  },
+  {
+   "pid": "deering_il",
+   "name": "Regan Deering",
+   "officialListing": "Regan Deering",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 88
+  },
+  {
+   "pid": "delarosa_il",
+   "name": "Margaret A. DeLaRosa",
+   "officialListing": "Margaret A. DeLaRosa",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 42
+  },
+  {
+   "pid": "delgado_il",
+   "name": "Eva-Dina Delgado",
+   "officialListing": "Eva-Dina Delgado",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 3
+  },
+  {
+   "pid": "deluca_il",
+   "name": "Anthony DeLuca",
+   "officialListing": "Anthony DeLuca",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 80
+  },
+  {
+   "pid": "deuter_il",
+   "name": "Martha Deuter",
+   "officialListing": "Martha Deuter",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 45
+  },
+  {
+   "pid": "didech_il",
+   "name": "Daniel Didech",
+   "officialListing": "Daniel Didech",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 59
+  },
+  {
+   "pid": "heitman_il",
+   "name": "Jessica Dixon Heitman",
+   "officialListing": "Jessica Dixon Heitman",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 97
+  },
+  {
+   "pid": "doody_il",
+   "name": "Scott Doody",
+   "officialListing": "Scott Doody",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 118
+  },
+  {
+   "pid": "buclet_il",
+   "name": "Kimberly Du Buclet",
+   "officialListing": "Kimberly Du Buclet",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 5
+  },
+  {
+   "pid": "elik_il",
+   "name": "Amy Elik",
+   "officialListing": "Amy Elik",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 111
+  },
+  {
+   "pid": "evans_il",
+   "name": "Marcus C. Evans, Jr.",
+   "officialListing": "Marcus C. Evans, Jr.",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 33
+  },
+  {
+   "pid": "dias_il",
+   "name": "Laura Faver Dias",
+   "officialListing": "Laura Faver Dias",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 62
+  },
+  {
+   "pid": "friess_il",
+   "name": "David Friess",
+   "officialListing": "David Friess",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 115
+  },
+  {
+   "pid": "fritts_il",
+   "name": "Bradley Fritts",
+   "officialListing": "Bradley Fritts",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 74
+  },
+  {
+   "pid": "gabel_il",
+   "name": "Robyn Gabel",
+   "officialListing": "Robyn Gabel",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 18
+  },
+  {
+   "pid": "gill_il",
+   "name": "Mary Gill",
+   "officialListing": "Mary Gill",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 35
+  },
+  {
+   "pid": "gong_gershowitz_il",
+   "name": "Jennifer Gong-Gershowitz",
+   "officialListing": "Jennifer Gong-Gershowitz",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 17
+  },
+  {
+   "pid": "gonzalez_il",
+   "name": "Edgar González, Jr.",
+   "officialListing": "Edgar González, Jr.",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 23
+  },
+  {
+   "pid": "gordon_booth_il",
+   "name": "Jehan Gordon-Booth",
+   "officialListing": "Jehan Gordon-Booth",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 92
+  },
+  {
+   "pid": "grant_il",
+   "name": "Amy L. Grant",
+   "officialListing": "Amy L. Grant",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 47
+  },
+  {
+   "pid": "grasse_il",
+   "name": "Nicolle Grasse",
+   "officialListing": "Nicolle Grasse",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 53
+  },
+  {
+   "pid": "guerrero_cuellar_il",
+   "name": "Angelica Guerrero-Cuellar",
+   "officialListing": "Angelica Guerrero-Cuellar",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 22
+  },
+  {
+   "pid": "guzzardi_il",
+   "name": "Will Guzzardi",
+   "officialListing": "Will Guzzardi",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 39
+  },
+  {
+   "pid": "haas_il",
+   "name": "Jackie Haas",
+   "officialListing": "Jackie Haas",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 79
+  },
+  {
+   "pid": "halbrook_il",
+   "name": "Brad Halbrook",
+   "officialListing": "Brad Halbrook",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 107
+  },
+  {
+   "pid": "hammond_il",
+   "name": "Norine K. Hammond",
+   "officialListing": "Norine K. Hammond",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 94
+  },
+  {
+   "pid": "hanson_il",
+   "name": "Matt Hanson",
+   "officialListing": "Matt Hanson",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 83
+  },
+  {
+   "pid": "harper_il",
+   "name": "Sonya M. Harper",
+   "officialListing": "Sonya M. Harper",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 6
+  },
+  {
+   "pid": "hauter_il",
+   "name": "William E Hauter",
+   "officialListing": "William E Hauter",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 87
+  },
+  {
+   "pid": "barbara_hernandez_il",
+   "name": "Barbara Hernandez",
+   "officialListing": "Barbara Hernandez",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 50
+  },
+  {
+   "pid": "lisa_hernandez_il",
+   "name": "Lisa Hernandez",
+   "officialListing": "Elizabeth \"Lisa\" Hernandez",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 2
+  },
+  {
+   "pid": "norma_hernandez_il",
+   "name": "Norma Hernandez",
+   "officialListing": "Norma Hernandez",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 77
+  },
+  {
+   "pid": "hirschauer_il",
+   "name": "Maura Hirschauer",
+   "officialListing": "Maura Hirschauer",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 49
+  },
+  {
+   "pid": "hoffman_il",
+   "name": "Jay Hoffman",
+   "officialListing": "Jay Hoffman",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 113
+  },
+  {
+   "pid": "huynh_il",
+   "name": "Hoan Huynh",
+   "officialListing": "Hoan Huynh",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 13
+  },
+  {
+   "pid": "jimenez_il",
+   "name": "Lilian Jiménez",
+   "officialListing": "Lilian Jiménez",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 4
+  },
+  {
+   "pid": "gregg_johnson_il",
+   "name": "Gregg Johnson",
+   "officialListing": "Gregg Johnson",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 72
+  },
+  {
+   "pid": "thaddeus_jones_il",
+   "name": "Thaddeus Jones",
+   "officialListing": "Thaddeus Jones",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 29
+  },
+  {
+   "pid": "muhl_il",
+   "name": "Tracy Katz Muhl",
+   "officialListing": "Tracy Katz Muhl",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 57
+  },
+  {
+   "pid": "keicher_il",
+   "name": "Jeff Keicher",
+   "officialListing": "Jeff Keicher",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 70
+  },
+  {
+   "pid": "kelly_il",
+   "name": "Michael J. Kelly",
+   "officialListing": "Michael J. Kelly",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 15
+  },
+  {
+   "pid": "kifowit_il",
+   "name": "Stephanie A. Kifowit",
+   "officialListing": "Stephanie A. Kifowit",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 84
+  },
+  {
+   "pid": "ha_il",
+   "name": "Nicole La Ha",
+   "officialListing": "Nicole La Ha",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 82
+  },
+  {
+   "pid": "lapointe_il",
+   "name": "Lindsey LaPointe",
+   "officialListing": "Lindsey LaPointe",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 19
+  },
+  {
+   "pid": "lilly_il",
+   "name": "Camille Y. Lilly",
+   "officialListing": "Camille Y. Lilly",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 78
+  },
+  {
+   "pid": "mah_il",
+   "name": "Theresa Mah",
+   "officialListing": "Theresa Mah",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 24
+  },
+  {
+   "pid": "manley_il",
+   "name": "Natalie A. Manley",
+   "officialListing": "Natalie A. Manley",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 98
+  },
+  {
+   "pid": "mason_il",
+   "name": "Joyce Mason",
+   "officialListing": "Joyce Mason",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 61
+  },
+  {
+   "pid": "mayfield_il",
+   "name": "Rita Mayfield",
+   "officialListing": "Rita Mayfield",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 60
+  },
+  {
+   "pid": "mccombie_il",
+   "name": "Tony M. McCombie",
+   "officialListing": "Tony M. McCombie",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 89
+  },
+  {
+   "pid": "mclaughlin_il",
+   "name": "Martin McLaughlin",
+   "officialListing": "Martin McLaughlin",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 52
+  },
+  {
+   "pid": "meier_il",
+   "name": "Charles Meier",
+   "officialListing": "Charles Meier",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 109
+  },
+  {
+   "pid": "meyers_martin_il",
+   "name": "Debbie Meyers-Martin",
+   "officialListing": "Debbie Meyers-Martin",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 38
+  },
+  {
+   "pid": "miller_il",
+   "name": "Chris Miller",
+   "officialListing": "Chris Miller",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 101
+  },
+  {
+   "pid": "moeller_il",
+   "name": "Anna Moeller",
+   "officialListing": "Anna Moeller",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 43
+  },
+  {
+   "pid": "moore_il",
+   "name": "Kyle Moore",
+   "officialListing": "Kyle Moore",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 99
+  },
+  {
+   "pid": "morgan_il",
+   "name": "Bob Morgan",
+   "officialListing": "Bob Morgan",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 58
+  },
+  {
+   "pid": "morris_il",
+   "name": "Yolonda Morris",
+   "officialListing": "Yolonda Morris",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 9
+  },
+  {
+   "pid": "mussman_il",
+   "name": "Michelle Mussman",
+   "officialListing": "Michelle Mussman",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 56
+  },
+  {
+   "pid": "ness_il",
+   "name": "Suzanne M. Ness",
+   "officialListing": "Suzanne M. Ness",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 66
+  },
+  {
+   "pid": "niemerg_il",
+   "name": "Adam M. Niemerg",
+   "officialListing": "Adam M. Niemerg",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 102
+  },
+  {
+   "pid": "olickal_il",
+   "name": "Kevin John Olickal",
+   "officialListing": "Kevin John Olickal",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 16
+  },
+  {
+   "pid": "ortiz_il",
+   "name": "Aarón M. Ortíz",
+   "officialListing": "Aarón M. Ortíz",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 1
+  },
+  {
+   "pid": "rashid_il",
+   "name": "Abdelnasser Rashid",
+   "officialListing": "Abdelnasser Rashid",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 21
+  },
+  {
+   "pid": "reick_il",
+   "name": "Steven Reick",
+   "officialListing": "Steven Reick",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 63
+  },
+  {
+   "pid": "rita_il",
+   "name": "Bob Rita",
+   "officialListing": "Robert \"Bob\" Rita",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 28
+  },
+  {
+   "pid": "rosenthal_il",
+   "name": "Wayne A. Rosenthal",
+   "officialListing": "Wayne A. Rosenthal",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 108
+  },
+  {
+   "pid": "ryan_il",
+   "name": "Rick Ryan",
+   "officialListing": "Rick Ryan",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 36
+  },
+  {
+   "pid": "sanalitro_il",
+   "name": "Jennifer Sanalitro",
+   "officialListing": "Jennifer Sanalitro",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 48
+  },
+  {
+   "pid": "scherer_il",
+   "name": "Sue Scherer",
+   "officialListing": "Sue Scherer",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 96
+  },
+  {
+   "pid": "schmidt_il",
+   "name": "Kevin Schmidt",
+   "officialListing": "Kevin Schmidt",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 114
+  },
+  {
+   "pid": "schweizer_il",
+   "name": "Brandun Schweizer",
+   "officialListing": "Brandun Schweizer",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 104
+  },
+  {
+   "pid": "severin_il",
+   "name": "Dave Severin",
+   "officialListing": "Dave Severin",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 116
+  },
+  {
+   "pid": "sheehan_il",
+   "name": "Patrick Sheehan",
+   "officialListing": "Patrick Sheehan",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 37
+  },
+  {
+   "pid": "slaughter_il",
+   "name": "Justin Slaughter",
+   "officialListing": "Justin Slaughter",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 27
+  },
+  {
+   "pid": "smith_il",
+   "name": "Nicholas K. Smith",
+   "officialListing": "Nicholas K. Smith",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 34
+  },
+  {
+   "pid": "sosnowski_il",
+   "name": "Joe C. Sosnowski",
+   "officialListing": "Joe C. Sosnowski",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 69
+  },
+  {
+   "pid": "spain_il",
+   "name": "Ryan Spain",
+   "officialListing": "Ryan Spain",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 73
+  },
+  {
+   "pid": "stava_il",
+   "name": "Anne Stava",
+   "officialListing": "Anne Stava",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 81
+  },
+  {
+   "pid": "stephens_il",
+   "name": "Brad Stephens",
+   "officialListing": "Brad Stephens",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 20
+  },
+  {
+   "pid": "stuart_il",
+   "name": "Katie Stuart",
+   "officialListing": "Katie Stuart",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 112
+  },
+  {
+   "pid": "swanson_il",
+   "name": "Dan Swanson",
+   "officialListing": "Dan Swanson",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 71
+  },
+  {
+   "pid": "syed_il",
+   "name": "Nabeela Syed",
+   "officialListing": "Nabeela Syed",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 51
+  },
+  {
+   "pid": "tarver_il",
+   "name": "Curtis J. Tarver, II",
+   "officialListing": "Curtis J. Tarver, II",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 25
+  },
+  {
+   "pid": "tipsword_il",
+   "name": "Dennis Tipsword",
+   "officialListing": "Dennis Tipsword",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 105
+  },
+  {
+   "pid": "ugaste_il",
+   "name": "Daniel J. Ugaste",
+   "officialListing": "Daniel J. Ugaste",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 65
+  },
+  {
+   "pid": "vella_il",
+   "name": "Dave Vella",
+   "officialListing": "Dave Vella",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 68
+  },
+  {
+   "pid": "walsh_il",
+   "name": "Larry Walsh, Jr.",
+   "officialListing": "Lawrence \"Larry\" Walsh, Jr.",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 86
+  },
+  {
+   "pid": "weaver_il",
+   "name": "Travis Weaver",
+   "officialListing": "Travis Weaver",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 93
+  },
+  {
+   "pid": "weber_il",
+   "name": "Tom Weber",
+   "officialListing": "Tom Weber",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 64
+  },
+  {
+   "pid": "west_il",
+   "name": "Maurice A. West, II",
+   "officialListing": "Maurice A. West, II",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 67
+  },
+  {
+   "pid": "wilhour_il",
+   "name": "Blaine Wilhour",
+   "officialListing": "Blaine Wilhour",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 110
+  },
+  {
+   "pid": "ann_williams_il",
+   "name": "Ann M. Williams",
+   "officialListing": "Ann M. Williams",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 11
+  },
+  {
+   "pid": "jawaharial_williams_il",
+   "name": "Jawaharial Williams",
+   "officialListing": "Jawaharial Williams",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 10
+  },
+  {
+   "pid": "windhorst_il",
+   "name": "Patrick Windhorst",
+   "officialListing": "Patrick Windhorst",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 117
+  },
+  {
+   "pid": "rohr_il",
+   "name": "Janet Yang Rohr",
+   "officialListing": "Janet Yang Rohr",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 41
+  }
+ ],
+ "alreadyHeld": [
+  {
+   "pid": "ortt_ny",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 62
+  },
+  {
+   "pid": "doug_mastriano",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 33
+  },
+  {
+   "pid": "joe_pittman",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 41
+  },
+  {
+   "pid": "sharif_street",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 3
+  },
+  {
+   "pid": "john_curran_il",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 41
+  },
+  {
+   "pid": "kimberly_lightford",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 4
+  },
+  {
+   "pid": "robert_peters_il",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 13
+  }
+ ],
+ "districtSet": [
+  {
+   "pid": "stewart_cousins",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 35,
+   "was": null
+  },
+  {
+   "pid": "carl_heastie",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 83,
+   "was": null
+  },
+  {
+   "pid": "jay_costa",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 43,
+   "was": null
+  },
+  {
+   "pid": "kim_ward",
+   "state": "Pennsylvania",
+   "chamber": "State Senate",
+   "district": 39,
+   "was": null
+  },
+  {
+   "pid": "joanna_mcclinton",
+   "state": "Pennsylvania",
+   "chamber": "State House",
+   "district": 191,
+   "was": null
+  },
+  {
+   "pid": "don_harmon",
+   "state": "Illinois",
+   "chamber": "State Senate",
+   "district": 39,
+   "was": null
+  },
+  {
+   "pid": "chris_welch",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 7,
+   "was": null
+  }
+ ],
+ "onFileAsCandidate": [
+  {
+   "pid": "peter_oberacker",
+   "name": "Peter Oberacker",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 51,
+   "rosterOffice": "U.S. House Candidate (NY-19)"
+  },
+  {
+   "pid": "micah_lasher",
+   "name": "Micah C. Lasher",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 69,
+   "rosterOffice": "U.S. House Candidate (NY-12)"
+  },
+  {
+   "pid": "claire_valdez",
+   "name": "Claire Valdez",
+   "state": "New York",
+   "chamber": "State House",
+   "district": 37,
+   "rosterOffice": "U.S. House Candidate (NY-7)"
+  },
+  {
+   "pid": "la_ford",
+   "name": "La Shawn K. Ford",
+   "state": "Illinois",
+   "chamber": "State House",
+   "district": 8,
+   "rosterOffice": "U.S. House Candidate (IL-7)"
+  }
+ ],
+ "officeCorrected": [
+  {
+   "pid": "gianaris_ny",
+   "state": "New York",
+   "chamber": "State Senate",
+   "district": 12,
+   "office": "Former New York State Senator",
+   "was": "New York State Senator",
+   "source": "https://www.nysenate.gov/senators/michael-gianaris",
+   "note": "Served from January 1, 2011 to August 10, 2026; https://www.nysenate.gov/district/12 reads \"Vacant Senatorial Seat\"."
+  }
+ ]
+}
