@@ -1236,8 +1236,8 @@
     // Tennessee, Colorado, Maryland, Minnesota, Wisconsin, Indiana, Missouri,
     // Kentucky, Alabama, South Carolina, Iowa, Oklahoma, Kansas, Nevada,
     // Nebraska, Arkansas, Oregon, Idaho, Montana, New Mexico, Wyoming,
-    // Mississippi, West Virginia, Hawaii, Louisiana, Maine and New Hampshire
-    // are drawn this way (Washington, Arizona and New Jersey elect
+    // Mississippi, West Virginia, Hawaii, Louisiana, Maine, New Hampshire,
+    // Connecticut, Rhode Island and Vermont are drawn this way (Washington, Arizona and New Jersey elect
     // both chambers from one set of legislative districts, so TIGERweb's two
     // layers carry the same numbers there; Massachusetts names its districts
     // rather than numbering them — see LEG_NAMED_STATES)
@@ -1274,7 +1274,8 @@
                              'Oregon': 1, 'Idaho': 1, 'Montana': 1,
                              'New Mexico': 1, 'Wyoming': 1,
                              'Mississippi': 1, 'West Virginia': 1, 'Hawaii': 1,
-                             'Louisiana': 1, 'Maine': 1, 'New Hampshire': 1 };
+                             'Louisiana': 1, 'Maine': 1, 'New Hampshire': 1,
+                             'Connecticut': 1, 'Rhode Island': 1, 'Vermont': 1 };
     // ══ A ONE-CHAMBER LEGISLATURE HAS NO STATE HOUSE ════════════════════════
     // Nebraska's Legislature is a single chamber of 49 senators; TIGERweb's
     // lower layer holds no Nebraska districts at all. So the State House seat is
@@ -1301,11 +1302,15 @@
     // New Hampshire's House is the same shape: its seats are named for a county
     // and a number ("Merrimack 18"), TIGERweb codes them by county ("618"), and
     // the code goes through the same lookup. Its Senate is numbered.
+    // Vermont names BOTH chambers ("Washington", "Washington-4") and TIGERweb
+    // codes both with letters ("WAS", "WA4"), so both go through the lookup.
     var LEG_NAMED_STATES = { 'Massachusetts': { senate: 1, house: 1 },
                              'Maryland': { house: 1 }, 'Minnesota': { house: 1 },
-                             'New Hampshire': { house: 1 } };
+                             'New Hampshire': { house: 1 },
+                             'Vermont': { senate: 1, house: 1 } };
     var LEG_CODED_STATES = { 'Maryland': { house: 1 }, 'Minnesota': { house: 1 },
-                             'New Hampshire': { house: 1 } };
+                             'New Hampshire': { house: 1 },
+                             'Vermont': { senate: 1, house: 1 } };
 
     // name : state FIPS : USPS. Packed because fifty-one object literals is a
     // screen of noise, and every consumer wants a lookup rather than a list.

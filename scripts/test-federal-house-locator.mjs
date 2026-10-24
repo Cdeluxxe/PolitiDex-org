@@ -16,7 +16,7 @@
 //   district number becomes a person. It matches on the roster's own
 //   district-qualified state string ("Ohio · OH-15"), it refuses a record that
 //   does not say which district it holds (a leadership row carrying a bare
-//   "Connecticut" is never placed in Connecticut's 1st), and a district claimed
+//   "Delaware" is never placed in Delaware's 1st), and a district claimed
 //   twice resolves to NOBODY rather than to whichever row came first.
 //
 //   THE MAP. /find fetches one state's congressional lines after the geocode
@@ -136,12 +136,13 @@ const levelOf = (w, key) => (w.pdxRepsForMe().levels || []).filter((lv) => lv.ke
 const COLUMBUS   = { state: "Ohio", city: "Columbus", county: "Franklin County", district: "3" };
 const COLUMBUS_0 = { state: "Ohio", city: "Columbus", county: "Franklin County" };
 // Ohio's legislative lines are drawn now (v447), so the "a state whose legislative
-// lines we do not draw" half of this file is asked of Connecticut, which is not
+// lines we do not draw" half of this file is asked of South Dakota, which is not
 // (Missouri until v452, Kentucky until v453, Iowa until v454, Nevada until v455,
 // Oregon until v456, New Mexico until v457, Mississippi until v458,
-// Louisiana until v459).
-const KC   = { state: "Connecticut", city: "Hartford", county: "Hartford County", district: "2" };
-const KC_0 = { state: "Connecticut", city: "Hartford", county: "Hartford County" };
+// Louisiana until v459, Connecticut until v460; Delaware has no U.S. House
+// member on the roster, so it cannot stand in for a resolved House seat).
+const KC   = { state: "South Dakota", city: "Pierre", county: "Hughes County", district: "1" };
+const KC_0 = { state: "South Dakota", city: "Pierre", county: "Hughes County" };
 const LAYTON     = { state: "Utah", city: "Layton", county: "Davis County", district: "2" };
 
 const W = boot(COLUMBUS);
@@ -215,7 +216,7 @@ section("2 · the congressional map widened and the legislative one did not");
   eq(house.mapped, true, "flags: the U.S. House level is not marked as mapped, so its blank state reads as our gap");
 
   const M = boot(KC);
-  eq(M.pdxRepsForMe().districtsResolvable, false, "flags: districtsResolvable went true in Connecticut");
+  eq(M.pdxRepsForMe().districtsResolvable, false, "flags: districtsResolvable went true in South Dakota");
   for (const key of ["statesenate", "statehouse"]) {
     const lv = levelOf(M, key);
     must(lv, `the ${key} level is gone from the resolver`);

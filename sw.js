@@ -10709,7 +10709,20 @@
 //     seat. find.html is precached and changed, so the shell moves one version.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v459';
+// v460 - CONNECTICUT, RHODE ISLAND AND VERMONT STATE LEGISLATIVE LINES.
+//     /find's TIGERweb legislative list gains those three states, on the same
+//     2024 layers (5 and 6), scoped to the one state by FIPS and loaded only
+//     after a geocode, tap or phone point has named it. Nothing is painted on
+//     open and no national layer is asked for. All three have two chambers.
+//     VERMONT NAMES BOTH CHAMBERS ("Washington", "Washington-4") and TIGERweb
+//     codes them with letters, so — as for New Hampshire's House — each code is
+//     looked up to a plain key and the seat is shown by its name. The resolver
+//     names a sitting member only where the roster already has an in-office
+//     record for that exact seat. find.html is precached and changed, so the
+//     shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v460';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

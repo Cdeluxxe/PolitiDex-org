@@ -2717,8 +2717,8 @@
   // Jersey, Massachusetts, Tennessee, Colorado, Maryland, Minnesota,
   // Wisconsin, Indiana, Missouri, Kentucky, Alabama, South Carolina, Iowa,
   // Oklahoma, Kansas, Nevada, Nebraska, Arkansas, Oregon, Idaho, Montana, New
-  // Mexico, Wyoming, Mississippi, West Virginia, Hawaii, Louisiana, Maine and
-  // New Hampshire from TIGERweb, scoped to one state
+  // Mexico, Wyoming, Mississippi, West Virginia, Hawaii, Louisiana, Maine, New
+  // Hampshire, Connecticut, Rhode Island and Vermont from TIGERweb, scoped to one state
   // by its FIPS, once a geocode has named it — the same pattern as the
   // congressional layer. This table is the list of states
   // whose legislative lines the finder can load. It is the ONE place that list
@@ -2737,7 +2737,8 @@
                          oregon: 1, idaho: 1, montana: 1,
                          'new mexico': 1, wyoming: 1,
                          mississippi: 1, 'west virginia': 1, hawaii: 1,
-                         louisiana: 1, maine: 1, 'new hampshire': 1 };
+                         louisiana: 1, maine: 1, 'new hampshire': 1,
+                         connecticut: 1, 'rhode island': 1, vermont: 1 };
   // A one-chamber Legislature (Nebraska: 49 senators, no House). Its reader has
   // a State Senate seat and NO State House seat, so the resolver publishes no
   // State House row for them at all — not a blank, not a gap, nothing to fill.
@@ -2937,6 +2938,46 @@
       'Strafford 15', 'Strafford 16', 'Strafford 17', 'Sullivan 1', 'Sullivan 2',
       'Sullivan 3', 'Sullivan 4', 'Sullivan 5', 'Sullivan 6'
       ]
+    },
+    // BOTH CHAMBERS NAMED. Vermont elects its Senate from county districts
+    // ("Washington", "Chittenden South East") and its House from districts named
+    // for their towns' county and a number ("Washington-4"). TIGERweb codes both
+    // with letters (WAS, WA4), so as for New Hampshire the record keeps a plain
+    // key (the seat's place in _PDX_LEG_CODES below, from 1) and this table gives
+    // the seat its name — TIGERweb's 2024 BASENAME, with "District" after a
+    // Senate seat's county as Massachusetts writes its own.
+    vermont: {
+      statesenate: [
+      'Addison District', 'Bennington District', 'Caledonia District',
+      'Chittenden Central District', 'Chittenden North District',
+      'Chittenden South East District', 'Essex District', 'Franklin District',
+      'Grand Isle District', 'Lamoille District', 'Orange District', 'Orleans District',
+      'Rutland District', 'Washington District', 'Windham District', 'Windsor District'
+      ],
+      statehouse: [
+      'Addison-1', 'Addison-2', 'Addison-3', 'Addison-4', 'Addison-5', 'Addison-Rutland',
+      'Bennington-1', 'Bennington-2', 'Bennington-3', 'Bennington-4', 'Bennington-5',
+      'Bennington-Rutland', 'Chittenden-1', 'Chittenden-2', 'Chittenden-3', 'Chittenden-4',
+      'Chittenden-5', 'Chittenden-6', 'Chittenden-7', 'Chittenden-8', 'Chittenden-9',
+      'Chittenden-Franklin', 'Chittenden-10', 'Chittenden-11', 'Chittenden-12',
+      'Chittenden-13', 'Chittenden-14', 'Chittenden-15', 'Chittenden-16', 'Chittenden-17',
+      'Chittenden-18', 'Chittenden-19', 'Chittenden-20', 'Chittenden-21', 'Chittenden-22',
+      'Chittenden-23', 'Chittenden-24', 'Chittenden-25', 'Caledonia-1', 'Caledonia-2',
+      'Caledonia-3', 'Caledonia-Essex', 'Caledonia-Washington', 'Essex-Caledonia',
+      'Essex-Orleans', 'Franklin-1', 'Franklin-2', 'Franklin-3', 'Franklin-4', 'Franklin-5',
+      'Franklin-6', 'Franklin-7', 'Franklin-8', 'Grand Isle-Chittenden', 'Lamoille-1',
+      'Lamoille-2', 'Lamoille-3', 'Lamoille-Washington', 'Orleans-1', 'Orleans-2',
+      'Orleans-3', 'Orleans-4', 'Orleans-Lamoille', 'Orange-1', 'Orange-2', 'Orange-3',
+      'Orange-Caledonia', 'Orange-Washington-Addison', 'Rutland-1', 'Rutland-2',
+      'Rutland-3', 'Rutland-4', 'Rutland-5', 'Rutland-6', 'Rutland-7', 'Rutland-8',
+      'Rutland-9', 'Rutland-Bennington', 'Rutland-Windsor', 'Rutland-10', 'Rutland-11',
+      'Windham-1', 'Windham-2', 'Windham-3', 'Windham-4', 'Windham-5', 'Windham-6',
+      'Windham-7', 'Windham-8', 'Windham-9', 'Washington-1', 'Washington-2', 'Washington-3',
+      'Washington-4', 'Washington-5', 'Washington-6', 'Washington-Chittenden',
+      'Washington-Orange', 'Windham-Windsor-Bennington', 'Windsor-1', 'Windsor-2',
+      'Windsor-3', 'Windsor-4', 'Windsor-5', 'Windsor-6', 'Windsor-Addison',
+      'Windsor-Windham', 'Windsor-Orange-1', 'Windsor-Orange-2'
+      ]
     }
   };
   // TIGERweb's own SLDL code for each lettered seat, in key order (key = index
@@ -2984,6 +3025,24 @@
       '722', '723', '724', '725', '726', '727', '728', '729', '730', '801', '802', '803',
       '804', '805', '806', '807', '808', '809', '810', '811', '812', '813', '814', '815',
       '816', '817', '901', '902', '903', '904', '905', '906'
+      ]
+    },
+    vermont: {
+      statesenate: [
+      'ADD', 'BEN', 'CAL', 'CHC', 'CHN', 'CHS', 'ESX', 'FRA', 'GRI', 'LAM', 'ORA', 'ORL',
+      'RUT', 'WAS', 'WDH', 'WSR'
+      ],
+      statehouse: [
+      'A-1', 'A-2', 'A-3', 'A-4', 'A-5', 'A-R', 'B-1', 'B-2', 'B-3', 'B-4', 'B-5', 'B-R',
+      'C-1', 'C-2', 'C-3', 'C-4', 'C-5', 'C-6', 'C-7', 'C-8', 'C-9', 'C-F', 'C10', 'C11',
+      'C12', 'C13', 'C14', 'C15', 'C16', 'C17', 'C18', 'C19', 'C20', 'C21', 'C22', 'C23',
+      'C24', 'C25', 'CA1', 'CA2', 'CA3', 'CAE', 'CAW', 'E-C', 'E-O', 'F-1', 'F-2', 'F-3',
+      'F-4', 'F-5', 'F-6', 'F-7', 'F-8', 'GIC', 'L-1', 'L-2', 'L-3', 'L-W', 'O-1', 'O-2',
+      'O-3', 'O-4', 'O-L', 'OR1', 'OR2', 'OR3', 'ORC', 'OWA', 'R-1', 'R-2', 'R-3', 'R-4',
+      'R-5', 'R-6', 'R-7', 'R-8', 'R-9', 'R-B', 'R-W', 'R10', 'R11', 'W-1', 'W-2', 'W-3',
+      'W-4', 'W-5', 'W-6', 'W-7', 'W-8', 'W-9', 'WA1', 'WA2', 'WA3', 'WA4', 'WA5', 'WA6',
+      'WAC', 'WAO', 'WWB', 'Y-1', 'Y-2', 'Y-3', 'Y-4', 'Y-5', 'Y-6', 'Y-A', 'Y-W', 'YO1',
+      'YO2'
       ]
     }
   };

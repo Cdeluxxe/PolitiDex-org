@@ -70,11 +70,11 @@ const FILES = [
 
 const LAYTON = { state: "Utah", city: "Layton", county: "Davis County" };
 // Ohio's legislative lines are drawn now (v447); the "three honest blanks" reader
-// is in Connecticut, whose legislative lines are not (Missouri until v452,
+// is in Delaware, whose legislative lines are not (Missouri until v452,
 // Kentucky until v453, Iowa until v454, Nevada until v455, Oregon until v456,
 // New Mexico until v457, Mississippi until v458,
-// Louisiana until v459).
-const KANSAS_CITY = { state: "Connecticut", city: "Hartford", county: "Hartford County" };
+// Louisiana until v459, Connecticut until v460).
+const KANSAS_CITY = { state: "Delaware", city: "Dover", county: "Kent County" };
 const CANON = { senators: ["curtis", "lee"], governor: "cox" };
 const BLANK = "No record on file yet";
 const BLANK_WHY = "rather leave this blank than name the wrong person";
@@ -329,35 +329,35 @@ REWRITES.forEach((c) => {
 });
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("5 · The scope did not widen: Hartford keeps three honest blanks");
+section("5 · The scope did not widen: Dover keeps three honest blanks");
 
 {
   const O = boot({ location: KANSAS_CITY });
   const reps = O.pdxRepsForMe();
-  eq(reps.districtsResolvable, false, "Connecticut now claims curated district geometry");
+  eq(reps.districtsResolvable, false, "Delaware now claims curated district geometry");
   ["house", "statesenate", "statehouse"].forEach((key) => {
     eq(pidFor(O, key), null,
-      `the ${key} seat resolved an officeholder for a Connecticut reader — district seats outside Utah have no map`);
+      `the ${key} seat resolved an officeholder for a Delaware reader — district seats outside Utah have no map`);
     const lv = levelsOf(O).filter((l) => l.key === key)[0] || {};
-    eq(lv.district, null, `the ${key} row carries a district number for a Connecticut reader`);
+    eq(lv.district, null, `the ${key} row carries a district number for a Delaware reader`);
   });
   // Statewide coverage is national and stays national: this pass did not take
-  // Connecticut's two Senate seats and its Governor away to fix Utah's.
-  ok(senatePids(O).length === 2, "a Connecticut reader lost a U.S. Senate seat to this pass");
-  ok(!!pidFor(O, "governor"), "a Connecticut reader lost their Governor to this pass");
-  // And no Utah pid leaks into a Connecticut answer.
+  // Delaware's two Senate seats and its Governor away to fix Utah's.
+  ok(senatePids(O).length === 2, "a Delaware reader lost a U.S. Senate seat to this pass");
+  ok(!!pidFor(O, "governor"), "a Delaware reader lost their Governor to this pass");
+  // And no Utah pid leaks into a Delaware answer.
   const utahish = CANON.senators.concat(CANON.governor, ["maloy", "moore", "stevenson", "ward"]);
   levelsOf(O).forEach((lv) => {
     if (!lv.pid) return;
-    ok(utahish.indexOf(lv.pid) === -1, `a Connecticut reader's ${lv.key} row names the Utah record ${lv.pid}`);
+    ok(utahish.indexOf(lv.pid) === -1, `a Delaware reader's ${lv.key} row names the Utah record ${lv.pid}`);
   });
 
   const text = strip(band(O));
   has(text, "Not resolved for your area yet",
-    "a Connecticut reader's district rows do not say they are unresolved");
+    "a Delaware reader's district rows do not say they are unresolved");
   has(text, "rather leave this blank than guess at your seat",
-    "the district-blank copy changed — a Connecticut reader's blank rows must still explain themselves");
-  has(text, "3 of 6 seats resolved", "the Connecticut count no longer reports three of six");
+    "the district-blank copy changed — a Delaware reader's blank rows must still explain themselves");
+  has(text, "3 of 6 seats resolved", "the Delaware count no longer reports three of six");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
