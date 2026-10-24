@@ -110,7 +110,7 @@ const [GA, MI, NC] = PLACES;
 const NAMED = [
   // [place, senate district, lower district, expected senate pid, expected name, expected lower pid]
   [GA, "22", "58", "harold_jones_ga", null, "park_cannon_ga"],
-  [MI, "8", "9", "mallory_mcmorrow", "Mallory McMorrow", null],
+  [MI, "8", "9", "mallory_mcmorrow", "Mallory McMorrow", "tate_mi"],
   [NC, "17", "38", "sydney_batch", "Sydney Batch", "abe_jones_nc"],
 ];
 for (const [p, sd, hd, pid, nm, lpid] of NAMED) {
@@ -159,16 +159,18 @@ for (const [p, sd, hd, pid, nm, lpid] of NAMED) {
       }
     }
   }
-  // Georgia's and North Carolina's sitting members are the official-roster shells
-  // and the existing records (db/roster-state-legislators-oh-ga-nc-2026-oct.json).
-  const REC = JSON.parse(R("db/roster-state-legislators-oh-ga-nc-2026-oct.json"));
-  const onFile = [...REC.rows, ...REC.alreadyHeld, ...REC.districtSet].filter((r) => r.state !== "Ohio").map((r) => r.pid);
+  // Georgia's, Michigan's and North Carolina's sitting members are the official-
+  // roster shells and the existing records (db/roster-state-legislators-oh-ga-nc-2026-oct.json
+  // and db/roster-state-legislators-mi-nj-va-2026-oct.json).
+  const onFile = ["db/roster-state-legislators-oh-ga-nc-2026-oct.json", "db/roster-state-legislators-mi-nj-va-2026-oct.json"]
+    .flatMap((f) => { const REC = JSON.parse(R(f)); return [...REC.rows, ...REC.alreadyHeld, ...REC.districtSet]; })
+    .filter((r) => ["Georgia", "Michigan", "North Carolina"].includes(r.state)).map((r) => r.pid);
   eq(JSON.stringify([...named].sort()),
-    JSON.stringify([...new Set([...onFile, "aric_nesbitt", "jeremy_moss", "mallory_mcmorrow"])].sort()),
+    JSON.stringify([...new Set(onFile)].sort()),
     "roster: the members the lookup can name are not exactly the district-keyed state legislators on file");
   // Leaders whose records name no district, and U.S. House members whose titles
   // say "House", are never placed in a legislative seat.
-  for (const p of ["ranjeev_puri", "winnie_brinks", "matt_hall", "mcclain", "walberg", "foxx", "peters"]) {
+  for (const p of ["mcclain", "walberg", "foxx", "peters"]) {
     ok(!named.has(p), `roster: ${p} was placed in a legislative seat`);
   }
 }

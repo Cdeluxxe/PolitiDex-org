@@ -4362,6 +4362,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://pub.njleg.gov/publications/members/scutari_nicholas_2020_250.jpg",
   "office": "State Senate President",
   "state": "New Jersey",
+  "district": "LD 22",
   "party": "D",
   "score": 53,
   "kept": 0,
@@ -4506,6 +4507,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://upload.wikimedia.org/wikipedia/commons/3/39/Virginia_Delegate_Don_Scott_%28cropped%29.jpg",
   "office": "State House Speaker",
   "state": "Virginia",
+  "district": "HD 88",
   "party": "D",
   "score": 54,
   "kept": 0,
@@ -4691,6 +4693,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photoSource": "campaign",
   "office": "State House Democratic Leader",
   "state": "Michigan",
+  "district": "HD 24",
   "party": "D",
   "score": 53,
   "kept": 0,
@@ -4822,6 +4825,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://www.senate.michigan.gov/media/5jqbbfz3/brinks.png?v=1dbd6c3cf22e920",
   "office": "State Senate Majority Leader",
   "state": "Michigan",
+  "district": "SD 29",
   "party": "D",
   "score": 54,
   "kept": 0,
@@ -4916,6 +4920,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Matt_Hall_in_2024_%28cropped%29.jpg/500px-Matt_Hall_in_2024_%28cropped%29.jpg",
   "office": "State House Speaker",
   "state": "Michigan",
+  "district": "HD 42",
   "party": "R",
   "score": 53,
   "kept": 0,
@@ -26819,6 +26824,1881 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  "zenger_nc": {
   "name": "Jeff Zenger", "office": "North Carolina State Representative",
   "state": "North Carolina", "district": "HD 74", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+// ── Sitting state legislators, Michigan, New Jersey and Virginia — roster shells (Oct 2026)
+// One row per member the chamber's own official roster lists as seated in that
+// district on 2026-10-24, so the seat card can name who holds a State Senate or House seat
+// the finder resolved. Identity only: the name, the office, the state and the
+// exact district, read off the official roster, and `candidate: false` (in
+// office). No party, bio, score, stances or voting record. A seat the official
+// roster lists as vacant has no row, and neither does a member the roster already
+// holds under another id, or whose display name another record already carries
+// (db/roster-state-legislators-mi-nj-va-2026-oct.json is the record of all three), so those seats keep reading
+// "no member on file yet".
+// New Jersey's General Assembly has no rows: each district elects two members,
+// and the seat resolver names nobody for a seat two records claim.
+ // Michigan — https://senate.michigan.gov/senators/all-senators/ · https://www.house.mi.gov/AllRepresentatives
+ "albert_mi": {
+  "name": "Thomas A Albert", "office": "Michigan State Senator",
+  "state": "Michigan", "district": "SD 18", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "anthony_mi": {
+  "name": "Sarah E Anthony", "office": "Michigan State Senator",
+  "state": "Michigan", "district": "SD 21", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bayer_mi": {
+  "name": "Rosemary Bayer", "office": "Michigan State Senator",
+  "state": "Michigan", "district": "SD 13", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bellino_mi": {
+  "name": "Joseph N Bellino Jr.", "office": "Michigan State Senator",
+  "state": "Michigan", "district": "SD 16", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bumstead_mi": {
+  "name": "Jon C Bumstead", "office": "Michigan State Senator",
+  "state": "Michigan", "district": "SD 32", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "camilleri_mi": {
+  "name": "Darrin Camilleri", "office": "Michigan State Senator",
+  "state": "Michigan", "district": "SD 4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cavanagh_mi": {
+  "name": "Mary Cavanagh", "office": "Michigan State Senator",
+  "state": "Michigan", "district": "SD 6", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chang_mi": {
+  "name": "Stephanie Chang", "office": "Michigan State Senator",
+  "state": "Michigan", "district": "SD 3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cherry_mi": {
+  "name": "John Cherry", "office": "Michigan State Senator",
+  "state": "Michigan", "district": "SD 27", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "daley_mi": {
+  "name": "Kevin Daley", "office": "Michigan State Senator",
+  "state": "Michigan", "district": "SD 26", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "damoose_mi": {
+  "name": "John N Damoose", "office": "Michigan State Senator",
+  "state": "Michigan", "district": "SD 37", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "geiss_mi": {
+  "name": "Erika Geiss", "office": "Michigan State Senator",
+  "state": "Michigan", "district": "SD 1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chedrick_greene_mi": {
+  "name": "Chedrick Greene", "office": "Michigan State Senator",
+  "state": "Michigan", "district": "SD 35", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hauck_mi": {
+  "name": "Roger Hauck", "office": "Michigan State Senator",
+  "state": "Michigan", "district": "SD 34", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hertel_mi": {
+  "name": "Kevin Hertel", "office": "Michigan State Senator",
+  "state": "Michigan", "district": "SD 12", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hoitenga_mi": {
+  "name": "Michele Hoitenga", "office": "Michigan State Senator",
+  "state": "Michigan", "district": "SD 36", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "huizenga_mi": {
+  "name": "Mark E Huizenga", "office": "Michigan State Senator",
+  "state": "Michigan", "district": "SD 30", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "irwin_mi": {
+  "name": "Jeff Irwin", "office": "Michigan State Senator",
+  "state": "Michigan", "district": "SD 15", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "johnson_mi": {
+  "name": "Ruth A Johnson", "office": "Michigan State Senator",
+  "state": "Michigan", "district": "SD 24", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "klinefelt_mi": {
+  "name": "Veronica Klinefelt", "office": "Michigan State Senator",
+  "state": "Michigan", "district": "SD 11", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lauwers_mi": {
+  "name": "Dan Lauwers", "office": "Michigan State Senator",
+  "state": "Michigan", "district": "SD 25", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lindsey_mi": {
+  "name": "Jonathan Lindsey", "office": "Michigan State Senator",
+  "state": "Michigan", "district": "SD 17", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mcbroom_mi": {
+  "name": "Edward W McBroom", "office": "Michigan State Senator",
+  "state": "Michigan", "district": "SD 38", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rick_outman_mi": {
+  "name": "Rick Outman", "office": "Michigan State Senator",
+  "state": "Michigan", "district": "SD 33", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "polehanki_mi": {
+  "name": "Dayna Polehanki", "office": "Michigan State Senator",
+  "state": "Michigan", "district": "SD 5", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "runestad_mi": {
+  "name": "Jim Runestad", "office": "Michigan State Senator",
+  "state": "Michigan", "district": "SD 23", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "santana_mi": {
+  "name": "Sylvia A Santana", "office": "Michigan State Senator",
+  "state": "Michigan", "district": "SD 2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "shink_mi": {
+  "name": "Sue Shink", "office": "Michigan State Senator",
+  "state": "Michigan", "district": "SD 14", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "singh_mi": {
+  "name": "Sam Singh", "office": "Michigan State Senator",
+  "state": "Michigan", "district": "SD 28", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "theis_mi": {
+  "name": "Lana Theis", "office": "Michigan State Senator",
+  "state": "Michigan", "district": "SD 22", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "victory_mi": {
+  "name": "Roger Victory", "office": "Michigan State Senator",
+  "state": "Michigan", "district": "SD 31", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "webber_mi": {
+  "name": "Michael Webber", "office": "Michigan State Senator",
+  "state": "Michigan", "district": "SD 9", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wojno_mi": {
+  "name": "Paul Wojno", "office": "Michigan State Senator",
+  "state": "Michigan", "district": "SD 10", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "alexander_mi": {
+  "name": "Gregory Alexander", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 98", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "aragona_mi": {
+  "name": "Joseph A. Aragona", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 60", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "begole_mi": {
+  "name": "Brian BeGole", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 71", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "beson_mi": {
+  "name": "Timothy Beson", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 96", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bierlein_mi": {
+  "name": "Matthew Bierlein", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 97", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bohnak_mi": {
+  "name": "Karl Bohnak", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 109", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bollin_mi": {
+  "name": "Ann M. Bollin", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 49", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "borton_mi": {
+  "name": "Ken Borton", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 105", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bruck_mi": {
+  "name": "William Bruck", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 30", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "carra_mi": {
+  "name": "Steve Carra", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 36", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cavitt_mi": {
+  "name": "Cameron Cavitt", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 106", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "deboer_mi": {
+  "name": "Nancy DeBoer", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 86", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "desana_mi": {
+  "name": "James DeSana", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 29", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fairbairn_mi": {
+  "name": "Parker Fairbairn", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 107", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fox_mi": {
+  "name": "Joseph Fox", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 101", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "frisbie_mi": {
+  "name": "Steve Frisbie", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 44", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "green_mi": {
+  "name": "Phil Green", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 67", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jaime_greene_mi": {
+  "name": "Jaime Greene", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 65", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "harris_mi": {
+  "name": "Mike Harris", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 52", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hoadley_mi": {
+  "name": "Mike Hoadley", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 99", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jenkins_arno_mi": {
+  "name": "Nancy Jenkins-Arno", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 34", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "johnsen_mi": {
+  "name": "Gina Johnsen", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 78", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kelly_mi": {
+  "name": "Tim Kelly", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 93", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kuhn_mi": {
+  "name": "Thomas Kuhn", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 57", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kunse_mi": {
+  "name": "Tom Kunse", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 100", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lightner_mi": {
+  "name": "Sarah Lightner", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 45", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "linting_mi": {
+  "name": "Rylee Linting", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 27", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "maddock_mi": {
+  "name": "Matt Maddock", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 51", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "markkanen_mi": {
+  "name": "Gregory Markkanen", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 110", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "martin_mi": {
+  "name": "David W. Martin", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 68", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "meerman_mi": {
+  "name": "Luke Meerman", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 89", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mueller_mi": {
+  "name": "Mike Mueller", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 72", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "neyer_mi": {
+  "name": "Jerry Neyer", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 92", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pat_outman_mi": {
+  "name": "Pat Outman", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 91", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "paquette_mi": {
+  "name": "Brad Paquette", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 37", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pavlov_mi": {
+  "name": "Joseph Pavlov", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 64", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "posthumus_mi": {
+  "name": "Bryan Posthumus", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 90", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "prestin_mi": {
+  "name": "David Prestin", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 108", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rigas_mi": {
+  "name": "Angela Rigas", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 79", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "robinson_mi": {
+  "name": "Ron Robinson", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 58", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "roth_mi": {
+  "name": "John R. Roth", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 104", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "schmaltz_mi": {
+  "name": "Kathy Schmaltz", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 46", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "schriver_mi": {
+  "name": "Josh Schriver", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 66", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "schuette_mi": {
+  "name": "Bill Schuette", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 95", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "slagh_mi": {
+  "name": "Bradley Slagh", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 85", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "smit_mi": {
+  "name": "Rachelle Smit", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 43", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "st_germaine_mi": {
+  "name": "Alicia St. Germaine", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 62", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "steele_mi": {
+  "name": "Donni Steele", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 54", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "thompson_mi": {
+  "name": "Jamie Thompson", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 28", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tisdel_mi": {
+  "name": "Mark A Tisdel", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 55", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "vanderwall_mi": {
+  "name": "Curtis S VanderWall", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 102", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "vanwoerkom_mi": {
+  "name": "Greg VanWoerkom", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 88", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wendzel_mi": {
+  "name": "Pauline Wendzel", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 39", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "woolford_mi": {
+  "name": "Jason Woolford", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 50", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wortz_mi": {
+  "name": "Jennifer Wortz", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 35", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wozniak_mi": {
+  "name": "Douglas C Wozniak", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 59", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "andrews_mi": {
+  "name": "Joey Andrews", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 38", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "arbit_mi": {
+  "name": "Noah Arbit", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 20", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "breen_mi": {
+  "name": "Kelly A Breen", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 21", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brixie_mi": {
+  "name": "Julie Brixie", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 73", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "byrnes_mi": {
+  "name": "Erin Byrnes", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 15", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brenda_carter_mi": {
+  "name": "Brenda Carter", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 53", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tyrone_carter_mi": {
+  "name": "Tyrone Carter", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "coffia_mi": {
+  "name": "Betsy Coffia", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 103", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "conlin_mi": {
+  "name": "Jennifer Conlin", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 48", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dievendorf_mi": {
+  "name": "Emily Dievendorf", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 77", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "edwards_mi": {
+  "name": "Kimberly Edwards", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 12", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "farhat_mi": {
+  "name": "Alabas Farhat", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fitzgerald_mi": {
+  "name": "John Fitzgerald", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 83", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "foreman_mi": {
+  "name": "Morgan Foreman", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 33", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "glanville_mi": {
+  "name": "Carol Glanville", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 84", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "grant_mi": {
+  "name": "Kristian Grant", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 82", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "herzberg_mi": {
+  "name": "Peter Herzberg", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 25", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hope_mi": {
+  "name": "Kara Hope", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 74", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hoskins_mi": {
+  "name": "Jason M Hoskins", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 18", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "koleszar_mi": {
+  "name": "Matt Koleszar", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 22", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "liberati_mi": {
+  "name": "Tullio Liberati Jr.", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "longjohn_mi": {
+  "name": "Matt Longjohn", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 40", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "macdonell_mi": {
+  "name": "Sharon MacDonell", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 56", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "martus_mi": {
+  "name": "Jasper Martus", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 69", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mcfall_mi": {
+  "name": "Mike McFall", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 14", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mentzer_mi": {
+  "name": "Denise Mentzer", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 61", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "miller_mi": {
+  "name": "Reggie Miller", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 31", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "morgan_mi": {
+  "name": "Jason Morgan", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 23", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "myers_phillips_mi": {
+  "name": "Tonya Myers Phillips", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 7", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "neeley_mi": {
+  "name": "Cynthia Neeley", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 70", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "oneal_mi": {
+  "name": "Amos O'Neal", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 94", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "paiz_mi": {
+  "name": "Veronica Paiz", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 10", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pohutsky_mi": {
+  "name": "Laurie Pohutsky", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 17", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "price_mi": {
+  "name": "Natalie Price", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 6", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rheingans_mi": {
+  "name": "Carrie Rheingans", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 47", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rogers_mi": {
+  "name": "Julie M. Rogers", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 41", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "scott_mi": {
+  "name": "Helena Scott", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 8", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "skaggs_mi": {
+  "name": "Phil Skaggs", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 80", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "snyder_mi": {
+  "name": "Will Snyder", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 87", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "steckloff_mi": {
+  "name": "Samantha Steckloff", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 19", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tate_mi": {
+  "name": "Joseph Tate", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 9", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tsernoglou_mi": {
+  "name": "Penelope Tsernoglou", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 75", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wegela_mi": {
+  "name": "Dylan Wegela", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 26", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "weiss_mi": {
+  "name": "Regina Weiss", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 5", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wilson_mi": {
+  "name": "Jimmie Wilson Jr", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 32", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "witwer_mi": {
+  "name": "Angela Witwer", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 76", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wooden_mi": {
+  "name": "Stephen Wooden", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 81", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "xiong_mi": {
+  "name": "Mai Xiong", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 13", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "young_mi": {
+  "name": "Stephanie A Young", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 16", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "whitsett_mi": {
+  "name": "Karen Whitsett", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // New Jersey — https://www.njleg.state.nj.us/legislative-roster (Senate)
+ "amato_nj": {
+  "name": "Carmen F. Amato Jr.", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 9", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "beach_nj": {
+  "name": "James Beach", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 6", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bramnick_nj": {
+  "name": "Jon M. Bramnick", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 21", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "burgess_nj": {
+  "name": "Renee C. Burgess", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 28", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "burzichelli_nj": {
+  "name": "John J. Burzichelli", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "corrado_nj": {
+  "name": "Kristin M. Corrado", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 40", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cruz_perez_nj": {
+  "name": "Nilsa I. Cruz-Perez", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 5", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cryan_nj": {
+  "name": "Joseph P. Cryan", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 20", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "diegnan_nj": {
+  "name": "Patrick J. Diegnan Jr.", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 18", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gopal_nj": {
+  "name": "Vin Gopal", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 11", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "greenstein_nj": {
+  "name": "Linda R. Greenstein", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 14", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "henry_nj": {
+  "name": "Owen Henry", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 12", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "holzapfel_nj": {
+  "name": "James W. Holzapfel", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 10", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "johnson_nj": {
+  "name": "Gordon M. Johnson", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 37", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lagana_nj": {
+  "name": "Joseph A. Lagana", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 38", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mckeon_nj": {
+  "name": "John F. McKeon", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 27", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mcknight_nj": {
+  "name": "Angela V. McKnight", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 31", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "moriarty_nj": {
+  "name": "Paul D. Moriarty", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mukherji_nj": {
+  "name": "Raj Mukherji", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 32", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "oscanlon_nj": {
+  "name": "Declan J. O'Scanlon Jr.", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 13", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pennacchio_nj": {
+  "name": "Joseph Pennacchio", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 26", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "polistina_nj": {
+  "name": "Vincent J. Polistina", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sarlo_nj": {
+  "name": "Paul A. Sarlo", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 36", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "schepisi_nj": {
+  "name": "Holly T. Schepisi", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 39", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "singer_nj": {
+  "name": "Robert W. Singer", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 30", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "singleton_nj": {
+  "name": "Troy Singleton", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 7", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "space_nj": {
+  "name": "Parker Space", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 24", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "stack_nj": {
+  "name": "Brian P. Stack", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 33", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "steinhardt_nj": {
+  "name": "Douglas J. Steinhardt", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 23", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "testa_nj": {
+  "name": "Michael L. Testa Jr.", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "timberlake_nj": {
+  "name": "Britnee N. Timberlake", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 34", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tiver_nj": {
+  "name": "Latham Tiver", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 8", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "turner_nj": {
+  "name": "Shirley K. Turner", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 15", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "vitale_nj": {
+  "name": "Joseph F. Vitale", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 19", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wimberly_nj": {
+  "name": "Benjie E. Wimberly", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 35", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "zwicker_nj": {
+  "name": "Andrew Zwicker", "office": "New Jersey State Senator",
+  "state": "New Jersey", "district": "LD 16", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Virginia — https://apps.senate.virginia.gov/Senator/index.php · https://house.vga.virginia.gov/members
+ "aird_va": {
+  "name": "Lashrecse D. Aird", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 13", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bagby_va": {
+  "name": "Lamont Bagby", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 14", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bennett_parker_va": {
+  "name": "Elizabeth Bennett-Parker", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 39", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "boysko_va": {
+  "name": "Jennifer B. Boysko", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 38", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "foy_va": {
+  "name": "Jennifer D. Carroll Foy", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 33", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cifers_va": {
+  "name": "Luther H. Cifers III", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 10", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "craig_va": {
+  "name": "Christie New Craig", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 19", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "deeds_va": {
+  "name": "R. Creigh Deeds", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 11", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "desteph_va": {
+  "name": "Bill DeSteph", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 20", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "diggs_va": {
+  "name": "Danny Diggs", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 24", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "durant_va": {
+  "name": "Tara A. Durant", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 27", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "favola_va": {
+  "name": "Barbara A. Favola", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 40", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "french_va": {
+  "name": "Timmy French", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hackworth_va": {
+  "name": "T. Travis Hackworth", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 5", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "head_va": {
+  "name": "Christopher T. Head", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jones_va": {
+  "name": "Michael J. Jones", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 15", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jordan_va": {
+  "name": "Emily M. Jordan", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 17", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "locke_va": {
+  "name": "Mamie E. Locke", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 23", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "marsden_va": {
+  "name": "David W. Marsden", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 35", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jeremy_mcpike_va": {
+  "name": "Jeremy S. McPike", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 29", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mulchi_va": {
+  "name": "Tammy Brankley Mulchi", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 9", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "obenshain_va": {
+  "name": "Mark D. Obenshain", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "peake_va": {
+  "name": "Mark J. Peake", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 8", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pekarsky_va": {
+  "name": "Stella G. Pekarsky", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 36", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "perry_va": {
+  "name": "Russet W. Perry", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 31", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pillion_va": {
+  "name": "Todd E. Pillion", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 6", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "reeves_va": {
+  "name": "Bryce E. Reeves", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 28", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "roem_va": {
+  "name": "Danica A. Roem", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 30", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rouse_va": {
+  "name": "Aaron R. Rouse", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 22", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "salim_va": {
+  "name": "Saddam Azlan Salim", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 37", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "srinivasan_va": {
+  "name": "Kannan Srinivasan", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 32", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "stanley_va": {
+  "name": "William M. Stanley Jr.", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 7", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "stuart_va": {
+  "name": "Richard H. Stuart", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 25", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sturtevant_va": {
+  "name": "Glen H. Sturtevant Jr.", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 12", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "suetterlein_va": {
+  "name": "David R. Suetterlein", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "vanvalkenburg_va": {
+  "name": "Schuyler T. VanValkenburg", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 16", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "graves_va": {
+  "name": "Angelia Williams Graves", "office": "Virginia State Senator",
+  "state": "Virginia", "district": "SD 21", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "anderson_va": {
+  "name": "Jessica L. Anderson", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 71", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "anthony_va": {
+  "name": "Bonita G. Anthony", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 92", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "askew_va": {
+  "name": "Alex Q. Askew", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 95", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "austin_va": {
+  "name": "Terry L. Austin", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 37", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ballard_va": {
+  "name": "Jason S. Ballard", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 42", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bloxom_va": {
+  "name": "Robert S., Jr. Bloxom", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 100", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bulova_va": {
+  "name": "Gretchen M. Bulova", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 11", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "callsen_va": {
+  "name": "Katrina E. Callsen", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 54", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "carnegie_va": {
+  "name": "Karen Robins Carnegie", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 89", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "carr_va": {
+  "name": "Betsy B. Carr", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 78", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "carroll_va": {
+  "name": "Stacey A. Carroll", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 64", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cherry_va": {
+  "name": "Mike A. Cherry", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 74", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "clark_va": {
+  "name": "Nadarius E. Clark", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 84", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cohen_va": {
+  "name": "Laura Jane Cohen", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 15", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "joshua_cole_va": {
+  "name": "Joshua G. Cole", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 65", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nicole_cole_va": {
+  "name": "Nicole Cole", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 66", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "convirs_fowler_va": {
+  "name": "Kelly K. Convirs-Fowler", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 96", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cornett_va": {
+  "name": "Mitchell Cornett", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 46", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cousins_va": {
+  "name": "Rae C. Cousins", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 79", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "davis_va": {
+  "name": "Will P. Davis", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 39", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "delaney_va": {
+  "name": "Karrie K. Delaney", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 9", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dougherty_va": {
+  "name": "Lindsey Dougherty", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 75", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "downey_va": {
+  "name": "Mark C. Downey", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 69", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "feggans_va": {
+  "name": "Michael Feggans", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 97", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fowler_va": {
+  "name": "Hyland F., Jr. Fowler", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 59", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lily_franklin_va": {
+  "name": "Lily V. Franklin", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 41", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "margaret_franklin_va": {
+  "name": "Margaret Angela Franklin", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 23", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gardner_va": {
+  "name": "Debra D. Gardner", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 76", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "garrett_va": {
+  "name": "Thomas A., Jr. Garrett", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 56", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "glass_va": {
+  "name": "Jackie Hope Glass", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 93", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "griffin_va": {
+  "name": "Timothy P. Griffin", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 53", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "guzman_va": {
+  "name": "Elizabeth R. Guzman", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 22", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hamilton_va": {
+  "name": "Karen Fleming Hamilton", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 62", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hayes_va": {
+  "name": "C. E. (Cliff), Jr. Hayes", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 91", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "helmer_va": {
+  "name": "Dan Helmer", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 10", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "henson_va": {
+  "name": "Rozia A., Jr. Henson", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 19", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hernandez_va": {
+  "name": "Phil M. Hernandez", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 94", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "herring_va": {
+  "name": "Charniele L. Herring", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hodges_va": {
+  "name": "M. Keith Hodges", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 68", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hope_va": {
+  "name": "Patrick A. Hope", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kent_va": {
+  "name": "Hillary Pugh Kent", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 67", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "keys_gamarra_va": {
+  "name": "Karen Keys-Gamarra", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 7", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kilgore_va": {
+  "name": "Terry G. Kilgore", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 45", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "krizek_va": {
+  "name": "Paul E. Krizek", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 16", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "laufer_va": {
+  "name": "Amy J. Laufer", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 55", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "levere_bolling_va": {
+  "name": "Destiny L. LeVere Bolling", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 80", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "leftwich_va": {
+  "name": "James A. (Jay), Jr. Leftwich", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 90", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lopez_va": {
+  "name": "Alfonso H. Lopez", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "martinez_va": {
+  "name": "Fernando J. Martinez", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 29", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mcauliff_va": {
+  "name": "John C McAuliff", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 30", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mcclure_va": {
+  "name": "Adele Y. McClure", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mcguire_va": {
+  "name": "Garrett McGuire", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 17", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mclaughlin_va": {
+  "name": "Ellen H. McLaughlin", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 36", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mcnamara_va": {
+  "name": "Joseph P. McNamara", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 40", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "r_mcpike_va": {
+  "name": "R. Kirk McPike", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 5", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mcquinn_va": {
+  "name": "Delores L. McQuinn", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 81", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mehta_va": {
+  "name": "Leslie Chambers Mehta", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 73", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "morefield_va": {
+  "name": "James W. (Will) Morefield", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 43", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nivar_va": {
+  "name": "May Nivar", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 57", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "oquinn_va": {
+  "name": "Israel D. O'Quinn", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 44", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "oates_va": {
+  "name": "Delores Oates", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 31", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pence_va": {
+  "name": "Justin L. Pence", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 33", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "phillips_va": {
+  "name": "Eric J. Phillips", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 48", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pope_adams_va": {
+  "name": "Kimberly Pope Adams", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 82", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "price_va": {
+  "name": "Marcia S. (Cia) Price", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 85", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rasoul_va": {
+  "name": "Sam Rasoul", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 38", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "reaser_va": {
+  "name": "Atoosa R. Reaser", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 27", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "reid_va": {
+  "name": "David A. Reid", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 28", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rice_va": {
+  "name": "Andrew Rice", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 98", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "runion_va": {
+  "name": "Chris Runion", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 35", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "schmidt_va": {
+  "name": "Charles H., Jr. Schmidt", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 77", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "phillip_scott_va": {
+  "name": "Phillip A. Scott", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 63", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "seibold_va": {
+  "name": "Holly M. Seibold", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 12", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sewell_va": {
+  "name": "Briana D. Sewell", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 25", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "shin_va": {
+  "name": "Irene Shin", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 8", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "simon_va": {
+  "name": "Marcus B. Simon", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 13", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "simonds_va": {
+  "name": "Shelly A. Simonds", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 70", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "singh_va": {
+  "name": "JJ Singh", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 26", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sullivan_va": {
+  "name": "Richard C. (Rip), Jr. Sullivan", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 6", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tata_va": {
+  "name": "Anne Ferrell H. Tata", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 99", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "thomas_va": {
+  "name": "Josh Thomas", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 21", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "thornton_va": {
+  "name": "Virgil Gene, Sr. Thornton", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 86", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "torian_va": {
+  "name": "Luke E. Torian", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 24", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tran_va": {
+  "name": "Kathy KL Tran", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 18", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wachsmann_va": {
+  "name": "Howard Otto, Jr. Wachsmann", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 83", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "walker_va": {
+  "name": "Wendell S. Walker", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 52", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ward_va": {
+  "name": "Jeion A. Ward", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 87", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ware_va": {
+  "name": "R. Lee Ware", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 72", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "watts_va": {
+  "name": "Vivian E. Watts", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 14", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "webert_va": {
+  "name": "Michael J. Webert", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 61", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "whittle_va": {
+  "name": "Madison Whittle", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 49", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wiley_va": {
+  "name": "William D. (Bill) Wiley", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 32", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "willett_va": {
+  "name": "Rodney T. Willett", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 58", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "williams_va": {
+  "name": "Wren M. Williams", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 47", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wilt_va": {
+  "name": "Tony O. Wilt", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 34", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wright_va": {
+  "name": "Thomas C., Jr. Wright", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 50", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wyatt_va": {
+  "name": "Scott A. Wyatt", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 60", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "zehr_va": {
+  "name": "Eric Zehr", "office": "Virginia State House Delegate",
+  "state": "Virginia", "district": "HD 51", "candidate": false,
   "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
  },

@@ -10790,7 +10790,24 @@
 //     precached and changed, so the shell moves one version.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v465';
+// v466 - MICHIGAN, NEW JERSEY AND VIRGINIA STATE LEGISLATOR ROSTER SHELLS.
+//     cmp-data.js gains 310 identity-only rows (name, office, state, exact
+//     district, `candidate: false`) for the members each chamber's official
+//     roster listed as seated on 2026-10-24, and five sitting leaders already
+//     on file gain the district their record was missing. Virginia delegates
+//     are filed "Virginia State House Delegate" so the resolver reads the
+//     chamber. New Jersey's General Assembly has no rows: each district elects
+//     two members and the resolver names nobody for a seat two records claim,
+//     so those seats read "District N — no member on file yet" as before, as
+//     do Virginia HD 20 (vacant) and seats whose member is held only as a
+//     candidate row or shares a display name with another record.
+//     db/roster-state-legislators-mi-nj-va-2026-oct.json is the record. The
+//     nine earlier states' rows are unchanged. No board, composer or voting
+//     record is opened. cmp-data.js is precached and changed, so the shell
+//     moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v466';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

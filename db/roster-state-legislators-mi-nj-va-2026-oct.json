@@ -1,0 +1,2639 @@
+{
+ "_note": "Sitting Michigan, New Jersey and Virginia state legislators, read from each chamber's official member roster on 2026-10-24. cmp-data.js carries a roster shell for every \"rows\" entry; \"districtSet\" names existing records that gained their district; \"onFileAsCandidate\" seats are left empty because the member is held only as a 2026 candidate row under another office; \"nameSharedWithAnotherRecord\" seats are left empty because another record or content key carries the same display name. Virginia delegates are filed as \"Virginia State House Delegate\", the title with the chamber named so the seat resolver reads it as the lower chamber.",
+ "read": "2026-10-24",
+ "sources": {
+  "Michigan": {
+   "statesenate": "https://senate.michigan.gov/senators/all-senators/",
+   "statehouse": "https://www.house.mi.gov/AllRepresentatives"
+  },
+  "New Jersey": {
+   "statesenate": "https://www.njleg.state.nj.us/legislative-roster"
+  },
+  "Virginia": {
+   "statesenate": "https://apps.senate.virginia.gov/Senator/index.php",
+   "statehouse": "https://house.vga.virginia.gov/members"
+  }
+ },
+ "vacant": {
+  "Michigan": {
+   "statesenate": [],
+   "statehouse": []
+  },
+  "New Jersey": {
+   "statesenate": []
+  },
+  "Virginia": {
+   "statesenate": [],
+   "statehouse": [
+    20
+   ]
+  }
+ },
+ "notAdded": {
+  "New Jersey General Assembly": "Each of New Jersey's 40 legislative districts elects two Assembly members. The seat resolver places nobody on a seat two in-office records claim, so a pair of shells would still read \"no member on file yet\"; no Assembly rows were added."
+ },
+ "rows": [
+  {
+   "pid": "albert_mi",
+   "name": "Thomas A Albert",
+   "officialListing": "Thomas A Albert",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 18
+  },
+  {
+   "pid": "anthony_mi",
+   "name": "Sarah E Anthony",
+   "officialListing": "Sarah E Anthony",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 21
+  },
+  {
+   "pid": "bayer_mi",
+   "name": "Rosemary Bayer",
+   "officialListing": "Rosemary Bayer",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 13
+  },
+  {
+   "pid": "bellino_mi",
+   "name": "Joseph N Bellino Jr.",
+   "officialListing": "Joseph N Bellino Jr.",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 16
+  },
+  {
+   "pid": "bumstead_mi",
+   "name": "Jon C Bumstead",
+   "officialListing": "Jon C Bumstead",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 32
+  },
+  {
+   "pid": "camilleri_mi",
+   "name": "Darrin Camilleri",
+   "officialListing": "Darrin Camilleri",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 4
+  },
+  {
+   "pid": "cavanagh_mi",
+   "name": "Mary Cavanagh",
+   "officialListing": "Mary Cavanagh",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 6
+  },
+  {
+   "pid": "chang_mi",
+   "name": "Stephanie Chang",
+   "officialListing": "Stephanie Chang",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 3
+  },
+  {
+   "pid": "cherry_mi",
+   "name": "John Cherry",
+   "officialListing": "John Cherry",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 27
+  },
+  {
+   "pid": "daley_mi",
+   "name": "Kevin Daley",
+   "officialListing": "Kevin Daley",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 26
+  },
+  {
+   "pid": "damoose_mi",
+   "name": "John N Damoose",
+   "officialListing": "John N Damoose",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 37
+  },
+  {
+   "pid": "geiss_mi",
+   "name": "Erika Geiss",
+   "officialListing": "Erika Geiss",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 1
+  },
+  {
+   "pid": "chedrick_greene_mi",
+   "name": "Chedrick Greene",
+   "officialListing": "Chedrick Greene",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 35
+  },
+  {
+   "pid": "hauck_mi",
+   "name": "Roger Hauck",
+   "officialListing": "Roger Hauck",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 34
+  },
+  {
+   "pid": "hertel_mi",
+   "name": "Kevin Hertel",
+   "officialListing": "Kevin Hertel",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 12
+  },
+  {
+   "pid": "hoitenga_mi",
+   "name": "Michele Hoitenga",
+   "officialListing": "Michele Hoitenga",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 36
+  },
+  {
+   "pid": "huizenga_mi",
+   "name": "Mark E Huizenga",
+   "officialListing": "Mark E Huizenga",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 30
+  },
+  {
+   "pid": "irwin_mi",
+   "name": "Jeff Irwin",
+   "officialListing": "Jeff Irwin",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 15
+  },
+  {
+   "pid": "johnson_mi",
+   "name": "Ruth A Johnson",
+   "officialListing": "Ruth A Johnson",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 24
+  },
+  {
+   "pid": "klinefelt_mi",
+   "name": "Veronica Klinefelt",
+   "officialListing": "Veronica Klinefelt",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 11
+  },
+  {
+   "pid": "lauwers_mi",
+   "name": "Dan Lauwers",
+   "officialListing": "Dan Lauwers",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 25
+  },
+  {
+   "pid": "lindsey_mi",
+   "name": "Jonathan Lindsey",
+   "officialListing": "Jonathan Lindsey",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 17
+  },
+  {
+   "pid": "mcbroom_mi",
+   "name": "Edward W McBroom",
+   "officialListing": "Edward W McBroom",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 38
+  },
+  {
+   "pid": "rick_outman_mi",
+   "name": "Rick Outman",
+   "officialListing": "Rick Outman",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 33
+  },
+  {
+   "pid": "polehanki_mi",
+   "name": "Dayna Polehanki",
+   "officialListing": "Dayna Polehanki",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 5
+  },
+  {
+   "pid": "runestad_mi",
+   "name": "Jim Runestad",
+   "officialListing": "Jim Runestad",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 23
+  },
+  {
+   "pid": "santana_mi",
+   "name": "Sylvia A Santana",
+   "officialListing": "Sylvia A Santana",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 2
+  },
+  {
+   "pid": "shink_mi",
+   "name": "Sue Shink",
+   "officialListing": "Sue Shink",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 14
+  },
+  {
+   "pid": "singh_mi",
+   "name": "Sam Singh",
+   "officialListing": "Sam Singh",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 28
+  },
+  {
+   "pid": "theis_mi",
+   "name": "Lana Theis",
+   "officialListing": "Lana Theis",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 22
+  },
+  {
+   "pid": "victory_mi",
+   "name": "Roger Victory",
+   "officialListing": "Roger Victory",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 31
+  },
+  {
+   "pid": "webber_mi",
+   "name": "Michael Webber",
+   "officialListing": "Michael Webber",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 9
+  },
+  {
+   "pid": "wojno_mi",
+   "name": "Paul Wojno",
+   "officialListing": "Paul Wojno",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 10
+  },
+  {
+   "pid": "alexander_mi",
+   "name": "Gregory Alexander",
+   "officialListing": "Gregory Alexander",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 98
+  },
+  {
+   "pid": "aragona_mi",
+   "name": "Joseph A. Aragona",
+   "officialListing": "Joseph A. Aragona",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 60
+  },
+  {
+   "pid": "begole_mi",
+   "name": "Brian BeGole",
+   "officialListing": "Brian BeGole",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 71
+  },
+  {
+   "pid": "beson_mi",
+   "name": "Timothy Beson",
+   "officialListing": "Timothy Beson",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 96
+  },
+  {
+   "pid": "bierlein_mi",
+   "name": "Matthew Bierlein",
+   "officialListing": "Matthew Bierlein",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 97
+  },
+  {
+   "pid": "bohnak_mi",
+   "name": "Karl Bohnak",
+   "officialListing": "Karl Bohnak",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 109
+  },
+  {
+   "pid": "bollin_mi",
+   "name": "Ann M. Bollin",
+   "officialListing": "Ann M. Bollin",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 49
+  },
+  {
+   "pid": "borton_mi",
+   "name": "Ken Borton",
+   "officialListing": "Ken Borton",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 105
+  },
+  {
+   "pid": "bruck_mi",
+   "name": "William Bruck",
+   "officialListing": "William Bruck",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 30
+  },
+  {
+   "pid": "carra_mi",
+   "name": "Steve Carra",
+   "officialListing": "Steve Carra",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 36
+  },
+  {
+   "pid": "cavitt_mi",
+   "name": "Cameron Cavitt",
+   "officialListing": "Cameron Cavitt",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 106
+  },
+  {
+   "pid": "deboer_mi",
+   "name": "Nancy DeBoer",
+   "officialListing": "Nancy DeBoer",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 86
+  },
+  {
+   "pid": "desana_mi",
+   "name": "James DeSana",
+   "officialListing": "James DeSana",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 29
+  },
+  {
+   "pid": "fairbairn_mi",
+   "name": "Parker Fairbairn",
+   "officialListing": "Parker Fairbairn",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 107
+  },
+  {
+   "pid": "fox_mi",
+   "name": "Joseph Fox",
+   "officialListing": "Joseph Fox",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 101
+  },
+  {
+   "pid": "frisbie_mi",
+   "name": "Steve Frisbie",
+   "officialListing": "Steve Frisbie",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 44
+  },
+  {
+   "pid": "green_mi",
+   "name": "Phil Green",
+   "officialListing": "Phil Green",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 67
+  },
+  {
+   "pid": "jaime_greene_mi",
+   "name": "Jaime Greene",
+   "officialListing": "Jaime Greene",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 65
+  },
+  {
+   "pid": "harris_mi",
+   "name": "Mike Harris",
+   "officialListing": "Mike Harris",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 52
+  },
+  {
+   "pid": "hoadley_mi",
+   "name": "Mike Hoadley",
+   "officialListing": "Mike Hoadley",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 99
+  },
+  {
+   "pid": "jenkins_arno_mi",
+   "name": "Nancy Jenkins-Arno",
+   "officialListing": "Nancy Jenkins-Arno",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 34
+  },
+  {
+   "pid": "johnsen_mi",
+   "name": "Gina Johnsen",
+   "officialListing": "Gina Johnsen",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 78
+  },
+  {
+   "pid": "kelly_mi",
+   "name": "Tim Kelly",
+   "officialListing": "Tim Kelly",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 93
+  },
+  {
+   "pid": "kuhn_mi",
+   "name": "Thomas Kuhn",
+   "officialListing": "Thomas Kuhn",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 57
+  },
+  {
+   "pid": "kunse_mi",
+   "name": "Tom Kunse",
+   "officialListing": "Tom Kunse",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 100
+  },
+  {
+   "pid": "lightner_mi",
+   "name": "Sarah Lightner",
+   "officialListing": "Sarah Lightner",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 45
+  },
+  {
+   "pid": "linting_mi",
+   "name": "Rylee Linting",
+   "officialListing": "Rylee Linting",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 27
+  },
+  {
+   "pid": "maddock_mi",
+   "name": "Matt Maddock",
+   "officialListing": "Matt Maddock",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 51
+  },
+  {
+   "pid": "markkanen_mi",
+   "name": "Gregory Markkanen",
+   "officialListing": "Gregory Markkanen",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 110
+  },
+  {
+   "pid": "martin_mi",
+   "name": "David W. Martin",
+   "officialListing": "David W. Martin",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 68
+  },
+  {
+   "pid": "meerman_mi",
+   "name": "Luke Meerman",
+   "officialListing": "Luke Meerman",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 89
+  },
+  {
+   "pid": "mueller_mi",
+   "name": "Mike Mueller",
+   "officialListing": "Mike Mueller",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 72
+  },
+  {
+   "pid": "neyer_mi",
+   "name": "Jerry Neyer",
+   "officialListing": "Jerry Neyer",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 92
+  },
+  {
+   "pid": "pat_outman_mi",
+   "name": "Pat Outman",
+   "officialListing": "Pat Outman",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 91
+  },
+  {
+   "pid": "paquette_mi",
+   "name": "Brad Paquette",
+   "officialListing": "Brad Paquette",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 37
+  },
+  {
+   "pid": "pavlov_mi",
+   "name": "Joseph Pavlov",
+   "officialListing": "Joseph Pavlov",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 64
+  },
+  {
+   "pid": "posthumus_mi",
+   "name": "Bryan Posthumus",
+   "officialListing": "Bryan Posthumus",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 90
+  },
+  {
+   "pid": "prestin_mi",
+   "name": "David Prestin",
+   "officialListing": "David Prestin",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 108
+  },
+  {
+   "pid": "rigas_mi",
+   "name": "Angela Rigas",
+   "officialListing": "Angela Rigas",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 79
+  },
+  {
+   "pid": "robinson_mi",
+   "name": "Ron Robinson",
+   "officialListing": "Ron Robinson",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 58
+  },
+  {
+   "pid": "roth_mi",
+   "name": "John R. Roth",
+   "officialListing": "John R. Roth",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 104
+  },
+  {
+   "pid": "schmaltz_mi",
+   "name": "Kathy Schmaltz",
+   "officialListing": "Kathy Schmaltz",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 46
+  },
+  {
+   "pid": "schriver_mi",
+   "name": "Josh Schriver",
+   "officialListing": "Josh Schriver",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 66
+  },
+  {
+   "pid": "schuette_mi",
+   "name": "Bill Schuette",
+   "officialListing": "Bill Schuette",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 95
+  },
+  {
+   "pid": "slagh_mi",
+   "name": "Bradley Slagh",
+   "officialListing": "Bradley Slagh",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 85
+  },
+  {
+   "pid": "smit_mi",
+   "name": "Rachelle Smit",
+   "officialListing": "Rachelle Smit",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 43
+  },
+  {
+   "pid": "st_germaine_mi",
+   "name": "Alicia St. Germaine",
+   "officialListing": "Alicia St. Germaine",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 62
+  },
+  {
+   "pid": "steele_mi",
+   "name": "Donni Steele",
+   "officialListing": "Donni Steele",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 54
+  },
+  {
+   "pid": "thompson_mi",
+   "name": "Jamie Thompson",
+   "officialListing": "Jamie Thompson",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 28
+  },
+  {
+   "pid": "tisdel_mi",
+   "name": "Mark A Tisdel",
+   "officialListing": "Mark A Tisdel",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 55
+  },
+  {
+   "pid": "vanderwall_mi",
+   "name": "Curtis S VanderWall",
+   "officialListing": "Curtis S VanderWall",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 102
+  },
+  {
+   "pid": "vanwoerkom_mi",
+   "name": "Greg VanWoerkom",
+   "officialListing": "Greg VanWoerkom",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 88
+  },
+  {
+   "pid": "wendzel_mi",
+   "name": "Pauline Wendzel",
+   "officialListing": "Pauline Wendzel",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 39
+  },
+  {
+   "pid": "woolford_mi",
+   "name": "Jason Woolford",
+   "officialListing": "Jason Woolford",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 50
+  },
+  {
+   "pid": "wortz_mi",
+   "name": "Jennifer Wortz",
+   "officialListing": "Jennifer Wortz",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 35
+  },
+  {
+   "pid": "wozniak_mi",
+   "name": "Douglas C Wozniak",
+   "officialListing": "Douglas C Wozniak",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 59
+  },
+  {
+   "pid": "andrews_mi",
+   "name": "Joey Andrews",
+   "officialListing": "Joey Andrews",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 38
+  },
+  {
+   "pid": "arbit_mi",
+   "name": "Noah Arbit",
+   "officialListing": "Noah Arbit",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 20
+  },
+  {
+   "pid": "breen_mi",
+   "name": "Kelly A Breen",
+   "officialListing": "Kelly A Breen",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 21
+  },
+  {
+   "pid": "brixie_mi",
+   "name": "Julie Brixie",
+   "officialListing": "Julie Brixie",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 73
+  },
+  {
+   "pid": "byrnes_mi",
+   "name": "Erin Byrnes",
+   "officialListing": "Erin Byrnes",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 15
+  },
+  {
+   "pid": "brenda_carter_mi",
+   "name": "Brenda Carter",
+   "officialListing": "Brenda Carter",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 53
+  },
+  {
+   "pid": "tyrone_carter_mi",
+   "name": "Tyrone Carter",
+   "officialListing": "Tyrone Carter",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 1
+  },
+  {
+   "pid": "coffia_mi",
+   "name": "Betsy Coffia",
+   "officialListing": "Betsy Coffia",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 103
+  },
+  {
+   "pid": "conlin_mi",
+   "name": "Jennifer Conlin",
+   "officialListing": "Jennifer Conlin",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 48
+  },
+  {
+   "pid": "dievendorf_mi",
+   "name": "Emily Dievendorf",
+   "officialListing": "Emily Dievendorf",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 77
+  },
+  {
+   "pid": "edwards_mi",
+   "name": "Kimberly Edwards",
+   "officialListing": "Kimberly Edwards",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 12
+  },
+  {
+   "pid": "farhat_mi",
+   "name": "Alabas Farhat",
+   "officialListing": "Alabas Farhat",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 3
+  },
+  {
+   "pid": "fitzgerald_mi",
+   "name": "John Fitzgerald",
+   "officialListing": "John Fitzgerald",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 83
+  },
+  {
+   "pid": "foreman_mi",
+   "name": "Morgan Foreman",
+   "officialListing": "Morgan Foreman",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 33
+  },
+  {
+   "pid": "glanville_mi",
+   "name": "Carol Glanville",
+   "officialListing": "Carol Glanville",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 84
+  },
+  {
+   "pid": "grant_mi",
+   "name": "Kristian Grant",
+   "officialListing": "Kristian Grant",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 82
+  },
+  {
+   "pid": "herzberg_mi",
+   "name": "Peter Herzberg",
+   "officialListing": "Peter Herzberg",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 25
+  },
+  {
+   "pid": "hope_mi",
+   "name": "Kara Hope",
+   "officialListing": "Kara Hope",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 74
+  },
+  {
+   "pid": "hoskins_mi",
+   "name": "Jason M Hoskins",
+   "officialListing": "Jason M Hoskins",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 18
+  },
+  {
+   "pid": "koleszar_mi",
+   "name": "Matt Koleszar",
+   "officialListing": "Matt Koleszar",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 22
+  },
+  {
+   "pid": "liberati_mi",
+   "name": "Tullio Liberati Jr.",
+   "officialListing": "Tullio Liberati Jr.",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 2
+  },
+  {
+   "pid": "longjohn_mi",
+   "name": "Matt Longjohn",
+   "officialListing": "Matt Longjohn",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 40
+  },
+  {
+   "pid": "macdonell_mi",
+   "name": "Sharon MacDonell",
+   "officialListing": "Sharon MacDonell",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 56
+  },
+  {
+   "pid": "martus_mi",
+   "name": "Jasper Martus",
+   "officialListing": "Jasper Martus",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 69
+  },
+  {
+   "pid": "mcfall_mi",
+   "name": "Mike McFall",
+   "officialListing": "Mike McFall",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 14
+  },
+  {
+   "pid": "mentzer_mi",
+   "name": "Denise Mentzer",
+   "officialListing": "Denise Mentzer",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 61
+  },
+  {
+   "pid": "miller_mi",
+   "name": "Reggie Miller",
+   "officialListing": "Reggie Miller",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 31
+  },
+  {
+   "pid": "morgan_mi",
+   "name": "Jason Morgan",
+   "officialListing": "Jason Morgan",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 23
+  },
+  {
+   "pid": "myers_phillips_mi",
+   "name": "Tonya Myers Phillips",
+   "officialListing": "Tonya Myers Phillips",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 7
+  },
+  {
+   "pid": "neeley_mi",
+   "name": "Cynthia Neeley",
+   "officialListing": "Cynthia Neeley",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 70
+  },
+  {
+   "pid": "oneal_mi",
+   "name": "Amos O'Neal",
+   "officialListing": "Amos O'Neal",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 94
+  },
+  {
+   "pid": "paiz_mi",
+   "name": "Veronica Paiz",
+   "officialListing": "Veronica Paiz",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 10
+  },
+  {
+   "pid": "pohutsky_mi",
+   "name": "Laurie Pohutsky",
+   "officialListing": "Laurie Pohutsky",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 17
+  },
+  {
+   "pid": "price_mi",
+   "name": "Natalie Price",
+   "officialListing": "Natalie Price",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 6
+  },
+  {
+   "pid": "rheingans_mi",
+   "name": "Carrie Rheingans",
+   "officialListing": "Carrie Rheingans",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 47
+  },
+  {
+   "pid": "rogers_mi",
+   "name": "Julie M. Rogers",
+   "officialListing": "Julie M. Rogers",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 41
+  },
+  {
+   "pid": "scott_mi",
+   "name": "Helena Scott",
+   "officialListing": "Helena Scott",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 8
+  },
+  {
+   "pid": "skaggs_mi",
+   "name": "Phil Skaggs",
+   "officialListing": "Phil Skaggs",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 80
+  },
+  {
+   "pid": "snyder_mi",
+   "name": "Will Snyder",
+   "officialListing": "Will Snyder",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 87
+  },
+  {
+   "pid": "steckloff_mi",
+   "name": "Samantha Steckloff",
+   "officialListing": "Samantha Steckloff",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 19
+  },
+  {
+   "pid": "tate_mi",
+   "name": "Joseph Tate",
+   "officialListing": "Joseph Tate",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 9
+  },
+  {
+   "pid": "tsernoglou_mi",
+   "name": "Penelope Tsernoglou",
+   "officialListing": "Penelope Tsernoglou",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 75
+  },
+  {
+   "pid": "wegela_mi",
+   "name": "Dylan Wegela",
+   "officialListing": "Dylan Wegela",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 26
+  },
+  {
+   "pid": "weiss_mi",
+   "name": "Regina Weiss",
+   "officialListing": "Regina Weiss",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 5
+  },
+  {
+   "pid": "wilson_mi",
+   "name": "Jimmie Wilson Jr",
+   "officialListing": "Jimmie Wilson Jr",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 32
+  },
+  {
+   "pid": "witwer_mi",
+   "name": "Angela Witwer",
+   "officialListing": "Angela Witwer",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 76
+  },
+  {
+   "pid": "wooden_mi",
+   "name": "Stephen Wooden",
+   "officialListing": "Stephen Wooden",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 81
+  },
+  {
+   "pid": "xiong_mi",
+   "name": "Mai Xiong",
+   "officialListing": "Mai Xiong",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 13
+  },
+  {
+   "pid": "young_mi",
+   "name": "Stephanie A Young",
+   "officialListing": "Stephanie A Young",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 16
+  },
+  {
+   "pid": "whitsett_mi",
+   "name": "Karen Whitsett",
+   "officialListing": "Karen Whitsett",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 4
+  },
+  {
+   "pid": "amato_nj",
+   "name": "Carmen F. Amato Jr.",
+   "officialListing": "Carmen F. Amato Jr.",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 9
+  },
+  {
+   "pid": "beach_nj",
+   "name": "James Beach",
+   "officialListing": "James Beach",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 6
+  },
+  {
+   "pid": "bramnick_nj",
+   "name": "Jon M. Bramnick",
+   "officialListing": "Jon M. Bramnick",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 21
+  },
+  {
+   "pid": "burgess_nj",
+   "name": "Renee C. Burgess",
+   "officialListing": "Renee C. Burgess",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 28
+  },
+  {
+   "pid": "burzichelli_nj",
+   "name": "John J. Burzichelli",
+   "officialListing": "John J. Burzichelli",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 3
+  },
+  {
+   "pid": "corrado_nj",
+   "name": "Kristin M. Corrado",
+   "officialListing": "Kristin M. Corrado",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 40
+  },
+  {
+   "pid": "cruz_perez_nj",
+   "name": "Nilsa I. Cruz-Perez",
+   "officialListing": "Nilsa I. Cruz-Perez",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 5
+  },
+  {
+   "pid": "cryan_nj",
+   "name": "Joseph P. Cryan",
+   "officialListing": "Joseph P. Cryan",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 20
+  },
+  {
+   "pid": "diegnan_nj",
+   "name": "Patrick J. Diegnan Jr.",
+   "officialListing": "Patrick J. Diegnan Jr.",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 18
+  },
+  {
+   "pid": "gopal_nj",
+   "name": "Vin Gopal",
+   "officialListing": "Vin Gopal",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 11
+  },
+  {
+   "pid": "greenstein_nj",
+   "name": "Linda R. Greenstein",
+   "officialListing": "Linda R. Greenstein",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 14
+  },
+  {
+   "pid": "henry_nj",
+   "name": "Owen Henry",
+   "officialListing": "Owen Henry",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 12
+  },
+  {
+   "pid": "holzapfel_nj",
+   "name": "James W. Holzapfel",
+   "officialListing": "James W. Holzapfel",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 10
+  },
+  {
+   "pid": "johnson_nj",
+   "name": "Gordon M. Johnson",
+   "officialListing": "Gordon M. Johnson",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 37
+  },
+  {
+   "pid": "lagana_nj",
+   "name": "Joseph A. Lagana",
+   "officialListing": "Joseph A. Lagana",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 38
+  },
+  {
+   "pid": "mckeon_nj",
+   "name": "John F. McKeon",
+   "officialListing": "John F. McKeon",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 27
+  },
+  {
+   "pid": "mcknight_nj",
+   "name": "Angela V. McKnight",
+   "officialListing": "Angela V. McKnight",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 31
+  },
+  {
+   "pid": "moriarty_nj",
+   "name": "Paul D. Moriarty",
+   "officialListing": "Paul D. Moriarty",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 4
+  },
+  {
+   "pid": "mukherji_nj",
+   "name": "Raj Mukherji",
+   "officialListing": "Raj Mukherji",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 32
+  },
+  {
+   "pid": "oscanlon_nj",
+   "name": "Declan J. O'Scanlon Jr.",
+   "officialListing": "Declan J. O'Scanlon Jr.",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 13
+  },
+  {
+   "pid": "pennacchio_nj",
+   "name": "Joseph Pennacchio",
+   "officialListing": "Joseph Pennacchio",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 26
+  },
+  {
+   "pid": "polistina_nj",
+   "name": "Vincent J. Polistina",
+   "officialListing": "Vincent J. Polistina",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 2
+  },
+  {
+   "pid": "sarlo_nj",
+   "name": "Paul A. Sarlo",
+   "officialListing": "Paul A. Sarlo",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 36
+  },
+  {
+   "pid": "schepisi_nj",
+   "name": "Holly T. Schepisi",
+   "officialListing": "Holly T. Schepisi",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 39
+  },
+  {
+   "pid": "singer_nj",
+   "name": "Robert W. Singer",
+   "officialListing": "Robert W. Singer",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 30
+  },
+  {
+   "pid": "singleton_nj",
+   "name": "Troy Singleton",
+   "officialListing": "Troy Singleton",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 7
+  },
+  {
+   "pid": "space_nj",
+   "name": "Parker Space",
+   "officialListing": "Parker Space",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 24
+  },
+  {
+   "pid": "stack_nj",
+   "name": "Brian P. Stack",
+   "officialListing": "Brian P. Stack",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 33
+  },
+  {
+   "pid": "steinhardt_nj",
+   "name": "Douglas J. Steinhardt",
+   "officialListing": "Douglas J. Steinhardt",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 23
+  },
+  {
+   "pid": "testa_nj",
+   "name": "Michael L. Testa Jr.",
+   "officialListing": "Michael L. Testa Jr.",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 1
+  },
+  {
+   "pid": "timberlake_nj",
+   "name": "Britnee N. Timberlake",
+   "officialListing": "Britnee N. Timberlake",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 34
+  },
+  {
+   "pid": "tiver_nj",
+   "name": "Latham Tiver",
+   "officialListing": "Latham Tiver",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 8
+  },
+  {
+   "pid": "turner_nj",
+   "name": "Shirley K. Turner",
+   "officialListing": "Shirley K. Turner",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 15
+  },
+  {
+   "pid": "vitale_nj",
+   "name": "Joseph F. Vitale",
+   "officialListing": "Joseph F. Vitale",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 19
+  },
+  {
+   "pid": "wimberly_nj",
+   "name": "Benjie E. Wimberly",
+   "officialListing": "Benjie E. Wimberly",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 35
+  },
+  {
+   "pid": "zwicker_nj",
+   "name": "Andrew Zwicker",
+   "officialListing": "Andrew Zwicker",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 16
+  },
+  {
+   "pid": "aird_va",
+   "name": "Lashrecse D. Aird",
+   "officialListing": "Lashrecse D. Aird",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 13
+  },
+  {
+   "pid": "bagby_va",
+   "name": "Lamont Bagby",
+   "officialListing": "Lamont Bagby",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 14
+  },
+  {
+   "pid": "bennett_parker_va",
+   "name": "Elizabeth Bennett-Parker",
+   "officialListing": "Elizabeth Bennett-Parker",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 39
+  },
+  {
+   "pid": "boysko_va",
+   "name": "Jennifer B. Boysko",
+   "officialListing": "Jennifer B. Boysko",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 38
+  },
+  {
+   "pid": "foy_va",
+   "name": "Jennifer D. Carroll Foy",
+   "officialListing": "Jennifer D. Carroll Foy",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 33
+  },
+  {
+   "pid": "cifers_va",
+   "name": "Luther H. Cifers III",
+   "officialListing": "Luther H. Cifers III",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 10
+  },
+  {
+   "pid": "craig_va",
+   "name": "Christie New Craig",
+   "officialListing": "Christie New Craig",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 19
+  },
+  {
+   "pid": "deeds_va",
+   "name": "R. Creigh Deeds",
+   "officialListing": "R. Creigh Deeds",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 11
+  },
+  {
+   "pid": "desteph_va",
+   "name": "Bill DeSteph",
+   "officialListing": "Bill DeSteph",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 20
+  },
+  {
+   "pid": "diggs_va",
+   "name": "Danny Diggs",
+   "officialListing": "J.D. \"Danny\" Diggs",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 24
+  },
+  {
+   "pid": "durant_va",
+   "name": "Tara A. Durant",
+   "officialListing": "Tara A. Durant",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 27
+  },
+  {
+   "pid": "favola_va",
+   "name": "Barbara A. Favola",
+   "officialListing": "Barbara A. Favola",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 40
+  },
+  {
+   "pid": "french_va",
+   "name": "Timmy French",
+   "officialListing": "Timmy French",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 1
+  },
+  {
+   "pid": "hackworth_va",
+   "name": "T. Travis Hackworth",
+   "officialListing": "T. Travis Hackworth",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 5
+  },
+  {
+   "pid": "head_va",
+   "name": "Christopher T. Head",
+   "officialListing": "Christopher T. Head",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 3
+  },
+  {
+   "pid": "jones_va",
+   "name": "Michael J. Jones",
+   "officialListing": "Michael J. Jones",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 15
+  },
+  {
+   "pid": "jordan_va",
+   "name": "Emily M. Jordan",
+   "officialListing": "Emily M. Jordan",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 17
+  },
+  {
+   "pid": "locke_va",
+   "name": "Mamie E. Locke",
+   "officialListing": "Mamie E. Locke",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 23
+  },
+  {
+   "pid": "marsden_va",
+   "name": "David W. Marsden",
+   "officialListing": "David W. Marsden",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 35
+  },
+  {
+   "pid": "jeremy_mcpike_va",
+   "name": "Jeremy S. McPike",
+   "officialListing": "Jeremy S. McPike",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 29
+  },
+  {
+   "pid": "mulchi_va",
+   "name": "Tammy Brankley Mulchi",
+   "officialListing": "Tammy Brankley Mulchi",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 9
+  },
+  {
+   "pid": "obenshain_va",
+   "name": "Mark D. Obenshain",
+   "officialListing": "Mark D. Obenshain",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 2
+  },
+  {
+   "pid": "peake_va",
+   "name": "Mark J. Peake",
+   "officialListing": "Mark J. Peake",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 8
+  },
+  {
+   "pid": "pekarsky_va",
+   "name": "Stella G. Pekarsky",
+   "officialListing": "Stella G. Pekarsky",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 36
+  },
+  {
+   "pid": "perry_va",
+   "name": "Russet W. Perry",
+   "officialListing": "Russet W. Perry",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 31
+  },
+  {
+   "pid": "pillion_va",
+   "name": "Todd E. Pillion",
+   "officialListing": "Todd E. Pillion",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 6
+  },
+  {
+   "pid": "reeves_va",
+   "name": "Bryce E. Reeves",
+   "officialListing": "Bryce E. Reeves",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 28
+  },
+  {
+   "pid": "roem_va",
+   "name": "Danica A. Roem",
+   "officialListing": "Danica A. Roem",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 30
+  },
+  {
+   "pid": "rouse_va",
+   "name": "Aaron R. Rouse",
+   "officialListing": "Aaron R. Rouse",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 22
+  },
+  {
+   "pid": "salim_va",
+   "name": "Saddam Azlan Salim",
+   "officialListing": "Saddam Azlan Salim",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 37
+  },
+  {
+   "pid": "srinivasan_va",
+   "name": "Kannan Srinivasan",
+   "officialListing": "Kannan Srinivasan",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 32
+  },
+  {
+   "pid": "stanley_va",
+   "name": "William M. Stanley Jr.",
+   "officialListing": "William M. Stanley Jr.",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 7
+  },
+  {
+   "pid": "stuart_va",
+   "name": "Richard H. Stuart",
+   "officialListing": "Richard H. Stuart",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 25
+  },
+  {
+   "pid": "sturtevant_va",
+   "name": "Glen H. Sturtevant Jr.",
+   "officialListing": "Glen H. Sturtevant Jr.",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 12
+  },
+  {
+   "pid": "suetterlein_va",
+   "name": "David R. Suetterlein",
+   "officialListing": "David R. Suetterlein",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 4
+  },
+  {
+   "pid": "vanvalkenburg_va",
+   "name": "Schuyler T. VanValkenburg",
+   "officialListing": "Schuyler T. VanValkenburg",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 16
+  },
+  {
+   "pid": "graves_va",
+   "name": "Angelia Williams Graves",
+   "officialListing": "Angelia Williams Graves",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 21
+  },
+  {
+   "pid": "anderson_va",
+   "name": "Jessica L. Anderson",
+   "officialListing": "Anderson, Jessica L.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 71
+  },
+  {
+   "pid": "anthony_va",
+   "name": "Bonita G. Anthony",
+   "officialListing": "Anthony, Bonita G.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 92
+  },
+  {
+   "pid": "askew_va",
+   "name": "Alex Q. Askew",
+   "officialListing": "Askew, Alex Q.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 95
+  },
+  {
+   "pid": "austin_va",
+   "name": "Terry L. Austin",
+   "officialListing": "Austin, Terry L.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 37
+  },
+  {
+   "pid": "ballard_va",
+   "name": "Jason S. Ballard",
+   "officialListing": "Ballard, Jason S.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 42
+  },
+  {
+   "pid": "bloxom_va",
+   "name": "Robert S., Jr. Bloxom",
+   "officialListing": "Bloxom, Robert S., Jr.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 100
+  },
+  {
+   "pid": "bulova_va",
+   "name": "Gretchen M. Bulova",
+   "officialListing": "Bulova, Gretchen M.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 11
+  },
+  {
+   "pid": "callsen_va",
+   "name": "Katrina E. Callsen",
+   "officialListing": "Callsen, Katrina E.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 54
+  },
+  {
+   "pid": "carnegie_va",
+   "name": "Karen Robins Carnegie",
+   "officialListing": "Carnegie, Karen Robins",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 89
+  },
+  {
+   "pid": "carr_va",
+   "name": "Betsy B. Carr",
+   "officialListing": "Carr, Betsy B.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 78
+  },
+  {
+   "pid": "carroll_va",
+   "name": "Stacey A. Carroll",
+   "officialListing": "Carroll, Stacey A.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 64
+  },
+  {
+   "pid": "cherry_va",
+   "name": "Mike A. Cherry",
+   "officialListing": "Cherry, Mike A.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 74
+  },
+  {
+   "pid": "clark_va",
+   "name": "Nadarius E. Clark",
+   "officialListing": "Clark, Nadarius E.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 84
+  },
+  {
+   "pid": "cohen_va",
+   "name": "Laura Jane Cohen",
+   "officialListing": "Cohen, Laura Jane",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 15
+  },
+  {
+   "pid": "joshua_cole_va",
+   "name": "Joshua G. Cole",
+   "officialListing": "Cole, Joshua G.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 65
+  },
+  {
+   "pid": "nicole_cole_va",
+   "name": "Nicole Cole",
+   "officialListing": "Cole, Nicole",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 66
+  },
+  {
+   "pid": "convirs_fowler_va",
+   "name": "Kelly K. Convirs-Fowler",
+   "officialListing": "Convirs-Fowler, Kelly K.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 96
+  },
+  {
+   "pid": "cornett_va",
+   "name": "Mitchell Cornett",
+   "officialListing": "Cornett, Mitchell",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 46
+  },
+  {
+   "pid": "cousins_va",
+   "name": "Rae C. Cousins",
+   "officialListing": "Cousins, Rae C.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 79
+  },
+  {
+   "pid": "davis_va",
+   "name": "Will P. Davis",
+   "officialListing": "Davis, Will P.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 39
+  },
+  {
+   "pid": "delaney_va",
+   "name": "Karrie K. Delaney",
+   "officialListing": "Delaney, Karrie K.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 9
+  },
+  {
+   "pid": "dougherty_va",
+   "name": "Lindsey Dougherty",
+   "officialListing": "Dougherty, Lindsey",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 75
+  },
+  {
+   "pid": "downey_va",
+   "name": "Mark C. Downey",
+   "officialListing": "Downey, Mark C.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 69
+  },
+  {
+   "pid": "feggans_va",
+   "name": "Michael Feggans",
+   "officialListing": "Feggans, Michael",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 97
+  },
+  {
+   "pid": "fowler_va",
+   "name": "Hyland F., Jr. Fowler",
+   "officialListing": "Fowler, Hyland F., Jr.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 59
+  },
+  {
+   "pid": "lily_franklin_va",
+   "name": "Lily V. Franklin",
+   "officialListing": "Franklin, Lily V.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 41
+  },
+  {
+   "pid": "margaret_franklin_va",
+   "name": "Margaret Angela Franklin",
+   "officialListing": "Franklin, Margaret Angela",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 23
+  },
+  {
+   "pid": "gardner_va",
+   "name": "Debra D. Gardner",
+   "officialListing": "Gardner, Debra D.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 76
+  },
+  {
+   "pid": "garrett_va",
+   "name": "Thomas A., Jr. Garrett",
+   "officialListing": "Garrett, Thomas A., Jr.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 56
+  },
+  {
+   "pid": "glass_va",
+   "name": "Jackie Hope Glass",
+   "officialListing": "Glass, Jackie Hope",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 93
+  },
+  {
+   "pid": "griffin_va",
+   "name": "Timothy P. Griffin",
+   "officialListing": "Griffin, Timothy P.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 53
+  },
+  {
+   "pid": "guzman_va",
+   "name": "Elizabeth R. Guzman",
+   "officialListing": "Guzman, Elizabeth R.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 22
+  },
+  {
+   "pid": "hamilton_va",
+   "name": "Karen Fleming Hamilton",
+   "officialListing": "Hamilton, Karen Fleming",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 62
+  },
+  {
+   "pid": "hayes_va",
+   "name": "C. E. (Cliff), Jr. Hayes",
+   "officialListing": "Hayes, C. E. (Cliff), Jr.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 91
+  },
+  {
+   "pid": "helmer_va",
+   "name": "Dan Helmer",
+   "officialListing": "Helmer, Dan",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 10
+  },
+  {
+   "pid": "henson_va",
+   "name": "Rozia A., Jr. Henson",
+   "officialListing": "Henson, Rozia A., Jr.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 19
+  },
+  {
+   "pid": "hernandez_va",
+   "name": "Phil M. Hernandez",
+   "officialListing": "Hernandez, Phil M.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 94
+  },
+  {
+   "pid": "herring_va",
+   "name": "Charniele L. Herring",
+   "officialListing": "Herring, Charniele L.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 4
+  },
+  {
+   "pid": "hodges_va",
+   "name": "M. Keith Hodges",
+   "officialListing": "Hodges, M. Keith",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 68
+  },
+  {
+   "pid": "hope_va",
+   "name": "Patrick A. Hope",
+   "officialListing": "Hope, Patrick A.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 1
+  },
+  {
+   "pid": "kent_va",
+   "name": "Hillary Pugh Kent",
+   "officialListing": "Kent, Hillary Pugh",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 67
+  },
+  {
+   "pid": "keys_gamarra_va",
+   "name": "Karen Keys-Gamarra",
+   "officialListing": "Keys-Gamarra, Karen",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 7
+  },
+  {
+   "pid": "kilgore_va",
+   "name": "Terry G. Kilgore",
+   "officialListing": "Kilgore, Terry G.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 45
+  },
+  {
+   "pid": "krizek_va",
+   "name": "Paul E. Krizek",
+   "officialListing": "Krizek, Paul E.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 16
+  },
+  {
+   "pid": "laufer_va",
+   "name": "Amy J. Laufer",
+   "officialListing": "Laufer, Amy J.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 55
+  },
+  {
+   "pid": "levere_bolling_va",
+   "name": "Destiny L. LeVere Bolling",
+   "officialListing": "LeVere Bolling, Destiny L.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 80
+  },
+  {
+   "pid": "leftwich_va",
+   "name": "James A. (Jay), Jr. Leftwich",
+   "officialListing": "Leftwich, James A. (Jay), Jr.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 90
+  },
+  {
+   "pid": "lopez_va",
+   "name": "Alfonso H. Lopez",
+   "officialListing": "Lopez, Alfonso H.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 3
+  },
+  {
+   "pid": "martinez_va",
+   "name": "Fernando J. Martinez",
+   "officialListing": "Martinez, Fernando J.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 29
+  },
+  {
+   "pid": "mcauliff_va",
+   "name": "John C McAuliff",
+   "officialListing": "McAuliff, John C",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 30
+  },
+  {
+   "pid": "mcclure_va",
+   "name": "Adele Y. McClure",
+   "officialListing": "McClure, Adele Y.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 2
+  },
+  {
+   "pid": "mcguire_va",
+   "name": "Garrett McGuire",
+   "officialListing": "McGuire, Garrett",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 17
+  },
+  {
+   "pid": "mclaughlin_va",
+   "name": "Ellen H. McLaughlin",
+   "officialListing": "McLaughlin, Ellen H.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 36
+  },
+  {
+   "pid": "mcnamara_va",
+   "name": "Joseph P. McNamara",
+   "officialListing": "McNamara, Joseph P.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 40
+  },
+  {
+   "pid": "r_mcpike_va",
+   "name": "R. Kirk McPike",
+   "officialListing": "McPike, R. Kirk",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 5
+  },
+  {
+   "pid": "mcquinn_va",
+   "name": "Delores L. McQuinn",
+   "officialListing": "McQuinn, Delores L.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 81
+  },
+  {
+   "pid": "mehta_va",
+   "name": "Leslie Chambers Mehta",
+   "officialListing": "Mehta, Leslie Chambers",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 73
+  },
+  {
+   "pid": "morefield_va",
+   "name": "James W. (Will) Morefield",
+   "officialListing": "Morefield, James W. (Will)",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 43
+  },
+  {
+   "pid": "nivar_va",
+   "name": "May Nivar",
+   "officialListing": "Nivar, May",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 57
+  },
+  {
+   "pid": "oquinn_va",
+   "name": "Israel D. O'Quinn",
+   "officialListing": "O'Quinn, Israel D.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 44
+  },
+  {
+   "pid": "oates_va",
+   "name": "Delores Oates",
+   "officialListing": "Oates, Delores",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 31
+  },
+  {
+   "pid": "pence_va",
+   "name": "Justin L. Pence",
+   "officialListing": "Pence, Justin L.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 33
+  },
+  {
+   "pid": "phillips_va",
+   "name": "Eric J. Phillips",
+   "officialListing": "Phillips, Eric J.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 48
+  },
+  {
+   "pid": "pope_adams_va",
+   "name": "Kimberly Pope Adams",
+   "officialListing": "Pope Adams, Kimberly",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 82
+  },
+  {
+   "pid": "price_va",
+   "name": "Marcia S. (Cia) Price",
+   "officialListing": "Price, Marcia S. (Cia)",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 85
+  },
+  {
+   "pid": "rasoul_va",
+   "name": "Sam Rasoul",
+   "officialListing": "Rasoul, Sam",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 38
+  },
+  {
+   "pid": "reaser_va",
+   "name": "Atoosa R. Reaser",
+   "officialListing": "Reaser, Atoosa R.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 27
+  },
+  {
+   "pid": "reid_va",
+   "name": "David A. Reid",
+   "officialListing": "Reid, David A.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 28
+  },
+  {
+   "pid": "rice_va",
+   "name": "Andrew Rice",
+   "officialListing": "Rice, Andrew",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 98
+  },
+  {
+   "pid": "runion_va",
+   "name": "Chris Runion",
+   "officialListing": "Runion, Chris",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 35
+  },
+  {
+   "pid": "schmidt_va",
+   "name": "Charles H., Jr. Schmidt",
+   "officialListing": "Schmidt, Charles H., Jr.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 77
+  },
+  {
+   "pid": "phillip_scott_va",
+   "name": "Phillip A. Scott",
+   "officialListing": "Scott, Phillip A.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 63
+  },
+  {
+   "pid": "seibold_va",
+   "name": "Holly M. Seibold",
+   "officialListing": "Seibold, Holly M.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 12
+  },
+  {
+   "pid": "sewell_va",
+   "name": "Briana D. Sewell",
+   "officialListing": "Sewell, Briana D.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 25
+  },
+  {
+   "pid": "shin_va",
+   "name": "Irene Shin",
+   "officialListing": "Shin, Irene",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 8
+  },
+  {
+   "pid": "simon_va",
+   "name": "Marcus B. Simon",
+   "officialListing": "Simon, Marcus B.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 13
+  },
+  {
+   "pid": "simonds_va",
+   "name": "Shelly A. Simonds",
+   "officialListing": "Simonds, Shelly A.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 70
+  },
+  {
+   "pid": "singh_va",
+   "name": "JJ Singh",
+   "officialListing": "Singh, JJ",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 26
+  },
+  {
+   "pid": "sullivan_va",
+   "name": "Richard C. (Rip), Jr. Sullivan",
+   "officialListing": "Sullivan, Richard C. (Rip), Jr.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 6
+  },
+  {
+   "pid": "tata_va",
+   "name": "Anne Ferrell H. Tata",
+   "officialListing": "Tata, Anne Ferrell H.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 99
+  },
+  {
+   "pid": "thomas_va",
+   "name": "Josh Thomas",
+   "officialListing": "Thomas, Josh",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 21
+  },
+  {
+   "pid": "thornton_va",
+   "name": "Virgil Gene, Sr. Thornton",
+   "officialListing": "Thornton, Virgil Gene, Sr.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 86
+  },
+  {
+   "pid": "torian_va",
+   "name": "Luke E. Torian",
+   "officialListing": "Torian, Luke E.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 24
+  },
+  {
+   "pid": "tran_va",
+   "name": "Kathy KL Tran",
+   "officialListing": "Tran, Kathy KL",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 18
+  },
+  {
+   "pid": "wachsmann_va",
+   "name": "Howard Otto, Jr. Wachsmann",
+   "officialListing": "Wachsmann, Howard Otto, Jr.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 83
+  },
+  {
+   "pid": "walker_va",
+   "name": "Wendell S. Walker",
+   "officialListing": "Walker, Wendell S.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 52
+  },
+  {
+   "pid": "ward_va",
+   "name": "Jeion A. Ward",
+   "officialListing": "Ward, Jeion A.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 87
+  },
+  {
+   "pid": "ware_va",
+   "name": "R. Lee Ware",
+   "officialListing": "Ware, R. Lee",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 72
+  },
+  {
+   "pid": "watts_va",
+   "name": "Vivian E. Watts",
+   "officialListing": "Watts, Vivian E.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 14
+  },
+  {
+   "pid": "webert_va",
+   "name": "Michael J. Webert",
+   "officialListing": "Webert, Michael J.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 61
+  },
+  {
+   "pid": "whittle_va",
+   "name": "Madison Whittle",
+   "officialListing": "Whittle, Madison",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 49
+  },
+  {
+   "pid": "wiley_va",
+   "name": "William D. (Bill) Wiley",
+   "officialListing": "Wiley, William D. (Bill)",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 32
+  },
+  {
+   "pid": "willett_va",
+   "name": "Rodney T. Willett",
+   "officialListing": "Willett, Rodney T.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 58
+  },
+  {
+   "pid": "williams_va",
+   "name": "Wren M. Williams",
+   "officialListing": "Williams, Wren M.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 47
+  },
+  {
+   "pid": "wilt_va",
+   "name": "Tony O. Wilt",
+   "officialListing": "Wilt, Tony O.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 34
+  },
+  {
+   "pid": "wright_va",
+   "name": "Thomas C., Jr. Wright",
+   "officialListing": "Wright, Thomas C., Jr.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 50
+  },
+  {
+   "pid": "wyatt_va",
+   "name": "Scott A. Wyatt",
+   "officialListing": "Wyatt, Scott A.",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 60
+  },
+  {
+   "pid": "zehr_va",
+   "name": "Eric Zehr",
+   "officialListing": "Zehr, Eric",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 51
+  }
+ ],
+ "alreadyHeld": [
+  {
+   "pid": "mallory_mcmorrow",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 8
+  },
+  {
+   "pid": "jeremy_moss",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 7
+  },
+  {
+   "pid": "aric_nesbitt",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 20
+  },
+  {
+   "pid": "anthony_bucco",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 25
+  },
+  {
+   "pid": "teresa_ruiz",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 29
+  },
+  {
+   "pid": "louise_lucas",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 18
+  },
+  {
+   "pid": "ryan_mcdougle",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 26
+  },
+  {
+   "pid": "scott_surovell",
+   "state": "Virginia",
+   "chamber": "State Senate",
+   "district": 34
+  }
+ ],
+ "districtSet": [
+  {
+   "pid": "winnie_brinks",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 29,
+   "was": null
+  },
+  {
+   "pid": "matt_hall",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 42,
+   "was": null
+  },
+  {
+   "pid": "ranjeev_puri",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 24,
+   "was": null
+  },
+  {
+   "pid": "nicholas_scutari",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 22,
+   "was": null
+  },
+  {
+   "pid": "don_scott",
+   "state": "Virginia",
+   "chamber": "State House",
+   "district": 88,
+   "was": null
+  }
+ ],
+ "onFileAsCandidate": [
+  {
+   "pid": "sean_mccann",
+   "name": "Sean McCann",
+   "state": "Michigan",
+   "chamber": "State Senate",
+   "district": 19,
+   "rosterOffice": "U.S. House Candidate (MI-4)"
+  },
+  {
+   "pid": "jay_deboyer",
+   "name": "Jay DeBoyer",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 63,
+   "rosterOffice": "Lieutenant Governor Candidate"
+  },
+  {
+   "pid": "donavan_mckinney",
+   "name": "Donavan McKinney",
+   "state": "Michigan",
+   "chamber": "State House",
+   "district": 11,
+   "rosterOffice": "U.S. House Candidate (MI-13)"
+  }
+ ],
+ "nameSharedWithAnotherRecord": [
+  {
+   "name": "Bob Smith",
+   "state": "New Jersey",
+   "chamber": "State Senate",
+   "district": 17,
+   "sharesNameWith": "California U.S. House candidate Bob Smith (bob_smith)"
+  }
+ ]
+}

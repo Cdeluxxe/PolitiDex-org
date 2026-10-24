@@ -196,12 +196,16 @@ for (const [p, sd, hd, pid, nm] of NAMED) {
       }
     }
   }
+  // New Jersey's sitting senators are the official-roster shells and the existing
+  // records (db/roster-state-legislators-mi-nj-va-2026-oct.json); its Assembly has none.
+  const REC = JSON.parse(R("db/roster-state-legislators-mi-nj-va-2026-oct.json"));
+  const nj = [...REC.rows, ...REC.alreadyHeld, ...REC.districtSet].filter((r) => r.state === "New Jersey").map((r) => r.pid);
   eq(JSON.stringify([...named].sort()),
-    JSON.stringify(["anthony_bucco", "bruce_tarr", "cynthia_creem", "jack_johnson_tn", "randy_mcnally", "raumesh_akbari", "teresa_ruiz"]),
+    JSON.stringify([...new Set([...nj, "bruce_tarr", "cynthia_creem", "jack_johnson_tn", "randy_mcnally", "raumesh_akbari"])].sort()),
     "roster: the members the lookup can name are not exactly the district-keyed state legislators on file");
   // Leaders whose records name no district, and U.S. House members whose titles
   // say "House", are never placed in a legislative seat.
-  for (const p of ["nicholas_scutari", "ron_mariano", "karen_spilka", "cameron_sexton", "kclark", "neal", "pallone"]) {
+  for (const p of ["ron_mariano", "karen_spilka", "cameron_sexton", "kclark", "neal", "pallone"]) {
     ok(!named.has(p), `roster: ${p} was placed in a legislative seat`);
   }
 }
