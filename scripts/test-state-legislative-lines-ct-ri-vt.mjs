@@ -309,7 +309,7 @@ section("4 · the forty-three states already mapped are identical to HEAD's");
       stateHouseDistrict: String(RES.pdxLegDistrictKey("New Hampshire", "statehouse", "618")), mapSelected: true },
     { state: "New Hampshire", city: "Nashua", county: "Hillsborough County", district: "2", stateSenateDistrict: "19",
       stateHouseDistrict: String(RES.pdxLegDistrictKey("New Hampshire", "statehouse", "418")), mapSelected: true },
-    { state: "Alaska", city: "Juneau", county: "Juneau City and Borough", district: "1", stateSenateDistrict: "17", stateHouseDistrict: "33" },
+    { state: "District of Columbia", city: "Washington", county: "District of Columbia", district: "1", stateSenateDistrict: "17", stateHouseDistrict: "33" },
   ];
   must(headVhl, "no git baseline for voter-hub-location.js");
   const pick = (r) => JSON.stringify([r.legislativeMapped, r.districtsResolvable, r.levels.map((l) => [l.key, l.district, l.pid, l.mapped, l.distLabel, l.districtName || null])]);
@@ -343,8 +343,8 @@ section("4 · the forty-three states already mapped are identical to HEAD's");
       eq(levelOf(boot(Object.assign({}, loc), { "voter-hub-location.js": headVhl }), "statesenate").mapped, false, `${st}: HEAD already mapped it`);
     eq(levelOf(boot(Object.assign({}, loc)), "statesenate").mapped, true, `${st}: the State Senate seat is not mapped`);
   }
-  const O = boot(LOC("Alaska", "17"));
-  eq(levelOf(O, "statehouse").mapped, false, "Alaska's legislative seats claim to be mapped");
+  const O = boot(LOC("District of Columbia", "17"));
+  eq(levelOf(O, "statehouse").mapped, false, "the District of Columbia's legislative seats claim to be mapped");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

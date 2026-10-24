@@ -74,6 +74,18 @@ const LAYTON = { state: "Utah", city: "Layton", county: "Davis County" };
 // Kentucky until v453, Iowa until v454, Nevada until v455, Oregon until v456,
 // New Mexico until v457, Mississippi until v458,
 // Louisiana until v459, Connecticut until v460, Delaware until v461).
+// EVERY STATE'S LINES ARE DRAWN SINCE v462 (Alaska last), so no real state is
+// left to ask the "lines we do not draw" question of. The code path is still
+// there — it is what any place outside _PDX_LEG_MAPPED gets — so it is asked of
+// Alaska against a copy of the resolver with Alaska taken back off that list.
+// The edit is checked to have happened, so the copy cannot silently be the
+// real file.
+const VHL_NO_AK = (() => {
+  const src = R("voter-hub-location.js");
+  const out = src.replace(",\n                         alaska: 1 };", " };");
+  if (out === src) { console.error("✗ utah statewide named: STALE HARNESS — Alaska is not the last entry in _PDX_LEG_MAPPED"); process.exit(2); }
+  return out;
+})();
 const KANSAS_CITY = { state: "Alaska", city: "Juneau", county: "Juneau City and Borough" };
 const CANON = { senators: ["curtis", "lee"], governor: "cox" };
 const BLANK = "No record on file yet";
@@ -128,7 +140,7 @@ function boot(opts) {
   const sandbox = vm.createContext(win);
   const errors = [];
   FILES.forEach((f) => {
-    try { vm.runInContext(R(f), sandbox, { filename: f }); }
+    try { vm.runInContext((opts.override && opts.override[f]) || R(f), sandbox, { filename: f }); }
     catch (e) { errors.push(`${f}: ${e.message}`); }
   });
   win.PROFILES = win.CMP_DATA;
@@ -332,7 +344,7 @@ REWRITES.forEach((c) => {
 section("5 · The scope did not widen: Juneau keeps three honest blanks");
 
 {
-  const O = boot({ location: KANSAS_CITY });
+  const O = boot({ location: KANSAS_CITY, override: { "voter-hub-location.js": VHL_NO_AK } });
   const reps = O.pdxRepsForMe();
   eq(reps.districtsResolvable, false, "Alaska now claims curated district geometry");
   ["house", "statesenate", "statehouse"].forEach((key) => {

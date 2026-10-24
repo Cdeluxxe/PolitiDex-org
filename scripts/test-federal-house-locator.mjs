@@ -98,7 +98,7 @@ function miniDom(win) {
   return byId;
 }
 
-function boot(location) {
+function boot(location, override) {
   const win = makeSandbox();
   const store = {};
   win.localStorage = {
@@ -113,7 +113,7 @@ function boot(location) {
   const sandbox = vm.createContext(win);
   const errors = [];
   FILES.forEach((f) => {
-    try { vm.runInContext(R(f), sandbox, { filename: f }); }
+    try { vm.runInContext((override && override[f]) || R(f), sandbox, { filename: f }); }
     catch (e) { errors.push(`${f}: ${e.message}`); }
   });
   win.PROFILES = win.CMP_DATA;
@@ -142,6 +142,19 @@ const COLUMBUS_0 = { state: "Ohio", city: "Columbus", county: "Franklin County" 
 // Louisiana until v459, Connecticut until v460, South Dakota until v461;
 // Delaware has no U.S. House member on the roster, so it could not stand in for
 // a resolved House seat).
+// EVERY STATE'S LINES ARE DRAWN SINCE v462 (Alaska last), so no real state is
+// left to ask the "lines we do not draw" question of. The code path is still
+// there — it is what any place outside _PDX_LEG_MAPPED gets — so it is asked of
+// Alaska against a copy of the resolver with Alaska taken back off that list.
+// The edit is checked to have happened, so the copy cannot silently be the
+// real file.
+const VHL_NO_AK = (() => {
+  const src = R("voter-hub-location.js");
+  const out = src.replace(",\n                         alaska: 1 };", " };");
+  if (out === src) { console.error("✗ federal house locator: STALE HARNESS — Alaska is not the last entry in _PDX_LEG_MAPPED"); process.exit(2); }
+  return out;
+})();
+const UNMAPPED = { "voter-hub-location.js": VHL_NO_AK };
 const KC   = { state: "Alaska", city: "Juneau", county: "Juneau City and Borough", district: "1" };
 const KC_0 = { state: "Alaska", city: "Juneau", county: "Juneau City and Borough" };
 const LAYTON     = { state: "Utah", city: "Layton", county: "Davis County", district: "2" };
@@ -216,8 +229,10 @@ section("2 · the congressional map widened and the legislative one did not");
   eq(String(house.district), "3", "flags: the U.S. House level lost the district it resolved from");
   eq(house.mapped, true, "flags: the U.S. House level is not marked as mapped, so its blank state reads as our gap");
 
-  const M = boot(KC);
+  const M = boot(KC, UNMAPPED);
   eq(M.pdxRepsForMe().districtsResolvable, false, "flags: districtsResolvable went true in Alaska");
+  // And with the real resolver, Alaska's legislative seats are mapped.
+  for (const key of ["statesenate", "statehouse"]) eq(levelOf(boot(KC), key).mapped, true, `flags: Alaska's ${key} seat is not mapped by the real resolver`);
   for (const key of ["statesenate", "statehouse"]) {
     const lv = levelOf(M, key);
     must(lv, `the ${key} level is gone from the resolver`);
@@ -256,7 +271,7 @@ section("3 · a mapped blank and an unmapped blank do not read the same");
   eq(nh.mapped, true, "band: the unplaced U.S. House seat is not marked mapped, so it cannot offer a way forward");
 
   const out = band(N);
-  const outM = band(boot(KC_0));
+  const outM = band(boot(KC_0, UNMAPPED));
   has(out, "Not resolved for your area yet",
     "band: an unplaced district seat stopped saying so — there is no district number to print, and\n" +
     "    nothing may imply there is one");
@@ -275,7 +290,7 @@ section("3 · a mapped blank and an unmapped blank do not read the same");
   // finder for a seat that is already answered.
   const filled = band(boot(COLUMBUS));
   has(filled, "Joyce Beatty", "band: a resolved out-of-state U.S. House member is not painted");
-  lacks(band(boot(KC)), "set your address in the district finder",
+  lacks(band(boot(KC, UNMAPPED)), "set your address in the district finder",
     "band: the finder prompt is printed for a reader whose U.S. House seat is already resolved");
 
   // A district we located with nobody on file keeps its own third sentence:

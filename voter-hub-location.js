@@ -2718,8 +2718,8 @@
   // Wisconsin, Indiana, Missouri, Kentucky, Alabama, South Carolina, Iowa,
   // Oklahoma, Kansas, Nevada, Nebraska, Arkansas, Oregon, Idaho, Montana, New
   // Mexico, Wyoming, Mississippi, West Virginia, Hawaii, Louisiana, Maine, New
-  // Hampshire, Connecticut, Rhode Island, Vermont, Delaware, North Dakota and
-  // South Dakota from TIGERweb, scoped to one state
+  // Hampshire, Connecticut, Rhode Island, Vermont, Delaware, North Dakota,
+  // South Dakota and Alaska — every state — from TIGERweb, scoped to one state
   // by its FIPS, once a geocode has named it — the same pattern as the
   // congressional layer. This table is the list of states
   // whose legislative lines the finder can load. It is the ONE place that list
@@ -2740,7 +2740,8 @@
                          mississippi: 1, 'west virginia': 1, hawaii: 1,
                          louisiana: 1, maine: 1, 'new hampshire': 1,
                          connecticut: 1, 'rhode island': 1, vermont: 1,
-                         delaware: 1, 'north dakota': 1, 'south dakota': 1 };
+                         delaware: 1, 'north dakota': 1, 'south dakota': 1,
+                         alaska: 1 };
   // A one-chamber Legislature (Nebraska: 49 senators, no House). Its reader has
   // a State Senate seat and NO State House seat, so the resolver publishes no
   // State House row for them at all — not a blank, not a gap, nothing to fill.
@@ -3011,6 +3012,19 @@
       'District 30', 'District 31', 'District 32', 'District 33', 'District 34',
       'District 35', 'District 26A', 'District 26B', 'District 28A', 'District 28B'
       ]
+    },
+    // A LETTERED SENATE. Alaska's twenty Senate seats are A through T, each made
+    // of two House districts; TIGERweb codes them "00A"–"00T". A digits-only
+    // field cannot hold a letter, so — as for the lettered Houses above — the
+    // Senate keeps a plain key (the seat's place in _PDX_LEG_CODES below, from
+    // 1) and this table gives the seat its label. The House is numbered 1–40.
+    alaska: {
+      statesenate: [
+      'District A', 'District B', 'District C', 'District D', 'District E', 'District F',
+      'District G', 'District H', 'District I', 'District J', 'District K', 'District L',
+      'District M', 'District N', 'District O', 'District P', 'District Q', 'District R',
+      'District S', 'District T'
+      ]
     }
   };
   // TIGERweb's own SLDL code for each lettered seat, in key order (key = index
@@ -3092,6 +3106,12 @@
       '013', '014', '015', '016', '017', '018', '019', '020', '021', '022', '023', '024',
       '025', '027', '029', '030', '031', '032', '033', '034', '035', '26A', '26B', '28A',
       '28B'
+      ]
+    },
+    alaska: {
+      statesenate: [
+      '00A', '00B', '00C', '00D', '00E', '00F', '00G', '00H', '00I', '00J', '00K', '00L',
+      '00M', '00N', '00O', '00P', '00Q', '00R', '00S', '00T'
       ]
     }
   };
