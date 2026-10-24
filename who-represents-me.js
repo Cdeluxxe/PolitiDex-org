@@ -759,7 +759,7 @@
         : 'My U.S. House district could not be drawn from this record, so that seat is not on this card.');
     }
     if (legUnmapped) {
-      notes.push('PolitiDex draws state legislative lines in Utah, Texas, California, Florida, New York, Illinois, Pennsylvania, Ohio, Georgia, Michigan, North Carolina, Virginia, Washington, Arizona, New Jersey, Massachusetts, Tennessee, Colorado, Maryland, Minnesota, Wisconsin, Indiana, Missouri, Kentucky, Alabama, South Carolina, Iowa, Oklahoma, Kansas, Nevada, Nebraska, Arkansas, Oregon, Idaho and Montana only, so ' +
+      notes.push('PolitiDex draws state legislative lines in Utah, Texas, California, Florida, New York, Illinois, Pennsylvania, Ohio, Georgia, Michigan, North Carolina, Virginia, Washington, Arizona, New Jersey, Massachusetts, Tennessee, Colorado, Maryland, Minnesota, Wisconsin, Indiana, Missouri, Kentucky, Alabama, South Carolina, Iowa, Oklahoma, Kansas, Nevada, Nebraska, Arkansas, Oregon, Idaho, Montana, New Mexico and Wyoming only, so ' +
         (st ? st + '’s' : 'my state’s') + ' legislative seats are not on this card.');
     }
     if (legUnpinned) {
@@ -1105,7 +1105,8 @@
     // Carolina, Virginia, Washington, Arizona, New Jersey, Massachusetts,
     // Tennessee, Colorado, Maryland, Minnesota, Wisconsin, Indiana, Missouri,
     // Kentucky, Alabama, South Carolina, Iowa, Oklahoma, Kansas, Nevada,
-    // Nebraska, Arkansas, Oregon, Idaho, Montana) gets no sentence about
+    // Nebraska, Arkansas, Oregon, Idaho, Montana, New Mexico, Wyoming) gets no
+    // sentence about
     // lines we do not: its blank legislative rows already say, on the row,
     // whether the district is set and nobody is on file or the address is not
     // pinned yet. The note then only speaks for a blank U.S. House row.
@@ -1134,7 +1135,7 @@
         : '') +
       (legMapped ? '' :
       'Your <strong>State Senate and State House</strong> seats need state legislative district ' +
-      'lines, and PolitiDex only maps state legislative districts in Utah, Texas, California, Florida, New York, Illinois, Pennsylvania, Ohio, Georgia, Michigan, North Carolina, Virginia, Washington, Arizona, New Jersey, Massachusetts, Tennessee, Colorado, Maryland, Minnesota, Wisconsin, Indiana, Missouri, Kentucky, Alabama, South Carolina, Iowa, Oklahoma, Kansas, Nevada, Nebraska, Arkansas, Oregon, Idaho and Montana so far. Those rows are ' +
+      'lines, and PolitiDex only maps state legislative districts in Utah, Texas, California, Florida, New York, Illinois, Pennsylvania, Ohio, Georgia, Michigan, North Carolina, Virginia, Washington, Arizona, New Jersey, Massachusetts, Tennessee, Colorado, Maryland, Minnesota, Wisconsin, Indiana, Missouri, Kentucky, Alabama, South Carolina, Iowa, Oklahoma, Kansas, Nevada, Nebraska, Arkansas, Oregon, Idaho, Montana, New Mexico and Wyoming so far. Those rows are ' +
       'left blank on purpose: we would rather show you nothing than show you someone else&rsquo;s ' +
       'district.') +
     '</p>';

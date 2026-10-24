@@ -10677,7 +10677,17 @@
 //     moves one version.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v456';
+// v457 - NEW MEXICO AND WYOMING STATE LEGISLATIVE LINES. /find's TIGERweb
+//     legislative list gains those two states, on the same 2024 layers (5 and
+//     6), scoped to the one state by FIPS and loaded only after a geocode, tap
+//     or phone point has named it. Nothing is painted on open and no national
+//     layer is asked for. Both have two chambers. The roster holds no
+//     district-keyed legislator in either state, so every seat reads
+//     "District N — no member on file yet" until one is added. find.html is
+//     precached and changed, so the shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v457';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

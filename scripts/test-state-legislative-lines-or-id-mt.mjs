@@ -247,7 +247,7 @@ section("4 · the thirty-two states already mapped are identical to HEAD's");
     { state: "Nevada", city: "Las Vegas", county: "Clark County", district: "1", stateSenateDistrict: "2", stateHouseDistrict: "11", mapSelected: true },
     { state: "Nebraska", city: "Lincoln", county: "Lancaster County", district: "1", stateSenateDistrict: "28", stateHouseDistrict: "36", mapSelected: true },
     { state: "Arkansas", city: "Little Rock", county: "Pulaski County", district: "2", stateSenateDistrict: "14", stateHouseDistrict: "74", mapSelected: true },
-    { state: "New Mexico", city: "Albuquerque", county: "Bernalillo County", district: "1", stateSenateDistrict: "17", stateHouseDistrict: "33" },
+    { state: "Mississippi", city: "Jackson", county: "Hinds County", district: "2", stateSenateDistrict: "17", stateHouseDistrict: "33" },
   ];
   must(headVhl, "no git baseline for voter-hub-location.js");
   const pick = (r) => JSON.stringify([r.legislativeMapped, r.districtsResolvable, r.levels.map((l) => [l.key, l.district, l.pid, l.mapped, l.distLabel, l.districtName || null])]);
@@ -271,14 +271,13 @@ section("4 · the thirty-two states already mapped are identical to HEAD's");
   }
   // Nebraska still has no State House row.
   eq(levelOf(boot(LOC("Nebraska", "28")), "statehouse"), null, "Nebraska grew a State House row");
-  // The three new states did change: before this pass they were unmapped.
+  // The three states this pass mapped stay mapped.
   for (const st of ["Oregon", "Idaho", "Montana"]) {
     const loc = { state: st, city: "", county: "", district: "1", stateSenateDistrict: "19", stateHouseDistrict: "19", mapSelected: true };
-    eq(levelOf(boot(Object.assign({}, loc), { "voter-hub-location.js": headVhl }), "statesenate").mapped, false, `${st}: HEAD already mapped it (the baseline is stale)`);
     eq(levelOf(boot(Object.assign({}, loc)), "statesenate").mapped, true, `${st}: the State Senate seat is not mapped`);
   }
-  const O = boot(LOC("New Mexico", "17"));
-  eq(levelOf(O, "statehouse").mapped, false, "New Mexico's legislative seats claim to be mapped");
+  const O = boot(LOC("Mississippi", "17"));
+  eq(levelOf(O, "statehouse").mapped, false, "Mississippi's legislative seats claim to be mapped");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

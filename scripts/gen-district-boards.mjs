@@ -60,7 +60,7 @@
 // Washington, Arizona, New Jersey, Massachusetts, Tennessee, Colorado,
 // Maryland, Minnesota, Wisconsin, Indiana, Missouri, Kentucky, Alabama and
 // South Carolina, Iowa, Oklahoma, Kansas, Nevada, Nebraska, Arkansas, Oregon,
-// Idaho and Montana; no
+// Idaho, Montana, New Mexico and Wyoming; no
 // board was opened with those maps, so this plan opens ZERO boards outside Utah
 // and logs every roster seat it refused.
 //
@@ -369,7 +369,8 @@ export const STATE_LEG_REFUSAL = "the location resolver does not map this state'
 // Arizona's, New Jersey's, Massachusetts's, Tennessee's, Colorado's,
 // Maryland's, Minnesota's, Wisconsin's, Indiana's, Missouri's, Kentucky's,
 // Alabama's, South Carolina's, Iowa's, Oklahoma's, Kansas's, Nevada's,
-// Nebraska's, Arkansas's, Oregon's, Idaho's and Montana's since)
+// Nebraska's, Arkansas's, Oregon's, Idaho's, Montana's,
+// New Mexico's and Wyoming's since)
 // are drawn by /find and resolved by pdxRepsForMe now, so the resolver gate
 // below would seat its members — but that pass was scoped to the map and the
 // seat card, with no new boards. Opening one is its own decision, made by

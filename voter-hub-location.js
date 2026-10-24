@@ -2716,8 +2716,8 @@
   // Georgia, Michigan, North Carolina, Virginia, Washington, Arizona, New
   // Jersey, Massachusetts, Tennessee, Colorado, Maryland, Minnesota,
   // Wisconsin, Indiana, Missouri, Kentucky, Alabama, South Carolina, Iowa,
-  // Oklahoma, Kansas, Nevada, Nebraska, Arkansas, Oregon, Idaho and Montana
-  // from TIGERweb, scoped to one state
+  // Oklahoma, Kansas, Nevada, Nebraska, Arkansas, Oregon, Idaho, Montana, New
+  // Mexico and Wyoming from TIGERweb, scoped to one state
   // by its FIPS, once a geocode has named it — the same pattern as the
   // congressional layer. This table is the list of states
   // whose legislative lines the finder can load. It is the ONE place that list
@@ -2733,7 +2733,8 @@
                          kentucky: 1, alabama: 1, 'south carolina': 1,
                          iowa: 1, oklahoma: 1, kansas: 1,
                          nevada: 1, nebraska: 1, arkansas: 1,
-                         oregon: 1, idaho: 1, montana: 1 };
+                         oregon: 1, idaho: 1, montana: 1,
+                         'new mexico': 1, wyoming: 1 };
   // A one-chamber Legislature (Nebraska: 49 senators, no House). Its reader has
   // a State Senate seat and NO State House seat, so the resolver publishes no
   // State House row for them at all — not a blank, not a gap, nothing to fill.
