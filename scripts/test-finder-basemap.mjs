@@ -2144,9 +2144,9 @@ section("worker · one bump, one entry");
 //     congressional layer is showing" rather than on "this reader is in Utah".
 //
 // So this drives the whole gesture twice: a tap inside Utah, then a tap in
-// Louisiana (this was Arizona until v449 drew Arizona's legislative lines,
-// New Mexico until v457 drew New Mexico's, and Mississippi until v458
-// drew Mississippi's;
+// Connecticut (this was Arizona until v449 drew Arizona's legislative lines,
+// New Mexico until v457 drew New Mexico's, Mississippi until v458 drew
+// Mississippi's, and Louisiana until v459 drew Louisiana's;
 // the crossing is into a state with a U.S. House map and nothing else, and the
 // stubbed square stays where it was because the reverse geocode is what names
 // the state), reading the chips, the canvas and the prose after each.
@@ -2172,32 +2172,32 @@ section("17 · a tap across a state line: new lines, and no leftover Utah prose"
   eq(els["pdx-layer-house"].style.display, "",
     "cross: Utah's legislative toggle is hidden in Utah");
 
-  // ── Then Louisiana ──────────────────────────────────────────────────
+  // ── Then Connecticut ──────────────────────────────────────────────────
   // A point in no Utah polygon, with the reverse geocode reporting the state it
   // is really in. Nothing about this tap may be answered by Utah's geometry.
-  atPoint.state = "Louisiana";
+  atPoint.state = "Connecticut";
   mapObj._h.click({ latlng: { lat: 34.7, lng: -111.9 } });
   await pump();
 
   // THE SEAT IS ARIZONA'S, and it came from TIGERweb's 119th lines.
-  ok(tiger.length >= 1, "cross: no TIGERweb request was made, so the Louisiana lines were never fetched");
+  ok(tiger.length >= 1, "cross: no TIGERweb request was made, so the Connecticut lines were never fetched");
   has(tiger[0], "MapServer/4/query", "cross: the out-of-Utah congressional layer is not TIGERweb layer 4 (119th)");
-  has(tiger[0], "STATE%3D%2722%27", "cross: the TIGERweb query is not narrowed to Louisiana's FIPS");
+  has(tiger[0], "STATE%3D%2709%27", "cross: the TIGERweb query is not narrowed to Connecticut's FIPS");
   eq(els["pdx-sel-congress"].querySelector().textContent, "District 3",
-    "cross: the Louisiana pin did not resolve against Louisiana's own lines");
-  eq(win._currentVoterLocation.state, "Louisiana",
+    "cross: the Connecticut pin did not resolve against Connecticut's own lines");
+  eq(win._currentVoterLocation.state, "Connecticut",
     "cross: the saved record still names the state the reader left");
   eq(win._currentVoterLocation.district, "3",
-    "cross: the saved congressional district is not the one Louisiana's lines gave");
+    "cross: the saved congressional district is not the one Connecticut's lines gave");
 
   // AND UTAH IS GONE — the selections, the polygons and the prose.
   eq(win._currentVoterLocation.stateHouseDistrict, "",
-    "cross: a Utah State House district survived a save made in Louisiana");
+    "cross: a Utah State House district survived a save made in Connecticut");
   eq(win._currentVoterLocation.stateSenateDistrict, "",
-    "cross: a Utah State Senate district survived a save made in Louisiana");
+    "cross: a Utah State Senate district survived a save made in Connecticut");
   eq(els["pdx-congress-note"].style.display, "none",
-    "cross: the 2026 court-ordered banner is printed over Louisiana's lines — a Utah ruling offered as the\n" +
-    "    reason a Louisiana reader's district looks the way it does");
+    "cross: the 2026 court-ordered banner is printed over Connecticut's lines — a Utah ruling offered as the\n" +
+    "    reason a Connecticut reader's district looks the way it does");
   // The hint after a pick is the acknowledgement, and it counts the seats this
   // state has rather than the three Utah has.
   const ack = els["pdx-map-hint"].innerHTML;
@@ -2208,20 +2208,20 @@ section("17 · a tap across a state line: new lines, and no leftover Utah prose"
   win.pdxMapSetLayer("congress");
   await pump();
   const hint = els["pdx-map-hint"].innerHTML;
-  no(hint, "2026", "cross: the Louisiana hint still dates the map to Utah's 2026 remap");
-  has(hint, "Louisiana U.S. House", "cross: the Louisiana hint does not say whose lines are on the canvas");
+  no(hint, "2026", "cross: the Connecticut hint still dates the map to Utah's 2026 remap");
+  has(hint, "Connecticut U.S. House", "cross: the Connecticut hint does not say whose lines are on the canvas");
   no(els["pdx-map-info-val"].innerHTML, "2026",
-    "cross: the Louisiana info panel still credits the district to the 2026 map");
+    "cross: the Connecticut info panel still credits the district to the 2026 map");
   no(els["pdx-map-info-label"].textContent, "2026 court-ordered",
-    "cross: the Louisiana info label still names Utah's court-ordered map");
+    "cross: the Connecticut info label still names Utah's court-ordered map");
   eq(els["pdx-layer-house"].style.display, "none",
-    "cross: Utah's State House toggle is still offered to a Louisiana reader");
+    "cross: Utah's State House toggle is still offered to a Connecticut reader");
   eq(els["pdx-layer-senate"].style.display, "none",
-    "cross: Utah's State Senate toggle is still offered to a Louisiana reader");
+    "cross: Utah's State Senate toggle is still offered to a Connecticut reader");
   const utahLeft = added.filter((l) => l._tag === "geojson" &&
     (l._paths || []).some((pp) => pp.feature && pp.feature.properties && pp.feature.properties.DIST != null));
   eq(utahLeft.length, 0,
-    `cross: ${utahLeft.length} of Utah's layers are still on the canvas under a Louisiana pin`);
+    `cross: ${utahLeft.length} of Utah's layers are still on the canvas under a Connecticut pin`);
 
   // THE STATUS LINE NAMES ONE SEAT, because one seat is what this state has.
   const miss = els["pdx-map-missing"].textContent;
