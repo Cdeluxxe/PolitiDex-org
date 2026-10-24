@@ -25,7 +25,7 @@
 //      sitting member (vacuous today: there are none — asserted, not assumed).
 //   4. Every generated file is byte-identical to what the generator writes, so
 //      the Utah and federal boards did not move.
-//   5. /voice in Texas and Oregon: no state legislative card paints (the
+//   5. /voice in Texas, Oregon, Alaska and an unmapped place: no state legislative card paints (the
 //      resolver publishes no district for it), so no state legislative door
 //      can appear and only the federal cards open; and a mapped seat with no
 //      sitting member (Utah HD-7) says "Board not on hand" and never "yet".
@@ -111,14 +111,16 @@ eq(Object.keys(V.BOARD_ROUTES).length, HAND_SEATS.length + PLAN.length,
   // Georgia, Michigan, North Carolina, Virginia, Washington, Arizona, New
   // Jersey, Massachusetts, Tennessee, Colorado, Maryland, Minnesota,
   // Wisconsin, Indiana, Missouri, Kentucky, Alabama, South Carolina, Iowa,
-  // Oklahoma, Kansas, Nevada, Nebraska and Arkansas have mapped lines now, so
-  // their
+  // Oklahoma, Kansas, Nevada, Nebraska, Arkansas, Oregon, Idaho, Montana, New
+  // Mexico, Wyoming, Mississippi, West Virginia, Hawaii, Louisiana, Maine, New
+  // Hampshire, Connecticut, Rhode Island, Vermont, Delaware, North Dakota,
+  // South Dakota and Alaska — every state — have mapped lines now, so their
   // seats are refused by the board list rather than the resolver; every other
   // state is still the resolver's refusal.
-  const MAPPED_LEG = /^(?:tx|ca|fl|ny|il|pa|oh|ga|mi|nc|va|wa|az|nj|ma|tn|co|md|mn|wi|in|mo|ky|al|sc|ia|ok|ks|nv|ne|ar)-/;
+  const MAPPED_LEG = /^(?:tx|ca|fl|ny|il|pa|oh|ga|mi|nc|va|wa|az|nj|ma|tn|co|md|mn|wi|in|mo|ky|al|sc|ia|ok|ks|nv|ne|ar|or|id|mt|nm|wy|ms|wv|hi|la|me|nh|ct|ri|vt|de|nd|sd|ak)-/;
   ok(LEG_SKIPPED.every((s) => s.reason === (MAPPED_LEG.test(s.seat) ? STATE_LEG_BOARD_REFUSAL : STATE_LEG_REFUSAL)),
     "every refusal is the board list's in a mapped state and the resolver's everywhere else");
-  for (const code of ["tx", "ca", "fl", "ny", "il", "pa", "oh", "ga", "mi", "nc", "va", "wa", "az", "nj", "ma", "tn", "co", "md", "mn", "wi", "in", "mo", "ky", "al", "sc", "ia", "ok", "ks", "nv", "ne", "ar"]) {
+  for (const code of ["tx", "ca", "fl", "ny", "il", "pa", "oh", "ga", "mi", "nc", "va", "wa", "az", "nj", "ma", "tn", "co", "md", "mn", "wi", "in", "mo", "ky", "al", "sc", "ia", "ok", "ks", "nv", "ne", "ar", "or", "id", "mt", "nm", "wy", "ms", "wv", "hi", "la", "me", "nh", "ct", "ri", "vt", "de", "nd", "sd", "ak"]) {
     // A state with no roster legislator at all (Oklahoma) has nothing to refuse;
     // the every-refusal check above still covers whatever it would have.
     if (!LEG_SKIPPED.some((s) => s.seat.indexOf(code + "-") === 0)) { passed++; continue; }
@@ -252,12 +254,20 @@ const swFrom = LOC.indexOf("var _pdxStatewideCache = {};");
 const resTo = LOC.indexOf("window._vhSyncDistrictStrip = function()", swFrom);
 must(swFrom !== -1 && resTo > swFrom, "voter-hub-location.js: the resolver slice is gone");
 const RESOLVER = LOC.slice(swFrom, resTo);
+// EVERY STATE'S LINES ARE DRAWN SINCE v462 (Alaska last), so no real state is
+// left to ask the "lines we do not draw" question of. The code path is still
+// there — it is what any place outside _PDX_LEG_MAPPED gets — so it is asked of
+// Alaska against a copy of the resolver with Alaska taken back off that list.
+// The edit is checked to have happened, so the copy cannot silently be the
+// real file.
+const RESOLVER_NO_AK = RESOLVER.replace(",\n                         alaska: 1 };", " };");
+must(RESOLVER_NO_AK !== RESOLVER, "voter-hub-location.js: Alaska is not the last entry in _PDX_LEG_MAPPED");
 const RET_SRC = (() => {
   const at = LOC.indexOf("window.PDXReturn = (function () {");
   const end = LOC.indexOf("\n  })();", at);
   return LOC.slice(at, end + "\n  })();".length);
 })();
-function voice(loc) {
+function voice(loc, resolver) {
   const win = makeSandbox();
   let now = 1000000;
   win.Date = { now: () => now };
@@ -276,7 +286,7 @@ function voice(loc) {
   const ctx = vm.createContext(win);
   vm.runInContext(PA, ctx, { filename: "profile-alias.js" });
   vm.runInContext(SM, ctx, { filename: "seated-member.js" });
-  vm.runInContext(RESOLVER, ctx, { filename: "voter-hub-location.js[pdxRepsForMe]" });
+  vm.runInContext(resolver || RESOLVER, ctx, { filename: "voter-hub-location.js[pdxRepsForMe]" });
   vm.runInContext(RET_SRC, ctx, { filename: "voter-hub-location.js#PDXReturn" });
   vm.runInContext(DV, ctx, { filename: "district-voice.js" });
   vm.runInContext(VR, ctx, { filename: "voice-room.js" });
@@ -292,12 +302,16 @@ const visible = (h) => String(h).replace(/<[^>]+>/g, " ");
 // print a chamber as a seat. Texas's lines ARE mapped, so its reader gets the
 // two legislative cards — but no board was opened with that map, so neither
 // card has a door. Either way no state legislative door can appear.
-for (const [who, loc, legCards] of [
-  // Texas SD-7 and Oregon SD-19 both have a sitting member on the roster.
+for (const [who, loc, legCards, resolverSrc] of [
+  // Texas SD-7 and Oregon SD-19 both have a sitting member on the roster, and
+  // both states' lines are mapped now; so are Alaska's, and the unmapped case
+  // is asked of Alaska against a resolver with Alaska taken off the list.
   ["Houston", { state: "Texas", city: "Houston", county: "Harris County", district: "7", stateSenateDistrict: "7", stateHouseDistrict: "134" }, true],
-  ["Lake Oswego", { state: "Oregon", city: "Lake Oswego", county: "Clackamas County", district: "5", stateSenateDistrict: "19", stateHouseDistrict: "38" }, false],
+  ["Lake Oswego", { state: "Oregon", city: "Lake Oswego", county: "Clackamas County", district: "5", stateSenateDistrict: "19", stateHouseDistrict: "38" }, true],
+  ["Juneau", { state: "Alaska", city: "Juneau", county: "Juneau City and Borough", district: "1", stateSenateDistrict: "2", stateHouseDistrict: "4" }, true],
+  ["Juneau (unmapped)", { state: "Alaska", city: "Juneau", county: "Juneau City and Borough", district: "1", stateSenateDistrict: "2", stateHouseDistrict: "4" }, false, RESOLVER_NO_AK],
 ]) {
-  const { html, seats } = voice(loc);
+  const { html, seats } = voice(loc, resolverSrc);
   must(seats.length > 0, `${who}: the hallway resolved no seats`);
   eq(seats.some((x) => x.key === "statesenate" || x.key === "statehouse"), legCards,
     `${who}: state legislative cards appear exactly where the resolver maps the lines`);
