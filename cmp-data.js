@@ -4578,6 +4578,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://upload.wikimedia.org/wikipedia/commons/0/06/Matt_Huffman.jpg",
   "office": "State House Speaker",
   "state": "Ohio",
+  "district": "HD 78",
   "party": "R",
   "score": 53,
   "kept": 0,
@@ -4596,6 +4597,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://www.ohiosenate.gov/assets/people/rob-mccolley/headshots/thumbnails/medium/rob-mccolley-march-2025-headshot_medium.jpg",
   "office": "State Senate President",
   "state": "Ohio",
+  "district": "SD 1",
   "party": "R",
   "score": 53,
   "kept": 0,
@@ -4744,6 +4746,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Rep._Destin_Hall.jpg/500px-Rep._Destin_Hall.jpg",
   "office": "State House Speaker",
   "state": "North Carolina",
+  "district": "HD 87",
   "party": "R",
   "score": 53,
   "kept": 0,
@@ -4762,6 +4765,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Official_headshot_of_Jon_Burns.jpg/500px-Official_headshot_of_Jon_Burns.jpg",
   "office": "State House Speaker",
   "state": "Georgia",
+  "district": "HD 159",
   "party": "R",
   "score": 53,
   "kept": 0,
@@ -4930,6 +4934,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Senator_Phil_Berger_2023-25_Legislative_Portrait.jpg/500px-Senator_Phil_Berger_2023-25_Legislative_Portrait.jpg",
   "office": "State Senate President pro Tempore",
   "state": "North Carolina",
+  "district": "SD 26",
   "party": "R",
   "score": 54,
   "kept": 0,
@@ -23729,6 +23734,3091 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  "rohr_il": {
   "name": "Janet Yang Rohr", "office": "Illinois State Representative",
   "state": "Illinois", "district": "HD 41", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+// ── Sitting state legislators, Ohio, Georgia and North Carolina — roster shells (Oct 2026)
+// One row per member the chamber's own official roster lists as seated in that
+// district on 2026-10-24, so the seat card can name who holds a State Senate,
+// State House or Assembly seat the finder resolved. Identity only: the name, the
+// office, the state and the exact district, read off the official roster, and
+// `candidate: false` (in office). No party, bio, score, stances or voting record.
+// A seat the official roster lists as vacant has no row, and neither does a
+// member the roster already holds under another id, or whose display name another
+// record already carries (db/roster-state-legislators-oh-ga-nc-2026-oct.json is the
+// record of all three), so those seats keep reading "no member on file yet".
+ // Ohio — https://www.ohiosenate.gov/senators · https://ohiohouse.gov/members/directory
+ "reynolds_oh": {
+  "name": "Michele Reynolds", "office": "Ohio State Senator",
+  "state": "Ohio", "district": "SD 3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lang_oh": {
+  "name": "George F. Lang", "office": "Ohio State Senator",
+  "state": "Ohio", "district": "SD 4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "stephen_huffman_oh": {
+  "name": "Stephen A. Huffman", "office": "Ohio State Senator",
+  "state": "Ohio", "district": "SD 5", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "blackshear_oh": {
+  "name": "Willis E. Blackshear, Jr.", "office": "Ohio State Senator",
+  "state": "Ohio", "district": "SD 6", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wilson_oh": {
+  "name": "Steve Wilson", "office": "Ohio State Senator",
+  "state": "Ohio", "district": "SD 7", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "blessing_oh": {
+  "name": "Louis W. Blessing, III", "office": "Ohio State Senator",
+  "state": "Ohio", "district": "SD 8", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ingram_oh": {
+  "name": "Catherine D. Ingram", "office": "Ohio State Senator",
+  "state": "Ohio", "district": "SD 9", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "koehler_oh": {
+  "name": "Kyle Koehler", "office": "Ohio State Senator",
+  "state": "Ohio", "district": "SD 10", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hicks_hudson_oh": {
+  "name": "Paula Hicks-Hudson", "office": "Ohio State Senator",
+  "state": "Ohio", "district": "SD 11", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "manchester_oh": {
+  "name": "Susan Manchester", "office": "Ohio State Senator",
+  "state": "Ohio", "district": "SD 12", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "terry_johnson_oh": {
+  "name": "Terry Johnson", "office": "Ohio State Senator",
+  "state": "Ohio", "district": "SD 14", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hearcel_craig_oh": {
+  "name": "Hearcel F. Craig", "office": "Ohio State Senator",
+  "state": "Ohio", "district": "SD 15", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "liston_oh": {
+  "name": "Beth Liston", "office": "Ohio State Senator",
+  "state": "Ohio", "district": "SD 16", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wilkin_oh": {
+  "name": "Shane Wilkin", "office": "Ohio State Senator",
+  "state": "Ohio", "district": "SD 17", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cirino_oh": {
+  "name": "Jerry C. Cirino", "office": "Ohio State Senator",
+  "state": "Ohio", "district": "SD 18", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brenner_oh": {
+  "name": "Andrew O. Brenner", "office": "Ohio State Senator",
+  "state": "Ohio", "district": "SD 19", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "schaffer_oh": {
+  "name": "Tim Schaffer", "office": "Ohio State Senator",
+  "state": "Ohio", "district": "SD 20", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "smith_oh": {
+  "name": "Kent Smith", "office": "Ohio State Senator",
+  "state": "Ohio", "district": "SD 21", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "romanchuk_oh": {
+  "name": "Mark Romanchuk", "office": "Ohio State Senator",
+  "state": "Ohio", "district": "SD 22", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "patton_oh": {
+  "name": "Thomas F. Patton", "office": "Ohio State Senator",
+  "state": "Ohio", "district": "SD 24", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "demora_oh": {
+  "name": "William P. DeMora", "office": "Ohio State Senator",
+  "state": "Ohio", "district": "SD 25", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "reineke_oh": {
+  "name": "Bill Reineke", "office": "Ohio State Senator",
+  "state": "Ohio", "district": "SD 26", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "roegner_oh": {
+  "name": "Kristina D. Roegner", "office": "Ohio State Senator",
+  "state": "Ohio", "district": "SD 27", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "weinstein_oh": {
+  "name": "Casey Weinstein", "office": "Ohio State Senator",
+  "state": "Ohio", "district": "SD 28", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "timken_oh": {
+  "name": "Jane M. Timken", "office": "Ohio State Senator",
+  "state": "Ohio", "district": "SD 29", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chavez_oh": {
+  "name": "Brian M. Chavez", "office": "Ohio State Senator",
+  "state": "Ohio", "district": "SD 30", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "landis_oh": {
+  "name": "Al Landis", "office": "Ohio State Senator",
+  "state": "Ohio", "district": "SD 31", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "obrien_oh": {
+  "name": "Sandra O'Brien", "office": "Ohio State Senator",
+  "state": "Ohio", "district": "SD 32", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cutrona_oh": {
+  "name": "Al Cutrona", "office": "Ohio State Senator",
+  "state": "Ohio", "district": "SD 33", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jarrells_oh": {
+  "name": "Dontavius L. Jarrells", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "humphrey_oh": {
+  "name": "Latyna M. Humphrey", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mohamed_oh": {
+  "name": "Ismail Mohamed", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "piccolantonio_oh": {
+  "name": "Beryl Brown Piccolantonio", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lawson_rowe_oh": {
+  "name": "Meredith R. Lawson-Rowe", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 5", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cockley_oh": {
+  "name": "Christine Cockley", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 6", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "russo_oh": {
+  "name": "C. Allison Russo", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 7", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "somani_oh": {
+  "name": "Anita Somani", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 8", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "abdullahi_oh": {
+  "name": "Munira Abdullahi", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 9", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sigrist_oh": {
+  "name": "Mark Sigrist", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 10", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lett_oh": {
+  "name": "Crystal Lett", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 11", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "stewart_oh": {
+  "name": "Brian Stewart", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 12", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rader_oh": {
+  "name": "Tristan Rader", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 13", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brennan_oh": {
+  "name": "Sean P. Brennan", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 14", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "glassburn_oh": {
+  "name": "Chris Glassburn", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 15", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sweeney_oh": {
+  "name": "Bride Rose Sweeney", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 16", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dovilla_oh": {
+  "name": "Michael D. Dovilla", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 17", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brent_oh": {
+  "name": "Juanita O. Brent", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 18", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "robinson_oh": {
+  "name": "Phillip M. Robinson, Jr.", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 19", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "upchurch_oh": {
+  "name": "Terrence Upchurch", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 20", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "synenberg_oh": {
+  "name": "Eric Synenberg", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 21", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brewer_oh": {
+  "name": "Darnell T. Brewer", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 22", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "troy_oh": {
+  "name": "Daniel P. Troy", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 23", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "isaacsohn_oh": {
+  "name": "Dani Isaacsohn", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 24", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cecil_thomas_oh": {
+  "name": "Cecil Thomas", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 25", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bailey_oh": {
+  "name": "Ashley Bryant Bailey", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 26", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "baker_oh": {
+  "name": "Rachel B. Baker", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 27", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brownlee_oh": {
+  "name": "Karen Brownlee", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 28", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "abrams_oh": {
+  "name": "Cindy Abrams", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 29", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "odioso_oh": {
+  "name": "Mike Odioso", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 30", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "roemer_oh": {
+  "name": "Bill Roemer", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 31", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "daniels_oh": {
+  "name": "Jack K. Daniels", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 32", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sims_oh": {
+  "name": "Veronica R. Sims", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 33", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "derrick_hall_oh": {
+  "name": "Derrick Hall", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 34", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "demetriou_oh": {
+  "name": "Steve Demetriou", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 35", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "andrea_white_oh": {
+  "name": "Andrea White", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 36", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "young_oh": {
+  "name": "Tom Young", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 37", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tims_oh": {
+  "name": "Desiree Tims", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 38", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "plummer_oh": {
+  "name": "Phil Plummer", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 39", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "creech_oh": {
+  "name": "Rodney Creech", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 40", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "erika_white_oh": {
+  "name": "Erika White", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 41", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rogers_oh": {
+  "name": "Elgin Rogers, Jr.", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 42", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "grim_oh": {
+  "name": "Michele Grim", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 43", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "williams_oh": {
+  "name": "Josh Williams", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 44", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gross_oh": {
+  "name": "Jennifer Gross", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 45", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "thomas_hall_oh": {
+  "name": "Thomas Hall", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 46", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mullins_oh": {
+  "name": "Diane Mullins", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 47", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "oelslager_oh": {
+  "name": "Scott Oelslager", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 48", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jim_thomas_oh": {
+  "name": "Jim Thomas", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 49", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kishman_oh": {
+  "name": "Matthew Kishman", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 50", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "salvo_oh": {
+  "name": "Jodi Salvo", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 51", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "manning_oh": {
+  "name": "Gayle Manning", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 52", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "joseph_miller_oh": {
+  "name": "Joseph A. Miller, III", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 53", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "deeter_oh": {
+  "name": "Kellie Deeter", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 54", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "teska_oh": {
+  "name": "Michelle Teska", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 55", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "adam_mathews_oh": {
+  "name": "Adam Mathews", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 56", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "callender_oh": {
+  "name": "Jamie Callender", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 57", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mcnally_oh": {
+  "name": "Lauren McNally", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 58", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fischer_oh": {
+  "name": "Tex Fischer", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 59", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lorenz_oh": {
+  "name": "Brian Lorenz", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 60", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lear_oh": {
+  "name": "Beth Lear", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 61", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "schmidt_oh": {
+  "name": "Jean Schmidt", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 62", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bird_oh": {
+  "name": "Adam C. Bird", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 63", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "santucci_oh": {
+  "name": "Nick Santucci", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 64", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "david_thomas_oh": {
+  "name": "David Thomas", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 65", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hutson_oh": {
+  "name": "Sean Hutson", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 66", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "melanie_miller_oh": {
+  "name": "Melanie Miller", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 67", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "claggett_oh": {
+  "name": "Thaddeus J. Claggett", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 68", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kevin_miller_oh": {
+  "name": "Kevin D. Miller", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 69", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lampton_oh": {
+  "name": "Brian Lampton", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 70", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dean_oh": {
+  "name": "Levi Dean", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 71", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "workman_oh": {
+  "name": "Heidi Workman", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 72", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lare_oh": {
+  "name": "Jeff LaRe", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 73", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "willis_oh": {
+  "name": "Bernard Willis", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 74", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ghanbari_oh": {
+  "name": "Haraz N. Ghanbari", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 75", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "john_oh": {
+  "name": "Marilyn John", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 76", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "meredith_craig_oh": {
+  "name": "Meredith Craig", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 77", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "blasdel_oh": {
+  "name": "Monica Robb Blasdel", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 79", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "newman_oh": {
+  "name": "Johnathan Newman", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 80", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hoops_oh": {
+  "name": "James M. Hoops", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 81", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "klopfenstein_oh": {
+  "name": "Roy Klopfenstein", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 82", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ty_mathews_oh": {
+  "name": "Ty D. Mathews", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 83", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "king_oh": {
+  "name": "Angela N. King", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 84", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "barhorst_oh": {
+  "name": "Tim Barhorst", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 85", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "richardson_oh": {
+  "name": "Tracy M. Richardson", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 86", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mcclain_oh": {
+  "name": "Riordan T. McClain", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 87", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "click_oh": {
+  "name": "Gary Click", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 88", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pizzulli_oh": {
+  "name": "Justin Pizzulli", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 90", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "peterson_oh": {
+  "name": "Bob Peterson", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 91", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "stephens_oh": {
+  "name": "Jason Stephens", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 93", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ritter_oh": {
+  "name": "Kevin Ritter", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 94", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "moore_oh": {
+  "name": "Ty Moore", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 95", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ferguson_oh": {
+  "name": "Ron Ferguson", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 96", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "holmes_oh": {
+  "name": "Adam Holmes", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 97", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hiner_oh": {
+  "name": "Mark Hiner", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 98", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "arthur_oh": {
+  "name": "Sarah Fowler Arthur", "office": "Ohio State Representative",
+  "state": "Ohio", "district": "HD 99", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Georgia — https://www.legis.ga.gov/members/senate · https://www.legis.ga.gov/members/house
+ "albers_ga": {
+  "name": "John Albers", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 56", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lee_anderson_ga": {
+  "name": "Lee Anderson", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 24", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tonya_anderson_ga": {
+  "name": "Tonya Anderson", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 43", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bearden_ga": {
+  "name": "Timothy Bearden", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 30", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brass_ga": {
+  "name": "Matt Brass", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 6", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "max_burns_ga": {
+  "name": "Max Burns", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 23", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "carden_ga": {
+  "name": "Adrienne White Carden", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 7", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cowsert_ga": {
+  "name": "Bill Cowsert", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 46", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "davenport_ga": {
+  "name": "Gail Davenport", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 17", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dickerson_ga": {
+  "name": "Jason T. Dickerson", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 21", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dixon_ga": {
+  "name": "Clint Dixon", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 45", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "echols_ga": {
+  "name": "Drew Echols", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 49", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ginn_ga": {
+  "name": "Frank Ginn", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 47", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gooch_ga": {
+  "name": "Steve Gooch", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 51", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "goodman_ga": {
+  "name": "Russ Goodman", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 8", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "halpern_ga": {
+  "name": "Sonya Halpern", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 39", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "harbin_ga": {
+  "name": "Marty Harbin", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 16", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "harbison_ga": {
+  "name": "Ed Harbison", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 15", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "harrell_ga": {
+  "name": "Sally Harrell", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 40", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bo_hatchett_ga": {
+  "name": "Bo Hatchett", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 50", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hickman_ga": {
+  "name": "Billy Hickman", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hodges_ga": {
+  "name": "Mike Hodges", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jaha_howard_ga": {
+  "name": "Jaha Howard", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 35", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hufstetler_ga": {
+  "name": "Chuck Hufstetler", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 52", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kim_jackson_ga": {
+  "name": "Kim Jackson", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 41", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "james_ga": {
+  "name": "Donzella James", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 28", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "emanuel_jones_ga": {
+  "name": "Emanuel Jones", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 10", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kemp_ga": {
+  "name": "RaShaun Kemp", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 38", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kirkpatrick_ga": {
+  "name": "Kay Kirkpatrick", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 32", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lucas_ga": {
+  "name": "David Lucas", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 26", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mallow_ga": {
+  "name": "Derek Mallow", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mangham_ga": {
+  "name": "Randal Mangham", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 55", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mcneel_ga": {
+  "name": "Steven McNeel", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 18", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "merritt_ga": {
+  "name": "Nikki Merritt", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 9", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "orrock_ga": {
+  "name": "Nan Orrock", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 36", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "parent_ga": {
+  "name": "Elena Parent", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 44", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "payne_ga": {
+  "name": "Chuck Payne", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 54", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rahman_ga": {
+  "name": "Sheikh Rahman", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 5", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rhett_ga": {
+  "name": "Michael 'Doc' Rhett", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 33", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "robertson_ga": {
+  "name": "Randy Robertson", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 29", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "setzler_ga": {
+  "name": "Ed Setzler", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 37", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sims_ga": {
+  "name": "Freddie Powell Sims", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 12", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "still_ga": {
+  "name": "Shawn Still", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 48", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "summers_ga": {
+  "name": "Carden Summers", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 13", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lanny_thomas_ga": {
+  "name": "Lanny Thomas", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 53", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tillery_ga": {
+  "name": "Blake Tillery", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 19", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ben_watson_ga": {
+  "name": "Ben Watson", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sam_watson_ga": {
+  "name": "Sam Watson", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 11", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wicks_ga": {
+  "name": "Kenya Wicks", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 34", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rick_williams_ga": {
+  "name": "Rick Williams", "office": "Georgia State Senator",
+  "state": "Georgia", "district": "SD 25", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "adesanya_ga": {
+  "name": "Solomon Adesanya", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 43", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "adeyina_ga": {
+  "name": "Segun Adeyina", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 110", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "alexander_ga": {
+  "name": "Kimberly Alexander", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 66", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ali_ga": {
+  "name": "Akbar Ali", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 106", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "victor_anderson_ga": {
+  "name": "Victor Anderson", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 10", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "au_ga": {
+  "name": "Michelle Au", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 50", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "baker_ga": {
+  "name": "Sylvia Wayfer Baker", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 64", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ballard_ga": {
+  "name": "Bethany Ballard", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 147", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "barnes_ga": {
+  "name": "Imani Barnes", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 86", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "barrett_ga": {
+  "name": "Carter Barrett", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 24", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "barton_ga": {
+  "name": "Matt Barton", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 5", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bazemore_ga": {
+  "name": "Debra Bazemore", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 69", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "beckles_ga": {
+  "name": "Arlene Beckles", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 96", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bell_ga": {
+  "name": "Eric Bell", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 75", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "berry_ga": {
+  "name": "Bryce Berry", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 56", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "blackmon_ga": {
+  "name": "Shaw Blackmon", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 146", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bonner_ga": {
+  "name": "Josh Bonner", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 73", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "buckner_ga": {
+  "name": "Debbie Buckner", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 137", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "burchett_ga": {
+  "name": "James Burchett", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 176", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "burnough_ga": {
+  "name": "Rhonda Burnough", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 77", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "byrd_ga": {
+  "name": "Charlice Byrd", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 20", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cameron_ga": {
+  "name": "Mike Cameron", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "camp_ga": {
+  "name": "Beth Camp", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 135", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "joe_campbell_ga": {
+  "name": "Joe Campbell", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 171", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lisa_campbell_ga": {
+  "name": "Lisa Campbell", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 35", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chas_cannon_ga": {
+  "name": "Chas Cannon", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 172", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "park_cannon_ga": {
+  "name": "Park Cannon", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 58", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "carpenter_ga": {
+  "name": "Kasey Carpenter", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "carson_ga": {
+  "name": "John Carson", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 46", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "carter_ga": {
+  "name": "Doreen Carter", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 93", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chastain_ga": {
+  "name": "Johnny Chastain", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 7", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cheokas_ga": {
+  "name": "Mike Cheokas", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 151", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "david_clark_ga": {
+  "name": "David Clark", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 100", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "clifton_ga": {
+  "name": "Rob Clifton", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 131", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cooper_ga": {
+  "name": "Sharon Cooper", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 45", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "corbett_ga": {
+  "name": "John Corbett", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 174", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cox_ga": {
+  "name": "Brent Cox", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 28", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "crawford_ga": {
+  "name": "Omari Crawford", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 89", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "crowe_ga": {
+  "name": "Clint Crowe", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 118", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cummings_ga": {
+  "name": "Terry Cummings", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 39", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "davis_ga": {
+  "name": "Viola Davis", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 87", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dawson_ga": {
+  "name": "Robert Dawson", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 65", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "deloach_ga": {
+  "name": "Buddy DeLoach", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 167", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dempsey_ga": {
+  "name": "Katie Dempsey", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 13", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dickey_ga": {
+  "name": "Robert Dickey", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 134", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "donatucci_ga": {
+  "name": "Sandy Donatucci", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 105", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "douglas_ga": {
+  "name": "Demetrius Douglas", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 78", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "draper_ga": {
+  "name": "Saira Draper", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 90", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "drenner_ga": {
+  "name": "Karla Drenner", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 85", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dubnik_ga": {
+  "name": "Matt Dubnik", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 29", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dunahoo_ga": {
+  "name": "Emory Dunahoo", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 31", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "efstration_ga": {
+  "name": "Chuck Efstration", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 104", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ehrhart_ga": {
+  "name": "Ginny Ehrhart", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 36", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "erwin_ga": {
+  "name": "Chris Erwin", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 32", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "evans_ga": {
+  "name": "Stacey Evans", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 57", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fincher_ga": {
+  "name": "Bill Fincher", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 23", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "flournoy_ga": {
+  "name": "Robert Flournoy", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 74", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ford_ga": {
+  "name": "Jaclyn Ford", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 170", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "franklin_ga": {
+  "name": "Lehman Franklin", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 160", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "frye_ga": {
+  "name": "Spencer Frye", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 122", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gambill_ga": {
+  "name": "Matthew Gambill", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 15", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gilliard_ga": {
+  "name": "Carl Gilliard", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 162", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gisler_ga": {
+  "name": "Eric Gisler", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 121", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "glaize_ga": {
+  "name": "Lydia Glaize", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 67", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "greene_ga": {
+  "name": "Gerald Greene", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 154", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "griffin_ga": {
+  "name": "Floyd Griffin", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 149", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gullett_ga": {
+  "name": "Joseph Gullett", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 19", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gunter_ga": {
+  "name": "Stan Gunter", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 8", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hagan_ga": {
+  "name": "Leesa Hagan", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 156", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "matt_hatchett_ga": {
+  "name": "Matt Hatchett", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 155", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hawkins_ga": {
+  "name": "Lee Hawkins", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 27", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "henderson_ga": {
+  "name": "Sharon Henderson", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 113", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "herring_ga": {
+  "name": "Tangie Herring", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 145", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hilton_ga": {
+  "name": "Scott Hilton", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 48", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hitchens_ga": {
+  "name": "Bill Hitchens", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 161", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "holcomb_ga": {
+  "name": "Scott Holcomb", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 101", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "holland_ga": {
+  "name": "Betsy Holland", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 54", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "holly_ga": {
+  "name": "El-Mahdi Holly", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 116", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hong_ga": {
+  "name": "Soo Hong", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 103", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "horner_ga": {
+  "name": "Mitchell Horner", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jutt_howard_ga": {
+  "name": "Jutt Howard", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 71", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "karlton_howard_ga": {
+  "name": "Karlton Howard", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 129", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "huddleston_ga": {
+  "name": "David Huddleston", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 72", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hugley_ga": {
+  "name": "Carolyn Hugley", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 141", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "derrick_jackson_ga": {
+  "name": "Derrick Jackson", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 68", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "edna_jackson_ga": {
+  "name": "Edna Jackson", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 165", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mack_jackson_ga": {
+  "name": "Mack Jackson", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 128", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jasperse_ga": {
+  "name": "Rick Jasperse", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 11", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jenkins_ga": {
+  "name": "David Jenkins", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 136", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "anissa_jones_ga": {
+  "name": "Anissa Jones", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 143", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jan_jones_ga": {
+  "name": "Jan Jones", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 47", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sheila_jones_ga": {
+  "name": "Sheila Jones", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 60", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "todd_jones_ga": {
+  "name": "Todd Jones", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 25", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kahaian_ga": {
+  "name": "Noelle Kahaian", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 81", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kelley_ga": {
+  "name": "Trey Kelley", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 16", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kendrick_ga": {
+  "name": "Dar'shun Kendrick", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 95", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lahood_ga": {
+  "name": "John LaHood", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 175", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "leverett_ga": {
+  "name": "Rob Leverett", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 123", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lewis_ward_ga": {
+  "name": "Regina Lewis-Ward", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 115", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lim_ga": {
+  "name": "Marvin Lim", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 98", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lumsden_ga": {
+  "name": "Eddie Lumsden", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 12", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lupton_ga": {
+  "name": "Karen Lupton", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 83", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "martin_ga": {
+  "name": "Chuck Martin", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 49", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "martinez_ga": {
+  "name": "Rey Martinez", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 111", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mason_ga": {
+  "name": "Venola Mason", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 94", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mathiak_ga": {
+  "name": "Karen Mathiak", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 82", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mathis_ga": {
+  "name": "Danny Mathis", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 133", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mcclain_ga": {
+  "name": "Dewey McClain", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 109", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mccollum_ga": {
+  "name": "Derrick McCollum", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 30", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mcdonald_ga": {
+  "name": "Lauren McDonald III", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 26", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mcqueen_ga": {
+  "name": "Mekyah McQueen", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 61", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "meeks_ga": {
+  "name": "Steven Meeks", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 178", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mitchell_ga": {
+  "name": "Billy Mitchell", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 88", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "momtahan_ga": {
+  "name": "Martin Momtahan", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 17", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "moore_ga": {
+  "name": "Angela Moore", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 91", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "myles_ga": {
+  "name": "L.C. Myles", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 126", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "neal_ga": {
+  "name": "Yasmin Neal", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 79", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nelson_ga": {
+  "name": "Sheila Nelson", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 130", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "new_ga": {
+  "name": "Kimberly New", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 40", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "newton_ga": {
+  "name": "Mark Newton", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 127", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "okoye_ga": {
+  "name": "Gabe Okoye", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 102", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "olaleye_ga": {
+  "name": "Phil Olaleye", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 59", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "oliver_ga": {
+  "name": "Mary Margaret Oliver", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 84", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "osteen_ga": {
+  "name": "Angie O'Steen", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 169", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "panitch_ga": {
+  "name": "Esther Panitch", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 51", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "paris_ga": {
+  "name": "Miriam Paris", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 142", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "park_ga": {
+  "name": "Sam Park", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 107", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "parrish_ga": {
+  "name": "Butch Parrish", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 158", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "parsons_ga": {
+  "name": "Don Parsons", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 44", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "payton_ga": {
+  "name": "Alvin Payton", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 177", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "persinger_ga": {
+  "name": "Holt Persinger", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 119", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "petrea_ga": {
+  "name": "Jesse Petrea", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 166", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "powell_ga": {
+  "name": "Alan Powell", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 33", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "prince_ga": {
+  "name": "Brian Prince", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 132", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "reese_ga": {
+  "name": "Tremaine Teddy Reese", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 140", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "reeves_ga": {
+  "name": "Matt Reeves", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 99", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rhodes_ga": {
+  "name": "Trey Rhodes", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 124", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rice_ga": {
+  "name": "Carmen Rice", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 139", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "richardson_ga": {
+  "name": "Gary Richardson", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 125", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jason_ridley_ga": {
+  "name": "Jason Ridley", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 6", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jordan_ridley_ga": {
+  "name": "Jordan Ridley", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 22", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "roberts_ga": {
+  "name": "Shea Roberts", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 52", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "romman_ga": {
+  "name": "Ruwa Romman", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 97", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sainz_ga": {
+  "name": "Steven Sainz", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 180", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sampson_ga": {
+  "name": "David Sampson", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 153", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sanchez_ga": {
+  "name": "Gabriel Sanchez", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 42", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "santos_ga": {
+  "name": "Mary Ann Santos", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 117", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "schofield_ga": {
+  "name": "Kim Schofield", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 63", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "scoggins_ga": {
+  "name": "Mitchell Scoggins", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 14", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "scott_ga": {
+  "name": "Sandra Scott", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 76", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "seabaugh_ga": {
+  "name": "Devan Seabaugh", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 34", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "silcox_ga": {
+  "name": "Deborah Silcox", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 53", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lynn_smith_ga": {
+  "name": "Lynn Smith", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 70", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "michael_smith_ga": {
+  "name": "Michael Smith", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 41", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tyler_smith_ga": {
+  "name": "Tyler Paul Smith", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 18", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "stephens_ga": {
+  "name": "Ron Stephens", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 164", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "stinson_ga": {
+  "name": "Patty Marie Stinson", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 150", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tarvin_ga": {
+  "name": "Steve Tarvin", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "darlene_taylor_ga": {
+  "name": "Darlene Taylor", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 173", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rhonda_taylor_ga": {
+  "name": "Rhonda Taylor", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 92", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brad_thomas_ga": {
+  "name": "Brad Thomas", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 21", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "townsend_ga": {
+  "name": "Rick Townsend", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 179", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tran_ga": {
+  "name": "Long Tran", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 80", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wade_ga": {
+  "name": "Will Wade", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 9", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "washburn_ga": {
+  "name": "Dale Washburn", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 144", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "werkheiser_ga": {
+  "name": "Bill Werkheiser", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 157", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "westbrook_ga": {
+  "name": "Anne Allen Westbrook", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 163", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wilkerson_ga": {
+  "name": "David Wilkerson", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 38", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "al_williams_ga": {
+  "name": "Al Williams", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 168", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mary_williams_ga": {
+  "name": "Mary Frances Williams", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 37", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "noel_williams_ga": {
+  "name": "Noel Williams, Jr.", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 148", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "williamson_ga": {
+  "name": "Bruce Williamson", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 112", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "willis_ga": {
+  "name": "Inga Willis", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 55", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "yearta_ga": {
+  "name": "Bill Yearta", "office": "Georgia State Representative",
+  "state": "Georgia", "district": "HD 152", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // North Carolina — https://www.ncleg.gov/Members/MemberList/S · https://www.ncleg.gov/Members/MemberList/H
+ "adcock_nc": {
+  "name": "Gale Adcock", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 16", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "alexander_nc": {
+  "name": "W. Ted Alexander", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 44", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "applewhite_nc": {
+  "name": "Val Applewhite", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 19", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "barnes_nc": {
+  "name": "Lisa S. Barnes", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 11", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "blue_nc": {
+  "name": "Dan Blue", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 14", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bradley_nc": {
+  "name": "Woodson Bradley", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 42", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brinson_nc": {
+  "name": "Bob Brinson", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "britt_nc": {
+  "name": "Danny Earl Britt, Jr.", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 24", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "burgin_nc": {
+  "name": "Jim Burgin", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 12", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chaudhuri_nc": {
+  "name": "Jay J. Chaudhuri", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 15", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chitlik_nc": {
+  "name": "Sophia Chitlik", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 22", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "corbin_nc": {
+  "name": "Kevin Corbin", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 50", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "craven_nc": {
+  "name": "David W. Craven, Jr.", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 29", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "daniel_nc": {
+  "name": "Warren Daniel", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 46", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fatmi_nc": {
+  "name": "Haseeb Fatmi", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 18", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ford_nc": {
+  "name": "Carl Ford", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 33", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "galey_nc": {
+  "name": "Amy S. Galey", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 25", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "garrett_nc": {
+  "name": "Michael Garrett", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 27", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "garson_nc": {
+  "name": "Jonah Garson", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 23", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "grafstein_nc": {
+  "name": "Lisa Grafstein", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 13", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hollo_nc": {
+  "name": "Mark Hollo", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 45", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brent_jackson_nc": {
+  "name": "Brent Jackson", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 9", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jarvis_nc": {
+  "name": "Steve Jarvis", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 30", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "todd_johnson_nc": {
+  "name": "Todd Johnson", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 35", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dana_jones_nc": {
+  "name": "Dana Jones", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 31", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lazzara_nc": {
+  "name": "Michael A. Lazzara", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 6", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lowe_nc": {
+  "name": "Paul A. Lowe, Jr.", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 32", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mayfield_nc": {
+  "name": "Julie Mayfield", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 49", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mcinnis_nc": {
+  "name": "Tom McInnis", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 21", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "measmer_nc": {
+  "name": "Chris Measmer", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 34", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "moffitt_nc": {
+  "name": "Timothy D. Moffitt", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 48", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mohammed_nc": {
+  "name": "Mujtaba A. Mohammed", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 38", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "murdock_nc": {
+  "name": "Natalie S. Murdock", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 20", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "newton_nc": {
+  "name": "Buck Newton", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "overcash_nc": {
+  "name": "Brad Overcash", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 43", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rabon_nc": {
+  "name": "Bill Rabon", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 8", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "robinson_nc": {
+  "name": "Gladys A. Robinson", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 28", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "salvador_nc": {
+  "name": "DeAndrea Salvador", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 39", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sanderson_nc": {
+  "name": "Norman W. Sanderson", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sawrey_nc": {
+  "name": "Benton G. Sawrey", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 10", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sawyer_nc": {
+  "name": "Vickie Sawyer", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 37", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "settle_nc": {
+  "name": "Eddie D. Settle", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 36", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kandie_smith_nc": {
+  "name": "Kandie D. Smith", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 5", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "theodros_nc": {
+  "name": "Caleb Theodros", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 41", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tillett_nc": {
+  "name": "Jerry Tillett", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "waddell_nc": {
+  "name": "Joyce Waddell", "office": "North Carolina State Senator",
+  "state": "North Carolina", "district": "SD 40", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "adams_nc": {
+  "name": "Jay Adams", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 96", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ager_nc": {
+  "name": "Eric Ager", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 114", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "almond_nc": {
+  "name": "Jonathan L. Almond", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 73", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "alston_nc": {
+  "name": "Vernetta Alston", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 29", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "arp_nc": {
+  "name": "Dean Arp", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 69", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "baker_nc": {
+  "name": "Amber M. Baker", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 72", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ball_nc": {
+  "name": "Cynthia Ball", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 49", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "belk_nc": {
+  "name": "Mary Belk", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 88", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bell_nc": {
+  "name": "John R. Bell, IV", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 10", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "biggs_nc": {
+  "name": "Brian Biggs", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 70", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "blackwell_nc": {
+  "name": "Hugh Blackwell", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 86", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "blust_nc": {
+  "name": "John M. Blust", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 62", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "branson_nc": {
+  "name": "Alan Branson", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 59", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brisson_nc": {
+  "name": "William D. Brisson", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 22", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brody_nc": {
+  "name": "Mark Brody", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 55", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gloristine_brown_nc": {
+  "name": "Gloristine Brown", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 8", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kanika_brown_nc": {
+  "name": "Kanika Brown", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 71", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "terry_brown_nc": {
+  "name": "Terry M. Brown Jr.", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 92", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "buansi_nc": {
+  "name": "Allen Buansi", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 56", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "budd_nc": {
+  "name": "Laura Budd", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 103", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "butler_nc": {
+  "name": "Deb Butler", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 18", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cairns_nc": {
+  "name": "Celeste C. Cairns", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 13", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "campbell_nc": {
+  "name": "Grant L. Campbell", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 83", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "carney_nc": {
+  "name": "Becky Carney", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 102", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "carver_nc": {
+  "name": "Todd Carver", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 95", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cervania_nc": {
+  "name": "Maria Cervania", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 41", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chesser_nc": {
+  "name": "Allen Chesser", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 25", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "clark_nc": {
+  "name": "Tracy Clark", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 57", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cohn_nc": {
+  "name": "Bryan Cohn", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 32", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "colvin_nc": {
+  "name": "Mike Colvin", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 42", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cook_nc": {
+  "name": "Amanda P. Cook", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 60", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cotham_nc": {
+  "name": "Tricia Ann Cotham", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 105", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "crawford_nc": {
+  "name": "Sarah Crawford", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 66", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cunningham_nc": {
+  "name": "Carla D. Cunningham", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 106", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dahle_nc": {
+  "name": "Allison A. Dahle", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 11", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "davis_nc": {
+  "name": "Ted Davis, Jr.", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 20", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dew_nc": {
+  "name": "Aisha O. Dew", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 107", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dixon_nc": {
+  "name": "Jimmy Dixon", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "echevarria_nc": {
+  "name": "Brian Echevarria", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 82", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "eddins_nc": {
+  "name": "Blair Eddins", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 94", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ferguson_nc": {
+  "name": "Anna Ferguson", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 119", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gable_nc": {
+  "name": "Wyatt Gable", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 14", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gillespie_nc": {
+  "name": "Karl E. Gillespie", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 120", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "goodwin_nc": {
+  "name": "Edward C. Goodwin", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "greene_nc": {
+  "name": "Dudley Greene", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 85", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "greenfield_nc": {
+  "name": "Julia Greenfield", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 100", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kyle_hall_nc": {
+  "name": "Kyle Hall", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 91", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "harrison_nc": {
+  "name": "Pricey Harrison", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 61", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hastings_nc": {
+  "name": "Kelly E. Hastings", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 110", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hawkins_nc": {
+  "name": "Zack Hawkins", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 31", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "helfrich_nc": {
+  "name": "Beth Helfrich", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 98", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "howard_nc": {
+  "name": "Julia C. Howard", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 77", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "humphrey_nc": {
+  "name": "Chris Humphrey", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 12", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "huneycutt_nc": {
+  "name": "Cody Huneycutt", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 67", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "iler_nc": {
+  "name": "Frank Iler", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 17", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "phd_nc": {
+  "name": "Frances Jackson, PhD", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 45", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "neal_jackson_nc": {
+  "name": "Neal Jackson", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 78", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jeffers_nc": {
+  "name": "B. Ray Jeffers", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "johnson_hostler_nc": {
+  "name": "Monika Johnson-Hostler", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 33", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "abe_jones_nc": {
+  "name": "Abe Jones", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 38", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brenden_jones_nc": {
+  "name": "Brenden H. Jones", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 46", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kidwell_nc": {
+  "name": "Keith Kidwell", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 79", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kiger_nc": {
+  "name": "Dan Kiger", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 90", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lambeth_nc": {
+  "name": "Donny Lambeth", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 75", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "liu_nc": {
+  "name": "Ya Liu", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 21", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "loftis_nc": {
+  "name": "Donnie Loftis", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 109", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lofton_nc": {
+  "name": "Brandon Lofton", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 104", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "logan_nc": {
+  "name": "Carolyn G. Logan", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 101", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "longest_nc": {
+  "name": "Tim Longest", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 34", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lopez_nc": {
+  "name": "Jordan Lopez", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 112", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lowery_nc": {
+  "name": "John L. Lowery", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 47", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "majeed_nc": {
+  "name": "Nasif Majeed", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 99", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mcneely_nc": {
+  "name": "Jeffrey C. McNeely", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 84", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "miller_nc": {
+  "name": "Charles W. Miller", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 19", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "morey_nc": {
+  "name": "Marcia Morey", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 30", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "moss_nc": {
+  "name": "Ben T. Moss, Jr.", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 52", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pare_nc": {
+  "name": "Erin Paré", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 37", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "penny_nc": {
+  "name": "Howard Penny, Jr.", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 53", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pickett_nc": {
+  "name": "Ray Pickett", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 93", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "garland_pierce_nc": {
+  "name": "Garland E. Pierce", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 48", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rodney_pierce_nc": {
+  "name": "Rodney D. Pierce", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 27", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pike_nc": {
+  "name": "Joseph Pike", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 6", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pittman_nc": {
+  "name": "Dante Pittman", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 24", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pless_nc": {
+  "name": "Mark Pless", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 118", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "potts_nc": {
+  "name": "Larry W. Potts", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 81", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "prather_nc": {
+  "name": "Lindsey Prather", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 115", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "price_nc": {
+  "name": "Renée A. Price", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 50", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pyrtle_nc": {
+  "name": "A. Reece Pyrtle, Jr.", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 65", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "quick_nc": {
+  "name": "Amos L. Quick, III", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 58", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "reeder_nc": {
+  "name": "Timothy Reeder", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 9", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "reives_nc": {
+  "name": "Robert T. Reives, II", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 54", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rhyne_nc": {
+  "name": "Heather H. Rhyne", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 97", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "riddell_nc": {
+  "name": "Dennis Riddell", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 64", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "roberson_nc": {
+  "name": "James Roberson", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 39", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ross_nc": {
+  "name": "Stephen M. Ross", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 63", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rubin_nc": {
+  "name": "Phil Rubin", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 40", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sauls_nc": {
+  "name": "John Sauls", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 51", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "schietzelt_nc": {
+  "name": "Mike Schietzelt", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 35", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "scott_nc": {
+  "name": "Paul Scott", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 111", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "setzer_nc": {
+  "name": "Mitchell S. Setzer", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 89", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "shepard_nc": {
+  "name": "Phil Shepard", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 15", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "carson_smith_nc": {
+  "name": "Carson Smith", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 16", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "charles_smith_nc": {
+  "name": "Charles Smith", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 44", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "strickland_nc": {
+  "name": "Larry C. Strickland", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 28", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "torbett_nc": {
+  "name": "John A. Torbett", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 108", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "turner_nc": {
+  "name": "Brian Turner", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 116", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tyson_nc": {
+  "name": "Steve Tyson", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "haefen_nc": {
+  "name": "Julie von Haefen", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 36", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ward_nc": {
+  "name": "Bill Ward", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 5", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "warren_nc": {
+  "name": "Harry Warren", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 76", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "watford_nc": {
+  "name": "Sam Watford", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 80", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wheatley_nc": {
+  "name": "Diane Wheatley", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 43", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "white_nc": {
+  "name": "Donna McDowell White", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 26", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "willingham_nc": {
+  "name": "Shelly Willingham", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 23", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "willis_nc": {
+  "name": "David Willis", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 68", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "winslow_nc": {
+  "name": "Matthew Winslow", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 7", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "zenger_nc": {
+  "name": "Jeff Zenger", "office": "North Carolina State Representative",
+  "state": "North Carolina", "district": "HD 74", "candidate": false,
   "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
  },

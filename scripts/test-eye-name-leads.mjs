@@ -174,7 +174,8 @@ const laneN = (h) => [...String(h).matchAll(/data-eye-lane="([^"]+)"[\s\S]*?clas
 // The sitting-legislator shells (db/roster-state-legislators-*-2026-oct.json)
 // are identity rows with no formal record anywhere, so the warm fixture does not
 // invent one for them either.
-const SHELLS = ["db/roster-state-legislators-ca-tx-fl-2026-oct.json", "db/roster-state-legislators-ny-pa-il-2026-oct.json"]
+const SHELLS = ["db/roster-state-legislators-ca-tx-fl-2026-oct.json", "db/roster-state-legislators-ny-pa-il-2026-oct.json",
+  "db/roster-state-legislators-oh-ga-nc-2026-oct.json"]
   .flatMap((f) => JSON.parse(R(f)).rows.map((r) => r.pid));
 const WARM = { warm: true, noRecord: [TRUMP, ...SHELLS] };
 const QUERIES = ["trump", "Trump", "TRUMP ", "donald trump", "Donald Trump", "trum"];

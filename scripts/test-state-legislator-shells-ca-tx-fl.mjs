@@ -151,13 +151,18 @@ section("4 · every state but these three, and the later pass's three, is identi
     "District of Columbia"];
   // New York, Pennsylvania and Illinois moved in their own later pass
   // (test-state-legislator-shells-ny-pa-il.mjs holds them), so they are set aside here.
-  eq(STATES.length, 45, "fixture: not 44 states and D.C.");
+  eq(STATES.length, 45, "fixture: the state list moved");
+  // Ohio, Georgia and North Carolina moved in their own later pass
+  // (test-state-legislator-shells-oh-ga-nc.mjs holds them), so they are set aside here.
+  const LATER = new Set(["Ohio", "Georgia", "North Carolina"]);
+  for (let i = STATES.length - 1; i >= 0; i--) if (LATER.has(STATES[i])) STATES.splice(i, 1);
+  eq(STATES.length, 42, "fixture: the later pass's three states are not all on the list");
   const now = boot(at("Utah", "Layton", "Davis County", "2", "7", "16"));
   const was = boot(at("Utah", "Layton", "Davis County", "2", "7", "16"), { "cmp-data.js": headData });
   // Every non-CA/TX/FL roster row is byte-identical.
   const ctx = (src) => { const w = { }; w.window = w; vm.createContext(w); vm.runInContext(src, w); return w.CMP_DATA; };
   const A = ctx(R("cmp-data.js")), B = ctx(headData);
-  const OURS = /^(California|Texas|Florida|New York|Pennsylvania|Illinois)\b/;
+  const OURS = /^(California|Texas|Florida|New York|Pennsylvania|Illinois|Ohio|Georgia|North Carolina)\b/;
   const outside = (T) => Object.keys(T).filter((k) => !OURS.test(String(T[k].state || ""))).sort();
   eq(JSON.stringify(outside(A)), JSON.stringify(outside(B)), "roster: rows outside the three states were added or removed");
   for (const k of outside(B)) if (JSON.stringify(A[k]) !== JSON.stringify(B[k])) ok(false, `roster: ${k} changed`);

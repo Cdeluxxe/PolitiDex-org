@@ -1,0 +1,4310 @@
+{
+ "_note": "Sitting Ohio, Georgia and North Carolina state legislators, read from each chamber's official member roster on 2026-10-24. cmp-data.js carries a roster shell for every \"rows\" entry; \"districtSet\" names existing records that gained their district; \"onFileAsCandidate\" seats are left empty because the member is held only as a 2026 candidate row under another office; \"nameSharedWithAnotherRecord\" seats are left empty because another record or content key carries the same display name. Georgia was read from the member list the official site loads (https://www.legis.ga.gov/api/members/list/1033, the 2025-2026 Regular Session), keeping only members with no dateVacated. North Carolina members the list marks Resigned or Deceased were left out; the appointee it lists for that seat was kept.",
+ "read": "2026-10-24",
+ "sources": {
+  "Ohio": {
+   "statesenate": "https://www.ohiosenate.gov/senators",
+   "statehouse": "https://ohiohouse.gov/members/directory"
+  },
+  "Georgia": {
+   "statesenate": "https://www.legis.ga.gov/members/senate",
+   "statehouse": "https://www.legis.ga.gov/members/house"
+  },
+  "North Carolina": {
+   "statesenate": "https://www.ncleg.gov/Members/MemberList/S",
+   "statehouse": "https://www.ncleg.gov/Members/MemberList/H"
+  }
+ },
+ "vacant": {
+  "Ohio": {
+   "statesenate": [
+    13
+   ],
+   "statehouse": [
+    89
+   ]
+  },
+  "Georgia": {
+   "statesenate": [],
+   "statehouse": []
+  },
+  "North Carolina": {
+   "statesenate": [],
+   "statehouse": []
+  }
+ },
+ "rows": [
+  {
+   "pid": "reynolds_oh",
+   "name": "Michele Reynolds",
+   "officialListing": "Michele Reynolds",
+   "state": "Ohio",
+   "chamber": "State Senate",
+   "district": 3
+  },
+  {
+   "pid": "lang_oh",
+   "name": "George F. Lang",
+   "officialListing": "George F. Lang",
+   "state": "Ohio",
+   "chamber": "State Senate",
+   "district": 4
+  },
+  {
+   "pid": "stephen_huffman_oh",
+   "name": "Stephen A. Huffman",
+   "officialListing": "Stephen A. Huffman",
+   "state": "Ohio",
+   "chamber": "State Senate",
+   "district": 5
+  },
+  {
+   "pid": "blackshear_oh",
+   "name": "Willis E. Blackshear, Jr.",
+   "officialListing": "Willis E. Blackshear, Jr.",
+   "state": "Ohio",
+   "chamber": "State Senate",
+   "district": 6
+  },
+  {
+   "pid": "wilson_oh",
+   "name": "Steve Wilson",
+   "officialListing": "Steve Wilson",
+   "state": "Ohio",
+   "chamber": "State Senate",
+   "district": 7
+  },
+  {
+   "pid": "blessing_oh",
+   "name": "Louis W. Blessing, III",
+   "officialListing": "Louis W. Blessing, III",
+   "state": "Ohio",
+   "chamber": "State Senate",
+   "district": 8
+  },
+  {
+   "pid": "ingram_oh",
+   "name": "Catherine D. Ingram",
+   "officialListing": "Catherine D. Ingram",
+   "state": "Ohio",
+   "chamber": "State Senate",
+   "district": 9
+  },
+  {
+   "pid": "koehler_oh",
+   "name": "Kyle Koehler",
+   "officialListing": "Kyle Koehler",
+   "state": "Ohio",
+   "chamber": "State Senate",
+   "district": 10
+  },
+  {
+   "pid": "hicks_hudson_oh",
+   "name": "Paula Hicks-Hudson",
+   "officialListing": "Paula Hicks-Hudson",
+   "state": "Ohio",
+   "chamber": "State Senate",
+   "district": 11
+  },
+  {
+   "pid": "manchester_oh",
+   "name": "Susan Manchester",
+   "officialListing": "Susan Manchester",
+   "state": "Ohio",
+   "chamber": "State Senate",
+   "district": 12
+  },
+  {
+   "pid": "terry_johnson_oh",
+   "name": "Terry Johnson",
+   "officialListing": "Terry Johnson",
+   "state": "Ohio",
+   "chamber": "State Senate",
+   "district": 14
+  },
+  {
+   "pid": "hearcel_craig_oh",
+   "name": "Hearcel F. Craig",
+   "officialListing": "Hearcel F. Craig",
+   "state": "Ohio",
+   "chamber": "State Senate",
+   "district": 15
+  },
+  {
+   "pid": "liston_oh",
+   "name": "Beth Liston",
+   "officialListing": "Beth Liston",
+   "state": "Ohio",
+   "chamber": "State Senate",
+   "district": 16
+  },
+  {
+   "pid": "wilkin_oh",
+   "name": "Shane Wilkin",
+   "officialListing": "Shane Wilkin",
+   "state": "Ohio",
+   "chamber": "State Senate",
+   "district": 17
+  },
+  {
+   "pid": "cirino_oh",
+   "name": "Jerry C. Cirino",
+   "officialListing": "Jerry C. Cirino",
+   "state": "Ohio",
+   "chamber": "State Senate",
+   "district": 18
+  },
+  {
+   "pid": "brenner_oh",
+   "name": "Andrew O. Brenner",
+   "officialListing": "Andrew O. Brenner",
+   "state": "Ohio",
+   "chamber": "State Senate",
+   "district": 19
+  },
+  {
+   "pid": "schaffer_oh",
+   "name": "Tim Schaffer",
+   "officialListing": "Tim Schaffer",
+   "state": "Ohio",
+   "chamber": "State Senate",
+   "district": 20
+  },
+  {
+   "pid": "smith_oh",
+   "name": "Kent Smith",
+   "officialListing": "Kent Smith",
+   "state": "Ohio",
+   "chamber": "State Senate",
+   "district": 21
+  },
+  {
+   "pid": "romanchuk_oh",
+   "name": "Mark Romanchuk",
+   "officialListing": "Mark Romanchuk",
+   "state": "Ohio",
+   "chamber": "State Senate",
+   "district": 22
+  },
+  {
+   "pid": "patton_oh",
+   "name": "Thomas F. Patton",
+   "officialListing": "Thomas F. Patton",
+   "state": "Ohio",
+   "chamber": "State Senate",
+   "district": 24
+  },
+  {
+   "pid": "demora_oh",
+   "name": "William P. DeMora",
+   "officialListing": "William P. DeMora",
+   "state": "Ohio",
+   "chamber": "State Senate",
+   "district": 25
+  },
+  {
+   "pid": "reineke_oh",
+   "name": "Bill Reineke",
+   "officialListing": "Bill Reineke",
+   "state": "Ohio",
+   "chamber": "State Senate",
+   "district": 26
+  },
+  {
+   "pid": "roegner_oh",
+   "name": "Kristina D. Roegner",
+   "officialListing": "Kristina D. Roegner",
+   "state": "Ohio",
+   "chamber": "State Senate",
+   "district": 27
+  },
+  {
+   "pid": "weinstein_oh",
+   "name": "Casey Weinstein",
+   "officialListing": "Casey Weinstein",
+   "state": "Ohio",
+   "chamber": "State Senate",
+   "district": 28
+  },
+  {
+   "pid": "timken_oh",
+   "name": "Jane M. Timken",
+   "officialListing": "Jane M. Timken",
+   "state": "Ohio",
+   "chamber": "State Senate",
+   "district": 29
+  },
+  {
+   "pid": "chavez_oh",
+   "name": "Brian M. Chavez",
+   "officialListing": "Brian M. Chavez",
+   "state": "Ohio",
+   "chamber": "State Senate",
+   "district": 30
+  },
+  {
+   "pid": "landis_oh",
+   "name": "Al Landis",
+   "officialListing": "Al Landis",
+   "state": "Ohio",
+   "chamber": "State Senate",
+   "district": 31
+  },
+  {
+   "pid": "obrien_oh",
+   "name": "Sandra O'Brien",
+   "officialListing": "Sandra O'Brien",
+   "state": "Ohio",
+   "chamber": "State Senate",
+   "district": 32
+  },
+  {
+   "pid": "cutrona_oh",
+   "name": "Al Cutrona",
+   "officialListing": "Al Cutrona",
+   "state": "Ohio",
+   "chamber": "State Senate",
+   "district": 33
+  },
+  {
+   "pid": "jarrells_oh",
+   "name": "Dontavius L. Jarrells",
+   "officialListing": "Dontavius L. Jarrells",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 1
+  },
+  {
+   "pid": "humphrey_oh",
+   "name": "Latyna M. Humphrey",
+   "officialListing": "Latyna M. Humphrey",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 2
+  },
+  {
+   "pid": "mohamed_oh",
+   "name": "Ismail Mohamed",
+   "officialListing": "Ismail Mohamed",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 3
+  },
+  {
+   "pid": "piccolantonio_oh",
+   "name": "Beryl Brown Piccolantonio",
+   "officialListing": "Beryl Brown Piccolantonio",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 4
+  },
+  {
+   "pid": "lawson_rowe_oh",
+   "name": "Meredith R. Lawson-Rowe",
+   "officialListing": "Meredith R. Lawson-Rowe",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 5
+  },
+  {
+   "pid": "cockley_oh",
+   "name": "Christine Cockley",
+   "officialListing": "Christine Cockley",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 6
+  },
+  {
+   "pid": "russo_oh",
+   "name": "C. Allison Russo",
+   "officialListing": "C. Allison Russo",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 7
+  },
+  {
+   "pid": "somani_oh",
+   "name": "Anita Somani",
+   "officialListing": "Anita Somani",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 8
+  },
+  {
+   "pid": "abdullahi_oh",
+   "name": "Munira Abdullahi",
+   "officialListing": "Munira Abdullahi",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 9
+  },
+  {
+   "pid": "sigrist_oh",
+   "name": "Mark Sigrist",
+   "officialListing": "Mark Sigrist",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 10
+  },
+  {
+   "pid": "lett_oh",
+   "name": "Crystal Lett",
+   "officialListing": "Crystal Lett",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 11
+  },
+  {
+   "pid": "stewart_oh",
+   "name": "Brian Stewart",
+   "officialListing": "Brian Stewart",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 12
+  },
+  {
+   "pid": "rader_oh",
+   "name": "Tristan Rader",
+   "officialListing": "Tristan Rader",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 13
+  },
+  {
+   "pid": "brennan_oh",
+   "name": "Sean P. Brennan",
+   "officialListing": "Sean P. Brennan",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 14
+  },
+  {
+   "pid": "glassburn_oh",
+   "name": "Chris Glassburn",
+   "officialListing": "Chris Glassburn",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 15
+  },
+  {
+   "pid": "sweeney_oh",
+   "name": "Bride Rose Sweeney",
+   "officialListing": "Bride Rose Sweeney",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 16
+  },
+  {
+   "pid": "dovilla_oh",
+   "name": "Michael D. Dovilla",
+   "officialListing": "Michael D. Dovilla",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 17
+  },
+  {
+   "pid": "brent_oh",
+   "name": "Juanita O. Brent",
+   "officialListing": "Juanita O. Brent",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 18
+  },
+  {
+   "pid": "robinson_oh",
+   "name": "Phillip M. Robinson, Jr.",
+   "officialListing": "Phillip M. Robinson, Jr.",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 19
+  },
+  {
+   "pid": "upchurch_oh",
+   "name": "Terrence Upchurch",
+   "officialListing": "Terrence Upchurch",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 20
+  },
+  {
+   "pid": "synenberg_oh",
+   "name": "Eric Synenberg",
+   "officialListing": "Eric Synenberg",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 21
+  },
+  {
+   "pid": "brewer_oh",
+   "name": "Darnell T. Brewer",
+   "officialListing": "Darnell T. Brewer",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 22
+  },
+  {
+   "pid": "troy_oh",
+   "name": "Daniel P. Troy",
+   "officialListing": "Daniel P. Troy",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 23
+  },
+  {
+   "pid": "isaacsohn_oh",
+   "name": "Dani Isaacsohn",
+   "officialListing": "Dani Isaacsohn",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 24
+  },
+  {
+   "pid": "cecil_thomas_oh",
+   "name": "Cecil Thomas",
+   "officialListing": "Cecil Thomas",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 25
+  },
+  {
+   "pid": "bailey_oh",
+   "name": "Ashley Bryant Bailey",
+   "officialListing": "Ashley Bryant Bailey",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 26
+  },
+  {
+   "pid": "baker_oh",
+   "name": "Rachel B. Baker",
+   "officialListing": "Rachel B. Baker",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 27
+  },
+  {
+   "pid": "brownlee_oh",
+   "name": "Karen Brownlee",
+   "officialListing": "Karen Brownlee",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 28
+  },
+  {
+   "pid": "abrams_oh",
+   "name": "Cindy Abrams",
+   "officialListing": "Cindy Abrams",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 29
+  },
+  {
+   "pid": "odioso_oh",
+   "name": "Mike Odioso",
+   "officialListing": "Mike Odioso",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 30
+  },
+  {
+   "pid": "roemer_oh",
+   "name": "Bill Roemer",
+   "officialListing": "Bill Roemer",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 31
+  },
+  {
+   "pid": "daniels_oh",
+   "name": "Jack K. Daniels",
+   "officialListing": "Jack K. Daniels",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 32
+  },
+  {
+   "pid": "sims_oh",
+   "name": "Veronica R. Sims",
+   "officialListing": "Veronica R. Sims",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 33
+  },
+  {
+   "pid": "derrick_hall_oh",
+   "name": "Derrick Hall",
+   "officialListing": "Derrick Hall",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 34
+  },
+  {
+   "pid": "demetriou_oh",
+   "name": "Steve Demetriou",
+   "officialListing": "Steve Demetriou",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 35
+  },
+  {
+   "pid": "andrea_white_oh",
+   "name": "Andrea White",
+   "officialListing": "Andrea White",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 36
+  },
+  {
+   "pid": "young_oh",
+   "name": "Tom Young",
+   "officialListing": "Tom Young",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 37
+  },
+  {
+   "pid": "tims_oh",
+   "name": "Desiree Tims",
+   "officialListing": "Desiree Tims",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 38
+  },
+  {
+   "pid": "plummer_oh",
+   "name": "Phil Plummer",
+   "officialListing": "Phil Plummer",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 39
+  },
+  {
+   "pid": "creech_oh",
+   "name": "Rodney Creech",
+   "officialListing": "Rodney Creech",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 40
+  },
+  {
+   "pid": "erika_white_oh",
+   "name": "Erika White",
+   "officialListing": "Erika White",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 41
+  },
+  {
+   "pid": "rogers_oh",
+   "name": "Elgin Rogers, Jr.",
+   "officialListing": "Elgin Rogers, Jr.",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 42
+  },
+  {
+   "pid": "grim_oh",
+   "name": "Michele Grim",
+   "officialListing": "Michele Grim",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 43
+  },
+  {
+   "pid": "williams_oh",
+   "name": "Josh Williams",
+   "officialListing": "Josh Williams",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 44
+  },
+  {
+   "pid": "gross_oh",
+   "name": "Jennifer Gross",
+   "officialListing": "Jennifer Gross",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 45
+  },
+  {
+   "pid": "thomas_hall_oh",
+   "name": "Thomas Hall",
+   "officialListing": "Thomas Hall",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 46
+  },
+  {
+   "pid": "mullins_oh",
+   "name": "Diane Mullins",
+   "officialListing": "Diane Mullins",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 47
+  },
+  {
+   "pid": "oelslager_oh",
+   "name": "Scott Oelslager",
+   "officialListing": "Scott Oelslager",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 48
+  },
+  {
+   "pid": "jim_thomas_oh",
+   "name": "Jim Thomas",
+   "officialListing": "Jim Thomas",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 49
+  },
+  {
+   "pid": "kishman_oh",
+   "name": "Matthew Kishman",
+   "officialListing": "Matthew Kishman",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 50
+  },
+  {
+   "pid": "salvo_oh",
+   "name": "Jodi Salvo",
+   "officialListing": "Jodi Salvo",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 51
+  },
+  {
+   "pid": "manning_oh",
+   "name": "Gayle Manning",
+   "officialListing": "Gayle Manning",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 52
+  },
+  {
+   "pid": "joseph_miller_oh",
+   "name": "Joseph A. Miller, III",
+   "officialListing": "Joseph A. Miller, III",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 53
+  },
+  {
+   "pid": "deeter_oh",
+   "name": "Kellie Deeter",
+   "officialListing": "Kellie Deeter",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 54
+  },
+  {
+   "pid": "teska_oh",
+   "name": "Michelle Teska",
+   "officialListing": "Michelle Teska",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 55
+  },
+  {
+   "pid": "adam_mathews_oh",
+   "name": "Adam Mathews",
+   "officialListing": "Adam Mathews",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 56
+  },
+  {
+   "pid": "callender_oh",
+   "name": "Jamie Callender",
+   "officialListing": "Jamie Callender",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 57
+  },
+  {
+   "pid": "mcnally_oh",
+   "name": "Lauren McNally",
+   "officialListing": "Lauren McNally",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 58
+  },
+  {
+   "pid": "fischer_oh",
+   "name": "Tex Fischer",
+   "officialListing": "Tex Fischer",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 59
+  },
+  {
+   "pid": "lorenz_oh",
+   "name": "Brian Lorenz",
+   "officialListing": "Brian Lorenz",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 60
+  },
+  {
+   "pid": "lear_oh",
+   "name": "Beth Lear",
+   "officialListing": "Beth Lear",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 61
+  },
+  {
+   "pid": "schmidt_oh",
+   "name": "Jean Schmidt",
+   "officialListing": "Jean Schmidt",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 62
+  },
+  {
+   "pid": "bird_oh",
+   "name": "Adam C. Bird",
+   "officialListing": "Adam C. Bird",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 63
+  },
+  {
+   "pid": "santucci_oh",
+   "name": "Nick Santucci",
+   "officialListing": "Nick Santucci",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 64
+  },
+  {
+   "pid": "david_thomas_oh",
+   "name": "David Thomas",
+   "officialListing": "David Thomas",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 65
+  },
+  {
+   "pid": "hutson_oh",
+   "name": "Sean Hutson",
+   "officialListing": "Sean Hutson",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 66
+  },
+  {
+   "pid": "melanie_miller_oh",
+   "name": "Melanie Miller",
+   "officialListing": "Melanie Miller",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 67
+  },
+  {
+   "pid": "claggett_oh",
+   "name": "Thaddeus J. Claggett",
+   "officialListing": "Thaddeus J. Claggett",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 68
+  },
+  {
+   "pid": "kevin_miller_oh",
+   "name": "Kevin D. Miller",
+   "officialListing": "Kevin D. Miller",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 69
+  },
+  {
+   "pid": "lampton_oh",
+   "name": "Brian Lampton",
+   "officialListing": "Brian Lampton",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 70
+  },
+  {
+   "pid": "dean_oh",
+   "name": "Levi Dean",
+   "officialListing": "Levi Dean",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 71
+  },
+  {
+   "pid": "workman_oh",
+   "name": "Heidi Workman",
+   "officialListing": "Heidi Workman",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 72
+  },
+  {
+   "pid": "lare_oh",
+   "name": "Jeff LaRe",
+   "officialListing": "Jeff LaRe",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 73
+  },
+  {
+   "pid": "willis_oh",
+   "name": "Bernard Willis",
+   "officialListing": "Bernard Willis",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 74
+  },
+  {
+   "pid": "ghanbari_oh",
+   "name": "Haraz N. Ghanbari",
+   "officialListing": "Haraz N. Ghanbari",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 75
+  },
+  {
+   "pid": "john_oh",
+   "name": "Marilyn John",
+   "officialListing": "Marilyn John",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 76
+  },
+  {
+   "pid": "meredith_craig_oh",
+   "name": "Meredith Craig",
+   "officialListing": "Meredith Craig",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 77
+  },
+  {
+   "pid": "blasdel_oh",
+   "name": "Monica Robb Blasdel",
+   "officialListing": "Monica Robb Blasdel",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 79
+  },
+  {
+   "pid": "newman_oh",
+   "name": "Johnathan Newman",
+   "officialListing": "Johnathan Newman",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 80
+  },
+  {
+   "pid": "hoops_oh",
+   "name": "James M. Hoops",
+   "officialListing": "James M. Hoops",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 81
+  },
+  {
+   "pid": "klopfenstein_oh",
+   "name": "Roy Klopfenstein",
+   "officialListing": "Roy Klopfenstein",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 82
+  },
+  {
+   "pid": "ty_mathews_oh",
+   "name": "Ty D. Mathews",
+   "officialListing": "Ty D. Mathews",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 83
+  },
+  {
+   "pid": "king_oh",
+   "name": "Angela N. King",
+   "officialListing": "Angela N. King",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 84
+  },
+  {
+   "pid": "barhorst_oh",
+   "name": "Tim Barhorst",
+   "officialListing": "Tim Barhorst",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 85
+  },
+  {
+   "pid": "richardson_oh",
+   "name": "Tracy M. Richardson",
+   "officialListing": "Tracy M. Richardson",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 86
+  },
+  {
+   "pid": "mcclain_oh",
+   "name": "Riordan T. McClain",
+   "officialListing": "Riordan T. McClain",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 87
+  },
+  {
+   "pid": "click_oh",
+   "name": "Gary Click",
+   "officialListing": "Gary Click",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 88
+  },
+  {
+   "pid": "pizzulli_oh",
+   "name": "Justin Pizzulli",
+   "officialListing": "Justin Pizzulli",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 90
+  },
+  {
+   "pid": "peterson_oh",
+   "name": "Bob Peterson",
+   "officialListing": "Bob Peterson",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 91
+  },
+  {
+   "pid": "stephens_oh",
+   "name": "Jason Stephens",
+   "officialListing": "Jason Stephens",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 93
+  },
+  {
+   "pid": "ritter_oh",
+   "name": "Kevin Ritter",
+   "officialListing": "Kevin Ritter",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 94
+  },
+  {
+   "pid": "moore_oh",
+   "name": "Ty Moore",
+   "officialListing": "Ty Moore",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 95
+  },
+  {
+   "pid": "ferguson_oh",
+   "name": "Ron Ferguson",
+   "officialListing": "Ron Ferguson",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 96
+  },
+  {
+   "pid": "holmes_oh",
+   "name": "Adam Holmes",
+   "officialListing": "Adam Holmes",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 97
+  },
+  {
+   "pid": "hiner_oh",
+   "name": "Mark Hiner",
+   "officialListing": "Mark Hiner",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 98
+  },
+  {
+   "pid": "arthur_oh",
+   "name": "Sarah Fowler Arthur",
+   "officialListing": "Sarah Fowler Arthur",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 99
+  },
+  {
+   "pid": "albers_ga",
+   "name": "John Albers",
+   "officialListing": "John Albers",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 56
+  },
+  {
+   "pid": "lee_anderson_ga",
+   "name": "Lee Anderson",
+   "officialListing": "Lee Anderson",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 24
+  },
+  {
+   "pid": "tonya_anderson_ga",
+   "name": "Tonya Anderson",
+   "officialListing": "Tonya Anderson",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 43
+  },
+  {
+   "pid": "bearden_ga",
+   "name": "Timothy Bearden",
+   "officialListing": "Timothy Bearden",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 30
+  },
+  {
+   "pid": "brass_ga",
+   "name": "Matt Brass",
+   "officialListing": "Matt Brass",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 6
+  },
+  {
+   "pid": "max_burns_ga",
+   "name": "Max Burns",
+   "officialListing": "Max Burns",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 23
+  },
+  {
+   "pid": "carden_ga",
+   "name": "Adrienne White Carden",
+   "officialListing": "Adrienne White Carden",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 7
+  },
+  {
+   "pid": "cowsert_ga",
+   "name": "Bill Cowsert",
+   "officialListing": "Bill Cowsert",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 46
+  },
+  {
+   "pid": "davenport_ga",
+   "name": "Gail Davenport",
+   "officialListing": "Gail Davenport",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 17
+  },
+  {
+   "pid": "dickerson_ga",
+   "name": "Jason T. Dickerson",
+   "officialListing": "Jason T. Dickerson",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 21
+  },
+  {
+   "pid": "dixon_ga",
+   "name": "Clint Dixon",
+   "officialListing": "Clint Dixon",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 45
+  },
+  {
+   "pid": "echols_ga",
+   "name": "Drew Echols",
+   "officialListing": "Drew Echols",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 49
+  },
+  {
+   "pid": "ginn_ga",
+   "name": "Frank Ginn",
+   "officialListing": "Frank Ginn",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 47
+  },
+  {
+   "pid": "gooch_ga",
+   "name": "Steve Gooch",
+   "officialListing": "Steve Gooch",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 51
+  },
+  {
+   "pid": "goodman_ga",
+   "name": "Russ Goodman",
+   "officialListing": "Russ Goodman",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 8
+  },
+  {
+   "pid": "halpern_ga",
+   "name": "Sonya Halpern",
+   "officialListing": "Sonya Halpern",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 39
+  },
+  {
+   "pid": "harbin_ga",
+   "name": "Marty Harbin",
+   "officialListing": "Marty Harbin",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 16
+  },
+  {
+   "pid": "harbison_ga",
+   "name": "Ed Harbison",
+   "officialListing": "Ed Harbison",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 15
+  },
+  {
+   "pid": "harrell_ga",
+   "name": "Sally Harrell",
+   "officialListing": "Sally Harrell",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 40
+  },
+  {
+   "pid": "bo_hatchett_ga",
+   "name": "Bo Hatchett",
+   "officialListing": "Bo Hatchett",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 50
+  },
+  {
+   "pid": "hickman_ga",
+   "name": "Billy Hickman",
+   "officialListing": "Billy Hickman",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 4
+  },
+  {
+   "pid": "hodges_ga",
+   "name": "Mike Hodges",
+   "officialListing": "Mike Hodges",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 3
+  },
+  {
+   "pid": "jaha_howard_ga",
+   "name": "Jaha Howard",
+   "officialListing": "Jaha Howard",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 35
+  },
+  {
+   "pid": "hufstetler_ga",
+   "name": "Chuck Hufstetler",
+   "officialListing": "Chuck Hufstetler",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 52
+  },
+  {
+   "pid": "kim_jackson_ga",
+   "name": "Kim Jackson",
+   "officialListing": "Kim Jackson",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 41
+  },
+  {
+   "pid": "james_ga",
+   "name": "Donzella James",
+   "officialListing": "Donzella James",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 28
+  },
+  {
+   "pid": "emanuel_jones_ga",
+   "name": "Emanuel Jones",
+   "officialListing": "Emanuel Jones",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 10
+  },
+  {
+   "pid": "kemp_ga",
+   "name": "RaShaun Kemp",
+   "officialListing": "RaShaun Kemp",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 38
+  },
+  {
+   "pid": "kirkpatrick_ga",
+   "name": "Kay Kirkpatrick",
+   "officialListing": "Kay Kirkpatrick",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 32
+  },
+  {
+   "pid": "lucas_ga",
+   "name": "David Lucas",
+   "officialListing": "David Lucas",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 26
+  },
+  {
+   "pid": "mallow_ga",
+   "name": "Derek Mallow",
+   "officialListing": "Derek Mallow",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 2
+  },
+  {
+   "pid": "mangham_ga",
+   "name": "Randal Mangham",
+   "officialListing": "Randal Mangham",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 55
+  },
+  {
+   "pid": "mcneel_ga",
+   "name": "Steven McNeel",
+   "officialListing": "Steven McNeel",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 18
+  },
+  {
+   "pid": "merritt_ga",
+   "name": "Nikki Merritt",
+   "officialListing": "Nikki Merritt",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 9
+  },
+  {
+   "pid": "orrock_ga",
+   "name": "Nan Orrock",
+   "officialListing": "Nan Orrock",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 36
+  },
+  {
+   "pid": "parent_ga",
+   "name": "Elena Parent",
+   "officialListing": "Elena Parent",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 44
+  },
+  {
+   "pid": "payne_ga",
+   "name": "Chuck Payne",
+   "officialListing": "Chuck Payne",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 54
+  },
+  {
+   "pid": "rahman_ga",
+   "name": "Sheikh Rahman",
+   "officialListing": "Sheikh Rahman",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 5
+  },
+  {
+   "pid": "rhett_ga",
+   "name": "Michael 'Doc' Rhett",
+   "officialListing": "Michael 'Doc' Rhett",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 33
+  },
+  {
+   "pid": "robertson_ga",
+   "name": "Randy Robertson",
+   "officialListing": "Randy Robertson",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 29
+  },
+  {
+   "pid": "setzler_ga",
+   "name": "Ed Setzler",
+   "officialListing": "Ed Setzler",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 37
+  },
+  {
+   "pid": "sims_ga",
+   "name": "Freddie Powell Sims",
+   "officialListing": "Freddie Powell Sims",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 12
+  },
+  {
+   "pid": "still_ga",
+   "name": "Shawn Still",
+   "officialListing": "Shawn Still",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 48
+  },
+  {
+   "pid": "summers_ga",
+   "name": "Carden Summers",
+   "officialListing": "Carden Summers",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 13
+  },
+  {
+   "pid": "lanny_thomas_ga",
+   "name": "Lanny Thomas",
+   "officialListing": "Lanny Thomas",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 53
+  },
+  {
+   "pid": "tillery_ga",
+   "name": "Blake Tillery",
+   "officialListing": "Blake Tillery",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 19
+  },
+  {
+   "pid": "ben_watson_ga",
+   "name": "Ben Watson",
+   "officialListing": "Ben Watson",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 1
+  },
+  {
+   "pid": "sam_watson_ga",
+   "name": "Sam Watson",
+   "officialListing": "Sam Watson",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 11
+  },
+  {
+   "pid": "wicks_ga",
+   "name": "Kenya Wicks",
+   "officialListing": "Kenya Wicks",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 34
+  },
+  {
+   "pid": "rick_williams_ga",
+   "name": "Rick Williams",
+   "officialListing": "Rick Williams",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 25
+  },
+  {
+   "pid": "adesanya_ga",
+   "name": "Solomon Adesanya",
+   "officialListing": "Solomon Adesanya",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 43
+  },
+  {
+   "pid": "adeyina_ga",
+   "name": "Segun Adeyina",
+   "officialListing": "Segun Adeyina",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 110
+  },
+  {
+   "pid": "alexander_ga",
+   "name": "Kimberly Alexander",
+   "officialListing": "Kimberly Alexander",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 66
+  },
+  {
+   "pid": "ali_ga",
+   "name": "Akbar Ali",
+   "officialListing": "Akbar Ali",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 106
+  },
+  {
+   "pid": "victor_anderson_ga",
+   "name": "Victor Anderson",
+   "officialListing": "Victor Anderson",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 10
+  },
+  {
+   "pid": "au_ga",
+   "name": "Michelle Au",
+   "officialListing": "Michelle Au",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 50
+  },
+  {
+   "pid": "baker_ga",
+   "name": "Sylvia Wayfer Baker",
+   "officialListing": "Sylvia Wayfer Baker",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 64
+  },
+  {
+   "pid": "ballard_ga",
+   "name": "Bethany Ballard",
+   "officialListing": "Bethany Ballard",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 147
+  },
+  {
+   "pid": "barnes_ga",
+   "name": "Imani Barnes",
+   "officialListing": "Imani Barnes",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 86
+  },
+  {
+   "pid": "barrett_ga",
+   "name": "Carter Barrett",
+   "officialListing": "Carter Barrett",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 24
+  },
+  {
+   "pid": "barton_ga",
+   "name": "Matt Barton",
+   "officialListing": "Matt Barton",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 5
+  },
+  {
+   "pid": "bazemore_ga",
+   "name": "Debra Bazemore",
+   "officialListing": "Debra Bazemore",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 69
+  },
+  {
+   "pid": "beckles_ga",
+   "name": "Arlene Beckles",
+   "officialListing": "Arlene Beckles",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 96
+  },
+  {
+   "pid": "bell_ga",
+   "name": "Eric Bell",
+   "officialListing": "Eric Bell",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 75
+  },
+  {
+   "pid": "berry_ga",
+   "name": "Bryce Berry",
+   "officialListing": "Bryce Berry",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 56
+  },
+  {
+   "pid": "blackmon_ga",
+   "name": "Shaw Blackmon",
+   "officialListing": "Shaw Blackmon",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 146
+  },
+  {
+   "pid": "bonner_ga",
+   "name": "Josh Bonner",
+   "officialListing": "Josh Bonner",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 73
+  },
+  {
+   "pid": "buckner_ga",
+   "name": "Debbie Buckner",
+   "officialListing": "Debbie Buckner",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 137
+  },
+  {
+   "pid": "burchett_ga",
+   "name": "James Burchett",
+   "officialListing": "James Burchett",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 176
+  },
+  {
+   "pid": "burnough_ga",
+   "name": "Rhonda Burnough",
+   "officialListing": "Rhonda Burnough",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 77
+  },
+  {
+   "pid": "byrd_ga",
+   "name": "Charlice Byrd",
+   "officialListing": "Charlice Byrd",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 20
+  },
+  {
+   "pid": "cameron_ga",
+   "name": "Mike Cameron",
+   "officialListing": "Mike Cameron",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 1
+  },
+  {
+   "pid": "camp_ga",
+   "name": "Beth Camp",
+   "officialListing": "Beth Camp",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 135
+  },
+  {
+   "pid": "joe_campbell_ga",
+   "name": "Joe Campbell",
+   "officialListing": "Joe Campbell",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 171
+  },
+  {
+   "pid": "lisa_campbell_ga",
+   "name": "Lisa Campbell",
+   "officialListing": "Lisa Campbell",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 35
+  },
+  {
+   "pid": "chas_cannon_ga",
+   "name": "Chas Cannon",
+   "officialListing": "Chas Cannon",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 172
+  },
+  {
+   "pid": "park_cannon_ga",
+   "name": "Park Cannon",
+   "officialListing": "Park Cannon",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 58
+  },
+  {
+   "pid": "carpenter_ga",
+   "name": "Kasey Carpenter",
+   "officialListing": "Kasey Carpenter",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 4
+  },
+  {
+   "pid": "carson_ga",
+   "name": "John Carson",
+   "officialListing": "John Carson",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 46
+  },
+  {
+   "pid": "carter_ga",
+   "name": "Doreen Carter",
+   "officialListing": "Doreen Carter",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 93
+  },
+  {
+   "pid": "chastain_ga",
+   "name": "Johnny Chastain",
+   "officialListing": "Johnny Chastain",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 7
+  },
+  {
+   "pid": "cheokas_ga",
+   "name": "Mike Cheokas",
+   "officialListing": "Mike Cheokas",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 151
+  },
+  {
+   "pid": "david_clark_ga",
+   "name": "David Clark",
+   "officialListing": "David Clark",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 100
+  },
+  {
+   "pid": "clifton_ga",
+   "name": "Rob Clifton",
+   "officialListing": "Rob Clifton",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 131
+  },
+  {
+   "pid": "cooper_ga",
+   "name": "Sharon Cooper",
+   "officialListing": "Sharon Cooper",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 45
+  },
+  {
+   "pid": "corbett_ga",
+   "name": "John Corbett",
+   "officialListing": "John Corbett",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 174
+  },
+  {
+   "pid": "cox_ga",
+   "name": "Brent Cox",
+   "officialListing": "Brent Cox",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 28
+  },
+  {
+   "pid": "crawford_ga",
+   "name": "Omari Crawford",
+   "officialListing": "Omari Crawford",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 89
+  },
+  {
+   "pid": "crowe_ga",
+   "name": "Clint Crowe",
+   "officialListing": "Clint Crowe",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 118
+  },
+  {
+   "pid": "cummings_ga",
+   "name": "Terry Cummings",
+   "officialListing": "Terry Cummings",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 39
+  },
+  {
+   "pid": "davis_ga",
+   "name": "Viola Davis",
+   "officialListing": "Viola Davis",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 87
+  },
+  {
+   "pid": "dawson_ga",
+   "name": "Robert Dawson",
+   "officialListing": "Robert Dawson",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 65
+  },
+  {
+   "pid": "deloach_ga",
+   "name": "Buddy DeLoach",
+   "officialListing": "Buddy DeLoach",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 167
+  },
+  {
+   "pid": "dempsey_ga",
+   "name": "Katie Dempsey",
+   "officialListing": "Katie Dempsey",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 13
+  },
+  {
+   "pid": "dickey_ga",
+   "name": "Robert Dickey",
+   "officialListing": "Robert Dickey",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 134
+  },
+  {
+   "pid": "donatucci_ga",
+   "name": "Sandy Donatucci",
+   "officialListing": "Sandy Donatucci",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 105
+  },
+  {
+   "pid": "douglas_ga",
+   "name": "Demetrius Douglas",
+   "officialListing": "Demetrius Douglas",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 78
+  },
+  {
+   "pid": "draper_ga",
+   "name": "Saira Draper",
+   "officialListing": "Saira Draper",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 90
+  },
+  {
+   "pid": "drenner_ga",
+   "name": "Karla Drenner",
+   "officialListing": "Karla Drenner",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 85
+  },
+  {
+   "pid": "dubnik_ga",
+   "name": "Matt Dubnik",
+   "officialListing": "Matt Dubnik",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 29
+  },
+  {
+   "pid": "dunahoo_ga",
+   "name": "Emory Dunahoo",
+   "officialListing": "Emory Dunahoo",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 31
+  },
+  {
+   "pid": "efstration_ga",
+   "name": "Chuck Efstration",
+   "officialListing": "Chuck Efstration",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 104
+  },
+  {
+   "pid": "ehrhart_ga",
+   "name": "Ginny Ehrhart",
+   "officialListing": "Ginny Ehrhart",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 36
+  },
+  {
+   "pid": "erwin_ga",
+   "name": "Chris Erwin",
+   "officialListing": "Chris Erwin",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 32
+  },
+  {
+   "pid": "evans_ga",
+   "name": "Stacey Evans",
+   "officialListing": "Stacey Evans",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 57
+  },
+  {
+   "pid": "fincher_ga",
+   "name": "Bill Fincher",
+   "officialListing": "Bill Fincher",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 23
+  },
+  {
+   "pid": "flournoy_ga",
+   "name": "Robert Flournoy",
+   "officialListing": "Robert Flournoy",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 74
+  },
+  {
+   "pid": "ford_ga",
+   "name": "Jaclyn Ford",
+   "officialListing": "Jaclyn Ford",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 170
+  },
+  {
+   "pid": "franklin_ga",
+   "name": "Lehman Franklin",
+   "officialListing": "Lehman Franklin",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 160
+  },
+  {
+   "pid": "frye_ga",
+   "name": "Spencer Frye",
+   "officialListing": "Spencer Frye",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 122
+  },
+  {
+   "pid": "gambill_ga",
+   "name": "Matthew Gambill",
+   "officialListing": "Matthew Gambill",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 15
+  },
+  {
+   "pid": "gilliard_ga",
+   "name": "Carl Gilliard",
+   "officialListing": "Carl Gilliard",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 162
+  },
+  {
+   "pid": "gisler_ga",
+   "name": "Eric Gisler",
+   "officialListing": "Eric Gisler",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 121
+  },
+  {
+   "pid": "glaize_ga",
+   "name": "Lydia Glaize",
+   "officialListing": "Lydia Glaize",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 67
+  },
+  {
+   "pid": "greene_ga",
+   "name": "Gerald Greene",
+   "officialListing": "Gerald Greene",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 154
+  },
+  {
+   "pid": "griffin_ga",
+   "name": "Floyd Griffin",
+   "officialListing": "Floyd Griffin",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 149
+  },
+  {
+   "pid": "gullett_ga",
+   "name": "Joseph Gullett",
+   "officialListing": "Joseph Gullett",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 19
+  },
+  {
+   "pid": "gunter_ga",
+   "name": "Stan Gunter",
+   "officialListing": "Stan Gunter",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 8
+  },
+  {
+   "pid": "hagan_ga",
+   "name": "Leesa Hagan",
+   "officialListing": "Leesa Hagan",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 156
+  },
+  {
+   "pid": "matt_hatchett_ga",
+   "name": "Matt Hatchett",
+   "officialListing": "Matt Hatchett",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 155
+  },
+  {
+   "pid": "hawkins_ga",
+   "name": "Lee Hawkins",
+   "officialListing": "Lee Hawkins",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 27
+  },
+  {
+   "pid": "henderson_ga",
+   "name": "Sharon Henderson",
+   "officialListing": "Sharon Henderson",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 113
+  },
+  {
+   "pid": "herring_ga",
+   "name": "Tangie Herring",
+   "officialListing": "Tangie Herring",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 145
+  },
+  {
+   "pid": "hilton_ga",
+   "name": "Scott Hilton",
+   "officialListing": "Scott Hilton",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 48
+  },
+  {
+   "pid": "hitchens_ga",
+   "name": "Bill Hitchens",
+   "officialListing": "Bill Hitchens",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 161
+  },
+  {
+   "pid": "holcomb_ga",
+   "name": "Scott Holcomb",
+   "officialListing": "Scott Holcomb",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 101
+  },
+  {
+   "pid": "holland_ga",
+   "name": "Betsy Holland",
+   "officialListing": "Betsy Holland",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 54
+  },
+  {
+   "pid": "holly_ga",
+   "name": "El-Mahdi Holly",
+   "officialListing": "El-Mahdi Holly",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 116
+  },
+  {
+   "pid": "hong_ga",
+   "name": "Soo Hong",
+   "officialListing": "Soo Hong",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 103
+  },
+  {
+   "pid": "horner_ga",
+   "name": "Mitchell Horner",
+   "officialListing": "Mitchell Horner",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 3
+  },
+  {
+   "pid": "jutt_howard_ga",
+   "name": "Jutt Howard",
+   "officialListing": "Jutt Howard",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 71
+  },
+  {
+   "pid": "karlton_howard_ga",
+   "name": "Karlton Howard",
+   "officialListing": "Karlton Howard",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 129
+  },
+  {
+   "pid": "huddleston_ga",
+   "name": "David Huddleston",
+   "officialListing": "David Huddleston",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 72
+  },
+  {
+   "pid": "hugley_ga",
+   "name": "Carolyn Hugley",
+   "officialListing": "Carolyn Hugley",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 141
+  },
+  {
+   "pid": "derrick_jackson_ga",
+   "name": "Derrick Jackson",
+   "officialListing": "Derrick Jackson",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 68
+  },
+  {
+   "pid": "edna_jackson_ga",
+   "name": "Edna Jackson",
+   "officialListing": "Edna Jackson",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 165
+  },
+  {
+   "pid": "mack_jackson_ga",
+   "name": "Mack Jackson",
+   "officialListing": "Mack Jackson",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 128
+  },
+  {
+   "pid": "jasperse_ga",
+   "name": "Rick Jasperse",
+   "officialListing": "Rick Jasperse",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 11
+  },
+  {
+   "pid": "jenkins_ga",
+   "name": "David Jenkins",
+   "officialListing": "David Jenkins",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 136
+  },
+  {
+   "pid": "anissa_jones_ga",
+   "name": "Anissa Jones",
+   "officialListing": "Anissa Jones",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 143
+  },
+  {
+   "pid": "jan_jones_ga",
+   "name": "Jan Jones",
+   "officialListing": "Jan Jones",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 47
+  },
+  {
+   "pid": "sheila_jones_ga",
+   "name": "Sheila Jones",
+   "officialListing": "Sheila Jones",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 60
+  },
+  {
+   "pid": "todd_jones_ga",
+   "name": "Todd Jones",
+   "officialListing": "Todd Jones",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 25
+  },
+  {
+   "pid": "kahaian_ga",
+   "name": "Noelle Kahaian",
+   "officialListing": "Noelle Kahaian",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 81
+  },
+  {
+   "pid": "kelley_ga",
+   "name": "Trey Kelley",
+   "officialListing": "Trey Kelley",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 16
+  },
+  {
+   "pid": "kendrick_ga",
+   "name": "Dar'shun Kendrick",
+   "officialListing": "Dar'shun Kendrick",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 95
+  },
+  {
+   "pid": "lahood_ga",
+   "name": "John LaHood",
+   "officialListing": "John LaHood",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 175
+  },
+  {
+   "pid": "leverett_ga",
+   "name": "Rob Leverett",
+   "officialListing": "Rob Leverett",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 123
+  },
+  {
+   "pid": "lewis_ward_ga",
+   "name": "Regina Lewis-Ward",
+   "officialListing": "Regina Lewis-Ward",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 115
+  },
+  {
+   "pid": "lim_ga",
+   "name": "Marvin Lim",
+   "officialListing": "Marvin Lim",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 98
+  },
+  {
+   "pid": "lumsden_ga",
+   "name": "Eddie Lumsden",
+   "officialListing": "Eddie Lumsden",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 12
+  },
+  {
+   "pid": "lupton_ga",
+   "name": "Karen Lupton",
+   "officialListing": "Karen Lupton",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 83
+  },
+  {
+   "pid": "martin_ga",
+   "name": "Chuck Martin",
+   "officialListing": "Chuck Martin",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 49
+  },
+  {
+   "pid": "martinez_ga",
+   "name": "Rey Martinez",
+   "officialListing": "Reynaldo \"Rey\" Martinez",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 111
+  },
+  {
+   "pid": "mason_ga",
+   "name": "Venola Mason",
+   "officialListing": "Venola Mason",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 94
+  },
+  {
+   "pid": "mathiak_ga",
+   "name": "Karen Mathiak",
+   "officialListing": "Karen Mathiak",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 82
+  },
+  {
+   "pid": "mathis_ga",
+   "name": "Danny Mathis",
+   "officialListing": "Danny Mathis",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 133
+  },
+  {
+   "pid": "mcclain_ga",
+   "name": "Dewey McClain",
+   "officialListing": "Dewey McClain",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 109
+  },
+  {
+   "pid": "mccollum_ga",
+   "name": "Derrick McCollum",
+   "officialListing": "Derrick McCollum",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 30
+  },
+  {
+   "pid": "mcdonald_ga",
+   "name": "Lauren McDonald III",
+   "officialListing": "Lauren McDonald III",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 26
+  },
+  {
+   "pid": "mcqueen_ga",
+   "name": "Mekyah McQueen",
+   "officialListing": "Mekyah McQueen",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 61
+  },
+  {
+   "pid": "meeks_ga",
+   "name": "Steven Meeks",
+   "officialListing": "Steven Meeks",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 178
+  },
+  {
+   "pid": "mitchell_ga",
+   "name": "Billy Mitchell",
+   "officialListing": "Billy Mitchell",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 88
+  },
+  {
+   "pid": "momtahan_ga",
+   "name": "Martin Momtahan",
+   "officialListing": "Martin Momtahan",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 17
+  },
+  {
+   "pid": "moore_ga",
+   "name": "Angela Moore",
+   "officialListing": "Angela Moore",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 91
+  },
+  {
+   "pid": "myles_ga",
+   "name": "L.C. Myles",
+   "officialListing": "L.C. Myles",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 126
+  },
+  {
+   "pid": "neal_ga",
+   "name": "Yasmin Neal",
+   "officialListing": "Yasmin Neal",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 79
+  },
+  {
+   "pid": "nelson_ga",
+   "name": "Sheila Nelson",
+   "officialListing": "Sheila Nelson",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 130
+  },
+  {
+   "pid": "new_ga",
+   "name": "Kimberly New",
+   "officialListing": "Kimberly New",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 40
+  },
+  {
+   "pid": "newton_ga",
+   "name": "Mark Newton",
+   "officialListing": "Mark Newton",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 127
+  },
+  {
+   "pid": "okoye_ga",
+   "name": "Gabe Okoye",
+   "officialListing": "Gabe Okoye",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 102
+  },
+  {
+   "pid": "olaleye_ga",
+   "name": "Phil Olaleye",
+   "officialListing": "Phil Olaleye",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 59
+  },
+  {
+   "pid": "oliver_ga",
+   "name": "Mary Margaret Oliver",
+   "officialListing": "Mary Margaret Oliver",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 84
+  },
+  {
+   "pid": "osteen_ga",
+   "name": "Angie O'Steen",
+   "officialListing": "Angie O'Steen",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 169
+  },
+  {
+   "pid": "panitch_ga",
+   "name": "Esther Panitch",
+   "officialListing": "Esther Panitch",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 51
+  },
+  {
+   "pid": "paris_ga",
+   "name": "Miriam Paris",
+   "officialListing": "Miriam Paris",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 142
+  },
+  {
+   "pid": "park_ga",
+   "name": "Sam Park",
+   "officialListing": "Sam Park",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 107
+  },
+  {
+   "pid": "parrish_ga",
+   "name": "Butch Parrish",
+   "officialListing": "Butch Parrish",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 158
+  },
+  {
+   "pid": "parsons_ga",
+   "name": "Don Parsons",
+   "officialListing": "Don Parsons",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 44
+  },
+  {
+   "pid": "payton_ga",
+   "name": "Alvin Payton",
+   "officialListing": "Alvin Payton",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 177
+  },
+  {
+   "pid": "persinger_ga",
+   "name": "Holt Persinger",
+   "officialListing": "Holt Persinger",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 119
+  },
+  {
+   "pid": "petrea_ga",
+   "name": "Jesse Petrea",
+   "officialListing": "Jesse Petrea",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 166
+  },
+  {
+   "pid": "powell_ga",
+   "name": "Alan Powell",
+   "officialListing": "Alan Powell",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 33
+  },
+  {
+   "pid": "prince_ga",
+   "name": "Brian Prince",
+   "officialListing": "Brian Prince",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 132
+  },
+  {
+   "pid": "reese_ga",
+   "name": "Tremaine Teddy Reese",
+   "officialListing": "Tremaine Teddy Reese",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 140
+  },
+  {
+   "pid": "reeves_ga",
+   "name": "Matt Reeves",
+   "officialListing": "Matt Reeves",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 99
+  },
+  {
+   "pid": "rhodes_ga",
+   "name": "Trey Rhodes",
+   "officialListing": "Trey Rhodes",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 124
+  },
+  {
+   "pid": "rice_ga",
+   "name": "Carmen Rice",
+   "officialListing": "Carmen Rice",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 139
+  },
+  {
+   "pid": "richardson_ga",
+   "name": "Gary Richardson",
+   "officialListing": "Gary Richardson",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 125
+  },
+  {
+   "pid": "jason_ridley_ga",
+   "name": "Jason Ridley",
+   "officialListing": "Jason Ridley",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 6
+  },
+  {
+   "pid": "jordan_ridley_ga",
+   "name": "Jordan Ridley",
+   "officialListing": "Jordan Ridley",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 22
+  },
+  {
+   "pid": "roberts_ga",
+   "name": "Shea Roberts",
+   "officialListing": "Shea Roberts",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 52
+  },
+  {
+   "pid": "romman_ga",
+   "name": "Ruwa Romman",
+   "officialListing": "Ruwa Romman",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 97
+  },
+  {
+   "pid": "sainz_ga",
+   "name": "Steven Sainz",
+   "officialListing": "Steven Sainz",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 180
+  },
+  {
+   "pid": "sampson_ga",
+   "name": "David Sampson",
+   "officialListing": "David Sampson",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 153
+  },
+  {
+   "pid": "sanchez_ga",
+   "name": "Gabriel Sanchez",
+   "officialListing": "Gabriel Sanchez",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 42
+  },
+  {
+   "pid": "santos_ga",
+   "name": "Mary Ann Santos",
+   "officialListing": "Mary Ann Santos",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 117
+  },
+  {
+   "pid": "schofield_ga",
+   "name": "Kim Schofield",
+   "officialListing": "Kim Schofield",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 63
+  },
+  {
+   "pid": "scoggins_ga",
+   "name": "Mitchell Scoggins",
+   "officialListing": "Mitchell Scoggins",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 14
+  },
+  {
+   "pid": "scott_ga",
+   "name": "Sandra Scott",
+   "officialListing": "Sandra Scott",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 76
+  },
+  {
+   "pid": "seabaugh_ga",
+   "name": "Devan Seabaugh",
+   "officialListing": "Devan Seabaugh",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 34
+  },
+  {
+   "pid": "silcox_ga",
+   "name": "Deborah Silcox",
+   "officialListing": "Deborah Silcox",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 53
+  },
+  {
+   "pid": "lynn_smith_ga",
+   "name": "Lynn Smith",
+   "officialListing": "Lynn Smith",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 70
+  },
+  {
+   "pid": "michael_smith_ga",
+   "name": "Michael Smith",
+   "officialListing": "Michael Smith",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 41
+  },
+  {
+   "pid": "tyler_smith_ga",
+   "name": "Tyler Paul Smith",
+   "officialListing": "Tyler Paul Smith",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 18
+  },
+  {
+   "pid": "stephens_ga",
+   "name": "Ron Stephens",
+   "officialListing": "Ron Stephens",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 164
+  },
+  {
+   "pid": "stinson_ga",
+   "name": "Patty Marie Stinson",
+   "officialListing": "Patty Marie Stinson",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 150
+  },
+  {
+   "pid": "tarvin_ga",
+   "name": "Steve Tarvin",
+   "officialListing": "Steve Tarvin",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 2
+  },
+  {
+   "pid": "darlene_taylor_ga",
+   "name": "Darlene Taylor",
+   "officialListing": "Darlene Taylor",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 173
+  },
+  {
+   "pid": "rhonda_taylor_ga",
+   "name": "Rhonda Taylor",
+   "officialListing": "Rhonda Taylor",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 92
+  },
+  {
+   "pid": "brad_thomas_ga",
+   "name": "Brad Thomas",
+   "officialListing": "Brad Thomas",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 21
+  },
+  {
+   "pid": "townsend_ga",
+   "name": "Rick Townsend",
+   "officialListing": "Rick Townsend",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 179
+  },
+  {
+   "pid": "tran_ga",
+   "name": "Long Tran",
+   "officialListing": "Long Tran",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 80
+  },
+  {
+   "pid": "wade_ga",
+   "name": "Will Wade",
+   "officialListing": "Will Wade",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 9
+  },
+  {
+   "pid": "washburn_ga",
+   "name": "Dale Washburn",
+   "officialListing": "Dale Washburn",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 144
+  },
+  {
+   "pid": "werkheiser_ga",
+   "name": "Bill Werkheiser",
+   "officialListing": "Bill Werkheiser",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 157
+  },
+  {
+   "pid": "westbrook_ga",
+   "name": "Anne Allen Westbrook",
+   "officialListing": "Anne Allen Westbrook",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 163
+  },
+  {
+   "pid": "wilkerson_ga",
+   "name": "David Wilkerson",
+   "officialListing": "David Wilkerson",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 38
+  },
+  {
+   "pid": "al_williams_ga",
+   "name": "Al Williams",
+   "officialListing": "Al Williams",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 168
+  },
+  {
+   "pid": "mary_williams_ga",
+   "name": "Mary Frances Williams",
+   "officialListing": "Mary Frances Williams",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 37
+  },
+  {
+   "pid": "noel_williams_ga",
+   "name": "Noel Williams, Jr.",
+   "officialListing": "Noel Williams, Jr.",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 148
+  },
+  {
+   "pid": "williamson_ga",
+   "name": "Bruce Williamson",
+   "officialListing": "Bruce Williamson",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 112
+  },
+  {
+   "pid": "willis_ga",
+   "name": "Inga Willis",
+   "officialListing": "Inga Willis",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 55
+  },
+  {
+   "pid": "yearta_ga",
+   "name": "Bill Yearta",
+   "officialListing": "Bill Yearta",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 152
+  },
+  {
+   "pid": "adcock_nc",
+   "name": "Gale Adcock",
+   "officialListing": "Gale Adcock",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 16
+  },
+  {
+   "pid": "alexander_nc",
+   "name": "W. Ted Alexander",
+   "officialListing": "W. Ted Alexander",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 44
+  },
+  {
+   "pid": "applewhite_nc",
+   "name": "Val Applewhite",
+   "officialListing": "Val Applewhite",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 19
+  },
+  {
+   "pid": "barnes_nc",
+   "name": "Lisa S. Barnes",
+   "officialListing": "Lisa S. Barnes",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 11
+  },
+  {
+   "pid": "blue_nc",
+   "name": "Dan Blue",
+   "officialListing": "Dan Blue",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 14
+  },
+  {
+   "pid": "bradley_nc",
+   "name": "Woodson Bradley",
+   "officialListing": "Woodson Bradley",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 42
+  },
+  {
+   "pid": "brinson_nc",
+   "name": "Bob Brinson",
+   "officialListing": "Bob Brinson",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 3
+  },
+  {
+   "pid": "britt_nc",
+   "name": "Danny Earl Britt, Jr.",
+   "officialListing": "Danny Earl Britt, Jr.",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 24
+  },
+  {
+   "pid": "burgin_nc",
+   "name": "Jim Burgin",
+   "officialListing": "Jim Burgin",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 12
+  },
+  {
+   "pid": "chaudhuri_nc",
+   "name": "Jay J. Chaudhuri",
+   "officialListing": "Jay J. Chaudhuri",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 15
+  },
+  {
+   "pid": "chitlik_nc",
+   "name": "Sophia Chitlik",
+   "officialListing": "Sophia Chitlik",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 22
+  },
+  {
+   "pid": "corbin_nc",
+   "name": "Kevin Corbin",
+   "officialListing": "Kevin Corbin",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 50
+  },
+  {
+   "pid": "craven_nc",
+   "name": "David W. Craven, Jr.",
+   "officialListing": "David W. Craven, Jr.",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 29
+  },
+  {
+   "pid": "daniel_nc",
+   "name": "Warren Daniel",
+   "officialListing": "Warren Daniel",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 46
+  },
+  {
+   "pid": "fatmi_nc",
+   "name": "Haseeb Fatmi",
+   "officialListing": "Haseeb Fatmi",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 18
+  },
+  {
+   "pid": "ford_nc",
+   "name": "Carl Ford",
+   "officialListing": "Carl Ford",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 33
+  },
+  {
+   "pid": "galey_nc",
+   "name": "Amy S. Galey",
+   "officialListing": "Amy S. Galey",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 25
+  },
+  {
+   "pid": "garrett_nc",
+   "name": "Michael Garrett",
+   "officialListing": "Michael Garrett",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 27
+  },
+  {
+   "pid": "garson_nc",
+   "name": "Jonah Garson",
+   "officialListing": "Jonah Garson",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 23
+  },
+  {
+   "pid": "grafstein_nc",
+   "name": "Lisa Grafstein",
+   "officialListing": "Lisa Grafstein",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 13
+  },
+  {
+   "pid": "hollo_nc",
+   "name": "Mark Hollo",
+   "officialListing": "Mark Hollo",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 45
+  },
+  {
+   "pid": "brent_jackson_nc",
+   "name": "Brent Jackson",
+   "officialListing": "Brent Jackson",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 9
+  },
+  {
+   "pid": "jarvis_nc",
+   "name": "Steve Jarvis",
+   "officialListing": "Steve Jarvis",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 30
+  },
+  {
+   "pid": "todd_johnson_nc",
+   "name": "Todd Johnson",
+   "officialListing": "Todd Johnson",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 35
+  },
+  {
+   "pid": "dana_jones_nc",
+   "name": "Dana Jones",
+   "officialListing": "Dana Jones",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 31
+  },
+  {
+   "pid": "lazzara_nc",
+   "name": "Michael A. Lazzara",
+   "officialListing": "Michael A. Lazzara",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 6
+  },
+  {
+   "pid": "lowe_nc",
+   "name": "Paul A. Lowe, Jr.",
+   "officialListing": "Paul A. Lowe, Jr.",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 32
+  },
+  {
+   "pid": "mayfield_nc",
+   "name": "Julie Mayfield",
+   "officialListing": "Julie Mayfield",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 49
+  },
+  {
+   "pid": "mcinnis_nc",
+   "name": "Tom McInnis",
+   "officialListing": "Tom McInnis",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 21
+  },
+  {
+   "pid": "measmer_nc",
+   "name": "Chris Measmer",
+   "officialListing": "Chris Measmer",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 34
+  },
+  {
+   "pid": "moffitt_nc",
+   "name": "Timothy D. Moffitt",
+   "officialListing": "Timothy D. Moffitt",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 48
+  },
+  {
+   "pid": "mohammed_nc",
+   "name": "Mujtaba A. Mohammed",
+   "officialListing": "Mujtaba A. Mohammed",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 38
+  },
+  {
+   "pid": "murdock_nc",
+   "name": "Natalie S. Murdock",
+   "officialListing": "Natalie S. Murdock",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 20
+  },
+  {
+   "pid": "newton_nc",
+   "name": "Buck Newton",
+   "officialListing": "Buck Newton",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 4
+  },
+  {
+   "pid": "overcash_nc",
+   "name": "Brad Overcash",
+   "officialListing": "Brad Overcash",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 43
+  },
+  {
+   "pid": "rabon_nc",
+   "name": "Bill Rabon",
+   "officialListing": "Bill Rabon",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 8
+  },
+  {
+   "pid": "robinson_nc",
+   "name": "Gladys A. Robinson",
+   "officialListing": "Gladys A. Robinson",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 28
+  },
+  {
+   "pid": "salvador_nc",
+   "name": "DeAndrea Salvador",
+   "officialListing": "DeAndrea Salvador",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 39
+  },
+  {
+   "pid": "sanderson_nc",
+   "name": "Norman W. Sanderson",
+   "officialListing": "Norman W. Sanderson",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 2
+  },
+  {
+   "pid": "sawrey_nc",
+   "name": "Benton G. Sawrey",
+   "officialListing": "Benton G. Sawrey",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 10
+  },
+  {
+   "pid": "sawyer_nc",
+   "name": "Vickie Sawyer",
+   "officialListing": "Vickie Sawyer",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 37
+  },
+  {
+   "pid": "settle_nc",
+   "name": "Eddie D. Settle",
+   "officialListing": "Eddie D. Settle",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 36
+  },
+  {
+   "pid": "kandie_smith_nc",
+   "name": "Kandie D. Smith",
+   "officialListing": "Kandie D. Smith",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 5
+  },
+  {
+   "pid": "theodros_nc",
+   "name": "Caleb Theodros",
+   "officialListing": "Caleb Theodros",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 41
+  },
+  {
+   "pid": "tillett_nc",
+   "name": "Jerry Tillett",
+   "officialListing": "Jerry Tillett",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 1
+  },
+  {
+   "pid": "waddell_nc",
+   "name": "Joyce Waddell",
+   "officialListing": "Joyce Waddell",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 40
+  },
+  {
+   "pid": "adams_nc",
+   "name": "Jay Adams",
+   "officialListing": "Jay Adams",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 96
+  },
+  {
+   "pid": "ager_nc",
+   "name": "Eric Ager",
+   "officialListing": "Eric Ager",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 114
+  },
+  {
+   "pid": "almond_nc",
+   "name": "Jonathan L. Almond",
+   "officialListing": "Jonathan L. Almond",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 73
+  },
+  {
+   "pid": "alston_nc",
+   "name": "Vernetta Alston",
+   "officialListing": "Vernetta Alston",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 29
+  },
+  {
+   "pid": "arp_nc",
+   "name": "Dean Arp",
+   "officialListing": "Dean Arp",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 69
+  },
+  {
+   "pid": "baker_nc",
+   "name": "Amber M. Baker",
+   "officialListing": "Amber M. Baker",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 72
+  },
+  {
+   "pid": "ball_nc",
+   "name": "Cynthia Ball",
+   "officialListing": "Cynthia Ball",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 49
+  },
+  {
+   "pid": "belk_nc",
+   "name": "Mary Belk",
+   "officialListing": "Mary Belk",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 88
+  },
+  {
+   "pid": "bell_nc",
+   "name": "John R. Bell, IV",
+   "officialListing": "John R. Bell, IV",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 10
+  },
+  {
+   "pid": "biggs_nc",
+   "name": "Brian Biggs",
+   "officialListing": "Brian Biggs",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 70
+  },
+  {
+   "pid": "blackwell_nc",
+   "name": "Hugh Blackwell",
+   "officialListing": "Hugh Blackwell",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 86
+  },
+  {
+   "pid": "blust_nc",
+   "name": "John M. Blust",
+   "officialListing": "John M. Blust",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 62
+  },
+  {
+   "pid": "branson_nc",
+   "name": "Alan Branson",
+   "officialListing": "Jerry \"Alan\" Branson",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 59
+  },
+  {
+   "pid": "brisson_nc",
+   "name": "William D. Brisson",
+   "officialListing": "William D. Brisson",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 22
+  },
+  {
+   "pid": "brody_nc",
+   "name": "Mark Brody",
+   "officialListing": "Mark Brody",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 55
+  },
+  {
+   "pid": "gloristine_brown_nc",
+   "name": "Gloristine Brown",
+   "officialListing": "Gloristine Brown",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 8
+  },
+  {
+   "pid": "kanika_brown_nc",
+   "name": "Kanika Brown",
+   "officialListing": "Kanika Brown",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 71
+  },
+  {
+   "pid": "terry_brown_nc",
+   "name": "Terry M. Brown Jr.",
+   "officialListing": "Terry M. Brown Jr.",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 92
+  },
+  {
+   "pid": "buansi_nc",
+   "name": "Allen Buansi",
+   "officialListing": "Allen Buansi",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 56
+  },
+  {
+   "pid": "budd_nc",
+   "name": "Laura Budd",
+   "officialListing": "Laura Budd",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 103
+  },
+  {
+   "pid": "butler_nc",
+   "name": "Deb Butler",
+   "officialListing": "Deb Butler",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 18
+  },
+  {
+   "pid": "cairns_nc",
+   "name": "Celeste C. Cairns",
+   "officialListing": "Celeste C. Cairns",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 13
+  },
+  {
+   "pid": "campbell_nc",
+   "name": "Grant L. Campbell",
+   "officialListing": "Grant L. Campbell, MD",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 83
+  },
+  {
+   "pid": "carney_nc",
+   "name": "Becky Carney",
+   "officialListing": "Becky Carney",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 102
+  },
+  {
+   "pid": "carver_nc",
+   "name": "Todd Carver",
+   "officialListing": "Todd Carver",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 95
+  },
+  {
+   "pid": "cervania_nc",
+   "name": "Maria Cervania",
+   "officialListing": "Maria Cervania",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 41
+  },
+  {
+   "pid": "chesser_nc",
+   "name": "Allen Chesser",
+   "officialListing": "Allen Chesser",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 25
+  },
+  {
+   "pid": "clark_nc",
+   "name": "Tracy Clark",
+   "officialListing": "Tracy Clark",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 57
+  },
+  {
+   "pid": "cohn_nc",
+   "name": "Bryan Cohn",
+   "officialListing": "Bryan Cohn",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 32
+  },
+  {
+   "pid": "colvin_nc",
+   "name": "Mike Colvin",
+   "officialListing": "Mike Colvin",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 42
+  },
+  {
+   "pid": "cook_nc",
+   "name": "Amanda P. Cook",
+   "officialListing": "Amanda P. Cook",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 60
+  },
+  {
+   "pid": "cotham_nc",
+   "name": "Tricia Ann Cotham",
+   "officialListing": "Tricia Ann Cotham",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 105
+  },
+  {
+   "pid": "crawford_nc",
+   "name": "Sarah Crawford",
+   "officialListing": "Sarah Crawford",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 66
+  },
+  {
+   "pid": "cunningham_nc",
+   "name": "Carla D. Cunningham",
+   "officialListing": "Carla D. Cunningham",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 106
+  },
+  {
+   "pid": "dahle_nc",
+   "name": "Allison A. Dahle",
+   "officialListing": "Allison A. Dahle",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 11
+  },
+  {
+   "pid": "davis_nc",
+   "name": "Ted Davis, Jr.",
+   "officialListing": "Ted Davis, Jr.",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 20
+  },
+  {
+   "pid": "dew_nc",
+   "name": "Aisha O. Dew",
+   "officialListing": "Aisha O. Dew",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 107
+  },
+  {
+   "pid": "dixon_nc",
+   "name": "Jimmy Dixon",
+   "officialListing": "Jimmy Dixon",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 4
+  },
+  {
+   "pid": "echevarria_nc",
+   "name": "Brian Echevarria",
+   "officialListing": "Brian Echevarria",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 82
+  },
+  {
+   "pid": "eddins_nc",
+   "name": "Blair Eddins",
+   "officialListing": "Blair Eddins",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 94
+  },
+  {
+   "pid": "ferguson_nc",
+   "name": "Anna Ferguson",
+   "officialListing": "Anna Ferguson",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 119
+  },
+  {
+   "pid": "gable_nc",
+   "name": "Wyatt Gable",
+   "officialListing": "Wyatt Gable",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 14
+  },
+  {
+   "pid": "gillespie_nc",
+   "name": "Karl E. Gillespie",
+   "officialListing": "Karl E. Gillespie",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 120
+  },
+  {
+   "pid": "goodwin_nc",
+   "name": "Edward C. Goodwin",
+   "officialListing": "Edward C. Goodwin",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 1
+  },
+  {
+   "pid": "greene_nc",
+   "name": "Dudley Greene",
+   "officialListing": "Dudley Greene",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 85
+  },
+  {
+   "pid": "greenfield_nc",
+   "name": "Julia Greenfield",
+   "officialListing": "Julia Greenfield",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 100
+  },
+  {
+   "pid": "kyle_hall_nc",
+   "name": "Kyle Hall",
+   "officialListing": "Kyle Hall",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 91
+  },
+  {
+   "pid": "harrison_nc",
+   "name": "Pricey Harrison",
+   "officialListing": "Pricey Harrison",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 61
+  },
+  {
+   "pid": "hastings_nc",
+   "name": "Kelly E. Hastings",
+   "officialListing": "Kelly E. Hastings",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 110
+  },
+  {
+   "pid": "hawkins_nc",
+   "name": "Zack Hawkins",
+   "officialListing": "Zack Hawkins",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 31
+  },
+  {
+   "pid": "helfrich_nc",
+   "name": "Beth Helfrich",
+   "officialListing": "Beth Helfrich",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 98
+  },
+  {
+   "pid": "howard_nc",
+   "name": "Julia C. Howard",
+   "officialListing": "Julia C. Howard",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 77
+  },
+  {
+   "pid": "humphrey_nc",
+   "name": "Chris Humphrey",
+   "officialListing": "Chris Humphrey",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 12
+  },
+  {
+   "pid": "huneycutt_nc",
+   "name": "Cody Huneycutt",
+   "officialListing": "Cody Huneycutt",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 67
+  },
+  {
+   "pid": "iler_nc",
+   "name": "Frank Iler",
+   "officialListing": "Frank Iler",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 17
+  },
+  {
+   "pid": "phd_nc",
+   "name": "Frances Jackson, PhD",
+   "officialListing": "Frances Jackson, PhD",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 45
+  },
+  {
+   "pid": "neal_jackson_nc",
+   "name": "Neal Jackson",
+   "officialListing": "Neal Jackson",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 78
+  },
+  {
+   "pid": "jeffers_nc",
+   "name": "B. Ray Jeffers",
+   "officialListing": "B. Ray Jeffers",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 2
+  },
+  {
+   "pid": "johnson_hostler_nc",
+   "name": "Monika Johnson-Hostler",
+   "officialListing": "Monika Johnson-Hostler",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 33
+  },
+  {
+   "pid": "abe_jones_nc",
+   "name": "Abe Jones",
+   "officialListing": "Abe Jones",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 38
+  },
+  {
+   "pid": "brenden_jones_nc",
+   "name": "Brenden H. Jones",
+   "officialListing": "Brenden H. Jones",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 46
+  },
+  {
+   "pid": "kidwell_nc",
+   "name": "Keith Kidwell",
+   "officialListing": "Keith Kidwell",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 79
+  },
+  {
+   "pid": "kiger_nc",
+   "name": "Dan Kiger",
+   "officialListing": "Dan Kiger",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 90
+  },
+  {
+   "pid": "lambeth_nc",
+   "name": "Donny Lambeth",
+   "officialListing": "Donny Lambeth",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 75
+  },
+  {
+   "pid": "liu_nc",
+   "name": "Ya Liu",
+   "officialListing": "Ya Liu",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 21
+  },
+  {
+   "pid": "loftis_nc",
+   "name": "Donnie Loftis",
+   "officialListing": "Donnie Loftis",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 109
+  },
+  {
+   "pid": "lofton_nc",
+   "name": "Brandon Lofton",
+   "officialListing": "Brandon Lofton",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 104
+  },
+  {
+   "pid": "logan_nc",
+   "name": "Carolyn G. Logan",
+   "officialListing": "Carolyn G. Logan",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 101
+  },
+  {
+   "pid": "longest_nc",
+   "name": "Tim Longest",
+   "officialListing": "Tim Longest",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 34
+  },
+  {
+   "pid": "lopez_nc",
+   "name": "Jordan Lopez",
+   "officialListing": "Jordan Lopez",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 112
+  },
+  {
+   "pid": "lowery_nc",
+   "name": "John L. Lowery",
+   "officialListing": "John L. Lowery",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 47
+  },
+  {
+   "pid": "majeed_nc",
+   "name": "Nasif Majeed",
+   "officialListing": "Nasif Majeed",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 99
+  },
+  {
+   "pid": "mcneely_nc",
+   "name": "Jeffrey C. McNeely",
+   "officialListing": "Jeffrey C. McNeely",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 84
+  },
+  {
+   "pid": "miller_nc",
+   "name": "Charles W. Miller",
+   "officialListing": "Charles W. Miller",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 19
+  },
+  {
+   "pid": "morey_nc",
+   "name": "Marcia Morey",
+   "officialListing": "Marcia Morey",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 30
+  },
+  {
+   "pid": "moss_nc",
+   "name": "Ben T. Moss, Jr.",
+   "officialListing": "Ben T. Moss, Jr.",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 52
+  },
+  {
+   "pid": "pare_nc",
+   "name": "Erin Paré",
+   "officialListing": "Erin Paré",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 37
+  },
+  {
+   "pid": "penny_nc",
+   "name": "Howard Penny, Jr.",
+   "officialListing": "Howard Penny, Jr.",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 53
+  },
+  {
+   "pid": "pickett_nc",
+   "name": "Ray Pickett",
+   "officialListing": "Ray Pickett",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 93
+  },
+  {
+   "pid": "garland_pierce_nc",
+   "name": "Garland E. Pierce",
+   "officialListing": "Garland E. Pierce",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 48
+  },
+  {
+   "pid": "rodney_pierce_nc",
+   "name": "Rodney D. Pierce",
+   "officialListing": "Rodney D. Pierce",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 27
+  },
+  {
+   "pid": "pike_nc",
+   "name": "Joseph Pike",
+   "officialListing": "Joseph Pike",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 6
+  },
+  {
+   "pid": "pittman_nc",
+   "name": "Dante Pittman",
+   "officialListing": "Dante Pittman",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 24
+  },
+  {
+   "pid": "pless_nc",
+   "name": "Mark Pless",
+   "officialListing": "Mark Pless",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 118
+  },
+  {
+   "pid": "potts_nc",
+   "name": "Larry W. Potts",
+   "officialListing": "Larry W. Potts",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 81
+  },
+  {
+   "pid": "prather_nc",
+   "name": "Lindsey Prather",
+   "officialListing": "Lindsey Prather",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 115
+  },
+  {
+   "pid": "price_nc",
+   "name": "Renée A. Price",
+   "officialListing": "Renée A. Price",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 50
+  },
+  {
+   "pid": "pyrtle_nc",
+   "name": "A. Reece Pyrtle, Jr.",
+   "officialListing": "A. Reece Pyrtle, Jr.",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 65
+  },
+  {
+   "pid": "quick_nc",
+   "name": "Amos L. Quick, III",
+   "officialListing": "Amos L. Quick, III",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 58
+  },
+  {
+   "pid": "reeder_nc",
+   "name": "Timothy Reeder",
+   "officialListing": "Timothy Reeder, MD",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 9
+  },
+  {
+   "pid": "reives_nc",
+   "name": "Robert T. Reives, II",
+   "officialListing": "Robert T. Reives, II",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 54
+  },
+  {
+   "pid": "rhyne_nc",
+   "name": "Heather H. Rhyne",
+   "officialListing": "Heather H. Rhyne",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 97
+  },
+  {
+   "pid": "riddell_nc",
+   "name": "Dennis Riddell",
+   "officialListing": "Dennis Riddell",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 64
+  },
+  {
+   "pid": "roberson_nc",
+   "name": "James Roberson",
+   "officialListing": "James Roberson",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 39
+  },
+  {
+   "pid": "ross_nc",
+   "name": "Stephen M. Ross",
+   "officialListing": "Stephen M. Ross",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 63
+  },
+  {
+   "pid": "rubin_nc",
+   "name": "Phil Rubin",
+   "officialListing": "Phil Rubin",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 40
+  },
+  {
+   "pid": "sauls_nc",
+   "name": "John Sauls",
+   "officialListing": "John Sauls",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 51
+  },
+  {
+   "pid": "schietzelt_nc",
+   "name": "Mike Schietzelt",
+   "officialListing": "Mike Schietzelt",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 35
+  },
+  {
+   "pid": "scott_nc",
+   "name": "Paul Scott",
+   "officialListing": "Paul Scott",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 111
+  },
+  {
+   "pid": "setzer_nc",
+   "name": "Mitchell S. Setzer",
+   "officialListing": "Mitchell S. Setzer",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 89
+  },
+  {
+   "pid": "shepard_nc",
+   "name": "Phil Shepard",
+   "officialListing": "Phil Shepard",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 15
+  },
+  {
+   "pid": "carson_smith_nc",
+   "name": "Carson Smith",
+   "officialListing": "Carson Smith",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 16
+  },
+  {
+   "pid": "charles_smith_nc",
+   "name": "Charles Smith",
+   "officialListing": "Charles Smith",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 44
+  },
+  {
+   "pid": "strickland_nc",
+   "name": "Larry C. Strickland",
+   "officialListing": "Larry C. Strickland",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 28
+  },
+  {
+   "pid": "torbett_nc",
+   "name": "John A. Torbett",
+   "officialListing": "John A. Torbett",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 108
+  },
+  {
+   "pid": "turner_nc",
+   "name": "Brian Turner",
+   "officialListing": "Brian Turner",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 116
+  },
+  {
+   "pid": "tyson_nc",
+   "name": "Steve Tyson",
+   "officialListing": "Steve Tyson",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 3
+  },
+  {
+   "pid": "haefen_nc",
+   "name": "Julie von Haefen",
+   "officialListing": "Julie von Haefen",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 36
+  },
+  {
+   "pid": "ward_nc",
+   "name": "Bill Ward",
+   "officialListing": "Bill Ward",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 5
+  },
+  {
+   "pid": "warren_nc",
+   "name": "Harry Warren",
+   "officialListing": "Harry Warren",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 76
+  },
+  {
+   "pid": "watford_nc",
+   "name": "Sam Watford",
+   "officialListing": "Sam Watford",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 80
+  },
+  {
+   "pid": "wheatley_nc",
+   "name": "Diane Wheatley",
+   "officialListing": "Diane Wheatley",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 43
+  },
+  {
+   "pid": "white_nc",
+   "name": "Donna McDowell White",
+   "officialListing": "Donna McDowell White",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 26
+  },
+  {
+   "pid": "willingham_nc",
+   "name": "Shelly Willingham",
+   "officialListing": "Shelly Willingham",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 23
+  },
+  {
+   "pid": "willis_nc",
+   "name": "David Willis",
+   "officialListing": "David Willis",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 68
+  },
+  {
+   "pid": "winslow_nc",
+   "name": "Matthew Winslow",
+   "officialListing": "Matthew Winslow",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 7
+  },
+  {
+   "pid": "zenger_nc",
+   "name": "Jeff Zenger",
+   "officialListing": "Jeff Zenger",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 74
+  }
+ ],
+ "alreadyHeld": [
+  {
+   "pid": "theresa_gavarone",
+   "state": "Ohio",
+   "chamber": "State Senate",
+   "district": 2
+  },
+  {
+   "pid": "nickie_antonio",
+   "state": "Ohio",
+   "chamber": "State Senate",
+   "district": 23
+  },
+  {
+   "pid": "jason_anavitarte",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 31
+  },
+  {
+   "pid": "harold_jones_ga",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 22
+  },
+  {
+   "pid": "larry_walker_ga",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 20
+  },
+  {
+   "pid": "sydney_batch",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 17
+  },
+  {
+   "pid": "ralph_hise",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 47
+  },
+  {
+   "pid": "michael_lee_nc",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 7
+  }
+ ],
+ "districtSet": [
+  {
+   "pid": "rob_mccolley",
+   "state": "Ohio",
+   "chamber": "State Senate",
+   "district": 1,
+   "was": null
+  },
+  {
+   "pid": "matt_huffman",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 78,
+   "was": null
+  },
+  {
+   "pid": "jon_burns",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 159,
+   "was": null
+  },
+  {
+   "pid": "phil_berger",
+   "state": "North Carolina",
+   "chamber": "State Senate",
+   "district": 26,
+   "was": null
+  },
+  {
+   "pid": "destin_hall",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 87,
+   "was": null
+  }
+ ],
+ "onFileAsCandidate": [
+  {
+   "pid": "greg_dolezal",
+   "name": "Greg Dolezal",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 27,
+   "rosterOffice": "Lieutenant Governor Candidate"
+  },
+  {
+   "pid": "josh_mclaurin",
+   "name": "Josh McLaurin",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 14,
+   "rosterOffice": "Lieutenant Governor Candidate"
+  },
+  {
+   "pid": "brian_strickland",
+   "name": "Brian Strickland",
+   "state": "Georgia",
+   "chamber": "State Senate",
+   "district": 42,
+   "rosterOffice": "Attorney General Candidate"
+  },
+  {
+   "pid": "jasmine_clark",
+   "name": "Jasmine Clark",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 108,
+   "rosterOffice": "U.S. House Candidate (GA-13)"
+  },
+  {
+   "pid": "tim_fleming",
+   "name": "Tim Fleming",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 114,
+   "rosterOffice": "Secretary of State Candidate"
+  },
+  {
+   "pid": "houston_gaines",
+   "name": "Houston Gaines",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 120,
+   "rosterOffice": "U.S. House Candidate (GA-10)"
+  },
+  {
+   "pid": "tanya_miller",
+   "name": "Tanya F. Miller",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 62,
+   "rosterOffice": "Attorney General Candidate"
+  },
+  {
+   "pid": "jennifer_balkcom",
+   "name": "Jennifer Balkcom",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 117,
+   "rosterOffice": "U.S. House Candidate (NC-11)"
+  }
+ ],
+ "nameSharedWithAnotherRecord": [
+  {
+   "name": "Mark Johnson",
+   "state": "Ohio",
+   "chamber": "State House",
+   "district": 92,
+   "sharesNameWith": "Minnesota State Senator Mark Johnson (mark_johnson_mn)"
+  },
+  {
+   "name": "Vance Smith",
+   "state": "Georgia",
+   "chamber": "State House",
+   "district": 138,
+   "sharesNameWith": "an existing content key, vance_smith"
+  },
+  {
+   "name": "Jake Johnson",
+   "state": "North Carolina",
+   "chamber": "State House",
+   "district": 113,
+   "sharesNameWith": "Minnesota U.S. House candidate Jake Johnson (jake_johnson)"
+  }
+ ]
+}

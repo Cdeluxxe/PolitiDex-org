@@ -126,7 +126,7 @@ const NAMED = [
   // [place, senate district, lower district, expected senate pid, expected name, expected lower pid]
   [IL, "4", "6", "kimberly_lightford", "Kimberly Lightford", "harper_il"],
   [PA, "3", "182", "sharif_street", "Sharif Street", "waxman_pa"],
-  [OH, "2", "1", "theresa_gavarone", "Theresa Gavarone", null],
+  [OH, "2", "1", "theresa_gavarone", "Theresa Gavarone", "jarrells_oh"],
 ];
 for (const [p, sd, hd, pid, nm, lpid] of NAMED) {
   const W = boot(at(p, sd, hd));
@@ -149,10 +149,10 @@ for (const [p, sd, hd, pid, nm, lpid] of NAMED) {
   ok(!EQUITY.test(out.replace(/<[^>]+>/g, " ")), `${p.state}: the card carries equity language`);
 }
 {
-  // A seat nobody claims: the Columbus address's own SD 15.
-  const W = boot(at(OH, "15", "1"));
-  eq(levelOf(W, "statesenate").pid, null, "Ohio SD 15: a member was invented");
-  has(band(W), "District 15 — no member on file yet", "Ohio SD 15: the row does not say nobody is on file");
+  // A seat nobody claims: Ohio SD 13, vacant on the Ohio Senate's own roster.
+  const W = boot(at(OH, "13", "1"));
+  eq(levelOf(W, "statesenate").pid, null, "Ohio SD 13: a member was invented");
+  has(band(W), "District 13 — no member on file yet", "Ohio SD 13: the row does not say nobody is on file");
 }
 {
   // Every seat in all six chambers.
@@ -173,16 +173,18 @@ for (const [p, sd, hd, pid, nm, lpid] of NAMED) {
       }
     }
   }
-  // Illinois's and Pennsylvania's sitting members are the official-roster shells
-  // and the existing records (db/roster-state-legislators-ny-pa-il-2026-oct.json).
-  const REC = JSON.parse(R("db/roster-state-legislators-ny-pa-il-2026-oct.json"));
-  const onFile = [...REC.rows, ...REC.alreadyHeld, ...REC.districtSet].filter((r) => r.state !== "New York").map((r) => r.pid);
+  // Illinois's, Pennsylvania's and Ohio's sitting members are the official-roster
+  // shells and the existing records (db/roster-state-legislators-ny-pa-il-2026-oct.json
+  // and db/roster-state-legislators-oh-ga-nc-2026-oct.json).
+  const onFile = ["db/roster-state-legislators-ny-pa-il-2026-oct.json", "db/roster-state-legislators-oh-ga-nc-2026-oct.json"]
+    .flatMap((f) => { const REC = JSON.parse(R(f)); return [...REC.rows, ...REC.alreadyHeld, ...REC.districtSet]; })
+    .filter((r) => ["Illinois", "Pennsylvania", "Ohio"].includes(r.state)).map((r) => r.pid);
   eq(JSON.stringify([...named].sort()),
-    JSON.stringify([...new Set([...onFile, "nickie_antonio", "theresa_gavarone"])].sort()),
+    JSON.stringify([...new Set(onFile)].sort()),
     "roster: the members the lookup can name are not exactly the district-keyed state legislators on file");
   // Leaders whose records name no district, and U.S. House members whose titles
   // say "House", are never placed in a legislative seat.
-  for (const p of ["matt_huffman", "rob_mccolley", "jim_jordan", "mike_bost", "glenn_thompson"]) {
+  for (const p of ["jim_jordan", "mike_bost", "glenn_thompson"]) {
     ok(!named.has(p), `roster: ${p} was placed in a legislative seat`);
   }
 }

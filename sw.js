@@ -10776,7 +10776,21 @@
 //     shell moves one version.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v464';
+// v465 - OHIO, GEORGIA AND NORTH CAROLINA STATE LEGISLATOR ROSTER SHELLS.
+//     cmp-data.js gains 512 identity-only rows (name, office, state, exact
+//     district, `candidate: false`) for the members each chamber's official
+//     roster listed as seated on 2026-10-24, and five sitting leaders already
+//     on file gain the district their record was missing. A seat the official
+//     roster lists as vacant (Ohio SD 13, HD 89), whose member is held only as
+//     a 2026 candidate row, or whose member shares a display name with another
+//     record, keeps "District N — no member on file yet".
+//     db/roster-state-legislators-oh-ga-nc-2026-oct.json is the record. The
+//     California, Texas, Florida, New York, Pennsylvania and Illinois rows are
+//     unchanged. No board, composer or voting record is opened. cmp-data.js is
+//     precached and changed, so the shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v465';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

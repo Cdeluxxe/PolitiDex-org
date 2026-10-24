@@ -473,12 +473,13 @@ const rosterWaveAdmissions = (() => {
   eq(notInertCandidates.join("|"), "",
     "a 2026 candidate row arrived carrying a judged surface or without candidate: true");
   // The October 2026 state legislator shells (California, Texas and Florida; New
-  // York, Pennsylvania and Illinois): identity rows, each named with its official
+  // York, Pennsylvania and Illinois; Ohio, Georgia and North Carolina): identity rows, each named with its official
   // chamber roster in db/roster-state-legislators-*-2026-oct.json, inert, and
   // `candidate: false`.
   const legislatorBatch = (() => {
     const out = new Set();
-    for (const f of ["db/roster-state-legislators-ca-tx-fl-2026-oct.json", "db/roster-state-legislators-ny-pa-il-2026-oct.json"]) {
+    for (const f of ["db/roster-state-legislators-ca-tx-fl-2026-oct.json", "db/roster-state-legislators-ny-pa-il-2026-oct.json",
+                     "db/roster-state-legislators-oh-ga-nc-2026-oct.json"]) {
       try { for (const r of JSON.parse(readFileSync(join(ROOT, f), "utf8")).rows) out.add(r.pid); } catch {}
     }
     return out;
