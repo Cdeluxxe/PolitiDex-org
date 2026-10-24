@@ -190,12 +190,16 @@ section("5 · the card names a member when the roster has one, and nobody otherw
   eq(ss.pid, "bettencourt_tx", "resolver: the sitting SD 7 member on file was not named");
   eq(ss.mapped, true, "resolver: the Texas State Senate level is not marked mapped");
   eq(sh.district, "95", "resolver: the Texas State House district did not reach the level");
-  eq(sh.pid, null, "resolver: a State House member was named for a seat no roster record claims");
+  eq(sh.pid, "collier_tx", "resolver: the sitting HD 95 member on file was not named");
   eq(sh.mapped, true, "resolver: the Texas State House level is not marked mapped");
 
   const out = band(W);
   has(out, "Paul Bettencourt", "card: the sitting Texas State Senator on file is not on the card");
-  has(out, "District 95 — no member on file yet", "card: the Texas State House row does not say nobody is on file");
+  has(out, "Nicole Collier", "card: the sitting Texas State Representative on file is not on the card");
+  // HD 93 is vacant on the House's own roster, so no record claims it.
+  const V = boot(TX("7", "93"));
+  eq(levelOf(V, "statehouse").pid, null, "resolver: a State House member was named for a seat no roster record claims");
+  has(band(V), "District 93 — no member on file yet", "card: the Texas State House row does not say nobody is on file");
   lacks(out, "only maps state legislative districts in", "card: a Texas reader is told their legislative lines are not drawn");
 
   // Every seat in both chambers: whoever is named is a record that claims it.
@@ -211,10 +215,13 @@ section("5 · the card names a member when the roster has one, and nobody otherw
       ok(rec && new RegExp("^(SD|HD)?\\s*" + d + "$").test(String(rec.district || "").trim()), `roster: ${pid}'s record does not name district ${d}`);
     }
   }
-  eq(JSON.stringify([...named].sort()), JSON.stringify(["bettencourt_tx", "gutierrez_tx", "paxton_tx"]),
+  const REC = JSON.parse(R("db/roster-state-legislators-ca-tx-fl-2026-oct.json"));
+  const onFile = [...REC.rows, ...REC.alreadyHeld, ...REC.districtSet].filter((r) => r.state === "Texas").map((r) => r.pid);
+  eq(JSON.stringify([...named].sort()), JSON.stringify([...new Set(onFile)].sort()),
     "roster: the set of Texas legislators the lookup can name is not exactly the district-keyed records on file");
-  eq(W._pdxStateLegSeat("Texas", "statesenate", 1), null, "roster: a member with no district on their record was placed in SD 1");
-  eq(W._pdxStateLegSeat("Texas", "statehouse", 7), null, "roster: a State Senate record (SD 7) was seated in State House 7");
+  eq(W._pdxStateLegSeat("Texas", "statesenate", 1), "bryan_hughes", "roster: SD 1's existing record, now carrying its district, was not placed");
+  eq(W._pdxStateLegSeat("Texas", "statesenate", 22), null, "roster: vacant SD 22 was filled");
+  ok(W._pdxStateLegSeat("Texas", "statehouse", 7) !== "bettencourt_tx", "roster: a State Senate record (SD 7) was seated in State House 7");
   eq(W._pdxStateLegSeat("District of Columbia", "statesenate", 7), null, "roster: an unmapped state resolved a legislator");
 
   // A Texas reader who has not pinned the legislative seats yet: mapped, blank, no number.

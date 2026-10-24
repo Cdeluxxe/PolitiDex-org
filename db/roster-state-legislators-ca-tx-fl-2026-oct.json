@@ -1,0 +1,3644 @@
+{
+ "_note": "Sitting California, Texas and Florida state legislators, read from each chamber's official member roster on 2026-10-24. cmp-data.js carries a roster shell for every \"rows\" entry; \"districtSet\" names existing records that gained their district; \"onFileAsCandidate\" seats are left empty because the member is held only as a 2026 candidate row under another office. \"nameSharedWithAnotherRecord\" seats are left empty because another record on file carries the same display name.",
+ "read": "2026-10-24",
+ "sources": {
+  "California": {
+   "statesenate": "https://www.senate.ca.gov/senators",
+   "statehouse": "https://www.assembly.ca.gov/assemblymembers"
+  },
+  "Texas": {
+   "statesenate": "https://senate.texas.gov/members.php",
+   "statehouse": "https://house.texas.gov/members"
+  },
+  "Florida": {
+   "statesenate": "https://www.flsenate.gov/Senators/",
+   "statehouse": "https://www.flhouse.gov/Sections/Representatives/representatives.aspx"
+  }
+ },
+ "vacant": {
+  "California": {
+   "statesenate": [
+    10
+   ],
+   "statehouse": [
+    3
+   ]
+  },
+  "Texas": {
+   "statesenate": [
+    22
+   ],
+   "statehouse": [
+    1,
+    93
+   ]
+  },
+  "Florida": {
+   "statesenate": [
+    39
+   ],
+   "statehouse": [
+    55,
+    78,
+    113,
+    116
+   ]
+  }
+ },
+ "rows": [
+  {
+   "pid": "hadwick_ca",
+   "name": "Heather Hadwick",
+   "officialListing": "Heather Hadwick",
+   "state": "California",
+   "chamber": "State House",
+   "district": 1
+  },
+  {
+   "pid": "rogers_ca",
+   "name": "Chris Rogers",
+   "officialListing": "Chris Rogers",
+   "state": "California",
+   "chamber": "State House",
+   "district": 2
+  },
+  {
+   "pid": "aguiar_curry_ca",
+   "name": "Cecilia M. Aguiar-Curry",
+   "officialListing": "Cecilia M. Aguiar-Curry",
+   "state": "California",
+   "chamber": "State House",
+   "district": 4
+  },
+  {
+   "pid": "patterson_ca",
+   "name": "Joe Patterson",
+   "officialListing": "Joe Patterson",
+   "state": "California",
+   "chamber": "State House",
+   "district": 5
+  },
+  {
+   "pid": "krell_ca",
+   "name": "Maggy Krell",
+   "officialListing": "Maggy Krell",
+   "state": "California",
+   "chamber": "State House",
+   "district": 6
+  },
+  {
+   "pid": "hoover_ca",
+   "name": "Josh Hoover",
+   "officialListing": "Josh Hoover",
+   "state": "California",
+   "chamber": "State House",
+   "district": 7
+  },
+  {
+   "pid": "tangipa_ca",
+   "name": "David J. Tangipa",
+   "officialListing": "David J. Tangipa",
+   "state": "California",
+   "chamber": "State House",
+   "district": 8
+  },
+  {
+   "pid": "nguyen_ca",
+   "name": "Stephanie Nguyen",
+   "officialListing": "Stephanie Nguyen",
+   "state": "California",
+   "chamber": "State House",
+   "district": 10
+  },
+  {
+   "pid": "wilson_ca",
+   "name": "Lori D. Wilson",
+   "officialListing": "Lori D. Wilson",
+   "state": "California",
+   "chamber": "State House",
+   "district": 11
+  },
+  {
+   "pid": "connolly_ca",
+   "name": "Damon Connolly",
+   "officialListing": "Damon Connolly",
+   "state": "California",
+   "chamber": "State House",
+   "district": 12
+  },
+  {
+   "pid": "ransom_ca",
+   "name": "Rhodesia Ransom",
+   "officialListing": "Rhodesia Ransom",
+   "state": "California",
+   "chamber": "State House",
+   "district": 13
+  },
+  {
+   "pid": "wicks_ca",
+   "name": "Buffy Wicks",
+   "officialListing": "Buffy Wicks",
+   "state": "California",
+   "chamber": "State House",
+   "district": 14
+  },
+  {
+   "pid": "avila_farias_ca",
+   "name": "Anamarie Ávila Farías",
+   "officialListing": "Anamarie Ávila Farías",
+   "state": "California",
+   "chamber": "State House",
+   "district": 15
+  },
+  {
+   "pid": "bauer_kahan_ca",
+   "name": "Rebecca Bauer-Kahan",
+   "officialListing": "Rebecca Bauer-Kahan",
+   "state": "California",
+   "chamber": "State House",
+   "district": 16
+  },
+  {
+   "pid": "haney_ca",
+   "name": "Matt Haney",
+   "officialListing": "Matt Haney",
+   "state": "California",
+   "chamber": "State House",
+   "district": 17
+  },
+  {
+   "pid": "bonta_ca",
+   "name": "Mia Bonta",
+   "officialListing": "Mia Bonta",
+   "state": "California",
+   "chamber": "State House",
+   "district": 18
+  },
+  {
+   "pid": "stefani_ca",
+   "name": "Catherine Stefani",
+   "officialListing": "Catherine Stefani",
+   "state": "California",
+   "chamber": "State House",
+   "district": 19
+  },
+  {
+   "pid": "ortega_ca",
+   "name": "Liz Ortega",
+   "officialListing": "Liz Ortega",
+   "state": "California",
+   "chamber": "State House",
+   "district": 20
+  },
+  {
+   "pid": "papan_ca",
+   "name": "Diane Papan",
+   "officialListing": "Diane Papan",
+   "state": "California",
+   "chamber": "State House",
+   "district": 21
+  },
+  {
+   "pid": "alanis_ca",
+   "name": "Juan Alanis",
+   "officialListing": "Juan Alanis",
+   "state": "California",
+   "chamber": "State House",
+   "district": 22
+  },
+  {
+   "pid": "berman_ca",
+   "name": "Marc Berman",
+   "officialListing": "Marc Berman",
+   "state": "California",
+   "chamber": "State House",
+   "district": 23
+  },
+  {
+   "pid": "lee_ca",
+   "name": "Alex Lee",
+   "officialListing": "Alex Lee",
+   "state": "California",
+   "chamber": "State House",
+   "district": 24
+  },
+  {
+   "pid": "kalra_ca",
+   "name": "Ash Kalra",
+   "officialListing": "Ash Kalra",
+   "state": "California",
+   "chamber": "State House",
+   "district": 25
+  },
+  {
+   "pid": "ahrens_ca",
+   "name": "Patrick J. Ahrens",
+   "officialListing": "Patrick J. Ahrens",
+   "state": "California",
+   "chamber": "State House",
+   "district": 26
+  },
+  {
+   "pid": "soria_ca",
+   "name": "Esmeralda Z. Soria",
+   "officialListing": "Esmeralda Z. Soria",
+   "state": "California",
+   "chamber": "State House",
+   "district": 27
+  },
+  {
+   "pid": "pellerin_ca",
+   "name": "Gail Pellerin",
+   "officialListing": "Gail Pellerin",
+   "state": "California",
+   "chamber": "State House",
+   "district": 28
+  },
+  {
+   "pid": "addis_ca",
+   "name": "Dawn Addis",
+   "officialListing": "Dawn Addis",
+   "state": "California",
+   "chamber": "State House",
+   "district": 30
+  },
+  {
+   "pid": "arambula_ca",
+   "name": "Joaquin Arambula",
+   "officialListing": "Dr. Joaquin Arambula",
+   "state": "California",
+   "chamber": "State House",
+   "district": 31
+  },
+  {
+   "pid": "ellis_ca",
+   "name": "Stan Ellis",
+   "officialListing": "Stan Ellis",
+   "state": "California",
+   "chamber": "State House",
+   "district": 32
+  },
+  {
+   "pid": "macedo_ca",
+   "name": "Alexandra M. Macedo",
+   "officialListing": "Alexandra M. Macedo",
+   "state": "California",
+   "chamber": "State House",
+   "district": 33
+  },
+  {
+   "pid": "lackey_ca",
+   "name": "Tom Lackey",
+   "officialListing": "Tom Lackey",
+   "state": "California",
+   "chamber": "State House",
+   "district": 34
+  },
+  {
+   "pid": "bains_ca",
+   "name": "Jasmeet Kaur Bains",
+   "officialListing": "Jasmeet Kaur Bains",
+   "state": "California",
+   "chamber": "State House",
+   "district": 35
+  },
+  {
+   "pid": "jeff_gonzalez_ca",
+   "name": "Jeff Gonzalez",
+   "officialListing": "Jeff Gonzalez",
+   "state": "California",
+   "chamber": "State House",
+   "district": 36
+  },
+  {
+   "pid": "hart_ca",
+   "name": "Gregg Hart",
+   "officialListing": "Gregg Hart",
+   "state": "California",
+   "chamber": "State House",
+   "district": 37
+  },
+  {
+   "pid": "bennett_ca",
+   "name": "Steve Bennett",
+   "officialListing": "Steve Bennett",
+   "state": "California",
+   "chamber": "State House",
+   "district": 38
+  },
+  {
+   "pid": "carrillo_ca",
+   "name": "Juan Carrillo",
+   "officialListing": "Juan Carrillo",
+   "state": "California",
+   "chamber": "State House",
+   "district": 39
+  },
+  {
+   "pid": "schiavo_ca",
+   "name": "Pilar Schiavo",
+   "officialListing": "Pilar Schiavo",
+   "state": "California",
+   "chamber": "State House",
+   "district": 40
+  },
+  {
+   "pid": "harabedian_ca",
+   "name": "John Harabedian",
+   "officialListing": "John Harabedian",
+   "state": "California",
+   "chamber": "State House",
+   "district": 41
+  },
+  {
+   "pid": "celeste_rodriguez_ca",
+   "name": "Celeste Rodriguez",
+   "officialListing": "Celeste Rodriguez",
+   "state": "California",
+   "chamber": "State House",
+   "district": 43
+  },
+  {
+   "pid": "schultz_ca",
+   "name": "Nick Schultz",
+   "officialListing": "Nick Schultz",
+   "state": "California",
+   "chamber": "State House",
+   "district": 44
+  },
+  {
+   "pid": "ramos_ca",
+   "name": "James C. Ramos",
+   "officialListing": "James C. Ramos",
+   "state": "California",
+   "chamber": "State House",
+   "district": 45
+  },
+  {
+   "pid": "gabriel_ca",
+   "name": "Jesse Gabriel",
+   "officialListing": "Jesse Gabriel",
+   "state": "California",
+   "chamber": "State House",
+   "district": 46
+  },
+  {
+   "pid": "wallis_ca",
+   "name": "Greg Wallis",
+   "officialListing": "Greg Wallis",
+   "state": "California",
+   "chamber": "State House",
+   "district": 47
+  },
+  {
+   "pid": "blanca_rubio_ca",
+   "name": "Blanca E. Rubio",
+   "officialListing": "Blanca E. Rubio",
+   "state": "California",
+   "chamber": "State House",
+   "district": 48
+  },
+  {
+   "pid": "fong_ca",
+   "name": "Mike Fong",
+   "officialListing": "Mike Fong",
+   "state": "California",
+   "chamber": "State House",
+   "district": 49
+  },
+  {
+   "pid": "zbur_ca",
+   "name": "Rick Chavez Zbur",
+   "officialListing": "Rick Chavez Zbur",
+   "state": "California",
+   "chamber": "State House",
+   "district": 51
+  },
+  {
+   "pid": "caloza_ca",
+   "name": "Jessica M. Caloza",
+   "officialListing": "Jessica M. Caloza",
+   "state": "California",
+   "chamber": "State House",
+   "district": 52
+  },
+  {
+   "pid": "michelle_rodriguez_ca",
+   "name": "Michelle Rodriguez",
+   "officialListing": "Michelle Rodriguez",
+   "state": "California",
+   "chamber": "State House",
+   "district": 53
+  },
+  {
+   "pid": "mark_gonzalez_ca",
+   "name": "Mark González",
+   "officialListing": "Mark González",
+   "state": "California",
+   "chamber": "State House",
+   "district": 54
+  },
+  {
+   "pid": "bryan_ca",
+   "name": "Isaac G. Bryan",
+   "officialListing": "Isaac G. Bryan",
+   "state": "California",
+   "chamber": "State House",
+   "district": 55
+  },
+  {
+   "pid": "calderon_ca",
+   "name": "Lisa Calderon",
+   "officialListing": "Lisa Calderon",
+   "state": "California",
+   "chamber": "State House",
+   "district": 56
+  },
+  {
+   "pid": "elhawary_ca",
+   "name": "Sade Elhawary",
+   "officialListing": "Sade Elhawary",
+   "state": "California",
+   "chamber": "State House",
+   "district": 57
+  },
+  {
+   "pid": "castillo_ca",
+   "name": "Leticia Castillo",
+   "officialListing": "Leticia Castillo",
+   "state": "California",
+   "chamber": "State House",
+   "district": 58
+  },
+  {
+   "pid": "chen_ca",
+   "name": "Phillip Chen",
+   "officialListing": "Phillip Chen",
+   "state": "California",
+   "chamber": "State House",
+   "district": 59
+  },
+  {
+   "pid": "jackson_ca",
+   "name": "Corey A. Jackson",
+   "officialListing": "Dr. Corey A. Jackson",
+   "state": "California",
+   "chamber": "State House",
+   "district": 60
+  },
+  {
+   "pid": "mckinnor_ca",
+   "name": "Tina S. McKinnor",
+   "officialListing": "Tina S. McKinnor",
+   "state": "California",
+   "chamber": "State House",
+   "district": 61
+  },
+  {
+   "pid": "solache_ca",
+   "name": "José Luis Solache Jr.",
+   "officialListing": "José Luis Solache Jr.",
+   "state": "California",
+   "chamber": "State House",
+   "district": 62
+  },
+  {
+   "pid": "johnson_ca",
+   "name": "Natasha Johnson",
+   "officialListing": "Natasha Johnson",
+   "state": "California",
+   "chamber": "State House",
+   "district": 63
+  },
+  {
+   "pid": "pacheco_ca",
+   "name": "Blanca Pacheco",
+   "officialListing": "Blanca Pacheco",
+   "state": "California",
+   "chamber": "State House",
+   "district": 64
+  },
+  {
+   "pid": "gipson_ca",
+   "name": "Mike A. Gipson",
+   "officialListing": "Mike A. Gipson",
+   "state": "California",
+   "chamber": "State House",
+   "district": 65
+  },
+  {
+   "pid": "muratsuchi_ca",
+   "name": "Al Muratsuchi",
+   "officialListing": "Al Muratsuchi",
+   "state": "California",
+   "chamber": "State House",
+   "district": 66
+  },
+  {
+   "pid": "quirk_silva_ca",
+   "name": "Sharon Quirk-Silva",
+   "officialListing": "Sharon Quirk-Silva",
+   "state": "California",
+   "chamber": "State House",
+   "district": 67
+  },
+  {
+   "pid": "valencia_ca",
+   "name": "Avelino Valencia",
+   "officialListing": "Avelino Valencia",
+   "state": "California",
+   "chamber": "State House",
+   "district": 68
+  },
+  {
+   "pid": "lowenthal_ca",
+   "name": "Josh Lowenthal",
+   "officialListing": "Josh Lowenthal",
+   "state": "California",
+   "chamber": "State House",
+   "district": 69
+  },
+  {
+   "pid": "ta_ca",
+   "name": "Tri Ta",
+   "officialListing": "Tri Ta",
+   "state": "California",
+   "chamber": "State House",
+   "district": 70
+  },
+  {
+   "pid": "sanchez_ca",
+   "name": "Kate Sanchez",
+   "officialListing": "Kate Sanchez",
+   "state": "California",
+   "chamber": "State House",
+   "district": 71
+  },
+  {
+   "pid": "dixon_ca",
+   "name": "Diane B. Dixon",
+   "officialListing": "Diane B. Dixon",
+   "state": "California",
+   "chamber": "State House",
+   "district": 72
+  },
+  {
+   "pid": "petrie_norris_ca",
+   "name": "Cottie Petrie-Norris",
+   "officialListing": "Cottie Petrie-Norris",
+   "state": "California",
+   "chamber": "State House",
+   "district": 73
+  },
+  {
+   "pid": "davies_ca",
+   "name": "Laurie Davies",
+   "officialListing": "Laurie Davies",
+   "state": "California",
+   "chamber": "State House",
+   "district": 74
+  },
+  {
+   "pid": "demaio_ca",
+   "name": "Carl DeMaio",
+   "officialListing": "Carl DeMaio",
+   "state": "California",
+   "chamber": "State House",
+   "district": 75
+  },
+  {
+   "pid": "patel_ca",
+   "name": "Darshana R. Patel",
+   "officialListing": "Dr. Darshana R. Patel",
+   "state": "California",
+   "chamber": "State House",
+   "district": 76
+  },
+  {
+   "pid": "boerner_ca",
+   "name": "Tasha Boerner",
+   "officialListing": "Tasha Boerner",
+   "state": "California",
+   "chamber": "State House",
+   "district": 77
+  },
+  {
+   "pid": "ward_ca",
+   "name": "Christopher M. Ward",
+   "officialListing": "Christopher M. Ward",
+   "state": "California",
+   "chamber": "State House",
+   "district": 78
+  },
+  {
+   "pid": "sharp_collins_ca",
+   "name": "LaShae Sharp-Collins",
+   "officialListing": "Dr. LaShae Sharp-Collins",
+   "state": "California",
+   "chamber": "State House",
+   "district": 79
+  },
+  {
+   "pid": "alvarez_ca",
+   "name": "David A. Alvarez",
+   "officialListing": "David A. Alvarez",
+   "state": "California",
+   "chamber": "State House",
+   "district": 80
+  },
+  {
+   "pid": "dahle_ca",
+   "name": "Megan Dahle",
+   "officialListing": "Megan Dahle",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 1
+  },
+  {
+   "pid": "cabaldon_ca",
+   "name": "Christopher Cabaldon",
+   "officialListing": "Christopher Cabaldon",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 3
+  },
+  {
+   "pid": "alvarado_gil_ca",
+   "name": "Marie Alvarado-Gil",
+   "officialListing": "Marie Alvarado-Gil",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 4
+  },
+  {
+   "pid": "mcnerney_ca",
+   "name": "Jerry McNerney",
+   "officialListing": "Jerry McNerney",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 5
+  },
+  {
+   "pid": "niello_ca",
+   "name": "Roger W. Niello",
+   "officialListing": "Roger W. Niello",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 6
+  },
+  {
+   "pid": "arreguin_ca",
+   "name": "Jesse Arreguín",
+   "officialListing": "Jesse Arreguín",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 7
+  },
+  {
+   "pid": "ashby_ca",
+   "name": "Angelique V. Ashby",
+   "officialListing": "Angelique V. Ashby",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 8
+  },
+  {
+   "pid": "grayson_ca",
+   "name": "Timothy S. Grayson",
+   "officialListing": "Timothy S. Grayson",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 9
+  },
+  {
+   "pid": "grove_ca",
+   "name": "Shannon Grove",
+   "officialListing": "Shannon Grove",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 12
+  },
+  {
+   "pid": "becker_ca",
+   "name": "Josh Becker",
+   "officialListing": "Josh Becker",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 13
+  },
+  {
+   "pid": "caballero_ca",
+   "name": "Anna M. Caballero",
+   "officialListing": "Anna M. Caballero",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 14
+  },
+  {
+   "pid": "cortese_ca",
+   "name": "Dave Cortese",
+   "officialListing": "Dave Cortese",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 15
+  },
+  {
+   "pid": "hurtado_ca",
+   "name": "Melissa Hurtado",
+   "officialListing": "Melissa Hurtado",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 16
+  },
+  {
+   "pid": "laird_ca",
+   "name": "John Laird",
+   "officialListing": "John Laird",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 17
+  },
+  {
+   "pid": "padilla_ca",
+   "name": "Stephen C. Padilla",
+   "officialListing": "Stephen C. Padilla",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 18
+  },
+  {
+   "pid": "ochoa_bogh_ca",
+   "name": "Rosilicie Ochoa Bogh",
+   "officialListing": "Rosilicie Ochoa Bogh",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 19
+  },
+  {
+   "pid": "menjivar_ca",
+   "name": "Caroline Menjivar",
+   "officialListing": "Caroline Menjivar",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 20
+  },
+  {
+   "pid": "susan_rubio_ca",
+   "name": "Susan Rubio",
+   "officialListing": "Susan Rubio",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 22
+  },
+  {
+   "pid": "valladares_ca",
+   "name": "Suzette Martinez Valladares",
+   "officialListing": "Suzette Martinez Valladares",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 23
+  },
+  {
+   "pid": "allen_ca",
+   "name": "Benjamin Allen",
+   "officialListing": "Benjamin Allen",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 24
+  },
+  {
+   "pid": "perez_ca",
+   "name": "Sasha Renée Pérez",
+   "officialListing": "Sasha Renée Pérez",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 25
+  },
+  {
+   "pid": "durazo_ca",
+   "name": "María Elena Durazo",
+   "officialListing": "María Elena Durazo",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 26
+  },
+  {
+   "pid": "stern_ca",
+   "name": "Henry I. Stern",
+   "officialListing": "Henry I. Stern",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 27
+  },
+  {
+   "pid": "smallwood_cuevas_ca",
+   "name": "Lola Smallwood-Cuevas",
+   "officialListing": "Lola Smallwood-Cuevas",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 28
+  },
+  {
+   "pid": "reyes_ca",
+   "name": "Eloise Gómez Reyes",
+   "officialListing": "Eloise Gómez Reyes",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 29
+  },
+  {
+   "pid": "archuleta_ca",
+   "name": "Bob Archuleta",
+   "officialListing": "Bob Archuleta",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 30
+  },
+  {
+   "pid": "cervantes_ca",
+   "name": "Sabrina Cervantes",
+   "officialListing": "Sabrina Cervantes",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 31
+  },
+  {
+   "pid": "seyarto_ca",
+   "name": "Kelly Seyarto",
+   "officialListing": "Kelly Seyarto",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 32
+  },
+  {
+   "pid": "lena_gonzalez_ca",
+   "name": "Lena A. Gonzalez",
+   "officialListing": "Lena A. Gonzalez",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 33
+  },
+  {
+   "pid": "umberg_ca",
+   "name": "Thomas J. Umberg",
+   "officialListing": "Thomas J. Umberg",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 34
+  },
+  {
+   "pid": "richardson_ca",
+   "name": "Laura Richardson",
+   "officialListing": "Laura Richardson",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 35
+  },
+  {
+   "pid": "strickland_ca",
+   "name": "Tony Strickland",
+   "officialListing": "Tony Strickland",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 36
+  },
+  {
+   "pid": "choi_ca",
+   "name": "Steven S. Choi",
+   "officialListing": "Steven S. Choi Ph.D.",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 37
+  },
+  {
+   "pid": "blakespear_ca",
+   "name": "Catherine S. Blakespear",
+   "officialListing": "Catherine S. Blakespear",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 38
+  },
+  {
+   "pid": "weber_pierson_ca",
+   "name": "Akilah Weber Pierson",
+   "officialListing": "Akilah Weber Pierson M.D.",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 39
+  },
+  {
+   "pid": "salzman_fl",
+   "name": "Michelle Salzman",
+   "officialListing": "Salzman, Michelle",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 1
+  },
+  {
+   "pid": "andrade_fl",
+   "name": "Alex Andrade",
+   "officialListing": "Andrade, Robert Alexander \"Alex\"",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 2
+  },
+  {
+   "pid": "boyles_fl",
+   "name": "Nathan Boyles",
+   "officialListing": "Boyles, Nathan",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 3
+  },
+  {
+   "pid": "maney_fl",
+   "name": "Patt Maney",
+   "officialListing": "Maney, Patt",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 4
+  },
+  {
+   "pid": "abbott_fl",
+   "name": "Shane G. Abbott",
+   "officialListing": "Abbott, Shane G.",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 5
+  },
+  {
+   "pid": "griffitts_fl",
+   "name": "Griff Griffitts Jr.",
+   "officialListing": "Griffitts Jr., Philip Wayne \"Griff\"",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 6
+  },
+  {
+   "pid": "shoaf_fl",
+   "name": "Jason Shoaf",
+   "officialListing": "Shoaf, Jason",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 7
+  },
+  {
+   "pid": "franklin_fl",
+   "name": "Gallop Franklin II",
+   "officialListing": "Franklin II, Gallop",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 8
+  },
+  {
+   "pid": "tant_fl",
+   "name": "Allison Tant",
+   "officialListing": "Tant, Allison",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 9
+  },
+  {
+   "pid": "brannan_fl",
+   "name": "Chuck Brannan III",
+   "officialListing": "Brannan III, Robert Charles \"Chuck\"",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 10
+  },
+  {
+   "pid": "garrison_fl",
+   "name": "Sam Garrison",
+   "officialListing": "Garrison, Sam",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 11
+  },
+  {
+   "pid": "duggan_fl",
+   "name": "Wyman Duggan",
+   "officialListing": "Duggan, Wyman",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 12
+  },
+  {
+   "pid": "daniels_fl",
+   "name": "Kimberly Daniels",
+   "officialListing": "Daniels, Kimberly",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 14
+  },
+  {
+   "pid": "black_fl",
+   "name": "Dean Black",
+   "officialListing": "Black, Dean",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 15
+  },
+  {
+   "pid": "michael_fl",
+   "name": "Kiyan Michael",
+   "officialListing": "Michael, Kiyan",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 16
+  },
+  {
+   "pid": "baker_fl",
+   "name": "Jessica Baker",
+   "officialListing": "Baker, Jessica",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 17
+  },
+  {
+   "pid": "kendall_fl",
+   "name": "Kim Kendall",
+   "officialListing": "Kendall, Kim",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 18
+  },
+  {
+   "pid": "greco_fl",
+   "name": "Sam Greco",
+   "officialListing": "Greco, Sam",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 19
+  },
+  {
+   "pid": "sapp_fl",
+   "name": "Judson Sapp",
+   "officialListing": "Sapp, Judson",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 20
+  },
+  {
+   "pid": "hinson_fl",
+   "name": "Yvonne Hayes Hinson",
+   "officialListing": "Hinson, Yvonne Hayes",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 21
+  },
+  {
+   "pid": "johnson_fl",
+   "name": "Chad Johnson",
+   "officialListing": "Johnson, Chad",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 22
+  },
+  {
+   "pid": "grow_fl",
+   "name": "J.J. Grow",
+   "officialListing": "Grow, J.J.",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 23
+  },
+  {
+   "pid": "chamberlin_fl",
+   "name": "Ryan Chamberlin",
+   "officialListing": "Chamberlin, Ryan",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 24
+  },
+  {
+   "pid": "yarkosky_fl",
+   "name": "Taylor Michael Yarkosky",
+   "officialListing": "Yarkosky, Taylor Michael",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 25
+  },
+  {
+   "pid": "cobb_fl",
+   "name": "Nan Cobb",
+   "officialListing": "Cobb, Nan",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 26
+  },
+  {
+   "pid": "gentry_fl",
+   "name": "Richard Gentry",
+   "officialListing": "Gentry, Richard",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 27
+  },
+  {
+   "pid": "partington_fl",
+   "name": "Bill Partington",
+   "officialListing": "Partington, Bill",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 28
+  },
+  {
+   "pid": "barnaby_fl",
+   "name": "Webster Barnaby",
+   "officialListing": "Barnaby, Webster",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 29
+  },
+  {
+   "pid": "tramont_fl",
+   "name": "Chase Tramont",
+   "officialListing": "Tramont, Chase",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 30
+  },
+  {
+   "pid": "sirois_fl",
+   "name": "Tyler I. Sirois",
+   "officialListing": "Sirois, Tyler I.",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 31
+  },
+  {
+   "pid": "hodgers_fl",
+   "name": "Brian Hodgers",
+   "officialListing": "Hodgers, Brian",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 32
+  },
+  {
+   "pid": "miller_fl",
+   "name": "Monique Miller",
+   "officialListing": "Miller, Monique",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 33
+  },
+  {
+   "pid": "brackett_fl",
+   "name": "Robbie Brackett",
+   "officialListing": "Brackett, Robert A. \"Robbie\"",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 34
+  },
+  {
+   "pid": "booth_fl",
+   "name": "Erika Booth",
+   "officialListing": "Booth, Erika",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 35
+  },
+  {
+   "pid": "plakon_fl",
+   "name": "Rachel Saunders Plakon",
+   "officialListing": "Plakon, Rachel Saunders",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 36
+  },
+  {
+   "pid": "plasencia_fl",
+   "name": "Susan Plasencia",
+   "officialListing": "Plasencia, Susan",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 37
+  },
+  {
+   "pid": "david_smith_fl",
+   "name": "David Smith",
+   "officialListing": "Smith, David",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 38
+  },
+  {
+   "pid": "bankson_fl",
+   "name": "Doug Bankson",
+   "officialListing": "Bankson, Douglas Michael \"Doug\"",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 39
+  },
+  {
+   "pid": "young_fl",
+   "name": "RaShon Young",
+   "officialListing": "Young, RaShon",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 40
+  },
+  {
+   "pid": "antone_fl",
+   "name": "Bruce Hadley Antone",
+   "officialListing": "Antone, Bruce Hadley",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 41
+  },
+  {
+   "pid": "eskamani_fl",
+   "name": "Anna V. Eskamani",
+   "officialListing": "Eskamani, Dr. Anna  V.",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 42
+  },
+  {
+   "pid": "lopez_fl",
+   "name": "Johanna López",
+   "officialListing": "López, Johanna",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 43
+  },
+  {
+   "pid": "harris_fl",
+   "name": "Rita Harris",
+   "officialListing": "Harris, Jennifer \"Rita\"",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 44
+  },
+  {
+   "pid": "spencer_fl",
+   "name": "Leonard Spencer",
+   "officialListing": "Spencer, Leonard",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 45
+  },
+  {
+   "pid": "jose_alvarez_fl",
+   "name": "Jose Alvarez",
+   "officialListing": "Alvarez, Jose",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 46
+  },
+  {
+   "pid": "stark_fl",
+   "name": "Paula A. Stark",
+   "officialListing": "Stark, Paula A.",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 47
+  },
+  {
+   "pid": "albert_fl",
+   "name": "Jon Albert",
+   "officialListing": "Albert, Jon",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 48
+  },
+  {
+   "pid": "kincart_jonsson_fl",
+   "name": "Jennifer Kincart Jonsson",
+   "officialListing": "Kincart Jonsson, Jennifer",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 49
+  },
+  {
+   "pid": "canady_fl",
+   "name": "Jennifer Canady",
+   "officialListing": "Canady, Jennifer",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 50
+  },
+  {
+   "pid": "holley_fl",
+   "name": "Hilary Holley",
+   "officialListing": "Holley, Hilary",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 51
+  },
+  {
+   "pid": "scott_fl",
+   "name": "Samantha Scott",
+   "officialListing": "Scott, Samantha",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 52
+  },
+  {
+   "pid": "holcomb_fl",
+   "name": "Jeff Holcomb",
+   "officialListing": "Holcomb, Jeff",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 53
+  },
+  {
+   "pid": "maggard_fl",
+   "name": "Randy Maggard",
+   "officialListing": "Maggard, Randall Scott \"Randy\"",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 54
+  },
+  {
+   "pid": "yeager_fl",
+   "name": "Brad Yeager",
+   "officialListing": "Yeager, Bradford Troy \"Brad\"",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 56
+  },
+  {
+   "pid": "anderson_fl",
+   "name": "Adam Anderson",
+   "officialListing": "Anderson, Adam",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 57
+  },
+  {
+   "pid": "berfield_fl",
+   "name": "Kimberly Berfield",
+   "officialListing": "Berfield, Kimberly",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 58
+  },
+  {
+   "pid": "jacques_fl",
+   "name": "Berny Jacques",
+   "officialListing": "Jacques, Berny",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 59
+  },
+  {
+   "pid": "cross_fl",
+   "name": "Lindsay Cross",
+   "officialListing": "Cross, Lindsay",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 60
+  },
+  {
+   "pid": "chaney_fl",
+   "name": "Linda Chaney",
+   "officialListing": "Chaney, Linda",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 61
+  },
+  {
+   "pid": "rayner_fl",
+   "name": "Michele K. Rayner",
+   "officialListing": "Rayner, Michele K.",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 62
+  },
+  {
+   "pid": "hart_lowman_fl",
+   "name": "Ms Dee Hart-Lowman",
+   "officialListing": "Hart-Lowman, Dianne \"Ms Dee\"",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 63
+  },
+  {
+   "pid": "valdes_fl",
+   "name": "Susan L. Valdés",
+   "officialListing": "Valdés, Susan L.",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 64
+  },
+  {
+   "pid": "gonzalez_pittman_fl",
+   "name": "Karen Gonzalez Pittman",
+   "officialListing": "Gonzalez Pittman, Karen",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 65
+  },
+  {
+   "pid": "koster_fl",
+   "name": "Traci Koster",
+   "officialListing": "Koster, Traci",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 66
+  },
+  {
+   "pid": "driskell_fl",
+   "name": "Fentrice Driskell",
+   "officialListing": "Driskell, Fentrice",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 67
+  },
+  {
+   "pid": "mcclure_fl",
+   "name": "Lawrence McClure",
+   "officialListing": "McClure, Lawrence",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 68
+  },
+  {
+   "pid": "danny_alvarez_fl",
+   "name": "Danny Alvarez",
+   "officialListing": "Alvarez, Daniel Antonio \"Danny\"",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 69
+  },
+  {
+   "pid": "owen_fl",
+   "name": "Michael Owen",
+   "officialListing": "Owen, Michael",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 70
+  },
+  {
+   "pid": "will_robinson_fl",
+   "name": "Will Robinson Jr.",
+   "officialListing": "Robinson Jr., William Cloud \"Will\"",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 71
+  },
+  {
+   "pid": "conerly_fl",
+   "name": "Bill Conerly",
+   "officialListing": "Conerly, William \"Bill\"",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 72
+  },
+  {
+   "pid": "mcfarland_fl",
+   "name": "Fiona McFarland",
+   "officialListing": "McFarland, Fiona",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 73
+  },
+  {
+   "pid": "buchanan_fl",
+   "name": "James Buchanan",
+   "officialListing": "Buchanan, James",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 74
+  },
+  {
+   "pid": "nix_fl",
+   "name": "Danny Nix Jr.",
+   "officialListing": "Nix Jr., Danny",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 75
+  },
+  {
+   "pid": "oliver_fl",
+   "name": "Vanessa Oliver",
+   "officialListing": "Oliver, Vanessa",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 76
+  },
+  {
+   "pid": "esposito_fl",
+   "name": "Tiffany Esposito",
+   "officialListing": "Esposito, Tiffany",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 77
+  },
+  {
+   "pid": "giallombardo_fl",
+   "name": "Mike Giallombardo",
+   "officialListing": "Giallombardo, Mike",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 79
+  },
+  {
+   "pid": "botana_fl",
+   "name": "Adam Botana",
+   "officialListing": "Botana, Adam",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 80
+  },
+  {
+   "pid": "benarroch_fl",
+   "name": "Yvette Benarroch",
+   "officialListing": "Benarroch, Yvette",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 81
+  },
+  {
+   "pid": "melo_fl",
+   "name": "Lauren Melo",
+   "officialListing": "Melo, Lauren",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 82
+  },
+  {
+   "pid": "tuck_fl",
+   "name": "Kaylee Tuck",
+   "officialListing": "Tuck, Kaylee",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 83
+  },
+  {
+   "pid": "trabulsy_fl",
+   "name": "Dana Trabulsy",
+   "officialListing": "Trabulsy, Dana",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 84
+  },
+  {
+   "pid": "overdorf_fl",
+   "name": "Toby Overdorf",
+   "officialListing": "Overdorf, Tobin Rogers \"Toby\"",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 85
+  },
+  {
+   "pid": "snyder_fl",
+   "name": "John Snyder",
+   "officialListing": "Snyder, John",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 86
+  },
+  {
+   "pid": "gregory_fl",
+   "name": "Emily Gregory",
+   "officialListing": "Gregory, Emily",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 87
+  },
+  {
+   "pid": "edmonds_fl",
+   "name": "Tae Edmonds",
+   "officialListing": "Edmonds, Jervonte \"Tae\"",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 88
+  },
+  {
+   "pid": "tendrich_fl",
+   "name": "Debra Tendrich",
+   "officialListing": "Tendrich, Debra",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 89
+  },
+  {
+   "pid": "long_fl",
+   "name": "Rob Long",
+   "officialListing": "Long, Rob",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 90
+  },
+  {
+   "pid": "gossett_seidman_fl",
+   "name": "Peggy Gossett-Seidman",
+   "officialListing": "Gossett-Seidman, Peggy",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 91
+  },
+  {
+   "pid": "skidmore_fl",
+   "name": "Kelly Skidmore",
+   "officialListing": "Skidmore, Kelly",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 92
+  },
+  {
+   "pid": "gerwig_fl",
+   "name": "Anne Gerwig",
+   "officialListing": "Gerwig, Anne",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 93
+  },
+  {
+   "pid": "weinberger_fl",
+   "name": "Meg Weinberger",
+   "officialListing": "Weinberger, Meg",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 94
+  },
+  {
+   "pid": "hunschofsky_fl",
+   "name": "Christine Hunschofsky",
+   "officialListing": "Hunschofsky, Christine",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 95
+  },
+  {
+   "pid": "daley_fl",
+   "name": "Dan Daley",
+   "officialListing": "Daley, Dan",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 96
+  },
+  {
+   "pid": "dunkley_fl",
+   "name": "Lisa Dunkley",
+   "officialListing": "Dunkley, Lisa",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 97
+  },
+  {
+   "pid": "rosenwald_fl",
+   "name": "Mitch Rosenwald",
+   "officialListing": "Rosenwald, Mitch",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 98
+  },
+  {
+   "pid": "campbell_fl",
+   "name": "Daryl Campbell",
+   "officialListing": "Campbell, Daryl",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 99
+  },
+  {
+   "pid": "lamarca_fl",
+   "name": "Chip LaMarca",
+   "officialListing": "LaMarca, Chip",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 100
+  },
+  {
+   "pid": "cassel_fl",
+   "name": "Hillary Cassel",
+   "officialListing": "Cassel, Hillary",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 101
+  },
+  {
+   "pid": "gottlieb_fl",
+   "name": "Mike Gottlieb",
+   "officialListing": "Gottlieb, Michael \"Mike\"",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 102
+  },
+  {
+   "pid": "bartleman_fl",
+   "name": "Robin Bartleman",
+   "officialListing": "Bartleman, Robin",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 103
+  },
+  {
+   "pid": "felicia_robinson_fl",
+   "name": "Felicia Simone Robinson",
+   "officialListing": "Robinson, Felicia Simone",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 104
+  },
+  {
+   "pid": "woodson_fl",
+   "name": "Marie Paule Woodson",
+   "officialListing": "Woodson, Marie Paule",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 105
+  },
+  {
+   "pid": "basabe_fl",
+   "name": "Fabián Basabe",
+   "officialListing": "Basabe, Fabián",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 106
+  },
+  {
+   "pid": "aristide_fl",
+   "name": "Wallace Aristide",
+   "officialListing": "Aristide, Wallace",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 107
+  },
+  {
+   "pid": "joseph_fl",
+   "name": "Dotie Joseph",
+   "officialListing": "Joseph, Dotie",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 108
+  },
+  {
+   "pid": "gantt_fl",
+   "name": "Ashley Viola Gantt",
+   "officialListing": "Gantt, Ashley Viola",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 109
+  },
+  {
+   "pid": "fabricio_fl",
+   "name": "Tom Fabricio",
+   "officialListing": "Fabricio, Tom",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 110
+  },
+  {
+   "pid": "borrero_fl",
+   "name": "David Borrero",
+   "officialListing": "Borrero, David",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 111
+  },
+  {
+   "pid": "rizo_fl",
+   "name": "Alex Rizo",
+   "officialListing": "Rizo, Alex",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 112
+  },
+  {
+   "pid": "busatta_fl",
+   "name": "Demi Busatta",
+   "officialListing": "Busatta, Demi",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 114
+  },
+  {
+   "pid": "blanco_fl",
+   "name": "Omar Blanco",
+   "officialListing": "Blanco, Omar",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 115
+  },
+  {
+   "pid": "chambliss_fl",
+   "name": "Kevin D. Chambliss",
+   "officialListing": "Chambliss, Kevin D.",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 117
+  },
+  {
+   "pid": "redondo_fl",
+   "name": "Mike Redondo",
+   "officialListing": "Redondo, Mike",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 118
+  },
+  {
+   "pid": "porras_fl",
+   "name": "Juan Carlos Porras",
+   "officialListing": "Porras, Juan Carlos",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 119
+  },
+  {
+   "pid": "mooney_fl",
+   "name": "Jim Mooney Jr.",
+   "officialListing": "Mooney Jr., James Vernon \"Jim\"",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 120
+  },
+  {
+   "pid": "gaetz_fl",
+   "name": "Don Gaetz",
+   "officialListing": "Don Gaetz",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 1
+  },
+  {
+   "pid": "trumbull_fl",
+   "name": "Jay Trumbull",
+   "officialListing": "Jay Trumbull",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 2
+  },
+  {
+   "pid": "simon_fl",
+   "name": "Corey Simon",
+   "officialListing": "Corey Simon",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 3
+  },
+  {
+   "pid": "yarborough_fl",
+   "name": "Clay Yarborough",
+   "officialListing": "Clay Yarborough",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 4
+  },
+  {
+   "pid": "davis_fl",
+   "name": "Tracie Davis",
+   "officialListing": "Tracie Davis",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 5
+  },
+  {
+   "pid": "bradley_fl",
+   "name": "Jennifer Bradley",
+   "officialListing": "Jennifer Bradley",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 6
+  },
+  {
+   "pid": "leek_fl",
+   "name": "Thomas Leek",
+   "officialListing": "Thomas Leek",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 7
+  },
+  {
+   "pid": "wright_fl",
+   "name": "Tom Wright",
+   "officialListing": "Tom Wright",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 8
+  },
+  {
+   "pid": "mcclain_fl",
+   "name": "Stan McClain",
+   "officialListing": "Stan McClain",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 9
+  },
+  {
+   "pid": "brodeur_fl",
+   "name": "Jason Brodeur",
+   "officialListing": "Jason Brodeur",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 10
+  },
+  {
+   "pid": "massullo_fl",
+   "name": "Ralph Massullo",
+   "officialListing": "Ralph Massullo",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 11
+  },
+  {
+   "pid": "burton_fl",
+   "name": "Colleen Burton",
+   "officialListing": "Colleen Burton",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 12
+  },
+  {
+   "pid": "truenow_fl",
+   "name": "Keith Truenow",
+   "officialListing": "Keith Truenow",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 13
+  },
+  {
+   "pid": "nathan_fl",
+   "name": "Brian Nathan",
+   "officialListing": "Brian Nathan",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 14
+  },
+  {
+   "pid": "bracy_davis_fl",
+   "name": "LaVon Bracy Davis",
+   "officialListing": "LaVon Bracy Davis",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 15
+  },
+  {
+   "pid": "rouson_fl",
+   "name": "Darryl Rouson",
+   "officialListing": "Darryl Rouson",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 16
+  },
+  {
+   "pid": "carlos_smith_fl",
+   "name": "Carlos Smith",
+   "officialListing": "Carlos Smith",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 17
+  },
+  {
+   "pid": "diceglie_fl",
+   "name": "Nick DiCeglie",
+   "officialListing": "Nick DiCeglie",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 18
+  },
+  {
+   "pid": "mayfield_fl",
+   "name": "Debbie Mayfield",
+   "officialListing": "Debbie Mayfield",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 19
+  },
+  {
+   "pid": "boyd_fl",
+   "name": "Jim Boyd",
+   "officialListing": "Jim Boyd",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 20
+  },
+  {
+   "pid": "hooper_fl",
+   "name": "Ed Hooper",
+   "officialListing": "Ed Hooper",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 21
+  },
+  {
+   "pid": "gruters_fl",
+   "name": "Joe Gruters",
+   "officialListing": "Joe Gruters",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 22
+  },
+  {
+   "pid": "burgess_fl",
+   "name": "Danny Burgess",
+   "officialListing": "Danny Burgess",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 23
+  },
+  {
+   "pid": "bernard_fl",
+   "name": "Mack Bernard",
+   "officialListing": "Mack Bernard",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 24
+  },
+  {
+   "pid": "arrington_fl",
+   "name": "Kristen Arrington",
+   "officialListing": "Kristen Arrington",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 25
+  },
+  {
+   "pid": "berman_fl",
+   "name": "Lori Berman",
+   "officialListing": "Lori Berman",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 26
+  },
+  {
+   "pid": "grall_fl",
+   "name": "Erin Grall",
+   "officialListing": "Erin Grall",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 29
+  },
+  {
+   "pid": "polsky_fl",
+   "name": "Tina Polsky",
+   "officialListing": "Tina Polsky",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 30
+  },
+  {
+   "pid": "harrell_fl",
+   "name": "Gayle Harrell",
+   "officialListing": "Gayle Harrell",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 31
+  },
+  {
+   "pid": "osgood_fl",
+   "name": "Rosalind Osgood",
+   "officialListing": "Rosalind Osgood",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 32
+  },
+  {
+   "pid": "martin_fl",
+   "name": "Jonathan Martin",
+   "officialListing": "Jonathan Martin",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 33
+  },
+  {
+   "pid": "jones_fl",
+   "name": "Shevrin Jones",
+   "officialListing": "Shevrin Jones",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 34
+  },
+  {
+   "pid": "sharief_fl",
+   "name": "Barbara Sharief",
+   "officialListing": "Barbara Sharief",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 35
+  },
+  {
+   "pid": "garcia_fl",
+   "name": "Ileana Garcia",
+   "officialListing": "Ileana Garcia",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 36
+  },
+  {
+   "pid": "calatayud_fl",
+   "name": "Alexis Calatayud",
+   "officialListing": "Alexis Calatayud",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 38
+  },
+  {
+   "pid": "rodriguez_fl",
+   "name": "Ana Maria Rodriguez",
+   "officialListing": "Ana Maria Rodriguez",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 40
+  },
+  {
+   "pid": "money_tx",
+   "name": "Brent Money",
+   "officialListing": "Money, Brent",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 2
+  },
+  {
+   "pid": "cecil_bell_tx",
+   "name": "Cecil Bell Jr.",
+   "officialListing": "Bell Jr., Cecil",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 3
+  },
+  {
+   "pid": "keith_bell_tx",
+   "name": "Keith Bell",
+   "officialListing": "Bell, Keith",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 4
+  },
+  {
+   "pid": "hefner_tx",
+   "name": "Cole Hefner",
+   "officialListing": "Hefner, Cole",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 5
+  },
+  {
+   "pid": "alders_tx",
+   "name": "Daniel Alders",
+   "officialListing": "Alders, Daniel",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 6
+  },
+  {
+   "pid": "dean_tx",
+   "name": "Jay Dean",
+   "officialListing": "Dean, Jay",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 7
+  },
+  {
+   "pid": "harris_tx",
+   "name": "Cody Harris",
+   "officialListing": "Harris, Cody",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 8
+  },
+  {
+   "pid": "ashby_tx",
+   "name": "Trent Ashby",
+   "officialListing": "Ashby, Trent",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 9
+  },
+  {
+   "pid": "harrison_tx",
+   "name": "Brian Harrison",
+   "officialListing": "Harrison, Brian",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 10
+  },
+  {
+   "pid": "shofner_tx",
+   "name": "Joanne Shofner",
+   "officialListing": "Shofner, Joanne",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 11
+  },
+  {
+   "pid": "wharton_tx",
+   "name": "Trey Wharton",
+   "officialListing": "Wharton, Trey",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 12
+  },
+  {
+   "pid": "orr_tx",
+   "name": "Angelia Orr",
+   "officialListing": "Orr, Angelia",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 13
+  },
+  {
+   "pid": "dyson_tx",
+   "name": "Paul Dyson",
+   "officialListing": "Dyson, Paul",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 14
+  },
+  {
+   "pid": "metcalf_tx",
+   "name": "Will Metcalf",
+   "officialListing": "Metcalf, Will",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 16
+  },
+  {
+   "pid": "gerdes_tx",
+   "name": "Stan Gerdes",
+   "officialListing": "Gerdes, Stan",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 17
+  },
+  {
+   "pid": "holt_tx",
+   "name": "Janis Holt",
+   "officialListing": "Holt, Janis",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 18
+  },
+  {
+   "pid": "troxclair_tx",
+   "name": "Ellen Troxclair",
+   "officialListing": "Troxclair, Ellen",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 19
+  },
+  {
+   "pid": "wilson_tx",
+   "name": "Terry M. Wilson",
+   "officialListing": "Wilson, Terry M.",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 20
+  },
+  {
+   "pid": "phelan_tx",
+   "name": "Dade Phelan",
+   "officialListing": "Phelan, Dade",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 21
+  },
+  {
+   "pid": "manuel_tx",
+   "name": "Christian Manuel",
+   "officialListing": "Manuel, Christian",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 22
+  },
+  {
+   "pid": "leo_wilson_tx",
+   "name": "Terri Leo Wilson",
+   "officialListing": "Leo Wilson, Terri",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 23
+  },
+  {
+   "pid": "bonnen_tx",
+   "name": "Greg Bonnen",
+   "officialListing": "Bonnen, Greg",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 24
+  },
+  {
+   "pid": "vasut_tx",
+   "name": "Cody Vasut",
+   "officialListing": "Vasut, Cody",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 25
+  },
+  {
+   "pid": "morgan_tx",
+   "name": "Matt Morgan",
+   "officialListing": "Morgan, Matt",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 26
+  },
+  {
+   "pid": "reynolds_tx",
+   "name": "Ron Reynolds",
+   "officialListing": "Reynolds, Ron",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 27
+  },
+  {
+   "pid": "gates_tx",
+   "name": "Gary Gates",
+   "officialListing": "Gates, Gary",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 28
+  },
+  {
+   "pid": "barry_tx",
+   "name": "Jeff Barry",
+   "officialListing": "Barry, Jeff",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 29
+  },
+  {
+   "pid": "louderback_tx",
+   "name": "AJ Louderback",
+   "officialListing": "Louderback, AJ",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 30
+  },
+  {
+   "pid": "guillen_tx",
+   "name": "Ryan Guillen",
+   "officialListing": "Guillen, Ryan",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 31
+  },
+  {
+   "pid": "hunter_tx",
+   "name": "Todd Hunter",
+   "officialListing": "Hunter, Todd ",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 32
+  },
+  {
+   "pid": "pierson_tx",
+   "name": "Katrina Pierson",
+   "officialListing": "Pierson, Katrina",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 33
+  },
+  {
+   "pid": "villalobos_tx",
+   "name": "Denise Villalobos",
+   "officialListing": "Villalobos, Denise",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 34
+  },
+  {
+   "pid": "longoria_tx",
+   "name": "Oscar Longoria",
+   "officialListing": "Longoria, Oscar",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 35
+  },
+  {
+   "pid": "munoz_tx",
+   "name": "Sergio Muñoz Jr.",
+   "officialListing": "Muñoz Jr., Sergio",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 36
+  },
+  {
+   "pid": "janie_lopez_tx",
+   "name": "Janie Lopez",
+   "officialListing": "Lopez, Janie",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 37
+  },
+  {
+   "pid": "gamez_tx",
+   "name": "Erin Gámez",
+   "officialListing": "Gámez, Erin",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 38
+  },
+  {
+   "pid": "martinez_tx",
+   "name": "Mando Martinez",
+   "officialListing": "Martinez, Armando \"Mando\"",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 39
+  },
+  {
+   "pid": "canales_tx",
+   "name": "Terry Canales",
+   "officialListing": "Canales, Terry",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 40
+  },
+  {
+   "pid": "guerra_tx",
+   "name": "Bobby Guerra",
+   "officialListing": "Guerra, R.D. \"Bobby\"",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 41
+  },
+  {
+   "pid": "raymond_tx",
+   "name": "Richard Peña Raymond",
+   "officialListing": "Raymond, Richard Peña",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 42
+  },
+  {
+   "pid": "lozano_tx",
+   "name": "J. M. Lozano",
+   "officialListing": "Lozano, J. M.",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 43
+  },
+  {
+   "pid": "schoolcraft_tx",
+   "name": "Alan Schoolcraft",
+   "officialListing": "Schoolcraft, Alan",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 44
+  },
+  {
+   "pid": "zwiener_tx",
+   "name": "Erin Zwiener",
+   "officialListing": "Zwiener, Erin",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 45
+  },
+  {
+   "pid": "cole_tx",
+   "name": "Sheryl Cole",
+   "officialListing": "Cole, Sheryl",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 46
+  },
+  {
+   "pid": "howard_tx",
+   "name": "Donna Howard",
+   "officialListing": "Howard, Donna",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 48
+  },
+  {
+   "pid": "lulu_flores_tx",
+   "name": "Lulu Flores",
+   "officialListing": "Flores, Lulu",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 51
+  },
+  {
+   "pid": "harris_davila_tx",
+   "name": "Caroline Harris Davila",
+   "officialListing": "Harris Davila, Caroline ",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 52
+  },
+  {
+   "pid": "virdell_tx",
+   "name": "Wes Virdell",
+   "officialListing": "Virdell, Wes",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 53
+  },
+  {
+   "pid": "buckley_tx",
+   "name": "Brad Buckley",
+   "officialListing": "Buckley, Brad",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 54
+  },
+  {
+   "pid": "hickland_tx",
+   "name": "Hillary Hickland",
+   "officialListing": "Hickland, Hillary",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 55
+  },
+  {
+   "pid": "curry_tx",
+   "name": "Pat Curry",
+   "officialListing": "Curry, Pat",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 56
+  },
+  {
+   "pid": "hayes_tx",
+   "name": "Richard Hayes",
+   "officialListing": "Hayes, Richard",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 57
+  },
+  {
+   "pid": "kerwin_tx",
+   "name": "Helen Kerwin",
+   "officialListing": "Kerwin, Helen",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 58
+  },
+  {
+   "pid": "slawson_tx",
+   "name": "Shelby Slawson",
+   "officialListing": "Slawson, Shelby",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 59
+  },
+  {
+   "pid": "olcott_tx",
+   "name": "Mike Olcott",
+   "officialListing": "Olcott, Mike",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 60
+  },
+  {
+   "pid": "richardson_tx",
+   "name": "Keresa Richardson",
+   "officialListing": "Richardson, Keresa",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 61
+  },
+  {
+   "pid": "luther_tx",
+   "name": "Shelley Luther",
+   "officialListing": "Luther, Shelley",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 62
+  },
+  {
+   "pid": "bumgarner_tx",
+   "name": "Benjamin Bumgarner",
+   "officialListing": "Bumgarner, Benjamin",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 63
+  },
+  {
+   "pid": "hopper_tx",
+   "name": "Andy Hopper",
+   "officialListing": "Hopper,  Andy",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 64
+  },
+  {
+   "pid": "little_tx",
+   "name": "Mitch Little",
+   "officialListing": "Little, Mitch ",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 65
+  },
+  {
+   "pid": "shaheen_tx",
+   "name": "Matt Shaheen",
+   "officialListing": "Shaheen, Matt",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 66
+  },
+  {
+   "pid": "leach_tx",
+   "name": "Jeff Leach",
+   "officialListing": "Leach, Jeff",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 67
+  },
+  {
+   "pid": "spiller_tx",
+   "name": "David Spiller",
+   "officialListing": "Spiller, David",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 68
+  },
+  {
+   "pid": "frank_tx",
+   "name": "James Frank",
+   "officialListing": "Frank, James",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 69
+  },
+  {
+   "pid": "plesa_tx",
+   "name": "Mihaela Plesa",
+   "officialListing": "Plesa, Mihaela",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 70
+  },
+  {
+   "pid": "lambert_tx",
+   "name": "Stan Lambert",
+   "officialListing": "Lambert, Stan",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 71
+  },
+  {
+   "pid": "darby_tx",
+   "name": "Drew Darby",
+   "officialListing": "Darby, Drew",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 72
+  },
+  {
+   "pid": "isaac_tx",
+   "name": "Carrie Isaac",
+   "officialListing": "Isaac, Carrie",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 73
+  },
+  {
+   "pid": "eddie_morales_tx",
+   "name": "Eddie Morales",
+   "officialListing": "Morales, Eddie",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 74
+  },
+  {
+   "pid": "mary_gonzalez_tx",
+   "name": "Mary E. González",
+   "officialListing": "González, Mary E.",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 75
+  },
+  {
+   "pid": "lalani_tx",
+   "name": "Suleman Lalani",
+   "officialListing": "Lalani, Suleman",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 76
+  },
+  {
+   "pid": "vincent_perez_tx",
+   "name": "Vincent Perez",
+   "officialListing": "Perez, Vincent",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 77
+  },
+  {
+   "pid": "moody_tx",
+   "name": "Joe Moody",
+   "officialListing": "Moody, Joe",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 78
+  },
+  {
+   "pid": "ordaz_tx",
+   "name": "Claudia Ordaz",
+   "officialListing": "Ordaz, Claudia",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 79
+  },
+  {
+   "pid": "mclaughlin_tx",
+   "name": "Don McLaughlin",
+   "officialListing": "McLaughlin, Don",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 80
+  },
+  {
+   "pid": "landgraf_tx",
+   "name": "Brooks Landgraf",
+   "officialListing": "Landgraf, Brooks",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 81
+  },
+  {
+   "pid": "craddick_tx",
+   "name": "Tom Craddick",
+   "officialListing": "Craddick, Tom",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 82
+  },
+  {
+   "pid": "tepper_tx",
+   "name": "Carl H. Tepper",
+   "officialListing": "Tepper, Carl H.",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 84
+  },
+  {
+   "pid": "kitzman_tx",
+   "name": "Stan Kitzman",
+   "officialListing": "Kitzman, Stan",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 85
+  },
+  {
+   "pid": "smithee_tx",
+   "name": "John T. Smithee",
+   "officialListing": "Smithee, John T.",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 86
+  },
+  {
+   "pid": "fairly_tx",
+   "name": "Caroline Fairly",
+   "officialListing": "Fairly, Caroline",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 87
+  },
+  {
+   "pid": "ken_king_tx",
+   "name": "Ken King",
+   "officialListing": "King, Ken",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 88
+  },
+  {
+   "pid": "noble_tx",
+   "name": "Candy Noble",
+   "officialListing": "Noble, Candy",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 89
+  },
+  {
+   "pid": "romero_tx",
+   "name": "Ramon Romero Jr.",
+   "officialListing": "Romero Jr., Ramon",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 90
+  },
+  {
+   "pid": "lowe_tx",
+   "name": "David Lowe",
+   "officialListing": "Lowe, David",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 91
+  },
+  {
+   "pid": "bhojani_tx",
+   "name": "Salman Bhojani",
+   "officialListing": "Bhojani, Salman ",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 92
+  },
+  {
+   "pid": "tinderholt_tx",
+   "name": "Tony Tinderholt",
+   "officialListing": "Tinderholt, Tony",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 94
+  },
+  {
+   "pid": "collier_tx",
+   "name": "Nicole Collier",
+   "officialListing": "Collier, Nicole",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 95
+  },
+  {
+   "pid": "david_cook_tx",
+   "name": "David Cook",
+   "officialListing": "Cook, David",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 96
+  },
+  {
+   "pid": "mcqueeney_tx",
+   "name": "John McQueeney",
+   "officialListing": "McQueeney, John",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 97
+  },
+  {
+   "pid": "capriglione_tx",
+   "name": "Giovanni Capriglione",
+   "officialListing": "Capriglione, Giovanni",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 98
+  },
+  {
+   "pid": "geren_tx",
+   "name": "Charlie Geren",
+   "officialListing": "Geren, Charlie",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 99
+  },
+  {
+   "pid": "venton_jones_tx",
+   "name": "Venton Jones",
+   "officialListing": "Jones, Venton",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 100
+  },
+  {
+   "pid": "turner_tx",
+   "name": "Chris Turner",
+   "officialListing": "Turner, Chris",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 101
+  },
+  {
+   "pid": "rodriguez_ramos_tx",
+   "name": "Ana-María Rodríguez Ramos",
+   "officialListing": "Rodríguez Ramos, Ana-María ",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 102
+  },
+  {
+   "pid": "anchia_tx",
+   "name": "Rafael Anchía",
+   "officialListing": "Anchía, Rafael",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 103
+  },
+  {
+   "pid": "jessica_gonzalez_tx",
+   "name": "Jessica González",
+   "officialListing": "González, Jessica",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 104
+  },
+  {
+   "pid": "meza_tx",
+   "name": "Terry Meza",
+   "officialListing": "Meza, Terry",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 105
+  },
+  {
+   "pid": "patterson_tx",
+   "name": "Jared Patterson",
+   "officialListing": "Patterson, Jared",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 106
+  },
+  {
+   "pid": "linda_garcia_tx",
+   "name": "Linda Garcia",
+   "officialListing": "Garcia, Linda",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 107
+  },
+  {
+   "pid": "meyer_tx",
+   "name": "Morgan Meyer",
+   "officialListing": "Meyer, Morgan",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 108
+  },
+  {
+   "pid": "aicha_davis_tx",
+   "name": "Aicha Davis",
+   "officialListing": "Davis, Aicha",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 109
+  },
+  {
+   "pid": "rose_tx",
+   "name": "Toni Rose",
+   "officialListing": "Rose, Toni",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 110
+  },
+  {
+   "pid": "yvonne_davis_tx",
+   "name": "Yvonne Davis",
+   "officialListing": "Davis, Yvonne",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 111
+  },
+  {
+   "pid": "button_tx",
+   "name": "Angie Chen Button",
+   "officialListing": "Button, Angie Chen",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 112
+  },
+  {
+   "pid": "bowers_tx",
+   "name": "Rhetta Andrews Bowers",
+   "officialListing": "Bowers, Rhetta Andrews",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 113
+  },
+  {
+   "pid": "bryant_tx",
+   "name": "John Bryant",
+   "officialListing": "Bryant, John",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 114
+  },
+  {
+   "pid": "garcia_hernandez_tx",
+   "name": "Cassandra Garcia Hernandez",
+   "officialListing": "Garcia Hernandez, Cassandra",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 115
+  },
+  {
+   "pid": "martinez_fischer_tx",
+   "name": "Trey Martinez Fischer",
+   "officialListing": "Martinez Fischer, Trey",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 116
+  },
+  {
+   "pid": "cortez_tx",
+   "name": "Philip Cortez",
+   "officialListing": "Cortez, Philip",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 117
+  },
+  {
+   "pid": "lujan_tx",
+   "name": "John Lujan",
+   "officialListing": "Lujan, John",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 118
+  },
+  {
+   "pid": "campos_tx",
+   "name": "Liz Campos",
+   "officialListing": "Campos, Elizabeth \"Liz\"",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 119
+  },
+  {
+   "pid": "gervin_hawkins_tx",
+   "name": "Barbara Gervin-Hawkins",
+   "officialListing": "Gervin-Hawkins, Barbara ",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 120
+  },
+  {
+   "pid": "lahood_tx",
+   "name": "Marc LaHood",
+   "officialListing": "LaHood, Marc",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 121
+  },
+  {
+   "pid": "dorazio_tx",
+   "name": "Mark Dorazio",
+   "officialListing": "Dorazio, Mark",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 122
+  },
+  {
+   "pid": "bernal_tx",
+   "name": "Diego M. Bernal",
+   "officialListing": "Bernal, Diego M.",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 123
+  },
+  {
+   "pid": "josey_garcia_tx",
+   "name": "Josey Garcia",
+   "officialListing": "Garcia, Josey",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 124
+  },
+  {
+   "pid": "ray_lopez_tx",
+   "name": "Ray Lopez",
+   "officialListing": "Lopez, Ray",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 125
+  },
+  {
+   "pid": "harless_tx",
+   "name": "Sam Harless",
+   "officialListing": "Harless, Sam",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 126
+  },
+  {
+   "pid": "cunningham_tx",
+   "name": "Charles Cunningham",
+   "officialListing": "Cunningham, Charles",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 127
+  },
+  {
+   "pid": "cain_tx",
+   "name": "Briscoe Cain",
+   "officialListing": "Cain, Briscoe",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 128
+  },
+  {
+   "pid": "paul_tx",
+   "name": "Dennis Paul",
+   "officialListing": "Paul, Dennis",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 129
+  },
+  {
+   "pid": "oliverson_tx",
+   "name": "Tom Oliverson",
+   "officialListing": "Oliverson, Tom",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 130
+  },
+  {
+   "pid": "allen_tx",
+   "name": "Alma A. Allen",
+   "officialListing": "Allen, Alma A.",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 131
+  },
+  {
+   "pid": "schofield_tx",
+   "name": "Mike Schofield",
+   "officialListing": "Schofield, Mike",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 132
+  },
+  {
+   "pid": "deayala_tx",
+   "name": "Mano DeAyala",
+   "officialListing": "DeAyala, Mano",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 133
+  },
+  {
+   "pid": "ann_johnson_tx",
+   "name": "Ann Johnson",
+   "officialListing": "Johnson, Ann",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 134
+  },
+  {
+   "pid": "rosenthal_tx",
+   "name": "Jon E. Rosenthal",
+   "officialListing": "Rosenthal, Jon E.",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 135
+  },
+  {
+   "pid": "bucy_tx",
+   "name": "John H. Bucy III",
+   "officialListing": "Bucy lll, John H.",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 136
+  },
+  {
+   "pid": "hull_tx",
+   "name": "Lacey Hull",
+   "officialListing": "Hull, Lacey",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 138
+  },
+  {
+   "pid": "ward_johnson_tx",
+   "name": "Charlene Ward Johnson",
+   "officialListing": "Ward Johnson, Charlene ",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 139
+  },
+  {
+   "pid": "walle_tx",
+   "name": "Armando Walle",
+   "officialListing": "Walle, Armando",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 140
+  },
+  {
+   "pid": "thompson_tx",
+   "name": "Senfronia Thompson",
+   "officialListing": "Thompson, Senfronia",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 141
+  },
+  {
+   "pid": "dutton_tx",
+   "name": "Harold V. Dutton Jr.",
+   "officialListing": "Dutton Jr., Harold V.",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 142
+  },
+  {
+   "pid": "hernandez_tx",
+   "name": "Ana Hernandez",
+   "officialListing": "Hernandez, Ana",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 143
+  },
+  {
+   "pid": "mary_perez_tx",
+   "name": "Mary Ann Perez",
+   "officialListing": "Perez, Mary Ann",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 144
+  },
+  {
+   "pid": "christina_morales_tx",
+   "name": "Christina Morales",
+   "officialListing": "Morales, Christina",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 145
+  },
+  {
+   "pid": "simmons_tx",
+   "name": "Lauren Ashley Simmons",
+   "officialListing": "Simmons, Lauren Ashley",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 146
+  },
+  {
+   "pid": "jo_jones_tx",
+   "name": "Jo Jones",
+   "officialListing": "Jones, Jolanda \"Jo\"",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 147
+  },
+  {
+   "pid": "morales_shaw_tx",
+   "name": "Penny Morales Shaw",
+   "officialListing": "Morales Shaw, Penny",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 148
+  },
+  {
+   "pid": "vo_tx",
+   "name": "Hubert Vo",
+   "officialListing": "Vo, Hubert",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 149
+  },
+  {
+   "pid": "swanson_tx",
+   "name": "Valoree Swanson",
+   "officialListing": "Swanson, Valoree",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 150
+  },
+  {
+   "pid": "hall_tx",
+   "name": "Bob Hall",
+   "officialListing": "Bob Hall",
+   "state": "Texas",
+   "chamber": "State Senate",
+   "district": 2
+  },
+  {
+   "pid": "nichols_tx",
+   "name": "Robert Nichols",
+   "officialListing": "Robert Nichols",
+   "state": "Texas",
+   "chamber": "State Senate",
+   "district": 3
+  },
+  {
+   "pid": "ligon_tx",
+   "name": "Brett Ligon",
+   "officialListing": "Brett Ligon",
+   "state": "Texas",
+   "chamber": "State Senate",
+   "district": 4
+  },
+  {
+   "pid": "schwertner_tx",
+   "name": "Charles Schwertner",
+   "officialListing": "Charles Schwertner",
+   "state": "Texas",
+   "chamber": "State Senate",
+   "district": 5
+  },
+  {
+   "pid": "alvarado_tx",
+   "name": "Carol Alvarado",
+   "officialListing": "Carol Alvarado",
+   "state": "Texas",
+   "chamber": "State Senate",
+   "district": 6
+  },
+  {
+   "pid": "rehmet_tx",
+   "name": "Taylor Rehmet",
+   "officialListing": "Taylor Rehmet",
+   "state": "Texas",
+   "chamber": "State Senate",
+   "district": 9
+  },
+  {
+   "pid": "phil_king_tx",
+   "name": "Phil King",
+   "officialListing": "Phil King",
+   "state": "Texas",
+   "chamber": "State Senate",
+   "district": 10
+  },
+  {
+   "pid": "parker_tx",
+   "name": "Tan Parker",
+   "officialListing": "Tan Parker",
+   "state": "Texas",
+   "chamber": "State Senate",
+   "district": 12
+  },
+  {
+   "pid": "miles_tx",
+   "name": "Borris Miles",
+   "officialListing": "Borris Miles",
+   "state": "Texas",
+   "chamber": "State Senate",
+   "district": 13
+  },
+  {
+   "pid": "eckhardt_tx",
+   "name": "Sarah Eckhardt",
+   "officialListing": "Sarah Eckhardt",
+   "state": "Texas",
+   "chamber": "State Senate",
+   "district": 14
+  },
+  {
+   "pid": "molly_cook_tx",
+   "name": "Molly Cook",
+   "officialListing": "Molly Cook",
+   "state": "Texas",
+   "chamber": "State Senate",
+   "district": 15
+  },
+  {
+   "pid": "huffman_tx",
+   "name": "Joan Huffman",
+   "officialListing": "Joan Huffman",
+   "state": "Texas",
+   "chamber": "State Senate",
+   "district": 17
+  },
+  {
+   "pid": "kolkhorst_tx",
+   "name": "Lois Kolkhorst",
+   "officialListing": "Lois Kolkhorst",
+   "state": "Texas",
+   "chamber": "State Senate",
+   "district": 18
+  },
+  {
+   "pid": "chuy_hinojosa_tx",
+   "name": "Chuy Hinojosa",
+   "officialListing": "Juan \"Chuy\" Hinojosa",
+   "state": "Texas",
+   "chamber": "State Senate",
+   "district": 20
+  },
+  {
+   "pid": "zaffirini_tx",
+   "name": "Judith Zaffirini",
+   "officialListing": "Judith Zaffirini",
+   "state": "Texas",
+   "chamber": "State Senate",
+   "district": 21
+  },
+  {
+   "pid": "west_tx",
+   "name": "Royce West",
+   "officialListing": "Royce West",
+   "state": "Texas",
+   "chamber": "State Senate",
+   "district": 23
+  },
+  {
+   "pid": "pete_flores_tx",
+   "name": "Pete Flores",
+   "officialListing": "Pete Flores",
+   "state": "Texas",
+   "chamber": "State Senate",
+   "district": 24
+  },
+  {
+   "pid": "campbell_tx",
+   "name": "Donna Campbell",
+   "officialListing": "Donna Campbell",
+   "state": "Texas",
+   "chamber": "State Senate",
+   "district": 25
+  },
+  {
+   "pid": "menendez_tx",
+   "name": "José Menéndez",
+   "officialListing": "José Menéndez",
+   "state": "Texas",
+   "chamber": "State Senate",
+   "district": 26
+  },
+  {
+   "pid": "adam_hinojosa_tx",
+   "name": "Adam Hinojosa",
+   "officialListing": "Adam Hinojosa",
+   "state": "Texas",
+   "chamber": "State Senate",
+   "district": 27
+  },
+  {
+   "pid": "perry_tx",
+   "name": "Charles Perry",
+   "officialListing": "Charles Perry",
+   "state": "Texas",
+   "chamber": "State Senate",
+   "district": 28
+  },
+  {
+   "pid": "blanco_tx",
+   "name": "César Blanco",
+   "officialListing": "César Blanco",
+   "state": "Texas",
+   "chamber": "State Senate",
+   "district": 29
+  },
+  {
+   "pid": "hagenbuch_tx",
+   "name": "Brent Hagenbuch",
+   "officialListing": "Brent Hagenbuch",
+   "state": "Texas",
+   "chamber": "State Senate",
+   "district": 30
+  },
+  {
+   "pid": "sparks_tx",
+   "name": "Kevin Sparks",
+   "officialListing": "Kevin Sparks",
+   "state": "Texas",
+   "chamber": "State Senate",
+   "district": 31
+  }
+ ],
+ "alreadyHeld": [
+  {
+   "pid": "wiener_ca",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 11
+  },
+  {
+   "pid": "bjones_ca",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 40
+  },
+  {
+   "pid": "passidomo_fl",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 28
+  },
+  {
+   "pid": "pizzo_fl",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 37
+  },
+  {
+   "pid": "bettencourt_tx",
+   "state": "Texas",
+   "chamber": "State Senate",
+   "district": 7
+  },
+  {
+   "pid": "paxton_tx",
+   "state": "Texas",
+   "chamber": "State Senate",
+   "district": 8
+  },
+  {
+   "pid": "gutierrez_tx",
+   "state": "Texas",
+   "chamber": "State Senate",
+   "district": 19
+  }
+ ],
+ "districtSet": [
+  {
+   "pid": "heath_flora",
+   "state": "California",
+   "chamber": "State House",
+   "district": 9,
+   "was": null
+  },
+  {
+   "pid": "robert_rivas",
+   "state": "California",
+   "chamber": "State House",
+   "district": 29,
+   "was": null
+  },
+  {
+   "pid": "mike_mcguire",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 2,
+   "was": null
+  },
+  {
+   "pid": "limon_ca",
+   "state": "California",
+   "chamber": "State Senate",
+   "district": 21,
+   "was": "SD 19"
+  },
+  {
+   "pid": "ben_albritton",
+   "state": "Florida",
+   "chamber": "State Senate",
+   "district": 27,
+   "was": null
+  },
+  {
+   "pid": "dustin_burrows",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 83,
+   "was": null
+  },
+  {
+   "pid": "gene_wu",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 137,
+   "was": null
+  },
+  {
+   "pid": "bryan_hughes",
+   "state": "Texas",
+   "chamber": "State Senate",
+   "district": 1,
+   "was": null
+  }
+ ],
+ "onFileAsCandidate": [
+  {
+   "pid": "jacqui_irwin",
+   "name": "Jacqui Irwin",
+   "state": "California",
+   "chamber": "State House",
+   "district": 42,
+   "rosterOffice": "U.S. House Candidate (CA-26)"
+  },
+  {
+   "pid": "angie_nixon",
+   "name": "Angie Nixon",
+   "state": "Florida",
+   "chamber": "State House",
+   "district": 13,
+   "rosterOffice": "U.S. Senate Candidate"
+  },
+  {
+   "pid": "steve_toth",
+   "name": "Steve Toth",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 15,
+   "rosterOffice": "U.S. House Candidate (TX-2)"
+  },
+  {
+   "pid": "vikki_goodwin",
+   "name": "Vikki Goodwin",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 47,
+   "rosterOffice": "Lieutenant Governor Candidate"
+  },
+  {
+   "pid": "gina_hinojosa",
+   "name": "Gina Hinojosa",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 49,
+   "rosterOffice": "Governor Candidate"
+  },
+  {
+   "pid": "james_talarico",
+   "name": "James Talarico",
+   "state": "Texas",
+   "chamber": "State House",
+   "district": 50,
+   "rosterOffice": "U.S. Senate Candidate"
+  },
+  {
+   "pid": "mayes_middleton",
+   "name": "Mayes Middleton",
+   "state": "Texas",
+   "chamber": "State Senate",
+   "district": 11,
+   "rosterOffice": "Attorney General Candidate"
+  },
+  {
+   "pid": "nathan_johnson",
+   "name": "Nathan Johnson",
+   "state": "Texas",
+   "chamber": "State Senate",
+   "district": 16,
+   "rosterOffice": "Attorney General Candidate"
+  }
+ ],
+ "nameSharedWithAnotherRecord": [
+  {
+   "name": "Robert Garcia",
+   "state": "California",
+   "chamber": "State House",
+   "district": 50,
+   "sharesNameWith": "robert_garcia",
+   "note": "U.S. Representative Robert Garcia; record content keyed by display name would attach to this seat"
+  }
+ ]
+}

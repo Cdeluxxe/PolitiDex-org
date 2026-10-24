@@ -10747,7 +10747,21 @@
 //     changed, so the shell moves one version.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v462';
+// v463 - CALIFORNIA, TEXAS AND FLORIDA STATE LEGISLATOR ROSTER SHELLS.
+//     cmp-data.js gains 427 identity-only rows (name, office, state, exact
+//     district, `candidate: false`) for the members each chamber's official
+//     roster listed as seated on 2026-10-24, and seven sitting leaders already
+//     on file gain the district their record was missing; Monique Limón's
+//     record moves from SD 19 to SD 21, the seat the Senate lists her in. A
+//     seat the official roster lists as vacant, or whose member is held only
+//     as a 2026 candidate row, or who shares a display name with another
+//     record (CA Assembly 50), keeps "District N — no member on file yet".
+//     db/roster-state-legislators-ca-tx-fl-2026-oct.json is the record. No
+//     board, composer or voting record is opened. cmp-data.js is precached
+//     and changed, so the shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v463';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

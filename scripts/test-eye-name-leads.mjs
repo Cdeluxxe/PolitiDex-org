@@ -171,7 +171,11 @@ function groupRows(h) {
 const laneN = (h) => [...String(h).matchAll(/data-eye-lane="([^"]+)"[\s\S]*?class="pdx-eye-lane-n[^"]*"[^>]*>([^<]*)</g)]
   .map((m) => m[1] + "=" + m[2]).join("|");
 
-const WARM = { warm: true, noRecord: [TRUMP] };
+// The sitting-legislator shells (db/roster-state-legislators-ca-tx-fl-2026-oct.json)
+// are identity rows with no formal record anywhere, so the warm fixture does not
+// invent one for them either.
+const SHELLS = JSON.parse(R("db/roster-state-legislators-ca-tx-fl-2026-oct.json")).rows.map((r) => r.pid);
+const WARM = { warm: true, noRecord: [TRUMP, ...SHELLS] };
 const QUERIES = ["trump", "Trump", "TRUMP ", "donald trump", "Donald Trump", "trum"];
 
 // ═════════════════════════════════════════════════════════════════════════════

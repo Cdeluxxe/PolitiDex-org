@@ -125,7 +125,7 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox, ENGINE_FILES } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
-import { declaredStanceMovesAtHead } from "./v103-chrome-seams.mjs";
+import { declaredStanceMovesAtHead, DECLARED_DISTRICT_PIDS } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -1760,9 +1760,12 @@ section("L · twin boot — the arithmetic never saw any of this");
     // open exemption.
     const rosterMoved = Object.keys(B.CMP_DATA).filter((pid) =>
       A.CMP_DATA[pid] && JSON.stringify(A.CMP_DATA[pid]) !== JSON.stringify(B.CMP_DATA[pid]));
-    const figureOnly = (o) => {
+    const figureOnly = (o, pid) => {
       const c = JSON.parse(JSON.stringify(o || null));
       if (c && c.scope) { delete c.scope.office; delete c.scope.name; delete c.scope.photo; delete c.scope.photoSource; }
+      // A declared district (v103-chrome-seams.mjs DECLARED_DISTRICTS) is the seat
+      // label echoed back, not a figure.
+      if (c && c.scope && DECLARED_DISTRICT_PIDS.includes(pid)) delete c.scope.district;
       return JSON.stringify(c);
     };
     // AND ONE FORMAL SHAPE IS DECLARED, DOWNWARD ONLY. The word-first gate pass
@@ -1792,7 +1795,7 @@ section("L · twin boot — the arithmetic never saw any of this");
         const da = A.PDXConsistency.scopedOverall(A.CMP_DATA[pid], pid);
         const db = B.PDXConsistency.scopedOverall(B.CMP_DATA[pid], pid);
         const moved = rosterMoved.indexOf(pid) !== -1;
-        if (moved ? figureOnly(da) !== figureOnly(db)
+        if (moved ? figureOnly(da, pid) !== figureOnly(db, pid)
                   : JSON.stringify(da) !== JSON.stringify(db)) drift.push(`${pid}/dm`);
         if (JSON.stringify(A.PDXConsistency.formalPatternIndex.shape(pid)) !==
             JSON.stringify(B.PDXConsistency.formalPatternIndex.shape(pid))) drift.push(`${pid}/formal`);
@@ -1811,8 +1814,11 @@ section("L · twin boot — the arithmetic never saw any of this");
       // mark (v328), which only decides the line printed under the face.
       const PORTRAIT = (k) => k === "photo" || k === "photoSource";
       const ka = Object.keys(a).filter((k) => !PORTRAIT(k)), kb = Object.keys(b).filter((k) => !PORTRAIT(k));
-      if (ka.length !== kb.length) return true;
-      return ka.some((k) => k !== "office" && JSON.stringify(a[k]) !== JSON.stringify(b[k]));
+      // Nor is a declared district (v103-chrome-seams.mjs DECLARED_DISTRICTS).
+      const DIST = (k) => k === "district" && DECLARED_DISTRICT_PIDS.includes(pid);
+      const ka2 = ka.filter((k) => !DIST(k)), kb2 = kb.filter((k) => !DIST(k));
+      if (ka2.length !== kb2.length) return true;
+      return ka2.some((k) => k !== "office" && JSON.stringify(a[k]) !== JSON.stringify(b[k]));
     });
     eq(notCopy.join(" | "), "",
        `${notCopy.length} roster row(s) changed in something other than their office copy, so the ` +

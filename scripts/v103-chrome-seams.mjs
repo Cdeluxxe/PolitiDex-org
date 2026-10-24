@@ -3389,6 +3389,14 @@ export const DECLARED_ADMISSIONS = [
     ],
   },
   {
+    // Sitting California, Texas and Florida state legislators, one identity row
+    // per member each chamber's official roster seated; the committed record
+    // names every pid and its source.
+    wave: "state_legislators_ca_tx_fl_oct2026",
+    banner: "// ── Sitting state legislators, California, Texas and Florida — roster shells (Oct 2026)",
+    pids: JSON.parse(_readFileSync(new URL("../db/roster-state-legislators-ca-tx-fl-2026-oct.json", import.meta.url), "utf8")).rows.map((r) => r.pid),
+  },
+  {
     // Too many rows to type here, so the list is the committed record of
     // the pass itself, which also names each state's official source.
     wave: "candidates_outside_utah_oct2026",
@@ -3566,11 +3574,40 @@ export const DECLARED_CANDIDACIES = {
 };
 const CANDIDACY_KEY = /^ "([a-z0-9_]+)": \{ "office"/gm;
 const ROSTER_KEY = /^\s*"([a-z0-9_]+)":\s*\{$/gm;
+// DECLARED DISTRICTS — existing roster rows whose `district` a pass set ON
+// PURPOSE: sitting legislators already on file under their own id, given the
+// seat their chamber's official roster lists (or moved to it), so the seat card
+// can name them without a second row for the same person. Each pid may carry
+// exactly the declared value, or the value it had before; the field is set
+// aside on both sides for those two values only, and every other byte of the
+// row still compares.
+export const DECLARED_DISTRICTS = JSON.parse(_readFileSync(new URL("../db/roster-state-legislators-ca-tx-fl-2026-oct.json", import.meta.url), "utf8"))
+  .districtSet.map((r) => ({
+    pid: r.pid,
+    values: [r.chamber === "State Senate" ? `SD ${r.district}` : (r.state === "California" ? `District ${r.district}` : `HD ${r.district}`), r.was].filter(Boolean),
+  }));
+export const DECLARED_DISTRICT_PIDS = DECLARED_DISTRICTS.map((d) => d.pid);
+function _carveDeclaredDistricts(src) {
+  let out = src;
+  for (const d of DECLARED_DISTRICTS) {
+    const at = out.indexOf(`\n "${d.pid}": {`);
+    if (at < 0) continue;
+    const end = out.indexOf("\n },", at);
+    if (end < 0) continue;
+    let row = out.slice(at, end);
+    for (const v of d.values) {
+      const q = JSON.stringify(v);
+      row = row.split(`\n  "district": ${q},`).join("").split(`"district": ${q}, `).join("");
+    }
+    out = out.slice(0, at) + row + out.slice(end);
+  }
+  return out;
+}
 // The source with every declared admission block removed. Each block is the
 // banner up to the next banner or the file's close; the comma that joined it to
-// the row before goes with it.
+// the row before goes with it. Declared districts are set aside too.
 export function carveDeclaredAdmissions(src) {
-  let out = String(src);
+  let out = _carveDeclaredDistricts(String(src));
   for (const d of DECLARED_ADMISSIONS) {
     const at = out.indexOf(d.banner);
     if (at < 0) continue;
