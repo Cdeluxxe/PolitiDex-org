@@ -3418,6 +3418,13 @@ export const DECLARED_ADMISSIONS = [
     pids: JSON.parse(_readFileSync(new URL("../db/roster-state-legislators-mi-nj-va-2026-oct.json", import.meta.url), "utf8")).rows.map((r) => r.pid),
   },
   {
+    // Sitting Washington (Senate), Arizona (Senate) and Massachusetts state
+    // legislators, read the same way from each chamber's official sources.
+    wave: "state_legislators_wa_az_ma_oct2026",
+    banner: "// ── Sitting state legislators, Washington, Arizona and Massachusetts — roster shells (Oct 2026)",
+    pids: JSON.parse(_readFileSync(new URL("../db/roster-state-legislators-wa-az-ma-2026-oct.json", import.meta.url), "utf8")).rows.map((r) => r.pid),
+  },
+  {
     // Too many rows to type here, so the list is the committed record of
     // the pass itself, which also names each state's official source.
     wave: "candidates_outside_utah_oct2026",
@@ -3603,13 +3610,15 @@ const ROSTER_KEY = /^\s*"([a-z0-9_]+)":\s*\{$/gm;
 // aside on both sides for those two values only, and every other byte of the
 // row still compares.
 const _LEG_RECORDS = ["../db/roster-state-legislators-ca-tx-fl-2026-oct.json", "../db/roster-state-legislators-ny-pa-il-2026-oct.json",
-  "../db/roster-state-legislators-oh-ga-nc-2026-oct.json", "../db/roster-state-legislators-mi-nj-va-2026-oct.json"]
+  "../db/roster-state-legislators-oh-ga-nc-2026-oct.json", "../db/roster-state-legislators-mi-nj-va-2026-oct.json",
+  "../db/roster-state-legislators-wa-az-ma-2026-oct.json"]
   .map((f) => JSON.parse(_readFileSync(new URL(f, import.meta.url), "utf8")));
 const _NUMBERED_LOWER = { California: 1, "New York": 1 };   // their lower chamber is written "District N"
-const _LD_SENATE = { "New Jersey": 1 };                     // its senators are written "LD N", as the roster already did
+const _LD_SENATE = { "New Jersey": 1, Washington: 1, Arizona: 1 };   // their senators are written "LD N", as the roster already did
 export const DECLARED_DISTRICTS = _LEG_RECORDS.flatMap((rec) => rec.districtSet.map((r) => ({
     pid: r.pid,
-    values: [r.chamber === "State Senate" ? `${_LD_SENATE[r.state] ? "LD" : "SD"} ${r.district}` : (_NUMBERED_LOWER[r.state] ? `District ${r.district}` : `HD ${r.district}`), r.was].filter(Boolean),
+    // A named-district state (Massachusetts) writes the seat as its name.
+    values: [r.districtName ? r.districtName : r.chamber === "State Senate" ? `${_LD_SENATE[r.state] ? "LD" : "SD"} ${r.district}` : (_NUMBERED_LOWER[r.state] ? `District ${r.district}` : `HD ${r.district}`), r.was].filter(Boolean),
   })));
 export const DECLARED_DISTRICT_PIDS = DECLARED_DISTRICTS.map((d) => d.pid);
 // DECLARED OFFICES — an existing row whose holder the chamber's own roster lists

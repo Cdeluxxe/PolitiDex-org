@@ -479,7 +479,8 @@ const rosterWaveAdmissions = (() => {
   const legislatorBatch = (() => {
     const out = new Set();
     for (const f of ["db/roster-state-legislators-ca-tx-fl-2026-oct.json", "db/roster-state-legislators-ny-pa-il-2026-oct.json",
-                     "db/roster-state-legislators-oh-ga-nc-2026-oct.json", "db/roster-state-legislators-mi-nj-va-2026-oct.json"]) {
+                     "db/roster-state-legislators-oh-ga-nc-2026-oct.json", "db/roster-state-legislators-mi-nj-va-2026-oct.json",
+                     "db/roster-state-legislators-wa-az-ma-2026-oct.json"]) {
       try { for (const r of JSON.parse(readFileSync(join(ROOT, f), "utf8")).rows) out.add(r.pid); } catch {}
     }
     return out;

@@ -4381,6 +4381,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://upload.wikimedia.org/wikipedia/commons/9/9f/Speaker_Ronald_Mariano.jpg",
   "office": "State House Speaker",
   "state": "Massachusetts",
+  "district": "3rd Norfolk",
   "party": "D",
   "score": 53,
   "kept": 0,
@@ -4399,6 +4400,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Karen_E._Spilka.jpg/500px-Karen_E._Spilka.jpg",
   "office": "State Senate President",
   "state": "Massachusetts",
+  "district": "Middlesex and Norfolk",
   "party": "D",
   "score": 53,
   "kept": 0,
@@ -4976,6 +4978,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Warren_Petersen_by_Gage_Skidmore_2.jpg/500px-Warren_Petersen_by_Gage_Skidmore_2.jpg",
   "office": "State Senate President",
   "state": "Arizona",
+  "district": "LD 14",
   "party": "R",
   "score": 53,
   "kept": 0,
@@ -28699,6 +28702,1606 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  "zehr_va": {
   "name": "Eric Zehr", "office": "Virginia State House Delegate",
   "state": "Virginia", "district": "HD 51", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+// ── Sitting state legislators, Washington, Arizona and Massachusetts — roster shells (Oct 2026)
+// One row per member the chamber's own official roster lists as seated in that
+// district on 2026-10-24, so the seat card can name who holds a State Senate or House seat
+// the finder resolved. Identity only: the name, the office, the state and the
+// exact district, read off the official roster, and `candidate: false` (in
+// office). No party, bio, score, stances or voting record. A seat the official
+// roster lists as vacant has no row, and neither does a member the roster already
+// holds under another id, or whose display name another record already carries
+// (db/roster-state-legislators-wa-az-ma-2026-oct.json is the record of all three), so those seats keep reading
+// "no member on file yet".
+// Washington's and Arizona's Houses have no rows: each legislative district
+// elects two Representatives, and the seat resolver names nobody for a seat two
+// records claim. A Massachusetts district is written as the chamber names it.
+ // Washington — Senate members on the active Senate committee rosters, https://wslwebservices.leg.wa.gov/CommitteeService.asmx
+ "chapman_wa": {
+  "name": "Mike Chapman", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 24", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "krishnadasan_wa": {
+  "name": "Deborah Krishnadasan", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 26", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "short_wa": {
+  "name": "Shelly Short", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 7", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "liias_wa": {
+  "name": "Marko Liias", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 21", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "muzzall_wa": {
+  "name": "Ron Muzzall", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 10", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "saldana_wa": {
+  "name": "Rebecca Saldaña", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 37", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "schoesler_wa": {
+  "name": "Mark Schoesler", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 9", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "shewmake_wa": {
+  "name": "Sharon Shewmake", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 42", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wagoner_wa": {
+  "name": "Keith Wagoner", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 39", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kauffman_wa": {
+  "name": "Claudia Kauffman", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 47", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cortes_wa": {
+  "name": "Adrian Cortes", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 18", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dozier_wa": {
+  "name": "Perry Dozier", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 16", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fortunato_wa": {
+  "name": "Phil Fortunato", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 31", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hasegawa_wa": {
+  "name": "Bob Hasegawa", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 11", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lovick_wa": {
+  "name": "John Lovick", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 44", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mccune_wa": {
+  "name": "Jim McCune", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "stanford_wa": {
+  "name": "Derek Stanford", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wellman_wa": {
+  "name": "Lisa Wellman", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 41", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nobles_wa": {
+  "name": "T'wina Nobles", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 28", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "claire_wilson_wa": {
+  "name": "Claire Wilson", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 30", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "harris_wa": {
+  "name": "Paul Harris", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 17", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hansen_wa": {
+  "name": "Drew Hansen", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 23", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hunt_wa": {
+  "name": "Victoria Hunt", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 5", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "slatter_wa": {
+  "name": "Vandana Slatter", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 48", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "boehnke_wa": {
+  "name": "Matt Boehnke", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 8", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lovelett_wa": {
+  "name": "Liz Lovelett", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 40", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "macewen_wa": {
+  "name": "Drew MacEwen", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 35", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "orwall_wa": {
+  "name": "Tina Orwall", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 33", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cleveland_wa": {
+  "name": "Annette Cleveland", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 49", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bateman_wa": {
+  "name": "Jessica Bateman", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 22", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "christian_wa": {
+  "name": "Leonard Christian", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "holy_wa": {
+  "name": "Jeff Holy", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 6", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "riccelli_wa": {
+  "name": "Marcus Riccelli", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "robinson_wa": {
+  "name": "June Robinson", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 38", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "warnick_wa": {
+  "name": "Judy Warnick", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 13", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "alvarado_wa": {
+  "name": "Emily Alvarado", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 34", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "goehner_wa": {
+  "name": "Keith Goehner", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 12", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gildon_wa": {
+  "name": "Chris Gildon", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 25", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "salomon_wa": {
+  "name": "Jesse Salomon", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 32", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "trudeau_wa": {
+  "name": "Yasmin Trudeau", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 27", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "frame_wa": {
+  "name": "Noel Frame", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 36", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "conway_wa": {
+  "name": "Steve Conway", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 29", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "king_wa": {
+  "name": "Curtis King", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 14", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "torres_wa": {
+  "name": "Nikki Torres", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 15", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "valdez_wa": {
+  "name": "Javier Valdez", "office": "Washington State Senator",
+  "state": "Washington", "district": "LD 46", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Arizona — https://www.azleg.gov/MemberRoster/?body=S
+ "alston_az": {
+  "name": "Lela Alston", "office": "Arizona State Senator",
+  "state": "Arizona", "district": "LD 5", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "angius_az": {
+  "name": "Hildy Angius", "office": "Arizona State Senator",
+  "state": "Arizona", "district": "LD 30", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bolick_az": {
+  "name": "Shawnna Bolick", "office": "Arizona State Senator",
+  "state": "Arizona", "district": "LD 2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bravo_az": {
+  "name": "Flavio Bravo", "office": "Arizona State Senator",
+  "state": "Arizona", "district": "LD 26", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "carroll_az": {
+  "name": "Frank Carroll", "office": "Arizona State Senator",
+  "state": "Arizona", "district": "LD 28", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "diaz_az": {
+  "name": "Eva Diaz", "office": "Arizona State Senator",
+  "state": "Arizona", "district": "LD 22", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dunn_az": {
+  "name": "Tim Dunn", "office": "Arizona State Senator",
+  "state": "Arizona", "district": "LD 25", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "epstein_az": {
+  "name": "Denise “Mitzi” Epstein", "office": "Arizona State Senator",
+  "state": "Arizona", "district": "LD 12", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "farnsworth_az": {
+  "name": "David C. Farnsworth", "office": "Arizona State Senator",
+  "state": "Arizona", "district": "LD 10", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fernandez_az": {
+  "name": "Brian Fernandez", "office": "Arizona State Senator",
+  "state": "Arizona", "district": "LD 23", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "finchem_az": {
+  "name": "Mark Finchem", "office": "Arizona State Senator",
+  "state": "Arizona", "district": "LD 1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gabaldon_az": {
+  "name": "Rosanna Gabaldón", "office": "Arizona State Senator",
+  "state": "Arizona", "district": "LD 21", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gonzales_az": {
+  "name": "Sally Ann Gonzales", "office": "Arizona State Senator",
+  "state": "Arizona", "district": "LD 20", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gowan_az": {
+  "name": "David Gowan", "office": "Arizona State Senator",
+  "state": "Arizona", "district": "LD 19", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hatathlie_az": {
+  "name": "Theresa Hatathlie", "office": "Arizona State Senator",
+  "state": "Arizona", "district": "LD 6", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kavanagh_az": {
+  "name": "John Kavanagh", "office": "Arizona State Senator",
+  "state": "Arizona", "district": "LD 3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kuby_az": {
+  "name": "Lauren Kuby", "office": "Arizona State Senator",
+  "state": "Arizona", "district": "LD 8", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "leach_az": {
+  "name": "Vince Leach", "office": "Arizona State Senator",
+  "state": "Arizona", "district": "LD 17", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mesnard_az": {
+  "name": "J.D. Mesnard", "office": "Arizona State Senator",
+  "state": "Arizona", "district": "LD 13", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "miranda_az": {
+  "name": "Catherine Miranda", "office": "Arizona State Senator",
+  "state": "Arizona", "district": "LD 11", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ortiz_az": {
+  "name": "Analise Ortiz", "office": "Arizona State Senator",
+  "state": "Arizona", "district": "LD 24", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "payne_az": {
+  "name": "Kevin Payne", "office": "Arizona State Senator",
+  "state": "Arizona", "district": "LD 27", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sears_az": {
+  "name": "Kiana Sears", "office": "Arizona State Senator",
+  "state": "Arizona", "district": "LD 9", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "shamp_az": {
+  "name": "Janae Shamp", "office": "Arizona State Senator",
+  "state": "Arizona", "district": "LD 29", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "shope_az": {
+  "name": "T.J. Shope", "office": "Arizona State Senator",
+  "state": "Arizona", "district": "LD 16", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "werner_az": {
+  "name": "Carine Werner", "office": "Arizona State Senator",
+  "state": "Arizona", "district": "LD 4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Massachusetts — https://malegislature.gov/Legislators/Members/Senate · https://malegislature.gov/Legislators/Members/House
+ "michael_barrett_ma": {
+  "name": "Michael Barrett", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "Third Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brady_ma": {
+  "name": "Michael Brady", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "Second Plymouth and Norfolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brownsberger_ma": {
+  "name": "William Brownsberger", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "Suffolk and Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "collins_ma": {
+  "name": "Nick Collins", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "First Suffolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "comerford_ma": {
+  "name": "Joanne Comerford", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "Hampshire, Franklin and Worcester", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "crighton_ma": {
+  "name": "Brendan Crighton", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "Third Essex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cronin_ma": {
+  "name": "John Cronin", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "Worcester and Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cyr_ma": {
+  "name": "Julian Cyr", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "Cape and Islands", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "didomenico_ma": {
+  "name": "Sal DiDomenico", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "Middlesex and Suffolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dooner_ma": {
+  "name": "Kelly Dooner", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "Third Bristol and Plymouth", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "driscoll_ma": {
+  "name": "William Driscoll", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "Norfolk, Plymouth and Bristol", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "durant_ma": {
+  "name": "Peter Durant", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "Worcester and Hampshire", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "edwards_ma": {
+  "name": "Lydia Edwards", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "Third Suffolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "eldridge_ma": {
+  "name": "James Eldridge", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "Middlesex and Worcester", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fattman_ma": {
+  "name": "Ryan Fattman", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "Worcester and Hampden", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "feeney_ma": {
+  "name": "Paul Feeney", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "Bristol and Norfolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fernandes_ma": {
+  "name": "Dylan Fernandes", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "Plymouth and Barnstable", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "finegold_ma": {
+  "name": "Barry Finegold", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "Second Essex and Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "friedman_ma": {
+  "name": "Cindy Friedman", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "Fourth Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "adam_gomez_ma": {
+  "name": "Adam Gómez", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "Hampden", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "howard_ma": {
+  "name": "Vanna Howard", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "First Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jehlen_ma": {
+  "name": "Patricia Jehlen", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "Second Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "keenan_ma": {
+  "name": "John Keenan", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "Norfolk and Plymouth", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kennedy_ma": {
+  "name": "Robyn Kennedy", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "First Worcester", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jason_lewis_ma": {
+  "name": "Jason Lewis", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "Fifth Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lovely_ma": {
+  "name": "Joan Lovely", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "Second Essex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mark_ma": {
+  "name": "Paul Mark", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "Berkshire, Hampden, Franklin and Hampshire", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "miranda_ma": {
+  "name": "Liz Miranda", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "Second Suffolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "montigny_ma": {
+  "name": "Mark Montigny", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "Second Bristol and Plymouth", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "moore_ma": {
+  "name": "Michael Moore", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "Second Worcester", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "oconnor_ma": {
+  "name": "Patrick O'Connor", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "First Plymouth and Norfolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "oliveira_ma": {
+  "name": "Jacob Oliveira", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "Hampden, Hampshire and Worcester", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "payano_ma": {
+  "name": "Pavel Payano", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "First Essex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rausch_ma": {
+  "name": "Rebecca Rausch", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "Norfolk, Worcester and Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rodrigues_ma": {
+  "name": "Michael Rodrigues", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "First Bristol and Plymouth", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rush_ma": {
+  "name": "Michael Rush", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "Norfolk and Suffolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "velis_ma": {
+  "name": "John Velis", "office": "Massachusetts State Senator",
+  "state": "Massachusetts", "district": "Hampden and Hampshire", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "arciero_ma": {
+  "name": "James Arciero", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "2nd Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "arena_derosa_ma": {
+  "name": "James Arena-DeRosa", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "8th Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "armini_ma": {
+  "name": "Jennifer Balinsky Armini", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "8th Essex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "arriaga_ma": {
+  "name": "Shirley Arriaga", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "8th Hampden", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ashe_ma": {
+  "name": "Brian Ashe", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "2nd Hampden", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ayers_ma": {
+  "name": "Bruce Ayers", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "1st Norfolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "badger_ma": {
+  "name": "Michelle Badger", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "1st Plymouth", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "barber_ma": {
+  "name": "Christine Barber", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "34th Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "john_barrett_ma": {
+  "name": "John Barrett", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "1st Berkshire", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "berthiaume_ma": {
+  "name": "Donald Berthiaume", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "5th Worcester", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "biele_ma": {
+  "name": "David Biele", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "4th Suffolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "boldyga_ma": {
+  "name": "Nicholas Boldyga", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "3rd Hampden", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bowen_ma": {
+  "name": "Hannah Bowen", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "6th Essex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cabral_ma": {
+  "name": "Antonio Cabral", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "13th Bristol", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cahill_ma": {
+  "name": "Daniel Cahill", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "10th Essex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cataldo_ma": {
+  "name": "Simon Cataldo", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "14th Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chaisson_ma": {
+  "name": "Michael Chaisson", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "1st Bristol", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chan_ma": {
+  "name": "Tackey Chan", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "2nd Norfolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ciccolo_ma": {
+  "name": "Michelle Ciccolo", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "15th Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "connolly_ma": {
+  "name": "Mike Connolly", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "26th Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "consalvo_ma": {
+  "name": "Rob Consalvo", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "14th Suffolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cruz_ma": {
+  "name": "Manny Cruz", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "7th Essex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cusack_ma": {
+  "name": "Mark Cusack", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "5th Norfolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "davis_ma": {
+  "name": "Leigh Davis", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "3rd Berkshire", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "day_ma": {
+  "name": "Michael Day", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "31st Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "decker_ma": {
+  "name": "Marjorie Decker", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "25th Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "decoste_ma": {
+  "name": "David DeCoste", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "5th Plymouth", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "diggs_ma": {
+  "name": "Kip Diggs", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "2nd Barnstable", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "domb_ma": {
+  "name": "Mindy Domb", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "3rd Hampshire", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "donaghue_ma": {
+  "name": "Kate Donaghue", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "19th Worcester", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "donahue_ma": {
+  "name": "Daniel Donahue", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "16th Worcester", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "donato_ma": {
+  "name": "Paul Donato", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "35th Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dubois_ma": {
+  "name": "Michelle DuBois", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "10th Plymouth", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "duffy_ma": {
+  "name": "Patricia Duffy", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "5th Hampden", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "farley_bouvier_ma": {
+  "name": "Tricia Farley-Bouvier", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "2nd Berkshire", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ferguson_ma": {
+  "name": "Kimberly Ferguson", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "1st Worcester", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "field_ma": {
+  "name": "Lisa Field", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "3rd Bristol", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "finn_ma": {
+  "name": "Michael Finn", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "6th Hampden", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fiola_ma": {
+  "name": "Carole Fiola", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "6th Bristol", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "flanagan_ma": {
+  "name": "Christopher Flanagan", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "1st Barnstable", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fluker_reid_ma": {
+  "name": "Brandy Fluker-Reid", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "12th Suffolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "frost_ma": {
+  "name": "Paul Frost", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "7th Worcester", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gallagher_ma": {
+  "name": "Dennis Gallagher", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "8th Plymouth", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "galvin_ma": {
+  "name": "William Galvin", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "6th Norfolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "garballey_ma": {
+  "name": "Sean Garballey", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "23rd Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "garcia_ma": {
+  "name": "Judith Garcia", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "11th Suffolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "garry_ma": {
+  "name": "Colleen Garry", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "36th Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gaskey_ma": {
+  "name": "John Gaskey", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "2nd Plymouth", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gentile_ma": {
+  "name": "Carmine Gentile", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "13th Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "giannino_ma": {
+  "name": "Jessica Giannino", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "16th Suffolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "homar_gomez_ma": {
+  "name": "Homar Gómez", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "2nd Hampshire", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gonzalez_ma": {
+  "name": "Carlos González", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "10th Hampden", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gordon_ma": {
+  "name": "Kenneth Gordon", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "21st Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gregoire_ma": {
+  "name": "Danielle Gregoire", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "4th Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "haggerty_ma": {
+  "name": "Richard Haggerty", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "30th Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hamilton_ma": {
+  "name": "Ryan Hamilton", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "15th Essex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hawkins_ma": {
+  "name": "James Hawkins", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "2nd Bristol", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hendricks_ma": {
+  "name": "Christopher Hendricks", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "11th Bristol", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "higgins_ma": {
+  "name": "Natalie Higgins", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "4th Worcester", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hogan_ma": {
+  "name": "Kate Hogan", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "3rd Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "holmes_ma": {
+  "name": "Russell Holmes", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "6th Suffolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "honan_ma": {
+  "name": "Kevin Honan", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "17th Suffolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hong_ma": {
+  "name": "Tara Hong", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "18th Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "howitt_ma": {
+  "name": "Steven Howitt", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "4th Bristol", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hunt_ma": {
+  "name": "Daniel Hunt", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "13th Suffolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jones_ma": {
+  "name": "Bradley Jones", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "20th Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kane_ma": {
+  "name": "Hannah Kane", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "11th Worcester", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kassner_ma": {
+  "name": "Kristin Kassner", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "2nd Essex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kearney_ma": {
+  "name": "Patrick Kearney", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "4th Plymouth", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "keefe_ma": {
+  "name": "Mary Keefe", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "15th Worcester", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kerans_ma": {
+  "name": "Sally Kerans", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "13th Essex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kilcoyne_ma": {
+  "name": "Meghan Kilcoyne", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "12th Worcester", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kushmerek_ma": {
+  "name": "Michael Kushmerek", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "3rd Worcester", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lanatra_ma": {
+  "name": "Kathleen LaNatra", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "12th Plymouth", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lawn_ma": {
+  "name": "John Lawn", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "10th Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "leboeuf_ma": {
+  "name": "David LeBoeuf", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "17th Worcester", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jack_lewis_ma": {
+  "name": "Jack Lewis", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "7th Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "linsky_ma": {
+  "name": "David Linsky", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "5th Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lipper_garabedian_ma": {
+  "name": "Kate Lipper-Garabedian", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "32nd Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "livingstone_ma": {
+  "name": "Jay Livingstone", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "8th Suffolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lombardo_ma": {
+  "name": "Marc Lombardo", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "22nd Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "luddy_ma": {
+  "name": "Hadley Luddy", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "4th Barnstable", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "macgregor_ma": {
+  "name": "William MacGregor", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "10th Suffolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "madaro_ma": {
+  "name": "Adrian Madaro", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "1st Suffolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mahoney_ma": {
+  "name": "John Mahoney", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "13th Worcester", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "markey_ma": {
+  "name": "Christopher Markey", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "9th Bristol", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "marsi_ma": {
+  "name": "John Marsi", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "6th Worcester", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mcgonagle_ma": {
+  "name": "Joseph McGonagle", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "28th Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mckenna_ma": {
+  "name": "Joseph McKenna", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "18th Worcester", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mcmurtry_ma": {
+  "name": "Paul McMurtry", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "11th Norfolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mendes_ma": {
+  "name": "Rita Mendes", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "11th Plymouth", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "meschino_ma": {
+  "name": "Joan Meschino", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "3rd Plymouth", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "michlewitz_ma": {
+  "name": "Aaron Michlewitz", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "3rd Suffolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "moakley_ma": {
+  "name": "Thomas Moakley", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "Barnstable, Dukes and Nantucket", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "montano_ma": {
+  "name": "Samantha Montaño", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "15th Suffolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "frank_moran_ma": {
+  "name": "Frank Moran", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "17th Essex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "john_moran_ma": {
+  "name": "John Moran", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "9th Suffolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "michael_moran_ma": {
+  "name": "Michael Moran", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "18th Suffolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "muradian_ma": {
+  "name": "David Muradian", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "9th Worcester", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "murphy_ma": {
+  "name": "James Murphy", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "4th Norfolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "murray_ma": {
+  "name": "Brian Murray", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "10th Worcester", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nguyen_ma": {
+  "name": "Tram Nguyen", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "18th Essex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "oday_ma": {
+  "name": "James O'Day", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "14th Worcester", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "orrall_ma": {
+  "name": "Norman Orrall", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "12th Bristol", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ouellette_ma": {
+  "name": "Steven Ouellette", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "8th Bristol", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "owens_ma": {
+  "name": "Steven Owens", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "29th Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "paulino_ma": {
+  "name": "Francisco Paulino", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "16th Essex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pease_ma": {
+  "name": "Kelly Pease", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "4th Hampden", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "peisch_ma": {
+  "name": "Alice Peisch", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "14th Norfolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "philips_ma": {
+  "name": "Edward Philips", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "8th Norfolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "plouffe_ma": {
+  "name": "Bridget Plouffe", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "9th Plymouth", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "puppolo_ma": {
+  "name": "Angelo Puppolo", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "12th Hampden", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "adrianne_ramos_ma": {
+  "name": "Adrianne Ramos", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "14th Essex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "orlando_ramos_ma": {
+  "name": "Orlando Ramos", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "9th Hampden", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "reid_ma": {
+  "name": "Sean Reid", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "11th Essex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "reyes_ma": {
+  "name": "Estela Reyes", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "4th Essex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "robertson_ma": {
+  "name": "David Robertson", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "19th Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "david_rogers_ma": {
+  "name": "David Rogers", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "24th Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "john_rogers_ma": {
+  "name": "John Rogers", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "12th Norfolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "roy_ma": {
+  "name": "Jeffrey Roy", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "10th Norfolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ryan_ma": {
+  "name": "Daniel Ryan", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "2nd Suffolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sabadosa_ma": {
+  "name": "Lindsay Sabadosa", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "1st Hampshire", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sangiolo_ma": {
+  "name": "Amy Sangiolo", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "11th Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "saunders_ma": {
+  "name": "Aaron Saunders", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "7th Hampden", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "scanlon_ma": {
+  "name": "Adam Scanlon", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "14th Bristol", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "scarsdale_ma": {
+  "name": "Margaret Scarsdale", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "1st Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "schwartz_ma": {
+  "name": "Greg Schwartz", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "12th Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sena_ma": {
+  "name": "Danillo Sena", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "37th Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "shand_ma": {
+  "name": "Dawne Shand", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "1st Essex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "silvia_ma": {
+  "name": "Alan Silvia", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "7th Bristol", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "smola_ma": {
+  "name": "Todd Smola", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "1st Hampden", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "soter_ma": {
+  "name": "Michael Soter", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "8th Worcester", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sousa_ma": {
+  "name": "Priscila Sousa", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "6th Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "stanley_ma": {
+  "name": "Thomas Stanley", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "9th Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sullivan_almeida_ma": {
+  "name": "Alyson Sullivan-Almeida", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "7th Plymouth", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sweezey_ma": {
+  "name": "Kenneth Sweezey", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "6th Plymouth", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sylvia_ma": {
+  "name": "Mark Sylvia", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "10th Bristol", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "andrew_tarr_ma": {
+  "name": "Andrew Tarr", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "5th Essex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tarsky_ma": {
+  "name": "Joshua Tarsky", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "13th Norfolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "thurber_ma": {
+  "name": "Justin Thurber", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "5th Bristol", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "turco_ma": {
+  "name": "Jeffrey Turco", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "19th Suffolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tyler_ma": {
+  "name": "Chynah Tyler", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "7th Suffolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ultrino_ma": {
+  "name": "Steven Ultrino", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "33rd Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "uyterhoeven_ma": {
+  "name": "Erika Uyterhoeven", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "27th Middlesex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "vargas_ma": {
+  "name": "Andres Vargas", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "3rd Essex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "vaughn_ma": {
+  "name": "Marcus Vaughn", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "9th Norfolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "vieira_ma": {
+  "name": "David Vieira", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "3rd Barnstable", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "vitolo_ma": {
+  "name": "Tommy Vitolo", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "15th Norfolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "walsh_ma": {
+  "name": "Thomas Walsh", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "12th Essex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wells_ma": {
+  "name": "Richard Wells", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "7th Norfolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "whipps_ma": {
+  "name": "Susannah Whipps", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "2nd Franklin", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "williams_ma": {
+  "name": "Bud Williams", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "11th Hampden", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wong_ma": {
+  "name": "Donald Wong", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "9th Essex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "worrell_ma": {
+  "name": "Christopher Worrell", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "5th Suffolk", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "xiarhos_ma": {
+  "name": "Steven Xiarhos", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "5th Barnstable", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "zlotnik_ma": {
+  "name": "Jonathan Zlotnik", "office": "Massachusetts State Representative",
+  "state": "Massachusetts", "district": "2nd Worcester", "candidate": false,
   "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
  },

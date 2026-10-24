@@ -10807,7 +10807,23 @@
 //     moves one version.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v466';
+// v467 - WASHINGTON, ARIZONA AND MASSACHUSETTS STATE LEGISLATOR ROSTER SHELLS.
+//     cmp-data.js gains 264 identity-only rows (name, office, state, exact
+//     district, `candidate: false`) for the members each chamber's official
+//     sources listed as seated on 2026-10-24, and three sitting leaders already
+//     on file gain the district their record was missing. Massachusetts seats
+//     are written as the chamber names them. Washington's and Arizona's Houses
+//     have no rows: each district elects two Representatives and the resolver
+//     names nobody for a seat two records claim, so those seats read "District
+//     N — no member on file yet" as before, as do three vacant Massachusetts
+//     House seats and Washington SD 19, whose member shares a display name
+//     with another record. db/roster-state-legislators-wa-az-ma-2026-oct.json
+//     is the record. The twelve earlier states' rows are unchanged. No board,
+//     composer or voting record is opened. cmp-data.js is precached and
+//     changed, so the shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v467';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
