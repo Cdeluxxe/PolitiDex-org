@@ -10722,7 +10722,20 @@
 //     shell moves one version.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v460';
+// v461 - DELAWARE, NORTH DAKOTA AND SOUTH DAKOTA STATE LEGISLATIVE LINES.
+//     /find's TIGERweb legislative list gains those three states, on the same
+//     2024 layers (5 and 6), scoped to the one state by FIPS and loaded only
+//     after a geocode, tap or phone point has named it. Nothing is painted on
+//     open and no national layer is asked for. All three have two chambers.
+//     NORTH AND SOUTH DAKOTA LETTER A FEW HOUSE SEATS (4A/4B; 26A–28B): as for
+//     Minnesota, each House code is looked up to a plain key and labelled
+//     "District 4A". The roster holds no district-keyed legislator in any of
+//     the three, so every seat reads "District N — no member on file yet"
+//     until one is added. find.html is precached and changed, so the shell
+//     moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v461';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

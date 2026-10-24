@@ -2718,7 +2718,8 @@
   // Wisconsin, Indiana, Missouri, Kentucky, Alabama, South Carolina, Iowa,
   // Oklahoma, Kansas, Nevada, Nebraska, Arkansas, Oregon, Idaho, Montana, New
   // Mexico, Wyoming, Mississippi, West Virginia, Hawaii, Louisiana, Maine, New
-  // Hampshire, Connecticut, Rhode Island and Vermont from TIGERweb, scoped to one state
+  // Hampshire, Connecticut, Rhode Island, Vermont, Delaware, North Dakota and
+  // South Dakota from TIGERweb, scoped to one state
   // by its FIPS, once a geocode has named it — the same pattern as the
   // congressional layer. This table is the list of states
   // whose legislative lines the finder can load. It is the ONE place that list
@@ -2738,7 +2739,8 @@
                          'new mexico': 1, wyoming: 1,
                          mississippi: 1, 'west virginia': 1, hawaii: 1,
                          louisiana: 1, maine: 1, 'new hampshire': 1,
-                         connecticut: 1, 'rhode island': 1, vermont: 1 };
+                         connecticut: 1, 'rhode island': 1, vermont: 1,
+                         delaware: 1, 'north dakota': 1, 'south dakota': 1 };
   // A one-chamber Legislature (Nebraska: 49 senators, no House). Its reader has
   // a State Senate seat and NO State House seat, so the resolver publishes no
   // State House row for them at all — not a blank, not a gap, nothing to fill.
@@ -2978,6 +2980,37 @@
       'Windsor-3', 'Windsor-4', 'Windsor-5', 'Windsor-6', 'Windsor-Addison',
       'Windsor-Windham', 'Windsor-Orange-1', 'Windsor-Orange-2'
       ]
+    },
+    // LETTERED SEATS, AS IN MINNESOTA. North Dakota's House splits district 4
+    // into 4A and 4B, and South Dakota's splits 26 and 28 the same way; every
+    // other House seat in both states is a whole district. A digits-only field
+    // cannot hold "4A", so — as for Maryland and Minnesota — the House keeps a
+    // plain key (the seat's place in _PDX_LEG_CODES below, from 1) and this
+    // table gives the seat its label. Both Senates are plain numbers.
+    'north dakota': {
+      statehouse: [
+      'District 1', 'District 2', 'District 3', 'District 5', 'District 6', 'District 7',
+      'District 8', 'District 9', 'District 10', 'District 11', 'District 12',
+      'District 13', 'District 14', 'District 15', 'District 16', 'District 17',
+      'District 18', 'District 19', 'District 20', 'District 21', 'District 22',
+      'District 23', 'District 24', 'District 25', 'District 26', 'District 27',
+      'District 28', 'District 29', 'District 30', 'District 31', 'District 32',
+      'District 33', 'District 34', 'District 35', 'District 36', 'District 37',
+      'District 38', 'District 39', 'District 40', 'District 41', 'District 42',
+      'District 43', 'District 44', 'District 45', 'District 46', 'District 47',
+      'District 4A', 'District 4B'
+      ]
+    },
+    'south dakota': {
+      statehouse: [
+      'District 1', 'District 2', 'District 3', 'District 4', 'District 5', 'District 6',
+      'District 7', 'District 8', 'District 9', 'District 10', 'District 11', 'District 12',
+      'District 13', 'District 14', 'District 15', 'District 16', 'District 17',
+      'District 18', 'District 19', 'District 20', 'District 21', 'District 22',
+      'District 23', 'District 24', 'District 25', 'District 27', 'District 29',
+      'District 30', 'District 31', 'District 32', 'District 33', 'District 34',
+      'District 35', 'District 26A', 'District 26B', 'District 28A', 'District 28B'
+      ]
     }
   };
   // TIGERweb's own SLDL code for each lettered seat, in key order (key = index
@@ -3043,6 +3076,22 @@
       'W-4', 'W-5', 'W-6', 'W-7', 'W-8', 'W-9', 'WA1', 'WA2', 'WA3', 'WA4', 'WA5', 'WA6',
       'WAC', 'WAO', 'WWB', 'Y-1', 'Y-2', 'Y-3', 'Y-4', 'Y-5', 'Y-6', 'Y-A', 'Y-W', 'YO1',
       'YO2'
+      ]
+    },
+    'north dakota': {
+      statehouse: [
+      '001', '002', '003', '005', '006', '007', '008', '009', '010', '011', '012', '013',
+      '014', '015', '016', '017', '018', '019', '020', '021', '022', '023', '024', '025',
+      '026', '027', '028', '029', '030', '031', '032', '033', '034', '035', '036', '037',
+      '038', '039', '040', '041', '042', '043', '044', '045', '046', '047', '04A', '04B'
+      ]
+    },
+    'south dakota': {
+      statehouse: [
+      '001', '002', '003', '004', '005', '006', '007', '008', '009', '010', '011', '012',
+      '013', '014', '015', '016', '017', '018', '019', '020', '021', '022', '023', '024',
+      '025', '027', '029', '030', '031', '032', '033', '034', '035', '26A', '26B', '28A',
+      '28B'
       ]
     }
   };

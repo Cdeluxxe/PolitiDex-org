@@ -136,13 +136,14 @@ const levelOf = (w, key) => (w.pdxRepsForMe().levels || []).filter((lv) => lv.ke
 const COLUMBUS   = { state: "Ohio", city: "Columbus", county: "Franklin County", district: "3" };
 const COLUMBUS_0 = { state: "Ohio", city: "Columbus", county: "Franklin County" };
 // Ohio's legislative lines are drawn now (v447), so the "a state whose legislative
-// lines we do not draw" half of this file is asked of South Dakota, which is not
+// lines we do not draw" half of this file is asked of Alaska, which is not
 // (Missouri until v452, Kentucky until v453, Iowa until v454, Nevada until v455,
 // Oregon until v456, New Mexico until v457, Mississippi until v458,
-// Louisiana until v459, Connecticut until v460; Delaware has no U.S. House
-// member on the roster, so it cannot stand in for a resolved House seat).
-const KC   = { state: "South Dakota", city: "Pierre", county: "Hughes County", district: "1" };
-const KC_0 = { state: "South Dakota", city: "Pierre", county: "Hughes County" };
+// Louisiana until v459, Connecticut until v460, South Dakota until v461;
+// Delaware has no U.S. House member on the roster, so it could not stand in for
+// a resolved House seat).
+const KC   = { state: "Alaska", city: "Juneau", county: "Juneau City and Borough", district: "1" };
+const KC_0 = { state: "Alaska", city: "Juneau", county: "Juneau City and Borough" };
 const LAYTON     = { state: "Utah", city: "Layton", county: "Davis County", district: "2" };
 
 const W = boot(COLUMBUS);
@@ -216,7 +217,7 @@ section("2 · the congressional map widened and the legislative one did not");
   eq(house.mapped, true, "flags: the U.S. House level is not marked as mapped, so its blank state reads as our gap");
 
   const M = boot(KC);
-  eq(M.pdxRepsForMe().districtsResolvable, false, "flags: districtsResolvable went true in South Dakota");
+  eq(M.pdxRepsForMe().districtsResolvable, false, "flags: districtsResolvable went true in Alaska");
   for (const key of ["statesenate", "statehouse"]) {
     const lv = levelOf(M, key);
     must(lv, `the ${key} level is gone from the resolver`);

@@ -25,7 +25,7 @@
 //      sitting member (vacuous today: there are none — asserted, not assumed).
 //   4. Every generated file is byte-identical to what the generator writes, so
 //      the Utah and federal boards did not move.
-//   5. /voice in Texas, Oregon and Delaware: no state legislative card paints (the
+//   5. /voice in Texas, Oregon and Alaska: no state legislative card paints (the
 //      resolver publishes no district for it), so no state legislative door
 //      can appear and only the federal cards open; and a mapped seat with no
 //      sitting member (Utah HD-7) says "Board not on hand" and never "yet".
@@ -113,13 +113,14 @@ eq(Object.keys(V.BOARD_ROUTES).length, HAND_SEATS.length + PLAN.length,
   // Wisconsin, Indiana, Missouri, Kentucky, Alabama, South Carolina, Iowa,
   // Oklahoma, Kansas, Nevada, Nebraska, Arkansas, Oregon, Idaho, Montana, New
   // Mexico, Wyoming, Mississippi, West Virginia, Hawaii, Louisiana, Maine, New
-  // Hampshire, Delaware, Rhode Island and Vermont have mapped lines now, so their
+  // Hampshire, Connecticut, Rhode Island, Vermont, Delaware, North Dakota and
+  // South Dakota have mapped lines now, so their
   // seats are refused by the board list rather than the resolver; every other
   // state is still the resolver's refusal.
-  const MAPPED_LEG = /^(?:tx|ca|fl|ny|il|pa|oh|ga|mi|nc|va|wa|az|nj|ma|tn|co|md|mn|wi|in|mo|ky|al|sc|ia|ok|ks|nv|ne|ar|or|id|mt|nm|wy|ms|wv|hi|la|me|nh|ct|ri|vt)-/;
+  const MAPPED_LEG = /^(?:tx|ca|fl|ny|il|pa|oh|ga|mi|nc|va|wa|az|nj|ma|tn|co|md|mn|wi|in|mo|ky|al|sc|ia|ok|ks|nv|ne|ar|or|id|mt|nm|wy|ms|wv|hi|la|me|nh|ct|ri|vt|de|nd|sd)-/;
   ok(LEG_SKIPPED.every((s) => s.reason === (MAPPED_LEG.test(s.seat) ? STATE_LEG_BOARD_REFUSAL : STATE_LEG_REFUSAL)),
     "every refusal is the board list's in a mapped state and the resolver's everywhere else");
-  for (const code of ["tx", "ca", "fl", "ny", "il", "pa", "oh", "ga", "mi", "nc", "va", "wa", "az", "nj", "ma", "tn", "co", "md", "mn", "wi", "in", "mo", "ky", "al", "sc", "ia", "ok", "ks", "nv", "ne", "ar", "or", "id", "mt", "nm", "wy", "ms", "wv", "hi", "la", "me", "nh", "ct", "ri", "vt"]) {
+  for (const code of ["tx", "ca", "fl", "ny", "il", "pa", "oh", "ga", "mi", "nc", "va", "wa", "az", "nj", "ma", "tn", "co", "md", "mn", "wi", "in", "mo", "ky", "al", "sc", "ia", "ok", "ks", "nv", "ne", "ar", "or", "id", "mt", "nm", "wy", "ms", "wv", "hi", "la", "me", "nh", "ct", "ri", "vt", "de", "nd", "sd"]) {
     // A state with no roster legislator at all (Oklahoma) has nothing to refuse;
     // the every-refusal check above still covers whatever it would have.
     if (!LEG_SKIPPED.some((s) => s.seat.indexOf(code + "-") === 0)) { passed++; continue; }
@@ -295,10 +296,10 @@ const visible = (h) => String(h).replace(/<[^>]+>/g, " ");
 // card has a door. Either way no state legislative door can appear.
 for (const [who, loc, legCards] of [
   // Texas SD-7 and Oregon SD-19 both have a sitting member on the roster, and
-  // both states' lines are mapped now; Delaware's are not.
+  // both states' lines are mapped now; Alaska's are not.
   ["Houston", { state: "Texas", city: "Houston", county: "Harris County", district: "7", stateSenateDistrict: "7", stateHouseDistrict: "134" }, true],
   ["Lake Oswego", { state: "Oregon", city: "Lake Oswego", county: "Clackamas County", district: "5", stateSenateDistrict: "19", stateHouseDistrict: "38" }, true],
-  ["Dover", { state: "Delaware", city: "Dover", county: "Kent County", district: "1", stateSenateDistrict: "17", stateHouseDistrict: "33" }, false],
+  ["Juneau", { state: "Alaska", city: "Juneau", county: "Juneau City and Borough", district: "1", stateSenateDistrict: "17", stateHouseDistrict: "33" }, false],
 ]) {
   const { html, seats } = voice(loc);
   must(seats.length > 0, `${who}: the hallway resolved no seats`);
