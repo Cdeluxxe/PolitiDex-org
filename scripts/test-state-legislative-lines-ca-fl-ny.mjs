@@ -93,9 +93,9 @@ for (const p of PLACES) {
   lacks(all, "UtahSenateDistricts", `${p.state}: Utah's State Senate layer was fetched`);
 }
 {
-  has(MAP, "var LEG_TIGER_STATES = { 'Texas': 1, 'California': 1, 'Florida': 1, 'New York': 1,\n                             'Illinois': 1, 'Pennsylvania': 1, 'Ohio': 1,\n                             'Georgia': 1, 'Michigan': 1, 'North Carolina': 1,\n                             'Virginia': 1, 'Washington': 1, 'Arizona': 1,\n                             'New Jersey': 1, 'Massachusetts': 1, 'Tennessee': 1,\n                             'Colorado': 1, 'Maryland': 1, 'Minnesota': 1,\n                             'Wisconsin': 1, 'Indiana': 1, 'Missouri': 1,\n                             'Kentucky': 1, 'Alabama': 1, 'South Carolina': 1,\n                             'Iowa': 1, 'Oklahoma': 1, 'Kansas': 1,\n                             'Nevada': 1, 'Nebraska': 1, 'Arkansas': 1 };",
+  has(MAP, "var LEG_TIGER_STATES = { 'Texas': 1, 'California': 1, 'Florida': 1, 'New York': 1,\n                             'Illinois': 1, 'Pennsylvania': 1, 'Ohio': 1,\n                             'Georgia': 1, 'Michigan': 1, 'North Carolina': 1,\n                             'Virginia': 1, 'Washington': 1, 'Arizona': 1,\n                             'New Jersey': 1, 'Massachusetts': 1, 'Tennessee': 1,\n                             'Colorado': 1, 'Maryland': 1, 'Minnesota': 1,\n                             'Wisconsin': 1, 'Indiana': 1, 'Missouri': 1,\n                             'Kentucky': 1, 'Alabama': 1, 'South Carolina': 1,\n                             'Iowa': 1, 'Oklahoma': 1, 'Kansas': 1,\n                             'Nevada': 1, 'Nebraska': 1, 'Arkansas': 1,\n                             'Oregon': 1, 'Idaho': 1, 'Montana': 1,\n                             'New Mexico': 1, 'Wyoming': 1,\n                             'Mississippi': 1, 'West Virginia': 1, 'Hawaii': 1,\n                             'Louisiana': 1, 'Maine': 1, 'New Hampshire': 1,\n                             'Connecticut': 1, 'Rhode Island': 1, 'Vermont': 1 };",
     "source: the finder's TIGERweb legislative list is not exactly these four states");
-  has(R("voter-hub-location.js"), "var _PDX_LEG_MAPPED = { texas: 1, california: 1, florida: 1, 'new york': 1,\n                         illinois: 1, pennsylvania: 1, ohio: 1,\n                         georgia: 1, michigan: 1, 'north carolina': 1,\n                         virginia: 1, washington: 1, arizona: 1,\n                         'new jersey': 1, massachusetts: 1, tennessee: 1,\n                         colorado: 1, maryland: 1, minnesota: 1,\n                         wisconsin: 1, indiana: 1, missouri: 1,\n                         kentucky: 1, alabama: 1, 'south carolina': 1,\n                         iowa: 1, oklahoma: 1, kansas: 1,\n                         nevada: 1, nebraska: 1, arkansas: 1 };",
+  has(R("voter-hub-location.js"), "var _PDX_LEG_MAPPED = { texas: 1, california: 1, florida: 1, 'new york': 1,\n                         illinois: 1, pennsylvania: 1, ohio: 1,\n                         georgia: 1, michigan: 1, 'north carolina': 1,\n                         virginia: 1, washington: 1, arizona: 1,\n                         'new jersey': 1, massachusetts: 1, tennessee: 1,\n                         colorado: 1, maryland: 1, minnesota: 1,\n                         wisconsin: 1, indiana: 1, missouri: 1,\n                         kentucky: 1, alabama: 1, 'south carolina': 1,\n                         iowa: 1, oklahoma: 1, kansas: 1,\n                         nevada: 1, nebraska: 1, arkansas: 1,\n                         oregon: 1, idaho: 1, montana: 1,\n                         'new mexico': 1, wyoming: 1,\n                         mississippi: 1, 'west virginia': 1, hawaii: 1,\n                         louisiana: 1, maine: 1, 'new hampshire': 1,\n                         connecticut: 1, 'rhode island': 1, vermont: 1 };",
     "source: the resolver's legislative list does not match the finder's");
 }
 
@@ -178,7 +178,7 @@ section("4 · Utah and Texas are identical to HEAD's");
     { state: "Texas", city: "Plano", county: "Collin County", district: "3", stateSenateDistrict: "8", stateHouseDistrict: "66", mapSelected: true },
     { state: "Texas", city: "Fort Worth", county: "Tarrant County", district: "12", stateSenateDistrict: "10", stateHouseDistrict: "95", mapSelected: true },
     { state: "Texas", city: "Houston", county: "Harris County", district: "7" },
-    { state: "Oregon", city: "Portland", county: "Multnomah County", district: "3", stateSenateDistrict: "17", stateHouseDistrict: "33" },
+    { state: "Delaware", city: "Dover", county: "Kent County", district: "1", stateSenateDistrict: "17", stateHouseDistrict: "33" },
   ];
   must(headVhl, "no git baseline for voter-hub-location.js");
   const pick = (r) => JSON.stringify([r.legislativeMapped, r.districtsResolvable, r.levels.map((l) => [l.key, l.district, l.pid, l.mapped])]);
@@ -190,7 +190,7 @@ section("4 · Utah and Texas are identical to HEAD's");
   const W = boot(LOCS[3]);
   eq(levelOf(W, "statesenate").pid, "bettencourt_tx", "Texas SD 7 stopped naming its member");
   const O = boot(LOCS[7]);
-  eq(levelOf(O, "statehouse").mapped, false, "Oregon's legislative seats claim to be mapped");
+  eq(levelOf(O, "statehouse").mapped, false, "Delaware's legislative seats claim to be mapped");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

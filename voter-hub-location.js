@@ -2716,7 +2716,9 @@
   // Georgia, Michigan, North Carolina, Virginia, Washington, Arizona, New
   // Jersey, Massachusetts, Tennessee, Colorado, Maryland, Minnesota,
   // Wisconsin, Indiana, Missouri, Kentucky, Alabama, South Carolina, Iowa,
-  // Oklahoma, Kansas, Nevada, Nebraska and Arkansas from TIGERweb, scoped to one state
+  // Oklahoma, Kansas, Nevada, Nebraska, Arkansas, Oregon, Idaho, Montana, New
+  // Mexico, Wyoming, Mississippi, West Virginia, Hawaii, Louisiana, Maine, New
+  // Hampshire, Connecticut, Rhode Island and Vermont from TIGERweb, scoped to one state
   // by its FIPS, once a geocode has named it — the same pattern as the
   // congressional layer. This table is the list of states
   // whose legislative lines the finder can load. It is the ONE place that list
@@ -2731,7 +2733,12 @@
                          wisconsin: 1, indiana: 1, missouri: 1,
                          kentucky: 1, alabama: 1, 'south carolina': 1,
                          iowa: 1, oklahoma: 1, kansas: 1,
-                         nevada: 1, nebraska: 1, arkansas: 1 };
+                         nevada: 1, nebraska: 1, arkansas: 1,
+                         oregon: 1, idaho: 1, montana: 1,
+                         'new mexico': 1, wyoming: 1,
+                         mississippi: 1, 'west virginia': 1, hawaii: 1,
+                         louisiana: 1, maine: 1, 'new hampshire': 1,
+                         connecticut: 1, 'rhode island': 1, vermont: 1 };
   // A one-chamber Legislature (Nebraska: 49 senators, no House). Its reader has
   // a State Senate seat and NO State House seat, so the resolver publishes no
   // State House row for them at all — not a blank, not a gap, nothing to fill.
@@ -2886,6 +2893,91 @@
       'District 65A', 'District 65B', 'District 66A', 'District 66B', 'District 67A',
       'District 67B'
       ]
+    },
+    // COUNTY-NAMED SEATS. New Hampshire's House is elected from districts named
+    // for their county and a number ("Merrimack 18"), and the number repeats in
+    // every county, so it cannot stand alone. TIGERweb codes them by county
+    // (Merrimack 18 is SLDL 618); as for Maryland, the record keeps a plain key
+    // (the seat's place in _PDX_LEG_CODES below, from 1) and this table gives
+    // the seat its name. The names are TIGERweb's 2024 BASENAME with the
+    // number unpadded; floterial seats TIGERweb does not draw are not here.
+    // The Senate is plainly numbered and stays so.
+    'new hampshire': {
+      statehouse: [
+      'Belknap 1', 'Belknap 2', 'Belknap 3', 'Belknap 4', 'Belknap 5', 'Belknap 6',
+      'Belknap 7', 'Carroll 1', 'Carroll 2', 'Carroll 3', 'Carroll 4', 'Carroll 5',
+      'Carroll 6', 'Cheshire 1', 'Cheshire 2', 'Cheshire 3', 'Cheshire 4', 'Cheshire 5',
+      'Cheshire 6', 'Cheshire 7', 'Cheshire 8', 'Cheshire 9', 'Cheshire 10', 'Cheshire 11',
+      'Cheshire 12', 'Cheshire 13', 'Cheshire 14', 'Coos 1', 'Coos 2', 'Coos 3', 'Coos 4',
+      'Coos 5', 'Coos 6', 'Grafton 1', 'Grafton 2', 'Grafton 3', 'Grafton 4', 'Grafton 5',
+      'Grafton 6', 'Grafton 7', 'Grafton 8', 'Grafton 9', 'Grafton 10', 'Grafton 11',
+      'Grafton 12', 'Grafton 13', 'Grafton 14', 'Grafton 15', 'Grafton 16',
+      'Hillsborough 1', 'Hillsborough 2', 'Hillsborough 3', 'Hillsborough 4',
+      'Hillsborough 5', 'Hillsborough 6', 'Hillsborough 7', 'Hillsborough 8',
+      'Hillsborough 9', 'Hillsborough 10', 'Hillsborough 11', 'Hillsborough 12',
+      'Hillsborough 13', 'Hillsborough 14', 'Hillsborough 15', 'Hillsborough 16',
+      'Hillsborough 17', 'Hillsborough 18', 'Hillsborough 19', 'Hillsborough 20',
+      'Hillsborough 21', 'Hillsborough 22', 'Hillsborough 23', 'Hillsborough 24',
+      'Hillsborough 25', 'Hillsborough 26', 'Hillsborough 27', 'Hillsborough 28',
+      'Hillsborough 29', 'Hillsborough 30', 'Hillsborough 31', 'Hillsborough 32',
+      'Hillsborough 33', 'Hillsborough 34', 'Hillsborough 35', 'Hillsborough 36',
+      'Hillsborough 42', 'Hillsborough 43', 'Merrimack 1', 'Merrimack 2', 'Merrimack 3',
+      'Merrimack 4', 'Merrimack 5', 'Merrimack 6', 'Merrimack 7', 'Merrimack 8',
+      'Merrimack 9', 'Merrimack 10', 'Merrimack 11', 'Merrimack 12', 'Merrimack 13',
+      'Merrimack 14', 'Merrimack 15', 'Merrimack 16', 'Merrimack 17', 'Merrimack 18',
+      'Merrimack 19', 'Merrimack 20', 'Merrimack 21', 'Merrimack 22', 'Merrimack 23',
+      'Merrimack 24', 'Rockingham 1', 'Rockingham 2', 'Rockingham 3', 'Rockingham 4',
+      'Rockingham 5', 'Rockingham 6', 'Rockingham 7', 'Rockingham 8', 'Rockingham 9',
+      'Rockingham 10', 'Rockingham 11', 'Rockingham 12', 'Rockingham 13', 'Rockingham 14',
+      'Rockingham 15', 'Rockingham 16', 'Rockingham 17', 'Rockingham 18', 'Rockingham 19',
+      'Rockingham 20', 'Rockingham 21', 'Rockingham 22', 'Rockingham 23', 'Rockingham 24',
+      'Rockingham 25', 'Rockingham 26', 'Rockingham 27', 'Rockingham 28', 'Rockingham 29',
+      'Rockingham 30', 'Strafford 1', 'Strafford 2', 'Strafford 3', 'Strafford 4',
+      'Strafford 5', 'Strafford 6', 'Strafford 7', 'Strafford 8', 'Strafford 9',
+      'Strafford 10', 'Strafford 11', 'Strafford 12', 'Strafford 13', 'Strafford 14',
+      'Strafford 15', 'Strafford 16', 'Strafford 17', 'Sullivan 1', 'Sullivan 2',
+      'Sullivan 3', 'Sullivan 4', 'Sullivan 5', 'Sullivan 6'
+      ]
+    },
+    // BOTH CHAMBERS NAMED. Vermont elects its Senate from county districts
+    // ("Washington", "Chittenden South East") and its House from districts named
+    // for their towns' county and a number ("Washington-4"). TIGERweb codes both
+    // with letters (WAS, WA4), so as for New Hampshire the record keeps a plain
+    // key (the seat's place in _PDX_LEG_CODES below, from 1) and this table gives
+    // the seat its name — TIGERweb's 2024 BASENAME, with "District" after a
+    // Senate seat's county as Massachusetts writes its own.
+    vermont: {
+      statesenate: [
+      'Addison District', 'Bennington District', 'Caledonia District',
+      'Chittenden Central District', 'Chittenden North District',
+      'Chittenden South East District', 'Essex District', 'Franklin District',
+      'Grand Isle District', 'Lamoille District', 'Orange District', 'Orleans District',
+      'Rutland District', 'Washington District', 'Windham District', 'Windsor District'
+      ],
+      statehouse: [
+      'Addison-1', 'Addison-2', 'Addison-3', 'Addison-4', 'Addison-5', 'Addison-Rutland',
+      'Bennington-1', 'Bennington-2', 'Bennington-3', 'Bennington-4', 'Bennington-5',
+      'Bennington-Rutland', 'Chittenden-1', 'Chittenden-2', 'Chittenden-3', 'Chittenden-4',
+      'Chittenden-5', 'Chittenden-6', 'Chittenden-7', 'Chittenden-8', 'Chittenden-9',
+      'Chittenden-Franklin', 'Chittenden-10', 'Chittenden-11', 'Chittenden-12',
+      'Chittenden-13', 'Chittenden-14', 'Chittenden-15', 'Chittenden-16', 'Chittenden-17',
+      'Chittenden-18', 'Chittenden-19', 'Chittenden-20', 'Chittenden-21', 'Chittenden-22',
+      'Chittenden-23', 'Chittenden-24', 'Chittenden-25', 'Caledonia-1', 'Caledonia-2',
+      'Caledonia-3', 'Caledonia-Essex', 'Caledonia-Washington', 'Essex-Caledonia',
+      'Essex-Orleans', 'Franklin-1', 'Franklin-2', 'Franklin-3', 'Franklin-4', 'Franklin-5',
+      'Franklin-6', 'Franklin-7', 'Franklin-8', 'Grand Isle-Chittenden', 'Lamoille-1',
+      'Lamoille-2', 'Lamoille-3', 'Lamoille-Washington', 'Orleans-1', 'Orleans-2',
+      'Orleans-3', 'Orleans-4', 'Orleans-Lamoille', 'Orange-1', 'Orange-2', 'Orange-3',
+      'Orange-Caledonia', 'Orange-Washington-Addison', 'Rutland-1', 'Rutland-2',
+      'Rutland-3', 'Rutland-4', 'Rutland-5', 'Rutland-6', 'Rutland-7', 'Rutland-8',
+      'Rutland-9', 'Rutland-Bennington', 'Rutland-Windsor', 'Rutland-10', 'Rutland-11',
+      'Windham-1', 'Windham-2', 'Windham-3', 'Windham-4', 'Windham-5', 'Windham-6',
+      'Windham-7', 'Windham-8', 'Windham-9', 'Washington-1', 'Washington-2', 'Washington-3',
+      'Washington-4', 'Washington-5', 'Washington-6', 'Washington-Chittenden',
+      'Washington-Orange', 'Windham-Windsor-Bennington', 'Windsor-1', 'Windsor-2',
+      'Windsor-3', 'Windsor-4', 'Windsor-5', 'Windsor-6', 'Windsor-Addison',
+      'Windsor-Windham', 'Windsor-Orange-1', 'Windsor-Orange-2'
+      ]
     }
   };
   // TIGERweb's own SLDL code for each lettered seat, in key order (key = index
@@ -2915,6 +3007,42 @@
       '53A', '53B', '54A', '54B', '55A', '55B', '56A', '56B', '57A', '57B', '58A', '58B', '59A',
       '59B', '60A', '60B', '61A', '61B', '62A', '62B', '63A', '63B', '64A', '64B', '65A', '65B',
       '66A', '66B', '67A', '67B'
+      ]
+    },
+    'new hampshire': {
+      statehouse: [
+      '001', '002', '003', '004', '005', '006', '007', '101', '102', '103', '104', '105',
+      '106', '201', '202', '203', '204', '205', '206', '207', '208', '209', '210', '211',
+      '212', '213', '214', '301', '302', '303', '304', '305', '306', '401', '402', '403',
+      '404', '405', '406', '407', '408', '409', '410', '411', '412', '413', '414', '415',
+      '416', '501', '502', '503', '504', '505', '506', '507', '508', '509', '510', '511',
+      '512', '513', '514', '515', '516', '517', '518', '519', '520', '521', '522', '523',
+      '524', '525', '526', '527', '528', '529', '530', '531', '532', '533', '534', '535',
+      '536', '542', '543', '601', '602', '603', '604', '605', '606', '607', '608', '609',
+      '610', '611', '612', '613', '614', '615', '616', '617', '618', '619', '620', '621',
+      '622', '623', '624', '701', '702', '703', '704', '705', '706', '707', '708', '709',
+      '710', '711', '712', '713', '714', '715', '716', '717', '718', '719', '720', '721',
+      '722', '723', '724', '725', '726', '727', '728', '729', '730', '801', '802', '803',
+      '804', '805', '806', '807', '808', '809', '810', '811', '812', '813', '814', '815',
+      '816', '817', '901', '902', '903', '904', '905', '906'
+      ]
+    },
+    vermont: {
+      statesenate: [
+      'ADD', 'BEN', 'CAL', 'CHC', 'CHN', 'CHS', 'ESX', 'FRA', 'GRI', 'LAM', 'ORA', 'ORL',
+      'RUT', 'WAS', 'WDH', 'WSR'
+      ],
+      statehouse: [
+      'A-1', 'A-2', 'A-3', 'A-4', 'A-5', 'A-R', 'B-1', 'B-2', 'B-3', 'B-4', 'B-5', 'B-R',
+      'C-1', 'C-2', 'C-3', 'C-4', 'C-5', 'C-6', 'C-7', 'C-8', 'C-9', 'C-F', 'C10', 'C11',
+      'C12', 'C13', 'C14', 'C15', 'C16', 'C17', 'C18', 'C19', 'C20', 'C21', 'C22', 'C23',
+      'C24', 'C25', 'CA1', 'CA2', 'CA3', 'CAE', 'CAW', 'E-C', 'E-O', 'F-1', 'F-2', 'F-3',
+      'F-4', 'F-5', 'F-6', 'F-7', 'F-8', 'GIC', 'L-1', 'L-2', 'L-3', 'L-W', 'O-1', 'O-2',
+      'O-3', 'O-4', 'O-L', 'OR1', 'OR2', 'OR3', 'ORC', 'OWA', 'R-1', 'R-2', 'R-3', 'R-4',
+      'R-5', 'R-6', 'R-7', 'R-8', 'R-9', 'R-B', 'R-W', 'R10', 'R11', 'W-1', 'W-2', 'W-3',
+      'W-4', 'W-5', 'W-6', 'W-7', 'W-8', 'W-9', 'WA1', 'WA2', 'WA3', 'WA4', 'WA5', 'WA6',
+      'WAC', 'WAO', 'WWB', 'Y-1', 'Y-2', 'Y-3', 'Y-4', 'Y-5', 'Y-6', 'Y-A', 'Y-W', 'YO1',
+      'YO2'
       ]
     }
   };
