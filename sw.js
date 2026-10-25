@@ -10840,7 +10840,21 @@
 //     moves one version.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v468';
+// v469 - PENNSYLVANIA, ONE CONTESTED CYCLE (NOV. 3, 2026).
+//     pa-ballot-2026.js holds the twelve contested State House and State
+//     Senate races and the formal acts on file for the people in them, each
+//     read off a General Assembly roll call or bill page, each measure with one
+//     effect line. Who Represents Me prints one act under a sitting member in
+//     those races; /ballot/pa is the ballot view; the twelve seats open
+//     read-only District Voice boards that print their race. find.html (the
+//     location finder) links the ballot view, '/' loads the act line and
+//     counts the twelve boards, and district-board.js and district-voice.js
+//     (the board roster) gain the twelve rows; all four are precached and
+//     changed, so the shell moves one version. cmp-data.js and
+//     voter-hub-location.js are unchanged, and no new file is precached.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v469';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

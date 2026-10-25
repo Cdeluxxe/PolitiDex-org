@@ -666,6 +666,19 @@
 # rules are after it and cannot match either of its two paths. Every
 # same-origin path inside both documents is root-absolute for the reason given
 # beside /ballot/ above.
+# Pennsylvania's contested legislative seats, Nov. 3, 2026 (pa-ballot-2026.js)
+[[redirects]]
+  from = "/ballot/pa"
+  to = "/ballot-pa.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/pa/"
+  to = "/ballot-pa.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/pa.html"
+  to = "/ballot-pa.html"
+  status = 200
 [[redirects]]
   from = "/ballot/ut-amendment-a"
   to = "/ballot-ut-amendment-a.html"
@@ -8620,6 +8633,174 @@
 [[redirects]]
   from = "/district/wy-us-senate-lummis.html"
   to = "/district-wy-us-senate-lummis.html"
+  status = 200
+
+# Pennsylvania Senate District 40 — rosemary_brown_pa
+[[redirects]]
+  from = "/district/pa-sd-40"
+  to = "/district-pa-sd-40.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-sd-40/"
+  to = "/district-pa-sd-40.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-sd-40.html"
+  to = "/district-pa-sd-40.html"
+  status = 200
+
+# Pennsylvania Senate District 16 — coleman_pa
+[[redirects]]
+  from = "/district/pa-sd-16"
+  to = "/district-pa-sd-16.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-sd-16/"
+  to = "/district-pa-sd-16.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-sd-16.html"
+  to = "/district-pa-sd-16.html"
+  status = 200
+
+# Pennsylvania Senate District 6 — farry_pa
+[[redirects]]
+  from = "/district/pa-sd-6"
+  to = "/district-pa-sd-6.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-sd-6/"
+  to = "/district-pa-sd-6.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-sd-6.html"
+  to = "/district-pa-sd-6.html"
+  status = 200
+
+# Pennsylvania Senate District 36 — malone_pa
+[[redirects]]
+  from = "/district/pa-sd-36"
+  to = "/district-pa-sd-36.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-sd-36/"
+  to = "/district-pa-sd-36.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-sd-36.html"
+  to = "/district-pa-sd-36.html"
+  status = 200
+
+# Pennsylvania Senate District 24 — pennycuick_pa
+[[redirects]]
+  from = "/district/pa-sd-24"
+  to = "/district-pa-sd-24.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-sd-24/"
+  to = "/district-pa-sd-24.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-sd-24.html"
+  to = "/district-pa-sd-24.html"
+  status = 200
+
+# Pennsylvania House District 72 — burns_pa
+[[redirects]]
+  from = "/district/pa-hd-72"
+  to = "/district-pa-hd-72.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-hd-72/"
+  to = "/district-pa-hd-72.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-hd-72.html"
+  to = "/district-pa-hd-72.html"
+  status = 200
+
+# Pennsylvania House District 12 — dukes_pa
+[[redirects]]
+  from = "/district/pa-hd-12"
+  to = "/district-pa-hd-12.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-hd-12/"
+  to = "/district-pa-hd-12.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-hd-12.html"
+  to = "/district-pa-hd-12.html"
+  status = 200
+
+# Pennsylvania House District 137 — emrick_pa
+[[redirects]]
+  from = "/district/pa-hd-137"
+  to = "/district-pa-hd-137.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-hd-137/"
+  to = "/district-pa-hd-137.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-hd-137.html"
+  to = "/district-pa-hd-137.html"
+  status = 200
+
+# Pennsylvania House District 142 — hogan_pa
+[[redirects]]
+  from = "/district/pa-hd-142"
+  to = "/district-pa-hd-142.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-hd-142/"
+  to = "/district-pa-hd-142.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-hd-142.html"
+  to = "/district-pa-hd-142.html"
+  status = 200
+
+# Pennsylvania House District 144 — munroe_pa
+[[redirects]]
+  from = "/district/pa-hd-144"
+  to = "/district-pa-hd-144.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-hd-144/"
+  to = "/district-pa-hd-144.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-hd-144.html"
+  to = "/district-pa-hd-144.html"
+  status = 200
+
+# Pennsylvania House District 18 — tomlinson_pa
+[[redirects]]
+  from = "/district/pa-hd-18"
+  to = "/district-pa-hd-18.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-hd-18/"
+  to = "/district-pa-hd-18.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-hd-18.html"
+  to = "/district-pa-hd-18.html"
+  status = 200
+
+# Pennsylvania House District 160 — craig_williams_pa
+[[redirects]]
+  from = "/district/pa-hd-160"
+  to = "/district-pa-hd-160.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-hd-160/"
+  to = "/district-pa-hd-160.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-hd-160.html"
+  to = "/district-pa-hd-160.html"
   status = 200
 
 # @generated district-boards end

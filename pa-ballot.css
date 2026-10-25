@@ -1,0 +1,34 @@
+/* pa-ballot.css — Pennsylvania's contested legislative seats (pa-ballot-2026.js):
+   the one-act block under a seat row on Who Represents Me, and /ballot/pa. */
+.pdxpa-seat{margin:-0.15rem 0 0.35rem 0.9rem;padding:0.55rem 0.8rem;border-left:2px solid rgba(148,163,184,0.35);background:rgba(10,15,30,0.4);border-radius:0 10px 10px 0;}
+.pdxpa-seat-hd{margin:0 0 0.3rem;font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;color:#94a3b8;}
+.pdxpa-seat-go{margin:0.4rem 0 0;font-size:0.82rem;}
+.pdxpa-seat-go a,.pdxpa-file a,.pdxpa-board,.pdxpa-race-foot a,.pdxpa-lede a,.pdxpa-foot a{color:#93c5fd;}
+.pdxpa-acts{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0.55rem;}
+.pdxpa-act p{margin:0;}
+.pdxpa-act-hd{font-size:0.86rem;color:#e2e8f0;}
+.pdxpa-act-hd a{color:#e2e8f0;font-weight:700;}
+.pdxpa-act-title{color:#cbd5e1;}
+.pdxpa-act-how{font-size:0.76rem;color:#94a3b8;}
+.pdxpa-act-how a{color:#94a3b8;text-decoration:underline;text-decoration-color:rgba(148,163,184,0.4);}
+.pdxpa-effect{font-size:0.84rem;color:#f1f5f9;margin-top:0.15rem !important;}
+
+#pdx-pa-ballot{max-width:46rem;margin:0 auto;padding:0 1rem 3rem;color:#e2e8f0;}
+.pdxpa-lede{color:#cbd5e1;line-height:1.5;}
+.pdxpa-race{margin:1.25rem 0;padding:1rem 1.1rem;border:1px solid rgba(148,163,184,0.25);border-radius:14px;background:rgba(15,23,42,0.6);}
+.pdxpa-race--quiet{opacity:0.9;}
+.pdxpa-race-hd{margin:0 0 0.5rem;font-size:1.1rem;}
+.pdxpa-where{font-size:0.8rem;font-weight:400;color:#94a3b8;margin-left:0.35rem;}
+.pdxpa-issue{margin:0 0 0.6rem;font-size:0.86rem;color:#fde68a;}
+.pdxpa-field{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0.9rem;}
+.pdxpa-cand{padding-top:0.6rem;border-top:1px solid rgba(148,163,184,0.15);}
+.pdxpa-cand:first-child{border-top:0;padding-top:0;}
+.pdxpa-cand p{margin:0 0 0.3rem;}
+.pdxpa-cand-hd{font-size:1rem;}
+.pdxpa-name{color:#f8fafc;font-weight:700;}
+.pdxpa-party,.pdxpa-cand-meta,.pdxpa-none{color:#94a3b8;font-size:0.82rem;}
+.pdxpa-race-foot,.pdxpa-foot{margin:0.75rem 0 0;font-size:0.8rem;color:#94a3b8;}
+.pdxpa-all{color:#cbd5e1;font-size:0.88rem;line-height:1.6;}
+.pdxpa-board-race{max-width:46rem;margin:1rem auto;padding:0 1rem;color:#e2e8f0;}
+.pdxpa-board-race .pdxpa-kick{margin:0;font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;color:#94a3b8;}
+.pdxpa-board-race .pdxpa-kick a{color:#93c5fd;}

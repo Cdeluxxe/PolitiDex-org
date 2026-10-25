@@ -621,6 +621,18 @@ const BOARD_SEATS: Record<string, 1> = {
   "wy-house-1": 1,
   "wy-us-senate-barrasso": 1,
   "wy-us-senate-lummis": 1,
+  "pa-statesenate-40": 1,
+  "pa-statesenate-16": 1,
+  "pa-statesenate-6": 1,
+  "pa-statesenate-36": 1,
+  "pa-statesenate-24": 1,
+  "pa-statehouse-72": 1,
+  "pa-statehouse-12": 1,
+  "pa-statehouse-137": 1,
+  "pa-statehouse-142": 1,
+  "pa-statehouse-144": 1,
+  "pa-statehouse-18": 1,
+  "pa-statehouse-160": 1,
   // @generated district-boards end
 };
 const SEAT_KEY_RE = /^[a-z]{2}-(?:house|statesenate|statehouse)-[1-9][0-9]*$/;

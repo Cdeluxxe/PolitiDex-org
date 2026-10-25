@@ -57,6 +57,11 @@ for (const alias of Object.keys(CLUSTER)) {
 }
 const boards = readdirSync(ROOT).filter((f) => /^district-[a-z]{2}-(?:(?:hd|sd|cd)-\d+|gov|us-senate-[a-z][a-z0-9_]*)\.html$/.test(f));
 const docSeat = (f) => (/data-pdxdb-seat="([^"]+)"/.exec(R(f)) || [, ""])[1];
+// A READ-ONLY board (composer: false in district-board.js BOARDS — the
+// contested Pennsylvania legislative seats) takes no comment and no poll vote,
+// so it is on none of the composer's lists.
+const READ_ONLY = new Set([...R("district-board.js").matchAll(/composer: false, alias: '([^']+)'/g)].map((m) => m[1]));
+const voicedBoards = boards.filter((f) => !READ_ONLY.has(docSeat(f)));
 const missing = boards.filter((f) => {
   const d = R(f); const alias = docSeat(f);
   return !alias || d.split(HOST).length - 1 !== 1 || d.split(SCRIPT).length - 1 !== 1 ||
@@ -75,8 +80,8 @@ const CLIENT_SEATS = (() => {
   return m ? [...m[1].matchAll(/'([a-z0-9_-]+)'\s*:/g)].map((x) => x[1]).sort() : [];
 })();
 eq(CLIENT_SEATS.join(","), Object.values(COMPOSER_SEATS).sort().join(","), "the client paints on the server's named rows");
-eq(Object.keys(COMPOSER_SEATS).length, boards.length, "the server gate lists one seat per board document");
-eq(Object.values(COMPOSER_SEATS).sort().join(","), boards.map(docSeat).sort().join(","), "…and they are the documents' own seats");
+eq(Object.keys(COMPOSER_SEATS).length, voicedBoards.length, "the server gate lists one seat per voiced board document");
+eq(Object.values(COMPOSER_SEATS).sort().join(","), voicedBoards.map(docSeat).sort().join(","), "…and they are the documents' own seats");
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("2 · the gate: unverified is 403 and writes nothing");

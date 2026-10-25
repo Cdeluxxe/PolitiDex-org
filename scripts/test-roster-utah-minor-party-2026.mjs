@@ -226,7 +226,8 @@ for (const [chamber, count] of [["statehouse", 75], ["statesenate", 29]]) {
 }
 {
   const { boards } = planBoards();
-  eq(boards.length, 518, "the board plan is unchanged");
+  // The contested Pennsylvania legislative boards (v469) are races, not candidates.
+  eq(boards.filter((b) => !b.stateLeg).length, 518, "the board plan is unchanged");
   ok(!boards.some((b) => CANDS.has(b.pid) || CANDS.has(b.joinPid)), "no board names a candidate as its member");
 }
 {

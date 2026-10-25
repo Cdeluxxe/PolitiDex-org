@@ -67,7 +67,7 @@ const SW = R("sw.js");
 
 const { boards: PLAN, skipped: SKIPPED } = planBoards();
 const FED = PLAN.filter((b) => b.federal);
-const UT = PLAN.filter((b) => !b.federal);
+const UT = PLAN.filter((b) => !b.federal && !b.stateLeg);
 const ROSTER = (() => {
   const w = makeSandbox();
   vm.runInContext(R("cmp-data.js"), vm.createContext(w), { filename: "cmp-data.js" });

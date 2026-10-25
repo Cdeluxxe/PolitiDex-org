@@ -644,6 +644,18 @@
     'wy-house-1': '/district/wy-cd-1',
     'wy-us-senate-barrasso': '/district/wy-us-senate-barrasso',
     'wy-us-senate-lummis': '/district/wy-us-senate-lummis',
+    'pa-statesenate-40': '/district/pa-sd-40',
+    'pa-statesenate-16': '/district/pa-sd-16',
+    'pa-statesenate-6': '/district/pa-sd-6',
+    'pa-statesenate-36': '/district/pa-sd-36',
+    'pa-statesenate-24': '/district/pa-sd-24',
+    'pa-statehouse-72': '/district/pa-hd-72',
+    'pa-statehouse-12': '/district/pa-hd-12',
+    'pa-statehouse-137': '/district/pa-hd-137',
+    'pa-statehouse-142': '/district/pa-hd-142',
+    'pa-statehouse-144': '/district/pa-hd-144',
+    'pa-statehouse-18': '/district/pa-hd-18',
+    'pa-statehouse-160': '/district/pa-hd-160',
     // @generated district-boards end
   };
 
