@@ -10747,7 +10747,100 @@
 //     changed, so the shell moves one version.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v462';
+// v463 - CALIFORNIA, TEXAS AND FLORIDA STATE LEGISLATOR ROSTER SHELLS.
+//     cmp-data.js gains 427 identity-only rows (name, office, state, exact
+//     district, `candidate: false`) for the members each chamber's official
+//     roster listed as seated on 2026-10-24, and seven sitting leaders already
+//     on file gain the district their record was missing; Monique Limón's
+//     record moves from SD 19 to SD 21, the seat the Senate lists her in. A
+//     seat the official roster lists as vacant, or whose member is held only
+//     as a 2026 candidate row, or who shares a display name with another
+//     record (CA Assembly 50), keeps "District N — no member on file yet".
+//     db/roster-state-legislators-ca-tx-fl-2026-oct.json is the record. No
+//     board, composer or voting record is opened. cmp-data.js is precached
+//     and changed, so the shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v464 - NEW YORK, PENNSYLVANIA AND ILLINOIS STATE LEGISLATOR ROSTER SHELLS.
+//     cmp-data.js gains 624 identity-only rows (name, office, state, exact
+//     district, `candidate: false`) for the members each chamber's official
+//     roster listed as seated on 2026-10-24, and seven sitting leaders already
+//     on file gain the district their record was missing. Michael Gianaris's
+//     record reads "Former New York State Senator": the Senate lists him as
+//     serving to 2026-08-10 and SD 12 as vacant, so that seat now reads
+//     "District 12 — no member on file yet" instead of naming him. A seat whose
+//     member is held only as a 2026 candidate row stays empty too.
+//     db/roster-state-legislators-ny-pa-il-2026-oct.json is the record. The
+//     California, Texas and Florida rows are unchanged. No board, composer or
+//     voting record is opened. cmp-data.js is precached and changed, so the
+//     shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v465 - OHIO, GEORGIA AND NORTH CAROLINA STATE LEGISLATOR ROSTER SHELLS.
+//     cmp-data.js gains 512 identity-only rows (name, office, state, exact
+//     district, `candidate: false`) for the members each chamber's official
+//     roster listed as seated on 2026-10-24, and five sitting leaders already
+//     on file gain the district their record was missing. A seat the official
+//     roster lists as vacant (Ohio SD 13, HD 89), whose member is held only as
+//     a 2026 candidate row, or whose member shares a display name with another
+//     record, keeps "District N — no member on file yet".
+//     db/roster-state-legislators-oh-ga-nc-2026-oct.json is the record. The
+//     California, Texas, Florida, New York, Pennsylvania and Illinois rows are
+//     unchanged. No board, composer or voting record is opened. cmp-data.js is
+//     precached and changed, so the shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v466 - MICHIGAN, NEW JERSEY AND VIRGINIA STATE LEGISLATOR ROSTER SHELLS.
+//     cmp-data.js gains 310 identity-only rows (name, office, state, exact
+//     district, `candidate: false`) for the members each chamber's official
+//     roster listed as seated on 2026-10-24, and five sitting leaders already
+//     on file gain the district their record was missing. Virginia delegates
+//     are filed "Virginia State House Delegate" so the resolver reads the
+//     chamber. New Jersey's General Assembly has no rows: each district elects
+//     two members and the resolver names nobody for a seat two records claim,
+//     so those seats read "District N — no member on file yet" as before, as
+//     do Virginia HD 20 (vacant) and seats whose member is held only as a
+//     candidate row or shares a display name with another record.
+//     db/roster-state-legislators-mi-nj-va-2026-oct.json is the record. The
+//     nine earlier states' rows are unchanged. No board, composer or voting
+//     record is opened. cmp-data.js is precached and changed, so the shell
+//     moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v467 - WASHINGTON, ARIZONA AND MASSACHUSETTS STATE LEGISLATOR ROSTER SHELLS.
+//     cmp-data.js gains 264 identity-only rows (name, office, state, exact
+//     district, `candidate: false`) for the members each chamber's official
+//     sources listed as seated on 2026-10-24, and three sitting leaders already
+//     on file gain the district their record was missing. Massachusetts seats
+//     are written as the chamber names them. Washington's and Arizona's Houses
+//     have no rows: each district elects two Representatives and the resolver
+//     names nobody for a seat two records claim, so those seats read "District
+//     N — no member on file yet" as before, as do three vacant Massachusetts
+//     House seats and Washington SD 19, whose member shares a display name
+//     with another record. db/roster-state-legislators-wa-az-ma-2026-oct.json
+//     is the record. The twelve earlier states' rows are unchanged. No board,
+//     composer or voting record is opened. cmp-data.js is precached and
+//     changed, so the shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v468 - TENNESSEE, INDIANA AND MISSOURI STATE LEGISLATOR ROSTER SHELLS.
+//     cmp-data.js gains 446 identity-only rows (name, office, state, exact
+//     district, `candidate: false`) for the members official legislative
+//     sources listed as seated on 2026-10-24, and three sitting Speakers
+//     already on file gain the district their record was missing. Indiana was
+//     read from its four legislative caucuses' member lists, kept only where
+//     they name exactly one member for the seat. A seat the official source
+//     lists as vacant (Tennessee HD 31, 84; Missouri SD 10 and eight House
+//     seats), Indiana HD 33 and 63 (listed by neither caucus), and seats whose
+//     member is held only as a candidate row or shares a display name with
+//     another record keep "District N — no member on file yet".
+//     db/roster-state-legislators-tn-in-mo-2026-oct.json is the record. The
+//     fifteen earlier states' rows are unchanged. No board, composer or voting
+//     record is opened. cmp-data.js is precached and changed, so the shell
+//     moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v468';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

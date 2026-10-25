@@ -1,0 +1,3775 @@
+{
+ "_note": "Sitting Tennessee, Indiana and Missouri state legislators, read from official legislative sources on 2026-10-24. cmp-data.js carries a roster shell for every \"rows\" entry; \"districtSet\" names existing records that gained their district; \"onFileAsCandidate\" seats are left empty because the member is held only as a 2026 candidate row under another office; \"nameSharedWithAnotherRecord\" seats are left empty because another record carries the same display name. Tennessee and Missouri were read from each chamber's own member directory (Missouri's House from its per-district member files, which mark a vacant seat <VacantName>Vacant</VacantName>). The Indiana General Assembly's member data was not reachable from this environment, so Indiana was read from the four legislative caucuses' own member lists (Senate and House, Republican and Democratic); a member was kept only where those lists together name exactly one member for the seat, and every Indiana Senate seat and 98 of 100 House seats are named exactly once. Tennessee Senate 31's Brent Taylor, House 45's Johnny Garrett, House 86's Justin J. Pearson, Missouri Senate 31's Rick Brattin and Indiana Senate 29's J.D. Ford are held only as 2026 candidate rows. Missouri House 30's Jonathan Patterson is the Speaker, filed as jon_patterson.",
+ "read": "2026-10-24",
+ "sources": {
+  "Tennessee": {
+   "statesenate": "https://wapp.capitol.tn.gov/apps/LegislatorInfo/Directory?chamber=S",
+   "statehouse": "https://wapp.capitol.tn.gov/apps/LegislatorInfo/Directory?chamber=H"
+  },
+  "Indiana": {
+   "statesenate": [
+    "https://www.indianasenaterepublicans.com/senators",
+    "https://indianasenatedemocrats.org/senators/"
+   ],
+   "statehouse": [
+    "https://www.indianahouserepublicans.com/members (and each member's page for the district)",
+    "https://www.indianahousedemocrats.org/members"
+   ]
+  },
+  "Missouri": {
+   "statesenate": "https://www.senate.mo.gov/Senators/",
+   "statehouse": "https://documents.house.mo.gov/xml/261-MemberList.xml (one file per district, 261-NNN.xml)"
+  }
+ },
+ "vacant": {
+  "Tennessee": {
+   "statesenate": [],
+   "statehouse": [
+    31,
+    84
+   ]
+  },
+  "Indiana": {
+   "statesenate": [],
+   "statehouse": []
+  },
+  "Missouri": {
+   "statesenate": [
+    10
+   ],
+   "statehouse": [
+    29,
+    95,
+    99,
+    110,
+    114,
+    149,
+    159,
+    160
+   ]
+  }
+ },
+ "notAdded": {
+  "Indiana": {
+   "statehouse": [
+    33,
+    63
+   ],
+   "why": "Neither House caucus lists a member for these two districts (the Republican caucus states 70 members and lists 68), so their current holders could not be verified and the seats are left empty."
+  }
+ },
+ "rows": [
+  {
+   "pid": "bailey_tn",
+   "name": "Paul Bailey",
+   "officialListing": "Bailey, Paul",
+   "state": "Tennessee",
+   "chamber": "State Senate",
+   "district": 15
+  },
+  {
+   "pid": "bowling_tn",
+   "name": "Janice Bowling",
+   "officialListing": "Bowling, Janice",
+   "state": "Tennessee",
+   "chamber": "State Senate",
+   "district": 16
+  },
+  {
+   "pid": "briggs_tn",
+   "name": "Richard Briggs",
+   "officialListing": "Briggs, Richard",
+   "state": "Tennessee",
+   "chamber": "State Senate",
+   "district": 7
+  },
+  {
+   "pid": "campbell_tn",
+   "name": "Heidi Campbell",
+   "officialListing": "Campbell, Heidi",
+   "state": "Tennessee",
+   "chamber": "State Senate",
+   "district": 20
+  },
+  {
+   "pid": "crowe_tn",
+   "name": "Rusty Crowe",
+   "officialListing": "Crowe, Rusty",
+   "state": "Tennessee",
+   "chamber": "State Senate",
+   "district": 3
+  },
+  {
+   "pid": "gardenhire_tn",
+   "name": "Todd Gardenhire",
+   "officialListing": "Gardenhire, Todd",
+   "state": "Tennessee",
+   "chamber": "State Senate",
+   "district": 10
+  },
+  {
+   "pid": "haile_tn",
+   "name": "Ferrell Haile",
+   "officialListing": "Haile, Ferrell",
+   "state": "Tennessee",
+   "chamber": "State Senate",
+   "district": 18
+  },
+  {
+   "pid": "harshbarger_tn",
+   "name": "Bobby Harshbarger",
+   "officialListing": "Harshbarger, Bobby",
+   "state": "Tennessee",
+   "chamber": "State Senate",
+   "district": 4
+  },
+  {
+   "pid": "hatcher_tn",
+   "name": "Tom Hatcher",
+   "officialListing": "Hatcher, Tom",
+   "state": "Tennessee",
+   "chamber": "State Senate",
+   "district": 2
+  },
+  {
+   "pid": "hensley_tn",
+   "name": "Joey Hensley",
+   "officialListing": "Hensley, Joey",
+   "state": "Tennessee",
+   "chamber": "State Senate",
+   "district": 28
+  },
+  {
+   "pid": "jackson_tn",
+   "name": "Ed Jackson",
+   "officialListing": "Jackson, Ed",
+   "state": "Tennessee",
+   "chamber": "State Senate",
+   "district": 25
+  },
+  {
+   "pid": "kyle_tn",
+   "name": "Sara Kyle",
+   "officialListing": "Kyle, Sara",
+   "state": "Tennessee",
+   "chamber": "State Senate",
+   "district": 30
+  },
+  {
+   "pid": "lamar_tn",
+   "name": "London Lamar",
+   "officialListing": "Lamar, London",
+   "state": "Tennessee",
+   "chamber": "State Senate",
+   "district": 33
+  },
+  {
+   "pid": "lowe_tn",
+   "name": "Adam Lowe",
+   "officialListing": "Lowe, Adam",
+   "state": "Tennessee",
+   "chamber": "State Senate",
+   "district": 1
+  },
+  {
+   "pid": "massey_tn",
+   "name": "Becky D. Massey",
+   "officialListing": "Massey, Becky D.",
+   "state": "Tennessee",
+   "chamber": "State Senate",
+   "district": 6
+  },
+  {
+   "pid": "oliver_tn",
+   "name": "Charlane Oliver",
+   "officialListing": "Oliver, Charlane",
+   "state": "Tennessee",
+   "chamber": "State Senate",
+   "district": 19
+  },
+  {
+   "pid": "pody_tn",
+   "name": "Mark Pody",
+   "officialListing": "Pody, Mark",
+   "state": "Tennessee",
+   "chamber": "State Senate",
+   "district": 17
+  },
+  {
+   "pid": "bill_powers_tn",
+   "name": "Bill Powers",
+   "officialListing": "Powers, Bill",
+   "state": "Tennessee",
+   "chamber": "State Senate",
+   "district": 22
+  },
+  {
+   "pid": "shane_reeves_tn",
+   "name": "Shane Reeves",
+   "officialListing": "Reeves, Shane",
+   "state": "Tennessee",
+   "chamber": "State Senate",
+   "district": 14
+  },
+  {
+   "pid": "roberts_tn",
+   "name": "Kerry Roberts",
+   "officialListing": "Roberts, Kerry",
+   "state": "Tennessee",
+   "chamber": "State Senate",
+   "district": 23
+  },
+  {
+   "pid": "rose_tn",
+   "name": "Paul Rose",
+   "officialListing": "Rose, Paul",
+   "state": "Tennessee",
+   "chamber": "State Senate",
+   "district": 32
+  },
+  {
+   "pid": "seal_tn",
+   "name": "Jessie Seal",
+   "officialListing": "Seal, Jessie",
+   "state": "Tennessee",
+   "chamber": "State Senate",
+   "district": 8
+  },
+  {
+   "pid": "southerland_tn",
+   "name": "Steve Southerland",
+   "officialListing": "Southerland, Steve",
+   "state": "Tennessee",
+   "chamber": "State Senate",
+   "district": 9
+  },
+  {
+   "pid": "john_stevens_tn",
+   "name": "John Stevens",
+   "officialListing": "Stevens, John",
+   "state": "Tennessee",
+   "chamber": "State Senate",
+   "district": 24
+  },
+  {
+   "pid": "walley_tn",
+   "name": "Page Walley",
+   "officialListing": "Walley, Page",
+   "state": "Tennessee",
+   "chamber": "State Senate",
+   "district": 26
+  },
+  {
+   "pid": "watson_tn",
+   "name": "Bo Watson",
+   "officialListing": "Watson, Bo",
+   "state": "Tennessee",
+   "chamber": "State Senate",
+   "district": 11
+  },
+  {
+   "pid": "dawn_white_tn",
+   "name": "Dawn White",
+   "officialListing": "White, Dawn",
+   "state": "Tennessee",
+   "chamber": "State Senate",
+   "district": 13
+  },
+  {
+   "pid": "yager_tn",
+   "name": "Ken Yager",
+   "officialListing": "Yager, Ken",
+   "state": "Tennessee",
+   "chamber": "State Senate",
+   "district": 12
+  },
+  {
+   "pid": "yarbro_tn",
+   "name": "Jeff Yarbro",
+   "officialListing": "Yarbro, Jeff",
+   "state": "Tennessee",
+   "chamber": "State Senate",
+   "district": 21
+  },
+  {
+   "pid": "alexander_tn",
+   "name": "Rebecca K. Alexander",
+   "officialListing": "Alexander, Rebecca K.",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 7
+  },
+  {
+   "pid": "atchley_tn",
+   "name": "Fred Atchley",
+   "officialListing": "Atchley, Fred",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 12
+  },
+  {
+   "pid": "barrett_tn",
+   "name": "Jody Barrett",
+   "officialListing": "Barrett, Jody",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 69
+  },
+  {
+   "pid": "baum_tn",
+   "name": "Charlie Baum",
+   "officialListing": "Baum, Charlie",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 37
+  },
+  {
+   "pid": "behn_tn",
+   "name": "Aftyn Behn",
+   "officialListing": "Behn, Aftyn",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 51
+  },
+  {
+   "pid": "boyd_tn",
+   "name": "Clark Boyd",
+   "officialListing": "Boyd, Clark",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 46
+  },
+  {
+   "pid": "bricken_tn",
+   "name": "Rush Bricken",
+   "officialListing": "Bricken, Rush",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 47
+  },
+  {
+   "pid": "brooks_tn",
+   "name": "Shaundelle Brooks",
+   "officialListing": "Brooks, Shaundelle",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 60
+  },
+  {
+   "pid": "bulso_tn",
+   "name": "Gino Bulso",
+   "officialListing": "Bulso, Gino",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 61
+  },
+  {
+   "pid": "butler_tn",
+   "name": "Ed Butler",
+   "officialListing": "Butler, Ed",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 41
+  },
+  {
+   "pid": "camper_tn",
+   "name": "Karen D. Camper",
+   "officialListing": "Camper, Karen D.",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 87
+  },
+  {
+   "pid": "capley_tn",
+   "name": "Kip Capley",
+   "officialListing": "Capley, Kip",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 71
+  },
+  {
+   "pid": "carringer_tn",
+   "name": "Michele Carringer",
+   "officialListing": "Carringer, Michele",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 16
+  },
+  {
+   "pid": "cepicky_tn",
+   "name": "Scott Cepicky",
+   "officialListing": "Cepicky, Scott",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 64
+  },
+  {
+   "pid": "chism_tn",
+   "name": "Jesse Chism",
+   "officialListing": "Chism, Jesse",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 85
+  },
+  {
+   "pid": "clemmons_tn",
+   "name": "John Ray Clemmons",
+   "officialListing": "Clemmons, John Ray",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 55
+  },
+  {
+   "pid": "cochran_tn",
+   "name": "Mark Cochran",
+   "officialListing": "Cochran, Mark",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 23
+  },
+  {
+   "pid": "crawford_tn",
+   "name": "John Crawford",
+   "officialListing": "Crawford, John",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 1
+  },
+  {
+   "pid": "darby_tn",
+   "name": "Tandy Darby",
+   "officialListing": "Darby, Tandy",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 76
+  },
+  {
+   "pid": "davis_tn",
+   "name": "Elaine Davis",
+   "officialListing": "Davis, Elaine",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 18
+  },
+  {
+   "pid": "dixie_tn",
+   "name": "Vincent Dixie",
+   "officialListing": "Dixie, Vincent",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 54
+  },
+  {
+   "pid": "doggett_tn",
+   "name": "Clay Doggett",
+   "officialListing": "Doggett, Clay",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 70
+  },
+  {
+   "pid": "eldridge_tn",
+   "name": "Rick Eldridge",
+   "officialListing": "Eldridge, Rick",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 10
+  },
+  {
+   "pid": "faison_tn",
+   "name": "Jeremy Faison",
+   "officialListing": "Faison, Jeremy",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 11
+  },
+  {
+   "pid": "farmer_tn",
+   "name": "Andrew Farmer",
+   "officialListing": "Farmer, Andrew",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 17
+  },
+  {
+   "pid": "freeman_tn",
+   "name": "Bob Freeman",
+   "officialListing": "Freeman, Bob",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 56
+  },
+  {
+   "pid": "fritts_tn",
+   "name": "Monty Fritts",
+   "officialListing": "Fritts, Monty",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 32
+  },
+  {
+   "pid": "gant_tn",
+   "name": "Ron M. Gant",
+   "officialListing": "Gant, Ron M.",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 94
+  },
+  {
+   "pid": "gillespie_tn",
+   "name": "John Gillespie",
+   "officialListing": "Gillespie, John",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 97
+  },
+  {
+   "pid": "glynn_tn",
+   "name": "Ronnie Glynn",
+   "officialListing": "Glynn, Ronnie",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 67
+  },
+  {
+   "pid": "grills_tn",
+   "name": "Rusty Grills",
+   "officialListing": "Grills, Rusty",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 77
+  },
+  {
+   "pid": "hakeem_tn",
+   "name": "Yusuf Hakeem",
+   "officialListing": "Hakeem, Yusuf",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 28
+  },
+  {
+   "pid": "hale_tn",
+   "name": "Michael Hale",
+   "officialListing": "Hale, Michael",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 40
+  },
+  {
+   "pid": "hardaway_tn",
+   "name": "T.J. Hardaway",
+   "officialListing": "Hardaway, T.J.",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 93
+  },
+  {
+   "pid": "harris_tn",
+   "name": "Torrey C. Harris",
+   "officialListing": "Harris, Torrey C.",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 91
+  },
+  {
+   "pid": "haston_tn",
+   "name": "Kirk Haston",
+   "officialListing": "Haston, Kirk",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 72
+  },
+  {
+   "pid": "hawk_tn",
+   "name": "David B. Hawk",
+   "officialListing": "Hawk, David B.",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 5
+  },
+  {
+   "pid": "helton_haynes_tn",
+   "name": "Esther Helton-Haynes",
+   "officialListing": "Helton-Haynes, Esther",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 30
+  },
+  {
+   "pid": "hemmer_tn",
+   "name": "Caleb Hemmer",
+   "officialListing": "Hemmer, Caleb",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 59
+  },
+  {
+   "pid": "gary_hicks_tn",
+   "name": "Gary Hicks",
+   "officialListing": "Hicks, Gary",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 9
+  },
+  {
+   "pid": "tim_hicks_tn",
+   "name": "Tim Hicks",
+   "officialListing": "Hicks, Tim",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 6
+  },
+  {
+   "pid": "hill_tn",
+   "name": "Timothy Hill",
+   "officialListing": "Hill, Timothy",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 3
+  },
+  {
+   "pid": "howell_tn",
+   "name": "Dan Howell",
+   "officialListing": "Howell, Dan",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 22
+  },
+  {
+   "pid": "hulsey_tn",
+   "name": "Bud Hulsey",
+   "officialListing": "Hulsey, Bud",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 2
+  },
+  {
+   "pid": "hurt_tn",
+   "name": "Chris Hurt",
+   "officialListing": "Hurt, Chris",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 82
+  },
+  {
+   "pid": "gloria_johnson_tn",
+   "name": "Gloria Johnson",
+   "officialListing": "Johnson, Gloria",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 90
+  },
+  {
+   "pid": "justin_jones_tn",
+   "name": "Justin Jones",
+   "officialListing": "Jones, Justin",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 52
+  },
+  {
+   "pid": "renea_jones_tn",
+   "name": "Renea Jones",
+   "officialListing": "Jones, Renea",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 4
+  },
+  {
+   "pid": "keisling_tn",
+   "name": "Kelly Keisling",
+   "officialListing": "Keisling, Kelly",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 38
+  },
+  {
+   "pid": "kumar_tn",
+   "name": "Sabi 'Doc' Kumar",
+   "officialListing": "Kumar, Sabi 'Doc'",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 66
+  },
+  {
+   "pid": "lafferty_tn",
+   "name": "Justin Lafferty",
+   "officialListing": "Lafferty, Justin",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 89
+  },
+  {
+   "pid": "lamberth_tn",
+   "name": "William Lamberth",
+   "officialListing": "Lamberth, William",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 44
+  },
+  {
+   "pid": "lankford_tn",
+   "name": "Michael Lankford",
+   "officialListing": "Lankford, Michael",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 75
+  },
+  {
+   "pid": "leatherwood_tn",
+   "name": "Tom Leatherwood",
+   "officialListing": "Leatherwood, Tom",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 99
+  },
+  {
+   "pid": "littleton_tn",
+   "name": "Mary Littleton",
+   "officialListing": "Littleton, Mary",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 78
+  },
+  {
+   "pid": "love_tn",
+   "name": "Jr., Harold Love",
+   "officialListing": "Love, Jr., Harold",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 58
+  },
+  {
+   "pid": "lynn_tn",
+   "name": "Susan M. Lynn",
+   "officialListing": "Lynn, Susan M.",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 57
+  },
+  {
+   "pid": "maberry_tn",
+   "name": "Aron Maberry",
+   "officialListing": "Maberry, Aron",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 68
+  },
+  {
+   "pid": "marsh_tn",
+   "name": "Pat Marsh",
+   "officialListing": "Marsh, Pat",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 62
+  },
+  {
+   "pid": "brock_martin_tn",
+   "name": "Brock Martin",
+   "officialListing": "Martin, Brock",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 79
+  },
+  {
+   "pid": "greg_martin_tn",
+   "name": "Greg Martin",
+   "officialListing": "Martin, Greg",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 26
+  },
+  {
+   "pid": "mccalmon_tn",
+   "name": "Jake McCalmon",
+   "officialListing": "McCalmon, Jake",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 63
+  },
+  {
+   "pid": "mckenzie_tn",
+   "name": "Sam McKenzie",
+   "officialListing": "McKenzie, Sam",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 15
+  },
+  {
+   "pid": "miller_tn",
+   "name": "Larry J. Miller",
+   "officialListing": "Miller, Larry J.",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 88
+  },
+  {
+   "pid": "mitchell_tn",
+   "name": "Bo Mitchell",
+   "officialListing": "Mitchell, Bo",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 50
+  },
+  {
+   "pid": "moody_tn",
+   "name": "Debra Moody",
+   "officialListing": "Moody, Debra",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 81
+  },
+  {
+   "pid": "moon_tn",
+   "name": "Jerome Moon",
+   "officialListing": "Moon, Jerome",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 8
+  },
+  {
+   "pid": "parkinson_tn",
+   "name": "Antonio Parkinson",
+   "officialListing": "Parkinson, Antonio",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 98
+  },
+  {
+   "pid": "powell_tn",
+   "name": "Jason Powell",
+   "officialListing": "Powell, Jason",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 53
+  },
+  {
+   "pid": "dennis_powers_tn",
+   "name": "Dennis Powers",
+   "officialListing": "Powers, Dennis",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 36
+  },
+  {
+   "pid": "raper_tn",
+   "name": "Kevin D. Raper",
+   "officialListing": "Raper, Kevin D.",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 24
+  },
+  {
+   "pid": "reedy_tn",
+   "name": "Jay D. Reedy",
+   "officialListing": "Reedy, Jay D.",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 74
+  },
+  {
+   "pid": "lee_reeves_tn",
+   "name": "Lee Reeves",
+   "officialListing": "Reeves, Lee",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 65
+  },
+  {
+   "pid": "reneau_tn",
+   "name": "Michele Reneau",
+   "officialListing": "Reneau, Michele",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 27
+  },
+  {
+   "pid": "rudd_tn",
+   "name": "Tim Rudd",
+   "officialListing": "Rudd, Tim",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 34
+  },
+  {
+   "pid": "rudder_tn",
+   "name": "Iris Rudder",
+   "officialListing": "Rudder, Iris",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 39
+  },
+  {
+   "pid": "russell_tn",
+   "name": "Lowell Russell",
+   "officialListing": "Russell, Lowell",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 21
+  },
+  {
+   "pid": "salinas_tn",
+   "name": "Gabby Salinas",
+   "officialListing": "Salinas, Gabby",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 96
+  },
+  {
+   "pid": "scarbrough_tn",
+   "name": "Rick Scarbrough",
+   "officialListing": "Scarbrough, Rick",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 33
+  },
+  {
+   "pid": "shaw_tn",
+   "name": "Johnny Shaw",
+   "officialListing": "Shaw, Johnny",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 80
+  },
+  {
+   "pid": "sherrell_tn",
+   "name": "Paul Sherrell",
+   "officialListing": "Sherrell, Paul",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 43
+  },
+  {
+   "pid": "slater_tn",
+   "name": "William Slater",
+   "officialListing": "Slater, William",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 35
+  },
+  {
+   "pid": "sparks_tn",
+   "name": "Mike Sparks",
+   "officialListing": "Sparks, Mike",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 49
+  },
+  {
+   "pid": "robert_stevens_tn",
+   "name": "Robert Stevens",
+   "officialListing": "Stevens, Robert",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 13
+  },
+  {
+   "pid": "stinnett_tn",
+   "name": "Tom Stinnett",
+   "officialListing": "Stinnett, Tom",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 20
+  },
+  {
+   "pid": "terry_tn",
+   "name": "Bryan Terry",
+   "officialListing": "Terry, Bryan",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 48
+  },
+  {
+   "pid": "todd_tn",
+   "name": "Chris Todd",
+   "officialListing": "Todd, Chris",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 73
+  },
+  {
+   "pid": "vaughan_tn",
+   "name": "Kevin Vaughan",
+   "officialListing": "Vaughan, Kevin",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 95
+  },
+  {
+   "pid": "vital_tn",
+   "name": "Greg Vital",
+   "officialListing": "Vital, Greg",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 29
+  },
+  {
+   "pid": "warner_tn",
+   "name": "Todd Warner",
+   "officialListing": "Warner, Todd",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 92
+  },
+  {
+   "pid": "mark_white_tn",
+   "name": "Mark White",
+   "officialListing": "White, Mark",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 83
+  },
+  {
+   "pid": "williams_tn",
+   "name": "Ryan Williams",
+   "officialListing": "Williams, Ryan",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 42
+  },
+  {
+   "pid": "wright_tn",
+   "name": "Dave Wright",
+   "officialListing": "Wright, Dave",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 19
+  },
+  {
+   "pid": "zachary_tn",
+   "name": "Jason Zachary",
+   "officialListing": "Zachary, Jason",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 14
+  },
+  {
+   "pid": "bean_mo",
+   "name": "Jason Bean",
+   "officialListing": "Jason Bean",
+   "state": "Missouri",
+   "chamber": "State Senate",
+   "district": 25
+  },
+  {
+   "pid": "bernskoetter_mo",
+   "name": "Mike Bernskoetter",
+   "officialListing": "Mike Bernskoetter",
+   "state": "Missouri",
+   "chamber": "State Senate",
+   "district": 6
+  },
+  {
+   "pid": "rusty_black_mo",
+   "name": "Rusty Black",
+   "officialListing": "Rusty Black",
+   "state": "Missouri",
+   "chamber": "State Senate",
+   "district": 12
+  },
+  {
+   "pid": "justin_brown_mo",
+   "name": "Justin Brown",
+   "officialListing": "Justin Brown",
+   "state": "Missouri",
+   "chamber": "State Senate",
+   "district": 16
+  },
+  {
+   "pid": "ben_brown_mo",
+   "name": "Ben Brown",
+   "officialListing": "Ben Brown",
+   "state": "Missouri",
+   "chamber": "State Senate",
+   "district": 26
+  },
+  {
+   "pid": "burger_mo",
+   "name": "Jamie Burger",
+   "officialListing": "Jamie Burger",
+   "state": "Missouri",
+   "chamber": "State Senate",
+   "district": 27
+  },
+  {
+   "pid": "carter_mo",
+   "name": "Jill Carter",
+   "officialListing": "Jill Carter",
+   "state": "Missouri",
+   "chamber": "State Senate",
+   "district": 32
+  },
+  {
+   "pid": "cierpiot_mo",
+   "name": "Mike Cierpiot",
+   "officialListing": "Mike Cierpiot",
+   "state": "Missouri",
+   "chamber": "State Senate",
+   "district": 8
+  },
+  {
+   "pid": "mary_coleman_mo",
+   "name": "Mary Elizabeth Coleman",
+   "officialListing": "Mary Elizabeth Coleman",
+   "state": "Missouri",
+   "chamber": "State Senate",
+   "district": 22
+  },
+  {
+   "pid": "crawford_mo",
+   "name": "Sandy Crawford",
+   "officialListing": "Sandy Crawford",
+   "state": "Missouri",
+   "chamber": "State Senate",
+   "district": 28
+  },
+  {
+   "pid": "david_gregory_mo",
+   "name": "David Gregory",
+   "officialListing": "David Gregory",
+   "state": "Missouri",
+   "chamber": "State Senate",
+   "district": 15
+  },
+  {
+   "pid": "kurtis_gregory_mo",
+   "name": "Kurtis Gregory",
+   "officialListing": "Kurtis Gregory",
+   "state": "Missouri",
+   "chamber": "State Senate",
+   "district": 21
+  },
+  {
+   "pid": "henderson_mo",
+   "name": "Mike Henderson",
+   "officialListing": "Mike Henderson",
+   "state": "Missouri",
+   "chamber": "State Senate",
+   "district": 3
+  },
+  {
+   "pid": "hough_mo",
+   "name": "Lincoln Hough",
+   "officialListing": "Lincoln Hough",
+   "state": "Missouri",
+   "chamber": "State Senate",
+   "district": 30
+  },
+  {
+   "pid": "hudson_mo",
+   "name": "Brad Hudson",
+   "officialListing": "Brad Hudson",
+   "state": "Missouri",
+   "chamber": "State Senate",
+   "district": 33
+  },
+  {
+   "pid": "patty_lewis_mo",
+   "name": "Patty Lewis",
+   "officialListing": "Patty Lewis",
+   "state": "Missouri",
+   "chamber": "State Senate",
+   "district": 7
+  },
+  {
+   "pid": "may_mo",
+   "name": "Karla May",
+   "officialListing": "Karla May",
+   "state": "Missouri",
+   "chamber": "State Senate",
+   "district": 4
+  },
+  {
+   "pid": "mccreery_mo",
+   "name": "Tracy McCreery",
+   "officialListing": "Tracy McCreery",
+   "state": "Missouri",
+   "chamber": "State Senate",
+   "district": 24
+  },
+  {
+   "pid": "moon_mo",
+   "name": "Mike Moon",
+   "officialListing": "Mike Moon",
+   "state": "Missouri",
+   "chamber": "State Senate",
+   "district": 29
+  },
+  {
+   "pid": "angela_mosley_mo",
+   "name": "Angela Mosley",
+   "officialListing": "Angela Mosley",
+   "state": "Missouri",
+   "chamber": "State Senate",
+   "district": 13
+  },
+  {
+   "pid": "nicola_mo",
+   "name": "Joe Nicola",
+   "officialListing": "Joe Nicola",
+   "state": "Missouri",
+   "chamber": "State Senate",
+   "district": 11
+  },
+  {
+   "pid": "nurrenbern_mo",
+   "name": "Maggie Nurrenbern",
+   "officialListing": "Maggie Nurrenbern",
+   "state": "Missouri",
+   "chamber": "State Senate",
+   "district": 17
+  },
+  {
+   "pid": "steven_roberts_mo",
+   "name": "Steven Roberts",
+   "officialListing": "Steven Roberts",
+   "state": "Missouri",
+   "chamber": "State Senate",
+   "district": 5
+  },
+  {
+   "pid": "schnelting_mo",
+   "name": "Adam Schnelting",
+   "officialListing": "Adam Schnelting",
+   "state": "Missouri",
+   "chamber": "State Senate",
+   "district": 23
+  },
+  {
+   "pid": "schroer_mo",
+   "name": "Nick Schroer",
+   "officialListing": "Nick Schroer",
+   "state": "Missouri",
+   "chamber": "State Senate",
+   "district": 2
+  },
+  {
+   "pid": "trent_mo",
+   "name": "Curtis Trent",
+   "officialListing": "Curtis Trent",
+   "state": "Missouri",
+   "chamber": "State Senate",
+   "district": 20
+  },
+  {
+   "pid": "washington_mo",
+   "name": "Barbara Washington",
+   "officialListing": "Barbara Washington",
+   "state": "Missouri",
+   "chamber": "State Senate",
+   "district": 9
+  },
+  {
+   "pid": "webber_mo",
+   "name": "Stephen Webber",
+   "officialListing": "Stephen Webber",
+   "state": "Missouri",
+   "chamber": "State Senate",
+   "district": 19
+  },
+  {
+   "pid": "brian_williams_mo",
+   "name": "Brian Williams",
+   "officialListing": "Brian Williams",
+   "state": "Missouri",
+   "chamber": "State Senate",
+   "district": 14
+  },
+  {
+   "pid": "farnan_mo",
+   "name": "Jeff Farnan",
+   "officialListing": "Jeff Farnan",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 1
+  },
+  {
+   "pid": "christensen_mo",
+   "name": "Mazzie Christensen",
+   "officialListing": "Mazzie Christensen",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 2
+  },
+  {
+   "pid": "busick_mo",
+   "name": "Danny Busick",
+   "officialListing": "Danny Busick",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 3
+  },
+  {
+   "pid": "sharpe_mo",
+   "name": "Greg Sharpe",
+   "officialListing": "Greg Sharpe",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 4
+  },
+  {
+   "pid": "riggs_mo",
+   "name": "Louis Riggs",
+   "officialListing": "Louis Riggs",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 5
+  },
+  {
+   "pid": "ed_lewis_mo",
+   "name": "Ed Lewis",
+   "officialListing": "Ed Lewis",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 6
+  },
+  {
+   "pid": "mcgaugh_mo",
+   "name": "Peggy McGaugh",
+   "officialListing": "Peggy McGaugh",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 7
+  },
+  {
+   "pid": "hurlbert_mo",
+   "name": "Josh Hurlbert",
+   "officialListing": "Josh Hurlbert",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 8
+  },
+  {
+   "pid": "van_schoiack_mo",
+   "name": "Dean Van Schoiack",
+   "officialListing": "Dean Van Schoiack",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 9
+  },
+  {
+   "pid": "falkner_mo",
+   "name": "Bill Falkner",
+   "officialListing": "Bill Falkner",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 10
+  },
+  {
+   "pid": "shields_mo",
+   "name": "Brenda Shields",
+   "officialListing": "Brenda Shields",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 11
+  },
+  {
+   "pid": "pouche_mo",
+   "name": "Sean Pouche",
+   "officialListing": "Sean Pouche",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 13
+  },
+  {
+   "pid": "aune_mo",
+   "name": "Ashley Aune",
+   "officialListing": "Ashley Aune",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 14
+  },
+  {
+   "pid": "jamison_mo",
+   "name": "Ken Jamison",
+   "officialListing": "Ken Jamison",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 15
+  },
+  {
+   "pid": "chris_brown_mo",
+   "name": "Chris Brown",
+   "officialListing": "Chris Brown",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 16
+  },
+  {
+   "pid": "allen_mo",
+   "name": "Bill Allen",
+   "officialListing": "Bill Allen",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 17
+  },
+  {
+   "pid": "woods_mo",
+   "name": "Eric Woods",
+   "officialListing": "Eric Woods",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 18
+  },
+  {
+   "pid": "thomas_mo",
+   "name": "Wick Thomas",
+   "officialListing": "Wick Thomas",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 19
+  },
+  {
+   "pid": "steinmeyer_mo",
+   "name": "Mike Steinmeyer",
+   "officialListing": "Mike Steinmeyer",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 20
+  },
+  {
+   "pid": "jobe_mo",
+   "name": "Will Jobe",
+   "officialListing": "Will Jobe",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 21
+  },
+  {
+   "pid": "young_mo",
+   "name": "Yolanda Young",
+   "officialListing": "Yolanda Young",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 22
+  },
+  {
+   "pid": "johnson_mo",
+   "name": "Michael Johnson",
+   "officialListing": "Michael Johnson",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 23
+  },
+  {
+   "pid": "weber_mo",
+   "name": "Emily Weber",
+   "officialListing": "Emily Weber",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 24
+  },
+  {
+   "pid": "mansur_mo",
+   "name": "Pattie Mansur",
+   "officialListing": "Pattie Mansur",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 25
+  },
+  {
+   "pid": "price_mo",
+   "name": "Tiffany Price",
+   "officialListing": "Tiffany Price",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 26
+  },
+  {
+   "pid": "douglas_mo",
+   "name": "Melissa Douglas",
+   "officialListing": "Melissa Douglas",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 27
+  },
+  {
+   "pid": "barnes_mo",
+   "name": "Donna Barnes",
+   "officialListing": "Donna Barnes",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 28
+  },
+  {
+   "pid": "fowler_mo",
+   "name": "Ron Fowler",
+   "officialListing": "Ron Fowler",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 31
+  },
+  {
+   "pid": "jeff_coleman_mo",
+   "name": "Jeff Coleman",
+   "officialListing": "Jeff Coleman",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 32
+  },
+  {
+   "pid": "caton_mo",
+   "name": "Carolyn Caton",
+   "officialListing": "Carolyn Caton",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 33
+  },
+  {
+   "pid": "strickler_mo",
+   "name": "Kemp Strickler",
+   "officialListing": "Kemp Strickler",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 34
+  },
+  {
+   "pid": "ingle_mo",
+   "name": "Keri Ingle",
+   "officialListing": "Keri Ingle",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 35
+  },
+  {
+   "pid": "ealy_mo",
+   "name": "Anthony Ealy",
+   "officialListing": "Anthony Ealy",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 36
+  },
+  {
+   "pid": "sharp_mo",
+   "name": "Mark Sharp",
+   "officialListing": "Mark Sharp",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 37
+  },
+  {
+   "pid": "jacobs_mo",
+   "name": "Martin Jacobs",
+   "officialListing": "Martin Jacobs",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 38
+  },
+  {
+   "pid": "meirath_mo",
+   "name": "Mark Meirath",
+   "officialListing": "Mark Meirath",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 39
+  },
+  {
+   "pid": "perkins_mo",
+   "name": "Chad Perkins",
+   "officialListing": "Chad Perkins",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 40
+  },
+  {
+   "pid": "justus_mo",
+   "name": "Doyle Justus",
+   "officialListing": "Doyle Justus",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 41
+  },
+  {
+   "pid": "myers_mo",
+   "name": "Jeff Myers",
+   "officialListing": "Jeff Myers",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 42
+  },
+  {
+   "pid": "haden_mo",
+   "name": "Kent Haden",
+   "officialListing": "Kent Haden",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 43
+  },
+  {
+   "pid": "martin_mo",
+   "name": "John Martin",
+   "officialListing": "John Martin",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 44
+  },
+  {
+   "pid": "steinhoff_mo",
+   "name": "Kathy Steinhoff",
+   "officialListing": "Kathy Steinhoff",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 45
+  },
+  {
+   "pid": "david_smith_mo",
+   "name": "David Tyson Smith",
+   "officialListing": "David Tyson Smith",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 46
+  },
+  {
+   "pid": "plank_mo",
+   "name": "Adrian Plank",
+   "officialListing": "Adrian Plank",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 47
+  },
+  {
+   "pid": "tim_taylor_mo",
+   "name": "Tim Taylor",
+   "officialListing": "Tim Taylor",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 48
+  },
+  {
+   "pid": "schulte_mo",
+   "name": "Jim Schulte",
+   "officialListing": "Jim Schulte",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 49
+  },
+  {
+   "pid": "bush_mo",
+   "name": "Gregg Bush",
+   "officialListing": "Gregg Bush",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 50
+  },
+  {
+   "pid": "nolte_mo",
+   "name": "Mark Nolte",
+   "officialListing": "Mark Nolte",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 51
+  },
+  {
+   "pid": "pollitt_mo",
+   "name": "Brad Pollitt",
+   "officialListing": "Brad Pollitt",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 52
+  },
+  {
+   "pid": "thompson_mo",
+   "name": "Terry Thompson",
+   "officialListing": "Terry Thompson",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 53
+  },
+  {
+   "pid": "phelps_mo",
+   "name": "Brandon Phelps",
+   "officialListing": "Brandon Phelps",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 54
+  },
+  {
+   "pid": "irwin_mo",
+   "name": "Bill Irwin",
+   "officialListing": "Bill Irwin",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 55
+  },
+  {
+   "pid": "davis_mo",
+   "name": "Michael Davis",
+   "officialListing": "Michael Davis",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 56
+  },
+  {
+   "pid": "reedy_mo",
+   "name": "Rodger Reedy",
+   "officialListing": "Rodger Reedy",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 57
+  },
+  {
+   "pid": "haley_mo",
+   "name": "Willard Haley",
+   "officialListing": "Willard Haley",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 58
+  },
+  {
+   "pid": "veit_mo",
+   "name": "Rudy Veit",
+   "officialListing": "Rudy Veit",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 59
+  },
+  {
+   "pid": "griffith_mo",
+   "name": "Dave Griffith",
+   "officialListing": "Dave Griffith",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 60
+  },
+  {
+   "pid": "sassmann_mo",
+   "name": "Bruce Sassmann",
+   "officialListing": "Bruce Sassmann",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 61
+  },
+  {
+   "pid": "gallick_mo",
+   "name": "Sherri Gallick",
+   "officialListing": "Sherri Gallick",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 62
+  },
+  {
+   "pid": "byrnes_mo",
+   "name": "Tricia Byrnes",
+   "officialListing": "Tricia Byrnes",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 63
+  },
+  {
+   "pid": "self_mo",
+   "name": "Deanna Self",
+   "officialListing": "Deanna Self",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 64
+  },
+  {
+   "pid": "hausman_mo",
+   "name": "Wendy L. Hausman",
+   "officialListing": "Wendy L. Hausman",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 65
+  },
+  {
+   "pid": "terry_mo",
+   "name": "Marlene Terry",
+   "officialListing": "Marlene Terry",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 66
+  },
+  {
+   "pid": "rush_mo",
+   "name": "Tonya Rush",
+   "officialListing": "Tonya Rush",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 67
+  },
+  {
+   "pid": "kem_smith_mo",
+   "name": "Kem Smith",
+   "officialListing": "Kem Smith",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 68
+  },
+  {
+   "pid": "miller_mo",
+   "name": "Scott Miller",
+   "officialListing": "Scott Miller",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 69
+  },
+  {
+   "pid": "boykin_mo",
+   "name": "Stephanie Boykin",
+   "officialListing": "Stephanie Boykin",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 70
+  },
+  {
+   "pid": "appelbaum_mo",
+   "name": "LaDonna Appelbaum",
+   "officialListing": "LaDonna Appelbaum",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 71
+  },
+  {
+   "pid": "clemens_mo",
+   "name": "Doug Clemens",
+   "officialListing": "Doug Clemens",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 72
+  },
+  {
+   "pid": "proudie_mo",
+   "name": "Raychel Proudie",
+   "officialListing": "Raychel Proudie",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 73
+  },
+  {
+   "pid": "marla_smith_mo",
+   "name": "Marla Smith",
+   "officialListing": "Marla Smith",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 74
+  },
+  {
+   "pid": "chanel_mosley_mo",
+   "name": "Chanel Mosley",
+   "officialListing": "Chanel Mosley",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 75
+  },
+  {
+   "pid": "anderson_mo",
+   "name": "Marlon Anderson",
+   "officialListing": "Marlon Anderson",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 76
+  },
+  {
+   "pid": "collins_mo",
+   "name": "Kimberly-Ann Collins",
+   "officialListing": "Kimberly-Ann Collins",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 77
+  },
+  {
+   "pid": "murray_mo",
+   "name": "Marty Joe Murray",
+   "officialListing": "Marty Joe Murray",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 78
+  },
+  {
+   "pid": "bosley_mo",
+   "name": "LaKeySha Bosley",
+   "officialListing": "LaKeySha Bosley",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 79
+  },
+  {
+   "pid": "fuchs_mo",
+   "name": "Elizabeth Fuchs",
+   "officialListing": "Elizabeth Fuchs",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 80
+  },
+  {
+   "pid": "butz_mo",
+   "name": "Steve Butz",
+   "officialListing": "Steve Butz",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 81
+  },
+  {
+   "pid": "kimble_mo",
+   "name": "Nick Kimble",
+   "officialListing": "Nick Kimble",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 82
+  },
+  {
+   "pid": "reed_mo",
+   "name": "Ray Reed",
+   "officialListing": "Ray Reed",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 83
+  },
+  {
+   "pid": "del_taylor_mo",
+   "name": "Del Taylor",
+   "officialListing": "Del Taylor",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 84
+  },
+  {
+   "pid": "fountain_henderson_mo",
+   "name": "Yolonda Fountain Henderson",
+   "officialListing": "Yolonda Fountain Henderson",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 85
+  },
+  {
+   "pid": "hales_mo",
+   "name": "Jeff Hales",
+   "officialListing": "Jeff Hales",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 86
+  },
+  {
+   "pid": "steinmetz_mo",
+   "name": "Connie Steinmetz",
+   "officialListing": "Connie Steinmetz",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 87
+  },
+  {
+   "pid": "holly_jones_mo",
+   "name": "Holly Jones",
+   "officialListing": "Holly Jones",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 88
+  },
+  {
+   "pid": "hruza_mo",
+   "name": "George Hruza",
+   "officialListing": "George Hruza",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 89
+  },
+  {
+   "pid": "boyko_mo",
+   "name": "Mark Boyko",
+   "officialListing": "Mark Boyko",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 90
+  },
+  {
+   "pid": "doll_mo",
+   "name": "Jo Doll",
+   "officialListing": "Jo Doll",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 91
+  },
+  {
+   "pid": "burton_mo",
+   "name": "Michael Burton",
+   "officialListing": "Michael Burton",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 92
+  },
+  {
+   "pid": "walsh_moore_mo",
+   "name": "Bridget Walsh Moore",
+   "officialListing": "Bridget Walsh Moore",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 93
+  },
+  {
+   "pid": "murphy_mo",
+   "name": "Jim Murphy",
+   "officialListing": "Jim Murphy",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 94
+  },
+  {
+   "pid": "christ_mo",
+   "name": "Brad Christ",
+   "officialListing": "Brad Christ",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 96
+  },
+  {
+   "pid": "casteel_mo",
+   "name": "David Casteel",
+   "officialListing": "David Casteel",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 97
+  },
+  {
+   "pid": "zimmermann_mo",
+   "name": "Jaclyn Zimmermann",
+   "officialListing": "Jaclyn Zimmermann",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 98
+  },
+  {
+   "pid": "oehlerking_mo",
+   "name": "Philip Oehlerking",
+   "officialListing": "Philip Oehlerking",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 100
+  },
+  {
+   "pid": "keathley_mo",
+   "name": "Ben Keathley",
+   "officialListing": "Ben Keathley",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 101
+  },
+  {
+   "pid": "west_mo",
+   "name": "Richard West",
+   "officialListing": "Richard West",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 102
+  },
+  {
+   "pid": "hinman_mo",
+   "name": "Dave Hinman",
+   "officialListing": "Dave Hinman",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 103
+  },
+  {
+   "pid": "violet_mo",
+   "name": "Terri Violet",
+   "officialListing": "Terri Violet",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 104
+  },
+  {
+   "pid": "wellenkamp_mo",
+   "name": "Colin Wellenkamp",
+   "officialListing": "Colin Wellenkamp",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 105
+  },
+  {
+   "pid": "wilson_mo",
+   "name": "Travis Wilson",
+   "officialListing": "Travis Wilson",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 106
+  },
+  {
+   "pid": "matthiesen_mo",
+   "name": "Mark Matthiesen",
+   "officialListing": "Mark Matthiesen",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 107
+  },
+  {
+   "pid": "costlow_mo",
+   "name": "Mike Costlow",
+   "officialListing": "Mike Costlow",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 108
+  },
+  {
+   "pid": "simmons_mo",
+   "name": "John Simmons",
+   "officialListing": "John Simmons",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 109
+  },
+  {
+   "pid": "cecelie_williams_mo",
+   "name": "Cecelie Williams",
+   "officialListing": "Cecelie Williams",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 111
+  },
+  {
+   "pid": "reuter_mo",
+   "name": "Renee Reuter",
+   "officialListing": "Renee Reuter",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 112
+  },
+  {
+   "pid": "amato_mo",
+   "name": "Phil Amato",
+   "officialListing": "Phil Amato",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 113
+  },
+  {
+   "pid": "lucas_mo",
+   "name": "Bill Lucas",
+   "officialListing": "Bill Lucas",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 115
+  },
+  {
+   "pid": "wright_mo",
+   "name": "Dale Wright",
+   "officialListing": "Dale Wright",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 116
+  },
+  {
+   "pid": "laubinger_mo",
+   "name": "Becky Laubinger",
+   "officialListing": "Becky Laubinger",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 117
+  },
+  {
+   "pid": "mcgirl_mo",
+   "name": "Mike McGirl",
+   "officialListing": "Mike McGirl",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 118
+  },
+  {
+   "pid": "banderman_mo",
+   "name": "Brad Banderman",
+   "officialListing": "Brad Banderman",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 119
+  },
+  {
+   "pid": "hewkin_mo",
+   "name": "John Hewkin",
+   "officialListing": "John Hewkin",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 120
+  },
+  {
+   "pid": "hardwick_mo",
+   "name": "Bill Hardwick",
+   "officialListing": "Bill Hardwick",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 121
+  },
+  {
+   "pid": "peters_mo",
+   "name": "Tara Peters",
+   "officialListing": "Tara Peters",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 122
+  },
+  {
+   "pid": "vernetti_mo",
+   "name": "Jeff Vernetti",
+   "officialListing": "Jeff Vernetti",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 123
+  },
+  {
+   "pid": "mayhew_mo",
+   "name": "Don Mayhew",
+   "officialListing": "Don Mayhew",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 124
+  },
+  {
+   "pid": "diehl_mo",
+   "name": "Dane Diehl",
+   "officialListing": "Dane Diehl",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 125
+  },
+  {
+   "pid": "kalberloh_mo",
+   "name": "Jim Kalberloh",
+   "officialListing": "Jim Kalberloh",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 126
+  },
+  {
+   "pid": "kelley_mo",
+   "name": "Ann Kelley",
+   "officialListing": "Ann Kelley",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 127
+  },
+  {
+   "pid": "warwick_mo",
+   "name": "Christopher Warwick",
+   "officialListing": "Christopher Warwick",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 128
+  },
+  {
+   "pid": "john_black_mo",
+   "name": "John Black",
+   "officialListing": "John Black",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 129
+  },
+  {
+   "pid": "davidson_mo",
+   "name": "Bishop Davidson",
+   "officialListing": "Bishop Davidson",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 130
+  },
+  {
+   "pid": "owen_mo",
+   "name": "Bill Owen",
+   "officialListing": "Bill Owen",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 131
+  },
+  {
+   "pid": "dean_mo",
+   "name": "Jeremy Dean",
+   "officialListing": "Jeremy Dean",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 132
+  },
+  {
+   "pid": "stinnett_mo",
+   "name": "Melanie Stinnett",
+   "officialListing": "Melanie Stinnett",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 133
+  },
+  {
+   "pid": "riley_mo",
+   "name": "Alex Riley",
+   "officialListing": "Alex Riley",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 134
+  },
+  {
+   "pid": "fogle_mo",
+   "name": "Betsy Fogle",
+   "officialListing": "Betsy Fogle",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 135
+  },
+  {
+   "pid": "hein_mo",
+   "name": "Stephanie Hein",
+   "officialListing": "Stephanie Hein",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 136
+  },
+  {
+   "pid": "chappell_mo",
+   "name": "Darin Chappell",
+   "officialListing": "Darin Chappell",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 137
+  },
+  {
+   "pid": "whaley_mo",
+   "name": "Burt Whaley",
+   "officialListing": "Burt Whaley",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 138
+  },
+  {
+   "pid": "titus_mo",
+   "name": "Bob Titus",
+   "officialListing": "Bob Titus",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 139
+  },
+  {
+   "pid": "gragg_mo",
+   "name": "Jamie Ray Gragg",
+   "officialListing": "Jamie Ray Gragg",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 140
+  },
+  {
+   "pid": "schmidt_mo",
+   "name": "Melissa Schmidt",
+   "officialListing": "Melissa Schmidt",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 141
+  },
+  {
+   "pid": "knight_mo",
+   "name": "Jeff Knight",
+   "officialListing": "Jeff Knight",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 142
+  },
+  {
+   "pid": "cook_mo",
+   "name": "Bennie Cook",
+   "officialListing": "Bennie Cook",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 143
+  },
+  {
+   "pid": "harbison_mo",
+   "name": "Tony Harbison",
+   "officialListing": "Tony Harbison",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 144
+  },
+  {
+   "pid": "wolfin_mo",
+   "name": "Bryant Wolfin",
+   "officialListing": "Bryant Wolfin",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 145
+  },
+  {
+   "pid": "hovis_mo",
+   "name": "Barry Hovis",
+   "officialListing": "Barry Hovis",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 146
+  },
+  {
+   "pid": "voss_mo",
+   "name": "John Voss",
+   "officialListing": "John Voss",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 147
+  },
+  {
+   "pid": "dolan_mo",
+   "name": "David Dolan",
+   "officialListing": "David Dolan",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 148
+  },
+  {
+   "pid": "parker_mo",
+   "name": "Cameron Parker",
+   "officialListing": "Cameron Parker",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 150
+  },
+  {
+   "pid": "jordan_mo",
+   "name": "Steve Jordan",
+   "officialListing": "Steve Jordan",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 151
+  },
+  {
+   "pid": "billington_mo",
+   "name": "Hardy Billington",
+   "officialListing": "Hardy Billington",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 152
+  },
+  {
+   "pid": "elliott_mo",
+   "name": "Keith Elliott",
+   "officialListing": "Keith Elliott",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 153
+  },
+  {
+   "pid": "durnell_mo",
+   "name": "Lisa Durnell",
+   "officialListing": "Lisa Durnell",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 154
+  },
+  {
+   "pid": "overcast_mo",
+   "name": "Matthew Overcast",
+   "officialListing": "Matthew Overcast",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 155
+  },
+  {
+   "pid": "seitz_mo",
+   "name": "Brian Seitz",
+   "officialListing": "Brian Seitz",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 156
+  },
+  {
+   "pid": "boggs_mo",
+   "name": "Mitch Boggs",
+   "officialListing": "Mitch Boggs",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 157
+  },
+  {
+   "pid": "cupps_mo",
+   "name": "Scott Cupps",
+   "officialListing": "Scott Cupps",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 158
+  },
+  {
+   "pid": "lane_roberts_mo",
+   "name": "Lane Roberts",
+   "officialListing": "Lane Roberts",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 161
+  },
+  {
+   "pid": "bromley_mo",
+   "name": "Bob Bromley",
+   "officialListing": "Bob Bromley",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 162
+  },
+  {
+   "pid": "loy_mo",
+   "name": "Cathy Jo Loy",
+   "officialListing": "Cathy Jo Loy",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 163
+  },
+  {
+   "pid": "alexander_in",
+   "name": "Scott Alexander",
+   "officialListing": "Scott Alexander",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 26
+  },
+  {
+   "pid": "alting_in",
+   "name": "Ron Alting",
+   "officialListing": "Ron Alting",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 22
+  },
+  {
+   "pid": "baldwin_in",
+   "name": "Scott Baldwin",
+   "officialListing": "Scott Baldwin",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 20
+  },
+  {
+   "pid": "bassler_in",
+   "name": "Eric Bassler",
+   "officialListing": "Eric Bassler",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 39
+  },
+  {
+   "pid": "becker_in",
+   "name": "Vaneta Becker",
+   "officialListing": "Vaneta Becker",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 50
+  },
+  {
+   "pid": "bohacek_in",
+   "name": "Mike Bohacek",
+   "officialListing": "Mike Bohacek",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 8
+  },
+  {
+   "pid": "brown_in",
+   "name": "Liz Brown",
+   "officialListing": "Liz Brown",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 15
+  },
+  {
+   "pid": "buchanan_in",
+   "name": "Brian Buchanan",
+   "officialListing": "Brian Buchanan",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 7
+  },
+  {
+   "pid": "buck_in",
+   "name": "Jim Buck",
+   "officialListing": "Jim Buck",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 21
+  },
+  {
+   "pid": "busch_in",
+   "name": "Justin Busch",
+   "officialListing": "Justin Busch",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 16
+  },
+  {
+   "pid": "byrne_in",
+   "name": "Gary Byrne",
+   "officialListing": "Gary Byrne",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 47
+  },
+  {
+   "pid": "carrasco_in",
+   "name": "Cyndi Carrasco",
+   "officialListing": "Cyndi Carrasco",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 36
+  },
+  {
+   "pid": "charbonneau_in",
+   "name": "Ed Charbonneau",
+   "officialListing": "Ed Charbonneau",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 5
+  },
+  {
+   "pid": "clark_in",
+   "name": "Brett Clark",
+   "officialListing": "Brett Clark",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 24
+  },
+  {
+   "pid": "crider_in",
+   "name": "Michael Crider",
+   "officialListing": "Michael Crider",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 28
+  },
+  {
+   "pid": "deery_in",
+   "name": "Spencer Deery",
+   "officialListing": "Spencer Deery",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 23
+  },
+  {
+   "pid": "dernulc_in",
+   "name": "Dan Dernulc",
+   "officialListing": "Dan Dernulc",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 1
+  },
+  {
+   "pid": "donato_in",
+   "name": "Stacey A. Donato",
+   "officialListing": "Stacey A. Donato",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 18
+  },
+  {
+   "pid": "doriot_in",
+   "name": "Blake Doriot",
+   "officialListing": "Blake Doriot",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 12
+  },
+  {
+   "pid": "freeman_in",
+   "name": "Aaron Freeman",
+   "officialListing": "Aaron Freeman",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 32
+  },
+  {
+   "pid": "gaskill_in",
+   "name": "Mike Gaskill",
+   "officialListing": "Mike Gaskill",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 25
+  },
+  {
+   "pid": "glick_in",
+   "name": "Sue Glick",
+   "officialListing": "Sue Glick",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 13
+  },
+  {
+   "pid": "goode_in",
+   "name": "Greg Goode",
+   "officialListing": "Greg Goode",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 38
+  },
+  {
+   "pid": "holdman_in",
+   "name": "Travis Holdman",
+   "officialListing": "Travis Holdman",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 19
+  },
+  {
+   "pid": "tyler_johnson_in",
+   "name": "Tyler Johnson",
+   "officialListing": "Dr. Tyler Johnson",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 14
+  },
+  {
+   "pid": "koch_in",
+   "name": "Eric Koch",
+   "officialListing": "Eric Koch",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 44
+  },
+  {
+   "pid": "leising_in",
+   "name": "Jean Leising",
+   "officialListing": "Jean Leising",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 42
+  },
+  {
+   "pid": "maxwell_in",
+   "name": "Randy Maxwell",
+   "officialListing": "Randy Maxwell",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 43
+  },
+  {
+   "pid": "mckinley_in",
+   "name": "Nick McKinley",
+   "officialListing": "Nick McKinley",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 17
+  },
+  {
+   "pid": "mishler_in",
+   "name": "Ryan Mishler",
+   "officialListing": "Ryan Mishler",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 9
+  },
+  {
+   "pid": "niemeyer_in",
+   "name": "Rick Niemeyer",
+   "officialListing": "Rick Niemeyer",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 6
+  },
+  {
+   "pid": "raatz_in",
+   "name": "Jeff Raatz",
+   "officialListing": "Jeff Raatz",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 27
+  },
+  {
+   "pid": "rogers_in",
+   "name": "Linda Rogers",
+   "officialListing": "Linda Rogers",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 11
+  },
+  {
+   "pid": "schmitt_in",
+   "name": "Daryl Schmitt",
+   "officialListing": "Daryl Schmitt",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 48
+  },
+  {
+   "pid": "tomes_in",
+   "name": "Jim Tomes",
+   "officialListing": "Jim Tomes",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 49
+  },
+  {
+   "pid": "kyle_walker_in",
+   "name": "Kyle Walker",
+   "officialListing": "Kyle Walker",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 31
+  },
+  {
+   "pid": "greg_walker_in",
+   "name": "Greg Walker",
+   "officialListing": "Greg Walker",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 41
+  },
+  {
+   "pid": "young_in",
+   "name": "R. Michael Young",
+   "officialListing": "R. Michael Young",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 35
+  },
+  {
+   "pid": "andrade_in",
+   "name": "Mike Andrade",
+   "officialListing": "Mike Andrade",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 12
+  },
+  {
+   "pid": "bartlett_in",
+   "name": "John L. Bartlett",
+   "officialListing": "John L. Bartlett",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 95
+  },
+  {
+   "pid": "bauer_in",
+   "name": "Maureen Bauer",
+   "officialListing": "Maureen Bauer",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 6
+  },
+  {
+   "pid": "burton_in",
+   "name": "Alex Burton",
+   "officialListing": "Alex Burton",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 77
+  },
+  {
+   "pid": "chesser_in",
+   "name": "Wendy Dant Chesser",
+   "officialListing": "Wendy Dant Chesser",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 71
+  },
+  {
+   "pid": "delaney_in",
+   "name": "Ed DeLaney",
+   "officialListing": "Ed DeLaney",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 86
+  },
+  {
+   "pid": "dvorak_in",
+   "name": "Ryan Dvorak",
+   "officialListing": "Ryan Dvorak",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 8
+  },
+  {
+   "pid": "errington_in",
+   "name": "Sue Errington",
+   "officialListing": "Sue Errington",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 34
+  },
+  {
+   "pid": "wilburn_in",
+   "name": "Victoria Garcia Wilburn",
+   "officialListing": "Victoria Garcia Wilburn",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 32
+  },
+  {
+   "pid": "giaquinta_in",
+   "name": "Phil GiaQuinta",
+   "officialListing": "Phil GiaQuinta",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 80
+  },
+  {
+   "pid": "gore_in",
+   "name": "Mitch Gore",
+   "officialListing": "Mitch Gore",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 89
+  },
+  {
+   "pid": "hamilton_in",
+   "name": "Carey Hamilton",
+   "officialListing": "Carey Hamilton",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 87
+  },
+  {
+   "pid": "harris_in",
+   "name": "Earl L. Harris Jr.",
+   "officialListing": "Earl L. Harris Jr.",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 2
+  },
+  {
+   "pid": "hatcher_in",
+   "name": "Ragen Hatcher",
+   "officialListing": "Ragen Hatcher",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 3
+  },
+  {
+   "pid": "carolyn_jackson_in",
+   "name": "Carolyn B. Jackson",
+   "officialListing": "Carolyn B. Jackson",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 1
+  },
+  {
+   "pid": "klinker_in",
+   "name": "Sheila Klinker",
+   "officialListing": "Sheila Klinker",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 27
+  },
+  {
+   "pid": "kyle_miller_in",
+   "name": "Kyle Miller",
+   "officialListing": "Kyle Miller",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 82
+  },
+  {
+   "pid": "moed_in",
+   "name": "Justin Moed",
+   "officialListing": "Justin Moed",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 97
+  },
+  {
+   "pid": "moseley_in",
+   "name": "Chuck Moseley",
+   "officialListing": "Chuck Moseley",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 10
+  },
+  {
+   "pid": "novak_in",
+   "name": "Randy Novak",
+   "officialListing": "Randy Novak",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 9
+  },
+  {
+   "pid": "pack_in",
+   "name": "Renee Pack",
+   "officialListing": "Renee Pack",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 92
+  },
+  {
+   "pid": "pfaff_in",
+   "name": "Tonya Pfaff",
+   "officialListing": "Tonya Pfaff",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 43
+  },
+  {
+   "pid": "matt_pierce_in",
+   "name": "Matt Pierce",
+   "officialListing": "Matt Pierce",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 61
+  },
+  {
+   "pid": "porter_in",
+   "name": "Gregory W. Porter",
+   "officialListing": "Gregory W. Porter",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 96
+  },
+  {
+   "pid": "pryor_in",
+   "name": "Cherrish Pryor",
+   "officialListing": "Cherrish Pryor",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 94
+  },
+  {
+   "pid": "shackleford_in",
+   "name": "Robin Shackleford",
+   "officialListing": "Robin Shackleford",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 98
+  },
+  {
+   "pid": "vernon_smith_in",
+   "name": "Vernon G. Smith",
+   "officialListing": "Vernon G. Smith",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 14
+  },
+  {
+   "pid": "summers_in",
+   "name": "Vanessa Summers",
+   "officialListing": "Vanessa Summers",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 99
+  },
+  {
+   "pid": "hunley_in",
+   "name": "Andrea Hunley",
+   "officialListing": "Andrea Hunley",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 46
+  },
+  {
+   "pid": "pol_in",
+   "name": "Rodney Pol",
+   "officialListing": "Rodney Pol",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 4
+  },
+  {
+   "pid": "la_jackson_in",
+   "name": "La Keisha Jackson",
+   "officialListing": "La Keisha Jackson",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 34
+  },
+  {
+   "pid": "niezgodski_in",
+   "name": "David Niezgodski",
+   "officialListing": "David Niezgodski",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 10
+  },
+  {
+   "pid": "qaddoura_in",
+   "name": "Fady Qaddoura",
+   "officialListing": "Fady Qaddoura",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 30
+  },
+  {
+   "pid": "randolph_in",
+   "name": "Lonnie Randolph",
+   "officialListing": "Lonnie Randolph",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 2
+  },
+  {
+   "pid": "spencer_in",
+   "name": "Mark Spencer",
+   "officialListing": "Mark Spencer",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 3
+  },
+  {
+   "pid": "taylor_in",
+   "name": "Greg Taylor",
+   "officialListing": "Greg Taylor",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 33
+  },
+  {
+   "pid": "karickhoff_in",
+   "name": "Mike Karickhoff",
+   "officialListing": "Mike Karickhoff",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 30
+  },
+  {
+   "pid": "lehman_in",
+   "name": "Matt Lehman",
+   "officialListing": "Matt Lehman",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 79
+  },
+  {
+   "pid": "olthoff_in",
+   "name": "Julie Olthoff",
+   "officialListing": "Julie Olthoff",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 19
+  },
+  {
+   "pid": "patterson_in",
+   "name": "Lindsay Patterson",
+   "officialListing": "Lindsay Patterson",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 55
+  },
+  {
+   "pid": "ledbetter_in",
+   "name": "Cindy Ledbetter",
+   "officialListing": "Cindy Ledbetter",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 75
+  },
+  {
+   "pid": "king_in",
+   "name": "Joanna King",
+   "officialListing": "Joanna King",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 49
+  },
+  {
+   "pid": "steuerwald_in",
+   "name": "Greg Steuerwald",
+   "officialListing": "Greg Steuerwald",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 40
+  },
+  {
+   "pid": "mcnamara_in",
+   "name": "Wendy McNamara",
+   "officialListing": "Wendy McNamara",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 76
+  },
+  {
+   "pid": "rowray_in",
+   "name": "Elizabeth Rowray",
+   "officialListing": "Elizabeth Rowray",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 35
+  },
+  {
+   "pid": "payne_in",
+   "name": "Zach Payne",
+   "officialListing": "Zach Payne",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 66
+  },
+  {
+   "pid": "oabrien_in",
+   "name": "Tim OâBrien",
+   "officialListing": "Tim OâBrien",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 78
+  },
+  {
+   "pid": "yocum_in",
+   "name": "Tim Yocum",
+   "officialListing": "Tim Yocum",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 42
+  },
+  {
+   "pid": "wesco_in",
+   "name": "Tim Wesco",
+   "officialListing": "Tim Wesco",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 21
+  },
+  {
+   "pid": "mayfield_in",
+   "name": "Peggy Mayfield",
+   "officialListing": "Peggy Mayfield",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 60
+  },
+  {
+   "pid": "lauer_in",
+   "name": "Ryan Lauer",
+   "officialListing": "Ryan Lauer",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 59
+  },
+  {
+   "pid": "sweet_in",
+   "name": "Lorissa Sweet",
+   "officialListing": "Lorissa Sweet",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 50
+  },
+  {
+   "pid": "pressel_in",
+   "name": "Jim Pressel",
+   "officialListing": "Jim Pressel",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 20
+  },
+  {
+   "pid": "mcguire_in",
+   "name": "Julie McGuire",
+   "officialListing": "Julie McGuire",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 93
+  },
+  {
+   "pid": "kyle_pierce_in",
+   "name": "Kyle Pierce",
+   "officialListing": "Kyle Pierce",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 36
+  },
+  {
+   "pid": "meltzer_in",
+   "name": "Jennifer Meltzer",
+   "officialListing": "Jennifer Meltzer",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 73
+  },
+  {
+   "pid": "lucas_in",
+   "name": "Jim Lucas",
+   "officialListing": "Jim Lucas",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 69
+  },
+  {
+   "pid": "thompson_in",
+   "name": "Jeff Thompson",
+   "officialListing": "Jeff Thompson",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 28
+  },
+  {
+   "pid": "teshka_in",
+   "name": "Jake Teshka",
+   "officialListing": "Jake Teshka",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 7
+  },
+  {
+   "pid": "vannatter_in",
+   "name": "Heath VanNatter",
+   "officialListing": "Heath VanNatter",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 38
+  },
+  {
+   "pid": "manning_in",
+   "name": "Ethan Manning",
+   "officialListing": "Ethan Manning",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 23
+  },
+  {
+   "pid": "slager_in",
+   "name": "Hal Slager",
+   "officialListing": "Hal Slager",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 15
+  },
+  {
+   "pid": "hunter_smith_in",
+   "name": "Hunter Smith",
+   "officialListing": "Hunter Smith",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 24
+  },
+  {
+   "pid": "soliday_in",
+   "name": "Ed Soliday",
+   "officialListing": "Ed Soliday",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 4
+  },
+  {
+   "pid": "doug_miller_in",
+   "name": "Doug Miller",
+   "officialListing": "Doug Miller",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 48
+  },
+  {
+   "pid": "lawson_in",
+   "name": "Ethan Lawson",
+   "officialListing": "Ethan Lawson",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 53
+  },
+  {
+   "pid": "may_in",
+   "name": "Chris May",
+   "officialListing": "Chris May",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 65
+  },
+  {
+   "pid": "snow_in",
+   "name": "Craig Snow",
+   "officialListing": "Craig Snow",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 22
+  },
+  {
+   "pid": "judy_in",
+   "name": "Christopher Judy",
+   "officialListing": "Christopher Judy",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 83
+  },
+  {
+   "pid": "lopez_in",
+   "name": "Danny Lopez",
+   "officialListing": "Danny Lopez",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 39
+  },
+  {
+   "pid": "smaltz_in",
+   "name": "Ben Smaltz",
+   "officialListing": "Ben Smaltz",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 52
+  },
+  {
+   "pid": "morris_in",
+   "name": "Bob Morris",
+   "officialListing": "Bob Morris",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 84
+  },
+  {
+   "pid": "zimmerman_in",
+   "name": "Alex Zimmerman",
+   "officialListing": "Alex Zimmerman",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 67
+  },
+  {
+   "pid": "shonkwiler_in",
+   "name": "Alaina Shonkwiler",
+   "officialListing": "Alaina Shonkwiler",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 29
+  },
+  {
+   "pid": "davis_in",
+   "name": "Michelle Davis",
+   "officialListing": "Michelle Davis",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 58
+  },
+  {
+   "pid": "abbott_in",
+   "name": "David Abbott",
+   "officialListing": "David Abbott",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 18
+  },
+  {
+   "pid": "bartels_in",
+   "name": "Stephen Bartels",
+   "officialListing": "Stephen Bartels",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 74
+  },
+  {
+   "pid": "heaton_in",
+   "name": "Bob Heaton",
+   "officialListing": "Bob Heaton",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 46
+  },
+  {
+   "pid": "hall_in",
+   "name": "Dave Hall",
+   "officialListing": "Dave Hall",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 62
+  },
+  {
+   "pid": "criswell_in",
+   "name": "Cory Criswell",
+   "officialListing": "Cory Criswell",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 54
+  },
+  {
+   "pid": "isa_in",
+   "name": "Tony Isa",
+   "officialListing": "Tony Isa",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 51
+  },
+  {
+   "pid": "greene_in",
+   "name": "Robb Greene",
+   "officialListing": "Robb Greene",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 47
+  },
+  {
+   "pid": "aylesworth_in",
+   "name": "Mike Aylesworth",
+   "officialListing": "Mike Aylesworth",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 11
+  },
+  {
+   "pid": "hostettler_in",
+   "name": "Matt Hostettler",
+   "officialListing": "Matt Hostettler",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 64
+  },
+  {
+   "pid": "carbaugh_in",
+   "name": "Martin Carbaugh",
+   "officialListing": "Martin Carbaugh",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 81
+  },
+  {
+   "pid": "commons_in",
+   "name": "Matt Commons",
+   "officialListing": "Matt Commons",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 13
+  },
+  {
+   "pid": "genda_in",
+   "name": "Mark Genda",
+   "officialListing": "Mark Genda",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 41
+  },
+  {
+   "pid": "goss_reaves_in",
+   "name": "Lori Goss-Reaves",
+   "officialListing": "Lori Goss-Reaves",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 31
+  },
+  {
+   "pid": "engleman_in",
+   "name": "Karen Engleman",
+   "officialListing": "Karen Engleman",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 70
+  },
+  {
+   "pid": "culp_in",
+   "name": "Kendell Culp",
+   "officialListing": "Kendell Culp",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 16
+  },
+  {
+   "pid": "jordan_in",
+   "name": "Jack Jordan",
+   "officialListing": "Jack Jordan",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 17
+  },
+  {
+   "pid": "heine_in",
+   "name": "Dave Heine",
+   "officialListing": "Dave Heine",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 85
+  },
+  {
+   "pid": "clere_in",
+   "name": "Ed Clere",
+   "officialListing": "Ed Clere",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 72
+  },
+  {
+   "pid": "bascom_in",
+   "name": "Garrett Bascom",
+   "officialListing": "Garrett Bascom",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 68
+  },
+  {
+   "pid": "devon_in",
+   "name": "Dale DeVon",
+   "officialListing": "Dale DeVon",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 5
+  },
+  {
+   "pid": "haggard_in",
+   "name": "Craig Haggard",
+   "officialListing": "Craig Haggard",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 57
+  },
+  {
+   "pid": "jeter_in",
+   "name": "Chris Jeter",
+   "officialListing": "Chris Jeter",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 88
+  },
+  {
+   "pid": "borders_in",
+   "name": "Bruce Borders",
+   "officialListing": "Bruce Borders",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 45
+  },
+  {
+   "pid": "barrett_in",
+   "name": "Brad Barrett",
+   "officialListing": "Brad Barrett",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 56
+  },
+  {
+   "pid": "behning_in",
+   "name": "Bob Behning",
+   "officialListing": "Bob Behning",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 91
+  },
+  {
+   "pid": "baird_in",
+   "name": "Beau Baird",
+   "officialListing": "Beau Baird",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 44
+  },
+  {
+   "pid": "cash_in",
+   "name": "Becky Cash",
+   "officialListing": "Becky Cash",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 25
+  },
+  {
+   "pid": "ireland_in",
+   "name": "Andrew Ireland",
+   "officialListing": "Andrew Ireland",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 90
+  }
+ ],
+ "alreadyHeld": [
+  {
+   "pid": "raumesh_akbari",
+   "state": "Tennessee",
+   "chamber": "State Senate",
+   "district": 29
+  },
+  {
+   "pid": "jack_johnson_tn",
+   "state": "Tennessee",
+   "chamber": "State Senate",
+   "district": 27
+  },
+  {
+   "pid": "randy_mcnally",
+   "state": "Tennessee",
+   "chamber": "State Senate",
+   "district": 5
+  },
+  {
+   "pid": "doug_beck",
+   "state": "Missouri",
+   "chamber": "State Senate",
+   "district": 1
+  },
+  {
+   "pid": "tony_luetkemeyer",
+   "state": "Missouri",
+   "chamber": "State Senate",
+   "district": 34
+  },
+  {
+   "pid": "cindy_olaughlin",
+   "state": "Missouri",
+   "chamber": "State Senate",
+   "district": 18
+  },
+  {
+   "pid": "rodric_bray",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 37
+  },
+  {
+   "pid": "chris_garten",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 45
+  },
+  {
+   "pid": "shelli_yoder",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 40
+  }
+ ],
+ "districtSet": [
+  {
+   "pid": "cameron_sexton",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 25,
+   "was": null
+  },
+  {
+   "pid": "jon_patterson",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 30,
+   "was": null
+  },
+  {
+   "pid": "todd_huston",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 37,
+   "was": null
+  }
+ ],
+ "onFileAsCandidate": [
+  {
+   "pid": "brent_taylor",
+   "name": "Brent Taylor",
+   "state": "Tennessee",
+   "chamber": "State Senate",
+   "district": 31,
+   "rosterOffice": "U.S. House Candidate (TN-9)"
+  },
+  {
+   "pid": "johnny_garrett",
+   "name": "Johnny Garrett",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 45,
+   "rosterOffice": "U.S. House Candidate (TN-6)"
+  },
+  {
+   "pid": "justin_pearson",
+   "name": "Justin J. Pearson",
+   "state": "Tennessee",
+   "chamber": "State House",
+   "district": 86,
+   "rosterOffice": "U.S. House Candidate (TN-9)"
+  },
+  {
+   "pid": "rick_brattin",
+   "name": "Rick Brattin",
+   "state": "Missouri",
+   "chamber": "State Senate",
+   "district": 31,
+   "rosterOffice": "U.S. House Candidate (MO-5)"
+  },
+  {
+   "pid": "jd_ford",
+   "name": "J.D. Ford",
+   "state": "Indiana",
+   "chamber": "State Senate",
+   "district": 29,
+   "rosterOffice": "U.S. House Candidate (IN-5)"
+  }
+ ],
+ "nameSharedWithAnotherRecord": [
+  {
+   "name": "Mike Jones",
+   "state": "Missouri",
+   "chamber": "State House",
+   "district": 12,
+   "sharesNameWith": "Pennsylvania State Representative Mike Jones (mike_jones_pa)"
+  },
+  {
+   "name": "Chris Campbell",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 26,
+   "sharesNameWith": "Tennessee U.S. House candidate Chris Campbell (chris_campbell)"
+  },
+  {
+   "name": "Blake Johnson",
+   "state": "Indiana",
+   "chamber": "State House",
+   "district": 100,
+   "sharesNameWith": "Arkansas State Senator Blake Johnson, whose stance content is keyed blake_johnson (state-senate-stances-w9.js)"
+  }
+ ]
+}

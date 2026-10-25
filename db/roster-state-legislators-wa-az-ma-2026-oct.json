@@ -1,0 +1,2431 @@
+{
+ "_note": "Sitting Washington, Arizona and Massachusetts state legislators, read from each chamber's official sources on 2026-10-24. cmp-data.js carries a roster shell for every \"rows\" entry; \"districtSet\" names existing records that gained their district; \"nameSharedWithAnotherRecord\" seats are left empty because another record carries the same display name. Washington's biennium sponsor list still carries two senators who left mid-term (Joe Nguyen, LD 34; Bill Ramos, LD 5), so a Washington senator was taken as sitting only when the Legislature's own web service lists them on an active Senate committee: every district has exactly one, and the Lieutenant Governor, who chairs Rules, was set aside. Arizona's roster marks Eva Burch (LD 9) as resigned 03/14/2025; she was left out and Kiana Sears, listed for LD 9, was kept. Massachusetts rows come from the Legislature's member pages (its API still lists four members who have left); a Massachusetts district is keyed by its name, as the seat resolver's district-name table spells it, and \"district\" is that table's sequence number for the seat.",
+ "read": "2026-10-24",
+ "sources": {
+  "Washington": {
+   "statesenate": "https://wslwebservices.leg.wa.gov/CommitteeService.asmx/GetActiveCommitteeMembers (every active Senate committee)",
+   "districts": "https://wslwebservices.leg.wa.gov/SponsorService.asmx/GetSenateSponsors?biennium=2025-26"
+  },
+  "Arizona": {
+   "statesenate": "https://www.azleg.gov/MemberRoster/?body=S"
+  },
+  "Massachusetts": {
+   "statesenate": "https://malegislature.gov/Legislators/Members/Senate",
+   "statehouse": "https://malegislature.gov/Legislators/Members/House"
+  }
+ },
+ "vacant": {
+  "Washington": {
+   "statesenate": []
+  },
+  "Arizona": {
+   "statesenate": []
+  },
+  "Massachusetts": {
+   "statesenate": [],
+   "statehouse": [
+    "1st Franklin",
+    "16th Middlesex",
+    "17th Middlesex"
+   ]
+  }
+ },
+ "notAdded": {
+  "Washington House of Representatives": "Each of Washington's 49 legislative districts elects two Representatives (Position 1 and Position 2). The seat resolver places nobody on a seat two in-office records claim, so a pair of shells would still read \"no member on file yet\"; no House rows were added.",
+  "Arizona House of Representatives": "Each of Arizona's 30 legislative districts elects two Representatives. The seat resolver places nobody on a seat two in-office records claim, so a pair of shells would still read \"no member on file yet\"; no House rows were added."
+ },
+ "rows": [
+  {
+   "pid": "michael_barrett_ma",
+   "name": "Michael Barrett",
+   "officialListing": "Barrett, Michael",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 15,
+   "districtName": "Third Middlesex"
+  },
+  {
+   "pid": "brady_ma",
+   "name": "Michael Brady",
+   "officialListing": "Brady, Michael",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 34,
+   "districtName": "Second Plymouth and Norfolk"
+  },
+  {
+   "pid": "brownsberger_ma",
+   "name": "William Brownsberger",
+   "officialListing": "Brownsberger, William",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 28,
+   "districtName": "Suffolk and Middlesex"
+  },
+  {
+   "pid": "collins_ma",
+   "name": "Nick Collins",
+   "officialListing": "Collins, Nick",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 30,
+   "districtName": "First Suffolk"
+  },
+  {
+   "pid": "comerford_ma",
+   "name": "Joanne Comerford",
+   "officialListing": "Comerford, Joanne",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 5,
+   "districtName": "Hampshire, Franklin and Worcester"
+  },
+  {
+   "pid": "crighton_ma",
+   "name": "Brendan Crighton",
+   "officialListing": "Crighton, Brendan",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 24,
+   "districtName": "Third Essex"
+  },
+  {
+   "pid": "cronin_ma",
+   "name": "John Cronin",
+   "officialListing": "Cronin, John",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 10,
+   "districtName": "Worcester and Middlesex"
+  },
+  {
+   "pid": "cyr_ma",
+   "name": "Julian Cyr",
+   "officialListing": "Cyr, Julian",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 40,
+   "districtName": "Cape and Islands"
+  },
+  {
+   "pid": "didomenico_ma",
+   "name": "Sal DiDomenico",
+   "officialListing": "DiDomenico, Sal",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 26,
+   "districtName": "Middlesex and Suffolk"
+  },
+  {
+   "pid": "dooner_ma",
+   "name": "Kelly Dooner",
+   "officialListing": "Dooner, Kelly",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 36,
+   "districtName": "Third Bristol and Plymouth"
+  },
+  {
+   "pid": "driscoll_ma",
+   "name": "William Driscoll",
+   "officialListing": "Driscoll, William",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 33,
+   "districtName": "Norfolk, Plymouth and Bristol"
+  },
+  {
+   "pid": "durant_ma",
+   "name": "Peter Durant",
+   "officialListing": "Durant, Peter",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 6,
+   "districtName": "Worcester and Hampshire"
+  },
+  {
+   "pid": "edwards_ma",
+   "name": "Lydia Edwards",
+   "officialListing": "Edwards, Lydia",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 25,
+   "districtName": "Third Suffolk"
+  },
+  {
+   "pid": "eldridge_ma",
+   "name": "James Eldridge",
+   "officialListing": "Eldridge, James",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 12,
+   "districtName": "Middlesex and Worcester"
+  },
+  {
+   "pid": "fattman_ma",
+   "name": "Ryan Fattman",
+   "officialListing": "Fattman, Ryan",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 7,
+   "districtName": "Worcester and Hampden"
+  },
+  {
+   "pid": "feeney_ma",
+   "name": "Paul Feeney",
+   "officialListing": "Feeney, Paul",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 35,
+   "districtName": "Bristol and Norfolk"
+  },
+  {
+   "pid": "fernandes_ma",
+   "name": "Dylan Fernandes",
+   "officialListing": "Fernandes, Dylan",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 39,
+   "districtName": "Plymouth and Barnstable"
+  },
+  {
+   "pid": "finegold_ma",
+   "name": "Barry Finegold",
+   "officialListing": "Finegold, Barry",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 20,
+   "districtName": "Second Essex and Middlesex"
+  },
+  {
+   "pid": "friedman_ma",
+   "name": "Cindy Friedman",
+   "officialListing": "Friedman, Cindy",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 16,
+   "districtName": "Fourth Middlesex"
+  },
+  {
+   "pid": "adam_gomez_ma",
+   "name": "Adam Gómez",
+   "officialListing": "Gómez, Adam",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 3,
+   "districtName": "Hampden"
+  },
+  {
+   "pid": "howard_ma",
+   "name": "Vanna Howard",
+   "officialListing": "Howard, Vanna",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 11,
+   "districtName": "First Middlesex"
+  },
+  {
+   "pid": "jehlen_ma",
+   "name": "Patricia Jehlen",
+   "officialListing": "Jehlen, Patricia",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 27,
+   "districtName": "Second Middlesex"
+  },
+  {
+   "pid": "keenan_ma",
+   "name": "John Keenan",
+   "officialListing": "Keenan, John",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 32,
+   "districtName": "Norfolk and Plymouth"
+  },
+  {
+   "pid": "kennedy_ma",
+   "name": "Robyn Kennedy",
+   "officialListing": "Kennedy, Robyn",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 9,
+   "districtName": "First Worcester"
+  },
+  {
+   "pid": "jason_lewis_ma",
+   "name": "Jason Lewis",
+   "officialListing": "Lewis, Jason",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 23,
+   "districtName": "Fifth Middlesex"
+  },
+  {
+   "pid": "lovely_ma",
+   "name": "Joan Lovely",
+   "officialListing": "Lovely, Joan",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 22,
+   "districtName": "Second Essex"
+  },
+  {
+   "pid": "mark_ma",
+   "name": "Paul Mark",
+   "officialListing": "Mark, Paul",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 1,
+   "districtName": "Berkshire, Hampden, Franklin and Hampshire"
+  },
+  {
+   "pid": "miranda_ma",
+   "name": "Liz Miranda",
+   "officialListing": "Miranda, Liz",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 29,
+   "districtName": "Second Suffolk"
+  },
+  {
+   "pid": "montigny_ma",
+   "name": "Mark Montigny",
+   "officialListing": "Montigny, Mark",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 38,
+   "districtName": "Second Bristol and Plymouth"
+  },
+  {
+   "pid": "moore_ma",
+   "name": "Michael Moore",
+   "officialListing": "Moore, Michael",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 8,
+   "districtName": "Second Worcester"
+  },
+  {
+   "pid": "oconnor_ma",
+   "name": "Patrick O'Connor",
+   "officialListing": "O'Connor, Patrick",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 31,
+   "districtName": "First Plymouth and Norfolk"
+  },
+  {
+   "pid": "oliveira_ma",
+   "name": "Jacob Oliveira",
+   "officialListing": "Oliveira, Jacob",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 4,
+   "districtName": "Hampden, Hampshire and Worcester"
+  },
+  {
+   "pid": "payano_ma",
+   "name": "Pavel Payano",
+   "officialListing": "Payano, Pavel",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 19,
+   "districtName": "First Essex"
+  },
+  {
+   "pid": "rausch_ma",
+   "name": "Rebecca Rausch",
+   "officialListing": "Rausch, Rebecca",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 14,
+   "districtName": "Norfolk, Worcester and Middlesex"
+  },
+  {
+   "pid": "rodrigues_ma",
+   "name": "Michael Rodrigues",
+   "officialListing": "Rodrigues, Michael",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 37,
+   "districtName": "First Bristol and Plymouth"
+  },
+  {
+   "pid": "rush_ma",
+   "name": "Michael Rush",
+   "officialListing": "Rush, Michael",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 18,
+   "districtName": "Norfolk and Suffolk"
+  },
+  {
+   "pid": "velis_ma",
+   "name": "John Velis",
+   "officialListing": "Velis, John",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 2,
+   "districtName": "Hampden and Hampshire"
+  },
+  {
+   "pid": "arciero_ma",
+   "name": "James Arciero",
+   "officialListing": "Arciero, James",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 60,
+   "districtName": "2nd Middlesex"
+  },
+  {
+   "pid": "arena_derosa_ma",
+   "name": "James Arena-DeRosa",
+   "officialListing": "Arena-DeRosa, James",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 66,
+   "districtName": "8th Middlesex"
+  },
+  {
+   "pid": "armini_ma",
+   "name": "Jennifer Balinsky Armini",
+   "officialListing": "Armini, Jennifer Balinsky",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 31,
+   "districtName": "8th Essex"
+  },
+  {
+   "pid": "arriaga_ma",
+   "name": "Shirley Arriaga",
+   "officialListing": "Arriaga, Shirley",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 51,
+   "districtName": "8th Hampden"
+  },
+  {
+   "pid": "ashe_ma",
+   "name": "Brian Ashe",
+   "officialListing": "Ashe, Brian",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 45,
+   "districtName": "2nd Hampden"
+  },
+  {
+   "pid": "ayers_ma",
+   "name": "Bruce Ayers",
+   "officialListing": "Ayers, Bruce",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 96,
+   "districtName": "1st Norfolk"
+  },
+  {
+   "pid": "badger_ma",
+   "name": "Michelle Badger",
+   "officialListing": "Badger, Michelle",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 111,
+   "districtName": "1st Plymouth"
+  },
+  {
+   "pid": "barber_ma",
+   "name": "Christine Barber",
+   "officialListing": "Barber, Christine",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 92,
+   "districtName": "34th Middlesex"
+  },
+  {
+   "pid": "john_barrett_ma",
+   "name": "John Barrett",
+   "officialListing": "Barrett, John",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 7,
+   "districtName": "1st Berkshire"
+  },
+  {
+   "pid": "berthiaume_ma",
+   "name": "Donald Berthiaume",
+   "officialListing": "Berthiaume, Donald",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 146,
+   "districtName": "5th Worcester"
+  },
+  {
+   "pid": "biele_ma",
+   "name": "David Biele",
+   "officialListing": "Biele, David",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 126,
+   "districtName": "4th Suffolk"
+  },
+  {
+   "pid": "boldyga_ma",
+   "name": "Nicholas Boldyga",
+   "officialListing": "Boldyga, Nicholas",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 46,
+   "districtName": "3rd Hampden"
+  },
+  {
+   "pid": "bowen_ma",
+   "name": "Hannah Bowen",
+   "officialListing": "Bowen, Hannah",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 29,
+   "districtName": "6th Essex"
+  },
+  {
+   "pid": "cabral_ma",
+   "name": "Antonio Cabral",
+   "officialListing": "Cabral, Antonio",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 22,
+   "districtName": "13th Bristol"
+  },
+  {
+   "pid": "cahill_ma",
+   "name": "Daniel Cahill",
+   "officialListing": "Cahill, Daniel",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 33,
+   "districtName": "10th Essex"
+  },
+  {
+   "pid": "cataldo_ma",
+   "name": "Simon Cataldo",
+   "officialListing": "Cataldo, Simon",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 72,
+   "districtName": "14th Middlesex"
+  },
+  {
+   "pid": "chaisson_ma",
+   "name": "Michael Chaisson",
+   "officialListing": "Chaisson, Michael",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 10,
+   "districtName": "1st Bristol"
+  },
+  {
+   "pid": "chan_ma",
+   "name": "Tackey Chan",
+   "officialListing": "Chan, Tackey",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 97,
+   "districtName": "2nd Norfolk"
+  },
+  {
+   "pid": "ciccolo_ma",
+   "name": "Michelle Ciccolo",
+   "officialListing": "Ciccolo, Michelle",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 73,
+   "districtName": "15th Middlesex"
+  },
+  {
+   "pid": "connolly_ma",
+   "name": "Mike Connolly",
+   "officialListing": "Connolly, Mike",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 84,
+   "districtName": "26th Middlesex"
+  },
+  {
+   "pid": "consalvo_ma",
+   "name": "Rob Consalvo",
+   "officialListing": "Consalvo, Rob",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 136,
+   "districtName": "14th Suffolk"
+  },
+  {
+   "pid": "cruz_ma",
+   "name": "Manny Cruz",
+   "officialListing": "Cruz, Manny",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 30,
+   "districtName": "7th Essex"
+  },
+  {
+   "pid": "cusack_ma",
+   "name": "Mark Cusack",
+   "officialListing": "Cusack, Mark",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 100,
+   "districtName": "5th Norfolk"
+  },
+  {
+   "pid": "davis_ma",
+   "name": "Leigh Davis",
+   "officialListing": "Davis, Leigh",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 9,
+   "districtName": "3rd Berkshire"
+  },
+  {
+   "pid": "day_ma",
+   "name": "Michael Day",
+   "officialListing": "Day, Michael",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 89,
+   "districtName": "31st Middlesex"
+  },
+  {
+   "pid": "decker_ma",
+   "name": "Marjorie Decker",
+   "officialListing": "Decker, Marjorie",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 83,
+   "districtName": "25th Middlesex"
+  },
+  {
+   "pid": "decoste_ma",
+   "name": "David DeCoste",
+   "officialListing": "DeCoste, David",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 115,
+   "districtName": "5th Plymouth"
+  },
+  {
+   "pid": "diggs_ma",
+   "name": "Kip Diggs",
+   "officialListing": "Diggs, Kip",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 2,
+   "districtName": "2nd Barnstable"
+  },
+  {
+   "pid": "domb_ma",
+   "name": "Mindy Domb",
+   "officialListing": "Domb, Mindy",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 58,
+   "districtName": "3rd Hampshire"
+  },
+  {
+   "pid": "donaghue_ma",
+   "name": "Kate Donaghue",
+   "officialListing": "Donaghue, Kate",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 160,
+   "districtName": "19th Worcester"
+  },
+  {
+   "pid": "donahue_ma",
+   "name": "Daniel Donahue",
+   "officialListing": "Donahue, Daniel",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 157,
+   "districtName": "16th Worcester"
+  },
+  {
+   "pid": "donato_ma",
+   "name": "Paul Donato",
+   "officialListing": "Donato, Paul",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 93,
+   "districtName": "35th Middlesex"
+  },
+  {
+   "pid": "dubois_ma",
+   "name": "Michelle DuBois",
+   "officialListing": "DuBois, Michelle",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 120,
+   "districtName": "10th Plymouth"
+  },
+  {
+   "pid": "duffy_ma",
+   "name": "Patricia Duffy",
+   "officialListing": "Duffy, Patricia",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 48,
+   "districtName": "5th Hampden"
+  },
+  {
+   "pid": "farley_bouvier_ma",
+   "name": "Tricia Farley-Bouvier",
+   "officialListing": "Farley-Bouvier, Tricia",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 8,
+   "districtName": "2nd Berkshire"
+  },
+  {
+   "pid": "ferguson_ma",
+   "name": "Kimberly Ferguson",
+   "officialListing": "Ferguson, Kimberly",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 142,
+   "districtName": "1st Worcester"
+  },
+  {
+   "pid": "field_ma",
+   "name": "Lisa Field",
+   "officialListing": "Field, Lisa",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 12,
+   "districtName": "3rd Bristol"
+  },
+  {
+   "pid": "finn_ma",
+   "name": "Michael Finn",
+   "officialListing": "Finn, Michael",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 49,
+   "districtName": "6th Hampden"
+  },
+  {
+   "pid": "fiola_ma",
+   "name": "Carole Fiola",
+   "officialListing": "Fiola, Carole",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 15,
+   "districtName": "6th Bristol"
+  },
+  {
+   "pid": "flanagan_ma",
+   "name": "Christopher Flanagan",
+   "officialListing": "Flanagan, Christopher",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 1,
+   "districtName": "1st Barnstable"
+  },
+  {
+   "pid": "fluker_reid_ma",
+   "name": "Brandy Fluker-Reid",
+   "officialListing": "Fluker-Reid, Brandy",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 134,
+   "districtName": "12th Suffolk"
+  },
+  {
+   "pid": "frost_ma",
+   "name": "Paul Frost",
+   "officialListing": "Frost, Paul",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 148,
+   "districtName": "7th Worcester"
+  },
+  {
+   "pid": "gallagher_ma",
+   "name": "Dennis Gallagher",
+   "officialListing": "Gallagher, Dennis",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 118,
+   "districtName": "8th Plymouth"
+  },
+  {
+   "pid": "galvin_ma",
+   "name": "William Galvin",
+   "officialListing": "Galvin, William",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 101,
+   "districtName": "6th Norfolk"
+  },
+  {
+   "pid": "garballey_ma",
+   "name": "Sean Garballey",
+   "officialListing": "Garballey, Sean",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 81,
+   "districtName": "23rd Middlesex"
+  },
+  {
+   "pid": "garcia_ma",
+   "name": "Judith Garcia",
+   "officialListing": "Garcia, Judith",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 133,
+   "districtName": "11th Suffolk"
+  },
+  {
+   "pid": "garry_ma",
+   "name": "Colleen Garry",
+   "officialListing": "Garry, Colleen",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 94,
+   "districtName": "36th Middlesex"
+  },
+  {
+   "pid": "gaskey_ma",
+   "name": "John Gaskey",
+   "officialListing": "Gaskey, John",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 112,
+   "districtName": "2nd Plymouth"
+  },
+  {
+   "pid": "gentile_ma",
+   "name": "Carmine Gentile",
+   "officialListing": "Gentile, Carmine",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 71,
+   "districtName": "13th Middlesex"
+  },
+  {
+   "pid": "giannino_ma",
+   "name": "Jessica Giannino",
+   "officialListing": "Giannino, Jessica",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 138,
+   "districtName": "16th Suffolk"
+  },
+  {
+   "pid": "homar_gomez_ma",
+   "name": "Homar Gómez",
+   "officialListing": "Gómez, Homar",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 57,
+   "districtName": "2nd Hampshire"
+  },
+  {
+   "pid": "gonzalez_ma",
+   "name": "Carlos González",
+   "officialListing": "González, Carlos",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 53,
+   "districtName": "10th Hampden"
+  },
+  {
+   "pid": "gordon_ma",
+   "name": "Kenneth Gordon",
+   "officialListing": "Gordon, Kenneth",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 79,
+   "districtName": "21st Middlesex"
+  },
+  {
+   "pid": "gregoire_ma",
+   "name": "Danielle Gregoire",
+   "officialListing": "Gregoire, Danielle",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 62,
+   "districtName": "4th Middlesex"
+  },
+  {
+   "pid": "haggerty_ma",
+   "name": "Richard Haggerty",
+   "officialListing": "Haggerty, Richard",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 88,
+   "districtName": "30th Middlesex"
+  },
+  {
+   "pid": "hamilton_ma",
+   "name": "Ryan Hamilton",
+   "officialListing": "Hamilton, Ryan",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 38,
+   "districtName": "15th Essex"
+  },
+  {
+   "pid": "hawkins_ma",
+   "name": "James Hawkins",
+   "officialListing": "Hawkins, James",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 11,
+   "districtName": "2nd Bristol"
+  },
+  {
+   "pid": "hendricks_ma",
+   "name": "Christopher Hendricks",
+   "officialListing": "Hendricks, Christopher",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 20,
+   "districtName": "11th Bristol"
+  },
+  {
+   "pid": "higgins_ma",
+   "name": "Natalie Higgins",
+   "officialListing": "Higgins, Natalie",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 145,
+   "districtName": "4th Worcester"
+  },
+  {
+   "pid": "hogan_ma",
+   "name": "Kate Hogan",
+   "officialListing": "Hogan, Kate",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 61,
+   "districtName": "3rd Middlesex"
+  },
+  {
+   "pid": "holmes_ma",
+   "name": "Russell Holmes",
+   "officialListing": "Holmes, Russell",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 128,
+   "districtName": "6th Suffolk"
+  },
+  {
+   "pid": "honan_ma",
+   "name": "Kevin Honan",
+   "officialListing": "Honan, Kevin",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 139,
+   "districtName": "17th Suffolk"
+  },
+  {
+   "pid": "hong_ma",
+   "name": "Tara Hong",
+   "officialListing": "Hong, Tara",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 76,
+   "districtName": "18th Middlesex"
+  },
+  {
+   "pid": "howitt_ma",
+   "name": "Steven Howitt",
+   "officialListing": "Howitt, Steven",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 13,
+   "districtName": "4th Bristol"
+  },
+  {
+   "pid": "hunt_ma",
+   "name": "Daniel Hunt",
+   "officialListing": "Hunt, Daniel",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 135,
+   "districtName": "13th Suffolk"
+  },
+  {
+   "pid": "jones_ma",
+   "name": "Bradley Jones",
+   "officialListing": "Jones, Bradley",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 78,
+   "districtName": "20th Middlesex"
+  },
+  {
+   "pid": "kane_ma",
+   "name": "Hannah Kane",
+   "officialListing": "Kane, Hannah",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 152,
+   "districtName": "11th Worcester"
+  },
+  {
+   "pid": "kassner_ma",
+   "name": "Kristin Kassner",
+   "officialListing": "Kassner, Kristin",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 25,
+   "districtName": "2nd Essex"
+  },
+  {
+   "pid": "kearney_ma",
+   "name": "Patrick Kearney",
+   "officialListing": "Kearney, Patrick",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 114,
+   "districtName": "4th Plymouth"
+  },
+  {
+   "pid": "keefe_ma",
+   "name": "Mary Keefe",
+   "officialListing": "Keefe, Mary",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 156,
+   "districtName": "15th Worcester"
+  },
+  {
+   "pid": "kerans_ma",
+   "name": "Sally Kerans",
+   "officialListing": "Kerans, Sally",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 36,
+   "districtName": "13th Essex"
+  },
+  {
+   "pid": "kilcoyne_ma",
+   "name": "Meghan Kilcoyne",
+   "officialListing": "Kilcoyne, Meghan",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 153,
+   "districtName": "12th Worcester"
+  },
+  {
+   "pid": "kushmerek_ma",
+   "name": "Michael Kushmerek",
+   "officialListing": "Kushmerek, Michael",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 144,
+   "districtName": "3rd Worcester"
+  },
+  {
+   "pid": "lanatra_ma",
+   "name": "Kathleen LaNatra",
+   "officialListing": "LaNatra, Kathleen",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 122,
+   "districtName": "12th Plymouth"
+  },
+  {
+   "pid": "lawn_ma",
+   "name": "John Lawn",
+   "officialListing": "Lawn, John",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 68,
+   "districtName": "10th Middlesex"
+  },
+  {
+   "pid": "leboeuf_ma",
+   "name": "David LeBoeuf",
+   "officialListing": "LeBoeuf, David",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 158,
+   "districtName": "17th Worcester"
+  },
+  {
+   "pid": "jack_lewis_ma",
+   "name": "Jack Lewis",
+   "officialListing": "Lewis, Jack",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 65,
+   "districtName": "7th Middlesex"
+  },
+  {
+   "pid": "linsky_ma",
+   "name": "David Linsky",
+   "officialListing": "Linsky, David",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 63,
+   "districtName": "5th Middlesex"
+  },
+  {
+   "pid": "lipper_garabedian_ma",
+   "name": "Kate Lipper-Garabedian",
+   "officialListing": "Lipper-Garabedian, Kate",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 90,
+   "districtName": "32nd Middlesex"
+  },
+  {
+   "pid": "livingstone_ma",
+   "name": "Jay Livingstone",
+   "officialListing": "Livingstone, Jay",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 130,
+   "districtName": "8th Suffolk"
+  },
+  {
+   "pid": "lombardo_ma",
+   "name": "Marc Lombardo",
+   "officialListing": "Lombardo, Marc",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 80,
+   "districtName": "22nd Middlesex"
+  },
+  {
+   "pid": "luddy_ma",
+   "name": "Hadley Luddy",
+   "officialListing": "Luddy, Hadley",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 4,
+   "districtName": "4th Barnstable"
+  },
+  {
+   "pid": "macgregor_ma",
+   "name": "William MacGregor",
+   "officialListing": "MacGregor, William",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 132,
+   "districtName": "10th Suffolk"
+  },
+  {
+   "pid": "madaro_ma",
+   "name": "Adrian Madaro",
+   "officialListing": "Madaro, Adrian",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 123,
+   "districtName": "1st Suffolk"
+  },
+  {
+   "pid": "mahoney_ma",
+   "name": "John Mahoney",
+   "officialListing": "Mahoney, John",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 154,
+   "districtName": "13th Worcester"
+  },
+  {
+   "pid": "markey_ma",
+   "name": "Christopher Markey",
+   "officialListing": "Markey, Christopher",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 18,
+   "districtName": "9th Bristol"
+  },
+  {
+   "pid": "marsi_ma",
+   "name": "John Marsi",
+   "officialListing": "Marsi, John",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 147,
+   "districtName": "6th Worcester"
+  },
+  {
+   "pid": "mcgonagle_ma",
+   "name": "Joseph McGonagle",
+   "officialListing": "McGonagle, Joseph",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 86,
+   "districtName": "28th Middlesex"
+  },
+  {
+   "pid": "mckenna_ma",
+   "name": "Joseph McKenna",
+   "officialListing": "McKenna, Joseph",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 159,
+   "districtName": "18th Worcester"
+  },
+  {
+   "pid": "mcmurtry_ma",
+   "name": "Paul McMurtry",
+   "officialListing": "McMurtry, Paul",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 106,
+   "districtName": "11th Norfolk"
+  },
+  {
+   "pid": "mendes_ma",
+   "name": "Rita Mendes",
+   "officialListing": "Mendes, Rita",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 121,
+   "districtName": "11th Plymouth"
+  },
+  {
+   "pid": "meschino_ma",
+   "name": "Joan Meschino",
+   "officialListing": "Meschino, Joan",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 113,
+   "districtName": "3rd Plymouth"
+  },
+  {
+   "pid": "michlewitz_ma",
+   "name": "Aaron Michlewitz",
+   "officialListing": "Michlewitz, Aaron",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 125,
+   "districtName": "3rd Suffolk"
+  },
+  {
+   "pid": "moakley_ma",
+   "name": "Thomas Moakley",
+   "officialListing": "Moakley, Thomas",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 6,
+   "districtName": "Barnstable, Dukes and Nantucket"
+  },
+  {
+   "pid": "montano_ma",
+   "name": "Samantha Montaño",
+   "officialListing": "Montaño, Samantha",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 137,
+   "districtName": "15th Suffolk"
+  },
+  {
+   "pid": "frank_moran_ma",
+   "name": "Frank Moran",
+   "officialListing": "Moran, Frank",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 40,
+   "districtName": "17th Essex"
+  },
+  {
+   "pid": "john_moran_ma",
+   "name": "John Moran",
+   "officialListing": "Moran, John",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 131,
+   "districtName": "9th Suffolk"
+  },
+  {
+   "pid": "michael_moran_ma",
+   "name": "Michael Moran",
+   "officialListing": "Moran, Michael",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 140,
+   "districtName": "18th Suffolk"
+  },
+  {
+   "pid": "muradian_ma",
+   "name": "David Muradian",
+   "officialListing": "Muradian, David",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 150,
+   "districtName": "9th Worcester"
+  },
+  {
+   "pid": "murphy_ma",
+   "name": "James Murphy",
+   "officialListing": "Murphy, James",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 99,
+   "districtName": "4th Norfolk"
+  },
+  {
+   "pid": "murray_ma",
+   "name": "Brian Murray",
+   "officialListing": "Murray, Brian",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 151,
+   "districtName": "10th Worcester"
+  },
+  {
+   "pid": "nguyen_ma",
+   "name": "Tram Nguyen",
+   "officialListing": "Nguyen, Tram",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 41,
+   "districtName": "18th Essex"
+  },
+  {
+   "pid": "oday_ma",
+   "name": "James O'Day",
+   "officialListing": "O'Day, James",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 155,
+   "districtName": "14th Worcester"
+  },
+  {
+   "pid": "orrall_ma",
+   "name": "Norman Orrall",
+   "officialListing": "Orrall, Norman",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 21,
+   "districtName": "12th Bristol"
+  },
+  {
+   "pid": "ouellette_ma",
+   "name": "Steven Ouellette",
+   "officialListing": "Ouellette, Steven",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 17,
+   "districtName": "8th Bristol"
+  },
+  {
+   "pid": "owens_ma",
+   "name": "Steven Owens",
+   "officialListing": "Owens, Steven",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 87,
+   "districtName": "29th Middlesex"
+  },
+  {
+   "pid": "paulino_ma",
+   "name": "Francisco Paulino",
+   "officialListing": "Paulino, Francisco",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 39,
+   "districtName": "16th Essex"
+  },
+  {
+   "pid": "pease_ma",
+   "name": "Kelly Pease",
+   "officialListing": "Pease, Kelly",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 47,
+   "districtName": "4th Hampden"
+  },
+  {
+   "pid": "peisch_ma",
+   "name": "Alice Peisch",
+   "officialListing": "Peisch, Alice",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 109,
+   "districtName": "14th Norfolk"
+  },
+  {
+   "pid": "philips_ma",
+   "name": "Edward Philips",
+   "officialListing": "Philips, Edward",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 103,
+   "districtName": "8th Norfolk"
+  },
+  {
+   "pid": "plouffe_ma",
+   "name": "Bridget Plouffe",
+   "officialListing": "Plouffe, Bridget",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 119,
+   "districtName": "9th Plymouth"
+  },
+  {
+   "pid": "puppolo_ma",
+   "name": "Angelo Puppolo",
+   "officialListing": "Puppolo, Angelo",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 55,
+   "districtName": "12th Hampden"
+  },
+  {
+   "pid": "adrianne_ramos_ma",
+   "name": "Adrianne Ramos",
+   "officialListing": "Ramos, Adrianne",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 37,
+   "districtName": "14th Essex"
+  },
+  {
+   "pid": "orlando_ramos_ma",
+   "name": "Orlando Ramos",
+   "officialListing": "Ramos, Orlando",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 52,
+   "districtName": "9th Hampden"
+  },
+  {
+   "pid": "reid_ma",
+   "name": "Sean Reid",
+   "officialListing": "Reid, Sean",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 34,
+   "districtName": "11th Essex"
+  },
+  {
+   "pid": "reyes_ma",
+   "name": "Estela Reyes",
+   "officialListing": "Reyes, Estela",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 27,
+   "districtName": "4th Essex"
+  },
+  {
+   "pid": "robertson_ma",
+   "name": "David Robertson",
+   "officialListing": "Robertson, David",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 77,
+   "districtName": "19th Middlesex"
+  },
+  {
+   "pid": "david_rogers_ma",
+   "name": "David Rogers",
+   "officialListing": "Rogers, David",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 82,
+   "districtName": "24th Middlesex"
+  },
+  {
+   "pid": "john_rogers_ma",
+   "name": "John Rogers",
+   "officialListing": "Rogers, John",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 107,
+   "districtName": "12th Norfolk"
+  },
+  {
+   "pid": "roy_ma",
+   "name": "Jeffrey Roy",
+   "officialListing": "Roy, Jeffrey",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 105,
+   "districtName": "10th Norfolk"
+  },
+  {
+   "pid": "ryan_ma",
+   "name": "Daniel Ryan",
+   "officialListing": "Ryan, Daniel",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 124,
+   "districtName": "2nd Suffolk"
+  },
+  {
+   "pid": "sabadosa_ma",
+   "name": "Lindsay Sabadosa",
+   "officialListing": "Sabadosa, Lindsay",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 56,
+   "districtName": "1st Hampshire"
+  },
+  {
+   "pid": "sangiolo_ma",
+   "name": "Amy Sangiolo",
+   "officialListing": "Sangiolo, Amy",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 69,
+   "districtName": "11th Middlesex"
+  },
+  {
+   "pid": "saunders_ma",
+   "name": "Aaron Saunders",
+   "officialListing": "Saunders, Aaron",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 50,
+   "districtName": "7th Hampden"
+  },
+  {
+   "pid": "scanlon_ma",
+   "name": "Adam Scanlon",
+   "officialListing": "Scanlon, Adam",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 23,
+   "districtName": "14th Bristol"
+  },
+  {
+   "pid": "scarsdale_ma",
+   "name": "Margaret Scarsdale",
+   "officialListing": "Scarsdale, Margaret",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 59,
+   "districtName": "1st Middlesex"
+  },
+  {
+   "pid": "schwartz_ma",
+   "name": "Greg Schwartz",
+   "officialListing": "Schwartz, Greg",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 70,
+   "districtName": "12th Middlesex"
+  },
+  {
+   "pid": "sena_ma",
+   "name": "Danillo Sena",
+   "officialListing": "Sena, Danillo",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 95,
+   "districtName": "37th Middlesex"
+  },
+  {
+   "pid": "shand_ma",
+   "name": "Dawne Shand",
+   "officialListing": "Shand, Dawne",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 24,
+   "districtName": "1st Essex"
+  },
+  {
+   "pid": "silvia_ma",
+   "name": "Alan Silvia",
+   "officialListing": "Silvia, Alan",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 16,
+   "districtName": "7th Bristol"
+  },
+  {
+   "pid": "smola_ma",
+   "name": "Todd Smola",
+   "officialListing": "Smola, Todd",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 44,
+   "districtName": "1st Hampden"
+  },
+  {
+   "pid": "soter_ma",
+   "name": "Michael Soter",
+   "officialListing": "Soter, Michael",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 149,
+   "districtName": "8th Worcester"
+  },
+  {
+   "pid": "sousa_ma",
+   "name": "Priscila Sousa",
+   "officialListing": "Sousa, Priscila",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 64,
+   "districtName": "6th Middlesex"
+  },
+  {
+   "pid": "stanley_ma",
+   "name": "Thomas Stanley",
+   "officialListing": "Stanley, Thomas",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 67,
+   "districtName": "9th Middlesex"
+  },
+  {
+   "pid": "sullivan_almeida_ma",
+   "name": "Alyson Sullivan-Almeida",
+   "officialListing": "Sullivan-Almeida, Alyson",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 117,
+   "districtName": "7th Plymouth"
+  },
+  {
+   "pid": "sweezey_ma",
+   "name": "Kenneth Sweezey",
+   "officialListing": "Sweezey, Kenneth",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 116,
+   "districtName": "6th Plymouth"
+  },
+  {
+   "pid": "sylvia_ma",
+   "name": "Mark Sylvia",
+   "officialListing": "Sylvia, Mark",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 19,
+   "districtName": "10th Bristol"
+  },
+  {
+   "pid": "andrew_tarr_ma",
+   "name": "Andrew Tarr",
+   "officialListing": "Tarr, Andrew",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 28,
+   "districtName": "5th Essex"
+  },
+  {
+   "pid": "tarsky_ma",
+   "name": "Joshua Tarsky",
+   "officialListing": "Tarsky, Joshua",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 108,
+   "districtName": "13th Norfolk"
+  },
+  {
+   "pid": "thurber_ma",
+   "name": "Justin Thurber",
+   "officialListing": "Thurber, Justin",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 14,
+   "districtName": "5th Bristol"
+  },
+  {
+   "pid": "turco_ma",
+   "name": "Jeffrey Turco",
+   "officialListing": "Turco, Jeffrey",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 141,
+   "districtName": "19th Suffolk"
+  },
+  {
+   "pid": "tyler_ma",
+   "name": "Chynah Tyler",
+   "officialListing": "Tyler, Chynah",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 129,
+   "districtName": "7th Suffolk"
+  },
+  {
+   "pid": "ultrino_ma",
+   "name": "Steven Ultrino",
+   "officialListing": "Ultrino, Steven",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 91,
+   "districtName": "33rd Middlesex"
+  },
+  {
+   "pid": "uyterhoeven_ma",
+   "name": "Erika Uyterhoeven",
+   "officialListing": "Uyterhoeven, Erika",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 85,
+   "districtName": "27th Middlesex"
+  },
+  {
+   "pid": "vargas_ma",
+   "name": "Andres Vargas",
+   "officialListing": "Vargas, Andres",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 26,
+   "districtName": "3rd Essex"
+  },
+  {
+   "pid": "vaughn_ma",
+   "name": "Marcus Vaughn",
+   "officialListing": "Vaughn, Marcus",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 104,
+   "districtName": "9th Norfolk"
+  },
+  {
+   "pid": "vieira_ma",
+   "name": "David Vieira",
+   "officialListing": "Vieira, David",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 3,
+   "districtName": "3rd Barnstable"
+  },
+  {
+   "pid": "vitolo_ma",
+   "name": "Tommy Vitolo",
+   "officialListing": "Vitolo, Tommy",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 110,
+   "districtName": "15th Norfolk"
+  },
+  {
+   "pid": "walsh_ma",
+   "name": "Thomas Walsh",
+   "officialListing": "Walsh, Thomas",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 35,
+   "districtName": "12th Essex"
+  },
+  {
+   "pid": "wells_ma",
+   "name": "Richard Wells",
+   "officialListing": "Wells, Richard",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 102,
+   "districtName": "7th Norfolk"
+  },
+  {
+   "pid": "whipps_ma",
+   "name": "Susannah Whipps",
+   "officialListing": "Whipps, Susannah",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 43,
+   "districtName": "2nd Franklin"
+  },
+  {
+   "pid": "williams_ma",
+   "name": "Bud Williams",
+   "officialListing": "Williams, Bud",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 54,
+   "districtName": "11th Hampden"
+  },
+  {
+   "pid": "wong_ma",
+   "name": "Donald Wong",
+   "officialListing": "Wong, Donald",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 32,
+   "districtName": "9th Essex"
+  },
+  {
+   "pid": "worrell_ma",
+   "name": "Christopher Worrell",
+   "officialListing": "Worrell, Christopher",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 127,
+   "districtName": "5th Suffolk"
+  },
+  {
+   "pid": "xiarhos_ma",
+   "name": "Steven Xiarhos",
+   "officialListing": "Xiarhos, Steven",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 5,
+   "districtName": "5th Barnstable"
+  },
+  {
+   "pid": "zlotnik_ma",
+   "name": "Jonathan Zlotnik",
+   "officialListing": "Zlotnik, Jonathan",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 143,
+   "districtName": "2nd Worcester"
+  },
+  {
+   "pid": "chapman_wa",
+   "name": "Mike Chapman",
+   "officialListing": "Mike Chapman",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 24
+  },
+  {
+   "pid": "krishnadasan_wa",
+   "name": "Deborah Krishnadasan",
+   "officialListing": "Deborah Krishnadasan",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 26
+  },
+  {
+   "pid": "short_wa",
+   "name": "Shelly Short",
+   "officialListing": "Shelly Short",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 7
+  },
+  {
+   "pid": "liias_wa",
+   "name": "Marko Liias",
+   "officialListing": "Marko Liias",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 21
+  },
+  {
+   "pid": "muzzall_wa",
+   "name": "Ron Muzzall",
+   "officialListing": "Ron Muzzall",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 10
+  },
+  {
+   "pid": "saldana_wa",
+   "name": "Rebecca Saldaña",
+   "officialListing": "Rebecca Saldaña",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 37
+  },
+  {
+   "pid": "schoesler_wa",
+   "name": "Mark Schoesler",
+   "officialListing": "Mark Schoesler",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 9
+  },
+  {
+   "pid": "shewmake_wa",
+   "name": "Sharon Shewmake",
+   "officialListing": "Sharon Shewmake",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 42
+  },
+  {
+   "pid": "wagoner_wa",
+   "name": "Keith Wagoner",
+   "officialListing": "Keith Wagoner",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 39
+  },
+  {
+   "pid": "kauffman_wa",
+   "name": "Claudia Kauffman",
+   "officialListing": "Claudia Kauffman",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 47
+  },
+  {
+   "pid": "cortes_wa",
+   "name": "Adrian Cortes",
+   "officialListing": "Adrian Cortes",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 18
+  },
+  {
+   "pid": "dozier_wa",
+   "name": "Perry Dozier",
+   "officialListing": "Perry Dozier",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 16
+  },
+  {
+   "pid": "fortunato_wa",
+   "name": "Phil Fortunato",
+   "officialListing": "Phil Fortunato",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 31
+  },
+  {
+   "pid": "hasegawa_wa",
+   "name": "Bob Hasegawa",
+   "officialListing": "Bob Hasegawa",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 11
+  },
+  {
+   "pid": "lovick_wa",
+   "name": "John Lovick",
+   "officialListing": "John Lovick",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 44
+  },
+  {
+   "pid": "mccune_wa",
+   "name": "Jim McCune",
+   "officialListing": "Jim McCune",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 2
+  },
+  {
+   "pid": "stanford_wa",
+   "name": "Derek Stanford",
+   "officialListing": "Derek Stanford",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 1
+  },
+  {
+   "pid": "wellman_wa",
+   "name": "Lisa Wellman",
+   "officialListing": "Lisa Wellman",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 41
+  },
+  {
+   "pid": "nobles_wa",
+   "name": "T'wina Nobles",
+   "officialListing": "T'wina Nobles",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 28
+  },
+  {
+   "pid": "claire_wilson_wa",
+   "name": "Claire Wilson",
+   "officialListing": "Claire Wilson",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 30
+  },
+  {
+   "pid": "harris_wa",
+   "name": "Paul Harris",
+   "officialListing": "Paul Harris",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 17
+  },
+  {
+   "pid": "hansen_wa",
+   "name": "Drew Hansen",
+   "officialListing": "Drew Hansen",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 23
+  },
+  {
+   "pid": "hunt_wa",
+   "name": "Victoria Hunt",
+   "officialListing": "Victoria Hunt",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 5
+  },
+  {
+   "pid": "slatter_wa",
+   "name": "Vandana Slatter",
+   "officialListing": "Vandana Slatter",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 48
+  },
+  {
+   "pid": "boehnke_wa",
+   "name": "Matt Boehnke",
+   "officialListing": "Matt Boehnke",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 8
+  },
+  {
+   "pid": "lovelett_wa",
+   "name": "Liz Lovelett",
+   "officialListing": "Liz Lovelett",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 40
+  },
+  {
+   "pid": "macewen_wa",
+   "name": "Drew MacEwen",
+   "officialListing": "Drew MacEwen",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 35
+  },
+  {
+   "pid": "orwall_wa",
+   "name": "Tina Orwall",
+   "officialListing": "Tina Orwall",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 33
+  },
+  {
+   "pid": "cleveland_wa",
+   "name": "Annette Cleveland",
+   "officialListing": "Annette Cleveland",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 49
+  },
+  {
+   "pid": "bateman_wa",
+   "name": "Jessica Bateman",
+   "officialListing": "Jessica Bateman",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 22
+  },
+  {
+   "pid": "christian_wa",
+   "name": "Leonard Christian",
+   "officialListing": "Leonard Christian",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 4
+  },
+  {
+   "pid": "holy_wa",
+   "name": "Jeff Holy",
+   "officialListing": "Jeff Holy",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 6
+  },
+  {
+   "pid": "riccelli_wa",
+   "name": "Marcus Riccelli",
+   "officialListing": "Marcus Riccelli",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 3
+  },
+  {
+   "pid": "robinson_wa",
+   "name": "June Robinson",
+   "officialListing": "June Robinson",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 38
+  },
+  {
+   "pid": "warnick_wa",
+   "name": "Judy Warnick",
+   "officialListing": "Judy Warnick",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 13
+  },
+  {
+   "pid": "alvarado_wa",
+   "name": "Emily Alvarado",
+   "officialListing": "Emily Alvarado",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 34
+  },
+  {
+   "pid": "goehner_wa",
+   "name": "Keith Goehner",
+   "officialListing": "Keith Goehner",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 12
+  },
+  {
+   "pid": "gildon_wa",
+   "name": "Chris Gildon",
+   "officialListing": "Chris Gildon",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 25
+  },
+  {
+   "pid": "salomon_wa",
+   "name": "Jesse Salomon",
+   "officialListing": "Jesse Salomon",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 32
+  },
+  {
+   "pid": "trudeau_wa",
+   "name": "Yasmin Trudeau",
+   "officialListing": "Yasmin Trudeau",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 27
+  },
+  {
+   "pid": "frame_wa",
+   "name": "Noel Frame",
+   "officialListing": "Noel Frame",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 36
+  },
+  {
+   "pid": "conway_wa",
+   "name": "Steve Conway",
+   "officialListing": "Steve Conway",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 29
+  },
+  {
+   "pid": "king_wa",
+   "name": "Curtis King",
+   "officialListing": "Curtis King",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 14
+  },
+  {
+   "pid": "torres_wa",
+   "name": "Nikki Torres",
+   "officialListing": "Nikki Torres",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 15
+  },
+  {
+   "pid": "valdez_wa",
+   "name": "Javier Valdez",
+   "officialListing": "Javier Valdez",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 46
+  },
+  {
+   "pid": "alston_az",
+   "name": "Lela Alston",
+   "officialListing": "Lela Alston",
+   "state": "Arizona",
+   "chamber": "State Senate",
+   "district": 5
+  },
+  {
+   "pid": "angius_az",
+   "name": "Hildy Angius",
+   "officialListing": "Hildy Angius",
+   "state": "Arizona",
+   "chamber": "State Senate",
+   "district": 30
+  },
+  {
+   "pid": "bolick_az",
+   "name": "Shawnna Bolick",
+   "officialListing": "Shawnna Bolick",
+   "state": "Arizona",
+   "chamber": "State Senate",
+   "district": 2
+  },
+  {
+   "pid": "bravo_az",
+   "name": "Flavio Bravo",
+   "officialListing": "Flavio Bravo",
+   "state": "Arizona",
+   "chamber": "State Senate",
+   "district": 26
+  },
+  {
+   "pid": "carroll_az",
+   "name": "Frank Carroll",
+   "officialListing": "Frank Carroll",
+   "state": "Arizona",
+   "chamber": "State Senate",
+   "district": 28
+  },
+  {
+   "pid": "diaz_az",
+   "name": "Eva Diaz",
+   "officialListing": "Eva Diaz",
+   "state": "Arizona",
+   "chamber": "State Senate",
+   "district": 22
+  },
+  {
+   "pid": "dunn_az",
+   "name": "Tim Dunn",
+   "officialListing": "Timothy \"Tim\" Dunn",
+   "state": "Arizona",
+   "chamber": "State Senate",
+   "district": 25
+  },
+  {
+   "pid": "epstein_az",
+   "name": "Denise “Mitzi” Epstein",
+   "officialListing": "Denise “Mitzi” Epstein",
+   "state": "Arizona",
+   "chamber": "State Senate",
+   "district": 12
+  },
+  {
+   "pid": "farnsworth_az",
+   "name": "David C. Farnsworth",
+   "officialListing": "David C. Farnsworth",
+   "state": "Arizona",
+   "chamber": "State Senate",
+   "district": 10
+  },
+  {
+   "pid": "fernandez_az",
+   "name": "Brian Fernandez",
+   "officialListing": "Brian Fernandez",
+   "state": "Arizona",
+   "chamber": "State Senate",
+   "district": 23
+  },
+  {
+   "pid": "finchem_az",
+   "name": "Mark Finchem",
+   "officialListing": "Mark Finchem",
+   "state": "Arizona",
+   "chamber": "State Senate",
+   "district": 1
+  },
+  {
+   "pid": "gabaldon_az",
+   "name": "Rosanna Gabaldón",
+   "officialListing": "Rosanna Gabaldón",
+   "state": "Arizona",
+   "chamber": "State Senate",
+   "district": 21
+  },
+  {
+   "pid": "gonzales_az",
+   "name": "Sally Ann Gonzales",
+   "officialListing": "Sally Ann Gonzales",
+   "state": "Arizona",
+   "chamber": "State Senate",
+   "district": 20
+  },
+  {
+   "pid": "gowan_az",
+   "name": "David Gowan",
+   "officialListing": "David Gowan",
+   "state": "Arizona",
+   "chamber": "State Senate",
+   "district": 19
+  },
+  {
+   "pid": "hatathlie_az",
+   "name": "Theresa Hatathlie",
+   "officialListing": "Theresa Hatathlie",
+   "state": "Arizona",
+   "chamber": "State Senate",
+   "district": 6
+  },
+  {
+   "pid": "kavanagh_az",
+   "name": "John Kavanagh",
+   "officialListing": "John Kavanagh",
+   "state": "Arizona",
+   "chamber": "State Senate",
+   "district": 3
+  },
+  {
+   "pid": "kuby_az",
+   "name": "Lauren Kuby",
+   "officialListing": "Lauren Kuby",
+   "state": "Arizona",
+   "chamber": "State Senate",
+   "district": 8
+  },
+  {
+   "pid": "leach_az",
+   "name": "Vince Leach",
+   "officialListing": "Venden \"Vince\" Leach",
+   "state": "Arizona",
+   "chamber": "State Senate",
+   "district": 17
+  },
+  {
+   "pid": "mesnard_az",
+   "name": "J.D. Mesnard",
+   "officialListing": "J.D. Mesnard",
+   "state": "Arizona",
+   "chamber": "State Senate",
+   "district": 13
+  },
+  {
+   "pid": "miranda_az",
+   "name": "Catherine Miranda",
+   "officialListing": "Catherine Miranda",
+   "state": "Arizona",
+   "chamber": "State Senate",
+   "district": 11
+  },
+  {
+   "pid": "ortiz_az",
+   "name": "Analise Ortiz",
+   "officialListing": "Analise Ortiz",
+   "state": "Arizona",
+   "chamber": "State Senate",
+   "district": 24
+  },
+  {
+   "pid": "payne_az",
+   "name": "Kevin Payne",
+   "officialListing": "Kevin Payne",
+   "state": "Arizona",
+   "chamber": "State Senate",
+   "district": 27
+  },
+  {
+   "pid": "sears_az",
+   "name": "Kiana Sears",
+   "officialListing": "Kiana Sears",
+   "state": "Arizona",
+   "chamber": "State Senate",
+   "district": 9
+  },
+  {
+   "pid": "shamp_az",
+   "name": "Janae Shamp",
+   "officialListing": "Janae Shamp",
+   "state": "Arizona",
+   "chamber": "State Senate",
+   "district": 29
+  },
+  {
+   "pid": "shope_az",
+   "name": "T.J. Shope",
+   "officialListing": "Thomas \"T.J.\" Shope",
+   "state": "Arizona",
+   "chamber": "State Senate",
+   "district": 16
+  },
+  {
+   "pid": "werner_az",
+   "name": "Carine Werner",
+   "officialListing": "Carine Werner",
+   "state": "Arizona",
+   "chamber": "State Senate",
+   "district": 4
+  }
+ ],
+ "alreadyHeld": [
+  {
+   "pid": "cynthia_creem",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 17,
+   "districtName": "Norfolk and Middlesex"
+  },
+  {
+   "pid": "bruce_tarr",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 21,
+   "districtName": "First Essex and Middlesex"
+  },
+  {
+   "pid": "manka_dhingra",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 45
+  },
+  {
+   "pid": "john_braun",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 20
+  },
+  {
+   "pid": "jamie_pedersen",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 43
+  },
+  {
+   "pid": "jake_hoffman",
+   "state": "Arizona",
+   "chamber": "State Senate",
+   "district": 15
+  },
+  {
+   "pid": "wendy_rogers",
+   "state": "Arizona",
+   "chamber": "State Senate",
+   "district": 7
+  },
+  {
+   "pid": "priya_sundareshan",
+   "state": "Arizona",
+   "chamber": "State Senate",
+   "district": 18
+  }
+ ],
+ "districtSet": [
+  {
+   "pid": "karen_spilka",
+   "state": "Massachusetts",
+   "chamber": "State Senate",
+   "district": 13,
+   "districtName": "Middlesex and Norfolk",
+   "was": null
+  },
+  {
+   "pid": "ron_mariano",
+   "state": "Massachusetts",
+   "chamber": "State House",
+   "district": 98,
+   "districtName": "3rd Norfolk",
+   "was": null
+  },
+  {
+   "pid": "warren_petersen",
+   "state": "Arizona",
+   "chamber": "State Senate",
+   "district": 14,
+   "was": null
+  }
+ ],
+ "onFileAsCandidate": [],
+ "nameSharedWithAnotherRecord": [
+  {
+   "name": "Jeff Wilson",
+   "state": "Washington",
+   "chamber": "State Senate",
+   "district": 19,
+   "sharesNameWith": "Illinois U.S. House candidate Jeff Wilson (jeff_wilson)"
+  }
+ ]
+}

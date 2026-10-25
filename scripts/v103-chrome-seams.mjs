@@ -3389,6 +3389,49 @@ export const DECLARED_ADMISSIONS = [
     ],
   },
   {
+    // Sitting California, Texas and Florida state legislators, one identity row
+    // per member each chamber's official roster seated; the committed record
+    // names every pid and its source.
+    wave: "state_legislators_ca_tx_fl_oct2026",
+    banner: "// ── Sitting state legislators, California, Texas and Florida — roster shells (Oct 2026)",
+    pids: JSON.parse(_readFileSync(new URL("../db/roster-state-legislators-ca-tx-fl-2026-oct.json", import.meta.url), "utf8")).rows.map((r) => r.pid),
+  },
+  {
+    // Sitting New York, Pennsylvania and Illinois state legislators, read the
+    // same way from each chamber's official roster.
+    wave: "state_legislators_ny_pa_il_oct2026",
+    banner: "// ── Sitting state legislators, New York, Pennsylvania and Illinois — roster shells (Oct 2026)",
+    pids: JSON.parse(_readFileSync(new URL("../db/roster-state-legislators-ny-pa-il-2026-oct.json", import.meta.url), "utf8")).rows.map((r) => r.pid),
+  },
+  {
+    // Sitting Ohio, Georgia and North Carolina state legislators, read the same
+    // way from each chamber's official roster.
+    wave: "state_legislators_oh_ga_nc_oct2026",
+    banner: "// ── Sitting state legislators, Ohio, Georgia and North Carolina — roster shells (Oct 2026)",
+    pids: JSON.parse(_readFileSync(new URL("../db/roster-state-legislators-oh-ga-nc-2026-oct.json", import.meta.url), "utf8")).rows.map((r) => r.pid),
+  },
+  {
+    // Sitting Michigan, New Jersey (Senate) and Virginia state legislators, read
+    // the same way from each chamber's official roster.
+    wave: "state_legislators_mi_nj_va_oct2026",
+    banner: "// ── Sitting state legislators, Michigan, New Jersey and Virginia — roster shells (Oct 2026)",
+    pids: JSON.parse(_readFileSync(new URL("../db/roster-state-legislators-mi-nj-va-2026-oct.json", import.meta.url), "utf8")).rows.map((r) => r.pid),
+  },
+  {
+    // Sitting Washington (Senate), Arizona (Senate) and Massachusetts state
+    // legislators, read the same way from each chamber's official sources.
+    wave: "state_legislators_wa_az_ma_oct2026",
+    banner: "// ── Sitting state legislators, Washington, Arizona and Massachusetts — roster shells (Oct 2026)",
+    pids: JSON.parse(_readFileSync(new URL("../db/roster-state-legislators-wa-az-ma-2026-oct.json", import.meta.url), "utf8")).rows.map((r) => r.pid),
+  },
+  {
+    // Sitting Tennessee, Indiana and Missouri state legislators, read the same
+    // way from official legislative sources.
+    wave: "state_legislators_tn_in_mo_oct2026",
+    banner: "// ── Sitting state legislators, Tennessee, Indiana and Missouri — roster shells (Oct 2026)",
+    pids: JSON.parse(_readFileSync(new URL("../db/roster-state-legislators-tn-in-mo-2026-oct.json", import.meta.url), "utf8")).rows.map((r) => r.pid),
+  },
+  {
     // Too many rows to type here, so the list is the committed record of
     // the pass itself, which also names each state's official source.
     wave: "candidates_outside_utah_oct2026",
@@ -3566,11 +3609,61 @@ export const DECLARED_CANDIDACIES = {
 };
 const CANDIDACY_KEY = /^ "([a-z0-9_]+)": \{ "office"/gm;
 const ROSTER_KEY = /^\s*"([a-z0-9_]+)":\s*\{$/gm;
+// DECLARED DISTRICTS — existing roster rows whose `district` a pass set ON
+// PURPOSE: sitting legislators already on file under their own id, given the
+// seat their chamber's official roster lists (or moved to it), so the seat card
+// can name them without a second row for the same person. Each pid may carry
+// exactly the declared value, or the value it had before; the field is set
+// aside on both sides for those two values only, and every other byte of the
+// row still compares.
+const _LEG_RECORDS = ["../db/roster-state-legislators-ca-tx-fl-2026-oct.json", "../db/roster-state-legislators-ny-pa-il-2026-oct.json",
+  "../db/roster-state-legislators-oh-ga-nc-2026-oct.json", "../db/roster-state-legislators-mi-nj-va-2026-oct.json",
+  "../db/roster-state-legislators-wa-az-ma-2026-oct.json", "../db/roster-state-legislators-tn-in-mo-2026-oct.json"]
+  .map((f) => JSON.parse(_readFileSync(new URL(f, import.meta.url), "utf8")));
+const _NUMBERED_LOWER = { California: 1, "New York": 1 };   // their lower chamber is written "District N"
+const _LD_SENATE = { "New Jersey": 1, Washington: 1, Arizona: 1 };   // their senators are written "LD N", as the roster already did
+export const DECLARED_DISTRICTS = _LEG_RECORDS.flatMap((rec) => rec.districtSet.map((r) => ({
+    pid: r.pid,
+    // A named-district state (Massachusetts) writes the seat as its name.
+    values: [r.districtName ? r.districtName : r.chamber === "State Senate" ? `${_LD_SENATE[r.state] ? "LD" : "SD"} ${r.district}` : (_NUMBERED_LOWER[r.state] ? `District ${r.district}` : `HD ${r.district}`), r.was].filter(Boolean),
+  })));
+export const DECLARED_DISTRICT_PIDS = DECLARED_DISTRICTS.map((d) => d.pid);
+// DECLARED OFFICES — an existing row whose holder the chamber's own roster lists
+// as no longer serving, re-labelled "Former …" so no seat lookup names them. Same
+// rule as a declared district: the field is set aside for its declared value or
+// the value it had before, and nothing else on the row may move.
+export const DECLARED_OFFICES = _LEG_RECORDS.flatMap((rec) => (rec.officeCorrected || []).map((r) => ({ pid: r.pid, values: [r.office, r.was] })));
+export const DECLARED_OFFICE_PIDS = DECLARED_OFFICES.map((d) => d.pid);
+function _carveDeclaredDistricts(src) {
+  let out = src;
+  for (const d of DECLARED_DISTRICTS) {
+    const at = out.indexOf(`\n "${d.pid}": {`);
+    if (at < 0) continue;
+    const end = out.indexOf("\n },", at);
+    if (end < 0) continue;
+    let row = out.slice(at, end);
+    for (const v of d.values) {
+      const q = JSON.stringify(v);
+      row = row.split(`\n  "district": ${q},`).join("").split(`"district": ${q}, `).join("");
+    }
+    out = out.slice(0, at) + row + out.slice(end);
+  }
+  for (const d of DECLARED_OFFICES) {
+    const at = out.indexOf(`\n "${d.pid}": {`);
+    if (at < 0) continue;
+    const end = out.indexOf("\n },", at);
+    if (end < 0) continue;
+    let row = out.slice(at, end);
+    for (const v of d.values) row = row.split(`"office": ${JSON.stringify(v)}`).join(`"office": "DECLARED"`);
+    out = out.slice(0, at) + row + out.slice(end);
+  }
+  return out;
+}
 // The source with every declared admission block removed. Each block is the
 // banner up to the next banner or the file's close; the comma that joined it to
-// the row before goes with it.
+// the row before goes with it. Declared districts are set aside too.
 export function carveDeclaredAdmissions(src) {
-  let out = String(src);
+  let out = _carveDeclaredDistricts(String(src));
   for (const d of DECLARED_ADMISSIONS) {
     const at = out.indexOf(d.banner);
     if (at < 0) continue;

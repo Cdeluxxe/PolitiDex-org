@@ -21,7 +21,9 @@ import { makeSandbox } from "./gen-hero-showcase.mjs";
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 export const R = (f) => readFileSync(join(ROOT, f), "utf8");
 export const HEAD = (f) => {
-  try { return execFileSync("git", ["show", "HEAD:" + f], { cwd: ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }); }
+  // maxBuffer: cmp-data.js is past execFileSync's 1 MB default, and a baseline
+  // that silently reads null would skip every comparison against it.
+  try { return execFileSync("git", ["show", "HEAD:" + f], { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 28, stdio: ["ignore", "pipe", "ignore"] }); }
   catch (e) { return null; }
 };
 export const FIND = R("find.html");

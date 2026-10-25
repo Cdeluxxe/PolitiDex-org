@@ -472,7 +472,27 @@ const rosterWaveAdmissions = (() => {
   });
   eq(notInertCandidates.join("|"), "",
     "a 2026 candidate row arrived carrying a judged surface or without candidate: true");
-  const unnamed = added.filter((p) => !ADDED[p] && !rosterWaveAdmissions.has(p) && !candidateBatch.has(p));
+  // The October 2026 state legislator shells (California, Texas and Florida; New
+  // York, Pennsylvania and Illinois; Ohio, Georgia and North Carolina): identity rows, each named with its official
+  // chamber roster in db/roster-state-legislators-*-2026-oct.json, inert, and
+  // `candidate: false`.
+  const legislatorBatch = (() => {
+    const out = new Set();
+    for (const f of ["db/roster-state-legislators-ca-tx-fl-2026-oct.json", "db/roster-state-legislators-ny-pa-il-2026-oct.json",
+                     "db/roster-state-legislators-oh-ga-nc-2026-oct.json", "db/roster-state-legislators-mi-nj-va-2026-oct.json",
+                     "db/roster-state-legislators-wa-az-ma-2026-oct.json", "db/roster-state-legislators-tn-in-mo-2026-oct.json"]) {
+      try { for (const r of JSON.parse(readFileSync(join(ROOT, f), "utf8")).rows) out.add(r.pid); } catch {}
+    }
+    return out;
+  })();
+  const notInertLegislators = added.filter((p) => legislatorBatch.has(p)).filter((p) => {
+    const r = (after.CMP_DATA || {})[p] || {};
+    return r.candidate !== false || r.score !== null || r.kept !== 0 || r.broken !== 0 || r.pending !== 0
+      || !Array.isArray(r.issues) || r.issues.length !== 0;
+  });
+  eq(notInertLegislators.join("|"), "",
+    "a state legislator shell arrived carrying a judged surface or without candidate: false");
+  const unnamed = added.filter((p) => !ADDED[p] && !rosterWaveAdmissions.has(p) && !candidateBatch.has(p) && !legislatorBatch.has(p));
 
   // Clause 3: every sourced admission is inert. Typed ADDED entries are not held to this —
   // kstratton and the Utah waves predate the rule and are audited by their own line.

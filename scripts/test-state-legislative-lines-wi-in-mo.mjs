@@ -122,11 +122,11 @@ const at = (p, sd, hd) => ({ state: p.state, city: p.city, county: p.county + " 
 const [WI, IN, MO] = PLACES;
 const NAMED = [
   // [place, senate key, lower key, expected senate pid, expected name, lower label]
-  [WI, "27", "76", "dianne_hesselbein", "Dianne Hesselbein", "District 76"],
-  [IN, "40", "97", "shelli_yoder", "Shelli Yoder", "District 97"],
-  [MO, "18", "60", "cindy_olaughlin", null, "District 60"],
+  [WI, "27", "76", "dianne_hesselbein", "Dianne Hesselbein", "District 76", null],
+  [IN, "40", "97", "shelli_yoder", "Shelli Yoder", "District 97", "moed_in"],
+  [MO, "18", "60", "cindy_olaughlin", null, "District 60", "griffith_mo"],
 ];
-for (const [p, sd, hd, pid, nm, hl] of NAMED) {
+for (const [p, sd, hd, pid, nm, hl, lpid] of NAMED) {
   const W = boot(at(p, sd, hd));
   must(typeof W._pdxStateLegSeat === "function", "the resolver did not load");
   const reps = W.pdxRepsForMe();
@@ -136,12 +136,13 @@ for (const [p, sd, hd, pid, nm, hl] of NAMED) {
   eq(ss.district, sd, `${p.state}: the State Senate district did not reach the level`);
   eq(ss.pid, pid, `${p.state}: SD ${sd}'s member on file was not named`);
   eq(sh.district, hd, `${p.state}: the lower-chamber district did not reach the level`);
-  eq(sh.pid, null, `${p.state}: a lower-chamber member was named for a seat no record claims`);
+  eq(sh.pid, lpid || null, lpid ? `${p.state}: the lower-chamber member on file was not named` : `${p.state}: a lower-chamber member was named for a seat no record claims`);
   ok(ss.mapped && sh.mapped, `${p.state}: a legislative level is not marked mapped`);
   const out = band(W);
   has(out, W.CMP_DATA[pid].name.replace(/'/g, "&#39;"), `${p.state}: the State Senate member is not on the card`);
   if (nm) eq(W.CMP_DATA[pid].name, nm, `${p.state}: fixture name drifted`);
-  has(out, `${hl} — no member on file yet`, `${p.state}: the unclaimed lower-chamber seat does not say nobody is on file`);
+  if (lpid) has(out, W.CMP_DATA[lpid].name.replace(/'/g, "&#39;"), `${p.state}: the lower-chamber member is not on the card`);
+  else has(out, `${hl} — no member on file yet`, `${p.state}: the unclaimed lower-chamber seat does not say nobody is on file`);
   eq(sh.distLabel, "State House · " + hl, `${p.state}: the lower-chamber heading is not the seat's label`);
   lacks(out, "only maps state legislative districts in", `${p.state}: the reader is told their lines are not drawn`);
   ok(!EQUITY.test(out.replace(/<[^>]+>/g, " ")), `${p.state}: the card carries equity language`);
@@ -171,13 +172,15 @@ for (const [p, sd, hd, pid, nm, hl] of NAMED) {
       }
     }
   }
+  // Indiana's and Missouri's sitting members (db/roster-state-legislators-tn-in-mo-2026-oct.json).
+  const R6 = JSON.parse(R("db/roster-state-legislators-tn-in-mo-2026-oct.json"));
+  const inmo = [...R6.rows, ...R6.alreadyHeld, ...R6.districtSet].filter((r) => r.state === "Indiana" || r.state === "Missouri").map((r) => r.pid);
   eq(JSON.stringify([...named].sort()),
-    JSON.stringify(["chris_garten", "cindy_olaughlin", "devin_lemahieu", "dianne_hesselbein", "doug_beck", "mary_felzkowski",
-      "rodric_bray", "shelli_yoder", "tony_luetkemeyer"]),
+    JSON.stringify([...new Set([...inmo, "devin_lemahieu", "dianne_hesselbein", "mary_felzkowski"])].sort()),
     "roster: the members the lookup can name are not exactly the district-keyed state legislators on file");
   // Leaders whose records name no district, and U.S. House members whose titles
   // say "House", are never placed in a legislative seat.
-  for (const p of ["jon_patterson", "todd_huston", "greta_neubauer", "robin_vos", "jason_smith", "bryan_steil", "sam_graves"]) {
+  for (const p of ["greta_neubauer", "robin_vos", "jason_smith", "bryan_steil", "sam_graves"]) {
     ok(!named.has(p), `roster: ${p} was placed in a legislative seat`);
   }
 }
@@ -242,7 +245,7 @@ section("4 · the twenty states already mapped are identical to HEAD's");
   }
   const LOC = (st, sd) => LOCS.find((l) => l.state === st && l.stateSenateDistrict === sd);
   for (const [st, sd, pid] of [["Texas", "7", "bettencourt_tx"], ["California", "11", "wiener_ca"], ["Florida", "37", "pizzo_fl"],
-                               ["New York", "12", "gianaris_ny"], ["Illinois", "4", "kimberly_lightford"],
+                               ["New York", "12", null /* vacant on the Senate roster since 2026-08-10 */], ["Illinois", "4", "kimberly_lightford"],
                                ["Pennsylvania", "33", "doug_mastriano"], ["Ohio", "2", "theresa_gavarone"],
                                ["Georgia", "22", "harold_jones_ga"], ["Michigan", "8", "mallory_mcmorrow"], ["North Carolina", "17", "sydney_batch"],
                                ["Virginia", "34", "scott_surovell"], ["Washington", "43", "jamie_pedersen"], ["Arizona", "18", "priya_sundareshan"],
