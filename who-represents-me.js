@@ -476,12 +476,13 @@
   // room that does not exist, and it degrades to exactly today's markup when
   // district-room.js has not loaded.
   // ── One formal act under the row, for the contested seats on file ─────────
-  // pa-ballot-2026.js (Pennsylvania), ga-ballot-2026.js (Georgia) and
-  // nc-ballot-2026.js (North Carolina) hold the acts and own the markup; each answers '' for any pid it holds no act for,
+  // pa-ballot-2026.js (Pennsylvania), ga-ballot-2026.js (Georgia),
+  // nc-ballot-2026.js (North Carolina) and mi-ballot-2026.js (Michigan) hold
+  // the acts and own the markup; each answers '' for any pid it holds no act for,
   // so every other state's row is unchanged. A sibling of the row, for the same
   // nesting reason as seatCompare() below.
   function seatRecord(pid, lv) {
-    var mods = [window.PDXPaBallot, window.PDXGaBallot, window.PDXNcBallot];
+    var mods = [window.PDXPaBallot, window.PDXGaBallot, window.PDXNcBallot, window.PDXMiBallot];
     for (var i = 0; i < mods.length; i++) {
       var P = mods[i];
       if (!P || typeof P.seatActHtml !== 'function') continue;

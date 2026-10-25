@@ -1,8 +1,8 @@
 /* pa-ballot.css — the contested legislative seats (pa-ballot-2026.js for
    Pennsylvania, ga-ballot-2026.js for Georgia, nc-ballot-2026.js for North
-   Carolina): the one-act block under a seat row on Who Represents Me,
-   /ballot/pa, /ballot/ga and /ballot/nc, and the race printed on each
-   contested seat's board. */
+   Carolina, mi-ballot-2026.js for Michigan): the one-act block under a seat
+   row on Who Represents Me, /ballot/pa, /ballot/ga, /ballot/nc and
+   /ballot/mi, and the race printed on each contested seat's board. */
 .pdxpa-seat{margin:-0.15rem 0 0.35rem 0.9rem;padding:0.55rem 0.8rem;border-left:2px solid rgba(148,163,184,0.35);background:rgba(10,15,30,0.4);border-radius:0 10px 10px 0;}
 .pdxpa-seat-hd{margin:0 0 0.3rem;font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;color:#94a3b8;}
 .pdxpa-seat-go{margin:0.4rem 0 0;font-size:0.82rem;}

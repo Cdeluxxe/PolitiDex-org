@@ -10884,7 +10884,23 @@
 //     unchanged, and no new file is precached.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v471';
+// v472 - MICHIGAN, ONE CONTESTED CYCLE (NOV. 3, 2026).
+//     mi-ballot-2026.js holds the ten contested State House and State Senate
+//     races Michigan reporting names with a sitting member running, and the
+//     formal acts on file for the people in them, each a recorded floor vote
+//     read from the House or Senate Journal on legislature.mi.gov and linked
+//     to it, each measure with one effect line. Who Represents Me prints one
+//     act under a sitting member in those races; /ballot/mi is the ballot
+//     view; the ten seats open read-only District Voice boards that print
+//     their race. find.html links the ballot view, '/' loads the act line and
+//     counts the ten boards, and district-board.js and district-voice.js gain
+//     the ten rows; all four are precached and changed, so the shell moves one
+//     version. cmp-data.js, voter-hub-location.js and the Pennsylvania,
+//     Georgia and North Carolina files are unchanged, and no new file is
+//     precached.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v472';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
