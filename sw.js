@@ -10932,7 +10932,22 @@
 //     unchanged, and no new file is precached.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v474';
+// v475 - FLORIDA, ONE CONTESTED CYCLE (NOV. 3, 2026).
+//     fl-ballot-2026.js holds the ten contested Florida House and Florida
+//     Senate races Florida reporting covers as real contests with a sitting
+//     member running, and the formal acts on file for the people in them,
+//     each a recorded floor vote read from the bill's vote record on
+//     flsenate.gov and linked to it, each measure with one effect line. Who
+//     Represents Me prints one act under a sitting member in those races;
+//     /ballot/fl is the ballot view; the ten seats open read-only District
+//     Voice boards that print their race. '/' loads the act line and counts
+//     the ten boards; it, find.html, voice.html, district-board.js and
+//     district-voice.js are precached and changed, so the shell moves one
+//     version. cmp-data.js, voter-hub-location.js and the six earlier
+//     states' files are unchanged, and no new file is precached.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v475';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

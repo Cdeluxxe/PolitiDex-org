@@ -666,6 +666,19 @@
 # rules are after it and cannot match either of its two paths. Every
 # same-origin path inside both documents is root-absolute for the reason given
 # beside /ballot/ above.
+# Florida's contested legislative seats, Nov. 3, 2026 (fl-ballot-2026.js)
+[[redirects]]
+  from = "/ballot/fl"
+  to = "/ballot-fl.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/fl/"
+  to = "/ballot-fl.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/fl.html"
+  to = "/ballot-fl.html"
+  status = 200
 # Wisconsin's contested legislative seats, Nov. 3, 2026 (wi-ballot-2026.js)
 [[redirects]]
   from = "/ballot/wi"
@@ -8698,6 +8711,146 @@
 [[redirects]]
   from = "/district/wy-us-senate-lummis.html"
   to = "/district-wy-us-senate-lummis.html"
+  status = 200
+
+# Florida House District 35 — booth_fl
+[[redirects]]
+  from = "/district/fl-hd-35"
+  to = "/district-fl-hd-35.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-hd-35/"
+  to = "/district-fl-hd-35.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-hd-35.html"
+  to = "/district-fl-hd-35.html"
+  status = 200
+
+# Florida House District 65 — gonzalez_pittman_fl
+[[redirects]]
+  from = "/district/fl-hd-65"
+  to = "/district-fl-hd-65.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-hd-65/"
+  to = "/district-fl-hd-65.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-hd-65.html"
+  to = "/district-fl-hd-65.html"
+  status = 200
+
+# Florida House District 87 — gregory_fl
+[[redirects]]
+  from = "/district/fl-hd-87"
+  to = "/district-fl-hd-87.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-hd-87/"
+  to = "/district-fl-hd-87.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-hd-87.html"
+  to = "/district-fl-hd-87.html"
+  status = 200
+
+# Florida House District 89 — tendrich_fl
+[[redirects]]
+  from = "/district/fl-hd-89"
+  to = "/district-fl-hd-89.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-hd-89/"
+  to = "/district-fl-hd-89.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-hd-89.html"
+  to = "/district-fl-hd-89.html"
+  status = 200
+
+# Florida House District 93 — gerwig_fl
+[[redirects]]
+  from = "/district/fl-hd-93"
+  to = "/district-fl-hd-93.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-hd-93/"
+  to = "/district-fl-hd-93.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-hd-93.html"
+  to = "/district-fl-hd-93.html"
+  status = 200
+
+# Florida House District 101 — cassel_fl
+[[redirects]]
+  from = "/district/fl-hd-101"
+  to = "/district-fl-hd-101.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-hd-101/"
+  to = "/district-fl-hd-101.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-hd-101.html"
+  to = "/district-fl-hd-101.html"
+  status = 200
+
+# Florida House District 106 — basabe_fl
+[[redirects]]
+  from = "/district/fl-hd-106"
+  to = "/district-fl-hd-106.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-hd-106/"
+  to = "/district-fl-hd-106.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-hd-106.html"
+  to = "/district-fl-hd-106.html"
+  status = 200
+
+# Florida Senate District 10 — brodeur_fl
+[[redirects]]
+  from = "/district/fl-sd-10"
+  to = "/district-fl-sd-10.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-sd-10/"
+  to = "/district-fl-sd-10.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-sd-10.html"
+  to = "/district-fl-sd-10.html"
+  status = 200
+
+# Florida Senate District 14 — nathan_fl
+[[redirects]]
+  from = "/district/fl-sd-14"
+  to = "/district-fl-sd-14.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-sd-14/"
+  to = "/district-fl-sd-14.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-sd-14.html"
+  to = "/district-fl-sd-14.html"
+  status = 200
+
+# Florida Senate District 38 — calatayud_fl
+[[redirects]]
+  from = "/district/fl-sd-38"
+  to = "/district-fl-sd-38.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-sd-38/"
+  to = "/district-fl-sd-38.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-sd-38.html"
+  to = "/district-fl-sd-38.html"
   status = 200
 
 # Georgia Senate District 37 — setzler_ga

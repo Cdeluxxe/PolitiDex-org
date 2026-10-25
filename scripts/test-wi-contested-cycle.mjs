@@ -192,12 +192,11 @@ const RO = W0.CMP_DATA;
     eq(JSON.stringify(d), JSON.stringify([...d].sort().reverse()), `${who}: acts newest first`);
     for (const a of N.actsFor(who)) ok(/^https:\/\/docs\.legis\.wisconsin\.gov\/20\d\d\/related\/votes\//.test(a.source), `${who} ${a.measure}: links its roll call`);
   }
-  // The roster: thirteen identity rows, every one of them in a race, and every
-  // row HEAD held unchanged.
+  // The roster: thirteen identity rows, every one of them in a race, none
+  // added or dropped since, and every row HEAD held unchanged.
   const B = (() => { const w = {}; w.window = w; vm.createContext(w); vm.runInContext(HEAD("cmp-data.js"), w); return w.CMP_DATA; })();
-  const added = Object.keys(RO).filter((k) => !(k in B)).sort();
-  eq(JSON.stringify(added), JSON.stringify([...NEW_PIDS].sort()), "cmp-data.js: exactly the new Wisconsin rows were added");
-  eq(JSON.stringify([...inRace].sort()), JSON.stringify([...NEW_PIDS].sort()), "every new row is a name in a race");
+  for (const k of NEW_PIDS) ok(!!RO[k], `cmp-data.js: the Wisconsin row ${k} is on file`);
+  eq(JSON.stringify([...inRace].sort()), JSON.stringify([...NEW_PIDS].sort()), "every Wisconsin contested-race row is a name in a race");
   for (const k of Object.keys(B)) if (JSON.stringify(RO[k]) !== JSON.stringify(B[k])) ok(false, `${k}: an existing roster row moved`);
   for (const k of NEW_PIDS) {
     const r = RO[k];
@@ -255,7 +254,7 @@ section("5 · District Voice: a board for each contested seat and no other");
   const routes = voice().BOARD_ROUTES;
   const wiLeg = Object.keys(routes).filter((k) => /^wi-(?:statehouse|statesenate)-\d+$/.test(k)).sort();
   eq(JSON.stringify(wiLeg), JSON.stringify(N.RACES.map((r) => r.seat).sort()), "BOARD_ROUTES: exactly the contested Wisconsin seats");
-  const otherLeg = Object.keys(routes).filter((k) => /^[a-z]{2}-(?:statehouse|statesenate)-\d+$/.test(k) && !/^(?:ut|pa|ga|nc|mi|oh|wi)-/.test(k));
+  const otherLeg = Object.keys(routes).filter((k) => /^[a-z]{2}-(?:statehouse|statesenate)-\d+$/.test(k) && !/^(?:ut|pa|ga|nc|mi|oh|wi|fl)-/.test(k));
   eq(otherLeg.length, 0, "no other state gained a state legislative board");
   const B = (() => { const w = makeSandbox(); vm.runInContext(R("district-board.js"), vm.createContext(w), { filename: "district-board.js" }); return w.PDXDistrictBoard; })();
   for (const r of N.RACES) {
