@@ -102,7 +102,7 @@ const outsideUtah = (k) => LEG_KEY_RE.test(k) && !/^ut-/.test(k) && !CONTESTED.h
 // ═════════════════════════════════════════════════════════════════════════════
 section("1 · the plan asks every roster state legislator outside Utah, and opens none");
 // ═════════════════════════════════════════════════════════════════════════════
-must(CONTESTED.size > 0 && [...CONTESTED].every((k) => /^(?:pa|ga)-(?:statehouse|statesenate)-\d+$/.test(k)), "the contested-seat list is Pennsylvania's and Georgia's");
+must(CONTESTED.size > 0 && [...CONTESTED].every((k) => /^(?:pa|ga|nc)-(?:statehouse|statesenate)-\d+$/.test(k)), "the contested-seat list is Pennsylvania's, Georgia's and North Carolina's");
 eq(JSON.stringify(LEG.map((b) => b.seat).sort()), JSON.stringify([...CONTESTED].sort()),
   "outside Utah, exactly the contested Pennsylvania seats open a state legislative board");
 eq(Object.keys(V.BOARD_ROUTES).length, HAND_SEATS.length + PLAN.length,
@@ -377,8 +377,8 @@ section("6 · the coverage sentence and the coach say what is on disk");
 
   // The states that HAVE a state legislative board, read off BOARD_ROUTES.
   const legStates = new Set(Object.keys(V.BOARD_ROUTES).map((k) => (LEG_KEY_RE.exec(k) || [])[1]).filter(Boolean));
-  eq([...legStates].sort().join(","), "ga,pa,ut", "Utah, and Pennsylvania's and Georgia's contested seats, are the only State House or State Senate boards");
-  ok(Object.keys(V.BOARD_ROUTES).filter((k) => /^(?:pa|ga)-/.test(k) && LEG_KEY_RE.test(k)).every((k) => CONTESTED.has(k)), "every Pennsylvania and Georgia legislative board is a contested seat");
+  eq([...legStates].sort().join(","), "ga,nc,pa,ut", "Utah, and Pennsylvania's, Georgia's and North Carolina's contested seats, are the only State House or State Senate boards");
+  ok(Object.keys(V.BOARD_ROUTES).filter((k) => /^(?:pa|ga|nc)-/.test(k) && LEG_KEY_RE.test(k)).every((k) => CONTESTED.has(k)), "every Pennsylvania, Georgia and North Carolina legislative board is a contested seat");
   const C = (() => {
     const win = makeSandbox();
     win.window = win;

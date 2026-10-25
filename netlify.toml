@@ -666,6 +666,19 @@
 # rules are after it and cannot match either of its two paths. Every
 # same-origin path inside both documents is root-absolute for the reason given
 # beside /ballot/ above.
+# North Carolina's contested legislative seats, Nov. 3, 2026 (nc-ballot-2026.js)
+[[redirects]]
+  from = "/ballot/nc"
+  to = "/ballot-nc.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/nc/"
+  to = "/ballot-nc.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/nc.html"
+  to = "/ballot-nc.html"
+  status = 200
 # Georgia's contested legislative seats, Nov. 3, 2026 (ga-ballot-2026.js)
 [[redirects]]
   from = "/ballot/ga"
@@ -8772,6 +8785,118 @@
 [[redirects]]
   from = "/district/ga-hd-53.html"
   to = "/district-ga-hd-53.html"
+  status = 200
+
+# North Carolina Senate District 7 — michael_lee_nc
+[[redirects]]
+  from = "/district/nc-sd-7"
+  to = "/district-nc-sd-7.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-sd-7/"
+  to = "/district-nc-sd-7.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-sd-7.html"
+  to = "/district-nc-sd-7.html"
+  status = 200
+
+# North Carolina Senate District 11 — barnes_nc
+[[redirects]]
+  from = "/district/nc-sd-11"
+  to = "/district-nc-sd-11.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-sd-11/"
+  to = "/district-nc-sd-11.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-sd-11.html"
+  to = "/district-nc-sd-11.html"
+  status = 200
+
+# North Carolina Senate District 42 — bradley_nc
+[[redirects]]
+  from = "/district/nc-sd-42"
+  to = "/district-nc-sd-42.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-sd-42/"
+  to = "/district-nc-sd-42.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-sd-42.html"
+  to = "/district-nc-sd-42.html"
+  status = 200
+
+# North Carolina Senate District 18 — fatmi_nc
+[[redirects]]
+  from = "/district/nc-sd-18"
+  to = "/district-nc-sd-18.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-sd-18/"
+  to = "/district-nc-sd-18.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-sd-18.html"
+  to = "/district-nc-sd-18.html"
+  status = 200
+
+# North Carolina House District 25 — chesser_nc
+[[redirects]]
+  from = "/district/nc-hd-25"
+  to = "/district-nc-hd-25.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-hd-25/"
+  to = "/district-nc-hd-25.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-hd-25.html"
+  to = "/district-nc-hd-25.html"
+  status = 200
+
+# North Carolina House District 105 — cotham_nc
+[[redirects]]
+  from = "/district/nc-hd-105"
+  to = "/district-nc-hd-105.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-hd-105/"
+  to = "/district-nc-hd-105.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-hd-105.html"
+  to = "/district-nc-hd-105.html"
+  status = 200
+
+# North Carolina House District 98 — helfrich_nc
+[[redirects]]
+  from = "/district/nc-hd-98"
+  to = "/district-nc-hd-98.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-hd-98/"
+  to = "/district-nc-hd-98.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-hd-98.html"
+  to = "/district-nc-hd-98.html"
+  status = 200
+
+# North Carolina House District 37 — pare_nc
+[[redirects]]
+  from = "/district/nc-hd-37"
+  to = "/district-nc-hd-37.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-hd-37/"
+  to = "/district-nc-hd-37.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-hd-37.html"
+  to = "/district-nc-hd-37.html"
   status = 200
 
 # Pennsylvania Senate District 40 — rosemary_brown_pa
