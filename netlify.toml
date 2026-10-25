@@ -666,6 +666,19 @@
 # rules are after it and cannot match either of its two paths. Every
 # same-origin path inside both documents is root-absolute for the reason given
 # beside /ballot/ above.
+# Arizona's contested State Senate seats, Nov. 3, 2026 (az-ballot-2026.js)
+[[redirects]]
+  from = "/ballot/az"
+  to = "/ballot-az.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/az/"
+  to = "/ballot-az.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/az.html"
+  to = "/ballot-az.html"
+  status = 200
 # Florida's contested legislative seats, Nov. 3, 2026 (fl-ballot-2026.js)
 [[redirects]]
   from = "/ballot/fl"
@@ -8711,6 +8724,62 @@
 [[redirects]]
   from = "/district/wy-us-senate-lummis.html"
   to = "/district-wy-us-senate-lummis.html"
+  status = 200
+
+# Arizona Senate District 2 — bolick_az
+[[redirects]]
+  from = "/district/az-sd-2"
+  to = "/district-az-sd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/az-sd-2/"
+  to = "/district-az-sd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/az-sd-2.html"
+  to = "/district-az-sd-2.html"
+  status = 200
+
+# Arizona Senate District 23 — fernandez_az
+[[redirects]]
+  from = "/district/az-sd-23"
+  to = "/district-az-sd-23.html"
+  status = 200
+[[redirects]]
+  from = "/district/az-sd-23/"
+  to = "/district-az-sd-23.html"
+  status = 200
+[[redirects]]
+  from = "/district/az-sd-23.html"
+  to = "/district-az-sd-23.html"
+  status = 200
+
+# Arizona Senate District 9 — sears_az
+[[redirects]]
+  from = "/district/az-sd-9"
+  to = "/district-az-sd-9.html"
+  status = 200
+[[redirects]]
+  from = "/district/az-sd-9/"
+  to = "/district-az-sd-9.html"
+  status = 200
+[[redirects]]
+  from = "/district/az-sd-9.html"
+  to = "/district-az-sd-9.html"
+  status = 200
+
+# Arizona Senate District 4 — werner_az
+[[redirects]]
+  from = "/district/az-sd-4"
+  to = "/district-az-sd-4.html"
+  status = 200
+[[redirects]]
+  from = "/district/az-sd-4/"
+  to = "/district-az-sd-4.html"
+  status = 200
+[[redirects]]
+  from = "/district/az-sd-4.html"
+  to = "/district-az-sd-4.html"
   status = 200
 
 # Florida House District 35 — booth_fl

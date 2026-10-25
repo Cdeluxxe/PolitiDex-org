@@ -10947,7 +10947,23 @@
 //     states' files are unchanged, and no new file is precached.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v475';
+// v476 - ARIZONA SENATE, ONE CONTESTED CYCLE (NOV. 3, 2026).
+//     az-ballot-2026.js holds the four contested Arizona State Senate races
+//     Arizona reporting names with a sitting member running, and the formal
+//     acts on file for the people in them, each a recorded floor vote read
+//     from the bill's floor actions on apps.azleg.gov and linked to its bill
+//     page, each measure with one effect line. Arizona's House seats are
+//     shared by two members and hold no race here. Who Represents Me prints
+//     one act under a sitting senator in those races; /ballot/az is the
+//     ballot view; the four seats open read-only District Voice boards that
+//     print their race. '/' loads the act line and counts the four boards;
+//     it, find.html, voice.html, district-board.js and district-voice.js are
+//     precached and changed, so the shell moves one version. cmp-data.js,
+//     voter-hub-location.js and the seven earlier states' files are
+//     unchanged, and no new file is precached.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v476';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
