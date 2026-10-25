@@ -747,6 +747,8 @@ const VERIFIED_OPTS = { uid: "u_7", loc: { state: "Utah", city: "Layton", county
     // who-represents-me.js on the same line (v469); that is a stylesheet and a
     // script tag, not money markup.
     .replace('<link rel="stylesheet" href="/pa-ballot.css"><script src="/pa-ballot-2026.js" defer></script>', "")
+    // …and Georgia's behind it (v470).
+    .replace('<script src="/ga-ballot-2026.js" defer></script>', "")
     .replace(/AND IT DESCRIBES WHAT EXISTS\.[\s\S]*?; every other seat a location/, "<EXISTS>")
     // The disclosures block later carried the range-band graph (v350/v351), and
     // its year drawing (v352/v353): the renderer, its call inside the on-file

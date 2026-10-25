@@ -475,14 +475,21 @@
   // row the resolver could not place — so this file never paints an entry to a
   // room that does not exist, and it degrades to exactly today's markup when
   // district-room.js has not loaded.
-  // ── One formal act under the row, for Pennsylvania's contested seats ───────
-  // pa-ballot-2026.js holds the acts and owns the markup; it answers '' for any
-  // pid it holds no act for, so every other state's row is unchanged. A sibling
-  // of the row, for the same nesting reason as seatCompare() below.
+  // ── One formal act under the row, for the contested seats on file ─────────
+  // pa-ballot-2026.js (Pennsylvania) and ga-ballot-2026.js (Georgia) hold the
+  // acts and own the markup; each answers '' for any pid it holds no act for,
+  // so every other state's row is unchanged. A sibling of the row, for the same
+  // nesting reason as seatCompare() below.
   function seatRecord(pid, lv) {
-    var P = window.PDXPaBallot;
-    if (!P || typeof P.seatActHtml !== 'function') return '';
-    try { return P.seatActHtml(pid, lv) || ''; } catch (e) { return ''; }
+    var mods = [window.PDXPaBallot, window.PDXGaBallot];
+    for (var i = 0; i < mods.length; i++) {
+      var P = mods[i];
+      if (!P || typeof P.seatActHtml !== 'function') continue;
+      var h = '';
+      try { h = P.seatActHtml(pid, lv) || ''; } catch (e) { h = ''; }
+      if (h) return h;
+    }
+    return '';
   }
 
   function districtRoom(lv, reps) {

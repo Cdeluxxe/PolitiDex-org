@@ -411,7 +411,7 @@ section("8 · the homepage counts BOARD_ROUTES");
   // Outside Utah: only U.S. House and U.S. Senate rows, never a governor.
   // The contested Pennsylvania legislative seats (pa-ballot-2026.js) are a
   // list of races, held by test-pa-contested-cycle.mjs, and never a governor.
-  const other = keys.filter((k) => !/^ut-/.test(k) && !/^pa-(?:statehouse|statesenate)-\d+$/.test(k));
+  const other = keys.filter((k) => !/^ut-/.test(k) && !/^(?:pa|ga)-(?:statehouse|statesenate)-\d+$/.test(k));
   ok(other.every((k) => /^[a-z]{2}-(?:house-[1-9][0-9]*|us-senate-[a-z][a-z0-9_]*)$/.test(k)),
     "outside Utah BOARD_ROUTES holds U.S. House and U.S. Senate rows only");
   eq(n, HAND_SEATS.length + planBoards().boards.length, "BOARD_ROUTES length is the generator's plan");

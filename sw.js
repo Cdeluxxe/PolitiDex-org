@@ -10854,7 +10854,21 @@
 //     voter-hub-location.js are unchanged, and no new file is precached.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v469';
+// v470 - GEORGIA, ONE CONTESTED CYCLE (NOV. 3, 2026).
+//     ga-ballot-2026.js holds the nine contested State House and State Senate
+//     races Georgia reporting names and the formal acts on file for the people
+//     in them, each a recorded floor vote read from the Georgia General
+//     Assembly's site and linked to its bill page, each measure with one
+//     effect line. Who Represents Me prints one act under a sitting member in
+//     those races; /ballot/ga is the ballot view; the nine seats open
+//     read-only District Voice boards that print their race. find.html links
+//     the ballot view, '/' loads the act line and counts the nine boards, and
+//     district-board.js and district-voice.js gain the nine rows; all four are
+//     precached and changed, so the shell moves one version. cmp-data.js and
+//     voter-hub-location.js are unchanged, and no new file is precached.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v470';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

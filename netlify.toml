@@ -666,6 +666,19 @@
 # rules are after it and cannot match either of its two paths. Every
 # same-origin path inside both documents is root-absolute for the reason given
 # beside /ballot/ above.
+# Georgia's contested legislative seats, Nov. 3, 2026 (ga-ballot-2026.js)
+[[redirects]]
+  from = "/ballot/ga"
+  to = "/ballot-ga.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/ga/"
+  to = "/ballot-ga.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/ga.html"
+  to = "/ballot-ga.html"
+  status = 200
 # Pennsylvania's contested legislative seats, Nov. 3, 2026 (pa-ballot-2026.js)
 [[redirects]]
   from = "/ballot/pa"
@@ -8633,6 +8646,132 @@
 [[redirects]]
   from = "/district/wy-us-senate-lummis.html"
   to = "/district-wy-us-senate-lummis.html"
+  status = 200
+
+# Georgia Senate District 37 — setzler_ga
+[[redirects]]
+  from = "/district/ga-sd-37"
+  to = "/district-ga-sd-37.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-sd-37/"
+  to = "/district-ga-sd-37.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-sd-37.html"
+  to = "/district-ga-sd-37.html"
+  status = 200
+
+# Georgia Senate District 48 — still_ga
+[[redirects]]
+  from = "/district/ga-sd-48"
+  to = "/district-ga-sd-48.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-sd-48/"
+  to = "/district-ga-sd-48.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-sd-48.html"
+  to = "/district-ga-sd-48.html"
+  status = 200
+
+# Georgia House District 151 — cheokas_ga
+[[redirects]]
+  from = "/district/ga-hd-151"
+  to = "/district-ga-hd-151.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-hd-151/"
+  to = "/district-ga-hd-151.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-hd-151.html"
+  to = "/district-ga-hd-151.html"
+  status = 200
+
+# Georgia House District 105 — donatucci_ga
+[[redirects]]
+  from = "/district/ga-hd-105"
+  to = "/district-ga-hd-105.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-hd-105/"
+  to = "/district-ga-hd-105.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-hd-105.html"
+  to = "/district-ga-hd-105.html"
+  status = 200
+
+# Georgia House District 154 — greene_ga
+[[redirects]]
+  from = "/district/ga-hd-154"
+  to = "/district-ga-hd-154.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-hd-154/"
+  to = "/district-ga-hd-154.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-hd-154.html"
+  to = "/district-ga-hd-154.html"
+  status = 200
+
+# Georgia House District 48 — hilton_ga
+[[redirects]]
+  from = "/district/ga-hd-48"
+  to = "/district-ga-hd-48.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-hd-48/"
+  to = "/district-ga-hd-48.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-hd-48.html"
+  to = "/district-ga-hd-48.html"
+  status = 200
+
+# Georgia House District 44 — parsons_ga
+[[redirects]]
+  from = "/district/ga-hd-44"
+  to = "/district-ga-hd-44.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-hd-44/"
+  to = "/district-ga-hd-44.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-hd-44.html"
+  to = "/district-ga-hd-44.html"
+  status = 200
+
+# Georgia House District 99 — reeves_ga
+[[redirects]]
+  from = "/district/ga-hd-99"
+  to = "/district-ga-hd-99.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-hd-99/"
+  to = "/district-ga-hd-99.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-hd-99.html"
+  to = "/district-ga-hd-99.html"
+  status = 200
+
+# Georgia House District 53 — silcox_ga
+[[redirects]]
+  from = "/district/ga-hd-53"
+  to = "/district-ga-hd-53.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-hd-53/"
+  to = "/district-ga-hd-53.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-hd-53.html"
+  to = "/district-ga-hd-53.html"
   status = 200
 
 # Pennsylvania Senate District 40 — rosemary_brown_pa

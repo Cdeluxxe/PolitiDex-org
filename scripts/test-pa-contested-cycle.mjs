@@ -226,7 +226,8 @@ section("5 · District Voice: a board for each contested seat and no other");
   const routes = vw.PDXVoice.BOARD_ROUTES;
   const paLeg = Object.keys(routes).filter((k) => /^pa-(?:statehouse|statesenate)-\d+$/.test(k)).sort();
   eq(JSON.stringify(paLeg), JSON.stringify(P.RACES.map((r) => r.seat).sort()), "BOARD_ROUTES: exactly the contested Pennsylvania seats");
-  const otherLeg = Object.keys(routes).filter((k) => /^[a-z]{2}-(?:statehouse|statesenate)-\d+$/.test(k) && !/^(?:ut|pa)-/.test(k));
+  // Georgia's contested seats are held by test-ga-contested-cycle.mjs.
+  const otherLeg = Object.keys(routes).filter((k) => /^[a-z]{2}-(?:statehouse|statesenate)-\d+$/.test(k) && !/^(?:ut|pa|ga)-/.test(k));
   eq(otherLeg.length, 0, "no other state gained a state legislative board");
   for (const r of P.RACES) {
     const alias = `pa-${r.chamber === "statesenate" ? "sd" : "hd"}-${r.district}`;
@@ -241,7 +242,7 @@ section("5 · District Voice: a board for each contested seat and no other");
   const docs = readdirSync(ROOT).filter((f) => /^district-pa-(?:hd|sd)-\d+\.html$/.test(f));
   eq(docs.length, P.RACES.length, "no Pennsylvania legislative board document without a race");
   for (const f of readdirSync(ROOT).filter((f) => /^district-(?!pa-(?:hd|sd)-).*\.html$/.test(f))) {
-    if (R(f).indexOf("pdxpa-") >= 0) ok(false, `${f}: a board outside the races carries a race block`);
+    if (R(f).indexOf("data-pdxpa-seat=") >= 0) ok(false, `${f}: a board outside the races carries a Pennsylvania race block`);
   }
   // Read-only: none of them is on a composer list.
   for (const f of ["district-composer.js", "district-poll.js", "netlify/lib/district-board-voice-core.mjs"]) {

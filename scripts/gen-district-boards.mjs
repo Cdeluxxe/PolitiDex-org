@@ -64,9 +64,9 @@
 // Louisiana, Maine, New Hampshire, Connecticut, Rhode Island, Vermont,
 // Delaware, North Dakota, South Dakota and Alaska; no
 // state was opened whole with those maps. The one exception is a list of
-// races, not a state: STATE_LEG_BOARD_SEATS, read from pa-ballot-2026.js,
-// opens a read-only board for each contested Pennsylvania seat on the
-// November 3, 2026 ballot and prints that race on it. Every other roster seat
+// races, not a state: STATE_LEG_BOARD_SEATS, read from pa-ballot-2026.js and
+// ga-ballot-2026.js, opens a read-only board for each contested Pennsylvania
+// and Georgia seat on the November 3, 2026 ballot and prints that race on it. Every other roster seat
 // outside Utah is refused and logged.
 //
 // THE SIX HAND-OPENED DOCUMENTS ARE NEVER WRITTEN. Their rows stay above each
@@ -387,15 +387,28 @@ export const STATE_LEG_BOARD_STATES = new Set();
 export const STATE_LEG_BOARD_REFUSAL = "state legislative boards are not opened in this state";
 // ONE SEAT AT A TIME, WHERE THERE IS A RACE. A state that is not on the list
 // above may still open a board for a single seat when that seat is one of the
-// contested races pa-ballot-2026.js holds for the November 3, 2026 ballot —
-// the seat key is read from that file's RACES, never typed here, so a board
-// cannot open for a seat with no race behind it. Every other gate below still
-// applies: the roster names the sitting member, the resolver seats that member
-// on that number, and the board is read-only.
-export function contestedSeats() {
+// contested races a state's ballot file holds for the November 3, 2026 ballot
+// (CONTESTED_FILES below — Pennsylvania's, then Georgia's) — the seat key is
+// read from that file's RACES, never typed here, so a board cannot open for a
+// seat with no race behind it. Every other gate below still applies: the
+// roster names the sitting member, the resolver seats that member on that
+// number, and the board is read-only.
+export const CONTESTED_FILES = [
+  { code: "pa", file: "pa-ballot-2026.js", global: "PDXPaBallot" },
+  { code: "ga", file: "ga-ballot-2026.js", global: "PDXGaBallot" },
+];
+const contestedModule = (c) => {
   const w = {}; w.window = w;
-  vm.runInContext(R("pa-ballot-2026.js"), vm.createContext(w), { filename: "pa-ballot-2026.js" });
-  return new Set(((w.PDXPaBallot && w.PDXPaBallot.RACES) || []).map((r) => r.seat));
+  vm.runInContext(R(c.file), vm.createContext(w), { filename: c.file });
+  return w[c.global];
+};
+export function contestedSeats() {
+  const out = new Set();
+  for (const c of CONTESTED_FILES) {
+    const M = contestedModule(c);
+    for (const r of (M && M.RACES) || []) if (r.seat.indexOf(c.code + "-") === 0) out.add(r.seat);
+  }
+  return out;
 }
 export const STATE_LEG_BOARD_SEATS = contestedSeats();
 export function planStateLegislative(win, boards, skipped, states = FEDERAL_STATES, boardStates = STATE_LEG_BOARD_STATES, boardSeats = STATE_LEG_BOARD_SEATS) {
@@ -459,21 +472,18 @@ export const studioDoor = (alias) => `/my-stances?next=${encodeURIComponent(`/di
 // file and their effect lines — in the document itself, so the room is never
 // empty and needs no script to read. Every other board gets '' and its bytes
 // do not move.
-let PA = null;
+const RACE_MODULES = {};
 function raceBlock(b) {
   if (!b.stateLeg || !STATE_LEG_BOARD_SEATS.has(b.seat)) return "";
-  if (!PA) {
-    const w = {}; w.window = w;
-    vm.runInContext(R("pa-ballot-2026.js"), vm.createContext(w), { filename: "pa-ballot-2026.js" });
-    PA = w.PDXPaBallot;
-  }
-  const r = PA.RACES.find((x) => x.seat === b.seat);
+  const c = CONTESTED_FILES.find((x) => b.seat.indexOf(x.code + "-") === 0);
+  const M = RACE_MODULES[c.code] || (RACE_MODULES[c.code] = contestedModule(c));
+  const r = M.RACES.find((x) => x.seat === b.seat);
   return [
-    `    <!-- THE RACE: pa-ballot-2026.js, written by scripts/gen-district-boards.mjs. -->`,
+    `    <!-- THE RACE: ${c.file}, written by scripts/gen-district-boards.mjs. -->`,
     `    <link rel="stylesheet" href="/pa-ballot.css" />`,
-    `    <div class="pdxpa-board-race" id="pdx-pa-race" data-pdxpa-seat="${b.seat}">`,
-    `      <p class="pdxpa-kick">On the ${PA.ELECTION} ballot · <a href="/ballot/pa">your legislative ballot</a></p>`,
-    `      ${PA.raceHtml(r)}`,
+    `    <div class="pdxpa-board-race" id="pdx-${c.code}-race" data-pdx${c.code}-seat="${b.seat}">`,
+    `      <p class="pdxpa-kick">On the ${M.ELECTION} ballot · <a href="/ballot/${c.code}">your legislative ballot</a></p>`,
+    `      ${M.raceHtml(r)}`,
     `    </div>`,
     "",
   ].join("\n") + "\n";
