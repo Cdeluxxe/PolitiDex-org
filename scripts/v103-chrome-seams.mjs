@@ -3425,6 +3425,13 @@ export const DECLARED_ADMISSIONS = [
     pids: JSON.parse(_readFileSync(new URL("../db/roster-state-legislators-wa-az-ma-2026-oct.json", import.meta.url), "utf8")).rows.map((r) => r.pid),
   },
   {
+    // Sitting Tennessee, Indiana and Missouri state legislators, read the same
+    // way from official legislative sources.
+    wave: "state_legislators_tn_in_mo_oct2026",
+    banner: "// ── Sitting state legislators, Tennessee, Indiana and Missouri — roster shells (Oct 2026)",
+    pids: JSON.parse(_readFileSync(new URL("../db/roster-state-legislators-tn-in-mo-2026-oct.json", import.meta.url), "utf8")).rows.map((r) => r.pid),
+  },
+  {
     // Too many rows to type here, so the list is the committed record of
     // the pass itself, which also names each state's official source.
     wave: "candidates_outside_utah_oct2026",
@@ -3611,7 +3618,7 @@ const ROSTER_KEY = /^\s*"([a-z0-9_]+)":\s*\{$/gm;
 // row still compares.
 const _LEG_RECORDS = ["../db/roster-state-legislators-ca-tx-fl-2026-oct.json", "../db/roster-state-legislators-ny-pa-il-2026-oct.json",
   "../db/roster-state-legislators-oh-ga-nc-2026-oct.json", "../db/roster-state-legislators-mi-nj-va-2026-oct.json",
-  "../db/roster-state-legislators-wa-az-ma-2026-oct.json"]
+  "../db/roster-state-legislators-wa-az-ma-2026-oct.json", "../db/roster-state-legislators-tn-in-mo-2026-oct.json"]
   .map((f) => JSON.parse(_readFileSync(new URL(f, import.meta.url), "utf8")));
 const _NUMBERED_LOWER = { California: 1, "New York": 1 };   // their lower chamber is written "District N"
 const _LD_SENATE = { "New Jersey": 1, Washington: 1, Arizona: 1 };   // their senators are written "LD N", as the roster already did

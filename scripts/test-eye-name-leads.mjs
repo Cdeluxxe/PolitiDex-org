@@ -176,7 +176,7 @@ const laneN = (h) => [...String(h).matchAll(/data-eye-lane="([^"]+)"[\s\S]*?clas
 // invent one for them either.
 const SHELLS = ["db/roster-state-legislators-ca-tx-fl-2026-oct.json", "db/roster-state-legislators-ny-pa-il-2026-oct.json",
   "db/roster-state-legislators-oh-ga-nc-2026-oct.json", "db/roster-state-legislators-mi-nj-va-2026-oct.json",
-  "db/roster-state-legislators-wa-az-ma-2026-oct.json"]
+  "db/roster-state-legislators-wa-az-ma-2026-oct.json", "db/roster-state-legislators-tn-in-mo-2026-oct.json"]
   .flatMap((f) => JSON.parse(R(f)).rows.map((r) => r.pid));
 const WARM = { warm: true, noRecord: [TRUMP, ...SHELLS] };
 const QUERIES = ["trump", "Trump", "TRUMP ", "donald trump", "Donald Trump", "trum"];

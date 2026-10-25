@@ -136,11 +136,11 @@ const at = (p, sd, hd) => ({ state: p.state, city: p.city, county: p.county + " 
   stateSenateDistrict: sd, stateHouseDistrict: hd, mapSelected: true });
 const [NJ, MA, TN] = PLACES;
 const NAMED = [
-  // [place, senate key, lower key, expected senate pid, expected name]
-  [NJ, "29", "29", "teresa_ruiz", "Teresa Ruiz"],
-  [TN, "27", "51", "jack_johnson_tn", "Jack Johnson"],
+  // [place, senate key, lower key, expected senate pid, expected name, expected lower pid]
+  [NJ, "29", "29", "teresa_ruiz", "Teresa Ruiz", null],
+  [TN, "27", "51", "jack_johnson_tn", "Jack Johnson", "behn_tn"],
 ];
-for (const [p, sd, hd, pid, nm] of NAMED) {
+for (const [p, sd, hd, pid, nm, lpid] of NAMED) {
   const W = boot(at(p, sd, hd));
   must(typeof W._pdxStateLegSeat === "function", "the resolver did not load");
   const reps = W.pdxRepsForMe();
@@ -150,20 +150,24 @@ for (const [p, sd, hd, pid, nm] of NAMED) {
   eq(ss.district, sd, `${p.state}: the State Senate district did not reach the level`);
   eq(ss.pid, pid, `${p.state}: SD ${sd}'s member on file was not named`);
   eq(sh.district, hd, `${p.state}: the lower-chamber district did not reach the level`);
-  eq(sh.pid, null, `${p.state}: a lower-chamber member was named for a seat no record claims`);
+  eq(sh.pid, lpid || null, lpid ? `${p.state}: the lower-chamber member on file was not named` : `${p.state}: a lower-chamber member was named for a seat no record claims`);
   ok(ss.mapped && sh.mapped, `${p.state}: a legislative level is not marked mapped`);
   const out = band(W);
   has(out, W.CMP_DATA[pid].name, `${p.state}: the State Senate member is not on the card`);
   if (nm) eq(W.CMP_DATA[pid].name, nm, `${p.state}: fixture name drifted`);
-  has(out, `District ${hd} — no member on file yet`, `${p.state}: the unclaimed lower-chamber seat does not say nobody is on file`);
+  if (lpid) has(out, W.CMP_DATA[lpid].name, `${p.state}: the lower-chamber member is not on the card`);
+  else has(out, `District ${hd} — no member on file yet`, `${p.state}: the unclaimed lower-chamber seat does not say nobody is on file`);
   lacks(out, "only maps state legislative districts in", `${p.state}: the reader is told their lines are not drawn`);
   ok(!EQUITY.test(out.replace(/<[^>]+>/g, " ")), `${p.state}: the card carries equity language`);
 }
 {
-  // A seat nobody claims: the Nashville address's own SD 21.
-  const W = boot(at(TN, "21", "51"));
-  eq(levelOf(W, "statesenate").pid, null, "Tennessee SD 21: a member was invented");
-  has(band(W), "District 21 — no member on file yet", "Tennessee SD 21: the row does not say nobody is on file");
+  // A seat nobody claims: Tennessee HD 84, vacant on the House's own directory
+  // (db/roster-state-legislators-tn-in-mo-2026-oct.json). The Nashville
+  // address's SD 21 is Jeff Yarbro's.
+  const W = boot(at(TN, "21", "84"));
+  eq(levelOf(W, "statesenate").pid, "yarbro_tn", "Tennessee SD 21: its senator was not named");
+  eq(levelOf(W, "statehouse").pid, null, "Tennessee HD 84: a member was invented");
+  has(band(W), "District 84 — no member on file yet", "Tennessee HD 84: the row does not say nobody is on file");
   // And an LD senator is never the Assembly's member for that number.
   for (const [st, d, pid] of [["New Jersey", 29, "teresa_ruiz"], ["New Jersey", 25, "anthony_bucco"]]) {
     eq(W._pdxStateLegSeat(st, "statesenate", d), pid, `${st} LD ${d}: the senator on file is not named`);
@@ -203,12 +207,15 @@ for (const [p, sd, hd, pid, nm] of NAMED) {
   const onFile = ["db/roster-state-legislators-mi-nj-va-2026-oct.json", "db/roster-state-legislators-wa-az-ma-2026-oct.json"]
     .flatMap((f) => { const REC = JSON.parse(R(f)); return [...REC.rows, ...REC.alreadyHeld, ...REC.districtSet]; })
     .filter((r) => ["New Jersey", "Massachusetts"].includes(r.state)).map((r) => r.pid);
+  // Tennessee's sitting members (db/roster-state-legislators-tn-in-mo-2026-oct.json).
+  const R6 = JSON.parse(R("db/roster-state-legislators-tn-in-mo-2026-oct.json"));
+  const tnOnFile = [...R6.rows, ...R6.alreadyHeld, ...R6.districtSet].filter((r) => r.state === "Tennessee").map((r) => r.pid);
   eq(JSON.stringify([...named].sort()),
-    JSON.stringify([...new Set([...onFile, "jack_johnson_tn", "randy_mcnally", "raumesh_akbari"])].sort()),
+    JSON.stringify([...new Set([...onFile, ...tnOnFile])].sort()),
     "roster: the members the lookup can name are not exactly the district-keyed state legislators on file");
   // Leaders whose records name no district, and U.S. House members whose titles
   // say "House", are never placed in a legislative seat.
-  for (const p of ["cameron_sexton", "kclark", "neal", "pallone"]) {
+  for (const p of ["kclark", "neal", "pallone"]) {
     ok(!named.has(p), `roster: ${p} was placed in a legislative seat`);
   }
 }

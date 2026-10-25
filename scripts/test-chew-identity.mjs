@@ -543,7 +543,10 @@ function catSlice(html, cat) {
   //     row that survived has to carry it, or collapsing the pair quietly made a
   //     real person unfindable by their own record.
   const deep = eye.search("uinta basin");
-  const deepIds = panelIds(catSlice(deep, "pol"));
+  // Only Scott Chew's two addresses are at issue here. A real legislator whose
+  // own name contains the term (Indiana Rep. Phil GiaQuinta, "…quinta") is a
+  // separate, correct match and is set aside.
+  const deepIds = panelIds(catSlice(deep, "pol")).filter((id) => id === CANON || id === RETIRED_KEY);
   eq(deepIds.length, 1, "a term only the duplicate document carried still finds exactly one person");
   eq(deepIds[0], CANON, "and it finds them at the canonical address");
 

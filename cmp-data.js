@@ -4290,6 +4290,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://images.house.mo.gov/graphics/PattersonNew.jpg",
   "office": "State House Speaker",
   "state": "Missouri",
+  "district": "HD 30",
   "party": "R",
   "score": 53,
   "kept": 0,
@@ -4437,6 +4438,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://upload.wikimedia.org/wikipedia/commons/f/f5/TN_Speaker_Cameron_Sexton.jpg",
   "office": "State House Speaker",
   "state": "Tennessee",
+  "district": "HD 25",
   "party": "R",
   "score": 53,
   "kept": 0,
@@ -4491,6 +4493,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/SOTS_%282_of_52%29_%2851815593427%29_%28cropped%29.jpg/500px-SOTS_%282_of_52%29_%2851815593427%29_%28cropped%29.jpg",
   "office": "State House Speaker",
   "state": "Indiana",
+  "district": "HD 37",
   "party": "R",
   "score": 53,
   "kept": 0,
@@ -30302,6 +30305,2698 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  "zlotnik_ma": {
   "name": "Jonathan Zlotnik", "office": "Massachusetts State Representative",
   "state": "Massachusetts", "district": "2nd Worcester", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+// ── Sitting state legislators, Tennessee, Indiana and Missouri — roster shells (Oct 2026)
+// One row per member the chamber's own official roster lists as seated in that
+// district on 2026-10-24, so the seat card can name who holds a State Senate or House seat
+// the finder resolved. Identity only: the name, the office, the state and the
+// exact district, read off the official roster, and `candidate: false` (in
+// office). No party, bio, score, stances or voting record. A seat the official
+// roster lists as vacant has no row, and neither does a member the roster already
+// holds under another id, or whose display name another record already carries
+// (db/roster-state-legislators-tn-in-mo-2026-oct.json is the record of all three), so those seats keep reading
+// "no member on file yet".
+// Indiana's rows come from the four legislative caucuses' own member lists,
+// which together seat each district once; two House seats neither caucus lists
+// are left empty.
+ // Tennessee — https://wapp.capitol.tn.gov/apps/LegislatorInfo/Directory?chamber=S · ?chamber=H
+ "bailey_tn": {
+  "name": "Paul Bailey", "office": "Tennessee State Senator",
+  "state": "Tennessee", "district": "SD 15", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bowling_tn": {
+  "name": "Janice Bowling", "office": "Tennessee State Senator",
+  "state": "Tennessee", "district": "SD 16", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "briggs_tn": {
+  "name": "Richard Briggs", "office": "Tennessee State Senator",
+  "state": "Tennessee", "district": "SD 7", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "campbell_tn": {
+  "name": "Heidi Campbell", "office": "Tennessee State Senator",
+  "state": "Tennessee", "district": "SD 20", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "crowe_tn": {
+  "name": "Rusty Crowe", "office": "Tennessee State Senator",
+  "state": "Tennessee", "district": "SD 3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gardenhire_tn": {
+  "name": "Todd Gardenhire", "office": "Tennessee State Senator",
+  "state": "Tennessee", "district": "SD 10", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "haile_tn": {
+  "name": "Ferrell Haile", "office": "Tennessee State Senator",
+  "state": "Tennessee", "district": "SD 18", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "harshbarger_tn": {
+  "name": "Bobby Harshbarger", "office": "Tennessee State Senator",
+  "state": "Tennessee", "district": "SD 4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hatcher_tn": {
+  "name": "Tom Hatcher", "office": "Tennessee State Senator",
+  "state": "Tennessee", "district": "SD 2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hensley_tn": {
+  "name": "Joey Hensley", "office": "Tennessee State Senator",
+  "state": "Tennessee", "district": "SD 28", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jackson_tn": {
+  "name": "Ed Jackson", "office": "Tennessee State Senator",
+  "state": "Tennessee", "district": "SD 25", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kyle_tn": {
+  "name": "Sara Kyle", "office": "Tennessee State Senator",
+  "state": "Tennessee", "district": "SD 30", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lamar_tn": {
+  "name": "London Lamar", "office": "Tennessee State Senator",
+  "state": "Tennessee", "district": "SD 33", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lowe_tn": {
+  "name": "Adam Lowe", "office": "Tennessee State Senator",
+  "state": "Tennessee", "district": "SD 1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "massey_tn": {
+  "name": "Becky D. Massey", "office": "Tennessee State Senator",
+  "state": "Tennessee", "district": "SD 6", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "oliver_tn": {
+  "name": "Charlane Oliver", "office": "Tennessee State Senator",
+  "state": "Tennessee", "district": "SD 19", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pody_tn": {
+  "name": "Mark Pody", "office": "Tennessee State Senator",
+  "state": "Tennessee", "district": "SD 17", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bill_powers_tn": {
+  "name": "Bill Powers", "office": "Tennessee State Senator",
+  "state": "Tennessee", "district": "SD 22", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "shane_reeves_tn": {
+  "name": "Shane Reeves", "office": "Tennessee State Senator",
+  "state": "Tennessee", "district": "SD 14", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "roberts_tn": {
+  "name": "Kerry Roberts", "office": "Tennessee State Senator",
+  "state": "Tennessee", "district": "SD 23", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rose_tn": {
+  "name": "Paul Rose", "office": "Tennessee State Senator",
+  "state": "Tennessee", "district": "SD 32", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "seal_tn": {
+  "name": "Jessie Seal", "office": "Tennessee State Senator",
+  "state": "Tennessee", "district": "SD 8", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "southerland_tn": {
+  "name": "Steve Southerland", "office": "Tennessee State Senator",
+  "state": "Tennessee", "district": "SD 9", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "john_stevens_tn": {
+  "name": "John Stevens", "office": "Tennessee State Senator",
+  "state": "Tennessee", "district": "SD 24", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "walley_tn": {
+  "name": "Page Walley", "office": "Tennessee State Senator",
+  "state": "Tennessee", "district": "SD 26", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "watson_tn": {
+  "name": "Bo Watson", "office": "Tennessee State Senator",
+  "state": "Tennessee", "district": "SD 11", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dawn_white_tn": {
+  "name": "Dawn White", "office": "Tennessee State Senator",
+  "state": "Tennessee", "district": "SD 13", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "yager_tn": {
+  "name": "Ken Yager", "office": "Tennessee State Senator",
+  "state": "Tennessee", "district": "SD 12", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "yarbro_tn": {
+  "name": "Jeff Yarbro", "office": "Tennessee State Senator",
+  "state": "Tennessee", "district": "SD 21", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "alexander_tn": {
+  "name": "Rebecca K. Alexander", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 7", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "atchley_tn": {
+  "name": "Fred Atchley", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 12", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "barrett_tn": {
+  "name": "Jody Barrett", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 69", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "baum_tn": {
+  "name": "Charlie Baum", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 37", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "behn_tn": {
+  "name": "Aftyn Behn", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 51", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "boyd_tn": {
+  "name": "Clark Boyd", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 46", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bricken_tn": {
+  "name": "Rush Bricken", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 47", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brooks_tn": {
+  "name": "Shaundelle Brooks", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 60", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bulso_tn": {
+  "name": "Gino Bulso", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 61", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "butler_tn": {
+  "name": "Ed Butler", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 41", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "camper_tn": {
+  "name": "Karen D. Camper", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 87", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "capley_tn": {
+  "name": "Kip Capley", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 71", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "carringer_tn": {
+  "name": "Michele Carringer", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 16", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cepicky_tn": {
+  "name": "Scott Cepicky", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 64", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chism_tn": {
+  "name": "Jesse Chism", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 85", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "clemmons_tn": {
+  "name": "John Ray Clemmons", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 55", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cochran_tn": {
+  "name": "Mark Cochran", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 23", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "crawford_tn": {
+  "name": "John Crawford", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "darby_tn": {
+  "name": "Tandy Darby", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 76", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "davis_tn": {
+  "name": "Elaine Davis", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 18", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dixie_tn": {
+  "name": "Vincent Dixie", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 54", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "doggett_tn": {
+  "name": "Clay Doggett", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 70", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "eldridge_tn": {
+  "name": "Rick Eldridge", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 10", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "faison_tn": {
+  "name": "Jeremy Faison", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 11", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "farmer_tn": {
+  "name": "Andrew Farmer", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 17", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "freeman_tn": {
+  "name": "Bob Freeman", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 56", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fritts_tn": {
+  "name": "Monty Fritts", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 32", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gant_tn": {
+  "name": "Ron M. Gant", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 94", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gillespie_tn": {
+  "name": "John Gillespie", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 97", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "glynn_tn": {
+  "name": "Ronnie Glynn", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 67", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "grills_tn": {
+  "name": "Rusty Grills", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 77", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hakeem_tn": {
+  "name": "Yusuf Hakeem", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 28", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hale_tn": {
+  "name": "Michael Hale", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 40", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hardaway_tn": {
+  "name": "T.J. Hardaway", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 93", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "harris_tn": {
+  "name": "Torrey C. Harris", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 91", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "haston_tn": {
+  "name": "Kirk Haston", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 72", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hawk_tn": {
+  "name": "David B. Hawk", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 5", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "helton_haynes_tn": {
+  "name": "Esther Helton-Haynes", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 30", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hemmer_tn": {
+  "name": "Caleb Hemmer", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 59", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gary_hicks_tn": {
+  "name": "Gary Hicks", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 9", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tim_hicks_tn": {
+  "name": "Tim Hicks", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 6", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hill_tn": {
+  "name": "Timothy Hill", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "howell_tn": {
+  "name": "Dan Howell", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 22", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hulsey_tn": {
+  "name": "Bud Hulsey", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hurt_tn": {
+  "name": "Chris Hurt", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 82", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gloria_johnson_tn": {
+  "name": "Gloria Johnson", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 90", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "justin_jones_tn": {
+  "name": "Justin Jones", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 52", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "renea_jones_tn": {
+  "name": "Renea Jones", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "keisling_tn": {
+  "name": "Kelly Keisling", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 38", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kumar_tn": {
+  "name": "Sabi 'Doc' Kumar", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 66", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lafferty_tn": {
+  "name": "Justin Lafferty", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 89", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lamberth_tn": {
+  "name": "William Lamberth", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 44", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lankford_tn": {
+  "name": "Michael Lankford", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 75", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "leatherwood_tn": {
+  "name": "Tom Leatherwood", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 99", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "littleton_tn": {
+  "name": "Mary Littleton", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 78", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "love_tn": {
+  "name": "Jr., Harold Love", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 58", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lynn_tn": {
+  "name": "Susan M. Lynn", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 57", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "maberry_tn": {
+  "name": "Aron Maberry", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 68", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "marsh_tn": {
+  "name": "Pat Marsh", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 62", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brock_martin_tn": {
+  "name": "Brock Martin", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 79", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "greg_martin_tn": {
+  "name": "Greg Martin", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 26", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mccalmon_tn": {
+  "name": "Jake McCalmon", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 63", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mckenzie_tn": {
+  "name": "Sam McKenzie", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 15", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "miller_tn": {
+  "name": "Larry J. Miller", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 88", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mitchell_tn": {
+  "name": "Bo Mitchell", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 50", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "moody_tn": {
+  "name": "Debra Moody", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 81", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "moon_tn": {
+  "name": "Jerome Moon", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 8", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "parkinson_tn": {
+  "name": "Antonio Parkinson", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 98", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "powell_tn": {
+  "name": "Jason Powell", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 53", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dennis_powers_tn": {
+  "name": "Dennis Powers", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 36", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "raper_tn": {
+  "name": "Kevin D. Raper", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 24", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "reedy_tn": {
+  "name": "Jay D. Reedy", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 74", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lee_reeves_tn": {
+  "name": "Lee Reeves", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 65", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "reneau_tn": {
+  "name": "Michele Reneau", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 27", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rudd_tn": {
+  "name": "Tim Rudd", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 34", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rudder_tn": {
+  "name": "Iris Rudder", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 39", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "russell_tn": {
+  "name": "Lowell Russell", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 21", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "salinas_tn": {
+  "name": "Gabby Salinas", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 96", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "scarbrough_tn": {
+  "name": "Rick Scarbrough", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 33", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "shaw_tn": {
+  "name": "Johnny Shaw", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 80", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sherrell_tn": {
+  "name": "Paul Sherrell", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 43", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "slater_tn": {
+  "name": "William Slater", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 35", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sparks_tn": {
+  "name": "Mike Sparks", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 49", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "robert_stevens_tn": {
+  "name": "Robert Stevens", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 13", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "stinnett_tn": {
+  "name": "Tom Stinnett", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 20", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "terry_tn": {
+  "name": "Bryan Terry", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 48", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "todd_tn": {
+  "name": "Chris Todd", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 73", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "vaughan_tn": {
+  "name": "Kevin Vaughan", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 95", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "vital_tn": {
+  "name": "Greg Vital", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 29", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "warner_tn": {
+  "name": "Todd Warner", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 92", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mark_white_tn": {
+  "name": "Mark White", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 83", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "williams_tn": {
+  "name": "Ryan Williams", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 42", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wright_tn": {
+  "name": "Dave Wright", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 19", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "zachary_tn": {
+  "name": "Jason Zachary", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 14", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Indiana — Senate and House Republican and Democratic caucus member lists
+ "alexander_in": {
+  "name": "Scott Alexander", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 26", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "alting_in": {
+  "name": "Ron Alting", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 22", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "baldwin_in": {
+  "name": "Scott Baldwin", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 20", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bassler_in": {
+  "name": "Eric Bassler", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 39", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "becker_in": {
+  "name": "Vaneta Becker", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 50", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bohacek_in": {
+  "name": "Mike Bohacek", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 8", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brown_in": {
+  "name": "Liz Brown", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 15", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "buchanan_in": {
+  "name": "Brian Buchanan", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 7", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "buck_in": {
+  "name": "Jim Buck", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 21", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "busch_in": {
+  "name": "Justin Busch", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 16", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "byrne_in": {
+  "name": "Gary Byrne", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 47", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "carrasco_in": {
+  "name": "Cyndi Carrasco", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 36", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "charbonneau_in": {
+  "name": "Ed Charbonneau", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 5", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "clark_in": {
+  "name": "Brett Clark", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 24", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "crider_in": {
+  "name": "Michael Crider", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 28", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "deery_in": {
+  "name": "Spencer Deery", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 23", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dernulc_in": {
+  "name": "Dan Dernulc", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "donato_in": {
+  "name": "Stacey A. Donato", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 18", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "doriot_in": {
+  "name": "Blake Doriot", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 12", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "freeman_in": {
+  "name": "Aaron Freeman", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 32", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gaskill_in": {
+  "name": "Mike Gaskill", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 25", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "glick_in": {
+  "name": "Sue Glick", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 13", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "goode_in": {
+  "name": "Greg Goode", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 38", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "holdman_in": {
+  "name": "Travis Holdman", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 19", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tyler_johnson_in": {
+  "name": "Tyler Johnson", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 14", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "koch_in": {
+  "name": "Eric Koch", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 44", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "leising_in": {
+  "name": "Jean Leising", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 42", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "maxwell_in": {
+  "name": "Randy Maxwell", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 43", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mckinley_in": {
+  "name": "Nick McKinley", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 17", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mishler_in": {
+  "name": "Ryan Mishler", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 9", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "niemeyer_in": {
+  "name": "Rick Niemeyer", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 6", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "raatz_in": {
+  "name": "Jeff Raatz", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 27", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rogers_in": {
+  "name": "Linda Rogers", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 11", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "schmitt_in": {
+  "name": "Daryl Schmitt", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 48", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tomes_in": {
+  "name": "Jim Tomes", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 49", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kyle_walker_in": {
+  "name": "Kyle Walker", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 31", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "greg_walker_in": {
+  "name": "Greg Walker", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 41", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "young_in": {
+  "name": "R. Michael Young", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 35", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "andrade_in": {
+  "name": "Mike Andrade", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 12", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bartlett_in": {
+  "name": "John L. Bartlett", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 95", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bauer_in": {
+  "name": "Maureen Bauer", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 6", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "burton_in": {
+  "name": "Alex Burton", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 77", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chesser_in": {
+  "name": "Wendy Dant Chesser", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 71", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "delaney_in": {
+  "name": "Ed DeLaney", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 86", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dvorak_in": {
+  "name": "Ryan Dvorak", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 8", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "errington_in": {
+  "name": "Sue Errington", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 34", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wilburn_in": {
+  "name": "Victoria Garcia Wilburn", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 32", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "giaquinta_in": {
+  "name": "Phil GiaQuinta", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 80", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gore_in": {
+  "name": "Mitch Gore", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 89", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hamilton_in": {
+  "name": "Carey Hamilton", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 87", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "harris_in": {
+  "name": "Earl L. Harris Jr.", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hatcher_in": {
+  "name": "Ragen Hatcher", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "carolyn_jackson_in": {
+  "name": "Carolyn B. Jackson", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "klinker_in": {
+  "name": "Sheila Klinker", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 27", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kyle_miller_in": {
+  "name": "Kyle Miller", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 82", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "moed_in": {
+  "name": "Justin Moed", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 97", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "moseley_in": {
+  "name": "Chuck Moseley", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 10", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "novak_in": {
+  "name": "Randy Novak", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 9", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pack_in": {
+  "name": "Renee Pack", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 92", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pfaff_in": {
+  "name": "Tonya Pfaff", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 43", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "matt_pierce_in": {
+  "name": "Matt Pierce", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 61", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "porter_in": {
+  "name": "Gregory W. Porter", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 96", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pryor_in": {
+  "name": "Cherrish Pryor", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 94", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "shackleford_in": {
+  "name": "Robin Shackleford", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 98", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "vernon_smith_in": {
+  "name": "Vernon G. Smith", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 14", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "summers_in": {
+  "name": "Vanessa Summers", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 99", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hunley_in": {
+  "name": "Andrea Hunley", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 46", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pol_in": {
+  "name": "Rodney Pol", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "la_jackson_in": {
+  "name": "La Keisha Jackson", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 34", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "niezgodski_in": {
+  "name": "David Niezgodski", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 10", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "qaddoura_in": {
+  "name": "Fady Qaddoura", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 30", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "randolph_in": {
+  "name": "Lonnie Randolph", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "spencer_in": {
+  "name": "Mark Spencer", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "taylor_in": {
+  "name": "Greg Taylor", "office": "Indiana State Senator",
+  "state": "Indiana", "district": "SD 33", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "karickhoff_in": {
+  "name": "Mike Karickhoff", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 30", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lehman_in": {
+  "name": "Matt Lehman", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 79", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "olthoff_in": {
+  "name": "Julie Olthoff", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 19", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "patterson_in": {
+  "name": "Lindsay Patterson", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 55", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ledbetter_in": {
+  "name": "Cindy Ledbetter", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 75", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "king_in": {
+  "name": "Joanna King", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 49", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "steuerwald_in": {
+  "name": "Greg Steuerwald", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 40", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mcnamara_in": {
+  "name": "Wendy McNamara", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 76", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rowray_in": {
+  "name": "Elizabeth Rowray", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 35", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "payne_in": {
+  "name": "Zach Payne", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 66", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "oabrien_in": {
+  "name": "Tim OâBrien", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 78", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "yocum_in": {
+  "name": "Tim Yocum", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 42", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wesco_in": {
+  "name": "Tim Wesco", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 21", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mayfield_in": {
+  "name": "Peggy Mayfield", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 60", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lauer_in": {
+  "name": "Ryan Lauer", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 59", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sweet_in": {
+  "name": "Lorissa Sweet", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 50", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pressel_in": {
+  "name": "Jim Pressel", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 20", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mcguire_in": {
+  "name": "Julie McGuire", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 93", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kyle_pierce_in": {
+  "name": "Kyle Pierce", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 36", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "meltzer_in": {
+  "name": "Jennifer Meltzer", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 73", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lucas_in": {
+  "name": "Jim Lucas", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 69", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "thompson_in": {
+  "name": "Jeff Thompson", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 28", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "teshka_in": {
+  "name": "Jake Teshka", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 7", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "vannatter_in": {
+  "name": "Heath VanNatter", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 38", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "manning_in": {
+  "name": "Ethan Manning", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 23", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "slager_in": {
+  "name": "Hal Slager", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 15", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hunter_smith_in": {
+  "name": "Hunter Smith", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 24", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "soliday_in": {
+  "name": "Ed Soliday", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "doug_miller_in": {
+  "name": "Doug Miller", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 48", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lawson_in": {
+  "name": "Ethan Lawson", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 53", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "may_in": {
+  "name": "Chris May", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 65", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "snow_in": {
+  "name": "Craig Snow", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 22", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "judy_in": {
+  "name": "Christopher Judy", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 83", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lopez_in": {
+  "name": "Danny Lopez", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 39", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "smaltz_in": {
+  "name": "Ben Smaltz", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 52", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "morris_in": {
+  "name": "Bob Morris", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 84", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "zimmerman_in": {
+  "name": "Alex Zimmerman", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 67", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "shonkwiler_in": {
+  "name": "Alaina Shonkwiler", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 29", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "davis_in": {
+  "name": "Michelle Davis", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 58", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "abbott_in": {
+  "name": "David Abbott", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 18", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bartels_in": {
+  "name": "Stephen Bartels", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 74", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "heaton_in": {
+  "name": "Bob Heaton", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 46", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hall_in": {
+  "name": "Dave Hall", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 62", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "criswell_in": {
+  "name": "Cory Criswell", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 54", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "isa_in": {
+  "name": "Tony Isa", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 51", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "greene_in": {
+  "name": "Robb Greene", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 47", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "aylesworth_in": {
+  "name": "Mike Aylesworth", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 11", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hostettler_in": {
+  "name": "Matt Hostettler", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 64", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "carbaugh_in": {
+  "name": "Martin Carbaugh", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 81", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "commons_in": {
+  "name": "Matt Commons", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 13", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "genda_in": {
+  "name": "Mark Genda", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 41", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "goss_reaves_in": {
+  "name": "Lori Goss-Reaves", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 31", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "engleman_in": {
+  "name": "Karen Engleman", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 70", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "culp_in": {
+  "name": "Kendell Culp", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 16", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jordan_in": {
+  "name": "Jack Jordan", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 17", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "heine_in": {
+  "name": "Dave Heine", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 85", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "clere_in": {
+  "name": "Ed Clere", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 72", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bascom_in": {
+  "name": "Garrett Bascom", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 68", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "devon_in": {
+  "name": "Dale DeVon", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 5", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "haggard_in": {
+  "name": "Craig Haggard", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 57", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jeter_in": {
+  "name": "Chris Jeter", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 88", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "borders_in": {
+  "name": "Bruce Borders", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 45", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "barrett_in": {
+  "name": "Brad Barrett", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 56", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "behning_in": {
+  "name": "Bob Behning", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 91", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "baird_in": {
+  "name": "Beau Baird", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 44", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cash_in": {
+  "name": "Becky Cash", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 25", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ireland_in": {
+  "name": "Andrew Ireland", "office": "Indiana State Representative",
+  "state": "Indiana", "district": "HD 90", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Missouri — https://www.senate.mo.gov/Senators/ · https://documents.house.mo.gov/xml/261-MemberList.xml
+ "bean_mo": {
+  "name": "Jason Bean", "office": "Missouri State Senator",
+  "state": "Missouri", "district": "SD 25", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bernskoetter_mo": {
+  "name": "Mike Bernskoetter", "office": "Missouri State Senator",
+  "state": "Missouri", "district": "SD 6", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rusty_black_mo": {
+  "name": "Rusty Black", "office": "Missouri State Senator",
+  "state": "Missouri", "district": "SD 12", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "justin_brown_mo": {
+  "name": "Justin Brown", "office": "Missouri State Senator",
+  "state": "Missouri", "district": "SD 16", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ben_brown_mo": {
+  "name": "Ben Brown", "office": "Missouri State Senator",
+  "state": "Missouri", "district": "SD 26", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "burger_mo": {
+  "name": "Jamie Burger", "office": "Missouri State Senator",
+  "state": "Missouri", "district": "SD 27", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "carter_mo": {
+  "name": "Jill Carter", "office": "Missouri State Senator",
+  "state": "Missouri", "district": "SD 32", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cierpiot_mo": {
+  "name": "Mike Cierpiot", "office": "Missouri State Senator",
+  "state": "Missouri", "district": "SD 8", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mary_coleman_mo": {
+  "name": "Mary Elizabeth Coleman", "office": "Missouri State Senator",
+  "state": "Missouri", "district": "SD 22", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "crawford_mo": {
+  "name": "Sandy Crawford", "office": "Missouri State Senator",
+  "state": "Missouri", "district": "SD 28", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "david_gregory_mo": {
+  "name": "David Gregory", "office": "Missouri State Senator",
+  "state": "Missouri", "district": "SD 15", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kurtis_gregory_mo": {
+  "name": "Kurtis Gregory", "office": "Missouri State Senator",
+  "state": "Missouri", "district": "SD 21", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "henderson_mo": {
+  "name": "Mike Henderson", "office": "Missouri State Senator",
+  "state": "Missouri", "district": "SD 3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hough_mo": {
+  "name": "Lincoln Hough", "office": "Missouri State Senator",
+  "state": "Missouri", "district": "SD 30", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hudson_mo": {
+  "name": "Brad Hudson", "office": "Missouri State Senator",
+  "state": "Missouri", "district": "SD 33", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "patty_lewis_mo": {
+  "name": "Patty Lewis", "office": "Missouri State Senator",
+  "state": "Missouri", "district": "SD 7", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "may_mo": {
+  "name": "Karla May", "office": "Missouri State Senator",
+  "state": "Missouri", "district": "SD 4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mccreery_mo": {
+  "name": "Tracy McCreery", "office": "Missouri State Senator",
+  "state": "Missouri", "district": "SD 24", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "moon_mo": {
+  "name": "Mike Moon", "office": "Missouri State Senator",
+  "state": "Missouri", "district": "SD 29", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "angela_mosley_mo": {
+  "name": "Angela Mosley", "office": "Missouri State Senator",
+  "state": "Missouri", "district": "SD 13", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nicola_mo": {
+  "name": "Joe Nicola", "office": "Missouri State Senator",
+  "state": "Missouri", "district": "SD 11", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nurrenbern_mo": {
+  "name": "Maggie Nurrenbern", "office": "Missouri State Senator",
+  "state": "Missouri", "district": "SD 17", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "steven_roberts_mo": {
+  "name": "Steven Roberts", "office": "Missouri State Senator",
+  "state": "Missouri", "district": "SD 5", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "schnelting_mo": {
+  "name": "Adam Schnelting", "office": "Missouri State Senator",
+  "state": "Missouri", "district": "SD 23", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "schroer_mo": {
+  "name": "Nick Schroer", "office": "Missouri State Senator",
+  "state": "Missouri", "district": "SD 2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "trent_mo": {
+  "name": "Curtis Trent", "office": "Missouri State Senator",
+  "state": "Missouri", "district": "SD 20", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "washington_mo": {
+  "name": "Barbara Washington", "office": "Missouri State Senator",
+  "state": "Missouri", "district": "SD 9", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "webber_mo": {
+  "name": "Stephen Webber", "office": "Missouri State Senator",
+  "state": "Missouri", "district": "SD 19", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brian_williams_mo": {
+  "name": "Brian Williams", "office": "Missouri State Senator",
+  "state": "Missouri", "district": "SD 14", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "farnan_mo": {
+  "name": "Jeff Farnan", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "christensen_mo": {
+  "name": "Mazzie Christensen", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "busick_mo": {
+  "name": "Danny Busick", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sharpe_mo": {
+  "name": "Greg Sharpe", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "riggs_mo": {
+  "name": "Louis Riggs", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 5", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ed_lewis_mo": {
+  "name": "Ed Lewis", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 6", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mcgaugh_mo": {
+  "name": "Peggy McGaugh", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 7", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hurlbert_mo": {
+  "name": "Josh Hurlbert", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 8", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "van_schoiack_mo": {
+  "name": "Dean Van Schoiack", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 9", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "falkner_mo": {
+  "name": "Bill Falkner", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 10", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "shields_mo": {
+  "name": "Brenda Shields", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 11", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pouche_mo": {
+  "name": "Sean Pouche", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 13", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "aune_mo": {
+  "name": "Ashley Aune", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 14", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jamison_mo": {
+  "name": "Ken Jamison", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 15", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chris_brown_mo": {
+  "name": "Chris Brown", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 16", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "allen_mo": {
+  "name": "Bill Allen", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 17", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "woods_mo": {
+  "name": "Eric Woods", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 18", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "thomas_mo": {
+  "name": "Wick Thomas", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 19", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "steinmeyer_mo": {
+  "name": "Mike Steinmeyer", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 20", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jobe_mo": {
+  "name": "Will Jobe", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 21", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "young_mo": {
+  "name": "Yolanda Young", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 22", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "johnson_mo": {
+  "name": "Michael Johnson", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 23", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "weber_mo": {
+  "name": "Emily Weber", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 24", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mansur_mo": {
+  "name": "Pattie Mansur", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 25", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "price_mo": {
+  "name": "Tiffany Price", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 26", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "douglas_mo": {
+  "name": "Melissa Douglas", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 27", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "barnes_mo": {
+  "name": "Donna Barnes", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 28", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fowler_mo": {
+  "name": "Ron Fowler", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 31", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jeff_coleman_mo": {
+  "name": "Jeff Coleman", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 32", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "caton_mo": {
+  "name": "Carolyn Caton", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 33", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "strickler_mo": {
+  "name": "Kemp Strickler", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 34", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ingle_mo": {
+  "name": "Keri Ingle", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 35", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ealy_mo": {
+  "name": "Anthony Ealy", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 36", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sharp_mo": {
+  "name": "Mark Sharp", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 37", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jacobs_mo": {
+  "name": "Martin Jacobs", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 38", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "meirath_mo": {
+  "name": "Mark Meirath", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 39", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "perkins_mo": {
+  "name": "Chad Perkins", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 40", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "justus_mo": {
+  "name": "Doyle Justus", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 41", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "myers_mo": {
+  "name": "Jeff Myers", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 42", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "haden_mo": {
+  "name": "Kent Haden", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 43", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "martin_mo": {
+  "name": "John Martin", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 44", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "steinhoff_mo": {
+  "name": "Kathy Steinhoff", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 45", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "david_smith_mo": {
+  "name": "David Tyson Smith", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 46", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "plank_mo": {
+  "name": "Adrian Plank", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 47", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tim_taylor_mo": {
+  "name": "Tim Taylor", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 48", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "schulte_mo": {
+  "name": "Jim Schulte", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 49", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bush_mo": {
+  "name": "Gregg Bush", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 50", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nolte_mo": {
+  "name": "Mark Nolte", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 51", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pollitt_mo": {
+  "name": "Brad Pollitt", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 52", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "thompson_mo": {
+  "name": "Terry Thompson", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 53", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "phelps_mo": {
+  "name": "Brandon Phelps", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 54", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "irwin_mo": {
+  "name": "Bill Irwin", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 55", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "davis_mo": {
+  "name": "Michael Davis", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 56", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "reedy_mo": {
+  "name": "Rodger Reedy", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 57", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "haley_mo": {
+  "name": "Willard Haley", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 58", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "veit_mo": {
+  "name": "Rudy Veit", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 59", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "griffith_mo": {
+  "name": "Dave Griffith", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 60", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sassmann_mo": {
+  "name": "Bruce Sassmann", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 61", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gallick_mo": {
+  "name": "Sherri Gallick", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 62", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "byrnes_mo": {
+  "name": "Tricia Byrnes", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 63", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "self_mo": {
+  "name": "Deanna Self", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 64", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hausman_mo": {
+  "name": "Wendy L. Hausman", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 65", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "terry_mo": {
+  "name": "Marlene Terry", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 66", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rush_mo": {
+  "name": "Tonya Rush", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 67", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kem_smith_mo": {
+  "name": "Kem Smith", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 68", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "miller_mo": {
+  "name": "Scott Miller", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 69", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "boykin_mo": {
+  "name": "Stephanie Boykin", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 70", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "appelbaum_mo": {
+  "name": "LaDonna Appelbaum", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 71", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "clemens_mo": {
+  "name": "Doug Clemens", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 72", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "proudie_mo": {
+  "name": "Raychel Proudie", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 73", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "marla_smith_mo": {
+  "name": "Marla Smith", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 74", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chanel_mosley_mo": {
+  "name": "Chanel Mosley", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 75", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "anderson_mo": {
+  "name": "Marlon Anderson", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 76", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "collins_mo": {
+  "name": "Kimberly-Ann Collins", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 77", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "murray_mo": {
+  "name": "Marty Joe Murray", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 78", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bosley_mo": {
+  "name": "LaKeySha Bosley", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 79", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fuchs_mo": {
+  "name": "Elizabeth Fuchs", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 80", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "butz_mo": {
+  "name": "Steve Butz", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 81", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kimble_mo": {
+  "name": "Nick Kimble", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 82", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "reed_mo": {
+  "name": "Ray Reed", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 83", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "del_taylor_mo": {
+  "name": "Del Taylor", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 84", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fountain_henderson_mo": {
+  "name": "Yolonda Fountain Henderson", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 85", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hales_mo": {
+  "name": "Jeff Hales", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 86", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "steinmetz_mo": {
+  "name": "Connie Steinmetz", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 87", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "holly_jones_mo": {
+  "name": "Holly Jones", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 88", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hruza_mo": {
+  "name": "George Hruza", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 89", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "boyko_mo": {
+  "name": "Mark Boyko", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 90", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "doll_mo": {
+  "name": "Jo Doll", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 91", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "burton_mo": {
+  "name": "Michael Burton", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 92", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "walsh_moore_mo": {
+  "name": "Bridget Walsh Moore", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 93", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "murphy_mo": {
+  "name": "Jim Murphy", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 94", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "christ_mo": {
+  "name": "Brad Christ", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 96", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "casteel_mo": {
+  "name": "David Casteel", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 97", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "zimmermann_mo": {
+  "name": "Jaclyn Zimmermann", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 98", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "oehlerking_mo": {
+  "name": "Philip Oehlerking", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 100", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "keathley_mo": {
+  "name": "Ben Keathley", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 101", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "west_mo": {
+  "name": "Richard West", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 102", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hinman_mo": {
+  "name": "Dave Hinman", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 103", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "violet_mo": {
+  "name": "Terri Violet", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 104", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wellenkamp_mo": {
+  "name": "Colin Wellenkamp", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 105", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wilson_mo": {
+  "name": "Travis Wilson", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 106", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "matthiesen_mo": {
+  "name": "Mark Matthiesen", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 107", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "costlow_mo": {
+  "name": "Mike Costlow", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 108", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "simmons_mo": {
+  "name": "John Simmons", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 109", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cecelie_williams_mo": {
+  "name": "Cecelie Williams", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 111", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "reuter_mo": {
+  "name": "Renee Reuter", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 112", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "amato_mo": {
+  "name": "Phil Amato", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 113", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lucas_mo": {
+  "name": "Bill Lucas", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 115", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wright_mo": {
+  "name": "Dale Wright", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 116", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "laubinger_mo": {
+  "name": "Becky Laubinger", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 117", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mcgirl_mo": {
+  "name": "Mike McGirl", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 118", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "banderman_mo": {
+  "name": "Brad Banderman", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 119", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hewkin_mo": {
+  "name": "John Hewkin", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 120", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hardwick_mo": {
+  "name": "Bill Hardwick", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 121", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "peters_mo": {
+  "name": "Tara Peters", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 122", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "vernetti_mo": {
+  "name": "Jeff Vernetti", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 123", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mayhew_mo": {
+  "name": "Don Mayhew", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 124", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "diehl_mo": {
+  "name": "Dane Diehl", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 125", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kalberloh_mo": {
+  "name": "Jim Kalberloh", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 126", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kelley_mo": {
+  "name": "Ann Kelley", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 127", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "warwick_mo": {
+  "name": "Christopher Warwick", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 128", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "john_black_mo": {
+  "name": "John Black", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 129", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "davidson_mo": {
+  "name": "Bishop Davidson", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 130", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "owen_mo": {
+  "name": "Bill Owen", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 131", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dean_mo": {
+  "name": "Jeremy Dean", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 132", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "stinnett_mo": {
+  "name": "Melanie Stinnett", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 133", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "riley_mo": {
+  "name": "Alex Riley", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 134", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fogle_mo": {
+  "name": "Betsy Fogle", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 135", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hein_mo": {
+  "name": "Stephanie Hein", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 136", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chappell_mo": {
+  "name": "Darin Chappell", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 137", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "whaley_mo": {
+  "name": "Burt Whaley", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 138", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "titus_mo": {
+  "name": "Bob Titus", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 139", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gragg_mo": {
+  "name": "Jamie Ray Gragg", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 140", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "schmidt_mo": {
+  "name": "Melissa Schmidt", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 141", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "knight_mo": {
+  "name": "Jeff Knight", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 142", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cook_mo": {
+  "name": "Bennie Cook", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 143", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "harbison_mo": {
+  "name": "Tony Harbison", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 144", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wolfin_mo": {
+  "name": "Bryant Wolfin", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 145", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hovis_mo": {
+  "name": "Barry Hovis", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 146", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "voss_mo": {
+  "name": "John Voss", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 147", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dolan_mo": {
+  "name": "David Dolan", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 148", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "parker_mo": {
+  "name": "Cameron Parker", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 150", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jordan_mo": {
+  "name": "Steve Jordan", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 151", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "billington_mo": {
+  "name": "Hardy Billington", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 152", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "elliott_mo": {
+  "name": "Keith Elliott", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 153", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "durnell_mo": {
+  "name": "Lisa Durnell", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 154", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "overcast_mo": {
+  "name": "Matthew Overcast", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 155", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "seitz_mo": {
+  "name": "Brian Seitz", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 156", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "boggs_mo": {
+  "name": "Mitch Boggs", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 157", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cupps_mo": {
+  "name": "Scott Cupps", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 158", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lane_roberts_mo": {
+  "name": "Lane Roberts", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 161", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bromley_mo": {
+  "name": "Bob Bromley", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 162", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "loy_mo": {
+  "name": "Cathy Jo Loy", "office": "Missouri State Representative",
+  "state": "Missouri", "district": "HD 163", "candidate": false,
   "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
  },

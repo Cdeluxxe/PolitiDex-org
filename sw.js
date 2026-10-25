@@ -10823,7 +10823,24 @@
 //     changed, so the shell moves one version.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v467';
+// v468 - TENNESSEE, INDIANA AND MISSOURI STATE LEGISLATOR ROSTER SHELLS.
+//     cmp-data.js gains 446 identity-only rows (name, office, state, exact
+//     district, `candidate: false`) for the members official legislative
+//     sources listed as seated on 2026-10-24, and three sitting Speakers
+//     already on file gain the district their record was missing. Indiana was
+//     read from its four legislative caucuses' member lists, kept only where
+//     they name exactly one member for the seat. A seat the official source
+//     lists as vacant (Tennessee HD 31, 84; Missouri SD 10 and eight House
+//     seats), Indiana HD 33 and 63 (listed by neither caucus), and seats whose
+//     member is held only as a candidate row or shares a display name with
+//     another record keep "District N — no member on file yet".
+//     db/roster-state-legislators-tn-in-mo-2026-oct.json is the record. The
+//     fifteen earlier states' rows are unchanged. No board, composer or voting
+//     record is opened. cmp-data.js is precached and changed, so the shell
+//     moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v468';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
