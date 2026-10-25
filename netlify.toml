@@ -666,6 +666,71 @@
 # rules are after it and cannot match either of its two paths. Every
 # same-origin path inside both documents is root-absolute for the reason given
 # beside /ballot/ above.
+# Ohio's contested legislative seats, Nov. 3, 2026 (oh-ballot-2026.js)
+[[redirects]]
+  from = "/ballot/oh"
+  to = "/ballot-oh.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/oh/"
+  to = "/ballot-oh.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/oh.html"
+  to = "/ballot-oh.html"
+  status = 200
+# Michigan's contested legislative seats, Nov. 3, 2026 (mi-ballot-2026.js)
+[[redirects]]
+  from = "/ballot/mi"
+  to = "/ballot-mi.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/mi/"
+  to = "/ballot-mi.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/mi.html"
+  to = "/ballot-mi.html"
+  status = 200
+# North Carolina's contested legislative seats, Nov. 3, 2026 (nc-ballot-2026.js)
+[[redirects]]
+  from = "/ballot/nc"
+  to = "/ballot-nc.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/nc/"
+  to = "/ballot-nc.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/nc.html"
+  to = "/ballot-nc.html"
+  status = 200
+# Georgia's contested legislative seats, Nov. 3, 2026 (ga-ballot-2026.js)
+[[redirects]]
+  from = "/ballot/ga"
+  to = "/ballot-ga.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/ga/"
+  to = "/ballot-ga.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/ga.html"
+  to = "/ballot-ga.html"
+  status = 200
+# Pennsylvania's contested legislative seats, Nov. 3, 2026 (pa-ballot-2026.js)
+[[redirects]]
+  from = "/ballot/pa"
+  to = "/ballot-pa.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/pa/"
+  to = "/ballot-pa.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/pa.html"
+  to = "/ballot-pa.html"
+  status = 200
 [[redirects]]
   from = "/ballot/ut-amendment-a"
   to = "/ballot-ut-amendment-a.html"
@@ -8620,6 +8685,622 @@
 [[redirects]]
   from = "/district/wy-us-senate-lummis.html"
   to = "/district-wy-us-senate-lummis.html"
+  status = 200
+
+# Georgia Senate District 37 — setzler_ga
+[[redirects]]
+  from = "/district/ga-sd-37"
+  to = "/district-ga-sd-37.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-sd-37/"
+  to = "/district-ga-sd-37.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-sd-37.html"
+  to = "/district-ga-sd-37.html"
+  status = 200
+
+# Georgia Senate District 48 — still_ga
+[[redirects]]
+  from = "/district/ga-sd-48"
+  to = "/district-ga-sd-48.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-sd-48/"
+  to = "/district-ga-sd-48.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-sd-48.html"
+  to = "/district-ga-sd-48.html"
+  status = 200
+
+# Georgia House District 151 — cheokas_ga
+[[redirects]]
+  from = "/district/ga-hd-151"
+  to = "/district-ga-hd-151.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-hd-151/"
+  to = "/district-ga-hd-151.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-hd-151.html"
+  to = "/district-ga-hd-151.html"
+  status = 200
+
+# Georgia House District 105 — donatucci_ga
+[[redirects]]
+  from = "/district/ga-hd-105"
+  to = "/district-ga-hd-105.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-hd-105/"
+  to = "/district-ga-hd-105.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-hd-105.html"
+  to = "/district-ga-hd-105.html"
+  status = 200
+
+# Georgia House District 154 — greene_ga
+[[redirects]]
+  from = "/district/ga-hd-154"
+  to = "/district-ga-hd-154.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-hd-154/"
+  to = "/district-ga-hd-154.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-hd-154.html"
+  to = "/district-ga-hd-154.html"
+  status = 200
+
+# Georgia House District 48 — hilton_ga
+[[redirects]]
+  from = "/district/ga-hd-48"
+  to = "/district-ga-hd-48.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-hd-48/"
+  to = "/district-ga-hd-48.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-hd-48.html"
+  to = "/district-ga-hd-48.html"
+  status = 200
+
+# Georgia House District 44 — parsons_ga
+[[redirects]]
+  from = "/district/ga-hd-44"
+  to = "/district-ga-hd-44.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-hd-44/"
+  to = "/district-ga-hd-44.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-hd-44.html"
+  to = "/district-ga-hd-44.html"
+  status = 200
+
+# Georgia House District 99 — reeves_ga
+[[redirects]]
+  from = "/district/ga-hd-99"
+  to = "/district-ga-hd-99.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-hd-99/"
+  to = "/district-ga-hd-99.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-hd-99.html"
+  to = "/district-ga-hd-99.html"
+  status = 200
+
+# Georgia House District 53 — silcox_ga
+[[redirects]]
+  from = "/district/ga-hd-53"
+  to = "/district-ga-hd-53.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-hd-53/"
+  to = "/district-ga-hd-53.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-hd-53.html"
+  to = "/district-ga-hd-53.html"
+  status = 200
+
+# Michigan Senate District 35 — chedrick_greene_mi
+[[redirects]]
+  from = "/district/mi-sd-35"
+  to = "/district-mi-sd-35.html"
+  status = 200
+[[redirects]]
+  from = "/district/mi-sd-35/"
+  to = "/district-mi-sd-35.html"
+  status = 200
+[[redirects]]
+  from = "/district/mi-sd-35.html"
+  to = "/district-mi-sd-35.html"
+  status = 200
+
+# Michigan Senate District 9 — webber_mi
+[[redirects]]
+  from = "/district/mi-sd-9"
+  to = "/district-mi-sd-9.html"
+  status = 200
+[[redirects]]
+  from = "/district/mi-sd-9/"
+  to = "/district-mi-sd-9.html"
+  status = 200
+[[redirects]]
+  from = "/district/mi-sd-9.html"
+  to = "/district-mi-sd-9.html"
+  status = 200
+
+# Michigan House District 109 — bohnak_mi
+[[redirects]]
+  from = "/district/mi-hd-109"
+  to = "/district-mi-hd-109.html"
+  status = 200
+[[redirects]]
+  from = "/district/mi-hd-109/"
+  to = "/district-mi-hd-109.html"
+  status = 200
+[[redirects]]
+  from = "/district/mi-hd-109.html"
+  to = "/district-mi-hd-109.html"
+  status = 200
+
+# Michigan House District 86 — deboer_mi
+[[redirects]]
+  from = "/district/mi-hd-86"
+  to = "/district-mi-hd-86.html"
+  status = 200
+[[redirects]]
+  from = "/district/mi-hd-86/"
+  to = "/district-mi-hd-86.html"
+  status = 200
+[[redirects]]
+  from = "/district/mi-hd-86.html"
+  to = "/district-mi-hd-86.html"
+  status = 200
+
+# Michigan House District 44 — frisbie_mi
+[[redirects]]
+  from = "/district/mi-hd-44"
+  to = "/district-mi-hd-44.html"
+  status = 200
+[[redirects]]
+  from = "/district/mi-hd-44/"
+  to = "/district-mi-hd-44.html"
+  status = 200
+[[redirects]]
+  from = "/district/mi-hd-44.html"
+  to = "/district-mi-hd-44.html"
+  status = 200
+
+# Michigan House District 27 — linting_mi
+[[redirects]]
+  from = "/district/mi-hd-27"
+  to = "/district-mi-hd-27.html"
+  status = 200
+[[redirects]]
+  from = "/district/mi-hd-27/"
+  to = "/district-mi-hd-27.html"
+  status = 200
+[[redirects]]
+  from = "/district/mi-hd-27.html"
+  to = "/district-mi-hd-27.html"
+  status = 200
+
+# Michigan House District 46 — schmaltz_mi
+[[redirects]]
+  from = "/district/mi-hd-46"
+  to = "/district-mi-hd-46.html"
+  status = 200
+[[redirects]]
+  from = "/district/mi-hd-46/"
+  to = "/district-mi-hd-46.html"
+  status = 200
+[[redirects]]
+  from = "/district/mi-hd-46.html"
+  to = "/district-mi-hd-46.html"
+  status = 200
+
+# Michigan House District 28 — thompson_mi
+[[redirects]]
+  from = "/district/mi-hd-28"
+  to = "/district-mi-hd-28.html"
+  status = 200
+[[redirects]]
+  from = "/district/mi-hd-28/"
+  to = "/district-mi-hd-28.html"
+  status = 200
+[[redirects]]
+  from = "/district/mi-hd-28.html"
+  to = "/district-mi-hd-28.html"
+  status = 200
+
+# Michigan House District 55 — tisdel_mi
+[[redirects]]
+  from = "/district/mi-hd-55"
+  to = "/district-mi-hd-55.html"
+  status = 200
+[[redirects]]
+  from = "/district/mi-hd-55/"
+  to = "/district-mi-hd-55.html"
+  status = 200
+[[redirects]]
+  from = "/district/mi-hd-55.html"
+  to = "/district-mi-hd-55.html"
+  status = 200
+
+# Michigan House District 61 — mentzer_mi
+[[redirects]]
+  from = "/district/mi-hd-61"
+  to = "/district-mi-hd-61.html"
+  status = 200
+[[redirects]]
+  from = "/district/mi-hd-61/"
+  to = "/district-mi-hd-61.html"
+  status = 200
+[[redirects]]
+  from = "/district/mi-hd-61.html"
+  to = "/district-mi-hd-61.html"
+  status = 200
+
+# North Carolina Senate District 7 — michael_lee_nc
+[[redirects]]
+  from = "/district/nc-sd-7"
+  to = "/district-nc-sd-7.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-sd-7/"
+  to = "/district-nc-sd-7.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-sd-7.html"
+  to = "/district-nc-sd-7.html"
+  status = 200
+
+# North Carolina Senate District 11 — barnes_nc
+[[redirects]]
+  from = "/district/nc-sd-11"
+  to = "/district-nc-sd-11.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-sd-11/"
+  to = "/district-nc-sd-11.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-sd-11.html"
+  to = "/district-nc-sd-11.html"
+  status = 200
+
+# North Carolina Senate District 42 — bradley_nc
+[[redirects]]
+  from = "/district/nc-sd-42"
+  to = "/district-nc-sd-42.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-sd-42/"
+  to = "/district-nc-sd-42.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-sd-42.html"
+  to = "/district-nc-sd-42.html"
+  status = 200
+
+# North Carolina Senate District 18 — fatmi_nc
+[[redirects]]
+  from = "/district/nc-sd-18"
+  to = "/district-nc-sd-18.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-sd-18/"
+  to = "/district-nc-sd-18.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-sd-18.html"
+  to = "/district-nc-sd-18.html"
+  status = 200
+
+# North Carolina House District 25 — chesser_nc
+[[redirects]]
+  from = "/district/nc-hd-25"
+  to = "/district-nc-hd-25.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-hd-25/"
+  to = "/district-nc-hd-25.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-hd-25.html"
+  to = "/district-nc-hd-25.html"
+  status = 200
+
+# North Carolina House District 105 — cotham_nc
+[[redirects]]
+  from = "/district/nc-hd-105"
+  to = "/district-nc-hd-105.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-hd-105/"
+  to = "/district-nc-hd-105.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-hd-105.html"
+  to = "/district-nc-hd-105.html"
+  status = 200
+
+# North Carolina House District 98 — helfrich_nc
+[[redirects]]
+  from = "/district/nc-hd-98"
+  to = "/district-nc-hd-98.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-hd-98/"
+  to = "/district-nc-hd-98.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-hd-98.html"
+  to = "/district-nc-hd-98.html"
+  status = 200
+
+# North Carolina House District 37 — pare_nc
+[[redirects]]
+  from = "/district/nc-hd-37"
+  to = "/district-nc-hd-37.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-hd-37/"
+  to = "/district-nc-hd-37.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-hd-37.html"
+  to = "/district-nc-hd-37.html"
+  status = 200
+
+# Ohio Senate District 29 — timken_oh
+[[redirects]]
+  from = "/district/oh-sd-29"
+  to = "/district-oh-sd-29.html"
+  status = 200
+[[redirects]]
+  from = "/district/oh-sd-29/"
+  to = "/district-oh-sd-29.html"
+  status = 200
+[[redirects]]
+  from = "/district/oh-sd-29.html"
+  to = "/district-oh-sd-29.html"
+  status = 200
+
+# Ohio House District 10 — sigrist_oh
+[[redirects]]
+  from = "/district/oh-hd-10"
+  to = "/district-oh-hd-10.html"
+  status = 200
+[[redirects]]
+  from = "/district/oh-hd-10/"
+  to = "/district-oh-hd-10.html"
+  status = 200
+[[redirects]]
+  from = "/district/oh-hd-10.html"
+  to = "/district-oh-hd-10.html"
+  status = 200
+
+# Ohio House District 17 — dovilla_oh
+[[redirects]]
+  from = "/district/oh-hd-17"
+  to = "/district-oh-hd-17.html"
+  status = 200
+[[redirects]]
+  from = "/district/oh-hd-17/"
+  to = "/district-oh-hd-17.html"
+  status = 200
+[[redirects]]
+  from = "/district/oh-hd-17.html"
+  to = "/district-oh-hd-17.html"
+  status = 200
+
+# Ohio House District 36 — andrea_white_oh
+[[redirects]]
+  from = "/district/oh-hd-36"
+  to = "/district-oh-hd-36.html"
+  status = 200
+[[redirects]]
+  from = "/district/oh-hd-36/"
+  to = "/district-oh-hd-36.html"
+  status = 200
+[[redirects]]
+  from = "/district/oh-hd-36.html"
+  to = "/district-oh-hd-36.html"
+  status = 200
+
+# Ohio House District 60 — lorenz_oh
+[[redirects]]
+  from = "/district/oh-hd-60"
+  to = "/district-oh-hd-60.html"
+  status = 200
+[[redirects]]
+  from = "/district/oh-hd-60/"
+  to = "/district-oh-hd-60.html"
+  status = 200
+[[redirects]]
+  from = "/district/oh-hd-60.html"
+  to = "/district-oh-hd-60.html"
+  status = 200
+
+# Pennsylvania Senate District 40 — rosemary_brown_pa
+[[redirects]]
+  from = "/district/pa-sd-40"
+  to = "/district-pa-sd-40.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-sd-40/"
+  to = "/district-pa-sd-40.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-sd-40.html"
+  to = "/district-pa-sd-40.html"
+  status = 200
+
+# Pennsylvania Senate District 16 — coleman_pa
+[[redirects]]
+  from = "/district/pa-sd-16"
+  to = "/district-pa-sd-16.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-sd-16/"
+  to = "/district-pa-sd-16.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-sd-16.html"
+  to = "/district-pa-sd-16.html"
+  status = 200
+
+# Pennsylvania Senate District 6 — farry_pa
+[[redirects]]
+  from = "/district/pa-sd-6"
+  to = "/district-pa-sd-6.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-sd-6/"
+  to = "/district-pa-sd-6.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-sd-6.html"
+  to = "/district-pa-sd-6.html"
+  status = 200
+
+# Pennsylvania Senate District 36 — malone_pa
+[[redirects]]
+  from = "/district/pa-sd-36"
+  to = "/district-pa-sd-36.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-sd-36/"
+  to = "/district-pa-sd-36.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-sd-36.html"
+  to = "/district-pa-sd-36.html"
+  status = 200
+
+# Pennsylvania Senate District 24 — pennycuick_pa
+[[redirects]]
+  from = "/district/pa-sd-24"
+  to = "/district-pa-sd-24.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-sd-24/"
+  to = "/district-pa-sd-24.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-sd-24.html"
+  to = "/district-pa-sd-24.html"
+  status = 200
+
+# Pennsylvania House District 72 — burns_pa
+[[redirects]]
+  from = "/district/pa-hd-72"
+  to = "/district-pa-hd-72.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-hd-72/"
+  to = "/district-pa-hd-72.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-hd-72.html"
+  to = "/district-pa-hd-72.html"
+  status = 200
+
+# Pennsylvania House District 12 — dukes_pa
+[[redirects]]
+  from = "/district/pa-hd-12"
+  to = "/district-pa-hd-12.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-hd-12/"
+  to = "/district-pa-hd-12.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-hd-12.html"
+  to = "/district-pa-hd-12.html"
+  status = 200
+
+# Pennsylvania House District 137 — emrick_pa
+[[redirects]]
+  from = "/district/pa-hd-137"
+  to = "/district-pa-hd-137.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-hd-137/"
+  to = "/district-pa-hd-137.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-hd-137.html"
+  to = "/district-pa-hd-137.html"
+  status = 200
+
+# Pennsylvania House District 142 — hogan_pa
+[[redirects]]
+  from = "/district/pa-hd-142"
+  to = "/district-pa-hd-142.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-hd-142/"
+  to = "/district-pa-hd-142.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-hd-142.html"
+  to = "/district-pa-hd-142.html"
+  status = 200
+
+# Pennsylvania House District 144 — munroe_pa
+[[redirects]]
+  from = "/district/pa-hd-144"
+  to = "/district-pa-hd-144.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-hd-144/"
+  to = "/district-pa-hd-144.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-hd-144.html"
+  to = "/district-pa-hd-144.html"
+  status = 200
+
+# Pennsylvania House District 18 — tomlinson_pa
+[[redirects]]
+  from = "/district/pa-hd-18"
+  to = "/district-pa-hd-18.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-hd-18/"
+  to = "/district-pa-hd-18.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-hd-18.html"
+  to = "/district-pa-hd-18.html"
+  status = 200
+
+# Pennsylvania House District 160 — craig_williams_pa
+[[redirects]]
+  from = "/district/pa-hd-160"
+  to = "/district-pa-hd-160.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-hd-160/"
+  to = "/district-pa-hd-160.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-hd-160.html"
+  to = "/district-pa-hd-160.html"
   status = 200
 
 # @generated district-boards end

@@ -63,8 +63,11 @@
 // Idaho, Montana, New Mexico, Wyoming, Mississippi, West Virginia, Hawaii,
 // Louisiana, Maine, New Hampshire, Connecticut, Rhode Island, Vermont,
 // Delaware, North Dakota, South Dakota and Alaska; no
-// board was opened with those maps, so this plan opens ZERO boards outside Utah
-// and logs every roster seat it refused.
+// state was opened whole with those maps. The one exception is a list of
+// races, not a state: STATE_LEG_BOARD_SEATS, read from pa-ballot-2026.js and
+// ga-ballot-2026.js, opens a read-only board for each contested Pennsylvania
+// and Georgia seat on the November 3, 2026 ballot and prints that race on it. Every other roster seat
+// outside Utah is refused and logged.
 //
 // THE SIX HAND-OPENED DOCUMENTS ARE NEVER WRITTEN. Their rows stay above each
 // generated block, byte for byte; the suite pins their bytes.
@@ -382,7 +385,36 @@ export const STATE_LEG_REFUSAL = "the location resolver does not map this state'
 // reason rather than the resolver's.
 export const STATE_LEG_BOARD_STATES = new Set();
 export const STATE_LEG_BOARD_REFUSAL = "state legislative boards are not opened in this state";
-export function planStateLegislative(win, boards, skipped, states = FEDERAL_STATES, boardStates = STATE_LEG_BOARD_STATES) {
+// ONE SEAT AT A TIME, WHERE THERE IS A RACE. A state that is not on the list
+// above may still open a board for a single seat when that seat is one of the
+// contested races a state's ballot file holds for the November 3, 2026 ballot
+// (CONTESTED_FILES below — Pennsylvania's, Georgia's, North Carolina's, Michigan's, then Ohio's) — the seat key is
+// read from that file's RACES, never typed here, so a board cannot open for a
+// seat with no race behind it. Every other gate below still applies: the
+// roster names the sitting member, the resolver seats that member on that
+// number, and the board is read-only.
+export const CONTESTED_FILES = [
+  { code: "pa", file: "pa-ballot-2026.js", global: "PDXPaBallot" },
+  { code: "ga", file: "ga-ballot-2026.js", global: "PDXGaBallot" },
+  { code: "nc", file: "nc-ballot-2026.js", global: "PDXNcBallot" },
+  { code: "mi", file: "mi-ballot-2026.js", global: "PDXMiBallot" },
+  { code: "oh", file: "oh-ballot-2026.js", global: "PDXOhBallot" },
+];
+const contestedModule = (c) => {
+  const w = {}; w.window = w;
+  vm.runInContext(R(c.file), vm.createContext(w), { filename: c.file });
+  return w[c.global];
+};
+export function contestedSeats() {
+  const out = new Set();
+  for (const c of CONTESTED_FILES) {
+    const M = contestedModule(c);
+    for (const r of (M && M.RACES) || []) if (r.seat.indexOf(c.code + "-") === 0) out.add(r.seat);
+  }
+  return out;
+}
+export const STATE_LEG_BOARD_SEATS = contestedSeats();
+export function planStateLegislative(win, boards, skipped, states = FEDERAL_STATES, boardStates = STATE_LEG_BOARD_STATES, boardSeats = STATE_LEG_BOARD_SEATS) {
   const RO = win.CMP_DATA;
   for (const { code, name } of states) {
     const opened = new Map();
@@ -393,7 +425,7 @@ export function planStateLegislative(win, boards, skipped, states = FEDERAL_STAT
       const base = { seat, alias, pid: c.pid, stateLeg: true };
       const lvl = resolverLevel(win, name, c.chamber, c.district);
       if (!lvl || !lvl.mapped) { skipped.push({ ...base, reason: STATE_LEG_REFUSAL }); continue; }
-      if (!boardStates.has(code)) { skipped.push({ ...base, reason: STATE_LEG_BOARD_REFUSAL }); continue; }
+      if (!boardStates.has(code) && !boardSeats.has(seat)) { skipped.push({ ...base, reason: STATE_LEG_BOARD_REFUSAL }); continue; }
       if (!c.district) { skipped.push({ ...base, reason: "roster record names no district number" }); continue; }
       if (String(lvl.district || "") !== String(c.district) || lvl.pid !== c.pid) {
         skipped.push({ ...base, reason: `the location resolver does not seat this member on this number (${lvl.pid || "nobody"})` });
@@ -437,6 +469,28 @@ const RETURN_TAG =
 // address still says where they came from, and the suite pins every board to
 // its own path.
 export const studioDoor = (alias) => `/my-stances?next=${encodeURIComponent(`/district/${alias}`)}`;
+
+// THE RACE ON A CONTESTED SEAT'S BOARD. A board opened by STATE_LEG_BOARD_SEATS
+// prints its race — every name on the ballot, each with the formal acts on
+// file and their effect lines — in the document itself, so the room is never
+// empty and needs no script to read. Every other board gets '' and its bytes
+// do not move.
+const RACE_MODULES = {};
+function raceBlock(b) {
+  if (!b.stateLeg || !STATE_LEG_BOARD_SEATS.has(b.seat)) return "";
+  const c = CONTESTED_FILES.find((x) => b.seat.indexOf(x.code + "-") === 0);
+  const M = RACE_MODULES[c.code] || (RACE_MODULES[c.code] = contestedModule(c));
+  const r = M.RACES.find((x) => x.seat === b.seat);
+  return [
+    `    <!-- THE RACE: ${c.file}, written by scripts/gen-district-boards.mjs. -->`,
+    `    <link rel="stylesheet" href="/pa-ballot.css" />`,
+    `    <div class="pdxpa-board-race" id="pdx-${c.code}-race" data-pdx${c.code}-seat="${b.seat}">`,
+    `      <p class="pdxpa-kick">On the ${M.ELECTION} ballot · <a href="/ballot/${c.code}">your legislative ballot</a></p>`,
+    `      ${M.raceHtml(r)}`,
+    `    </div>`,
+    "",
+  ].join("\n") + "\n";
+}
 
 export function renderDoc(b, template = R("scripts/district-board.template.html")) {
   const h1 = html(b.h1);
@@ -499,6 +553,7 @@ export function renderDoc(b, template = R("scripts/district-board.template.html"
     // voter-hub-location.js above; every other board gets the generated copy.
     RETURN_SCRIPT: b.usHouse ? "" : RETURN_TAG,
     NOSCRIPT: noscript.join("\n"),
+    RACE_HTML: raceBlock(b),
   };
   return template.replace(/\{\{([A-Z0-9_]+)\}\}/g, (m, k) => {
     if (!(k in vars)) throw new Error(`gen-district-boards: unknown template slot ${m}`);

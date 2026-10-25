@@ -73,7 +73,10 @@ for (const alias of Object.keys(CLUSTER)) {
   eq(loadsComposer(commented, "ut-cd-2"), false, "mutation: UT-2 with its tag commented out still passed");
 }
 {
-  const docs = readdirSync(ROOT).filter((f) => /^district-[a-z]{2}-(?:(?:hd|sd|cd)-\d+|gov|us-senate-[a-z][a-z0-9_]*)\.html$/.test(f));
+  const docs = readdirSync(ROOT).filter((f) => /^district-[a-z]{2}-(?:(?:hd|sd|cd)-\d+|gov|us-senate-[a-z][a-z0-9_]*)\.html$/.test(f))
+    // A read-only board (composer: false in district-board.js BOARDS — the
+    // contested Pennsylvania legislative seats) is on no composer list.
+    .filter((f) => !new RegExp("composer: false, alias: '" + ((/data-pdxdb-seat="([^"]+)"/.exec(R(f)) || [, "~"])[1]) + "'").test(R("district-board.js")));
   eq(Object.keys(COMPOSER_SEATS).length, docs.length, "one composer seat per board document");
   const unloaded = docs.filter((f) => !loadsComposer(R(f), (/data-pdxdb-seat="([^"]+)"/.exec(R(f)) || [, ""])[1]));
   eq(unloaded.length, 0, `every board document loads the composer for its own seat — ${JSON.stringify(unloaded)}`);

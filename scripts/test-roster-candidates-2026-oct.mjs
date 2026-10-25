@@ -258,7 +258,8 @@ const join_ = (cmp) => {
 }
 {
   const { boards } = planBoards();
-  eq(boards.length, 518, "the board plan is unchanged: no board opened for a candidate");
+  // The contested Pennsylvania legislative boards (v469) are races, not candidates.
+  eq(boards.filter((b) => !b.stateLeg).length, 518, "the board plan is unchanged: no board opened for a candidate");
   ok(!boards.some((b) => NEWSET.has(b.pid) || NEWSET.has(b.joinPid)), "no board names a candidate as its member");
   const LISTS = R("netlify/functions/district-board.mts") + R("netlify/lib/district-board-voice-core.mjs") + R("district-composer.js") +
     R("district-poll.js") + R("district-board.js") + R("district-voice.js") + R("netlify.toml");

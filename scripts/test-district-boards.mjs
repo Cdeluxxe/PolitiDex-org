@@ -207,7 +207,7 @@ const ALL_COUNT = BOARDS.length + PLANNED.length;
 // THE OFFLINE COPIES ARE UTAH'S. Every other state's U.S. House and U.S. Senate
 // boards are network pages by design (scripts/gen-district-boards.mjs says
 // why), so sw.js holds the six and Utah's generated boards and no other.
-const UT_PLANNED = PLANNED.filter((b) => !b.federal);
+const UT_PLANNED = PLANNED.filter((b) => !b.federal && !b.stateLeg);
 const UT_ALIASES = BOARDS.map((b) => b.alias).concat(UT_PLANNED.map((b) => b.alias)).sort().join(",");
 const UT_COUNT = BOARDS.length + UT_PLANNED.length;
 // THE NEIGHBOURS ARE SEATS THE ROSTER NAMES NOBODY FOR. Every Senate seat and

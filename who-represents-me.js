@@ -456,7 +456,7 @@
         '<span class="wrm-rowsub">' + esc((person && person.office) || lv.tierLabel) + '</span>' +
       '</span>' +
       '<span class="wrm-rowgo" style="color:' + color + ';">See their record ›</span>' +
-    (plAttrs ? '</a>' : '</div>') + seatCompare(lv) + districtRoom(lv, reps);
+    (plAttrs ? '</a>' : '</div>') + seatRecord(pid, lv) + seatCompare(lv) + districtRoom(lv, reps);
   }
 
   // ── "District Voice" — the room for this district ──────────────────────────
@@ -475,6 +475,24 @@
   // row the resolver could not place — so this file never paints an entry to a
   // room that does not exist, and it degrades to exactly today's markup when
   // district-room.js has not loaded.
+  // ── One formal act under the row, for the contested seats on file ─────────
+  // pa-ballot-2026.js (Pennsylvania), ga-ballot-2026.js (Georgia),
+  // nc-ballot-2026.js (North Carolina), mi-ballot-2026.js (Michigan) and
+  // oh-ballot-2026.js (Ohio) hold the acts and own the markup; each answers '' for any pid it holds no act for,
+  // so every other state's row is unchanged. A sibling of the row, for the same
+  // nesting reason as seatCompare() below.
+  function seatRecord(pid, lv) {
+    var mods = [window.PDXPaBallot, window.PDXGaBallot, window.PDXNcBallot, window.PDXMiBallot, window.PDXOhBallot];
+    for (var i = 0; i < mods.length; i++) {
+      var P = mods[i];
+      if (!P || typeof P.seatActHtml !== 'function') continue;
+      var h = '';
+      try { h = P.seatActHtml(pid, lv) || ''; } catch (e) { h = ''; }
+      if (h) return h;
+    }
+    return '';
+  }
+
   function districtRoom(lv, reps) {
     var DR = window.PDXDistrictRoom;
     if (!DR || typeof DR.seatMountHtml !== 'function') return '';

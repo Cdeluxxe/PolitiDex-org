@@ -10840,7 +10840,82 @@
 //     moves one version.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v468';
+// v469 - PENNSYLVANIA, ONE CONTESTED CYCLE (NOV. 3, 2026).
+//     pa-ballot-2026.js holds the twelve contested State House and State
+//     Senate races and the formal acts on file for the people in them, each
+//     read off a General Assembly roll call or bill page, each measure with one
+//     effect line. Who Represents Me prints one act under a sitting member in
+//     those races; /ballot/pa is the ballot view; the twelve seats open
+//     read-only District Voice boards that print their race. find.html (the
+//     location finder) links the ballot view, '/' loads the act line and
+//     counts the twelve boards, and district-board.js and district-voice.js
+//     (the board roster) gain the twelve rows; all four are precached and
+//     changed, so the shell moves one version. cmp-data.js and
+//     voter-hub-location.js are unchanged, and no new file is precached.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v470 - GEORGIA, ONE CONTESTED CYCLE (NOV. 3, 2026).
+//     ga-ballot-2026.js holds the nine contested State House and State Senate
+//     races Georgia reporting names and the formal acts on file for the people
+//     in them, each a recorded floor vote read from the Georgia General
+//     Assembly's site and linked to its bill page, each measure with one
+//     effect line. Who Represents Me prints one act under a sitting member in
+//     those races; /ballot/ga is the ballot view; the nine seats open
+//     read-only District Voice boards that print their race. find.html links
+//     the ballot view, '/' loads the act line and counts the nine boards, and
+//     district-board.js and district-voice.js gain the nine rows; all four are
+//     precached and changed, so the shell moves one version. cmp-data.js and
+//     voter-hub-location.js are unchanged, and no new file is precached.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v471 - NORTH CAROLINA, ONE CONTESTED CYCLE (NOV. 3, 2026).
+//     nc-ballot-2026.js holds the eight contested State House and State
+//     Senate races North Carolina reporting names with a sitting member
+//     running, and the formal acts on file for the people in them, each a
+//     recorded floor vote read from the General Assembly's roll-call
+//     transcript and linked to it, each measure with one effect line. Who
+//     Represents Me prints one act under a sitting member in those races;
+//     /ballot/nc is the ballot view; the eight seats open read-only District
+//     Voice boards that print their race. find.html links the ballot view,
+//     '/' loads the act line and counts the eight boards, and district-board.js
+//     and district-voice.js gain the eight rows; all four are precached and
+//     changed, so the shell moves one version. cmp-data.js,
+//     voter-hub-location.js and the Pennsylvania and Georgia files are
+//     unchanged, and no new file is precached.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v472 - MICHIGAN, ONE CONTESTED CYCLE (NOV. 3, 2026).
+//     mi-ballot-2026.js holds the ten contested State House and State Senate
+//     races Michigan reporting names with a sitting member running, and the
+//     formal acts on file for the people in them, each a recorded floor vote
+//     read from the House or Senate Journal on legislature.mi.gov and linked
+//     to it, each measure with one effect line. Who Represents Me prints one
+//     act under a sitting member in those races; /ballot/mi is the ballot
+//     view; the ten seats open read-only District Voice boards that print
+//     their race. find.html links the ballot view, '/' loads the act line and
+//     counts the ten boards, and district-board.js and district-voice.js gain
+//     the ten rows; all four are precached and changed, so the shell moves one
+//     version. cmp-data.js, voter-hub-location.js and the Pennsylvania,
+//     Georgia and North Carolina files are unchanged, and no new file is
+//     precached.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v473 - OHIO, ONE CONTESTED CYCLE (NOV. 3, 2026).
+//     oh-ballot-2026.js holds the five contested Ohio House and Ohio Senate
+//     races Ohio reporting names with a sitting member running, and the
+//     formal acts on file for the people in them, each a recorded floor vote
+//     read from the bill's Votes page on legislature.ohio.gov and linked to
+//     it, each measure with one effect line. Who Represents Me prints one act
+//     under a sitting member in those races; /ballot/oh is the ballot view;
+//     the five seats open read-only District Voice boards that print their
+//     race. find.html links the ballot view, '/' loads the act line and counts
+//     the five boards, and district-board.js and district-voice.js gain the
+//     five rows; all four are precached and changed, so the shell moves one
+//     version. cmp-data.js, voter-hub-location.js and the four earlier
+//     states' files are unchanged, and no new file is precached.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v473';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

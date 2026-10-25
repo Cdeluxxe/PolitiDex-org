@@ -85,6 +85,11 @@ const hostBlock = Object.values(hostBlocks).join("\n");
 const boards = readdirSync(ROOT).filter((f) => /^district-[a-z]{2}-(?:(?:hd|sd|cd)-\d+|gov|us-senate-[a-z][a-z0-9_]*)\.html$/.test(f));
 ok(boards.length > 80, `every board document is swept (${boards.length})`);
 const docSeat = (f) => (/data-pdxdb-seat="([^"]+)"/.exec(R(f)) || [, ""])[1];
+// A READ-ONLY board (composer: false in district-board.js BOARDS — the
+// contested Pennsylvania legislative seats) takes no comment and no poll vote,
+// so it is on none of the composer's lists.
+const READ_ONLY = new Set([...R("district-board.js").matchAll(/composer: false, alias: '([^']+)'/g)].map((m) => m[1]));
+const voicedBoards = boards.filter((f) => !READ_ONLY.has(docSeat(f)));
 const missing = boards.filter((f) => {
   const d = R(f); const alias = docSeat(f);
   return !alias || d.split(HOST).length - 1 !== 1 || d.split(SCRIPT).length - 1 !== 1 ||
@@ -107,9 +112,9 @@ section("2 · the gate: unverified is 403 and writes nothing");
 // ═════════════════════════════════════════════════════════════════════════════
 const SEAT = "ut-statesenate-3";
 // One composer seat per board document: named rows, the same count as the boards.
-eq(Object.keys(COMPOSER_SEATS).length, boards.length, "every board seat has a composer, and only those");
+eq(Object.keys(COMPOSER_SEATS).length, voicedBoards.length, "every voiced board seat has a composer, and only those");
 for (const [alias, seat] of Object.entries(CLUSTER)) eq(COMPOSER_SEATS[seat], alias, `…${alias} is one`);
-eq(Object.values(COMPOSER_SEATS).sort().join(","), boards.map(docSeat).sort().join(","),
+eq(Object.values(COMPOSER_SEATS).sort().join(","), voicedBoards.map(docSeat).sort().join(","),
    "the server's composer seats are exactly the board documents' seats");
 const CLIENT_SEATS = (() => {
   const m = /var COMPOSER_SEATS = \{([^}]*)\}/.exec(R("district-composer.js"));

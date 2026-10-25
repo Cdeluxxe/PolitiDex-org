@@ -74,7 +74,7 @@ const ALL = HAND_SEATS.map((s) => ({ seat: s, alias: HAND_ALIAS[s] })).concat(PL
 const ALL_SEATS = ALL.map((b) => b.seat).sort().join(",");
 const ALL_ALIASES = ALL.map((b) => b.alias).sort().join(",");
 // The boards sw.js holds offline: the six and Utah's generated ones.
-const UT_PLAN = PLAN.filter((b) => !b.federal);
+const UT_PLAN = PLAN.filter((b) => !b.federal && !b.stateLeg);
 const UT_ALIASES = HAND_SEATS.map((s) => HAND_ALIAS[s]).concat(UT_PLAN.map((b) => b.alias)).sort().join(",");
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -169,7 +169,10 @@ const onDisk = (() => {
   const out = execFileSync("ls", [ROOT], { encoding: "utf8" }).split("\n");
   return out.filter((f) => /^district-(?:ut-(?:(?:hd|sd|cd)-\d+|gov|us-senate-[a-z][a-z0-9_]*)|[a-z]{2}-(?:cd-\d+|us-senate-[a-z][a-z0-9_]*))\.html$/.test(f));
 })();
-eq(onDisk.length, ALL.length, "one district-*.html per board and no orphan document");
+// Out-of-state legislative boards (the contested Pennsylvania seats) are not
+// matched by the pattern above; test-district-boards-state-legislative.mjs and
+// test-pa-contested-cycle.mjs hold their documents.
+eq(onDisk.length, ALL.filter((b) => !b.stateLeg).length, "one district-*.html per board and no orphan document");
 for (const f of onDisk) {
   const alias = f.replace(/^district-/, "").replace(/\.html$/, "");
   const doc = R(f);
@@ -272,7 +275,10 @@ for (const b of PLAN) {
   eq(w.pdxSeatClaim("jstevenson", "ut-statesenate-7", 7), "mismatch", "pdxSeatClaim: Stevenson does not claim SD-7");
   eq(w.pdxSeatClaim("sadams", "ut-statesenate-6", 6), "mismatch", "pdxSeatClaim: Adams does not claim SD-6");
   eq(w.pdxSeatClaim("chew_h68", "ut-statehouse-29", 29), "mismatch", "pdxSeatClaim: Chew does not claim HD-29");
-  for (const b of PLAN.filter((x) => !x.usHouse && !x.statewide)) {
+  // Utah's seats are claimed by the record's own office and district. An
+  // out-of-state legislative board is gated by the resolver instead (see
+  // planStateLegislative), so it is not asked here.
+  for (const b of PLAN.filter((x) => !x.usHouse && !x.statewide && !x.stateLeg)) {
     eq(w.pdxSeatClaim(b.pid, b.seat, b.district), "match", `pdxSeatClaim: ${b.pid} claims ${b.seat}`);
   }
 }

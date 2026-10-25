@@ -61,8 +61,13 @@ function report() {
 }
 
 const FIVE = ["ut-sd-3", "ut-hd-16", "ut-sd-7", "ut-hd-15", "ut-cd-2"];
-const DOCS = readdirSync(ROOT).filter((f) => /^district-[a-z]{2}-(?:(?:hd|sd|cd)-\d+|gov|us-senate-[a-z][a-z0-9_]*)\.html$/.test(f)).sort();
 const seatOf = (f) => (/data-pdxdb-seat="([^"]+)"/.exec(R(f)) || [, ""])[1];
+// A READ-ONLY board (composer: false in district-board.js BOARDS — the
+// contested Pennsylvania legislative seats) takes no voice by design, so the
+// boards this suite sweeps are the voiced ones.
+const READ_ONLY = new Set([...R("district-board.js").matchAll(/composer: false, alias: '([^']+)'/g)].map((m) => m[1]));
+const DOCS = readdirSync(ROOT).filter((f) => /^district-[a-z]{2}-(?:(?:hd|sd|cd)-\d+|gov|us-senate-[a-z][a-z0-9_]*)\.html$/.test(f))
+  .filter((f) => !READ_ONLY.has(seatOf(f))).sort();
 const NEW = DOCS.map(seatOf).filter((a) => !FIVE.includes(a));
 ok(NEW.length >= 80, `the newly opened boards are swept (${NEW.length})`);
 for (const a of ["ut-hd-29", "ut-sd-6", "ut-gov", "ut-us-senate-lee", "ut-us-senate-curtis"]) {
