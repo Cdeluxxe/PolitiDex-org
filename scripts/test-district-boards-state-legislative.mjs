@@ -102,7 +102,7 @@ const outsideUtah = (k) => LEG_KEY_RE.test(k) && !/^ut-/.test(k) && !CONTESTED.h
 // ═════════════════════════════════════════════════════════════════════════════
 section("1 · the plan asks every roster state legislator outside Utah, and opens none");
 // ═════════════════════════════════════════════════════════════════════════════
-must(CONTESTED.size > 0 && [...CONTESTED].every((k) => /^(?:pa|ga|nc|mi|oh)-(?:statehouse|statesenate)-\d+$/.test(k)), "the contested-seat list is Pennsylvania's, Georgia's, North Carolina's, Michigan's and Ohio's");
+must(CONTESTED.size > 0 && [...CONTESTED].every((k) => /^(?:pa|ga|nc|mi|oh|wi|fl|az)-(?:statehouse|statesenate)-\d+$/.test(k)), "the contested-seat list is Pennsylvania's, Georgia's, North Carolina's, Michigan's, Ohio's, Wisconsin's, Florida's and Arizona's");
 eq(JSON.stringify(LEG.map((b) => b.seat).sort()), JSON.stringify([...CONTESTED].sort()),
   "outside Utah, exactly the contested Pennsylvania seats open a state legislative board");
 eq(Object.keys(V.BOARD_ROUTES).length, HAND_SEATS.length + PLAN.length,
@@ -377,8 +377,8 @@ section("6 · the coverage sentence and the coach say what is on disk");
 
   // The states that HAVE a state legislative board, read off BOARD_ROUTES.
   const legStates = new Set(Object.keys(V.BOARD_ROUTES).map((k) => (LEG_KEY_RE.exec(k) || [])[1]).filter(Boolean));
-  eq([...legStates].sort().join(","), "ga,mi,nc,oh,pa,ut", "Utah, and the contested seats of Pennsylvania, Georgia, North Carolina, Michigan and Ohio, are the only State House or State Senate boards");
-  ok(Object.keys(V.BOARD_ROUTES).filter((k) => /^(?:pa|ga|nc|mi|oh)-/.test(k) && LEG_KEY_RE.test(k)).every((k) => CONTESTED.has(k)), "every Pennsylvania, Georgia, North Carolina, Michigan and Ohio legislative board is a contested seat");
+  eq([...legStates].sort().join(","), "az,fl,ga,mi,nc,oh,pa,ut,wi", "Utah, and the contested seats of Pennsylvania, Georgia, North Carolina, Michigan, Ohio, Wisconsin, Florida and Arizona, are the only State House or State Senate boards");
+  ok(Object.keys(V.BOARD_ROUTES).filter((k) => /^(?:pa|ga|nc|mi|oh|wi|fl|az)-/.test(k) && LEG_KEY_RE.test(k)).every((k) => CONTESTED.has(k)), "every Pennsylvania, Georgia, North Carolina, Michigan, Ohio, Wisconsin, Florida and Arizona legislative board is a contested seat");
   const C = (() => {
     const win = makeSandbox();
     win.window = win;

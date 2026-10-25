@@ -10915,7 +10915,55 @@
 //     states' files are unchanged, and no new file is precached.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v473';
+// v474 - WISCONSIN, ONE CONTESTED CYCLE (NOV. 3, 2026).
+//     wi-ballot-2026.js holds the twelve contested State Assembly and State
+//     Senate races Wisconsin reporting names with a sitting member running,
+//     and the formal acts on file for the people in them, each a recorded
+//     floor vote read from the roll call page on docs.legis.wisconsin.gov and
+//     linked to it, each measure with one effect line. cmp-data.js gains one
+//     identity row per incumbent in those races, and one for the challenger
+//     who sits in the Assembly today; no existing row moves. Who Represents
+//     Me prints one act under those members; /ballot/wi is the ballot view;
+//     the twelve seats open read-only District Voice boards that print their
+//     race. '/' loads the act line and counts the twelve boards; it,
+//     cmp-data.js, find.html, voice.html, district-board.js and
+//     district-voice.js are precached and changed, so the shell moves one
+//     version. voter-hub-location.js and the five earlier states' files are
+//     unchanged, and no new file is precached.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v475 - FLORIDA, ONE CONTESTED CYCLE (NOV. 3, 2026).
+//     fl-ballot-2026.js holds the ten contested Florida House and Florida
+//     Senate races Florida reporting covers as real contests with a sitting
+//     member running, and the formal acts on file for the people in them,
+//     each a recorded floor vote read from the bill's vote record on
+//     flsenate.gov and linked to it, each measure with one effect line. Who
+//     Represents Me prints one act under a sitting member in those races;
+//     /ballot/fl is the ballot view; the ten seats open read-only District
+//     Voice boards that print their race. '/' loads the act line and counts
+//     the ten boards; it, find.html, voice.html, district-board.js and
+//     district-voice.js are precached and changed, so the shell moves one
+//     version. cmp-data.js, voter-hub-location.js and the six earlier
+//     states' files are unchanged, and no new file is precached.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v476 - ARIZONA SENATE, ONE CONTESTED CYCLE (NOV. 3, 2026).
+//     az-ballot-2026.js holds the four contested Arizona State Senate races
+//     Arizona reporting names with a sitting member running, and the formal
+//     acts on file for the people in them, each a recorded floor vote read
+//     from the bill's floor actions on apps.azleg.gov and linked to its bill
+//     page, each measure with one effect line. Arizona's House seats are
+//     shared by two members and hold no race here. Who Represents Me prints
+//     one act under a sitting senator in those races; /ballot/az is the
+//     ballot view; the four seats open read-only District Voice boards that
+//     print their race. '/' loads the act line and counts the four boards;
+//     it, find.html, voice.html, district-board.js and district-voice.js are
+//     precached and changed, so the shell moves one version. cmp-data.js,
+//     voter-hub-location.js and the seven earlier states' files are
+//     unchanged, and no new file is precached.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v476';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

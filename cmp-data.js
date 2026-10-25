@@ -33000,6 +33000,93 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
  },
+// ── Sitting Wisconsin legislators in the contested 2026 races (wi-ballot-2026.js, Oct 2026)
+// One row for each incumbent in a contested Wisconsin State Senate or State
+// Assembly race on the November 3, 2026 ballot, and for the one challenger who
+// sits in the Assembly today, so the seat card can name who holds the seat.
+// Identity only: the name, the office, the state and the district, read off the
+// Legislature's own member list (docs.legis.wisconsin.gov/2025/legislators), and
+// `candidate: false` (in office). The Assembly's districts are written "HD n",
+// the dialect the seat resolver reads for every lower chamber. No party, bio,
+// score or stances; the formal acts live in wi-ballot-2026.js.
+ "marklein_wi": {
+  "name": "Howard Marklein", "office": "Wisconsin State Senator",
+  "state": "Wisconsin", "district": "SD 17", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "smith_wi": {
+  "name": "Jeff Smith", "office": "Wisconsin State Senator",
+  "state": "Wisconsin", "district": "SD 31", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sheehan_wi": {
+  "name": "Joe Sheehan", "office": "Wisconsin State Representative",
+  "state": "Wisconsin", "district": "HD 26", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "zimmerman_wi": {
+  "name": "Shannon Zimmerman", "office": "Wisconsin State Representative",
+  "state": "Wisconsin", "district": "HD 30", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jacobson_wi": {
+  "name": "Jenna Jacobson", "office": "Wisconsin State Representative",
+  "state": "Wisconsin", "district": "HD 50", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "novak_wi": {
+  "name": "Todd Novak", "office": "Wisconsin State Representative",
+  "state": "Wisconsin", "district": "HD 51", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "donovan_wi": {
+  "name": "Bob Donovan", "office": "Wisconsin State Representative",
+  "state": "Wisconsin", "district": "HD 61", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "snyder_wi": {
+  "name": "Patrick Snyder", "office": "Wisconsin State Representative",
+  "state": "Wisconsin", "district": "HD 85", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "franklin_wi": {
+  "name": "Benjamin Franklin", "office": "Wisconsin State Representative",
+  "state": "Wisconsin", "district": "HD 88", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "spaude_wi": {
+  "name": "Ryan Spaude", "office": "Wisconsin State Representative",
+  "state": "Wisconsin", "district": "HD 89", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "emerson_wi": {
+  "name": "Jodi Emerson", "office": "Wisconsin State Representative",
+  "state": "Wisconsin", "district": "HD 91", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "moses_wi": {
+  "name": "Clint Moses", "office": "Wisconsin State Representative",
+  "state": "Wisconsin", "district": "HD 92", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "doyle_wi": {
+  "name": "Steve Doyle", "office": "Wisconsin State Representative",
+  "state": "Wisconsin", "district": "HD 94", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
 // ── Current candidates outside Utah, 2026 general election, official state lists (Oct 2026)
 // Every nominee on the November 3, 2026 general-election ballot for U.S. Senate,
 // U.S. House, and the statewide offices the roster already tracks (Governor,

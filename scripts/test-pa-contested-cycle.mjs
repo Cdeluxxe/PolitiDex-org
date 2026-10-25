@@ -227,7 +227,7 @@ section("5 · District Voice: a board for each contested seat and no other");
   const paLeg = Object.keys(routes).filter((k) => /^pa-(?:statehouse|statesenate)-\d+$/.test(k)).sort();
   eq(JSON.stringify(paLeg), JSON.stringify(P.RACES.map((r) => r.seat).sort()), "BOARD_ROUTES: exactly the contested Pennsylvania seats");
   // Georgia's contested seats are held by test-ga-contested-cycle.mjs.
-  const otherLeg = Object.keys(routes).filter((k) => /^[a-z]{2}-(?:statehouse|statesenate)-\d+$/.test(k) && !/^(?:ut|pa|ga|nc|mi|oh)-/.test(k));
+  const otherLeg = Object.keys(routes).filter((k) => /^[a-z]{2}-(?:statehouse|statesenate)-\d+$/.test(k) && !/^(?:ut|pa|ga|nc|mi|oh|wi|fl|az)-/.test(k));
   eq(otherLeg.length, 0, "no other state gained a state legislative board");
   for (const r of P.RACES) {
     const alias = `pa-${r.chamber === "statesenate" ? "sd" : "hd"}-${r.district}`;

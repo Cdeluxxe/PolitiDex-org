@@ -24,6 +24,7 @@
 //   node scripts/test-state-legislative-lines-wi-in-mo.mjs
 
 import { R, HEAD, MAP, sq, driveFinder, boot, levelOf, band, tigerUrls, layerOf } from "./state-leg-harness.mjs";
+import vm from "node:vm";
 
 let passed = 0;
 const failures = [];
@@ -172,11 +173,18 @@ for (const [p, sd, hd, pid, nm, hl, lpid] of NAMED) {
       }
     }
   }
+  // The sitting Wisconsin members in the contested 2026 races, read off wi-ballot-2026.js.
+  const wiRaceMembers = () => {
+    const w = {}; w.window = w; vm.runInContext(R("wi-ballot-2026.js"), vm.createContext(w));
+    return w.PDXWiBallot.RACES.flatMap((r) => r.field.filter((c) => c.pid).map((c) => c.pid));
+  };
   // Indiana's and Missouri's sitting members (db/roster-state-legislators-tn-in-mo-2026-oct.json).
   const R6 = JSON.parse(R("db/roster-state-legislators-tn-in-mo-2026-oct.json"));
   const inmo = [...R6.rows, ...R6.alreadyHeld, ...R6.districtSet].filter((r) => r.state === "Indiana" || r.state === "Missouri").map((r) => r.pid);
   eq(JSON.stringify([...named].sort()),
-    JSON.stringify([...new Set([...inmo, "devin_lemahieu", "dianne_hesselbein", "mary_felzkowski"])].sort()),
+    JSON.stringify([...new Set([...inmo, "devin_lemahieu", "dianne_hesselbein", "mary_felzkowski",
+      // The sitting Wisconsin members in the contested 2026 races (wi-ballot-2026.js).
+      ...wiRaceMembers()])].sort()),
     "roster: the members the lookup can name are not exactly the district-keyed state legislators on file");
   // Leaders whose records name no district, and U.S. House members whose titles
   // say "House", are never placed in a legislative seat.
