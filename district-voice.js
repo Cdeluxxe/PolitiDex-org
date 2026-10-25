@@ -688,6 +688,18 @@
     'pa-statehouse-144': '/district/pa-hd-144',
     'pa-statehouse-18': '/district/pa-hd-18',
     'pa-statehouse-160': '/district/pa-hd-160',
+    'wi-statesenate-17': '/district/wi-sd-17',
+    'wi-statesenate-31': '/district/wi-sd-31',
+    'wi-statehouse-26': '/district/wi-hd-26',
+    'wi-statehouse-30': '/district/wi-hd-30',
+    'wi-statehouse-51': '/district/wi-hd-51',
+    'wi-statehouse-61': '/district/wi-hd-61',
+    'wi-statehouse-85': '/district/wi-hd-85',
+    'wi-statehouse-88': '/district/wi-hd-88',
+    'wi-statehouse-89': '/district/wi-hd-89',
+    'wi-statehouse-91': '/district/wi-hd-91',
+    'wi-statehouse-92': '/district/wi-hd-92',
+    'wi-statehouse-94': '/district/wi-hd-94',
     // @generated district-boards end
   };
 

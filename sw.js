@@ -10915,7 +10915,24 @@
 //     states' files are unchanged, and no new file is precached.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v473';
+// v474 - WISCONSIN, ONE CONTESTED CYCLE (NOV. 3, 2026).
+//     wi-ballot-2026.js holds the twelve contested State Assembly and State
+//     Senate races Wisconsin reporting names with a sitting member running,
+//     and the formal acts on file for the people in them, each a recorded
+//     floor vote read from the roll call page on docs.legis.wisconsin.gov and
+//     linked to it, each measure with one effect line. cmp-data.js gains one
+//     identity row per incumbent in those races, and one for the challenger
+//     who sits in the Assembly today; no existing row moves. Who Represents
+//     Me prints one act under those members; /ballot/wi is the ballot view;
+//     the twelve seats open read-only District Voice boards that print their
+//     race. '/' loads the act line and counts the twelve boards; it,
+//     cmp-data.js, find.html, voice.html, district-board.js and
+//     district-voice.js are precached and changed, so the shell moves one
+//     version. voter-hub-location.js and the five earlier states' files are
+//     unchanged, and no new file is precached.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v474';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

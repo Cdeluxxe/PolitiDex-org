@@ -666,6 +666,19 @@
 # rules are after it and cannot match either of its two paths. Every
 # same-origin path inside both documents is root-absolute for the reason given
 # beside /ballot/ above.
+# Wisconsin's contested legislative seats, Nov. 3, 2026 (wi-ballot-2026.js)
+[[redirects]]
+  from = "/ballot/wi"
+  to = "/ballot-wi.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/wi/"
+  to = "/ballot-wi.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/wi.html"
+  to = "/ballot-wi.html"
+  status = 200
 # Ohio's contested legislative seats, Nov. 3, 2026 (oh-ballot-2026.js)
 [[redirects]]
   from = "/ballot/oh"
@@ -9301,6 +9314,174 @@
 [[redirects]]
   from = "/district/pa-hd-160.html"
   to = "/district-pa-hd-160.html"
+  status = 200
+
+# Wisconsin Senate District 17 — marklein_wi
+[[redirects]]
+  from = "/district/wi-sd-17"
+  to = "/district-wi-sd-17.html"
+  status = 200
+[[redirects]]
+  from = "/district/wi-sd-17/"
+  to = "/district-wi-sd-17.html"
+  status = 200
+[[redirects]]
+  from = "/district/wi-sd-17.html"
+  to = "/district-wi-sd-17.html"
+  status = 200
+
+# Wisconsin Senate District 31 — smith_wi
+[[redirects]]
+  from = "/district/wi-sd-31"
+  to = "/district-wi-sd-31.html"
+  status = 200
+[[redirects]]
+  from = "/district/wi-sd-31/"
+  to = "/district-wi-sd-31.html"
+  status = 200
+[[redirects]]
+  from = "/district/wi-sd-31.html"
+  to = "/district-wi-sd-31.html"
+  status = 200
+
+# Wisconsin Assembly District 26 — sheehan_wi
+[[redirects]]
+  from = "/district/wi-hd-26"
+  to = "/district-wi-hd-26.html"
+  status = 200
+[[redirects]]
+  from = "/district/wi-hd-26/"
+  to = "/district-wi-hd-26.html"
+  status = 200
+[[redirects]]
+  from = "/district/wi-hd-26.html"
+  to = "/district-wi-hd-26.html"
+  status = 200
+
+# Wisconsin Assembly District 30 — zimmerman_wi
+[[redirects]]
+  from = "/district/wi-hd-30"
+  to = "/district-wi-hd-30.html"
+  status = 200
+[[redirects]]
+  from = "/district/wi-hd-30/"
+  to = "/district-wi-hd-30.html"
+  status = 200
+[[redirects]]
+  from = "/district/wi-hd-30.html"
+  to = "/district-wi-hd-30.html"
+  status = 200
+
+# Wisconsin Assembly District 51 — novak_wi
+[[redirects]]
+  from = "/district/wi-hd-51"
+  to = "/district-wi-hd-51.html"
+  status = 200
+[[redirects]]
+  from = "/district/wi-hd-51/"
+  to = "/district-wi-hd-51.html"
+  status = 200
+[[redirects]]
+  from = "/district/wi-hd-51.html"
+  to = "/district-wi-hd-51.html"
+  status = 200
+
+# Wisconsin Assembly District 61 — donovan_wi
+[[redirects]]
+  from = "/district/wi-hd-61"
+  to = "/district-wi-hd-61.html"
+  status = 200
+[[redirects]]
+  from = "/district/wi-hd-61/"
+  to = "/district-wi-hd-61.html"
+  status = 200
+[[redirects]]
+  from = "/district/wi-hd-61.html"
+  to = "/district-wi-hd-61.html"
+  status = 200
+
+# Wisconsin Assembly District 85 — snyder_wi
+[[redirects]]
+  from = "/district/wi-hd-85"
+  to = "/district-wi-hd-85.html"
+  status = 200
+[[redirects]]
+  from = "/district/wi-hd-85/"
+  to = "/district-wi-hd-85.html"
+  status = 200
+[[redirects]]
+  from = "/district/wi-hd-85.html"
+  to = "/district-wi-hd-85.html"
+  status = 200
+
+# Wisconsin Assembly District 88 — franklin_wi
+[[redirects]]
+  from = "/district/wi-hd-88"
+  to = "/district-wi-hd-88.html"
+  status = 200
+[[redirects]]
+  from = "/district/wi-hd-88/"
+  to = "/district-wi-hd-88.html"
+  status = 200
+[[redirects]]
+  from = "/district/wi-hd-88.html"
+  to = "/district-wi-hd-88.html"
+  status = 200
+
+# Wisconsin Assembly District 89 — spaude_wi
+[[redirects]]
+  from = "/district/wi-hd-89"
+  to = "/district-wi-hd-89.html"
+  status = 200
+[[redirects]]
+  from = "/district/wi-hd-89/"
+  to = "/district-wi-hd-89.html"
+  status = 200
+[[redirects]]
+  from = "/district/wi-hd-89.html"
+  to = "/district-wi-hd-89.html"
+  status = 200
+
+# Wisconsin Assembly District 91 — emerson_wi
+[[redirects]]
+  from = "/district/wi-hd-91"
+  to = "/district-wi-hd-91.html"
+  status = 200
+[[redirects]]
+  from = "/district/wi-hd-91/"
+  to = "/district-wi-hd-91.html"
+  status = 200
+[[redirects]]
+  from = "/district/wi-hd-91.html"
+  to = "/district-wi-hd-91.html"
+  status = 200
+
+# Wisconsin Assembly District 92 — moses_wi
+[[redirects]]
+  from = "/district/wi-hd-92"
+  to = "/district-wi-hd-92.html"
+  status = 200
+[[redirects]]
+  from = "/district/wi-hd-92/"
+  to = "/district-wi-hd-92.html"
+  status = 200
+[[redirects]]
+  from = "/district/wi-hd-92.html"
+  to = "/district-wi-hd-92.html"
+  status = 200
+
+# Wisconsin Assembly District 94 — doyle_wi
+[[redirects]]
+  from = "/district/wi-hd-94"
+  to = "/district-wi-hd-94.html"
+  status = 200
+[[redirects]]
+  from = "/district/wi-hd-94/"
+  to = "/district-wi-hd-94.html"
+  status = 200
+[[redirects]]
+  from = "/district/wi-hd-94.html"
+  to = "/district-wi-hd-94.html"
   status = 200
 
 # @generated district-boards end
