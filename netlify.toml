@@ -666,6 +666,19 @@
 # rules are after it and cannot match either of its two paths. Every
 # same-origin path inside both documents is root-absolute for the reason given
 # beside /ballot/ above.
+# New York's contested legislative seats, Nov. 3, 2026 (ny-ballot-2026.js)
+[[redirects]]
+  from = "/ballot/ny"
+  to = "/ballot-ny.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/ny/"
+  to = "/ballot-ny.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/ny.html"
+  to = "/ballot-ny.html"
+  status = 200
 # Arizona's contested State Senate seats, Nov. 3, 2026 (az-ballot-2026.js)
 [[redirects]]
   from = "/ballot/az"
@@ -9186,6 +9199,132 @@
 [[redirects]]
   from = "/district/mi-hd-61.html"
   to = "/district-mi-hd-61.html"
+  status = 200
+
+# New York Senate District 43 — ashby_ny
+[[redirects]]
+  from = "/district/ny-sd-43"
+  to = "/district-ny-sd-43.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-sd-43/"
+  to = "/district-ny-sd-43.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-sd-43.html"
+  to = "/district-ny-sd-43.html"
+  status = 200
+
+# New York Senate District 39 — rolison_ny
+[[redirects]]
+  from = "/district/ny-sd-39"
+  to = "/district-ny-sd-39.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-sd-39/"
+  to = "/district-ny-sd-39.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-sd-39.html"
+  to = "/district-ny-sd-39.html"
+  status = 200
+
+# New York Senate District 44 — tedisco_ny
+[[redirects]]
+  from = "/district/ny-sd-44"
+  to = "/district-ny-sd-44.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-sd-44/"
+  to = "/district-ny-sd-44.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-sd-44.html"
+  to = "/district-ny-sd-44.html"
+  status = 200
+
+# New York Senate District 38 — weber_ny
+[[redirects]]
+  from = "/district/ny-sd-38"
+  to = "/district-ny-sd-38.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-sd-38/"
+  to = "/district-ny-sd-38.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-sd-38.html"
+  to = "/district-ny-sd-38.html"
+  status = 200
+
+# New York Assembly District 107 — bendett_ny
+[[redirects]]
+  from = "/district/ny-hd-107"
+  to = "/district-ny-hd-107.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-hd-107/"
+  to = "/district-ny-hd-107.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-hd-107.html"
+  to = "/district-ny-hd-107.html"
+  status = 200
+
+# New York Assembly District 46 — brook_krasny_ny
+[[redirects]]
+  from = "/district/ny-hd-46"
+  to = "/district-ny-hd-46.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-hd-46/"
+  to = "/district-ny-hd-46.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-hd-46.html"
+  to = "/district-ny-hd-46.html"
+  status = 200
+
+# New York Assembly District 143 — chludzinski_ny
+[[redirects]]
+  from = "/district/ny-hd-143"
+  to = "/district-ny-hd-143.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-hd-143/"
+  to = "/district-ny-hd-143.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-hd-143.html"
+  to = "/district-ny-hd-143.html"
+  status = 200
+
+# New York Assembly District 21 — griffin_ny
+[[redirects]]
+  from = "/district/ny-hd-21"
+  to = "/district-ny-hd-21.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-hd-21/"
+  to = "/district-ny-hd-21.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-hd-21.html"
+  to = "/district-ny-hd-21.html"
+  status = 200
+
+# New York Assembly District 97 — wieder_ny
+[[redirects]]
+  from = "/district/ny-hd-97"
+  to = "/district-ny-hd-97.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-hd-97/"
+  to = "/district-ny-hd-97.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-hd-97.html"
+  to = "/district-ny-hd-97.html"
   status = 200
 
 # North Carolina Senate District 7 — michael_lee_nc

@@ -10963,7 +10963,22 @@
 //     unchanged, and no new file is precached.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v476';
+// v477 - NEW YORK, ONE CONTESTED CYCLE (NOV. 3, 2026).
+//     ny-ballot-2026.js holds the nine contested New York State Senate and
+//     State Assembly races New York reporting names with a sitting member
+//     running, and the formal acts on file for the people in them, each a
+//     recorded floor vote read from the bill's page on nysenate.gov or its
+//     Floor Votes page on nyassembly.gov and linked to it, each measure with
+//     one effect line. Who Represents Me prints one act under a sitting member
+//     in those races; /ballot/ny is the ballot view; the nine seats open
+//     read-only District Voice boards that print their race. '/' loads the act
+//     line and counts the nine boards; it, find.html, voice.html,
+//     district-board.js and district-voice.js are precached and changed, so
+//     the shell moves one version. cmp-data.js, voter-hub-location.js and the
+//     eight earlier states' files are unchanged, and no new file is precached.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v477';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
