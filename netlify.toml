@@ -666,6 +666,19 @@
 # rules are after it and cannot match either of its two paths. Every
 # same-origin path inside both documents is root-absolute for the reason given
 # beside /ballot/ above.
+# Ohio's contested legislative seats, Nov. 3, 2026 (oh-ballot-2026.js)
+[[redirects]]
+  from = "/ballot/oh"
+  to = "/ballot-oh.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/oh/"
+  to = "/ballot-oh.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/oh.html"
+  to = "/ballot-oh.html"
+  status = 200
 # Michigan's contested legislative seats, Nov. 3, 2026 (mi-ballot-2026.js)
 [[redirects]]
   from = "/ballot/mi"
@@ -9050,6 +9063,76 @@
 [[redirects]]
   from = "/district/nc-hd-37.html"
   to = "/district-nc-hd-37.html"
+  status = 200
+
+# Ohio Senate District 29 — timken_oh
+[[redirects]]
+  from = "/district/oh-sd-29"
+  to = "/district-oh-sd-29.html"
+  status = 200
+[[redirects]]
+  from = "/district/oh-sd-29/"
+  to = "/district-oh-sd-29.html"
+  status = 200
+[[redirects]]
+  from = "/district/oh-sd-29.html"
+  to = "/district-oh-sd-29.html"
+  status = 200
+
+# Ohio House District 10 — sigrist_oh
+[[redirects]]
+  from = "/district/oh-hd-10"
+  to = "/district-oh-hd-10.html"
+  status = 200
+[[redirects]]
+  from = "/district/oh-hd-10/"
+  to = "/district-oh-hd-10.html"
+  status = 200
+[[redirects]]
+  from = "/district/oh-hd-10.html"
+  to = "/district-oh-hd-10.html"
+  status = 200
+
+# Ohio House District 17 — dovilla_oh
+[[redirects]]
+  from = "/district/oh-hd-17"
+  to = "/district-oh-hd-17.html"
+  status = 200
+[[redirects]]
+  from = "/district/oh-hd-17/"
+  to = "/district-oh-hd-17.html"
+  status = 200
+[[redirects]]
+  from = "/district/oh-hd-17.html"
+  to = "/district-oh-hd-17.html"
+  status = 200
+
+# Ohio House District 36 — andrea_white_oh
+[[redirects]]
+  from = "/district/oh-hd-36"
+  to = "/district-oh-hd-36.html"
+  status = 200
+[[redirects]]
+  from = "/district/oh-hd-36/"
+  to = "/district-oh-hd-36.html"
+  status = 200
+[[redirects]]
+  from = "/district/oh-hd-36.html"
+  to = "/district-oh-hd-36.html"
+  status = 200
+
+# Ohio House District 60 — lorenz_oh
+[[redirects]]
+  from = "/district/oh-hd-60"
+  to = "/district-oh-hd-60.html"
+  status = 200
+[[redirects]]
+  from = "/district/oh-hd-60/"
+  to = "/district-oh-hd-60.html"
+  status = 200
+[[redirects]]
+  from = "/district/oh-hd-60.html"
+  to = "/district-oh-hd-60.html"
   status = 200
 
 # Pennsylvania Senate District 40 — rosemary_brown_pa
