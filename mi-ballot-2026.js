@@ -133,12 +133,19 @@
   var GANDER = 'https://gandernewsroom.com/news/elections/michigan-midterm-election-races/';
   var CHAMBER = 'https://www.michamber.com/news/the-battle-for-michigan-2026-election-preview/';
   var RACES = [
-    { chamber: 'statesenate', district: 9, where: 'Oakland County', source: GANDER, field: [
+    // FILED: the county clerk's official candidate list (Oakland) or printed
+    // ballots (Midland) for November 3, which carry every name on the ballot.
+    { chamber: 'statesenate', district: 9, where: 'Oakland County', source: GANDER,
+      filed: 'https://cdn.oaklandcountymi.gov/oakland-sitefinity-prod/docs/default-source/clerk/official-candidate-list0ac8cbbf-23cc-45e7-9dc8-e77779702cfe.pdf?sfvrsn=6928f418_1', field: [
       { name: 'Michael Webber', party: 'R', pid: 'webber_mi', incumbent: true },
-      { name: 'Theresa Brooks', party: 'D', note: 'Troy City Council member' }] },
-    { chamber: 'statesenate', district: 35, where: 'Bay, Midland and Saginaw counties', source: CHAMBER, field: [
+      { name: 'Theresa Brooks', party: 'D', note: 'Troy City Council member' },
+      { name: 'Jacob R. Schodowski', party: 'Working Class' },
+      { name: 'Philippe M. Cicchini', party: 'No Party Affiliation' }] },
+    { chamber: 'statesenate', district: 35, where: 'Bay, Midland and Saginaw counties', source: CHAMBER,
+      filed: 'https://midlandcountymi.gov/corecode/uploads/document6/uploaded_pdfs/corecode/November%202026%20For%20Web_1342.pdf', field: [
       { name: 'Chedrick Greene', party: 'D', pid: 'chedrick_greene_mi', incumbent: true, note: 'Seated after the May 2026 special election' },
-      { name: 'Jason Tunney', party: 'R' }] },
+      { name: 'Jason Tunney', party: 'R' },
+      { name: 'Laurie Atwood', party: 'U.S. Taxpayers' }] },
     { chamber: 'statehouse', district: 27, where: 'Wayne County', source: GANDER, field: [
       { name: 'Rylee Linting', party: 'R', pid: 'linting_mi', incumbent: true },
       { name: 'Jaime Churches', party: 'D', key: '@churches', note: 'Former State Representative, House District 27 (2023–2024)' }] },
@@ -275,7 +282,8 @@
       '<ul class="pdxpa-field">' + r.field.map(candidateHtml).join('') + '</ul>' +
       '<p class="pdxpa-race-foot">' +
         (board ? '<a class="pdxpa-board" href="' + esc(board) + '">Open this seat’s District Voice board ›</a> · ' : '') +
-        '<a href="' + esc(r.source) + '" target="_blank" rel="noopener">Who is running: source</a></p>' +
+        '<a href="' + esc(r.source) + '" target="_blank" rel="noopener">Who is running: source</a>' +
+        (r.filed ? ' · <a href="' + esc(r.filed) + '" target="_blank" rel="noopener">Every candidate on the ballot: official list</a>' : '') + '</p>' +
     '</section>';
   }
   function quietSeatHtml(lv) {

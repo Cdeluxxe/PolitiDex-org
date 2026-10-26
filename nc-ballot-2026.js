@@ -157,18 +157,24 @@
   var HSU = 'https://www.hollyspringsupdate.com/p/winn-decker-wins-democratic-primary';
   var WFAE = 'https://www.wfae.org/2026-09-22/n-c-house-of-representatives-98';
   var WCNC = 'https://www.wcnc.com/article/news/politics/elections/north-carolina-house-district-105-midterm-election-preview-tricia-cotham-ken-mccool/275-79886836-db3f-4739-85c3-895dad7de3e0';
+  // FILED: the State Board of Elections' candidate list for the 2026 cycle,
+  // read at its November 3 rows (the general-election ballot, not the March
+  // primary). A race with `filed` lists every name on it.
+  var SBE = 'https://s3.amazonaws.com/dl.ncsbe.gov/Elections/2026/Candidate%20Filing/Candidate_Listing_2026.csv';
   var RACES = [
     { chamber: 'statesenate', district: 7, where: 'New Hanover County', source: CPP,
       issue: 'GenX and PFAS water contamination from the Chemours plant, utility cost recovery and the property tax levy limit amendment.',
       field: [
         { name: 'Michael Lee', party: 'R', pid: 'michael_lee_nc', incumbent: true },
         { name: 'Jessica Bichler', party: 'D' }] },
-    { chamber: 'statesenate', district: 11, where: 'Franklin, Nash and Vance counties', source: NSJ, field: [
+    { chamber: 'statesenate', district: 11, where: 'Franklin, Nash and Vance counties', source: NSJ, filed: SBE, field: [
       { name: 'Lisa S. Barnes', party: 'R', pid: 'barnes_nc', incumbent: true },
-      { name: 'James Gailliard', party: 'D', key: '@gailliard', note: 'Former State Representative, House District 25 (2019–2023)' }] },
-    { chamber: 'statesenate', district: 18, where: 'Wake County', source: NSJ, field: [
+      { name: 'James Gailliard', party: 'D', key: '@gailliard', note: 'Former State Representative, House District 25 (2019–2023)' },
+      { name: 'Gavin Bell', party: 'L' }] },
+    { chamber: 'statesenate', district: 18, where: 'Wake County', source: NSJ, filed: SBE, field: [
       { name: 'Haseeb Fatmi', party: 'D', pid: 'fatmi_nc', incumbent: true, note: 'Appointed in 2026' },
-      { name: 'Chris Stock', party: 'R' }] },
+      { name: 'Chris Stock', party: 'R' },
+      { name: 'Brad Hessel', party: 'L' }] },
     { chamber: 'statesenate', district: 42, where: 'Mecklenburg County', source: NSJ, field: [
       { name: 'Woodson Bradley', party: 'D', pid: 'bradley_nc', incumbent: true },
       { name: 'Stacie McGinn', party: 'R' }] },
@@ -297,7 +303,8 @@
       '<ul class="pdxpa-field">' + r.field.map(candidateHtml).join('') + '</ul>' +
       '<p class="pdxpa-race-foot">' +
         (board ? '<a class="pdxpa-board" href="' + esc(board) + '">Open this seat’s District Voice board ›</a> · ' : '') +
-        '<a href="' + esc(r.source) + '" target="_blank" rel="noopener">Who is running: source</a></p>' +
+        '<a href="' + esc(r.source) + '" target="_blank" rel="noopener">Who is running: source</a>' +
+        (r.filed ? ' · <a href="' + esc(r.filed) + '" target="_blank" rel="noopener">Every candidate on the ballot: official list</a>' : '') + '</p>' +
     '</section>';
   }
   function quietSeatHtml(lv) {

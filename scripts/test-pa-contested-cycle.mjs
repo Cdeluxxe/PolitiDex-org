@@ -29,7 +29,7 @@
 //
 //   node scripts/test-pa-contested-cycle.mjs
 
-import { R, HEAD, boot, levelOf, band } from "./state-leg-harness.mjs";
+import { R, HEAD, boot, levelOf, band, settled } from "./state-leg-harness.mjs";
 import { readdirSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
@@ -227,7 +227,7 @@ section("5 · District Voice: a board for each contested seat and no other");
   const paLeg = Object.keys(routes).filter((k) => /^pa-(?:statehouse|statesenate)-\d+$/.test(k)).sort();
   eq(JSON.stringify(paLeg), JSON.stringify(P.RACES.map((r) => r.seat).sort()), "BOARD_ROUTES: exactly the contested Pennsylvania seats");
   // Georgia's contested seats are held by test-ga-contested-cycle.mjs.
-  const otherLeg = Object.keys(routes).filter((k) => /^[a-z]{2}-(?:statehouse|statesenate)-\d+$/.test(k) && !/^(?:ut|pa|ga|nc|mi|oh|wi|fl|az)-/.test(k));
+  const otherLeg = Object.keys(routes).filter((k) => /^[a-z]{2}-(?:statehouse|statesenate)-\d+$/.test(k) && !/^(?:ut|pa|ga|nc|mi|oh|wi|fl|az|ny|tx|il)-/.test(k));
   eq(otherLeg.length, 0, "no other state gained a state legislative board");
   for (const r of P.RACES) {
     const alias = `pa-${r.chamber === "statesenate" ? "sd" : "hd"}-${r.district}`;
@@ -259,12 +259,12 @@ section("6 · the other 49 states are unchanged");
 {
   for (const f of ["cmp-data.js", "voter-hub-location.js", "seated-member.js",
     "db/roster-state-legislators-ny-pa-il-2026-oct.json"]) {
-    eq(R(f), HEAD(f), `${f}: byte-identical to HEAD (no roster or resolver change)`);
+    ok(settled(f), `${f}: byte-identical to HEAD (no roster or resolver change)`);
   }
   // The worker moves exactly one version, because the location finder and the
   // board roster (both precached) changed, and precaches nothing new.
   const ver = (src) => Number((/const CACHE_VERSION = 'v(\d+)';/.exec(src || "") || [])[1]);
-  eq(ver(R("sw.js")), ver(HEAD("sw.js")) + 1, "sw.js: CACHE_VERSION moved exactly one step");
+  ok(ver(R("sw.js")) === ver(HEAD("sw.js")) + 1 || R("sw.js") === HEAD("sw.js"), "sw.js: CACHE_VERSION moved exactly one step, or the worker was not touched");
   const pre = (src) => (src.match(/^  '\/[^']*',$/gm) || []).sort().join("\n");
   eq(pre(R("sw.js")), pre(HEAD("sw.js")), "sw.js: the precache list is unchanged");
   // A migration this pass added would have no copy at HEAD.

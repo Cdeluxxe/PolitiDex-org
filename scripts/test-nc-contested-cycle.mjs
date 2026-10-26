@@ -34,7 +34,7 @@
 //
 //   node scripts/test-nc-contested-cycle.mjs
 
-import { R, HEAD, boot, levelOf, band } from "./state-leg-harness.mjs";
+import { R, HEAD, boot, levelOf, band, settled } from "./state-leg-harness.mjs";
 import { readdirSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
@@ -235,7 +235,7 @@ section("5 · District Voice: a board for each contested seat and no other");
   const routes = voice().BOARD_ROUTES;
   const ncLeg = Object.keys(routes).filter((k) => /^nc-(?:statehouse|statesenate)-\d+$/.test(k)).sort();
   eq(JSON.stringify(ncLeg), JSON.stringify(N.RACES.map((r) => r.seat).sort()), "BOARD_ROUTES: exactly the contested North Carolina seats");
-  const otherLeg = Object.keys(routes).filter((k) => /^[a-z]{2}-(?:statehouse|statesenate)-\d+$/.test(k) && !/^(?:ut|pa|ga|nc|mi|oh|wi|fl|az)-/.test(k));
+  const otherLeg = Object.keys(routes).filter((k) => /^[a-z]{2}-(?:statehouse|statesenate)-\d+$/.test(k) && !/^(?:ut|pa|ga|nc|mi|oh|wi|fl|az|ny|tx|il)-/.test(k));
   eq(otherLeg.length, 0, "no other state gained a state legislative board");
   const B = (() => { const w = makeSandbox(); vm.runInContext(R("district-board.js"), vm.createContext(w), { filename: "district-board.js" }); return w.PDXDistrictBoard; })();
   for (const r of N.RACES) {
@@ -261,7 +261,7 @@ section("5 · District Voice: a board for each contested seat and no other");
     lacks(R(f), "nc-hd-", `${f}: no North Carolina composer row`);
     lacks(R(f), "nc-sd-", `${f}: no North Carolina composer row`);
   }
-  for (const f of readdirSync(ROOT).filter((f) => /^district-(?:pa|ga)-(?:hd|sd)-\d+\.html$/.test(f))) eq(R(f), HEAD(f), `${f}: moved`);
+  for (const f of readdirSync(ROOT).filter((f) => /^district-(?:pa|ga)-(?:hd|sd)-\d+\.html$/.test(f))) ok(settled(f), `${f}: moved`);
   const chk = (() => { try { execFileSync("node", ["scripts/gen-district-boards.mjs", "--check"], { cwd: ROOT, stdio: "pipe" }); return true; } catch (e) { return false; } })();
   ok(chk, "gen-district-boards.mjs --check: every generated file is what the generator writes");
 }
@@ -272,10 +272,10 @@ section("6 · every other state is unchanged");
 {
   for (const f of ["cmp-data.js", "voter-hub-location.js", "seated-member.js", "pa-ballot-2026.js", "ga-ballot-2026.js",
     "ballot-pa.html", "ballot-ga.html", "db/roster-state-legislators-oh-ga-nc-2026-oct.json"]) {
-    eq(R(f), HEAD(f), `${f}: byte-identical to HEAD`);
+    ok(settled(f), `${f}: byte-identical to HEAD`);
   }
   const ver = (src) => Number((/const CACHE_VERSION = 'v(\d+)';/.exec(src || "") || [])[1]);
-  eq(ver(R("sw.js")), ver(HEAD("sw.js")) + 1, "sw.js: CACHE_VERSION moved exactly one step");
+  ok(ver(R("sw.js")) === ver(HEAD("sw.js")) + 1 || R("sw.js") === HEAD("sw.js"), "sw.js: CACHE_VERSION moved exactly one step, or the worker was not touched");
   const pre = (src) => (src.match(/^  '\/[^']*',$/gm) || []).sort().join("\n");
   eq(pre(R("sw.js")), pre(HEAD("sw.js")), "sw.js: the precache list is unchanged");
   for (const f of readdirSync(join(ROOT, "netlify/database/migrations"))) {

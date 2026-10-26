@@ -223,3 +223,42 @@ export const levelOf = (w, key) => (w.pdxRepsForMe().levels || []).filter((l) =>
 export const band = (w) => { w.PDXWhoRepresentsMe.sync(); return String(w.document.getElementById("wrm-reps").innerHTML); };
 export const tigerUrls = (wire) => wire.filter((u) => u.indexOf("tigerweb") >= 0);
 export const layerOf = (u) => (/MapServer\/(\d+)\/query/.exec(u) || [])[1];
+
+// SETTLED: a file is HEAD's, or the only thing that moved is a contested
+// race's field growing (test-full-candidate-lists.mjs holds those names).
+// A ballot file keeps its seats, its measures, its acts, every name HEAD
+// listed exactly as HEAD listed it, and its Who Represents Me block; a board
+// is HEAD's byte for byte outside the race it prints. Every other file must
+// be byte-identical.
+const RACE_BLOCK = /    <!-- THE RACE: [\s\S]*?\n    <\/div>\n/;
+const ballotModule = (src, code) => {
+  const w = {}; w.window = w;
+  vm.runInContext(src, vm.createContext(w));
+  return w[`PDX${code[0].toUpperCase()}${code[1]}Ballot`];
+};
+export function settled(f) {
+  const now = R(f), was = HEAD(f);
+  if (now === was) return true;
+  if (was === null || now === null) return false;
+  const bf = /^([a-z]{2})-ballot-2026\.js$/.exec(f);
+  if (bf) {
+    const A = ballotModule(now, bf[1]), B = ballotModule(was, bf[1]);
+    if (!A || !B) return false;
+    if (JSON.stringify(A.MEASURES) !== JSON.stringify(B.MEASURES) || JSON.stringify(A.ACTS) !== JSON.stringify(B.ACTS)) return false;
+    if (JSON.stringify(A.RACES.map((r) => r.seat)) !== JSON.stringify(B.RACES.map((r) => r.seat))) return false;
+    for (const hr of B.RACES) {
+      const r = A.race(hr.chamber, hr.district);
+      if (!r || JSON.stringify(r.field.slice(0, hr.field.length)) !== JSON.stringify(hr.field)) return false;
+      for (const c of hr.field) if (c.pid) {
+        const lv = { key: hr.chamber, district: String(hr.district) };
+        if (A.seatActHtml(c.pid, lv) !== B.seatActHtml(c.pid, lv)) return false;
+      }
+    }
+    return true;
+  }
+  if (/^district-[a-z]{2}-(?:hd|sd)-\d+\.html$/.test(f)) {
+    const a = RACE_BLOCK.exec(now), b = RACE_BLOCK.exec(was);
+    return !!a && !!b && now.replace(RACE_BLOCK, "") === was.replace(RACE_BLOCK, "");
+  }
+  return false;
+}

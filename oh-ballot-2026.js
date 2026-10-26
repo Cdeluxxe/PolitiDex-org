@@ -124,9 +124,14 @@
     { chamber: 'statehouse', district: 17, where: 'Southern Cuyahoga County', source: SNB, field: [
       { name: 'Michael D. Dovilla', party: 'R', pid: 'dovilla_oh', incumbent: true },
       { name: 'Megan Coy', party: 'D', note: 'City council member' }] },
-    { chamber: 'statehouse', district: 36, where: 'Montgomery County, near Dayton', source: SNB, field: [
+    // FILED: the Montgomery County Board of Elections' candidate report for
+    // the November 3 ballot, which lists Chuck Horn in this race with no
+    // party label, the form Ohio prints for an independent.
+    { chamber: 'statehouse', district: 36, where: 'Montgomery County, near Dayton', source: SNB,
+      filed: 'https://www.montgomery.boe.ohio.gov/wp-content/uploads/2023/10/10.16.2026-Candidate-Petition-Report.pdf', field: [
       { name: 'Andrea White', party: 'R', pid: 'andrea_white_oh', incumbent: true },
-      { name: 'Rose Lounsbury', party: 'D' }] },
+      { name: 'Rose Lounsbury', party: 'D' },
+      { name: 'Chuck Horn', party: 'I' }] },
     { chamber: 'statehouse', district: 60, where: 'Southern Delaware County', source: SNB, field: [
       { name: 'Brian Lorenz', party: 'R', pid: 'lorenz_oh', incumbent: true },
       { name: 'Shelby Kimball', party: 'D' }] }
@@ -242,7 +247,8 @@
       '<ul class="pdxpa-field">' + r.field.map(candidateHtml).join('') + '</ul>' +
       '<p class="pdxpa-race-foot">' +
         (board ? '<a class="pdxpa-board" href="' + esc(board) + '">Open this seat’s District Voice board ›</a> · ' : '') +
-        '<a href="' + esc(r.source) + '" target="_blank" rel="noopener">Who is running: source</a></p>' +
+        '<a href="' + esc(r.source) + '" target="_blank" rel="noopener">Who is running: source</a>' +
+        (r.filed ? ' · <a href="' + esc(r.filed) + '" target="_blank" rel="noopener">Every candidate on the ballot: official list</a>' : '') + '</p>' +
     '</section>';
   }
   function quietSeatHtml(lv) {
