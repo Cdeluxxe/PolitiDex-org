@@ -480,11 +480,12 @@
   // nc-ballot-2026.js (North Carolina), mi-ballot-2026.js (Michigan),
   // oh-ballot-2026.js (Ohio), wi-ballot-2026.js (Wisconsin),
   // fl-ballot-2026.js (Florida), az-ballot-2026.js (Arizona),
-  // ny-ballot-2026.js (New York) and tx-ballot-2026.js (Texas) hold the acts and own the markup; each answers '' for any pid it holds no act for,
+  // ny-ballot-2026.js (New York), tx-ballot-2026.js (Texas) and
+  // il-ballot-2026.js (Illinois) hold the acts and own the markup; each answers '' for any pid it holds no act for,
   // so every other state's row is unchanged. A sibling of the row, for the same
   // nesting reason as seatCompare() below.
   function seatRecord(pid, lv) {
-    var mods = [window.PDXPaBallot, window.PDXGaBallot, window.PDXNcBallot, window.PDXMiBallot, window.PDXOhBallot, window.PDXWiBallot, window.PDXFlBallot, window.PDXAzBallot, window.PDXNyBallot, window.PDXTxBallot];
+    var mods = [window.PDXPaBallot, window.PDXGaBallot, window.PDXNcBallot, window.PDXMiBallot, window.PDXOhBallot, window.PDXWiBallot, window.PDXFlBallot, window.PDXAzBallot, window.PDXNyBallot, window.PDXTxBallot, window.PDXIlBallot];
     for (var i = 0; i < mods.length; i++) {
       var P = mods[i];
       if (!P || typeof P.seatActHtml !== 'function') continue;

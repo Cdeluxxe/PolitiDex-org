@@ -765,6 +765,8 @@ const VERIFIED_OPTS = { uid: "u_7", loc: { state: "Utah", city: "Layton", county
     .replace('<script src="/ny-ballot-2026.js" defer></script>', "")
     // …and Texas's behind that (v478).
     .replace('<script src="/tx-ballot-2026.js" defer></script>', "")
+    // …and Illinois's behind that (v479).
+    .replace('<script src="/il-ballot-2026.js" defer></script>', "")
     .replace(/AND IT DESCRIBES WHAT EXISTS\.[\s\S]*?; every other seat a location/, "<EXISTS>")
     // The disclosures block later carried the range-band graph (v350/v351), and
     // its year drawing (v352/v353): the renderer, its call inside the on-file

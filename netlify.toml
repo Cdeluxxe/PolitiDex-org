@@ -666,6 +666,19 @@
 # rules are after it and cannot match either of its two paths. Every
 # same-origin path inside both documents is root-absolute for the reason given
 # beside /ballot/ above.
+# Illinois's contested legislative seats, Nov. 3, 2026 (il-ballot-2026.js)
+[[redirects]]
+  from = "/ballot/il"
+  to = "/ballot-il.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/il/"
+  to = "/ballot-il.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/il.html"
+  to = "/ballot-il.html"
+  status = 200
 # Texas's contested legislative seats, Nov. 3, 2026 (tx-ballot-2026.js)
 [[redirects]]
   from = "/ballot/tx"
@@ -9072,6 +9085,202 @@
 [[redirects]]
   from = "/district/ga-hd-53.html"
   to = "/district-ga-hd-53.html"
+  status = 200
+
+# Illinois Senate District 57 — belt_il
+[[redirects]]
+  from = "/district/il-sd-57"
+  to = "/district-il-sd-57.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-sd-57/"
+  to = "/district-il-sd-57.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-sd-57.html"
+  to = "/district-il-sd-57.html"
+  status = 200
+
+# Illinois Senate District 36 — halpin_il
+[[redirects]]
+  from = "/district/il-sd-36"
+  to = "/district-il-sd-36.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-sd-36/"
+  to = "/district-il-sd-36.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-sd-36.html"
+  to = "/district-il-sd-36.html"
+  status = 200
+
+# Illinois Senate District 56 — harriss_il
+[[redirects]]
+  from = "/district/il-sd-56"
+  to = "/district-il-sd-56.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-sd-56/"
+  to = "/district-il-sd-56.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-sd-56.html"
+  to = "/district-il-sd-56.html"
+  status = 200
+
+# Illinois Senate District 26 — hills_il
+[[redirects]]
+  from = "/district/il-sd-26"
+  to = "/district-il-sd-26.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-sd-26/"
+  to = "/district-il-sd-26.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-sd-26.html"
+  to = "/district-il-sd-26.html"
+  status = 200
+
+# Illinois Senate District 24 — lewis_il
+[[redirects]]
+  from = "/district/il-sd-24"
+  to = "/district-il-sd-24.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-sd-24/"
+  to = "/district-il-sd-24.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-sd-24.html"
+  to = "/district-il-sd-24.html"
+  status = 200
+
+# Illinois Senate District 48 — doris_turner_il
+[[redirects]]
+  from = "/district/il-sd-48"
+  to = "/district-il-sd-48.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-sd-48/"
+  to = "/district-il-sd-48.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-sd-48.html"
+  to = "/district-il-sd-48.html"
+  status = 200
+
+# Illinois House District 76 — briel_il
+[[redirects]]
+  from = "/district/il-hd-76"
+  to = "/district-il-hd-76.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-hd-76/"
+  to = "/district-il-hd-76.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-hd-76.html"
+  to = "/district-il-hd-76.html"
+  status = 200
+
+# Illinois House District 97 — heitman_il
+[[redirects]]
+  from = "/district/il-hd-97"
+  to = "/district-il-hd-97.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-hd-97/"
+  to = "/district-il-hd-97.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-hd-97.html"
+  to = "/district-il-hd-97.html"
+  status = 200
+
+# Illinois House District 70 — keicher_il
+[[redirects]]
+  from = "/district/il-hd-70"
+  to = "/district-il-hd-70.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-hd-70/"
+  to = "/district-il-hd-70.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-hd-70.html"
+  to = "/district-il-hd-70.html"
+  status = 200
+
+# Illinois House District 52 — mclaughlin_il
+[[redirects]]
+  from = "/district/il-hd-52"
+  to = "/district-il-hd-52.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-hd-52/"
+  to = "/district-il-hd-52.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-hd-52.html"
+  to = "/district-il-hd-52.html"
+  status = 200
+
+# Illinois House District 114 — schmidt_il
+[[redirects]]
+  from = "/district/il-hd-114"
+  to = "/district-il-hd-114.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-hd-114/"
+  to = "/district-il-hd-114.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-hd-114.html"
+  to = "/district-il-hd-114.html"
+  status = 200
+
+# Illinois House District 104 — schweizer_il
+[[redirects]]
+  from = "/district/il-hd-104"
+  to = "/district-il-hd-104.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-hd-104/"
+  to = "/district-il-hd-104.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-hd-104.html"
+  to = "/district-il-hd-104.html"
+  status = 200
+
+# Illinois House District 112 — stuart_il
+[[redirects]]
+  from = "/district/il-hd-112"
+  to = "/district-il-hd-112.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-hd-112/"
+  to = "/district-il-hd-112.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-hd-112.html"
+  to = "/district-il-hd-112.html"
+  status = 200
+
+# Illinois House District 65 — ugaste_il
+[[redirects]]
+  from = "/district/il-hd-65"
+  to = "/district-il-hd-65.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-hd-65/"
+  to = "/district-il-hd-65.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-hd-65.html"
+  to = "/district-il-hd-65.html"
   status = 200
 
 # Michigan Senate District 35 — chedrick_greene_mi
