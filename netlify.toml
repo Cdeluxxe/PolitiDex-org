@@ -666,6 +666,19 @@
 # rules are after it and cannot match either of its two paths. Every
 # same-origin path inside both documents is root-absolute for the reason given
 # beside /ballot/ above.
+# Texas's contested legislative seats, Nov. 3, 2026 (tx-ballot-2026.js)
+[[redirects]]
+  from = "/ballot/tx"
+  to = "/ballot-tx.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/tx/"
+  to = "/ballot-tx.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/tx.html"
+  to = "/ballot-tx.html"
+  status = 200
 # New York's contested legislative seats, Nov. 3, 2026 (ny-ballot-2026.js)
 [[redirects]]
   from = "/ballot/ny"
@@ -9675,6 +9688,202 @@
 [[redirects]]
   from = "/district/pa-hd-160.html"
   to = "/district-pa-hd-160.html"
+  status = 200
+
+# Texas Senate District 19 — gutierrez_tx
+[[redirects]]
+  from = "/district/tx-sd-19"
+  to = "/district-tx-sd-19.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-sd-19/"
+  to = "/district-tx-sd-19.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-sd-19.html"
+  to = "/district-tx-sd-19.html"
+  status = 200
+
+# Texas House District 34 — villalobos_tx
+[[redirects]]
+  from = "/district/tx-hd-34"
+  to = "/district-tx-hd-34.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-hd-34/"
+  to = "/district-tx-hd-34.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-hd-34.html"
+  to = "/district-tx-hd-34.html"
+  status = 200
+
+# Texas House District 37 — janie_lopez_tx
+[[redirects]]
+  from = "/district/tx-hd-37"
+  to = "/district-tx-hd-37.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-hd-37/"
+  to = "/district-tx-hd-37.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-hd-37.html"
+  to = "/district-tx-hd-37.html"
+  status = 200
+
+# Texas House District 52 — harris_davila_tx
+[[redirects]]
+  from = "/district/tx-hd-52"
+  to = "/district-tx-hd-52.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-hd-52/"
+  to = "/district-tx-hd-52.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-hd-52.html"
+  to = "/district-tx-hd-52.html"
+  status = 200
+
+# Texas House District 61 — richardson_tx
+[[redirects]]
+  from = "/district/tx-hd-61"
+  to = "/district-tx-hd-61.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-hd-61/"
+  to = "/district-tx-hd-61.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-hd-61.html"
+  to = "/district-tx-hd-61.html"
+  status = 200
+
+# Texas House District 67 — leach_tx
+[[redirects]]
+  from = "/district/tx-hd-67"
+  to = "/district-tx-hd-67.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-hd-67/"
+  to = "/district-tx-hd-67.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-hd-67.html"
+  to = "/district-tx-hd-67.html"
+  status = 200
+
+# Texas House District 70 — plesa_tx
+[[redirects]]
+  from = "/district/tx-hd-70"
+  to = "/district-tx-hd-70.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-hd-70/"
+  to = "/district-tx-hd-70.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-hd-70.html"
+  to = "/district-tx-hd-70.html"
+  status = 200
+
+# Texas House District 74 — eddie_morales_tx
+[[redirects]]
+  from = "/district/tx-hd-74"
+  to = "/district-tx-hd-74.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-hd-74/"
+  to = "/district-tx-hd-74.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-hd-74.html"
+  to = "/district-tx-hd-74.html"
+  status = 200
+
+# Texas House District 108 — meyer_tx
+[[redirects]]
+  from = "/district/tx-hd-108"
+  to = "/district-tx-hd-108.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-hd-108/"
+  to = "/district-tx-hd-108.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-hd-108.html"
+  to = "/district-tx-hd-108.html"
+  status = 200
+
+# Texas House District 112 — button_tx
+[[redirects]]
+  from = "/district/tx-hd-112"
+  to = "/district-tx-hd-112.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-hd-112/"
+  to = "/district-tx-hd-112.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-hd-112.html"
+  to = "/district-tx-hd-112.html"
+  status = 200
+
+# Texas House District 121 — lahood_tx
+[[redirects]]
+  from = "/district/tx-hd-121"
+  to = "/district-tx-hd-121.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-hd-121/"
+  to = "/district-tx-hd-121.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-hd-121.html"
+  to = "/district-tx-hd-121.html"
+  status = 200
+
+# Texas House District 138 — hull_tx
+[[redirects]]
+  from = "/district/tx-hd-138"
+  to = "/district-tx-hd-138.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-hd-138/"
+  to = "/district-tx-hd-138.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-hd-138.html"
+  to = "/district-tx-hd-138.html"
+  status = 200
+
+# Texas Senate District 9 — rehmet_tx
+[[redirects]]
+  from = "/district/tx-sd-9"
+  to = "/district-tx-sd-9.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-sd-9/"
+  to = "/district-tx-sd-9.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-sd-9.html"
+  to = "/district-tx-sd-9.html"
+  status = 200
+
+# Texas Senate District 21 — zaffirini_tx
+[[redirects]]
+  from = "/district/tx-sd-21"
+  to = "/district-tx-sd-21.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-sd-21/"
+  to = "/district-tx-sd-21.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-sd-21.html"
+  to = "/district-tx-sd-21.html"
   status = 200
 
 # Wisconsin Senate District 17 — marklein_wi

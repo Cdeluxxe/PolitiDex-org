@@ -40,6 +40,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { contestedSeats } from "./gen-district-boards.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 let passed = 0;
@@ -245,11 +246,15 @@ section("5 · District Voice: a board for each contested seat and no other");
   const routes = voice().BOARD_ROUTES;
   const nyLeg = Object.keys(routes).filter((k) => /^ny-(?:statehouse|statesenate)-\d+$/.test(k)).sort();
   eq(JSON.stringify(nyLeg), JSON.stringify(N.RACES.map((r) => r.seat).sort()), "BOARD_ROUTES: exactly the contested New York seats");
-  const otherLeg = Object.keys(routes).filter((k) => /^[a-z]{2}-(?:statehouse|statesenate)-\d+$/.test(k) && !/^(?:ut|pa|ga|nc|mi|oh|wi|fl|az|ny)-/.test(k));
+  const otherLeg = Object.keys(routes).filter((k) => /^[a-z]{2}-(?:statehouse|statesenate)-\d+$/.test(k) && !/^(?:ut|pa|ga|nc|mi|oh|wi|fl|az|ny|tx)-/.test(k));
   eq(otherLeg.length, 0, "no other state gained a state legislative board");
   const HV = (() => { const w = {}; w.window = w; vm.runInContext(HEAD("district-voice.js"), vm.createContext(w)); return w.PDXVoice.BOARD_ROUTES; })();
   for (const k of Object.keys(HV)) eq(routes[k], HV[k], `${k}: an earlier board moved`);
-  eq(Object.keys(routes).length, Object.keys(HV).length + N.RACES.filter((r) => !HV[r.seat]).length, "BOARD_ROUTES: HEAD's boards plus the contested New York seats");
+  // Every board HEAD did not have is a contested seat some state's ballot
+  // file holds a race for (contestedSeats() reads them from those files).
+  const CONTESTED = contestedSeats();
+  for (const k of Object.keys(routes)) if (!HV[k]) ok(CONTESTED.has(k), `${k}: a board with no race behind it`);
+  for (const r of N.RACES) ok(!!routes[r.seat], `${r.seat}: the contested New York seat has a board`);
   const B = (() => { const w = makeSandbox(); vm.runInContext(R("district-board.js"), vm.createContext(w), { filename: "district-board.js" }); return w.PDXDistrictBoard; })();
   for (const r of N.RACES) {
     const alias = `ny-${r.chamber === "statesenate" ? "sd" : "hd"}-${r.district}`;

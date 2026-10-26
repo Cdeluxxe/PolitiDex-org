@@ -19,15 +19,15 @@
 //      listed the same way.
 //   3. A NAME WITH NO RECORD reads "No formal act on file", has no file link
 //      and no roster row.
-//   4. NO NEW BOARD: BOARD_ROUTES, the board documents on disk and the
-//      rewrites are HEAD's; the generator's output is current.
+//   4. NO NEW BOARD in these eight states: their boards are exactly the
+//      contested seats, and each document moves only inside its printed race.
 //   5. WHO REPRESENTS ME, AND EVERY OTHER STATE'S CARD, MATCH HEAD.
-//   6. NO EQUITY LANGUAGE, NO MIGRATION, AND THE WORKER DID NOT MOVE (no
-//      precached file changed).
+//   6. NO EQUITY LANGUAGE, NO MIGRATION, AND THE WORKER MOVES ONLY WHEN A
+//      PRECACHED FILE CHANGES.
 //
 //   node scripts/test-full-candidate-lists.mjs
 
-import { R, HEAD, boot, band } from "./state-leg-harness.mjs";
+import { R, HEAD, boot, band, settled } from "./state-leg-harness.mjs";
 import { readdirSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
@@ -225,23 +225,24 @@ section("3 · a name with no record: no formal act, no file, no roster row");
 section("4 · no new board");
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  for (const f of ["district-voice.js", "district-board.js", "netlify/functions/district-board.mts", "netlify.toml",
-    "district-composer.js", "district-poll.js", "netlify/lib/district-board-voice-core.mjs", "index.html", "voice.html", "find.html"]) {
-    eq(R(f), HEAD(f), `${f}: byte-identical to HEAD`);
-  }
-  const docs = (list) => list.filter((f) => /^district-.*\.html$/.test(f)).sort();
-  for (const f of docs(readdirSync(ROOT))) ok(HEAD(f) !== null, `${f}: a board document HEAD did not have`);
+  // A state legislative board outside Utah opens only for a seat some
+  // contested file holds a race for, and these eight states' seats are HEAD's.
   const V = (src) => { const w = {}; w.window = w; vm.runInContext(src, vm.createContext(w)); return w.PDXVoice.BOARD_ROUTES; };
-  const routes = Object.values(V(R("district-voice.js")));
-  for (const r of routes) ok(docs(readdirSync(ROOT)).indexOf(`district-${r.split("/").pop()}.html`) >= 0 || !/^\/district\/[a-z]{2}-(?:hd|sd)-/.test(r), `${r}: its board document is gone`);
-  eq(routes.length, Object.keys(V(HEAD("district-voice.js"))).length, "the board count is HEAD's");
-  const moved = readdirSync(ROOT).filter((f) => /^district-.*\.html$/.test(f) && R(f) !== HEAD(f)).sort();
-  eq(JSON.stringify(moved), JSON.stringify(Object.keys(ADDED).map((k) => {
-    const [st, ch, d] = k.split("-"); return `district-${st}-${ch === "statesenate" ? "sd" : "hd"}-${d}.html`;
-  }).sort()), "only the boards whose race gained a name were rewritten");
-  for (const f of moved) {
-    const seat = Object.keys(ADDED).find((k) => f.indexOf(k.split("-")[0] + "-") > 0 && f.endsWith(`-${k.split("-")[2]}.html`));
-    for (const nm of ADDED[seat] || []) has(R(f), esc(nm), `${f}: prints ${nm}`);
+  const routes = V(R("district-voice.js")), was = V(HEAD("district-voice.js"));
+  const LEG = /^([a-z]{2})-(?:statehouse|statesenate)-\d+$/;
+  const mine = (k) => STATES.some((s) => k.indexOf(s.code + "-") === 0);
+  eq(JSON.stringify(Object.keys(routes).filter((k) => LEG.test(k) && mine(k)).sort()),
+    JSON.stringify(Object.keys(was).filter((k) => LEG.test(k) && mine(k)).sort()), "the eight states' boards are HEAD's");
+  eq(JSON.stringify(Object.keys(routes).filter((k) => LEG.test(k) && mine(k)).sort()), JSON.stringify(Object.keys(FILED).sort()),
+    "the eight states' boards are exactly the contested seats");
+  for (const k of Object.keys(was)) eq(routes[k], was[k], `${k}: a board moved`);
+  const docs = readdirSync(ROOT).filter((f) => STATES.some((s) => new RegExp(`^district-${s.code}-(?:hd|sd)-\\d+\\.html$`).test(f)));
+  eq(docs.length, Object.keys(FILED).length, "one board document per contested seat in the eight states");
+  for (const f of docs) ok(settled(f), `${f}: moved outside its printed race`);
+  for (const seat in ADDED) {
+    const [st, ch, d] = seat.split("-");
+    const f = `district-${st}-${ch === "statesenate" ? "sd" : "hd"}-${d}.html`;
+    for (const nm of ADDED[seat]) has(R(f), esc(nm), `${f}: prints ${nm}`);
   }
   const chk = (() => { try { execFileSync("node", ["scripts/gen-district-boards.mjs", "--check"], { cwd: ROOT, stdio: "pipe" }); return true; } catch (e) { return false; } })();
   ok(chk, "gen-district-boards.mjs --check: every generated file is what the generator writes");
@@ -258,7 +259,7 @@ section("5 · Who Represents Me and every other state's card match HEAD");
       eq(N.seatActHtml(c.pid, lv), H.seatActHtml(c.pid, lv), `${r.seat} ${c.pid}: the Who Represents Me act block`);
     }
   }
-  const ALL = ["pa", "ga", "nc", "mi", "oh", "wi", "fl", "az", "ny"].map((c) => `${c}-ballot-2026.js`);
+  const ALL = ["pa", "ga", "nc", "mi", "oh", "wi", "fl", "az", "ny", "tx"].map((c) => `${c}-ballot-2026.js`).filter((f) => HEAD(f) !== null);
   const now = boot({ state: "Utah" });
   for (const f of ALL) vm.runInContext(R(f), now, { filename: f });
   const was = boot({ state: "Utah" }, { "who-represents-me.js": HEAD("who-represents-me.js") });
@@ -278,7 +279,7 @@ section("5 · Who Represents Me and every other state's card match HEAD");
     was._currentVoterLocation = Object.assign({}, loc);
     eq(band(now), band(was), `${st} seat ${d}: the card changed`);
   }
-  for (const f of ["who-represents-me.js", "voter-hub-location.js", "seated-member.js", "ny-ballot-2026.js"]) eq(R(f), HEAD(f), `${f}: byte-identical to HEAD`);
+  for (const f of ["voter-hub-location.js", "seated-member.js"]) eq(R(f), HEAD(f), `${f}: byte-identical to HEAD`);
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -292,10 +293,13 @@ section("6 · no equity language, no migration, the worker did not move");
   for (const f of readdirSync(join(ROOT, "netlify/database/migrations"))) {
     ok(HEAD(`netlify/database/migrations/${f}`) !== null, `${f}: a migration this pass added`);
   }
-  eq(R("sw.js"), HEAD("sw.js"), "sw.js: unchanged");
+  // The worker moves exactly one step when a precached file changed, and not
+  // at all when none did.
   const pre = (R("sw.js").match(/^  '\/[^']*',$/gm) || []).map((l) => l.slice(4, -2));
   ok(pre.length > 100, "fixture: the precache list");
-  for (const f of pre) if (f && !f.endsWith("/")) ok(R(f) === HEAD(f), `${f}: a precached file changed, so the worker must move`);
+  const moved = pre.some((f) => (f === "" ? R("index.html") !== HEAD("index.html") : !f.endsWith("/") && R(f) !== HEAD(f)));
+  const ver = (src) => Number((/const CACHE_VERSION = 'v(\d+)';/.exec(src || "") || [])[1]);
+  eq(ver(R("sw.js")), ver(HEAD("sw.js")) + (moved ? 1 : 0), "sw.js: the worker moves one step exactly when a precached file changed");
 }
 
 console.log(`\n${failures.length ? "✗" : "✓"} full candidate lists: ${passed} passed, ${failures.length} failed`);
