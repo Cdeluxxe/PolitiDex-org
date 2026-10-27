@@ -158,15 +158,16 @@ section("4 · the other 47 states and D.C. are identical to HEAD's");
     "Rhode Island", "South Carolina", "South Dakota", "Texas", "Utah", "Vermont", "Virginia", "Washington",
     "West Virginia", "Wisconsin", "Wyoming", "District of Columbia"];
   eq(STATES.length, 48, "fixture: not 47 states and D.C.");
-  // Wisconsin's contested-race members (wi-ballot-2026.js) were seated by a
-  // later pass; their seats are held by test-wi-contested-cycle.mjs.
-  const LATER = new Set(["Wisconsin"]);
+  // Wisconsin's and Minnesota's contested-race members (wi-ballot-2026.js,
+  // mn-ballot-2026.js) were seated by later passes; their seats are held by
+  // test-wi-contested-cycle.mjs and test-mn-contested-cycle.mjs.
+  const LATER = new Set(["Wisconsin", "Minnesota"]);
   for (let i = STATES.length - 1; i >= 0; i--) if (LATER.has(STATES[i])) STATES.splice(i, 1);
   const now = boot(at("Utah", "Layton", "Davis County", "2", "7", "16"));
   const was = boot(at("Utah", "Layton", "Davis County", "2", "7", "16"), { "cmp-data.js": headData });
   const ctx = (src) => { const w = {}; w.window = w; vm.createContext(w); vm.runInContext(src, w); return w.CMP_DATA; };
   const A = ctx(R("cmp-data.js")), B = ctx(headData);
-  const OURS = /^(Tennessee|Indiana|Missouri|Wisconsin)\b/;
+  const OURS = /^(Tennessee|Indiana|Missouri|Wisconsin|Minnesota)\b/;
   const outside = (T) => Object.keys(T).filter((k) => !OURS.test(String(T[k].state || ""))).sort();
   eq(JSON.stringify(outside(A)), JSON.stringify(outside(B)), "roster: rows outside the three states were added or removed");
   for (const k of outside(B)) if (JSON.stringify(A[k]) !== JSON.stringify(B[k])) ok(false, `roster: ${k} changed`);

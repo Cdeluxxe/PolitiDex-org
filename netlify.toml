@@ -666,6 +666,19 @@
 # rules are after it and cannot match either of its two paths. Every
 # same-origin path inside both documents is root-absolute for the reason given
 # beside /ballot/ above.
+# Minnesota's contested legislative seats, Nov. 3, 2026 (mn-ballot-2026.js)
+[[redirects]]
+  from = "/ballot/mn"
+  to = "/ballot-mn.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/mn/"
+  to = "/ballot-mn.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/mn.html"
+  to = "/ballot-mn.html"
+  status = 200
 # Illinois's contested legislative seats, Nov. 3, 2026 (il-ballot-2026.js)
 [[redirects]]
   from = "/ballot/il"
@@ -9421,6 +9434,272 @@
 [[redirects]]
   from = "/district/mi-hd-61.html"
   to = "/district-mi-hd-61.html"
+  status = 200
+
+# Minnesota Senate District 3 — hauschild_mn
+[[redirects]]
+  from = "/district/mn-sd-3"
+  to = "/district-mn-sd-3.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-sd-3/"
+  to = "/district-mn-sd-3.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-sd-3.html"
+  to = "/district-mn-sd-3.html"
+  status = 200
+
+# Minnesota Senate District 4 — kupec_mn
+[[redirects]]
+  from = "/district/mn-sd-4"
+  to = "/district-mn-sd-4.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-sd-4/"
+  to = "/district-mn-sd-4.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-sd-4.html"
+  to = "/district-mn-sd-4.html"
+  status = 200
+
+# Minnesota Senate District 14 — putnam_mn
+[[redirects]]
+  from = "/district/mn-sd-14"
+  to = "/district-mn-sd-14.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-sd-14/"
+  to = "/district-mn-sd-14.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-sd-14.html"
+  to = "/district-mn-sd-14.html"
+  status = 200
+
+# Minnesota Senate District 32 — kreun_mn
+[[redirects]]
+  from = "/district/mn-sd-32"
+  to = "/district-mn-sd-32.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-sd-32/"
+  to = "/district-mn-sd-32.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-sd-32.html"
+  to = "/district-mn-sd-32.html"
+  status = 200
+
+# Minnesota Senate District 33 — housley_mn
+[[redirects]]
+  from = "/district/mn-sd-33"
+  to = "/district-mn-sd-33.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-sd-33/"
+  to = "/district-mn-sd-33.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-sd-33.html"
+  to = "/district-mn-sd-33.html"
+  status = 200
+
+# Minnesota Senate District 35 — abeler_mn
+[[redirects]]
+  from = "/district/mn-sd-35"
+  to = "/district-mn-sd-35.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-sd-35/"
+  to = "/district-mn-sd-35.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-sd-35.html"
+  to = "/district-mn-sd-35.html"
+  status = 200
+
+# Minnesota Senate District 41 — seeberger_mn
+[[redirects]]
+  from = "/district/mn-sd-41"
+  to = "/district-mn-sd-41.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-sd-41/"
+  to = "/district-mn-sd-41.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-sd-41.html"
+  to = "/district-mn-sd-41.html"
+  status = 200
+
+# Minnesota Senate District 48 — julia_coleman_mn
+[[redirects]]
+  from = "/district/mn-sd-48"
+  to = "/district-mn-sd-48.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-sd-48/"
+  to = "/district-mn-sd-48.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-sd-48.html"
+  to = "/district-mn-sd-48.html"
+  status = 200
+
+# Minnesota House District 3B — zeleznikar_mn
+[[redirects]]
+  from = "/district/mn-hd-6"
+  to = "/district-mn-hd-6.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-hd-6/"
+  to = "/district-mn-hd-6.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-hd-6.html"
+  to = "/district-mn-hd-6.html"
+  status = 200
+
+# Minnesota House District 18A — erica_schwartz_mn
+[[redirects]]
+  from = "/district/mn-hd-35"
+  to = "/district-mn-hd-35.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-hd-35/"
+  to = "/district-mn-hd-35.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-hd-35.html"
+  to = "/district-mn-hd-35.html"
+  status = 200
+
+# Minnesota House District 32A — nolan_west_mn
+[[redirects]]
+  from = "/district/mn-hd-63"
+  to = "/district-mn-hd-63.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-hd-63/"
+  to = "/district-mn-hd-63.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-hd-63.html"
+  to = "/district-mn-hd-63.html"
+  status = 200
+
+# Minnesota House District 32B — norris_mn
+[[redirects]]
+  from = "/district/mn-hd-64"
+  to = "/district-mn-hd-64.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-hd-64/"
+  to = "/district-mn-hd-64.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-hd-64.html"
+  to = "/district-mn-hd-64.html"
+  status = 200
+
+# Minnesota House District 34A — nadeau_mn
+[[redirects]]
+  from = "/district/mn-hd-67"
+  to = "/district-mn-hd-67.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-hd-67/"
+  to = "/district-mn-hd-67.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-hd-67.html"
+  to = "/district-mn-hd-67.html"
+  status = 200
+
+# Minnesota House District 35A — stephenson_mn
+[[redirects]]
+  from = "/district/mn-hd-69"
+  to = "/district-mn-hd-69.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-hd-69/"
+  to = "/district-mn-hd-69.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-hd-69.html"
+  to = "/district-mn-hd-69.html"
+  status = 200
+
+# Minnesota House District 35B — rehrauer_mn
+[[redirects]]
+  from = "/district/mn-hd-70"
+  to = "/district-mn-hd-70.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-hd-70/"
+  to = "/district-mn-hd-70.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-hd-70.html"
+  to = "/district-mn-hd-70.html"
+  status = 200
+
+# Minnesota House District 41A — wayne_johnson_mn
+[[redirects]]
+  from = "/district/mn-hd-81"
+  to = "/district-mn-hd-81.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-hd-81/"
+  to = "/district-mn-hd-81.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-hd-81.html"
+  to = "/district-mn-hd-81.html"
+  status = 200
+
+# Minnesota House District 45A — andrew_myers_mn
+[[redirects]]
+  from = "/district/mn-hd-89"
+  to = "/district-mn-hd-89.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-hd-89/"
+  to = "/district-mn-hd-89.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-hd-89.html"
+  to = "/district-mn-hd-89.html"
+  status = 200
+
+# Minnesota House District 48B — rehm_mn
+[[redirects]]
+  from = "/district/mn-hd-96"
+  to = "/district-mn-hd-96.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-hd-96/"
+  to = "/district-mn-hd-96.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-hd-96.html"
+  to = "/district-mn-hd-96.html"
+  status = 200
+
+# Minnesota House District 54A — tabke_mn
+[[redirects]]
+  from = "/district/mn-hd-107"
+  to = "/district-mn-hd-107.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-hd-107/"
+  to = "/district-mn-hd-107.html"
+  status = 200
+[[redirects]]
+  from = "/district/mn-hd-107.html"
+  to = "/district-mn-hd-107.html"
   status = 200
 
 # New York Senate District 43 — ashby_ny

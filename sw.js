@@ -11009,7 +11009,24 @@
 //     files are unchanged, and no new file is precached.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v479';
+// v480 - MINNESOTA, ONE CONTESTED CYCLE (NOV. 3, 2026).
+//     mn-ballot-2026.js holds the nineteen State Senate and State House races
+//     MPR News names as competitive with a sitting member running, every name
+//     the Secretary of State lists for each, and the formal acts on file for
+//     the people in them, each a recorded floor vote read from the House roll
+//     call on house.mn.gov or the Journal of the Senate on senate.mn and
+//     linked to it, each measure with one effect line. Who Represents Me
+//     prints one act under a sitting member in those races; /ballot/mn is the
+//     ballot view; the nineteen seats open read-only District Voice boards
+//     that print their race, the House seats by their lettered names. '/'
+//     loads the act line and counts the nineteen boards; it, find.html,
+//     voice.html, cmp-data.js (twenty-one identity-only Minnesota shells),
+//     district-board.js and district-voice.js are precached and changed, so
+//     the shell moves one version. voter-hub-location.js and the eleven
+//     earlier states' files are unchanged, and no new file is precached.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v480';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

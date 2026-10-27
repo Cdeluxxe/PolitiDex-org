@@ -33087,6 +33087,142 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
  },
+// ── Sitting Minnesota legislators in the contested 2026 races (mn-ballot-2026.js, Oct 2026)
+// One row for each incumbent in a contested Minnesota State Senate or State
+// House race on the November 3, 2026 ballot, and for the two challengers who
+// sit in the House today (Bernie Perryman, Senate 14; Tom Dippel, Senate 41),
+// so the seat card can name who holds the seat. Identity only: the name, the
+// office, the state and the district, read off the Legislature's own member
+// lists (house.mn.gov/members/list and senate.mn/members), and
+// `candidate: false` (in office). The House's seats are lettered, written
+// "HD 3B", which the seat resolver reads through its lettered-seat table. No
+// party, bio, score or stances; the formal acts live in mn-ballot-2026.js.
+ "hauschild_mn": {
+  "name": "Grant Hauschild", "office": "Minnesota State Senator",
+  "state": "Minnesota", "district": "SD 3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kupec_mn": {
+  "name": "Robert J. Kupec", "office": "Minnesota State Senator",
+  "state": "Minnesota", "district": "SD 4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "putnam_mn": {
+  "name": "Aric Putnam", "office": "Minnesota State Senator",
+  "state": "Minnesota", "district": "SD 14", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kreun_mn": {
+  "name": "Michael E. Kreun", "office": "Minnesota State Senator",
+  "state": "Minnesota", "district": "SD 32", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "housley_mn": {
+  "name": "Karin Housley", "office": "Minnesota State Senator",
+  "state": "Minnesota", "district": "SD 33", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "abeler_mn": {
+  "name": "Jim Abeler", "office": "Minnesota State Senator",
+  "state": "Minnesota", "district": "SD 35", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "seeberger_mn": {
+  "name": "Judy Seeberger", "office": "Minnesota State Senator",
+  "state": "Minnesota", "district": "SD 41", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "julia_coleman_mn": {
+  "name": "Julia E. Coleman", "office": "Minnesota State Senator",
+  "state": "Minnesota", "district": "SD 48", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "zeleznikar_mn": {
+  "name": "Natalie Zeleznikar", "office": "Minnesota State Representative",
+  "state": "Minnesota", "district": "HD 3B", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "perryman_mn": {
+  "name": "Bernie Perryman", "office": "Minnesota State Representative",
+  "state": "Minnesota", "district": "HD 14A", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "erica_schwartz_mn": {
+  "name": "Erica Schwartz", "office": "Minnesota State Representative",
+  "state": "Minnesota", "district": "HD 18A", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nolan_west_mn": {
+  "name": "Nolan West", "office": "Minnesota State Representative",
+  "state": "Minnesota", "district": "HD 32A", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "norris_mn": {
+  "name": "Matt Norris", "office": "Minnesota State Representative",
+  "state": "Minnesota", "district": "HD 32B", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nadeau_mn": {
+  "name": "Danny Nadeau", "office": "Minnesota State Representative",
+  "state": "Minnesota", "district": "HD 34A", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "stephenson_mn": {
+  "name": "Zack Stephenson", "office": "Minnesota State Representative",
+  "state": "Minnesota", "district": "HD 35A", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rehrauer_mn": {
+  "name": "Kari Rehrauer", "office": "Minnesota State Representative",
+  "state": "Minnesota", "district": "HD 35B", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wayne_johnson_mn": {
+  "name": "Wayne Johnson", "office": "Minnesota State Representative",
+  "state": "Minnesota", "district": "HD 41A", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dippel_mn": {
+  "name": "Tom Dippel", "office": "Minnesota State Representative",
+  "state": "Minnesota", "district": "HD 41B", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "andrew_myers_mn": {
+  "name": "Andrew Myers", "office": "Minnesota State Representative",
+  "state": "Minnesota", "district": "HD 45A", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rehm_mn": {
+  "name": "Lucy Rehm", "office": "Minnesota State Representative",
+  "state": "Minnesota", "district": "HD 48B", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tabke_mn": {
+  "name": "Brad Tabke", "office": "Minnesota State Representative",
+  "state": "Minnesota", "district": "HD 54A", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
 // ── Current candidates outside Utah, 2026 general election, official state lists (Oct 2026)
 // Every nominee on the November 3, 2026 general-election ballot for U.S. Senate,
 // U.S. House, and the statewide offices the roster already tracks (Governor,

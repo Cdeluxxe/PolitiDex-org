@@ -3432,6 +3432,16 @@ export const DECLARED_ADMISSIONS = [
     pids: JSON.parse(_readFileSync(new URL("../db/roster-state-legislators-tn-in-mo-2026-oct.json", import.meta.url), "utf8")).rows.map((r) => r.pid),
   },
   {
+    // The sitting Minnesota members in the contested 2026 races
+    // (mn-ballot-2026.js): one identity row each, read off the Legislature's
+    // own member lists, including the two House members running for Senate.
+    wave: "mn_contested_cycle_oct2026",
+    banner: "// ── Sitting Minnesota legislators in the contested 2026 races (mn-ballot-2026.js, Oct 2026)",
+    pids: ["hauschild_mn", "kupec_mn", "putnam_mn", "kreun_mn", "housley_mn", "abeler_mn", "seeberger_mn", "julia_coleman_mn",
+      "zeleznikar_mn", "perryman_mn", "erica_schwartz_mn", "nolan_west_mn", "norris_mn", "nadeau_mn", "stephenson_mn",
+      "rehrauer_mn", "wayne_johnson_mn", "dippel_mn", "andrew_myers_mn", "rehm_mn", "tabke_mn"],
+  },
+  {
     // Too many rows to type here, so the list is the committed record of
     // the pass itself, which also names each state's official source.
     wave: "candidates_outside_utah_oct2026",

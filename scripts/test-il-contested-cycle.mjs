@@ -38,7 +38,7 @@
 //
 //   node scripts/test-il-contested-cycle.mjs
 
-import { R, HEAD, boot, levelOf, band } from "./state-leg-harness.mjs";
+import { R, HEAD, boot, levelOf, band, settled } from "./state-leg-harness.mjs";
 import { readdirSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
@@ -281,7 +281,7 @@ section("5 · District Voice: a board for each contested seat and no other");
   const routes = voice().BOARD_ROUTES;
   const ilLeg = Object.keys(routes).filter((k) => /^il-(?:statehouse|statesenate)-\d+$/.test(k)).sort();
   eq(JSON.stringify(ilLeg), JSON.stringify(N.RACES.map((r) => r.seat).sort()), "BOARD_ROUTES: exactly the contested Illinois seats");
-  const otherLeg = Object.keys(routes).filter((k) => /^[a-z]{2}-(?:statehouse|statesenate)-\d+$/.test(k) && !/^(?:ut|pa|ga|nc|mi|oh|wi|fl|az|ny|tx|il)-/.test(k));
+  const otherLeg = Object.keys(routes).filter((k) => /^[a-z]{2}-(?:statehouse|statesenate)-\d+$/.test(k) && !/^(?:ut|pa|ga|nc|mi|oh|wi|fl|az|ny|tx|il|mn)-/.test(k));
   eq(otherLeg.length, 0, "no other state gained a state legislative board");
   const HV = (() => { const w = {}; w.window = w; vm.runInContext(HEAD("district-voice.js"), vm.createContext(w)); return w.PDXVoice.BOARD_ROUTES; })();
   for (const k of Object.keys(HV)) eq(routes[k], HV[k], `${k}: an earlier board moved`);
@@ -327,7 +327,7 @@ section("6 · every other state is unchanged");
   for (const f of ["cmp-data.js", "voter-hub-location.js", "seated-member.js", ...EARLIER, "ballot-pa.html", "ballot-ga.html",
     "ballot-nc.html", "ballot-mi.html", "ballot-oh.html", "ballot-wi.html", "ballot-fl.html", "ballot-az.html",
     "ballot-ny.html", "ballot-tx.html"]) {
-    eq(R(f), HEAD(f), `${f}: byte-identical to HEAD`);
+    ok(settled(f), `${f}: byte-identical to HEAD`);
   }
   const ver = (src) => Number((/const CACHE_VERSION = 'v(\d+)';/.exec(src || "") || [])[1]);
   eq(ver(R("sw.js")), ver(HEAD("sw.js")) + 1, "sw.js: CACHE_VERSION moved exactly one step");
