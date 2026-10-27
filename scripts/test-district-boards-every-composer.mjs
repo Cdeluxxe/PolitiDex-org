@@ -333,10 +333,15 @@ section("6 · no equity, stock or share language on any board");
 // ═════════════════════════════════════════════════════════════════════════════
 const BANNED = /\bstocks?\b|\bshares?\b|\bshareholders?\b|\bequity\b|\binvest(?:or|ors|ment|ments|ing)?\b|\bdividends?\b|\bform\s*c\b|\bownership\b/i;
 const live = (s) => s.replace(/<!--[\s\S]*?-->/g, "").replace(/<script[\s\S]*?<\/script>/g, "").replace(/<style[\s\S]*?<\/style>/g, "");
+// A candidate's NAME, as a contested board's printed race lists it from the
+// official ballot (North Carolina Senate 18's Chris Stock), is a name and not
+// copy about the board, so the name slots of a race are set aside.
+const names = (s) => s.replace(/<(a|span) class="pdxpa-name"[^>]*>[^<]*<\/\1>/g, " ")
+  .replace(/<a [^>]*>Open [^<]*’s file ›<\/a>/g, " ");
 const bad = DOCS.concat(["scripts/district-board.template.html"]).filter((f) => {
   // An issue LABEL ("Invest in Public Schools") is the vocabulary's own word,
   // not copy about the board, and is never in the served markup.
-  return BANNED.test(live(R(f)).replace(/<[^>]+>/g, " "));
+  return BANNED.test(names(live(R(f))).replace(/<[^>]+>/g, " "));
 });
 eq(bad.length, 0, `no banned word in any board's served copy — ${JSON.stringify(bad)}`);
 {

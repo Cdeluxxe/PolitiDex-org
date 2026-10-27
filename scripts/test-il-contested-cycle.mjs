@@ -38,7 +38,7 @@
 //
 //   node scripts/test-il-contested-cycle.mjs
 
-import { R, HEAD, boot, levelOf, band } from "./state-leg-harness.mjs";
+import { R, HEAD, boot, levelOf, band, settled, DECLARED_MIGRATIONS } from "./state-leg-harness.mjs";
 import { readdirSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
@@ -281,7 +281,7 @@ section("5 · District Voice: a board for each contested seat and no other");
   const routes = voice().BOARD_ROUTES;
   const ilLeg = Object.keys(routes).filter((k) => /^il-(?:statehouse|statesenate)-\d+$/.test(k)).sort();
   eq(JSON.stringify(ilLeg), JSON.stringify(N.RACES.map((r) => r.seat).sort()), "BOARD_ROUTES: exactly the contested Illinois seats");
-  const otherLeg = Object.keys(routes).filter((k) => /^[a-z]{2}-(?:statehouse|statesenate)-\d+$/.test(k) && !/^(?:ut|pa|ga|nc|mi|oh|wi|fl|az|ny|tx|il)-/.test(k));
+  const otherLeg = Object.keys(routes).filter((k) => /^[a-z]{2}-(?:statehouse|statesenate)-\d+$/.test(k) && !/^(?:ut|pa|ga|nc|mi|oh|wi|fl|az|ny|tx|il|mn|co|nv)-/.test(k));
   eq(otherLeg.length, 0, "no other state gained a state legislative board");
   const HV = (() => { const w = {}; w.window = w; vm.runInContext(HEAD("district-voice.js"), vm.createContext(w)); return w.PDXVoice.BOARD_ROUTES; })();
   for (const k of Object.keys(HV)) eq(routes[k], HV[k], `${k}: an earlier board moved`);
@@ -292,7 +292,9 @@ section("5 · District Voice: a board for each contested seat and no other");
   for (const r of N.RACES) {
     const alias = `il-${r.chamber === "statesenate" ? "sd" : "hd"}-${r.district}`;
     eq(routes[r.seat], `/district/${alias}`, `${r.seat}: the board's address`);
-    eq((B.board(alias) || {}).composer, false, `${alias}: read-only`);
+    // The contested-boards voice pass opened the composer and the poll here,
+    // behind the gate every voiced board shares.
+    eq((B.board(alias) || {}).composer, true, `${alias}: takes a voice`);
     const doc = `district-${alias}.html`;
     if (!ok(existsSync(join(ROOT, doc)), `${doc}: on disk`)) continue;
     const h = R(doc);
@@ -310,9 +312,14 @@ section("5 · District Voice: a board for each contested seat and no other");
   for (const f of readdirSync(ROOT).filter((f) => /^district-(?!il-(?:hd|sd)-).*\.html$/.test(f))) {
     if (R(f).indexOf("data-pdxil-seat=") >= 0) ok(false, `${f}: a board outside the races carries an Illinois race block`);
   }
-  for (const f of ["district-composer.js", "district-poll.js", "netlify/lib/district-board-voice-core.mjs"]) {
-    lacks(R(f), "il-hd-", `${f}: no Illinois composer row`);
-    lacks(R(f), "il-sd-", `${f}: no Illinois composer row`);
+  // Exactly the contested seats are on the composer's three lists (the
+  // contested-boards voice pass), and no other Illinois legislative seat.
+  {
+    const want = N.RACES.map((r) => `il-${r.chamber === "statesenate" ? "sd" : "hd"}-${r.district}`).sort();
+    for (const f of ["district-composer.js", "district-poll.js", "netlify/lib/district-board-voice-core.mjs"]) {
+      const got = [...new Set([...R(f).matchAll(/["'](il-(?:hd|sd)-\d+)["']/g)].map((x) => x[1]))].sort();
+      eq(JSON.stringify(got), JSON.stringify(want), `${f}: exactly the contested Illinois seats take a voice`);
+    }
   }
   for (const f of readdirSync(ROOT).filter((f) => /^district-(?:pa|ga|nc|mi|oh|wi|fl|az|ny|tx)-(?:hd|sd)-\d+\.html$/.test(f))) eq(R(f), HEAD(f), `${f}: moved`);
   for (const f of readdirSync(ROOT).filter((f) => /^district-il-(?:cd-\d+|us-senate-.*)\.html$/.test(f))) eq(R(f), HEAD(f), `${f}: moved`);
@@ -327,14 +334,14 @@ section("6 · every other state is unchanged");
   for (const f of ["cmp-data.js", "voter-hub-location.js", "seated-member.js", ...EARLIER, "ballot-pa.html", "ballot-ga.html",
     "ballot-nc.html", "ballot-mi.html", "ballot-oh.html", "ballot-wi.html", "ballot-fl.html", "ballot-az.html",
     "ballot-ny.html", "ballot-tx.html"]) {
-    eq(R(f), HEAD(f), `${f}: byte-identical to HEAD`);
+    ok(settled(f), `${f}: byte-identical to HEAD`);
   }
   const ver = (src) => Number((/const CACHE_VERSION = 'v(\d+)';/.exec(src || "") || [])[1]);
   eq(ver(R("sw.js")), ver(HEAD("sw.js")) + 1, "sw.js: CACHE_VERSION moved exactly one step");
   const pre = (src) => (src.match(/^  '\/[^']*',$/gm) || []).sort().join("\n");
   eq(pre(R("sw.js")), pre(HEAD("sw.js")), "sw.js: the precache list is unchanged");
   for (const f of readdirSync(join(ROOT, "netlify/database/migrations"))) {
-    ok(HEAD(`netlify/database/migrations/${f}`) !== null, `${f}: a migration this pass added`);
+    ok(HEAD(`netlify/database/migrations/${f}`) !== null || DECLARED_MIGRATIONS.includes(f), `${f}: a migration this pass added`);
   }
   const STATES = ["Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida",
     "Georgia", "Hawaii", "Idaho", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland",

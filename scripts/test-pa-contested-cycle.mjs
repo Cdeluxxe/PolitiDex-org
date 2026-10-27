@@ -29,7 +29,7 @@
 //
 //   node scripts/test-pa-contested-cycle.mjs
 
-import { R, HEAD, boot, levelOf, band, settled } from "./state-leg-harness.mjs";
+import { R, HEAD, boot, levelOf, band, settled, DECLARED_MIGRATIONS } from "./state-leg-harness.mjs";
 import { readdirSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
@@ -227,7 +227,7 @@ section("5 · District Voice: a board for each contested seat and no other");
   const paLeg = Object.keys(routes).filter((k) => /^pa-(?:statehouse|statesenate)-\d+$/.test(k)).sort();
   eq(JSON.stringify(paLeg), JSON.stringify(P.RACES.map((r) => r.seat).sort()), "BOARD_ROUTES: exactly the contested Pennsylvania seats");
   // Georgia's contested seats are held by test-ga-contested-cycle.mjs.
-  const otherLeg = Object.keys(routes).filter((k) => /^[a-z]{2}-(?:statehouse|statesenate)-\d+$/.test(k) && !/^(?:ut|pa|ga|nc|mi|oh|wi|fl|az|ny|tx|il)-/.test(k));
+  const otherLeg = Object.keys(routes).filter((k) => /^[a-z]{2}-(?:statehouse|statesenate)-\d+$/.test(k) && !/^(?:ut|pa|ga|nc|mi|oh|wi|fl|az|ny|tx|il|mn|co|nv)-/.test(k));
   eq(otherLeg.length, 0, "no other state gained a state legislative board");
   for (const r of P.RACES) {
     const alias = `pa-${r.chamber === "statesenate" ? "sd" : "hd"}-${r.district}`;
@@ -245,9 +245,14 @@ section("5 · District Voice: a board for each contested seat and no other");
     if (R(f).indexOf("data-pdxpa-seat=") >= 0) ok(false, `${f}: a board outside the races carries a Pennsylvania race block`);
   }
   // Read-only: none of them is on a composer list.
-  for (const f of ["district-composer.js", "district-poll.js", "netlify/lib/district-board-voice-core.mjs"]) {
-    lacks(R(f), "pa-hd-", `${f}: no Pennsylvania composer row`);
-    lacks(R(f), "pa-sd-", `${f}: no Pennsylvania composer row`);
+  // Exactly the contested seats are on the composer's three lists (the
+  // contested-boards voice pass), and no other Pennsylvania legislative seat.
+  {
+    const want = P.RACES.map((r) => `pa-${r.chamber === "statesenate" ? "sd" : "hd"}-${r.district}`).sort();
+    for (const f of ["district-composer.js", "district-poll.js", "netlify/lib/district-board-voice-core.mjs"]) {
+      const got = [...new Set([...R(f).matchAll(/["'](pa-(?:hd|sd)-\d+)["']/g)].map((x) => x[1]))].sort();
+      eq(JSON.stringify(got), JSON.stringify(want), `${f}: exactly the contested Pennsylvania seats take a voice`);
+    }
   }
   const chk = (() => { try { execFileSync("node", ["scripts/gen-district-boards.mjs", "--check"], { cwd: ROOT, stdio: "pipe" }); return true; } catch (e) { return false; } })();
   ok(chk, "gen-district-boards.mjs --check: every generated file is what the generator writes");
@@ -269,7 +274,7 @@ section("6 · the other 49 states are unchanged");
   eq(pre(R("sw.js")), pre(HEAD("sw.js")), "sw.js: the precache list is unchanged");
   // A migration this pass added would have no copy at HEAD.
   for (const f of readdirSync(join(ROOT, "netlify/database/migrations"))) {
-    ok(HEAD(`netlify/database/migrations/${f}`) !== null, `${f}: a migration this pass added`);
+    ok(HEAD(`netlify/database/migrations/${f}`) !== null || DECLARED_MIGRATIONS.includes(f), `${f}: a migration this pass added`);
   }
   const STATES = ["Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida",
     "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland",

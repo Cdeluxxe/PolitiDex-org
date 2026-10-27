@@ -5,7 +5,7 @@
 // What must stay true:
 //
 //   1. THE HOMEPAGE CARD AND /voice each carry one gold line, "Membership lifts
-//      the monthly cap for verified residents.", linking to /me#membership —
+//      the daily cap for verified residents.", linking to /me#membership —
 //      under the card's body and under the hallway's intro — and /me has that
 //      #membership anchor inside its membership block.
 //   2. ON A BOARD, a signed-in reader GET /api/membership calls not a member
@@ -42,7 +42,7 @@ const eq = (a, b, m) => ok(a === b, `${m} — expected ${JSON.stringify(b)}, got
 const section = (t) => console.log(`\n   ── ${t}`);
 const flush = async (n = 12) => { for (let i = 0; i < n; i++) await new Promise((r) => setImmediate(r)); };
 
-const LINE = "Membership lifts the monthly cap for verified residents.";
+const LINE = "Membership lifts the daily cap for verified residents.";
 const HREF = "/me#membership";
 const LINK = `<a href="${HREF}">${LINE}</a>`;
 const EQUITY = /\bequity\b|\bstocks?\b|\bshares?\b|\bshareholders?\b|\bearn(?:s|ed|ing|ings)?\b|\binvest/i;

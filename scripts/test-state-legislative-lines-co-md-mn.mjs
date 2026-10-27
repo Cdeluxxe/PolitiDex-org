@@ -28,6 +28,7 @@
 //   node scripts/test-state-legislative-lines-co-md-mn.mjs
 
 import { R, HEAD, MAP, sq, driveFinder, boot, levelOf, band, tigerUrls, layerOf } from "./state-leg-harness.mjs";
+import vm from "node:vm";
 
 let passed = 0;
 const failures = [];
@@ -156,6 +157,16 @@ for (const [p, sd, hd, pid, nm, hl] of NAMED) {
   eq(levelOf(W, "statesenate").pid, null, "Colorado SD 31: a member was invented");
   has(band(W), "District 31 — no member on file yet", "Colorado SD 31: the row does not say nobody is on file");
 }
+// The sitting Minnesota members in the contested 2026 races, read off mn-ballot-2026.js.
+const mnRaceMembers = () => {
+  const w = {}; w.window = w; vm.runInContext(R("mn-ballot-2026.js"), vm.createContext(w));
+  return w.PDXMnBallot.RACES.flatMap((r) => r.field.filter((c) => c.pid).map((c) => c.pid));
+};
+// The sitting Colorado members in the contested 2026 races, read off co-ballot-2026.js.
+const coRaceMembers = () => {
+  const w = {}; w.window = w; vm.runInContext(R("co-ballot-2026.js"), vm.createContext(w));
+  return w.PDXCoBallot.RACES.flatMap((r) => r.field.filter((c) => c.pid).map((c) => c.pid));
+};
 {
   // Every seat in all six chambers.
   const W = boot(at(CO, "1", "1"));
@@ -170,13 +181,19 @@ for (const [p, sd, hd, pid, nm, hl] of NAMED) {
         const rec = W.CMP_DATA[pid];
         ok(rec && String(rec.state).indexOf(st) === 0, `roster: ${pid} is not a ${st} record`);
         ok(rec && /\bstate\b|\bassembly/i.test(rec.office), `roster: ${pid}'s office (${rec && rec.office}) does not name a state chamber`);
-        ok(rec && new RegExp("^(SD|HD|LD)?\\s*" + d + "$").test(String(rec.district || "").trim()), `roster: ${pid}'s record does not name ${ch} ${d}`);
+        // A lettered seat (Minnesota's House) is named by its label, "HD 3B".
+        const seatName = RES.pdxLegChamberNamed(st, ch) ? RES.pdxLegDistrictName(st, ch, d).replace(/^District /, "") : String(d);
+        ok(rec && new RegExp("^(SD|HD|LD)?\\s*" + seatName + "$").test(String(rec.district || "").trim()), `roster: ${pid}'s record does not name ${ch} ${seatName}`);
         eq(W.pdxSeatClaim(pid, ch, d) === "mismatch", false, `roster: ${pid} seated in ${st} ${ch} ${d}, which its record contradicts`);
       }
     }
   }
   eq(JSON.stringify([...named].sort()),
-    JSON.stringify(["bobby_joe_champion", "cleave_simpson", "mark_johnson_mn", "nancy_king", "robert_rodriguez_co", "steve_hershey"]),
+    JSON.stringify(["bobby_joe_champion", "cleave_simpson", "mark_johnson_mn", "nancy_king", "robert_rodriguez_co", "steve_hershey",
+      // The sitting Minnesota members in the contested 2026 races (mn-ballot-2026.js).
+      ...mnRaceMembers(),
+      // …and the sitting Colorado members in theirs (co-ballot-2026.js).
+      ...coRaceMembers()].sort()),
     "roster: the members the lookup can name are not exactly the district-keyed state legislators on file");
   // Leaders whose records name no district, and U.S. House members whose titles
   // say "House", are never placed in a legislative seat.

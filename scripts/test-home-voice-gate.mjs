@@ -128,7 +128,7 @@ section("1 · one anchor, and its address is /voice");
 // this paragraph, pointing at /me#membership. It is set aside before the door
 // is counted, so the card is still one card with one door to /voice, and any
 // other anchor added to it still fails.
-const MEMBER_P = /<p class="pdxvm-member" data-pdxvm-member="1"><a href="\/me#membership">Membership lifts the monthly cap for verified residents\.<\/a><\/p>/;
+const MEMBER_P = /<p class="pdxvm-member" data-pdxvm-member="1"><a href="\/me#membership">Membership lifts the daily cap for verified residents\.<\/a><\/p>/;
 eq((GATE.match(new RegExp(MEMBER_P.source, "g")) || []).length, 1, "the card carries the membership line exactly once");
 const DOORS_OF = (g) => String(g).replace(MEMBER_P, "");
 const ANCHORS = [...DOORS_OF(GATE).matchAll(/<a\b[^>]*>(?:(?!<\/a>)[\s\S])*?<\/a>/g)].map((m) => m[0]);
@@ -176,7 +176,7 @@ const UNPLACED = "Find your rooms";
 const PLACED = "See your rooms";
 // The count in this sentence is pinned to BOARD_ROUTES in section 6, not here:
 // this line is the SHAPE of the sentence, and that block is the arithmetic.
-const NOTE = "Six hundred thirty-one seats have a board on file today. Every other seat says the room is not open.";
+const NOTE = "Six hundred sixty-nine seats have a board on file today. Every other seat says the room is not open.";
 
 // The visible copy, with the comments, the style block and the script stripped
 // the way a reader sees it.

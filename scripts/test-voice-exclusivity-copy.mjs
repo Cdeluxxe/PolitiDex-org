@@ -119,7 +119,7 @@ function check(S) {
   need(card.indexOf(SENT.home) >= 0, "home: the three room sentences are missing");
   need(!BANNED_NEW.test(card), "home: the card carries a banned word");
   // The membership line (v428) is the card's one other link; the door is still one anchor.
-  const MEMBER_P = /<p class="pdxvm-member" data-pdxvm-member="1"><a href="\/me#membership">Membership lifts the monthly cap for verified residents\.<\/a><\/p>/;
+  const MEMBER_P = /<p class="pdxvm-member" data-pdxvm-member="1"><a href="\/me#membership">Membership lifts the daily cap for verified residents\.<\/a><\/p>/;
   need((gate.replace(MEMBER_P, "").match(/<a\b/g) || []).length === 1, "home: the card is not one anchor");
   need(/<a class="pdxhv-door"[^>]*href="\/voice"/.test(gate), "home: the one anchor is not /voice");
   need(/\.pdxhv-card\{[^}]*rgba\(245,200,66/.test(gate), "home: the gold edge is gone");

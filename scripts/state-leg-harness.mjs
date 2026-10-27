@@ -20,12 +20,37 @@ import { makeSandbox } from "./gen-hero-showcase.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 export const R = (f) => readFileSync(join(ROOT, f), "utf8");
-export const HEAD = (f) => {
+// DECLARED EDITS TO AN EARLIER CYCLE'S FILES. A later pass may change an
+// earlier state's ballot file only by a change named here, and the baseline
+// every suite compares against is HEAD with exactly these applied — so the
+// change is visible in one place and nothing else in those files may move.
+//   · The contested-boards voice pass retitled Minnesota's HF 2484 from
+//     "Capital investment (bonding), 2026" to "Bonding bill, 2026" (the
+//     Revisor's own one-line description), because a board that takes a voice
+//     carries no investment language. The measure, its effect line, its acts
+//     and its links are unchanged.
+const DECLARED_EDITS = [
+  { file: /^(?:mn-ballot-2026\.js|district-mn-(?:hd|sd)-\d+\.html)$/,
+    from: "Capital investment (bonding), 2026", to: "Bonding bill, 2026" },
+];
+const gitHead = (f) => {
   // maxBuffer: cmp-data.js is past execFileSync's 1 MB default, and a baseline
   // that silently reads null would skip every comparison against it.
   try { return execFileSync("git", ["show", "HEAD:" + f], { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 28, stdio: ["ignore", "pipe", "ignore"] }); }
   catch (e) { return null; }
 };
+export const HEAD = (f) => {
+  let src = gitHead(f);
+  if (src === null) return null;
+  for (const d of DECLARED_EDITS) if (d.file.test(f)) src = src.split(d.from).join(d.to);
+  return src;
+};
+// DECLARED MIGRATIONS. The contested-cycle suites hold that no pass adds a
+// migration. The one exception is named here: the contested-boards voice pass
+// seeds a dd_districts row for each contested board that now takes a voice
+// (rows only, no schema change), because a comment, a vote or a residency row
+// on a seat with no dd_districts row would fail at the foreign key.
+export const DECLARED_MIGRATIONS = ["20261130000000_dd_districts_contested_legislative_board_seats.sql"];
 export const FIND = R("find.html");
 export const MAP = (() => {
   const a = FIND.indexOf("INTERACTIVE UTAH DISTRICT MAP");
@@ -236,10 +261,39 @@ const ballotModule = (src, code) => {
   vm.runInContext(src, vm.createContext(w));
   return w[`PDX${code[0].toUpperCase()}${code[1]}Ballot`];
 };
+// THE CONTESTED-CYCLE ROSTER BLOCKS. Minnesota's, Colorado's and Nevada's
+// passes each added one block of identity-only shells (mn-, co- and
+// nv-ballot-2026.js). With every such block lifted out of both sides,
+// cmp-data.js must be HEAD's byte for byte, and every row in a block must be
+// a sitting member in that state's contested races, and no one else.
+const SHELL_BLOCKS = [
+  { code: "mn", state: "Minnesota" },
+  { code: "co", state: "Colorado" },
+  { code: "nv", state: "Nevada" },
+].map((b) => ({ ...b, re: new RegExp(`// ── Sitting ${b.state} legislators in the contested 2026 races[\\s\\S]*?(?=// ── )`) }));
+function shellBlocksOnly(now, was) {
+  const strip = (src) => SHELL_BLOCKS.reduce((s, b) => s.replace(b.re, ""), src);
+  if (strip(now) !== strip(was)) return false;
+  for (const b of SHELL_BLOCKS) {
+    const m = b.re.exec(now);
+    if (!m) continue;
+    const M = ballotModule(R(`${b.code}-ballot-2026.js`), b.code);
+    const inRace = new Set(M.RACES.flatMap((r) => r.field.filter((c) => c.pid).map((c) => c.pid)));
+    const pids = [...m[0].matchAll(/^ "([a-z0-9_]+)": \{$/gm)].map((x) => x[1]);
+    // Every row in the block is a race member under this state's suffix, and
+    // every race member is either in the block or already on HEAD's roster
+    // (Nevada's Senate 8 incumbent was, and her row is not touched).
+    const inBlock = new Set(pids);
+    if (!(pids.length > 0 && pids.every((p) => inRace.has(p) && p.endsWith(`_${b.code}`)))) return false;
+    if (![...inRace].every((p) => inBlock.has(p) || was.indexOf(`\n "${p}": {`) >= 0)) return false;
+  }
+  return true;
+}
 export function settled(f) {
   const now = R(f), was = HEAD(f);
   if (now === was) return true;
   if (was === null || now === null) return false;
+  if (f === "cmp-data.js") return shellBlocksOnly(now, was);
   const bf = /^([a-z]{2})-ballot-2026\.js$/.exec(f);
   if (bf) {
     const A = ballotModule(now, bf[1]), B = ballotModule(was, bf[1]);

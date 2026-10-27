@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+<!-- ══════════════════════════════════════════════════════════════════════════════
+     ballot-nv.html — /ballot/nv: your Nevada legislative ballot, Nov. 3, 2026
+     ────────────────────────────────────────────────────────────────────────────
+     ONE VIEW, FOUR STEPS. The reader's saved location (set in /find) → the
+     State Senate and State Assembly races on their ballot → each name, with a
+     link to their file and every formal act on file under it, each act with
+     its one effect line → the seat's District Voice board where one is open.
+
+     WHERE EACH FACT COMES FROM. nv-ballot-2026.js holds the races, the acts
+     and the effect lines, each act with the bill's Votes page on NELIS, the
+     Nevada Legislature's own site, that records its floor vote. The seats come from the one resolver (window.pdxRepsForMe) over the
+     roster in cmp-data.js; a seat the roster names nobody for says "District N
+     — no member on file yet", as Who Represents Me does.
+
+     Every same-origin path below is root-absolute, because netlify.toml serves
+     this document at /ballot/nv/ too.
+     ════════════════════════════════════════════════════════════════════════════════ -->
+
+  <title>Your Nevada legislative ballot &middot; November 3, 2026 &middot; PolitiDex</title>
+  <link rel="canonical" href="https://politidex.fyi/ballot/nv" />
+  <meta name="description" content="The contested Nevada State Assembly and State Senate races on the November 3, 2026 ballot, each candidate's formal acts from the Nevada Legislature's own record, and what each act does." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PolitiDex" />
+  <meta property="og:title" content="Your Nevada legislative ballot &middot; PolitiDex" />
+  <meta property="og:description" content="Contested Nevada State Assembly and State Senate races on the November 3, 2026 ballot, with each candidate's formal record." />
+  <meta property="og:url" content="https://politidex.fyi/ballot/nv" />
+  <meta property="og:image" content="https://politidex.fyi/og-image.png" />
+  <meta name="theme-color" content="#0a0f1e" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" onload="this.rel='stylesheet'" />
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" /></noscript>
+
+  <link rel="stylesheet" href="/shell-chrome.css" />
+  <link rel="stylesheet" href="/pa-ballot.css" />
+  <style>
+    /* The chrome measurement every shell declares for itself; see shell-chrome.css. */
+    :root { --pdx-chrome: 3.25rem; color-scheme: dark; }
+    @supports (padding-top: env(safe-area-inset-top)) {
+      :root { --pdx-chrome: calc(3.25rem + env(safe-area-inset-top, 0px)); }
+    }
+    body { padding-top: calc(var(--pdx-chrome) + 0.75rem); background:#0a0f1e; font-family:'Barlow',system-ui,sans-serif; }
+    .pdxpa-head { max-width:46rem; margin:0 auto; padding:1rem 1rem 0; color:#e2e8f0; }
+    .pdxpa-kick { margin:0; font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase; color:#94a3b8; }
+    .pdxpa-h1 { margin:0.2rem 0 0.4rem; font-family:'Bebas Neue','Barlow Condensed',sans-serif; font-size:2.2rem; letter-spacing:0.02em; }
+  </style>
+
+  <script defer src="/cmp-data.js"></script>
+  <script defer src="/voter-hub-location.js"></script>
+  <script defer src="/person-link.js"></script>
+  <script defer src="/district-voice.js"></script>
+  <script defer src="/nv-ballot-2026.js"></script>
+</head>
+<body>
+
+  <header class="pdx-sh-bar">
+    <a class="pdx-sh-wordmark" href="/" title="PolitiDex — the front page">POLITI<span>DEX</span></a>
+    <nav class="pdx-sh-links" aria-label="PolitiDex">
+      <a class="pdx-sh-link" href="/find"><span class="pdx-sh-full">📍 Find My Districts</span><span class="pdx-sh-short">Find</span></a>
+      <a class="pdx-sh-link" href="/ballot"><span class="pdx-sh-full">⭐ Your Ballot</span><span class="pdx-sh-short">Ballot</span></a>
+      <a class="pdx-sh-link" href="/voice"><span class="pdx-sh-full">📣 District Voice</span><span class="pdx-sh-short">Voice</span></a>
+      <a class="pdx-sh-link" href="/"><span class="pdx-sh-full">&larr; Home</span><span class="pdx-sh-short">&larr; Home</span></a>
+    </nav>
+  </header>
+
+  <div class="pdxpa-head">
+    <p class="pdxpa-kick">Nevada &middot; General election &middot; November 3, 2026</p>
+    <h1 class="pdxpa-h1">Your legislative ballot</h1>
+  </div>
+
+  <main id="pdx-nv-ballot" data-pdxnv-boot="waiting">
+    <p class="pdxpa-lede">Reading your saved location&hellip;</p>
+    <noscript>
+      <p class="pdxpa-lede">This page reads the location you saved in the
+        <a href="/find">district finder</a>, so it needs JavaScript. Every
+        formal act it lists links to the page at
+        <a href="https://www.leg.state.nv.us">leg.state.nv.us</a> that records it.</p>
+    </noscript>
+  </main>
+
+</body>
+</html>

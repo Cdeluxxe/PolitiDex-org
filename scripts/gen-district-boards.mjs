@@ -331,13 +331,28 @@ function planFederal(win, boards, skipped) {
 // state the resolver does not map is refused for every one of its seats, and
 // the reason is logged; no geometry, pid or seat is supplied to get past it.
 //
-// THE ROW IS READ-ONLY: `stateLeg`, kept off the composer's three lists and
-// written `composer: false`, so the document prints the seat and the record and
-// takes no comment, no poll vote and no residency claim. `stateLeg` keeps it
-// out of sw.js too, exactly as an out-of-state congressional board is kept out.
+// THE ROW IS READ-ONLY unless its state is on STATE_LEG_VOICED_STATES below:
+// a read-only row is kept off the composer's three lists and written
+// `composer: false`, so the document prints the seat and the record and takes
+// no comment, no poll vote and no residency claim. A voiced row (a contested
+// seat in one of those thirteen states) is on all three lists and written
+// `composer: true`. Either way `stateLeg` keeps it out of sw.js, exactly as an
+// out-of-state congressional board is kept out.
 const STATE_LEG_OFFICE_RE = /\b(?:state\s+senat(?:e|or)|state\s+(?:house|representative|rep\.?|assembly(?:member)?)|assemblymember|house\s+of\s+delegates|delegate)\b/i;
 const STATE_LEG_NOT_SITTING_RE = /\bformer\b|\bex-|\bcandidate\b|\bnominee\b|-elect\b/i;
-function stateLegCandidates(RO, name) {
+// A LETTERED SEAT ("HD 3B" in Minnesota's House) is keyed the way the resolver
+// keys it — its place in the lettered table, from 1 — and printed with its
+// letter. Only a chamber the resolver itself calls lettered is read this way,
+// and only a record that writes a number and a letter; every other record is
+// read exactly as before, so no other state's seat or bytes move.
+function letteredSeat(win, name, chamber, district) {
+  const m = /^\s*(?:HD\s*|District\s+)?([1-9][0-9]?)([A-Z])\s*$/i.exec(String(district == null ? "" : district));
+  if (!m || typeof win.pdxLegChamberNamed !== "function" || !win.pdxLegChamberNamed(name, chamber)) return null;
+  const code = m[1].padStart(2, "0") + m[2].toUpperCase();
+  const key = typeof win.pdxLegDistrictKey === "function" ? win.pdxLegDistrictKey(name, chamber, code) : 0;
+  return key > 0 ? { key, label: m[1] + m[2].toUpperCase() } : null;
+}
+function stateLegCandidates(RO, name, win = {}) {
   const out = [];
   for (const pid of Object.keys(RO)) {
     const row = RO[pid] || {};
@@ -345,6 +360,8 @@ function stateLegCandidates(RO, name) {
     const office = String(row.office || "");
     if (!STATE_LEG_OFFICE_RE.test(office) || STATE_LEG_NOT_SITTING_RE.test(office)) continue;
     const chamber = /senat/i.test(office) ? "statesenate" : "statehouse";
+    const lettered = letteredSeat(win, name, chamber, row.district);
+    if (lettered) { out.push({ pid, row, office, chamber, district: lettered.key, label: lettered.label }); continue; }
     const m = /^\s*(?:(?:SD|HD|AD|LD)\s*|District\s+)?([1-9][0-9]*)[A-Z]?\s*$/i.exec(String(row.district == null ? "" : row.district));
     out.push({ pid, row, office, chamber, district: m ? parseInt(m[1], 10) : 0 });
   }
@@ -388,7 +405,7 @@ export const STATE_LEG_BOARD_REFUSAL = "state legislative boards are not opened 
 // ONE SEAT AT A TIME, WHERE THERE IS A RACE. A state that is not on the list
 // above may still open a board for a single seat when that seat is one of the
 // contested races a state's ballot file holds for the November 3, 2026 ballot
-// (CONTESTED_FILES below — Pennsylvania's, Georgia's, North Carolina's, Michigan's, Ohio's, Wisconsin's, Florida's, Arizona's Senate, New York's, Texas's, then Illinois's) — the seat key is
+// (CONTESTED_FILES below — Pennsylvania's, Georgia's, North Carolina's, Michigan's, Ohio's, Wisconsin's, Florida's, Arizona's Senate, New York's, Texas's, Illinois's, Minnesota's, Colorado's, then Nevada's) — the seat key is
 // read from that file's RACES, never typed here, so a board cannot open for a
 // seat with no race behind it. Every other gate below still applies: the
 // roster names the sitting member, the resolver seats that member on that
@@ -405,6 +422,9 @@ export const CONTESTED_FILES = [
   { code: "ny", file: "ny-ballot-2026.js", global: "PDXNyBallot" },
   { code: "tx", file: "tx-ballot-2026.js", global: "PDXTxBallot" },
   { code: "il", file: "il-ballot-2026.js", global: "PDXIlBallot" },
+  { code: "mn", file: "mn-ballot-2026.js", global: "PDXMnBallot" },
+  { code: "co", file: "co-ballot-2026.js", global: "PDXCoBallot" },
+  { code: "nv", file: "nv-ballot-2026.js", global: "PDXNvBallot" },
 ];
 const contestedModule = (c) => {
   const w = {}; w.window = w;
@@ -420,6 +440,16 @@ export function contestedSeats() {
   return out;
 }
 export const STATE_LEG_BOARD_SEATS = contestedSeats();
+// THE CONTESTED BOARDS THAT TAKE A VOICE. A contested seat's board in one of
+// these thirteen states is on the composer's three lists, so it takes a
+// comment and a poll vote on exactly the gate every other voiced board uses:
+// signed in, a Didit (vendor) residency row for THAT seat, and the shared
+// daily cap (netlify/lib/membership-core.mjs) for a verified non-member. A
+// contested board in any other state on CONTESTED_FILES (Nevada's) stays
+// read-only, and so would any seat a whole-state opening admitted that has no
+// race: a row takes a voice only when its state is here AND its seat is one of
+// STATE_LEG_BOARD_SEATS. Nothing here opens a board.
+export const STATE_LEG_VOICED_STATES = new Set(["pa", "ga", "nc", "mi", "oh", "wi", "fl", "az", "ny", "tx", "il", "mn", "co"]);
 // A lower chamber its state calls the Assembly is named so on its board.
 // Wisconsin and New York are the only ones of these with a board today; the
 // others name no board, so their bytes cannot move.
@@ -428,7 +458,7 @@ export function planStateLegislative(win, boards, skipped, states = FEDERAL_STAT
   const RO = win.CMP_DATA;
   for (const { code, name } of states) {
     const opened = new Map();
-    for (const c of stateLegCandidates(RO, name)) {
+    for (const c of stateLegCandidates(RO, name, win)) {
       const short = c.chamber === "statesenate" ? "sd" : "hd";
       const seat = c.district ? `${code}-${c.chamber}-${c.district}` : `${code}-${c.chamber}`;
       const alias = c.district ? `${code}-${short}-${c.district}` : `${code}-${short}`;
@@ -442,14 +472,15 @@ export function planStateLegislative(win, boards, skipped, states = FEDERAL_STAT
         continue;
       }
       const body = c.chamber === "statesenate" ? "Senate" : (ASSEMBLY_STATES.has(code) ? "Assembly" : "House");
+      const label = c.label || c.district;
       const list = opened.get(seat) || [];
       list.push({
         seat, alias, chamber: c.chamber, district: c.district, pid: c.pid,
-        stateLeg: true, readOnly: true,
+        stateLeg: true, readOnly: !(STATE_LEG_VOICED_STATES.has(code) && boardSeats.has(seat)),
         member: c.row.name, office: c.row.office,
-        h1: `${name} ${body} District ${c.district}`,
-        where: `District ${c.district} as ${name}’s current legislative plan draws it`,
-        kick: `${body} District ${c.district} board`,
+        h1: `${name} ${body} District ${label}`,
+        where: `District ${label} as ${name}’s current legislative plan draws it`,
+        kick: `${body} District ${label} board`,
       });
       opened.set(seat, list);
     }

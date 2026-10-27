@@ -23,10 +23,10 @@
 // issue, computed here and only for a caller the gate let through — never
 // anybody else's. Anyone can read the tallies.
 //
-// ── THE MONTHLY CAP, AFTER THE GATE ─────────────────────────────────────────
-// A verified resident who is not a member gets FIVE poll votes a Mountain-time
-// calendar month on this seat, across its issues (netlify/lib/membership-core.mjs).
-// A vote used is a row cast or changed this month; once five are used, a new or
+// ── THE DAILY CAP, AFTER THE GATE ───────────────────────────────────────────
+// A verified resident who is not a member gets ONE poll vote a Mountain-time
+// calendar day on this seat, across its issues (netlify/lib/membership-core.mjs).
+// A vote used is a row cast or changed today; once it is used, a new or
 // changed vote is 429 with CAP_COPY.vote and writes nothing. Re-sending the vote
 // already on file is answered 200 and writes nothing. The cap is asked only
 // after the residency gate, so a member with no vendor row for this seat is
@@ -36,7 +36,7 @@
 // drives the real handler against an in-memory fake — no database, no network.
 
 import { COMPOSER_SEATS, LOCKED_LINE, composerSeat, gate, seatHash } from "./district-board-voice-core.mjs";
-import { CAP_COPY, MONTHLY_VOTES, memberFor, monthStart } from "./membership-core.mjs";
+import { CAP_COPY, DAILY_VOTES, dayStart, memberFor } from "./membership-core.mjs";
 
 export { COMPOSER_SEATS, LOCKED_LINE };
 
@@ -187,13 +187,13 @@ export async function handle(req, deps) {
       .find((r) => r && issueShape(r.issueKey) === issueKey);
     if (!current || current.choice !== choice) {
       // FAILS CLOSED: no counter means no vote, not an uncapped one.
-      const since = monthStart(deps.now ? deps.now() : new Date());
+      const since = dayStart(deps.now ? deps.now() : new Date());
       const used = typeof deps.countVotesSince === "function"
         ? Number(await deps.countVotesSince(verdict.seatKey, hash, since))
         : Infinity;
-      if (!(used < MONTHLY_VOTES)) return json({ error: CAP_COPY.vote, code: "monthly_cap" }, 429);
-      const wrote = await deps.upsertVote({ ...values, capSince: since, capLimit: MONTHLY_VOTES });
-      if (wrote === false) return json({ error: CAP_COPY.vote, code: "monthly_cap" }, 429);
+      if (!(used < DAILY_VOTES)) return json({ error: CAP_COPY.vote, code: "daily_cap" }, 429);
+      const wrote = await deps.upsertVote({ ...values, capSince: since, capLimit: DAILY_VOTES });
+      if (wrote === false) return json({ error: CAP_COPY.vote, code: "daily_cap" }, 429);
     }
   }
 
