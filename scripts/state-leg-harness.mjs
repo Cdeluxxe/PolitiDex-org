@@ -236,23 +236,33 @@ const ballotModule = (src, code) => {
   vm.runInContext(src, vm.createContext(w));
   return w[`PDX${code[0].toUpperCase()}${code[1]}Ballot`];
 };
-// The one roster block the Minnesota pass added (mn-ballot-2026.js): with it
-// lifted out, cmp-data.js must be HEAD's byte for byte, and every row in it
-// must be a sitting member in one of Minnesota's contested races.
-const MN_SHELLS = /\/\/ ── Sitting Minnesota legislators in the contested 2026 races[\s\S]*?(?=\/\/ ── Current candidates outside Utah)/;
-function mnShellsOnly(now, was) {
-  const m = MN_SHELLS.exec(now);
-  if (!m || now.replace(MN_SHELLS, "") !== was) return false;
-  const M = ballotModule(R("mn-ballot-2026.js"), "mn");
-  const inRace = new Set(M.RACES.flatMap((r) => r.field.filter((c) => c.pid).map((c) => c.pid)));
-  const pids = [...m[0].matchAll(/^ "([a-z0-9_]+)": \{$/gm)].map((x) => x[1]);
-  return pids.length > 0 && pids.length === inRace.size && pids.every((p) => inRace.has(p) && /_mn$/.test(p));
+// THE CONTESTED-CYCLE ROSTER BLOCKS. Minnesota's and Colorado's passes each
+// added one block of identity-only shells (mn-ballot-2026.js,
+// co-ballot-2026.js). With every such block lifted out of both sides,
+// cmp-data.js must be HEAD's byte for byte, and every row in a block must be
+// a sitting member in that state's contested races, and no one else.
+const SHELL_BLOCKS = [
+  { code: "mn", state: "Minnesota" },
+  { code: "co", state: "Colorado" },
+].map((b) => ({ ...b, re: new RegExp(`// ── Sitting ${b.state} legislators in the contested 2026 races[\\s\\S]*?(?=// ── )`) }));
+function shellBlocksOnly(now, was) {
+  const strip = (src) => SHELL_BLOCKS.reduce((s, b) => s.replace(b.re, ""), src);
+  if (strip(now) !== strip(was)) return false;
+  for (const b of SHELL_BLOCKS) {
+    const m = b.re.exec(now);
+    if (!m) continue;
+    const M = ballotModule(R(`${b.code}-ballot-2026.js`), b.code);
+    const inRace = new Set(M.RACES.flatMap((r) => r.field.filter((c) => c.pid).map((c) => c.pid)));
+    const pids = [...m[0].matchAll(/^ "([a-z0-9_]+)": \{$/gm)].map((x) => x[1]);
+    if (!(pids.length > 0 && pids.length === inRace.size && pids.every((p) => inRace.has(p) && p.endsWith(`_${b.code}`)))) return false;
+  }
+  return true;
 }
 export function settled(f) {
   const now = R(f), was = HEAD(f);
   if (now === was) return true;
   if (was === null || now === null) return false;
-  if (f === "cmp-data.js") return mnShellsOnly(now, was);
+  if (f === "cmp-data.js") return shellBlocksOnly(now, was);
   const bf = /^([a-z]{2})-ballot-2026\.js$/.exec(f);
   if (bf) {
     const A = ballotModule(now, bf[1]), B = ballotModule(was, bf[1]);

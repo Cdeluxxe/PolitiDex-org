@@ -33223,6 +33223,79 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
  },
+// ── Sitting Colorado legislators in the contested 2026 races (co-ballot-2026.js, Oct 2026)
+// One row for each incumbent in a contested Colorado State Senate or State
+// House race on the November 3, 2026 ballot, so the seat card can name who
+// holds the seat. Identity only: the name, the office, the state and the
+// district, read off the General Assembly's own member list
+// (leg.colorado.gov/legislators), and `candidate: false` (in office). No party,
+// bio, score or stances; the formal acts live in co-ballot-2026.js.
+ "exum_co": {
+  "name": "Tony Exum Sr.", "office": "Colorado State Senator",
+  "state": "Colorado", "district": "SD 11", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "marchman_co": {
+  "name": "Janice Marchman", "office": "Colorado State Senator",
+  "state": "Colorado", "district": "SD 15", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "benavidez_co": {
+  "name": "Adrienne Benavidez", "office": "Colorado State Senator",
+  "state": "Colorado", "district": "SD 21", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "carson_co": {
+  "name": "John Carson", "office": "Colorado State Senator",
+  "state": "Colorado", "district": "SD 30", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "woog_co": {
+  "name": "Dan Woog", "office": "Colorado State Representative",
+  "state": "Colorado", "district": "HD 19", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "story_co": {
+  "name": "Tammy Story", "office": "Colorado State Representative",
+  "state": "Colorado", "district": "HD 25", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kenny_nguyen_co": {
+  "name": "Kenny Nguyen", "office": "Colorado State Representative",
+  "state": "Colorado", "district": "HD 33", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bob_marshall_co": {
+  "name": "Bob Marshall", "office": "Colorado State Representative",
+  "state": "Colorado", "district": "HD 43", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mauro_co": {
+  "name": "Tisha Mauro", "office": "Colorado State Representative",
+  "state": "Colorado", "district": "HD 46", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ryan_gonzalez_co": {
+  "name": "Ryan Gonzalez", "office": "Colorado State Representative",
+  "state": "Colorado", "district": "HD 50", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "katie_stewart_co": {
+  "name": "Katie Stewart", "office": "Colorado State Representative",
+  "state": "Colorado", "district": "HD 59", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
 // ── Current candidates outside Utah, 2026 general election, official state lists (Oct 2026)
 // Every nominee on the November 3, 2026 general-election ballot for U.S. Senate,
 // U.S. House, and the statewide offices the roster already tracks (Governor,

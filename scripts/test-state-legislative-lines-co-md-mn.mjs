@@ -162,6 +162,11 @@ const mnRaceMembers = () => {
   const w = {}; w.window = w; vm.runInContext(R("mn-ballot-2026.js"), vm.createContext(w));
   return w.PDXMnBallot.RACES.flatMap((r) => r.field.filter((c) => c.pid).map((c) => c.pid));
 };
+// The sitting Colorado members in the contested 2026 races, read off co-ballot-2026.js.
+const coRaceMembers = () => {
+  const w = {}; w.window = w; vm.runInContext(R("co-ballot-2026.js"), vm.createContext(w));
+  return w.PDXCoBallot.RACES.flatMap((r) => r.field.filter((c) => c.pid).map((c) => c.pid));
+};
 {
   // Every seat in all six chambers.
   const W = boot(at(CO, "1", "1"));
@@ -186,7 +191,9 @@ const mnRaceMembers = () => {
   eq(JSON.stringify([...named].sort()),
     JSON.stringify(["bobby_joe_champion", "cleave_simpson", "mark_johnson_mn", "nancy_king", "robert_rodriguez_co", "steve_hershey",
       // The sitting Minnesota members in the contested 2026 races (mn-ballot-2026.js).
-      ...mnRaceMembers()].sort()),
+      ...mnRaceMembers(),
+      // …and the sitting Colorado members in theirs (co-ballot-2026.js).
+      ...coRaceMembers()].sort()),
     "roster: the members the lookup can name are not exactly the district-keyed state legislators on file");
   // Leaders whose records name no district, and U.S. House members whose titles
   // say "House", are never placed in a legislative seat.

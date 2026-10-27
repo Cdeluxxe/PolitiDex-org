@@ -3442,6 +3442,15 @@ export const DECLARED_ADMISSIONS = [
       "rehrauer_mn", "wayne_johnson_mn", "dippel_mn", "andrew_myers_mn", "rehm_mn", "tabke_mn"],
   },
   {
+    // The sitting Colorado members in the contested 2026 races
+    // (co-ballot-2026.js): one identity row each, read off the General
+    // Assembly's own member list.
+    wave: "co_contested_cycle_oct2026",
+    banner: "// ── Sitting Colorado legislators in the contested 2026 races (co-ballot-2026.js, Oct 2026)",
+    pids: ["exum_co", "marchman_co", "benavidez_co", "carson_co", "woog_co", "story_co", "kenny_nguyen_co",
+      "bob_marshall_co", "mauro_co", "ryan_gonzalez_co", "katie_stewart_co"],
+  },
+  {
     // Too many rows to type here, so the list is the committed record of
     // the pass itself, which also names each state's official source.
     wave: "candidates_outside_utah_oct2026",

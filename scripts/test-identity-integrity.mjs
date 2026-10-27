@@ -482,10 +482,22 @@ for (const [id, rec] of Object.entries(ROSTER || {})) {
   if (!byName.has(key)) byName.set(key, []);
   byName.get(key).push(id);
 }
+// TWO PEOPLE, ONE NAME, DECLARED. A pair goes here only when both are sitting
+// officials the record calls by the same name and no official source gives
+// either one a middle initial or suffix to tell them apart, so a label could
+// only be invented. Each entry names its two ids exactly; a third id with the
+// same name, or either id under another name, is still a failure.
+const DISTINCT_PEOPLE = {
+  // Georgia State Representative, House District 46 (ga roster shells), and
+  // Colorado State Senator, Senate District 30 (co-ballot-2026.js). The
+  // Georgia House and leg.colorado.gov each list him as "John Carson".
+  "john carson": ["carson_co", "carson_ga"],
+};
 let nameChecked = 0;
 for (const [key, ids] of byName) {
   if (ids.length < 2) continue;
   nameChecked++;
+  if (DISTINCT_PEOPLE[key] && JSON.stringify([...ids].sort()) === JSON.stringify(DISTINCT_PEOPLE[key])) continue;
   const detail = ids.map((i) => `${i} ("${ROSTER[i].office} / ${ROSTER[i].state}")`).join(" vs ");
   failures.push(
     `duplicate identity: ${ids.length} live roster ids share the name "${key}" — ${detail}. ` +

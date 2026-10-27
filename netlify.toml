@@ -666,6 +666,19 @@
 # rules are after it and cannot match either of its two paths. Every
 # same-origin path inside both documents is root-absolute for the reason given
 # beside /ballot/ above.
+# Colorado's contested legislative seats, Nov. 3, 2026 (co-ballot-2026.js)
+[[redirects]]
+  from = "/ballot/co"
+  to = "/ballot-co.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/co/"
+  to = "/ballot-co.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/co.html"
+  to = "/ballot-co.html"
+  status = 200
 # Minnesota's contested legislative seats, Nov. 3, 2026 (mn-ballot-2026.js)
 [[redirects]]
   from = "/ballot/mn"
@@ -8832,6 +8845,160 @@
 [[redirects]]
   from = "/district/az-sd-4.html"
   to = "/district-az-sd-4.html"
+  status = 200
+
+# Colorado Senate District 11 — exum_co
+[[redirects]]
+  from = "/district/co-sd-11"
+  to = "/district-co-sd-11.html"
+  status = 200
+[[redirects]]
+  from = "/district/co-sd-11/"
+  to = "/district-co-sd-11.html"
+  status = 200
+[[redirects]]
+  from = "/district/co-sd-11.html"
+  to = "/district-co-sd-11.html"
+  status = 200
+
+# Colorado Senate District 15 — marchman_co
+[[redirects]]
+  from = "/district/co-sd-15"
+  to = "/district-co-sd-15.html"
+  status = 200
+[[redirects]]
+  from = "/district/co-sd-15/"
+  to = "/district-co-sd-15.html"
+  status = 200
+[[redirects]]
+  from = "/district/co-sd-15.html"
+  to = "/district-co-sd-15.html"
+  status = 200
+
+# Colorado Senate District 21 — benavidez_co
+[[redirects]]
+  from = "/district/co-sd-21"
+  to = "/district-co-sd-21.html"
+  status = 200
+[[redirects]]
+  from = "/district/co-sd-21/"
+  to = "/district-co-sd-21.html"
+  status = 200
+[[redirects]]
+  from = "/district/co-sd-21.html"
+  to = "/district-co-sd-21.html"
+  status = 200
+
+# Colorado Senate District 30 — carson_co
+[[redirects]]
+  from = "/district/co-sd-30"
+  to = "/district-co-sd-30.html"
+  status = 200
+[[redirects]]
+  from = "/district/co-sd-30/"
+  to = "/district-co-sd-30.html"
+  status = 200
+[[redirects]]
+  from = "/district/co-sd-30.html"
+  to = "/district-co-sd-30.html"
+  status = 200
+
+# Colorado House District 19 — woog_co
+[[redirects]]
+  from = "/district/co-hd-19"
+  to = "/district-co-hd-19.html"
+  status = 200
+[[redirects]]
+  from = "/district/co-hd-19/"
+  to = "/district-co-hd-19.html"
+  status = 200
+[[redirects]]
+  from = "/district/co-hd-19.html"
+  to = "/district-co-hd-19.html"
+  status = 200
+
+# Colorado House District 25 — story_co
+[[redirects]]
+  from = "/district/co-hd-25"
+  to = "/district-co-hd-25.html"
+  status = 200
+[[redirects]]
+  from = "/district/co-hd-25/"
+  to = "/district-co-hd-25.html"
+  status = 200
+[[redirects]]
+  from = "/district/co-hd-25.html"
+  to = "/district-co-hd-25.html"
+  status = 200
+
+# Colorado House District 33 — kenny_nguyen_co
+[[redirects]]
+  from = "/district/co-hd-33"
+  to = "/district-co-hd-33.html"
+  status = 200
+[[redirects]]
+  from = "/district/co-hd-33/"
+  to = "/district-co-hd-33.html"
+  status = 200
+[[redirects]]
+  from = "/district/co-hd-33.html"
+  to = "/district-co-hd-33.html"
+  status = 200
+
+# Colorado House District 43 — bob_marshall_co
+[[redirects]]
+  from = "/district/co-hd-43"
+  to = "/district-co-hd-43.html"
+  status = 200
+[[redirects]]
+  from = "/district/co-hd-43/"
+  to = "/district-co-hd-43.html"
+  status = 200
+[[redirects]]
+  from = "/district/co-hd-43.html"
+  to = "/district-co-hd-43.html"
+  status = 200
+
+# Colorado House District 46 — mauro_co
+[[redirects]]
+  from = "/district/co-hd-46"
+  to = "/district-co-hd-46.html"
+  status = 200
+[[redirects]]
+  from = "/district/co-hd-46/"
+  to = "/district-co-hd-46.html"
+  status = 200
+[[redirects]]
+  from = "/district/co-hd-46.html"
+  to = "/district-co-hd-46.html"
+  status = 200
+
+# Colorado House District 50 — ryan_gonzalez_co
+[[redirects]]
+  from = "/district/co-hd-50"
+  to = "/district-co-hd-50.html"
+  status = 200
+[[redirects]]
+  from = "/district/co-hd-50/"
+  to = "/district-co-hd-50.html"
+  status = 200
+[[redirects]]
+  from = "/district/co-hd-50.html"
+  to = "/district-co-hd-50.html"
+  status = 200
+
+# Colorado House District 59 — katie_stewart_co
+[[redirects]]
+  from = "/district/co-hd-59"
+  to = "/district-co-hd-59.html"
+  status = 200
+[[redirects]]
+  from = "/district/co-hd-59/"
+  to = "/district-co-hd-59.html"
+  status = 200
+[[redirects]]
+  from = "/district/co-hd-59.html"
+  to = "/district-co-hd-59.html"
   status = 200
 
 # Florida House District 35 — booth_fl
