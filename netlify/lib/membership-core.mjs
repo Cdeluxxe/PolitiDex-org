@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Membership — a $20 yearly Stripe subscription that LIFTS THE MONTHLY CAP
+// Membership — a $20 yearly Stripe subscription that LIFTS THE DAILY CAP
 // ─────────────────────────────────────────────────────────────────────────────
 // THREE DOORS, AND THEY DO NOT COLLAPSE:
 //
@@ -11,23 +11,23 @@
 //                  this file can answer it.
 //   3. membership  a voice_membership row for the ACCOUNT, active. It names no
 //                  seat, writes no residency row and opens no seat. It does two
-//                  things: it lifts the monthly cap on seats door 2 already
+//                  things: it lifts the daily cap on seats door 2 already
 //                  opened, and it lets the account START the vendor check for
 //                  one seat (residency-vendor-core.mjs). Only the signed vendor
 //                  decision then writes door 2; a second seat is not included.
 //
-// THE CAP. A verified non-member gets ONE comment and FIVE poll votes a month on
-// a seat — the month is Utah's calendar month (America/Denver), because every
-// seat that takes a voice is a Utah seat. A second comment, a sixth vote or a
-// vote on a sixth issue the same month is refused with CAP_COPY: a line that
-// names the cap. It is not a paywall slogan and it does not mention money.
-// Counts still publish; reading stays free.
+// THE CAP. A verified non-member gets ONE comment and ONE poll vote a day on a
+// seat — the day is Utah's calendar day (America/Denver, from midnight), on
+// every seat that takes a voice, in Utah or out of it, so one clock answers
+// for every board. A second comment or a second vote the same day is refused
+// with CAP_COPY: a line that names the cap. It is not a paywall slogan and it
+// does not mention money. Counts still publish; reading stays free.
 //
 // The cap reads the timestamps already stored — voice_takes.created_at and
-// voice_poll_votes.updated_at — so it needs no ledger. A vote "used" this month
-// is a vote row on this seat cast or changed since the month began; changing a
-// vote already used this month does not use another, and once five are used
-// any new or changed vote is refused.
+// voice_poll_votes.updated_at — so it needs no ledger. A vote "used" today is a
+// vote row on this seat cast or changed since the day began; re-sending the
+// vote already on file writes nothing and uses nothing, and once today's one
+// vote is used any new or changed vote is refused.
 //
 // ONLY THE SIGNED WEBHOOK WRITES THE FLAG. handleWebhook checks the
 // Stripe-Signature header (HMAC-SHA256 over "t.raw" under STRIPE_WEBHOOK_SECRET,
@@ -52,8 +52,8 @@
 import crypto from "node:crypto";
 
 export const PRICE_LABEL = "$20 a year";
-export const MONTHLY_COMMENTS = 1;
-export const MONTHLY_VOTES = 5;
+export const DAILY_COMMENTS = 1;
+export const DAILY_VOTES = 1;
 export const CAP_TZ = "America/Denver";
 export const SIGNATURE_TOLERANCE_SECONDS = 300;
 // A missed cancel still lapses: the flag stops counting this long after the paid
@@ -64,18 +64,18 @@ export const STRIPE_API = "https://api.stripe.com/v1";
 // THE LINES THAT NAME THE CAP. Shown verbatim by the composer and the poll when
 // the server refuses; neither mentions money.
 export const CAP_COPY = {
-  comment: "Verified residents get one comment a month on this seat, and this month's is used. " +
-    "The next one opens on the 1st, Mountain time.",
-  vote: "Verified residents get five poll votes a month on this seat, and this month's are used — " +
-    "changing a vote counts as a vote. The next ones open on the 1st, Mountain time.",
+  comment: "Verified residents get one comment a day on this seat, and today's is used. " +
+    "The next one opens at midnight, Mountain time.",
+  vote: "Verified residents get one poll vote a day on this seat, and today's is used — " +
+    "changing a vote counts as a vote. The next one opens at midnight, Mountain time.",
 };
 
 // The server's own lines for /api/membership. /me's fixed copy (reading is free,
-// one comment and five poll votes a month per verified seat, $20 a year removes
+// one comment and one poll vote a day per verified seat, $20 a year removes
 // the cap) lives in me.html; these are only what the endpoint answers with.
 export const ME_COPY = {
   signedOut: "Sign in to become a member.",
-  active: "You are a member. The monthly cap is off on every seat you are verified for.",
+  active: "You are a member. The daily cap is off on every seat you are verified for.",
   unavailable: "Membership checkout is not available right now.",
 };
 
@@ -147,7 +147,8 @@ export function dayStart(now = new Date(), tz = CAP_TZ) {
   return midnight(y, m, d, tz);
 }
 
-// The instant the current Mountain-time calendar month began: midnight on the 1st.
+// The instant the current Mountain-time calendar month began: midnight on the
+// 1st. No cap reads it now (the cap is daily); kept for the date suite.
 export function monthStart(now = new Date(), tz = CAP_TZ) {
   const { y, m } = wallDate(now, tz);
   return midnight(y, m, 1, tz);

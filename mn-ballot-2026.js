@@ -65,7 +65,7 @@
   // status: 'law' | 'passed' (one chamber, not law) | 'failed'
   var MEASURES = {
     'HF 2484': {
-      title: 'Capital investment (bonding), 2026', status: 'law',
+      title: 'Bonding bill, 2026', status: 'law',
       act: 'Signed May 27, 2026 (Chapter 129)', session: '94th Legislature',
       effect: 'Authorized state spending to buy and improve public land and buildings for capital projects, and set up new capital programs.',
       from: 'Title: “An act relating to capital investment; authorizing spending to acquire and better land and buildings and for other improvements of a capital nature with certain conditions; establishing new programs and modifying existing programs…”',

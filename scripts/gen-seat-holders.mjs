@@ -47,9 +47,13 @@ export function rosterHolders() {
   const statewide = {};
   // Every other state's U.S. House seat: the holder the plan's join named.
   const federalHouse = {};
+  // Every voiced state legislative board outside Utah: the member the plan
+  // seated on it (the roster, through the location resolver).
+  const stateLeg = {};
   for (const b of planBoards().boards) {
     if (b.statewide) statewide[b.seat] = b.pid;
     else if (b.federal && b.usHouse) federalHouse[b.seat] = b.usHouse;
+    else if (b.stateLeg && !b.readOnly) stateLeg[b.seat] = b.pid;
   }
   const out = {};
   for (const seat of Object.keys(COMPOSER_SEATS)) {
@@ -58,6 +62,7 @@ export function rosterHolders() {
     if (m && m[1] === "house") pid = win._pdxUsHouseSeat("Utah", Number(m[2])) || "";
     else if (m) pid = win.pdxSeatedMemberFor(seat, Number(m[2])) || "";
     else if (federalHouse[seat]) pid = win._pdxUsHouseSeat(federalHouse[seat].state, federalHouse[seat].district) || "";
+    else if (stateLeg[seat]) pid = stateLeg[seat];
     else pid = statewide[seat] || "";
     if (pid && RO[pid]) out[seat] = { pid, name: String(RO[pid].name || pid) };
   }

@@ -2,7 +2,7 @@
    /me — MEMBERSHIP, ONE CONTROL
    ─────────────────────────────────────────────────────────────────────────────
    The block's five lines are static in me.html (#pdx-me-membership): reading is
-   free, a verified resident gets one comment and five poll votes a month on
+   free, a verified resident gets one comment and one poll vote a day on
    that seat, $20 a year removes the cap, one ID and address check covers every
    board seat the saved location names (a second check is not), and only a verified
    resident of that seat has a voice that counts. This file paints the one control under
@@ -30,7 +30,7 @@
     join: 'Become a member — $20 a year',
     rooms: 'See your district rooms',
     joining: 'Opening checkout…',
-    active: 'You are a member. The monthly cap is off on every seat you are verified for.',
+    active: 'You are a member. The daily cap is off on every seat you are verified for.',
     returned: 'Thanks. Your membership turns on as soon as Stripe confirms the payment.',
     cancelled: 'Checkout was cancelled. Nothing was charged.',
     unavailable: 'Membership checkout is not available right now.'

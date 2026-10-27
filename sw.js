@@ -11058,7 +11058,25 @@
 //     are unchanged, and no new file is precached.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v482';
+// v483 - THE CONTESTED BOARDS TAKE A VOICE, AND THE CAP IS DAILY.
+//     Every contested State House, State Assembly and State Senate board in
+//     the thirteen density states (Pennsylvania, Georgia, North Carolina,
+//     Michigan, Ohio, Wisconsin, Florida, Arizona, New York, Texas, Illinois,
+//     Minnesota and Colorado; 137 boards) is now on the composer's three
+//     lists, behind the gate every voiced board uses: signed in, and a Didit
+//     (vendor) residency row for THAT seat. Nevada's eight contested boards
+//     stay read-only. No board was opened, no document moved, and there is
+//     still no /district/* splat. THE CAP every voiced board shares, the
+//     five Layton-cluster boards included, is now one comment and one poll
+//     vote a Utah (Mountain-time) day for a verified non-member, refused with
+//     a line that names the cap (429 daily_cap); a member has no daily cap,
+//     and a member with no residency row for the seat is still 403.
+//     district-composer.js, district-poll.js, issue-poll.js, district-board.js,
+//     me.html, voice.html and '/' are precached and changed, so the shell
+//     moves one version. No file is newly precached.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v483';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

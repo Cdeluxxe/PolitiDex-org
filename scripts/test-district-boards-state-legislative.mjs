@@ -39,7 +39,7 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import {
-  FEDERAL_STATES, HAND_SEATS, STATE_LEG_REFUSAL, STATE_LEG_BOARD_REFUSAL, STATE_LEG_BOARD_SEATS, loadRoster, planBoards, planStateLegislative, renderAll, renderDoc,
+  FEDERAL_STATES, HAND_SEATS, STATE_LEG_REFUSAL, STATE_LEG_BOARD_REFUSAL, STATE_LEG_BOARD_SEATS, STATE_LEG_VOICED_STATES, loadRoster, planBoards, planStateLegislative, renderAll, renderDoc,
 } from "./gen-district-boards.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -97,6 +97,8 @@ const LEG_ALIAS_RE = /^([a-z]{2})-(?:hd|sd)-\d+$/;
 // outside Utah is still refused. test-pa-contested-cycle.mjs holds the races.
 const CONTESTED = STATE_LEG_BOARD_SEATS;
 const CONTESTED_ALIAS = new Set([...CONTESTED].map((k) => k.replace("-statehouse-", "-hd-").replace("-statesenate-", "-sd-")));
+// The contested seats that take a voice: those in the thirteen density states.
+const VOICED_ALIASES = [...CONTESTED_ALIAS].filter((a) => STATE_LEG_VOICED_STATES.has(a.slice(0, 2))).sort();
 const outsideUtah = (k) => LEG_KEY_RE.test(k) && !/^ut-/.test(k) && !CONTESTED.has(k);
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -162,7 +164,11 @@ eq(Object.keys(V.BOARD_ROUTES).length, HAND_SEATS.length + PLAN.length,
   for (const f of ["netlify/lib/district-board-voice-core.mjs", "district-composer.js", "district-poll.js"]) {
     const src = R(f);
     const keys = [...src.matchAll(/["']([a-z]{2}-(?:statehouse|statesenate|hd|sd)-\d+)["']/g)].map((m) => m[1]);
-    ok(keys.every((k) => k.startsWith("ut-")), `${f}: no composer row for a state legislative seat outside Utah`);
+    // Outside Utah, exactly the voiced contested seats (the contested-boards
+    // voice pass): a contested seat in one of the thirteen density states.
+    const alias = (k) => k.replace(/-statehouse-/, "-hd-").replace(/-statesenate-/, "-sd-");
+    const got = [...new Set(keys.filter((k) => !k.startsWith("ut-")).map(alias))].sort();
+    eq(JSON.stringify(got), JSON.stringify(VOICED_ALIASES), `${f}: the only state legislative composer rows outside Utah are the voiced contested seats`);
   }
 }
 
@@ -242,7 +248,10 @@ for (const b of LEG) {
   const M = win.PDXDistrictBoard;
   eq(M.PID, b.pid, `${b.alias}: band 1's holder is the roster's`);
   has(M.seatHtml(), `href="/p/${b.pid}"`, `${b.alias}: band 1 links the member`);
-  eq((B.board(b.alias) || {}).composer, false, `${b.alias}: read-only`);
+  // A contested seat in one of the thirteen density states takes a voice;
+  // every other one (Nevada's) is read-only.
+  eq(b.readOnly, !STATE_LEG_VOICED_STATES.has(b.seat.slice(0, 2)), `${b.alias}: voiced exactly when its state is a voiced density state`);
+  eq((B.board(b.alias) || {}).composer, !b.readOnly, `${b.alias}: composer matches the plan`);
 }
 ok(LEG.length === 0 || LEG.every((b) => !!ROSTER[b.pid]), "every planned holder has a roster row");
 

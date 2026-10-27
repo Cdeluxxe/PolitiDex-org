@@ -20,12 +20,37 @@ import { makeSandbox } from "./gen-hero-showcase.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 export const R = (f) => readFileSync(join(ROOT, f), "utf8");
-export const HEAD = (f) => {
+// DECLARED EDITS TO AN EARLIER CYCLE'S FILES. A later pass may change an
+// earlier state's ballot file only by a change named here, and the baseline
+// every suite compares against is HEAD with exactly these applied — so the
+// change is visible in one place and nothing else in those files may move.
+//   · The contested-boards voice pass retitled Minnesota's HF 2484 from
+//     "Capital investment (bonding), 2026" to "Bonding bill, 2026" (the
+//     Revisor's own one-line description), because a board that takes a voice
+//     carries no investment language. The measure, its effect line, its acts
+//     and its links are unchanged.
+const DECLARED_EDITS = [
+  { file: /^(?:mn-ballot-2026\.js|district-mn-(?:hd|sd)-\d+\.html)$/,
+    from: "Capital investment (bonding), 2026", to: "Bonding bill, 2026" },
+];
+const gitHead = (f) => {
   // maxBuffer: cmp-data.js is past execFileSync's 1 MB default, and a baseline
   // that silently reads null would skip every comparison against it.
   try { return execFileSync("git", ["show", "HEAD:" + f], { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 28, stdio: ["ignore", "pipe", "ignore"] }); }
   catch (e) { return null; }
 };
+export const HEAD = (f) => {
+  let src = gitHead(f);
+  if (src === null) return null;
+  for (const d of DECLARED_EDITS) if (d.file.test(f)) src = src.split(d.from).join(d.to);
+  return src;
+};
+// DECLARED MIGRATIONS. The contested-cycle suites hold that no pass adds a
+// migration. The one exception is named here: the contested-boards voice pass
+// seeds a dd_districts row for each contested board that now takes a voice
+// (rows only, no schema change), because a comment, a vote or a residency row
+// on a seat with no dd_districts row would fail at the foreign key.
+export const DECLARED_MIGRATIONS = ["20261130000000_dd_districts_contested_legislative_board_seats.sql"];
 export const FIND = R("find.html");
 export const MAP = (() => {
   const a = FIND.indexOf("INTERACTIVE UTAH DISTRICT MAP");

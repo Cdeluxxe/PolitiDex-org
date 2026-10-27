@@ -432,7 +432,10 @@ section("7 · neighbours, routes, migration, copy, shell");
   if (head) eq(routesBody(R("district-voice.js")), routesBody(head), "BOARD_ROUTES' Utah rows are byte-identical");
   for (const f of ["netlify/functions/district-board.mts", "district-poll.js"]) {
     const h = HEAD(f);
-    if (h && f !== "netlify/functions/district-board.mts") eq(utahOnly(R(f)), utahOnly(h), `${f} is byte-identical, Utah's rows included`);
+    // The contested-boards voice pass renamed the cap's refusal code from
+    // monthly_cap to daily_cap; that one spelling is folded on both sides.
+    const capCode = (src) => String(src || "").replace(/daily_cap/g, "monthly_cap").replace(/A daily-cap refusal/g, "A monthly-cap refusal");
+    if (h && f !== "netlify/functions/district-board.mts") eq(capCode(utahOnly(R(f))), capCode(utahOnly(h)), `${f} is byte-identical, Utah's rows included`);
   }
   // netlify.toml's pin narrowed to the part this room depends on — the generated
   // district-board routes — once the Utah ballot-question pages added rules of
@@ -472,7 +475,16 @@ section("7 · neighbours, routes, migration, copy, shell");
     .replace("\n    if (k.slice(0, 3) !== seat.slice(0, 3)) continue;", "");
   if (resH) eq(sameState(res), sameState(resH), "the residency gate did not move, but for the same-state binding");
   const mem = R("netlify/lib/membership-core.mjs"), memH = HEAD("netlify/lib/membership-core.mjs");
-  if (memH) eq(mem, memH, "the membership cap did not move");
+  // The contested-boards voice pass made the cap daily (one comment and one
+  // poll vote a Mountain-time day). The cap's own section — its comment, its
+  // two numbers, CAP_COPY and ME_COPY — and the lines that name it are folded
+  // out on both sides; every other byte of membership stays pinned.
+  const capFold = (src) => String(src || "")
+    .replace(/^\/\/ Membership — .*$/m, "")
+    .replace(/^\/\/\s+things: it lifts the .*$/m, "")
+    .replace(/\/\/ THE CAP\.[\s\S]*?(?=\/\/ ── IDENTITY)/, "")
+    .replace(/\/\/ The instant the current Mountain-time calendar month began[\s\S]*?(?=export function monthStart)/, "");
+  if (memH) eq(capFold(mem), capFold(memH), "the membership cap did not move, but for the daily cap itself");
 
   const MIG = R("netlify/database/migrations/20261117000000_voice_general_room_and_likes/migration.sql");
   ok(/ADD COLUMN IF NOT EXISTS "holder_pid" text/.test(MIG), "the migration adds holder_pid to voice_takes");

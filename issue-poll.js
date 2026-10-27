@@ -282,7 +282,7 @@
         _status = COPY.saved;
       } else if (res.status === 403) {
         r.voice = { canVote: false, reason: res.data.code || '', line: res.data.error || LOCKED_LINE, note: res.data.note || '' };
-      } else if (res.status === 429 || (res.data && res.data.code === 'monthly_cap')) {
+      } else if (res.status === 429 || (res.data && res.data.code === 'daily_cap')) {
         _status = COPY.notTaken;
       } else {
         _status = (res.data && res.data.error) || COPY.failed;

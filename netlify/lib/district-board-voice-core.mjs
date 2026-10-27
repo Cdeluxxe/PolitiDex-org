@@ -4,8 +4,10 @@
 // This is the one place a board takes a voice. It opened on FIVE named seats —
 // SD-3, then the Layton cluster's HD-16, SD-7, HD-15 and UT-2 — and now covers
 // every seat that has a board: SD-6, every generated district board and the
-// three statewide boards (ut-gov and both U.S. Senate seats), and every other
-// state's U.S. House and U.S. Senate board. The allow-list
+// three statewide boards (ut-gov and both U.S. Senate seats), every other
+// state's U.S. House and U.S. Senate board, and the contested State House and
+// State Senate boards of the thirteen density states (STATE_LEG_VOICED_STATES
+// in scripts/gen-district-boards.mjs). The allow-list
 // below is still ROWS, never a pattern, for the same reason BOARD_SEATS in
 // district-board.mts is: a seat with no board must never take a post. The
 // generated rows are written by scripts/gen-district-boards.mjs from the same
@@ -44,13 +46,13 @@
 // so a post moves "People who answered a poll or wrote a comment" from the same
 // rows the counts endpoint reads.
 //
-// ── THE MONTHLY CAP, AFTER THE GATE ─────────────────────────────────────────
+// ── THE DAILY CAP, AFTER THE GATE ───────────────────────────────────────────
 // A verified resident who is not a member gets ONE comment a Mountain-time
-// calendar month on this seat
+// calendar day on this seat
 // (netlify/lib/membership-core.mjs). The cap is asked only AFTER the residency
 // gate and the post checks have passed, so membership can never stand in for a
 // vendor row: a member with no row for this seat is 403 like anybody else. A
-// second comment the same month is 429 with CAP_COPY.comment and
+// second comment the same day is 429 with CAP_COPY.comment and
 // writes nothing. The GET never carries the flag or an account id.
 //
 // ── WHO MAY START THE CHECK ─────────────────────────────────────────────────
@@ -69,7 +71,7 @@
 // general-room-core.mjs — never a pid the caller sent. A GET may ask for a
 // previous holder's thread with `&holder=<pid>`, and only a pid that table lists
 // for THIS seat is answered; that thread is read-only (`canPost` is false
-// there). Same gate, same monthly cap, same public shape as an issue comment.
+// there). Same gate, same daily cap, same public shape as an issue comment.
 //
 // ── LIKES ───────────────────────────────────────────────────────────────────
 // `{ seat, action: "like", postId }`. One like per verified resident per
@@ -86,7 +88,7 @@
 
 import crypto from "node:crypto";
 import { authorHash, normalizeSeatKey } from "./district-voice-core.mjs";
-import { CAP_COPY, MONTHLY_COMMENTS, memberFor, monthStart } from "./membership-core.mjs";
+import { CAP_COPY, DAILY_COMMENTS, dayStart, memberFor } from "./membership-core.mjs";
 import { holderFor, previousFor, threadFor } from "./general-room-core.mjs";
 
 // NAMED ROWS. Canonical seat key → the board alias the flag is spelled in. A
@@ -617,6 +619,143 @@ export const COMPOSER_SEATS = {
   "wy-house-1": "wy-cd-1",
   "wy-us-senate-barrasso": "wy-us-senate-barrasso",
   "wy-us-senate-lummis": "wy-us-senate-lummis",
+  "az-statesenate-2": "az-sd-2",
+  "az-statesenate-23": "az-sd-23",
+  "az-statesenate-9": "az-sd-9",
+  "az-statesenate-4": "az-sd-4",
+  "co-statesenate-11": "co-sd-11",
+  "co-statesenate-15": "co-sd-15",
+  "co-statesenate-21": "co-sd-21",
+  "co-statesenate-30": "co-sd-30",
+  "co-statehouse-19": "co-hd-19",
+  "co-statehouse-25": "co-hd-25",
+  "co-statehouse-33": "co-hd-33",
+  "co-statehouse-43": "co-hd-43",
+  "co-statehouse-46": "co-hd-46",
+  "co-statehouse-50": "co-hd-50",
+  "co-statehouse-59": "co-hd-59",
+  "fl-statehouse-35": "fl-hd-35",
+  "fl-statehouse-65": "fl-hd-65",
+  "fl-statehouse-87": "fl-hd-87",
+  "fl-statehouse-89": "fl-hd-89",
+  "fl-statehouse-93": "fl-hd-93",
+  "fl-statehouse-101": "fl-hd-101",
+  "fl-statehouse-106": "fl-hd-106",
+  "fl-statesenate-10": "fl-sd-10",
+  "fl-statesenate-14": "fl-sd-14",
+  "fl-statesenate-38": "fl-sd-38",
+  "ga-statesenate-37": "ga-sd-37",
+  "ga-statesenate-48": "ga-sd-48",
+  "ga-statehouse-151": "ga-hd-151",
+  "ga-statehouse-105": "ga-hd-105",
+  "ga-statehouse-154": "ga-hd-154",
+  "ga-statehouse-48": "ga-hd-48",
+  "ga-statehouse-44": "ga-hd-44",
+  "ga-statehouse-99": "ga-hd-99",
+  "ga-statehouse-53": "ga-hd-53",
+  "il-statesenate-57": "il-sd-57",
+  "il-statesenate-36": "il-sd-36",
+  "il-statesenate-56": "il-sd-56",
+  "il-statesenate-26": "il-sd-26",
+  "il-statesenate-24": "il-sd-24",
+  "il-statesenate-48": "il-sd-48",
+  "il-statehouse-76": "il-hd-76",
+  "il-statehouse-97": "il-hd-97",
+  "il-statehouse-70": "il-hd-70",
+  "il-statehouse-52": "il-hd-52",
+  "il-statehouse-114": "il-hd-114",
+  "il-statehouse-104": "il-hd-104",
+  "il-statehouse-112": "il-hd-112",
+  "il-statehouse-65": "il-hd-65",
+  "mi-statesenate-35": "mi-sd-35",
+  "mi-statesenate-9": "mi-sd-9",
+  "mi-statehouse-109": "mi-hd-109",
+  "mi-statehouse-86": "mi-hd-86",
+  "mi-statehouse-44": "mi-hd-44",
+  "mi-statehouse-27": "mi-hd-27",
+  "mi-statehouse-46": "mi-hd-46",
+  "mi-statehouse-28": "mi-hd-28",
+  "mi-statehouse-55": "mi-hd-55",
+  "mi-statehouse-61": "mi-hd-61",
+  "mn-statesenate-3": "mn-sd-3",
+  "mn-statesenate-4": "mn-sd-4",
+  "mn-statesenate-14": "mn-sd-14",
+  "mn-statesenate-32": "mn-sd-32",
+  "mn-statesenate-33": "mn-sd-33",
+  "mn-statesenate-35": "mn-sd-35",
+  "mn-statesenate-41": "mn-sd-41",
+  "mn-statesenate-48": "mn-sd-48",
+  "mn-statehouse-6": "mn-hd-6",
+  "mn-statehouse-35": "mn-hd-35",
+  "mn-statehouse-63": "mn-hd-63",
+  "mn-statehouse-64": "mn-hd-64",
+  "mn-statehouse-67": "mn-hd-67",
+  "mn-statehouse-69": "mn-hd-69",
+  "mn-statehouse-70": "mn-hd-70",
+  "mn-statehouse-81": "mn-hd-81",
+  "mn-statehouse-89": "mn-hd-89",
+  "mn-statehouse-96": "mn-hd-96",
+  "mn-statehouse-107": "mn-hd-107",
+  "ny-statesenate-43": "ny-sd-43",
+  "ny-statesenate-39": "ny-sd-39",
+  "ny-statesenate-44": "ny-sd-44",
+  "ny-statesenate-38": "ny-sd-38",
+  "ny-statehouse-107": "ny-hd-107",
+  "ny-statehouse-46": "ny-hd-46",
+  "ny-statehouse-143": "ny-hd-143",
+  "ny-statehouse-21": "ny-hd-21",
+  "ny-statehouse-97": "ny-hd-97",
+  "nc-statesenate-7": "nc-sd-7",
+  "nc-statesenate-11": "nc-sd-11",
+  "nc-statesenate-42": "nc-sd-42",
+  "nc-statesenate-18": "nc-sd-18",
+  "nc-statehouse-25": "nc-hd-25",
+  "nc-statehouse-105": "nc-hd-105",
+  "nc-statehouse-98": "nc-hd-98",
+  "nc-statehouse-37": "nc-hd-37",
+  "oh-statesenate-29": "oh-sd-29",
+  "oh-statehouse-10": "oh-hd-10",
+  "oh-statehouse-17": "oh-hd-17",
+  "oh-statehouse-36": "oh-hd-36",
+  "oh-statehouse-60": "oh-hd-60",
+  "pa-statesenate-40": "pa-sd-40",
+  "pa-statesenate-16": "pa-sd-16",
+  "pa-statesenate-6": "pa-sd-6",
+  "pa-statesenate-36": "pa-sd-36",
+  "pa-statesenate-24": "pa-sd-24",
+  "pa-statehouse-72": "pa-hd-72",
+  "pa-statehouse-12": "pa-hd-12",
+  "pa-statehouse-137": "pa-hd-137",
+  "pa-statehouse-142": "pa-hd-142",
+  "pa-statehouse-144": "pa-hd-144",
+  "pa-statehouse-18": "pa-hd-18",
+  "pa-statehouse-160": "pa-hd-160",
+  "tx-statesenate-19": "tx-sd-19",
+  "tx-statehouse-34": "tx-hd-34",
+  "tx-statehouse-37": "tx-hd-37",
+  "tx-statehouse-52": "tx-hd-52",
+  "tx-statehouse-61": "tx-hd-61",
+  "tx-statehouse-67": "tx-hd-67",
+  "tx-statehouse-70": "tx-hd-70",
+  "tx-statehouse-74": "tx-hd-74",
+  "tx-statehouse-108": "tx-hd-108",
+  "tx-statehouse-112": "tx-hd-112",
+  "tx-statehouse-121": "tx-hd-121",
+  "tx-statehouse-138": "tx-hd-138",
+  "tx-statesenate-9": "tx-sd-9",
+  "tx-statesenate-21": "tx-sd-21",
+  "wi-statesenate-17": "wi-sd-17",
+  "wi-statesenate-31": "wi-sd-31",
+  "wi-statehouse-26": "wi-hd-26",
+  "wi-statehouse-30": "wi-hd-30",
+  "wi-statehouse-51": "wi-hd-51",
+  "wi-statehouse-61": "wi-hd-61",
+  "wi-statehouse-85": "wi-hd-85",
+  "wi-statehouse-88": "wi-hd-88",
+  "wi-statehouse-89": "wi-hd-89",
+  "wi-statehouse-91": "wi-hd-91",
+  "wi-statehouse-92": "wi-hd-92",
+  "wi-statehouse-94": "wi-hd-94",
   // @generated district-boards end
 };
 
@@ -820,7 +959,7 @@ function holdersOf(deps) {
 }
 
 function capRefusal() {
-  return json({ error: CAP_COPY.comment, code: "monthly_cap" }, 429);
+  return json({ error: CAP_COPY.comment, code: "daily_cap" }, 429);
 }
 
 // deps:
@@ -960,11 +1099,11 @@ export async function handle(req, deps) {
     saved = await deps.insertPost(values);
   } else {
     // FAILS CLOSED: no counter means no comment, not an uncapped one.
-    const since = monthStart(deps.now ? deps.now() : new Date());
+    const since = dayStart(deps.now ? deps.now() : new Date());
     const used = typeof deps.countPostsSince === "function"
       ? Number(await deps.countPostsSince(verdict.seatKey, hash, since))
       : Infinity;
-    if (!(used < MONTHLY_COMMENTS)) return capRefusal();
+    if (!(used < DAILY_COMMENTS)) return capRefusal();
     saved = await deps.insertPost({ ...values, capSince: since });
     if (!saved) return capRefusal();
   }

@@ -37,7 +37,7 @@
 //
 //   node scripts/test-nv-contested-cycle.mjs
 
-import { R, HEAD, boot, levelOf, band, settled } from "./state-leg-harness.mjs";
+import { R, HEAD, boot, levelOf, band, settled, DECLARED_MIGRATIONS } from "./state-leg-harness.mjs";
 import { readdirSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
@@ -354,7 +354,7 @@ section("6 · every other state is unchanged");
   const pre = (src) => (src.match(/^  '\/[^']*',$/gm) || []).sort().join("\n");
   eq(pre(R("sw.js")), pre(HEAD("sw.js")), "sw.js: the precache list is unchanged");
   for (const f of readdirSync(join(ROOT, "netlify/database/migrations"))) {
-    ok(HEAD(`netlify/database/migrations/${f}`) !== null, `${f}: a migration this pass added`);
+    ok(HEAD(`netlify/database/migrations/${f}`) !== null || DECLARED_MIGRATIONS.includes(f), `${f}: a migration this pass added`);
   }
   const STATES = ["Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida",
     "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland",
