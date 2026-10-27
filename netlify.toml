@@ -666,6 +666,19 @@
 # rules are after it and cannot match either of its two paths. Every
 # same-origin path inside both documents is root-absolute for the reason given
 # beside /ballot/ above.
+# California's contested legislative seats, Nov. 3, 2026 (ca-ballot-2026.js)
+[[redirects]]
+  from = "/ballot/ca"
+  to = "/ballot-ca.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/ca/"
+  to = "/ballot-ca.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/ca.html"
+  to = "/ballot-ca.html"
+  status = 200
 # Nevada's contested legislative seats, Nov. 3, 2026 (nv-ballot-2026.js)
 [[redirects]]
   from = "/ballot/nv"
@@ -8858,6 +8871,104 @@
 [[redirects]]
   from = "/district/az-sd-4.html"
   to = "/district-az-sd-4.html"
+  status = 200
+
+# California Assembly District 7 — hoover_ca
+[[redirects]]
+  from = "/district/ca-hd-7"
+  to = "/district-ca-hd-7.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-hd-7/"
+  to = "/district-ca-hd-7.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-hd-7.html"
+  to = "/district-ca-hd-7.html"
+  status = 200
+
+# California Assembly District 36 — jeff_gonzalez_ca
+[[redirects]]
+  from = "/district/ca-hd-36"
+  to = "/district-ca-hd-36.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-hd-36/"
+  to = "/district-ca-hd-36.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-hd-36.html"
+  to = "/district-ca-hd-36.html"
+  status = 200
+
+# California Assembly District 47 — wallis_ca
+[[redirects]]
+  from = "/district/ca-hd-47"
+  to = "/district-ca-hd-47.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-hd-47/"
+  to = "/district-ca-hd-47.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-hd-47.html"
+  to = "/district-ca-hd-47.html"
+  status = 200
+
+# California Assembly District 58 — castillo_ca
+[[redirects]]
+  from = "/district/ca-hd-58"
+  to = "/district-ca-hd-58.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-hd-58/"
+  to = "/district-ca-hd-58.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-hd-58.html"
+  to = "/district-ca-hd-58.html"
+  status = 200
+
+# California Assembly District 74 — davies_ca
+[[redirects]]
+  from = "/district/ca-hd-74"
+  to = "/district-ca-hd-74.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-hd-74/"
+  to = "/district-ca-hd-74.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-hd-74.html"
+  to = "/district-ca-hd-74.html"
+  status = 200
+
+# California Senate District 16 — hurtado_ca
+[[redirects]]
+  from = "/district/ca-sd-16"
+  to = "/district-ca-sd-16.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-sd-16/"
+  to = "/district-ca-sd-16.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-sd-16.html"
+  to = "/district-ca-sd-16.html"
+  status = 200
+
+# California Senate District 38 — blakespear_ca
+[[redirects]]
+  from = "/district/ca-sd-38"
+  to = "/district-ca-sd-38.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-sd-38/"
+  to = "/district-ca-sd-38.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-sd-38.html"
+  to = "/district-ca-sd-38.html"
   status = 200
 
 # Colorado Senate District 11 — exum_co

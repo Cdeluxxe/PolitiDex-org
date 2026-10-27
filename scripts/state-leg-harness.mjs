@@ -49,8 +49,10 @@ export const HEAD = (f) => {
 // migration. The one exception is named here: the contested-boards voice pass
 // seeds a dd_districts row for each contested board that now takes a voice
 // (rows only, no schema change), because a comment, a vote or a residency row
-// on a seat with no dd_districts row would fail at the foreign key.
-export const DECLARED_MIGRATIONS = ["20261130000000_dd_districts_contested_legislative_board_seats.sql"];
+// on a seat with no dd_districts row would fail at the foreign key. California's
+// density pass seeds its seven contested boards the same way, in its own file.
+export const DECLARED_MIGRATIONS = ["20261130000000_dd_districts_contested_legislative_board_seats.sql",
+  "20261201000000_dd_districts_california_contested_board_seats.sql"];
 export const FIND = R("find.html");
 export const MAP = (() => {
   const a = FIND.indexOf("INTERACTIVE UTAH DISTRICT MAP");

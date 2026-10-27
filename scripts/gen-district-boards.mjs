@@ -405,7 +405,7 @@ export const STATE_LEG_BOARD_REFUSAL = "state legislative boards are not opened 
 // ONE SEAT AT A TIME, WHERE THERE IS A RACE. A state that is not on the list
 // above may still open a board for a single seat when that seat is one of the
 // contested races a state's ballot file holds for the November 3, 2026 ballot
-// (CONTESTED_FILES below — Pennsylvania's, Georgia's, North Carolina's, Michigan's, Ohio's, Wisconsin's, Florida's, Arizona's Senate, New York's, Texas's, Illinois's, Minnesota's, Colorado's, then Nevada's) — the seat key is
+// (CONTESTED_FILES below — Pennsylvania's, Georgia's, North Carolina's, Michigan's, Ohio's, Wisconsin's, Florida's, Arizona's Senate, New York's, Texas's, Illinois's, Minnesota's, Colorado's, Nevada's, then California's) — the seat key is
 // read from that file's RACES, never typed here, so a board cannot open for a
 // seat with no race behind it. Every other gate below still applies: the
 // roster names the sitting member, the resolver seats that member on that
@@ -425,6 +425,7 @@ export const CONTESTED_FILES = [
   { code: "mn", file: "mn-ballot-2026.js", global: "PDXMnBallot" },
   { code: "co", file: "co-ballot-2026.js", global: "PDXCoBallot" },
   { code: "nv", file: "nv-ballot-2026.js", global: "PDXNvBallot" },
+  { code: "ca", file: "ca-ballot-2026.js", global: "PDXCaBallot" },
 ];
 const contestedModule = (c) => {
   const w = {}; w.window = w;
@@ -441,7 +442,8 @@ export function contestedSeats() {
 }
 export const STATE_LEG_BOARD_SEATS = contestedSeats();
 // THE CONTESTED BOARDS THAT TAKE A VOICE. A contested seat's board in one of
-// these thirteen states is on the composer's three lists, so it takes a
+// these fourteen states (the thirteen density states, then California's
+// density pass) is on the composer's three lists, so it takes a
 // comment and a poll vote on exactly the gate every other voiced board uses:
 // signed in, a Didit (vendor) residency row for THAT seat, and the shared
 // daily cap (netlify/lib/membership-core.mjs) for a verified non-member. A
@@ -449,10 +451,10 @@ export const STATE_LEG_BOARD_SEATS = contestedSeats();
 // read-only, and so would any seat a whole-state opening admitted that has no
 // race: a row takes a voice only when its state is here AND its seat is one of
 // STATE_LEG_BOARD_SEATS. Nothing here opens a board.
-export const STATE_LEG_VOICED_STATES = new Set(["pa", "ga", "nc", "mi", "oh", "wi", "fl", "az", "ny", "tx", "il", "mn", "co"]);
+export const STATE_LEG_VOICED_STATES = new Set(["pa", "ga", "nc", "mi", "oh", "wi", "fl", "az", "ny", "tx", "il", "mn", "co", "ca"]);
 // A lower chamber its state calls the Assembly is named so on its board.
-// Wisconsin and New York are the only ones of these with a board today; the
-// others name no board, so their bytes cannot move.
+// Wisconsin, New York, Nevada and California are the ones of these with a
+// board today; New Jersey names no board, so its bytes cannot move.
 const ASSEMBLY_STATES = new Set(["ca", "ny", "nv", "nj", "wi"]);
 export function planStateLegislative(win, boards, skipped, states = FEDERAL_STATES, boardStates = STATE_LEG_BOARD_STATES, boardSeats = STATE_LEG_BOARD_SEATS) {
   const RO = win.CMP_DATA;
