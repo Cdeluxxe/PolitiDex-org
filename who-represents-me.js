@@ -481,12 +481,12 @@
   // oh-ballot-2026.js (Ohio), wi-ballot-2026.js (Wisconsin),
   // fl-ballot-2026.js (Florida), az-ballot-2026.js (Arizona),
   // ny-ballot-2026.js (New York), tx-ballot-2026.js (Texas),
-  // il-ballot-2026.js (Illinois), mn-ballot-2026.js (Minnesota) and
-  // co-ballot-2026.js (Colorado) hold the acts and own the markup; each answers '' for any pid it holds no act for,
+  // il-ballot-2026.js (Illinois), mn-ballot-2026.js (Minnesota),
+  // co-ballot-2026.js (Colorado) and nv-ballot-2026.js (Nevada) hold the acts and own the markup; each answers '' for any pid it holds no act for,
   // so every other state's row is unchanged. A sibling of the row, for the same
   // nesting reason as seatCompare() below.
   function seatRecord(pid, lv) {
-    var mods = [window.PDXPaBallot, window.PDXGaBallot, window.PDXNcBallot, window.PDXMiBallot, window.PDXOhBallot, window.PDXWiBallot, window.PDXFlBallot, window.PDXAzBallot, window.PDXNyBallot, window.PDXTxBallot, window.PDXIlBallot, window.PDXMnBallot, window.PDXCoBallot];
+    var mods = [window.PDXPaBallot, window.PDXGaBallot, window.PDXNcBallot, window.PDXMiBallot, window.PDXOhBallot, window.PDXWiBallot, window.PDXFlBallot, window.PDXAzBallot, window.PDXNyBallot, window.PDXTxBallot, window.PDXIlBallot, window.PDXMnBallot, window.PDXCoBallot, window.PDXNvBallot];
     for (var i = 0; i < mods.length; i++) {
       var P = mods[i];
       if (!P || typeof P.seatActHtml !== 'function') continue;

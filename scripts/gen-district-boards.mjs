@@ -402,7 +402,7 @@ export const STATE_LEG_BOARD_REFUSAL = "state legislative boards are not opened 
 // ONE SEAT AT A TIME, WHERE THERE IS A RACE. A state that is not on the list
 // above may still open a board for a single seat when that seat is one of the
 // contested races a state's ballot file holds for the November 3, 2026 ballot
-// (CONTESTED_FILES below — Pennsylvania's, Georgia's, North Carolina's, Michigan's, Ohio's, Wisconsin's, Florida's, Arizona's Senate, New York's, Texas's, Illinois's, Minnesota's, then Colorado's) — the seat key is
+// (CONTESTED_FILES below — Pennsylvania's, Georgia's, North Carolina's, Michigan's, Ohio's, Wisconsin's, Florida's, Arizona's Senate, New York's, Texas's, Illinois's, Minnesota's, Colorado's, then Nevada's) — the seat key is
 // read from that file's RACES, never typed here, so a board cannot open for a
 // seat with no race behind it. Every other gate below still applies: the
 // roster names the sitting member, the resolver seats that member on that
@@ -421,6 +421,7 @@ export const CONTESTED_FILES = [
   { code: "il", file: "il-ballot-2026.js", global: "PDXIlBallot" },
   { code: "mn", file: "mn-ballot-2026.js", global: "PDXMnBallot" },
   { code: "co", file: "co-ballot-2026.js", global: "PDXCoBallot" },
+  { code: "nv", file: "nv-ballot-2026.js", global: "PDXNvBallot" },
 ];
 const contestedModule = (c) => {
   const w = {}; w.window = w;

@@ -486,7 +486,7 @@ const rosterWaveAdmissions = (() => {
     // The sitting Minnesota and Colorado members in the contested 2026 races,
     // one identity shell each, named by the races mn-ballot-2026.js and
     // co-ballot-2026.js hold.
-    for (const [f, g] of [["mn-ballot-2026.js", "PDXMnBallot"], ["co-ballot-2026.js", "PDXCoBallot"]]) {
+    for (const [f, g] of [["mn-ballot-2026.js", "PDXMnBallot"], ["co-ballot-2026.js", "PDXCoBallot"], ["nv-ballot-2026.js", "PDXNvBallot"]]) {
       try {
         const w = {}; w.window = w;
         vm.runInContext(readFileSync(join(ROOT, f), "utf8"), vm.createContext(w));

@@ -3451,6 +3451,14 @@ export const DECLARED_ADMISSIONS = [
       "bob_marshall_co", "mauro_co", "ryan_gonzalez_co", "katie_stewart_co"],
   },
   {
+    // The sitting Nevada members in the contested 2026 races
+    // (nv-ballot-2026.js) who had no roster row: one identity row each, read
+    // off the Legislature's own member lists.
+    wave: "nv_contested_cycle_oct2026",
+    banner: "// ── Sitting Nevada legislators in the contested 2026 races (nv-ballot-2026.js, Oct 2026)",
+    pids: ["scheible_nv", "pazina_nv", "lisa_cole_nv", "marzola_nv", "la_rue_hatch_nv", "edgeworth_nv", "backus_nv"],
+  },
+  {
     // Too many rows to type here, so the list is the committed record of
     // the pass itself, which also names each state's official source.
     wave: "candidates_outside_utah_oct2026",

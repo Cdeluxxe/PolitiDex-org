@@ -24,6 +24,7 @@
 //   node scripts/test-state-legislative-lines-nv-ne-ar.mjs
 
 import { R, HEAD, MAP, sq, driveFinder, boot, levelOf, band, tigerUrls, layerOf } from "./state-leg-harness.mjs";
+import vm from "node:vm";
 
 let passed = 0;
 const failures = [];
@@ -206,7 +207,12 @@ const [NV, NE, AR] = PLACES;
       }
     }
   }
-  eq(JSON.stringify([...named].sort()), JSON.stringify(["marilyn_dondero_loop", "robin_titus"]),
+  // The sitting Nevada members in the contested 2026 races, read off nv-ballot-2026.js.
+  const nvRaceMembers = (() => {
+    const w = {}; w.window = w; vm.runInContext(R("nv-ballot-2026.js"), vm.createContext(w));
+    return w.PDXNvBallot.RACES.flatMap((r) => r.field.filter((c) => c.pid).map((c) => c.pid));
+  })();
+  eq(JSON.stringify([...named].sort()), JSON.stringify([...new Set(["marilyn_dondero_loop", "robin_titus", ...nvRaceMembers])].sort()),
     "roster: the members the lookup can name are not exactly the district-keyed state legislators on file");
   for (const p of ["nicole_cannizzaro", "cotton", "boozman", "french_hill"]) ok(!named.has(p), `roster: ${p} was placed in a legislative seat`);
 }

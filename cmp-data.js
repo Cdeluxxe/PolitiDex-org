@@ -33296,6 +33296,58 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
  },
+// ── Sitting Nevada legislators in the contested 2026 races (nv-ballot-2026.js, Oct 2026)
+// One row for each incumbent in a contested Nevada State Senate or State
+// Assembly race on the November 3, 2026 ballot who had no roster row, so the
+// seat card can name who holds the seat (Marilyn Dondero Loop, Senate 8,
+// already has one and it is not touched). Identity only: the name, the
+// office, the state and the district, read off the Legislature's own member
+// lists (leg.state.nv.us/App/Legislator), and `candidate: false` (in office).
+// The Assembly's districts are written "HD n", as Wisconsin's are: the
+// dialect the seat resolver reads for every lower chamber. No
+// party, bio, score or stances; the formal acts live in nv-ballot-2026.js.
+ "scheible_nv": {
+  "name": "Melanie Scheible", "office": "Nevada State Senator",
+  "state": "Nevada", "district": "SD 9", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pazina_nv": {
+  "name": "Julie Pazina", "office": "Nevada State Senator",
+  "state": "Nevada", "district": "SD 12", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lisa_cole_nv": {
+  "name": "Lisa Cole", "office": "Nevada State Assembly Member",
+  "state": "Nevada", "district": "HD 4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "marzola_nv": {
+  "name": "Elaine Marzola", "office": "Nevada State Assembly Member",
+  "state": "Nevada", "district": "HD 21", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "la_rue_hatch_nv": {
+  "name": "Selena La Rue Hatch", "office": "Nevada State Assembly Member",
+  "state": "Nevada", "district": "HD 25", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "edgeworth_nv": {
+  "name": "Rebecca Edgeworth", "office": "Nevada State Assembly Member",
+  "state": "Nevada", "district": "HD 35", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "backus_nv": {
+  "name": "Shea Backus", "office": "Nevada State Assembly Member",
+  "state": "Nevada", "district": "HD 37", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
 // ── Current candidates outside Utah, 2026 general election, official state lists (Oct 2026)
 // Every nominee on the November 3, 2026 general-election ballot for U.S. Senate,
 // U.S. House, and the statewide offices the roster already tracks (Governor,

@@ -666,6 +666,19 @@
 # rules are after it and cannot match either of its two paths. Every
 # same-origin path inside both documents is root-absolute for the reason given
 # beside /ballot/ above.
+# Nevada's contested legislative seats, Nov. 3, 2026 (nv-ballot-2026.js)
+[[redirects]]
+  from = "/ballot/nv"
+  to = "/ballot-nv.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/nv/"
+  to = "/ballot-nv.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/nv.html"
+  to = "/ballot-nv.html"
+  status = 200
 # Colorado's contested legislative seats, Nov. 3, 2026 (co-ballot-2026.js)
 [[redirects]]
   from = "/ballot/co"
@@ -9867,6 +9880,118 @@
 [[redirects]]
   from = "/district/mn-hd-107.html"
   to = "/district-mn-hd-107.html"
+  status = 200
+
+# Nevada Senate District 8 — marilyn_dondero_loop
+[[redirects]]
+  from = "/district/nv-sd-8"
+  to = "/district-nv-sd-8.html"
+  status = 200
+[[redirects]]
+  from = "/district/nv-sd-8/"
+  to = "/district-nv-sd-8.html"
+  status = 200
+[[redirects]]
+  from = "/district/nv-sd-8.html"
+  to = "/district-nv-sd-8.html"
+  status = 200
+
+# Nevada Senate District 9 — scheible_nv
+[[redirects]]
+  from = "/district/nv-sd-9"
+  to = "/district-nv-sd-9.html"
+  status = 200
+[[redirects]]
+  from = "/district/nv-sd-9/"
+  to = "/district-nv-sd-9.html"
+  status = 200
+[[redirects]]
+  from = "/district/nv-sd-9.html"
+  to = "/district-nv-sd-9.html"
+  status = 200
+
+# Nevada Senate District 12 — pazina_nv
+[[redirects]]
+  from = "/district/nv-sd-12"
+  to = "/district-nv-sd-12.html"
+  status = 200
+[[redirects]]
+  from = "/district/nv-sd-12/"
+  to = "/district-nv-sd-12.html"
+  status = 200
+[[redirects]]
+  from = "/district/nv-sd-12.html"
+  to = "/district-nv-sd-12.html"
+  status = 200
+
+# Nevada Assembly District 4 — lisa_cole_nv
+[[redirects]]
+  from = "/district/nv-hd-4"
+  to = "/district-nv-hd-4.html"
+  status = 200
+[[redirects]]
+  from = "/district/nv-hd-4/"
+  to = "/district-nv-hd-4.html"
+  status = 200
+[[redirects]]
+  from = "/district/nv-hd-4.html"
+  to = "/district-nv-hd-4.html"
+  status = 200
+
+# Nevada Assembly District 21 — marzola_nv
+[[redirects]]
+  from = "/district/nv-hd-21"
+  to = "/district-nv-hd-21.html"
+  status = 200
+[[redirects]]
+  from = "/district/nv-hd-21/"
+  to = "/district-nv-hd-21.html"
+  status = 200
+[[redirects]]
+  from = "/district/nv-hd-21.html"
+  to = "/district-nv-hd-21.html"
+  status = 200
+
+# Nevada Assembly District 25 — la_rue_hatch_nv
+[[redirects]]
+  from = "/district/nv-hd-25"
+  to = "/district-nv-hd-25.html"
+  status = 200
+[[redirects]]
+  from = "/district/nv-hd-25/"
+  to = "/district-nv-hd-25.html"
+  status = 200
+[[redirects]]
+  from = "/district/nv-hd-25.html"
+  to = "/district-nv-hd-25.html"
+  status = 200
+
+# Nevada Assembly District 35 — edgeworth_nv
+[[redirects]]
+  from = "/district/nv-hd-35"
+  to = "/district-nv-hd-35.html"
+  status = 200
+[[redirects]]
+  from = "/district/nv-hd-35/"
+  to = "/district-nv-hd-35.html"
+  status = 200
+[[redirects]]
+  from = "/district/nv-hd-35.html"
+  to = "/district-nv-hd-35.html"
+  status = 200
+
+# Nevada Assembly District 37 — backus_nv
+[[redirects]]
+  from = "/district/nv-hd-37"
+  to = "/district-nv-hd-37.html"
+  status = 200
+[[redirects]]
+  from = "/district/nv-hd-37/"
+  to = "/district-nv-hd-37.html"
+  status = 200
+[[redirects]]
+  from = "/district/nv-hd-37.html"
+  to = "/district-nv-hd-37.html"
   status = 200
 
 # New York Senate District 43 — ashby_ny
