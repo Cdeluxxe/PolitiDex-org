@@ -50,7 +50,10 @@ function report() {
   console.log(`\n   ✓ federal board voice: all ${passed} assertions passed`);
 }
 
-const FED = planBoards().boards.filter((b) => b.federal);
+// Every federal board that takes a voice. NE-2 opened read-only
+// (FEDERAL_READ_ONLY_SEATS) and is held off the composer's lists by
+// test-six-state-deepen.mjs.
+const FED = planBoards().boards.filter((b) => b.federal && !b.readOnly);
 const HOUSE = FED.filter((b) => b.usHouse);
 const SENATE = FED.filter((b) => b.statewide);
 

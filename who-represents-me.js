@@ -481,7 +481,7 @@
   // member on lv.positions instead (only when the roster holds one). Such a level
   // is printed as one row per position, headed with the district AND the
   // position; every other level is printed exactly as before.
-  function seatRows(levels) {
+  function seatRows(levels, state) {
     var out = [];
     (levels || []).forEach(function (lv) {
       if (!lv || !lv.positions || !lv.positions.length || lv.pid) { out.push(lv); return; }
@@ -491,7 +491,9 @@
         x.pid = p.pid || null;
         x.resolved = !!p.pid;
         x.position = p.position;
-        x.distLabel = lv.distLabel + ' · Position ' + p.position;
+        var pw = (typeof window.pdxLegPositionLabel === 'function' && state)
+          ? window.pdxLegPositionLabel(state, lv.key, p.position) : '';
+        x.distLabel = lv.distLabel + ' · ' + (pw || ('Position ' + p.position));
         delete x.positions;
         out.push(x);
       });
@@ -1145,7 +1147,7 @@
   // seats resolve from a state and which need district lines we do not draw.
   function scopeNote(reps) {
     if (reps.districtsResolvable) return '';
-    var blanks = seatRows(reps.levels).filter(function (l) { return !l.statewide && !l.resolved; }).length;
+    var blanks = seatRows(reps.levels, reps.state).filter(function (l) { return !l.statewide && !l.resolved; }).length;
     if (!blanks) return '';
     // A state whose legislative lines we DO draw (Texas, California, Florida,
     // New York, Illinois, Pennsylvania, Ohio, Georgia, Michigan, North
@@ -1207,7 +1209,7 @@
       return;
     }
 
-    var seats = seatRows(reps.levels);
+    var seats = seatRows(reps.levels, reps.state);
     var rows = seats.map(function (lv) { return row(lv, reps); }).join('');
     var area = reps.area ? esc(reps.area) : '';
     var resolved = seats.filter(function (l) { return l.resolved; }).length;

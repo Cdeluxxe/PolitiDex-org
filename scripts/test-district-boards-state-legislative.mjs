@@ -39,7 +39,7 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import {
-  FEDERAL_STATES, HAND_SEATS, STATE_LEG_REFUSAL, STATE_LEG_BOARD_REFUSAL, STATE_LEG_BOARD_SEATS, STATE_LEG_VOICED_STATES, loadRoster, planBoards, planStateLegislative, renderAll, renderDoc,
+  FEDERAL_STATES, HAND_SEATS, STATE_LEG_REFUSAL, STATE_LEG_BOARD_REFUSAL, STATE_LEG_BOARD_STATES, STATE_LEG_BOARD_SEATS, STATE_LEG_VOICED_STATES, loadRoster, planBoards, planStateLegislative, renderAll, renderDoc,
 } from "./gen-district-boards.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -99,13 +99,20 @@ const CONTESTED = STATE_LEG_BOARD_SEATS;
 const CONTESTED_ALIAS = new Set([...CONTESTED].map((k) => k.replace("-statehouse-", "-hd-").replace("-statesenate-", "-sd-")));
 // The contested seats that take a voice: those in the thirteen density states.
 const VOICED_ALIASES = [...CONTESTED_ALIAS].filter((a) => STATE_LEG_VOICED_STATES.has(a.slice(0, 2))).sort();
-const outsideUtah = (k) => LEG_KEY_RE.test(k) && !/^ut-/.test(k) && !CONTESTED.has(k);
+// AND SIX STATES OPENED WHOLE. Nebraska, South Dakota, Idaho, Montana, Alaska
+// and Rhode Island (STATE_LEG_BOARD_STATES) open every seat the roster names;
+// test-six-state-deepen.mjs holds those boards. This suite holds every other
+// state to the contested-race rule.
+const WHOLE = STATE_LEG_BOARD_STATES;
+const inWhole = (k) => WHOLE.has(String(k).slice(0, 2));
+const outsideUtah = (k) => LEG_KEY_RE.test(k) && !/^ut-/.test(k) && !CONTESTED.has(k) && !inWhole(k);
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("1 · the plan asks every roster state legislator outside Utah, and opens none");
 // ═════════════════════════════════════════════════════════════════════════════
 must(CONTESTED.size > 0 && [...CONTESTED].every((k) => /^(?:pa|ga|nc|mi|oh|wi|fl|az|ny|tx|il|mn|co|nv|ca|wa)-(?:statehouse|statesenate)-\d+(?:-p\d)?$/.test(k)), "the contested-seat list is Pennsylvania's, Georgia's, North Carolina's, Michigan's, Ohio's, Wisconsin's, Florida's, Arizona's, New York's, Texas's, Illinois's, Minnesota's, Colorado's and Nevada's");
-eq(JSON.stringify(LEG.map((b) => b.seat).sort()), JSON.stringify([...CONTESTED].sort()),
+eq([...WHOLE].sort().join(","), "ak,id,mt,ne,ri,sd", "the states opened whole");
+eq(JSON.stringify(LEG.filter((b) => !inWhole(b.seat)).map((b) => b.seat).sort()), JSON.stringify([...CONTESTED].sort()),
   "outside Utah, exactly the contested Pennsylvania seats open a state legislative board");
 eq(Object.keys(V.BOARD_ROUTES).length, HAND_SEATS.length + PLAN.length,
   "BOARD_ROUTES length = the six hand rows + the generator's plan");
@@ -129,12 +136,12 @@ eq(Object.keys(V.BOARD_ROUTES).length, HAND_SEATS.length + PLAN.length,
   // seats are refused by the board list rather than the resolver; every other
   // state is still the resolver's refusal.
   const MAPPED_LEG = /^(?:tx|ca|fl|ny|il|pa|oh|ga|mi|nc|va|wa|az|nj|ma|tn|co|md|mn|wi|in|mo|ky|al|sc|ia|ok|ks|nv|ne|ar|or|id|mt|nm|wy|ms|wv|hi|la|me|nh|ct|ri|vt|de|nd|sd|ak)-/;
-  ok(LEG_SKIPPED.every((s) => s.reason === (MAPPED_LEG.test(s.seat) ? STATE_LEG_BOARD_REFUSAL : STATE_LEG_REFUSAL)),
+  ok(LEG_SKIPPED.filter((s) => !inWhole(s.seat)).every((s) => s.reason === (MAPPED_LEG.test(s.seat) ? STATE_LEG_BOARD_REFUSAL : STATE_LEG_REFUSAL)),
     "every refusal is the board list's in a mapped state and the resolver's everywhere else");
   for (const code of ["tx", "ca", "fl", "ny", "il", "pa", "oh", "ga", "mi", "nc", "va", "wa", "az", "nj", "ma", "tn", "co", "md", "mn", "wi", "in", "mo", "ky", "al", "sc", "ia", "ok", "ks", "nv", "ne", "ar", "or", "id", "mt", "nm", "wy", "ms", "wv", "hi", "la", "me", "nh", "ct", "ri", "vt", "de", "nd", "sd", "ak"]) {
     // A state with no roster legislator at all (Oklahoma) has nothing to refuse;
     // the every-refusal check above still covers whatever it would have.
-    if (!LEG_SKIPPED.some((s) => s.seat.indexOf(code + "-") === 0)) { passed++; continue; }
+    if (WHOLE.has(code) || !LEG_SKIPPED.some((s) => s.seat.indexOf(code + "-") === 0)) { passed++; continue; }
     ok(LEG_SKIPPED.some((s) => s.seat.indexOf(code + "-") === 0 && s.reason === STATE_LEG_BOARD_REFUSAL),
       `${code}: a mapped seat is refused by the board list`);
   }
@@ -149,11 +156,11 @@ eq(Object.keys(V.BOARD_ROUTES).length, HAND_SEATS.length + PLAN.length,
   ok(!routes.some(outsideUtah), "BOARD_ROUTES: no State House or State Senate row outside Utah but the contested seats");
   ok(!fnSeats.some(outsideUtah), "BOARD_SEATS: no State House or State Senate row outside Utah but the contested seats");
   const docs = readdirSync(ROOT).filter((f) => /^district-[a-z]{2}-(?:hd|sd)-\d+\.html$/.test(f));
-  const strays = docs.filter((f) => !f.startsWith("district-ut-") && !CONTESTED_ALIAS.has(f.slice(9, -5)));
+  const strays = docs.filter((f) => !f.startsWith("district-ut-") && !CONTESTED_ALIAS.has(f.slice(9, -5)) && !inWhole(f.slice(9)));
   ok(docs.length > 0 && strays.length === 0, `no state legislative document outside Utah but the contested seats: ${strays.join(", ")}`);
   const RULES = [...TOML.matchAll(/\[\[redirects\]\]\s*\n\s*from = "([^"]+)"/g)].map((m) => m[1]);
   ok(!RULES.some((r) => r.indexOf("/district") === 0 && r.indexOf("*") >= 0), "no /district/* splat");
-  ok(!RULES.some((r) => /^\/district\/([a-z]{2})-(?:hd|sd)-/.test(r) && !/^\/district\/ut-/.test(r) &&
+  ok(!RULES.some((r) => /^\/district\/([a-z]{2})-(?:hd|sd)-/.test(r) && !/^\/district\/ut-/.test(r) && !inWhole(r.slice(10)) &&
     !CONTESTED_ALIAS.has(r.replace(/^\/district\//, "").replace(/(?:\/|\.html)$/, ""))), "no rewrite for a state legislative address outside Utah but the contested seats");
   for (const s of LEG_SKIPPED) {
     eq(V.boardPath(s.seat), "", `${s.seat}: no BOARD_ROUTES row`);
@@ -386,7 +393,7 @@ section("6 · the coverage sentence and the coach say what is on disk");
 
   // The states that HAVE a state legislative board, read off BOARD_ROUTES.
   const legStates = new Set(Object.keys(V.BOARD_ROUTES).map((k) => (LEG_KEY_RE.exec(k) || [])[1]).filter(Boolean));
-  eq([...legStates].sort().join(","), "az,ca,co,fl,ga,il,mi,mn,nc,nv,ny,oh,pa,tx,ut,wa,wi", "Utah, and the contested seats of Pennsylvania, Georgia, North Carolina, Michigan, Ohio, Wisconsin, Florida, Arizona and New York, are the only State House or State Senate boards");
+  eq([...legStates].sort().join(","), "ak,az,ca,co,fl,ga,id,il,mi,mn,mt,nc,ne,nv,ny,oh,pa,ri,sd,tx,ut,wa,wi", "Utah, the six states opened whole, and the contested seats of Pennsylvania, Georgia, North Carolina, Michigan, Ohio, Wisconsin, Florida, Arizona and New York, are the only State House or State Senate boards");
   ok(Object.keys(V.BOARD_ROUTES).filter((k) => /^(?:pa|ga|nc|mi|oh|wi|fl|az|ny|tx|il|mn|co|nv|ca|wa)-/.test(k) && LEG_KEY_RE.test(k)).every((k) => CONTESTED.has(k)), "every Pennsylvania, Georgia, North Carolina, Michigan, Ohio, Wisconsin, Florida, Arizona and New York legislative board is a contested seat");
   const C = (() => {
     const win = makeSandbox();

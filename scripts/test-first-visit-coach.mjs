@@ -28,7 +28,7 @@ import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
-import { STATE_LEG_BOARD_SEATS } from "./gen-district-boards.mjs";
+import { STATE_LEG_BOARD_SEATS, STATE_LEG_BOARD_STATES } from "./gen-district-boards.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -482,7 +482,12 @@ section("4b · one Utah-first sentence under District Voice, and it is true");
   // Pennsylvania seats on the Nov. 3, 2026 ballot (pa-ballot-2026.js), each a
   // read-only board. Utah is still first, and a state is still not "added".
   const contested = new Set([...STATE_LEG_BOARD_SEATS].map((k) => `district-${k.replace("-statehouse-", "-hd-").replace("-statesenate-", "-sd-")}.html`));
-  const outside = boards.filter((f) => !f.startsWith("district-ut-") && !contested.has(f));
+  // And six states opened whole since (STATE_LEG_BOARD_STATES: Nebraska, South
+  // Dakota, Idaho, Montana, Alaska, Rhode Island), each with a read-only
+  // governor board; test-six-state-deepen.mjs holds them. Utah was still first,
+  // and other states are still being added.
+  const whole = (f) => STATE_LEG_BOARD_STATES.has(f.slice(9, 11));
+  const outside = boards.filter((f) => !f.startsWith("district-ut-") && !contested.has(f) && !whole(f));
   ok(boards.length > 0 && outside.every((f) => /^district-[a-z]{2}-(?:cd-[1-9][0-9]*|us-senate-[a-z][a-z0-9_]*)\.html$/.test(f)),
     `a state legislative board outside Utah exists, so "Utah first" is out of date: ${outside.filter((f) => !/^district-[a-z]{2}-(?:cd-|us-senate-)/.test(f)).join(", ")}`);
   ok(outside.length > 0, "no U.S. House or U.S. Senate board exists outside Utah, so the sentence's last clause is false");

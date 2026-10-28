@@ -408,12 +408,15 @@ section("8 · the homepage counts BOARD_ROUTES");
   const STATEWIDE = /^[a-z]{2}-(?:gov|us-senate-[a-z][a-z0-9_]*)$/;
   eq(ut.filter((k) => !STATEWIDE.test(k)).length, 85, "Utah: BOARD_ROUTES holds 85 district rows");
   eq(ut.filter((k) => STATEWIDE.test(k)).length, 3, "Utah: …and the three statewide ones");
-  // Outside Utah: only U.S. House and U.S. Senate rows, never a governor.
+  // Outside Utah: only U.S. House and U.S. Senate rows, and a governor only in
+  // the six states opened whole (GOVERNOR_STATES; test-six-state-deepen.mjs).
   // The contested Pennsylvania legislative seats (pa-ballot-2026.js) are a
-  // list of races, held by test-pa-contested-cycle.mjs, and never a governor.
-  const other = keys.filter((k) => !/^ut-/.test(k) && !/^(?:pa|ga|nc|mi|oh|wi|fl|az|ny|tx|il|mn|co|nv|ca|wa)-(?:statehouse|statesenate)-\d+(?:-p\d)?$/.test(k));
-  ok(other.every((k) => /^[a-z]{2}-(?:house-[1-9][0-9]*|us-senate-[a-z][a-z0-9_]*)$/.test(k)),
-    "outside Utah BOARD_ROUTES holds U.S. House and U.S. Senate rows only");
+  // list of races, held by test-pa-contested-cycle.mjs, and never a governor;
+  // the six states' legislative seats are held by test-six-state-deepen.mjs.
+  const other = keys.filter((k) => !/^ut-/.test(k) && !/^(?:pa|ga|nc|mi|oh|wi|fl|az|ny|tx|il|mn|co|nv|ca|wa|ne|sd|id|mt|ak|ri)-(?:statehouse|statesenate)-\d+(?:-p\d)?$/.test(k));
+  ok(other.every((k) => /^[a-z]{2}-(?:house-[1-9][0-9]*|us-senate-[a-z][a-z0-9_]*)$/.test(k) || /^(?:ne|sd|id|mt|ak|ri)-gov$/.test(k)),
+    "outside Utah BOARD_ROUTES holds U.S. House and U.S. Senate rows only, and the six states' governors");
+  eq(other.filter((k) => /-gov$/.test(k)).length, 6, "outside Utah exactly six governor boards");
   eq(n, HAND_SEATS.length + planBoards().boards.length, "BOARD_ROUTES length is the generator's plan");
   const ONES = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven",
     "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];

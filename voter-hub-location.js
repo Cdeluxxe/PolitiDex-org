@@ -3218,7 +3218,16 @@
   // placed on THAT position and never on the district: the district alone
   // still names nobody, as it did when two records claimed it. Only a chamber
   // listed here reads `position`; every other record is read exactly as before.
-  var _PDX_LEG_POSITIONS = { washington: { statehouse: 2 } };
+  // Idaho's House elects Position A and Position B from every district (1 and 2
+  // here). South Dakota's House elects two members at large from each district
+  // but 26 and 28, whose split seats (26A, 26B, 28A, 28B) are lettered keys with
+  // one member each and carry no position; the state numbers no seat in an
+  // at-large pair, so 1 and 2 there are PolitiDex's numbering, in roster order,
+  // printed Seat A and Seat B.
+  var _PDX_LEG_POSITIONS = { washington: { statehouse: 2 }, idaho: { statehouse: 2 },
+                             'south dakota': { statehouse: 2 } };
+  var _PDX_LEG_POSITION_WORDS = { idaho: { statehouse: ['Position A', 'Position B'] },
+                                  'south dakota': { statehouse: ['Seat A', 'Seat B'] } };
   function _pdxLegPositionsOf(st, ch) {
     var t = _PDX_LEG_POSITIONS[st];
     return (t && t[ch]) || 0;
@@ -3306,6 +3315,15 @@
   // Washington's House, 0 for every chamber that elects one member per seat.
   window.pdxLegPositions = function (stateName, chamber) {
     return _pdxLegPositionsOf(_pdxStateName(stateName), chamber);
+  };
+  // How one position is written for a reader: "Position 1" (Washington),
+  // "Position A" (Idaho), "Seat A" (South Dakota), or '' for no such position.
+  window.pdxLegPositionLabel = function (stateName, chamber, position) {
+    var st = _pdxStateName(stateName);
+    var p = parseInt(String(position == null ? '' : position), 10);
+    if (isNaN(p) || p < 1 || p > _pdxLegPositionsOf(st, chamber)) return '';
+    var w = _PDX_LEG_POSITION_WORDS[st];
+    return (w && w[chamber] && w[chamber][p - 1]) || ('Position ' + p);
   };
 
   // ── window.pdxSeatClaim(pid, seatKey, district) — DOES THIS RECORD CLAIM

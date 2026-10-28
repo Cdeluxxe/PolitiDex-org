@@ -52,7 +52,13 @@ const BATCH = JSON.parse(R("db/roster-candidates-2026-oct.json"));
 const SRC = R("cmp-data.js");
 const evalRoster = (src) => { const w = makeSandbox(); vm.runInContext(src, vm.createContext(w), { filename: "cmp-data.js" }); return w; };
 const W0 = evalRoster(SRC);
-const RO = W0.CMP_DATA, CY = W0.CMP_CANDIDACIES || {};
+// The six-state pass (Nebraska, South Dakota, Idaho, Montana, Alaska, Rhode
+// Island) added the sitting legislators running for a DIFFERENT legislative
+// seat to the same table, from its own record; test-six-state-deepen.mjs holds
+// those. This suite holds everything else in the table to this record.
+const LEG_CROSS = new Set(JSON.parse(R("db/roster-candidates-legislative-ne-sd-id-mt-ak-ri-2026-oct.json")).crossSeat.map((r) => r.pid));
+const RO = W0.CMP_DATA;
+const CY = Object.fromEntries(Object.entries(W0.CMP_CANDIDACIES || {}).filter(([k]) => !LEG_CROSS.has(k)));
 const NAME = Object.fromEntries(Object.entries(BATCH.states).map(([k, s]) => [k, s.state]));
 
 // ═════════════════════════════════════════════════════════════════════════════

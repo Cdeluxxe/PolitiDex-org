@@ -201,6 +201,7 @@ export function planBoards() {
   }
   planStatewide(win, boards, skipped);
   planFederal(win, boards, skipped);
+  planGovernors(win, boards, skipped);
   planStateLegislative(win, boards, skipped);
   for (const b of boards) {
     b.route = `/district/${b.alias}`;
@@ -265,9 +266,14 @@ function planStatewide(win, boards, skipped) {
 //                the resolver's own classifier already admitted it — and never a
 //                state senate, a former member or a candidate). Keyed by pid,
 //                exactly as Utah's two are: `<code>-us-senate-<pid>`.
-// The governor is NOT opened outside Utah. Every board here is `federal`, which
-// only keeps it out of sw.js; it takes a voice like any Utah board.
+// The governor is not opened here; see planGovernors() below. Every board here
+// is `federal`, which only keeps it out of sw.js; it takes a voice like any
+// Utah board.
 const US_SENATE_OFFICE_RE = /\bsenat(?:e|or)\b/i;
+// A congressional board opened after the composer passes is READ-ONLY until a
+// pass puts it on the composer's three lists (and gives it a dd_districts row):
+// NE-2, which opened once Don Bacon's roster row named his district.
+export const FEDERAL_READ_ONLY_SEATS = new Set(["ne-house-2"]);
 const NOT_US_SENATE_RE = /\bstate\s+senat|\bformer\b|\bex-|\bcandidate\b|\bnominee\b|-elect\b/i;
 function planFederal(win, boards, skipped) {
   const RO = win.CMP_DATA;
@@ -281,6 +287,7 @@ function planFederal(win, boards, skipped) {
       const atLarge = seats === 1;
       boards.push({
         seat, alias, chamber: "house", district: n, pid: "", joinPid: holder, federal: true,
+        ...(FEDERAL_READ_ONLY_SEATS.has(seat) ? { readOnly: true } : {}),
         usHouse: { state: name, district: n },
         member: row.name, office: row.office,
         h1: atLarge ? `${name}’s At-Large Congressional District` : `${name}’s ${ORD(n)} Congressional District`,
@@ -315,6 +322,41 @@ function planFederal(win, boards, skipped) {
   }
 }
 
+// ── THE GOVERNOR, OUTSIDE UTAH, ONE STATE AT A TIME ─────────────────────────
+// GOVERNOR_STATES names the states whose governor has a board beside Utah's.
+// The gate is Utah's: window._pdxStatewideSeats(<State>) names the governor's
+// pid, cmp-data.js has a row for it, that row's own office is "Governor" and its
+// own state is <State>. A state that fails any of these is SKIPPED and logged.
+// Keyed `<code>-gov`, the shape Utah's is. Unlike Utah's, the board is
+// READ-ONLY — composer: false, on none of the three composer lists, no poll and
+// no residency check — so it is the three bands and the room's counts, and no
+// more. `outsideUtah` keeps it out of sw.js, as a federal board is kept out.
+export const GOVERNOR_STATES = new Set(["ne", "sd", "id", "mt", "ak", "ri"]);
+function planGovernors(win, boards, skipped, states = FEDERAL_STATES, govStates = GOVERNOR_STATES) {
+  const RO = win.CMP_DATA;
+  for (const { code, name } of states) {
+    if (!govStates.has(code)) continue;
+    const key = `${code}-gov`;
+    const sw = win._pdxStatewideSeats(name);
+    if (!sw || sw.ambiguous) { skipped.push({ seat: key, alias: key, reason: `the statewide walk did not answer for ${name}` }); continue; }
+    const pid = String(sw.governor || "");
+    const row = pid && RO[pid];
+    if (!row) { skipped.push({ seat: key, alias: key, pid, reason: "no sitting pid with a cmp-data.js row" }); continue; }
+    const office = String(row.office || "");
+    if (!/^governor$/i.test(office) || String(row.state || "") !== name || !STATEWIDE_KEY_RE.test(key)) {
+      skipped.push({ seat: key, alias: key, pid, reason: `roster record does not claim this seat (${office})` });
+      continue;
+    }
+    boards.push({
+      seat: key, alias: key, chamber: "governor", district: 0, pid, statewide: true, outsideUtah: true, readOnly: true,
+      member: row.name, office: row.office,
+      h1: `Governor · ${row.name}`,
+      where: `Statewide · the whole State of ${name}`,
+      kick: "Governor board",
+    });
+  }
+}
+
 // ── EVERY OTHER STATE'S STATE HOUSE AND STATE SENATE SEATS ──────────────────
 // THE CANDIDATES ARE THE ROSTER'S, NOT A SEAT COUNT. Utah's loop above walks
 // 1..75 because Utah's plan is drawn here; no other state's is, so the only
@@ -345,14 +387,27 @@ const STATE_LEG_NOT_SITTING_RE = /\bformer\b|\bex-|\bcandidate\b|\bnominee\b|-el
 // letter. Only a chamber the resolver itself calls lettered is read this way,
 // and only a record that writes a number and a letter; every other record is
 // read exactly as before, so no other state's seat or bytes move.
-function letteredSeat(win, name, chamber, district) {
-  const m = /^\s*(?:HD\s*|District\s+)?([1-9][0-9]?)([A-Z])\s*$/i.exec(String(district == null ? "" : district));
-  if (!m || typeof win.pdxLegChamberNamed !== "function" || !win.pdxLegChamberNamed(name, chamber)) return null;
-  const code = m[1].padStart(2, "0") + m[2].toUpperCase();
+//
+// Two more shapes are read the same way, and only in a state on
+// LETTERED_PLAIN_STATES, so no other state's seat or bytes move: a bare letter
+// ("District A" in Alaska's Senate, TIGERweb code "00A") and a plain number in a
+// chamber whose table also holds lettered seats ("District 27" in South
+// Dakota's House, code "027" — key 26, because 26 itself is split).
+const LETTERED_PLAIN_STATES = new Set(["sd", "ak"]);
+function letteredSeat(win, name, chamber, district, code2 = "") {
+  if (typeof win.pdxLegChamberNamed !== "function" || !win.pdxLegChamberNamed(name, chamber)) return null;
+  const txt = String(district == null ? "" : district);
+  const m = /^\s*(?:HD\s*|District\s+)?([1-9][0-9]?)([A-Z])\s*$/i.exec(txt);
+  const x = !m && LETTERED_PLAIN_STATES.has(code2)
+    ? /^\s*(?:(?:SD|HD)\s*|District\s+)?(?:([1-9][0-9]?)|([A-Z]))\s*$/i.exec(txt) : null;
+  if (!m && !x) return null;
+  const code = m ? m[1].padStart(2, "0") + m[2].toUpperCase()
+    : x[1] ? x[1].padStart(3, "0") : "00" + x[2].toUpperCase();
   const key = typeof win.pdxLegDistrictKey === "function" ? win.pdxLegDistrictKey(name, chamber, code) : 0;
-  return key > 0 ? { key, label: m[1] + m[2].toUpperCase() } : null;
+  const label = m ? m[1] + m[2].toUpperCase() : (x[1] || x[2].toUpperCase());
+  return key > 0 ? { key, label } : null;
 }
-function stateLegCandidates(RO, name, win = {}) {
+function stateLegCandidates(RO, name, win = {}, code = "") {
   const out = [];
   for (const pid of Object.keys(RO)) {
     const row = RO[pid] || {};
@@ -360,8 +415,15 @@ function stateLegCandidates(RO, name, win = {}) {
     const office = String(row.office || "");
     if (!STATE_LEG_OFFICE_RE.test(office) || STATE_LEG_NOT_SITTING_RE.test(office)) continue;
     const chamber = /senat/i.test(office) ? "statesenate" : "statehouse";
-    const lettered = letteredSeat(win, name, chamber, row.district);
-    if (lettered) { out.push({ pid, row, office, chamber, district: lettered.key, label: lettered.label }); continue; }
+    const lettered = letteredSeat(win, name, chamber, row.district, code);
+    if (lettered) {
+      // A lettered chamber that also elects by position (South Dakota's
+      // at-large House pairs) reads the record's `position` too.
+      const lpos = LETTERED_PLAIN_STATES.has(code) && typeof win.pdxLegPositions === "function" ? win.pdxLegPositions(name, chamber) : 0;
+      const lp = lpos && row.position != null ? parseInt(String(row.position), 10) : 0;
+      out.push({ pid, row, office, chamber, district: lettered.key, label: lettered.label, ...(lp >= 1 && lp <= lpos ? { position: lp } : {}) });
+      continue;
+    }
     const m = /^\s*(?:(?:SD|HD|AD|LD)\s*|District\s+)?([1-9][0-9]*)[A-Z]?\s*$/i.exec(String(row.district == null ? "" : row.district));
     // A POSITION ("Position 1" of Washington's House) is read only in a chamber
     // the resolver itself says elects by position, and only off the record's
@@ -406,7 +468,10 @@ export const STATE_LEG_REFUSAL = "the location resolver does not map this state'
 // seat card, with no new boards. Opening one is its own decision, made by
 // adding the state's code here; until then a mapped seat is refused with this
 // reason rather than the resolver's.
-export const STATE_LEG_BOARD_STATES = new Set();
+// Nebraska, South Dakota, Idaho, Montana, Alaska and Rhode Island are opened
+// whole: every State House and State Senate seat the roster names a sitting
+// member for, read-only, each gated exactly as below.
+export const STATE_LEG_BOARD_STATES = new Set(["ne", "sd", "id", "mt", "ak", "ri"]);
 export const STATE_LEG_BOARD_REFUSAL = "state legislative boards are not opened in this state";
 // ONE SEAT AT A TIME, WHERE THERE IS A RACE. A state that is not on the list
 // above may still open a board for a single seat when that seat is one of the
@@ -463,11 +528,16 @@ export const STATE_LEG_VOICED_STATES = new Set(["pa", "ga", "nc", "mi", "oh", "w
 // Wisconsin, New York, Nevada and California are the ones of these with a
 // board today; New Jersey names no board, so its bytes cannot move.
 const ASSEMBLY_STATES = new Set(["ca", "ny", "nv", "nj", "wi"]);
+// A state whose House seats PolitiDex numbers itself: South Dakota elects two
+// members at large from each district but 26 and 28 and names no seat in the
+// pair, so the roster's `position` (1 and 2, in roster order, printed Seat A and
+// Seat B) is ours. Each such board says so, and the generator logs every one.
+export const ASSIGNED_POSITION_STATES = new Set(["sd"]);
 export function planStateLegislative(win, boards, skipped, states = FEDERAL_STATES, boardStates = STATE_LEG_BOARD_STATES, boardSeats = STATE_LEG_BOARD_SEATS) {
   const RO = win.CMP_DATA;
   for (const { code, name } of states) {
     const opened = new Map();
-    for (const c of stateLegCandidates(RO, name, win)) {
+    for (const c of stateLegCandidates(RO, name, win, code)) {
       const short = c.chamber === "statesenate" ? "sd" : "hd";
       // A seat elected by position is that district's position, keyed
       // <code>-statehouse-<n>-p<k> (alias <code>-hd-<n>-p<k>): two seats, two
@@ -488,14 +558,18 @@ export function planStateLegislative(win, boards, skipped, states = FEDERAL_STAT
         continue;
       }
       const body = c.chamber === "statesenate" ? "Senate" : (ASSEMBLY_STATES.has(code) ? "Assembly" : "House");
-      const label = (c.label || c.district) + (c.position ? `, Position ${c.position}` : "");
+      const pword = c.position && typeof win.pdxLegPositionLabel === "function" ? win.pdxLegPositionLabel(name, c.chamber, c.position) : "";
+      const label = (c.label || c.district) + (c.position ? `, ${pword || `Position ${c.position}`}` : "");
+      const assigned = c.position && ASSIGNED_POSITION_STATES.has(code);
       const list = opened.get(seat) || [];
       list.push({
         seat, alias, chamber: c.chamber, district: c.district, pid: c.pid, ...(c.position ? { position: c.position } : {}),
         stateLeg: true, readOnly: !(STATE_LEG_VOICED_STATES.has(code) && boardSeats.has(seat)),
         member: c.row.name, office: c.row.office,
         h1: `${name} ${body} District ${label}`,
-        where: `District ${c.label || c.district} as ${name}’s current legislative plan draws it`,
+        where: `District ${c.label || c.district} as ${name}’s current legislative plan draws it` +
+          (assigned ? ` · one of two members it elects at large; “${pword}” is PolitiDex’s label, not the state’s` : ""),
+        ...(assigned ? { positionAssigned: true } : {}),
         kick: `${body} District ${label} board`,
       });
       opened.set(seat, list);
@@ -504,6 +578,40 @@ export function planStateLegislative(win, boards, skipped, states = FEDERAL_STAT
     for (const list of opened.values()) {
       if (list.length === 1) { boards.push(list[0]); continue; }
       for (const b of list) skipped.push({ seat: b.seat, alias: b.alias, pid: b.pid, stateLeg: true, reason: "two roster records claim this seat" });
+    }
+    if (boardStates.has(code)) emptySeats(win, code, name, boards, skipped);
+  }
+}
+// A WHOLE-STATE OPENING ACCOUNTS FOR EVERY SEAT. The chamber sizes of the states
+// opened whole — a fact of each state's law, not a list of who holds them — so
+// a seat the roster names nobody for (a vacancy) is logged as skipped rather
+// than silently absent. A count is the number of keys the resolver uses: South
+// Dakota's House is 37 (33 at-large districts, then 26A, 26B, 28A and 28B), and
+// a key that elects by position is one seat per position.
+export const STATE_LEG_SEAT_COUNTS = {
+  ne: { statesenate: 49 },
+  sd: { statesenate: 35, statehouse: 37 },
+  id: { statesenate: 35, statehouse: 35 },
+  mt: { statesenate: 50, statehouse: 100 },
+  ak: { statesenate: 20, statehouse: 40 },
+  ri: { statesenate: 38, statehouse: 75 },
+};
+function emptySeats(win, code, name, boards, skipped) {
+  const counts = STATE_LEG_SEAT_COUNTS[code];
+  if (!counts) return;
+  const have = new Set(boards.map((b) => b.seat).concat(skipped.map((x) => x.seat)));
+  for (const [chamber, n] of Object.entries(counts)) {
+    const short = chamber === "statesenate" ? "sd" : "hd";
+    const npos = typeof win.pdxLegPositions === "function" ? win.pdxLegPositions(name, chamber) : 0;
+    const named = typeof win.pdxLegChamberNamed === "function" && win.pdxLegChamberNamed(name, chamber);
+    for (let k = 1; k <= n; k++) {
+      const label = named ? String(win.pdxLegDistrictName(name, chamber, k) || "") : "";
+      const sfx = npos && !/[0-9][A-Z]$/.test(label) ? Array.from({ length: npos }, (_, i) => `-p${i + 1}`) : [""];
+      for (const pk of sfx) {
+        const seat = `${code}-${chamber}-${k}${pk}`;
+        if (have.has(seat)) continue;
+        skipped.push({ seat, alias: `${code}-${short}-${k}${pk}`, stateLeg: true, reason: "no sitting member on the roster" });
+      }
     }
   }
 }
@@ -652,7 +760,7 @@ function navReLine(boards) {
 // Every document this generator may own: a Utah district seat's or statewide
 // seat's, or another state's U.S. House, U.S. Senate, State House or State
 // Senate seat's.
-export const BOARD_DOC_RE = /^district-(?:ut-(?:(?:hd|sd|cd)-\d+|gov|us-senate-[a-z][a-z0-9_]*)|[a-z]{2}-(?:(?:cd|hd|sd)-\d+|hd-\d+-p\d+|us-senate-[a-z][a-z0-9_]*))\.html$/;
+export const BOARD_DOC_RE = /^district-(?:ut-(?:(?:hd|sd|cd)-\d+|gov|us-senate-[a-z][a-z0-9_]*)|[a-z]{2}-(?:(?:cd|hd|sd)-\d+|hd-\d+-p\d+|gov|us-senate-[a-z][a-z0-9_]*))\.html$/;
 
 export function renderAll() {
   const { boards, skipped } = planBoards();
@@ -665,7 +773,7 @@ export function renderAll() {
     "district-board.mts", boards.map((b) => `  "${b.seat}": 1,`)));
   // Every board but a read-only one is on the composer's three lists. Only the
   // sw.js blocks below are Utah's alone.
-  const utah = boards.filter((b) => !b.federal && !b.stateLeg);
+  const utah = boards.filter((b) => !b.federal && !b.stateLeg && !b.outsideUtah);
   const voiced = boards.filter((b) => !b.readOnly);
   out.set("netlify/lib/district-board-voice-core.mjs", splice(R("netlify/lib/district-board-voice-core.mjs"),
     "district-board-voice-core.mjs", voiced.map((b) => `  "${b.seat}": "${b.alias}",`)));
@@ -727,7 +835,12 @@ function main() {
   const leg = boards.filter((b) => b.stateLeg).length;
   const fed = boards.filter((b) => b.federal).length;
   const legSkipped = skipped.filter((s) => s.stateLeg);
-  console.log(`gen-district-boards: ${boards.length} generated boards (${boards.length - fed - leg} Utah, ${fed} other states' U.S. House and U.S. Senate, ${leg} other states' state legislative), ${skipped.length} seats skipped`);
+  const gov = boards.filter((b) => b.outsideUtah).length;
+  console.log(`gen-district-boards: ${boards.length} generated boards (${boards.length - fed - leg - gov} Utah, ${fed} other states' U.S. House and U.S. Senate, ${gov} other states' governors, ${leg} other states' state legislative), ${skipped.length} seats skipped`);
+  const assigned = boards.filter((b) => b.positionAssigned);
+  if (assigned.length) {
+    console.log(`  ${assigned.length} South Dakota House boards are at-large positions PolitiDex numbered (Seat A / Seat B, in roster order) — not the state's own labels`);
+  }
   if (!leg) {
     const states = new Set(legSkipped.map((s) => s.seat.slice(0, 2)));
     console.log(`  0 state legislative boards outside Utah: ${legSkipped.length} roster seats in ${states.size} states refused (${STATE_LEG_REFUSAL})`);

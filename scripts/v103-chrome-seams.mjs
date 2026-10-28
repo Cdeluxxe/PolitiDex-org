@@ -3478,6 +3478,21 @@ export const DECLARED_ADMISSIONS = [
     pids: ["shavers_wa", "dave_paul_wa", "kevin_waters_wa", "stuebe_wa", "mcclintock_wa", "ley_wa", "adison_richards_wa"],
   },
   {
+    // Every sitting Nebraska, South Dakota, Idaho, Montana, Alaska and Rhode
+    // Island state legislator (the six states boarded whole), one identity row
+    // each; the record names each state's source and the one vacancy.
+    wave: "state_legislators_ne_sd_id_mt_ak_ri_oct2026",
+    banner: "// ── Sitting state legislators, Nebraska, South Dakota, Idaho, Montana, Alaska and Rhode Island — roster shells (Oct 2026)",
+    pids: JSON.parse(_readFileSync(new URL("../db/roster-state-legislators-ne-sd-id-mt-ak-ri-2026-oct.json", import.meta.url), "utf8")).rows.map((r) => r.pid),
+  },
+  {
+    // The 2026 State Senate and State House candidates on those six states'
+    // official lists whom the roster did not already hold as sitting members.
+    wave: "legislative_candidates_ne_sd_id_mt_ak_ri_oct2026",
+    banner: "// ── 2026 state legislative candidates, Nebraska, South Dakota, Idaho, Montana, Alaska and Rhode Island (Oct 2026)",
+    pids: JSON.parse(_readFileSync(new URL("../db/roster-candidates-legislative-ne-sd-id-mt-ak-ri-2026-oct.json", import.meta.url), "utf8")).rows.map((r) => r.pid),
+  },
+  {
     // Too many rows to type here, so the list is the committed record of
     // the pass itself, which also names each state's official source.
     wave: "candidates_outside_utah_oct2026",
@@ -3651,7 +3666,10 @@ export const DECLARED_ADMISSION_PIDS = DECLARED_ADMISSIONS.flatMap((d) => d.pids
 // blocks, and only when its keys are exactly the record's.
 export const DECLARED_CANDIDACIES = {
   banner: "/* Sitting officeholders who are 2026 nominees for a different office (Oct 2026)",
-  pids: JSON.parse(_readFileSync(new URL("../db/roster-cross-office-candidacies-2026-oct.json", import.meta.url), "utf8")).rows.map((r) => r.pid),
+  pids: JSON.parse(_readFileSync(new URL("../db/roster-cross-office-candidacies-2026-oct.json", import.meta.url), "utf8")).rows.map((r) => r.pid)
+    // …and the six-state pass's sitting legislators running for a different
+    // legislative seat, appended to the same table from that pass's record.
+    .concat(JSON.parse(_readFileSync(new URL("../db/roster-candidates-legislative-ne-sd-id-mt-ak-ri-2026-oct.json", import.meta.url), "utf8")).crossSeat.map((r) => r.pid)),
 };
 const CANDIDACY_KEY = /^ "([a-z0-9_]+)": \{ "office"/gm;
 const ROSTER_KEY = /^\s*"([a-z0-9_]+)":\s*\{$/gm;
@@ -3673,6 +3691,10 @@ export const DECLARED_DISTRICTS = _LEG_RECORDS.flatMap((rec) => rec.districtSet.
     // A named-district state (Massachusetts) writes the seat as its name.
     values: [r.districtName ? r.districtName : r.chamber === "State Senate" ? `${_LD_SENATE[r.state] ? "LD" : "SD"} ${r.district}` : (_NUMBERED_LOWER[r.state] ? `District ${r.district}` : `HD ${r.district}`), r.was].filter(Boolean),
   })));
+// U.S. Rep. Don Bacon's row named no district, so NE-2's board could not open;
+// the six-state pass gave it the district his seat is ("2", as the roster
+// writes a congressional district).
+DECLARED_DISTRICTS.push({ pid: "don_bacon", values: ["2"] });
 export const DECLARED_DISTRICT_PIDS = DECLARED_DISTRICTS.map((d) => d.pid);
 // DECLARED OFFICES — an existing row whose holder the chamber's own roster lists
 // as no longer serving, re-labelled "Former …" so no seat lookup names them. Same

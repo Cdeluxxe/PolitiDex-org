@@ -74,7 +74,7 @@ const ALL = HAND_SEATS.map((s) => ({ seat: s, alias: HAND_ALIAS[s] })).concat(PL
 const ALL_SEATS = ALL.map((b) => b.seat).sort().join(",");
 const ALL_ALIASES = ALL.map((b) => b.alias).sort().join(",");
 // The boards sw.js holds offline: the six and Utah's generated ones.
-const UT_PLAN = PLAN.filter((b) => !b.federal && !b.stateLeg);
+const UT_PLAN = PLAN.filter((b) => !b.federal && !b.stateLeg && !b.outsideUtah);
 const UT_ALIASES = HAND_SEATS.map((s) => HAND_ALIAS[s]).concat(UT_PLAN.map((b) => b.alias)).sort().join(",");
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -167,7 +167,7 @@ section("3 · every generated document is the seat its path names");
 // ═════════════════════════════════════════════════════════════════════════════
 const onDisk = (() => {
   const out = execFileSync("ls", [ROOT], { encoding: "utf8" }).split("\n");
-  return out.filter((f) => /^district-(?:ut-(?:(?:hd|sd|cd)-\d+|hd-\d+-p\d+|gov|us-senate-[a-z][a-z0-9_]*)|[a-z]{2}-(?:cd-\d+|us-senate-[a-z][a-z0-9_]*))\.html$/.test(f));
+  return out.filter((f) => /^district-(?:ut-(?:(?:hd|sd|cd)-\d+|hd-\d+-p\d+|gov|us-senate-[a-z][a-z0-9_]*)|[a-z]{2}-(?:cd-\d+|gov|us-senate-[a-z][a-z0-9_]*))\.html$/.test(f));
 })();
 // Out-of-state legislative boards (the contested Pennsylvania seats) are not
 // matched by the pattern above; test-district-boards-state-legislative.mjs and
