@@ -3211,8 +3211,20 @@
   // only in a district it NAMES, only by an office that reads as THIS chamber,
   // only while in office, and two claimants on one seat place nobody.
   var _pdxLegCache = {};
+  // ── A CHAMBER THAT ELECTS BY POSITION ─────────────────────────────────────
+  // Washington's House elects two members from every legislative district,
+  // each to its own seat on the ballot (Position 1 and Position 2). One number
+  // is two seats there, so a record that names a district and a `position` is
+  // placed on THAT position and never on the district: the district alone
+  // still names nobody, as it did when two records claimed it. Only a chamber
+  // listed here reads `position`; every other record is read exactly as before.
+  var _PDX_LEG_POSITIONS = { washington: { statehouse: 2 } };
+  function _pdxLegPositionsOf(st, ch) {
+    var t = _PDX_LEG_POSITIONS[st];
+    return (t && t[ch]) || 0;
+  }
   function _pdxLegIndex(st) {
-    var idx = { statesenate: {}, statehouse: {} };
+    var idx = { statesenate: {}, statehouse: {}, positions: { statesenate: {}, statehouse: {} } };
     var T = _pdxRosterTable();
     if (!T) return idx;
     for (var pid in T) {
@@ -3233,6 +3245,13 @@
       if (!_pdxArchiveInOffice(rec)) continue;
       if (_pdxSlugShared(pid)) continue;
       var tbl = idx[ch];
+      var npos = _pdxLegPositionsOf(st, ch);
+      if (npos && rec.position != null) {
+        var pos = parseInt(String(rec.position), 10);
+        if (!(pos >= 1 && pos <= npos)) continue;
+        tbl = idx.positions[ch];
+        key = key + '-p' + pos;
+      }
       if (Object.prototype.hasOwnProperty.call(tbl, key)) {
         var held = tbl[key];
         if (held && _pdxCanonPid(held) === _pdxCanonPid(pid)) {
@@ -3265,6 +3284,28 @@
     }
     var pid = hit.idx[chamber][String(n)] || null;
     return (pid && _pdxRosterKeeps(pid)) ? pid : null;
+  };
+
+  // Who holds one POSITION of a legislative seat in a chamber that elects by
+  // position (Washington's House), or null. Same gates as _pdxStateLegSeat: a
+  // mapped state, a record that names this chamber, this number and this
+  // position, and two claimants on one position place nobody.
+  window._pdxStateLegPosition = function (stateName, chamber, district, position) {
+    var st = _pdxStateName(stateName);
+    if (!_PDX_LEG_MAPPED[st] || !_pdxLegPositionsOf(st, chamber)) return null;
+    var n = parseInt(String(district == null ? '' : district).replace(/[^0-9]/g, ''), 10);
+    var p = parseInt(String(position == null ? '' : position).replace(/[^0-9]/g, ''), 10);
+    if (isNaN(n) || n <= 0 || isNaN(p) || p < 1 || p > _pdxLegPositionsOf(st, chamber)) return null;
+    window._pdxStateLegSeat(stateName, chamber, n);
+    var hit = _pdxLegCache[st];
+    var idx = hit ? hit.idx : _pdxLegIndex(st);
+    var pid = idx.positions[chamber][n + '-p' + p] || null;
+    return (pid && _pdxRosterKeeps(pid)) ? pid : null;
+  };
+  // How many positions one district elects in this chamber: 2 for
+  // Washington's House, 0 for every chamber that elects one member per seat.
+  window.pdxLegPositions = function (stateName, chamber) {
+    return _pdxLegPositionsOf(_pdxStateName(stateName), chamber);
   };
 
   // ── window.pdxSeatClaim(pid, seatKey, district) — DOES THIS RECORD CLAIM
@@ -4138,6 +4179,18 @@
       level('statesenate', 'statesenate', 'State Senate', 'State Senate', '#a78bfa', sd, sp, legMapped),
       level('statehouse', 'statehouse', 'State House', 'State House', '#2dd4bf', ld, lp, legMapped)
     ];
+    // A CHAMBER THAT ELECTS BY POSITION (Washington's House). The district names
+    // nobody, because it is two seats; the level carries each position's member
+    // instead, and only when the roster holds at least one, so a district with
+    // no position on file reads exactly as it always has.
+    if (!utah && legMapped && ld && window.pdxLegPositions(state, 'statehouse')) {
+      var hl = levels[levels.length - 1];
+      var pl = [];
+      for (var pi = 1; pi <= window.pdxLegPositions(state, 'statehouse'); pi++) {
+        pl.push({ position: pi, pid: window._pdxStateLegPosition(state, 'statehouse', ld, pi) || null });
+      }
+      if (hl && hl.key === 'statehouse' && pl.some(function (x) { return !!x.pid; })) hl.positions = pl;
+    }
     // Nebraska has no State House: the row is left off, so its card counts the
     // seats its reader actually has.
     if (unicameral) levels = levels.filter(function (l) { return l.key !== 'statehouse'; });

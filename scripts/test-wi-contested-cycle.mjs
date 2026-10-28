@@ -254,7 +254,7 @@ section("5 · District Voice: a board for each contested seat and no other");
   const routes = voice().BOARD_ROUTES;
   const wiLeg = Object.keys(routes).filter((k) => /^wi-(?:statehouse|statesenate)-\d+$/.test(k)).sort();
   eq(JSON.stringify(wiLeg), JSON.stringify(N.RACES.map((r) => r.seat).sort()), "BOARD_ROUTES: exactly the contested Wisconsin seats");
-  const otherLeg = Object.keys(routes).filter((k) => /^[a-z]{2}-(?:statehouse|statesenate)-\d+$/.test(k) && !/^(?:ut|pa|ga|nc|mi|oh|wi|fl|az|ny|tx|il|mn|co|nv|ca)-/.test(k));
+  const otherLeg = Object.keys(routes).filter((k) => /^[a-z]{2}-(?:statehouse|statesenate)-\d+$/.test(k) && !/^(?:ut|pa|ga|nc|mi|oh|wi|fl|az|ny|tx|il|mn|co|nv|ca|wa)-/.test(k));
   eq(otherLeg.length, 0, "no other state gained a state legislative board");
   const B = (() => { const w = makeSandbox(); vm.runInContext(R("district-board.js"), vm.createContext(w), { filename: "district-board.js" }); return w.PDXDistrictBoard; })();
   for (const r of N.RACES) {

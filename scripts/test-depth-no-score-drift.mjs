@@ -483,10 +483,11 @@ const rosterWaveAdmissions = (() => {
                      "db/roster-state-legislators-wa-az-ma-2026-oct.json", "db/roster-state-legislators-tn-in-mo-2026-oct.json"]) {
       try { for (const r of JSON.parse(readFileSync(join(ROOT, f), "utf8")).rows) out.add(r.pid); } catch {}
     }
-    // The sitting Minnesota and Colorado members in the contested 2026 races,
-    // one identity shell each, named by the races mn-ballot-2026.js and
-    // co-ballot-2026.js hold.
-    for (const [f, g] of [["mn-ballot-2026.js", "PDXMnBallot"], ["co-ballot-2026.js", "PDXCoBallot"], ["nv-ballot-2026.js", "PDXNvBallot"]]) {
+    // The sitting Minnesota, Colorado, Nevada and Washington members in the
+    // contested 2026 races, one identity shell each, named by the races their
+    // ballot files hold (Washington's House shells also name their position).
+    for (const [f, g] of [["mn-ballot-2026.js", "PDXMnBallot"], ["co-ballot-2026.js", "PDXCoBallot"], ["nv-ballot-2026.js", "PDXNvBallot"],
+                          ["wa-ballot-2026.js", "PDXWaBallot"]]) {
       try {
         const w = {}; w.window = w;
         vm.runInContext(readFileSync(join(ROOT, f), "utf8"), vm.createContext(w));

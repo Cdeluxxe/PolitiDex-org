@@ -69,6 +69,9 @@ const SAMPLE = VOICED.find((b) => b.seat === "ca-statehouse-74");
 must(SAMPLE, "Assembly 74 has no voiced board");
 const MIG = "netlify/database/migrations/20261201000000_dd_districts_california_contested_board_seats.sql";
 const SQL = existsSync(join(ROOT, MIG)) ? R(MIG) : "";
+// Washington's density pass voices its own boards later; its rows are held by
+// scripts/test-wa-contested-boards-voice.mjs and set aside here.
+const IS_WA = (k) => /^wa-(?:statehouse|statesenate|hd|sd)-\d+(?:-p\d)?$/.test(k);
 
 // ── THE FAKE ────────────────────────────────────────────────────────────────
 // The real handlers' dependencies, in memory, with the cap counters and a
@@ -312,7 +315,14 @@ section("5 · the counts endpoint answers these seats and returns only aggregate
   ok(resp.length > 0 && !/\b(?:uid|userId|authorHash|email|name|address|pid)\b/.test(resp), "the response names no person field");
   // Outside the generated seat table, the Function is HEAD's.
   const strip = (src) => String(src).replace(/(@generated district-boards begin[^\n]*\n)[\s\S]*?(\n[^\n]*@generated district-boards end)/, "$1$2");
-  eq(strip(FN), strip(HEAD("netlify/functions/district-board.mts")), "the counts endpoint's code did not move");
+  // Washington's density pass (scripts/test-wa-contested-boards-voice.mjs)
+  // taught this normalizer one more shape, a seat elected by position; it is
+  // lifted back out here and pinned there.
+  const noPosition = (src) => String(src)
+    .replace(/\/\/ A seat elected by position \(Washington's House\)[^\n]*\n\/\/ alias [^\n]*\nconst POSITION_KEY_RE = [^\n]*\n\n/, "")
+    .replace(" || POSITION_KEY_RE.test(s)) return s;", ") return s;")
+    .replace(/  const pm = \/\^\(\[a-z\]\{2\}\)-hd-[^\n]*\n  if \(pm\) return [^\n]*\n/, "");
+  eq(noPosition(strip(FN)), strip(HEAD("netlify/functions/district-board.mts")), "the counts endpoint's code did not move");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -349,10 +359,10 @@ section("7 · existing voiced boards are unchanged");
   const gNow = gateOf(R("netlify/lib/district-board-voice-core.mjs")), gWas = gateOf(HEAD("netlify/lib/district-board-voice-core.mjs"));
   ok(gWas.size > 100, "HEAD's server gate could be read");
   for (const [k, a] of gWas) eq(gNow.get(k), a, `${k}: still on the server gate as ${a}`);
-  eq(JSON.stringify([...gNow.keys()].filter((k) => !gWas.has(k)).sort()), JSON.stringify(RACE_SEATS), "the server gate's only new rows are California's");
+  eq(JSON.stringify([...gNow.keys()].filter((k) => !gWas.has(k) && !IS_WA(k)).sort()), JSON.stringify(RACE_SEATS), "the server gate's only new rows are California's");
   const aliasesIn = (src) => [...String(src).matchAll(/^    '([a-z0-9_-]+)': 1,$/gm)].map((m) => m[1]);
   for (const f of ["district-composer.js", "district-poll.js"]) {
-    const now = aliasesIn(R(f)), was = aliasesIn(HEAD(f));
+    const now = aliasesIn(R(f)).filter((a) => !IS_WA(a)), was = aliasesIn(HEAD(f));
     ok(was.every((a) => now.includes(a)), `${f}: no row was dropped`);
     const added = now.filter((a) => !was.includes(a)).sort();
     eq(JSON.stringify(added), JSON.stringify(VOICED.map((b) => b.alias).sort()), `${f}: the only new rows are California's`);
@@ -361,7 +371,7 @@ section("7 · existing voiced boards are unchanged");
   const rowsOf = (src) => new Map([...String(src).matchAll(/^    '([a-z0-9_-]+)': \{ seat: .*$/gm)].map((m) => [m[1], m[0]]));
   const now = rowsOf(R("district-board.js")), was = rowsOf(HEAD("district-board.js"));
   for (const [k, line] of was) eq(now.get(k), line, `${k}: BOARDS row unchanged`);
-  eq(JSON.stringify([...now.keys()].filter((k) => !was.has(k)).sort()), JSON.stringify(RACE_SEATS), "BOARDS: the only new rows are California's");
+  eq(JSON.stringify([...now.keys()].filter((k) => !was.has(k) && !IS_WA(k)).sort()), JSON.stringify(RACE_SEATS), "BOARDS: the only new rows are California's");
   for (const [k, line] of now) if (caSeat(k)) ok(/ composer: true, /.test(line), `${k}: its row says it takes a voice`);
   const holdersNow = SEAT_HOLDERS;
   const HH = (() => { const src = HEAD("netlify/lib/seat-holders.mjs"); return new Map([...String(src).matchAll(/^  "([a-z0-9_-]+)": (\{.*\}),$/gm)].map((m) => [m[1], m[2]])); })();
@@ -370,7 +380,7 @@ section("7 · existing voiced boards are unchanged");
   // Every existing board document is HEAD's bytes.
   for (const f of readdirSync(ROOT).filter((x) => /^district-.*\.html$/.test(x))) {
     const w = HEAD(f);
-    ok(w === null ? /^district-ca-(?:hd|sd)-\d+\.html$/.test(f) : R(f) === w, `${f}: unchanged`);
+    ok(w === null ? /^district-(?:ca-(?:hd|sd)-\d+|wa-(?:hd|sd)-\d+(?:-p\d)?)\.html$/.test(f) : R(f) === w, `${f}: unchanged`);
   }
   const TOML = R("netlify.toml");
   ok(![...TOML.matchAll(/from = "([^"]+)"/g)].some((m) => /^\/district\/.*\*/.test(m[1])), "no /district/* splat");
@@ -381,6 +391,7 @@ section("7 · existing voiced boards are unchanged");
   eq(pre(R("sw.js")), pre(HEAD("sw.js")), "sw.js: the precache list is unchanged");
   for (const f of ["/district-composer.js", "/district-poll.js", "/district-board.js"]) has(R("sw.js"), `  '${f}',`, `sw.js precaches ${f}, so the move is owed`);
   const added = readdirSync(join(ROOT, "netlify/database/migrations")).filter((f) => HEAD(`netlify/database/migrations/${f}`) === null &&
+    f !== "20261202000000_dd_districts_washington_contested_board_seats.sql" &&
     HEAD(`netlify/database/migrations/${f}/migration.sql`) === null);
   eq(JSON.stringify(added), JSON.stringify([MIG.split("/").pop()]), "the one new migration is the California dd_districts seed");
 }

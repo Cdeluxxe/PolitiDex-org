@@ -3459,6 +3459,14 @@ export const DECLARED_ADMISSIONS = [
     pids: ["scheible_nv", "pazina_nv", "lisa_cole_nv", "marzola_nv", "la_rue_hatch_nv", "edgeworth_nv", "backus_nv"],
   },
   {
+    // The sitting Washington State House members in the contested 2026 races
+    // (wa-ballot-2026.js): one identity row each, with the position they hold,
+    // read off the Legislature's own member list.
+    wave: "wa_contested_cycle_oct2026",
+    banner: "// ── Sitting Washington legislators in the contested 2026 races (wa-ballot-2026.js, Oct 2026)",
+    pids: ["shavers_wa", "dave_paul_wa", "kevin_waters_wa", "stuebe_wa", "mcclintock_wa", "ley_wa", "adison_richards_wa"],
+  },
+  {
     // Too many rows to type here, so the list is the committed record of
     // the pass itself, which also names each state's official source.
     wave: "candidates_outside_utah_oct2026",

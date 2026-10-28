@@ -29,10 +29,22 @@ export const R = (f) => readFileSync(join(ROOT, f), "utf8");
 //     Revisor's own one-line description), because a board that takes a voice
 //     carries no investment language. The measure, its effect line, its acts
 //     and its links are unchanged.
+//   · Washington's density pass taught the seat resolver (voter-hub-location.js)
+//     a chamber that elects by position — Washington's House, two seats per
+//     district — and added one block of identity-only House shells to
+//     cmp-data.js, each naming its position. Both are every earlier cycle's
+//     pinned files, so the exact edits are named, hunk by hunk, in
+//     scripts/declared-edits-wa-positions.json (generated from the diff, each
+//     `from` unique in HEAD); nothing else in either file may move.
+//     test-wa-contested-cycle.mjs reads RAW_HEAD and holds every other
+//     state's card and resolver levels to the file before those edits.
 const DECLARED_EDITS = [
   { file: /^(?:mn-ballot-2026\.js|district-mn-(?:hd|sd)-\d+\.html)$/,
     from: "Capital investment (bonding), 2026", to: "Bonding bill, 2026" },
+  ...JSON.parse(readFileSync(join(ROOT, "scripts/declared-edits-wa-positions.json"), "utf8"))
+    .map((d) => ({ file: new RegExp(`^${d.file.replace(/[.]/g, "\\.")}$`), from: d.from, to: d.to, once: true })),
 ];
+export const RAW_HEAD = (f) => gitHead(f);
 const gitHead = (f) => {
   // maxBuffer: cmp-data.js is past execFileSync's 1 MB default, and a baseline
   // that silently reads null would skip every comparison against it.
@@ -42,7 +54,7 @@ const gitHead = (f) => {
 export const HEAD = (f) => {
   let src = gitHead(f);
   if (src === null) return null;
-  for (const d of DECLARED_EDITS) if (d.file.test(f)) src = src.split(d.from).join(d.to);
+  for (const d of DECLARED_EDITS) if (d.file.test(f)) src = d.once ? src.replace(d.from, () => d.to) : src.split(d.from).join(d.to);
   return src;
 };
 // DECLARED MIGRATIONS. The contested-cycle suites hold that no pass adds a
@@ -52,7 +64,8 @@ export const HEAD = (f) => {
 // on a seat with no dd_districts row would fail at the foreign key. California's
 // density pass seeds its seven contested boards the same way, in its own file.
 export const DECLARED_MIGRATIONS = ["20261130000000_dd_districts_contested_legislative_board_seats.sql",
-  "20261201000000_dd_districts_california_contested_board_seats.sql"];
+  "20261201000000_dd_districts_california_contested_board_seats.sql",
+  "20261202000000_dd_districts_washington_contested_board_seats.sql"];
 export const FIND = R("find.html");
 export const MAP = (() => {
   const a = FIND.indexOf("INTERACTIVE UTAH DISTRICT MAP");
@@ -272,6 +285,7 @@ const SHELL_BLOCKS = [
   { code: "mn", state: "Minnesota" },
   { code: "co", state: "Colorado" },
   { code: "nv", state: "Nevada" },
+  { code: "wa", state: "Washington" },
 ].map((b) => ({ ...b, re: new RegExp(`// ── Sitting ${b.state} legislators in the contested 2026 races[\\s\\S]*?(?=// ── )`) }));
 function shellBlocksOnly(now, was) {
   const strip = (src) => SHELL_BLOCKS.reduce((s, b) => s.replace(b.re, ""), src);

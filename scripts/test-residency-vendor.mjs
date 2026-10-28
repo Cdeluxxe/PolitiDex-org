@@ -506,7 +506,7 @@ const ALLF = ["netlify/functions/residency-verify.mts", "netlify/functions/resid
               "netlify/functions/district-board-voice.mts", "netlify/functions/district-board-poll.mts"].map(R).join("\n");
 ok(!/VERIFY_BYPASS|FORCE_VERIFIED|SKIP_VERIFY|RESIDENCY_(DEV|TEST|MOCK)|DEV_VERIFIED/i.test(ALLF + CORE), "no flag stamps verified");
 {
-  const docs = readdirSync(ROOT).filter((f) => /^district-[a-z]{2}-(?:(?:hd|sd|cd)-\d+|gov|us-senate-[a-z][a-z0-9_]*)\.html$/.test(f))
+  const docs = readdirSync(ROOT).filter((f) => /^district-[a-z]{2}-(?:(?:hd|sd|cd)-\d+|hd-\d+-p\d+|gov|us-senate-[a-z][a-z0-9_]*)\.html$/.test(f))
     // A read-only board (composer: false in district-board.js BOARDS — the
     // contested Pennsylvania legislative seats) is on no composer list.
     .filter((f) => !new RegExp("composer: false, alias: '" + ((/data-pdxdb-seat="([^"]+)"/.exec(R(f)) || [, "~"])[1]) + "'").test(R("district-board.js")));
@@ -735,7 +735,7 @@ const NON_MEMBERS = [
                    "Form C", "investor", "investors", "equity"]) {
     ok(!new RegExp(`\\b${w.replace(/ /g, "\\s+")}\\b`, "i").test(copy), `no "${w}" on /me's block, the composer or the vendor copy`);
   }
-  const boards = readdirSync(ROOT).filter((f) => /^district-[a-z]{2}-(?:(?:hd|sd|cd)-\d+|gov|us-senate-[a-z][a-z0-9_]*)\.html$/.test(f)).concat(["district-composer.js"]);
+  const boards = readdirSync(ROOT).filter((f) => /^district-[a-z]{2}-(?:(?:hd|sd|cd)-\d+|hd-\d+-p\d+|gov|us-senate-[a-z][a-z0-9_]*)\.html$/.test(f)).concat(["district-composer.js"]);
   // The board's one cap sentence names the $20 membership and links nothing; it
   // is lifted out first, so any other $20, checkout or membership call fails.
   const CAP_LINE = /Verified residents get one comment and five poll votes a month on this seat\. (?:' \+\s*')?A \$20 yearly membership removes the monthly cap\./g;

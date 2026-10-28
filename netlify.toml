@@ -666,6 +666,19 @@
 # rules are after it and cannot match either of its two paths. Every
 # same-origin path inside both documents is root-absolute for the reason given
 # beside /ballot/ above.
+# Washington's contested legislative seats, Nov. 3, 2026 (wa-ballot-2026.js)
+[[redirects]]
+  from = "/ballot/wa"
+  to = "/ballot-wa.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/wa/"
+  to = "/ballot-wa.html"
+  status = 200
+[[redirects]]
+  from = "/ballot/wa.html"
+  to = "/ballot-wa.html"
+  status = 200
 # California's contested legislative seats, Nov. 3, 2026 (ca-ballot-2026.js)
 [[redirects]]
   from = "/ballot/ca"
@@ -10775,6 +10788,132 @@
 [[redirects]]
   from = "/district/tx-sd-21.html"
   to = "/district-tx-sd-21.html"
+  status = 200
+
+# Washington Senate District 26 — krishnadasan_wa
+[[redirects]]
+  from = "/district/wa-sd-26"
+  to = "/district-wa-sd-26.html"
+  status = 200
+[[redirects]]
+  from = "/district/wa-sd-26/"
+  to = "/district-wa-sd-26.html"
+  status = 200
+[[redirects]]
+  from = "/district/wa-sd-26.html"
+  to = "/district-wa-sd-26.html"
+  status = 200
+
+# Washington Senate District 35 — macewen_wa
+[[redirects]]
+  from = "/district/wa-sd-35"
+  to = "/district-wa-sd-35.html"
+  status = 200
+[[redirects]]
+  from = "/district/wa-sd-35/"
+  to = "/district-wa-sd-35.html"
+  status = 200
+[[redirects]]
+  from = "/district/wa-sd-35.html"
+  to = "/district-wa-sd-35.html"
+  status = 200
+
+# Washington House District 10, Position 1 — shavers_wa
+[[redirects]]
+  from = "/district/wa-hd-10-p1"
+  to = "/district-wa-hd-10-p1.html"
+  status = 200
+[[redirects]]
+  from = "/district/wa-hd-10-p1/"
+  to = "/district-wa-hd-10-p1.html"
+  status = 200
+[[redirects]]
+  from = "/district/wa-hd-10-p1.html"
+  to = "/district-wa-hd-10-p1.html"
+  status = 200
+
+# Washington House District 10, Position 2 — dave_paul_wa
+[[redirects]]
+  from = "/district/wa-hd-10-p2"
+  to = "/district-wa-hd-10-p2.html"
+  status = 200
+[[redirects]]
+  from = "/district/wa-hd-10-p2/"
+  to = "/district-wa-hd-10-p2.html"
+  status = 200
+[[redirects]]
+  from = "/district/wa-hd-10-p2.html"
+  to = "/district-wa-hd-10-p2.html"
+  status = 200
+
+# Washington House District 17, Position 1 — kevin_waters_wa
+[[redirects]]
+  from = "/district/wa-hd-17-p1"
+  to = "/district-wa-hd-17-p1.html"
+  status = 200
+[[redirects]]
+  from = "/district/wa-hd-17-p1/"
+  to = "/district-wa-hd-17-p1.html"
+  status = 200
+[[redirects]]
+  from = "/district/wa-hd-17-p1.html"
+  to = "/district-wa-hd-17-p1.html"
+  status = 200
+
+# Washington House District 17, Position 2 — stuebe_wa
+[[redirects]]
+  from = "/district/wa-hd-17-p2"
+  to = "/district-wa-hd-17-p2.html"
+  status = 200
+[[redirects]]
+  from = "/district/wa-hd-17-p2/"
+  to = "/district-wa-hd-17-p2.html"
+  status = 200
+[[redirects]]
+  from = "/district/wa-hd-17-p2.html"
+  to = "/district-wa-hd-17-p2.html"
+  status = 200
+
+# Washington House District 18, Position 1 — mcclintock_wa
+[[redirects]]
+  from = "/district/wa-hd-18-p1"
+  to = "/district-wa-hd-18-p1.html"
+  status = 200
+[[redirects]]
+  from = "/district/wa-hd-18-p1/"
+  to = "/district-wa-hd-18-p1.html"
+  status = 200
+[[redirects]]
+  from = "/district/wa-hd-18-p1.html"
+  to = "/district-wa-hd-18-p1.html"
+  status = 200
+
+# Washington House District 18, Position 2 — ley_wa
+[[redirects]]
+  from = "/district/wa-hd-18-p2"
+  to = "/district-wa-hd-18-p2.html"
+  status = 200
+[[redirects]]
+  from = "/district/wa-hd-18-p2/"
+  to = "/district-wa-hd-18-p2.html"
+  status = 200
+[[redirects]]
+  from = "/district/wa-hd-18-p2.html"
+  to = "/district-wa-hd-18-p2.html"
+  status = 200
+
+# Washington House District 26, Position 1 — adison_richards_wa
+[[redirects]]
+  from = "/district/wa-hd-26-p1"
+  to = "/district-wa-hd-26-p1.html"
+  status = 200
+[[redirects]]
+  from = "/district/wa-hd-26-p1/"
+  to = "/district-wa-hd-26-p1.html"
+  status = 200
+[[redirects]]
+  from = "/district/wa-hd-26-p1.html"
+  to = "/district-wa-hd-26-p1.html"
   status = 200
 
 # Wisconsin Senate District 17 — marklein_wi

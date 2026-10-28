@@ -285,7 +285,10 @@ section("5 · District Voice: a board for each contested seat and no other");
   ok(!Object.keys(routes).some((k) => /^ca-(?:gov|statewide)/.test(k)), "no statewide California room");
   const HVR = (() => { const w = {}; w.window = w; vm.runInContext(HEAD("district-voice.js"), vm.createContext(w)); return w.PDXVoice.BOARD_ROUTES; })();
   for (const k of Object.keys(HVR)) eq(routes[k], HVR[k], `${k}: an earlier board moved`);
-  const added = Object.keys(routes).filter((k) => !HVR[k]).sort();
+  // Washington's density pass opens its own boards later (held by
+  // scripts/test-wa-contested-cycle.mjs); they are set aside here.
+  const IS_WA = (k) => /^wa-(?:statehouse|statesenate)-\d+(?:-p\d)?$/.test(k);
+  const added = Object.keys(routes).filter((k) => !HVR[k] && !IS_WA(k)).sort();
   eq(JSON.stringify(added), JSON.stringify(caLeg), "the only new boards are California's contested seats");
   const CONTESTED = contestedSeats();
   for (const k of added) ok(CONTESTED.has(k), `${k}: a board with no race behind it`);
@@ -308,6 +311,7 @@ section("5 · District Voice: a board for each contested seat and no other");
   eq(docs.length, C.RACES.length, "no California legislative board document without a race");
   for (const f of readdirSync(ROOT).filter((f) => /^district-(?!ca-(?:hd|sd)-).*\.html$/.test(f))) {
     if (R(f).indexOf("data-pdxca-seat=") >= 0) ok(false, `${f}: a board outside the races carries a California race block`);
+    if (HEAD(f) === null && /^district-wa-(?:hd|sd)-\d+(?:-p\d)?\.html$/.test(f)) continue;
     ok(R(f) === HEAD(f), `${f}: an earlier board document moved`);
   }
   const TOML = R("netlify.toml");

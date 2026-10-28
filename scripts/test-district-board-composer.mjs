@@ -82,7 +82,7 @@ for (const alias of Object.keys(CLUSTER)) {
 }
 const hostBlock = Object.values(hostBlocks).join("\n");
 
-const boards = readdirSync(ROOT).filter((f) => /^district-[a-z]{2}-(?:(?:hd|sd|cd)-\d+|gov|us-senate-[a-z][a-z0-9_]*)\.html$/.test(f));
+const boards = readdirSync(ROOT).filter((f) => /^district-[a-z]{2}-(?:(?:hd|sd|cd)-\d+|hd-\d+-p\d+|gov|us-senate-[a-z][a-z0-9_]*)\.html$/.test(f));
 ok(boards.length > 80, `every board document is swept (${boards.length})`);
 const docSeat = (f) => (/data-pdxdb-seat="([^"]+)"/.exec(R(f)) || [, ""])[1];
 // A READ-ONLY board (composer: false in district-board.js BOARDS — the

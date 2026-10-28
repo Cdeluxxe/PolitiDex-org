@@ -68,7 +68,10 @@ const LEG = PLAN.filter((b) => b.stateLeg);
 // California's density pass (scripts/test-ca-contested-boards-voice.mjs) voices
 // its own contested boards later; this suite holds the thirteen states' pass,
 // so California's seats, rows and seed are set aside here, and only there.
-const IS_CA = (k) => /^ca-(?:statehouse|statesenate|hd|sd)-\d+$/.test(k);
+// Washington's density pass (scripts/test-wa-contested-boards-voice.mjs) is set
+// aside the same way, its House positions included.
+const IS_CA = (k) => /^ca-(?:statehouse|statesenate|hd|sd)-\d+$/.test(k) || /^wa-(?:statehouse|statesenate|hd|sd)-\d+(?:-p\d)?$/.test(k);
+const WA_MIG = "20261202000000_dd_districts_washington_contested_board_seats.sql";
 const CA_MIG = "20261201000000_dd_districts_california_contested_board_seats.sql";
 const VOICED = LEG.filter((b) => !b.readOnly && !IS_CA(b.seat));
 must(VOICED.length > 100, "the plan voices no contested boards");
@@ -167,7 +170,7 @@ for (const b of SAMPLE) {
   // Exactly the contested seats of the thirteen states take a voice.
   const want = LEG.filter((b) => STATE_LEG_VOICED_STATES.has(b.seat.slice(0, 2)) && STATE_LEG_BOARD_SEATS.has(b.seat) && !IS_CA(b.seat)).map((b) => b.seat).sort();
   eq(JSON.stringify(VOICED.map((b) => b.seat).sort()), JSON.stringify(want), "the voiced boards are exactly the contested seats of the thirteen states");
-  eq(JSON.stringify([...STATE_LEG_VOICED_STATES].sort()), JSON.stringify([...STATES, "ca"].sort()), "the voiced states are the thirteen density states, and California's");
+  eq(JSON.stringify([...STATE_LEG_VOICED_STATES].sort()), JSON.stringify([...STATES, "ca", "wa"].sort()), "the voiced states are the thirteen density states, and California's and Washington's");
   const legKeys = Object.keys(COMPOSER_SEATS).filter((k) => /^[a-z]{2}-(?:statehouse|statesenate)-\d+$/.test(k) && !k.startsWith("ut-") && !IS_CA(k)).sort();
   eq(JSON.stringify(legKeys), JSON.stringify(want), "the server's gate holds no other legislative seat outside Utah");
   for (const b of LEG.filter((x) => x.readOnly)) {
@@ -320,7 +323,11 @@ section("5 · the counts endpoint answers these seats and returns only aggregate
   ok(/countDistinct\(voicePeople\.h\)/.test(FN), "the author-hash union is only ever counted");
   const resp = (/return json\(\{\s*seat,([\s\S]*?)\n    \}\);/.exec(FN) || [])[1] || "";
   ok(resp.length > 0 && !/\b(?:uid|userId|authorHash|email|name|address|pid)\b/.test(resp), "the response names no person field");
-  const noCa = (src) => String(src).split("\n").filter((l) => !/^  "ca-(?:statehouse|statesenate)-\d+": 1,$/.test(l)).join("\n");
+  const noCa = (src) => String(src)
+    .replace(/\/\/ A seat elected by position \(Washington's House\)[^\n]*\n\/\/ alias [^\n]*\nconst POSITION_KEY_RE = [^\n]*\n\n/, "")
+    .replace(" || POSITION_KEY_RE.test(s)) return s;", ") return s;")
+    .replace(/  const pm = \/\^\(\[a-z\]\{2\}\)-hd-[^\n]*\n  if \(pm\) return [^\n]*\n/, "")
+    .split("\n").filter((l) => !/^  "(?:ca|wa)-(?:statehouse|statesenate)-\d+(?:-p\d)?": 1,$/.test(l)).join("\n");
   eq(noCa(FN), noCa(HEAD("netlify/functions/district-board.mts")), "the counts endpoint did not move");
 }
 
@@ -391,7 +398,9 @@ section("7 · the Layton boards and every non-contested board are unchanged");
   // the file is HEAD's.
   const tomlNoCa = (src) => String(src)
     .replace(/# California['’]s contested legislative seats[^\n]*\n(?:\[\[redirects\]\]\n  from = "\/ballot\/ca[^"]*"\n  to = "\/ballot-ca\.html"\n  status = 200\n)+/g, "")
-    .replace(/# California (?:Assembly|Senate) District \d+ — [a-z0-9_]+\n(?:\[\[redirects\]\]\n  from = "\/district\/ca-(?:hd|sd)-\d+[^"]*"\n  to = "\/district-ca-(?:hd|sd)-\d+\.html"\n  status = 200\n)+\n/g, "");
+    .replace(/# California (?:Assembly|Senate) District \d+ — [a-z0-9_]+\n(?:\[\[redirects\]\]\n  from = "\/district\/ca-(?:hd|sd)-\d+[^"]*"\n  to = "\/district-ca-(?:hd|sd)-\d+\.html"\n  status = 200\n)+\n/g, "")
+    .replace(/# Washington['’]s contested legislative seats[^\n]*\n(?:\[\[redirects\]\]\n  from = "\/ballot\/wa[^"]*"\n  to = "\/ballot-wa\.html"\n  status = 200\n)+/g, "")
+    .replace(/# Washington (?:House|Senate) District \d+(?:, Position \d)? — [a-z0-9_]+\n(?:\[\[redirects\]\]\n  from = "\/district\/wa-(?:hd|sd)-\d+(?:-p\d)?[^"]*"\n  to = "\/district-wa-(?:hd|sd)-\d+(?:-p\d)?\.html"\n  status = 200\n)+\n/g, "");
   eq(tomlNoCa(TOML), tomlNoCa(HEAD("netlify.toml")), "netlify.toml did not move");
   ok(![...TOML.matchAll(/from = "([^"]+)"/g)].some((m) => /^\/district\/.*\*/.test(m[1])), "no /district/* splat");
   // Utah's composer and poll rows are HEAD's; the only new rows are the voiced seats.
@@ -407,7 +416,7 @@ section("7 · the Layton boards and every non-contested board are unchanged");
   const pre = (src) => (src.match(/^  '\/[^']*',$/gm) || []).sort().join("\n");
   eq(pre(R("sw.js")), pre(HEAD("sw.js")), "sw.js: the precache list is unchanged");
   const added = readdirSync(join(ROOT, "netlify/database/migrations")).filter((f) => HEAD(`netlify/database/migrations/${f}`) === null &&
-    HEAD(`netlify/database/migrations/${f}/migration.sql`) === null && f !== CA_MIG);
+    HEAD(`netlify/database/migrations/${f}/migration.sql`) === null && f !== CA_MIG && f !== WA_MIG);
   eq(JSON.stringify(added), JSON.stringify(["20261130000000_dd_districts_contested_legislative_board_seats.sql"]), "the one new migration is the dd_districts seed");
 }
 

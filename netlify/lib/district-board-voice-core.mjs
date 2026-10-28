@@ -751,6 +751,15 @@ export const COMPOSER_SEATS = {
   "tx-statehouse-138": "tx-hd-138",
   "tx-statesenate-9": "tx-sd-9",
   "tx-statesenate-21": "tx-sd-21",
+  "wa-statesenate-26": "wa-sd-26",
+  "wa-statesenate-35": "wa-sd-35",
+  "wa-statehouse-10-p1": "wa-hd-10-p1",
+  "wa-statehouse-10-p2": "wa-hd-10-p2",
+  "wa-statehouse-17-p1": "wa-hd-17-p1",
+  "wa-statehouse-17-p2": "wa-hd-17-p2",
+  "wa-statehouse-18-p1": "wa-hd-18-p1",
+  "wa-statehouse-18-p2": "wa-hd-18-p2",
+  "wa-statehouse-26-p1": "wa-hd-26-p1",
   "wi-statesenate-17": "wi-sd-17",
   "wi-statesenate-31": "wi-sd-31",
   "wi-statehouse-26": "wi-hd-26",
@@ -796,22 +805,38 @@ export const COPY = {
 // the same shape district-board.mts and gen-district-boards.mjs accept.
 export const STATEWIDE_KEY_RE = /^[a-z]{2}-(?:gov|us-senate-[a-z][a-z0-9_]*)$/;
 
+// A SEAT ELECTED BY POSITION (Washington's House: two seats per district) is a
+// third shape beside the district and the statewide one, so normalizeSeatKey()
+// — the District Room's vocabulary — is not widened for it. The canonical key
+// is <code>-statehouse-<n>-p<k>, the alias <code>-hd-<n>-p<k>; the same shape
+// district-board.mts, district-board.js and district-voice.js accept. A shape,
+// not a list: COMPOSER_SEATS is the list.
+export const POSITION_KEY_RE = /^[a-z]{2}-statehouse-[1-9][0-9]*-p[1-9]$/;
+const POSITION_ALIAS_RE = /^([a-z]{2})-hd-([1-9][0-9]*)-(p[1-9])$/;
+export function positionSeatKey(raw) {
+  const s = String(raw == null ? "" : raw).trim().toLowerCase();
+  if (POSITION_KEY_RE.test(s)) return s;
+  const m = POSITION_ALIAS_RE.exec(s);
+  return m ? `${m[1]}-statehouse-${m[2]}-${m[3]}` : "";
+}
+
 // The canonical seat if it has a composer, else ''.
 export function composerSeat(raw) {
   const s = String(raw == null ? "" : raw).trim().toLowerCase();
-  const k = STATEWIDE_KEY_RE.test(s) ? s : normalizeSeatKey(s);
+  const k = STATEWIDE_KEY_RE.test(s) ? s : (positionSeatKey(s) || normalizeSeatKey(s));
   return k && Object.prototype.hasOwnProperty.call(COMPOSER_SEATS, k) ? k : "";
 }
 
 // THE SEAT-SCOPED AUTHOR HASH for a composer seat. A district seat is exactly
 // authorHash() (so every row already written keeps its hash); a statewide seat,
 // which normalizeSeatKey() does not speak, is the same sha256(uid + ':' + seat)
-// over its own key. '' for a seat with no composer or an empty uid.
+// over its own key, and so is a seat elected by position. '' for a seat with no
+// composer or an empty uid.
 export function seatHash(uid, seatKey) {
   const k = composerSeat(seatKey);
   const u = String(uid == null ? "" : uid).trim();
   if (!k || !u) return "";
-  if (!STATEWIDE_KEY_RE.test(k)) return authorHash(u, k);
+  if (!STATEWIDE_KEY_RE.test(k) && !POSITION_KEY_RE.test(k)) return authorHash(u, k);
   return crypto.createHash("sha256").update(`${u}:${k}`).digest("hex").slice(0, 32);
 }
 
