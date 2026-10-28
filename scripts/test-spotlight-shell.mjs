@@ -89,6 +89,7 @@ import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
 import { execFileSync } from "node:child_process";
 import vm from "node:vm";
+import { precachedMoved } from "./precache-moved.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(join(ROOT, p), "utf8");
@@ -734,7 +735,10 @@ ok(/const CACHE_VERSION = 'v(\d+)'/.test(sw), "sw: CACHE_VERSION is declared");
     const headSw = execFileSync("git", ["show", "HEAD:sw.js"], { cwd: ROOT, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
     head = Number((headSw.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1] || 0);
   } catch (e) { head = 0; }
-  ok(!head || now > head,
+  // Owed while a precached shell file differs from HEAD (see precache-moved.mjs);
+  // once this pass landed, HEAD holds the bump. The version never goes back.
+  ok(!head || now >= head, `sw: CACHE_VERSION v${now} fell below HEAD's v${head}`);
+  ok(!head || !precachedMoved().length || now > head,
     `sw: CACHE_VERSION moved past HEAD's (${now} vs ${head}) — a warm device holds an index.html that still expects the engine`);
 }
 ok(/^\s*'\/spotlight\.html',\s*$/m.test(sw), "sw: /spotlight.html is in SHELL_ASSETS");

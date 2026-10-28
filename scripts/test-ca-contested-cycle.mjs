@@ -33,7 +33,10 @@
 //
 //   node scripts/test-ca-contested-cycle.mjs
 
-import { R, HEAD, boot, levelOf, band, settled, DECLARED_MIGRATIONS } from "./state-leg-harness.mjs";
+import { R, HEAD, AT, PRE_CA_WA, boot, levelOf, band, settled, DECLARED_MIGRATIONS } from "./state-leg-harness.mjs";
+// What THIS pass added is measured against the commit it was built on, so the
+// check stays exact after the pass lands; "nothing else moved" stays on HEAD.
+const BASE = AT(PRE_CA_WA);
 import { readdirSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
@@ -285,11 +288,10 @@ section("5 · District Voice: a board for each contested seat and no other");
   ok(!Object.keys(routes).some((k) => /^ca-(?:gov|statewide)/.test(k)), "no statewide California room");
   const HVR = (() => { const w = {}; w.window = w; vm.runInContext(HEAD("district-voice.js"), vm.createContext(w)); return w.PDXVoice.BOARD_ROUTES; })();
   for (const k of Object.keys(HVR)) eq(routes[k], HVR[k], `${k}: an earlier board moved`);
-  // Washington's density pass opens its own boards later (held by
-  // scripts/test-wa-contested-cycle.mjs); they are set aside here.
-  const IS_WA = (k) => /^wa-(?:statehouse|statesenate)-\d+(?:-p\d)?$/.test(k);
-  const added = Object.keys(routes).filter((k) => !HVR[k] && !IS_WA(k)).sort();
+  const BVR = (() => { const w = {}; w.window = w; vm.runInContext(BASE("district-voice.js"), vm.createContext(w)); return w.PDXVoice.BOARD_ROUTES; })();
+  const added = Object.keys(routes).filter((k) => !BVR[k] && /^ca-/.test(k)).sort();
   eq(JSON.stringify(added), JSON.stringify(caLeg), "the only new boards are California's contested seats");
+  ok(Object.keys(routes).every((k) => HVR[k]), "BOARD_ROUTES holds no board beyond HEAD's");
   const CONTESTED = contestedSeats();
   for (const k of added) ok(CONTESTED.has(k), `${k}: a board with no race behind it`);
   const B = (() => { const w = makeSandbox(); vm.runInContext(R("district-board.js"), vm.createContext(w), { filename: "district-board.js" }); return w.PDXDistrictBoard; })();

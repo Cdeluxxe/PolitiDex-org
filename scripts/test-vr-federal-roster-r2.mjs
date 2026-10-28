@@ -695,7 +695,11 @@ section("7 · ship discipline — cache, census, floor, and the identity wall");
   const swHead = HEAD("sw.js");
   const ver = (s) => (/const CACHE_VERSION = '([^']+)'/.exec(s || "") || [])[1] || null;
   ok(/'\/cmp-data\.js'/.test(sw), "cmp-data.js is no longer a precached SHELL_ASSET — if that is deliberate, this check needs rewriting, not deleting");
-  if (ok(!!swHead, "HEAD:sw.js is unreadable, so the cache bump could not be checked")) {
+  // The bump is owed whenever the roster differs from HEAD: during the wave
+  // itself, and during any later pass that edits cmp-data.js. Once the wave
+  // has landed and the roster is HEAD's, there is nothing unshipped to bump for.
+  const rosterMoved = R("cmp-data.js") !== HEAD("cmp-data.js");
+  if (ok(!!swHead, "HEAD:sw.js is unreadable, so the cache bump could not be checked") && rosterMoved) {
     ok(ver(sw) && ver(sw) !== ver(swHead),
       `CACHE_VERSION is still ${ver(sw)} — this wave edits a precached shell asset, so every returning ` +
       `reader would keep the pre-wave roster`);
@@ -703,8 +707,8 @@ section("7 · ship discipline — cache, census, floor, and the identity wall");
     // scripts/test-vote-chip-outranks-empty.mjs requires by name; an em dash there passes
     // this check and fails that one, so both marks are accepted here and the house form is
     // what actually shipped.
-    ok(new RegExp(`^// ${ver(sw)} [-—]`, "m").test(sw), `sw.js has no note explaining what ${ver(sw)} ships`);
   }
+  ok(new RegExp(`^// ${ver(sw)} [-—]`, "m").test(sw), `sw.js has no note explaining what ${ver(sw)} ships`);
 
   // THE CENSUS IS THE LEDGER, so it must still be what its generator would write —
   // FOR AS LONG AS THE GENERATOR IS ASKING THE SAME QUESTION. It measures the wave

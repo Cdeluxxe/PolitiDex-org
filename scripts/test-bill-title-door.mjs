@@ -874,8 +874,12 @@ section("7 · no new score, no party framing on the new controls");
   const SW = R("sw.js");
   const m = /const CACHE_VERSION = 'v(\d+)';/.exec(SW);
   must(m, "CACHE_VERSION is not in sw.js in the form this file reads");
+  // The bump is owed while one of the three shell files this pass shipped
+  // differs from HEAD — during this pass, or a later one that edits them. Once
+  // they are HEAD's, there is nothing unshipped to bump for.
   const prev = HEAD("sw.js");
-  if (prev) {
+  const shellMoved = ["consistency.js", "door1-workspace.js", "door1-workspace.css"].some((f) => HEAD(f) !== null && R(f) !== HEAD(f));
+  if (prev && shellMoved) {
     const pm = /const CACHE_VERSION = 'v(\d+)';/.exec(prev);
     if (pm) ok(Number(m[1]) > Number(pm[1]),
       `CACHE_VERSION did not move past HEAD's v${pm[1]} — a warm device would serve the old shell against the new doors`);

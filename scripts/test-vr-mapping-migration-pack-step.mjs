@@ -269,6 +269,8 @@ const RETIRED = {
 const READERS = {
   "vr-pending-mapping-overlay.mjs":
     "parses a pending migration to measure it; writes nothing and emits no SQL",
+  "vr-measure-addresses.mjs":
+    "rebuilds the measure addresses from the applied migrations for the sitemap and bill pages; writes nothing and emits no SQL",
 };
 
 // The marker as the generator will PRINT it: pull the emitted comment out of the

@@ -63,10 +63,19 @@ const must = (c, m) => { if (!c) { console.error(`✗ effect-line audit: STALE H
 const norm = (x) => String(x || "").replace(/\s+/g, " ").trim();
 const low = (x) => norm(x).toLowerCase();
 
-const HEAD_SRC = (() => {
-  try { return execFileSync("git", ["show", "HEAD:consistency.js"], { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 28, stdio: ["ignore", "pipe", "ignore"] }); }
+const showAt = (rev) => {
+  try { return execFileSync("git", ["show", `${rev}:consistency.js`], { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 28, stdio: ["ignore", "pipe", "ignore"] }); }
   catch { return null; }
-})();
+};
+const HEAD_SRC = showAt("HEAD");
+// THE AUDIT'S OWN TWO TREES. The v387 audit shipped in bb2b7f6, built on
+// a677e13. "The line that shipped before the audit" and "the audit changed
+// nothing beyond its nine lines and two comments" are facts about THOSE trees;
+// read against HEAD they stopped being true the day the audit landed, and every
+// later pass that touched consistency.js made them false again. HEAD is still
+// the baseline for "nothing else moved" in the rendered ledger.
+const PRE_AUDIT_SRC = showAt("a677e13");
+const AUDIT_SRC = showAt("bb2b7f6");
 function mapOf(src, name) {
   const at = src.indexOf(`var ${name} = {`);
   if (at < 0) return null;
@@ -204,12 +213,12 @@ function check(src, opts) {
   for (const r of LEDGER.rows) need(printed.has(r.key), `${r.key}: in the ledger but prints nothing`);
   need(AUDITED.length === 9, `${AUDITED.length} rewrites recorded — the audit made 9`);
 
-  const hE = HEAD_SRC ? mapOf(HEAD_SRC, "_DOS_EFFECT").map : null;
+  const hE = PRE_AUDIT_SRC ? mapOf(PRE_AUDIT_SRC, "_DOS_EFFECT").map : null;
   for (const r of LEDGER.rows) {
     if (r.decision === "rewritten") {
       // 2 · a rewrite, from the bill
       need(norm(E.map[r.key]) === norm(r.line), `${r.key}: the stored line is not the audit's rewrite`);
-      if (hE) need(hE[r.key] === r.was, `${r.key}: the shipped line HEAD holds is not the ledger's \`was\``);
+      if (hE) need(hE[r.key] === r.was, `${r.key}: the line shipped before the audit is not the ledger's \`was\``);
       need(norm(r.why).length > 40, `${r.key}: a rewrite with no reason`);
       const f = rewriteFault(r, E.map[r.key], E.map);
       need(f === "", `${r.key}: ${f}`);
@@ -226,7 +235,7 @@ function check(src, opts) {
 
   // 4 · nothing else moved
   if (HEAD_SRC) {
-    need(undo(src) === HEAD_SRC, "consistency.js moved beyond the nine audited lines and the audit's two comments");
+    need(!!PRE_AUDIT_SRC && !!AUDIT_SRC && undo(AUDIT_SRC) === PRE_AUDIT_SRC, "the audit commit moved consistency.js beyond the nine audited lines and its two comments");
     if (!opts || !opts.skipRender) {
       const now = render(src);
       need(!now.err, `render: ${now.err}`);

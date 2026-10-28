@@ -40,7 +40,7 @@
 //
 //   node scripts/test-wa-contested-cycle.mjs
 
-import { R, HEAD, RAW_HEAD, boot, levelOf, band, DECLARED_MIGRATIONS } from "./state-leg-harness.mjs";
+import { R, HEAD, AT, PRE_CA_WA, PASS_WORKER, boot, levelOf, band, settled, DECLARED_MIGRATIONS } from "./state-leg-harness.mjs";
 import { readdirSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
@@ -67,6 +67,9 @@ const BALLOTS = [...EARLIER, "wa-ballot-2026.js"];
 const ROLLS = "https://wslwebservices.leg.wa.gov/LegislationService.asmx/GetRollCalls?biennium=2025-26&billNumber=";
 const SOS = "https://app.enhancedvoting.com/results/public/washington/elections/20260804";
 const MIGRATION = "20261202000000_dd_districts_washington_contested_board_seats.sql";
+// What THIS pass added is measured against the commit it was built on, so the
+// check stays exact after the pass lands; "nothing else moved" stays on HEAD.
+const BASE = AT(PRE_CA_WA);
 
 // The two names the Secretary of State's official results for the August 4,
 // 2026 primary advance in each contested seat, spelled as the results spell
@@ -96,8 +99,8 @@ const bootWA = (loc, over) => {
 const actBlocks = (out) => out.split('<div class="pdxpa-seat"').slice(1);
 const voice = () => { const w = {}; w.window = w; vm.runInContext(R("district-voice.js"), vm.createContext(w), { filename: "district-voice.js" }); return w.PDXVoice; };
 const headCard = (loc) => {
-  const W = boot(loc, { "who-represents-me.js": HEAD("who-represents-me.js"), "cmp-data.js": RAW_HEAD("cmp-data.js"),
-    "voter-hub-location.js": RAW_HEAD("voter-hub-location.js") });
+  const W = boot(loc, { "who-represents-me.js": HEAD("who-represents-me.js"), "cmp-data.js": HEAD("cmp-data.js"),
+    "voter-hub-location.js": HEAD("voter-hub-location.js") });
   for (const f of EARLIER) vm.runInContext(HEAD(f), W, { filename: f + "@HEAD" });
   return band(W);
 };
@@ -292,7 +295,9 @@ section("5 · District Voice: a board for each contested seat and position, and 
   ok(!Object.keys(routes).some((k) => /^wa-gov/.test(k)), "no statewide Washington room");
   const HVR = (() => { const w = {}; w.window = w; vm.runInContext(HEAD("district-voice.js"), vm.createContext(w)); return w.PDXVoice.BOARD_ROUTES; })();
   for (const k of Object.keys(HVR)) eq(routes[k], HVR[k], `${k}: an earlier board moved`);
-  eq(JSON.stringify(Object.keys(routes).filter((k) => !HVR[k]).sort()), JSON.stringify(waLeg), "the only new boards are Washington's contested seats");
+  const BVR = (() => { const w = {}; w.window = w; vm.runInContext(BASE("district-voice.js"), vm.createContext(w)); return w.PDXVoice.BOARD_ROUTES; })();
+  eq(JSON.stringify(Object.keys(routes).filter((k) => !BVR[k] && /^wa-/.test(k)).sort()), JSON.stringify(waLeg), "the only new boards are Washington's contested seats");
+  ok(Object.keys(routes).every((k) => HVR[k]), "BOARD_ROUTES holds no board beyond HEAD's");
   const CONTESTED = contestedSeats();
   for (const k of waLeg) ok(CONTESTED.has(k), `${k}: a board with no race behind it`);
   eq(V.boardPath("wa-hd-18-p2"), "/district/wa-hd-18-p2", "the position alias resolves to its board");
@@ -325,21 +330,24 @@ section("5 · District Voice: a board for each contested seat and position, and 
 section("6 · every other state is unchanged");
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  // Against the file before this pass (RAW_HEAD, not the harness's declared
-  // baseline): with the one Washington block lifted out, the roster is HEAD's,
-  // and the block holds exactly the seven House incumbents.
+  // Against the commit this pass was built on: with the one Washington block
+  // lifted out, the roster is that commit's byte for byte, and the block holds
+  // exactly the seven House incumbents. Against HEAD, nothing moved.
   const WA_BLOCK = /\/\/ ── Sitting Washington legislators in the contested 2026 races[\s\S]*?(?=\/\/ ── )/;
   const blockNow = (WA_BLOCK.exec(R("cmp-data.js")) || [""])[0];
-  eq(R("cmp-data.js").replace(WA_BLOCK, ""), RAW_HEAD("cmp-data.js"), "cmp-data.js: HEAD's bytes outside the one Washington shell block");
+  eq(R("cmp-data.js").replace(WA_BLOCK, ""), BASE("cmp-data.js"), "cmp-data.js: the pre-pass bytes outside the one Washington shell block");
+  ok(settled("cmp-data.js"), "cmp-data.js: HEAD's bytes outside the contested-cycle shell blocks");
   eq(JSON.stringify([...blockNow.matchAll(/^ "([a-z0-9_]+)": \{$/gm)].map((m) => m[1]).sort()), JSON.stringify([...SHELLS].sort()), "the block is exactly the seven House incumbents");
-  eq(HEAD("voter-hub-location.js"), R("voter-hub-location.js"), "the resolver's edits are exactly the declared ones");
-  ok(RAW_HEAD("voter-hub-location.js") !== R("voter-hub-location.js"), "…and they are real edits, not an empty declaration");
+  eq(R("voter-hub-location.js"), HEAD("voter-hub-location.js"), "voter-hub-location.js: byte-identical to HEAD");
+  ok(BASE("voter-hub-location.js") !== R("voter-hub-location.js"), "the resolver carries this pass's position support, which the pre-pass commit did not");
   for (const f of ["seated-member.js", ...EARLIER, "ballot-pa.html", "ballot-ca.html", "ballot-nv.html", "ballot-co.html"]) eq(R(f), HEAD(f), `${f}: byte-identical to HEAD`);
   for (const f of readdirSync(join(ROOT, "db")).filter((f) => /^roster-/.test(f))) eq(R(`db/${f}`), HEAD(`db/${f}`), `db/${f}: byte-identical to HEAD`);
   const ver = (src) => Number((/const CACHE_VERSION = 'v(\d+)';/.exec(src || "") || [])[1]);
-  eq(ver(R("sw.js")), ver(HEAD("sw.js")) + 1, "sw.js: CACHE_VERSION moved exactly one step");
+  has(R("sw.js"), `// v${PASS_WORKER.wa} - WASHINGTON, ONE CONTESTED CYCLE, AND ITS BOARDS TAKE A VOICE.`, "sw.js: this pass's version entry");
+  ok(ver(R("sw.js")) >= PASS_WORKER.wa && ver(R("sw.js")) <= ver(HEAD("sw.js")) + 1, "sw.js: CACHE_VERSION is at least this pass's, and at most one step past HEAD");
   const pre = (src) => (src.match(/^  '\/[^']*',$/gm) || []).sort().join("\n");
   eq(pre(R("sw.js")), pre(HEAD("sw.js")), "sw.js: the precache list is unchanged");
+  eq(pre(R("sw.js")), pre(BASE("sw.js")), "sw.js: this pass precached nothing new");
   ok(DECLARED_MIGRATIONS.includes(MIGRATION), "the Washington seed is a declared migration");
   for (const f of readdirSync(join(ROOT, "netlify/database/migrations"))) {
     ok(HEAD(`netlify/database/migrations/${f}`) !== null || HEAD(`netlify/database/migrations/${f}/migration.sql`) !== null || DECLARED_MIGRATIONS.includes(f), `${f}: a migration this pass added`);
@@ -351,10 +359,14 @@ section("6 · every other state is unchanged");
     "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia",
     "West Virginia", "Wisconsin", "Wyoming"];
   eq(STATES.length, 49, "fixture: 49 other states");
-  // HEAD's card — HEAD's roster, resolver, card and ballot files — against today's.
+  // HEAD's card — HEAD's roster, resolver, card and ballot files — against
+  // today's. And the resolver before this pass (the commit it was built on:
+  // its roster and its voter-hub-location.js) against today's, level by level,
+  // so the position support is held to touching Washington's House alone.
   const now = bootWA({ state: "Utah" });
-  const was = boot({ state: "Utah" }, { "who-represents-me.js": HEAD("who-represents-me.js"), "cmp-data.js": RAW_HEAD("cmp-data.js"),
-    "voter-hub-location.js": RAW_HEAD("voter-hub-location.js") });
+  const was = boot({ state: "Utah" }, { "who-represents-me.js": HEAD("who-represents-me.js"), "cmp-data.js": HEAD("cmp-data.js"),
+    "voter-hub-location.js": HEAD("voter-hub-location.js") });
+  const prePass = boot({ state: "Utah" }, { "cmp-data.js": BASE("cmp-data.js"), "voter-hub-location.js": BASE("voter-hub-location.js") });
   for (const f of EARLIER) vm.runInContext(HEAD(f), was, { filename: f + "@HEAD" });
   const SEATS = {};
   const NAMES = { pa: "Pennsylvania", ga: "Georgia", nc: "North Carolina", mi: "Michigan", oh: "Ohio", wi: "Wisconsin", fl: "Florida",
@@ -369,6 +381,9 @@ section("6 · every other state is unchanged");
     now._currentVoterLocation = Object.assign({}, loc);
     was._currentVoterLocation = Object.assign({}, loc);
     eq(band(now), band(was), `${st} seat ${sd}/${hd}: the card changed`);
+    if (st === "Washington") return;
+    prePass._currentVoterLocation = Object.assign({}, loc);
+    eq(JSON.stringify(now.pdxRepsForMe().levels), JSON.stringify(prePass.pdxRepsForMe().levels), `${st} seat ${sd}/${hd}: this pass changed the resolver's levels`);
   };
   for (const st of STATES) for (const d of SEATS[st] || ["1", "2", "7", "16", "40"]) cmp(st, d, d);
   // Washington itself: every district outside the races reads as HEAD's card did.

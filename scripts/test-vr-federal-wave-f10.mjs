@@ -337,7 +337,18 @@ const C = decide._counts || {};
   const np = sh.match(/_RD_NO_POLE\s*=\s*\{([\s\S]*?)\n\s*\};/);
   if (ok(!!np, "_RD_NO_POLE is not in stance-helpers.js")) {
     const keys = [...np[1].matchAll(/^\s*([a-z_]+)\s*:/gm)].map((m) => m[1]);
-    eq(keys.length, 13, "_RD_NO_POLE changed size — the suppressed volume this wave measured was measured against 13 keys");
+    // The thirteen keys this wave measured against are all still there, and the
+    // only keys added since are the four country keys later passes declared
+    // (20261105000000 Iran, 20261106000000 Ukraine and Yemen, 20261116000000
+    // Venezuela — "a country, not a proposition"). Losing one of the thirteen,
+    // or any other addition, changes the volume this wave measured.
+    const F10_KEYS = ["guard_authority", "states_federal_power", "war_powers", "tariffs_authority", "civil_service_control",
+      "state_standing", "homeless", "medical_freedom", "crypto_cbdc", "datacenter_water", "datacenter_power",
+      "tariffs_prices", "tariffs_growth"];
+    const LATER_COUNTRY_KEYS = ["iran_policy", "ukraine_policy", "yemen_policy", "venezuela_policy"];
+    eq(JSON.stringify(F10_KEYS.filter((k) => !keys.includes(k))), "[]", "_RD_NO_POLE lost a key this wave measured against");
+    eq(JSON.stringify(keys.filter((k) => !F10_KEYS.includes(k)).sort()), JSON.stringify([...LATER_COUNTRY_KEYS].sort()),
+      "_RD_NO_POLE gained a key that is neither this wave's nor one of the declared country keys");
     for (const k of ["war_powers", "guard_authority", "states_federal_power", "tariffs_authority", "state_standing",
                      "homeless", "crypto_cbdc", "tariffs_prices"]) {
       ok(keys.includes(k), `${k} left _RD_NO_POLE — a refusal in this seed was priced against its being in there`);

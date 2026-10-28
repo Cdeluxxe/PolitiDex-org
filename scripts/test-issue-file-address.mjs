@@ -1130,12 +1130,19 @@ const FILED = await (async () => {
   // for this issue in this reader's own district" — which it answers with a link
   // or with ''. It reads no record, holds no count and cannot characterise
   // anybody: its tables carry no score, no party and no ranking column at all.
+  // A FOURTH JOINED IT WITH THE ISSUE POLL, on the district room's terms:
+  // PDXIssuePoll.html(key) paints issue-poll.js's own block into the file for
+  // the one key it names on its own ISSUES table, and '' everywhere else. It is
+  // asked for markup and nothing else — no count, no record, no name — so it
+  // cannot answer a question about the record either.
   eq(globals.join(","),
     "MutationObserver,PDXDistrictRoom,PDXDoor1,PDXIssueColors,PDXIssueFamily,PDXIssueFile," +
-    "PDXIssueProfile,PDXIssueScope,_showToast,addEventListener,pdxDoor1Issue",
+    "PDXIssuePoll,PDXIssueProfile,PDXIssueScope,_showToast,addEventListener,pdxDoor1Issue",
     "issue-file.js touches a global beyond the desk and its one issue door, the family table, " +
     "the palette, the address, the scope card, the notice primitive, the district room's entry " +
-    "block, the observer that watches the person overlay, and its own name");
+    "block, the issue poll's block, the observer that watches the person overlay, and its own name");
+  ok(/function issuePoll\(key\) \{\s*var IP = window\.PDXIssuePoll;\s*if \(!IP \|\| typeof IP\.html !== 'function'\) return '';\s*try \{ return IP\.html\(key\) \|\| ''; \} catch \(e\) \{ return ''; \}\s*\}/.test(PANEL),
+    "issue-file.js asks PDXIssuePoll for something other than its block's markup");
   // The letterhead's copy is prose about a key, never a verdict about a person.
   for (const banned of ["backs up their words", "Direction Match", "consistency",
                         "ranked", "Add to team"]) {

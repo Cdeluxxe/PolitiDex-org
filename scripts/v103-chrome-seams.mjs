@@ -3432,6 +3432,17 @@ export const DECLARED_ADMISSIONS = [
     pids: JSON.parse(_readFileSync(new URL("../db/roster-state-legislators-tn-in-mo-2026-oct.json", import.meta.url), "utf8")).rows.map((r) => r.pid),
   },
   {
+    // The sitting Wisconsin members in the contested 2026 races
+    // (wi-ballot-2026.js): one identity row each. The Wisconsin pass added the
+    // block to cmp-data.js but never declared it here, so every roster-size
+    // suite counted thirteen rows it could not account for; declared now, with
+    // exactly the incumbents wi-ballot-2026.js names.
+    wave: "wi_contested_cycle_oct2026",
+    banner: "// ── Sitting Wisconsin legislators in the contested 2026 races (wi-ballot-2026.js, Oct 2026)",
+    pids: ["marklein_wi", "smith_wi", "sheehan_wi", "zimmerman_wi", "jacobson_wi", "novak_wi", "donovan_wi", "snyder_wi",
+      "franklin_wi", "spaude_wi", "emerson_wi", "moses_wi", "doyle_wi"],
+  },
+  {
     // The sitting Minnesota members in the contested 2026 races
     // (mn-ballot-2026.js): one identity row each, read off the Legislature's
     // own member lists, including the two House members running for Senate.

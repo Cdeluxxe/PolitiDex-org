@@ -58,6 +58,7 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox, ENGINE_FILES } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
+import { precachedMoved } from "./precache-moved.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -589,10 +590,14 @@ section("7 · the service worker ships both new files, under a new version");
   const m = /const CACHE_VERSION = 'v(\d+)';/.exec(SW);
   must(m, "CACHE_VERSION is not in sw.js in the form this file checks");
   const v = Number(m[1]);
+  // Owed while a precached shell file differs from HEAD (see precache-moved.mjs);
+  // once this pass landed, HEAD holds the bump. The version never goes back.
   const prev = HEAD("sw.js");
+  const moved = precachedMoved();
   if (prev) {
     const pm = /const CACHE_VERSION = 'v(\d+)';/.exec(prev);
-    if (pm) ok(v > Number(pm[1]), `CACHE_VERSION did not move past HEAD's v${pm[1]} — warm devices would serve the old shell against the new outline`);
+    if (pm) ok(v >= Number(pm[1]), `CACHE_VERSION v${v} fell below HEAD's v${pm[1]}`);
+    if (pm && moved.length) ok(v > Number(pm[1]), `CACHE_VERSION did not move past HEAD's v${pm[1]} — warm devices would serve the old shell against the new outline`);
   }
   has(SW, `// v${v} - `, `sw.js has no prose log entry for v${v}`);
   has(SW, "'/person-outline.js'", "person-outline.js is not precached");

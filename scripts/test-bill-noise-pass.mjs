@@ -56,6 +56,13 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { ENGINE_FILES, makeSandbox } from "./gen-hero-showcase.mjs";
+// THE ONE DECLARED OPEN. A /b/<sitting>/<number>#history link is the reader
+// ASKING for the same-text History fold, and openHistoryIfAsked() opens that
+// fold, once, for that ask — a bare arrival still leaves every fold shut. It is
+// lifted out by name before the "nothing forces a fold open" check, and held to
+// opening only [data-bd-same-fold="history"]; any other `.open = true` fails.
+const _askedOpen = (S) => /function openHistoryIfAsked\(seam\) \{[\s\S]*?querySelector\('\[data-bd-same-fold="history"\]'\)[\s\S]*?f\.open = true;[\s\S]*?\n  \}/.exec(S);
+const _withoutAskedOpen = (S) => { const m = _askedOpen(S); return m ? S.replace(m[0], "") : S; };
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -447,7 +454,8 @@ section("4 · the rolls stay shut, with every name still inside");
   const SRC = SRC_RAW.replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, " ");
   hasNot(SRC, "openRollDrop", "something still opens the roll drawer on the reader's behalf");
   hasNot(SRC, "data-bd-roll-open", "the letterhead still carries the attribute that sprang the drawer");
-  ok(!/\.open = true/.test(SRC), "some code path still forces a fold open");
+  ok(!!_askedOpen(SRC), "the #history ask no longer opens only the History fold — re-read it before widening this");
+  ok(!/\.open = true/.test(_withoutAskedOpen(SRC)), "some code path still forces a fold open");
   // The chip's jump is a scroll and a focus move, and that is the whole of it.
   const JUMP = SRC.slice(SRC.indexOf("function gotoSection"), SRC.indexOf("function openIssue"));
   ok(JUMP.length > 200, "the vote chip's jump handler could not be sliced out — the probe has gone stale");

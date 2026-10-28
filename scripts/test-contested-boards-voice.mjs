@@ -43,7 +43,10 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
-import { HEAD } from "./state-leg-harness.mjs";
+import { HEAD, AT, PRE_13_STATE, PASS_WORKER, DECLARED_MIGRATIONS } from "./state-leg-harness.mjs";
+// What THIS pass added is measured against the commit it was built on, so the
+// check stays exact after the pass lands; "nothing else moved" stays on HEAD.
+const BASE = AT(PRE_13_STATE);
 import { planBoards, STATE_LEG_BOARD_SEATS, STATE_LEG_VOICED_STATES } from "./gen-district-boards.mjs";
 import { COMPOSER_SEATS, LOCKED_LINE, handle as voiceHandle, seatHash } from "../netlify/lib/district-board-voice-core.mjs";
 import { handle as pollHandle } from "../netlify/lib/district-board-poll-core.mjs";
@@ -403,21 +406,32 @@ section("7 · the Layton boards and every non-contested board are unchanged");
     .replace(/# Washington (?:House|Senate) District \d+(?:, Position \d)? — [a-z0-9_]+\n(?:\[\[redirects\]\]\n  from = "\/district\/wa-(?:hd|sd)-\d+(?:-p\d)?[^"]*"\n  to = "\/district-wa-(?:hd|sd)-\d+(?:-p\d)?\.html"\n  status = 200\n)+\n/g, "");
   eq(tomlNoCa(TOML), tomlNoCa(HEAD("netlify.toml")), "netlify.toml did not move");
   ok(![...TOML.matchAll(/from = "([^"]+)"/g)].some((m) => /^\/district\/.*\*/.test(m[1])), "no /district/* splat");
-  // Utah's composer and poll rows are HEAD's; the only new rows are the voiced seats.
+  // Utah's composer and poll rows are HEAD's; the rows this pass added in the
+  // thirteen states (against the commit it was built on) are the voiced seats.
   const aliasesIn = (src) => [...String(src).matchAll(/^    '([a-z0-9_-]+)': 1,$/gm)].map((m) => m[1]);
+  const inThirteen = (a) => STATES.includes(a.slice(0, 2));
   for (const f of ["district-composer.js", "district-poll.js"]) {
-    const added = aliasesIn(R(f)).filter((a) => !aliasesIn(HEAD(f)).includes(a) && !IS_CA(a)).sort();
+    const base = aliasesIn(BASE(f));
+    ok(base.length > 100, `${f}: the pre-pass list could be read`);
+    const added = aliasesIn(R(f)).filter((a) => !base.includes(a) && inThirteen(a)).sort();
     eq(JSON.stringify(added), JSON.stringify(VOICED.map((b) => b.alias).sort()), `${f}: the only new rows are the voiced seats`);
     ok(aliasesIn(HEAD(f)).every((a) => aliasesIn(R(f)).includes(a)), `${f}: no row was dropped`);
+    ok(aliasesIn(R(f)).every((a) => aliasesIn(HEAD(f)).includes(a)), `${f}: no row beyond HEAD's`);
   }
-  // The worker moved one version, precaching nothing new; one migration, rows only.
+  // The worker: this pass moved it one version (v482 → v483, with its
+  // changelog entry), it is at least that version now and never more than one
+  // step past HEAD, and it precaches nothing new. One migration, rows only.
   const ver = (src) => Number((/const CACHE_VERSION = 'v(\d+)';/.exec(src || "") || [])[1]);
-  eq(ver(R("sw.js")), ver(HEAD("sw.js")) + 1, "sw.js: CACHE_VERSION moved exactly one step");
+  eq(ver(BASE("sw.js")) + 1, PASS_WORKER["13-state"], "sw.js: this pass moved CACHE_VERSION exactly one step");
+  has(R("sw.js"), `// v${PASS_WORKER["13-state"]} - THE CONTESTED BOARDS TAKE A VOICE, AND THE CAP IS DAILY.`, "sw.js: …and its changelog entry says why");
+  ok(ver(R("sw.js")) >= PASS_WORKER["13-state"] && ver(R("sw.js")) <= ver(HEAD("sw.js")) + 1, "sw.js: CACHE_VERSION is at least that version, and at most one step past HEAD");
   const pre = (src) => (src.match(/^  '\/[^']*',$/gm) || []).sort().join("\n");
   eq(pre(R("sw.js")), pre(HEAD("sw.js")), "sw.js: the precache list is unchanged");
-  const added = readdirSync(join(ROOT, "netlify/database/migrations")).filter((f) => HEAD(`netlify/database/migrations/${f}`) === null &&
-    HEAD(`netlify/database/migrations/${f}/migration.sql`) === null && f !== CA_MIG && f !== WA_MIG);
-  eq(JSON.stringify(added), JSON.stringify(["20261130000000_dd_districts_contested_legislative_board_seats.sql"]), "the one new migration is the dd_districts seed");
+  eq(pre(R("sw.js")), pre(BASE("sw.js")), "sw.js: this pass precached nothing new");
+  const migs = readdirSync(join(ROOT, "netlify/database/migrations"));
+  const newSince = (rd) => migs.filter((f) => rd(`netlify/database/migrations/${f}`) === null && rd(`netlify/database/migrations/${f}/migration.sql`) === null);
+  eq(JSON.stringify(newSince(BASE).filter((f) => f !== CA_MIG && f !== WA_MIG)), JSON.stringify(["20261130000000_dd_districts_contested_legislative_board_seats.sql"]), "the one new migration is the dd_districts seed");
+  ok(newSince(HEAD).every((f) => DECLARED_MIGRATIONS.includes(f)), `every migration not yet in HEAD is a declared one — ${newSince(HEAD).join(", ")}`);
 }
 
 console.log(`\n${failures.length ? "✗" : "✓"} contested boards voice: ${passed} passed, ${failures.length} failed`);

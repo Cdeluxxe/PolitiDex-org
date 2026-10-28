@@ -55,6 +55,7 @@ import path from 'node:path';
 import vm from 'node:vm';
 import { execFileSync } from 'node:child_process';
 import { ENGINE_FILES, makeSandbox } from './gen-hero-showcase.mjs';
+import { precachedMoved } from "./precache-moved.mjs";
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
@@ -401,7 +402,10 @@ try {
   const headSw = execFileSync('git', ['show', 'HEAD:sw.js'], { cwd: ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
   headV = Number((headSw.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1] || 0);
 } catch (e) { headV = 0; }
-ok(nowV > headV,
+// Owed while a precached shell file differs from HEAD (see precache-moved.mjs);
+// once this pass landed, HEAD holds the bump. The version never goes back.
+ok(nowV >= headV, `CACHE_VERSION v${nowV} fell below HEAD's v${headV}`);
+ok(!precachedMoved().length || nowV > headV,
   `CACHE_VERSION must move past HEAD's (${nowV} vs ${headV}) — a warm device would keep the old homepage and the old library`);
 has(SW, '/stance-library.js', 'sw.js: the library module is still precached with the shell');
 ok(fs.existsSync(path.join(ROOT, 'stance-library.css')), 'stance-library.css exists');

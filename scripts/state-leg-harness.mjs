@@ -81,10 +81,6 @@ export const AT = (rev) => (f) => {
   try { return execFileSync("git", ["show", `${rev}:${f}`], { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 28, stdio: ["ignore", "pipe", "ignore"] }); }
   catch (e) { return null; }
 };
-export const migrationsAt = (rev) => {
-  try { return execFileSync("git", ["ls-tree", "--name-only", rev, "netlify/database/migrations/"], { cwd: ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).split("\n").filter(Boolean).map((p) => p.split("/").pop()); }
-  catch (e) { return []; }
-};
 // The worker version each pass moved to. After a pass lands, "moved one step
 // past HEAD" is no longer true of it; what stays true is that the worker is at
 // least that version and its precache list did not grow.

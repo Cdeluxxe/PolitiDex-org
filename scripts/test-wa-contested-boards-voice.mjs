@@ -42,7 +42,10 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
-import { HEAD } from "./state-leg-harness.mjs";
+import { HEAD, AT, PRE_CA_WA, PASS_WORKER, DECLARED_MIGRATIONS } from "./state-leg-harness.mjs";
+// What THIS pass added is measured against the commit it was built on, so the
+// check stays exact after the pass lands; "nothing else moved" stays on HEAD.
+const BASE = AT(PRE_CA_WA);
 import { planBoards, STATE_LEG_BOARD_SEATS, STATE_LEG_VOICED_STATES } from "./gen-district-boards.mjs";
 import { COMPOSER_SEATS, LOCKED_LINE, composerSeat as composerSeatOf, handle as voiceHandle, seatHash } from "../netlify/lib/district-board-voice-core.mjs";
 import { handle as pollHandle } from "../netlify/lib/district-board-poll-core.mjs";
@@ -335,7 +338,8 @@ section("5 · the counts endpoint answers these seats and returns only aggregate
     .replace(/\/\/ A seat elected by position \(Washington's House\)[^\n]*\n\/\/ alias [^\n]*\nconst POSITION_KEY_RE = [^\n]*\n\n/, "")
     .replace(" || POSITION_KEY_RE.test(s)) return s;", ") return s;")
     .replace(/  const pm = \/\^\(\[a-z\]\{2\}\)-hd-[^\n]*\n  if \(pm\) return [^\n]*\n/, "");
-  eq(noPosition(strip(FN)), strip(HEAD("netlify/functions/district-board.mts")), "the counts endpoint's code did not move beyond the position shape");
+  eq(noPosition(strip(FN)), noPosition(strip(HEAD("netlify/functions/district-board.mts"))), "the counts endpoint's code did not move");
+  eq(noPosition(strip(FN)), strip(BASE("netlify/functions/district-board.mts")), "…and this pass changed nothing in it beyond the position shape");
   ok(/const POSITION_KEY_RE = \/\^\[a-z\]\{2\}-statehouse-\[1-9\]\[0-9\]\*-p\[1-9\]\$\/;/.test(FN), "the counts endpoint reads the position shape");
 }
 
@@ -367,25 +371,31 @@ section("7 · existing voiced boards are unchanged");
 {
   const caSeat = (k) => /^wa-(?:statehouse|statesenate)-\d+(?:-p\d)?$/.test(k);
   const caAlias = (a) => /^wa-(?:hd|sd)-\d+(?:-p\d)?$/.test(a);
-  // The server's gate: every HEAD row is still there with the same alias; the
-  // only new rows are Washington's contested seats and positions.
+  // The server's gate: every HEAD row is still there with the same alias, and
+  // the Washington rows this pass added (against the commit it was built on)
+  // are exactly its contested seats and positions.
   const gateOf = (src) => new Map([...String(src).matchAll(/^  "([a-z0-9_-]+)": "([a-z0-9_-]+)",$/gm)].map((m) => [m[1], m[2]]));
   const gNow = gateOf(R("netlify/lib/district-board-voice-core.mjs")), gWas = gateOf(HEAD("netlify/lib/district-board-voice-core.mjs"));
   ok(gWas.size > 100, "HEAD's server gate could be read");
   for (const [k, a] of gWas) eq(gNow.get(k), a, `${k}: still on the server gate as ${a}`);
-  eq(JSON.stringify([...gNow.keys()].filter((k) => !gWas.has(k)).sort()), JSON.stringify(RACE_SEATS), "the server gate's only new rows are Washington's");
+  const gBase = gateOf(BASE("netlify/lib/district-board-voice-core.mjs"));
+  ok(gBase.size > 100, "the pre-pass server gate could be read");
+  eq(JSON.stringify([...gNow.keys()].filter((k) => !gBase.has(k) && /^wa-/.test(k)).sort()), JSON.stringify(RACE_SEATS), "the server gate's only new rows are Washington's");
+  ok([...gNow.keys()].every((k) => gWas.has(k)), "the server gate holds no row beyond HEAD's");
   const aliasesIn = (src) => [...String(src).matchAll(/^    '([a-z0-9_-]+)': 1,$/gm)].map((m) => m[1]);
   for (const f of ["district-composer.js", "district-poll.js"]) {
-    const now = aliasesIn(R(f)), was = aliasesIn(HEAD(f));
+    const now = aliasesIn(R(f)), was = aliasesIn(HEAD(f)), base = aliasesIn(BASE(f));
     ok(was.every((a) => now.includes(a)), `${f}: no row was dropped`);
-    const added = now.filter((a) => !was.includes(a)).sort();
+    ok(now.every((a) => was.includes(a)), `${f}: no row beyond HEAD's`);
+    const added = now.filter((a) => !base.includes(a) && /^wa-/.test(a)).sort();
     eq(JSON.stringify(added), JSON.stringify(VOICED.map((b) => b.alias).sort()), `${f}: the only new rows are Washington's`);
     ok(added.every(caAlias), `${f}: …and every one is a Washington legislative board`);
   }
   const rowsOf = (src) => new Map([...String(src).matchAll(/^    '([a-z0-9_-]+)': \{ seat: .*$/gm)].map((m) => [m[1], m[0]]));
   const now = rowsOf(R("district-board.js")), was = rowsOf(HEAD("district-board.js"));
   for (const [k, line] of was) eq(now.get(k), line, `${k}: BOARDS row unchanged`);
-  eq(JSON.stringify([...now.keys()].filter((k) => !was.has(k)).sort()), JSON.stringify(RACE_SEATS), "BOARDS: the only new rows are Washington's");
+  const base = rowsOf(BASE("district-board.js"));
+  eq(JSON.stringify([...now.keys()].filter((k) => !base.has(k) && /^wa-/.test(k)).sort()), JSON.stringify(RACE_SEATS), "BOARDS: the only new rows are Washington's");
   for (const [k, line] of now) if (caSeat(k)) ok(/ composer: true, /.test(line), `${k}: its row says it takes a voice`);
   const holdersNow = SEAT_HOLDERS;
   const HH = (() => { const src = HEAD("netlify/lib/seat-holders.mjs"); return new Map([...String(src).matchAll(/^  "([a-z0-9_-]+)": (\{.*\}),$/gm)].map((m) => [m[1], m[2]])); })();
@@ -398,15 +408,21 @@ section("7 · existing voiced boards are unchanged");
   }
   const TOML = R("netlify.toml");
   ok(![...TOML.matchAll(/from = "([^"]+)"/g)].some((m) => /^\/district\/.*\*/.test(m[1])), "no /district/* splat");
-  // The worker moved one version, precaching nothing new.
+  // The worker: this pass moved it one version past California's (v484 → v485,
+  // with its changelog entry), it is at least that version now and never more
+  // than one step past HEAD, and it precaches nothing new.
   const ver = (src) => Number((/const CACHE_VERSION = 'v(\d+)';/.exec(src || "") || [])[1]);
-  eq(ver(R("sw.js")), ver(HEAD("sw.js")) + 1, "sw.js: CACHE_VERSION moved exactly one step");
+  eq(PASS_WORKER.wa, PASS_WORKER.ca + 1, "sw.js: this pass moved CACHE_VERSION exactly one step past California's");
+  has(R("sw.js"), `// v${PASS_WORKER.wa} - WASHINGTON, ONE CONTESTED CYCLE, AND ITS BOARDS TAKE A VOICE.`, "sw.js: …and its changelog entry says why");
+  ok(ver(R("sw.js")) >= PASS_WORKER.wa && ver(R("sw.js")) <= ver(HEAD("sw.js")) + 1, "sw.js: CACHE_VERSION is at least that version, and at most one step past HEAD");
   const pre = (src) => (src.match(/^  '\/[^']*',$/gm) || []).sort().join("\n");
   eq(pre(R("sw.js")), pre(HEAD("sw.js")), "sw.js: the precache list is unchanged");
+  eq(pre(R("sw.js")), pre(BASE("sw.js")), "sw.js: this pass precached nothing new");
   for (const f of ["/district-composer.js", "/district-poll.js", "/district-board.js"]) has(R("sw.js"), `  '${f}',`, `sw.js precaches ${f}, so the move is owed`);
-  const added = readdirSync(join(ROOT, "netlify/database/migrations")).filter((f) => HEAD(`netlify/database/migrations/${f}`) === null &&
-    HEAD(`netlify/database/migrations/${f}/migration.sql`) === null);
-  eq(JSON.stringify(added), JSON.stringify([MIG.split("/").pop()]), "the one new migration is the Washington dd_districts seed");
+  const migs = readdirSync(join(ROOT, "netlify/database/migrations"));
+  const newSince = (rd) => migs.filter((f) => rd(`netlify/database/migrations/${f}`) === null && rd(`netlify/database/migrations/${f}/migration.sql`) === null);
+  eq(JSON.stringify(newSince(BASE).filter((f) => /washington/.test(f))), JSON.stringify([MIG.split("/").pop()]), "the one new migration is the Washington dd_districts seed");
+  ok(newSince(HEAD).every((f) => DECLARED_MIGRATIONS.includes(f)), `every migration not yet in HEAD is a declared one — ${newSince(HEAD).join(", ")}`);
 }
 
 console.log(`\n${failures.length ? "✗" : "✓"} wa contested boards voice: ${passed} passed, ${failures.length} failed`);

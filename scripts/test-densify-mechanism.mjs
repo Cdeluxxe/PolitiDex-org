@@ -49,6 +49,16 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+// _dosMechFor's consumers are NAMED, not counted. It began with one (the row
+// builder, _dosItems); the per-act effect-line pass (261576f) added a second,
+// _dosPointerLine, whose result lands only in the row's `ptrLine` prose field.
+// Any third caller, or the pointer line flowing anywhere but ptrLine, fails.
+const _dosConsumers = (SRC) => [...SRC.matchAll(/_dosMechFor\(/g)].map((m) => {
+  if (/function\s+$/.test(SRC.slice(Math.max(0, m.index - 12), m.index))) return "(definition)";
+  const fns = [...SRC.slice(0, m.index).matchAll(/function\s+([A-Za-z0-9_$]+)\s*\(/g)];
+  return fns.length ? fns[fns.length - 1][1] : "?";
+});
+const _dosPointerOnlyInPtrLine = (SRC) => (SRC.match(/_dosPointerLine\(/g) || []).length === 2 && /ptrLine: _dosPointerLine\(/.test(SRC);
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -519,8 +529,9 @@ console.log("   ── 9 · the same corpus with the prose table emptied scores 
   ok(compared > 200, `enough rows were diffed to mean something — ${compared}`);
   ok(curatedSeen >= 4, `the diff covered the curated pairs themselves — ${curatedSeen}`);
 
-  ok((src.match(/_dosMechFor\(/g) || []).length === 2,
-    "_dosMechFor is still defined once and called once — the table has not grown a second consumer");
+  ok(_dosConsumers(src).join(",") === "(definition),_dosItems,_dosPointerLine",
+    `_dosMechFor is defined once and called only by the row builder and the pointer line — ${_dosConsumers(src).join(", ")}`);
+  ok(_dosPointerOnlyInPtrLine(src), "the pointer line is called once, and only to fill the row's ptrLine prose");
   ok(!/_DOS_MECH\[[^\]]*\]\s*\.\s*(weight|support|direction|verdict)/.test(src),
     "no weight, direction, supportMeaning or verdict is read out of the prose table");
 }

@@ -45,10 +45,15 @@ const ok = (c, m) => { if (c) passed++; else failures.push(m); };
 const eq = (a, b, m) => ok(a === b, `${m} — expected ${JSON.stringify(b)}, got ${JSON.stringify(a)}`);
 const section = (t) => console.log(`\n   ── ${t}`);
 const must = (c, m) => { if (c) return; console.error(`✗ obbba: STALE HARNESS — ${m}`); process.exit(2); };
-const gitShow = (f) => {
-  try { return execFileSync("git", ["show", `HEAD:${f}`], { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 28, stdio: ["ignore", "pipe", "ignore"] }); }
+const gitShowAt = (rev, f) => {
+  try { return execFileSync("git", ["show", `${rev}:${f}`], { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 28, stdio: ["ignore", "pipe", "ignore"] }); }
   catch { return null; }
 };
+const gitShow = (f) => gitShowAt("HEAD", f);
+// THE COMMIT THIS PASS WAS BUILT ON (the parent of 5f25a93, which added
+// 20261124000000_vr_obbba_hr1_full_lens.sql). "No line was stored before this
+// pass" is a claim about THAT tree; once the pass landed, HEAD holds the lines.
+const PRE_PASS = "1122b00";
 
 const K = "119|H.R. 1", NUM = "H.R. 1";
 const CG = "https://www.congress.gov/bill/119th-congress/house-bill/1";
@@ -122,7 +127,10 @@ ok(/WHERE measure_id = m_id AND is_primary;\s*IF n <> 1/.test(BODY), "the migrat
     eq(JSON.stringify(seedNow), JSON.stringify(was), "seed: H.R. 1 is byte-identical to HEAD");
     const HE = tableOf(headCons, "_DOS_EFFECT");
     for (const [k, v] of Object.entries(HE)) if (k.startsWith(`${NUM}|119|`)) eq(E[k], v, `effect line ${k} is unchanged`);
-    for (const k of Object.keys(NEW)) ok(!(`${NUM}|119|${k}` in HE), `${k}: no line was stored before this pass`);
+    const preCons = gitShowAt(PRE_PASS, "consistency.js");
+    must(preCons !== null, `the pre-pass commit ${PRE_PASS} is unreadable, so "before this pass" could not be checked`);
+    const PE = tableOf(preCons, "_DOS_EFFECT");
+    for (const k of Object.keys(NEW)) ok(!(`${NUM}|119|${k}` in PE), `${k}: no line was stored before this pass`);
     ok(JSON.stringify(MECH) === JSON.stringify(tableOf(headCons, "_DOS_MECH")), "_DOS_MECH is unchanged");
     for (const k of Object.keys(NEW)) ok(!(`${NUM}|119|${k}` in MECH), `${k}: no did is stored for it — its line is in _DOS_EFFECT`);
     ok(gitShow("issue-map.js") === R("issue-map.js"), "issue-map.js is unchanged: no new issue key");
