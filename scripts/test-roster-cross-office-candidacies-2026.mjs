@@ -56,7 +56,12 @@ const W0 = evalRoster(SRC);
 // Island) added the sitting legislators running for a DIFFERENT legislative
 // seat to the same table, from its own record; test-six-state-deepen.mjs holds
 // those. This suite holds everything else in the table to this record.
-const LEG_CROSS = new Set(JSON.parse(R("db/roster-candidates-legislative-ne-sd-id-mt-ak-ri-2026-oct.json")).crossSeat.map((r) => r.pid));
+// The four-state pass (Maine, Colorado, Minnesota, Nevada) did the same from its
+// record, and moved four candidacies here whose holders it seated;
+// test-four-state-deepen.mjs holds those.
+const LEG_CROSS = new Set(JSON.parse(R("db/roster-candidates-legislative-ne-sd-id-mt-ak-ri-2026-oct.json")).crossSeat.map((r) => r.pid)
+  .concat(JSON.parse(R("db/roster-candidates-legislative-me-co-mn-nv-2026-oct.json")).crossSeat.map((r) => r.pid))
+  .concat(JSON.parse(R("db/roster-state-legislators-me-co-mn-nv-2026-oct.json")).seatedFromCandidacy.map((r) => r.pid)));
 const RO = W0.CMP_DATA;
 const CY = Object.fromEntries(Object.entries(W0.CMP_CANDIDACIES || {}).filter(([k]) => !LEG_CROSS.has(k)));
 const NAME = Object.fromEntries(Object.entries(BATCH.states).map(([k, s]) => [k, s.state]));

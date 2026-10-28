@@ -223,7 +223,7 @@
     {
       "pid": "boebert",
       "name": "Lauren Boebert",
-      "office": "U.S. Representative · Colorado",
+      "office": "U.S. Representative · CO-4 · Colorado",
       "party": {
         "label": "R",
         "color": "#f87171"

@@ -3493,6 +3493,21 @@ export const DECLARED_ADMISSIONS = [
     pids: JSON.parse(_readFileSync(new URL("../db/roster-candidates-legislative-ne-sd-id-mt-ak-ri-2026-oct.json", import.meta.url), "utf8")).rows.map((r) => r.pid),
   },
   {
+    // Every sitting Maine, Colorado, Minnesota and Nevada state legislator the
+    // roster did not already hold (the four states boarded whole), one
+    // identity row each; the record names each state's source.
+    wave: "state_legislators_me_co_mn_nv_oct2026",
+    banner: "// ── Sitting state legislators, Maine, Colorado, Minnesota and Nevada — roster shells (Oct 2026)",
+    pids: JSON.parse(_readFileSync(new URL("../db/roster-state-legislators-me-co-mn-nv-2026-oct.json", import.meta.url), "utf8")).rows.map((r) => r.pid),
+  },
+  {
+    // The 2026 State Senate, State House and State Assembly candidates on those
+    // four states' official lists whom the roster did not already hold.
+    wave: "legislative_candidates_me_co_mn_nv_oct2026",
+    banner: "// ── 2026 state legislative candidates, Maine, Colorado, Minnesota and Nevada (Oct 2026)",
+    pids: JSON.parse(_readFileSync(new URL("../db/roster-candidates-legislative-me-co-mn-nv-2026-oct.json", import.meta.url), "utf8")).rows.map((r) => r.pid),
+  },
+  {
     // Too many rows to type here, so the list is the committed record of
     // the pass itself, which also names each state's official source.
     wave: "candidates_outside_utah_oct2026",
@@ -3669,7 +3684,11 @@ export const DECLARED_CANDIDACIES = {
   pids: JSON.parse(_readFileSync(new URL("../db/roster-cross-office-candidacies-2026-oct.json", import.meta.url), "utf8")).rows.map((r) => r.pid)
     // …and the six-state pass's sitting legislators running for a different
     // legislative seat, appended to the same table from that pass's record.
-    .concat(JSON.parse(_readFileSync(new URL("../db/roster-candidates-legislative-ne-sd-id-mt-ak-ri-2026-oct.json", import.meta.url), "utf8")).crossSeat.map((r) => r.pid)),
+    .concat(JSON.parse(_readFileSync(new URL("../db/roster-candidates-legislative-ne-sd-id-mt-ak-ri-2026-oct.json", import.meta.url), "utf8")).crossSeat.map((r) => r.pid))
+    // …and the four-state pass's: its members running for a different
+    // legislative seat, and the four it seated whose candidacy moved here.
+    .concat(JSON.parse(_readFileSync(new URL("../db/roster-candidates-legislative-me-co-mn-nv-2026-oct.json", import.meta.url), "utf8")).crossSeat.map((r) => r.pid))
+    .concat(JSON.parse(_readFileSync(new URL("../db/roster-state-legislators-me-co-mn-nv-2026-oct.json", import.meta.url), "utf8")).seatedFromCandidacy.map((r) => r.pid)),
 };
 const CANDIDACY_KEY = /^ "([a-z0-9_]+)": \{ "office"/gm;
 const ROSTER_KEY = /^\s*"([a-z0-9_]+)":\s*\{$/gm;
@@ -3695,6 +3714,16 @@ export const DECLARED_DISTRICTS = _LEG_RECORDS.flatMap((rec) => rec.districtSet.
 // the six-state pass gave it the district his seat is ("2", as the roster
 // writes a congressional district).
 DECLARED_DISTRICTS.push({ pid: "don_bacon", values: ["2"] });
+// The four-state pass (Maine, Colorado, Minnesota, Nevada) gave six legislative
+// leaders their seat and eight U.S. Representatives their district ("ME-1").
+const _FOUR_REC = JSON.parse(_readFileSync(new URL("../db/roster-state-legislators-me-co-mn-nv-2026-oct.json", import.meta.url), "utf8"));
+for (const r of [..._FOUR_REC.districtSet, ..._FOUR_REC.usHouseDistrictSet]) DECLARED_DISTRICTS.push({ pid: r.pid, values: [r.district] });
+// DECLARED SEATINGS — a sitting legislator the roster held only as a 2026
+// candidacy for another office, whose row the four-state pass turned into the
+// seat they hold (office, district, `candidate: false`), moving the candidacy to
+// the candidacies table. The row is set aside whole on both sides, and only for
+// the pids the record names.
+export const DECLARED_SEATINGS = _FOUR_REC.seatedFromCandidacy.map((r) => r.pid);
 export const DECLARED_DISTRICT_PIDS = DECLARED_DISTRICTS.map((d) => d.pid);
 // DECLARED OFFICES — an existing row whose holder the chamber's own roster lists
 // as no longer serving, re-labelled "Former …" so no seat lookup names them. Same
@@ -3724,6 +3753,13 @@ function _carveDeclaredDistricts(src) {
     let row = out.slice(at, end);
     for (const v of d.values) row = row.split(`"office": ${JSON.stringify(v)}`).join(`"office": "DECLARED"`);
     out = out.slice(0, at) + row + out.slice(end);
+  }
+  for (const pid of DECLARED_SEATINGS) {
+    const at = out.indexOf(`\n "${pid}": {`);
+    if (at < 0) continue;
+    const end = out.indexOf("\n },", at);
+    if (end < 0) continue;
+    out = out.slice(0, at) + `\n "${pid}": { DECLARED SEATING` + out.slice(end);
   }
   return out;
 }

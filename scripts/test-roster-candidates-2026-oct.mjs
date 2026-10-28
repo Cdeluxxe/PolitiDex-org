@@ -34,7 +34,7 @@ import { execFileSync } from "node:child_process";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { carveDeclaredAdmissions, DECLARED_ADMISSIONS } from "./v103-chrome-seams.mjs";
-import { planBoards, FEDERAL_STATES } from "./gen-district-boards.mjs";
+import { planBoards, FEDERAL_READ_ONLY_SEATS, FEDERAL_STATES } from "./gen-district-boards.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -61,6 +61,12 @@ const must = (c, m) => { if (!c) { failures.push(`FIXTURE: ${m}`); report(); } e
 
 const REC = JSON.parse(R("db/roster-candidates-2026-oct.json"));
 const BANNER = "// ── Current candidates outside Utah, 2026 general election, official state lists (Oct 2026)";
+// FOUR OF THESE WERE SITTING LEGISLATORS held only as their candidacy. The
+// four-state pass (Maine, Colorado, Minnesota, Nevada) seated them — the row now
+// names the seat they hold — and moved the candidacy, exactly as filed, to
+// window.CMP_CANDIDACIES; test-four-state-deepen.mjs holds those four, and this
+// suite holds every other row to this record.
+const SEATED = new Set(JSON.parse(R("db/roster-state-legislators-me-co-mn-nv-2026-oct.json")).seatedFromCandidacy.map((r) => r.pid));
 const NEW = REC.rows.map((r) => r.pid);
 const NEWSET = new Set(NEW);
 const SRC = R("cmp-data.js");
@@ -108,6 +114,7 @@ section("2 · each row: name, office, district, party as filed, a candidate, ine
 // ═════════════════════════════════════════════════════════════════════════════
 const EQUITY = /\bequity\b|earn (?:a|your) share|\bshareholders?\b|\bdividends?\b|\bcrowdfund|\bform c\b/i;
 for (const row of REC.rows) {
+  if (SEATED.has(row.pid)) continue;
   const r = RO[row.pid];
   if (!ok(!!r, `${row.pid}: has a roster row`)) continue;
   const st = STATE_BY_CODE[row.state];
@@ -180,6 +187,7 @@ must(typeof W.openModal === "function", `the person file did not boot — ${W.__
 const SEATED_WORDS = /\b(?:sitting member|holds this seat|holds the seat|currently serves|current member)\b/i;
 const unesc = (s) => String(s).replace(/&#39;/g, "'");
 for (const row of REC.rows) {
+  if (SEATED.has(row.pid)) continue;
   if (W.__byId["modal-content"]) W.__byId["modal-content"].innerHTML = "";
   try { W.openModal(row.pid); } catch (e) { /* homepage chrome the harness does not carry */ }
   const text = visible((W.__byId["modal-content"] || {}).innerHTML || "");
@@ -199,7 +207,9 @@ section("4 · nothing else moved: every sitting member and every Utah batch");
   ok(baseKeys.every((k) => JSON.stringify(BASE[k]) === JSON.stringify(RO[k])), "every other row is the same record");
   eq(Object.keys(RO).filter((k) => !BASE[k]).sort().join(","), NEW.slice().sort().join(","), "the only new keys are the new candidates");
   const sitting = (o) => Object.keys(o).filter((k) => !o[k].candidate && !/\bcandidate\b|\bnominee\b|\bformer\b/i.test(String(o[k].office || ""))).sort().join(",");
-  eq(sitting(RO), sitting(BASE), "the set of sitting members is unchanged");
+  // …but for the four seated members, whose rows still sit in this block.
+  const sittingNow = sitting(RO).split(",").filter((k) => !SEATED.has(k)).join(",");
+  eq(sittingNow, sitting(BASE), "the set of sitting members is unchanged");
   ok(REC.rows.every((r) => r.state !== "ut") && NEW.every((p) => !/^(?:Utah|UT\b)/.test(String(RO[p].state))), "no Utah row");
   const h = HEAD("cmp-data.js");
   if (h != null && h.indexOf(BANNER) < 0) eq(h, BASE_SRC, "with this batch carved out, cmp-data.js is byte-identical to HEAD");
@@ -259,14 +269,16 @@ const join_ = (cmp) => {
 {
   const { boards } = planBoards();
   // The contested Pennsylvania legislative boards (v469) are races, not candidates.
-  // The six states' governor boards and NE-2 (sitting members, opened by
-  // test-six-state-deepen.mjs's pass) are not candidate boards.
-  eq(boards.filter((b) => !b.stateLeg && !b.outsideUtah && b.seat !== "ne-house-2").length, 518, "the board plan is unchanged: no board opened for a candidate");
-  ok(!boards.some((b) => NEWSET.has(b.pid) || NEWSET.has(b.joinPid)), "no board names a candidate as its member");
+  // The whole-state passes' governor boards and read-only U.S. House boards
+  // (sitting members; test-six-state-deepen.mjs, test-four-state-deepen.mjs) are
+  // not candidate boards.
+  eq(boards.filter((b) => !b.stateLeg && !b.outsideUtah && !FEDERAL_READ_ONLY_SEATS.has(b.seat)).length, 518, "the board plan is unchanged: no board opened for a candidate");
+  // The four seated members hold their own seats' boards now; no one else here does.
+  ok(!boards.some((b) => (NEWSET.has(b.pid) && !SEATED.has(b.pid)) || NEWSET.has(b.joinPid)), "no board names a candidate as its member");
   const LISTS = R("netlify/functions/district-board.mts") + R("netlify/lib/district-board-voice-core.mjs") + R("district-composer.js") +
     R("district-poll.js") + R("district-board.js") + R("district-voice.js") + R("netlify.toml");
   const lit = new Set([...LISTS.matchAll(/['"]([a-z][a-z0-9_]*)['"]/g)].map((m) => m[1]));
-  ok(NEW.every((p) => !lit.has(p)), "no candidate is on any board, composer, poll or residency list");
+  ok(NEW.every((p) => SEATED.has(p) || !lit.has(p)), "no candidate is on any board, composer, poll or residency list");
 }
 {
   const LOC = R("voter-hub-location.js");

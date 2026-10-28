@@ -272,8 +272,12 @@ function planStatewide(win, boards, skipped) {
 const US_SENATE_OFFICE_RE = /\bsenat(?:e|or)\b/i;
 // A congressional board opened after the composer passes is READ-ONLY until a
 // pass puts it on the composer's three lists (and gives it a dd_districts row):
-// NE-2, which opened once Don Bacon's roster row named his district.
-export const FEDERAL_READ_ONLY_SEATS = new Set(["ne-house-2"]);
+// NE-2, which opened once Don Bacon's roster row named his district, and ME-1,
+// ME-2, CO-1, CO-2, CO-4, MN-2, MN-5 and MN-6, which opened once Chellie
+// Pingree's, Jared Golden's, Diana DeGette's, Joe Neguse's, Lauren Boebert's,
+// Angie Craig's, Ilhan Omar's and Tom Emmer's rows named theirs.
+export const FEDERAL_READ_ONLY_SEATS = new Set(["ne-house-2", "me-house-1", "me-house-2", "co-house-1", "co-house-2",
+  "co-house-4", "mn-house-2", "mn-house-5", "mn-house-6"]);
 const NOT_US_SENATE_RE = /\bstate\s+senat|\bformer\b|\bex-|\bcandidate\b|\bnominee\b|-elect\b/i;
 function planFederal(win, boards, skipped) {
   const RO = win.CMP_DATA;
@@ -331,7 +335,7 @@ function planFederal(win, boards, skipped) {
 // READ-ONLY — composer: false, on none of the three composer lists, no poll and
 // no residency check — so it is the three bands and the room's counts, and no
 // more. `outsideUtah` keeps it out of sw.js, as a federal board is kept out.
-export const GOVERNOR_STATES = new Set(["ne", "sd", "id", "mt", "ak", "ri"]);
+export const GOVERNOR_STATES = new Set(["ne", "sd", "id", "mt", "ak", "ri", "me", "co", "mn", "nv"]);
 function planGovernors(win, boards, skipped, states = FEDERAL_STATES, govStates = GOVERNOR_STATES) {
   const RO = win.CMP_DATA;
   for (const { code, name } of states) {
@@ -470,8 +474,10 @@ export const STATE_LEG_REFUSAL = "the location resolver does not map this state'
 // reason rather than the resolver's.
 // Nebraska, South Dakota, Idaho, Montana, Alaska and Rhode Island are opened
 // whole: every State House and State Senate seat the roster names a sitting
-// member for, read-only, each gated exactly as below.
-export const STATE_LEG_BOARD_STATES = new Set(["ne", "sd", "id", "mt", "ak", "ri"]);
+// member for, read-only, each gated exactly as below. Maine, Colorado, Minnesota
+// and Nevada since, the same way; a Colorado or Minnesota seat that was already
+// a contested, voiced board keeps its voice.
+export const STATE_LEG_BOARD_STATES = new Set(["ne", "sd", "id", "mt", "ak", "ri", "me", "co", "mn", "nv"]);
 export const STATE_LEG_BOARD_REFUSAL = "state legislative boards are not opened in this state";
 // ONE SEAT AT A TIME, WHERE THERE IS A RACE. A state that is not on the list
 // above may still open a board for a single seat when that seat is one of the
@@ -595,6 +601,11 @@ export const STATE_LEG_SEAT_COUNTS = {
   mt: { statesenate: 50, statehouse: 100 },
   ak: { statesenate: 20, statehouse: 40 },
   ri: { statesenate: 38, statehouse: 75 },
+  // Minnesota's House is 134 lettered seats (1A … 67B), resolver keys 1 … 134.
+  me: { statesenate: 35, statehouse: 151 },
+  co: { statesenate: 35, statehouse: 65 },
+  mn: { statesenate: 67, statehouse: 134 },
+  nv: { statesenate: 21, statehouse: 42 },
 };
 function emptySeats(win, code, name, boards, skipped) {
   const counts = STATE_LEG_SEAT_COUNTS[code];

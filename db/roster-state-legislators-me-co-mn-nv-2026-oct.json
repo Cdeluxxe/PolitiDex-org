@@ -1,0 +1,4520 @@
+{
+ "_note": "Sitting Maine, Colorado, Minnesota and Nevada state legislators, read on 2026-10-28 from the Open States current-legislator lists (compiled from each Legislature's own member pages) and checked against the Colorado General Assembly's member list and the Minnesota House's member list. cmp-data.js carries a roster shell for every \"rows\" entry; \"alreadyHeld\" are existing records that already named the seat; \"districtSet\" names existing leadership records that gained their district; \"seatedFromCandidacy\" names sitting members who were on the roster only as a 2026 federal or statewide candidacy — their row now names the seat they hold and the candidacy moved to window.CMP_CANDIDACIES. scripts/gen-district-boards.mjs opens a read-only board for every seat (a contested Colorado or Minnesota seat keeps the voice it had). Every chamber is full: Colorado House District 32 is held by Maria Gonzalez, appointed after Manny Rutinel resigned on 2026-09-04, and Minnesota House District 21A by Joe Schomacker; both are on their chamber's own list and not yet on Open States', and their rows cite the chamber list. Maine's two tribal representatives (Passamaquoddy Tribe and Houlton Band of Maliseet Indians) are non-voting, hold no district and have no row. Three Maine senators already carried an id in state-senate-stances-w13.js (mattie_daughtry, teresa_pierce, trey_stewart); their shells use it. Four display names are shared with an unrelated record in another state: Colorado Rep. Dusty Johnson (johnson_co) is not South Dakota's U.S. Rep. Dusty Johnson; Maine Rep. Chad Perkins (perkins_me) is not Missouri's (perkins_mo); Minnesota Rep. Ben Davis (davis_mn) is not Montana's House candidate (ben_davis); Minnesota Sen. Bill Weber (weber_mn) is not New York's (weber_ny).",
+ "read": "2026-10-28",
+ "sources": {
+  "Maine": {
+   "list": "https://data.openstates.org/people/current/me.csv"
+  },
+  "Colorado": {
+   "list": "https://data.openstates.org/people/current/co.csv"
+  },
+  "Minnesota": {
+   "list": "https://data.openstates.org/people/current/mn.csv"
+  },
+  "Nevada": {
+   "list": "https://data.openstates.org/people/current/nv.csv"
+  }
+ },
+ "officialChambers": {
+  "Maine": "https://legislature.maine.gov/",
+  "Colorado": "https://leg.colorado.gov/legislators",
+  "Minnesota": "https://www.house.mn.gov/members/list",
+  "Nevada": "https://www.leg.state.nv.us/App/Legislator/A/Assembly/Current"
+ },
+ "seats": {
+  "Maine": {
+   "statesenate": 35,
+   "statehouse": 151
+  },
+  "Colorado": {
+   "statesenate": 35,
+   "statehouse": 65
+  },
+  "Minnesota": {
+   "statesenate": 67,
+   "statehouse": 134
+  },
+  "Nevada": {
+   "statesenate": 21,
+   "statehouse": 42
+  }
+ },
+ "vacant": {
+  "Maine": {
+   "statesenate": [],
+   "statehouse": []
+  },
+  "Colorado": {
+   "statesenate": [],
+   "statehouse": []
+  },
+  "Minnesota": {
+   "statesenate": [],
+   "statehouse": []
+  },
+  "Nevada": {
+   "statesenate": [],
+   "statehouse": []
+  }
+ },
+ "notAdded": [
+  {
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "Passamaquoddy Tribe",
+   "name": "Aaron Dana",
+   "why": "non-voting tribal representative; holds no district"
+  },
+  {
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "Houlton Band of Maliseet Indians",
+   "name": "Brian Reynolds",
+   "why": "non-voting tribal representative; holds no district"
+  }
+ ],
+ "rows": [
+  {
+   "pid": "mabrey_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 1",
+   "name": "Javier Mabrey",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "woodrow_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 2",
+   "name": "Steven Woodrow",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "froelich_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 3",
+   "name": "Meg Froelich",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "espenoza_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 4",
+   "name": "Cecelia Espenoza",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "valdez_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 5",
+   "name": "Alex Valdez",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "camacho_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 6",
+   "name": "Sean Camacho",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "bacon_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 7",
+   "name": "Jennifer Bacon",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "gilchrist_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 8",
+   "name": "Lindsay Gilchrist",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "sirota_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 9",
+   "name": "Emily Sirota",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "joseph_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 10",
+   "name": "Junie Joseph",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "mccormick_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 11",
+   "name": "Karen McCormick",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "brown_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 12",
+   "name": "Kyle Brown",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "flanell_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 14",
+   "name": "Ava Flanell",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "bottoms_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 15",
+   "name": "Scott Bottoms",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "keltie_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 16",
+   "name": "Rebecca Keltie",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "english_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 17",
+   "name": "Regina English",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "paschal_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 18",
+   "name": "Amy Paschal",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "caldwell_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 20",
+   "name": "Jarvis Caldwell",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "bradfield_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 21",
+   "name": "Mary Bradfield",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "degraaf_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 22",
+   "name": "Ken DeGraaf",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "duran_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 23",
+   "name": "Monica Duran",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "feret_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 24",
+   "name": "Lisa Feret",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "lukens_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 26",
+   "name": "Meghan Lukens",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "titone_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 27",
+   "name": "Brianna Titone",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "lieder_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 28",
+   "name": "Sheila Lieder",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "goldstein_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 29",
+   "name": "Lori Goldstein",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "stewart_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 30",
+   "name": "Rebekah Stewart",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "phillips_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 31",
+   "name": "Jacque Phillips",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "gonzalez_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 32",
+   "name": "Maria Gonzalez",
+   "source": "https://leg.colorado.gov/legislators",
+   "note": "appointed after Manny Rutinel resigned on 2026-09-04; not yet on the Open States list"
+  },
+  {
+   "pid": "willford_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 34",
+   "name": "Jenny Willford",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "garcia_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 35",
+   "name": "Lorena García",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "carter_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 36",
+   "name": "Michael Carter",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "clifford_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 37",
+   "name": "Chad Clifford",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "rydin_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 38",
+   "name": "Gretchen Rydin",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "bradley_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 39",
+   "name": "Brandi Bradley",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "ricks_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 40",
+   "name": "Naquetta Ricks",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "jackson_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 41",
+   "name": "Jamie Jackson",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "lindsay_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 42",
+   "name": "Mandy Lindsay",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "hartsook_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 44",
+   "name": "Tony Hartsook",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "brooks_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 45",
+   "name": "Max Brooks",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "winter_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 47",
+   "name": "Ty Winter",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "barron_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 48",
+   "name": "Carlos Barron",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "smith_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 49",
+   "name": "Lesley Smith",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "weinberg_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 51",
+   "name": "Ron Weinberg",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "zokaie_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 52",
+   "name": "Yara Zokaie",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "boesenecker_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 53",
+   "name": "Andy Boesenecker",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "soper_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 54",
+   "name": "Matt Soper",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "taggart_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 55",
+   "name": "Rick Taggart",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "richardson_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 56",
+   "name": "Chris Richardson",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "velasco_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 57",
+   "name": "Elizabeth Velasco",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "suckla_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 58",
+   "name": "Larry Suckla",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "luck_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 60",
+   "name": "Stephanie Luck",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "hamrick_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 61",
+   "name": "Eliza Hamrick",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "martinez_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 62",
+   "name": "Matt Martinez",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "johnson_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 63",
+   "name": "Dusty Johnson",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "slaugh_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 64",
+   "name": "Scott Slaugh",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "garcia_sander_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 65",
+   "name": "Lori Garcia Sander",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "pelton_co",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 1",
+   "name": "Byron Pelton",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "frizell_co",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 2",
+   "name": "Lisa Frizell",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "hinrichsen_co",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 3",
+   "name": "Nick Hinrichsen",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "catlin_co",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 5",
+   "name": "Marc Catlin",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "rich_co",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 7",
+   "name": "Janice Rich",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "roberts_co",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 8",
+   "name": "Dylan Roberts",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "zamora_wilson_co",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 9",
+   "name": "Lynda Zamora Wilson",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "liston_co",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 10",
+   "name": "Larry Liston",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "snyder_co",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 12",
+   "name": "Marc Snyder",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "bright_co",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 13",
+   "name": "Scott Bright",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "kipp_co",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 14",
+   "name": "Cathy Kipp",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "kolker_co",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 16",
+   "name": "Chris Kolker",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "wallace_co",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 17",
+   "name": "Katie Wallace",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "amabile_co",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 18",
+   "name": "Judy Amabile",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "daugherty_co",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 19",
+   "name": "Lindsey Daugherty",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "cutter_co",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 20",
+   "name": "Lisa Cutter",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "danielson_co",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 22",
+   "name": "Jessie Danielson",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "kirkmeyer_co",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 23",
+   "name": "Barbara Kirkmeyer",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "mullica_co",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 24",
+   "name": "Kyle Mullica",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "lindstedt_co",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 25",
+   "name": "William Lindstedt",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "bridges_co",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 26",
+   "name": "Jeff Bridges",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "sullivan_co",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 27",
+   "name": "Tom Sullivan",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "weissman_co",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 28",
+   "name": "Mike Weissman",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "jodeh_co",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 29",
+   "name": "Iman Jodeh",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "ball_co",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 31",
+   "name": "Matt Ball",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "gonzales_co",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 34",
+   "name": "Julie Gonzales",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "rod_pelton_co",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 35",
+   "name": "Rod Pelton",
+   "source": "https://data.openstates.org/people/current/co.csv"
+  },
+  {
+   "pid": "daigle_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 1",
+   "name": "Lucien Daigle",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "albert_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 2",
+   "name": "Roger Albert",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "babin_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 3",
+   "name": "Mark Babin",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "guerrette_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 4",
+   "name": "Timmy Guerrette",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "underwood_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 5",
+   "name": "Joseph Underwood",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "ardell_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 6",
+   "name": "Donald Ardell",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "swallow_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 7",
+   "name": "Gregg Swallow",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "quint_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 8",
+   "name": "Tracy Quint",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "mingo_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 9",
+   "name": "Artie Mingo",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "tuell_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 10",
+   "name": "Will Tuell",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "strout_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 11",
+   "name": "Tiffany Strout",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "faulkingham_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 12",
+   "name": "Billy Bob Faulkingham",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "white_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 13",
+   "name": "Russ White",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "friedmann_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 14",
+   "name": "Gary Friedmann",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "eaton_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 15",
+   "name": "Holly Eaton",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "milliken_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 16",
+   "name": "Nina Milliken",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "bishop_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 17",
+   "name": "Steve Bishop",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "mcintyre_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 18",
+   "name": "Mathew McIntyre",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "campbell_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 19",
+   "name": "Dick Campbell",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "o_halloran_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 20",
+   "name": "Dani O'Halloran",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "rana_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 21",
+   "name": "Ambureen Rana",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "supica_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 22",
+   "name": "Laura Supica",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "roeder_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 23",
+   "name": "Amy Roeder",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "faircloth_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 24",
+   "name": "Sean Faircloth",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "osher_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 25",
+   "name": "Laurie Osher",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "dill_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 26",
+   "name": "Jim Dill",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "drinkwater_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 27",
+   "name": "Gary Drinkwater",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "gifford_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 28",
+   "name": "Irene Gifford",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "theriault_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 29",
+   "name": "Nancy Theriault",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "jim_white_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 30",
+   "name": "Jim White",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "perkins_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 31",
+   "name": "Chad Perkins",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "foster_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 32",
+   "name": "Steven Foster",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "fredette_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 33",
+   "name": "Ken Fredette",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "griffin_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 34",
+   "name": "Abigail Griffin",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "thorne_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 35",
+   "name": "Jim Thorne",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "haggan_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 36",
+   "name": "Kim Haggan",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "paul_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 37",
+   "name": "Reagan Paul",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "hymes_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 38",
+   "name": "Ben Hymes",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "dodge_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 39",
+   "name": "Jan Dodge",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "ray_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 40",
+   "name": "Mike Ray",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "doudera_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 41",
+   "name": "Vicki Doudera",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "geiger_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 42",
+   "name": "Valli Geiger",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "matlack_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 43",
+   "name": "Ann Matlack",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "pluecker_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 44",
+   "name": "Bill Pluecker",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "simmons_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 45",
+   "name": "Abden Simmons",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "crafts_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 46",
+   "name": "Lydia Crafts",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "farrin_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 47",
+   "name": "Wayne Farrin",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "stover_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 48",
+   "name": "Holly Stover",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "hepler_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 49",
+   "name": "Allison Hepler",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "sinclair_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 50",
+   "name": "David Sinclair",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "macias_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 51",
+   "name": "Rafael Macias",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "cluchey_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 52",
+   "name": "Sally Cluchey",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "lemelin_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 53",
+   "name": "Michael Lemelin",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "montell_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 54",
+   "name": "Karen Montell",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "shagoury_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 55",
+   "name": "Dan Shagoury",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "greenwood_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 56",
+   "name": "Randall Greenwood",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "hasenfus_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 57",
+   "name": "Tavis Hasenfus",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "frost_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 58",
+   "name": "Sharon Frost",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "rollins_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 59",
+   "name": "Dave Rollins",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "bridgeo_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 60",
+   "name": "Bill Bridgeo",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "collins_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 61",
+   "name": "Alicia Collins",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "smith_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 62",
+   "name": "Katrina Smith",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "flynn_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 63",
+   "name": "Paul Flynn",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "debrito_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 64",
+   "name": "Flavia DeBrito",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "julia_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 65",
+   "name": "Cassie Julia",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "nutting_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 66",
+   "name": "Bob Nutting",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "rudnicki_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 67",
+   "name": "Shelley Rudnicki",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "collamore_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 68",
+   "name": "Amanda Collamore",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "cray_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 69",
+   "name": "Dean Cray",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "poirier_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 70",
+   "name": "Jennifer Poirier",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "ducharme_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 71",
+   "name": "Jack Ducharme",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "caruso_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 72",
+   "name": "Liz Caruso",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "soboleski_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 73",
+   "name": "Mike Soboleski",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "hall_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 74",
+   "name": "Randy Hall",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "bunker_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 75",
+   "name": "Steve Bunker",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "lyman_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 76",
+   "name": "Sheila Lyman",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "schmersal_burgess_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 77",
+   "name": "Tammy Schmersal-Burgess",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "henderson_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 78",
+   "name": "Rachel Henderson",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "lance_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 79",
+   "name": "Mike Lance",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "jackson_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 80",
+   "name": "Caldwell Jackson",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "wood_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 81",
+   "name": "Peter Wood",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "wadsworth_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 82",
+   "name": "Nate Wadsworth",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "cimino_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 83",
+   "name": "Marygrace Cimino",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "walker_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 84",
+   "name": "Mark Walker",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "pomerleau_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 85",
+   "name": "Kim Pomerleau",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "olsen_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 86",
+   "name": "Rolf Olsen",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "boyer_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 87",
+   "name": "David Boyer",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "chapman_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 88",
+   "name": "Quentin Chapman",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "lee_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 89",
+   "name": "Adam Lee",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "libby_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 90",
+   "name": "Laurel Libby",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "morris_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 91",
+   "name": "Josh Morris",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "steve_wood_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 92",
+   "name": "Steve Wood",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "mccabe_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 93",
+   "name": "Julie McCabe",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "harriman_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 94",
+   "name": "Scott Harriman",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "abdi_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 95",
+   "name": "Mana Abdi",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "lajoie_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 96",
+   "name": "Mike Lajoie",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "mason_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 97",
+   "name": "Rick Mason",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "webb_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 98",
+   "name": "Kilton Webb",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "golek_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 99",
+   "name": "Cheryl Golek",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "ankeles_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 100",
+   "name": "Dan Ankeles",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "arford_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 101",
+   "name": "Poppy Arford",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "sachs_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 102",
+   "name": "Melanie Sachs",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "bell_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 103",
+   "name": "Art Bell",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "arata_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 104",
+   "name": "Amy Arata",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "graham_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 105",
+   "name": "Annie Graham",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "bagshaw_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 106",
+   "name": "Barbara Bagshaw",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "cooper_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 107",
+   "name": "Mark Cooper",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "terry_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 108",
+   "name": "Parnell Terry",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "sato_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 109",
+   "name": "Ellie Sato",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "mitchell_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 110",
+   "name": "Christina Mitchell",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "kuhn_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 111",
+   "name": "Amy Kuhn",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "crockett_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 112",
+   "name": "Ed Crockett",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "lookner_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 113",
+   "name": "Grayson Lookner",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "pugh_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 114",
+   "name": "Dylan Pugh",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "brennan_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 115",
+   "name": "Michael Brennan",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "zager_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 116",
+   "name": "Sam Zager",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "moonen_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 117",
+   "name": "Matt Moonen",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "yusuf_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 118",
+   "name": "Yusuf Yusuf",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "skold_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 119",
+   "name": "Charles Skold",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "dhalac_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 120",
+   "name": "Deqa Dhalac",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "kessler_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 121",
+   "name": "Christopher Kessler",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "beck_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 122",
+   "name": "Matt Beck",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "michelle_boyer_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 123",
+   "name": "Michelle Boyer",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "warren_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 124",
+   "name": "Sophie Warren",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "murphy_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 125",
+   "name": "Kelly Murphy",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "gattine_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 126",
+   "name": "Drew Gattine",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "rielly_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 127",
+   "name": "Morgan Rielly",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "salisbury_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 128",
+   "name": "Sue Salisbury",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "archer_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 129",
+   "name": "Marshall Archer",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "copeland_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 130",
+   "name": "Lynn Copeland",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "gramlich_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 131",
+   "name": "Lori Gramlich",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "malon_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 133",
+   "name": "Marc Malon",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "gere_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 134",
+   "name": "Traci Gere",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "sayre_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 135",
+   "name": "Dan Sayre",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "eder_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 136",
+   "name": "John Eder",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "carlow_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 137",
+   "name": "Nathan Carlow",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "blier_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 138",
+   "name": "Mark Blier",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "woodsome_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 139",
+   "name": "Woody Woodsome",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "parry_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 140",
+   "name": "Wayne Parry",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "lanigan_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 141",
+   "name": "Lucas Lanigan",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "mastraccio_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 142",
+   "name": "Anne-Marie Mastraccio",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "fredericks_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 143",
+   "name": "Ann Fredericks",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "adams_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 144",
+   "name": "Jeff Adams",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "foley_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 145",
+   "name": "Bob Foley",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "runte_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 146",
+   "name": "Gerry Runte",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "sargent_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 147",
+   "name": "Holly Sargent",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "lavigne_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 148",
+   "name": "Thomas Lavigne",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "roberts_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 149",
+   "name": "Tiffany Roberts",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "meyer_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 150",
+   "name": "Michele Meyer",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "mathieson_me",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 151",
+   "name": "Kristi Mathieson",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "bernard_me",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 1",
+   "name": "Sue Bernard",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "trey_stewart",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 2",
+   "name": "Trey Stewart",
+   "source": "https://data.openstates.org/people/current/me.csv",
+   "idFrom": "state-senate-stances-w13.js"
+  },
+  {
+   "pid": "brad_farrin_me",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 3",
+   "name": "Brad Farrin",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "guerin_me",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 4",
+   "name": "Stacey Guerin",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "black_me",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 5",
+   "name": "Russell Black",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "moore_me",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 6",
+   "name": "Marianne Moore",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "grohoski_me",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 7",
+   "name": "Nicole Grohoski",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "tipping_me",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 8",
+   "name": "Mike Tipping",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "baldacci_me",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 9",
+   "name": "Joe Baldacci",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "david_haggan_me",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 10",
+   "name": "David Haggan",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "curry_me",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 11",
+   "name": "Chip Curry",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "beebe_center_me",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 12",
+   "name": "Pinny Beebe-Center",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "reny_me",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 13",
+   "name": "Cameron Reny",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "hickman_me",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 14",
+   "name": "Craig Hickman",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "bradstreet_me",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 15",
+   "name": "Dick Bradstreet",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "cyrway_me",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 16",
+   "name": "Scott Cyrway",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "timberlake_me",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 17",
+   "name": "Jeff Timberlake",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "martin_me",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 19",
+   "name": "Joe Martin",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "bickford_me",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 20",
+   "name": "Bruce Bickford",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "rotundo_me",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 21",
+   "name": "Peggy Rotundo",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "jim_libby_me",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 22",
+   "name": "Jim Libby",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "mattie_daughtry",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 23",
+   "name": "Mattie Daughtry",
+   "source": "https://data.openstates.org/people/current/me.csv",
+   "idFrom": "state-senate-stances-w13.js"
+  },
+  {
+   "pid": "tepler_me",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 24",
+   "name": "Denise Tepler",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "teresa_pierce",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 25",
+   "name": "Teresa Pierce",
+   "source": "https://data.openstates.org/people/current/me.csv",
+   "idFrom": "state-senate-stances-w13.js"
+  },
+  {
+   "pid": "nangle_me",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 26",
+   "name": "Tim Nangle",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "duson_me",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 27",
+   "name": "Jill Duson",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "talbot_ross_me",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 28",
+   "name": "Rachel Talbot Ross",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "carney_me",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 29",
+   "name": "Anne Carney",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "brenner_me",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 30",
+   "name": "Stacy Brenner",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "bailey_me",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 31",
+   "name": "Donna Bailey",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "ingwersen_me",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 32",
+   "name": "Henry Ingwersen",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "harrington_me",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 33",
+   "name": "Matt Harrington",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "rafferty_me",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 34",
+   "name": "Joe Rafferty",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "lawrence_me",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 35",
+   "name": "Mark Lawrence",
+   "source": "https://data.openstates.org/people/current/me.csv"
+  },
+  {
+   "pid": "burkel_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 1A",
+   "name": "John Burkel",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "gander_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 1B",
+   "name": "Steve Gander",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "duran_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 2A",
+   "name": "Bidal Duran",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "bliss_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 2B",
+   "name": "Matt Bliss",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "skraba_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 3A",
+   "name": "Roger Skraba",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "keeler_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 4A",
+   "name": "Heather Keeler",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "joy_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 4B",
+   "name": "Jim Joy",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "knudsen_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 5A",
+   "name": "Krista Knudsen",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "wiener_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 5B",
+   "name": "Mike Wiener",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "davis_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 6A",
+   "name": "Ben Davis",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "heintzeman_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 6B",
+   "name": "Josh Heintzeman",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "igo_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 7A",
+   "name": "Spencer Igo",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "warwas_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 7B",
+   "name": "Cal Warwas",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "johnson_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 8A",
+   "name": "Pete Johnson",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "kozlowski_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 8B",
+   "name": "Liish Kozlowski",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "backer_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 9A",
+   "name": "Jeff Backer",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "murphy_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 9B",
+   "name": "Tom Murphy",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "kresha_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 10A",
+   "name": "Ron Kresha",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "schultz_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 10B",
+   "name": "Isaac Schultz",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "dotseth_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 11A",
+   "name": "Jeff Dotseth",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "nelson_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 11B",
+   "name": "Nathan Nelson",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "anderson_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 12A",
+   "name": "Paul Anderson",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "franson_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 12B",
+   "name": "Mary Franson",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "o_driscoll_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 13B",
+   "name": "Tim O'Driscoll",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "wolgamott_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 14B",
+   "name": "Dan Wolgamott",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "swedzinski_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 15A",
+   "name": "Chris Swedzinski",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "torkelson_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 15B",
+   "name": "Paul Torkelson",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "van_binsbergen_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 16A",
+   "name": "Scott Van Binsbergen",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "baker_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 16B",
+   "name": "Dave Baker",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "gillman_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 17A",
+   "name": "Dawn Gillman",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "harder_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 17B",
+   "name": "Bobbie Harder",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "frederick_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 18B",
+   "name": "Luke Frederick",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "allen_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 19A",
+   "name": "Keith Allen",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "sexton_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 19B",
+   "name": "Tom Sexton",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "altendorf_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 20A",
+   "name": "Pam Altendorf",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "jacob_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 20B",
+   "name": "Steve Jacob",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "schomacker_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 21A",
+   "name": "Joe Schomacker",
+   "source": "https://www.house.mn.gov/members/list",
+   "note": "listed by the Minnesota House member list and profile; missing from the Open States list"
+  },
+  {
+   "pid": "fogelman_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 21B",
+   "name": "Marj Fogelman",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "olson_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 22A",
+   "name": "Bjorn Olson",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "stier_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 22B",
+   "name": "Terry Stier",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "bennett_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 23A",
+   "name": "Peggy Bennett",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "mueller_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 23B",
+   "name": "Patty Mueller",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "quam_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 24A",
+   "name": "Duane Quam",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "liebling_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 24B",
+   "name": "Tina Liebling",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "hicks_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 25A",
+   "name": "Kim Hicks",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "smith_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 25B",
+   "name": "Andy Smith",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "repinski_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 26A",
+   "name": "Ripper Repinski",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "davids_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 26B",
+   "name": "Greg Davids",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "mekeland_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 27A",
+   "name": "Shane Mekeland",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "lawrence_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 27B",
+   "name": "Bryan Lawrence",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "gordon_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 28A",
+   "name": "Jimmy Gordon",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "rymer_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 28B",
+   "name": "Max Rymer",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "mcdonald_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 29A",
+   "name": "Joe McDonald",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "rarick_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 29B",
+   "name": "Marion Rarick",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "hudson_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 30A",
+   "name": "Walter Hudson",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "novotny_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 30B",
+   "name": "Paul Novotny",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "niska_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 31A",
+   "name": "Harry Niska",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "scott_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 31B",
+   "name": "Peggy Scott",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "patti_anderson_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 33A",
+   "name": "Patti Anderson",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "hill_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 33B",
+   "name": "Josiah Hill",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "lee_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 34B",
+   "name": "Xp Lee",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "engen_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 36A",
+   "name": "Elliott Engen",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "curran_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 36B",
+   "name": "Brion Curran",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "robbins_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 37A",
+   "name": "Kristin Robbins",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "bahner_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 37B",
+   "name": "Kristin Bahner",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "hiltsley_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 38A",
+   "name": "Huldah Hiltsley",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "vang_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 38B",
+   "name": "Samantha Vang",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "koegel_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 39A",
+   "name": "Erin Koegel",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "feist_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 39B",
+   "name": "Sandra Feist",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "moller_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 40A",
+   "name": "Kelly Moller",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "gottfried_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 40B",
+   "name": "David Gottfried",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "carroll_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 42A",
+   "name": "Ned Carroll",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "klevorn_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 42B",
+   "name": "Ginny Klevorn",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "frazier_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 43A",
+   "name": "Cedrick Frazier",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "freiberg_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 43B",
+   "name": "Mike Freiberg",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "fischer_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 44A",
+   "name": "Peter Fischer",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "lillie_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 44B",
+   "name": "Leon Lillie",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "acomb_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 45B",
+   "name": "Patty Acomb",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "kraft_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 46A",
+   "name": "Larry Kraft",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "youakim_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 46B",
+   "name": "Cheryl Youakim",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "buck_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 47A",
+   "name": "Shelley Buck",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "cha_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 47B",
+   "name": "Ethan Cha",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "nash_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 48A",
+   "name": "Jim Nash",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "falconer_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 49A",
+   "name": "Alex Falconer",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "kotyza_witthuhn_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 49B",
+   "name": "Carlie Kotyza-Witthuhn",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "greene_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 50A",
+   "name": "Julie Greene",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "elkins_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 50B",
+   "name": "Steve Elkins",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "howard_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 51A",
+   "name": "Mike Howard",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "coulter_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 51B",
+   "name": "Nathan Coulter",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "reyer_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 52A",
+   "name": "Liz Reyer",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "virnig_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 52B",
+   "name": "Bianca Virnig",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "clardy_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 53A",
+   "name": "Mary Clardy",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "hansen_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 53B",
+   "name": "Rick Hansen",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "bakeberg_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 54B",
+   "name": "Ben Bakeberg",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "hanson_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 55A",
+   "name": "Jess Hanson",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "berg_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 55B",
+   "name": "Kaela Berg",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "bierman_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 56A",
+   "name": "Robert Bierman",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "huot_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 56B",
+   "name": "John Huot",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "koznick_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 57A",
+   "name": "Jon Koznick",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "witte_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 57B",
+   "name": "Jeff Witte",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "pursell_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 58A",
+   "name": "Kristi Pursell",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "roach_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 58B",
+   "name": "Drew Roach",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "fue_lee_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 59A",
+   "name": "Fue Lee",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "agbaje_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 59B",
+   "name": "Esther Agbaje",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "jordan_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 60A",
+   "name": "Sydney Jordan",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "noor_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 60B",
+   "name": "Mohamud Noor",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "jones_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 61A",
+   "name": "Katie Jones",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "long_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 61B",
+   "name": "Jamie Long",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "gomez_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 62A",
+   "name": "Aisha Gomez",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "mahamoud_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 62B",
+   "name": "Anquam Mahamoud",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "sencer_mura_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 63A",
+   "name": "Samantha Sencer-Mura",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "greenman_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 63B",
+   "name": "Emma Greenman",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "luger_nikolai_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 64A",
+   "name": "Meg Luger-Nikolai",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "pinto_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 64B",
+   "name": "Dave Pinto",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "hussein_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 65A",
+   "name": "Samakab Hussein",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "perez_vega_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 65B",
+   "name": "María Isa Pérez-Vega",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "finke_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 66A",
+   "name": "Leigh Finke",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "hollins_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 66B",
+   "name": "Athena Hollins",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "liz_lee_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 67A",
+   "name": "Liz Lee",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "xiong_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 67B",
+   "name": "Jay Xiong",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "green_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 2",
+   "name": "Steve Green",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "utke_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 5",
+   "name": "Paul Utke",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "keri_heintzeman_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 6",
+   "name": "Keri Heintzeman",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "farnsworth_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 7",
+   "name": "Rob Farnsworth",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "mcewen_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 8",
+   "name": "Jen McEwen",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "rasmusson_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 9",
+   "name": "Jordan Rasmusson",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "wesenberg_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 10",
+   "name": "Nathan Wesenberg",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "jason_rarick_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 11",
+   "name": "Jason Rarick",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "westrom_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 12",
+   "name": "Torrey Westrom",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "howe_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 13",
+   "name": "Jeff Howe",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "dahms_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 15",
+   "name": "Gary Dahms",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "lang_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 16",
+   "name": "Andrew Lang",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "gruenhagen_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 17",
+   "name": "Glenn Gruenhagen",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "frentz_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 18",
+   "name": "Nick Frentz",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "jasinski_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 19",
+   "name": "John Jasinski",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "drazkowski_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 20",
+   "name": "Steve Drazkowski",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "weber_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 21",
+   "name": "Bill Weber",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "draheim_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 22",
+   "name": "Rich Draheim",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "dornink_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 23",
+   "name": "Gene Dornink",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "carla_nelson_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 24",
+   "name": "Carla Nelson",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "boldon_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 25",
+   "name": "Liz Boldon",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "miller_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 26",
+   "name": "Jeremy Miller",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "mathews_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 27",
+   "name": "Andrew Mathews",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "koran_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 28",
+   "name": "Mark Koran",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "holmstrom_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 29",
+   "name": "Mike Holmstrom",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "lucero_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 30",
+   "name": "Eric Lucero",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "bahr_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 31",
+   "name": "Cal Bahr",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "hoffman_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 34",
+   "name": "John Hoffman",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "gustafson_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 36",
+   "name": "Heather Gustafson",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "limmer_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 37",
+   "name": "Warren Limmer",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "pha_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 38",
+   "name": "Susan Pha",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "kunesh_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 39",
+   "name": "Mary Kunesh",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "marty_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 40",
+   "name": "John Marty",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "westlin_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 42",
+   "name": "Bonnie Westlin",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "rest_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 43",
+   "name": "Ann Rest",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "tou_xiong_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 44",
+   "name": "Tou Xiong",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "johnson_stewart_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 45",
+   "name": "Ann Johnson Stewart",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "latz_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 46",
+   "name": "Ron Latz",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "hemmingsen_jaeger_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 47",
+   "name": "Amanda Hemmingsen-Jaeger",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "cwodzinski_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 49",
+   "name": "Steve Cwodzinski",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "mann_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 50",
+   "name": "Alice Mann",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "wiklund_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 51",
+   "name": "Melissa Wiklund",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "carlson_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 52",
+   "name": "Jim Carlson",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "klein_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 53",
+   "name": "Matt Klein",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "port_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 55",
+   "name": "Lindsey Port",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "maye_quade_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 56",
+   "name": "Erin Maye Quade",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "duckworth_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 57",
+   "name": "Zach Duckworth",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "lieske_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 58",
+   "name": "Bill Lieske",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "clark_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 60",
+   "name": "Doron Clark",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "dibble_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 61",
+   "name": "Scott Dibble",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "fateh_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 62",
+   "name": "Omar Fateh",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "mohamed_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 63",
+   "name": "Zaynab Mohamed",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "pappas_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 65",
+   "name": "Sandy Pappas",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "oumou_verbeten_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 66",
+   "name": "Clare Oumou Verbeten",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "hawj_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 67",
+   "name": "Foung Hawj",
+   "source": "https://data.openstates.org/people/current/mn.csv"
+  },
+  {
+   "pid": "monroe_moreno_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 1",
+   "name": "Daniele Monroe-Moreno",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "kasama_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 2",
+   "name": "Heidi Kasama",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "torres_fossett_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 3",
+   "name": "Selena Torres-Fossett",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "miller_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 5",
+   "name": "Brittney Miller",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "jackson_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 6",
+   "name": "Jovan Jackson",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "flanagan_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 7",
+   "name": "Tanya Flanagan",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "nguyen_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 8",
+   "name": "Duy Nguyen",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "yeager_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 9",
+   "name": "Steve Yeager",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "karris_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 10",
+   "name": "Venise Karris",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "moore_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 11",
+   "name": "Cinthia Moore",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "carter_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 12",
+   "name": "Max Carter",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "hibbetts_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 13",
+   "name": "Brian Hibbetts",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "mosca_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 14",
+   "name": "Erica Mosca",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "watts_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 15",
+   "name": "Howard Watts",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "gonzalez_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 16",
+   "name": "Cecelia González",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "hunt_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 17",
+   "name": "Linda Hunt",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "considine_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 18",
+   "name": "Venicia Considine",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "patchett_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 19",
+   "name": "Jason Patchett",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "orentlicher_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 20",
+   "name": "David Orentlicher",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "hardy_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 22",
+   "name": "Melissa Hardy",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "gallant_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 23",
+   "name": "Danielle Gallant",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "roth_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 24",
+   "name": "Erica Roth",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "delong_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 26",
+   "name": "Rich DeLong",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "goulding_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 27",
+   "name": "Heather Goulding",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "d_silva_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 28",
+   "name": "Reuben D'Silva",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "dalia_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 29",
+   "name": "Joe Dalia",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "anderson_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 30",
+   "name": "Natha Anderson",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "dickman_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 31",
+   "name": "Jill Dickman",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "hansen_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 32",
+   "name": "Alexis Hansen",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "gurr_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 33",
+   "name": "Bert Gurr",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "nadeem_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 34",
+   "name": "Hanadi Nadeem",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "hafen_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 36",
+   "name": "Greg Hafen",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "koenig_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 38",
+   "name": "Gregory Koenig",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "osborn_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 39",
+   "name": "Blayne Osborn",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "o_neill_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 40",
+   "name": "P.K. O'Neill",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "jauregui_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 41",
+   "name": "Sandra Jauregui",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "brown_may_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 42",
+   "name": "Tracy Brown-May",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "crawford_nv",
+   "state": "Nevada",
+   "chamber": "statesenate",
+   "district": "SD 1",
+   "name": "Shelly Crawford",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "flores_nv",
+   "state": "Nevada",
+   "chamber": "statesenate",
+   "district": "SD 2",
+   "name": "Edgar Flores",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "rochelle_nguyen_nv",
+   "state": "Nevada",
+   "chamber": "statesenate",
+   "district": "SD 3",
+   "name": "Rochelle Nguyen",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "neal_nv",
+   "state": "Nevada",
+   "chamber": "statesenate",
+   "district": "SD 4",
+   "name": "Dina Neal",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "lange_nv",
+   "state": "Nevada",
+   "chamber": "statesenate",
+   "district": "SD 7",
+   "name": "Roberta Lange",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "fabian_donate_nv",
+   "state": "Nevada",
+   "chamber": "statesenate",
+   "district": "SD 10",
+   "name": "Fabian Doñate",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "rogich_nv",
+   "state": "Nevada",
+   "chamber": "statesenate",
+   "district": "SD 11",
+   "name": "Lori Rogich",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "daly_nv",
+   "state": "Nevada",
+   "chamber": "statesenate",
+   "district": "SD 13",
+   "name": "Skip Daly",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "ira_hansen_nv",
+   "state": "Nevada",
+   "chamber": "statesenate",
+   "district": "SD 14",
+   "name": "Ira Hansen",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "taylor_nv",
+   "state": "Nevada",
+   "chamber": "statesenate",
+   "district": "SD 15",
+   "name": "Angie Taylor",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "krasner_nv",
+   "state": "Nevada",
+   "chamber": "statesenate",
+   "district": "SD 16",
+   "name": "Lisa Krasner",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "steinbeck_nv",
+   "state": "Nevada",
+   "chamber": "statesenate",
+   "district": "SD 18",
+   "name": "John Steinbeck",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "ellison_nv",
+   "state": "Nevada",
+   "chamber": "statesenate",
+   "district": "SD 19",
+   "name": "John Ellison",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "stone_nv",
+   "state": "Nevada",
+   "chamber": "statesenate",
+   "district": "SD 20",
+   "name": "Jeff Stone",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  },
+  {
+   "pid": "ohrenschall_nv",
+   "state": "Nevada",
+   "chamber": "statesenate",
+   "district": "SD 21",
+   "name": "James Ohrenschall",
+   "source": "https://data.openstates.org/people/current/nv.csv"
+  }
+ ],
+ "alreadyHeld": [
+  {
+   "pid": "woog_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 19",
+   "name": "Dan Woog"
+  },
+  {
+   "pid": "story_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 25",
+   "name": "Tammy Story"
+  },
+  {
+   "pid": "kenny_nguyen_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 33",
+   "name": "Kenny Nguyen"
+  },
+  {
+   "pid": "bob_marshall_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 43",
+   "name": "Bob Marshall"
+  },
+  {
+   "pid": "mauro_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 46",
+   "name": "Tisha Mauro"
+  },
+  {
+   "pid": "ryan_gonzalez_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 50",
+   "name": "Ryan Gonzalez"
+  },
+  {
+   "pid": "katie_stewart_co",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 59",
+   "name": "Katie Stewart"
+  },
+  {
+   "pid": "cleave_simpson",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 6",
+   "name": "Cleave Simpson"
+  },
+  {
+   "pid": "exum_co",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 11",
+   "name": "Tony Exum Sr."
+  },
+  {
+   "pid": "marchman_co",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 15",
+   "name": "Janice Marchman"
+  },
+  {
+   "pid": "benavidez_co",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 21",
+   "name": "Adrienne Benavidez"
+  },
+  {
+   "pid": "carson_co",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 30",
+   "name": "John Carson"
+  },
+  {
+   "pid": "robert_rodriguez_co",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 32",
+   "name": "Robert Rodriguez"
+  },
+  {
+   "pid": "zeleznikar_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 3B",
+   "name": "Natalie Zeleznikar"
+  },
+  {
+   "pid": "perryman_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 14A",
+   "name": "Bernie Perryman"
+  },
+  {
+   "pid": "erica_schwartz_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 18A",
+   "name": "Erica Schwartz"
+  },
+  {
+   "pid": "nolan_west_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 32A",
+   "name": "Nolan West"
+  },
+  {
+   "pid": "norris_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 32B",
+   "name": "Matt Norris"
+  },
+  {
+   "pid": "nadeau_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 34A",
+   "name": "Danny Nadeau"
+  },
+  {
+   "pid": "stephenson_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 35A",
+   "name": "Zack Stephenson"
+  },
+  {
+   "pid": "rehrauer_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 35B",
+   "name": "Kari Rehrauer"
+  },
+  {
+   "pid": "wayne_johnson_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 41A",
+   "name": "Wayne Johnson"
+  },
+  {
+   "pid": "dippel_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 41B",
+   "name": "Tom Dippel"
+  },
+  {
+   "pid": "andrew_myers_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 45A",
+   "name": "Andrew Myers"
+  },
+  {
+   "pid": "rehm_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 48B",
+   "name": "Lucy Rehm"
+  },
+  {
+   "pid": "tabke_mn",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 54A",
+   "name": "Brad Tabke"
+  },
+  {
+   "pid": "mark_johnson_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 1",
+   "name": "Mark Johnson"
+  },
+  {
+   "pid": "hauschild_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 3",
+   "name": "Grant Hauschild"
+  },
+  {
+   "pid": "kupec_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 4",
+   "name": "Robert J. Kupec"
+  },
+  {
+   "pid": "putnam_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 14",
+   "name": "Aric Putnam"
+  },
+  {
+   "pid": "kreun_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 32",
+   "name": "Michael E. Kreun"
+  },
+  {
+   "pid": "housley_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 33",
+   "name": "Karin Housley"
+  },
+  {
+   "pid": "abeler_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 35",
+   "name": "Jim Abeler"
+  },
+  {
+   "pid": "seeberger_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 41",
+   "name": "Judy Seeberger"
+  },
+  {
+   "pid": "julia_coleman_mn",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 48",
+   "name": "Julia E. Coleman"
+  },
+  {
+   "pid": "bobby_joe_champion",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 59",
+   "name": "Bobby Joe Champion"
+  },
+  {
+   "pid": "lisa_cole_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 4",
+   "name": "Lisa Cole"
+  },
+  {
+   "pid": "marzola_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 21",
+   "name": "Elaine Marzola"
+  },
+  {
+   "pid": "la_rue_hatch_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 25",
+   "name": "Selena La Rue Hatch"
+  },
+  {
+   "pid": "edgeworth_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 35",
+   "name": "Rebecca Edgeworth"
+  },
+  {
+   "pid": "backus_nv",
+   "state": "Nevada",
+   "chamber": "statehouse",
+   "district": "HD 37",
+   "name": "Shea Backus"
+  },
+  {
+   "pid": "marilyn_dondero_loop",
+   "state": "Nevada",
+   "chamber": "statesenate",
+   "district": "SD 8",
+   "name": "Marilyn Dondero Loop"
+  },
+  {
+   "pid": "scheible_nv",
+   "state": "Nevada",
+   "chamber": "statesenate",
+   "district": "SD 9",
+   "name": "Melanie Scheible"
+  },
+  {
+   "pid": "pazina_nv",
+   "state": "Nevada",
+   "chamber": "statesenate",
+   "district": "SD 12",
+   "name": "Julie Pazina"
+  },
+  {
+   "pid": "robin_titus",
+   "state": "Nevada",
+   "chamber": "statesenate",
+   "district": "SD 17",
+   "name": "Robin Titus"
+  }
+ ],
+ "districtSet": [
+  {
+   "pid": "julie_mccluskie",
+   "state": "Colorado",
+   "chamber": "statehouse",
+   "district": "HD 13",
+   "name": "Julie McCluskie",
+   "office": "State House Speaker"
+  },
+  {
+   "pid": "james_coleman",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 33",
+   "name": "James Coleman",
+   "office": "State Senate President"
+  },
+  {
+   "pid": "ryan_fecteau",
+   "state": "Maine",
+   "chamber": "statehouse",
+   "district": "HD 132",
+   "name": "Ryan Fecteau",
+   "office": "State House Speaker"
+  },
+  {
+   "pid": "lisa_demuth",
+   "state": "Minnesota",
+   "chamber": "statehouse",
+   "district": "HD 13A",
+   "name": "Lisa Demuth",
+   "office": "State House Speaker"
+  },
+  {
+   "pid": "erin_murphy",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 64",
+   "name": "Erin Murphy",
+   "office": "State Senate Majority Leader"
+  },
+  {
+   "pid": "nicole_cannizzaro",
+   "state": "Nevada",
+   "chamber": "statesenate",
+   "district": "SD 6",
+   "name": "Nicole Cannizzaro",
+   "office": "State Senate Majority Leader"
+  }
+ ],
+ "seatedFromCandidacy": [
+  {
+   "pid": "mark_baisley",
+   "state": "Colorado",
+   "chamber": "statesenate",
+   "district": "SD 4",
+   "name": "Mark Baisley",
+   "office": "Colorado State Senator",
+   "wasOffice": "U.S. Senate Candidate",
+   "candidacy": {
+    "office": "U.S. Senate Candidate",
+    "state": "Colorado",
+    "partyFiled": "Republican Party",
+    "candidacyStatus": "active",
+    "nextElection": "2026-11-03"
+   }
+  },
+  {
+   "pid": "rick_bennett",
+   "state": "Maine",
+   "chamber": "statesenate",
+   "district": "SD 18",
+   "name": "Rick Bennett",
+   "office": "Maine State Senator",
+   "wasOffice": "Governor Candidate",
+   "candidacy": {
+    "office": "Governor Candidate",
+    "state": "Maine",
+    "partyFiled": "Independent",
+    "candidacyStatus": "active",
+    "nextElection": "2026-11-03"
+   }
+  },
+  {
+   "pid": "eric_pratt",
+   "state": "Minnesota",
+   "chamber": "statesenate",
+   "district": "SD 54",
+   "name": "Eric Pratt",
+   "office": "Minnesota State Senator",
+   "wasOffice": "U.S. House Candidate (MN-2)",
+   "candidacy": {
+    "office": "U.S. House Candidate (MN-2)",
+    "state": "Minnesota",
+    "district": "2",
+    "partyFiled": "Republican",
+    "candidacyStatus": "active",
+    "nextElection": "2026-11-03"
+   }
+  },
+  {
+   "pid": "carrie_buck",
+   "state": "Nevada",
+   "chamber": "statesenate",
+   "district": "SD 5",
+   "name": "Carrie Ann Buck",
+   "office": "Nevada State Senator",
+   "wasOffice": "U.S. House Candidate (NV-1)",
+   "candidacy": {
+    "office": "U.S. House Candidate (NV-1)",
+    "state": "Nevada",
+    "district": "1",
+    "partyFiled": "Republican Party",
+    "candidacyStatus": "active",
+    "nextElection": "2026-11-03"
+   }
+  }
+ ],
+ "usHouseDistrictSet": [
+  {
+   "pid": "chellie_pingree",
+   "state": "Maine",
+   "district": "ME-1"
+  },
+  {
+   "pid": "jared_golden",
+   "state": "Maine",
+   "district": "ME-2"
+  },
+  {
+   "pid": "diana_degette",
+   "state": "Colorado",
+   "district": "CO-1"
+  },
+  {
+   "pid": "neguse",
+   "state": "Colorado",
+   "district": "CO-2"
+  },
+  {
+   "pid": "boebert",
+   "state": "Colorado",
+   "district": "CO-4"
+  },
+  {
+   "pid": "angie_craig",
+   "state": "Minnesota",
+   "district": "MN-2"
+  },
+  {
+   "pid": "omar",
+   "state": "Minnesota",
+   "district": "MN-5"
+  },
+  {
+   "pid": "emmer",
+   "state": "Minnesota",
+   "district": "MN-6"
+  }
+ ]
+}

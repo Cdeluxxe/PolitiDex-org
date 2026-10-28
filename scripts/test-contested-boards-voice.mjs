@@ -285,7 +285,9 @@ for (const b of SAMPLE) {
   // state and a Layton board.
   const near = VOICED.filter((x) => x.seat !== b.seat && x.seat.startsWith(st + "-")).slice(0, 4).map((x) => x.alias);
   const far = [SAMPLE[(SAMPLE.indexOf(b) + 1) % SAMPLE.length].alias, "ut-hd-16"];
-  const fed = PLAN.filter((x) => x.federal && x.seat.startsWith(st + "-")).slice(0, 1).map((x) => x.alias);
+  // A voiced one: a read-only federal board (CO-1, opened by the four-state
+  // pass) takes no comment from anybody, so it would not test the flag.
+  const fed = PLAN.filter((x) => x.federal && !x.readOnly && x.seat.startsWith(st + "-")).slice(0, 1).map((x) => x.alias);
   ok(near.length >= 1, `${b.alias}: a neighbouring voiced seat exists in its state`);
   for (const alias of [...near, ...far, ...fed]) {
     const before = s.takes.length + s.votes.length;

@@ -41,7 +41,10 @@
 //
 //   node scripts/test-mn-contested-cycle.mjs
 
-import { R, HEAD, boot, levelOf, band, settled, DECLARED_MIGRATIONS } from "./state-leg-harness.mjs";
+// Minnesota was boarded whole since (test-four-state-deepen.mjs): this suite
+// boots the roster with that pass carved out, on both sides of every HEAD
+// comparison, and holds its races to what it was written to hold.
+import { R, HEAD, bootWithoutFourStateShells as boot, withoutFourStateShells, levelOf, band, settled, DECLARED_MIGRATIONS } from "./state-leg-harness.mjs";
 import { readdirSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
@@ -107,7 +110,7 @@ const bootMN = (loc, over) => {
 const actBlocks = (out) => out.split('<div class="pdxpa-seat"').slice(1);
 const voice = () => { const w = {}; w.window = w; vm.runInContext(R("district-voice.js"), vm.createContext(w), { filename: "district-voice.js" }); return w.PDXVoice; };
 const headCard = (loc) => {
-  const W = boot(loc, { "who-represents-me.js": HEAD("who-represents-me.js"), "cmp-data.js": HEAD("cmp-data.js") });
+  const W = boot(loc, { "who-represents-me.js": HEAD("who-represents-me.js"), "cmp-data.js": withoutFourStateShells(HEAD("cmp-data.js")) });
   for (const f of EARLIER) vm.runInContext(HEAD(f), W, { filename: f + "@HEAD" });
   return band(W);
 };
@@ -171,10 +174,15 @@ section("2 · a vacant or uncontested seat");
   eq(actBlocks(out2).length, 0, "an uncontested seat carries no act block");
   eq(out2, headCard(loc2), "SD 59: the card is HEAD's");
   const V = voice();
+  const BD = (() => { const w = makeSandbox(); vm.runInContext(R("district-board.js"), vm.createContext(w), { filename: "district-board.js" }); return w.PDXDistrictBoard; })();
   for (const s of ["mn-statesenate-59", "mn-statesenate-31", "mn-statesenate-1", "mn-statesenate-24", "mn-statesenate-37", "mn-statesenate-54",
     `mn-statehouse-${HK("59B")}`, `mn-statehouse-${HK("14A")}`, `mn-statehouse-${HK("14B")}`, `mn-statehouse-${HK("41B")}`,
     `mn-statehouse-${HK("33A")}`, `mn-statehouse-${HK("36A")}`, `mn-statehouse-${HK("37A")}`]) {
-    eq(V.boardPath(s), "", `${s}: no board`);
+    // A seat outside the races has only the read-only board the whole-state
+    // opening gave it — no composer, no race block.
+    const alias = V.boardPath(s).replace("/district/", "");
+    eq((BD.board(alias) || {}).composer, false, `${s}: a seat with no race takes a voice`);
+    if (alias) lacks(R(`district-${alias}.html`), "data-pdxmn-seat=", `${s}: a seat with no race prints a race`);
   }
   ok(!N.race("statesenate", 59), "SD 59 is not one of the races on file");
   // House 14A: Bernie Perryman holds it and is running for the Senate.
@@ -330,8 +338,9 @@ section("5 · District Voice: a board for each contested seat and no other");
 {
   const routes = voice().BOARD_ROUTES;
   const mnLeg = Object.keys(routes).filter((k) => /^mn-(?:statehouse|statesenate)-\d+$/.test(k)).sort();
-  eq(JSON.stringify(mnLeg), JSON.stringify(N.RACES.map((r) => r.seat).sort()), "BOARD_ROUTES: exactly the contested Minnesota seats");
-  const otherLeg = Object.keys(routes).filter((k) => /^[a-z]{2}-(?:statehouse|statesenate)-\d+$/.test(k) && !/^(?:ut|pa|ga|nc|mi|oh|wi|fl|az|ny|tx|il|mn|co|nv|ca|wa|ne|sd|id|mt|ak|ri)-/.test(k));
+  for (const r of N.RACES) ok(mnLeg.includes(r.seat), `BOARD_ROUTES: contested ${r.seat} has no board`);
+  eq(mnLeg.length, 201, "BOARD_ROUTES: every Minnesota seat, now that the state is opened whole");
+  const otherLeg = Object.keys(routes).filter((k) => /^[a-z]{2}-(?:statehouse|statesenate)-\d+$/.test(k) && !/^(?:ut|pa|ga|nc|mi|oh|wi|fl|az|ny|tx|il|mn|co|nv|ca|wa|ne|sd|id|mt|ak|ri|me)-/.test(k));
   eq(otherLeg.length, 0, "no other state gained a state legislative board");
   const HVR = (() => { const w = {}; w.window = w; vm.runInContext(HEAD("district-voice.js"), vm.createContext(w)); return w.PDXVoice.BOARD_ROUTES; })();
   for (const k of Object.keys(HVR)) eq(routes[k], HVR[k], `${k}: an earlier board moved`);
@@ -357,7 +366,7 @@ section("5 · District Voice: a board for each contested seat and no other");
     has(h, esc(N.actsFor(inc.pid)[0].effect), `${doc}: prints an effect line`);
   }
   const docs = readdirSync(ROOT).filter((f) => /^district-mn-(?:hd|sd)-\d+\.html$/.test(f));
-  eq(docs.length, N.RACES.length, "no Minnesota legislative board document without a race");
+  eq(docs.length, 201, "one Minnesota legislative board document per seat");
   for (const f of readdirSync(ROOT).filter((f) => /^district-(?!mn-(?:hd|sd)-).*\.html$/.test(f))) {
     if (R(f).indexOf("data-pdxmn-seat=") >= 0) ok(false, `${f}: a board outside the races carries a Minnesota race block`);
   }
@@ -404,7 +413,7 @@ section("6 · every other state is unchanged");
   // HEAD's card with HEAD's roster and HEAD's eleven earlier ballot files,
   // against today's with all twelve.
   const now = bootMN({ state: "Utah" });
-  const was = boot({ state: "Utah" }, { "who-represents-me.js": HEAD("who-represents-me.js"), "cmp-data.js": HEAD("cmp-data.js") });
+  const was = boot({ state: "Utah" }, { "who-represents-me.js": HEAD("who-represents-me.js"), "cmp-data.js": withoutFourStateShells(HEAD("cmp-data.js")) });
   for (const f of EARLIER) vm.runInContext(HEAD(f), was, { filename: f + "@HEAD" });
   // The contested seats in the eleven earlier states, read off their files,
   // so their act rows are compared too.

@@ -150,7 +150,7 @@ section("2 · the composer, the poll and the residency check, and no offline cop
   const DC = listOf(R("district-composer.js"), /@generated district-boards begin([\s\S]*?)@generated district-boards end/);
   const DP = listOf(R("district-poll.js"), /@generated district-boards begin([\s\S]*?)@generated district-boards end/);
   must(CORE.length > 0 && DC.length > 0 && DP.length > 0, "a composer list could not be located");
-  eq(FED.filter((b) => b.readOnly).map((b) => b.seat).join(","), "ne-house-2", "the read-only federal boards");
+  eq(FED.filter((b) => b.readOnly).map((b) => b.seat).join(","), "co-house-1,co-house-2,co-house-4,me-house-1,me-house-2,mn-house-2,mn-house-5,mn-house-6,ne-house-2", "the read-only federal boards");
   for (const b of FED.filter((x) => x.readOnly)) no(CORE, `"${b.seat}"`, `${b.seat}: a read-only board is on the server's COMPOSER_SEATS`);
   for (const b of FED_VOICED) {
     has(CORE, `"${b.seat}": "${b.alias}"`, `${b.seat}: on the server's COMPOSER_SEATS`);
