@@ -43,6 +43,8 @@ const DECLARED_EDITS = [
   { file: /^(?:mn-ballot-2026\.js|district-mn-(?:hd|sd)-\d+\.html)$/,
     from: "Capital investment (bonding), 2026", to: "Bonding bill, 2026" },
 ];
+// HEAD exactly as committed, with no declared edit applied.
+export const RAW_HEAD = (f) => gitHead(f);
 const gitHead = (f) => {
   // maxBuffer: cmp-data.js is past execFileSync's 1 MB default, and a baseline
   // that silently reads null would skip every comparison against it.
