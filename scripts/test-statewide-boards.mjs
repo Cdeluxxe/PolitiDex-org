@@ -409,21 +409,21 @@ section("8 · the homepage counts BOARD_ROUTES");
   eq(ut.filter((k) => !STATEWIDE.test(k)).length, 85, "Utah: BOARD_ROUTES holds 85 district rows");
   eq(ut.filter((k) => STATEWIDE.test(k)).length, 3, "Utah: …and the three statewide ones");
   // Outside Utah: only U.S. House and U.S. Senate rows, and a governor only in
-  // the ten states opened whole (GOVERNOR_STATES; test-six-state-deepen.mjs and
-  // test-four-state-deepen.mjs).
+  // the fourteen states opened whole (GOVERNOR_STATES; test-six-state-deepen.mjs,
+  // test-four-state-deepen.mjs and test-ms-vt-mi-tn-deepen.mjs).
   // The contested Pennsylvania legislative seats (pa-ballot-2026.js) are a
   // list of races, held by test-pa-contested-cycle.mjs, and never a governor;
-  // the ten states' legislative seats are held by those two suites.
-  const other = keys.filter((k) => !/^ut-/.test(k) && !/^(?:pa|ga|nc|mi|oh|wi|fl|az|ny|tx|il|mn|co|nv|ca|wa|ne|sd|id|mt|ak|ri|me)-(?:statehouse|statesenate)-\d+(?:-p\d)?$/.test(k));
-  ok(other.every((k) => /^[a-z]{2}-(?:house-[1-9][0-9]*|us-senate-[a-z][a-z0-9_]*)$/.test(k) || /^(?:ne|sd|id|mt|ak|ri|me|co|mn|nv)-gov$/.test(k)),
-    "outside Utah BOARD_ROUTES holds U.S. House and U.S. Senate rows only, and the ten states' governors");
-  eq(other.filter((k) => /-gov$/.test(k)).length, 10, "outside Utah exactly ten governor boards");
+  // the fourteen states' legislative seats are held by those three suites.
+  const other = keys.filter((k) => !/^ut-/.test(k) && !/^(?:pa|ga|nc|mi|oh|wi|fl|az|ny|tx|il|mn|co|nv|ca|wa|ne|sd|id|mt|ak|ri|me|ms|vt|tn)-(?:statehouse|statesenate)-\d+(?:-p\d)?$/.test(k));
+  ok(other.every((k) => /^[a-z]{2}-(?:house-[1-9][0-9]*|us-senate-[a-z][a-z0-9_]*)$/.test(k) || /^(?:ne|sd|id|mt|ak|ri|me|co|mn|nv|ms|vt|mi|tn)-gov$/.test(k)),
+    "outside Utah BOARD_ROUTES holds U.S. House and U.S. Senate rows only, and the fourteen states' governors");
+  eq(other.filter((k) => /-gov$/.test(k)).length, 14, "outside Utah exactly fourteen governor boards");
   eq(n, HAND_SEATS.length + planBoards().boards.length, "BOARD_ROUTES length is the generator's plan");
   const ONES = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven",
     "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];
   const TENS = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
   const under100 = (k) => k < 20 ? ONES[k] : TENS[Math.floor(k / 10)] + (k % 10 ? "-" + ONES[k % 10] : "");
-  const spell = (k) => k < 100 ? under100(k) : ONES[Math.floor(k / 100)] + " hundred" + (k % 100 ? " " + under100(k % 100) : "");
+  const spell = (k) => k < 100 ? under100(k) : under100(Math.floor(k / 100)) + " hundred" + (k % 100 ? " " + under100(k % 100) : "");
   const word = spell(n);
   const sentence = `${word[0].toUpperCase() + word.slice(1)} seats have a board on file today. Every other seat says the room is not open.`;
   has(HOME, `<p class="pdxhv-note">${sentence}</p>`, "the homepage count is BOARD_ROUTES.length, spelled");

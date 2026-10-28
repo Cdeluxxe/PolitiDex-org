@@ -112,8 +112,9 @@ section("1 · the plan asks every roster state legislator outside Utah, and open
 // ═════════════════════════════════════════════════════════════════════════════
 must(CONTESTED.size > 0 && [...CONTESTED].every((k) => /^(?:pa|ga|nc|mi|oh|wi|fl|az|ny|tx|il|mn|co|nv|ca|wa)-(?:statehouse|statesenate)-\d+(?:-p\d)?$/.test(k)), "the contested-seat list is Pennsylvania's, Georgia's, North Carolina's, Michigan's, Ohio's, Wisconsin's, Florida's, Arizona's, New York's, Texas's, Illinois's, Minnesota's, Colorado's and Nevada's");
 // Maine, Colorado, Minnesota and Nevada were opened whole since
-// (test-four-state-deepen.mjs holds them).
-eq([...WHOLE].sort().join(","), "ak,co,id,me,mn,mt,ne,nv,ri,sd", "the states opened whole");
+// (test-four-state-deepen.mjs holds them), then Mississippi, Vermont, Michigan
+// and Tennessee (test-ms-vt-mi-tn-deepen.mjs).
+eq([...WHOLE].sort().join(","), "ak,co,id,me,mi,mn,ms,mt,ne,nv,ri,sd,tn,vt", "the states opened whole");
 eq(JSON.stringify(LEG.filter((b) => !inWhole(b.seat)).map((b) => b.seat).sort()), JSON.stringify([...CONTESTED].filter((k) => !inWhole(k)).sort()),
   "outside Utah, exactly the contested Pennsylvania seats open a state legislative board");
 eq(Object.keys(V.BOARD_ROUTES).length, HAND_SEATS.length + PLAN.length,
@@ -386,7 +387,7 @@ section("6 · the coverage sentence and the coach say what is on disk");
   const TENS = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
   const under100 = (n) => n < 20 ? ONES[n] : TENS[Math.floor(n / 10)] + (n % 10 ? "-" + ONES[n % 10] : "");
   const spell = (n) => n < 100 ? under100(n)
-    : ONES[Math.floor(n / 100)] + " hundred" + (n % 100 ? " " + under100(n % 100) : "");
+    : under100(Math.floor(n / 100)) + " hundred" + (n % 100 ? " " + under100(n % 100) : "");
   const N = Object.keys(V.BOARD_ROUTES).length;
   eq(N, HAND_SEATS.length + PLAN.length, "the count the sentence spells is the plan's");
   const w = spell(N);
@@ -396,7 +397,7 @@ section("6 · the coverage sentence and the coach say what is on disk");
 
   // The states that HAVE a state legislative board, read off BOARD_ROUTES.
   const legStates = new Set(Object.keys(V.BOARD_ROUTES).map((k) => (LEG_KEY_RE.exec(k) || [])[1]).filter(Boolean));
-  eq([...legStates].sort().join(","), "ak,az,ca,co,fl,ga,id,il,me,mi,mn,mt,nc,ne,nv,ny,oh,pa,ri,sd,tx,ut,wa,wi", "Utah, the ten states opened whole, and the contested seats of Pennsylvania, Georgia, North Carolina, Michigan, Ohio, Wisconsin, Florida, Arizona and New York, are the only State House or State Senate boards");
+  eq([...legStates].sort().join(","), "ak,az,ca,co,fl,ga,id,il,me,mi,mn,ms,mt,nc,ne,nv,ny,oh,pa,ri,sd,tn,tx,ut,vt,wa,wi", "Utah, the fourteen states opened whole, and the contested seats of Pennsylvania, Georgia, North Carolina, Michigan, Ohio, Wisconsin, Florida, Arizona and New York, are the only State House or State Senate boards");
   ok(Object.keys(V.BOARD_ROUTES).filter((k) => /^(?:pa|ga|nc|mi|oh|wi|fl|az|ny|tx|il|mn|co|nv|ca|wa)-/.test(k) && LEG_KEY_RE.test(k) && !inWhole(k)).every((k) => CONTESTED.has(k)), "every Pennsylvania, Georgia, North Carolina, Michigan, Ohio, Wisconsin, Florida, Arizona and New York legislative board is a contested seat");
   const C = (() => {
     const win = makeSandbox();

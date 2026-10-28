@@ -214,8 +214,14 @@ section("3 · a name with no record: no formal act, no file, no roster row");
       }
     }
   }
+  // Michigan was opened whole since (test-ms-vt-mi-tn-deepen.mjs): every
+  // candidate on its official list has a candidate row there, recorded in
+  // db/roster-candidates-legislative-mi-tn-vt-2026-oct.json. Such a row is
+  // `candidate: true` and opens no seat; any other row is still a failure.
+  const MI_CAND = new Set(JSON.parse(R("db/roster-candidates-legislative-mi-tn-vt-2026-oct.json")).rows
+    .filter((r) => r.state === "Michigan").map((r) => r.pid));
   for (const seat in ADDED) for (const nm of ADDED[seat]) {
-    ok(!Object.values(RO).some((row) => row && row.name === nm), `${nm}: given a roster row`);
+    ok(!Object.entries(RO).some(([pid, row]) => row && row.name === nm && !(MI_CAND.has(pid) && row.candidate === true)), `${nm}: given a roster row`);
   }
   ok(n > 40, `fixture: ${n} names with no record`);
   ok(settled("cmp-data.js"), "cmp-data.js: byte-identical to HEAD, outside the Minnesota pass’s own shells");
@@ -233,11 +239,16 @@ section("4 · no new board");
   const mine = (k) => STATES.some((s) => k.indexOf(s.code + "-") === 0);
   eq(JSON.stringify(Object.keys(routes).filter((k) => LEG.test(k) && mine(k)).sort()),
     JSON.stringify(Object.keys(was).filter((k) => LEG.test(k) && mine(k)).sort()), "the eight states' boards are HEAD's");
-  eq(JSON.stringify(Object.keys(routes).filter((k) => LEG.test(k) && mine(k)).sort()), JSON.stringify(Object.keys(FILED).sort()),
+  // Michigan is opened whole since (test-ms-vt-mi-tn-deepen.mjs holds every
+  // one of its seats); the other seven states' boards are still their races.
+  const contestedOnly = (k) => mine(k) && k.indexOf("mi-") !== 0;
+  eq(JSON.stringify(Object.keys(routes).filter((k) => LEG.test(k) && contestedOnly(k)).sort()),
+    JSON.stringify(Object.keys(FILED).filter(contestedOnly).sort()),
     "the eight states' boards are exactly the contested seats");
+  for (const k of Object.keys(FILED).filter((x) => x.indexOf("mi-") === 0)) ok(routes[k], `${k}: the contested Michigan seat lost its board`);
   for (const k of Object.keys(was)) eq(routes[k], was[k], `${k}: a board moved`);
-  const docs = readdirSync(ROOT).filter((f) => STATES.some((s) => new RegExp(`^district-${s.code}-(?:hd|sd)-\\d+\\.html$`).test(f)));
-  eq(docs.length, Object.keys(FILED).length, "one board document per contested seat in the eight states");
+  const docs = readdirSync(ROOT).filter((f) => STATES.some((s) => s.code !== "mi" && new RegExp(`^district-${s.code}-(?:hd|sd)-\\d+\\.html$`).test(f)));
+  eq(docs.length, Object.keys(FILED).filter(contestedOnly).length, "one board document per contested seat in the eight states");
   for (const f of docs) ok(settled(f), `${f}: moved outside its printed race`);
   for (const seat in ADDED) {
     const [st, ch, d] = seat.split("-");

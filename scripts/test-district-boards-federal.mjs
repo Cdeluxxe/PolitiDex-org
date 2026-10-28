@@ -150,7 +150,7 @@ section("2 · the composer, the poll and the residency check, and no offline cop
   const DC = listOf(R("district-composer.js"), /@generated district-boards begin([\s\S]*?)@generated district-boards end/);
   const DP = listOf(R("district-poll.js"), /@generated district-boards begin([\s\S]*?)@generated district-boards end/);
   must(CORE.length > 0 && DC.length > 0 && DP.length > 0, "a composer list could not be located");
-  eq(FED.filter((b) => b.readOnly).map((b) => b.seat).join(","), "co-house-1,co-house-2,co-house-4,me-house-1,me-house-2,mn-house-2,mn-house-5,mn-house-6,ne-house-2", "the read-only federal boards");
+  eq(FED.filter((b) => b.readOnly).map((b) => b.seat).join(","), "co-house-1,co-house-2,co-house-4,me-house-1,me-house-2,mi-house-5,mi-house-6,mi-house-9,mi-house-12,mn-house-2,mn-house-5,mn-house-6,ne-house-2", "the read-only federal boards");
   for (const b of FED.filter((x) => x.readOnly)) no(CORE, `"${b.seat}"`, `${b.seat}: a read-only board is on the server's COMPOSER_SEATS`);
   for (const b of FED_VOICED) {
     has(CORE, `"${b.seat}": "${b.alias}"`, `${b.seat}: on the server's COMPOSER_SEATS`);
@@ -419,7 +419,7 @@ section("7 · the coverage sentence counts BOARD_ROUTES on /voice and the homepa
   const TENS = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
   const under100 = (n) => n < 20 ? ONES[n] : TENS[Math.floor(n / 10)] + (n % 10 ? "-" + ONES[n % 10] : "");
   const spell = (n) => n < 100 ? under100(n)
-    : ONES[Math.floor(n / 100)] + " hundred" + (n % 100 ? " " + under100(n % 100) : "");
+    : under100(Math.floor(n / 100)) + " hundred" + (n % 100 ? " " + under100(n % 100) : "");
   const N = Object.keys(V.BOARD_ROUTES).length;
   const w = spell(N);
   const sentence = `${w[0].toUpperCase() + w.slice(1)} seats have a board on file today. Every other seat says the room is not open.`;

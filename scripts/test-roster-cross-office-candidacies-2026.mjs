@@ -61,7 +61,10 @@ const W0 = evalRoster(SRC);
 // test-four-state-deepen.mjs holds those.
 const LEG_CROSS = new Set(JSON.parse(R("db/roster-candidates-legislative-ne-sd-id-mt-ak-ri-2026-oct.json")).crossSeat.map((r) => r.pid)
   .concat(JSON.parse(R("db/roster-candidates-legislative-me-co-mn-nv-2026-oct.json")).crossSeat.map((r) => r.pid))
-  .concat(JSON.parse(R("db/roster-state-legislators-me-co-mn-nv-2026-oct.json")).seatedFromCandidacy.map((r) => r.pid)));
+  .concat(JSON.parse(R("db/roster-state-legislators-me-co-mn-nv-2026-oct.json")).seatedFromCandidacy.map((r) => r.pid))
+  // …and the Mississippi, Vermont, Michigan and Tennessee pass's (test-ms-vt-mi-tn-deepen.mjs).
+  .concat(JSON.parse(R("db/roster-candidates-legislative-mi-tn-vt-2026-oct.json")).crossSeat.map((r) => r.pid))
+  .concat(JSON.parse(R("db/roster-state-legislators-ms-vt-mi-tn-2026-oct.json")).seatedFromCandidacy.map((r) => r.pid)));
 const RO = W0.CMP_DATA;
 const CY = Object.fromEntries(Object.entries(W0.CMP_CANDIDACIES || {}).filter(([k]) => !LEG_CROSS.has(k)));
 const NAME = Object.fromEntries(Object.entries(BATCH.states).map(([k, s]) => [k, s.state]));

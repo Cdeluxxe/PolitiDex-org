@@ -465,7 +465,10 @@ const rosterWaveAdmissions = (() => {
     const out = new Set();
     // …and the Maine, Colorado, Minnesota and Nevada legislative candidates
     // (db/roster-candidates-legislative-me-co-mn-nv-2026-oct.json), the same shape.
-    for (const f of ["db/roster-candidates-2026-oct.json", "db/roster-candidates-legislative-me-co-mn-nv-2026-oct.json"]) {
+    // …and the Michigan, Tennessee and Vermont ones
+    // (db/roster-candidates-legislative-mi-tn-vt-2026-oct.json), the same shape.
+    for (const f of ["db/roster-candidates-2026-oct.json", "db/roster-candidates-legislative-me-co-mn-nv-2026-oct.json",
+                     "db/roster-candidates-legislative-mi-tn-vt-2026-oct.json"]) {
       try { for (const r of JSON.parse(readFileSync(join(ROOT, f), "utf8")).rows) out.add(r.pid); } catch {}
     }
     return out;
@@ -486,7 +489,7 @@ const rosterWaveAdmissions = (() => {
     for (const f of ["db/roster-state-legislators-ca-tx-fl-2026-oct.json", "db/roster-state-legislators-ny-pa-il-2026-oct.json",
                      "db/roster-state-legislators-oh-ga-nc-2026-oct.json", "db/roster-state-legislators-mi-nj-va-2026-oct.json",
                      "db/roster-state-legislators-wa-az-ma-2026-oct.json", "db/roster-state-legislators-tn-in-mo-2026-oct.json",
-                     "db/roster-state-legislators-me-co-mn-nv-2026-oct.json"]) {
+                     "db/roster-state-legislators-me-co-mn-nv-2026-oct.json", "db/roster-state-legislators-ms-vt-mi-tn-2026-oct.json"]) {
       try { for (const r of JSON.parse(readFileSync(join(ROOT, f), "utf8")).rows) out.add(r.pid); } catch {}
     }
     // The sitting Minnesota, Colorado, Nevada and Washington members in the

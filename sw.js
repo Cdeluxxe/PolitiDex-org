@@ -11194,7 +11194,36 @@
 //     No location key is migrated, renamed or copied. No board added here takes
 //     a voice, so no dd_districts row is needed and no migration was written.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v489';
+// v490 - FOUR MORE STATES BOARDED WHOLE: MISSISSIPPI, VERMONT, MICHIGAN AND TENNESSEE.
+//     cmp-data.js carries a roster shell for every sitting Mississippi and
+//     Vermont legislator, a candidate row for every 2026 legislative candidate
+//     on Michigan's, Tennessee's and Vermont's official lists who is not a
+//     sitting member (Mississippi elects its Legislature in 2027), and seven
+//     members held only as a 2026 candidacy for another office (Jeffrey Hulum
+//     III, Sean McCann, Donavan McKinney, Jay DeBoyer, Brent Taylor, Johnny
+//     Garrett, Justin J. Pearson) now name their seat, with the candidacy in
+//     CMP_CANDIDACIES; Tim Walberg's, Debbie Dingell's, Lisa McClain's and
+//     Rashida Tlaib's rows gained their district. scripts/gen-district-boards.mjs
+//     opens a read-only board for every State House and State Senate seat the
+//     roster names there (619 new, beside Michigan's 10 contested boards;
+//     Mississippi House 70 and 77, Senate 34 and
+//     Tennessee House 31 and 84 are vacant and skipped), a read-only governor
+//     board for each of the four, and MI-5, MI-6, MI-9 and MI-12. Vermont's
+//     two- and three-member districts are one board per member, keyed by
+//     position (vt-statehouse-1-p1, vt-statesenate-4-p3), as South Dakota's
+//     at-large pairs are; voter-hub-location.js gives the Senate positions and
+//     a per-district member count, and district-board.js, district-voice.js and
+//     district-board.mts read the position shape on either chamber. The
+//     contested Michigan boards keep the voice they had; no new board takes a
+//     comment or a poll vote. None of the new boards is precached: the three
+//     generated blocks above are still Utah's alone. district-board.js,
+//     district-voice.js, cmp-data.js, index.html and voice.html (the board count,
+//     now twenty-four hundred twenty-four) are precached and changed, so the
+//     shell moves one version. No new file is precached.
+//     No location key is migrated, renamed or copied. No board added here takes
+//     a voice, so no dd_districts row is needed and no migration was written.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v490';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

@@ -26,7 +26,10 @@
 //
 //   node scripts/test-state-legislator-shells-tn-in-mo.mjs
 
-import { R, HEAD, boot, levelOf, band } from "./state-leg-harness.mjs";
+// boot() is the roster without the Mississippi, Vermont, Michigan and Tennessee
+// pass (see state-leg-harness.mjs), which seated the members this record held
+// only as a candidacy; test-ms-vt-mi-tn-deepen.mjs pins them in their seats.
+import { R, HEAD, bootWithoutMsVtMiTnShells as boot, withoutMsVtMiTnShells, levelOf, band } from "./state-leg-harness.mjs";
 import vm from "node:vm";
 
 let passed = 0;
@@ -164,7 +167,7 @@ section("4 · the other 47 states and D.C. are identical to HEAD's");
   const LATER = new Set(["Wisconsin", "Minnesota", "Colorado", "Nevada"]);
   for (let i = STATES.length - 1; i >= 0; i--) if (LATER.has(STATES[i])) STATES.splice(i, 1);
   const now = boot(at("Utah", "Layton", "Davis County", "2", "7", "16"));
-  const was = boot(at("Utah", "Layton", "Davis County", "2", "7", "16"), { "cmp-data.js": headData });
+  const was = boot(at("Utah", "Layton", "Davis County", "2", "7", "16"), { "cmp-data.js": withoutMsVtMiTnShells(headData) });
   const ctx = (src) => { const w = {}; w.window = w; vm.createContext(w); vm.runInContext(src, w); return w.CMP_DATA; };
   const A = ctx(R("cmp-data.js")), B = ctx(headData);
   const OURS = /^(Tennessee|Indiana|Missouri|Wisconsin|Minnesota|Colorado|Nevada)\b/;

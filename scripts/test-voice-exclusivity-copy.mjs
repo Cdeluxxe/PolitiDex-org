@@ -245,7 +245,7 @@ section("5 · BOARD_ROUTES is the generator's plan and the homepage and /voice c
     "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];
   const TENS = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
   const under100 = (k) => k < 20 ? ONES[k] : TENS[Math.floor(k / 10)] + (k % 10 ? "-" + ONES[k % 10] : "");
-  const spell = (k) => k < 100 ? under100(k) : ONES[Math.floor(k / 100)] + " hundred" + (k % 100 ? " " + under100(k % 100) : "");
+  const spell = (k) => k < 100 ? under100(k) : under100(Math.floor(k / 100)) + " hundred" + (k % 100 ? " " + under100(k % 100) : "");
   const word = spell(n);
   const card = textOf(homeSlice(TREE.index));
   ok(card.indexOf(`${word[0].toUpperCase() + word.slice(1)} seats have a board on file today.`) >= 0,

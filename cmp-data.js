@@ -7208,6 +7208,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/D000624.jpg",
   "office": "U.S. Representative",
   "state": "Michigan",
+  "district": "MI-6",
   "party": "D",
   "score": 57,
   "kept": 0,
@@ -7550,6 +7551,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001136.jpg",
   "office": "House Republican Conference Chair",
   "state": "Michigan",
+  "district": "MI-9",
   "party": "R",
   "score": 56,
   "kept": 0,
@@ -7958,6 +7960,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000798.jpg",
   "office": "House Education & Workforce Chair",
   "state": "Michigan",
+  "district": "MI-5",
   "party": "R",
   "score": 55,
   "kept": 0,
@@ -8245,6 +8248,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000481.jpg",
   "office": "U.S. Representative",
   "state": "Michigan",
+  "district": "MI-12",
   "party": "D",
   "score": 55,
   "kept": 0,
@@ -47720,6 +47724,5404 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
  },
+// ── Sitting state legislators, Mississippi, Vermont, Michigan and Tennessee — roster shells (Oct 2026)
+// Every member each chamber seats today whom the roster did not already hold.
+// Mississippi was read on 2026-10-28 from the Open States current-legislator list
+// (data.openstates.org/people/current, compiled from the Legislature's own member
+// pages), which carries the November 2025 special-election winners the
+// Legislature's own member XML does not yet; its three vacancies (House 70 and 77,
+// Senate 34) are the chamber records'. Vermont was read the same day from the
+// Legislature's own member list (legislature.vermont.gov), which seats the eleven
+// appointees named since the 2025 session. Michigan and Tennessee were already on
+// the roster; their only change is six members who were held as a 2026 candidacy
+// for another office and now name their seat. Identity rows only: name, office,
+// exact district, `candidate: false`. No party, bio, score or stances.
+// db/roster-state-legislators-ms-vt-mi-tn-2026-oct.json is the record.
+// Seat spellings the resolver reads: Mississippi by its number ("HD 7", "SD 7");
+// Vermont by its district's own name ("Addison-1", "Chittenden Central"), and in a
+// district that elects two or three members, by `position` too — PolitiDex's
+// numbering, in surname order, printed Seat A, Seat B and Seat C; the state numbers
+// no seat in such a district.
+ // Mississippi — https://data.openstates.org/people/current/ms.csv
+ "carpenter_ms": {
+  "name": "Bubba Carpenter", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mattox_ms": {
+  "name": "Brad Mattox", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "arnold_ms": {
+  "name": "Tracy Arnold", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "steverson_ms": {
+  "name": "Jody Steverson", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "faulkner_ms": {
+  "name": "John Faulkner", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 5", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "keen_ms": {
+  "name": "Justin Keen", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 6", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "remak_ms": {
+  "name": "Kimberly Remak", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 7", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lamar_ms": {
+  "name": "Trey Lamar", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 8", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "burnett_ms": {
+  "name": "Cedric Burnett", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 9", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hawkins_ms": {
+  "name": "Josh Hawkins", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 10", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lataisha_jackson_ms": {
+  "name": "Lataisha Jackson", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 11", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "deweese_ms": {
+  "name": "Clay Deweese", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 12", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "massengill_ms": {
+  "name": "Steve Massengill", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 13", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "creekmore_ms": {
+  "name": "Sam Creekmore", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 14", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "waldo_ms": {
+  "name": "Beth Waldo", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 15", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rickey_thompson_ms": {
+  "name": "Rickey Thompson", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 16", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "aguirre_ms": {
+  "name": "Shane Aguirre", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 17", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "turner_ms": {
+  "name": "Jerry Turner", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 18", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "randy_boyd_ms": {
+  "name": "Randy Boyd", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 19", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hall_ms": {
+  "name": "Rodney Hall", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 20", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "donnie_bell_ms": {
+  "name": "Donnie Bell", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 21", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "crosby_ms": {
+  "name": "Justin Crosby", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 22", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bailey_ms": {
+  "name": "Perry Bailey", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 23", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hale_ms": {
+  "name": "Jeff Hale", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 24", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "eubanks_ms": {
+  "name": "Dan Eubanks", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 25", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "otha_williams_ms": {
+  "name": "Otha Williams", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 26", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kenji_holloway_ms": {
+  "name": "Kenji Holloway", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 27", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "harris_ms": {
+  "name": "Doc Harris", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 28", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sanders_ms": {
+  "name": "Robert Sanders", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 29", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rosebud_ms": {
+  "name": "Tracey Rosebud", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 30", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "anthony_ms": {
+  "name": "Otis Anthony", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 31", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "osborne_ms": {
+  "name": "Solomon Osborne", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 32", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "estrada_ms": {
+  "name": "Jim Estrada", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 33", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "horan_ms": {
+  "name": "Kevin Horan", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 34", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hood_ms": {
+  "name": "Joey Hood", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 35", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "karl_gibbs_ms": {
+  "name": "Karl Gibbs", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 36", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "boyd_ms": {
+  "name": "Andy Boyd", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 37", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "taylor_ms": {
+  "name": "Cheikh Taylor", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 38", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mclean_ms": {
+  "name": "Dana McLean", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 39", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jackson_mccray_ms": {
+  "name": "Hester Jackson-McCray", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 40", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "karriem_ms": {
+  "name": "Kabir Karriem", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 41", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mickens_ms": {
+  "name": "Carl Mickens", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 42", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "roberson_ms": {
+  "name": "Rob Roberson", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 43", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bounds_ms": {
+  "name": "Scott Bounds", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 44", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jackson_ms": {
+  "name": "Keith Jackson", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 45", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "oliver_ms": {
+  "name": "Karl Oliver", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 46", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "clark_ms": {
+  "name": "Bryant Clark", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 47", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "white_ms": {
+  "name": "Jason White", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 48", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "willie_bailey_ms": {
+  "name": "Willie Bailey", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 49", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hines_ms": {
+  "name": "John Hines", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 50", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "james_jones_ms": {
+  "name": "Timaka James-Jones", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 51", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kinkade_ms": {
+  "name": "Bill Kinkade", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 52", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mangold_ms": {
+  "name": "Vince Mangold", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 53", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kevin_ford_ms": {
+  "name": "Kevin Ford", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 54", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "denton_ms": {
+  "name": "Oscar Denton", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 55", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mansell_ms": {
+  "name": "Clay Mansell", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 56", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lawrence_blackmon_ms": {
+  "name": "Lawrence Blackmon", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 57", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mcmillan_ms": {
+  "name": "Jonathan McMillan", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 58", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "powell_ms": {
+  "name": "Brent Powell", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 59", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "shanks_ms": {
+  "name": "Fred Shanks", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 60", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "newman_ms": {
+  "name": "Gene Newman", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 61", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "varner_ms": {
+  "name": "Lance Varner", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 62", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "foster_ms": {
+  "name": "Stephanie Foster", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 63", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "yates_ms": {
+  "name": "Shanda Yates", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 64", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bell_ms": {
+  "name": "Chris Bell", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 65", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nelson_ms": {
+  "name": "Fabian Nelson", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 66", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "banks_ms": {
+  "name": "Earle Banks", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 67", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "summers_ms": {
+  "name": "Zakiya Summers", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 68", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "butler_washington_ms": {
+  "name": "Grace Butler-Washington", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 69", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "crudup_ms": {
+  "name": "Ronnie Crudup", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 71", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gibbs_ms": {
+  "name": "Justis Gibbs", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 72", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ford_ms": {
+  "name": "Jill Ford", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 73", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "yancey_ms": {
+  "name": "Lee Yancey", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 74", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hurst_ms": {
+  "name": "Celeste Hurst", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 75", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "holloway_ms": {
+  "name": "Greg Holloway", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 76", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rushing_ms": {
+  "name": "Randy Rushing", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 78", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tullos_ms": {
+  "name": "Mark Tullos", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 79", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "scott_ms": {
+  "name": "Omeria Scott", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 80", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "horne_ms": {
+  "name": "Steve Horne", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 81", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "elliott_ms": {
+  "name": "Gregory Elliott", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 82", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "calvert_ms": {
+  "name": "Billy Adam Calvert", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 83", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "smith_ms": {
+  "name": "Troy Smith", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 84", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "harness_ms": {
+  "name": "Jeffery Harness", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 85", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "barnett_ms": {
+  "name": "Shane Barnett", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 86", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tubb_ms": {
+  "name": "Bubba Tubb", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 87", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "blackwell_ms": {
+  "name": "Chuck Blackwell", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 88", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "scoggin_ms": {
+  "name": "Donnie Scoggin", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 89", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sanford_ms": {
+  "name": "Noah Sanford", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 90", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "evans_ms": {
+  "name": "Bob Evans", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 91", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "currie_ms": {
+  "name": "Becky Currie", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 92", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "timmy_ladner_ms": {
+  "name": "Timmy Ladner", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 93", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "robert_johnson_ms": {
+  "name": "Robert Johnson", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 94", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mcknight_ms": {
+  "name": "Jay McKnight", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 95", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cockerham_ms": {
+  "name": "Angela Cockerham", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 96", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mims_ms": {
+  "name": "Sam Mims", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 97", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "porter_ms": {
+  "name": "Daryl Porter", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 98", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pigott_ms": {
+  "name": "Bill Pigott", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 99", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "morgan_ms": {
+  "name": "Ken Morgan", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 100", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mccarty_ms": {
+  "name": "Kent McCarty", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 101", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mcgee_ms": {
+  "name": "Missy McGee", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 102", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "watson_ms": {
+  "name": "Percy Watson", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 103", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "byrd_ms": {
+  "name": "Larry Byrd", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 104", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "burch_ms": {
+  "name": "Elliot Burch", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 105", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "owen_ms": {
+  "name": "Jansen Owen", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 106", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lott_ms": {
+  "name": "Steve Lott", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 107", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hobgood_wilkes_ms": {
+  "name": "Stacey Hobgood-Wilkes", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 108", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "barton_ms": {
+  "name": "Manly Barton", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 109", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jeramey_anderson_ms": {
+  "name": "Jeramey Anderson", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 110", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fondren_ms": {
+  "name": "Jimmy Fondren", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 111", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "read_ms": {
+  "name": "John Read", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 112", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "zuber_ms": {
+  "name": "Hank Zuber", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 113", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "guice_ms": {
+  "name": "Jeff Guice", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 114", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "grady_ms": {
+  "name": "Zack Grady", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 115", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "eure_ms": {
+  "name": "Casey Eure", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 116", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "felsher_ms": {
+  "name": "Kevin Felsher", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 117", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "haney_ms": {
+  "name": "Greg Haney", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 118", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bennett_ms": {
+  "name": "Richard Bennett", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 120", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "crawford_ms": {
+  "name": "Carolyn Crawford", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 121", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "anderson_ms": {
+  "name": "Brent Anderson", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 122", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mclendon_ms": {
+  "name": "Michael McLendon", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gillespie_isom_ms": {
+  "name": "Theresa Gillespie Isom", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chism_ms": {
+  "name": "Kathy Chism", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "parks_ms": {
+  "name": "Rita Parks", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sparks_ms": {
+  "name": "Daniel Sparks", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 5", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mcmahan_ms": {
+  "name": "Chad McMahan", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 6", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bryan_ms": {
+  "name": "Hob Bryan", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 7", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "suber_ms": {
+  "name": "Ben Suber", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 8", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nicole_boyd_ms": {
+  "name": "Nicole Boyd", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 9", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "whaley_ms": {
+  "name": "Neil Whaley", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 10", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "reginald_jackson_ms": {
+  "name": "Reginald Jackson", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 11", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "derrick_simmons": {
+  "name": "Derrick Simmons", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 12", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "simmons_ms": {
+  "name": "Sarita Simmons", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 13", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chassaniol_ms": {
+  "name": "Lydia Chassaniol", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 14", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "williams_ms": {
+  "name": "Bart Williams", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 15", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "turner_ford_ms": {
+  "name": "Angela Turner-Ford", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 16", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "younger_ms": {
+  "name": "Chuck Younger", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 17", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lane_taylor_ms": {
+  "name": "Lane Taylor", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 18", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kevin_blackwell_ms": {
+  "name": "Kevin Blackwell", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 19", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "harkins_ms": {
+  "name": "Josh Harkins", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 20", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "blackmon_ms": {
+  "name": "Bradford Blackmon", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 21", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "thomas_ms": {
+  "name": "Joseph Thomas", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 22", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hopson_ms": {
+  "name": "Briggs Hopson", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 23", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pope_ms": {
+  "name": "Justin Pope", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 24", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "michel_ms": {
+  "name": "Walter Michel", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 25", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mumford_ms": {
+  "name": "Kamesha Mumford", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 26", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "frazier_ms": {
+  "name": "Hillman Frazier", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 27", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "norwood_ms": {
+  "name": "Sollie Norwood", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 28", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "blount_ms": {
+  "name": "David Blount", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 29", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dean_kirby": {
+  "name": "Dean Kirby", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 30", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mccaughn_ms": {
+  "name": "Tyler McCaughn", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 31", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hickman_ms": {
+  "name": "Rod Hickman", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 32", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tate_ms": {
+  "name": "Jeff Tate", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 33", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "berry_ms": {
+  "name": "Andy Berry", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 35", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rhodes_ms": {
+  "name": "Brian Rhodes", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 36", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "butler_ms": {
+  "name": "Albert Butler", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 37", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brumfield_ms": {
+  "name": "Gary Brumfield", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 38", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "barrett_ms": {
+  "name": "Jason Barrett", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 39", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hill_ms": {
+  "name": "Angela Hill", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 40", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fillingane_ms": {
+  "name": "Joey Fillingane", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 41", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hartness_ms": {
+  "name": "Don Hartness", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 42", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "debar_ms": {
+  "name": "Dennis DeBar", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 43", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "johnson_ms": {
+  "name": "Chris Johnson", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 44", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dupree_ms": {
+  "name": "Johnny DuPree", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 45", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ladner_ms": {
+  "name": "Philman Ladner", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 46", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "seymour_ms": {
+  "name": "Mike Seymour", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 47", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "thompson_ms": {
+  "name": "Mike Thompson", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 48", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "carter_ms": {
+  "name": "Joel Carter", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 49", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "delano_ms": {
+  "name": "Scott DeLano", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 50", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "england_ms": {
+  "name": "Jeremy England", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 51", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wiggins_ms": {
+  "name": "Brice Wiggins", "office": "Mississippi State Senator",
+  "state": "Mississippi", "district": "SD 52", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Vermont — https://legislature.vermont.gov/people/loadAll/2026
+ "scheu_vt": {
+  "name": "Robin Scheu", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Addison-1", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sheldon_vt": {
+  "name": "Amy Sheldon", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Addison-1", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "conlon_vt": {
+  "name": "Peter Conlon", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Addison-2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "birong_vt": {
+  "name": "Matthew Birong", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Addison-3", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "north_vt": {
+  "name": "Rob North", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Addison-3", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lueders_vt": {
+  "name": "Karen Lueders", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Addison-4", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "olson_vt": {
+  "name": "Herb Olson", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Addison-4", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mcgill_vt": {
+  "name": "Jubilee McGill", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Addison-5", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jim_casey_vt": {
+  "name": "Jim Casey", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Addison-Rutland", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cooper_vt": {
+  "name": "Jonathan Cooper", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Bennington-1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "corcoran_vt": {
+  "name": "Timothy Corcoran II", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Bennington-2", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "greer_vt": {
+  "name": "Will Greer", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Bennington-2", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "durfee_vt": {
+  "name": "David Durfee", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Bennington-3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hunter_vt": {
+  "name": "Robert Hunter", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Bennington-4", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "james_vt": {
+  "name": "Kathleen James", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Bennington-4", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "morrissey_vt": {
+  "name": "Mary Morrissey", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Bennington-5", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nigro_vt": {
+  "name": "Michael Nigro", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Bennington-5", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pinsonault_vt": {
+  "name": "Sandy Pinsonault", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Bennington-Rutland", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brown_vt": {
+  "name": "Jana Brown", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "arsenault_vt": {
+  "name": "Angela Arsenault", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-2", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brady_vt": {
+  "name": "Erin Brady", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-2", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "graning_vt": {
+  "name": "Edye Graning", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-3", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "squirrell_vt": {
+  "name": "Trevor Squirrell", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-3", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pouech_vt": {
+  "name": "Phil Pouech", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "waters_evans_vt": {
+  "name": "Chea Waters Evans", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-5", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lalley_vt": {
+  "name": "Kate Lalley", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-6", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sweeney_vt": {
+  "name": "Shawn Sweeney", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-7", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "burkhardt_vt": {
+  "name": "Bridget Burkhardt", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-8", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "krasnow_vt": {
+  "name": "Emilie Krasnow", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-9", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kase_long_vt": {
+  "name": "Kase Long", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-Franklin", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "micklus_vt": {
+  "name": "Tony Micklus", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-Franklin", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nugent_vt": {
+  "name": "Kate Nugent", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-10", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "minier_vt": {
+  "name": "Brian Minier", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-11", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lalonde_vt": {
+  "name": "Martin LaLonde", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-12", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bluemle_vt": {
+  "name": "Tiffany Bluemle", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-13", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kleppner_vt": {
+  "name": "Bram Kleppner", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-13", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rachelson_vt": {
+  "name": "Barbara Rachelson", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-14", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "stone_vt": {
+  "name": "Mary-Katherine Stone", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-14", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cina_vt": {
+  "name": "Brian Cina", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-15", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "headrick_vt": {
+  "name": "Troy Headrick", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-15", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "krowinski_vt": {
+  "name": "Jill Krowinski", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-16", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "logan_vt": {
+  "name": "Kate Logan", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-16", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "duke_vt": {
+  "name": "Abbey Duke", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-17", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ode_vt": {
+  "name": "Carol Ode", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-18", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "scully_vt": {
+  "name": "Kevin Scully", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-18", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "austin_vt": {
+  "name": "Sarita Austin", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-19", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "critchlow_vt": {
+  "name": "Wendy Critchlow", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-19", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bishop_vt": {
+  "name": "Doug Bishop", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-20", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pezzo_vt": {
+  "name": "Gayle Pezzo", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-20", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "berbeco_vt": {
+  "name": "Daisy Berbeco", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-21", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tomlinson_vt": {
+  "name": "Chloe Tomlinson", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-21", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dolan_vt": {
+  "name": "Karen Dolan", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-22", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "houghton_vt": {
+  "name": "Lori Houghton", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-22", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dodge_vt": {
+  "name": "Leonora Dodge", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-23", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "garofano_vt": {
+  "name": "Rey Garofano", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-23", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "black_vt": {
+  "name": "Alyssa Black", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-24", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "steady_vt": {
+  "name": "Brenda Steady", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Chittenden-25", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "powers_vt": {
+  "name": "Debra Powers", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Caledonia-1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "southworth_vt": {
+  "name": "Mike Southworth", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Caledonia-2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "feltus_vt": {
+  "name": "Martha Feltus", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Caledonia-3", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "quimby_vt": {
+  "name": "Beth Quimby", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Caledonia-3", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "campbell_vt": {
+  "name": "R. Scott Campbell", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Caledonia-Essex", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dolgin_vt": {
+  "name": "Debbie Dolgin", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Caledonia-Essex", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "burtt_vt": {
+  "name": "Greg Burtt", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Caledonia-Washington", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kascenska_vt": {
+  "name": "John Kascenska", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Essex-Caledonia", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "labor_vt": {
+  "name": "Larry Labor", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Essex-Orleans", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bartley_vt": {
+  "name": "Ashley Bartley", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Franklin-1", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "branagan_vt": {
+  "name": "Carolyn Branagan", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Franklin-1", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dickinson_vt": {
+  "name": "Eileen Dickinson", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Franklin-2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "luneau_vt": {
+  "name": "Joe Luneau", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Franklin-3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "oliver_vt": {
+  "name": "Thomas Oliver", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Franklin-4", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "walker_vt": {
+  "name": "Matt Walker", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Franklin-4", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hango_vt": {
+  "name": "Lisa Hango", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Franklin-5", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "laroche_vt": {
+  "name": "Wayne Laroche", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Franklin-5", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gregoire_vt": {
+  "name": "James Gregoire", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Franklin-6", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "demar_vt": {
+  "name": "Penny Demar", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Franklin-7", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brigham_vt": {
+  "name": "Jack Brigham", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Franklin-8", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "morgan_vt": {
+  "name": "Leland Morgan", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Grand Isle-Chittenden", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "michael_morgan_vt": {
+  "name": "Michael Morgan", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Grand Isle-Chittenden", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lipsky_vt": {
+  "name": "Jed Lipsky", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Lamoille-1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bailey_vt": {
+  "name": "Richard Bailey", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Lamoille-2", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "noyes_vt": {
+  "name": "Daniel Noyes", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Lamoille-2", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "boyden_vt": {
+  "name": "Lucy Boyden", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Lamoille-3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lamont_vt": {
+  "name": "Saudia LaMont", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Lamoille-Washington", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "yacovone_vt": {
+  "name": "David Yacovone", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Lamoille-Washington", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nelson_vt": {
+  "name": "Richard Nelson", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Orleans-1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "page_vt": {
+  "name": "Woodman Page", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Orleans-2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wells_vt": {
+  "name": "Ken Wells", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Orleans-3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "harple_vt": {
+  "name": "Leanne Harple", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Orleans-4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "higley_vt": {
+  "name": "Mark Higley", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Orleans-Lamoille", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "marcotte_vt": {
+  "name": "Michael Marcotte", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Orleans-Lamoille", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tagliavia_vt": {
+  "name": "Mike Tagliavia", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Orange-1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "priestley_vt": {
+  "name": "Monique Priestley", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Orange-2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dobrovich_vt": {
+  "name": "Joshua Dobrovich", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Orange-3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "parsons_vt": {
+  "name": "Joseph Parsons", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Orange-Caledonia", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hooper_vt": {
+  "name": "Philip Jay Hooper", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Orange-Washington-Addison", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "satcowitz_vt": {
+  "name": "Larry Satcowitz", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Orange-Washington-Addison", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mccoy_vt": {
+  "name": "Patricia McCoy", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Rutland-1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bosch_vt": {
+  "name": "Dave Bosch", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Rutland-2", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "burditt_vt": {
+  "name": "Thomas Burditt", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Rutland-2", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "harvey_vt": {
+  "name": "Zachary Harvey", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Rutland-3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "howland_vt": {
+  "name": "Christopher Howland", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Rutland-4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "maguire_vt": {
+  "name": "Eric Maguire", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Rutland-5", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "howard_vt": {
+  "name": "Mary Howard", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Rutland-6", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "keyser_vt": {
+  "name": "Chris Keyser", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Rutland-7", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "malay_vt": {
+  "name": "Alicia Malay", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Rutland-8", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nielsen_vt": {
+  "name": "Todd Nielsen", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Rutland-9", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pritchard_vt": {
+  "name": "Chris Pritchard", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Rutland-Bennington", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "winter_vt": {
+  "name": "Kevin Winter", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Rutland-Windsor", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "canfield_vt": {
+  "name": "William Canfield", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Rutland-10", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "taylor_vt": {
+  "name": "Valorie Taylor", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Rutland-11", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "eastes_vt": {
+  "name": "Zon Eastes", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Windham-1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sibilia_vt": {
+  "name": "Laura Sibilia", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Windham-2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bos_lun_vt": {
+  "name": "Michelle Bos-Lun", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Windham-3", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "goldman_vt": {
+  "name": "Leslie Goldman", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Windham-3", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mrowicki_vt": {
+  "name": "Michael Mrowicki", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Windham-4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "long_vt": {
+  "name": "Emily Long", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Windham-5", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "carris_duncan_vt": {
+  "name": "Emily Carris Duncan", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Windham-6", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kornheiser_vt": {
+  "name": "Emilie Kornheiser", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Windham-7", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "burke_vt": {
+  "name": "Mollie Burke", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Windham-8", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "goodnow_vt": {
+  "name": "Ian Goodnow", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Windham-9", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "donahue_vt": {
+  "name": "Anne Donahue", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Washington-1", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "goslant_vt": {
+  "name": "Kenneth Goslant", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Washington-1", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "torre_vt": {
+  "name": "Dara Torre", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Washington-2", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "candice_white_vt": {
+  "name": "Candice White", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Washington-2", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "boutin_vt": {
+  "name": "Michael Boutin", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Washington-3", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "waszazak_vt": {
+  "name": "Teddy Waszazak", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Washington-3", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "casey_vt": {
+  "name": "Conor Casey", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Washington-4", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mccann_vt": {
+  "name": "Kate McCann", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Washington-4", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chapin_vt": {
+  "name": "Ela Chapin", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Washington-5", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mihaly_vt": {
+  "name": "Marc Mihaly", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Washington-6", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "stevens_vt": {
+  "name": "Thomas Stevens", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Washington-Chittenden", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wood_vt": {
+  "name": "Theresa Wood", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Washington-Chittenden", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "galfetti_vt": {
+  "name": "Gina Galfetti", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Washington-Orange", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "soucy_vt": {
+  "name": "David Soucy", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Washington-Orange", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "morrow_vt": {
+  "name": "Christopher Morrow", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Windham-Windsor-Bennington", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bartholomew_vt": {
+  "name": "John Bartholomew", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Windsor-1", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "burrows_vt": {
+  "name": "Elizabeth Burrows", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Windsor-1", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "coffin_vt": {
+  "name": "VL Coffin IV", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Windsor-2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "emmons_vt": {
+  "name": "Alice Emmons", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Windsor-3", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "morris_vt": {
+  "name": "Kristi Morris", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Windsor-3", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hoyt_vt": {
+  "name": "Michael Hoyt", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Windsor-4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kimbell_vt": {
+  "name": "Charles Kimbell", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Windsor-5", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "christie_vt": {
+  "name": "Kevin Christie", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Windsor-6", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cole_vt": {
+  "name": "Esme Cole", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Windsor-6", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kirk_white_vt": {
+  "name": "Kirk White", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Windsor-Addison", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "charlton_vt": {
+  "name": "Tom Charlton", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Windsor-Windham", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "o_brien_vt": {
+  "name": "John O'Brien", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Windsor-Orange-1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "holcombe_vt": {
+  "name": "Rebecca Holcombe", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Windsor-Orange-2", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "masland_vt": {
+  "name": "James Masland", "office": "Vermont State Representative",
+  "state": "Vermont", "district": "Windsor-Orange-2", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hardy_vt": {
+  "name": "Ruth Hardy", "office": "Vermont State Senator",
+  "state": "Vermont", "district": "Addison", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "heffernan_vt": {
+  "name": "Steven Heffernan", "office": "Vermont State Senator",
+  "state": "Vermont", "district": "Addison", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bongartz_vt": {
+  "name": "Seth Bongartz", "office": "Vermont State Senator",
+  "state": "Vermont", "district": "Bennington", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "plunkett_vt": {
+  "name": "Robert Plunkett", "office": "Vermont State Senator",
+  "state": "Vermont", "district": "Bennington", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "beck_vt": {
+  "name": "Scott Beck", "office": "Vermont State Senator",
+  "state": "Vermont", "district": "Caledonia", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "phil_baruth": {
+  "name": "Philip Baruth", "office": "Vermont State Senator",
+  "state": "Vermont", "district": "Chittenden Central", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gulick_vt": {
+  "name": "Martine Larocque Gulick", "office": "Vermont State Senator",
+  "state": "Vermont", "district": "Chittenden Central", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "vyhovsky_vt": {
+  "name": "Tanya Vyhovsky", "office": "Vermont State Senator",
+  "state": "Vermont", "district": "Chittenden Central", "position": 3, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mattos_vt": {
+  "name": "Christopher Mattos", "office": "Vermont State Senator",
+  "state": "Vermont", "district": "Chittenden North", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chittenden_vt": {
+  "name": "Thomas Chittenden", "office": "Vermont State Senator",
+  "state": "Vermont", "district": "Chittenden South East", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lyons_vt": {
+  "name": "Ginny Lyons", "office": "Vermont State Senator",
+  "state": "Vermont", "district": "Chittenden South East", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kesha_ram_hinsdale": {
+  "name": "Kesha Ram Hinsdale", "office": "Vermont State Senator",
+  "state": "Vermont", "district": "Chittenden South East", "position": 3, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ingalls_vt": {
+  "name": "Russ Ingalls", "office": "Vermont State Senator",
+  "state": "Vermont", "district": "Essex", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brock_vt": {
+  "name": "Randy Brock", "office": "Vermont State Senator",
+  "state": "Vermont", "district": "Franklin", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "norris_vt": {
+  "name": "Robert Norris", "office": "Vermont State Senator",
+  "state": "Vermont", "district": "Franklin", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brennan_vt": {
+  "name": "Pat Brennan", "office": "Vermont State Senator",
+  "state": "Vermont", "district": "Grand Isle", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "westman_vt": {
+  "name": "Richard Westman", "office": "Vermont State Senator",
+  "state": "Vermont", "district": "Lamoille", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "benson_vt": {
+  "name": "John Benson", "office": "Vermont State Senator",
+  "state": "Vermont", "district": "Orange", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "morley_vt": {
+  "name": "John Morley III", "office": "Vermont State Senator",
+  "state": "Vermont", "district": "Orleans", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "collamore_vt": {
+  "name": "Brian Collamore", "office": "Vermont State Senator",
+  "state": "Vermont", "district": "Rutland", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "weeks_vt": {
+  "name": "David Weeks", "office": "Vermont State Senator",
+  "state": "Vermont", "district": "Rutland", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "williams_vt": {
+  "name": "Terry Williams", "office": "Vermont State Senator",
+  "state": "Vermont", "district": "Rutland", "position": 3, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cummings_vt": {
+  "name": "Ann Cummings", "office": "Vermont State Senator",
+  "state": "Vermont", "district": "Washington", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "perchlik_vt": {
+  "name": "Andrew Perchlik", "office": "Vermont State Senator",
+  "state": "Vermont", "district": "Washington", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "watson_vt": {
+  "name": "Anne Watson", "office": "Vermont State Senator",
+  "state": "Vermont", "district": "Washington", "position": 3, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "harrison_vt": {
+  "name": "Wendy Harrison", "office": "Vermont State Senator",
+  "state": "Vermont", "district": "Windham", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hashim_vt": {
+  "name": "Nader Hashim", "office": "Vermont State Senator",
+  "state": "Vermont", "district": "Windham", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "clarkson_vt": {
+  "name": "Alison Clarkson", "office": "Vermont State Senator",
+  "state": "Vermont", "district": "Windsor", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "major_vt": {
+  "name": "Joe Major", "office": "Vermont State Senator",
+  "state": "Vermont", "district": "Windsor", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "white_vt": {
+  "name": "Becca White", "office": "Vermont State Senator",
+  "state": "Vermont", "district": "Windsor", "position": 3, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+// ── 2026 state legislative candidates, Michigan, Tennessee and Vermont (Oct 2026)
+// Every candidate on the November 3, 2026 general-election ballot for a State Senate
+// or State House seat in Michigan, Tennessee and Vermont, read from each state's
+// official candidate list on 2026-10-28, whom the roster did not already hold as a
+// sitting member. Mississippi elects its Legislature in 2027 and has no legislative
+// contest on the 2026 ballot. A sitting legislator running again is not repeated
+// here; one running for another seat is in the candidacies table at the end of this
+// file. db/roster-candidates-legislative-mi-tn-vt-2026-oct.json is the record.
+// Identity rows only: the candidate's name as filed (Vermont's list prints names in
+// capitals; the row gives them in title case and the record keeps the filing), the
+// seat they are running for, `partyFiled` as printed, `party` as the roster's R/D
+// code where the source names a Republican or Democratic nomination first.
+// `candidate: true` on every row, so no seat lookup names one as a sitting member.
+ // Michigan — https://mi-boe.entellitrak.com/etk-mi-boe-prod/page.request.do?page=page.miboePublicReport&electionType=GEN&electionYear=2026
+ "justin_onwenu": {
+  "name": "Justin Onwenu", "office": "Michigan State Senate Candidate (District 1)",
+  "state": "Michigan", "district": "1",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "patrick_o_connell": {
+  "name": "Patrick O'Connell", "office": "Michigan State Senate Candidate (District 1)",
+  "state": "Michigan", "district": "1",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "abbas_alawieh": {
+  "name": "Abbas Alawieh", "office": "Michigan State Senate Candidate (District 2)",
+  "state": "Michigan", "district": "2",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "harry_sawicki": {
+  "name": "Harry Sawicki", "office": "Michigan State Senate Candidate (District 2)",
+  "state": "Michigan", "district": "2",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "larry_betts": {
+  "name": "Larry Darnell Betts", "office": "Michigan State Senate Candidate (District 2)",
+  "state": "Michigan", "district": "2",
+  "partyFiled": "Working Class Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "john_conyers": {
+  "name": "John Conyers III", "office": "Michigan State Senate Candidate (District 3)",
+  "state": "Michigan", "district": "3",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mark_price": {
+  "name": "Mark Ashley Price", "office": "Michigan State Senate Candidate (District 3)",
+  "state": "Michigan", "district": "3",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "david_roehrig": {
+  "name": "David Roehrig", "office": "Michigan State Senate Candidate (District 3)",
+  "state": "Michigan", "district": "3",
+  "partyFiled": "Working Class Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "marcie_grzywacz": {
+  "name": "Marcie Grzywacz", "office": "Michigan State Senate Candidate (District 4)",
+  "state": "Michigan", "district": "4",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "beth_socia": {
+  "name": "Beth Ann Socia", "office": "Michigan State Senate Candidate (District 4)",
+  "state": "Michigan", "district": "4",
+  "partyFiled": "U.S. Taxpayers Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "walter_willis": {
+  "name": "Walter Willis", "office": "Michigan State Senate Candidate (District 4)",
+  "state": "Michigan", "district": "4",
+  "partyFiled": "Working Class Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "estelle_oliansky": {
+  "name": "Estelle Oliansky", "office": "Michigan State Senate Candidate (District 5)",
+  "state": "Michigan", "district": "5",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "joi_pokerwinski": {
+  "name": "Joi Pokerwinski", "office": "Michigan State Senate Candidate (District 6)",
+  "state": "Michigan", "district": "6",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "anthony_paesano": {
+  "name": "Anthony Paesano", "office": "Michigan State Senate Candidate (District 7)",
+  "state": "Michigan", "district": "7",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kenneth_massey": {
+  "name": "Kenneth D. Massey", "office": "Michigan State Senate Candidate (District 8)",
+  "state": "Michigan", "district": "8",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "theresa_brooks": {
+  "name": "Theresa Brooks", "office": "Michigan State Senate Candidate (District 9)",
+  "state": "Michigan", "district": "9",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jacob_schodowski": {
+  "name": "Jacob R. Schodowski", "office": "Michigan State Senate Candidate (District 9)",
+  "state": "Michigan", "district": "9",
+  "partyFiled": "Working Class Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "philippe_cicchini": {
+  "name": "Philippe M. Cicchini", "office": "Michigan State Senate Candidate (District 9)",
+  "state": "Michigan", "district": "9",
+  "partyFiled": "No Party Affiliation", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "michelle_nard": {
+  "name": "Michelle Nard", "office": "Michigan State Senate Candidate (District 10)",
+  "state": "Michigan", "district": "10",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "johnnie_townsend": {
+  "name": "Johnnie S. Townsend", "office": "Michigan State Senate Candidate (District 11)",
+  "state": "Michigan", "district": "11",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "john_goldwater": {
+  "name": "John Goldwater", "office": "Michigan State Senate Candidate (District 12)",
+  "state": "Michigan", "district": "12",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sean_carlson": {
+  "name": "Sean Carlson", "office": "Michigan State Senate Candidate (District 13)",
+  "state": "Michigan", "district": "13",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ryan_berman": {
+  "name": "Ryan Berman", "office": "Michigan State Senate Candidate (District 13)",
+  "state": "Michigan", "district": "13",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tawn_beliger": {
+  "name": "Tawn Shawnelle Beliger", "office": "Michigan State Senate Candidate (District 14)",
+  "state": "Michigan", "district": "14",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "felicia_brabec": {
+  "name": "Felicia Brabec", "office": "Michigan State Senate Candidate (District 15)",
+  "state": "Michigan", "district": "15",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jason_rogers": {
+  "name": "Jason Rogers", "office": "Michigan State Senate Candidate (District 15)",
+  "state": "Michigan", "district": "15",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "deandre_barnes": {
+  "name": "Deandre Barnes", "office": "Michigan State Senate Candidate (District 16)",
+  "state": "Michigan", "district": "16",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ashleigh_baker": {
+  "name": "Ashleigh Baker", "office": "Michigan State Senate Candidate (District 17)",
+  "state": "Michigan", "district": "17",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "anthony_pennock": {
+  "name": "Anthony Pennock", "office": "Michigan State Senate Candidate (District 18)",
+  "state": "Michigan", "district": "18",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "shaun_young": {
+  "name": "Shaun Young", "office": "Michigan State Senate Candidate (District 19)",
+  "state": "Michigan", "district": "19",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dale_murney": {
+  "name": "Dale Murney", "office": "Michigan State Senate Candidate (District 20)",
+  "state": "Michigan", "district": "20",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chris_moraitis": {
+  "name": "Chris Moraitis", "office": "Michigan State Senate Candidate (District 20)",
+  "state": "Michigan", "district": "20",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "shamara_clay": {
+  "name": "Shamara Clay", "office": "Michigan State Senate Candidate (District 20)",
+  "state": "Michigan", "district": "20",
+  "partyFiled": "Green Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "josh_burns": {
+  "name": "Josh Burns", "office": "Michigan State Senate Candidate (District 21)",
+  "state": "Michigan", "district": "21",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "robert_hower": {
+  "name": "Robert Hower", "office": "Michigan State Senate Candidate (District 22)",
+  "state": "Michigan", "district": "22",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mike_murphy": {
+  "name": "Mike Murphy", "office": "Michigan State Senate Candidate (District 22)",
+  "state": "Michigan", "district": "22",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "greg_hill": {
+  "name": "Greg Hill", "office": "Michigan State Senate Candidate (District 23)",
+  "state": "Michigan", "district": "23",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "edlira_sako": {
+  "name": "Edlira Sako", "office": "Michigan State Senate Candidate (District 24)",
+  "state": "Michigan", "district": "24",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "april_osentoski": {
+  "name": "April L. Osentoski", "office": "Michigan State Senate Candidate (District 25)",
+  "state": "Michigan", "district": "25",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "andrew_beeler": {
+  "name": "Andrew Beeler", "office": "Michigan State Senate Candidate (District 25)",
+  "state": "Michigan", "district": "25",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brendan_johnson": {
+  "name": "Brendan J. Johnson", "office": "Michigan State Senate Candidate (District 26)",
+  "state": "Michigan", "district": "26",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bill_bain": {
+  "name": "Bill Bain", "office": "Michigan State Senate Candidate (District 27)",
+  "state": "Michigan", "district": "27",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rashida_harrison": {
+  "name": "Rashida Harrison", "office": "Michigan State Senate Candidate (District 28)",
+  "state": "Michigan", "district": "28",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "julie_derose": {
+  "name": "Julie L. DeRose", "office": "Michigan State Senate Candidate (District 28)",
+  "state": "Michigan", "district": "28",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brandon_crabill": {
+  "name": "Brandon Crabill", "office": "Michigan State Senate Candidate (District 28)",
+  "state": "Michigan", "district": "28",
+  "partyFiled": "Libertarian Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wes_peterson": {
+  "name": "Wes Peterson", "office": "Michigan State Senate Candidate (District 28)",
+  "state": "Michigan", "district": "28",
+  "partyFiled": "Working Class Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "abbie_groff_blaszak": {
+  "name": "Abbie Groff-Blaszak", "office": "Michigan State Senate Candidate (District 29)",
+  "state": "Michigan", "district": "29",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brady_middleton": {
+  "name": "Brady A. Middleton", "office": "Michigan State Senate Candidate (District 29)",
+  "state": "Michigan", "district": "29",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chris_kleinjans": {
+  "name": "Chris Kleinjans", "office": "Michigan State Senate Candidate (District 31)",
+  "state": "Michigan", "district": "31",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "john_wetzel": {
+  "name": "John Wetzel", "office": "Michigan State Senate Candidate (District 31)",
+  "state": "Michigan", "district": "31",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rebecca_amidon": {
+  "name": "Rebecca Amidon", "office": "Michigan State Senate Candidate (District 32)",
+  "state": "Michigan", "district": "32",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kim_cole": {
+  "name": "Kim Cole", "office": "Michigan State Senate Candidate (District 32)",
+  "state": "Michigan", "district": "32",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "stan_opal": {
+  "name": "Stan Opal", "office": "Michigan State Senate Candidate (District 33)",
+  "state": "Michigan", "district": "33",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tyler_landgraf": {
+  "name": "Tyler Landgraf", "office": "Michigan State Senate Candidate (District 34)",
+  "state": "Michigan", "district": "34",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jason_tunney": {
+  "name": "Jason Tunney", "office": "Michigan State Senate Candidate (District 35)",
+  "state": "Michigan", "district": "35",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "laurie_atwood": {
+  "name": "Laurie Atwood", "office": "Michigan State Senate Candidate (District 35)",
+  "state": "Michigan", "district": "35",
+  "partyFiled": "U.S. Taxpayers Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mark_yonkman": {
+  "name": "Mark W. Yonkman", "office": "Michigan State Senate Candidate (District 36)",
+  "state": "Michigan", "district": "36",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kate_gallup": {
+  "name": "Kate Gallup", "office": "Michigan State Senate Candidate (District 37)",
+  "state": "Michigan", "district": "37",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kelli_ginhoven": {
+  "name": "Kelli J. Van Ginhoven", "office": "Michigan State Senate Candidate (District 38)",
+  "state": "Michigan", "district": "38",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sara_cambensy": {
+  "name": "Sara Cambensy", "office": "Michigan State Senate Candidate (District 38)",
+  "state": "Michigan", "district": "38",
+  "partyFiled": "No Party Affiliation", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "valerie_whittaker": {
+  "name": "Valerie Whittaker", "office": "Michigan State House Candidate (District 1)",
+  "state": "Michigan", "district": "1",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "joanna_whaley": {
+  "name": "Joanna Whaley", "office": "Michigan State House Candidate (District 2)",
+  "state": "Michigan", "district": "2",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ron_kokinda": {
+  "name": "Ron Kokinda", "office": "Michigan State House Candidate (District 2)",
+  "state": "Michigan", "district": "2",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gus_tarraf": {
+  "name": "Gus Tarraf", "office": "Michigan State House Candidate (District 3)",
+  "state": "Michigan", "district": "3",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "regina_ross": {
+  "name": "Regina Ross", "office": "Michigan State House Candidate (District 4)",
+  "state": "Michigan", "district": "4",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "everett_davis": {
+  "name": "Everett Davis", "office": "Michigan State House Candidate (District 4)",
+  "state": "Michigan", "district": "4",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "candace_calloway": {
+  "name": "Candace Calloway", "office": "Michigan State House Candidate (District 5)",
+  "state": "Michigan", "district": "5",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chris_venable": {
+  "name": "Chris Venable", "office": "Michigan State House Candidate (District 5)",
+  "state": "Michigan", "district": "5",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "melanie_macey": {
+  "name": "Melanie Macey", "office": "Michigan State House Candidate (District 6)",
+  "state": "Michigan", "district": "6",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mike_steger": {
+  "name": "Mike Steger", "office": "Michigan State House Candidate (District 6)",
+  "state": "Michigan", "district": "6",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "reginald_moorer": {
+  "name": "Reginald Moorer", "office": "Michigan State House Candidate (District 7)",
+  "state": "Michigan", "district": "7",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chris_gilmer_hill": {
+  "name": "Chris Gilmer-Hill", "office": "Michigan State House Candidate (District 8)",
+  "state": "Michigan", "district": "8",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bruce_langran": {
+  "name": "Bruce P. Langran", "office": "Michigan State House Candidate (District 8)",
+  "state": "Michigan", "district": "8",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "stephen_boyle": {
+  "name": "Stephen Boyle", "office": "Michigan State House Candidate (District 8)",
+  "state": "Michigan", "district": "8",
+  "partyFiled": "Green Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "willie_burton": {
+  "name": "Willie Burton", "office": "Michigan State House Candidate (District 9)",
+  "state": "Michigan", "district": "9",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "michele_lundgren": {
+  "name": "Michele Lundgren", "office": "Michigan State House Candidate (District 9)",
+  "state": "Michigan", "district": "9",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jahdante_smith": {
+  "name": "Jahdante John Elijah Smith", "office": "Michigan State House Candidate (District 9)",
+  "state": "Michigan", "district": "9",
+  "partyFiled": "Green Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "logan_ausherman": {
+  "name": "Logan Ausherman", "office": "Michigan State House Candidate (District 9)",
+  "state": "Michigan", "district": "9",
+  "partyFiled": "Working Class Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "peter_ochs": {
+  "name": "Peter Ochs", "office": "Michigan State House Candidate (District 10)",
+  "state": "Michigan", "district": "10",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "piper_smith": {
+  "name": "Piper Willow Smith", "office": "Michigan State House Candidate (District 10)",
+  "state": "Michigan", "district": "10",
+  "partyFiled": "Working Class Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kimberly_fisher": {
+  "name": "Kimberly Fisher", "office": "Michigan State House Candidate (District 11)",
+  "state": "Michigan", "district": "11",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "matthew_stafford": {
+  "name": "Matthew Stafford", "office": "Michigan State House Candidate (District 11)",
+  "state": "Michigan", "district": "11",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "randell_shafer": {
+  "name": "Randell J. Shafer", "office": "Michigan State House Candidate (District 12)",
+  "state": "Michigan", "district": "12",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mark_foster": {
+  "name": "Mark Thomas Foster", "office": "Michigan State House Candidate (District 13)",
+  "state": "Michigan", "district": "13",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "larry_szyska": {
+  "name": "Larry Szyska", "office": "Michigan State House Candidate (District 14)",
+  "state": "Michigan", "district": "14",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jeff_sparling": {
+  "name": "Jeff Sparling", "office": "Michigan State House Candidate (District 14)",
+  "state": "Michigan", "district": "14",
+  "partyFiled": "Green Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jalal_abdallah": {
+  "name": "Jalal Abdallah", "office": "Michigan State House Candidate (District 15)",
+  "state": "Michigan", "district": "15",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hassan_nehme": {
+  "name": "Hassan H Nehme", "office": "Michigan State House Candidate (District 15)",
+  "state": "Michigan", "district": "15",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brian_duggan": {
+  "name": "Brian M. Duggan", "office": "Michigan State House Candidate (District 16)",
+  "state": "Michigan", "district": "16",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ken_crider": {
+  "name": "Ken Crider", "office": "Michigan State House Candidate (District 17)",
+  "state": "Michigan", "district": "17",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kelly_garrett": {
+  "name": "Kelly Garrett", "office": "Michigan State House Candidate (District 18)",
+  "state": "Michigan", "district": "18",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ryan_foster": {
+  "name": "Ryan Foster", "office": "Michigan State House Candidate (District 18)",
+  "state": "Michigan", "district": "18",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kevin_hammer": {
+  "name": "Kevin J. Hammer", "office": "Michigan State House Candidate (District 19)",
+  "state": "Michigan", "district": "19",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "david_sullivan": {
+  "name": "S. David Sullivan", "office": "Michigan State House Candidate (District 20)",
+  "state": "Michigan", "district": "20",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ross_barranco": {
+  "name": "Ross Barranco", "office": "Michigan State House Candidate (District 21)",
+  "state": "Michigan", "district": "21",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lisa_mcintyre": {
+  "name": "Lisa McIntyre", "office": "Michigan State House Candidate (District 22)",
+  "state": "Michigan", "district": "22",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "casey_noce": {
+  "name": "Casey J. Noce", "office": "Michigan State House Candidate (District 22)",
+  "state": "Michigan", "district": "22",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "miriam_corvino": {
+  "name": "Miriam Corvino", "office": "Michigan State House Candidate (District 23)",
+  "state": "Michigan", "district": "23",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "christina_marudas": {
+  "name": "Christina Marudas", "office": "Michigan State House Candidate (District 23)",
+  "state": "Michigan", "district": "23",
+  "partyFiled": "Green Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "allison_fuller": {
+  "name": "Allison Kay Fuller", "office": "Michigan State House Candidate (District 24)",
+  "state": "Michigan", "district": "24",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dawn_udell": {
+  "name": "Dawn Udell", "office": "Michigan State House Candidate (District 25)",
+  "state": "Michigan", "district": "25",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chris_dobis": {
+  "name": "Chris Dobis", "office": "Michigan State House Candidate (District 26)",
+  "state": "Michigan", "district": "26",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jaime_churches": {
+  "name": "Jaime Churches", "office": "Michigan State House Candidate (District 27)",
+  "state": "Michigan", "district": "27",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sherry_berecz": {
+  "name": "Sherry A. Berecz", "office": "Michigan State House Candidate (District 28)",
+  "state": "Michigan", "district": "28",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "darian_counts": {
+  "name": "Darian Counts", "office": "Michigan State House Candidate (District 29)",
+  "state": "Michigan", "district": "29",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "omar_ferdin": {
+  "name": "Omar G. Ferdin", "office": "Michigan State House Candidate (District 30)",
+  "state": "Michigan", "district": "30",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "shannon_wayne": {
+  "name": "Shannon Dare Wayne", "office": "Michigan State House Candidate (District 31)",
+  "state": "Michigan", "district": "31",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "laura_perry": {
+  "name": "Laura M. Perry", "office": "Michigan State House Candidate (District 31)",
+  "state": "Michigan", "district": "31",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mike_eller": {
+  "name": "Mike Eller", "office": "Michigan State House Candidate (District 32)",
+  "state": "Michigan", "district": "32",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "john_tatar": {
+  "name": "John R. Tatar", "office": "Michigan State House Candidate (District 32)",
+  "state": "Michigan", "district": "32",
+  "partyFiled": "U.S. Taxpayers Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ryan_sample": {
+  "name": "Ryan Sample", "office": "Michigan State House Candidate (District 32)",
+  "state": "Michigan", "district": "32",
+  "partyFiled": "Green Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "catherine_rogers": {
+  "name": "Catherine Rogers", "office": "Michigan State House Candidate (District 33)",
+  "state": "Michigan", "district": "33",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "john_dahlgren": {
+  "name": "John Dahlgren", "office": "Michigan State House Candidate (District 34)",
+  "state": "Michigan", "district": "34",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jeff_cooley": {
+  "name": "Jeff Cooley", "office": "Michigan State House Candidate (District 35)",
+  "state": "Michigan", "district": "35",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cole_slaski": {
+  "name": "Cole Slaski", "office": "Michigan State House Candidate (District 36)",
+  "state": "Michigan", "district": "36",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "angela_jones": {
+  "name": "Angela M. Jones", "office": "Michigan State House Candidate (District 37)",
+  "state": "Michigan", "district": "37",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mark_krieger": {
+  "name": "Mark Krieger", "office": "Michigan State House Candidate (District 38)",
+  "state": "Michigan", "district": "38",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jett_newton": {
+  "name": "Jett Newton", "office": "Michigan State House Candidate (District 38)",
+  "state": "Michigan", "district": "38",
+  "partyFiled": "Green Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kerry_tapper": {
+  "name": "Kerry Tapper", "office": "Michigan State House Candidate (District 39)",
+  "state": "Michigan", "district": "39",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jared_polonowski": {
+  "name": "Jared Polonowski", "office": "Michigan State House Candidate (District 39)",
+  "state": "Michigan", "district": "39",
+  "partyFiled": "Green Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "robert_sitarski": {
+  "name": "Robert M. Sitarski", "office": "Michigan State House Candidate (District 40)",
+  "state": "Michigan", "district": "40",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jen_strebs": {
+  "name": "Jen Strebs", "office": "Michigan State House Candidate (District 41)",
+  "state": "Michigan", "district": "41",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nicole_sabel": {
+  "name": "Nicole C. Sabel", "office": "Michigan State House Candidate (District 41)",
+  "state": "Michigan", "district": "41",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rafael_wolf": {
+  "name": "Rafael Wolf", "office": "Michigan State House Candidate (District 41)",
+  "state": "Michigan", "district": "41",
+  "partyFiled": "Libertarian Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nick_rowe": {
+  "name": "Nick Rowe", "office": "Michigan State House Candidate (District 42)",
+  "state": "Michigan", "district": "42",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "alan_swank": {
+  "name": "Alan Swank", "office": "Michigan State House Candidate (District 43)",
+  "state": "Michigan", "district": "43",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jim_haadsma": {
+  "name": "Jim Haadsma", "office": "Michigan State House Candidate (District 44)",
+  "state": "Michigan", "district": "44",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "randy_davis": {
+  "name": "Randy Davis", "office": "Michigan State House Candidate (District 45)",
+  "state": "Michigan", "district": "45",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jan_maino": {
+  "name": "Jan Maino", "office": "Michigan State House Candidate (District 46)",
+  "state": "Michigan", "district": "46",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "justin_griffis": {
+  "name": "Justin Griffis", "office": "Michigan State House Candidate (District 47)",
+  "state": "Michigan", "district": "47",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brian_ignatowski": {
+  "name": "Brian Ignatowski", "office": "Michigan State House Candidate (District 48)",
+  "state": "Michigan", "district": "48",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dan_pelchat": {
+  "name": "Dan Pelchat", "office": "Michigan State House Candidate (District 49)",
+  "state": "Michigan", "district": "49",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "trevor_step": {
+  "name": "Trevor Step", "office": "Michigan State House Candidate (District 49)",
+  "state": "Michigan", "district": "49",
+  "partyFiled": "Libertarian Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cassie_canedo": {
+  "name": "Cassie Canedo", "office": "Michigan State House Candidate (District 50)",
+  "state": "Michigan", "district": "50",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "stacey_mcduffie": {
+  "name": "Stacey McDuffie", "office": "Michigan State House Candidate (District 51)",
+  "state": "Michigan", "district": "51",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brendan_leddy": {
+  "name": "Brendan P. Leddy", "office": "Michigan State House Candidate (District 52)",
+  "state": "Michigan", "district": "52",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "melissa_schultz": {
+  "name": "Melissa Schultz", "office": "Michigan State House Candidate (District 53)",
+  "state": "Michigan", "district": "53",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sarah_pounds": {
+  "name": "Sarah Pounds", "office": "Michigan State House Candidate (District 54)",
+  "state": "Michigan", "district": "54",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "roman_gaskey": {
+  "name": "Roman Gaskey", "office": "Michigan State House Candidate (District 54)",
+  "state": "Michigan", "district": "54",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "alex_hawkins": {
+  "name": "Alex Hawkins", "office": "Michigan State House Candidate (District 55)",
+  "state": "Michigan", "district": "55",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ashok_baddi": {
+  "name": "Ashok Baddi", "office": "Michigan State House Candidate (District 56)",
+  "state": "Michigan", "district": "56",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tom_turner": {
+  "name": "Tom Turner", "office": "Michigan State House Candidate (District 57)",
+  "state": "Michigan", "district": "57",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "katrina_manetta": {
+  "name": "Katrina Manetta", "office": "Michigan State House Candidate (District 58)",
+  "state": "Michigan", "district": "58",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jason_robbins": {
+  "name": "Jason Robbins", "office": "Michigan State House Candidate (District 59)",
+  "state": "Michigan", "district": "59",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sylvia_grot": {
+  "name": "Sylvia Grot", "office": "Michigan State House Candidate (District 59)",
+  "state": "Michigan", "district": "59",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "amy_gray": {
+  "name": "Amy Gray", "office": "Michigan State House Candidate (District 60)",
+  "state": "Michigan", "district": "60",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "robert_wojtowicz": {
+  "name": "Robert Wojtowicz", "office": "Michigan State House Candidate (District 61)",
+  "state": "Michigan", "district": "61",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "matthew_smith": {
+  "name": "Matthew Smith", "office": "Michigan State House Candidate (District 62)",
+  "state": "Michigan", "district": "62",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jamie_sonneberger": {
+  "name": "Jamie Sonneberger", "office": "Michigan State House Candidate (District 63)",
+  "state": "Michigan", "district": "63",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pamela_hornberger": {
+  "name": "Pamela Hornberger", "office": "Michigan State House Candidate (District 63)",
+  "state": "Michigan", "district": "63",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ken_heuvelman": {
+  "name": "Ken Heuvelman", "office": "Michigan State House Candidate (District 64)",
+  "state": "Michigan", "district": "64",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "james_o_brien": {
+  "name": "James M. O'Brien", "office": "Michigan State House Candidate (District 65)",
+  "state": "Michigan", "district": "65",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ned_zimmer": {
+  "name": "Ned Zimmer", "office": "Michigan State House Candidate (District 66)",
+  "state": "Michigan", "district": "66",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "leslie_getz": {
+  "name": "Leslie Getz", "office": "Michigan State House Candidate (District 67)",
+  "state": "Michigan", "district": "67",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "matt_schlinker": {
+  "name": "Matt Schlinker", "office": "Michigan State House Candidate (District 68)",
+  "state": "Michigan", "district": "68",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "deanna_martin": {
+  "name": "Deanna L Martin", "office": "Michigan State House Candidate (District 68)",
+  "state": "Michigan", "district": "68",
+  "partyFiled": "Libertarian Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "joe_mchugh": {
+  "name": "Joe McHugh", "office": "Michigan State House Candidate (District 68)",
+  "state": "Michigan", "district": "68",
+  "partyFiled": "No Party Affiliation", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "patrick_duvendeck": {
+  "name": "Patrick Duvendeck", "office": "Michigan State House Candidate (District 69)",
+  "state": "Michigan", "district": "69",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "adam_childress": {
+  "name": "Adam Blake Childress", "office": "Michigan State House Candidate (District 69)",
+  "state": "Michigan", "district": "69",
+  "partyFiled": "Libertarian Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "larry_hutchinson": {
+  "name": "Larry Hutchinson", "office": "Michigan State House Candidate (District 70)",
+  "state": "Michigan", "district": "70",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "stephen_schlaack": {
+  "name": "Stephen Schlaack", "office": "Michigan State House Candidate (District 71)",
+  "state": "Michigan", "district": "71",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "thomas_ryan": {
+  "name": "Thomas Ryan", "office": "Michigan State House Candidate (District 72)",
+  "state": "Michigan", "district": "72",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "joshua_rockey": {
+  "name": "Joshua Jon Rockey", "office": "Michigan State House Candidate (District 73)",
+  "state": "Michigan", "district": "73",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "harold_pope": {
+  "name": "Harold A. Pope", "office": "Michigan State House Candidate (District 74)",
+  "state": "Michigan", "district": "74",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "clinton_tarver": {
+  "name": "Clinton Tarver", "office": "Michigan State House Candidate (District 74)",
+  "state": "Michigan", "district": "74",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "frank_lambert": {
+  "name": "Frank Lambert", "office": "Michigan State House Candidate (District 75)",
+  "state": "Michigan", "district": "75",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bill_kaiser": {
+  "name": "Bill Kaiser", "office": "Michigan State House Candidate (District 76)",
+  "state": "Michigan", "district": "76",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sally_nelton": {
+  "name": "Sally Jo Nelton", "office": "Michigan State House Candidate (District 77)",
+  "state": "Michigan", "district": "77",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jennifer_long": {
+  "name": "Jennifer Long", "office": "Michigan State House Candidate (District 77)",
+  "state": "Michigan", "district": "77",
+  "partyFiled": "Libertarian Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rachel_gross": {
+  "name": "Rachel Gross", "office": "Michigan State House Candidate (District 78)",
+  "state": "Michigan", "district": "78",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brandon_strong": {
+  "name": "Brandon L. Strong", "office": "Michigan State House Candidate (District 78)",
+  "state": "Michigan", "district": "78",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ben_dejong": {
+  "name": "Ben DeJong", "office": "Michigan State House Candidate (District 78)",
+  "state": "Michigan", "district": "78",
+  "partyFiled": "Libertarian Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "zach_abbott": {
+  "name": "Zach Abbott", "office": "Michigan State House Candidate (District 79)",
+  "state": "Michigan", "district": "79",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lily_cheng_schulting": {
+  "name": "Lily Cheng-Schulting", "office": "Michigan State House Candidate (District 80)",
+  "state": "Michigan", "district": "80",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "doug_lee": {
+  "name": "Doug Lee", "office": "Michigan State House Candidate (District 80)",
+  "state": "Michigan", "district": "80",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "holly_deboer": {
+  "name": "Holly DeBoer", "office": "Michigan State House Candidate (District 81)",
+  "state": "Michigan", "district": "81",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ryan_malinoski": {
+  "name": "Ryan Malinoski", "office": "Michigan State House Candidate (District 82)",
+  "state": "Michigan", "district": "82",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cindy_ramirez": {
+  "name": "Cindy Ramirez", "office": "Michigan State House Candidate (District 83)",
+  "state": "Michigan", "district": "83",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "khristian_silvis": {
+  "name": "Khristian Silvis", "office": "Michigan State House Candidate (District 84)",
+  "state": "Michigan", "district": "84",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "drew_robbins": {
+  "name": "Drew Jake Robbins", "office": "Michigan State House Candidate (District 84)",
+  "state": "Michigan", "district": "84",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "richard_abraham": {
+  "name": "Richard Abraham", "office": "Michigan State House Candidate (District 85)",
+  "state": "Michigan", "district": "85",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "joseph_mcclusky": {
+  "name": "Joseph McClusky", "office": "Michigan State House Candidate (District 86)",
+  "state": "Michigan", "district": "86",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cody_chipman": {
+  "name": "Cody A. Chipman", "office": "Michigan State House Candidate (District 87)",
+  "state": "Michigan", "district": "87",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kiel_reid": {
+  "name": "Kiel Reid", "office": "Michigan State House Candidate (District 88)",
+  "state": "Michigan", "district": "88",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "meegan_zickus": {
+  "name": "Meegan Zickus", "office": "Michigan State House Candidate (District 89)",
+  "state": "Michigan", "district": "89",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "joe_moss": {
+  "name": "Joe Moss", "office": "Michigan State House Candidate (District 89)",
+  "state": "Michigan", "district": "89",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rachel_crowther": {
+  "name": "Rachel Crowther", "office": "Michigan State House Candidate (District 90)",
+  "state": "Michigan", "district": "90",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lynn_afendoulis": {
+  "name": "Lynn Afendoulis", "office": "Michigan State House Candidate (District 90)",
+  "state": "Michigan", "district": "90",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "frank_lafata": {
+  "name": "Frank Lafata", "office": "Michigan State House Candidate (District 91)",
+  "state": "Michigan", "district": "91",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "luke_castillo": {
+  "name": "Luke Del Castillo", "office": "Michigan State House Candidate (District 92)",
+  "state": "Michigan", "district": "92",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "serenity_salak": {
+  "name": "Serenity Hope Salak", "office": "Michigan State House Candidate (District 93)",
+  "state": "Michigan", "district": "93",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "don_sugg": {
+  "name": "Don Sugg", "office": "Michigan State House Candidate (District 94)",
+  "state": "Michigan", "district": "94",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "annmarie_horseman": {
+  "name": "AnnMarie Horseman", "office": "Michigan State House Candidate (District 95)",
+  "state": "Michigan", "district": "95",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "christopher_girard": {
+  "name": "Christopher R. Girard", "office": "Michigan State House Candidate (District 96)",
+  "state": "Michigan", "district": "96",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jack_bader": {
+  "name": "Jack Bader", "office": "Michigan State House Candidate (District 97)",
+  "state": "Michigan", "district": "97",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "briar_bearss": {
+  "name": "Briar Bearss", "office": "Michigan State House Candidate (District 97)",
+  "state": "Michigan", "district": "97",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "keith_brusseau": {
+  "name": "Keith Brusseau", "office": "Michigan State House Candidate (District 98)",
+  "state": "Michigan", "district": "98",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "david_forgione": {
+  "name": "David Forgione", "office": "Michigan State House Candidate (District 99)",
+  "state": "Michigan", "district": "99",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "steven_lull": {
+  "name": "Steven Jacob Lull", "office": "Michigan State House Candidate (District 99)",
+  "state": "Michigan", "district": "99",
+  "partyFiled": "Libertarian Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tracy_ruell": {
+  "name": "Tracy Ruell", "office": "Michigan State House Candidate (District 100)",
+  "state": "Michigan", "district": "100",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "christopher_crain": {
+  "name": "Christopher R. Crain", "office": "Michigan State House Candidate (District 101)",
+  "state": "Michigan", "district": "101",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jaxon_deur": {
+  "name": "Jaxon Deur", "office": "Michigan State House Candidate (District 101)",
+  "state": "Michigan", "district": "101",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "angel_coon": {
+  "name": "Angel Coon", "office": "Michigan State House Candidate (District 102)",
+  "state": "Michigan", "district": "102",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "shawn_orton": {
+  "name": "Shawn Orton", "office": "Michigan State House Candidate (District 102)",
+  "state": "Michigan", "district": "102",
+  "partyFiled": "Libertarian Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "edwin_dean": {
+  "name": "Edwin B. Dean", "office": "Michigan State House Candidate (District 103)",
+  "state": "Michigan", "district": "103",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "michael_gorbe": {
+  "name": "Michael Gorbe", "office": "Michigan State House Candidate (District 103)",
+  "state": "Michigan", "district": "103",
+  "partyFiled": "Libertarian Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mitchell_distin": {
+  "name": "Mitchell Ryan Distin", "office": "Michigan State House Candidate (District 104)",
+  "state": "Michigan", "district": "104",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "alexander_jarvis": {
+  "name": "Alexander Jarvis", "office": "Michigan State House Candidate (District 104)",
+  "state": "Michigan", "district": "104",
+  "partyFiled": "Libertarian Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rachel_teeter": {
+  "name": "Rachel Longendyke Teeter", "office": "Michigan State House Candidate (District 105)",
+  "state": "Michigan", "district": "105",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "frank_tillman": {
+  "name": "Frank Tillman", "office": "Michigan State House Candidate (District 105)",
+  "state": "Michigan", "district": "105",
+  "partyFiled": "Libertarian Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mary_hamilton": {
+  "name": "Mary Lucille Hamilton", "office": "Michigan State House Candidate (District 106)",
+  "state": "Michigan", "district": "106",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "melissa_perron": {
+  "name": "Melissa Perron", "office": "Michigan State House Candidate (District 107)",
+  "state": "Michigan", "district": "107",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rachel_keys": {
+  "name": "Rachel M. Keys", "office": "Michigan State House Candidate (District 108)",
+  "state": "Michigan", "district": "108",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "larry_johnson": {
+  "name": "Larry Johnson", "office": "Michigan State House Candidate (District 108)",
+  "state": "Michigan", "district": "108",
+  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "anna_rink": {
+  "name": "Anna Aho Rink", "office": "Michigan State House Candidate (District 109)",
+  "state": "Michigan", "district": "109",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brian_irizarry": {
+  "name": "Brian Irizarry", "office": "Michigan State House Candidate (District 110)",
+  "state": "Michigan", "district": "110",
+  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Tennessee — https://sos-prod.tnsosgovfiles.com/s3fs-public/document/TNSenate_Nov2026.pdf · https://sos-prod.tnsosgovfiles.com/s3fs-public/document/TNHouse_Nov2026.pdf
+ "jimmy_matlock": {
+  "name": "Jimmy Matlock", "office": "Tennessee State Senate Candidate (District 5)",
+  "state": "Tennessee", "district": "5",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "david_miller": {
+  "name": "David Miller", "office": "Tennessee State Senate Candidate (District 5)",
+  "state": "Tennessee", "district": "5",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bryan_langan": {
+  "name": "Bryan Langan", "office": "Tennessee State Senate Candidate (District 7)",
+  "state": "Tennessee", "district": "7",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tim_roberts": {
+  "name": "Tim Roberts", "office": "Tennessee State Senate Candidate (District 11)",
+  "state": "Tennessee", "district": "11",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "angela_wynn": {
+  "name": "Angela Evans Wynn", "office": "Tennessee State Senate Candidate (District 13)",
+  "state": "Tennessee", "district": "13",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lindsey_patrick_wright": {
+  "name": "Lindsey Patrick-Wright", "office": "Tennessee State Senate Candidate (District 17)",
+  "state": "Tennessee", "district": "17",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "david_marcum": {
+  "name": "David Lee Marcum", "office": "Tennessee State Senate Candidate (District 23)",
+  "state": "Tennessee", "district": "23",
+  "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "david_hardy": {
+  "name": "David A Hardy", "office": "Tennessee State Senate Candidate (District 27)",
+  "state": "Tennessee", "district": "27",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "david_weatherspoon": {
+  "name": "David Weatherspoon", "office": "Tennessee State Senate Candidate (District 31)",
+  "state": "Tennessee", "district": "31",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jessica_means": {
+  "name": "Jessica Means", "office": "Tennessee State House Candidate (District 1)",
+  "state": "Tennessee", "district": "1",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gary_stidham": {
+  "name": "Gary Stidham", "office": "Tennessee State House Candidate (District 2)",
+  "state": "Tennessee", "district": "2",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lori_love": {
+  "name": "Lori Love", "office": "Tennessee State House Candidate (District 3)",
+  "state": "Tennessee", "district": "3",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "catherine_bacon": {
+  "name": "Catherine Bacon", "office": "Tennessee State House Candidate (District 5)",
+  "state": "Tennessee", "district": "5",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brad_batt": {
+  "name": "Brad Batt", "office": "Tennessee State House Candidate (District 6)",
+  "state": "Tennessee", "district": "6",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rodger_broadwater": {
+  "name": "Rodger Broadwater", "office": "Tennessee State House Candidate (District 6)",
+  "state": "Tennessee", "district": "6",
+  "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sarah_vecchia": {
+  "name": "Sarah Jayne Della Vecchia", "office": "Tennessee State House Candidate (District 7)",
+  "state": "Tennessee", "district": "7",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jordan_henderson": {
+  "name": "Jordan Henderson", "office": "Tennessee State House Candidate (District 8)",
+  "state": "Tennessee", "district": "8",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hilary_trudell": {
+  "name": "Hilary Trudell", "office": "Tennessee State House Candidate (District 8)",
+  "state": "Tennessee", "district": "8",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kenny_cody": {
+  "name": "Kenny Cody", "office": "Tennessee State House Candidate (District 11)",
+  "state": "Tennessee", "district": "11",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sheila_mcmahan": {
+  "name": "Sheila Grooms McMahan", "office": "Tennessee State House Candidate (District 11)",
+  "state": "Tennessee", "district": "11",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "larry_brown": {
+  "name": "Larry Jeremiah Brown", "office": "Tennessee State House Candidate (District 11)",
+  "state": "Tennessee", "district": "11",
+  "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brett_windrow": {
+  "name": "Brett Windrow", "office": "Tennessee State House Candidate (District 13)",
+  "state": "Tennessee", "district": "13",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lindsay_honaker": {
+  "name": "Lindsay Young Honaker", "office": "Tennessee State House Candidate (District 14)",
+  "state": "Tennessee", "district": "14",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "eliza_boles": {
+  "name": "Eliza Boles", "office": "Tennessee State House Candidate (District 16)",
+  "state": "Tennessee", "district": "16",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bryan_goldberg": {
+  "name": "Bryan Goldberg", "office": "Tennessee State House Candidate (District 18)",
+  "state": "Tennessee", "district": "18",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jenny_fowler": {
+  "name": "Jenny Fowler", "office": "Tennessee State House Candidate (District 19)",
+  "state": "Tennessee", "district": "19",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "karen_gertz": {
+  "name": "Karen Gertz", "office": "Tennessee State House Candidate (District 20)",
+  "state": "Tennessee", "district": "20",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jeff_coggin": {
+  "name": "Jeff \"Cog\" Coggin", "office": "Tennessee State House Candidate (District 20)",
+  "state": "Tennessee", "district": "20",
+  "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jeremy_bromwell": {
+  "name": "Jeremy Bromwell", "office": "Tennessee State House Candidate (District 23)",
+  "state": "Tennessee", "district": "23",
+  "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jason_hitt": {
+  "name": "Jason Hitt", "office": "Tennessee State House Candidate (District 23)",
+  "state": "Tennessee", "district": "23",
+  "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "daniel_jones": {
+  "name": "Daniel F. Jones", "office": "Tennessee State House Candidate (District 24)",
+  "state": "Tennessee", "district": "24",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "monica_mowdy": {
+  "name": "Monica Mowdy", "office": "Tennessee State House Candidate (District 25)",
+  "state": "Tennessee", "district": "25",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "paige_quirin": {
+  "name": "Paige Quirin", "office": "Tennessee State House Candidate (District 27)",
+  "state": "Tennessee", "district": "27",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "demetrus_coonrod": {
+  "name": "Demetrus \"Meechie\" Coonrod", "office": "Tennessee State House Candidate (District 28)",
+  "state": "Tennessee", "district": "28",
+  "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "johnny_horne": {
+  "name": "Johnny Horne", "office": "Tennessee State House Candidate (District 28)",
+  "state": "Tennessee", "district": "28",
+  "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ryan_scofield": {
+  "name": "Ryan V. Scofield", "office": "Tennessee State House Candidate (District 29)",
+  "state": "Tennessee", "district": "29",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "art_rymer": {
+  "name": "Art Rymer", "office": "Tennessee State House Candidate (District 30)",
+  "state": "Tennessee", "district": "30",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "andy_swafford": {
+  "name": "Andy (Andrew) J. Swafford", "office": "Tennessee State House Candidate (District 31)",
+  "state": "Tennessee", "district": "31",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "michael_woodlee": {
+  "name": "Michael Woodlee", "office": "Tennessee State House Candidate (District 31)",
+  "state": "Tennessee", "district": "31",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "keith_nolan": {
+  "name": "Keith Nolan", "office": "Tennessee State House Candidate (District 31)",
+  "state": "Tennessee", "district": "31",
+  "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "randy_sharp": {
+  "name": "Randy A Sharp", "office": "Tennessee State House Candidate (District 31)",
+  "state": "Tennessee", "district": "31",
+  "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ali_simpson": {
+  "name": "Ali Simpson", "office": "Tennessee State House Candidate (District 32)",
+  "state": "Tennessee", "district": "32",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "anne_backus": {
+  "name": "Anne Backus", "office": "Tennessee State House Candidate (District 33)",
+  "state": "Tennessee", "district": "33",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "owen_farnsworth": {
+  "name": "Owen Farnsworth", "office": "Tennessee State House Candidate (District 34)",
+  "state": "Tennessee", "district": "34",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "phil_barnes": {
+  "name": "Phil Barnes", "office": "Tennessee State House Candidate (District 35)",
+  "state": "Tennessee", "district": "35",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "noah_smith": {
+  "name": "Noah Smith", "office": "Tennessee State House Candidate (District 36)",
+  "state": "Tennessee", "district": "36",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mary_young": {
+  "name": "Mary Ann Young", "office": "Tennessee State House Candidate (District 37)",
+  "state": "Tennessee", "district": "37",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "seth_mcmillan": {
+  "name": "Seth McMillan", "office": "Tennessee State House Candidate (District 38)",
+  "state": "Tennessee", "district": "38",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "daniel_hawthorne": {
+  "name": "Daniel T. Hawthorne", "office": "Tennessee State House Candidate (District 40)",
+  "state": "Tennessee", "district": "40",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jason_goodman": {
+  "name": "R. Jason Goodman", "office": "Tennessee State House Candidate (District 41)",
+  "state": "Tennessee", "district": "41",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "trenton_strode": {
+  "name": "Trenton Tyler Strode", "office": "Tennessee State House Candidate (District 42)",
+  "state": "Tennessee", "district": "42",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "samantha_petit": {
+  "name": "Samantha Petit", "office": "Tennessee State House Candidate (District 43)",
+  "state": "Tennessee", "district": "43",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "latoya_holcomb": {
+  "name": "Latoya Holcomb", "office": "Tennessee State House Candidate (District 44)",
+  "state": "Tennessee", "district": "44",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brian_stewart": {
+  "name": "Brian Stewart", "office": "Tennessee State House Candidate (District 45)",
+  "state": "Tennessee", "district": "45",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mandy_cook": {
+  "name": "Mandy Cook", "office": "Tennessee State House Candidate (District 45)",
+  "state": "Tennessee", "district": "45",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dominic_howard": {
+  "name": "Dominic Howard", "office": "Tennessee State House Candidate (District 46)",
+  "state": "Tennessee", "district": "46",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mike_stein": {
+  "name": "Mike Stein", "office": "Tennessee State House Candidate (District 47)",
+  "state": "Tennessee", "district": "47",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "matt_ferry": {
+  "name": "Matt Ferry", "office": "Tennessee State House Candidate (District 48)",
+  "state": "Tennessee", "district": "48",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "connie_casha": {
+  "name": "Connie Casha", "office": "Tennessee State House Candidate (District 49)",
+  "state": "Tennessee", "district": "49",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "michele_vetter": {
+  "name": "Michele Vetter", "office": "Tennessee State House Candidate (District 52)",
+  "state": "Tennessee", "district": "52",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "martez_coleman": {
+  "name": "Martez Coleman", "office": "Tennessee State House Candidate (District 52)",
+  "state": "Tennessee", "district": "52",
+  "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jayla_thomas": {
+  "name": "Jayla Thomas", "office": "Tennessee State House Candidate (District 55)",
+  "state": "Tennessee", "district": "55",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "matt_burchfield": {
+  "name": "Matt Burchfield", "office": "Tennessee State House Candidate (District 57)",
+  "state": "Tennessee", "district": "57",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bill_hancock": {
+  "name": "Bill Hancock", "office": "Tennessee State House Candidate (District 59)",
+  "state": "Tennessee", "district": "59",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mark_proctor": {
+  "name": "Mark Proctor", "office": "Tennessee State House Candidate (District 59)",
+  "state": "Tennessee", "district": "59",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "eva_romero": {
+  "name": "Eva Angelina Romero", "office": "Tennessee State House Candidate (District 60)",
+  "state": "Tennessee", "district": "60",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "becca_ripley": {
+  "name": "Becca Ripley", "office": "Tennessee State House Candidate (District 61)",
+  "state": "Tennessee", "district": "61",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brieanna_akers": {
+  "name": "Brieanna L Akers", "office": "Tennessee State House Candidate (District 62)",
+  "state": "Tennessee", "district": "62",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "laura_andreson": {
+  "name": "Laura Andreson", "office": "Tennessee State House Candidate (District 63)",
+  "state": "Tennessee", "district": "63",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "craig_d_apolito": {
+  "name": "Craig D'Apolito", "office": "Tennessee State House Candidate (District 64)",
+  "state": "Tennessee", "district": "64",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "julian_pierre_griffin": {
+  "name": "Julian Herbert Pierre-Griffin", "office": "Tennessee State House Candidate (District 65)",
+  "state": "Tennessee", "district": "65",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tamara_bavendam": {
+  "name": "Tamara Bavendam", "office": "Tennessee State House Candidate (District 66)",
+  "state": "Tennessee", "district": "66",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chris_lanier": {
+  "name": "Chris Lanier", "office": "Tennessee State House Candidate (District 67)",
+  "state": "Tennessee", "district": "67",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "garfield_scott": {
+  "name": "Garfield Scott", "office": "Tennessee State House Candidate (District 68)",
+  "state": "Tennessee", "district": "68",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rachael_murray": {
+  "name": "Rachael Murray", "office": "Tennessee State House Candidate (District 69)",
+  "state": "Tennessee", "district": "69",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rayanne_moos": {
+  "name": "Rayanne Moos", "office": "Tennessee State House Candidate (District 70)",
+  "state": "Tennessee", "district": "70",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "matt_day_tn": {
+  "name": "Matt Day", "office": "Tennessee State House Candidate (District 71)",
+  "state": "Tennessee", "district": "71",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "allie_phillips": {
+  "name": "Allie Phillips", "office": "Tennessee State House Candidate (District 75)",
+  "state": "Tennessee", "district": "75",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "erin_reid": {
+  "name": "Erin Jerrod Reid", "office": "Tennessee State House Candidate (District 77)",
+  "state": "Tennessee", "district": "77",
+  "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "perry_keenan": {
+  "name": "Perry Keenan", "office": "Tennessee State House Candidate (District 78)",
+  "state": "Tennessee", "district": "78",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hillary_capes_gwinn": {
+  "name": "Hillary Capes-Gwinn", "office": "Tennessee State House Candidate (District 78)",
+  "state": "Tennessee", "district": "78",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kirk_carter": {
+  "name": "Kirk D Carter", "office": "Tennessee State House Candidate (District 79)",
+  "state": "Tennessee", "district": "79",
+  "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "julian_mctizic": {
+  "name": "Julian A. McTizic", "office": "Tennessee State House Candidate (District 80)",
+  "state": "Tennessee", "district": "80",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "andrea_johnson": {
+  "name": "Andrea Bond Johnson", "office": "Tennessee State House Candidate (District 80)",
+  "state": "Tennessee", "district": "80",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brett_giannini": {
+  "name": "Brett A. Giannini", "office": "Tennessee State House Candidate (District 81)",
+  "state": "Tennessee", "district": "81",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "margaret_price": {
+  "name": "Margaret Price", "office": "Tennessee State House Candidate (District 83)",
+  "state": "Tennessee", "district": "83",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "matthew_szalaj": {
+  "name": "Matthew Szalaj", "office": "Tennessee State House Candidate (District 84)",
+  "state": "Tennessee", "district": "84",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "reggie_hall": {
+  "name": "Reggie William Hall", "office": "Tennessee State House Candidate (District 87)",
+  "state": "Tennessee", "district": "87",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "randy_debord": {
+  "name": "Randy Debord", "office": "Tennessee State House Candidate (District 89)",
+  "state": "Tennessee", "district": "89",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "teri_mai": {
+  "name": "Teri Mai", "office": "Tennessee State House Candidate (District 92)",
+  "state": "Tennessee", "district": "92",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "francine_johnson": {
+  "name": "Francine Johnson", "office": "Tennessee State House Candidate (District 94)",
+  "state": "Tennessee", "district": "94",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "telisa_franklin": {
+  "name": "Telisa Franklin", "office": "Tennessee State House Candidate (District 96)",
+  "state": "Tennessee", "district": "96",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jesse_huseth": {
+  "name": "Jesse Huseth", "office": "Tennessee State House Candidate (District 97)",
+  "state": "Tennessee", "district": "97",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "william_mouzon": {
+  "name": "William P Mouzon", "office": "Tennessee State House Candidate (District 99)",
+  "state": "Tennessee", "district": "99",
+  "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Vermont — https://outside.vermont.gov/dept/sos/Elections_Division/election_info_resources/candidates/2026_general_election_qualified_candidates.xlsx
+ "andrew_klein": {
+  "name": "Andrew Klein", "office": "Vermont State Senate Candidate (District Addison)",
+  "state": "Vermont", "district": "Addison",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hannah_sessions": {
+  "name": "Hannah Sessions", "office": "Vermont State Senate Candidate (District Addison)",
+  "state": "Vermont", "district": "Addison",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rachel_shaw": {
+  "name": "Rachel Shaw", "office": "Vermont State Senate Candidate (District Bennington)",
+  "state": "Vermont", "district": "Bennington",
+  "partyFiled": "PROGRESSIVE", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lawrence_whitmire": {
+  "name": "Lawrence “Spike” Whitmire", "office": "Vermont State Senate Candidate (District Bennington)",
+  "state": "Vermont", "district": "Bennington",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "josh_williams": {
+  "name": "Josh R. Williams", "office": "Vermont State Senate Candidate (District Bennington)",
+  "state": "Vermont", "district": "Bennington",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "david_roth": {
+  "name": "David M. Roth", "office": "Vermont State Senate Candidate (District Caledonia)",
+  "state": "Vermont", "district": "Caledonia",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nikhil_goyal": {
+  "name": "Nikhil Goyal", "office": "Vermont State Senate Candidate (District Chittenden Central)",
+  "state": "Vermont", "district": "Chittenden Central",
+  "party": "D", "partyFiled": "DEM/PROG", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "louis_manno": {
+  "name": "Louis “Louie” Manno", "office": "Vermont State Senate Candidate (District Chittenden Central)",
+  "state": "Vermont", "district": "Chittenden Central",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "irene_wrenner": {
+  "name": "Irene Wrenner", "office": "Vermont State Senate Candidate (District Chittenden North)",
+  "state": "Vermont", "district": "Chittenden North",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bruce_roy": {
+  "name": "Bruce Roy", "office": "Vermont State Senate Candidate (District Chittenden South East)",
+  "state": "Vermont", "district": "Chittenden South East",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "javen_sears": {
+  "name": "Javen Sears", "office": "Vermont State Senate Candidate (District Chittenden South East)",
+  "state": "Vermont", "district": "Chittenden South East",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rohan_marthe": {
+  "name": "Rohan St Marthe", "office": "Vermont State Senate Candidate (District Chittenden South East)",
+  "state": "Vermont", "district": "Chittenden South East",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "alexander_bobella": {
+  "name": "Alexander Bobella", "office": "Vermont State Senate Candidate (District Franklin)",
+  "state": "Vermont", "district": "Franklin",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gregory_rainville": {
+  "name": "A. Gregory Rainville", "office": "Vermont State Senate Candidate (District Franklin)",
+  "state": "Vermont", "district": "Franklin",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kim_gleason": {
+  "name": "Kim Gleason", "office": "Vermont State Senate Candidate (District Grand Isle)",
+  "state": "Vermont", "district": "Grand Isle",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dave_wolk": {
+  "name": "Dave Wolk", "office": "Vermont State Senate Candidate (District Rutland)",
+  "state": "Vermont", "district": "Rutland",
+  "partyFiled": "INDEPENDENT", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rob_laclair": {
+  "name": "Rob Laclair", "office": "Vermont State Senate Candidate (District Washington)",
+  "state": "Vermont", "district": "Washington",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "christopher_neddo": {
+  "name": "Christopher A. Neddo", "office": "Vermont State Senate Candidate (District Washington)",
+  "state": "Vermont", "district": "Washington",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "peter_schmeeckle": {
+  "name": "Peter Schmeeckle", "office": "Vermont State Senate Candidate (District Washington)",
+  "state": "Vermont", "district": "Washington",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dale_gassett": {
+  "name": "Dale L. Gassett", "office": "Vermont State Senate Candidate (District Windham)",
+  "state": "Vermont", "district": "Windham",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rusty_sage": {
+  "name": "Rusty E. Sage", "office": "Vermont State Senate Candidate (District Windham)",
+  "state": "Vermont", "district": "Windham",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jonathan_gleason": {
+  "name": "Jonathan Gleason", "office": "Vermont State Senate Candidate (District Windsor)",
+  "state": "Vermont", "district": "Windsor",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "joe_izzo": {
+  "name": "Joe Izzo", "office": "Vermont State Senate Candidate (District Windsor)",
+  "state": "Vermont", "district": "Windsor",
+  "partyFiled": "INDEPENDENT", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "andrea_murray": {
+  "name": "Andrea Murray", "office": "Vermont State Senate Candidate (District Windsor)",
+  "state": "Vermont", "district": "Windsor",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jack_williams": {
+  "name": "Jack Williams", "office": "Vermont State Senate Candidate (District Windsor)",
+  "state": "Vermont", "district": "Windsor",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mike_roy": {
+  "name": "Mike Roy", "office": "Vermont State House Candidate (District Addison-1)",
+  "state": "Vermont", "district": "Addison-1",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tanya_byker": {
+  "name": "Tanya Byker", "office": "Vermont State House Candidate (District Addison-2)",
+  "state": "Vermont", "district": "Addison-2",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "annie_wilson": {
+  "name": "Annie Wilson", "office": "Vermont State House Candidate (District Addison-2)",
+  "state": "Vermont", "district": "Addison-2",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "joseph_baker": {
+  "name": "Joseph “Joe” Baker", "office": "Vermont State House Candidate (District Addison-3)",
+  "state": "Vermont", "district": "Addison-3",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ariel_bolles": {
+  "name": "Ariel Bolles", "office": "Vermont State House Candidate (District Addison-3)",
+  "state": "Vermont", "district": "Addison-3",
+  "party": "D", "partyFiled": "DEM/PROG", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "john_stroup": {
+  "name": "John Stroup", "office": "Vermont State House Candidate (District Addison-3)",
+  "state": "Vermont", "district": "Addison-3",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jeanne_albert": {
+  "name": "Jeanne Albert", "office": "Vermont State House Candidate (District Addison-4)",
+  "state": "Vermont", "district": "Addison-4",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lynn_dike": {
+  "name": "Lynn Dike", "office": "Vermont State House Candidate (District Addison-4)",
+  "state": "Vermont", "district": "Addison-4",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chanin_hill": {
+  "name": "Chanin Hill", "office": "Vermont State House Candidate (District Addison-4)",
+  "state": "Vermont", "district": "Addison-4",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "del_thompson": {
+  "name": "Del Thompson", "office": "Vermont State House Candidate (District Addison-5)",
+  "state": "Vermont", "district": "Addison-5",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jonathan_hescock": {
+  "name": "Jonathan Hescock", "office": "Vermont State House Candidate (District Addison-Rutland)",
+  "state": "Vermont", "district": "Addison-Rutland",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "charles_jewett": {
+  "name": "Charles Edward Jewett", "office": "Vermont State House Candidate (District Bennington-1)",
+  "state": "Vermont", "district": "Bennington-1",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "anthony_cook": {
+  "name": "Anthony A. Cook", "office": "Vermont State House Candidate (District Bennington-2)",
+  "state": "Vermont", "district": "Bennington-2",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "victor_harwood": {
+  "name": "Victor K. Harwood Jr", "office": "Vermont State House Candidate (District Bennington-3)",
+  "state": "Vermont", "district": "Bennington-3",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "alford_clayton": {
+  "name": "Alford “Al” Clayton", "office": "Vermont State House Candidate (District Bennington-4)",
+  "state": "Vermont", "district": "Bennington-4",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "michael_fernandez": {
+  "name": "Michael Fernandez", "office": "Vermont State House Candidate (District Bennington-4)",
+  "state": "Vermont", "district": "Bennington-4",
+  "partyFiled": "INDEPENDENT", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "thomas_west": {
+  "name": "Thomas West", "office": "Vermont State House Candidate (District Bennington-4)",
+  "state": "Vermont", "district": "Bennington-4",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "thomas_blakely": {
+  "name": "Thomas “Tom” Blakely", "office": "Vermont State House Candidate (District Bennington-5)",
+  "state": "Vermont", "district": "Bennington-5",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mike_rice": {
+  "name": "Mike Rice", "office": "Vermont State House Candidate (District Bennington-Rutland)",
+  "state": "Vermont", "district": "Bennington-Rutland",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "david_tucker": {
+  "name": "David Tucker", "office": "Vermont State House Candidate (District Caledonia-1)",
+  "state": "Vermont", "district": "Caledonia-1",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "audrey_grant": {
+  "name": "Audrey Grant", "office": "Vermont State House Candidate (District Caledonia-2)",
+  "state": "Vermont", "district": "Caledonia-2",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bill_coleman": {
+  "name": "Bill Coleman", "office": "Vermont State House Candidate (District Caledonia-3)",
+  "state": "Vermont", "district": "Caledonia-3",
+  "partyFiled": "PROG/DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dennis_labounty": {
+  "name": "Dennis R. Labounty", "office": "Vermont State House Candidate (District Caledonia-3)",
+  "state": "Vermont", "district": "Caledonia-3",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "erik_lavallee": {
+  "name": "Erik R. Lavallee", "office": "Vermont State House Candidate (District Caledonia-3)",
+  "state": "Vermont", "district": "Caledonia-3",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brandolyn_bradley": {
+  "name": "Brandolyn Bradley", "office": "Vermont State House Candidate (District Caledonia-Essex)",
+  "state": "Vermont", "district": "Caledonia-Essex",
+  "partyFiled": "INDEPENDENT", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "amanda_cochrane": {
+  "name": "Amanda Cochrane", "office": "Vermont State House Candidate (District Caledonia-Essex)",
+  "state": "Vermont", "district": "Caledonia-Essex",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "steven_dolgin": {
+  "name": "Steven Dolgin", "office": "Vermont State House Candidate (District Caledonia-Essex)",
+  "state": "Vermont", "district": "Caledonia-Essex",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "heather_young": {
+  "name": "Heather Whitemore Young", "office": "Vermont State House Candidate (District Caledonia-Essex)",
+  "state": "Vermont", "district": "Caledonia-Essex",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "eric_bach": {
+  "name": "Eric Bach", "office": "Vermont State House Candidate (District Caledonia-Washington)",
+  "state": "Vermont", "district": "Caledonia-Washington",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "karen_paul": {
+  "name": "Karen Paul", "office": "Vermont State House Candidate (District Chittenden-13)",
+  "state": "Vermont", "district": "Chittenden-13",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "elizabeth_allen_pennebaker": {
+  "name": "Elizabeth Allen-Pennebaker", "office": "Vermont State House Candidate (District Chittenden-14)",
+  "state": "Vermont", "district": "Chittenden-14",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "aaliyah_davila": {
+  "name": "Aaliyah Davila", "office": "Vermont State House Candidate (District Chittenden-14)",
+  "state": "Vermont", "district": "Chittenden-14",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "adam_franz": {
+  "name": "Adam Franz", "office": "Vermont State House Candidate (District Chittenden-14)",
+  "state": "Vermont", "district": "Chittenden-14",
+  "partyFiled": "PROG/DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ben_bosley": {
+  "name": "Ben Bosley", "office": "Vermont State House Candidate (District Chittenden-15)",
+  "state": "Vermont", "district": "Chittenden-15",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "trang_do": {
+  "name": "Trang Do", "office": "Vermont State House Candidate (District Chittenden-16)",
+  "state": "Vermont", "district": "Chittenden-16",
+  "partyFiled": "PROG/DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "christopher_haessly": {
+  "name": "Christopher Haessly", "office": "Vermont State House Candidate (District Chittenden-16)",
+  "state": "Vermont", "district": "Chittenden-16",
+  "partyFiled": "INDEPENDENT", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jeffrey_peterson": {
+  "name": "Jeffrey Peterson", "office": "Vermont State House Candidate (District Chittenden-16)",
+  "state": "Vermont", "district": "Chittenden-16",
+  "partyFiled": "PROG/DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ali_dieng": {
+  "name": "Ali Dieng", "office": "Vermont State House Candidate (District Chittenden-18)",
+  "state": "Vermont", "district": "Chittenden-18",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dave_hartnett": {
+  "name": "Dave Hartnett", "office": "Vermont State House Candidate (District Chittenden-18)",
+  "state": "Vermont", "district": "Chittenden-18",
+  "partyFiled": "INDEPENDENT", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "spencer_sherman": {
+  "name": "Spencer Sherman", "office": "Vermont State House Candidate (District Chittenden-19)",
+  "state": "Vermont", "district": "Chittenden-19",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "alex_thibault": {
+  "name": "Alex R. Thibault", "office": "Vermont State House Candidate (District Chittenden-19)",
+  "state": "Vermont", "district": "Chittenden-19",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bill_bezio": {
+  "name": "Bill Bezio", "office": "Vermont State House Candidate (District Chittenden-20)",
+  "state": "Vermont", "district": "Chittenden-20",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "doug_wood": {
+  "name": "Doug Wood", "office": "Vermont State House Candidate (District Chittenden-20)",
+  "state": "Vermont", "district": "Chittenden-20",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "matt_gile": {
+  "name": "Matt Gile", "office": "Vermont State House Candidate (District Chittenden-21)",
+  "state": "Vermont", "district": "Chittenden-21",
+  "partyFiled": "PROG/DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brent_boerger": {
+  "name": "Brent Boerger", "office": "Vermont State House Candidate (District Chittenden-22)",
+  "state": "Vermont", "district": "Chittenden-22",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "seth_manley": {
+  "name": "Seth Adam Manley", "office": "Vermont State House Candidate (District Chittenden-22)",
+  "state": "Vermont", "district": "Chittenden-22",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pearl_beckage": {
+  "name": "Pearl Lucero Beckage", "office": "Vermont State House Candidate (District Chittenden-23)",
+  "state": "Vermont", "district": "Chittenden-23",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "erik_post": {
+  "name": "Erik Post", "office": "Vermont State House Candidate (District Chittenden-23)",
+  "state": "Vermont", "district": "Chittenden-23",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lynn_smith": {
+  "name": "Lynn U. Smith", "office": "Vermont State House Candidate (District Chittenden-23)",
+  "state": "Vermont", "district": "Chittenden-23",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "stephanie_mack": {
+  "name": "Stephanie Mack", "office": "Vermont State House Candidate (District Chittenden-24)",
+  "state": "Vermont", "district": "Chittenden-24",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "julia_andrews": {
+  "name": "Julia Andrews", "office": "Vermont State House Candidate (District Chittenden-25)",
+  "state": "Vermont", "district": "Chittenden-25",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "john_kingston": {
+  "name": "John Kingston", "office": "Vermont State House Candidate (District Chittenden-4)",
+  "state": "Vermont", "district": "Chittenden-4",
+  "partyFiled": "INDEPENDENT", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kelsey_pasteris": {
+  "name": "Kelsey Pasteris", "office": "Vermont State House Candidate (District Chittenden-4)",
+  "state": "Vermont", "district": "Chittenden-4",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "deb_mayfield": {
+  "name": "Deb Mayfield", "office": "Vermont State House Candidate (District Chittenden-6)",
+  "state": "Vermont", "district": "Chittenden-6",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mitchel_cypes": {
+  "name": "Mitchel Cypes", "office": "Vermont State House Candidate (District Chittenden-8)",
+  "state": "Vermont", "district": "Chittenden-8",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "henry_bonges": {
+  "name": "Henry A. Bonges III", "office": "Vermont State House Candidate (District Chittenden-Franklin)",
+  "state": "Vermont", "district": "Chittenden-Franklin",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "natalie_cashen": {
+  "name": "Natalie Cashen", "office": "Vermont State House Candidate (District Chittenden-Franklin)",
+  "state": "Vermont", "district": "Chittenden-Franklin",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "david_jacobs": {
+  "name": "David M. Jacobs", "office": "Vermont State House Candidate (District Essex-Orleans)",
+  "state": "Vermont", "district": "Essex-Orleans",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "john_lally": {
+  "name": "John “Woton” Lally", "office": "Vermont State House Candidate (District Essex-Orleans)",
+  "state": "Vermont", "district": "Essex-Orleans",
+  "partyFiled": "WOMEN'S LIBERATION VEGI-ARYAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "keith_billado": {
+  "name": "Keith Billado", "office": "Vermont State House Candidate (District Franklin-1)",
+  "state": "Vermont", "district": "Franklin-1",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "caroline_bright": {
+  "name": "Caroline Bright", "office": "Vermont State House Candidate (District Franklin-1)",
+  "state": "Vermont", "district": "Franklin-1",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "julie_filiberti": {
+  "name": "Julie Filiberti", "office": "Vermont State House Candidate (District Franklin-1)",
+  "state": "Vermont", "district": "Franklin-1",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bob_stebbins": {
+  "name": "Bob Stebbins", "office": "Vermont State House Candidate (District Franklin-1)",
+  "state": "Vermont", "district": "Franklin-1",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pam_mccarthy": {
+  "name": "Pam McCarthy", "office": "Vermont State House Candidate (District Franklin-2)",
+  "state": "Vermont", "district": "Franklin-2",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "suzanne_kenyon": {
+  "name": "Suzanne Kenyon", "office": "Vermont State House Candidate (District Franklin-3)",
+  "state": "Vermont", "district": "Franklin-3",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tamar_bouchard": {
+  "name": "Tamar Bouchard", "office": "Vermont State House Candidate (District Franklin-4)",
+  "state": "Vermont", "district": "Franklin-4",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "carmela_mayette": {
+  "name": "Carmela Ann Mayette", "office": "Vermont State House Candidate (District Franklin-4)",
+  "state": "Vermont", "district": "Franklin-4",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "zach_scheffler": {
+  "name": "Zach Scheffler", "office": "Vermont State House Candidate (District Franklin-8)",
+  "state": "Vermont", "district": "Franklin-8",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "josie_henry": {
+  "name": "Josie Henry", "office": "Vermont State House Candidate (District Grand Isle-Chittenden)",
+  "state": "Vermont", "district": "Grand Isle-Chittenden",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sylvia_jensen": {
+  "name": "Sylvia Jensen", "office": "Vermont State House Candidate (District Grand Isle-Chittenden)",
+  "state": "Vermont", "district": "Grand Isle-Chittenden",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dave_skinner": {
+  "name": "Dave Skinner", "office": "Vermont State House Candidate (District Grand Isle-Chittenden)",
+  "state": "Vermont", "district": "Grand Isle-Chittenden",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "james_lipinski": {
+  "name": "James “Jim” Lipinski", "office": "Vermont State House Candidate (District Lamoille-2)",
+  "state": "Vermont", "district": "Lamoille-2",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "malcolm_teale": {
+  "name": "Malcolm “Mac” Teale", "office": "Vermont State House Candidate (District Lamoille-2)",
+  "state": "Vermont", "district": "Lamoille-2",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "adam_howard": {
+  "name": "Adam Howard", "office": "Vermont State House Candidate (District Lamoille-3)",
+  "state": "Vermont", "district": "Lamoille-3",
+  "partyFiled": "INDEPENDENT", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "deb_nevil": {
+  "name": "Deb Nevil", "office": "Vermont State House Candidate (District Lamoille-3)",
+  "state": "Vermont", "district": "Lamoille-3",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rebecca_pitre": {
+  "name": "Rebecca Pitre", "office": "Vermont State House Candidate (District Lamoille-3)",
+  "state": "Vermont", "district": "Lamoille-3",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "susanna_burnham": {
+  "name": "Susanna Guthmann Burnham", "office": "Vermont State House Candidate (District Lamoille-Washington)",
+  "state": "Vermont", "district": "Lamoille-Washington",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jason_thompson_vt": {
+  "name": "Jason Thompson", "office": "Vermont State House Candidate (District Lamoille-Washington)",
+  "state": "Vermont", "district": "Lamoille-Washington",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gregory_wilson": {
+  "name": "Gregory Wilson", "office": "Vermont State House Candidate (District Orange-1)",
+  "state": "Vermont", "district": "Orange-1",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nicholas_dilorenzo": {
+  "name": "Nicholas Dilorenzo", "office": "Vermont State House Candidate (District Orange-2)",
+  "state": "Vermont", "district": "Orange-2",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lance_mills": {
+  "name": "Lance V. Mills", "office": "Vermont State House Candidate (District Orange-2)",
+  "state": "Vermont", "district": "Orange-2",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fran_covey": {
+  "name": "Fran Covey", "office": "Vermont State House Candidate (District Orange-3)",
+  "state": "Vermont", "district": "Orange-3",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "susan_culp": {
+  "name": "Susan Culp", "office": "Vermont State House Candidate (District Orange-Caledonia)",
+  "state": "Vermont", "district": "Orange-Caledonia",
+  "partyFiled": "INDEPENDENT", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "aiden_otterman": {
+  "name": "Aiden Boyd Otterman", "office": "Vermont State House Candidate (District Orange-Caledonia)",
+  "state": "Vermont", "district": "Orange-Caledonia",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tom_otterman": {
+  "name": "Tom Otterman", "office": "Vermont State House Candidate (District Orange-Caledonia)",
+  "state": "Vermont", "district": "Orange-Caledonia",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "emery_mattheis": {
+  "name": "Emery Mattheis", "office": "Vermont State House Candidate (District Orange-Washington-Addison)",
+  "state": "Vermont", "district": "Orange-Washington-Addison",
+  "partyFiled": "PROG/DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lance_ryan": {
+  "name": "Lance Ryan", "office": "Vermont State House Candidate (District Orange-Washington-Addison)",
+  "state": "Vermont", "district": "Orange-Washington-Addison",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "stephen_webster": {
+  "name": "Stephen W. Webster", "office": "Vermont State House Candidate (District Orange-Washington-Addison)",
+  "state": "Vermont", "district": "Orange-Washington-Addison",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "xavier_stevens": {
+  "name": "Xavier Stevens", "office": "Vermont State House Candidate (District Orleans-2)",
+  "state": "Vermont", "district": "Orleans-2",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "praneet_menon": {
+  "name": "Praneet Menon", "office": "Vermont State House Candidate (District Orleans-Lamoille)",
+  "state": "Vermont", "district": "Orleans-Lamoille",
+  "party": "R", "partyFiled": "REP/DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "marsha_cassel": {
+  "name": "Marsha Cassel", "office": "Vermont State House Candidate (District Rutland-2)",
+  "state": "Vermont", "district": "Rutland-2",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chris_brown": {
+  "name": "Chris Brown", "office": "Vermont State House Candidate (District Rutland-3)",
+  "state": "Vermont", "district": "Rutland-3",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cindy_laskevich": {
+  "name": "Cindy Laskevich", "office": "Vermont State House Candidate (District Rutland-6)",
+  "state": "Vermont", "district": "Rutland-6",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chris_siliski": {
+  "name": "Chris Siliski", "office": "Vermont State House Candidate (District Rutland-6)",
+  "state": "Vermont", "district": "Rutland-6",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "genevieve_duchesneau": {
+  "name": "Genevieve K. Duchesneau", "office": "Vermont State House Candidate (District Rutland-8)",
+  "state": "Vermont", "district": "Rutland-8",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jeff_haylon": {
+  "name": "Jeff Haylon", "office": "Vermont State House Candidate (District Rutland-9)",
+  "state": "Vermont", "district": "Rutland-9",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "aida_nielsen": {
+  "name": "Aida Nielsen", "office": "Vermont State House Candidate (District Rutland-9)",
+  "state": "Vermont", "district": "Rutland-9",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jessica_oort": {
+  "name": "Jessica Van Oort", "office": "Vermont State House Candidate (District Rutland-Bennington)",
+  "state": "Vermont", "district": "Rutland-Bennington",
+  "party": "D", "partyFiled": "DEM/PROG", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "phoebe_tucker": {
+  "name": "Phoebe Tucker", "office": "Vermont State House Candidate (District Rutland-Windsor)",
+  "state": "Vermont", "district": "Rutland-Windsor",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lucas_herring": {
+  "name": "Lucas J. Herring", "office": "Vermont State House Candidate (District Washington-1)",
+  "state": "Vermont", "district": "Washington-1",
+  "party": "R", "partyFiled": "REP/DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "john_santorello": {
+  "name": "John G. Santorello", "office": "Vermont State House Candidate (District Washington-3)",
+  "state": "Vermont", "district": "Washington-3",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sonya_spaulding": {
+  "name": "Sonya Spaulding", "office": "Vermont State House Candidate (District Washington-3)",
+  "state": "Vermont", "district": "Washington-3",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jared_duval": {
+  "name": "Jared Duval", "office": "Vermont State House Candidate (District Washington-4)",
+  "state": "Vermont", "district": "Washington-4",
+  "party": "D", "partyFiled": "DEM/PROG", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "katarina_lisaius": {
+  "name": "Katarina Lisaius", "office": "Vermont State House Candidate (District Washington-Chittenden)",
+  "state": "Vermont", "district": "Washington-Chittenden",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "melissa_battah": {
+  "name": "Melissa Battah", "office": "Vermont State House Candidate (District Washington-Orange)",
+  "state": "Vermont", "district": "Washington-Orange",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "emily_wheeler_reynolds": {
+  "name": "Emily Wheeler-Reynolds", "office": "Vermont State House Candidate (District Washington-Orange)",
+  "state": "Vermont", "district": "Washington-Orange",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nancy_gassett": {
+  "name": "Nancy L. Gassett", "office": "Vermont State House Candidate (District Windham-1)",
+  "state": "Vermont", "district": "Windham-1",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nicole_cota": {
+  "name": "Nicole Amanda Cota", "office": "Vermont State House Candidate (District Windham-3)",
+  "state": "Vermont", "district": "Windham-3",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ryan_coyne": {
+  "name": "Ryan M. Coyne", "office": "Vermont State House Candidate (District Windham-3)",
+  "state": "Vermont", "district": "Windham-3",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chris_lundberg": {
+  "name": "Chris Lundberg", "office": "Vermont State House Candidate (District Windham-3)",
+  "state": "Vermont", "district": "Windham-3",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ian_diamondstone": {
+  "name": "Ian G. Diamondstone", "office": "Vermont State House Candidate (District Windham-4)",
+  "state": "Vermont", "district": "Windham-4",
+  "partyFiled": "PEACE AND JUSTICE", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lynne_wilkins": {
+  "name": "Lynne Wilkins", "office": "Vermont State House Candidate (District Windham-4)",
+  "state": "Vermont", "district": "Windham-4",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "aaron_smith": {
+  "name": "Aaron Smith", "office": "Vermont State House Candidate (District Windham-7)",
+  "state": "Vermont", "district": "Windham-7",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "william_harvey": {
+  "name": "William “Bill” Harvey", "office": "Vermont State House Candidate (District Windham-8)",
+  "state": "Vermont", "district": "Windham-8",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "daniel_quipp": {
+  "name": "Daniel Quipp", "office": "Vermont State House Candidate (District Windham-8)",
+  "state": "Vermont", "district": "Windham-8",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "stuart_coleman": {
+  "name": "E. Stuart Coleman", "office": "Vermont State House Candidate (District Windham-Windsor-Bennington)",
+  "state": "Vermont", "district": "Windham-Windsor-Bennington",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dylan_morse": {
+  "name": "Dylan Morse", "office": "Vermont State House Candidate (District Windsor-1)",
+  "state": "Vermont", "district": "Windsor-1",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "john_tansey": {
+  "name": "John G. Tansey", "office": "Vermont State House Candidate (District Windsor-1)",
+  "state": "Vermont", "district": "Windsor-1",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rich_thomas": {
+  "name": "Rich Thomas", "office": "Vermont State House Candidate (District Windsor-1)",
+  "state": "Vermont", "district": "Windsor-1",
+  "partyFiled": "INDEPENDENT", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mark_yuengling": {
+  "name": "Mark Yuengling", "office": "Vermont State House Candidate (District Windsor-2)",
+  "state": "Vermont", "district": "Windsor-2",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "randy_gray": {
+  "name": "Randy A. Gray", "office": "Vermont State House Candidate (District Windsor-3)",
+  "state": "Vermont", "district": "Windsor-3",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "judith_stern": {
+  "name": "Judith Stern", "office": "Vermont State House Candidate (District Windsor-3)",
+  "state": "Vermont", "district": "Windsor-3",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kyle_hansen": {
+  "name": "Kyle Hansen", "office": "Vermont State House Candidate (District Windsor-4)",
+  "state": "Vermont", "district": "Windsor-4",
+  "partyFiled": "INDEPENDENT", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "justin_schoville": {
+  "name": "Justin Schoville", "office": "Vermont State House Candidate (District Windsor-4)",
+  "state": "Vermont", "district": "Windsor-4",
+  "partyFiled": "PEACE AND JUSTICE", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "james_coleman_vt": {
+  "name": "James “Jimmy” Coleman", "office": "Vermont State House Candidate (District Windsor-6)",
+  "state": "Vermont", "district": "Windsor-6",
+  "partyFiled": "PROG/DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "alanna_ojibway": {
+  "name": "Alanna Ojibway", "office": "Vermont State House Candidate (District Windsor-6)",
+  "state": "Vermont", "district": "Windsor-6",
+  "party": "D", "partyFiled": "DEM/PROG", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "michael_white": {
+  "name": "Michael J. White", "office": "Vermont State House Candidate (District Windsor-Addison)",
+  "state": "Vermont", "district": "Windsor-Addison",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bruce_post": {
+  "name": "Bruce Post", "office": "Vermont State House Candidate (District Windsor-Orange-1)",
+  "state": "Vermont", "district": "Windsor-Orange-1",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dee_gish": {
+  "name": "Dee Gish", "office": "Vermont State House Candidate (District Windsor-Orange-2)",
+  "state": "Vermont", "district": "Windsor-Orange-2",
+  "party": "D", "partyFiled": "DEM/PROG", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lauren_rhim": {
+  "name": "Lauren Morando Rhim", "office": "Vermont State House Candidate (District Windsor-Orange-2)",
+  "state": "Vermont", "district": "Windsor-Orange-2",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "william_hoser": {
+  "name": "William “Will” Hoser", "office": "Vermont State House Candidate (District Windsor-Windham)",
+  "state": "Vermont", "district": "Windsor-Windham",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
 // ── Current candidates outside Utah, 2026 general election, official state lists (Oct 2026)
 // Every nominee on the November 3, 2026 general-election ballot for U.S. Senate,
 // U.S. House, and the statewide offices the roster already tracks (Governor,
@@ -50675,9 +56077,9 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  // Lieutenant Governor · Republican Party
  "jay_deboyer": {
-  "name": "Jay DeBoyer", "office": "Lieutenant Governor Candidate",
-  "state": "Michigan",
-  "party": "R", "partyFiled": "Republican Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "name": "Jay DeBoyer", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 63",
+  "party": "R", "candidate": false,
   "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
  },
@@ -50859,9 +56261,9 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  // MI-4 · Democratic Party
  "sean_mccann": {
-  "name": "Sean McCann", "office": "U.S. House Candidate (MI-4)",
-  "state": "Michigan", "district": "4",
-  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "name": "Sean McCann", "office": "Michigan State Senator",
+  "state": "Michigan", "district": "SD 19",
+  "party": "D", "candidate": false,
   "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
  },
@@ -51147,9 +56549,9 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  // MI-13 · Democratic Party
  "donavan_mckinney": {
-  "name": "Donavan McKinney", "office": "U.S. House Candidate (MI-13)",
-  "state": "Michigan", "district": "13",
-  "party": "D", "partyFiled": "Democratic Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "name": "Donavan McKinney", "office": "Michigan State Representative",
+  "state": "Michigan", "district": "HD 11",
+  "party": "D", "candidate": false,
   "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
  },
@@ -51397,9 +56799,9 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  // MS-4 · Democratic
  "jeffrey_hulum": {
-  "name": "Jeffrey Hulum III", "office": "U.S. House Candidate (MS-4)",
-  "state": "Mississippi", "district": "4",
-  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "name": "Jeffrey Hulum III", "office": "Mississippi State Representative",
+  "state": "Mississippi", "district": "HD 119",
+  "party": "D", "candidate": false,
   "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
  },
@@ -53503,9 +58905,9 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  // TN-6 · Republican
  "johnny_garrett": {
-  "name": "Johnny Garrett", "office": "U.S. House Candidate (TN-6)",
-  "state": "Tennessee", "district": "6",
-  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "name": "Johnny Garrett", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 45",
+  "party": "R", "candidate": false,
   "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
  },
@@ -53599,9 +59001,9 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  // TN-9 · Republican
  "brent_taylor": {
-  "name": "Brent Taylor", "office": "U.S. House Candidate (TN-9)",
-  "state": "Tennessee", "district": "9",
-  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "name": "Brent Taylor", "office": "Tennessee State Senator",
+  "state": "Tennessee", "district": "SD 31",
+  "party": "R", "candidate": false,
   "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
  },
@@ -53615,9 +59017,9 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  // TN-9 · Democratic
  "justin_pearson": {
-  "name": "Justin J. Pearson", "office": "U.S. House Candidate (TN-9)",
-  "state": "Tennessee", "district": "9",
-  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "name": "Justin J. Pearson", "office": "Tennessee State Representative",
+  "state": "Tennessee", "district": "HD 86",
+  "party": "D", "candidate": false,
   "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
  },
@@ -54773,6 +60175,55 @@ window.CMP_CANDIDACIES = {
  "thomas_tiffany": { "office": "Governor Candidate", "state": "Wisconsin", "partyFiled": "Republican", "candidacyStatus": "active", "nextElection": "2026-11-03" },
  // WY U.S. Senate · Republican
  "harriet_hageman": { "office": "U.S. Senate Candidate", "state": "Wyoming", "partyFiled": "Republican", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // ── Sitting Mississippi, Michigan, Tennessee and Vermont legislators who are
+ // 2026 nominees for a DIFFERENT office. Each key is the member's own roster row.
+ // The first seven were on the roster only as their federal or statewide
+ // candidacy (read from db/roster-candidates-2026-oct.json's official lists); their
+ // row now names the legislative seat they hold, and the candidacy is here. The rest
+ // are read from the same official lists as the legislative candidate rows
+ // (db/roster-candidates-legislative-mi-tn-vt-2026-oct.json); their row is untouched.
+ // MS-4 · Democratic
+ "jeffrey_hulum": { "office": "U.S. House Candidate (MS-4)", "state": "Mississippi", "district": "4", "partyFiled": "Democratic", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // MI-4 · Democratic Party
+ "sean_mccann": { "office": "U.S. House Candidate (MI-4)", "state": "Michigan", "district": "4", "partyFiled": "Democratic Party", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // MI-13 · Democratic Party
+ "donavan_mckinney": { "office": "U.S. House Candidate (MI-13)", "state": "Michigan", "district": "13", "partyFiled": "Democratic Party", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // MI Lieutenant Governor · Republican Party
+ "jay_deboyer": { "office": "Lieutenant Governor Candidate", "state": "Michigan", "partyFiled": "Republican Party", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // TN-9 · Republican
+ "brent_taylor": { "office": "U.S. House Candidate (TN-9)", "state": "Tennessee", "district": "9", "partyFiled": "Republican", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // TN-6 · Republican
+ "johnny_garrett": { "office": "U.S. House Candidate (TN-6)", "state": "Tennessee", "district": "6", "partyFiled": "Republican", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // TN-9 · Democratic
+ "justin_pearson": { "office": "U.S. House Candidate (TN-9)", "state": "Tennessee", "district": "9", "partyFiled": "Democratic", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // MI State Senate District 5 · Democratic Party
+ "koleszar_mi": { "office": "Michigan State Senate Candidate (District 5)", "state": "Michigan", "district": "5", "partyFiled": "Democratic Party", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // MI State Senate District 7 · Democratic Party
+ "hoskins_mi": { "office": "Michigan State Senate Candidate (District 7)", "state": "Michigan", "district": "7", "partyFiled": "Democratic Party", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // MI State Senate District 8 · Democratic Party
+ "polehanki_mi": { "office": "Michigan State Senate Candidate (District 8)", "state": "Michigan", "district": "8", "partyFiled": "Democratic Party", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // MI State Senate District 10 · Democratic Party
+ "price_mi": { "office": "Michigan State Senate Candidate (District 10)", "state": "Michigan", "district": "10", "partyFiled": "Democratic Party", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // MI State Senate District 19 · Democratic Party
+ "rogers_mi": { "office": "Michigan State Senate Candidate (District 19)", "state": "Michigan", "district": "19", "partyFiled": "Democratic Party", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // MI State Senate District 23 · Republican Party
+ "steele_mi": { "office": "Michigan State Senate Candidate (District 23)", "state": "Michigan", "district": "23", "partyFiled": "Republican Party", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // MI State Senate District 24 · Republican Party
+ "wozniak_mi": { "office": "Michigan State Senate Candidate (District 24)", "state": "Michigan", "district": "24", "partyFiled": "Republican Party", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // MI State Senate District 26 · Republican Party
+ "bierlein_mi": { "office": "Michigan State Senate Candidate (District 26)", "state": "Michigan", "district": "26", "partyFiled": "Republican Party", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // MI State Senate District 30 · Democratic Party
+ "glanville_mi": { "office": "Michigan State Senate Candidate (District 30)", "state": "Michigan", "district": "30", "partyFiled": "Democratic Party", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // MI State Senate District 33 · Republican Party
+ "johnsen_mi": { "office": "Michigan State Senate Candidate (District 33)", "state": "Michigan", "district": "33", "partyFiled": "Republican Party", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // MI State Senate District 38 · Republican Party
+ "prestin_mi": { "office": "Michigan State Senate Candidate (District 38)", "state": "Michigan", "district": "38", "partyFiled": "Republican Party", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // VT State Senate District Chittenden North · REPUBLICAN
+ "bartley_vt": { "office": "Vermont State Senate Candidate (District Chittenden North)", "state": "Vermont", "district": "Chittenden North", "partyFiled": "REPUBLICAN", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // VT State Senate District Orange · DEM/PROG
+ "priestley_vt": { "office": "Vermont State Senate Candidate (District Orange)", "state": "Vermont", "district": "Orange", "partyFiled": "DEM/PROG", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // VT State Senate District Windsor · DEM/PROG
+ "burrows_vt": { "office": "Vermont State Senate Candidate (District Windsor)", "state": "Vermont", "district": "Windsor", "partyFiled": "DEM/PROG", "candidacyStatus": "active", "nextElection": "2026-11-03" },
  // ── Sitting Maine, Colorado, Minnesota and Nevada legislators who are 2026
  // nominees for a DIFFERENT seat. Each key is the member's own roster row; the
  // candidacy is read from the same official lists as the legislative candidate
