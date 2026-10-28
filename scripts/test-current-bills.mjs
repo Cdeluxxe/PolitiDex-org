@@ -369,7 +369,25 @@ section("the tree");
     "20261201000000_dd_districts_california_contested_board_seats.sql",
     "20261202000000_dd_districts_washington_contested_board_seats.sql"];
   if (st != null) ok(st.trim().split("\n").filter(Boolean).every((l) => l === `?? ${MIG_PATH}` || LATER.some((f) => l === `?? netlify/database/migrations/${f}`)) || st.trim() === "", `another migration was added or edited:\n${st}`);
-  ok(readdirSync(join(ROOT, "netlify/database/migrations")).filter((f) => f > MIG_NAME && !LATER.includes(f)).length === 0, "a migration sorts after this one");
+  // EVERY OTHER LATER MIGRATION. When this pass landed, nothing could sort
+  // after it; later voting-record waves (the Epstein files, H.R. 1, the Iran
+  // withdrawal family…) have since landed after it, and they are free to write
+  // the voting-record tables. What none of them may do is touch THIS pass's
+  // bills: a later migration that names one of the ledger's measures, or one
+  // of the three notEnrolled bills, is a re-mapping of this slice.
+  const OWN = [...LEDGER.measures.map((m) => m.number), ...LEDGER.notEnrolled.map((n) => n.number)];
+  const sqlOf = (f) => {
+    const p = join(ROOT, "netlify/database/migrations", f);
+    let src = "";
+    try { src = readFileSync(join(p, "migration.sql"), "utf8"); } catch { src = readFileSync(p, "utf8"); }
+    return src.replace(/^--.*$/gm, "");
+  };
+  const laterOther = readdirSync(join(ROOT, "netlify/database/migrations")).filter((f) => f > MIG_NAME && !LATER.includes(f));
+  for (const f of laterOther) {
+    const src = sqlOf(f);
+    const named = OWN.filter((n) => src.indexOf(`'${n}'`) >= 0);
+    ok(named.length === 0, `${f} sorts after this one and names its measures: ${named.join(", ")}`);
+  }
   for (const f of LATER) {
     const src = readFileSync(join(ROOT, "netlify/database/migrations", f), "utf8").replace(/^--.*$/gm, "");
     ok(!/\b(vr_measure_issues|vr_rollcalls|vr_member_votes|vr_positions)\b/i.test(src), `${f} maps, votes or positions something`);

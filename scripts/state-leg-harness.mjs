@@ -29,22 +29,20 @@ export const R = (f) => readFileSync(join(ROOT, f), "utf8");
 //     Revisor's own one-line description), because a board that takes a voice
 //     carries no investment language. The measure, its effect line, its acts
 //     and its links are unchanged.
-//   · Washington's density pass taught the seat resolver (voter-hub-location.js)
-//     a chamber that elects by position — Washington's House, two seats per
-//     district — and added one block of identity-only House shells to
-//     cmp-data.js, each naming its position. Both are every earlier cycle's
-//     pinned files, so the exact edits are named, hunk by hunk, in
-//     scripts/declared-edits-wa-positions.json (generated from the diff, each
-//     `from` unique in HEAD); nothing else in either file may move.
-//     test-wa-contested-cycle.mjs reads RAW_HEAD and holds every other
-//     state's card and resolver levels to the file before those edits.
+//
+// A DECLARED EDIT IS RETIRED ONCE IT LANDS. When the pass that made it is
+// committed, HEAD already holds the edit, and re-applying it would build a
+// baseline nobody ever wrote (an inserted block, twice). So each edit applies
+// only while HEAD still lacks its result, and a landed one is removed from
+// this list: Washington's position edits to voter-hub-location.js and
+// cmp-data.js were declared here for that pass and are retired now that HEAD
+// carries them. (The Minnesota retitle has landed too; its `from` is no longer
+// in HEAD, so it is already a no-op, and it is kept as the record of why
+// those files differ from the pass that wrote them.)
 const DECLARED_EDITS = [
   { file: /^(?:mn-ballot-2026\.js|district-mn-(?:hd|sd)-\d+\.html)$/,
     from: "Capital investment (bonding), 2026", to: "Bonding bill, 2026" },
-  ...JSON.parse(readFileSync(join(ROOT, "scripts/declared-edits-wa-positions.json"), "utf8"))
-    .map((d) => ({ file: new RegExp(`^${d.file.replace(/[.]/g, "\\.")}$`), from: d.from, to: d.to, once: true })),
 ];
-export const RAW_HEAD = (f) => gitHead(f);
 const gitHead = (f) => {
   // maxBuffer: cmp-data.js is past execFileSync's 1 MB default, and a baseline
   // that silently reads null would skip every comparison against it.
@@ -54,7 +52,10 @@ const gitHead = (f) => {
 export const HEAD = (f) => {
   let src = gitHead(f);
   if (src === null) return null;
-  for (const d of DECLARED_EDITS) if (d.file.test(f)) src = d.once ? src.replace(d.from, () => d.to) : src.split(d.from).join(d.to);
+  for (const d of DECLARED_EDITS) {
+    if (!d.file.test(f) || src.indexOf(d.to) >= 0 && src.indexOf(d.from) < 0) continue;
+    src = src.split(d.from).join(d.to);
+  }
   return src;
 };
 // DECLARED MIGRATIONS. The contested-cycle suites hold that no pass adds a
@@ -63,6 +64,29 @@ export const HEAD = (f) => {
 // (rows only, no schema change), because a comment, a vote or a residency row
 // on a seat with no dd_districts row would fail at the foreign key. California's
 // density pass seeds its seven contested boards the same way, in its own file.
+// A PASS'S OWN BASELINE. A suite that asserts what ITS pass added ("the only
+// new rows are…", "the one new migration is…") must compare against the tree
+// before that pass, not HEAD: once the pass lands, HEAD already holds the
+// additions and the check would see none. AT(rev)(f) reads a file at a fixed
+// commit; the two baselines are the commit each density pass was built on.
+//   PRE_13_STATE  006b7df — before the thirteen density states took a voice
+//   PRE_CA_WA     d961b02 — before California's and Washington's passes
+// Every "nothing else moved" check still compares against HEAD, the tree
+// as it is now.
+export const PRE_13_STATE = "006b7df";
+export const PRE_CA_WA = "d961b02";
+export const AT = (rev) => (f) => {
+  try { return execFileSync("git", ["show", `${rev}:${f}`], { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 28, stdio: ["ignore", "pipe", "ignore"] }); }
+  catch (e) { return null; }
+};
+export const migrationsAt = (rev) => {
+  try { return execFileSync("git", ["ls-tree", "--name-only", rev, "netlify/database/migrations/"], { cwd: ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).split("\n").filter(Boolean).map((p) => p.split("/").pop()); }
+  catch (e) { return []; }
+};
+// The worker version each pass moved to. After a pass lands, "moved one step
+// past HEAD" is no longer true of it; what stays true is that the worker is at
+// least that version and its precache list did not grow.
+export const PASS_WORKER = { "13-state": 483, ca: 484, wa: 485 };
 export const DECLARED_MIGRATIONS = ["20261130000000_dd_districts_contested_legislative_board_seats.sql",
   "20261201000000_dd_districts_california_contested_board_seats.sql",
   "20261202000000_dd_districts_washington_contested_board_seats.sql"];
