@@ -27,7 +27,10 @@
 //
 //   node scripts/test-state-legislative-lines-co-md-mn.mjs
 
-import { R, HEAD, MAP, sq, driveFinder, boot, levelOf, band, tigerUrls, layerOf } from "./state-leg-harness.mjs";
+import { R, HEAD, MAP, sq, driveFinder, bootWithoutWholeStateShells as boot, levelOf, band, tigerUrls, layerOf } from "./state-leg-harness.mjs";
+// boot() is the roster without the whole-state passes' shells (see state-leg-harness.mjs):
+// this suite pins the lines and the empty-seat rule; test-four-state-deepen.mjs
+// pins the members now on file.
 import vm from "node:vm";
 
 let passed = 0;

@@ -30,7 +30,7 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { DECLARED_ADMISSIONS } from "./v103-chrome-seams.mjs";
-import { planBoards } from "./gen-district-boards.mjs";
+import { planBoards, FEDERAL_READ_ONLY_SEATS } from "./gen-district-boards.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -227,9 +227,10 @@ for (const [chamber, count] of [["statehouse", 75], ["statesenate", 29]]) {
 {
   const { boards } = planBoards();
   // The contested Pennsylvania legislative boards (v469) are races, not candidates.
-  // The six states' governor boards and NE-2 (sitting members, opened by
-  // test-six-state-deepen.mjs's pass) are not candidate boards.
-  eq(boards.filter((b) => !b.stateLeg && !b.outsideUtah && b.seat !== "ne-house-2").length, 518, "the board plan is unchanged");
+  // The whole-state passes' governor boards and read-only U.S. House boards
+  // (sitting members; test-six-state-deepen.mjs, test-four-state-deepen.mjs) are
+  // not candidate boards.
+  eq(boards.filter((b) => !b.stateLeg && !b.outsideUtah && !FEDERAL_READ_ONLY_SEATS.has(b.seat)).length, 518, "the board plan is unchanged");
   ok(!boards.some((b) => CANDS.has(b.pid) || CANDS.has(b.joinPid)), "no board names a candidate as its member");
 }
 {

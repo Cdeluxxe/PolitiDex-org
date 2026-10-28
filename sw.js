@@ -11171,7 +11171,30 @@
 //     No location key is migrated, renamed or copied. No board added here takes
 //     a voice, so no dd_districts row is needed and no migration was written.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v488';
+// v489 - FOUR MORE STATES BOARDED WHOLE: MAINE, COLORADO, MINNESOTA AND NEVADA.
+//     cmp-data.js carries a roster shell for every sitting legislator in the
+//     four states the roster did not already hold, and a candidate row for
+//     every 2026 legislative candidate on their official lists who is not a
+//     sitting member; six legislative leaders' rows gained their district, and
+//     four sitting legislators held only as a federal or statewide candidacy
+//     (Rick Bennett, Mark Baisley, Eric Pratt, Carrie Ann Buck) now name their
+//     seat, with the candidacy in CMP_CANDIDACIES. scripts/gen-district-boards.mjs
+//     opens a read-only board for every State House, State Assembly and State
+//     Senate seat there (550, no vacancy left), a read-only governor board for
+//     each of the four, and ME-1, ME-2, CO-1, CO-2, CO-4, MN-2, MN-5 and MN-6 now
+//     that those members' rows name their district (voter-hub-location.js reads
+//     a House leadership or committee title as a U.S. House seat, as it already
+//     did for the Senate). The contested Colorado and Minnesota boards keep the
+//     voice they had; no new board takes a comment or a poll vote. None of the
+//     new boards is precached: the three generated blocks above are still
+//     Utah's alone. district-board.js (its BOARDS rows), cmp-data.js,
+//     index.html and voice.html (the board count, now seventeen hundred
+//     ninety-seven) are precached and changed, so the shell moves one version.
+//     No new file is precached.
+//     No location key is migrated, renamed or copied. No board added here takes
+//     a voice, so no dd_districts row is needed and no migration was written.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v489';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

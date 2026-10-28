@@ -53,6 +53,12 @@ must(BASE("cmp-data.js"), "no git baseline at " + PRE_SIX);
 const SIX = [["ne", "Nebraska"], ["sd", "South Dakota"], ["id", "Idaho"], ["mt", "Montana"], ["ak", "Alaska"], ["ri", "Rhode Island"]];
 const CODES = new Set(SIX.map(([c]) => c));
 const inSix = (seat) => CODES.has(String(seat).slice(0, 2)) && String(seat)[2] === "-";
+// THE FOUR STATES OPENED WHOLE SINCE. Maine, Colorado, Minnesota and Nevada were
+// boarded by the next pass; test-four-state-deepen.mjs holds those boards, rows
+// and walks, and this suite holds everything else to this pass's record.
+const LATER = new Set(["me", "co", "mn", "nv"]);
+const LATER_NAMES = new Set(["Maine", "Colorado", "Minnesota", "Nevada"]);
+const inLater = (seat) => LATER.has(String(seat).slice(0, 2)) && String(seat)[2] === "-";
 const REC = JSON.parse(R("db/roster-state-legislators-ne-sd-id-mt-ak-ri-2026-oct.json"));
 const { boards: PLAN, skipped: SKIPPED } = planBoards();
 const BY = new Map(PLAN.map((b) => [b.seat, b]));
@@ -79,7 +85,7 @@ const onContract = (b, m) => {
 // ═════════════════════════════════════════════════════════════════════════════
 section("1 · each of the six has a governor board, with no composer");
 // ═════════════════════════════════════════════════════════════════════════════
-eq([...GOVERNOR_STATES].sort().join(","), [...CODES].sort().join(","), "GOVERNOR_STATES is not exactly the six");
+eq([...GOVERNOR_STATES].filter((c) => !LATER.has(c)).sort().join(","), [...CODES].sort().join(","), "GOVERNOR_STATES is not exactly the six (beside the four opened since)");
 const GOV_PID = { ne: "jim_pillen", sd: "larry_rhoden", id: "brad_little", mt: "greg_gianforte", ak: "dunleavy", ri: "dan_mckee" };
 for (const [code, name] of SIX) {
   const b = BY.get(`${code}-gov`);
@@ -95,12 +101,12 @@ for (const [code, name] of SIX) {
 }
 // Utah's own governor board is unchanged and still the only one that takes a voice.
 eq(BY.get("ut-gov").readOnly, undefined, "Utah's governor board lost its composer");
-eq(PLAN.filter((b) => /-gov$/.test(b.seat)).length, 7, "a governor board opened outside the six and Utah");
+eq(PLAN.filter((b) => /-gov$/.test(b.seat) && !inLater(b.seat)).length, 7, "a governor board opened outside the six and Utah");
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("2 · every legislative seat the roster names in the six has a board");
 // ═════════════════════════════════════════════════════════════════════════════
-eq([...STATE_LEG_BOARD_STATES].sort().join(","), [...CODES].sort().join(","), "STATE_LEG_BOARD_STATES is not exactly the six");
+eq([...STATE_LEG_BOARD_STATES].filter((c) => !LATER.has(c)).sort().join(","), [...CODES].sort().join(","), "STATE_LEG_BOARD_STATES is not exactly the six (beside the four opened since)");
 const shells = REC.rows;
 must(shells.length > 500, "the record lists no shells");
 const boardOfPid = new Map(PLAN.filter((b) => b.stateLeg && inSix(b.seat)).map((b) => [b.pid, b]));
@@ -237,7 +243,7 @@ const shellAt = (state, chamber, district, position) =>
 // ═════════════════════════════════════════════════════════════════════════════
 section("5 · no composer, no poll, no equity or money copy, no migration");
 // ═════════════════════════════════════════════════════════════════════════════
-const NEW = PLAN.filter((b) => BASE(b.doc) === null);
+const NEW = PLAN.filter((b) => BASE(b.doc) === null && !inLater(b.seat));
 eq(NEW.length, NEW.filter((b) => inSix(b.seat)).length, "a new board opened outside the six states");
 for (const b of NEW) {
   eq(b.readOnly, true, `${b.seat}: a new board takes a voice`);
@@ -260,34 +266,34 @@ const docs = readdirSync(ROOT).filter((f) => /^district-[a-z]{2}-.*\.html$/.test
 let same = 0;
 for (const f of docs) {
   const code = f.slice(9, 11);
-  if (CODES.has(code)) continue;
+  if (CODES.has(code) || LATER.has(code)) continue;
   if (ok(R(f) === BASE(f), `${f}: another state's board moved`)) same++;
 }
 ok(same > 600, `only ${same} other-state documents compared`);
 const keyOf = (line) => (/^\s*['"]([a-z]{2})-/.exec(line) || [])[1];
 for (const f of ["district-board.js", "district-voice.js", "netlify/functions/district-board.mts"]) {
-  const now = R(f).split("\n").filter((l) => !CODES.has(keyOf(l)));
-  const was = BASE(f).split("\n").filter((l) => !CODES.has(keyOf(l)));
+  const now = R(f).split("\n").filter((l) => !CODES.has(keyOf(l)) && !LATER.has(keyOf(l)));
+  const was = BASE(f).split("\n").filter((l) => !CODES.has(keyOf(l)) && !LATER.has(keyOf(l)));
   eq(now.join("\n"), was.join("\n"), `${f}: a line outside the six states moved`);
 }
 {
-  const strip = (src) => src.split(/\n(?=# )/).filter((blk) => !/from = "\/district\/(?:ne|sd|id|mt|ak|ri)-/.test(blk)).join("\n");
+  const strip = (src) => src.split(/\n(?=# )/).filter((blk) => !/from = "\/district\/(?:ne|sd|id|mt|ak|ri|me|co|mn|nv)-/.test(blk)).join("\n");
   eq(strip(R("netlify.toml")), strip(BASE("netlify.toml")), "netlify.toml: a rewrite outside the six states moved");
 }
 let rows = 0;
 for (const pid of Object.keys(RO0)) {
-  if (pid === "don_bacon") continue;
+  if (pid === "don_bacon" || LATER_NAMES.has(String(RO0[pid].state || "").split(" ·")[0])) continue;
   if (ok(JSON.stringify(RO[pid]) === JSON.stringify(RO0[pid]), `${pid}: an existing roster row moved`)) rows++;
 }
-for (const pid of Object.keys(RO)) if (!(pid in RO0)) ok(SIX.some(([, n]) => n === RO[pid].state), `${pid}: a new roster row outside the six states`);
+for (const pid of Object.keys(RO)) if (!(pid in RO0)) ok(SIX.some(([, n]) => n === RO[pid].state) || LATER_NAMES.has(RO[pid].state), `${pid}: a new roster row outside the six states`);
 // The resolver, walked at HEAD's sources and at this pass's, for a reader in
 // each neighbouring state, and in two position states that were already here.
 const baseFiles = {};
 for (const f of ["cmp-data.js", "voter-hub-location.js", "who-represents-me.js"]) baseFiles[f] = BASE(f);
 const NEIGH = [
   at("Wyoming", "5", "10"), at("North Dakota", "4", "47"), at("Oregon", "3", "5"), at("Washington", "10", "10"),
-  at("Utah", "7", "16"), at("Colorado", "15", "19"), at("Minnesota", "3", "6"), at("Iowa", "1", "1"),
-  at("Massachusetts", "25", "130"), at("Connecticut", "1", "1"), at("Nevada", "12", "4"), at("Kansas", "1", "1"),
+  at("Utah", "7", "16"), at("Iowa", "1", "1"),
+  at("Massachusetts", "25", "130"), at("Connecticut", "1", "1"), at("Kansas", "1", "1"),
 ];
 for (const loc of NEIGH) {
   const A = boot(Object.assign({}, loc)), B = boot(Object.assign({}, loc), baseFiles);
@@ -340,7 +346,7 @@ section("7 · the generator is current and the worker moved");
   ok(v(R("sw.js")) >= 488, "sw.js did not move to v488");
   const pre = (src) => src.slice(src.indexOf("@generated district-boards begin precache"), src.indexOf("@generated district-boards end precache"));
   eq(pre(R("sw.js")), pre(BASE("sw.js")), "the precache block moved");
-  has(R("sw.js"), "no dd_districts row is needed and no migration was written.\n//     MIGRATION COST: none.\nconst CACHE_VERSION = 'v488';", "sw.js does not log the migration cost");
+  has(R("sw.js"), "a voice, so no dd_districts row is needed and no migration was written.\n//     MIGRATION COST: none.\n// v489 - FOUR MORE STATES", "sw.js does not log the migration cost");
 }
 
 console.log(`\n${failures.length ? "✗" : "✓"} six-state deepen: ${passed} passed, ${failures.length} failed`);

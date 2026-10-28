@@ -499,6 +499,21 @@ const DISTINCT_PEOPLE = {
   // Tennessee State Representative (tn roster shells), and a Montana State House
   // District 78 candidate for 2026. Montana's candidate list prints "MARK WHITE".
   "mark white": ["mark_white", "mark_white_tn"],
+  // South Dakota's U.S. Representative (SD-AL), and Colorado State
+  // Representative, House District 63 (me/co/mn/nv roster shells).
+  "dusty johnson": ["dusty_johnson", "johnson_co"],
+  // New York State Senator (SD 38), and Minnesota State Senator, Senate
+  // District 21 (me/co/mn/nv roster shells).
+  "bill weber": ["weber_mn", "weber_ny"],
+  // Missouri State Representative (HD 40), and Maine State Representative,
+  // House District 31 (me/co/mn/nv roster shells).
+  "chad perkins": ["perkins_me", "perkins_mo"],
+  // A Montana State House District 93 candidate for 2026, and Minnesota State
+  // Representative, House District 6A (me/co/mn/nv roster shells).
+  "ben davis": ["ben_davis", "davis_mn"],
+  // An IL-13 U.S. House candidate for 2026, and a Colorado State House
+  // District 7 candidate for 2026 (me/co/mn/nv candidate rows).
+  "jeff wilson": ["jeff_wilson", "jeff_wilson_co"],
 };
 let nameChecked = 0;
 for (const [key, ids] of byName) {

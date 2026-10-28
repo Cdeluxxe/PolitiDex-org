@@ -39,9 +39,25 @@ export const R = (f) => readFileSync(join(ROOT, f), "utf8");
 // carries them. (The Minnesota retitle has landed too; its `from` is no longer
 // in HEAD, so it is already a no-op, and it is kept as the record of why
 // those files differ from the pass that wrote them.)
+//   · The four-state pass (Maine, Colorado, Minnesota, Nevada) taught
+//     voter-hub-location.js's U.S. House classifier to read a House leadership
+//     or committee title as a House seat, as its Senate classifier already did,
+//     so Neguse's, Craig's and Emmer's rows can hold CO-2, MN-2 and MN-6. No
+//     other state's row with such a title names a district, so no other seat
+//     moves (test-four-state-deepen.mjs walks the neighbours).
+const HOUSE_TITLE_FROM = "    if (/^(representative|congress(man|woman|person|member))\\b/i.test(o)) return true;\n    return false;\n";
+const HOUSE_TITLE_TO = "    if (/^(representative|congress(man|woman|person|member))\\b/i.test(o)) return true;\n" +
+  "    // A House floor leader, whip, committee chair or ranking member is a seat in\n" +
+  "    // the United States House, as the Senate's are in its classifier: \"House\n" +
+  "    // Majority Whip\", \"Assistant House Democratic Leader\", \"House Agriculture\n" +
+  "    // Ranking Member\". A record like this names its district only on `district`,\n" +
+  "    // so one without it still holds no seat here.\n" +
+  "    if (/^(assistant\\s+)?house\\b/i.test(o) && /\\b(leader|whip|chair|ranking\\s+member)\\b/i.test(o)) return true;\n" +
+  "    return false;\n";
 const DECLARED_EDITS = [
   { file: /^(?:mn-ballot-2026\.js|district-mn-(?:hd|sd)-\d+\.html)$/,
     from: "Capital investment (bonding), 2026", to: "Bonding bill, 2026" },
+  { file: /^voter-hub-location\.js$/, from: HOUSE_TITLE_FROM, to: HOUSE_TITLE_TO },
 ];
 // HEAD exactly as committed, with no declared edit applied.
 export const RAW_HEAD = (f) => gitHead(f);
@@ -313,6 +329,62 @@ export function bootWithoutSixStateShells(loc, override) {
   if (_noSix === null) _noSix = withoutSixStateShells(R("cmp-data.js"));
   return boot(loc, Object.assign({ "cmp-data.js": _noSix }, override || {}));
 }
+// THE ROSTER WITHOUT THE FOUR STATES' PASS. Maine, Colorado, Minnesota and
+// Nevada were boarded whole after the Minnesota, Colorado and Nevada contested
+// cycles were written; those suites pin that a seat outside their races names
+// nobody and that a challenger has no row. test-four-state-deepen.mjs holds the
+// four-state pass, so those suites boot this roster — cmp-data.js with that
+// pass's two blocks and its candidacies carved out, and every existing row it
+// edited (a district set, a seat named) put back as it stood before the pass —
+// and keep testing what they were written to test. It reads the same on the
+// working tree and on any later HEAD.
+export const FOUR_STATE_BANNERS = [
+  "// ── Sitting state legislators, Maine, Colorado, Minnesota and Nevada — roster shells (Oct 2026)",
+  "// ── 2026 state legislative candidates, Maine, Colorado, Minnesota and Nevada (Oct 2026)",
+];
+const PRE_FOUR_STATE = "76a69b7";
+let _preFourRows = null;
+const rowBlock = (src, pid) => {
+  const a = src.indexOf(`\n "${pid}": {\n`);
+  if (a < 0) return null;
+  const z = src.indexOf("\n },", a);
+  return z < 0 ? null : src.slice(a, z + 4);
+};
+export const withoutFourStateShells = (src) => {
+  let out = String(src);
+  for (const b of FOUR_STATE_BANNERS) {
+    const a = out.indexOf(b);
+    if (a < 0) continue;
+    const z = out.indexOf("\n// ── ", a + b.length);
+    if (z < 0) throw new Error("state-leg-harness: a four-state block has no following banner");
+    out = out.slice(0, a) + out.slice(z + 1);
+  }
+  const c = out.indexOf(",\n // ── Sitting Maine, Colorado, Minnesota and Nevada legislators");
+  if (c >= 0) out = out.slice(0, c) + out.slice(out.indexOf(",\n // ── Sitting Nebraska", c));
+  if (_preFourRows === null) {
+    const rec = JSON.parse(R("db/roster-state-legislators-me-co-mn-nv-2026-oct.json"));
+    const pre = AT(PRE_FOUR_STATE)("cmp-data.js");
+    if (pre === null) throw new Error("state-leg-harness: no baseline at " + PRE_FOUR_STATE);
+    _preFourRows = [...rec.districtSet, ...rec.seatedFromCandidacy, ...rec.usHouseDistrictSet].map((r) => [r.pid, rowBlock(pre, r.pid)]);
+  }
+  for (const [pid, was] of _preFourRows) {
+    const now = rowBlock(out, pid);
+    if (now !== null && was !== null) out = out.replace(now, was);
+  }
+  return out;
+};
+let _noFour = null;
+export function bootWithoutFourStateShells(loc, override) {
+  if (_noFour === null) _noFour = withoutFourStateShells(R("cmp-data.js"));
+  return boot(loc, Object.assign({ "cmp-data.js": _noFour }, override || {}));
+}
+// Both whole-state passes carved out — the four's first, because its
+// candidacies sit ahead of the six's in the table.
+let _noWhole = null;
+export function bootWithoutWholeStateShells(loc, override) {
+  if (_noWhole === null) _noWhole = withoutSixStateShells(withoutFourStateShells(R("cmp-data.js")));
+  return boot(loc, Object.assign({ "cmp-data.js": _noWhole }, override || {}));
+}
 export const levelOf = (w, key) => (w.pdxRepsForMe().levels || []).filter((l) => l.key === key)[0] || null;
 export const band = (w) => { w.PDXWhoRepresentsMe.sync(); return String(w.document.getElementById("wrm-reps").innerHTML); };
 export const tigerUrls = (wire) => wire.filter((u) => u.indexOf("tigerweb") >= 0);
@@ -341,6 +413,25 @@ const SHELL_BLOCKS = [
   { code: "nv", state: "Nevada" },
   { code: "wa", state: "Washington" },
 ].map((b) => ({ ...b, re: new RegExp(`// ── Sitting ${b.state} legislators in the contested 2026 races[\\s\\S]*?(?=// ── )`) }));
+// THE FOUR-STATE PASS. Maine, Colorado, Minnesota and Nevada were boarded whole:
+// roster rows added or given their district in those four states, and
+// candidacies of their members added (db/roster-state-legislators-me-co-mn-nv-
+// 2026-oct.json is the record). With those four states' rows and candidacies
+// set aside on both sides, the roster must be HEAD's, row for row, and every
+// other table cmp-data.js publishes must be HEAD's.
+const FOUR_STATES = new Set(["Maine", "Colorado", "Minnesota", "Nevada"]);
+function fourStateRowsOnly(now, was) {
+  const load = (src) => { const w = {}; w.window = w; vm.runInContext(src, vm.createContext(w)); return w; };
+  let A, B;
+  try { A = load(now); B = load(was); } catch (e) { return false; }
+  const inFour = (r) => !!r && FOUR_STATES.has(String(r.state || "").split(" \u00b7")[0].trim());
+  const outside = (T) => JSON.stringify(Object.keys(T || {}).filter((k) => !inFour(T[k])).map((k) => [k, T[k]]));
+  if (outside(A.CMP_DATA) !== outside(B.CMP_DATA) || outside(A.CMP_CANDIDACIES) !== outside(B.CMP_CANDIDACIES)) return false;
+  // A row that was outside the four cannot have been moved into them.
+  for (const k of Object.keys(B.CMP_DATA || {})) if (!inFour(B.CMP_DATA[k]) && inFour((A.CMP_DATA || {})[k])) return false;
+  const rest = (w) => JSON.stringify(Object.keys(w).filter((k) => k !== "window" && k !== "CMP_DATA" && k !== "CMP_CANDIDACIES").sort().map((k) => [k, typeof w[k] === "function" ? String(w[k]) : w[k]]));
+  return rest(A) === rest(B);
+}
 function shellBlocksOnly(now, was) {
   const strip = (src) => SHELL_BLOCKS.reduce((s, b) => s.replace(b.re, ""), src);
   if (strip(now) !== strip(was)) return false;
@@ -363,7 +454,7 @@ export function settled(f) {
   const now = R(f), was = HEAD(f);
   if (now === was) return true;
   if (was === null || now === null) return false;
-  if (f === "cmp-data.js") return shellBlocksOnly(now, was);
+  if (f === "cmp-data.js") return shellBlocksOnly(now, was) || fourStateRowsOnly(now, was);
   const bf = /^([a-z]{2})-ballot-2026\.js$/.exec(f);
   if (bf) {
     const A = ballotModule(now, bf[1]), B = ballotModule(was, bf[1]);

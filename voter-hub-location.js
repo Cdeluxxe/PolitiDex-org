@@ -2552,6 +2552,12 @@
     if (/\bformer\b|\bex-|\bcandidate\b|\bnominee\b/i.test(o)) return false;
     if (/\bu\.?\s*s\.?\s*(representative|rep\b|house)/i.test(o)) return true;
     if (/^(representative|congress(man|woman|person|member))\b/i.test(o)) return true;
+    // A House floor leader, whip, committee chair or ranking member is a seat in
+    // the United States House, as the Senate's are in its classifier: "House
+    // Majority Whip", "Assistant House Democratic Leader", "House Agriculture
+    // Ranking Member". A record like this names its district only on `district`,
+    // so one without it still holds no seat here.
+    if (/^(assistant\s+)?house\b/i.test(o) && /\b(leader|whip|chair|ranking\s+member)\b/i.test(o)) return true;
     return false;
   }
 
