@@ -37,7 +37,7 @@ import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
-import { R, AT, boot, levelOf, band } from "./state-leg-harness.mjs";
+import { R, AT, boot, levelOf, band, undoMsVtMiTnEdits } from "./state-leg-harness.mjs";
 import { planBoards, STATE_LEG_BOARD_STATES, GOVERNOR_STATES, STATE_LEG_SEAT_COUNTS, STATE_LEG_BOARD_SEATS, FEDERAL_READ_ONLY_SEATS } from "./gen-district-boards.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -59,6 +59,13 @@ const FOUR = [["me", "Maine"], ["co", "Colorado"], ["mn", "Minnesota"], ["nv", "
 const CODES = new Set(FOUR.map(([c]) => c));
 const NAMES = new Set(FOUR.map(([, n]) => n));
 const inFour = (seat) => CODES.has(String(seat).slice(0, 2)) && String(seat)[2] === "-";
+// THE FOUR STATES OPENED WHOLE SINCE. Mississippi, Vermont, Michigan and
+// Tennessee were boarded by the next pass; test-ms-vt-mi-tn-deepen.mjs holds
+// those boards, rows and walks, and this suite holds everything else to this
+// pass's record.
+const LATER = new Set(["ms", "vt", "mi", "tn"]);
+const LATER_NAMES = new Set(["Mississippi", "Vermont", "Michigan", "Tennessee"]);
+const inLater = (seat) => LATER.has(String(seat).slice(0, 2)) && String(seat)[2] === "-";
 const REC = JSON.parse(R("db/roster-state-legislators-me-co-mn-nv-2026-oct.json"));
 const { boards: PLAN, skipped: SKIPPED } = planBoards();
 const BY = new Map(PLAN.map((b) => [b.seat, b]));
@@ -102,7 +109,7 @@ for (const [code, name] of FOUR) {
   has(doc, `governor (statewide) → ${b.pid}`, `${name}: governor document's roster note`);
   eq(BASE(b.doc), null, `${name}: baseline already had a governor board`);
 }
-eq(PLAN.filter((b) => /-gov$/.test(b.seat)).length, 11, "governor boards: Utah, the six, the four");
+eq(PLAN.filter((b) => /-gov$/.test(b.seat) && !inLater(b.seat)).length, 11, "governor boards: Utah, the six, the four");
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("2 · every legislative seat in the four has a board");
@@ -210,7 +217,7 @@ ok(PLAN.filter((b) => inFour(b.seat)).every((b) => /^[a-z]{2}-(?:gov|house-\d+|u
 // ═════════════════════════════════════════════════════════════════════════════
 section("5 · no composer, no poll, no equity or money copy, no migration");
 // ═════════════════════════════════════════════════════════════════════════════
-const NEW = PLAN.filter((b) => BASE(b.doc) === null);
+const NEW = PLAN.filter((b) => BASE(b.doc) === null && !inLater(b.seat));
 eq(NEW.length, NEW.filter((b) => inFour(b.seat)).length, "a new board opened outside the four states");
 for (const b of NEW) {
   eq(b.readOnly, true, `${b.seat}: a new board takes a voice`);
@@ -228,35 +235,36 @@ section("6 · neighbouring states are byte-identical");
 const docs = readdirSync(ROOT).filter((f) => /^district-[a-z]{2}-.*\.html$/.test(f));
 let same = 0;
 for (const f of docs) {
-  if (CODES.has(f.slice(9, 11))) continue;
+  if (CODES.has(f.slice(9, 11)) || LATER.has(f.slice(9, 11))) continue;
   if (ok(R(f) === BASE(f), `${f}: another state's board moved`)) same++;
 }
-ok(same > 1200, `only ${same} other-state documents compared`);
+ok(same > 1100, `only ${same} other-state documents compared`);
 const keyOf = (line) => (/^\s*['"]([a-z]{2})-/.exec(line) || [])[1];
 for (const f of ["district-board.js", "district-voice.js", "netlify/functions/district-board.mts"]) {
-  const now = R(f).split("\n").filter((l) => !CODES.has(keyOf(l)));
-  const was = BASE(f).split("\n").filter((l) => !CODES.has(keyOf(l)));
+  // The position shape test-ms-vt-mi-tn-deepen.mjs widened to either chamber is lifted out.
+  const now = undoMsVtMiTnEdits(f, R(f)).split("\n").filter((l) => !CODES.has(keyOf(l)) && !LATER.has(keyOf(l)));
+  const was = BASE(f).split("\n").filter((l) => !CODES.has(keyOf(l)) && !LATER.has(keyOf(l)));
   eq(now.join("\n"), was.join("\n"), `${f}: a line outside the four states moved`);
 }
 {
-  const strip = (src) => src.split(/\n(?=# )/).filter((blk) => !/from = "\/district\/(?:me|co|mn|nv)-/.test(blk)).join("\n");
+  const strip = (src) => src.split(/\n(?=# )/).filter((blk) => !/from = "\/district\/(?:me|co|mn|nv|ms|vt|mi|tn)-/.test(blk)).join("\n");
   eq(strip(R("netlify.toml")), strip(BASE("netlify.toml")), "netlify.toml: a rewrite outside the four states moved");
 }
 let rows = 0;
 for (const pid of Object.keys(RO0)) {
-  if (NAMES.has(String(RO0[pid].state || "").split(" ·")[0])) continue;
+  if (NAMES.has(String(RO0[pid].state || "").split(" ·")[0]) || LATER_NAMES.has(String(RO0[pid].state || "").split(" ·")[0])) continue;
   if (ok(JSON.stringify(RO[pid]) === JSON.stringify(RO0[pid]), `${pid}: an existing roster row outside the four moved`)) rows++;
 }
 ok(rows > 5000, `only ${rows} roster rows compared`);
-for (const pid of Object.keys(RO)) if (!(pid in RO0)) ok(NAMES.has(RO[pid].state), `${pid}: a new roster row outside the four states`);
-for (const pid of Object.keys(W0.CMP_CANDIDACIES)) eq(JSON.stringify(W1.CMP_CANDIDACIES[pid]), JSON.stringify(W0.CMP_CANDIDACIES[pid]), `${pid}: an existing candidacy moved`);
-for (const pid of Object.keys(W1.CMP_CANDIDACIES)) if (!(pid in W0.CMP_CANDIDACIES)) ok(NAMES.has(W1.CMP_CANDIDACIES[pid].state), `${pid}: a new candidacy outside the four`);
+for (const pid of Object.keys(RO)) if (!(pid in RO0)) ok(NAMES.has(RO[pid].state) || LATER_NAMES.has(RO[pid].state), `${pid}: a new roster row outside the four states`);
+for (const pid of Object.keys(W0.CMP_CANDIDACIES)) if (!LATER_NAMES.has(W0.CMP_CANDIDACIES[pid].state)) eq(JSON.stringify(W1.CMP_CANDIDACIES[pid]), JSON.stringify(W0.CMP_CANDIDACIES[pid]), `${pid}: an existing candidacy moved`);
+for (const pid of Object.keys(W1.CMP_CANDIDACIES)) if (!(pid in W0.CMP_CANDIDACIES)) ok(NAMES.has(W1.CMP_CANDIDACIES[pid].state) || LATER_NAMES.has(W1.CMP_CANDIDACIES[pid].state), `${pid}: a new candidacy outside the four`);
 // The resolver, walked at the base's sources and at this pass's, for a reader
 // in each neighbouring state and in states that hold leadership-titled rows.
 const baseFiles = {};
 for (const f of ["cmp-data.js", "voter-hub-location.js", "who-represents-me.js"]) baseFiles[f] = BASE(f);
 const NEIGH = [
-  at("New Hampshire", "1", "1"), at("Vermont", "1", "1"), at("Massachusetts", "25", "130"), at("Wyoming", "5", "10"),
+  at("New Hampshire", "1", "1"), at("Massachusetts", "25", "130"), at("Wyoming", "5", "10"),
   at("Utah", "7", "16"), at("Idaho", "10", "10"), at("North Dakota", "4", "47"), at("Iowa", "1", "1"),
   at("Wisconsin", "1", "1"), at("South Dakota", "26", "34"), at("Arizona", "1", "1"), at("California", "1", "1"),
   at("Louisiana", "1", "1"), at("New York", "1", "1"), at("Kansas", "1", "1"), at("Nebraska", "14", "14"),
@@ -313,7 +321,7 @@ section("7 · the generator is current and the worker moved");
   const pre = (src) => src.slice(src.indexOf("@generated district-boards begin precache"), src.indexOf("@generated district-boards end precache"));
   eq(pre(R("sw.js")), pre(BASE("sw.js")), "the precache block moved");
   has(R("sw.js"), "// v489 - FOUR MORE STATES BOARDED WHOLE: MAINE, COLORADO, MINNESOTA AND NEVADA.", "sw.js does not log the pass");
-  has(R("sw.js"), "no dd_districts row is needed and no migration was written.\n//     MIGRATION COST: none.\nconst CACHE_VERSION = 'v489';", "sw.js does not log the migration cost");
+  has(R("sw.js"), "a voice, so no dd_districts row is needed and no migration was written.\n//     MIGRATION COST: none.\n// v490 - FOUR MORE STATES", "sw.js does not log the migration cost");
 }
 
 console.log(`\n${failures.length ? "✗" : "✓"} four-state deepen: ${passed} passed, ${failures.length} failed`);

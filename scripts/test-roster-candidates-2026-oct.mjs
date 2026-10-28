@@ -66,7 +66,10 @@ const BANNER = "// ── Current candidates outside Utah, 2026 general election
 // names the seat they hold — and moved the candidacy, exactly as filed, to
 // window.CMP_CANDIDACIES; test-four-state-deepen.mjs holds those four, and this
 // suite holds every other row to this record.
-const SEATED = new Set(JSON.parse(R("db/roster-state-legislators-me-co-mn-nv-2026-oct.json")).seatedFromCandidacy.map((r) => r.pid));
+// The Mississippi, Vermont, Michigan and Tennessee pass seated seven more the
+// same way (test-ms-vt-mi-tn-deepen.mjs holds them).
+const SEATED = new Set(["db/roster-state-legislators-me-co-mn-nv-2026-oct.json", "db/roster-state-legislators-ms-vt-mi-tn-2026-oct.json"]
+  .flatMap((f) => JSON.parse(R(f)).seatedFromCandidacy.map((r) => r.pid)));
 const NEW = REC.rows.map((r) => r.pid);
 const NEWSET = new Set(NEW);
 const SRC = R("cmp-data.js");

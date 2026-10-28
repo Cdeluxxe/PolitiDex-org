@@ -34,7 +34,11 @@
 //
 //   node scripts/test-mi-contested-cycle.mjs
 
-import { R, HEAD, boot, levelOf, band, settled, DECLARED_MIGRATIONS } from "./state-leg-harness.mjs";
+// Michigan was boarded whole since (test-ms-vt-mi-tn-deepen.mjs): the vacant /
+// uncontested walk boots the roster with that pass carved out on both sides,
+// and a seat outside the races now has only the read-only board the whole-state
+// opening gave it.
+import { R, HEAD, boot, bootWithoutMsVtMiTnShells, withoutMsVtMiTnShells, levelOf, band, settled, DECLARED_MIGRATIONS } from "./state-leg-harness.mjs";
 import { readdirSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
@@ -100,18 +104,23 @@ section("2 · a vacant or uncontested seat");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const loc = at("Lansing", "Ingham County", "7", "12", "63");
-  const W = bootMI(loc);
+  const W = bootWithoutMsVtMiTnShells(loc);
+  for (const f of BALLOTS) vm.runInContext(R(f), W, { filename: f });
   eq(levelOf(W, "statesenate").pid, "hertel_mi", "SD 12: the sitting member");
   eq(levelOf(W, "statehouse").pid, null, "HD 63: no member is named");
   const out = band(W);
   has(out, "District 63 — no member on file yet", "HD 63: the row says nobody is on file");
   has(out, "Kevin Hertel", "SD 12: the sitting member is on the card");
   eq(actBlocks(out).length, 0, "a seat with no act on file carries no act block");
-  const was = band(boot(loc, { "who-represents-me.js": HEAD("who-represents-me.js") }));
+  const was = band(boot(loc, { "who-represents-me.js": HEAD("who-represents-me.js"), "cmp-data.js": withoutMsVtMiTnShells(HEAD("cmp-data.js")) }));
   eq(out, was, "SD 12 / HD 63: the card is HEAD's");
   const V = voice();
-  eq(V.boardPath("mi-statesenate-12"), "", "SD 12: no board");
-  eq(V.boardPath("mi-statehouse-63"), "", "HD 63: no board");
+  const BD = (() => { const w = makeSandbox(); vm.runInContext(R("district-board.js"), vm.createContext(w), { filename: "district-board.js" }); return w.PDXDistrictBoard; })();
+  for (const s of ["mi-statesenate-12", "mi-statehouse-63"]) {
+    const alias = V.boardPath(s).replace("/district/", "");
+    eq((BD.board(alias) || {}).composer, false, `${s}: a seat with no race takes a voice`);
+    if (alias) lacks(R(`district-${alias}.html`), "data-pdxmi-seat=", `${s}: a seat with no race prints a race`);
+  }
   ok(!N.race("statesenate", 12), "SD 12 is not one of the races on file");
   const page = N.pageHtml({ located: true, state: "Michigan", levels: [
     { key: "statesenate", district: "12", pid: "hertel_mi" }, { key: "statehouse", district: "63", pid: null }] });
@@ -239,8 +248,9 @@ section("5 · District Voice: a board for each contested seat and no other");
 {
   const routes = voice().BOARD_ROUTES;
   const miLeg = Object.keys(routes).filter((k) => /^mi-(?:statehouse|statesenate)-\d+$/.test(k)).sort();
-  eq(JSON.stringify(miLeg), JSON.stringify(N.RACES.map((r) => r.seat).sort()), "BOARD_ROUTES: exactly the contested Michigan seats");
-  const otherLeg = Object.keys(routes).filter((k) => /^[a-z]{2}-(?:statehouse|statesenate)-\d+$/.test(k) && !/^(?:ut|pa|ga|nc|mi|oh|wi|fl|az|ny|tx|il|mn|co|nv|ca|wa|ne|sd|id|mt|ak|ri|me)-/.test(k));
+  for (const r of N.RACES) ok(miLeg.includes(r.seat), `BOARD_ROUTES: contested ${r.seat} has no board`);
+  eq(miLeg.length, 148, "BOARD_ROUTES: every Michigan seat, now that the state is opened whole");
+  const otherLeg = Object.keys(routes).filter((k) => /^[a-z]{2}-(?:statehouse|statesenate)-\d+$/.test(k) && !/^(?:ut|pa|ga|nc|mi|oh|wi|fl|az|ny|tx|il|mn|co|nv|ca|wa|ne|sd|id|mt|ak|ri|me|ms|vt|tn)-/.test(k));
   eq(otherLeg.length, 0, "no other state gained a state legislative board");
   const B = (() => { const w = makeSandbox(); vm.runInContext(R("district-board.js"), vm.createContext(w), { filename: "district-board.js" }); return w.PDXDistrictBoard; })();
   for (const r of N.RACES) {
@@ -260,7 +270,7 @@ section("5 · District Voice: a board for each contested seat and no other");
     if (r.issue) has(h, "Local issue:", `${doc}: names its local issue`);
   }
   const docs = readdirSync(ROOT).filter((f) => /^district-mi-(?:hd|sd)-\d+\.html$/.test(f));
-  eq(docs.length, N.RACES.length, "no Michigan legislative board document without a race");
+  eq(docs.length, 148, "one Michigan legislative board document per seat");
   for (const f of readdirSync(ROOT).filter((f) => /^district-(?!mi-(?:hd|sd)-).*\.html$/.test(f))) {
     if (R(f).indexOf("data-pdxmi-seat=") >= 0) ok(false, `${f}: a board outside the races carries a Michigan race block`);
   }

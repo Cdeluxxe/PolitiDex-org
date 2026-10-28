@@ -66,7 +66,7 @@ const seatOf = (f) => (/data-pdxdb-seat="([^"]+)"/.exec(R(f)) || [, ""])[1];
 // contested Pennsylvania legislative seats) takes no voice by design, so the
 // boards this suite sweeps are the voiced ones.
 const READ_ONLY = new Set([...R("district-board.js").matchAll(/composer: false, alias: '([^']+)'/g)].map((m) => m[1]));
-const DOCS = readdirSync(ROOT).filter((f) => /^district-[a-z]{2}-(?:(?:hd|sd|cd)-\d+|hd-\d+-p\d+|gov|us-senate-[a-z][a-z0-9_]*)\.html$/.test(f))
+const DOCS = readdirSync(ROOT).filter((f) => /^district-[a-z]{2}-(?:(?:hd|sd|cd)-\d+|(?:hd|sd)-\d+-p\d+|gov|us-senate-[a-z][a-z0-9_]*)\.html$/.test(f))
   .filter((f) => !READ_ONLY.has(seatOf(f))).sort();
 const NEW = DOCS.map(seatOf).filter((a) => !FIVE.includes(a));
 ok(NEW.length >= 80, `the newly opened boards are swept (${NEW.length})`);

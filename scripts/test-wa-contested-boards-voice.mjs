@@ -42,7 +42,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
-import { HEAD, AT, PRE_CA_WA, PASS_WORKER, DECLARED_MIGRATIONS } from "./state-leg-harness.mjs";
+import { HEAD, AT, PRE_CA_WA, PASS_WORKER, DECLARED_MIGRATIONS, undoMsVtMiTnEdits } from "./state-leg-harness.mjs";
 // What THIS pass added is measured against the commit it was built on, so the
 // check stays exact after the pass lands; "nothing else moved" stays on HEAD.
 const BASE = AT(PRE_CA_WA);
@@ -339,8 +339,12 @@ section("5 · the counts endpoint answers these seats and returns only aggregate
     .replace(" || POSITION_KEY_RE.test(s)) return s;", ") return s;")
     .replace(/  const pm = \/\^\(\[a-z\]\{2\}\)-hd-[^\n]*\n  if \(pm\) return [^\n]*\n/, "");
   eq(noPosition(strip(FN)), noPosition(strip(HEAD("netlify/functions/district-board.mts"))), "the counts endpoint's code did not move");
-  eq(noPosition(strip(FN)), strip(BASE("netlify/functions/district-board.mts")), "…and this pass changed nothing in it beyond the position shape");
-  ok(/const POSITION_KEY_RE = \/\^\[a-z\]\{2\}-statehouse-\[1-9\]\[0-9\]\*-p\[1-9\]\$\/;/.test(FN), "the counts endpoint reads the position shape");
+  // The Mississippi, Vermont, Michigan and Tennessee pass widened the shape to
+  // either chamber (declared in state-leg-harness.mjs); with that lifted out, this
+  // pass's shape is what is left.
+  const FN0 = undoMsVtMiTnEdits("netlify/functions/district-board.mts", FN);
+  eq(noPosition(strip(FN0)), strip(BASE("netlify/functions/district-board.mts")), "…and this pass changed nothing in it beyond the position shape");
+  ok(/const POSITION_KEY_RE = \/\^\[a-z\]\{2\}-statehouse-\[1-9\]\[0-9\]\*-p\[1-9\]\$\/;/.test(FN0), "the counts endpoint reads the position shape");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

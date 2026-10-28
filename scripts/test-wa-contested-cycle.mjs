@@ -40,7 +40,9 @@
 //
 //   node scripts/test-wa-contested-cycle.mjs
 
-import { R, HEAD, AT, PRE_CA_WA, PASS_WORKER, boot, levelOf, band, settled, DECLARED_MIGRATIONS, withoutSixStateShells } from "./state-leg-harness.mjs";
+import { R, HEAD, AT, PRE_CA_WA, PASS_WORKER, boot, levelOf, band, settled, DECLARED_MIGRATIONS, withoutSixStateShells, withoutFourStateShells, withoutMsVtMiTnShells } from "./state-leg-harness.mjs";
+// Every later whole-state pass, carved out the way each reverses exactly.
+const withoutWholeStatePasses = (src) => withoutSixStateShells(withoutFourStateShells(withoutMsVtMiTnShells(src)));
 import { readdirSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
@@ -335,9 +337,10 @@ section("6 · every other state is unchanged");
   // exactly the seven House incumbents. Against HEAD, nothing moved.
   const WA_BLOCK = /\/\/ ── Sitting Washington legislators in the contested 2026 races[\s\S]*?(?=\/\/ ── )/;
   const blockNow = (WA_BLOCK.exec(R("cmp-data.js")) || [""])[0];
-  // (The later six-state pass is carved out first: withoutSixStateShells()
-  // reverses it exactly, and test-six-state-deepen.mjs holds what it added.)
-  eq(withoutSixStateShells(R("cmp-data.js")).replace(WA_BLOCK, ""), BASE("cmp-data.js"), "cmp-data.js: the pre-pass bytes outside the one Washington shell block");
+  // (The later whole-state passes are carved out first: each carve-out reverses
+  // its pass exactly, and test-six-state-deepen.mjs, test-four-state-deepen.mjs
+  // and test-ms-vt-mi-tn-deepen.mjs hold what they added.)
+  eq(withoutWholeStatePasses(R("cmp-data.js")).replace(WA_BLOCK, ""), BASE("cmp-data.js"), "cmp-data.js: the pre-pass bytes outside the one Washington shell block");
   ok(settled("cmp-data.js"), "cmp-data.js: HEAD's bytes outside the contested-cycle shell blocks");
   eq(JSON.stringify([...blockNow.matchAll(/^ "([a-z0-9_]+)": \{$/gm)].map((m) => m[1]).sort()), JSON.stringify([...SHELLS].sort()), "the block is exactly the seven House incumbents");
   eq(R("voter-hub-location.js"), HEAD("voter-hub-location.js"), "voter-hub-location.js: byte-identical to HEAD");
@@ -369,9 +372,9 @@ section("6 · every other state is unchanged");
   const was = boot({ state: "Utah" }, { "who-represents-me.js": HEAD("who-represents-me.js"), "cmp-data.js": HEAD("cmp-data.js"),
     "voter-hub-location.js": HEAD("voter-hub-location.js") });
   const prePass = boot({ state: "Utah" }, { "cmp-data.js": BASE("cmp-data.js"), "voter-hub-location.js": BASE("voter-hub-location.js") });
-  // Today's resolver on today's roster without the later six-state pass, so the
-  // level-by-level check stays this pass's alone.
-  const nowNoSix = bootWA({ state: "Utah" }, { "cmp-data.js": withoutSixStateShells(R("cmp-data.js")) });
+  // Today's resolver on today's roster without the later whole-state passes, so
+  // the level-by-level check stays this pass's alone.
+  const nowNoSix = bootWA({ state: "Utah" }, { "cmp-data.js": withoutWholeStatePasses(R("cmp-data.js")) });
   for (const f of EARLIER) vm.runInContext(HEAD(f), was, { filename: f + "@HEAD" });
   const SEATS = {};
   const NAMES = { pa: "Pennsylvania", ga: "Georgia", nc: "North Carolina", mi: "Michigan", oh: "Ohio", wi: "Wisconsin", fl: "Florida",

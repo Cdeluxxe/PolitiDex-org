@@ -58,7 +58,19 @@ const DECLARED_EDITS = [
   { file: /^(?:mn-ballot-2026\.js|district-mn-(?:hd|sd)-\d+\.html)$/,
     from: "Capital investment (bonding), 2026", to: "Bonding bill, 2026" },
   { file: /^voter-hub-location\.js$/, from: HOUSE_TITLE_FROM, to: HOUSE_TITLE_TO },
+  // The Mississippi, Vermont, Michigan and Tennessee pass gave Vermont's Senate
+  // positions and a per-district member count in voter-hub-location.js, and
+  // taught district-board.js, district-voice.js and district-board.mts the
+  // position shape on either chamber. The exact pairs, each with a line of
+  // context, are scripts/state-leg-ms-vt-mi-tn-edits.json; several are pure
+  // insertions, so each applies only while HEAD lacks its result (`once`).
+  ...Object.entries(JSON.parse(readFileSync(join(ROOT, "scripts/state-leg-ms-vt-mi-tn-edits.json"), "utf8")))
+    .flatMap(([file, pairs]) => pairs.map(([from, to]) => ({ file: new RegExp(`^${file.replace(/[./]/g, "\\$&")}$`), from, to, once: true }))),
 ];
+// The same pairs, undone: an earlier pass's suite that compares one of those
+// files against its own older baseline reads it with this pass's edits lifted out.
+export const undoMsVtMiTnEdits = (f, src) => DECLARED_EDITS.filter((d) => d.once && d.file.test(f))
+  .reduce((s, d) => s.split(d.to).join(d.from), String(src));
 // HEAD exactly as committed, with no declared edit applied.
 export const RAW_HEAD = (f) => gitHead(f);
 const gitHead = (f) => {
@@ -71,7 +83,7 @@ export const HEAD = (f) => {
   let src = gitHead(f);
   if (src === null) return null;
   for (const d of DECLARED_EDITS) {
-    if (!d.file.test(f) || src.indexOf(d.to) >= 0 && src.indexOf(d.from) < 0) continue;
+    if (!d.file.test(f) || src.indexOf(d.to) >= 0 && (d.once || src.indexOf(d.from) < 0)) continue;
     src = src.split(d.from).join(d.to);
   }
   return src;
@@ -378,12 +390,50 @@ export function bootWithoutFourStateShells(loc, override) {
   if (_noFour === null) _noFour = withoutFourStateShells(R("cmp-data.js"));
   return boot(loc, Object.assign({ "cmp-data.js": _noFour }, override || {}));
 }
-// Both whole-state passes carved out — the four's first, because its
-// candidacies sit ahead of the six's in the table.
+// Every whole-state pass carved out — the latest first, because each pass's
+// candidacies sit ahead of the one before it in the table.
 let _noWhole = null;
 export function bootWithoutWholeStateShells(loc, override) {
-  if (_noWhole === null) _noWhole = withoutSixStateShells(withoutFourStateShells(R("cmp-data.js")));
+  if (_noWhole === null) _noWhole = withoutSixStateShells(withoutFourStateShells(withoutMsVtMiTnShells(R("cmp-data.js"))));
   return boot(loc, Object.assign({ "cmp-data.js": _noWhole }, override || {}));
+}
+// THE ROSTER WITHOUT THE MISSISSIPPI, VERMONT, MICHIGAN AND TENNESSEE PASS, for
+// the Michigan contested cycle, which pins that a seat outside its races names
+// nobody: the pass's two blocks and its candidacies carved out, and every
+// existing row it edited (a seat named, a district set) put back as it stood
+// before the pass. It reads the same on the working tree and on any later HEAD.
+export const MS_VT_MI_TN_BANNERS = [
+  "// ── Sitting state legislators, Mississippi, Vermont, Michigan and Tennessee — roster shells (Oct 2026)",
+  "// ── 2026 state legislative candidates, Michigan, Tennessee and Vermont (Oct 2026)",
+];
+let _preMvmtRows = null;
+export const withoutMsVtMiTnShells = (src) => {
+  let out = String(src);
+  for (const b of MS_VT_MI_TN_BANNERS) {
+    const a = out.indexOf(b);
+    if (a < 0) continue;
+    const z = out.indexOf("\n// ── ", a + b.length);
+    if (z < 0) throw new Error("state-leg-harness: an ms/vt/mi/tn block has no following banner");
+    out = out.slice(0, a) + out.slice(z + 1);
+  }
+  const c = out.indexOf(",\n // ── Sitting Mississippi, Michigan, Tennessee and Vermont legislators who are");
+  if (c >= 0) out = out.slice(0, c) + out.slice(out.indexOf(",\n // ── Sitting Maine, Colorado", c));
+  if (_preMvmtRows === null) {
+    const rec = JSON.parse(R("db/roster-state-legislators-ms-vt-mi-tn-2026-oct.json"));
+    const pre = AT(PRE_MS_VT_MI_TN)("cmp-data.js");
+    if (pre === null) throw new Error("state-leg-harness: no baseline at " + PRE_MS_VT_MI_TN);
+    _preMvmtRows = [...rec.seatedFromCandidacy, ...rec.usHouseDistrictSet].map((r) => [r.pid, rowBlock(pre, r.pid)]);
+  }
+  for (const [pid, was] of _preMvmtRows) {
+    const now = rowBlock(out, pid);
+    if (now !== null && was !== null) out = out.replace(now, was);
+  }
+  return out;
+};
+let _noMvmt = null;
+export function bootWithoutMsVtMiTnShells(loc, override) {
+  if (_noMvmt === null) _noMvmt = withoutMsVtMiTnShells(R("cmp-data.js"));
+  return boot(loc, Object.assign({ "cmp-data.js": _noMvmt }, override || {}));
 }
 export const levelOf = (w, key) => (w.pdxRepsForMe().levels || []).filter((l) => l.key === key)[0] || null;
 export const band = (w) => { w.PDXWhoRepresentsMe.sync(); return String(w.document.getElementById("wrm-reps").innerHTML); };
@@ -432,6 +482,23 @@ function fourStateRowsOnly(now, was) {
   const rest = (w) => JSON.stringify(Object.keys(w).filter((k) => k !== "window" && k !== "CMP_DATA" && k !== "CMP_CANDIDACIES").sort().map((k) => [k, typeof w[k] === "function" ? String(w[k]) : w[k]]));
   return rest(A) === rest(B);
 }
+// THE MISSISSIPPI, VERMONT, MICHIGAN AND TENNESSEE PASS, the same way: with
+// those four states' rows and candidacies set aside on both sides, the roster
+// must be HEAD's, row for row, and every other table cmp-data.js publishes too.
+export const PRE_MS_VT_MI_TN = "69376e9";
+const MS_VT_MI_TN = new Set(["Mississippi", "Vermont", "Michigan", "Tennessee"]);
+const MS_VT_MI_TN_DOC_RE = /^district-(?:ms|vt|mi|tn)-(?:(?:cd|hd|sd)-\d+(?:-p\d)?|gov)\.html$/;
+function statesRowsOnly(now, was, STATES) {
+  const load = (src) => { const w = {}; w.window = w; vm.runInContext(src, vm.createContext(w)); return w; };
+  let A, B;
+  try { A = load(now); B = load(was); } catch (e) { return false; }
+  const inS = (r) => !!r && STATES.has(String(r.state || "").split(" \u00b7")[0].trim());
+  const outside = (T) => JSON.stringify(Object.keys(T || {}).filter((k) => !inS(T[k])).map((k) => [k, T[k]]));
+  if (outside(A.CMP_DATA) !== outside(B.CMP_DATA) || outside(A.CMP_CANDIDACIES) !== outside(B.CMP_CANDIDACIES)) return false;
+  for (const k of Object.keys(B.CMP_DATA || {})) if (!inS(B.CMP_DATA[k]) && inS((A.CMP_DATA || {})[k])) return false;
+  const rest = (w) => JSON.stringify(Object.keys(w).filter((k) => k !== "window" && k !== "CMP_DATA" && k !== "CMP_CANDIDACIES").sort().map((k) => [k, typeof w[k] === "function" ? String(w[k]) : w[k]]));
+  return rest(A) === rest(B);
+}
 function shellBlocksOnly(now, was) {
   const strip = (src) => SHELL_BLOCKS.reduce((s, b) => s.replace(b.re, ""), src);
   if (strip(now) !== strip(was)) return false;
@@ -453,8 +520,12 @@ function shellBlocksOnly(now, was) {
 export function settled(f) {
   const now = R(f), was = HEAD(f);
   if (now === was) return true;
-  if (was === null || now === null) return false;
-  if (f === "cmp-data.js") return shellBlocksOnly(now, was) || fourStateRowsOnly(now, was);
+  if (now === null) return false;
+  if (f === "cmp-data.js") return shellBlocksOnly(now, was) || fourStateRowsOnly(now, was) || statesRowsOnly(now, was, MS_VT_MI_TN);
+  // A board document this pass opened in one of its four states has no HEAD
+  // copy until it lands; it is the generator's, and test-ms-vt-mi-tn-deepen.mjs
+  // holds every one of them.
+  if (was === null) return MS_VT_MI_TN_DOC_RE.test(f) && AT(PRE_MS_VT_MI_TN)(f) === null;
   const bf = /^([a-z]{2})-ballot-2026\.js$/.exec(f);
   if (bf) {
     const A = ballotModule(now, bf[1]), B = ballotModule(was, bf[1]);

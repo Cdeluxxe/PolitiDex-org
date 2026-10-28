@@ -3193,6 +3193,12 @@
     }
     return '';
   }
+  // The same lookup for a caller outside this file: a named seat's own name
+  // ("Addison-1", "Chittenden Central") → its key, or 0. The board generator
+  // reads a Vermont roster record's district through it.
+  window.pdxLegKeyOfDistrictName = function (stateName, chamber, name) {
+    return parseInt(_pdxLegKeyOfName(_pdxStateName(stateName), _pdxLegChamber(chamber), name), 10) || 0;
+  };
 
   // The legislative district a record names in its own `district` field —
   // "SD 7", "HD 95", "LD 18", "District 7", "7". A chamber prefix has to agree
@@ -3230,13 +3236,45 @@
   // one member each and carry no position; the state numbers no seat in an
   // at-large pair, so 1 and 2 there are PolitiDex's numbering, in roster order,
   // printed Seat A and Seat B.
+  // Vermont elects both chambers from districts that send one, two or three
+  // members (the Senate's Chittenden Central sends three, the House's Addison-1
+  // two). A district that sends one is one seat and carries no position; in a
+  // district that sends more, the state numbers no seat either, so 1, 2 and 3
+  // are PolitiDex's numbering, in surname order, printed Seat A, Seat B and Seat
+  // C, as South Dakota's are. _PDX_LEG_DISTRICT_MEMBERS says how many each
+  // district sends, so a two-member district is never printed with a third seat.
   var _PDX_LEG_POSITIONS = { washington: { statehouse: 2 }, idaho: { statehouse: 2 },
-                             'south dakota': { statehouse: 2 } };
+                             'south dakota': { statehouse: 2 },
+                             vermont: { statehouse: 2, statesenate: 3 } };
   var _PDX_LEG_POSITION_WORDS = { idaho: { statehouse: ['Position A', 'Position B'] },
-                                  'south dakota': { statehouse: ['Seat A', 'Seat B'] } };
+                                  'south dakota': { statehouse: ['Seat A', 'Seat B'] },
+                                  vermont: { statehouse: ['Seat A', 'Seat B'],
+                                             statesenate: ['Seat A', 'Seat B', 'Seat C'] } };
+  // Members each district elects, index = key − 1, in _PDX_LEG_NAMES order (the
+  // 2022 apportionment, matching the 2026 ballot's vote-for counts). Only a state
+  // listed here varies by district; every other chamber's count is its
+  // _PDX_LEG_POSITIONS number, or one.
+  var _PDX_LEG_DISTRICT_MEMBERS = {
+    vermont: {
+      statesenate: [2, 2, 1, 3, 1, 3, 1, 2, 1, 1, 1, 1, 3, 3, 2, 3],
+      statehouse: [2, 1, 2, 2, 1, 1, 1, 2, 1, 2, 2, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 2, 2, 2, 2, 1,
+                   2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1, 1, 2, 1, 1, 2, 2, 1, 1, 1, 2, 1, 2, 1, 2, 1, 1,
+                   1, 1, 2, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1,
+                   2, 2, 2, 2, 1, 1, 2, 2, 1, 2, 1, 2, 1, 1, 2, 1, 1, 1, 2]
+    }
+  };
   function _pdxLegPositionsOf(st, ch) {
     var t = _PDX_LEG_POSITIONS[st];
     return (t && t[ch]) || 0;
+  }
+  // How many positions district `n` actually elects: the per-district count
+  // where the state has one, the chamber's number everywhere else.
+  function _pdxLegDistrictPositionsOf(st, ch, n) {
+    var npos = _pdxLegPositionsOf(st, ch);
+    var t = _PDX_LEG_DISTRICT_MEMBERS[st];
+    if (!npos || !t || !t[ch]) return npos;
+    var k = t[ch][n - 1] || 0;
+    return k > 1 ? Math.min(k, npos) : 0;
   }
   function _pdxLegIndex(st) {
     var idx = { statesenate: {}, statehouse: {}, positions: { statesenate: {}, statehouse: {} } };
@@ -3321,6 +3359,13 @@
   // Washington's House, 0 for every chamber that elects one member per seat.
   window.pdxLegPositions = function (stateName, chamber) {
     return _pdxLegPositionsOf(_pdxStateName(stateName), chamber);
+  };
+  // How many members one district elects in a state whose districts differ
+  // (Vermont), or 0 where the chamber's count is the same everywhere.
+  window.pdxLegDistrictMembers = function (stateName, chamber, key) {
+    var t = _PDX_LEG_DISTRICT_MEMBERS[_pdxStateName(stateName)];
+    var n = parseInt(String(key == null ? '' : key), 10);
+    return (t && t[chamber] && n > 0 && t[chamber][n - 1]) || 0;
   };
   // How one position is written for a reader: "Position 1" (Washington),
   // "Position A" (Idaho), "Seat A" (South Dakota), or '' for no such position.
@@ -4207,13 +4252,28 @@
     // nobody, because it is two seats; the level carries each position's member
     // instead, and only when the roster holds at least one, so a district with
     // no position on file reads exactly as it always has.
-    if (!utah && legMapped && ld && window.pdxLegPositions(state, 'statehouse')) {
+    // Vermont's Senate elects by position too, and a Vermont district elects
+    // only as many positions as it has members (one member: no positions at all).
+    var legPos = function (seat, n) {
+      var m = window.pdxLegDistrictMembers(state, seat, n);
+      var npos = window.pdxLegPositions(state, seat);
+      return m ? (m > 1 ? Math.min(m, npos) : 0) : npos;
+    };
+    if (!utah && legMapped && ld && legPos('statehouse', ld)) {
       var hl = levels[levels.length - 1];
       var pl = [];
-      for (var pi = 1; pi <= window.pdxLegPositions(state, 'statehouse'); pi++) {
+      for (var pi = 1; pi <= legPos('statehouse', ld); pi++) {
         pl.push({ position: pi, pid: window._pdxStateLegPosition(state, 'statehouse', ld, pi) || null });
       }
       if (hl && hl.key === 'statehouse' && pl.some(function (x) { return !!x.pid; })) hl.positions = pl;
+    }
+    if (!utah && legMapped && sd && legPos('statesenate', sd)) {
+      var sl = levels.filter(function (l) { return l.key === 'statesenate'; })[0];
+      var spl = [];
+      for (var si = 1; si <= legPos('statesenate', sd); si++) {
+        spl.push({ position: si, pid: window._pdxStateLegPosition(state, 'statesenate', sd, si) || null });
+      }
+      if (sl && spl.some(function (x) { return !!x.pid; })) sl.positions = spl;
     }
     // Nebraska has no State House: the row is left off, so its card counts the
     // seats its reader actually has.

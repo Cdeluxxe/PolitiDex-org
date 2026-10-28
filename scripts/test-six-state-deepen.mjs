@@ -32,7 +32,7 @@ import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
-import { R, AT, boot, levelOf, band } from "./state-leg-harness.mjs";
+import { R, AT, boot, levelOf, band, undoMsVtMiTnEdits } from "./state-leg-harness.mjs";
 import { planBoards, STATE_LEG_BOARD_STATES, GOVERNOR_STATES, ASSIGNED_POSITION_STATES, STATE_LEG_SEAT_COUNTS } from "./gen-district-boards.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -56,8 +56,10 @@ const inSix = (seat) => CODES.has(String(seat).slice(0, 2)) && String(seat)[2] =
 // THE FOUR STATES OPENED WHOLE SINCE. Maine, Colorado, Minnesota and Nevada were
 // boarded by the next pass; test-four-state-deepen.mjs holds those boards, rows
 // and walks, and this suite holds everything else to this pass's record.
-const LATER = new Set(["me", "co", "mn", "nv"]);
-const LATER_NAMES = new Set(["Maine", "Colorado", "Minnesota", "Nevada"]);
+// Mississippi, Vermont, Michigan and Tennessee were boarded after them, the same
+// way (test-ms-vt-mi-tn-deepen.mjs).
+const LATER = new Set(["me", "co", "mn", "nv", "ms", "vt", "mi", "tn"]);
+const LATER_NAMES = new Set(["Maine", "Colorado", "Minnesota", "Nevada", "Mississippi", "Vermont", "Michigan", "Tennessee"]);
 const inLater = (seat) => LATER.has(String(seat).slice(0, 2)) && String(seat)[2] === "-";
 const REC = JSON.parse(R("db/roster-state-legislators-ne-sd-id-mt-ak-ri-2026-oct.json"));
 const { boards: PLAN, skipped: SKIPPED } = planBoards();
@@ -233,8 +235,8 @@ const shellAt = (state, chamber, district, position) =>
   eq(BY.get("sd-statehouse-26-p1").h1, "South Dakota House District 27, Seat A", "South Dakota: District 27 Seat A heading");
   has(BY.get("sd-statehouse-26-p2").where, "PolitiDex’s label, not the state’s", "South Dakota: an at-large seat does not say its label is ours");
   has(band(W27), "District 27 · Seat B", "South Dakota: the card does not print Seat B");
-  eq([...ASSIGNED_POSITION_STATES].join(","), "sd", "only South Dakota's positions are PolitiDex-assigned");
-  eq(PLAN.filter((b) => b.positionAssigned).length, 66, "South Dakota: not 33 at-large pairs");
+  eq([...ASSIGNED_POSITION_STATES].filter((c) => !LATER.has(c)).join(","), "sd", "only South Dakota's positions are PolitiDex-assigned (beside Vermont's, opened since)");
+  eq(PLAN.filter((b) => b.positionAssigned && !inLater(b.seat)).length, 66, "South Dakota: not 33 at-large pairs");
   for (const r of shells.filter((x) => x.state === "South Dakota" && x.position)) eq(r.positionAssignedBy, "PolitiDex", `${r.pid}: the record does not say the position is ours`);
   const gen = execFileSync("node", ["scripts/gen-district-boards.mjs", "--check"], { cwd: ROOT, encoding: "utf8" });
   has(gen, "66 South Dakota House boards are at-large positions PolitiDex numbered", "the generator's log does not record the assigned positions");
@@ -269,15 +271,16 @@ for (const f of docs) {
   if (CODES.has(code) || LATER.has(code)) continue;
   if (ok(R(f) === BASE(f), `${f}: another state's board moved`)) same++;
 }
-ok(same > 600, `only ${same} other-state documents compared`);
+ok(same > 500, `only ${same} other-state documents compared`);
 const keyOf = (line) => (/^\s*['"]([a-z]{2})-/.exec(line) || [])[1];
 for (const f of ["district-board.js", "district-voice.js", "netlify/functions/district-board.mts"]) {
-  const now = R(f).split("\n").filter((l) => !CODES.has(keyOf(l)) && !LATER.has(keyOf(l)));
+  // The position shape test-ms-vt-mi-tn-deepen.mjs widened to either chamber is lifted out.
+  const now = undoMsVtMiTnEdits(f, R(f)).split("\n").filter((l) => !CODES.has(keyOf(l)) && !LATER.has(keyOf(l)));
   const was = BASE(f).split("\n").filter((l) => !CODES.has(keyOf(l)) && !LATER.has(keyOf(l)));
   eq(now.join("\n"), was.join("\n"), `${f}: a line outside the six states moved`);
 }
 {
-  const strip = (src) => src.split(/\n(?=# )/).filter((blk) => !/from = "\/district\/(?:ne|sd|id|mt|ak|ri|me|co|mn|nv)-/.test(blk)).join("\n");
+  const strip = (src) => src.split(/\n(?=# )/).filter((blk) => !/from = "\/district\/(?:ne|sd|id|mt|ak|ri|me|co|mn|nv|ms|vt|mi|tn)-/.test(blk)).join("\n");
   eq(strip(R("netlify.toml")), strip(BASE("netlify.toml")), "netlify.toml: a rewrite outside the six states moved");
 }
 let rows = 0;

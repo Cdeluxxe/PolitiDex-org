@@ -3508,6 +3508,21 @@ export const DECLARED_ADMISSIONS = [
     pids: JSON.parse(_readFileSync(new URL("../db/roster-candidates-legislative-me-co-mn-nv-2026-oct.json", import.meta.url), "utf8")).rows.map((r) => r.pid),
   },
   {
+    // Every sitting Mississippi and Vermont state legislator the roster did not
+    // already hold (Mississippi, Vermont, Michigan and Tennessee boarded whole),
+    // one identity row each; the record names each state's source.
+    wave: "state_legislators_ms_vt_mi_tn_oct2026",
+    banner: "// ── Sitting state legislators, Mississippi, Vermont, Michigan and Tennessee — roster shells (Oct 2026)",
+    pids: JSON.parse(_readFileSync(new URL("../db/roster-state-legislators-ms-vt-mi-tn-2026-oct.json", import.meta.url), "utf8")).rows.map((r) => r.pid),
+  },
+  {
+    // The 2026 State Senate and State House candidates on Michigan's,
+    // Tennessee's and Vermont's official lists whom the roster did not already hold.
+    wave: "legislative_candidates_mi_tn_vt_oct2026",
+    banner: "// ── 2026 state legislative candidates, Michigan, Tennessee and Vermont (Oct 2026)",
+    pids: JSON.parse(_readFileSync(new URL("../db/roster-candidates-legislative-mi-tn-vt-2026-oct.json", import.meta.url), "utf8")).rows.map((r) => r.pid),
+  },
+  {
     // Too many rows to type here, so the list is the committed record of
     // the pass itself, which also names each state's official source.
     wave: "candidates_outside_utah_oct2026",
@@ -3688,7 +3703,10 @@ export const DECLARED_CANDIDACIES = {
     // …and the four-state pass's: its members running for a different
     // legislative seat, and the four it seated whose candidacy moved here.
     .concat(JSON.parse(_readFileSync(new URL("../db/roster-candidates-legislative-me-co-mn-nv-2026-oct.json", import.meta.url), "utf8")).crossSeat.map((r) => r.pid))
-    .concat(JSON.parse(_readFileSync(new URL("../db/roster-state-legislators-me-co-mn-nv-2026-oct.json", import.meta.url), "utf8")).seatedFromCandidacy.map((r) => r.pid)),
+    .concat(JSON.parse(_readFileSync(new URL("../db/roster-state-legislators-me-co-mn-nv-2026-oct.json", import.meta.url), "utf8")).seatedFromCandidacy.map((r) => r.pid))
+    // …and the Mississippi, Vermont, Michigan and Tennessee pass's, the same way.
+    .concat(JSON.parse(_readFileSync(new URL("../db/roster-candidates-legislative-mi-tn-vt-2026-oct.json", import.meta.url), "utf8")).crossSeat.map((r) => r.pid))
+    .concat(JSON.parse(_readFileSync(new URL("../db/roster-state-legislators-ms-vt-mi-tn-2026-oct.json", import.meta.url), "utf8")).seatedFromCandidacy.map((r) => r.pid)),
 };
 const CANDIDACY_KEY = /^ "([a-z0-9_]+)": \{ "office"/gm;
 const ROSTER_KEY = /^\s*"([a-z0-9_]+)":\s*\{$/gm;
@@ -3718,12 +3736,17 @@ DECLARED_DISTRICTS.push({ pid: "don_bacon", values: ["2"] });
 // leaders their seat and eight U.S. Representatives their district ("ME-1").
 const _FOUR_REC = JSON.parse(_readFileSync(new URL("../db/roster-state-legislators-me-co-mn-nv-2026-oct.json", import.meta.url), "utf8"));
 for (const r of [..._FOUR_REC.districtSet, ..._FOUR_REC.usHouseDistrictSet]) DECLARED_DISTRICTS.push({ pid: r.pid, values: [r.district] });
+// The Mississippi, Vermont, Michigan and Tennessee pass gave four Michigan U.S.
+// Representatives their district ("MI-5").
+const _MVMT_REC = JSON.parse(_readFileSync(new URL("../db/roster-state-legislators-ms-vt-mi-tn-2026-oct.json", import.meta.url), "utf8"));
+for (const r of [..._MVMT_REC.districtSet, ..._MVMT_REC.usHouseDistrictSet]) DECLARED_DISTRICTS.push({ pid: r.pid, values: [r.district] });
 // DECLARED SEATINGS — a sitting legislator the roster held only as a 2026
 // candidacy for another office, whose row the four-state pass turned into the
 // seat they hold (office, district, `candidate: false`), moving the candidacy to
 // the candidacies table. The row is set aside whole on both sides, and only for
 // the pids the record names.
-export const DECLARED_SEATINGS = _FOUR_REC.seatedFromCandidacy.map((r) => r.pid);
+export const DECLARED_SEATINGS = _FOUR_REC.seatedFromCandidacy.map((r) => r.pid)
+  .concat(_MVMT_REC.seatedFromCandidacy.map((r) => r.pid));
 export const DECLARED_DISTRICT_PIDS = DECLARED_DISTRICTS.map((d) => d.pid);
 // DECLARED OFFICES — an existing row whose holder the chamber's own roster lists
 // as no longer serving, re-labelled "Former …" so no seat lookup names them. Same

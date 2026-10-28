@@ -265,7 +265,7 @@
     {
       "pid": "tlaib",
       "name": "Rashida Tlaib",
-      "office": "U.S. Representative · Michigan",
+      "office": "U.S. Representative · MI-12 · Michigan",
       "party": {
         "label": "D",
         "color": "#60a5fa"

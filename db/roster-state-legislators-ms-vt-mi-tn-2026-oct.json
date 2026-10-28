@@ -1,0 +1,5164 @@
+{
+ "_note": "Sitting Mississippi, Vermont, Michigan and Tennessee state legislators, read on 2026-10-28. Mississippi from the Open States current-legislator list (compiled from the Legislature's own member pages), checked against the Legislature's member XML and Wikipedia's chamber records: the Legislature's XML still lists members the November 2025 court-ordered special elections replaced, and Open States carries the winners. Vermont from the Legislature's own member list (legislature.vermont.gov/people/loadAll/2026), current members only: it seats the eleven members appointed since the 2025 session, whom Open States has not caught up with. Michigan and Tennessee were already on the roster (db/roster-state-legislators-mi-nj-va-2026-oct.json, db/roster-state-legislators-tn-in-mo-2026-oct.json); Tennessee's two House vacancies are the chamber directory's (House 31, Ron Travis, who resigned on election as Rhea County executive, which Open States still seats; House 84). cmp-data.js carries a roster shell for every \"rows\" entry; \"alreadyHeld\" are existing records that already named the seat; \"seatedFromCandidacy\" names sitting members who were on the roster only as a 2026 federal or statewide candidacy \u2014 their row now names the seat they hold and the candidacy moved to window.CMP_CANDIDACIES; \"usHouseDistrictSet\" names U.S. Representatives whose row gained its district. VERMONT'S SEATS: the Senate elects 30 members from 16 county districts and the House 150 from 109 districts, each district one, two or three members. A district's own name is its seat (the resolver keys it by its place in TIGERweb's 2024 list); a district with one member is one board, keyed like any other seat; a district with two or three is one board per member, keyed by position (vt-statehouse-1-p1, as Washington's, Idaho's and South Dakota's House seats are keyed). Vermont numbers no seat in such a district, so the positions are PolitiDex's, in surname order, printed Seat A, Seat B, Seat C; \"membersPerDistrict\" is the count each district elects, and it matches the 2026 ballot's vote-for count in every district. Mississippi Rep. Jeffrey Hulum III (House 119) was on the roster as the MS-4 Democratic nominee; his row now names his House seat. Four Mississippi and Vermont senators already carried an id in state-senate-stances-w10.js and -w12.js (dean_kirby, derrick_simmons, phil_baruth, kesha_ram_hinsdale); their shells use it. Mississippi Sen. Mike Thompson (thompson_ms) is not California's U.S. Rep. Mike Thompson (mike_thompson).",
+ "read": "2026-10-28",
+ "sources": {
+  "Mississippi": {
+   "list": "https://data.openstates.org/people/current/ms.csv",
+   "checked": [
+    "https://billstatus.ls.state.ms.us/members/hr_membs.xml",
+    "https://billstatus.ls.state.ms.us/members/ss_membs.xml"
+   ]
+  },
+  "Vermont": {
+   "list": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  "Michigan": {
+   "list": "https://data.openstates.org/people/current/mi.csv"
+  },
+  "Tennessee": {
+   "list": "https://wapp.capitol.tn.gov/apps/LegislatorInfo/Directory?chamber=H",
+   "senate": "https://wapp.capitol.tn.gov/apps/LegislatorInfo/Directory?chamber=S"
+  }
+ },
+ "seats": {
+  "Mississippi": {
+   "statesenate": 52,
+   "statehouse": 122
+  },
+  "Vermont": {
+   "statesenate": 16,
+   "statehouse": 109
+  },
+  "Michigan": {
+   "statesenate": 38,
+   "statehouse": 110
+  },
+  "Tennessee": {
+   "statesenate": 33,
+   "statehouse": 99
+  }
+ },
+ "vacant": {
+  "Mississippi": {
+   "statesenate": [
+    34
+   ],
+   "statehouse": [
+    70,
+    77
+   ]
+  },
+  "Vermont": {
+   "statesenate": [],
+   "statehouse": []
+  },
+  "Michigan": {
+   "statesenate": [],
+   "statehouse": []
+  },
+  "Tennessee": {
+   "statesenate": [],
+   "statehouse": [
+    31,
+    84
+   ]
+  }
+ },
+ "vacancyNotes": {
+  "Mississippi statesenate 34": "Juan Barnett resigned on 2026-08-31; a Senate vacancy after June 1 is not filled before the next general election.",
+  "Mississippi statehouse 70": "Bo Brown died on 2026-06-08.",
+  "Mississippi statehouse 77": "vacant on the chamber's own record.",
+  "Tennessee statehouse 31": "Ron Travis resigned on election as Rhea County executive.",
+  "Tennessee statehouse 84": "Joe Towns Jr. resigned on election as Shelby County Criminal Court Clerk."
+ },
+ "membersPerDistrict": {
+  "Vermont": {
+   "statesenate": {
+    "1": 2,
+    "2": 2,
+    "3": 1,
+    "4": 3,
+    "5": 1,
+    "6": 3,
+    "7": 1,
+    "8": 2,
+    "9": 1,
+    "10": 1,
+    "11": 1,
+    "12": 1,
+    "13": 3,
+    "14": 3,
+    "15": 2,
+    "16": 3
+   },
+   "statehouse": {
+    "1": 2,
+    "2": 1,
+    "3": 2,
+    "4": 2,
+    "5": 1,
+    "6": 1,
+    "7": 1,
+    "8": 2,
+    "9": 1,
+    "10": 2,
+    "11": 2,
+    "12": 1,
+    "13": 1,
+    "14": 2,
+    "15": 2,
+    "16": 1,
+    "17": 1,
+    "18": 1,
+    "19": 1,
+    "20": 1,
+    "21": 1,
+    "22": 2,
+    "23": 1,
+    "24": 1,
+    "25": 1,
+    "26": 2,
+    "27": 2,
+    "28": 2,
+    "29": 2,
+    "30": 1,
+    "31": 2,
+    "32": 2,
+    "33": 2,
+    "34": 2,
+    "35": 2,
+    "36": 2,
+    "37": 1,
+    "38": 1,
+    "39": 1,
+    "40": 1,
+    "41": 2,
+    "42": 2,
+    "43": 1,
+    "44": 1,
+    "45": 1,
+    "46": 2,
+    "47": 1,
+    "48": 1,
+    "49": 2,
+    "50": 2,
+    "51": 1,
+    "52": 1,
+    "53": 1,
+    "54": 2,
+    "55": 1,
+    "56": 2,
+    "57": 1,
+    "58": 2,
+    "59": 1,
+    "60": 1,
+    "61": 1,
+    "62": 1,
+    "63": 2,
+    "64": 1,
+    "65": 1,
+    "66": 1,
+    "67": 1,
+    "68": 2,
+    "69": 1,
+    "70": 2,
+    "71": 1,
+    "72": 1,
+    "73": 1,
+    "74": 1,
+    "75": 1,
+    "76": 1,
+    "77": 1,
+    "78": 1,
+    "79": 1,
+    "80": 1,
+    "81": 1,
+    "82": 1,
+    "83": 1,
+    "84": 2,
+    "85": 1,
+    "86": 1,
+    "87": 1,
+    "88": 1,
+    "89": 1,
+    "90": 1,
+    "91": 2,
+    "92": 2,
+    "93": 2,
+    "94": 2,
+    "95": 1,
+    "96": 1,
+    "97": 2,
+    "98": 2,
+    "99": 1,
+    "100": 2,
+    "101": 1,
+    "102": 2,
+    "103": 1,
+    "104": 1,
+    "105": 2,
+    "106": 1,
+    "107": 1,
+    "108": 1,
+    "109": 2
+   }
+  }
+ },
+ "notAdded": [],
+ "rows": [
+  {
+   "pid": "butler_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 37",
+   "name": "Albert Butler",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "berry_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 35",
+   "name": "Andy Berry",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "boyd_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 37",
+   "name": "Andy Boyd",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "hill_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 40",
+   "name": "Angela Hill",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "cockerham_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 96",
+   "name": "Angela Cockerham",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "turner_ford_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 16",
+   "name": "Angela Turner-Ford",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "blackmon_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 21",
+   "name": "Bradford Blackmon",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "williams_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 15",
+   "name": "Bart Williams",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "currie_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 92",
+   "name": "Becky Currie",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "suber_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 8",
+   "name": "Ben Suber",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "waldo_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 15",
+   "name": "Beth Waldo",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "kinkade_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 52",
+   "name": "Bill Kinkade",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "pigott_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 99",
+   "name": "Bill Pigott",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "calvert_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 83",
+   "name": "Billy Adam Calvert",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "evans_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 91",
+   "name": "Bob Evans",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "mattox_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 2",
+   "name": "Brad Mattox",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "anderson_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 122",
+   "name": "Brent Anderson",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "powell_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 59",
+   "name": "Brent Powell",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "rhodes_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 36",
+   "name": "Brian Rhodes",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "wiggins_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 52",
+   "name": "Brice Wiggins",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "clark_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 47",
+   "name": "Bryant Clark",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "bounds_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 44",
+   "name": "Scott Bounds",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "mickens_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 42",
+   "name": "Carl Mickens",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "crawford_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 121",
+   "name": "Carolyn Crawford",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "eure_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 116",
+   "name": "Casey Eure",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "burnett_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 9",
+   "name": "Cedric Burnett",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "hurst_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 75",
+   "name": "Celeste Hurst",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "mcmahan_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 6",
+   "name": "Chad McMahan",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "taylor_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 38",
+   "name": "Cheikh Taylor",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "johnson_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 44",
+   "name": "Chris Johnson",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "bell_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 65",
+   "name": "Chris Bell",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "blackwell_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 88",
+   "name": "Chuck Blackwell",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "younger_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 17",
+   "name": "Chuck Younger",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "deweese_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 12",
+   "name": "Clay Deweese",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "mansell_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 56",
+   "name": "Clay Mansell",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "eubanks_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 25",
+   "name": "Dan Eubanks",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "mclean_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 39",
+   "name": "Dana McLean",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "sparks_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 5",
+   "name": "Daniel Sparks",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "porter_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 98",
+   "name": "Daryl Porter",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "blount_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 29",
+   "name": "David Blount",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "dean_kirby",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 30",
+   "name": "Dean Kirby",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "debar_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 43",
+   "name": "Dennis DeBar",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "derrick_simmons",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 12",
+   "name": "Derrick Simmons",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "harris_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 28",
+   "name": "Doc Harris",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "hartness_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 42",
+   "name": "Don Hartness",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "donnie_bell_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 21",
+   "name": "Donnie Bell",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "scoggin_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 89",
+   "name": "Donnie Scoggin",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "banks_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 67",
+   "name": "Earle Banks",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "lawrence_blackmon_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 57",
+   "name": "Lawrence Blackmon",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "burch_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 105",
+   "name": "Elliot Burch",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "nelson_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 66",
+   "name": "Fabian Nelson",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "shanks_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 60",
+   "name": "Fred Shanks",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "brumfield_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 38",
+   "name": "Gary Brumfield",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "newman_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 61",
+   "name": "Gene Newman",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "haney_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 118",
+   "name": "Greg Haney",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "elliott_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 82",
+   "name": "Gregory Elliott",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "holloway_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 76",
+   "name": "Greg Holloway",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "zuber_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 113",
+   "name": "Hank Zuber",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "jackson_mccray_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 40",
+   "name": "Hester Jackson-McCray",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "frazier_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 27",
+   "name": "Hillman Frazier",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "bryan_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 7",
+   "name": "Hob Bryan",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "michel_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 25",
+   "name": "Walter Michel",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "owen_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 106",
+   "name": "Jansen Owen",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "barrett_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 39",
+   "name": "Jason Barrett",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "white_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 48",
+   "name": "Jason White",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "mcknight_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 95",
+   "name": "Jay McKnight",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "hale_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 24",
+   "name": "Jeff Hale",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "tate_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 33",
+   "name": "Jeff Tate",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "harness_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 85",
+   "name": "Jeffery Harness",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "guice_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 114",
+   "name": "Jeff Guice",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "jeramey_anderson_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 110",
+   "name": "Jeramey Anderson",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "england_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 51",
+   "name": "Jeremy England",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "turner_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 18",
+   "name": "Jerry Turner",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "ford_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 73",
+   "name": "Jill Ford",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "estrada_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 33",
+   "name": "Jim Estrada",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "fondren_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 111",
+   "name": "Jimmy Fondren",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "steverson_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 4",
+   "name": "Jody Steverson",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "carter_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 49",
+   "name": "Joel Carter",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "fillingane_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 41",
+   "name": "Joey Fillingane",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "hood_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 35",
+   "name": "Joey Hood",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "faulkner_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 5",
+   "name": "John Faulkner",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "read_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 112",
+   "name": "John Read",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "lamar_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 8",
+   "name": "Trey Lamar",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "hines_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 50",
+   "name": "John Hines",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "dupree_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 45",
+   "name": "Johnny DuPree",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "mcmillan_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 58",
+   "name": "Jonathan McMillan",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "seymour_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 47",
+   "name": "Mike Seymour",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "thomas_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 22",
+   "name": "Joseph Thomas",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "tubb_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 87",
+   "name": "Bubba Tubb",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "harkins_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 20",
+   "name": "Josh Harkins",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "hawkins_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 10",
+   "name": "Josh Hawkins",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "crosby_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 22",
+   "name": "Justin Crosby",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "keen_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 6",
+   "name": "Justin Keen",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "pope_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 24",
+   "name": "Justin Pope",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "gibbs_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 72",
+   "name": "Justis Gibbs",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "karriem_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 41",
+   "name": "Kabir Karriem",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "mumford_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 26",
+   "name": "Kamesha Mumford",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "karl_gibbs_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 36",
+   "name": "Karl Gibbs",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "oliver_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 46",
+   "name": "Karl Oliver",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "chism_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 3",
+   "name": "Kathy Chism",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "jackson_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 45",
+   "name": "Keith Jackson",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "morgan_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 100",
+   "name": "Ken Morgan",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "kenji_holloway_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 27",
+   "name": "Kenji Holloway",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "mccarty_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 101",
+   "name": "Kent McCarty",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "kevin_blackwell_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 19",
+   "name": "Kevin Blackwell",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "felsher_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 117",
+   "name": "Kevin Felsher",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "kevin_ford_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 54",
+   "name": "Kevin Ford",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "horan_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 34",
+   "name": "Kevin Horan",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "remak_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 7",
+   "name": "Kimberly Remak",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "varner_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 62",
+   "name": "Lance Varner",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "lane_taylor_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 18",
+   "name": "Lane Taylor",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "byrd_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 104",
+   "name": "Larry Byrd",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "lataisha_jackson_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 11",
+   "name": "Lataisha Jackson",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "yancey_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 74",
+   "name": "Lee Yancey",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "carpenter_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 1",
+   "name": "Bubba Carpenter",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "chassaniol_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 14",
+   "name": "Lydia Chassaniol",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "barton_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 109",
+   "name": "Manly Barton",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "tullos_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 79",
+   "name": "Mark Tullos",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "mclendon_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 1",
+   "name": "Michael McLendon",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "thompson_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 48",
+   "name": "Mike Thompson",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "mcgee_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 102",
+   "name": "Missy McGee",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "whaley_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 10",
+   "name": "Neil Whaley",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "nicole_boyd_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 9",
+   "name": "Nicole Boyd",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "sanford_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 90",
+   "name": "Noah Sanford",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "scott_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 80",
+   "name": "Omeria Scott",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "denton_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 55",
+   "name": "Oscar Denton",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "otha_williams_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 26",
+   "name": "Otha Williams",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "anthony_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 31",
+   "name": "Otis Anthony",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "watson_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 103",
+   "name": "Percy Watson",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "bailey_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 23",
+   "name": "Perry Bailey",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "ladner_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 46",
+   "name": "Philman Ladner",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "randy_boyd_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 19",
+   "name": "Randy Boyd",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "rushing_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 78",
+   "name": "Randy Rushing",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "bennett_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 120",
+   "name": "Richard Bennett",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "rickey_thompson_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 16",
+   "name": "Rickey Thompson",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "parks_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 4",
+   "name": "Rita Parks",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "roberson_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 43",
+   "name": "Rob Roberson",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "reginald_jackson_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 11",
+   "name": "Reginald Jackson",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "robert_johnson_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 94",
+   "name": "Robert Johnson",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "sanders_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 29",
+   "name": "Robert Sanders",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "hickman_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 32",
+   "name": "Rod Hickman",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "hall_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 20",
+   "name": "Rodney Hall",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "crudup_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 71",
+   "name": "Ronnie Crudup",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "mims_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 97",
+   "name": "Sam Mims",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "creekmore_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 14",
+   "name": "Sam Creekmore",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "simmons_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 13",
+   "name": "Sarita Simmons",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "delano_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 50",
+   "name": "Scott DeLano",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "yates_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 64",
+   "name": "Shanda Yates",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "aguirre_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 17",
+   "name": "Shane Aguirre",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "barnett_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 86",
+   "name": "Shane Barnett",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "norwood_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 28",
+   "name": "Sollie Norwood",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "osborne_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 32",
+   "name": "Solomon Osborne",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "hobgood_wilkes_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 108",
+   "name": "Stacey Hobgood-Wilkes",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "foster_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 63",
+   "name": "Stephanie Foster",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "horne_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 81",
+   "name": "Steve Horne",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "lott_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 107",
+   "name": "Steve Lott",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "massengill_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 13",
+   "name": "Steve Massengill",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "butler_washington_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 69",
+   "name": "Grace Butler-Washington",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "gillespie_isom_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 2",
+   "name": "Theresa Gillespie Isom",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "james_jones_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 51",
+   "name": "Timaka James-Jones",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "timmy_ladner_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 93",
+   "name": "Timmy Ladner",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "rosebud_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 30",
+   "name": "Tracey Rosebud",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "smith_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 84",
+   "name": "Troy Smith",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "mccaughn_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 31",
+   "name": "Tyler McCaughn",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "mangold_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 53",
+   "name": "Vince Mangold",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "hopson_ms",
+   "state": "Mississippi",
+   "chamber": "statesenate",
+   "district": "SD 23",
+   "name": "Briggs Hopson",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "arnold_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 3",
+   "name": "Tracy Arnold",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "willie_bailey_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 49",
+   "name": "Willie Bailey",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "grady_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 115",
+   "name": "Zack Grady",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "summers_ms",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 68",
+   "name": "Zakiya Summers",
+   "source": "https://data.openstates.org/people/current/ms.csv"
+  },
+  {
+   "pid": "phil_baruth",
+   "state": "Vermont",
+   "chamber": "statesenate",
+   "district": "Chittenden Central",
+   "position": 1,
+   "name": "Philip Baruth",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "beck_vt",
+   "state": "Vermont",
+   "chamber": "statesenate",
+   "district": "Caledonia",
+   "name": "Scott Beck",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "benson_vt",
+   "state": "Vermont",
+   "chamber": "statesenate",
+   "district": "Orange",
+   "name": "John Benson",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "bongartz_vt",
+   "state": "Vermont",
+   "chamber": "statesenate",
+   "district": "Bennington",
+   "position": 1,
+   "name": "Seth Bongartz",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "brennan_vt",
+   "state": "Vermont",
+   "chamber": "statesenate",
+   "district": "Grand Isle",
+   "name": "Pat Brennan",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "brock_vt",
+   "state": "Vermont",
+   "chamber": "statesenate",
+   "district": "Franklin",
+   "position": 1,
+   "name": "Randy Brock",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "chittenden_vt",
+   "state": "Vermont",
+   "chamber": "statesenate",
+   "district": "Chittenden South East",
+   "position": 1,
+   "name": "Thomas Chittenden",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "clarkson_vt",
+   "state": "Vermont",
+   "chamber": "statesenate",
+   "district": "Windsor",
+   "position": 1,
+   "name": "Alison Clarkson",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "collamore_vt",
+   "state": "Vermont",
+   "chamber": "statesenate",
+   "district": "Rutland",
+   "position": 1,
+   "name": "Brian Collamore",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "cummings_vt",
+   "state": "Vermont",
+   "chamber": "statesenate",
+   "district": "Washington",
+   "position": 1,
+   "name": "Ann Cummings",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "gulick_vt",
+   "state": "Vermont",
+   "chamber": "statesenate",
+   "district": "Chittenden Central",
+   "position": 2,
+   "name": "Martine Larocque Gulick",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "hardy_vt",
+   "state": "Vermont",
+   "chamber": "statesenate",
+   "district": "Addison",
+   "position": 1,
+   "name": "Ruth Hardy",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "harrison_vt",
+   "state": "Vermont",
+   "chamber": "statesenate",
+   "district": "Windham",
+   "position": 1,
+   "name": "Wendy Harrison",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "hashim_vt",
+   "state": "Vermont",
+   "chamber": "statesenate",
+   "district": "Windham",
+   "position": 2,
+   "name": "Nader Hashim",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "heffernan_vt",
+   "state": "Vermont",
+   "chamber": "statesenate",
+   "district": "Addison",
+   "position": 2,
+   "name": "Steven Heffernan",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "ingalls_vt",
+   "state": "Vermont",
+   "chamber": "statesenate",
+   "district": "Essex",
+   "name": "Russ Ingalls",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "lyons_vt",
+   "state": "Vermont",
+   "chamber": "statesenate",
+   "district": "Chittenden South East",
+   "position": 2,
+   "name": "Ginny Lyons",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "major_vt",
+   "state": "Vermont",
+   "chamber": "statesenate",
+   "district": "Windsor",
+   "position": 2,
+   "name": "Joe Major",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "mattos_vt",
+   "state": "Vermont",
+   "chamber": "statesenate",
+   "district": "Chittenden North",
+   "name": "Christopher Mattos",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "morley_vt",
+   "state": "Vermont",
+   "chamber": "statesenate",
+   "district": "Orleans",
+   "name": "John Morley III",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "norris_vt",
+   "state": "Vermont",
+   "chamber": "statesenate",
+   "district": "Franklin",
+   "position": 2,
+   "name": "Robert Norris",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "perchlik_vt",
+   "state": "Vermont",
+   "chamber": "statesenate",
+   "district": "Washington",
+   "position": 2,
+   "name": "Andrew Perchlik",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "plunkett_vt",
+   "state": "Vermont",
+   "chamber": "statesenate",
+   "district": "Bennington",
+   "position": 2,
+   "name": "Robert Plunkett",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "kesha_ram_hinsdale",
+   "state": "Vermont",
+   "chamber": "statesenate",
+   "district": "Chittenden South East",
+   "position": 3,
+   "name": "Kesha Ram Hinsdale",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "vyhovsky_vt",
+   "state": "Vermont",
+   "chamber": "statesenate",
+   "district": "Chittenden Central",
+   "position": 3,
+   "name": "Tanya Vyhovsky",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "watson_vt",
+   "state": "Vermont",
+   "chamber": "statesenate",
+   "district": "Washington",
+   "position": 3,
+   "name": "Anne Watson",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "weeks_vt",
+   "state": "Vermont",
+   "chamber": "statesenate",
+   "district": "Rutland",
+   "position": 2,
+   "name": "David Weeks",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "westman_vt",
+   "state": "Vermont",
+   "chamber": "statesenate",
+   "district": "Lamoille",
+   "name": "Richard Westman",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "white_vt",
+   "state": "Vermont",
+   "chamber": "statesenate",
+   "district": "Windsor",
+   "position": 3,
+   "name": "Becca White",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "williams_vt",
+   "state": "Vermont",
+   "chamber": "statesenate",
+   "district": "Rutland",
+   "position": 3,
+   "name": "Terry Williams",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "arsenault_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-2",
+   "position": 1,
+   "name": "Angela Arsenault",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "austin_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-19",
+   "position": 1,
+   "name": "Sarita Austin",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "bailey_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Lamoille-2",
+   "position": 1,
+   "name": "Richard Bailey",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "bartholomew_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Windsor-1",
+   "position": 1,
+   "name": "John Bartholomew",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "bartley_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Franklin-1",
+   "position": 1,
+   "name": "Ashley Bartley",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "berbeco_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-21",
+   "position": 1,
+   "name": "Daisy Berbeco",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "birong_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Addison-3",
+   "position": 1,
+   "name": "Matthew Birong",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "bishop_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-20",
+   "position": 1,
+   "name": "Doug Bishop",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "black_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-24",
+   "name": "Alyssa Black",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "bluemle_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-13",
+   "position": 1,
+   "name": "Tiffany Bluemle",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "bos_lun_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Windham-3",
+   "position": 1,
+   "name": "Michelle Bos-Lun",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "bosch_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Rutland-2",
+   "position": 1,
+   "name": "Dave Bosch",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "boutin_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Washington-3",
+   "position": 1,
+   "name": "Michael Boutin",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "boyden_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Lamoille-3",
+   "name": "Lucy Boyden",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "brady_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-2",
+   "position": 2,
+   "name": "Erin Brady",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "branagan_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Franklin-1",
+   "position": 2,
+   "name": "Carolyn Branagan",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "brigham_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Franklin-8",
+   "name": "Jack Brigham",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "brown_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-1",
+   "name": "Jana Brown",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "burditt_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Rutland-2",
+   "position": 2,
+   "name": "Thomas Burditt",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "burke_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Windham-8",
+   "name": "Mollie Burke",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "burkhardt_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-8",
+   "name": "Bridget Burkhardt",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "burrows_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Windsor-1",
+   "position": 2,
+   "name": "Elizabeth Burrows",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "burtt_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Caledonia-Washington",
+   "name": "Greg Burtt",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "campbell_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Caledonia-Essex",
+   "position": 1,
+   "name": "R. Scott Campbell",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "canfield_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Rutland-10",
+   "name": "William Canfield",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "carris_duncan_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Windham-6",
+   "name": "Emily Carris Duncan",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "casey_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Washington-4",
+   "position": 1,
+   "name": "Conor Casey",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "jim_casey_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Addison-Rutland",
+   "name": "Jim Casey",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "chapin_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Washington-5",
+   "name": "Ela Chapin",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "charlton_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Windsor-Windham",
+   "name": "Tom Charlton",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "christie_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Windsor-6",
+   "position": 1,
+   "name": "Kevin Christie",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "cina_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-15",
+   "position": 1,
+   "name": "Brian Cina",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "coffin_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Windsor-2",
+   "name": "VL Coffin IV",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "cole_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Windsor-6",
+   "position": 2,
+   "name": "Esme Cole",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "conlon_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Addison-2",
+   "name": "Peter Conlon",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "cooper_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Bennington-1",
+   "name": "Jonathan Cooper",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "corcoran_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Bennington-2",
+   "position": 1,
+   "name": "Timothy Corcoran II",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "critchlow_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-19",
+   "position": 2,
+   "name": "Wendy Critchlow",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "demar_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Franklin-7",
+   "name": "Penny Demar",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "dickinson_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Franklin-2",
+   "name": "Eileen Dickinson",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "dobrovich_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Orange-3",
+   "name": "Joshua Dobrovich",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "dodge_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-23",
+   "position": 1,
+   "name": "Leonora Dodge",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "dolan_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-22",
+   "position": 1,
+   "name": "Karen Dolan",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "dolgin_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Caledonia-Essex",
+   "position": 2,
+   "name": "Debbie Dolgin",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "donahue_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Washington-1",
+   "position": 1,
+   "name": "Anne Donahue",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "duke_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-17",
+   "name": "Abbey Duke",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "durfee_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Bennington-3",
+   "name": "David Durfee",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "eastes_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Windham-1",
+   "name": "Zon Eastes",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "emmons_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Windsor-3",
+   "position": 1,
+   "name": "Alice Emmons",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "feltus_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Caledonia-3",
+   "position": 1,
+   "name": "Martha Feltus",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "galfetti_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Washington-Orange",
+   "position": 1,
+   "name": "Gina Galfetti",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "garofano_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-23",
+   "position": 2,
+   "name": "Rey Garofano",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "goldman_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Windham-3",
+   "position": 2,
+   "name": "Leslie Goldman",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "goodnow_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Windham-9",
+   "name": "Ian Goodnow",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "goslant_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Washington-1",
+   "position": 2,
+   "name": "Kenneth Goslant",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "graning_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-3",
+   "position": 1,
+   "name": "Edye Graning",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "greer_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Bennington-2",
+   "position": 2,
+   "name": "Will Greer",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "gregoire_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Franklin-6",
+   "name": "James Gregoire",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "hango_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Franklin-5",
+   "position": 1,
+   "name": "Lisa Hango",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "harple_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Orleans-4",
+   "name": "Leanne Harple",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "harvey_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Rutland-3",
+   "name": "Zachary Harvey",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "headrick_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-15",
+   "position": 2,
+   "name": "Troy Headrick",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "higley_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Orleans-Lamoille",
+   "position": 1,
+   "name": "Mark Higley",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "holcombe_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Windsor-Orange-2",
+   "position": 1,
+   "name": "Rebecca Holcombe",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "hooper_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Orange-Washington-Addison",
+   "position": 1,
+   "name": "Philip Jay Hooper",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "houghton_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-22",
+   "position": 2,
+   "name": "Lori Houghton",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "howard_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Rutland-6",
+   "name": "Mary Howard",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "howland_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Rutland-4",
+   "name": "Christopher Howland",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "hoyt_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Windsor-4",
+   "name": "Michael Hoyt",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "hunter_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Bennington-4",
+   "position": 1,
+   "name": "Robert Hunter",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "james_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Bennington-4",
+   "position": 2,
+   "name": "Kathleen James",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "kascenska_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Essex-Caledonia",
+   "name": "John Kascenska",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "keyser_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Rutland-7",
+   "name": "Chris Keyser",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "kimbell_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Windsor-5",
+   "name": "Charles Kimbell",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "kleppner_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-13",
+   "position": 2,
+   "name": "Bram Kleppner",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "kornheiser_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Windham-7",
+   "name": "Emilie Kornheiser",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "krasnow_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-9",
+   "name": "Emilie Krasnow",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "krowinski_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-16",
+   "position": 1,
+   "name": "Jill Krowinski",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "labor_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Essex-Orleans",
+   "name": "Larry Labor",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "lalley_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-6",
+   "name": "Kate Lalley",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "lalonde_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-12",
+   "name": "Martin LaLonde",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "lamont_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Lamoille-Washington",
+   "position": 1,
+   "name": "Saudia LaMont",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "laroche_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Franklin-5",
+   "position": 2,
+   "name": "Wayne Laroche",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "lipsky_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Lamoille-1",
+   "name": "Jed Lipsky",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "logan_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-16",
+   "position": 2,
+   "name": "Kate Logan",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "long_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Windham-5",
+   "name": "Emily Long",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "kase_long_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-Franklin",
+   "position": 1,
+   "name": "Kase Long",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "lueders_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Addison-4",
+   "position": 1,
+   "name": "Karen Lueders",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "luneau_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Franklin-3",
+   "name": "Joe Luneau",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "maguire_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Rutland-5",
+   "name": "Eric Maguire",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "malay_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Rutland-8",
+   "name": "Alicia Malay",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "marcotte_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Orleans-Lamoille",
+   "position": 2,
+   "name": "Michael Marcotte",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "masland_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Windsor-Orange-2",
+   "position": 2,
+   "name": "James Masland",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "mccann_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Washington-4",
+   "position": 2,
+   "name": "Kate McCann",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "mccoy_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Rutland-1",
+   "name": "Patricia McCoy",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "mcgill_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Addison-5",
+   "name": "Jubilee McGill",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "micklus_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-Franklin",
+   "position": 2,
+   "name": "Tony Micklus",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "mihaly_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Washington-6",
+   "name": "Marc Mihaly",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "minier_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-11",
+   "name": "Brian Minier",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "morgan_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Grand Isle-Chittenden",
+   "position": 1,
+   "name": "Leland Morgan",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "michael_morgan_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Grand Isle-Chittenden",
+   "position": 2,
+   "name": "Michael Morgan",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "morris_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Windsor-3",
+   "position": 2,
+   "name": "Kristi Morris",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "morrissey_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Bennington-5",
+   "position": 1,
+   "name": "Mary Morrissey",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "morrow_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Windham-Windsor-Bennington",
+   "name": "Christopher Morrow",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "mrowicki_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Windham-4",
+   "name": "Michael Mrowicki",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "nelson_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Orleans-1",
+   "name": "Richard Nelson",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "nielsen_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Rutland-9",
+   "name": "Todd Nielsen",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "nigro_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Bennington-5",
+   "position": 2,
+   "name": "Michael Nigro",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "north_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Addison-3",
+   "position": 2,
+   "name": "Rob North",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "noyes_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Lamoille-2",
+   "position": 2,
+   "name": "Daniel Noyes",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "nugent_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-10",
+   "name": "Kate Nugent",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "o_brien_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Windsor-Orange-1",
+   "name": "John O'Brien",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "ode_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-18",
+   "position": 1,
+   "name": "Carol Ode",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "oliver_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Franklin-4",
+   "position": 1,
+   "name": "Thomas Oliver",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "olson_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Addison-4",
+   "position": 2,
+   "name": "Herb Olson",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "page_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Orleans-2",
+   "name": "Woodman Page",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "parsons_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Orange-Caledonia",
+   "name": "Joseph Parsons",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "pezzo_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-20",
+   "position": 2,
+   "name": "Gayle Pezzo",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "pinsonault_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Bennington-Rutland",
+   "name": "Sandy Pinsonault",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "pouech_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-4",
+   "name": "Phil Pouech",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "powers_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Caledonia-1",
+   "name": "Debra Powers",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "priestley_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Orange-2",
+   "name": "Monique Priestley",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "pritchard_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Rutland-Bennington",
+   "name": "Chris Pritchard",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "quimby_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Caledonia-3",
+   "position": 2,
+   "name": "Beth Quimby",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "rachelson_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-14",
+   "position": 1,
+   "name": "Barbara Rachelson",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "satcowitz_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Orange-Washington-Addison",
+   "position": 2,
+   "name": "Larry Satcowitz",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "scheu_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Addison-1",
+   "position": 1,
+   "name": "Robin Scheu",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "scully_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-18",
+   "position": 2,
+   "name": "Kevin Scully",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "sheldon_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Addison-1",
+   "position": 2,
+   "name": "Amy Sheldon",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "sibilia_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Windham-2",
+   "name": "Laura Sibilia",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "soucy_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Washington-Orange",
+   "position": 2,
+   "name": "David Soucy",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "southworth_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Caledonia-2",
+   "name": "Mike Southworth",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "squirrell_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-3",
+   "position": 2,
+   "name": "Trevor Squirrell",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "steady_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-25",
+   "name": "Brenda Steady",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "stevens_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Washington-Chittenden",
+   "position": 1,
+   "name": "Thomas Stevens",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "stone_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-14",
+   "position": 2,
+   "name": "Mary-Katherine Stone",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "sweeney_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-7",
+   "name": "Shawn Sweeney",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "tagliavia_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Orange-1",
+   "name": "Mike Tagliavia",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "taylor_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Rutland-11",
+   "name": "Valorie Taylor",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "tomlinson_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-21",
+   "position": 2,
+   "name": "Chloe Tomlinson",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "torre_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Washington-2",
+   "position": 1,
+   "name": "Dara Torre",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "walker_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Franklin-4",
+   "position": 2,
+   "name": "Matt Walker",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "waszazak_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Washington-3",
+   "position": 2,
+   "name": "Teddy Waszazak",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "waters_evans_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Chittenden-5",
+   "name": "Chea Waters Evans",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "wells_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Orleans-3",
+   "name": "Ken Wells",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "candice_white_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Washington-2",
+   "position": 2,
+   "name": "Candice White",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "kirk_white_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Windsor-Addison",
+   "name": "Kirk White",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "winter_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Rutland-Windsor",
+   "name": "Kevin Winter",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "wood_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Washington-Chittenden",
+   "position": 2,
+   "name": "Theresa Wood",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  },
+  {
+   "pid": "yacovone_vt",
+   "state": "Vermont",
+   "chamber": "statehouse",
+   "district": "Lamoille-Washington",
+   "position": 2,
+   "name": "David Yacovone",
+   "source": "https://legislature.vermont.gov/people/loadAll/2026"
+  }
+ ],
+ "alreadyHeld": [
+  {
+   "pid": "geiss_mi",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 1",
+   "name": "Erika Geiss"
+  },
+  {
+   "pid": "santana_mi",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 2",
+   "name": "Sylvia A Santana"
+  },
+  {
+   "pid": "chang_mi",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 3",
+   "name": "Stephanie Chang"
+  },
+  {
+   "pid": "camilleri_mi",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 4",
+   "name": "Darrin Camilleri"
+  },
+  {
+   "pid": "polehanki_mi",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 5",
+   "name": "Dayna Polehanki"
+  },
+  {
+   "pid": "cavanagh_mi",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 6",
+   "name": "Mary Cavanagh"
+  },
+  {
+   "pid": "jeremy_moss",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 7",
+   "name": "Jeremy Moss"
+  },
+  {
+   "pid": "mallory_mcmorrow",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 8",
+   "name": "Mallory McMorrow"
+  },
+  {
+   "pid": "webber_mi",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 9",
+   "name": "Michael Webber"
+  },
+  {
+   "pid": "wojno_mi",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 10",
+   "name": "Paul Wojno"
+  },
+  {
+   "pid": "klinefelt_mi",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 11",
+   "name": "Veronica Klinefelt"
+  },
+  {
+   "pid": "hertel_mi",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 12",
+   "name": "Kevin Hertel"
+  },
+  {
+   "pid": "bayer_mi",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 13",
+   "name": "Rosemary Bayer"
+  },
+  {
+   "pid": "shink_mi",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 14",
+   "name": "Sue Shink"
+  },
+  {
+   "pid": "irwin_mi",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 15",
+   "name": "Jeff Irwin"
+  },
+  {
+   "pid": "bellino_mi",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 16",
+   "name": "Joseph N Bellino Jr."
+  },
+  {
+   "pid": "lindsey_mi",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 17",
+   "name": "Jonathan Lindsey"
+  },
+  {
+   "pid": "albert_mi",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 18",
+   "name": "Thomas A Albert"
+  },
+  {
+   "pid": "aric_nesbitt",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 20",
+   "name": "Aric Nesbitt"
+  },
+  {
+   "pid": "anthony_mi",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 21",
+   "name": "Sarah E Anthony"
+  },
+  {
+   "pid": "theis_mi",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 22",
+   "name": "Lana Theis"
+  },
+  {
+   "pid": "runestad_mi",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 23",
+   "name": "Jim Runestad"
+  },
+  {
+   "pid": "johnson_mi",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 24",
+   "name": "Ruth A Johnson"
+  },
+  {
+   "pid": "lauwers_mi",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 25",
+   "name": "Dan Lauwers"
+  },
+  {
+   "pid": "daley_mi",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 26",
+   "name": "Kevin Daley"
+  },
+  {
+   "pid": "cherry_mi",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 27",
+   "name": "John Cherry"
+  },
+  {
+   "pid": "singh_mi",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 28",
+   "name": "Sam Singh"
+  },
+  {
+   "pid": "winnie_brinks",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 29",
+   "name": "Winnie Brinks"
+  },
+  {
+   "pid": "huizenga_mi",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 30",
+   "name": "Mark E Huizenga"
+  },
+  {
+   "pid": "victory_mi",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 31",
+   "name": "Roger Victory"
+  },
+  {
+   "pid": "bumstead_mi",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 32",
+   "name": "Jon C Bumstead"
+  },
+  {
+   "pid": "rick_outman_mi",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 33",
+   "name": "Rick Outman"
+  },
+  {
+   "pid": "hauck_mi",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 34",
+   "name": "Roger Hauck"
+  },
+  {
+   "pid": "chedrick_greene_mi",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 35",
+   "name": "Chedrick Greene"
+  },
+  {
+   "pid": "hoitenga_mi",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 36",
+   "name": "Michele Hoitenga"
+  },
+  {
+   "pid": "damoose_mi",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 37",
+   "name": "John N Damoose"
+  },
+  {
+   "pid": "mcbroom_mi",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 38",
+   "name": "Edward W McBroom"
+  },
+  {
+   "pid": "tyrone_carter_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 1",
+   "name": "Tyrone Carter"
+  },
+  {
+   "pid": "liberati_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 2",
+   "name": "Tullio Liberati Jr."
+  },
+  {
+   "pid": "farhat_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 3",
+   "name": "Alabas Farhat"
+  },
+  {
+   "pid": "whitsett_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 4",
+   "name": "Karen Whitsett"
+  },
+  {
+   "pid": "weiss_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 5",
+   "name": "Regina Weiss"
+  },
+  {
+   "pid": "price_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 6",
+   "name": "Natalie Price"
+  },
+  {
+   "pid": "myers_phillips_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 7",
+   "name": "Tonya Myers Phillips"
+  },
+  {
+   "pid": "scott_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 8",
+   "name": "Helena Scott"
+  },
+  {
+   "pid": "tate_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 9",
+   "name": "Joseph Tate"
+  },
+  {
+   "pid": "paiz_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 10",
+   "name": "Veronica Paiz"
+  },
+  {
+   "pid": "edwards_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 12",
+   "name": "Kimberly Edwards"
+  },
+  {
+   "pid": "xiong_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 13",
+   "name": "Mai Xiong"
+  },
+  {
+   "pid": "mcfall_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 14",
+   "name": "Mike McFall"
+  },
+  {
+   "pid": "byrnes_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 15",
+   "name": "Erin Byrnes"
+  },
+  {
+   "pid": "young_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 16",
+   "name": "Stephanie A Young"
+  },
+  {
+   "pid": "pohutsky_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 17",
+   "name": "Laurie Pohutsky"
+  },
+  {
+   "pid": "hoskins_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 18",
+   "name": "Jason M Hoskins"
+  },
+  {
+   "pid": "steckloff_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 19",
+   "name": "Samantha Steckloff"
+  },
+  {
+   "pid": "arbit_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 20",
+   "name": "Noah Arbit"
+  },
+  {
+   "pid": "breen_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 21",
+   "name": "Kelly A Breen"
+  },
+  {
+   "pid": "koleszar_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 22",
+   "name": "Matt Koleszar"
+  },
+  {
+   "pid": "morgan_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 23",
+   "name": "Jason Morgan"
+  },
+  {
+   "pid": "ranjeev_puri",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 24",
+   "name": "Ranjeev Puri"
+  },
+  {
+   "pid": "herzberg_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 25",
+   "name": "Peter Herzberg"
+  },
+  {
+   "pid": "wegela_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 26",
+   "name": "Dylan Wegela"
+  },
+  {
+   "pid": "linting_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 27",
+   "name": "Rylee Linting"
+  },
+  {
+   "pid": "thompson_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 28",
+   "name": "Jamie Thompson"
+  },
+  {
+   "pid": "desana_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 29",
+   "name": "James DeSana"
+  },
+  {
+   "pid": "bruck_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 30",
+   "name": "William Bruck"
+  },
+  {
+   "pid": "miller_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 31",
+   "name": "Reggie Miller"
+  },
+  {
+   "pid": "wilson_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 32",
+   "name": "Jimmie Wilson Jr"
+  },
+  {
+   "pid": "foreman_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 33",
+   "name": "Morgan Foreman"
+  },
+  {
+   "pid": "jenkins_arno_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 34",
+   "name": "Nancy Jenkins-Arno"
+  },
+  {
+   "pid": "wortz_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 35",
+   "name": "Jennifer Wortz"
+  },
+  {
+   "pid": "carra_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 36",
+   "name": "Steve Carra"
+  },
+  {
+   "pid": "paquette_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 37",
+   "name": "Brad Paquette"
+  },
+  {
+   "pid": "andrews_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 38",
+   "name": "Joey Andrews"
+  },
+  {
+   "pid": "wendzel_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 39",
+   "name": "Pauline Wendzel"
+  },
+  {
+   "pid": "longjohn_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 40",
+   "name": "Matt Longjohn"
+  },
+  {
+   "pid": "rogers_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 41",
+   "name": "Julie M. Rogers"
+  },
+  {
+   "pid": "matt_hall",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 42",
+   "name": "Matt Hall"
+  },
+  {
+   "pid": "smit_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 43",
+   "name": "Rachelle Smit"
+  },
+  {
+   "pid": "frisbie_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 44",
+   "name": "Steve Frisbie"
+  },
+  {
+   "pid": "lightner_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 45",
+   "name": "Sarah Lightner"
+  },
+  {
+   "pid": "schmaltz_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 46",
+   "name": "Kathy Schmaltz"
+  },
+  {
+   "pid": "rheingans_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 47",
+   "name": "Carrie Rheingans"
+  },
+  {
+   "pid": "conlin_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 48",
+   "name": "Jennifer Conlin"
+  },
+  {
+   "pid": "bollin_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 49",
+   "name": "Ann M. Bollin"
+  },
+  {
+   "pid": "woolford_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 50",
+   "name": "Jason Woolford"
+  },
+  {
+   "pid": "maddock_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 51",
+   "name": "Matt Maddock"
+  },
+  {
+   "pid": "harris_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 52",
+   "name": "Mike Harris"
+  },
+  {
+   "pid": "brenda_carter_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 53",
+   "name": "Brenda Carter"
+  },
+  {
+   "pid": "steele_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 54",
+   "name": "Donni Steele"
+  },
+  {
+   "pid": "tisdel_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 55",
+   "name": "Mark A Tisdel"
+  },
+  {
+   "pid": "macdonell_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 56",
+   "name": "Sharon MacDonell"
+  },
+  {
+   "pid": "kuhn_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 57",
+   "name": "Thomas Kuhn"
+  },
+  {
+   "pid": "robinson_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 58",
+   "name": "Ron Robinson"
+  },
+  {
+   "pid": "wozniak_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 59",
+   "name": "Douglas C Wozniak"
+  },
+  {
+   "pid": "aragona_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 60",
+   "name": "Joseph A. Aragona"
+  },
+  {
+   "pid": "mentzer_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 61",
+   "name": "Denise Mentzer"
+  },
+  {
+   "pid": "st_germaine_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 62",
+   "name": "Alicia St. Germaine"
+  },
+  {
+   "pid": "pavlov_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 64",
+   "name": "Joseph Pavlov"
+  },
+  {
+   "pid": "jaime_greene_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 65",
+   "name": "Jaime Greene"
+  },
+  {
+   "pid": "schriver_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 66",
+   "name": "Josh Schriver"
+  },
+  {
+   "pid": "green_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 67",
+   "name": "Phil Green"
+  },
+  {
+   "pid": "martin_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 68",
+   "name": "David W. Martin"
+  },
+  {
+   "pid": "martus_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 69",
+   "name": "Jasper Martus"
+  },
+  {
+   "pid": "neeley_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 70",
+   "name": "Cynthia Neeley"
+  },
+  {
+   "pid": "begole_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 71",
+   "name": "Brian BeGole"
+  },
+  {
+   "pid": "mueller_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 72",
+   "name": "Mike Mueller"
+  },
+  {
+   "pid": "brixie_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 73",
+   "name": "Julie Brixie"
+  },
+  {
+   "pid": "hope_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 74",
+   "name": "Kara Hope"
+  },
+  {
+   "pid": "tsernoglou_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 75",
+   "name": "Penelope Tsernoglou"
+  },
+  {
+   "pid": "witwer_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 76",
+   "name": "Angela Witwer"
+  },
+  {
+   "pid": "dievendorf_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 77",
+   "name": "Emily Dievendorf"
+  },
+  {
+   "pid": "johnsen_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 78",
+   "name": "Gina Johnsen"
+  },
+  {
+   "pid": "rigas_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 79",
+   "name": "Angela Rigas"
+  },
+  {
+   "pid": "skaggs_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 80",
+   "name": "Phil Skaggs"
+  },
+  {
+   "pid": "wooden_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 81",
+   "name": "Stephen Wooden"
+  },
+  {
+   "pid": "grant_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 82",
+   "name": "Kristian Grant"
+  },
+  {
+   "pid": "fitzgerald_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 83",
+   "name": "John Fitzgerald"
+  },
+  {
+   "pid": "glanville_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 84",
+   "name": "Carol Glanville"
+  },
+  {
+   "pid": "slagh_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 85",
+   "name": "Bradley Slagh"
+  },
+  {
+   "pid": "deboer_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 86",
+   "name": "Nancy DeBoer"
+  },
+  {
+   "pid": "snyder_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 87",
+   "name": "Will Snyder"
+  },
+  {
+   "pid": "vanwoerkom_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 88",
+   "name": "Greg VanWoerkom"
+  },
+  {
+   "pid": "meerman_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 89",
+   "name": "Luke Meerman"
+  },
+  {
+   "pid": "posthumus_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 90",
+   "name": "Bryan Posthumus"
+  },
+  {
+   "pid": "pat_outman_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 91",
+   "name": "Pat Outman"
+  },
+  {
+   "pid": "neyer_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 92",
+   "name": "Jerry Neyer"
+  },
+  {
+   "pid": "kelly_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 93",
+   "name": "Tim Kelly"
+  },
+  {
+   "pid": "oneal_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 94",
+   "name": "Amos O'Neal"
+  },
+  {
+   "pid": "schuette_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 95",
+   "name": "Bill Schuette"
+  },
+  {
+   "pid": "beson_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 96",
+   "name": "Timothy Beson"
+  },
+  {
+   "pid": "bierlein_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 97",
+   "name": "Matthew Bierlein"
+  },
+  {
+   "pid": "alexander_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 98",
+   "name": "Gregory Alexander"
+  },
+  {
+   "pid": "hoadley_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 99",
+   "name": "Mike Hoadley"
+  },
+  {
+   "pid": "kunse_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 100",
+   "name": "Tom Kunse"
+  },
+  {
+   "pid": "fox_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 101",
+   "name": "Joseph Fox"
+  },
+  {
+   "pid": "vanderwall_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 102",
+   "name": "Curtis S VanderWall"
+  },
+  {
+   "pid": "coffia_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 103",
+   "name": "Betsy Coffia"
+  },
+  {
+   "pid": "roth_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 104",
+   "name": "John R. Roth"
+  },
+  {
+   "pid": "borton_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 105",
+   "name": "Ken Borton"
+  },
+  {
+   "pid": "cavitt_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 106",
+   "name": "Cameron Cavitt"
+  },
+  {
+   "pid": "fairbairn_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 107",
+   "name": "Parker Fairbairn"
+  },
+  {
+   "pid": "prestin_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 108",
+   "name": "David Prestin"
+  },
+  {
+   "pid": "bohnak_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 109",
+   "name": "Karl Bohnak"
+  },
+  {
+   "pid": "markkanen_mi",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 110",
+   "name": "Gregory Markkanen"
+  },
+  {
+   "pid": "lowe_tn",
+   "state": "Tennessee",
+   "chamber": "statesenate",
+   "district": "SD 1",
+   "name": "Adam Lowe"
+  },
+  {
+   "pid": "hatcher_tn",
+   "state": "Tennessee",
+   "chamber": "statesenate",
+   "district": "SD 2",
+   "name": "Tom Hatcher"
+  },
+  {
+   "pid": "crowe_tn",
+   "state": "Tennessee",
+   "chamber": "statesenate",
+   "district": "SD 3",
+   "name": "Rusty Crowe"
+  },
+  {
+   "pid": "harshbarger_tn",
+   "state": "Tennessee",
+   "chamber": "statesenate",
+   "district": "SD 4",
+   "name": "Bobby Harshbarger"
+  },
+  {
+   "pid": "randy_mcnally",
+   "state": "Tennessee",
+   "chamber": "statesenate",
+   "district": "SD 5",
+   "name": "Randy McNally"
+  },
+  {
+   "pid": "massey_tn",
+   "state": "Tennessee",
+   "chamber": "statesenate",
+   "district": "SD 6",
+   "name": "Becky D. Massey"
+  },
+  {
+   "pid": "briggs_tn",
+   "state": "Tennessee",
+   "chamber": "statesenate",
+   "district": "SD 7",
+   "name": "Richard Briggs"
+  },
+  {
+   "pid": "seal_tn",
+   "state": "Tennessee",
+   "chamber": "statesenate",
+   "district": "SD 8",
+   "name": "Jessie Seal"
+  },
+  {
+   "pid": "southerland_tn",
+   "state": "Tennessee",
+   "chamber": "statesenate",
+   "district": "SD 9",
+   "name": "Steve Southerland"
+  },
+  {
+   "pid": "gardenhire_tn",
+   "state": "Tennessee",
+   "chamber": "statesenate",
+   "district": "SD 10",
+   "name": "Todd Gardenhire"
+  },
+  {
+   "pid": "watson_tn",
+   "state": "Tennessee",
+   "chamber": "statesenate",
+   "district": "SD 11",
+   "name": "Bo Watson"
+  },
+  {
+   "pid": "yager_tn",
+   "state": "Tennessee",
+   "chamber": "statesenate",
+   "district": "SD 12",
+   "name": "Ken Yager"
+  },
+  {
+   "pid": "dawn_white_tn",
+   "state": "Tennessee",
+   "chamber": "statesenate",
+   "district": "SD 13",
+   "name": "Dawn White"
+  },
+  {
+   "pid": "shane_reeves_tn",
+   "state": "Tennessee",
+   "chamber": "statesenate",
+   "district": "SD 14",
+   "name": "Shane Reeves"
+  },
+  {
+   "pid": "bailey_tn",
+   "state": "Tennessee",
+   "chamber": "statesenate",
+   "district": "SD 15",
+   "name": "Paul Bailey"
+  },
+  {
+   "pid": "bowling_tn",
+   "state": "Tennessee",
+   "chamber": "statesenate",
+   "district": "SD 16",
+   "name": "Janice Bowling"
+  },
+  {
+   "pid": "pody_tn",
+   "state": "Tennessee",
+   "chamber": "statesenate",
+   "district": "SD 17",
+   "name": "Mark Pody"
+  },
+  {
+   "pid": "haile_tn",
+   "state": "Tennessee",
+   "chamber": "statesenate",
+   "district": "SD 18",
+   "name": "Ferrell Haile"
+  },
+  {
+   "pid": "oliver_tn",
+   "state": "Tennessee",
+   "chamber": "statesenate",
+   "district": "SD 19",
+   "name": "Charlane Oliver"
+  },
+  {
+   "pid": "campbell_tn",
+   "state": "Tennessee",
+   "chamber": "statesenate",
+   "district": "SD 20",
+   "name": "Heidi Campbell"
+  },
+  {
+   "pid": "yarbro_tn",
+   "state": "Tennessee",
+   "chamber": "statesenate",
+   "district": "SD 21",
+   "name": "Jeff Yarbro"
+  },
+  {
+   "pid": "bill_powers_tn",
+   "state": "Tennessee",
+   "chamber": "statesenate",
+   "district": "SD 22",
+   "name": "Bill Powers"
+  },
+  {
+   "pid": "roberts_tn",
+   "state": "Tennessee",
+   "chamber": "statesenate",
+   "district": "SD 23",
+   "name": "Kerry Roberts"
+  },
+  {
+   "pid": "john_stevens_tn",
+   "state": "Tennessee",
+   "chamber": "statesenate",
+   "district": "SD 24",
+   "name": "John Stevens"
+  },
+  {
+   "pid": "jackson_tn",
+   "state": "Tennessee",
+   "chamber": "statesenate",
+   "district": "SD 25",
+   "name": "Ed Jackson"
+  },
+  {
+   "pid": "walley_tn",
+   "state": "Tennessee",
+   "chamber": "statesenate",
+   "district": "SD 26",
+   "name": "Page Walley"
+  },
+  {
+   "pid": "jack_johnson_tn",
+   "state": "Tennessee",
+   "chamber": "statesenate",
+   "district": "SD 27",
+   "name": "Jack Johnson"
+  },
+  {
+   "pid": "hensley_tn",
+   "state": "Tennessee",
+   "chamber": "statesenate",
+   "district": "SD 28",
+   "name": "Joey Hensley"
+  },
+  {
+   "pid": "raumesh_akbari",
+   "state": "Tennessee",
+   "chamber": "statesenate",
+   "district": "SD 29",
+   "name": "Raumesh Akbari"
+  },
+  {
+   "pid": "kyle_tn",
+   "state": "Tennessee",
+   "chamber": "statesenate",
+   "district": "SD 30",
+   "name": "Sara Kyle"
+  },
+  {
+   "pid": "rose_tn",
+   "state": "Tennessee",
+   "chamber": "statesenate",
+   "district": "SD 32",
+   "name": "Paul Rose"
+  },
+  {
+   "pid": "lamar_tn",
+   "state": "Tennessee",
+   "chamber": "statesenate",
+   "district": "SD 33",
+   "name": "London Lamar"
+  },
+  {
+   "pid": "crawford_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 1",
+   "name": "John Crawford"
+  },
+  {
+   "pid": "hulsey_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 2",
+   "name": "Bud Hulsey"
+  },
+  {
+   "pid": "hill_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 3",
+   "name": "Timothy Hill"
+  },
+  {
+   "pid": "renea_jones_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 4",
+   "name": "Renea Jones"
+  },
+  {
+   "pid": "hawk_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 5",
+   "name": "David B. Hawk"
+  },
+  {
+   "pid": "tim_hicks_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 6",
+   "name": "Tim Hicks"
+  },
+  {
+   "pid": "alexander_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 7",
+   "name": "Rebecca K. Alexander"
+  },
+  {
+   "pid": "moon_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 8",
+   "name": "Jerome Moon"
+  },
+  {
+   "pid": "gary_hicks_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 9",
+   "name": "Gary Hicks"
+  },
+  {
+   "pid": "eldridge_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 10",
+   "name": "Rick Eldridge"
+  },
+  {
+   "pid": "faison_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 11",
+   "name": "Jeremy Faison"
+  },
+  {
+   "pid": "atchley_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 12",
+   "name": "Fred Atchley"
+  },
+  {
+   "pid": "robert_stevens_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 13",
+   "name": "Robert Stevens"
+  },
+  {
+   "pid": "zachary_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 14",
+   "name": "Jason Zachary"
+  },
+  {
+   "pid": "mckenzie_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 15",
+   "name": "Sam McKenzie"
+  },
+  {
+   "pid": "carringer_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 16",
+   "name": "Michele Carringer"
+  },
+  {
+   "pid": "farmer_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 17",
+   "name": "Andrew Farmer"
+  },
+  {
+   "pid": "davis_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 18",
+   "name": "Elaine Davis"
+  },
+  {
+   "pid": "wright_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 19",
+   "name": "Dave Wright"
+  },
+  {
+   "pid": "stinnett_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 20",
+   "name": "Tom Stinnett"
+  },
+  {
+   "pid": "russell_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 21",
+   "name": "Lowell Russell"
+  },
+  {
+   "pid": "howell_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 22",
+   "name": "Dan Howell"
+  },
+  {
+   "pid": "cochran_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 23",
+   "name": "Mark Cochran"
+  },
+  {
+   "pid": "raper_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 24",
+   "name": "Kevin D. Raper"
+  },
+  {
+   "pid": "cameron_sexton",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 25",
+   "name": "Cameron Sexton"
+  },
+  {
+   "pid": "greg_martin_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 26",
+   "name": "Greg Martin"
+  },
+  {
+   "pid": "reneau_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 27",
+   "name": "Michele Reneau"
+  },
+  {
+   "pid": "hakeem_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 28",
+   "name": "Yusuf Hakeem"
+  },
+  {
+   "pid": "vital_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 29",
+   "name": "Greg Vital"
+  },
+  {
+   "pid": "helton_haynes_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 30",
+   "name": "Esther Helton-Haynes"
+  },
+  {
+   "pid": "fritts_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 32",
+   "name": "Monty Fritts"
+  },
+  {
+   "pid": "scarbrough_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 33",
+   "name": "Rick Scarbrough"
+  },
+  {
+   "pid": "rudd_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 34",
+   "name": "Tim Rudd"
+  },
+  {
+   "pid": "slater_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 35",
+   "name": "William Slater"
+  },
+  {
+   "pid": "dennis_powers_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 36",
+   "name": "Dennis Powers"
+  },
+  {
+   "pid": "baum_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 37",
+   "name": "Charlie Baum"
+  },
+  {
+   "pid": "keisling_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 38",
+   "name": "Kelly Keisling"
+  },
+  {
+   "pid": "rudder_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 39",
+   "name": "Iris Rudder"
+  },
+  {
+   "pid": "hale_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 40",
+   "name": "Michael Hale"
+  },
+  {
+   "pid": "butler_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 41",
+   "name": "Ed Butler"
+  },
+  {
+   "pid": "williams_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 42",
+   "name": "Ryan Williams"
+  },
+  {
+   "pid": "sherrell_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 43",
+   "name": "Paul Sherrell"
+  },
+  {
+   "pid": "lamberth_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 44",
+   "name": "William Lamberth"
+  },
+  {
+   "pid": "boyd_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 46",
+   "name": "Clark Boyd"
+  },
+  {
+   "pid": "bricken_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 47",
+   "name": "Rush Bricken"
+  },
+  {
+   "pid": "terry_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 48",
+   "name": "Bryan Terry"
+  },
+  {
+   "pid": "sparks_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 49",
+   "name": "Mike Sparks"
+  },
+  {
+   "pid": "mitchell_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 50",
+   "name": "Bo Mitchell"
+  },
+  {
+   "pid": "behn_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 51",
+   "name": "Aftyn Behn"
+  },
+  {
+   "pid": "justin_jones_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 52",
+   "name": "Justin Jones"
+  },
+  {
+   "pid": "powell_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 53",
+   "name": "Jason Powell"
+  },
+  {
+   "pid": "dixie_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 54",
+   "name": "Vincent Dixie"
+  },
+  {
+   "pid": "clemmons_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 55",
+   "name": "John Ray Clemmons"
+  },
+  {
+   "pid": "freeman_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 56",
+   "name": "Bob Freeman"
+  },
+  {
+   "pid": "lynn_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 57",
+   "name": "Susan M. Lynn"
+  },
+  {
+   "pid": "love_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 58",
+   "name": "Jr., Harold Love"
+  },
+  {
+   "pid": "hemmer_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 59",
+   "name": "Caleb Hemmer"
+  },
+  {
+   "pid": "brooks_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 60",
+   "name": "Shaundelle Brooks"
+  },
+  {
+   "pid": "bulso_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 61",
+   "name": "Gino Bulso"
+  },
+  {
+   "pid": "marsh_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 62",
+   "name": "Pat Marsh"
+  },
+  {
+   "pid": "mccalmon_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 63",
+   "name": "Jake McCalmon"
+  },
+  {
+   "pid": "cepicky_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 64",
+   "name": "Scott Cepicky"
+  },
+  {
+   "pid": "lee_reeves_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 65",
+   "name": "Lee Reeves"
+  },
+  {
+   "pid": "kumar_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 66",
+   "name": "Sabi 'Doc' Kumar"
+  },
+  {
+   "pid": "glynn_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 67",
+   "name": "Ronnie Glynn"
+  },
+  {
+   "pid": "maberry_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 68",
+   "name": "Aron Maberry"
+  },
+  {
+   "pid": "barrett_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 69",
+   "name": "Jody Barrett"
+  },
+  {
+   "pid": "doggett_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 70",
+   "name": "Clay Doggett"
+  },
+  {
+   "pid": "capley_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 71",
+   "name": "Kip Capley"
+  },
+  {
+   "pid": "haston_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 72",
+   "name": "Kirk Haston"
+  },
+  {
+   "pid": "todd_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 73",
+   "name": "Chris Todd"
+  },
+  {
+   "pid": "reedy_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 74",
+   "name": "Jay D. Reedy"
+  },
+  {
+   "pid": "lankford_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 75",
+   "name": "Michael Lankford"
+  },
+  {
+   "pid": "darby_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 76",
+   "name": "Tandy Darby"
+  },
+  {
+   "pid": "grills_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 77",
+   "name": "Rusty Grills"
+  },
+  {
+   "pid": "littleton_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 78",
+   "name": "Mary Littleton"
+  },
+  {
+   "pid": "brock_martin_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 79",
+   "name": "Brock Martin"
+  },
+  {
+   "pid": "shaw_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 80",
+   "name": "Johnny Shaw"
+  },
+  {
+   "pid": "moody_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 81",
+   "name": "Debra Moody"
+  },
+  {
+   "pid": "hurt_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 82",
+   "name": "Chris Hurt"
+  },
+  {
+   "pid": "mark_white_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 83",
+   "name": "Mark White"
+  },
+  {
+   "pid": "chism_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 85",
+   "name": "Jesse Chism"
+  },
+  {
+   "pid": "camper_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 87",
+   "name": "Karen D. Camper"
+  },
+  {
+   "pid": "miller_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 88",
+   "name": "Larry J. Miller"
+  },
+  {
+   "pid": "lafferty_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 89",
+   "name": "Justin Lafferty"
+  },
+  {
+   "pid": "gloria_johnson_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 90",
+   "name": "Gloria Johnson"
+  },
+  {
+   "pid": "harris_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 91",
+   "name": "Torrey C. Harris"
+  },
+  {
+   "pid": "warner_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 92",
+   "name": "Todd Warner"
+  },
+  {
+   "pid": "hardaway_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 93",
+   "name": "T.J. Hardaway"
+  },
+  {
+   "pid": "gant_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 94",
+   "name": "Ron M. Gant"
+  },
+  {
+   "pid": "vaughan_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 95",
+   "name": "Kevin Vaughan"
+  },
+  {
+   "pid": "salinas_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 96",
+   "name": "Gabby Salinas"
+  },
+  {
+   "pid": "gillespie_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 97",
+   "name": "John Gillespie"
+  },
+  {
+   "pid": "parkinson_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 98",
+   "name": "Antonio Parkinson"
+  },
+  {
+   "pid": "leatherwood_tn",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 99",
+   "name": "Tom Leatherwood"
+  }
+ ],
+ "districtSet": [],
+ "seatedFromCandidacy": [
+  {
+   "pid": "donavan_mckinney",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 11",
+   "office": "Michigan State Representative",
+   "name": "Donavan McKinney",
+   "wasOffice": "U.S. House Candidate (MI-13)",
+   "candidacy": {
+    "office": "U.S. House Candidate (MI-13)",
+    "state": "Michigan",
+    "district": "13",
+    "partyFiled": "Democratic Party",
+    "candidacyStatus": "active",
+    "nextElection": "2026-11-03"
+   }
+  },
+  {
+   "pid": "jay_deboyer",
+   "state": "Michigan",
+   "chamber": "statehouse",
+   "district": "HD 63",
+   "office": "Michigan State Representative",
+   "name": "Jay DeBoyer",
+   "wasOffice": "Lieutenant Governor Candidate",
+   "candidacy": {
+    "office": "Lieutenant Governor Candidate",
+    "state": "Michigan",
+    "partyFiled": "Republican Party",
+    "candidacyStatus": "active",
+    "nextElection": "2026-11-03"
+   }
+  },
+  {
+   "pid": "sean_mccann",
+   "state": "Michigan",
+   "chamber": "statesenate",
+   "district": "SD 19",
+   "office": "Michigan State Senator",
+   "name": "Sean McCann",
+   "wasOffice": "U.S. House Candidate (MI-4)",
+   "candidacy": {
+    "office": "U.S. House Candidate (MI-4)",
+    "state": "Michigan",
+    "district": "4",
+    "partyFiled": "Democratic Party",
+    "candidacyStatus": "active",
+    "nextElection": "2026-11-03"
+   }
+  },
+  {
+   "pid": "brent_taylor",
+   "state": "Tennessee",
+   "chamber": "statesenate",
+   "district": "SD 31",
+   "office": "Tennessee State Senator",
+   "name": "Brent Taylor",
+   "wasOffice": "U.S. House Candidate (TN-9)",
+   "candidacy": {
+    "office": "U.S. House Candidate (TN-9)",
+    "state": "Tennessee",
+    "district": "9",
+    "partyFiled": "Republican",
+    "candidacyStatus": "active",
+    "nextElection": "2026-11-03"
+   }
+  },
+  {
+   "pid": "johnny_garrett",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 45",
+   "office": "Tennessee State Representative",
+   "name": "Johnny Garrett",
+   "wasOffice": "U.S. House Candidate (TN-6)",
+   "candidacy": {
+    "office": "U.S. House Candidate (TN-6)",
+    "state": "Tennessee",
+    "district": "6",
+    "partyFiled": "Republican",
+    "candidacyStatus": "active",
+    "nextElection": "2026-11-03"
+   }
+  },
+  {
+   "pid": "justin_pearson",
+   "state": "Tennessee",
+   "chamber": "statehouse",
+   "district": "HD 86",
+   "office": "Tennessee State Representative",
+   "name": "Justin J. Pearson",
+   "wasOffice": "U.S. House Candidate (TN-9)",
+   "candidacy": {
+    "office": "U.S. House Candidate (TN-9)",
+    "state": "Tennessee",
+    "district": "9",
+    "partyFiled": "Democratic",
+    "candidacyStatus": "active",
+    "nextElection": "2026-11-03"
+   }
+  },
+  {
+   "pid": "jeffrey_hulum",
+   "state": "Mississippi",
+   "chamber": "statehouse",
+   "district": "HD 119",
+   "office": "Mississippi State Representative",
+   "name": "Jeffrey Hulum III",
+   "wasOffice": "U.S. House Candidate (MS-4)",
+   "candidacy": {
+    "office": "U.S. House Candidate (MS-4)",
+    "state": "Mississippi",
+    "district": "4",
+    "partyFiled": "Democratic",
+    "candidacyStatus": "active",
+    "nextElection": "2026-11-03"
+   }
+  }
+ ],
+ "usHouseDistrictSet": [
+  {
+   "pid": "walberg",
+   "state": "Michigan",
+   "district": "MI-5"
+  },
+  {
+   "pid": "debbie_dingell",
+   "state": "Michigan",
+   "district": "MI-6"
+  },
+  {
+   "pid": "mcclain",
+   "state": "Michigan",
+   "district": "MI-9"
+  },
+  {
+   "pid": "tlaib",
+   "state": "Michigan",
+   "district": "MI-12"
+  }
+ ]
+}

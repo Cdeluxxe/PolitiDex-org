@@ -322,7 +322,7 @@ section("5 · District Voice: a board for each contested seat and no other");
   const coLeg = Object.keys(routes).filter((k) => /^co-(?:statehouse|statesenate)-\d+$/.test(k)).sort();
   for (const r of N.RACES) ok(coLeg.includes(r.seat), `BOARD_ROUTES: contested ${r.seat} has no board`);
   eq(coLeg.length, 100, "BOARD_ROUTES: every Colorado seat, now that the state is opened whole");
-  const otherLeg = Object.keys(routes).filter((k) => /^[a-z]{2}-(?:statehouse|statesenate)-\d+$/.test(k) && !/^(?:ut|pa|ga|nc|mi|oh|wi|fl|az|ny|tx|il|mn|co|nv|ca|wa|ne|sd|id|mt|ak|ri|me)-/.test(k));
+  const otherLeg = Object.keys(routes).filter((k) => /^[a-z]{2}-(?:statehouse|statesenate)-\d+$/.test(k) && !/^(?:ut|pa|ga|nc|mi|oh|wi|fl|az|ny|tx|il|mn|co|nv|ca|wa|ne|sd|id|mt|ak|ri|me|ms|vt|tn)-/.test(k));
   eq(otherLeg.length, 0, "no other state gained a state legislative board");
   const HVR = (() => { const w = {}; w.window = w; vm.runInContext(HEAD("district-voice.js"), vm.createContext(w)); return w.PDXVoice.BOARD_ROUTES; })();
   for (const k of Object.keys(HVR)) eq(routes[k], HVR[k], `${k}: an earlier board moved`);

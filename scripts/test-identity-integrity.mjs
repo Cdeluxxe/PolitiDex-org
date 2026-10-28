@@ -514,6 +514,18 @@ const DISTINCT_PEOPLE = {
   // An IL-13 U.S. House candidate for 2026, and a Colorado State House
   // District 7 candidate for 2026 (me/co/mn/nv candidate rows).
   "jeff wilson": ["jeff_wilson", "jeff_wilson_co"],
+  // California's U.S. Representative (CA-4), and Mississippi State Senator,
+  // Senate District 48 (ms/vt/mi/tn roster shells).
+  "mike thompson": ["mike_thompson", "thompson_ms"],
+  // Ohio State Representative (HD 12), and a Tennessee State House District 45
+  // candidate for 2026 (mi/tn/vt candidate rows).
+  "brian stewart": ["brian_stewart", "stewart_oh"],
+  // Missouri State Representative (HD 16), and a Vermont State House Rutland-3
+  // candidate for 2026 (mi/tn/vt candidate rows).
+  "chris brown": ["chris_brown", "chris_brown_mo"],
+  // A GA-2 U.S. House candidate for 2026, and a Tennessee State House District
+  // 71 candidate for 2026 (mi/tn/vt candidate rows).
+  "matt day": ["matt_day", "matt_day_tn"],
 };
 let nameChecked = 0;
 for (const [key, ids] of byName) {
