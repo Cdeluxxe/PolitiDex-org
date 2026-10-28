@@ -255,8 +255,22 @@ for (const f of ["firebase-app-compat.js", "firebase-auth-compat.js", "firebase-
   // with that one substitution applied.
   const idxOrder = [...index.matchAll(/<script\b[^>]*src="(\/[^"]+)"/gi)]
     .map((m) => (m[1] === "/alignment-tool.js" ? "/issue-map.js" : m[1]));
-  const expected = idxOrder.filter((p) => localSrcs.includes(p));
+  // ONE DOCUMENTED EXCEPTION: /roster-portrait.js. index.html carries it as a
+  // plain synchronous <script> beside all-seeing-eye.js, near the end of the
+  // document — and a synchronous script executes during parsing, before EVERY
+  // deferred module on the page, person-file.js included. So its tag position on
+  // index.html says nothing about its execution order there. person.html loads it
+  // `defer` immediately ahead of person-file.js (the comment over that tag says
+  // why: the letterhead and the share card read window.pdxPortrait), which is the
+  // same "defined before the person lane paints" order index.html gets by being
+  // synchronous. It is pinned on its own terms below instead of by tag position.
+  const PORTRAIT = "/roster-portrait.js";
+  const expected = idxOrder.filter((p) => p !== PORTRAIT && localSrcs.includes(p));
   const actual = localSrcs.filter((p) => expected.includes(p));
+  ok(/<script(?![^>]*\b(?:defer|async)\b)[^>]*\bsrc="\/roster-portrait\.js"/i.test(index),
+    "order: index.html no longer loads /roster-portrait.js synchronously — the exemption below rests on that; re-check it");
+  ok(localSrcs.includes(PORTRAIT) && localSrcs.indexOf(PORTRAIT) < localSrcs.indexOf("/person-file.js"),
+    "order: person.html loads /roster-portrait.js before /person-file.js, so the letterhead's portrait reader exists when it paints");
   ok(JSON.stringify(actual) === JSON.stringify(expected),
     `order: person.html loads the shared modules in index.html's relative order\n      expected: ${expected.join(" ")}\n      actual:   ${actual.join(" ")}`);
 }

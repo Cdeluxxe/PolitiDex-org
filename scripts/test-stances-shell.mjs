@@ -311,8 +311,13 @@ const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 // verbatim; the two agreed with each other and with every other index.html pin
 // in this region, which is the order that catches a bad pin.
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 19284, b: 19308, what: "the .pdxis-stance* pill rules" },
-  { from: "index.html", src: INDEX, a: 19327, b: 19447, what: "the PDXStance vocabulary" },
+  // Both down by one line: one more line landed in index.html above them. Located
+  // verbatim — the pill rules on `<style>` (19285–19309, 25 lines) and the
+  // vocabulary on `<script>` … `</script>` (19328–19448, 121 lines). The old
+  // vocabulary pin still matched only because it opened on a blank line, which
+  // matches anywhere; the run of substance starts on the tag.
+  { from: "index.html", src: INDEX, a: 19285, b: 19309, what: "the .pdxis-stance* pill rules" },
+  { from: "index.html", src: INDEX, a: 19328, b: 19448, what: "the PDXStance vocabulary" },
 ];
 // Both index.html ranges have now moved THREE TIMES, and the third ran the other
 // way. The Digital Library split took #digital-library out of index.html but left

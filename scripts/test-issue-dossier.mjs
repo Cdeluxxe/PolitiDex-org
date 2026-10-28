@@ -219,9 +219,15 @@ const eo = scored.find((d) => d.ident === "EO 14001");
 const law = scored.find((d) => d.ident === "Pub. L. 119-2");
 ok(eo && law, "L2 data: both documents are named by their document id");
 eq(eo.effect, "advances", "L2 data: direction on THIS issue comes off the mapping");
-eq(eo.primary, true, "L2 data: the order is this issue's primary link");
+// The retired primary/supporting flag is replaced by the dominant-category model:
+// a mapping is on-axis when this issue sits in the document's dominant category.
+eq(eo.axis, "on", "L2 data: the order is on-axis here — this issue is its dominant category");
 eq(eo.narrow, false, "L2 data: at full weight it is not a narrow link");
-eq(law.primary, false, "L2 data: the omnibus law is a supporting link here");
+// Weight no longer decides: the law's three mappings sit in three categories, one
+// each, so it has no single main category and every key on it — this one at
+// weight 20 included — is on-axis, with the split said rather than hidden.
+eq(law.axis, "on", "L2 data: the omnibus law is on-axis here — weight 20 does not demote it");
+eq(law.axisSplit, true, "L2 data: …because its categories tie, and the split is flagged");
 eq(law.narrow, true, "L2 data: and at weight 20 it is a narrow one");
 ok(eo.plain.length > 0, "L2 data: the ✒️ lane's curated per-issue sentence is carried");
 
@@ -300,7 +306,9 @@ const mIdx = mItems.findIndex((d) => d.ident === "H.R. 1");
 const mDetail = C.dossierDetailHtml(MEMBER, ISSUE, mIdx);
 has(mDetail, "The question on the floor", "L3 🏛️: a roll call's mechanism IS its question");
 has(mDetail, "On Passage", "L3 🏛️: named");
-has(mDetail, "primary link", "L3 🏛️: how much of the bill this issue's link rests on, in words");
+has(mDetail, 'data-pdx-axis="on"', "L3 🏛️: the axis tag is on the row");
+has(mDetail, '>on-axis</span>', "L3 🏛️: how squarely the bill sits on this issue, in words — on-axis");
+hasnt(mDetail, "primary link", "L3 🏛️: the retired primary wording is gone");
 has(mDetail, 'class="pdxdos-src"', "L3 🏛️: the primary source is always offered");
 has(mDetail, "congress.gov", "L3 🏛️: pointing at the roll call itself");
 has(mDetail, 'rel="noopener"', "L3 🏛️: safely");

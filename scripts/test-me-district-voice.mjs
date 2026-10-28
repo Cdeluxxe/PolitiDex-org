@@ -785,7 +785,11 @@ const VERIFIED_OPTS = { uid: "u_7", loc: { state: "Utah", city: "Layton", county
     .replace(/  \/\/ ── THE (?:RANGE-BAND|WEALTH) GRAPH[\s\S]*?(?=  \/\/ ── THE DISCLOSURES BLOCK)/, "")
     .replace("'</p>' + link + holdingsGraphHtml(pid);", "'</p>' + link;")
     .replace(/    \/\/ The range-band graph the block carries[^\n]*\n[^\n]*\n    holdingsGraphHtml: holdingsGraphHtml,\n(?:    \/\/ Test seam: draw the year columns[^\n]*\n    _setYearSummary:[^\n]*\n)?(?:    \/\/ Test seam: draw the disclosures block without the range graph\.\n    _setRangeGraph:[^\n]*\n)?/, "")
-    .replace(/\/\* THE RANGE-BAND GRAPH\.[\s\S]*?(?=\/\* Arrival, for the disclosures block)/, "");
+    .replace(/\/\* THE RANGE-BAND GRAPH\.[\s\S]*?(?=\/\* Arrival, for the disclosures block)/, "")
+    // The mobile-menu speed pass (v487) changed the nav measurer's ResizeObserver
+    // and the drawer's open path. Those are chrome scripts, not money markup.
+    .replace(/    \/\/ The authoritative signal:[\s\S]*?\n    \}\n  \}\)\(\);/, "<NAV-RO>")
+    .replace(/(?:    \/\/ The drawer's top IS[^\n]*\n[^\n]*\n)?    function fit\(\) \{[\s\S]*?attributeFilter: \['class'\] \}\);\n    \} catch \(e\) \{\}/, "<MENU-FIT>");
   for (const f of MONEY) {
     const src = R(f);
     if (head) eq(sansAlias(src) === sansAlias(head(f)), true, `${f}: money markup changed in this pass`);

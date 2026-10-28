@@ -1925,11 +1925,16 @@ section("13 · Opening a slice of the list");
     return n;
   };
 
-  // THE COMPOSED SLICE NEEDS A MIXED POPULATION. climate_action's ten measures
-  // are all on-axis now (its mapped keys sit in its own category), so nobody on
-  // it is "mixed" and the vehicle axis would have nothing to narrow. The pass is
-  // driven over national_debt, which files a cut-against band deep enough to
-  // fold and people in both the on-axis-only and mixed vehicles.
+  // THE COMPOSED SLICE NEEDS A MIXED POPULATION, AND A REAL KEY CANNOT BE
+  // RELIED ON TO KEEP ONE. climate_action went all on-axis first; national_debt
+  // then stopped leaving a composed (against + mixed + house) row past the
+  // preview cap. Both times the claim under test was fine and the DATA moved.
+  // So the live key below is still read for what it can honestly pin — that the
+  // builder paints every census row with the hooks the pass reads, and folds a
+  // tail — and the pass itself is driven over a PURPOSE-BUILT population (FIX,
+  // below) shaped to meet every condition this section needs: a cut-against
+  // band deeper than the preview, composed rows both inside the preview and in
+  // the fold, a second band with a fold of its own, and a tail of thin bands.
   const SKEY = "national_debt";
   const w = warmAll(boot({ path: `/i/${SKEY}` }));
   await arriveAt(w);
@@ -1940,13 +1945,13 @@ section("13 · Opening a slice of the list");
   must(c && !c.cold, `${SKEY} did not settle`);
 
   // The rows, and the fold they were painted inside, read back out of the markup.
-  const rows = [...body.matchAll(/<li class="d1-led-p"[^>]*>/g)].map((m) => {
+  const liveRows = [...body.matchAll(/<li class="d1-led-p"[^>]*>/g)].map((m) => {
     const at = (k) => (m[0].match(new RegExp(k + '="([^"]*)"')) || ["", ""])[1];
     return { band: at("data-pdx-led-band"), veh: at("data-pdx-led-veh"),
              ch: at("data-pdx-led-ch"), nm: at("data-pdx-led-nm") };
   });
-  eq(rows.length, c.people, "the painted rows are not the census's own people count");
-  ok(rows.every((r) => r.band && r.nm), "a painted row is missing its band or its name hook");
+  eq(liveRows.length, c.people, "the painted rows are not the census's own people count");
+  ok(liveRows.every((r) => r.band && r.nm), "a painted row is missing its band or its name hook");
   // Which bands the builder folded into the tail, taken from the markup rather
   // than assumed: the tail runs from its own tag to the measures section.
   const tailAt = body.indexOf('<details class="d1-led-tail"');
@@ -1957,12 +1962,36 @@ section("13 · Opening a slice of the list");
     .filter((id) => tailMarkup.indexOf(`d1-led-band is-${id}`) >= 0);
   must(tailIds.length, "no band was found inside the folded tail");
 
+  // ── THE PURPOSE-BUILT POPULATION ─────────────────────────────────────────
+  // Four bands in the formal index's order. `against` holds 40 rows, so 16 sit
+  // in its fold; its vehicle alternates standalone/mixed and its chamber cycles
+  // senate/house/state, so the composed (against + mixed + house) rows are
+  // every sixth one — 1, 7, 13, 19 in the preview and 25, 31, 37 in the fold.
+  // `advanced` folds too (30 rows), so one band's fold can be seen to stay shut
+  // while another's is sliced. `both` and `thin` are the tail. Names are
+  // lowercase, as the builder paints them, with a distinct last token.
+  const FIX = {
+    bands: [
+      { id: "advanced", lb: "Advanced", n: 30 },
+      { id: "against",  lb: "Cut against", n: 40 },
+      { id: "both",     lb: "Both ways", n: 4 },
+      { id: "thin",     lb: "Thin", n: 6 },
+    ],
+    tail: ["both", "thin"],
+  };
+  const VEH = ["standalone", "mixed"], CH = ["senate", "house", "state"];
+  const rows = FIX.bands.flatMap((b) => Array.from({ length: b.n }, (_, i) => ({
+    band: b.id, veh: VEH[i % 2], ch: CH[i % 3],
+    nm: `fixture ${b.id}-${String(i).padStart(2, "0")}`,
+  })));
+  const cFix = { bands: FIX.bands, people: rows.length };
+
   // The tree: the filter row, then one section per band in the census's order,
   // each with its heading count, its preview and its own fold over the rest.
   const root = nd("host");
   const box = nd("d1-led-slice", { "data-pdx-slice": SKEY });
   const chipNodes = [];
-  for (const [kind, vals] of [["dir", (c.bands || []).filter((b) => b.n).map((b) => b.id)],
+  for (const [kind, vals] of [["dir", (cFix.bands || []).filter((b) => b.n).map((b) => b.id)],
                               ["veh", ["standalone", "mixed"]], ["ch", ["senate", "house", "state"]]]) {
     for (const v of vals) {
       const chip = nd("d1-led-chip", { "data-pdx-sl": kind, "data-pdx-sv": v, "aria-pressed": "false" });
@@ -1978,7 +2007,7 @@ section("13 · Opening a slice of the list");
   root.add(box);
   const secs = {}, bns = {}, mores = {}, msums = {};
   const tail = nd("d1-led-tail");
-  for (const b of (c.bands || [])) {
+  for (const b of (cFix.bands || [])) {
     if (!b.n) continue;
     const mine = rows.filter((r) => r.band === b.id);
     const sec = nd(`d1-led-band is-${b.id}`);
@@ -2000,7 +2029,7 @@ section("13 · Opening a slice of the list");
       mores[b.id] = more; msums[b.id] = msum;
     }
     secs[b.id] = sec; bns[b.id] = bn;
-    if (tailIds.indexOf(b.id) >= 0) tail.add(sec); else root.add(sec);
+    if (FIX.tail.indexOf(b.id) >= 0) tail.add(sec); else root.add(sec);
   }
   root.add(tail);
   const allRows = root.querySelectorAll(".d1-led-p");
@@ -2030,7 +2059,7 @@ section("13 · Opening a slice of the list");
   eq(chipNodes.filter((x) => x.getAttribute("aria-pressed") === "true").length, 0,
     "a chip reads as pressed with no slice active");
   const bn0 = Object.keys(bns).map((id) => `${id}:${bns[id].textContent}`).join(",");
-  eq(bn0, (c.bands || []).filter((b) => b.n).map((b) => `${b.id}:${b.n}`).join(","),
+  eq(bn0, (cFix.bands || []).filter((b) => b.n).map((b) => `${b.id}:${b.n}`).join(","),
     "a band heading does not carry the census's own count before anything is sliced");
 
   // ── ONE DIRECTION: THE OTHERS COLLAPSE IN PLACE, THE ROWS STAY IN THE DOM ─
@@ -2737,8 +2766,17 @@ const PKEY = "national_debt";
           "    if (st > 0 && pr > 0) return 'mixed';\n    if (pr > 0) return 'package';",
           "    if (pr >= st) return 'package';\n    if (st > 0 && pr > 0) return 'mixed';");
         must(src !== DESK, "probe 3 matched nothing — vehClassOf was reworded");
-        const w = await settle(warmAll(boot({ path: `/i/${LKEY}`, desk: src })));
-        const c = w.PDXDoor1.issueCensus(LKEY);
+        // NOT ON LKEY. climate_action's measures are all on-axis now, so nobody
+        // on it is mixed and a rule that only re-files mixed people changes
+        // nobody there — the probe would report "not caught" about a key with
+        // nothing to catch. health_drug_prices carries people in both vehicles.
+        const VKEY = "health_drug_prices";
+        const base = await settle(warmAll(boot({ path: `/i/${VKEY}` })));
+        const c0 = base.PDXDoor1.issueCensus(VKEY);
+        must(c0 && c0.proc && c0.proc.people.mixed > 0,
+          `${VKEY} no longer has a mixed population — probe 3 needs one to re-file`);
+        const w = await settle(warmAll(boot({ path: `/i/${VKEY}`, desk: src })));
+        const c = w.PDXDoor1.issueCensus(VKEY);
         return !!(c && c.proc && c.proc.people.package !== c.pkg);
       },
     },

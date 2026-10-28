@@ -27,6 +27,12 @@
 //   5. MUTATIONS: a line broader than its bill, a method word, a line borrowed
 //      from another issue, a tense flip, a kept line edited and an unaudited
 //      line edited must each fail.
+//   6. LATER LINES: a line that began printing on those issues after v387 is
+//      audited the same way and recorded under the ledger's `later`, never
+//      folded into the 48 — it prints exactly what that row says, it was not in
+//      the pre-audit tree, it is kept with the bill text it was checked against
+//      (quotes from the bill's own record, each `terms` phrase in the quotes and
+//      the line), and its line still passes the method and sales rules.
 //
 //   node scripts/test-effect-line-audit.mjs
 // ─────────────────────────────────────────────────────────────────────────────
@@ -159,6 +165,7 @@ function rewriteFault(row, line, E) {
 // ── THE RENDERED DRAWERS ────────────────────────────────────────────────────
 const corpus = buildCorpus(ROOT);
 const AUDITED = LEDGER.rows.filter((r) => r.decision === "rewritten");
+const LATER = LEDGER.later || [];
 const ACTS = new Set(AUDITED.map((r) => r.key.split("|").slice(0, 2).join("|")));
 // Every member carrying a row on an audited act, on the four issues and on the
 // other issues those acts sit on (Red Tape, Climate, the CRA siblings).
@@ -205,13 +212,35 @@ function check(src, opts) {
 
   // 1 · coverage
   need(LEDGER.rows.length === 48 && byKey.size === 48, `${LEDGER.rows.length} ledger rows — the audit read 48 lines`);
+  const laterBy = new Map(LATER.map((r) => [r.key, r]));
   for (const [k, s] of printed) {
-    const r = byKey.get(k);
+    const r = byKey.get(k) || laterBy.get(k);
     need(!!r, `${k}: prints on an audited issue and the ledger does not record it`);
     if (r) need(norm(r.line) === s, `${k}: prints ${JSON.stringify(s)}, the ledger says ${JSON.stringify(r.line)}`);
   }
   for (const r of LEDGER.rows) need(printed.has(r.key), `${r.key}: in the ledger but prints nothing`);
   need(AUDITED.length === 9, `${AUDITED.length} rewrites recorded — the audit made 9`);
+
+  // 6 · later lines, audited after v387 and recorded apart from its 48
+  const preE = PRE_AUDIT_SRC ? mapOf(PRE_AUDIT_SRC, "_DOS_EFFECT").map : null;
+  for (const r of LATER) {
+    need(!byKey.has(r.key), `${r.key}: recorded under both \`rows\` and \`later\``);
+    need(printed.has(r.key), `${r.key}: a later row that prints nothing`);
+    need(r.decision === "kept", `${r.key}: a later row is kept — a rewrite belongs in its own pass`);
+    need(norm(r.why).length > 40, `${r.key}: a later row with no written audit`);
+    if (preE) need(preE[r.key] == null, `${r.key}: was already printing before v387, so the v387 audit owed it a row`);
+    need(SOURCE.test(String(r.source)), `${r.key}: the source is not the bill's own record`);
+    need((r.quotes || []).length > 0 && r.quotes.every((q) => norm(q).length >= 15), `${r.key}: no quoted bill text`);
+    const from = low(quoted(r).join(" "));
+    need((r.terms || []).length > 0, `${r.key}: no terms tie the line to its bill`);
+    for (const t of r.terms || []) {
+      need(low(r.line).includes(low(t)), `${r.key}: the line does not carry its bill's term "${t}"`);
+      need(from.includes(low(t)), `${r.key}: the term "${t}" is not in this bill's quoted words`);
+    }
+    const mw = norm(r.line).match(METHOD);
+    need(!mw, `${r.key}: method word ${mw && mw[0]}`);
+    need(!SALES.test(r.line), `${r.key}: sales word`);
+  }
 
   const hE = PRE_AUDIT_SRC ? mapOf(PRE_AUDIT_SRC, "_DOS_EFFECT").map : null;
   for (const r of LEDGER.rows) {
@@ -294,6 +323,11 @@ section("mutations");
       const k = "H.J.Res. 89|119|climate_action", v = mapOf(SRC, "_DOS_EFFECT").map[k];
       must(v, `${k} is not a shipped line`);
       return SRC.split(`    '${k}':\n      '${v}',`).join(`    '${k}':\n      'Struck the EPA waiver for California’s Omnibus Low NOx regulation and barred a substantially similar rule.',`);
+    })()],
+    ["a later-audited line edited", (() => {
+      const k = "H.B. 76|2026GS|water", v = mapOf(SRC, "_DOS_EFFECT").map[k];
+      must(v, `${k} is not a shipped line`);
+      return SRC.split(`    '${k}':\n      '${v}',`).join(`    '${k}':\n      'Made every data center notify its water provider of anticipated consumption before building.',`);
     })()],
   ];
   for (const [name, src] of muts) ok(check(src, { skipRender: true }).length > 0, `mutation "${name}" was not caught`);

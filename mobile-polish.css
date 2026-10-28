@@ -345,6 +345,19 @@ html.pdx-instant-scroll {
   top: calc(var(--pdx-chrome, 7.125rem) + 5px);
 }
 
+/* ── 7c' · No blur behind an open mobile drawer, at any width it shows at ──
+   Above 640px the bar keeps its blur, and the drawer (shown up to the lg
+   breakpoint) is a child of that bar — so opening it stretched an 18px
+   backdrop blur to the drawer's full height, behind a 98%-opaque panel where
+   none of it can be seen, re-composited on every frame of the open and of
+   every scroll inside it. While the drawer is open the bar is opaque instead,
+   the same thing the phone rule in 7d does. Nothing in the drawer changes. */
+#pdx-topnav.nav-blur:has(> #mobileMenu:not(.hidden)) {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background-color: #0a0f1e;
+}
+
 /* ── 7d · Stop the sticky chrome repainting the page behind it, per frame ──
    `backdrop-filter: blur(…)` on a full-width fixed/sticky bar forces the
    compositor to re-sample and re-blur everything underneath it on EVERY scroll

@@ -189,7 +189,7 @@
       out += '<a class="bw-m-hist" data-bw-m-history href="' + esc(billHref(m)) + '#history">' +
         'History · the same text was voted on ' + fm.members.length + ' times <span aria-hidden="true">›</span></a>';
     }
-    var links = '<a class="bw-m-go" href="' + esc(m.page) + '">Full ballot page <span aria-hidden="true">›</span></a>';
+    var links = '<a class="bw-m-go" href="' + esc(m.page) + '">This measure’s page <span aria-hidden="true">›</span></a>';
     if (mapped) links += '<a class="bw-m-go" data-bw-m-record href="' + esc(billHref(m)) + '">The record <span aria-hidden="true">›</span></a>';
     return out + '<div class="bw-m-links">' + links + '</div></li>';
   }

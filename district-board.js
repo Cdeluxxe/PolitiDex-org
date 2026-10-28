@@ -1205,7 +1205,7 @@
 
     tableBand: 'On the table',
     utPinsLabel: 'Top issues in Utah',
-    utPinEmpty: 'No measures on this seat for this issue yet.',
+    utPinEmpty: 'No measures on hand for this seat on this issue.',
     tableNote: 'Measures and acts already in this archive for this seat. Each row links to ' +
                'the record. Poll and comment counts are counts of people, never a majority ' +
                'and never this district’s position.',

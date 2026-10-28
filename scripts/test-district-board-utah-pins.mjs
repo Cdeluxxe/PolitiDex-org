@@ -11,7 +11,7 @@
 //   2. A PIN OPENS ITS GROUPS. Data Centers opens every data-center group on
 //      the seat (growth, power, water); the other two open lands_preserve and
 //      water. A pin whose keys have no measure on the seat opens an empty group
-//      that says "No measures on this seat for this issue yet." Pressing it
+//      that says "No measures on hand for this seat on this issue." Pressing it
 //      again, or picking a chip, clears it. The click handler routes the tap.
 //   3. NOT A SECOND TAXONOMY. The pins use existing ISSUE_MAP keys only and
 //      wear the same colour token and palette class as those keys' chips; the
@@ -94,7 +94,7 @@ const shown = (h) => groups(h).filter((g) => !g.hidden).map((g) => g.key).sort()
 const findNoneShown = (h) => /data-pdxdb-find-none(?! hidden)[^>]*>/.test(h) && !/data-pdxdb-find-none hidden/.test(h);
 const LABELS = ["Data Centers", "Protect Public Lands", "Great Salt Lake Water"];
 const IDS = ["datacenters", "public_lands", "gsl_water"];
-const EMPTY_LINE = "No measures on this seat for this issue yet.";
+const EMPTY_LINE = "No measures on hand for this seat on this issue.";
 const EQ = /\bequity\b|\bstocks?\b|earn (?:a|your) share|\bshareholder|\bdividend/i;
 
 const { B, win } = boot({ desk: { water: "support" } });

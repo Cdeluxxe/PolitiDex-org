@@ -5003,11 +5003,11 @@ window.PDXLazy = (function () {
     if (window.visualViewport) {
       try { window.visualViewport.addEventListener('resize', measure); } catch (e) {}
     }
-    // The authoritative signal: the nav's own box changing for any reason at all —
-    // a wrapped row, a menu opening, a font swap, a rotation. Everything above is
-    // the fallback for browsers without it.
+    // The authoritative signal: a PERMANENT row resizing (wrap, font, rotation). Not the nav:
+    // its drawer re-ran all of this on every mobile-menu open and close, for a number it cannot move.
     if (window.ResizeObserver) {
-      try { new ResizeObserver(measure).observe(nav); } catch (e) {}
+      try { var ro = new ResizeObserver(measure); [].forEach.call(nav.children, function (k) {
+        if (k.id !== 'mobileMenu' && !/^(SCRIPT|STYLE)$/.test(k.tagName)) ro.observe(k); }); } catch (e) {}
     }
   })();
   </script>
@@ -5070,22 +5070,22 @@ window.PDXLazy = (function () {
     // scroll on those events was what snapped the drawer back to the top when the
     // user scrolled up; letting the browser own scrollTop gives smooth,
     // bidirectional scrolling.
+    // The drawer's top IS --pdx-chrome, so no rect is read on open: one read here
+    // forced a full-homepage layout before the open frame could paint.
     function fit() {
       if (!isOpen()) return;
-      var top = menu.getBoundingClientRect().top;
+      var top = parseFloat(document.documentElement.style.getPropertyValue('--pdx-chrome')) || menu.getBoundingClientRect().top;
       var vh = (window.visualViewport ? window.visualViewport.height : window.innerHeight);
       menu.style.maxHeight = Math.max(140, Math.floor(vh - top)) + 'px';
     }
     function closeMenu() { if (isOpen()) menu.classList.add('hidden'); }
-    // Reset scroll to the top only on a fresh open (closed → open), never on the
-    // viewport-change events above, so scrolling back up stays put.
-    var wasOpen = isOpen();
-    try {
-      new MutationObserver(function () {
-        var open = isOpen();
-        if (open) { fit(); if (!wasOpen) menu.scrollTop = 0; }
-        wasOpen = open;
-      }).observe(menu, { attributes: true, attributeFilter: ['class'] });
+    // Reset scroll to the top only on a fresh open, and only if it was left
+    // scrolled (a scrollTop write is a forced layout too), after the open frame.
+    var wasOpen = isOpen(), scrolled = false;
+    menu.addEventListener('scroll', function () { scrolled = menu.scrollTop > 0; }, { passive: true });
+    try { new MutationObserver(function () { var open = isOpen();
+        if (open) { fit(); if (!wasOpen && scrolled) requestAnimationFrame(function () { menu.scrollTop = 0; scrolled = false; }); }
+        wasOpen = open; }).observe(menu, { attributes: true, attributeFilter: ['class'] });
     } catch (e) {}
     window.addEventListener('resize', fit);
     if (window.visualViewport) { try { window.visualViewport.addEventListener('resize', fit); } catch (e) {} }

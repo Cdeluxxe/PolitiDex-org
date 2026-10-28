@@ -814,14 +814,14 @@ section("5 · one address, one control in Door 2, and the copy");
   // that explains why is not a second one.
   const INDEX_TAGS = INDEX.replace(/<!--[\s\S]*?-->/g, " ");
   const wrm = INDEX_TAGS.slice(INDEX_TAGS.indexOf('id="who-represents-me"'));
-  // 34,000 CHARS, NOT 20,000, BECAUSE THE BAND GREW A LOCATION SETTER ABOVE ITS
-  // ACTION ROW. The window is a cheap way of saying "in the door, not somewhere
-  // else on a 2 MB page", and it was sized when the row sat near the top of the
-  // section. The one location setter now sits between the section heading and
-  // that row, which pushed the control 76 characters past the old edge — and a
-  // window that clips the thing it is measuring reports a missing control that
-  // is right there, which is what it did.
-  const wrmBlock = wrm.slice(0, 34000);
+  // THE BAND, BOUNDED BY ITS OWN </section>, NOT BY A CHARACTER COUNT. The
+  // window used to be a fixed 20,000 and then 34,000 characters — a cheap way of
+  // saying "in the door, not somewhere else on a 2 MB page". Each time the band
+  // grew (a location setter above the row, then its inline scripts) the row slid
+  // past the edge and the window reported a missing control that was right
+  // there. The section's own close tag is the actual boundary of the door.
+  const wrmEnd = wrm.indexOf("</section>");
+  const wrmBlock = wrm.slice(0, wrmEnd > 0 ? wrmEnd : 60000);
   // THE CONTROL IS AN ADDRESS NOW, AND data-pdxyf-open IS GONE FROM THE PAGE.
   // It used to be counted here: exactly one <a href="#your-file"
   // data-pdxyf-open="1">, an overlay opened on whatever document the reader was
@@ -1121,7 +1121,12 @@ section("6 · the address answers once, and the visible controls reach it");
   // claim — one per width, no panel, and no second name for the same room.
   // Log Out moved onto the desk (region a); the mobile sheet keeps its existing
   // Logout row, which is overflow that predates this and not the chip.
-  const SIGNED_IN = HUB_JS.slice(HUB_JS.indexOf("function updateNavAuth"));
+  // Bounded to the function itself (its closing brace at the four-space indent
+  // it is declared at): the file goes on past it, and a comment further down
+  // that quotes the chip's <a href="/me"> is not the signed-out branch.
+  const NAV_FN = HUB_JS.slice(HUB_JS.indexOf("function updateNavAuth"));
+  const navFnEnd = NAV_FN.indexOf("\n    }\n");
+  const SIGNED_IN = NAV_FN.slice(0, navFnEnd > 0 ? navFnEnd : NAV_FN.length);
   const signedOutAt = SIGNED_IN.indexOf("} else {");
   const signedInBranch = SIGNED_IN.slice(0, signedOutAt > 0 ? signedOutAt : 8000);
   eq((signedInBranch.match(/href="\/me"/g) || []).length, 2,
