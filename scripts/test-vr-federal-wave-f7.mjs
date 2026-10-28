@@ -745,7 +745,16 @@ const roster = J("db/vr-roster-admitted.json");
       continue;
     }
     if (!ok(!!mir, `${m.number} is not mirrored in db/vr-issue-seed.json — its roll would rank nothing`)) continue;
-    eq((mir.issues || []).length, m.issues.length, `${m.number}: the mirror carries a different number of rows`);
+    // Every row this wave mapped is mirrored. The only rows a later pass may add
+    // beside them are the declared country keys (iran_policy, ukraine_policy,
+    // yemen_policy, venezuela_policy, each "a country, not a proposition"),
+    // which the Iran and Venezuela war-powers resolutions gained afterwards.
+    const keyOf = (i) => i.issueKey || i.key;
+    const mine = m.issues.map(keyOf), theirs = (mir.issues || []).map(keyOf);
+    eq(JSON.stringify(mine.filter((k) => !theirs.includes(k))), "[]", `${m.number}: the mirror dropped a row this wave mapped`);
+    const extra = theirs.filter((k) => !mine.includes(k));
+    ok(extra.every((k) => /^(?:iran|ukraine|yemen|venezuela)_policy$/.test(k)) && extra.length === new Set(extra).size,
+      `${m.number}: the mirror carries a row that is neither this wave's nor a declared country key — ${extra.join(", ")}`);
     for (const i of m.issues) {
       const mi = (mir.issues || []).find((x) => x.issueKey === i.issueKey);
       if (!ok(!!mi, `${m.number}/${i.issueKey} is missing from the mirror`)) continue;

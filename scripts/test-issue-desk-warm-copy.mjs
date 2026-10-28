@@ -743,8 +743,13 @@ section("10 · the files travel together");
   const SW = R("sw.js");
   const m = /const CACHE_VERSION = 'v(\d+)';/.exec(SW);
   must(m, "CACHE_VERSION is not in sw.js in the form this file reads");
+  // The bump is owed while one of this pass's two shell files differs from
+  // HEAD — during v134, or during any later pass that edits them. Once they are
+  // HEAD's, there is nothing unshipped to bump for; v134 is the floor.
+  ok(Number(m[1]) >= 134, `CACHE_VERSION v${m[1]} is below the v134 that shipped this pass`);
   const prev = HEAD("sw.js");
-  if (prev) {
+  const shellMoved = ["door1-workspace.js", "door1-workspace.css"].some((f) => HEAD(f) !== null && R(f) !== HEAD(f));
+  if (prev && shellMoved) {
     const pm = /const CACHE_VERSION = 'v(\d+)';/.exec(prev);
     if (pm) ok(Number(m[1]) > Number(pm[1]),
       `CACHE_VERSION did not move past HEAD's v${pm[1]} — warm devices would keep printing the denial`);

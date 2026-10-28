@@ -66,6 +66,7 @@ import { makeSandbox, ENGINE_FILES } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 import { withDeclaredNoPole } from "./head-no-pole.mjs";
 import { declaredStanceMovesAtHead } from "./v103-chrome-seams.mjs";
+import { precachedMoved } from "./precache-moved.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -454,10 +455,14 @@ section("5 · /i/<key> resolves from a cold load, same rewrite class as /p/");
   const SW = R("sw.js");
   const m = /const CACHE_VERSION = 'v(\d+)';/.exec(SW);
   must(m, "CACHE_VERSION is not in sw.js in the form this file reads");
+  // Owed while a precached shell file differs from HEAD (see precache-moved.mjs);
+  // once this pass landed, HEAD holds the bump. The version never goes back.
   const prev = HEAD("sw.js");
+  const moved = precachedMoved();
   if (prev) {
     const pm = /const CACHE_VERSION = 'v(\d+)';/.exec(prev);
-    if (pm) ok(Number(m[1]) > Number(pm[1]),
+    if (pm) ok(Number(m[1]) >= Number(pm[1]), `CACHE_VERSION v${m[1]} fell below HEAD's v${pm[1]}`);
+    if (pm && moved.length) ok(Number(m[1]) > Number(pm[1]),
       `CACHE_VERSION did not move past HEAD's v${pm[1]} — warm devices would serve the old shell against the new doors`);
   }
   has(SW, `// v${m[1]} - `, `sw.js has no prose log entry for v${m[1]}`);

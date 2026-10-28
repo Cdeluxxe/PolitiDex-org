@@ -3432,6 +3432,17 @@ export const DECLARED_ADMISSIONS = [
     pids: JSON.parse(_readFileSync(new URL("../db/roster-state-legislators-tn-in-mo-2026-oct.json", import.meta.url), "utf8")).rows.map((r) => r.pid),
   },
   {
+    // The sitting Wisconsin members in the contested 2026 races
+    // (wi-ballot-2026.js): one identity row each. The Wisconsin pass added the
+    // block to cmp-data.js but never declared it here, so every roster-size
+    // suite counted thirteen rows it could not account for; declared now, with
+    // exactly the incumbents wi-ballot-2026.js names.
+    wave: "wi_contested_cycle_oct2026",
+    banner: "// ── Sitting Wisconsin legislators in the contested 2026 races (wi-ballot-2026.js, Oct 2026)",
+    pids: ["marklein_wi", "smith_wi", "sheehan_wi", "zimmerman_wi", "jacobson_wi", "novak_wi", "donovan_wi", "snyder_wi",
+      "franklin_wi", "spaude_wi", "emerson_wi", "moses_wi", "doyle_wi"],
+  },
+  {
     // The sitting Minnesota members in the contested 2026 races
     // (mn-ballot-2026.js): one identity row each, read off the Legislature's
     // own member lists, including the two House members running for Senate.
@@ -3457,6 +3468,14 @@ export const DECLARED_ADMISSIONS = [
     wave: "nv_contested_cycle_oct2026",
     banner: "// ── Sitting Nevada legislators in the contested 2026 races (nv-ballot-2026.js, Oct 2026)",
     pids: ["scheible_nv", "pazina_nv", "lisa_cole_nv", "marzola_nv", "la_rue_hatch_nv", "edgeworth_nv", "backus_nv"],
+  },
+  {
+    // The sitting Washington State House members in the contested 2026 races
+    // (wa-ballot-2026.js): one identity row each, with the position they hold,
+    // read off the Legislature's own member list.
+    wave: "wa_contested_cycle_oct2026",
+    banner: "// ── Sitting Washington legislators in the contested 2026 races (wa-ballot-2026.js, Oct 2026)",
+    pids: ["shavers_wa", "dave_paul_wa", "kevin_waters_wa", "stuebe_wa", "mcclintock_wa", "ley_wa", "adison_richards_wa"],
   },
   {
     // Too many rows to type here, so the list is the committed record of

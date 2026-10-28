@@ -33348,6 +33348,59 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
  },
+// ── Sitting Washington legislators in the contested 2026 races (wa-ballot-2026.js, Oct 2026)
+// One row for each State House incumbent in a contested Washington race on
+// the November 3, 2026 ballot (the two Senate incumbents already have rows,
+// and they are not touched). Identity only: the name, the office, the state,
+// the district and the POSITION, read off the Legislature's own member list
+// (wslwebservices.leg.wa.gov SponsorService, 2025-26) and the Secretary of
+// State's primary results, and `candidate: false` (in office). Each district
+// elects two Representatives to two seats, so `position` (1 or 2) says which
+// one this member holds; the seat resolver places a record with a position on
+// that position only, never on the district as a whole. No party, bio, score
+// or stances; the formal acts live in wa-ballot-2026.js.
+ "shavers_wa": {
+  "name": "Clyde Shavers", "office": "Washington State Representative",
+  "state": "Washington", "district": "LD 10", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dave_paul_wa": {
+  "name": "Dave Paul", "office": "Washington State Representative",
+  "state": "Washington", "district": "LD 10", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kevin_waters_wa": {
+  "name": "Kevin Waters", "office": "Washington State Representative",
+  "state": "Washington", "district": "LD 17", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "stuebe_wa": {
+  "name": "David Stuebe", "office": "Washington State Representative",
+  "state": "Washington", "district": "LD 17", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mcclintock_wa": {
+  "name": "Stephanie McClintock", "office": "Washington State Representative",
+  "state": "Washington", "district": "LD 18", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ley_wa": {
+  "name": "John Ley", "office": "Washington State Representative",
+  "state": "Washington", "district": "LD 18", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "adison_richards_wa": {
+  "name": "Adison Richards", "office": "Washington State Representative",
+  "state": "Washington", "district": "LD 26", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
 // ── Current candidates outside Utah, 2026 general election, official state lists (Oct 2026)
 // Every nominee on the November 3, 2026 general-election ballot for U.S. Senate,
 // U.S. House, and the statewide offices the roster already tracks (Governor,

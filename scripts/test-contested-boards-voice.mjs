@@ -43,7 +43,10 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
-import { HEAD } from "./state-leg-harness.mjs";
+import { HEAD, AT, PRE_13_STATE, PASS_WORKER, DECLARED_MIGRATIONS } from "./state-leg-harness.mjs";
+// What THIS pass added is measured against the commit it was built on, so the
+// check stays exact after the pass lands; "nothing else moved" stays on HEAD.
+const BASE = AT(PRE_13_STATE);
 import { planBoards, STATE_LEG_BOARD_SEATS, STATE_LEG_VOICED_STATES } from "./gen-district-boards.mjs";
 import { COMPOSER_SEATS, LOCKED_LINE, handle as voiceHandle, seatHash } from "../netlify/lib/district-board-voice-core.mjs";
 import { handle as pollHandle } from "../netlify/lib/district-board-poll-core.mjs";
@@ -65,7 +68,15 @@ const must = (c, m) => { if (!c) { console.error(`✗ contested boards voice: ST
 const STATES = ["pa", "ga", "nc", "mi", "oh", "wi", "fl", "az", "ny", "tx", "il", "mn", "co"];
 const PLAN = planBoards().boards;
 const LEG = PLAN.filter((b) => b.stateLeg);
-const VOICED = LEG.filter((b) => !b.readOnly);
+// California's density pass (scripts/test-ca-contested-boards-voice.mjs) voices
+// its own contested boards later; this suite holds the thirteen states' pass,
+// so California's seats, rows and seed are set aside here, and only there.
+// Washington's density pass (scripts/test-wa-contested-boards-voice.mjs) is set
+// aside the same way, its House positions included.
+const IS_CA = (k) => /^ca-(?:statehouse|statesenate|hd|sd)-\d+$/.test(k) || /^wa-(?:statehouse|statesenate|hd|sd)-\d+(?:-p\d)?$/.test(k);
+const WA_MIG = "20261202000000_dd_districts_washington_contested_board_seats.sql";
+const CA_MIG = "20261201000000_dd_districts_california_contested_board_seats.sql";
+const VOICED = LEG.filter((b) => !b.readOnly && !IS_CA(b.seat));
 must(VOICED.length > 100, "the plan voices no contested boards");
 // One board per state: the first contested seat the plan lists for it.
 const SAMPLE = STATES.map((c) => VOICED.find((b) => b.seat.startsWith(c + "-")));
@@ -160,10 +171,10 @@ for (const b of SAMPLE) {
 }
 {
   // Exactly the contested seats of the thirteen states take a voice.
-  const want = LEG.filter((b) => STATE_LEG_VOICED_STATES.has(b.seat.slice(0, 2)) && STATE_LEG_BOARD_SEATS.has(b.seat)).map((b) => b.seat).sort();
+  const want = LEG.filter((b) => STATE_LEG_VOICED_STATES.has(b.seat.slice(0, 2)) && STATE_LEG_BOARD_SEATS.has(b.seat) && !IS_CA(b.seat)).map((b) => b.seat).sort();
   eq(JSON.stringify(VOICED.map((b) => b.seat).sort()), JSON.stringify(want), "the voiced boards are exactly the contested seats of the thirteen states");
-  eq(JSON.stringify([...STATE_LEG_VOICED_STATES].sort()), JSON.stringify([...STATES].sort()), "the voiced states are the thirteen density states");
-  const legKeys = Object.keys(COMPOSER_SEATS).filter((k) => /^[a-z]{2}-(?:statehouse|statesenate)-\d+$/.test(k) && !k.startsWith("ut-")).sort();
+  eq(JSON.stringify([...STATE_LEG_VOICED_STATES].sort()), JSON.stringify([...STATES, "ca", "wa"].sort()), "the voiced states are the thirteen density states, and California's and Washington's");
+  const legKeys = Object.keys(COMPOSER_SEATS).filter((k) => /^[a-z]{2}-(?:statehouse|statesenate)-\d+$/.test(k) && !k.startsWith("ut-") && !IS_CA(k)).sort();
   eq(JSON.stringify(legKeys), JSON.stringify(want), "the server's gate holds no other legislative seat outside Utah");
   for (const b of LEG.filter((x) => x.readOnly)) {
     ok(!COMPOSER_SEATS[b.seat] && !DC.COMPOSER_SEATS[b.alias] && !DP.POLL_SEATS[b.alias], `${b.alias}: a read-only board stays off every list`);
@@ -315,7 +326,12 @@ section("5 · the counts endpoint answers these seats and returns only aggregate
   ok(/countDistinct\(voicePeople\.h\)/.test(FN), "the author-hash union is only ever counted");
   const resp = (/return json\(\{\s*seat,([\s\S]*?)\n    \}\);/.exec(FN) || [])[1] || "";
   ok(resp.length > 0 && !/\b(?:uid|userId|authorHash|email|name|address|pid)\b/.test(resp), "the response names no person field");
-  eq(FN, HEAD("netlify/functions/district-board.mts"), "the counts endpoint did not move");
+  const noCa = (src) => String(src)
+    .replace(/\/\/ A seat elected by position \(Washington's House\)[^\n]*\n\/\/ alias [^\n]*\nconst POSITION_KEY_RE = [^\n]*\n\n/, "")
+    .replace(" || POSITION_KEY_RE.test(s)) return s;", ") return s;")
+    .replace(/  const pm = \/\^\(\[a-z\]\{2\}\)-hd-[^\n]*\n  if \(pm\) return [^\n]*\n/, "")
+    .split("\n").filter((l) => !/^  "(?:ca|wa)-(?:statehouse|statesenate)-\d+(?:-p\d)?": 1,$/.test(l)).join("\n");
+  eq(noCa(FN), noCa(HEAD("netlify/functions/district-board.mts")), "the counts endpoint did not move");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -370,6 +386,7 @@ section("7 · the Layton boards and every non-contested board are unchanged");
   }
   const rowsOf = (src) => new Map([...String(src).matchAll(/^    '([a-z0-9_-]+)': \{ seat: .*$/gm)].map((m) => [m[1], m[0]]));
   const now = rowsOf(R("district-board.js")), was = rowsOf(HEAD("district-board.js"));
+  for (const k of [...now.keys()]) if (IS_CA(k) && !was.has(k)) now.delete(k);
   eq(now.size, was.size, "BOARDS has the same number of rows — no new board");
   const voicedSeats = new Set(VOICED.map((b) => b.seat));
   for (const [k, line] of was) {
@@ -377,25 +394,44 @@ section("7 · the Layton boards and every non-contested board are unchanged");
     else eq(now.get(k), line, `${k}: unchanged`);
   }
   const V = (src) => { const w = {}; w.window = w; vm.runInContext(src, vm.createContext(w)); return w.PDXVoice.BOARD_ROUTES; };
-  eq(JSON.stringify(V(R("district-voice.js"))), JSON.stringify(V(HEAD("district-voice.js"))), "BOARD_ROUTES did not move");
+  const routesNoCa = (src) => { const o = V(src); for (const k of Object.keys(o)) if (IS_CA(k)) delete o[k]; return o; };
+  eq(JSON.stringify(routesNoCa(R("district-voice.js"))), JSON.stringify(routesNoCa(HEAD("district-voice.js"))), "BOARD_ROUTES did not move");
   const TOML = R("netlify.toml");
-  eq(TOML, HEAD("netlify.toml"), "netlify.toml did not move");
+  // California's redirects (its ballot view and its seven boards) lifted out,
+  // the file is HEAD's.
+  const tomlNoCa = (src) => String(src)
+    .replace(/# California['’]s contested legislative seats[^\n]*\n(?:\[\[redirects\]\]\n  from = "\/ballot\/ca[^"]*"\n  to = "\/ballot-ca\.html"\n  status = 200\n)+/g, "")
+    .replace(/# California (?:Assembly|Senate) District \d+ — [a-z0-9_]+\n(?:\[\[redirects\]\]\n  from = "\/district\/ca-(?:hd|sd)-\d+[^"]*"\n  to = "\/district-ca-(?:hd|sd)-\d+\.html"\n  status = 200\n)+\n/g, "")
+    .replace(/# Washington['’]s contested legislative seats[^\n]*\n(?:\[\[redirects\]\]\n  from = "\/ballot\/wa[^"]*"\n  to = "\/ballot-wa\.html"\n  status = 200\n)+/g, "")
+    .replace(/# Washington (?:House|Senate) District \d+(?:, Position \d)? — [a-z0-9_]+\n(?:\[\[redirects\]\]\n  from = "\/district\/wa-(?:hd|sd)-\d+(?:-p\d)?[^"]*"\n  to = "\/district-wa-(?:hd|sd)-\d+(?:-p\d)?\.html"\n  status = 200\n)+\n/g, "");
+  eq(tomlNoCa(TOML), tomlNoCa(HEAD("netlify.toml")), "netlify.toml did not move");
   ok(![...TOML.matchAll(/from = "([^"]+)"/g)].some((m) => /^\/district\/.*\*/.test(m[1])), "no /district/* splat");
-  // Utah's composer and poll rows are HEAD's; the only new rows are the voiced seats.
+  // Utah's composer and poll rows are HEAD's; the rows this pass added in the
+  // thirteen states (against the commit it was built on) are the voiced seats.
   const aliasesIn = (src) => [...String(src).matchAll(/^    '([a-z0-9_-]+)': 1,$/gm)].map((m) => m[1]);
+  const inThirteen = (a) => STATES.includes(a.slice(0, 2));
   for (const f of ["district-composer.js", "district-poll.js"]) {
-    const added = aliasesIn(R(f)).filter((a) => !aliasesIn(HEAD(f)).includes(a)).sort();
+    const base = aliasesIn(BASE(f));
+    ok(base.length > 100, `${f}: the pre-pass list could be read`);
+    const added = aliasesIn(R(f)).filter((a) => !base.includes(a) && inThirteen(a)).sort();
     eq(JSON.stringify(added), JSON.stringify(VOICED.map((b) => b.alias).sort()), `${f}: the only new rows are the voiced seats`);
     ok(aliasesIn(HEAD(f)).every((a) => aliasesIn(R(f)).includes(a)), `${f}: no row was dropped`);
+    ok(aliasesIn(R(f)).every((a) => aliasesIn(HEAD(f)).includes(a)), `${f}: no row beyond HEAD's`);
   }
-  // The worker moved one version, precaching nothing new; one migration, rows only.
+  // The worker: this pass moved it one version (v482 → v483, with its
+  // changelog entry), it is at least that version now and never more than one
+  // step past HEAD, and it precaches nothing new. One migration, rows only.
   const ver = (src) => Number((/const CACHE_VERSION = 'v(\d+)';/.exec(src || "") || [])[1]);
-  eq(ver(R("sw.js")), ver(HEAD("sw.js")) + 1, "sw.js: CACHE_VERSION moved exactly one step");
+  eq(ver(BASE("sw.js")) + 1, PASS_WORKER["13-state"], "sw.js: this pass moved CACHE_VERSION exactly one step");
+  has(R("sw.js"), `// v${PASS_WORKER["13-state"]} - THE CONTESTED BOARDS TAKE A VOICE, AND THE CAP IS DAILY.`, "sw.js: …and its changelog entry says why");
+  ok(ver(R("sw.js")) >= PASS_WORKER["13-state"] && ver(R("sw.js")) <= ver(HEAD("sw.js")) + 1, "sw.js: CACHE_VERSION is at least that version, and at most one step past HEAD");
   const pre = (src) => (src.match(/^  '\/[^']*',$/gm) || []).sort().join("\n");
   eq(pre(R("sw.js")), pre(HEAD("sw.js")), "sw.js: the precache list is unchanged");
-  const added = readdirSync(join(ROOT, "netlify/database/migrations")).filter((f) => HEAD(`netlify/database/migrations/${f}`) === null &&
-    HEAD(`netlify/database/migrations/${f}/migration.sql`) === null);
-  eq(JSON.stringify(added), JSON.stringify(["20261130000000_dd_districts_contested_legislative_board_seats.sql"]), "the one new migration is the dd_districts seed");
+  eq(pre(R("sw.js")), pre(BASE("sw.js")), "sw.js: this pass precached nothing new");
+  const migs = readdirSync(join(ROOT, "netlify/database/migrations"));
+  const newSince = (rd) => migs.filter((f) => rd(`netlify/database/migrations/${f}`) === null && rd(`netlify/database/migrations/${f}/migration.sql`) === null);
+  eq(JSON.stringify(newSince(BASE).filter((f) => f !== CA_MIG && f !== WA_MIG)), JSON.stringify(["20261130000000_dd_districts_contested_legislative_board_seats.sql"]), "the one new migration is the dd_districts seed");
+  ok(newSince(HEAD).every((f) => DECLARED_MIGRATIONS.includes(f)), `every migration not yet in HEAD is a declared one — ${newSince(HEAD).join(", ")}`);
 }
 
 console.log(`\n${failures.length ? "✗" : "✓"} contested boards voice: ${passed} passed, ${failures.length} failed`);

@@ -592,7 +592,10 @@ section("6 · a hostname change moved a hostname and nothing else");
        "var _hp = (typeof window._getPhotoUrl === 'function') ? window._getPhotoUrl(id) : (p.photo || '');"],
     ];
     const fold = (f, src) => f !== "profiles-full.js" ? src : LETTERHEAD.reduce((x, [a, b]) => x.replace(a, b), src);
-    const moved = ENGINES.filter((f) => { const b = gitShow(f); return b !== null && b !== fold(f, R(f)); });
+    // Folded on BOTH sides: the v294 edit has landed, so HEAD holds it too, and
+    // folding only the working copy would compare a pre-v294 file to a post-v294
+    // one. Any byte outside the declared fold still differs, and still fails.
+    const moved = ENGINES.filter((f) => { const b = gitShow(f); return b !== null && fold(f, b) !== fold(f, R(f)); });
     eq(moved, [], "no twin-boot engine file was edited — the drift harnesses stay identical by construction");
   }
 

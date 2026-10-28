@@ -538,7 +538,12 @@ section("5 · The Eye leads with the record, and the ranking does not run");
     no(h, "backs up their words", `"${q}": the consistency heading ran on an issue-key query`);
     no(h, "Ranked by consistency", `"${q}": the consistency heading ran on an issue-key query`);
     no(h, 'data-ans="1"', `"${q}": the ranked issue answer block ran on an issue-key query`);
-    no(h, "%", `"${q}": a percentage reached the Eye's issue block`);
+    // A percentage is a number the reader can SEE. The Eye's bill results now link
+    // to /b/<sitting>/<number>, whose encoded space ("H.R.%20471") is a "%" in an
+    // href and no figure at all, so the check reads the visible text: tags out,
+    // then any number followed by a percent sign, or a bare "percent".
+    const eyeText = h.replace(/<[^>]*>/g, " ").replace(/&amp;/g, "&");
+    ok(!/\d\s*(?:%|per\s?cent)|%/i.test(eyeText), `"${q}": a percentage reached the Eye's issue block`);
     // The lens tells the truth about where the key sits: one named family, and
     // not a claim that the family itself has been read.
     has(h, `inside ${esc(PARENT.label)}`, `"${q}": the lens does not place the key honestly`);

@@ -11076,7 +11076,50 @@
 //     moves one version. No file is newly precached.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v483';
+// v484 - CALIFORNIA, ONE CONTESTED CYCLE, AND ITS BOARDS TAKE A VOICE.
+//     ca-ballot-2026.js holds the seven State Senate and State Assembly races
+//     CalMatters names as races to watch with a sitting member running, the
+//     two names the Secretary of State's certified list prints for each, and
+//     the formal acts on file for the people in them, each a final floor vote
+//     read from the bill's Votes page on leginfo.legislature.ca.gov and
+//     linked to it, each measure with one effect line. Who Represents Me
+//     prints one act under a sitting member in those races; /ballot/ca is the
+//     ballot view; the seven seats open District Voice boards that print their
+//     race and are on the composer's three lists, behind the gate every voiced
+//     board uses: signed in, a Didit (vendor) residency row for THAT seat, and
+//     the shared daily cap (one comment and one poll vote a Mountain-time day
+//     for a verified non-member; none for a member). No statewide room and no
+//     /district/* splat. district-composer.js, district-poll.js,
+//     district-board.js, district-voice.js, find.html, voice.html and '/' are
+//     precached and changed, so the shell moves one version. cmp-data.js and
+//     the fourteen earlier states' files are unchanged, and no new file is
+//     precached.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v485 - WASHINGTON, ONE CONTESTED CYCLE, AND ITS BOARDS TAKE A VOICE.
+//     wa-ballot-2026.js holds the contested State Senate races and State
+//     House POSITIONS in the swing districts Washington reporting names (the
+//     10th, 17th, 18th and 26th for the House; the 26th and 35th for the
+//     Senate), every seat there with a sitting member running, the two names
+//     the Secretary of State's primary results advance for each, and the
+//     formal acts on file for the people in them, each a final-passage roll
+//     call from the Legislature's own web service, each measure with one
+//     effect line. A Washington House district elects two members, so each
+//     position is its own seat (wa-statehouse-<n>-p<k>) with its own board;
+//     the resolver now places a roster record that names a position on that
+//     position, and Who Represents Me prints one row per position. The nine
+//     boards print their race and are on the composer's three lists, behind
+//     the gate every voiced board uses: signed in, a Didit (vendor) residency
+//     row for THAT seat, and the shared daily cap (one comment and one poll
+//     vote a Mountain-time day for a verified non-member; none for a member).
+//     No statewide room and no /district/* splat. district-composer.js,
+//     district-poll.js, district-board.js, district-voice.js, cmp-data.js
+//     (seven identity-only House shells), find.html, voice.html and '/' are
+//     precached and changed, so the shell moves one version. No new file is
+//     precached.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v485';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

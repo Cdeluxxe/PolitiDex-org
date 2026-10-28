@@ -254,7 +254,11 @@ section("5 · the homepage loads the reader, and the shell moved");
   const eye = s.indexOf('<script src="/all-seeing-eye.js"></script>');
   ok(rp > 0 && rp < eye, "index.html loads roster-portrait.js before all-seeing-eye.js");
   const sw = R("sw.js");
-  has(sw, "const CACHE_VERSION = 'v295';", "the service worker moved one version");
+  // This pass moved the worker to v295. That stays true after later passes move
+  // it on: the v295 entry says what shipped, and the version never goes back.
+  has(sw, "// v295 - SEARCH PAINTS THE ROSTER FIELD'S FACE", "the service worker's v295 entry records this pass");
+  const v = Number((/const CACHE_VERSION = 'v(\d+)';/.exec(sw) || [])[1]);
+  ok(v >= 295, `the service worker is at v295 or later (v${v})`);
   has(sw, "'/roster-portrait.js',", "the reader is precached");
 }
 

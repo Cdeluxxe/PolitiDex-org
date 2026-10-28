@@ -120,8 +120,15 @@ eq(shape.bad.length, 0, `the migration sets five statuses and nothing else${shap
 // A later migration may add rows; none may rewrite a measure's status after this one.
 {
   const later = readdirSync(MIG_DIR).filter((f) => f > MIG_NAME && f.endsWith(".sql"));
-  const rewrites = later.filter((f) => /\bUPDATE\s+vr_measures\b/i.test(readFileSync(join(MIG_DIR, f), "utf8").replace(/^--.*$/gm, "")));
-  eq(rewrites.length, 0, `no migration after this one rewrites a measure${rewrites.length ? ": " + rewrites.join(", ") : ""}`);
+  // A later pass may fill another field (the Iran same-text family's summary,
+  // 20261128000000, writes `summary` on federal resolutions only). What none may
+  // do is write `status` on vr_measures, or update any of the five bills here.
+  const sqlOf = (f) => readFileSync(join(MIG_DIR, f), "utf8").replace(/^--.*$/gm, "");
+  const updates = (src) => [...src.matchAll(/\bUPDATE\s+"?vr_measures"?\b([\s\S]*?);/gi)].map((m) => m[1]);
+  const rewrites = later.filter((f) => updates(sqlOf(f)).some((u) => /\bSET\b[\s\S]*?\bstatus\s*=/i.test(u)));
+  eq(rewrites.length, 0, `no migration after this one rewrites a measure's status${rewrites.length ? ": " + rewrites.join(", ") : ""}`);
+  const touches = later.filter((f) => updates(sqlOf(f)).length && FIVE.some((b) => sqlOf(f).indexOf(`'${b.n}'`) >= 0));
+  eq(touches.length, 0, `no migration after this one updates one of the five bills${touches.length ? ": " + touches.join(", ") : ""}`);
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

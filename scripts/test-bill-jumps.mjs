@@ -447,9 +447,18 @@ const flush = () => new Promise((r) => setTimeout(r, 0));
   ok(/'\/b\/' \+ \(sit \? encodeURIComponent\(sit\) \+ '\/' : ''\)/.test(SHARE),
     "the bill file's shareable address is no longer /b/<sitting>/<number>. That address is what the\n" +
     "    catalog rows resolve to, and it is the one the edge and the sitemap already publish");
-  ok(/BILL_PATH = \/\^\\\/b\\\//.test(SHARE),
-    "share-links.js no longer reads /b/<sitting>/<number> off the address bar, so a shared bill link\n" +
-    "    stops opening the panel it names");
+  // WHO READS THE ADDRESS BAR MOVED. /b/<sitting>/<number> is now the bill's own
+  // document (bill.html, the measure written into its body at the edge), and
+  // bill-detail.js opens the panel from that path; share-links.js stopped turning
+  // the path into a #bill/ hash, which would put back the panel-over-the-homepage
+  // address the document replaced. So the reader is held where it now lives.
+  const DETAIL = R("bill-detail.js");
+  ok(/var BILL_PATH_RE = \/\^\\\/b\\\//.test(DETAIL) && /BILL_PATH_RE\.exec\(location\.pathname/.test(DETAIL) &&
+     R("bill.html").indexOf('<script defer src="/bill-detail.js"></script>') >= 0,
+    "nothing reads /b/<sitting>/<number> off the address bar any more (bill.html's bill-detail.js did),\n" +
+    "    so a shared bill link stops opening the panel it names");
+  ok(!/BILL_PATH = \/\^\\\/b\\\//.test(SHARE) && /A \/b\/<sitting>\/<number> path is NOT turned into a hash any more/.test(SHARE),
+    "share-links.js turns /b/<sitting>/<number> back into a hash, over the bill's own document");
   // No new bill surface was introduced to satisfy any of the above.
   eq((INDEX.match(/href="\/bills?"/g) || []).length, 0,
     "a new standalone bills page was linked into the shipped page. /b/<sitting>/<number> is the bill\n" +

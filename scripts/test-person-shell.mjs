@@ -372,10 +372,10 @@ const COPIES = [
   [2013, 2033, "the Firebase compat bundles, the key injection and the stub"],
   [2185, 2230, "the share furniture share-preview.ts rewrites"],
   [3728, 3791, "the crawl-header guard"],
-  [13327, 13361, "the profile modal down to #modal-content"],
-  [13422, 13468, "the stance popover, the record overlay and the share sheet"],
-  [19325, 19445, "PDXStance"],
-  [21934, 22132, "the PWA runtime and the service-worker registration"],
+  [13331, 13365, "the profile modal down to #modal-content"],
+  [13426, 13472, "the stance popover, the record overlay and the share sheet"],
+  [19328, 19448, "PDXStance"],
+  [21942, 22137, "the PWA runtime and the service-worker registration"],
 ];
 //   AND THE STATE-BADGE PASS MOVED THE SAME LOWER FOUR BY 156, ALL OF IT ONE
 // EDIT ABOVE THEM: the location card's silhouette stopped being a hardcoded
@@ -616,6 +616,14 @@ const COPIES = [
 // runs one line longer, because the line after each block is blank in both files
 // and a blank line is shared by every document that has one; the declared range
 // is the run of substance, as the finder-move correction above established.
+// RE-LOCATED AGAIN (Oct 2026 test cleanup), the same way: each run read out of
+// person.html right after its COPIED VERBATIM header and found verbatim in
+// today's index.html. The modal and the popover moved by 4, PDXStance by 3, and
+// the PWA runtime by 8; the runtime is also 196 lines now, not 199, because the
+// block itself is three lines shorter in BOTH documents (identical in each), so
+// the range is the run of substance from its banner to its </script>.
+// person.html's own header comments still quote the old numbers: they are not
+// read by this suite, and editing them would edit a precached page.
 for (const [a, b, what] of COPIES) {
   const slice = idxLines.slice(a - 1, b).join("\n");
   ok(slice.split("\n").length === b - a + 1 && slice.trim().length > 0,

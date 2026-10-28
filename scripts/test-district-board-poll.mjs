@@ -55,7 +55,7 @@ for (const alias of Object.keys(CLUSTER)) {
   eq(doc.split(SCRIPT).length - 1, 1, `${alias}: …and loads district-poll.js once`);
   ok(doc.indexOf(SCRIPT) > doc.indexOf('src="/district-board.js"'), `${alias}: …after district-board.js`);
 }
-const boards = readdirSync(ROOT).filter((f) => /^district-[a-z]{2}-(?:(?:hd|sd|cd)-\d+|gov|us-senate-[a-z][a-z0-9_]*)\.html$/.test(f));
+const boards = readdirSync(ROOT).filter((f) => /^district-[a-z]{2}-(?:(?:hd|sd|cd)-\d+|hd-\d+-p\d+|gov|us-senate-[a-z][a-z0-9_]*)\.html$/.test(f));
 const docSeat = (f) => (/data-pdxdb-seat="([^"]+)"/.exec(R(f)) || [, ""])[1];
 // A READ-ONLY board (composer: false in district-board.js BOARDS — the
 // contested Pennsylvania legislative seats) takes no comment and no poll vote,

@@ -648,6 +648,13 @@
     'az-statesenate-23': '/district/az-sd-23',
     'az-statesenate-9': '/district/az-sd-9',
     'az-statesenate-4': '/district/az-sd-4',
+    'ca-statehouse-7': '/district/ca-hd-7',
+    'ca-statehouse-36': '/district/ca-hd-36',
+    'ca-statehouse-47': '/district/ca-hd-47',
+    'ca-statehouse-58': '/district/ca-hd-58',
+    'ca-statehouse-74': '/district/ca-hd-74',
+    'ca-statesenate-16': '/district/ca-sd-16',
+    'ca-statesenate-38': '/district/ca-sd-38',
     'co-statesenate-11': '/district/co-sd-11',
     'co-statesenate-15': '/district/co-sd-15',
     'co-statesenate-21': '/district/co-sd-21',
@@ -777,6 +784,15 @@
     'tx-statehouse-138': '/district/tx-hd-138',
     'tx-statesenate-9': '/district/tx-sd-9',
     'tx-statesenate-21': '/district/tx-sd-21',
+    'wa-statesenate-26': '/district/wa-sd-26',
+    'wa-statesenate-35': '/district/wa-sd-35',
+    'wa-statehouse-10-p1': '/district/wa-hd-10-p1',
+    'wa-statehouse-10-p2': '/district/wa-hd-10-p2',
+    'wa-statehouse-17-p1': '/district/wa-hd-17-p1',
+    'wa-statehouse-17-p2': '/district/wa-hd-17-p2',
+    'wa-statehouse-18-p1': '/district/wa-hd-18-p1',
+    'wa-statehouse-18-p2': '/district/wa-hd-18-p2',
+    'wa-statehouse-26-p1': '/district/wa-hd-26-p1',
     'wi-statesenate-17': '/district/wi-sd-17',
     'wi-statesenate-31': '/district/wi-sd-31',
     'wi-statehouse-26': '/district/wi-hd-26',
@@ -931,8 +947,18 @@
   // of this question: a caller that built '/district/' + alias itself would be a
   // second answer, and the first thing a second answer does is outlive the row
   // that netlify.toml actually rewrites.
+  // A seat elected by position (Washington's House), <code>-statehouse-<n>-p<k>,
+  // alias <code>-hd-<n>-p<k>: a third shape BOARD_ROUTES accepts, beside the
+  // statewide one, and like it never a /d/ seat key.
+  var POSITION_KEY_RE = /^[a-z]{2}-statehouse-[1-9][0-9]*-p[1-9]$/;
+  function positionBoardKey(raw) {
+    var s = String(raw == null ? '' : raw).trim().toLowerCase();
+    if (POSITION_KEY_RE.test(s)) return s;
+    var m = /^([a-z]{2})-hd-([1-9][0-9]*)-(p[1-9])$/.exec(s);
+    return m ? m[1] + '-statehouse-' + m[2] + '-' + m[3] : '';
+  }
   function boardPath(seatKey) {
-    var k = normalizeSeatKey(seatKey) || statewideBoardKey(seatKey);
+    var k = normalizeSeatKey(seatKey) || statewideBoardKey(seatKey) || positionBoardKey(seatKey);
     return (k && Object.prototype.hasOwnProperty.call(BOARD_ROUTES, k)) ? BOARD_ROUTES[k] : '';
   }
 

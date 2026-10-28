@@ -475,6 +475,30 @@
   // row the resolver could not place — so this file never paints an entry to a
   // room that does not exist, and it degrades to exactly today's markup when
   // district-room.js has not loaded.
+  // ── A CHAMBER THAT ELECTS BY POSITION ──────────────────────────────────────
+  // Washington's House elects two members from every district, each to its own
+  // seat, so the resolver names nobody on the district and lists each position's
+  // member on lv.positions instead (only when the roster holds one). Such a level
+  // is printed as one row per position, headed with the district AND the
+  // position; every other level is printed exactly as before.
+  function seatRows(levels) {
+    var out = [];
+    (levels || []).forEach(function (lv) {
+      if (!lv || !lv.positions || !lv.positions.length || lv.pid) { out.push(lv); return; }
+      lv.positions.forEach(function (p) {
+        var x = {};
+        for (var k in lv) if (Object.prototype.hasOwnProperty.call(lv, k)) x[k] = lv[k];
+        x.pid = p.pid || null;
+        x.resolved = !!p.pid;
+        x.position = p.position;
+        x.distLabel = lv.distLabel + ' · Position ' + p.position;
+        delete x.positions;
+        out.push(x);
+      });
+    });
+    return out;
+  }
+
   // ── One formal act under the row, for the contested seats on file ─────────
   // pa-ballot-2026.js (Pennsylvania), ga-ballot-2026.js (Georgia),
   // nc-ballot-2026.js (North Carolina), mi-ballot-2026.js (Michigan),
@@ -482,11 +506,12 @@
   // fl-ballot-2026.js (Florida), az-ballot-2026.js (Arizona),
   // ny-ballot-2026.js (New York), tx-ballot-2026.js (Texas),
   // il-ballot-2026.js (Illinois), mn-ballot-2026.js (Minnesota),
-  // co-ballot-2026.js (Colorado) and nv-ballot-2026.js (Nevada) hold the acts and own the markup; each answers '' for any pid it holds no act for,
+  // co-ballot-2026.js (Colorado), nv-ballot-2026.js (Nevada),
+  // ca-ballot-2026.js (California) and wa-ballot-2026.js (Washington) hold the acts and own the markup; each answers '' for any pid it holds no act for,
   // so every other state's row is unchanged. A sibling of the row, for the same
   // nesting reason as seatCompare() below.
   function seatRecord(pid, lv) {
-    var mods = [window.PDXPaBallot, window.PDXGaBallot, window.PDXNcBallot, window.PDXMiBallot, window.PDXOhBallot, window.PDXWiBallot, window.PDXFlBallot, window.PDXAzBallot, window.PDXNyBallot, window.PDXTxBallot, window.PDXIlBallot, window.PDXMnBallot, window.PDXCoBallot, window.PDXNvBallot];
+    var mods = [window.PDXPaBallot, window.PDXGaBallot, window.PDXNcBallot, window.PDXMiBallot, window.PDXOhBallot, window.PDXWiBallot, window.PDXFlBallot, window.PDXAzBallot, window.PDXNyBallot, window.PDXTxBallot, window.PDXIlBallot, window.PDXMnBallot, window.PDXCoBallot, window.PDXNvBallot, window.PDXCaBallot, window.PDXWaBallot];
     for (var i = 0; i < mods.length; i++) {
       var P = mods[i];
       if (!P || typeof P.seatActHtml !== 'function') continue;
@@ -1120,7 +1145,7 @@
   // seats resolve from a state and which need district lines we do not draw.
   function scopeNote(reps) {
     if (reps.districtsResolvable) return '';
-    var blanks = reps.levels.filter(function (l) { return !l.statewide && !l.resolved; }).length;
+    var blanks = seatRows(reps.levels).filter(function (l) { return !l.statewide && !l.resolved; }).length;
     if (!blanks) return '';
     // A state whose legislative lines we DO draw (Texas, California, Florida,
     // New York, Illinois, Pennsylvania, Ohio, Georgia, Michigan, North
@@ -1182,15 +1207,16 @@
       return;
     }
 
-    var rows = reps.levels.map(function (lv) { return row(lv, reps); }).join('');
+    var seats = seatRows(reps.levels);
+    var rows = seats.map(function (lv) { return row(lv, reps); }).join('');
     var area = reps.area ? esc(reps.area) : '';
-    var resolved = reps.levels.filter(function (l) { return l.resolved; }).length;
+    var resolved = seats.filter(function (l) { return l.resolved; }).length;
     // The seats whose DISTRICT we have and whose HOLDER we do not — the third
     // kind of gap row() now states. Counted here because the headline is where
     // "3 of 6" was doing the same conflation the rows were: a reader who had just
     // pinned three districts in the finder read a number that said nothing had
     // been placed. The districts were placed; the roster is what is short.
-    var located = reps.levels.filter(function (l) {
+    var located = seats.filter(function (l) {
       return !l.statewide && !l.resolved && l.district != null && String(l.district) !== '';
     }).length;
 
@@ -1204,7 +1230,7 @@
       '<div class="wrm-result">' +
         '<div class="wrm-resulthd">' +
           '<span class="wrm-resultkicker">Your representatives' + (area ? ' · ' + area : '') + '</span>' +
-          '<span class="wrm-resultcount">' + resolved + ' of ' + reps.levels.length + ' seats resolved' +
+          '<span class="wrm-resultcount">' + resolved + ' of ' + seats.length + ' seats resolved' +
             (located
               ? ' <span class="wrm-resultlocated">\u00b7 ' + located +
                 (located === 1 ? ' district located, member not on file' : ' districts located, members not on file') +

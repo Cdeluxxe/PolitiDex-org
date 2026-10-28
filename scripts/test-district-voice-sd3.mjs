@@ -64,6 +64,7 @@
 // No database, no network, no browser. Exit code is non-zero on any failure.
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { execFileSync } from "node:child_process";
 import { readFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -190,7 +191,7 @@ const districtRules = RULES.filter((r) => r.from.startsWith("/district/"));
 {
   const byDoc = new Map();
   for (const r of districtRules) {
-    ok(/^\/district\/[a-z]{2}-(?:(?:hd|sd|cd)-[1-9][0-9]*|gov|us-senate-[a-z][a-z0-9_]*)(?:\/|\.html)?$/.test(r.from),
+    ok(/^\/district\/[a-z]{2}-(?:(?:hd|sd|cd)-[1-9][0-9]*|hd-[1-9][0-9]*-p[1-9]|gov|us-senate-[a-z][a-z0-9_]*)(?:\/|\.html)?$/.test(r.from),
       `toml: ${r.from} is not one of the three spellings of a board address`);
     eq(r.status, "200", `toml: ${r.from} hops instead of answering`);
     byDoc.set(r.to, (byDoc.get(r.to) || 0) + 1);
@@ -659,7 +660,7 @@ ok(FN.indexOf("BOARD_SEATS") > 0, "the endpoint declares a BOARD_SEATS allow-lis
   eq(fnSeats.length, (lit.match(/:/g) || []).length,
     "an endpoint allow-list row is computed rather than written down");
   for (const k of clientSeats) {
-    ok(/^[a-z]{2}-(?:(?:house|statesenate|statehouse)-[1-9][0-9]*|gov|us-senate-[a-z][a-z0-9_]*)$/.test(k),
+    ok(/^[a-z]{2}-(?:(?:house|statesenate|statehouse)-[1-9][0-9]*|statehouse-[1-9][0-9]*-p[1-9]|gov|us-senate-[a-z][a-z0-9_]*)$/.test(k),
       `the client allow-list holds ${JSON.stringify(k)}, which is not a canonical seat key`);
   }
 }
@@ -1244,8 +1245,19 @@ ok(!/src="\/[a-z-]*(?:finance|wealth|ftm)[a-z-]*\.js"/.test(DOC), "no finance mo
   };
   const docs = vm.runInNewContext("(" + lift("var PDX_FD_DOCUMENTS = ") + ")");
   const dis = vm.runInNewContext("(" + lift("var PDX_FD_DISCLOSURES = ") + ")");
-  eq(Object.keys(docs).length, 4, "the FD document table still holds four rows");
-  eq(Object.keys(dis).length, 0, "the FD disclosure table is still empty");
+  // When this pass landed the document table held four rows and the disclosure
+  // table none; later finance passes grew the document table on their own. What
+  // stays true for every pass is that it does not touch them: both tables are
+  // row-for-row what HEAD holds, so a backfill smuggled in beside a pass fails.
+  let headFin = null;
+  try { headFin = execFileSync("git", ["show", "HEAD:pdx-finance.js"], { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 26, stdio: ["ignore", "pipe", "ignore"] }); } catch (e) { headFin = null; }
+  must(headFin !== null, "HEAD:pdx-finance.js is unreadable, so the FD tables could not be compared");
+  const liftFrom = (src, decl) => { const a = src.indexOf(decl); const b = src.indexOf(";", a + decl.length); return src.slice(a + decl.length, b); };
+  const docsHead = vm.runInNewContext("(" + liftFrom(headFin, "var PDX_FD_DOCUMENTS = ") + ")");
+  const disHead = vm.runInNewContext("(" + liftFrom(headFin, "var PDX_FD_DISCLOSURES = ") + ")");
+  ok(Object.keys(docs).length >= 4, "the FD document table still holds the four rows this pass saw");
+  eq(JSON.stringify(docs), JSON.stringify(docsHead), "the FD document table is HEAD's, row for row");
+  eq(JSON.stringify(dis), JSON.stringify(disHead), "the FD disclosure table is HEAD's, row for row");
 }
 
 // NO WRITE TO A LOCATION / DISTRICT / TEAM / STANCE KEY. Asserted twice: by

@@ -625,6 +625,13 @@ const BOARD_SEATS: Record<string, 1> = {
   "az-statesenate-23": 1,
   "az-statesenate-9": 1,
   "az-statesenate-4": 1,
+  "ca-statehouse-7": 1,
+  "ca-statehouse-36": 1,
+  "ca-statehouse-47": 1,
+  "ca-statehouse-58": 1,
+  "ca-statehouse-74": 1,
+  "ca-statesenate-16": 1,
+  "ca-statesenate-38": 1,
   "co-statesenate-11": 1,
   "co-statesenate-15": 1,
   "co-statesenate-21": 1,
@@ -754,6 +761,15 @@ const BOARD_SEATS: Record<string, 1> = {
   "tx-statehouse-138": 1,
   "tx-statesenate-9": 1,
   "tx-statesenate-21": 1,
+  "wa-statesenate-26": 1,
+  "wa-statesenate-35": 1,
+  "wa-statehouse-10-p1": 1,
+  "wa-statehouse-10-p2": 1,
+  "wa-statehouse-17-p1": 1,
+  "wa-statehouse-17-p2": 1,
+  "wa-statehouse-18-p1": 1,
+  "wa-statehouse-18-p2": 1,
+  "wa-statehouse-26-p1": 1,
   "wi-statesenate-17": 1,
   "wi-statesenate-31": 1,
   "wi-statehouse-26": 1,
@@ -779,10 +795,16 @@ const ALIAS_CHAMBERS: Record<string, string> = {
 // spelling each, and a shape rather than a list — BOARD_SEATS is the list.
 const STATEWIDE_KEY_RE = /^[a-z]{2}-(?:gov|us-senate-[a-z][a-z0-9_]*)$/;
 
+// A seat elected by position (Washington's House): <code>-statehouse-<n>-p<k>,
+// alias <code>-hd-<n>-p<k> — the shape district-board-voice-core.mjs accepts.
+const POSITION_KEY_RE = /^[a-z]{2}-statehouse-[1-9][0-9]*-p[1-9]$/;
+
 function normalizeSeatKey(raw: unknown): string {
   const s = String(raw == null ? "" : raw).trim().toLowerCase();
   if (!s) return "";
-  if (SEAT_KEY_RE.test(s) || STATEWIDE_KEY_RE.test(s)) return s;
+  if (SEAT_KEY_RE.test(s) || STATEWIDE_KEY_RE.test(s) || POSITION_KEY_RE.test(s)) return s;
+  const pm = /^([a-z]{2})-hd-([1-9][0-9]*)-(p[1-9])$/.exec(s);
+  if (pm) return `${pm[1]}-statehouse-${pm[2]}-${pm[3]}`;
   const m = /^([a-z]{2})-(hd|sd|cd)-([1-9][0-9]*)$/.exec(s);
   if (!m) return "";
   const out = `${m[1]}-${ALIAS_CHAMBERS[m[2]]}-${m[3]}`;

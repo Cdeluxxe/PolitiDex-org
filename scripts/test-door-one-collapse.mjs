@@ -703,7 +703,17 @@ section("8 · A shipped issue key opens as itself; an unknown one still refuses"
       session: { pdx_d1_mode: "issue" },
       records: () => Promise.resolve(null),
     });
-    s.pdxDoor1Issue("lands_preserve");
+    // AN ISSUE THAT IS GENUINELY EMPTY. This was lands_preserve until later
+    // passes mapped measures onto it (H.R. 1, among four seed rows), which turned
+    // it into a non-empty issue whose correct read is "1 measure on file, nobody
+    // with a readable act" — so the fixture moved to a tracked key with no row.
+    // If a later pass maps one onto it too, this stops as a stale fixture rather
+    // than reading as a lost sentence.
+    const EMPTY_KEY = "datacenter_growth";
+    const seedRows = JSON.parse(readFileSync(join(ROOT, "db/vr-issue-seed.json"), "utf8")).measures
+      .filter((m) => (m.issues || []).some((i) => i.issueKey === EMPTY_KEY)).length;
+    must(seedRows === 0, `${EMPTY_KEY} now has ${seedRows} seed row(s) — pick another tracked key with none`);
+    s.pdxDoor1Issue(EMPTY_KEY);
     await new Promise((r) => setTimeout(r, 40));
     const empty = paint(s);
     has(empty, s.PDXConsistency.menu.PHRASES.no_vehicle.note,
