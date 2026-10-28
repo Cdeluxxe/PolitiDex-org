@@ -306,8 +306,8 @@ const sized = rules(CSS).filter(r => /[;{\s]height:/.test(r.body)).map(r => r.se
 eq(sized.length, 1, 'exactly one rule in the block sets a height');
 ok(/> a > div:first-child$/.test(sized[0]), 'and it is the brand tile, sized down a step on the narrowest phones');
 ok(HTML.includes("querySelector('.pdx-eye-row')"), 'the chrome is still measured off the eye row');
-ok(/new ResizeObserver\(measure\)\.observe\(nav\)/.test(HTML),
-  'a ResizeObserver still watches the nav box, so a wrapped bar republishes --pdx-chrome by itself');
+ok(/new ResizeObserver\(measure\)/.test(HTML) && /ro\.observe\(k\)/.test(HTML) && /k\.id !== 'mobileMenu'/.test(HTML),
+  'a ResizeObserver still watches the permanent rows (every nav child but the drawer), so a wrapped bar republishes --pdx-chrome by itself');
 eq((stripAll(APPCSS).match(/scroll-padding-top:/g) || []).length, 1, 'still exactly one scroll-padding-top, and it reads var(--pdx-chrome)');
 const heroPad = [...stripAll(HTML).matchAll(/#hero\s*\{[^}]*padding-top:\s*([^;}]+)/g)].map(m => m[1].trim());
 eq(heroPad.length, 1, 'still exactly one #hero padding-top declaration');
