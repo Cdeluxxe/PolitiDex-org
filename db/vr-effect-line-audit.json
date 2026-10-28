@@ -465,5 +465,46 @@
    "line": "Would have ended the Executive Order 14156 energy emergency on its second try; the Senate rejected it 47-51.",
    "why": "Matches the pair's stored did: the same termination, back eight months later; rejected 47-51."
   }
- ]
+ ],
+ "later": [
+  {
+   "key": "H.B. 76|2026GS|water",
+   "decision": "kept",
+   "line": "Made each new data center using 75 acre feet a year or more notify its water provider of anticipated consumption before building.",
+   "source": "https://le.utah.gov/Session/2026/bills/enrolled/HB0076.xml",
+   "quotes": [
+    "[+(3)On or after July 1, 2026, at least 90 days, but no sooner than 360 days, before the operator of a large data center begins construction activities related to a new large data center, the operator of the large data center shall:(a)notify in writing the water provider that provides water to the area where the new large data center will be located to detail the anticipated water consumption needs of the new large data center so that the water provider can determine whether the anticipated water consumption of the new large data center is compatible with the location in which the new large data center is being located; and+]",
+    "[+(d)\"Large data center\" means a facility with an annual water withdrawal of 75 acre feet per year or more that:(i)houses a group of networked server computers in one physical location to disseminate, manage, and store data and information as the primary service of the facility;+]",
+    "[+(f)\"New large data center\" means a large data center that begins operations on or after July 1, 2026.+]"
+   ],
+   "terms": [
+    "water provider",
+    "75 acre feet",
+    "anticipated"
+   ],
+   "why": "Audited after v387 against the enrolled text. Enacted 73-5-8.3(3)(a) requires the operator, before beginning construction activities for a new large data center, to notify in writing the water provider for the area of the center's anticipated water consumption needs; a large data center is one with an annual water withdrawal of 75 acre feet per year or more, and a new one begins operations on or after July 1, 2026. The line says exactly that and no more."
+  },
+  {
+   "key": "H.R. 1|119|lands_preserve",
+   "decision": "kept",
+   "line": "Required four more Arctic refuge coastal plain lease sales and rescinded park and BLM conservation funds; the House cleared it 218-214.",
+   "source": "https://www.govinfo.gov/content/pkg/BILLS-119hr1enr/html/BILLS-119hr1enr.htm",
+   "quotes": [
+    "in addition to the lease sales required under section 20001(c)(1)(A) of Public Law 115-97 (16 U.S.C. 3143 note), the Secretary shall conduct not fewer than 4 lease sales area-wide under the oil and gas program by not later than 10 years after the date of enactment of this Act.",
+    "SEC. 50304. RESCISSION OF NATIONAL PARK SERVICE AND BUREAU OF LAND MANAGEMENT FUNDS.",
+    "There are rescinded the unobligated balances of amounts made available by the following sections of Public Law 117-169 (commonly known as the ``Inflation Reduction Act of 2022'') (136 Stat. 1818): (1) Section 50221 (136 Stat. 2052). (2) Section 50222 (136 Stat. 2052). (3) Section 50223 (136 Stat. 2052)."
+   ],
+   "lawQuotes": [
+    "SEC. 50221. NATIONAL PARKS AND PUBLIC LANDS CONSERVATION AND RESILIENCE.",
+    "SEC. 50222. NATIONAL PARKS AND PUBLIC LANDS CONSERVATION AND ECOSYSTEM RESTORATION."
+   ],
+   "lawSource": "https://www.govinfo.gov/content/pkg/BILLS-117hr5376enr/html/BILLS-117hr5376enr.htm",
+   "terms": [
+    "lease sales",
+    "rescinded"
+   ],
+   "why": "Audited after v387 against the enrolled text. Sec. 50104(b)(1) requires not fewer than 4 area-wide lease sales on the Coastal Plain in addition to those Public Law 115-97 required: four more. Sec. 50304 rescinds the unobligated balances of Inflation Reduction Act secs. 50221 and 50222, both National Parks and Public Lands Conservation appropriations for NPS and BLM lands, and sec. 50223 (NPS employees). The line names the two conservation sections and not the staffing one, so it is narrower than the bill, never broader. The 218-214 is the House's July 3, 2025 vote to concur, which cleared the act."
+  }
+ ],
+ "_comment_later": "Lines that began printing on the four audited issues after v387 are audited the same way and recorded under `later`, not `rows`: `rows` is the v387 audit's own record of the 48 lines it read, and its counts and HEAD comparisons are facts about that pass. A `later` row is either `kept` (byte for byte, with the bill text it was checked against) or names a reason it was excluded."
 }

@@ -9,6 +9,9 @@
  *     0 people have a readable formal row …
  *     PRIMARY   H.R. 7567 — Farm, Food, and National Security Act
  *
+ * (PRIMARY was the label of the day; the card now wears the dominant-category
+ * on-axis / off-axis badge instead, and section 1 checks for that.)
+ *
  * Both halves came out of the same builder. They disagreed because they are fed
  * by two different reads: the measure list comes off the static measure index
  * and is there at the first frame, while the census counts people whose formal
@@ -350,7 +353,10 @@ const COLD = await (async () => {
   // THE CARD IS ON THE PAGE. Asserted first, because every claim under it is
   // "the words above this card must not deny it".
   has(body, BILL, `${BILL} is not on the cold frame — the fixture cannot contradict anything`);
-  has(body, "PRIMARY", "the cold frame prints no PRIMARY lane");
+  // The retired PRIMARY/provision label is replaced by the dominant-category
+  // badge: the card says whether this key is on- or off-axis for the measure.
+  ok(/class="d1-led-btag is-(?:on|off)" data-pdx-axis="(?:on|off)"[^>]*>(?:on|off)-axis</.test(body), "the cold frame prints no on-axis/off-axis badge on the measure card");
+  no(body, ">PRIMARY<", "the cold frame still prints the retired PRIMARY label");
 
   // …AND THE WORDS DO NOT DENY IT.
   for (const d of DENIALS) {

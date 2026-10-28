@@ -11119,7 +11119,23 @@
 //     precached.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v485';
+// v486 - THE SUITE-CLEARING PASS: TWO COPY LINES AND TWO HEADER COMMENTS.
+//     me.html and stances.html each declare the index.html lines their copied
+//     blocks came from, and those blocks moved down one line; the header
+//     comments now name the moved ranges (PDXSaved 19941–20363; the stance
+//     pill rules 19285–19309 and the PDXStance vocabulary 19328–19448). The
+//     copied code itself is byte-identical and unchanged. ballot-measures.js
+//     labels its one-measure link "This measure’s page" instead of "Full
+//     ballot page", because a link to one measure is not the whole ballot.
+//     district-board.js's empty Utah pin group reads "No measures on hand for
+//     this seat on this issue." in the board's own grammar of absence rather
+//     than promising a record with "yet". me.html, stances.html,
+//     ballot-measures.js and district-board.js are precached and changed, so
+//     the shell moves one version. No new file is precached and no board is
+//     added.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v486';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

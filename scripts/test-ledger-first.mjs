@@ -24,8 +24,10 @@
 //      rendered rows, and the shared per-issue item accessor every surface reads
 //      all return it for the 12-weight secondary mapping exactly as for the
 //      100-weight primary one.
-//   2. LABEL, NEVER FILTER. The narrow mapping is TAGGED "narrow link" and the
-//      secondary ones "supporting link" — the words are there, and so is the row.
+//   2. LABEL, NEVER FILTER. The narrow mapping is TAGGED "narrow link", every
+//      row says whether it is on- or off-axis by the measure's dominant category
+//      (the retired primary flag is not read), and the sibling keys are named as
+//      "supporting link" — the words are there, and so is the row.
 //   3. NOTHING CLAIMS AN EMPTY FILE. The issue index, the formal-pattern atlas
 //      and its shape never say "no formal record on this issue" about an issue
 //      that holds a mapped act.
@@ -231,10 +233,18 @@ section("2 · label, never filter — the words 'narrow' and 'supporting' are on
   must(nrow && srow && prow, "section 1 already failed — the rows are not there to label");
 
   eq(nrow.narrow, true, "the 12-weight mapping is marked narrow");
-  eq(nrow.primary, false, "…and secondary");
   eq(srow.narrow, false, "the 60-weight mapping is not narrow");
-  eq(srow.primary, false, "…and is secondary");
-  eq(prow.primary, true, "the 100-weight mapping is the primary one");
+  // The retired primary/supporting flag is gone; how squarely a measure sits on
+  // an issue is now the dominant-category model (_pdxMeasureAxis), counted over
+  // the measure's mapped keys. Weight does not enter it, so each row's axis is
+  // exactly what the category count says — the 12-weight row included.
+  const AX = A._pdxMeasureAxis(OMNIBUS.issues);
+  must(AX, "window._pdxMeasureAxis is gone — the dominant-category model cannot be read");
+  for (const [row, k] of [[prow, PRIMARY], [srow, SUPPORTING], [nrow, NARROW]]) {
+    eq(row.axis, AX.axisOf(k), `${nameOf(k)}: the row's axis is the category count's, not the weight's`);
+    eq(row.axisSplit, AX.split, `${nameOf(k)}: and a tied category count is flagged on the row`);
+    ok(!("primary" in row), `${nameOf(k)}: the retired primary flag is not carried`);
+  }
 
   // The tags render, on the row's own opened detail. This is the whole
   // compromise the mission rule allows: the curation's opinion of how central
@@ -251,8 +261,11 @@ section("2 · label, never filter — the words 'narrow' and 'supporting' are on
     "…on a row that is still on the page");
   has(detailFor(SUPPORTING), "supporting link",
     "the secondary mapping's row says it is supporting");
-  has(detailFor(PRIMARY), "primary link",
-    "and the primary mapping's row says which one it is");
+  for (const k of [PRIMARY, SUPPORTING, NARROW]) {
+    const want = AX.axisOf(k) === "on" ? ">on-axis</span>" : ">off-axis</span>";
+    has(detailFor(k), want, `${nameOf(k)}: the row's detail says whether it is on or off the measure's main category`);
+    ok(!detailFor(k).includes("primary link"), `${nameOf(k)}: and the retired primary wording is gone`);
+  }
 
   // And a procedural act says so, for the same reason the narrow one does: it is
   // now counted as a whole act by the pattern engine, so a reader counting the

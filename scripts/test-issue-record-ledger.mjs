@@ -680,12 +680,14 @@ section("6 · No second lane in the new copy");
   has(html, 'data-pdxst-focus="record"', "the gateway does not land the reader on the record");
   has(R("consistency.js"), "data-pdxst-dos", "the gateway attribute this pane writes is not the shipped one");
 
-  // Measures are named and open the existing explainer, and PRIMARY vs provision
-  // is a label on the row — not a cap, a gate or a discount.
+  // Measures are named and open the existing explainer, and on-axis vs off-axis
+  // (the measure's dominant category, which replaced the retired PRIMARY vs
+  // provision flag) is a label on the row — not a cap, a gate or a discount.
   const led = w.PDXDoor1._ledger(null, KEY);
   if (led.measures.length) {
     has(html, "d1-led-bills", "the ledger named no measures");
-    has(html, "PRIMARY", "the measure rows do not say which were about this issue");
+    ok(/class="d1-led-btag is-(?:on|off)" data-pdx-axis="(?:on|off)"[^>]*>(?:on|off)-axis</.test(html), "the measure rows do not say which were about this issue (on-axis/off-axis badge)");
+    no(html, ">PRIMARY<", "the measure rows still print the retired PRIMARY label");
     has(html, "window.pdxDoor1Bill(", "a measure row does not open the existing explainer");
   } else {
     console.log("      no measure in the index maps to this key — measure rows pinned by shape only");
