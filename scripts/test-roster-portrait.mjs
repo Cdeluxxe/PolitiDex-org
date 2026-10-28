@@ -157,7 +157,8 @@ section("2 · the card stops carrying its own");
   // Every face the homepage paints for a roster pid is that pid's roster field.
   let diff = 0;
   for (const pid of Object.keys(D)) if (String(env.w._getPhotoUrl(pid) || "") !== String(D[pid].photo || "")) diff++;
-  eq(diff, 0, "for every roster pid, _getPhotoUrl answers the roster field");
+  const diffPids = Object.keys(D).filter((pid) => String(env.w._getPhotoUrl(pid) || "") !== String(D[pid].photo || "")).slice(0, 5).map((p) => p + " → " + env.w._getPhotoUrl(p));
+  eq(diff, 0, "for every roster pid, _getPhotoUrl answers the roster field — " + diffPids.join("; "));
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

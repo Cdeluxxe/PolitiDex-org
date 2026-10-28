@@ -67,7 +67,10 @@ const SW = R("sw.js");
 
 const { boards: PLAN, skipped: SKIPPED } = planBoards();
 const FED = PLAN.filter((b) => b.federal);
-const UT = PLAN.filter((b) => !b.federal && !b.stateLeg);
+// NE-2 opened read-only (FEDERAL_READ_ONLY_SEATS): every other federal board
+// takes a voice. test-six-state-deepen.mjs holds NE-2 off the composer's lists.
+const FED_VOICED = FED.filter((b) => !b.readOnly);
+const UT = PLAN.filter((b) => !b.federal && !b.stateLeg && !b.outsideUtah);
 const ROSTER = (() => {
   const w = makeSandbox();
   vm.runInContext(R("cmp-data.js"), vm.createContext(w), { filename: "cmp-data.js" });
@@ -112,7 +115,7 @@ for (const b of FED) {
   eq(V.boardPath(b.seat), `/district/${b.alias}`, `${b.seat}: boardPath() answers it`);
   const row = B.board(b.alias);
   ok(!!row && row.seat === b.seat, `${b.alias}: BOARDS has the row`);
-  ok(!!row && row.composer === true, `${b.alias}: the BOARDS row carries the composer flag`);
+  ok(!!row && row.composer === !b.readOnly, `${b.alias}: the BOARDS row carries the composer flag`);
   ok(fnSeats.has(b.seat), `${b.seat}: on the Function's BOARD_SEATS`);
   for (const sfx of ["", "/", ".html"]) {
     const r = RULES.filter((x) => x.from === `/district/${b.alias}${sfx}`);
@@ -147,7 +150,9 @@ section("2 · the composer, the poll and the residency check, and no offline cop
   const DC = listOf(R("district-composer.js"), /@generated district-boards begin([\s\S]*?)@generated district-boards end/);
   const DP = listOf(R("district-poll.js"), /@generated district-boards begin([\s\S]*?)@generated district-boards end/);
   must(CORE.length > 0 && DC.length > 0 && DP.length > 0, "a composer list could not be located");
-  for (const b of FED) {
+  eq(FED.filter((b) => b.readOnly).map((b) => b.seat).join(","), "ne-house-2", "the read-only federal boards");
+  for (const b of FED.filter((x) => x.readOnly)) no(CORE, `"${b.seat}"`, `${b.seat}: a read-only board is on the server's COMPOSER_SEATS`);
+  for (const b of FED_VOICED) {
     has(CORE, `"${b.seat}": "${b.alias}"`, `${b.seat}: on the server's COMPOSER_SEATS`);
     has(DC, `'${b.alias}': 1`, `${b.alias}: on district-composer.js's list`);
     has(DP, `'${b.alias}': 1`, `${b.alias}: on district-poll.js's list`);
@@ -189,7 +194,7 @@ for (const b of FED) {
 // Every federal seat has the dd_districts row the voice tables' foreign key needs.
 {
   const MIG = R("netlify/database/migrations/20261129000000_dd_districts_federal_board_seats.sql");
-  for (const b of FED) {
+  for (const b of FED_VOICED) {
     const re = b.usHouse
       ? new RegExp(`\\('${b.seat}', '${b.seat.slice(0, 2).toUpperCase()}', 'house', ${b.district}, '`)
       : new RegExp(`\\('${b.seat}', '${b.seat.slice(0, 2).toUpperCase()}', 'us-senate', 0, '`);

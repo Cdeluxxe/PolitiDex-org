@@ -29,7 +29,10 @@
 //
 //   node scripts/test-state-legislative-lines-ak.mjs
 
-import { R, HEAD, MAP, sq, driveFinder, boot, levelOf, band, tigerUrls, layerOf } from "./state-leg-harness.mjs";
+import { R, HEAD, MAP, sq, driveFinder, bootWithoutSixStateShells as boot, levelOf, band, tigerUrls, layerOf } from "./state-leg-harness.mjs";
+// boot() is the roster without the six-state pass's shells (see state-leg-harness.mjs):
+// this suite pins the lines and the empty-seat rule; test-six-state-deepen.mjs
+// pins the members now on file.
 
 let passed = 0;
 const failures = [];

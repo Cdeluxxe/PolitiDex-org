@@ -304,12 +304,13 @@ section("2 · no party, no score, no ring, no strip, no 'thin record'");
 section("3 · Formal 0, Public 0, Mandate 0 — and still an answer");
 {
   const B = boot();
-  // A query that ranks a judge and nothing else. Pohlman is not in the roster,
+  // A query that ranks a judge and nothing else. Rawson is not in the roster,
   // in ISSUE_MAP, in the bills index or in the spotlights, so every legislative
-  // lane genuinely has zero to report.
+  // lane genuinely has zero to report. (Pohlman was this query until South
+  // Dakota's John Pohlman, a 2026 House candidate, joined the roster.)
   for (const mode of ["formal", "public"]) {
     B.lane(mode);
-    const html = B.search("Pohlman");
+    const html = B.search("Rawson");
     for (const id of ["formal", "public", "mandate"]) {
       eq(laneCount(html, id), 0, `${mode} lane: the ${id} counter counted a judge as its own hit`);
     }

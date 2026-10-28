@@ -11149,7 +11149,29 @@
 //     version. No new file is precached.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v487';
+// v488 - SIX STATES BOARDED WHOLE: NEBRASKA, SOUTH DAKOTA, IDAHO, MONTANA,
+//     ALASKA AND RHODE ISLAND.
+//     cmp-data.js carries a roster shell for every sitting legislator in the
+//     six states and a candidate row for every 2026 legislative candidate on
+//     their official lists; scripts/gen-district-boards.mjs opens a read-only
+//     board for every State House and State Senate seat the roster names
+//     there, a read-only governor board for each of the six, and NE-2 now that
+//     Don Bacon's row names his district. No new board takes a comment or a
+//     poll vote. Alaska's lettered Senate, South Dakota's split House seats
+//     (26A, 26B, 28A, 28B) and its at-large House pairs (Seat A / Seat B,
+//     PolitiDex's numbering), and Idaho's House Positions A and B are keyed by
+//     the resolver; who-represents-me.js prints Idaho's and South Dakota's
+//     position words. ballot-breakdown.js no longer borrows a portrait through a
+//     name slug that is another state's roster id (Idaho Sen. Mark Harris is not
+//     NC's Rep. Mark Harris). None of the new boards is precached: the three
+//     generated blocks above are still Utah's alone. district-board.js (its
+//     BOARDS rows), index.html and voice.html (the board count, now twelve
+//     hundred seventy-three) are precached and changed, so the shell moves one
+//     version. No new file is precached.
+//     No location key is migrated, renamed or copied. No board added here takes
+//     a voice, so no dd_districts row is needed and no migration was written.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v488';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

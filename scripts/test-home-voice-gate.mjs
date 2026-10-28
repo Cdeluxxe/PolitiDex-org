@@ -176,7 +176,7 @@ const UNPLACED = "Find your rooms";
 const PLACED = "See your rooms";
 // The count in this sentence is pinned to BOARD_ROUTES in section 6, not here:
 // this line is the SHAPE of the sentence, and that block is the arithmetic.
-const NOTE = "Six hundred eighty-five seats have a board on file today. Every other seat says the room is not open.";
+const NOTE = "Twelve hundred seventy-three seats have a board on file today. Every other seat says the room is not open.";
 
 // The visible copy, with the comments, the style block and the script stripped
 // the way a reader sees it.
@@ -523,7 +523,9 @@ section("6 · the allow-listed boards, and the person-file control is untouched"
   const TENS = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
   const under100 = (n) => n < 20 ? ONES[n] : TENS[Math.floor(n / 10)] + (n % 10 ? "-" + ONES[n % 10] : "");
   const spell = (n) => n < 100 ? under100(n)
-    : n < 1000 ? ONES[Math.floor(n / 100)] + " hundred" + (n % 100 ? " " + under100(n % 100) : "")
+    // Past a thousand the count is spelled in hundreds ("Twelve hundred
+    // seventy-three"), as the card writes it.
+    : n < 2000 ? ONES[Math.floor(n / 100)] + " hundred" + (n % 100 ? " " + under100(n % 100) : "")
     : String(n);
   const spelled = spell(rows.length);
   const seatWord = rows.length === 0 ? spelled : spelled[0].toUpperCase() + spelled.slice(1);
@@ -724,7 +726,7 @@ section("10 · mutations: the fences above actually bite");
   const spellLow = (n) => n < 100 ? under100(n)
     : ONES[Math.floor(n / 100)] + " hundred" + (n % 100 ? " " + under100(n % 100) : "");
   const spellCap = (n) => { const w = spellLow(n); return w[0].toUpperCase() + w.slice(1); };
-  must(N >= 20 && N < 999, `BOARD_ROUTES holds ${N} rows; the mutation speller covers 20–998`);
+  must(N >= 20 && N < 1999, `BOARD_ROUTES holds ${N} rows; the mutation speller covers 20–1998`);
   const countOk = (gate) => {
     const text = textOf(stripComments(gate).replace(/<script\b[\s\S]*?<\/script>/gi, " ")
       .replace(/<style\b[\s\S]*?<\/style>/gi, " "));

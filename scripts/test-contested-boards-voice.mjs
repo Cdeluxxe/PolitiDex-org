@@ -180,7 +180,9 @@ for (const b of SAMPLE) {
     ok(!COMPOSER_SEATS[b.seat] && !DC.COMPOSER_SEATS[b.alias] && !DP.POLL_SEATS[b.alias], `${b.alias}: a read-only board stays off every list`);
     eq((DB.board(b.alias) || {}).composer, false, `${b.alias}: …and its row is composer: false`);
   }
-  ok(LEG.filter((x) => x.readOnly).every((b) => b.seat.startsWith("nv-")), "the only contested boards left read-only are Nevada's");
+  // The six states opened whole (STATE_LEG_BOARD_STATES) are read-only by design;
+  // test-six-state-deepen.mjs holds them.
+  ok(LEG.filter((x) => x.readOnly && STATE_LEG_BOARD_SEATS.has(x.seat)).every((b) => b.seat.startsWith("nv-")), "the only contested boards left read-only are Nevada's");
   // The seed migration: exactly the voiced seats, rows only.
   const seeded = [...SQL.matchAll(/^\t\('([a-z]{2}-(?:statehouse|statesenate)-\d+)', /gm)].map((m) => m[1]).sort();
   eq(JSON.stringify(seeded), JSON.stringify(want), "the dd_districts seed is exactly the voiced seats");

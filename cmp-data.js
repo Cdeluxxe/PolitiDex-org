@@ -5475,6 +5475,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001298.jpg",
   "office": "U.S. Representative",
   "state": "Nebraska",
+  "district": "2",
   "party": "R",
   "score": 56,
   "kept": 0,
@@ -33401,6 +33402,7102 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
  },
+// ── Sitting state legislators, Nebraska, South Dakota, Idaho, Montana, Alaska and Rhode Island — roster shells (Oct 2026)
+// Every member each chamber seats today, read on 2026-10-28 from the Open States
+// current-legislator lists (data.openstates.org/people/current, compiled from each
+// Legislature's own member pages). Identity rows only: name, office, exact district,
+// `candidate: false`. No party, bio, score or stances. db/roster-state-legislators-
+// ne-sd-id-mt-ak-ri-2026-oct.json is the record of what was read and what was vacant.
+// Seat spellings the resolver reads: Alaska's Senate by its letter ("District A"),
+// South Dakota's House by its district ("District 26A" for a split seat), Idaho's
+// House by its district and `position` (1 = Position A, 2 = Position B). A South
+// Dakota House district that elects two members at large carries `position` 1 and 2
+// in roster order — PolitiDex's numbering, not a label the state uses.
+ // Nebraska — https://nebraskalegislature.gov/senators/senator_list.php
+ "hallstrom_ne": {
+  "name": "Bob Hallstrom", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "deboer_ne": {
+  "name": "Wendy DeBoer", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 10", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mckinney_ne": {
+  "name": "Terrell McKinney", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 11", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "merv_riepe": {
+  "name": "Merv Riepe", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 12", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "spivey_ne": {
+  "name": "Ashlei Spivey", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 13", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "john_arch": {
+  "name": "John Arch", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 14", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wordekemper_ne": {
+  "name": "Woody Wordekemper", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 15", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hansen_ne": {
+  "name": "Ben Hansen", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 16", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "meyer_ne": {
+  "name": "Glen Meyer", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 17", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "armendariz_ne": {
+  "name": "Christy Armendariz", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 18", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dover_ne": {
+  "name": "Robert Dover", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 19", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "clements_ne": {
+  "name": "Rob Clements", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fredrickson_ne": {
+  "name": "John Fredrickson", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 20", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ballard_ne": {
+  "name": "Beau Ballard", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 21", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "moser_ne": {
+  "name": "Mike Moser", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 22", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "storm_ne": {
+  "name": "Jared Storm", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 23", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hughes_ne": {
+  "name": "Jana Hughes", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 24", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bosn_ne": {
+  "name": "Carolyn Bosn", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 25", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dungan_ne": {
+  "name": "George Dungan", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 26", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "prokop_ne": {
+  "name": "Jason Prokop", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 27", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "raybould_ne": {
+  "name": "Jane Raybould", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 28", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bostar_ne": {
+  "name": "Eliot Bostar", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 29", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rountree_ne": {
+  "name": "Victor Rountree", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dorn_ne": {
+  "name": "Myron Dorn", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 30", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kauth_ne": {
+  "name": "Kathleen Kauth", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 31", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brandt_ne": {
+  "name": "Tom Brandt", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 32", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lonowski_ne": {
+  "name": "Dan Lonowski", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 33", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "loren_lippincott": {
+  "name": "Loren Lippincott", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 34", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "quick_ne": {
+  "name": "Dan Quick", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 35", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "holdcroft_ne": {
+  "name": "Rick Holdcroft", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 36", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "clouse_ne": {
+  "name": "Stan Clouse", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 37", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "murman_ne": {
+  "name": "Dave Murman", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 38", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sorrentino_ne": {
+  "name": "Tony Sorrentino", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 39", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "von_gillern_ne": {
+  "name": "Brad von Gillern", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dekay_ne": {
+  "name": "Barry DeKay", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 40", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fred_meyer_ne": {
+  "name": "Fred Meyer", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 41", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jacobson_ne": {
+  "name": "Mike Jacobson", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 42", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "storer_ne": {
+  "name": "Tanya Storer", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 43", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ibach_ne": {
+  "name": "Teresa Ibach", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 44", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sanders_ne": {
+  "name": "Rita Sanders", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 45", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "conrad_ne": {
+  "name": "Danielle Conrad", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 46", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "strommen_ne": {
+  "name": "Paul Strommen", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 47", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hardin_ne": {
+  "name": "Brian Hardin", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 48", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "andersen_ne": {
+  "name": "Bob Andersen", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 49", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "juarez_ne": {
+  "name": "Margo Juarez", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 5", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "machaela_cavanaugh": {
+  "name": "Machaela Cavanaugh", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 6", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "guereca_ne": {
+  "name": "Dunixi Guereca", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 7", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hunt_ne": {
+  "name": "Megan Hunt", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 8", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "john_cavanaugh_ne": {
+  "name": "John Cavanaugh", "office": "Nebraska State Senator",
+  "state": "Nebraska", "district": "LD 9", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // South Dakota — https://sdlegislature.gov/Legislators/Contact
+ "fosness_sd": {
+  "name": "Nick Fosness", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 1", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "manhart_sd": {
+  "name": "Logan Manhart", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 1", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "andera_sd": {
+  "name": "Bobbi Andera", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 10", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "healy_sd": {
+  "name": "Erin Healy", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 10", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mulder_sd": {
+  "name": "Brian Mulder", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 11", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "weems_sd": {
+  "name": "Keri Weems", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 11", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "arlint_sd": {
+  "name": "Amber Arlint", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 12", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jamison_sd": {
+  "name": "Greg Jamison", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 12", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hughes_sd": {
+  "name": "John Hughes", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 13", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kolbeck_sd": {
+  "name": "Jack Kolbeck", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 13", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kayser_sd": {
+  "name": "Tony Kayser", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 14", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rehfeldt_sd": {
+  "name": "Taylor Rehfeldt", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 14", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "muckey_sd": {
+  "name": "Erik Muckey", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 15", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wittman_sd": {
+  "name": "Kadyn Wittman", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 15", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lems_sd": {
+  "name": "Karla Lems", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 16", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "shubeck_sd": {
+  "name": "John Shubeck", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 16", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kassin_sd": {
+  "name": "Chris Kassin", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 17", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "shorma_sd": {
+  "name": "William Shorma", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 17", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "auch_sd": {
+  "name": "Julie Auch", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 18", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "stevens_sd": {
+  "name": "Mike Stevens", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 18", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bahmuller_sd": {
+  "name": "Jessica Bahmuller", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 19", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "peterson_sd": {
+  "name": "Drew Peterson", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 19", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kull_sd": {
+  "name": "David Kull", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 2", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sjaarda_sd": {
+  "name": "John Sjaarda", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 2", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bathke_sd": {
+  "name": "Jeff Bathke", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 20", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nolz_sd": {
+  "name": "Kaley Nolz", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 20", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "halverson_sd": {
+  "name": "Jim Halverson", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 21", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "overweg_sd": {
+  "name": "Marty Overweg", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 21", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "greenfield_sd": {
+  "name": "Lana Greenfield", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 22", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "van_diepen_sd": {
+  "name": "Kevin Van Diepen", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 22", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gosch_sd": {
+  "name": "Spencer Gosch", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 23", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "moore_sd": {
+  "name": "Scott Moore", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 23", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mortenson_sd": {
+  "name": "Will Mortenson", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 24", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "weisgram_sd": {
+  "name": "Mike Weisgram", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 24", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hansen_sd": {
+  "name": "Jon Hansen", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 25", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "heinemann_sd": {
+  "name": "Les Heinemann", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 25", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "emery_sd": {
+  "name": "Eric Emery", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 26A", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "reimer_sd": {
+  "name": "Rebecca Reimer", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 26B", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "may_sd": {
+  "name": "Liz May", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 27", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pourier_sd": {
+  "name": "Peri Pourier", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 27", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hunt_sd": {
+  "name": "Jana Hunt", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 28A", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ismay_sd": {
+  "name": "Travis Ismay", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 28B", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jorgenson_sd": {
+  "name": "Terri Jorgenson", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 29", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rice_sd": {
+  "name": "Kathy Rice", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 29", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "novstrup_sd": {
+  "name": "Al Novstrup", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 3", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "schaefbauer_sd": {
+  "name": "Brandei Schaefbauer", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 3", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "goodwin_sd": {
+  "name": "Tim Goodwin", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 30", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ladner_sd": {
+  "name": "Trish Ladner", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 30", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fitzgerald_sd": {
+  "name": "Mary Fitzgerald", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 31", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "odenbach_sd": {
+  "name": "Scott Odenbach", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 31", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "duffy_sd": {
+  "name": "Steve Duffy", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 32", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "uhre_balk_sd": {
+  "name": "Nicole Uhre-Balk", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 32", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jensen_sd": {
+  "name": "Phil Jensen", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 33", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "massie_sd": {
+  "name": "Curt Massie", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 33", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "baxter_sd": {
+  "name": "Heather Baxter", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 34", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "derby_sd": {
+  "name": "Mike Derby", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 34", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mulally_sd": {
+  "name": "Tina Mulally", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 35", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "randolph_sd": {
+  "name": "Tony Randolph", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 35", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jordan_sd": {
+  "name": "Dylan Jordan", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 4", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "roe_sd": {
+  "name": "Kent Roe", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 4", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "garcia_sd": {
+  "name": "Josephine Garcia", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 5", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "roby_sd": {
+  "name": "Matt Roby", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 5", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "aylward_sd": {
+  "name": "Aaron Aylward", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 6", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "czmowski_sd": {
+  "name": "Tim Czmowski", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 6", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "degroot_sd": {
+  "name": "Roger DeGroot", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 7", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "heermann_sd": {
+  "name": "Mellissa Heermann", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 7", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "reisch_sd": {
+  "name": "Tim Reisch", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 8", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "walburg_sd": {
+  "name": "Tim Walburg", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 8", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "schwans_sd": {
+  "name": "Tesa Schwans", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 9", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "soye_sd": {
+  "name": "Bethany Soye", "office": "South Dakota State Representative",
+  "state": "South Dakota", "district": "District 9", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rohl_sd": {
+  "name": "Michael Rohl", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "liz_larson": {
+  "name": "Liz Larson", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 10", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chris_karr": {
+  "name": "Chris Karr", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 11", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "beal_sd": {
+  "name": "Arch Beal", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 12", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sue_peterson_sd": {
+  "name": "Sue Peterson", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 13", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "zikmund_sd": {
+  "name": "Larry Zikmund", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 14", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "smith_sd": {
+  "name": "Jamie Smith", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 15", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kevin_jensen_sd": {
+  "name": "Kevin Jensen", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 16", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "davis_sd": {
+  "name": "Sydney Davis", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 17", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nelson_sd": {
+  "name": "Lauren Nelson", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 18", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "schoenfish_sd": {
+  "name": "Kyle Schoenfish", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 19", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "steve_kolbeck_sd": {
+  "name": "Steve Kolbeck", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "miskimins_sd": {
+  "name": "Paul Miskimins", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 20", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "voita_sd": {
+  "name": "MyKala Voita", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 21", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wipf_sd": {
+  "name": "Brandon Wipf", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 22", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lapka_sd": {
+  "name": "Mark Lapka", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 23", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jim_mehlhaff": {
+  "name": "Jim Mehlhaff", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 24", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pischke_sd": {
+  "name": "Tom Pischke", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 25", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "grove_sd": {
+  "name": "Tamara Grove", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 26", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "foster_sd": {
+  "name": "Red Dawn Foster", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 27", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "marty_sd": {
+  "name": "Sam Marty", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 28", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "carley_sd": {
+  "name": "John Carley", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 29", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "perry_sd": {
+  "name": "Carl Perry", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hulse_sd": {
+  "name": "Amber Hulse", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 30", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "deibert_sd": {
+  "name": "Randy Deibert", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 31", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "duhamel_sd": {
+  "name": "Helene Duhamel", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 32", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "voight_sd": {
+  "name": "Curt Voight", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 33", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "howard_sd": {
+  "name": "Taffy Howard", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 34", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "blanc_sd": {
+  "name": "Greg Blanc", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 35", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sauder_sd": {
+  "name": "Stephanie Sauder", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "vilhauer_sd": {
+  "name": "Glen Vilhauer", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 5", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "otten_sd": {
+  "name": "Ernie Otten", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 6", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "reed_sd": {
+  "name": "Tim Reed", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 7", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "crabtree_sd": {
+  "name": "Casey Crabtree", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 8", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hohn_sd": {
+  "name": "Joy Hohn", "office": "South Dakota State Senator",
+  "state": "South Dakota", "district": "SD 9", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Idaho — https://legislature.idaho.gov/legislators/membership/
+ "moyle_id": {
+  "name": "Mike Moyle", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 10", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "skaug_id": {
+  "name": "Bruce Skaug", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 10", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "marmon_id": {
+  "name": "Kent Marmon", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 11", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cayler_id": {
+  "name": "Lucas Cayler", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 11", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cornilles_id": {
+  "name": "Jeff Cornilles", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 12", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "crane_id": {
+  "name": "Jaron Crane", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 12", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brent_crane_id": {
+  "name": "Brent Crane", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 13", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tanner_id": {
+  "name": "Steve Tanner", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 13", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hill_id": {
+  "name": "Ted Hill", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 14", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "josh_tanner_id": {
+  "name": "Josh Tanner", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 14", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "berch_id": {
+  "name": "Steve Berch", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 15", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "healey_id": {
+  "name": "Dori Healey", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 15", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "galaviz_id": {
+  "name": "Soñia Galaviz", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 16", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "henderson_haws_id": {
+  "name": "Annie Henderson Haws", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 16", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gannon_id": {
+  "name": "John Gannon", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 17", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "egbert_id": {
+  "name": "Megan Egbert", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 17", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rubel_id": {
+  "name": "Ilana Rubel", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 18", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "green_id": {
+  "name": "Brooke Green", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 18", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "church_id": {
+  "name": "Monica Church", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 19", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mathias_id": {
+  "name": "Chris Mathias", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 19", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sauter_id": {
+  "name": "Mark Sauter", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 1", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rasor_id": {
+  "name": "Cornel Rasor", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 1", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "palmer_id": {
+  "name": "Joe Palmer", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 20", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "holtzclaw_id": {
+  "name": "James Holtzclaw", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 20", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "petzke_id": {
+  "name": "James Petzke", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 21", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ehlers_id": {
+  "name": "Jeff Ehlers", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 21", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "vander_woude_id": {
+  "name": "John Vander Woude", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 22", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "monks_id": {
+  "name": "Jason Monks", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 22", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bruce_id": {
+  "name": "Chris Bruce", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 23", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dygert_id": {
+  "name": "Shawn Dygert", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 23", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hostetler_id": {
+  "name": "Clint Hostetler", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 24", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "miller_id": {
+  "name": "Steve Miller", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 24", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hall_id": {
+  "name": "Don Hall", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 25", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "leavitt_id": {
+  "name": "David Leavitt", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 25", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pohanka_id": {
+  "name": "Mike Pohanka", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 26", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nelsen_id": {
+  "name": "Jack Nelsen", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 26", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pickett_id": {
+  "name": "Doug Pickett", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 27", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "handy_id": {
+  "name": "Clay Handy", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 27", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cheatum_id": {
+  "name": "Rick Cheatum", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 28", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "garner_id": {
+  "name": "Dan Garner", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 28", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "manwaring_id": {
+  "name": "Dustin Manwaring", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 29", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "burgoyne_id": {
+  "name": "Tanya Burgoyne", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 29", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "scott_id": {
+  "name": "Heather Scott", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 2", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hawkins_id": {
+  "name": "Dale Hawkins", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 2", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cannon_id": {
+  "name": "David Cannon", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 30", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fuhriman_id": {
+  "name": "Ben Fuhriman", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 30", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "raymond_id": {
+  "name": "Jerald Raymond", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 31", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "furniss_id": {
+  "name": "Rod Furniss", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 31", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mickelsen_id": {
+  "name": "Stephanie Mickelsen", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 32", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bingham_id": {
+  "name": "Erin Bingham", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 32", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ehardt_id": {
+  "name": "Barbara Ehardt", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 33", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "erickson_id": {
+  "name": "Marco Erickson", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 33", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "weber_id": {
+  "name": "Jon Weber", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 34", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "raybould_id": {
+  "name": "Britt Raybould", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 34", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "veile_id": {
+  "name": "Mike Veile", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 35", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wheeler_id": {
+  "name": "Josh Wheeler", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 35", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "barbieri_id": {
+  "name": "Vito Barbieri", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 3", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "redman_id": {
+  "name": "Jordan Redman", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 3", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "alfieri_id": {
+  "name": "Joe Alfieri", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 4", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "price_id": {
+  "name": "Elaine Price", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 4", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mendive_id": {
+  "name": "Ron Mendive", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 5", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wisniewski_id": {
+  "name": "Tony Wisniewski", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 5", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mccann_id": {
+  "name": "Lori McCann", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 6", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mitchell_id": {
+  "name": "Brandon Mitchell", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 6", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "harris_id": {
+  "name": "Kyle Harris", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 7", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "shepherd_id": {
+  "name": "Charlie Shepherd", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 7", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "beiswenger_id": {
+  "name": "Rob Beiswenger", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 8", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "thompson_id": {
+  "name": "Faye Thompson", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 8", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "shirts_id": {
+  "name": "John Shirts", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 9", "position": 1, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "boyle_id": {
+  "name": "Judy Boyle", "office": "Idaho State Representative",
+  "state": "Idaho", "district": "LD 9", "position": 2, "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "woodward_id": {
+  "name": "Jim Woodward", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nichols_id": {
+  "name": "Tammy Nichols", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 10", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "blaylock_id": {
+  "name": "Camille Blaylock", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 11", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "adams_id": {
+  "name": "Ben Adams", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 12", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lenney_id": {
+  "name": "Brian Lenney", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 13", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "grow_id": {
+  "name": "Scott Grow", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 14", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "galloway_id": {
+  "name": "Codi Galloway", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 15", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rabe_id": {
+  "name": "Ali Rabe", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 16", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "semmelroth_id": {
+  "name": "Carrie Semmelroth", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 17", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ward_engelking_id": {
+  "name": "Janie Ward-Engelking", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 18", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "melissa_wintrow": {
+  "name": "Melissa Wintrow", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 19", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hart_id": {
+  "name": "Phil Hart", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "keyser_id": {
+  "name": "Josh Keyser", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 20", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bernt_id": {
+  "name": "Treg Bernt", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 21", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lori_den_hartog": {
+  "name": "Lori Den Hartog", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 22", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lakey_id": {
+  "name": "Todd Lakey", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 23", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "zuiderveld_id": {
+  "name": "Glenneda Zuiderveld", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 24", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kohl_id": {
+  "name": "Josh Kohl", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 25", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "taylor_id": {
+  "name": "Ron Taylor", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 26", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kelly_anthon": {
+  "name": "Kelly Anthon", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 27", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "guthrie_id": {
+  "name": "Jim Guthrie", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 28", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ruchti_id": {
+  "name": "James Ruchti", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 29", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "okuniewicz_id": {
+  "name": "Doug Okuniewicz", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "vanorden_id": {
+  "name": "Julie VanOrden", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 30", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "burtenshaw_id": {
+  "name": "Van Burtenshaw", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 31", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cook_id": {
+  "name": "Kevin Cook", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 32", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lent_id": {
+  "name": "Dave Lent", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 33", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ricks_id": {
+  "name": "Doug Ricks", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 34", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mark_harris_id": {
+  "name": "Mark Harris", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 35", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "toews_id": {
+  "name": "Ben Toews", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bjerke_id": {
+  "name": "Carl Bjerke", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 5", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "foreman_id": {
+  "name": "Dan Foreman", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 6", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "carlson_id": {
+  "name": "Cindy Carlson", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 7", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "zito_id": {
+  "name": "Christy Zito", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 8", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "shippy_id": {
+  "name": "Brandon Shippy", "office": "Idaho State Senator",
+  "state": "Idaho", "district": "LD 9", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Montana — https://leg.mt.gov/legislator-information/
+ "duram_mt": {
+  "name": "Neil Duram", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "falk_mt": {
+  "name": "Terry Falk", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 10", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "howell_mt": {
+  "name": "S.J. Howell", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 100", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "byrne_mt": {
+  "name": "Ed Byrne", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 11", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sharp_mt": {
+  "name": "Tracy Sharp", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 12", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "reksten_mt": {
+  "name": "Linda Reksten", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 13", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fielder_mt": {
+  "name": "Paul Fielder", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 14", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "crowe_mt": {
+  "name": "Thedis Crowe", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 15", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "running_wolf_mt": {
+  "name": "Tyson Running Wolf", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 16", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wirth_mt": {
+  "name": "Zack Wirth", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 17", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jones_mt": {
+  "name": "Llew Jones", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 18", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "weber_mt": {
+  "name": "Jane Weber", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 19", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "millett_mt": {
+  "name": "Tom Millett", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nikolakakos_mt": {
+  "name": "Melissa Nikolakakos", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 20", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "buttrey_mt": {
+  "name": "Ed Buttrey", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 21", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "george_nikolakakos_mt": {
+  "name": "George Nikolakakos", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 22", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tilleman_mt": {
+  "name": "Eric Tilleman", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 23", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fitzpatrick_mt": {
+  "name": "Steve Fitzpatrick", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 24", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gist_mt": {
+  "name": "Steve Gist", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 25", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "miner_mt": {
+  "name": "Russ Miner", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 26", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tuss_mt": {
+  "name": "Paul Tuss", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 27", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "albus_mt": {
+  "name": "Eric Albus", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 28", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "moore_mt": {
+  "name": "Valerie Moore", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 29", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "powers_mt": {
+  "name": "Debo Powers", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "thiel_mt": {
+  "name": "Morgan Thiel", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 30", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "smith_mt": {
+  "name": "Frank J. Smith", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 31", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fox_mt": {
+  "name": "Mike Fox", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 32", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ler_mt": {
+  "name": "Brandon Ler", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 33", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "schillinger_mt": {
+  "name": "Jerry Schillinger", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 34", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "parry_mt": {
+  "name": "Gary Parry", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 35", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kmetz_mt": {
+  "name": "Greg Kmetz", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 36", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "klakken_mt": {
+  "name": "Shane Klakken", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 37", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "oblander_mt": {
+  "name": "Greg Oblander", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 38", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "seekins_crowe_mt": {
+  "name": "Kerri Seekins-Crowe", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 39", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bennett_mt": {
+  "name": "Lyn Bennett", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "vinton_mt": {
+  "name": "Mike Vinton", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 40", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sooktis_mt": {
+  "name": "Jade Sooktis", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 41", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chip_fitzpatrick_mt": {
+  "name": "Chip Fitzpatrick", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 42", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brewster_mt": {
+  "name": "Larry Brewster", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 43", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "zolnikov_mt": {
+  "name": "Katie Zolnikov", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 44", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "baum_mt": {
+  "name": "Denise Baum", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 45", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "joy_mt": {
+  "name": "Denise Joy", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 46", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "reavis_mt": {
+  "name": "James Reavis", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 47", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "schomer_mt": {
+  "name": "Curtis Schomer", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 48", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "essmann_mt": {
+  "name": "Sherry Essmann", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 49", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mitchell_mt": {
+  "name": "Braxton Mitchell", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 5", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nicastro_mt": {
+  "name": "Anthony Nicastro", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 50", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "etchart_mt": {
+  "name": "Jodee Etchart", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 51", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "zinn_mt": {
+  "name": "Stacy Zinn", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 52", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nicol_mt": {
+  "name": "Nelly Nicol", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 53", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "deming_mt": {
+  "name": "Lee Deming", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 54", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "barker_mt": {
+  "name": "Brad Barker", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 55", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nave_mt": {
+  "name": "Fiona Nave", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 56", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rosenzweig_mt": {
+  "name": "Scott Rosenzweig", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 57", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "isaly_mt": {
+  "name": "Jamie Isaly", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 58", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fire_thunder_mt": {
+  "name": "Katie Fire Thunder", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 59", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "regier_mt": {
+  "name": "Amy Regier", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 6", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "griffith_mt": {
+  "name": "Alanah Griffith", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 60", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "edwards_mt": {
+  "name": "Becky Edwards", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 61", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "seckinger_mt": {
+  "name": "Josh Seckinger", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 62", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "strand_mt": {
+  "name": "Peter Strand", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 63", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kortum_mt": {
+  "name": "Kelly Kortum", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 64", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "close_mt": {
+  "name": "Brian Close", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 65", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "matthews_mt": {
+  "name": "Eric Matthews", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 66", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hinkle_mt": {
+  "name": "Jedediah Hinkle", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 67", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "caleb_hinkle_mt": {
+  "name": "Caleb Hinkle", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 68", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "walsh_mt": {
+  "name": "Ken Walsh", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 69", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sprunger_mt": {
+  "name": "Courtenay Sprunger", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 7", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "maness_mt": {
+  "name": "Shannon Maness", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 70", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "demarois_mt": {
+  "name": "Scott DeMarois", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 71", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hawk_mt": {
+  "name": "Donavon Hawk", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 72", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lynch_mt": {
+  "name": "Jennifer Lynch", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 73", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lee_mt": {
+  "name": "Marc Lee", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 74", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "reinschmidt_mt": {
+  "name": "Mark Reinschmidt", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 75", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "john_fitzpatrick_mt": {
+  "name": "John Fitzpatrick", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 76", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gillette_mt": {
+  "name": "Jane Gillette", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 77", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gregg_mt": {
+  "name": "Randyn Gregg", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 78", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "muszkiewicz_mt": {
+  "name": "Luke Muszkiewicz", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 79", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "schubert_mt": {
+  "name": "Lukas Schubert", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 8", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "romano_mt": {
+  "name": "Melissa Romano", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 80", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "caferro_mt": {
+  "name": "Mary Caferro", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 81", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "elverum_mt": {
+  "name": "Pete Elverum", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 82", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cohenour_mt": {
+  "name": "Jill Cohenour", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 83", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "darling_mt": {
+  "name": "Julie Darling", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 84", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "love_mt": {
+  "name": "Kathy Love", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 85", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bedey_mt": {
+  "name": "Dave Bedey", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 86", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nelson_mt": {
+  "name": "Terry Nelson", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 87", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "overstreet_mt": {
+  "name": "Greg Overstreet", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 88", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "thane_mt": {
+  "name": "Mark Thane", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 89", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kelly_mt": {
+  "name": "Steve Kelly", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 9", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cochran_mt": {
+  "name": "Curt Cochran", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 90", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fyant_mt": {
+  "name": "Shelly Fyant", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 91", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "keogh_mt": {
+  "name": "Connie Keogh", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 92", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sullivan_mt": {
+  "name": "Katie Sullivan", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 93", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "marler_mt": {
+  "name": "Marilyn Marler", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 94", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "zephyr_mt": {
+  "name": "Zooey Zephyr", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 95", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "carter_mt": {
+  "name": "Bob Carter", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 96", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cunningham_mt": {
+  "name": "Melody Cunningham", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 97", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "karlen_mt": {
+  "name": "Jonathan Karlen", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 98", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "france_mt": {
+  "name": "Tom France", "office": "Montana State Representative",
+  "state": "Montana", "district": "HD 99", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cuffe_mt": {
+  "name": "Mike Cuffe", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "trebas_mt": {
+  "name": "Jeremy Trebas", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 10", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "emrich_mt": {
+  "name": "Daniel Emrich", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 11", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mckamey_mt": {
+  "name": "Wendy McKamey", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 12", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kassmier_mt": {
+  "name": "Josh Kassmier", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 13", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tempel_mt": {
+  "name": "Russel Tempel", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 14", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hunter_mt": {
+  "name": "Gregg Hunter", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 15", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "windy_boy_mt": {
+  "name": "Jonathan Windy Boy", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 16", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "phalen_mt": {
+  "name": "Bob Phalen", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 17", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bogner_mt": {
+  "name": "Ken Bogner", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 18", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "usher_mt": {
+  "name": "Barry Usher", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 19", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fern_mt": {
+  "name": "Dave Fern", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sue_vinton_mt": {
+  "name": "Sue Vinton", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 20", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lammers_mt": {
+  "name": "Gayle Lammers", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 21", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "daniel_zolnikov_mt": {
+  "name": "Daniel Zolnikov", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 22", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kerr_carpenter_mt": {
+  "name": "Emma Kerr-Carpenter", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 23", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "yakawich_mt": {
+  "name": "Mike Yakawich", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 24", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lenz_mt": {
+  "name": "Dennis Lenz", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 25", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mcgillvray_mt": {
+  "name": "Tom McGillvray", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 26", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ricci_mt": {
+  "name": "Vince Ricci", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 27", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mandeville_mt": {
+  "name": "Forrest Mandeville", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 28", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "esp_mt": {
+  "name": "John Esp", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 29", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "glimm_mt": {
+  "name": "Carl Glimm", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "neumann_mt": {
+  "name": "Cora Neumann", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 30", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pat_flowers": {
+  "name": "Pat Flowers", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 31", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hayman_mt": {
+  "name": "Denise Hayman", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 32", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pope_mt": {
+  "name": "Chris Pope", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 33", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "vance_mt": {
+  "name": "Shelley Vance", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 34", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tezak_mt": {
+  "name": "Tony Tezak", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 35", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "novak_mt": {
+  "name": "Sara Novak", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 36", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "harvey_mt": {
+  "name": "Derek Harvey", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 37", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "beard_mt": {
+  "name": "Becky Beard", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 38", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "galt_mt": {
+  "name": "Wylie Galt", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 39", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fuller_mt": {
+  "name": "John Fuller", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "laura_smith_mt": {
+  "name": "Laura Smith", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 40", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ellis_mt": {
+  "name": "Janet Ellis", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 41", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dunwell_mt": {
+  "name": "Mary Ann Dunwell", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 42", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jason_ellsworth": {
+  "name": "Jason Ellsworth", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 43", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "manzella_mt": {
+  "name": "Theresa Manzella", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 44", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "loge_mt": {
+  "name": "Denley Loge", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 45", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "morigeau_mt": {
+  "name": "Jacinda Morigeau", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 46", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "boldman_mt": {
+  "name": "Ellie Boldman", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 47", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "olsen_mt": {
+  "name": "Andrea Olsen", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 48", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "curdy_mt": {
+  "name": "Willis Curdy", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 49", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "matt_regier": {
+  "name": "Matt Regier", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 5", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "shane_morigeau_mt": {
+  "name": "Shane Morigeau", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 50", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "noland_mt": {
+  "name": "Mark Noland", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 6", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hertz_mt": {
+  "name": "Greg Hertz", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 7", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "webber_mt": {
+  "name": "Susan Webber", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 8", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gillespie_mt": {
+  "name": "Butch Gillespie", "office": "Montana State Senator",
+  "state": "Montana", "district": "SD 9", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Alaska — https://akleg.gov/legislators.php
+ "bynum_ak": {
+  "name": "Jeremy Bynum", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kopp_ak": {
+  "name": "Chuck Kopp", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 10", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "coulombe_ak": {
+  "name": "Julie Coulombe", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 11", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "schrage_ak": {
+  "name": "Calvin Schrage", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 12", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "josephson_ak": {
+  "name": "Andy Josephson", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 13", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "galvin_ak": {
+  "name": "Alyse Galvin", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 14", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "costello_ak": {
+  "name": "Mia Costello", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 15", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hall_ak": {
+  "name": "Carolyn Hall", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 16", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fields_ak": {
+  "name": "Zack Fields", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 17", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nelson_ak": {
+  "name": "David Nelson", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 18", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mina_ak": {
+  "name": "Genevieve Mina", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 19", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "himschoot_ak": {
+  "name": "Rebecca Himschoot", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gray_ak": {
+  "name": "Andrew Gray", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 20", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mears_ak": {
+  "name": "Donna Mears", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 21", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "eischeid_ak": {
+  "name": "Ted Eischeid", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 22", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "allard_ak": {
+  "name": "Jamie Allard", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 23", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "saddler_ak": {
+  "name": "Dan Saddler", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 24", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "johnson_ak": {
+  "name": "DeLena Johnson", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 25", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "st_clair_ak": {
+  "name": "Steve St. Clair", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 26", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "underwood_ak": {
+  "name": "Jubilee Underwood", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 27", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "moore_ak": {
+  "name": "Elexie Moore", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 28", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "garret_nelson_ak": {
+  "name": "Garret Nelson", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 29", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "story_ak": {
+  "name": "Andi Story", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mccabe_ak": {
+  "name": "Kevin McCabe", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 30", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dibert_ak": {
+  "name": "Maxine Dibert", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 31", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "stapp_ak": {
+  "name": "Will Stapp", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 32", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "prax_ak": {
+  "name": "Mike Prax", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 33", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tomaszewski_ak": {
+  "name": "Frank Tomaszewski", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 34", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "carrick_ak": {
+  "name": "Ashley Carrick", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 35", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "schwanke_ak": {
+  "name": "Becky Schwanke", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 36", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "edgmon_ak": {
+  "name": "Bryce Edgmon", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 37", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jimmie_ak": {
+  "name": "Nellie Jimmie", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 38", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "foster_ak": {
+  "name": "Neal Foster", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 39", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hannan_ak": {
+  "name": "Sara Hannan", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "frier_ak": {
+  "name": "Robyn Frier", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 40", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "stutes_ak": {
+  "name": "Louise Stutes", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 5", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "vance_ak": {
+  "name": "Sarah Vance", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 6", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ruffridge_ak": {
+  "name": "Justin Ruffridge", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 7", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "elam_ak": {
+  "name": "Bill Elam", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 8", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "holland_ak": {
+  "name": "Ky Holland", "office": "Alaska State Representative",
+  "state": "Alaska", "district": "HD 9", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bert_stedman": {
+  "name": "Bert Stedman", "office": "Alaska State Senator",
+  "state": "Alaska", "district": "District A", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kiehl_ak": {
+  "name": "Jesse Kiehl", "office": "Alaska State Senator",
+  "state": "Alaska", "district": "District B", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gary_stevens": {
+  "name": "Gary Stevens", "office": "Alaska State Senator",
+  "state": "Alaska", "district": "District C", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bjorkman_ak": {
+  "name": "Jesse Bjorkman", "office": "Alaska State Senator",
+  "state": "Alaska", "district": "District D", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cathy_giessel": {
+  "name": "Cathy Giessel", "office": "Alaska State Senator",
+  "state": "Alaska", "district": "District E", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kaufman_ak": {
+  "name": "James Kaufman", "office": "Alaska State Senator",
+  "state": "Alaska", "district": "District F", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gray_jackson_ak": {
+  "name": "Elvi Gray-Jackson", "office": "Alaska State Senator",
+  "state": "Alaska", "district": "District G", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "claman_ak": {
+  "name": "Matt Claman", "office": "Alaska State Senator",
+  "state": "Alaska", "district": "District H", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tobin_ak": {
+  "name": "Löki Tobin", "office": "Alaska State Senator",
+  "state": "Alaska", "district": "District I", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dunbar_ak": {
+  "name": "Forrest Dunbar", "office": "Alaska State Senator",
+  "state": "Alaska", "district": "District J", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wielechowski_ak": {
+  "name": "Bill Wielechowski", "office": "Alaska State Senator",
+  "state": "Alaska", "district": "District K", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "merrick_ak": {
+  "name": "Kelly Merrick", "office": "Alaska State Senator",
+  "state": "Alaska", "district": "District L", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tilton_ak": {
+  "name": "Cathy Tilton", "office": "Alaska State Senator",
+  "state": "Alaska", "district": "District M", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "yundt_ak": {
+  "name": "Rob Yundt", "office": "Alaska State Senator",
+  "state": "Alaska", "district": "District N", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rauscher_ak": {
+  "name": "George Rauscher", "office": "Alaska State Senator",
+  "state": "Alaska", "district": "District O", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kawasaki_ak": {
+  "name": "Scott Kawasaki", "office": "Alaska State Senator",
+  "state": "Alaska", "district": "District P", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "myers_ak": {
+  "name": "Robb Myers", "office": "Alaska State Senator",
+  "state": "Alaska", "district": "District Q", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cronk_ak": {
+  "name": "Mike Cronk", "office": "Alaska State Senator",
+  "state": "Alaska", "district": "District R", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hoffman_ak": {
+  "name": "Lyman Hoffman", "office": "Alaska State Senator",
+  "state": "Alaska", "district": "District S", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "olson_ak": {
+  "name": "Donny Olson", "office": "Alaska State Senator",
+  "state": "Alaska", "district": "District T", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Rhode Island — https://www.rilegislature.gov/
+ "ajello_ri": {
+  "name": "Edith Ajello", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "slater_ri": {
+  "name": "Scott Slater", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 10", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "diaz_ri": {
+  "name": "Grace Diaz", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 11", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "batista_ri": {
+  "name": "Jose Batista", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 12", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "perez_ri": {
+  "name": "Ramon Perez", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 13", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lima_ri": {
+  "name": "Charlene Lima", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 14", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "paplauskas_ri": {
+  "name": "Chris Paplauskas", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 15", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "potter_ri": {
+  "name": "Brandon Potter", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 16", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "baginski_ri": {
+  "name": "Jackie Baginski", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 17", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "handy_ri": {
+  "name": "Arthur Handy", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 18", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mcnamara_ri": {
+  "name": "Joseph McNamara", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 19", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "blazejewski_ri": {
+  "name": "Chris Blazejewski", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bennett_ri": {
+  "name": "David Bennett", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 20", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hopkins_ri": {
+  "name": "Marie Hopkins", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 21", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "solomon_ri": {
+  "name": "Joseph Solomon", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 22", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "shekarchi_ri": {
+  "name": "Joe Shekarchi", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 23", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "shanley_ri": {
+  "name": "Evan Shanley", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 24", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "noret_ri": {
+  "name": "Tom Noret", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 25", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "read_ri": {
+  "name": "Earl Read", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 26", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "serpa_ri": {
+  "name": "Pat Serpa", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 27", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nardone_ri": {
+  "name": "George Nardone", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 28", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "roberts_ri": {
+  "name": "Sherry Roberts", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 29", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "biah_ri": {
+  "name": "Nathan Biah", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "caldwell_ri": {
+  "name": "Justine Caldwell", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 30", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "craven_ri": {
+  "name": "Robert Craven", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 32", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mcentee_ri": {
+  "name": "Carol McEntee", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 33", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tanzi_ri": {
+  "name": "Teresa Tanzi", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 34", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fogarty_ri": {
+  "name": "Kathleen Fogarty", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 35", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "spears_ri": {
+  "name": "Tina Spears", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 36", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "azzinaro_ri": {
+  "name": "Sam Azzinaro", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 37", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kennedy_ri": {
+  "name": "Brian Kennedy", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 38", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cotter_ri": {
+  "name": "Megan Cotter", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 39", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kislak_ri": {
+  "name": "Rebecca Kislak", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chippendale_ri": {
+  "name": "Mike Chippendale", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 40", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "quattrocchi_ri": {
+  "name": "Bob Quattrocchi", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 41", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fascia_ri": {
+  "name": "Dick Fascia", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 42", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fellela_ri": {
+  "name": "Deb Fellela", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 43", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "costantino_ri": {
+  "name": "Greg Costantino", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 44", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ackerman_ri": {
+  "name": "Mia Ackerman", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 45", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "shallcross_smith_ri": {
+  "name": "Mary Ann Shallcross-Smith", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 46", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "place_ri": {
+  "name": "David Place", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 47", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "newberry_ri": {
+  "name": "Brian Newberry", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 48", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brien_ri": {
+  "name": "Jon Brien", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 49", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "desimone_ri": {
+  "name": "Anthony DeSimone", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 5", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "casey_ri": {
+  "name": "Stephen Casey", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 50", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "phillips_ri": {
+  "name": "Bob Phillips", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 51", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "marszalkowski_ri": {
+  "name": "Alex Marszalkowski", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 52", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "santucci_ri": {
+  "name": "Paul Santucci", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 53", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "o_brien_ri": {
+  "name": "Bill O'Brien", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 54", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "corvese_ri": {
+  "name": "Doc Corvese", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 55", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "giraldo_ri": {
+  "name": "Joshua Giraldo", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 56", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "voas_ri": {
+  "name": "Brandon Voas", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 57", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cruz_ri": {
+  "name": "Cherie Cruz", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 58", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "stewart_ri": {
+  "name": "Jennifer Stewart", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 59", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hull_ri": {
+  "name": "Raymond Hull", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 6", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "alzate_ri": {
+  "name": "Karen Alzate", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 60", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "felix_ri": {
+  "name": "Leo Felix", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 61", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "messier_ri": {
+  "name": "Mary Messier", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 62", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kazarian_ri": {
+  "name": "Katie Kazarian", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 63", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "furtado_ri": {
+  "name": "Jenni Furtado", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 64", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dawson_ri": {
+  "name": "Matthew Dawson", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 65", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "boylan_ri": {
+  "name": "Jennifer Boylan", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 66", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "knight_ri": {
+  "name": "Jason Knight", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 67", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "speakman_ri": {
+  "name": "June Speakman", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 68", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "donovan_ri": {
+  "name": "Susan Donovan", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 69", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "morales_ri": {
+  "name": "David Morales", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 7", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "edwards_ri": {
+  "name": "Jay Edwards", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 70", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mcgaw_ri": {
+  "name": "Michelle McGaw", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 71", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cortvriend_ri": {
+  "name": "Terri Cortvriend", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 72", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "abney_ri": {
+  "name": "Marvin Abney", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 73", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "finkelman_ri": {
+  "name": "Alex Finkelman", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 74", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "carson_ri": {
+  "name": "Lauren Carson", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 75", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lombardi_ri": {
+  "name": "John Lombardi", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 8", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sanchez_ri": {
+  "name": "Enrique Sanchez", "office": "Rhode Island State Representative",
+  "state": "Rhode Island", "district": "HD 9", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bissaillon_ri": {
+  "name": "Jake Bissaillon", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 1", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "felag_ri": {
+  "name": "Walter Felag", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 10", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ujifusa_ri": {
+  "name": "Linda Ujifusa", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 11", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dipalma_ri": {
+  "name": "Lou DiPalma", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 12", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "euer_ri": {
+  "name": "Dawn Euer", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 13", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lawson_ri": {
+  "name": "Val Lawson", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 14", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kallman_ri": {
+  "name": "Meghan Kallman", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 15", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "acosta_ri": {
+  "name": "Jonathon Acosta", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 16", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "paolino_ri": {
+  "name": "Thomas Paolino", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 17", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "britto_ri": {
+  "name": "Bob Britto", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 18", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ryan_pearson": {
+  "name": "Ryan Pearson", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 19", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "quezada_ri": {
+  "name": "Ana Quezada", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 2", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "thompson_ri": {
+  "name": "Brian Thompson", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 20", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rogers_ri": {
+  "name": "Gordon Rogers", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 21", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tikoian_ri": {
+  "name": "David Tikoian", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 22", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jessica_de_la_cruz": {
+  "name": "Jessica de la Cruz", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 23", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "murray_ri": {
+  "name": "Melissa Murray", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 24", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dimitri_ri": {
+  "name": "Andrew Dimitri", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 25", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "patalano_ri": {
+  "name": "Todd Patalano", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 26", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gallo_ri": {
+  "name": "Hanna Gallo", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 27", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "vargas_ri": {
+  "name": "Lammis Vargas", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 28", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "appollonio_ri": {
+  "name": "Pete Appollonio", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 29", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "zurier_ri": {
+  "name": "Sam Zurier", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 3", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mckenney_ri": {
+  "name": "Mark McKenney", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 30", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lamountain_ri": {
+  "name": "Matt LaMountain", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 31", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lauria_ri": {
+  "name": "Pam Lauria", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 32", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "raptakis_ri": {
+  "name": "Lou Raptakis", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 33", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "morgan_ri": {
+  "name": "Elaine Morgan", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 34", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "valverde_ri": {
+  "name": "Bridget Valverde", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 35", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dimario_ri": {
+  "name": "Alana DiMario", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 36", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sosnowski_ri": {
+  "name": "Sue Sosnowski", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 37", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gu_ri": {
+  "name": "Victoria Gu", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 38", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "famiglietti_ri": {
+  "name": "Stefano Famiglietti", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 4", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bell_ri": {
+  "name": "Sam Bell", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 5", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mack_ri": {
+  "name": "Tiara Mack", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 6", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "frank_ciccone": {
+  "name": "Frank Ciccone", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 7", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "urso_ri": {
+  "name": "Lori Urso", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 8", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "burke_ri": {
+  "name": "John Burke", "office": "Rhode Island State Senator",
+  "state": "Rhode Island", "district": "SD 9", "candidate": false,
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+// ── 2026 state legislative candidates, Nebraska, South Dakota, Idaho, Montana, Alaska and Rhode Island (Oct 2026)
+// Every candidate on the November 3, 2026 general-election ballot for a State Senate
+// or State House seat in the six states, read from each state's official candidate
+// list on 2026-10-28, whom the roster did not already hold as a sitting member. A
+// sitting legislator running again is not repeated here; one running for another
+// seat is in the candidacies table at the end of this file. db/roster-candidates-legislative-ne-sd-id-
+// mt-ak-ri-2026-oct.json is the record. Identity rows only: the candidate's name, the
+// seat they are running for, `partyFiled` as printed, `party` as the roster's R/D
+// code where the source names a Republican or Democratic nomination. `candidate:
+// true` on every row, so no seat lookup names one as a sitting member.
+ // Nebraska — https://sos.nebraska.gov/sites/default/files/doc/elections/2026/Final_Statewide_General_Candidate_Filing_List_9.11.26.pdf
+ "dean_helmick": {
+  "name": "Dean Helmick", "office": "Nebraska State Senate Candidate (District 2)",
+  "state": "Nebraska", "district": "2",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "caitlin_knutson": {
+  "name": "Caitlin Knutson", "office": "Nebraska State Senate Candidate (District 2)",
+  "state": "Nebraska", "district": "2",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cindy_ostdiek": {
+  "name": "Cindy Maxwell-Ostdiek", "office": "Nebraska State Senate Candidate (District 4)",
+  "state": "Nebraska", "district": "4",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "r_gillern": {
+  "name": "R. Brad von Gillern", "office": "Nebraska State Senate Candidate (District 4)",
+  "state": "Nebraska", "district": "4",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "patrick_leahy": {
+  "name": "Patrick Leahy", "office": "Nebraska State Senate Candidate (District 6)",
+  "state": "Nebraska", "district": "6",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nate_ostdiek": {
+  "name": "Nate Ostdiek", "office": "Nebraska State Senate Candidate (District 6)",
+  "state": "Nebraska", "district": "6",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "josh_livingston": {
+  "name": "Josh Livingston", "office": "Nebraska State Senate Candidate (District 8)",
+  "state": "Nebraska", "district": "8",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "erin_feichtinger": {
+  "name": "Erin Feichtinger", "office": "Nebraska State Senate Candidate (District 8)",
+  "state": "Nebraska", "district": "8",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cindy_johnson": {
+  "name": "Cindy Johnson", "office": "Nebraska State Senate Candidate (District 10)",
+  "state": "Nebraska", "district": "10",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rebecca_rens": {
+  "name": "Rebecca Rens", "office": "Nebraska State Senate Candidate (District 10)",
+  "state": "Nebraska", "district": "10",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "christy_knorr": {
+  "name": "Christy Knorr", "office": "Nebraska State Senate Candidate (District 12)",
+  "state": "Nebraska", "district": "12",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bill_bowes": {
+  "name": "Bill Bowes", "office": "Nebraska State Senate Candidate (District 14)",
+  "state": "Nebraska", "district": "14",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "suann_witt": {
+  "name": "SuAnn Witt", "office": "Nebraska State Senate Candidate (District 14)",
+  "state": "Nebraska", "district": "14",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ted_japp": {
+  "name": "Ted Japp", "office": "Nebraska State Senate Candidate (District 16)",
+  "state": "Nebraska", "district": "16",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cindy_chatt": {
+  "name": "Cindy Chatt", "office": "Nebraska State Senate Candidate (District 16)",
+  "state": "Nebraska", "district": "16",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "taylor_royal": {
+  "name": "Taylor Royal", "office": "Nebraska State Senate Candidate (District 18)",
+  "state": "Nebraska", "district": "18",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jess_goldoni": {
+  "name": "Jess Goldoni", "office": "Nebraska State Senate Candidate (District 18)",
+  "state": "Nebraska", "district": "18",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chris_anderson": {
+  "name": "Chris Anderson", "office": "Nebraska State Senate Candidate (District 20)",
+  "state": "Nebraska", "district": "20",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dawson_brunswick": {
+  "name": "Dawson Brunswick", "office": "Nebraska State Senate Candidate (District 22)",
+  "state": "Nebraska", "district": "22",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dan_winter": {
+  "name": "Dan Winter", "office": "Nebraska State Senate Candidate (District 24)",
+  "state": "Nebraska", "district": "24",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tobias_howard": {
+  "name": "Tobias Howard", "office": "Nebraska State Senate Candidate (District 26)",
+  "state": "Nebraska", "district": "26",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "patty_brooks": {
+  "name": "Patty Pansing Brooks", "office": "Nebraska State Senate Candidate (District 28)",
+  "state": "Nebraska", "district": "28",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "colby_woodson": {
+  "name": "Colby L. Woodson", "office": "Nebraska State Senate Candidate (District 28)",
+  "state": "Nebraska", "district": "28",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cally_ideus": {
+  "name": "Cally Ideus", "office": "Nebraska State Senate Candidate (District 30)",
+  "state": "Nebraska", "district": "30",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "janet_bock": {
+  "name": "Janet M. Bock", "office": "Nebraska State Senate Candidate (District 30)",
+  "state": "Nebraska", "district": "30",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mark_schoenrock": {
+  "name": "Mark Schoenrock", "office": "Nebraska State Senate Candidate (District 32)",
+  "state": "Nebraska", "district": "32",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "shay_smith": {
+  "name": "Shay Smith", "office": "Nebraska State Senate Candidate (District 32)",
+  "state": "Nebraska", "district": "32",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ben_blodgett": {
+  "name": "Ben Blodgett", "office": "Nebraska State Senate Candidate (District 34)",
+  "state": "Nebraska", "district": "34",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "darin_tompkins": {
+  "name": "Darin Tompkins", "office": "Nebraska State Senate Candidate (District 36)",
+  "state": "Nebraska", "district": "36",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tim_anderson": {
+  "name": "Tim Anderson", "office": "Nebraska State Senate Candidate (District 38)",
+  "state": "Nebraska", "district": "38",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "janell_ehrke": {
+  "name": "Janell Anderson Ehrke", "office": "Nebraska State Senate Candidate (District 38)",
+  "state": "Nebraska", "district": "38",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "joe_johnson": {
+  "name": "Joe Johnson", "office": "Nebraska State Senate Candidate (District 41)",
+  "state": "Nebraska", "district": "41",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jeremy_heneger": {
+  "name": "Jeremy Heneger", "office": "Nebraska State Senate Candidate (District 41)",
+  "state": "Nebraska", "district": "41",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "shaylee_scranton": {
+  "name": "Shaylee S. Scranton", "office": "Nebraska State Senate Candidate (District 42)",
+  "state": "Nebraska", "district": "42",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jessica_landers": {
+  "name": "Jessica M. Landers", "office": "Nebraska State Senate Candidate (District 48)",
+  "state": "Nebraska", "district": "48",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // South Dakota — https://vip.sdsos.gov/candidatelist.aspx?eid=774
+ "katherine_washnok": {
+  "name": "Katherine \"Katie\" Washnok", "office": "South Dakota State Senate Candidate (District 3)",
+  "state": "South Dakota", "district": "3",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "clint_hoyer": {
+  "name": "Clint Hoyer", "office": "South Dakota State Senate Candidate (District 8)",
+  "state": "South Dakota", "district": "8",
+  "partyFiled": "IND", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "michael_dupic": {
+  "name": "Michael Dupic", "office": "South Dakota State Senate Candidate (District 10)",
+  "state": "South Dakota", "district": "10",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "aaron_matson": {
+  "name": "Aaron Matson", "office": "South Dakota State Senate Candidate (District 11)",
+  "state": "South Dakota", "district": "11",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "joe_zweifel": {
+  "name": "Joe Zweifel", "office": "South Dakota State Senate Candidate (District 12)",
+  "state": "South Dakota", "district": "12",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kari_koenders": {
+  "name": "Kari Shanard-Koenders", "office": "South Dakota State Senate Candidate (District 12)",
+  "state": "South Dakota", "district": "12",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brenda_lawrence": {
+  "name": "Brenda Lawrence", "office": "South Dakota State Senate Candidate (District 15)",
+  "state": "South Dakota", "district": "15",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kay_swihart": {
+  "name": "Kay Swihart", "office": "South Dakota State Senate Candidate (District 18)",
+  "state": "South Dakota", "district": "18",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "russell_graeff": {
+  "name": "Russell E. Graeff", "office": "South Dakota State Senate Candidate (District 19)",
+  "state": "South Dakota", "district": "19",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dan_andersson": {
+  "name": "Dan Andersson", "office": "South Dakota State Senate Candidate (District 21)",
+  "state": "South Dakota", "district": "21",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bryan_breitling": {
+  "name": "Bryan J. Breitling", "office": "South Dakota State Senate Candidate (District 25)",
+  "state": "South Dakota", "district": "25",
+  "partyFiled": "IND", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bart_sample": {
+  "name": "Bart Sample", "office": "South Dakota State Senate Candidate (District 25)",
+  "state": "South Dakota", "district": "25",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "shawn_bordeaux": {
+  "name": "Shawn Bordeaux", "office": "South Dakota State Senate Candidate (District 26)",
+  "state": "South Dakota", "district": "26",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "celestine_stadnick": {
+  "name": "Celestine Stadnick", "office": "South Dakota State Senate Candidate (District 27)",
+  "state": "South Dakota", "district": "27",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "anthony_kathol": {
+  "name": "Anthony Kathol", "office": "South Dakota State Senate Candidate (District 27)",
+  "state": "South Dakota", "district": "27",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "william_meirose": {
+  "name": "William J. Meirose", "office": "South Dakota State Senate Candidate (District 29)",
+  "state": "South Dakota", "district": "29",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jeff_shelton": {
+  "name": "Jeff Shelton", "office": "South Dakota State Senate Candidate (District 32)",
+  "state": "South Dakota", "district": "32",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "christopher_baumgartner": {
+  "name": "Christopher Baumgartner", "office": "South Dakota State Senate Candidate (District 33)",
+  "state": "South Dakota", "district": "33",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "david_johnson_sd": {
+  "name": "David Johnson", "office": "South Dakota State Senate Candidate (District 33)",
+  "state": "South Dakota", "district": "33",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "michael_calabrese": {
+  "name": "Michael Calabrese", "office": "South Dakota State Senate Candidate (District 34)",
+  "state": "South Dakota", "district": "34",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "courtney_enfield": {
+  "name": "Courtney Gale Enfield", "office": "South Dakota State House Candidate (District 1)",
+  "state": "South Dakota", "district": "1",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "daniel_kjos": {
+  "name": "Daniel Kjos", "office": "South Dakota State House Candidate (District 1)",
+  "state": "South Dakota", "district": "1",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "blake_rife": {
+  "name": "Blake Rife", "office": "South Dakota State House Candidate (District 2)",
+  "state": "South Dakota", "district": "2",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "adam_long": {
+  "name": "Adam Long", "office": "South Dakota State House Candidate (District 2)",
+  "state": "South Dakota", "district": "2",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "manuel_luschas": {
+  "name": "Manuel Luschas", "office": "South Dakota State House Candidate (District 2)",
+  "state": "South Dakota", "district": "2",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "erin_rudner": {
+  "name": "Erin Ronayne Rudner", "office": "South Dakota State House Candidate (District 3)",
+  "state": "South Dakota", "district": "3",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "spencer_sommers": {
+  "name": "Spencer Sommers", "office": "South Dakota State House Candidate (District 3)",
+  "state": "South Dakota", "district": "3",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "timothy_hanigan": {
+  "name": "Timothy Hanigan", "office": "South Dakota State House Candidate (District 3)",
+  "state": "South Dakota", "district": "3",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "emelia_enquist": {
+  "name": "Emelia Enquist", "office": "South Dakota State House Candidate (District 4)",
+  "state": "South Dakota", "district": "4",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "samuel_froehlke": {
+  "name": "Samuel Froehlke", "office": "South Dakota State House Candidate (District 4)",
+  "state": "South Dakota", "district": "4",
+  "partyFiled": "IND", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ryan_kohl": {
+  "name": "Ryan Kohl", "office": "South Dakota State House Candidate (District 4)",
+  "state": "South Dakota", "district": "4",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "fred_deutsch": {
+  "name": "Fred Deutsch", "office": "South Dakota State House Candidate (District 4)",
+  "state": "South Dakota", "district": "4",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "neal_tapio": {
+  "name": "Neal Tapio", "office": "South Dakota State House Candidate (District 5)",
+  "state": "South Dakota", "district": "5",
+  "partyFiled": "IND", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "byron_callies": {
+  "name": "Byron I. Callies", "office": "South Dakota State House Candidate (District 5)",
+  "state": "South Dakota", "district": "5",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "austin_wolf": {
+  "name": "Austin Wolf", "office": "South Dakota State House Candidate (District 6)",
+  "state": "South Dakota", "district": "6",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "garret_campbell": {
+  "name": "Garret M Campbell", "office": "South Dakota State House Candidate (District 6)",
+  "state": "South Dakota", "district": "6",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jerry_jongeling": {
+  "name": "Jerry Jongeling", "office": "South Dakota State House Candidate (District 6)",
+  "state": "South Dakota", "district": "6",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "elliott_neff": {
+  "name": "Elliott Neff", "office": "South Dakota State House Candidate (District 6)",
+  "state": "South Dakota", "district": "6",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "blake_stevens": {
+  "name": "Blake Stevens", "office": "South Dakota State House Candidate (District 7)",
+  "state": "South Dakota", "district": "7",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jon_nelson": {
+  "name": "Jon Nelson", "office": "South Dakota State House Candidate (District 8)",
+  "state": "South Dakota", "district": "8",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "todd_wilkinson": {
+  "name": "Todd Wilkinson", "office": "South Dakota State House Candidate (District 8)",
+  "state": "South Dakota", "district": "8",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "amanda_potter": {
+  "name": "Amanda Potter", "office": "South Dakota State House Candidate (District 9)",
+  "state": "South Dakota", "district": "9",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "megan_tschetter": {
+  "name": "Megan Tschetter", "office": "South Dakota State House Candidate (District 9)",
+  "state": "South Dakota", "district": "9",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "adam_bair": {
+  "name": "Adam Bair", "office": "South Dakota State House Candidate (District 10)",
+  "state": "South Dakota", "district": "10",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kathleen_brudvig": {
+  "name": "Kathleen Brudvig", "office": "South Dakota State House Candidate (District 10)",
+  "state": "South Dakota", "district": "10",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "john_pohlman": {
+  "name": "John Pohlman", "office": "South Dakota State House Candidate (District 10)",
+  "state": "South Dakota", "district": "10",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kimberly_petterson": {
+  "name": "Kimberly Petterson", "office": "South Dakota State House Candidate (District 10)",
+  "state": "South Dakota", "district": "10",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sonja_mentzer": {
+  "name": "Sonja Mentzer", "office": "South Dakota State House Candidate (District 11)",
+  "state": "South Dakota", "district": "11",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tracey_quint": {
+  "name": "Tracey Quint", "office": "South Dakota State House Candidate (District 11)",
+  "state": "South Dakota", "district": "11",
+  "partyFiled": "LIB", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "stephanie_arne": {
+  "name": "Stephanie Arne", "office": "South Dakota State House Candidate (District 12)",
+  "state": "South Dakota", "district": "12",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kerry_loudenslager": {
+  "name": "Kerry Loudenslager", "office": "South Dakota State House Candidate (District 12)",
+  "state": "South Dakota", "district": "12",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ali_horsted": {
+  "name": "Ali Rae Horsted", "office": "South Dakota State House Candidate (District 13)",
+  "state": "South Dakota", "district": "13",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "erinn_williams": {
+  "name": "Erinn Williams", "office": "South Dakota State House Candidate (District 14)",
+  "state": "South Dakota", "district": "14",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tyler_tordsen": {
+  "name": "Tyler Tordsen", "office": "South Dakota State House Candidate (District 14)",
+  "state": "South Dakota", "district": "14",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "june_copperstad": {
+  "name": "June CopperStad", "office": "South Dakota State House Candidate (District 15)",
+  "state": "South Dakota", "district": "15",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "andre_zachariahs": {
+  "name": "Andre Zachariahs", "office": "South Dakota State House Candidate (District 15)",
+  "state": "South Dakota", "district": "15",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "joni_tschetter": {
+  "name": "Joni Tschetter", "office": "South Dakota State House Candidate (District 15)",
+  "state": "South Dakota", "district": "15",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tim_rhead": {
+  "name": "Tim Rhead", "office": "South Dakota State House Candidate (District 16)",
+  "state": "South Dakota", "district": "16",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lisa_bogue": {
+  "name": "Lisa Bogue", "office": "South Dakota State House Candidate (District 16)",
+  "state": "South Dakota", "district": "16",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "austin_brunick": {
+  "name": "Austin Brunick", "office": "South Dakota State House Candidate (District 17)",
+  "state": "South Dakota", "district": "17",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "leslie_gerrish": {
+  "name": "Leslie Gerrish", "office": "South Dakota State House Candidate (District 17)",
+  "state": "South Dakota", "district": "17",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "troy_redler": {
+  "name": "Troy Redler", "office": "South Dakota State House Candidate (District 17)",
+  "state": "South Dakota", "district": "17",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "karen_springer": {
+  "name": "Karen Springer", "office": "South Dakota State House Candidate (District 18)",
+  "state": "South Dakota", "district": "18",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jarod_holcomb": {
+  "name": "Jarod Holcomb", "office": "South Dakota State House Candidate (District 18)",
+  "state": "South Dakota", "district": "18",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "john_marquardt": {
+  "name": "John R. Marquardt", "office": "South Dakota State House Candidate (District 18)",
+  "state": "South Dakota", "district": "18",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "heidi_hora": {
+  "name": "Heidi Hora", "office": "South Dakota State House Candidate (District 19)",
+  "state": "South Dakota", "district": "19",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "terry_sabers": {
+  "name": "Terry Sabers", "office": "South Dakota State House Candidate (District 20)",
+  "state": "South Dakota", "district": "20",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cully_williams": {
+  "name": "Cully Williams", "office": "South Dakota State House Candidate (District 22)",
+  "state": "South Dakota", "district": "22",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "garett_heinz": {
+  "name": "Garett Heinz", "office": "South Dakota State House Candidate (District 23)",
+  "state": "South Dakota", "district": "23",
+  "partyFiled": "IND", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dick_werner": {
+  "name": "Dick Werner", "office": "South Dakota State House Candidate (District 23)",
+  "state": "South Dakota", "district": "23",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "laurie_gill": {
+  "name": "Laurie Gill", "office": "South Dakota State House Candidate (District 24)",
+  "state": "South Dakota", "district": "24",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "carrie_sanderson": {
+  "name": "Carrie Sanderson", "office": "South Dakota State House Candidate (District 25)",
+  "state": "South Dakota", "district": "25",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nick_buchholz": {
+  "name": "Nick Buchholz", "office": "South Dakota State House Candidate (District 25)",
+  "state": "South Dakota", "district": "25",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "evangeline_bear": {
+  "name": "Evangeline Poor Bear", "office": "South Dakota State House Candidate (District 27)",
+  "state": "South Dakota", "district": "27",
+  "partyFiled": "IND", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "elizabeth_eagle": {
+  "name": "Elizabeth Lone Eagle", "office": "South Dakota State House Candidate (District 27)",
+  "state": "South Dakota", "district": "27",
+  "partyFiled": "IND", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "joe_flood": {
+  "name": "Joe Flood", "office": "South Dakota State House Candidate (District 27)",
+  "state": "South Dakota", "district": "27",
+  "partyFiled": "IND", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jay_yohner": {
+  "name": "Jay Yohner", "office": "South Dakota State House Candidate (District 27)",
+  "state": "South Dakota", "district": "27",
+  "partyFiled": "IND", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gary_cammack": {
+  "name": "Gary L Cammack", "office": "South Dakota State House Candidate (District 29)",
+  "state": "South Dakota", "district": "29",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gary_deering": {
+  "name": "Gary Deering", "office": "South Dakota State House Candidate (District 29)",
+  "state": "South Dakota", "district": "29",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bret_swanson": {
+  "name": "Bret Swanson", "office": "South Dakota State House Candidate (District 30)",
+  "state": "South Dakota", "district": "30",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "morgan_plucker": {
+  "name": "Morgan Plucker", "office": "South Dakota State House Candidate (District 31)",
+  "state": "South Dakota", "district": "31",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "samuel_hare": {
+  "name": "Samuel Hare Sr", "office": "South Dakota State House Candidate (District 32)",
+  "state": "South Dakota", "district": "32",
+  "partyFiled": "IND", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "zachary_martin": {
+  "name": "Zachary Martin", "office": "South Dakota State House Candidate (District 32)",
+  "state": "South Dakota", "district": "32",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kari_hall": {
+  "name": "Kari Hall", "office": "South Dakota State House Candidate (District 33)",
+  "state": "South Dakota", "district": "33",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "victor_dominquez": {
+  "name": "Victor Diego Dominquez", "office": "South Dakota State House Candidate (District 34)",
+  "state": "South Dakota", "district": "34",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "becky_drury": {
+  "name": "Becky J Drury", "office": "South Dakota State House Candidate (District 34)",
+  "state": "South Dakota", "district": "34",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ken_jeakins": {
+  "name": "Ken Jeakins", "office": "South Dakota State House Candidate (District 35)",
+  "state": "South Dakota", "district": "35",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jason_fleming": {
+  "name": "Jason Fleming", "office": "South Dakota State House Candidate (District 35)",
+  "state": "South Dakota", "district": "35",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dale_bartscher": {
+  "name": "Dale Bartscher", "office": "South Dakota State House Candidate (District 35)",
+  "state": "South Dakota", "district": "35",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ron_frederick": {
+  "name": "Ron Frederick", "office": "South Dakota State House Candidate (District 26A)",
+  "state": "South Dakota", "district": "26A",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lewis_grassrope": {
+  "name": "Lewis J. GrassRope", "office": "South Dakota State House Candidate (District 26B)",
+  "state": "South Dakota", "district": "26B",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "angi_hanzlik": {
+  "name": "Angi Hanzlik", "office": "South Dakota State House Candidate (District 26B)",
+  "state": "South Dakota", "district": "26B",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chastity_jewett": {
+  "name": "Chastity \"Chas\" Jewett", "office": "South Dakota State House Candidate (District 28A)",
+  "state": "South Dakota", "district": "28A",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Idaho — https://run.voteidaho.gov/
+ "steve_johnson": {
+  "name": "Steve Johnson", "office": "Idaho State Senate Candidate (District 1)",
+  "state": "Idaho", "district": "1",
+  "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "scott_herndon": {
+  "name": "Scott Herndon", "office": "Idaho State Senate Candidate (District 1)",
+  "state": "Idaho", "district": "1",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "valerie_wade": {
+  "name": "Valerie Wade", "office": "Idaho State Senate Candidate (District 2)",
+  "state": "Idaho", "district": "2",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brian_seguin": {
+  "name": "Brian Seguin", "office": "Idaho State Senate Candidate (District 3)",
+  "state": "Idaho", "district": "3",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "carissa_brewer": {
+  "name": "Carissa Brewer", "office": "Idaho State Senate Candidate (District 4)",
+  "state": "Idaho", "district": "4",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "adam_chapman": {
+  "name": "Adam Chapman", "office": "Idaho State Senate Candidate (District 5)",
+  "state": "Idaho", "district": "5",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "robin_weldy": {
+  "name": "Robin Weldy", "office": "Idaho State Senate Candidate (District 6)",
+  "state": "Idaho", "district": "6",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "patrice_yeatter": {
+  "name": "Patrice Yeatter", "office": "Idaho State Senate Candidate (District 7)",
+  "state": "Idaho", "district": "7",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "janice_martell": {
+  "name": "Janice Martell", "office": "Idaho State Senate Candidate (District 9)",
+  "state": "Idaho", "district": "9",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nancy_parker": {
+  "name": "Nancy M Parker", "office": "Idaho State Senate Candidate (District 10)",
+  "state": "Idaho", "district": "10",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "esther_ma": {
+  "name": "Esther Ma", "office": "Idaho State Senate Candidate (District 11)",
+  "state": "Idaho", "district": "11",
+  "partyFiled": "Constitution", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "susan_counsil": {
+  "name": "Susan Counsil", "office": "Idaho State Senate Candidate (District 11)",
+  "state": "Idaho", "district": "11",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "krystal_flippence": {
+  "name": "Krystal Flippence", "office": "Idaho State Senate Candidate (District 12)",
+  "state": "Idaho", "district": "12",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "letishia_silva": {
+  "name": "Letishia Silva", "office": "Idaho State Senate Candidate (District 13)",
+  "state": "Idaho", "district": "13",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kirsten_richardson": {
+  "name": "Kirsten Faith Richardson", "office": "Idaho State Senate Candidate (District 14)",
+  "state": "Idaho", "district": "14",
+  "partyFiled": "Constitution", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "c_grow": {
+  "name": "C. Scott Grow", "office": "Idaho State Senate Candidate (District 14)",
+  "state": "Idaho", "district": "14",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nancy_gregory": {
+  "name": "Nancy Gregory", "office": "Idaho State Senate Candidate (District 15)",
+  "state": "Idaho", "district": "15",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "desi_burbank": {
+  "name": "Desi Burbank", "office": "Idaho State Senate Candidate (District 15)",
+  "state": "Idaho", "district": "15",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "geoffrey_surbeck": {
+  "name": "Geoffrey Surbeck", "office": "Idaho State Senate Candidate (District 16)",
+  "state": "Idaho", "district": "16",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "benjamin_chafetz": {
+  "name": "Benjamin Chafetz", "office": "Idaho State Senate Candidate (District 17)",
+  "state": "Idaho", "district": "17",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "melissa_christian": {
+  "name": "Melissa J. Christian", "office": "Idaho State Senate Candidate (District 19)",
+  "state": "Idaho", "district": "19",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pamela_wilson": {
+  "name": "Pamela Renee Wilson", "office": "Idaho State Senate Candidate (District 20)",
+  "state": "Idaho", "district": "20",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "karlie_easley": {
+  "name": "Karlie Easley", "office": "Idaho State Senate Candidate (District 22)",
+  "state": "Idaho", "district": "22",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "paul_morgan": {
+  "name": "Paul Morgan", "office": "Idaho State Senate Candidate (District 23)",
+  "state": "Idaho", "district": "23",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mary_durfee": {
+  "name": "Mary Jo Durfee", "office": "Idaho State Senate Candidate (District 24)",
+  "state": "Idaho", "district": "24",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brent_reinke": {
+  "name": "Brent D Reinke", "office": "Idaho State Senate Candidate (District 24)",
+  "state": "Idaho", "district": "24",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "w_startin": {
+  "name": "W. Lane Startin", "office": "Idaho State Senate Candidate (District 25)",
+  "state": "Idaho", "district": "25",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "casey_swensen": {
+  "name": "Casey Swensen", "office": "Idaho State Senate Candidate (District 25)",
+  "state": "Idaho", "district": "25",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "shaila_tate": {
+  "name": "Shaila Tate", "office": "Idaho State Senate Candidate (District 26)",
+  "state": "Idaho", "district": "26",
+  "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bryan_hyde": {
+  "name": "Bryan Hyde", "office": "Idaho State Senate Candidate (District 26)",
+  "state": "Idaho", "district": "26",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "margo_saunders": {
+  "name": "Margo Saunders", "office": "Idaho State Senate Candidate (District 27)",
+  "state": "Idaho", "district": "27",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mandy_peace": {
+  "name": "Mandy Peace", "office": "Idaho State Senate Candidate (District 28)",
+  "state": "Idaho", "district": "28",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "john_crowder": {
+  "name": "John Crowder", "office": "Idaho State Senate Candidate (District 29)",
+  "state": "Idaho", "district": "29",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "joni_sorensen": {
+  "name": "Joni Lin Sorensen", "office": "Idaho State Senate Candidate (District 30)",
+  "state": "Idaho", "district": "30",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kevin_gerrard": {
+  "name": "Kevin Gerrard", "office": "Idaho State Senate Candidate (District 31)",
+  "state": "Idaho", "district": "31",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "konnor_whitfield": {
+  "name": "Konnor Whitfield", "office": "Idaho State Senate Candidate (District 32)",
+  "state": "Idaho", "district": "32",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jan_brown": {
+  "name": "Jan Brown", "office": "Idaho State Senate Candidate (District 33)",
+  "state": "Idaho", "district": "33",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ethan_sanford": {
+  "name": "Ethan Sanford", "office": "Idaho State Senate Candidate (District 34)",
+  "state": "Idaho", "district": "34",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "marty_kilhefner": {
+  "name": "Marty Rotz Kilhefner", "office": "Idaho State Senate Candidate (District 35)",
+  "state": "Idaho", "district": "35",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "karen_matthee": {
+  "name": "Karen Matthee", "office": "Idaho State House Candidate (District 1, Position A)",
+  "state": "Idaho", "district": "1", "position": 1,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jane_sauter": {
+  "name": "Jane Sauter", "office": "Idaho State House Candidate (District 1, Position A)",
+  "state": "Idaho", "district": "1", "position": 1,
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kathryn_larson": {
+  "name": "Kathryn Larson", "office": "Idaho State House Candidate (District 1, Position B)",
+  "state": "Idaho", "district": "1", "position": 2,
+  "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "birgid_niedenzu": {
+  "name": "Birgid Niedenzu", "office": "Idaho State House Candidate (District 2, Position A)",
+  "state": "Idaho", "district": "2", "position": 1,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sabine_krier": {
+  "name": "Sabine Krier", "office": "Idaho State House Candidate (District 2, Position B)",
+  "state": "Idaho", "district": "2", "position": 2,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "melissa_mateer": {
+  "name": "Melissa Mateer", "office": "Idaho State House Candidate (District 3, Position A)",
+  "state": "Idaho", "district": "3", "position": 1,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "maxwell_mcswain": {
+  "name": "Maxwell McSwain", "office": "Idaho State House Candidate (District 4, Position A)",
+  "state": "Idaho", "district": "4", "position": 1,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "aaron_hayes": {
+  "name": "Aaron Hayes", "office": "Idaho State House Candidate (District 4, Position B)",
+  "state": "Idaho", "district": "4", "position": 2,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mirna_pleines": {
+  "name": "Mirna Pleines", "office": "Idaho State House Candidate (District 5, Position A)",
+  "state": "Idaho", "district": "5", "position": 1,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lee_wallace": {
+  "name": "Lee Wallace", "office": "Idaho State House Candidate (District 5, Position B)",
+  "state": "Idaho", "district": "5", "position": 2,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "trish_goodheart": {
+  "name": "Trish Carter-Goodheart", "office": "Idaho State House Candidate (District 6, Position A)",
+  "state": "Idaho", "district": "6", "position": 1,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "colton_bennett": {
+  "name": "Colton Bennett", "office": "Idaho State House Candidate (District 6, Position A)",
+  "state": "Idaho", "district": "6", "position": 1,
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kathy_dawes": {
+  "name": "Kathy Dawes", "office": "Idaho State House Candidate (District 6, Position B)",
+  "state": "Idaho", "district": "6", "position": 2,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "larry_nostrant": {
+  "name": "Larry Nostrant", "office": "Idaho State House Candidate (District 7, Position A)",
+  "state": "Idaho", "district": "7", "position": 1,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pete_gertonson": {
+  "name": "Pete Gertonson", "office": "Idaho State House Candidate (District 7, Position B)",
+  "state": "Idaho", "district": "7", "position": 2,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "heather_lewis": {
+  "name": "Heather S. Lewis", "office": "Idaho State House Candidate (District 8, Position A)",
+  "state": "Idaho", "district": "8", "position": 1,
+  "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jared_dawson": {
+  "name": "Jared Dawson", "office": "Idaho State House Candidate (District 8, Position B)",
+  "state": "Idaho", "district": "8", "position": 2,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brian_beckley": {
+  "name": "Brian Beckley", "office": "Idaho State House Candidate (District 8, Position B)",
+  "state": "Idaho", "district": "8", "position": 2,
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lupita_connor": {
+  "name": "Lupita Connor", "office": "Idaho State House Candidate (District 9, Position B)",
+  "state": "Idaho", "district": "9", "position": 2,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "michael_hofferber": {
+  "name": "Michael Hofferber", "office": "Idaho State House Candidate (District 10, Position A)",
+  "state": "Idaho", "district": "10", "position": 1,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "beth_mcfalls": {
+  "name": "Beth Ann McFalls", "office": "Idaho State House Candidate (District 10, Position B)",
+  "state": "Idaho", "district": "10", "position": 2,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "joshua_preminger": {
+  "name": "Joshua Preminger", "office": "Idaho State House Candidate (District 11, Position B)",
+  "state": "Idaho", "district": "11", "position": 2,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "debbie_geyer": {
+  "name": "Debbie Geyer", "office": "Idaho State House Candidate (District 11, Position B)",
+  "state": "Idaho", "district": "11", "position": 2,
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sterling_barnett": {
+  "name": "Sterling Barnett", "office": "Idaho State House Candidate (District 12, Position A)",
+  "state": "Idaho", "district": "12", "position": 1,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "curtis_james": {
+  "name": "Curtis James", "office": "Idaho State House Candidate (District 12, Position B)",
+  "state": "Idaho", "district": "12", "position": 2,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cliff_hohman": {
+  "name": "Cliff Hohman", "office": "Idaho State House Candidate (District 13, Position A)",
+  "state": "Idaho", "district": "13", "position": 1,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cody_gorman": {
+  "name": "Cody Gorman", "office": "Idaho State House Candidate (District 13, Position B)",
+  "state": "Idaho", "district": "13", "position": 2,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jo_daly": {
+  "name": "Jo Daly", "office": "Idaho State House Candidate (District 14, Position A)",
+  "state": "Idaho", "district": "14", "position": 1,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "valerie_ruxton": {
+  "name": "Valerie Ruxton", "office": "Idaho State House Candidate (District 14, Position B)",
+  "state": "Idaho", "district": "14", "position": 2,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "steve_keyser": {
+  "name": "Steve Keyser", "office": "Idaho State House Candidate (District 15, Position A)",
+  "state": "Idaho", "district": "15", "position": 1,
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jae_etchart": {
+  "name": "Jae Etchart", "office": "Idaho State House Candidate (District 15, Position B)",
+  "state": "Idaho", "district": "15", "position": 2,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "megan_woller": {
+  "name": "Megan Woller", "office": "Idaho State House Candidate (District 16, Position A)",
+  "state": "Idaho", "district": "16", "position": 1,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jackie_davidson": {
+  "name": "Jackie Davidson", "office": "Idaho State House Candidate (District 16, Position A)",
+  "state": "Idaho", "district": "16", "position": 1,
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chandler_hadraba": {
+  "name": "Chandler Stewart Hadraba", "office": "Idaho State House Candidate (District 16, Position B)",
+  "state": "Idaho", "district": "16", "position": 2,
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "james_nechwedowich": {
+  "name": "James R Nechwedowich", "office": "Idaho State House Candidate (District 17, Position A)",
+  "state": "Idaho", "district": "17", "position": 1,
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "justin_hughes": {
+  "name": "Justin Alexander Peter Hughes", "office": "Idaho State House Candidate (District 17, Position B)",
+  "state": "Idaho", "district": "17", "position": 2,
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "joseph_bishop": {
+  "name": "Joseph Bishop", "office": "Idaho State House Candidate (District 18, Position B)",
+  "state": "Idaho", "district": "18", "position": 2,
+  "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bryan_hopkins": {
+  "name": "Bryan Hopkins", "office": "Idaho State House Candidate (District 19, Position A)",
+  "state": "Idaho", "district": "19", "position": 1,
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "stanley_roach": {
+  "name": "Stanley Roach", "office": "Idaho State House Candidate (District 19, Position B)",
+  "state": "Idaho", "district": "19", "position": 2,
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jennifer_stephens": {
+  "name": "Jennifer Stephens", "office": "Idaho State House Candidate (District 20, Position A)",
+  "state": "Idaho", "district": "20", "position": 1,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mary_mosley": {
+  "name": "Mary A Mosley", "office": "Idaho State House Candidate (District 20, Position B)",
+  "state": "Idaho", "district": "20", "position": 2,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "camille_allan": {
+  "name": "Camille Allan", "office": "Idaho State House Candidate (District 21, Position A)",
+  "state": "Idaho", "district": "21", "position": 1,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "casey_hess": {
+  "name": "Casey Hess", "office": "Idaho State House Candidate (District 21, Position B)",
+  "state": "Idaho", "district": "21", "position": 2,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "loren_petty": {
+  "name": "Loren Petty", "office": "Idaho State House Candidate (District 22, Position A)",
+  "state": "Idaho", "district": "22", "position": 1,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kelly_walton": {
+  "name": "Kelly Walton", "office": "Idaho State House Candidate (District 22, Position A)",
+  "state": "Idaho", "district": "22", "position": 1,
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "amanda_easley": {
+  "name": "Amanda Easley", "office": "Idaho State House Candidate (District 22, Position B)",
+  "state": "Idaho", "district": "22", "position": 2,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "paul_smith": {
+  "name": "Paul M Smith", "office": "Idaho State House Candidate (District 23, Position A)",
+  "state": "Idaho", "district": "23", "position": 1,
+  "partyFiled": "Constitution", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "joe_fuller": {
+  "name": "Joe Fuller", "office": "Idaho State House Candidate (District 23, Position B)",
+  "state": "Idaho", "district": "23", "position": 2,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kevin_moxley": {
+  "name": "Kevin Moxley", "office": "Idaho State House Candidate (District 24, Position A)",
+  "state": "Idaho", "district": "24", "position": 1,
+  "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chance_requa": {
+  "name": "Chance Requa", "office": "Idaho State House Candidate (District 24, Position B)",
+  "state": "Idaho", "district": "24", "position": 2,
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "marla_palmer": {
+  "name": "Marla Palmer", "office": "Idaho State House Candidate (District 25, Position A)",
+  "state": "Idaho", "district": "25", "position": 1,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "grayson_stone": {
+  "name": "Grayson Stone", "office": "Idaho State House Candidate (District 25, Position A)",
+  "state": "Idaho", "district": "25", "position": 1,
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "liyah_babayan": {
+  "name": "Liyah Babayan", "office": "Idaho State House Candidate (District 25, Position B)",
+  "state": "Idaho", "district": "25", "position": 2,
+  "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cherie_vollmer": {
+  "name": "Cherie Vollmer", "office": "Idaho State House Candidate (District 25, Position B)",
+  "state": "Idaho", "district": "25", "position": 2,
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "anita_janis": {
+  "name": "Anita Janis", "office": "Idaho State House Candidate (District 26, Position A)",
+  "state": "Idaho", "district": "26", "position": 1,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bella_schiffler": {
+  "name": "Bella Schiffler", "office": "Idaho State House Candidate (District 26, Position A)",
+  "state": "Idaho", "district": "26", "position": 1,
+  "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kevin_marsh": {
+  "name": "Kevin Marsh", "office": "Idaho State House Candidate (District 26, Position B)",
+  "state": "Idaho", "district": "26", "position": 2,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lyle_johnstone": {
+  "name": "Lyle Johnstone", "office": "Idaho State House Candidate (District 26, Position B)",
+  "state": "Idaho", "district": "26", "position": 2,
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kim_jackman": {
+  "name": "Kim Jackman", "office": "Idaho State House Candidate (District 28, Position A)",
+  "state": "Idaho", "district": "28", "position": 1,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jayson_meline": {
+  "name": "Jayson Meline", "office": "Idaho State House Candidate (District 28, Position B)",
+  "state": "Idaho", "district": "28", "position": 2,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mary_shea": {
+  "name": "Mary Shea", "office": "Idaho State House Candidate (District 29, Position A)",
+  "state": "Idaho", "district": "29", "position": 1,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nate_roberts": {
+  "name": "Nate Roberts", "office": "Idaho State House Candidate (District 29, Position B)",
+  "state": "Idaho", "district": "29", "position": 2,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jennifer_miles": {
+  "name": "Jennifer Miles", "office": "Idaho State House Candidate (District 29, Position B)",
+  "state": "Idaho", "district": "29", "position": 2,
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bree_buckingham": {
+  "name": "Bree Buckingham", "office": "Idaho State House Candidate (District 30, Position B)",
+  "state": "Idaho", "district": "30", "position": 2,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kindsey_smith": {
+  "name": "Kindsey Smith", "office": "Idaho State House Candidate (District 31, Position A)",
+  "state": "Idaho", "district": "31", "position": 1,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wendy_norman": {
+  "name": "Wendy Norman", "office": "Idaho State House Candidate (District 31, Position B)",
+  "state": "Idaho", "district": "31", "position": 2,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kamber_weninger": {
+  "name": "Kamber Weninger", "office": "Idaho State House Candidate (District 32, Position B)",
+  "state": "Idaho", "district": "32", "position": 2,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chance_marshall": {
+  "name": "Chance Marshall", "office": "Idaho State House Candidate (District 33, Position A)",
+  "state": "Idaho", "district": "33", "position": 1,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "todd_devries": {
+  "name": "Todd DeVries", "office": "Idaho State House Candidate (District 33, Position B)",
+  "state": "Idaho", "district": "33", "position": 2,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "walter_boyd": {
+  "name": "Walter Boyd", "office": "Idaho State House Candidate (District 35, Position A)",
+  "state": "Idaho", "district": "35", "position": 1,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mary_kaufman": {
+  "name": "Mary Kaufman", "office": "Idaho State House Candidate (District 35, Position B)",
+  "state": "Idaho", "district": "35", "position": 2,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Montana — https://candidatefiling.mt.gov/candidatefiling/CandidateList.aspx?e=450002987
+ "steve_gunderson": {
+  "name": "Steve Gunderson", "office": "Montana State Senate Candidate (District 1)",
+  "state": "Montana", "district": "1",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jonathan_jameson": {
+  "name": "Jonathan Russell Jameson", "office": "Montana State Senate Candidate (District 1)",
+  "state": "Montana", "district": "1",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kyle_waterman": {
+  "name": "Kyle Waterman", "office": "Montana State Senate Candidate (District 4)",
+  "state": "Montana", "district": "4",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "patrick_fitzpatrick": {
+  "name": "Patrick Fitzpatrick", "office": "Montana State Senate Candidate (District 6)",
+  "state": "Montana", "district": "6",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "christopher_buckles": {
+  "name": "Christopher Paul Buckles", "office": "Montana State Senate Candidate (District 8)",
+  "state": "Montana", "district": "8",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "noy_holland": {
+  "name": "Noy Holland", "office": "Montana State Senate Candidate (District 9)",
+  "state": "Montana", "district": "9",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jessica_dyrdahl": {
+  "name": "Jessica Dyrdahl", "office": "Montana State Senate Candidate (District 10)",
+  "state": "Montana", "district": "10",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "margaret_mitchell": {
+  "name": "Margaret Mitchell", "office": "Montana State Senate Candidate (District 10)",
+  "state": "Montana", "district": "10",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "steven_galloway": {
+  "name": "Steven Galloway", "office": "Montana State Senate Candidate (District 11)",
+  "state": "Montana", "district": "11",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "valynda_holland": {
+  "name": "Valynda Holland", "office": "Montana State Senate Candidate (District 11)",
+  "state": "Montana", "district": "11",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mindy_leach": {
+  "name": "Mindy Leach", "office": "Montana State Senate Candidate (District 12)",
+  "state": "Montana", "district": "12",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "blake_borst": {
+  "name": "Blake Borst", "office": "Montana State Senate Candidate (District 14)",
+  "state": "Montana", "district": "14",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "stan_taylor": {
+  "name": "Stan Taylor", "office": "Montana State Senate Candidate (District 18)",
+  "state": "Montana", "district": "18",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "deanna_daigrepont": {
+  "name": "Deanna J Daigrepont", "office": "Montana State Senate Candidate (District 19)",
+  "state": "Montana", "district": "19",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chris_rindal": {
+  "name": "Chris Rindal", "office": "Montana State Senate Candidate (District 19)",
+  "state": "Montana", "district": "19",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "joanna_oblander": {
+  "name": "Joanna Oblander", "office": "Montana State Senate Candidate (District 23)",
+  "state": "Montana", "district": "23",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "julie_hippler": {
+  "name": "Julie Hippler", "office": "Montana State Senate Candidate (District 25)",
+  "state": "Montana", "district": "25",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kelly_hale": {
+  "name": "Kelly Hale", "office": "Montana State Senate Candidate (District 28)",
+  "state": "Montana", "district": "28",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jason_gunderson": {
+  "name": "Jason Gunderson", "office": "Montana State Senate Candidate (District 29)",
+  "state": "Montana", "district": "29",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "richard_aungier": {
+  "name": "Richard Aungier", "office": "Montana State Senate Candidate (District 31)",
+  "state": "Montana", "district": "31",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kathleen_williams": {
+  "name": "Kathleen Williams", "office": "Montana State Senate Candidate (District 31)",
+  "state": "Montana", "district": "31",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "neal_ganser": {
+  "name": "Neal Ganser", "office": "Montana State Senate Candidate (District 32)",
+  "state": "Montana", "district": "32",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "carl_anderson": {
+  "name": "Carl Anderson", "office": "Montana State Senate Candidate (District 34)",
+  "state": "Montana", "district": "34",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "erin_olsen": {
+  "name": "Erin Farris-Olsen", "office": "Montana State Senate Candidate (District 41)",
+  "state": "Montana", "district": "41",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dru_koester": {
+  "name": "Dru Koester", "office": "Montana State Senate Candidate (District 41)",
+  "state": "Montana", "district": "41",
+  "partyFiled": "LIB", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "stephen_lapraim": {
+  "name": "Stephen Lapraim", "office": "Montana State Senate Candidate (District 42)",
+  "state": "Montana", "district": "42",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "stephen_leuchtman": {
+  "name": "Stephen Leuchtman", "office": "Montana State Senate Candidate (District 43)",
+  "state": "Montana", "district": "43",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brad_tschida": {
+  "name": "Brad Tschida", "office": "Montana State Senate Candidate (District 49)",
+  "state": "Montana", "district": "49",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "michelle_bianco": {
+  "name": "Michelle Bianco", "office": "Montana State House Candidate (District 1)",
+  "state": "Montana", "district": "1",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dakota_adams": {
+  "name": "Dakota V Adams", "office": "Montana State House Candidate (District 1)",
+  "state": "Montana", "district": "1",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jane_maahs": {
+  "name": "Jane Maahs", "office": "Montana State House Candidate (District 2)",
+  "state": "Montana", "district": "2",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "derek_peachey": {
+  "name": "Derek Peachey", "office": "Montana State House Candidate (District 3)",
+  "state": "Montana", "district": "3",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "paula_koch": {
+  "name": "Paula Koch", "office": "Montana State House Candidate (District 4)",
+  "state": "Montana", "district": "4",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "shaun_pandina": {
+  "name": "Shaun Pandina", "office": "Montana State House Candidate (District 4)",
+  "state": "Montana", "district": "4",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "luca_welle": {
+  "name": "Luca Welle", "office": "Montana State House Candidate (District 5)",
+  "state": "Montana", "district": "5",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "darren_fix": {
+  "name": "Darren Fix", "office": "Montana State House Candidate (District 6)",
+  "state": "Montana", "district": "6",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jim_riley": {
+  "name": "Jim Riley", "office": "Montana State House Candidate (District 6)",
+  "state": "Montana", "district": "6",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "madison_evans": {
+  "name": "Madison Evans", "office": "Montana State House Candidate (District 7)",
+  "state": "Montana", "district": "7",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "calvin_lime": {
+  "name": "Calvin Lime", "office": "Montana State House Candidate (District 8)",
+  "state": "Montana", "district": "8",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kate_mclaughlin": {
+  "name": "Kate McLaughlin", "office": "Montana State House Candidate (District 9)",
+  "state": "Montana", "district": "9",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "catherine_allen": {
+  "name": "Catherine C Allen", "office": "Montana State House Candidate (District 10)",
+  "state": "Montana", "district": "10",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "maeve_kintzler": {
+  "name": "Maeve Kintzler", "office": "Montana State House Candidate (District 11)",
+  "state": "Montana", "district": "11",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cindy_bruckner": {
+  "name": "Cindy L Bruckner", "office": "Montana State House Candidate (District 12)",
+  "state": "Montana", "district": "12",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dalton_bradford": {
+  "name": "Dalton Bradford", "office": "Montana State House Candidate (District 13)",
+  "state": "Montana", "district": "13",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "finley_warden": {
+  "name": "Finley Warden", "office": "Montana State House Candidate (District 13)",
+  "state": "Montana", "district": "13",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "colleen_hinds": {
+  "name": "Colleen Hinds", "office": "Montana State House Candidate (District 14)",
+  "state": "Montana", "district": "14",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ralph_foster": {
+  "name": "Ralph Foster", "office": "Montana State House Candidate (District 15)",
+  "state": "Montana", "district": "15",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lona_wolf": {
+  "name": "Lona R Running Wolf", "office": "Montana State House Candidate (District 16)",
+  "state": "Montana", "district": "16",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chris_bechtold": {
+  "name": "Chris Bechtold", "office": "Montana State House Candidate (District 17)",
+  "state": "Montana", "district": "17",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "justin_cleveland": {
+  "name": "Justin W Cleveland", "office": "Montana State House Candidate (District 17)",
+  "state": "Montana", "district": "17",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bruce_gillespie": {
+  "name": "Bruce \"Butch\" Gillespie", "office": "Montana State House Candidate (District 18)",
+  "state": "Montana", "district": "18",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "hannah_trebas": {
+  "name": "Hannah Trebas", "office": "Montana State House Candidate (District 19)",
+  "state": "Montana", "district": "19",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "steve_keller": {
+  "name": "Steve Keller", "office": "Montana State House Candidate (District 20)",
+  "state": "Montana", "district": "20",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "trevor_funseth": {
+  "name": "Trevor P Funseth", "office": "Montana State House Candidate (District 21)",
+  "state": "Montana", "district": "21",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lela_graham": {
+  "name": "Lela Graham", "office": "Montana State House Candidate (District 21)",
+  "state": "Montana", "district": "21",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jason_lorang": {
+  "name": "Jason Lorang", "office": "Montana State House Candidate (District 22)",
+  "state": "Montana", "district": "22",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "neal_miller": {
+  "name": "Neal Miller", "office": "Montana State House Candidate (District 22)",
+  "state": "Montana", "district": "22",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rebecca_richards": {
+  "name": "Rebecca Bogden-Richards", "office": "Montana State House Candidate (District 23)",
+  "state": "Montana", "district": "23",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pam_carroll": {
+  "name": "Pam Carroll", "office": "Montana State House Candidate (District 24)",
+  "state": "Montana", "district": "24",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jerry_ferderer": {
+  "name": "Jerry Ferderer", "office": "Montana State House Candidate (District 25)",
+  "state": "Montana", "district": "25",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "paul_jefferson": {
+  "name": "Paul Jefferson", "office": "Montana State House Candidate (District 26)",
+  "state": "Montana", "district": "26",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jordan_ophus": {
+  "name": "Jordan Ophus", "office": "Montana State House Candidate (District 27)",
+  "state": "Montana", "district": "27",
+  "partyFiled": "LIB", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chisholm_christensen": {
+  "name": "Chisholm B Christensen", "office": "Montana State House Candidate (District 28)",
+  "state": "Montana", "district": "28",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tess_fahlgren": {
+  "name": "Tess Fahlgren", "office": "Montana State House Candidate (District 29)",
+  "state": "Montana", "district": "29",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jason_boeshore": {
+  "name": "Jason Boeshore", "office": "Montana State House Candidate (District 30)",
+  "state": "Montana", "district": "30",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "natalie_oneal": {
+  "name": "Natalie Oneal", "office": "Montana State House Candidate (District 31)",
+  "state": "Montana", "district": "31",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tristan_veverka": {
+  "name": "Tristan Veverka", "office": "Montana State House Candidate (District 33)",
+  "state": "Montana", "district": "33",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jasmine_erickson": {
+  "name": "Jasmine Erickson", "office": "Montana State House Candidate (District 34)",
+  "state": "Montana", "district": "34",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "natalie_parker": {
+  "name": "Natalie Parker", "office": "Montana State House Candidate (District 35)",
+  "state": "Montana", "district": "35",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "benjamin_keyes": {
+  "name": "Benjamin Keyes", "office": "Montana State House Candidate (District 36)",
+  "state": "Montana", "district": "36",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ty_linger": {
+  "name": "Ty Linger", "office": "Montana State House Candidate (District 36)",
+  "state": "Montana", "district": "36",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tracey_karcher": {
+  "name": "Tracey Miller Karcher", "office": "Montana State House Candidate (District 37)",
+  "state": "Montana", "district": "37",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "melissa_smith": {
+  "name": "Melissa Smith", "office": "Montana State House Candidate (District 39)",
+  "state": "Montana", "district": "39",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gabriel_bradshaw": {
+  "name": "Gabriel Bradshaw", "office": "Montana State House Candidate (District 40)",
+  "state": "Montana", "district": "40",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sidney_fitzpatrick": {
+  "name": "Sidney Chip Fitzpatrick", "office": "Montana State House Candidate (District 42)",
+  "state": "Montana", "district": "42",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jeremiah_jabs": {
+  "name": "Jeremiah Jabs", "office": "Montana State House Candidate (District 42)",
+  "state": "Montana", "district": "42",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rudolf_haden": {
+  "name": "Rudolf Haden", "office": "Montana State House Candidate (District 43)",
+  "state": "Montana", "district": "43",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mike_eaton": {
+  "name": "Mike Eaton", "office": "Montana State House Candidate (District 44)",
+  "state": "Montana", "district": "44",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bryce_walston": {
+  "name": "Bryce Walston", "office": "Montana State House Candidate (District 45)",
+  "state": "Montana", "district": "45",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kim_welzenbach": {
+  "name": "Kim Welzenbach", "office": "Montana State House Candidate (District 46)",
+  "state": "Montana", "district": "46",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "john_maxwell": {
+  "name": "John Maxwell", "office": "Montana State House Candidate (District 47)",
+  "state": "Montana", "district": "47",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tucker_colvin": {
+  "name": "Tucker Colvin", "office": "Montana State House Candidate (District 48)",
+  "state": "Montana", "district": "48",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "charlie_loveridge": {
+  "name": "Charlie Loveridge", "office": "Montana State House Candidate (District 49)",
+  "state": "Montana", "district": "49",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rebecca_noell": {
+  "name": "Rebecca Noell", "office": "Montana State House Candidate (District 49)",
+  "state": "Montana", "district": "49",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "stewart_harris": {
+  "name": "Stewart Harris", "office": "Montana State House Candidate (District 50)",
+  "state": "Montana", "district": "50",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mark_peters": {
+  "name": "Mark Peters", "office": "Montana State House Candidate (District 50)",
+  "state": "Montana", "district": "50",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "precious_mckenzie": {
+  "name": "Precious McKenzie", "office": "Montana State House Candidate (District 51)",
+  "state": "Montana", "district": "51",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "elizabeth_heald": {
+  "name": "Elizabeth Heald", "office": "Montana State House Candidate (District 52)",
+  "state": "Montana", "district": "52",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "troy_charbonneau": {
+  "name": "Troy Charbonneau", "office": "Montana State House Candidate (District 53)",
+  "state": "Montana", "district": "53",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "matthew_hankins": {
+  "name": "Matthew J Hankins", "office": "Montana State House Candidate (District 53)",
+  "state": "Montana", "district": "53",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "janine_coole": {
+  "name": "Janine Coole", "office": "Montana State House Candidate (District 54)",
+  "state": "Montana", "district": "54",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "richard_gessling": {
+  "name": "Richard Gessling", "office": "Montana State House Candidate (District 55)",
+  "state": "Montana", "district": "55",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bob_crank": {
+  "name": "Bob Crank", "office": "Montana State House Candidate (District 57)",
+  "state": "Montana", "district": "57",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "joshua_congleton": {
+  "name": "Joshua Congleton", "office": "Montana State House Candidate (District 58)",
+  "state": "Montana", "district": "58",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "marc_greendorfer": {
+  "name": "Marc Greendorfer", "office": "Montana State House Candidate (District 59)",
+  "state": "Montana", "district": "59",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "greg_leman": {
+  "name": "Greg Leman", "office": "Montana State House Candidate (District 60)",
+  "state": "Montana", "district": "60",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "eric_jacobs": {
+  "name": "Eric Jacobs", "office": "Montana State House Candidate (District 61)",
+  "state": "Montana", "district": "61",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rio_roland": {
+  "name": "Rio Roland", "office": "Montana State House Candidate (District 61)",
+  "state": "Montana", "district": "61",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "esther_fishbaugh": {
+  "name": "Esther Fishbaugh", "office": "Montana State House Candidate (District 62)",
+  "state": "Montana", "district": "62",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lawrence_moore": {
+  "name": "Lawrence R Moore", "office": "Montana State House Candidate (District 63)",
+  "state": "Montana", "district": "63",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brady_bremer": {
+  "name": "Brady Bremer", "office": "Montana State House Candidate (District 64)",
+  "state": "Montana", "district": "64",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "daniel_martinez": {
+  "name": "Daniel Ricardo Martinez", "office": "Montana State House Candidate (District 64)",
+  "state": "Montana", "district": "64",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "joe_flynn": {
+  "name": "Joe Flynn", "office": "Montana State House Candidate (District 65)",
+  "state": "Montana", "district": "65",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "owen_lang": {
+  "name": "Owen Lang", "office": "Montana State House Candidate (District 66)",
+  "state": "Montana", "district": "66",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "logan_henke": {
+  "name": "Logan Henke", "office": "Montana State House Candidate (District 67)",
+  "state": "Montana", "district": "67",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "randy_chamberlin": {
+  "name": "Randy Chamberlin", "office": "Montana State House Candidate (District 68)",
+  "state": "Montana", "district": "68",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jocelyn_kent": {
+  "name": "Jocelyn Kent", "office": "Montana State House Candidate (District 68)",
+  "state": "Montana", "district": "68",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "trevor_walter": {
+  "name": "Trevor Walter", "office": "Montana State House Candidate (District 69)",
+  "state": "Montana", "district": "69",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kobi_craddock": {
+  "name": "Kobi Craddock", "office": "Montana State House Candidate (District 70)",
+  "state": "Montana", "district": "70",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "suzzann_nordwick": {
+  "name": "Suzzann Nordwick", "office": "Montana State House Candidate (District 71)",
+  "state": "Montana", "district": "71",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "michael_saul": {
+  "name": "Michael Saul", "office": "Montana State House Candidate (District 72)",
+  "state": "Montana", "district": "72",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gerry_kennedy": {
+  "name": "Gerry Kennedy", "office": "Montana State House Candidate (District 73)",
+  "state": "Montana", "district": "73",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "trenin_bayless": {
+  "name": "Trenin Bayless", "office": "Montana State House Candidate (District 74)",
+  "state": "Montana", "district": "74",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "greg_devries": {
+  "name": "Greg Devries", "office": "Montana State House Candidate (District 75)",
+  "state": "Montana", "district": "75",
+  "partyFiled": "LIB", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "patrick_sullivan": {
+  "name": "Patrick Sullivan", "office": "Montana State House Candidate (District 75)",
+  "state": "Montana", "district": "75",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "trish_schreiber": {
+  "name": "Trish Schreiber", "office": "Montana State House Candidate (District 76)",
+  "state": "Montana", "district": "76",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "shayne_morgan": {
+  "name": "Shayne Morgan", "office": "Montana State House Candidate (District 76)",
+  "state": "Montana", "district": "76",
+  "partyFiled": "IND", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mark_white": {
+  "name": "Mark White", "office": "Montana State House Candidate (District 78)",
+  "state": "Montana", "district": "78",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chiko_olson": {
+  "name": "Chiko Olson", "office": "Montana State House Candidate (District 79)",
+  "state": "Montana", "district": "79",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "katie_fruits": {
+  "name": "Katie Fruits", "office": "Montana State House Candidate (District 80)",
+  "state": "Montana", "district": "80",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "megan_lane": {
+  "name": "Megan Lane", "office": "Montana State House Candidate (District 80)",
+  "state": "Montana", "district": "80",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "john_looney": {
+  "name": "John J Looney Sr.", "office": "Montana State House Candidate (District 81)",
+  "state": "Montana", "district": "81",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "clinton_mckay": {
+  "name": "Clinton McKay", "office": "Montana State House Candidate (District 82)",
+  "state": "Montana", "district": "82",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "joe_cohenour": {
+  "name": "Joe Cohenour", "office": "Montana State House Candidate (District 83)",
+  "state": "Montana", "district": "83",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "aaron_leas": {
+  "name": "Aaron J Leas", "office": "Montana State House Candidate (District 83)",
+  "state": "Montana", "district": "83",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "roy_caldwell": {
+  "name": "Roy Caldwell", "office": "Montana State House Candidate (District 84)",
+  "state": "Montana", "district": "84",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tia_nelson": {
+  "name": "Tia Nelson", "office": "Montana State House Candidate (District 84)",
+  "state": "Montana", "district": "84",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kim_dailey": {
+  "name": "Kim Dailey", "office": "Montana State House Candidate (District 85)",
+  "state": "Montana", "district": "85",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "laura_jackson": {
+  "name": "Laura Jackson", "office": "Montana State House Candidate (District 85)",
+  "state": "Montana", "district": "85",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wayne_rusk": {
+  "name": "Wayne Rusk", "office": "Montana State House Candidate (District 86)",
+  "state": "Montana", "district": "86",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "archie_thomas": {
+  "name": "Archie Thomas", "office": "Montana State House Candidate (District 86)",
+  "state": "Montana", "district": "86",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bill_jones": {
+  "name": "Bill Jones", "office": "Montana State House Candidate (District 87)",
+  "state": "Montana", "district": "87",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "evan_schroedel": {
+  "name": "Evan Schroedel", "office": "Montana State House Candidate (District 88)",
+  "state": "Montana", "district": "88",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lyn_hellegaard": {
+  "name": "Lyn Hellegaard", "office": "Montana State House Candidate (District 89)",
+  "state": "Montana", "district": "89",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jeff_stanek": {
+  "name": "Jeff Stanek", "office": "Montana State House Candidate (District 90)",
+  "state": "Montana", "district": "90",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "charles_headley": {
+  "name": "Charles Headley", "office": "Montana State House Candidate (District 91)",
+  "state": "Montana", "district": "91",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "monica_tranel": {
+  "name": "Monica Tranel", "office": "Montana State House Candidate (District 92)",
+  "state": "Montana", "district": "92",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ben_davis": {
+  "name": "Ben Davis", "office": "Montana State House Candidate (District 93)",
+  "state": "Montana", "district": "93",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "roy_handley": {
+  "name": "Roy Handley", "office": "Montana State House Candidate (District 93)",
+  "state": "Montana", "district": "93",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "robin_kendall": {
+  "name": "Robin Kendall", "office": "Montana State House Candidate (District 94)",
+  "state": "Montana", "district": "94",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "greg_woodward": {
+  "name": "Greg Woodward", "office": "Montana State House Candidate (District 94)",
+  "state": "Montana", "district": "94",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "michael_hagestad": {
+  "name": "Michael P Hagestad", "office": "Montana State House Candidate (District 97)",
+  "state": "Montana", "district": "97",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bryan_muzzana": {
+  "name": "Bryan Muzzana", "office": "Montana State House Candidate (District 98)",
+  "state": "Montana", "district": "98",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ryan_darling": {
+  "name": "Ryan Darling", "office": "Montana State House Candidate (District 99)",
+  "state": "Montana", "district": "99",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "michael_bowles": {
+  "name": "Michael Daniel Bowles", "office": "Montana State House Candidate (District 100)",
+  "state": "Montana", "district": "100",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sj_howell": {
+  "name": "SJ Howell", "office": "Montana State House Candidate (District 100)",
+  "state": "Montana", "district": "100",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jc_windmueller": {
+  "name": "JC Windmueller", "office": "Montana State House Candidate (District 100)",
+  "state": "Montana", "district": "100",
+  "partyFiled": "LIB", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Alaska — https://www.elections.alaska.gov/candidates/?election=26genr
+ "carrie_harris": {
+  "name": "Carrie L. Harris", "office": "Alaska State Senate Candidate (District C)",
+  "state": "Alaska", "district": "C",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "heath_smith": {
+  "name": "Heath Smith", "office": "Alaska State Senate Candidate (District C)",
+  "state": "Alaska", "district": "C",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gretchen_stoddard": {
+  "name": "Gretchen W. Stoddard", "office": "Alaska State Senate Candidate (District E)",
+  "state": "Alaska", "district": "E",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jason_white": {
+  "name": "Jason “Jace” White", "office": "Alaska State Senate Candidate (District E)",
+  "state": "Alaska", "district": "E",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nicholas_danger": {
+  "name": "Nicholas Danger", "office": "Alaska State Senate Candidate (District G)",
+  "state": "Alaska", "district": "G",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ryan_berry": {
+  "name": "Ryan Berry", "office": "Alaska State Senate Candidate (District M)",
+  "state": "Alaska", "district": "M",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "patricia_chesbro": {
+  "name": "Patricia R. Chesbro", "office": "Alaska State Senate Candidate (District M)",
+  "state": "Alaska", "district": "M",
+  "partyFiled": "Registered Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "zane_vrvilo": {
+  "name": "Zane Vrvilo", "office": "Alaska State Senate Candidate (District M)",
+  "state": "Alaska", "district": "M",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "peter_bauer": {
+  "name": "Peter Bauer", "office": "Alaska State Senate Candidate (District O)",
+  "state": "Alaska", "district": "O",
+  "partyFiled": "Registered Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ryan_sheldon": {
+  "name": "Ryan W. Sheldon", "office": "Alaska State Senate Candidate (District O)",
+  "state": "Alaska", "district": "O",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "william_hunt": {
+  "name": "William Hunt", "office": "Alaska State Senate Candidate (District Q)",
+  "state": "Alaska", "district": "Q",
+  "partyFiled": "Registered Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "darren_deacon": {
+  "name": "Darren Morgan Deacon", "office": "Alaska State Senate Candidate (District S)",
+  "state": "Alaska", "district": "S",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "wassilie_guy": {
+  "name": "Wassilie P. “WG” Guy", "office": "Alaska State Senate Candidate (District S)",
+  "state": "Alaska", "district": "S",
+  "partyFiled": "Registered Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "richard_robb": {
+  "name": "Richard “Rick” Robb", "office": "Alaska State Senate Candidate (District S)",
+  "state": "Alaska", "district": "S",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "grant_echohawk": {
+  "name": "Grant EchoHawk", "office": "Alaska State House Candidate (District 1)",
+  "state": "Alaska", "district": "1",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "alston_evans": {
+  "name": "Alston C. Evans", "office": "Alaska State House Candidate (District 2)",
+  "state": "Alaska", "district": "2",
+  "partyFiled": "Undeclared", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kenny_skaflestad": {
+  "name": "Kenny “Kenny Karl” Skaflestad", "office": "Alaska State House Candidate (District 2)",
+  "state": "Alaska", "district": "2",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "annette_kreitzer": {
+  "name": "Annette Kreitzer", "office": "Alaska State House Candidate (District 3)",
+  "state": "Alaska", "district": "3",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sheldon_prout": {
+  "name": "Sheldon R.J. Prout", "office": "Alaska State House Candidate (District 5)",
+  "state": "Alaska", "district": "5",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kathy_simpler": {
+  "name": "Kathy C. Simpler", "office": "Alaska State House Candidate (District 5)",
+  "state": "Alaska", "district": "5",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brent_johnson": {
+  "name": "Brent Johnson", "office": "Alaska State House Candidate (District 6)",
+  "state": "Alaska", "district": "6",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kate_veh": {
+  "name": "Kate Veh", "office": "Alaska State House Candidate (District 7)",
+  "state": "Alaska", "district": "7",
+  "partyFiled": "Registered Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "william_elam": {
+  "name": "William H. “Bill” Elam", "office": "Alaska State House Candidate (District 8)",
+  "state": "Alaska", "district": "8",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "frank_quinn": {
+  "name": "Frank Quinn", "office": "Alaska State House Candidate (District 8)",
+  "state": "Alaska", "district": "8",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nissa_savage": {
+  "name": "Nissa Savage", "office": "Alaska State House Candidate (District 8)",
+  "state": "Alaska", "district": "8",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "john_boyle": {
+  "name": "John C. Boyle", "office": "Alaska State House Candidate (District 9)",
+  "state": "Alaska", "district": "9",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "charles_kopp": {
+  "name": "Charles M. “Chuck” Kopp", "office": "Alaska State House Candidate (District 10)",
+  "state": "Alaska", "district": "10",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "danni_hall": {
+  "name": "Danni M. Hall", "office": "Alaska State House Candidate (District 11)",
+  "state": "Alaska", "district": "11",
+  "partyFiled": "Registered Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jieun_mcdonald": {
+  "name": "Jieun C. “Jini” McDonald", "office": "Alaska State House Candidate (District 12)",
+  "state": "Alaska", "district": "12",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lisa_keller": {
+  "name": "Lisa M. Keller", "office": "Alaska State House Candidate (District 13)",
+  "state": "Alaska", "district": "13",
+  "partyFiled": "Registered Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "russell_wyatt": {
+  "name": "Russell O. Wyatt", "office": "Alaska State House Candidate (District 14)",
+  "state": "Alaska", "district": "14",
+  "partyFiled": "Undeclared", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "denny_wells": {
+  "name": "Denny Wells", "office": "Alaska State House Candidate (District 15)",
+  "state": "Alaska", "district": "15",
+  "partyFiled": "Registered Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "phil_isley": {
+  "name": "Phil Isley", "office": "Alaska State House Candidate (District 16)",
+  "state": "Alaska", "district": "16",
+  "partyFiled": "Undeclared", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "liz_vazquez": {
+  "name": "Liz Vazquez", "office": "Alaska State House Candidate (District 16)",
+  "state": "Alaska", "district": "16",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "daniel_bradley": {
+  "name": "Daniel L. Bradley", "office": "Alaska State House Candidate (District 17)",
+  "state": "Alaska", "district": "17",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "william_fields": {
+  "name": "William Z. “Zack” Fields", "office": "Alaska State House Candidate (District 17)",
+  "state": "Alaska", "district": "17",
+  "partyFiled": "Registered Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cliff_groh": {
+  "name": "Cliff Groh", "office": "Alaska State House Candidate (District 18)",
+  "state": "Alaska", "district": "18",
+  "partyFiled": "Registered Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dan_sager": {
+  "name": "Dan Sager", "office": "Alaska State House Candidate (District 18)",
+  "state": "Alaska", "district": "18",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "paul_bauer": {
+  "name": "Paul A. Bauer Jr.", "office": "Alaska State House Candidate (District 20)",
+  "state": "Alaska", "district": "20",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "aimee_sims": {
+  "name": "Aimeé Sims", "office": "Alaska State House Candidate (District 21)",
+  "state": "Alaska", "district": "21",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jose_tagle": {
+  "name": "Jose Roel A. Tagle", "office": "Alaska State House Candidate (District 22)",
+  "state": "Alaska", "district": "22",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jim_arlington": {
+  "name": "Jim Arlington", "office": "Alaska State House Candidate (District 23)",
+  "state": "Alaska", "district": "23",
+  "partyFiled": "Registered Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lee_hammermeister": {
+  "name": "Lee E. Hammermeister", "office": "Alaska State House Candidate (District 23)",
+  "state": "Alaska", "district": "23",
+  "partyFiled": "Registered Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ruby_jones": {
+  "name": "Ruby Jones", "office": "Alaska State House Candidate (District 23)",
+  "state": "Alaska", "district": "23",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ken_mccarty": {
+  "name": "Ken McCarty", "office": "Alaska State House Candidate (District 24)",
+  "state": "Alaska", "district": "24",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gina_wall": {
+  "name": "Gina T. Wall", "office": "Alaska State House Candidate (District 24)",
+  "state": "Alaska", "district": "24",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "michael_bowles_ak": {
+  "name": "Michael Bowles", "office": "Alaska State House Candidate (District 25)",
+  "state": "Alaska", "district": "25",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "steven_merritt": {
+  "name": "Steven L. Merritt", "office": "Alaska State House Candidate (District 25)",
+  "state": "Alaska", "district": "25",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jeanne_troshynski": {
+  "name": "Jeanne Troshynski", "office": "Alaska State House Candidate (District 26)",
+  "state": "Alaska", "district": "26",
+  "partyFiled": "Registered Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "david_eastman": {
+  "name": "David Eastman", "office": "Alaska State House Candidate (District 27)",
+  "state": "Alaska", "district": "27",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kathleen_kennedy": {
+  "name": "Kathleen M. “Kit” Kennedy", "office": "Alaska State House Candidate (District 28)",
+  "state": "Alaska", "district": "28",
+  "partyFiled": "Registered Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "stephen_wright": {
+  "name": "Stephen Wright", "office": "Alaska State House Candidate (District 28)",
+  "state": "Alaska", "district": "28",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jessica_kalarchik": {
+  "name": "Jessica I. Kusner-Kalarchik", "office": "Alaska State House Candidate (District 29)",
+  "state": "Alaska", "district": "29",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "steve_menard": {
+  "name": "Steve Menard", "office": "Alaska State House Candidate (District 29)",
+  "state": "Alaska", "district": "29",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "gerald_nelson": {
+  "name": "Gerald “Garret” Nelson", "office": "Alaska State House Candidate (District 29)",
+  "state": "Alaska", "district": "29",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kimberly_slone": {
+  "name": "Kimberly Slone", "office": "Alaska State House Candidate (District 29)",
+  "state": "Alaska", "district": "29",
+  "partyFiled": "Registered Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sandra_loomis": {
+  "name": "Sandra D. Loomis", "office": "Alaska State House Candidate (District 30)",
+  "state": "Alaska", "district": "30",
+  "partyFiled": "Registered Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "doug_massie": {
+  "name": "Doug Massie", "office": "Alaska State House Candidate (District 30)",
+  "state": "Alaska", "district": "30",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "aimee_moore": {
+  "name": "Aimée Moore", "office": "Alaska State House Candidate (District 31)",
+  "state": "Alaska", "district": "31",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jonathan_mark": {
+  "name": "Jonathan Powell-Mark", "office": "Alaska State House Candidate (District 31)",
+  "state": "Alaska", "district": "31",
+  "partyFiled": "Registered Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "barbara_haney": {
+  "name": "Barbara Haney", "office": "Alaska State House Candidate (District 33)",
+  "state": "Alaska", "district": "33",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "pepper_mcfarland": {
+  "name": "Pepper McFarland", "office": "Alaska State House Candidate (District 33)",
+  "state": "Alaska", "district": "33",
+  "partyFiled": "Undeclared", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "glenn_prax": {
+  "name": "Glenn M. “Mike” Prax", "office": "Alaska State House Candidate (District 33)",
+  "state": "Alaska", "district": "33",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "joy_cottle": {
+  "name": "Joy E. “Joy Beth” Cottle", "office": "Alaska State House Candidate (District 34)",
+  "state": "Alaska", "district": "34",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "harmony_tomaszewski": {
+  "name": "Harmony Tomaszewski", "office": "Alaska State House Candidate (District 34)",
+  "state": "Alaska", "district": "34",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jeffrey_rentzel": {
+  "name": "Jeffrey L. “Jeff” Rentzel", "office": "Alaska State House Candidate (District 35)",
+  "state": "Alaska", "district": "35",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "crystal_jones": {
+  "name": "Crystal Jones", "office": "Alaska State House Candidate (District 36)",
+  "state": "Alaska", "district": "36",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rebecca_schwanke": {
+  "name": "Rebecca A. Schwanke", "office": "Alaska State House Candidate (District 36)",
+  "state": "Alaska", "district": "36",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "mark_smith": {
+  "name": "Mark Smith", "office": "Alaska State House Candidate (District 37)",
+  "state": "Alaska", "district": "37",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "evelynn_trefon": {
+  "name": "Evelynn M. Trefon", "office": "Alaska State House Candidate (District 37)",
+  "state": "Alaska", "district": "37",
+  "partyFiled": "Registered Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brenda_wilson": {
+  "name": "Brenda L. Wilson", "office": "Alaska State House Candidate (District 37)",
+  "state": "Alaska", "district": "37",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cade_woods": {
+  "name": "Cade J. Woods", "office": "Alaska State House Candidate (District 37)",
+  "state": "Alaska", "district": "37",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "joseph_amik": {
+  "name": "Joseph R. Amik", "office": "Alaska State House Candidate (District 38)",
+  "state": "Alaska", "district": "38",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "willy_keppel": {
+  "name": "WIlly Keppel", "office": "Alaska State House Candidate (District 38)",
+  "state": "Alaska", "district": "38",
+  "partyFiled": "Registered Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "cj_mccormick": {
+  "name": "CJ McCormick", "office": "Alaska State House Candidate (District 38)",
+  "state": "Alaska", "district": "38",
+  "partyFiled": "Registered Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tyler_ivanoff": {
+  "name": "Tyler Ivanoff", "office": "Alaska State House Candidate (District 39)",
+  "state": "Alaska", "district": "39",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "reynold_okitkun": {
+  "name": "Reynold D. “Papa Joe” Okitkun", "office": "Alaska State House Candidate (District 39)",
+  "state": "Alaska", "district": "39",
+  "partyFiled": "Nonpartisan", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "saima_chase": {
+  "name": "Saima Chase", "office": "Alaska State House Candidate (District 40)",
+  "state": "Alaska", "district": "40",
+  "partyFiled": "Registered Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Rhode Island — https://vote.sos.ri.gov/Forms/elections/Reports/Candidates.xlsx
+ "brian_coogan": {
+  "name": "Brian G. Coogan", "office": "Rhode Island State Senate Candidate (District 14)",
+  "state": "Rhode Island", "district": "14",
+  "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "john_barr": {
+  "name": "John Douglas Barr II", "office": "Rhode Island State Senate Candidate (District 17)",
+  "state": "Rhode Island", "district": "17",
+  "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jina_petrarca": {
+  "name": "Jina N. Petrarca", "office": "Rhode Island State Senate Candidate (District 17)",
+  "state": "Rhode Island", "district": "17",
+  "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brittany_kubicek": {
+  "name": "Brittany M. Kubicek", "office": "Rhode Island State House Candidate (District 5)",
+  "state": "Rhode Island", "district": "5",
+  "partyFiled": "Independent-Socialist", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "allan_fung": {
+  "name": "Allan W. Fung", "office": "Rhode Island State House Candidate (District 15)",
+  "state": "Rhode Island", "district": "15",
+  "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "patrick_maloney": {
+  "name": "Patrick E. Maloney Jr", "office": "Rhode Island State House Candidate (District 19)",
+  "state": "Rhode Island", "district": "19",
+  "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jean_barros": {
+  "name": "Jean P. Barros", "office": "Rhode Island State House Candidate (District 59)",
+  "state": "Rhode Island", "district": "59",
+  "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "joseph_depasquale": {
+  "name": "Joseph A. DePasquale", "office": "Rhode Island State House Candidate (District 67)",
+  "state": "Rhode Island", "district": "67",
+  "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "arlette_hidalgo": {
+  "name": "Arlette Hidalgo", "office": "Rhode Island State House Candidate (District 12)",
+  "state": "Rhode Island", "district": "12",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "derick_reels": {
+  "name": "Derick A. Reels", "office": "Rhode Island State House Candidate (District 13)",
+  "state": "Rhode Island", "district": "13",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "colleen_crudele": {
+  "name": "Colleen M. Crudele", "office": "Rhode Island State House Candidate (District 15)",
+  "state": "Rhode Island", "district": "15",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jessica_gomes": {
+  "name": "Jessica Gomes", "office": "Rhode Island State House Candidate (District 18)",
+  "state": "Rhode Island", "district": "18",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "zakary_pereira": {
+  "name": "Zakary J. Pereira", "office": "Rhode Island State House Candidate (District 22)",
+  "state": "Rhode Island", "district": "22",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "barbara_quigley": {
+  "name": "Barbara Quigley", "office": "Rhode Island State House Candidate (District 22)",
+  "state": "Rhode Island", "district": "22",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "william_muto": {
+  "name": "William Muto", "office": "Rhode Island State House Candidate (District 23)",
+  "state": "Rhode Island", "district": "23",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "dana_traversie": {
+  "name": "Dana James Traversie", "office": "Rhode Island State House Candidate (District 23)",
+  "state": "Rhode Island", "district": "23",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "thomas_noret": {
+  "name": "Thomas E. Noret", "office": "Rhode Island State House Candidate (District 25)",
+  "state": "Rhode Island", "district": "25",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "angela_coburn": {
+  "name": "Angela S. Coburn", "office": "Rhode Island State House Candidate (District 27)",
+  "state": "Rhode Island", "district": "27",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lawrence_almagno": {
+  "name": "Lawrence P. Almagno, Jr.", "office": "Rhode Island State House Candidate (District 27)",
+  "state": "Rhode Island", "district": "27",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "james_sheehan": {
+  "name": "James C. Sheehan", "office": "Rhode Island State House Candidate (District 31)",
+  "state": "Rhode Island", "district": "31",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jessica_day": {
+  "name": "Jessica Drew Day", "office": "Rhode Island State House Candidate (District 33)",
+  "state": "Rhode Island", "district": "33",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jennifer_nerbonne": {
+  "name": "Jennifer P. Nerbonne", "office": "Rhode Island State House Candidate (District 35)",
+  "state": "Rhode Island", "district": "35",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "christopher_stanton": {
+  "name": "Christopher M. Stanton", "office": "Rhode Island State House Candidate (District 37)",
+  "state": "Rhode Island", "district": "37",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jasmin_roy": {
+  "name": "Jasmin Roy", "office": "Rhode Island State House Candidate (District 39)",
+  "state": "Rhode Island", "district": "39",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "michael_chippendale": {
+  "name": "Michael Chippendale", "office": "Rhode Island State House Candidate (District 40)",
+  "state": "Rhode Island", "district": "40",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "shaina_smith": {
+  "name": "Shaina N. Smith", "office": "Rhode Island State House Candidate (District 41)",
+  "state": "Rhode Island", "district": "41",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "michael_riley": {
+  "name": "Michael J. Riley", "office": "Rhode Island State House Candidate (District 41)",
+  "state": "Rhode Island", "district": "41",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "edward_stravato": {
+  "name": "Edward W. Stravato", "office": "Rhode Island State House Candidate (District 42)",
+  "state": "Rhode Island", "district": "42",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "richard_fascia": {
+  "name": "Richard R. Fascia", "office": "Rhode Island State House Candidate (District 42)",
+  "state": "Rhode Island", "district": "42",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "joseph_hosey": {
+  "name": "Joseph Hosey", "office": "Rhode Island State House Candidate (District 44)",
+  "state": "Rhode Island", "district": "44",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "veronicka_vega": {
+  "name": "Veronicka Vega", "office": "Rhode Island State House Candidate (District 49)",
+  "state": "Rhode Island", "district": "49",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "robert_phillips": {
+  "name": "Robert D. Phillips", "office": "Rhode Island State House Candidate (District 51)",
+  "state": "Rhode Island", "district": "51",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "suzanna_alba": {
+  "name": "Suzanna L. Alba", "office": "Rhode Island State House Candidate (District 53)",
+  "state": "Rhode Island", "district": "53",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "william_obrien": {
+  "name": "William W. O'Brien", "office": "Rhode Island State House Candidate (District 54)",
+  "state": "Rhode Island", "district": "54",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "arthur_corvese": {
+  "name": "Arthur J. Corvese", "office": "Rhode Island State House Candidate (District 55)",
+  "state": "Rhode Island", "district": "55",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nicole_jellinek": {
+  "name": "Nicole P. Jellinek", "office": "Rhode Island State House Candidate (District 67)",
+  "state": "Rhode Island", "district": "67",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "amy_santiago": {
+  "name": "Amy J. Santiago", "office": "Rhode Island State House Candidate (District 7)",
+  "state": "Rhode Island", "district": "7",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "christopher_ireland": {
+  "name": "Christopher L. Ireland", "office": "Rhode Island State House Candidate (District 7)",
+  "state": "Rhode Island", "district": "7",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "john_edwards": {
+  "name": "John G. Edwards", "office": "Rhode Island State House Candidate (District 70)",
+  "state": "Rhode Island", "district": "70",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jacob_bissaillon": {
+  "name": "Jacob Bissaillon", "office": "Rhode Island State Senate Candidate (District 1)",
+  "state": "Rhode Island", "district": "1",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "nelly_burdette": {
+  "name": "Nelly Burdette", "office": "Rhode Island State Senate Candidate (District 17)",
+  "state": "Rhode Island", "district": "17",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "robert_britto": {
+  "name": "Robert Britto", "office": "Rhode Island State Senate Candidate (District 18)",
+  "state": "Rhode Island", "district": "18",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "leonidas_raptakis": {
+  "name": "Leonidas Peter Raptakis", "office": "Rhode Island State Senate Candidate (District 33)",
+  "state": "Rhode Island", "district": "33",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "james_pierson": {
+  "name": "James P. Pierson", "office": "Rhode Island State Senate Candidate (District 33)",
+  "state": "Rhode Island", "district": "33",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "samantha_wilcox": {
+  "name": "Samantha R. Wilcox", "office": "Rhode Island State Senate Candidate (District 34)",
+  "state": "Rhode Island", "district": "34",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "virginia_sosnowski": {
+  "name": "Virginia Susan Sosnowski", "office": "Rhode Island State Senate Candidate (District 37)",
+  "state": "Rhode Island", "district": "37",
+  "party": "D", "partyFiled": "Democrat", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "westin_place": {
+  "name": "Westin J. Place", "office": "Rhode Island State Senate Candidate (District 38)",
+  "state": "Rhode Island", "district": "38",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "william_connell": {
+  "name": "William D. Connell, Jr.", "office": "Rhode Island State Senate Candidate (District 5)",
+  "state": "Rhode Island", "district": "5",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
 // ── Current candidates outside Utah, 2026 general election, official state lists (Oct 2026)
 // Every nominee on the November 3, 2026 general-election ballot for U.S. Senate,
 // U.S. House, and the statewide offices the roster already tracks (Governor,
@@ -40453,5 +47550,50 @@ window.CMP_CANDIDACIES = {
  // WI Governor · Republican
  "thomas_tiffany": { "office": "Governor Candidate", "state": "Wisconsin", "partyFiled": "Republican", "candidacyStatus": "active", "nextElection": "2026-11-03" },
  // WY U.S. Senate · Republican
- "harriet_hageman": { "office": "U.S. Senate Candidate", "state": "Wyoming", "partyFiled": "Republican", "candidacyStatus": "active", "nextElection": "2026-11-03" }
+ "harriet_hageman": { "office": "U.S. Senate Candidate", "state": "Wyoming", "partyFiled": "Republican", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // ── Sitting Nebraska, South Dakota, Idaho, Montana, Alaska and Rhode Island
+ // legislators who are 2026 nominees for a DIFFERENT legislative seat. Each
+ // key is the member's own roster shell, untouched; the candidacy is read from
+ // the same official lists as the legislative candidate rows
+ // (db/roster-candidates-legislative-ne-sd-id-mt-ak-ri-2026-oct.json).
+ // SD State Senate District 2 · REP
+ "sjaarda_sd": { "office": "South Dakota State Senate Candidate (District 2)", "state": "South Dakota", "district": "2", "partyFiled": "REP", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // SD State Senate District 15 · DEM
+ "muckey_sd": { "office": "South Dakota State Senate Candidate (District 15)", "state": "South Dakota", "district": "15", "partyFiled": "DEM", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // SD State Senate District 26 · REP
+ "reimer_sd": { "office": "South Dakota State Senate Candidate (District 26)", "state": "South Dakota", "district": "26", "partyFiled": "REP", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // SD State Senate District 27 · IND
+ "pourier_sd": { "office": "South Dakota State Senate Candidate (District 27)", "state": "South Dakota", "district": "27", "partyFiled": "IND", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // ID State Senate District 16 · Democratic
+ "galaviz_id": { "office": "Idaho State Senate Candidate (District 16)", "state": "Idaho", "district": "16", "partyFiled": "Democratic", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // MT State Senate District 4 · REP
+ "regier_mt": { "office": "Montana State Senate Candidate (District 4)", "state": "Montana", "district": "4", "partyFiled": "REP", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // MT State Senate District 8 · DEM
+ "running_wolf_mt": { "office": "Montana State Senate Candidate (District 8)", "state": "Montana", "district": "8", "partyFiled": "DEM", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // MT State Senate District 9 · REP
+ "jones_mt": { "office": "Montana State Senate Candidate (District 9)", "state": "Montana", "district": "9", "partyFiled": "REP", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // MT State Senate District 12 · REP
+ "george_nikolakakos_mt": { "office": "Montana State Senate Candidate (District 12)", "state": "Montana", "district": "12", "partyFiled": "REP", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // MT State Senate District 14 · REP
+ "albus_mt": { "office": "Montana State Senate Candidate (District 14)", "state": "Montana", "district": "14", "partyFiled": "REP", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // MT State Senate District 18 · REP
+ "kmetz_mt": { "office": "Montana State Senate Candidate (District 18)", "state": "Montana", "district": "18", "partyFiled": "REP", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // MT State Senate District 29 · DEM
+ "rosenzweig_mt": { "office": "Montana State Senate Candidate (District 29)", "state": "Montana", "district": "29", "partyFiled": "DEM", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // MT State Senate District 32 · DEM
+ "kortum_mt": { "office": "Montana State Senate Candidate (District 32)", "state": "Montana", "district": "32", "partyFiled": "DEM", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // MT State Senate District 34 · REP
+ "caleb_hinkle_mt": { "office": "Montana State Senate Candidate (District 34)", "state": "Montana", "district": "34", "partyFiled": "REP", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // MT State Senate District 43 · REP
+ "bedey_mt": { "office": "Montana State Senate Candidate (District 43)", "state": "Montana", "district": "43", "partyFiled": "REP", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // MT State House District 57 · DEM
+ "edwards_mt": { "office": "Montana State House Candidate (District 57)", "state": "Montana", "district": "57", "partyFiled": "DEM", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // MT State House District 81 · DEM
+ "ellis_mt": { "office": "Montana State House Candidate (District 81)", "state": "Montana", "district": "81", "partyFiled": "DEM", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // AK State Senate District C · Registered Republican
+ "stutes_ak": { "office": "Alaska State Senate Candidate (District C)", "state": "Alaska", "district": "C", "partyFiled": "Registered Republican", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // AK State Senate District Q · Registered Republican
+ "tomaszewski_ak": { "office": "Alaska State Senate Candidate (District Q)", "state": "Alaska", "district": "Q", "partyFiled": "Registered Republican", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // AK State Senate District S · Undeclared
+ "edgmon_ak": { "office": "Alaska State Senate Candidate (District S)", "state": "Alaska", "district": "S", "partyFiled": "Undeclared", "candidacyStatus": "active", "nextElection": "2026-11-03" }
 };

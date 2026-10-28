@@ -492,6 +492,13 @@ const DISTINCT_PEOPLE = {
   // Colorado State Senator, Senate District 30 (co-ballot-2026.js). The
   // Georgia House and leg.colorado.gov each list him as "John Carson".
   "john carson": ["carson_co", "carson_ga"],
+  // North Carolina's U.S. Representative for NC-08, and Idaho State Senator,
+  // Legislative District 35 (ne/sd/id/mt/ak/ri roster shells). The Idaho
+  // Legislature lists him as "Mark Harris", with no initial or suffix.
+  "mark harris": ["mark_harris", "mark_harris_id"],
+  // Tennessee State Representative (tn roster shells), and a Montana State House
+  // District 78 candidate for 2026. Montana's candidate list prints "MARK WHITE".
+  "mark white": ["mark_white", "mark_white_tn"],
 };
 let nameChecked = 0;
 for (const [key, ids] of byName) {
@@ -959,8 +966,15 @@ const curatedVocab = new Set([
 //   the House corpus. Different state, different district, different chamber history. The
 //   Michigan Rogers holds no House record in this corpus and needs a roster record of his own,
 //   which is a content decision; aliasing him onto Alabama's file is not a substitute for one.
+//
+//   becky_edwards → NOT edwards_mt. The curated `becky_edwards` block is Utah's Becky
+//   Edwards — its stance cards cite utah.gov commission minutes. `edwards_mt` is Montana
+//   State Representative Becky Edwards, House District 61, a roster shell read from the
+//   Montana Legislature's member list (db/roster-state-legislators-ne-sd-id-mt-ak-ri-
+//   2026-oct.json). Different state, different legislature.
 const NOT_THE_SAME_PERSON = {
   mike_rogers: "mike_rogers_al",
+  becky_edwards: "edwards_mt",
 };
 
 let profileChecked = 0;

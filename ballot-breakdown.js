@@ -688,8 +688,19 @@
       push(pid);
       var pr = (typeof window.PROFILES !== 'undefined' && window.PROFILES) ? window.PROFILES[pid] : null;
       var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
-      push(_photoSlug(pr && pr.name));
-      push(_photoSlug(d && d.name));
+      // A NAME SLUG THAT IS SOMEONE ELSE'S ROSTER ID IS SOMEONE ELSE. Idaho
+      // Senator Mark Harris (mark_harris_id) slugs to `mark_harris`, North
+      // Carolina's U.S. Representative; borrowing that row's face would print
+      // one person's portrait on another's card. A slug naming a different
+      // roster row from another state is skipped; every other slug is kept.
+      var st = function (r) { return String((r && r.state) || '').split(' \u00b7')[0].trim(); };
+      var mine = function (k) {
+        var o = (k && k !== pid && typeof CMP_DATA !== 'undefined') ? CMP_DATA[k] : null;
+        return !(o && d && st(o) && st(d) && st(o) !== st(d));
+      };
+      var s1 = _photoSlug(pr && pr.name), s2 = _photoSlug(d && d.name);
+      if (mine(s1)) push(s1);
+      if (mine(s2)) push(s2);
       var tables = [window.PDX_PROFILE_ALIAS, window.STANCE_ALIASES, window.PDX_PID_ALIASES];
       for (var t = 0; t < tables.length; t++) {
         var tbl = tables[t];

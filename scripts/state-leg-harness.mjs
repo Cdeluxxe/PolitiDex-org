@@ -281,6 +281,38 @@ export function boot(loc, override) {
   win._currentVoterLocation = loc;
   return win;
 }
+// THE ROSTER WITHOUT THE SIX STATES' SHELLS. The lines-only suites for
+// Nebraska, South Dakota, Idaho, Montana, Alaska and Rhode Island were written
+// when no legislator of theirs was on file: they pin that a mapped seat with no
+// record names nobody, and seat their own fixture records on empty seats. The
+// six-state pass put every sitting member on file (test-six-state-deepen.mjs
+// holds those), so those suites boot this roster — cmp-data.js with that pass's
+// two blocks carved out — and keep testing what they were written to test.
+export const SIX_STATE_BANNERS = [
+  "// ── Sitting state legislators, Nebraska, South Dakota, Idaho, Montana, Alaska and Rhode Island — roster shells (Oct 2026)",
+  "// ── 2026 state legislative candidates, Nebraska, South Dakota, Idaho, Montana, Alaska and Rhode Island (Oct 2026)",
+];
+export const withoutSixStateShells = (src) => {
+  let out = String(src);
+  for (const b of SIX_STATE_BANNERS) {
+    const a = out.indexOf(b);
+    if (a < 0) continue;
+    const z = out.indexOf("\n// ── ", a + b.length);
+    if (z < 0) throw new Error("state-leg-harness: a six-state block has no following banner");
+    out = out.slice(0, a) + out.slice(z + 1);
+  }
+  // …and the pass's two edits outside those blocks: the cross-seat entries it
+  // appended to the candidacies table, and the district it gave Don Bacon.
+  const c = out.indexOf(",\n // ── Sitting Nebraska, South Dakota, Idaho, Montana, Alaska and Rhode Island\n");
+  if (c >= 0) out = out.slice(0, c) + "\n" + out.slice(out.indexOf("\n};", c) + 1);
+  out = out.replace('  "state": "Nebraska",\n  "district": "2",\n  "party": "R",', '  "state": "Nebraska",\n  "party": "R",');
+  return out;
+};
+let _noSix = null;
+export function bootWithoutSixStateShells(loc, override) {
+  if (_noSix === null) _noSix = withoutSixStateShells(R("cmp-data.js"));
+  return boot(loc, Object.assign({ "cmp-data.js": _noSix }, override || {}));
+}
 export const levelOf = (w, key) => (w.pdxRepsForMe().levels || []).filter((l) => l.key === key)[0] || null;
 export const band = (w) => { w.PDXWhoRepresentsMe.sync(); return String(w.document.getElementById("wrm-reps").innerHTML); };
 export const tigerUrls = (wire) => wire.filter((u) => u.indexOf("tigerweb") >= 0);

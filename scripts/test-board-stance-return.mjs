@@ -32,7 +32,7 @@ const R = (f) => readFileSync(join(ROOT, f), "utf8");
 // generated Utah and federal board.
 const PLAN = planBoards().boards;
 const BOARD_TOTAL = HAND_SEATS.length + PLAN.length;
-const UT_TOTAL = HAND_SEATS.length + PLAN.filter((b) => !b.federal && !b.stateLeg).length;
+const UT_TOTAL = HAND_SEATS.length + PLAN.filter((b) => !b.federal && !b.stateLeg && !b.outsideUtah).length;
 
 let passed = 0;
 const failures = [];

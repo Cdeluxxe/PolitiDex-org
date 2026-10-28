@@ -227,7 +227,9 @@ for (const [chamber, count] of [["statehouse", 75], ["statesenate", 29]]) {
 {
   const { boards } = planBoards();
   // The contested Pennsylvania legislative boards (v469) are races, not candidates.
-  eq(boards.filter((b) => !b.stateLeg).length, 518, "the board plan is unchanged");
+  // The six states' governor boards and NE-2 (sitting members, opened by
+  // test-six-state-deepen.mjs's pass) are not candidate boards.
+  eq(boards.filter((b) => !b.stateLeg && !b.outsideUtah && b.seat !== "ne-house-2").length, 518, "the board plan is unchanged");
   ok(!boards.some((b) => CANDS.has(b.pid) || CANDS.has(b.joinPid)), "no board names a candidate as its member");
 }
 {
