@@ -11292,7 +11292,19 @@
 //     precached. No location key is migrated, renamed or copied. No board is
 //     added.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v495';
+// v496 - RELATED ISSUES ON A PERSON FILE, BATCH 1: WATER / LAND / ENERGY.
+//     A new related-issues.js prints, under the topic tree, one line per linked
+//     pair on which the person has a published direction (supports or opposes)
+//     on both sides: Water Conservation / Data Centers & Water, Protect Public
+//     Lands / Energy & Resource Development, Protect Public Lands / Expand
+//     Domestic Energy Production, Water Conservation / Expand Domestic Energy
+//     Production. Two directions side by side; no score, no badge. Omitted when
+//     no pair is complete. related-issues.js is newly precached and
+//     profiles-full.js and person-file.css are changed, so the shell moves one
+//     version. Drawers, Direction Match and effect lines are unchanged.
+//     No location key is migrated, renamed or copied. No board is added.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v496';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -11949,6 +11961,9 @@ const SHELL_ASSETS = [
   // PDXIssueColors, CORE_NATIONAL_ISSUES) is a guarded optional lookup.
   '/stance-tree.js',
   '/stance-tree.css',
+  // 🔗 Linked issue pairs on a person file (window.PDXRelatedIssues). Read by
+  // profiles-full.js under a guard, so a missing copy only omits the section.
+  '/related-issues.js',
   // 🧩 The dossier join layer (window.PDXDossier) and its stylesheet — the single
   // place that threads one issue through word → action → evidence → issue and
   // spotlight → outcome, and the source of the compact Spotlight rail and digest.
