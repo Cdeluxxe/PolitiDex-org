@@ -11395,7 +11395,16 @@
 //     related-issues.js, consistency.js and person-file.css are precached and
 //     changed, so the shell moves one version.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v506';
+// v507 - RELATED ISSUES: RECORD-LINE COLOUR AND ISSUE ICONS.
+//     "record runs with" takes the supports green and "record runs against"
+//     the opposes red; the wording is unchanged so the line stays a record
+//     reading. Every related-issue name is led by its chip icon, inside the
+//     existing link. The map, which issues appear, the stated lines, scores,
+//     Direction Match and the vote table are unchanged. related-issues.js,
+//     consistency.js and person-file.css are precached and changed, so the
+//     shell moves one version.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v507';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

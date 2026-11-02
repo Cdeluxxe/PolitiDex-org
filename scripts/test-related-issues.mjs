@@ -39,7 +39,7 @@ let passed = 0;
 const failures = [];
 const ok = (cond, msg) => { if (cond) passed++; else failures.push(msg); };
 const eq = (a, b, msg) => ok(a === b, `${msg}\n      got:  ${JSON.stringify(a)}\n      want: ${JSON.stringify(b)}`);
-const strip = (h) => h.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
+const strip = (h) => h.replace(/<span class="pdxri-ico"[^>]*>[^<]*<\/span> /g, "").replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
 
 function boot(posMaps) {
   const win = makeSandbox();
@@ -114,7 +114,7 @@ const LBL = (k) => String(IM[k].label).replace(/^[^A-Za-z0-9]+/, "").trim();
   eq(RI.sectionHtml("none", {}), "", "no positions: no section");
   eq(RI.sectionHtml("lonely", {}), "", "positions on unrelated issues only: no section");
 
-  const doors = [...h.matchAll(/<a class="pdxri-go" href="([^"]*)" data-pdxri-go="([^"]*)" data-pdxc-gap="([^"]*)" data-pdxc-gap-pid="([^"]*)"[^>]*>([^<]*)<\/a>/g)];
+  const doors = [...h.matchAll(/<a class="pdxri-go" href="([^"]*)" data-pdxri-go="([^"]*)" data-pdxc-gap="([^"]*)" data-pdxc-gap-pid="([^"]*)"[^>]*>(?:<span class="pdxri-ico" aria-hidden="true">[^<]*<\/span> )?([^<]*)<\/a>/g)];
   const names = (h.match(/class="pdxri-issue"/g) || []).length;
   eq(doors.length, names, "every issue name in the section is a link");
   for (const d of doors) {
@@ -161,8 +161,17 @@ const LBL = (k) => String(IM[k].label).replace(/^[^A-Za-z0-9]+/, "").trim();
   ok(items(groups.lands_keep_public).includes(`${LBL("lands_balance")}: record runs with`) &&
      !items(groups.lands_keep_public).some((l) => l.startsWith(`${LBL("lands_balance")}: s`) || l.startsWith(`${LBL("lands_balance")}: o`)),
      "a record-only related issue shows only the record line");
-  ok(/<span class="pdxri-rec">record runs against<\/span>/.test(h) && !/pdxri-rec[^"]*s-(support|oppose)/.test(h),
-     "the record word is neutral, never the position tint");
+  ok(/<span class="pdxri-rec r-against">record runs against<\/span>/.test(h), "record runs against does not carry the red class");
+  ok(/<span class="pdxri-rec r-with">record runs with<\/span>/.test(h), "record runs with does not carry the green class");
+  ok(!/class="pdxri-dir[^"]*">record/.test(h), "a record word is printed as a stated position");
+  // Icons: every name is led by its chip icon, inside the one link.
+  const names = [...h.matchAll(/<span class="pdxri-issue" data-pdxri-color="([^"]+)"[^>]*>(?:<a class="pdxri-go"[^>]*>)?(<span class="pdxri-ico" aria-hidden="true">([^<]*)<\/span> )?/g)];
+  ok(names.length > 0, "no names to check for icons");
+  for (const [, key, sp, ico] of names) {
+    ok(!!sp && ico === w2.PDXRelatedIssues.iconOf(key) && ico !== "", `${key}: name lacks its issue icon`);
+    ok(String(w2.ISSUE_MAP[key].label).startsWith(ico), `${key}: icon is not the issue's chip icon`);
+  }
+  ok(!/<\/a><span class="pdxri-ico"|pdxri-ico[^>]*><a /.test(h), "the icon is a second link or sits outside the link");
   ok(/data-pdxri-line="record" data-pdxri-rec="against"/.test(h) && /data-pdxri-line="stated" data-pdxri-dir="support"/.test(h),
      "each line is marked stated or record");
   const doors = [...h.matchAll(/<a class="pdxri-go"[^>]*data-pdxc-gap="([^"]*)"/g)];
@@ -178,7 +187,7 @@ const LBL = (k) => String(IM[k].label).replace(/^[^A-Za-z0-9]+/, "").trim();
   const bh = R2.sectionHtml("bare", {});
   const bg = Object.fromEntries([...bh.matchAll(/<li class="pdxri-group" data-pdxri-issue="([^"]+)">([\s\S]*?)<\/ul><\/li>/g)].map((g) => [g[1], g[2]]));
   eq(JSON.stringify(items(bg.lands_keep_public)), JSON.stringify(["Protect Public Lands"]), "a votes-only related issue prints its bare name");
-  ok(/data-pdxri-line="votes"><span class="pdxri-issue"[^>]*><a class="pdxri-go"[^>]*data-pdxc-gap="lands_preserve"[^>]*>Protect Public Lands<\/a><\/span><\/li>/.test(bh),
+  ok(/data-pdxri-line="votes"><span class="pdxri-issue"[^>]*><a class="pdxri-go"[^>]*data-pdxc-gap="lands_preserve"[^>]*>(?:<span class="pdxri-ico" aria-hidden="true">[^<]*<\/span> )?Protect Public Lands<\/a><\/span><\/li>/.test(bh),
      "the bare name is a link, with no colon and no word");
 }
 

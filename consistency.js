@@ -2379,7 +2379,9 @@
       '.pdxri-drawer .pdxri-issue{font-weight:600;color:var(--pdx-ic-ink,inherit);}' +
       '.pdxri-drawer .pdxri-dir.s-support{color:#4ade80;}' +
       '.pdxri-drawer .pdxri-dir.s-oppose{color:#f87171;}' +
-      '.pdxri-drawer .pdxri-rec{color:#9fb4d4;}' +
+      '.pdxri-drawer .pdxri-rec.r-with{color:#4ade80;}' +
+      '.pdxri-drawer .pdxri-rec.r-against{color:#f87171;}' +
+      '.pdxri-drawer .pdxri-ico{font-weight:400;}' +
       '.pdxri-drawer .pdxri-go{color:inherit;text-decoration:underline;' +
         'text-decoration-color:rgba(143,166,198,0.45);text-underline-offset:2px;}' +
       '.pdxri-drawer .pdxri-go:hover,.pdxri-drawer .pdxri-go:focus-visible{text-decoration-color:currentColor;}' +

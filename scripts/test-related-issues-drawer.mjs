@@ -80,11 +80,11 @@ function boot(withModule, extra) {
   }
   return win;
 }
-const text = (h) => String(h || "").replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
+const text = (h) => String(h || "").replace(/<span class="pdxri-ico"[^>]*>[^<]*<\/span> /g, "").replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
 
 const block = (h) => (/<div class="pdxri pdxri-drawer"[\s\S]*?<\/ul><\/div>/.exec(h) || [""])[0];
 const lines = (h) => [...block(h).matchAll(/<li class="pdxri-item"[\s\S]*?<\/li>/g)].map((m) => text(m[0]));
-const doors = (html) => [...html.matchAll(/<a class="pdxri-go" href="([^"]*)" data-pdxri-go="([^"]*)" data-pdxc-gap="([^"]*)" data-pdxc-gap-pid="([^"]*)"[^>]*>([^<]*)<\/a>/g)]
+const doors = (html) => [...html.matchAll(/<a class="pdxri-go" href="([^"]*)" data-pdxri-go="([^"]*)" data-pdxc-gap="([^"]*)" data-pdxc-gap-pid="([^"]*)"[^>]*>(?:<span class="pdxri-ico" aria-hidden="true">[^<]*<\/span> )?([^<]*)<\/a>/g)]
   .map((m) => ({ href: m[1], go: m[2], key: m[3], pid: m[4], label: m[5].replace(/&amp;/g, "&") }));
 const WORD = { support: "supports", oppose: "opposes" };
 
@@ -136,7 +136,16 @@ const WORD = { support: "supports", oppose: "opposes" };
   const b = block(h);
   ok(/data-pdxri-line="record" data-pdxri-rec="against"[^>]*><span class="pdxri-issue"[^>]*><a class="pdxri-go"[^>]*data-pdxc-gap="lands_preserve"/.test(b),
      "the record line's issue name opens Protect Public Lands on Lee");
-  ok(/<span class="pdxri-rec">record runs against<\/span>/.test(b), "the record word is not the neutral record style");
+  // Lee's Protect Public Lands record line is red; a runs-with line is green.
+  ok(/data-pdxri-key="lands_preserve" data-pdxri-line="record" data-pdxri-rec="against">[\s\S]*?<span class="pdxri-rec r-against">record runs against<\/span>/.test(b),
+     "Lee's Protect Public Lands record line is not red");
+  ok(/<span class="pdxri-rec r-with">record runs with<\/span>/.test(b), "no green record-runs-with line on Lee's drawer");
+  const cs = R("consistency.js"), pf = R("person-file.css");
+  ok(cs.includes("'.pdxri-drawer .pdxri-rec.r-with{color:#4ade80;}'") && cs.includes("'.pdxri-drawer .pdxri-rec.r-against{color:#f87171;}'"),
+     "the drawer record words are not the supports green / opposes red");
+  ok(cs.includes("'.pdxri-drawer .pdxri-dir.s-support{color:#4ade80;}'") && cs.includes("'.pdxri-drawer .pdxri-dir.s-oppose{color:#f87171;}'"),
+     "the record colours no longer match the stated colours");
+  ok(/\.pdxri-rec\.r-with \{ color: #4ade80; \}/.test(pf) && /\.pdxri-rec\.r-against \{ color: #f87171; \}/.test(pf), "person-file record words are not green / red");
   ok(!/class="pdxri-dir[^"]*">record/.test(b), "a record word carries the stated position tint");
   ok(!ln.some((l) => /^Keep Public Lands Public:/.test(l)), "the open issue is repeated in its own drawer");
 }
@@ -170,6 +179,14 @@ const WORD = { support: "supports", oppose: "opposes" };
     ok(style.includes(C.getIssueColor(key).ink), `${key}: the chip ink is missing`);
   }
   ok(/\.pdxri-drawer \.pdxri-issue\{[^}]*color:var\(--pdx-ic-ink/.test(R("consistency.js")), "the drawer name does not read --pdx-ic-ink");
+  // Icons: each name is led by its issue chip icon, inside the one link.
+  const named = [...b.matchAll(/<span class="pdxri-issue" data-pdxri-color="([^"]+)"[^>]*>(<a class="pdxri-go"[^>]*>)?(?:<span class="pdxri-ico" aria-hidden="true">([^<]*)<\/span> )?/g)];
+  eq(named.length, spans.length, "icon scan missed a name");
+  for (const [, key, link, ico] of named) {
+    ok(!!ico && String(win.ISSUE_MAP[key].label).startsWith(ico), `${key}: name lacks its issue icon`);
+    ok(!!link, `${key}: icon is not inside the link`);
+  }
+  eq((b.match(/<a class="pdxri-go"/g) || []).length, (b.match(/class="pdxri-issue"/g) || []).length, "an icon added a second link");
   ok(/\.pdxri-drawer \.pdxri-go\{color:inherit;text-decoration:underline/.test(R("consistency.js")), "the drawer link lost its underline");
   ok(/\.pdxri-drawer \.pdxri-dir\.s-support\{color:#4ade80;\}/.test(R("consistency.js")) && /\.pdxri-drawer \.pdxri-dir\.s-oppose\{color:#f87171;\}/.test(R("consistency.js")),
      "the position words are no longer green / red");
@@ -282,7 +299,7 @@ const FIX = {
   const sw = R("sw.js");
   ok(sw.includes("'/related-issues.js',") && sw.includes("'/consistency.js',"), "drawer scripts are precached");
   const v = Number((sw.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1]);
-  ok(v >= 506, "shell version bumped for issue colours and votes-only lines");
+  ok(v >= 507, "shell version bumped for record colours and issue icons");
 }
 
 if (failures.length) {

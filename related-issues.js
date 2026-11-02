@@ -26,9 +26,11 @@
      thin or poleless read): the bare issue name, no word, still a link.
      None of the three: the issue is left out.
      Nothing left: no block, no heading, no empty state. The stated word takes
-     the green / red position tint; the record word is neutral, so the two are
-     never read as the same kind of claim. Every issue name takes its issue's
-     chip colour (PDXIssueColors.styleFor → --pdx-ic-ink).
+     the green / red position tint; the record word takes the same green ("runs
+     with") / red ("runs against"), and its fixed wording keeps it a voting-
+     record reading, never a stated position. Every issue name takes its issue's
+     chip colour (PDXIssueColors.styleFor → --pdx-ic-ink) and is led by its
+     chip icon, inside the link.
 
    · NO VERDICT. No score, grade, percentage, count or "contradiction" badge.
 
@@ -202,6 +204,16 @@
     return String(key);
   }
 
+  // The issue's own icon — the emoji the register label leads with, the same
+  // one its chips print. '' when the label carries none.
+  function iconOf(key) {
+    try {
+      var e = window.ISSUE_MAP && window.ISSUE_MAP[key];
+      var m = e && e.label ? /^([^A-Za-z0-9]+)/.exec(String(e.label)) : null;
+      return m ? m[1].trim() : '';
+    } catch (e2) { return ''; }
+  }
+
   function related(key) {
     return Object.prototype.hasOwnProperty.call(MAP, key) ? MAP[key].slice() : [];
   }
@@ -256,7 +268,7 @@
     var idx = recordRead(pid, key);
     var d = directionOf(pm, key), r = recordOf(pid, key, idx), v = hasVotes(idx);
     if (!d && !r && !v) return null;
-    return { key: key, label: labelOf(key),
+    return { key: key, label: labelOf(key), icon: iconOf(key),
       dir: d, word: d ? WORD[d] : '',
       rec: r, recWord: r ? REC_WORD[r] : '',
       votes: v, bare: !d && !r };
@@ -311,10 +323,12 @@
     var c = colon === false ? '' : ':';
     var st = colorStyle(it.key);
     var open = '<span class="pdxri-issue" data-pdxri-color="' + esc(it.key) + '"' + (st ? ' style="' + esc(st) + '"' : '') + '>';
-    if (!pid || it.key === openKey) return open + esc(it.label) + c + '</span>';
+    // The icon sits inside the link, so the name stays one tap.
+    var ico = it.icon ? '<span class="pdxri-ico" aria-hidden="true">' + esc(it.icon) + '</span> ' : '';
+    if (!pid || it.key === openKey) return open + ico + esc(it.label) + c + '</span>';
     return open + '<a class="pdxri-go" href="' + esc(issueHref(pid, it.key)) + '"' +
       ' data-pdxri-go="' + esc(it.key) + '" data-pdxc-gap="' + esc(it.key) + '" data-pdxc-gap-pid="' + esc(pid) + '"' +
-      ' aria-label="' + esc('Open ' + it.label + ' for this file') + '">' + esc(it.label) + '</a>' + c + '</span>';
+      ' aria-label="' + esc('Open ' + it.label + ' for this file') + '">' + ico + esc(it.label) + '</a>' + c + '</span>';
   }
 
   // Up to two lines for one issue. The stated line carries the green / red
@@ -327,7 +341,7 @@
     }
     if (it.rec) {
       out += '<' + tag + ' class="' + cls + '" data-pdxri-key="' + esc(it.key) + '" data-pdxri-line="record" data-pdxri-rec="' + it.rec + '">' +
-        nameHtml(pid, it, openKey) + ' <span class="pdxri-rec">' + it.recWord + '</span></' + tag + '>';
+        nameHtml(pid, it, openKey) + ' <span class="pdxri-rec r-' + it.rec + '">' + it.recWord + '</span></' + tag + '>';
     }
     if (it.bare) {
       out += '<' + tag + ' class="' + cls + '" data-pdxri-key="' + esc(it.key) + '" data-pdxri-line="votes">' +
@@ -370,6 +384,7 @@
     lineText: lineText,
     lineTexts: lineTexts,
     recordOf: recordOf,
+    iconOf: iconOf,
     hasVotes: function (pid, key) { return hasVotes(recordRead(pid, key)); },
     sectionHtml: sectionHtml,
     drawerHtml: drawerHtml
