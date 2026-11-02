@@ -11328,7 +11328,13 @@
 //     same rules as batches 1-3. related-issues.js is precached, so the shell
 //     moves one version. Drawers, Direction Match and effect lines are
 //     unchanged. MIGRATION COST: none.
-const CACHE_VERSION = 'v499';
+// v500 - RELATED ISSUES ON A PERSON FILE, BATCH 5: GUNS / CRIME.
+//     related-issues.js gains two pairs: Protect Gun Rights / Stronger Gun
+//     Safety Laws, Tough on Crime / Criminal Justice Reform. Seventeen pairs in
+//     all; same rules as batches 1-4. related-issues.js is precached, so the
+//     shell moves one version. Drawers, Direction Match and effect lines are
+//     unchanged. MIGRATION COST: none.
+const CACHE_VERSION = 'v500';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

@@ -18,7 +18,7 @@
      Spending / Entitlement (the "Clean Air & Water" side of the red-tape pair
      is the Practical Stewardship key); batch 3 is Foreign Policy (Israel,
      Iran, Ukraine, defense, war powers, restraint); batch 4 is Education /
-     Housing. Fifteen pairs in all. The list is closed;
+     Housing; batch 5 is Guns / Crime. Seventeen pairs in all. The list is closed;
      a pair is never derived from keywords, categories or co-occurrence.
 
    · ONLY A PUBLISHED DIRECTION, ON BOTH SIDES. A direction is the person's
@@ -81,7 +81,14 @@
     { a: { key: 'edu_parental',    label: 'Parental Rights in Schools' },
       b: { key: 'public_schools',  label: 'Invest in Public Schools' } },
     { a: { key: 'housing',         label: 'Housing Affordability' },
-      b: { key: 'housing_build',   label: 'Build More Housing' } }
+      b: { key: 'housing_build',   label: 'Build More Housing' } },
+
+    // Batch 5: Guns / Crime, on the closest existing keys. There is no Red Flag
+    // Laws or Assault Weapons Ban key, so those two pairs are not here.
+    { a: { key: 'gun_rights',      label: 'Protect Gun Rights' },
+      b: { key: 'gun_safety',      label: 'Stronger Gun Safety Laws' } },
+    { a: { key: 'tough_on_crime',  label: 'Tough on Crime' },
+      b: { key: 'justice_reform',  label: 'Criminal Justice Reform' } }
   ];
 
   var WORD = { support: 'supports', oppose: 'opposes' };
