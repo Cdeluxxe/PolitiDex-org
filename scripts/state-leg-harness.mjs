@@ -66,6 +66,14 @@ const DECLARED_EDITS = [
   // insertions, so each applies only while HEAD lacks its result (`once`).
   ...Object.entries(JSON.parse(readFileSync(join(ROOT, "scripts/state-leg-ms-vt-mi-tn-edits.json"), "utf8")))
     .flatMap(([file, pairs]) => pairs.map(([from, to]) => ({ file: new RegExp(`^${file.replace(/[./]/g, "\\$&")}$`), from, to, once: true }))),
+  // The five-location-tests pass taught voter-hub-location.js to merge the
+  // reader's own state's roster-seats/<state>.js rows into its roster on a
+  // document with no cmp-data.js, and to fetch that one file. No walk, no
+  // classifier and no seat rule moved; on a document carrying cmp-data.js the
+  // resolver reads exactly what it did. The pairs are
+  // scripts/state-leg-location-tests-edits.json.
+  ...Object.entries(JSON.parse(readFileSync(join(ROOT, "scripts/state-leg-location-tests-edits.json"), "utf8")))
+    .flatMap(([file, pairs]) => pairs.map(([from, to]) => ({ file: new RegExp(`^${file.replace(/[./]/g, "\\$&")}$`), from, to, once: true }))),
 ];
 // The same pairs, undone: an earlier pass's suite that compares one of those
 // files against its own older baseline reads it with this pass's edits lifted out.

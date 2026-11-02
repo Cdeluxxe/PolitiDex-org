@@ -389,7 +389,11 @@ section("7 · the generator is current and the worker moved");
   const pre = (src) => src.slice(src.indexOf("@generated district-boards begin precache"), src.indexOf("@generated district-boards end precache"));
   eq(pre(R("sw.js")), pre(BASE("sw.js")), "the precache block moved");
   has(R("sw.js"), "// v490 - FOUR MORE STATES BOARDED WHOLE: MISSISSIPPI, VERMONT, MICHIGAN AND TENNESSEE.", "sw.js does not log the pass");
-  has(R("sw.js"), "no dd_districts row is needed and no migration was written.\n//     MIGRATION COST: none.\nconst CACHE_VERSION = 'v490';", "sw.js does not log the migration cost");
+  // The v490 entry ends on its migration cost, whichever entry or version
+  // line a later pass writes after it.
+  const v490 = R("sw.js").slice(R("sw.js").indexOf("// v490 - "));
+  has(v490.slice(0, v490.search(/\n(?:\/\/ v\d+ - |const CACHE_VERSION)/) + 1),
+    "no dd_districts row is needed and no migration was written.\n//     MIGRATION COST: none.\n", "sw.js does not log the migration cost");
 }
 
 console.log(`\n${failures.length ? "✗" : "✓"} ms/vt/mi/tn deepen: ${passed} passed, ${failures.length} failed`);
