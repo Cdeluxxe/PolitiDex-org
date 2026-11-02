@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // ─────────────────────────────────────────────────────────────────────────────
-// test-related-issues.mjs — linked issue pairs on a person file (batches 1–3)
+// test-related-issues.mjs — linked issue pairs on a person file (batches 1–4)
 // ─────────────────────────────────────────────────────────────────────────────
 // related-issues.js prints one line per linked pair on which a person has a
 // published direction (supports / opposes) on BOTH sides, and nothing else.
@@ -8,7 +8,7 @@
 //   1. OPPOSING: supports one side, opposes the other → the pair and both words.
 //   2. ALIGNING: both support or both oppose → the pair and both words.
 //   3. INCOMPLETE: one side missing (or mixed) on every pair → '' (no section).
-//   4. CLOSED LIST: exactly twelve pairs (four per batch 1–3), labels matching ISSUE_MAP,
+//   4. CLOSED LIST: exactly fifteen pairs (4 + 4 + 4 + 3), labels matching ISSUE_MAP,
 //      and a person with directions on every other key gets nothing.
 //   5. NO VERDICT: no %, score, grade or "contradiction" in the markup.
 //   6. NOTHING ELSE MOVED: the real stance map is read, not written; the hook in
@@ -56,7 +56,9 @@ const FIX = {
               healthcare: st("support"), cut_spending: st("oppose"), social_security: st("support"),
               national_debt: st("support"), gov_regulation: st("oppose"), enviro_balance: st("support"),
               israel_support: st("support"), restraint: st("support"), strong_defense: st("support"),
-              war_powers: st("oppose"), iran_policy: st("oppose"), ukraine_policy: st("support") },
+              war_powers: st("oppose"), iran_policy: st("oppose"), ukraine_policy: st("support"),
+              school_choice: st("support"), public_schools: st("oppose"), edu_parental: st("support"),
+              housing: st("support"), housing_build: st("support") },
   // batch 2
   b2conflict: { healthcare: st("support"), cut_spending: st("oppose") },
   b2align:    { social_security: st("support"), national_debt: st("support") },
@@ -72,6 +74,14 @@ const FIX = {
                 restraint: st("mixed"), war_powers: st("mixed") },
   b3plusB2:   { israel_support: st("support"), ukraine_policy: st("support"),
                 healthcare: st("support"), cut_spending: st("oppose") },
+  // batch 4
+  b4conflict: { school_choice: st("support"), public_schools: st("oppose") },
+  b4align:    { housing: st("support"), housing_build: st("support") },
+  b4alignNo:  { edu_parental: st("oppose"), public_schools: st("oppose") },
+  b4oneSide:  { school_choice: st("support"), edu_parental: st("oppose"), housing: st("support"),
+                public_schools: st("mixed"), housing_build: st("mixed") },
+  b4plusB3:   { school_choice: st("support"), housing_build: st("oppose"),
+                strong_defense: st("support"), war_powers: st("oppose") },
   // the two deferred border pairs: directions on the border keys print nothing
   border:     { border_security: st("support"), deportations: st("support"), immigration_reform: st("oppose"),
                 immig_balance: st("oppose") },
@@ -140,6 +150,26 @@ ok(RI && typeof RI.sectionHtml === "function", "module exports sectionHtml");
      "b3: incomplete batch-3 pairs drop out while a complete batch-2 pair still prints");
   eq(RI.sectionHtml("border", {}), "", "deferred border / due-process pairs are not defined");
 }
+// 2d. batch 4 opposing / aligning / incomplete
+{
+  const h = RI.sectionHtml("b4conflict", {});
+  ok(h.includes("Related issues"), "b4 conflict: section heading present");
+  ok(strip(h).includes("School Choice & Education Freedom: supports · Invest in Public Schools: opposes"),
+     "b4 conflict: both directions — " + strip(h));
+  eq((h.match(/class="pdxri-pair"/g) || []).length, 1, "b4 conflict: exactly one pair line");
+  ok(h.includes('data-pdxri-rel="conflict"'), "b4 conflict: conflict relation as data");
+  const h2 = RI.sectionHtml("b4align", {});
+  ok(strip(h2).includes("Housing Affordability: supports · Build More Housing: supports"),
+     "b4 align: both support — " + strip(h2));
+  ok(h2.includes('data-pdxri-rel="align"'), "b4 align: align relation");
+  const h3 = RI.sectionHtml("b4alignNo", {});
+  ok(strip(h3).includes("Parental Rights in Schools: opposes · Invest in Public Schools: opposes"),
+     "b4 align: both oppose — " + strip(h3));
+  eq(RI.sectionHtml("b4oneSide", {}), "", "b4: one side missing or mixed on every pair: section omitted");
+  const rows = RI.pairsFor("b4plusB3", {});
+  eq(rows.map((r) => r.a.key + "|" + r.b.key).join(","), "strong_defense|war_powers",
+     "b4: incomplete batch-4 pairs drop out while a complete batch-3 pair still prints");
+}
 // 3. incomplete → nothing
 eq(RI.sectionHtml("oneSide", {}), "", "one side of every pair: section omitted");
 eq(RI.sectionHtml("mixed", {}), "", "mixed is not a published direction: section omitted");
@@ -160,11 +190,12 @@ eq(RI.sectionHtml("nobody", {}), "", "unknown pid: section omitted");
     "gov_regulation|enviro_balance", "healthcare|national_debt",
     "israel_support|restraint", "strong_defense|war_powers",
     "iran_policy|restraint", "ukraine_policy|strong_defense",
-  ]), "exactly twelve pairs: batch 1, batch 2, then batch 3, in order");
-  eq(RI.PAIRS.length, 12, "exactly twelve pairs in total");
+    "school_choice|public_schools", "edu_parental|public_schools", "housing|housing_build",
+  ]), "exactly fifteen pairs: batches 1 through 4, in order");
+  eq(RI.PAIRS.length, 15, "exactly fifteen pairs in total");
   eq(RI.sectionHtml("outside", {}), "", "directions on keys outside the pairs print nothing");
   const all = RI.pairsFor("all", {});
-  eq(all.length, 12, "a person with every side filled gets all twelve and no more");
+  eq(all.length, 15, "a person with every side filled gets all fifteen and no more");
   eq(all.map((r) => RI.lineText(r)).join("\n"), [
     "Water Conservation: supports · Data Centers & Water: opposes",
     "Protect Public Lands: supports · Energy & Resource Development: supports",
@@ -178,7 +209,10 @@ eq(RI.sectionHtml("nobody", {}), "", "unknown pid: section omitted");
     "Peace Through Strength: supports · Congress and War Powers: opposes",
     "Iran: opposes · Diplomacy & Restraint: supports",
     "Ukraine: supports · Peace Through Strength: supports",
-  ].join("\n"), "the twelve lines, as specified");
+    "School Choice & Education Freedom: supports · Invest in Public Schools: opposes",
+    "Parental Rights in Schools: supports · Invest in Public Schools: opposes",
+    "Housing Affordability: supports · Build More Housing: supports",
+  ].join("\n"), "the fifteen lines, as specified");
   // Labels are the shared taxonomy's own labels, emoji stripped.
   const im = makeSandbox();
   vm.runInContext(R("issue-map.js"), vm.createContext(im), { filename: "issue-map.js" });
@@ -241,7 +275,7 @@ eq(RI.sectionHtml("nobody", {}), "", "unknown pid: section omitted");
   const sw = R("sw.js");
   ok(sw.includes("'/related-issues.js',"), "related-issues.js is precached");
   const v = Number((sw.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1]);
-  ok(v >= 498, "shell version bumped for batch 3");
+  ok(v >= 499, "shell version bumped for batch 4");
   const mod = R("related-issues.js");
   ok(!/PDXConsistency|_issueVerdict|directionMatch|_DOS_EFFECT/.test(mod.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "")),
      "module reads no scoring or effect engine");

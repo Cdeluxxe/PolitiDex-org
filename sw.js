@@ -11321,7 +11321,14 @@
 //     for a Due Process & Immigration Courts issue. related-issues.js is
 //     precached, so the shell moves one version. Drawers, Direction Match and
 //     effect lines are unchanged. MIGRATION COST: none.
-const CACHE_VERSION = 'v498';
+// v499 - RELATED ISSUES ON A PERSON FILE, BATCH 4: EDUCATION / HOUSING.
+//     related-issues.js gains three pairs: School Choice & Education Freedom /
+//     Invest in Public Schools, Parental Rights in Schools / Invest in Public
+//     Schools, Housing Affordability / Build More Housing. Fifteen pairs in all;
+//     same rules as batches 1-3. related-issues.js is precached, so the shell
+//     moves one version. Drawers, Direction Match and effect lines are
+//     unchanged. MIGRATION COST: none.
+const CACHE_VERSION = 'v499';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

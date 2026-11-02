@@ -17,7 +17,8 @@
    · ONLY THE PAIRS BELOW. Batch 1 is Water / Land / Energy; batch 2 is
      Spending / Entitlement (the "Clean Air & Water" side of the red-tape pair
      is the Practical Stewardship key); batch 3 is Foreign Policy (Israel,
-     Iran, Ukraine, defense, war powers, restraint). Twelve pairs in all. The list is closed;
+     Iran, Ukraine, defense, war powers, restraint); batch 4 is Education /
+     Housing. Fifteen pairs in all. The list is closed;
      a pair is never derived from keywords, categories or co-occurrence.
 
    · ONLY A PUBLISHED DIRECTION, ON BOTH SIDES. A direction is the person's
@@ -68,7 +69,19 @@
     { a: { key: 'iran_policy',     label: 'Iran' },
       b: { key: 'restraint',       label: 'Diplomacy & Restraint' } },
     { a: { key: 'ukraine_policy',  label: 'Ukraine' },
-      b: { key: 'strong_defense',  label: 'Peace Through Strength' } }
+      b: { key: 'strong_defense',  label: 'Peace Through Strength' } },
+
+    // Batch 4: Education / Housing, on the closest existing keys. "School Choice
+    // & Parental Rights" is two keys here, so each gets its own pair; there is
+    // no zoning key, so Build More Housing (loosen zoning and permitting) stands
+    // in. No Public School Funding or Protect Local Zoning pair: those issues do
+    // not exist.
+    { a: { key: 'school_choice',   label: 'School Choice & Education Freedom' },
+      b: { key: 'public_schools',  label: 'Invest in Public Schools' } },
+    { a: { key: 'edu_parental',    label: 'Parental Rights in Schools' },
+      b: { key: 'public_schools',  label: 'Invest in Public Schools' } },
+    { a: { key: 'housing',         label: 'Housing Affordability' },
+      b: { key: 'housing_build',   label: 'Build More Housing' } }
   ];
 
   var WORD = { support: 'supports', oppose: 'opposes' };
