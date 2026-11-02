@@ -317,9 +317,18 @@ eq((dossier.match(/class="pdxdos-rec-vd pdxdos-rec-led"/g) || []).length, 0,
   "no row carries the ledger standing — it is the whole issue's, said once");
 lacks(dossierTxt, LED.LED.status, "the list itself does not repeat the standing");
 eq((sheet.match(/data-pdxdos-led="1"/g) || []).length, 1, "the sheet states the standing exactly once");
-has(sheetTxt, LED.LED.full, "and states the reason in full, above the rows");
-ok(sheet.indexOf('data-pdxdos-led="1"') < sheet.search(/data-pdxgap-record="(?:ledger|items)"/),
-  "the standing sits above the list, not inside it");
+has(sheetTxt, LED.LED.full, "and states the reason in full");
+// v493: on a sheet with a vote table the standing is the first thing inside How
+// this is scored, so the reader meets the votes first; with no table it stays
+// above the list.
+if (/data-pdxgap-record="ledger"/.test(sheet)) {
+  ok(sheet.indexOf('data-pdxdos-led="1"') > sheet.indexOf('<details class="pdxgap-how"') &&
+     sheet.indexOf('<details class="pdxgap-how"') >= 0,
+    "the standing sits inside How this is scored, not above the vote table");
+} else {
+  ok(sheet.indexOf('data-pdxdos-led="1"') < sheet.search(/data-pdxgap-record="(?:ledger|items)"/),
+    "the standing sits above the list, not inside it");
+}
 // The direction line stops teaching a said-vs-did lesson where nothing was said.
 lacks(dossierTxt, "which is why this row reads",
   "an unscored row never explains a verdict it does not have");

@@ -2439,6 +2439,12 @@
       '.pdxlg-cut-a{color:#7fd4c1;border-color:rgba(127,212,193,0.45);}' +
       '.pdxlg-cut-o{color:#f2a3a3;border-color:rgba(242,163,163,0.45);}' +
       '.pdxlg-cut-n{color:#8fa2c0;border-style:dashed;}' +
+      '.pdxlg-t tr[data-pdxlg-row]{cursor:pointer;}' +
+      // Closed, a row is one line: its effect, pointer and Also-on lines show
+      // only after a row the reader opened (_lgToggle sets data-pdxlg-open).
+      '.pdxlg-t tr.pdxlg-effr,.pdxlg-t tr.pdxlg-ptrr,.pdxlg-t tr.pdxlg-relr{display:none;}' +
+      '.pdxlg-t tr[data-pdxlg-open]+tr.pdxlg-effr,.pdxlg-t tr[data-pdxlg-open]+tr.pdxlg-ptrr,' +
+        '.pdxlg-t tr[data-pdxlg-open]+tr.pdxlg-effr+tr.pdxlg-relr{display:table-row;}' +
       '.pdxlg-tog{font:inherit;font-size:0.66rem;color:#9fdbff;background:transparent;border:none;cursor:pointer;' +
         'padding:0.2rem 0.1rem;min-height:28px;}' +
       '.pdxlg-t tr.pdxlg-morer td{border-top:none;padding:0 0.4rem 0.55rem 0;}' +
@@ -3466,6 +3472,10 @@
       // nothing on a dossier whose rows are never opened.
       // A ledger row's "Details" control: opens that one row in place.
       var lgt = e.target.closest && e.target.closest('[data-pdxlg-tog]');
+      if (!lgt && e.target.closest && !e.target.closest('a,button,input,select,textarea')) {
+        var lgr = e.target.closest('tr[data-pdxlg-row]');
+        if (lgr) lgt = lgr.querySelector('[data-pdxlg-tog]');
+      }
       if (lgt) {
         e.preventDefault();
         _lgToggle(lgt);
@@ -16980,6 +16990,13 @@
       }
       var open = row.hidden;
       row.hidden = !open;
+      // The effect, pointer and Also-on lines open with THIS row: the stylesheet
+      // shows them only after a row that carries data-pdxlg-open.
+      var own = btn.closest('tr');
+      if (own) {
+        if (open) own.setAttribute('data-pdxlg-open', '1');
+        else if (own.removeAttribute) own.removeAttribute('data-pdxlg-open');
+      }
       btn.setAttribute('aria-expanded', open ? 'true' : 'false');
     } catch (e) {}
   }
@@ -17403,12 +17420,16 @@
             '<td class="pdxlg-c">' + _dosCutChip(p, issueKey) +
               '<button type="button" class="pdxlg-tog" data-pdxlg-tog="' + p.i + '" aria-expanded="false"' +
                 ' aria-label="' + escAttr('Details for ' + (d.ident || d.billNum || 'this measure') +
-                  ': full title, the bill, other issues and how this row was coded') + '">Details' +
+                  ': what it did, full title, the bill, other issues and how this row was coded') + '">Details' +
                 '<span aria-hidden="true"> ▾</span></button>' +
             '</td>' +
           '</tr>';
         var eff = d.effLine || '';
         if (eff) {
+          // ONE LINE PER ROW UNTIL ASKED. The effect sentence and the Also-on chips
+          // are folded by the stylesheet (see .pdxlg-t tr.pdxlg-effr) and open with
+          // their own row's control, or a tap on the row, and with no other — so
+          // three votes fit on the first screen. The markup is unchanged.
           out += '<tr class="pdxlg-effr" data-pdxlg-effr="' + p.i + '">' +
             '<td colspan="5" class="pdxlg-eff" data-pdxlg-eff="1">' + esc(eff) + '</td></tr>';
           // The other issues this same act is stored on, each a door to that
@@ -20229,8 +20250,13 @@
       _laneBandHtml(_dosRow);
 
     return head +
-      // Not in Direction Match: once, here, above the list — never on each row.
-      _dosLedTopHtml(pid, issueKey, off) +
+      // Not in Direction Match: once, never on each row. On a ledger sheet it is
+      // the first thing inside How this is scored rather than a gray box between
+      // the finding and the tally: a reader meets the votes first, and the note
+      // that says why they carry no score is one tap away, word for word the same.
+      // A sheet with no ledger has no disclosure to put it in and keeps it above
+      // the list.
+      (_lgOn ? '' : _dosLedTopHtml(pid, issueKey, off)) +
       // ── THE LEDGER ── the inventory and one row per act, open. The question a
       // reader arrives with is "so what did they actually do about this", and this
       // is the only level that answers it in counts and dates.
@@ -20241,7 +20267,7 @@
       (_lgOn
         ? '<details class="pdxgap-how" data-pdxgap-how="1">' +
             '<summary><span aria-hidden="true">⚖️</span> How this is scored</summary>' +
-            '<div class="pdxgap-how-b">' + _scoredBody + _dosMethodNotesHtml(_lgT) + '</div>' +
+            '<div class="pdxgap-how-b">' + _dosLedTopHtml(pid, issueKey, off) + _scoredBody + _dosMethodNotesHtml(_lgT) + '</div>' +
           '</details>'
         : _scoredBody) +
       // ── L2 ── every instrument on this issue, closed. It sits below the two
@@ -21224,6 +21250,7 @@
     dossierActVote: _dosActVote,
     dossierLedgerHtml: _dosLedgerHtml,
     dossierLedgerMoreHtml: _dosLedgerMoreHtml,
+    ledgerToggle: _lgToggle,
     congressGovUrl: _congressGovUrl,
     dossierSaidHtml: _dosSaidHtml,
     dossierRecordsHtml: function (pid, issueKey) {

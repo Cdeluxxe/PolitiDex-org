@@ -6030,18 +6030,18 @@
       1:'Box Elder County', 2:'Cache County', 3:'Cache County', 4:'Morgan County', 5:'Cache County',
       6:'Weber County', 7:'Weber County', 8:'Weber County', 9:'Weber County', 10:'Weber County',
       11:'Weber County', 12:'Weber County', 13:'Davis County', 14:'Davis County', 15:'Davis County',
-      16:'Davis County', 17:'Weber County', 18:'Weber County', 19:'Davis County', 20:'Davis County',
+      16:'Davis County', 17:'Davis County', 18:'Davis County', 19:'Davis County', 20:'Davis County',
       21:'Salt Lake County', 22:'Salt Lake County', 23:'Salt Lake County', 24:'Salt Lake County', 25:'Salt Lake County',
-      26:'Davis County', 27:'Davis County', 28:'Tooele County', 29:'Tooele County', 30:'Salt Lake County',
+      26:'Salt Lake County', 27:'Salt Lake County', 28:'Tooele County', 29:'Tooele County', 30:'Salt Lake County',
       31:'Salt Lake County', 32:'Salt Lake County', 33:'Salt Lake County', 34:'Salt Lake County', 35:'Salt Lake County',
       36:'Salt Lake County', 37:'Salt Lake County', 38:'Salt Lake County', 39:'Salt Lake County', 40:'Salt Lake County',
       41:'Salt Lake County', 42:'Salt Lake County', 43:'Salt Lake County', 44:'Salt Lake County', 45:'Salt Lake County',
       46:'Salt Lake County', 47:'Salt Lake County', 48:'Salt Lake County', 49:'Salt Lake County', 50:'Utah County',
-      51:'Utah County', 52:'Utah County', 53:'Utah County', 54:'Salt Lake County', 55:'Utah County',
+      51:'Utah County', 52:'Utah County', 53:'Utah County', 54:'Utah County', 55:'Utah County',
       56:'Utah County', 57:'Utah County', 58:'Utah County', 59:'Wasatch County', 60:'Utah County',
       61:'Utah County', 62:'Utah County', 63:'Utah County', 64:'Utah County', 65:'Utah County',
       66:'Sanpete County', 67:'Carbon County', 68:'Uintah County', 69:'San Juan County', 70:'Sevier County',
-      71:'Iron County', 72:'Uintah County', 73:'Washington County', 74:'Washington County', 75:'Washington County'
+      71:'Iron County', 72:'Washington County', 73:'Washington County', 74:'Washington County', 75:'Washington County'
     };
 
     // Collapsible district groupings for the Utah House tree (keeps the long
@@ -6144,53 +6144,83 @@
     // clean-up existed to remove. That is merge debt for a separate pass, tracked in
     // scripts/UTAH-LAUNCH-CLEANUP-TRACKER.md.
     //
+    // A sixth pass (November 2026) wired the last 23 seats — 1, 2, 3, 7, 8, 13, 17, 18,
+    // 20, 26, 27, 32, 35, 38, 40, 47, 48, 54, 57, 58, 62, 72, 74 — to the sitting-member
+    // roster rows the August 2026 roll-call identity pass had added and left unmapped,
+    // with `c` taken from each record's own label. Six by-number fallbacks above were
+    // stale pre-2023 values that 10f would have failed on, and were corrected to the
+    // member's own county at the same time: 17 and 18 Weber→Davis, 26 and 27
+    // Davis→Salt Lake, 54 Salt Lake→Utah, 72 Uintah→Washington. All 75 seats are now
+    // covered, so as with the Senate map a new key here is a correction or a mistake.
+    //
     // Add a member here only once their district and county are verified against the
     // public record — a guess here now fails CI in both directions.
     var _UTAH_HOUSE_INFO = {
+      thomas_peterson:         { d: 1,  c: 'Box Elder County' },
+      mike_petersen:           { d: 2,  c: 'Cache County' },
+      jason_thompson:          { d: 3,  c: 'Cache County' },
       auxier_h4:               { d: 4,  c: 'Morgan County' },
       snider_h5:               { d: 5,  c: 'Cache County' },
       // District 6 spans parts of Box Elder AND Weber County; `c` is Weber because
       // 10f requires it to equal _UTAH_HOUSE_COUNTY[6], which is the by-number
       // fallback the county-relevance matcher uses. His roster record names both.
       rob_bishop:              { d: 6,  c: 'Weber County' },
+      ryan_d_wilcox:           { d: 7,  c: 'Weber County' },
+      jason_b_kyle:            { d: 8,  c: 'Weber County' },
       jake_sawyer:             { d: 9,  c: 'Weber County' },
       koford_h10:              { d: 10, c: 'Weber County' },
       hall_h11:                { d: 11, c: 'Weber County' },
       mschultz:                { d: 12, c: 'Weber County' },
+      karen_m_peterson:        { d: 13, c: 'Davis County' },
       lisonbee_h14:            { d: 14, c: 'Davis County' },
       defay_h15:               { d: 15, c: 'Davis County' },
       tlee:                    { d: 16, c: 'Davis County' },
+      stewart_e_barlow:        { d: 17, c: 'Davis County' },
+      paul_a_cutler:           { d: 18, c: 'Davis County' },
       rward:                   { d: 19, c: 'Davis County' },
+      mballard:                { d: 20, c: 'Davis County' },
       hollins_h24:             { d: 21, c: 'Salt Lake County' },
       jennifer_dailey_provost: { d: 22, c: 'Salt Lake County' },
       hoang_nguyen:            { d: 23, c: 'Salt Lake County' },
       grant_miller:            { d: 24, c: 'Salt Lake County' },
       aromero:                 { d: 25, c: 'Salt Lake County' },
+      matt_macpherson:         { d: 26, c: 'Salt Lake County' },
+      anthony_loubet:          { d: 27, c: 'Salt Lake County' },
       nicholeen_p_peck:        { d: 28, c: 'Tooele County' },
       bolinder_h68:            { d: 29, c: 'Tooele County' },
       fitisemanu_h30:          { d: 30, c: 'Salt Lake County' },
       verona_mauga:            { d: 31, c: 'Salt Lake County' },
+      sahara_hayes:            { d: 32, c: 'Salt Lake County' },
       doug_owens:              { d: 33, c: 'Salt Lake County' },
       carol_spackman_moss:     { d: 34, c: 'Salt Lake County' },
+      rosalba_dominguez:       { d: 35, c: 'Salt Lake County' },
       james_dunnigan:          { d: 36, c: 'Salt Lake County' },
       ashlee_matthews:         { d: 37, c: 'Salt Lake County' },
+      cheryl_acton:            { d: 38, c: 'Salt Lake County' },
       ivory_h39:               { d: 39, c: 'Salt Lake County' },
+      andrew_stoddard:         { d: 40, c: 'Salt Lake County' },
       john_arthur:             { d: 41, c: 'Salt Lake County' },
       clinton_okerlund:        { d: 42, c: 'Salt Lake County' },
       eliason_h45:             { d: 43, c: 'Salt Lake County' },
       teuscher_h44:            { d: 44, c: 'Salt Lake County' },
       tracy_miller:            { d: 45, c: 'Salt Lake County' },
       calvin_roberts:          { d: 46, c: 'Salt Lake County' },
+      mark_strong:             { d: 47, c: 'Salt Lake County' },
+      doug_fiefia:             { d: 48, c: 'Salt Lake County' },
       candice_pierucci:        { d: 49, c: 'Salt Lake County' },
       gricius_h50:             { d: 50, c: 'Utah County' },
       leah_hansen:             { d: 51, c: 'Utah County' },
       cory_maloy_h52:          { d: 52, c: 'Utah County' },
       kay_christofferson:      { d: 53, c: 'Utah County' },
+      kristen_chevrier:        { d: 54, c: 'Utah County' },
       jon_hawkins:             { d: 55, c: 'Utah County' },
       valpeterson_h56:         { d: 56, c: 'Utah County' },
+      nelson_abbott:           { d: 57, c: 'Utah County' },
+      david_shallenberger:     { d: 58, c: 'Utah County' },
       kohler_h59:              { d: 59, c: 'Wasatch County' },
       grant_pace:              { d: 60, c: 'Utah County' },
       lisa_shepherd:           { d: 61, c: 'Utah County' },
+      nthurston:               { d: 62, c: 'Utah County' },
       whyte_h63:               { d: 63, c: 'Utah County' },
       jackie_larson:           { d: 64, c: 'Utah County' },
       doug_welton:             { d: 65, c: 'Utah County' },
@@ -6200,7 +6230,9 @@
       logan_monson:            { d: 69, c: 'San Juan County' },
       carl_albrecht:           { d: 70, c: 'Sevier County' },
       rshipp:                  { d: 71, c: 'Iron County' },
+      joseph_elison:           { d: 72, c: 'Washington County' },
       colin_w_jack:            { d: 73, c: 'Washington County' },
+      r_neil_walter:           { d: 74, c: 'Washington County' },
       walt_brooks:             { d: 75, c: 'Washington County' }
     };
 

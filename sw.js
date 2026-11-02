@@ -11240,7 +11240,31 @@
 //     one version. The roster-seats files are runtime-cached, not precached.
 //     No location key is migrated, renamed or copied. No board is added.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v491';
+// v492 - THE LAST 23 UTAH HOUSE SEATS NAME THEIR MEMBER.
+//     Districts 1, 2, 3, 7, 8, 13, 17, 18, 20, 26, 27, 32, 35, 38, 40, 47, 48,
+//     54, 57, 58, 62, 72 and 74 had a sitting representative on the roster and
+//     no row in KR_STATE_HOUSE_INCUMBENTS, so Who Represents Me and /voice said
+//     no member was on file (Provo's HD-62, Norman K Thurston, among them). Each
+//     is now wired in ballot-breakdown.js and re-derived into seated-member.js,
+//     with _UTAH_HOUSE_INFO and six stale county fallbacks in compare-hub.js to
+//     match. seated-member.js is precached and changed, so the shell moves one
+//     version. No board is opened: scripts/gen-district-boards.mjs holds these
+//     23 seats closed by name. No new file is precached.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v493 - THE ISSUE DRAWER LEADS WITH THE VOTES.
+//     On a drawer with a vote table, the gray "On record · not in Direction
+//     Match" note no longer sits between the finding line and the tally; it is
+//     the first thing inside How this is scored, word for word the same. Each
+//     vote row is one line (date · measure · kind · vote · direction pill); its
+//     effect sentence and ALSO ON chips open with that row's Details control or
+//     a tap on the row, and every render starts collapsed. Scores, Direction
+//     Match, the effect-line rule and the Congress.gov links are unchanged.
+//     consistency.js is changed, so the shell moves one version. No new file is
+//     precached. No location key is migrated, renamed or copied. No board is
+//     added.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v493';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

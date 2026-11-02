@@ -22,7 +22,8 @@
 //      as coding; the ledger row's open content carries the full title where one is
 //      stored, a door, the other issues, and the same labelled coding block.
 //   4. DIRECTION MATCH, ONCE: where the issue is outside Direction Match the sheet
-//      says so exactly once, above the list, and no row says it.
+//      says so exactly once — inside How this is scored on a sheet with a vote
+//      table, above the list on one without — and no row says it.
 //   5. NOT SCORED YET: never printed on a drawer whose acts already cut one way.
 //   6. THE PUBLIC-RECORD GAP: on a ledger sheet with nothing on the public side,
 //      the empty Say-vs-Do note sits under the list, before the scoring disclosure.
@@ -166,9 +167,16 @@ function check(src, opts = {}) {
       const tops = (h.match(/data-pdxdos-led="1"/g) || []).length;
       ok(tops <= 1, `${where}: the Direction Match standing is said ${tops} times at the top`);
       if (tops) {
+        // On a sheet with a vote table the standing is the first thing inside How
+        // this is scored, never between the finding and the tally; a sheet with no
+        // table has no disclosure and keeps it above the list.
         const at = h.indexOf('data-pdxdos-led="1"');
-        const firstList = Math.min(...[h.indexOf('<div class="pdxlg"'), h.indexOf('<details class="pdxdos-recs"')].filter((x) => x >= 0));
-        ok(at < firstList, `${where}: the Direction Match standing is not above the list`);
+        const how = h.indexOf('<details class="pdxgap-how"');
+        if (h.indexOf('<div class="pdxlg"') >= 0) ok(how >= 0 && at > how, `${where}: the Direction Match standing is not inside How this is scored`);
+        else {
+          const firstList = Math.min(...[h.indexOf('<div class="pdxlg"'), h.indexOf('<details class="pdxdos-recs"')].filter((x) => x >= 0));
+          ok(at < firstList, `${where}: the Direction Match standing is not above the list`);
+        }
       }
       ok(!/class="pdxdos-led"(?! pdxdos-led-top)/.test(h), `${where}: the Direction Match note is still inside the list`);
 

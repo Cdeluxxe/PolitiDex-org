@@ -96,6 +96,16 @@ export const HAND_SEATS = [
   "ut-statesenate-6",
 ];
 
+// Seats WIRED TO A MEMBER BUT NOT OPENED. The November 2026 pass put the sitting
+// representative for these 23 Utah House seats into KR_STATE_HOUSE_INCUMBENTS so
+// Who Represents Me and /voice name them, and opened no room for any of them: a
+// board is a separate decision from a name. Each is skipped with its own reason,
+// so /voice prints "Sitting member: <name>" and "this room is not open". Take a
+// seat off this list to open its board.
+export const NAMED_UNBOARDED_SEATS = [
+  1, 2, 3, 7, 8, 13, 17, 18, 20, 26, 27, 32, 35, 38, 40, 47, 48, 54, 57, 58, 62, 72, 74,
+].map((n) => `ut-statehouse-${n}`);
+
 // Utah's seat counts under the 2022 legislative plan and the 2026 congressional map.
 const CHAMBERS = [
   { chamber: "statehouse", code: "hd", count: 75 },
@@ -185,6 +195,7 @@ export function planBoards() {
       }
       const pid = win.pdxSeatedMemberFor(seat, n) || "";
       if (!pid) { skipped.push({ seat, alias, reason: "no sitting pid on the roster" }); continue; }
+      if (NAMED_UNBOARDED_SEATS.includes(seat)) { skipped.push({ seat, alias, pid, reason: "member named, board not opened" }); continue; }
       const row = RO[pid];
       if (!row) { skipped.push({ seat, alias, pid, reason: "pid has no cmp-data.js row" }); continue; }
       const claim = win.pdxSeatClaim(pid, seat, n);

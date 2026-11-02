@@ -78,22 +78,26 @@
       4: { pid: 'owens',  label: 'Incumbent — current Utah U.S. Representative' }
     };
 
-  // COPIED VERBATIM FROM ballot-breakdown.js LINES 2105–2117.
+  // COPIED VERBATIM FROM ballot-breakdown.js LINES 2116–2132.
     var KR_STATE_HOUSE_INCUMBENTS = {
-      4:'auxier_h4', 5:'snider_h5', 6:'rob_bishop', 9:'jake_sawyer', 10:'koford_h10',
-      11:'hall_h11', 12:'mschultz', 14:'lisonbee_h14', 15:'defay_h15', 16:'tlee',
-      19:'rward', 21:'hollins_h24', 22:'jennifer_dailey_provost', 23:'hoang_nguyen', 24:'grant_miller',
-      25:'aromero', 28:'nicholeen_p_peck', 29:'bolinder_h68', 30:'fitisemanu_h30', 31:'verona_mauga',
-      33:'doug_owens', 34:'carol_spackman_moss', 36:'james_dunnigan', 37:'ashlee_matthews', 39:'ivory_h39',
+      1:'thomas_peterson', 2:'mike_petersen', 3:'jason_thompson', 4:'auxier_h4', 5:'snider_h5',
+      6:'rob_bishop', 7:'ryan_d_wilcox', 8:'jason_b_kyle', 9:'jake_sawyer', 10:'koford_h10',
+      11:'hall_h11', 12:'mschultz', 13:'karen_m_peterson', 14:'lisonbee_h14', 15:'defay_h15',
+      16:'tlee', 17:'stewart_e_barlow', 18:'paul_a_cutler', 19:'rward', 20:'mballard',
+      21:'hollins_h24', 22:'jennifer_dailey_provost', 23:'hoang_nguyen', 24:'grant_miller', 25:'aromero',
+      26:'matt_macpherson', 27:'anthony_loubet', 28:'nicholeen_p_peck', 29:'bolinder_h68', 30:'fitisemanu_h30',
+      31:'verona_mauga', 32:'sahara_hayes', 33:'doug_owens', 34:'carol_spackman_moss', 35:'rosalba_dominguez',
+      36:'james_dunnigan', 37:'ashlee_matthews', 38:'cheryl_acton', 39:'ivory_h39', 40:'andrew_stoddard',
       41:'john_arthur', 42:'clinton_okerlund', 43:'eliason_h45', 44:'teuscher_h44', 45:'tracy_miller',
-      46:'calvin_roberts', 49:'candice_pierucci', 50:'gricius_h50', 51:'leah_hansen', 52:'cory_maloy_h52',
-      53:'kay_christofferson', 55:'jon_hawkins', 56:'valpeterson_h56', 59:'kohler_h59', 60:'grant_pace', 61:'lisa_shepherd',
-      63:'whyte_h63', 64:'jackie_larson', 65:'doug_welton', 66:'shelley_h66', 67:'christine_watkins',
-      68:'chew_h68', 69:'logan_monson', 70:'carl_albrecht', 71:'rshipp', 73:'colin_w_jack',
-      75:'walt_brooks'
+      46:'calvin_roberts', 47:'mark_strong', 48:'doug_fiefia', 49:'candice_pierucci', 50:'gricius_h50',
+      51:'leah_hansen', 52:'cory_maloy_h52', 53:'kay_christofferson', 54:'kristen_chevrier', 55:'jon_hawkins',
+      56:'valpeterson_h56', 57:'nelson_abbott', 58:'david_shallenberger', 59:'kohler_h59', 60:'grant_pace',
+      61:'lisa_shepherd', 62:'nthurston', 63:'whyte_h63', 64:'jackie_larson', 65:'doug_welton',
+      66:'shelley_h66', 67:'christine_watkins', 68:'chew_h68', 69:'logan_monson', 70:'carl_albrecht',
+      71:'rshipp', 72:'joseph_elison', 73:'colin_w_jack', 74:'r_neil_walter', 75:'walt_brooks'
     };
 
-  // COPIED VERBATIM FROM ballot-breakdown.js LINES 2158–2165.
+  // COPIED VERBATIM FROM ballot-breakdown.js LINES 2173–2180.
     var KR_STATE_SENATE_INCUMBENTS = {
       1:'ssandall', 2:'cwilson', 3:'john_johnson', 4:'cmusselman', 5:'amillner',
       6:'jstevenson', 7:'sadams', 8:'tweiler', 9:'jennifer_plumb', 10:'lescamilla',
@@ -106,7 +110,7 @@
   // The guard. See the header: the owner's assignment is unguarded and pinned,
   // so this side is the one that yields.
   if (typeof window.pdxSeatedMemberFor !== 'function') {
-  // COPIED VERBATIM FROM ballot-breakdown.js LINES 2549–2577.
+  // COPIED VERBATIM FROM ballot-breakdown.js LINES 2564–2592.
     function _pdxSeatKeyOf(raw) {
       var s = String(raw == null ? '' : raw).toLowerCase();
       // 'statehouse' before 'house', because 'ut-statehouse-68' contains both and
