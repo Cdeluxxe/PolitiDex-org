@@ -14,7 +14,9 @@
 
    THE RULES IT KEEPS
 
-   · ONLY THE PAIRS BELOW. Batch 1 is Water / Land / Energy. The list is closed;
+   · ONLY THE PAIRS BELOW. Batch 1 is Water / Land / Energy; batch 2 is
+     Spending / Entitlement (the "Clean Air & Water" side of the red-tape pair
+     is the Practical Stewardship key). Eight pairs in all. The list is closed;
      a pair is never derived from keywords, categories or co-occurrence.
 
    · ONLY A PUBLISHED DIRECTION, ON BOTH SIDES. A direction is the person's
@@ -35,7 +37,7 @@
   'use strict';
   if (window.PDXRelatedIssues) return;
 
-  // Batch 1: Water / Land / Energy. Order here is print order.
+  // Order here is print order. Batch 1: Water / Land / Energy.
   var PAIRS = [
     { a: { key: 'water',          label: 'Water Conservation' },
       b: { key: 'datacenter_water', label: 'Data Centers & Water' } },
@@ -44,7 +46,17 @@
     { a: { key: 'lands_preserve', label: 'Protect Public Lands' },
       b: { key: 'energy_production', label: 'Expand Domestic Energy Production' } },
     { a: { key: 'water',          label: 'Water Conservation' },
-      b: { key: 'energy_production', label: 'Expand Domestic Energy Production' } }
+      b: { key: 'energy_production', label: 'Expand Domestic Energy Production' } },
+
+    // Batch 2: Spending / Entitlement.
+    { a: { key: 'healthcare',      label: 'Expand Healthcare Access' },
+      b: { key: 'cut_spending',    label: 'Cut Federal Spending & Reduce Debt' } },
+    { a: { key: 'social_security', label: 'Protect Social Security & Medicare' },
+      b: { key: 'national_debt',   label: 'Tackle the National Debt' } },
+    { a: { key: 'gov_regulation',  label: 'Cut Federal Red Tape' },
+      b: { key: 'enviro_balance',  label: 'Practical Stewardship' } },
+    { a: { key: 'healthcare',      label: 'Expand Healthcare Access' },
+      b: { key: 'national_debt',   label: 'Tackle the National Debt' } }
   ];
 
   var WORD = { support: 'supports', oppose: 'opposes' };

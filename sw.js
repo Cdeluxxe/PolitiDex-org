@@ -11304,7 +11304,16 @@
 //     version. Drawers, Direction Match and effect lines are unchanged.
 //     No location key is migrated, renamed or copied. No board is added.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v496';
+// v497 - RELATED ISSUES ON A PERSON FILE, BATCH 2: SPENDING / ENTITLEMENT.
+//     related-issues.js gains four pairs: Expand Healthcare Access / Cut Federal
+//     Spending & Reduce Debt, Protect Social Security & Medicare / Tackle the
+//     National Debt, Cut Federal Red Tape / Practical Stewardship, Expand
+//     Healthcare Access / Tackle the National Debt. Eight pairs in all; same
+//     rules as batch 1. related-issues.js is precached, so the shell moves one
+//     version. Drawers, Direction Match and effect lines are unchanged.
+//     No location key is migrated, renamed or copied. No board is added.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v497';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
