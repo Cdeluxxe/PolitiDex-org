@@ -84,7 +84,7 @@ const text = (h) => String(h || "").replace(/<span class="pdxri-ico"[^>]*>[^<]*<
 
 const block = (h) => (/<div class="pdxri pdxri-drawer"[\s\S]*?<\/ul><\/div>/.exec(h) || [""])[0];
 const lines = (h) => [...block(h).matchAll(/<li class="pdxri-item"[\s\S]*?<\/li>/g)].map((m) => text(m[0]));
-const doors = (html) => [...html.matchAll(/<a class="pdxri-go" href="([^"]*)" data-pdxri-go="([^"]*)" data-pdxc-gap="([^"]*)" data-pdxc-gap-pid="([^"]*)"[^>]*>(?:<span class="pdxri-ico" aria-hidden="true">[^<]*<\/span> )?([^<]*)<\/a>/g)]
+const doors = (html) => [...html.matchAll(/<a class="pdxri-go" href="([^"]*)"(?: style="[^"]*")? data-pdxri-go="([^"]*)" data-pdxc-gap="([^"]*)" data-pdxc-gap-pid="([^"]*)"[^>]*>(?:<span class="pdxri-ico" aria-hidden="true">[^<]*<\/span> )?([^<]*)<\/a>/g)]
   .map((m) => ({ href: m[1], go: m[2], key: m[3], pid: m[4], label: m[5].replace(/&amp;/g, "&") }));
 const WORD = { support: "supports", oppose: "opposes" };
 
@@ -175,7 +175,7 @@ const WORD = { support: "supports", oppose: "opposes" };
   const spans = [...b.matchAll(/<span class="pdxri-issue" data-pdxri-color="([^"]+)" style="([^"]*)">/g)];
   eq(spans.length, (b.match(/class="pdxri-issue"/g) || []).length, "an issue name has no colour token");
   for (const [, key, style] of spans) {
-    eq(style, C.styleFor(key), `${key}: the name is not in its issue chip colour`);
+    eq(style, C.styleFor(key) + `color:${C.getIssueColor(key).ink};`, `${key}: the name is not in its issue chip colour`);
     ok(style.includes(C.getIssueColor(key).ink), `${key}: the chip ink is missing`);
   }
   ok(/\.pdxri-drawer \.pdxri-issue\{[^}]*color:var\(--pdx-ic-ink/.test(R("consistency.js")), "the drawer name does not read --pdx-ic-ink");
@@ -187,6 +187,15 @@ const WORD = { support: "supports", oppose: "opposes" };
     ok(!!link, `${key}: icon is not inside the link`);
   }
   eq((b.match(/<a class="pdxri-go"/g) || []).length, (b.match(/class="pdxri-issue"/g) || []).length, "an icon added a second link");
+  // Every line, stated and record: the name and its link wear the issue ink;
+  // the position and record words keep green / red.
+  for (const m of b.matchAll(/<li class="pdxri-item" data-pdxri-key="([^"]+)" data-pdxri-line="(stated|record|votes)"[\s\S]*?<\/li>/g)) {
+    const ink = C.getIssueColor(m[1]).ink;
+    ok(m[0].includes(`<a class="pdxri-go" href="/p/lee?issue=${m[1]}" style="color:${ink};"`), `${m[1]} (${m[2]}): the link is not in its issue colour`);
+    if (m[2] === "stated") ok(/<span class="pdxri-dir s-(support|oppose)">(supports|opposes)<\/span>/.test(m[0]), `${m[1]}: position word lost green / red`);
+    if (m[2] === "record") ok(/<span class="pdxri-rec r-(with|against)">record runs (with|against)<\/span>/.test(m[0]), `${m[1]}: record word lost green / red`);
+    ok(!/pdxri-(dir|rec)[^>]*style=/.test(m[0]), `${m[1]}: the issue colour leaked onto the direction word`);
+  }
   ok(/\.pdxri-drawer \.pdxri-go\{color:inherit;text-decoration:underline/.test(R("consistency.js")), "the drawer link lost its underline");
   ok(/\.pdxri-drawer \.pdxri-dir\.s-support\{color:#4ade80;\}/.test(R("consistency.js")) && /\.pdxri-drawer \.pdxri-dir\.s-oppose\{color:#f87171;\}/.test(R("consistency.js")),
      "the position words are no longer green / red");
@@ -299,7 +308,7 @@ const FIX = {
   const sw = R("sw.js");
   ok(sw.includes("'/related-issues.js',") && sw.includes("'/consistency.js',"), "drawer scripts are precached");
   const v = Number((sw.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1]);
-  ok(v >= 507, "shell version bumped for record colours and issue icons");
+  ok(v >= 508, "shell version bumped for inline issue colours on names");
 }
 
 if (failures.length) {

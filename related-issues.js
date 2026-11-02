@@ -251,12 +251,21 @@
   // Any vote on file for this key, whichever way (or no way) it ran.
   function hasVotes(idx) { return !!(idx && (idx.total || 0) > 0); }
 
-  // The issue-chip colour token (issue-colors.js) as inline custom properties,
-  // or '' where that module is not loaded.
-  function colorStyle(key) {
+  // The issue-chip colour token (issue-colors.js): the chip's inline custom
+  // properties plus the token's text ink, set as `color` directly so the name
+  // is in its issue colour before (or without) any stylesheet. '' where that
+  // module is not loaded.
+  function inkOf(key) {
     try {
       var C = window.PDXIssueColors;
-      if (C && typeof C.styleFor === 'function') return C.styleFor(key) || '';
+      var t = C && typeof C.getIssueColor === 'function' ? C.getIssueColor(key) : null;
+      return t && t.ink ? String(t.ink) : '';
+    } catch (e) { return ''; }
+  }
+  function colorStyle(key) {
+    try {
+      var C = window.PDXIssueColors, ink = inkOf(key);
+      if (C && typeof C.styleFor === 'function') return (C.styleFor(key) || '') + (ink ? 'color:' + ink + ';' : '');
     } catch (e) { /* uncoloured */ }
     return '';
   }
@@ -326,7 +335,9 @@
     // The icon sits inside the link, so the name stays one tap.
     var ico = it.icon ? '<span class="pdxri-ico" aria-hidden="true">' + esc(it.icon) + '</span> ' : '';
     if (!pid || it.key === openKey) return open + ico + esc(it.label) + c + '</span>';
+    var ink = inkOf(it.key);
     return open + '<a class="pdxri-go" href="' + esc(issueHref(pid, it.key)) + '"' +
+      (ink ? ' style="' + esc('color:' + ink + ';') + '"' : '') +
       ' data-pdxri-go="' + esc(it.key) + '" data-pdxc-gap="' + esc(it.key) + '" data-pdxc-gap-pid="' + esc(pid) + '"' +
       ' aria-label="' + esc('Open ' + it.label + ' for this file') + '">' + ico + esc(it.label) + '</a>' + c + '</span>';
   }
@@ -385,6 +396,7 @@
     lineTexts: lineTexts,
     recordOf: recordOf,
     iconOf: iconOf,
+    colorStyle: colorStyle,
     hasVotes: function (pid, key) { return hasVotes(recordRead(pid, key)); },
     sectionHtml: sectionHtml,
     drawerHtml: drawerHtml

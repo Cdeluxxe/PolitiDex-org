@@ -114,7 +114,7 @@ const LBL = (k) => String(IM[k].label).replace(/^[^A-Za-z0-9]+/, "").trim();
   eq(RI.sectionHtml("none", {}), "", "no positions: no section");
   eq(RI.sectionHtml("lonely", {}), "", "positions on unrelated issues only: no section");
 
-  const doors = [...h.matchAll(/<a class="pdxri-go" href="([^"]*)" data-pdxri-go="([^"]*)" data-pdxc-gap="([^"]*)" data-pdxc-gap-pid="([^"]*)"[^>]*>(?:<span class="pdxri-ico" aria-hidden="true">[^<]*<\/span> )?([^<]*)<\/a>/g)];
+  const doors = [...h.matchAll(/<a class="pdxri-go" href="([^"]*)"(?: style="[^"]*")? data-pdxri-go="([^"]*)" data-pdxc-gap="([^"]*)" data-pdxc-gap-pid="([^"]*)"[^>]*>(?:<span class="pdxri-ico" aria-hidden="true">[^<]*<\/span> )?([^<]*)<\/a>/g)];
   const names = (h.match(/class="pdxri-issue"/g) || []).length;
   eq(doors.length, names, "every issue name in the section is a link");
   for (const d of doors) {
@@ -197,7 +197,7 @@ const LBL = (k) => String(IM[k].label).replace(/^[^A-Za-z0-9]+/, "").trim();
   const spans = [...h.matchAll(/<span class="pdxri-issue" data-pdxri-color="([^"]+)" style="([^"]*)">/g)];
   ok(spans.length > 0, "no coloured names in the section");
   eq(spans.length, (h.match(/class="pdxri-issue"/g) || []).length, "an issue name has no colour token");
-  for (const [, key, style] of spans) eq(style, win.PDXIssueColors.styleFor(key), `${key}: not its issue chip colour`);
+  for (const [, key, style] of spans) eq(style, win.PDXIssueColors.styleFor(key) + `color:${win.PDXIssueColors.getIssueColor(key).ink};`, `${key}: not its issue chip colour`);
   ok(/s-support">supports</.test(h) && /s-oppose">opposes</.test(h), "position words lost their green / red class");
 }
 

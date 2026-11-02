@@ -11404,7 +11404,17 @@
 //     consistency.js and person-file.css are precached and changed, so the
 //     shell moves one version.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v507';
+// v508 - RELATED ISSUES: ISSUE NAMES CARRY THEIR CHIP COLOUR INLINE.
+//     Each related-issue name (stated, record and votes-only lines, person
+//     file and drawer) now sets its issue chip token's ink as an inline
+//     `color` on the name and on its link, alongside the --pdx-ic custom
+//     properties, so the colour no longer waits on a stylesheet (person-file.css
+//     loads asynchronously) and a link can never fall back to default blue.
+//     Position and record words keep green / red; icons stay. The map, which
+//     issues appear, scores and the vote table are unchanged. related-issues.js
+//     is precached and changed, so the shell moves one version.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v508';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
