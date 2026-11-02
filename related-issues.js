@@ -16,7 +16,9 @@
 
    · ONLY THE PAIRS BELOW. Batch 1 is Water / Land / Energy; batch 2 is
      Spending / Entitlement (the "Clean Air & Water" side of the red-tape pair
-     is the Practical Stewardship key). Eight pairs in all. The list is closed;
+     is the Practical Stewardship key); batch 3 is Foreign Policy (Israel,
+     Iran, Ukraine, defense, war powers, restraint); batch 4 is Education /
+     Housing; batch 5 is Guns / Crime. Seventeen pairs in all. The list is closed;
      a pair is never derived from keywords, categories or co-occurrence.
 
    · ONLY A PUBLISHED DIRECTION, ON BOTH SIDES. A direction is the person's
@@ -56,7 +58,37 @@
     { a: { key: 'gov_regulation',  label: 'Cut Federal Red Tape' },
       b: { key: 'enviro_balance',  label: 'Practical Stewardship' } },
     { a: { key: 'healthcare',      label: 'Expand Healthcare Access' },
-      b: { key: 'national_debt',   label: 'Tackle the National Debt' } }
+      b: { key: 'national_debt',   label: 'Tackle the National Debt' } },
+
+    // Batch 3: Foreign-policy tensions. The two border / due-process pairs wait
+    // for a Due Process & Immigration Courts issue to exist; they are not here.
+    { a: { key: 'israel_support',  label: 'Support for Israel' },
+      b: { key: 'restraint',       label: 'Diplomacy & Restraint' } },
+    { a: { key: 'strong_defense',  label: 'Peace Through Strength' },
+      b: { key: 'war_powers',      label: 'Congress and War Powers' } },
+    { a: { key: 'iran_policy',     label: 'Iran' },
+      b: { key: 'restraint',       label: 'Diplomacy & Restraint' } },
+    { a: { key: 'ukraine_policy',  label: 'Ukraine' },
+      b: { key: 'strong_defense',  label: 'Peace Through Strength' } },
+
+    // Batch 4: Education / Housing, on the closest existing keys. "School Choice
+    // & Parental Rights" is two keys here, so each gets its own pair; there is
+    // no zoning key, so Build More Housing (loosen zoning and permitting) stands
+    // in. No Public School Funding or Protect Local Zoning pair: those issues do
+    // not exist.
+    { a: { key: 'school_choice',   label: 'School Choice & Education Freedom' },
+      b: { key: 'public_schools',  label: 'Invest in Public Schools' } },
+    { a: { key: 'edu_parental',    label: 'Parental Rights in Schools' },
+      b: { key: 'public_schools',  label: 'Invest in Public Schools' } },
+    { a: { key: 'housing',         label: 'Housing Affordability' },
+      b: { key: 'housing_build',   label: 'Build More Housing' } },
+
+    // Batch 5: Guns / Crime, on the closest existing keys. There is no Red Flag
+    // Laws or Assault Weapons Ban key, so those two pairs are not here.
+    { a: { key: 'gun_rights',      label: 'Protect Gun Rights' },
+      b: { key: 'gun_safety',      label: 'Stronger Gun Safety Laws' } },
+    { a: { key: 'tough_on_crime',  label: 'Tough on Crime' },
+      b: { key: 'justice_reform',  label: 'Criminal Justice Reform' } }
   ];
 
   var WORD = { support: 'supports', oppose: 'opposes' };
