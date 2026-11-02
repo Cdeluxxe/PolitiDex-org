@@ -3,13 +3,17 @@
 // test-related-issues-drawer.mjs — the related-issues map inside the drawer
 // ─────────────────────────────────────────────────────────────────────────────
 // The issue drawer prints, after the finding line and before the vote table,
-// every issue the map relates to the open issue that the person has a
-// published supports / opposes on, one "Label: supports|opposes" line each.
+// every issue the map relates to the open issue, with up to two lines each:
+// a stated line ("Label: supports|opposes", from the stance map) and a record
+// line ("Label: record runs with|against", from the record-direction index).
 //
 //   1. LEE × PROTECT PUBLIC LANDS (real data): the drawer leads with votes and
 //      shows Keep Public Lands Public with Lee's stated position from the
 //      stance map, as a link that opens that drawer on Lee; the block sits
 //      between the finding line and the tally.
+//   1b. LEE × KEEP PUBLIC LANDS PUBLIC (real data): Protect Public Lands shows
+//      "record runs against"; a stated-only related issue shows only its
+//      stated line; a record-only one only its record line.
 //   2. FIXTURE: every related issue with a published direction is listed, in
 //      map order; a mixed one, an unrelated one and the open issue are not; the
 //      open issue is never a link; following a link lands on a drawer that
@@ -103,6 +107,35 @@ const WORD = { support: "supports", oppose: "opposes" };
   }
 }
 
+// ── 1b · Lee × Keep Public Lands Public, real data: stated and record lines ─
+{
+  const win = boot(true);
+  const CS = win.PDXConsistency, RI = win.PDXRelatedIssues;
+  const pm = win._polPositionMap("lee", win.CMP_DATA.lee) || {};
+  const h = CS.gapViewHtml("lee", "lands_keep_public") || "";
+  const ln = lines(h);
+  ok(ln.includes("Protect Public Lands: record runs against"), `Lee's Keep Public Lands Public drawer lacks Protect Public Lands: record runs against — ${JSON.stringify(ln)}`);
+  const stated = (k) => pm[k] && /^(support|oppose)$/.test(pm[k].stance) ? pm[k].stance : null;
+  // Stated-only: a related issue with a stance and no one-way record.
+  const so = RI.MAP.lands_keep_public.find((k) => stated(k) && !RI.recordOf("lee", k));
+  ok(!!so, "no stated-only related issue on Lee's Keep Public Lands Public drawer");
+  if (so) {
+    const L = String(win.ISSUE_MAP[so].label).replace(/^[^A-Za-z0-9]+/, "").trim();
+    const mine = ln.filter((l) => l.startsWith(L + ":"));
+    eq(JSON.stringify(mine), JSON.stringify([`${L}: ${WORD[stated(so)]}`]), `${so}: a stated-only related issue shows only the stated line`);
+  }
+  // Record-only: Protect Public Lands has no published stance for Lee.
+  ok(!stated("lands_preserve"), "Lee now has a stated position on Protect Public Lands; pick another record-only key");
+  eq(JSON.stringify(ln.filter((l) => l.startsWith("Protect Public Lands:"))), JSON.stringify(["Protect Public Lands: record runs against"]),
+     "a record-only related issue shows only the record line");
+  const b = block(h);
+  ok(/data-pdxri-line="record" data-pdxri-rec="against"[^>]*><span class="pdxri-issue"><a class="pdxri-go"[^>]*data-pdxc-gap="lands_preserve"/.test(b),
+     "the record line's issue name opens Protect Public Lands on Lee");
+  ok(/<span class="pdxri-rec">record runs against<\/span>/.test(b), "the record word is not the neutral record style");
+  ok(!/class="pdxri-dir[^"]*">record/.test(b), "a record word carries the stated position tint");
+  ok(!ln.some((l) => /^Keep Public Lands Public:/.test(l)), "the open issue is repeated in its own drawer");
+}
+
 // ── 2, 3 · fixture file ─────────────────────────────────────────────────────
 const PID = "lee";
 const FIX = {
@@ -118,8 +151,14 @@ const FIX = {
   const CS = win.PDXConsistency, RI = win.PDXRelatedIssues;
   ok(RI && typeof RI.drawerHtml === "function", "PDXRelatedIssues.drawerHtml is published");
   const pm = win._polPositionMap(PID, win.CMP_DATA[PID]);
-  const want = (key) => RI.MAP[key].filter((k) => pm[k] && /^(support|oppose)$/.test(pm[k].stance))
-    .map((k) => `${String(win.ISSUE_MAP[k].label).replace(/^[^A-Za-z0-9]+/, "").trim()}: ${WORD[pm[k].stance]}`);
+  const REC = { with: "record runs with", against: "record runs against" };
+  const want = (key) => RI.MAP[key].flatMap((k) => {
+    const L = String(win.ISSUE_MAP[k].label).replace(/^[^A-Za-z0-9]+/, "").trim(), out = [];
+    if (pm[k] && /^(support|oppose)$/.test(pm[k].stance)) out.push(`${L}: ${WORD[pm[k].stance]}`);
+    const r = RI.recordOf(PID, k);
+    if (r) out.push(`${L}: ${REC[r]}`);
+    return out;
+  });
 
   const h = CS.gapViewHtml(PID, "lands_preserve") || "";
   const b = block(h);
@@ -129,7 +168,7 @@ const FIX = {
   for (const l of ["Keep Public Lands Public: supports", "Expand Domestic Energy Production: opposes", "Cut Federal Red Tape: supports"]) {
     ok(ln.includes(l), `drawer lacks ${l}`);
   }
-  ok(!ln.some((l) => /Local Land Control|Energy & Resource Development/.test(l)), "a mixed related position is printed");
+  ok(!ln.some((l) => /^(Local Land Control|Energy & Resource Development): (supports|opposes)/.test(l)), "a mixed related position is printed");
   ok(!ln.some((l) => /Gun/.test(l)), "an unrelated issue is printed");
   ok(!ln.some((l) => /^Protect Public Lands:/.test(l)), "the open issue is listed");
   ok(!doors(b).some((x) => x.key === "lands_preserve"), "the open issue is a link");
@@ -180,7 +219,7 @@ const FIX = {
       const bl = block(b);
       if (bl) {
         withBlock++;
-        const want = on.PDXRelatedIssues.itemsFor(pid, on.CMP_DATA[pid], r.key).map(on.PDXRelatedIssues.lineText);
+        const want = on.PDXRelatedIssues.itemsFor(pid, on.CMP_DATA[pid], r.key).flatMap(on.PDXRelatedIssues.lineTexts);
         eq(JSON.stringify(lines(b)), JSON.stringify(want), `${pid} × ${r.key}: drawer lines are not this issue's related positions`);
       } else {
         eq(on.PDXRelatedIssues.itemsFor(pid, on.CMP_DATA[pid], r.key).length, 0, `${pid} × ${r.key}: related position but no block`);
@@ -202,7 +241,7 @@ const FIX = {
   const sw = R("sw.js");
   ok(sw.includes("'/related-issues.js',") && sw.includes("'/consistency.js',"), "drawer scripts are precached");
   const v = Number((sw.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1]);
-  ok(v >= 504, "shell version bumped for the drawer block");
+  ok(v >= 505, "shell version bumped for the stated / record lines");
 }
 
 if (failures.length) {

@@ -11374,7 +11374,18 @@
 //     consistency.js and person-file.css are precached and changed, so the
 //     shell moves one version.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v504';
+// v505 - RELATED ISSUES: STATED AND RECORD, TWO LINES.
+//     Each related issue now prints up to two lines: the stated position
+//     ("Label: supports / opposes", green / red) and which way the votes run
+//     ("Label: record runs with / against", neutral), read from the shared
+//     record-direction index. One without the other prints alone; neither,
+//     the issue is left out. Same shape in the person file and the drawer;
+//     every name still opens that issue's drawer on the same person. Scores,
+//     Direction Match, the vote table and the map are unchanged.
+//     related-issues.js, consistency.js and person-file.css are precached and
+//     changed, so the shell moves one version.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v505';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

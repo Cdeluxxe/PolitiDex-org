@@ -126,6 +126,53 @@ const LBL = (k) => String(IM[k].label).replace(/^[^A-Za-z0-9]+/, "").trim();
   ok(gs.every((g) => g.related.every((it) => RI.MAP[g.issue.key].includes(it.key))), "a group lists a key the map does not relate");
 }
 
+// 2b. stated and record lines, two lines not one
+{
+  // Record readings stubbed on the shared index: lead advances → "with",
+  // opposes → "against"; a split (no lead) or an uncharacterised read → none.
+  const REC = {
+    lands: { lands_preserve: "opposes", lands_balance: "advances", gun_rights: "advances" },
+    recOnly: { lands_preserve: "opposes", lands_keep_public: "advances" },
+    split: { lands_preserve: null, lands_keep_public: null },
+  };
+  const w2 = boot(Object.assign({}, FIX, { recOnly: {}, split: { lands_preserve: st("support") } }));
+  w2._pdxRecordDirection = (pid, key) => {
+    const r = REC[pid] || {};
+    if (!(key in r)) return null;
+    return r[key] ? { characterised: true, lead: r[key] } : { characterised: false, lead: null };
+  };
+  const R2 = w2.PDXRelatedIssues;
+  const h = R2.sectionHtml("lands", {});
+  const groups = Object.fromEntries([...h.matchAll(/<li class="pdxri-group" data-pdxri-issue="([^"]+)">([\s\S]*?)<\/ul><\/li>/g)].map((g) => [g[1], g[2]]));
+  const items = (html) => [...String(html || "").matchAll(/<li class="pdxri-item"[\s\S]*?<\/li>/g)].map((m) => strip(m[0]));
+  const anchors = (html) => [...String(html || "").matchAll(/<div class="pdxri-anchor"[\s\S]*?<\/div>/g)].map((m) => strip(m[0]));
+  eq(JSON.stringify(anchors(groups.lands_preserve)), JSON.stringify(["Protect Public Lands: supports", "Protect Public Lands: record runs against"]),
+     "an issue with both readings prints two lines, stated first");
+  eq(JSON.stringify(items(groups.lands_keep_public)), JSON.stringify([
+    "Protect Public Lands: supports", "Protect Public Lands: record runs against",
+    "Expand Domestic Energy Production: opposes", "Local Land Control: opposes", "Balance Land Use: record runs with",
+  ].map((l) => l.replace("Balance Land Use", LBL("lands_balance")))), "related issues show stated lines, record lines, or both, in map order");
+  ok(items(groups.lands_keep_public).includes("Expand Domestic Energy Production: opposes") &&
+     !items(groups.lands_keep_public).some((l) => /^Expand Domestic Energy Production: record/.test(l)),
+     "a stated-only related issue shows only the stated line");
+  ok(items(groups.lands_keep_public).includes(`${LBL("lands_balance")}: record runs with`) &&
+     !items(groups.lands_keep_public).some((l) => l.startsWith(`${LBL("lands_balance")}: s`) || l.startsWith(`${LBL("lands_balance")}: o`)),
+     "a record-only related issue shows only the record line");
+  ok(/<span class="pdxri-rec">record runs against<\/span>/.test(h) && !/pdxri-rec[^"]*s-(support|oppose)/.test(h),
+     "the record word is neutral, never the position tint");
+  ok(/data-pdxri-line="record" data-pdxri-rec="against"/.test(h) && /data-pdxri-line="stated" data-pdxri-dir="support"/.test(h),
+     "each line is marked stated or record");
+  const doors = [...h.matchAll(/<a class="pdxri-go"[^>]*data-pdxc-gap="([^"]*)"/g)];
+  eq(doors.length, (h.match(/class="pdxri-issue"/g) || []).length, "every issue name on every line is a link");
+
+  const ro = R2.sectionHtml("recOnly", {});
+  const rg = Object.fromEntries([...ro.matchAll(/<li class="pdxri-group" data-pdxri-issue="([^"]+)">([\s\S]*?)<\/ul><\/li>/g)].map((g) => [g[1], g[2]]));
+  eq(JSON.stringify(items(rg.lands_preserve)), JSON.stringify(["Keep Public Lands Public: record runs with"]), "record-only file: record lines alone");
+  ok(!/pdxri-dir/.test(ro), "record-only file prints no stated word");
+  eq(R2.sectionHtml("split", {}), "", "a split or uncharacterised record gives no line, and nothing related is left");
+  eq(R2.recordOf("lands", "gov_regulation"), null, "no record on file: no record reading");
+}
+
 // 4. no verdict
 {
   const h = RI.sectionHtml("lands", {});
@@ -152,8 +199,10 @@ const LBL = (k) => String(IM[k].label).replace(/^[^A-Za-z0-9]+/, "").trim();
       shown++;
       for (const g of gs) for (const it of [g.issue, ...g.related]) {
         lines++;
-        if (pm[it.key].stance !== it.dir) bad++;
-        if (!/^[A-Za-z0-9 &,+\-'.:()]+: (supports|opposes)$/.test(w.PDXRelatedIssues.lineText(it))) bad++;
+        if (it.dir && pm[it.key].stance !== it.dir) bad++;
+        for (const l of w.PDXRelatedIssues.lineTexts(it)) {
+          if (!/^[A-Za-z0-9 &,+\-'.:()]+: (supports|opposes|record runs with|record runs against)$/.test(l)) bad++;
+        }
       }
     }
     eq(bad, 0, "every real line reads the published stance and the fixed vocabulary");

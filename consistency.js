@@ -2374,12 +2374,12 @@
       '.pdxri-drawer{margin-top:0.55rem;}' +
       '.pdxri-drawer .pdxri-h{font-size:0.66rem;font-weight:700;letter-spacing:0.08em;' +
         'text-transform:uppercase;color:#8fa2c0;}' +
-      '.pdxri-drawer .pdxri-list{list-style:none;margin:0.2rem 0 0;padding:0;display:flex;flex-wrap:wrap;gap:0.15rem 0;}' +
-      '.pdxri-drawer .pdxri-item{font-size:0.8rem;line-height:1.45;color:#c9d6ea;}' +
-      '.pdxri-drawer .pdxri-item+.pdxri-item::before{content:"\\00b7";color:#6b7c9c;padding:0 0.45rem;}' +
+      '.pdxri-drawer .pdxri-list{list-style:none;margin:0.2rem 0 0;padding:0;}' +
+      '.pdxri-drawer .pdxri-item{display:block;font-size:0.8rem;line-height:1.45;color:#c9d6ea;}' +
       '.pdxri-drawer .pdxri-issue{font-weight:600;}' +
       '.pdxri-drawer .pdxri-dir.s-support{color:#4ade80;}' +
       '.pdxri-drawer .pdxri-dir.s-oppose{color:#f87171;}' +
+      '.pdxri-drawer .pdxri-rec{color:#9fb4d4;}' +
       '.pdxri-drawer .pdxri-go{color:inherit;text-decoration:underline;' +
         'text-decoration-color:rgba(143,166,198,0.45);text-underline-offset:2px;}' +
       '.pdxri-drawer .pdxri-go:hover,.pdxri-drawer .pdxri-go:focus-visible{text-decoration-color:currentColor;}' +
@@ -20270,9 +20270,8 @@
 
     return head +
       // RELATED ISSUES (related-issues.js): every issue the map relates to this
-      // one that the person has a published direction on, after the finding
-      // line and before the vote table, so a stated position sits beside the
-      // votes. Read-only; '' when there is none.
+      // one, with a stated line and / or a record line for each, after the
+      // finding line and before the vote table. Read-only; '' when there is none.
       _gapRelatedHtml(pid, issueKey) +
       // Not in Direction Match: once, never on each row. On a ledger sheet it is
       // the first thing inside How this is scored rather than a gray box between
