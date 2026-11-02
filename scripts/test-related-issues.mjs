@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // ─────────────────────────────────────────────────────────────────────────────
-// test-related-issues.mjs — linked issue pairs on a person file (batches 1–5)
+// test-related-issues.mjs — linked issue pairs on a person file (batches 1–6)
 // ─────────────────────────────────────────────────────────────────────────────
 // related-issues.js prints one line per linked pair on which a person has a
 // published direction (supports / opposes) on BOTH sides, and nothing else.
@@ -8,7 +8,7 @@
 //   1. OPPOSING: supports one side, opposes the other → the pair and both words.
 //   2. ALIGNING: both support or both oppose → the pair and both words.
 //   3. INCOMPLETE: one side missing (or mixed) on every pair → '' (no section).
-//   4. CLOSED LIST: exactly seventeen pairs (4 + 4 + 4 + 3 + 2), labels matching ISSUE_MAP,
+//   4. CLOSED LIST: exactly fifty-four pairs (4 + 4 + 4 + 3 + 2 + 37), labels matching ISSUE_MAP,
 //      and a person with directions on every other key gets nothing.
 //   5. NO VERDICT: no %, score, grade or "contradiction" in the markup.
 //   6. NOTHING ELSE MOVED: the real stance map is read, not written; the hook in
@@ -46,12 +46,12 @@ const FIX = {
   conflict: { water: st("support"), datacenter_water: st("oppose") },
   align:    { lands_preserve: st("support"), lands_energy: st("support") },
   alignNo:  { lands_preserve: st("oppose"), energy_production: st("oppose") },
-  oneSide:  { water: st("support"), lands_preserve: st("oppose") },
+  oneSide:  { water: st("support"), lands_energy: st("oppose") },
   mixed:    { water: st("mixed"), datacenter_water: st("support"), lands_preserve: st("support"), lands_energy: st("mixed") },
   none:     {},
   outside:  { abortion: st("support"), guns: st("oppose"), housing: st("support"), climate: st("oppose"),
               water: st("support"), climate_action: st("support") },
-  all:      { water: st("support"), datacenter_water: st("oppose"), lands_preserve: st("support"),
+  all17:    { water: st("support"), datacenter_water: st("oppose"), lands_preserve: st("support"),
               lands_energy: st("support"), energy_production: st("oppose"),
               healthcare: st("support"), cut_spending: st("oppose"), social_security: st("support"),
               national_debt: st("support"), gov_regulation: st("oppose"), enviro_balance: st("support"),
@@ -80,7 +80,7 @@ const FIX = {
   b4conflict: { school_choice: st("support"), public_schools: st("oppose") },
   b4align:    { housing: st("support"), housing_build: st("support") },
   b4alignNo:  { edu_parental: st("oppose"), public_schools: st("oppose") },
-  b4oneSide:  { school_choice: st("support"), edu_parental: st("oppose"), housing: st("support"),
+  b4oneSide:  { school_choice: st("support"), edu_parental: st("mixed"), housing: st("support"),
                 public_schools: st("mixed"), housing_build: st("mixed") },
   b4plusB3:   { school_choice: st("support"), housing_build: st("oppose"),
                 strong_defense: st("support"), war_powers: st("oppose") },
@@ -89,13 +89,38 @@ const FIX = {
   b5align:    { tough_on_crime: st("support"), justice_reform: st("support") },
   b5alignNo:  { gun_rights: st("oppose"), gun_safety: st("oppose") },
   b5oneSide:  { gun_rights: st("support"), justice_reform: st("oppose"), gun_safety: st("mixed"),
-                tough_on_crime: st("mixed"), gun_balance: st("support"), back_police: st("support") },
+                tough_on_crime: st("mixed"), gun_balance: st("support"), veterans: st("support") },
   b5plusB4:   { gun_rights: st("support"), tough_on_crime: st("oppose"),
                 housing: st("support"), housing_build: st("oppose") },
-  // the two deferred border pairs: directions on the border keys print nothing
-  border:     { border_security: st("support"), deportations: st("support"), immigration_reform: st("oppose"),
-                immig_balance: st("oppose") },
+  // the deferred due-process pairs: no Due Process key exists, and middle-position
+  // keys (immig_balance, gun_balance …) are in no pair
+  border:     { border_security: st("support"), deportations: st("support"), immig_balance: st("oppose"),
+                gun_balance: st("support"), gov_balance: st("oppose"), foreign_balance: st("support") },
+  // batch 6
+  b6conflict: { deportations: st("support"), immigration_reform: st("oppose") },
+  b6align:    { back_police: st("support"), tough_on_crime: st("support") },
+  b6alignNo:  { voter_id: st("oppose"), voting_access: st("oppose") },
+  b6oneSide:  { climate_action: st("support"), lower_taxes: st("support"), pro_life: st("support"),
+                tariffs_prices: st("mixed"), checks_balances: st("mixed"), privacy_rights: st("mixed"),
+                restraint: st("mixed"), gov_services: st("mixed") },
+  b6plusB5:   { pro_life: st("support"), gun_rights: st("support"), gun_safety: st("oppose") },
 };
+FIX.all = Object.assign({}, FIX.all17, {
+  gov_regulation: st("oppose"), lands_keep_public: st("support"), lands_local: st("oppose"),
+  permitting_reform: st("oppose"), climate_action: st("support"),
+  datacenter_growth: st("support"), datacenter_power: st("support"),
+  lower_taxes: st("support"), gov_services: st("support"),
+  tariffs_growth: st("support"), tariffs_prices: st("oppose"), tariffs_china: st("support"),
+  tariffs_authority: st("support"), checks_balances: st("support"),
+  econ_growth: st("support"), econ_corp_account: st("oppose"), healthcare_market: st("oppose"),
+  deportations: st("support"), immigration_reform: st("oppose"), border_security: st("support"),
+  back_police: st("support"), cannabis_reform: st("oppose"),
+  pro_life: st("support"), pro_choice: st("oppose"), religious_liberty: st("support"), lgbtq_rights: st("oppose"),
+  voter_id: st("support"), voting_access: st("oppose"), election_integrity: st("support"), election_security: st("support"),
+  america_first: st("support"), america_first_fp: st("support"),
+  power_of_purse: st("support"), judicial_check: st("oppose"),
+  tech_innovation: st("support"), privacy_rights: st("support"),
+});
 const W = boot(FIX);
 const RI = W.PDXRelatedIssues;
 ok(RI && typeof RI.sectionHtml === "function", "module exports sectionHtml");
@@ -158,7 +183,7 @@ ok(RI && typeof RI.sectionHtml === "function", "module exports sectionHtml");
   const rows = RI.pairsFor("b3plusB2", {});
   eq(rows.map((r) => r.a.key + "|" + r.b.key).join(","), "healthcare|cut_spending",
      "b3: incomplete batch-3 pairs drop out while a complete batch-2 pair still prints");
-  eq(RI.sectionHtml("border", {}), "", "deferred border / due-process pairs are not defined");
+  eq(RI.sectionHtml("border", {}), "", "deferred due-process pairs and middle-position keys are in no pair");
 }
 // 2d. batch 4 opposing / aligning / incomplete
 {
@@ -200,6 +225,27 @@ ok(RI && typeof RI.sectionHtml === "function", "module exports sectionHtml");
   eq(rows.map((r) => r.a.key + "|" + r.b.key).join(","), "housing|housing_build",
      "b5: incomplete batch-5 pairs drop out while a complete batch-4 pair still prints");
 }
+// 2f. batch 6 opposing / aligning / incomplete
+{
+  const h = RI.sectionHtml("b6conflict", {});
+  ok(h.includes("Related issues"), "b6 conflict: section heading present");
+  ok(strip(h).includes("Mass Deportations & Border Security: supports · Pathways to Citizenship: opposes"),
+     "b6 conflict: both directions — " + strip(h));
+  eq((h.match(/class="pdxri-pair"/g) || []).length, 1, "b6 conflict: exactly one pair line");
+  ok(h.includes('data-pdxri-rel="conflict"'), "b6 conflict: conflict relation as data");
+  const h2 = RI.sectionHtml("b6align", {});
+  ok(strip(h2).includes("Back Law Enforcement: supports · Tough on Crime: supports"),
+     "b6 align: both support — " + strip(h2));
+  eq((h2.match(/class="pdxri-pair"/g) || []).length, 1, "b6 align: exactly one pair line");
+  ok(h2.includes('data-pdxri-rel="align"'), "b6 align: align relation");
+  const h3 = RI.sectionHtml("b6alignNo", {});
+  ok(strip(h3).includes("Voter ID & Election Integrity: opposes · Expand Voting Access: opposes"),
+     "b6 align: both oppose — " + strip(h3));
+  eq(RI.sectionHtml("b6oneSide", {}), "", "b6: one side missing or mixed on every new pair: section omitted");
+  const rows = RI.pairsFor("b6plusB5", {});
+  eq(rows.map((r) => r.a.key + "|" + r.b.key).join(","), "gun_rights|gun_safety",
+     "b6: incomplete batch-6 pairs drop out while a complete batch-5 pair still prints");
+}
 // 3. incomplete → nothing
 eq(RI.sectionHtml("oneSide", {}), "", "one side of every pair: section omitted");
 eq(RI.sectionHtml("mixed", {}), "", "mixed is not a published direction: section omitted");
@@ -222,11 +268,35 @@ eq(RI.sectionHtml("nobody", {}), "", "unknown pid: section omitted");
     "iran_policy|restraint", "ukraine_policy|strong_defense",
     "school_choice|public_schools", "edu_parental|public_schools", "housing|housing_build",
     "gun_rights|gun_safety", "tough_on_crime|justice_reform",
-  ]), "exactly seventeen pairs: batches 1 through 5, in order");
-  eq(RI.PAIRS.length, 17, "exactly seventeen pairs in total");
+    "lands_preserve|gov_regulation", "water|lands_preserve", "lands_keep_public|lands_local",
+    "lands_preserve|permitting_reform", "climate_action|energy_production", "climate_action|gov_regulation",
+    "datacenter_growth|datacenter_water", "datacenter_growth|datacenter_power",
+    "lower_taxes|national_debt", "lower_taxes|gov_services", "cut_spending|gov_services",
+    "social_security|cut_spending", "strong_defense|cut_spending",
+    "tariffs_growth|tariffs_prices", "tariffs_china|tariffs_prices", "tariffs_authority|checks_balances",
+    "econ_growth|econ_corp_account", "healthcare_market|healthcare",
+    "deportations|immigration_reform", "border_security|immigration_reform",
+    "back_police|justice_reform", "back_police|tough_on_crime", "cannabis_reform|tough_on_crime",
+    "pro_life|pro_choice", "religious_liberty|lgbtq_rights",
+    "voter_id|voting_access", "election_integrity|voting_access", "election_security|voting_access",
+    "strong_defense|restraint", "america_first|restraint",
+    "america_first_fp|ukraine_policy", "america_first_fp|israel_support",
+    "war_powers|checks_balances", "power_of_purse|checks_balances", "judicial_check|checks_balances",
+    "tech_innovation|privacy_rights", "school_choice|edu_parental",
+  ]), "exactly fifty-four pairs: batches 1 through 6, in order");
+  eq(RI.PAIRS.length, 54, "exactly fifty-four pairs in total");
+  // no pair twice, in either order, and no key paired with itself
+  const seen = new Set(RI.PAIRS.map((p) => [p.a.key, p.b.key].sort().join("|")));
+  eq(seen.size, 54, "no pair is listed twice");
+  ok(RI.PAIRS.every((p) => p.a.key !== p.b.key), "no key is paired with itself");
+  ok(RI.PAIRS.slice(17).every((p) => !/_balance$/.test(p.a.key) && !/_balance$/.test(p.b.key)), "no middle-position key is in a new pair");
+  // the seventeen shipped pairs still print, alone, from the original fixture
+  const old = RI.pairsFor("all17", {});
+  eq(old.slice(0, 17).map((r) => r.a.key + "|" + r.b.key).join(","),
+     RI.PAIRS.slice(0, 17).map((p) => p.a.key + "|" + p.b.key).join(","), "the seventeen shipped pairs, first and in order");
   eq(RI.sectionHtml("outside", {}), "", "directions on keys outside the pairs print nothing");
   const all = RI.pairsFor("all", {});
-  eq(all.length, 17, "a person with every side filled gets all seventeen and no more");
+  eq(all.length, 54, "a person with every side filled gets all fifty-four and no more");
   eq(all.map((r) => RI.lineText(r)).join("\n"), [
     "Water Conservation: supports · Data Centers & Water: opposes",
     "Protect Public Lands: supports · Energy & Resource Development: supports",
@@ -245,7 +315,44 @@ eq(RI.sectionHtml("nobody", {}), "", "unknown pid: section omitted");
     "Housing Affordability: supports · Build More Housing: supports",
     "Protect Gun Rights: supports · Stronger Gun Safety Laws: opposes",
     "Tough on Crime: supports · Criminal Justice Reform: supports",
-  ].join("\n"), "the seventeen lines, as specified");
+    "Protect Public Lands: supports · Cut Federal Red Tape: opposes",
+    "Water Conservation: supports · Protect Public Lands: supports",
+    "Keep Public Lands Public: supports · Local Land Control: opposes",
+    "Protect Public Lands: supports · Faster Permits & Reviews: opposes",
+    "Climate Action & Clean Energy: supports · Expand Domestic Energy Production: opposes",
+    "Climate Action & Clean Energy: supports · Cut Federal Red Tape: opposes",
+    "Data Centers & AI Growth: supports · Data Centers & Water: opposes",
+    "Data Centers & AI Growth: supports · Data Centers, Power & Ratepayers: supports",
+    "Cut Income & Business Taxes: supports · Tackle the National Debt: supports",
+    "Cut Income & Business Taxes: supports · Invest in Public Services: supports",
+    "Cut Federal Spending & Reduce Debt: opposes · Invest in Public Services: supports",
+    "Protect Social Security & Medicare: supports · Cut Federal Spending & Reduce Debt: opposes",
+    "Peace Through Strength: supports · Cut Federal Spending & Reduce Debt: opposes",
+    "Tariffs & American Industry: supports · Tariffs & Household Prices: opposes",
+    "Tariffs on China & Unfair Trade: supports · Tariffs & Household Prices: opposes",
+    "Tariffs & Trade Authority: supports · Congress as a Check on the Executive: supports",
+    "Pro-Growth Deregulation: supports · Corporate Accountability: opposes",
+    "Market-Based Healthcare: opposes · Expand Healthcare Access: supports",
+    "Mass Deportations & Border Security: supports · Pathways to Citizenship: opposes",
+    "Strong Border & Enforcement: supports · Pathways to Citizenship: opposes",
+    "Back Law Enforcement: supports · Criminal Justice Reform: supports",
+    "Back Law Enforcement: supports · Tough on Crime: supports",
+    "Cannabis Reform: opposes · Tough on Crime: supports",
+    "Pro-Life Protections: supports · Protect Reproductive Rights: opposes",
+    "Religious Liberty Focus: supports · Protect LGBTQ+ Rights: opposes",
+    "Voter ID & Election Integrity: supports · Expand Voting Access: opposes",
+    "Election Integrity: supports · Expand Voting Access: opposes",
+    "Election Security & Ballot Safeguards: supports · Expand Voting Access: opposes",
+    "Peace Through Strength: supports · Diplomacy & Restraint: supports",
+    "America First: supports · Diplomacy & Restraint: supports",
+    "America First Foreign Aid & Commitments: supports · Ukraine: supports",
+    "America First Foreign Aid & Commitments: supports · Support for Israel: supports",
+    "Congress and War Powers: opposes · Congress as a Check on the Executive: supports",
+    "Power of the Purse: supports · Congress as a Check on the Executive: supports",
+    "Court Orders on the Executive: opposes · Congress as a Check on the Executive: supports",
+    "Innovation & Light Rules: supports · Privacy & Big-Tech Accountability: supports",
+    "School Choice & Education Freedom: supports · Parental Rights in Schools: supports",
+  ].join("\n"), "the fifty-four lines, as specified");
   // Labels are the shared taxonomy's own labels, emoji stripped.
   const im = makeSandbox();
   vm.runInContext(R("issue-map.js"), vm.createContext(im), { filename: "issue-map.js" });
@@ -284,7 +391,7 @@ eq(RI.sectionHtml("nobody", {}), "", "unknown pid: section omitted");
       rows.forEach((r) => {
         if (r.relation === "align") align++; else conflict++;
         if (pm[r.a.key].stance !== r.a.dir || pm[r.b.key].stance !== r.b.dir) bad++;
-        if (!/^[A-Za-z &]+: (supports|opposes) · [A-Za-z &]+: (supports|opposes)$/.test(win.PDXRelatedIssues.lineText(r))) bad++;
+        if (!/^[A-Za-z &,+\-]+: (supports|opposes) · [A-Za-z &,+\-]+: (supports|opposes)$/.test(win.PDXRelatedIssues.lineText(r))) bad++;
       });
     }
     eq(bad, 0, "every real line reads the published stance and the fixed vocabulary");
@@ -308,7 +415,7 @@ eq(RI.sectionHtml("nobody", {}), "", "unknown pid: section omitted");
   const sw = R("sw.js");
   ok(sw.includes("'/related-issues.js',"), "related-issues.js is precached");
   const v = Number((sw.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1]);
-  ok(v >= 500, "shell version bumped for batch 5");
+  ok(v >= 501, "shell version bumped for batch 6");
   const mod = R("related-issues.js");
   ok(!/PDXConsistency|_issueVerdict|directionMatch|_DOS_EFFECT/.test(mod.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "")),
      "module reads no scoring or effect engine");
