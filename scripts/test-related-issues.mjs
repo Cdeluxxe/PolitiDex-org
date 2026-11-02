@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // ─────────────────────────────────────────────────────────────────────────────
-// test-related-issues.mjs — linked issue pairs on a person file (batch 1)
+// test-related-issues.mjs — linked issue pairs on a person file (batches 1–2)
 // ─────────────────────────────────────────────────────────────────────────────
 // related-issues.js prints one line per linked pair on which a person has a
 // published direction (supports / opposes) on BOTH sides, and nothing else.
@@ -8,7 +8,7 @@
 //   1. OPPOSING: supports one side, opposes the other → the pair and both words.
 //   2. ALIGNING: both support or both oppose → the pair and both words.
 //   3. INCOMPLETE: one side missing (or mixed) on every pair → '' (no section).
-//   4. CLOSED LIST: exactly the four batch-1 pairs, labels matching ISSUE_MAP,
+//   4. CLOSED LIST: exactly eight pairs (four batch-1, four batch-2), labels matching ISSUE_MAP,
 //      and a person with directions on every other key gets nothing.
 //   5. NO VERDICT: no %, score, grade or "contradiction" in the markup.
 //   6. NOTHING ELSE MOVED: the real stance map is read, not written; the hook in
@@ -52,7 +52,16 @@ const FIX = {
   outside:  { abortion: st("support"), guns: st("oppose"), housing: st("support"), climate: st("oppose"),
               water: st("support"), climate_action: st("support") },
   all:      { water: st("support"), datacenter_water: st("oppose"), lands_preserve: st("support"),
-              lands_energy: st("support"), energy_production: st("oppose") },
+              lands_energy: st("support"), energy_production: st("oppose"),
+              healthcare: st("support"), cut_spending: st("oppose"), social_security: st("support"),
+              national_debt: st("support"), gov_regulation: st("oppose"), enviro_balance: st("support") },
+  // batch 2
+  b2conflict: { healthcare: st("support"), cut_spending: st("oppose") },
+  b2align:    { social_security: st("support"), national_debt: st("support") },
+  b2alignNo:  { gov_regulation: st("oppose"), enviro_balance: st("oppose") },
+  b2oneSide:  { healthcare: st("support"), social_security: st("oppose"), gov_regulation: st("support"),
+                cut_spending: st("mixed"), national_debt: st("mixed"), enviro_balance: st("mixed") },
+  b2plusB1:   { healthcare: st("support"), water: st("support"), datacenter_water: st("support") },
 };
 const W = boot(FIX);
 const RI = W.PDXRelatedIssues;
@@ -77,6 +86,26 @@ ok(RI && typeof RI.sectionHtml === "function", "module exports sectionHtml");
   ok(strip(h2).includes("Protect Public Lands: opposes · Expand Domestic Energy Production: opposes"),
      "align: both oppose — " + strip(h2));
 }
+// 2b. batch 2 opposing / aligning
+{
+  const h = RI.sectionHtml("b2conflict", {});
+  ok(h.includes("Related issues"), "b2 conflict: section heading present");
+  ok(strip(h).includes("Expand Healthcare Access: supports · Cut Federal Spending & Reduce Debt: opposes"),
+     "b2 conflict: both directions — " + strip(h));
+  eq((h.match(/class="pdxri-pair"/g) || []).length, 1, "b2 conflict: exactly one pair line");
+  ok(h.includes('data-pdxri-rel="conflict"'), "b2 conflict: conflict relation as data");
+  const h2 = RI.sectionHtml("b2align", {});
+  ok(strip(h2).includes("Protect Social Security & Medicare: supports · Tackle the National Debt: supports"),
+     "b2 align: both support — " + strip(h2));
+  ok(h2.includes('data-pdxri-rel="align"'), "b2 align: align relation");
+  const h3 = RI.sectionHtml("b2alignNo", {});
+  ok(strip(h3).includes("Cut Federal Red Tape: opposes · Practical Stewardship: opposes"),
+     "b2 align: both oppose — " + strip(h3));
+  eq(RI.sectionHtml("b2oneSide", {}), "", "b2: one side missing or mixed on every pair: section omitted");
+  const rows = RI.pairsFor("b2plusB1", {});
+  eq(rows.map((r) => r.a.key + "|" + r.b.key).join(","), "water|datacenter_water",
+     "b2: incomplete batch-2 pairs drop out while a complete batch-1 pair still prints");
+}
 // 3. incomplete → nothing
 eq(RI.sectionHtml("oneSide", {}), "", "one side of every pair: section omitted");
 eq(RI.sectionHtml("mixed", {}), "", "mixed is not a published direction: section omitted");
@@ -93,16 +122,23 @@ eq(RI.sectionHtml("nobody", {}), "", "unknown pid: section omitted");
   eq(JSON.stringify(P), JSON.stringify([
     "water|datacenter_water", "lands_preserve|lands_energy",
     "lands_preserve|energy_production", "water|energy_production",
-  ]), "exactly the four batch-1 pairs, in order");
+    "healthcare|cut_spending", "social_security|national_debt",
+    "gov_regulation|enviro_balance", "healthcare|national_debt",
+  ]), "exactly eight pairs: the four batch-1 pairs then the four batch-2 pairs, in order");
+  eq(RI.PAIRS.length, 8, "exactly eight pairs in total");
   eq(RI.sectionHtml("outside", {}), "", "directions on keys outside the pairs print nothing");
   const all = RI.pairsFor("all", {});
-  eq(all.length, 4, "a person with every side filled gets all four and no more");
+  eq(all.length, 8, "a person with every side filled gets all eight and no more");
   eq(all.map((r) => RI.lineText(r)).join("\n"), [
     "Water Conservation: supports · Data Centers & Water: opposes",
     "Protect Public Lands: supports · Energy & Resource Development: supports",
     "Protect Public Lands: supports · Expand Domestic Energy Production: opposes",
     "Water Conservation: supports · Expand Domestic Energy Production: opposes",
-  ].join("\n"), "the four lines, as specified");
+    "Expand Healthcare Access: supports · Cut Federal Spending & Reduce Debt: opposes",
+    "Protect Social Security & Medicare: supports · Tackle the National Debt: supports",
+    "Cut Federal Red Tape: opposes · Practical Stewardship: supports",
+    "Expand Healthcare Access: supports · Tackle the National Debt: supports",
+  ].join("\n"), "the eight lines, as specified");
   // Labels are the shared taxonomy's own labels, emoji stripped.
   const im = makeSandbox();
   vm.runInContext(R("issue-map.js"), vm.createContext(im), { filename: "issue-map.js" });
@@ -165,7 +201,7 @@ eq(RI.sectionHtml("nobody", {}), "", "unknown pid: section omitted");
   const sw = R("sw.js");
   ok(sw.includes("'/related-issues.js',"), "related-issues.js is precached");
   const v = Number((sw.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1]);
-  ok(v >= 496, "shell version bumped");
+  ok(v >= 497, "shell version bumped for batch 2");
   const mod = R("related-issues.js");
   ok(!/PDXConsistency|_issueVerdict|directionMatch|_DOS_EFFECT/.test(mod.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "")),
      "module reads no scoring or effect engine");
