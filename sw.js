@@ -11352,7 +11352,16 @@
 //     so the shell moves one version. The person-file section, the vote table,
 //     effect lines, finding line, scores and Direction Match are unchanged.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v502';
+// v503 - RELATED ISSUES OPEN THE DRAWER.
+//     Each issue name in a related-issue pair is now a link that opens that
+//     issue's drawer for the same person: on the person file every name, inside
+//     a drawer every name but the open issue (the drawer is swapped in place).
+//     The links use the shared drawer route, with a /p/<pid>?issue=<key>
+//     fallback. Which pairs print, the wording, scores and Direction Match are
+//     unchanged. related-issues.js, consistency.js and person-file.css are
+//     precached and changed, so the shell moves one version.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v503';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

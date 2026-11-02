@@ -12,6 +12,10 @@
 //   3. FILTERED: a complete pair that does not include the open issue is not in
 //      that drawer (and is in the drawer of an issue it does include).
 //   4. PERSON FILE: sectionHtml still prints every complete pair.
+//   6. DOORS: every issue name in the person-file section, and every name but
+//      the open issue in a drawer, is a link on the shared drawer route
+//      (data-pdxc-gap + data-pdxc-gap-pid, same person) that the document click
+//      handler turns into that issue's drawer; the open issue is plain text.
 //   5. NOTHING ELSE MOVED: on the real corpus, every sampled drawer with the
 //      block removed is byte-identical to the drawer rendered with no module,
 //      and issue rows / scores are identical. Wiring and the shell bump.
@@ -132,6 +136,40 @@ const FIX = {
   ok(sl.includes("Protect Gun Rights: supports · Stronger Gun Safety Laws: opposes"), "section lost a pair outside the drawer's issue");
   ok(sl.includes("Protect Public Lands: supports · Expand Domestic Energy Production: opposes"), "section lost the lands/energy pair");
   eq(RI.PAIRS.length, 54, "the list is still fifty-four pairs");
+
+  // 6. doors
+  const doors = (html) => [...html.matchAll(/<a class="pdxri-go" href="([^"]*)" data-pdxri-go="([^"]*)" data-pdxc-gap="([^"]*)" data-pdxc-gap-pid="([^"]*)"[^>]*>([^<]*)<\/a>/g)]
+    .map((m) => ({ href: m[1], go: m[2], key: m[3], pid: m[4], label: m[5].replace(/&amp;/g, "&") }));
+  const labelOf = Object.fromEntries(RI.PAIRS.flatMap((pr) => [[pr.a.key, pr.a.label], [pr.b.key, pr.b.label]]));
+  const secDoors = doors(sec);
+  const secPairs = RI.pairsFor(PID, win.CMP_DATA[PID]);
+  eq(secDoors.length, secPairs.length * 2, "person file: not every issue name in every pair is a link");
+  eq(JSON.stringify(secDoors.map((d) => d.key)), JSON.stringify(secPairs.flatMap((r) => [r.a.key, r.b.key])),
+     "person file: the links are not the pair's two issues, in order");
+  for (const d of secDoors) {
+    eq(d.pid, PID, `person file: ${d.key} link opens another person`);
+    eq(d.go, d.key, `person file: ${d.key} link has mismatched keys`);
+    eq(d.label, labelOf[d.key], `person file: ${d.key} link text is not the issue name`);
+    ok(d.href.includes(encodeURIComponent(PID)) && d.href.includes(encodeURIComponent(d.key)), `person file: ${d.key} fallback href is not this person on this issue`);
+    ok(/pdxgap-h|pdxlg|pdxgap/.test(CS.gapViewHtml(PID, d.key) || ""), `person file: ${d.key} link has no drawer to open`);
+  }
+  const drDoors = doors(b);
+  eq(drDoors.length, ln.length, "drawer: not exactly one link per line (the other issue)");
+  ok(!drDoors.some((d) => d.key === "lands_preserve"), "drawer: the open issue is a link");
+  ok(/<span class="pdxri-issue">Protect Public Lands:<\/span>/.test(b), "drawer: the open issue is not plain text");
+  for (const d of drDoors) eq(d.pid, PID, `drawer: ${d.key} link opens another person`);
+  eq(JSON.stringify(drDoors.map((d) => d.key).sort()), JSON.stringify(["energy_production", "gov_regulation"]),
+     "drawer: links are not the related issues");
+  // Following a link from the drawer lands on a drawer whose own block lists the
+  // same pair, with the issue just left now a link back.
+  const back = CS.gapViewHtml(PID, "energy_production") || "";
+  ok(lines(back).includes("Protect Public Lands: supports · Expand Domestic Energy Production: opposes"), "drawer: the linked drawer lost the pair");
+  ok(doors(back).some((d) => d.key === "lands_preserve"), "drawer: the linked drawer has no link back");
+  ok(!doors(back).some((d) => d.key === "energy_production"), "drawer: the linked drawer links to itself");
+  // The route the links use is the one the document click handler opens.
+  const cs = R("consistency.js");
+  ok(/closest\('\[data-pdxc-gap\]'\)[\s\S]{0,400}openGap\(gap\.getAttribute\('data-pdxc-gap-pid'\)[^)]*\)?[^,]*,\s*gap\.getAttribute\('data-pdxc-gap'\)/.test(cs),
+     "the shared click route no longer opens openGap(pid, key) from data-pdxc-gap");
 
   // no verdict
   ok(!/%|score|grade|contradict|badge/i.test(text(b)), "the drawer block carries a verdict word");

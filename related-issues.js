@@ -40,6 +40,12 @@
      the same lines, filtered to the complete pairs that include the issue the
      drawer is open on. consistency.js prints it after the finding line and
      before the vote table. No complete pair on that issue: ''.
+
+   · EACH NAME IS A DOOR. On the person file every issue name in a pair opens
+     that issue's drawer for the same person; inside a drawer every name but
+     the open issue does, replacing the drawer in place. The doors use the
+     shared data-pdxc-gap route, with a /p/<pid>?issue=<key> href to fall back
+     on. The line text is unchanged.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -244,13 +250,35 @@
     return r.a.label + ': ' + r.a.word + ' · ' + r.b.label + ': ' + r.b.word;
   }
 
-  function lineHtml(r) {
+  // The address an issue door falls back to without the click route: the same
+  // person file, opened on that issue.
+  function issueHref(pid, key) {
+    try {
+      var P = window.PDXPerson;
+      if (P && typeof P.cardPath === 'function') { var h = P.cardPath(pid, key); if (h) return h; }
+    } catch (e) { /* plain address below */ }
+    return '/p/' + encodeURIComponent(pid) + '?issue=' + encodeURIComponent(key);
+  }
+
+  // One issue name. A door into that issue's drawer for this person (the shared
+  // data-pdxc-gap route consistency.js handles, which swaps an open drawer for
+  // the new issue), except the issue already open, which stays plain text.
+  function issueHtml(pid, side, openKey) {
+    if (!pid || side.key === openKey) {
+      return '<span class="pdxri-issue">' + esc(side.label) + ':</span>';
+    }
+    return '<span class="pdxri-issue"><a class="pdxri-go" href="' + esc(issueHref(pid, side.key)) + '"' +
+      ' data-pdxri-go="' + esc(side.key) + '" data-pdxc-gap="' + esc(side.key) + '" data-pdxc-gap-pid="' + esc(pid) + '"' +
+      ' aria-label="' + esc('Open ' + side.label + ' for this file') + '">' + esc(side.label) + '</a>:</span>';
+  }
+
+  function lineHtml(r, pid, openKey) {
     return '<li class="pdxri-pair" data-pdxri-a="' + esc(r.a.key) + '" data-pdxri-b="' + esc(r.b.key) +
         '" data-pdxri-rel="' + r.relation + '">' +
-      '<span class="pdxri-side"><span class="pdxri-issue">' + esc(r.a.label) + ':</span> ' +
+      '<span class="pdxri-side">' + issueHtml(pid, r.a, openKey) + ' ' +
         '<span class="pdxri-dir s-' + r.a.dir + '">' + r.a.word + '</span></span>' +
       '<span class="pdxri-sep" aria-hidden="true"> · </span>' +
-      '<span class="pdxri-side"><span class="pdxri-issue">' + esc(r.b.label) + ':</span> ' +
+      '<span class="pdxri-side">' + issueHtml(pid, r.b, openKey) + ' ' +
         '<span class="pdxri-dir s-' + r.b.dir + '">' + r.b.word + '</span></span>' +
     '</li>';
   }
@@ -261,7 +289,7 @@
     if (!rows.length) return '';
     return '<div id="pdxsec-related-issues" class="modal-section pdxri" data-pid="' + esc(pid) + '">' +
       '<div class="modal-section-title">Related issues</div>' +
-      '<ul class="pdxri-list">' + rows.map(lineHtml).join('') + '</ul>' +
+      '<ul class="pdxri-list">' + rows.map(function (r) { return lineHtml(r, pid, null); }).join('') + '</ul>' +
     '</div>';
   }
 
@@ -277,7 +305,7 @@
     if (!rows.length) return '';
     return '<div class="pdxri pdxri-drawer" data-pdxri-drawer="' + esc(key) + '" data-pid="' + esc(pid) + '">' +
       '<div class="pdxri-h">Related issues</div>' +
-      '<ul class="pdxri-list">' + rows.map(lineHtml).join('') + '</ul>' +
+      '<ul class="pdxri-list">' + rows.map(function (r) { return lineHtml(r, pid, key); }).join('') + '</ul>' +
     '</div>';
   }
 

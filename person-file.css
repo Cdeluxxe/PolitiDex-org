@@ -189,3 +189,11 @@
 .pdxri-dir.s-support { color: #4ade80; }
 .pdxri-dir.s-oppose { color: #f87171; }
 .pdxri-sep { color: #6b7c9c; }
+/* Each issue name opens that issue's drawer for this person. */
+.pdxri-go {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: rgba(143, 166, 198, 0.45);
+  text-underline-offset: 2px;
+}
+.pdxri-go:hover, .pdxri-go:focus-visible { text-decoration-color: currentColor; }
