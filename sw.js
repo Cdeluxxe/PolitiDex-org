@@ -11223,7 +11223,24 @@
 //     No location key is migrated, renamed or copied. No board added here takes
 //     a voice, so no dd_districts row is needed and no migration was written.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v490';
+// v491 - FIVE LOCATION TESTS: THE FINDER KEEPS THE READER'S STATE, AND /voice
+//     NAMES OUT-OF-STATE HOLDERS.
+//     find.html no longer appends the scope state's hint to a query that already
+//     names a state: "Denver, CO" had become "Denver, CO, UT", the Utah-bounded
+//     search found a Denver Street in Salt Lake City, and a Colorado reader was
+//     saved under Utah districts (Phoenix, AZ landed in Farmington the same way).
+//     Both geocoders' tiebreaks now prefer the state the query names.
+//     voter-hub-location.js fetches roster-seats/<state>.js, the reader's own
+//     state's in-office seat rows out of cmp-data.js (scripts/gen-roster-seats.mjs),
+//     only on a document that does not load cmp-data.js, so /voice names the same
+//     U.S. Senators, Governor, U.S. Representative and legislators the homepage
+//     band does; Utah's file is its legislators only, which is what names
+//     Jennifer Dailey-Provost and five other Utah members the live index files
+//     under short keys. find.html is precached and changed, so the shell moves
+//     one version. The roster-seats files are runtime-cached, not precached.
+//     No location key is migrated, renamed or copied. No board is added.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v491';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

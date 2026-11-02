@@ -2822,9 +2822,29 @@
     // after (see resolveGeocode), and whatever state the winning candidate turns
     // out to be in is the state the map re-scopes to. So a reader whose record
     // says Ohio can still search a Utah address and get Utah's lines.
+    // AND A QUERY THAT ALREADY NAMES ITS STATE IS NOT HINTED AT ALL. "Denver, CO"
+    // carries no ", UT", so the hint used to be appended anyway — "Denver, CO,
+    // UT" — and the Utah-bounded Nominatim step then found a Denver Street in Salt
+    // Lake City and placed a Colorado reader in Utah's districts. The reader's own
+    // state wins over the scope's, always. Only a comma-separated segment counts
+    // (a ZIP after it is allowed), so "1 Main St, Layton" names nothing and
+    // "Orange St" is never read as Oregon.
+    function queryState(q){
+      var parts = String(q || '').split(',');
+      for (var i = parts.length - 1; i > 0; i--){
+        var seg = parts[i].replace(/\b\d{5}(-\d{4})?\b/g, '').replace(/\s+/g, ' ').trim();
+        var st = seg && stateInfo(seg);
+        if (st) return st;
+      }
+      return null;
+    }
+    function foreignQuery(q){
+      var named = queryState(q);
+      return !!(named && named.name !== _scopeState);
+    }
     function biasState(q){
       var st = stateInfo(_scopeState);
-      if (!st) return q;
+      if (!st || queryState(q)) return q;
       var re = new RegExp('\\b(' + st.abbr + '|' + st.name.replace(/\s+/g, '\\s+') + ')\\b', 'i');
       return re.test(q) ? q : (q + ', ' + st.abbr);
     }
@@ -2845,7 +2865,8 @@
         // currently in scope, so an ambiguous match doesn't pin to a namesake in
         // another state; fall back to the top hit, which is what makes this a
         // tiebreak rather than a fence.
-        var want = scopeAbbr();
+        var qs = queryState(q);
+        var want = qs ? qs.abbr : scopeAbbr();
         var m = null;
         for (var mi = 0; mi < matches.length; mi++){
           var ac = matches[mi].addressComponents || {};
@@ -2898,8 +2919,9 @@
           for (var i = 0; i < arr.length; i++){
             var la = parseFloat(arr[i].lat), ln = parseFloat(arr[i].lon);
             if (isNaN(la) || isNaN(ln)) continue;
-            var inScope = !!(_scopeState &&
-              String((arr[i].address || {}).state || '').toLowerCase() === _scopeState.toLowerCase());
+            var wantState = (queryState(q) || {}).name || _scopeState;
+            var inScope = !!(wantState &&
+              String((arr[i].address || {}).state || '').toLowerCase() === wantState.toLowerCase());
             var score = (inScope ? 2 : 0) + (isExact(arr[i]) ? 1 : 0);
             if (score > bestScore){ bestScore = score; best = arr[i]; }
           }
@@ -2926,11 +2948,12 @@
       // AND IT CHECKS THE TOKEN BETWEEN STEPS, or a cancelled provider's
       // rejection politely starts the next one for a dead query.
       var bq = biasState(q);
+      var inScope = !foreignQuery(q);
       function next(hit){ return !hit && !stale(tok); }
       return geocodeCensus(bq)
         .then(function(hit){ return (next(hit) && bq !== q) ? geocodeCensus(q) : hit; })
-        .then(function(hit){ return next(hit) ? geocodeNominatim(bq, true) : hit; })
-        .then(function(hit){ return next(hit) ? geocodeNominatim(q, true) : hit; })
+        .then(function(hit){ return next(hit) ? geocodeNominatim(bq, inScope) : hit; })
+        .then(function(hit){ return (next(hit) && inScope) ? geocodeNominatim(q, true) : hit; })
         .then(function(hit){ return next(hit) ? geocodeNominatim(q, false) : hit; });
     }
     // Reverse Census lookup at a point — fills the Congressional + State Legislative

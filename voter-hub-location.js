@@ -1919,18 +1919,107 @@
   // bundle is absent. Nothing here is a second seat-holder table and nothing here
   // names a person: it is the same walk over the same records, pointed at the
   // index this document has rather than at the one it does not.
+  // The bundled roster global, read in exactly one place: undefined on a
+  // document that does not load cmp-data.js.
+  function _pdxBundle() {
+    try { return window.CMP_DATA; } catch (e) { return undefined; }
+  }
   function _pdxRosterTable() {
     var r = null;
     try {
-      r = window.CMP_DATA;
+      r = _pdxBundle();
       if (r && typeof r === 'object') { for (var k in r) { if (Object.prototype.hasOwnProperty.call(r, k)) return r; } }
     } catch (e) {}
+    var live = null;
     try {
       r = window.PROFILES;
-      if (r && typeof r === 'object') { for (var j in r) { if (Object.prototype.hasOwnProperty.call(r, j)) return r; } }
+      if (r && typeof r === 'object') { for (var j in r) { if (Object.prototype.hasOwnProperty.call(r, j)) { live = r; break; } } }
     } catch (e2) {}
-    return null;
+    return _pdxLeanTable(live);
   }
+
+  // ── AND, WITH NO BUNDLE ON THE PAGE, THE READER'S OWN STATE'S SEAT ROWS ────
+  // The live index is a few hundred curated rows and holds almost nobody outside
+  // Utah, so on /voice a Columbus reader's hallway named Jon Husted (who is in
+  // it) and printed "No sitting member on hand for this seat" over Bernie
+  // Moreno, Mike Carey, Mike DeWine and both legislators — every one of them
+  // named by the same reader's band on the homepage, where cmp-data.js is.
+  //
+  // roster-seats/<state>.js is that state's in-office seat rows out of
+  // cmp-data.js (scripts/gen-roster-seats.mjs), only the fields the walks
+  // below read. It is fetched once, for the reader's own state, and only on a
+  // document that does not load cmp-data.js. The two indexes are merged by
+  // index.html's rule: a live field wins wherever it is not blank, and a blank
+  // never overwrites a field the bundle's row knew. The walks then choose
+  // exactly as they do over the bundle, so /voice reaches the homepage's
+  // answer by the homepage's rules rather than by a second table of holders.
+  function _pdxSeatRows() {
+    var t = null;
+    try { t = window.PDX_SEAT_ROSTER; } catch (e) {}
+    return (t && typeof t === 'object') ? t : null;
+  }
+  function _pdxBlankField(v) {
+    return v === '' || v === null || v === undefined || (Array.isArray(v) && !v.length);
+  }
+  var _pdxLeanMemo = null;
+  function _pdxLeanTable(live) {
+    var seat = _pdxSeatRows();
+    var sn = seat ? Object.keys(seat).length : 0;
+    if (!sn) return live;
+    var ln = live ? Object.keys(live).length : 0;
+    var m = _pdxLeanMemo;
+    if (m && m.live === live && m.ln === ln && m.seat === seat && m.sn === sn) return m.table;
+    var out = {}, k, f;
+    for (k in seat) { if (Object.prototype.hasOwnProperty.call(seat, k)) out[k] = seat[k]; }
+    if (live) {
+      for (k in live) {
+        if (!Object.prototype.hasOwnProperty.call(live, k)) continue;
+        var lv = live[k], sv = out[k];
+        if (!sv || !lv || typeof lv !== 'object') { out[k] = lv; continue; }
+        var row = {};
+        for (f in sv) { if (Object.prototype.hasOwnProperty.call(sv, f)) row[f] = sv[f]; }
+        for (f in lv) {
+          if (!Object.prototype.hasOwnProperty.call(lv, f)) continue;
+          if (_pdxBlankField(lv[f]) && !_pdxBlankField(row[f])) continue;
+          row[f] = lv[f];
+        }
+        out[k] = row;
+      }
+    }
+    _pdxLeanMemo = { live: live, ln: ln, seat: seat, sn: sn, table: out };
+    return out;
+  }
+
+  // Fetch the reader's state's rows, once, where the document carries no
+  // bundle. Utah's file is its legislators only: seated-member.js seats them,
+  // and the live index files some of them under a short key nothing bridges
+  // (`jdailey` for jennifer_dailey_provost), so the Utah House District 22 card
+  // read "The member who holds this seat is on file" while the band and the
+  // board named her. Utah's statewide and congressional seats are untouched.
+  var _pdxSeatRowsAsked = {};
+  function _pdxWantSeatRows(stateName) {
+    var st = String(stateName == null ? '' : stateName).trim().toLowerCase();
+    if (!st || st === 'national' || _pdxSeatRowsAsked[st]) return;
+    try {
+      if (typeof _pdxBundle() !== 'undefined') return;
+      if (!document || !document.createElement || !document.querySelector) return;
+      if (document.querySelector('script[src$="/cmp-data.js"],script[src="cmp-data.js"]')) return;
+      var done = window.PDX_SEAT_ROSTER_STATES;
+      if (done && done[st]) return;
+      _pdxSeatRowsAsked[st] = true;
+      var el = document.createElement('script');
+      el.src = '/roster-seats/' + st.replace(/[^a-z]+/g, '-') + '.js';
+      el.async = true;
+      // A failed fetch leaves the hallway exactly as it was without the rows.
+      el.onerror = function () { try { if (el.parentNode) el.parentNode.removeChild(el); } catch (e) {} };
+      (document.head || document.body || document.documentElement).appendChild(el);
+    } catch (e) {}
+  }
+  // The file calls this as it lands. The walks' memos key on roster size, so
+  // they rebuild on their own; this only asks the page to paint again.
+  window._pdxSeatRosterLanded = function () {
+    try { if (typeof window._vhBallotRerender === 'function') window._vhBallotRerender(); } catch (e) {}
+  };
 
   // One record, looked up across both indexes. A lookup is asked in the
   // generous direction on purpose: every caller of it either NAMES somebody or
@@ -1938,14 +2027,21 @@
   // this page still knows.
   function _pdxRosterRaw(pid) {
     if (!pid) return null;
+    var c = _pdxBundle();
     try {
-      var c = window.CMP_DATA;
       if (c && c[pid]) return c[pid];
     } catch (e) {}
     try {
       var p = window.PROFILES;
-      if (p && p[pid]) return p[pid];
+      if (p && p[pid]) {
+        var sr = _pdxSeatRows();
+        return (sr && sr[pid] && typeof c === 'undefined') ? _pdxLeanTable(p)[pid] : p[pid];
+      }
     } catch (e2) {}
+    try {
+      var s = _pdxSeatRows();
+      if (s && s[pid] && typeof c === 'undefined') return s[pid];
+    } catch (e3) {}
     return null;
   }
 
@@ -3941,6 +4037,7 @@
     var loc = window._currentVoterLocation || {};
     var state = (loc.state || '');
     var located = !!window._hasUserLocation;
+    if (located) _pdxWantSeatRows(state);
     var national = state === 'National';
     var utah = String(state).trim().toLowerCase() === 'utah';
 
