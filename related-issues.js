@@ -16,7 +16,8 @@
 
    · ONLY THE PAIRS BELOW. Batch 1 is Water / Land / Energy; batch 2 is
      Spending / Entitlement (the "Clean Air & Water" side of the red-tape pair
-     is the Practical Stewardship key). Eight pairs in all. The list is closed;
+     is the Practical Stewardship key); batch 3 is Foreign Policy (Israel,
+     Iran, Ukraine, defense, war powers, restraint). Twelve pairs in all. The list is closed;
      a pair is never derived from keywords, categories or co-occurrence.
 
    · ONLY A PUBLISHED DIRECTION, ON BOTH SIDES. A direction is the person's
@@ -56,7 +57,18 @@
     { a: { key: 'gov_regulation',  label: 'Cut Federal Red Tape' },
       b: { key: 'enviro_balance',  label: 'Practical Stewardship' } },
     { a: { key: 'healthcare',      label: 'Expand Healthcare Access' },
-      b: { key: 'national_debt',   label: 'Tackle the National Debt' } }
+      b: { key: 'national_debt',   label: 'Tackle the National Debt' } },
+
+    // Batch 3: Foreign-policy tensions. The two border / due-process pairs wait
+    // for a Due Process & Immigration Courts issue to exist; they are not here.
+    { a: { key: 'israel_support',  label: 'Support for Israel' },
+      b: { key: 'restraint',       label: 'Diplomacy & Restraint' } },
+    { a: { key: 'strong_defense',  label: 'Peace Through Strength' },
+      b: { key: 'war_powers',      label: 'Congress and War Powers' } },
+    { a: { key: 'iran_policy',     label: 'Iran' },
+      b: { key: 'restraint',       label: 'Diplomacy & Restraint' } },
+    { a: { key: 'ukraine_policy',  label: 'Ukraine' },
+      b: { key: 'strong_defense',  label: 'Peace Through Strength' } }
   ];
 
   var WORD = { support: 'supports', oppose: 'opposes' };

@@ -11313,7 +11313,15 @@
 //     version. Drawers, Direction Match and effect lines are unchanged.
 //     No location key is migrated, renamed or copied. No board is added.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v497';
+// v498 - RELATED ISSUES ON A PERSON FILE, BATCH 3: FOREIGN-POLICY TENSIONS.
+//     related-issues.js gains four pairs: Support for Israel / Diplomacy &
+//     Restraint, Peace Through Strength / Congress and War Powers, Iran /
+//     Diplomacy & Restraint, Ukraine / Peace Through Strength. Twelve pairs in
+//     all; same rules as batches 1-2. The two border / due-process pairs wait
+//     for a Due Process & Immigration Courts issue. related-issues.js is
+//     precached, so the shell moves one version. Drawers, Direction Match and
+//     effect lines are unchanged. MIGRATION COST: none.
+const CACHE_VERSION = 'v498';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
