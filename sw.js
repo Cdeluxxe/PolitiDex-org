@@ -11334,7 +11334,15 @@
 //     all; same rules as batches 1-4. related-issues.js is precached, so the
 //     shell moves one version. Drawers, Direction Match and effect lines are
 //     unchanged. MIGRATION COST: none.
-const CACHE_VERSION = 'v500';
+// v501 - RELATED ISSUES ON A PERSON FILE, BATCH 6: FULL AUDIT.
+//     related-issues.js gains thirty-seven pairs from an audit of every key in
+//     the issue register (land / energy, taxes / spending, trade, healthcare,
+//     immigration, policing, rights, elections, foreign policy, checks on the
+//     executive, tech, education). Fifty-four pairs in all; same rules as
+//     batches 1-5. related-issues.js is precached, so the shell moves one
+//     version. Drawers, Direction Match and effect lines are unchanged.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v501';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
