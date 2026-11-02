@@ -33,8 +33,13 @@
      Two directions, side by side. Whether they align or conflict is carried as a
      data attribute for styling and tests, and is never printed as a word.
 
-   · IT READS, IT DOES NOT WRITE. Nothing here touches Direction Match, issue
-     drawers, effect lines, or any other section.
+   · IT READS, IT DOES NOT WRITE. Nothing here touches Direction Match, effect
+     lines, or any other section.
+
+   · IN THE ISSUE DRAWER, ONLY THIS ISSUE'S PAIRS. drawerHtml(pid, p, key) is
+     the same lines, filtered to the complete pairs that include the issue the
+     drawer is open on. consistency.js prints it after the finding line and
+     before the vote table. No complete pair on that issue: ''.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -260,9 +265,27 @@
     '</div>';
   }
 
+  // The complete pairs that include `key`, in list order.
+  function pairsForIssue(pid, p, key) {
+    if (!key) return [];
+    return pairsFor(pid, p).filter(function (r) { return r.a.key === key || r.b.key === key; });
+  }
+
+  // The drawer block, or '' when no complete pair includes this issue.
+  function drawerHtml(pid, p, key) {
+    var rows = pairsForIssue(pid, p, key);
+    if (!rows.length) return '';
+    return '<div class="pdxri pdxri-drawer" data-pdxri-drawer="' + esc(key) + '" data-pid="' + esc(pid) + '">' +
+      '<div class="pdxri-h">Related issues</div>' +
+      '<ul class="pdxri-list">' + rows.map(lineHtml).join('') + '</ul>' +
+    '</div>';
+  }
+
   window.PDXRelatedIssues = {
     PAIRS: PAIRS,
     pairsFor: pairsFor,
+    pairsForIssue: pairsForIssue,
+    drawerHtml: drawerHtml,
     lineText: lineText,
     sectionHtml: sectionHtml
   };

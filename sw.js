@@ -11342,7 +11342,17 @@
 //     batches 1-5. related-issues.js is precached, so the shell moves one
 //     version. Drawers, Direction Match and effect lines are unchanged.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v501';
+// v502 - RELATED ISSUES INSIDE THE ISSUE DRAWER.
+//     The issue drawer prints, after the finding line and before the vote
+//     table, the complete related-issue pairs that include the issue it is open
+//     on, in the person file's wording. Pairs without the open issue are left
+//     out; no complete pair means no block. Same fifty-four pairs, same
+//     both-sides rule, no score or badge. consistency.js, related-issues.js and
+//     issue.html (which now loads related-issues.js) are precached and changed,
+//     so the shell moves one version. The person-file section, the vote table,
+//     effect lines, finding line, scores and Direction Match are unchanged.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v502';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
