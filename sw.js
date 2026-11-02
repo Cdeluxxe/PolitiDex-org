@@ -11374,7 +11374,47 @@
 //     consistency.js and person-file.css are precached and changed, so the
 //     shell moves one version.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v504';
+// v505 - RELATED ISSUES: STATED AND RECORD, TWO LINES.
+//     Each related issue now prints up to two lines: the stated position
+//     ("Label: supports / opposes", green / red) and which way the votes run
+//     ("Label: record runs with / against", neutral), read from the shared
+//     record-direction index. One without the other prints alone; neither,
+//     the issue is left out. Same shape in the person file and the drawer;
+//     every name still opens that issue's drawer on the same person. Scores,
+//     Direction Match, the vote table and the map are unchanged.
+//     related-issues.js, consistency.js and person-file.css are precached and
+//     changed, so the shell moves one version.
+//     MIGRATION COST: none.
+// v506 - RELATED ISSUES: ISSUE COLOURS AND VOTES-ONLY LINES.
+//     Every issue name in the Related issues section and the drawer block now
+//     takes its issue's chip colour (PDXIssueColors.styleFor, --pdx-ic-ink);
+//     supports / opposes stay green / red and the link underline stays. A
+//     related issue with votes on file but no stated position and no one-way
+//     read prints its bare name, still a link, instead of being left out.
+//     The map, scores, Direction Match and the vote table are unchanged.
+//     related-issues.js, consistency.js and person-file.css are precached and
+//     changed, so the shell moves one version.
+//     MIGRATION COST: none.
+// v507 - RELATED ISSUES: RECORD-LINE COLOUR AND ISSUE ICONS.
+//     "record runs with" takes the supports green and "record runs against"
+//     the opposes red; the wording is unchanged so the line stays a record
+//     reading. Every related-issue name is led by its chip icon, inside the
+//     existing link. The map, which issues appear, the stated lines, scores,
+//     Direction Match and the vote table are unchanged. related-issues.js,
+//     consistency.js and person-file.css are precached and changed, so the
+//     shell moves one version.
+//     MIGRATION COST: none.
+// v508 - RELATED ISSUES: ISSUE NAMES CARRY THEIR CHIP COLOUR INLINE.
+//     Each related-issue name (stated, record and votes-only lines, person
+//     file and drawer) now sets its issue chip token's ink as an inline
+//     `color` on the name and on its link, alongside the --pdx-ic custom
+//     properties, so the colour no longer waits on a stylesheet (person-file.css
+//     loads asynchronously) and a link can never fall back to default blue.
+//     Position and record words keep green / red; icons stay. The map, which
+//     issues appear, scores and the vote table are unchanged. related-issues.js
+//     is precached and changed, so the shell moves one version.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v508';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

@@ -173,11 +173,10 @@
   #modal-file-kicker { font-size: 0.54rem; gap: 0.3rem; }
 }
 
-/* 🔗 Related issues (related-issues.js) — each issue with a published
-   direction, then the related issues the person also has one on. Plain text
-   weight on purpose: no badge, no verdict colour, only the house's
-   support/oppose tint on each direction word. Related items wrap inline so a
-   long list stays a few lines. */
+/* 🔗 Related issues (related-issues.js) — each issue, then its related issues,
+   one line per reading: a stated line ("supports" / "opposes", in the house's
+   support/oppose tint) and a record line ("record runs with" / "against", in the
+   same green / red; the wording keeps it a record reading). No badge, no verdict. */
 .pdxri-groups { list-style: none; margin: 0.35rem 0 0; padding: 0; }
 .pdxri-group {
   padding: 0.45rem 0;
@@ -187,12 +186,15 @@
   color: #c9d6ea;
 }
 .pdxri-group:first-child { border-top: 0; }
-.pdxri-list { list-style: none; margin: 0.15rem 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.1rem 0; }
-.pdxri-item { font-size: 0.8rem; color: #b5c4dc; }
-.pdxri-item + .pdxri-item::before { content: "\00b7"; color: #6b7c9c; padding: 0 0.45rem; }
-.pdxri-issue { font-weight: 600; }
+.pdxri-list { list-style: none; margin: 0.15rem 0 0; padding: 0; }
+.pdxri-item { display: block; font-size: 0.8rem; color: #b5c4dc; }
+/* Each name takes its issue's chip colour (issue-colors.js inline --pdx-ic-ink). */
+.pdxri-issue { font-weight: 600; color: var(--pdx-ic-ink, inherit); }
 .pdxri-dir.s-support { color: #4ade80; }
 .pdxri-dir.s-oppose { color: #f87171; }
+.pdxri-rec.r-with { color: #4ade80; }
+.pdxri-rec.r-against { color: #f87171; }
+.pdxri-ico { font-weight: 400; }
 /* Each issue name opens that issue's drawer for this person. */
 .pdxri-go {
   color: inherit;

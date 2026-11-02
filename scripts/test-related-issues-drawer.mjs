@@ -3,13 +3,22 @@
 // test-related-issues-drawer.mjs — the related-issues map inside the drawer
 // ─────────────────────────────────────────────────────────────────────────────
 // The issue drawer prints, after the finding line and before the vote table,
-// every issue the map relates to the open issue that the person has a
-// published supports / opposes on, one "Label: supports|opposes" line each.
+// every issue the map relates to the open issue, with up to two lines each:
+// a stated line ("Label: supports|opposes", from the stance map) and a record
+// line ("Label: record runs with|against", from the record-direction index).
 //
 //   1. LEE × PROTECT PUBLIC LANDS (real data): the drawer leads with votes and
 //      shows Keep Public Lands Public with Lee's stated position from the
 //      stance map, as a link that opens that drawer on Lee; the block sits
 //      between the finding line and the tally.
+//   1b. LEE × KEEP PUBLIC LANDS PUBLIC (real data): Protect Public Lands shows
+//      "record runs against"; a stated-only related issue shows only its
+//      stated line; a record-only one only its record line.
+//   1c. VOTES ONLY + COLOURS: Lee's Keep Public Lands Public drawer lists
+//      Protect Public Lands (no stated position) beside Expand Domestic Energy
+//      Production and Local Land Control; a related issue with votes that run
+//      no direction prints its bare name, still a link; every name carries its
+//      issue's chip colour token.
 //   2. FIXTURE: every related issue with a published direction is listed, in
 //      map order; a mixed one, an unrelated one and the open issue are not; the
 //      open issue is never a link; following a link lands on a drawer that
@@ -41,7 +50,7 @@ const FILES = [
   "state-senate-stances.js", "stance-helpers.js", "alignment-tool.js",
   "acct-spotlight-data.js", "say-vs-do.js", "exec-action-data.js",
   "exec-record.js", "exec-record-ui.js", "consistency.js", "voting-record.js",
-  "word-action.js", "profile-spine.js", "profiles-full.js",
+  "word-action.js", "profile-spine.js", "profiles-full.js", "issue-colors.js",
 ];
 const corpus = buildCorpus(ROOT);
 
@@ -71,11 +80,11 @@ function boot(withModule, extra) {
   }
   return win;
 }
-const text = (h) => String(h || "").replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
+const text = (h) => String(h || "").replace(/<span class="pdxri-ico"[^>]*>[^<]*<\/span> /g, "").replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
 
 const block = (h) => (/<div class="pdxri pdxri-drawer"[\s\S]*?<\/ul><\/div>/.exec(h) || [""])[0];
 const lines = (h) => [...block(h).matchAll(/<li class="pdxri-item"[\s\S]*?<\/li>/g)].map((m) => text(m[0]));
-const doors = (html) => [...html.matchAll(/<a class="pdxri-go" href="([^"]*)" data-pdxri-go="([^"]*)" data-pdxc-gap="([^"]*)" data-pdxc-gap-pid="([^"]*)"[^>]*>([^<]*)<\/a>/g)]
+const doors = (html) => [...html.matchAll(/<a class="pdxri-go" href="([^"]*)"(?: style="[^"]*")? data-pdxri-go="([^"]*)" data-pdxc-gap="([^"]*)" data-pdxc-gap-pid="([^"]*)"[^>]*>(?:<span class="pdxri-ico" aria-hidden="true">[^<]*<\/span> )?([^<]*)<\/a>/g)]
   .map((m) => ({ href: m[1], go: m[2], key: m[3], pid: m[4], label: m[5].replace(/&amp;/g, "&") }));
 const WORD = { support: "supports", oppose: "opposes" };
 
@@ -103,6 +112,96 @@ const WORD = { support: "supports", oppose: "opposes" };
   }
 }
 
+// ── 1b · Lee × Keep Public Lands Public, real data: stated and record lines ─
+{
+  const win = boot(true);
+  const CS = win.PDXConsistency, RI = win.PDXRelatedIssues;
+  const pm = win._polPositionMap("lee", win.CMP_DATA.lee) || {};
+  const h = CS.gapViewHtml("lee", "lands_keep_public") || "";
+  const ln = lines(h);
+  ok(ln.includes("Protect Public Lands: record runs against"), `Lee's Keep Public Lands Public drawer lacks Protect Public Lands: record runs against — ${JSON.stringify(ln)}`);
+  const stated = (k) => pm[k] && /^(support|oppose)$/.test(pm[k].stance) ? pm[k].stance : null;
+  // Stated-only: a related issue with a stance and no one-way record.
+  const so = RI.MAP.lands_keep_public.find((k) => stated(k) && !RI.recordOf("lee", k));
+  ok(!!so, "no stated-only related issue on Lee's Keep Public Lands Public drawer");
+  if (so) {
+    const L = String(win.ISSUE_MAP[so].label).replace(/^[^A-Za-z0-9]+/, "").trim();
+    const mine = ln.filter((l) => l.startsWith(L + ":"));
+    eq(JSON.stringify(mine), JSON.stringify([`${L}: ${WORD[stated(so)]}`]), `${so}: a stated-only related issue shows only the stated line`);
+  }
+  // Record-only: Protect Public Lands has no published stance for Lee.
+  ok(!stated("lands_preserve"), "Lee now has a stated position on Protect Public Lands; pick another record-only key");
+  eq(JSON.stringify(ln.filter((l) => l.startsWith("Protect Public Lands:"))), JSON.stringify(["Protect Public Lands: record runs against"]),
+     "a record-only related issue shows only the record line");
+  const b = block(h);
+  ok(/data-pdxri-line="record" data-pdxri-rec="against"[^>]*><span class="pdxri-issue"[^>]*><a class="pdxri-go"[^>]*data-pdxc-gap="lands_preserve"/.test(b),
+     "the record line's issue name opens Protect Public Lands on Lee");
+  // Lee's Protect Public Lands record line is red; a runs-with line is green.
+  ok(/data-pdxri-key="lands_preserve" data-pdxri-line="record" data-pdxri-rec="against">[\s\S]*?<span class="pdxri-rec r-against">record runs against<\/span>/.test(b),
+     "Lee's Protect Public Lands record line is not red");
+  ok(/<span class="pdxri-rec r-with">record runs with<\/span>/.test(b), "no green record-runs-with line on Lee's drawer");
+  const cs = R("consistency.js"), pf = R("person-file.css");
+  ok(cs.includes("'.pdxri-drawer .pdxri-rec.r-with{color:#4ade80;}'") && cs.includes("'.pdxri-drawer .pdxri-rec.r-against{color:#f87171;}'"),
+     "the drawer record words are not the supports green / opposes red");
+  ok(cs.includes("'.pdxri-drawer .pdxri-dir.s-support{color:#4ade80;}'") && cs.includes("'.pdxri-drawer .pdxri-dir.s-oppose{color:#f87171;}'"),
+     "the record colours no longer match the stated colours");
+  ok(/\.pdxri-rec\.r-with \{ color: #4ade80; \}/.test(pf) && /\.pdxri-rec\.r-against \{ color: #f87171; \}/.test(pf), "person-file record words are not green / red");
+  ok(!/class="pdxri-dir[^"]*">record/.test(b), "a record word carries the stated position tint");
+  ok(!ln.some((l) => /^Keep Public Lands Public:/.test(l)), "the open issue is repeated in its own drawer");
+}
+
+// ── 1c · votes-only lines and issue colours, real data ─────────────────────
+{
+  const win = boot(true);
+  const CS = win.PDXConsistency, RI = win.PDXRelatedIssues, C = win.PDXIssueColors;
+  const pm = win._polPositionMap("lee", win.CMP_DATA.lee) || {};
+  const h = CS.gapViewHtml("lee", "lands_keep_public") || "";
+  const b = block(h), ln = lines(h);
+  ok(!(pm.lands_preserve && /^(support|oppose)$/.test(pm.lands_preserve.stance)), "Lee has a stated position on Protect Public Lands");
+  ok(ln.some((l) => l.startsWith("Protect Public Lands")), `Protect Public Lands missing from Lee's Keep Public Lands Public drawer — ${JSON.stringify(ln)}`);
+  ok(ln.some((l) => l.startsWith("Expand Domestic Energy Production:")) && ln.some((l) => l.startsWith("Local Land Control:")),
+     "Expand Domestic Energy Production / Local Land Control missing beside it");
+  ok(doors(b).some((d) => d.key === "lands_preserve" && d.pid === "lee"), "Protect Public Lands is not a link on Lee");
+  // A votes-only key with no direction: bare name, no word, still a link.
+  const bare = RI.MAP.lands_keep_public.find((k) => !(pm[k] && /^(support|oppose)$/.test(pm[k].stance)) && !RI.recordOf("lee", k) && RI.hasVotes("lee", k));
+  ok(!!bare, "no votes-only, no-direction related issue on Lee's drawer");
+  if (bare) {
+    const L = String(win.ISSUE_MAP[bare].label).replace(/^[^A-Za-z0-9]+/, "").trim();
+    eq(JSON.stringify(ln.filter((l) => l.startsWith(L))), JSON.stringify([L]), `${bare}: a votes-only line is the bare name`);
+    const li = (new RegExp(`<li class="pdxri-item" data-pdxri-key="${bare}" data-pdxri-line="votes">[\\s\\S]*?</li>`).exec(b) || [""])[0];
+    ok(/class="pdxri-go"/.test(li) && !/pdxri-dir|pdxri-rec/.test(li), `${bare}: the votes-only line is not a bare link`);
+  }
+  // Colours: every name span carries its issue's chip token.
+  const spans = [...b.matchAll(/<span class="pdxri-issue" data-pdxri-color="([^"]+)" style="([^"]*)">/g)];
+  eq(spans.length, (b.match(/class="pdxri-issue"/g) || []).length, "an issue name has no colour token");
+  for (const [, key, style] of spans) {
+    eq(style, C.styleFor(key) + `color:${C.getIssueColor(key).ink};`, `${key}: the name is not in its issue chip colour`);
+    ok(style.includes(C.getIssueColor(key).ink), `${key}: the chip ink is missing`);
+  }
+  ok(/\.pdxri-drawer \.pdxri-issue\{[^}]*color:var\(--pdx-ic-ink/.test(R("consistency.js")), "the drawer name does not read --pdx-ic-ink");
+  // Icons: each name is led by its issue chip icon, inside the one link.
+  const named = [...b.matchAll(/<span class="pdxri-issue" data-pdxri-color="([^"]+)"[^>]*>(<a class="pdxri-go"[^>]*>)?(?:<span class="pdxri-ico" aria-hidden="true">([^<]*)<\/span> )?/g)];
+  eq(named.length, spans.length, "icon scan missed a name");
+  for (const [, key, link, ico] of named) {
+    ok(!!ico && String(win.ISSUE_MAP[key].label).startsWith(ico), `${key}: name lacks its issue icon`);
+    ok(!!link, `${key}: icon is not inside the link`);
+  }
+  eq((b.match(/<a class="pdxri-go"/g) || []).length, (b.match(/class="pdxri-issue"/g) || []).length, "an icon added a second link");
+  // Every line, stated and record: the name and its link wear the issue ink;
+  // the position and record words keep green / red.
+  for (const m of b.matchAll(/<li class="pdxri-item" data-pdxri-key="([^"]+)" data-pdxri-line="(stated|record|votes)"[\s\S]*?<\/li>/g)) {
+    const ink = C.getIssueColor(m[1]).ink;
+    ok(m[0].includes(`<a class="pdxri-go" href="/p/lee?issue=${m[1]}" style="color:${ink};"`), `${m[1]} (${m[2]}): the link is not in its issue colour`);
+    if (m[2] === "stated") ok(/<span class="pdxri-dir s-(support|oppose)">(supports|opposes)<\/span>/.test(m[0]), `${m[1]}: position word lost green / red`);
+    if (m[2] === "record") ok(/<span class="pdxri-rec r-(with|against)">record runs (with|against)<\/span>/.test(m[0]), `${m[1]}: record word lost green / red`);
+    ok(!/pdxri-(dir|rec)[^>]*style=/.test(m[0]), `${m[1]}: the issue colour leaked onto the direction word`);
+  }
+  ok(/\.pdxri-drawer \.pdxri-go\{color:inherit;text-decoration:underline/.test(R("consistency.js")), "the drawer link lost its underline");
+  ok(/\.pdxri-drawer \.pdxri-dir\.s-support\{color:#4ade80;\}/.test(R("consistency.js")) && /\.pdxri-drawer \.pdxri-dir\.s-oppose\{color:#f87171;\}/.test(R("consistency.js")),
+     "the position words are no longer green / red");
+  ok(/\.pdxri-issue \{[^}]*color: var\(--pdx-ic-ink/.test(R("person-file.css")), "the person-file name does not read --pdx-ic-ink");
+}
+
 // ── 2, 3 · fixture file ─────────────────────────────────────────────────────
 const PID = "lee";
 const FIX = {
@@ -118,8 +217,15 @@ const FIX = {
   const CS = win.PDXConsistency, RI = win.PDXRelatedIssues;
   ok(RI && typeof RI.drawerHtml === "function", "PDXRelatedIssues.drawerHtml is published");
   const pm = win._polPositionMap(PID, win.CMP_DATA[PID]);
-  const want = (key) => RI.MAP[key].filter((k) => pm[k] && /^(support|oppose)$/.test(pm[k].stance))
-    .map((k) => `${String(win.ISSUE_MAP[k].label).replace(/^[^A-Za-z0-9]+/, "").trim()}: ${WORD[pm[k].stance]}`);
+  const REC = { with: "record runs with", against: "record runs against" };
+  const want = (key) => RI.MAP[key].flatMap((k) => {
+    const L = String(win.ISSUE_MAP[k].label).replace(/^[^A-Za-z0-9]+/, "").trim(), out = [];
+    if (pm[k] && /^(support|oppose)$/.test(pm[k].stance)) out.push(`${L}: ${WORD[pm[k].stance]}`);
+    const r = RI.recordOf(PID, k);
+    if (r) out.push(`${L}: ${REC[r]}`);
+    if (!out.length && RI.hasVotes(PID, k)) out.push(L);
+    return out;
+  });
 
   const h = CS.gapViewHtml(PID, "lands_preserve") || "";
   const b = block(h);
@@ -129,7 +235,7 @@ const FIX = {
   for (const l of ["Keep Public Lands Public: supports", "Expand Domestic Energy Production: opposes", "Cut Federal Red Tape: supports"]) {
     ok(ln.includes(l), `drawer lacks ${l}`);
   }
-  ok(!ln.some((l) => /Local Land Control|Energy & Resource Development/.test(l)), "a mixed related position is printed");
+  ok(!ln.some((l) => /^(Local Land Control|Energy & Resource Development): (supports|opposes)/.test(l)), "a mixed related position is printed");
   ok(!ln.some((l) => /Gun/.test(l)), "an unrelated issue is printed");
   ok(!ln.some((l) => /^Protect Public Lands:/.test(l)), "the open issue is listed");
   ok(!doors(b).some((x) => x.key === "lands_preserve"), "the open issue is a link");
@@ -180,7 +286,7 @@ const FIX = {
       const bl = block(b);
       if (bl) {
         withBlock++;
-        const want = on.PDXRelatedIssues.itemsFor(pid, on.CMP_DATA[pid], r.key).map(on.PDXRelatedIssues.lineText);
+        const want = on.PDXRelatedIssues.itemsFor(pid, on.CMP_DATA[pid], r.key).flatMap(on.PDXRelatedIssues.lineTexts);
         eq(JSON.stringify(lines(b)), JSON.stringify(want), `${pid} × ${r.key}: drawer lines are not this issue's related positions`);
       } else {
         eq(on.PDXRelatedIssues.itemsFor(pid, on.CMP_DATA[pid], r.key).length, 0, `${pid} × ${r.key}: related position but no block`);
@@ -202,7 +308,7 @@ const FIX = {
   const sw = R("sw.js");
   ok(sw.includes("'/related-issues.js',") && sw.includes("'/consistency.js',"), "drawer scripts are precached");
   const v = Number((sw.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1]);
-  ok(v >= 504, "shell version bumped for the drawer block");
+  ok(v >= 508, "shell version bumped for inline issue colours on names");
 }
 
 if (failures.length) {

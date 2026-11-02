@@ -13,26 +13,35 @@
      lists A) and names only keys in the issue register. Nothing is derived from
      keywords, categories or co-occurrence, and there is no second list.
 
-   · ONLY A PUBLISHED DIRECTION. A direction is the person's documented position
-     on the key, read from window._polPositionMap — the one stance map every
-     drawer and both scoring lanes already read. Only "support" and "oppose"
-     count. A related issue with a mixed position, no card, or a record-only
-     reading is left out. Nothing left: no block, no heading, no empty state.
+   · TWO LINES, NOT ONE. Each related issue prints up to two lines:
+       Stated — the person's published position, from window._polPositionMap
+         (the one stance map every drawer and both scoring lanes read). Only
+         "support" and "oppose" count; mixed or no card gives no stated line.
+           Keep Public Lands Public: supports
+       Record — which way their votes run, from window._pdxRecordDirection (the
+         shared record-direction index). Only a characterised one-way read
+         counts; a split, thin, poleless or not-yet-loaded record gives none.
+           Protect Public Lands: record runs against
+     One without the other prints alone. Neither, but votes on file (a split,
+     thin or poleless read): the bare issue name, no word, still a link.
+     None of the three: the issue is left out.
+     Nothing left: no block, no heading, no empty state. The stated word takes
+     the green / red position tint; the record word takes the same green ("runs
+     with") / red ("runs against"), and its fixed wording keeps it a voting-
+     record reading, never a stated position. Every issue name takes its issue's
+     chip colour (PDXIssueColors.styleFor → --pdx-ic-ink) and is led by its
+     chip icon, inside the link.
 
-   · NO VERDICT. Each line is an issue name and a direction word, e.g.
-       Keep Public Lands Public: supports
-     No score, grade, percentage, count or "contradiction" badge.
+   · NO VERDICT. No score, grade, percentage, count or "contradiction" badge.
 
-   · PERSON FILE. sectionHtml(pid, p): for every issue the person has a
-     published direction on, that issue and its direction, then each related
-     issue they also have a published direction on. An issue with none is left
-     out.
+   · PERSON FILE. sectionHtml(pid, p): for every issue with a stated or record
+     line, that issue's lines, then each related issue's lines. An issue with
+     no related lines is left out.
 
-   · DRAWER. drawerHtml(pid, p, key): every issue related to `key` that the
-     person has a published direction on. The open issue itself has no
-     direction requirement — a drawer that leads with votes shows the stated
-     positions on related issues beside them. consistency.js prints it after the
-     finding line and before the vote table.
+   · DRAWER. drawerHtml(pid, p, key): the lines of every issue related to
+     `key`. The open issue itself is not repeated — the drawer's own header
+     already carries it. consistency.js prints the block after the finding line
+     and before the vote table.
 
    · EACH NAME IS A DOOR. Every issue name opens that issue's drawer for the
      same person, through the shared data-pdxc-gap route (an open drawer is
@@ -177,6 +186,7 @@
   };
 
   var WORD = { support: 'supports', oppose: 'opposes' };
+  var REC_WORD = { 'with': 'record runs with', against: 'record runs against' };
 
   function esc(s) {
     if (s == null) return '';
@@ -192,6 +202,16 @@
       if (l) return l;
     } catch (e2) { /* fall through */ }
     return String(key);
+  }
+
+  // The issue's own icon — the emoji the register label leads with, the same
+  // one its chips print. '' when the label carries none.
+  function iconOf(key) {
+    try {
+      var e = window.ISSUE_MAP && window.ISSUE_MAP[key];
+      var m = e && e.label ? /^([^A-Za-z0-9]+)/.exec(String(e.label)) : null;
+      return m ? m[1].trim() : '';
+    } catch (e2) { return ''; }
   }
 
   function related(key) {
@@ -212,26 +232,73 @@
     return (s === 'support' || s === 'oppose') ? s : null;
   }
 
-  function itemOf(pm, key) {
-    var d = directionOf(pm, key);
-    return d ? { key: key, label: labelOf(key), dir: d, word: WORD[d] } : null;
+  // 'with' | 'against' | null — the way the person's votes on `key` run,
+  // read from the shared record-direction index (window._pdxRecordDirection),
+  // the same reading the drawer's own record line and the decision surfaces
+  // print. Only a characterised one-way read counts: a split, a thin read, a
+  // poleless subject or a record that is not loaded yet gives no line.
+  function recordRead(pid, key) {
+    try {
+      if (!pid || typeof window._pdxRecordDirection !== 'function') return null;
+      return window._pdxRecordDirection(pid, key, { label: labelOf(key) }) || null;
+    } catch (e) { return null; }
+  }
+  function recordOf(pid, key, idx) {
+    idx = idx === undefined ? recordRead(pid, key) : idx;
+    if (!idx || !idx.characterised) return null;
+    return idx.lead === 'advances' ? 'with' : (idx.lead === 'opposes' ? 'against' : null);
+  }
+  // Any vote on file for this key, whichever way (or no way) it ran.
+  function hasVotes(idx) { return !!(idx && (idx.total || 0) > 0); }
+
+  // The issue-chip colour token (issue-colors.js): the chip's inline custom
+  // properties plus the token's text ink, set as `color` directly so the name
+  // is in its issue colour before (or without) any stylesheet. '' where that
+  // module is not loaded.
+  function inkOf(key) {
+    try {
+      var C = window.PDXIssueColors;
+      var t = C && typeof C.getIssueColor === 'function' ? C.getIssueColor(key) : null;
+      return t && t.ink ? String(t.ink) : '';
+    } catch (e) { return ''; }
+  }
+  function colorStyle(key) {
+    try {
+      var C = window.PDXIssueColors, ink = inkOf(key);
+      if (C && typeof C.styleFor === 'function') return (C.styleFor(key) || '') + (ink ? 'color:' + ink + ';' : '');
+    } catch (e) { /* uncoloured */ }
+    return '';
   }
 
-  // The related issues of `key` this person has a published direction on.
+  // One issue: its stated direction, its record direction, and whether any
+  // vote is on file. A votes-only issue (no stance, no one-way read) still
+  // counts and prints as its bare name. null when there is none of the three.
+  function itemOf(pid, pm, key) {
+    var idx = recordRead(pid, key);
+    var d = directionOf(pm, key), r = recordOf(pid, key, idx), v = hasVotes(idx);
+    if (!d && !r && !v) return null;
+    return { key: key, label: labelOf(key), icon: iconOf(key),
+      dir: d, word: d ? WORD[d] : '',
+      rec: r, recWord: r ? REC_WORD[r] : '',
+      votes: v, bare: !d && !r };
+  }
+
+  // The related issues of `key` this person has a stated direction or a
+  // record direction on.
   function itemsFor(pid, p, key, pm) {
     pm = pm || positionMap(pid, p);
     var out = [];
-    related(key).forEach(function (k) { var it = itemOf(pm, k); if (it) out.push(it); });
+    related(key).forEach(function (k) { var it = itemOf(pid, pm, k); if (it) out.push(it); });
     return out;
   }
 
-  // Person file: every issue with a published direction and at least one
-  // related issue with a published direction, in map order.
+  // Person file: every issue with a stated or record direction and at least
+  // one related issue with one, in map order.
   function groupsFor(pid, p) {
     var pm = positionMap(pid, p);
     var out = [];
     Object.keys(MAP).forEach(function (k) {
-      var anchor = itemOf(pm, k);
+      var anchor = itemOf(pid, pm, k);
       if (!anchor) return;
       var items = itemsFor(pid, p, k, pm);
       if (items.length) out.push({ issue: anchor, related: items });
@@ -239,7 +306,16 @@
     return out;
   }
 
-  function lineText(it) { return it.label + ': ' + it.word; }
+  // The printed lines for one issue, stated first: "Label: supports",
+  // "Label: record runs against".
+  function lineTexts(it) {
+    var out = [];
+    if (it.dir) out.push(it.label + ': ' + it.word);
+    if (it.rec) out.push(it.label + ': ' + it.recWord);
+    if (it.bare) out.push(it.label);
+    return out;
+  }
+  function lineText(it) { return lineTexts(it).join(' / '); }
 
   function issueHref(pid, key) {
     try {
@@ -251,19 +327,41 @@
 
   // One issue name: a door into that issue's drawer for this person, except
   // the issue already open, which stays plain text.
-  function nameHtml(pid, it, openKey) {
-    if (!pid || it.key === openKey) return '<span class="pdxri-issue">' + esc(it.label) + ':</span>';
-    return '<span class="pdxri-issue"><a class="pdxri-go" href="' + esc(issueHref(pid, it.key)) + '"' +
+  // The name carries its issue's chip colour; `colon` is false on a bare line.
+  function nameHtml(pid, it, openKey, colon) {
+    var c = colon === false ? '' : ':';
+    var st = colorStyle(it.key);
+    var open = '<span class="pdxri-issue" data-pdxri-color="' + esc(it.key) + '"' + (st ? ' style="' + esc(st) + '"' : '') + '>';
+    // The icon sits inside the link, so the name stays one tap.
+    var ico = it.icon ? '<span class="pdxri-ico" aria-hidden="true">' + esc(it.icon) + '</span> ' : '';
+    if (!pid || it.key === openKey) return open + ico + esc(it.label) + c + '</span>';
+    var ink = inkOf(it.key);
+    return open + '<a class="pdxri-go" href="' + esc(issueHref(pid, it.key)) + '"' +
+      (ink ? ' style="' + esc('color:' + ink + ';') + '"' : '') +
       ' data-pdxri-go="' + esc(it.key) + '" data-pdxc-gap="' + esc(it.key) + '" data-pdxc-gap-pid="' + esc(pid) + '"' +
-      ' aria-label="' + esc('Open ' + it.label + ' for this file') + '">' + esc(it.label) + '</a>:</span>';
+      ' aria-label="' + esc('Open ' + it.label + ' for this file') + '">' + ico + esc(it.label) + '</a>' + c + '</span>';
   }
 
-  function itemHtml(pid, it, openKey, cls) {
-    return '<li class="' + cls + '" data-pdxri-key="' + esc(it.key) + '" data-pdxri-dir="' + it.dir + '">' +
-      nameHtml(pid, it, openKey) + ' <span class="pdxri-dir s-' + it.dir + '">' + it.word + '</span></li>';
+  // Up to two lines for one issue. The stated line carries the green / red
+  // position word; the record line a neutral one, so the two never read alike.
+  function linesHtml(pid, it, openKey, cls, tag) {
+    var out = '';
+    if (it.dir) {
+      out += '<' + tag + ' class="' + cls + '" data-pdxri-key="' + esc(it.key) + '" data-pdxri-line="stated" data-pdxri-dir="' + it.dir + '">' +
+        nameHtml(pid, it, openKey) + ' <span class="pdxri-dir s-' + it.dir + '">' + it.word + '</span></' + tag + '>';
+    }
+    if (it.rec) {
+      out += '<' + tag + ' class="' + cls + '" data-pdxri-key="' + esc(it.key) + '" data-pdxri-line="record" data-pdxri-rec="' + it.rec + '">' +
+        nameHtml(pid, it, openKey) + ' <span class="pdxri-rec r-' + it.rec + '">' + it.recWord + '</span></' + tag + '>';
+    }
+    if (it.bare) {
+      out += '<' + tag + ' class="' + cls + '" data-pdxri-key="' + esc(it.key) + '" data-pdxri-line="votes">' +
+        nameHtml(pid, it, openKey, false) + '</' + tag + '>';
+    }
+    return out;
   }
 
-  // The person-file section, or '' when no issue has a related position.
+  // The person-file section, or '' when no issue has a related line.
   function sectionHtml(pid, p) {
     var groups = groupsFor(pid, p);
     if (!groups.length) return '';
@@ -271,22 +369,21 @@
       '<div class="modal-section-title">Related issues</div>' +
       '<ul class="pdxri-groups">' + groups.map(function (g) {
         return '<li class="pdxri-group" data-pdxri-issue="' + esc(g.issue.key) + '">' +
-          '<div class="pdxri-anchor" data-pdxri-key="' + esc(g.issue.key) + '" data-pdxri-dir="' + g.issue.dir + '">' +
-            nameHtml(pid, g.issue, null) + ' <span class="pdxri-dir s-' + g.issue.dir + '">' + g.issue.word + '</span></div>' +
-          '<ul class="pdxri-list">' + g.related.map(function (it) { return itemHtml(pid, it, null, 'pdxri-item'); }).join('') + '</ul>' +
+          linesHtml(pid, g.issue, null, 'pdxri-anchor', 'div') +
+          '<ul class="pdxri-list">' + g.related.map(function (it) { return linesHtml(pid, it, null, 'pdxri-item', 'li'); }).join('') + '</ul>' +
         '</li>';
       }).join('') + '</ul>' +
     '</div>';
   }
 
-  // The drawer block, or '' when no related issue has a published direction.
+  // The drawer block, or '' when no related issue has a stated or record line.
   function drawerHtml(pid, p, key) {
     if (!key) return '';
     var items = itemsFor(pid, p, key);
     if (!items.length) return '';
     return '<div class="pdxri pdxri-drawer" data-pdxri-drawer="' + esc(key) + '" data-pid="' + esc(pid) + '">' +
       '<div class="pdxri-h">Related issues</div>' +
-      '<ul class="pdxri-list">' + items.map(function (it) { return itemHtml(pid, it, key, 'pdxri-item'); }).join('') + '</ul>' +
+      '<ul class="pdxri-list">' + items.map(function (it) { return linesHtml(pid, it, key, 'pdxri-item', 'li'); }).join('') + '</ul>' +
     '</div>';
   }
 
@@ -296,6 +393,11 @@
     itemsFor: itemsFor,
     groupsFor: groupsFor,
     lineText: lineText,
+    lineTexts: lineTexts,
+    recordOf: recordOf,
+    iconOf: iconOf,
+    colorStyle: colorStyle,
+    hasVotes: function (pid, key) { return hasVotes(recordRead(pid, key)); },
     sectionHtml: sectionHtml,
     drawerHtml: drawerHtml
   };
