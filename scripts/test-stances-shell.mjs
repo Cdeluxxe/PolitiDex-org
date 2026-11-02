@@ -316,8 +316,8 @@ const COPIES = [
   // vocabulary on `<script>` … `</script>` (19328–19448, 121 lines). The old
   // vocabulary pin still matched only because it opened on a blank line, which
   // matches anywhere; the run of substance starts on the tag.
-  { from: "index.html", src: INDEX, a: 19285, b: 19309, what: "the .pdxis-stance* pill rules" },
-  { from: "index.html", src: INDEX, a: 19328, b: 19448, what: "the PDXStance vocabulary" },
+  { from: "index.html", src: INDEX, a: 19313, b: 19337, what: "the .pdxis-stance* pill rules" },
+  { from: "index.html", src: INDEX, a: 19356, b: 19476, what: "the PDXStance vocabulary" },
 ];
 // Both index.html ranges have now moved THREE TIMES, and the third ran the other
 // way. The Digital Library split took #digital-library out of index.html but left

@@ -789,7 +789,10 @@ const VERIFIED_OPTS = { uid: "u_7", loc: { state: "Utah", city: "Layton", county
     // The mobile-menu speed pass (v487) changed the nav measurer's ResizeObserver
     // and the drawer's open path. Those are chrome scripts, not money markup.
     .replace(/    \/\/ The authoritative signal:[\s\S]*?\n    \}\n  \}\)\(\);/, "<NAV-RO>")
-    .replace(/(?:    \/\/ The drawer's top IS[^\n]*\n[^\n]*\n)?    function fit\(\) \{[\s\S]*?attributeFilter: \['class'\] \}\);\n    \} catch \(e\) \{\}/, "<MENU-FIT>");
+    .replace(/(?:    \/\/ The drawer's top IS[^\n]*\n[^\n]*\n)?    function fit\(\) \{[\s\S]*?attributeFilter: \['class'\] \}\);\n    \} catch \(e\) \{\}/, "<MENU-FIT>")
+    // The Election Day line (v495) went into the hero above the record carousel.
+    // It is hero copy, not money markup.
+    .replace(/    <!-- pdx:hero-election-day:begin -->[\s\S]*?<!-- pdx:hero-election-day:end -->\n/, "");
   for (const f of MONEY) {
     const src = R(f);
     if (head) eq(sansAlias(src) === sansAlias(head(f)), true, `${f}: money markup changed in this pass`);

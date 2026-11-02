@@ -314,7 +314,7 @@ const COPIES = [//   AND DOWN THE DOCUMENT BY 20 for the federal-locator pass, w
   // And down by 1 again for the shell-hygiene pass: one more line landed in
   // index.html above PDXSaved. 19941–20363, located verbatim on `<script>` …
   // `</script>`, back at its full 423 lines.
-  { from: "index.html", src: INDEX, a: 19941, b: 20363, what: "PDXSaved" },
+  { from: "index.html", src: INDEX, a: 19969, b: 20391, what: "PDXSaved" },
 ];
 // AND IT MOVED AGAIN FOR THE FINDER-BASEMAP PASS: the district-map controller
 // on index.html grew 271 lines above this block — a keyless OpenStreetMap tile

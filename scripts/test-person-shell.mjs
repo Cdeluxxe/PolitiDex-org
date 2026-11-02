@@ -386,10 +386,10 @@ const COPIES = [
   [2013, 2033, "the Firebase compat bundles, the key injection and the stub"],
   [2185, 2230, "the share furniture share-preview.ts rewrites"],
   [3728, 3791, "the crawl-header guard"],
-  [13331, 13365, "the profile modal down to #modal-content"],
-  [13426, 13472, "the stance popover, the record overlay and the share sheet"],
-  [19328, 19448, "PDXStance"],
-  [21942, 22137, "the PWA runtime and the service-worker registration"],
+  [13359, 13393, "the profile modal down to #modal-content"],
+  [13454, 13500, "the stance popover, the record overlay and the share sheet"],
+  [19356, 19476, "PDXStance"],
+  [21970, 22165, "the PWA runtime and the service-worker registration"],
 ];
 //   AND THE STATE-BADGE PASS MOVED THE SAME LOWER FOUR BY 156, ALL OF IT ONE
 // EDIT ABOVE THEM: the location card's silhouette stopped being a hardcoded
