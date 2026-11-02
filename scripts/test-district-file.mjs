@@ -461,8 +461,10 @@ has(F.seatedHtml(HD68, { seatKey: "", districtNumber: null }), 'href="/p/chew_h6
   "and so does one carrying empty ones");
 
 // A DISTRICT WHOSE SEAT IS NOT CURATED STILL SAYS SO. The honest answer is not
-// removed by any of the above — it is what an unmapped district gets.
-const seatUnmapped = F.seatedHtml("ut-statehouse-1", null);
+// removed by any of the above — it is what an unmapped district gets. Since the
+// November 2026 pass every one of the 75 Utah House seats is curated, so the
+// unmapped case is a number outside the plan.
+const seatUnmapped = F.seatedHtml("ut-statehouse-76", null);
 has(seatUnmapped, F.COPY.seatedNone,
   "an unmapped district says we have not resolved who holds the seat");
 lacks(seatUnmapped, 'href="/p/', "and links to nobody");
@@ -498,7 +500,9 @@ eq(seatedFor("ut-house-2"), "maloy", "a U.S. House key reads the congressional m
 eq(seatedFor("house", 68), null,
   "and 68 names no U.S. House district, so it resolves to nobody rather than a state rep");
 eq(seatedFor("ut-statesenate-26"), "dhinkins", "a state senate key reads the senate map");
-eq(seatedFor("ut-statehouse-1"), null, "a district the map does not hold resolves to null");
+eq(seatedFor("ut-statehouse-1"), "thomas_peterson", "HD-1 resolves to its curated member");
+eq(seatedFor("ut-statehouse-62"), "nthurston", "and so does HD-62, the Provo seat");
+eq(seatedFor("ut-statehouse-76"), null, "a district the map does not hold resolves to null");
 eq(seatedFor("statehouse", 0), null, "and so does a number that is not a district");
 eq(seatedFor("", 68), null, "a seat key that names no chamber resolves to nobody");
 eq(seatedFor(null, null), null, "and neither does nothing at all");
