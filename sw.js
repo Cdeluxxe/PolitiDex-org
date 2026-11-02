@@ -11361,7 +11361,20 @@
 //     unchanged. related-issues.js, consistency.js and person-file.css are
 //     precached and changed, so the shell moves one version.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v503';
+// v504 - THE RELATED-ISSUES MAP.
+//     related-issues.js replaces the fixed list of fifty-four pairs with one
+//     map, issue key -> the keys that share its ground, symmetric and covering
+//     every key in the issue register. The person file lists, under each issue
+//     with a published direction, every related issue the person also has a
+//     published supports / opposes on; the drawer lists every related issue with
+//     one, after the finding line and before the vote table, so a stated
+//     position sits beside the votes. Each name opens that issue's drawer for
+//     the same person; the open issue is not a link. Scores, Direction Match,
+//     the vote table and Word vs Action are unchanged. related-issues.js,
+//     consistency.js and person-file.css are precached and changed, so the
+//     shell moves one version.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v504';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
