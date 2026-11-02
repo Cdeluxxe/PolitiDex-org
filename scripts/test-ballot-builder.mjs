@@ -214,7 +214,7 @@ const utahHolderPids = new Set();
     const html = paint(w);
     const want = w.PDXBallotWorkspace._holders(s, r).map((p) => href(w, p));
     want.forEach((h, i) => utahHolderPids.add(w.PDXBallotWorkspace._holders(s, r)[i]));
-    const fact = (/Holds this seat now: ([\s\S]*?)<\/span><\/span>/.exec(html) || [])[1] || "";
+    const fact = (/data-bw-grp="holder">Holds this seat now<\/p>\s*<ul class="bw-people"[^>]*>([\s\S]*?)<\/ul>/.exec(html) || [])[1] || "";
     const got = [...fact.matchAll(/href="([^"]+)"/g)].map((m) => m[1]);
     if (String(s.key).indexOf("local") === 0) continue;
     eq(JSON.stringify(got), JSON.stringify(want), `${s.key}: the seat head names exactly the holders the resolver gives this location`);
@@ -263,7 +263,8 @@ section("2 · Every person on the ballot is a door to /p/");
 section("2b · Every seat lists every candidate on file this cycle, and invents nobody");
 // Each seat's roster, as painted: [pid, role] in order, and the printed count.
 const rosterRoles = (html) => [...html.matchAll(/data-bw-roster="([^"]+)"[\s\S]*?data-bw-role="([a-z]+)"/g)].map((m) => [m[1], m[2]]);
-const rosterCount = (html) => +((/On file for this race · (\d+) (?:person|people)/.exec(html) || [])[1] || -1);
+// The Research step's rows: one per person on file for the race.
+const rosterCount = (html) => (html.indexOf('data-bw-step="research"') < 0 ? -1 : (html.match(/<li class="bw-person"/g) || []).length);
 const at = (area, city, county, extra) => boot(Object.assign({ store: { politidex_keyraces_location: area }, location: { state: "Utah", city, county } }, extra || {}));
 const seatHtml = (w, key) => { w.pdxBallotWorkspaceOpen(key); const full = paint(w); return { full, d: desk(full), g: glance(full, key) }; };
 {
@@ -566,9 +567,10 @@ for (const c of DAVIS_THIRD) {
   eq(rosterCount(d), roles.length, `${c.pid}: the count is the list`);
   lacks(d, "data-bw-roster-none", `${c.seat} District ${c.dist} does not print the honest empty`);
   lacks(d, "District not mapped for your area", `${c.seat} District ${c.dist} is not called unmapped`);
-  if (d.indexOf("Holds this seat now:") < 0) {
+  if (d.indexOf(">Holds this seat now<") < 0) {
     const inc = (roles.find(([, role]) => role === "incumbent") || [])[0];
-    ok(!inc || d.indexOf(`On file as holding this seat: <b><a class="bw-cand-name" href="/p/${inc}"`) >= 0, `${c.seat} District ${c.dist}: the fact line names the incumbent the list names`);
+    const grp = (/data-bw-grp="holder">On file as holding this seat<\/p>\s*<ul class="bw-people"[^>]*>([\s\S]*?)<\/ul>/.exec(d) || ["", ""])[1];
+    ok(!inc || grp.indexOf(`<a class="bw-cand-name" href="/p/${inc}"`) >= 0, `${c.seat} District ${c.dist}: the fact line names the incumbent the list names`);
     lacks(d, "No current officeholder resolved", `${c.seat} District ${c.dist}: no fact line contradicts the listed incumbent`);
   }
   // The homepage's race card for the same seat, on its own keyers.

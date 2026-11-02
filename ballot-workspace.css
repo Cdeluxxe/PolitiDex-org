@@ -22,13 +22,10 @@
 
    COLOUR DISCIPLINE
    ─────────────────
-   The only good/bad ramp here is the match score, and it arrives as an inline
-   colour from the app's own _alignScoreColor — so this file contains no score
-   ramp of its own. Seat accents come from TEAM_POSITIONS' own colours, inline,
-   per seat. Direction Match is deliberately grey on every branch: it is a
-   secondary reading and a coloured DM chip would compete with the ruler that
-   actually orders the field. Nothing here is coloured by party, because nothing
-   in this feature reads party.
+   There is no good/bad ramp on this surface: the desk prints no score, so
+   there is nothing to grade. Seat accents come from TEAM_POSITIONS' own
+   colours, inline, per seat; the three steps are forest and gold. Nothing here
+   is coloured by party, because nothing in this feature reads party.
 
    Targets are 44px minimum on every control, per the mobile brief.
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -186,95 +183,17 @@
   font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 1.1rem;
   color: #fff; margin: 0; letter-spacing: 0.02em;
 }
-.bw-deskhd-s { font-size: 0.74rem; color: #8fa2bd; margin: 0.1rem 0 0; }
-
-/* Who holds the seat, and what the reader has decided about it. Two facts on
-   one line, because they are the two facts the seat is about. */
-.bw-facts {
-  display: flex; flex-wrap: wrap; gap: 0.45rem; margin: 0.8rem 0 0;
-}
-.bw-fact {
-  display: inline-flex; align-items: center; gap: 0.4rem;
-  padding: 0.4rem 0.6rem; border-radius: 0.65rem; font-size: 0.76rem;
-  background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.09);
-  color: #b8c6da;
-}
-.bw-fact b { color: #fff; font-weight: 700; }
-.bw-fact.is-team { background: rgba(251, 191, 36, 0.1); border-color: rgba(251, 191, 36, 0.32); color: #fde68a; }
-.bw-fact.is-team b { color: #fff; }
-.bw-fact-btn { cursor: pointer; min-height: 34px; }
-.bw-fact-btn:hover { border-color: rgba(96, 165, 250, 0.45); color: #dbeafe; }
-
-/* ── The ruler line ───────────────────────────────────────────────────────── */
-/* One sentence naming what ordered the field, above the field. The formal
-   record is the ruler on this surface; the line says so, and says what is not
-   doing the ordering, in the same breath. */
-.bw-ruler {
-  margin: 0.9rem 0 0; padding: 0.55rem 0.7rem; border-radius: 0.7rem;
-  font-size: 0.74rem; line-height: 1.5; color: #a9bad2;
-  background: rgba(96, 165, 250, 0.07); border: 1px solid rgba(96, 165, 250, 0.18);
-}
-.bw-ruler b { color: #dbeafe; }
-.bw-ruler-alt {
-  display: block; margin-top: 0.3rem; color: #7f93b0; font-size: 0.7rem;
-}
-
-/* The seat-level finding: how many shared issues these formal records part
-   company on. Counts of rows, never a score. */
-.bw-diverge {
-  margin: 0.7rem 0 0; padding: 0.6rem 0.7rem; border-radius: 0.7rem;
-  font-size: 0.76rem; line-height: 1.55; color: #b6c5da;
-  background: rgba(255, 255, 255, 0.035); border: 1px solid rgba(255, 255, 255, 0.08);
-}
-.bw-diverge b { color: #fff; }
-.bw-diverge .bw-d-hot { color: #fca5a5; }
-.bw-diverge .bw-d-keys { color: #93a7c2; }
 
 /* ── Candidate rows ───────────────────────────────────────────────────────── */
 .bw-field { list-style: none; margin: 0.85rem 0 0; padding: 0; display: grid; gap: 0.55rem; }
 .bw-cand {
   display: grid; gap: 0.5rem 0.7rem; align-items: center;
-  grid-template-columns: 2.6rem minmax(0, 1fr);
-  padding: 0.65rem 0.7rem; border-radius: 0.85rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 0.5rem 0.7rem; border-radius: 0.85rem;
   background: rgba(255, 255, 255, 0.035); border: 1px solid rgba(255, 255, 255, 0.09);
 }
 .bw-cand.is-mine { background: rgba(251, 191, 36, 0.09); border-color: rgba(251, 191, 36, 0.38); }
-.bw-cand.is-gap { background: rgba(255, 255, 255, 0.02); border-style: dashed; }
 
-/* ── THREE READS, THREE FACES, AND THIS IS THE SECOND ──────────────────────
-   A candidate row prints as many as three measurements within a few pixels of
-   each other, and a reader tells them apart by their face long before they read
-   the label:
-
-     1. THE FORMAL RECORD — no chip, no figure, no colour. It is the pattern
-        language in the seat's copy (.bw-diverge, .bw-fact) and it is what orders
-        the field.
-     2. YOUR MATCH · RECORD — this tile. One hue, violet, used nowhere else on
-        this surface, with the reader's half of the measurement in the label.
-     3. WORD vs ACTION / Direction Match — .bw-dm below, grey and small, with the
-        ⚖️ keycap the app uses for that read everywhere.
-
-   The number used to be painted on the alignment green / amber / red ramp, which
-   is the one colour language a reader already reads as a verdict on a person —
-   so a 12% tile beside a name in red said "this candidate is bad" rather than
-   "you and their record overlap on 12% of your issues". One flat hue says
-   "this is a lane", not "this is a grade", and a share of the reader's own
-   issues has no good or bad end to grade towards. */
-.bw-score { grid-row: span 2; text-align: center; }
-.bw-score-n {
-  display: block; font-family: 'Oswald', sans-serif; font-weight: 700;
-  font-size: 1.3rem; line-height: 1;
-  color: #c4b5fd;
-}
-.bw-score-n i { font-style: normal; font-size: 0.7rem; opacity: 0.75; }
-.bw-score-l {
-  display: block; font-size: 0.56rem; letter-spacing: 0.08em; text-transform: uppercase;
-  color: #a99adf; margin-top: 0.15rem; max-width: 5.4rem; line-height: 1.25;
-}
-/* The separator inside the label is a hairline dot, not a word: "your match" and
-   "record" are the two halves of one lane name and must not read as two chips. */
-.bw-score-l i { font-style: normal; opacity: 0.6; margin: 0 0.15em; }
-.bw-score-dash { display: block; font-size: 1.1rem; color: #64748b; line-height: 1; }
 
 .bw-cand-who { min-width: 0; }
 .bw-cand-name {
@@ -318,20 +237,6 @@
    candidates does not read as a list of links. */
 a.bw-cand-name { text-decoration: none; }
 a.bw-cand-name:hover, a.bw-cand-name:focus-visible { color: #93c5fd; text-decoration: underline; }
-.bw-cand-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.2rem; }
-.bw-tag {
-  font-size: 0.64rem; letter-spacing: 0.05em; text-transform: uppercase;
-  padding: 0.15rem 0.4rem; border-radius: 0.4rem;
-  background: rgba(255, 255, 255, 0.06); color: #9fb0c8;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-.bw-tag.is-inc { background: rgba(96, 165, 250, 0.14); color: #bfdbfe; border-color: rgba(96, 165, 250, 0.3); }
-.bw-tag.is-mine { background: rgba(251, 191, 36, 0.16); color: #fde68a; border-color: rgba(251, 191, 36, 0.36); }
-/* Running is a filing; Former is not a filing and not an office. They are told
-   apart by colour as well as word so the difference survives a glance. */
-.bw-tag.is-cand { background: rgba(45, 212, 191, 0.12); color: #99f6e4; border-color: rgba(45, 212, 191, 0.28); }
-.bw-tag.is-former { background: rgba(148, 163, 184, 0.12); color: #cbd5e1; border-color: rgba(148, 163, 184, 0.26); }
-
 /* ── The lines-may-move note ────────────────────────────────────────────────
    Utah's congressional and legislative maps are under active court-ordered
    revision, so the district a reader is in today is not guaranteed to be the
@@ -339,25 +244,13 @@ a.bw-cand-name:hover, a.bw-cand-name:focus-visible { color: #93c5fd; text-decora
    district seats only — never over a statewide seat, which has no lines to
    move. */
 .bw-lines {
-  margin: 0 0 0.7rem; padding: 0.5rem 0.6rem;
+  margin: 0.6rem 0 0; padding: 0.5rem 0.6rem;
   font-size: 0.72rem; line-height: 1.5; color: #cbb783;
   background: rgba(245, 200, 66, 0.06);
   border: 1px solid rgba(245, 200, 66, 0.18); border-radius: 0.5rem;
 }
 .bw-lines b { color: #f5e3ad; font-weight: 700; }
-/* The gap word: why this candidate has no number. Never a placeholder figure. */
-.bw-gapword { display: block; font-size: 0.7rem; color: #94a3b8; margin-top: 0.25rem; line-height: 1.45; }
-
-/* Direction Match, and every reason it looks like this. Grey, small, under the
-   name, prefixed with the question it answers — never in the number slot, never
-   a sort key, and never coloured like the ruler above it. */
-.bw-dm {
-  display: block; margin-top: 0.3rem; font-size: 0.68rem; line-height: 1.45; color: #8b9cb5;
-}
-.bw-dm b { color: #b6c5da; font-weight: 700; }
-.bw-dm-k { color: #7f93b0; }
-
-.bw-cand-act { grid-column: 2; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.bw-cand-act { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 .bw-pick {
   min-height: 44px; padding: 0.45rem 0.85rem; border-radius: 0.7rem; cursor: pointer;
   font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.78rem;
@@ -374,6 +267,94 @@ a.bw-cand-name:hover, a.bw-cand-name:focus-visible { color: #93c5fd; text-decora
   background: rgba(255, 255, 255, 0.05); color: #cbd5e1;
   border-color: rgba(255, 255, 255, 0.16);
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE THREE STEPS — RESEARCH, ALIGN, COMPARE
+   ────────────────────────────────────────────────────────────────────────────
+   One open seat is three cards in order, and nothing above them but the seat's
+   name. Forest fill and a gold edge, the app's pairing for "a decision of
+   yours" (the District Voice card and the filled team slot); the step number is
+   a gold disc so the order reads at a glance. No colour on this surface grades
+   a person: a candidate's direction is printed in plain text, never on a
+   green / amber / red ramp.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.bw-step {
+  margin: 0.85rem 0 0; padding: 0.8rem 0.9rem 0.9rem; border-radius: 0.9rem;
+  background: linear-gradient(135deg, rgba(18, 58, 42, 0.55), rgba(14, 30, 40, 0.7));
+  border: 1px solid rgba(245, 200, 66, 0.28); border-left: 3px solid rgba(245, 200, 66, 0.7);
+  min-width: 0;
+}
+.bw-step-h {
+  display: flex; align-items: center; gap: 0.5rem; margin: 0 0 0.6rem;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.82rem;
+  letter-spacing: 0.16em; text-transform: uppercase; color: #f5c842;
+}
+.bw-step-n {
+  width: 1.45rem; height: 1.45rem; flex: none; border-radius: 50%;
+  display: inline-grid; place-items: center; letter-spacing: 0;
+  background: linear-gradient(135deg, #fad96a, #e6b800); color: #0a0f1e; font-size: 0.8rem;
+}
+.bw-step-none { margin: 0; font-size: 0.8rem; line-height: 1.55; color: #9fb5a8; font-style: italic; }
+
+/* 1 · Research */
+.bw-grp {
+  margin: 0 0 0.35rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: #c8dccf;
+}
+.bw-people + .bw-grp, .bw-step-none + .bw-grp, .bw-people + .bw-step-none { margin-top: 0.7rem; }
+.bw-people { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+.bw-person { display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
+.bw-person-office { font-size: 0.76rem; color: #c8dccf; padding-left: calc(38px + 0.55rem); line-height: 1.4; }
+.bw-person .bw-cand-name { min-height: 44px; }
+
+/* 2 · Align */
+.bw-stances { list-style: none; margin: 0 0 0.7rem; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.bw-stance {
+  display: inline-flex; align-items: baseline; gap: 0.4rem;
+  padding: 0.35rem 0.6rem; border-radius: 0.6rem; font-size: 0.8rem; color: #e7f1ea;
+  background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(245, 200, 66, 0.22);
+}
+.bw-stance-side {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.72rem;
+  letter-spacing: 0.06em; text-transform: uppercase; color: #fde68a;
+}
+.bw-step-none + .bw-stance-go { margin-top: 0.7rem; }
+a.bw-go { text-decoration: none; }
+.bw-go.is-lead.bw-stance-go {
+  background: linear-gradient(135deg, #fad96a, #e6b800); color: #0a0f1e;
+  border-color: rgba(245, 200, 66, 0.9);
+}
+.bw-go.is-lead.bw-stance-go:hover, .bw-go.is-lead.bw-stance-go:focus-visible { filter: brightness(1.06); }
+
+/* 3 · Compare. The table scrolls sideways on a phone rather than squeezing a
+   third candidate's column to nothing. */
+.bw-cmp-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.bw-cmp { width: 100%; border-collapse: collapse; font-size: 0.8rem; color: #e7f1ea; }
+.bw-cmp th, .bw-cmp td {
+  text-align: left; vertical-align: top; padding: 0.45rem 0.55rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.bw-cmp thead th {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.72rem;
+  letter-spacing: 0.06em; text-transform: uppercase; color: #f5c842; white-space: nowrap;
+}
+.bw-cmp thead .bw-cand-name { font-size: 0.8rem; color: #fff7dc; }
+.bw-cmp tbody th { font-weight: 600; color: #fff; min-width: 8rem; }
+.bw-cmp .bw-cmp-mine { color: #fde68a; font-weight: 700; }
+.bw-cmp td.is-none { color: #8fa79a; font-style: italic; }
+
+/* The fold under the steps: the pick, the election date, the lines caveat. */
+.bw-more { margin: 0.85rem 0 0; }
+.bw-more-sum {
+  display: inline-flex; align-items: center; min-height: 44px; cursor: pointer; list-style: none;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.8rem;
+  letter-spacing: 0.06em; text-transform: uppercase; color: #fde68a;
+}
+.bw-more-sum::-webkit-details-marker { display: none; }
+.bw-more-sum::before { content: "\25B8"; margin-right: 0.35rem; }
+details[open] > .bw-more-sum::before { content: "\25BE"; }
+.bw-more-sum:focus-visible { outline: 2px solid #f5c842; outline-offset: 2px; }
+.bw-more .bw-field { margin-top: 0.3rem; }
 
 /* ── Honest states ────────────────────────────────────────────────────────── */
 /* Zero on file, one on file, and "we do not map this area" are three different

@@ -613,8 +613,8 @@ section("7 · Honest holes: the lines may move, and one name is not 'unopposed'"
   });
   if (!single.length) passed++;
 
-  // Running and holding are two different facts; a row that is neither gets no
-  // tag (scripts/test-ballot-pick-running-tag.mjs paints all three cases).
+  // Running and holding are two different facts: the Research step groups them
+  // under two labels, and a row that is neither is in neither group.
   has(WORK, "Holds this seat", "the desk no longer distinguishes the holder");
   has(WORK, ">Running<", "the desk no longer distinguishes a candidate from the holder");
   lacks(WORK, "Former · not in office", "the desk tags a row that is neither holding nor running");

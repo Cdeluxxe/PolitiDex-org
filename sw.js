@@ -11264,7 +11264,24 @@
 //     precached. No location key is migrated, renamed or copied. No board is
 //     added.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v493';
+// v494 - AN OPEN SEAT IS THREE STEPS: RESEARCH, ALIGN, COMPARE.
+//     The /ballot desk drops the ruler paragraph, the divergence tally, the
+//     "your match · record" tile, Direction Match, the incumbent/running badges,
+//     the duplicate "on file for this race" roster and the Full side-by-side
+//     button. A located reader who opens a seat gets (1) the holder and the
+//     candidates, each a link to their file with one line of office and
+//     district; (2) their own stances that someone on the seat has a formal
+//     file on, with "Add or change stances" going to /my-stances?next=/ballot
+//     through PDXReturn.studioHref; (3) with two or more people, a table of
+//     issue, the reader's stance and each person's published direction. The
+//     pick, the election date and the lines caveat fold under step 3, and
+//     "Every seat at a glance" folds too. race-sheet.js exports _sides (the
+//     snapshot's own per-issue cells, for chosen keys) and _warm. No score is
+//     computed or printed. ballot-workspace.js, ballot-workspace.css and
+//     race-sheet.js are precached and changed, so the shell moves one version.
+//     No new file is precached. No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v494';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

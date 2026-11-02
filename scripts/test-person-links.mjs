@@ -732,7 +732,7 @@ section("8 · the compare column head, the race sheet, the ballot workspace");
     audit(bw, "ballot workspace");
     // The pick control is a sibling, not a child: a button inside a link is
     // neither, and it is the one thing a reader must not fire by accident.
-    ok(!/<a[^>]*data-pdx-person-link[^>]*>[\s\S]{0,400}?<button[^>]*class="bw-pick/.test(bw),
+    ok(!/<a[^>]*data-pdx-person-link[^>]*>(?:(?!<\/a>)[\s\S]){0,400}?<button[^>]*class="bw-pick/.test(bw),
       "ballot workspace: the pick button is inside the candidate link");
   } else {
     failures.push("ballot workspace: PDXBallotWorkspace.sync() is not exposed, so nothing was driven");

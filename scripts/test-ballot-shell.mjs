@@ -886,128 +886,58 @@ const visible = (src) => src
   }
 }
 
-// ── 16 · Three reads, three faces, and no borrowed number ───────────────────
-// Three different measurements print within a few pixels of each other on one
-// candidate row, and until this pass two of them wore the same chip:
-//
-//   1. THE FORMAL RECORD — what this person advanced and what they went
-//      against. Pattern language and counts. No chip, no percentage, and it is
-//      the read that orders the field.
-//   2. YOUR MATCH · RECORD — the reader's own positions measured against that
-//      record. A percentage, because an overlap between two sets of positions
-//      is a share. One violet hue of its own.
-//   3. WORD vs ACTION / DIRECTION MATCH — their stated positions against their
-//      own formal record. Grey, under the name, only above the publication
-//      floor, and it orders nothing.
-//
-// The defect was lane 2 wearing lane 1's word. The tile said "RECORD" and a
-// number, so "12%" beside a name read as a verdict on the candidate — their
-// grade, or their integrity — when what it says is "you and this person's
-// record agree on 12% of what you told us matters". Every check below is one
-// question: does a label from one lane appear next to a number from another.
+// ── 16 · An open seat is three steps, and none of them is a number ──────────
+// The desk used to open on a ruler paragraph, a divergence tally, a
+// "your match · record" tile and a Direction Match line per row. A located
+// reader now gets Research → Align → Compare, in that order, and the desk
+// prints no percentage, composite, grade or Direction Match at all.
 {
   const BW = read("ballot-workspace.js");
   const CSS = read("ballot-workspace.css");
-  const clip = (src, needle, before, after) => {
-    const a = src.indexOf(needle);
-    return a < 0 ? "" : src.slice(Math.max(0, a - (before || 0)), a + (after || 400));
+  const code = BW.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^[ \t]*\/\/.*$/gm, " ");
+  const fnSrc = (name) => {
+    const a = code.indexOf("function " + name + "(");
+    const b = code.indexOf("\n  }\n", a);
+    return a >= 0 && b > a ? code.slice(a, b) : "";
   };
 
-  // ── LANE 2 · the tile names the reader, and carries only the reader's number ─
-  {
-    const a = BW.indexOf('head = \'<span class="bw-score">\'');
-    const b = BW.indexOf("</span>';", a);
-    const tile = a >= 0 && b > a ? BW.slice(a, b) : "";
-    ok(tile.length > 0, "three faces: the scored number tile can be located in ballot-workspace.js");
-    ok(/your match/.test(tile),
-      'three faces: the number tile does not say "your match" — a bare "RECORD" reads as the candidate\'s grade');
-    ok(/record/i.test(tile),
-      'three faces: the number tile dropped "record" — the record IS what was measured');
-    ok(/c\.score/.test(tile), "three faces: the number tile prints something other than the reader's own match figure");
-    // The label the reader SEES. The title attribute is allowed to say "it is not
-    // Word vs Action" — denying a confusion is not committing it — so the label
-    // span is read on its own.
-    const label = (tile.match(/class="bw-score-l">([\s\S]*?)<\/span>/) || ["", ""])[1];
-    ok(label.length > 0, "three faces: the number tile has no visible label");
-    for (const re of [/word\s*vs\s*action/i, /direction\s+match/i, /integrity/i, /grade/i, /align/i]) {
-      ok(!re.test(label),
-        `three faces: the visible label on lane 2 borrows another lane's word (matched ${re} in "${label}")`);
-    }
+  // The removed reads stay removed.
+  for (const f of ["rulerHtml", "divergeHtml", "dmLine", "candHtml", "rosterHtml", "holderFact"]) {
+    ok(!new RegExp("function " + f + "\\(").test(code), `three steps: ${f}() is back on the desk`);
   }
+  for (const re of [/_rank\s*\(/, /_dm\s*\(/, /_calcAlignmentScore/, /c\.score/, /scoreColor|_alignScoreColor/, /bw-score/]) {
+    ok(!re.test(code), `three steps: the desk reads or prints a score again (matched ${re})`);
+  }
+  for (const re of [/your match/i, /direction match/i, /best match/i, /% match/i]) {
+    ok(!re.test(code), `three steps: the desk's copy names a score (matched ${re})`);
+  }
+  ok(!/\.bw-score|\.bw-dm|\.bw-ruler|\.bw-diverge/.test(CSS),
+    "three steps: ballot-workspace.css still styles a removed score, ruler or Direction Match read");
 
-  // ── LANE 3 · the chip names their own word, and carries only its own figure ──
-  {
-    const a = BW.indexOf("function dmLine(");
-    const b = BW.indexOf("\n  }", a);
-    const dm = a >= 0 && b > a ? BW.slice(a, b) : "";
-    ok(dm.length > 0, "three faces: dmLine() can be located in ballot-workspace.js");
-    ok(/Direction Match|Word vs Action/.test(dm), "three faces: lane 3's chip does not name its own lane");
-    ok(/d\.pct/.test(dm), "three faces: lane 3's chip does not print the Direction Match figure");
-    ok(!/c\.score|your match/i.test(dm),
-      "three faces: lane 3's chip prints the reader's match figure under a Direction Match label");
-    // A figure without its denominator is a claim we cannot support, and the
-    // floor is what decides whether there is a figure at all.
-    ok(/tested/.test(dm), "three faces: lane 3 prints a percentage with no tested count behind it");
-    ok(/d\.pct === null|typeof d\.pct === 'number'/.test(dm),
-      "three faces: lane 3 prints a figure on a branch the ledger has not published");
-  }
+  // The three steps, in order, from the one desk.
+  const desk = fnSrc("deskHtml");
+  ok(desk.length > 0, "three steps: deskHtml() can be located");
+  const iR = desk.indexOf("researchHtml("), iA = desk.indexOf("alignHtml("), iC = desk.indexOf("compareHtml(");
+  ok(iR > 0 && iA > iR && iC > iA, "three steps: the desk does not paint Research, then Align, then Compare");
+  ok(!/pdxOpenRaceSheet/.test(code), "three steps: the Full side-by-side overlay is back as a second compare");
 
-  // ── LANE 1 · pattern language, and never a share ─────────────────────────────
-  {
-    const a = BW.indexOf("function divergeHtml(");
-    const b = BW.indexOf("\n  }", a);
-    const rec = a >= 0 && b > a ? BW.slice(a, b) : "";
-    ok(rec.length > 0, "three faces: divergeHtml() can be located in ballot-workspace.js");
-    ok(!/%/.test(rec), "three faces: the formal-record read prints a percentage — it is counts, not a share");
-    ok(!/c\.score|d\.pct/.test(rec), "three faces: the formal-record read borrows another lane's figure");
-  }
+  // Research: a link per name, one office line, no badges.
+  const research = fnSrc("researchHtml") + fnSrc("personRow");
+  ok(/candOpen\(/.test(research) && /officeLine\(/.test(research),
+    "three steps: Research does not link each name and print its office line");
+  ok(!/bw-tag|bw-roster-r|incumbent<|candidate</.test(research), "three steps: Research carries a badge");
 
-  // ── AND THE RAMP IS GONE ─────────────────────────────────────────────────────
-  // A green / amber / red gradient is the face a reader has already been taught
-  // to read as a verdict on a person. Lane 2 borrowed it, so lane 2 was read as
-  // the candidate's grade. Deleted rather than left unused.
-  ok(!/function scoreColor|_alignScoreColor/.test(BW),
-    "three faces: the score colour ramp is back in ballot-workspace.js — a traffic light is a verdict");
+  // Align: one door to the studio, and it comes back to /ballot.
+  const studio = fnSrc("studioHref");
+  ok(/PDXReturn/.test(studio) && /studioHref\('\/ballot'/.test(studio),
+    "three steps: Add or change stances does not use PDXReturn's studio door back to /ballot");
+  ok(/Add or change stances/.test(fnSrc("alignHtml")), "three steps: Align has no Add or change stances control");
 
-  // ── THREE HUES, DISJOINT ─────────────────────────────────────────────────────
-  // Vocabulary alone does not separate three reads a reader takes in at a
-  // glance. Lane 2 is violet, lane 3 is slate, and neither is the gold this
-  // sheet spends on the lines-may-move note.
-  const hues = (sel) => {
-    const out = [];
-    const re = new RegExp("\\" + sel + "[^{]*\\{([^}]*)\\}", "g");
-    let m;
-    while ((m = re.exec(CSS))) {
-      const c = m[1].match(/(?:^|;|\s)color:\s*(#[0-9a-f]{3,8})/gi) || [];
-      for (const hit of c) out.push(hit.replace(/.*?(#[0-9a-f]{3,8}).*/i, "$1").toLowerCase());
-    }
-    return out;
-  };
-  const lane2 = hues(".bw-score-n").concat(hues(".bw-score-l"));
-  const lane3 = hues(".bw-dm").concat(hues(".bw-dm-k"));
-  const gold = hues(".bw-lines");
-  ok(lane2.length > 0, "three faces: lane 2 declares no colour of its own in ballot-workspace.css");
-  ok(lane3.length > 0, "three faces: lane 3 declares no colour of its own in ballot-workspace.css");
-  for (const c of lane2) {
-    ok(!lane3.includes(c), `three faces: lane 2 and lane 3 share the hue ${c}`);
-    ok(!gold.includes(c), `three faces: lane 2 wears the lines-may-move gold ${c}`);
-  }
-  // And lane 2's hue is not a traffic-light stop, whatever the ramp used to be.
-  for (const c of lane2) {
-    ok(!/^#(?:22c55e|16a34a|4ade80|ef4444|dc2626|f87171|f59e0b|fbbf24|eab308)$/.test(c),
-      `three faces: lane 2's hue ${c} is a traffic-light colour`);
-  }
-
-  // ── NO SURFACE ON THIS DOCUMENT MIXES THE WORDS ──────────────────────────────
-  // The desk is the only scored surface on /ballot, and its visible copy must not
-  // offer the reader a fourth name for any of the three.
-  {
-    const txt = visible(bare.slice(Math.max(0, bare.indexOf("<body"))));
-    for (const re of [/direction\s+match/i, /word\s*vs\s*action/i]) {
-      ok(!re.test(txt),
-        `three faces: ballot.html's own markup names a lane the writers own (matched ${re})`);
-    }
-  }
+  // Compare: only with two or more people, and the one-candidate case says so.
+  const cmp = fnSrc("compareHtml");
+  ok(/people\.length < 2/.test(cmp), "three steps: Compare is not gated on two or more people");
+  ok(/Only one candidate/.test(cmp), "three steps: a one-candidate seat does not say so");
+  ok(/Your stance/.test(cmp) && /<table/.test(cmp), "three steps: Compare is not an issue / your stance / candidates table");
 }
 
 // ── Report ──────────────────────────────────────────────────────────────────

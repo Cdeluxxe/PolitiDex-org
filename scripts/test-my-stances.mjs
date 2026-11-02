@@ -837,8 +837,10 @@ has(DESK_CODE, "Set all issues", "/me's positions door lost its label");
 section("9 · who points here — and the twin boot that must not have moved");
 // ═════════════════════════════════════════════════════════════════════════════
 // /ballot: ONE LINE AND ONE LINK. No second wizard, and the link is an address.
-has(BW_CODE, "/my-stances?add=1", "/ballot's unranked line does not link to the studio");
-has(BW_CODE, "Rank this field with your positions", "/ballot's unranked line does not use the brief's copy");
+// The desk's Align step is that one link now, through PDXReturn's studio door so
+// a save brings the reader back to /ballot.
+has(BW_CODE, "studioHref('/ballot'", "/ballot's Align step does not link to the studio and back");
+has(BW_CODE, "Add or change stances", "/ballot's Align step does not use the brief's copy");
 lacks(BW_CODE, "Set your positions to rank this seat", "/ballot still carries the old copy");
 const BALLOT_BARE = htmlBare(BALLOT_HTML);
 lacks(BALLOT_BARE, "door2-first-run.js", "/ballot still loads the coach this pass deleted");
@@ -875,7 +877,8 @@ has(DOSSIER_JS, "set your side on this issue", "the dossier's door lost its copy
   lacks(STUDIO_CODE, "Direction Match", "the studio names Direction Match on the one page forbidden to");
   lacks(STUDIO_CSS, "Direction Match", "the studio's stylesheet dresses a Direction Match");
   // The two surfaces that DO carry it still do, and off the same owner.
-  has(BW_CODE, "Direction Match", "/ballot stopped naming Direction Match as the secondary read");
+  // /ballot's desk prints no score of any kind, Direction Match included.
+  lacks(BW_CODE, "Direction Match", "/ballot's desk names Direction Match again");
   has(RS_CODE, "Direction Match", "the race sheet stopped naming Direction Match");
 }
 // THE STYLESHEET IS SELF-SUFFICIENT AND HAS NO PER-ISSUE RULES. Colour arrives

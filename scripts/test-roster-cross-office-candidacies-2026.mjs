@@ -171,9 +171,11 @@ const SEAT = { "U.S. Senate Candidate": "senate", "Governor Candidate": "governo
 const seatOf = (office) => /^U\.S\. House Candidate/.test(office) ? "house" : SEAT[office];
 const KEYED = { senate: 1, house: 1, governor: 1 };
 const role = (html, pid) => { const m = new RegExp('data-bw-roster="' + pid + '"[\\s\\S]*?data-bw-role="([^"]*)"').exec(html); return m ? m[1] : null; };
+// The Research step's group a person sits in, by its visible label: "Holds this
+// seat now" for the holder group, "Running" for the candidates.
 const tags = (html, pid) => {
-  for (const m of html.matchAll(/<li class="bw-cand[^"]*">([\s\S]*?)<\/li>/g)) {
-    if (m[1].indexOf(`pdxBallotWorkspacePick('`) >= 0 && new RegExp(`,'${pid}'\\)`).test(m[1])) return [...m[1].matchAll(/<span class="bw-tag[^"]*">([^<]*)<\/span>/g)].map((x) => x[1]);
+  for (const m of html.matchAll(/<p class="bw-grp" data-bw-grp="([a-z]+)">([^<]*)<\/p>\s*<ul class="bw-people"[^>]*>([\s\S]*?)<\/ul>/g)) {
+    if (m[3].indexOf('data-bw-roster="' + pid + '"') >= 0) return [m[2]];
   }
   return null;
 };
@@ -200,7 +202,7 @@ function checkRace(pid, label) {
   const desk = String(w.document.getElementById("bw-body").innerHTML);
   eq(role(desk, pid), "candidate", `${label}: the desk lists them as a candidate`);
   const t = tags(desk, pid) || [];
-  ok(t.indexOf("Holds this seat") < 0 && t.indexOf("In office") < 0, `${label}: the desk row never says they hold the seat (${t.join(", ")})`);
+  ok(!t.some((x) => /Holds this seat|In office/.test(x)), `${label}: the desk row never says they hold the seat (${t.join(", ")})`);
   ok(t.indexOf("Running") >= 0, `${label}: the desk row says Running`);
 }
 

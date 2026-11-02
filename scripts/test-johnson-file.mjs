@@ -570,8 +570,8 @@ console.log(`   johnson file: ${PID} · ${Object.keys(ROSTER).length} rostered �
   has(STUDIO, "get('add') === '1'", "the studio reads ?add=1 and opens the picker");
   has(R("my-stances.js"), "pdx_my_stances_v1", "…and the one stance store key is unchanged");
   // THE BALLOT DESK MADE THE SAME MOVE, and this is the precedent it set.
-  has(R("ballot-workspace.js"), 'href="/my-stances?add=1"',
-    "the ballot desk's unranked line points at the same address");
+  has(R("ballot-workspace.js"), "'/my-stances?' + (empty ? 'add=1&' : '')",
+    "the ballot desk's Align step points at the same address");
 
   // ZERO SIDES MEANS ZERO SIDES, through the one shared reader. No ghost chip,
   // no defaulted position, no invented match.
