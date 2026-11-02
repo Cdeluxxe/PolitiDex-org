@@ -5217,6 +5217,34 @@ window.PDXLazy = (function () {
          exactly as it did before — no skeleton, no placeholder, no example. An
          empty proof slot is honest; a fake one is the one thing this product
          cannot ship. -->
+    <!-- pdx:hero-election-day:begin -->
+    <!-- ELECTION DAY, ONE LINE, NO BUTTON. Sits directly above the record
+         carousel so it is the first sentence a stranger reads after the
+         headline. It is text, not a control: the gold "See who has power over
+         me" button below stays the one primary action, and this line only
+         names it as step one. The served markup says "tomorrow"; the inline
+         script says "today" on November 3 and removes the line once the day
+         has passed, so it is never stale. -->
+    <p id="hero-election-day" data-pdx-election-date="2026-11-03"
+       class="max-w-2xl mx-auto mb-5 px-4 font-condensed font-700 text-base sm:text-xl tracking-wide text-gold-300 leading-snug drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+      <span aria-hidden="true">🗳️</span>
+      <strong class="text-white font-900">Election Day is <span data-pdx-election-when>tomorrow</span> — Tuesday, November 3.</strong>
+      Step one: see who already holds power over you.
+    </p>
+    <script>
+      (function () {
+        var el = document.getElementById('hero-election-day');
+        if (!el) return;
+        var d = new Date(), y = d.getFullYear(), m = d.getMonth() + 1, day = d.getDate();
+        var key = y * 10000 + m * 100 + day;
+        if (key > 20261103) { el.remove(); return; }
+        if (key === 20261103) {
+          var w = el.querySelector('[data-pdx-election-when]');
+          if (w) w.textContent = 'today';
+        }
+      })();
+    </script>
+    <!-- pdx:hero-election-day:end -->
     <div id="hero-showcase" class="mb-6 px-2 sm:px-0" hidden></div>
 
     <!-- ── THE SAME PEOPLE, AS REAL LINKS ─────────────────────────────────────

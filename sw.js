@@ -11281,7 +11281,18 @@
 //     race-sheet.js are precached and changed, so the shell moves one version.
 //     No new file is precached. No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v494';
+// v495 - ELECTION DAY IS THE FIRST LINE IN THE HERO.
+//     One line above the record carousel names Election Day (Tuesday,
+//     November 3) and says step one is seeing who already holds power over
+//     you. It is text, not a button: the gold "See who has power over me"
+//     control stays the primary action and still runs Path A. An inline
+//     script reads "today" on the day and removes the line after it. The
+//     District Voice card is untouched and still points at /voice. index.html
+//     is precached as '/', so the shell moves one version. No new file is
+//     precached. No location key is migrated, renamed or copied. No board is
+//     added.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v495';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
