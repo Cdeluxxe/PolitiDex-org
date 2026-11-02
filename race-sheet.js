@@ -920,6 +920,44 @@
     return d;
   }
 
+  // One person's cell on one issue, read whole from their formal-pattern row.
+  // snapshot() builds its table from this and sidesFor() builds the ballot
+  // desk's compare rows from it, so the two cannot word a side differently.
+  function cellOf(p, k) {
+    var fr = p.rows[k] || null;
+    var d = fr ? recDisplay(fr) : null;
+    // THE SIDE, LIFTED WHOLE. `says` is the shipped display slot's own
+    // plain-language read — one of a fixed set — and `tone` is that read's
+    // own support / oppose / mixed / muted marker. `firm` is the engine's
+    // `characterising` flag, carried so a thin lean cannot be dressed up as
+    // a pattern by anything downstream. Nothing here is computed.
+    var says = (d && d.says) ? d.says : null;
+    return {
+      pid: p.pid, name: p.name, key: k,
+      onFile: !!fr,
+      read: !!(fr && fr.read),
+      judged: fr ? (fr.judged || 0) : 0,
+      items: d ? (d.items || 0) : (fr ? (fr.held || 0) : 0),
+      label: d ? (d.label || '') : '',
+      depth: d ? (d.depth || '') : '',
+      single: !!(d && d.single),
+      says: says ? (says.key || '') : '',
+      saysLabel: says ? (says.label || '') : '',
+      tone: says ? (says.tone || '') : '',
+      firm: !!(says && says.characterising)
+    };
+  }
+
+  // The published direction of each person in `all` on each of `keys`, in the
+  // order given. Same cells as snapshot(), with no cap, no tally and no
+  // reordering: the caller chose the issues (the reader's own) and the people.
+  function sidesFor(all, keys) {
+    var per = (all || []).map(function (c) { return { pid: c.pid, name: c.name, rows: fpiOf(c.pid) }; });
+    return (keys || []).map(function (k) {
+      return { key: k, label: labelOf(k), cells: per.map(function (p) { return cellOf(p, k); }) };
+    });
+  }
+
   function snapshot(all) {
     var per = (all || []).map(function (c) { return { pid: c.pid, name: c.name, rows: fpiOf(c.pid) }; });
     var IM = window.ISSUE_MAP || {};
@@ -951,30 +989,7 @@
     picked.sort(function (a, b) { return rankOf(a) - rankOf(b); });
 
     var rows = picked.map(function (k) {
-      var cells = per.map(function (p) {
-        var fr = p.rows[k] || null;
-        var d = fr ? recDisplay(fr) : null;
-        // THE SIDE, LIFTED WHOLE. `says` is the shipped display slot's own
-        // plain-language read — one of a fixed set — and `tone` is that read's
-        // own support / oppose / mixed / muted marker. `firm` is the engine's
-        // `characterising` flag, carried so a thin lean cannot be dressed up as
-        // a pattern by anything downstream. Nothing here is computed.
-        var says = (d && d.says) ? d.says : null;
-        return {
-          pid: p.pid, name: p.name, key: k,
-          onFile: !!fr,
-          read: !!(fr && fr.read),
-          judged: fr ? (fr.judged || 0) : 0,
-          items: d ? (d.items || 0) : (fr ? (fr.held || 0) : 0),
-          label: d ? (d.label || '') : '',
-          depth: d ? (d.depth || '') : '',
-          single: !!(d && d.single),
-          says: says ? (says.key || '') : '',
-          saysLabel: says ? (says.label || '') : '',
-          tone: says ? (says.tone || '') : '',
-          firm: !!(says && says.characterising)
-        };
-      });
+      var cells = per.map(function (p) { return cellOf(p, k); });
       return { key: k, label: labelOf(k), cells: cells,
                glance: glanceFor(cells), dir: divergeFor(cells) };
     });
@@ -2266,7 +2281,7 @@
     // `_snapshot` the shared-issue table the harness pins, `_dm` the ledger facts
     // a card prints. Pure reads.
     view: activeView, OVERVIEW: OVERVIEW, UNSET: UNSET, SNAP_CAP: SNAP_CAP,
-    _view: activeView, _snapshot: snapshot, _dm: dmFacts, _glance: glanceFor,
+    _view: activeView, _snapshot: snapshot, _sides: sidesFor, _warm: warmField, _dm: dmFacts, _glance: glanceFor,
     _diverge: divergeFor, _tally: tallyOf,
     _field: field, _axis: axis, _rank: rank, _seat: seatMeta,
     _shareBits: shareBits, _openFromHash: openFromHash, _readRaceHash: readRaceHash,

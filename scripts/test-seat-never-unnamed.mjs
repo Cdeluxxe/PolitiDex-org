@@ -190,6 +190,8 @@ const pane = (w, key) => {
   return n ? String(n.innerHTML) : "";
 };
 const strip = (a) => String(a).replace(/<[^>]*>/g, " ");
+// The Research step's holder group, as markup ("" when the seat names nobody).
+const holderGroup = (html) => (/data-bw-grp="holder">[^<]*<\/p>\s*<ul class="bw-people"[^>]*>([\s\S]*?)<\/ul>/.exec(String(html)) || ["", ""])[1];
 const count = (w) => (w.pdxRepsForMe().levels || []).filter((lv) => lv.resolved).length;
 const pidsOf = (w) => (w.pdxRepsForMe().levels || []).map((lv) => lv.key + ":" + (lv.pid || "")).join(",");
 const senate = (w) => (w.pdxSeatHolders("senate").pids || []).slice().sort().join(",");
@@ -412,7 +414,7 @@ section("4 · The workspace headers cannot contradict the band");
   ["senate", "house", "governor", "statesenate", "statehouse"].forEach((rk) => {
     const owned = (W.pdxSeatHolders(rk).pids || []).map(String);
     const html = pane(W, rk);
-    const line = /Holds this seat now:([\s\S]*?)<\/span>\s*<\/span>/.exec(html);
+    const line = /data-bw-grp="holder">[^<]*<\/p>\s*<ul class="bw-people"[^>]*>([\s\S]*?)<\/ul>/.exec(html);
     if (!owned.length) {
       ok(!line, `${rk}: the header names a holder the owner never resolved`);
       return;
@@ -607,10 +609,11 @@ section("8 · The rule lives in the resolver, and the toast is only a toast");
     const pa = pane(a, k);
     const pb = pane(b, k);
     if ((a.PDXRaceSheet._field(k) || []).length >= 2) {
-      has(pa, "not ranked", `${k}: the unscored pane claims an order it cannot have`);
+      // The desk orders nobody by fit, with or without positions.
+      lacks(pa, "Ordered by", `${k}: the pane without positions claims an order it cannot have`);
       has(pb, "formal record", `${k}: the scored pane does not name the formal record`);
-      ok(/[Pp]arty[^.]{0,40}never read here/.test(pb),
-        `${k}: the ranked pane stops saying party is not read here`);
+      ok(!/bw-score|your match|Ordered by/i.test(pb),
+        `${k}: the pane with positions prints a score or an order`);
     } else {
       lacks(pa, "bw-ruler", `${k}: a field too small to rank still carries a ruler`);
       passed += 2;

@@ -362,7 +362,8 @@ must(SEATS.length > 0, "the desk offers this reader no seats at all");
 // this file is about is IN the markup: which element the <img> is nested in.
 function rows(html) {
   const out = [];
-  const re = /<li class="bw-cand[^"]*">([\s\S]*?)<\/li>/g;
+  // The Research step's rows: one per person on the seat, face inside the link.
+  const re = /<li class="bw-person"[^>]*>([\s\S]*?)<\/li>/g;
   let m;
   while ((m = re.exec(html)) !== null) out.push(m[1]);
   return out;
@@ -440,8 +441,8 @@ for (const key of SEATS) {
       ok(/^\/p\/[A-Za-z0-9_]+$/.test(ATTR(/<a class="bw-cand-name"[^>]*>/.exec(row)[0], "href") || ""),
         "a desk person link's href is not a /p/<pid> address");
     }
-    // The pick button is still outside the link, and still the only button.
-    ok(row.indexOf('class="bw-pick') > row.indexOf("</a>"),
+    // A Research row carries no pick; where a row does, it sits outside the link.
+    ok(row.indexOf('class="bw-pick') === -1 || row.indexOf('class="bw-pick') > row.indexOf("</a>"),
       "the pick button moved inside the candidate's link");
   }
 }
@@ -478,7 +479,7 @@ section("4 · A retired id never renders — not in the href, not in the src");
 section("5 · No party ring, no new fetch, no second copy of the rule");
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  const block = CSS.slice(CSS.indexOf(".bw-face {"), CSS.indexOf(".bw-cand-tags"));
+  const block = CSS.slice(CSS.indexOf(".bw-face {"), CSS.indexOf(".bw-face-img"));
   must(block.length > 40, "the .bw-face rule is gone from ballot-workspace.css, so the face has no box");
   for (const tint of ["#ef4444", "#dc2626", "#3b82f6", "#2563eb", "party", "--pdx-party"]) {
     lacks(block, tint,

@@ -419,7 +419,8 @@ section("2 · a cold Layton boot still finishes six of six");
     "the Governor header does not name Cox");
   has(strip(openPane(w, "house")), String(w.CMP_DATA.maloy.name),
     "the House header does not name this reader's House member");
-  lacks(strip(openPane(w, "house")), "Holds this seat now: " + String(w.CMP_DATA.bmoore.name),
+  lacks(strip((/data-bw-grp="holder">[^<]*<\/p>\s*<ul class="bw-people"[^>]*>([\s\S]*?)<\/ul>/.exec(openPane(w, "house")) || ["", ""])[1]),
+    String(w.CMP_DATA.bmoore.name),
     "the House header names UT-1's member as the holder of a UT-2 seat");
 
   // The owner's own answer, for the record: six seats, every one with a pid.

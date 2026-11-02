@@ -198,6 +198,8 @@ const pane = (w, key) => {
   return n ? String(n.innerHTML) : "";
 };
 const strip = (a) => String(a).replace(/<[^>]*>/g, " ");
+// The Research step's holder group, as markup ("" when the seat names nobody).
+const holderGroup = (html) => (/data-bw-grp="holder">[^<]*<\/p>\s*<ul class="bw-people"[^>]*>([\s\S]*?)<\/ul>/.exec(String(html)) || ["", ""])[1];
 
 let passed = 0;
 const failures = [];
@@ -503,7 +505,7 @@ section("6 · The workspace header agrees with the pane under it");
   has(HT, "Holds this seat now", "the House pane does not say who holds the seat");
   has(HT, W.CMP_DATA[houseLv.pid].name,
     "the House header does not name the same member the band pinned");
-  lacks(HT, "Holds this seat now: " + W.CMP_DATA.bmoore.name,
+  lacks(strip(holderGroup(house)), W.CMP_DATA.bmoore.name,
     "the House header names UT-1's member as the holder of a UT-2 seat");
   lacks(HT, "No record on file",
     "the House header claims no record over a member with a file");
@@ -519,12 +521,15 @@ section("6 · The workspace header agrees with the pane under it");
   // ("no record on file for the current holder") is gone from the file rather
   // than merely unreached. A pid the light roster has not merged yet is a loading
   // state of this tab, not a hole in the app's coverage.
-  const iNamed = WORK.indexOf("'<span>Holds this seat now: '");
-  const iGuard = WORK.indexOf("if (withPid.length)");
-  const iNone = WORK.indexOf("'<span>No current officeholder resolved for this seat</span></span>'");
+  // The Research step names the holder group only when it has somebody in it,
+  // and the no-holder case has its own sentence.
+  const iNamed = WORK.indexOf("'Holds this seat now'");
+  const iGuard = WORK.indexOf("var body = holders.length");
+  const iNone = WORK.indexOf("No current officeholder resolved for this seat.");
   ok(iNamed > 0, "the workspace lost the sentence that names the holder");
   ok(iGuard > 0 && iGuard < iNamed, "the naming sentence is not guarded by a resolved pid");
   ok(iNone > iNamed, "the no-holder case has no sentence of its own");
+  ok(/var named = namedHolders\(seat, r\);[\s\S]{0,200}named\.concat\(/.test(WORK), "the Research holders are not the owner's named holders");
   ok(!/No record on file for the current holder<\/span>/.test(WORK),
     "the header can still print a claim about our coverage over somebody the owner named");
 
@@ -547,7 +552,7 @@ section("6 · The workspace header agrees with the pane under it");
     const raw = pane(w, "senate");
     const g = strip(raw);
     // Tag-stripped, so the name's own anchor collapses to whitespace.
-    has(g.replace(/\s+/g, " "), "Holds this seat now: " + ghost,
+    has(strip(holderGroup(raw)).replace(/\s+/g, " "), ghost,
       "a pid whose display row has not landed is dropped from the header instead of named");
     has(raw, ghost, "the unmerged holder's name is not addressable as a record");
     lacks(g, "No record on file",
@@ -563,7 +568,7 @@ section("6 · The workspace header agrees with the pane under it");
   ["senate", "house", "governor", "statesenate", "statehouse"].forEach((rk) => {
     const owned = (W.pdxSeatHolders(rk).pids || []).map(String);
     const html = pane(W, rk);
-    const line = /Holds this seat now:([\s\S]*?)<\/span>\s*<\/span>/.exec(html);
+    const line = /data-bw-grp="holder">[^<]*<\/p>\s*<ul class="bw-people"[^>]*>([\s\S]*?)<\/ul>/.exec(html);
     if (!owned.length) {
       ok(!line, `${rk}: the header names a holder the owner never resolved`);
       return;
@@ -655,10 +660,11 @@ section("8 · Twin boot: the formal record still rules, DM still orders nothing"
     // carries no ruler at all — there is nothing to order — so those two claims
     // are only made where a comparison actually exists.
     if ((a.PDXRaceSheet._field(k) || []).length >= 2) {
-      has(pa, "not ranked", `${k}: the unscored pane claims an order it cannot have`);
+      // The desk orders nobody by fit, with or without positions.
+      lacks(pa, "Ordered by", `${k}: the pane without positions claims an order it cannot have`);
       has(pb, "formal record", `${k}: the scored pane does not name the formal record`);
-      ok(/[Pp]arty[^.]{0,40}never read here/.test(pb),
-        `${k}: the ranked pane stops saying party is not read here`);
+      ok(!/bw-score|your match|Ordered by/i.test(pb),
+        `${k}: the pane with positions prints a score or an order`);
     } else {
       lacks(pa, "bw-ruler", `${k}: a field too small to rank still carries a ruler`);
       passed += 2;

@@ -42,12 +42,9 @@
                                 Represents Me and the Voter Hub both read)
      · the field for a seat   → PDXRaceSheet._field (which wraps
                                 _ballotCandidates, including its district match)
-     · the order of the field → PDXRaceSheet._rank(list, 'record', …), i.e. the
-                                app's one match brain, in its record lane
-     · what the records say   → PDXRaceSheet._snapshot's tally of the formal
-                                pattern index
-     · Direction Match        → PDXRaceSheet._dm, which reads the ledger slot
-                                that owns the publishable floor
+     · the reader's stances   → PDXRaceSheet._axis (PDXStanceSides' keys)
+     · what the records say   → PDXRaceSheet._sides, the same per-issue cells
+                                the race sheet's snapshot table prints
      · local coverage         → window.pdxLocalSeatsForMe()
      · the picks              → window._ballotLoad / window.ballotPickCard
 
@@ -58,13 +55,10 @@
 
    THE HARD RULES, AND HOW THIS SURFACE KEEPS THEM
    ───────────────────────────────────────────────
-   · FORMAL RECORD IS THE RULER. The field is ordered by Your Record Match and
-     the line above it says so. That is the local default everywhere on the seat
-     spine, and this surface has no toggle that could change it — a reader who
-     wants the stated lane opens the full sheet, which owns that choice.
-   · DIRECTION MATCH IS SECONDARY AND ORDERS NOTHING. It is printed under the
-     name, in grey, prefixed with the question it answers, and it is never read
-     by anything that sorts. _rank() is the only sort on this file.
+   · THREE STEPS, NO NUMBERS. An open seat is Research → Align → Compare (see
+     THE THREE STEPS below). Nothing on the desk prints a match percentage, a
+     composite, a grade or Direction Match, and nothing orders the people by
+     fit: they sit in the roster's own order, holder first.
    · NO PARTY. Not read, not printed, not grouped, not scored. The seat rail is
      coloured by office, and the candidate rows are coloured by nothing.
    · NO ARTIFICIAL STRENGTH ON THIN DATA. A candidate the record lane cannot
@@ -323,11 +317,6 @@
     var p = personOf(pid);
     return (p && p.name) || pid || '';
   }
-  function axisN() {
-    var R = rs();
-    if (!R || typeof R._axis !== 'function') return 0;
-    try { return R._axis().length; } catch (e) { return 0; }
-  }
   function localCov() {
     try { return fn('pdxLocalSeatsForMe') ? window.pdxLocalSeatsForMe() : null; } catch (e) { return null; }
   }
@@ -549,8 +538,8 @@
   // There is no third branch, which is the point: the sentence about our coverage
   // is unreachable over anybody the owner named.
   // WHO THE PAGE NAMES AS HOLDING A SEAT, as a list of pids. The one reader of
-  // that fact: holderFact() prints from it and the meter counts from it, so the
-  // header cannot name Celeste Maloy over a seat the count calls unresolved.
+  // that fact: the Research step prints from it and the meter counts from it, so
+  // the desk cannot name Celeste Maloy over a seat the count calls unresolved.
   // Resolver levels first; for a specific local seat, the curated roster's
   // incumbent ("on file as holding"). The generic local slot names nobody — a
   // tally of seats on file is not a holder.
@@ -573,61 +562,6 @@
   // unresolved.
   function isResolved(seat, r) {
     return !!pickedFor(seat.key) || namedHolders(seat, r).length > 0;
-  }
-
-  function holderFact(seat, r, gate) {
-    var hold = holdersFor(seat.key, r);
-    var withPid = hold.filter(function (lv) { return !!lv.pid; });
-    if (withPid.length) {
-      var who = withPid.map(function (lv) {
-        return '<b>' + candOpen(lv.pid, ' style="font-size:0.8rem;"' +
-          ' aria-label="Open ' + esc(nameOf(lv.pid)) + '’s full record"') +
-          esc(nameOf(lv.pid)) + candClose(lv.pid) + '</b>';
-      }).join(' · ');
-      return '<span class="bw-fact"><span aria-hidden="true">\u{1F3DB}</span>' +
-        '<span>Holds this seat now: ' + who + '</span></span>';
-    }
-    if (gate === 'district') {
-      return '<span class="bw-fact"><span aria-hidden="true">\u{1F5FA}</span>' +
-        '<span>District not mapped for your area</span></span>';
-    }
-    // A SPECIFIC LOCAL SEAT. pdxSeatHolders has no local levels — the resolver
-    // answers federal and state seats only — so there is no resolver answer to
-    // respect or to refuse here. The curated roster does name a current holder,
-    // and this says so IN THOSE WORDS: "on file as" is a claim about our file,
-    // not the resolver's claim about the reader's representation, and the two
-    // are not allowed to sound alike.
-    if (String(seat.key).indexOf('local_') === 0) {
-      var lh = namedHolders(seat, r)[0] || null;
-      if (lh) {
-        return '<span class="bw-fact"><span aria-hidden="true">\u{1F3D9}</span>' +
-          '<span>On file as holding this seat: <b>' +
-          candOpen(lh, ' style="font-size:0.8rem;" aria-label="Open ' + esc(nameOf(lh)) + '\u2019s full record"') +
-          esc(nameOf(lh)) + candClose(lh) + '</b></span></span>';
-      }
-      return '';
-    }
-    if (seat.key === 'local') {
-      var cov = localCov();
-      var n = (cov && cov.pids && cov.pids.length) || 0;
-      if (cov && cov.resolved && cov.ok && n) {
-        return '<span class="bw-fact"><span aria-hidden="true">\u{1F3D9}</span>' +
-          '<span><b>' + n + '</b> local seat' + (n === 1 ? '' : 's') + ' on file for ' + esc(cov.area || 'your area') + '</span></span>';
-      }
-      return '';
-    }
-    // A DISTRICT SEAT THE RESOLVER NAMES NOBODY FOR, whose roster key files a
-    // sitting member: the same "on file as" words as a local seat, because it is
-    // the same kind of claim — about our file, not the resolver's answer.
-    var fh = (gate === 'ok') ? (onFile(seat, r, gate).holders[0] || null) : null;
-    if (fh) {
-      return '<span class="bw-fact"><span aria-hidden="true">\u{1F3DB}</span>' +
-        '<span>On file as holding this seat: <b>' +
-        candOpen(fh, ' style="font-size:0.8rem;" aria-label="Open ' + esc(nameOf(fh)) + '’s full record"') +
-        esc(nameOf(fh)) + candClose(fh) + '</b></span></span>';
-    }
-    return '<span class="bw-fact"><span aria-hidden="true">\u{1F3DB}</span>' +
-      '<span>No current officeholder resolved for this seat</span></span>';
   }
 
   // ── EVERYONE ON FILE FOR THIS RACE, THIS CYCLE ────────────────────────────
@@ -698,43 +632,10 @@
     }
     return { holders: holders, others: others };
   }
-  // Whether a pick-list row is running for THIS seat, by the same two reads the
-  // roster above uses to call someone a candidate: the cross-office candidacy
-  // table (pdxSeatField's candidacies) or the record's own candidate status.
-  // Nothing else makes a row "Running", and a row neither of them names gets no
-  // tag at all.
-  function runsHere(rk, c) {
-    if (!c || !c.pid) return false;
-    if (c.candidacy) return true;
-    try {
-      var sf = fn('pdxSeatField') ? window.pdxSeatField(rk) : null;
-      if (sf && sf.candidacies && sf.candidacies.indexOf(c.pid) !== -1) return true;
-    } catch (e) {}
-    return statusOf(c.pid) === 'current_candidate';
-  }
   function personLink(pid) {
     return candOpen(pid, ' aria-label="Open ' + esc(nameOf(pid)) + '\u2019s full record"') +
       esc(nameOf(pid)) + candClose(pid);
   }
-  function rosterHtml(seat, r, gate) {
-    if (gate !== 'ok') return '';
-    var f = onFile(seat, r, gate);
-    if (!f.holders.length && !f.others.length) return '';
-    var rows = f.holders.map(function (p) {
-      return '<li class="bw-roster-p is-holder" data-bw-roster="' + esc(canonPid(p)) + '">' + personLink(p) +
-        ' <span class="bw-roster-r" data-bw-role="incumbent">incumbent</span></li>';
-    }).concat(f.others.map(function (p) {
-      return '<li class="bw-roster-p" data-bw-roster="' + esc(canonPid(p)) + '">' + personLink(p) +
-        ' <span class="bw-roster-r" data-bw-role="candidate">candidate</span></li>';
-    })).join('');
-    var none = (!f.others.length && f.holders.length)
-      ? '<p class="bw-roster-none" data-bw-roster-none>No other person on file for this seat.</p>' : '';
-    var n = f.holders.length + f.others.length;
-    return '<div class="bw-roster" data-bw-roster-for="' + esc(seat.key) + '">' +
-      '<p class="bw-roster-h">On file for this race \u00b7 ' + n + (n === 1 ? ' person' : ' people') + '</p>' +
-      '<ul class="bw-roster-list">' + rows + '</ul>' + none + '</div>';
-  }
-
   // ── WHEN THIS RACE IS DECIDED ─────────────────────────────────────────────
   // A date is printed only when one is stored: the race row's electionDate
   // (window._pdxRaceElection), else the earliest upcoming nextElection on the
@@ -837,233 +738,12 @@
         '<button type="button" class="bw-glance-t" onclick="window.pdxBallotWorkspaceOpen(\'' + jsq(s.key) + '\')">' +
           esc(s.label) + '</button> ' + body + electionHtml(s, r, gate) + '</li>';
     }).join('');
-    return '<section class="bw-glance" data-bw-glance-list aria-labelledby="bw-glance-h">' +
-      '<h4 class="bw-m-title" id="bw-glance-h">Every seat at a glance</h4>' +
+    // Folded: the rail already moves between seats, so this list is a second
+    // way to the same place and does not get to sit open under the desk.
+    return '<details class="bw-glance" data-bw-glance-list>' +
+      '<summary class="bw-m-title bw-more-sum" id="bw-glance-h">Every seat at a glance</summary>' +
       liveNote() +
-      '<ul class="bw-glance-ul">' + rows + '</ul></section>';
-  }
-
-  function pickFact(seat) {
-    var pid = pickedFor(seat.key);
-    if (!pid) {
-      return '<span class="bw-fact"><span aria-hidden="true">☆</span><span>No pick yet for this seat</span></span>';
-    }
-    return '<span class="bw-fact is-team"><span aria-hidden="true">⭐</span>' +
-      '<span>Your pick: <b>' + esc(nameOf(pid)) + '</b></span></span>';
-  }
-
-  function scopeFact(seat) {
-    var R = rs();
-    var sc = '';
-    if (R && typeof R._scope === 'function') { try { sc = R._scope(seat.key) || ''; } catch (e) { sc = ''; } }
-    if (!sc) return '';
-    return '<span class="bw-fact"><span aria-hidden="true">\u{1F4CD}</span><span>' + esc(sc) + '</span></span>';
-  }
-
-  // ── The ruler line ────────────────────────────────────────────────────────
-  // Two sentences, and the second one is the load-bearing half: it names what is
-  // NOT ordering the field. A reader who has set no positions is told what would
-  // change if they did, once, with one destination — not lectured.
-  // `scored` is how many candidates the record lane could actually place. It is
-  // passed in rather than inferred, because the difference between "ordered by
-  // the record" and "listed, because the record could not order it" is the
-  // difference between a true sentence and a flattering one. Having positions is
-  // not the same as the field having a record to read against them: a seat can
-  // have five issues on the axis and nobody on file who ever acted on any of
-  // them, and in that case the visible order is officeholder-then-alphabetical.
-  // Saying "ordered by their formal record" over that order would manufacture a
-  // ranking out of nothing, which is exactly the thin-data claim this surface
-  // exists to refuse.
-  function rulerHtml(n, hasIssues, scored) {
-    if (n < 2) return '';
-    if (!hasIssues) {
-      // ONE LINE AND ONE LINK, AND THE LINK IS AN ADDRESS.
-      //
-      // There used to be a 12-chip first-run coach mounted on this desk for
-      // exactly this case: pick an issue, read its scope, take a side. It is
-      // gone, and so is the button that used to stand here calling
-      // PDXStances.open() with a location.assign fallback behind it. Both are
-      // replaced by an <a href> to /my-stances, which is the document that
-      // teaches positions and holds them.
-      //
-      // WHY THE DESK DOES NOT TEACH. A coach here and a coach there meant one
-      // job with two first-runs, two empty states and two ideas of what
-      // "saved" looks like — and the reader who arrived at the desk from a
-      // dossier met a different one than the reader who went to their stances
-      // directly. The desk's job on this line is to say, truthfully, that the
-      // field is not ranked and what would rank it. That is a sentence, and
-      // the sentence ends in the address where the answer is given.
-      //
-      // ?add=1 opens that document straight onto the issue picker instead of
-      // on an empty library, because a reader who taps THIS line has already
-      // said they want to add something.
-      return '<p class="bw-ruler">This field is <b>not ranked</b> — ranking it needs your own positions. ' +
-        'It is listed with the officeholder first, then alphabetically.' +
-        '<span class="bw-ruler-alt"><a class="bw-cand-name" style="font-size:0.72rem;"' +
-        ' href="/my-stances?add=1">Rank this field with your positions →</a></span></p>';
-    }
-    if (!scored) {
-      return '<p class="bw-ruler">Your positions are set, but <b>no one in this field has a formal record</b> ' +
-        'on them yet — so there is nothing to order them by. It is listed with the officeholder first, ' +
-        'then alphabetically.' +
-        '<span class="bw-ruler-alt">Direction Match is shown under each name where it exists, and it orders ' +
-        'nothing. Party is never read here.</span></p>';
-    }
-    if (scored < n) {
-      return '<p class="bw-ruler"><b>' + scored + ' of ' + n + '</b> ordered by <b>their formal record</b> — ' +
-        'votes and formal actions against the positions you set. The rest have no readable record on your ' +
-        'issues yet, and are listed after them, not ranked among them.' +
-        '<span class="bw-ruler-alt">Not by party, which is never read here, and not by Direction Match, ' +
-        'which is shown under each name and orders nothing.</span></p>';
-    }
-    return '<p class="bw-ruler">Ordered by <b>their formal record</b> — votes and formal actions against the positions you set.' +
-      '<span class="bw-ruler-alt">Not by party, which is never read here, and not by Direction Match, ' +
-      'which is shown under each name and orders nothing.</span></p>';
-  }
-
-  // ── Where these records part company ──────────────────────────────────────
-  // Counts of rows from the formal-pattern index, lifted whole out of
-  // _snapshot's own tally. No average, no share, no score, and nothing here
-  // moves a candidate up or down.
-  function divergeHtml(all) {
-    var R = rs();
-    if (!R || typeof R._snapshot !== 'function' || all.length < 2) return '';
-    var snap = null;
-    try { snap = R._snapshot(all); } catch (e) { return ''; }
-    var t = snap && snap.tally;
-    if (!t || !t.n) return '';
-    var bits = [];
-    if (t.diverge) {
-      bits.push('<b class="bw-d-hot">' + t.diverge + '</b> where the records point <b>different ways</b>' +
-        (t.keys && t.keys.length
-          ? ' <span class="bw-d-keys">(' + t.keys.slice(0, 4).map(function (r) { return esc(r.label); }).join(', ') + ')</span>'
-          : ''));
-    }
-    if (t.align) bits.push('<b>' + t.align + '</b> where every readable record went the same way');
-    if (t.one) bits.push('<b>' + t.one + '</b> where only one of them has a readable direction');
-    if (t.quiet) bits.push('<b>' + t.quiet + '</b> with no direction on file for anyone yet');
-    if (!bits.length) return '';
-    return '<p class="bw-diverge">Of <b>' + t.n + '</b> shared issue' + (t.n === 1 ? '' : 's') +
-      ' with a formal file behind them: ' + bits.join(' · ') + '.</p>';
-  }
-
-  // ── One candidate row ─────────────────────────────────────────────────────
-  // RETIRED: scoreColor(). It graded the number slot on a green / amber / red
-  // ramp — the app's alignment-strength ramp. Three different reads print on this
-  // one row, and a traffic light is the face a reader has already been taught to
-  // read as a verdict on the person, so the lane that borrowed it was read as the
-  // candidate's grade instead of as the reader's own overlap with their record.
-  // The slot now carries ONE hue of its own (.bw-score-n in ballot-workspace.css),
-  // which is what tells it apart from the other two reads beside it. Deleted
-  // rather than left unused: a colour ramp for "a score" is the easiest way for
-  // the graded read to come back.
-
-  // Direction Match, read from the slot that owns the publishable floor. `pct` is
-  // null on every branch the ledger has not published and `tested` rides with it,
-  // so there is no shape here where a figure prints without its denominator — and
-  // no branch where this line becomes a sort key.
-  function dmLine(c) {
-    var R = rs();
-    if (!R || typeof R._dm !== 'function') return '';
-    var d = null;
-    try { d = R._dm(c); } catch (e) { return ''; }
-    if (!d || (!d.sub && d.pct === null)) return '';
-    var num = (typeof d.pct === 'number')
-      ? ' · <b>' + d.pct + '%</b> of ' + (d.tested || 0) + ' tested'
-      : '';
-    return '<span class="bw-dm" title="Direction Match asks whether this person kept their OWN word — their stated positions against their own formal record. It is not a match to you, and it does not order this field.">' +
-      '<span class="bw-dm-k" aria-hidden="true">⚖️</span> Direction Match · did they keep their own word: ' +
-      esc(d.sub || '') + num + '</span>';
-  }
-
-  function candHtml(c, i, rk, picked, banded, hasIssues) {
-    var mine = picked === c.pid;
-    var head;
-    if (banded) {
-      // The number slot carries a REASON, never a placeholder percentage. Which
-      // reason depends on a fact about them, not about the lane: a candidate with
-      // votes on the reader's issues that the pattern engine would not
-      // characterise has a file, and saying "no formal record" over it would be
-      // false.
-      head = '<span class="bw-score"><span class="bw-score-dash" aria-hidden="true">—</span>' +
-        '<span class="bw-score-l">no score</span></span>';
-    } else {
-      // ── LANE TWO, NAMED AS LANE TWO ────────────────────────────────────────
-      // This figure is the reader's OWN positions measured against this person's
-      // formal record. Three reads print within a few pixels of each other on
-      // this row and they answer three different questions:
-      //
-      //   1. the FORMAL RECORD itself — what they advanced and what they went
-      //      against. It has no chip and no percentage: it is the pattern
-      //      language in the seat's own copy, and it is what orders this field.
-      //   2. THIS — your match against that record. A percentage, because it is
-      //      an overlap between two sets of positions and a share is what an
-      //      overlap is.
-      //   3. WORD vs ACTION / Direction Match — their stated positions against
-      //      their own record. Grey, under the name, below a publication floor,
-      //      and it orders nothing (see dmLine above).
-      //
-      // The label used to read "RECORD" and nothing else, so a 12% tile beside a
-      // candidate's name read as a verdict on the candidate — their integrity
-      // score, or their record's grade — when what it actually says is "you and
-      // this person's record agree on 12% of what you told us matters". "RECORD"
-      // stays, because the record IS what was measured; "your match" goes in
-      // front of it, because the reader is the other half of the measurement and
-      // was the half nothing on the tile named.
-      head = '<span class="bw-score">' +
-        '<span class="bw-score-n"' +
-          ' title="Your match · record — the positions YOU set against this person’s votes and formal' +
-          ' actions. It is not their integrity score and it is not Word vs Action.">' +
-          c.score + '<i>%</i></span>' +
-        '<span class="bw-score-l">your match<i>&middot;</i>record</span></span>';
-    }
-    // The gap word belongs to a candidate the ACTIVE LANE could not score, and it
-    // is a claim about them — so it is only printed where there is a lane doing
-    // the scoring. With no positions set, nobody has a number, the ruler line
-    // above has already said why once, and repeating that sentence on every row
-    // turns one honest explanation into the stack of nags this pass removed.
-    var gapWord = (banded && hasIssues)
-      ? '<span class="bw-gapword">' + (
-          c.filed ? 'Formal file on your issues · no readable direction yet'
-                  : 'No formal record on your issues yet'
-        ) + '</span>'
-      : '';
-    // TWO FACTS, TWO WORDS, AND SILENCE FOR EVERYONE ELSE. A field is a mix of
-    // the person sitting in the seat, people running for it, and people on file
-    // for reference — and printing them as one undifferentiated list invites the
-    // reader to assume the whole list is on the ballot. "Holds this seat" is the
-    // resolver's answer for THIS seat (pdxSeatHolders, never a scan of the row's
-    // own office text); "Running" is runsHere(), the same read the roster above
-    // uses. The field rows carry no status of their own, so a third branch
-    // keyed on one used to leave every plain candidate untagged; a row that is
-    // neither gets no tag rather than a guessed one.
-    var tags = '';
-    if (c.incumbent) tags += '<span class="bw-tag is-inc">Holds this seat</span>';
-    else if (runsHere(rk, c)) tags += '<span class="bw-tag is-cand">Running</span>';
-    if (mine) tags += '<span class="bw-tag is-mine">⭐ Your pick</span>';
-
-    var lbl = mine ? '✓ Your pick' : (picked ? 'Replace my pick' : '➕ Add to ballot');
-    var aria = mine ? 'Remove ' + c.name + ' from your ballot'
-      : (picked ? 'Replace your pick for this seat with ' + c.name
-                : 'Add ' + c.name + ' to your ballot');
-
-    return '<li class="bw-cand' + (mine ? ' is-mine' : '') + (banded ? ' is-gap' : '') + '">' +
-      head +
-      '<span class="bw-cand-who">' +
-        candOpen(c.pid, ' aria-label="Open ' + esc(c.name) + '’s full record"') +
-          candFace(c.pid) +
-          '<span class="bw-cand-label">' + esc(c.name) + '</span>' +
-        candClose(c.pid) +
-        (tags ? '<span class="bw-cand-tags">' + tags + '</span>' : '') +
-        gapWord +
-        dmLine(c) +
-      '</span>' +
-      '<span class="bw-cand-act">' +
-        '<button type="button" class="bw-pick' + (mine ? ' is-on' : '') + '"' +
-          ' onclick="window.pdxBallotWorkspacePick(\'' + jsq(rk) + '\',\'' + jsq(c.pid) + '\')"' +
-          ' aria-label="' + esc(aria) + '">' + lbl + '</button>' +
-      '</span>' +
-    '</li>';
+      '<ul class="bw-glance-ul">' + rows + '</ul></details>';
   }
 
   // ── The honest states ─────────────────────────────────────────────────────
@@ -1095,28 +775,6 @@
         '<p>Other seats on your ballot may already have a field — the rail keeps your place.</p>' +
       '</div>';
     }
-    if (kind === 'one') {
-      // WHAT A FIELD OF ONE IS, AND WHAT IT IS NOT. It is a statement about
-      // PolitiDex's files for one district number, and nothing else. It is NOT
-      // "unopposed", it is NOT "no one else filed", and it is NOT a finding
-      // about the race — this app does not hold certified filing lists, so it
-      // cannot know either way, and the older copy above ("nobody else has a
-      // certified filing here yet") claimed it did. The district number is named
-      // out loud because that is the scope of the claim: someone else may well
-      // be running here, and if they are, the gap is ours.
-      var one = '';
-      try {
-        var sf1 = (typeof window.pdxSeatField === 'function') ? window.pdxSeatField(seat.key) : null;
-        if (sf1 && sf1.answerable && sf1.district != null) one = sf1.districtName || ('District ' + sf1.district);
-      } catch (e) {}
-      return '<div class="bw-honest">' +
-        '<p><b>No other person on file' + (one ? ' for ' + esc(one) : ' for this seat') +
-        '</b> — so there is no field to compare here yet.</p>' +
-        '<p>That is what PolitiDex holds, not a finding about the race: we do not carry certified ' +
-        'filing lists, so this is not a claim that the seat is unopposed. Their own record still ' +
-        'stands on its own, and you can still pick them.</p>' +
-      '</div>';
-    }
     return '';
   }
 
@@ -1131,16 +789,13 @@
     return null;
   }
 
-  function footHtml(seat, list, canCompare) {
+  // The foot carries navigation only: where you vote, and the next seat. The
+  // "Full side-by-side" overlay that used to lead it is gone from this desk —
+  // step 3 is the side-by-side, and a second one behind a button was the same
+  // question answered twice with more method text around it.
+  function footHtml(seat, list) {
     var nx = nextUndecided(list, seat.key);
-    var bits = '';
-    if (canCompare) {
-      bits += '<button type="button" class="bw-go is-lead"' +
-        ' onclick="window.pdxOpenRaceSheet&&window.pdxOpenRaceSheet(\'' + jsq(seat.key) + '\')"' +
-        ' aria-label="Open the full side-by-side comparison for ' + esc(seat.label) + '">' +
-        '<span aria-hidden="true">⚖️</span> Full side-by-side</button>';
-    }
-    bits += '<button type="button" class="bw-go"' +
+    var bits = '<button type="button" class="bw-go"' +
       ' onclick="(window.openLocationModal||window.toggleChangeLocation||function(){})()">' +
       '<span aria-hidden="true">\u{1F4CD}</span> Change location</button>';
     if (nx) {
@@ -1150,7 +805,7 @@
         'Next seat · ' + esc(nx.label) + ' <span aria-hidden="true">›</span></button>';
     } else {
       bits += '<button type="button" class="bw-go is-next"' +
-        ' onclick="var e=document.getElementById(\'my-politicians\')||document.querySelector(\'.bw-rail\');if(e)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});"' +
+        ' onclick="var e=document.querySelector(\'.bw-rail\');if(e)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});"' +
         ' aria-label="Every seat we track has a pick — review your picks">' +
         'Every seat decided · review your ballot <span aria-hidden="true">›</span></button>';
     }
@@ -1180,54 +835,251 @@
       'Check with your county clerk before you vote.</p>';
   }
 
+  // ── THE THREE STEPS ───────────────────────────────────────────────────────
+  // A located reader who opens a seat gets three things, in this order, and
+  // nothing in front of them:
+  //
+  //   1 RESEARCH  who holds the seat and who is running for it — a name that is
+  //               a link to their file, and one line: current office, district.
+  //   2 ALIGN     the reader's own stances that bear on this seat, and one door
+  //               to the stance studio that brings them back here.
+  //   3 COMPARE   with two or more people on the seat, the reader's stance and
+  //               each person's published direction, issue by issue.
+  //
+  // NO NUMBER ON THIS DESK. No match percentage, no composite, no grade, no
+  // order by fit, no "best match", and no Direction Match — the desk used to
+  // open on a ruler paragraph and a score tile per row, and a reader had to
+  // read past the method to reach the people. The people come first now, in
+  // the roster's own order: whoever holds the seat, then the candidates.
+  //
+  // The pick, the election date and the district-lines caveat are still here,
+  // folded into one disclosure under step 3, because none of them is a step.
+  var ALIGN_CAP = 8;
+
+  // One line under the name: the office the record files them in, and the
+  // district (or state) it is for. Read from the record and printed as it is;
+  // a candidate whose record names no office is a candidate for THIS seat.
+  function officeLine(pid, seat) {
+    var rec = recordOf(pid) || {};
+    var office = String(rec.office || '').trim();
+    if (!office) office = (statusOf(pid) === 'current_candidate' ? 'Candidate for ' : '') + seat.label;
+    var where = String(rec.district || '').trim() || String(rec.state || '').trim();
+    return (where && office.indexOf(where) === -1) ? office + ' · ' + where : office;
+  }
+
+  function stepHead(n, title) {
+    return '<h5 class="bw-step-h"><span class="bw-step-n" aria-hidden="true">' + n + '</span>' + esc(title) + '</h5>';
+  }
+
+  // Two groups under one heading — who holds the seat, then who is running for
+  // it — so the sitting member and the challengers are told apart by where they
+  // sit rather than by a badge on each name. data-bw-role carries the same fact
+  // for the harness and prints nothing.
+  function personRow(pid, seat, role) {
+    return '<li class="bw-person" data-bw-roster="' + esc(canonPid(pid)) + '" data-bw-role="' + role + '">' +
+      candOpen(pid, ' aria-label="Open ' + esc(nameOf(pid)) + '’s full record"') +
+        candFace(pid) +
+        '<span class="bw-cand-label">' + esc(nameOf(pid)) + '</span>' +
+      candClose(pid) +
+      '<span class="bw-person-office">' + esc(officeLine(pid, seat)) + '</span>' +
+    '</li>';
+  }
+  // What a "no one else" sentence is about: the district when the seat has one,
+  // "this seat" when it is statewide. The claim is about PolitiDex's files for
+  // that scope and nothing wider.
+  function scopeName(seat) {
+    try {
+      var sf = fn('pdxSeatField') ? window.pdxSeatField(seat.key) : null;
+      if (sf && sf.answerable && sf.district != null) return sf.districtName || ('District ' + sf.district);
+    } catch (e) {}
+    return 'this seat';
+  }
+  // `filed` is true when the resolver named nobody and the holder comes from our
+  // own roster file instead; the label then says so in those words, because
+  // "on file as" is a claim about PolitiDex's file, not the reader's
+  // representation, and the two are not allowed to sound alike.
+  function researchHtml(seat, holders, running, filed) {
+    var body = holders.length
+      ? '<p class="bw-grp" data-bw-grp="holder">' + (filed ? 'On file as holding this seat' : 'Holds this seat now') + '</p>' +
+        '<ul class="bw-people" data-bw-people="holder">' +
+          holders.map(function (p) { return personRow(p, seat, 'incumbent'); }).join('') + '</ul>'
+      : '<p class="bw-step-none" data-bw-noholder>No current officeholder resolved for this seat.</p>';
+    if (running.length) {
+      body += '<p class="bw-grp" data-bw-grp="running">Running</p>' +
+        '<ul class="bw-people" data-bw-people="running">' +
+          running.map(function (p) { return personRow(p, seat, 'candidate'); }).join('') + '</ul>';
+    } else if (holders.length) {
+      body += '<p class="bw-step-none" data-bw-roster-none>No other person on file for this seat.</p>';
+    }
+    return '<section class="bw-step" data-bw-step="research">' + stepHead(1, 'Research') + body + '</section>';
+  }
+
+  // The reader's stances, as [{ key, label, side }] in the axis order the race
+  // sheet keeps (starred first). `side` is the stance's own word ("Support").
+  function myStances() {
+    var R = rs(), ax = [];
+    if (R && typeof R._axis === 'function') { try { ax = R._axis() || []; } catch (e) { ax = []; } }
+    var S = window.PDXStanceSides;
+    return ax.map(function (a) {
+      var side = '';
+      try { if (S && typeof S.position === 'function') side = S.label(S.position(a.key)) || ''; } catch (e) {}
+      return { key: a.key, label: a.label, side: side };
+    });
+  }
+
+  // Which of the reader's stances APPLY to this seat: the ones someone on it has
+  // a formal file on. An issue nobody here has acted on has nothing to line up,
+  // so listing it would only be a longer list. The cells come back with the
+  // answer because step 3 prints exactly these rows.
+  function alignRows(people, mine) {
+    if (!mine.length || !people.length) return [];
+    var R = rs();
+    var who = people.map(function (p) { return { pid: p, name: nameOf(p) }; });
+    if (R && typeof R._warm === 'function') { try { R._warm(who); } catch (e) {} }
+    var rows = [];
+    if (R && typeof R._sides === 'function') {
+      try { rows = R._sides(who, mine.map(function (m) { return m.key; })) || []; } catch (e) { rows = []; }
+    }
+    var byKey = {};
+    rows.forEach(function (row) { byKey[row.key] = row; });
+    return mine.map(function (m) {
+      var row = byKey[m.key];
+      return { key: m.key, label: m.label, side: m.side, cells: row ? row.cells : [] };
+    }).filter(function (m) {
+      return m.cells.some(function (c) { return c.onFile; });
+    });
+  }
+
+  function studioHref(empty) {
+    var P = window.PDXReturn;
+    if (P && typeof P.studioHref === 'function') {
+      try { return P.studioHref('/ballot', empty); } catch (e) {}
+    }
+    return '/my-stances?' + (empty ? 'add=1&' : '') + 'next=%2Fballot';
+  }
+
+  function alignHtml(mine, rows) {
+    var body;
+    if (!mine.length) {
+      body = '<p class="bw-step-none">You have not taken a stance on any issue yet.</p>';
+    } else if (!rows.length) {
+      body = '<p class="bw-step-none">None of your ' + mine.length + ' stance' + (mine.length === 1 ? '' : 's') +
+        ' has a formal record from anyone on this seat yet.</p>';
+    } else {
+      var shown = rows.slice(0, ALIGN_CAP);
+      body = '<ul class="bw-stances">' + shown.map(function (m) {
+        return '<li class="bw-stance" data-bw-stance="' + esc(m.key) + '">' +
+          '<span class="bw-stance-issue">' + esc(m.label) + '</span>' +
+          (m.side ? '<span class="bw-stance-side">' + esc(m.side) + '</span>' : '') +
+        '</li>';
+      }).join('') + '</ul>' +
+      (rows.length > shown.length
+        ? '<p class="bw-step-none">' + (rows.length - shown.length) + ' more of your stances apply here.</p>' : '');
+    }
+    return '<section class="bw-step" data-bw-step="align">' + stepHead(2, 'Align') + body +
+      '<a class="bw-go is-lead bw-stance-go" href="' + esc(studioHref(!mine.length)) + '">Add or change stances</a>' +
+    '</section>';
+  }
+
+  function cellWord(c) {
+    if (!c || !c.onFile) return 'Nothing on file';
+    return c.saysLabel || 'No direction read yet';
+  }
+
+  function compareHtml(seat, people, mine, rows) {
+    var body;
+    if (people.length < 2) {
+      // PolitiDex carries no certified filing lists, so one name on file is a
+      // fact about our files and never "unopposed".
+      body = '<p class="bw-step-none">' + (people.length
+        ? 'Only one candidate is on file for ' + esc(scopeName(seat)) + ', so there is no one to compare. ' +
+          'That is what PolitiDex holds, not a claim that the seat is unopposed.'
+        : 'No one is on file for this seat, so there is no one to compare.') + '</p>';
+    } else if (!rows.length) {
+      body = '<p class="bw-step-none">' + (mine.length
+        ? 'Nothing to line up yet: no one on this seat has a formal record on your stances.'
+        : 'Take a stance in step 2 and this lines the candidates up on it.') + '</p>';
+    } else {
+      var shown = rows.slice(0, ALIGN_CAP);
+      var head = '<tr><th scope="col">Issue</th><th scope="col">Your stance</th>' +
+        people.map(function (p) { return '<th scope="col">' + personLink(p) + '</th>'; }).join('') + '</tr>';
+      var body2 = shown.map(function (m) {
+        return '<tr data-bw-cmp="' + esc(m.key) + '"><th scope="row">' + esc(m.label) + '</th>' +
+          '<td class="bw-cmp-mine">' + esc(m.side || '—') + '</td>' +
+          m.cells.map(function (c) {
+            return '<td' + (c && c.onFile && c.saysLabel ? '' : ' class="is-none"') + '>' + esc(cellWord(c)) + '</td>';
+          }).join('') + '</tr>';
+      }).join('');
+      body = '<div class="bw-cmp-wrap"><table class="bw-cmp"><thead>' + head + '</thead><tbody>' + body2 + '</tbody></table></div>';
+    }
+    return '<section class="bw-step" data-bw-step="compare">' + stepHead(3, 'Compare') + body + '</section>';
+  }
+
+  // The pick, folded. It is how the rail fills, so it stays one tap away — but
+  // it is a decision taken after the three steps, not one of them, and its
+  // summary says what is already decided so the fold hides nothing.
+  function moreHtml(seat, r, gate, all) {
+    var picked = pickedFor(seat.key);
+    var rows = all.map(function (c) {
+      var mine = picked === c.pid;
+      var lbl = mine ? '✓ Your pick' : (picked ? 'Replace my pick' : '➕ Add to ballot');
+      var aria = mine ? 'Remove ' + c.name + ' from your ballot'
+        : (picked ? 'Replace your pick for this seat with ' + c.name : 'Add ' + c.name + ' to your ballot');
+      return '<li class="bw-cand' + (mine ? ' is-mine' : '') + '">' +
+        '<span class="bw-cand-who">' + personLink(c.pid) + '</span>' +
+        '<span class="bw-cand-act"><button type="button" class="bw-pick' + (mine ? ' is-on' : '') + '"' +
+          ' onclick="window.pdxBallotWorkspacePick(\'' + jsq(seat.key) + '\',\'' + jsq(c.pid) + '\')"' +
+          ' aria-label="' + esc(aria) + '">' + lbl + '</button></span>' +
+      '</li>';
+    }).join('');
+    var sum = picked ? 'Your pick: ' + esc(nameOf(picked)) : 'Save a pick for this seat';
+    return '<details class="bw-more" data-bw-more>' +
+      '<summary class="bw-more-sum">' + sum + '</summary>' +
+      (rows ? '<ul class="bw-field">' + rows + '</ul>' : '') +
+      electionHtml(seat, r, gate) +
+      linesNote(seat, r) +
+    '</details>';
+  }
+
   function deskHtml(seat, list, r) {
     var gate = fieldGate(seat, r);
     var all = (gate === 'ok') ? fieldFor(seat.key) : [];
-    var hasIssues = axisN() > 0;
-    var picked = pickedFor(seat.key);
 
-    var body = '';
-    var canCompare = false;
+    var body;
     if (gate !== 'ok') {
       body = honest(gate, seat, r);
-    } else if (!all.length) {
-      body = honest('empty', seat, r);
     } else {
-      var R = rs();
-      var ranked = { ranked: [], gap: all, unranked: true };
-      if (R && typeof R._rank === 'function') {
-        try { ranked = R._rank(all, 'record', hasIssues); } catch (e) {}
+      // The resolver's holders lead even when their display row has not landed
+      // yet: a pid is a person and a record address, so it is named (as its id)
+      // rather than dropped — onFile() alone would skip it until the roster parse.
+      var f = onFile(seat, r, gate), held = {}, holders = [];
+      var named = namedHolders(seat, r);
+      var filed = !named.length || String(seat.key).indexOf('local_') === 0;
+      named.concat(f.holders).forEach(function (p) {
+        var c = canonPid(p);
+        if (c && !held[c]) { held[c] = 1; holders.push(c); }
+      });
+      var running = f.others.filter(function (p) { return !held[p]; });
+      var people = holders.concat(running);
+      if (!people.length && !all.length) {
+        body = researchHtml(seat, holders, running, filed) + honest('empty', seat, r);
+      } else {
+        var mine = myStances();
+        var rows = alignRows(people, mine);
+        body = researchHtml(seat, holders, running, filed) + alignHtml(mine, rows) + compareHtml(seat, people, mine, rows) +
+          moreHtml(seat, r, gate, all);
       }
-      var rows = '';
-      (ranked.ranked || []).forEach(function (c, i) {
-        rows += candHtml(c, i, seat.key, picked, false, hasIssues);
-      });
-      (ranked.gap || []).forEach(function (c, i) {
-        rows += candHtml(c, i, seat.key, picked, true, hasIssues);
-      });
-      body =
-        (all.length === 1 ? honest('one', seat, r) : '') +
-        rulerHtml(all.length, hasIssues, (ranked.ranked || []).length) +
-        divergeHtml(all) +
-        '<ul class="bw-field">' + rows + '</ul>';
-      canCompare = true;
     }
 
-    var facts = scopeFact(seat) + holderFact(seat, r, gate) + pickFact(seat);
     return '<div class="bw-desk">' +
         '<div class="bw-deskhd">' +
           '<span class="bw-deskhd-ic" style="--bw-accent:' + esc(seat.color) + ';" aria-hidden="true">' + seat.icon + '</span>' +
           '<div style="min-width:0;">' +
             '<h4 class="bw-deskhd-t">' + esc(seat.label) + '</h4>' +
-            '<p class="bw-deskhd-s">Compare the field on the formal record, then pick for your ballot.</p>' +
           '</div>' +
         '</div>' +
-        '<div class="bw-facts">' + facts + '</div>' +
-        electionHtml(seat, r, gate) +
-        rosterHtml(seat, r, gate) +
-        linesNote(seat, r) +
         body +
-        footHtml(seat, list, canCompare) +
+        footHtml(seat, list) +
       '</div>';
   }
 
@@ -1466,9 +1318,8 @@
       '<div class="bw-hd">' +
         '<div class="bw-eyebrow">Your ballot workspace' + (area ? ' · ' + area : '') + '</div>' +
         '<h3 class="bw-title">Work your ballot, one seat at a time</h3>' +
-        '<p class="bw-sub">Every seat PolitiDex has candidate records for is below. Open one, ' +
-        'read the field on <b>the formal record</b>, pick who earns it, move on. Your picks save ' +
-        'as you go.</p>' +
+        '<p class="bw-sub">Every seat PolitiDex has candidate records for is below. Open one to research ' +
+        'who is on it, line up your stances, and compare.</p>' +
         officialNote() +
         progHtml +
       '</div>' +

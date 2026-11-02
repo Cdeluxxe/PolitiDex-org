@@ -410,185 +410,96 @@ section("3 · The seat is the working surface");
   const picks = (html.match(/pdxBallotWorkspacePick\('/g) || []).length;
   ok(picks >= 2, `the panel offers ${picks} pick controls for a field of 2+`);
   has(html, "Add to ballot", "the panel offers no way to take a pick");
-  // And the full side-by-side is still one tap away, for a reader who wants it.
-  has(html, `pdxOpenRaceSheet('${sm.key}')`, "the panel cannot hand off to the full sheet");
+  // Step 3 is the side-by-side; the overlay is not a second one behind a button.
+  lacks(html, "pdxOpenRaceSheet(", "the panel still hands off to a second side-by-side");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("4 · The formal record is the ruler, and the panel says so");
+section("4 · An open seat is Research, Align, Compare — and no number");
 
+const deskOnly = (html) => { const a = html.indexOf('class="bw-desk"'); const b = html.indexOf('class="bw-foot"', a); return a >= 0 ? html.slice(a, b > a ? b : undefined) : ""; };
+const researchPids = (html) => [...html.matchAll(/<li class="bw-person" data-bw-roster="([^"]+)"/g)].map((m) => m[1]);
 {
-  // With stances set, the record lane can score, and the order must be the
-  // record lane's order — not the roster order, not Direction Match's order.
+  // With stances set: the three steps, in order, and nothing scored.
   const w = boot();
-  // Stances go into the LIVE set the match engine and the race sheet's axis()
-  // both read, using real ISSUE_MAP keys — a made-up key is filtered out by
-  // axis() and would silently make this whole block test the cold path.
   const KEYS = Object.keys(w.ISSUE_MAP || {}).slice(0, 4);
-  must(KEYS.length >= 2, "ISSUE_MAP is empty, so the ranked path cannot be tested");
+  must(KEYS.length >= 2, "ISSUE_MAP is empty, so the stance path cannot be tested");
   KEYS.forEach((k) => w._alignIssues.add(k));
   must(w.PDXRaceSheet._axis().length >= 2, "the stances did not reach the shared axis");
-
   w.pdxBallotWorkspaceOpen(SEAT);
-  const html = paint(w);
-  const sm = w.PDXRaceSheet._seat(SEAT);
-  const all = w.PDXRaceSheet._field(sm.key);
-  const ranked = w.PDXRaceSheet._rank(all, "record", true);
-
-  // THE RULER SENTENCE TRACKS WHAT ACTUALLY SCORED, NOT WHAT WAS ASKED FOR.
-  // Having positions is not the same as the field having a record to read
-  // against them. Whichever of the three cases this fixture lands in, the
-  // sentence must describe THAT case — a blanket "Ordered by their formal
-  // record" over an order the record never produced is a manufactured ranking,
-  // which is the one claim this surface exists to refuse.
-  has(html, "formal record", "the ruler never names the formal record at all");
-  if (!ranked.ranked.length) {
-    has(html, "no one in this field has a formal record",
-      "nothing scored, yet the panel does not say so");
-    lacks(html, "Ordered by",
-      "the panel claims an order the record lane never produced");
-    has(html, "officeholder first",
-      "the panel hides how the field is actually listed when nothing scored");
-  } else if (ranked.ranked.length < all.length) {
-    has(html, `<b>${ranked.ranked.length} of ${all.length}</b>`,
-      "a partly-scored field does not say how many the record could place");
-    has(html, "not ranked among them",
-      "the unscored remainder is not held out of the ranking in words");
-  } else {
-    has(html, "Ordered by", "a fully-scored field does not name its ruler");
+  const desk = deskOnly(paint(w));
+  const iR = desk.indexOf('data-bw-step="research"'), iA = desk.indexOf('data-bw-step="align"'), iC = desk.indexOf('data-bw-step="compare"');
+  ok(iR > 0 && iA > iR && iC > iA, "the open seat is not Research, then Align, then Compare");
+  for (const bad of ["bw-score", "bw-dm", "bw-ruler", "bw-diverge", "bw-tag", "Direction Match", "your match", "Ordered by", "best match"]) {
+    lacks(desk, bad, `the desk prints a score or method read (${bad})`);
   }
-  // Both disclaimers survive in every case, whatever the sentence around them.
-  ok(/[Pp]arty is never read here/.test(html),
-    "the panel never says party is not read on this surface");
-  ok(/Direction Match/.test(html),
-    "the panel never mentions Direction Match as a non-ordering figure");
-  lacks(html, "Ordered by party", "the field claims to be ordered by party");
-
-  if (ranked.ranked.length >= 2) {
-    // The painted order IS _rank's order. Read off the markup, not asserted from
-    // the model twice.
-    const order = (html.match(/showProfile\('([^']+)'\)/g) || [])
-      .map((m) => m.slice(13, -2));
-    const wanted = ranked.ranked.map((c) => c.pid);
-    const seen = order.filter((p) => wanted.indexOf(p) >= 0);
-    ok(seen.indexOf(wanted[0]) >= 0 && seen.indexOf(wanted[0]) < seen.indexOf(wanted[1]),
-      "the painted field is not in the record lane's order");
-    // A scored candidate gets a figure; an unscored one gets a reason and no
-    // figure. Both bands are present in the markup and neither borrows the other.
-    has(html, 'class="bw-score-n"', "a scoreable field printed no figure at all");
-  } else { passed += 2; }
-  if (ranked.gap.length) {
-    ok(/No formal record on your issues yet|no readable direction yet/.test(html),
-      "an unscored candidate has no reason printed in place of a figure");
-  } else { passed++; }
+  ok(!/\d+\s*(?:<i>)?%/.test(desk), "the desk prints a percentage");
+  // Research: every person is a link to /p/<pid> with one office line.
+  const pids = researchPids(desk);
+  ok(pids.length >= 1, "Research names nobody on the fixture seat");
+  const offices = (desk.match(/<span class="bw-person-office">[^<]+<\/span>/g) || []).length;
+  eq(offices, pids.length, "every Research name has exactly one office line");
+  // person-link.js is not on this boot, so the name is the showProfile fallback.
+  pids.forEach((p) => ok(desk.indexOf(`href="/p/${p}"`) >= 0 || desk.indexOf(`showProfile('${p}')`) >= 0,
+    `Research: ${p} does not open their file`));
+  // Align: one control, to the studio and back to /ballot.
+  has(desk, "Add or change stances", "Align has no Add or change stances control");
+  has(desk, "/my-stances?next=%2Fballot", "Add or change stances does not come back to /ballot");
+  lacks(desk, "mst-chip", "the desk mounted the stance studio's issue tree");
 }
 
 {
-  // THE THREE RULER CASES, FORCED. The shipped Utah fixture only exercises one
-  // of them (whichever the real formal-pattern index supports today), so the
-  // other two are driven by pinning the record lane's own return value. The
-  // workspace reads the split through PDXRaceSheet._rank at paint time, so this
-  // exercises the real render path — only the lane's verdict is controlled.
+  // Compare, forced: _sides is pinned so the table's contents are known. The
+  // first person has a published direction on every issue, the rest have none.
   const w = boot();
-  Object.keys(w.ISSUE_MAP || {}).slice(0, 4).forEach((k) => w._alignIssues.add(k));
+  const KEYS = Object.keys(w.ISSUE_MAP || {}).slice(0, 3);
+  KEYS.forEach((k) => w._alignIssues.add(k));
+  const real = w.PDXRaceSheet._sides;
+  w.PDXRaceSheet._sides = (who, keys) => keys.map((k) => ({
+    key: k, label: "L-" + k,
+    cells: who.map((p, i) => ({ pid: p.pid, name: p.name, key: k, onFile: i === 0, saysLabel: i === 0 ? "Supports" : "" })),
+  }));
   w.pdxBallotWorkspaceOpen(SEAT);
-  const all = w.PDXRaceSheet._field(w.PDXRaceSheet._seat(SEAT).key);
-  must(all.length >= 2, "the fixture seat has no field to split");
-  const realRank = w.PDXRaceSheet._rank;
-
-  const pin = (nRanked) => {
-    w.PDXRaceSheet._rank = () => ({
-      ranked: all.slice(0, nRanked).map((c, i) => ({ ...c, score: 80 - i * 10, filed: true })),
-      gap: all.slice(nRanked),
-      unranked: nRanked === 0,
-    });
-    return paint(w);
-  };
-
-  // Every candidate placed: the plain claim is allowed, because it is true.
-  const full = pin(all.length);
-  has(full, "Ordered by <b>their formal record</b>",
-    "a fully-scored field does not name the record as its ruler");
-  lacks(full, " of " + all.length + "</b> ordered",
-    "a fully-scored field still hedges with a partial count");
-
-  // Some placed, some not: the count is stated and the remainder is explicitly
-  // held out of the ranking, so a reader cannot mistake position for standing.
-  const part = pin(1);
-  has(part, "<b>1 of " + all.length + "</b> ordered by <b>their formal record</b>",
-    "a partly-scored field does not state how many the record could place");
-  has(part, "not ranked among them",
-    "the unscored remainder is not held out of the ranking");
-
-  // None placed, though positions are set: no order is claimed, and the real
-  // listing rule is named instead.
-  const none = pin(0);
-  has(none, "no one in this field has a formal record",
-    "an unscoreable field does not say the record is missing");
-  has(none, "nothing to order them by",
-    "an unscoreable field does not say why it is not ordered");
-  has(none, "officeholder first",
-    "an unscoreable field hides how it is actually listed");
-  lacks(none, "Ordered by",
-    "an unscoreable field still claims to be ordered");
-  // Even here, DM is named only as something that orders nothing.
-  has(none, "orders", "the unscoreable case drops the note that DM orders nothing");
-
-  w.PDXRaceSheet._rank = realRank;
+  const desk = deskOnly(paint(w));
+  const pids = researchPids(desk);
+  if (pids.length >= 2) {
+    has(desk, '<table class="bw-cmp">', "two or more people, yet Compare has no table");
+    has(desk, ">Your stance<", "the Compare table has no Your stance column");
+    KEYS.forEach((k) => has(desk, `data-bw-cmp="${k}"`, `Compare has no row for the reader's stance ${k}`));
+    KEYS.forEach((k) => has(desk, `data-bw-stance="${k}"`, `Align does not list the reader's stance ${k}`));
+    has(desk, ">Supports<", "Compare does not print a person's published direction");
+    has(desk, ">Nothing on file<", "Compare fills a missing record instead of saying so");
+    const heads = (desk.match(/<thead>[\s\S]*?<\/thead>/) || [""])[0];
+    eq((heads.match(/<th scope="col">/g) || []).length, 2 + pids.length, "Compare's columns are not issue, your stance, and one per person");
+  } else {
+    has(desk, "Only one candidate is on file", "a one-person seat does not say so");
+    lacks(desk, '<table class="bw-cmp">', "a one-person seat paints a comparison");
+  }
+  w.PDXRaceSheet._sides = real;
 }
 
 {
-  // No stances at all: no numbers anywhere, one line saying what would change,
-  // and the field still listed.
+  // No stances at all: Align says so, the door opens the picker, Compare waits.
   const w = boot();
   w.pdxBallotWorkspaceOpen(SEAT);
-  const html = paint(w);
-  has(html, "not ranked", "with no positions the panel still claims an order");
-  // ONE LINE AND ONE LINK, AND THE LINK IS AN ADDRESS.
-  //
-  // This used to read "Set your positions", which was the copy on a control
-  // that set `location.hash = '#my-stances'` — a fragment naming no section on
-  // this document, so the one button on the one screen that needs positions
-  // did nothing at all. /my-stances is the stance studio now, and the desk is
-  // explicitly forbidden to remount its twelve-chip tutorial here: a reader who
-  // needs positions gets a sentence and an anchor, and takes them where they
-  // are taught.
-  has(html, "Rank this field with your positions",
-    "the panel does not say what would rank the field");
-  has(html, '/my-stances', "the panel's prompt is not an address");
-  ok(!/location\.hash\s*=\s*['"]#my-stances/.test(html),
-    "the prompt still sets a fragment this document does not answer");
-  ok((html.match(/Rank this field with your positions/g) || []).length <= 2,
-    "the no-positions prompt is repeated as a stack");
-  // The desk teaches nothing: no starter chips, no scope sentences, no wizard.
-  ok(!/mst-chip|mst-card|data-beat=/.test(html),
+  const desk = deskOnly(paint(w));
+  has(desk, "You have not taken a stance", "with no stances, Align does not say so");
+  has(desk, "/my-stances?add=1&amp;next=%2Fballot", "with no stances, the studio door does not open the picker and come back");
+  lacks(desk, '<table class="bw-cmp">', "with no stances, Compare paints a table");
+  ok(!/mst-chip|mst-card|data-beat=/.test(desk),
     "the desk mounted the stance studio inside itself — /ballot reads positions, it does not run a second wizard");
-  ok(!/class="bw-score-n"/.test(html), "the panel prints a match figure it cannot compute");
-  has(html, "bw-field", "the field disappears when there are no positions");
+  has(desk, "bw-field", "the pick list disappears when there are no positions");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("5 · Direction Match is printed, secondary, and orders nothing");
+section("5 · Nothing on the desk sorts or scores");
 
 {
-  const w = boot();
-  w.pdxBallotWorkspaceOpen(SEAT);
-  const html = paint(w);
-  if (html.indexOf("bw-dm") >= 0) {
-    has(html, "Direction Match", "the DM line is not labelled");
-    has(html, "did they keep their own word", "the DM line does not state the question it answers");
-    // Never in the number slot: the ruler's slot is .bw-score, and no DM figure
-    // may appear inside it.
-    const scoreSlots = html.match(/<span class="bw-score">[\s\S]*?<\/span><span class="bw-cand-who">/g) || [];
-    scoreSlots.forEach((s) => lacks(s, "Direction Match", "Direction Match is in the ruler's number slot"));
-  } else {
-    passed++;
-  }
-  // The one sort in this file is _rank. Nothing else may order the field.
   const src = WORK;
   const sorts = (src.match(/\.sort\(/g) || []).length;
-  eq(sorts, 0, "the workspace sorts the field itself instead of asking _rank");
-  lacks(src, "_dm(c).pct >", "the workspace compares Direction Match figures");
+  eq(sorts, 0, "the workspace sorts the field itself");
+  lacks(src, "_dm(", "the workspace reads Direction Match");
+  lacks(src, "_rank(", "the workspace ranks the field");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

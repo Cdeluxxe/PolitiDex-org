@@ -1,24 +1,23 @@
 #!/usr/bin/env node
 // ─────────────────────────────────────────────────────────────────────────────
-// test-ballot-pick-running-tag.mjs — every candidate row on the desk says Running
+// test-ballot-pick-running-tag.mjs — the desk tells the holder from the running
 // ─────────────────────────────────────────────────────────────────────────────
-// The ballot desk's pick list tagged a row "Running" only from the cross-office
-// candidacy flag. Field rows carry no status of their own, so a plain candidate
-// — one the roster just above the list calls a candidate — showed no tag at all
-// beside a sitting member's "Holds this seat".
+// The desk's Research step lists the sitting member and the candidates for an
+// open seat. It used to do that with a badge on every pick-list row ("Holds
+// this seat", "Running"); it now does it with two groups — "Holds this seat
+// now" (or "On file as holding this seat") and "Running" — and no badges.
 //
 // What it pins, on the real roster, resolver, field and desk:
 //
-//   1. A candidate in the pick list shows "Running".
-//   2. A sitting member still shows "Holds this seat", and only that.
-//   3. A row that is neither gets no tag.
-//   4. Every row agrees with the race roster above it: "incumbent" there is
-//      "Holds this seat" here, "candidate" there is "Running" here, and a row
-//      the roster does not list is untagged.
-//   5. The race roster itself is byte-identical to HEAD's.
-//   6. Cross-office candidacies (Paxton, Donalds) say "Running" in the race
-//      they are entering.
-//   7. Who appears in the pick list is unchanged from HEAD.
+//   1. A candidate (including a plain one, with no cross-office candidacy) sits
+//      in the Running group.
+//   2. A sitting member the resolver names sits in the holder group, and only
+//      there.
+//   3. Every Research row's role agrees with the group it is in.
+//   4. No row on the desk carries a status badge.
+//   5. Cross-office candidacies (Paxton, Donalds) are Running in the race they
+//      are entering.
+//   6. Who appears in the pick list is unchanged from HEAD.
 //
 //   node scripts/test-ballot-pick-running-tag.mjs
 
@@ -90,25 +89,23 @@ function boot(loc, workSrc) {
 }
 
 const deskOf = (w, rk) => { w.pdxBallotWorkspaceOpen(rk); return String(w.document.getElementById("bw-body").innerHTML); };
-// pid → [tag words] for every row in the pick list.
+// pids in the pick list (the fold under step 3).
 const pickRows = (html) => {
   const out = {};
   for (const m of html.matchAll(/<li class="bw-cand[^"]*">([\s\S]*?)<\/li>/g)) {
     const p = /pdxBallotWorkspacePick\('[^']*','([^']*)'\)/.exec(m[1]);
-    if (!p) continue;
-    out[p[1]] = [...m[1].matchAll(/<span class="bw-tag[^"]*">([^<]*)<\/span>/g)].map((x) => x[1]).filter((t) => t.indexOf("Your pick") < 0);
+    if (p) out[p[1]] = 1;
   }
   return out;
 };
-// pid → roster role ("incumbent" | "candidate") from the race roster above the list.
-const rosterRoles = (html) => {
+// pid → { group, role } for every Research row. group is "holder" | "running".
+const research = (html) => {
   const out = {};
-  const box = /<div class="bw-roster" [\s\S]*?<\/ul>/.exec(html);
-  if (!box) return out;
-  for (const m of box[0].matchAll(/data-bw-roster="([^"]*)"[\s\S]*?data-bw-role="([^"]*)"/g)) out[m[1]] = m[2];
+  for (const g of html.matchAll(/<p class="bw-grp" data-bw-grp="([a-z]+)">[^<]*<\/p>\s*<ul class="bw-people"[^>]*>([\s\S]*?)<\/ul>/g)) {
+    for (const m of g[2].matchAll(/data-bw-roster="([^"]*)" data-bw-role="([^"]*)"/g)) out[m[1]] = { group: g[1], role: m[2] };
+  }
   return out;
 };
-const rosterBox = (html) => { const m = /<div class="bw-roster" [\s\S]*?<\/div>/.exec(html); return m ? m[0] : ""; };
 
 // Locations and seats with a mix of holders, candidates and reference rows.
 const PLACES = [
@@ -120,84 +117,73 @@ const PLACES = [
 ];
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("1–4 · every pick-list row agrees with the roster above it");
+section("1–4 · every Research row sits in the group its role names");
 // ═════════════════════════════════════════════════════════════════════════════
-let nRunning = 0, nHolds = 0, nNone = 0, nDesks = 0;
+let nRunning = 0, nHolds = 0, nDesks = 0;
 for (const { loc, seats } of PLACES) {
   const w = boot(loc), w0 = HEAD_WORK ? boot(loc, HEAD_WORK) : null;
   for (const rk of seats) {
     const html = deskOf(w, rk);
-    const rows = pickRows(html);
+    const rows = research(html);
     const pids = Object.keys(rows);
     if (!pids.length) continue;
     nDesks++;
-    const roles = rosterRoles(html);
     const where = `${loc.state} ${rk}`;
+    ok(html.indexOf('class="bw-tag') < 0, `${where}: a desk row carries a status badge`);
     for (const pid of pids) {
-      const t = rows[pid];
-      const want = roles[pid] === "incumbent" ? ["Holds this seat"] : roles[pid] === "candidate" ? ["Running"] : [];
-      // A holder the resolver names is "incumbent" on both; the roster's fallback
-      // can name an officeholder the resolver did not, and that row stays as HEAD had it.
-      if (roles[pid] === "incumbent" && t.length === 0) continue;
-      eq(JSON.stringify(t), JSON.stringify(want), `${where}: ${pid} tags match the roster role "${roles[pid] || "none"}"`);
-      if (t[0] === "Running") nRunning++; else if (t[0] === "Holds this seat") nHolds++; else nNone++;
-      ok(t.indexOf("In office") < 0 && t.join("").indexOf("Former") < 0, `${where}: ${pid} carries no invented status tag`);
+      const r = rows[pid];
+      eq(r.group, r.role === "incumbent" ? "holder" : "running", `${where}: ${pid} (${r.role}) sits in the wrong group`);
+      if (r.group === "running") nRunning++; else nHolds++;
     }
+    (w.pdxSeatHolders(rk).pids || []).forEach((p) => {
+      if (rows[p]) eq(rows[p].group, "holder", `${where}: the resolver's holder ${p} is not in the holder group`);
+    });
     if (w0) {
       const html0 = deskOf(w0, rk);
-      eq(JSON.stringify(Object.keys(pickRows(html0)).sort()), JSON.stringify(pids.slice().sort()), `${where}: the pick list lists the same people as HEAD`);
-      eq(rosterBox(html), rosterBox(html0), `${where}: the race roster is byte-identical to HEAD`);
-      const h0 = pickRows(html0);
-      pids.forEach((p) => { if (h0[p] && h0[p][0] === "Holds this seat") eq(rows[p][0], "Holds this seat", `${where}: ${p} still holds this seat`); });
+      eq(JSON.stringify(Object.keys(pickRows(html0)).sort()), JSON.stringify(Object.keys(pickRows(html)).sort()), `${where}: the pick list lists the same people as HEAD`);
     }
   }
 }
-console.log(`   desks ${nDesks} · running ${nRunning} · holds ${nHolds} · none ${nNone}`);
+console.log(`   desks ${nDesks} · running ${nRunning} · holds ${nHolds}`);
 ok(nDesks >= 5, `enough desks were painted to mean something (${nDesks})`);
-ok(nRunning >= 1, `at least one pick-list row says Running (${nRunning})`);
-ok(nHolds >= 1, `at least one pick-list row says Holds this seat (${nHolds})`);
-ok(nNone >= 1, `at least one pick-list row is neither and untagged (${nNone})`);
+ok(nRunning >= 1, `at least one Research row is Running (${nRunning})`);
+ok(nHolds >= 1, `at least one Research row holds the seat (${nHolds})`);
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("1 · a plain candidate (no cross-office candidacy) says Running");
+section("1 · a plain candidate (no cross-office candidacy) is Running");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  const w = boot({ state: "Texas", city: "Fort Worth", county: "Tarrant County", district: "12" });
+  const rows = research(deskOf(w, "senate"));
+  const running = (w.pdxSeatField("senate").candidacies || []);
+  const plain = Object.keys(rows).filter((p) => rows[p].role === "candidate" && running.indexOf(p) === -1);
+  ok(plain.length >= 1, `Texas Senate has a candidate on file by record status alone (${plain.join(", ")})`);
+  plain.forEach((p) => eq(rows[p].group, "running", `Texas Senate: ${p} is Running`));
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("2 · a sitting member holds this seat");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const w = boot({ state: "Texas", city: "Fort Worth", county: "Tarrant County", district: "12" });
   const html = deskOf(w, "senate");
-  const rows = pickRows(html), roles = rosterRoles(html);
-  const running = (w.pdxSeatField("senate").candidacies || []);
-  const plain = Object.keys(rows).filter((p) => roles[p] === "candidate" && running.indexOf(p) === -1);
-  ok(plain.length >= 1, `Texas Senate has a candidate on file by record status alone (${plain.join(", ")})`);
-  plain.forEach((p) => eq(rows[p][0], "Running", `Texas Senate: ${p} says Running`));
-  // Only meaningful while HEAD predates the fix (no runsHere): once it is HEAD,
-  // there is no "before" to compare against, whatever else has changed since.
-  if (HEAD_WORK && HEAD_WORK.indexOf("function runsHere(") < 0) {
-    const h0 = pickRows(deskOf(boot({ state: "Texas", city: "Fort Worth", county: "Tarrant County", district: "12" }, HEAD_WORK), "senate"));
-    ok(plain.some((p) => (h0[p] || []).length === 0), "at least one of them had no tag before this change");
-  }
-}
-
-// ═════════════════════════════════════════════════════════════════════════════
-section("2 · a sitting member still says Holds this seat");
-// ═════════════════════════════════════════════════════════════════════════════
-{
-  const w = boot({ state: "Texas", city: "Fort Worth", county: "Tarrant County", district: "12" });
-  const rows = pickRows(deskOf(w, "senate"));
+  const rows = research(html);
   const holders = w.pdxSeatHolders("senate").pids || [];
   ok(holders.length >= 1, `Texas Senate names a sitting member (${holders.join(", ")})`);
-  holders.forEach((p) => { if (rows[p]) eq(JSON.stringify(rows[p]), JSON.stringify(["Holds this seat"]), `Texas Senate: ${p} says Holds this seat and nothing else`); });
+  ok(html.indexOf('data-bw-grp="holder">Holds this seat now<') >= 0, "Texas Senate: the holder group is not labelled Holds this seat now");
+  holders.forEach((p) => eq(rows[p] && rows[p].group, "holder", `Texas Senate: ${p} holds this seat`));
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("6 · Paxton and Donalds say Running in the race they are entering");
+section("5 · Paxton and Donalds are Running in the race they are entering");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const tx = boot({ state: "Texas", city: "Fort Worth", county: "Tarrant County", district: "12" });
-  const txRows = pickRows(deskOf(tx, "senate"));
-  eq(JSON.stringify(txRows.ken_paxton), JSON.stringify(["Running"]), "Paxton: Texas U.S. Senate pick row says Running");
+  const txRows = research(deskOf(tx, "senate"));
+  eq(txRows.ken_paxton && txRows.ken_paxton.group, "running", "Paxton: Texas U.S. Senate is listed as Running");
   const fl = boot({ state: "Florida", city: "Naples", county: "Collier County", district: "19" });
-  const flRows = pickRows(deskOf(fl, "governor"));
-  eq(JSON.stringify(flRows.donalds), JSON.stringify(["Running"]), "Donalds: Florida Governor pick row says Running");
+  const flRows = research(deskOf(fl, "governor"));
+  eq(flRows.donalds && flRows.donalds.group, "running", "Donalds: Florida Governor is listed as Running");
 }
 
 console.log("");
