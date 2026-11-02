@@ -1,0 +1,212 @@
+#!/usr/bin/env node
+// ─────────────────────────────────────────────────────────────────────────────
+// test-related-issues-drawer.mjs — the related-issues map inside the drawer
+// ─────────────────────────────────────────────────────────────────────────────
+// The issue drawer prints, after the finding line and before the vote table,
+// every issue the map relates to the open issue that the person has a
+// published supports / opposes on, one "Label: supports|opposes" line each.
+//
+//   1. LEE × PROTECT PUBLIC LANDS (real data): the drawer leads with votes and
+//      shows Keep Public Lands Public with Lee's stated position from the
+//      stance map, as a link that opens that drawer on Lee; the block sits
+//      between the finding line and the tally.
+//   2. FIXTURE: every related issue with a published direction is listed, in
+//      map order; a mixed one, an unrelated one and the open issue are not; the
+//      open issue is never a link; following a link lands on a drawer that
+//      links back.
+//   3. OMITTED: an issue with no related positions prints no block.
+//   4. NOTHING ELSE MOVED: on the real corpus, every sampled drawer with the
+//      block removed is byte-identical to the drawer rendered with no module,
+//      and issue rows / scores are identical. Wiring and the shell bump.
+//
+//   node scripts/test-related-issues-drawer.mjs
+// ─────────────────────────────────────────────────────────────────────────────
+import { readFileSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+import vm from "node:vm";
+import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { buildCorpus } from "./vr-record-corpus.mjs";
+
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+const R = (f) => readFileSync(join(ROOT, f), "utf8");
+
+let passed = 0;
+const failures = [];
+const ok = (cond, msg) => { if (cond) passed++; else failures.push(msg); };
+const eq = (a, b, msg) => ok(a === b, `${msg}\n      got:  ${JSON.stringify(a)}\n      want: ${JSON.stringify(b)}`);
+
+const FILES = [
+  "cmp-data.js", "politician-stances-core.js", "politician-stances-ext.js",
+  "state-senate-stances.js", "stance-helpers.js", "alignment-tool.js",
+  "acct-spotlight-data.js", "say-vs-do.js", "exec-action-data.js",
+  "exec-record.js", "exec-record-ui.js", "consistency.js", "voting-record.js",
+  "word-action.js", "profile-spine.js", "profiles-full.js",
+];
+const corpus = buildCorpus(ROOT);
+
+// withModule: load related-issues.js. extra: { pid: { key: stance } } layered
+// over the real stance map for fixture files.
+function boot(withModule, extra) {
+  const win = makeSandbox();
+  const ctx = vm.createContext(win);
+  win.PROFILES = win.CMP_DATA;
+  const files = withModule ? FILES.concat(["related-issues.js"]) : FILES;
+  for (const f of files) {
+    try { vm.runInContext(R(f), ctx, { filename: f }); } catch (e) { win.__err = `${f}: ${e.message}`; }
+  }
+  win.PROFILES = win.CMP_DATA;
+  for (const [pid, recs] of corpus.byMember) {
+    try { win.PDXVotingRecord.noteMember(pid, recs); } catch { /* not a member surface */ }
+  }
+  if (extra) {
+    const real = win._polPositionMap;
+    win._polPositionMap = function (pid, p) {
+      const base = real.apply(this, arguments) || {};
+      if (!extra[pid]) return base;
+      const out = Object.assign({}, base);
+      for (const [k, s] of Object.entries(extra[pid])) out[k] = { stance: s, text: "fixture" };
+      return out;
+    };
+  }
+  return win;
+}
+const text = (h) => String(h || "").replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
+
+const block = (h) => (/<div class="pdxri pdxri-drawer"[\s\S]*?<\/ul><\/div>/.exec(h) || [""])[0];
+const lines = (h) => [...block(h).matchAll(/<li class="pdxri-item"[\s\S]*?<\/li>/g)].map((m) => text(m[0]));
+const doors = (html) => [...html.matchAll(/<a class="pdxri-go" href="([^"]*)" data-pdxri-go="([^"]*)" data-pdxc-gap="([^"]*)" data-pdxc-gap-pid="([^"]*)"[^>]*>([^<]*)<\/a>/g)]
+  .map((m) => ({ href: m[1], go: m[2], key: m[3], pid: m[4], label: m[5].replace(/&amp;/g, "&") }));
+const WORD = { support: "supports", oppose: "opposes" };
+
+// ── 1 · Lee × Protect Public Lands, real data ──────────────────────────────
+{
+  const win = boot(true);
+  if (win.__err) failures.push(`boot: ${win.__err}`);
+  const CS = win.PDXConsistency, RI = win.PDXRelatedIssues;
+  const pm = win._polPositionMap("lee", win.CMP_DATA.lee) || {};
+  const kp = pm.lands_keep_public && pm.lands_keep_public.stance;
+  ok(kp === "support" || kp === "oppose", "Lee has no published position on Keep Public Lands Public");
+  const h = CS.gapViewHtml("lee", "lands_preserve") || "";
+  const ln = lines(h);
+  ok(ln.includes(`Keep Public Lands Public: ${WORD[kp]}`), `Lee's drawer lacks Keep Public Lands Public: ${WORD[kp]} — ${JSON.stringify(ln)}`);
+  const d = doors(block(h)).find((x) => x.key === "lands_keep_public");
+  ok(d && d.pid === "lee", "Keep Public Lands Public is not a link to Lee's drawer on that issue");
+  ok(/pdxgap|pdxlg/.test(CS.gapViewHtml("lee", "lands_keep_public") || ""), "the linked drawer does not render");
+  const find = h.indexOf('class="pdxlg-find"'), at = h.indexOf('class="pdxri pdxri-drawer"');
+  const tally = h.indexOf('data-pdxlg-tally="1"'), table = h.indexOf('<table class="pdxlg-t">');
+  ok(tally > 0 && table > 0, "Lee's Protect Public Lands drawer has no vote table");
+  ok(find >= 0 && at > find, "the block is not after the finding line");
+  ok(at < tally && at < table, "the block is not before the votes");
+  for (const it of RI.itemsFor("lee", win.CMP_DATA.lee, "lands_preserve")) {
+    ok(RI.MAP.lands_preserve.includes(it.key), `${it.key} is in the drawer but not in the map`);
+  }
+}
+
+// ── 2, 3 · fixture file ─────────────────────────────────────────────────────
+const PID = "lee";
+const FIX = {
+  [PID]: {
+    lands_preserve: "support", lands_keep_public: "support", energy_production: "oppose",
+    gov_regulation: "support", lands_local: "mixed", lands_energy: "mixed",
+    gun_rights: "support", gun_safety: "oppose",
+  },
+};
+{
+  const win = boot(true, FIX);
+  if (win.__err) failures.push(`boot: ${win.__err}`);
+  const CS = win.PDXConsistency, RI = win.PDXRelatedIssues;
+  ok(RI && typeof RI.drawerHtml === "function", "PDXRelatedIssues.drawerHtml is published");
+  const pm = win._polPositionMap(PID, win.CMP_DATA[PID]);
+  const want = (key) => RI.MAP[key].filter((k) => pm[k] && /^(support|oppose)$/.test(pm[k].stance))
+    .map((k) => `${String(win.ISSUE_MAP[k].label).replace(/^[^A-Za-z0-9]+/, "").trim()}: ${WORD[pm[k].stance]}`);
+
+  const h = CS.gapViewHtml(PID, "lands_preserve") || "";
+  const b = block(h);
+  ok(!!b && text(b).startsWith("Related issues"), "Protect Public Lands drawer: no Related issues block");
+  const ln = lines(h);
+  eq(JSON.stringify(ln), JSON.stringify(want("lands_preserve")), "drawer lists every related published position, in map order");
+  for (const l of ["Keep Public Lands Public: supports", "Expand Domestic Energy Production: opposes", "Cut Federal Red Tape: supports"]) {
+    ok(ln.includes(l), `drawer lacks ${l}`);
+  }
+  ok(!ln.some((l) => /Local Land Control|Energy & Resource Development/.test(l)), "a mixed related position is printed");
+  ok(!ln.some((l) => /Gun/.test(l)), "an unrelated issue is printed");
+  ok(!ln.some((l) => /^Protect Public Lands:/.test(l)), "the open issue is listed");
+  ok(!doors(b).some((x) => x.key === "lands_preserve"), "the open issue is a link");
+  eq(doors(b).length, ln.length, "not every related line is a link");
+  for (const x of doors(b)) eq(x.pid, PID, `${x.key} link opens another person`);
+  eq((h.match(/class="pdxri pdxri-drawer"/g) || []).length, 1, "exactly one block in the drawer");
+  ok(!/%|score|grade|contradict|badge/i.test(text(b)), "the drawer block carries a verdict word");
+
+  const back = CS.gapViewHtml(PID, "lands_keep_public") || "";
+  ok(lines(back).includes("Protect Public Lands: supports"), "the linked drawer lacks the issue just left");
+  ok(doors(block(back)).some((x) => x.key === "lands_preserve"), "the linked drawer has no link back");
+  ok(!doors(block(back)).some((x) => x.key === "lands_keep_public"), "the linked drawer links to itself");
+
+  const hg = lines(CS.gapViewHtml(PID, "gun_rights") || "");
+  ok(hg.includes("Stronger Gun Safety Laws: opposes") && !hg.some((l) => /Lands/.test(l)), "the gun drawer lists the wrong issues");
+
+  for (const key of ["voter_id", "pro_life", "healthcare"]) {
+    const hx = CS.gapViewHtml(PID, key) || "";
+    if (want(key).length) continue;
+    ok(!/pdxri-drawer|Related issues/.test(hx), `${key}: a related-issues block prints with no related position`);
+  }
+  let omitted = 0;
+  for (const key of Object.keys(RI.MAP)) {
+    if (want(key).length) continue;
+    omitted++;
+    eq(RI.drawerHtml(PID, win.CMP_DATA[PID], key), "", `${key}: drawerHtml is not empty with no related position`);
+  }
+  ok(omitted > 0, "no issue without related positions was checked");
+
+  const cs = R("consistency.js");
+  ok(/closest\('\[data-pdxc-gap\]'\)[\s\S]{0,400}openGap\(gap\.getAttribute\('data-pdxc-gap-pid'\)[^,]*,\s*gap\.getAttribute\('data-pdxc-gap'\)/.test(cs),
+     "the shared click route no longer opens openGap(pid, key) from data-pdxc-gap");
+}
+
+// ── 4 · nothing else moved on the real corpus ───────────────────────────────
+{
+  const off = boot(false), on = boot(true);
+  const pids = ["lee", "trump", "chellie_pingree", "blake_moore", "celeste_maloy", "john_curtis", "john_boyd"];
+  let sheets = 0, withBlock = 0;
+  for (const pid of pids) {
+    let rows0 = [], rows1 = [];
+    try { rows0 = off.PDXConsistency.issueRows(pid) || []; rows1 = on.PDXConsistency.issueRows(pid) || []; } catch { /* none */ }
+    eq(JSON.stringify(rows1), JSON.stringify(rows0), `${pid}: issue rows / scores moved`);
+    for (const r of rows0) {
+      const a = off.PDXConsistency.gapViewHtml(pid, r.key) || "";
+      const b = on.PDXConsistency.gapViewHtml(pid, r.key) || "";
+      sheets++;
+      const bl = block(b);
+      if (bl) {
+        withBlock++;
+        const want = on.PDXRelatedIssues.itemsFor(pid, on.CMP_DATA[pid], r.key).map(on.PDXRelatedIssues.lineText);
+        eq(JSON.stringify(lines(b)), JSON.stringify(want), `${pid} × ${r.key}: drawer lines are not this issue's related positions`);
+      } else {
+        eq(on.PDXRelatedIssues.itemsFor(pid, on.CMP_DATA[pid], r.key).length, 0, `${pid} × ${r.key}: related position but no block`);
+      }
+      ok(b.replace(bl, "") === a, `${pid} × ${r.key}: the drawer changed beyond the related-issues block`);
+    }
+  }
+  ok(sheets > 20, `only ${sheets} drawers sampled`);
+  console.log(`   real corpus: ${sheets} drawers compared · ${withBlock} carry a related-issues block`);
+}
+
+// ── wiring ──────────────────────────────────────────────────────────────────
+{
+  const cs = R("consistency.js");
+  ok(/typeof RI\.drawerHtml !== 'function'/.test(cs), "the drawer call is guarded");
+  for (const page of ["index.html", "person.html", "ballot.html", "issue.html"]) {
+    ok(R(page).includes('<script defer src="/related-issues.js"></script>'), `${page} loads related-issues.js`);
+  }
+  const sw = R("sw.js");
+  ok(sw.includes("'/related-issues.js',") && sw.includes("'/consistency.js',"), "drawer scripts are precached");
+  const v = Number((sw.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1]);
+  ok(v >= 504, "shell version bumped for the drawer block");
+}
+
+if (failures.length) {
+  console.error(`\n✗ related-issues-drawer: ${failures.length} failure(s)\n  - ` + failures.join("\n  - "));
+  process.exit(1);
+}
+console.log(`✓ related-issues-drawer: all ${passed} assertions passed`);

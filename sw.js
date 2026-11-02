@@ -11342,7 +11342,39 @@
 //     batches 1-5. related-issues.js is precached, so the shell moves one
 //     version. Drawers, Direction Match and effect lines are unchanged.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v501';
+// v502 - RELATED ISSUES INSIDE THE ISSUE DRAWER.
+//     The issue drawer prints, after the finding line and before the vote
+//     table, the complete related-issue pairs that include the issue it is open
+//     on, in the person file's wording. Pairs without the open issue are left
+//     out; no complete pair means no block. Same fifty-four pairs, same
+//     both-sides rule, no score or badge. consistency.js, related-issues.js and
+//     issue.html (which now loads related-issues.js) are precached and changed,
+//     so the shell moves one version. The person-file section, the vote table,
+//     effect lines, finding line, scores and Direction Match are unchanged.
+//     MIGRATION COST: none.
+// v503 - RELATED ISSUES OPEN THE DRAWER.
+//     Each issue name in a related-issue pair is now a link that opens that
+//     issue's drawer for the same person: on the person file every name, inside
+//     a drawer every name but the open issue (the drawer is swapped in place).
+//     The links use the shared drawer route, with a /p/<pid>?issue=<key>
+//     fallback. Which pairs print, the wording, scores and Direction Match are
+//     unchanged. related-issues.js, consistency.js and person-file.css are
+//     precached and changed, so the shell moves one version.
+//     MIGRATION COST: none.
+// v504 - THE RELATED-ISSUES MAP.
+//     related-issues.js replaces the fixed list of fifty-four pairs with one
+//     map, issue key -> the keys that share its ground, symmetric and covering
+//     every key in the issue register. The person file lists, under each issue
+//     with a published direction, every related issue the person also has a
+//     published supports / opposes on; the drawer lists every related issue with
+//     one, after the finding line and before the vote table, so a stated
+//     position sits beside the votes. Each name opens that issue's drawer for
+//     the same person; the open issue is not a link. Scores, Direction Match,
+//     the vote table and Word vs Action are unchanged. related-issues.js,
+//     consistency.js and person-file.css are precached and changed, so the
+//     shell moves one version.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v504';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
