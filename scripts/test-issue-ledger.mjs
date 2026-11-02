@@ -1182,9 +1182,10 @@ section("13 · Cut Federal Red Tape scans — Lee, six acts, six lines");
 
   // The first screen is a scan: the row, the chips, the line — no method.
   const l = lede(h);
-  // Not in Direction Match is said once, at the top (v324): one note, above the
-  // table, and nowhere else on the first screen.
-  eq((l.match(/data-pdxdos-led="1"/g) || []).length, 1, "lee × gov_regulation: the Direction Match standing is not said exactly once at the top");
+  // Not in Direction Match is said once (v324), and since v493 not on the first
+  // screen: it is the first thing inside How this is scored, under the table.
+  eq((l.match(/data-pdxdos-led="1"/g) || []).length, 0, "lee × gov_regulation: the Direction Match standing is back on the first screen");
+  eq((h.match(/data-pdxdos-led="1"/g) || []).length, 1, "lee × gov_regulation: the Direction Match standing is not said exactly once in the drawer");
   const lNoNote = l.replace(/<div class="pdxdos-led pdxdos-led-top"[^>]*>[\s\S]*?<\/div>/, "");
   for (const v of ["precedent", "mirror", "discriminator", "vocabulary carries no", "primary row", "Why it counts", "What it did", "Which way it cut", "Direction Match"]) {
     no(text(lNoNote), v, `lee × gov_regulation: "${v}" on the first screen`);
