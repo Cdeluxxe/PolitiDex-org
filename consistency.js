@@ -2376,7 +2376,7 @@
         'text-transform:uppercase;color:#8fa2c0;}' +
       '.pdxri-drawer .pdxri-list{list-style:none;margin:0.2rem 0 0;padding:0;}' +
       '.pdxri-drawer .pdxri-item{display:block;font-size:0.8rem;line-height:1.45;color:#c9d6ea;}' +
-      '.pdxri-drawer .pdxri-issue{font-weight:600;}' +
+      '.pdxri-drawer .pdxri-issue{font-weight:600;color:var(--pdx-ic-ink,inherit);}' +
       '.pdxri-drawer .pdxri-dir.s-support{color:#4ade80;}' +
       '.pdxri-drawer .pdxri-dir.s-oppose{color:#f87171;}' +
       '.pdxri-drawer .pdxri-rec{color:#9fb4d4;}' +

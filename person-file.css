@@ -188,7 +188,8 @@
 .pdxri-group:first-child { border-top: 0; }
 .pdxri-list { list-style: none; margin: 0.15rem 0 0; padding: 0; }
 .pdxri-item { display: block; font-size: 0.8rem; color: #b5c4dc; }
-.pdxri-issue { font-weight: 600; }
+/* Each name takes its issue's chip colour (issue-colors.js inline --pdx-ic-ink). */
+.pdxri-issue { font-weight: 600; color: var(--pdx-ic-ink, inherit); }
 .pdxri-dir.s-support { color: #4ade80; }
 .pdxri-dir.s-oppose { color: #f87171; }
 .pdxri-rec { color: #9fb4d4; }

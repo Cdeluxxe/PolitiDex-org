@@ -22,10 +22,13 @@
          shared record-direction index). Only a characterised one-way read
          counts; a split, thin, poleless or not-yet-loaded record gives none.
            Protect Public Lands: record runs against
-     One without the other prints alone. Neither: the issue is left out.
+     One without the other prints alone. Neither, but votes on file (a split,
+     thin or poleless read): the bare issue name, no word, still a link.
+     None of the three: the issue is left out.
      Nothing left: no block, no heading, no empty state. The stated word takes
      the green / red position tint; the record word is neutral, so the two are
-     never read as the same kind of claim.
+     never read as the same kind of claim. Every issue name takes its issue's
+     chip colour (PDXIssueColors.styleFor → --pdx-ic-ink).
 
    · NO VERDICT. No score, grade, percentage, count or "contradiction" badge.
 
@@ -222,23 +225,41 @@
   // the same reading the drawer's own record line and the decision surfaces
   // print. Only a characterised one-way read counts: a split, a thin read, a
   // poleless subject or a record that is not loaded yet gives no line.
-  function recordOf(pid, key) {
+  function recordRead(pid, key) {
     try {
       if (!pid || typeof window._pdxRecordDirection !== 'function') return null;
-      var idx = window._pdxRecordDirection(pid, key, { label: labelOf(key) });
-      if (!idx || !idx.characterised) return null;
-      return idx.lead === 'advances' ? 'with' : (idx.lead === 'opposes' ? 'against' : null);
+      return window._pdxRecordDirection(pid, key, { label: labelOf(key) }) || null;
     } catch (e) { return null; }
   }
+  function recordOf(pid, key, idx) {
+    idx = idx === undefined ? recordRead(pid, key) : idx;
+    if (!idx || !idx.characterised) return null;
+    return idx.lead === 'advances' ? 'with' : (idx.lead === 'opposes' ? 'against' : null);
+  }
+  // Any vote on file for this key, whichever way (or no way) it ran.
+  function hasVotes(idx) { return !!(idx && (idx.total || 0) > 0); }
 
-  // One issue: its stated direction and its record direction, either of which
-  // may be absent. null when both are.
+  // The issue-chip colour token (issue-colors.js) as inline custom properties,
+  // or '' where that module is not loaded.
+  function colorStyle(key) {
+    try {
+      var C = window.PDXIssueColors;
+      if (C && typeof C.styleFor === 'function') return C.styleFor(key) || '';
+    } catch (e) { /* uncoloured */ }
+    return '';
+  }
+
+  // One issue: its stated direction, its record direction, and whether any
+  // vote is on file. A votes-only issue (no stance, no one-way read) still
+  // counts and prints as its bare name. null when there is none of the three.
   function itemOf(pid, pm, key) {
-    var d = directionOf(pm, key), r = recordOf(pid, key);
-    if (!d && !r) return null;
+    var idx = recordRead(pid, key);
+    var d = directionOf(pm, key), r = recordOf(pid, key, idx), v = hasVotes(idx);
+    if (!d && !r && !v) return null;
     return { key: key, label: labelOf(key),
       dir: d, word: d ? WORD[d] : '',
-      rec: r, recWord: r ? REC_WORD[r] : '' };
+      rec: r, recWord: r ? REC_WORD[r] : '',
+      votes: v, bare: !d && !r };
   }
 
   // The related issues of `key` this person has a stated direction or a
@@ -270,6 +291,7 @@
     var out = [];
     if (it.dir) out.push(it.label + ': ' + it.word);
     if (it.rec) out.push(it.label + ': ' + it.recWord);
+    if (it.bare) out.push(it.label);
     return out;
   }
   function lineText(it) { return lineTexts(it).join(' / '); }
@@ -284,11 +306,15 @@
 
   // One issue name: a door into that issue's drawer for this person, except
   // the issue already open, which stays plain text.
-  function nameHtml(pid, it, openKey) {
-    if (!pid || it.key === openKey) return '<span class="pdxri-issue">' + esc(it.label) + ':</span>';
-    return '<span class="pdxri-issue"><a class="pdxri-go" href="' + esc(issueHref(pid, it.key)) + '"' +
+  // The name carries its issue's chip colour; `colon` is false on a bare line.
+  function nameHtml(pid, it, openKey, colon) {
+    var c = colon === false ? '' : ':';
+    var st = colorStyle(it.key);
+    var open = '<span class="pdxri-issue" data-pdxri-color="' + esc(it.key) + '"' + (st ? ' style="' + esc(st) + '"' : '') + '>';
+    if (!pid || it.key === openKey) return open + esc(it.label) + c + '</span>';
+    return open + '<a class="pdxri-go" href="' + esc(issueHref(pid, it.key)) + '"' +
       ' data-pdxri-go="' + esc(it.key) + '" data-pdxc-gap="' + esc(it.key) + '" data-pdxc-gap-pid="' + esc(pid) + '"' +
-      ' aria-label="' + esc('Open ' + it.label + ' for this file') + '">' + esc(it.label) + '</a>:</span>';
+      ' aria-label="' + esc('Open ' + it.label + ' for this file') + '">' + esc(it.label) + '</a>' + c + '</span>';
   }
 
   // Up to two lines for one issue. The stated line carries the green / red
@@ -302,6 +328,10 @@
     if (it.rec) {
       out += '<' + tag + ' class="' + cls + '" data-pdxri-key="' + esc(it.key) + '" data-pdxri-line="record" data-pdxri-rec="' + it.rec + '">' +
         nameHtml(pid, it, openKey) + ' <span class="pdxri-rec">' + it.recWord + '</span></' + tag + '>';
+    }
+    if (it.bare) {
+      out += '<' + tag + ' class="' + cls + '" data-pdxri-key="' + esc(it.key) + '" data-pdxri-line="votes">' +
+        nameHtml(pid, it, openKey, false) + '</' + tag + '>';
     }
     return out;
   }
@@ -340,6 +370,7 @@
     lineText: lineText,
     lineTexts: lineTexts,
     recordOf: recordOf,
+    hasVotes: function (pid, key) { return hasVotes(recordRead(pid, key)); },
     sectionHtml: sectionHtml,
     drawerHtml: drawerHtml
   };

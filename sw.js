@@ -11385,7 +11385,17 @@
 //     related-issues.js, consistency.js and person-file.css are precached and
 //     changed, so the shell moves one version.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v505';
+// v506 - RELATED ISSUES: ISSUE COLOURS AND VOTES-ONLY LINES.
+//     Every issue name in the Related issues section and the drawer block now
+//     takes its issue's chip colour (PDXIssueColors.styleFor, --pdx-ic-ink);
+//     supports / opposes stay green / red and the link underline stays. A
+//     related issue with votes on file but no stated position and no one-way
+//     read prints its bare name, still a link, instead of being left out.
+//     The map, scores, Direction Match and the vote table are unchanged.
+//     related-issues.js, consistency.js and person-file.css are precached and
+//     changed, so the shell moves one version.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v506';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

@@ -46,6 +46,7 @@ function boot(posMaps) {
   win._polPositionMap = (pid) => posMaps[pid] || {};
   const ctx = vm.createContext(win);
   vm.runInContext(R("issue-map.js"), ctx, { filename: "issue-map.js" });
+  vm.runInContext(R("issue-colors.js"), ctx, { filename: "issue-colors.js" });
   vm.runInContext(R("related-issues.js"), ctx, { filename: "related-issues.js" });
   return win;
 }
@@ -134,12 +135,14 @@ const LBL = (k) => String(IM[k].label).replace(/^[^A-Za-z0-9]+/, "").trim();
     lands: { lands_preserve: "opposes", lands_balance: "advances", gun_rights: "advances" },
     recOnly: { lands_preserve: "opposes", lands_keep_public: "advances" },
     split: { lands_preserve: null, lands_keep_public: null },
+    bare: { lands_preserve: null },
   };
-  const w2 = boot(Object.assign({}, FIX, { recOnly: {}, split: { lands_preserve: st("support") } }));
+  const w2 = boot(Object.assign({}, FIX, { recOnly: {}, split: { lands_preserve: st("support") }, bare: { lands_keep_public: st("support") } }));
+  // `split` has no votes on file (total 0); `bare` has votes that ran no way.
   w2._pdxRecordDirection = (pid, key) => {
     const r = REC[pid] || {};
     if (!(key in r)) return null;
-    return r[key] ? { characterised: true, lead: r[key] } : { characterised: false, lead: null };
+    return r[key] ? { characterised: true, lead: r[key], total: 3 } : { characterised: false, lead: null, total: pid === "bare" ? 2 : 0 };
   };
   const R2 = w2.PDXRelatedIssues;
   const h = R2.sectionHtml("lands", {});
@@ -171,6 +174,22 @@ const LBL = (k) => String(IM[k].label).replace(/^[^A-Za-z0-9]+/, "").trim();
   ok(!/pdxri-dir/.test(ro), "record-only file prints no stated word");
   eq(R2.sectionHtml("split", {}), "", "a split or uncharacterised record gives no line, and nothing related is left");
   eq(R2.recordOf("lands", "gov_regulation"), null, "no record on file: no record reading");
+  // Votes on file, no stance, no one-way read: the bare name, still a link.
+  const bh = R2.sectionHtml("bare", {});
+  const bg = Object.fromEntries([...bh.matchAll(/<li class="pdxri-group" data-pdxri-issue="([^"]+)">([\s\S]*?)<\/ul><\/li>/g)].map((g) => [g[1], g[2]]));
+  eq(JSON.stringify(items(bg.lands_keep_public)), JSON.stringify(["Protect Public Lands"]), "a votes-only related issue prints its bare name");
+  ok(/data-pdxri-line="votes"><span class="pdxri-issue"[^>]*><a class="pdxri-go"[^>]*data-pdxc-gap="lands_preserve"[^>]*>Protect Public Lands<\/a><\/span><\/li>/.test(bh),
+     "the bare name is a link, with no colon and no word");
+}
+
+// 3b. every name in its issue chip colour
+{
+  const h = RI.sectionHtml("lands", {});
+  const spans = [...h.matchAll(/<span class="pdxri-issue" data-pdxri-color="([^"]+)" style="([^"]*)">/g)];
+  ok(spans.length > 0, "no coloured names in the section");
+  eq(spans.length, (h.match(/class="pdxri-issue"/g) || []).length, "an issue name has no colour token");
+  for (const [, key, style] of spans) eq(style, win.PDXIssueColors.styleFor(key), `${key}: not its issue chip colour`);
+  ok(/s-support">supports</.test(h) && /s-oppose">opposes</.test(h), "position words lost their green / red class");
 }
 
 // 4. no verdict
