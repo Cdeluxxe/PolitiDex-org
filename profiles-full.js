@@ -6234,7 +6234,7 @@
               '<div class="pdxfpi-flat-b pdxfpi-face">' + html + '</div>' +
             '</details>';
         } catch (e) { return ''; }
-      }, _atlasRender(true))}
+      }, _atlasRender(true))}${(function(){ try { return (window.PDXRelatedIssues && typeof window.PDXRelatedIssues.sectionHtml === 'function') ? window.PDXRelatedIssues.sectionHtml(id, p) : ''; } catch (e) { return ''; } })()}
 
       <!--PDXSP:verdict-->
       <!-- 🌱 WHY THIS RECORD IS THIN — the last thing in the verdict stage, and

@@ -120,7 +120,7 @@ ok(!/\/district\//.test(LINE), "the line names no /district/* address");
 }
 {
   const SW = R("sw.js");
-  ok(/const CACHE_VERSION = 'v495';/.test(SW), "the service worker moved to v495");
+  ok(Number((/const CACHE_VERSION = 'v(\d+)';/.exec(SW) || [])[1]) >= 495, "the service worker moved to v495 or later");
   ok(/v495 - ELECTION DAY/.test(SW), "the bump is documented");
 }
 

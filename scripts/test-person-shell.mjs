@@ -85,7 +85,9 @@ const MAX_DOC_GZ = 90 * 1024;     // the whole document, gzipped
 // 70 → 71 for pdx-aipac.js, the letterhead's AIPAC chip: a lane of its own (an
 // AIPAC scorecard table plus a filter over the money lane's public filing door),
 // kept out of the money modules so neither one's walls have to stretch to hold it.
-const MAX_SCRIPT_TAGS = 71;       // <script src> count, external SDKs included
+// 71 → 72 for related-issues.js, the linked issue pairs on the file: a small
+// read-only module of its own so profiles-full.js only gains one guarded call.
+const MAX_SCRIPT_TAGS = 72;       // <script src> count, external SDKs included
 const MAX_BLOCKING_CSS = 3;       // render-blocking <link rel=stylesheet>
 
 // Paired match, so a `<script>` written inside a JS comment or a string literal
