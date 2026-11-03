@@ -162,14 +162,18 @@ const WORD = { support: "supports", oppose: "opposes" };
   ok(ln.some((l) => l.startsWith("Expand Domestic Energy Production:")) && ln.some((l) => l.startsWith("Local Land Control:")),
      "Expand Domestic Energy Production / Local Land Control missing beside it");
   ok(doors(b).some((d) => d.key === "lands_preserve" && d.pid === "lee"), "Protect Public Lands is not a link on Lee");
-  // A votes-only key with no direction: bare name, no word, still a link.
+  // A votes-only key with no direction: the drawer's own tally, still a link.
   const bare = RI.MAP.lands_keep_public.find((k) => !(pm[k] && /^(support|oppose)$/.test(pm[k].stance)) && !RI.recordOf("lee", k) && RI.hasVotes("lee", k));
   ok(!!bare, "no votes-only, no-direction related issue on Lee's drawer");
   if (bare) {
     const L = String(win.ISSUE_MAP[bare].label).replace(/^[^A-Za-z0-9]+/, "").trim();
-    eq(JSON.stringify(ln.filter((l) => l.startsWith(L))), JSON.stringify([L]), `${bare}: a votes-only line is the bare name`);
+    // The tally is the one that key's own drawer prints on its "Acts:" line.
+    const own = /<div class="pdxlg-side"[^>]*>Acts: ([^<]*)<\/div>/.exec(CS.gapViewHtml("lee", bare) || "");
+    ok(!!own, `${bare}: its own drawer prints no Acts tally`);
+    if (own) eq(JSON.stringify(ln.filter((l) => l.startsWith(L))), JSON.stringify([`${L}: ${own[1]}`]), `${bare}: a votes-only line shows the drawer tally`);
     const li = (new RegExp(`<li class="pdxri-item" data-pdxri-key="${bare}" data-pdxri-line="votes">[\\s\\S]*?</li>`).exec(b) || [""])[0];
-    ok(/class="pdxri-go"/.test(li) && !/pdxri-dir|pdxri-rec/.test(li), `${bare}: the votes-only line is not a bare link`);
+    ok(/class="pdxri-go"/.test(li) && !/pdxri-dir|pdxri-rec/.test(li) && /<span class="pdxri-tally">[^<]+ for · [^<]+ against/.test(li),
+       `${bare}: the votes-only line is not a link with a neutral tally`);
   }
   // Colours: every name span carries its issue's chip token.
   const spans = [...b.matchAll(/<span class="pdxri-issue" data-pdxri-color="([^"]+)" style="([^"]*)">/g)];
@@ -202,6 +206,47 @@ const WORD = { support: "supports", oppose: "opposes" };
   ok(/\.pdxri-issue \{[^}]*color: var\(--pdx-ic-ink/.test(R("person-file.css")), "the person-file name does not read --pdx-ic-ink");
 }
 
+// ── 1d · Lee × Tackle the National Debt: the split tally surfaces ──────────
+// Live, Lee's Middle-Class Tax Relief drawer prints "Acts: 1 for · 1 against"
+// and the record-direction index reads it as split (votes, no one-way lead).
+// The offline corpus is a projection of the seeds and may not hold those two
+// acts; where it does not, that live shape is laid over the two shared reads
+// (the index and the drawer ledger), and nothing else is touched.
+{
+  const win = boot(true);
+  const CS = win.PDXConsistency, RI = win.PDXRelatedIssues;
+  const pm = win._polPositionMap("lee", win.CMP_DATA.lee) || {};
+  ok(!(pm.tax_middle_class && /^(support|oppose)$/.test(pm.tax_middle_class.stance)),
+     "Lee has a stated position on Middle-Class Tax Relief; the tally line is not exercised");
+  const live = CS.drawerTally("lee", "tax_middle_class");
+  if (!live || !RI.hasVotes("lee", "tax_middle_class")) {
+    const rd = win._pdxRecordDirection, dt = CS.drawerTally;
+    win._pdxRecordDirection = function (pid, key) {
+      if (pid === "lee" && key === "tax_middle_class") return { characterised: false, lead: null, total: 2, judged: 2, advances: 1, opposes: 1 };
+      return rd.apply(this, arguments);
+    };
+    CS.drawerTally = (pid, key) => (pid === "lee" && key === "tax_middle_class")
+      ? { acts: 2, advances: 1, opposes: 1, tookNoSide: 0, noSide: false } : dt(pid, key);
+  } else {
+    const own = /<div class="pdxlg-side"[^>]*>Acts: ([^<]*)<\/div>/.exec(CS.gapViewHtml("lee", "tax_middle_class") || "");
+    ok(!!own && own[1] === "1 for · 1 against", `Lee's Middle-Class Tax Relief drawer tally moved: ${own && own[1]}`);
+  }
+  ok(!RI.recordOf("lee", "tax_middle_class"), "Lee's Middle-Class Tax Relief record now runs one way");
+  const ln = lines(CS.gapViewHtml("lee", "national_debt") || "");
+  const L = String(win.ISSUE_MAP.tax_middle_class.label).replace(/^[^A-Za-z0-9]+/, "").trim();
+  eq(JSON.stringify(ln.filter((l) => l.startsWith(L))), JSON.stringify([`${L}: 1 for · 1 against`]),
+     "Lee's National Debt drawer: Middle-Class Tax Relief shows 1 for · 1 against");
+  // One-way record lines and stated lines keep their words on the same drawer.
+  ok(ln.some((l) => / record runs (with|against)$/.test(l)), "no one-way record line on Lee's National Debt drawer");
+  ok(ln.some((l) => /: (supports|opposes)$/.test(l)), "no stated line on Lee's National Debt drawer");
+  // Every related key with no votes and no stance stays out.
+  for (const k of RI.MAP.national_debt) {
+    const has = (pm[k] && /^(support|oppose)$/.test(pm[k].stance)) || RI.recordOf("lee", k) || RI.hasVotes("lee", k);
+    const Lk = String(win.ISSUE_MAP[k].label).replace(/^[^A-Za-z0-9]+/, "").trim();
+    if (!has) ok(!ln.some((l) => l === Lk || l.startsWith(Lk + ":")), `${k}: no votes and no stance, yet listed`);
+  }
+}
+
 // ── 2, 3 · fixture file ─────────────────────────────────────────────────────
 const PID = "lee";
 const FIX = {
@@ -223,7 +268,11 @@ const FIX = {
     if (pm[k] && /^(support|oppose)$/.test(pm[k].stance)) out.push(`${L}: ${WORD[pm[k].stance]}`);
     const r = RI.recordOf(PID, k);
     if (r) out.push(`${L}: ${REC[r]}`);
-    if (!out.length && RI.hasVotes(PID, k)) out.push(L);
+    if (!out.length && RI.hasVotes(PID, k)) {
+      const t = win.PDXConsistency.drawerTally(PID, k);
+      out.push(t ? (t.noSide ? `${L}: ${t.acts} formal ${t.acts === 1 ? "act" : "acts"}`
+        : `${L}: ${t.advances} for · ${t.opposes} against${t.tookNoSide ? ` · ${t.tookNoSide} took no side` : ""}`) : L);
+    }
     return out;
   });
 

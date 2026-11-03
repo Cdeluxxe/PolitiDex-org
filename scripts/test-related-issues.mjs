@@ -186,9 +186,20 @@ const LBL = (k) => String(IM[k].label).replace(/^[^A-Za-z0-9]+/, "").trim();
   // Votes on file, no stance, no one-way read: the bare name, still a link.
   const bh = R2.sectionHtml("bare", {});
   const bg = Object.fromEntries([...bh.matchAll(/<li class="pdxri-group" data-pdxri-issue="([^"]+)">([\s\S]*?)<\/ul><\/li>/g)].map((g) => [g[1], g[2]]));
-  eq(JSON.stringify(items(bg.lands_keep_public)), JSON.stringify(["Protect Public Lands"]), "a votes-only related issue prints its bare name");
+  eq(JSON.stringify(items(bg.lands_keep_public)), JSON.stringify(["Protect Public Lands"]), "a votes-only related issue with no drawer tally prints its bare name");
   ok(/data-pdxri-line="votes"><span class="pdxri-issue"[^>]*><a class="pdxri-go"[^>]*data-pdxc-gap="lands_preserve"[^>]*>(?:<span class="pdxri-ico" aria-hidden="true">[^<]*<\/span> )?Protect Public Lands<\/a><\/span><\/li>/.test(bh),
      "the bare name is a link, with no colon and no word");
+  // With the drawer ledger's tally available, the votes-only line prints it.
+  w2.PDXConsistency = { drawerTally: (pid, key) => key === "lands_preserve" ? { acts: 2, advances: 1, opposes: 1, tookNoSide: 0, noSide: false } : null };
+  const th = R2.sectionHtml("bare", {});
+  const tg = Object.fromEntries([...th.matchAll(/<li class="pdxri-group" data-pdxri-issue="([^"]+)">([\s\S]*?)<\/ul><\/li>/g)].map((g) => [g[1], g[2]]));
+  eq(JSON.stringify(items(tg.lands_keep_public)), JSON.stringify(["Protect Public Lands: 1 for · 1 against"]), "a split related issue prints the drawer tally");
+  ok(/data-pdxri-line="votes">[\s\S]*?<\/a>:<\/span> <span class="pdxri-tally">1 for · 1 against<\/span><\/li>/.test(th), "the tally is a neutral span after the linked name");
+  ok(!/pdxri-tally[^>]*(r-with|r-against|s-support|s-oppose)/.test(th), "the tally carries a green / red class");
+  w2.PDXConsistency = { drawerTally: () => ({ acts: 1, advances: 0, opposes: 0, tookNoSide: 1, noSide: true }) };
+  ok(R2.sectionHtml("bare", {}).includes('<span class="pdxri-tally">1 formal act</span>'), "a no-pole subject prints its act count, not a side");
+  eq(R2.sectionHtml("split", {}), "", "no votes and no stance: still omitted with a tally reader loaded");
+  delete w2.PDXConsistency;
 }
 
 // 3b. every name in its issue chip colour
@@ -256,7 +267,11 @@ const LBL = (k) => String(IM[k].label).replace(/^[^A-Za-z0-9]+/, "").trim();
   const v = Number((sw.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1]);
   ok(v >= 504, "shell version bumped for the map");
   const mod = R("related-issues.js");
-  ok(!/PDXConsistency|_issueVerdict|directionMatch|_DOS_EFFECT/.test(mod.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "")),
+  // The one read of consistency.js allowed is the drawer ledger's tally.
+  const code = mod.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
+  const rest = code.replace("var LG = window.PDXConsistency;", "");
+  ok(!/PDXConsistency|_issueVerdict|directionMatch|_DOS_EFFECT/.test(rest) &&
+     [...rest.matchAll(/\bLG\.(\w+)/g)].every((m) => m[1] === "drawerTally"),
      "module reads no scoring or effect engine");
 }
 

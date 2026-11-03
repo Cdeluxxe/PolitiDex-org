@@ -11414,7 +11414,17 @@
 //     issues appear, scores and the vote table are unchanged. related-issues.js
 //     is precached and changed, so the shell moves one version.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v508';
+// v509 - RELATED ISSUES: A NO-DIRECTION LINE SHOWS THE DRAWER'S TALLY.
+//     A related issue with votes but no one-way read (split, thin or no pole)
+//     used to print as a bare name. It now prints the tally that issue's own
+//     drawer prints, in the drawer's words ("Middle-Class Tax Relief: 1 for ·
+//     1 against"), read from the drawer ledger through a new read-only
+//     PDXConsistency.drawerTally. Stated and one-way record lines, which issues
+//     appear, the map, scores and the vote table are unchanged.
+//     related-issues.js and consistency.js are precached and changed, so the
+//     shell moves one version.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v509';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

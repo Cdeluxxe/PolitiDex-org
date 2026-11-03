@@ -20825,6 +20825,20 @@
     // than scraping source for the strings. `ledger.unscored` is the predicate every
     // surface gates on, `ledger.split` is the only aggregation this pass performs,
     // and LED is the one copy table all of them read.
+    // The drawer ledger's own "Acts: N for · N against" count for one (person,
+    // issue), so the Related issues block can print the same tally the drawer
+    // prints instead of a bare name. Read-only: the same _dosTally the drawer
+    // renders from, over the same issueRow. noSide is true on a subject key whose
+    // ledger prints no for/against line. null when nothing is on file.
+    drawerTally: function (pid, issueKey) {
+      try {
+        var r = issueRow(pid, issueKey);
+        var t = _dosTally(pid, issueKey, r && r.ov);
+        if (!t || !t.acts) return null;
+        return { acts: t.acts, advances: t.advances, opposes: t.opposes,
+                 tookNoSide: t.noSide, noSide: _dosNoSideKey(issueKey) };
+      } catch (e) { return null; }
+    },
     ledger: {
       LED: _LED,
       unscored: _ledUnscored,

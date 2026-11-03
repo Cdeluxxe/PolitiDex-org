@@ -23,7 +23,11 @@
          counts; a split, thin, poleless or not-yet-loaded record gives none.
            Protect Public Lands: record runs against
      One without the other prints alone. Neither, but votes on file (a split,
-     thin or poleless read): the bare issue name, no word, still a link.
+     thin or poleless read): the tally the issue's own drawer prints, in its
+     words — "Middle-Class Tax Relief: 1 for · 1 against" — read from the
+     drawer ledger (PDXConsistency.drawerTally), so the two never disagree. A
+     subject key whose drawer prints no for/against line gives its act count
+     ("1 formal act"). With no tally to read, the bare name, still a link.
      None of the three: the issue is left out.
      Nothing left: no block, no heading, no empty state. The stated word takes
      the green / red position tint; the record word takes the same green ("runs
@@ -32,7 +36,8 @@
      chip colour (PDXIssueColors.styleFor → --pdx-ic-ink) and is led by its
      chip icon, inside the link.
 
-   · NO VERDICT. No score, grade, percentage, count or "contradiction" badge.
+   · NO VERDICT. No score, grade, percentage or "contradiction" badge. The only
+     count is the drawer's own for · against tally on a no-direction line.
 
    · PERSON FILE. sectionHtml(pid, p): for every issue with a stated or record
      line, that issue's lines, then each related issue's lines. An issue with
@@ -251,6 +256,22 @@
   // Any vote on file for this key, whichever way (or no way) it ran.
   function hasVotes(idx) { return !!(idx && (idx.total || 0) > 0); }
 
+  // The drawer's own tally, worded as the drawer words it: "1 for · 1 against"
+  // (plus "· N took no side" when the drawer prints it). A subject key whose
+  // drawer has no for/against line gives "N formal acts". '' when the drawer
+  // ledger is not loaded or holds nothing for this key.
+  function tallyText(pid, key) {
+    try {
+      var LG = window.PDXConsistency;
+      if (!pid || !LG || typeof LG.drawerTally !== 'function') return '';
+      var t = LG.drawerTally(pid, key);
+      if (!t || !t.acts) return '';
+      if (t.noSide) return t.acts + ' formal ' + (t.acts === 1 ? 'act' : 'acts');
+      return t.advances + ' for · ' + t.opposes + ' against' +
+        (t.tookNoSide ? ' · ' + t.tookNoSide + ' took no side' : '');
+    } catch (e) { return ''; }
+  }
+
   // The issue-chip colour token (issue-colors.js): the chip's inline custom
   // properties plus the token's text ink, set as `color` directly so the name
   // is in its issue colour before (or without) any stylesheet. '' where that
@@ -272,15 +293,18 @@
 
   // One issue: its stated direction, its record direction, and whether any
   // vote is on file. A votes-only issue (no stance, no one-way read) still
-  // counts and prints as its bare name. null when there is none of the three.
+  // counts and prints its drawer tally (or, with none to read, its bare name).
+  // null when there is none of the three.
   function itemOf(pid, pm, key) {
     var idx = recordRead(pid, key);
     var d = directionOf(pm, key), r = recordOf(pid, key, idx), v = hasVotes(idx);
     if (!d && !r && !v) return null;
+    var bare = !d && !r;
+    var tally = bare ? tallyText(pid, key) : '';
     return { key: key, label: labelOf(key), icon: iconOf(key),
       dir: d, word: d ? WORD[d] : '',
       rec: r, recWord: r ? REC_WORD[r] : '',
-      votes: v, bare: !d && !r };
+      votes: v, bare: bare, tally: tally };
   }
 
   // The related issues of `key` this person has a stated direction or a
@@ -312,7 +336,7 @@
     var out = [];
     if (it.dir) out.push(it.label + ': ' + it.word);
     if (it.rec) out.push(it.label + ': ' + it.recWord);
-    if (it.bare) out.push(it.label);
+    if (it.bare) out.push(it.tally ? it.label + ': ' + it.tally : it.label);
     return out;
   }
   function lineText(it) { return lineTexts(it).join(' / '); }
@@ -356,7 +380,8 @@
     }
     if (it.bare) {
       out += '<' + tag + ' class="' + cls + '" data-pdxri-key="' + esc(it.key) + '" data-pdxri-line="votes">' +
-        nameHtml(pid, it, openKey, false) + '</' + tag + '>';
+        nameHtml(pid, it, openKey, !!it.tally) +
+        (it.tally ? ' <span class="pdxri-tally">' + esc(it.tally) + '</span>' : '') + '</' + tag + '>';
     }
     return out;
   }
