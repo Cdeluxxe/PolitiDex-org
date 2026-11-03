@@ -11466,7 +11466,25 @@
 //     precached and changed, so the shell moves one version; no roster row, board
 //     or precache entry is added, and nothing stored is read or rewritten.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v513';
+// v514 - GUIDED PATH FROM THE WELCOME MODAL.
+//     The first-visit welcome becomes a short guided path for a reader who
+//     wants help: set your location (/find, back to the homepage band), see who
+//     represents you, open your rooms on /voice, and an optional stance in the
+//     studio that brings them back to /voice. A small "Show me the next step"
+//     control on the homepage and /voice re-enters it. first-visit-coach.js is
+//     precached and changed, so the shell moves one version. The path's step
+//     is one sessionStorage key for the visit; no location key, stance or other
+//     stored reader state is read or rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+// v515 - GUIDED PATH: BALLOT WORKSHOP AND ALIGNMENT TOOL.
+//     After the optional stance, the guided path's docked card offers "Build
+//     your ballot" (the existing /ballot workshop, or Skip for now) and then
+//     "See how you align" (the homepage's existing alignment panel, or I'm
+//     done). No route is added. first-visit-coach.js is precached and changed,
+//     so the shell moves one version. The path's step is still the one
+//     sessionStorage key; nothing stored is read or rewritten.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v515';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
