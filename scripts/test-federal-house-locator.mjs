@@ -178,11 +178,13 @@ section("1 · the seat lookup places a member, or nobody");
   eq(seat("Ohio", "3"), "joyce_beatty", "seat: a district passed as a string does not resolve the same seat as a number");
 
   // A record that does not say WHICH district it holds is never placed in one.
-  // greg_landsman's row carries a bare "Ohio" — true, and not an answer to
-  // "who represents Ohio's 1st".
-  eq(seat("Ohio", 1), null,
+  // mtg's row carries a bare "Georgia" — true of the state, and not an answer to
+  // "who represents Georgia's Nth". (greg_landsman's bare "Ohio" was this
+  // fixture until the election-day wave gave his row its district, OH-1.)
+  ok(Array.from({ length: 14 }, (_, i) => seat("Georgia", i + 1)).every((p) => p !== "mtg"),
     "seat: a roster row carrying a bare state name was placed in a district it never claimed — this is\n" +
     "    how a leadership record becomes somebody's representative");
+  eq(seat("Ohio", 1), "greg_landsman", "seat: Ohio's 1st, once its member's row names it, resolves that member");
 
   // A district nobody in the roster claims is a blank, not a neighbour.
   eq(seat("Ohio", 99), null, "seat: an unclaimed district resolved a person anyway");
@@ -294,12 +296,12 @@ section("3 · a mapped blank and an unmapped blank do not read the same");
     "band: the finder prompt is printed for a reader whose U.S. House seat is already resolved");
 
   // A district we located with nobody on file keeps its own third sentence:
-  // Ohio's 1st is claimed by a bare-state row, so the district is real and the
-  // seat is not ours to fill.
-  const gap = band(boot({ state: "Ohio", city: "Columbus", county: "Franklin County", district: "1" }));
-  has(gap, "District 1 — no member on file yet",
+  // Florida's 20th has no member on the roster, so the district is real and
+  // the seat is not ours to fill.
+  const gap = band(boot({ state: "Florida", city: "Fort Lauderdale", county: "Broward County", district: "20" }));
+  has(gap, "District 20 — no member on file yet",
     "band: a located district with no member on file lost the sentence that says which half is missing");
-  lacks(gap, "District 1 — no member on file yet</span><span class=\"wrm-rowsub\">We&rsquo;d rather leave this blank than guess",
+  lacks(gap, "District 20 — no member on file yet</span><span class=\"wrm-rowsub\">We&rsquo;d rather leave this blank than guess",
     "band: the located-gap row is wearing the unplaced-seat subtitle");
 }
 

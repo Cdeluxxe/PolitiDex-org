@@ -94,6 +94,15 @@ export const HEAD = (f) => {
     if (!d.file.test(f) || src.indexOf(d.to) >= 0 && (d.once || src.indexOf(d.from) < 0)) continue;
     src = src.split(d.from).join(d.to);
   }
+  // THE ELECTION-DAY WAVE'S ROSTER EDITS ARE DECLARED TOO (see electionDayOnly
+  // below): while HEAD lacks the wave's block, the baseline cmp-data.js is the
+  // tree's — but only when the tree differs from HEAD by exactly that block and
+  // the wave's declared districts, and by nothing else. Once the wave lands,
+  // HEAD carries both and this is a no-op.
+  if (f === "cmp-data.js" && src.indexOf(EDAY_BANNER) < 0) {
+    const now = R(f);
+    if (electionDayOnly(now, src)) return now;
+  }
   return src;
 };
 // DECLARED MIGRATIONS. The contested-cycle suites hold that no pass adds a
@@ -507,6 +516,86 @@ function statesRowsOnly(now, was, STATES) {
   const rest = (w) => JSON.stringify(Object.keys(w).filter((k) => k !== "window" && k !== "CMP_DATA" && k !== "CMP_CANDIDACIES").sort().map((k) => [k, typeof w[k] === "function" ? String(w[k]) : w[k]]));
   return rest(A) === rest(B);
 }
+// THE ELECTION-DAY WAVE (November 3, 2026): one block of candidate identity
+// rows for Alabama, Arizona, Kansas, New Hampshire, Ohio and Pennsylvania, and
+// a district on 70 sitting U.S. Representatives' rows
+// (db/election-day-wave-2026-11.json, test-election-day-wave-2026.mjs). With
+// the block lifted out and each declared district taken back off its own row,
+// cmp-data.js must be HEAD's byte for byte. Its new board documents (70 House,
+// 24 governor) have no HEAD copy until the wave lands.
+export const PRE_ELECTION_DAY = "13bb0be";
+const EDAY = JSON.parse(readFileSync(join(ROOT, "db/election-day-wave-2026-11.json"), "utf8"));
+const EDAY_BANNER = "// ── Election-day candidates, Alabama, Arizona, Kansas, New Hampshire, Ohio and Pennsylvania, official lists (Nov 2026)";
+const EDAY_DOCS = new Set([
+  ...EDAY.usHouseDistrictSet.map((r) => `district-${r.seat.replace("-house-", "-cd-")}.html`),
+  ...EDAY.governorStates.map((c) => `district-${c}-gov.html`),
+]);
+// The wave's own seats and documents, for a suite whose "nothing beyond HEAD"
+// check must set them aside: a seat key ("ca-house-2", "oh-gov") or a document
+// name ("district-ca-cd-2.html").
+export const ELECTION_DAY_SEATS = new Set([...EDAY.usHouseDistrictSet.map((r) => r.seat), ...EDAY.governorStates.map((c) => `${c}-gov`)]);
+export const isElectionDay = (k) => ELECTION_DAY_SEATS.has(k) || EDAY_DOCS.has(k) || EDAY_RECORDS.has(k);
+// The wave's new candidate rows, by pid (db/roster-candidates-2026-nov.json).
+export const ELECTION_DAY_CANDIDATES = new Set(JSON.parse(readFileSync(join(ROOT, "db/roster-candidates-2026-nov.json"), "utf8")).rows.map((r) => r.pid));
+// An older baseline cmp-data.js with the wave's declared districts put on
+// (each right after its row's "state" line, exactly where the wave wrote it),
+// for a suite that walks the resolver on that baseline and today's roster and
+// holds the two walks equal outside its own states.
+export const withElectionDayDistricts = (src) => {
+  let s = String(src);
+  for (const r of EDAY.usHouseDistrictSet) {
+    const head = `\n "${r.pid}": {`, i = s.indexOf(head);
+    if (i < 0) continue;
+    const end = s.indexOf("\n },", i);
+    const row = s.slice(i, end);
+    if (/\n  "district": /.test(row)) continue;
+    s = s.slice(0, i) + row.replace(/(\n  "state": "[^"]*",)/, `$1\n  "district": ${JSON.stringify(r.district)},`) + s.slice(end);
+  }
+  return s;
+};
+// A line of an allow-list file (district-board.js, district-voice.js,
+// district-board.mts) that is one of the wave's own board rows.
+export const isElectionDayLine = (line) => { const m = /^\s*['"]([a-z]{2}-[a-z0-9_-]+)['"]\s*:/.exec(line); return !!m && ELECTION_DAY_SEATS.has(m[1]); };
+// A roster row with the wave's declared district taken back off, for a suite
+// that holds an existing row to an older baseline.
+const EDAY_DISTRICT = new Map(EDAY.usHouseDistrictSet.map((r) => [r.pid, r.district]));
+export const withoutElectionDayDistrict = (pid, row) => {
+  if (!row || EDAY_DISTRICT.get(pid) !== row.district) return row;
+  const { district, ...rest } = row;
+  return rest;
+};
+// netlify.toml with the wave's own rewrite blocks (a comment line and the three
+// 200 rewrites for one of its documents) lifted out, for a suite that holds the
+// rest of the file to HEAD's.
+export const withoutElectionDayRewrites = (src) => String(src).replace(
+  /# [^\n]*\n(?:\[\[redirects\]\]\n  from = "[^"]*"\n  to = "\/(district-[a-z0-9-]+\.html)"\n  status = 200\n){3}\n/g,
+  (m, doc) => (EDAY_DOCS.has(doc) && (m.match(new RegExp(`to = "/${doc}"`, "g")) || []).length === 3 ? "" : m));
+const EDAY_RECORDS = new Set(["db/roster-candidates-2026-nov.json", "db/election-day-wave-2026-11.json"]);
+// cmp-data.js with the wave lifted out: its candidate block removed and each
+// declared district taken back off its own row. null if the block is malformed
+// or a declared row is missing.
+export function withoutElectionDay(now) {
+  let s = String(now);
+  const at = s.indexOf(EDAY_BANNER);
+  if (at >= 0) {
+    const next = s.indexOf("\n// ── ", at + EDAY_BANNER.length);
+    if (next < 0) return null;
+    s = s.slice(0, at) + s.slice(next + 1);
+  }
+  for (const r of EDAY.usHouseDistrictSet) {
+    const head = `\n "${r.pid}": {`, i = s.indexOf(head);
+    if (i < 0) return null;
+    const end = s.indexOf("\n },", i);
+    const line = `\n  "district": ${JSON.stringify(r.district)},`;
+    const j = s.indexOf(line, i);
+    if (j < 0 || j > end) continue;
+    s = s.slice(0, j) + s.slice(j + line.length);
+  }
+  return s;
+}
+function electionDayOnly(now, was) {
+  return withoutElectionDay(now) === was;
+}
 function shellBlocksOnly(now, was) {
   const strip = (src) => SHELL_BLOCKS.reduce((s, b) => s.replace(b.re, ""), src);
   if (strip(now) !== strip(was)) return false;
@@ -529,11 +618,12 @@ export function settled(f) {
   const now = R(f), was = HEAD(f);
   if (now === was) return true;
   if (now === null) return false;
-  if (f === "cmp-data.js") return shellBlocksOnly(now, was) || fourStateRowsOnly(now, was) || statesRowsOnly(now, was, MS_VT_MI_TN);
+  if (f === "cmp-data.js") return shellBlocksOnly(now, was) || fourStateRowsOnly(now, was) || statesRowsOnly(now, was, MS_VT_MI_TN) || electionDayOnly(now, was);
   // A board document this pass opened in one of its four states has no HEAD
   // copy until it lands; it is the generator's, and test-ms-vt-mi-tn-deepen.mjs
   // holds every one of them.
-  if (was === null) return MS_VT_MI_TN_DOC_RE.test(f) && AT(PRE_MS_VT_MI_TN)(f) === null;
+  if (was === null) return (MS_VT_MI_TN_DOC_RE.test(f) && AT(PRE_MS_VT_MI_TN)(f) === null) ||
+    ((EDAY_DOCS.has(f) || EDAY_RECORDS.has(f)) && AT(PRE_ELECTION_DAY)(f) === null);
   const bf = /^([a-z]{2})-ballot-2026\.js$/.exec(f);
   if (bf) {
     const A = ballotModule(now, bf[1]), B = ballotModule(was, bf[1]);

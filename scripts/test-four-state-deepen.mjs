@@ -37,7 +37,7 @@ import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
-import { R, AT, boot, levelOf, band, undoMsVtMiTnEdits } from "./state-leg-harness.mjs";
+import { R, AT, boot, levelOf, band, undoMsVtMiTnEdits, isElectionDay, isElectionDayLine, withoutElectionDayRewrites, withoutElectionDayDistrict, ELECTION_DAY_CANDIDATES, withoutElectionDay } from "./state-leg-harness.mjs";
 import { planBoards, STATE_LEG_BOARD_STATES, GOVERNOR_STATES, STATE_LEG_SEAT_COUNTS, STATE_LEG_BOARD_SEATS, FEDERAL_READ_ONLY_SEATS } from "./gen-district-boards.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -109,7 +109,7 @@ for (const [code, name] of FOUR) {
   has(doc, `governor (statewide) → ${b.pid}`, `${name}: governor document's roster note`);
   eq(BASE(b.doc), null, `${name}: baseline already had a governor board`);
 }
-eq(PLAN.filter((b) => /-gov$/.test(b.seat) && !inLater(b.seat)).length, 11, "governor boards: Utah, the six, the four");
+eq(PLAN.filter((b) => /-gov$/.test(b.seat) && !inLater(b.seat) && !isElectionDay(b.seat)).length, 11, "governor boards: Utah, the six, the four");
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("2 · every legislative seat in the four has a board");
@@ -217,7 +217,7 @@ ok(PLAN.filter((b) => inFour(b.seat)).every((b) => /^[a-z]{2}-(?:gov|house-\d+|u
 // ═════════════════════════════════════════════════════════════════════════════
 section("5 · no composer, no poll, no equity or money copy, no migration");
 // ═════════════════════════════════════════════════════════════════════════════
-const NEW = PLAN.filter((b) => BASE(b.doc) === null && !inLater(b.seat));
+const NEW = PLAN.filter((b) => BASE(b.doc) === null && !inLater(b.seat) && !isElectionDay(b.seat));
 eq(NEW.length, NEW.filter((b) => inFour(b.seat)).length, "a new board opened outside the four states");
 for (const b of NEW) {
   eq(b.readOnly, true, `${b.seat}: a new board takes a voice`);
@@ -236,33 +236,39 @@ const docs = readdirSync(ROOT).filter((f) => /^district-[a-z]{2}-.*\.html$/.test
 let same = 0;
 for (const f of docs) {
   if (CODES.has(f.slice(9, 11)) || LATER.has(f.slice(9, 11))) continue;
+  if (isElectionDay(f) && BASE(f) === null) continue;   // the election-day wave's own board
   if (ok(R(f) === BASE(f), `${f}: another state's board moved`)) same++;
 }
 ok(same > 1100, `only ${same} other-state documents compared`);
 const keyOf = (line) => (/^\s*['"]([a-z]{2})-/.exec(line) || [])[1];
 for (const f of ["district-board.js", "district-voice.js", "netlify/functions/district-board.mts"]) {
   // The position shape test-ms-vt-mi-tn-deepen.mjs widened to either chamber is lifted out.
-  const now = undoMsVtMiTnEdits(f, R(f)).split("\n").filter((l) => !CODES.has(keyOf(l)) && !LATER.has(keyOf(l)));
+  const now = undoMsVtMiTnEdits(f, R(f)).split("\n").filter((l) => !CODES.has(keyOf(l)) && !LATER.has(keyOf(l)) && !isElectionDayLine(l));
   const was = BASE(f).split("\n").filter((l) => !CODES.has(keyOf(l)) && !LATER.has(keyOf(l)));
   eq(now.join("\n"), was.join("\n"), `${f}: a line outside the four states moved`);
 }
 {
   const strip = (src) => src.split(/\n(?=# )/).filter((blk) => !/from = "\/district\/(?:me|co|mn|nv|ms|vt|mi|tn)-/.test(blk)).join("\n");
-  eq(strip(R("netlify.toml")), strip(BASE("netlify.toml")), "netlify.toml: a rewrite outside the four states moved");
+  eq(strip(withoutElectionDayRewrites(R("netlify.toml"))), strip(BASE("netlify.toml")), "netlify.toml: a rewrite outside the four states moved");
 }
 let rows = 0;
 for (const pid of Object.keys(RO0)) {
   if (NAMES.has(String(RO0[pid].state || "").split(" ·")[0]) || LATER_NAMES.has(String(RO0[pid].state || "").split(" ·")[0])) continue;
-  if (ok(JSON.stringify(RO[pid]) === JSON.stringify(RO0[pid]), `${pid}: an existing roster row outside the four moved`)) rows++;
+  if (ok(JSON.stringify(withoutElectionDayDistrict(pid, RO[pid])) === JSON.stringify(RO0[pid]), `${pid}: an existing roster row outside the four moved`)) rows++;
 }
 ok(rows > 5000, `only ${rows} roster rows compared`);
-for (const pid of Object.keys(RO)) if (!(pid in RO0)) ok(NAMES.has(RO[pid].state) || LATER_NAMES.has(RO[pid].state), `${pid}: a new roster row outside the four states`);
+for (const pid of Object.keys(RO)) if (!(pid in RO0) && !ELECTION_DAY_CANDIDATES.has(pid)) ok(NAMES.has(RO[pid].state) || LATER_NAMES.has(RO[pid].state), `${pid}: a new roster row outside the four states`);
 for (const pid of Object.keys(W0.CMP_CANDIDACIES)) if (!LATER_NAMES.has(W0.CMP_CANDIDACIES[pid].state)) eq(JSON.stringify(W1.CMP_CANDIDACIES[pid]), JSON.stringify(W0.CMP_CANDIDACIES[pid]), `${pid}: an existing candidacy moved`);
 for (const pid of Object.keys(W1.CMP_CANDIDACIES)) if (!(pid in W0.CMP_CANDIDACIES)) ok(NAMES.has(W1.CMP_CANDIDACIES[pid].state) || LATER_NAMES.has(W1.CMP_CANDIDACIES[pid].state), `${pid}: a new candidacy outside the four`);
 // The resolver, walked at the base's sources and at this pass's, for a reader
 // in each neighbouring state and in states that hold leadership-titled rows.
 const baseFiles = {};
 for (const f of ["cmp-data.js", "voter-hub-location.js", "who-represents-me.js"]) baseFiles[f] = BASE(f);
+// The election-day wave named the district on 70 sitting U.S. Representatives'
+// rows (db/election-day-wave-2026-11.json).
+// This suite's baseline predates the House classifier admitting a leadership
+// title, so today's walk is taken with the wave lifted back out instead.
+const NOW_FILES = { "cmp-data.js": withoutElectionDay(R("cmp-data.js")) };
 const NEIGH = [
   at("New Hampshire", "1", "1"), at("Massachusetts", "25", "130"), at("Wyoming", "5", "10"),
   at("Utah", "7", "16"), at("Idaho", "10", "10"), at("North Dakota", "4", "47"), at("Iowa", "1", "1"),
@@ -270,7 +276,7 @@ const NEIGH = [
   at("Louisiana", "1", "1"), at("New York", "1", "1"), at("Kansas", "1", "1"), at("Nebraska", "14", "14"),
 ];
 for (const loc of NEIGH) {
-  const A = boot(Object.assign({}, loc)), B = boot(Object.assign({}, loc), baseFiles);
+  const A = boot(Object.assign({}, loc), NOW_FILES), B = boot(Object.assign({}, loc), baseFiles);
   const pick = (w) => JSON.stringify((w.pdxRepsForMe().levels || []).map((l) => [l.key, l.pid, l.district, l.distLabel, (l.positions || []).map((p) => p.pid)]));
   eq(pick(A), pick(B), `${loc.state}: the resolver walk moved`);
   eq(band(A), band(B), `${loc.state}: the card moved`);

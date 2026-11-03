@@ -150,7 +150,10 @@ section("2 · the composer, the poll and the residency check, and no offline cop
   const DC = listOf(R("district-composer.js"), /@generated district-boards begin([\s\S]*?)@generated district-boards end/);
   const DP = listOf(R("district-poll.js"), /@generated district-boards begin([\s\S]*?)@generated district-boards end/);
   must(CORE.length > 0 && DC.length > 0 && DP.length > 0, "a composer list could not be located");
-  eq(FED.filter((b) => b.readOnly).map((b) => b.seat).join(","), "co-house-1,co-house-2,co-house-4,me-house-1,me-house-2,mi-house-5,mi-house-6,mi-house-9,mi-house-12,mn-house-2,mn-house-5,mn-house-6,ne-house-2", "the read-only federal boards");
+  // …and the election-day wave's 69 (db/election-day-wave-2026-11.json).
+  const EDAY = new Set(JSON.parse(R("db/election-day-wave-2026-11.json")).usHouseDistrictSet.map((r) => r.seat));
+  eq(FED.filter((b) => b.readOnly && !EDAY.has(b.seat)).map((b) => b.seat).join(","), "co-house-1,co-house-2,co-house-4,me-house-1,me-house-2,mi-house-5,mi-house-6,mi-house-9,mi-house-12,mn-house-2,mn-house-5,mn-house-6,ne-house-2", "the read-only federal boards");
+  eq(FED.filter((b) => EDAY.has(b.seat) && !b.readOnly).length, 0, "every election-day House board is read-only");
   for (const b of FED.filter((x) => x.readOnly)) no(CORE, `"${b.seat}"`, `${b.seat}: a read-only board is on the server's COMPOSER_SEATS`);
   for (const b of FED_VOICED) {
     has(CORE, `"${b.seat}": "${b.alias}"`, `${b.seat}: on the server's COMPOSER_SEATS`);
@@ -385,20 +388,21 @@ const opens = (who, html, alias, pid) => {
   opens("Cheyenne", html, "wy-cd-1", "harriet_hageman");
 }
 {
-  // NEW YORK'S 14TH: the roster names nobody, so the House card has no door.
-  must(FED_SKIPPED.some((s) => s.seat === "ny-house-14"), "NY-14 is no longer a seat the roster names nobody for");
-  const { html, seats } = voice({ state: "New York", city: "Queens", county: "Queens County", district: "14" });
+  // NEW YORK'S 9TH: the roster names nobody the House join admits (the
+  // election-day wave opened NY-9), so the House card has no door.
+  must(FED_SKIPPED.some((s) => s.seat === "ny-house-9"), "NY-9 is no longer a seat the roster names nobody for");
+  const { html, seats } = voice({ state: "New York", city: "Brooklyn", county: "Kings County", district: "9" });
   const house = seats.filter((s) => s.key === "house")[0];
-  must(!!house, "Queens: no U.S. House card");
-  eq(house.board, "", "Queens: NY-14 has no board");
-  const card = cardWith(html, "U.S. House District 14");
-  must(!!card, "Queens: the U.S. House card did not paint");
-  has(card, "Board not on hand for this seat.", "Queens: NY-14 says the board is not on hand");
-  no(card, "Open board", "Queens: NY-14 has no door");
-  no(card, "/district/", "Queens: NY-14 offers no board address");
-  ok(!/\byet\b/i.test(card.replace(/<[^>]+>/g, " ")), "Queens: NY-14's card never says \"yet\"");
+  must(!!house, "Brooklyn: no U.S. House card");
+  eq(house.board, "", "Brooklyn: NY-9 has no board");
+  const card = cardWith(html, "U.S. House District 9");
+  must(!!card, "Brooklyn: the U.S. House card did not paint");
+  has(card, "Board not on hand for this seat.", "Brooklyn: NY-9 says the board is not on hand");
+  no(card, "Open board", "Brooklyn: NY-9 has no door");
+  no(card, "/district/", "Brooklyn: NY-9 offers no board address");
+  ok(!/\byet\b/i.test(card.replace(/<[^>]+>/g, " ")), "Brooklyn: NY-9's card never says \"yet\"");
   const sw = JOIN._pdxStatewideSeats("New York");
-  for (const pid of sw.senators) opens("Queens", html, `ny-us-senate-${pid}`, pid);
+  for (const pid of sw.senators) opens("Brooklyn", html, `ny-us-senate-${pid}`, pid);
 }
 {
   // FEDERAL_STATE_CODE is the generator's fifty states, Utah included.

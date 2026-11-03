@@ -43,7 +43,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
-import { HEAD, AT, PRE_13_STATE, PASS_WORKER, DECLARED_MIGRATIONS } from "./state-leg-harness.mjs";
+import { HEAD, AT, PRE_13_STATE, PASS_WORKER, DECLARED_MIGRATIONS, isElectionDay, withoutElectionDayRewrites } from "./state-leg-harness.mjs";
 // What THIS pass added is measured against the commit it was built on, so the
 // check stays exact after the pass lands; "nothing else moved" stays on HEAD.
 const BASE = AT(PRE_13_STATE);
@@ -334,7 +334,9 @@ section("5 · the counts endpoint answers these seats and returns only aggregate
     .replace(/\/\/ A seat elected by position \(Washington's House\)[^\n]*\n\/\/ alias [^\n]*\nconst POSITION_KEY_RE = [^\n]*\n\n/, "")
     .replace(" || POSITION_KEY_RE.test(s)) return s;", ") return s;")
     .replace(/  const pm = \/\^\(\[a-z\]\{2\}\)-hd-[^\n]*\n  if \(pm\) return [^\n]*\n/, "")
-    .split("\n").filter((l) => !/^  "(?:ca|wa)-(?:statehouse|statesenate)-\d+(?:-p\d)?": 1,$/.test(l)).join("\n");
+    .split("\n").filter((l) => !/^  "(?:ca|wa)-(?:statehouse|statesenate)-\d+(?:-p\d)?": 1,$/.test(l))
+    // …and the election-day wave's read-only seats (test-election-day-wave-2026.mjs).
+    .filter((l) => { const m = /^  "([a-z0-9_-]+)": 1,$/.exec(l); return !(m && isElectionDay(m[1])); }).join("\n");
   eq(noCa(FN), noCa(HEAD("netlify/functions/district-board.mts")), "the counts endpoint did not move");
 }
 
@@ -390,7 +392,7 @@ section("7 · the Layton boards and every non-contested board are unchanged");
   }
   const rowsOf = (src) => new Map([...String(src).matchAll(/^    '([a-z0-9_-]+)': \{ seat: .*$/gm)].map((m) => [m[1], m[0]]));
   const now = rowsOf(R("district-board.js")), was = rowsOf(HEAD("district-board.js"));
-  for (const k of [...now.keys()]) if (IS_CA(k) && !was.has(k)) now.delete(k);
+  for (const k of [...now.keys()]) if ((IS_CA(k) || isElectionDay(k)) && !was.has(k)) now.delete(k);
   eq(now.size, was.size, "BOARDS has the same number of rows — no new board");
   const voicedSeats = new Set(VOICED.map((b) => b.seat));
   for (const [k, line] of was) {
@@ -398,7 +400,7 @@ section("7 · the Layton boards and every non-contested board are unchanged");
     else eq(now.get(k), line, `${k}: unchanged`);
   }
   const V = (src) => { const w = {}; w.window = w; vm.runInContext(src, vm.createContext(w)); return w.PDXVoice.BOARD_ROUTES; };
-  const routesNoCa = (src) => { const o = V(src); for (const k of Object.keys(o)) if (IS_CA(k)) delete o[k]; return o; };
+  const routesNoCa = (src) => { const o = V(src); for (const k of Object.keys(o)) if (IS_CA(k) || isElectionDay(k)) delete o[k]; return o; };
   eq(JSON.stringify(routesNoCa(R("district-voice.js"))), JSON.stringify(routesNoCa(HEAD("district-voice.js"))), "BOARD_ROUTES did not move");
   const TOML = R("netlify.toml");
   // California's redirects (its ballot view and its seven boards) lifted out,
@@ -408,7 +410,7 @@ section("7 · the Layton boards and every non-contested board are unchanged");
     .replace(/# California (?:Assembly|Senate) District \d+ — [a-z0-9_]+\n(?:\[\[redirects\]\]\n  from = "\/district\/ca-(?:hd|sd)-\d+[^"]*"\n  to = "\/district-ca-(?:hd|sd)-\d+\.html"\n  status = 200\n)+\n/g, "")
     .replace(/# Washington['’]s contested legislative seats[^\n]*\n(?:\[\[redirects\]\]\n  from = "\/ballot\/wa[^"]*"\n  to = "\/ballot-wa\.html"\n  status = 200\n)+/g, "")
     .replace(/# Washington (?:House|Senate) District \d+(?:, Position \d)? — [a-z0-9_]+\n(?:\[\[redirects\]\]\n  from = "\/district\/wa-(?:hd|sd)-\d+(?:-p\d)?[^"]*"\n  to = "\/district-wa-(?:hd|sd)-\d+(?:-p\d)?\.html"\n  status = 200\n)+\n/g, "");
-  eq(tomlNoCa(TOML), tomlNoCa(HEAD("netlify.toml")), "netlify.toml did not move");
+  eq(tomlNoCa(withoutElectionDayRewrites(TOML)), tomlNoCa(withoutElectionDayRewrites(HEAD("netlify.toml"))), "netlify.toml did not move");
   ok(![...TOML.matchAll(/from = "([^"]+)"/g)].some((m) => /^\/district\/.*\*/.test(m[1])), "no /district/* splat");
   // Utah's composer and poll rows are HEAD's; the rows this pass added in the
   // thirteen states (against the commit it was built on) are the voiced seats.

@@ -24,8 +24,6 @@
       jpike: 'https://insurance.utah.gov/wp-content/uploads/2026-Pike-200x300.jpg',
       rspendlove: 'https://le.utah.gov/images/legislator/SPENDLR.jpg',
       janderegg: 'https://le.utah.gov/images/legislator/ANDEREJ.jpg',
-      sherrod_brown: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Sherrod_Brown_117th_Congress_(2).jpg/500px-Sherrod_Brown_117th_Congress_(2).jpg', // OH U.S. Senate nominee — former U.S. Senator
-      paige_cognetti: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Paige_Cognetti_(52165104986)_(3x4a).jpg/500px-Paige_Cognetti_(52165104986)_(3x4a).jpg', // PA-08 nominee — Mayor of Scranton
       graham_platner: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Platner_headshot.jpg/500px-Platner_headshot.jpg', // ME U.S. Senate nominee
     };
     // Published for window._getPhotoUrl's last tier, which lives in another

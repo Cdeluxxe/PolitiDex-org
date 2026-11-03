@@ -41,7 +41,7 @@ import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
-import { R, AT, boot, levelOf, band } from "./state-leg-harness.mjs";
+import { R, AT, boot, levelOf, band, isElectionDay, isElectionDayLine, withoutElectionDayRewrites, withoutElectionDayDistrict, ELECTION_DAY_CANDIDATES, withElectionDayDistricts } from "./state-leg-harness.mjs";
 import { planBoards, STATE_LEG_BOARD_STATES, GOVERNOR_STATES, STATE_LEG_SEAT_COUNTS, STATE_LEG_BOARD_SEATS, FEDERAL_READ_ONLY_SEATS } from "./gen-district-boards.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -109,7 +109,7 @@ for (const [code, name] of FOUR) {
   has(doc, `governor (statewide) → ${b.pid}`, `${name}: governor document's roster note`);
   eq(BASE(b.doc), null, `${name}: baseline already had a governor board`);
 }
-eq(PLAN.filter((b) => /-gov$/.test(b.seat)).length, 15, "governor boards: Utah, the six, the four, these four");
+eq(PLAN.filter((b) => /-gov$/.test(b.seat) && !isElectionDay(b.seat)).length, 15, "governor boards: Utah, the six, the four, these four");
 // MICHIGAN'S GOVERNOR BOARD OPENS on the sitting governor's row, and the 2026
 // field on Michigan's official listing is on file: both major-party nominees as
 // candidacies on the rows they hold today, and every running mate.
@@ -259,7 +259,8 @@ eq(PLAN.filter((b) => inFour(b.seat) && /-p\d$/.test(b.seat) && !b.seat.startsWi
 // ═════════════════════════════════════════════════════════════════════════════
 section("5 · no composer, no poll, no equity or money copy, no migration");
 // ═════════════════════════════════════════════════════════════════════════════
-const NEW = PLAN.filter((b) => BASE(b.doc) === null);
+// The election-day wave's boards are that wave's (test-election-day-wave-2026.mjs).
+const NEW = PLAN.filter((b) => BASE(b.doc) === null && !isElectionDay(b.seat));
 eq(NEW.length, NEW.filter((b) => inFour(b.seat)).length, "a new board opened outside the four states");
 eq(NEW.length, 627, "new boards: 619 legislative, four governors, four U.S. House");
 for (const b of NEW) {
@@ -279,6 +280,7 @@ const docs = readdirSync(ROOT).filter((f) => /^district-[a-z]{2}-.*\.html$/.test
 let same = 0;
 for (const f of docs) {
   if (CODES.has(f.slice(9, 11))) continue;
+  if (isElectionDay(f) && BASE(f) === null) continue;   // the election-day wave's own board
   if (ok(R(f) === BASE(f), `${f}: another state's board moved`)) same++;
 }
 ok(same > 1700, `only ${same} other-state documents compared`);
@@ -305,7 +307,7 @@ const POSITION_EDITS = {
   ],
 };
 const keyOf = (line) => (/^\s*['"]([a-z]{2})-/.exec(line) || [])[1];
-const outside = (src) => src.split("\n").filter((l) => !CODES.has(keyOf(l))).join("\n");
+const outside = (src) => src.split("\n").filter((l) => !CODES.has(keyOf(l)) && !isElectionDayLine(l)).join("\n");
 for (const [f, edits] of Object.entries(POSITION_EDITS)) {
   let now = R(f);
   for (const [to, from] of edits) { ok(now.indexOf(to) >= 0, `${f}: the declared position edit is not in the file`); now = now.split(to).join(from); }
@@ -313,21 +315,24 @@ for (const [f, edits] of Object.entries(POSITION_EDITS)) {
 }
 {
   const strip = (src) => src.split(/\n(?=# )/).filter((blk) => !/from = "\/district\/(?:ms|vt|mi|tn)-/.test(blk)).join("\n");
-  eq(strip(R("netlify.toml")), strip(BASE("netlify.toml")), "netlify.toml: a rewrite outside the four states moved");
+  eq(strip(withoutElectionDayRewrites(R("netlify.toml"))), strip(BASE("netlify.toml")), "netlify.toml: a rewrite outside the four states moved");
 }
 let rows = 0;
 for (const pid of Object.keys(RO0)) {
   if (NAMES.has(String(RO0[pid].state || "").split(" ·")[0])) continue;
-  if (ok(JSON.stringify(RO[pid]) === JSON.stringify(RO0[pid]), `${pid}: an existing roster row outside the four moved`)) rows++;
+  if (ok(JSON.stringify(withoutElectionDayDistrict(pid, RO[pid])) === JSON.stringify(RO0[pid]), `${pid}: an existing roster row outside the four moved`)) rows++;
 }
 ok(rows > 5000, `only ${rows} roster rows compared`);
-for (const pid of Object.keys(RO)) if (!(pid in RO0)) ok(NAMES.has(RO[pid].state), `${pid}: a new roster row outside the four states`);
+for (const pid of Object.keys(RO)) if (!(pid in RO0) && !ELECTION_DAY_CANDIDATES.has(pid)) ok(NAMES.has(RO[pid].state), `${pid}: a new roster row outside the four states`);
 for (const pid of Object.keys(W0.CMP_CANDIDACIES)) eq(JSON.stringify(W1.CMP_CANDIDACIES[pid]), JSON.stringify(W0.CMP_CANDIDACIES[pid]), `${pid}: an existing candidacy moved`);
 for (const pid of Object.keys(W1.CMP_CANDIDACIES)) if (!(pid in W0.CMP_CANDIDACIES)) ok(NAMES.has(W1.CMP_CANDIDACIES[pid].state), `${pid}: a new candidacy outside the four`);
 // The resolver, walked at the base's sources and at this pass's, for a reader
 // in each neighbouring state, in the position states and in the named ones.
 const baseFiles = {};
 for (const f of ["cmp-data.js", "voter-hub-location.js", "who-represents-me.js"]) baseFiles[f] = BASE(f);
+// The election-day wave named the district on 70 sitting U.S. Representatives'
+// rows; the baseline carries those districts so the walks compare like for like.
+baseFiles["cmp-data.js"] = withElectionDayDistricts(baseFiles["cmp-data.js"]);
 const NEIGH = [
   at("New Hampshire", "1", "1"), at("Massachusetts", "25", "130"), at("New York", "1", "1"), at("Maine", "18", "132"),
   at("Alabama", "1", "1"), at("Arkansas", "1", "1"), at("Louisiana", "1", "1"), at("Kentucky", "1", "1"),

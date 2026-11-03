@@ -2777,6 +2777,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/J000294.jpg",
   "office": "U.S. House Minority Leader",
   "state": "New York",
+  "district": "NY-8",
   "party": "D",
   "score": 61,
   "kept": 0,
@@ -2811,6 +2812,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/J000299.jpg",
   "office": "Speaker of the U.S. House",
   "state": "Louisiana",
+  "district": "LA-4",
   "party": "R",
   "score": 62,
   "kept": 0,
@@ -2883,6 +2885,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/O000172.jpg",
   "office": "U.S. Representative",
   "state": "New York",
+  "district": "NY-14",
   "party": "D",
   "score": 60,
   "kept": 0,
@@ -2955,6 +2958,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001176.jpg",
   "office": "House Majority Leader",
   "state": "Louisiana",
+  "district": "LA-1",
   "party": "R",
   "score": 61,
   "kept": 0,
@@ -3028,6 +3032,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001101.jpg",
   "office": "House Minority Whip",
   "state": "Massachusetts",
+  "district": "MA-5",
   "party": "D",
   "score": 59,
   "kept": 0,
@@ -3046,6 +3051,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/J000289.jpg",
   "office": "House Judiciary Committee Chair",
   "state": "Ohio",
+  "district": "OH-4",
   "party": "R",
   "score": 57,
   "kept": 0,
@@ -3064,6 +3070,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001195.jpg",
   "office": "House Ways & Means Chair",
   "state": "Missouri",
+  "district": "MO-8",
   "party": "R",
   "score": 59,
   "kept": 0,
@@ -3316,6 +3323,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001130.jpg",
   "office": "U.S. Representative",
   "state": "Texas",
+  "district": "TX-30",
   "party": "D",
   "score": 59,
   "kept": 0,
@@ -3334,6 +3342,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000389.jpg",
   "office": "U.S. Representative",
   "state": "California",
+  "district": "CA-17",
   "party": "D",
   "score": 60,
   "kept": 0,
@@ -3424,6 +3433,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001108.jpg",
   "office": "House Oversight Committee Chair",
   "state": "Kentucky",
+  "district": "KY-1",
   "party": "R",
   "score": 57,
   "kept": 0,
@@ -3554,6 +3564,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001199.jpg",
   "office": "House Foreign Affairs Committee Chair",
   "state": "Florida",
+  "district": "FL-21",
   "party": "R",
   "score": 57,
   "kept": 0,
@@ -3644,6 +3655,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001072.jpg",
   "office": "House Financial Services Committee Chair",
   "state": "Arkansas",
+  "district": "AR-2",
   "party": "R",
   "score": 59,
   "kept": 0,
@@ -3662,6 +3674,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001053.jpg",
   "office": "House Appropriations Committee Chair",
   "state": "Oklahoma",
+  "district": "OK-4",
   "party": "R",
   "score": 60,
   "kept": 0,
@@ -3680,6 +3693,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/A000375.jpg",
   "office": "House Budget Committee Chair",
   "state": "Texas",
+  "district": "TX-19",
   "party": "R",
   "score": 58,
   "kept": 0,
@@ -3698,6 +3712,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000558.jpg",
   "office": "House Energy & Commerce Committee Chair",
   "state": "Kentucky",
+  "district": "KY-2",
   "party": "R",
   "score": 58,
   "kept": 0,
@@ -3860,6 +3875,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/D000216.jpg",
   "office": "House Appropriations Ranking Member",
   "state": "Connecticut",
+  "district": "CT-3",
   "party": "D",
   "score": 58,
   "kept": 0,
@@ -3878,6 +3894,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001137.jpg",
   "office": "House Foreign Affairs Ranking Member",
   "state": "New York",
+  "district": "NY-5",
   "party": "D",
   "score": 58,
   "kept": 0,
@@ -3896,6 +3913,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000606.jpg",
   "office": "House Judiciary Ranking Member",
   "state": "Maryland",
+  "district": "MD-8",
   "party": "D",
   "score": 59,
   "kept": 0,
@@ -3914,6 +3932,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/N000015.jpg",
   "office": "House Ways & Means Ranking Member",
   "state": "Massachusetts",
+  "district": "MA-1",
   "party": "D",
   "score": 58,
   "kept": 0,
@@ -3932,6 +3951,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/P000034.jpg",
   "office": "House Energy & Commerce Ranking Member",
   "state": "New Jersey",
+  "district": "NJ-6",
   "party": "D",
   "score": 58,
   "kept": 0,
@@ -3950,6 +3970,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S000510.jpg",
   "office": "House Armed Services Ranking Member",
   "state": "Washington",
+  "district": "WA-9",
   "party": "D",
   "score": 58,
   "kept": 0,
@@ -4202,6 +4223,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000614.jpg",
   "office": "U.S. Representative",
   "state": "Texas",
+  "district": "TX-21",
   "party": "R",
   "score": 55,
   "kept": 0,
@@ -5502,6 +5524,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001201.jpg",
   "office": "U.S. Representative",
   "state": "New York",
+  "district": "NY-3",
   "party": "D",
   "score": 55,
   "kept": 0,
@@ -6671,6 +6694,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001082.jpg",
   "office": "U.S. Representative",
   "state": "Oklahoma",
+  "district": "OK-1",
   "party": "R",
   "score": 55,
   "kept": 0,
@@ -6689,6 +6713,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M000194.jpg",
   "office": "U.S. Representative",
   "state": "South Carolina",
+  "district": "SC-1",
   "party": "R",
   "score": 55,
   "kept": 0,
@@ -6725,6 +6750,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/P000617.jpg",
   "office": "U.S. Representative",
   "state": "Massachusetts",
+  "district": "MA-7",
   "party": "D",
   "score": 57,
   "kept": 0,
@@ -6743,6 +6769,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000617.jpg",
   "office": "U.S. Representative",
   "state": "Illinois",
+  "district": "IL-3",
   "party": "D",
   "score": 57,
   "kept": 0,
@@ -6761,6 +6788,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001238.jpg",
   "office": "U.S. Representative",
   "state": "Delaware",
+  "district": "DE-AL",
   "party": "D",
   "score": 57,
   "kept": 0,
@@ -6779,6 +6807,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/A000148.jpg",
   "office": "U.S. Representative",
   "state": "Massachusetts",
+  "district": "MA-4",
   "party": "D",
   "score": 57,
   "kept": 0,
@@ -6797,6 +6826,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000601.jpg",
   "office": "U.S. Representative",
   "state": "Ohio",
+  "district": "OH-1",
   "party": "D",
   "score": 57,
   "kept": 0,
@@ -6903,6 +6933,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001120.jpg",
   "office": "U.S. Representative",
   "state": "Texas",
+  "district": "TX-2",
   "party": "R",
   "score": 55,
   "kept": 0,
@@ -6921,6 +6952,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000391.jpg",
   "office": "U.S. Representative",
   "state": "Illinois",
+  "district": "IL-8",
   "party": "D",
   "score": 57,
   "kept": 0,
@@ -6939,6 +6971,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000583.jpg",
   "office": "U.S. Representative",
   "state": "New Jersey",
+  "district": "NJ-5",
   "party": "D",
   "score": 57,
   "kept": 0,
@@ -6957,6 +6990,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001196.jpg",
   "office": "U.S. Representative",
   "state": "Massachusetts",
+  "district": "MA-6",
   "party": "D",
   "score": 57,
   "kept": 0,
@@ -6975,6 +7009,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000600.jpg",
   "office": "U.S. Representative",
   "state": "Washington",
+  "district": "WA-3",
   "party": "D",
   "score": 57,
   "kept": 0,
@@ -7099,6 +7134,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M000312.jpg",
   "office": "U.S. Representative",
   "state": "Massachusetts",
+  "district": "MA-2",
   "party": "D",
   "score": 57,
   "kept": 0,
@@ -7117,6 +7153,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001296.jpg",
   "office": "U.S. Representative",
   "state": "Pennsylvania",
+  "district": "PA-2",
   "party": "D",
   "score": 57,
   "kept": 0,
@@ -7135,6 +7172,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000560.jpg",
   "office": "U.S. Representative",
   "state": "Washington",
+  "district": "WA-2",
   "party": "D",
   "score": 57,
   "kept": 0,
@@ -7153,6 +7191,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001145.jpg",
   "office": "U.S. Representative",
   "state": "Illinois",
+  "district": "IL-9",
   "party": "D",
   "score": 57,
   "kept": 0,
@@ -7263,6 +7302,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H000874.jpg",
   "office": "U.S. Representative",
   "state": "Maryland",
+  "district": "MD-5",
   "party": "D",
   "score": 57,
   "kept": 0,
@@ -7371,6 +7411,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001052.jpg",
   "office": "House Freedom Caucus Chair",
   "state": "Maryland",
+  "district": "MD-1",
   "party": "R",
   "score": 55,
   "kept": 0,
@@ -7389,6 +7430,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001295.jpg",
   "office": "House Veterans' Affairs Chair",
   "state": "Illinois",
+  "district": "IL-12",
   "party": "R",
   "score": 56,
   "kept": 0,
@@ -7407,6 +7449,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001291.jpg",
   "office": "House Science, Space & Technology Chair",
   "state": "Texas",
+  "district": "TX-36",
   "party": "R",
   "score": 55,
   "kept": 0,
@@ -7425,6 +7468,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000816.jpg",
   "office": "House Small Business Chair",
   "state": "Texas",
+  "district": "TX-25",
   "party": "R",
   "score": 55,
   "kept": 0,
@@ -7443,6 +7487,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001213.jpg",
   "office": "House Administration Chair",
   "state": "Wisconsin",
+  "district": "WI-1",
   "party": "R",
   "score": 55,
   "kept": 0,
@@ -7461,6 +7506,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000187.jpg",
   "office": "House Financial Services Ranking Member",
   "state": "California",
+  "district": "CA-43",
   "party": "D",
   "score": 56,
   "kept": 0,
@@ -7479,6 +7525,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001047.jpg",
   "office": "House Intelligence Ranking Member",
   "state": "Connecticut",
+  "district": "CT-4",
   "party": "D",
   "score": 57,
   "kept": 0,
@@ -7497,6 +7544,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000397.jpg",
   "office": "House Science Committee Ranking Member",
   "state": "California",
+  "district": "CA-18",
   "party": "D",
   "score": 57,
   "kept": 0,
@@ -7515,6 +7563,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001068.jpg",
   "office": "House Natural Resources Ranking Member",
   "state": "California",
+  "district": "CA-2",
   "party": "D",
   "score": 57,
   "kept": 0,
@@ -7653,6 +7702,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000596.jpg",
   "office": "U.S. Representative",
   "state": "Florida",
+  "district": "FL-13",
   "party": "R",
   "score": 54,
   "kept": 0,
@@ -7690,6 +7740,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000472.jpg",
   "office": "House Veterans' Affairs Ranking Member",
   "state": "California",
+  "district": "CA-39",
   "party": "D",
   "score": 57,
   "kept": 0,
@@ -7708,6 +7759,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S000185.jpg",
   "office": "House Education & Workforce Ranking Member",
   "state": "Virginia",
+  "district": "VA-3",
   "party": "D",
   "score": 57,
   "kept": 0,
@@ -7834,6 +7886,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000599.jpg",
   "office": "U.S. Representative",
   "state": "New York",
+  "district": "NY-17",
   "party": "R",
   "score": 58,
   "kept": 0,
@@ -7852,6 +7905,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000602.jpg",
   "office": "U.S. Representative",
   "state": "Pennsylvania",
+  "district": "PA-12",
   "party": "D",
   "score": 54,
   "kept": 0,
@@ -7924,6 +7978,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/F000476.jpg",
   "office": "U.S. Representative",
   "state": "Florida",
+  "district": "FL-10",
   "party": "D",
   "score": 55,
   "kept": 0,
@@ -7979,6 +8034,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000597.jpg",
   "office": "House Homeland Security Chair",
   "state": "New York",
+  "district": "NY-2",
   "party": "R",
   "score": 57,
   "kept": 0,
@@ -8104,6 +8160,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000599.jpg",
   "office": "U.S. Representative",
   "state": "New York",
+  "district": "NY-10",
   "party": "D",
   "score": 56,
   "kept": 0,
@@ -8267,6 +8324,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/N000002.jpg",
   "office": "U.S. Representative",
   "state": "New York",
+  "district": "NY-12",
   "party": "D",
   "score": 57,
   "kept": 0,
@@ -8375,6 +8433,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/F000466.jpg",
   "office": "U.S. Representative",
   "state": "Pennsylvania",
+  "district": "PA-1",
   "party": "R",
   "score": 59,
   "kept": 0,
@@ -8411,6 +8470,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000486.jpg",
   "office": "U.S. Representative",
   "state": "New York",
+  "district": "NY-15",
   "party": "D",
   "score": 58,
   "kept": 0,
@@ -8466,6 +8526,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C000537.jpg",
   "office": "U.S. Representative",
   "state": "South Carolina",
+  "district": "SC-6",
   "party": "D",
   "score": 59,
   "kept": 0,
@@ -8555,6 +8616,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/F000450.jpg",
   "office": "House Rules Committee Chair",
   "state": "North Carolina",
+  "district": "NC-5",
   "party": "R",
   "score": 56,
   "kept": 0,
@@ -8591,6 +8653,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000582.jpg",
   "office": "House Democratic Caucus Vice Chair",
   "state": "California",
+  "district": "CA-36",
   "party": "D",
   "score": 58,
   "kept": 0,
@@ -8645,6 +8708,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000598.jpg",
   "office": "House Oversight Ranking Member",
   "state": "California",
+  "district": "CA-42",
   "party": "D",
   "score": 57,
   "kept": 0,
@@ -8663,6 +8727,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/A000371.jpg",
   "office": "House Democratic Caucus Chair",
   "state": "California",
+  "district": "CA-33",
   "party": "D",
   "score": 58,
   "kept": 0,
@@ -8681,6 +8746,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/J000298.jpg",
   "office": "U.S. Representative",
   "state": "Washington",
+  "district": "WA-7",
   "party": "D",
   "score": 57,
   "kept": 0,
@@ -8807,6 +8873,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/D000032.jpg",
   "office": "U.S. Representative",
   "state": "Florida",
+  "district": "FL-19",
   "party": "R",
   "score": 55,
   "kept": 0,
@@ -8825,6 +8892,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001196.jpg",
   "office": "U.S. Representative",
   "state": "New York",
+  "district": "NY-21",
   "party": "R",
   "score": 55,
   "kept": 0,
@@ -8879,6 +8947,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000546.jpg",
   "office": "House Transportation & Infrastructure Chair",
   "state": "Missouri",
+  "district": "MO-6",
   "party": "R",
   "score": 57,
   "kept": 0,
@@ -8897,6 +8966,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000467.jpg",
   "office": "House Agriculture Committee Chair",
   "state": "Pennsylvania",
+  "district": "PA-15",
   "party": "R",
   "score": 57,
   "kept": 0,
@@ -53119,6 +53189,907 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "name": "William “Will” Hoser", "office": "Vermont State House Candidate (District Windsor-Windham)",
   "state": "Vermont", "district": "Windsor-Windham",
   "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+// ── Election-day candidates, Alabama, Arizona, Kansas, New Hampshire, Ohio and Pennsylvania, official lists (Nov 2026)
+// The six states the October pass could not read an official list for. Every
+// nominee printed on the November 3, 2026 general-election ballot for U.S.
+// Senate (Ohio's special election included), U.S. House, Governor, Lieutenant
+// Governor, Attorney General and Secretary of State, read from the Secretary of
+// State's certification or from county and town election offices' own sample
+// ballots and candidate lists, whom the roster did not already hold. Every party
+// on the ballot is kept as the source prints it: Libertarian, Green, No Labels,
+// Constitution, United Kansas, The Independent Party, Non-Party, Other-party
+// candidate. db/roster-candidates-2026-nov.json is the record: each state's
+// sources, every row as filed, and every candidate the roster already held.
+// Identity rows only, the October shape: `candidate: true`, `score` null, an
+// empty ledger, `issues` empty, so no seat lookup names one as sitting.
+ // Alabama — https://www.sos.alabama.gov/sites/default/files/election-2026/2026GeneralElectionStateCertificationofRepublicanCandidates.pdf
+ // U.S. House (AL-1) · Republican
+ "jerry_carl": {
+  "name": "Jerry Carl", "office": "U.S. House Candidate (AL-1)",
+  "state": "Alabama", "district": "1",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (AL-2) · Republican
+ "rhett_marques": {
+  "name": "Rhett Marques", "office": "U.S. House Candidate (AL-2)",
+  "state": "Alabama", "district": "2",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (AL-7) · Republican
+ "ammie_akin": {
+  "name": "Ammie Akin", "office": "U.S. House Candidate (AL-7)",
+  "state": "Alabama", "district": "7",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Lieutenant Governor · Republican
+ "john_wahl": {
+  "name": "John Wahl", "office": "Lieutenant Governor Candidate",
+  "state": "Alabama",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Republican
+ "katherine_robertson": {
+  "name": "Katherine Robertson", "office": "Attorney General Candidate",
+  "state": "Alabama",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Secretary of State · Republican
+ "caroleene_dobson": {
+  "name": "Caroleene Dobson", "office": "Secretary of State Candidate",
+  "state": "Alabama",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. Senate · Democratic
+ "everett_wess": {
+  "name": "Everett Wess", "office": "U.S. Senate Candidate",
+  "state": "Alabama",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (AL-1) · Democratic
+ "clyde_jones": {
+  "name": "Clyde Jones", "office": "U.S. House Candidate (AL-1)",
+  "state": "Alabama", "district": "1",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (AL-3) · Democratic
+ "lee_mcinnis": {
+  "name": "Lee McInnis", "office": "U.S. House Candidate (AL-3)",
+  "state": "Alabama", "district": "3",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (AL-4) · Democratic
+ "amanda_pusczek": {
+  "name": "Amanda N. Pusczek", "office": "U.S. House Candidate (AL-4)",
+  "state": "Alabama", "district": "4",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (AL-5) · Democratic
+ "andrew_sneed": {
+  "name": "Andrew Sneed", "office": "U.S. House Candidate (AL-5)",
+  "state": "Alabama", "district": "5",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (AL-6) · Democratic
+ "maurice_mercer": {
+  "name": "Maurice Mercer", "office": "U.S. House Candidate (AL-6)",
+  "state": "Alabama", "district": "6",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Democratic
+ "doug_jones_al": {
+  "name": "Doug Jones", "office": "Governor Candidate",
+  "state": "Alabama",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Lieutenant Governor · Democratic
+ "phillip_ensler": {
+  "name": "Phillip Ensler", "office": "Lieutenant Governor Candidate",
+  "state": "Alabama",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Democratic
+ "jeff_mclaughlin": {
+  "name": "Jeff McLaughlin", "office": "Attorney General Candidate",
+  "state": "Alabama",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Secretary of State · Democratic
+ "wayne_rogers": {
+  "name": "Wayne Rogers", "office": "Secretary of State Candidate",
+  "state": "Alabama",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Arizona — https://content.civicplus.com/api/assets/az-pimacounty/d2c310c3-ade7-484e-a6f0-1ddaebec0799
+ // U.S. House (AZ-1) · REP
+ "jay_feely": {
+  "name": "Jay Feely", "office": "U.S. House Candidate (AZ-1)",
+  "state": "Arizona", "district": "1",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (AZ-1) · DEM
+ "amish_shah": {
+  "name": "Amish Shah", "office": "U.S. House Candidate (AZ-1)",
+  "state": "Arizona", "district": "1",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (AZ-2) · DEM
+ "jonathan_nez": {
+  "name": "Jonathan Nez", "office": "U.S. House Candidate (AZ-2)",
+  "state": "Arizona", "district": "2",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (AZ-2) · LBT
+ "curtis_goodwin": {
+  "name": "Curtis Goodwin", "office": "U.S. House Candidate (AZ-2)",
+  "state": "Arizona", "district": "2",
+  "party": "LBT", "partyFiled": "LBT", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (AZ-3) · GRN
+ "david_redkey": {
+  "name": "David Redkey", "office": "U.S. House Candidate (AZ-3)",
+  "state": "Arizona", "district": "3",
+  "party": "GRN", "partyFiled": "GRN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (AZ-3) · NOL
+ "alan_aversa": {
+  "name": "Alan Aversa", "office": "U.S. House Candidate (AZ-3)",
+  "state": "Arizona", "district": "3",
+  "party": "NOL", "partyFiled": "NOL", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (AZ-4) · REP
+ "zuhdi_jasser": {
+  "name": "Zuhdi Jasser", "office": "U.S. House Candidate (AZ-4)",
+  "state": "Arizona", "district": "4",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (AZ-4) · NOL
+ "tisha_benoit": {
+  "name": "Tisha Benoit", "office": "U.S. House Candidate (AZ-4)",
+  "state": "Arizona", "district": "4",
+  "party": "NOL", "partyFiled": "NOL", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (AZ-5) · REP
+ "mark_lamb": {
+  "name": "Mark Lamb", "office": "U.S. House Candidate (AZ-5)",
+  "state": "Arizona", "district": "5",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (AZ-5) · DEM
+ "elizabeth_lee": {
+  "name": "Elizabeth Lee", "office": "U.S. House Candidate (AZ-5)",
+  "state": "Arizona", "district": "5",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (AZ-6) · DEM
+ "joanna_mendoza": {
+  "name": "JoAnna Mendoza", "office": "U.S. House Candidate (AZ-6)",
+  "state": "Arizona", "district": "6",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (AZ-6) · LBT
+ "jereme_peters": {
+  "name": "Jereme Lance Peters", "office": "U.S. House Candidate (AZ-6)",
+  "state": "Arizona", "district": "6",
+  "party": "LBT", "partyFiled": "LBT", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (AZ-7) · REP
+ "daniel_butierez": {
+  "name": "Daniel Francis Butierez Sr.", "office": "U.S. House Candidate (AZ-7)",
+  "state": "Arizona", "district": "7",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (AZ-8) · DEM
+ "bernadette_greene_placentia": {
+  "name": "Bernadette Greene-Placentia", "office": "U.S. House Candidate (AZ-8)",
+  "state": "Arizona", "district": "8",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (AZ-9) · DEM
+ "dani_sterbinsky": {
+  "name": "Dani Sterbinsky", "office": "U.S. House Candidate (AZ-9)",
+  "state": "Arizona", "district": "9",
+  "party": "D", "partyFiled": "DEM", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · GRN
+ "risa_lombardo": {
+  "name": "Risa Lombardo", "office": "Governor Candidate",
+  "state": "Arizona",
+  "party": "GRN", "partyFiled": "GRN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · NOL
+ "teri_hourihan": {
+  "name": "Teri Ann Hourihan", "office": "Governor Candidate",
+  "state": "Arizona",
+  "party": "NOL", "partyFiled": "NOL", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Secretary of State · REP
+ "alexander_kolodin": {
+  "name": "Alexander Kolodin", "office": "Secretary of State Candidate",
+  "state": "Arizona",
+  "party": "R", "partyFiled": "REP", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Secretary of State · GRN
+ "duwayne_collier": {
+  "name": "Duwayne Collier", "office": "Secretary of State Candidate",
+  "state": "Arizona",
+  "party": "GRN", "partyFiled": "GRN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Kansas — https://sos.ks.gov/elections/elections_upcoming_candidate.aspx
+ // U.S. Senate · Democratic
+ "adam_hamilton": {
+  "name": "Adam Hamilton", "office": "U.S. Senate Candidate",
+  "state": "Kansas",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (KS-1) · Democratic
+ "lauren_reinhold": {
+  "name": "Lauren Reinhold", "office": "U.S. House Candidate (KS-1)",
+  "state": "Kansas", "district": "1",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (KS-1) · Libertarian
+ "steven_jacob": {
+  "name": "Steven Jacob", "office": "U.S. House Candidate (KS-1)",
+  "state": "Kansas", "district": "1",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (KS-2) · Democratic
+ "don_coover": {
+  "name": "Don Coover", "office": "U.S. House Candidate (KS-2)",
+  "state": "Kansas", "district": "2",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (KS-3) · Republican
+ "eric_jenkins": {
+  "name": "Eric Jenkins", "office": "U.S. House Candidate (KS-3)",
+  "state": "Kansas", "district": "3",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (KS-4) · Democratic
+ "katy_tyndell": {
+  "name": "Katy Tyndell", "office": "U.S. House Candidate (KS-4)",
+  "state": "Kansas", "district": "4",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (KS-4) · Libertarian
+ "drew_cranmer": {
+  "name": "Drew Cranmer", "office": "U.S. House Candidate (KS-4)",
+  "state": "Kansas", "district": "4",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Democratic
+ "cindy_holscher": {
+  "name": "Cindy Holscher", "office": "Governor Candidate",
+  "state": "Kansas",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Lieutenant Governor · Democratic
+ "kc_ohaebosim": {
+  "name": "KC Ohaebosim", "office": "Lieutenant Governor Candidate",
+  "state": "Kansas",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Lieutenant Governor · Republican
+ "jeffrey_klemp": {
+  "name": "Jeffrey Klemp", "office": "Lieutenant Governor Candidate",
+  "state": "Kansas",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Democratic
+ "chris_mann": {
+  "name": "Chris Mann", "office": "Attorney General Candidate",
+  "state": "Kansas",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Secretary of State · Democratic
+ "jennifer_day": {
+  "name": "Jennifer Day", "office": "Secretary of State Candidate",
+  "state": "Kansas",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Secretary of State · Republican
+ "pat_proctor": {
+  "name": "Pat Proctor", "office": "Secretary of State Candidate",
+  "state": "Kansas",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Secretary of State · United Kansas
+ "scott_morgan": {
+  "name": "Scott E. Morgan", "office": "Secretary of State Candidate",
+  "state": "Kansas",
+  "party": "United Kansas", "partyFiled": "United Kansas", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // New Hampshire — https://www.londonderrynh.gov/DocumentCenter/View/3063
+ // Governor · Democratic
+ "cinde_warmington": {
+  "name": "Cinde Warmington", "office": "Governor Candidate",
+  "state": "New Hampshire",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Libertarian
+ "stephen_villee": {
+  "name": "Stephen Villee", "office": "Governor Candidate",
+  "state": "New Hampshire",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. Senate · Republican
+ "john_sununu": {
+  "name": "John E. Sununu", "office": "U.S. Senate Candidate",
+  "state": "New Hampshire",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (NH-1) · Democratic
+ "stefany_shaheen": {
+  "name": "Stefany Shaheen", "office": "U.S. House Candidate (NH-1)",
+  "state": "New Hampshire", "district": "1",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (NH-1) · Republican
+ "anthony_dilorenzo": {
+  "name": "Anthony DiLorenzo", "office": "U.S. House Candidate (NH-1)",
+  "state": "New Hampshire", "district": "1",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (NH-2) · Republican
+ "lily_williams": {
+  "name": "Lily Tang Williams", "office": "U.S. House Candidate (NH-2)",
+  "state": "New Hampshire", "district": "2",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (NH-2) · Independent
+ "robbie_mahrou": {
+  "name": "Robbie Mahrou", "office": "U.S. House Candidate (NH-2)",
+  "state": "New Hampshire", "district": "2",
+  "party": "Independent", "partyFiled": "Independent", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Ohio — https://www.waynecountyoh.gov/wp-content/uploads/2026/09/Sample-Ballots-ALL-WATERMARK-09192026-1352.pdf
+ // Governor · Democratic
+ "amy_acton": {
+  "name": "Amy Acton", "office": "Governor Candidate",
+  "state": "Ohio",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Lieutenant Governor · Democratic
+ "david_pepper": {
+  "name": "David Pepper", "office": "Lieutenant Governor Candidate",
+  "state": "Ohio",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Libertarian
+ "don_kissick": {
+  "name": "Don Kissick", "office": "Governor Candidate",
+  "state": "Ohio",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Lieutenant Governor · Libertarian
+ "james_mills": {
+  "name": "James L. Mills", "office": "Lieutenant Governor Candidate",
+  "state": "Ohio",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Republican
+ "vivek_ramaswamy": {
+  "name": "Vivek Ramaswamy", "office": "Governor Candidate",
+  "state": "Ohio",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Democratic
+ "john_kulewicz": {
+  "name": "John J. Kulewicz", "office": "Attorney General Candidate",
+  "state": "Ohio",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Attorney General · Republican
+ "keith_faber": {
+  "name": "Keith Faber", "office": "Attorney General Candidate",
+  "state": "Ohio",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Secretary of State · Libertarian
+ "tom_pruss": {
+  "name": "Tom Pruss", "office": "Secretary of State Candidate",
+  "state": "Ohio",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Secretary of State · Republican
+ "robert_sprague": {
+  "name": "Robert Sprague", "office": "Secretary of State Candidate",
+  "state": "Ohio",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. Senate · Democratic
+ "sherrod_brown": {
+  "name": "Sherrod Brown", "office": "U.S. Senate Candidate",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Sherrod_Brown_117th_Congress_(2).jpg/500px-Sherrod_Brown_117th_Congress_(2).jpg",
+  "state": "Ohio",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. Senate · Other-party candidate
+ "greg_levy": {
+  "name": "Greg Levy", "office": "U.S. Senate Candidate",
+  "state": "Ohio",
+  "party": "Other-party candidate", "partyFiled": "Other-party candidate", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. Senate · Libertarian
+ "william_redpath": {
+  "name": "William B. Redpath", "office": "U.S. Senate Candidate",
+  "state": "Ohio",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (OH-1) · Republican
+ "eric_conroy": {
+  "name": "Eric Conroy", "office": "U.S. House Candidate (OH-1)",
+  "state": "Ohio", "district": "1",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (OH-1) · Libertarian
+ "nathan_weise": {
+  "name": "Nathan Weise", "office": "U.S. House Candidate (OH-1)",
+  "state": "Ohio", "district": "1",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (OH-8) · Democratic
+ "vanessa_enoch": {
+  "name": "Vanessa Enoch", "office": "U.S. House Candidate (OH-8)",
+  "state": "Ohio", "district": "8",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (OH-2) · Democratic
+ "jen_mazzuckelli": {
+  "name": "Jen Mazzuckelli", "office": "U.S. House Candidate (OH-2)",
+  "state": "Ohio", "district": "2",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (OH-3) · Republican
+ "cleophus_dulaney": {
+  "name": "Cleophus Dulaney", "office": "U.S. House Candidate (OH-3)",
+  "state": "Ohio", "district": "3",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (OH-15) · Libertarian
+ "brennan_barrington": {
+  "name": "Brennan Barrington", "office": "U.S. House Candidate (OH-15)",
+  "state": "Ohio", "district": "15",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (OH-15) · Democratic
+ "don_leonard": {
+  "name": "Don Leonard", "office": "U.S. House Candidate (OH-15)",
+  "state": "Ohio", "district": "15",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (OH-4) · Democratic
+ "joshua_kolasinski": {
+  "name": "Joshua D. Kolasinski", "office": "U.S. House Candidate (OH-4)",
+  "state": "Ohio", "district": "4",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (OH-4) · Non-Party
+ "tracey_tackett": {
+  "name": "Tracey L. Tackett", "office": "U.S. House Candidate (OH-4)",
+  "state": "Ohio", "district": "4",
+  "party": "Non-Party", "partyFiled": "Non-Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (OH-5) · Democratic
+ "brian_shaver": {
+  "name": "Brian A. Shaver", "office": "U.S. House Candidate (OH-5)",
+  "state": "Ohio", "district": "5",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (OH-5) · Libertarian
+ "michael_veloff": {
+  "name": "Michael J. Veloff", "office": "U.S. House Candidate (OH-5)",
+  "state": "Ohio", "district": "5",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (OH-9) · Republican
+ "derek_merrin": {
+  "name": "Derek Merrin", "office": "U.S. House Candidate (OH-9)",
+  "state": "Ohio", "district": "9",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (OH-6) · Democratic
+ "elizabeth_kirtley": {
+  "name": "Elizabeth Kirtley", "office": "U.S. House Candidate (OH-6)",
+  "state": "Ohio", "district": "6",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (OH-7) · Democratic
+ "brian_poindexter": {
+  "name": "Brian Poindexter", "office": "U.S. House Candidate (OH-7)",
+  "state": "Ohio", "district": "7",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (OH-10) · Democratic
+ "kristina_knickerbocker": {
+  "name": "Kristina Knickerbocker", "office": "U.S. House Candidate (OH-10)",
+  "state": "Ohio", "district": "10",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (OH-10) · Libertarian
+ "thomas_mcmasters": {
+  "name": "Thomas F. McMasters", "office": "U.S. House Candidate (OH-10)",
+  "state": "Ohio", "district": "10",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (OH-11) · Republican
+ "mike_kirchner": {
+  "name": "Mike Kirchner", "office": "U.S. House Candidate (OH-11)",
+  "state": "Ohio", "district": "11",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (OH-12) · Democratic
+ "jerrad_christian": {
+  "name": "Jerrad Christian", "office": "U.S. House Candidate (OH-12)",
+  "state": "Ohio", "district": "12",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (OH-13) · Non-Party
+ "sandeep_dixit": {
+  "name": "Sandeep Dixit", "office": "U.S. House Candidate (OH-13)",
+  "state": "Ohio", "district": "13",
+  "party": "Non-Party", "partyFiled": "Non-Party", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (OH-13) · Republican
+ "carey_coleman": {
+  "name": "Carey Coleman", "office": "U.S. House Candidate (OH-13)",
+  "state": "Ohio", "district": "13",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (OH-14) · Democratic
+ "maria_jukic": {
+  "name": "Maria Jukic", "office": "U.S. House Candidate (OH-14)",
+  "state": "Ohio", "district": "14",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Pennsylvania — https://apps.westmorelandcountypa.gov/elections/ElectionBallots/Ballots/ElectionBallots/258.pdf
+ // Governor · Republican
+ "stacy_garrity": {
+  "name": "Stacy Garrity", "office": "Governor Candidate",
+  "state": "Pennsylvania",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Lieutenant Governor · Republican
+ "jason_richey": {
+  "name": "Jason Richey", "office": "Lieutenant Governor Candidate",
+  "state": "Pennsylvania",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Governor · Libertarian
+ "ken_krawchuk": {
+  "name": "Ken Krawchuk", "office": "Governor Candidate",
+  "state": "Pennsylvania",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Lieutenant Governor · Libertarian
+ "john_thomas": {
+  "name": "John Thomas", "office": "Lieutenant Governor Candidate",
+  "state": "Pennsylvania",
+  "party": "Libertarian", "partyFiled": "Libertarian", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (PA-1) · Democratic
+ "bob_harvie": {
+  "name": "Bob Harvie", "office": "U.S. House Candidate (PA-1)",
+  "state": "Pennsylvania", "district": "1",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (PA-2) · REPUBLICAN
+ "jessica_arriaga": {
+  "name": "Jessica Arriaga", "office": "U.S. House Candidate (PA-2)",
+  "state": "Pennsylvania", "district": "2",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (PA-3) · THE INDEPENDENT PARTY
+ "dennis_mahoney": {
+  "name": "Dennis Mahoney", "office": "U.S. House Candidate (PA-3)",
+  "state": "Pennsylvania", "district": "3",
+  "party": "THE INDEPENDENT PARTY", "partyFiled": "THE INDEPENDENT PARTY", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (PA-4) · Republican
+ "aurora_stuski": {
+  "name": "Aurora Stuski", "office": "U.S. House Candidate (PA-4)",
+  "state": "Pennsylvania", "district": "4",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (PA-5) · REPUBLICAN
+ "nick_manganaro": {
+  "name": "Nick Manganaro", "office": "U.S. House Candidate (PA-5)",
+  "state": "Pennsylvania", "district": "5",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (PA-6) · Republican
+ "marty_young": {
+  "name": "Marty Young", "office": "U.S. House Candidate (PA-6)",
+  "state": "Pennsylvania", "district": "6",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (PA-7) · Democratic
+ "bob_brooks": {
+  "name": "Bob Brooks", "office": "U.S. House Candidate (PA-7)",
+  "state": "Pennsylvania", "district": "7",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (PA-8) · Democratic
+ "paige_cognetti": {
+  "name": "Paige Cognetti", "office": "U.S. House Candidate (PA-8)",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Paige_Cognetti_(52165104986)_(3x4a).jpg/500px-Paige_Cognetti_(52165104986)_(3x4a).jpg",
+  "state": "Pennsylvania", "district": "8",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (PA-9) · DEMOCRATIC
+ "rachel_wallace": {
+  "name": "Rachel Wallace", "office": "U.S. House Candidate (PA-9)",
+  "state": "Pennsylvania", "district": "9",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (PA-10) · DEMOCRATIC
+ "janelle_stelson": {
+  "name": "Janelle Stelson", "office": "U.S. House Candidate (PA-10)",
+  "state": "Pennsylvania", "district": "10",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (PA-11) · Democratic
+ "nancy_mannion": {
+  "name": "Nancy Mannion", "office": "U.S. House Candidate (PA-11)",
+  "state": "Pennsylvania", "district": "11",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (PA-12) · Republican
+ "james_hayes": {
+  "name": "James Hayes", "office": "U.S. House Candidate (PA-12)",
+  "state": "Pennsylvania", "district": "12",
+  "party": "R", "partyFiled": "Republican", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (PA-13) · Democratic
+ "beth_farnham": {
+  "name": "Beth Farnham", "office": "U.S. House Candidate (PA-13)",
+  "state": "Pennsylvania", "district": "13",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (PA-14) · DEMOCRATIC
+ "alan_bradstock": {
+  "name": "Alan Bradstock", "office": "U.S. House Candidate (PA-14)",
+  "state": "Pennsylvania", "district": "14",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (PA-15) · DEMOCRATIC
+ "ray_bilger": {
+  "name": "Ray Bilger", "office": "U.S. House Candidate (PA-15)",
+  "state": "Pennsylvania", "district": "15",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (PA-16) · DEMOCRATIC
+ "justin_wagner": {
+  "name": "Justin Wagner", "office": "U.S. House Candidate (PA-16)",
+  "state": "Pennsylvania", "district": "16",
+  "party": "D", "partyFiled": "DEMOCRATIC", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // U.S. House (PA-17) · REPUBLICAN
+ "tony_guy": {
+  "name": "Tony Guy", "office": "U.S. House Candidate (PA-17)",
+  "state": "Pennsylvania", "district": "17",
+  "party": "R", "partyFiled": "REPUBLICAN", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
   "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
  },

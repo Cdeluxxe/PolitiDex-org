@@ -33,7 +33,7 @@
 //
 //   node scripts/test-ny-contested-cycle.mjs
 
-import { R, HEAD, boot, levelOf, band, settled, DECLARED_MIGRATIONS } from "./state-leg-harness.mjs";
+import { R, HEAD, boot, levelOf, band, settled, DECLARED_MIGRATIONS, isElectionDay } from "./state-leg-harness.mjs";
 import { readdirSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
@@ -253,7 +253,7 @@ section("5 · District Voice: a board for each contested seat and no other");
   // Every board HEAD did not have is a contested seat some state's ballot
   // file holds a race for (contestedSeats() reads them from those files).
   const CONTESTED = contestedSeats();
-  for (const k of Object.keys(routes)) if (!HV[k]) ok(CONTESTED.has(k), `${k}: a board with no race behind it`);
+  for (const k of Object.keys(routes)) if (!HV[k] && !isElectionDay(k)) ok(CONTESTED.has(k), `${k}: a board with no race behind it`);
   for (const r of N.RACES) ok(!!routes[r.seat], `${r.seat}: the contested New York seat has a board`);
   const B = (() => { const w = makeSandbox(); vm.runInContext(R("district-board.js"), vm.createContext(w), { filename: "district-board.js" }); return w.PDXDistrictBoard; })();
   for (const r of N.RACES) {

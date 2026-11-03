@@ -3523,6 +3523,14 @@ export const DECLARED_ADMISSIONS = [
     pids: JSON.parse(_readFileSync(new URL("../db/roster-candidates-legislative-mi-tn-vt-2026-oct.json", import.meta.url), "utf8")).rows.map((r) => r.pid),
   },
   {
+    // The election-day wave's candidates in the six states the October pass
+    // skipped (Alabama, Arizona, Kansas, New Hampshire, Ohio, Pennsylvania).
+    // The block sits just above the October one, which stays last.
+    wave: "candidates_election_day_nov2026",
+    banner: "// ── Election-day candidates, Alabama, Arizona, Kansas, New Hampshire, Ohio and Pennsylvania, official lists (Nov 2026)",
+    pids: JSON.parse(_readFileSync(new URL("../db/roster-candidates-2026-nov.json", import.meta.url), "utf8")).rows.map((r) => r.pid),
+  },
+  {
     // Too many rows to type here, so the list is the committed record of
     // the pass itself, which also names each state's official source.
     wave: "candidates_outside_utah_oct2026",
@@ -3740,6 +3748,10 @@ for (const r of [..._FOUR_REC.districtSet, ..._FOUR_REC.usHouseDistrictSet]) DEC
 // Representatives their district ("MI-5").
 const _MVMT_REC = JSON.parse(_readFileSync(new URL("../db/roster-state-legislators-ms-vt-mi-tn-2026-oct.json", import.meta.url), "utf8"));
 for (const r of [..._MVMT_REC.districtSet, ..._MVMT_REC.usHouseDistrictSet]) DECLARED_DISTRICTS.push({ pid: r.pid, values: [r.district] });
+// The election-day wave gave 70 more U.S. Representatives their district
+// ("NY-12"), each read from the member's bioguide id.
+const _EDAY_REC = JSON.parse(_readFileSync(new URL("../db/election-day-wave-2026-11.json", import.meta.url), "utf8"));
+for (const r of _EDAY_REC.usHouseDistrictSet) DECLARED_DISTRICTS.push({ pid: r.pid, values: [r.district] });
 // DECLARED SEATINGS — a sitting legislator the roster held only as a 2026
 // candidacy for another office, whose row the four-state pass turned into the
 // seat they hold (office, district, `candidate: false`), moving the candidacy to

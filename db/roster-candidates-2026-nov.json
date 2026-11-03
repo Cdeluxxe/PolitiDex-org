@@ -1,0 +1,1746 @@
+{
+ "_note": "Election-day wave (November 3, 2026): the general-election candidates for U.S. Senate (Ohio's special election included), U.S. House, Governor, Lieutenant Governor, Attorney General and Secretary of State in the six states db/roster-candidates-2026-oct.json skipped for want of a readable official list — Alabama, Arizona, Kansas, New Hampshire, Ohio and Pennsylvania. Each list is read from the Secretary of State's own certification or list, or from county and town election offices' official sample ballots and candidate lists, one or more per congressional district. Every party printed on the ballot is kept as printed; nobody is dropped for not being a major-party nominee, and nobody is labelled Independent unless the source says so. `held` lists every official candidate the roster already had a row for (a sitting member, or an earlier candidate row); `rows` are the new identity rows in cmp-data.js's election-day block. Read by scripts/test-election-day-wave-2026.mjs.",
+ "read": "2026-11-02",
+ "states": {
+  "al": {
+   "state": "Alabama",
+   "checked": true,
+   "outcome": "checked",
+   "sources": [
+    "https://www.sos.alabama.gov/sites/default/files/election-2026/2026GeneralElectionStateCertificationofRepublicanCandidates.pdf",
+    "https://www.sos.alabama.gov/sites/default/files/election-2026/2026GeneralElectionStateCertificationofDemocraticCandidates.pdf",
+    "https://www.sos.alabama.gov/sites/default/files/election-2026/2026GeneralElection-StateCertificationofIndependentCandidate.pdf",
+    "https://www.sos.alabama.gov/sites/default/files/election-2026/Amended_2026_Republican_Certification.pdf",
+    "https://www.sos.alabama.gov/alabama-votes/voter/election-information/2026"
+   ],
+   "note": "Built from the Alabama Secretary of State's general-election certifications dated August 26, 2026 (scanned, read visually). Republican: SOS cover + ALGOP letter of June 24, 2026 (Senate, CD 3-5, statewide) + ALGOP letter of Aug 20, 2026 certifying Aug 11, 2026 special-primary winners for CD 1, 2, 6, 7. Democratic: SOS cover + ADP 'Amended Certification' received Aug 24, 2026 (supersedes July 1 list; includes Aug 11 special-primary results and withdrawals). Names use the amended Aug 24 ballot names: CD1 'Clyde Jones' (July 1 list had 'Clyde W. Jones, Jr.'), CD7 'Terri Sewell' (July 1 had 'Terri A. Sewell'); CD6 changed from 'Keith Pilkington (subject to August 11 Primary)' to 'Maurice Mercer'. Independent: the only SOS independent certification (Aug 26, 2026) lists legislative candidates only (State Senate 10, 21; State House 7, 35, 65) - no independents for these offices. The plural URL 2026GeneralElectionStateCertificationofIndependentCandidates.pdf returns an SOS 'Page not found' HTML page. No minor/third-party (Libertarian, Green, etc.) certification appears on the SOS 2026 election page, so none are listed. Later ALGOP amendment of Aug 28, 2026 (adds HD 51 only) repeats the same federal/statewide Republican names. Name spellings are as printed in the scans; the scans are clear, and every name in scope was legible. Official sample ballots were not checked for last-minute changes after Aug 28.",
+   "officialCandidates": 24,
+   "alreadyHeld": 8,
+   "added": 16,
+   "read": "2026-11-02"
+  },
+  "az": {
+   "state": "Arizona",
+   "checked": true,
+   "outcome": "checked",
+   "sources": [
+    "https://content.civicplus.com/api/assets/az-pimacounty/d2c310c3-ade7-484e-a6f0-1ddaebec0799",
+    "https://www.mohave.gov/media/sbinfmbq/mohave-general-election-ballot-mass-sample.pdf",
+    "https://app.enhancedvoting.com/results/public/maricopa-county-az/elections/110326GeneralElection",
+    "https://app.enhancedvoting.com/results/public/api/elections/maricopa-county-az/110326GeneralElection/data",
+    "https://app.enhancedvoting.com/results/public/Arizona/110326GeneralElection",
+    "https://app.enhancedvoting.com/results/public/api/elections/Arizona/110326GeneralElection/data"
+   ],
+   "note": "azsos.gov, elections.maricopa.gov, pinal.gov and yavapaivotes.gov all returned 403 (Cloudflare/Akamai). Statewide races plus CD6 and CD7 come from the Pima County Elections 'General Election-November 3, 2026 Candidate List' PDF (updated 9/9/2026). CD2 and CD9 come from Mohave County's official mass sample ballot PDF (152 ballot styles). Mohave's statewide contests match Pima's exactly. CD1, CD3, CD4, CD5 and CD8 lie entirely in Maricopa County, and the county's candidate PDF was blocked. For those districts, names come from Maricopa County's official election-results portal (app.enhancedvoting.com, jurisdiction maricopa-county-az, 2026 General Election, pre-results publish of 2026-11-02 with 0 votes). Those names were cross-checked against the Arizona statewide (SOS) results feed on the same platform. Only ballot options with isWriteIn=false were kept. This feed is the official county results system, not a printed ballot, so CD1/3/4/5/8 nameAsFiled uses the feed's 'First Last' format, not the ballot's 'Last, First'. Excluded as write-ins or withdrawn (isWriteIn=true in the feed): CD1 Dev Gupta, Gage Dylan Thunder; CD3 Jacob Parkman (REP, withdrawn); CD4 Steven Sanders (NOL, withdrawn); CD6 Michael Dorland; CD9 G. Seville Hatch, William Perry; Governor Gertritrude Gonzalez, Alice Novoa. Governor is a joint Governor/Lieutenant Governor ticket, and only the gubernatorial candidate is listed. Running mates: Hobbs/John Giles (PND), Biggs/Sine Kerr (REP), Lombardo/Lisa Castillo (GRN), Hourihan/Angela Harrolle Mohan (PND). No Libertarian appears for Governor, SoS or AG. Party abbreviations are as printed: LBT on Pima/Mohave, 'Libertarian' in the Maricopa feed. Arizona's Governor and Lieutenant Governor run on a joint ticket; only the Governor nominees are recorded, because the roster tracks no Arizona Lieutenant Governor office yet.",
+   "officialCandidates": 33,
+   "alreadyHeld": 14,
+   "added": 19,
+   "read": "2026-11-02"
+  },
+  "ks": {
+   "state": "Kansas",
+   "checked": true,
+   "outcome": "checked",
+   "sources": [
+    "https://sos.ks.gov/elections/elections_upcoming_candidate.aspx"
+   ],
+   "note": "Built from the Kansas Secretary of State official candidate list, '2026 General' election (ddlElections=36). On 2026-11-03 the page loaded with no WAF challenge; the list came back via an ASP.NET form POST. nameAsFiled is the 'Candidate' column exactly as the SOS lists it. That is the SOS filing list, not a printed county ballot, so ballot typography may differ slightly. Governor/Lt. Governor tickets are listed as 'Cindy Holscher / KC Ohaebosim' and 'Ty Masterson / Jeffrey Klemp', split here into separate Governor and Lieutenant Governor entries. The list has only D and R tickets for Governor and only D and R for Attorney General. The page says it is 'updated automatically as each candidate files valid petition forms or declaration of intention forms'. No county sample ballot was used to cross-check: Douglas County's sample-ballot page had no PDF link.",
+   "officialCandidates": 24,
+   "alreadyHeld": 10,
+   "added": 14,
+   "read": "2026-11-02"
+  },
+  "nh": {
+   "state": "New Hampshire",
+   "checked": true,
+   "outcome": "checked",
+   "sources": [
+    "https://www.londonderrynh.gov/DocumentCenter/View/3063",
+    "https://lebanonnh.gov/DocumentCenter/View/24678",
+    "https://www.bristolnh.gov/DocumentCenter/View/3351/Sample-Ballot---2026-General-Election---Bristol"
+   ],
+   "note": "sos.nh.gov was not used. Built from official municipal sample ballots for the 2026-11-03 general election. Londonderry (Rockingham County, CD1) covers Governor, U.S. Senate and CD1. Lebanon Ward 2 (Grafton County, CD2) covers CD2 and confirms the same statewide candidates. Bristol (CD2) is an OCR-poor scan, but its names (Goodlander, Lily Tang Williams, Robbie Mahrou with 'Independent') agree. Party labels come from the ballot column headers (Democratic/Republican Candidates) or from the small label printed above names in the 'Other Candidates' column (Libertarian, Constitution, Independent). The Londonderry CD1 row has no Other-column candidate. Only one CD1 town was checked, so an other-party CD1 candidate appearing elsewhere is very unlikely but was not ruled out by a second town. NH does not elect Lt. Governor, AG or SOS.",
+   "officialCandidates": 11,
+   "alreadyHeld": 4,
+   "added": 7,
+   "read": "2026-11-02"
+  },
+  "oh": {
+   "state": "Ohio",
+   "checked": true,
+   "outcome": "checked",
+   "sources": [
+    "https://www.waynecountyoh.gov/wp-content/uploads/2026/09/Sample-Ballots-ALL-WATERMARK-09192026-1352.pdf",
+    "https://votehamiltoncountyohio.gov/wp-content/uploads/2026/10/November-2026-All-Certified-Candidates-Profile-.pdf",
+    "https://vote.franklincountyohio.gov/getmedia/e0a4ca45-6893-45c1-8190-87696f8804b4/2026-General-Candidate-List-5",
+    "https://boe.woodcountyohio.gov/DocumentCenter/View/1006/Candidate-List",
+    "https://boe.cuyahogacounty.gov/docs/default-source/boe/candidates-page/candidate-list.pdf",
+    "https://www.starkcountyohio.gov/Board%20of%20Elections/Candidates%20List%20General.pdf",
+    "https://vote.mahoningcountyoh.gov/DocumentCenter/View/2640/Filings-for-November-3-2026-General-Election?bidId=",
+    "https://elections.bcohio.gov/2026/November/PetitionActivityReport.pdf",
+    "https://cms8.revize.com/revize/morrowcounty/2026/2026%20General%2046%20day%20notice.pdf",
+    "https://boe.clermontcountyohio.gov/FWAB%2046%20day%20-%20November%203,%202026%20General%20r5.pdf?t=202610151622530",
+    "https://vote.delawarecountyohio.gov/wp-content/uploads/2026/10/46-DAY-NOV-2026-FWAB-PDF1.pdf"
+   ],
+   "note": "ohiosos.gov and boe.ohio.gov (incl. lookup.boe.ohio.gov sample-ballot app and county pages hosted there) return Cloudflare 403, so no SOS document was used. Statewide races (Governor/Lt. Gov, AG, SoS, U.S. Senate special) and CD6/CD7 come from Wayne County BOE's official all-precinct sample ballot PDF (generated 9/19/26); statewide fields cross-checked against Cuyahoga (10/15/26), Franklin (10/16/26), Wood, Butler and Morrow lists - consistent. U.S. House, all 15 districts, from county BOE documents on county-owned domains: CD1 & CD8 Hamilton certified list 10/16/26; CD2 Clermont 46-day FWAB notice (r5); CD3 & CD15 Franklin candidate list rev. 10/16/26; CD4 Morrow 46-day FWAB notice (cross-checked with Delaware 46-day notice rev. 10/2/26); CD5 & CD9 Wood certified list as of 8/26/26 (earliest-dated source, no later Wood revision found); CD10 Butler candidate & petition activity report 10/6/26 (filed w/ Montgomery); CD11 Cuyahoga candidate list 10/15/26; CD12 Delaware 46-day FWAB notice rev. 10/2/26; CD13 Stark candidate list 10/15/26; CD14 Mahoning filings list. Party labels: Delaware ('Rep'/'Dem'), Morrow ('Rep'/'Dem'), Butler ('(D)/(L)/(R)') and Mahoning ('(R)/(D)') abbreviations expanded to Republican/Democratic/Libertarian. Tracey L. Tackett (CD4) is printed with no party label on the Morrow and Delaware notices (not a write-in) - recorded as 'Nonparty'. Sandeep Dixit (CD13) labeled 'Non-Party' on Stark list. Greg Levy (Senate) printed 'Other-party candidate' on the Wayne ballot (Cuyahoga list calls him 'Nonpartisan', Butler '(o)'). Hamilton's official list shows CD1 Libertarian as Nathan Weise (a third-party aggregator said otherwise; official list used). Write-ins excluded (e.g., Gov tickets Grady/Neutzling, Hill/Manley, Turner/Turner; Senate Faris, Holliman, Telymonde; CD7 Asad, Martinichin; CD9 McKinstry; CD15 Samuel Ronan). Ron Ula/Michael C. Lehnerd write-in ticket withdrawn. CAVEAT: Gary Josephson (CD15) appears on the Franklin list with party 'N/A' but WITHOUT the write-in flag; news and a Pickaway BOE list (unreachable, boe.ohio.gov) describe him as a write-in. Not confirmable as a printed candidate, so he is omitted - verify if SOS becomes reachable. Party labels are written as the cited list prints them, with two exceptions recorded here: where a county list abbreviates (Delaware and Morrow 'Rep'/'Dem', Butler '(D)'/'(L)'/'(R)', Mahoning '(R)'/'(D)') the label is the party's full name as the Ohio ballot prints it (Wayne County's sample ballot: 'Republican', 'Democratic', 'Libertarian'); and Tracey L. Tackett (CD4), whom the Morrow and Delaware notices print with no party label and not as a write-in, is recorded 'Non-Party', the label Stark County's list prints for the same filing status (Sandeep Dixit, CD13).",
+   "officialCandidates": 51,
+   "alreadyHeld": 18,
+   "added": 33,
+   "read": "2026-11-02"
+  },
+  "pa": {
+   "state": "Pennsylvania",
+   "checked": true,
+   "outcome": "checked",
+   "sources": [
+    "https://apps.westmorelandcountypa.gov/elections/ElectionBallots/Ballots/ElectionBallots/258.pdf",
+    "https://apps.westmorelandcountypa.gov/elections/ElectionBallots/Ballots/ElectionBallots/274.pdf",
+    "https://assets.montgomerycountypa.gov/files/2026-08/2026%20GE%20Candidate%20List%208-27%20HEADER.pdf",
+    "https://centrecountypa.gov/DocumentCenter/View/44364/2026-General-Sample-Ballots",
+    "https://chesco.org/DocumentCenter/View/85858/2026-General-Election-Chester-County-Sample-Ballots",
+    "https://cms.washingtoncopa.gov/uploads/2026_EV_Specimen_Allenport_0d7f79a09b.pdf",
+    "https://cms8.revize.com/revize/lackawanna/Document_center/Department/Elections/SAMPLE%20-%20PA%20Lackawanna%20261103%20General.pdf",
+    "https://lebanoncountypa.gov/getmedia/15babddc-f671-48c2-af08-023e252c6e51/2026-General-Election-SAMPLE-BALLOTS.pdf",
+    "https://vote.phila.gov/files/SampleBallot/2026_General/2bab4104-a0cd-4a34-a8fa-d8ae205e20ee.pdf",
+    "https://vote.phila.gov/files/SampleBallot/2026_General/30071539-1082-4aca-88fd-c250ddaf76d5.pdf",
+    "https://vote.phila.gov/files/SampleBallot/2026_General/f637c7f7-ea41-408e-8e4d-fcdc49fa0172.pdf",
+    "https://vote.phila.gov/voting/candidates-for-office/",
+    "https://vr.lancastercountypa.gov/sampleballots/",
+    "https://webapp07.montcopa.org/voterservices/sampleballots/Sample%20Ballots/Sample%20Ballots%20GE26/Abington/Abington%201-1%20-%20Official.pdf",
+    "https://www.adamscountypa.gov/getmedia/992a48f1-b0f6-4257-9a66-3abd2edbddcd/Sample-Ballot10-5-2026.pdf",
+    "https://www.beavercountypa.gov/getmedia/e8e60c3d-ad9c-4f7f-8d28-01c08dcff8de/2026-General-Election-Sample-Ballots-for-Website.pdf",
+    "https://www.berkspa.gov/getmedia/a1bb6cdc-372e-4afd-857b-c86290107b06/2026-General-Election-Sample_88-1.pdf",
+    "https://www.blaircountypa.gov/getmedia/18a37ea9-09e6-4fd6-b5c3-068ee3a0c008/PA-Blair-261103-General_03-(Sample).pdf",
+    "https://www.buckscounty.gov/DocumentCenter/View/28389",
+    "https://www.co.clarion.pa.us/Document%20Center/Department/Election/2026/November%203,%202026%20-%20General%20Election%20Sample%20Ballots.pdf",
+    "https://www.dauphincounty.gov/docs/default-source/registration-elections/offices-and-candidates-to-be-elected-for-the-november-3-2026-general-election.pdf",
+    "https://www.dauphincounty.gov/docs/default-source/registration-elections/sample-ballots/1-1-HARRISBURG_1ST_WARD_1ST_PRECINCT--_STD_-_NP_-EN.pdf",
+    "https://www.eriecountycouncilpa.gov/uploads/modules/resources/341677_albion_bor-default.pdf",
+    "https://www.lehighcounty.org/Portals/0/PDF/Voter/Sample_PALehigh261103General.pdf"
+   ],
+   "note": "Built from official county board of elections sample ballots/candidate lists for the Nov 3, 2026 general election (pavoterservices.pa.gov not used; Incapsula-blocked). All 17 U.S. House districts confirmed on at least one official county document: PA-1 Bucks; PA-2/3/5 Philadelphia City Commissioners candidate list + Phila sample ballots (PA-5 also on Montgomery County candidate list); PA-4 Montgomery; PA-6 Chester (also Berks); PA-7 Lehigh; PA-8 Lackawanna; PA-9 Lebanon; PA-10 Dauphin; PA-11 Lancaster (sample ballot viewer, Lancaster SD precinct 0502; PDF is served via ASP.NET postback so the viewer URL is cited); PA-12 Westmoreland (precinct ballot 274, 83 PA-12 precincts checked); PA-13 Blair (also Adams); PA-14 Washington (also Westmoreland, 224 precincts); PA-15 Centre (also Clarion); PA-16 Erie (Albion Borough); PA-17 Beaver (also Allegheny County election notice). Multi-precinct files were checked for consistency (e.g. Chester 231 ballots, Lehigh 158, Lackawanna 163, Beaver 129, Blair 93, Centre 88, Lebanon 60): no variations. Governor/Lt. Gov: only three tickets appear on every county ballot checked (Democratic, Republican, Libertarian); no Green, Constitution, Forward or independent gubernatorial ticket appeared on any official ballot. Only non-major-party House candidate: Dennis Mahoney, 'THE INDEPENDENT PARTY', PA-3 (no Republican on the PA-3 ballot). Every other district has exactly one Democrat and one Republican. nameAsFiled keeps the capitalization printed on the cited source (some counties print names in all caps). Allegheny County's web notice spells it 'Krawchuck'; every sample ballot prints 'Krawchuk', which is the spelling used here. Write-ins excluded. Lehigh County's server sends an incomplete TLS certificate chain, so it had to be downloaded with curl -k. Names keep the capitalisation of the cited source (several county ballots print all caps); `name` is the display form.",
+   "officialCandidates": 40,
+   "alreadyHeld": 19,
+   "added": 21,
+   "read": "2026-11-02"
+  }
+ },
+ "rows": [
+  {
+   "pid": "jerry_carl",
+   "state": "al",
+   "nameAsFiled": "Jerry Carl",
+   "name": "Jerry Carl",
+   "office": "U.S. House Candidate (AL-1)",
+   "district": "1",
+   "partyAsFiled": "Republican",
+   "source": "https://www.sos.alabama.gov/sites/default/files/election-2026/2026GeneralElectionStateCertificationofRepublicanCandidates.pdf"
+  },
+  {
+   "pid": "rhett_marques",
+   "state": "al",
+   "nameAsFiled": "Rhett Marques",
+   "name": "Rhett Marques",
+   "office": "U.S. House Candidate (AL-2)",
+   "district": "2",
+   "partyAsFiled": "Republican",
+   "source": "https://www.sos.alabama.gov/sites/default/files/election-2026/2026GeneralElectionStateCertificationofRepublicanCandidates.pdf"
+  },
+  {
+   "pid": "ammie_akin",
+   "state": "al",
+   "nameAsFiled": "Ammie Akin",
+   "name": "Ammie Akin",
+   "office": "U.S. House Candidate (AL-7)",
+   "district": "7",
+   "partyAsFiled": "Republican",
+   "source": "https://www.sos.alabama.gov/sites/default/files/election-2026/2026GeneralElectionStateCertificationofRepublicanCandidates.pdf"
+  },
+  {
+   "pid": "john_wahl",
+   "state": "al",
+   "nameAsFiled": "John Wahl",
+   "name": "John Wahl",
+   "office": "Lieutenant Governor Candidate",
+   "district": null,
+   "partyAsFiled": "Republican",
+   "source": "https://www.sos.alabama.gov/sites/default/files/election-2026/2026GeneralElectionStateCertificationofRepublicanCandidates.pdf"
+  },
+  {
+   "pid": "katherine_robertson",
+   "state": "al",
+   "nameAsFiled": "Katherine Robertson",
+   "name": "Katherine Robertson",
+   "office": "Attorney General Candidate",
+   "district": null,
+   "partyAsFiled": "Republican",
+   "source": "https://www.sos.alabama.gov/sites/default/files/election-2026/2026GeneralElectionStateCertificationofRepublicanCandidates.pdf"
+  },
+  {
+   "pid": "caroleene_dobson",
+   "state": "al",
+   "nameAsFiled": "Caroleene Dobson",
+   "name": "Caroleene Dobson",
+   "office": "Secretary of State Candidate",
+   "district": null,
+   "partyAsFiled": "Republican",
+   "source": "https://www.sos.alabama.gov/sites/default/files/election-2026/2026GeneralElectionStateCertificationofRepublicanCandidates.pdf"
+  },
+  {
+   "pid": "everett_wess",
+   "state": "al",
+   "nameAsFiled": "Everett Wess",
+   "name": "Everett Wess",
+   "office": "U.S. Senate Candidate",
+   "district": null,
+   "partyAsFiled": "Democratic",
+   "source": "https://www.sos.alabama.gov/sites/default/files/election-2026/2026GeneralElectionStateCertificationofDemocraticCandidates.pdf"
+  },
+  {
+   "pid": "clyde_jones",
+   "state": "al",
+   "nameAsFiled": "Clyde Jones",
+   "name": "Clyde Jones",
+   "office": "U.S. House Candidate (AL-1)",
+   "district": "1",
+   "partyAsFiled": "Democratic",
+   "source": "https://www.sos.alabama.gov/sites/default/files/election-2026/2026GeneralElectionStateCertificationofDemocraticCandidates.pdf"
+  },
+  {
+   "pid": "lee_mcinnis",
+   "state": "al",
+   "nameAsFiled": "Lee McInnis",
+   "name": "Lee McInnis",
+   "office": "U.S. House Candidate (AL-3)",
+   "district": "3",
+   "partyAsFiled": "Democratic",
+   "source": "https://www.sos.alabama.gov/sites/default/files/election-2026/2026GeneralElectionStateCertificationofDemocraticCandidates.pdf"
+  },
+  {
+   "pid": "amanda_pusczek",
+   "state": "al",
+   "nameAsFiled": "Amanda N. Pusczek",
+   "name": "Amanda N. Pusczek",
+   "office": "U.S. House Candidate (AL-4)",
+   "district": "4",
+   "partyAsFiled": "Democratic",
+   "source": "https://www.sos.alabama.gov/sites/default/files/election-2026/2026GeneralElectionStateCertificationofDemocraticCandidates.pdf"
+  },
+  {
+   "pid": "andrew_sneed",
+   "state": "al",
+   "nameAsFiled": "Andrew Sneed",
+   "name": "Andrew Sneed",
+   "office": "U.S. House Candidate (AL-5)",
+   "district": "5",
+   "partyAsFiled": "Democratic",
+   "source": "https://www.sos.alabama.gov/sites/default/files/election-2026/2026GeneralElectionStateCertificationofDemocraticCandidates.pdf"
+  },
+  {
+   "pid": "maurice_mercer",
+   "state": "al",
+   "nameAsFiled": "Maurice Mercer",
+   "name": "Maurice Mercer",
+   "office": "U.S. House Candidate (AL-6)",
+   "district": "6",
+   "partyAsFiled": "Democratic",
+   "source": "https://www.sos.alabama.gov/sites/default/files/election-2026/2026GeneralElectionStateCertificationofDemocraticCandidates.pdf"
+  },
+  {
+   "pid": "doug_jones_al",
+   "state": "al",
+   "nameAsFiled": "Doug Jones",
+   "name": "Doug Jones",
+   "office": "Governor Candidate",
+   "district": null,
+   "partyAsFiled": "Democratic",
+   "source": "https://www.sos.alabama.gov/sites/default/files/election-2026/2026GeneralElectionStateCertificationofDemocraticCandidates.pdf"
+  },
+  {
+   "pid": "phillip_ensler",
+   "state": "al",
+   "nameAsFiled": "Phillip Ensler",
+   "name": "Phillip Ensler",
+   "office": "Lieutenant Governor Candidate",
+   "district": null,
+   "partyAsFiled": "Democratic",
+   "source": "https://www.sos.alabama.gov/sites/default/files/election-2026/2026GeneralElectionStateCertificationofDemocraticCandidates.pdf"
+  },
+  {
+   "pid": "jeff_mclaughlin",
+   "state": "al",
+   "nameAsFiled": "Jeff McLaughlin",
+   "name": "Jeff McLaughlin",
+   "office": "Attorney General Candidate",
+   "district": null,
+   "partyAsFiled": "Democratic",
+   "source": "https://www.sos.alabama.gov/sites/default/files/election-2026/2026GeneralElectionStateCertificationofDemocraticCandidates.pdf"
+  },
+  {
+   "pid": "wayne_rogers",
+   "state": "al",
+   "nameAsFiled": "Wayne Rogers",
+   "name": "Wayne Rogers",
+   "office": "Secretary of State Candidate",
+   "district": null,
+   "partyAsFiled": "Democratic",
+   "source": "https://www.sos.alabama.gov/sites/default/files/election-2026/2026GeneralElectionStateCertificationofDemocraticCandidates.pdf"
+  },
+  {
+   "pid": "jay_feely",
+   "state": "az",
+   "nameAsFiled": "Thomas \"Jay\" Feely IV",
+   "name": "Jay Feely",
+   "office": "U.S. House Candidate (AZ-1)",
+   "district": "1",
+   "partyAsFiled": "REP",
+   "source": "https://app.enhancedvoting.com/results/public/maricopa-county-az/elections/110326GeneralElection"
+  },
+  {
+   "pid": "amish_shah",
+   "state": "az",
+   "nameAsFiled": "Amish Shah",
+   "name": "Amish Shah",
+   "office": "U.S. House Candidate (AZ-1)",
+   "district": "1",
+   "partyAsFiled": "DEM",
+   "source": "https://app.enhancedvoting.com/results/public/maricopa-county-az/elections/110326GeneralElection"
+  },
+  {
+   "pid": "jonathan_nez",
+   "state": "az",
+   "nameAsFiled": "Nez, Jonathan",
+   "name": "Jonathan Nez",
+   "office": "U.S. House Candidate (AZ-2)",
+   "district": "2",
+   "partyAsFiled": "DEM",
+   "source": "https://www.mohave.gov/media/sbinfmbq/mohave-general-election-ballot-mass-sample.pdf"
+  },
+  {
+   "pid": "curtis_goodwin",
+   "state": "az",
+   "nameAsFiled": "Goodwin, Curtis",
+   "name": "Curtis Goodwin",
+   "office": "U.S. House Candidate (AZ-2)",
+   "district": "2",
+   "partyAsFiled": "LBT",
+   "source": "https://www.mohave.gov/media/sbinfmbq/mohave-general-election-ballot-mass-sample.pdf"
+  },
+  {
+   "pid": "david_redkey",
+   "state": "az",
+   "nameAsFiled": "David Redkey",
+   "name": "David Redkey",
+   "office": "U.S. House Candidate (AZ-3)",
+   "district": "3",
+   "partyAsFiled": "GRN",
+   "source": "https://app.enhancedvoting.com/results/public/maricopa-county-az/elections/110326GeneralElection"
+  },
+  {
+   "pid": "alan_aversa",
+   "state": "az",
+   "nameAsFiled": "Alan Aversa",
+   "name": "Alan Aversa",
+   "office": "U.S. House Candidate (AZ-3)",
+   "district": "3",
+   "partyAsFiled": "NOL",
+   "source": "https://app.enhancedvoting.com/results/public/maricopa-county-az/elections/110326GeneralElection"
+  },
+  {
+   "pid": "zuhdi_jasser",
+   "state": "az",
+   "nameAsFiled": "Zuhdi Jasser",
+   "name": "Zuhdi Jasser",
+   "office": "U.S. House Candidate (AZ-4)",
+   "district": "4",
+   "partyAsFiled": "REP",
+   "source": "https://app.enhancedvoting.com/results/public/maricopa-county-az/elections/110326GeneralElection"
+  },
+  {
+   "pid": "tisha_benoit",
+   "state": "az",
+   "nameAsFiled": "Tisha Benoit",
+   "name": "Tisha Benoit",
+   "office": "U.S. House Candidate (AZ-4)",
+   "district": "4",
+   "partyAsFiled": "NOL",
+   "source": "https://app.enhancedvoting.com/results/public/maricopa-county-az/elections/110326GeneralElection"
+  },
+  {
+   "pid": "mark_lamb",
+   "state": "az",
+   "nameAsFiled": "Mark Lamb",
+   "name": "Mark Lamb",
+   "office": "U.S. House Candidate (AZ-5)",
+   "district": "5",
+   "partyAsFiled": "REP",
+   "source": "https://app.enhancedvoting.com/results/public/maricopa-county-az/elections/110326GeneralElection"
+  },
+  {
+   "pid": "elizabeth_lee",
+   "state": "az",
+   "nameAsFiled": "Elizabeth Lee",
+   "name": "Elizabeth Lee",
+   "office": "U.S. House Candidate (AZ-5)",
+   "district": "5",
+   "partyAsFiled": "DEM",
+   "source": "https://app.enhancedvoting.com/results/public/maricopa-county-az/elections/110326GeneralElection"
+  },
+  {
+   "pid": "joanna_mendoza",
+   "state": "az",
+   "nameAsFiled": "MENDOZA, JOANNA",
+   "name": "JoAnna Mendoza",
+   "office": "U.S. House Candidate (AZ-6)",
+   "district": "6",
+   "partyAsFiled": "DEM",
+   "source": "https://content.civicplus.com/api/assets/az-pimacounty/d2c310c3-ade7-484e-a6f0-1ddaebec0799"
+  },
+  {
+   "pid": "jereme_peters",
+   "state": "az",
+   "nameAsFiled": "PETERS, JEREME LANCE",
+   "name": "Jereme Lance Peters",
+   "office": "U.S. House Candidate (AZ-6)",
+   "district": "6",
+   "partyAsFiled": "LBT",
+   "source": "https://content.civicplus.com/api/assets/az-pimacounty/d2c310c3-ade7-484e-a6f0-1ddaebec0799"
+  },
+  {
+   "pid": "daniel_butierez",
+   "state": "az",
+   "nameAsFiled": "BUTIEREZ SR., DANIEL FRANCIS",
+   "name": "Daniel Francis Butierez Sr.",
+   "office": "U.S. House Candidate (AZ-7)",
+   "district": "7",
+   "partyAsFiled": "REP",
+   "source": "https://content.civicplus.com/api/assets/az-pimacounty/d2c310c3-ade7-484e-a6f0-1ddaebec0799"
+  },
+  {
+   "pid": "bernadette_greene_placentia",
+   "state": "az",
+   "nameAsFiled": "Bernadette Greene-Placentia",
+   "name": "Bernadette Greene-Placentia",
+   "office": "U.S. House Candidate (AZ-8)",
+   "district": "8",
+   "partyAsFiled": "DEM",
+   "source": "https://app.enhancedvoting.com/results/public/maricopa-county-az/elections/110326GeneralElection"
+  },
+  {
+   "pid": "dani_sterbinsky",
+   "state": "az",
+   "nameAsFiled": "Sterbinsky, Danielle \"Dani\"",
+   "name": "Dani Sterbinsky",
+   "office": "U.S. House Candidate (AZ-9)",
+   "district": "9",
+   "partyAsFiled": "DEM",
+   "source": "https://www.mohave.gov/media/sbinfmbq/mohave-general-election-ballot-mass-sample.pdf"
+  },
+  {
+   "pid": "risa_lombardo",
+   "state": "az",
+   "nameAsFiled": "LOMBARDO, RISA",
+   "name": "Risa Lombardo",
+   "office": "Governor Candidate",
+   "district": null,
+   "partyAsFiled": "GRN",
+   "source": "https://content.civicplus.com/api/assets/az-pimacounty/d2c310c3-ade7-484e-a6f0-1ddaebec0799"
+  },
+  {
+   "pid": "teri_hourihan",
+   "state": "az",
+   "nameAsFiled": "HOURIHAN, TERI ANN",
+   "name": "Teri Ann Hourihan",
+   "office": "Governor Candidate",
+   "district": null,
+   "partyAsFiled": "NOL",
+   "source": "https://content.civicplus.com/api/assets/az-pimacounty/d2c310c3-ade7-484e-a6f0-1ddaebec0799"
+  },
+  {
+   "pid": "alexander_kolodin",
+   "state": "az",
+   "nameAsFiled": "KOLODIN, ALEXANDER",
+   "name": "Alexander Kolodin",
+   "office": "Secretary of State Candidate",
+   "district": null,
+   "partyAsFiled": "REP",
+   "source": "https://content.civicplus.com/api/assets/az-pimacounty/d2c310c3-ade7-484e-a6f0-1ddaebec0799"
+  },
+  {
+   "pid": "duwayne_collier",
+   "state": "az",
+   "nameAsFiled": "COLLIER, DUWAYNE",
+   "name": "Duwayne Collier",
+   "office": "Secretary of State Candidate",
+   "district": null,
+   "partyAsFiled": "GRN",
+   "source": "https://content.civicplus.com/api/assets/az-pimacounty/d2c310c3-ade7-484e-a6f0-1ddaebec0799"
+  },
+  {
+   "pid": "adam_hamilton",
+   "state": "ks",
+   "nameAsFiled": "Adam Hamilton",
+   "name": "Adam Hamilton",
+   "office": "U.S. Senate Candidate",
+   "district": null,
+   "partyAsFiled": "Democratic",
+   "source": "https://sos.ks.gov/elections/elections_upcoming_candidate.aspx"
+  },
+  {
+   "pid": "lauren_reinhold",
+   "state": "ks",
+   "nameAsFiled": "Lauren Reinhold",
+   "name": "Lauren Reinhold",
+   "office": "U.S. House Candidate (KS-1)",
+   "district": "1",
+   "partyAsFiled": "Democratic",
+   "source": "https://sos.ks.gov/elections/elections_upcoming_candidate.aspx"
+  },
+  {
+   "pid": "steven_jacob",
+   "state": "ks",
+   "nameAsFiled": "Steven Jacob",
+   "name": "Steven Jacob",
+   "office": "U.S. House Candidate (KS-1)",
+   "district": "1",
+   "partyAsFiled": "Libertarian",
+   "source": "https://sos.ks.gov/elections/elections_upcoming_candidate.aspx"
+  },
+  {
+   "pid": "don_coover",
+   "state": "ks",
+   "nameAsFiled": "Don Coover",
+   "name": "Don Coover",
+   "office": "U.S. House Candidate (KS-2)",
+   "district": "2",
+   "partyAsFiled": "Democratic",
+   "source": "https://sos.ks.gov/elections/elections_upcoming_candidate.aspx"
+  },
+  {
+   "pid": "eric_jenkins",
+   "state": "ks",
+   "nameAsFiled": "Eric Jenkins",
+   "name": "Eric Jenkins",
+   "office": "U.S. House Candidate (KS-3)",
+   "district": "3",
+   "partyAsFiled": "Republican",
+   "source": "https://sos.ks.gov/elections/elections_upcoming_candidate.aspx"
+  },
+  {
+   "pid": "katy_tyndell",
+   "state": "ks",
+   "nameAsFiled": "Katy Tyndell",
+   "name": "Katy Tyndell",
+   "office": "U.S. House Candidate (KS-4)",
+   "district": "4",
+   "partyAsFiled": "Democratic",
+   "source": "https://sos.ks.gov/elections/elections_upcoming_candidate.aspx"
+  },
+  {
+   "pid": "drew_cranmer",
+   "state": "ks",
+   "nameAsFiled": "Drew Cranmer",
+   "name": "Drew Cranmer",
+   "office": "U.S. House Candidate (KS-4)",
+   "district": "4",
+   "partyAsFiled": "Libertarian",
+   "source": "https://sos.ks.gov/elections/elections_upcoming_candidate.aspx"
+  },
+  {
+   "pid": "cindy_holscher",
+   "state": "ks",
+   "nameAsFiled": "Cindy Holscher",
+   "name": "Cindy Holscher",
+   "office": "Governor Candidate",
+   "district": null,
+   "partyAsFiled": "Democratic",
+   "source": "https://sos.ks.gov/elections/elections_upcoming_candidate.aspx"
+  },
+  {
+   "pid": "kc_ohaebosim",
+   "state": "ks",
+   "nameAsFiled": "KC Ohaebosim",
+   "name": "KC Ohaebosim",
+   "office": "Lieutenant Governor Candidate",
+   "district": null,
+   "partyAsFiled": "Democratic",
+   "source": "https://sos.ks.gov/elections/elections_upcoming_candidate.aspx"
+  },
+  {
+   "pid": "jeffrey_klemp",
+   "state": "ks",
+   "nameAsFiled": "Jeffrey Klemp",
+   "name": "Jeffrey Klemp",
+   "office": "Lieutenant Governor Candidate",
+   "district": null,
+   "partyAsFiled": "Republican",
+   "source": "https://sos.ks.gov/elections/elections_upcoming_candidate.aspx"
+  },
+  {
+   "pid": "chris_mann",
+   "state": "ks",
+   "nameAsFiled": "Chris Mann",
+   "name": "Chris Mann",
+   "office": "Attorney General Candidate",
+   "district": null,
+   "partyAsFiled": "Democratic",
+   "source": "https://sos.ks.gov/elections/elections_upcoming_candidate.aspx"
+  },
+  {
+   "pid": "jennifer_day",
+   "state": "ks",
+   "nameAsFiled": "Jennifer Day",
+   "name": "Jennifer Day",
+   "office": "Secretary of State Candidate",
+   "district": null,
+   "partyAsFiled": "Democratic",
+   "source": "https://sos.ks.gov/elections/elections_upcoming_candidate.aspx"
+  },
+  {
+   "pid": "pat_proctor",
+   "state": "ks",
+   "nameAsFiled": "Pat Proctor",
+   "name": "Pat Proctor",
+   "office": "Secretary of State Candidate",
+   "district": null,
+   "partyAsFiled": "Republican",
+   "source": "https://sos.ks.gov/elections/elections_upcoming_candidate.aspx"
+  },
+  {
+   "pid": "scott_morgan",
+   "state": "ks",
+   "nameAsFiled": "Scott E. Morgan",
+   "name": "Scott E. Morgan",
+   "office": "Secretary of State Candidate",
+   "district": null,
+   "partyAsFiled": "United Kansas",
+   "source": "https://sos.ks.gov/elections/elections_upcoming_candidate.aspx"
+  },
+  {
+   "pid": "cinde_warmington",
+   "state": "nh",
+   "nameAsFiled": "Cinde Warmington",
+   "name": "Cinde Warmington",
+   "office": "Governor Candidate",
+   "district": null,
+   "partyAsFiled": "Democratic",
+   "source": "https://www.londonderrynh.gov/DocumentCenter/View/3063"
+  },
+  {
+   "pid": "stephen_villee",
+   "state": "nh",
+   "nameAsFiled": "Stephen Villee",
+   "name": "Stephen Villee",
+   "office": "Governor Candidate",
+   "district": null,
+   "partyAsFiled": "Libertarian",
+   "source": "https://www.londonderrynh.gov/DocumentCenter/View/3063"
+  },
+  {
+   "pid": "john_sununu",
+   "state": "nh",
+   "nameAsFiled": "John E. Sununu",
+   "name": "John E. Sununu",
+   "office": "U.S. Senate Candidate",
+   "district": null,
+   "partyAsFiled": "Republican",
+   "source": "https://www.londonderrynh.gov/DocumentCenter/View/3063"
+  },
+  {
+   "pid": "stefany_shaheen",
+   "state": "nh",
+   "nameAsFiled": "Stefany Shaheen",
+   "name": "Stefany Shaheen",
+   "office": "U.S. House Candidate (NH-1)",
+   "district": "1",
+   "partyAsFiled": "Democratic",
+   "source": "https://www.londonderrynh.gov/DocumentCenter/View/3063"
+  },
+  {
+   "pid": "anthony_dilorenzo",
+   "state": "nh",
+   "nameAsFiled": "Anthony DiLorenzo",
+   "name": "Anthony DiLorenzo",
+   "office": "U.S. House Candidate (NH-1)",
+   "district": "1",
+   "partyAsFiled": "Republican",
+   "source": "https://www.londonderrynh.gov/DocumentCenter/View/3063"
+  },
+  {
+   "pid": "lily_williams",
+   "state": "nh",
+   "nameAsFiled": "Lily Tang Williams",
+   "name": "Lily Tang Williams",
+   "office": "U.S. House Candidate (NH-2)",
+   "district": "2",
+   "partyAsFiled": "Republican",
+   "source": "https://lebanonnh.gov/DocumentCenter/View/24678"
+  },
+  {
+   "pid": "robbie_mahrou",
+   "state": "nh",
+   "nameAsFiled": "Robbie Mahrou",
+   "name": "Robbie Mahrou",
+   "office": "U.S. House Candidate (NH-2)",
+   "district": "2",
+   "partyAsFiled": "Independent",
+   "source": "https://lebanonnh.gov/DocumentCenter/View/24678"
+  },
+  {
+   "pid": "amy_acton",
+   "state": "oh",
+   "nameAsFiled": "Amy Acton",
+   "name": "Amy Acton",
+   "office": "Governor Candidate",
+   "district": null,
+   "partyAsFiled": "Democratic",
+   "source": "https://www.waynecountyoh.gov/wp-content/uploads/2026/09/Sample-Ballots-ALL-WATERMARK-09192026-1352.pdf"
+  },
+  {
+   "pid": "david_pepper",
+   "state": "oh",
+   "nameAsFiled": "David Pepper",
+   "name": "David Pepper",
+   "office": "Lieutenant Governor Candidate",
+   "district": null,
+   "partyAsFiled": "Democratic",
+   "source": "https://www.waynecountyoh.gov/wp-content/uploads/2026/09/Sample-Ballots-ALL-WATERMARK-09192026-1352.pdf"
+  },
+  {
+   "pid": "don_kissick",
+   "state": "oh",
+   "nameAsFiled": "Don Kissick",
+   "name": "Don Kissick",
+   "office": "Governor Candidate",
+   "district": null,
+   "partyAsFiled": "Libertarian",
+   "source": "https://www.waynecountyoh.gov/wp-content/uploads/2026/09/Sample-Ballots-ALL-WATERMARK-09192026-1352.pdf"
+  },
+  {
+   "pid": "james_mills",
+   "state": "oh",
+   "nameAsFiled": "James L. Mills",
+   "name": "James L. Mills",
+   "office": "Lieutenant Governor Candidate",
+   "district": null,
+   "partyAsFiled": "Libertarian",
+   "source": "https://www.waynecountyoh.gov/wp-content/uploads/2026/09/Sample-Ballots-ALL-WATERMARK-09192026-1352.pdf"
+  },
+  {
+   "pid": "vivek_ramaswamy",
+   "state": "oh",
+   "nameAsFiled": "Vivek Ramaswamy",
+   "name": "Vivek Ramaswamy",
+   "office": "Governor Candidate",
+   "district": null,
+   "partyAsFiled": "Republican",
+   "source": "https://www.waynecountyoh.gov/wp-content/uploads/2026/09/Sample-Ballots-ALL-WATERMARK-09192026-1352.pdf"
+  },
+  {
+   "pid": "john_kulewicz",
+   "state": "oh",
+   "nameAsFiled": "John J. Kulewicz",
+   "name": "John J. Kulewicz",
+   "office": "Attorney General Candidate",
+   "district": null,
+   "partyAsFiled": "Democratic",
+   "source": "https://www.waynecountyoh.gov/wp-content/uploads/2026/09/Sample-Ballots-ALL-WATERMARK-09192026-1352.pdf"
+  },
+  {
+   "pid": "keith_faber",
+   "state": "oh",
+   "nameAsFiled": "Keith Faber",
+   "name": "Keith Faber",
+   "office": "Attorney General Candidate",
+   "district": null,
+   "partyAsFiled": "Republican",
+   "source": "https://www.waynecountyoh.gov/wp-content/uploads/2026/09/Sample-Ballots-ALL-WATERMARK-09192026-1352.pdf"
+  },
+  {
+   "pid": "tom_pruss",
+   "state": "oh",
+   "nameAsFiled": "Tom Pruss",
+   "name": "Tom Pruss",
+   "office": "Secretary of State Candidate",
+   "district": null,
+   "partyAsFiled": "Libertarian",
+   "source": "https://www.waynecountyoh.gov/wp-content/uploads/2026/09/Sample-Ballots-ALL-WATERMARK-09192026-1352.pdf"
+  },
+  {
+   "pid": "robert_sprague",
+   "state": "oh",
+   "nameAsFiled": "Robert Sprague",
+   "name": "Robert Sprague",
+   "office": "Secretary of State Candidate",
+   "district": null,
+   "partyAsFiled": "Republican",
+   "source": "https://www.waynecountyoh.gov/wp-content/uploads/2026/09/Sample-Ballots-ALL-WATERMARK-09192026-1352.pdf"
+  },
+  {
+   "pid": "sherrod_brown",
+   "state": "oh",
+   "nameAsFiled": "Sherrod Brown",
+   "name": "Sherrod Brown",
+   "office": "U.S. Senate Candidate",
+   "district": null,
+   "partyAsFiled": "Democratic",
+   "source": "https://www.waynecountyoh.gov/wp-content/uploads/2026/09/Sample-Ballots-ALL-WATERMARK-09192026-1352.pdf"
+  },
+  {
+   "pid": "greg_levy",
+   "state": "oh",
+   "nameAsFiled": "Greg Levy",
+   "name": "Greg Levy",
+   "office": "U.S. Senate Candidate",
+   "district": null,
+   "partyAsFiled": "Other-party candidate",
+   "source": "https://www.waynecountyoh.gov/wp-content/uploads/2026/09/Sample-Ballots-ALL-WATERMARK-09192026-1352.pdf"
+  },
+  {
+   "pid": "william_redpath",
+   "state": "oh",
+   "nameAsFiled": "William B. Redpath",
+   "name": "William B. Redpath",
+   "office": "U.S. Senate Candidate",
+   "district": null,
+   "partyAsFiled": "Libertarian",
+   "source": "https://www.waynecountyoh.gov/wp-content/uploads/2026/09/Sample-Ballots-ALL-WATERMARK-09192026-1352.pdf"
+  },
+  {
+   "pid": "eric_conroy",
+   "state": "oh",
+   "nameAsFiled": "Eric Conroy",
+   "name": "Eric Conroy",
+   "office": "U.S. House Candidate (OH-1)",
+   "district": "1",
+   "partyAsFiled": "Republican",
+   "source": "https://votehamiltoncountyohio.gov/wp-content/uploads/2026/10/November-2026-All-Certified-Candidates-Profile-.pdf"
+  },
+  {
+   "pid": "nathan_weise",
+   "state": "oh",
+   "nameAsFiled": "Nathan Weise",
+   "name": "Nathan Weise",
+   "office": "U.S. House Candidate (OH-1)",
+   "district": "1",
+   "partyAsFiled": "Libertarian",
+   "source": "https://votehamiltoncountyohio.gov/wp-content/uploads/2026/10/November-2026-All-Certified-Candidates-Profile-.pdf"
+  },
+  {
+   "pid": "vanessa_enoch",
+   "state": "oh",
+   "nameAsFiled": "Vanessa Enoch",
+   "name": "Vanessa Enoch",
+   "office": "U.S. House Candidate (OH-8)",
+   "district": "8",
+   "partyAsFiled": "Democratic",
+   "source": "https://votehamiltoncountyohio.gov/wp-content/uploads/2026/10/November-2026-All-Certified-Candidates-Profile-.pdf"
+  },
+  {
+   "pid": "jen_mazzuckelli",
+   "state": "oh",
+   "nameAsFiled": "Jen Mazzuckelli",
+   "name": "Jen Mazzuckelli",
+   "office": "U.S. House Candidate (OH-2)",
+   "district": "2",
+   "partyAsFiled": "Democratic",
+   "source": "https://boe.clermontcountyohio.gov/FWAB%2046%20day%20-%20November%203,%202026%20General%20r5.pdf?t=202610151622530"
+  },
+  {
+   "pid": "cleophus_dulaney",
+   "state": "oh",
+   "nameAsFiled": "Cleophus Dulaney",
+   "name": "Cleophus Dulaney",
+   "office": "U.S. House Candidate (OH-3)",
+   "district": "3",
+   "partyAsFiled": "Republican",
+   "source": "https://vote.franklincountyohio.gov/getmedia/e0a4ca45-6893-45c1-8190-87696f8804b4/2026-General-Candidate-List-5"
+  },
+  {
+   "pid": "brennan_barrington",
+   "state": "oh",
+   "nameAsFiled": "Brennan Barrington",
+   "name": "Brennan Barrington",
+   "office": "U.S. House Candidate (OH-15)",
+   "district": "15",
+   "partyAsFiled": "Libertarian",
+   "source": "https://vote.franklincountyohio.gov/getmedia/e0a4ca45-6893-45c1-8190-87696f8804b4/2026-General-Candidate-List-5"
+  },
+  {
+   "pid": "don_leonard",
+   "state": "oh",
+   "nameAsFiled": "Don Leonard",
+   "name": "Don Leonard",
+   "office": "U.S. House Candidate (OH-15)",
+   "district": "15",
+   "partyAsFiled": "Democratic",
+   "source": "https://vote.franklincountyohio.gov/getmedia/e0a4ca45-6893-45c1-8190-87696f8804b4/2026-General-Candidate-List-5"
+  },
+  {
+   "pid": "joshua_kolasinski",
+   "state": "oh",
+   "nameAsFiled": "Joshua D. Kolasinski",
+   "name": "Joshua D. Kolasinski",
+   "office": "U.S. House Candidate (OH-4)",
+   "district": "4",
+   "partyAsFiled": "Democratic",
+   "source": "https://cms8.revize.com/revize/morrowcounty/2026/2026%20General%2046%20day%20notice.pdf"
+  },
+  {
+   "pid": "tracey_tackett",
+   "state": "oh",
+   "nameAsFiled": "Tracey L. Tackett",
+   "name": "Tracey L. Tackett",
+   "office": "U.S. House Candidate (OH-4)",
+   "district": "4",
+   "partyAsFiled": "Non-Party",
+   "source": "https://cms8.revize.com/revize/morrowcounty/2026/2026%20General%2046%20day%20notice.pdf"
+  },
+  {
+   "pid": "brian_shaver",
+   "state": "oh",
+   "nameAsFiled": "Brian A. Shaver",
+   "name": "Brian A. Shaver",
+   "office": "U.S. House Candidate (OH-5)",
+   "district": "5",
+   "partyAsFiled": "Democratic",
+   "source": "https://boe.woodcountyohio.gov/DocumentCenter/View/1006/Candidate-List"
+  },
+  {
+   "pid": "michael_veloff",
+   "state": "oh",
+   "nameAsFiled": "Michael J. Veloff",
+   "name": "Michael J. Veloff",
+   "office": "U.S. House Candidate (OH-5)",
+   "district": "5",
+   "partyAsFiled": "Libertarian",
+   "source": "https://boe.woodcountyohio.gov/DocumentCenter/View/1006/Candidate-List"
+  },
+  {
+   "pid": "derek_merrin",
+   "state": "oh",
+   "nameAsFiled": "Derek Merrin",
+   "name": "Derek Merrin",
+   "office": "U.S. House Candidate (OH-9)",
+   "district": "9",
+   "partyAsFiled": "Republican",
+   "source": "https://boe.woodcountyohio.gov/DocumentCenter/View/1006/Candidate-List"
+  },
+  {
+   "pid": "elizabeth_kirtley",
+   "state": "oh",
+   "nameAsFiled": "Elizabeth Kirtley",
+   "name": "Elizabeth Kirtley",
+   "office": "U.S. House Candidate (OH-6)",
+   "district": "6",
+   "partyAsFiled": "Democratic",
+   "source": "https://www.waynecountyoh.gov/wp-content/uploads/2026/09/Sample-Ballots-ALL-WATERMARK-09192026-1352.pdf"
+  },
+  {
+   "pid": "brian_poindexter",
+   "state": "oh",
+   "nameAsFiled": "Brian Poindexter",
+   "name": "Brian Poindexter",
+   "office": "U.S. House Candidate (OH-7)",
+   "district": "7",
+   "partyAsFiled": "Democratic",
+   "source": "https://www.waynecountyoh.gov/wp-content/uploads/2026/09/Sample-Ballots-ALL-WATERMARK-09192026-1352.pdf"
+  },
+  {
+   "pid": "kristina_knickerbocker",
+   "state": "oh",
+   "nameAsFiled": "Kristina Knickerbocker",
+   "name": "Kristina Knickerbocker",
+   "office": "U.S. House Candidate (OH-10)",
+   "district": "10",
+   "partyAsFiled": "Democratic",
+   "source": "https://elections.bcohio.gov/2026/November/PetitionActivityReport.pdf"
+  },
+  {
+   "pid": "thomas_mcmasters",
+   "state": "oh",
+   "nameAsFiled": "Thomas F. McMasters",
+   "name": "Thomas F. McMasters",
+   "office": "U.S. House Candidate (OH-10)",
+   "district": "10",
+   "partyAsFiled": "Libertarian",
+   "source": "https://elections.bcohio.gov/2026/November/PetitionActivityReport.pdf"
+  },
+  {
+   "pid": "mike_kirchner",
+   "state": "oh",
+   "nameAsFiled": "Mike Kirchner",
+   "name": "Mike Kirchner",
+   "office": "U.S. House Candidate (OH-11)",
+   "district": "11",
+   "partyAsFiled": "Republican",
+   "source": "https://boe.cuyahogacounty.gov/docs/default-source/boe/candidates-page/candidate-list.pdf"
+  },
+  {
+   "pid": "jerrad_christian",
+   "state": "oh",
+   "nameAsFiled": "JERRAD CHRISTIAN",
+   "name": "Jerrad Christian",
+   "office": "U.S. House Candidate (OH-12)",
+   "district": "12",
+   "partyAsFiled": "Democratic",
+   "source": "https://vote.delawarecountyohio.gov/wp-content/uploads/2026/10/46-DAY-NOV-2026-FWAB-PDF1.pdf"
+  },
+  {
+   "pid": "sandeep_dixit",
+   "state": "oh",
+   "nameAsFiled": "Sandeep Dixit",
+   "name": "Sandeep Dixit",
+   "office": "U.S. House Candidate (OH-13)",
+   "district": "13",
+   "partyAsFiled": "Non-Party",
+   "source": "https://www.starkcountyohio.gov/Board%20of%20Elections/Candidates%20List%20General.pdf"
+  },
+  {
+   "pid": "carey_coleman",
+   "state": "oh",
+   "nameAsFiled": "Carey Coleman",
+   "name": "Carey Coleman",
+   "office": "U.S. House Candidate (OH-13)",
+   "district": "13",
+   "partyAsFiled": "Republican",
+   "source": "https://www.starkcountyohio.gov/Board%20of%20Elections/Candidates%20List%20General.pdf"
+  },
+  {
+   "pid": "maria_jukic",
+   "state": "oh",
+   "nameAsFiled": "Maria Jukic",
+   "name": "Maria Jukic",
+   "office": "U.S. House Candidate (OH-14)",
+   "district": "14",
+   "partyAsFiled": "Democratic",
+   "source": "https://vote.mahoningcountyoh.gov/DocumentCenter/View/2640/Filings-for-November-3-2026-General-Election?bidId="
+  },
+  {
+   "pid": "stacy_garrity",
+   "state": "pa",
+   "nameAsFiled": "Stacy Garrity",
+   "name": "Stacy Garrity",
+   "office": "Governor Candidate",
+   "district": null,
+   "partyAsFiled": "Republican",
+   "source": "https://chesco.org/DocumentCenter/View/85858/2026-General-Election-Chester-County-Sample-Ballots"
+  },
+  {
+   "pid": "jason_richey",
+   "state": "pa",
+   "nameAsFiled": "Jason Richey",
+   "name": "Jason Richey",
+   "office": "Lieutenant Governor Candidate",
+   "district": null,
+   "partyAsFiled": "Republican",
+   "source": "https://chesco.org/DocumentCenter/View/85858/2026-General-Election-Chester-County-Sample-Ballots"
+  },
+  {
+   "pid": "ken_krawchuk",
+   "state": "pa",
+   "nameAsFiled": "Ken Krawchuk",
+   "name": "Ken Krawchuk",
+   "office": "Governor Candidate",
+   "district": null,
+   "partyAsFiled": "Libertarian",
+   "source": "https://chesco.org/DocumentCenter/View/85858/2026-General-Election-Chester-County-Sample-Ballots"
+  },
+  {
+   "pid": "john_thomas",
+   "state": "pa",
+   "nameAsFiled": "John Thomas",
+   "name": "John Thomas",
+   "office": "Lieutenant Governor Candidate",
+   "district": null,
+   "partyAsFiled": "Libertarian",
+   "source": "https://chesco.org/DocumentCenter/View/85858/2026-General-Election-Chester-County-Sample-Ballots"
+  },
+  {
+   "pid": "bob_harvie",
+   "state": "pa",
+   "nameAsFiled": "Bob Harvie",
+   "name": "Bob Harvie",
+   "office": "U.S. House Candidate (PA-1)",
+   "district": "1",
+   "partyAsFiled": "Democratic",
+   "source": "https://www.buckscounty.gov/DocumentCenter/View/28389"
+  },
+  {
+   "pid": "jessica_arriaga",
+   "state": "pa",
+   "nameAsFiled": "JESSICA ARRIAGA",
+   "name": "Jessica Arriaga",
+   "office": "U.S. House Candidate (PA-2)",
+   "district": "2",
+   "partyAsFiled": "REPUBLICAN",
+   "source": "https://vote.phila.gov/voting/candidates-for-office/"
+  },
+  {
+   "pid": "dennis_mahoney",
+   "state": "pa",
+   "nameAsFiled": "DENNIS MAHONEY",
+   "name": "Dennis Mahoney",
+   "office": "U.S. House Candidate (PA-3)",
+   "district": "3",
+   "partyAsFiled": "THE INDEPENDENT PARTY",
+   "source": "https://vote.phila.gov/voting/candidates-for-office/"
+  },
+  {
+   "pid": "aurora_stuski",
+   "state": "pa",
+   "nameAsFiled": "AURORA STUSKI",
+   "name": "Aurora Stuski",
+   "office": "U.S. House Candidate (PA-4)",
+   "district": "4",
+   "partyAsFiled": "Republican",
+   "source": "https://webapp07.montcopa.org/voterservices/sampleballots/Sample%20Ballots/Sample%20Ballots%20GE26/Abington/Abington%201-1%20-%20Official.pdf"
+  },
+  {
+   "pid": "nick_manganaro",
+   "state": "pa",
+   "nameAsFiled": "NICK MANGANARO",
+   "name": "Nick Manganaro",
+   "office": "U.S. House Candidate (PA-5)",
+   "district": "5",
+   "partyAsFiled": "REPUBLICAN",
+   "source": "https://vote.phila.gov/voting/candidates-for-office/"
+  },
+  {
+   "pid": "marty_young",
+   "state": "pa",
+   "nameAsFiled": "Marty Young",
+   "name": "Marty Young",
+   "office": "U.S. House Candidate (PA-6)",
+   "district": "6",
+   "partyAsFiled": "Republican",
+   "source": "https://chesco.org/DocumentCenter/View/85858/2026-General-Election-Chester-County-Sample-Ballots"
+  },
+  {
+   "pid": "bob_brooks",
+   "state": "pa",
+   "nameAsFiled": "Bob Brooks",
+   "name": "Bob Brooks",
+   "office": "U.S. House Candidate (PA-7)",
+   "district": "7",
+   "partyAsFiled": "Democratic",
+   "source": "https://www.lehighcounty.org/Portals/0/PDF/Voter/Sample_PALehigh261103General.pdf"
+  },
+  {
+   "pid": "paige_cognetti",
+   "state": "pa",
+   "nameAsFiled": "PAIGE COGNETTI",
+   "name": "Paige Cognetti",
+   "office": "U.S. House Candidate (PA-8)",
+   "district": "8",
+   "partyAsFiled": "Democratic",
+   "source": "https://cms8.revize.com/revize/lackawanna/Document_center/Department/Elections/SAMPLE%20-%20PA%20Lackawanna%20261103%20General.pdf"
+  },
+  {
+   "pid": "rachel_wallace",
+   "state": "pa",
+   "nameAsFiled": "RACHEL WALLACE",
+   "name": "Rachel Wallace",
+   "office": "U.S. House Candidate (PA-9)",
+   "district": "9",
+   "partyAsFiled": "DEMOCRATIC",
+   "source": "https://lebanoncountypa.gov/getmedia/15babddc-f671-48c2-af08-023e252c6e51/2026-General-Election-SAMPLE-BALLOTS.pdf"
+  },
+  {
+   "pid": "janelle_stelson",
+   "state": "pa",
+   "nameAsFiled": "JANELLE STELSON",
+   "name": "Janelle Stelson",
+   "office": "U.S. House Candidate (PA-10)",
+   "district": "10",
+   "partyAsFiled": "DEMOCRATIC",
+   "source": "https://www.dauphincounty.gov/docs/default-source/registration-elections/sample-ballots/1-1-HARRISBURG_1ST_WARD_1ST_PRECINCT--_STD_-_NP_-EN.pdf"
+  },
+  {
+   "pid": "nancy_mannion",
+   "state": "pa",
+   "nameAsFiled": "Nancy Mannion",
+   "name": "Nancy Mannion",
+   "office": "U.S. House Candidate (PA-11)",
+   "district": "11",
+   "partyAsFiled": "Democratic",
+   "source": "https://vr.lancastercountypa.gov/sampleballots/"
+  },
+  {
+   "pid": "james_hayes",
+   "state": "pa",
+   "nameAsFiled": "JAMES HAYES",
+   "name": "James Hayes",
+   "office": "U.S. House Candidate (PA-12)",
+   "district": "12",
+   "partyAsFiled": "Republican",
+   "source": "https://apps.westmorelandcountypa.gov/elections/ElectionBallots/Ballots/ElectionBallots/274.pdf"
+  },
+  {
+   "pid": "beth_farnham",
+   "state": "pa",
+   "nameAsFiled": "BETH FARNHAM",
+   "name": "Beth Farnham",
+   "office": "U.S. House Candidate (PA-13)",
+   "district": "13",
+   "partyAsFiled": "Democratic",
+   "source": "https://www.blaircountypa.gov/getmedia/18a37ea9-09e6-4fd6-b5c3-068ee3a0c008/PA-Blair-261103-General_03-(Sample).pdf"
+  },
+  {
+   "pid": "alan_bradstock",
+   "state": "pa",
+   "nameAsFiled": "ALAN BRADSTOCK",
+   "name": "Alan Bradstock",
+   "office": "U.S. House Candidate (PA-14)",
+   "district": "14",
+   "partyAsFiled": "DEMOCRATIC",
+   "source": "https://cms.washingtoncopa.gov/uploads/2026_EV_Specimen_Allenport_0d7f79a09b.pdf"
+  },
+  {
+   "pid": "ray_bilger",
+   "state": "pa",
+   "nameAsFiled": "RAY BILGER",
+   "name": "Ray Bilger",
+   "office": "U.S. House Candidate (PA-15)",
+   "district": "15",
+   "partyAsFiled": "DEMOCRATIC",
+   "source": "https://centrecountypa.gov/DocumentCenter/View/44364/2026-General-Sample-Ballots"
+  },
+  {
+   "pid": "justin_wagner",
+   "state": "pa",
+   "nameAsFiled": "JUSTIN WAGNER",
+   "name": "Justin Wagner",
+   "office": "U.S. House Candidate (PA-16)",
+   "district": "16",
+   "partyAsFiled": "DEMOCRATIC",
+   "source": "https://www.eriecountycouncilpa.gov/uploads/modules/resources/341677_albion_bor-default.pdf"
+  },
+  {
+   "pid": "tony_guy",
+   "state": "pa",
+   "nameAsFiled": "TONY GUY",
+   "name": "Tony Guy",
+   "office": "U.S. House Candidate (PA-17)",
+   "district": "17",
+   "partyAsFiled": "REPUBLICAN",
+   "source": "https://www.beavercountypa.gov/getmedia/e8e60c3d-ad9c-4f7f-8d28-01c08dcff8de/2026-General-Election-Sample-Ballots-for-Website.pdf"
+  }
+ ],
+ "held": [
+  {
+   "state": "al",
+   "nameAsFiled": "Barry Moore",
+   "pid": "barry_moore",
+   "office": "U.S. Senate Candidate",
+   "partyAsFiled": "Republican"
+  },
+  {
+   "state": "al",
+   "nameAsFiled": "Mike Rogers",
+   "pid": "mike_rogers_al",
+   "office": "U.S. House Candidate (AL-3)",
+   "partyAsFiled": "Republican"
+  },
+  {
+   "state": "al",
+   "nameAsFiled": "Robert B. Aderholt",
+   "pid": "robert_aderholt",
+   "office": "U.S. House Candidate (AL-4)",
+   "partyAsFiled": "Republican"
+  },
+  {
+   "state": "al",
+   "nameAsFiled": "Dale W. Strong",
+   "pid": "dale_strong",
+   "office": "U.S. House Candidate (AL-5)",
+   "partyAsFiled": "Republican"
+  },
+  {
+   "state": "al",
+   "nameAsFiled": "Gary Palmer",
+   "pid": "gary_palmer",
+   "office": "U.S. House Candidate (AL-6)",
+   "partyAsFiled": "Republican"
+  },
+  {
+   "state": "al",
+   "nameAsFiled": "Tommy Tuberville",
+   "pid": "tommy_tuberville",
+   "office": "Governor Candidate",
+   "partyAsFiled": "Republican"
+  },
+  {
+   "state": "al",
+   "nameAsFiled": "Shomari C. Figures",
+   "pid": "shomari_figures",
+   "office": "U.S. House Candidate (AL-2)",
+   "partyAsFiled": "Democratic"
+  },
+  {
+   "state": "al",
+   "nameAsFiled": "Terri Sewell",
+   "pid": "terri_sewell",
+   "office": "U.S. House Candidate (AL-7)",
+   "partyAsFiled": "Democratic"
+  },
+  {
+   "state": "az",
+   "nameAsFiled": "Monica Alponte",
+   "pid": "monica_alponte",
+   "office": "U.S. House Candidate (AZ-1)",
+   "partyAsFiled": "Libertarian"
+  },
+  {
+   "state": "az",
+   "nameAsFiled": "Crane, Eli",
+   "pid": "eli_crane",
+   "office": "U.S. House Candidate (AZ-2)",
+   "partyAsFiled": "REP"
+  },
+  {
+   "state": "az",
+   "nameAsFiled": "Yassamin Ansari",
+   "pid": "yassamin_ansari",
+   "office": "U.S. House Candidate (AZ-3)",
+   "partyAsFiled": "DEM"
+  },
+  {
+   "state": "az",
+   "nameAsFiled": "Greg Stanton",
+   "pid": "greg_stanton",
+   "office": "U.S. House Candidate (AZ-4)",
+   "partyAsFiled": "DEM"
+  },
+  {
+   "state": "az",
+   "nameAsFiled": "CISCOMANI, JUAN",
+   "pid": "juan_ciscomani",
+   "office": "U.S. House Candidate (AZ-6)",
+   "partyAsFiled": "REP"
+  },
+  {
+   "state": "az",
+   "nameAsFiled": "SWING, GARY",
+   "pid": "gary_swing",
+   "office": "U.S. House Candidate (AZ-6)",
+   "partyAsFiled": "GRN"
+  },
+  {
+   "state": "az",
+   "nameAsFiled": "GRIJALVA, ADELITA",
+   "pid": "adelita_grijalva",
+   "office": "U.S. House Candidate (AZ-7)",
+   "partyAsFiled": "DEM"
+  },
+  {
+   "state": "az",
+   "nameAsFiled": "Abraham \"Abe\" Hamadeh",
+   "pid": "abraham_hamadeh",
+   "office": "U.S. House Candidate (AZ-8)",
+   "partyAsFiled": "REP"
+  },
+  {
+   "state": "az",
+   "nameAsFiled": "Gosar, Paul",
+   "pid": "paul_gosar",
+   "office": "U.S. House Candidate (AZ-9)",
+   "partyAsFiled": "REP"
+  },
+  {
+   "state": "az",
+   "nameAsFiled": "HOBBS, KATIE",
+   "pid": "katie_hobbs",
+   "office": "Governor Candidate",
+   "partyAsFiled": "DEM"
+  },
+  {
+   "state": "az",
+   "nameAsFiled": "BIGGS, ANDY",
+   "pid": "andy_biggs",
+   "office": "Governor Candidate",
+   "partyAsFiled": "REP"
+  },
+  {
+   "state": "az",
+   "nameAsFiled": "FONTES, ADRIAN",
+   "pid": "adrian_fontes",
+   "office": "Secretary of State Candidate",
+   "partyAsFiled": "DEM"
+  },
+  {
+   "state": "az",
+   "nameAsFiled": "MAYES, KRIS",
+   "pid": "kris_mayes",
+   "office": "Attorney General Candidate",
+   "partyAsFiled": "DEM"
+  },
+  {
+   "state": "az",
+   "nameAsFiled": "PETERSEN, WARREN",
+   "pid": "warren_petersen",
+   "office": "Attorney General Candidate",
+   "partyAsFiled": "REP"
+  },
+  {
+   "state": "ks",
+   "nameAsFiled": "Roger Marshall",
+   "pid": "roger_marshall",
+   "office": "U.S. Senate Candidate",
+   "partyAsFiled": "Republican"
+  },
+  {
+   "state": "ks",
+   "nameAsFiled": "David C Graham",
+   "pid": "david_graham",
+   "office": "U.S. Senate Candidate",
+   "partyAsFiled": "Libertarian"
+  },
+  {
+   "state": "ks",
+   "nameAsFiled": "Tracey Mann",
+   "pid": "tracey_mann",
+   "office": "U.S. House Candidate (KS-1)",
+   "partyAsFiled": "Republican"
+  },
+  {
+   "state": "ks",
+   "nameAsFiled": "Derek Schmidt",
+   "pid": "derek_schmidt",
+   "office": "U.S. House Candidate (KS-2)",
+   "partyAsFiled": "Republican"
+  },
+  {
+   "state": "ks",
+   "nameAsFiled": "John Hauer",
+   "pid": "john_hauer",
+   "office": "U.S. House Candidate (KS-2)",
+   "partyAsFiled": "Libertarian"
+  },
+  {
+   "state": "ks",
+   "nameAsFiled": "Sharice L. Davids",
+   "pid": "sharice_davids",
+   "office": "U.S. House Candidate (KS-3)",
+   "partyAsFiled": "Democratic"
+  },
+  {
+   "state": "ks",
+   "nameAsFiled": "Steven A Hohe",
+   "pid": "steve_hohe",
+   "office": "U.S. House Candidate (KS-3)",
+   "partyAsFiled": "Libertarian"
+  },
+  {
+   "state": "ks",
+   "nameAsFiled": "Ron Estes",
+   "pid": "ron_estes",
+   "office": "U.S. House Candidate (KS-4)",
+   "partyAsFiled": "Republican"
+  },
+  {
+   "state": "ks",
+   "nameAsFiled": "Ty Masterson",
+   "pid": "ty_masterson",
+   "office": "Governor Candidate",
+   "partyAsFiled": "Republican"
+  },
+  {
+   "state": "ks",
+   "nameAsFiled": "Kris Kobach",
+   "pid": "kris_kobach",
+   "office": "Attorney General Candidate",
+   "partyAsFiled": "Republican"
+  },
+  {
+   "state": "nh",
+   "nameAsFiled": "Kelly Ayotte",
+   "pid": "kelly_ayotte",
+   "office": "Governor Candidate",
+   "partyAsFiled": "Republican"
+  },
+  {
+   "state": "nh",
+   "nameAsFiled": "Chris Pappas",
+   "pid": "chris_pappas",
+   "office": "U.S. Senate Candidate",
+   "partyAsFiled": "Democratic"
+  },
+  {
+   "state": "nh",
+   "nameAsFiled": "Edmond Laplante",
+   "pid": "edmond_laplante",
+   "office": "U.S. Senate Candidate",
+   "partyAsFiled": "Constitution"
+  },
+  {
+   "state": "nh",
+   "nameAsFiled": "Maggie Goodlander",
+   "pid": "maggie_goodlander",
+   "office": "U.S. House Candidate (NH-2)",
+   "partyAsFiled": "Democratic"
+  },
+  {
+   "state": "oh",
+   "nameAsFiled": "Robert A. McColley",
+   "pid": "rob_mccolley",
+   "office": "Lieutenant Governor Candidate",
+   "partyAsFiled": "Republican"
+  },
+  {
+   "state": "oh",
+   "nameAsFiled": "Allison Russo",
+   "pid": "russo_oh",
+   "office": "Secretary of State Candidate",
+   "partyAsFiled": "Democratic"
+  },
+  {
+   "state": "oh",
+   "nameAsFiled": "Jon Husted",
+   "pid": "jon_husted",
+   "office": "U.S. Senate Candidate",
+   "partyAsFiled": "Republican"
+  },
+  {
+   "state": "oh",
+   "nameAsFiled": "Greg Landsman",
+   "pid": "greg_landsman",
+   "office": "U.S. House Candidate (OH-1)",
+   "partyAsFiled": "Democratic"
+  },
+  {
+   "state": "oh",
+   "nameAsFiled": "Warren Davidson",
+   "pid": "warren_davidson",
+   "office": "U.S. House Candidate (OH-8)",
+   "partyAsFiled": "Republican"
+  },
+  {
+   "state": "oh",
+   "nameAsFiled": "David J. Taylor",
+   "pid": "david_taylor",
+   "office": "U.S. House Candidate (OH-2)",
+   "partyAsFiled": "Republican"
+  },
+  {
+   "state": "oh",
+   "nameAsFiled": "Joyce Beatty",
+   "pid": "joyce_beatty",
+   "office": "U.S. House Candidate (OH-3)",
+   "partyAsFiled": "Democratic"
+  },
+  {
+   "state": "oh",
+   "nameAsFiled": "Mike Carey",
+   "pid": "mike_carey",
+   "office": "U.S. House Candidate (OH-15)",
+   "partyAsFiled": "Republican"
+  },
+  {
+   "state": "oh",
+   "nameAsFiled": "Jim Jordan",
+   "pid": "jim_jordan",
+   "office": "U.S. House Candidate (OH-4)",
+   "partyAsFiled": "Republican"
+  },
+  {
+   "state": "oh",
+   "nameAsFiled": "Bob Latta",
+   "pid": "robert_latta",
+   "office": "U.S. House Candidate (OH-5)",
+   "partyAsFiled": "Republican"
+  },
+  {
+   "state": "oh",
+   "nameAsFiled": "Marcy Kaptur",
+   "pid": "marcy_kaptur",
+   "office": "U.S. House Candidate (OH-9)",
+   "partyAsFiled": "Democratic"
+  },
+  {
+   "state": "oh",
+   "nameAsFiled": "Michael A. Rulli",
+   "pid": "michael_rulli",
+   "office": "U.S. House Candidate (OH-6)",
+   "partyAsFiled": "Republican"
+  },
+  {
+   "state": "oh",
+   "nameAsFiled": "Max Miller",
+   "pid": "max_miller",
+   "office": "U.S. House Candidate (OH-7)",
+   "partyAsFiled": "Republican"
+  },
+  {
+   "state": "oh",
+   "nameAsFiled": "Mike Turner",
+   "pid": "michael_turner",
+   "office": "U.S. House Candidate (OH-10)",
+   "partyAsFiled": "Republican"
+  },
+  {
+   "state": "oh",
+   "nameAsFiled": "Shontel M. Brown",
+   "pid": "shontel_brown",
+   "office": "U.S. House Candidate (OH-11)",
+   "partyAsFiled": "Democratic"
+  },
+  {
+   "state": "oh",
+   "nameAsFiled": "TROY BALDERSON",
+   "pid": "troy_balderson",
+   "office": "U.S. House Candidate (OH-12)",
+   "partyAsFiled": "Republican"
+  },
+  {
+   "state": "oh",
+   "nameAsFiled": "Emilia Sykes",
+   "pid": "emilia_sykes",
+   "office": "U.S. House Candidate (OH-13)",
+   "partyAsFiled": "Democratic"
+  },
+  {
+   "state": "oh",
+   "nameAsFiled": "David P. Joyce",
+   "pid": "david_joyce",
+   "office": "U.S. House Candidate (OH-14)",
+   "partyAsFiled": "Republican"
+  },
+  {
+   "state": "pa",
+   "nameAsFiled": "Josh Shapiro",
+   "pid": "josh_shapiro",
+   "office": "Governor Candidate",
+   "partyAsFiled": "Democratic"
+  },
+  {
+   "state": "pa",
+   "nameAsFiled": "Austin Davis",
+   "pid": "austin_davis",
+   "office": "Lieutenant Governor Candidate",
+   "partyAsFiled": "Democratic"
+  },
+  {
+   "state": "pa",
+   "nameAsFiled": "Brian Fitzpatrick",
+   "pid": "fitzpatrick",
+   "office": "U.S. House Candidate (PA-1)",
+   "partyAsFiled": "Republican"
+  },
+  {
+   "state": "pa",
+   "nameAsFiled": "BRENDAN F BOYLE",
+   "pid": "brendan_boyle",
+   "office": "U.S. House Candidate (PA-2)",
+   "partyAsFiled": "DEMOCRATIC"
+  },
+  {
+   "state": "pa",
+   "nameAsFiled": "CHRIS RABB",
+   "pid": "rabb_pa",
+   "office": "U.S. House Candidate (PA-3)",
+   "partyAsFiled": "DEMOCRATIC"
+  },
+  {
+   "state": "pa",
+   "nameAsFiled": "MADELEINE DEAN",
+   "pid": "madeleine_dean",
+   "office": "U.S. House Candidate (PA-4)",
+   "partyAsFiled": "Democratic"
+  },
+  {
+   "state": "pa",
+   "nameAsFiled": "MARY GAY SCANLON",
+   "pid": "mary_scanlon",
+   "office": "U.S. House Candidate (PA-5)",
+   "partyAsFiled": "DEMOCRATIC"
+  },
+  {
+   "state": "pa",
+   "nameAsFiled": "Chrissy Houlahan",
+   "pid": "chrissy_houlahan",
+   "office": "U.S. House Candidate (PA-6)",
+   "partyAsFiled": "Democratic"
+  },
+  {
+   "state": "pa",
+   "nameAsFiled": "Ryan Mackenzie",
+   "pid": "ryan_mackenzie",
+   "office": "U.S. House Candidate (PA-7)",
+   "partyAsFiled": "Republican"
+  },
+  {
+   "state": "pa",
+   "nameAsFiled": "ROB BRESNAHAN JR",
+   "pid": "rob_bresnahan",
+   "office": "U.S. House Candidate (PA-8)",
+   "partyAsFiled": "Republican"
+  },
+  {
+   "state": "pa",
+   "nameAsFiled": "DAN MEUSER",
+   "pid": "daniel_meuser",
+   "office": "U.S. House Candidate (PA-9)",
+   "partyAsFiled": "REPUBLICAN"
+  },
+  {
+   "state": "pa",
+   "nameAsFiled": "SCOTT PERRY",
+   "pid": "scott_perry",
+   "office": "U.S. House Candidate (PA-10)",
+   "partyAsFiled": "REPUBLICAN"
+  },
+  {
+   "state": "pa",
+   "nameAsFiled": "Lloyd K Smucker",
+   "pid": "lloyd_smucker",
+   "office": "U.S. House Candidate (PA-11)",
+   "partyAsFiled": "Republican"
+  },
+  {
+   "state": "pa",
+   "nameAsFiled": "SUMMER LEE",
+   "pid": "summer_lee",
+   "office": "U.S. House Candidate (PA-12)",
+   "partyAsFiled": "Democratic"
+  },
+  {
+   "state": "pa",
+   "nameAsFiled": "JOHN JOYCE",
+   "pid": "john_joyce",
+   "office": "U.S. House Candidate (PA-13)",
+   "partyAsFiled": "Republican"
+  },
+  {
+   "state": "pa",
+   "nameAsFiled": "GUY RESCHENTHALER",
+   "pid": "guy_reschenthaler",
+   "office": "U.S. House Candidate (PA-14)",
+   "partyAsFiled": "REPUBLICAN"
+  },
+  {
+   "state": "pa",
+   "nameAsFiled": "GLENN GT THOMPSON",
+   "pid": "glenn_thompson",
+   "office": "U.S. House Candidate (PA-15)",
+   "partyAsFiled": "REPUBLICAN"
+  },
+  {
+   "state": "pa",
+   "nameAsFiled": "MIKE KELLY",
+   "pid": "mike_kelly",
+   "office": "U.S. House Candidate (PA-16)",
+   "partyAsFiled": "REPUBLICAN"
+  },
+  {
+   "state": "pa",
+   "nameAsFiled": "CHRIS DELUZIO",
+   "pid": "chris_deluzio",
+   "office": "U.S. House Candidate (PA-17)",
+   "partyAsFiled": "DEMOCRATIC"
+  }
+ ],
+ "aliases": [],
+ "skipped": [],
+ "_pidNote": "Four candidates take the id their curated stances, portrait and spotlights were already filed under (sherrod_brown, janelle_stelson, paige_cognetti, bob_brooks), so each person has one id. Doug Jones of Alabama is doug_jones_al: doug_jones is a different person, a Colorado State House candidate."
+}

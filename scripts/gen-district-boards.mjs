@@ -288,9 +288,29 @@ const US_SENATE_OFFICE_RE = /\bsenat(?:e|or)\b/i;
 // Pingree's, Jared Golden's, Diana DeGette's, Joe Neguse's, Lauren Boebert's,
 // Angie Craig's, Ilhan Omar's and Tom Emmer's rows named theirs, and MI-5, MI-6,
 // MI-9 and MI-12, which opened once Tim Walberg's, Debbie Dingell's, Lisa
-// McClain's and Rashida Tlaib's rows named theirs.
-export const FEDERAL_READ_ONLY_SEATS = new Set(["ne-house-2", "me-house-1", "me-house-2", "co-house-1", "co-house-2",
-  "co-house-4", "mn-house-2", "mn-house-5", "mn-house-6", "mi-house-5", "mi-house-6", "mi-house-9", "mi-house-12"]);
+// McClain's and Rashida Tlaib's rows named theirs. The election-day wave
+// (November 3, 2026) named the district on 70 more sitting members' rows — each
+// read from the member's own bioguide id (the roster photo's) in the public
+// congress-legislators record — and their boards open read-only the same way.
+// Still skipped: CA-14 and GA-13 (a member sworn in after a special election,
+// with no roster row), FL-20 and TX-23 (no member on that record), KY-4
+// (the member's row writes the seat as its state), and NY-9, NC-9, TX-11, TX-35
+// and WA-1 (the row's office is a caucus or campaign-committee title the House
+// classifier does not admit).
+export const FEDERAL_READ_ONLY_SEATS = new Set([
+  "ne-house-2", "me-house-1", "me-house-2", "co-house-1", "co-house-2", "co-house-4", "mn-house-2",
+  "mn-house-5", "mn-house-6", "mi-house-5", "mi-house-6", "mi-house-9", "mi-house-12", "ar-house-2",
+  "ca-house-2", "ca-house-17", "ca-house-18", "ca-house-33", "ca-house-36", "ca-house-39", "ca-house-42",
+  "ca-house-43", "ct-house-3", "ct-house-4", "de-house-1", "fl-house-10", "fl-house-13", "fl-house-19", "fl-house-21",
+  "il-house-3", "il-house-8", "il-house-9", "il-house-12", "ky-house-1", "ky-house-2", "la-house-1",
+  "la-house-4", "md-house-1", "md-house-5", "md-house-8", "ma-house-1", "ma-house-2", "ma-house-4",
+  "ma-house-5", "ma-house-6", "ma-house-7", "mo-house-6", "mo-house-8", "nj-house-5", "nj-house-6",
+  "ny-house-2", "ny-house-3", "ny-house-5", "ny-house-8", "ny-house-10", "ny-house-12", "ny-house-14",
+  "ny-house-15", "ny-house-17", "ny-house-21", "nc-house-5", "oh-house-1", "oh-house-4", "ok-house-1",
+  "ok-house-4", "pa-house-1", "pa-house-2", "pa-house-12", "pa-house-15", "sc-house-1", "sc-house-6",
+  "tx-house-2", "tx-house-19", "tx-house-21", "tx-house-25", "tx-house-30", "tx-house-36", "va-house-3",
+  "wa-house-2", "wa-house-3", "wa-house-7", "wa-house-9", "wi-house-1"
+]);
 const NOT_US_SENATE_RE = /\bstate\s+senat|\bformer\b|\bex-|\bcandidate\b|\bnominee\b|-elect\b/i;
 function planFederal(win, boards, skipped) {
   const RO = win.CMP_DATA;
@@ -348,7 +368,12 @@ function planFederal(win, boards, skipped) {
 // READ-ONLY — composer: false, on none of the three composer lists, no poll and
 // no residency check — so it is the three bands and the room's counts, and no
 // more. `outsideUtah` keeps it out of sw.js, as a federal board is kept out.
-export const GOVERNOR_STATES = new Set(["ne", "sd", "id", "mt", "ak", "ri", "me", "co", "mn", "nv", "ms", "vt", "mi", "tn"]);
+// The election-day wave added every other state with a governor's race on the
+// November 3, 2026 ballot, from Alabama to Wyoming: the board is the sitting
+// governor's, read-only, whoever is on the ballot.
+export const GOVERNOR_STATES = new Set(["ne", "sd", "id", "mt", "ak", "ri", "me", "co", "mn", "nv", "ms", "vt", "mi", "tn",
+  "al", "az", "ar", "ca", "ct", "fl", "ga", "hi", "il", "ia", "ks", "md", "ma", "nh", "nm", "ny", "oh", "ok", "or", "pa",
+  "sc", "tx", "wi", "wy"]);
 function planGovernors(win, boards, skipped, states = FEDERAL_STATES, govStates = GOVERNOR_STATES) {
   const RO = win.CMP_DATA;
   for (const { code, name } of states) {

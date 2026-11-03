@@ -69,7 +69,7 @@
     {
       "pid": "jayapal",
       "name": "Pramila Jayapal",
-      "office": "U.S. Representative · Washington",
+      "office": "U.S. Representative · WA-7 · Washington",
       "party": {
         "label": "D",
         "color": "#60a5fa"
@@ -83,7 +83,7 @@
     {
       "pid": "scalise",
       "name": "Steve Scalise",
-      "office": "House Majority Leader · Louisiana",
+      "office": "House Majority Leader · LA-1 · Louisiana",
       "party": {
         "label": "R",
         "color": "#f87171"
@@ -97,7 +97,7 @@
     {
       "pid": "khanna",
       "name": "Ro Khanna",
-      "office": "U.S. Representative · California",
+      "office": "U.S. Representative · CA-17 · California",
       "party": {
         "label": "D",
         "color": "#60a5fa"
@@ -111,7 +111,7 @@
     {
       "pid": "jim_jordan",
       "name": "Jim Jordan",
-      "office": "House Judiciary Committee Chair · Ohio",
+      "office": "House Judiciary Committee Chair · OH-4 · Ohio",
       "party": {
         "label": "R",
         "color": "#f87171"
@@ -181,7 +181,7 @@
     {
       "pid": "kclark",
       "name": "Katherine Clark",
-      "office": "House Minority Whip · Massachusetts",
+      "office": "House Minority Whip · MA-5 · Massachusetts",
       "party": {
         "label": "D",
         "color": "#60a5fa"
@@ -237,7 +237,7 @@
     {
       "pid": "aoc",
       "name": "Alexandria Ocasio-Cortez",
-      "office": "U.S. Representative · New York",
+      "office": "U.S. Representative · NY-14 · New York",
       "party": {
         "label": "D",
         "color": "#60a5fa"

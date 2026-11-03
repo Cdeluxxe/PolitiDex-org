@@ -526,6 +526,11 @@ const DISTINCT_PEOPLE = {
   // A GA-2 U.S. House candidate for 2026, and a Tennessee State House District
   // 71 candidate for 2026 (mi/tn/vt candidate rows).
   "matt day": ["matt_day", "matt_day_tn"],
+  // A Colorado State House District 15 candidate for 2026 (me/co/mn/nv
+  // candidate rows), and Alabama's Democratic nominee for Governor
+  // (election-day candidate rows; the Alabama Secretary of State's
+  // certification prints "Doug Jones").
+  "doug jones": ["doug_jones", "doug_jones_al"],
 };
 let nameChecked = 0;
 for (const [key, ids] of byName) {

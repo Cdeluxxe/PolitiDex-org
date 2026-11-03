@@ -3062,6 +3062,20 @@
   to = "/district-ar-cd-1.html"
   status = 200
 
+# Arkansas's 2nd Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/ar-cd-2"
+  to = "/district-ar-cd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/ar-cd-2/"
+  to = "/district-ar-cd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/ar-cd-2.html"
+  to = "/district-ar-cd-2.html"
+  status = 200
+
 # Arkansas's 3rd Congressional District — U.S. House join
 [[redirects]]
   from = "/district/ar-cd-3"
@@ -3130,6 +3144,20 @@
 [[redirects]]
   from = "/district/ca-cd-1.html"
   to = "/district-ca-cd-1.html"
+  status = 200
+
+# California's 2nd Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/ca-cd-2"
+  to = "/district-ca-cd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-cd-2/"
+  to = "/district-ca-cd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-cd-2.html"
+  to = "/district-ca-cd-2.html"
   status = 200
 
 # California's 3rd Congressional District — U.S. House join
@@ -3312,6 +3340,34 @@
 [[redirects]]
   from = "/district/ca-cd-16.html"
   to = "/district-ca-cd-16.html"
+  status = 200
+
+# California's 17th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/ca-cd-17"
+  to = "/district-ca-cd-17.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-cd-17/"
+  to = "/district-ca-cd-17.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-cd-17.html"
+  to = "/district-ca-cd-17.html"
+  status = 200
+
+# California's 18th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/ca-cd-18"
+  to = "/district-ca-cd-18.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-cd-18/"
+  to = "/district-ca-cd-18.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-cd-18.html"
+  to = "/district-ca-cd-18.html"
   status = 200
 
 # California's 19th Congressional District — U.S. House join
@@ -3510,6 +3566,20 @@
   to = "/district-ca-cd-32.html"
   status = 200
 
+# California's 33rd Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/ca-cd-33"
+  to = "/district-ca-cd-33.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-cd-33/"
+  to = "/district-ca-cd-33.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-cd-33.html"
+  to = "/district-ca-cd-33.html"
+  status = 200
+
 # California's 34th Congressional District — U.S. House join
 [[redirects]]
   from = "/district/ca-cd-34"
@@ -3536,6 +3606,20 @@
 [[redirects]]
   from = "/district/ca-cd-35.html"
   to = "/district-ca-cd-35.html"
+  status = 200
+
+# California's 36th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/ca-cd-36"
+  to = "/district-ca-cd-36.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-cd-36/"
+  to = "/district-ca-cd-36.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-cd-36.html"
+  to = "/district-ca-cd-36.html"
   status = 200
 
 # California's 37th Congressional District — U.S. House join
@@ -3566,6 +3650,20 @@
   to = "/district-ca-cd-38.html"
   status = 200
 
+# California's 39th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/ca-cd-39"
+  to = "/district-ca-cd-39.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-cd-39/"
+  to = "/district-ca-cd-39.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-cd-39.html"
+  to = "/district-ca-cd-39.html"
+  status = 200
+
 # California's 40th Congressional District — U.S. House join
 [[redirects]]
   from = "/district/ca-cd-40"
@@ -3592,6 +3690,34 @@
 [[redirects]]
   from = "/district/ca-cd-41.html"
   to = "/district-ca-cd-41.html"
+  status = 200
+
+# California's 42nd Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/ca-cd-42"
+  to = "/district-ca-cd-42.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-cd-42/"
+  to = "/district-ca-cd-42.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-cd-42.html"
+  to = "/district-ca-cd-42.html"
+  status = 200
+
+# California's 43rd Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/ca-cd-43"
+  to = "/district-ca-cd-43.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-cd-43/"
+  to = "/district-ca-cd-43.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-cd-43.html"
+  to = "/district-ca-cd-43.html"
   status = 200
 
 # California's 44th Congressional District — U.S. House join
@@ -3916,6 +4042,34 @@
   to = "/district-ct-cd-2.html"
   status = 200
 
+# Connecticut's 3rd Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/ct-cd-3"
+  to = "/district-ct-cd-3.html"
+  status = 200
+[[redirects]]
+  from = "/district/ct-cd-3/"
+  to = "/district-ct-cd-3.html"
+  status = 200
+[[redirects]]
+  from = "/district/ct-cd-3.html"
+  to = "/district-ct-cd-3.html"
+  status = 200
+
+# Connecticut's 4th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/ct-cd-4"
+  to = "/district-ct-cd-4.html"
+  status = 200
+[[redirects]]
+  from = "/district/ct-cd-4/"
+  to = "/district-ct-cd-4.html"
+  status = 200
+[[redirects]]
+  from = "/district/ct-cd-4.html"
+  to = "/district-ct-cd-4.html"
+  status = 200
+
 # Connecticut's 5th Congressional District — U.S. House join
 [[redirects]]
   from = "/district/ct-cd-5"
@@ -3956,6 +4110,20 @@
 [[redirects]]
   from = "/district/ct-us-senate-blumenthal.html"
   to = "/district-ct-us-senate-blumenthal.html"
+  status = 200
+
+# Delaware's At-Large Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/de-cd-1"
+  to = "/district-de-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/de-cd-1/"
+  to = "/district-de-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/de-cd-1.html"
+  to = "/district-de-cd-1.html"
   status = 200
 
 # U.S. Senate - Chris Coons — coons
@@ -4112,6 +4280,20 @@
   to = "/district-fl-cd-9.html"
   status = 200
 
+# Florida's 10th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/fl-cd-10"
+  to = "/district-fl-cd-10.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-cd-10/"
+  to = "/district-fl-cd-10.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-cd-10.html"
+  to = "/district-fl-cd-10.html"
+  status = 200
+
 # Florida's 11th Congressional District — U.S. House join
 [[redirects]]
   from = "/district/fl-cd-11"
@@ -4138,6 +4320,20 @@
 [[redirects]]
   from = "/district/fl-cd-12.html"
   to = "/district-fl-cd-12.html"
+  status = 200
+
+# Florida's 13th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/fl-cd-13"
+  to = "/district-fl-cd-13.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-cd-13/"
+  to = "/district-fl-cd-13.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-cd-13.html"
+  to = "/district-fl-cd-13.html"
   status = 200
 
 # Florida's 14th Congressional District — U.S. House join
@@ -4208,6 +4404,34 @@
 [[redirects]]
   from = "/district/fl-cd-18.html"
   to = "/district-fl-cd-18.html"
+  status = 200
+
+# Florida's 19th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/fl-cd-19"
+  to = "/district-fl-cd-19.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-cd-19/"
+  to = "/district-fl-cd-19.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-cd-19.html"
+  to = "/district-fl-cd-19.html"
+  status = 200
+
+# Florida's 21st Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/fl-cd-21"
+  to = "/district-fl-cd-21.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-cd-21/"
+  to = "/district-fl-cd-21.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-cd-21.html"
+  to = "/district-fl-cd-21.html"
   status = 200
 
 # Florida's 22nd Congressional District — U.S. House join
@@ -4686,6 +4910,20 @@
   to = "/district-il-cd-2.html"
   status = 200
 
+# Illinois's 3rd Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/il-cd-3"
+  to = "/district-il-cd-3.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-cd-3/"
+  to = "/district-il-cd-3.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-cd-3.html"
+  to = "/district-il-cd-3.html"
+  status = 200
+
 # Illinois's 4th Congressional District — U.S. House join
 [[redirects]]
   from = "/district/il-cd-4"
@@ -4742,6 +4980,34 @@
   to = "/district-il-cd-7.html"
   status = 200
 
+# Illinois's 8th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/il-cd-8"
+  to = "/district-il-cd-8.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-cd-8/"
+  to = "/district-il-cd-8.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-cd-8.html"
+  to = "/district-il-cd-8.html"
+  status = 200
+
+# Illinois's 9th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/il-cd-9"
+  to = "/district-il-cd-9.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-cd-9/"
+  to = "/district-il-cd-9.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-cd-9.html"
+  to = "/district-il-cd-9.html"
+  status = 200
+
 # Illinois's 10th Congressional District — U.S. House join
 [[redirects]]
   from = "/district/il-cd-10"
@@ -4768,6 +5034,20 @@
 [[redirects]]
   from = "/district/il-cd-11.html"
   to = "/district-il-cd-11.html"
+  status = 200
+
+# Illinois's 12th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/il-cd-12"
+  to = "/district-il-cd-12.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-cd-12/"
+  to = "/district-il-cd-12.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-cd-12.html"
+  to = "/district-il-cd-12.html"
   status = 200
 
 # Illinois's 13th Congressional District — U.S. House join
@@ -5190,6 +5470,34 @@
   to = "/district-ks-us-senate-jerry_moran.html"
   status = 200
 
+# Kentucky's 1st Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/ky-cd-1"
+  to = "/district-ky-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/ky-cd-1/"
+  to = "/district-ky-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/ky-cd-1.html"
+  to = "/district-ky-cd-1.html"
+  status = 200
+
+# Kentucky's 2nd Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/ky-cd-2"
+  to = "/district-ky-cd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/ky-cd-2/"
+  to = "/district-ky-cd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/ky-cd-2.html"
+  to = "/district-ky-cd-2.html"
+  status = 200
+
 # Kentucky's 3rd Congressional District — U.S. House join
 [[redirects]]
   from = "/district/ky-cd-3"
@@ -5260,6 +5568,20 @@
   to = "/district-ky-us-senate-rand_paul.html"
   status = 200
 
+# Louisiana's 1st Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/la-cd-1"
+  to = "/district-la-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/la-cd-1/"
+  to = "/district-la-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/la-cd-1.html"
+  to = "/district-la-cd-1.html"
+  status = 200
+
 # Louisiana's 2nd Congressional District — U.S. House join
 [[redirects]]
   from = "/district/la-cd-2"
@@ -5286,6 +5608,20 @@
 [[redirects]]
   from = "/district/la-cd-3.html"
   to = "/district-la-cd-3.html"
+  status = 200
+
+# Louisiana's 4th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/la-cd-4"
+  to = "/district-la-cd-4.html"
+  status = 200
+[[redirects]]
+  from = "/district/la-cd-4/"
+  to = "/district-la-cd-4.html"
+  status = 200
+[[redirects]]
+  from = "/district/la-cd-4.html"
+  to = "/district-la-cd-4.html"
   status = 200
 
 # Louisiana's 5th Congressional District — U.S. House join
@@ -5400,6 +5736,20 @@
   to = "/district-me-us-senate-angus_king.html"
   status = 200
 
+# Maryland's 1st Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/md-cd-1"
+  to = "/district-md-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/md-cd-1/"
+  to = "/district-md-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/md-cd-1.html"
+  to = "/district-md-cd-1.html"
+  status = 200
+
 # Maryland's 2nd Congressional District — U.S. House join
 [[redirects]]
   from = "/district/md-cd-2"
@@ -5442,6 +5792,20 @@
   to = "/district-md-cd-4.html"
   status = 200
 
+# Maryland's 5th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/md-cd-5"
+  to = "/district-md-cd-5.html"
+  status = 200
+[[redirects]]
+  from = "/district/md-cd-5/"
+  to = "/district-md-cd-5.html"
+  status = 200
+[[redirects]]
+  from = "/district/md-cd-5.html"
+  to = "/district-md-cd-5.html"
+  status = 200
+
 # Maryland's 6th Congressional District — U.S. House join
 [[redirects]]
   from = "/district/md-cd-6"
@@ -5468,6 +5832,20 @@
 [[redirects]]
   from = "/district/md-cd-7.html"
   to = "/district-md-cd-7.html"
+  status = 200
+
+# Maryland's 8th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/md-cd-8"
+  to = "/district-md-cd-8.html"
+  status = 200
+[[redirects]]
+  from = "/district/md-cd-8/"
+  to = "/district-md-cd-8.html"
+  status = 200
+[[redirects]]
+  from = "/district/md-cd-8.html"
+  to = "/district-md-cd-8.html"
   status = 200
 
 # U.S. Senate - Angela Alsobrooks — alsobrooks
@@ -5498,6 +5876,34 @@
   to = "/district-md-us-senate-van_hollen.html"
   status = 200
 
+# Massachusetts's 1st Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/ma-cd-1"
+  to = "/district-ma-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/ma-cd-1/"
+  to = "/district-ma-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/ma-cd-1.html"
+  to = "/district-ma-cd-1.html"
+  status = 200
+
+# Massachusetts's 2nd Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/ma-cd-2"
+  to = "/district-ma-cd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/ma-cd-2/"
+  to = "/district-ma-cd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/ma-cd-2.html"
+  to = "/district-ma-cd-2.html"
+  status = 200
+
 # Massachusetts's 3rd Congressional District — U.S. House join
 [[redirects]]
   from = "/district/ma-cd-3"
@@ -5510,6 +5916,62 @@
 [[redirects]]
   from = "/district/ma-cd-3.html"
   to = "/district-ma-cd-3.html"
+  status = 200
+
+# Massachusetts's 4th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/ma-cd-4"
+  to = "/district-ma-cd-4.html"
+  status = 200
+[[redirects]]
+  from = "/district/ma-cd-4/"
+  to = "/district-ma-cd-4.html"
+  status = 200
+[[redirects]]
+  from = "/district/ma-cd-4.html"
+  to = "/district-ma-cd-4.html"
+  status = 200
+
+# Massachusetts's 5th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/ma-cd-5"
+  to = "/district-ma-cd-5.html"
+  status = 200
+[[redirects]]
+  from = "/district/ma-cd-5/"
+  to = "/district-ma-cd-5.html"
+  status = 200
+[[redirects]]
+  from = "/district/ma-cd-5.html"
+  to = "/district-ma-cd-5.html"
+  status = 200
+
+# Massachusetts's 6th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/ma-cd-6"
+  to = "/district-ma-cd-6.html"
+  status = 200
+[[redirects]]
+  from = "/district/ma-cd-6/"
+  to = "/district-ma-cd-6.html"
+  status = 200
+[[redirects]]
+  from = "/district/ma-cd-6.html"
+  to = "/district-ma-cd-6.html"
+  status = 200
+
+# Massachusetts's 7th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/ma-cd-7"
+  to = "/district-ma-cd-7.html"
+  status = 200
+[[redirects]]
+  from = "/district/ma-cd-7/"
+  to = "/district-ma-cd-7.html"
+  status = 200
+[[redirects]]
+  from = "/district/ma-cd-7.html"
+  to = "/district-ma-cd-7.html"
   status = 200
 
 # Massachusetts's 8th Congressional District — U.S. House join
@@ -6072,6 +6534,20 @@
   to = "/district-mo-cd-5.html"
   status = 200
 
+# Missouri's 6th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/mo-cd-6"
+  to = "/district-mo-cd-6.html"
+  status = 200
+[[redirects]]
+  from = "/district/mo-cd-6/"
+  to = "/district-mo-cd-6.html"
+  status = 200
+[[redirects]]
+  from = "/district/mo-cd-6.html"
+  to = "/district-mo-cd-6.html"
+  status = 200
+
 # Missouri's 7th Congressional District — U.S. House join
 [[redirects]]
   from = "/district/mo-cd-7"
@@ -6084,6 +6560,20 @@
 [[redirects]]
   from = "/district/mo-cd-7.html"
   to = "/district-mo-cd-7.html"
+  status = 200
+
+# Missouri's 8th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/mo-cd-8"
+  to = "/district-mo-cd-8.html"
+  status = 200
+[[redirects]]
+  from = "/district/mo-cd-8/"
+  to = "/district-mo-cd-8.html"
+  status = 200
+[[redirects]]
+  from = "/district/mo-cd-8.html"
+  to = "/district-mo-cd-8.html"
   status = 200
 
 # U.S. Senate - Josh Hawley — hawley
@@ -6436,6 +6926,34 @@
   to = "/district-nj-cd-4.html"
   status = 200
 
+# New Jersey's 5th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/nj-cd-5"
+  to = "/district-nj-cd-5.html"
+  status = 200
+[[redirects]]
+  from = "/district/nj-cd-5/"
+  to = "/district-nj-cd-5.html"
+  status = 200
+[[redirects]]
+  from = "/district/nj-cd-5.html"
+  to = "/district-nj-cd-5.html"
+  status = 200
+
+# New Jersey's 6th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/nj-cd-6"
+  to = "/district-nj-cd-6.html"
+  status = 200
+[[redirects]]
+  from = "/district/nj-cd-6/"
+  to = "/district-nj-cd-6.html"
+  status = 200
+[[redirects]]
+  from = "/district/nj-cd-6.html"
+  to = "/district-nj-cd-6.html"
+  status = 200
+
 # New Jersey's 7th Congressional District — U.S. House join
 [[redirects]]
   from = "/district/nj-cd-7"
@@ -6632,6 +7150,34 @@
   to = "/district-ny-cd-1.html"
   status = 200
 
+# New York's 2nd Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/ny-cd-2"
+  to = "/district-ny-cd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-cd-2/"
+  to = "/district-ny-cd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-cd-2.html"
+  to = "/district-ny-cd-2.html"
+  status = 200
+
+# New York's 3rd Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/ny-cd-3"
+  to = "/district-ny-cd-3.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-cd-3/"
+  to = "/district-ny-cd-3.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-cd-3.html"
+  to = "/district-ny-cd-3.html"
+  status = 200
+
 # New York's 4th Congressional District — U.S. House join
 [[redirects]]
   from = "/district/ny-cd-4"
@@ -6644,6 +7190,20 @@
 [[redirects]]
   from = "/district/ny-cd-4.html"
   to = "/district-ny-cd-4.html"
+  status = 200
+
+# New York's 5th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/ny-cd-5"
+  to = "/district-ny-cd-5.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-cd-5/"
+  to = "/district-ny-cd-5.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-cd-5.html"
+  to = "/district-ny-cd-5.html"
   status = 200
 
 # New York's 6th Congressional District — U.S. House join
@@ -6674,6 +7234,34 @@
   to = "/district-ny-cd-7.html"
   status = 200
 
+# New York's 8th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/ny-cd-8"
+  to = "/district-ny-cd-8.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-cd-8/"
+  to = "/district-ny-cd-8.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-cd-8.html"
+  to = "/district-ny-cd-8.html"
+  status = 200
+
+# New York's 10th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/ny-cd-10"
+  to = "/district-ny-cd-10.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-cd-10/"
+  to = "/district-ny-cd-10.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-cd-10.html"
+  to = "/district-ny-cd-10.html"
+  status = 200
+
 # New York's 11th Congressional District — U.S. House join
 [[redirects]]
   from = "/district/ny-cd-11"
@@ -6686,6 +7274,20 @@
 [[redirects]]
   from = "/district/ny-cd-11.html"
   to = "/district-ny-cd-11.html"
+  status = 200
+
+# New York's 12th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/ny-cd-12"
+  to = "/district-ny-cd-12.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-cd-12/"
+  to = "/district-ny-cd-12.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-cd-12.html"
+  to = "/district-ny-cd-12.html"
   status = 200
 
 # New York's 13th Congressional District — U.S. House join
@@ -6702,6 +7304,34 @@
   to = "/district-ny-cd-13.html"
   status = 200
 
+# New York's 14th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/ny-cd-14"
+  to = "/district-ny-cd-14.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-cd-14/"
+  to = "/district-ny-cd-14.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-cd-14.html"
+  to = "/district-ny-cd-14.html"
+  status = 200
+
+# New York's 15th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/ny-cd-15"
+  to = "/district-ny-cd-15.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-cd-15/"
+  to = "/district-ny-cd-15.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-cd-15.html"
+  to = "/district-ny-cd-15.html"
+  status = 200
+
 # New York's 16th Congressional District — U.S. House join
 [[redirects]]
   from = "/district/ny-cd-16"
@@ -6714,6 +7344,20 @@
 [[redirects]]
   from = "/district/ny-cd-16.html"
   to = "/district-ny-cd-16.html"
+  status = 200
+
+# New York's 17th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/ny-cd-17"
+  to = "/district-ny-cd-17.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-cd-17/"
+  to = "/district-ny-cd-17.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-cd-17.html"
+  to = "/district-ny-cd-17.html"
   status = 200
 
 # New York's 18th Congressional District — U.S. House join
@@ -6756,6 +7400,20 @@
 [[redirects]]
   from = "/district/ny-cd-20.html"
   to = "/district-ny-cd-20.html"
+  status = 200
+
+# New York's 21st Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/ny-cd-21"
+  to = "/district-ny-cd-21.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-cd-21/"
+  to = "/district-ny-cd-21.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-cd-21.html"
+  to = "/district-ny-cd-21.html"
   status = 200
 
 # New York's 22nd Congressional District — U.S. House join
@@ -6910,6 +7568,20 @@
 [[redirects]]
   from = "/district/nc-cd-4.html"
   to = "/district-nc-cd-4.html"
+  status = 200
+
+# North Carolina's 5th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/nc-cd-5"
+  to = "/district-nc-cd-5.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-cd-5/"
+  to = "/district-nc-cd-5.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-cd-5.html"
+  to = "/district-nc-cd-5.html"
   status = 200
 
 # North Carolina's 6th Congressional District — U.S. House join
@@ -7094,6 +7766,20 @@
   to = "/district-nd-us-senate-hoeven.html"
   status = 200
 
+# Ohio's 1st Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/oh-cd-1"
+  to = "/district-oh-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/oh-cd-1/"
+  to = "/district-oh-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/oh-cd-1.html"
+  to = "/district-oh-cd-1.html"
+  status = 200
+
 # Ohio's 2nd Congressional District — U.S. House join
 [[redirects]]
   from = "/district/oh-cd-2"
@@ -7120,6 +7806,20 @@
 [[redirects]]
   from = "/district/oh-cd-3.html"
   to = "/district-oh-cd-3.html"
+  status = 200
+
+# Ohio's 4th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/oh-cd-4"
+  to = "/district-oh-cd-4.html"
+  status = 200
+[[redirects]]
+  from = "/district/oh-cd-4/"
+  to = "/district-oh-cd-4.html"
+  status = 200
+[[redirects]]
+  from = "/district/oh-cd-4.html"
+  to = "/district-oh-cd-4.html"
   status = 200
 
 # Ohio's 5th Congressional District — U.S. House join
@@ -7304,6 +8004,20 @@
   to = "/district-oh-us-senate-jon_husted.html"
   status = 200
 
+# Oklahoma's 1st Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/ok-cd-1"
+  to = "/district-ok-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/ok-cd-1/"
+  to = "/district-ok-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/ok-cd-1.html"
+  to = "/district-ok-cd-1.html"
+  status = 200
+
 # Oklahoma's 2nd Congressional District — U.S. House join
 [[redirects]]
   from = "/district/ok-cd-2"
@@ -7330,6 +8044,20 @@
 [[redirects]]
   from = "/district/ok-cd-3.html"
   to = "/district-ok-cd-3.html"
+  status = 200
+
+# Oklahoma's 4th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/ok-cd-4"
+  to = "/district-ok-cd-4.html"
+  status = 200
+[[redirects]]
+  from = "/district/ok-cd-4/"
+  to = "/district-ok-cd-4.html"
+  status = 200
+[[redirects]]
+  from = "/district/ok-cd-4.html"
+  to = "/district-ok-cd-4.html"
   status = 200
 
 # Oklahoma's 5th Congressional District — U.S. House join
@@ -7486,6 +8214,34 @@
   to = "/district-or-us-senate-merkley.html"
   status = 200
 
+# Pennsylvania's 1st Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/pa-cd-1"
+  to = "/district-pa-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-cd-1/"
+  to = "/district-pa-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-cd-1.html"
+  to = "/district-pa-cd-1.html"
+  status = 200
+
+# Pennsylvania's 2nd Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/pa-cd-2"
+  to = "/district-pa-cd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-cd-2/"
+  to = "/district-pa-cd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-cd-2.html"
+  to = "/district-pa-cd-2.html"
+  status = 200
+
 # Pennsylvania's 3rd Congressional District — U.S. House join
 [[redirects]]
   from = "/district/pa-cd-3"
@@ -7612,6 +8368,20 @@
   to = "/district-pa-cd-11.html"
   status = 200
 
+# Pennsylvania's 12th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/pa-cd-12"
+  to = "/district-pa-cd-12.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-cd-12/"
+  to = "/district-pa-cd-12.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-cd-12.html"
+  to = "/district-pa-cd-12.html"
+  status = 200
+
 # Pennsylvania's 13th Congressional District — U.S. House join
 [[redirects]]
   from = "/district/pa-cd-13"
@@ -7638,6 +8408,20 @@
 [[redirects]]
   from = "/district/pa-cd-14.html"
   to = "/district-pa-cd-14.html"
+  status = 200
+
+# Pennsylvania's 15th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/pa-cd-15"
+  to = "/district-pa-cd-15.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-cd-15/"
+  to = "/district-pa-cd-15.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-cd-15.html"
+  to = "/district-pa-cd-15.html"
   status = 200
 
 # Pennsylvania's 16th Congressional District — U.S. House join
@@ -7752,6 +8536,20 @@
   to = "/district-ri-us-senate-whitehouse.html"
   status = 200
 
+# South Carolina's 1st Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/sc-cd-1"
+  to = "/district-sc-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/sc-cd-1/"
+  to = "/district-sc-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/sc-cd-1.html"
+  to = "/district-sc-cd-1.html"
+  status = 200
+
 # South Carolina's 2nd Congressional District — U.S. House join
 [[redirects]]
   from = "/district/sc-cd-2"
@@ -7806,6 +8604,20 @@
 [[redirects]]
   from = "/district/sc-cd-5.html"
   to = "/district-sc-cd-5.html"
+  status = 200
+
+# South Carolina's 6th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/sc-cd-6"
+  to = "/district-sc-cd-6.html"
+  status = 200
+[[redirects]]
+  from = "/district/sc-cd-6/"
+  to = "/district-sc-cd-6.html"
+  status = 200
+[[redirects]]
+  from = "/district/sc-cd-6.html"
+  to = "/district-sc-cd-6.html"
   status = 200
 
 # South Carolina's 7th Congressional District — U.S. House join
@@ -8060,6 +8872,20 @@
   to = "/district-tx-cd-1.html"
   status = 200
 
+# Texas's 2nd Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/tx-cd-2"
+  to = "/district-tx-cd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-cd-2/"
+  to = "/district-tx-cd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-cd-2.html"
+  to = "/district-tx-cd-2.html"
+  status = 200
+
 # Texas's 3rd Congressional District — U.S. House join
 [[redirects]]
   from = "/district/tx-cd-3"
@@ -8270,6 +9096,20 @@
   to = "/district-tx-cd-18.html"
   status = 200
 
+# Texas's 19th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/tx-cd-19"
+  to = "/district-tx-cd-19.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-cd-19/"
+  to = "/district-tx-cd-19.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-cd-19.html"
+  to = "/district-tx-cd-19.html"
+  status = 200
+
 # Texas's 20th Congressional District — U.S. House join
 [[redirects]]
   from = "/district/tx-cd-20"
@@ -8282,6 +9122,20 @@
 [[redirects]]
   from = "/district/tx-cd-20.html"
   to = "/district-tx-cd-20.html"
+  status = 200
+
+# Texas's 21st Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/tx-cd-21"
+  to = "/district-tx-cd-21.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-cd-21/"
+  to = "/district-tx-cd-21.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-cd-21.html"
+  to = "/district-tx-cd-21.html"
   status = 200
 
 # Texas's 22nd Congressional District — U.S. House join
@@ -8310,6 +9164,20 @@
 [[redirects]]
   from = "/district/tx-cd-24.html"
   to = "/district-tx-cd-24.html"
+  status = 200
+
+# Texas's 25th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/tx-cd-25"
+  to = "/district-tx-cd-25.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-cd-25/"
+  to = "/district-tx-cd-25.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-cd-25.html"
+  to = "/district-tx-cd-25.html"
   status = 200
 
 # Texas's 26th Congressional District — U.S. House join
@@ -8368,6 +9236,20 @@
   to = "/district-tx-cd-29.html"
   status = 200
 
+# Texas's 30th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/tx-cd-30"
+  to = "/district-tx-cd-30.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-cd-30/"
+  to = "/district-tx-cd-30.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-cd-30.html"
+  to = "/district-tx-cd-30.html"
+  status = 200
+
 # Texas's 31st Congressional District — U.S. House join
 [[redirects]]
   from = "/district/tx-cd-31"
@@ -8422,6 +9304,20 @@
 [[redirects]]
   from = "/district/tx-cd-34.html"
   to = "/district-tx-cd-34.html"
+  status = 200
+
+# Texas's 36th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/tx-cd-36"
+  to = "/district-tx-cd-36.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-cd-36/"
+  to = "/district-tx-cd-36.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-cd-36.html"
+  to = "/district-tx-cd-36.html"
   status = 200
 
 # Texas's 37th Congressional District — U.S. House join
@@ -8548,6 +9444,20 @@
 [[redirects]]
   from = "/district/va-cd-2.html"
   to = "/district-va-cd-2.html"
+  status = 200
+
+# Virginia's 3rd Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/va-cd-3"
+  to = "/district-va-cd-3.html"
+  status = 200
+[[redirects]]
+  from = "/district/va-cd-3/"
+  to = "/district-va-cd-3.html"
+  status = 200
+[[redirects]]
+  from = "/district/va-cd-3.html"
+  to = "/district-va-cd-3.html"
   status = 200
 
 # Virginia's 4th Congressional District — U.S. House join
@@ -8690,6 +9600,34 @@
   to = "/district-va-us-senate-warner.html"
   status = 200
 
+# Washington's 2nd Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/wa-cd-2"
+  to = "/district-wa-cd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/wa-cd-2/"
+  to = "/district-wa-cd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/wa-cd-2.html"
+  to = "/district-wa-cd-2.html"
+  status = 200
+
+# Washington's 3rd Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/wa-cd-3"
+  to = "/district-wa-cd-3.html"
+  status = 200
+[[redirects]]
+  from = "/district/wa-cd-3/"
+  to = "/district-wa-cd-3.html"
+  status = 200
+[[redirects]]
+  from = "/district/wa-cd-3.html"
+  to = "/district-wa-cd-3.html"
+  status = 200
+
 # Washington's 4th Congressional District — U.S. House join
 [[redirects]]
   from = "/district/wa-cd-4"
@@ -8732,6 +9670,20 @@
   to = "/district-wa-cd-6.html"
   status = 200
 
+# Washington's 7th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/wa-cd-7"
+  to = "/district-wa-cd-7.html"
+  status = 200
+[[redirects]]
+  from = "/district/wa-cd-7/"
+  to = "/district-wa-cd-7.html"
+  status = 200
+[[redirects]]
+  from = "/district/wa-cd-7.html"
+  to = "/district-wa-cd-7.html"
+  status = 200
+
 # Washington's 8th Congressional District — U.S. House join
 [[redirects]]
   from = "/district/wa-cd-8"
@@ -8744,6 +9696,20 @@
 [[redirects]]
   from = "/district/wa-cd-8.html"
   to = "/district-wa-cd-8.html"
+  status = 200
+
+# Washington's 9th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/wa-cd-9"
+  to = "/district-wa-cd-9.html"
+  status = 200
+[[redirects]]
+  from = "/district/wa-cd-9/"
+  to = "/district-wa-cd-9.html"
+  status = 200
+[[redirects]]
+  from = "/district/wa-cd-9.html"
+  to = "/district-wa-cd-9.html"
   status = 200
 
 # Washington's 10th Congressional District — U.S. House join
@@ -8842,6 +9808,20 @@
 [[redirects]]
   from = "/district/wv-us-senate-jim_justice.html"
   to = "/district-wv-us-senate-jim_justice.html"
+  status = 200
+
+# Wisconsin's 1st Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/wi-cd-1"
+  to = "/district-wi-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/wi-cd-1/"
+  to = "/district-wi-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/wi-cd-1.html"
+  to = "/district-wi-cd-1.html"
   status = 200
 
 # Wisconsin's 2nd Congressional District — U.S. House join
@@ -9012,6 +9992,20 @@
   to = "/district-wy-us-senate-lummis.html"
   status = 200
 
+# Governor - Kay Ivey — kay_ivey
+[[redirects]]
+  from = "/district/al-gov"
+  to = "/district-al-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/al-gov/"
+  to = "/district-al-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/al-gov.html"
+  to = "/district-al-gov.html"
+  status = 200
+
 # Governor - Mike Dunleavy — dunleavy
 [[redirects]]
   from = "/district/ak-gov"
@@ -9024,6 +10018,48 @@
 [[redirects]]
   from = "/district/ak-gov.html"
   to = "/district-ak-gov.html"
+  status = 200
+
+# Governor - Katie Hobbs — katie_hobbs
+[[redirects]]
+  from = "/district/az-gov"
+  to = "/district-az-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/az-gov/"
+  to = "/district-az-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/az-gov.html"
+  to = "/district-az-gov.html"
+  status = 200
+
+# Governor - Sarah Huckabee Sanders — sarah_huckabee_sanders
+[[redirects]]
+  from = "/district/ar-gov"
+  to = "/district-ar-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/ar-gov/"
+  to = "/district-ar-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/ar-gov.html"
+  to = "/district-ar-gov.html"
+  status = 200
+
+# Governor - Gavin Newsom — gavin_newsom
+[[redirects]]
+  from = "/district/ca-gov"
+  to = "/district-ca-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-gov/"
+  to = "/district-ca-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-gov.html"
+  to = "/district-ca-gov.html"
   status = 200
 
 # Governor - Jared Polis — jared_polis
@@ -9040,6 +10076,62 @@
   to = "/district-co-gov.html"
   status = 200
 
+# Governor - Ned Lamont — ned_lamont
+[[redirects]]
+  from = "/district/ct-gov"
+  to = "/district-ct-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/ct-gov/"
+  to = "/district-ct-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/ct-gov.html"
+  to = "/district-ct-gov.html"
+  status = 200
+
+# Governor - Ron DeSantis — ron_desantis
+[[redirects]]
+  from = "/district/fl-gov"
+  to = "/district-fl-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-gov/"
+  to = "/district-fl-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-gov.html"
+  to = "/district-fl-gov.html"
+  status = 200
+
+# Governor - Brian Kemp — brian_kemp
+[[redirects]]
+  from = "/district/ga-gov"
+  to = "/district-ga-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-gov/"
+  to = "/district-ga-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/ga-gov.html"
+  to = "/district-ga-gov.html"
+  status = 200
+
+# Governor - Josh Green — josh_green
+[[redirects]]
+  from = "/district/hi-gov"
+  to = "/district-hi-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/hi-gov/"
+  to = "/district-hi-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/hi-gov.html"
+  to = "/district-hi-gov.html"
+  status = 200
+
 # Governor - Brad Little — brad_little
 [[redirects]]
   from = "/district/id-gov"
@@ -9054,6 +10146,48 @@
   to = "/district-id-gov.html"
   status = 200
 
+# Governor - JB Pritzker — jb_pritzker
+[[redirects]]
+  from = "/district/il-gov"
+  to = "/district-il-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-gov/"
+  to = "/district-il-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-gov.html"
+  to = "/district-il-gov.html"
+  status = 200
+
+# Governor - Kim Reynolds — kim_reynolds
+[[redirects]]
+  from = "/district/ia-gov"
+  to = "/district-ia-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/ia-gov/"
+  to = "/district-ia-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/ia-gov.html"
+  to = "/district-ia-gov.html"
+  status = 200
+
+# Governor - Laura Kelly — laura_kelly
+[[redirects]]
+  from = "/district/ks-gov"
+  to = "/district-ks-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/ks-gov/"
+  to = "/district-ks-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/ks-gov.html"
+  to = "/district-ks-gov.html"
+  status = 200
+
 # Governor - Janet Mills — janet_mills
 [[redirects]]
   from = "/district/me-gov"
@@ -9066,6 +10200,34 @@
 [[redirects]]
   from = "/district/me-gov.html"
   to = "/district-me-gov.html"
+  status = 200
+
+# Governor - Wes Moore — wes_moore
+[[redirects]]
+  from = "/district/md-gov"
+  to = "/district-md-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/md-gov/"
+  to = "/district-md-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/md-gov.html"
+  to = "/district-md-gov.html"
+  status = 200
+
+# Governor - Maura Healey — maura_healey
+[[redirects]]
+  from = "/district/ma-gov"
+  to = "/district-ma-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/ma-gov/"
+  to = "/district-ma-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/ma-gov.html"
+  to = "/district-ma-gov.html"
   status = 200
 
 # Governor - Gretchen Whitmer — gretchen_whitmer
@@ -9152,6 +10314,104 @@
   to = "/district-nv-gov.html"
   status = 200
 
+# Governor - Kelly Ayotte — kelly_ayotte
+[[redirects]]
+  from = "/district/nh-gov"
+  to = "/district-nh-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/nh-gov/"
+  to = "/district-nh-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/nh-gov.html"
+  to = "/district-nh-gov.html"
+  status = 200
+
+# Governor - Michelle Lujan Grisham — michelle_lujan_grisham
+[[redirects]]
+  from = "/district/nm-gov"
+  to = "/district-nm-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/nm-gov/"
+  to = "/district-nm-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/nm-gov.html"
+  to = "/district-nm-gov.html"
+  status = 200
+
+# Governor - Kathy Hochul — kathy_hochul
+[[redirects]]
+  from = "/district/ny-gov"
+  to = "/district-ny-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-gov/"
+  to = "/district-ny-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-gov.html"
+  to = "/district-ny-gov.html"
+  status = 200
+
+# Governor - Mike DeWine — mike_dewine
+[[redirects]]
+  from = "/district/oh-gov"
+  to = "/district-oh-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/oh-gov/"
+  to = "/district-oh-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/oh-gov.html"
+  to = "/district-oh-gov.html"
+  status = 200
+
+# Governor - Kevin Stitt — kevin_stitt
+[[redirects]]
+  from = "/district/ok-gov"
+  to = "/district-ok-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/ok-gov/"
+  to = "/district-ok-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/ok-gov.html"
+  to = "/district-ok-gov.html"
+  status = 200
+
+# Governor - Tina Kotek — tina_kotek
+[[redirects]]
+  from = "/district/or-gov"
+  to = "/district-or-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/or-gov/"
+  to = "/district-or-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/or-gov.html"
+  to = "/district-or-gov.html"
+  status = 200
+
+# Governor - Josh Shapiro — josh_shapiro
+[[redirects]]
+  from = "/district/pa-gov"
+  to = "/district-pa-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-gov/"
+  to = "/district-pa-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-gov.html"
+  to = "/district-pa-gov.html"
+  status = 200
+
 # Governor - Dan McKee — dan_mckee
 [[redirects]]
   from = "/district/ri-gov"
@@ -9164,6 +10424,20 @@
 [[redirects]]
   from = "/district/ri-gov.html"
   to = "/district-ri-gov.html"
+  status = 200
+
+# Governor - Henry McMaster — henry_mcmaster
+[[redirects]]
+  from = "/district/sc-gov"
+  to = "/district-sc-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/sc-gov/"
+  to = "/district-sc-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/sc-gov.html"
+  to = "/district-sc-gov.html"
   status = 200
 
 # Governor - Larry Rhoden — larry_rhoden
@@ -9194,6 +10468,20 @@
   to = "/district-tn-gov.html"
   status = 200
 
+# Governor - Greg Abbott — greg_abbott
+[[redirects]]
+  from = "/district/tx-gov"
+  to = "/district-tx-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-gov/"
+  to = "/district-tx-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-gov.html"
+  to = "/district-tx-gov.html"
+  status = 200
+
 # Governor - Phil Scott — phil_scott
 [[redirects]]
   from = "/district/vt-gov"
@@ -9206,6 +10494,34 @@
 [[redirects]]
   from = "/district/vt-gov.html"
   to = "/district-vt-gov.html"
+  status = 200
+
+# Governor - Tony Evers — evers
+[[redirects]]
+  from = "/district/wi-gov"
+  to = "/district-wi-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/wi-gov/"
+  to = "/district-wi-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/wi-gov.html"
+  to = "/district-wi-gov.html"
+  status = 200
+
+# Governor - Mark Gordon — mark_gordon
+[[redirects]]
+  from = "/district/wy-gov"
+  to = "/district-wy-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/wy-gov/"
+  to = "/district-wy-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/wy-gov.html"
+  to = "/district-wy-gov.html"
   status = 200
 
 # Alaska House District 1 — bynum_ak
