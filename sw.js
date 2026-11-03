@@ -11424,7 +11424,18 @@
 //     related-issues.js and consistency.js are precached and changed, so the
 //     shell moves one version.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v509';
+// v510 - RELATED ISSUES: EVERY LINE SHOWS BOTH PARTS.
+//     Each related-issue line now carries a stated part ("supports",
+//     "opposes" or "no stated position") and a record part ("record runs
+//     with", "record runs against", the drawer's "N for · N against" tally,
+//     or "no record"), in that order, on one line — e.g. "Middle-Class Tax
+//     Relief: no stated position · 1 for · 1 against". The absent-part words
+//     and the tally are neutral; position and one-way record words keep green
+//     / red. The map, which issues appear, scores, Direction Match and the
+//     vote table are unchanged. related-issues.js is precached and changed,
+//     so the shell moves one version.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v510';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
