@@ -11534,7 +11534,20 @@
 //     No location key or other stored reader state is read or rewritten, so
 //     nothing on the device is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v517';
+// v518 - DISTRICT VOICE IS OPEN, NOT UTAH FIRST.
+//     The first-visit welcome no longer says state legislative boards are live
+//     in Utah first or that other states will be added over time; since v517
+//     every existing board takes a voice. In its place, under the District
+//     Voice point and on the guided path's rooms step and end card, one line:
+//     "District Voice is open for the seats PolitiDex already has. Anyone can
+//     read a board. Only a verified resident of that seat gets a voice that
+//     counts." The homepage card and the /voice header carried no Utah-first
+//     copy and are unchanged. No route, gate or composer change.
+//     first-visit-coach.js is precached and changed, so the shell moves one
+//     version. No location key or other stored reader state is read or
+//     rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v518';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

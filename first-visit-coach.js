@@ -3,8 +3,8 @@
    ────────────────────────────────────────────────────────────────────────────
    WHAT IT IS. One small popup, in plain language, for a reader who has never
    been here: set your location, search anything and see what they said versus
-   how they voted, and what District Voice is (with one line saying boards and
-   state legislative mapping are Utah-first). Three short points and three
+   how they voted, and what District Voice is (with one line saying it is open
+   for the seats PolitiDex already has, in every state). Three short points and three
    clear buttons — "Set my location", "Got it", "Not now" — plus a close (×).
 
    WHEN IT APPEARS. Only for a first visit: no saved location
@@ -70,7 +70,7 @@
   'use strict';
   if (window.PDXCoach) return;
 
-  var BUILD = 'v515';                  // logged, so DevTools shows which copy is running
+  var BUILD = 'v518';                  // logged, so DevTools shows which copy is running
   var KEY = 'pdx_coach_seen';          // localStorage: set once, when the popup closes
   var DELAY_MS = 9000;                 // after the page is parsed, so the hero is seen first
   var RETRY_MS = 2000;                 // another dialog is open: look again this soon
@@ -100,16 +100,15 @@
   var POINTS = [
     'Set your location so PolitiDex can show the people who already represent you.',
     'Search any politician, bill, topic or claim and see what they said versus how they voted.',
-    'District Voice is the rooms for your seats. ' + VOICE_LINE
+    'District Voice is the rooms for your seats.'
   ];
 
-  // UTAH FIRST, said once, under the District Voice point. True to the site as
-  // it stands: state legislative lines are drawn only for Utah, so every State
-  // House and State Senate board is a Utah seat, while every state's U.S. House
-  // and U.S. Senate seat the roster names a member for has a read-only board —
-  // so the sentence names legislative boards and mapping, then says the federal
-  // boards are everywhere, and never says "your representatives".
-  var SCOPE_NOTE = 'State legislative boards and mapping are live in Utah first. Other states will be added over time. U.S. House and U.S. Senate boards are open in every state.';
+  // THE SCOPE, said once, under the District Voice point. Since v517 every
+  // existing board in every state takes a voice, so the old "Utah first, other
+  // states later" note is gone. This is the one line that replaced it, and it
+  // ends with VOICE_LINE's rule in the singular. The same line is on step 3
+  // and the end card, the path's two District Voice steps.
+  var SCOPE_NOTE = 'District Voice is open for the seats PolitiDex already has. Anyone can read a board. Only a verified resident of that seat gets a voice that counts.';
   // Inline as well as in the sheet below, so the line renders the same whether
   // or not the injected rules arrived — a plain muted line, never hidden.
   var SCOPE_STYLE = 'display:block;visibility:visible;opacity:1;margin-top:0.35rem;font-size:0.9rem;line-height:1.5;color:#9fb5a8;';
@@ -238,7 +237,7 @@
           POINTS.map(function (p, i) {
             return '<li class="pdxfc-point"><span class="pdxfc-n" aria-hidden="true">' + (i + 1) + '</span>' +
               '<span>' + esc(p) +
-              (i === POINTS.length - 1 ? '<span class="pdxfc-scope" data-pdxfc-scope="utah" style="' + SCOPE_STYLE + '">' + esc(SCOPE_NOTE) + '</span>' : '') +
+              (i === POINTS.length - 1 ? '<span class="pdxfc-scope" data-pdxfc-scope="open" style="' + SCOPE_STYLE + '">' + esc(SCOPE_NOTE) + '</span>' : '') +
               '</span></li>';
           }).join('') +
         '</ol>' +
@@ -252,7 +251,7 @@
 
   // ── Steps 2, 3 and the end, in the same card ─────────────────────────────
   var SEE_LINE = 'These are the people who already hold power over you, seat by seat, for the place you set.';
-  var ROOMS_LINE = 'These rooms are for your seats. Anyone can read them. Only a verified resident gets a voice that counts.';
+  var ROOMS_LINE = 'These rooms are for your seats. ' + SCOPE_NOTE;
   var STANCE_LINE = 'A stance is one issue and where you stand on it. It goes on your file, and you can change it any time.';
   var BALLOT_LINE = 'Your ballot is where you pick who you want in each seat.';
   var ALIGN_LINE = 'The alignment tool shows how your stances line up with the people on your ballot.';
@@ -279,6 +278,7 @@
         '<button type="button" class="pdxfc-next" data-pdxfc-act="finish">I’m done</button>';
     } else {
       kick = 'All set'; title = 'That’s the path'; line = END_LINE;
+      extra = '<p class="pdxfc-sub">' + esc(SCOPE_NOTE) + '</p>';
       acts = '<button type="button" class="pdxfc-next" data-pdxfc-act="finish">Done</button>';
     }
     return '<div class="pdxfc-card" data-pdxfc-step="' + esc(step) + '">' +
