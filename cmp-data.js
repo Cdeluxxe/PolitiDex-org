@@ -61305,5 +61305,29 @@ window.CMP_CANDIDACIES = {
  // AK State Senate District Q · Registered Republican
  "tomaszewski_ak": { "office": "Alaska State Senate Candidate (District Q)", "state": "Alaska", "district": "Q", "partyFiled": "Registered Republican", "candidacyStatus": "active", "nextElection": "2026-11-03" },
  // AK State Senate District S · Undeclared
- "edgmon_ak": { "office": "Alaska State Senate Candidate (District S)", "state": "Alaska", "district": "S", "partyFiled": "Undeclared", "candidacyStatus": "active", "nextElection": "2026-11-03" }
+ "edgmon_ak": { "office": "Alaska State Senate Candidate (District S)", "state": "Alaska", "district": "S", "partyFiled": "Undeclared", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // ── Election-day wave follow-up (November 3, 2026): sitting officeholders on the
+ // official Alabama, Arizona, Kansas, New Hampshire, Ohio and Pennsylvania lists
+ // for a DIFFERENT office. db/roster-candidates-2026-nov.json held each as their
+ // existing roster row; the office they are seeking is here, read from the same
+ // lists (db/roster-cross-office-candidacies-2026-nov.json is the record). Each
+ // row above is untouched.
+ // AL U.S. Senate · Republican
+ "barry_moore": { "office": "U.S. Senate Candidate", "state": "Alabama", "partyFiled": "Republican", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // AL Governor · Republican
+ "tommy_tuberville": { "office": "Governor Candidate", "state": "Alabama", "partyFiled": "Republican", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // AZ Governor · REP
+ "andy_biggs": { "office": "Governor Candidate", "state": "Arizona", "partyFiled": "REP", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // AZ Attorney General · REP
+ "warren_petersen": { "office": "Attorney General Candidate", "state": "Arizona", "partyFiled": "REP", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // KS Governor · Republican
+ "ty_masterson": { "office": "Governor Candidate", "state": "Kansas", "partyFiled": "Republican", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // NH U.S. Senate · Democratic
+ "chris_pappas": { "office": "U.S. Senate Candidate", "state": "New Hampshire", "partyFiled": "Democratic", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // OH Lieutenant Governor · Republican
+ "rob_mccolley": { "office": "Lieutenant Governor Candidate", "state": "Ohio", "partyFiled": "Republican", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // OH Secretary of State · Democratic
+ "russo_oh": { "office": "Secretary of State Candidate", "state": "Ohio", "partyFiled": "Democratic", "candidacyStatus": "active", "nextElection": "2026-11-03" },
+ // PA-3 · DEMOCRATIC
+ "rabb_pa": { "office": "U.S. House Candidate (PA-3)", "state": "Pennsylvania", "district": "3", "partyFiled": "DEMOCRATIC", "candidacyStatus": "active", "nextElection": "2026-11-03" }
 };

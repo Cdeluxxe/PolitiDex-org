@@ -3714,7 +3714,11 @@ export const DECLARED_CANDIDACIES = {
     .concat(JSON.parse(_readFileSync(new URL("../db/roster-state-legislators-me-co-mn-nv-2026-oct.json", import.meta.url), "utf8")).seatedFromCandidacy.map((r) => r.pid))
     // …and the Mississippi, Vermont, Michigan and Tennessee pass's, the same way.
     .concat(JSON.parse(_readFileSync(new URL("../db/roster-candidates-legislative-mi-tn-vt-2026-oct.json", import.meta.url), "utf8")).crossSeat.map((r) => r.pid))
-    .concat(JSON.parse(_readFileSync(new URL("../db/roster-state-legislators-ms-vt-mi-tn-2026-oct.json", import.meta.url), "utf8")).seatedFromCandidacy.map((r) => r.pid)),
+    .concat(JSON.parse(_readFileSync(new URL("../db/roster-state-legislators-ms-vt-mi-tn-2026-oct.json", import.meta.url), "utf8")).seatedFromCandidacy.map((r) => r.pid))
+    // …and the election-day wave's sitting members running for a different
+    // office in Alabama, Arizona, Kansas, New Hampshire, Ohio and Pennsylvania.
+    .concat(JSON.parse(_readFileSync(new URL("../db/roster-cross-office-candidacies-2026-nov.json", import.meta.url), "utf8")).rows.map((r) => r.pid)),
+  electionDay: JSON.parse(_readFileSync(new URL("../db/roster-cross-office-candidacies-2026-nov.json", import.meta.url), "utf8")).rows.map((r) => r.pid),
 };
 const CANDIDACY_KEY = /^ "([a-z0-9_]+)": \{ "office"/gm;
 const ROSTER_KEY = /^\s*"([a-z0-9_]+)":\s*\{$/gm;
@@ -3818,7 +3822,10 @@ export function carveDeclaredAdmissions(src) {
   const ct = out.indexOf(DECLARED_CANDIDACIES.banner);
   if (ct > out.lastIndexOf("\n});")) {
     const keys = [...out.slice(ct).matchAll(CANDIDACY_KEY)].map((m) => m[1]).sort();
-    if (keys.join(",") === DECLARED_CANDIDACIES.pids.slice().sort().join(",")) out = out.slice(0, ct);
+    // The tree before the election-day cross-office pass held every declared
+    // key but that pass's; it carves the same way.
+    const before = DECLARED_CANDIDACIES.pids.filter((p) => DECLARED_CANDIDACIES.electionDay.indexOf(p) < 0);
+    if (keys.join(",") === DECLARED_CANDIDACIES.pids.slice().sort().join(",") || keys.join(",") === before.sort().join(",")) out = out.slice(0, ct);
   }
   return out;
 }

@@ -537,6 +537,10 @@ export const ELECTION_DAY_SEATS = new Set([...EDAY.usHouseDistrictSet.map((r) =>
 export const isElectionDay = (k) => ELECTION_DAY_SEATS.has(k) || EDAY_DOCS.has(k) || EDAY_RECORDS.has(k);
 // The wave's new candidate rows, by pid (db/roster-candidates-2026-nov.json).
 export const ELECTION_DAY_CANDIDATES = new Set(JSON.parse(readFileSync(join(ROOT, "db/roster-candidates-2026-nov.json"), "utf8")).rows.map((r) => r.pid));
+// The election-day wave's sitting members running for a different office: their
+// candidacy is in CMP_CANDIDACIES (db/roster-cross-office-candidacies-2026-nov.json),
+// held there by scripts/test-roster-cross-office-candidacies-2026-nov.mjs.
+export const ELECTION_DAY_CROSS_OFFICE = new Set(JSON.parse(readFileSync(join(ROOT, "db/roster-cross-office-candidacies-2026-nov.json"), "utf8")).rows.map((r) => r.pid));
 // An older baseline cmp-data.js with the wave's declared districts put on
 // (each right after its row's "state" line, exactly where the wave wrote it),
 // for a suite that walks the resolver on that baseline and today's roster and
