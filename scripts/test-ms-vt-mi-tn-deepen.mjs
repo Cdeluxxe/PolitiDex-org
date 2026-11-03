@@ -41,7 +41,7 @@ import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
-import { R, AT, boot, levelOf, band, isElectionDay, isElectionDayLine, withoutElectionDayRewrites, withoutElectionDayDistrict, ELECTION_DAY_CANDIDATES, ELECTION_DAY_CROSS_OFFICE, withElectionDayDistricts } from "./state-leg-harness.mjs";
+import { R, AT, boot, levelOf, band, isElectionDay, isElectionDayLine, withoutElectionDayRewrites, withoutElectionDayDistrict, ELECTION_DAY_CANDIDATES, ELECTION_DAY_CROSS_OFFICE, withElectionDayDistricts, withoutEveryBoardVoice, isEveryBoardSeat } from "./state-leg-harness.mjs";
 import { planBoards, STATE_LEG_BOARD_STATES, GOVERNOR_STATES, STATE_LEG_SEAT_COUNTS, STATE_LEG_BOARD_SEATS, FEDERAL_READ_ONLY_SEATS } from "./gen-district-boards.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -71,9 +71,15 @@ const W1 = load(R("cmp-data.js")), W0 = load(BASE("cmp-data.js"));
 const RO = W1.CMP_DATA, RO0 = W0.CMP_DATA;
 const EQUITY = /\bequity\b|\bshareholders?\b|\bdividends?\b|\bcrowdfund|\bstock\b|\bmembership\b|\bdonat/i;
 
+// v517 put every read-only board on the composer lists; this suite holds its
+// own pass's contract, so the composer files are read with v517's rows taken
+// back out (state-leg-harness.mjs withoutEveryBoardVoice), and "read-only" in
+// this pass means one of v517's seats. The v517 block at the end checks the
+// real files.
+const RX = (f) => withoutEveryBoardVoice(f, R(f));
 const FILES = {
-  boards: R("district-board.js"), routes: R("district-voice.js"), seats: R("netlify/functions/district-board.mts"),
-  core: R("netlify/lib/district-board-voice-core.mjs"), composer: R("district-composer.js"), poll: R("district-poll.js"),
+  boards: RX("district-board.js"), routes: R("district-voice.js"), seats: R("netlify/functions/district-board.mts"),
+  core: RX("netlify/lib/district-board-voice-core.mjs"), composer: RX("district-composer.js"), poll: RX("district-poll.js"),
   toml: R("netlify.toml"),
 };
 const onContract = (b, m, voiced = false) => {
@@ -101,7 +107,7 @@ for (const [code, name] of FOUR) {
   if (!ok(b, `${name}: no governor board`)) continue;
   eq(b.pid, GOV_PID[code], `${name}: governor board names the wrong pid`);
   eq(RO[b.pid].office, "Governor", `${name}: governor's roster office`);
-  eq(b.readOnly, true, `${name}: governor board takes a voice`);
+  eq(isEveryBoardSeat(b.seat), true, `${name}: governor board takes a voice`);
   eq(b.where, `Statewide · the whole State of ${name}`, `${name}: governor board's place line`);
   onContract(b, `${name} governor`);
   const doc = R(b.doc);
@@ -164,7 +170,7 @@ for (const [code, name] of FOUR) {
   eq(legB.length, members("statesenate") + members("statehouse") - vacant, `${name}: not every filled seat has a board`);
   for (const b of legB) {
     const voiced = STATE_LEG_BOARD_SEATS.has(b.seat) && code === "mi";
-    eq(b.readOnly, !voiced, `${name}: ${b.seat} voice`);
+    eq(isEveryBoardSeat(b.seat), !voiced, `${name}: ${b.seat} voice`);
     onContract(b, `${name} ${b.seat}`, voiced);
     // A board that already existed is byte-for-byte what it was.
     if (BASE(b.doc) !== null) eq(R(b.doc), BASE(b.doc), `${b.seat}: an existing board moved`);
@@ -175,7 +181,7 @@ for (const [code, name] of FOUR) {
   for (const s of SKIPPED.filter((x) => x.seat.startsWith(code + "-state"))) eq(s.reason, "no sitting member on the roster", `${s.seat}: skipped for another reason`);
   console.log(`      ${name}: ${legB.length} legislative boards, ${skippedHere.length} skipped (${skippedHere.join(", ") || "none"})`);
 }
-eq(PLAN.filter((b) => b.stateLeg && b.seat.startsWith("mi-") && !b.readOnly).length, 10, "Michigan: the ten contested boards are not all voiced");
+eq(PLAN.filter((b) => b.stateLeg && b.seat.startsWith("mi-") && !isEveryBoardSeat(b.seat)).length, 10, "Michigan: the ten contested boards are not all voiced");
 // Jeffrey Hulum III holds Mississippi House 119 and is the MS-4 nominee: one row, seated.
 eq(BY.get("ms-statehouse-119").pid, "jeffrey_hulum", "Mississippi House 119 is not Jeffrey Hulum III's");
 eq(Object.keys(RO).filter((k) => /hulum/.test(k)).join(","), "jeffrey_hulum", "Jeffrey Hulum III has a second row");
@@ -188,7 +194,7 @@ for (const [seat, pid] of Object.entries(HOUSE)) {
   const b = BY.get(seat);
   if (!ok(b, `${seat}: no board`)) continue;
   eq(b.joinPid, pid, `${seat}: held by someone else`);
-  eq(b.readOnly, true, `${seat}: takes a voice`);
+  eq(isEveryBoardSeat(b.seat), true, `${seat}: takes a voice`);
   ok(FEDERAL_READ_ONLY_SEATS.has(seat), `${seat}: not on FEDERAL_READ_ONLY_SEATS`);
   onContract(b, seat);
   eq(BASE(b.doc), null, `${seat}: baseline already had a document`);
@@ -264,14 +270,17 @@ const NEW = PLAN.filter((b) => BASE(b.doc) === null && !isElectionDay(b.seat));
 eq(NEW.length, NEW.filter((b) => inFour(b.seat)).length, "a new board opened outside the four states");
 eq(NEW.length, 627, "new boards: 619 legislative, four governors, four U.S. House");
 for (const b of NEW) {
-  eq(b.readOnly, true, `${b.seat}: a new board takes a voice`);
+  eq(isEveryBoardSeat(b.seat), true, `${b.seat}: a new board takes a voice`);
   ok(!EQUITY.test(R(b.doc).replace(/<script[\s\S]*?<\/script>/g, "")), `${b.seat}: equity or money copy`);
 }
-for (const f of ["netlify/lib/district-board-voice-core.mjs", "district-composer.js", "district-poll.js"]) eq(R(f), BASE(f), `${f}: the composer's list moved`);
+// The composer's three LISTS are this pass's base's, with v517's rows taken
+// out; copy elsewhere in those files (the v516 verified line) is not a list.
+const listRows = (src) => String(src).split("\n").filter((l) => /^\s*['"][a-z0-9_-]+['"]\s*:\s*(?:1|"[a-z0-9_-]+"),$/.test(l)).join("\n");
+for (const f of ["netlify/lib/district-board-voice-core.mjs", "district-composer.js", "district-poll.js"]) eq(listRows(RX(f)), listRows(BASE(f)), `${f}: the composer's list moved`);
 const MIG = "netlify/database/migrations";
 const LAST_MIG = "20261202000000_dd_districts_washington_contested_board_seats.sql";
 ok(BASE(`${MIG}/${LAST_MIG}`) !== null, "baseline: the last migration is not " + LAST_MIG);
-eq(readdirSync(join(ROOT, MIG)).filter((f) => f > LAST_MIG).join(","), "", "a migration was added");
+eq(readdirSync(join(ROOT, MIG)).filter((f) => f > LAST_MIG && f !== "20261203000000_dd_districts_every_existing_board_seat.sql").join(","), "", "a migration was added (v517's seed aside)");
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("6 · neighbouring states are byte-identical");
@@ -309,7 +318,7 @@ const POSITION_EDITS = {
 const keyOf = (line) => (/^\s*['"]([a-z]{2})-/.exec(line) || [])[1];
 const outside = (src) => src.split("\n").filter((l) => !CODES.has(keyOf(l)) && !isElectionDayLine(l)).join("\n");
 for (const [f, edits] of Object.entries(POSITION_EDITS)) {
-  let now = R(f);
+  let now = RX(f);
   for (const [to, from] of edits) { ok(now.indexOf(to) >= 0, `${f}: the declared position edit is not in the file`); now = now.split(to).join(from); }
   eq(outside(now), outside(BASE(f)), `${f}: a line outside the four states moved`);
 }
@@ -401,5 +410,14 @@ section("7 · the generator is current and the worker moved");
     "no dd_districts row is needed and no migration was written.\n//     MIGRATION COST: none.\n", "sw.js does not log the migration cost");
 }
 
+// ── v517: every board this pass opened read-only now takes a voice ──────────
+{
+  const real = { core: R("netlify/lib/district-board-voice-core.mjs"), composer: R("district-composer.js"), poll: R("district-poll.js"), boards: R("district-board.js") };
+  const opened = PLAN.filter((b) => isEveryBoardSeat(b.seat) && CODES.has(b.seat.slice(0, 2)));
+  ok(opened.length > 0, "v517: this pass's read-only boards were found");
+  const off = opened.filter((b) => real.core.indexOf(`"${b.seat}": "${b.alias}",`) < 0 || real.composer.indexOf(`'${b.alias}': 1,`) < 0 ||
+    real.poll.indexOf(`'${b.alias}': 1,`) < 0 || real.boards.indexOf(`'${b.seat}': { seat: '${b.seat}', composer: true,`) < 0);
+  ok(off.length === 0, `v517: every one is on the composer's three lists — ${off.slice(0, 5).map((b) => b.alias).join(", ")}`);
+}
 console.log(`\n${failures.length ? "✗" : "✓"} ms/vt/mi/tn deepen: ${passed} passed, ${failures.length} failed`);
 if (failures.length) { for (const f of failures.slice(0, 40)) console.log("   ✗ " + f); process.exit(1); }

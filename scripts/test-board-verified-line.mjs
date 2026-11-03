@@ -136,6 +136,24 @@ for (const [own, other] of [["ut-statehouse-29", "ut-statehouse-16"], ["ut-gov",
   eq(out.voice.canPost, false, "a signed-out reader does not open the box");
 }
 
+// EVERY EXISTING BOARD, not only Utah's: its own vendor row opens it, and a
+// row for the next seat in the list (and for a Utah seat) leaves it locked.
+{
+  const ALL = Object.entries(COMPOSER_SEATS).map(([k, a]) => ({ k, a }));
+  ok(ALL.length >= 2500, `every existing board is a composer seat (${ALL.length})`);
+  const bad = [];
+  for (let i = 0; i < ALL.length; i++) {
+    const b = ALL[i], next = ALL[(i + 1) % ALL.length];
+    for (const [rows, want, why] of [[[vendorRow(b.k)], true, "own"], [[vendorRow(next.k)], false, "next"], [[vendorRow("ut-statehouse-16")], b.k === "ut-statehouse-16", "utah"]]) {
+      const s = deps(rows);
+      const gv = await (await handleVoice(get("/api/district-board-voice", b.a, UID), s.d)).json();
+      const gp = await (await handlePoll(get("/api/district-board-poll", b.a, UID), s.d)).json();
+      if ((gv.voice.canPost === true) !== want || (gp.voice.canVote === true) !== want) bad.push(`${b.a} (${why})`);
+    }
+  }
+  eq(bad.length, 0, `every board opens for its own row only — ${JSON.stringify(bad.slice(0, 6))}`);
+}
+
 // ═════════════════════════════════════════════════════════════════════════════
 section("3 · the client prints the verified line only when the server opens the box");
 // ═════════════════════════════════════════════════════════════════════════════
@@ -206,6 +224,27 @@ section("4 · generated and statewide boards carry the composer and poll hosts")
   for (const a of ["ut-gov", "ut-us-senate-lee", "ut-us-senate-curtis", "ut-hd-29", "ut-sd-6"]) {
     ok(R(`district-${a}.html`).includes('id="pdx-district-composer"'), `${a}: composer host`);
   }
+}
+
+// The boards that were read-only before this pass now carry the composer.
+{
+  const { FEDERAL_READ_ONLY_SEATS, GOVERNOR_STATES } = await import("./gen-district-boards.mjs");
+  const was = [...FEDERAL_READ_ONLY_SEATS, ...[...GOVERNOR_STATES].map((c) => `${c}-gov`),
+    "mn-statesenate-5", "me-statehouse-151", "vt-statehouse-1-p2", "ak-statesenate-1"];
+  const DB = R("district-board.js"), DP = R("district-poll.js");
+  ok(!/composer: false/.test(DB), "no board row is composer: false");
+  const MIG = R("netlify/database/migrations/20261203000000_dd_districts_every_existing_board_seat.sql");
+  const gaps = [];
+  for (const k of was) {
+    const a = COMPOSER_SEATS[k];
+    if (!a) { gaps.push(`${k}: not a composer seat`); continue; }
+    if (!COMPOSER.includes(`'${a}': 1,`) || !DP.includes(`'${a}': 1,`)) gaps.push(`${a}: client lists`);
+    if (!R(`district-${a}.html`).includes(`<div id="pdx-district-composer" data-pdxdc-seat="${a}" data-pdxdc-state="locked">`)) gaps.push(`${a}: host`);
+    if (!MIG.includes(`('${k}', '`)) gaps.push(`${k}: no dd_districts row`);
+  }
+  eq(gaps.length, 0, `previously read-only boards now take a voice — ${JSON.stringify(gaps.slice(0, 6))}`);
+  ok(!/\b(?:voice_residency|voice_takes|voice_poll_votes|voice_take_likes)\b[^\n]*\bINSERT\b|INSERT INTO "voice_/.test(MIG), "the migration seeds no residency, take, like or vote");
+  eq((MIG.match(/^\t\('/gm) || []).length, new Set([...MIG.matchAll(/^\t\('([^']+)'/gm)].map((m) => m[1])).size, "one row per seat");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

@@ -69,6 +69,14 @@
 // and Georgia seat on the November 3, 2026 ballot and prints that race on it. Every other roster seat
 // outside Utah is refused and logged.
 //
+// EVERY EXISTING BOARD TAKES A VOICE. The read-only rows described above (the
+// governors outside Utah, the congressional seats on FEDERAL_READ_ONLY_SEATS,
+// and the whole-state and contested state legislative boards outside
+// STATE_LEG_VOICED_STATES) are now on the composer's three lists too, on the
+// same gate: signed in and a vendor-verified residency row for THAT seat.
+// Their dd_districts rows are 20261203000000_dd_districts_every_existing_board_seat.
+// The sets are kept, exported, as the record of which boards opened in that pass.
+//
 // THE SIX HAND-OPENED DOCUMENTS ARE NEVER WRITTEN. Their rows stay above each
 // generated block, byte for byte; the suite pins their bytes.
 //
@@ -329,7 +337,8 @@ function planFederal(win, boards, skipped) {
       const atLarge = seats === 1;
       boards.push({
         seat, alias, chamber: "house", district: n, pid: "", joinPid: holder, federal: true,
-        ...(FEDERAL_READ_ONLY_SEATS.has(seat) ? { readOnly: true } : {}),
+        // EVERY BOARD TAKES A VOICE (v517): FEDERAL_READ_ONLY_SEATS no longer
+        // keeps a congressional board off the composer's three lists.
         usHouse: { state: name, district: n },
         member: row.name, office: row.office,
         h1: atLarge ? `${name}’s At-Large Congressional District` : `${name}’s ${ORD(n)} Congressional District`,
@@ -395,7 +404,7 @@ function planGovernors(win, boards, skipped, states = FEDERAL_STATES, govStates 
       continue;
     }
     boards.push({
-      seat: key, alias: key, chamber: "governor", district: 0, pid, statewide: true, outsideUtah: true, readOnly: true,
+      seat: key, alias: key, chamber: "governor", district: 0, pid, statewide: true, outsideUtah: true,
       member: row.name, office: row.office,
       h1: `Governor · ${row.name}`,
       where: `Statewide · the whole State of ${name}`,
@@ -640,7 +649,7 @@ export function planStateLegislative(win, boards, skipped, states = FEDERAL_STAT
       const list = opened.get(seat) || [];
       list.push({
         seat, alias, chamber: c.chamber, district: c.district, pid: c.pid, ...(c.position ? { position: c.position } : {}),
-        stateLeg: true, readOnly: !(STATE_LEG_VOICED_STATES.has(code) && boardSeats.has(seat)),
+        stateLeg: true,
         member: c.row.name, office: c.row.office,
         h1: `${name} ${body} District ${label}`,
         where: `District ${c.label || c.district} as ${name}’s current legislative plan draws it` +

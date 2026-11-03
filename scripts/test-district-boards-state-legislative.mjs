@@ -99,6 +99,9 @@ const CONTESTED = STATE_LEG_BOARD_SEATS;
 const CONTESTED_ALIAS = new Set([...CONTESTED].map((k) => k.replace("-statehouse-", "-hd-").replace("-statesenate-", "-sd-")));
 // The contested seats that take a voice: those in the thirteen density states.
 const VOICED_ALIASES = [...CONTESTED_ALIAS].filter((a) => STATE_LEG_VOICED_STATES.has(a.slice(0, 2))).sort();
+// v517: every planned state legislative board outside Utah takes a voice, not
+// only the contested seats of the voiced states.
+const ALL_LEG_ALIASES = [...new Set(LEG.map((b) => b.alias))].sort();
 // AND SIX STATES OPENED WHOLE. Nebraska, South Dakota, Idaho, Montana, Alaska
 // and Rhode Island (STATE_LEG_BOARD_STATES) open every seat the roster names;
 // test-six-state-deepen.mjs holds those boards. This suite holds every other
@@ -178,7 +181,7 @@ eq(Object.keys(V.BOARD_ROUTES).length, HAND_SEATS.length + PLAN.length,
     // voice pass): a contested seat in one of the thirteen density states.
     const alias = (k) => k.replace(/-statehouse-/, "-hd-").replace(/-statesenate-/, "-sd-");
     const got = [...new Set(keys.filter((k) => !k.startsWith("ut-")).map(alias))].sort();
-    eq(JSON.stringify(got), JSON.stringify(VOICED_ALIASES), `${f}: the only state legislative composer rows outside Utah are the voiced contested seats`);
+    eq(JSON.stringify(got), JSON.stringify(ALL_LEG_ALIASES), `${f}: every state legislative board outside Utah is on the composer list (v517)`);
   }
 }
 
@@ -216,7 +219,7 @@ function mutantPlan(seatPid, extraRows) {
   eq(b.alias, "tx-sd-7", "…at /district/tx-sd-7");
   eq(b.pid, "bettencourt_tx", "…for the roster's sitting member");
   eq(b.member, ROSTER.bettencourt_tx.name, "…by the roster's own name");
-  eq(b.readOnly, true, "…read-only: no composer, no poll, no residency check");
+  eq(!!b.readOnly, false, "…takes a voice since v517, on the same residency gate");
   ok(!b.federal && !b.usHouse && !b.statewide, "…and neither a federal nor a statewide row");
   ok(skipped.some((s) => s.pid === "paxton_tx" && /does not seat this member/.test(s.reason)),
     "Texas SD-8's member is refused when the resolver seats nobody there");
@@ -261,7 +264,7 @@ for (const b of LEG) {
   // A contested seat in one of the thirteen density states takes a voice;
   // every other one (Nevada's, and a seat a whole-state opening admitted with
   // no race behind it) is read-only.
-  eq(b.readOnly, !(STATE_LEG_VOICED_STATES.has(b.seat.slice(0, 2)) && CONTESTED.has(b.seat)), `${b.alias}: voiced exactly when its state is a voiced density state and the seat is contested`);
+  eq(!!b.readOnly, false, `${b.alias}: voiced (v517: every existing board takes a voice)`);
   eq((B.board(b.alias) || {}).composer, !b.readOnly, `${b.alias}: composer matches the plan`);
 }
 ok(LEG.length === 0 || LEG.every((b) => !!ROSTER[b.pid]), "every planned holder has a roster row");

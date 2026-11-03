@@ -367,7 +367,8 @@ section("the tree");
   const LATER = ["20261119000000_vr_utah_2026gs_failed_datacenter_bills.sql", "20261120000000_vr_utah_signed_bills_status_enacted.sql",
     "20261130000000_dd_districts_contested_legislative_board_seats.sql",
     "20261201000000_dd_districts_california_contested_board_seats.sql",
-    "20261202000000_dd_districts_washington_contested_board_seats.sql"];
+    "20261202000000_dd_districts_washington_contested_board_seats.sql",
+    "20261203000000_dd_districts_every_existing_board_seat.sql"];
   if (st != null) ok(st.trim().split("\n").filter(Boolean).every((l) => l === `?? ${MIG_PATH}` || LATER.some((f) => l === `?? netlify/database/migrations/${f}`)) || st.trim() === "", `another migration was added or edited:\n${st}`);
   // EVERY OTHER LATER MIGRATION. When this pass landed, nothing could sort
   // after it; later voting-record waves (the Epstein files, H.R. 1, the Iran

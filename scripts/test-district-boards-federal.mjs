@@ -34,6 +34,7 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { FEDERAL_STATES, HAND_SEATS, planBoards } from "./gen-district-boards.mjs";
+import { isEveryBoardSeat, EVERY_BOARD_MIGRATION } from "./state-leg-harness.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -152,8 +153,12 @@ section("2 · the composer, the poll and the residency check, and no offline cop
   must(CORE.length > 0 && DC.length > 0 && DP.length > 0, "a composer list could not be located");
   // …and the election-day wave's 69 (db/election-day-wave-2026-11.json).
   const EDAY = new Set(JSON.parse(R("db/election-day-wave-2026-11.json")).usHouseDistrictSet.map((r) => r.seat));
-  eq(FED.filter((b) => b.readOnly && !EDAY.has(b.seat)).map((b) => b.seat).join(","), "co-house-1,co-house-2,co-house-4,me-house-1,me-house-2,mi-house-5,mi-house-6,mi-house-9,mi-house-12,mn-house-2,mn-house-5,mn-house-6,ne-house-2", "the read-only federal boards");
-  eq(FED.filter((b) => EDAY.has(b.seat) && !b.readOnly).length, 0, "every election-day House board is read-only");
+  // v517: no federal board is read-only any more. The ones that were (the list
+  // below, and the election-day wave's) are v517's seats, and each is on the
+  // composer lists like any other FED_VOICED board.
+  eq(FED.filter((b) => b.readOnly).length, 0, "v517: no federal board is read-only");
+  eq(FED.filter((b) => isEveryBoardSeat(b.seat) && !EDAY.has(b.seat)).map((b) => b.seat).join(","), "co-house-1,co-house-2,co-house-4,me-house-1,me-house-2,mi-house-5,mi-house-6,mi-house-9,mi-house-12,mn-house-2,mn-house-5,mn-house-6,ne-house-2", "the read-only federal boards");
+  eq(FED.filter((b) => EDAY.has(b.seat) && !isEveryBoardSeat(b.seat)).length, 0, "every election-day House board was read-only until v517");
   for (const b of FED.filter((x) => x.readOnly)) no(CORE, `"${b.seat}"`, `${b.seat}: a read-only board is on the server's COMPOSER_SEATS`);
   for (const b of FED_VOICED) {
     has(CORE, `"${b.seat}": "${b.alias}"`, `${b.seat}: on the server's COMPOSER_SEATS`);
@@ -196,7 +201,9 @@ for (const b of FED) {
 }
 // Every federal seat has the dd_districts row the voice tables' foreign key needs.
 {
-  const MIG = R("netlify/database/migrations/20261129000000_dd_districts_federal_board_seats.sql");
+  // The boards v517 opened get theirs in its seed; the rest in the federal one.
+  const MIG = R("netlify/database/migrations/20261129000000_dd_districts_federal_board_seats.sql") +
+    R(`netlify/database/migrations/${EVERY_BOARD_MIGRATION}`);
   for (const b of FED_VOICED) {
     const re = b.usHouse
       ? new RegExp(`\\('${b.seat}', '${b.seat.slice(0, 2).toUpperCase()}', 'house', ${b.district}, '`)
