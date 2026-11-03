@@ -168,7 +168,8 @@ section("2 · a vacant or uncontested seat");
   for (const s of ["co-statesenate-32", "co-statesenate-31", "co-statesenate-6", "co-statesenate-3", "co-statehouse-5",
     "co-statehouse-16", "co-statehouse-51", "co-statehouse-1"]) {
     const alias = V.boardPath(s).replace("/district/", "");
-    eq((BD.board(alias) || {}).composer, false, `${s}: a seat with no race takes a voice`);
+    // v517: every existing board takes a voice, race or no race.
+    eq((BD.board(alias) || {}).composer, true, `${s}: a seat with no race takes a voice since v517`);
     if (alias) lacks(R(`district-${alias}.html`), "data-pdxco-seat=", `${s}: a seat with no race prints a race`);
   }
   ok(!N.race("statesenate", 32), "SD 32 is not one of the races on file");
@@ -353,10 +354,12 @@ section("5 · District Voice: a board for each contested seat and no other");
   // Exactly the contested seats are on the composer's three lists (the
   // contested-boards voice pass), and no other Colorado legislative seat.
   {
-    const want = N.RACES.map((r) => `co-${r.chamber === "statesenate" ? "sd" : "hd"}-${r.district}`).sort();
+    // v517: every Colorado legislative board takes a voice, not only the races.
+    const want = [...new Set([...N.RACES.map((r) => `co-${r.chamber === "statesenate" ? "sd" : "hd"}-${r.district}`),
+      ...readdirSync(ROOT).filter((f) => /^district-co-(?:hd|sd)-\d+\.html$/.test(f)).map((f) => f.slice(9, -5))])].sort();
     for (const f of ["district-composer.js", "district-poll.js", "netlify/lib/district-board-voice-core.mjs"]) {
       const got = [...new Set([...R(f).matchAll(/["'](co-(?:hd|sd)-\d+)["']/g)].map((x) => x[1]))].sort();
-      eq(JSON.stringify(got), JSON.stringify(want), `${f}: exactly the contested Colorado seats take a voice`);
+      eq(JSON.stringify(got), JSON.stringify(want), `${f}: every Colorado legislative board takes a voice`);
     }
   }
   for (const f of readdirSync(ROOT).filter((f) => /^district-(?:pa|ga|nc|mi|oh|wi|fl|az|ny|tx|il|mn)-(?:hd|sd)-\d+\.html$/.test(f))) ok(settled(f), `${f}: moved`);

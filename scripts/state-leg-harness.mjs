@@ -132,7 +132,9 @@ export const AT = (rev) => (f) => {
 export const PASS_WORKER = { "13-state": 483, ca: 484, wa: 485 };
 export const DECLARED_MIGRATIONS = ["20261130000000_dd_districts_contested_legislative_board_seats.sql",
   "20261201000000_dd_districts_california_contested_board_seats.sql",
-  "20261202000000_dd_districts_washington_contested_board_seats.sql"];
+  "20261202000000_dd_districts_washington_contested_board_seats.sql",
+  // v517: every existing board takes a voice — one dd_districts row per seat.
+  "20261203000000_dd_districts_every_existing_board_seat.sql"];
 export const FIND = R("find.html");
 export const MAP = (() => {
   const a = FIND.indexOf("INTERACTIVE UTAH DISTRICT MAP");
@@ -649,4 +651,34 @@ export function settled(f) {
     return !!a && !!b && now.replace(RACE_BLOCK, "") === was.replace(RACE_BLOCK, "");
   }
   return false;
+}
+
+// ── EVERY EXISTING BOARD TAKES A VOICE (v517) ───────────────────────────────
+// The pass that put every read-only board on the composer's three lists. Its
+// seats are exactly the rows of its dd_districts seed. A suite that pins what
+// an EARLIER voice pass opened ("the only new rows are California's", "a
+// read-only board stays off every list") reads the composer files through
+// withoutEveryBoardVoice(), which takes this pass's rows back out — and only
+// them — so it still checks its own pass and nothing else.
+export const EVERY_BOARD_MIGRATION = "20261203000000_dd_districts_every_existing_board_seat.sql";
+export const EVERY_BOARD_SEATS = new Set([...R(`netlify/database/migrations/${EVERY_BOARD_MIGRATION}`)
+  .matchAll(/^\t\('([a-z0-9_-]+)', '/gm)].map((m) => m[1]));
+const aliasOfSeat = (k) => k.replace(/^([a-z]{2})-house-/, "$1-cd-").replace(/^([a-z]{2})-statehouse-/, "$1-hd-")
+  .replace(/^([a-z]{2})-statesenate-/, "$1-sd-");
+export const EVERY_BOARD_ALIASES = new Set([...EVERY_BOARD_SEATS].map(aliasOfSeat));
+export const isEveryBoardSeat = (k) => EVERY_BOARD_SEATS.has(k) || EVERY_BOARD_ALIASES.has(k);
+const COMPOSER_LIST_FILES = /^(?:district-composer\.js|district-poll\.js|netlify\/lib\/district-board-voice-core\.mjs)$/;
+export function withoutEveryBoardVoice(f, src) {
+  if (src == null) return src;
+  if (COMPOSER_LIST_FILES.test(f)) {
+    return String(src).split("\n").filter((l) => {
+      const m = /^\s*['"]([a-z0-9_-]+)['"]\s*:/.exec(l);
+      return !(m && isEveryBoardSeat(m[1]));
+    }).join("\n");
+  }
+  if (f === "district-board.js") {
+    return String(src).replace(/^(    '([a-z0-9_-]+)': \{ seat: '[^']+', )composer: true,/gm,
+      (all, pre, k) => (EVERY_BOARD_SEATS.has(k) ? `${pre}composer: false,` : all));
+  }
+  return src;
 }

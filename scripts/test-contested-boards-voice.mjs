@@ -43,7 +43,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
-import { HEAD, AT, PRE_13_STATE, PASS_WORKER, DECLARED_MIGRATIONS, isElectionDay, withoutElectionDayRewrites } from "./state-leg-harness.mjs";
+import { HEAD, AT, PRE_13_STATE, PASS_WORKER, DECLARED_MIGRATIONS, isElectionDay, withoutElectionDayRewrites, withoutEveryBoardVoice, isEveryBoardSeat } from "./state-leg-harness.mjs";
 // What THIS pass added is measured against the commit it was built on, so the
 // check stays exact after the pass lands; "nothing else moved" stays on HEAD.
 const BASE = AT(PRE_13_STATE);
@@ -56,6 +56,11 @@ import { SEAT_HOLDERS } from "../netlify/lib/seat-holders.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
+// v517 put every read-only board on the composer lists; this suite pins an
+// earlier voice pass, so its list comparisons read the files with v517's
+// rows taken back out (state-leg-harness.mjs withoutEveryBoardVoice).
+const RX = (f) => withoutEveryBoardVoice(f, R(f));
+const HX = (f) => withoutEveryBoardVoice(f, HEAD(f));
 
 let passed = 0;
 const failures = [];
@@ -76,7 +81,7 @@ const LEG = PLAN.filter((b) => b.stateLeg);
 const IS_CA = (k) => /^ca-(?:statehouse|statesenate|hd|sd)-\d+$/.test(k) || /^wa-(?:statehouse|statesenate|hd|sd)-\d+(?:-p\d)?$/.test(k);
 const WA_MIG = "20261202000000_dd_districts_washington_contested_board_seats.sql";
 const CA_MIG = "20261201000000_dd_districts_california_contested_board_seats.sql";
-const VOICED = LEG.filter((b) => !b.readOnly && !IS_CA(b.seat));
+const VOICED = LEG.filter((b) => !isEveryBoardSeat(b.seat) && !IS_CA(b.seat));
 must(VOICED.length > 100, "the plan voices no contested boards");
 // One board per state: the first contested seat the plan lists for it.
 const SAMPLE = STATES.map((c) => VOICED.find((b) => b.seat.startsWith(c + "-")));
@@ -174,15 +179,17 @@ for (const b of SAMPLE) {
   const want = LEG.filter((b) => STATE_LEG_VOICED_STATES.has(b.seat.slice(0, 2)) && STATE_LEG_BOARD_SEATS.has(b.seat) && !IS_CA(b.seat)).map((b) => b.seat).sort();
   eq(JSON.stringify(VOICED.map((b) => b.seat).sort()), JSON.stringify(want), "the voiced boards are exactly the contested seats of the thirteen states");
   eq(JSON.stringify([...STATE_LEG_VOICED_STATES].sort()), JSON.stringify([...STATES, "ca", "wa"].sort()), "the voiced states are the thirteen density states, and California's and Washington's");
-  const legKeys = Object.keys(COMPOSER_SEATS).filter((k) => /^[a-z]{2}-(?:statehouse|statesenate)-\d+$/.test(k) && !k.startsWith("ut-") && !IS_CA(k)).sort();
+  const legKeys = Object.keys(COMPOSER_SEATS).filter((k) => /^[a-z]{2}-(?:statehouse|statesenate)-\d+$/.test(k) && !k.startsWith("ut-") && !IS_CA(k) && !isEveryBoardSeat(k)).sort();
   eq(JSON.stringify(legKeys), JSON.stringify(want), "the server's gate holds no other legislative seat outside Utah");
-  for (const b of LEG.filter((x) => x.readOnly)) {
-    ok(!COMPOSER_SEATS[b.seat] && !DC.COMPOSER_SEATS[b.alias] && !DP.POLL_SEATS[b.alias], `${b.alias}: a read-only board stays off every list`);
-    eq((DB.board(b.alias) || {}).composer, false, `${b.alias}: …and its row is composer: false`);
+  // The boards this pass left read-only take a voice since v517 (every
+  // existing board), on the same gate.
+  for (const b of LEG.filter((x) => isEveryBoardSeat(x.seat))) {
+    ok(COMPOSER_SEATS[b.seat] && DC.COMPOSER_SEATS[b.alias] && DP.POLL_SEATS[b.alias], `${b.alias}: a board this pass left read-only is on every list since v517`);
+    eq((DB.board(b.alias) || {}).composer, true, `${b.alias}: …and its row is composer: true`);
   }
   // The six states opened whole (STATE_LEG_BOARD_STATES) are read-only by design;
   // test-six-state-deepen.mjs holds them.
-  ok(LEG.filter((x) => x.readOnly && STATE_LEG_BOARD_SEATS.has(x.seat)).every((b) => b.seat.startsWith("nv-")), "the only contested boards left read-only are Nevada's");
+  ok(LEG.filter((x) => isEveryBoardSeat(x.seat) && STATE_LEG_BOARD_SEATS.has(x.seat)).every((b) => b.seat.startsWith("nv-")), "the only contested boards left read-only are Nevada's");
   // The seed migration: exactly the voiced seats, rows only.
   const seeded = [...SQL.matchAll(/^\t\('([a-z]{2}-(?:statehouse|statesenate)-\d+)', /gm)].map((m) => m[1]).sort();
   eq(JSON.stringify(seeded), JSON.stringify(want), "the dd_districts seed is exactly the voiced seats");
@@ -287,7 +294,7 @@ for (const b of SAMPLE) {
   const far = [SAMPLE[(SAMPLE.indexOf(b) + 1) % SAMPLE.length].alias, "ut-hd-16"];
   // A voiced one: a read-only federal board (CO-1, opened by the four-state
   // pass) takes no comment from anybody, so it would not test the flag.
-  const fed = PLAN.filter((x) => x.federal && !x.readOnly && x.seat.startsWith(st + "-")).slice(0, 1).map((x) => x.alias);
+  const fed = PLAN.filter((x) => x.federal && !isEveryBoardSeat(x.seat) && x.seat.startsWith(st + "-")).slice(0, 1).map((x) => x.alias);
   ok(near.length >= 1, `${b.alias}: a neighbouring voiced seat exists in its state`);
   for (const alias of [...near, ...far, ...fed]) {
     const before = s.takes.length + s.votes.length;
@@ -391,7 +398,7 @@ section("7 · the Layton boards and every non-contested board are unchanged");
     ok(was === null || R(f) === was, `${f}: unchanged`);
   }
   const rowsOf = (src) => new Map([...String(src).matchAll(/^    '([a-z0-9_-]+)': \{ seat: .*$/gm)].map((m) => [m[1], m[0]]));
-  const now = rowsOf(R("district-board.js")), was = rowsOf(HEAD("district-board.js"));
+  const now = rowsOf(RX("district-board.js")), was = rowsOf(HX("district-board.js"));
   for (const k of [...now.keys()]) if ((IS_CA(k) || isElectionDay(k)) && !was.has(k)) now.delete(k);
   eq(now.size, was.size, "BOARDS has the same number of rows — no new board");
   const voicedSeats = new Set(VOICED.map((b) => b.seat));
@@ -419,10 +426,10 @@ section("7 · the Layton boards and every non-contested board are unchanged");
   for (const f of ["district-composer.js", "district-poll.js"]) {
     const base = aliasesIn(BASE(f));
     ok(base.length > 100, `${f}: the pre-pass list could be read`);
-    const added = aliasesIn(R(f)).filter((a) => !base.includes(a) && inThirteen(a)).sort();
+    const added = aliasesIn(RX(f)).filter((a) => !base.includes(a) && inThirteen(a)).sort();
     eq(JSON.stringify(added), JSON.stringify(VOICED.map((b) => b.alias).sort()), `${f}: the only new rows are the voiced seats`);
-    ok(aliasesIn(HEAD(f)).every((a) => aliasesIn(R(f)).includes(a)), `${f}: no row was dropped`);
-    ok(aliasesIn(R(f)).every((a) => aliasesIn(HEAD(f)).includes(a)), `${f}: no row beyond HEAD's`);
+    ok(aliasesIn(HX(f)).every((a) => aliasesIn(RX(f)).includes(a)), `${f}: no row was dropped`);
+    ok(aliasesIn(RX(f)).every((a) => aliasesIn(HX(f)).includes(a)), `${f}: no row beyond HEAD's`);
   }
   // The worker: this pass moved it one version (v482 → v483, with its
   // changelog entry), it is at least that version now and never more than one
@@ -436,7 +443,7 @@ section("7 · the Layton boards and every non-contested board are unchanged");
   eq(pre(R("sw.js")), pre(BASE("sw.js")), "sw.js: this pass precached nothing new");
   const migs = readdirSync(join(ROOT, "netlify/database/migrations"));
   const newSince = (rd) => migs.filter((f) => rd(`netlify/database/migrations/${f}`) === null && rd(`netlify/database/migrations/${f}/migration.sql`) === null);
-  eq(JSON.stringify(newSince(BASE).filter((f) => f !== CA_MIG && f !== WA_MIG)), JSON.stringify(["20261130000000_dd_districts_contested_legislative_board_seats.sql"]), "the one new migration is the dd_districts seed");
+  eq(JSON.stringify(newSince(BASE).filter((f) => f !== CA_MIG && f !== WA_MIG && f !== "20261203000000_dd_districts_every_existing_board_seat.sql")), JSON.stringify(["20261130000000_dd_districts_contested_legislative_board_seats.sql"]), "the one new migration is the dd_districts seed");
   ok(newSince(HEAD).every((f) => DECLARED_MIGRATIONS.includes(f)), `every migration not yet in HEAD is a declared one — ${newSince(HEAD).join(", ")}`);
 }
 

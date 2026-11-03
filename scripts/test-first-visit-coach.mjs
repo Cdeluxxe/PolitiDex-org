@@ -392,8 +392,9 @@ section("4 · plain copy, no equity or membership language, no trap");
   ok(/search any politician, bill, topic or claim/i.test(P[1]) && /what they said versus how they voted/.test(P[1]),
     "point 2 does not say search anything, said versus voted");
   has(P[2], "District Voice is the rooms for your seats.", "point 3 does not name District Voice");
-  has(P[2], "Anyone can read a board. Only verified residents of that seat get a voice that counts.",
-    "point 3 does not carry the locked District Voice line verbatim");
+  // v518: the read/voice rule now arrives with the scope line under point 3
+  // (section 4b), so the point itself is the name line alone.
+  eq(P[2], "District Voice is the rooms for your seats.", "point 3 drifted");
   has(R("district-board.js"), "Anyone can read a board. Only verified residents of that seat get a voice that counts.",
     "the locked line moved in district-board.js — the popup and the boards must agree");
 
@@ -406,7 +407,7 @@ section("4 · plain copy, no equity or membership language, no trap");
     ok(!re.test(code), `first-visit-coach.js carries "${word}" outside a comment`);
   }
   // Short: every point is one or two sentences after the name line.
-  // The ceiling rose from 90 to 100 for the one Utah-first sentence and nothing else.
+  // The ceiling rose from 90 to 100 for the one scope sentence and nothing else.
   ok(copy.replace(/\s+/g, " ").trim().split(" ").length <= 100, "the popup is not short");
   // No trap: no inert page, no aria-modal claim that hides the page, no scroll
   // lock on <body>/<html>, and no Tab interception.
@@ -417,93 +418,70 @@ section("4 · plain copy, no equity or membership language, no trap");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("4b · one Utah-first sentence under District Voice, and it is true");
+section("4b · one open-for-every-seat line under District Voice, and no Utah-first copy");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const v = visit();
-  const NOTE = "State legislative boards and mapping are live in Utah first. Other states will be added over time. U.S. House and U.S. Senate boards are open in every state.";
-  eq(v.C.SCOPE_NOTE, NOTE, "the Utah-first sentence drifted");
-  // The three points are exactly as they were, and the note is not one of them.
+  const NOTE = "District Voice is open for the seats PolitiDex already has. Anyone can read a board. Only a verified resident of that seat gets a voice that counts.";
+  const OLD = /utah[- ]first|utah only|only in utah|\bcoming\b|will be added|added over time|other states/i;
+  eq(v.C.SCOPE_NOTE, NOTE, "the scope line drifted");
   eq(JSON.stringify(v.C.POINTS), JSON.stringify([
     "Set your location so PolitiDex can show the people who already represent you.",
     "Search any politician, bill, topic or claim and see what they said versus how they voted.",
-    "District Voice is the rooms for your seats. Anyone can read a board. Only verified residents of that seat get a voice that counts.",
+    "District Voice is the rooms for your seats.",
   ]), "the three points changed");
   const h = v.C._html();
-  eq(h.split(NOTE).length - 1, 1, "the Utah-first sentence is not on the popup exactly once");
+  eq(h.split(NOTE).length - 1, 1, "the scope line is not on the popup exactly once");
   {
     const w = visit();
     w.tick(w.C.DELAY_MS);
     const live = w.popup() ? w.popup().innerHTML : "";
-    eq(live.split(NOTE).length - 1, 1, "the opened popup does not carry the Utah-first sentence exactly once");
+    eq(live.split(NOTE).length - 1, 1, "the opened popup does not carry the scope line exactly once");
+    ok(!OLD.test(live.replace(/<[^>]*>/g, " ")), "the opened popup still carries Utah-first or coming-later copy");
   }
-  eq((h.match(/<li\b/g) || []).length, 3, "the Utah-first sentence became a fourth step");
-  // Under the third point: inside its <li>, after the District Voice line.
+  ok(!OLD.test(h.replace(/<[^>]*>/g, " ")), "the popup still carries Utah-first or coming-later copy");
+  eq((h.match(/<li\b/g) || []).length, 3, "the scope line became a fourth step");
   const items = h.split("<li").slice(1);
-  ok(items[2] && items[2].indexOf(NOTE) > items[2].indexOf("a voice that counts."),
-    "the Utah-first sentence is not under the District Voice point");
-  ok(items[0].indexOf(NOTE) < 0 && items[1].indexOf(NOTE) < 0, "the Utah-first sentence sits under the wrong point");
-  // One sentence, not a disclaimer block: a plain span, no heading, no box —
-  // and VISIBLE whatever the stylesheet does: its own inline styles say so.
-  const span = (/<span class="pdxfc-scope"[^>]*>State legislative boards/.exec(h) || [""])[0];
-  ok(span.length > 0, "the Utah-first sentence is not a plain span");
+  ok(items[2] && items[2].indexOf(NOTE) > items[2].indexOf("District Voice is the rooms"), "the scope line is not under the District Voice point");
+  ok(items[0].indexOf(NOTE) < 0 && items[1].indexOf(NOTE) < 0, "the scope line sits under the wrong point");
+  // A plain span, visible whatever the stylesheet does.
+  const span = (/<span class="pdxfc-scope" data-pdxfc-scope="open"[^>]*>District Voice is open/.exec(h) || [""])[0];
+  ok(span.length > 0, "the scope line is not a plain span");
   const inline = (/style="([^"]*)"/.exec(span) || [, ""])[1];
-  for (const want of ["display:block", "visibility:visible", "opacity:1", "color:#9fb5a8"]) {
-    has(inline, want, "the Utah-first sentence does not carry its own visible inline style");
-  }
-  for (const hide of ["display:none", "visibility:hidden", "opacity:0;", "height:0", "max-height:0", "clip", "overflow:hidden", "hidden"]) {
-    no(span.replace(/visibility:visible/g, ""), hide, `the Utah-first sentence is hidden or clipped (${hide})`);
-  }
-  // Nothing on the path to it hides it: not its <li>, not the list, not the card.
-  const path = h.slice(0, h.indexOf(NOTE));
-  no(path, " hidden", "an element around the Utah-first sentence is hidden");
-  no(path, "aria-hidden=\"true\">State legislative", "the Utah-first sentence is aria-hidden");
-  for (const cls of ["pdxfc-points", "pdxfc-point", "pdxfc-card"]) {
-    const r = (new RegExp(`\\.${cls}\\{[^}]*\\}`).exec(SRC) || [""])[0];
-    for (const hide of ["display:none", "visibility:hidden", "max-height:0", "height:0", "overflow:hidden"]) {
-      no(r, hide, `.${cls} hides or clips the Utah-first sentence (${hide})`);
-    }
-  }
-  // No condition can drop it: it renders on every render of the popup.
-  eq(v.C._html().split(NOTE).length - 1, 1, "a second render dropped the Utah-first sentence");
+  for (const want of ["display:block", "visibility:visible", "opacity:1", "color:#9fb5a8"]) has(inline, want, "the scope line lost its visible inline style");
   const rule = (/\.pdxfc-scope\{[^}]*\}/.exec(SRC) || [""])[0];
-  for (const want of ["display:block !important", "visibility:visible !important"]) has(rule, want, "the sheet rule does not force the Utah-first line visible");
-  ok(rule.length > 0, "the Utah-first sentence has no rule");
-  for (const box of ["border", "background", "box-shadow"]) no(rule, box, `the Utah-first sentence is styled as a box (${box})`);
-  // Its color is one the District Voice card already uses.
-  const colors = rule.match(/#[0-9a-f]{3,6}\b/gi) || [];
-  const INDEX = R("index.html");
-  const gate = INDEX.slice(INDEX.indexOf("<!-- pdx:home-voice-gate:begin -->"), INDEX.indexOf("<!-- pdx:home-voice-gate:end -->"));
-  ok(colors.length > 0 && colors.every((c) => gate.toLowerCase().indexOf(c.toLowerCase()) >= 0),
-    `the Utah-first sentence uses a color the District Voice card does not (${colors.join(", ")})`);
+  for (const want of ["display:block !important", "visibility:visible !important"]) has(rule, want, "the sheet rule does not force the scope line visible");
 
-  // TRUE TO THE SITE. Every State House and State Senate board document is a
-  // Utah seat, and every board outside Utah is a U.S. House or U.S. Senate seat
-  // (district-<code>-cd-<n>, district-<code>-us-senate-<pid>); the finder says
-  // state legislative lines are drawn in Utah; and the U.S. House resolves
-  // outside Utah (so the sentence does not claim representatives are Utah-only).
-  const boards = readdirSync(ROOT).filter((f) => /^district-.*\.html$/.test(f));
-  // The one exception is a list of races, not a state: the contested
-  // Pennsylvania seats on the Nov. 3, 2026 ballot (pa-ballot-2026.js), each a
-  // read-only board. Utah is still first, and a state is still not "added".
-  const contested = new Set([...STATE_LEG_BOARD_SEATS].map((k) => `district-${k.replace("-statehouse-", "-hd-").replace("-statesenate-", "-sd-")}.html`));
-  // And six states opened whole since (STATE_LEG_BOARD_STATES: Nebraska, South
-  // Dakota, Idaho, Montana, Alaska, Rhode Island), each with a read-only
-  // governor board; test-six-state-deepen.mjs holds them. Utah was still first,
-  // and other states are still being added.
-  const whole = (f) => STATE_LEG_BOARD_STATES.has(f.slice(9, 11));
-  // A governor's board is a statewide seat, not a state legislative one; the
-  // election-day wave opened one in every state with a governor's race.
-  const outside = boards.filter((f) => !f.startsWith("district-ut-") && !contested.has(f) && !whole(f) && !/^district-[a-z]{2}-gov\.html$/.test(f));
-  ok(boards.length > 0 && outside.every((f) => /^district-[a-z]{2}-(?:cd-[1-9][0-9]*|us-senate-[a-z][a-z0-9_]*)\.html$/.test(f)),
-    `a state legislative board outside Utah exists, so "Utah first" is out of date: ${outside.filter((f) => !/^district-[a-z]{2}-(?:cd-|us-senate-)/.test(f)).join(", ")}`);
-  ok(outside.length > 0, "no U.S. House or U.S. Senate board exists outside Utah, so the sentence's last clause is false");
-  ok(/State Senate and State House<\/strong> seats need\s+district lines, which we map in <strong>Utah<\/strong>/.test(R("find.html")),
-    "the finder no longer says state legislative lines are mapped in Utah — recheck the Utah-first sentence");
-  ok(existsSync(join(ROOT, "scripts/test-federal-house-locator.mjs")) &&
-     /U\.S\. House resolves outside Utah/.test(R("scripts/test-federal-house-locator.mjs")),
-    "the U.S. House national locator is gone — recheck the Utah-first sentence");
-  no(NOTE, "represent", "the Utah-first sentence says representatives are Utah-only, which is false");
+  // EVERY PATH STEP THAT NAMES DISTRICT VOICE carries the line, and no step
+  // carries Utah-first or coming-later copy.
+  for (const step of ["see", "rooms", "ballot", "align", "end"]) {
+    const sh = v.C._stepHtml ? v.C._stepHtml(step) : "";
+    ok(sh.length > 0, `path: step ${step} did not render`);
+    const text = sh.replace(/<[^>]*>/g, " ");
+    ok(!OLD.test(text), `path: step ${step} carries Utah-first or coming-later copy`);
+    if (step === "rooms" || /District Voice/.test(text)) ok(text.indexOf(NOTE) >= 0, `path: step ${step} mentions District Voice without the scope line`);
+  }
+  has(v.C.ROOMS_LINE, NOTE, "path: step 3's line lost the scope line");
+  ok(!OLD.test(stripComments(SRC)), "first-visit-coach.js still carries Utah-first or coming-later copy outside a comment");
+
+  // TRUE TO THE SITE. Every existing board takes a voice (v517): no board row
+  // is read-only, so "open for the seats PolitiDex already has" is the fact.
+  ok(!/composer: false/.test(R("district-board.js")), "a board is read-only again, so the scope line is out of date");
+  ok(readdirSync(ROOT).some((f) => /^district-(?!ut-)[a-z]{2}-(?:hd|sd)-\d+\.html$/.test(f)), "no state legislative board exists outside Utah");
+
+  // The homepage District Voice card and the /voice header carry no
+  // Utah-first or coming-later copy either.
+  const INDEX = R("index.html");
+  const card = (/<div class="pdxhv-card">[\s\S]*?<\/div>/.exec(INDEX) || [""])[0];
+  ok(card.length > 0, "the homepage District Voice card was not found");
+  ok(!OLD.test(card.replace(/<!--[\s\S]*?-->/g, "").replace(/<[^>]*>/g, " ")), "the homepage District Voice card carries Utah-first copy");
+  const VOICE = R("voice.html");
+  const head = VOICE.slice(VOICE.indexOf('<h1 class="pdxvr-h1">'), VOICE.indexOf("</p>", VOICE.indexOf('class="pdxvr-sub"')));
+  ok(head.length > 0, "the /voice header was not found");
+  ok(!OLD.test(head.replace(/<!--[\s\S]*?-->/g, "").replace(/<[^>]*>/g, " ")), "the /voice header carries Utah-first copy");
+  for (const [where, src] of [["popup", h], ["card", card], ["voice", head]]) {
+    ok(!/\bequity\b|\bstocks?\b|\bshares?\b|\bshareholders?\b|\binvest/i.test(src.replace(/<!--[\s\S]*?-->/g, "")), `${where}: equity language`);
+  }
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

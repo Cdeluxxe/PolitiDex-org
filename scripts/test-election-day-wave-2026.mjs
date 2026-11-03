@@ -40,6 +40,7 @@ import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { planBoards, HAND_SEATS, GOVERNOR_STATES, FEDERAL_READ_ONLY_SEATS } from "./gen-district-boards.mjs";
 import { DECLARED_ADMISSIONS, DECLARED_DISTRICT_PIDS } from "./v103-chrome-seams.mjs";
+import { isEveryBoardSeat, withoutEveryBoardVoice, EVERY_BOARD_MIGRATION } from "./state-leg-harness.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -181,18 +182,18 @@ const NEW_BOARDS = [
     if (!ok(b, `${seat}: no board in the plan`)) continue;
     eq(BASE(b.doc), null, `${seat}: the base already had a document`);
     ok(existsSync(join(ROOT, b.doc)), `${seat}: ${b.doc} exists`);
-    eq(b.readOnly, true, `${seat}: read-only`);
+    eq(isEveryBoardSeat(seat), true, `${seat}: opened read-only by this wave, voiced by v517`);
     for (const from of [b.route, `${b.route}/`, `${b.route}.html`]) {
       ok(TOML.indexOf(`  from = "${from}"\n  to = "/${b.doc}"\n  status = 200`) >= 0, `${seat}: a 200 rewrite from ${from}`);
     }
-    has(DB, `    '${seat}': { seat: '${seat}', composer: false,`, `${seat}: BOARDS row, composer: false`);
+    has(DB, `    '${seat}': { seat: '${seat}', composer: true,`, `${seat}: BOARDS row, composer: true (v517)`);
     has(DV, `    '${seat}': '${b.route}',`, `${seat}: BOARD_ROUTES row`);
     has(MTS, `  "${seat}": 1,`, `${seat}: BOARD_SEATS row`);
-    // Read-only: on none of the composer's three lists, so the shared
-    // template's composer and poll stay shut on this board.
-    ok(CORE.indexOf(`"${seat}":`) < 0, `${seat}: not on the server composer gate`);
-    ok(COMP.indexOf(`'${b.alias}': 1`) < 0 && COMP.indexOf(`'${seat}'`) < 0, `${seat}: not on the composer's list`);
-    ok(POLL.indexOf(`'${b.alias}': 1`) < 0 && POLL.indexOf(`'${seat}'`) < 0, `${seat}: not on the poll's list`);
+    // v517: every existing board takes a voice, so the wave's boards are on
+    // the composer's three lists, behind the same residency gate.
+    ok(CORE.indexOf(`"${seat}": "${b.alias}",`) >= 0, `${seat}: on the server composer gate`);
+    ok(COMP.indexOf(`'${b.alias}': 1`) >= 0, `${seat}: on the composer's list`);
+    ok(POLL.indexOf(`'${b.alias}': 1`) >= 0, `${seat}: on the poll's list`);
     const doc = R(b.doc);
     has(doc, `<link rel="canonical" href="https://politidex.fyi${b.route}" />`, `${seat}: the document's canonical is its bare path`);
     ok(!EQUITY.test(doc.replace(/<script\b[\s\S]*?<\/script>/gi, "")), `${seat}: no equity copy`);
@@ -232,7 +233,7 @@ section("3b · every new House board answers at its seat key and its registered 
     eq(b.doc, `district-${b.alias}.html`, `${r.seat}: the document is named for the registered path`);
     eq(V[r.seat], b.route, `${r.seat}: BOARD_ROUTES names the registered path`);
     if (B) eq(B[r.seat] && B[r.seat].route, b.route, `${r.seat}: BOARDS names the registered path`);
-    has(DB, `'${r.seat}': { seat: '${r.seat}', composer: false, alias: '${b.alias}', route: '${b.route}'`, `${r.seat}: the BOARDS row's alias and route`);
+    has(DB, `'${r.seat}': { seat: '${r.seat}', composer: true, alias: '${b.alias}', route: '${b.route}'`, `${r.seat}: the BOARDS row's alias and route`);
     const doc = R(b.doc);
     has(doc, `<link rel="canonical" href="https://politidex.fyi${b.route}" />`, `${r.seat}: the document's canonical is the registered path`);
     has(doc, `window.__PDX_DISTRICT_BOARD_SEAT = '${b.alias}';`, `${r.seat}: the document declares its own seat, whatever path served it`);
@@ -317,8 +318,14 @@ section("6 · nothing else moved: Utah, the hand-opened and composer boards, sw.
     const doc = `district-${seat.replace("statehouse", "hd").replace("statesenate", "sd").replace("-house-", "-cd-")}.html`;
     ok(utah.includes(doc) && R(doc) === BASE(doc), `${seat}: its hand-opened document (${doc}) is here, unchanged`);
   }
-  for (const f of ["netlify/lib/district-board-voice-core.mjs", "district-composer.js", "district-poll.js",
-    "scripts/district-board.template.html"]) eq(R(f), BASE(f), `${f}: byte-identical`);
+  // The template is this wave's base's bytes. The composer's three LISTS are
+  // the base's once v517's rows are taken out (copy elsewhere in those files,
+  // like the v516 verified line, is not a list).
+  eq(R("scripts/district-board.template.html"), BASE("scripts/district-board.template.html"), "scripts/district-board.template.html: byte-identical");
+  const listRows = (src) => String(src).split("\n").filter((l) => /^\s*['"][a-z0-9_-]+['"]\s*:\s*(?:1|"[a-z0-9_-]+"),$/.test(l)).join("\n");
+  for (const f of ["netlify/lib/district-board-voice-core.mjs", "district-composer.js", "district-poll.js"]) {
+    eq(listRows(withoutEveryBoardVoice(f, R(f))), listRows(BASE(f)), `${f}: the list is the base's, v517 aside`);
+  }
   // The worker: district-board.js and district-voice.js are precached and
   // gained rows, so the shell moved one version (v512); its precache list,
   // and every line but the version and its changelog entry, are the base's.
@@ -337,7 +344,7 @@ section("6 · nothing else moved: Utah, the hand-opened and composer boards, sw.
   // `git show <rev>:<dir>` lists the tree: a "tree <rev>:<dir>" line, a blank
   // line, then one name per line.
   const base = BASE("netlify/database/migrations/").trim().split("\n").slice(2).filter(Boolean).map((n) => n.replace(/\/$/, "")).sort();
-  eq(now.join(","), base.join(","), "no migration added");
+  eq(now.filter((n) => n !== EVERY_BOARD_MIGRATION).join(","), base.join(","), "no migration added (v517's seed aside)");
   const out = execFileSync("node", [join(ROOT, "scripts/gen-district-boards.mjs"), "--check"], { cwd: ROOT, encoding: "utf8" });
   ok(/up to date/.test(out), "gen-district-boards --check reports no drift");
 }

@@ -12,8 +12,8 @@
 //   1. Every board document (and the generator's template) serves the locked
 //      line exactly once inside the composer host, and the host holds no
 //      "$20", "membership", "cap" or "month".
-//   2. district-composer.js paints the locked line exactly once locked, open and
-//      on a failed read, and none of the banned words in any state — including
+//   2. district-composer.js paints the locked line exactly once locked and
+//      on a failed read (open, the verified line instead), and none of the banned words in any state — including
 //      a 429 monthly-cap refusal, which is shown as a neutral line.
 //   3. district-poll.js shows a 429 refusal neutrally too.
 //   4. The old cap sentence appears in no shipped document or script.
@@ -125,7 +125,9 @@ for (const a of ["ut-sd-3", "ut-hd-29", "ut-gov", "ut-us-senate-lee"]) {
 
   const open = await paint(a, [{ voice: { canPost: true }, posts: [] }]);
   eq(open.state(), "open", `${a}: a verified answer paints open`);
-  eq(area(open.host.innerHTML).split(LOCKED).length - 1, 1, `${a} open: the locked line once`);
+  // A verified resident sees the verified line in the locked line's place.
+  eq(area(open.host.innerHTML).split(LOCKED).length - 1, 0, `${a} open: no locked line`);
+  eq(area(open.host.innerHTML).split("You\u2019re verified for this seat. You can post and vote here.").length - 1, 1, `${a} open: the verified line once`);
   ok(!NO_MONEY.test(textOf(area(open.host.innerHTML))), `${a} open: no money copy`);
   ok(!open.M || !("CAP_LINE" in open.M), `${a}: PDXDistrictComposer publishes no CAP_LINE`);
 }

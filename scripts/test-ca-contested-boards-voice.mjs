@@ -39,7 +39,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
-import { HEAD, AT, PRE_CA_WA, PASS_WORKER, DECLARED_MIGRATIONS, undoMsVtMiTnEdits } from "./state-leg-harness.mjs";
+import { HEAD, AT, PRE_CA_WA, PASS_WORKER, DECLARED_MIGRATIONS, undoMsVtMiTnEdits, withoutEveryBoardVoice, isEveryBoardSeat } from "./state-leg-harness.mjs";
 // What THIS pass added is measured against the commit it was built on, so the
 // check stays exact after the pass lands; "nothing else moved" stays on HEAD.
 const BASE = AT(PRE_CA_WA);
@@ -52,6 +52,11 @@ import { SEAT_HOLDERS } from "../netlify/lib/seat-holders.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
+// v517 put every read-only board on the composer lists; this suite pins an
+// earlier voice pass, so its list comparisons read the files with v517's
+// rows taken back out (state-leg-harness.mjs withoutEveryBoardVoice).
+const RX = (f) => withoutEveryBoardVoice(f, R(f));
+const HX = (f) => withoutEveryBoardVoice(f, HEAD(f));
 
 let passed = 0;
 const failures = [];
@@ -64,7 +69,7 @@ const must = (c, m) => { if (!c) { console.error(`✗ ca contested boards voice:
 const CA = (() => { const w = {}; w.window = w; vm.runInContext(R("ca-ballot-2026.js"), vm.createContext(w)); return w.PDXCaBallot; })();
 const PLAN = planBoards().boards;
 const LEG = PLAN.filter((b) => b.stateLeg);
-const VOICED = LEG.filter((b) => b.seat.startsWith("ca-") && !b.readOnly);
+const VOICED = LEG.filter((b) => b.seat.startsWith("ca-") && !isEveryBoardSeat(b.seat));
 const RACE_SEATS = CA.RACES.map((r) => r.seat).sort();
 must(VOICED.length === RACE_SEATS.length && VOICED.length > 0, "the plan voices no California contested boards");
 // The one board the suite walks in full: Assembly 74.
@@ -170,7 +175,7 @@ for (const b of VOICED) {
   ok(RACE_SEATS.every((s) => STATE_LEG_BOARD_SEATS.has(s)), "every voiced seat is a contested seat");
   const caKeys = Object.keys(COMPOSER_SEATS).filter((k) => /^ca-(?:statehouse|statesenate)-\d+$/.test(k)).sort();
   eq(JSON.stringify(caKeys), JSON.stringify(RACE_SEATS), "the server's gate holds no other California legislative seat");
-  ok(!Object.keys(COMPOSER_SEATS).some((k) => /^ca-gov/.test(k)), "no statewide California room was opened");
+  ok(!Object.keys(COMPOSER_SEATS).some((k) => /^ca-gov/.test(k) && !isEveryBoardSeat(k)), "no statewide California room was opened (ca-gov is v517's)");
   const seeded = [...SQL.matchAll(/^\t\('([a-z]{2}-(?:statehouse|statesenate)-\d+)', /gm)].map((m) => m[1]).sort();
   eq(JSON.stringify(seeded), JSON.stringify(RACE_SEATS), "the dd_districts seed is exactly the voiced California seats");
   ok(/^INSERT INTO "dd_districts"/m.test(SQL) && /ON CONFLICT \("district_id"\) DO NOTHING;\s*$/.test(SQL), "…inserted, ON CONFLICT DO NOTHING");
@@ -279,7 +284,7 @@ for (const b of VOICED) {
   const near = VOICED.filter((x) => x.seat !== b.seat).map((x) => x.alias);
   // Voiced federal neighbours only: a read-only board (the election-day
   // wave's CA-2 among them) takes no comment from anybody, so it answers 404.
-  const fed = PLAN.filter((x) => x.federal && !x.readOnly && x.seat.startsWith("ca-")).slice(0, 2).map((x) => x.alias);
+  const fed = PLAN.filter((x) => x.federal && !isEveryBoardSeat(x.seat) && x.seat.startsWith("ca-")).slice(0, 2).map((x) => x.alias);
   const far = ["nv-sd-8", "az-sd-4", "ut-hd-16"].filter((a) => Object.values(COMPOSER_SEATS).includes(a));
   ok(near.length >= 1 && fed.length >= 1 && far.length >= 2, `${b.alias}: neighbours to test exist`);
   for (const alias of [...near, ...fed, ...far]) {
@@ -363,7 +368,7 @@ section("7 · existing voiced boards are unchanged");
   // the California rows this pass added (against the commit it was built on)
   // are exactly its contested seats.
   const gateOf = (src) => new Map([...String(src).matchAll(/^  "([a-z0-9_-]+)": "([a-z0-9_-]+)",$/gm)].map((m) => [m[1], m[2]]));
-  const gNow = gateOf(R("netlify/lib/district-board-voice-core.mjs")), gWas = gateOf(HEAD("netlify/lib/district-board-voice-core.mjs"));
+  const gNow = gateOf(RX("netlify/lib/district-board-voice-core.mjs")), gWas = gateOf(HX("netlify/lib/district-board-voice-core.mjs"));
   ok(gWas.size > 100, "HEAD's server gate could be read");
   for (const [k, a] of gWas) eq(gNow.get(k), a, `${k}: still on the server gate as ${a}`);
   const gBase = gateOf(BASE("netlify/lib/district-board-voice-core.mjs"));
@@ -372,7 +377,7 @@ section("7 · existing voiced boards are unchanged");
   ok([...gNow.keys()].every((k) => gWas.has(k)), "the server gate holds no row beyond HEAD's");
   const aliasesIn = (src) => [...String(src).matchAll(/^    '([a-z0-9_-]+)': 1,$/gm)].map((m) => m[1]);
   for (const f of ["district-composer.js", "district-poll.js"]) {
-    const now = aliasesIn(R(f)), was = aliasesIn(HEAD(f)), base = aliasesIn(BASE(f));
+    const now = aliasesIn(RX(f)), was = aliasesIn(HX(f)), base = aliasesIn(BASE(f));
     ok(was.every((a) => now.includes(a)), `${f}: no row was dropped`);
     ok(now.every((a) => was.includes(a)), `${f}: no row beyond HEAD's`);
     const added = now.filter((a) => !base.includes(a) && /^ca-/.test(a)).sort();
@@ -380,7 +385,7 @@ section("7 · existing voiced boards are unchanged");
     ok(added.every(caAlias), `${f}: …and every one is a California legislative board`);
   }
   const rowsOf = (src) => new Map([...String(src).matchAll(/^    '([a-z0-9_-]+)': \{ seat: .*$/gm)].map((m) => [m[1], m[0]]));
-  const now = rowsOf(R("district-board.js")), was = rowsOf(HEAD("district-board.js"));
+  const now = rowsOf(RX("district-board.js")), was = rowsOf(HX("district-board.js"));
   for (const [k, line] of was) eq(now.get(k), line, `${k}: BOARDS row unchanged`);
   const base = rowsOf(BASE("district-board.js"));
   // The election-day wave's read-only California boards (eight House seats and

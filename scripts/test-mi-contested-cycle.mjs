@@ -118,7 +118,8 @@ section("2 · a vacant or uncontested seat");
   const BD = (() => { const w = makeSandbox(); vm.runInContext(R("district-board.js"), vm.createContext(w), { filename: "district-board.js" }); return w.PDXDistrictBoard; })();
   for (const s of ["mi-statesenate-12", "mi-statehouse-63"]) {
     const alias = V.boardPath(s).replace("/district/", "");
-    eq((BD.board(alias) || {}).composer, false, `${s}: a seat with no race takes a voice`);
+    // v517: every existing board takes a voice, race or no race.
+    eq((BD.board(alias) || {}).composer, true, `${s}: a seat with no race takes a voice since v517`);
     if (alias) lacks(R(`district-${alias}.html`), "data-pdxmi-seat=", `${s}: a seat with no race prints a race`);
   }
   ok(!N.race("statesenate", 12), "SD 12 is not one of the races on file");
@@ -277,10 +278,12 @@ section("5 · District Voice: a board for each contested seat and no other");
   // Exactly the contested seats are on the composer's three lists (the
   // contested-boards voice pass), and no other Michigan legislative seat.
   {
-    const want = N.RACES.map((r) => `mi-${r.chamber === "statesenate" ? "sd" : "hd"}-${r.district}`).sort();
+    // v517: every Michigan legislative board takes a voice, not only the races.
+    const want = [...new Set([...N.RACES.map((r) => `mi-${r.chamber === "statesenate" ? "sd" : "hd"}-${r.district}`),
+      ...readdirSync(ROOT).filter((f) => /^district-mi-(?:hd|sd)-\d+\.html$/.test(f)).map((f) => f.slice(9, -5))])].sort();
     for (const f of ["district-composer.js", "district-poll.js", "netlify/lib/district-board-voice-core.mjs"]) {
       const got = [...new Set([...R(f).matchAll(/["'](mi-(?:hd|sd)-\d+)["']/g)].map((x) => x[1]))].sort();
-      eq(JSON.stringify(got), JSON.stringify(want), `${f}: exactly the contested Michigan seats take a voice`);
+      eq(JSON.stringify(got), JSON.stringify(want), `${f}: every Michigan legislative board takes a voice`);
     }
   }
   for (const f of readdirSync(ROOT).filter((f) => /^district-(?:pa|ga|nc)-(?:hd|sd)-\d+\.html$/.test(f))) ok(settled(f), `${f}: moved`);

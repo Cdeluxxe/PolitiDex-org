@@ -11484,7 +11484,70 @@
 //     so the shell moves one version. The path's step is still the one
 //     sessionStorage key; nothing stored is read or rewritten.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v515';
+// v516 - THE VERIFIED LINE ON EVERY VOICED BOARD.
+//     A reader the server calls vendor-verified for THIS seat now sees one line
+//     in the locked line's place: "You’re verified for this seat. You can post
+//     and vote here." Everyone else still sees the locked line. The gate is
+//     unchanged and server-side; no route, board, seat or precache entry is
+//     added. district-composer.js is precached and changed, so the shell moves
+//     one version. Nothing stored is read or rewritten.
+//     MIGRATION COST: none.
+// v517 - EVERY EXISTING BOARD TAKES A VOICE.
+//     The boards that were read-only (other states' governors, the read-only
+//     U.S. House boards, and the whole-state and uncontested State House and
+//     State Senate boards) join the composer's three lists, so each takes a
+//     comment and a poll vote on the unchanged gate: signed in AND a
+//     vendor-verified residency row for THAT exact seat. A verified resident
+//     sees "You’re verified for this seat. You can post and vote here."; every
+//     other reader sees the locked line. No route, splat or precache entry is
+//     added. district-board.js, district-composer.js and district-poll.js are
+//     precached and changed, so the shell moves one version.
+//     MIGRATION: 20261203000000_dd_districts_every_existing_board_seat — one
+//     dd_districts row per newly voiced seat (1841), nothing else seeded:
+//     Governors (38):
+//       al-gov, ak-gov, az-gov, ar-gov, ca-gov, co-gov, ct-gov, fl-gov, ga-gov,
+//       hi-gov, id-gov, il-gov, ia-gov, ks-gov, me-gov, md-gov, ma-gov, mi-gov,
+//       mn-gov, ms-gov, mt-gov, ne-gov, nv-gov, nh-gov, nm-gov, ny-gov, oh-gov,
+//       ok-gov, or-gov, pa-gov, ri-gov, sc-gov, sd-gov, tn-gov, tx-gov, vt-gov,
+//       wi-gov, wy-gov.
+//     U.S. House (83):
+//       ar-house-2, ca-house-2, ca-house-17, ca-house-18, ca-house-33,
+//       ca-house-36, ca-house-39, ca-house-42, ca-house-43, co-house-1,
+//       co-house-2, co-house-4, ct-house-3, ct-house-4, de-house-1, fl-house-10,
+//       fl-house-13, fl-house-19, fl-house-21, il-house-3, il-house-8,
+//       il-house-9, il-house-12, ky-house-1, ky-house-2, la-house-1, la-house-4,
+//       me-house-1, me-house-2, md-house-1, md-house-5, md-house-8, ma-house-1,
+//       ma-house-2, ma-house-4, ma-house-5, ma-house-6, ma-house-7, mi-house-5,
+//       mi-house-6, mi-house-9, mi-house-12, mn-house-2, mn-house-5, mn-house-6,
+//       mo-house-6, mo-house-8, ne-house-2, nj-house-5, nj-house-6, ny-house-2,
+//       ny-house-3, ny-house-5, ny-house-8, ny-house-10, ny-house-12,
+//       ny-house-14, ny-house-15, ny-house-17, ny-house-21, nc-house-5,
+//       oh-house-1, oh-house-4, ok-house-1, ok-house-4, pa-house-1, pa-house-2,
+//       pa-house-12, pa-house-15, sc-house-1, sc-house-6, tx-house-2,
+//       tx-house-19, tx-house-21, tx-house-25, tx-house-30, tx-house-36,
+//       va-house-3, wa-house-2, wa-house-3, wa-house-7, wa-house-9, wi-house-1.
+//     State House and State Senate (1720, every board key
+//     <code>-statehouse-* / <code>-statesenate-* in the migration), by state:
+//       ak 40H/20S, co 58H/31S, id 70H/35S, me 151H/35S, mi 102H/36S,
+//       mn 123H/59S, ms 120H/51S, mt 100H/50S, ne 0H/49S, nv 42H/21S,
+//       ri 74H/38S, sd 70H/35S, tn 97H/33S, vt 150H/30S.
+//     No location key or other stored reader state is read or rewritten, so
+//     nothing on the device is migrated.
+//     MIGRATION COST: none.
+// v518 - DISTRICT VOICE IS OPEN, NOT UTAH FIRST.
+//     The first-visit welcome no longer says state legislative boards are live
+//     in Utah first or that other states will be added over time; since v517
+//     every existing board takes a voice. In its place, under the District
+//     Voice point and on the guided path's rooms step and end card, one line:
+//     "District Voice is open for the seats PolitiDex already has. Anyone can
+//     read a board. Only a verified resident of that seat gets a voice that
+//     counts." The homepage card and the /voice header carried no Utah-first
+//     copy and are unchanged. No route, gate or composer change.
+//     first-visit-coach.js is precached and changed, so the shell moves one
+//     version. No location key or other stored reader state is read or
+//     rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v518';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

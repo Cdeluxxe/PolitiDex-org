@@ -163,7 +163,8 @@ section("2 · a vacant or uncontested seat");
     // A seat outside the races has only the read-only board the whole-state
     // opening gave it — no composer, no race block.
     const alias = V.boardPath(s).replace("/district/", "");
-    eq((BD.board(alias) || {}).composer, false, `${s}: a seat with no race takes a voice`);
+    // v517: every existing board takes a voice, race or no race.
+    eq((BD.board(alias) || {}).composer, true, `${s}: a seat with no race takes a voice since v517`);
     if (alias) lacks(R(`district-${alias}.html`), "data-pdxnv-seat=", `${s}: a seat with no race prints a race`);
   }
   ok(!N.race("statesenate", 17), "SD 17 is not one of the races on file");
@@ -321,7 +322,7 @@ section("5 · District Voice: a board for each contested seat and no other");
   for (const r of N.RACES) {
     const alias = `nv-${r.chamber === "statesenate" ? "sd" : "hd"}-${r.district}`;
     eq(routes[r.seat], `/district/${alias}`, `${r.seat}: the board's address`);
-    eq((B.board(alias) || {}).composer, false, `${alias}: read-only`);
+    eq((B.board(alias) || {}).composer, true, `${alias}: takes a voice since v517`);
     const doc = `district-${alias}.html`;
     if (!ok(existsSync(join(ROOT, doc)), `${doc}: on disk`)) continue;
     const h = R(doc);
@@ -337,9 +338,9 @@ section("5 · District Voice: a board for each contested seat and no other");
   for (const f of readdirSync(ROOT).filter((f) => /^district-(?!nv-(?:hd|sd)-).*\.html$/.test(f))) {
     if (R(f).indexOf("data-pdxnv-seat=") >= 0) ok(false, `${f}: a board outside the races carries a Nevada race block`);
   }
+  // v517: every Nevada legislative board is on the composer's three lists.
   for (const f of ["district-composer.js", "district-poll.js", "netlify/lib/district-board-voice-core.mjs"]) {
-    lacks(R(f), "nv-hd-", `${f}: no Nevada composer row`);
-    lacks(R(f), "nv-sd-", `${f}: no Nevada composer row`);
+    for (const d of docs) { const a = d.slice(9, -5); ok(R(f).includes(`"${a}"`) || R(f).includes(`'${a}'`), `${f}: ${a} takes a voice`); }
   }
   for (const f of readdirSync(ROOT).filter((f) => /^district-(?:pa|ga|nc|mi|oh|wi|fl|az|ny|tx|il|mn|co)-(?:hd|sd)-\d+\.html$/.test(f))) ok(settled(f), `${f}: moved`);
   for (const f of readdirSync(ROOT).filter((f) => /^district-nv-(?:cd-\d+|us-senate-.*)\.html$/.test(f) && !(isElectionDay(f) && HEAD(f) === null))) eq(R(f), HEAD(f), `${f}: moved`);
