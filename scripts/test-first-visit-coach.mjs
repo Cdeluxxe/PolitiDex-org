@@ -487,7 +487,9 @@ section("4b · one Utah-first sentence under District Voice, and it is true");
   // governor board; test-six-state-deepen.mjs holds them. Utah was still first,
   // and other states are still being added.
   const whole = (f) => STATE_LEG_BOARD_STATES.has(f.slice(9, 11));
-  const outside = boards.filter((f) => !f.startsWith("district-ut-") && !contested.has(f) && !whole(f));
+  // A governor's board is a statewide seat, not a state legislative one; the
+  // election-day wave opened one in every state with a governor's race.
+  const outside = boards.filter((f) => !f.startsWith("district-ut-") && !contested.has(f) && !whole(f) && !/^district-[a-z]{2}-gov\.html$/.test(f));
   ok(boards.length > 0 && outside.every((f) => /^district-[a-z]{2}-(?:cd-[1-9][0-9]*|us-senate-[a-z][a-z0-9_]*)\.html$/.test(f)),
     `a state legislative board outside Utah exists, so "Utah first" is out of date: ${outside.filter((f) => !/^district-[a-z]{2}-(?:cd-|us-senate-)/.test(f)).join(", ")}`);
   ok(outside.length > 0, "no U.S. House or U.S. Senate board exists outside Utah, so the sentence's last clause is false");

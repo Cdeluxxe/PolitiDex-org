@@ -33,7 +33,7 @@
 //
 //   node scripts/test-ca-contested-cycle.mjs
 
-import { R, HEAD, AT, PRE_CA_WA, boot, levelOf, band, settled, DECLARED_MIGRATIONS } from "./state-leg-harness.mjs";
+import { R, HEAD, AT, PRE_CA_WA, boot, levelOf, band, settled, DECLARED_MIGRATIONS, isElectionDay } from "./state-leg-harness.mjs";
 // What THIS pass added is measured against the commit it was built on, so the
 // check stays exact after the pass lands; "nothing else moved" stays on HEAD.
 const BASE = AT(PRE_CA_WA);
@@ -285,13 +285,15 @@ section("5 · District Voice: a board for each contested seat and no other");
   const routes = voice().BOARD_ROUTES;
   const caLeg = Object.keys(routes).filter((k) => /^ca-(?:statehouse|statesenate)-\d+$/.test(k)).sort();
   eq(JSON.stringify(caLeg), JSON.stringify(C.RACES.map((r) => r.seat).sort()), "BOARD_ROUTES: exactly the contested California seats");
-  ok(!Object.keys(routes).some((k) => /^ca-(?:gov|statewide)/.test(k)), "no statewide California room");
+  // The election-day wave opened California's governor board (read-only); no
+  // other statewide California room exists.
+  ok(!Object.keys(routes).some((k) => /^ca-(?:gov|statewide)/.test(k) && !isElectionDay(k)), "no statewide California room");
   const HVR = (() => { const w = {}; w.window = w; vm.runInContext(HEAD("district-voice.js"), vm.createContext(w)); return w.PDXVoice.BOARD_ROUTES; })();
   for (const k of Object.keys(HVR)) eq(routes[k], HVR[k], `${k}: an earlier board moved`);
   const BVR = (() => { const w = {}; w.window = w; vm.runInContext(BASE("district-voice.js"), vm.createContext(w)); return w.PDXVoice.BOARD_ROUTES; })();
-  const added = Object.keys(routes).filter((k) => !BVR[k] && /^ca-/.test(k)).sort();
+  const added = Object.keys(routes).filter((k) => !BVR[k] && /^ca-/.test(k) && !isElectionDay(k)).sort();
   eq(JSON.stringify(added), JSON.stringify(caLeg), "the only new boards are California's contested seats");
-  ok(Object.keys(routes).every((k) => HVR[k]), "BOARD_ROUTES holds no board beyond HEAD's");
+  ok(Object.keys(routes).every((k) => HVR[k] || isElectionDay(k)), "BOARD_ROUTES holds no board beyond HEAD's");
   const CONTESTED = contestedSeats();
   for (const k of added) ok(CONTESTED.has(k), `${k}: a board with no race behind it`);
   const B = (() => { const w = makeSandbox(); vm.runInContext(R("district-board.js"), vm.createContext(w), { filename: "district-board.js" }); return w.PDXDistrictBoard; })();
@@ -314,6 +316,7 @@ section("5 · District Voice: a board for each contested seat and no other");
   for (const f of readdirSync(ROOT).filter((f) => /^district-(?!ca-(?:hd|sd)-).*\.html$/.test(f))) {
     if (R(f).indexOf("data-pdxca-seat=") >= 0) ok(false, `${f}: a board outside the races carries a California race block`);
     if (HEAD(f) === null && /^district-wa-(?:hd|sd)-\d+(?:-p\d)?\.html$/.test(f)) continue;
+    if (HEAD(f) === null && isElectionDay(f)) continue;
     ok(R(f) === HEAD(f), `${f}: an earlier board document moved`);
   }
   const TOML = R("netlify.toml");
@@ -331,7 +334,7 @@ section("6 · every other state is unchanged");
     "ballot-ny.html", "ballot-tx.html", "ballot-il.html", "ballot-mn.html", "ballot-co.html", "ballot-nv.html"]) {
     eq(R(f), HEAD(f), `${f}: byte-identical to HEAD`);
   }
-  for (const f of readdirSync(join(ROOT, "db")).filter((f) => /^roster-/.test(f))) eq(R(`db/${f}`), HEAD(`db/${f}`), `db/${f}: byte-identical to HEAD`);
+  for (const f of readdirSync(join(ROOT, "db")).filter((f) => /^roster-/.test(f) && !(isElectionDay(`db/${f}`) && HEAD(`db/${f}`) === null))) eq(R(`db/${f}`), HEAD(`db/${f}`), `db/${f}: byte-identical to HEAD`);
   const ver = (src) => Number((/const CACHE_VERSION = 'v(\d+)';/.exec(src || "") || [])[1]);
   ok(ver(R("sw.js")) === ver(HEAD("sw.js")) + 1 || R("sw.js") === HEAD("sw.js"), "sw.js: CACHE_VERSION moved exactly one step, or the worker was not touched");
   const pre = (src) => (src.match(/^  '\/[^']*',$/gm) || []).sort().join("\n");

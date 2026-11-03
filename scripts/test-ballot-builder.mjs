@@ -821,11 +821,15 @@ for (const c of FED_THIRD) {
   eq(w._pdxUsHouseSeat("Idaho", "2"), "mike_simpson", "ID-2 still resolves Mike Simpson");
 }
 {
-  // A SEAT WITH ONLY ITS SITTING MEMBER STILL SAYS SO: Arizona's District 2, beside AZ-1.
+  // Arizona's District 2, beside AZ-1: since the election-day wave read
+  // Mohave County's sample ballot, its sitting member and the two nominees
+  // challenging him are all on file, so the honest empty is gone.
   const w = fed("Arizona", 2, { noLive: true });
   const { d } = seatHtml(w, "house");
-  eq(rosterRoles(d).length, 1, "AZ-2 still lists only its sitting member");
-  has(d, "No other person on file for this seat.", "…with the honest empty");
+  const roles = rosterRoles(d);
+  eq(JSON.stringify(roles.map(([p]) => p).sort()), JSON.stringify(["curtis_goodwin", "eli_crane", "jonathan_nez"]), "AZ-2 lists Crane and the two certified nominees");
+  eq(roles.filter(([, r]) => r === "incumbent").map(([p]) => p).join(","), "eli_crane", "…with Crane as the sitting member");
+  lacks(d, "No other person on file for this seat.", "…and no honest empty");
 }
 {
   // LOCATION DECIDES; residency and membership change nothing; no equity language.
@@ -1089,7 +1093,9 @@ const FED_B4 = [
   // this batch's to change, so they are pinned as they are.
   const before = boot();
   for (const c of FED_B4) delete before.CMP_DATA[c.pid];
-  const UNRESOLVED_BEFORE = ["Florida|20", "Kentucky|2", "Kentucky|4"];
+  // Kentucky's 2nd resolves Brett Guthrie since the election-day wave gave his
+  // row its district; Florida's 20th and Kentucky's 4th are still unresolved.
+  const UNRESOLVED_BEFORE = ["Florida|20", "Kentucky|4"];
   for (const k of [...new Set(FED_B4.filter((c) => c.seat === "house").map((c) => c.state + "|" + c.dist))]) {
     const [st, d] = k.split("|");
     const holder = w0._pdxUsHouseSeat(st, d), was = before._pdxUsHouseSeat(st, d);

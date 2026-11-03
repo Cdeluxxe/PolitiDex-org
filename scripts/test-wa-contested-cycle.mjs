@@ -40,9 +40,10 @@
 //
 //   node scripts/test-wa-contested-cycle.mjs
 
-import { R, HEAD, AT, PRE_CA_WA, PASS_WORKER, boot, levelOf, band, settled, DECLARED_MIGRATIONS, withoutSixStateShells, withoutFourStateShells, withoutMsVtMiTnShells } from "./state-leg-harness.mjs";
+import { R, HEAD, AT, PRE_CA_WA, PASS_WORKER, boot, levelOf, band, settled, DECLARED_MIGRATIONS, withoutSixStateShells, withoutFourStateShells, withoutMsVtMiTnShells, isElectionDay, withoutElectionDay } from "./state-leg-harness.mjs";
 // Every later whole-state pass, carved out the way each reverses exactly.
-const withoutWholeStatePasses = (src) => withoutSixStateShells(withoutFourStateShells(withoutMsVtMiTnShells(src)));
+// …and the election-day wave (its candidate block and declared districts).
+const withoutWholeStatePasses = (src) => withoutSixStateShells(withoutFourStateShells(withoutMsVtMiTnShells(withoutElectionDay(src))));
 import { readdirSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
@@ -298,8 +299,8 @@ section("5 · District Voice: a board for each contested seat and position, and 
   const HVR = (() => { const w = {}; w.window = w; vm.runInContext(HEAD("district-voice.js"), vm.createContext(w)); return w.PDXVoice.BOARD_ROUTES; })();
   for (const k of Object.keys(HVR)) eq(routes[k], HVR[k], `${k}: an earlier board moved`);
   const BVR = (() => { const w = {}; w.window = w; vm.runInContext(BASE("district-voice.js"), vm.createContext(w)); return w.PDXVoice.BOARD_ROUTES; })();
-  eq(JSON.stringify(Object.keys(routes).filter((k) => !BVR[k] && /^wa-/.test(k)).sort()), JSON.stringify(waLeg), "the only new boards are Washington's contested seats");
-  ok(Object.keys(routes).every((k) => HVR[k]), "BOARD_ROUTES holds no board beyond HEAD's");
+  eq(JSON.stringify(Object.keys(routes).filter((k) => !BVR[k] && /^wa-/.test(k) && !isElectionDay(k)).sort()), JSON.stringify(waLeg), "the only new boards are Washington's contested seats");
+  ok(Object.keys(routes).every((k) => HVR[k] || isElectionDay(k)), "BOARD_ROUTES holds no board beyond HEAD's");
   const CONTESTED = contestedSeats();
   for (const k of waLeg) ok(CONTESTED.has(k), `${k}: a board with no race behind it`);
   eq(V.boardPath("wa-hd-18-p2"), "/district/wa-hd-18-p2", "the position alias resolves to its board");
@@ -322,7 +323,7 @@ section("5 · District Voice: a board for each contested seat and position, and 
     for (const sfx of ["", "/", ".html"]) has(TOML, `from = "/district/${alias}${sfx}"\n  to = "/${doc}"\n  status = 200`, `netlify.toml: /district/${alias}${sfx}`);
   }
   eq(readdirSync(ROOT).filter((f) => /^district-wa-(?:hd|sd)-/.test(f)).length, M.RACES.length, "no Washington legislative board document without a race");
-  for (const f of readdirSync(ROOT).filter((f) => /^district-(?!wa-(?:hd|sd)-).*\.html$/.test(f))) ok(R(f) === HEAD(f), `${f}: an earlier board document moved`);
+  for (const f of readdirSync(ROOT).filter((f) => /^district-(?!wa-(?:hd|sd)-).*\.html$/.test(f) && !(isElectionDay(f) && HEAD(f) === null))) ok(R(f) === HEAD(f), `${f}: an earlier board document moved`);
   ok(![...R("netlify.toml").matchAll(/from = "([^"]+)"/g)].some((m) => /^\/district\/.*\*/.test(m[1])), "no /district/* splat");
   const chk = (() => { try { execFileSync("node", ["scripts/gen-district-boards.mjs", "--check"], { cwd: ROOT, stdio: "pipe" }); return true; } catch (e) { return false; } })();
   ok(chk, "gen-district-boards.mjs --check: every generated file is what the generator writes");
@@ -346,7 +347,7 @@ section("6 · every other state is unchanged");
   eq(R("voter-hub-location.js"), HEAD("voter-hub-location.js"), "voter-hub-location.js: byte-identical to HEAD");
   ok(BASE("voter-hub-location.js") !== R("voter-hub-location.js"), "the resolver carries this pass's position support, which the pre-pass commit did not");
   for (const f of ["seated-member.js", ...EARLIER, "ballot-pa.html", "ballot-ca.html", "ballot-nv.html", "ballot-co.html"]) eq(R(f), HEAD(f), `${f}: byte-identical to HEAD`);
-  for (const f of readdirSync(join(ROOT, "db")).filter((f) => /^roster-/.test(f))) eq(R(`db/${f}`), HEAD(`db/${f}`), `db/${f}: byte-identical to HEAD`);
+  for (const f of readdirSync(join(ROOT, "db")).filter((f) => /^roster-/.test(f) && !(isElectionDay(`db/${f}`) && HEAD(`db/${f}`) === null))) eq(R(`db/${f}`), HEAD(`db/${f}`), `db/${f}: byte-identical to HEAD`);
   const ver = (src) => Number((/const CACHE_VERSION = 'v(\d+)';/.exec(src || "") || [])[1]);
   has(R("sw.js"), `// v${PASS_WORKER.wa} - WASHINGTON, ONE CONTESTED CYCLE, AND ITS BOARDS TAKE A VOICE.`, "sw.js: this pass's version entry");
   ok(ver(R("sw.js")) >= PASS_WORKER.wa && ver(R("sw.js")) <= ver(HEAD("sw.js")) + 1, "sw.js: CACHE_VERSION is at least this pass's, and at most one step past HEAD");

@@ -40,7 +40,7 @@
 // Nevada was boarded whole since (test-four-state-deepen.mjs): this suite
 // boots the roster with that pass carved out, on both sides of every HEAD
 // comparison, and holds its races to what it was written to hold.
-import { R, HEAD, bootWithoutFourStateShells as boot, withoutFourStateShells, levelOf, band, settled, DECLARED_MIGRATIONS } from "./state-leg-harness.mjs";
+import { R, HEAD, bootWithoutFourStateShells as boot, withoutFourStateShells, levelOf, band, settled, DECLARED_MIGRATIONS, isElectionDay } from "./state-leg-harness.mjs";
 import { readdirSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
@@ -316,7 +316,7 @@ section("5 · District Voice: a board for each contested seat and no other");
   const HVR = (() => { const w = {}; w.window = w; vm.runInContext(HEAD("district-voice.js"), vm.createContext(w)); return w.PDXVoice.BOARD_ROUTES; })();
   for (const k of Object.keys(HVR)) eq(routes[k], HVR[k], `${k}: an earlier board moved`);
   const CONTESTED = contestedSeats();
-  for (const k of Object.keys(routes)) if (!HVR[k]) ok(CONTESTED.has(k), `${k}: a board with no race behind it`);
+  for (const k of Object.keys(routes)) if (!HVR[k] && !isElectionDay(k)) ok(CONTESTED.has(k), `${k}: a board with no race behind it`);
   const B = (() => { const w = makeSandbox(); vm.runInContext(R("district-board.js"), vm.createContext(w), { filename: "district-board.js" }); return w.PDXDistrictBoard; })();
   for (const r of N.RACES) {
     const alias = `nv-${r.chamber === "statesenate" ? "sd" : "hd"}-${r.district}`;
@@ -342,7 +342,7 @@ section("5 · District Voice: a board for each contested seat and no other");
     lacks(R(f), "nv-sd-", `${f}: no Nevada composer row`);
   }
   for (const f of readdirSync(ROOT).filter((f) => /^district-(?:pa|ga|nc|mi|oh|wi|fl|az|ny|tx|il|mn|co)-(?:hd|sd)-\d+\.html$/.test(f))) ok(settled(f), `${f}: moved`);
-  for (const f of readdirSync(ROOT).filter((f) => /^district-nv-(?:cd-\d+|us-senate-.*)\.html$/.test(f))) eq(R(f), HEAD(f), `${f}: moved`);
+  for (const f of readdirSync(ROOT).filter((f) => /^district-nv-(?:cd-\d+|us-senate-.*)\.html$/.test(f) && !(isElectionDay(f) && HEAD(f) === null))) eq(R(f), HEAD(f), `${f}: moved`);
   const chk = (() => { try { execFileSync("node", ["scripts/gen-district-boards.mjs", "--check"], { cwd: ROOT, stdio: "pipe" }); return true; } catch (e) { return false; } })();
   ok(chk, "gen-district-boards.mjs --check: every generated file is what the generator writes");
 }
@@ -357,7 +357,7 @@ section("6 · every other state is unchanged");
     "ballot-ny.html", "ballot-tx.html", "ballot-il.html", "ballot-mn.html", "ballot-co.html"]) {
     eq(R(f), HEAD(f), `${f}: byte-identical to HEAD`);
   }
-  for (const f of readdirSync(join(ROOT, "db")).filter((f) => /^roster-/.test(f))) eq(R(`db/${f}`), HEAD(`db/${f}`), `db/${f}: byte-identical to HEAD`);
+  for (const f of readdirSync(join(ROOT, "db")).filter((f) => /^roster-/.test(f) && !(isElectionDay(`db/${f}`) && HEAD(`db/${f}`) === null))) eq(R(`db/${f}`), HEAD(`db/${f}`), `db/${f}: byte-identical to HEAD`);
   const ver = (src) => Number((/const CACHE_VERSION = 'v(\d+)';/.exec(src || "") || [])[1]);
   ok(ver(R("sw.js")) === ver(HEAD("sw.js")) + 1 || R("sw.js") === HEAD("sw.js"), "sw.js: CACHE_VERSION moved exactly one step, or the worker was not touched");
   const pre = (src) => (src.match(/^  '\/[^']*',$/gm) || []).sort().join("\n");

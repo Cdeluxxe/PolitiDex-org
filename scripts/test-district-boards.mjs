@@ -87,7 +87,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
-import { planBoards } from "./gen-district-boards.mjs";
+import { planBoards, SEAT_KEY_PATH_SEATS } from "./gen-district-boards.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -233,7 +233,21 @@ const RULES = [...TOML.matchAll(/\[\[redirects\]\]\s*\n((?:\s*[a-z_]+\s*=\s*[^\n
   });
 must(RULES.length > 20, `netlify.toml parsed to only ${RULES.length} redirects`);
 
-const districtRules = RULES.filter((r) => r.from.indexOf("/district/") === 0);
+// THE SEAT-KEY PATHS (gen-district-boards.mjs SEAT_KEY_PATH_SEATS): the
+// election-day wave's 70 U.S. House boards also answer at /district/<seat>,
+// three exact 200 rewrites to the board's own document. They are held to that
+// here and set aside, so every other /district/ rule keeps the one-address rule.
+const _seatKeyOf = (from) => { const m = /^\/district\/([a-z]{2}-house-[1-9][0-9]*)(?:\/|\.html)?$/.exec(from); return m && SEAT_KEY_PATH_SEATS.has(m[1]) ? m[1] : null; };
+const _allDistrictRules = RULES.filter((r) => r.from.indexOf("/district/") === 0);
+const seatKeyRules = _allDistrictRules.filter((r) => _seatKeyOf(r.from));
+const districtRules = _allDistrictRules.filter((r) => !_seatKeyOf(r.from));
+eq(seatKeyRules.length, SEAT_KEY_PATH_SEATS.size * 3, "three seat-key rewrites per declared seat, and no others");
+for (const r of seatKeyRules) {
+  const seat = _seatKeyOf(r.from);
+  eq(r.to, `/district-${seat.replace("-house-", "-cd-")}.html`, `${r.from} rewrites to its board's own document`);
+  eq(String(r.status), "200", `${r.from} is a rewrite, not a redirect`);
+}
+
 for (const b of BOARDS) {
   const want = [`/district/${b.alias}`, `/district/${b.alias}/`, `/district/${b.alias}.html`];
   for (const from of want) {

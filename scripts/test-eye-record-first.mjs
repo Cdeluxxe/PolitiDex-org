@@ -395,8 +395,12 @@ section("3 · the record leads, and the name still decides");
     const lh = B.searchAll(q);
     const lrows = POL_IDS(lh);
     ok(rankOf(lrows, LEE) >= 0, `${JSON.stringify(q)}: the senator's own row is missing`);
-    ok(rankOf(lrows, TWIN_ID) >= 0, `${JSON.stringify(q)}: the identical-name stub is missing`);
-    ok(rankOf(lrows, LEE) < rankOf(lrows, TWIN_ID),
+    // A bare "lee" now also reaches more people who carry the name (the
+    // election-day wave's AL-3 nominee Lee McInnis among them), so the stub can
+    // fall past a full list's last row; "mike lee" must still reach it. A stub
+    // past the cut is below the senator, never above him.
+    ok(rankOf(lrows, TWIN_ID) >= 0 || (q === "lee" && lrows.length >= 6), `${JSON.stringify(q)}: the identical-name stub is missing`);
+    ok(rankOf(lrows, TWIN_ID) < 0 || rankOf(lrows, LEE) < rankOf(lrows, TWIN_ID),
       `${JSON.stringify(q)}: a photo-and-bio stub called "Mike Lee" outranked the senator (${lrows.slice(0, 6).join(", ")})`);
   }
 
@@ -694,7 +698,7 @@ section("8 · the guards are load-bearing");
   if (rankOf(chewRows, PID) > rankOf(chewRows, STUB_ID)) wrongThen.push("chew: stub over the file");
   for (const q of ["lee", "mike lee"]) {
     const r = POL_IDS(was.searchAll(q));
-    if (rankOf(r, LEE) > rankOf(r, TWIN_ID)) wrongThen.push(`${q}: an identical-name stub over the senator`);
+    if (rankOf(r, TWIN_ID) >= 0 && rankOf(r, LEE) > rankOf(r, TWIN_ID)) wrongThen.push(`${q}: an identical-name stub over the senator`);
   }
   if (POL_IDS(was.search("mike lee"))[0] !== LEE) wrongThen.push('mike lee: led with someone else');
   // SAME SHAPE, SAME REASON as the citation comparison in section 6: "the
@@ -710,7 +714,7 @@ section("8 · the guards are load-bearing");
   if (rankOf(chewNow, PID) > rankOf(chewNow, STUB_ID)) nowWrong.push("chew: stub over the file");
   for (const q of ["lee", "mike lee"]) {
     const r = POL_IDS(nowP.searchAll(q));
-    if (rankOf(r, LEE) > rankOf(r, TWIN_ID)) nowWrong.push(`${q}: an identical-name stub over the senator`);
+    if (rankOf(r, TWIN_ID) >= 0 && rankOf(r, LEE) > rankOf(r, TWIN_ID)) nowWrong.push(`${q}: an identical-name stub over the senator`);
   }
   if (POL_IDS(nowP.search("mike lee"))[0] !== LEE) nowWrong.push("mike lee: led with someone else");
   eq(nowWrong.length, 0,

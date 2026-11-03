@@ -71,6 +71,7 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
+import { SEAT_KEY_PATH_SEATS } from "./gen-district-boards.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -187,7 +188,21 @@ ok(!RULES.some((r) => r.from.startsWith("/district/") && r.from.indexOf("*") >= 
 // was while one board shipped. Three spellings per board, every rule an exact
 // path, every board's three landing on that board's own document. A table that
 // had grown by anything other than whole boards would fail here.
-const districtRules = RULES.filter((r) => r.from.startsWith("/district/"));
+// THE SEAT-KEY PATHS (gen-district-boards.mjs SEAT_KEY_PATH_SEATS): the
+// election-day wave's 70 U.S. House boards also answer at /district/<seat>,
+// three exact 200 rewrites to the board's own document. They are held to that
+// here and set aside, so every other /district/ rule keeps the one-address rule.
+const _seatKeyOf = (from) => { const m = /^\/district\/([a-z]{2}-house-[1-9][0-9]*)(?:\/|\.html)?$/.exec(from); return m && SEAT_KEY_PATH_SEATS.has(m[1]) ? m[1] : null; };
+const _allDistrictRules = RULES.filter((r) => r.from.indexOf("/district/") === 0);
+const seatKeyRules = _allDistrictRules.filter((r) => _seatKeyOf(r.from));
+const districtRules = _allDistrictRules.filter((r) => !_seatKeyOf(r.from));
+eq(seatKeyRules.length, SEAT_KEY_PATH_SEATS.size * 3, "three seat-key rewrites per declared seat, and no others");
+for (const r of seatKeyRules) {
+  const seat = _seatKeyOf(r.from);
+  eq(r.to, `/district-${seat.replace("-house-", "-cd-")}.html`, `${r.from} rewrites to its board's own document`);
+  eq(String(r.status), "200", `${r.from} is a rewrite, not a redirect`);
+}
+
 {
   const byDoc = new Map();
   for (const r of districtRules) {

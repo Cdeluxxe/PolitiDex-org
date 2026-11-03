@@ -1,0 +1,581 @@
+{
+ "_note": "Election-day wave (November 3, 2026). What the pass opened, what it set on existing rows, and what it left alone and why. Read by scripts/test-election-day-wave-2026.mjs and scripts/v103-chrome-seams.mjs (usHouseDistrictSet is a declared district edit). No migration: every board added here is read-only, so none is on the composer's lists and none needs a dd_districts row.",
+ "usHouseDistrictSet": [
+  {
+   "pid": "french_hill",
+   "seat": "ar-house-2",
+   "district": "AR-2",
+   "bioguide": "H001072",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "jared_huffman",
+   "seat": "ca-house-2",
+   "district": "CA-2",
+   "bioguide": "H001068",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "khanna",
+   "seat": "ca-house-17",
+   "district": "CA-17",
+   "bioguide": "K000389",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "zoe_lofgren",
+   "seat": "ca-house-18",
+   "district": "CA-18",
+   "bioguide": "L000397",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "aguilar",
+   "seat": "ca-house-33",
+   "district": "CA-33",
+   "bioguide": "A000371",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "ted_lieu",
+   "seat": "ca-house-36",
+   "district": "CA-36",
+   "bioguide": "L000582",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "takano",
+   "seat": "ca-house-39",
+   "district": "CA-39",
+   "bioguide": "T000472",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "robert_garcia",
+   "seat": "ca-house-42",
+   "district": "CA-42",
+   "bioguide": "G000598",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "maxine_waters",
+   "seat": "ca-house-43",
+   "district": "CA-43",
+   "bioguide": "W000187",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "delauro",
+   "seat": "ct-house-3",
+   "district": "CT-3",
+   "bioguide": "D000216",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "jim_himes",
+   "seat": "ct-house-4",
+   "district": "CT-4",
+   "bioguide": "H001047",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "sarah_mcbride",
+   "seat": "de-house-1",
+   "district": "DE-AL",
+   "bioguide": "M001238",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "maxwell_frost",
+   "seat": "fl-house-10",
+   "district": "FL-10",
+   "bioguide": "F000476",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "luna",
+   "seat": "fl-house-13",
+   "district": "FL-13",
+   "bioguide": "L000596",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "donalds",
+   "seat": "fl-house-19",
+   "district": "FL-19",
+   "bioguide": "D000032",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "brian_mast",
+   "seat": "fl-house-21",
+   "district": "FL-21",
+   "bioguide": "M001199",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "delia_ramirez",
+   "seat": "il-house-3",
+   "district": "IL-3",
+   "bioguide": "R000617",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "raja_krishnamoorthi",
+   "seat": "il-house-8",
+   "district": "IL-8",
+   "bioguide": "K000391",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "jan_schakowsky",
+   "seat": "il-house-9",
+   "district": "IL-9",
+   "bioguide": "S001145",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "mike_bost",
+   "seat": "il-house-12",
+   "district": "IL-12",
+   "bioguide": "B001295",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "comer",
+   "seat": "ky-house-1",
+   "district": "KY-1",
+   "bioguide": "C001108",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "guthrie",
+   "seat": "ky-house-2",
+   "district": "KY-2",
+   "bioguide": "G000558",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "scalise",
+   "seat": "la-house-1",
+   "district": "LA-1",
+   "bioguide": "S001176",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "mike_johnson",
+   "seat": "la-house-4",
+   "district": "LA-4",
+   "bioguide": "J000299",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "andy_harris",
+   "seat": "md-house-1",
+   "district": "MD-1",
+   "bioguide": "H001052",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "steny_hoyer",
+   "seat": "md-house-5",
+   "district": "MD-5",
+   "bioguide": "H000874",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "raskin",
+   "seat": "md-house-8",
+   "district": "MD-8",
+   "bioguide": "R000606",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "neal",
+   "seat": "ma-house-1",
+   "district": "MA-1",
+   "bioguide": "N000015",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "jim_mcgovern",
+   "seat": "ma-house-2",
+   "district": "MA-2",
+   "bioguide": "M000312",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "jake_auchincloss",
+   "seat": "ma-house-4",
+   "district": "MA-4",
+   "bioguide": "A000148",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "kclark",
+   "seat": "ma-house-5",
+   "district": "MA-5",
+   "bioguide": "C001101",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "seth_moulton",
+   "seat": "ma-house-6",
+   "district": "MA-6",
+   "bioguide": "M001196",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "ayanna_pressley",
+   "seat": "ma-house-7",
+   "district": "MA-7",
+   "bioguide": "P000617",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "sam_graves",
+   "seat": "mo-house-6",
+   "district": "MO-6",
+   "bioguide": "G000546",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "jason_smith",
+   "seat": "mo-house-8",
+   "district": "MO-8",
+   "bioguide": "S001195",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "josh_gottheimer",
+   "seat": "nj-house-5",
+   "district": "NJ-5",
+   "bioguide": "G000583",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "pallone",
+   "seat": "nj-house-6",
+   "district": "NJ-6",
+   "bioguide": "P000034",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "garbarino",
+   "seat": "ny-house-2",
+   "district": "NY-2",
+   "bioguide": "G000597",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "tom_suozzi",
+   "seat": "ny-house-3",
+   "district": "NY-3",
+   "bioguide": "S001201",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "meeks",
+   "seat": "ny-house-5",
+   "district": "NY-5",
+   "bioguide": "M001137",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "jeffries",
+   "seat": "ny-house-8",
+   "district": "NY-8",
+   "bioguide": "J000294",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "dan_goldman",
+   "seat": "ny-house-10",
+   "district": "NY-10",
+   "bioguide": "G000599",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "nadler",
+   "seat": "ny-house-12",
+   "district": "NY-12",
+   "bioguide": "N000002",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "aoc",
+   "seat": "ny-house-14",
+   "district": "NY-14",
+   "bioguide": "O000172",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "torres",
+   "seat": "ny-house-15",
+   "district": "NY-15",
+   "bioguide": "T000486",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "mike_lawler",
+   "seat": "ny-house-17",
+   "district": "NY-17",
+   "bioguide": "L000599",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "stefanik",
+   "seat": "ny-house-21",
+   "district": "NY-21",
+   "bioguide": "S001196",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "foxx",
+   "seat": "nc-house-5",
+   "district": "NC-5",
+   "bioguide": "F000450",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "greg_landsman",
+   "seat": "oh-house-1",
+   "district": "OH-1",
+   "bioguide": "L000601",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "jim_jordan",
+   "seat": "oh-house-4",
+   "district": "OH-4",
+   "bioguide": "J000289",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "kevin_hern",
+   "seat": "ok-house-1",
+   "district": "OK-1",
+   "bioguide": "H001082",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "tom_cole",
+   "seat": "ok-house-4",
+   "district": "OK-4",
+   "bioguide": "C001053",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "fitzpatrick",
+   "seat": "pa-house-1",
+   "district": "PA-1",
+   "bioguide": "F000466",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "brendan_boyle",
+   "seat": "pa-house-2",
+   "district": "PA-2",
+   "bioguide": "B001296",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "summer_lee",
+   "seat": "pa-house-12",
+   "district": "PA-12",
+   "bioguide": "L000602",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "glenn_thompson",
+   "seat": "pa-house-15",
+   "district": "PA-15",
+   "bioguide": "T000467",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "nancy_mace",
+   "seat": "sc-house-1",
+   "district": "SC-1",
+   "bioguide": "M000194",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "clyburn",
+   "seat": "sc-house-6",
+   "district": "SC-6",
+   "bioguide": "C000537",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "dan_crenshaw",
+   "seat": "tx-house-2",
+   "district": "TX-2",
+   "bioguide": "C001120",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "arrington",
+   "seat": "tx-house-19",
+   "district": "TX-19",
+   "bioguide": "A000375",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "chip_roy",
+   "seat": "tx-house-21",
+   "district": "TX-21",
+   "bioguide": "R000614",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "roger_williams",
+   "seat": "tx-house-25",
+   "district": "TX-25",
+   "bioguide": "W000816",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "crockett",
+   "seat": "tx-house-30",
+   "district": "TX-30",
+   "bioguide": "C001130",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "brian_babin",
+   "seat": "tx-house-36",
+   "district": "TX-36",
+   "bioguide": "B001291",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "bobby_scott",
+   "seat": "va-house-3",
+   "district": "VA-3",
+   "bioguide": "S000185",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "rick_larsen",
+   "seat": "wa-house-2",
+   "district": "WA-2",
+   "bioguide": "L000560",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "marie_gluesenkamp_perez",
+   "seat": "wa-house-3",
+   "district": "WA-3",
+   "bioguide": "G000600",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "jayapal",
+   "seat": "wa-house-7",
+   "district": "WA-7",
+   "bioguide": "J000298",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "adam_smith",
+   "seat": "wa-house-9",
+   "district": "WA-9",
+   "bioguide": "S000510",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  },
+  {
+   "pid": "bryan_steil",
+   "seat": "wi-house-1",
+   "district": "WI-1",
+   "bioguide": "S001213",
+   "source": "https://unitedstates.github.io/congress-legislators/legislators-current.json"
+  }
+ ],
+ "usHouseStillSkipped": [
+  {
+   "seat": "ca-house-14",
+   "why": "the member was sworn in after a 2026 special election and has no roster row"
+  },
+  {
+   "seat": "ga-house-13",
+   "why": "the member was sworn in after a 2026 special election and has no roster row"
+  },
+  {
+   "seat": "fl-house-20",
+   "why": "the public legislators record lists no current member for the seat"
+  },
+  {
+   "seat": "tx-house-23",
+   "why": "the public legislators record lists no current member for the seat"
+  },
+  {
+   "seat": "ky-house-4",
+   "pid": "massie",
+   "why": "the member's row writes the seat as its state ('KY-04'), which other surfaces read; not edited here"
+  },
+  {
+   "seat": "ny-house-9",
+   "pid": "yvette_clarke",
+   "why": "the row's office is a caucus title the U.S. House classifier does not admit"
+  },
+  {
+   "seat": "nc-house-9",
+   "pid": "hudson",
+   "why": "the row's office is a campaign-committee title the U.S. House classifier does not admit"
+  },
+  {
+   "seat": "tx-house-11",
+   "pid": "pfluger",
+   "why": "the row's office is a caucus title the U.S. House classifier does not admit"
+  },
+  {
+   "seat": "tx-house-35",
+   "pid": "casar",
+   "why": "the row's office is a caucus title the U.S. House classifier does not admit"
+  },
+  {
+   "seat": "wa-house-1",
+   "pid": "delbene",
+   "why": "the row's office is a campaign-committee title the U.S. House classifier does not admit"
+  }
+ ],
+ "governorStates": [
+  "al",
+  "az",
+  "ar",
+  "ca",
+  "ct",
+  "fl",
+  "ga",
+  "hi",
+  "il",
+  "ia",
+  "ks",
+  "md",
+  "ma",
+  "nh",
+  "nm",
+  "ny",
+  "oh",
+  "ok",
+  "or",
+  "pa",
+  "sc",
+  "tx",
+  "wi",
+  "wy"
+ ],
+ "senateSpecials": {
+  "fl": "fl-us-senate-ashley_moody",
+  "oh": "oh-us-senate-jon_husted"
+ },
+ "effectLines": {
+  "added": 0,
+  "why": "No line qualified. The blank-pair census (scripts/vr-blank-pair-census.mjs, run 2026-11-02 against the live record) finds 42 federal measure-and-issue pairs that print nothing under their row, and none of the 42 stores a `did` in _DOS_MECH; every pair whose stored `did` already meets the row rule prints it today. Executive rows are held only for the President, who is not on the November 3 ballot. A line written without a stored `did` would be a new line, which this pass does not write.",
+  "blankPairs": 42,
+  "blankPairsWithDid": 0
+ },
+ "stateLegislative": "Arizona's, Ohio's and Pennsylvania's contested state legislative races on the November 3 ballot already have read-only boards (CONTESTED_FILES in scripts/gen-district-boards.mjs). Alabama, Kansas and New Hampshire hold no sitting state legislator on the roster, so no seat there can pass the roster gate; their legislatures are left for a pass of their own.",
+ "relatedIssues": "No issue key added, so the related-issues block is unchanged."
+}

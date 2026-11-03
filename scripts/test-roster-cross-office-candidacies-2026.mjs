@@ -218,7 +218,10 @@ checkRace("donalds", "Donalds (FL Governor)");
   eq(JSON.stringify(tx.pdxSeatField("senate").holders.slice().sort()), JSON.stringify(["cruz", "john_cornyn"]), "Fort Worth's Senate holders are still Cruz and Cornyn");
   const fl = boot({ state: "Florida", city: "Naples", county: "Collier County", district: "19" });
   eq(JSON.stringify(fl.pdxSeatField("governor").holders), JSON.stringify(["ron_desantis"]), "Naples' Governor holder is still DeSantis");
-  eq(fl.pdxSeatField("house").pids.indexOf("donalds"), -1, "Donalds is not placed in a U.S. House field by his candidacy");
+  // Since the election-day wave his row names FL-19, so Naples' House field
+  // holds him as its sitting member — and only as that, never as a candidate.
+  const flh = fl.pdxSeatField("house");
+  ok(flh.pids.indexOf("donalds") === -1 || (flh.holders || []).indexOf("donalds") !== -1, "Donalds is not placed in a U.S. House field by his candidacy");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

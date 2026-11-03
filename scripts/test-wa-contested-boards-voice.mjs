@@ -42,7 +42,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
-import { HEAD, AT, PRE_CA_WA, PASS_WORKER, DECLARED_MIGRATIONS, undoMsVtMiTnEdits } from "./state-leg-harness.mjs";
+import { HEAD, AT, PRE_CA_WA, PASS_WORKER, DECLARED_MIGRATIONS, undoMsVtMiTnEdits, isElectionDay } from "./state-leg-harness.mjs";
 // What THIS pass added is measured against the commit it was built on, so the
 // check stays exact after the pass lands; "nothing else moved" stays on HEAD.
 const BASE = AT(PRE_CA_WA);
@@ -293,7 +293,9 @@ for (const b of VOICED) {
   const s = fakeStore([vendorRow(UID, b.seat)]);
   eq((await voiceHandle(comment(b.alias, UID), s.deps)).status, 201, `${b.alias}: its own flag opens it`);
   const near = VOICED.filter((x) => x.seat !== b.seat).map((x) => x.alias);
-  const fed = PLAN.filter((x) => x.federal && x.seat.startsWith("wa-")).slice(0, 2).map((x) => x.alias);
+  // Voiced federal neighbours only: a read-only board (the election-day wave's
+  // WA-2 and WA-3 among them) takes no comment from anybody, so it answers 404.
+  const fed = PLAN.filter((x) => x.federal && !x.readOnly && x.seat.startsWith("wa-")).slice(0, 2).map((x) => x.alias);
   const far = ["ca-hd-74", "az-sd-4", "ut-hd-16"].filter((a) => Object.values(COMPOSER_SEATS).includes(a));
   ok(near.length >= 1 && fed.length >= 1 && far.length >= 2, `${b.alias}: neighbours to test exist`);
   for (const alias of [...near, ...fed, ...far]) {
@@ -399,7 +401,7 @@ section("7 · existing voiced boards are unchanged");
   const now = rowsOf(R("district-board.js")), was = rowsOf(HEAD("district-board.js"));
   for (const [k, line] of was) eq(now.get(k), line, `${k}: BOARDS row unchanged`);
   const base = rowsOf(BASE("district-board.js"));
-  eq(JSON.stringify([...now.keys()].filter((k) => !base.has(k) && /^wa-/.test(k)).sort()), JSON.stringify(RACE_SEATS), "BOARDS: the only new rows are Washington's");
+  eq(JSON.stringify([...now.keys()].filter((k) => !base.has(k) && /^wa-/.test(k) && !isElectionDay(k)).sort()), JSON.stringify(RACE_SEATS), "BOARDS: the only new rows are Washington's");
   for (const [k, line] of now) if (caSeat(k)) ok(/ composer: true, /.test(line), `${k}: its row says it takes a voice`);
   const holdersNow = SEAT_HOLDERS;
   const HH = (() => { const src = HEAD("netlify/lib/seat-holders.mjs"); return new Map([...String(src).matchAll(/^  "([a-z0-9_-]+)": (\{.*\}),$/gm)].map((m) => [m[1], m[2]])); })();
@@ -408,7 +410,7 @@ section("7 · existing voiced boards are unchanged");
   // Every existing board document is HEAD's bytes.
   for (const f of readdirSync(ROOT).filter((x) => /^district-.*\.html$/.test(x))) {
     const w = HEAD(f);
-    ok(w === null ? /^district-wa-(?:hd|sd)-\d+(?:-p\d)?\.html$/.test(f) : R(f) === w, `${f}: unchanged`);
+    ok(w === null ? /^district-wa-(?:hd|sd)-\d+(?:-p\d)?\.html$/.test(f) || isElectionDay(f) : R(f) === w, `${f}: unchanged`);
   }
   const TOML = R("netlify.toml");
   ok(![...TOML.matchAll(/from = "([^"]+)"/g)].some((m) => /^\/district\/.*\*/.test(m[1])), "no /district/* splat");

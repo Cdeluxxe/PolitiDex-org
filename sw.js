@@ -11443,7 +11443,19 @@
 //     related-issues.js, consistency.js and person-file.css are precached and
 //     changed, so the shell moves one version.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v511';
+// v512 - ELECTION DAY: BOARDS FOR TOMORROW'S HOUSE AND GOVERNOR SEATS.
+//     94 read-only boards open for seats on the November 3, 2026 ballot: 70
+//     U.S. House seats whose sitting member's row now names its district, and
+//     the governor's seat in 24 more states. Each is a network page, not
+//     precached, and none takes a comment or a poll vote. district-board.js
+//     and district-voice.js are precached and gained their rows, the board
+//     count on '/' and '/voice.html' now reads 2,518, and hero-showcase-data.js
+//     names the district of the House members whose rows gained one, so the shell moves
+//     one version; the precache list itself is unchanged. No location key,
+//     saved pick or stored reader state is read or rewritten, so nothing is
+//     migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v512';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

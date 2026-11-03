@@ -65,7 +65,7 @@ import vm from "node:vm";
 import { makeSandbox, ENGINE_FILES } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 import { withDeclaredNoPole } from "./head-no-pole.mjs";
-import { declaredStanceMovesAtHead } from "./v103-chrome-seams.mjs";
+import { declaredStanceMovesAtHead, DECLARED_ADMISSIONS } from "./v103-chrome-seams.mjs";
 import { precachedMoved } from "./precache-moved.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -516,7 +516,11 @@ section("6 · the sitemap lists the keys with something to read");
       `${lost.length} person address(es) left the sitemap — a regeneration may admit, never de-list`);
     // A declared stance pass (v103-chrome-seams.mjs) writes its people down there:
     // a file it gave content to clears the floor, and that address is declared.
-    const gained = [...after].filter((a) => !before.has(a) && !declaredStanceMovesAtHead().moved.has(a)).sort();
+    // …and so does a declared roster admission: a person whose file already had
+    // curated content clears the floor once their row is admitted (the
+    // election-day wave's Sherrod Brown).
+    const admitted = new Set(DECLARED_ADMISSIONS.flatMap((d) => d.pids));
+    const gained = [...after].filter((a) => !before.has(a) && !declaredStanceMovesAtHead().moved.has(a) && !admitted.has(a)).sort();
     // lyman, mike_rogers_al and rosie_rivera_slco were v168's three arrivals and
     // are in the committed file now, so they are no longer a gain against it. The
     // word-first gate pass (v169) admits nobody: it moves which brief a file with

@@ -35,7 +35,7 @@
 //
 //   node scripts/test-tx-contested-cycle.mjs
 
-import { R, HEAD, boot, levelOf, band, settled, DECLARED_MIGRATIONS } from "./state-leg-harness.mjs";
+import { R, HEAD, boot, levelOf, band, settled, DECLARED_MIGRATIONS, isElectionDay } from "./state-leg-harness.mjs";
 import { readdirSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
@@ -284,7 +284,7 @@ section("5 · District Voice: a board for each contested seat and no other");
   // Every board HEAD did not have is a contested seat some state's ballot
   // file holds a race for (contestedSeats() reads them from those files).
   const CONTESTED = contestedSeats();
-  for (const k of Object.keys(routes)) if (!HV[k]) ok(CONTESTED.has(k), `${k}: a board with no race behind it`);
+  for (const k of Object.keys(routes)) if (!HV[k] && !isElectionDay(k)) ok(CONTESTED.has(k), `${k}: a board with no race behind it`);
   for (const r of N.RACES) ok(!!routes[r.seat], `${r.seat}: the contested Texas seat has a board`);
   const B = (() => { const w = makeSandbox(); vm.runInContext(R("district-board.js"), vm.createContext(w), { filename: "district-board.js" }); return w.PDXDistrictBoard; })();
   for (const r of N.RACES) {
@@ -319,8 +319,8 @@ section("5 · District Voice: a board for each contested seat and no other");
       eq(JSON.stringify(got), JSON.stringify(want), `${f}: exactly the contested Texas seats take a voice`);
     }
   }
-  for (const f of readdirSync(ROOT).filter((f) => /^district-(?:pa|ga|nc|mi|oh|wi|fl|az|ny)-(?:hd|sd)-\d+\.html$/.test(f))) eq(R(f), HEAD(f), `${f}: moved`);
-  for (const f of readdirSync(ROOT).filter((f) => /^district-tx-(?:cd-\d+|us-senate-.*)\.html$/.test(f))) eq(R(f), HEAD(f), `${f}: moved`);
+  for (const f of readdirSync(ROOT).filter((f) => /^district-(?:pa|ga|nc|mi|oh|wi|fl|az|ny)-(?:hd|sd)-\d+\.html$/.test(f) && !(isElectionDay(f) && HEAD(f) === null))) eq(R(f), HEAD(f), `${f}: moved`);
+  for (const f of readdirSync(ROOT).filter((f) => /^district-tx-(?:cd-\d+|us-senate-.*)\.html$/.test(f) && !(isElectionDay(f) && HEAD(f) === null))) eq(R(f), HEAD(f), `${f}: moved`);
   const chk = (() => { try { execFileSync("node", ["scripts/gen-district-boards.mjs", "--check"], { cwd: ROOT, stdio: "pipe" }); return true; } catch (e) { return false; } })();
   ok(chk, "gen-district-boards.mjs --check: every generated file is what the generator writes");
 }
