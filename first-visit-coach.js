@@ -49,7 +49,15 @@
               stance" opens the stance studio (PDXReturn.studioHref, next=/voice)
               so a save or a skip brings them back here; "I'm good for now"
               ends the path.
-     end      /voice, after the studio sent them back. One line and "Done".
+     ballot   /voice, after the studio sent them back (a save or a skip).
+              "Open the workshop" goes to /ballot, the Your Ballot workshop the
+              homepage and /me already link; "Skip for now" moves straight on
+              to the alignment step in the same card.
+     align    the page they come back to from /ballot (the workshop's
+              "← Home", or Back to /voice). "Open alignment" opens the
+              homepage's Personalized Alignment Tool panel (#alignment-panel);
+              "I'm done" ends the path.
+     end      the homepage, with the alignment panel open. One line and "Done".
 
    The step lives in sessionStorage under PATH_KEY, never in localStorage, so a
    path is one visit long. The path shows itself only while it is running or
@@ -62,7 +70,7 @@
   'use strict';
   if (window.PDXCoach) return;
 
-  var BUILD = 'v514';                  // logged, so DevTools shows which copy is running
+  var BUILD = 'v515';                  // logged, so DevTools shows which copy is running
   var KEY = 'pdx_coach_seen';          // localStorage: set once, when the popup closes
   var DELAY_MS = 9000;                 // after the page is parsed, so the hero is seen first
   var RETRY_MS = 2000;                 // another dialog is open: look again this soon
@@ -83,6 +91,8 @@
   var FINDER = '/find';
   var HOME_BAND = 'who-represents-me';
   var ROOMS = '/voice';
+  var BALLOT = '/ballot';
+  var ALIGN_ID = 'alignment-panel';
   // The locked District Voice line, verbatim. district-board.js and /voice's
   // own meta carry the same sentence.
   var VOICE_LINE = 'Anyone can read a board. Only verified residents of that seat get a voice that counts.';
@@ -119,7 +129,8 @@
   function shouldShow() { return !seen() && !located(); }
 
   // ── The guided path's step, for this visit only ──────────────────────────
-  // { step: 'loc' | 'see' | 'rooms' | 'stance' } while it runs, { off: 1 }
+  // { step: 'loc' | 'see' | 'rooms' | 'stance' | 'ballot' | 'align' } while
+  // it runs, { off: 1 }
   // once the reader ended it. Nothing else is written there.
   function readPath() {
     try {
@@ -150,9 +161,14 @@
     if (pg !== 'home' && pg !== 'voice') return '';
     if (!located()) return 'loc';
     var st = asked ? '' : pathStep();
-    if (pg === 'home') return (asked || st === 'loc' || st === 'see') ? 'see' : '';
+    if (pg === 'home') {
+      if (asked || st === 'loc' || st === 'see') return 'see';
+      if (st === 'stance' || st === 'ballot') return 'align';   // back from the workshop
+      return st === 'align' ? 'end' : '';                       // sent here to open alignment
+    }
     if (asked || st === 'loc' || st === 'see' || st === 'rooms') return 'rooms';
-    return st === 'stance' ? 'end' : '';
+    if (st === 'stance') return 'ballot';                       // back from the studio
+    return st === 'ballot' ? 'align' : '';                      // back from the workshop
   }
 
   // The doors, built by PDXReturn when it is on the page so the address is the
@@ -238,19 +254,29 @@
   var SEE_LINE = 'These are the people who already hold power over you, seat by seat, for the place you set.';
   var ROOMS_LINE = 'These rooms are for your seats. Anyone can read them. Only a verified resident gets a voice that counts.';
   var STANCE_LINE = 'A stance is one issue and where you stand on it. It goes on your file, and you can change it any time.';
-  var END_LINE = 'You can see your seats on the front page and open any of your rooms here.';
+  var BALLOT_LINE = 'Your ballot is where you pick who you want in each seat.';
+  var ALIGN_LINE = 'The alignment tool shows how your stances line up with the people on your ballot.';
+  var END_LINE = 'Your seats are on the front page, your rooms are on District Voice, and your ballot is there whenever you come back to it.';
 
   function stepHtml(step) {
     var kick = '', title = '', line = '', extra = '', acts = '';
     if (step === 'see') {
-      kick = 'Step 2 of 3'; title = 'See who represents you'; line = SEE_LINE;
+      kick = 'Step 2 of 5'; title = 'See who represents you'; line = SEE_LINE;
       acts = '<a class="pdxfc-door" href="' + ROOMS + '" data-pdxfc-go="rooms">Open my rooms</a>' +
         '<button type="button" class="pdxfc-skip" data-pdxfc-act="skip">Not now</button>';
     } else if (step === 'rooms') {
-      kick = 'Step 3 of 3'; title = 'Open your rooms'; line = ROOMS_LINE;
+      kick = 'Step 3 of 5'; title = 'Open your rooms'; line = ROOMS_LINE;
       extra = '<p class="pdxfc-sub">' + esc(STANCE_LINE) + '</p>';
       acts = '<a class="pdxfc-door" href="' + esc(studioHref()) + '" data-pdxfc-go="stance">Take a stance</a>' +
         '<button type="button" class="pdxfc-next" data-pdxfc-act="finish">I’m good for now</button>';
+    } else if (step === 'ballot') {
+      kick = 'Step 4 of 5'; title = 'Build your ballot'; line = BALLOT_LINE;
+      acts = '<a class="pdxfc-door" href="' + BALLOT + '" data-pdxfc-go="ballot">Open the workshop</a>' +
+        '<button type="button" class="pdxfc-skip" data-pdxfc-act="skipballot">Skip for now</button>';
+    } else if (step === 'align') {
+      kick = 'Step 5 of 5'; title = 'See how you align'; line = ALIGN_LINE;
+      acts = '<a class="pdxfc-door" href="/#' + ALIGN_ID + '" data-pdxfc-go="align">Open alignment</a>' +
+        '<button type="button" class="pdxfc-next" data-pdxfc-act="finish">I’m done</button>';
     } else {
       kick = 'All set'; title = 'That’s the path'; line = END_LINE;
       acts = '<button type="button" class="pdxfc-next" data-pdxfc-act="finish">Done</button>';
@@ -330,6 +356,8 @@
     if (via === 'finder') writePath({ step: 'see', at: Date.now() });
     else if (via === 'rooms') writePath({ step: 'rooms', at: Date.now() });
     else if (via === 'stance') writePath({ step: 'stance', at: Date.now() });
+    else if (via === 'ballot') writePath({ step: 'ballot', at: Date.now() });
+    else if (via === 'align') writePath({ step: 'align', at: Date.now() });
     else writePath({ off: 1, via: via, at: Date.now() });
     remove();
     try { if (returnFocus && fn(returnFocus.focus)) returnFocus.focus(); } catch (e) {}
@@ -357,6 +385,13 @@
     var t = e.target;
     if (t === root) { close('skip'); return; }           // the backdrop
     var act = t && t.closest ? t.closest('[data-pdxfc-act]') : null;
+    if (act && act.getAttribute('data-pdxfc-act') === 'skipballot') {
+      // Skip the workshop, not the path: the alignment step, in the same card.
+      writePath({ step: 'ballot', skipped: 1, at: Date.now() });
+      remove();
+      open('align');
+      return;
+    }
     if (act) {
       close(act.getAttribute('data-pdxfc-act') === 'finish' ? 'done' : 'skip');
       return;
@@ -365,7 +400,19 @@
     if (door) { openFinder(e); return; }
     // Steps 2 and 3: real anchors; the click records the step they lead to.
     var go = t && t.closest ? t.closest('[data-pdxfc-go]') : null;
-    if (go) close(go.getAttribute('data-pdxfc-go') === 'stance' ? 'stance' : 'rooms');
+    if (!go) return;
+    var to = go.getAttribute('data-pdxfc-go');
+    if (to === 'align' && page() === 'home' && document.getElementById(ALIGN_ID)) {
+      // The alignment tool is on this page: open it in place, then the last card.
+      var modified = e && (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button > 0);
+      if (modified) { close('align'); return; }
+      if (e && fn(e.preventDefault)) e.preventDefault();
+      writePath({ step: 'align', at: Date.now() });
+      remove();
+      open('end');
+      return;
+    }
+    close(to === 'stance' ? 'stance' : to === 'ballot' ? 'ballot' : to === 'align' ? 'align' : 'rooms');
   }
 
   function onKey(e) {
@@ -382,6 +429,17 @@
     } catch (e) {}
   }
 
+  // The last step's surface: the homepage's alignment panel, opened and in view.
+  function toAlign() {
+    try {
+      if (fn(window.alignTogglePanel)) window.alignTogglePanel(true);
+      var panel = document.getElementById(ALIGN_ID);
+      if (!panel || !fn(panel.scrollIntoView)) return;
+      var still = fn(window.matchMedia) && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      panel.scrollIntoView({ behavior: still ? 'auto' : 'smooth', block: 'start' });
+    } catch (e) {}
+  }
+
   // `step` is '' for the first-visit welcome (gated as it always was), or a
   // path step, which the caller has already decided belongs on this page.
   function open(step) {
@@ -393,7 +451,7 @@
     ensureStyle();
     root = document.createElement('div');
     root.id = ROOT_ID;
-    var dock = step === 'see' || step === 'rooms' || step === 'end';
+    var dock = step === 'see' || step === 'rooms' || step === 'ballot' || step === 'align' || step === 'end';
     root.className = dock ? 'pdxfc pdxfc--dock' : 'pdxfc';
     root.setAttribute('role', 'dialog');
     root.setAttribute('aria-labelledby', TITLE_ID);
@@ -405,6 +463,8 @@
     body.appendChild(root);
     if (nextBtn) nextBtn.hidden = true;
     if (step === 'see') toBand();
+    // The path is complete once the last card is up; a reload does not replay it.
+    if (step === 'end') { writePath({ off: 1, via: 'complete', at: Date.now() }); toAlign(); }
     try {
       var h = document.getElementById(TITLE_ID);
       if (h && fn(h.focus)) h.focus({ preventScroll: true });
@@ -515,6 +575,8 @@
     CONTINUE_MS: CONTINUE_MS,
     SEE_LINE: SEE_LINE,
     ROOMS_LINE: ROOMS_LINE,
+    BALLOT_LINE: BALLOT_LINE,
+    ALIGN_LINE: ALIGN_LINE,
     shouldShow: shouldShow,
     showNext: showNext,
     step: function () { return current; },

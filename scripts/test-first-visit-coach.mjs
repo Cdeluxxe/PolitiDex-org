@@ -636,14 +636,103 @@ section("7 · the guided path: location → seats → rooms → optional stance"
     eq(v.C.pathStep(), "stance", "path: Take a stance did not record the studio visit");
   }
   {
-    // Back on /voice from the studio: one closing card, then the path ends.
+    // Back on /voice from the studio (a save or a skip): step 4, the ballot.
     const v = visit({ page: "voice", local, session });
     v.tick(CONT);
-    eq(stepOf(v), "end", "path: /voice after the studio did not close the path");
+    eq(stepOf(v), "ballot", "path: /voice after the studio did not offer the ballot step");
+    const h = v.popup().innerHTML;
+    has(h, v.C.BALLOT_LINE, "path: the ballot step lost its sentence");
+    has(h, ">Build your ballot<", "path: the ballot step is not titled Build your ballot");
+    has(h, 'href="/ballot" data-pdxfc-go="ballot">Open the workshop<', "path: Open the workshop does not go to /ballot");
+    has(h, 'data-pdxfc-act="skipballot">Skip for now<', "path: the ballot step has no Skip for now");
+    const prevented = goClick(v, "ballot");
+    ok(!prevented && !v.popup(), "path: Open the workshop did not close and follow its link");
+    eq(v.C.pathStep(), "ballot", "path: Open the workshop did not record the ballot step");
+  }
+  {
+    // /ballot itself does not load the popup; the path resumes on return.
+    no(R("ballot.html"), "first-visit-coach", "path: ballot.html loads the popup");
+    // Back on /voice from the workshop: step 5, alignment.
+    const v = visit({ page: "voice", local, session });
+    v.tick(CONT);
+    eq(stepOf(v), "align", "path: /voice after the workshop did not offer the alignment step");
+    const h = v.popup().innerHTML;
+    has(h, v.C.ALIGN_LINE, "path: the alignment step lost its sentence");
+    has(h, ">See how you align<", "path: the alignment step is not titled See how you align");
+    has(h, 'href="/#alignment-panel" data-pdxfc-go="align">Open alignment<', "path: Open alignment does not go to the alignment panel");
+    has(h, 'data-pdxfc-act="finish">I’m done<', "path: the alignment step has no I’m done");
+    has(R("index.html"), 'id="alignment-panel"', "path: the homepage alignment panel is gone");
+    goClick(v, "align");
+    eq(v.C.pathStep(), "align", "path: Open alignment from /voice did not record the step");
+  }
+  {
+    // On the homepage: the alignment panel opens and the closing card shows.
+    const v = visit({ local, session });
+    const panel = { id: "alignment-panel", children: [], parentNode: null, scrollIntoView() { this.seen = 1; } };
+    v.document.body.appendChild(panel);
+    let opened = null;
+    v.win.alignTogglePanel = (f) => { opened = f; };
+    v.tick(CONT);
+    eq(stepOf(v), "end", "path: the homepage did not show the closing card after Open alignment");
+    eq(opened, true, "path: the alignment panel was not opened");
+    ok(panel.seen === 1, "path: the alignment panel was not scrolled into view");
     click(v, "data-pdxfc-act", "finish");
-    const w = visit({ page: "voice", local, session });
-    w.tick(60000);
-    ok(!w.popup(), "path: the path came back after it ended");
+    for (const p2 of ["home", "voice"]) {
+      const w = visit({ page: p2, local, session });
+      w.tick(60000);
+      ok(!w.popup(), `path: the path came back on ${p2} after it ended`);
+    }
+  }
+  {
+    // Back on the homepage from /ballot ("← Home"): alignment, opened in place.
+    const l = memStore({ politidex_voter_location: LOC, pdx_coach_seen: "1" });
+    const s6 = memStore({ pdx_path_v1: '{"step":"ballot"}' });
+    const v = visit({ local: l, session: s6 });
+    v.document.body.appendChild({ id: "alignment-panel", children: [], parentNode: null, scrollIntoView() {} });
+    let opened = null;
+    v.win.alignTogglePanel = (f) => { opened = f; };
+    v.tick(CONT);
+    eq(stepOf(v), "align", "path: the homepage after the workshop did not offer alignment");
+    const prevented = goClick(v, "align");
+    ok(prevented, "path: Open alignment on the homepage left the page instead of opening in place");
+    eq(stepOf(v), "end", "path: Open alignment on the homepage did not show the closing card");
+    eq(opened, true, "path: Open alignment on the homepage did not open the panel");
+  }
+  {
+    // Skip for now on the ballot step moves to alignment; I'm done ends it.
+    const l = memStore({ politidex_voter_location: LOC, pdx_coach_seen: "1" });
+    const s7 = memStore({ pdx_path_v1: '{"step":"stance"}' });
+    const v = visit({ page: "voice", local: l, session: s7 });
+    v.tick(CONT);
+    click(v, "data-pdxfc-act", "skipballot");
+    eq(stepOf(v), "align", "path: Skip for now on the ballot step did not move to alignment");
+    click(v, "data-pdxfc-act", "finish");
+    ok(!v.popup(), "path: I’m done did not close the alignment step");
+    ok(JSON.parse(s7.getItem("pdx_path_v1")).off, "path: I’m done did not end the path with the session flag");
+    for (const p2 of ["home", "voice"]) {
+      const w = visit({ page: p2, local: l, session: s7 });
+      w.tick(60000);
+      ok(!w.popup(), `path: after I’m done the path came back on ${p2}`);
+    }
+  }
+  {
+    // Closing the ballot step any other way (×) ends the path cleanly.
+    const l = memStore({ politidex_voter_location: LOC, pdx_coach_seen: "1" });
+    const s8 = memStore({ pdx_path_v1: '{"step":"stance"}' });
+    const v = visit({ page: "voice", local: l, session: s8 });
+    v.tick(CONT);
+    click(v, "data-pdxfc-act", "skip");
+    ok(!v.popup() && JSON.parse(s8.getItem("pdx_path_v1")).off, "path: closing the ballot step did not end the path");
+  }
+  {
+    // Not on the path: the new steps never appear on their own, even with a
+    // ballot or stances on file.
+    const l = memStore({ politidex_voter_location: LOC, pdx_coach_seen: "1", pdx_my_stances_v1: '{"x":"support"}' });
+    for (const p2 of ["home", "voice"]) {
+      const w = visit({ page: p2, local: l });
+      w.tick(60000);
+      ok(!w.popup(), `path: the path showed on ${p2} for a reader who is not on it`);
+    }
   }
   {
     // I'm good for now ends it.
@@ -711,7 +800,7 @@ section("7 · the guided path: location → seats → rooms → optional stance"
 
   // No equity language anywhere on the path.
   const C = visit().C;
-  const copy = ["see", "rooms", "end"].map((s) => C._stepHtml(s)).join(" ").replace(/<[^>]*>/g, " ") + " Show me the next step";
+  const copy = ["see", "rooms", "ballot", "align", "end"].map((s) => C._stepHtml(s)).join(" ").replace(/<[^>]*>/g, " ") + " Show me the next step";
   for (const word of ["membership", "member", "stock", "stocks", "share", "shares", "shareholder", "equity",
                       "invest", "investor", "dividend", "earn", "pay", "premium", "subscription", "owner", "ownership"]) {
     ok(!new RegExp(`\\b${word}\\b`, "i").test(copy), `path: the guided path's copy carries "${word}"`);
