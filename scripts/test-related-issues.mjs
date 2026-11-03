@@ -243,9 +243,18 @@ const LBL = (k) => String(IM[k].label).replace(/^[^A-Za-z0-9]+/, "").trim();
       const h = w.PDXRelatedIssues.sectionHtml(pid, { name: "" });
       if (!gs.length) { if (h !== "") bad++; continue; }
       shown++;
+      for (const g of gs) {
+        const ks = g.related.map((it) => it.key);
+        if (new Set(ks).size !== ks.length || ks.includes(g.issue.key)) bad++;
+      }
+      // Rendered: every line element carries exactly one stated and one record part.
+      for (const m of h.matchAll(/<(li|div) class="pdxri-(item|anchor)"[\s\S]*?<\/\1>/g)) {
+        if ((m[0].match(/class="pdxri-dir s-/g) || []).length !== 1 || (m[0].match(/class="pdxri-(rec r-|tally)/g) || []).length !== 1) bad++;
+      }
       for (const g of gs) for (const it of [g.issue, ...g.related]) {
         lines++;
         if (it.dir && pm[it.key].stance !== it.dir) bad++;
+        if (w.PDXRelatedIssues.lineTexts(it).length !== 1) bad++;
         for (const l of w.PDXRelatedIssues.lineTexts(it)) {
           if (!/^[A-Za-z0-9 &,+\-'.:()]+: (supports|opposes|no stated position) · (record runs with|record runs against|no record|\d+ for · \d+ against( · \d+ took no side)?|\d+ formal acts?|\d+ votes? on file)$/.test(l)) bad++;
         }

@@ -11435,7 +11435,15 @@
 //     vote table are unchanged. related-issues.js is precached and changed,
 //     so the shell moves one version.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v510';
+// v511 - RELATED ISSUES: ONE LINE PER ISSUE, BOTH PARTS, GUARANTEED.
+//     The block never lists an issue twice (keys are de-duplicated and the
+//     open issue is never listed), and each part of the line wraps as a unit
+//     so "record runs with" or "1 for · 1 against" is never split across
+//     lines. Every line still reads "Issue Name: <stated> · <record>".
+//     related-issues.js, consistency.js and person-file.css are precached and
+//     changed, so the shell moves one version.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v511';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

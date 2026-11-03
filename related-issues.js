@@ -326,8 +326,15 @@
   // record direction on.
   function itemsFor(pid, p, key, pm) {
     pm = pm || positionMap(pid, p);
-    var out = [];
-    related(key).forEach(function (k) { var it = itemOf(pid, pm, k); if (it) out.push(it); });
+    // One line per issue: a key is never listed twice, and the open issue is
+    // never listed in its own block.
+    var out = [], seen = {};
+    seen[key] = 1;
+    related(key).forEach(function (k) {
+      if (seen[k]) return;
+      seen[k] = 1;
+      var it = itemOf(pid, pm, k); if (it) out.push(it);
+    });
     return out;
   }
 

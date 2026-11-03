@@ -2381,6 +2381,7 @@
       '.pdxri-drawer .pdxri-dir.s-oppose{color:#f87171;}' +
       '.pdxri-drawer .pdxri-rec.r-with{color:#4ade80;}' +
       '.pdxri-drawer .pdxri-rec.r-against{color:#f87171;}' +
+      '.pdxri-drawer .pdxri-dir,.pdxri-drawer .pdxri-rec,.pdxri-drawer .pdxri-tally{white-space:nowrap;}' +
       '.pdxri-drawer .pdxri-ico{font-weight:400;}' +
       '.pdxri-drawer .pdxri-go{color:inherit;text-decoration:underline;' +
         'text-decoration-color:rgba(143,166,198,0.45);text-underline-offset:2px;}' +

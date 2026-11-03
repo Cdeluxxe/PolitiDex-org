@@ -106,7 +106,7 @@ function wantLine(win, pid, k) {
   }
   return rec == null ? null : `${lbl(win, k)}: ${d ? WORD[d] : "no stated position"} · ${rec}`;
 }
-const PART_RE = /^[^:]+: (supports|opposes|no stated position) · (record runs with|record runs against|no record|\d+ for · \d+ against( · \d+ took no side)?|\d+ formal acts?|\d+ votes? on file)$/;
+const PART_RE = /^.+?: (supports|opposes|no stated position) · (record runs with|record runs against|no record|\d+ for · \d+ against( · \d+ took no side)?|\d+ formal acts?|\d+ votes? on file)$/;
 
 // ── 1 · Lee × Protect Public Lands, real data ──────────────────────────────
 {
@@ -164,7 +164,7 @@ const PART_RE = /^[^:]+: (supports|opposes|no stated position) · (record runs w
   ok(/\.pdxri-rec\.r-with \{ color: #4ade80; \}/.test(pf) && /\.pdxri-rec\.r-against \{ color: #f87171; \}/.test(pf), "person-file record words are not green / red");
   ok(!/class="pdxri-dir[^"]*">record/.test(b), "a record word carries the stated position tint");
   ok(/<span class="pdxri-rec r-none">no record<\/span>/.test(b) && /<span class="pdxri-dir s-none">no stated position<\/span>/.test(b), "the absent parts are not neutral");
-  ok(!/\.pdxri-(dir\.s|rec\.r)-none/.test(cs) && !/\.pdxri-(dir\.s|rec\.r)-none/.test(pf) && !/\.pdxri-tally\{|\.pdxri-tally \{/.test(cs + pf),
+  ok(!/\.pdxri-(dir\.s|rec\.r)-none/.test(cs) && !/\.pdxri-(dir\.s|rec\.r)-none/.test(pf) && !/\.pdxri-tally[^{]*\{[^}]*color/.test(cs + pf),
      "no stated position / no record / the tally picked up a colour");
   ok(!ln.some((l) => /^Keep Public Lands Public:/.test(l)), "the open issue is repeated in its own drawer");
 }
@@ -334,7 +334,7 @@ const FIX = {
 {
   const off = boot(false), on = boot(true);
   const pids = ["lee", "trump", "chellie_pingree", "blake_moore", "celeste_maloy", "john_curtis", "john_boyd"];
-  let sheets = 0, withBlock = 0;
+  let sheets = 0, withBlock = 0, bothChecked = 0;
   for (const pid of pids) {
     let rows0 = [], rows1 = [];
     try { rows0 = off.PDXConsistency.issueRows(pid) || []; rows1 = on.PDXConsistency.issueRows(pid) || []; } catch { /* none */ }
@@ -348,6 +348,17 @@ const FIX = {
         withBlock++;
         const want = on.PDXRelatedIssues.itemsFor(pid, on.CMP_DATA[pid], r.key).flatMap(on.PDXRelatedIssues.lineTexts);
         eq(JSON.stringify(lines(b)), JSON.stringify(want), `${pid} × ${r.key}: drawer lines are not this issue's related positions`);
+        // One line per issue, both parts on it.
+        const lis = [...bl.matchAll(/<li class="pdxri-item" data-pdxri-key="([^"]+)"[\s\S]*?<\/li>/g)];
+        const keys = lis.map((m) => m[1]);
+        eq(new Set(keys).size, keys.length, `${pid} × ${r.key}: an issue appears as two lines`);
+        ok(!keys.includes(r.key), `${pid} × ${r.key}: the open issue is listed`);
+        for (const m of lis) {
+          ok((m[0].match(/class="pdxri-dir s-/g) || []).length === 1 && (m[0].match(/class="pdxri-(rec r-|tally)/g) || []).length === 1,
+             `${pid} × ${r.key} × ${m[1]}: a line lacks one part or carries two`);
+          ok(PART_RE.test(text(m[0])), `${pid} × ${r.key} × ${m[1]}: "${text(m[0])}" is not one two-part line`);
+        }
+        bothChecked += lis.length;
       } else {
         eq(on.PDXRelatedIssues.itemsFor(pid, on.CMP_DATA[pid], r.key).length, 0, `${pid} × ${r.key}: related position but no block`);
       }
@@ -355,6 +366,7 @@ const FIX = {
     }
   }
   ok(sheets > 20, `only ${sheets} drawers sampled`);
+  ok(bothChecked > 100, `only ${bothChecked} lines checked for both parts`);
   console.log(`   real corpus: ${sheets} drawers compared · ${withBlock} carry a related-issues block`);
 }
 
@@ -368,7 +380,10 @@ const FIX = {
   const sw = R("sw.js");
   ok(sw.includes("'/related-issues.js',") && sw.includes("'/consistency.js',"), "drawer scripts are precached");
   const v = Number((sw.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1]);
-  ok(v >= 510, "shell version bumped for two-part related-issue lines");
+  ok(v >= 511, "shell version bumped for one line per related issue");
+  ok(/\.pdxri-dir, \.pdxri-rec, \.pdxri-tally \{ white-space: nowrap; \}/.test(R("person-file.css")) &&
+     cs.includes("'.pdxri-drawer .pdxri-dir,.pdxri-drawer .pdxri-rec,.pdxri-drawer .pdxri-tally{white-space:nowrap;}'"),
+     "a line part can break mid-phrase");
 }
 
 if (failures.length) {
