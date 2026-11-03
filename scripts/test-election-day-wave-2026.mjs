@@ -212,6 +212,62 @@ const NEW_BOARDS = [
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
+section("3b · every new House board answers at its seat key and its registered path");
+// ═════════════════════════════════════════════════════════════════════════════
+// The registered path is the federal convention, /district/<st>-cd-<n>; the
+// seat-key path /district/<st>-house-<n> is a second set of 200 rewrites to the
+// same document (an at-large seat is district 1, as the roster stores it).
+// Netlify takes the first rule whose `from` matches, so a path resolves to the
+// `to` of its first exact rule.
+{
+  const RULES = [...TOML.matchAll(/\[\[redirects\]\]\n  from = "([^"]+)"\n  to = "([^"]+)"\n  status = (\d+)/g)].map((m) => [m[1], m[2], +m[3]]);
+  const resolve = (path) => { const r = RULES.find(([from]) => from === path); return r ? { to: r[1], status: r[2] } : null; };
+  const V = (() => { const w = {}; w.window = w; vm.runInContext(DV, vm.createContext(w)); return w.PDXVoice.BOARD_ROUTES; })();
+  const B = (() => { const w = makeSandbox(); vm.runInContext(DB, vm.createContext(w), { filename: "district-board.js" }); return w.PDXDistrictBoard.BOARDS || null; })();
+  for (const r of WAVE.usHouseDistrictSet) {
+    const b = BY.get(r.seat);
+    if (!ok(b, `${r.seat}: in the plan`)) continue;
+    const [code, , n] = r.seat.split("-");
+    eq(b.alias, `${code}-cd-${n}`, `${r.seat}: the registered alias is the federal convention`);
+    eq(b.doc, `district-${b.alias}.html`, `${r.seat}: the document is named for the registered path`);
+    eq(V[r.seat], b.route, `${r.seat}: BOARD_ROUTES names the registered path`);
+    if (B) eq(B[r.seat] && B[r.seat].route, b.route, `${r.seat}: BOARDS names the registered path`);
+    has(DB, `'${r.seat}': { seat: '${r.seat}', composer: false, alias: '${b.alias}', route: '${b.route}'`, `${r.seat}: the BOARDS row's alias and route`);
+    const doc = R(b.doc);
+    has(doc, `<link rel="canonical" href="https://politidex.fyi${b.route}" />`, `${r.seat}: the document's canonical is the registered path`);
+    has(doc, `window.__PDX_DISTRICT_BOARD_SEAT = '${b.alias}';`, `${r.seat}: the document declares its own seat, whatever path served it`);
+    for (const path of [b.route, `/district/${r.seat}`]) {
+      for (const sfx of ["", "/", ".html"]) {
+        const hit = resolve(path + sfx);
+        ok(hit && hit.to === `/${b.doc}` && hit.status === 200, `${path}${sfx}: resolves to /${b.doc} with a 200 (got ${JSON.stringify(hit)})`);
+      }
+    }
+  }
+  // The smoke's own paths, by name.
+  for (const [path, doc] of [["/district/oh-house-1", "district-oh-cd-1.html"], ["/district/pa-house-1", "district-pa-cd-1.html"],
+    ["/district/ny-house-12", "district-ny-cd-12.html"], ["/district/de-house-1", "district-de-cd-1.html"]]) {
+    const hit = resolve(path);
+    eq(hit && hit.to, `/${doc}`, `${path}: resolves to its document, not a 404`);
+    ok(existsSync(join(ROOT, doc)), `${doc}: on disk`);
+  }
+  // Only the wave's seats got a seat-key path: no skipped seat, governor, Utah
+  // or composer board answers at one.
+  const seatKeyFroms = RULES.map(([f]) => f).filter((f) => /^\/district\/[a-z]{2}-house-\d+(?:\/|\.html)?$/.test(f));
+  eq(seatKeyFroms.length, WAVE.usHouseDistrictSet.length * 3, "exactly three seat-key rewrites per new House board, and no others");
+  for (const s of WAVE.usHouseStillSkipped) eq(resolve(`/district/${s.seat}`), null, `${s.seat}: a skipped seat has no seat-key path`);
+  // Governor and Utah boards: every rewrite to one of their documents is the
+  // committed tree's, byte for byte.
+  const HEAD_TOML = (() => { try { return execFileSync("git", ["show", "HEAD:netlify.toml"], { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 28, stdio: ["ignore", "pipe", "ignore"] }); } catch { return null; } })();
+  if (HEAD_TOML) {
+    const to = (src, re) => [...src.matchAll(/\[\[redirects\]\]\n  from = "([^"]+)"\n  to = "([^"]+)"/g)].filter((m) => re.test(m[2])).map((m) => m[1] + "→" + m[2]).join("\n");
+    for (const [what, re] of [["governor", /^\/district-[a-z]{2}-gov\.html$/], ["Utah", /^\/district-ut-/]]) {
+      eq(to(TOML, re), to(HEAD_TOML, re), `the ${what} boards' rewrites are unchanged`);
+    }
+  } else passed++;
+  ok(!RULES.some(([from]) => /^\/district\/.*\*/.test(from)), "still no /district/* splat");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
 section("4 · the 70 district edits: each row moved by its district alone");
 // ═════════════════════════════════════════════════════════════════════════════
 {

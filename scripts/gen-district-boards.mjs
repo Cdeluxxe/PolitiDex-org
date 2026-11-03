@@ -235,6 +235,11 @@ export function planBoards() {
 // the same office twice and the resolver lists them in no stable order, so each
 // is keyed by the roster pid of the member who holds it: `ut-us-senate-<pid>`.
 // The key is the URL alias too — there is no second spelling to normalise.
+// THE SEATS THAT ALSO ANSWER AT THEIR SEAT KEY: the election-day wave's 70 U.S.
+// House boards, read from that wave's record. Each also gets three 200
+// rewrites from /district/<seat> to its own document (see the netlify.toml
+// block below); a suite that counts /district/ rules reads this set.
+export const SEAT_KEY_PATH_SEATS = new Set(JSON.parse(R("db/election-day-wave-2026-11.json")).usHouseDistrictSet.map((r) => r.seat));
 export const STATEWIDE_KEY_RE = /^[a-z]{2}-(?:gov|us-senate-[a-z][a-z0-9_]*)$/;
 function planStatewide(win, boards, skipped) {
   const RO = win.CMP_DATA;
@@ -868,15 +873,26 @@ export function renderAll() {
     voiced.map((b) => `    ${js(b.alias)}: 1,`)));
   out.set("district-poll.js", splice(R("district-poll.js"), "district-poll.js",
     voiced.map((b) => `    ${js(b.alias)}: 1,`)));
-  out.set("netlify.toml", splice(R("netlify.toml"), "netlify.toml", boards.flatMap((b) => [
-    `# ${b.h1.replace("’", "'").replace("·", "-")} — ${b.usHouse ? "U.S. House join" : b.pid}`,
+  // THE SEAT-KEY PATH. The election-day wave's 70 U.S. House boards also answer
+  // at /district/<st>-house-<n>, the seat's own key (an at-large seat is
+  // district 1, as the roster stores it): a second block of three 200 rewrites
+  // to the SAME document, whose canonical link stays /district/<st>-cd-<n>.
+  // Only the seats on the wave's record get one; every other board's rewrites
+  // are exactly as before.
+  const seatPath = SEAT_KEY_PATH_SEATS;
+  const rewrites = (b, path, note) => [
+    `# ${b.h1.replace("’", "'").replace("·", "-")} — ${note}`,
     ...["", "/", ".html"].flatMap((sfx) => [
       "[[redirects]]",
-      `  from = "/district/${b.alias}${sfx}"`,
+      `  from = "/district/${path}${sfx}"`,
       `  to = "/${b.doc}"`,
       "  status = 200",
     ]),
     "",
+  ];
+  out.set("netlify.toml", splice(R("netlify.toml"), "netlify.toml", boards.flatMap((b) => [
+    ...rewrites(b, b.alias, b.usHouse ? "U.S. House join" : b.pid),
+    ...(b.usHouse && seatPath.has(b.seat) && b.seat !== b.alias ? rewrites(b, b.seat, "seat-key path") : []),
   ])));
 
   // sw.js carries THREE generated blocks, so its markers are suffixed.

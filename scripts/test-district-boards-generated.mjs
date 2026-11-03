@@ -34,7 +34,7 @@ import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
-import { HAND_SEATS, planBoards } from "./gen-district-boards.mjs";
+import { HAND_SEATS, planBoards, SEAT_KEY_PATH_SEATS } from "./gen-district-boards.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -132,7 +132,21 @@ const RULES = [...TOML.matchAll(/\[\[redirects\]\]\s*\n((?:\s*[a-z_]+\s*=\s*[^\n
   const f = (k) => (new RegExp(`^\\s*${k}\\s*=\\s*"?([^"\\n]+)"?`, "m").exec(m[1]) || [, ""])[1].trim();
   return { from: f("from"), to: f("to"), status: f("status") };
 });
-const districtRules = RULES.filter((r) => r.from.indexOf("/district/") === 0);
+// THE SEAT-KEY PATHS (gen-district-boards.mjs SEAT_KEY_PATH_SEATS): the
+// election-day wave's 70 U.S. House boards also answer at /district/<seat>,
+// three exact 200 rewrites to the board's own document. They are held to that
+// here and set aside, so every other /district/ rule keeps the one-address rule.
+const _seatKeyOf = (from) => { const m = /^\/district\/([a-z]{2}-house-[1-9][0-9]*)(?:\/|\.html)?$/.exec(from); return m && SEAT_KEY_PATH_SEATS.has(m[1]) ? m[1] : null; };
+const _allDistrictRules = RULES.filter((r) => r.from.indexOf("/district/") === 0);
+const seatKeyRules = _allDistrictRules.filter((r) => _seatKeyOf(r.from));
+const districtRules = _allDistrictRules.filter((r) => !_seatKeyOf(r.from));
+eq(seatKeyRules.length, SEAT_KEY_PATH_SEATS.size * 3, "three seat-key rewrites per declared seat, and no others");
+for (const r of seatKeyRules) {
+  const seat = _seatKeyOf(r.from);
+  eq(r.to, `/district-${seat.replace("-house-", "-cd-")}.html`, `${r.from} rewrites to its board's own document`);
+  eq(String(r.status), "200", `${r.from} is a rewrite, not a redirect`);
+}
+
 eq(districtRules.length, ALL.length * 3, "three rewrites per board and no other /district/ rule");
 ok(!RULES.some((r) => r.from.indexOf("/district") === 0 && r.from.indexOf("*") >= 0), "no /district/* splat");
 for (const r of districtRules) {

@@ -3076,6 +3076,20 @@
   to = "/district-ar-cd-2.html"
   status = 200
 
+# Arkansas's 2nd Congressional District — seat-key path
+[[redirects]]
+  from = "/district/ar-house-2"
+  to = "/district-ar-cd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/ar-house-2/"
+  to = "/district-ar-cd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/ar-house-2.html"
+  to = "/district-ar-cd-2.html"
+  status = 200
+
 # Arkansas's 3rd Congressional District — U.S. House join
 [[redirects]]
   from = "/district/ar-cd-3"
@@ -3157,6 +3171,20 @@
   status = 200
 [[redirects]]
   from = "/district/ca-cd-2.html"
+  to = "/district-ca-cd-2.html"
+  status = 200
+
+# California's 2nd Congressional District — seat-key path
+[[redirects]]
+  from = "/district/ca-house-2"
+  to = "/district-ca-cd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-house-2/"
+  to = "/district-ca-cd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-house-2.html"
   to = "/district-ca-cd-2.html"
   status = 200
 
@@ -3356,6 +3384,20 @@
   to = "/district-ca-cd-17.html"
   status = 200
 
+# California's 17th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/ca-house-17"
+  to = "/district-ca-cd-17.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-house-17/"
+  to = "/district-ca-cd-17.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-house-17.html"
+  to = "/district-ca-cd-17.html"
+  status = 200
+
 # California's 18th Congressional District — U.S. House join
 [[redirects]]
   from = "/district/ca-cd-18"
@@ -3367,6 +3409,20 @@
   status = 200
 [[redirects]]
   from = "/district/ca-cd-18.html"
+  to = "/district-ca-cd-18.html"
+  status = 200
+
+# California's 18th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/ca-house-18"
+  to = "/district-ca-cd-18.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-house-18/"
+  to = "/district-ca-cd-18.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-house-18.html"
   to = "/district-ca-cd-18.html"
   status = 200
 
@@ -3580,6 +3636,20 @@
   to = "/district-ca-cd-33.html"
   status = 200
 
+# California's 33rd Congressional District — seat-key path
+[[redirects]]
+  from = "/district/ca-house-33"
+  to = "/district-ca-cd-33.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-house-33/"
+  to = "/district-ca-cd-33.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-house-33.html"
+  to = "/district-ca-cd-33.html"
+  status = 200
+
 # California's 34th Congressional District — U.S. House join
 [[redirects]]
   from = "/district/ca-cd-34"
@@ -3619,6 +3689,20 @@
   status = 200
 [[redirects]]
   from = "/district/ca-cd-36.html"
+  to = "/district-ca-cd-36.html"
+  status = 200
+
+# California's 36th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/ca-house-36"
+  to = "/district-ca-cd-36.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-house-36/"
+  to = "/district-ca-cd-36.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-house-36.html"
   to = "/district-ca-cd-36.html"
   status = 200
 
@@ -3664,6 +3748,20 @@
   to = "/district-ca-cd-39.html"
   status = 200
 
+# California's 39th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/ca-house-39"
+  to = "/district-ca-cd-39.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-house-39/"
+  to = "/district-ca-cd-39.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-house-39.html"
+  to = "/district-ca-cd-39.html"
+  status = 200
+
 # California's 40th Congressional District — U.S. House join
 [[redirects]]
   from = "/district/ca-cd-40"
@@ -3706,6 +3804,20 @@
   to = "/district-ca-cd-42.html"
   status = 200
 
+# California's 42nd Congressional District — seat-key path
+[[redirects]]
+  from = "/district/ca-house-42"
+  to = "/district-ca-cd-42.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-house-42/"
+  to = "/district-ca-cd-42.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-house-42.html"
+  to = "/district-ca-cd-42.html"
+  status = 200
+
 # California's 43rd Congressional District — U.S. House join
 [[redirects]]
   from = "/district/ca-cd-43"
@@ -3717,6 +3829,20 @@
   status = 200
 [[redirects]]
   from = "/district/ca-cd-43.html"
+  to = "/district-ca-cd-43.html"
+  status = 200
+
+# California's 43rd Congressional District — seat-key path
+[[redirects]]
+  from = "/district/ca-house-43"
+  to = "/district-ca-cd-43.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-house-43/"
+  to = "/district-ca-cd-43.html"
+  status = 200
+[[redirects]]
+  from = "/district/ca-house-43.html"
   to = "/district-ca-cd-43.html"
   status = 200
 
@@ -4056,6 +4182,20 @@
   to = "/district-ct-cd-3.html"
   status = 200
 
+# Connecticut's 3rd Congressional District — seat-key path
+[[redirects]]
+  from = "/district/ct-house-3"
+  to = "/district-ct-cd-3.html"
+  status = 200
+[[redirects]]
+  from = "/district/ct-house-3/"
+  to = "/district-ct-cd-3.html"
+  status = 200
+[[redirects]]
+  from = "/district/ct-house-3.html"
+  to = "/district-ct-cd-3.html"
+  status = 200
+
 # Connecticut's 4th Congressional District — U.S. House join
 [[redirects]]
   from = "/district/ct-cd-4"
@@ -4067,6 +4207,20 @@
   status = 200
 [[redirects]]
   from = "/district/ct-cd-4.html"
+  to = "/district-ct-cd-4.html"
+  status = 200
+
+# Connecticut's 4th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/ct-house-4"
+  to = "/district-ct-cd-4.html"
+  status = 200
+[[redirects]]
+  from = "/district/ct-house-4/"
+  to = "/district-ct-cd-4.html"
+  status = 200
+[[redirects]]
+  from = "/district/ct-house-4.html"
   to = "/district-ct-cd-4.html"
   status = 200
 
@@ -4123,6 +4277,20 @@
   status = 200
 [[redirects]]
   from = "/district/de-cd-1.html"
+  to = "/district-de-cd-1.html"
+  status = 200
+
+# Delaware's At-Large Congressional District — seat-key path
+[[redirects]]
+  from = "/district/de-house-1"
+  to = "/district-de-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/de-house-1/"
+  to = "/district-de-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/de-house-1.html"
   to = "/district-de-cd-1.html"
   status = 200
 
@@ -4294,6 +4462,20 @@
   to = "/district-fl-cd-10.html"
   status = 200
 
+# Florida's 10th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/fl-house-10"
+  to = "/district-fl-cd-10.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-house-10/"
+  to = "/district-fl-cd-10.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-house-10.html"
+  to = "/district-fl-cd-10.html"
+  status = 200
+
 # Florida's 11th Congressional District — U.S. House join
 [[redirects]]
   from = "/district/fl-cd-11"
@@ -4333,6 +4515,20 @@
   status = 200
 [[redirects]]
   from = "/district/fl-cd-13.html"
+  to = "/district-fl-cd-13.html"
+  status = 200
+
+# Florida's 13th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/fl-house-13"
+  to = "/district-fl-cd-13.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-house-13/"
+  to = "/district-fl-cd-13.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-house-13.html"
   to = "/district-fl-cd-13.html"
   status = 200
 
@@ -4420,6 +4616,20 @@
   to = "/district-fl-cd-19.html"
   status = 200
 
+# Florida's 19th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/fl-house-19"
+  to = "/district-fl-cd-19.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-house-19/"
+  to = "/district-fl-cd-19.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-house-19.html"
+  to = "/district-fl-cd-19.html"
+  status = 200
+
 # Florida's 21st Congressional District — U.S. House join
 [[redirects]]
   from = "/district/fl-cd-21"
@@ -4431,6 +4641,20 @@
   status = 200
 [[redirects]]
   from = "/district/fl-cd-21.html"
+  to = "/district-fl-cd-21.html"
+  status = 200
+
+# Florida's 21st Congressional District — seat-key path
+[[redirects]]
+  from = "/district/fl-house-21"
+  to = "/district-fl-cd-21.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-house-21/"
+  to = "/district-fl-cd-21.html"
+  status = 200
+[[redirects]]
+  from = "/district/fl-house-21.html"
   to = "/district-fl-cd-21.html"
   status = 200
 
@@ -4924,6 +5148,20 @@
   to = "/district-il-cd-3.html"
   status = 200
 
+# Illinois's 3rd Congressional District — seat-key path
+[[redirects]]
+  from = "/district/il-house-3"
+  to = "/district-il-cd-3.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-house-3/"
+  to = "/district-il-cd-3.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-house-3.html"
+  to = "/district-il-cd-3.html"
+  status = 200
+
 # Illinois's 4th Congressional District — U.S. House join
 [[redirects]]
   from = "/district/il-cd-4"
@@ -4994,6 +5232,20 @@
   to = "/district-il-cd-8.html"
   status = 200
 
+# Illinois's 8th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/il-house-8"
+  to = "/district-il-cd-8.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-house-8/"
+  to = "/district-il-cd-8.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-house-8.html"
+  to = "/district-il-cd-8.html"
+  status = 200
+
 # Illinois's 9th Congressional District — U.S. House join
 [[redirects]]
   from = "/district/il-cd-9"
@@ -5005,6 +5257,20 @@
   status = 200
 [[redirects]]
   from = "/district/il-cd-9.html"
+  to = "/district-il-cd-9.html"
+  status = 200
+
+# Illinois's 9th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/il-house-9"
+  to = "/district-il-cd-9.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-house-9/"
+  to = "/district-il-cd-9.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-house-9.html"
   to = "/district-il-cd-9.html"
   status = 200
 
@@ -5047,6 +5313,20 @@
   status = 200
 [[redirects]]
   from = "/district/il-cd-12.html"
+  to = "/district-il-cd-12.html"
+  status = 200
+
+# Illinois's 12th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/il-house-12"
+  to = "/district-il-cd-12.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-house-12/"
+  to = "/district-il-cd-12.html"
+  status = 200
+[[redirects]]
+  from = "/district/il-house-12.html"
   to = "/district-il-cd-12.html"
   status = 200
 
@@ -5484,6 +5764,20 @@
   to = "/district-ky-cd-1.html"
   status = 200
 
+# Kentucky's 1st Congressional District — seat-key path
+[[redirects]]
+  from = "/district/ky-house-1"
+  to = "/district-ky-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/ky-house-1/"
+  to = "/district-ky-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/ky-house-1.html"
+  to = "/district-ky-cd-1.html"
+  status = 200
+
 # Kentucky's 2nd Congressional District — U.S. House join
 [[redirects]]
   from = "/district/ky-cd-2"
@@ -5495,6 +5789,20 @@
   status = 200
 [[redirects]]
   from = "/district/ky-cd-2.html"
+  to = "/district-ky-cd-2.html"
+  status = 200
+
+# Kentucky's 2nd Congressional District — seat-key path
+[[redirects]]
+  from = "/district/ky-house-2"
+  to = "/district-ky-cd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/ky-house-2/"
+  to = "/district-ky-cd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/ky-house-2.html"
   to = "/district-ky-cd-2.html"
   status = 200
 
@@ -5582,6 +5890,20 @@
   to = "/district-la-cd-1.html"
   status = 200
 
+# Louisiana's 1st Congressional District — seat-key path
+[[redirects]]
+  from = "/district/la-house-1"
+  to = "/district-la-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/la-house-1/"
+  to = "/district-la-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/la-house-1.html"
+  to = "/district-la-cd-1.html"
+  status = 200
+
 # Louisiana's 2nd Congressional District — U.S. House join
 [[redirects]]
   from = "/district/la-cd-2"
@@ -5621,6 +5943,20 @@
   status = 200
 [[redirects]]
   from = "/district/la-cd-4.html"
+  to = "/district-la-cd-4.html"
+  status = 200
+
+# Louisiana's 4th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/la-house-4"
+  to = "/district-la-cd-4.html"
+  status = 200
+[[redirects]]
+  from = "/district/la-house-4/"
+  to = "/district-la-cd-4.html"
+  status = 200
+[[redirects]]
+  from = "/district/la-house-4.html"
   to = "/district-la-cd-4.html"
   status = 200
 
@@ -5750,6 +6086,20 @@
   to = "/district-md-cd-1.html"
   status = 200
 
+# Maryland's 1st Congressional District — seat-key path
+[[redirects]]
+  from = "/district/md-house-1"
+  to = "/district-md-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/md-house-1/"
+  to = "/district-md-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/md-house-1.html"
+  to = "/district-md-cd-1.html"
+  status = 200
+
 # Maryland's 2nd Congressional District — U.S. House join
 [[redirects]]
   from = "/district/md-cd-2"
@@ -5806,6 +6156,20 @@
   to = "/district-md-cd-5.html"
   status = 200
 
+# Maryland's 5th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/md-house-5"
+  to = "/district-md-cd-5.html"
+  status = 200
+[[redirects]]
+  from = "/district/md-house-5/"
+  to = "/district-md-cd-5.html"
+  status = 200
+[[redirects]]
+  from = "/district/md-house-5.html"
+  to = "/district-md-cd-5.html"
+  status = 200
+
 # Maryland's 6th Congressional District — U.S. House join
 [[redirects]]
   from = "/district/md-cd-6"
@@ -5845,6 +6209,20 @@
   status = 200
 [[redirects]]
   from = "/district/md-cd-8.html"
+  to = "/district-md-cd-8.html"
+  status = 200
+
+# Maryland's 8th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/md-house-8"
+  to = "/district-md-cd-8.html"
+  status = 200
+[[redirects]]
+  from = "/district/md-house-8/"
+  to = "/district-md-cd-8.html"
+  status = 200
+[[redirects]]
+  from = "/district/md-house-8.html"
   to = "/district-md-cd-8.html"
   status = 200
 
@@ -5890,6 +6268,20 @@
   to = "/district-ma-cd-1.html"
   status = 200
 
+# Massachusetts's 1st Congressional District — seat-key path
+[[redirects]]
+  from = "/district/ma-house-1"
+  to = "/district-ma-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/ma-house-1/"
+  to = "/district-ma-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/ma-house-1.html"
+  to = "/district-ma-cd-1.html"
+  status = 200
+
 # Massachusetts's 2nd Congressional District — U.S. House join
 [[redirects]]
   from = "/district/ma-cd-2"
@@ -5901,6 +6293,20 @@
   status = 200
 [[redirects]]
   from = "/district/ma-cd-2.html"
+  to = "/district-ma-cd-2.html"
+  status = 200
+
+# Massachusetts's 2nd Congressional District — seat-key path
+[[redirects]]
+  from = "/district/ma-house-2"
+  to = "/district-ma-cd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/ma-house-2/"
+  to = "/district-ma-cd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/ma-house-2.html"
   to = "/district-ma-cd-2.html"
   status = 200
 
@@ -5932,6 +6338,20 @@
   to = "/district-ma-cd-4.html"
   status = 200
 
+# Massachusetts's 4th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/ma-house-4"
+  to = "/district-ma-cd-4.html"
+  status = 200
+[[redirects]]
+  from = "/district/ma-house-4/"
+  to = "/district-ma-cd-4.html"
+  status = 200
+[[redirects]]
+  from = "/district/ma-house-4.html"
+  to = "/district-ma-cd-4.html"
+  status = 200
+
 # Massachusetts's 5th Congressional District — U.S. House join
 [[redirects]]
   from = "/district/ma-cd-5"
@@ -5943,6 +6363,20 @@
   status = 200
 [[redirects]]
   from = "/district/ma-cd-5.html"
+  to = "/district-ma-cd-5.html"
+  status = 200
+
+# Massachusetts's 5th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/ma-house-5"
+  to = "/district-ma-cd-5.html"
+  status = 200
+[[redirects]]
+  from = "/district/ma-house-5/"
+  to = "/district-ma-cd-5.html"
+  status = 200
+[[redirects]]
+  from = "/district/ma-house-5.html"
   to = "/district-ma-cd-5.html"
   status = 200
 
@@ -5960,6 +6394,20 @@
   to = "/district-ma-cd-6.html"
   status = 200
 
+# Massachusetts's 6th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/ma-house-6"
+  to = "/district-ma-cd-6.html"
+  status = 200
+[[redirects]]
+  from = "/district/ma-house-6/"
+  to = "/district-ma-cd-6.html"
+  status = 200
+[[redirects]]
+  from = "/district/ma-house-6.html"
+  to = "/district-ma-cd-6.html"
+  status = 200
+
 # Massachusetts's 7th Congressional District — U.S. House join
 [[redirects]]
   from = "/district/ma-cd-7"
@@ -5971,6 +6419,20 @@
   status = 200
 [[redirects]]
   from = "/district/ma-cd-7.html"
+  to = "/district-ma-cd-7.html"
+  status = 200
+
+# Massachusetts's 7th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/ma-house-7"
+  to = "/district-ma-cd-7.html"
+  status = 200
+[[redirects]]
+  from = "/district/ma-house-7/"
+  to = "/district-ma-cd-7.html"
+  status = 200
+[[redirects]]
+  from = "/district/ma-house-7.html"
   to = "/district-ma-cd-7.html"
   status = 200
 
@@ -6548,6 +7010,20 @@
   to = "/district-mo-cd-6.html"
   status = 200
 
+# Missouri's 6th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/mo-house-6"
+  to = "/district-mo-cd-6.html"
+  status = 200
+[[redirects]]
+  from = "/district/mo-house-6/"
+  to = "/district-mo-cd-6.html"
+  status = 200
+[[redirects]]
+  from = "/district/mo-house-6.html"
+  to = "/district-mo-cd-6.html"
+  status = 200
+
 # Missouri's 7th Congressional District — U.S. House join
 [[redirects]]
   from = "/district/mo-cd-7"
@@ -6573,6 +7049,20 @@
   status = 200
 [[redirects]]
   from = "/district/mo-cd-8.html"
+  to = "/district-mo-cd-8.html"
+  status = 200
+
+# Missouri's 8th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/mo-house-8"
+  to = "/district-mo-cd-8.html"
+  status = 200
+[[redirects]]
+  from = "/district/mo-house-8/"
+  to = "/district-mo-cd-8.html"
+  status = 200
+[[redirects]]
+  from = "/district/mo-house-8.html"
   to = "/district-mo-cd-8.html"
   status = 200
 
@@ -6940,6 +7430,20 @@
   to = "/district-nj-cd-5.html"
   status = 200
 
+# New Jersey's 5th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/nj-house-5"
+  to = "/district-nj-cd-5.html"
+  status = 200
+[[redirects]]
+  from = "/district/nj-house-5/"
+  to = "/district-nj-cd-5.html"
+  status = 200
+[[redirects]]
+  from = "/district/nj-house-5.html"
+  to = "/district-nj-cd-5.html"
+  status = 200
+
 # New Jersey's 6th Congressional District — U.S. House join
 [[redirects]]
   from = "/district/nj-cd-6"
@@ -6951,6 +7455,20 @@
   status = 200
 [[redirects]]
   from = "/district/nj-cd-6.html"
+  to = "/district-nj-cd-6.html"
+  status = 200
+
+# New Jersey's 6th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/nj-house-6"
+  to = "/district-nj-cd-6.html"
+  status = 200
+[[redirects]]
+  from = "/district/nj-house-6/"
+  to = "/district-nj-cd-6.html"
+  status = 200
+[[redirects]]
+  from = "/district/nj-house-6.html"
   to = "/district-nj-cd-6.html"
   status = 200
 
@@ -7164,6 +7682,20 @@
   to = "/district-ny-cd-2.html"
   status = 200
 
+# New York's 2nd Congressional District — seat-key path
+[[redirects]]
+  from = "/district/ny-house-2"
+  to = "/district-ny-cd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-house-2/"
+  to = "/district-ny-cd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-house-2.html"
+  to = "/district-ny-cd-2.html"
+  status = 200
+
 # New York's 3rd Congressional District — U.S. House join
 [[redirects]]
   from = "/district/ny-cd-3"
@@ -7175,6 +7707,20 @@
   status = 200
 [[redirects]]
   from = "/district/ny-cd-3.html"
+  to = "/district-ny-cd-3.html"
+  status = 200
+
+# New York's 3rd Congressional District — seat-key path
+[[redirects]]
+  from = "/district/ny-house-3"
+  to = "/district-ny-cd-3.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-house-3/"
+  to = "/district-ny-cd-3.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-house-3.html"
   to = "/district-ny-cd-3.html"
   status = 200
 
@@ -7203,6 +7749,20 @@
   status = 200
 [[redirects]]
   from = "/district/ny-cd-5.html"
+  to = "/district-ny-cd-5.html"
+  status = 200
+
+# New York's 5th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/ny-house-5"
+  to = "/district-ny-cd-5.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-house-5/"
+  to = "/district-ny-cd-5.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-house-5.html"
   to = "/district-ny-cd-5.html"
   status = 200
 
@@ -7248,6 +7808,20 @@
   to = "/district-ny-cd-8.html"
   status = 200
 
+# New York's 8th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/ny-house-8"
+  to = "/district-ny-cd-8.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-house-8/"
+  to = "/district-ny-cd-8.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-house-8.html"
+  to = "/district-ny-cd-8.html"
+  status = 200
+
 # New York's 10th Congressional District — U.S. House join
 [[redirects]]
   from = "/district/ny-cd-10"
@@ -7259,6 +7833,20 @@
   status = 200
 [[redirects]]
   from = "/district/ny-cd-10.html"
+  to = "/district-ny-cd-10.html"
+  status = 200
+
+# New York's 10th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/ny-house-10"
+  to = "/district-ny-cd-10.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-house-10/"
+  to = "/district-ny-cd-10.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-house-10.html"
   to = "/district-ny-cd-10.html"
   status = 200
 
@@ -7290,6 +7878,20 @@
   to = "/district-ny-cd-12.html"
   status = 200
 
+# New York's 12th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/ny-house-12"
+  to = "/district-ny-cd-12.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-house-12/"
+  to = "/district-ny-cd-12.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-house-12.html"
+  to = "/district-ny-cd-12.html"
+  status = 200
+
 # New York's 13th Congressional District — U.S. House join
 [[redirects]]
   from = "/district/ny-cd-13"
@@ -7318,6 +7920,20 @@
   to = "/district-ny-cd-14.html"
   status = 200
 
+# New York's 14th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/ny-house-14"
+  to = "/district-ny-cd-14.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-house-14/"
+  to = "/district-ny-cd-14.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-house-14.html"
+  to = "/district-ny-cd-14.html"
+  status = 200
+
 # New York's 15th Congressional District — U.S. House join
 [[redirects]]
   from = "/district/ny-cd-15"
@@ -7329,6 +7945,20 @@
   status = 200
 [[redirects]]
   from = "/district/ny-cd-15.html"
+  to = "/district-ny-cd-15.html"
+  status = 200
+
+# New York's 15th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/ny-house-15"
+  to = "/district-ny-cd-15.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-house-15/"
+  to = "/district-ny-cd-15.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-house-15.html"
   to = "/district-ny-cd-15.html"
   status = 200
 
@@ -7357,6 +7987,20 @@
   status = 200
 [[redirects]]
   from = "/district/ny-cd-17.html"
+  to = "/district-ny-cd-17.html"
+  status = 200
+
+# New York's 17th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/ny-house-17"
+  to = "/district-ny-cd-17.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-house-17/"
+  to = "/district-ny-cd-17.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-house-17.html"
   to = "/district-ny-cd-17.html"
   status = 200
 
@@ -7413,6 +8057,20 @@
   status = 200
 [[redirects]]
   from = "/district/ny-cd-21.html"
+  to = "/district-ny-cd-21.html"
+  status = 200
+
+# New York's 21st Congressional District — seat-key path
+[[redirects]]
+  from = "/district/ny-house-21"
+  to = "/district-ny-cd-21.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-house-21/"
+  to = "/district-ny-cd-21.html"
+  status = 200
+[[redirects]]
+  from = "/district/ny-house-21.html"
   to = "/district-ny-cd-21.html"
   status = 200
 
@@ -7581,6 +8239,20 @@
   status = 200
 [[redirects]]
   from = "/district/nc-cd-5.html"
+  to = "/district-nc-cd-5.html"
+  status = 200
+
+# North Carolina's 5th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/nc-house-5"
+  to = "/district-nc-cd-5.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-house-5/"
+  to = "/district-nc-cd-5.html"
+  status = 200
+[[redirects]]
+  from = "/district/nc-house-5.html"
   to = "/district-nc-cd-5.html"
   status = 200
 
@@ -7780,6 +8452,20 @@
   to = "/district-oh-cd-1.html"
   status = 200
 
+# Ohio's 1st Congressional District — seat-key path
+[[redirects]]
+  from = "/district/oh-house-1"
+  to = "/district-oh-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/oh-house-1/"
+  to = "/district-oh-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/oh-house-1.html"
+  to = "/district-oh-cd-1.html"
+  status = 200
+
 # Ohio's 2nd Congressional District — U.S. House join
 [[redirects]]
   from = "/district/oh-cd-2"
@@ -7819,6 +8505,20 @@
   status = 200
 [[redirects]]
   from = "/district/oh-cd-4.html"
+  to = "/district-oh-cd-4.html"
+  status = 200
+
+# Ohio's 4th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/oh-house-4"
+  to = "/district-oh-cd-4.html"
+  status = 200
+[[redirects]]
+  from = "/district/oh-house-4/"
+  to = "/district-oh-cd-4.html"
+  status = 200
+[[redirects]]
+  from = "/district/oh-house-4.html"
   to = "/district-oh-cd-4.html"
   status = 200
 
@@ -8018,6 +8718,20 @@
   to = "/district-ok-cd-1.html"
   status = 200
 
+# Oklahoma's 1st Congressional District — seat-key path
+[[redirects]]
+  from = "/district/ok-house-1"
+  to = "/district-ok-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/ok-house-1/"
+  to = "/district-ok-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/ok-house-1.html"
+  to = "/district-ok-cd-1.html"
+  status = 200
+
 # Oklahoma's 2nd Congressional District — U.S. House join
 [[redirects]]
   from = "/district/ok-cd-2"
@@ -8057,6 +8771,20 @@
   status = 200
 [[redirects]]
   from = "/district/ok-cd-4.html"
+  to = "/district-ok-cd-4.html"
+  status = 200
+
+# Oklahoma's 4th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/ok-house-4"
+  to = "/district-ok-cd-4.html"
+  status = 200
+[[redirects]]
+  from = "/district/ok-house-4/"
+  to = "/district-ok-cd-4.html"
+  status = 200
+[[redirects]]
+  from = "/district/ok-house-4.html"
   to = "/district-ok-cd-4.html"
   status = 200
 
@@ -8228,6 +8956,20 @@
   to = "/district-pa-cd-1.html"
   status = 200
 
+# Pennsylvania's 1st Congressional District — seat-key path
+[[redirects]]
+  from = "/district/pa-house-1"
+  to = "/district-pa-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-house-1/"
+  to = "/district-pa-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-house-1.html"
+  to = "/district-pa-cd-1.html"
+  status = 200
+
 # Pennsylvania's 2nd Congressional District — U.S. House join
 [[redirects]]
   from = "/district/pa-cd-2"
@@ -8239,6 +8981,20 @@
   status = 200
 [[redirects]]
   from = "/district/pa-cd-2.html"
+  to = "/district-pa-cd-2.html"
+  status = 200
+
+# Pennsylvania's 2nd Congressional District — seat-key path
+[[redirects]]
+  from = "/district/pa-house-2"
+  to = "/district-pa-cd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-house-2/"
+  to = "/district-pa-cd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-house-2.html"
   to = "/district-pa-cd-2.html"
   status = 200
 
@@ -8382,6 +9138,20 @@
   to = "/district-pa-cd-12.html"
   status = 200
 
+# Pennsylvania's 12th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/pa-house-12"
+  to = "/district-pa-cd-12.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-house-12/"
+  to = "/district-pa-cd-12.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-house-12.html"
+  to = "/district-pa-cd-12.html"
+  status = 200
+
 # Pennsylvania's 13th Congressional District — U.S. House join
 [[redirects]]
   from = "/district/pa-cd-13"
@@ -8421,6 +9191,20 @@
   status = 200
 [[redirects]]
   from = "/district/pa-cd-15.html"
+  to = "/district-pa-cd-15.html"
+  status = 200
+
+# Pennsylvania's 15th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/pa-house-15"
+  to = "/district-pa-cd-15.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-house-15/"
+  to = "/district-pa-cd-15.html"
+  status = 200
+[[redirects]]
+  from = "/district/pa-house-15.html"
   to = "/district-pa-cd-15.html"
   status = 200
 
@@ -8550,6 +9334,20 @@
   to = "/district-sc-cd-1.html"
   status = 200
 
+# South Carolina's 1st Congressional District — seat-key path
+[[redirects]]
+  from = "/district/sc-house-1"
+  to = "/district-sc-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/sc-house-1/"
+  to = "/district-sc-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/sc-house-1.html"
+  to = "/district-sc-cd-1.html"
+  status = 200
+
 # South Carolina's 2nd Congressional District — U.S. House join
 [[redirects]]
   from = "/district/sc-cd-2"
@@ -8617,6 +9415,20 @@
   status = 200
 [[redirects]]
   from = "/district/sc-cd-6.html"
+  to = "/district-sc-cd-6.html"
+  status = 200
+
+# South Carolina's 6th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/sc-house-6"
+  to = "/district-sc-cd-6.html"
+  status = 200
+[[redirects]]
+  from = "/district/sc-house-6/"
+  to = "/district-sc-cd-6.html"
+  status = 200
+[[redirects]]
+  from = "/district/sc-house-6.html"
   to = "/district-sc-cd-6.html"
   status = 200
 
@@ -8886,6 +9698,20 @@
   to = "/district-tx-cd-2.html"
   status = 200
 
+# Texas's 2nd Congressional District — seat-key path
+[[redirects]]
+  from = "/district/tx-house-2"
+  to = "/district-tx-cd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-house-2/"
+  to = "/district-tx-cd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-house-2.html"
+  to = "/district-tx-cd-2.html"
+  status = 200
+
 # Texas's 3rd Congressional District — U.S. House join
 [[redirects]]
   from = "/district/tx-cd-3"
@@ -9110,6 +9936,20 @@
   to = "/district-tx-cd-19.html"
   status = 200
 
+# Texas's 19th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/tx-house-19"
+  to = "/district-tx-cd-19.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-house-19/"
+  to = "/district-tx-cd-19.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-house-19.html"
+  to = "/district-tx-cd-19.html"
+  status = 200
+
 # Texas's 20th Congressional District — U.S. House join
 [[redirects]]
   from = "/district/tx-cd-20"
@@ -9135,6 +9975,20 @@
   status = 200
 [[redirects]]
   from = "/district/tx-cd-21.html"
+  to = "/district-tx-cd-21.html"
+  status = 200
+
+# Texas's 21st Congressional District — seat-key path
+[[redirects]]
+  from = "/district/tx-house-21"
+  to = "/district-tx-cd-21.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-house-21/"
+  to = "/district-tx-cd-21.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-house-21.html"
   to = "/district-tx-cd-21.html"
   status = 200
 
@@ -9177,6 +10031,20 @@
   status = 200
 [[redirects]]
   from = "/district/tx-cd-25.html"
+  to = "/district-tx-cd-25.html"
+  status = 200
+
+# Texas's 25th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/tx-house-25"
+  to = "/district-tx-cd-25.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-house-25/"
+  to = "/district-tx-cd-25.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-house-25.html"
   to = "/district-tx-cd-25.html"
   status = 200
 
@@ -9250,6 +10118,20 @@
   to = "/district-tx-cd-30.html"
   status = 200
 
+# Texas's 30th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/tx-house-30"
+  to = "/district-tx-cd-30.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-house-30/"
+  to = "/district-tx-cd-30.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-house-30.html"
+  to = "/district-tx-cd-30.html"
+  status = 200
+
 # Texas's 31st Congressional District — U.S. House join
 [[redirects]]
   from = "/district/tx-cd-31"
@@ -9317,6 +10199,20 @@
   status = 200
 [[redirects]]
   from = "/district/tx-cd-36.html"
+  to = "/district-tx-cd-36.html"
+  status = 200
+
+# Texas's 36th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/tx-house-36"
+  to = "/district-tx-cd-36.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-house-36/"
+  to = "/district-tx-cd-36.html"
+  status = 200
+[[redirects]]
+  from = "/district/tx-house-36.html"
   to = "/district-tx-cd-36.html"
   status = 200
 
@@ -9457,6 +10353,20 @@
   status = 200
 [[redirects]]
   from = "/district/va-cd-3.html"
+  to = "/district-va-cd-3.html"
+  status = 200
+
+# Virginia's 3rd Congressional District — seat-key path
+[[redirects]]
+  from = "/district/va-house-3"
+  to = "/district-va-cd-3.html"
+  status = 200
+[[redirects]]
+  from = "/district/va-house-3/"
+  to = "/district-va-cd-3.html"
+  status = 200
+[[redirects]]
+  from = "/district/va-house-3.html"
   to = "/district-va-cd-3.html"
   status = 200
 
@@ -9614,6 +10524,20 @@
   to = "/district-wa-cd-2.html"
   status = 200
 
+# Washington's 2nd Congressional District — seat-key path
+[[redirects]]
+  from = "/district/wa-house-2"
+  to = "/district-wa-cd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/wa-house-2/"
+  to = "/district-wa-cd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/wa-house-2.html"
+  to = "/district-wa-cd-2.html"
+  status = 200
+
 # Washington's 3rd Congressional District — U.S. House join
 [[redirects]]
   from = "/district/wa-cd-3"
@@ -9625,6 +10549,20 @@
   status = 200
 [[redirects]]
   from = "/district/wa-cd-3.html"
+  to = "/district-wa-cd-3.html"
+  status = 200
+
+# Washington's 3rd Congressional District — seat-key path
+[[redirects]]
+  from = "/district/wa-house-3"
+  to = "/district-wa-cd-3.html"
+  status = 200
+[[redirects]]
+  from = "/district/wa-house-3/"
+  to = "/district-wa-cd-3.html"
+  status = 200
+[[redirects]]
+  from = "/district/wa-house-3.html"
   to = "/district-wa-cd-3.html"
   status = 200
 
@@ -9684,6 +10622,20 @@
   to = "/district-wa-cd-7.html"
   status = 200
 
+# Washington's 7th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/wa-house-7"
+  to = "/district-wa-cd-7.html"
+  status = 200
+[[redirects]]
+  from = "/district/wa-house-7/"
+  to = "/district-wa-cd-7.html"
+  status = 200
+[[redirects]]
+  from = "/district/wa-house-7.html"
+  to = "/district-wa-cd-7.html"
+  status = 200
+
 # Washington's 8th Congressional District — U.S. House join
 [[redirects]]
   from = "/district/wa-cd-8"
@@ -9709,6 +10661,20 @@
   status = 200
 [[redirects]]
   from = "/district/wa-cd-9.html"
+  to = "/district-wa-cd-9.html"
+  status = 200
+
+# Washington's 9th Congressional District — seat-key path
+[[redirects]]
+  from = "/district/wa-house-9"
+  to = "/district-wa-cd-9.html"
+  status = 200
+[[redirects]]
+  from = "/district/wa-house-9/"
+  to = "/district-wa-cd-9.html"
+  status = 200
+[[redirects]]
+  from = "/district/wa-house-9.html"
   to = "/district-wa-cd-9.html"
   status = 200
 
@@ -9821,6 +10787,20 @@
   status = 200
 [[redirects]]
   from = "/district/wi-cd-1.html"
+  to = "/district-wi-cd-1.html"
+  status = 200
+
+# Wisconsin's 1st Congressional District — seat-key path
+[[redirects]]
+  from = "/district/wi-house-1"
+  to = "/district-wi-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/wi-house-1/"
+  to = "/district-wi-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/wi-house-1.html"
   to = "/district-wi-cd-1.html"
   status = 200
 
