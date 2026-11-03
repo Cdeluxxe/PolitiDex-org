@@ -11414,7 +11414,36 @@
 //     issues appear, scores and the vote table are unchanged. related-issues.js
 //     is precached and changed, so the shell moves one version.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v508';
+// v509 - RELATED ISSUES: A NO-DIRECTION LINE SHOWS THE DRAWER'S TALLY.
+//     A related issue with votes but no one-way read (split, thin or no pole)
+//     used to print as a bare name. It now prints the tally that issue's own
+//     drawer prints, in the drawer's words ("Middle-Class Tax Relief: 1 for ·
+//     1 against"), read from the drawer ledger through a new read-only
+//     PDXConsistency.drawerTally. Stated and one-way record lines, which issues
+//     appear, the map, scores and the vote table are unchanged.
+//     related-issues.js and consistency.js are precached and changed, so the
+//     shell moves one version.
+//     MIGRATION COST: none.
+// v510 - RELATED ISSUES: EVERY LINE SHOWS BOTH PARTS.
+//     Each related-issue line now carries a stated part ("supports",
+//     "opposes" or "no stated position") and a record part ("record runs
+//     with", "record runs against", the drawer's "N for · N against" tally,
+//     or "no record"), in that order, on one line — e.g. "Middle-Class Tax
+//     Relief: no stated position · 1 for · 1 against". The absent-part words
+//     and the tally are neutral; position and one-way record words keep green
+//     / red. The map, which issues appear, scores, Direction Match and the
+//     vote table are unchanged. related-issues.js is precached and changed,
+//     so the shell moves one version.
+//     MIGRATION COST: none.
+// v511 - RELATED ISSUES: ONE LINE PER ISSUE, BOTH PARTS, GUARANTEED.
+//     The block never lists an issue twice (keys are de-duplicated and the
+//     open issue is never listed), and each part of the line wraps as a unit
+//     so "record runs with" or "1 for · 1 against" is never split across
+//     lines. Every line still reads "Issue Name: <stated> · <record>".
+//     related-issues.js, consistency.js and person-file.css are precached and
+//     changed, so the shell moves one version.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v511';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

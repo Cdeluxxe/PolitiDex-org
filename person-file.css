@@ -194,6 +194,9 @@
 .pdxri-dir.s-oppose { color: #f87171; }
 .pdxri-rec.r-with { color: #4ade80; }
 .pdxri-rec.r-against { color: #f87171; }
+/* Each part of a related-issue line wraps as a unit, so a narrow screen never
+   splits "record runs with" or "1 for · 1 against" across lines. */
+.pdxri-dir, .pdxri-rec, .pdxri-tally { white-space: nowrap; }
 .pdxri-ico { font-weight: 400; }
 /* Each issue name opens that issue's drawer for this person. */
 .pdxri-go {

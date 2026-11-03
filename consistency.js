@@ -2381,6 +2381,7 @@
       '.pdxri-drawer .pdxri-dir.s-oppose{color:#f87171;}' +
       '.pdxri-drawer .pdxri-rec.r-with{color:#4ade80;}' +
       '.pdxri-drawer .pdxri-rec.r-against{color:#f87171;}' +
+      '.pdxri-drawer .pdxri-dir,.pdxri-drawer .pdxri-rec,.pdxri-drawer .pdxri-tally{white-space:nowrap;}' +
       '.pdxri-drawer .pdxri-ico{font-weight:400;}' +
       '.pdxri-drawer .pdxri-go{color:inherit;text-decoration:underline;' +
         'text-decoration-color:rgba(143,166,198,0.45);text-underline-offset:2px;}' +
@@ -20825,6 +20826,20 @@
     // than scraping source for the strings. `ledger.unscored` is the predicate every
     // surface gates on, `ledger.split` is the only aggregation this pass performs,
     // and LED is the one copy table all of them read.
+    // The drawer ledger's own "Acts: N for · N against" count for one (person,
+    // issue), so the Related issues block can print the same tally the drawer
+    // prints instead of a bare name. Read-only: the same _dosTally the drawer
+    // renders from, over the same issueRow. noSide is true on a subject key whose
+    // ledger prints no for/against line. null when nothing is on file.
+    drawerTally: function (pid, issueKey) {
+      try {
+        var r = issueRow(pid, issueKey);
+        var t = _dosTally(pid, issueKey, r && r.ov);
+        if (!t || !t.acts) return null;
+        return { acts: t.acts, advances: t.advances, opposes: t.opposes,
+                 tookNoSide: t.noSide, noSide: _dosNoSideKey(issueKey) };
+      } catch (e) { return null; }
+    },
     ledger: {
       LED: _LED,
       unscored: _ledUnscored,

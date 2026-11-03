@@ -13,26 +13,34 @@
      lists A) and names only keys in the issue register. Nothing is derived from
      keywords, categories or co-occurrence, and there is no second list.
 
-   · TWO LINES, NOT ONE. Each related issue prints up to two lines:
+   · ONE LINE, BOTH PARTS. Each related issue prints one line, always with
+     two parts, stated first:
        Stated — the person's published position, from window._polPositionMap
          (the one stance map every drawer and both scoring lanes read). Only
-         "support" and "oppose" count; mixed or no card gives no stated line.
-           Keep Public Lands Public: supports
+         "support" and "oppose" count; mixed or no card reads
+         "no stated position".
        Record — which way their votes run, from window._pdxRecordDirection (the
-         shared record-direction index). Only a characterised one-way read
-         counts; a split, thin, poleless or not-yet-loaded record gives none.
-           Protect Public Lands: record runs against
-     One without the other prints alone. Neither, but votes on file (a split,
-     thin or poleless read): the bare issue name, no word, still a link.
-     None of the three: the issue is left out.
+         shared record-direction index). A characterised one-way read reads
+         "record runs with" / "record runs against". Votes on file with no
+         one-way read (split, thin, poleless) read as the tally the issue's own
+         drawer prints, in its words ("1 for · 1 against"), from the drawer
+         ledger (PDXConsistency.drawerTally); a subject key whose drawer prints
+         no for/against line gives its act count ("3 formal acts"). No votes
+         on file reads "no record".
+           Cut Income & Business Taxes: supports · record runs with
+           Middle-Class Tax Relief: no stated position · 1 for · 1 against
+           Local Land Control: opposes · no record
+     An issue with no stated position and no votes is left out.
      Nothing left: no block, no heading, no empty state. The stated word takes
-     the green / red position tint; the record word takes the same green ("runs
-     with") / red ("runs against"), and its fixed wording keeps it a voting-
-     record reading, never a stated position. Every issue name takes its issue's
-     chip colour (PDXIssueColors.styleFor → --pdx-ic-ink) and is led by its
-     chip icon, inside the link.
+     the green / red position tint; the one-way record word takes the same
+     green ("runs with") / red ("runs against"), and its fixed wording keeps
+     it a voting-record reading, never a stated position. "no stated
+     position", "no record" and the tally stay neutral. Every issue name takes
+     its issue's chip colour (PDXIssueColors.styleFor → --pdx-ic-ink) and is
+     led by its chip icon, inside the link.
 
-   · NO VERDICT. No score, grade, percentage, count or "contradiction" badge.
+   · NO VERDICT. No score, grade, percentage or "contradiction" badge. The only
+     count is the drawer's own for · against tally on a no-direction record.
 
    · PERSON FILE. sectionHtml(pid, p): for every issue with a stated or record
      line, that issue's lines, then each related issue's lines. An issue with
@@ -187,6 +195,8 @@
 
   var WORD = { support: 'supports', oppose: 'opposes' };
   var REC_WORD = { 'with': 'record runs with', against: 'record runs against' };
+  var NO_STATED = 'no stated position';
+  var NO_RECORD = 'no record';
 
   function esc(s) {
     if (s == null) return '';
@@ -251,6 +261,30 @@
   // Any vote on file for this key, whichever way (or no way) it ran.
   function hasVotes(idx) { return !!(idx && (idx.total || 0) > 0); }
 
+  // The drawer's own tally, worded as the drawer words it: "1 for · 1 against"
+  // (plus "· N took no side" when the drawer prints it). A subject key whose
+  // drawer has no for/against line gives "N formal acts". '' when the drawer
+  // ledger is not loaded or holds nothing for this key.
+  function tallyText(pid, key) {
+    try {
+      var LG = window.PDXConsistency;
+      if (!pid || !LG || typeof LG.drawerTally !== 'function') return '';
+      var t = LG.drawerTally(pid, key);
+      if (!t || !t.acts) return '';
+      if (t.noSide) return t.acts + ' formal ' + (t.acts === 1 ? 'act' : 'acts');
+      return t.advances + ' for · ' + t.opposes + ' against' +
+        (t.tookNoSide ? ' · ' + t.tookNoSide + ' took no side' : '');
+    } catch (e) { return ''; }
+  }
+
+  function indexTally(idx) {
+    if (!idx) return '';
+    var a = idx.advances || 0, o = idx.opposes || 0;
+    if (a || o) return a + ' for · ' + o + ' against';
+    var n = idx.total || 0;
+    return n ? n + ' ' + (n === 1 ? 'vote' : 'votes') + ' on file' : '';
+  }
+
   // The issue-chip colour token (issue-colors.js): the chip's inline custom
   // properties plus the token's text ink, set as `color` directly so the name
   // is in its issue colour before (or without) any stylesheet. '' where that
@@ -272,23 +306,35 @@
 
   // One issue: its stated direction, its record direction, and whether any
   // vote is on file. A votes-only issue (no stance, no one-way read) still
-  // counts and prints as its bare name. null when there is none of the three.
+  // counts; its record part is the drawer tally.
+  // null when there is none of the three.
   function itemOf(pid, pm, key) {
     var idx = recordRead(pid, key);
     var d = directionOf(pm, key), r = recordOf(pid, key, idx), v = hasVotes(idx);
     if (!d && !r && !v) return null;
+    var bare = !d && !r;
+    // Votes with no one-way read: the drawer's tally; if the ledger is not
+    // loaded, the index's own count of the same votes, in the same words.
+    var tally = (!r && v) ? (tallyText(pid, key) || indexTally(idx)) : '';
     return { key: key, label: labelOf(key), icon: iconOf(key),
       dir: d, word: d ? WORD[d] : '',
       rec: r, recWord: r ? REC_WORD[r] : '',
-      votes: v, bare: !d && !r };
+      votes: v, bare: bare, tally: tally };
   }
 
   // The related issues of `key` this person has a stated direction or a
   // record direction on.
   function itemsFor(pid, p, key, pm) {
     pm = pm || positionMap(pid, p);
-    var out = [];
-    related(key).forEach(function (k) { var it = itemOf(pid, pm, k); if (it) out.push(it); });
+    // One line per issue: a key is never listed twice, and the open issue is
+    // never listed in its own block.
+    var out = [], seen = {};
+    seen[key] = 1;
+    related(key).forEach(function (k) {
+      if (seen[k]) return;
+      seen[k] = 1;
+      var it = itemOf(pid, pm, k); if (it) out.push(it);
+    });
     return out;
   }
 
@@ -306,14 +352,13 @@
     return out;
   }
 
-  // The printed lines for one issue, stated first: "Label: supports",
-  // "Label: record runs against".
+  // The two parts of one issue's line, stated first.
+  function statedPart(it) { return it.dir ? it.word : NO_STATED; }
+  function recordPart(it) { return it.rec ? it.recWord : (it.tally || NO_RECORD); }
+  // The printed line for one issue:
+  // "Label: supports · record runs with", "Label: no stated position · 1 for · 1 against".
   function lineTexts(it) {
-    var out = [];
-    if (it.dir) out.push(it.label + ': ' + it.word);
-    if (it.rec) out.push(it.label + ': ' + it.recWord);
-    if (it.bare) out.push(it.label);
-    return out;
+    return [it.label + ': ' + statedPart(it) + ' · ' + recordPart(it)];
   }
   function lineText(it) { return lineTexts(it).join(' / '); }
 
@@ -327,7 +372,7 @@
 
   // One issue name: a door into that issue's drawer for this person, except
   // the issue already open, which stays plain text.
-  // The name carries its issue's chip colour; `colon` is false on a bare line.
+  // The name carries its issue's chip colour.
   function nameHtml(pid, it, openKey, colon) {
     var c = colon === false ? '' : ':';
     var st = colorStyle(it.key);
@@ -342,23 +387,20 @@
       ' aria-label="' + esc('Open ' + it.label + ' for this file') + '">' + ico + esc(it.label) + '</a>' + c + '</span>';
   }
 
-  // Up to two lines for one issue. The stated line carries the green / red
-  // position word; the record line a neutral one, so the two never read alike.
+  // One line for one issue, both parts. The stated part carries the green /
+  // red position word or a neutral "no stated position"; the record part the
+  // green / red one-way word, the plain tally, or a neutral "no record".
   function linesHtml(pid, it, openKey, cls, tag) {
-    var out = '';
-    if (it.dir) {
-      out += '<' + tag + ' class="' + cls + '" data-pdxri-key="' + esc(it.key) + '" data-pdxri-line="stated" data-pdxri-dir="' + it.dir + '">' +
-        nameHtml(pid, it, openKey) + ' <span class="pdxri-dir s-' + it.dir + '">' + it.word + '</span></' + tag + '>';
-    }
-    if (it.rec) {
-      out += '<' + tag + ' class="' + cls + '" data-pdxri-key="' + esc(it.key) + '" data-pdxri-line="record" data-pdxri-rec="' + it.rec + '">' +
-        nameHtml(pid, it, openKey) + ' <span class="pdxri-rec r-' + it.rec + '">' + it.recWord + '</span></' + tag + '>';
-    }
-    if (it.bare) {
-      out += '<' + tag + ' class="' + cls + '" data-pdxri-key="' + esc(it.key) + '" data-pdxri-line="votes">' +
-        nameHtml(pid, it, openKey, false) + '</' + tag + '>';
-    }
-    return out;
+    var dirCls = it.dir ? 's-' + it.dir : 's-none';
+    var recKind = it.rec ? it.rec : (it.tally ? 'tally' : 'none');
+    var recHtml = it.rec
+      ? '<span class="pdxri-rec r-' + it.rec + '">' + it.recWord + '</span>'
+      : (it.tally ? '<span class="pdxri-tally">' + esc(it.tally) + '</span>'
+        : '<span class="pdxri-rec r-none">' + NO_RECORD + '</span>');
+    return '<' + tag + ' class="' + cls + '" data-pdxri-key="' + esc(it.key) + '" data-pdxri-line="both"' +
+      ' data-pdxri-dir="' + (it.dir || 'none') + '" data-pdxri-rec="' + recKind + '">' +
+      nameHtml(pid, it, openKey) + ' <span class="pdxri-dir ' + dirCls + '">' + statedPart(it) + '</span>' +
+      '<span class="pdxri-sep"> · </span>' + recHtml + '</' + tag + '>';
   }
 
   // The person-file section, or '' when no issue has a related line.

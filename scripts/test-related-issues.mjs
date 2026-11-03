@@ -12,9 +12,11 @@
 //      Expand Domestic Energy Production, Cut Federal Red Tape and Local Land
 //      Control. No second list: the module carries no PAIRS table.
 //   2. PERSON FILE: for each issue with a published direction, every related
-//      issue with a published direction, as "Label: supports|opposes"; a related
-//      issue with no position, or a mixed one, is left out; no group with no
-//      related positions; no section with none at all.
+//      issue with a published direction or votes, as one line with both parts:
+//      "Label: supports|opposes|no stated position · record runs with|record
+//      runs against|N for · N against|no record"; a related issue with no
+//      position (or a mixed one) and no votes is left out; no group with no
+//      related lines; no section with none at all.
 //   3. DOORS: every issue name in the section is a link on the shared drawer
 //      route (data-pdxc-gap + data-pdxc-gap-pid) for the same person.
 //   4. NO VERDICT: no %, score, grade or "contradiction" in the markup.
@@ -100,13 +102,14 @@ const LBL = (k) => String(IM[k].label).replace(/^[^A-Za-z0-9]+/, "").trim();
   ok(h.includes('id="pdxsec-related-issues"') && strip(h).startsWith("Related issues"), "section is headed Related issues");
   const items = (html) => [...html.matchAll(/<li class="pdxri-item"[\s\S]*?<\/li>/g)].map((m) => strip(m[0]));
   const lp = byIssue.lands_preserve || "";
-  ok(strip(lp).startsWith("Protect Public Lands: supports"), "the anchor line names the issue and its direction");
+  ok(strip(lp).startsWith("Protect Public Lands: supports · no record"), "the anchor line names the issue and both parts");
   eq(JSON.stringify(items(lp)), JSON.stringify([
-    "Keep Public Lands Public: supports", "Expand Domestic Energy Production: opposes", "Local Land Control: opposes",
-  ]), "Protect Public Lands lists every related issue with a published direction, in map order");
+    "Keep Public Lands Public: supports · no record", "Expand Domestic Energy Production: opposes · no record", "Local Land Control: opposes · no record",
+  ]), "Protect Public Lands lists every related issue with a published direction, in map order, with both parts");
+  ok(/<span class="pdxri-rec r-none">no record<\/span>/.test(lp), "no votes: the record part says no record, neutral");
   ok(!/Cut Federal Red Tape/.test(lp), "a mixed related position is printed");
   eq(JSON.stringify(items(byIssue.lands_keep_public || "")),
-     JSON.stringify(["Protect Public Lands: supports", "Expand Domestic Energy Production: opposes", "Local Land Control: opposes"]),
+     JSON.stringify(["Protect Public Lands: supports · no record", "Expand Domestic Energy Production: opposes · no record", "Local Land Control: opposes · no record"]),
      "Keep Public Lands Public lists Protect Public Lands and the same set");
   ok(!("gun_rights" in byIssue), "an issue with no related positions gets a group");
   ok(!("gov_regulation" in byIssue), "an issue with a mixed position gets a group");
@@ -149,18 +152,19 @@ const LBL = (k) => String(IM[k].label).replace(/^[^A-Za-z0-9]+/, "").trim();
   const groups = Object.fromEntries([...h.matchAll(/<li class="pdxri-group" data-pdxri-issue="([^"]+)">([\s\S]*?)<\/ul><\/li>/g)].map((g) => [g[1], g[2]]));
   const items = (html) => [...String(html || "").matchAll(/<li class="pdxri-item"[\s\S]*?<\/li>/g)].map((m) => strip(m[0]));
   const anchors = (html) => [...String(html || "").matchAll(/<div class="pdxri-anchor"[\s\S]*?<\/div>/g)].map((m) => strip(m[0]));
-  eq(JSON.stringify(anchors(groups.lands_preserve)), JSON.stringify(["Protect Public Lands: supports", "Protect Public Lands: record runs against"]),
-     "an issue with both readings prints two lines, stated first");
+  eq(JSON.stringify(anchors(groups.lands_preserve)), JSON.stringify(["Protect Public Lands: supports · record runs against"]),
+     "an issue with both readings prints one line, stated first");
   eq(JSON.stringify(items(groups.lands_keep_public)), JSON.stringify([
-    "Protect Public Lands: supports", "Protect Public Lands: record runs against",
-    "Expand Domestic Energy Production: opposes", "Local Land Control: opposes", "Balance Land Use: record runs with",
-  ].map((l) => l.replace("Balance Land Use", LBL("lands_balance")))), "related issues show stated lines, record lines, or both, in map order");
-  ok(items(groups.lands_keep_public).includes("Expand Domestic Energy Production: opposes") &&
-     !items(groups.lands_keep_public).some((l) => /^Expand Domestic Energy Production: record/.test(l)),
-     "a stated-only related issue shows only the stated line");
-  ok(items(groups.lands_keep_public).includes(`${LBL("lands_balance")}: record runs with`) &&
-     !items(groups.lands_keep_public).some((l) => l.startsWith(`${LBL("lands_balance")}: s`) || l.startsWith(`${LBL("lands_balance")}: o`)),
-     "a record-only related issue shows only the record line");
+    "Protect Public Lands: supports · record runs against",
+    "Expand Domestic Energy Production: opposes · no record", "Local Land Control: opposes · no record",
+    `${LBL("lands_balance")}: no stated position · record runs with`,
+  ]), "every related line shows a stated part and a record part, in map order");
+  ok(items(groups.lands_keep_public).includes("Expand Domestic Energy Production: opposes · no record"),
+     "a stated-only related issue says no record");
+  ok(items(groups.lands_keep_public).includes(`${LBL("lands_balance")}: no stated position · record runs with`),
+     "a record-only related issue says no stated position");
+  ok(/<span class="pdxri-dir s-none">no stated position<\/span>/.test(h) && /<span class="pdxri-rec r-none">no record<\/span>/.test(h),
+     "the absent parts carry the neutral classes");
   ok(/<span class="pdxri-rec r-against">record runs against<\/span>/.test(h), "record runs against does not carry the red class");
   ok(/<span class="pdxri-rec r-with">record runs with<\/span>/.test(h), "record runs with does not carry the green class");
   ok(!/class="pdxri-dir[^"]*">record/.test(h), "a record word is printed as a stated position");
@@ -172,23 +176,37 @@ const LBL = (k) => String(IM[k].label).replace(/^[^A-Za-z0-9]+/, "").trim();
     ok(String(w2.ISSUE_MAP[key].label).startsWith(ico), `${key}: icon is not the issue's chip icon`);
   }
   ok(!/<\/a><span class="pdxri-ico"|pdxri-ico[^>]*><a /.test(h), "the icon is a second link or sits outside the link");
-  ok(/data-pdxri-line="record" data-pdxri-rec="against"/.test(h) && /data-pdxri-line="stated" data-pdxri-dir="support"/.test(h),
-     "each line is marked stated or record");
+  ok(/data-pdxri-line="both" data-pdxri-dir="support" data-pdxri-rec="against"/.test(h) && /data-pdxri-line="both" data-pdxri-dir="none" data-pdxri-rec="with"/.test(h),
+     "each line is marked with its stated and record parts");
+  ok([...h.matchAll(/<li class="pdxri-item"[\s\S]*?<\/li>/g)].every((m) => /class="pdxri-dir s-/.test(m[0]) && /class="pdxri-(rec r-|tally)/.test(m[0])),
+     "a line is missing its stated or record part");
   const doors = [...h.matchAll(/<a class="pdxri-go"[^>]*data-pdxc-gap="([^"]*)"/g)];
   eq(doors.length, (h.match(/class="pdxri-issue"/g) || []).length, "every issue name on every line is a link");
 
   const ro = R2.sectionHtml("recOnly", {});
   const rg = Object.fromEntries([...ro.matchAll(/<li class="pdxri-group" data-pdxri-issue="([^"]+)">([\s\S]*?)<\/ul><\/li>/g)].map((g) => [g[1], g[2]]));
-  eq(JSON.stringify(items(rg.lands_preserve)), JSON.stringify(["Keep Public Lands Public: record runs with"]), "record-only file: record lines alone");
-  ok(!/pdxri-dir/.test(ro), "record-only file prints no stated word");
+  eq(JSON.stringify(items(rg.lands_preserve)), JSON.stringify(["Keep Public Lands Public: no stated position · record runs with"]), "record-only file: no stated position beside the record");
+  ok(!/pdxri-dir s-(support|oppose)/.test(ro), "record-only file prints a stated word");
   eq(R2.sectionHtml("split", {}), "", "a split or uncharacterised record gives no line, and nothing related is left");
   eq(R2.recordOf("lands", "gov_regulation"), null, "no record on file: no record reading");
-  // Votes on file, no stance, no one-way read: the bare name, still a link.
+  // Votes on file, no stance, no one-way read, no drawer ledger: the index's count.
   const bh = R2.sectionHtml("bare", {});
   const bg = Object.fromEntries([...bh.matchAll(/<li class="pdxri-group" data-pdxri-issue="([^"]+)">([\s\S]*?)<\/ul><\/li>/g)].map((g) => [g[1], g[2]]));
-  eq(JSON.stringify(items(bg.lands_keep_public)), JSON.stringify(["Protect Public Lands"]), "a votes-only related issue prints its bare name");
-  ok(/data-pdxri-line="votes"><span class="pdxri-issue"[^>]*><a class="pdxri-go"[^>]*data-pdxc-gap="lands_preserve"[^>]*>(?:<span class="pdxri-ico" aria-hidden="true">[^<]*<\/span> )?Protect Public Lands<\/a><\/span><\/li>/.test(bh),
-     "the bare name is a link, with no colon and no word");
+  eq(JSON.stringify(items(bg.lands_keep_public)), JSON.stringify(["Protect Public Lands: no stated position · 2 votes on file"]), "a votes-only related issue with no drawer ledger prints the index's count");
+  ok(/data-pdxri-rec="tally"><span class="pdxri-issue"[^>]*><a class="pdxri-go"[^>]*data-pdxc-gap="lands_preserve"/.test(bh),
+     "the votes-only name is a link");
+  // With the drawer ledger's tally available, the votes-only line prints it.
+  w2.PDXConsistency = { drawerTally: (pid, key) => key === "lands_preserve" ? { acts: 2, advances: 1, opposes: 1, tookNoSide: 0, noSide: false } : null };
+  const th = R2.sectionHtml("bare", {});
+  const tg = Object.fromEntries([...th.matchAll(/<li class="pdxri-group" data-pdxri-issue="([^"]+)">([\s\S]*?)<\/ul><\/li>/g)].map((g) => [g[1], g[2]]));
+  eq(JSON.stringify(items(tg.lands_keep_public)), JSON.stringify(["Protect Public Lands: no stated position · 1 for · 1 against"]), "a split related issue prints no stated position and the drawer tally");
+  ok(/data-pdxri-rec="tally">[\s\S]*?<\/a>:<\/span> <span class="pdxri-dir s-none">no stated position<\/span><span class="pdxri-sep"> · <\/span><span class="pdxri-tally">1 for · 1 against<\/span><\/li>/.test(th),
+     "the tally is a neutral span after the stated part");
+  ok(!/pdxri-tally[^>]*(r-with|r-against|s-support|s-oppose)/.test(th), "the tally carries a green / red class");
+  w2.PDXConsistency = { drawerTally: () => ({ acts: 1, advances: 0, opposes: 0, tookNoSide: 1, noSide: true }) };
+  ok(R2.sectionHtml("bare", {}).includes('<span class="pdxri-tally">1 formal act</span>'), "a no-pole subject prints its act count, not a side");
+  eq(R2.sectionHtml("split", {}), "", "no votes and no stance: still omitted with a tally reader loaded");
+  delete w2.PDXConsistency;
 }
 
 // 3b. every name in its issue chip colour
@@ -225,11 +243,20 @@ const LBL = (k) => String(IM[k].label).replace(/^[^A-Za-z0-9]+/, "").trim();
       const h = w.PDXRelatedIssues.sectionHtml(pid, { name: "" });
       if (!gs.length) { if (h !== "") bad++; continue; }
       shown++;
+      for (const g of gs) {
+        const ks = g.related.map((it) => it.key);
+        if (new Set(ks).size !== ks.length || ks.includes(g.issue.key)) bad++;
+      }
+      // Rendered: every line element carries exactly one stated and one record part.
+      for (const m of h.matchAll(/<(li|div) class="pdxri-(item|anchor)"[\s\S]*?<\/\1>/g)) {
+        if ((m[0].match(/class="pdxri-dir s-/g) || []).length !== 1 || (m[0].match(/class="pdxri-(rec r-|tally)/g) || []).length !== 1) bad++;
+      }
       for (const g of gs) for (const it of [g.issue, ...g.related]) {
         lines++;
         if (it.dir && pm[it.key].stance !== it.dir) bad++;
+        if (w.PDXRelatedIssues.lineTexts(it).length !== 1) bad++;
         for (const l of w.PDXRelatedIssues.lineTexts(it)) {
-          if (!/^[A-Za-z0-9 &,+\-'.:()]+: (supports|opposes|record runs with|record runs against)$/.test(l)) bad++;
+          if (!/^[A-Za-z0-9 &,+\-'.:()]+: (supports|opposes|no stated position) · (record runs with|record runs against|no record|\d+ for · \d+ against( · \d+ took no side)?|\d+ formal acts?|\d+ votes? on file)$/.test(l)) bad++;
         }
       }
     }
@@ -256,7 +283,11 @@ const LBL = (k) => String(IM[k].label).replace(/^[^A-Za-z0-9]+/, "").trim();
   const v = Number((sw.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1]);
   ok(v >= 504, "shell version bumped for the map");
   const mod = R("related-issues.js");
-  ok(!/PDXConsistency|_issueVerdict|directionMatch|_DOS_EFFECT/.test(mod.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "")),
+  // The one read of consistency.js allowed is the drawer ledger's tally.
+  const code = mod.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
+  const rest = code.replace("var LG = window.PDXConsistency;", "");
+  ok(!/PDXConsistency|_issueVerdict|directionMatch|_DOS_EFFECT/.test(rest) &&
+     [...rest.matchAll(/\bLG\.(\w+)/g)].every((m) => m[1] === "drawerTally"),
      "module reads no scoring or effect engine");
 }
 
