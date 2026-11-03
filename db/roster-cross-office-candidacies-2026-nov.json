@@ -1,0 +1,107 @@
+{
+ "_note": "Election-day wave follow-up (November 3, 2026). Sitting officeholders on the roster whom db/roster-candidates-2026-nov.json found on the official Alabama, Arizona, Kansas, New Hampshire, Ohio and Pennsylvania candidate lists for a DIFFERENT office than the one they hold. That pass recorded each under `held` (the roster already had their row) but did not add the office they are seeking to window.CMP_CANDIDACIES (cmp-data.js); this record does, keyed by the person's own roster id. No roster row is added, renamed or changed. Every row is a `held` entry of the November record whose office differs from the office the row holds; office, district and party are copied from that entry, and the source is one the November record read for that state. Read by scripts/test-roster-cross-office-candidacies-2026-nov.mjs.",
+ "read": "2026-11-03",
+ "basis": "db/roster-candidates-2026-nov.json",
+ "rows": [
+  {
+   "pid": "barry_moore",
+   "state": "al",
+   "name": "Barry Moore",
+   "nameAsFiled": "Barry Moore",
+   "holds": "U.S. Representative",
+   "office": "U.S. Senate Candidate",
+   "district": null,
+   "partyAsFiled": "Republican",
+   "source": "https://www.sos.alabama.gov/sites/default/files/election-2026/2026GeneralElectionStateCertificationofRepublicanCandidates.pdf"
+  },
+  {
+   "pid": "tommy_tuberville",
+   "state": "al",
+   "name": "Tommy Tuberville",
+   "nameAsFiled": "Tommy Tuberville",
+   "holds": "U.S. Senator",
+   "office": "Governor Candidate",
+   "district": null,
+   "partyAsFiled": "Republican",
+   "source": "https://www.sos.alabama.gov/sites/default/files/election-2026/2026GeneralElectionStateCertificationofRepublicanCandidates.pdf"
+  },
+  {
+   "pid": "andy_biggs",
+   "state": "az",
+   "name": "Andy Biggs",
+   "nameAsFiled": "BIGGS, ANDY",
+   "holds": "U.S. Representative",
+   "office": "Governor Candidate",
+   "district": null,
+   "partyAsFiled": "REP",
+   "source": "https://content.civicplus.com/api/assets/az-pimacounty/d2c310c3-ade7-484e-a6f0-1ddaebec0799"
+  },
+  {
+   "pid": "warren_petersen",
+   "state": "az",
+   "name": "Warren Petersen",
+   "nameAsFiled": "PETERSEN, WARREN",
+   "holds": "State Senate President",
+   "office": "Attorney General Candidate",
+   "district": null,
+   "partyAsFiled": "REP",
+   "source": "https://content.civicplus.com/api/assets/az-pimacounty/d2c310c3-ade7-484e-a6f0-1ddaebec0799"
+  },
+  {
+   "pid": "ty_masterson",
+   "state": "ks",
+   "name": "Ty Masterson",
+   "nameAsFiled": "Ty Masterson",
+   "holds": "State Senate President",
+   "office": "Governor Candidate",
+   "district": null,
+   "partyAsFiled": "Republican",
+   "source": "https://sos.ks.gov/elections/elections_upcoming_candidate.aspx"
+  },
+  {
+   "pid": "chris_pappas",
+   "state": "nh",
+   "name": "Chris Pappas",
+   "nameAsFiled": "Chris Pappas",
+   "holds": "U.S. Representative",
+   "office": "U.S. Senate Candidate",
+   "district": null,
+   "partyAsFiled": "Democratic",
+   "source": "https://www.londonderrynh.gov/DocumentCenter/View/3063"
+  },
+  {
+   "pid": "rob_mccolley",
+   "state": "oh",
+   "name": "Rob McColley",
+   "nameAsFiled": "Robert A. McColley",
+   "holds": "State Senate President",
+   "office": "Lieutenant Governor Candidate",
+   "district": null,
+   "partyAsFiled": "Republican",
+   "source": "https://www.waynecountyoh.gov/wp-content/uploads/2026/09/Sample-Ballots-ALL-WATERMARK-09192026-1352.pdf"
+  },
+  {
+   "pid": "russo_oh",
+   "state": "oh",
+   "name": "C. Allison Russo",
+   "nameAsFiled": "Allison Russo",
+   "holds": "Ohio State Representative",
+   "office": "Secretary of State Candidate",
+   "district": null,
+   "partyAsFiled": "Democratic",
+   "source": "https://www.waynecountyoh.gov/wp-content/uploads/2026/09/Sample-Ballots-ALL-WATERMARK-09192026-1352.pdf"
+  },
+  {
+   "pid": "rabb_pa",
+   "state": "pa",
+   "name": "Christopher M. Rabb",
+   "nameAsFiled": "CHRIS RABB",
+   "holds": "Pennsylvania State Representative",
+   "office": "U.S. House Candidate (PA-3)",
+   "district": "3",
+   "partyAsFiled": "DEMOCRATIC",
+   "source": "https://vote.phila.gov/voting/candidates-for-office/"
+  }
+ ],
+ "sameOffice": "Every other `held` entry in the six states is seeking the office the row already holds (a U.S. Representative for the U.S. House, a sitting Senator, Governor, Lieutenant Governor, Attorney General or Secretary of State for the same seat), or is an earlier candidate row; none of those is a cross-office candidacy, and none is added here."
+}

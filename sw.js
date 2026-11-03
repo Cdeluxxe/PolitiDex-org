@@ -11455,7 +11455,18 @@
 //     saved pick or stored reader state is read or rewritten, so nothing is
 //     migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v512';
+// v513 - CROSS-OFFICE CANDIDACIES FOR THE ELECTION-DAY WAVE'S SITTING MEMBERS.
+//     Nine sitting officeholders the election-day wave found on the official
+//     Alabama, Arizona, Kansas, New Hampshire, Ohio and Pennsylvania lists for a
+//     DIFFERENT office (Barry Moore and Chris Pappas for U.S. Senate, Tommy
+//     Tuberville, Andy Biggs and Ty Masterson for Governor, Warren Petersen for
+//     Attorney General, Rob McColley for Lieutenant Governor, Allison Russo for
+//     Secretary of State, Chris Rabb for PA-3) gain that office in
+//     window.CMP_CANDIDACIES, keyed by their existing roster id. cmp-data.js is
+//     precached and changed, so the shell moves one version; no roster row, board
+//     or precache entry is added, and nothing stored is read or rewritten.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v513';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

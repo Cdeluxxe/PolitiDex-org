@@ -41,7 +41,7 @@ import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
-import { R, AT, boot, levelOf, band, isElectionDay, isElectionDayLine, withoutElectionDayRewrites, withoutElectionDayDistrict, ELECTION_DAY_CANDIDATES, withElectionDayDistricts } from "./state-leg-harness.mjs";
+import { R, AT, boot, levelOf, band, isElectionDay, isElectionDayLine, withoutElectionDayRewrites, withoutElectionDayDistrict, ELECTION_DAY_CANDIDATES, ELECTION_DAY_CROSS_OFFICE, withElectionDayDistricts } from "./state-leg-harness.mjs";
 import { planBoards, STATE_LEG_BOARD_STATES, GOVERNOR_STATES, STATE_LEG_SEAT_COUNTS, STATE_LEG_BOARD_SEATS, FEDERAL_READ_ONLY_SEATS } from "./gen-district-boards.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -325,7 +325,7 @@ for (const pid of Object.keys(RO0)) {
 ok(rows > 5000, `only ${rows} roster rows compared`);
 for (const pid of Object.keys(RO)) if (!(pid in RO0) && !ELECTION_DAY_CANDIDATES.has(pid)) ok(NAMES.has(RO[pid].state), `${pid}: a new roster row outside the four states`);
 for (const pid of Object.keys(W0.CMP_CANDIDACIES)) eq(JSON.stringify(W1.CMP_CANDIDACIES[pid]), JSON.stringify(W0.CMP_CANDIDACIES[pid]), `${pid}: an existing candidacy moved`);
-for (const pid of Object.keys(W1.CMP_CANDIDACIES)) if (!(pid in W0.CMP_CANDIDACIES)) ok(NAMES.has(W1.CMP_CANDIDACIES[pid].state), `${pid}: a new candidacy outside the four`);
+for (const pid of Object.keys(W1.CMP_CANDIDACIES)) if (!(pid in W0.CMP_CANDIDACIES) && !ELECTION_DAY_CROSS_OFFICE.has(pid)) ok(NAMES.has(W1.CMP_CANDIDACIES[pid].state), `${pid}: a new candidacy outside the four`);
 // The resolver, walked at the base's sources and at this pass's, for a reader
 // in each neighbouring state, in the position states and in the named ones.
 const baseFiles = {};
