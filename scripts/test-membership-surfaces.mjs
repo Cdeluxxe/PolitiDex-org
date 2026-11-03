@@ -136,8 +136,9 @@ const linkOf = (html) => (/<p class="pdxdc-member" data-pdxdc-member="1">([\s\S]
   const fail = await board({ signedIn: true, membership: "fail" });
   eq(linkOf(fail.html), "", "a failed membership read shows no link");
   const open = await board({ signedIn: true, membership: "non", open: true });
-  ok(linkOf(open.html).includes("Become a member"), "a verified non-member with the box open still sees it under the locked line");
-  ok(open.html.indexOf('data-pdxdc-member="1"') > open.html.indexOf('data-pdxdc-locked="1"'), "…in the same place");
+  ok(linkOf(open.html).includes("Become a member"), "a verified non-member with the box open still sees it under the verified line");
+  ok(open.html.indexOf('data-pdxdc-verified="1"') >= 0 &&
+    open.html.indexOf('data-pdxdc-member="1"') > open.html.indexOf('data-pdxdc-verified="1"'), "…in the same place");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

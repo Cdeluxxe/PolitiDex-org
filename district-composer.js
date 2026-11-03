@@ -749,6 +749,10 @@
   };
   var POST_MAX = 280;
   var LOCKED_LINE = 'Only verified residents of this seat get a voice that counts.';
+  // THE VERIFIED LINE. Printed in the locked line's place, and only when the
+  // SERVER answers canPost: true for this seat — a vendor-verified residency
+  // row for exactly this seat. Nothing on the device can print it.
+  var VERIFIED_LINE = 'You\u2019re verified for this seat. You can post and vote here.';
   var COPY = {
     label: 'Say something to this district',
     issue: 'Issue',
@@ -1313,7 +1317,9 @@
     var dis = open ? '' : ' disabled aria-disabled="true"';
     var v = (_read && _read.voice) || {};
     var line = canPost() ? '' : (v.line || LOCKED_LINE);
-    var note = _read === false ? COPY.unreadNote : (v.note || '');
+    // An open box carries ONE line, VERIFIED_LINE; the server's open note would
+    // be a second sentence saying the same thing, so it is not printed.
+    var note = _read === false ? COPY.unreadNote : (canPost() ? '' : (v.note || ''));
     var len = [...String(_draft)].length;
 
     _host.setAttribute('data-pdxdc-state', canPost() ? 'open' : 'locked');
@@ -1321,7 +1327,7 @@
       '<section class="pdxdb-band pdxdb-band--compose" data-pdxdb-band="compose">' +
         '<h2 class="pdxdb-h2">' + esc(COPY.label) + '</h2>' +
         (line ? '<p class="pdxdc-locked" data-pdxdc-locked="1">' + esc(line) + '</p>'
-              : '<p class="pdxdb-foot" data-pdxdc-locked="1">' + esc(LOCKED_LINE) + '</p>') +
+              : '<p class="pdxdb-foot pdxdc-verified" data-pdxdc-verified="1">' + esc(VERIFIED_LINE) + '</p>') +
         memberHtml() +
         '<form class="pdxdc-form" novalidate>' +
           '<label class="pdxdc-l" for="pdxdc-issue">' + esc(COPY.issue) + '</label>' +
@@ -1498,6 +1504,7 @@
     API: API,
     COMPOSER_SEATS: COMPOSER_SEATS,
     LOCKED_LINE: LOCKED_LINE,
+    VERIFIED_LINE: VERIFIED_LINE,
     COPY: COPY,
     mount: mount,
     canPost: canPost,

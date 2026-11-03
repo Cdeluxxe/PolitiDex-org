@@ -11484,7 +11484,15 @@
 //     so the shell moves one version. The path's step is still the one
 //     sessionStorage key; nothing stored is read or rewritten.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v515';
+// v516 - THE VERIFIED LINE ON EVERY VOICED BOARD.
+//     A reader the server calls vendor-verified for THIS seat now sees one line
+//     in the locked line's place: "You’re verified for this seat. You can post
+//     and vote here." Everyone else still sees the locked line. The gate is
+//     unchanged and server-side; no route, board, seat or precache entry is
+//     added. district-composer.js is precached and changed, so the shell moves
+//     one version. Nothing stored is read or rewritten.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v516';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
