@@ -34,16 +34,42 @@
    District Voice card (.pdxhv-* in index.html), under its own pdxfc- prefix
    because those rules are inline in index.html and absent from /voice and
    /find. No new colors.
+
+   THE GUIDED PATH. A reader who wants help is walked from "I don't know where
+   to start" to "I can see my seats and open a room", in the same popup:
+
+     1 loc    the welcome above. "Set my location" goes to /find with
+              next=/ (PDXReturn.finderHref), so a confirmed pin lands back on
+              the homepage's Who Represents Me band and the path is on step 2.
+     2 see    homepage only. Scrolls to the band; one sentence says these are
+              the people who already hold power over the reader; one control,
+              "Open my rooms", goes to /voice.
+     3 rooms  /voice only. The rooms are for their seats, anyone can read, and
+              only a verified resident gets a voice that counts. "Take a
+              stance" opens the stance studio (PDXReturn.studioHref, next=/voice)
+              so a save or a skip brings them back here; "I'm good for now"
+              ends the path.
+     end      /voice, after the studio sent them back. One line and "Done".
+
+   The step lives in sessionStorage under PATH_KEY, never in localStorage, so a
+   path is one visit long. The path shows itself only while it is running or
+   when the reader asks with the small "Show me the next step" control on the
+   homepage and /voice. A reader who already has a location starts on step 2.
+   Not now, Got it, ×, Escape and the backdrop end it and remember that for
+   the session; the control is the only way back in.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
   if (window.PDXCoach) return;
 
-  var BUILD = 'v378';                  // logged, so DevTools shows which copy is running
+  var BUILD = 'v514';                  // logged, so DevTools shows which copy is running
   var KEY = 'pdx_coach_seen';          // localStorage: set once, when the popup closes
   var DELAY_MS = 9000;                 // after the page is parsed, so the hero is seen first
   var RETRY_MS = 2000;                 // another dialog is open: look again this soon
   var MAX_WAIT_MS = 30000;             // ...for at most this long, then show anyway
+  var PATH_KEY = 'pdx_path_v1';        // sessionStorage: the guided path's step, or that it was ended
+  var CONTINUE_MS = 1200;              // a running path: show the next step this soon after arrival
+  var NEXT_ID = 'pdx-path-next';       // the "Show me the next step" control
 
   // WHY IT SKIPPED, IN DEVTOOLS. Every decision — waiting, showing, skipping and
   // the reason — is one console line under the same prefix, so "it never
@@ -55,6 +81,8 @@
   var STYLE_ID = 'pdxfc-style';
   var TITLE_ID = 'pdxfc-title';
   var FINDER = '/find';
+  var HOME_BAND = 'who-represents-me';
+  var ROOMS = '/voice';
   // The locked District Voice line, verbatim. district-board.js and /voice's
   // own meta carry the same sentence.
   var VOICE_LINE = 'Anyone can read a board. Only verified residents of that seat get a voice that counts.';
@@ -89,6 +117,54 @@
     try { return !!window._hasUserLocation; } catch (e) { return false; }
   }
   function shouldShow() { return !seen() && !located(); }
+
+  // ── The guided path's step, for this visit only ──────────────────────────
+  // { step: 'loc' | 'see' | 'rooms' | 'stance' } while it runs, { off: 1 }
+  // once the reader ended it. Nothing else is written there.
+  function readPath() {
+    try {
+      var v = JSON.parse(window.sessionStorage.getItem(PATH_KEY) || 'null');
+      return v && typeof v === 'object' ? v : null;
+    } catch (e) { return null; }
+  }
+  function writePath(v) {
+    try { window.sessionStorage.setItem(PATH_KEY, JSON.stringify(v)); } catch (e) {}
+  }
+  function pathStep() { var v = readPath(); return v && !v.off && v.step ? String(v.step) : ''; }
+  function pathOff() { var v = readPath(); return !!(v && v.off); }
+
+  // Which document this is. The path runs on the homepage and /voice; /find
+  // only ever shows the welcome.
+  function page() {
+    if (window.__PDX_FIND_DOC) return 'find';
+    if (window.__PDX_VOICE_DOC) return 'voice';
+    try { if (document.getElementById(HOME_BAND)) return 'home'; } catch (e) {}
+    return '';
+  }
+
+  // The step to show on this page. `asked` is the reader pressing "Show me the
+  // next step"; without it only a running path continues, and only on the page
+  // its step belongs to. No location is always step 1, wherever they are.
+  function resolve(asked) {
+    var pg = page();
+    if (pg !== 'home' && pg !== 'voice') return '';
+    if (!located()) return 'loc';
+    var st = asked ? '' : pathStep();
+    if (pg === 'home') return (asked || st === 'loc' || st === 'see') ? 'see' : '';
+    if (asked || st === 'loc' || st === 'see' || st === 'rooms') return 'rooms';
+    return st === 'stance' ? 'end' : '';
+  }
+
+  // The doors, built by PDXReturn when it is on the page so the address is the
+  // one /find and the studio already spend; the literals are what it builds.
+  function finderHref() {
+    try { var R = window.PDXReturn; if (R && fn(R.finderHref)) return String(R.finderHref('/')); } catch (e) {}
+    return FINDER + '?next=%2F';
+  }
+  function studioHref() {
+    try { var R = window.PDXReturn; if (R && fn(R.studioHref)) return String(R.studioHref(ROOMS, true)); } catch (e) {}
+    return '/my-stances?add=1&next=%2Fvoice';
+  }
   function whyNot() {
     if (seen()) return 'pdx_coach_seen is set (the popup was already closed once)';
     if (located()) return 'a location is saved (window._hasUserLocation is true)';
@@ -151,10 +227,40 @@
           }).join('') +
         '</ol>' +
         '<div class="pdxfc-acts">' +
-          '<a class="pdxfc-door" href="' + FINDER + '" data-pdxfc-door="finder">Set my location</a>' +
+          '<a class="pdxfc-door" href="' + esc(finderHref()) + '" data-pdxfc-door="finder">Set my location</a>' +
           '<button type="button" class="pdxfc-next" data-pdxfc-act="finish">Got it</button>' +
           '<button type="button" class="pdxfc-skip" data-pdxfc-act="skip">Not now</button>' +
         '</div>' +
+      '</div>';
+  }
+
+  // ── Steps 2, 3 and the end, in the same card ─────────────────────────────
+  var SEE_LINE = 'These are the people who already hold power over you, seat by seat, for the place you set.';
+  var ROOMS_LINE = 'These rooms are for your seats. Anyone can read them. Only a verified resident gets a voice that counts.';
+  var STANCE_LINE = 'A stance is one issue and where you stand on it. It goes on your file, and you can change it any time.';
+  var END_LINE = 'You can see your seats on the front page and open any of your rooms here.';
+
+  function stepHtml(step) {
+    var kick = '', title = '', line = '', extra = '', acts = '';
+    if (step === 'see') {
+      kick = 'Step 2 of 3'; title = 'See who represents you'; line = SEE_LINE;
+      acts = '<a class="pdxfc-door" href="' + ROOMS + '" data-pdxfc-go="rooms">Open my rooms</a>' +
+        '<button type="button" class="pdxfc-skip" data-pdxfc-act="skip">Not now</button>';
+    } else if (step === 'rooms') {
+      kick = 'Step 3 of 3'; title = 'Open your rooms'; line = ROOMS_LINE;
+      extra = '<p class="pdxfc-sub">' + esc(STANCE_LINE) + '</p>';
+      acts = '<a class="pdxfc-door" href="' + esc(studioHref()) + '" data-pdxfc-go="stance">Take a stance</a>' +
+        '<button type="button" class="pdxfc-next" data-pdxfc-act="finish">I’m good for now</button>';
+    } else {
+      kick = 'All set'; title = 'That’s the path'; line = END_LINE;
+      acts = '<button type="button" class="pdxfc-next" data-pdxfc-act="finish">Done</button>';
+    }
+    return '<div class="pdxfc-card" data-pdxfc-step="' + esc(step) + '">' +
+        '<button type="button" class="pdxfc-x" data-pdxfc-act="skip" aria-label="Close">×</button>' +
+        '<p class="pdxfc-kick">' + esc(kick) + '</p>' +
+        '<h2 class="pdxfc-title" id="' + TITLE_ID + '" tabindex="-1">' + esc(title) + '</h2>' +
+        '<p class="pdxfc-line">' + esc(line) + '</p>' + extra +
+        '<div class="pdxfc-acts">' + acts + '</div>' +
       '</div>';
   }
 
@@ -177,33 +283,64 @@
     '.pdxfc-skip{min-height:44px;padding:0 0.6rem;border:0;background:none;font:600 0.95rem/1 \'Barlow\',system-ui,sans-serif;color:#9fb5a8;text-decoration:underline;text-underline-offset:3px;cursor:pointer;}',
     '.pdxfc-skip:hover,.pdxfc-skip:focus-visible{color:#fff7dc;}',
     '.pdxfc-door:focus-visible,.pdxfc-next:focus-visible,.pdxfc-skip:focus-visible,.pdxfc-x:focus-visible{outline:2px solid #fff7dc;outline-offset:3px;}',
+    '.pdxfc-line{margin:0 0 0.6rem;font:400 1rem/1.5 \'Barlow\',system-ui,sans-serif;color:#d8e8dc;}',
+    '.pdxfc-sub{margin:0 0 1rem;font:400 0.9rem/1.5 \'Barlow\',system-ui,sans-serif;color:#9fb5a8;}',
+    // Steps 2 and 3 sit at the foot of the screen with no veil, so the band
+    // and the rooms they point at stay in view and the page stays usable.
+    '#' + ROOT_ID + '.pdxfc--dock{align-items:flex-end;background:transparent;pointer-events:none;}',
+    '#' + ROOT_ID + '.pdxfc--dock .pdxfc-card{pointer-events:auto;max-width:28rem;}',
+    '#' + NEXT_ID + '{position:fixed;left:0.75rem;bottom:0.75rem;z-index:45;min-height:44px;padding:0 1rem;border:1.5px solid rgba(245,200,66,0.55);border-radius:999px;background:linear-gradient(135deg,rgba(18,58,42,0.97),rgba(14,30,40,0.98));box-shadow:0 8px 24px rgba(0,0,0,0.28);font:700 0.9rem/1 \'Barlow\',system-ui,sans-serif;color:#fff7dc;cursor:pointer;}',
+    '#' + NEXT_ID + '[hidden]{display:none;}',
+    '#' + NEXT_ID + ':hover,#' + NEXT_ID + ':focus-visible{border-color:rgba(245,200,66,0.9);}',
+    '#' + NEXT_ID + ':focus-visible{outline:2px solid #fff7dc;outline-offset:3px;}',
     '@media (max-width:480px){#' + ROOT_ID + '{align-items:flex-end;padding:0.5rem;}}',
     '@media (prefers-reduced-motion:reduce){.pdxfc-door{transition:none;}}',
-    '@media print{#' + ROOT_ID + '{display:none;}}'
+    '@media print{#' + ROOT_ID + ',#' + NEXT_ID + '{display:none;}}'
   ].join('\n');
 
   // ── Open / close ──────────────────────────────────────────────────────────
   var root = null;
   var timer = 0;
   var returnFocus = null;
+  var current = '';                    // the step on screen: 'loc' | 'see' | 'rooms' | 'end'
+  var nextBtn = null;
 
-  function close(via) {
-    setSeen(via);
+  function ensureStyle() {
+    if (document.getElementById(STYLE_ID)) return;
+    var st = document.createElement('style');
+    st.id = STYLE_ID;
+    st.textContent = CSS;
+    (document.head || document.documentElement).appendChild(st);
+  }
+
+  function remove() {
     if (timer) { clearTimeout(timer); timer = 0; }
     document.removeEventListener('keydown', onKey);
     if (root && root.parentNode) root.parentNode.removeChild(root);
     root = null;
+    current = '';
+    if (nextBtn) nextBtn.hidden = false;
+  }
+
+  // Every close writes the welcome's own flag, as it always has. What it does
+  // to the path depends on how: a door forward records the next step, and
+  // every other way out ends the path for this visit.
+  function close(via) {
+    setSeen(via);
+    if (via === 'finder') writePath({ step: 'see', at: Date.now() });
+    else if (via === 'rooms') writePath({ step: 'rooms', at: Date.now() });
+    else if (via === 'stance') writePath({ step: 'stance', at: Date.now() });
+    else writePath({ off: 1, via: via, at: Date.now() });
+    remove();
     try { if (returnFocus && fn(returnFocus.focus)) returnFocus.focus(); } catch (e) {}
     returnFocus = null;
     try { document.dispatchEvent(new CustomEvent('pdx:coach-dismissed', { detail: { via: via } })); } catch (e) {}
   }
 
-  // THE FINDER DOOR. A real anchor to /find in the markup, so it works with
-  // scripting off and middle-clicks. Taking it counts as finishing the welcome.
-  // On a page that carries the finder's own opener, a plain click uses it in
-  // place instead of leaving the page: pdxFindMyReps() on the homepage
-  // (who-represents-me.js), the map on /find. The popup closes first so the
-  // picker is never under it.
+  // THE FINDER DOOR. A real anchor to /find?next=/ in the markup, so it works
+  // with scripting off and middle-clicks, and so a confirmed pin brings the
+  // reader back to the homepage's band, where the path is on step 2. Taking it
+  // counts as finishing the welcome. On /find itself the map opens in place.
   function openFinder(e) {
     var modified = e && (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button > 0);
     close('finder');
@@ -212,11 +349,6 @@
       if (window.__PDX_FIND_DOC && fn(window.openDistrictMapModal)) {
         if (e) e.preventDefault();
         window.openDistrictMapModal();
-        return;
-      }
-      if (fn(window.pdxFindMyReps) && document.getElementById('who-represents-me')) {
-        if (e) e.preventDefault();
-        window.pdxFindMyReps();
       }
     } catch (err) {}
   }
@@ -230,33 +362,49 @@
       return;
     }
     var door = t && t.closest ? t.closest('[data-pdxfc-door]') : null;
-    if (door) openFinder(e);
+    if (door) { openFinder(e); return; }
+    // Steps 2 and 3: real anchors; the click records the step they lead to.
+    var go = t && t.closest ? t.closest('[data-pdxfc-go]') : null;
+    if (go) close(go.getAttribute('data-pdxfc-go') === 'stance' ? 'stance' : 'rooms');
   }
 
   function onKey(e) {
     if (root && (e.key === 'Escape' || e.key === 'Esc')) close('skip');
   }
 
-  function open() {
-    if (root || !shouldShow()) return false;
+  // Step 2 points at the band: bring it into view under the docked card.
+  function toBand() {
+    try {
+      var band = document.getElementById(HOME_BAND);
+      if (!band || !fn(band.scrollIntoView)) return;
+      var still = fn(window.matchMedia) && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      band.scrollIntoView({ behavior: still ? 'auto' : 'smooth', block: 'start' });
+    } catch (e) {}
+  }
+
+  // `step` is '' for the first-visit welcome (gated as it always was), or a
+  // path step, which the caller has already decided belongs on this page.
+  function open(step) {
+    step = step || '';
+    if (root) return false;
+    if (!step && !shouldShow()) return false;
     var body = document.body;
     if (!body) return false;
-    if (!document.getElementById(STYLE_ID)) {
-      var st = document.createElement('style');
-      st.id = STYLE_ID;
-      st.textContent = CSS;
-      (document.head || document.documentElement).appendChild(st);
-    }
+    ensureStyle();
     root = document.createElement('div');
     root.id = ROOT_ID;
-    root.className = 'pdxfc';
+    var dock = step === 'see' || step === 'rooms' || step === 'end';
+    root.className = dock ? 'pdxfc pdxfc--dock' : 'pdxfc';
     root.setAttribute('role', 'dialog');
     root.setAttribute('aria-labelledby', TITLE_ID);
-    root.innerHTML = html();
+    root.innerHTML = dock ? stepHtml(step) : html();
+    current = step || 'loc';
     root.addEventListener('click', onClick);
     document.addEventListener('keydown', onKey);
     try { returnFocus = document.activeElement || null; } catch (e) { returnFocus = null; }
     body.appendChild(root);
+    if (nextBtn) nextBtn.hidden = true;
+    if (step === 'see') toBand();
     try {
       var h = document.getElementById(TITLE_ID);
       if (h && fn(h.focus)) h.focus({ preventScroll: true });
@@ -264,28 +412,62 @@
     return true;
   }
 
-  // The timer. Re-checks the gate when it fires; waits behind another open
-  // dialog a bounded number of times, then gives up for this page view.
   // The timer. Re-checks the gate when it fires. Behind another visible dialog
   // it looks again every RETRY_MS, and after MAX_WAIT_MS it shows anyway, so a
   // first-time reader always gets it — a stuck or misread dialog can delay the
-  // popup, never cancel it.
-  function schedule(delay, waited) {
+  // popup, never cancel it. `step` is '' for the welcome, or the running
+  // path's step, which is resolved again when the timer fires.
+  function schedule(delay, waited, step) {
     if (timer) clearTimeout(timer);
     timer = setTimeout(function () {
       timer = 0;
-      var why = whyNot();
-      if (why) { log('skipped: ' + why + '.'); return; }
+      var want = '';
+      if (step) {
+        want = pathOff() ? '' : resolve(false);
+        if (!want) { log('skipped: the guided path has nothing to show on this page.'); return; }
+      } else {
+        var why = whyNot();
+        if (why) { log('skipped: ' + why + '.'); return; }
+      }
       var blocker = busy();
       if (blocker && waited < MAX_WAIT_MS) {
         log('waiting: ' + blocker + ' is open; looking again in ' + (RETRY_MS / 1000) + 's.');
-        schedule(RETRY_MS, waited + RETRY_MS);
+        schedule(RETRY_MS, waited + RETRY_MS, step);
         return;
       }
       if (blocker) log('showing anyway: ' + blocker + ' has been open for ' + (MAX_WAIT_MS / 1000) + 's.');
-      if (open()) log('showing.');
+      if (open(want)) log(want ? 'showing path step: ' + want + '.' : 'showing.');
       else log('could not open: ' + (whyNot() || (root ? 'already open' : 'no <body>')) + '.');
     }, delay);
+  }
+
+  // ── "Show me the next step" ───────────────────────────────────────────────
+  // The reader asking is the one thing that overrides every gate: the welcome
+  // flag, a path ended earlier this visit, and another dialog. It shows the
+  // step for where they are now — step 1 with no location, step 2 on the
+  // homepage, step 3 on /voice.
+  function showNext() {
+    var step = resolve(true);
+    if (!step) return false;
+    if (root) remove();
+    writePath({ step: step === 'see' ? 'see' : step === 'loc' ? 'loc' : 'rooms', at: Date.now(), asked: 1 });
+    log('asked: showing path step ' + step + '.');
+    return open(step === 'loc' ? 'loc' : step);
+  }
+
+  function mountNext() {
+    var pg = page();
+    if (pg !== 'home' && pg !== 'voice') return;
+    if (nextBtn || document.getElementById(NEXT_ID) || !document.body) return;
+    ensureStyle();
+    nextBtn = document.createElement('button');
+    nextBtn.id = NEXT_ID;
+    nextBtn.setAttribute('type', 'button');
+    nextBtn.className = 'pdxfc-ask';
+    nextBtn.textContent = 'Show me the next step';
+    nextBtn.addEventListener('click', function () { showNext(); });
+    if (root) nextBtn.hidden = true;
+    document.body.appendChild(nextBtn);
   }
 
   // THE CLOCK STARTS WHEN THE DOCUMENT IS PARSED, not at window 'load'. This
@@ -294,11 +476,24 @@
   // _hasUserLocation. Waiting for 'load' as well made the popup hostage to the
   // slowest image or third-party script on the page — on a slow connection,
   // or with one request that never settled, the nine seconds never started.
+  //
+  // A running path goes first: it continues on the page its step belongs to,
+  // soon after arrival. Otherwise it is the first-visit welcome, as before.
   function boot() {
+    mountNext();
+    if (!pathOff() && pathStep()) {
+      var st = resolve(false);
+      if (st) {
+        log('guided path: showing step ' + st + ' in ' + (CONTINUE_MS / 1000) + 's.');
+        schedule(CONTINUE_MS, 0, st);
+        return;
+      }
+    }
+    if (pathOff()) { log('skipped: the guided path was ended this visit.'); return; }
     var why = whyNot();
     if (why) { log('skipped: ' + why + '.'); return; }
     log('first visit: showing in ' + (DELAY_MS / 1000) + 's unless a location is saved first.');
-    schedule(DELAY_MS, 0);
+    schedule(DELAY_MS, 0, '');
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
@@ -306,10 +501,8 @@
   // Dismissed in another tab: close here too, without writing again.
   window.addEventListener('storage', function (e) {
     if (!e || e.key !== KEY || !e.newValue) return;
-    if (timer) { clearTimeout(timer); timer = 0; }
-    document.removeEventListener('keydown', onKey);
-    if (root && root.parentNode) root.parentNode.removeChild(root);
-    root = null;
+    if (current && current !== 'loc') return;   // a path step was asked for here; leave it
+    remove();
   });
 
   window.PDXCoach = {
@@ -318,10 +511,19 @@
     DELAY_MS: DELAY_MS,
     POINTS: POINTS,
     SCOPE_NOTE: SCOPE_NOTE,
+    PATH_KEY: PATH_KEY,
+    CONTINUE_MS: CONTINUE_MS,
+    SEE_LINE: SEE_LINE,
+    ROOMS_LINE: ROOMS_LINE,
     shouldShow: shouldShow,
+    showNext: showNext,
+    step: function () { return current; },
+    pathStep: pathStep,
     seen: seen,
     // Test/debug seams.
     _html: html,
+    _stepHtml: stepHtml,
+    _resolve: resolve,
     _open: open,
     _close: close,
     _root: function () { return root; },
@@ -329,7 +531,8 @@
     // delay on this page view.
     reset: function () {
       try { window.localStorage.removeItem(KEY); } catch (e) {}
-      log('reset: pdx_coach_seen cleared.');
+      try { window.sessionStorage.removeItem(PATH_KEY); } catch (e) {}
+      log('reset: pdx_coach_seen and the guided path cleared.');
       boot();
     }
   };

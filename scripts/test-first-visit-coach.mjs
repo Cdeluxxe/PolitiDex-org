@@ -347,19 +347,24 @@ section("3 · Set my location points at the finder");
   const h = visit().C._html();
   const doors = [...h.matchAll(/<a\b[^>]*href="([^"]*)"[^>]*>([^<]*)<\/a>/g)];
   eq(doors.length, 1, "the popup carries more than one link");
-  eq(doors[0] && doors[0][1], "/find", "Set my location does not point at the finder");
+  // next=/ so a confirmed pin on /find brings the reader back to the
+  // homepage band, where the guided path is on step 2.
+  eq(doors[0] && doors[0][1], "/find?next=%2F", "Set my location does not point at the finder with the way back");
   eq(doors[0] && doors[0][2], "Set my location", "the finder door is not labelled Set my location");
   has(h, 'data-pdxfc-door="finder"', "the door is not marked as the finder");
 }
 {
-  // Homepage: a plain click closes the popup and uses the shared lookup in place.
+  // Homepage: a plain click closes the popup and follows the link to /find
+  // (it goes to the finder and returns to the path), recording step 2.
   let called = 0;
-  const v = visit({ extra: { pdxFindMyReps: () => { called++; } } });
+  const session = memStore();
+  const v = visit({ session, extra: { pdxFindMyReps: () => { called++; } } });
   v.tick(v.C.DELAY_MS);
   const prevented = click(v, "data-pdxfc-door", "finder");
-  eq(called, 1, "homepage: Set my location did not call pdxFindMyReps()");
-  ok(prevented, "homepage: Set my location also navigated away");
+  eq(called, 0, "homepage: Set my location opened the picker in place instead of going to /find");
+  ok(!prevented, "homepage: Set my location did not follow its link to /find");
   ok(!v.popup(), "homepage: the popup stayed over the finder");
+  eq(JSON.parse(session.getItem("pdx_path_v1") || "{}").step, "see", "homepage: Set my location did not move the path to step 2");
 }
 {
   let called = 0;
@@ -510,7 +515,8 @@ section("5 · it writes only its own flag and touches no other door");
   v.tick(v.C.DELAY_MS);
   click(v, "data-pdxfc-act", "finish");
   ok(local.writes.length > 0 && local.writes.every((k) => k === "pdx_coach_seen"), `localStorage writes: ${local.writes.join(", ")}`);
-  eq(session.writes.length, 0, "the popup writes sessionStorage");
+  // sessionStorage carries only the guided path's own step, for this visit.
+  ok(session.writes.every((k) => k === "pdx_path_v1"), `sessionStorage writes: ${session.writes.join(", ")}`);
   const code = stripComments(SRC);
   for (const k of ["politidex_voter_location", "saveVoterLocation", "PDX_LOC_KEY", "pdx_first_run",
                    "residency", "dd_residency", "openAccount", "pdxOpenAccount", "acct-sheet", "PDXStore",
@@ -560,6 +566,164 @@ section("6 · wiring, and nothing else moved");
   ok(build >= 378 && build <= ver, `the popup's BUILD tag (v${build}) is not a shipped worker version (v378–v${ver})`);
   has(SW, "// v376 - FIRST-VISIT POPUP.", "the worker carries no note for the popup's version");
   has(SW, "// v377 - FIRST-VISIT POPUP, UTAH FIRST.", "the worker carries no note for the Utah-first sentence");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("7 · the guided path: location → seats → rooms → optional stance");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  const LOC = JSON.stringify({ state: "Utah", city: "Provo", src: "set" });
+  const CONT = visit().C.CONTINUE_MS;
+  const stepOf = (v) => { const p = v.popup(); const m = p && /data-pdxfc-step="([a-z]+)"/.exec(p.innerHTML); return p ? (m ? m[1] : "loc") : ""; };
+  const goClick = (v, which) => click(v, "data-pdxfc-go", which);
+
+  // First visit, no location: the modal and its three steps.
+  {
+    const v = visit();
+    v.tick(v.C.DELAY_MS);
+    ok(!!v.popup(), "path: first visit with no location did not show the modal");
+    eq((v.popup().innerHTML.match(/<li\b/g) || []).length, 3, "path: the first-visit modal does not list three steps");
+    has(v.popup().innerHTML, "Here’s how it works", "path: the first-visit modal lost its title");
+  }
+
+  // Set my location → /find → back on the homepage with a location: step 2.
+  const local = memStore(), session = memStore();
+  {
+    const v = visit({ local, session });
+    v.tick(v.C.DELAY_MS);
+    click(v, "data-pdxfc-door", "finder");
+    eq(v.C.pathStep(), "see", "path: Set my location did not record step 2");
+  }
+  {
+    // /find with the pin confirmed: the welcome does not reappear there.
+    const f = visit({ page: "find", local, session });
+    f.tick(60000);
+    ok(!f.popup(), "path: the modal showed on /find after Set my location");
+  }
+  local.setItem("politidex_voter_location", LOC);
+  let scrolled = 0;
+  {
+    const v = visit({ local, session });
+    v.document.getElementById("who-represents-me").scrollIntoView = () => { scrolled++; };
+    v.tick(CONT);
+    ok(!!v.popup(), "path: returning from /find with a location did not show step 2");
+    eq(stepOf(v), "see", "path: the homepage did not show step 2");
+    ok(scrolled > 0, "path: step 2 did not scroll to the Who Represents Me band");
+    has(v.popup().innerHTML, v.C.SEE_LINE, "path: step 2 lost its one sentence");
+    has(v.popup().innerHTML, ">Open my rooms<", "path: step 2 has no Open my rooms");
+    has(v.popup().innerHTML, 'href="/voice"', "path: Open my rooms does not go to /voice");
+    ok(/pdxfc--dock/.test(v.popup().className), "path: step 2 covers the band instead of docking");
+    const prevented = goClick(v, "rooms");
+    ok(!prevented && !v.popup(), "path: Open my rooms did not close and follow its link");
+    eq(v.C.pathStep(), "rooms", "path: Open my rooms did not record step 3");
+  }
+  {
+    // A second homepage load mid-path does not repeat step 2.
+    const v = visit({ local, session });
+    v.tick(60000);
+    ok(!v.popup(), "path: step 2 reappeared on the homepage after Open my rooms");
+  }
+  {
+    const v = visit({ page: "voice", local, session });
+    v.tick(CONT);
+    eq(stepOf(v), "rooms", "path: /voice did not show step 3");
+    const h = v.popup().innerHTML;
+    has(h, v.C.ROOMS_LINE, "path: step 3 lost its sentence");
+    has(h, ">Take a stance<", "path: step 3 has no Take a stance");
+    has(h, ">I’m good for now<", "path: step 3 has no I’m good for now");
+    has(h, 'href="/my-stances?add=1&amp;next=%2Fvoice"', "path: Take a stance does not open the studio with the way back to /voice");
+    goClick(v, "stance");
+    eq(v.C.pathStep(), "stance", "path: Take a stance did not record the studio visit");
+  }
+  {
+    // Back on /voice from the studio: one closing card, then the path ends.
+    const v = visit({ page: "voice", local, session });
+    v.tick(CONT);
+    eq(stepOf(v), "end", "path: /voice after the studio did not close the path");
+    click(v, "data-pdxfc-act", "finish");
+    const w = visit({ page: "voice", local, session });
+    w.tick(60000);
+    ok(!w.popup(), "path: the path came back after it ended");
+  }
+  {
+    // I'm good for now ends it.
+    const s2 = memStore({ pdx_path_v1: '{"step":"rooms"}' });
+    const v = visit({ page: "voice", local: memStore({ politidex_voter_location: LOC }), session: s2 });
+    v.tick(CONT);
+    click(v, "data-pdxfc-act", "finish");
+    ok(!v.popup(), "path: I’m good for now did not close step 3");
+    ok(JSON.parse(s2.getItem("pdx_path_v1")).off, "path: I’m good for now did not end the path");
+  }
+
+  // Not now dismisses it and it does not come back in the same session.
+  for (const page of ["home", "voice"]) {
+    const l = memStore(), s3 = memStore();
+    const v = visit({ page, local: l, session: s3 });
+    v.tick(v.C.DELAY_MS);
+    click(v, "data-pdxfc-act", "skip");
+    ok(!v.popup(), `path/${page}: Not now did not dismiss`);
+    for (const p2 of ["home", "voice", "find"]) {
+      const n = visit({ page: p2, local: memStore(), session: s3 });   // even with the welcome flag gone
+      n.tick(60000);
+      ok(!n.popup(), `path/${page}: after Not now it showed again on ${p2} in the same session`);
+    }
+  }
+  {
+    // Not now mid-path (step 2) ends the path too.
+    const s4 = memStore({ pdx_path_v1: '{"step":"see"}' });
+    const l = memStore({ politidex_voter_location: LOC, pdx_coach_seen: "1" });
+    const v = visit({ local: l, session: s4 });
+    v.tick(CONT);
+    click(v, "data-pdxfc-act", "skip");
+    const n = visit({ page: "voice", local: l, session: s4 });
+    n.tick(60000);
+    ok(!n.popup(), "path: Not now on step 2 did not end the path for the session");
+  }
+
+  // Only with no location, or when asked.
+  {
+    const v = visit({ local: memStore({ politidex_voter_location: LOC }) });
+    v.tick(60000);
+    ok(!v.popup(), "path: a reader with a location and no running path was shown the modal");
+  }
+
+  // Show me the next step: on the homepage and /voice, never /find; a reader
+  // with a location skips step 1.
+  for (const [page, want] of [["home", "see"], ["voice", "rooms"]]) {
+    const l = memStore({ politidex_voter_location: LOC, pdx_coach_seen: "1" });
+    const s5 = memStore({ pdx_path_v1: '{"off":1}' });
+    const v = visit({ page, local: l, session: s5 });
+    const btn = v.document.getElementById("pdx-path-next");
+    ok(!!btn, `path/${page}: no Show me the next step control`);
+    eq(btn && btn.textContent, "Show me the next step", `path/${page}: the control is mislabelled`);
+    for (const f of (btn ? btn.listeners.click : [])) f({});
+    eq(stepOf(v), want, `path/${page}: Show me the next step with a location did not skip step 1`);
+    ok(btn.hidden === true, `path/${page}: the control stayed visible over the open step`);
+    click(v, "data-pdxfc-act", "skip");
+    ok(btn.hidden === false, `path/${page}: the control did not come back after the step closed`);
+  }
+  for (const page of ["home", "voice"]) {
+    const v = visit({ page, local: memStore({ pdx_coach_seen: "1" }), session: memStore({ pdx_path_v1: '{"off":1}' }) });
+    v.C.showNext();
+    eq(stepOf(v), "loc", `path/${page}: Show me the next step with no location did not start at step 1`);
+  }
+  ok(!visit({ page: "find" }).document.getElementById("pdx-path-next"), "path: /find carries the next-step control");
+
+  // No equity language anywhere on the path.
+  const C = visit().C;
+  const copy = ["see", "rooms", "end"].map((s) => C._stepHtml(s)).join(" ").replace(/<[^>]*>/g, " ") + " Show me the next step";
+  for (const word of ["membership", "member", "stock", "stocks", "share", "shares", "shareholder", "equity",
+                      "invest", "investor", "dividend", "earn", "pay", "premium", "subscription", "owner", "ownership"]) {
+    ok(!new RegExp(`\\b${word}\\b`, "i").test(copy), `path: the guided path's copy carries "${word}"`);
+  }
+
+  // No new pages, and the homepage District Voice card and /voice header are
+  // not touched by the path.
+  const INDEX = R("index.html"), VOICE = R("voice.html");
+  const a = INDEX.indexOf("<!-- pdx:home-voice-gate:begin -->"), b = INDEX.indexOf("<!-- pdx:home-voice-gate:end -->");
+  no(INDEX.slice(a, b), "pdx-path", "path: the homepage District Voice card mentions the path");
+  no(VOICE, "pdx-path", "path: voice.html was edited for the path");
+  has(VOICE, '<h1 class="pdxvr-h1">The rooms for your seats</h1>', "path: the /voice header changed");
 }
 
 console.log("");
