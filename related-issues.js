@@ -8,6 +8,17 @@
 
    THE RULES IT KEEPS
 
+   · CROSS-TOPIC PAIRS (v523). Fourteen pairs join topics where a stated
+     position and a record often part ways, so "Where this conflicts" has
+     them to check: public lands and housing supply (Keep Public Lands Public
+     and Local Land Control with Build More Housing), housing and red tape
+     (permitting, regulation), energy and prices (domestic production,
+     energy independence, data-center power and climate action with the cost
+     of living; production with economic growth), immigration and work (legal
+     immigration and pathways to citizenship with workers and farms), and the
+     border and spending (border enforcement with spending cuts). Each is an existing key
+     on both sides, listed at the end of both keys' lists.
+
    · ONE MAP. MAP below is the only place that decides what is related: issue
      key → the keys that share its ground. It is symmetric (if A lists B, B
      lists A) and names only keys in the issue register. Nothing is derived from
@@ -84,23 +95,23 @@
   // Issue key → related issue keys. Order here is print order.
   var MAP = {
     lands_preserve: ['lands_keep_public', 'energy_production', 'gov_regulation', 'lands_local', 'lands_balance', 'lands_energy', 'property_rights', 'permitting_reform', 'water', 'water_storage', 'datacenter_water', 'disaster_resilience', 'climate_action'],
-    lands_keep_public: ['lands_preserve', 'energy_production', 'gov_regulation', 'lands_local', 'lands_balance', 'lands_energy', 'property_rights', 'permitting_reform', 'water', 'water_storage', 'datacenter_water'],
-    lands_local: ['lands_preserve', 'lands_keep_public', 'lands_balance', 'lands_energy', 'property_rights', 'disaster_resilience', 'climate_action', 'states_federal_power', 'state_standing', 'guard_authority'],
+    lands_keep_public: ['lands_preserve', 'energy_production', 'gov_regulation', 'lands_local', 'lands_balance', 'lands_energy', 'property_rights', 'permitting_reform', 'water', 'water_storage', 'datacenter_water', 'housing_build'],
+    lands_local: ['lands_preserve', 'lands_keep_public', 'lands_balance', 'lands_energy', 'property_rights', 'disaster_resilience', 'climate_action', 'states_federal_power', 'state_standing', 'guard_authority', 'housing_build'],
     lands_balance: ['lands_preserve', 'lands_keep_public', 'lands_local', 'lands_energy', 'property_rights', 'disaster_resilience', 'climate_action'],
     lands_energy: ['lands_preserve', 'lands_keep_public', 'lands_local', 'lands_balance', 'property_rights', 'energy_production', 'permitting_reform', 'gov_regulation', 'enviro_energy', 'climate_action', 'enviro_balance', 'datacenter_power'],
     property_rights: ['lands_preserve', 'lands_keep_public', 'lands_local', 'lands_balance', 'lands_energy'],
-    energy_production: ['lands_preserve', 'lands_keep_public', 'lands_energy', 'permitting_reform', 'gov_regulation', 'enviro_energy', 'climate_action', 'enviro_balance', 'datacenter_power'],
-    permitting_reform: ['lands_preserve', 'lands_keep_public', 'lands_energy', 'energy_production', 'gov_regulation', 'enviro_energy', 'climate_action', 'enviro_balance', 'datacenter_power', 'econ_growth', 'infrastructure', 'broadband', 'transit', 'water_storage'],
-    gov_regulation: ['lands_preserve', 'lands_keep_public', 'lands_energy', 'energy_production', 'permitting_reform', 'climate_action', 'enviro_balance', 'econ_growth', 'econ_smallbiz', 'econ_balance', 'econ_workers', 'econ_corp_account', 'lower_taxes', 'civil_service_control', 'gov_waste'],
+    energy_production: ['lands_preserve', 'lands_keep_public', 'lands_energy', 'permitting_reform', 'gov_regulation', 'enviro_energy', 'climate_action', 'enviro_balance', 'datacenter_power', 'cost_living', 'econ_growth'],
+    permitting_reform: ['lands_preserve', 'lands_keep_public', 'lands_energy', 'energy_production', 'gov_regulation', 'enviro_energy', 'climate_action', 'enviro_balance', 'datacenter_power', 'econ_growth', 'infrastructure', 'broadband', 'transit', 'water_storage', 'housing_build'],
+    gov_regulation: ['lands_preserve', 'lands_keep_public', 'lands_energy', 'energy_production', 'permitting_reform', 'climate_action', 'enviro_balance', 'econ_growth', 'econ_smallbiz', 'econ_balance', 'econ_workers', 'econ_corp_account', 'lower_taxes', 'civil_service_control', 'gov_waste', 'housing_build'],
     water: ['water_storage', 'datacenter_water', 'lands_preserve', 'lands_keep_public', 'datacenter_growth', 'datacenter_power', 'tech_innovation', 'rural_ag', 'health_rural', 'broadband'],
     water_storage: ['water', 'datacenter_water', 'lands_preserve', 'lands_keep_public', 'rural_ag', 'health_rural', 'broadband', 'infrastructure', 'transit', 'permitting_reform'],
     datacenter_water: ['water', 'water_storage', 'lands_preserve', 'lands_keep_public', 'datacenter_growth', 'datacenter_power', 'tech_innovation'],
     disaster_resilience: ['lands_preserve', 'lands_balance', 'lands_local', 'climate_action'],
-    climate_action: ['disaster_resilience', 'lands_preserve', 'lands_balance', 'lands_local', 'energy_production', 'enviro_energy', 'lands_energy', 'enviro_balance', 'datacenter_power', 'permitting_reform', 'gov_regulation', 'econ_growth'],
-    enviro_energy: ['energy_production', 'climate_action', 'lands_energy', 'enviro_balance', 'datacenter_power', 'permitting_reform'],
+    climate_action: ['disaster_resilience', 'lands_preserve', 'lands_balance', 'lands_local', 'energy_production', 'enviro_energy', 'lands_energy', 'enviro_balance', 'datacenter_power', 'permitting_reform', 'gov_regulation', 'econ_growth', 'cost_living'],
+    enviro_energy: ['energy_production', 'climate_action', 'lands_energy', 'enviro_balance', 'datacenter_power', 'permitting_reform', 'cost_living'],
     enviro_balance: ['energy_production', 'enviro_energy', 'climate_action', 'lands_energy', 'datacenter_power', 'permitting_reform', 'gov_regulation', 'econ_growth'],
-    datacenter_power: ['energy_production', 'enviro_energy', 'climate_action', 'lands_energy', 'enviro_balance', 'permitting_reform', 'datacenter_growth', 'datacenter_water', 'tech_innovation', 'water'],
-    econ_growth: ['climate_action', 'enviro_balance', 'gov_regulation', 'permitting_reform', 'econ_smallbiz', 'econ_balance', 'econ_workers', 'econ_corp_account', 'lower_taxes'],
+    datacenter_power: ['energy_production', 'enviro_energy', 'climate_action', 'lands_energy', 'enviro_balance', 'permitting_reform', 'datacenter_growth', 'datacenter_water', 'tech_innovation', 'water', 'cost_living'],
+    econ_growth: ['climate_action', 'enviro_balance', 'gov_regulation', 'permitting_reform', 'econ_smallbiz', 'econ_balance', 'econ_workers', 'econ_corp_account', 'lower_taxes', 'energy_production'],
     datacenter_growth: ['datacenter_water', 'datacenter_power', 'tech_innovation', 'water', 'tech_balance', 'privacy_rights', 'crypto_cbdc'],
     tech_innovation: ['datacenter_growth', 'datacenter_water', 'datacenter_power', 'water', 'free_speech', 'privacy_rights', 'tech_balance', 'crypto_cbdc'],
     lower_taxes: ['tax_middle_class', 'prop_tax', 'property_tax', 'national_debt', 'gov_balance', 'gov_services', 'econ_growth', 'econ_smallbiz', 'econ_balance', 'econ_workers', 'econ_corp_account', 'gov_regulation'],
@@ -110,7 +121,7 @@
     national_debt: ['lower_taxes', 'tax_middle_class', 'prop_tax', 'property_tax', 'gov_balance', 'gov_services', 'cut_spending', 'gov_waste', 'audit_spending', 'power_of_purse', 'social_security', 'healthcare', 'strong_defense', 'sound_money', 'crypto_cbdc'],
     gov_balance: ['lower_taxes', 'tax_middle_class', 'prop_tax', 'property_tax', 'national_debt', 'gov_services', 'cut_spending', 'gov_waste', 'audit_spending', 'power_of_purse', 'social_security', 'healthcare'],
     gov_services: ['lower_taxes', 'tax_middle_class', 'prop_tax', 'property_tax', 'national_debt', 'gov_balance', 'cut_spending', 'gov_waste', 'audit_spending', 'power_of_purse'],
-    cut_spending: ['gov_waste', 'gov_balance', 'national_debt', 'audit_spending', 'gov_services', 'power_of_purse', 'social_security', 'healthcare', 'strong_defense', 'gov_transparency'],
+    cut_spending: ['gov_waste', 'gov_balance', 'national_debt', 'audit_spending', 'gov_services', 'power_of_purse', 'social_security', 'healthcare', 'strong_defense', 'gov_transparency', 'border_security'],
     gov_waste: ['cut_spending', 'gov_balance', 'national_debt', 'audit_spending', 'gov_services', 'power_of_purse', 'gov_transparency', 'civil_service_control', 'gov_regulation'],
     audit_spending: ['cut_spending', 'gov_waste', 'gov_balance', 'national_debt', 'gov_services', 'power_of_purse', 'sound_money', 'crypto_cbdc', 'gov_transparency'],
     power_of_purse: ['cut_spending', 'gov_waste', 'gov_balance', 'national_debt', 'audit_spending', 'gov_services', 'checks_balances', 'war_powers', 'judicial_check', 'congress_oversight', 'tariffs_authority', 'civil_service_control', 'scotus_reform'],
@@ -119,12 +130,12 @@
     strong_defense: ['cut_spending', 'national_debt', 'foreign_balance', 'restraint', 'america_first', 'america_first_fp', 'veterans', 'israel_support', 'iran_policy', 'ukraine_policy', 'yemen_policy', 'venezuela_policy', 'war_powers'],
     sound_money: ['audit_spending', 'crypto_cbdc', 'national_debt'],
     crypto_cbdc: ['sound_money', 'audit_spending', 'national_debt', 'tech_innovation', 'tech_balance', 'privacy_rights', 'datacenter_growth'],
-    border_security: ['deportations', 'immig_fentanyl', 'immig_balance', 'immig_legal', 'immigration_reform'],
+    border_security: ['deportations', 'immig_fentanyl', 'immig_balance', 'immig_legal', 'immigration_reform', 'cut_spending'],
     deportations: ['border_security', 'immig_fentanyl', 'immig_balance', 'immig_legal', 'immigration_reform'],
     immig_fentanyl: ['border_security', 'deportations', 'immig_balance', 'immig_legal', 'immigration_reform', 'back_police', 'tough_on_crime', 'justice_balance', 'justice_reform', 'cannabis_reform'],
     immig_balance: ['border_security', 'deportations', 'immig_fentanyl', 'immig_legal', 'immigration_reform'],
-    immig_legal: ['border_security', 'deportations', 'immig_fentanyl', 'immig_balance', 'immigration_reform'],
-    immigration_reform: ['border_security', 'deportations', 'immig_fentanyl', 'immig_balance', 'immig_legal'],
+    immig_legal: ['border_security', 'deportations', 'immig_fentanyl', 'immig_balance', 'immigration_reform', 'econ_workers', 'rural_ag'],
+    immigration_reform: ['border_security', 'deportations', 'immig_fentanyl', 'immig_balance', 'immig_legal', 'rural_ag', 'econ_workers'],
     gun_rights: ['gun_balance', 'gun_safety'],
     gun_balance: ['gun_rights', 'gun_safety'],
     gun_safety: ['gun_rights', 'gun_balance'],
@@ -136,7 +147,7 @@
     child_care: ['paid_leave', 'family_support', 'cost_living', 'tax_middle_class'],
     paid_leave: ['child_care', 'family_support', 'cost_living', 'tax_middle_class'],
     family_support: ['child_care', 'paid_leave', 'cost_living', 'tax_middle_class'],
-    cost_living: ['child_care', 'paid_leave', 'family_support', 'tax_middle_class', 'tariffs_china', 'tariffs_growth', 'tariffs_prices', 'tariffs_authority', 'econ_trade', 'rural_ag', 'housing', 'housing_build', 'housing_support', 'housing_first_time', 'homeless', 'property_tax', 'prop_tax', 'healthcare_costs'],
+    cost_living: ['child_care', 'paid_leave', 'family_support', 'tax_middle_class', 'tariffs_china', 'tariffs_growth', 'tariffs_prices', 'tariffs_authority', 'econ_trade', 'rural_ag', 'housing', 'housing_build', 'housing_support', 'housing_first_time', 'homeless', 'property_tax', 'prop_tax', 'healthcare_costs', 'energy_production', 'enviro_energy', 'datacenter_power', 'climate_action'],
     healthcare_market: ['healthcare', 'healthcare_costs', 'health_balance', 'health_drug_prices', 'health_rural', 'medical_freedom'],
     healthcare_costs: ['healthcare', 'healthcare_market', 'health_balance', 'health_drug_prices', 'health_rural', 'medical_freedom', 'cost_living', 'tariffs_prices', 'housing', 'tax_middle_class'],
     health_balance: ['healthcare', 'healthcare_market', 'healthcare_costs', 'health_drug_prices', 'health_rural', 'medical_freedom'],
@@ -148,7 +159,7 @@
     veterans: ['health_mental', 'healthcare', 'homeless', 'strong_defense', 'foreign_balance', 'restraint', 'america_first', 'america_first_fp'],
     tobacco_nicotine: ['medical_freedom', 'cannabis_reform'],
     cannabis_reform: ['tobacco_nicotine', 'medical_freedom', 'back_police', 'tough_on_crime', 'justice_balance', 'justice_reform', 'immig_fentanyl'],
-    rural_ag: ['health_rural', 'broadband', 'water', 'water_storage', 'tariffs_china', 'tariffs_growth', 'tariffs_prices', 'tariffs_authority', 'econ_trade', 'cost_living'],
+    rural_ag: ['health_rural', 'broadband', 'water', 'water_storage', 'tariffs_china', 'tariffs_growth', 'tariffs_prices', 'tariffs_authority', 'econ_trade', 'cost_living', 'immig_legal', 'immigration_reform'],
     broadband: ['rural_ag', 'health_rural', 'water', 'water_storage', 'infrastructure', 'transit', 'permitting_reform'],
     tariffs_china: ['tariffs_growth', 'tariffs_prices', 'tariffs_authority', 'econ_trade', 'cost_living', 'rural_ag'],
     tariffs_growth: ['tariffs_china', 'tariffs_prices', 'tariffs_authority', 'econ_trade', 'cost_living', 'rural_ag'],
@@ -157,11 +168,11 @@
     econ_trade: ['tariffs_china', 'tariffs_growth', 'tariffs_prices', 'tariffs_authority', 'cost_living', 'rural_ag'],
     econ_smallbiz: ['econ_growth', 'econ_balance', 'econ_workers', 'econ_corp_account', 'gov_regulation', 'lower_taxes'],
     econ_balance: ['econ_growth', 'econ_smallbiz', 'econ_workers', 'econ_corp_account', 'gov_regulation', 'lower_taxes'],
-    econ_workers: ['econ_growth', 'econ_smallbiz', 'econ_balance', 'econ_corp_account', 'gov_regulation', 'lower_taxes'],
+    econ_workers: ['econ_growth', 'econ_smallbiz', 'econ_balance', 'econ_corp_account', 'gov_regulation', 'lower_taxes', 'immig_legal', 'immigration_reform'],
     econ_corp_account: ['econ_growth', 'econ_smallbiz', 'econ_balance', 'econ_workers', 'gov_regulation', 'lower_taxes'],
     dev_district_finance: ['prop_tax', 'property_tax', 'gov_transparency', 'housing_build'],
     gov_transparency: ['dev_district_finance', 'prop_tax', 'property_tax', 'housing_build', 'term_limits', 'campaign_finance', 'stock_trading_ban', 'reform_balance', 'congress_oversight', 'audit_spending', 'gov_waste', 'cut_spending'],
-    housing_build: ['dev_district_finance', 'prop_tax', 'property_tax', 'gov_transparency', 'housing', 'housing_support', 'housing_first_time', 'homeless', 'cost_living'],
+    housing_build: ['dev_district_finance', 'prop_tax', 'property_tax', 'gov_transparency', 'housing', 'housing_support', 'housing_first_time', 'homeless', 'cost_living', 'lands_keep_public', 'lands_local', 'permitting_reform', 'gov_regulation'],
     infrastructure: ['broadband', 'transit', 'permitting_reform', 'water_storage'],
     transit: ['infrastructure', 'broadband', 'permitting_reform', 'water_storage'],
     housing: ['housing_build', 'housing_support', 'housing_first_time', 'homeless', 'cost_living', 'property_tax', 'prop_tax', 'tariffs_prices', 'healthcare_costs', 'tax_middle_class'],

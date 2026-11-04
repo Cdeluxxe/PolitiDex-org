@@ -11600,7 +11600,22 @@
 //     No location key or other stored reader state is rewritten, so nothing is
 //     migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v522';
+// v523 - CROSS-TOPIC PAIRS IN THE RELATED-ISSUES MAP.
+//     Fourteen pairs join the one map (related-issues.js MAP), each between
+//     two issue keys the register and the map already hold, listed both ways:
+//     Keep Public Lands Public and Local Land Control with Build More Housing;
+//     Build More Housing with permitting reform and with regulation; domestic
+//     energy production, energy independence, data-center power and climate
+//     action with the cost of living; energy production with economic growth;
+//     legal immigration and pathways to citizenship with workers and with
+//     farmers and rural communities; border enforcement with cutting federal
+//     spending. The drawer's related-issues lines and "Where this conflicts"
+//     read them through the existing code; nothing else changed. No issue is
+//     added. related-issues.js is precached and changed, so the shell moves
+//     one version; the precache list is unchanged. No location key or other
+//     stored reader state is written or rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v523';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

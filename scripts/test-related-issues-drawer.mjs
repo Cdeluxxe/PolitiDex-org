@@ -36,6 +36,7 @@ import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
+import { NEW_PAIRS } from "./related-issues-new-pairs.mjs";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 
@@ -535,6 +536,50 @@ const FIX = {
   ok(!sw.includes("  '/your-file.js',\n"), "/your-file.js was added to the precache");
   ok(/v522 - [\s\S]*?MIGRATION COST: none/.test(sw), "the shell's v522 note does not say no migration");
   ok(Number((sw.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1]) >= 522, "the shell did not move for the three pages");
+}
+
+// ── 7 · the new cross-topic pairs feed the conflicts check ──────────────────
+// On the real corpus, every new pair where a politician has a stated side or a
+// one-way record on one side: a reader on the other side of it gets a line
+// naming both issues, that side, and the reader's stance.
+{
+  ok(Array.isArray(NEW_PAIRS) && NEW_PAIRS.length >= 10, "the new pairs list could not be read from the related-issues suite");
+  const win = boot(true);
+  const CS = win.PDXConsistency, RI = win.PDXRelatedIssues;
+  const OTHER = { support: "oppose", oppose: "support" };
+  const RECSIDE = { with: "support", against: "oppose" };
+  let hits = 0, statedHits = 0, recordHits = 0;
+  const pids = Object.keys(win.CMP_DATA);
+  for (const [a, b] of NEW_PAIRS || []) {
+    for (const [open, other] of [[a, b], [b, a]]) {
+      // The first politician with a side on `other` that is listed in `open`'s drawer.
+      for (const pid of pids) {
+        const it = RI.itemsFor(pid, win.CMP_DATA[pid], open).find((x) => x.key === other);
+        if (!it || !(it.dir || it.rec)) continue;
+        const theirs = it.dir || RECSIDE[it.rec];
+        win.PDXStanceSides = { list: () => [{ key: other, position: OTHER[theirs], priority: "medium" }] };
+        const list = RI.conflictsFor(pid, win.CMP_DATA[pid], open) || [];
+        const c = list.find((x) => x.bKey === other);
+        ok(!!c, `${pid} × ${open} · ${other}: a reader against their side gets no conflicts line`);
+        if (c) {
+          const t = RI.conflictText(c);
+          const they = it.dir ? (it.dir === "support" ? "they support" : "they oppose")
+            : (it.rec === "with" ? "their record runs with it" : "their record runs against it");
+          eq(t, `${lbl(win, open)} and ${lbl(win, other)}: on ${lbl(win, other)} ${they}; you ${OTHER[theirs]}.`,
+            `${pid} × ${open} · ${other}: the line does not name both issues, their side and the reader's stance`);
+          ok(CS.gapViewHtml(pid, open).includes(`data-pdxri-cf="${other}"`), `${pid} × ${open} · ${other}: the drawer does not print the line`);
+          hits++; if (it.dir) statedHits++; else recordHits++;
+        }
+        break;
+      }
+    }
+  }
+  delete win.PDXStanceSides;
+  ok(hits >= 1, "no new pair produced a conflicts line on the real corpus");
+  const sw = R("sw.js");
+  ok(/v523 - [\s\S]*?MIGRATION COST: none/.test(sw), "the shell's v523 note does not say no migration");
+  ok(Number((sw.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1]) >= 523, "the shell did not move for the new pairs");
+  console.log(`   new pairs: ${hits} conflict lines checked (${statedHits} stated, ${recordHits} record)`);
 }
 
 // ── wiring ──────────────────────────────────────────────────────────────────
