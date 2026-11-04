@@ -3659,6 +3659,14 @@ export const DECLARED_STANCE_PASSES = [
       "ed_hershey",
     ],
   },
+  {
+    pass: "newly_elected_stated_nov2026",
+    // The November 3, 2026 winners the roster held as candidates with no stance
+    // entries (db/newly-elected-stated-2026-11.json): five U.S. Senate, eight U.S. House.
+    pids: ["josh_turek", "troy_jackson", "juliana_stratton", "adam_hamilton", "annie_andrews",
+      "zach_dembo", "sean_mccann", "william_lawrence", "christina_hines", "richard_ojeda",
+      "mitchell_berman", "rebecca_cooke", "stefany_shaheen"],
+  },
 ];
 export const DECLARED_STANCE_PIDS = DECLARED_STANCE_PASSES.flatMap((d) => d.pids);
 const stanceTable = (src) => {

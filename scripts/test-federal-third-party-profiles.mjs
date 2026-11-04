@@ -387,7 +387,10 @@ eq(EMPTY_B4.length + Object.keys(BATCH4).length + ["mark_hackett", "jeremy_hearn
 section("5 · everyone else is unchanged, and so are the twelve roster rows");
 {
   const load = (src, pick) => { if (src == null) return null; const x = { CMP_DATA: {} }; new Function("window", src)(x); return pick(x); };
-  const ours = new Set(Object.keys(PEOPLE));
+  // This pass's people, plus the people a LATER declared stance pass moved
+  // (v103-chrome-seams.mjs) — that pass's own suite pins them.
+  const ours = new Set([...Object.keys(PEOPLE),
+    ...DECLARED_STANCE_PASSES.filter((d) => !Object.values(PASS_OF).includes(d.pass)).flatMap((d) => d.pids)]);
   for (const f of ["politician-stances-core.js", "politician-stances-ext.js", "politician-stances.js"]) {
     const h = load(HEAD(f), (x) => x.ISSUE_STANCE_DATA), n = load(R(f), (x) => x.ISSUE_STANCE_DATA);
     if (!h) { console.log(`      (no git baseline for ${f} — the unchanged check did not run)`); passed++; continue; }
