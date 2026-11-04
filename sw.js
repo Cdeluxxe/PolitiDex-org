@@ -11585,7 +11585,22 @@
 //     No location key or other stored reader state is written or rewritten, so
 //     nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v521';
+// v522 - WHERE THIS CONFLICTS ON THE PERSON, ISSUE AND BALLOT PAGES.
+//     person.html, issue.html and ballot.html now load the stance reader
+//     (stance-sides.js) and its two stores (my-stances.js, your-file.js), the
+//     same three the homepage loads, so the issue drawer's "Where this
+//     conflicts" section appears there under the homepage's rules and wording.
+//     Because the stores are real on those pages, two existing homepage
+//     behaviours now reach them too: the person file shows the reader's stance
+//     beside the record, and the ballot desk lists and ranks on the reader's
+//     saved stances (and copies them into the alignment tool, as the homepage
+//     does). my-stances.js is added to the precache; your-file.js stays out of
+//     it on purpose, as before, and loads from the network. The three documents
+//     changed, so the shell moves one version. No route or gate.
+//     No location key or other stored reader state is rewritten, so nothing is
+//     migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v522';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -12152,6 +12167,7 @@ const SHELL_ASSETS = [
   // would have no reader at all and would print its empty sentence over a full
   // file. It is listed here so it is never the asset that did not arrive.
   '/stance-sides.js',
+  '/my-stances.js',
   // Door 1's workspace: the mode rail, the one open desk, and the view strips
   // on the four older Door 1 surfaces. Precached with the modules it reads —
   // claim-check.js, issue-view.js, consistency.js, bill-detail.js and

@@ -457,6 +457,86 @@ const FIX = {
   ok(Number((R("sw.js").match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1]) >= 521, "the shell did not move for the conflicts section");
 }
 
+// ── 6 · the same section on the homepage, person, issue and ballot pages ────
+// Each page loads the real stance reader and both stores (no stand-in reader):
+// the stores run in the drawer sandbox over a saved device stance, and the
+// section must read exactly as it does on the homepage.
+{
+  const CFB = (h) => (/<div class="pdxri-conflicts"[\s\S]*?<\/(?:ul|p)><\/div>/.exec(h) || [""])[0];
+  const live = (f) => R(f).replace(/<!--[\s\S]*?-->/g, "");
+  const PAGES = { "index.html": "/", "person.html": "/p/lee", "issue.html": "/i/lands_preserve", "ballot.html": "/ballot" };
+  const STORE_FILES = ["stance-sides.js", "my-stances.js", "your-file.js"];
+  for (const page of Object.keys(PAGES)) {
+    for (const f of [...STORE_FILES, "consistency.js", "related-issues.js"]) {
+      ok(live(page).includes(`<script defer src="/${f}"></script>`), `${page}: does not load /${f}`);
+    }
+  }
+  const OTHER = { support: "oppose", oppose: "support" };
+  // A drawer on `page` for a reader whose device store holds `sides`.
+  function drawerOn(page, sides, key = "lands_preserve") {
+    const win = boot(true);
+    const mem = {};
+    if (sides) {
+      const items = {};
+      for (const [k, position] of Object.entries(sides)) items[k] = { issueKey: k, position, priority: "medium", updatedAt: 1, createdAt: 1 };
+      mem.pdx_my_stances_v1 = JSON.stringify({ version: 1, items, tombstones: {}, settings: {}, updatedAt: 1 });
+    }
+    win.localStorage = {
+      getItem: (k) => (Object.prototype.hasOwnProperty.call(mem, k) ? mem[k] : null),
+      setItem: (k, v) => { mem[k] = String(v); }, removeItem: (k) => { delete mem[k]; },
+    };
+    win.location = Object.assign({}, win.location, { pathname: PAGES[page], href: "https://politidex.fyi" + PAGES[page] });
+    for (const f of STORE_FILES) {
+      try { vm.runInContext(R(f), win, { filename: f }); } catch (e) { failures.push(`${page}: ${f} threw on boot — ${e.message}`); }
+    }
+    ok(!!(win.PDXStances && win.PDXStanceSides), `${page}: the real stance reader and store did not publish`);
+    return { win, h: win.PDXConsistency.gapViewHtml("lee", key) || "" };
+  }
+  const base = boot(true);
+  const pm = base._polPositionMap("lee", base.CMP_DATA.lee) || {};
+  const kp = pm.lands_keep_public && pm.lands_keep_public.stance;
+  const want = `Protect Public Lands and Keep Public Lands Public: on Keep Public Lands Public they ${kp}; you ${OTHER[kp]}.`;
+  const plain = base.PDXConsistency.gapViewHtml("lee", "lands_preserve") || "";
+  // A related issue where Lee's stated side and record agree, held the same way.
+  const dirOf = (k) => (pm[k] && /^(support|oppose)$/.test(pm[k].stance) ? pm[k].stance : null);
+  const calm = base.PDXRelatedIssues.MAP.lands_preserve.find((k) => {
+    const d = dirOf(k), r = base.PDXRelatedIssues.recordOf("lee", k);
+    return d && (!r || r === (d === "support" ? "with" : "against"));
+  });
+  ok(!!calm, "fixture: no related issue where Lee's stated side and record agree");
+  const calmSide = calm ? dirOf(calm) : "support";
+  let first = null;
+  for (const page of Object.keys(PAGES)) {
+    // A conflicting saved stance → the section, the same line, the same place.
+    const { h } = drawerOn(page, { lands_keep_public: OTHER[kp] });
+    const cf = CFB(h);
+    ok(text(cf).startsWith("Where this conflicts"), `${page}: a conflicting saved stance shows no Where this conflicts section`);
+    const line = [...cf.matchAll(/<li class="pdxri-cf-item" data-pdxri-cf="lands_keep_public">[\s\S]*?<\/li>/g)].map((m) => text(m[0]))[0] || "";
+    eq(line, want, `${page}: the conflict line is not the homepage's wording`);
+    const at = h.indexOf('class="pdxri pdxri-drawer"'), c0 = h.indexOf('class="pdxri-conflicts"'), table = h.indexOf('<table class="pdxlg-t">');
+    ok(at >= 0 && c0 > at && c0 < table, `${page}: the section is not after the related-issues lines and before the vote rows`);
+    if (first === null) first = cf; else eq(cf, first, `${page}: the section differs from the homepage's`);
+    // A saved stance that agrees with Lee's stated side and record → the no-conflicts line.
+    eq(text(CFB(drawerOn(page, { [calm]: calmSide }).h)), "Where this conflictsNo conflicts with your stances on these issues.",
+      `${page}: a non-conflicting saved stance does not read the no-conflicts line`);
+    // Only a mixed stance, or none → no section, and the drawer is the plain one.
+    const mixed = drawerOn(page, { lands_keep_public: "mixed" }).h;
+    ok(!/pdxri-conflicts/.test(mixed), `${page}: a reader with only a mixed stance gets the section`);
+    const none = drawerOn(page, null).h;
+    ok(!/pdxri-conflicts/.test(none), `${page}: a reader with no saved stances gets the section`);
+    eq(none, plain, `${page}: with no saved stances the drawer changed`);
+  }
+  // No new routes: the three documents are served by the rewrites they already had.
+  const toml = R("netlify.toml").split("\n").filter((l) => !/^\s*#/.test(l)).join("\n");
+  ok(!/my-stances\.js|your-file\.js|stance-sides\.js/.test(toml), "a stance script got its own route");
+  const sw = R("sw.js");
+  for (const f of ["/stance-sides.js", "/my-stances.js"]) ok(sw.includes(`  '${f}',\n`), `${f} is not precached`);
+  // your-file.js stays out of the precache on purpose (a stale copy beside a fresh shell paints an overlay).
+  ok(!sw.includes("  '/your-file.js',\n"), "/your-file.js was added to the precache");
+  ok(/v522 - [\s\S]*?MIGRATION COST: none/.test(sw), "the shell's v522 note does not say no migration");
+  ok(Number((sw.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1]) >= 522, "the shell did not move for the three pages");
+}
+
 // ── wiring ──────────────────────────────────────────────────────────────────
 {
   const cs = R("consistency.js");

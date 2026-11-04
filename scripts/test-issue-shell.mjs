@@ -231,8 +231,11 @@ ok(resolveAddr("/") === null, "rewrite: / is not caught by any rewrite rule");
 // are the same rule applied to the same codebase.
 const DENY = [
   "compare-hub.js", "compare-table.js", "alignment-tool.js", "like-dislike.js",
-  "my-stances.js", "my-profile.js", "profile-connect.js", "account-graph.js",
-  "ballot-workspace.js", "door2-spine.js", "your-file.js", "your-ballot.js",
+  // my-stances.js and your-file.js left this list in v522: they are the two
+  // stance stores behind stance-sides.js, loaded so the drawer's "Where this
+  // conflicts" section can read the reader's saved stances.
+  "my-profile.js", "profile-connect.js", "account-graph.js",
+  "ballot-workspace.js", "door2-spine.js", "your-ballot.js",
   "archive-browse.js", "evidence-locker.js", "all-seeing-eye.js",
   "voter-hub-location.js", "voter-hub.js", "journey.js", "support-route.js",
   "support-lane.js", "self-defection.js",
@@ -479,13 +482,17 @@ const personLines = person.split("\n");
 //
 // IT MOVED BY FIVE in the one-portrait pass: person.html gained roster-portrait.js
 // and its note beside district-board.js. Same bytes, found at 2816–3011.
+//
+// IT MOVED BY SIX in v522: person.html gained stance-sides.js, my-stances.js
+// (with their note) and your-file.js for the drawer's "Where this conflicts"
+// section. Same bytes, found at 2822–3017.
 const COPIES = [
   [1405, 1920, "the promise ledger and the deferred-event capture (firebase-boot.js reads _firestoreLoaded and _checkAndTrigger as bare identifiers)"],
   [2005, 2059, "the Firebase compat bundles, the key injection, the synchronous stub and firebase-boot.js"],
   [2062, 2096, "the split-seam stubs (_pdxMandateForIssue is called unguarded from inside stance-helpers.js)"],
   [2114, 2158, "the share furniture share-preview.ts rewrites"],
   [2221, 2224, "the Bebas Neue / Barlow preload swap"],
-  [2816, 3011, "the PWA runtime and the service-worker registration"],
+  [2822, 3017, "the PWA runtime and the service-worker registration"],
 ];
 for (const [a, b, what] of COPIES) {
   // AN EMPTY OR OUT-OF-RANGE WINDOW IS A DEAD PIN, NOT A PASSING ONE. Checked
@@ -690,6 +697,7 @@ ok(/<body class="bg-navy-900 text-white font-body">/.test(html),
   const EXEMPT = new Set([
     "/firebase-config.js",          // written per request by an edge function; a precached copy is a stale one
     "/politician-stances-ext.js",   // 1.1 MB of long-tail officials, fetchpriority=low, runtime entry on purpose
+    "/your-file.js",                // kept out of the precache on purpose (me-document / mobile-body-lock): a stale copy beside a fresh shell paints an overlay
   ]);
   const missing = localSrcs.filter((s) => !EXEMPT.has(s) && !shellAssets.has(s));
   ok(missing.length === 0,

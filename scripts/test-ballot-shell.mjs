@@ -221,7 +221,10 @@ const DENY = [
   "issue-view.css", "issue-compare.css",
   // The homepage: its own weight, its own products.
   "app.css", "app-2.css", "tailwind.css", "compare-hub.js", "hero-showcase",
-  "who-represents-me.js", "my-stances.js", "district-room.js", "archive",
+  // my-stances.js left this list in v522: with your-file.js it is one of the
+  // two stance stores behind stance-sides.js, loaded for the drawer's "Where
+  // this conflicts" section.
+  "who-represents-me.js", "district-room.js", "archive",
   "pdx-lazy-data.js", "pdx-stability.js", "door2-spine.js",
   // No Firebase SDK and no firebase-boot.js: the desk reads the live candidate
   // profiles over one REST list (ballot-live-roster.js), keyed by the
