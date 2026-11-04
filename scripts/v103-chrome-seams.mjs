@@ -3675,6 +3675,15 @@ export const DECLARED_STANCE_PASSES = [
     // Senate, five Michigan House.
     pids: ["theresa_brooks", "jaime_churches", "jan_maino", "alex_hawkins", "joseph_mcclusky", "sarah_pounds"],
   },
+  {
+    pass: "newly_elected_state_legislative_stated_nov2026_wave2",
+    // The second state legislative wave: November 3, 2026 winners on seats whose
+    // board already exists, held as candidates with no stance entries
+    // (db/newly-elected-state-legislative-stated-2026-11-wave2.json): four
+    // Colorado House, two Nevada Assembly, three Minnesota Senate.
+    pids: ["jillaire_mcmillan", "tommy_butler", "jeff_livingston", "steph_vigil",
+      "eileen_eady", "vinny_spotleson", "chris_ford", "kristy_janigo", "mark_legvold"],
+  },
 ];
 export const DECLARED_STANCE_PIDS = DECLARED_STANCE_PASSES.flatMap((d) => d.pids);
 const stanceTable = (src) => {

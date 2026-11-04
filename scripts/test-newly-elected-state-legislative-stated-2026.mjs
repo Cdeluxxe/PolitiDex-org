@@ -37,6 +37,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { DECLARED_STANCE_PASSES } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -205,7 +206,11 @@ section("4 · nothing else moved; no new route or gate; no shell move, no migrat
     for (const pid of SET) ok(!(pid in before), `${pid} already had stance entries at the base`);
     const others = Object.keys(before);
     ok(others.every((pid) => JSON.stringify(before[pid]) === JSON.stringify(after[pid])), "another person's stance entries changed");
-    eq(Object.keys(after).length, others.length + SET.length, "a person other than the set was added");
+    // People a LATER declared stance pass added (v103-chrome-seams.mjs) are that
+    // pass's product, pinned by its own suite.
+    const own = DECLARED_STANCE_PASSES.findIndex((d) => d.pass === "newly_elected_state_legislative_stated_nov2026");
+    const later = new Set(DECLARED_STANCE_PASSES.slice(own + 1).flatMap((d) => d.pids));
+    eq(Object.keys(after).filter((pid) => !later.has(pid)).length, others.length + SET.length, "a person other than the set was added");
     for (const f of ["politician-stances-core.js", "cmp-data.js", "cmp-data-detail.js", "related-issues.js", "consistency.js",
       "stance-sides.js", "my-stances.js", "voting-record.js", "person.html", "index.html", "issue.html", "ballot.html", "netlify.toml", "_redirects"]) {
       const b = BASE(f);
