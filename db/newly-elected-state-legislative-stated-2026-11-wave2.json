@@ -1,0 +1,162 @@
+{
+  "_note": "Newly elected state legislative members, stated positions, second wave (November 2026): Colorado, Nevada and Minnesota. The November 3, 2026 State Senate and State House (Nevada: Assembly) winners on seats whose district board already exists, whom the roster held as candidate rows with no stance entries, and the issue keys their stated positions were filed on in politician-stances.js (regenerated into politician-stances-ext.js). Every entry is the member-elect's own published position, read from the campaign's own priorities, issues or platform page and marked claim:'campaign'; nothing is inferred from party. Profiles, roster rows, vote records, the drawer and the related-issues map are unchanged. The Michigan wave is db/newly-elected-state-legislative-stated-2026-11.json. Read by scripts/test-newly-elected-state-legislative-stated-2026-wave2.mjs.",
+  "read": "2026-11-04",
+  "states": [
+    "co",
+    "nv",
+    "mn"
+  ],
+  "boards": "Every seat in the set already has a district board (district-<state>-<sd|hd>-<n>.html); no board was opened for this pass.",
+  "leftOut": [
+    {
+      "pid": "michelle_tweed",
+      "seat": "co-statehouse-21",
+      "reason": "Leading by 367 votes on 2026-11-04, but no outlet had called the race and the county clerk named it as a possible recount; left out until the win is settled."
+    },
+    {
+      "pid": "kevin_leung",
+      "seat": "co-statesenate-30",
+      "reason": "Won Colorado Senate 30, but his campaign site has no issues or priorities page, only biography; positions found only in voter guides and news summaries are left out."
+    },
+    {
+      "pid": "jacki_marsh",
+      "seat": "co-statehouse-51",
+      "reason": "Won Colorado House 51, but no campaign issues page of her own was found; positions appear only in a news profile."
+    },
+    {
+      "pid": "angela_nelson",
+      "seat": "mn-statesenate-35",
+      "reason": "Won Minnesota Senate 35, but her campaign site could not be found or read; positions appear only in news summaries."
+    }
+  ],
+  "members": [
+    {
+      "pid": "jillaire_mcmillan",
+      "name": "Jillaire McMillan",
+      "office": "Colorado State House (District 19)",
+      "seat": "co-statehouse-19",
+      "raceCall": "https://gazette.com/2026/11/04/7-colorado-legislative-seats-flipped-as-democrats-gain-supermajority/",
+      "source": "https://www.jillaireforcolorado.com/issues",
+      "issueKeys": [
+        "public_schools",
+        "pro_choice",
+        "gun_safety",
+        "housing_support",
+        "climate_action"
+      ]
+    },
+    {
+      "pid": "tommy_butler",
+      "name": "Tommy Butler",
+      "office": "Colorado State House (District 50)",
+      "seat": "co-statehouse-50",
+      "raceCall": "https://gazette.com/2026/11/04/7-colorado-legislative-seats-flipped-as-democrats-gain-supermajority/",
+      "source": "https://www.butlerforhd50.com/on-the-issues-1",
+      "issueKeys": [
+        "housing_support",
+        "public_schools",
+        "infrastructure",
+        "child_care"
+      ]
+    },
+    {
+      "pid": "jeff_livingston",
+      "name": "Jeff K. Livingston",
+      "office": "Colorado State House (District 15)",
+      "seat": "co-statehouse-15",
+      "raceCall": "https://gazette.com/2026/11/04/7-colorado-legislative-seats-flipped-as-democrats-gain-supermajority/",
+      "source": "https://jefflivingstonforcolorado.com/",
+      "issueKeys": [
+        "housing_support",
+        "econ_corp_account",
+        "econ_workers",
+        "public_schools"
+      ]
+    },
+    {
+      "pid": "steph_vigil",
+      "name": "Steph Vigil",
+      "office": "Colorado State House (District 16)",
+      "seat": "co-statehouse-16",
+      "raceCall": "https://rockymountainvoice.com/2026/11/04/colorado-democrats-hit-two-thirds-as-republicans-lose-7-legislative-seats/",
+      "source": "https://www.vigilforcolorado.com/issues",
+      "issueKeys": [
+        "housing_build",
+        "transit",
+        "climate_action",
+        "healthcare",
+        "public_schools"
+      ]
+    },
+    {
+      "pid": "eileen_eady",
+      "name": "Eileen Eady",
+      "office": "Nevada State Assembly (District 4)",
+      "seat": "nv-statehouse-4",
+      "raceCall": "https://thenevadaindependent.com/article/live-updates-nevadas-2026-election-results",
+      "source": "https://eadyfornevada.com/",
+      "issueKeys": [
+        "housing_support",
+        "public_schools",
+        "healthcare"
+      ]
+    },
+    {
+      "pid": "vinny_spotleson",
+      "name": "Vinny Spotleson",
+      "office": "Nevada State Assembly (District 41)",
+      "seat": "nv-statehouse-41",
+      "raceCall": "https://thenevadaindependent.com/article/live-updates-nevadas-2026-election-results",
+      "source": "https://winwithvin.org/issues/",
+      "issueKeys": [
+        "transit",
+        "housing_support"
+      ]
+    },
+    {
+      "pid": "chris_ford",
+      "name": "Chris Ford",
+      "office": "Minnesota State Senate (District 32)",
+      "seat": "mn-statesenate-32",
+      "raceCall": "https://www.mprnews.org/story/2026/11/04/democrat-chris-ford-flips-state-senate-seat-in-anoka-county",
+      "source": "https://www.chrisfordformn.com/priorities",
+      "issueKeys": [
+        "gov_transparency",
+        "housing",
+        "healthcare_costs",
+        "health_drug_prices",
+        "public_schools"
+      ]
+    },
+    {
+      "pid": "kristy_janigo",
+      "name": "Kristy Janigo",
+      "office": "Minnesota State Senate (District 37)",
+      "seat": "mn-statesenate-37",
+      "raceCall": "https://www.mprnews.org/story/2026/11/04/dfler-kristy-janigo-flips-minnesota-senate-seat-in-district-37",
+      "source": "https://kristyjanigoformn.com/priorities/",
+      "issueKeys": [
+        "cost_living",
+        "healthcare_costs",
+        "public_schools",
+        "gov_transparency",
+        "veterans"
+      ]
+    },
+    {
+      "pid": "mark_legvold",
+      "name": "Mark Legvold",
+      "office": "Minnesota State Senate (District 58)",
+      "seat": "mn-statesenate-58",
+      "raceCall": "https://www.southernminn.com/northfield_news/news/legvold-flips-incumbent-lieske-s-state-senate-seat/article_b5c0310d-54cc-4ee1-afe4-46acdb984641.html",
+      "source": "https://legvold4mnsenate58.com/policy",
+      "issueKeys": [
+        "public_schools",
+        "rural_ag",
+        "broadband",
+        "gov_transparency",
+        "econ_smallbiz"
+      ]
+    }
+  ]
+}
