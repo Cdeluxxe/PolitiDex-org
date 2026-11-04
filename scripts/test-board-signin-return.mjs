@@ -231,6 +231,14 @@ section("2 · after the sheet settles, the reader is back on the board");
   cw._joinArrival();
   cw.closeAuthModal();
   eq(cw.__assigned[0], SD3, "composer: “Sign in to start” did not come back to /district/ut-sd-3");
+
+  // "Sign in to prove you live here", under the locked line, is the same door.
+  const p = hrefOf(c.html, "pdxdc-btn pdxdc-prove-signin");
+  eq(p, joinFor(SD3), "composer: “Sign in to prove you live here” does not carry the board as its intent");
+  const pw = frontPage(p);
+  pw._joinArrival();
+  pw.closeAuthModal();
+  eq(pw.__assigned[0], SD3, "composer: “Sign in to prove you live here” did not come back to /district/ut-sd-3");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

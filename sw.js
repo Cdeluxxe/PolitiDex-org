@@ -11547,7 +11547,19 @@
 //     version. No location key or other stored reader state is read or
 //     rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v518';
+// v519 - ONE NEXT STEP UNDER THE LOCKED LINE.
+//     On every board with a composer, the locked line is now followed directly
+//     by one control. A signed-in reader the server calls unverified for this
+//     seat sees "Prove you live here", which starts the existing residency
+//     check for this exact seat (the button moved up from under the form). A
+//     signed-out reader sees "Sign in to prove you live here", carrying the
+//     board as PDXReturn's join intent so sign-in comes back to it. A verified
+//     reader sees neither; the verified line and the locked line are unchanged.
+//     No route, gate, endpoint or membership cap change. district-composer.js
+//     is precached and changed, so the shell moves one version. Nothing stored
+//     is read or rewritten.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v519';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
