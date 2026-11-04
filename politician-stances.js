@@ -5249,6 +5249,89 @@
       { topic:'Reproductive Rights', icon:'✊', pos:'support', issueKey:'pro_choice', issueStance:'support', claim:'campaign', text:'On abortion access and reproductive rights, Shaheen says "I will always and tirelessly fight for both."',
         detail:'Campaign claim, not a vote — Stefany Shaheen for Congress — Priorities.', source:{label:'Stefany Shaheen for Congress — Priorities', url:'https://stefanyshaheen.com/priorities/'} },
     ],
+    // ── 2026 newly elected state legislators, stated positions (Nov 2026) ───────
+    // The November 3, 2026 State Senate and State House winners on seats whose
+    // district board already exists, whom the roster held as candidate rows with
+    // no stance entries. Each line is the member-elect's own published position
+    // (the campaign's own priorities or platform page), filed on an existing issue
+    // key and marked a CAMPAIGN CLAIM, NOT A VOTE, so the drawer's stated line and
+    // "Where this conflicts" can read it until a voting record lands. Nothing is
+    // inferred from party. The set, each source and each race call are recorded in
+    // db/newly-elected-state-legislative-stated-2026-11.json.
+    theresa_brooks: [ // Theresa Brooks — Michigan State Senate (District 9) — elected Nov. 3, 2026; campaign claims only, no voting record
+      { topic:'Protect Access to Health Care', icon:'🏥', pos:'support', issueKey:'healthcare', issueStance:'support', claim:'campaign', text:'Brooks lists "Protect Access to Quality Health Care" among the priorities she says she will fight for as State Senator.',
+        detail:'Campaign claim, not a vote — Dr. Theresa Brooks for Senate — Priorities.', source:{label:'Dr. Theresa Brooks for Senate — Priorities', url:'https://www.drbrooksforsenate.com/issues'} },
+      { topic:'Prescription Costs', icon:'💉', pos:'support', issueKey:'health_drug_prices', issueStance:'support', claim:'campaign', text:'Brooks lists "Make Prescription Medications More Affordable" as a campaign priority.',
+        detail:'Campaign claim, not a vote — Dr. Theresa Brooks for Senate — Priorities.', source:{label:'Dr. Theresa Brooks for Senate — Priorities', url:'https://www.drbrooksforsenate.com/issues'} },
+      { topic:'Child Care Costs', icon:'🧸', pos:'support', issueKey:'child_care', issueStance:'support', claim:'campaign', text:'Under child care, Brooks pledges to "Ease the Financial Burden of Care for Families."',
+        detail:'Campaign claim, not a vote — Dr. Theresa Brooks for Senate — Priorities.', source:{label:'Dr. Theresa Brooks for Senate — Priorities', url:'https://www.drbrooksforsenate.com/issues'} },
+      { topic:'Strong Schools', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', claim:'campaign', text:'Brooks lists "Invest in Strong Schools and Modern Infrastructure" as an education priority.',
+        detail:'Campaign claim, not a vote — Dr. Theresa Brooks for Senate — Priorities.', source:{label:'Dr. Theresa Brooks for Senate — Priorities', url:'https://www.drbrooksforsenate.com/issues'} },
+      { topic:'Reproductive Health', icon:'✊', pos:'support', issueKey:'pro_choice', issueStance:'support', claim:'campaign', text:'Brooks lists "Protect and Strengthen Reproductive Health" among her Senate priorities.',
+        detail:'Campaign claim, not a vote — Dr. Theresa Brooks for Senate — Priorities.', source:{label:'Dr. Theresa Brooks for Senate — Priorities', url:'https://www.drbrooksforsenate.com/issues'} },
+    ],
+    jaime_churches: [ // Jaime Churches — Michigan State House (District 27) — elected Nov. 3, 2026; campaign claims only, no voting record
+      { topic:'Roads, Bridges and Rail', icon:'🚧', pos:'support', issueKey:'infrastructure', issueStance:'support', claim:'campaign', text:'Churches says "We need to invest in the deteriorating infrastructure," pledging funding for repairs and rail safety.',
+        detail:'Campaign claim, not a vote — Jaime Churches for State Representative — Priorities.', source:{label:'Jaime Churches for State Representative — Priorities', url:'https://www.jaimechurches.com/priorities'} },
+      { topic:'Elevate Education', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', claim:'campaign', text:'Churches pledges to invest in students, schools and educators, with reading intervention in every elementary building and a look at universal pre-K.',
+        detail:'Campaign claim, not a vote — Jaime Churches for State Representative — Priorities.', source:{label:'Jaime Churches for State Representative — Priorities', url:'https://www.jaimechurches.com/priorities'} },
+      { topic:'Higher Pay and Bargaining', icon:'🛠', pos:'support', issueKey:'econ_workers', issueStance:'support', claim:'campaign', text:'Churches says she would "advocate for a higher minimum pay in Michigan" and that supporting workers\' right to collectively bargain is important.',
+        detail:'Campaign claim, not a vote — Jaime Churches for State Representative — Priorities.', source:{label:'Jaime Churches for State Representative — Priorities', url:'https://www.jaimechurches.com/priorities'} },
+      { topic:'Support Small Businesses', icon:'🏪', pos:'support', issueKey:'econ_smallbiz', issueStance:'support', claim:'campaign', text:'Churches lists "Support Small Businesses" as an economic priority, saying "Small businesses are the fabric of our community."',
+        detail:'Campaign claim, not a vote — Jaime Churches for State Representative — Priorities.', source:{label:'Jaime Churches for State Representative — Priorities', url:'https://www.jaimechurches.com/priorities'} },
+      { topic:'Right to Choose', icon:'✊', pos:'support', issueKey:'pro_choice', issueStance:'support', claim:'campaign', text:'Churches says "I will advocate and protect a woman\'s right to choose."',
+        detail:'Campaign claim, not a vote — Jaime Churches for State Representative — Priorities.', source:{label:'Jaime Churches for State Representative — Priorities', url:'https://www.jaimechurches.com/priorities'} },
+    ],
+    jan_maino: [ // Jan Maino — Michigan State House (District 46) — elected Nov. 3, 2026; campaign claims only, no voting record
+      { topic:'Lowering the Cost of Living', icon:'🛒', pos:'support', issueKey:'cost_living', issueStance:'support', claim:'campaign', text:'Maino says everyone should be able to afford the basics and pledges to "lower everyday costs" in Lansing.',
+        detail:'Campaign claim, not a vote — Jan Maino for Michigan — Priorities.', source:{label:'Jan Maino for Michigan — Priorities', url:'https://mainoformichigan.com/priorities/'} },
+      { topic:'Affordable Housing', icon:'🏘', pos:'support', issueKey:'housing_support', issueStance:'support', claim:'campaign', text:'Under lowering the cost of living, Maino pledges to "expand access to affordable housing."',
+        detail:'Campaign claim, not a vote — Jan Maino for Michigan — Priorities.', source:{label:'Jan Maino for Michigan — Priorities', url:'https://mainoformichigan.com/priorities/'} },
+      { topic:'Investing in Public Schools', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', claim:'campaign', text:'Maino says "every child deserves a strong public school and a fair shot at success" and pledges to keep "standing up for public education."',
+        detail:'Campaign claim, not a vote — Jan Maino for Michigan — Priorities.', source:{label:'Jan Maino for Michigan — Priorities', url:'https://mainoformichigan.com/priorities/'} },
+      { topic:'Good Paying Jobs', icon:'🛠', pos:'support', issueKey:'econ_workers', issueStance:'support', claim:'campaign', text:'Maino says she "believes in the dignity of work and an economy that rewards it," and backs unions and job training.',
+        detail:'Campaign claim, not a vote — Jan Maino for Michigan — Priorities.', source:{label:'Jan Maino for Michigan — Priorities', url:'https://mainoformichigan.com/priorities/'} },
+      { topic:'Mental Health Care', icon:'🧠', pos:'support', issueKey:'health_mental', issueStance:'support', claim:'campaign', text:'Maino says "mental health care is health care" and pledges to "expand access to counseling and crisis services."',
+        detail:'Campaign claim, not a vote — Jan Maino for Michigan — Priorities.', source:{label:'Jan Maino for Michigan — Priorities', url:'https://mainoformichigan.com/priorities/'} },
+    ],
+    alex_hawkins: [ // Alex Hawkins — Michigan State House (District 55) — elected Nov. 3, 2026; campaign claims only, no voting record
+      { topic:'Strong Schools', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', claim:'campaign', text:'Hawkins says "Put classrooms first, not politics or bureaucracy," pledging to back teachers and protect public schools.',
+        detail:'Campaign claim, not a vote — Alex Hawkins for State Representative — The Issues.', source:{label:'Alex Hawkins for State Representative — The Issues', url:'https://www.alexhawkins.org/issues'} },
+      { topic:'Safe, Healthy Communities', icon:'🧠', pos:'support', issueKey:'health_mental', issueStance:'support', claim:'campaign', text:'Hawkins says "Public safety starts with prevention" and pledges to fight for mental health services and violence prevention.',
+        detail:'Campaign claim, not a vote — Alex Hawkins for State Representative — The Issues.', source:{label:'Alex Hawkins for State Representative — The Issues', url:'https://www.alexhawkins.org/issues'} },
+      { topic:'Lower Everyday Costs', icon:'🛒', pos:'support', issueKey:'cost_living', issueStance:'support', claim:'campaign', text:'Hawkins says he will "fight to lower the everyday costs hitting families the hardest."',
+        detail:'Campaign claim, not a vote — Alex Hawkins for State Representative — The Issues.', source:{label:'Alex Hawkins for State Representative — The Issues', url:'https://www.alexhawkins.org/issues'} },
+      { topic:'Government Accountability', icon:'🔍', pos:'support', issueKey:'gov_transparency', issueStance:'support', claim:'campaign', text:'Hawkins pledges to push for transparency and accountability for "a government that answers to the people, not lobbyists or insiders."',
+        detail:'Campaign claim, not a vote — Alex Hawkins for State Representative — The Issues.', source:{label:'Alex Hawkins for State Representative — The Issues', url:'https://www.alexhawkins.org/issues'} },
+    ],
+    joseph_mcclusky: [ // Joseph McClusky — Michigan State House (District 86) — elected Nov. 3, 2026; campaign claims only, no voting record
+      { topic:'Affordable Housing', icon:'🏘', pos:'support', issueKey:'housing_support', issueStance:'support', claim:'campaign', text:'Noting a Holland one-bedroom averages over $1,400 a month, McClusky pledges to "expand access to affordable housing, increase supply."',
+        detail:'Campaign claim, not a vote — Joseph McClusky for State Representative — Platform.', source:{label:'Joseph McClusky for State Representative — Platform', url:'https://www.mccluskyformi.com/platform'} },
+      { topic:'Lower Healthcare Costs', icon:'💵', pos:'support', issueKey:'healthcare_costs', issueStance:'support', claim:'campaign', text:'McClusky pledges to "protect care, lower costs, and make it easier for Michigan families to get the care they need."',
+        detail:'Campaign claim, not a vote — Joseph McClusky for State Representative — Platform.', source:{label:'Joseph McClusky for State Representative — Platform', url:'https://www.mccluskyformi.com/platform'} },
+      { topic:'Prevailing Wage', icon:'🛠', pos:'support', issueKey:'econ_workers', issueStance:'support', claim:'campaign', text:'McClusky pledges to keep "fighting for prevailing wage, and other pro worker laws" and to expand pathways to skilled-trades careers.',
+        detail:'Campaign claim, not a vote — Joseph McClusky for State Representative — Platform.', source:{label:'Joseph McClusky for State Representative — Platform', url:'https://www.mccluskyformi.com/platform'} },
+      { topic:'No Corporate PAC Money', icon:'💸', pos:'support', issueKey:'campaign_finance', issueStance:'support', claim:'campaign', text:'McClusky says he "isn\'t taking Corporate PAC money because public service should be about people, not big money special interests."',
+        detail:'Campaign claim, not a vote — Joseph McClusky for State Representative — Platform.', source:{label:'Joseph McClusky for State Representative — Platform', url:'https://www.mccluskyformi.com/platform'} },
+      { topic:'Open Records for Lansing', icon:'🔍', pos:'support', issueKey:'gov_transparency', issueStance:'support', claim:'campaign', text:'Citing Michigan\'s 49th-place transparency ranking, McClusky would bring the Legislature and the Governor\'s office under the Freedom of Information Act.',
+        detail:'Campaign claim, not a vote — Joseph McClusky for State Representative — Platform.', source:{label:'Joseph McClusky for State Representative — Platform', url:'https://www.mccluskyformi.com/platform'} },
+      { topic:'Passenger Rail', icon:'🚆', pos:'support', issueKey:'transit', issueStance:'support', claim:'campaign', text:'McClusky pledges to fight "for expanded passenger rail connections between Holland, Detroit, and Chicago."',
+        detail:'Campaign claim, not a vote — Joseph McClusky for State Representative — Platform.', source:{label:'Joseph McClusky for State Representative — Platform', url:'https://www.mccluskyformi.com/platform'} },
+    ],
+    sarah_pounds: [ // Sarah Pounds — Michigan State House (District 54) — elected Nov. 3, 2026; campaign claims only, no voting record
+      { topic:'Making Life More Affordable', icon:'🛒', pos:'support', issueKey:'cost_living', issueStance:'support', claim:'campaign', text:'Pounds says "Everything I care about comes back to affordability," pledging to cut costs for utilities, healthcare, child care and food.',
+        detail:'Campaign claim, not a vote — Elect Sarah Pounds — Priorities.', source:{label:'Elect Sarah Pounds — Priorities', url:'https://www.electsarahpounds.com/priorities'} },
+      { topic:'Housing People Can Afford', icon:'🏘', pos:'support', issueKey:'housing_support', issueStance:'support', claim:'campaign', text:'Pounds says families, seniors and young people "should be able to find a home they can afford" and pledges to broaden housing options.',
+        detail:'Campaign claim, not a vote — Elect Sarah Pounds — Priorities.', source:{label:'Elect Sarah Pounds — Priorities', url:'https://www.electsarahpounds.com/priorities'} },
+      { topic:'Strong Public Schools', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', claim:'campaign', text:'Pounds, a mother of four public-school students, pledges to "Fully and predictably fund public schools" and keep strong teachers.',
+        detail:'Campaign claim, not a vote — Elect Sarah Pounds — Priorities.', source:{label:'Elect Sarah Pounds — Priorities', url:'https://www.electsarahpounds.com/priorities'} },
+      { topic:'Good Jobs', icon:'🛠', pos:'support', issueKey:'econ_workers', issueStance:'support', claim:'campaign', text:'Pounds backs unions and prevailing wage, trades training, and protections for workers as AI and automation spread.',
+        detail:'Campaign claim, not a vote — Elect Sarah Pounds — Priorities.', source:{label:'Elect Sarah Pounds — Priorities', url:'https://www.electsarahpounds.com/priorities'} },
+      { topic:'Healthcare People Can Afford', icon:'💵', pos:'support', issueKey:'healthcare_costs', issueStance:'support', claim:'campaign', text:'Pounds says "No family should delay care, ration medication or risk financial ruin because someone gets sick," and would cut drug and out-of-pocket costs.',
+        detail:'Campaign claim, not a vote — Elect Sarah Pounds — Priorities.', source:{label:'Elect Sarah Pounds — Priorities', url:'https://www.electsarahpounds.com/priorities'} },
+      { topic:'Reproductive Freedom', icon:'✊', pos:'support', issueKey:'pro_choice', issueStance:'support', claim:'campaign', text:'Under affordable healthcare, Pounds lists support for reproductive freedom.',
+        detail:'Campaign claim, not a vote — Elect Sarah Pounds — Priorities.', source:{label:'Elect Sarah Pounds — Priorities', url:'https://www.electsarahpounds.com/priorities'} },
+    ],
     // ── 2026 federal independent and third-party nominees, light profiles (Oct 2026)
     // Same shape as the block above: each line is the candidate's own published
     // claim (campaign site, or a direct quote in a story that quotes them), filed

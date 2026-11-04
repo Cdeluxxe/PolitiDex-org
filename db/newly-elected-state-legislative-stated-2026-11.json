@@ -1,0 +1,115 @@
+{
+  "_note": "Newly elected state legislative members, stated positions (November 2026). The November 3, 2026 State Senate and State House winners on seats whose district board already exists, whom the roster held as candidate rows with no stance entries, and the issue keys their stated positions were filed on in politician-stances.js (regenerated into politician-stances-ext.js). Every entry is the member-elect's own published position, read from the campaign's own priorities or platform page and marked claim:'campaign'; nothing is inferred from party. Profiles, roster rows, vote records, the drawer and the related-issues map are unchanged. Read by scripts/test-newly-elected-state-legislative-stated-2026.mjs.",
+  "read": "2026-11-04",
+  "boards": "Every seat in the set already has a district board (district-<state>-<sd|hd>-<n>.html); no board was opened for this pass.",
+  "leftOut": [
+    {
+      "pid": "aaron_schweiger",
+      "seat": "mn-statehouse-6",
+      "reason": "Won Minnesota House 3B, but the campaign site (aaronformn.com) did not render readable issue text; positions found only in news and search summaries are left out."
+    },
+    {
+      "pid": "jim_haadsma",
+      "seat": "mi-statehouse-44",
+      "reason": "Won Michigan House 44, but no readable campaign issues page of his own was found; positions found only in news and aggregator summaries are left out."
+    },
+    {
+      "pid": "sherry_berecz",
+      "seat": "mi-statehouse-28",
+      "reason": "Race call not confirmed: reports read on 2026-11-04 disagree on the outcome."
+    }
+  ],
+  "members": [
+    {
+      "pid": "theresa_brooks",
+      "name": "Theresa Brooks",
+      "office": "Michigan State Senate (District 9)",
+      "seat": "mi-statesenate-9",
+      "raceCall": "https://bridgemi.com/michigan-politics/democrats-take-full-control-of-legislature-michigan-government-what-to-expect/",
+      "source": "https://www.drbrooksforsenate.com/issues",
+      "issueKeys": [
+        "healthcare",
+        "health_drug_prices",
+        "child_care",
+        "public_schools",
+        "pro_choice"
+      ]
+    },
+    {
+      "pid": "jaime_churches",
+      "name": "Jaime Churches",
+      "office": "Michigan State House (District 27)",
+      "seat": "mi-statehouse-27",
+      "raceCall": "https://www.clickondetroit.com/decision-2026/2026/11/02/2026-wayne-county-general-election-results/",
+      "source": "https://www.jaimechurches.com/priorities",
+      "issueKeys": [
+        "infrastructure",
+        "public_schools",
+        "econ_workers",
+        "econ_smallbiz",
+        "pro_choice"
+      ]
+    },
+    {
+      "pid": "jan_maino",
+      "name": "Jan Maino",
+      "office": "Michigan State House (District 46)",
+      "seat": "mi-statehouse-46",
+      "raceCall": "https://thesuntimesnews.com/maino-unseats-schmaltz-as-area-voters-choose-state-lawmakers/",
+      "source": "https://mainoformichigan.com/priorities/",
+      "issueKeys": [
+        "cost_living",
+        "housing_support",
+        "public_schools",
+        "econ_workers",
+        "health_mental"
+      ]
+    },
+    {
+      "pid": "alex_hawkins",
+      "name": "Alex Hawkins",
+      "office": "Michigan State House (District 55)",
+      "seat": "mi-statehouse-55",
+      "raceCall": "https://wlns.com/your-local-election-hq/michigan-democrats-win-trifecta",
+      "source": "https://www.alexhawkins.org/issues",
+      "issueKeys": [
+        "public_schools",
+        "health_mental",
+        "cost_living",
+        "gov_transparency"
+      ]
+    },
+    {
+      "pid": "joseph_mcclusky",
+      "name": "Joseph McClusky",
+      "office": "Michigan State House (District 86)",
+      "seat": "mi-statehouse-86",
+      "raceCall": "https://www.michiganpublic.org/politics-government/2026-11-04/democrat-joseph-mcclusky-flips-michigan-86th-house-district",
+      "source": "https://www.mccluskyformi.com/platform",
+      "issueKeys": [
+        "housing_support",
+        "healthcare_costs",
+        "econ_workers",
+        "campaign_finance",
+        "gov_transparency",
+        "transit"
+      ]
+    },
+    {
+      "pid": "sarah_pounds",
+      "name": "Sarah Pounds",
+      "office": "Michigan State House (District 54)",
+      "seat": "mi-statehouse-54",
+      "raceCall": "https://lakeorionreview.com/articles/news/election-results-nov-3-2026-general-election/",
+      "source": "https://www.electsarahpounds.com/priorities",
+      "issueKeys": [
+        "cost_living",
+        "housing_support",
+        "public_schools",
+        "econ_workers",
+        "healthcare_costs",
+        "pro_choice"
+      ]
+    }
+  ]
+}

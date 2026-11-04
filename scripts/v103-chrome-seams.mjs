@@ -3667,6 +3667,14 @@ export const DECLARED_STANCE_PASSES = [
       "zach_dembo", "sean_mccann", "william_lawrence", "christina_hines", "richard_ojeda",
       "mitchell_berman", "rebecca_cooke", "stefany_shaheen"],
   },
+  {
+    pass: "newly_elected_state_legislative_stated_nov2026",
+    // The November 3, 2026 State Senate and State House winners on seats whose
+    // board already exists, held as candidates with no stance entries
+    // (db/newly-elected-state-legislative-stated-2026-11.json): one Michigan
+    // Senate, five Michigan House.
+    pids: ["theresa_brooks", "jaime_churches", "jan_maino", "alex_hawkins", "joseph_mcclusky", "sarah_pounds"],
+  },
 ];
 export const DECLARED_STANCE_PIDS = DECLARED_STANCE_PASSES.flatMap((d) => d.pids);
 const stanceTable = (src) => {
