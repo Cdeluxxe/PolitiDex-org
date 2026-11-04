@@ -8,6 +8,17 @@
 
    THE RULES IT KEEPS
 
+   · CROSS-TOPIC PAIRS (v523). Fourteen pairs join topics where a stated
+     position and a record often part ways, so "Where this conflicts" has
+     them to check: public lands and housing supply (Keep Public Lands Public
+     and Local Land Control with Build More Housing), housing and red tape
+     (permitting, regulation), energy and prices (domestic production,
+     energy independence, data-center power and climate action with the cost
+     of living; production with economic growth), immigration and work (legal
+     immigration and pathways to citizenship with workers and farms), and the
+     border and spending (border enforcement with spending cuts). Each is an existing key
+     on both sides, listed at the end of both keys' lists.
+
    · ONE MAP. MAP below is the only place that decides what is related: issue
      key → the keys that share its ground. It is symmetric (if A lists B, B
      lists A) and names only keys in the issue register. Nothing is derived from
@@ -56,6 +67,29 @@
      swapped in place), with a /p/<pid>?issue=<key> href to fall back on. The
      open issue in a drawer is never a link.
 
+   · WHERE THIS CONFLICTS. conflictsHtml(pid, p, key): for a reader with
+     saved stances (window.PDXStanceSides, the one published reader of both
+     stance stores), one short section after the drawer's related-issues block.
+     The pairs are the open issue with each related issue the drawer already
+     lists — MAP is read, never extended. A pair is listed when, on either of
+     its two issues, the person's stated position or one-way record runs the
+     other way from the reader's side. Each line names both issues, then the
+     side that runs the other way — the stated word when that is the one, else
+     the record — and the reader's own side:
+       Protect Public Lands and Keep Public Lands Public: on Keep Public Lands
+       Public they oppose; you support.
+     A reader with stances and no such pair reads "No conflicts with your
+     stances on these issues." A reader with no saved stances, a document
+     with no stance reader on it, or an open issue with no listed related
+     issue gets no section. It is a list of lines, not a score: no count, no
+     percentage, no grade.
+
+   · SHOW N MORE. In a drawer, more than four related-issues lines show the
+     first four and a "Show N more" button at the bottom of the block; more
+     than three conflicts lines show the first three the same way. The button
+     opens the rest and, pressed again ("Show fewer"), closes them. The person
+     file's section and the no-conflicts line never collapse.
+
    · IT READS, IT DOES NOT WRITE. Nothing here touches Direction Match, scores,
      effect lines, the vote table, or any other section. Labels come from the
      issue register (window.ISSUE_MAP), emoji stripped.
@@ -67,23 +101,23 @@
   // Issue key → related issue keys. Order here is print order.
   var MAP = {
     lands_preserve: ['lands_keep_public', 'energy_production', 'gov_regulation', 'lands_local', 'lands_balance', 'lands_energy', 'property_rights', 'permitting_reform', 'water', 'water_storage', 'datacenter_water', 'disaster_resilience', 'climate_action'],
-    lands_keep_public: ['lands_preserve', 'energy_production', 'gov_regulation', 'lands_local', 'lands_balance', 'lands_energy', 'property_rights', 'permitting_reform', 'water', 'water_storage', 'datacenter_water'],
-    lands_local: ['lands_preserve', 'lands_keep_public', 'lands_balance', 'lands_energy', 'property_rights', 'disaster_resilience', 'climate_action', 'states_federal_power', 'state_standing', 'guard_authority'],
+    lands_keep_public: ['lands_preserve', 'energy_production', 'gov_regulation', 'lands_local', 'lands_balance', 'lands_energy', 'property_rights', 'permitting_reform', 'water', 'water_storage', 'datacenter_water', 'housing_build'],
+    lands_local: ['lands_preserve', 'lands_keep_public', 'lands_balance', 'lands_energy', 'property_rights', 'disaster_resilience', 'climate_action', 'states_federal_power', 'state_standing', 'guard_authority', 'housing_build'],
     lands_balance: ['lands_preserve', 'lands_keep_public', 'lands_local', 'lands_energy', 'property_rights', 'disaster_resilience', 'climate_action'],
     lands_energy: ['lands_preserve', 'lands_keep_public', 'lands_local', 'lands_balance', 'property_rights', 'energy_production', 'permitting_reform', 'gov_regulation', 'enviro_energy', 'climate_action', 'enviro_balance', 'datacenter_power'],
     property_rights: ['lands_preserve', 'lands_keep_public', 'lands_local', 'lands_balance', 'lands_energy'],
-    energy_production: ['lands_preserve', 'lands_keep_public', 'lands_energy', 'permitting_reform', 'gov_regulation', 'enviro_energy', 'climate_action', 'enviro_balance', 'datacenter_power'],
-    permitting_reform: ['lands_preserve', 'lands_keep_public', 'lands_energy', 'energy_production', 'gov_regulation', 'enviro_energy', 'climate_action', 'enviro_balance', 'datacenter_power', 'econ_growth', 'infrastructure', 'broadband', 'transit', 'water_storage'],
-    gov_regulation: ['lands_preserve', 'lands_keep_public', 'lands_energy', 'energy_production', 'permitting_reform', 'climate_action', 'enviro_balance', 'econ_growth', 'econ_smallbiz', 'econ_balance', 'econ_workers', 'econ_corp_account', 'lower_taxes', 'civil_service_control', 'gov_waste'],
+    energy_production: ['lands_preserve', 'lands_keep_public', 'lands_energy', 'permitting_reform', 'gov_regulation', 'enviro_energy', 'climate_action', 'enviro_balance', 'datacenter_power', 'cost_living', 'econ_growth'],
+    permitting_reform: ['lands_preserve', 'lands_keep_public', 'lands_energy', 'energy_production', 'gov_regulation', 'enviro_energy', 'climate_action', 'enviro_balance', 'datacenter_power', 'econ_growth', 'infrastructure', 'broadband', 'transit', 'water_storage', 'housing_build'],
+    gov_regulation: ['lands_preserve', 'lands_keep_public', 'lands_energy', 'energy_production', 'permitting_reform', 'climate_action', 'enviro_balance', 'econ_growth', 'econ_smallbiz', 'econ_balance', 'econ_workers', 'econ_corp_account', 'lower_taxes', 'civil_service_control', 'gov_waste', 'housing_build'],
     water: ['water_storage', 'datacenter_water', 'lands_preserve', 'lands_keep_public', 'datacenter_growth', 'datacenter_power', 'tech_innovation', 'rural_ag', 'health_rural', 'broadband'],
     water_storage: ['water', 'datacenter_water', 'lands_preserve', 'lands_keep_public', 'rural_ag', 'health_rural', 'broadband', 'infrastructure', 'transit', 'permitting_reform'],
     datacenter_water: ['water', 'water_storage', 'lands_preserve', 'lands_keep_public', 'datacenter_growth', 'datacenter_power', 'tech_innovation'],
     disaster_resilience: ['lands_preserve', 'lands_balance', 'lands_local', 'climate_action'],
-    climate_action: ['disaster_resilience', 'lands_preserve', 'lands_balance', 'lands_local', 'energy_production', 'enviro_energy', 'lands_energy', 'enviro_balance', 'datacenter_power', 'permitting_reform', 'gov_regulation', 'econ_growth'],
-    enviro_energy: ['energy_production', 'climate_action', 'lands_energy', 'enviro_balance', 'datacenter_power', 'permitting_reform'],
+    climate_action: ['disaster_resilience', 'lands_preserve', 'lands_balance', 'lands_local', 'energy_production', 'enviro_energy', 'lands_energy', 'enviro_balance', 'datacenter_power', 'permitting_reform', 'gov_regulation', 'econ_growth', 'cost_living'],
+    enviro_energy: ['energy_production', 'climate_action', 'lands_energy', 'enviro_balance', 'datacenter_power', 'permitting_reform', 'cost_living'],
     enviro_balance: ['energy_production', 'enviro_energy', 'climate_action', 'lands_energy', 'datacenter_power', 'permitting_reform', 'gov_regulation', 'econ_growth'],
-    datacenter_power: ['energy_production', 'enviro_energy', 'climate_action', 'lands_energy', 'enviro_balance', 'permitting_reform', 'datacenter_growth', 'datacenter_water', 'tech_innovation', 'water'],
-    econ_growth: ['climate_action', 'enviro_balance', 'gov_regulation', 'permitting_reform', 'econ_smallbiz', 'econ_balance', 'econ_workers', 'econ_corp_account', 'lower_taxes'],
+    datacenter_power: ['energy_production', 'enviro_energy', 'climate_action', 'lands_energy', 'enviro_balance', 'permitting_reform', 'datacenter_growth', 'datacenter_water', 'tech_innovation', 'water', 'cost_living'],
+    econ_growth: ['climate_action', 'enviro_balance', 'gov_regulation', 'permitting_reform', 'econ_smallbiz', 'econ_balance', 'econ_workers', 'econ_corp_account', 'lower_taxes', 'energy_production'],
     datacenter_growth: ['datacenter_water', 'datacenter_power', 'tech_innovation', 'water', 'tech_balance', 'privacy_rights', 'crypto_cbdc'],
     tech_innovation: ['datacenter_growth', 'datacenter_water', 'datacenter_power', 'water', 'free_speech', 'privacy_rights', 'tech_balance', 'crypto_cbdc'],
     lower_taxes: ['tax_middle_class', 'prop_tax', 'property_tax', 'national_debt', 'gov_balance', 'gov_services', 'econ_growth', 'econ_smallbiz', 'econ_balance', 'econ_workers', 'econ_corp_account', 'gov_regulation'],
@@ -93,7 +127,7 @@
     national_debt: ['lower_taxes', 'tax_middle_class', 'prop_tax', 'property_tax', 'gov_balance', 'gov_services', 'cut_spending', 'gov_waste', 'audit_spending', 'power_of_purse', 'social_security', 'healthcare', 'strong_defense', 'sound_money', 'crypto_cbdc'],
     gov_balance: ['lower_taxes', 'tax_middle_class', 'prop_tax', 'property_tax', 'national_debt', 'gov_services', 'cut_spending', 'gov_waste', 'audit_spending', 'power_of_purse', 'social_security', 'healthcare'],
     gov_services: ['lower_taxes', 'tax_middle_class', 'prop_tax', 'property_tax', 'national_debt', 'gov_balance', 'cut_spending', 'gov_waste', 'audit_spending', 'power_of_purse'],
-    cut_spending: ['gov_waste', 'gov_balance', 'national_debt', 'audit_spending', 'gov_services', 'power_of_purse', 'social_security', 'healthcare', 'strong_defense', 'gov_transparency'],
+    cut_spending: ['gov_waste', 'gov_balance', 'national_debt', 'audit_spending', 'gov_services', 'power_of_purse', 'social_security', 'healthcare', 'strong_defense', 'gov_transparency', 'border_security'],
     gov_waste: ['cut_spending', 'gov_balance', 'national_debt', 'audit_spending', 'gov_services', 'power_of_purse', 'gov_transparency', 'civil_service_control', 'gov_regulation'],
     audit_spending: ['cut_spending', 'gov_waste', 'gov_balance', 'national_debt', 'gov_services', 'power_of_purse', 'sound_money', 'crypto_cbdc', 'gov_transparency'],
     power_of_purse: ['cut_spending', 'gov_waste', 'gov_balance', 'national_debt', 'audit_spending', 'gov_services', 'checks_balances', 'war_powers', 'judicial_check', 'congress_oversight', 'tariffs_authority', 'civil_service_control', 'scotus_reform'],
@@ -102,12 +136,12 @@
     strong_defense: ['cut_spending', 'national_debt', 'foreign_balance', 'restraint', 'america_first', 'america_first_fp', 'veterans', 'israel_support', 'iran_policy', 'ukraine_policy', 'yemen_policy', 'venezuela_policy', 'war_powers'],
     sound_money: ['audit_spending', 'crypto_cbdc', 'national_debt'],
     crypto_cbdc: ['sound_money', 'audit_spending', 'national_debt', 'tech_innovation', 'tech_balance', 'privacy_rights', 'datacenter_growth'],
-    border_security: ['deportations', 'immig_fentanyl', 'immig_balance', 'immig_legal', 'immigration_reform'],
+    border_security: ['deportations', 'immig_fentanyl', 'immig_balance', 'immig_legal', 'immigration_reform', 'cut_spending'],
     deportations: ['border_security', 'immig_fentanyl', 'immig_balance', 'immig_legal', 'immigration_reform'],
     immig_fentanyl: ['border_security', 'deportations', 'immig_balance', 'immig_legal', 'immigration_reform', 'back_police', 'tough_on_crime', 'justice_balance', 'justice_reform', 'cannabis_reform'],
     immig_balance: ['border_security', 'deportations', 'immig_fentanyl', 'immig_legal', 'immigration_reform'],
-    immig_legal: ['border_security', 'deportations', 'immig_fentanyl', 'immig_balance', 'immigration_reform'],
-    immigration_reform: ['border_security', 'deportations', 'immig_fentanyl', 'immig_balance', 'immig_legal'],
+    immig_legal: ['border_security', 'deportations', 'immig_fentanyl', 'immig_balance', 'immigration_reform', 'econ_workers', 'rural_ag'],
+    immigration_reform: ['border_security', 'deportations', 'immig_fentanyl', 'immig_balance', 'immig_legal', 'rural_ag', 'econ_workers'],
     gun_rights: ['gun_balance', 'gun_safety'],
     gun_balance: ['gun_rights', 'gun_safety'],
     gun_safety: ['gun_rights', 'gun_balance'],
@@ -119,7 +153,7 @@
     child_care: ['paid_leave', 'family_support', 'cost_living', 'tax_middle_class'],
     paid_leave: ['child_care', 'family_support', 'cost_living', 'tax_middle_class'],
     family_support: ['child_care', 'paid_leave', 'cost_living', 'tax_middle_class'],
-    cost_living: ['child_care', 'paid_leave', 'family_support', 'tax_middle_class', 'tariffs_china', 'tariffs_growth', 'tariffs_prices', 'tariffs_authority', 'econ_trade', 'rural_ag', 'housing', 'housing_build', 'housing_support', 'housing_first_time', 'homeless', 'property_tax', 'prop_tax', 'healthcare_costs'],
+    cost_living: ['child_care', 'paid_leave', 'family_support', 'tax_middle_class', 'tariffs_china', 'tariffs_growth', 'tariffs_prices', 'tariffs_authority', 'econ_trade', 'rural_ag', 'housing', 'housing_build', 'housing_support', 'housing_first_time', 'homeless', 'property_tax', 'prop_tax', 'healthcare_costs', 'energy_production', 'enviro_energy', 'datacenter_power', 'climate_action'],
     healthcare_market: ['healthcare', 'healthcare_costs', 'health_balance', 'health_drug_prices', 'health_rural', 'medical_freedom'],
     healthcare_costs: ['healthcare', 'healthcare_market', 'health_balance', 'health_drug_prices', 'health_rural', 'medical_freedom', 'cost_living', 'tariffs_prices', 'housing', 'tax_middle_class'],
     health_balance: ['healthcare', 'healthcare_market', 'healthcare_costs', 'health_drug_prices', 'health_rural', 'medical_freedom'],
@@ -131,7 +165,7 @@
     veterans: ['health_mental', 'healthcare', 'homeless', 'strong_defense', 'foreign_balance', 'restraint', 'america_first', 'america_first_fp'],
     tobacco_nicotine: ['medical_freedom', 'cannabis_reform'],
     cannabis_reform: ['tobacco_nicotine', 'medical_freedom', 'back_police', 'tough_on_crime', 'justice_balance', 'justice_reform', 'immig_fentanyl'],
-    rural_ag: ['health_rural', 'broadband', 'water', 'water_storage', 'tariffs_china', 'tariffs_growth', 'tariffs_prices', 'tariffs_authority', 'econ_trade', 'cost_living'],
+    rural_ag: ['health_rural', 'broadband', 'water', 'water_storage', 'tariffs_china', 'tariffs_growth', 'tariffs_prices', 'tariffs_authority', 'econ_trade', 'cost_living', 'immig_legal', 'immigration_reform'],
     broadband: ['rural_ag', 'health_rural', 'water', 'water_storage', 'infrastructure', 'transit', 'permitting_reform'],
     tariffs_china: ['tariffs_growth', 'tariffs_prices', 'tariffs_authority', 'econ_trade', 'cost_living', 'rural_ag'],
     tariffs_growth: ['tariffs_china', 'tariffs_prices', 'tariffs_authority', 'econ_trade', 'cost_living', 'rural_ag'],
@@ -140,11 +174,11 @@
     econ_trade: ['tariffs_china', 'tariffs_growth', 'tariffs_prices', 'tariffs_authority', 'cost_living', 'rural_ag'],
     econ_smallbiz: ['econ_growth', 'econ_balance', 'econ_workers', 'econ_corp_account', 'gov_regulation', 'lower_taxes'],
     econ_balance: ['econ_growth', 'econ_smallbiz', 'econ_workers', 'econ_corp_account', 'gov_regulation', 'lower_taxes'],
-    econ_workers: ['econ_growth', 'econ_smallbiz', 'econ_balance', 'econ_corp_account', 'gov_regulation', 'lower_taxes'],
+    econ_workers: ['econ_growth', 'econ_smallbiz', 'econ_balance', 'econ_corp_account', 'gov_regulation', 'lower_taxes', 'immig_legal', 'immigration_reform'],
     econ_corp_account: ['econ_growth', 'econ_smallbiz', 'econ_balance', 'econ_workers', 'gov_regulation', 'lower_taxes'],
     dev_district_finance: ['prop_tax', 'property_tax', 'gov_transparency', 'housing_build'],
     gov_transparency: ['dev_district_finance', 'prop_tax', 'property_tax', 'housing_build', 'term_limits', 'campaign_finance', 'stock_trading_ban', 'reform_balance', 'congress_oversight', 'audit_spending', 'gov_waste', 'cut_spending'],
-    housing_build: ['dev_district_finance', 'prop_tax', 'property_tax', 'gov_transparency', 'housing', 'housing_support', 'housing_first_time', 'homeless', 'cost_living'],
+    housing_build: ['dev_district_finance', 'prop_tax', 'property_tax', 'gov_transparency', 'housing', 'housing_support', 'housing_first_time', 'homeless', 'cost_living', 'lands_keep_public', 'lands_local', 'permitting_reform', 'gov_regulation'],
     infrastructure: ['broadband', 'transit', 'permitting_reform', 'water_storage'],
     transit: ['infrastructure', 'broadband', 'permitting_reform', 'water_storage'],
     housing: ['housing_build', 'housing_support', 'housing_first_time', 'homeless', 'cost_living', 'property_tax', 'prop_tax', 'tariffs_prices', 'healthcare_costs', 'tax_middle_class'],
@@ -390,7 +424,7 @@
   // One line for one issue, both parts. The stated part carries the green /
   // red position word or a neutral "no stated position"; the record part the
   // green / red one-way word, the plain tally, or a neutral "no record".
-  function linesHtml(pid, it, openKey, cls, tag) {
+  function linesHtml(pid, it, openKey, cls, tag, more) {
     var dirCls = it.dir ? 's-' + it.dir : 's-none';
     var recKind = it.rec ? it.rec : (it.tally ? 'tally' : 'none');
     var recHtml = it.rec
@@ -398,7 +432,7 @@
       : (it.tally ? '<span class="pdxri-tally">' + esc(it.tally) + '</span>'
         : '<span class="pdxri-rec r-none">' + NO_RECORD + '</span>');
     return '<' + tag + ' class="' + cls + '" data-pdxri-key="' + esc(it.key) + '" data-pdxri-line="both"' +
-      ' data-pdxri-dir="' + (it.dir || 'none') + '" data-pdxri-rec="' + recKind + '">' +
+      ' data-pdxri-dir="' + (it.dir || 'none') + '" data-pdxri-rec="' + recKind + '"' + (more || '') + '>' +
       nameHtml(pid, it, openKey) + ' <span class="pdxri-dir ' + dirCls + '">' + statedPart(it) + '</span>' +
       '<span class="pdxri-sep"> · </span>' + recHtml + '</' + tag + '>';
   }
@@ -425,11 +459,166 @@
     if (!items.length) return '';
     return '<div class="pdxri pdxri-drawer" data-pdxri-drawer="' + esc(key) + '" data-pid="' + esc(pid) + '">' +
       '<div class="pdxri-h">Related issues</div>' +
-      '<ul class="pdxri-list">' + items.map(function (it) { return linesHtml(pid, it, key, 'pdxri-item', 'li'); }).join('') + '</ul>' +
+      '<ul class="pdxri-list">' + items.map(function (it, i) {
+        return linesHtml(pid, it, key, 'pdxri-item', 'li', i >= RELATED_SHOWN ? EXTRA_ATTR : '');
+      }).join('') + moreHtml(items.length, RELATED_SHOWN) + '</ul>' +
     '</div>';
   }
 
+  // ── SHOW N MORE ───────────────────────────────────────────────────────────
+  // A long drawer stays scannable: the related-issues block shows its first
+  // four lines, the conflicts section its first three, and the rest wait
+  // behind one plain "Show N more" button at the bottom of that block's own
+  // list. The lines are all in the markup (hidden, not dropped), in the same
+  // order and the same words. Four or fewer (three or fewer) print no button,
+  // and the no-conflicts line never collapses.
+  var RELATED_SHOWN = 4;
+  var CONFLICTS_SHOWN = 3;
+  var EXTRA_ATTR = ' data-pdxri-extra="1" hidden';
+  function moreWord(n) { return 'Show ' + n + ' more'; }
+  var LESS_WORD = 'Show fewer';
+  function moreHtml(total, shown) {
+    if (total <= shown) return '';
+    var n = total - shown;
+    return '<li class="pdxri-more-li"><button type="button" class="pdxri-more" data-pdxri-more="' + n + '"' +
+      ' aria-expanded="false">' + moreWord(n) + '</button></li>';
+  }
+  // One press opens the block's hidden lines; the next closes them again.
+  function toggleMore(btn) {
+    if (!btn || typeof btn.closest !== 'function') return false;
+    var list = btn.closest('ul');
+    if (!list) return false;
+    var open = btn.getAttribute('aria-expanded') !== 'true';
+    var rows = list.querySelectorAll('[data-pdxri-extra]');
+    for (var i = 0; i < rows.length; i++) {
+      if (open) rows[i].removeAttribute('hidden'); else rows[i].setAttribute('hidden', '');
+    }
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    btn.textContent = open ? LESS_WORD : moreWord(btn.getAttribute('data-pdxri-more'));
+    return open;
+  }
+  // Its look, injected once by this module so the drawer's own sheet in
+  // consistency.js is untouched. A hidden line stays hidden even under that
+  // sheet's display:block rule for .pdxri-item.
+  var MORE_STYLE_ID = 'pdxri-more-style';
+  var MORE_CSS =
+    '.pdxri-drawer [hidden],.pdxri-conflicts [hidden]{display:none !important;}' +
+    '.pdxri-more-li{list-style:none;margin:0.2rem 0 0;}' +
+    '.pdxri-more{background:none;border:0;padding:0.15rem 0;font:inherit;font-size:0.76rem;font-weight:600;' +
+      'color:#8fb4e8;text-decoration:underline;text-underline-offset:2px;cursor:pointer;min-height:28px;}' +
+    '.pdxri-more:hover,.pdxri-more:focus-visible{color:#c9d6ea;}';
+  try {
+    if (document && typeof document.createElement === 'function' && !(document.getElementById && document.getElementById(MORE_STYLE_ID))) {
+      var st = document.createElement('style');
+      st.id = MORE_STYLE_ID;
+      st.textContent = MORE_CSS;
+      (document.head || document.documentElement).appendChild(st);
+    }
+  } catch (e) { /* no document: markup only */ }
+
+  // Drawers are painted as markup, so the button is heard once, on the page.
+  // Capture phase, so a drawer's own click routing cannot swallow it.
+  try {
+    if (document && typeof document.addEventListener === 'function') {
+      document.addEventListener('click', function (e) {
+        var t = e && e.target;
+        var btn = t && typeof t.closest === 'function' ? t.closest('[data-pdxri-more]') : null;
+        if (!btn) return;
+        e.preventDefault();
+        toggleMore(btn);
+      }, true);
+    }
+  } catch (e) { /* no document: nothing to hear */ }
+
+  // ── WHERE THIS CONFLICTS ──────────────────────────────────────────────────
+  var CONFLICT_HD = 'Where this conflicts';
+  var NO_CONFLICT = 'No conflicts with your stances on these issues.';
+  var YOU_WORD = { support: 'support', oppose: 'oppose' };
+  var THEY_STATED = { support: 'they support', oppose: 'they oppose' };
+  var THEY_RECORD = { 'with': 'their record runs with it', against: 'their record runs against it' };
+
+  // The reader's own sides, support / oppose only ('mixed' takes no side),
+  // keyed by issue. null when no stance reader is on this document or the
+  // reader holds no side, so the caller prints nothing.
+  function readerSides() {
+    try {
+      var S = window.PDXStanceSides;
+      if (!S || typeof S.list !== 'function') return null;
+      var rows = S.list() || [], out = {}, n = 0;
+      for (var i = 0; i < rows.length; i++) {
+        var r = rows[i];
+        if (!r || !r.key || out[r.key]) continue;
+        if (r.position !== 'support' && r.position !== 'oppose') continue;
+        out[r.key] = r.position; n++;
+      }
+      return n ? out : null;
+    } catch (e) { return null; }
+  }
+
+  // The person's side on one issue against the reader's: the stated word
+  // when it runs the other way, else the one-way record when that does.
+  // null when neither does (or the reader holds no side here).
+  function clashOf(it, mine) {
+    var you = it && mine[it.key];
+    if (!you) return null;
+    var other = you === 'support' ? 'oppose' : 'support';
+    if (it.dir === other) return { key: it.key, label: it.label, they: THEY_STATED[it.dir], how: 'stated', you: you };
+    var recOther = you === 'support' ? 'against' : 'with';
+    if (it.rec === recOther) return { key: it.key, label: it.label, they: THEY_RECORD[it.rec], how: 'record', you: you };
+    return null;
+  }
+
+  function conflictsFor(pid, p, key, mine) {
+    mine = mine || readerSides();
+    if (!key || !mine) return null;
+    var pm = positionMap(pid, p);
+    var items = itemsFor(pid, p, key, pm);
+    if (!items.length) return null;
+    var open = itemOf(pid, pm, key) || { key: key, label: labelOf(key) };
+    var openClash = clashOf(open, mine);
+    var out = [];
+    items.forEach(function (it) {
+      var sides = [];
+      if (openClash) sides.push(openClash);
+      var c = clashOf(it, mine); if (c) sides.push(c);
+      if (sides.length) out.push({ a: open.label, b: it.label, bKey: it.key, sides: sides });
+    });
+    return out;
+  }
+
+  function conflictText(c) {
+    return c.a + ' and ' + c.b + ': ' + c.sides.map(function (s, i) {
+      return (i ? 'On ' : 'on ') + s.label + ' ' + s.they + '; you ' + YOU_WORD[s.you];
+    }).join('. ') + '.';
+  }
+
+  // The drawer section, or '' when the reader has no saved stances.
+  function conflictsHtml(pid, p, key) {
+    var list = conflictsFor(pid, p, key);
+    if (!list) return '';
+    var body = list.length
+      ? '<ul class="pdxri-cf-list">' + list.map(function (c, n) {
+          return '<li class="pdxri-cf-item" data-pdxri-cf="' + esc(c.bKey) + '"' + (n >= CONFLICTS_SHOWN ? EXTRA_ATTR : '') + '>' + c.sides.reduce(function (h, s, i) {
+            return h + (i ? ' ' : '') + '<span class="pdxri-cf-side" data-pdxri-cf-how="' + s.how + '">' + (i ? 'On ' : 'on ') +
+              esc(s.label) + ' <span class="pdxri-cf-they">' + esc(s.they) + '</span>; ' +
+              '<span class="pdxri-cf-you">you ' + YOU_WORD[s.you] + '</span>.</span>';
+          }, '<span class="pdxri-cf-pair">' + esc(c.a) + ' and ' + esc(c.b) + ':</span> ') + '</li>';
+        }).join('') + moreHtml(list.length, CONFLICTS_SHOWN) + '</ul>'
+      : '<p class="pdxri-cf-none">' + esc(NO_CONFLICT) + '</p>';
+    return '<div class="pdxri-conflicts" data-pdxri-conflicts="' + esc(key) + '" data-pid="' + esc(pid) + '">' +
+      '<div class="pdxri-cf-h">' + esc(CONFLICT_HD) + '</div>' + body + '</div>';
+  }
+
   window.PDXRelatedIssues = {
+    RELATED_SHOWN: RELATED_SHOWN,
+    MORE_CSS: MORE_CSS,
+    CONFLICTS_SHOWN: CONFLICTS_SHOWN,
+    toggleMore: toggleMore,
+    conflictsFor: conflictsFor,
+    conflictText: conflictText,
+    conflictsHtml: conflictsHtml,
+    CONFLICT_HD: CONFLICT_HD,
+    NO_CONFLICT: NO_CONFLICT,
     MAP: MAP,
     related: related,
     itemsFor: itemsFor,

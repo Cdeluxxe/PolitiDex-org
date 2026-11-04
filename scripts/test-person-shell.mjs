@@ -87,7 +87,9 @@ const MAX_DOC_GZ = 90 * 1024;     // the whole document, gzipped
 // kept out of the money modules so neither one's walls have to stretch to hold it.
 // 71 → 72 for related-issues.js, the linked issue pairs on the file: a small
 // read-only module of its own so profiles-full.js only gains one guarded call.
-const MAX_SCRIPT_TAGS = 72;       // <script src> count, external SDKs included
+// 72 → 75 in v522 for stance-sides.js, my-stances.js and your-file.js: the
+// reader's own stances, which the drawer's "Where this conflicts" section reads.
+const MAX_SCRIPT_TAGS = 75;       // <script src> count, external SDKs included
 const MAX_BLOCKING_CSS = 3;       // render-blocking <link rel=stylesheet>
 
 // Paired match, so a `<script>` written inside a JS comment or a string literal
@@ -195,8 +197,11 @@ ok(existsSync(join(ROOT, "person.html")), "rewrite: /person.html exists to be se
 // not ship here; that is the rule the split is built on, and this is the gate.
 const DENY = [
   "compare-hub.js", "compare-table.js", "alignment-tool.js", "like-dislike.js",
-  "my-stances.js", "ballot-workspace.js", "archive-browse.js", "evidence-locker.js",
-  "all-seeing-eye.js", "your-file.js", "your-ballot.js", "voter-hub-location.js",
+  // my-stances.js and your-file.js left this list in v522: they are the two
+  // stance stores behind stance-sides.js, loaded so the drawer's "Where this
+  // conflicts" section can read the reader's saved stances.
+  "ballot-workspace.js", "archive-browse.js", "evidence-locker.js",
+  "all-seeing-eye.js", "your-ballot.js", "voter-hub-location.js",
   "my-profile.js", "profile-connect.js", "door1-workspace.js", "door2-spine.js",
   "hero-showcase.js", "hero-showcase-data.js", "hero-receipt.js", "spotlight-hub.js",
   "spotlight-cards-data.js", "relevant-grid.js", "who-represents-me.js",
@@ -771,6 +776,7 @@ ok(!bare.includes('id="pdx-topnav"'), "dom: index.html's two-row nav is not here
 
   // Every module this document loads, precached with one deliberate exception.
   const EXEMPT = new Set([
+    "/your-file.js",                // kept out of the precache on purpose (me-document / mobile-body-lock): a stale copy beside a fresh shell paints an overlay
     "/firebase-config.js",          // generated per request by an edge function
     "/politician-stances-ext.js",   // 1.1 MB of long-tail officials, fetchpriority=low, runtime entry on purpose
   ]);

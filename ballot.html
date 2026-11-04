@@ -42,7 +42,7 @@
      views on the homepage and there are no rival views here), spotlights-data.js
      and the Spotlight overlay, the person-file spine (person-file.js /
      profile-modal machinery), issue.html's ledger family (door1-workspace.js /
-     issue-file.js / pdx-issue-profile.js / issue-page.js), my-stances.js, Voice,
+     issue-file.js / pdx-issue-profile.js / issue-page.js), Voice,
      like/dislike, firebase, the account graph, the Archive, the Locker,
      pdx-lazy-data.js and pdx-stability.js.
 
@@ -341,10 +341,11 @@
     // The desk and the race sheet both offer a link to the stance editor. Both
     // now spell it as an address — /my-stances, the document that owns the
     // editor — so nothing on this page needs intercepting for the ordinary
-    // case. my-stances.js is still NOT loaded here and PDXStances is still NOT
-    // stubbed: a fake .count() would let the record lane believe this reader
-    // has saved stances when they have none, and the desk would silently claim
-    // a ranking it cannot support. It says "not ranked" instead, which is true.
+    // case. my-stances.js IS loaded here now (v522, for the drawer's "Where
+    // this conflicts" section), and PDXStances is still NOT stubbed: a fake
+    // .count() would let the record lane believe this reader has saved stances
+    // when they have none. With the real store, the desk ranks only on the
+    // stances the reader actually holds, and says "not ranked" otherwise.
     //
     // This seam survives only for the OLD SPELLING. An older cached copy of a
     // module — or a stale bookmark — can still set location.hash =
@@ -491,6 +492,11 @@
   <script defer src="/your-ballot.js"></script>
   <script defer src="/voting-record.js"></script>
   <script defer src="/say-vs-do.js"></script><script defer src="/related-issues.js"></script>
+  <!-- The two stance stores behind stance-sides.js above, for the drawer's
+       "Where this conflicts" section. The desk reads the same reader, so its
+       list and ranking see the reader's saved stances, as the homepage does. -->
+  <script defer src="/my-stances.js"></script>
+  <script defer src="/your-file.js"></script>
   <script defer src="/consistency.js"></script>
 
   <!-- "Full side-by-side": one overlay, self-built into <body>. -->

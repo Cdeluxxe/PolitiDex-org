@@ -30,8 +30,8 @@
          lanes a /p/ address can name (member, executive, judicial).
 
      WHAT IT DELIBERATELY DOES NOT CARRY. compare-hub.js, alignment-tool.js,
-     like-dislike.js, my-stances.js, ballot-workspace.js, archive-browse.js,
-     evidence-locker.js, all-seeing-eye.js, your-file.js, voter-hub-location.js,
+     like-dislike.js, ballot-workspace.js, archive-browse.js,
+     evidence-locker.js, all-seeing-eye.js, voter-hub-location.js,
      the homepage card/relevant-grid stack and the Door surfaces. Every reference
      to those from a module that DOES ship here is a `typeof` optional lookup, so
      their absence costs the file a block, never its boot. The two exceptions —
@@ -2615,6 +2615,11 @@ window.PDXLazy = (function () {
   <script defer src="/seated-member.js"></script>
   <script defer src="/district-board.js"></script>
   <script defer src="/person-file.js"></script>
+  <!-- The reader's own stances, for the drawer's "Where this conflicts"
+       section (related-issues.js): the same reader and stores the homepage
+       loads, in its order. your-file.js, the second store, is further down. -->
+  <script defer src="/stance-sides.js"></script>
+  <script defer src="/my-stances.js"></script>
   <script defer src="/voting-record.js"></script>
 
   <!-- say-vs-do.js is here for what it PUBLISHES, not for its homepage band:
@@ -2661,6 +2666,7 @@ window.PDXLazy = (function () {
   <script defer src="/word-action.js"></script>
   <script defer src="/record-card.js"></script>
   <script defer src="/profile-dossier.js"></script>
+  <script defer src="/your-file.js"></script>
 
   <!-- THE JUDICIAL LANE, for the same reason as the executive one: a judge's
        /p/ address is served by this document, and without these it would answer

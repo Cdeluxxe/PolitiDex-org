@@ -172,12 +172,13 @@ async function boardOn(alias, state, verify, { search = "", seats = null } = {})
   return { host, calls, assigned, has: () => /data-pdxdc-prove-btn="1"/.test(host.innerHTML) };
 }
 
-// The button sits directly under the locked composer (the form), ahead of the note.
+// The button is the locked line's one next step: it follows the locked line
+// directly, ahead of the form.
 function placedUnderComposer(html) {
-  const form = html.indexOf("</form>");
-  const prove = html.indexOf('data-pdxdc-prove="1"');
-  return form !== -1 && prove > form && !/<p class="pdxdb-foot">[^<]*<\/p>\s*<div class="pdxdc-prove"/.test(html);
+  return /<p class="pdxdc-locked" data-pdxdc-locked="1">[^<]*<\/p><div class="pdxdc-prove" data-pdxdc-prove="1">/.test(html) &&
+    html.indexOf('data-pdxdc-prove="1"') < html.indexOf("<form");
 }
+const signinControl = (html) => /data-pdxdc-prove-signin="1"/.test(html);
 
 for (const [alias, seatKey] of Object.entries(CLUSTER)) {
   // Signed in, no residency row, not a member — the reader from the report.
@@ -186,7 +187,9 @@ for (const [alias, seatKey] of Object.entries(CLUSTER)) {
     const b = await boardOn(alias, { signedIn: true });
     ok(b.has(), `${alias}: a signed-in reader with no residency row sees no button`);
     ok(b.host.innerHTML.includes("Prove you live here"), `${alias}: the button does not read “Prove you live here”`);
-    ok(placedUnderComposer(b.host.innerHTML), `${alias}: the button is not directly under the composer`);
+    ok(placedUnderComposer(b.host.innerHTML), `${alias}: the button does not directly follow the locked line`);
+    ok(!signinControl(b.host.innerHTML), `${alias}: a signed-in reader is offered the sign-in control`);
+    eq((b.host.innerHTML.match(/Prove you live here/g) || []).length, 1, `${alias}: the locked line is followed by more than one prove control`);
     ok(b.host.__btn && typeof b.host.__btn.__click === "function", `${alias}: the button has no click handler`);
     if (b.host.__btn) b.host.__btn.__click();
     await flush();
@@ -271,12 +274,18 @@ for (const [alias, seatKey] of Object.entries(CLUSTER)) {
   {
     const b = await boardOn(alias, { signedIn: false });
     ok(!b.has(), `${alias}: a signed-out reader sees the button`);
+    ok(signinControl(b.host.innerHTML), `${alias}: a signed-out reader is not offered “Sign in to prove you live here”`);
+    ok(/<p class="pdxdc-locked" data-pdxdc-locked="1">[^<]*<\/p><p class="pdxdc-prove" data-pdxdc-prove-signin="1"><a class="pdxdc-btn pdxdc-prove-signin" href="\/">Sign in to prove you live here<\/a><\/p>/.test(b.host.innerHTML),
+      `${alias}: the sign-in control does not directly follow the locked line (or, with no PDXReturn, does not fall back to '/')`);
     ok(!b.calls.some((c) => c.url.startsWith("/api/residency-verify")), `${alias}: signed out still called the function`);
   }
   // Verified for THIS seat → no button.
   {
     const b = await boardOn(alias, { signedIn: true, verifiedOn: seatKey, member: true });
     ok(!b.has(), `${alias}: a reader verified for this seat sees the button`);
+    ok(!signinControl(b.host.innerHTML), `${alias}: a reader verified for this seat sees the sign-in control`);
+    ok(!/Prove you live here|Sign in to prove/.test(b.host.innerHTML), `${alias}: a verified reader is shown a prove control`);
+    ok(b.host.innerHTML.includes("You\u2019re verified for this seat. You can post and vote here."), `${alias}: the verified line changed`);
     eq(b.host.attrs["data-pdxdc-state"], "open", `${alias}: a verified reader's composer did not open`);
   }
 }
@@ -306,6 +315,8 @@ section("3 · the shell moved");
   ok(/v332 - [\s\S]*?MIGRATION COST: none/.test(SW), "v332's log says no migration");
   ok(Number(((SW.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1]) || 0) >= 334, "the shell moved at least to v334");
   ok(/v334 - [\s\S]*?MIGRATION COST: none/.test(SW), "v334's log says no migration");
+  ok(Number(((SW.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1]) || 0) >= 519, "the shell moved at least to v519");
+  ok(/v519 - [\s\S]*?MIGRATION COST: none/.test(SW), "v519's log says no migration");
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);

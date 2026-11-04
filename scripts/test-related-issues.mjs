@@ -32,6 +32,7 @@ import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
+import { NEW_PAIRS } from "./related-issues-new-pairs.mjs";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -92,6 +93,25 @@ const LBL = (k) => String(IM[k].label).replace(/^[^A-Za-z0-9]+/, "").trim();
   eq(JSON.stringify(RI.related("no_such_key")), "[]", "an unknown key has no related issues");
   const code = R("related-issues.js").replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
   ok(!/\bPAIRS\b/.test(code) && RI.PAIRS === undefined, "a second pairs list is still in the module");
+}
+
+// 1b. the cross-topic pairs (v523): public lands, housing, energy, immigration,
+// the border and spending. Each is in the one map, both ways, between two keys
+// the register already holds.
+{
+  const M = RI.MAP;
+  eq(new Set(NEW_PAIRS.map((p) => p.slice().sort().join("|"))).size, NEW_PAIRS.length, "a new pair is listed twice");
+  for (const [a, b] of NEW_PAIRS) {
+    ok(a in IM && b in IM, `new pair ${a} · ${b}: a side is not an existing issue key`);
+    ok(Array.isArray(M[a]) && Array.isArray(M[b]), `new pair ${a} · ${b}: a side is not already a map key`);
+    ok(M[a] && M[a].includes(b), `new pair: ${a} does not list ${b}`);
+    ok(M[b] && M[b].includes(a), `new pair: ${b} does not list ${a}`);
+  }
+  // Every area the pass names is covered.
+  const touches = (re) => NEW_PAIRS.some((p) => p.some((k) => re.test(k)));
+  for (const [area, re] of [["public lands", /^lands_/], ["housing", /^housing/], ["energy", /energy|power/], ["immigration", /^immig|border/]]) {
+    ok(touches(re), `no new pair touches ${area}`);
+  }
 }
 
 // 2 + 3. person file

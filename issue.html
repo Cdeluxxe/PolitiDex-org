@@ -35,8 +35,8 @@
 
      WHAT IT DELIBERATELY DOES NOT CARRY. compare-hub.js, alignment-tool.js,
      like-dislike.js, journey.js, support-route.js, self-defection.js,
-     my-profile.js, my-stances.js, ballot-workspace.js, archive-browse.js,
-     evidence-locker.js, all-seeing-eye.js, your-file.js, voter-hub-location.js,
+     my-profile.js, ballot-workspace.js, archive-browse.js,
+     evidence-locker.js, all-seeing-eye.js, voter-hub-location.js,
      account-graph.js, spotlights-data.js, issue-page.js, the homepage card and
      relevant-grid stack and the Door surfaces. It also drops two modules
      person.html keeps: profiles-full.js (593 KB of person records — a ledger row
@@ -1150,6 +1150,11 @@
   <!-- Roll calls. The ledger is a read of the formal record and this is the
        module that holds it; there is no head prefetch on this document because
        an issue address names no single member to prefetch for. -->
+  <!-- The reader's own stances, for the drawer's "Where this conflicts"
+       section (related-issues.js): the same reader and stores the homepage
+       loads, in its order. your-file.js, the second store, is further down. -->
+  <script defer src="/stance-sides.js"></script>
+  <script defer src="/my-stances.js"></script>
   <script defer src="/voting-record.js"></script>
 
   <!-- say-vs-do.js is here for what it PUBLISHES, not for its homepage band:
@@ -1195,6 +1200,7 @@
        scratch and appends it to <body>, so this document carries no container
        markup for it — which is also why nothing here can go stale against it. -->
   <script defer src="/issue-file.js"></script>
+  <script defer src="/your-file.js"></script>
 
   <!-- ══ THE ADDRESS ═════════════════════════════════════════════
        pdx-issue-profile.js is this document's cold open. It reads /i/<key> off
@@ -1219,7 +1225,7 @@
        identical order and scripts/test-issue-shell.mjs can hold them to it. -->
   <script src="/profile-evidence.js"></script>
 
-  <!-- ══ COPIED VERBATIM FROM person.html LINES 2816–3011 ═════════════════
+  <!-- ══ COPIED VERBATIM FROM person.html LINES 2822–3017 ═════════════════
        THE PWA RUNTIME. Same registration, same first-install guard, same update
        handling — sw.js now precaches /issue.html and this document's module list,
        and serves an /i/ address from /issue.html rather than from the 2.3 MB

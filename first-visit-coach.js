@@ -70,7 +70,7 @@
   'use strict';
   if (window.PDXCoach) return;
 
-  var BUILD = 'v518';                  // logged, so DevTools shows which copy is running
+  var BUILD = 'v520';                  // logged, so DevTools shows which copy is running
   var KEY = 'pdx_coach_seen';          // localStorage: set once, when the popup closes
   var DELAY_MS = 9000;                 // after the page is parsed, so the hero is seen first
   var RETRY_MS = 2000;                 // another dialog is open: look again this soon
@@ -253,8 +253,26 @@
   var SEE_LINE = 'These are the people who already hold power over you, seat by seat, for the place you set.';
   var ROOMS_LINE = 'These rooms are for your seats. ' + SCOPE_NOTE;
   var STANCE_LINE = 'A stance is one issue and where you stand on it. It goes on your file, and you can change it any time.';
-  var BALLOT_LINE = 'Your ballot is where you pick who you want in each seat.';
-  var ALIGN_LINE = 'The alignment tool shows how your stances line up with the people on your ballot.';
+  var BALLOT_LINE = 'See the people who hold your seats and pick who you want on your ballot.';
+  var ALIGN_LINE = 'Compare your stances to the people on your ballot.';
+  // A reader who already has picks or an alignment on this device is told they
+  // can update it. Read only: the coach never writes either store.
+  var BALLOT_AGAIN = 'You already have picks on your ballot. You can update them here.';
+  var ALIGN_AGAIN = 'You already have an alignment. You can update it here.';
+  var BALLOT_STORE = 'politidex_my_team';         // ballot-breakdown.js / compare-hub.js picks
+  var ALIGN_STORE = 'politidex_align_issues';     // alignment-tool.js chosen issues
+  function stored(key) {
+    try {
+      var v = JSON.parse(window.localStorage.getItem(key) || 'null');
+      if (Array.isArray(v)) return v.length > 0;
+      if (v && typeof v === 'object') {
+        for (var k in v) { if (Object.prototype.hasOwnProperty.call(v, k) && v[k]) return true; }
+      }
+    } catch (e) {}
+    return false;
+  }
+  function hasBallot() { return stored(BALLOT_STORE); }
+  function hasAlign() { return stored(ALIGN_STORE); }
   var END_LINE = 'Your seats are on the front page, your rooms are on District Voice, and your ballot is there whenever you come back to it.';
 
   function stepHtml(step) {
@@ -270,10 +288,12 @@
         '<button type="button" class="pdxfc-next" data-pdxfc-act="finish">I’m good for now</button>';
     } else if (step === 'ballot') {
       kick = 'Step 4 of 5'; title = 'Build your ballot'; line = BALLOT_LINE;
+      if (hasBallot()) extra = '<p class="pdxfc-sub" data-pdxfc-again="ballot">' + esc(BALLOT_AGAIN) + '</p>';
       acts = '<a class="pdxfc-door" href="' + BALLOT + '" data-pdxfc-go="ballot">Open the workshop</a>' +
         '<button type="button" class="pdxfc-skip" data-pdxfc-act="skipballot">Skip for now</button>';
     } else if (step === 'align') {
-      kick = 'Step 5 of 5'; title = 'See how you align'; line = ALIGN_LINE;
+      kick = 'Step 5 of 5'; title = 'See where you line up'; line = ALIGN_LINE;
+      if (hasAlign()) extra = '<p class="pdxfc-sub" data-pdxfc-again="align">' + esc(ALIGN_AGAIN) + '</p>';
       acts = '<a class="pdxfc-door" href="/#' + ALIGN_ID + '" data-pdxfc-go="align">Open alignment</a>' +
         '<button type="button" class="pdxfc-next" data-pdxfc-act="finish">I’m done</button>';
     } else {

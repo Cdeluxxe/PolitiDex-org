@@ -2613,6 +2613,7 @@
     notTaken: 'That post did not go through. This seat is not taking another post from this account right now.',
     mine: 'You',
     prove: 'Prove you live here',
+    proveSignin: 'Sign in to prove you live here',
     proving: 'Opening the ID check…',
     proveNote: 'One ID and proof-of-address check covers this seat and the other boards your saved location names. ' +
       'PolitiDex keeps that you passed, not your ID or your address.',
@@ -3066,7 +3067,19 @@
     return !!(_read && _read.voice && _read.voice.reason === 'unverified' && !canPost() && tokenUser());
   }
 
+  // THE ONE NEXT STEP, DIRECTLY UNDER THE LOCKED LINE. A signed-out reader is
+  // handed the sign-in door (PDXReturn's join intent, so they come back to this
+  // board); a signed-in reader the server calls unverified for THIS seat gets
+  // the button that starts the existing check for this seat. A verified reader,
+  // or a failed read, gets neither.
+  function proveSigninHtml(reason) {
+    if (reason !== 'signed_out' || tokenUser() || canPost()) return '';
+    return '<p class="pdxdc-prove" data-pdxdc-prove-signin="1"><a class="pdxdc-btn pdxdc-prove-signin" href="' +
+      esc(signInHref()) + '">' + esc(COPY.proveSignin) + '</a></p>';
+  }
+
   function proveHtml(reason) {
+    if (reason === 'signed_out') return proveSigninHtml(reason);
     if (reason !== 'unverified' || !canProve()) return '';
     var dis = _proving ? ' disabled aria-disabled="true"' : '';
     return '<div class="pdxdc-prove" data-pdxdc-prove="1">' +
@@ -3169,6 +3182,7 @@
         '<h2 class="pdxdb-h2">' + esc(COPY.label) + '</h2>' +
         (line ? '<p class="pdxdc-locked" data-pdxdc-locked="1">' + esc(line) + '</p>'
               : '<p class="pdxdb-foot pdxdc-verified" data-pdxdc-verified="1">' + esc(VERIFIED_LINE) + '</p>') +
+        (line ? proveHtml(_read === false ? '' : v.reason) : '') +
         memberHtml() +
         '<form class="pdxdc-form" novalidate>' +
           '<label class="pdxdc-l" for="pdxdc-issue">' + esc(COPY.issue) + '</label>' +
@@ -3182,7 +3196,6 @@
           '</div>' +
           (_status ? '<p class="pdxdc-status" role="status">' + esc(_status) + '</p>' : '') +
         '</form>' +
-        proveHtml(_read === false ? '' : v.reason) +
         noteHtml(note, _read === false ? '' : v.reason) +
       '</section>' +
       '<section class="pdxdb-band pdxdb-band--posts" data-pdxdb-band="posts" id="' + TOPIC_ID + '"' +

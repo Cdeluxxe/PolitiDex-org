@@ -11547,7 +11547,88 @@
 //     version. No location key or other stored reader state is read or
 //     rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v518';
+// v519 - ONE NEXT STEP UNDER THE LOCKED LINE.
+//     On every board with a composer, the locked line is now followed directly
+//     by one control. A signed-in reader the server calls unverified for this
+//     seat sees "Prove you live here", which starts the existing residency
+//     check for this exact seat (the button moved up from under the form). A
+//     signed-out reader sees "Sign in to prove you live here", carrying the
+//     board as PDXReturn's join intent so sign-in comes back to it. A verified
+//     reader sees neither; the verified line and the locked line are unchanged.
+//     No route, gate, endpoint or membership cap change. district-composer.js
+//     is precached and changed, so the shell moves one version. Nothing stored
+//     is read or rewritten.
+//     MIGRATION COST: none.
+// v520 - THE GUIDED PATH THROUGH BALLOT AND ALIGNMENT, SAID PLAINLY.
+//     Steps 4 and 5 of the first-visit path keep their place after stances
+//     and their controls, and now say what each tool does. Step 4 "Build your
+//     ballot": "See the people who hold your seats and pick who you want on
+//     your ballot." Step 5 is retitled "See where you line up": "Compare your
+//     stances to the people on your ballot." A reader with ballot picks or an
+//     alignment already on this device still gets the step, with one more
+//     line saying they can update it; the coach only reads those two stores.
+//     The welcome and steps 1-3 are unchanged. No route or gate is added.
+//     first-visit-coach.js is precached and changed, so the shell moves one
+//     version. Nothing stored is read into a new key or rewritten.
+//     MIGRATION COST: none.
+// v521 - WHERE THIS CONFLICTS, IN THE ISSUE DRAWER.
+//     For a reader with saved stances, the issue drawer now prints one short
+//     section, "Where this conflicts", after the related-issues lines and
+//     before the vote rows. It lists the related-issue pairs the map already
+//     has (the open issue with each related issue the drawer lists) where the
+//     person's stated position or one-way record runs the other way from the
+//     reader's stance on either issue: both names, the person's side, the
+//     reader's side, one line each. No conflict reads "No conflicts with your
+//     stances on these issues."; no saved stances, no section. The map is not
+//     changed and nothing is written. related-issues.js and consistency.js are
+//     precached and changed, so the shell moves one version. No route or gate.
+//     No location key or other stored reader state is written or rewritten, so
+//     nothing is migrated.
+//     MIGRATION COST: none.
+// v522 - WHERE THIS CONFLICTS ON THE PERSON, ISSUE AND BALLOT PAGES.
+//     person.html, issue.html and ballot.html now load the stance reader
+//     (stance-sides.js) and its two stores (my-stances.js, your-file.js), the
+//     same three the homepage loads, so the issue drawer's "Where this
+//     conflicts" section appears there under the homepage's rules and wording.
+//     Because the stores are real on those pages, two existing homepage
+//     behaviours now reach them too: the person file shows the reader's stance
+//     beside the record, and the ballot desk lists and ranks on the reader's
+//     saved stances (and copies them into the alignment tool, as the homepage
+//     does). my-stances.js is added to the precache; your-file.js stays out of
+//     it on purpose, as before, and loads from the network. The three documents
+//     changed, so the shell moves one version. No route or gate.
+//     No location key or other stored reader state is rewritten, so nothing is
+//     migrated.
+//     MIGRATION COST: none.
+// v523 - CROSS-TOPIC PAIRS IN THE RELATED-ISSUES MAP.
+//     Fourteen pairs join the one map (related-issues.js MAP), each between
+//     two issue keys the register and the map already hold, listed both ways:
+//     Keep Public Lands Public and Local Land Control with Build More Housing;
+//     Build More Housing with permitting reform and with regulation; domestic
+//     energy production, energy independence, data-center power and climate
+//     action with the cost of living; energy production with economic growth;
+//     legal immigration and pathways to citizenship with workers and with
+//     farmers and rural communities; border enforcement with cutting federal
+//     spending. The drawer's related-issues lines and "Where this conflicts"
+//     read them through the existing code; nothing else changed. No issue is
+//     added. related-issues.js is precached and changed, so the shell moves
+//     one version; the precache list is unchanged. No location key or other
+//     stored reader state is written or rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+// v524 - SHOW N MORE IN THE ISSUE DRAWER.
+//     A drawer with more than four related-issues lines shows the first four
+//     and a "Show N more" button at the bottom of that block; a "Where this
+//     conflicts" section with more than three lines shows the first three the
+//     same way. The button opens the rest and, pressed again ("Show fewer"),
+//     closes them. Every line is still in the markup, in the same order and
+//     words; four or fewer (three or fewer) print no button, and the
+//     no-conflicts line never collapses. related-issues.js carries the
+//     button's look itself; consistency.js is unchanged. related-issues.js is
+//     precached and changed, so the shell moves one version; the precache
+//     list is unchanged. No route or gate. No location key or other stored
+//     reader state is written or rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v524';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -12114,6 +12195,7 @@ const SHELL_ASSETS = [
   // would have no reader at all and would print its empty sentence over a full
   // file. It is listed here so it is never the asset that did not arrive.
   '/stance-sides.js',
+  '/my-stances.js',
   // Door 1's workspace: the mode rail, the one open desk, and the view strips
   // on the four older Door 1 surfaces. Precached with the modules it reads —
   // claim-check.js, issue-view.js, consistency.js, bill-detail.js and
