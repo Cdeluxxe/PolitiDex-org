@@ -11559,7 +11559,19 @@
 //     is precached and changed, so the shell moves one version. Nothing stored
 //     is read or rewritten.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v519';
+// v520 - THE GUIDED PATH THROUGH BALLOT AND ALIGNMENT, SAID PLAINLY.
+//     Steps 4 and 5 of the first-visit path keep their place after stances
+//     and their controls, and now say what each tool does. Step 4 "Build your
+//     ballot": "See the people who hold your seats and pick who you want on
+//     your ballot." Step 5 is retitled "See where you line up": "Compare your
+//     stances to the people on your ballot." A reader with ballot picks or an
+//     alignment already on this device still gets the step, with one more
+//     line saying they can update it; the coach only reads those two stores.
+//     The welcome and steps 1-3 are unchanged. No route or gate is added.
+//     first-visit-coach.js is precached and changed, so the shell moves one
+//     version. Nothing stored is read into a new key or rewritten.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v520';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

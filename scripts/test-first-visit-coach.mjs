@@ -623,6 +623,7 @@ section("7 · the guided path: location → seats → rooms → optional stance"
     has(h, ">Build your ballot<", "path: the ballot step is not titled Build your ballot");
     has(h, 'href="/ballot" data-pdxfc-go="ballot">Open the workshop<', "path: Open the workshop does not go to /ballot");
     has(h, 'data-pdxfc-act="skipballot">Skip for now<', "path: the ballot step has no Skip for now");
+    no(h, "data-pdxfc-again", "path: a reader with no ballot is told they can update one");
     const prevented = goClick(v, "ballot");
     ok(!prevented && !v.popup(), "path: Open the workshop did not close and follow its link");
     eq(v.C.pathStep(), "ballot", "path: Open the workshop did not record the ballot step");
@@ -636,7 +637,8 @@ section("7 · the guided path: location → seats → rooms → optional stance"
     eq(stepOf(v), "align", "path: /voice after the workshop did not offer the alignment step");
     const h = v.popup().innerHTML;
     has(h, v.C.ALIGN_LINE, "path: the alignment step lost its sentence");
-    has(h, ">See how you align<", "path: the alignment step is not titled See how you align");
+    has(h, ">See where you line up<", "path: the alignment step is not titled See where you line up");
+    no(h, "data-pdxfc-again", "path: a reader with no alignment is told they can update one");
     has(h, 'href="/#alignment-panel" data-pdxfc-go="align">Open alignment<', "path: Open alignment does not go to the alignment panel");
     has(h, 'data-pdxfc-act="finish">I’m done<', "path: the alignment step has no I’m done");
     has(R("index.html"), 'id="alignment-panel"', "path: the homepage alignment panel is gone");
@@ -775,6 +777,68 @@ section("7 · the guided path: location → seats → rooms → optional stance"
     eq(stepOf(v), "loc", `path/${page}: Show me the next step with no location did not start at step 1`);
   }
   ok(!visit({ page: "find" }).document.getElementById("pdx-path-next"), "path: /find carries the next-step control");
+
+  // Steps 4 and 5: the full order, the "what this does" lines, the update
+  // notes, and the copy rules.
+  {
+    const SEQ = { stance: "ballot", ballot: "align", align: "end" };
+    for (const [from, want] of Object.entries(SEQ)) {
+      const l = memStore({ politidex_voter_location: LOC, pdx_coach_seen: "1" });
+      const ss = memStore({ pdx_path_v1: JSON.stringify({ step: from }) });
+      const v = visit({ page: from === "align" ? "home" : "voice", local: l, session: ss });
+      if (from === "align") {
+        v.document.body.appendChild({ id: "alignment-panel", children: [], parentNode: null, scrollIntoView() {} });
+        v.win.alignTogglePanel = () => {};
+      }
+      v.tick(CONT);
+      eq(stepOf(v), want, `path sequence: after ${from} the path did not show ${want}`);
+      if (want === "end") {
+        click(v, "data-pdxfc-act", "finish");
+        ok(!v.popup() && JSON.parse(ss.getItem("pdx_path_v1")).off, "path sequence: the path did not end after alignment");
+      }
+    }
+    const C0 = visit().C;
+    eq(C0.BALLOT_LINE, "See the people who hold your seats and pick who you want on your ballot.", "step 4: the what-this-does line");
+    eq(C0.ALIGN_LINE, "Compare your stances to the people on your ballot.", "step 5: the what-this-does line");
+    has(C0._stepHtml("ballot"), ">Step 4 of 5<", "step 4: not labeled Step 4 of 5");
+    has(C0._stepHtml("align"), ">Step 5 of 5<", "step 5: not labeled Step 5 of 5");
+    has(C0._stepHtml("ballot"), C0.BALLOT_LINE, "step 4 does not carry its what-this-does line");
+    has(C0._stepHtml("align"), C0.ALIGN_LINE, "step 5 does not carry its what-this-does line");
+
+    // A reader with picks or an alignment on file still gets the step, told they can update it.
+    const lb = memStore({ politidex_voter_location: LOC, pdx_coach_seen: "1",
+      politidex_my_team: '{"ut-house-2":"maloy"}', politidex_align_issues: '["guns","healthcare"]' });
+    const vb = visit({ page: "voice", local: lb, session: memStore({ pdx_path_v1: '{"step":"stance"}' }) });
+    vb.tick(CONT);
+    eq(stepOf(vb), "ballot", "step 4: a reader with a ballot did not get the step");
+    has(vb.popup().innerHTML, "You can update them here.", "step 4: a reader with a ballot is not told they can update it");
+    const va = visit({ page: "voice", local: lb, session: memStore({ pdx_path_v1: '{"step":"ballot"}' }) });
+    va.tick(CONT);
+    eq(stepOf(va), "align", "step 5: a reader with an alignment did not get the step");
+    has(va.popup().innerHTML, "You can update it here.", "step 5: a reader with an alignment is not told they can update it");
+    // Empty stores are not a result.
+    const le = memStore({ politidex_voter_location: LOC, pdx_coach_seen: "1", politidex_my_team: "{}", politidex_align_issues: "[]" });
+    const ve = visit({ page: "voice", local: le, session: memStore({ pdx_path_v1: '{"step":"stance"}' }) });
+    ve.tick(CONT);
+    no(ve.popup().innerHTML, "data-pdxfc-again", "step 4: an empty ballot store counts as a ballot");
+    // The coach never writes either store.
+    eq(lb.getItem("politidex_my_team"), '{"ut-house-2":"maloy"}', "the coach rewrote the ballot store");
+    eq(lb.getItem("politidex_align_issues"), '["guns","healthcare"]', "the coach rewrote the alignment store");
+
+    // Copy rules for both new steps, with and without the update note.
+    const text = (h) => h.replace(/<[^>]*>/g, " ");
+    for (const [label, h] of [["step 4", C0._stepHtml("ballot")], ["step 5", C0._stepHtml("align")],
+                              ["step 4 (update)", vb.popup().innerHTML], ["step 5 (update)", va.popup().innerHTML]]) {
+      const t = text(h);
+      for (const bad of [/\butah\b/i, /\bcoming\b/i, /\bfirst\b/i, /\blater\b/i, /\bequity\b/i, /\bstocks?\b/i,
+                         /\bshares?\b/i, /\bmember(ship)?\b/i, /\binvest/i, /\bverif/i, /\bresiden/i]) {
+        ok(!bad.test(t), `${label}: carries ${bad}`);
+      }
+      // No new route: the only doors are the existing workshop and alignment panel.
+      const hrefs = [...h.matchAll(/href="([^"]*)"/g)].map((m) => m[1]);
+      ok(hrefs.every((x) => x === "/ballot" || x === "/#alignment-panel"), `${label}: points somewhere new — ${JSON.stringify(hrefs)}`);
+    }
+  }
 
   // No equity language anywhere on the path.
   const C = visit().C;
