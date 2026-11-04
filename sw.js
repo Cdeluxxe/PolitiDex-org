@@ -11615,7 +11615,20 @@
 //     one version; the precache list is unchanged. No location key or other
 //     stored reader state is written or rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v523';
+// v524 - SHOW N MORE IN THE ISSUE DRAWER.
+//     A drawer with more than four related-issues lines shows the first four
+//     and a "Show N more" button at the bottom of that block; a "Where this
+//     conflicts" section with more than three lines shows the first three the
+//     same way. The button opens the rest and, pressed again ("Show fewer"),
+//     closes them. Every line is still in the markup, in the same order and
+//     words; four or fewer (three or fewer) print no button, and the
+//     no-conflicts line never collapses. related-issues.js carries the
+//     button's look itself; consistency.js is unchanged. related-issues.js is
+//     precached and changed, so the shell moves one version; the precache
+//     list is unchanged. No route or gate. No location key or other stored
+//     reader state is written or rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v524';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

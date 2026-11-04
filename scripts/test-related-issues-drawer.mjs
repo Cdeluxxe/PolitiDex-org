@@ -582,6 +582,152 @@ const FIX = {
   console.log(`   new pairs: ${hits} conflict lines checked (${statedHits} stated, ${recordHits} record)`);
 }
 
+// ── 8 · show N more: long blocks collapse, short ones do not ───────────────
+{
+  // A tiny DOM over one block's markup: its list items, each with an attribute
+  // set, and the button, whose closest('ul') is that list.
+  function fakeList(html) {
+    const ul = { rows: [] };
+    let btn = null;
+    for (const m of html.matchAll(/<li class="([^"]+)"([^>]*)>([\s\S]*?)<\/li>/g)) {
+      if (m[1] === "pdxri-more-li") {
+        const b = /<button[^>]*data-pdxri-more="(\d+)"[^>]*aria-expanded="(\w+)"[^>]*>([^<]*)<\/button>/.exec(m[3]);
+        const attrs = { "data-pdxri-more": b[1], "aria-expanded": b[2] };
+        btn = {
+          textContent: b[3], attrs,
+          getAttribute: (k) => (k in attrs ? attrs[k] : null), setAttribute: (k, v) => { attrs[k] = String(v); },
+          closest: (sel) => (sel === "ul" ? ul : null),
+        };
+        continue;
+      }
+      const attrs = {};
+      for (const a of m[2].matchAll(/\s([a-z-]+)(?:="([^"]*)")?/g)) attrs[a[1]] = a[2] === undefined ? "" : a[2];
+      ul.rows.push({ cls: m[1], attrs, text: text(m[3]),
+        removeAttribute(k) { delete this.attrs[k]; }, setAttribute(k, v) { this.attrs[k] = String(v); } });
+    }
+    ul.querySelectorAll = (sel) => (sel === "[data-pdxri-extra]" ? ul.rows.filter((r) => "data-pdxri-extra" in r.attrs) : []);
+    const visible = () => ul.rows.filter((r) => !("hidden" in r.attrs));
+    return { ul, btn, visible };
+  }
+  const win = boot(true);
+  const CS = win.PDXConsistency, RI = win.PDXRelatedIssues;
+  eq(RI.RELATED_SHOWN, 4, "the related-issues block does not show four lines before collapsing");
+  eq(RI.CONFLICTS_SHOWN, 3, "the conflicts section does not show three lines before collapsing");
+
+  // Related issues: find a real drawer with five or more lines and one with four or fewer.
+  const pids = ["lee", "trump", "chellie_pingree", "blake_moore", "celeste_maloy", "john_curtis", "john_boyd"];
+  let long = null, short = null;
+  for (const pid of pids) {
+    for (const r of (CS.issueRows(pid) || [])) {
+      const n = RI.itemsFor(pid, win.CMP_DATA[pid], r.key).length;
+      if (!long && n >= 5) long = { pid, key: r.key, n };
+      if (!short && n >= 1 && n <= 4) short = { pid, key: r.key, n };
+    }
+    if (long && short) break;
+  }
+  ok(!!long, "fixture: no sampled drawer has five or more related-issues lines");
+  ok(!!short, "fixture: no sampled drawer has between one and four related-issues lines");
+  if (long) {
+    const h = CS.gapViewHtml(long.pid, long.key) || "";
+    const bl = block(h);
+    const f = fakeList(bl);
+    eq(f.ul.rows.length, long.n, `${long.pid} × ${long.key}: a line was dropped instead of hidden`);
+    eq(f.visible().length, 4, `${long.pid} × ${long.key}: the block does not show its first four lines`);
+    ok(f.ul.rows.slice(0, 4).every((r) => !("hidden" in r.attrs)) && f.ul.rows.slice(4).every((r) => "hidden" in r.attrs),
+      `${long.pid} × ${long.key}: the shown lines are not the first four`);
+    ok(f.btn && f.btn.textContent === `Show ${long.n - 4} more`, `${long.pid} × ${long.key}: no "Show ${long.n - 4} more" control`);
+    ok(/<li class="pdxri-more-li">[\s\S]*<\/li><\/ul><\/div>$/.test(bl), `${long.pid} × ${long.key}: the control is not at the bottom of the block`);
+    eq(RI.toggleMore(f.btn), true, "the control did not open");
+    eq(f.visible().length, long.n, `${long.pid} × ${long.key}: expanding did not reveal every line`);
+    eq(f.btn.textContent, "Show fewer", "an open control does not read Show fewer");
+    eq(f.btn.attrs["aria-expanded"], "true", "an open control is not marked expanded");
+    eq(RI.toggleMore(f.btn), false, "the control did not close");
+    eq(f.visible().length, 4, `${long.pid} × ${long.key}: collapsing did not return to the first four`);
+    eq(f.btn.textContent, `Show ${long.n - 4} more`, "a closed control does not read Show N more again");
+    // The lines themselves, in order and in words, are what they were.
+    eq(JSON.stringify(lines(h)), JSON.stringify(RI.itemsFor(long.pid, win.CMP_DATA[long.pid], long.key).flatMap(RI.lineTexts)),
+      `${long.pid} × ${long.key}: collapsing changed the lines`);
+  }
+  if (short) {
+    const bl = block(CS.gapViewHtml(short.pid, short.key) || "");
+    ok(!/data-pdxri-more|data-pdxri-extra|\shidden[\s>]/.test(bl), `${short.pid} × ${short.key}: four or fewer lines still collapse`);
+  }
+  // Exactly four, and five, on a fixture file: the cut is at four.
+  {
+    const rel = boot(true).PDXRelatedIssues.MAP.lands_preserve;
+    const fx = (n) => Object.fromEntries(rel.slice(0, n).map((k) => [k, "support"]));
+    const four = boot(true, { pdx_fixture_four: fx(4) }).PDXRelatedIssues.drawerHtml("pdx_fixture_four", {}, "lands_preserve");
+    eq((four.match(/<li class="pdxri-item"/g) || []).length, 4, "fixture: four stances did not print four lines");
+    ok(!/data-pdxri-more|data-pdxri-extra|\shidden[\s>]/.test(four), "exactly four related-issues lines still collapse");
+    const five = boot(true, { pdx_fixture_five: fx(5) }).PDXRelatedIssues.drawerHtml("pdx_fixture_five", {}, "lands_preserve");
+    eq((five.match(/<li class="pdxri-item"/g) || []).length, 5, "fixture: five stances did not print five lines");
+    ok(/>Show 1 more<\/button>/.test(five) && (five.match(/ hidden>/g) || []).length === 1, "five related-issues lines do not show four and Show 1 more");
+  }
+
+  // Conflicts: Lee × Protect Public Lands, reader against every related issue Lee holds a side on.
+  const OTHER = { support: "oppose", oppose: "support" };
+  const RECSIDE = { with: "support", against: "oppose" };
+  const items = RI.itemsFor("lee", win.CMP_DATA.lee, "lands_preserve").filter((it) => it.dir || it.rec);
+  ok(items.length >= 5, `fixture: Lee's Protect Public Lands drawer has only ${items.length} related issues with a side`);
+  const CFB = (h) => (/<div class="pdxri-conflicts"[\s\S]*?<\/(?:ul|p)><\/div>/.exec(h) || [""])[0];
+  const against = (list) => { win.PDXStanceSides = { list: () => list.map((it) => ({ key: it.key, position: OTHER[it.dir || RECSIDE[it.rec]], priority: "medium" })) }; };
+  against(items);
+  let cf = CFB(CS.gapViewHtml("lee", "lands_preserve") || "");
+  const nCf = (RI.conflictsFor("lee", win.CMP_DATA.lee, "lands_preserve") || []).length;
+  ok(nCf > 3, `fixture: only ${nCf} conflict lines`);
+  let f = fakeList(cf);
+  eq(f.ul.rows.length, nCf, "a conflict line was dropped instead of hidden");
+  eq(f.visible().length, 3, "the conflicts section does not show its first three lines");
+  ok(f.btn && f.btn.textContent === `Show ${nCf - 3} more`, `the conflicts section has no "Show ${nCf - 3} more" control`);
+  ok(/<li class="pdxri-more-li">[\s\S]*<\/li><\/ul><\/div>$/.test(cf), "the conflicts control is not at the bottom of its section");
+  RI.toggleMore(f.btn);
+  eq(f.visible().length, nCf, "expanding the conflicts section did not reveal every line");
+  RI.toggleMore(f.btn);
+  eq(f.visible().length, 3, "collapsing the conflicts section did not return to the first three");
+  eq(f.ul.rows.map((r) => r.text).join(" | "),
+    (RI.conflictsFor("lee", win.CMP_DATA.lee, "lands_preserve") || []).map(RI.conflictText).join(" | "),
+    "collapsing changed the conflict lines");
+  // Three or fewer: no control.
+  against(items.slice(0, 3));
+  cf = CFB(CS.gapViewHtml("lee", "lands_preserve") || "");
+  eq((cf.match(/<li class="pdxri-cf-item"/g) || []).length, 3, "fixture: three conflicts did not print three lines");
+  ok(!/data-pdxri-more|data-pdxri-extra|\shidden[\s>]/.test(cf), "three conflict lines still collapse");
+  // The no-conflicts line never collapses: a reader who agrees with Lee on
+  // every related issue where his stated side and record do not split.
+  const agree = items.filter((it) => !(it.dir && it.rec && RECSIDE[it.rec] !== it.dir));
+  win.PDXStanceSides = { list: () => agree.map((it) => ({ key: it.key, position: it.dir || RECSIDE[it.rec], priority: "medium" })) };
+  ok(agree.length > 3, `fixture: only ${agree.length} agreeing stances`);
+  eq((RI.conflictsFor("lee", win.CMP_DATA.lee, "lands_preserve") || []).length, 0, "fixture: agreeing stances still conflict");
+  cf = CFB(CS.gapViewHtml("lee", "lands_preserve") || "");
+  ok(/pdxri-cf-none/.test(cf) && !/data-pdxri-more|\shidden[\s>]/.test(cf), "the no-conflicts line collapses");
+  delete win.PDXStanceSides;
+
+  // The page hears the button: one capture-phase click listener, which opens it.
+  {
+    const w2 = boot(false);
+    const heard = [];
+    w2.document.addEventListener = (type, fn, cap) => heard.push({ type, fn, cap });
+    vm.runInContext(R("related-issues.js"), w2, { filename: "related-issues.js" });
+    const click = heard.filter((x) => x.type === "click");
+    eq(click.length, 1, "related-issues.js does not listen for the control's click once");
+    ok(click[0] && click[0].cap === true, "the control's click listener is not in the capture phase");
+    if (long && click[0]) {
+      const g = fakeList(block(w2.PDXConsistency.gapViewHtml(long.pid, long.key) || ""));
+      let prevented = false;
+      click[0].fn({ target: { closest: (sel) => (sel === "[data-pdxri-more]" ? g.btn : null) }, preventDefault() { prevented = true; } });
+      ok(prevented && g.visible().length === long.n, "a click on Show N more does not open the block");
+      click[0].fn({ target: { closest: () => null }, preventDefault() { prevented = "other"; } });
+      ok(prevented === true, "a click elsewhere was handled");
+    }
+  }
+  // The look: a hidden line stays hidden over the drawer's display:block rule.
+  ok(/\.pdxri-drawer \[hidden\],\.pdxri-conflicts \[hidden\]\{display:none !important;\}/.test(RI.MORE_CSS),
+    "a hidden line can still show under the drawer's display:block rule");
+  const sw = R("sw.js");
+  ok(/v524 - [\s\S]*?MIGRATION COST: none/.test(sw), "the shell's v524 note does not say no migration");
+  ok(Number((sw.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1]) >= 524, "the shell did not move for Show N more");
+}
+
 // ── wiring ──────────────────────────────────────────────────────────────────
 {
   const cs = R("consistency.js");

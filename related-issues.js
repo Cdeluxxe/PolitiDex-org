@@ -84,6 +84,12 @@
      issue gets no section. It is a list of lines, not a score: no count, no
      percentage, no grade.
 
+   · SHOW N MORE. In a drawer, more than four related-issues lines show the
+     first four and a "Show N more" button at the bottom of the block; more
+     than three conflicts lines show the first three the same way. The button
+     opens the rest and, pressed again ("Show fewer"), closes them. The person
+     file's section and the no-conflicts line never collapse.
+
    · IT READS, IT DOES NOT WRITE. Nothing here touches Direction Match, scores,
      effect lines, the vote table, or any other section. Labels come from the
      issue register (window.ISSUE_MAP), emoji stripped.
@@ -418,7 +424,7 @@
   // One line for one issue, both parts. The stated part carries the green /
   // red position word or a neutral "no stated position"; the record part the
   // green / red one-way word, the plain tally, or a neutral "no record".
-  function linesHtml(pid, it, openKey, cls, tag) {
+  function linesHtml(pid, it, openKey, cls, tag, more) {
     var dirCls = it.dir ? 's-' + it.dir : 's-none';
     var recKind = it.rec ? it.rec : (it.tally ? 'tally' : 'none');
     var recHtml = it.rec
@@ -426,7 +432,7 @@
       : (it.tally ? '<span class="pdxri-tally">' + esc(it.tally) + '</span>'
         : '<span class="pdxri-rec r-none">' + NO_RECORD + '</span>');
     return '<' + tag + ' class="' + cls + '" data-pdxri-key="' + esc(it.key) + '" data-pdxri-line="both"' +
-      ' data-pdxri-dir="' + (it.dir || 'none') + '" data-pdxri-rec="' + recKind + '">' +
+      ' data-pdxri-dir="' + (it.dir || 'none') + '" data-pdxri-rec="' + recKind + '"' + (more || '') + '>' +
       nameHtml(pid, it, openKey) + ' <span class="pdxri-dir ' + dirCls + '">' + statedPart(it) + '</span>' +
       '<span class="pdxri-sep"> · </span>' + recHtml + '</' + tag + '>';
   }
@@ -453,9 +459,76 @@
     if (!items.length) return '';
     return '<div class="pdxri pdxri-drawer" data-pdxri-drawer="' + esc(key) + '" data-pid="' + esc(pid) + '">' +
       '<div class="pdxri-h">Related issues</div>' +
-      '<ul class="pdxri-list">' + items.map(function (it) { return linesHtml(pid, it, key, 'pdxri-item', 'li'); }).join('') + '</ul>' +
+      '<ul class="pdxri-list">' + items.map(function (it, i) {
+        return linesHtml(pid, it, key, 'pdxri-item', 'li', i >= RELATED_SHOWN ? EXTRA_ATTR : '');
+      }).join('') + moreHtml(items.length, RELATED_SHOWN) + '</ul>' +
     '</div>';
   }
+
+  // ── SHOW N MORE ───────────────────────────────────────────────────────────
+  // A long drawer stays scannable: the related-issues block shows its first
+  // four lines, the conflicts section its first three, and the rest wait
+  // behind one plain "Show N more" button at the bottom of that block's own
+  // list. The lines are all in the markup (hidden, not dropped), in the same
+  // order and the same words. Four or fewer (three or fewer) print no button,
+  // and the no-conflicts line never collapses.
+  var RELATED_SHOWN = 4;
+  var CONFLICTS_SHOWN = 3;
+  var EXTRA_ATTR = ' data-pdxri-extra="1" hidden';
+  function moreWord(n) { return 'Show ' + n + ' more'; }
+  var LESS_WORD = 'Show fewer';
+  function moreHtml(total, shown) {
+    if (total <= shown) return '';
+    var n = total - shown;
+    return '<li class="pdxri-more-li"><button type="button" class="pdxri-more" data-pdxri-more="' + n + '"' +
+      ' aria-expanded="false">' + moreWord(n) + '</button></li>';
+  }
+  // One press opens the block's hidden lines; the next closes them again.
+  function toggleMore(btn) {
+    if (!btn || typeof btn.closest !== 'function') return false;
+    var list = btn.closest('ul');
+    if (!list) return false;
+    var open = btn.getAttribute('aria-expanded') !== 'true';
+    var rows = list.querySelectorAll('[data-pdxri-extra]');
+    for (var i = 0; i < rows.length; i++) {
+      if (open) rows[i].removeAttribute('hidden'); else rows[i].setAttribute('hidden', '');
+    }
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    btn.textContent = open ? LESS_WORD : moreWord(btn.getAttribute('data-pdxri-more'));
+    return open;
+  }
+  // Its look, injected once by this module so the drawer's own sheet in
+  // consistency.js is untouched. A hidden line stays hidden even under that
+  // sheet's display:block rule for .pdxri-item.
+  var MORE_STYLE_ID = 'pdxri-more-style';
+  var MORE_CSS =
+    '.pdxri-drawer [hidden],.pdxri-conflicts [hidden]{display:none !important;}' +
+    '.pdxri-more-li{list-style:none;margin:0.2rem 0 0;}' +
+    '.pdxri-more{background:none;border:0;padding:0.15rem 0;font:inherit;font-size:0.76rem;font-weight:600;' +
+      'color:#8fb4e8;text-decoration:underline;text-underline-offset:2px;cursor:pointer;min-height:28px;}' +
+    '.pdxri-more:hover,.pdxri-more:focus-visible{color:#c9d6ea;}';
+  try {
+    if (document && typeof document.createElement === 'function' && !(document.getElementById && document.getElementById(MORE_STYLE_ID))) {
+      var st = document.createElement('style');
+      st.id = MORE_STYLE_ID;
+      st.textContent = MORE_CSS;
+      (document.head || document.documentElement).appendChild(st);
+    }
+  } catch (e) { /* no document: markup only */ }
+
+  // Drawers are painted as markup, so the button is heard once, on the page.
+  // Capture phase, so a drawer's own click routing cannot swallow it.
+  try {
+    if (document && typeof document.addEventListener === 'function') {
+      document.addEventListener('click', function (e) {
+        var t = e && e.target;
+        var btn = t && typeof t.closest === 'function' ? t.closest('[data-pdxri-more]') : null;
+        if (!btn) return;
+        e.preventDefault();
+        toggleMore(btn);
+      }, true);
+    }
+  } catch (e) { /* no document: nothing to hear */ }
 
   // ── WHERE THIS CONFLICTS ──────────────────────────────────────────────────
   var CONFLICT_HD = 'Where this conflicts';
@@ -524,19 +597,23 @@
     var list = conflictsFor(pid, p, key);
     if (!list) return '';
     var body = list.length
-      ? '<ul class="pdxri-cf-list">' + list.map(function (c) {
-          return '<li class="pdxri-cf-item" data-pdxri-cf="' + esc(c.bKey) + '">' + c.sides.reduce(function (h, s, i) {
+      ? '<ul class="pdxri-cf-list">' + list.map(function (c, n) {
+          return '<li class="pdxri-cf-item" data-pdxri-cf="' + esc(c.bKey) + '"' + (n >= CONFLICTS_SHOWN ? EXTRA_ATTR : '') + '>' + c.sides.reduce(function (h, s, i) {
             return h + (i ? ' ' : '') + '<span class="pdxri-cf-side" data-pdxri-cf-how="' + s.how + '">' + (i ? 'On ' : 'on ') +
               esc(s.label) + ' <span class="pdxri-cf-they">' + esc(s.they) + '</span>; ' +
               '<span class="pdxri-cf-you">you ' + YOU_WORD[s.you] + '</span>.</span>';
           }, '<span class="pdxri-cf-pair">' + esc(c.a) + ' and ' + esc(c.b) + ':</span> ') + '</li>';
-        }).join('') + '</ul>'
+        }).join('') + moreHtml(list.length, CONFLICTS_SHOWN) + '</ul>'
       : '<p class="pdxri-cf-none">' + esc(NO_CONFLICT) + '</p>';
     return '<div class="pdxri-conflicts" data-pdxri-conflicts="' + esc(key) + '" data-pid="' + esc(pid) + '">' +
       '<div class="pdxri-cf-h">' + esc(CONFLICT_HD) + '</div>' + body + '</div>';
   }
 
   window.PDXRelatedIssues = {
+    RELATED_SHOWN: RELATED_SHOWN,
+    MORE_CSS: MORE_CSS,
+    CONFLICTS_SHOWN: CONFLICTS_SHOWN,
+    toggleMore: toggleMore,
     conflictsFor: conflictsFor,
     conflictText: conflictText,
     conflictsHtml: conflictsHtml,
