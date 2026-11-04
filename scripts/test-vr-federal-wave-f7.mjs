@@ -52,7 +52,8 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { CJ_SEAMS, CJ_SEAMS_BELOW, SH_SEAMS, WA_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam,
-  assertWordActionSeams, assertParentTableIsTheOnlyMove, deOrigin } from "./v103-chrome-seams.mjs";
+  assertWordActionSeams, assertParentTableIsTheOnlyMove, deOrigin,
+  declaredStanceMovesAtHead, withoutDeclaredStanceChunks } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -925,7 +926,9 @@ function boot(get, label) {
   // wave editing an engine, and the site collapsing onto one public origin moved a
   // baked share host and nothing else. See deOrigin in scripts/v103-chrome-seams.mjs
   // for why that is normalised rather than waived. Every other byte still compared.
-  const touched = FILES.filter((f) => { const h = headSrc(f); return h !== null && deOrigin(h) !== deOrigin(nowSrc(f)); });
+  // A stance chunk moved only for a declared stance pass's people (v103-chrome-seams.mjs)
+  // is that pass's product, pinned by its own suite — the same carve-out F6 makes.
+  const touched = withoutDeclaredStanceChunks(FILES.filter((f) => { const h = headSrc(f); return h !== null && deOrigin(h) !== deOrigin(nowSrc(f)); }));
   const stray = touched.filter((f) => !WAIVED.includes(f));
   eq(stray.join(", "), "",
     `F7 changed a booted file outside its declared waiver (${stray.join(", ")}) — a data wave has no business editing the engine`);
@@ -1071,6 +1074,7 @@ function boot(get, label) {
     const COV_KEYS = ["word", "scorable", "tested", "untested", "issueLinked", "notIssueLinked", "recordDerived", "warming"];
     let dm = 0, dmBad = 0;
     for (const pid of PIDS) {
+      if (declaredStanceMovesAtHead().moved.has(pid)) continue; // a declared stance pass (v103-chrome-seams.mjs)
       let a = null, b = null;
       try { a = head.PDXWordAction.read(pid); } catch (e) { continue; }
       try { b = work.PDXWordAction.read(pid); } catch (e) { b = null; }
@@ -1097,6 +1101,7 @@ function boot(get, label) {
     const WITHDRAWN = { lyman: "lands_local" };
     let rows = 0, rowBad = 0;
     for (const pid of PIDS) {
+      if (declaredStanceMovesAtHead().moved.has(pid)) continue; // a declared stance pass (v103-chrome-seams.mjs)
       let ra = [], rb = [];
       try { ra = head.PDXConsistency.issueRows(pid) || []; } catch (e) { continue; }
       try { rb = work.PDXConsistency.issueRows(pid) || []; } catch (e) { rb = []; }

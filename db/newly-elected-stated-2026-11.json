@@ -1,0 +1,176 @@
+{
+  "_note": "Newly elected members, stated positions (November 2026). The November 3, 2026 U.S. Senate and U.S. House winners the roster held as candidate rows with no stance entries, and the issue keys their stated positions were filed on in politician-stances.js (regenerated into politician-stances-ext.js). Every entry is the member-elect's own published position, marked claim:'campaign'; nothing is inferred from party. Profiles, vote records and the drawer are unchanged. Read by scripts/test-newly-elected-stated-2026.mjs.",
+  "read": "2026-11-04",
+  "stateLegislative": "Not in this pass: state legislative winners on the existing boards are left for a later pass.",
+  "members": [
+    {
+      "pid": "josh_turek",
+      "name": "Josh Turek",
+      "office": "U.S. Senate (Iowa)",
+      "raceCall": "https://www.kttc.com/2026/11/04/iowa-us-senate-race-goes-josh-turek/",
+      "issueKeys": [
+        "healthcare",
+        "tariffs_prices",
+        "stock_trading_ban",
+        "campaign_finance",
+        "rural_ag"
+      ]
+    },
+    {
+      "pid": "troy_jackson",
+      "name": "Troy Jackson",
+      "office": "U.S. Senate (Maine)",
+      "raceCall": "https://www.cbsnews.com/news/maine-2026-senate-collins-jackson/",
+      "issueKeys": [
+        "healthcare",
+        "tax_middle_class",
+        "social_security",
+        "stock_trading_ban",
+        "campaign_finance"
+      ]
+    },
+    {
+      "pid": "juliana_stratton",
+      "name": "Juliana Stratton",
+      "office": "U.S. Senate (Illinois)",
+      "raceCall": "https://www.axios.com/local/chicago/2026/11/04/juliana-stratton-wins-illinois-senate-election-2026",
+      "issueKeys": [
+        "tariffs_prices",
+        "healthcare",
+        "tax_middle_class",
+        "econ_workers",
+        "gun_safety"
+      ]
+    },
+    {
+      "pid": "adam_hamilton",
+      "name": "Adam Hamilton",
+      "office": "U.S. Senate (Kansas)",
+      "raceCall": "https://www.cbsnews.com/news/kansas-2026-senate-hamilton-marshall/",
+      "issueKeys": [
+        "tariffs_prices",
+        "energy_production",
+        "healthcare",
+        "stock_trading_ban",
+        "rural_ag"
+      ]
+    },
+    {
+      "pid": "annie_andrews",
+      "name": "Annie Andrews",
+      "office": "U.S. Senate (South Carolina)",
+      "raceCall": "https://www.cbsnews.com/news/south-carolina-2026-senate-annie-andrews-darline-graham/",
+      "issueKeys": [
+        "healthcare",
+        "gun_safety",
+        "stock_trading_ban",
+        "campaign_finance",
+        "pro_choice"
+      ]
+    },
+    {
+      "pid": "zach_dembo",
+      "name": "Zach Dembo",
+      "office": "U.S. House (Kentucky 6th District)",
+      "raceCall": "https://kentuckylantern.com/2026/11/03/zach-dembo-returns-6th-district-to-democratic-hands-after-victory-over-alvarado/",
+      "issueKeys": [
+        "tariffs_prices",
+        "healthcare",
+        "econ_workers",
+        "public_schools",
+        "pro_choice"
+      ]
+    },
+    {
+      "pid": "sean_mccann",
+      "name": "Sean McCann",
+      "office": "U.S. House (Michigan 4th District)",
+      "raceCall": "https://www.michiganpublic.org/politics-government/2026-11-04/sean-mccann-defeats-incumbent-congressman-bill-huizenga-in-4th-district",
+      "issueKeys": [
+        "healthcare_costs",
+        "tariffs_prices",
+        "climate_action",
+        "public_schools",
+        "pro_choice"
+      ]
+    },
+    {
+      "pid": "william_lawrence",
+      "name": "William Lawrence",
+      "office": "U.S. House (Michigan 7th District)",
+      "raceCall": "https://www.michiganpublic.org/politics-government/2026-11-04/who-won-michigan-7th-congressional-district-2026-results",
+      "issueKeys": [
+        "housing_build",
+        "healthcare",
+        "social_security",
+        "lands_preserve",
+        "stock_trading_ban"
+      ]
+    },
+    {
+      "pid": "christina_hines",
+      "name": "Christina Hines",
+      "office": "U.S. House (Michigan 10th District)",
+      "raceCall": "https://www.michiganpublic.org/politics-government/2026-11-04/who-won-michigan-10th-congressional-district-2026-results",
+      "issueKeys": [
+        "cost_living",
+        "healthcare",
+        "social_security",
+        "campaign_finance",
+        "stock_trading_ban"
+      ]
+    },
+    {
+      "pid": "richard_ojeda",
+      "name": "Richard Ojeda",
+      "office": "U.S. House (North Carolina 9th District)",
+      "raceCall": "https://www.wunc.org/politics/2026-11-04/richard-ojeda-defeats-republican-hudson-9th-district",
+      "issueKeys": [
+        "social_security",
+        "healthcare",
+        "pro_choice",
+        "public_schools",
+        "econ_workers"
+      ]
+    },
+    {
+      "pid": "mitchell_berman",
+      "name": "Mitchell Berman",
+      "office": "U.S. House (Wisconsin 1st District)",
+      "raceCall": "https://www.wpr.org/news/democrat-mitchell-berman-defeats-republican-bryan-steil-2026",
+      "issueKeys": [
+        "healthcare",
+        "cost_living",
+        "stock_trading_ban",
+        "campaign_finance",
+        "social_security"
+      ]
+    },
+    {
+      "pid": "rebecca_cooke",
+      "name": "Rebecca Cooke",
+      "office": "U.S. House (Wisconsin 3rd District)",
+      "raceCall": "https://www.wpr.org/news/democrat-rebecca-cooke-defeats-gop-derrick-van-orden-congress-midterms",
+      "issueKeys": [
+        "healthcare_costs",
+        "rural_ag",
+        "stock_trading_ban",
+        "pro_choice",
+        "social_security"
+      ]
+    },
+    {
+      "pid": "stefany_shaheen",
+      "name": "Stefany Shaheen",
+      "office": "U.S. House (New Hampshire 1st District)",
+      "raceCall": "https://www.nhpr.org/nh-news/2026-11-03/democrats-sweep-nh-congressional-seats-goodlander-shaheen-win",
+      "issueKeys": [
+        "healthcare",
+        "stock_trading_ban",
+        "housing_build",
+        "climate_action",
+        "pro_choice"
+      ]
+    }
+  ]
+}
