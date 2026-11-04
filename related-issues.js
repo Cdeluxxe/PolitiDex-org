@@ -56,6 +56,23 @@
      swapped in place), with a /p/<pid>?issue=<key> href to fall back on. The
      open issue in a drawer is never a link.
 
+   · WHERE THIS CONFLICTS. conflictsHtml(pid, p, key): for a reader with
+     saved stances (window.PDXStanceSides, the one published reader of both
+     stance stores), one short section after the drawer's related-issues block.
+     The pairs are the open issue with each related issue the drawer already
+     lists — MAP is read, never extended. A pair is listed when, on either of
+     its two issues, the person's stated position or one-way record runs the
+     other way from the reader's side. Each line names both issues, then the
+     side that runs the other way — the stated word when that is the one, else
+     the record — and the reader's own side:
+       Protect Public Lands and Keep Public Lands Public: on Keep Public Lands
+       Public they oppose; you support.
+     A reader with stances and no such pair reads "No conflicts with your
+     stances on these issues." A reader with no saved stances, a document
+     with no stance reader on it, or an open issue with no listed related
+     issue gets no section. It is a list of lines, not a score: no count, no
+     percentage, no grade.
+
    · IT READS, IT DOES NOT WRITE. Nothing here touches Direction Match, scores,
      effect lines, the vote table, or any other section. Labels come from the
      issue register (window.ISSUE_MAP), emoji stripped.
@@ -429,7 +446,91 @@
     '</div>';
   }
 
+  // ── WHERE THIS CONFLICTS ──────────────────────────────────────────────────
+  var CONFLICT_HD = 'Where this conflicts';
+  var NO_CONFLICT = 'No conflicts with your stances on these issues.';
+  var YOU_WORD = { support: 'support', oppose: 'oppose' };
+  var THEY_STATED = { support: 'they support', oppose: 'they oppose' };
+  var THEY_RECORD = { 'with': 'their record runs with it', against: 'their record runs against it' };
+
+  // The reader's own sides, support / oppose only ('mixed' takes no side),
+  // keyed by issue. null when no stance reader is on this document or the
+  // reader holds no side, so the caller prints nothing.
+  function readerSides() {
+    try {
+      var S = window.PDXStanceSides;
+      if (!S || typeof S.list !== 'function') return null;
+      var rows = S.list() || [], out = {}, n = 0;
+      for (var i = 0; i < rows.length; i++) {
+        var r = rows[i];
+        if (!r || !r.key || out[r.key]) continue;
+        if (r.position !== 'support' && r.position !== 'oppose') continue;
+        out[r.key] = r.position; n++;
+      }
+      return n ? out : null;
+    } catch (e) { return null; }
+  }
+
+  // The person's side on one issue against the reader's: the stated word
+  // when it runs the other way, else the one-way record when that does.
+  // null when neither does (or the reader holds no side here).
+  function clashOf(it, mine) {
+    var you = it && mine[it.key];
+    if (!you) return null;
+    var other = you === 'support' ? 'oppose' : 'support';
+    if (it.dir === other) return { key: it.key, label: it.label, they: THEY_STATED[it.dir], how: 'stated', you: you };
+    var recOther = you === 'support' ? 'against' : 'with';
+    if (it.rec === recOther) return { key: it.key, label: it.label, they: THEY_RECORD[it.rec], how: 'record', you: you };
+    return null;
+  }
+
+  function conflictsFor(pid, p, key, mine) {
+    mine = mine || readerSides();
+    if (!key || !mine) return null;
+    var pm = positionMap(pid, p);
+    var items = itemsFor(pid, p, key, pm);
+    if (!items.length) return null;
+    var open = itemOf(pid, pm, key) || { key: key, label: labelOf(key) };
+    var openClash = clashOf(open, mine);
+    var out = [];
+    items.forEach(function (it) {
+      var sides = [];
+      if (openClash) sides.push(openClash);
+      var c = clashOf(it, mine); if (c) sides.push(c);
+      if (sides.length) out.push({ a: open.label, b: it.label, bKey: it.key, sides: sides });
+    });
+    return out;
+  }
+
+  function conflictText(c) {
+    return c.a + ' and ' + c.b + ': ' + c.sides.map(function (s, i) {
+      return (i ? 'On ' : 'on ') + s.label + ' ' + s.they + '; you ' + YOU_WORD[s.you];
+    }).join('. ') + '.';
+  }
+
+  // The drawer section, or '' when the reader has no saved stances.
+  function conflictsHtml(pid, p, key) {
+    var list = conflictsFor(pid, p, key);
+    if (!list) return '';
+    var body = list.length
+      ? '<ul class="pdxri-cf-list">' + list.map(function (c) {
+          return '<li class="pdxri-cf-item" data-pdxri-cf="' + esc(c.bKey) + '">' + c.sides.reduce(function (h, s, i) {
+            return h + (i ? ' ' : '') + '<span class="pdxri-cf-side" data-pdxri-cf-how="' + s.how + '">' + (i ? 'On ' : 'on ') +
+              esc(s.label) + ' <span class="pdxri-cf-they">' + esc(s.they) + '</span>; ' +
+              '<span class="pdxri-cf-you">you ' + YOU_WORD[s.you] + '</span>.</span>';
+          }, '<span class="pdxri-cf-pair">' + esc(c.a) + ' and ' + esc(c.b) + ':</span> ') + '</li>';
+        }).join('') + '</ul>'
+      : '<p class="pdxri-cf-none">' + esc(NO_CONFLICT) + '</p>';
+    return '<div class="pdxri-conflicts" data-pdxri-conflicts="' + esc(key) + '" data-pid="' + esc(pid) + '">' +
+      '<div class="pdxri-cf-h">' + esc(CONFLICT_HD) + '</div>' + body + '</div>';
+  }
+
   window.PDXRelatedIssues = {
+    conflictsFor: conflictsFor,
+    conflictText: conflictText,
+    conflictsHtml: conflictsHtml,
+    CONFLICT_HD: CONFLICT_HD,
+    NO_CONFLICT: NO_CONFLICT,
     MAP: MAP,
     related: related,
     itemsFor: itemsFor,

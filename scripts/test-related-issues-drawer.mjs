@@ -370,6 +370,93 @@ const FIX = {
   console.log(`   real corpus: ${sheets} drawers compared · ${withBlock} carry a related-issues block`);
 }
 
+// ── 5 · where this conflicts: the reader's stances against the mapped pairs ─
+{
+  const CFB = (h) => (/<div class="pdxri-conflicts"[\s\S]*?<\/(?:ul|p)><\/div>/.exec(h) || [""])[0];
+  const withSides = (win, sides) => {
+    win.PDXStanceSides = { list: () => Object.entries(sides).map(([key, position]) => ({ key, position, priority: "medium" })) };
+    return win;
+  };
+  const OTHER = { support: "oppose", oppose: "support" };
+  const win = boot(true);
+  const CS = win.PDXConsistency, RI = win.PDXRelatedIssues;
+  const pm = win._polPositionMap("lee", win.CMP_DATA.lee) || {};
+  const dirOf = (k) => (pm[k] && /^(support|oppose)$/.test(pm[k].stance) ? pm[k].stance : null);
+  const agrees = (k, side) => {
+    const d = dirOf(k), r = RI.recordOf("lee", k);
+    return (!d || d === side) && (!r || r === (side === "support" ? "with" : "against"));
+  };
+
+  // A stated conflict: Lee's stated side on Keep Public Lands Public, the reader on the other side.
+  const kp = dirOf("lands_keep_public");
+  withSides(win, { lands_keep_public: OTHER[kp] });
+  let h = CS.gapViewHtml("lee", "lands_preserve") || "";
+  let cf = CFB(h);
+  ok(cf, "a reader whose stance conflicts with a mapped pair gets no Where this conflicts section");
+  ok(text(cf).startsWith("Where this conflicts"), "the section is not headed Where this conflicts");
+  const line = [...cf.matchAll(/<li class="pdxri-cf-item" data-pdxri-cf="lands_keep_public">[\s\S]*?<\/li>/g)].map((m) => text(m[0]))[0] || "";
+  eq(line, `Protect Public Lands and Keep Public Lands Public: on Keep Public Lands Public they ${kp}; you ${OTHER[kp]}.`,
+    "the conflict line does not name both issues, Lee's stated side and the reader's stance");
+  const at = h.indexOf('class="pdxri pdxri-drawer"'), c0 = h.indexOf('class="pdxri-conflicts"');
+  const tally = h.indexOf('data-pdxlg-tally="1"'), table = h.indexOf('<table class="pdxlg-t">');
+  ok(at >= 0 && c0 > at, "the section is not after the stated/record lines");
+  ok(c0 < tally && c0 < table, "the section is not before the vote rows");
+  // Only pairs from the map, each listed once.
+  const cfKeys = [...cf.matchAll(/data-pdxri-cf="([^"]+)"/g)].map((m) => m[1]);
+  ok(cfKeys.every((k) => RI.MAP.lands_preserve.includes(k)), `a conflict pair is not in the map — ${JSON.stringify(cfKeys)}`);
+  eq(new Set(cfKeys).size, cfKeys.length, "a pair is listed twice");
+  // The existing block is unchanged by the section.
+  const plain = boot(true).PDXConsistency.gapViewHtml("lee", "lands_preserve") || "";
+  eq(h.replace(cf, ""), plain, "the drawer changed beyond the conflicts section");
+
+  // A record conflict: Protect Public Lands has no stated position from Lee, a record that runs one way.
+  const rp = RI.recordOf("lee", "lands_preserve");
+  ok(!dirOf("lands_preserve") && (rp === "with" || rp === "against"), "fixture: Lee's Protect Public Lands is not record-only");
+  const youRec = rp === "against" ? "support" : "oppose";
+  withSides(win, { lands_preserve: youRec });
+  h = CS.gapViewHtml("lee", "lands_keep_public") || "";
+  cf = CFB(h);
+  const rl = [...cf.matchAll(/<li class="pdxri-cf-item" data-pdxri-cf="lands_preserve">[\s\S]*?<\/li>/g)].map((m) => text(m[0]))[0] || "";
+  eq(rl, `Keep Public Lands Public and Protect Public Lands: on Protect Public Lands their record runs ${rp} it; you ${youRec}.`,
+    "a record-only side does not print as the record");
+  ok(/data-pdxri-cf-how="record"/.test(cf), "the record side is not marked as the record");
+
+  // Stances on file, none conflicting → the section reads the no-conflicts line.
+  const calm = RI.MAP.lands_preserve.find((k) => dirOf(k) && agrees(k, dirOf(k)));
+  ok(!!calm, "fixture: no related issue where Lee's stated and record sides agree");
+  withSides(win, { [calm]: dirOf(calm) });
+  h = CS.gapViewHtml("lee", "lands_preserve") || "";
+  cf = CFB(h);
+  eq(text(cf), "Where this conflictsNo conflicts with your stances on these issues.", "stances with no conflict do not read the no-conflicts line");
+  ok(!/pdxri-cf-item/.test(cf), "the no-conflicts section lists a line");
+
+  // A mixed side is not a side.
+  withSides(win, { lands_keep_public: "mixed" });
+  ok(!CFB(CS.gapViewHtml("lee", "lands_preserve") || ""), "a reader holding only a mixed side gets the section");
+  // No saved stances, or no stance reader on the page → no section.
+  withSides(win, {});
+  ok(!CFB(CS.gapViewHtml("lee", "lands_preserve") || ""), "a reader with no saved stances gets the section");
+  delete win.PDXStanceSides;
+  ok(!/pdxri-conflicts/.test(CS.gapViewHtml("lee", "lands_preserve") || ""), "a page with no stance reader gets the section");
+  // An open issue with no listed related issue prints nothing, even with stances.
+  withSides(win, { lands_keep_public: OTHER[kp] });
+  eq(RI.conflictsHtml("lee", win.CMP_DATA.lee, "no_such_issue_key"), "", "an issue outside the map prints a section");
+
+  // Copy and routes: no residency, equity, Utah-first or verdict words; no doors.
+  withSides(win, { lands_keep_public: OTHER[kp], lands_preserve: youRec });
+  for (const k of ["lands_preserve", "lands_keep_public"]) {
+    const b = CFB(CS.gapViewHtml("lee", k) || "");
+    ok(!/<a\b|href=/.test(b), `${k}: the conflicts section links somewhere`);
+    ok(!/\butah\b|\bfirst\b|coming|equity|\bstocks?\b|\bshares?\b|member|residen|verif|%|score|grade|badge/i.test(text(b)),
+      `${k}: the conflicts section carries banned wording — ${text(b)}`);
+  }
+  // The map itself is not changed by reading it.
+  const fresh = boot(true).PDXRelatedIssues.MAP;
+  eq(JSON.stringify(RI.MAP), JSON.stringify(fresh), "reading conflicts changed the map");
+  ok(/v521 - [\s\S]*?MIGRATION COST: none/.test(R("sw.js")), "the shell's v521 note does not say no migration");
+  ok(Number((R("sw.js").match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1]) >= 521, "the shell did not move for the conflicts section");
+}
+
 // ── wiring ──────────────────────────────────────────────────────────────────
 {
   const cs = R("consistency.js");

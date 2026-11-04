@@ -11571,7 +11571,21 @@
 //     first-visit-coach.js is precached and changed, so the shell moves one
 //     version. Nothing stored is read into a new key or rewritten.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v520';
+// v521 - WHERE THIS CONFLICTS, IN THE ISSUE DRAWER.
+//     For a reader with saved stances, the issue drawer now prints one short
+//     section, "Where this conflicts", after the related-issues lines and
+//     before the vote rows. It lists the related-issue pairs the map already
+//     has (the open issue with each related issue the drawer lists) where the
+//     person's stated position or one-way record runs the other way from the
+//     reader's stance on either issue: both names, the person's side, the
+//     reader's side, one line each. No conflict reads "No conflicts with your
+//     stances on these issues."; no saved stances, no section. The map is not
+//     changed and nothing is written. related-issues.js and consistency.js are
+//     precached and changed, so the shell moves one version. No route or gate.
+//     No location key or other stored reader state is written or rewritten, so
+//     nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v521';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

@@ -2386,6 +2386,13 @@
       '.pdxri-drawer .pdxri-go{color:inherit;text-decoration:underline;' +
         'text-decoration-color:rgba(143,166,198,0.45);text-underline-offset:2px;}' +
       '.pdxri-drawer .pdxri-go:hover,.pdxri-drawer .pdxri-go:focus-visible{text-decoration-color:currentColor;}' +
+      '.pdxri-conflicts{margin-top:0.55rem;}' +
+      '.pdxri-conflicts .pdxri-cf-h{font-size:0.66rem;font-weight:700;letter-spacing:0.08em;' +
+        'text-transform:uppercase;color:#8fa2c0;}' +
+      '.pdxri-conflicts .pdxri-cf-list{list-style:none;margin:0.2rem 0 0;padding:0;}' +
+      '.pdxri-conflicts .pdxri-cf-item,.pdxri-conflicts .pdxri-cf-none{display:block;margin:0;font-size:0.8rem;line-height:1.45;color:#c9d6ea;}' +
+      '.pdxri-conflicts .pdxri-cf-pair{font-weight:600;}' +
+      '.pdxri-conflicts .pdxri-cf-they{color:#f87171;}' +
       '.pdxlg{margin-top:0.55rem;}' +
       '.pdxlg-find{display:flex;flex-wrap:wrap;align-items:baseline;gap:0.25rem 0.5rem;' +
         'margin-top:0.3rem;font-family:"Barlow Condensed",sans-serif;font-weight:700;' +
@@ -17165,6 +17172,16 @@
       return RI.drawerHtml(pid, (window.CMP_DATA || {})[pid], issueKey) || '';
     } catch (e) { return ''; }
   }
+  // WHERE THIS CONFLICTS (related-issues.js): the mapped pairs where this
+  // person's stated or record side runs the other way from the reader's saved
+  // stance. '' for a reader with no saved stances.
+  function _gapConflictsHtml(pid, issueKey) {
+    try {
+      var RI = window.PDXRelatedIssues;
+      if (!RI || typeof RI.conflictsHtml !== 'function') return '';
+      return RI.conflictsHtml(pid, (window.CMP_DATA || {})[pid], issueKey) || '';
+    } catch (e) { return ''; }
+  }
   function _dosFindHtml(r, t) {
     var f = _dosFinding(r, t);
     return '<div class="pdxlg-find" style="--c:' + f.color + '">' +
@@ -20276,6 +20293,7 @@
       // one, with a stated line and / or a record line for each, after the
       // finding line and before the vote table. Read-only; '' when there is none.
       _gapRelatedHtml(pid, issueKey) +
+      _gapConflictsHtml(pid, issueKey) +
       // Not in Direction Match: once, never on each row. On a ledger sheet it is
       // the first thing inside How this is scored rather than a gray box between
       // the finding and the tally: a reader meets the votes first, and the note
