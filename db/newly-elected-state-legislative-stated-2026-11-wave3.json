@@ -1,0 +1,357 @@
+{
+  "_note": "Newly elected state legislative members, stated positions, third wave (November 2026): Tennessee, Maine, Nebraska, Rhode Island and Idaho. The November 3, 2026 State Senate and State House (Nebraska: unicameral Legislature) winners on seats whose district board already exists, whom the roster held as candidate rows with no stance entries, and the issue keys their stated positions were filed on in politician-stances.js (regenerated into politician-stances-ext.js). Every entry is the member-elect's own published position, read from the campaign's own priorities, issues or platform page and marked claim:'campaign'; nothing is inferred from party. Each member has a published race call naming them. Profiles, roster rows, vote records, the drawer and the related-issues map are unchanged. Earlier waves: db/newly-elected-state-legislative-stated-2026-11.json (Michigan) and db/newly-elected-state-legislative-stated-2026-11-wave2.json (Colorado, Nevada, Minnesota). Read by scripts/test-newly-elected-state-legislative-stated-2026-wave3.mjs.",
+  "read": "2026-11-04",
+  "states": [
+    "tn",
+    "me",
+    "ne",
+    "ri",
+    "id"
+  ],
+  "boards": "Every seat in the set already has a district board (district-<state>-<sd|hd>-<n>.html); no board was opened for this pass.",
+  "leftOut": [
+    {
+      "pid": "brett_windrow",
+      "seat": "tn-statehouse-13",
+      "reason": "Led the incumbent by about 556 votes in unofficial returns, and no readable campaign issues page of his own was found."
+    },
+    {
+      "pid": "bryan_goldberg",
+      "seat": "tn-statehouse-18",
+      "reason": "Reported as winning, but no vote totals were published and no readable campaign issues page was found."
+    },
+    {
+      "pid": "jesse_huseth",
+      "seat": "tn-statehouse-97",
+      "reason": "Reported as winning, but no margin was published and no readable campaign issues page was found."
+    },
+    {
+      "pid": "dana_staples",
+      "seat": "me-statehouse-88",
+      "reason": "Listed as the District 88 winner by a results tracker, but the only news call found names the defeated incumbent and not Staples or the district; left out until a call naming him is published."
+    },
+    {
+      "pid": "amanda_heath",
+      "seat": "me-statesenate-15",
+      "reason": "Reported as winning the open seat, but no campaign issues page of her own was found; her priorities appear only on party pages."
+    },
+    {
+      "pid": "timothy_becker",
+      "seat": "me-statehouse-83",
+      "reason": "Reported as winning, but no campaign website with an issues page was found."
+    },
+    {
+      "pid": "elizabeth_bosworth",
+      "seat": "me-statesenate-18",
+      "reason": "Reported only as poised to win on 2026-11-04; the race had not been called."
+    },
+    {
+      "pid": "kerryl_clement",
+      "seat": "me-statehouse-96",
+      "reason": "Ahead by 38 votes, close enough for a possible recount; left out until the win is settled."
+    },
+    {
+      "pid": "christy_knorr",
+      "seat": "ne-statesenate-12",
+      "reason": "Won District 12, but her campaign site renders only through JavaScript and no issues text could be read."
+    },
+    {
+      "pid": "cindy_ostdiek",
+      "seat": "ne-statesenate-4",
+      "reason": "Ahead by about 292 votes with no winner recorded on 2026-11-04; left out until the race is settled."
+    },
+    {
+      "pid": "dean_helmick",
+      "seat": "ne-statesenate-2",
+      "reason": "Shown ahead on the state results page, but other reports showed his opponent leading; the call is not settled."
+    },
+    {
+      "pid": "bill_bowes",
+      "seat": "ne-statesenate-14",
+      "reason": "Ahead by about 231 votes with no winner recorded; left out until the race is settled."
+    },
+    {
+      "pid": "jess_goldoni",
+      "seat": "ne-statesenate-18",
+      "reason": "Ahead by about 367 votes with no winner recorded; left out until the race is settled."
+    },
+    {
+      "pid": "tim_anderson",
+      "seat": "ne-statesenate-38",
+      "reason": "Won the open seat by about 410 votes, close enough to treat as unsettled; left out."
+    },
+    {
+      "pid": "cally_ideus",
+      "seat": "ne-statesenate-30",
+      "reason": "Won District 30, but her campaign site has no issues or priorities page, only general messaging."
+    },
+    {
+      "pid": "veronicka_vega",
+      "seat": "ri-statehouse-49",
+      "reason": "Won District 49, but no campaign website of her own was found; her positions appear only in news and newsletter profiles."
+    },
+    {
+      "pid": "nicole_jellinek",
+      "seat": "ri-statehouse-67",
+      "reason": "Won the open seat, but no campaign website of her own was found; her positions appear only in news coverage."
+    },
+    {
+      "pid": "angela_coburn",
+      "seat": "ri-statehouse-27",
+      "reason": "Reported as winning only in a newsletter roundup; no outlet's race call was found."
+    },
+    {
+      "pid": "allan_fung",
+      "seat": "ri-statehouse-15",
+      "reason": "Reported as winning a three-way race with about 39 percent, but only in a newsletter roundup; no outlet's race call was found."
+    },
+    {
+      "pid": "michael_riley",
+      "seat": "ri-statehouse-41",
+      "reason": "Reported as winning, but the only call found mislabels the district, and no campaign issues page was read."
+    },
+    {
+      "pid": "scott_herndon",
+      "seat": "id-statesenate-1",
+      "reason": "Won District 1, but he is a returning former senator (served 2022–24), not a newly elected member; left out of this set."
+    },
+    {
+      "pid": "robin_weldy",
+      "seat": "id-statesenate-6",
+      "reason": "Trailing the incumbent in a close race on 2026-11-04; no call in her favor was found."
+    },
+    {
+      "pid": "margaret_mitchell",
+      "seat": "mt-statesenate-10",
+      "reason": "Called for Mitchell by Montana Free Press and her site is readable, but Montana was not one of the five states in this pass; held for a later pass."
+    },
+    {
+      "pid": "paula_koch",
+      "seat": "mt-statehouse-4",
+      "reason": "Ahead in the open seat, but precincts were only partly counted on 2026-11-04 and no outlet had called the race."
+    },
+    {
+      "pid": "trevor_funseth",
+      "seat": "mt-statehouse-21",
+      "reason": "Shown as the winner only by a results tracker; no outlet's race call was found."
+    },
+    {
+      "pid": "justin_cleveland",
+      "seat": "mt-statehouse-17",
+      "reason": "Shown as the winner only by a results tracker; no outlet's race call was found."
+    },
+    {
+      "pid": "steve_keller",
+      "seat": "mt-statehouse-20",
+      "reason": "Ahead by 46 votes, close enough for a possible recount; left out until the win is settled."
+    }
+  ],
+  "members": [
+    {
+      "pid": "connie_casha",
+      "name": "Connie Casha",
+      "office": "Tennessee State House (District 49)",
+      "seat": "tn-statehouse-49",
+      "raceCall": "https://www.wgnsradio.com/article/101907/democratic-challengers-flip-three-of-five-state-house-seats-in-rutherford-county",
+      "source": "https://conniecasha4tndistrict-49.com/issues.html",
+      "issueKeys": [
+        "public_schools",
+        "child_care",
+        "healthcare",
+        "health_drug_prices"
+      ]
+    },
+    {
+      "pid": "owen_farnsworth",
+      "name": "Owen Farnsworth",
+      "office": "Tennessee State House (District 34)",
+      "seat": "tn-statehouse-34",
+      "raceCall": "https://www.wgnsradio.com/article/101907/democratic-challengers-flip-three-of-five-state-house-seats-in-rutherford-county",
+      "source": "https://www.owenfarnsworth.com/education",
+      "issueKeys": [
+        "public_schools",
+        "school_choice",
+        "edu_college_cost"
+      ]
+    },
+    {
+      "pid": "allie_phillips",
+      "name": "Allie Phillips",
+      "office": "Tennessee State House (District 75)",
+      "seat": "tn-statehouse-75",
+      "raceCall": "https://clarksvillenow.com/local/my-door-will-always-be-open-phillips-flips-state-house-district-75-seat-to-democrat/",
+      "source": "https://www.alliep4tn.com/",
+      "issueKeys": [
+        "public_schools",
+        "school_choice",
+        "econ_workers",
+        "veterans",
+        "infrastructure"
+      ]
+    },
+    {
+      "pid": "michael_scott",
+      "name": "Michael R. Scott",
+      "office": "Maine State Senate (District 20)",
+      "seat": "me-statesenate-20",
+      "raceCall": "https://www.bangordailynews.com/2026/11/04/politics/elections/maine-democrats-add-seats-in-legislature/",
+      "source": "https://www.mikescottformaine.com/issues",
+      "issueKeys": [
+        "public_schools",
+        "back_police",
+        "cost_living"
+      ]
+    },
+    {
+      "pid": "patric_moore",
+      "name": "Patric Aaron Moore",
+      "office": "Maine State Senate (District 16)",
+      "seat": "me-statesenate-16",
+      "raceCall": "https://www.bangordailynews.com/2026/11/04/politics/elections/maine-democrats-add-seats-in-legislature/",
+      "source": "https://www.patricmooreformaine.com/issues",
+      "issueKeys": [
+        "housing_build",
+        "cost_living",
+        "econ_smallbiz",
+        "healthcare"
+      ]
+    },
+    {
+      "pid": "patrick_leahy",
+      "name": "Patrick Leahy",
+      "office": "Nebraska State Senate (District 6)",
+      "seat": "ne-statesenate-6",
+      "raceCall": "https://electionresults.nebraska.gov/resultsSW.aspx?type=LD&map=DIST",
+      "source": "https://leahyfornebraska.com/on-the-issues",
+      "issueKeys": [
+        "prop_tax",
+        "child_care",
+        "school_choice",
+        "public_schools"
+      ]
+    },
+    {
+      "pid": "erin_feichtinger",
+      "name": "Erin Feichtinger",
+      "office": "Nebraska State Senate (District 8)",
+      "seat": "ne-statesenate-8",
+      "raceCall": "https://electionresults.nebraska.gov/resultsSW.aspx?type=LD&map=DIST",
+      "source": "https://erinfornebraska.com/issues",
+      "issueKeys": [
+        "housing",
+        "housing_support",
+        "public_schools",
+        "econ_workers",
+        "child_care"
+      ]
+    },
+    {
+      "pid": "cindy_johnson",
+      "name": "Cindy Johnson",
+      "office": "Nebraska State Senate (District 10)",
+      "seat": "ne-statesenate-10",
+      "raceCall": "https://electionresults.nebraska.gov/resultsSW.aspx?type=LD&map=DIST",
+      "source": "https://cindyjohnsonforne.com/priorities",
+      "issueKeys": [
+        "health_drug_prices",
+        "healthcare",
+        "child_care",
+        "cost_living"
+      ]
+    },
+    {
+      "pid": "nelly_burdette",
+      "name": "Nelly Burdette",
+      "office": "Rhode Island State Senate (District 17)",
+      "seat": "ri-statesenate-17",
+      "raceCall": "https://www.valleybreeze.com/news/lincoln/burdette-defeats-five-term-incumbent-paolino-in-senate-district-17/article_e6191067-d008-416f-8609-38048ee37839.html",
+      "source": "https://electnelly.com/issues",
+      "issueKeys": [
+        "healthcare",
+        "healthcare_costs",
+        "housing",
+        "econ_smallbiz"
+      ]
+    },
+    {
+      "pid": "samantha_wilcox",
+      "name": "Samantha R. Wilcox",
+      "office": "Rhode Island State Senate (District 34)",
+      "seat": "ri-statesenate-34",
+      "raceCall": "https://www.thewesterlysun.com/daily-news-alerts/wilcox-unseats-six-term-morgan-in-senate-district-34/article_de6d56a7-1008-4347-b240-2295888d28b8.html",
+      "source": "https://samwilcoxforri.com/posts/",
+      "issueKeys": [
+        "cost_living",
+        "lands_preserve",
+        "gov_transparency"
+      ]
+    },
+    {
+      "pid": "edward_stravato",
+      "name": "Edward W. Stravato",
+      "office": "Rhode Island State House (District 42)",
+      "seat": "ri-statehouse-42",
+      "raceCall": "https://www.yahoo.com/news/politics/articles/ocean-state-version-blue-wave-210222437.html",
+      "source": "https://edforri.com/priorities",
+      "issueKeys": [
+        "econ_smallbiz",
+        "gov_waste",
+        "back_police"
+      ]
+    },
+    {
+      "pid": "zakary_pereira",
+      "name": "Zakary J. Pereira",
+      "office": "Rhode Island State House (District 22)",
+      "seat": "ri-statehouse-22",
+      "raceCall": "https://warwickpost.com/election-2026-blue-wave-continues-in-warwick/",
+      "source": "https://www.zakaryforri.com/issues",
+      "issueKeys": [
+        "healthcare",
+        "climate_action"
+      ]
+    },
+    {
+      "pid": "nancy_gregory",
+      "name": "Nancy Gregory",
+      "office": "Idaho State Senate (District 15)",
+      "seat": "id-statesenate-15",
+      "raceCall": "https://www.idahoednews.org/elections-category/secretary-of-state-expects-high-turnout-in-tonights-election/",
+      "source": "https://nancygregory4idaho.com/priorities",
+      "issueKeys": [
+        "public_schools",
+        "healthcare",
+        "healthcare_costs",
+        "housing",
+        "lands_keep_public"
+      ]
+    },
+    {
+      "pid": "brent_reinke",
+      "name": "Brent D. Reinke",
+      "office": "Idaho State Senate (District 24)",
+      "seat": "id-statesenate-24",
+      "raceCall": "https://www.idahoednews.org/elections-category/secretary-of-state-expects-high-turnout-in-tonights-election/",
+      "source": "https://reinkeforidaho.com/",
+      "issueKeys": [
+        "cost_living",
+        "lower_taxes",
+        "back_police"
+      ]
+    },
+    {
+      "pid": "casey_swensen",
+      "name": "Casey Swensen",
+      "office": "Idaho State Senate (District 25)",
+      "seat": "id-statesenate-25",
+      "raceCall": "https://www.idahoednews.org/elections-category/secretary-of-state-expects-high-turnout-in-tonights-election/",
+      "source": "https://swensenforidaho.com/",
+      "issueKeys": [
+        "econ_smallbiz",
+        "lower_taxes",
+        "back_police",
+        "border_security"
+      ]
+    }
+  ]
+}
