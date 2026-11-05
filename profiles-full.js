@@ -5809,6 +5809,13 @@
             ${(window.PDXAipac && typeof window.PDXAipac.chipMount === 'function') ? window.PDXAipac.chipMount(id) : ''}
             ${p.party ? `<span class="profile-party">${p.party}</span>` : ''}
           </div>
+          <!-- AIPAC TRACKER. A text-only link to the person's page on AIPAC
+               Tracker (trackaipac.com) — or its search when no page is known — and
+               one line quoting that tracker's own finding, attributed to it by
+               name. Renders on every profile, under the chip row rather than in it,
+               so the letterhead's chips and their order are unchanged. See
+               trackerHtml() in pdx-aipac.js. -->
+          ${(window.PDXAipac && typeof window.PDXAipac.trackerHtml === 'function') ? window.PDXAipac.trackerHtml(id) : ''}
         </div>
         <!-- The primary read, mounted inside the letterhead. On wide screens it is
              the right-hand column beside the identity block; on a phone the hero
