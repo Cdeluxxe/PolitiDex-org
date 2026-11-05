@@ -43,8 +43,10 @@ import { DECLARED_STANCE_PASSES } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
-// The commit this pass was built on.
-const BASE_REV = "05e405d";
+// The commit this pass was built on: the Michigan wave (63bb0ce). The earlier
+// pin named a commit that never reached this history, which left every
+// migration on disk looking added by this pass.
+const BASE_REV = "63bb0ce";
 const BASE = (f) => {
   try { return execFileSync("git", ["show", `${BASE_REV}:${f}`], { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 28, stdio: ["ignore", "pipe", "ignore"] }); }
   catch { return null; }

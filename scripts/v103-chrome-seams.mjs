@@ -3684,6 +3684,17 @@ export const DECLARED_STANCE_PASSES = [
     pids: ["jillaire_mcmillan", "tommy_butler", "jeff_livingston", "steph_vigil",
       "eileen_eady", "vinny_spotleson", "chris_ford", "kristy_janigo", "mark_legvold"],
   },
+  {
+    pass: "newly_elected_state_legislative_stated_nov2026_wave3",
+    // The third state legislative wave: November 3, 2026 winners on seats whose
+    // board already exists, held as candidates with no stance entries
+    // (db/newly-elected-state-legislative-stated-2026-11-wave3.json): three
+    // Tennessee House, two Maine Senate, three Nebraska Legislature, two Rhode
+    // Island Senate and two Rhode Island House, three Idaho Senate.
+    pids: ["connie_casha", "owen_farnsworth", "allie_phillips", "michael_scott", "patric_moore",
+      "patrick_leahy", "erin_feichtinger", "cindy_johnson", "nelly_burdette", "samantha_wilcox",
+      "edward_stravato", "zakary_pereira", "nancy_gregory", "brent_reinke", "casey_swensen"],
+  },
 ];
 export const DECLARED_STANCE_PIDS = DECLARED_STANCE_PASSES.flatMap((d) => d.pids);
 const stanceTable = (src) => {
