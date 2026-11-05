@@ -1,0 +1,667 @@
+{
+  "_note": "Newly elected state legislative members, stated positions, fourth wave (November 2026): Alaska, Montana, South Dakota, Vermont and Utah. The November 3, 2026 State Senate and State House winners on seats whose district board already exists, whom the roster held as candidate rows with no stance entries, and the issue keys their stated positions were filed on in politician-stances.js (regenerated into politician-stances-ext.js). Every entry is the member-elect's own published position, read from the campaign's own priorities, issues or platform page and marked claim:'campaign'; nothing is inferred from party. Each member has a published race call naming them: a news outlet's call, or the state's own results page with every precinct reported. 'district' is the roster's district as written (Vermont districts are named, Alaska Senate districts lettered); 'boards' are the board files that seat already had. Profiles, roster rows, vote records, the drawer and the related-issues map are unchanged. Earlier waves: db/newly-elected-state-legislative-stated-2026-11.json (Michigan), -wave2.json (Colorado, Nevada, Minnesota), -wave3.json (Tennessee, Maine, Nebraska, Rhode Island, Idaho). Read by scripts/test-newly-elected-state-legislative-stated-2026-wave4.mjs.",
+  "read": "2026-11-05",
+  "states": [
+    "ak",
+    "mt",
+    "sd",
+    "vt",
+    "ut"
+  ],
+  "boards": "Every seat in the set already has a district board (district-<state>-<sd|hd>-<n>[-p<seat>].html); no board was opened for this pass.",
+  "members": [
+    {
+      "pid": "kathy_simpler",
+      "name": "Kathy C. Simpler",
+      "office": "Alaska State House (District 5)",
+      "district": "5",
+      "seat": "ak-statehouse-5",
+      "boards": [
+        "district-ak-hd-5.html"
+      ],
+      "raceCall": "https://www.elections.alaska.gov/enr/26GENR/results/ElectionSummaryReportRPT.pdf",
+      "raceCallNote": "Alaska Division of Elections summary (unofficial, 12 of 12 precincts in): Simpler (NON) 2,160 (55.44%), Prout (REP) 1,729 (44.38%). That is an outright first-choice majority, so no RCV runoff, with a 431-vote margin. KMXT (11/4) says she is 'set to win by commanding margins'. ADN (11/4) says she 'led with 55.4%' with all precincts reporting. Open seat: Stutes left it to run for Senate C. This is her first state office.",
+      "source": "https://www.simplerforstatehouse.com/priorities",
+      "issueKeys": [
+        "public_schools",
+        "healthcare_costs",
+        "health_rural",
+        "child_care",
+        "transit"
+      ]
+    },
+    {
+      "pid": "lisa_keller",
+      "name": "Lisa M. Keller",
+      "office": "Alaska State House (District 13)",
+      "district": "13",
+      "seat": "ak-statehouse-13",
+      "boards": [
+        "district-ak-hd-13.html"
+      ],
+      "raceCall": "https://www.elections.alaska.gov/enr/26GENR/results/ElectionSummaryReportRPT.pdf",
+      "raceCallNote": "Alaska Division of Elections summary (unofficial, all precincts): Keller (DEM) 3,240 (90.03%) vs write-ins 9.97%. She was the only name on the ballot after Felix Rivera withdrew and a court left Republican Sarah Short off (ADN 9/30/2026). MultiState lists her as the HD-13 winner. Open seat: Rep. Andy Josephson is retiring. Keller was a legislative aide and has never held the seat.",
+      "source": "https://www.lisakellerforalaska.com/",
+      "issueKeys": [
+        "justice_balance",
+        "public_schools",
+        "gov_waste"
+      ]
+    },
+    {
+      "pid": "margaret_mitchell",
+      "name": "Margaret Mitchell",
+      "office": "Montana State Senate (District 10)",
+      "district": "10",
+      "seat": "mt-statesenate-10",
+      "boards": [
+        "district-mt-sd-10.html"
+      ],
+      "raceCall": "https://montanafreepress.org/2026/11/03/montana-election-results-2026-live-updates/",
+      "raceCallNote": "Montana Free Press live blog: Mitchell (D) won the open SD 10 seat by 14 points over Jessica Dyrdahl (R). Daily Montanan (dailymontanan.com/2026/11/04/dems-flip-seats-in-montana-legislature/) also reports 3,701-2,832 with all precincts in, a flip of the seat Jeremy Trebas left. MT SOS shows 6/6 precincts fully reported. She is a first-time legislator ('This will be new to me').",
+      "source": "https://mitchell406.com/",
+      "issueKeys": [
+        "property_tax",
+        "cost_living",
+        "healthcare_costs",
+        "econ_smallbiz",
+        "lands_preserve"
+      ]
+    },
+    {
+      "pid": "jim_riley",
+      "name": "Jim Riley",
+      "office": "Montana State House (District 6)",
+      "district": "6",
+      "seat": "mt-statehouse-6",
+      "boards": [
+        "district-mt-hd-6.html"
+      ],
+      "raceCall": "https://electionresults.mt.gov/resultsSW.aspx?type=HOUSE&map=DIST",
+      "raceCallNote": "Montana Secretary of State results page (unofficial, updated 11/4/2026 7:10 PM): HD 6 6/6 precincts fully reported, Riley (R) 3,991 to Darren Fix (D) 2,323 (~63-37). Daily Inter Lake and Flathead Beacon results tables show the same lead. Open seat (Amy Regier ran for SD 4); Flathead Beacon describes Riley as new to politics.",
+      "source": "https://www.jimrileyforhd6.com/",
+      "issueKeys": [
+        "school_choice",
+        "edu_parental",
+        "lower_taxes",
+        "gov_regulation",
+        "gun_rights"
+      ]
+    },
+    {
+      "pid": "michelle_bianco",
+      "name": "Michelle Bianco",
+      "office": "Montana State House (District 1)",
+      "district": "1",
+      "seat": "mt-statehouse-1",
+      "boards": [
+        "district-mt-hd-1.html"
+      ],
+      "raceCall": "https://electionresults.mt.gov/resultsSW.aspx?type=HOUSE&map=DIST",
+      "raceCallNote": "Montana Secretary of State results page (unofficial, updated 11/4/2026 7:10 PM): HD 1 12/12 precincts fully reported, Bianco (R) 4,476 to Dakota V Adams (D) 1,404 (76-24). Flathead Beacon and Daily Inter Lake tables match. No incumbent ran (Rep. Neil Duram held the seat); Bianco is a first-time candidate.",
+      "source": "https://bianco4mt2026.com/",
+      "issueKeys": [
+        "prop_tax",
+        "lands_energy",
+        "gun_rights",
+        "tough_on_crime",
+        "border_security"
+      ]
+    },
+    {
+      "pid": "adam_bair",
+      "name": "Adam Bair",
+      "office": "South Dakota State House (District 10)",
+      "district": "10",
+      "seat": "sd-statehouse-10",
+      "boards": [
+        "district-sd-hd-10-p1.html",
+        "district-sd-hd-10-p2.html"
+      ],
+      "raceCall": "https://www.yahoo.com/news/politics/articles/sioux-falls-area-decides-legislators-070909318.html",
+      "raceCallNote": "Sioux Falls Argus Leader (Morgan Matzen, via Yahoo), Nov. 4: 'Newcomers Kathleen Brudvig (D) and Adam Bair (D) won' District 10 House; Bair 28% (3,764) vs. Pohlman (R) 21% (2,852), ~900-vote margin for 2nd seat.",
+      "source": "https://adambairsouthdakota.com/issues/",
+      "issueKeys": [
+        "housing_build",
+        "housing_first_time",
+        "public_schools",
+        "datacenter_growth",
+        "lands_keep_public"
+      ]
+    },
+    {
+      "pid": "ali_horsted",
+      "name": "Ali Rae Horsted",
+      "office": "South Dakota State House (District 13)",
+      "district": "13",
+      "seat": "sd-statehouse-13",
+      "boards": [
+        "district-sd-hd-13-p1.html",
+        "district-sd-hd-13-p2.html"
+      ],
+      "raceCall": "https://www.yahoo.com/news/politics/articles/sioux-falls-area-decides-legislators-070909318.html",
+      "raceCallNote": "Sioux Falls Argus Leader (via Yahoo), Nov. 4: Kolbeck (R) 35% and newcomer Horsted (D) 33% win District 13 House; 'Horsted ousted incumbent John Hughes (R)' (5,588 vs 5,276, ~312 votes; not on the listed possible-recount races).",
+      "source": "https://www.aliforsd.com/vision",
+      "issueKeys": [
+        "cost_living",
+        "healthcare_costs",
+        "public_schools",
+        "gov_transparency"
+      ]
+    },
+    {
+      "pid": "june_copperstad",
+      "name": "June CopperStad",
+      "office": "South Dakota State House (District 15)",
+      "district": "15",
+      "seat": "sd-statehouse-15",
+      "boards": [
+        "district-sd-hd-15-p1.html",
+        "district-sd-hd-15-p2.html"
+      ],
+      "raceCall": "https://www.yahoo.com/news/politics/articles/sioux-falls-area-decides-legislators-070909318.html",
+      "raceCallNote": "Sioux Falls Argus Leader (via Yahoo), Nov. 4: 'incumbent Kadyn Wittman (D) and newcomer June CopperStad (D)' won District 15 House with 33% and 30%; CopperStad 2,906 vs. Tschetter (R) 1,886.",
+      "source": "https://juneforsd.com/issues/",
+      "issueKeys": [
+        "housing_support",
+        "child_care",
+        "family_support",
+        "econ_workers",
+        "voting_access"
+      ]
+    },
+    {
+      "pid": "jeff_haylon",
+      "name": "Jeff Haylon",
+      "office": "Vermont State House (District Rutland-9)",
+      "district": "Rutland-9",
+      "seat": "vt-statehouse-77",
+      "boards": [
+        "district-vt-hd-77.html"
+      ],
+      "raceCall": "https://vtdigger.org/2026/11/03/the-latest-results-from-vermonts-2026-general-election/",
+      "raceCallNote": "VTDigger: AP called Rutland-9 for Democrat Jeff Haylon over Republican Aida Nielsen around 8 p.m., Haylon leading by more than 20 points; open seat vacated by Rep. Todd Nielsen. VTDigger 11/4 follow-up confirms the win.",
+      "source": "https://jeffhaylon.com/policies/",
+      "issueKeys": [
+        "healthcare",
+        "healthcare_costs",
+        "public_schools",
+        "pro_choice",
+        "econ_smallbiz"
+      ]
+    },
+    {
+      "pid": "phoebe_tucker",
+      "name": "Phoebe Tucker",
+      "office": "Vermont State House (District Rutland-Windsor)",
+      "district": "Rutland-Windsor",
+      "seat": "vt-statehouse-79",
+      "boards": [
+        "district-vt-hd-79.html"
+      ],
+      "raceCall": "https://vtdigger.org/2026/11/03/the-latest-results-from-vermonts-2026-general-election/",
+      "raceCallNote": "VTDigger: AP called Rutland-Windsor for Democratic newcomer Phoebe Tucker over incumbent Rep. Kevin Winter (R) around 9 p.m., Tucker leading by more than 12 points; VTDigger 11/4 follow-up says Tucker won.",
+      "source": "https://www.phoebeforvermont.com/priorities",
+      "issueKeys": [
+        "healthcare",
+        "healthcare_costs",
+        "housing",
+        "prop_tax",
+        "rural_ag"
+      ]
+    },
+    {
+      "pid": "kim_gleason",
+      "name": "Kim Gleason",
+      "office": "Vermont State Senate (District Grand Isle)",
+      "district": "Grand Isle",
+      "seat": "vt-statesenate-9",
+      "boards": [
+        "district-vt-sd-9.html"
+      ],
+      "raceCall": "https://vtdigger.org/2026/11/03/the-latest-results-from-vermonts-2026-general-election/",
+      "raceCallNote": "VTDigger reports Democratic challenger Kim Gleason 'pulled off' the first Senate flip, unseating Sen. Pat Brennan (R); Colchester Sun/WCAX results: Gleason 5,836 (53.4%) to Brennan 5,076 (46.4%), ~760-vote margin.",
+      "source": "https://www.kimgleasonforvt.org/priorities",
+      "issueKeys": [
+        "healthcare",
+        "health_rural",
+        "housing_build",
+        "public_schools",
+        "gov_transparency"
+      ]
+    },
+    {
+      "pid": "hannah_sessions",
+      "name": "Hannah Sessions",
+      "office": "Vermont State Senate (District Addison)",
+      "district": "Addison",
+      "seat": "vt-statesenate-1",
+      "boards": [
+        "district-vt-sd-1-p1.html",
+        "district-vt-sd-1-p2.html"
+      ],
+      "raceCall": "https://vtdigger.org/2026/11/03/the-latest-results-from-vermonts-2026-general-election/",
+      "raceCallNote": "VTDigger: Sen. Ruth Hardy and newcomer Hannah Sessions (D) won both Addison seats, overcoming Sen. Steve Heffernan (R) and Andrew Klein (R). Unofficial SOS results: Sessions 12,668 (31.8%), Hardy 12,510, Heffernan 7,933 (19.9%), Klein 6,689 — ~4,700-vote margin over 3rd.",
+      "source": "https://hannahsessionsforvt.com/issues/",
+      "issueKeys": [
+        "prop_tax",
+        "housing_build",
+        "healthcare",
+        "public_schools",
+        "pro_choice"
+      ]
+    },
+    {
+      "pid": "iva_williams",
+      "name": "Iva Williams",
+      "office": "Utah State House (District 42)",
+      "district": "42",
+      "seat": "ut-statehouse-42",
+      "boards": [
+        "district-ut-hd-42.html"
+      ],
+      "raceCall": "https://www.deseret.com/utah/2026/11/04/utah-house-republicans-may-lose-supermajority-for-first-time-in-decades/",
+      "raceCallNote": "Deseret News (also on KSL), Nov 4: Rep. Clint Okerlund (R-Sandy) 'trails by nearly 1,600 votes to Democrat Iva Williams and has conceded the race.' UND election-night count: Williams 55.79% to Okerlund 44.21%. She unseated the incumbent, so she is new.",
+      "source": "https://electivawilliams.com/priorities",
+      "issueKeys": [
+        "property_tax",
+        "housing_build",
+        "econ_workers",
+        "datacenter_growth",
+        "lands_preserve"
+      ]
+    }
+  ],
+  "leftOut": [
+    {
+      "pid": "joy_cottle",
+      "district": "34",
+      "office": "Alaska State House (District 34)",
+      "reason": "Leads Harmony Tomaszewski 50.25% to 49.58% (43 votes) with all precincts in. That is under the recount threshold and not called."
+    },
+    {
+      "pid": "harmony_tomaszewski",
+      "district": "34",
+      "office": "Alaska State House (District 34)",
+      "reason": "Trails Cottle 49.58% to 50.25% in HD-34. Not a winner, and the race is too close to call."
+    },
+    {
+      "pid": "cliff_groh",
+      "district": "18",
+      "office": "Alaska State House (District 18)",
+      "reason": "Leads with 62.5%, but ADN calls him a 'former Rep.' He is a returning legislator, not newly elected."
+    },
+    {
+      "pid": "sheldon_prout",
+      "district": "5",
+      "office": "Alaska State House (District 5)",
+      "reason": "Lost HD-5 to Kathy Simpler, 44.38% to 55.44% of first-choice votes with all precincts in."
+    },
+    {
+      "pid": "darren_deacon",
+      "district": "S",
+      "office": "Alaska State Senate (District S)",
+      "reason": "Second at 26.71% behind Edgmon (35.98%). No majority; the RCV tabulation on Nov 18 decides it."
+    },
+    {
+      "pid": "wassilie_guy",
+      "district": "S",
+      "office": "Alaska State Senate (District S)",
+      "reason": "Third at 24.76% in Senate S. No majority; RCV pending and Edgmon leads."
+    },
+    {
+      "pid": "heath_smith",
+      "district": "C",
+      "office": "Alaska State Senate (District C)",
+      "reason": "Trails Louise Stutes 39.35% to 48.14% in Senate C. No majority yet; RCV pending."
+    },
+    {
+      "pid": "carrie_harris",
+      "district": "C",
+      "office": "Alaska State Senate (District C)",
+      "reason": "Third with 11.64% in Senate C. Not a winner."
+    },
+    {
+      "pid": "ryan_berry",
+      "district": "M",
+      "office": "Alaska State Senate (District M)",
+      "reason": "Senate M is a four-way race: Tilton 33.43%, Berry 32.52%. No majority; Beacon says it hinges on RCV."
+    },
+    {
+      "pid": "michael_bowles_ak",
+      "district": "25",
+      "office": "Alaska State House (District 25)",
+      "reason": "HD-25 is a three-way race with no majority: Johnson 36.14%, Bowles 32.46%, Merritt 31.11%. RCV pending."
+    },
+    {
+      "pid": "steven_merritt",
+      "district": "25",
+      "office": "Alaska State House (District 25)",
+      "reason": "Third at 31.11% in HD-25. No majority; RCV pending."
+    },
+    {
+      "pid": "gerald_nelson",
+      "district": "29",
+      "office": "Alaska State House (District 29)",
+      "reason": "Leads HD-29 with 35.69% vs Menard's 33.70%. No majority; RCV tabulation still to come."
+    },
+    {
+      "pid": "steve_menard",
+      "district": "29",
+      "office": "Alaska State House (District 29)",
+      "reason": "Second at 33.70% in HD-29. No majority; RCV pending."
+    },
+    {
+      "pid": "doug_massie",
+      "district": "30",
+      "office": "Alaska State House (District 30)",
+      "reason": "Trails incumbent McCabe 35.84% to 38.41% in HD-30. No majority; RCV pending."
+    },
+    {
+      "pid": "stephen_wright",
+      "district": "28",
+      "office": "Alaska State House (District 28)",
+      "reason": "Leads HD-28 with 37.44%. Beacon's RCV tabulation shows Elexie Moore ahead by six votes, so not called."
+    },
+    {
+      "pid": "kathleen_kennedy",
+      "district": "28",
+      "office": "Alaska State House (District 28)",
+      "reason": "Third at 26.94% in HD-28. Would be eliminated in the RCV runoff."
+    },
+    {
+      "pid": "pepper_mcfarland",
+      "district": "33",
+      "office": "Alaska State House (District 33)",
+      "reason": "Second at 29.33% behind Prax (41.64%) in HD-33. No majority; RCV pending."
+    },
+    {
+      "pid": "evelynn_trefon",
+      "district": "37",
+      "office": "Alaska State House (District 37)",
+      "reason": "Leads HD-37 with only 37.97% in a four-way race. ADN notes rural RCV results are incomplete, so not called."
+    },
+    {
+      "pid": "brenda_wilson",
+      "district": "37",
+      "office": "Alaska State House (District 37)",
+      "reason": "Second at 28.32% in HD-37. No majority; RCV pending."
+    },
+    {
+      "pid": "cj_mccormick",
+      "district": "38",
+      "office": "Alaska State House (District 38)",
+      "reason": "Second at 28.25% behind Nellie Jimmie (39.12%) in HD-38. No majority; RCV pending."
+    },
+    {
+      "pid": "tyler_ivanoff",
+      "district": "39",
+      "office": "Alaska State House (District 39)",
+      "reason": "Trails incumbent Neal Foster 34.95% to 48.23% in HD-39. Not a winner."
+    },
+    {
+      "pid": "saima_chase",
+      "district": "40",
+      "office": "Alaska State House (District 40)",
+      "reason": "Lost HD-40 to Robyn Frier, 39.95% to 59.05%."
+    },
+    {
+      "pid": "gina_wall",
+      "district": "24",
+      "office": "Alaska State House (District 24)",
+      "reason": "Trails incumbent McCarty 49.23% to 49.49% (16 votes). Recount-range margin, not called."
+    },
+    {
+      "pid": "jim_arlington",
+      "district": "23",
+      "office": "Alaska State House (District 23)",
+      "reason": "Second at 28.48% behind Jamie Allard (38.11%) in HD-23. Headed to an RCV runoff."
+    },
+    {
+      "pid": "crystal_jones",
+      "district": "36",
+      "office": "Alaska State House (District 36)",
+      "reason": "Lost HD-36 to incumbent Rebecca Schwanke, 40.90% to 58.39%."
+    },
+    {
+      "pid": "jieun_mcdonald",
+      "district": "12",
+      "office": "Alaska State House (District 12)",
+      "reason": "Lost HD-12 to incumbent Calvin Schrage, 33.43% to 66.26%."
+    },
+    {
+      "pid": "danni_hall",
+      "district": "11",
+      "office": "Alaska State House (District 11)",
+      "reason": "Trails incumbent Julie Coulombe 46.40% to 53.34% in HD-11. Not a winner."
+    },
+    {
+      "pid": "aimee_moore",
+      "district": "31",
+      "office": "Alaska State House (District 31)",
+      "reason": "Lost HD-31 to Maxine Dibert, 36.31% to 58.54%."
+    },
+    {
+      "pid": "denny_wells",
+      "district": "15",
+      "office": "Alaska State House (District 15)",
+      "reason": "Leads with 52.44%, but he is the returning HD-15 incumbent, not newly elected."
+    },
+    {
+      "pid": "rebecca_schwanke",
+      "district": "36",
+      "office": "Alaska State House (District 36)",
+      "reason": "Won with 58.39%, but she is the returning HD-36 incumbent, not newly elected."
+    },
+    {
+      "pid": "paula_koch",
+      "district": "4",
+      "office": "Montana State House (District 4)",
+      "reason": "Shown winning on the Secretary of State results page with all precincts in (2,748 to 2,288), but no campaign issues page was reviewed in this pass; held for a later pass."
+    },
+    {
+      "pid": "trevor_funseth",
+      "district": "21",
+      "office": "Montana State House (District 21)",
+      "reason": "Shown winning on the Secretary of State results page with all precincts in (2,510 to 1,798), but no campaign issues page was reviewed in this pass; held for a later pass."
+    },
+    {
+      "pid": "justin_cleveland",
+      "district": "17",
+      "office": "Montana State House (District 17)",
+      "reason": "Shown winning on the Secretary of State results page with all precincts in (3,721 to 1,588), but no campaign issues page was reviewed in this pass; held for a later pass."
+    },
+    {
+      "pid": "steve_keller",
+      "district": "20",
+      "office": "Montana State House (District 20)",
+      "reason": "46-vote margin (1,986-1,940) over the incumbent is within recount range; MTFP cites SOS filings only, not a call."
+    },
+    {
+      "pid": "natalie_oneal",
+      "district": "31",
+      "office": "Montana State House (District 31)",
+      "reason": "MTFP reports she won an uncontested race, but natalie4montana.com has only a bio and no issues or platform text."
+    },
+    {
+      "pid": "lona_wolf",
+      "district": "16",
+      "office": "Montana State House (District 16)",
+      "reason": "MTFP reports she won an uncontested race, but no campaign website was found (none on the MDP list or in searches)."
+    },
+    {
+      "pid": "erin_olsen",
+      "district": "41",
+      "office": "Montana State Senate (District 41)",
+      "reason": "Erin Farris-Olsen is a former Montana House member, so she is not a newly elected legislator."
+    },
+    {
+      "pid": "steve_gunderson",
+      "district": "1",
+      "office": "Montana State Senate (District 1)",
+      "reason": "Steve Gunderson is a sitting/former Montana House member (HD 1) moving to the Senate, so he is not new."
+    },
+    {
+      "pid": "steven_galloway",
+      "district": "11",
+      "office": "Montana State Senate (District 11)",
+      "reason": "Steve Galloway is a former Montana House member, so he is not a newly elected legislator."
+    },
+    {
+      "pid": "finley_warden",
+      "district": "13",
+      "office": "Montana State House (District 13)",
+      "reason": "Shown winning on the Secretary of State results page (2,757 to 2,276), but no outlet call was found and no campaign issues page was reviewed in this pass."
+    },
+    {
+      "pid": "kathleen_brudvig",
+      "district": "10",
+      "office": "South Dakota State House (District 10)",
+      "reason": "Won House District 10 as a newcomer (Argus Leader), but no campaign website of her own was found; only party and news profiles."
+    },
+    {
+      "pid": "sonja_mentzer",
+      "district": "11",
+      "office": "South Dakota State House (District 11)",
+      "reason": "Leads HD11 by only ~43 votes (4,234 vs 4,190); Argus Leader lists race as possible recount."
+    },
+    {
+      "pid": "stephanie_arne",
+      "district": "12",
+      "office": "South Dakota State House (District 12)",
+      "reason": "Won House District 12 as a newcomer, but no readable campaign issues page of her own was found; only questionnaire profiles."
+    },
+    {
+      "pid": "erinn_williams",
+      "district": "14",
+      "office": "South Dakota State House (District 14)",
+      "reason": "Won House District 14 as a newcomer, but no campaign website of her own was found; only a public-radio questionnaire profile."
+    },
+    {
+      "pid": "kari_koenders",
+      "district": "12",
+      "office": "South Dakota State Senate (District 12)",
+      "reason": "SD12 Senate margin ~132 votes (50.8-49.2%); Argus Leader lists it as a possible recount."
+    },
+    {
+      "pid": "megan_tschetter",
+      "district": "9",
+      "office": "South Dakota State House (District 9)",
+      "reason": "HD9 second seat lead ~157 votes over Potter; Argus Leader says likely to be recounted."
+    },
+    {
+      "pid": "evangeline_bear",
+      "district": "27",
+      "office": "South Dakota State House (District 27)",
+      "reason": "Won House District 27 as an independent, but no campaign website of her own was found."
+    },
+    {
+      "pid": "bart_sample",
+      "district": "25",
+      "office": "South Dakota State Senate (District 25)",
+      "reason": "Won Senate District 25 as a newcomer with about 58 percent, but no campaign issues page was reviewed in this pass; held for a later pass."
+    },
+    {
+      "pid": "adam_long",
+      "district": "2",
+      "office": "South Dakota State House (District 2)",
+      "reason": "Reported by the Argus Leader as a newcomer winning House District 2, but no campaign issues page of his own was verified."
+    },
+    {
+      "pid": "irene_wrenner",
+      "district": "Chittenden North",
+      "office": "Vermont State Senate (District Chittenden North)",
+      "reason": "Former state senator regaining her old seat (not newly elected); VTDigger also only said she 'appeared' to win."
+    },
+    {
+      "pid": "julia_andrews",
+      "district": "Chittenden-25",
+      "office": "Vermont State House (District Chittenden-25)",
+      "reason": "Former Westford state representative returning to the House, so not a first-time legislator; call was 'appeared to' win."
+    },
+    {
+      "pid": "jonathan_hescock",
+      "district": "Addison-Rutland",
+      "office": "Vermont State House (District Addison-Rutland)",
+      "reason": "VTDigger only says he 'appeared to' beat Rep. Jim Casey at midnight; no firm race call or margin found."
+    },
+    {
+      "pid": "mike_rice",
+      "district": "Bennington-Rutland",
+      "office": "Vermont State House (District Bennington-Rutland)",
+      "reason": "VTDigger only says incumbent Pinsonault 'appeared to be unseated' by Rice; no firm call or margin verified."
+    },
+    {
+      "pid": "sonya_spaulding",
+      "district": "Washington-3",
+      "office": "Vermont State House (District Washington-3)",
+      "reason": "Two-seat Washington-3 race; her finishing position was not confirmed with vote totals, so the win is not settled for this pass."
+    },
+    {
+      "pid": "john_stroup",
+      "district": "Addison-3",
+      "office": "Vermont State House (District Addison-3)",
+      "reason": "The only call found does not say whether he is a newcomer and gives no margin; no campaign page was reviewed."
+    },
+    {
+      "pid": "stephanie_hollist",
+      "district": "7",
+      "office": "Utah State Senate (District 7)",
+      "reason": "Leads SD7 about 56-39 (Standard-Examiner, preliminary) but no outlet or results page reports her as the winner yet; MultiState shows no winner recorded"
+    },
+    {
+      "pid": "drew_howells",
+      "district": "39",
+      "office": "Utah State House (District 39)",
+      "reason": "Leads Ivory 60-40 in unofficial counts, but there is no race call or concession and more than 100k Salt Lake County ballots remained"
+    },
+    {
+      "pid": "ofa_matagi",
+      "district": "43",
+      "office": "Utah State House (District 43)",
+      "reason": "Leads Eliason 56-44 in unofficial counts but has not been called; no concession found; MultiState shows no winner recorded"
+    },
+    {
+      "pid": "jess_birtcher",
+      "district": "44",
+      "office": "Utah State House (District 44)",
+      "reason": "Leads Teuscher 54-46 in unofficial counts but has not been called; no concession found; MultiState shows no winner recorded"
+    },
+    {
+      "pid": "blake_townsend",
+      "district": "36",
+      "office": "Utah State House (District 36)",
+      "reason": "Leads Dunnigan 54.7-45.3 in unofficial counts but has not been called; no concession found; MultiState shows no winner recorded"
+    },
+    {
+      "pid": "zane_woolstenhulme",
+      "district": "4",
+      "office": "Utah State House (District 4)",
+      "reason": "Narrow 51.8-48.2 lead over Rep. Auxier with only about 45% reporting; KPCW calls it a narrow lead and it has not been called"
+    },
+    {
+      "pid": "celeste_johnson",
+      "district": "59",
+      "office": "Utah State House (District 59)",
+      "reason": "Leads Searle by about 25 votes (50.10-49.90), which is within recount range and not called"
+    },
+    {
+      "pid": "jim_alvey",
+      "district": "10",
+      "office": "Utah State House (District 10)",
+      "reason": "Trailing Democrat Rosemary Lesser 37-63 in the open HD10 seat, so not a winner"
+    },
+    {
+      "pid": "sheldon_birch",
+      "district": "29",
+      "office": "Utah State House (District 29)",
+      "reason": "Shown as the open-seat winner only by a results tracker (MultiState); no outlet call or readable official results page was found on 2026-11-04, so the win is left out until a call is published."
+    },
+    {
+      "pid": "jr_bird",
+      "district": "67",
+      "office": "Utah State House (District 67)",
+      "reason": "Shown as the open-seat winner only by a results tracker (MultiState); no outlet call or readable official results page was found on 2026-11-04, so the win is left out until a call is published."
+    }
+  ]
+}

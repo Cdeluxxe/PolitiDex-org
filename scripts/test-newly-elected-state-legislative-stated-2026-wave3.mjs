@@ -123,9 +123,13 @@ section("1 · the defined set holds stated positions on existing issue keys");
     for (const pid of SET) ok(!prev.includes(pid), `${pid} is already in ${f}`);
   }
   // Everyone considered and left out carries a reason and no stance entries.
+  // A person this wave held for later may be filed by a LATER declared stance
+  // pass (v103-chrome-seams.mjs) — e.g. Montana's Margaret Mitchell in wave 4.
+  const ownPass = DECLARED_STANCE_PASSES.findIndex((d) => d.pass === "newly_elected_state_legislative_stated_nov2026_wave3");
+  const laterPids = new Set(DECLARED_STANCE_PASSES.slice(ownPass + 1).flatMap((d) => d.pids));
   for (const l of REC.leftOut || []) {
     ok(typeof l.reason === "string" && l.reason.length > 20, `${l.pid}: left out with no reason`);
-    ok(!(l.pid in S), `${l.pid}: left out but holds stance entries`);
+    ok(!(l.pid in S) || laterPids.has(l.pid), `${l.pid}: left out but holds stance entries`);
     ok(!SET.includes(l.pid), `${l.pid}: both left out and in the set`);
   }
   // Only State Senate and State House seats, each with a board that already exists.
