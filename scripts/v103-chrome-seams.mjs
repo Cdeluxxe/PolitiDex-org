@@ -3537,6 +3537,17 @@ export const DECLARED_ADMISSIONS = [
     banner: "// ── Current candidates outside Utah, 2026 general election, official state lists (Oct 2026)",
     pids: JSON.parse(_readFileSync(new URL("../db/roster-candidates-2026-oct.json", import.meta.url), "utf8")).rows.map((r) => r.pid),
   },
+  {
+    // The fifth newly elected state legislative wave: challengers who won a
+    // called November 3, 2026 race on a seat whose board already exists in
+    // Wisconsin, Illinois, North Carolina, Georgia and Florida, which the roster
+    // held by name only (the ballot files). One identity row each, sitting just
+    // above the election-day block, which stays just above the October one; the
+    // record names them.
+    wave: "newly_elected_state_legislators_wi_il_nc_ga_fl_nov2026",
+    banner: "// ── Newly elected state legislators, Wisconsin, Illinois, North Carolina, Georgia and Florida — roster rows (Nov 2026)",
+    pids: JSON.parse(_readFileSync(new URL("../db/newly-elected-state-legislative-stated-2026-11-wave5.json", import.meta.url), "utf8")).members.map((m) => m.pid),
+  },
 ];
 /**
  * DECLARED STANCE PASSES — people whose curated stance list a pass rewrote ON
@@ -3706,8 +3717,42 @@ export const DECLARED_STANCE_PASSES = [
       "adam_bair", "ali_horsted", "june_copperstad", "jeff_haylon", "phoebe_tucker",
       "kim_gleason", "hannah_sessions", "iva_williams"],
   },
+  {
+    pass: "newly_elected_state_legislative_stated_nov2026_wave5",
+    // The fifth state legislative wave: November 3, 2026 winners on seats whose
+    // board already exists, admitted as candidate rows by this pass
+    // (db/newly-elected-state-legislative-stated-2026-11-wave5.json): six
+    // Wisconsin Assembly, two Illinois Senate and one Illinois House, one North
+    // Carolina Senate and three North Carolina House, one Georgia Senate and four
+    // Georgia House, one Florida Senate and three Florida House.
+    pids: ["kevin_knoke", "ben_gruber", "ben_brist", "john_kroll", "brandy_tollefson", "jeremiah_fredrickson",
+      "ben_mcadams_il", "marsia_geldert_murphey", "maria_peterson", "jessica_bichler", "lorenza_wilkins",
+      "winn_decker", "ken_mccool", "laura_murvartian", "danielle_bell", "adam_cleveland", "beth_fuller",
+      "michelle_kang", "john_lowndes", "eric_gray", "todd_delmay", "lucia_baez_geller"],
+  },
 ];
 export const DECLARED_STANCE_PIDS = DECLARED_STANCE_PASSES.flatMap((d) => d.pids);
+// sw.js with its comment lines and the CACHE_VERSION line set aside: what a
+// pass that moved the shell only to re-ship a precached file (a version note
+// and a bump) leaves identical. Every line of worker code, and the precache
+// list, still compares.
+export function swCodeOnly(src) {
+  return String(src).split("\n").filter((l) => !/^\s*\/\//.test(l) && !/^const CACHE_VERSION = 'v\d+';$/.test(l)).join("\n");
+}
+// cmp-data.js with exactly the fifth newly elected wave's declared block set
+// aside (db/newly-elected-state-legislative-stated-2026-11-wave5.json); any
+// other move, or a block whose rows are not exactly the record's, stays put.
+const _W5_BANNER = "// ── Newly elected state legislators, Wisconsin, Illinois, North Carolina, Georgia and Florida — roster rows (Nov 2026)";
+export function withoutWave5RosterRows(src) {
+  if (src == null) return src;
+  const at = String(src).indexOf(_W5_BANNER);
+  if (at < 0) return src;
+  const end = src.indexOf("\n// ── ", at + 1);
+  const d = DECLARED_ADMISSIONS.find((x) => x.banner === _W5_BANNER);
+  if (end < 0 || !d) return src;
+  const pids = [...src.slice(at, end).matchAll(/^ "([a-z0-9_]+)": \{$/gm)].map((x) => x[1]).sort().join(",");
+  return pids === d.pids.slice().sort().join(",") ? src.slice(0, at) + src.slice(end + 1) : src;
+}
 const stanceTable = (src) => {
   if (src == null) return null;
   const w = {};

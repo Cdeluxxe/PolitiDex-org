@@ -24,7 +24,7 @@
 //
 //   node scripts/test-state-legislator-shells-ny-pa-il.mjs
 
-import { R, HEAD, boot, levelOf, band } from "./state-leg-harness.mjs";
+import { R, HEAD, withoutWave5Rows, boot, levelOf, band } from "./state-leg-harness.mjs";
 import vm from "node:vm";
 
 let passed = 0;
@@ -160,7 +160,8 @@ section("4 · the other 47 states and D.C. are identical to HEAD's");
   const now = boot(at("Utah", "Layton", "Davis County", "2", "7", "16"));
   const was = boot(at("Utah", "Layton", "Davis County", "2", "7", "16"), { "cmp-data.js": headData });
   const ctx = (src) => { const w = {}; w.window = w; vm.createContext(w); vm.runInContext(src, w); return w.CMP_DATA; };
-  const A = ctx(R("cmp-data.js")), B = ctx(headData);
+  // The fifth newly elected wave's declared block is its own suite's product.
+  const A = ctx(withoutWave5Rows(R("cmp-data.js"))), B = ctx(headData);
   const OURS = /^(New York|Pennsylvania|Illinois|Ohio|Georgia|North Carolina|Michigan|New Jersey|Virginia|Washington|Arizona|Massachusetts|Tennessee|Indiana|Missouri|Wisconsin|Minnesota|Colorado|Nevada)\b/;
   const outside = (T) => Object.keys(T).filter((k) => !OURS.test(String(T[k].state || ""))).sort();
   eq(JSON.stringify(outside(A)), JSON.stringify(outside(B)), "roster: rows outside the three states were added or removed");

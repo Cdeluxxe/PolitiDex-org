@@ -11641,7 +11641,18 @@
 //     gate. No location key or other stored reader state is written or
 //     rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v525';
+// v526 - NEWLY ELECTED STATE LEGISLATORS IN FIVE MORE STATES.
+//     cmp-data.js gains one identity row for each of 22 challengers who won a
+//     called November 3, 2026 State Senate, State House or State Assembly race
+//     in Wisconsin, Illinois, North Carolina, Georgia and Florida, on a seat
+//     whose board already exists (candidate: true, so no seat lookup names one
+//     as a sitting member). Their campaign-claim stated positions live in
+//     politician-stances-ext.js, a runtime entry. cmp-data.js is precached and
+//     changed, so the shell moves one version; the precache list is unchanged.
+//     No route or gate. No location key or other stored reader state is
+//     written or rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v526';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

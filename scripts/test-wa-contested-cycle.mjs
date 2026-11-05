@@ -40,10 +40,11 @@
 //
 //   node scripts/test-wa-contested-cycle.mjs
 
-import { R, HEAD, AT, PRE_CA_WA, PASS_WORKER, boot, levelOf, band, settled, DECLARED_MIGRATIONS, withoutSixStateShells, withoutFourStateShells, withoutMsVtMiTnShells, isElectionDay, withoutElectionDay } from "./state-leg-harness.mjs";
+import { R, HEAD, AT, PRE_CA_WA, PASS_WORKER, boot, levelOf, band, settled, DECLARED_MIGRATIONS, withoutSixStateShells, withoutFourStateShells, withoutMsVtMiTnShells, isElectionDay, withoutElectionDay, withoutWave5Rows } from "./state-leg-harness.mjs";
 // Every later whole-state pass, carved out the way each reverses exactly.
 // …and the election-day wave (its candidate block and declared districts).
-const withoutWholeStatePasses = (src) => withoutSixStateShells(withoutFourStateShells(withoutMsVtMiTnShells(withoutElectionDay(src))));
+// …and the fifth newly elected wave's declared rows (its own suite holds them).
+const withoutWholeStatePasses = (src) => withoutSixStateShells(withoutFourStateShells(withoutMsVtMiTnShells(withoutElectionDay(withoutWave5Rows(src)))));
 import { readdirSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";

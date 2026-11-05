@@ -32,7 +32,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
-import { DECLARED_STANCE_PASSES } from "./v103-chrome-seams.mjs";
+import { DECLARED_STANCE_PASSES, swCodeOnly, withoutWave5RosterRows } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -200,6 +200,8 @@ section("4 · nothing else moved; no new route or gate; no shell move, no migrat
       "stance-sides.js", "my-stances.js", "voting-record.js", "person.html", "index.html", "issue.html", "ballot.html", "netlify.toml", "_redirects"]) {
       const b = BASE(f);
       let now = null; try { now = R(f); } catch { /* absent */ }
+      // A later pass's declared roster block (wave 5) is that pass's product.
+      if (f === "cmp-data.js") now = withoutWave5RosterRows(now);
       eq(now, b, `${f} changed`);
     }
     const ls = BASE_LS();
@@ -223,7 +225,9 @@ section("4 · nothing else moved; no new route or gate; no shell move, no migrat
   ok(!pre.includes("politician-stances-ext.js") && !pre.includes("sitemap.xml"), "a file this pass changed is precached");
   const baseSw = BASE("sw.js");
   if (baseSw != null) {
-    eq(sw, baseSw, "sw.js changed although no precached file did");
+    // A later pass may move the shell for its own precached file; the worker
+    // code and the precache list still compare.
+    eq(swCodeOnly(sw), swCodeOnly(baseSw), "sw.js changed although no precached file did");
     eq(R("politician-stances-core.js"), BASE("politician-stances-core.js"), "the precached stance chunk changed");
   }
   let migs = []; try { migs = readdirSync(join(ROOT, "netlify/database/migrations")); } catch { /* none */ }

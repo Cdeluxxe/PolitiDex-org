@@ -30,7 +30,7 @@
 // boot() is the roster without the Mississippi, Vermont, Michigan and Tennessee
 // pass (see state-leg-harness.mjs), which seated the members this record held
 // only as a candidacy; test-ms-vt-mi-tn-deepen.mjs pins them in their seats.
-import { R, HEAD, bootWithoutMsVtMiTnShells as boot, withoutMsVtMiTnShells, levelOf, band } from "./state-leg-harness.mjs";
+import { R, HEAD, withoutWave5Rows, bootWithoutMsVtMiTnShells as boot, withoutMsVtMiTnShells, levelOf, band } from "./state-leg-harness.mjs";
 import vm from "node:vm";
 
 let passed = 0;
@@ -183,7 +183,8 @@ section("4 · the other 47 states and D.C. are identical to HEAD's");
   const now = boot(at("Utah", "Layton", "Davis County", "2", "7", "16"));
   const was = boot(at("Utah", "Layton", "Davis County", "2", "7", "16"), { "cmp-data.js": withoutMsVtMiTnShells(headData) });
   const ctx = (src) => { const w = {}; w.window = w; vm.createContext(w); vm.runInContext(src, w); return w.CMP_DATA; };
-  const A = ctx(R("cmp-data.js")), B = ctx(headData);
+  // The fifth newly elected wave's declared block is its own suite's product.
+  const A = ctx(withoutWave5Rows(R("cmp-data.js"))), B = ctx(headData);
   const OURS = /^(Michigan|New Jersey|Virginia|Washington|Arizona|Massachusetts|Tennessee|Indiana|Missouri|Wisconsin|Minnesota|Colorado|Nevada)\b/;
   const outside = (T) => Object.keys(T).filter((k) => !OURS.test(String(T[k].state || ""))).sort();
   eq(JSON.stringify(outside(A)), JSON.stringify(outside(B)), "roster: rows outside the three states were added or removed");

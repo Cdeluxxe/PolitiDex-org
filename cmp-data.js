@@ -53192,6 +53192,177 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
  },
+// ── Newly elected state legislators, Wisconsin, Illinois, North Carolina, Georgia and Florida — roster rows (Nov 2026)
+// The November 3, 2026 State Senate, State House and (Wisconsin) State Assembly
+// winners who unseated a sitting member on a seat whose district board already
+// exists (wi-, il-, nc-, ga- and fl-ballot-2026.js name them as challengers, by
+// name only, with no row). Each win has a published race call, and each member's
+// own campaign issues page could be read; both are recorded, with the issue keys
+// their stated positions were filed on, in
+// db/newly-elected-state-legislative-stated-2026-11-wave5.json. Identity rows
+// only, the same shape as the other state legislative candidate rows: name, the
+// seat they won, `party` and `partyFiled` as the race call reports them.
+// `candidate: true` on every row, so no seat lookup names one as a sitting member
+// and the sitting member's row, the board and the ballot file are unchanged.
+ // Wisconsin
+ "kevin_knoke": {
+  "name": "Kevin Knoke", "office": "Wisconsin State Assembly Candidate (District 30)",
+  "state": "Wisconsin", "district": "30",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ben_gruber": {
+  "name": "Ben Gruber", "office": "Wisconsin State Assembly Candidate (District 51)",
+  "state": "Wisconsin", "district": "51",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ben_brist": {
+  "name": "Ben Brist", "office": "Wisconsin State Assembly Candidate (District 61)",
+  "state": "Wisconsin", "district": "61",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "john_kroll": {
+  "name": "John Kroll", "office": "Wisconsin State Assembly Candidate (District 85)",
+  "state": "Wisconsin", "district": "85",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "brandy_tollefson": {
+  "name": "Brandy Tollefson", "office": "Wisconsin State Assembly Candidate (District 88)",
+  "state": "Wisconsin", "district": "88",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jeremiah_fredrickson": {
+  "name": "Jeremiah Fredrickson", "office": "Wisconsin State Assembly Candidate (District 92)",
+  "state": "Wisconsin", "district": "92",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Illinois
+ "ben_mcadams_il": {
+  "name": "Benjamin “Ben” McAdams", "office": "Illinois State Senate Candidate (District 24)",
+  "state": "Illinois", "district": "24",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "marsia_geldert_murphey": {
+  "name": "Marsia Geldert-Murphey", "office": "Illinois State Senate Candidate (District 56)",
+  "state": "Illinois", "district": "56",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "maria_peterson": {
+  "name": "Maria Peterson", "office": "Illinois State House Candidate (District 52)",
+  "state": "Illinois", "district": "52",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // North Carolina
+ "jessica_bichler": {
+  "name": "Jessica Bichler", "office": "North Carolina State Senate Candidate (District 7)",
+  "state": "North Carolina", "district": "7",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lorenza_wilkins": {
+  "name": "Lorenza Wilkins", "office": "North Carolina State House Candidate (District 25)",
+  "state": "North Carolina", "district": "25",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "winn_decker": {
+  "name": "Winn Decker", "office": "North Carolina State House Candidate (District 37)",
+  "state": "North Carolina", "district": "37",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ken_mccool": {
+  "name": "Ken McCool", "office": "North Carolina State House Candidate (District 105)",
+  "state": "North Carolina", "district": "105",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Georgia
+ "laura_murvartian": {
+  "name": "Laura Murvartian", "office": "Georgia State Senate Candidate (District 48)",
+  "state": "Georgia", "district": "48",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "danielle_bell": {
+  "name": "Danielle Bell", "office": "Georgia State House Candidate (District 44)",
+  "state": "Georgia", "district": "44",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "adam_cleveland": {
+  "name": "Adam Cleveland", "office": "Georgia State House Candidate (District 48)",
+  "state": "Georgia", "district": "48",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "beth_fuller": {
+  "name": "Beth Fuller", "office": "Georgia State House Candidate (District 53)",
+  "state": "Georgia", "district": "53",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "michelle_kang": {
+  "name": "Michelle Kang", "office": "Georgia State House Candidate (District 99)",
+  "state": "Georgia", "district": "99",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Florida
+ "john_lowndes": {
+  "name": "John Lowndes", "office": "Florida State Senate Candidate (District 10)",
+  "state": "Florida", "district": "10",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "eric_gray": {
+  "name": "Eric Gray", "office": "Florida State House Candidate (District 35)",
+  "state": "Florida", "district": "35",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "todd_delmay": {
+  "name": "Todd Delmay", "office": "Florida State House Candidate (District 101)",
+  "state": "Florida", "district": "101",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "lucia_baez_geller": {
+  "name": "Lucia Báez-Geller", "office": "Florida State House Candidate (District 106)",
+  "state": "Florida", "district": "106",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
 // ── Election-day candidates, Alabama, Arizona, Kansas, New Hampshire, Ohio and Pennsylvania, official lists (Nov 2026)
 // The six states the October pass could not read an official list for. Every
 // nominee printed on the November 3, 2026 general-election ballot for U.S.
