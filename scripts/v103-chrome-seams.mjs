@@ -3695,6 +3695,17 @@ export const DECLARED_STANCE_PASSES = [
       "patrick_leahy", "erin_feichtinger", "cindy_johnson", "nelly_burdette", "samantha_wilcox",
       "edward_stravato", "zakary_pereira", "nancy_gregory", "brent_reinke", "casey_swensen"],
   },
+  {
+    pass: "newly_elected_state_legislative_stated_nov2026_wave4",
+    // The fourth state legislative wave: November 3, 2026 winners on seats whose
+    // board already exists, held as candidates with no stance entries
+    // (db/newly-elected-state-legislative-stated-2026-11-wave4.json): two Alaska
+    // House, one Montana Senate and two Montana House, three South Dakota House,
+    // two Vermont Senate and two Vermont House, one Utah House.
+    pids: ["kathy_simpler", "lisa_keller", "margaret_mitchell", "jim_riley", "michelle_bianco",
+      "adam_bair", "ali_horsted", "june_copperstad", "jeff_haylon", "phoebe_tucker",
+      "kim_gleason", "hannah_sessions", "iva_williams"],
+  },
 ];
 export const DECLARED_STANCE_PIDS = DECLARED_STANCE_PASSES.flatMap((d) => d.pids);
 const stanceTable = (src) => {
