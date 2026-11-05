@@ -32,7 +32,7 @@ import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
-import { R, AT, boot, levelOf, band, undoMsVtMiTnEdits, isElectionDay, isElectionDayLine, withoutElectionDayRewrites, withoutElectionDayDistrict, ELECTION_DAY_CANDIDATES, withoutElectionDay, withoutEveryBoardVoice, isEveryBoardSeat } from "./state-leg-harness.mjs";
+import { R, AT, boot, levelOf, band, undoMsVtMiTnEdits, isElectionDay, isElectionDayLine, withoutElectionDayRewrites, withoutElectionDayDistrict, ELECTION_DAY_CANDIDATES, WAVE5_CANDIDATES, withoutElectionDay, withoutEveryBoardVoice, isEveryBoardSeat } from "./state-leg-harness.mjs";
 import { readFileSync } from "node:fs";
 import { planBoards, STATE_LEG_BOARD_STATES, GOVERNOR_STATES, ASSIGNED_POSITION_STATES, STATE_LEG_SEAT_COUNTS } from "./gen-district-boards.mjs";
 
@@ -300,7 +300,7 @@ for (const pid of Object.keys(RO0)) {
   if (pid === "don_bacon" || LATER_NAMES.has(String(RO0[pid].state || "").split(" ·")[0])) continue;
   if (ok(JSON.stringify(withoutElectionDayDistrict(pid, RO[pid])) === JSON.stringify(RO0[pid]), `${pid}: an existing roster row moved`)) rows++;
 }
-for (const pid of Object.keys(RO)) if (!(pid in RO0) && !ELECTION_DAY_CANDIDATES.has(pid)) ok(SIX.some(([, n]) => n === RO[pid].state) || LATER_NAMES.has(RO[pid].state), `${pid}: a new roster row outside the six states`);
+for (const pid of Object.keys(RO)) if (!(pid in RO0) && !ELECTION_DAY_CANDIDATES.has(pid) && !WAVE5_CANDIDATES.has(pid)) ok(SIX.some(([, n]) => n === RO[pid].state) || LATER_NAMES.has(RO[pid].state), `${pid}: a new roster row outside the six states`);
 // The resolver, walked at HEAD's sources and at this pass's, for a reader in
 // each neighbouring state, and in two position states that were already here.
 const baseFiles = {};

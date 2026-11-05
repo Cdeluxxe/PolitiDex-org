@@ -33,7 +33,7 @@ import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
-import { DECLARED_CANDIDACIES } from "./v103-chrome-seams.mjs";
+import { DECLARED_CANDIDACIES, withoutWave5RosterRows } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -50,7 +50,9 @@ const REC = JSON.parse(R("db/roster-cross-office-candidacies-2026-nov.json"));
 const NOV = JSON.parse(R("db/roster-candidates-2026-nov.json"));
 const SIX = ["al", "az", "ks", "nh", "oh", "pa"];
 const NAME = { al: "Alabama", az: "Arizona", ks: "Kansas", nh: "New Hampshire", oh: "Ohio", pa: "Pennsylvania" };
-const SRC = R("cmp-data.js");
+// The fifth newly elected wave's declared roster block is pinned by its own
+// suite (test-newly-elected-state-legislative-stated-2026-wave5.mjs).
+const SRC = withoutWave5RosterRows(R("cmp-data.js"));
 const BANNER = " // ── Election-day wave follow-up (November 3, 2026)";
 const evalRoster = (src) => { const w = makeSandbox(); vm.runInContext(src, vm.createContext(w), { filename: "cmp-data.js" }); return w; };
 const W = evalRoster(SRC);

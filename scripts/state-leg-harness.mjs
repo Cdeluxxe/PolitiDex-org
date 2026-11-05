@@ -620,8 +620,27 @@ function shellBlocksOnly(now, was) {
   }
   return true;
 }
+// THE FIFTH NEWLY ELECTED WAVE (Nov 2026) admitted one candidate row for each
+// challenger who won a called race on an existing Wisconsin, Illinois, North
+// Carolina, Georgia or Florida board (db/newly-elected-state-legislative-
+// stated-2026-11-wave5.json). Its block is set aside only when it holds exactly
+// the record's rows and everything outside it is HEAD's bytes.
+const WAVE5_BANNER = "// ── Newly elected state legislators, Wisconsin, Illinois, North Carolina, Georgia and Florida — roster rows (Nov 2026)";
+const WAVE5_PIDS = JSON.parse(readFileSync(new URL("../db/newly-elected-state-legislative-stated-2026-11-wave5.json", import.meta.url), "utf8")).members.map((m) => m.pid);
+export const WAVE5_CANDIDATES = new Set(WAVE5_PIDS);
+export function withoutWave5Rows(src) {
+  const at = String(src).indexOf(WAVE5_BANNER);
+  if (at < 0) return src;
+  const end = src.indexOf("\n// ── ", at + 1);
+  if (end < 0) return null;
+  const pids = [...src.slice(at, end).matchAll(/^ "([a-z0-9_]+)": \{$/gm)].map((x) => x[1]);
+  if (pids.slice().sort().join(",") !== WAVE5_PIDS.slice().sort().join(",")) return null;
+  return src.slice(0, at) + src.slice(end + 1);
+}
 export function settled(f) {
-  const now = R(f), was = HEAD(f);
+  let now = R(f);
+  const was = HEAD(f);
+  if (f === "cmp-data.js" && now !== null) { const c = withoutWave5Rows(now); if (c === null) return false; now = c; }
   if (now === was) return true;
   if (now === null) return false;
   if (f === "cmp-data.js") return shellBlocksOnly(now, was) || fourStateRowsOnly(now, was) || statesRowsOnly(now, was, MS_VT_MI_TN) || electionDayOnly(now, was);

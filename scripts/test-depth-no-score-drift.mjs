@@ -473,6 +473,10 @@ const rosterWaveAdmissions = (() => {
                      "db/roster-candidates-legislative-mi-tn-vt-2026-oct.json", "db/roster-candidates-2026-nov.json"]) {
       try { for (const r of JSON.parse(readFileSync(join(ROOT, f), "utf8")).rows) out.add(r.pid); } catch {}
     }
+    // …and the fifth newly elected wave's winners in Wisconsin, Illinois, North
+    // Carolina, Georgia and Florida (db/newly-elected-state-legislative-stated-
+    // 2026-11-wave5.json, "members"), the same shape.
+    try { for (const m of JSON.parse(readFileSync(join(ROOT, "db/newly-elected-state-legislative-stated-2026-11-wave5.json"), "utf8")).members) out.add(m.pid); } catch {}
     return out;
   })();
   const notInertCandidates = added.filter((p) => candidateBatch.has(p)).filter((p) => {

@@ -1,0 +1,601 @@
+{
+  "_note": "Newly elected state legislative members, stated positions, fifth wave (November 2026): Wisconsin, Illinois, North Carolina, Georgia and Florida. The November 3, 2026 State Senate, State House and (Wisconsin) State Assembly winners on seats whose district board already exists. Each unseated the sitting member the board names, and the roster had no row for them, so this pass admitted one identity row each in cmp-data.js (the block headed 'Newly elected state legislators, Wisconsin, Illinois, North Carolina, Georgia and Florida — roster rows (Nov 2026)'). The issue keys their stated positions were filed on are in politician-stances.js, regenerated into politician-stances-ext.js. Every entry is the member-elect's own published position, read from the campaign's own priorities, issues or platform page and marked claim:'campaign'. Each line quotes that page directly, and nothing is inferred from party. Each member has a published race call naming them: a news outlet's call or AP call, or the losing incumbent's concession reported by a news outlet. All results are unofficial and uncertified. 'boards' are the board files that seat already had. Existing profiles and roster rows, vote records, the drawer, the related-issues map, the boards and the ballot files are unchanged. Earlier waves: db/newly-elected-state-legislative-stated-2026-11.json (Michigan), -wave2.json (Colorado, Nevada, Minnesota), -wave3.json (Tennessee, Maine, Nebraska, Rhode Island, Idaho), -wave4.json (Alaska, Montana, South Dakota, Vermont, Utah). Read by scripts/test-newly-elected-state-legislative-stated-2026-wave5.mjs.",
+  "read": "2026-11-05",
+  "states": [
+    "wi",
+    "il",
+    "nc",
+    "ga",
+    "fl"
+  ],
+  "boards": "Every seat in the set already has a district board (district-<state>-<sd|hd>-<n>.html); no board was opened for this pass.",
+  "rosterRows": "Each member below is a new cmp-data.js row (candidate: true, the same shape as the other state legislative candidate rows), admitted on purpose and declared in scripts/v103-chrome-seams.mjs (DECLARED_ADMISSIONS, wave newly_elected_state_legislators_wi_il_nc_ga_fl_nov2026).",
+  "members": [
+    {
+      "pid": "kevin_knoke",
+      "name": "Kevin Knoke",
+      "nameOnBallot": "Kevin Knoke",
+      "office": "Wisconsin State Assembly (District 30)",
+      "district": "30",
+      "seat": "wi-statehouse-30",
+      "boards": [
+        "district-wi-hd-30.html"
+      ],
+      "party": "D",
+      "raceCall": "https://www.wpr.org/news/wisconsin-assembly-senate-election-results-2026",
+      "raceCallNote": "WPR (AP preliminary results, Nov. 4): Democratic challenger Kevin Knoke defeated Rep. Shannon Zimmerman, R-River Falls. The Daily Cardinal's live blog reports the race was 'called for Democrat Kevin Knoke', about 53% to 47%. His first state office.",
+      "source": "https://www.kevinknoke.com/issues",
+      "issueKeys": [
+        "housing",
+        "health_rural",
+        "public_schools",
+        "tax_middle_class",
+        "veterans",
+        "lands_preserve"
+      ]
+    },
+    {
+      "pid": "ben_gruber",
+      "name": "Ben Gruber",
+      "nameOnBallot": "Ben Gruber",
+      "office": "Wisconsin State Assembly (District 51)",
+      "district": "51",
+      "seat": "wi-statehouse-51",
+      "boards": [
+        "district-wi-hd-51.html"
+      ],
+      "party": "D",
+      "raceCall": "https://www.wpr.org/news/wisconsin-assembly-senate-election-results-2026",
+      "raceCallNote": "WPR (AP preliminary results) lists Democrat Ben Gruber's defeat of Rep. Todd Novak, R-Dodgeville. The Daily Cardinal reported the call at 11 p.m. on election night, about 55% to 43%, with American Solidarity's Nathan Tataje at 2%. His first state office.",
+      "source": "https://www.ben-gruber.com/issues",
+      "issueKeys": [
+        "public_schools",
+        "property_tax",
+        "health_rural",
+        "rural_ag",
+        "lands_preserve",
+        "econ_workers"
+      ]
+    },
+    {
+      "pid": "ben_brist",
+      "name": "Ben Brist",
+      "nameOnBallot": "Ben Brist",
+      "office": "Wisconsin State Assembly (District 61)",
+      "district": "61",
+      "seat": "wi-statehouse-61",
+      "boards": [
+        "district-wi-hd-61.html"
+      ],
+      "party": "D",
+      "raceCall": "https://www.wpr.org/news/wisconsin-assembly-senate-election-results-2026",
+      "raceCallNote": "WPR (AP preliminary results): Rep. Bob Donovan, R-Greenfield, was defeated by Democratic challenger Ben Brist of Greendale (about 56% to 44%). Fox6 places the race in the 61st District, which covers Greendale and Hales Corners. His first state office.",
+      "source": "https://www.bristforassembly.com/issues",
+      "issueKeys": [
+        "cost_living",
+        "healthcare_costs",
+        "public_schools",
+        "datacenter_power",
+        "econ_workers",
+        "property_tax"
+      ]
+    },
+    {
+      "pid": "john_kroll",
+      "name": "John Kroll",
+      "nameOnBallot": "John Kroll",
+      "office": "Wisconsin State Assembly (District 85)",
+      "district": "85",
+      "seat": "wi-statehouse-85",
+      "boards": [
+        "district-wi-hd-85.html"
+      ],
+      "party": "D",
+      "raceCall": "https://www.wpr.org/news/wisconsin-assembly-senate-election-results-2026",
+      "raceCallNote": "WPR (AP preliminary results): Rep. Pat Snyder, R-Weston, lost to Democratic challenger John Kroll (about 54% to 46%). Kroll sits on the Marathon County Board; this is his first state office.",
+      "source": "https://www.krollforwi.com/issues",
+      "issueKeys": [
+        "public_schools",
+        "cost_living",
+        "health_drug_prices",
+        "datacenter_power",
+        "water"
+      ]
+    },
+    {
+      "pid": "brandy_tollefson",
+      "name": "Brandy Tollefson",
+      "nameOnBallot": "Brandy Tollefson",
+      "office": "Wisconsin State Assembly (District 88)",
+      "district": "88",
+      "seat": "wi-statehouse-88",
+      "boards": [
+        "district-wi-hd-88.html"
+      ],
+      "party": "D",
+      "raceCall": "https://www.wpr.org/news/wisconsin-assembly-senate-election-results-2026",
+      "raceCallNote": "WPR (AP preliminary results): 88th District Rep. Benjamin Franklin, R-De Pere, lost to Democratic challenger Brandy Tollefson, also of De Pere (about 54% to 46%). She is treasurer of the De Pere School Board; this is her first state office.",
+      "source": "https://www.brandyforwisconsin.com/",
+      "issueKeys": [
+        "healthcare",
+        "cost_living",
+        "public_schools",
+        "school_choice"
+      ]
+    },
+    {
+      "pid": "jeremiah_fredrickson",
+      "name": "Jeremiah Fredrickson",
+      "nameOnBallot": "Jeremiah Fredrickson",
+      "office": "Wisconsin State Assembly (District 92)",
+      "district": "92",
+      "seat": "wi-statehouse-92",
+      "boards": [
+        "district-wi-hd-92.html"
+      ],
+      "party": "D",
+      "raceCall": "https://www.wpr.org/news/wisconsin-assembly-senate-election-results-2026",
+      "raceCallNote": "WPR (AP preliminary results): Rep. Clint Moses, R-Menomonie, lost to Democratic challenger Jeremiah Fredrickson. The Daily Cardinal reports the race 'was called', about 53.4% to 46.6%. His first state office.",
+      "source": "https://www.jeremiahfredricksonforstateassembly.com/issues",
+      "issueKeys": [
+        "public_schools",
+        "lands_preserve",
+        "health_drug_prices",
+        "health_rural",
+        "cost_living"
+      ]
+    },
+    {
+      "pid": "ben_mcadams_il",
+      "name": "Benjamin “Ben” McAdams",
+      "nameOnBallot": "Benjamin “Ben” McAdams",
+      "office": "Illinois State Senate (District 24)",
+      "district": "24",
+      "seat": "il-statesenate-24",
+      "boards": [
+        "district-il-sd-24.html"
+      ],
+      "party": "D",
+      "raceCall": "https://chicago.suntimes.com/elections/2026/graphics/voter-guide-midterm-election-illinois/illinois-midterm-results-2026/state-senate-district-24/",
+      "raceCallNote": "Chicago Sun-Times results page: AP declared Democrat Ben McAdams the winner over Sen. Seth Lewis, 54.6% to 45.4% (43,896 to 36,539 at 90% counted). He has been a Democratic precinct committeeperson; this is his first state office. Not the former Utah congressman of the same name, who has his own roster row.",
+      "source": "https://www.mcadamsforil.com/platform",
+      "issueKeys": [
+        "healthcare",
+        "campaign_finance",
+        "property_tax",
+        "econ_corp_account",
+        "datacenter_power",
+        "climate_action"
+      ]
+    },
+    {
+      "pid": "marsia_geldert_murphey",
+      "name": "Marsia Geldert-Murphey",
+      "nameOnBallot": "Marsia Geldert-Murphey",
+      "office": "Illinois State Senate (District 56)",
+      "district": "56",
+      "seat": "il-statesenate-56",
+      "boards": [
+        "district-il-sd-56.html"
+      ],
+      "party": "D",
+      "raceCall": "https://www.thetelegraph.com/news/article/geldert-murphey-senate-il-election-22510279.php",
+      "raceCallNote": "The Telegraph (Alton) reports the AP call for Democrat Marsia 'Marsie' Geldert-Murphey over Sen. Erica Harriss, 52.9% to 47.1% (39,909 to 35,535). Harriss issued a farewell statement. Her site calls her a 'political newcomer'; this is her first state office.",
+      "source": "https://www.marsieforillinois.info/",
+      "issueKeys": [
+        "infrastructure",
+        "child_care",
+        "public_schools",
+        "healthcare"
+      ]
+    },
+    {
+      "pid": "maria_peterson",
+      "name": "Maria Peterson",
+      "nameOnBallot": "Maria Peterson",
+      "office": "Illinois State House (District 52)",
+      "district": "52",
+      "seat": "il-statehouse-52",
+      "boards": [
+        "district-il-hd-52.html"
+      ],
+      "party": "D",
+      "raceCall": "https://www.nbcchicago.com/elections/who-won-illinois-live-election-results-and-winners-from-the-2026-midterm-election/4012160/",
+      "raceCallNote": "NBC Chicago results (projected) and the Chicago Sun-Times: Democrat Maria Peterson defeated Rep. Martin McLaughlin, 56.1% to 43.9% (24,656 to 19,307). She is vice chair of the Lake County Zoning Board of Appeals; this is her first state office.",
+      "source": "https://www.mariafor52.com/issues/",
+      "issueKeys": [
+        "tax_middle_class",
+        "housing",
+        "child_care",
+        "gun_safety",
+        "pro_choice",
+        "climate_action"
+      ]
+    },
+    {
+      "pid": "jessica_bichler",
+      "name": "Jessica Bichler",
+      "nameOnBallot": "Jessica Bichler",
+      "office": "North Carolina State Senate (District 7)",
+      "district": "7",
+      "seat": "nc-statesenate-7",
+      "boards": [
+        "district-nc-sd-7.html"
+      ],
+      "party": "D",
+      "raceCall": "https://www.carolinajournal.com/democrat-jessica-bichler-defeats-senate-majority-leader-michael-lee/",
+      "raceCallNote": "Carolina Journal and WECT ('projected to win'): Democrat Jessica Bichler defeated Senate Majority Leader Michael Lee, 48,310 (52.64%) to 43,469 (47.36%) with all precincts in, per unofficial State Board of Elections results. Lee conceded. Her first run for office.",
+      "source": "https://www.jessicabichler.com/issues",
+      "issueKeys": [
+        "public_schools",
+        "school_choice",
+        "econ_workers",
+        "econ_corp_account",
+        "datacenter_power",
+        "back_police"
+      ]
+    },
+    {
+      "pid": "lorenza_wilkins",
+      "name": "Lorenza Wilkins",
+      "nameOnBallot": "Lorenza Wilkins",
+      "office": "North Carolina State House (District 25)",
+      "district": "25",
+      "seat": "nc-statehouse-25",
+      "boards": [
+        "district-nc-hd-25.html"
+      ],
+      "party": "D",
+      "raceCall": "https://www.carolinajournal.com/wilkins-wins-nc-house-district-25-in-nash-county/",
+      "raceCallNote": "Carolina Journal: Democrat Lorenza Wilkins won House District 25 over Rep. Allen Chesser, 20,420 (52.67%) to 17,340 (44.73%), with Libertarian Nick Taylor third. Wilkins thanked Chesser. His first state legislative office.",
+      "source": "https://www.lorenzawilkinsfornc.com/about-3-1",
+      "issueKeys": [
+        "public_schools",
+        "econ_smallbiz",
+        "health_mental",
+        "cost_living"
+      ]
+    },
+    {
+      "pid": "winn_decker",
+      "name": "Winn Decker",
+      "nameOnBallot": "Winn Decker",
+      "office": "North Carolina State House (District 37)",
+      "district": "37",
+      "seat": "nc-statehouse-37",
+      "boards": [
+        "district-nc-hd-37.html"
+      ],
+      "party": "D",
+      "raceCall": "https://www.carolinajournal.com/decker-wins-nc-house-district-37-race-in-southern-wake-county/",
+      "raceCallNote": "Carolina Journal reports the AP call for Democrat Winn Decker over Rep. Erin Paré in southern Wake County, about 54.7% to 45.3%. Not among the races Carolina Journal lists as within recount margin. His first state office.",
+      "source": "https://winn4nc.com/",
+      "issueKeys": [
+        "public_schools",
+        "cost_living",
+        "healthcare_costs",
+        "property_tax",
+        "infrastructure",
+        "back_police"
+      ]
+    },
+    {
+      "pid": "ken_mccool",
+      "name": "Ken McCool",
+      "nameOnBallot": "Ken McCool",
+      "office": "North Carolina State House (District 105)",
+      "district": "105",
+      "seat": "nc-statehouse-105",
+      "boards": [
+        "district-nc-hd-105.html"
+      ],
+      "party": "D",
+      "raceCall": "https://www.carolinajournal.com/cotham-defeated-as-democrats-flip-mecklenburg-house-seat/",
+      "raceCallNote": "Carolina Journal and WFAE: Democrat Ken McCool defeated Rep. Tricia Cotham, 24,608 (57.11%) to 18,479 (42.89%) with all precincts reporting. Cotham called McCool to congratulate him. He is a former Matthews town commissioner; this is his first state office.",
+      "source": "https://www.kenmccool.com/priorities",
+      "issueKeys": [
+        "school_choice",
+        "public_schools",
+        "gov_services",
+        "property_tax",
+        "back_police"
+      ]
+    },
+    {
+      "pid": "laura_murvartian",
+      "name": "Laura Murvartian",
+      "nameOnBallot": "Laura Murvartian",
+      "office": "Georgia State Senate (District 48)",
+      "district": "48",
+      "seat": "ga-statesenate-48",
+      "boards": [
+        "district-ga-sd-48.html"
+      ],
+      "party": "D",
+      "raceCall": "https://www.11alive.com/article/news/politics/georgia-state-senate-election-results-tightly-divided/85-b45a3f94-1bb6-437d-a14b-816a81e921f8",
+      "raceCallNote": "11Alive reports the race as called for Democrat Laura Murvartian over Sen. Shawn Still; Atlanta News First has 41,036 (52.9%) to 36,568 (47.1%), well outside Georgia's 0.5% recount margin. Her first state office.",
+      "source": "https://www.lauramurvartian.com/priorities",
+      "issueKeys": [
+        "healthcare",
+        "pro_choice",
+        "veterans",
+        "public_schools",
+        "voting_access"
+      ]
+    },
+    {
+      "pid": "danielle_bell",
+      "name": "Danielle Bell",
+      "nameOnBallot": "Danielle Bell",
+      "office": "Georgia State House (District 44)",
+      "district": "44",
+      "seat": "ga-statehouse-44",
+      "boards": [
+        "district-ga-hd-44.html"
+      ],
+      "party": "D",
+      "raceCall": "https://georgiarecorder.com/2026/11/04/democrats-say-they-have-flipped-georgias-state-house-some-races-are-still-unsettled/",
+      "raceCallNote": "Georgia Recorder (Nov. 4, 5 p.m. list of Democratic gains) and 11Alive: Democrat Danielle Bell defeated Rep. Don Parsons, R-Marietta, about 52% to 48%. Her first state office.",
+      "source": "https://www.danielleforgeorgia.com/reduce-cost-of-living",
+      "issueKeys": [
+        "cost_living",
+        "climate_action",
+        "datacenter_power",
+        "econ_workers"
+      ]
+    },
+    {
+      "pid": "adam_cleveland",
+      "name": "Adam Cleveland",
+      "nameOnBallot": "Adam Cleveland",
+      "office": "Georgia State House (District 48)",
+      "district": "48",
+      "seat": "ga-statehouse-48",
+      "boards": [
+        "district-ga-hd-48.html"
+      ],
+      "party": "D",
+      "raceCall": "https://georgiarecorder.com/2026/11/04/democrats-say-they-have-flipped-georgias-state-house-some-races-are-still-unsettled/",
+      "raceCallNote": "Georgia Recorder (Nov. 4 list of Democratic gains) and the AJC: Democrat Adam Cleveland defeated Rep. Scott Hilton, R-Peachtree Corners, about 50.8% to 49.2%. The AJC counts it among at least 12 defeated Republican incumbents. His first state office.",
+      "source": "https://www.adamcleveland.com/priorities",
+      "issueKeys": [
+        "healthcare",
+        "pro_choice",
+        "school_choice",
+        "public_schools",
+        "gun_safety",
+        "housing_build"
+      ]
+    },
+    {
+      "pid": "beth_fuller",
+      "name": "Beth Fuller",
+      "nameOnBallot": "Beth Fuller",
+      "office": "Georgia State House (District 53)",
+      "district": "53",
+      "seat": "ga-statehouse-53",
+      "boards": [
+        "district-ga-hd-53.html"
+      ],
+      "party": "D",
+      "raceCall": "https://georgiarecorder.com/2026/11/04/democrats-say-they-have-flipped-georgias-state-house-some-races-are-still-unsettled/",
+      "raceCallNote": "Georgia Recorder (Nov. 4 list of Democratic gains) and the AJC: Democrat Beth Fuller defeated Rep. Deborah Silcox, R-Sandy Springs, about 51.2% to 48.8%. Her first state office.",
+      "source": "https://www.bethfullerforgeorgia.com/policy-priorities",
+      "issueKeys": [
+        "pro_choice",
+        "public_schools",
+        "school_choice",
+        "gun_safety",
+        "housing_support",
+        "datacenter_power"
+      ]
+    },
+    {
+      "pid": "michelle_kang",
+      "name": "Michelle Kang",
+      "nameOnBallot": "Michelle Kang",
+      "office": "Georgia State House (District 99)",
+      "district": "99",
+      "seat": "ga-statehouse-99",
+      "boards": [
+        "district-ga-hd-99.html"
+      ],
+      "party": "D",
+      "raceCall": "https://georgiarecorder.com/2026/11/04/democrats-say-they-have-flipped-georgias-state-house-some-races-are-still-unsettled/",
+      "raceCallNote": "Georgia Recorder (Nov. 4 list of Democratic gains); MultiState marks it 'Flipped R to D; Incumbent defeated'. Democrat Michelle Kang defeated Rep. Matt Reeves, R-Duluth, 13,695 (58.5%) to 9,734 (41.5%). Her first state office.",
+      "source": "https://michellekangforga.com/2026-platform",
+      "issueKeys": [
+        "gun_safety",
+        "housing_support",
+        "child_care",
+        "healthcare",
+        "health_mental"
+      ]
+    },
+    {
+      "pid": "john_lowndes",
+      "name": "John Lowndes",
+      "nameOnBallot": "John Lowndes",
+      "office": "Florida State Senate (District 10)",
+      "district": "10",
+      "seat": "fl-statesenate-10",
+      "boards": [
+        "district-fl-sd-10.html"
+      ],
+      "party": "D",
+      "raceCall": "https://floridapolitics.com/archives/827511-democrat-john-lowndes-defeats-incumbent-jason-brodeur-to-flip-sd-10/",
+      "raceCallNote": "Florida Politics: Democrat John Lowndes defeated Sen. Jason Brodeur to flip SD 10, 125,012 (56%) to 98,457 (44%); WDBO reports the race called. He is a former Maitland mayor; this is his first state office.",
+      "source": "https://www.johnlowndesforflorida.com/priorities",
+      "issueKeys": [
+        "gov_transparency",
+        "cost_living",
+        "lands_preserve",
+        "school_choice",
+        "public_schools"
+      ]
+    },
+    {
+      "pid": "eric_gray",
+      "name": "Eric Gray",
+      "nameOnBallot": "Eric Gray",
+      "office": "Florida State House (District 35)",
+      "district": "35",
+      "seat": "fl-statehouse-35",
+      "boards": [
+        "district-fl-hd-35.html"
+      ],
+      "party": "D",
+      "raceCall": "https://floridapolitics.com/archives/827548-eric-gray-flips-hd-35-blue-to-beat-incumbent-erika-booth/",
+      "raceCallNote": "Florida Politics: Democrat Eric Gray flipped HD 35, beating Rep. Erika Booth 39,762 to 31,392 (about 56% to 44%). He is a voting commissioner on the Orange County Planning & Zoning Commission; this is his first state office.",
+      "source": "https://www.ericgrayforflorida.com/issues/",
+      "issueKeys": [
+        "housing_build",
+        "transit",
+        "infrastructure",
+        "water",
+        "public_schools"
+      ]
+    },
+    {
+      "pid": "todd_delmay",
+      "name": "Todd Delmay",
+      "nameOnBallot": "Todd Delmay",
+      "office": "Florida State House (District 101)",
+      "district": "101",
+      "seat": "fl-statehouse-101",
+      "boards": [
+        "district-fl-hd-101.html"
+      ],
+      "party": "D",
+      "raceCall": "https://floridapolitics.com/archives/827561-todd-delmay-ousts-democrat-turned-republican-hillary-cassel-in-hd-101/",
+      "raceCallNote": "Florida Politics: Democrat Todd Delmay ousted Rep. Hillary Cassel in HD 101, 28,316 (56%) to 22,272 (44%). He served on Hollywood's Sustainability Advisory Committee; this is his first state office.",
+      "source": "https://delmayforflorida.com/issues/",
+      "issueKeys": [
+        "cost_living",
+        "housing_first_time",
+        "healthcare",
+        "infrastructure"
+      ]
+    },
+    {
+      "pid": "lucia_baez_geller",
+      "name": "Lucia Báez-Geller",
+      "nameOnBallot": "Lucia Báez-Geller",
+      "office": "Florida State House (District 106)",
+      "district": "106",
+      "seat": "fl-statehouse-106",
+      "boards": [
+        "district-fl-hd-106.html"
+      ],
+      "party": "D",
+      "raceCall": "https://www.cbsnews.com/miami/live-updates/florida-midterm-elections-2026/",
+      "raceCallNote": "CBS News Miami (AP projection): Democrat Lucia Báez-Geller defeated Rep. Fabián Basabe in HD 106, 30,912 (53.96%) to 26,376 (46.04%). She served on the Miami-Dade County School Board; this is her first state legislative office.",
+      "source": "https://luciabaezgeller.com/",
+      "issueKeys": [
+        "cost_living",
+        "public_schools",
+        "climate_action",
+        "disaster_resilience",
+        "health_drug_prices"
+      ]
+    }
+  ],
+  "leftOut": [
+    {
+      "pid": "jacobson_wi",
+      "district": "17",
+      "office": "Wisconsin State Senate (District 17)",
+      "reason": "Beat Sen. Howard Marklein (WPR/AP, about 53%), but she is a sitting Assembly member (AD-50) already on the roster, so she is not newly elected to the Legislature and her existing row stays unchanged."
+    },
+    {
+      "pid": "syed_il",
+      "district": "26",
+      "office": "Illinois State Senate (District 26)",
+      "reason": "Beat Sen. Darby Hills 57.1% to 42.9% (AP and NBC Chicago), but Nabeela Syed is a sitting Illinois House member already on the roster, so she is not newly elected."
+    },
+    {
+      "pid": "ricky_rivard",
+      "district": "65",
+      "office": "Illinois State House (District 65)",
+      "reason": "Leads Rep. Daniel Ugaste about 23,926 to 21,152 with all precincts in, but Shaw Local writes 'if unofficial results hold'. No call or concession found."
+    },
+    {
+      "pid": "veronica_garcia_martinez",
+      "district": "70",
+      "office": "Illinois State House (District 70)",
+      "reason": "Leads Rep. Jeff Keicher 17,422 to 15,649 with 74% counted. No call or concession found."
+    },
+    {
+      "pid": "george_mcclellan_jr",
+      "district": "114",
+      "office": "Illinois State House (District 114)",
+      "reason": "Leads Rep. Kevin Schmidt by under 600 votes with 96% counted (Capitol News Illinois). Not called."
+    },
+    {
+      "pid": "mary_catherine_roberson",
+      "district": "104",
+      "office": "Illinois State House (District 104)",
+      "reason": "Rep. Brandun Schweizer conceded, but no news outlet or AP call was found. The margin is about 447 votes (50.7% to 49.3%), and nine Champaign County precincts had a ballot misprint, so the result is held until a published call."
+    },
+    {
+      "pid": "james_gailliard",
+      "district": "11",
+      "office": "North Carolina State Senate (District 11)",
+      "reason": "Beat Sen. Lisa Barnes (AP, per Carolina Journal), but he served in the NC House from 2019 to 2023, so he is a returning legislator, not newly elected."
+    },
+    {
+      "pid": "darcy_castro",
+      "district": "37",
+      "office": "Georgia State Senate (District 37)",
+      "reason": "Leads Sen. Ed Setzler 50.75% to 49.25%. The AJC reports a win, but the Marietta Daily Journal says only that she 'appears to defeat' him and The Current lists the race as not called. Held as not yet settled."
+    },
+    {
+      "pid": "farooq_mughal",
+      "district": "105",
+      "office": "Georgia State House (District 105)",
+      "reason": "Beat Rep. Sandy Donatucci 60.8% to 39.2% (Georgia Recorder), but he held this seat from 2023 to 2025, so he is a returning legislator, not newly elected."
+    },
+    {
+      "pid": "ethan_wolfe",
+      "district": "151",
+      "office": "Georgia State House (District 151)",
+      "reason": "No candidate reached a majority because of the independent, so HD-151 goes to the December 1 runoff, with Rep. Mike Cheokas leading."
+    },
+    {
+      "pid": "harry_james",
+      "district": "154",
+      "office": "Georgia State House (District 154)",
+      "reason": "Leads Rep. Gerald Greene by 59 votes (about 0.3%), inside Georgia's recount margin. Not called."
+    },
+    {
+      "pid": "jon_maples",
+      "district": "87",
+      "office": "Florida State House (District 87)",
+      "reason": "Leads Rep. Emily Gregory by about 1,138 votes, but the Florida Politics headline says he 'narrowly leads', and no concession or formal call was found."
+    },
+    {
+      "pid": "august_mangeney",
+      "district": "93",
+      "office": "Florida State House (District 93)",
+      "reason": "Beat Rep. Anne Gerwig (Florida Politics), but his campaign site has no issues or platform page, only general statements, so no position could be quoted from a platform."
+    },
+    {
+      "pid": "amelia_gallitano",
+      "district": "2",
+      "office": "Arizona State Senate (District 2)",
+      "reason": "Called (AP) over Sen. Shawnna Bolick with a readable priorities page. Held for a later wave: this pass covers five states (Wisconsin, Illinois, North Carolina, Georgia, Florida)."
+    },
+    {
+      "pid": "pa_ny_oh_called_challengers",
+      "district": "various",
+      "office": "Pennsylvania, New York and Ohio State Senate, State House and State Assembly",
+      "reason": "Called challenger wins with readable campaign pages are held for a later wave, because this pass covers five states: Albillar, Pinsley, Thomas, Wrightson, Timko, Allen, Warren, Egan and Moro (PA), Rand, Rogerson, McCreight and Pierce (NY), and Coy, Lounsbury and Kimball (OH). Not held: Kaul (NY SD-39), whose page renders no text; Lander (NY SD-43), in recount; Taughrin (NY AD-143), too close; and Tom Jones (PA SD-36), a sitting House member."
+    },
+    {
+      "pid": "tx_wa_ca_called_challengers",
+      "district": "various",
+      "office": "Texas, Washington and California State Senate, State House and State Assembly",
+      "reason": "Called challenger wins with readable campaign pages are held for a later wave, because this pass covers five states: Guerrero Sáenz, Ochoa, Jimenez, Herbert, Dunn and Smith (TX), Christly and Perez (WA), and Cervantes (CA). Uncalled, disputed or too close: WA SD-35 and LD-18, CA AD-7, AD-36, AD-47 and AD-74, and TX HD-61 and HD-67."
+    }
+  ]
+}

@@ -33,7 +33,7 @@
 //
 //   node scripts/test-ca-contested-cycle.mjs
 
-import { R, HEAD, AT, PRE_CA_WA, boot, levelOf, band, settled, DECLARED_MIGRATIONS, isElectionDay } from "./state-leg-harness.mjs";
+import { R, HEAD, AT, PRE_CA_WA, boot, levelOf, band, settled, DECLARED_MIGRATIONS, isElectionDay, withoutWave5Rows } from "./state-leg-harness.mjs";
 // What THIS pass added is measured against the commit it was built on, so the
 // check stays exact after the pass lands; "nothing else moved" stays on HEAD.
 const BASE = AT(PRE_CA_WA);
@@ -332,7 +332,8 @@ section("6 · every other state is unchanged");
   for (const f of ["cmp-data.js", "voter-hub-location.js", "seated-member.js", ...EARLIER, "ballot-pa.html", "ballot-ga.html",
     "ballot-nc.html", "ballot-mi.html", "ballot-oh.html", "ballot-wi.html", "ballot-fl.html", "ballot-az.html",
     "ballot-ny.html", "ballot-tx.html", "ballot-il.html", "ballot-mn.html", "ballot-co.html", "ballot-nv.html"]) {
-    eq(R(f), HEAD(f), `${f}: byte-identical to HEAD`);
+    // The fifth newly elected wave's declared roster block is its own suite's product.
+    eq(f === "cmp-data.js" ? withoutWave5Rows(R(f)) : R(f), HEAD(f), `${f}: byte-identical to HEAD`);
   }
   for (const f of readdirSync(join(ROOT, "db")).filter((f) => /^roster-/.test(f) && !(isElectionDay(`db/${f}`) && HEAD(`db/${f}`) === null))) eq(R(`db/${f}`), HEAD(`db/${f}`), `db/${f}: byte-identical to HEAD`);
   const ver = (src) => Number((/const CACHE_VERSION = 'v(\d+)';/.exec(src || "") || [])[1]);

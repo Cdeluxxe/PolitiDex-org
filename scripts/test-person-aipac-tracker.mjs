@@ -178,7 +178,9 @@ section("6 · the shipped table, and the shell");
   ok(/^\d{4}-\d{2}-\d{2}$/.test(A.TRACKER_AS_OF), "the table has no as-of date");
   const sw = R("sw.js");
   ok(/'\/pdx-aipac\.js'/.test(sw) && /'\/profiles-full\.js'/.test(sw), "pdx-aipac.js or profiles-full.js is not precached");
-  ok(/v525 - [\s\S]*?MIGRATION COST: none[\s\S]*?const CACHE_VERSION = 'v525'/.test(sw), "the shell did not move to v525 with a no-migration note");
+  // The shell moved to v525 with this pass; a later pass may move it further.
+  const ver = +((/const CACHE_VERSION = 'v(\d+)'/.exec(sw) || [])[1] || 0);
+  ok(/v525 - [\s\S]*?MIGRATION COST: none/.test(sw) && ver >= 525, "the shell did not move to v525 with a no-migration note");
 }
 
 console.log(`\n   ${passed} passed, ${failures.length} failed`);
