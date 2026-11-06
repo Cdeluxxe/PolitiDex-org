@@ -333,7 +333,8 @@ section("6 · every other state is unchanged");
     "ballot-nc.html", "ballot-mi.html", "ballot-oh.html", "ballot-wi.html", "ballot-fl.html", "ballot-az.html",
     "ballot-ny.html", "ballot-tx.html", "ballot-il.html", "ballot-mn.html", "ballot-co.html", "ballot-nv.html"]) {
     // The fifth newly elected wave's declared roster block is its own suite's product.
-    eq(f === "cmp-data.js" ? withoutWave5Rows(R(f)) : R(f), HEAD(f), `${f}: byte-identical to HEAD`);
+    // (set aside on both sides: HEAD may already hold an earlier wave's block).
+    eq(f === "cmp-data.js" ? withoutWave5Rows(R(f)) : R(f), f === "cmp-data.js" ? withoutWave5Rows(HEAD(f)) : HEAD(f), `${f}: byte-identical to HEAD`);
   }
   for (const f of readdirSync(join(ROOT, "db")).filter((f) => /^roster-/.test(f) && !(isElectionDay(`db/${f}`) && HEAD(`db/${f}`) === null))) eq(R(`db/${f}`), HEAD(`db/${f}`), `db/${f}: byte-identical to HEAD`);
   const ver = (src) => Number((/const CACHE_VERSION = 'v(\d+)';/.exec(src || "") || [])[1]);

@@ -1,0 +1,555 @@
+{
+  "_note": "Newly elected state legislative members, stated positions, sixth wave (November 2026): New York, Ohio, Pennsylvania and Texas. The November 3, 2026 State Senate, State House and (New York) State Assembly winners on seats whose district board already exists. Each unseated the sitting member the board names, and the roster had no row for them, so this pass admitted one identity row each in cmp-data.js (the block named by rosterBanner). The issue keys their stated positions were filed on are in politician-stances.js, regenerated into politician-stances-ext.js. Every entry is the member-elect's own published position, read from the campaign's own priorities, issues or platform page and marked claim:'campaign'. Each line quotes that page directly, and nothing is inferred from party. Each member has a published race call naming them: a news outlet's call or AP call, or the losing incumbent's concession reported by a news outlet. All results are unofficial and uncertified. Only four states could be covered: the remaining states with district boards (Arizona, California and Washington) had no published call in any board race as of the read date, so they are listed under leftOut rather than covered. 'boards' are the board files that seat already had. Existing profiles and roster rows, vote records, the drawer, the related-issues map, the boards and the ballot files are unchanged. Earlier waves: db/newly-elected-state-legislative-stated-2026-11.json (Michigan), -wave2.json (Colorado, Nevada, Minnesota), -wave3.json (Tennessee, Maine, Nebraska, Rhode Island, Idaho), -wave4.json (Alaska, Montana, South Dakota, Vermont, Utah), -wave5.json (Wisconsin, Illinois, North Carolina, Georgia, Florida). Read by scripts/test-newly-elected-state-legislative-stated-2026-wave6.mjs.",
+  "read": "2026-11-05",
+  "states": [
+    "ny",
+    "oh",
+    "pa",
+    "tx"
+  ],
+  "statesNotCovered": {
+    "az": "No published race call or concession in any Arizona board race (LD2 and LD4 challengers lead in unofficial counts).",
+    "ca": "California is still counting; no Assembly or Senate board race has a published call.",
+    "wa": "Washington is still counting mail ballots; no board race has a published call."
+  },
+  "boards": "Every seat in the set already has a district board (district-<state>-<sd|hd>-<n>.html); no board was opened for this pass.",
+  "rosterBanner": "// ── Newly elected state legislators, New York, Ohio, Pennsylvania and Texas — roster rows (Nov 2026)",
+  "rosterRows": "Each member below is a new cmp-data.js row (rosterRow: \"admitted\"; candidate: true, the same shape as the other state legislative candidate rows), admitted on purpose and declared in scripts/v103-chrome-seams.mjs (DECLARED_ADMISSIONS, wave newly_elected_state_legislators_wave6_nov2026).",
+  "members": [
+    {
+      "pid": "joe_rand",
+      "name": "Joe Rand",
+      "nameOnBallot": "Joe Rand",
+      "office": "New York State Senate (District 38)",
+      "district": "38",
+      "seat": "ny-statesenate-38",
+      "boards": [
+        "district-ny-sd-38.html"
+      ],
+      "party": "D",
+      "rosterRow": "admitted",
+      "raceCall": "https://rocklandnews.com/joe-rand-nys-senator-district-38/",
+      "raceCallNote": "Rockland News (Nov. 4): Rand 61,610 (54.06%) to Sen. Bill Weber 52,258 (45.85%); Weber called Rand on election night to concede. Mayor of Nyack; his first state office.",
+      "source": "https://joerand.com/",
+      "issueKeys": [
+        "healthcare_costs",
+        "cost_living",
+        "infrastructure",
+        "transit",
+        "back_police",
+        "public_schools"
+      ]
+    },
+    {
+      "pid": "sarah_rogerson",
+      "name": "Sarah Rogerson",
+      "nameOnBallot": "Sarah Rogerson",
+      "office": "New York State Senate (District 44)",
+      "district": "44",
+      "seat": "ny-statesenate-44",
+      "boards": [
+        "district-ny-sd-44.html"
+      ],
+      "party": "D",
+      "rosterRow": "admitted",
+      "raceCall": "https://spectrumlocalnews.com/nys/capital-region/politics/2026/11/04/sarah-rogerson-wins-district-44",
+      "raceCallNote": "Spectrum News (Nov. 4): Rogerson wins Senate District 44; Sen. Jim Tedisco conceded. News10 count 65,186 to 59,724 (about 51.5% to 47.2%). Albany Law School professor; her first state office.",
+      "source": "https://www.sarahfornysenate.com/issues",
+      "issueKeys": [
+        "tax_middle_class",
+        "pro_choice",
+        "healthcare",
+        "climate_action",
+        "cost_living",
+        "back_police"
+      ]
+    },
+    {
+      "pid": "chris_mccreight",
+      "name": "Chris McCreight",
+      "nameOnBallot": "Chris McCreight",
+      "office": "New York State Assembly (District 46)",
+      "district": "46",
+      "seat": "ny-statehouse-46",
+      "boards": [
+        "district-ny-hd-46.html"
+      ],
+      "party": "D",
+      "rosterRow": "admitted",
+      "raceCall": "https://www.brooklynpaper.com/chris-mccreight-defeats-brook-krasny-ad-46/",
+      "raceCallNote": "Brooklyn Paper (Nov. 3): McCreight defeats Assemblymember Alec Brook-Krasny, 16,788 (55.49%) to 13,437 (44.1%) with 98% of scanners reporting. District leader; his first state office.",
+      "source": "https://www.chrismccreight.com/issues",
+      "issueKeys": [
+        "datacenter_power",
+        "tax_middle_class",
+        "child_care",
+        "transit",
+        "justice_reform",
+        "gun_safety"
+      ]
+    },
+    {
+      "pid": "chloe_pierce",
+      "name": "Chloe Pierce",
+      "nameOnBallot": "Chloe Pierce",
+      "office": "New York State Assembly (District 107)",
+      "district": "107",
+      "seat": "ny-statehouse-107",
+      "boards": [
+        "district-ny-hd-107.html"
+      ],
+      "party": "D",
+      "rosterRow": "admitted",
+      "raceCall": "https://www.wamc.org/news/2026-11-04/chloe-pierce-wins-election-ny-state-assembly-2026-scott-bendett",
+      "raceCallNote": "WAMC (Nov. 4): Pierce 31,938 (50.9%) to Assemblymember Scott Bendett 29,761 (47.4%); Bendett conceded Wednesday morning. Her first state office.",
+      "source": "https://www.chloepierce.com/",
+      "issueKeys": [
+        "cost_living",
+        "housing",
+        "public_schools",
+        "child_care",
+        "econ_smallbiz",
+        "lands_preserve"
+      ]
+    },
+    {
+      "pid": "megan_coy",
+      "name": "Megan Coy",
+      "nameOnBallot": "Megan Coy",
+      "office": "Ohio State House (District 17)",
+      "district": "17",
+      "seat": "oh-statehouse-17",
+      "boards": [
+        "district-oh-hd-17.html"
+      ],
+      "party": "D",
+      "rosterRow": "admitted",
+      "raceCall": "https://www.yahoo.com/news/politics/articles/gop-loses-supermajority-ohio-house-113007796.html",
+      "raceCallNote": "Columbus Dispatch (Nov. 4): \"Democrat Megan Coy defeated Rep. Mike Dovilla, R-Berea, in the 17th House district.\" Cuyahoga County unofficial count 28,778 (52.22%) to 26,334 (47.78%). Olmsted Falls City Council member; her first state office.",
+      "source": "https://www.coyforohio.com/",
+      "issueKeys": [
+        "healthcare",
+        "public_schools",
+        "property_tax",
+        "housing",
+        "voting_access",
+        "pro_choice"
+      ]
+    },
+    {
+      "pid": "rose_lounsbury",
+      "name": "Rose Lounsbury",
+      "nameOnBallot": "Rose Lounsbury",
+      "office": "Ohio State House (District 36)",
+      "district": "36",
+      "seat": "oh-statehouse-36",
+      "boards": [
+        "district-oh-hd-36.html"
+      ],
+      "party": "D",
+      "rosterRow": "admitted",
+      "raceCall": "https://www.daytondailynews.com/local/democrats-flip-area-statehouse-seats-chip-away-at-gop-majority/article_8912d0e4-fc85-5945-8ea4-dfafc325e111.html",
+      "raceCallNote": "Dayton Daily News (Nov. 4): Lounsbury unseated Rep. Andrea White, who congratulated her; the Columbus Dispatch reports the same. Montgomery County unofficial count 25,727 (55.54%) to 19,496 (42.09%). Her first state office.",
+      "source": "https://www.roseforohio.com/platform",
+      "issueKeys": [
+        "public_schools",
+        "paid_leave",
+        "child_care",
+        "gun_safety"
+      ]
+    },
+    {
+      "pid": "shelby_kimball",
+      "name": "Shelby Kimball",
+      "nameOnBallot": "Shelby Kimball",
+      "office": "Ohio State House (District 60)",
+      "district": "60",
+      "seat": "oh-statehouse-60",
+      "boards": [
+        "district-oh-hd-60.html"
+      ],
+      "party": "D",
+      "rosterRow": "admitted",
+      "raceCall": "https://www.yahoo.com/news/politics/articles/gop-loses-supermajority-ohio-house-113007796.html",
+      "raceCallNote": "Columbus Dispatch (Nov. 4): \"Democrat Shelby Kimball unseated Republican Rep. Brian Lorenz, of Powell, in the 60th House district.\" About 52.1% to 47.9% with about 98% counted. Marine Corps veteran; her first state office.",
+      "source": "https://kimballforohio.com/",
+      "issueKeys": [
+        "public_schools",
+        "healthcare",
+        "veterans",
+        "child_care"
+      ]
+    },
+    {
+      "pid": "mark_pinsley",
+      "name": "Mark Pinsley",
+      "nameOnBallot": "Mark Pinsley",
+      "office": "Pennsylvania State Senate (District 16)",
+      "district": "16",
+      "seat": "pa-statesenate-16",
+      "boards": [
+        "district-pa-sd-16.html"
+      ],
+      "party": "D",
+      "rosterRow": "admitted",
+      "raceCall": "https://www.spotlightpa.org/news/2026/11/pennsylvania-election-day-live-updates-results/",
+      "raceCallNote": "Spotlight PA (Nov. 4): the AP had called every Pennsylvania Senate race by 10:16 a.m.; WFMZ reports \"Pinsley beats Coleman\", about 63,536 (51%) to 60,315 (49%) over Sen. Jarrett Coleman. Lehigh County Controller; his first state legislative office.",
+      "source": "https://votemarkpinsley.com/issues/",
+      "issueKeys": [
+        "datacenter_growth",
+        "health_drug_prices",
+        "pro_choice",
+        "lgbtq_rights",
+        "property_tax",
+        "public_schools"
+      ]
+    },
+    {
+      "pid": "chris_thomas_pa",
+      "name": "Chris Thomas",
+      "nameOnBallot": "Chris Thomas",
+      "office": "Pennsylvania State Senate (District 24)",
+      "district": "24",
+      "seat": "pa-statesenate-24",
+      "boards": [
+        "district-pa-sd-24.html"
+      ],
+      "party": "D",
+      "rosterRow": "admitted",
+      "raceCall": "https://www.spotlightpa.org/news/2026/11/pennsylvania-election-day-live-updates-results/",
+      "raceCallNote": "Spotlight PA (Nov. 4): the AP had called every Pennsylvania Senate race; WFMZ reports \"Democrat Chris Thomas defeats incumbent Tracy Pennycuick\", about 62,995 to 50,843 (Patch, unofficial). Has never held office.",
+      "source": "https://christhomas.vote/platform",
+      "issueKeys": [
+        "campaign_finance",
+        "stock_trading_ban",
+        "datacenter_power",
+        "healthcare_costs",
+        "econ_workers",
+        "public_schools"
+      ]
+    },
+    {
+      "pid": "bryan_allen",
+      "name": "Bryan Allen",
+      "nameOnBallot": "Bryan Allen",
+      "office": "Pennsylvania State House (District 18)",
+      "district": "18",
+      "seat": "pa-statehouse-18",
+      "boards": [
+        "district-pa-hd-18.html"
+      ],
+      "party": "D",
+      "rosterRow": "admitted",
+      "raceCall": "https://www.inquirer.com/politics/election/live/midterm-election-2026-results-updates-candidates-polls-pa-nj-20261103.html/card-1b621113-69ba-4668-a046-6b473e2a4636",
+      "raceCallNote": "Philadelphia Inquirer (Nov. 4): Allen \"successfully toppled State Rep. Kathleen 'K.C.' Tomlinson\"; Bucks County Herald unofficial count 13,114 (55%) to 10,800 (45%). Former Bensalem Township Council member; his first state legislative office.",
+      "source": "https://www.bryanallenforpa.com/issues",
+      "issueKeys": [
+        "datacenter_power",
+        "climate_action",
+        "econ_workers",
+        "public_schools"
+      ]
+    },
+    {
+      "pid": "jeff_warren_pa",
+      "name": "Jeff Warren",
+      "nameOnBallot": "Jeff Warren",
+      "office": "Pennsylvania State House (District 137)",
+      "district": "137",
+      "seat": "pa-statehouse-137",
+      "boards": [
+        "district-pa-hd-137.html"
+      ],
+      "party": "D",
+      "rosterRow": "admitted",
+      "raceCall": "https://armchairlehighvalley.substack.com/p/warren-poised-to-win-137th-upsetting",
+      "raceCallNote": "Armchair Lehigh Valley (Nov. 4): \"The Associated Press called the race at 1:39 a.m. on Wednesday\" for Warren over Rep. Joe Emrick, 16,735 (55%) to 13,911 (45%). Northampton County commissioner; his first state legislative office.",
+      "source": "https://www.jeffwarrenforpa.com/issues",
+      "issueKeys": [
+        "public_schools",
+        "lands_preserve",
+        "back_police",
+        "econ_corp_account",
+        "housing",
+        "econ_workers"
+      ]
+    },
+    {
+      "pid": "kristin_egan",
+      "name": "Kristin Egan",
+      "nameOnBallot": "Kristin Egan",
+      "office": "Pennsylvania State House (District 142)",
+      "district": "142",
+      "seat": "pa-statehouse-142",
+      "boards": [
+        "district-pa-hd-142.html"
+      ],
+      "party": "D",
+      "rosterRow": "admitted",
+      "raceCall": "https://www.buckscountyherald.com/news/election/two-gop-held-house-seats-flip-in-lower-bucks-a-third-in-upper-bucks-may/article_f3d2cfcc-afed-420f-a121-cbba2e13794f.html",
+      "raceCallNote": "Bucks County Herald (Nov. 4): Egan flips the 142nd from Rep. Joe Hogan, 15,394 (53%) to 13,589 (47%) unofficial; WHYY also reports her win. Neshaminy School Board member; her first state office.",
+      "source": "https://www.kristineganforpa.com/priorities",
+      "issueKeys": [
+        "cost_living",
+        "public_schools",
+        "infrastructure"
+      ]
+    },
+    {
+      "pid": "elizabeth_moro",
+      "name": "Elizabeth Moro",
+      "nameOnBallot": "Elizabeth Moro",
+      "office": "Pennsylvania State House (District 160)",
+      "district": "160",
+      "seat": "pa-statehouse-160",
+      "boards": [
+        "district-pa-hd-160.html"
+      ],
+      "party": "D",
+      "rosterRow": "admitted",
+      "raceCall": "https://patch.com/pennsylvania/media/democrats-sweep-delcos-state-house-elections-controlling-countys-whole-delegation",
+      "raceCallNote": "Patch (Nov. 4): \"Moro has defeated Williams... according to the Associated Press\", about 55% over Rep. Craig Williams. Her first state office.",
+      "source": "https://elizabethmoro.com/issues/",
+      "issueKeys": [
+        "health_drug_prices",
+        "health_mental",
+        "datacenter_power",
+        "property_tax",
+        "child_care",
+        "gun_safety"
+      ]
+    },
+    {
+      "pid": "stephanie_guerrero_saenz",
+      "name": "Stephanie Guerrero Sáenz",
+      "nameOnBallot": "Stephanie Guerrero Sáenz",
+      "office": "Texas State House (District 34)",
+      "district": "34",
+      "seat": "tx-statehouse-34",
+      "boards": [
+        "district-tx-hd-34.html"
+      ],
+      "party": "D",
+      "rosterRow": "admitted",
+      "raceCall": "https://www.kristv.com/news/political/elections/villalobos-concedes-texas-house-district-34-race-to-stephanie-guerrero-saenz",
+      "raceCallNote": "KRIS 6 (Nov. 3): Rep. Denise Villalobos called Guerrero Sáenz to concede on election night; Secretary of State count 23,765 to 19,000. Teacher; her first state office.",
+      "source": "https://www.stephanie4texas.com/",
+      "issueKeys": [
+        "public_schools",
+        "health_drug_prices",
+        "healthcare",
+        "econ_workers",
+        "water",
+        "lands_preserve"
+      ]
+    },
+    {
+      "pid": "oziel_ochoa",
+      "name": "Oziel Ochoa Jr.",
+      "nameOnBallot": "Oziel “Ozzie” Ochoa Jr.",
+      "office": "Texas State House (District 37)",
+      "district": "37",
+      "seat": "tx-statehouse-37",
+      "boards": [
+        "district-tx-hd-37.html"
+      ],
+      "party": "D",
+      "rosterRow": "admitted",
+      "raceCall": "https://www.texastribune.org/2026/11/03/texas-house-legislature-outcomes-control-republicans-democrats-2026/",
+      "raceCallNote": "Texas Tribune (Nov. 3–4): Rep. Janie Lopez lost HD 37 as Democrats took the Texas House; AP-sourced results show Ochoa 28,247 (58.0%) to 20,470 (42.0%). Harlingen CISD special education director; his first state office.",
+      "source": "https://www.ochoafortx37.com/issues",
+      "issueKeys": [
+        "property_tax",
+        "econ_workers",
+        "healthcare",
+        "health_mental",
+        "school_choice",
+        "infrastructure"
+      ]
+    },
+    {
+      "pid": "chris_jimenez",
+      "name": "Chris Jimenez",
+      "nameOnBallot": "Chris Jimenez",
+      "office": "Texas State House (District 52)",
+      "district": "52",
+      "seat": "tx-statehouse-52",
+      "boards": [
+        "district-tx-hd-52.html"
+      ],
+      "party": "D",
+      "rosterRow": "admitted",
+      "raceCall": "https://www.kut.org/politics/2026-11-03/texas-house-district-52-election-results-williamson-county-round-rock",
+      "raceCallNote": "KUT (Nov. 3–4): Jimenez defeats Rep. Caroline Harris Davila with all precincts reporting, a margin of about 8,100 votes (7.8 points); KXAN projected him the winner. Marine veteran and small business owner; his first state office.",
+      "source": "https://chrisjimenezforhd52.com/priorities",
+      "issueKeys": [
+        "property_tax",
+        "school_choice",
+        "housing_build",
+        "healthcare",
+        "back_police",
+        "datacenter_water"
+      ]
+    },
+    {
+      "pid": "zach_herbert",
+      "name": "Zach Herbert",
+      "nameOnBallot": "Zach Herbert",
+      "office": "Texas State House (District 112)",
+      "district": "112",
+      "seat": "tx-statehouse-112",
+      "boards": [
+        "district-tx-hd-112.html"
+      ],
+      "party": "D",
+      "rosterRow": "admitted",
+      "raceCall": "https://richardson-garlandherald.com/2026/11/04/herbert-defeats-button-to-flip-house-district-112-as-democrats-take-the-state-house/",
+      "raceCallNote": "Richardson-Garland Herald (Nov. 4): Herbert defeats Rep. Angie Chen Button, 43,251 (53.6%) to 37,499 (46.4%) with all locations reporting; the Texas Tribune reports Button unseated. Marine veteran and attorney; his first state office.",
+      "source": "https://zach4texas.com/issues/",
+      "issueKeys": [
+        "healthcare",
+        "econ_workers",
+        "pro_choice",
+        "gun_safety"
+      ]
+    },
+    {
+      "pid": "zack_dunn",
+      "name": "Zack Dunn",
+      "nameOnBallot": "Zack Dunn",
+      "office": "Texas State House (District 121)",
+      "district": "121",
+      "seat": "tx-statehouse-121",
+      "boards": [
+        "district-tx-hd-121.html"
+      ],
+      "party": "D",
+      "rosterRow": "admitted",
+      "raceCall": "https://sanantonioreport.org/texas-house-races-election-results-2026-hd-121-lahood/",
+      "raceCallNote": "San Antonio Report (Nov. 3–4): Rep. Marc LaHood conceded to Dunn around 10 p.m. on election night. His first elected office.",
+      "source": "https://zackdunn.com/",
+      "issueKeys": [
+        "veterans",
+        "back_police",
+        "public_schools"
+      ]
+    },
+    {
+      "pid": "tyler_smith",
+      "name": "Tyler Smith",
+      "nameOnBallot": "Tyler Smith",
+      "office": "Texas State House (District 138)",
+      "district": "138",
+      "seat": "tx-statehouse-138",
+      "boards": [
+        "district-tx-hd-138.html"
+      ],
+      "party": "D",
+      "rosterRow": "admitted",
+      "raceCall": "https://thetexan.news/elections/democrat-tyler-smith-defeats-incumbent-state-rep-lacey-hull-in-houston-area-house-district/article_fd847426-24c9-4a3c-b381-465dc55211a5.html",
+      "raceCallNote": "The Texan (Nov. 4): Democrat Tyler Smith defeats Rep. Lacey Hull, about 52% to 48% in unofficial results. First-time candidate; his first state office.",
+      "source": "https://tylerfortx.com/what-im-fighting-for/",
+      "issueKeys": [
+        "housing_build",
+        "housing_first_time",
+        "healthcare",
+        "datacenter_power",
+        "climate_action",
+        "school_choice"
+      ]
+    }
+  ],
+  "leftOut": [
+    {
+      "pid": "lisa_kaul_ny",
+      "name": "Lisa Kaul",
+      "office": "New York State Senate (District 39)",
+      "district": "39",
+      "reason": "Beat Sen. Rob Rolison (Mid Hudson News reports Rolison conceded; about 55%), but her campaign priorities page (lisa4ny.org/priorities) serves no readable text — the positions load only through a script — so no position could be quoted from a readable page."
+    },
+    {
+      "pid": "devin_lander_ny",
+      "name": "Devin Lander",
+      "office": "New York State Senate (District 43)",
+      "district": "43",
+      "reason": "Not called: Sen. Jake Ashby leads by a few hundred votes (Daily Gazette, 0.26%), inside New York's automatic recount margin, with absentee ballots outstanding."
+    },
+    {
+      "pid": "ryan_taughrin_ny",
+      "name": "Ryan Taughrin",
+      "office": "New York State Assembly (District 143)",
+      "district": "143",
+      "reason": "Not called: WGRZ reports the race too close to call (a 561-vote lead with about 800 absentee ballots left) and Assemblymember Patrick Chludzinski has claimed victory."
+    },
+    {
+      "pid": "amelia_gallitano_az",
+      "name": "Amelia Gallitano",
+      "office": "Arizona State Senate (District 2)",
+      "district": "2",
+      "reason": "Leads Sen. Shawnna Bolick about 56% to 44% in Maricopa County's unofficial count, but no news outlet has published a race call and Bolick has not conceded; Arizona was left out of this wave."
+    },
+    {
+      "pid": "aaron_lieberman_az",
+      "name": "Aaron Lieberman",
+      "office": "Arizona State Senate (District 4)",
+      "district": "4",
+      "reason": "Not called: leads Sen. Carine Werner about 53% to 47% with roughly 85% counted and a narrowing margin; he is also a former state representative."
+    },
+    {
+      "pid": "brittany_black_tx",
+      "name": "Brittany Black",
+      "office": "Texas State House (District 61)",
+      "district": "61",
+      "reason": "Not a win: Rep. Keresa Richardson leads by 134 votes (KERA) with no call; a recount is possible."
+    },
+    {
+      "pid": "jordan_wheatley_tx",
+      "name": "Jordan Wheatley",
+      "office": "Texas State House (District 67)",
+      "district": "67",
+      "reason": "Not a win: Rep. Jeff Leach leads by 203 votes in Collin County's unofficial totals with no AP call or concession."
+    },
+    {
+      "pid": "california_ad_challengers",
+      "name": "California Assembly challengers (AD 7, 36, 47, 58, 74)",
+      "office": "California State Assembly",
+      "district": "7, 36, 47, 58, 74",
+      "reason": "Each Democratic challenger leads or is tied, but California is still counting (about 45–60% in) and none of the five races has a published call or concession; California was left out of this wave."
+    },
+    {
+      "pid": "washington_challengers",
+      "name": "Washington challengers (LD 17 and 18 House seats, LD 35 Senate)",
+      "office": "Washington State Legislature",
+      "district": "17, 18, 35",
+      "reason": "Ben Christly, Diana Perez, Randi Knott, Deken Letinich and Carolina Mejia lead, but Washington counts mail ballots for days and no race has a published call or concession; Washington was left out of this wave."
+    },
+    {
+      "pid": "eileen_hartnett_albillar_pa",
+      "name": "Eileen Hartnett Albillar",
+      "office": "Pennsylvania State Senate (District 6)",
+      "district": "6",
+      "reason": "Beat Sen. Frank Farry (the Inquirer reports the AP projection), but her campaign site has no issues or priorities page — the Issues menu item has no link and the priorities section is empty — so there is no platform page to quote."
+    },
+    {
+      "pid": "tom_jones_pa",
+      "name": "Tom Jones",
+      "office": "Pennsylvania State Senate (District 36)",
+      "district": "36",
+      "reason": "Beat Sen. James Andrew Malone (CBS21: the AP called it about 1:30 a.m.), but he is a sitting state representative (House District 98) already on the roster, so he is not newly elected and his existing row stays unchanged."
+    },
+    {
+      "pid": "brian_wrightson_pa",
+      "name": "Brian Wrightson",
+      "office": "Pennsylvania State Senate (District 40)",
+      "district": "40",
+      "reason": "Beat Sen. Rosemary Brown (FOX56, per the AP), but his \"Where I Stand\" page lists headings only, with no position text; his positions appear only in blog posts, so there is no readable platform page to quote."
+    },
+    {
+      "pid": "scott_timko_pa",
+      "name": "Scott Timko",
+      "office": "Pennsylvania State House (District 12)",
+      "district": "12",
+      "reason": "Leads Rep. Brandon Dukes by 575 votes and Dukes issued a concession statement, but WPXI reports the race \"was never officially called\" and Butler County had not yet certified; left out until a call is published."
+    }
+  ]
+}

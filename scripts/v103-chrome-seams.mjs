@@ -1,5 +1,6 @@
 import { execFileSync as _execFileSync } from "node:child_process";
 import { readFileSync as _readFileSync } from "node:fs";
+const _W6_REC = JSON.parse(_readFileSync(new URL("../db/newly-elected-state-legislative-stated-2026-11-wave6.json", import.meta.url), "utf8"));
 /**
  * scripts/v103-chrome-seams.mjs
  *
@@ -3547,6 +3548,15 @@ export const DECLARED_ADMISSIONS = [
     wave: "newly_elected_state_legislators_wi_il_nc_ga_fl_nov2026",
     banner: "// ── Newly elected state legislators, Wisconsin, Illinois, North Carolina, Georgia and Florida — roster rows (Nov 2026)",
     pids: JSON.parse(_readFileSync(new URL("../db/newly-elected-state-legislative-stated-2026-11-wave5.json", import.meta.url), "utf8")).members.map((m) => m.pid),
+  },  {
+    // The sixth newly elected state legislative wave: challengers who won a
+    // called November 3, 2026 race on a seat whose board already exists, which
+    // the roster held by name only (the ballot files). One identity row each,
+    // sitting just above the fifth wave's block; the record names the banner,
+    // the states and the rows (rosterRow: "admitted").
+    wave: "newly_elected_state_legislators_wave6_nov2026",
+    banner: _W6_REC.rosterBanner,
+    pids: _W6_REC.members.filter((m) => m.rosterRow === "admitted").map((m) => m.pid),
   },
 ];
 /**
@@ -3730,6 +3740,18 @@ export const DECLARED_STANCE_PASSES = [
       "winn_decker", "ken_mccool", "laura_murvartian", "danielle_bell", "adam_cleveland", "beth_fuller",
       "michelle_kang", "john_lowndes", "eric_gray", "todd_delmay", "lucia_baez_geller"],
   },
+  {
+    pass: "newly_elected_state_legislative_stated_nov2026_wave6",
+    // The sixth state legislative wave: November 3, 2026 winners on seats whose
+    // board already exists, admitted as candidate rows by this pass
+    // (db/newly-elected-state-legislative-stated-2026-11-wave6.json): two New
+    // York Senate and two New York Assembly, three Ohio House, two Pennsylvania
+    // Senate and four Pennsylvania House, and six Texas House.
+    pids: ["joe_rand", "sarah_rogerson", "chris_mccreight", "chloe_pierce", "megan_coy", "rose_lounsbury",
+      "shelby_kimball", "mark_pinsley", "chris_thomas_pa", "bryan_allen", "jeff_warren_pa", "kristin_egan",
+      "elizabeth_moro", "stephanie_guerrero_saenz", "oziel_ochoa", "chris_jimenez", "zach_herbert", "zack_dunn",
+      "tyler_smith"],
+  },
 ];
 export const DECLARED_STANCE_PIDS = DECLARED_STANCE_PASSES.flatMap((d) => d.pids);
 // sw.js with its comment lines and the CACHE_VERSION line set aside: what a
@@ -3739,19 +3761,24 @@ export const DECLARED_STANCE_PIDS = DECLARED_STANCE_PASSES.flatMap((d) => d.pids
 export function swCodeOnly(src) {
   return String(src).split("\n").filter((l) => !/^\s*\/\//.test(l) && !/^const CACHE_VERSION = 'v\d+';$/.test(l)).join("\n");
 }
-// cmp-data.js with exactly the fifth newly elected wave's declared block set
-// aside (db/newly-elected-state-legislative-stated-2026-11-wave5.json); any
-// other move, or a block whose rows are not exactly the record's, stays put.
+// cmp-data.js with exactly the newly elected waves' declared blocks set aside
+// (the fifth, db/newly-elected-state-legislative-stated-2026-11-wave5.json, and
+// the sixth, …-wave6.json); any other move, or a block whose rows are not
+// exactly the record's, stays put.
 const _W5_BANNER = "// ── Newly elected state legislators, Wisconsin, Illinois, North Carolina, Georgia and Florida — roster rows (Nov 2026)";
-export function withoutWave5RosterRows(src) {
+const _W6_BANNER = _W6_REC.rosterBanner;
+function _withoutBlock(src, banner) {
   if (src == null) return src;
-  const at = String(src).indexOf(_W5_BANNER);
+  const at = String(src).indexOf(banner);
   if (at < 0) return src;
   const end = src.indexOf("\n// ── ", at + 1);
-  const d = DECLARED_ADMISSIONS.find((x) => x.banner === _W5_BANNER);
+  const d = DECLARED_ADMISSIONS.find((x) => x.banner === banner);
   if (end < 0 || !d) return src;
   const pids = [...src.slice(at, end).matchAll(/^ "([a-z0-9_]+)": \{$/gm)].map((x) => x[1]).sort().join(",");
   return pids === d.pids.slice().sort().join(",") ? src.slice(0, at) + src.slice(end + 1) : src;
+}
+export function withoutWave5RosterRows(src) {
+  return _withoutBlock(_withoutBlock(src, _W6_BANNER), _W5_BANNER);
 }
 const stanceTable = (src) => {
   if (src == null) return null;

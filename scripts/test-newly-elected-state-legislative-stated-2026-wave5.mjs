@@ -47,6 +47,8 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { DECLARED_STANCE_PASSES, DECLARED_ADMISSIONS, carveDeclaredAdmissions } from "./v103-chrome-seams.mjs";
+// A later declared admission (the sixth newly elected wave) is that pass's product.
+const LATER_ADMITTED = DECLARED_ADMISSIONS.slice(DECLARED_ADMISSIONS.findIndex((d) => d.wave === "newly_elected_state_legislators_wi_il_nc_ga_fl_nov2026") + 1).flatMap((d) => d.pids);
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -268,7 +270,7 @@ section("4 · nothing else moved; no new route or gate; one shell move, no migra
     ok(cmpNow.includes(ADMIT.banner), "the declared block's banner is missing");
     eq(carveDeclaredAdmissions(cmpNow) === carveDeclaredAdmissions(BASE_CMP), true, "cmp-data.js moved outside the declared admission block");
     const keysOf = (s) => (s.match(/^ "([a-z0-9_]+)": \{$/gm) || []).length;
-    eq(keysOf(cmpNow) - keysOf(BASE_CMP), SET.length, "the roster grew by other than the set");
+    eq(keysOf(cmpNow) - keysOf(BASE_CMP) - LATER_ADMITTED.length, SET.length, "the roster grew by other than the set");
     const blockAt = cmpNow.indexOf(ADMIT.banner), blockEnd = cmpNow.indexOf("\n// ── ", blockAt + 1);
     ok(blockEnd > blockAt && cmpNow.slice(blockEnd, blockEnd + 40).includes("Election-day candidates"), "the election-day block no longer follows this one (it stays just above the October block)");
     for (const f of ["politician-stances-core.js", "cmp-data-detail.js", "related-issues.js", "consistency.js",
@@ -301,8 +303,9 @@ section("4 · nothing else moved; no new route or gate; one shell move, no migra
   const baseSw = BASE("sw.js");
   if (baseSw != null) {
     const ver = (s) => +((/const CACHE_VERSION = 'v(\d+)'/.exec(s) || [])[1] || 0);
-    eq(ver(sw), ver(baseSw) + 1, "the shell did not move one version for the precached roster");
-    ok(/v526 - NEWLY ELECTED STATE LEGISLATORS IN FIVE MORE STATES[\s\S]*?MIGRATION COST: none\.\n(\/\/[^\n]*\n)*const CACHE_VERSION = 'v526'/.test(sw), "the version note is missing or does not say no migration");
+    // This pass moved the shell one version (v526); a later pass may move it further.
+    ok(ver(sw) >= ver(baseSw) + 1, "the shell did not move one version for the precached roster");
+    ok(/v526 - NEWLY ELECTED STATE LEGISLATORS IN FIVE MORE STATES[\s\S]*?MIGRATION COST: none\.\n(\/\/[^\n]*\n)*const CACHE_VERSION = 'v\d+'/.test(sw), "the version note is missing or does not say no migration");
     eq(JSON.stringify(pre(sw)), JSON.stringify(pre(baseSw)), "the precache list changed");
     eq(R("politician-stances-core.js"), BASE("politician-stances-core.js"), "the precached stance chunk changed");
   }

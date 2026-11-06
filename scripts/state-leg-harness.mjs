@@ -627,20 +627,42 @@ function shellBlocksOnly(now, was) {
 // the record's rows and everything outside it is HEAD's bytes.
 const WAVE5_BANNER = "// ── Newly elected state legislators, Wisconsin, Illinois, North Carolina, Georgia and Florida — roster rows (Nov 2026)";
 const WAVE5_PIDS = JSON.parse(readFileSync(new URL("../db/newly-elected-state-legislative-stated-2026-11-wave5.json", import.meta.url), "utf8")).members.map((m) => m.pid);
-export const WAVE5_CANDIDATES = new Set(WAVE5_PIDS);
-export function withoutWave5Rows(src) {
-  const at = String(src).indexOf(WAVE5_BANNER);
+// THE SIXTH NEWLY ELECTED WAVE (Nov 2026) admitted rows the same way, in its own
+// block just above the fifth's; its record names the banner and the rows
+// (db/newly-elected-state-legislative-stated-2026-11-wave6.json, rosterBanner).
+const WAVE6_REC = JSON.parse(readFileSync(new URL("../db/newly-elected-state-legislative-stated-2026-11-wave6.json", import.meta.url), "utf8"));
+const NEWLY_ELECTED_ROW_BLOCKS = [
+  { banner: WAVE5_BANNER, pids: WAVE5_PIDS },
+  { banner: WAVE6_REC.rosterBanner, pids: WAVE6_REC.members.filter((m) => m.rosterRow === "admitted").map((m) => m.pid) },
+];
+// Every newly elected wave's admitted rows (each is its own suite's product).
+export const WAVE5_CANDIDATES = new Set(NEWLY_ELECTED_ROW_BLOCKS.flatMap((b) => b.pids));
+export const NEWLY_ELECTED_CANDIDATES = WAVE5_CANDIDATES;
+function withoutRowBlock(src, b) {
+  if (src == null) return src;
+  const at = String(src).indexOf(b.banner);
   if (at < 0) return src;
   const end = src.indexOf("\n// ── ", at + 1);
   if (end < 0) return null;
   const pids = [...src.slice(at, end).matchAll(/^ "([a-z0-9_]+)": \{$/gm)].map((x) => x[1]);
-  if (pids.slice().sort().join(",") !== WAVE5_PIDS.slice().sort().join(",")) return null;
+  if (pids.slice().sort().join(",") !== b.pids.slice().sort().join(",")) return null;
   return src.slice(0, at) + src.slice(end + 1);
 }
+// cmp-data.js with every newly elected wave's declared row block set aside
+// (the fifth's and the sixth's); null when a block holds other than its record's rows.
+export function withoutWave5Rows(src) {
+  let out = src;
+  for (const b of NEWLY_ELECTED_ROW_BLOCKS) { out = withoutRowBlock(out, b); if (out === null) return null; }
+  return out;
+}
+export const withoutNewlyElectedRows = withoutWave5Rows;
 export function settled(f) {
   let now = R(f);
-  const was = HEAD(f);
+  let was = HEAD(f);
+  // The declared newly elected row blocks are set aside on both sides: HEAD may
+  // already hold an earlier wave's block once that wave has landed.
   if (f === "cmp-data.js" && now !== null) { const c = withoutWave5Rows(now); if (c === null) return false; now = c; }
+  if (f === "cmp-data.js" && was !== null) { const c = withoutWave5Rows(was); if (c !== null) was = c; }
   if (now === was) return true;
   if (now === null) return false;
   if (f === "cmp-data.js") return shellBlocksOnly(now, was) || fourStateRowsOnly(now, was) || statesRowsOnly(now, was, MS_VT_MI_TN) || electionDayOnly(now, was);
