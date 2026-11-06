@@ -11652,7 +11652,18 @@
 //     No route or gate. No location key or other stored reader state is
 //     written or rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v526';
+// v527 - NEWLY ELECTED STATE LEGISLATORS IN NEW YORK, OHIO, PENNSYLVANIA AND TEXAS.
+//     cmp-data.js gains one identity row for each of 19 challengers who won a
+//     called November 3, 2026 State Senate, State House or State Assembly race
+//     in New York, Ohio, Pennsylvania and Texas, on a seat whose board already
+//     exists (candidate: true, so no seat lookup names one as a sitting member).
+//     Their campaign-claim stated positions live in politician-stances-ext.js, a
+//     runtime entry. cmp-data.js is precached and changed, so the shell moves one
+//     version; the precache list is unchanged. No route or gate. No location key
+//     or other stored reader state is written or rewritten, so nothing is
+//     migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v527';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

@@ -57,7 +57,9 @@ const BANNER = " // ── Election-day wave follow-up (November 3, 2026)";
 const evalRoster = (src) => { const w = makeSandbox(); vm.runInContext(src, vm.createContext(w), { filename: "cmp-data.js" }); return w; };
 const W = evalRoster(SRC);
 const RO = W.CMP_DATA, CY = W.CMP_CANDIDACIES || {};
-const headSrc = HEAD("cmp-data.js");
+// The declared newly elected blocks are set aside on HEAD's side too, once a
+// wave has landed there.
+const headSrc = withoutWave5RosterRows(HEAD("cmp-data.js"));
 const BEFORE = headSrc && headSrc.indexOf(BANNER) < 0;   // HEAD is the tree this change starts from
 const W0 = headSrc ? evalRoster(headSrc) : null;
 

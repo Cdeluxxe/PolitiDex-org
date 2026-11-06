@@ -53192,6 +53192,155 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
  },
+// ── Newly elected state legislators, New York, Ohio, Pennsylvania and Texas — roster rows (Nov 2026)
+// The November 3, 2026 State Senate, State House and (New York) State Assembly
+// winners who unseated a sitting member on a seat whose district board already
+// exists (ny-, oh-, pa- and tx-ballot-2026.js name them as challengers, by name
+// only, with no row). Each win has a published race call, and each member's own
+// campaign issues page could be read; both are recorded, with the issue keys
+// their stated positions were filed on, in
+// db/newly-elected-state-legislative-stated-2026-11-wave6.json. Identity rows
+// only, the same shape as the other state legislative candidate rows: name, the
+// seat they won, `party` and `partyFiled` as the race call reports them.
+// `candidate: true` on every row, so no seat lookup names one as a sitting member
+// and the sitting member's row, the board and the ballot file are unchanged.
+ // New York
+ "joe_rand": {
+  "name": "Joe Rand", "office": "New York State Senate Candidate (District 38)",
+  "state": "New York", "district": "38",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "sarah_rogerson": {
+  "name": "Sarah Rogerson", "office": "New York State Senate Candidate (District 44)",
+  "state": "New York", "district": "44",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chris_mccreight": {
+  "name": "Chris McCreight", "office": "New York State Assembly Candidate (District 46)",
+  "state": "New York", "district": "46",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chloe_pierce": {
+  "name": "Chloe Pierce", "office": "New York State Assembly Candidate (District 107)",
+  "state": "New York", "district": "107",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Ohio
+ "megan_coy": {
+  "name": "Megan Coy", "office": "Ohio State House Candidate (District 17)",
+  "state": "Ohio", "district": "17",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "rose_lounsbury": {
+  "name": "Rose Lounsbury", "office": "Ohio State House Candidate (District 36)",
+  "state": "Ohio", "district": "36",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "shelby_kimball": {
+  "name": "Shelby Kimball", "office": "Ohio State House Candidate (District 60)",
+  "state": "Ohio", "district": "60",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Pennsylvania
+ "mark_pinsley": {
+  "name": "Mark Pinsley", "office": "Pennsylvania State Senate Candidate (District 16)",
+  "state": "Pennsylvania", "district": "16",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chris_thomas_pa": {
+  "name": "Chris Thomas", "office": "Pennsylvania State Senate Candidate (District 24)",
+  "state": "Pennsylvania", "district": "24",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "bryan_allen": {
+  "name": "Bryan Allen", "office": "Pennsylvania State House Candidate (District 18)",
+  "state": "Pennsylvania", "district": "18",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "jeff_warren_pa": {
+  "name": "Jeff Warren", "office": "Pennsylvania State House Candidate (District 137)",
+  "state": "Pennsylvania", "district": "137",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "kristin_egan": {
+  "name": "Kristin Egan", "office": "Pennsylvania State House Candidate (District 142)",
+  "state": "Pennsylvania", "district": "142",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "elizabeth_moro": {
+  "name": "Elizabeth Moro", "office": "Pennsylvania State House Candidate (District 160)",
+  "state": "Pennsylvania", "district": "160",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Texas
+ "stephanie_guerrero_saenz": {
+  "name": "Stephanie Guerrero Sáenz", "office": "Texas State House Candidate (District 34)",
+  "state": "Texas", "district": "34",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "oziel_ochoa": {
+  "name": "Oziel Ochoa Jr.", "office": "Texas State House Candidate (District 37)",
+  "state": "Texas", "district": "37",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "chris_jimenez": {
+  "name": "Chris Jimenez", "office": "Texas State House Candidate (District 52)",
+  "state": "Texas", "district": "52",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "zach_herbert": {
+  "name": "Zach Herbert", "office": "Texas State House Candidate (District 112)",
+  "state": "Texas", "district": "112",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "zack_dunn": {
+  "name": "Zack Dunn", "office": "Texas State House Candidate (District 121)",
+  "state": "Texas", "district": "121",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "tyler_smith": {
+  "name": "Tyler Smith", "office": "Texas State House Candidate (District 138)",
+  "state": "Texas", "district": "138",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
 // ── Newly elected state legislators, Wisconsin, Illinois, North Carolina, Georgia and Florida — roster rows (Nov 2026)
 // The November 3, 2026 State Senate, State House and (Wisconsin) State Assembly
 // winners who unseated a sitting member on a seat whose district board already
