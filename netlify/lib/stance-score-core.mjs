@@ -22,7 +22,7 @@
 // R4 corroboration bonus of 0.15 reproduces it. These numbers live in WEIGHTS
 // so a later tweak is one edit, and the comparison log prints the exact delta.
 
-export const RULES_VERSION = "phase4-v1";
+export const RULES_VERSION = "phase6-v2";
 
 export const WEIGHTS = {
   high: 1.0,              // R2
@@ -50,7 +50,7 @@ const MEDIUM_TYPES = /\b(campaign|issue page|platform|toolkit)\b/i;
 export const TOPIC_RULES = {
   cost_living: {
     mention: /\b(cost[- ]of[- ]living|expensive|afford\w*|prices?|rent|groceries|grocery|utilit(y|ies)|gas|diesel|childcare|insulin|housing|tax(es)?|tax cut|interest rates?|wages?|pay)\b/i,
-    // A commitment to bring costs/taxes down for people. Candidate-voiced only (see THIRD_PARTY).
+    // A commitment to bring costs/taxes down for people. Counted only when the page's own politician is the actor (see actorFor).
     support: /\b(lower(ing)?|cut(ting)?|bring(ing)? down|cap(ped|ping|s)?|reduc(e|es|ed|ing)|suspend(ing)?)\b[^.!?]{0,80}?\b(costs?|prices?|tax(es)?|rent|groceries|interest rates?|bills?)\b|\bcost[- ]of[- ]living tax cut\b/i,
     // Explicitly against measures that lower costs.
     oppose: /\b(I|we)\s+(?:now\s+|still\s+|strongly\s+)?(oppose|reject|will vote against|won'?t support)\b[^.!?]{0,80}\b(tax cuts?|caps?|relief|lower(ing)? (costs|prices)|minimum wage)\b|\b(raise|raising|increase|increasing) (taxes|prices|rent) on (working|middle)/i,
@@ -63,9 +63,91 @@ export const TOPIC_RULES = {
   },
 };
 
-// Sentences where the actor is an opponent/third party describe THEIR record,
-// not the candidate's position → treated as mentions (R3), never as clear statements.
-const THIRD_PARTY = /\b(they|they're|DC politicians|politicians like|Republicans|Paxton|Cornyn|Trump)\b|\bpromised to\b/i;
+// ── WHO IS ACTING (rules version phase6-v2) ─────────────────────────────────
+// A clear statement only counts as the page's own politician's position when
+// the politician (or the page's own voice) is the one acting. There is NO list
+// of opponent names. For the text before the cost verb, the scorer finds the
+// NEAREST actor and classifies it as one of:
+//   self      — first person (I / we / my / our), the page's own politician by
+//               full name, surname or first name (from politician_id), or he / she (which
+//               on a politician's own page refers to that politician).
+//   opponent  — explicit framing on the page itself: "my opponent", "politicians
+//               like X", "X promised to…", or ANY other named person or group
+//               followed by an action verb ("Senator X voted to…", "Republicans
+//               refuse…", "Texas has lowered…") that is not the page's politician.
+//   third     — a clearly attributed third party acting: they / they're, or a
+//               group that is the subject of a verb — corporations, companies,
+//               retailers, billionaires, lobbyists, insurers, landlords,
+//               "Big Pharma"-style groups, Wall Street, and so on.
+// No actor at all (an imperative such as "Lower housing costs:" or "Pass a
+// cost-of-living tax cut") is the page's own voice → self. Opponent and third
+// party sentences are recorded as mentions at zero weight (R3) unless they
+// carry explicit reversal language (R5).
+const FIRST_PERSON = /\b(I|I'm|I’m|I've|I’ve|I'll|I’ll|I'd|I’d|me|my|we|we're|we’re|we've|we’ve|we'll|we’ll|us|our)\b/g;
+const SELF_PRONOUN = /\b(he|she|he's|he’s|she's|she’s|he'll|he’ll|she'll|she’ll|his|her)\b/gi;
+const OPPONENT_FRAMING = /\b(?:my|our|his|her|their)\s+(?:\w+\s+)?opponents?\b|\b(?:politicians?|people|folks) like\b|\bpromised to\b/gi;
+// Third-party PRONOUNS are always the actor of their clause. Third-party GROUPS
+// only count when they are the subject — followed by a verb — so "Big retailers
+// are tracking…" is attributed to retailers, while "We must end these corporate
+// subsidies and use the savings to cut property taxes" stays the speaker's own.
+const THIRD_PARTY_PRONOUN = /\b(they|they're|they’re|they've|they’ve|they'll|they’ll)\b/gi;
+const THIRD_PARTY_GROUP = /\b(corporations?|corporate (?:landlords|interests|executives|giants|America)|companies|retailers?|billionaires?|millionaires?|the (?:wealthy|rich)|lobbyists?|special interests|donors?|insurers?|insurance companies|landlords?|banks?|Wall Street|big (?:pharma|food|oil|tech|retailers?|banks?|insurance)|(?:drug|oil|tech|credit card) (?:companies|makers|giants)|monopolies|middlemen|PBMs?)(?=\s+(?:\w+ly\s+)?(?:are|is|was|were|have|has|had|will|would|can|could|keep|keeps|kept|use|uses|used|lobby|lobbies|lobbied|charge|charges|raise|raises|raised|jack|jacks|hike|hikes|hiked|set|sets|want|wants|get|gets|pay|pays|paid|make|makes|made|buy|buys|bought|refuse|refuses|try|tries|tried|continue|continues|rip|rips|profit|profits|gouge|gouges|squeeze|squeezes)\b)/gi;
+const ACTION_VERB = "(?:has|have|had|is|are|was|were|will|would|wants?|voted|votes|promised|promises|refused|refuses|refuse|tried|tries|blocked|blocks|keeps?|kept|used|uses|took|takes|plans?|planned|pushed|pushes|passed|signed|lowered|cut|raised|raises|raise)";
+const NAMED_ACTOR = new RegExp(`\\b((?:[A-Z][\\w'’.-]+)(?:\\s+(?:[A-Z][\\w'’.-]+|of|the|for))*?)\\s+${ACTION_VERB}\\b`, "g");
+// Capitalised words that start a sentence or clause without naming anyone.
+const NOT_A_NAME = new Set(["I", "We", "The", "This", "That", "These", "Those", "Now", "If", "In", "As", "And", "But", "So", "It", "He", "She", "They", "Our", "My", "His", "Her", "Their", "Who", "What", "When", "Why", "How", "Today", "Tonight", "Here", "There", "Everyone", "Nobody", "Americans", "Texans", "Families", "Workers"]);
+
+const escapeRe = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+function selfNamePattern(politicianId) {
+  const parts = String(politicianId || "").split("_").filter((p) => p.length > 1);
+  if (!parts.length) return null;
+  // Full name, surname, or first name — campaign pages often say "Gina plans…".
+  const names = [parts.join(" "), parts[parts.length - 1], parts[0]].map(escapeRe);
+  return new RegExp(`\\b(?:${names.join("|")})(?:['’]s)?\\b`, "gi");
+}
+
+function lastMatch(re, text) {
+  let m, last = null; re.lastIndex = 0;
+  while ((m = re.exec(text))) { last = m; if (m[0] === "") re.lastIndex++; }
+  return last;
+}
+
+/** Who is acting in `prefix` (the sentence text before the cost verb)? */
+export function actorFor(prefix, politicianId) {
+  const selfName = selfNamePattern(politicianId);
+  const hits = [];
+  const push = (kind, m, end = m.index + m[0].length) => m && hits.push({ kind, end, text: m[0] });
+  let m;
+  FIRST_PERSON.lastIndex = 0;
+  while ((m = FIRST_PERSON.exec(prefix))) push("self", m);
+  SELF_PRONOUN.lastIndex = 0;
+  while ((m = SELF_PRONOUN.exec(prefix))) push("self", m);
+  if (selfName) { selfName.lastIndex = 0; while ((m = selfName.exec(prefix))) push("self", m); }
+  OPPONENT_FRAMING.lastIndex = 0;
+  while ((m = OPPONENT_FRAMING.exec(prefix))) push("opponent", m);
+  THIRD_PARTY_PRONOUN.lastIndex = 0;
+  while ((m = THIRD_PARTY_PRONOUN.exec(prefix))) push("third", m);
+  THIRD_PARTY_GROUP.lastIndex = 0;
+  while ((m = THIRD_PARTY_GROUP.exec(prefix))) push("third", m);
+  NAMED_ACTOR.lastIndex = 0;
+  while ((m = NAMED_ACTOR.exec(prefix))) {
+    const name = m[1];
+    const words = name.split(/\s+/);
+    if (words.length === 1 && NOT_A_NAME.has(name)) continue;
+    if (NOT_A_NAME.has(words[0]) && words.length === 1) continue;
+    if (selfName && (selfName.lastIndex = 0, selfName.test(name))) continue; // own politician acting → already a self hit
+    push("opponent", m, m.index + name.length);
+  }
+  if (!hits.length) return { kind: "self", via: "page voice" };
+  // Nearest actor to the verb wins. On a tie (a capitalised group such as
+  // "Corporations are…" is both a named actor and a third-party group), the
+  // more specific third-party label wins. Both are zero weight either way.
+  const rank = { self: 0, opponent: 1, third: 2 };
+  hits.sort((x, y) => x.end - y.end || rank[x.kind] - rank[y.kind]);
+  const h = hits[hits.length - 1];
+  return { kind: h.kind, via: h.text };
+}
+
 const REVERSAL = /\b(I('ve| have) changed my (mind|position)|I no longer (support|oppose)|I was wrong (about|to)|I now (support|oppose)|reversing my position)\b/i;
 
 const ENTITIES = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", rsquo: "’", lsquo: "‘", ldquo: "“", rdquo: "”", hellip: "…", mdash: "—", ndash: "–" };
@@ -81,6 +163,8 @@ export function extractSentences(body) {
   const text = decode(
     String(body || "")
       .replace(/<(script|style|noscript|svg|head)\b[^>]*>[\s\S]*?<\/\1>/gi, " ")
+      // Source-code line breaks inside a paragraph are not sentence breaks.
+      .replace(/\s+/g, " ")
       .replace(/<\/?(p|div|li|ul|ol|h[1-6]|br|blockquote|section|article|tr|td|header|footer|nav)\b[^>]*>/gi, "\n")
       .replace(/<[^>]+>/g, " "),
   );
@@ -103,19 +187,27 @@ export function tierFor(sourceType) {
   return "medium";
 }
 
-/** Classify one sentence → { kind: 'clear'|'mention'|null, side, reversal }. */
-export function classify(sentence, topic) {
+/**
+ * Classify one sentence → { kind: 'clear'|'mention'|null, side, reversal, actor }.
+ * `politicianId` is the page's own politician (raw.politician_id).
+ */
+export function classify(sentence, topic, politicianId = null) {
   const r = TOPIC_RULES[topic];
   if (!r) throw new Error(`no scoring rules for topic ${topic}`);
   const reversal = REVERSAL.test(sentence);
   const inContext = !r.context || r.context.test(sentence);
-  const sup = inContext && r.support.test(sentence);
-  const opp = inContext && r.oppose.test(sentence);
-  if ((sup || opp) && !(sup && opp) && (!THIRD_PARTY.test(sentence) || reversal)) {
-    return { kind: "clear", side: sup ? "support" : "oppose", reversal };
+  const sm = inContext ? r.support.exec(sentence) : null;
+  const om = inContext ? r.oppose.exec(sentence) : null;
+  if ((sm || om) && !(sm && om)) {
+    const m = sm || om;
+    const actor = actorFor(sentence.slice(0, m.index), politicianId);
+    if (actor.kind === "self" || reversal) {
+      return { kind: "clear", side: sm ? "support" : "oppose", reversal, actor };
+    }
+    return { kind: "mention", side: null, reversal: false, actor };
   }
-  if (sup || opp || r.mention.test(sentence)) return { kind: "mention", side: null, reversal: false };
-  return { kind: null, side: null, reversal: false };
+  if (sm || om || r.mention.test(sentence)) return { kind: "mention", side: null, reversal: false, actor: null };
+  return { kind: null, side: null, reversal: false, actor: null };
 }
 
 const round2 = (n) => Math.round(n * 100) / 100;
@@ -129,13 +221,14 @@ export function scoreRawRecord(raw) {
   const tier = tierFor(raw.source_type);
   const statements = [];
   for (const text of extractSentences(raw.body)) {
-    const c = classify(text, raw.topic);
+    const c = classify(text, raw.topic, raw.politician_id);
     if (!c.kind) continue;
     statements.push({
       text: text.length > 300 ? text.slice(0, 297) + "…" : text,
       kind: c.kind,
       side: c.side,
       reversal: c.reversal,
+      ...(c.actor && c.actor.kind !== "self" ? { attributed_to: c.actor.kind, attributed_via: c.actor.via } : {}),
       weight: c.kind === "clear" ? WEIGHTS[tier] : WEIGHTS.zero,
     });
   }

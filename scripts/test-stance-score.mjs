@@ -180,6 +180,77 @@ await t('the Talarico ground-truth result is unaffected by the second topic', ()
   assert.equal(again.comparison.delta, 0);
 });
 
+// ── Phase 6: who is acting — no fixed opponent list, explicit third parties ──
+const one = (pid, text, topic = 'cost_living') =>
+  S.scoreRawRecord({ ...RAW, politician_id: pid, topic, body: `<p>${text}</p>` }).sources[0].statements[0];
+
+await t("a sentence naming the page's own politician as actor is scored as their position", () => {
+  for (const [pid, text, topic] of [
+    ['john_cornyn', 'Senator John Cornyn passed a bill to lower prescription drug costs for seniors.', 'healthcare_costs'],
+    ['john_cornyn', 'Cornyn, Blumenthal, Grassley, Durbin Bill to Lower Drug Costs Passes Senate Unanimously', 'healthcare_costs'],
+    ['ken_paxton', 'Ken Paxton will fight to cut taxes for Texas families.'],
+    ['greg_abbott', 'Governor Abbott will lower the cost of home insurance for every Texan.'],
+    ['donald_trump', 'President Trump signed a law to lower prices at the pump.'],
+    ['gina_hinojosa', 'Gina will lower your grocery bill.'],
+  ]) {
+    const st = one(pid, text, topic);
+    assert.equal(st.kind, 'clear', `${pid}: ${text}`);
+    assert.equal(st.side, 'support');
+    assert.equal(st.weight, S.WEIGHTS.medium);
+    assert.ok(!st.attributed_to);
+  }
+});
+
+await t('a sentence that explicitly frames someone else as the opponent is not the speaker\'s position', () => {
+  for (const text of [
+    'Senator John Cornyn voted to cut taxes for his billionaire donors.',
+    'My opponent wants to cut taxes for the richest 1%.',
+    'DC politicians like John Cornyn promised to lower costs.',
+    'Ken Paxton has pledged to cut taxes for his donors.',
+    'Republicans refused to lower drug costs for seniors.',
+  ]) {
+    const st = one('james_talarico', text, /drug/.test(text) ? 'healthcare_costs' : 'cost_living');
+    assert.equal(st.kind, 'mention', text);
+    assert.equal(st.weight, 0);
+    assert.equal(st.attributed_to, 'opponent', text);
+  }
+  // The same Cornyn sentence is HIS position on his own page — the list is gone, context decides.
+  assert.equal(one('john_cornyn', 'Senator John Cornyn voted to cut taxes for working families.').kind, 'clear');
+  const code = readFileSync(corePath, 'utf8').replace(/^\s*\/\/.*$/gm, '');
+  assert.ok(!/Cornyn|Paxton|Trump|Republicans|Talarico/.test(code), 'no fixed list of politician or party names in the rules');
+});
+
+await t('a clear third-party attribution receives zero weight', () => {
+  for (const text of [
+    'Big retailers are tracking what you buy, then using that information to raise prices on working people.',
+    'Corporations are jacking up prices to cut their own costs.',
+    'They lobby for policies that cut their own taxes.',
+    'Insurance companies keep cutting coverage to lower their own costs.',
+  ]) {
+    const st = one('gina_hinojosa', text);
+    assert.equal(st.kind, 'mention', text);
+    assert.equal(st.weight, 0, text);
+    assert.equal(st.attributed_to, 'third', text);
+  }
+  // A group as the OBJECT does not take the sentence away from the speaker.
+  const own = one('gina_hinojosa', 'We must end these corporate subsidies and use the savings to cut property taxes.');
+  assert.equal(own.kind, 'clear');
+  // Phase 5's false outlier on the Hinojosa page no longer lowers confidence.
+  const page = S.scoreRawRecord({ ...RAW, politician_id: 'gina_hinojosa', body:
+    '<p>We will cut property taxes.</p><p>Gina will lower your grocery bill.</p><p>Lower Your Electricity Bill.</p>'
+    + '<p>Big retailers are tracking what you buy, then using that information to raise prices on working people.</p>' });
+  assert.equal(page.position, 'support');
+  assert.equal(page.confidence, 0.85);
+});
+
+await t('Talarico ground-truth match is unchanged: support 0.85, Δ 0.00', () => {
+  const r = S.scoreAgainstGroundTruth(RAW, gt, { log: () => {} });
+  assert.equal(r.candidate.position, 'support');
+  assert.equal(r.candidate.confidence, 0.85);
+  assert.equal(gt.position, 'support'); assert.equal(gt.confidence, 0.85);
+  assert.equal(r.comparison.delta, 0);
+});
+
 await t('ground-truth file is unchanged', () => assert.equal(sha(gtPath), GT_SHA256));
 await t('raw record and raw store are unchanged; scorer has no store access', () => {
   assert.equal(JSON.stringify(RAW), RAW_SNAPSHOT);
