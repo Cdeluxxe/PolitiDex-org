@@ -11675,7 +11675,26 @@
 //     network-only like every /api/* request. No stored reader state is
 //     written or rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v528';
+// v529 - EVIDENCE LOCKER ITEMS ON THE PERSON PROFILE.
+//     profile-locker.js (new; loaded by stance-tree.js on the person document,
+//     so person.html is unchanged) fetches /api/evidence-locker/items once
+//     on the person document and folds that person's finished items into the
+//     evidence the profile already reads, so they appear in the Evidence tab
+//     (Connected Evidence now prints a pipeline item's excerpt and position),
+//     Key Issue Stances and In the Spotlight; 🌳 All Issues by Topic prints them
+//     as source lines under the matching leaf (and in a foot for issues with no
+//     leaf), and ⚖️ Word vs Action lists those on a stated or related issue,
+//     outside its arithmetic (word-action.js and profiles-full.js are untouched —
+//     their public renderers are wrapped). stance-tree.js and stance-tree.css
+//     are precached and changed, so the shell moves one version;
+//     the precache list is unchanged.
+//     profile-locker.js is a runtime entry on purpose: everything it does needs
+//     the network, and every caller is guarded, so a profile without it renders
+//     as it did before. A person the endpoint returns nothing for renders as
+//     before. No location key or other stored reader state is written or
+//     rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v529';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

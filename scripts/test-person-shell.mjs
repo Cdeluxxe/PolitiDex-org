@@ -56,6 +56,8 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
 import vm from "node:vm";
+import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { toSpotlightEntry } from "../netlify/lib/evidence-locker-core.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(join(ROOT, p), "utf8");
@@ -851,6 +853,132 @@ ok(!bare.includes('id="pdx-topnav"'), "dom: index.html's two-row nav is not here
     "size: person.html is smaller than index.html by both measures");
   console.log(`  person.html: ${(html.length / 1024).toFixed(0)} KB raw / ${(gz / 1024).toFixed(1)} KB gz, ${srcs.length} script tags` +
     `  (index.html: ${(index.length / 1024).toFixed(0)} KB raw / ${(idxGz / 1024).toFixed(1)} KB gz, ${idxTags} tags)`);
+}
+
+// ── 11. Evidence Locker items on the profile ─────────────────────────────────
+// profile-locker.js folds /api/evidence-locker/items into the evidence the
+// profile reads and hands the topic tree and Word vs Action their lines. Booted
+// in a sandbox over the real engines: a person WITH Locker items shows them in
+// the Evidence tab, in 🌳 All Issues by Topic and (on a matching issue) in ⚖️
+// Word vs Action; a person WITHOUT renders byte-for-byte what the document
+// rendered before the module existed.
+{
+  ok(!localSrcs.includes("/profile-locker.js") && /__PDX_PERSON_DOC[\s\S]{0,600}?'\/profile-locker\.js'/.test(read("stance-tree.js")),
+    "locker: person.html is unchanged — stance-tree.js loads /profile-locker.js on the person document");
+  ok(existsSync(join(ROOT, "profile-locker.js")), "locker: /profile-locker.js exists to be loaded");
+  ok(!index.includes('src="/profile-locker.js"'),
+    "locker: index.html does not load /profile-locker.js — the homepage folds the same items through spotlight-cards-data.js");
+  ok(/PDXProfileLocker/.test(read("stance-tree.js")),
+    "locker: stance-tree.js calls into PDXProfileLocker for its leaf lines and topic foot");
+  ok(!/PDXProfileLocker/.test(read("word-action.js")) && !/PDXProfileLocker/.test(read("profiles-full.js")),
+    "locker: word-action.js and profiles-full.js are not edited — their public renderers are wrapped by profile-locker.js");
+
+  const ENGINE = [
+    "cmp-data.js", "politician-stances-core.js", "politician-stances-ext.js", "state-senate-stances.js",
+    "stance-helpers.js", "alignment-tool.js", "pdx-issue-family.js", "acct-spotlight-data.js", "say-vs-do.js",
+    "exec-action-data.js", "exec-record.js", "exec-record-ui.js", "issue-colors.js", "consistency.js",
+    "voting-record.js", "word-action.js", "profile-spine.js", "stance-tree.js", "related-issues.js",
+    "profile-evidence.js", "profiles-full.js",
+  ];
+  const SRC = new Map([...ENGINE, "profile-locker.js"].map((f) => [f, read(f)]));
+  const quiet = { log() {}, warn() {}, error() {}, info() {}, debug() {} };
+  const boot = (withLocker) => {
+    const win = makeSandbox();
+    win.console = quiet;
+    const sb = vm.createContext(win);
+    win.PROFILES = win.CMP_DATA;
+    for (const f of ENGINE) vm.runInContext(SRC.get(f), sb, { filename: f });
+    // PDXStance (Key Issue Stances' stance language) is an inline block here.
+    for (const t of TAGS) {
+      if (!/\bsrc\s*=/.test(t.attrs) && /window\.PDXStance\s*=/.test(t.body)) vm.runInContext(t.body, sb, { filename: "person.html PDXStance" });
+    }
+    if (withLocker) vm.runInContext(SRC.get("profile-locker.js"), sb, { filename: "profile-locker.js" });
+    win.PROFILES = win.CMP_DATA;
+    return win;
+  };
+  const PID = "james_talarico";   // stated: public_schools, healthcare, …; none on cost_living
+  const OTHER = "khanna";
+  const raw = (topic, position, extra = {}) => ({
+    politician_id: PID, topic, position, confidence: 0.91, source_type: "campaign page",
+    excerpt: `Locker excerpt on ${topic}`, attribution: "Source: campaign page",
+    link: `https://example.org/${topic}`, date: "2026-11-01", rules_version: "test", ...extra,
+  });
+  const BODY = {
+    items: { [PID]: [
+      toSpotlightEntry(raw("public_schools", "support")),    // a leaf + a stated position
+      toSpotlightEntry(raw("healthcare_costs", "support")),  // related to stated healthcare
+      toSpotlightEntry(raw("cost_living", "oppose")),        // no leaf, not related
+    ] },
+    count: 3,
+  };
+  const views = (win, pid) => {
+    const p = win.CMP_DATA[pid];
+    return {
+      conn: win._renderEvidenceConnections(pid, p) || "",
+      sum: win._renderEvidenceSummary(pid, p) || "",
+      stances: win._renderIssueStances(pid, p) || "",
+      tree: win.PDXStanceTree.sectionHtml(pid) || "",
+      wa: win.PDXWordAction.sectionHtml(pid, p) || "",
+    };
+  };
+
+  let before = null, empty = null, withItems = null, otherBefore = null, otherAfter = null;
+  try {
+    const w0 = boot(false); before = views(w0, PID); otherBefore = views(w0, OTHER);
+    const w1 = boot(true);  empty = views(w1, PID);
+    const w2 = boot(true);
+    const r = w2.PDXProfileLocker.onBody(JSON.parse(JSON.stringify(BODY)));
+    ok(r && r.added === 3, `locker: all three fixture items are ingested (got ${r && r.added})`);
+    ok(w2.PDXProfileLocker.items(PID).length === 3, "locker: items(pid) returns the person's items");
+    withItems = views(w2, PID); otherAfter = views(w2, OTHER);
+  } catch (e) {
+    failures.push(`locker: the sandboxed profile failed to boot or render — ${e && e.stack || e}`);
+  }
+
+  if (before && empty && withItems) {
+    // No Locker items → every place is exactly as it was.
+    for (const k of Object.keys(before)) {
+      ok(empty[k] === before[k], `locker: with no Locker items the ${k} view is byte-identical to the document without the module`);
+      ok(otherAfter[k] === otherBefore[k], `locker: a person with no Locker items (${OTHER}) is unchanged in the ${k} view while another person has items`);
+    }
+    ok(!/data-pdxtree-locker|data-pdxwa-locker|data-evd-locker/.test(Object.values(empty).join("")),
+      "locker: no Locker markup appears on a profile the endpoint returned nothing for");
+
+    // Evidence tab: Connected Evidence + the Locker banner.
+    ok(withItems.conn.includes("Locker excerpt on public_schools") && withItems.conn.includes("Locker excerpt on cost_living"),
+      "locker: the Evidence tab (Connected Evidence) shows the Locker items' excerpts");
+    ok(withItems.conn.includes('data-evd-locker="1"') && withItems.conn.includes("https://example.org/public_schools") &&
+       withItems.conn.includes("Source: campaign page") && withItems.conn.includes("Nov 1, 2026") && /Supports:/.test(withItems.conn),
+      "locker: the Evidence tab card carries link, attribution, date and position");
+    ok(/3 pieces? of evidence/.test(withItems.sum), "locker: the Evidence Locker banner counts the person's Locker items");
+
+    // Topic / stance sections.
+    ok(/data-pdxtree-locker-issue="public_schools"/.test(withItems.tree) && withItems.tree.includes("Locker excerpt on public_schools"),
+      "locker: 🌳 All Issues by Topic prints the Locker line under the matching issue leaf");
+    ok(/data-pdxtree-locker-grp="cost_living"/.test(withItems.tree) && withItems.tree.includes("Locker excerpt on cost_living"),
+      "locker: an item on an issue with no leaf is listed in the topic section's Locker foot");
+    {
+      const leafAt = withItems.tree.indexOf('data-pdxtree-issue="public_schools"');
+      const lineAt = withItems.tree.indexOf('data-pdxtree-locker-issue="public_schools"');
+      const nextLeaf = withItems.tree.indexOf('data-pdxtree-issue="', leafAt + 1);
+      ok(leafAt !== -1 && lineAt > leafAt && (nextLeaf === -1 || lineAt < nextLeaf),
+        "locker: the leaf line sits inside its own leaf");
+    }
+    ok(withItems.stances.includes(`evd-issue-${PID}-public_schools`) && !before.stances.includes(`evd-issue-${PID}-public_schools`),
+      "locker: Key Issue Stances links the stated public_schools position to its connected Locker item");
+
+    // Word vs Action: direct and related matches, never the unmatched topic.
+    ok(/data-pdxwa-locker-item="public_schools"/.test(withItems.wa),
+      "locker: Word vs Action lists the Locker item on a stated position");
+    ok(/data-pdxwa-locker-item="healthcare_costs"/.test(withItems.wa) && /Related to/.test(withItems.wa),
+      "locker: Word vs Action lists the Locker item on an issue related to a stated position");
+    ok(!/data-pdxwa-locker-item="cost_living"/.test(withItems.wa),
+      "locker: Word vs Action does not list an item whose topic matches no stated or related issue");
+    {
+      const num = (h) => (h.match(/class="pdxwa-num-v">([^<]*)</) || [])[1];
+      ok(num(withItems.wa) === num(before.wa), "locker: Word vs Action's figure is unchanged by Locker items");
+    }
+  }
 }
 
 // ── Report ───────────────────────────────────────────────────────────────────
