@@ -1,0 +1,44 @@
+{
+  "stance_id": "james_talarico|cost_living|gt-001",
+  "politician_id": "james_talarico",
+  "topic": "cost_living",
+  "position": "support",
+  "confidence": 0.85,
+  "confidence_reason": "Two first-party campaign pages explicitly commit to lowering costs and name specific measures; held below 0.9 because the issue page was read through a fetch tool that paraphrased parts of it, and the victory speech only mentions the topic.",
+  "sources": [
+    {
+      "type": "campaign issue page",
+      "date": null,
+      "link": "https://jamestalarico.com/issue/taxes-cost-of-living/",
+      "excerpt": "\"worked with Republicans to deliver the largest property tax cut in Texas history\"",
+      "note": "States a position: for a middle-class tax cut (expanded Child Tax Credit and EITC, restored ACA credits, a tariff rebate), paid for by higher taxes on billionaires and corporations. Also for a $15 minimum wage, repealing Trump tariffs, capping credit card interest rates, and lowering healthcare, housing, grocery and energy costs. The page itself has no date; the embedded posts are dated May 2021 to Aug 2026.",
+      "takes_clear_position": true
+    },
+    {
+      "type": "campaign toolkit page",
+      "date": null,
+      "link": "https://share.jamestalarico.com/toolkit/2c2d0ae4-56bb-48b6-b349-7b009f2708af",
+      "excerpt": "\"cut taxes for working people, cap credit card interest rates\" ... \"lower the cost of rent, groceries, utilities, and gas\"",
+      "note": "Official campaign messaging, tagged Economy/Affordability. States a position: cut taxes for working people, cap credit card interest, temporarily suspend federal gas and diesel taxes, and fund this by having the wealthiest pay more. The page has no date.",
+      "takes_clear_position": true
+    },
+    {
+      "type": "public remarks (verbatim quotes in news report)",
+      "date": "2026-04-21",
+      "link": "https://www.texastribune.org/2026/04/21/james-talarico-federal-gas-tax-suspension-iran-war/",
+      "excerpt": "\"Texans need relief. Americans need relief.\" ... \"We can make billionaires pay their fair share so that we can cut our taxes.\"",
+      "note": "On-record remarks at an Austin gas station event, with the article linking to video. Consistent with the campaign pages. Only the verbatim quotes are relied on here; the article's paraphrase of the gas-tax plan is not counted as evidence.",
+      "takes_clear_position": true
+    },
+    {
+      "type": "speech (victory speech)",
+      "date": "2026-11-03",
+      "link": "https://www.fox7austin.com/video/fmc-fs7m9d1olo029kv6",
+      "excerpt": "\"Hate can't lower our energy bills.\" (verbatim as quoted by the Houston Chronicle, Nov 4 2026: https://www.houstonchronicle.com/politics/election/2026/article/talarico-victory-speech-22511134.php)",
+      "note": "Mentions the topic but does not state a policy position. No official full transcript was found; the link is the full video, and the excerpt is the only economic line in published verbatim quotes. Recorded for completeness and given no weight in the position.",
+      "takes_clear_position": false
+    }
+  ],
+  "last_updated": "2026-11-07",
+  "status": "active"
+}
