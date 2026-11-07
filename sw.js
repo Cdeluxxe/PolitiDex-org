@@ -11708,7 +11708,20 @@
 //     is unchanged. No route or gate. No stored reader state is written or
 //     rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v530';
+// v531 - WEAK SIGNALS AND TOPIC MENTIONS FROM THE EVIDENCE LOCKER.
+//     profile-locker.js (the person-profile script, a runtime entry) reads each
+//     Locker item at a strength: >= 0.8 with a clear position is unchanged; a
+//     clear position at 0.3-0.79 prints in the same line or card with a "Weak
+//     signal" badge; below 0.3, or no clear position with an excerpt, prints a
+//     "Mentions this topic" line marked as not a stance. They appear in the
+//     Evidence tab (a short section after Connected Evidence), the 🌳 topic
+//     tree and the ⚖️ Word vs Action Locker list. Weaker items are kept out of
+//     SPOTLIGHT_DATA, so no count, card or score elsewhere moves. The profile
+//     script changed, so the shell moves one version; the precache list is
+//     unchanged. No route or gate. No stored reader state is written or
+//     rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v531';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

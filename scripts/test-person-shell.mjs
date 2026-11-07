@@ -1046,6 +1046,113 @@ ok(!bare.includes('id="pdx-topnav"'), "dom: index.html's two-row nav is not here
     ok((opp.conn.match(/data-pdx-locker-conflict="public_schools"/g) || []).length === 1,
       "conflict: the Evidence tab prints the line once per Locker card");
   }
+
+  // ── Strength: weak signals and topic mentions ──────────────────────────────
+  const WEAK = toSpotlightEntry(raw("public_schools", "support",
+    { confidence: 0.4, excerpt: "Weak excerpt on public_schools", link: "https://example.org/weak/public_schools" }));
+  const MENTION = toSpotlightEntry(raw("healthcare_costs", "no clear position",
+    { confidence: 0.3, excerpt: "Mention excerpt on healthcare_costs", link: "https://example.org/mention/healthcare_costs" }));
+  const LOW = toSpotlightEntry(raw("public_schools", "oppose",
+    { confidence: 0.2, excerpt: "Low excerpt on public_schools", link: "https://example.org/low/public_schools" }));
+  const BARE = toSpotlightEntry(raw("public_schools", "no clear position",
+    { confidence: 0, excerpt: "", link: "https://example.org/bare/public_schools" }));
+  const bootWith = (list) => {
+    const w = boot(true);
+    w.PDXProfileLocker.onBody(JSON.parse(JSON.stringify({ items: { [PID]: list }, count: list.length })));
+    return { w, v: views(w, PID) };
+  };
+  let strongOnly = null, mixed = null, wMixed = null, weakOnly = null;
+  try {
+    strongOnly = bootWith(BODY.items[PID]).v;
+    const m = bootWith([...BODY.items[PID], WEAK, MENTION, LOW, BARE]); mixed = m.v; wMixed = m.w;
+    weakOnly = bootWith([WEAK, MENTION, LOW]).v;
+  } catch (e) {
+    failures.push(`strength: the sandboxed profile failed to render weak / mention items — ${e && e.stack || e}`);
+  }
+  // The element carrying `attr` that holds `needle`: the nearest opening tag
+  // with the attribute before the needle, up to its own close.
+  const elOf = (h, attr, needle) => {
+    const at = h.indexOf(needle);
+    if (at === -1) return "";
+    // Walk back over opening tags that carry `attr`; keep the first whose
+    // balanced element actually contains the needle.
+    let from = at;
+    while (true) {
+      const a = h.lastIndexOf(attr, from);
+      if (a === -1) return "";
+      const open = h.lastIndexOf("<", a);
+      const tag = (h.slice(open + 1).match(/^(div|p)\b/) || [])[1];
+      if (tag) {
+        const re = new RegExp(`<${tag}\\b|</${tag}>`, "g");
+        re.lastIndex = open + 1;
+        let depth = 1, m, end = -1;
+        while ((m = re.exec(h))) {
+          depth += m[0][1] === "/" ? -1 : 1;
+          if (!depth) { end = m.index + m[0].length; break; }
+        }
+        if (end > at) return h.slice(open, end);
+      }
+      from = open - 1;
+      if (from < 0) return "";
+    }
+  };
+
+  if (strongOnly && mixed && weakOnly && withItems) {
+    // Strong-only is exactly the behaviour before this pass.
+    for (const k of Object.keys(withItems)) {
+      ok(strongOnly[k] === withItems[k], `strength: a profile with only strong items is unchanged in the ${k} view`);
+    }
+    ok(!/data-pdx-locker-strength|data-pdx-locker-mention|data-evd-locker-weak|Weak signal|Mentions this topic/.test(Object.values(strongOnly).join("")),
+      "strength: strong-only items carry no weak badge or mention line");
+    ok(!/Weak signal|Mentions this topic|data-evd-locker-weak/.test(Object.values(empty).join("")),
+      "strength: a profile with no items shows no weak or mention markup");
+    ok(wMixed.PDXProfileLocker.strengthOf(WEAK) === "weak" && wMixed.PDXProfileLocker.strengthOf(MENTION) === "mention" &&
+       wMixed.PDXProfileLocker.strengthOf(LOW) === "mention" && wMixed.PDXProfileLocker.strengthOf(BODY.items[PID][0]) === "strong" &&
+       wMixed.PDXProfileLocker.strengthOf(BARE) === null,
+      "strength: ≥0.8 strong, 0.3–0.79 weak, <0.3 or no clear position → mention, nothing to show → dropped");
+
+    // A 0.4 item: weak badge in all three places.
+    for (const [k, name] of [["conn", "the Evidence tab"], ["tree", "All Issues by Topic"], ["wa", "Word vs Action"]]) {
+      const el = elOf(mixed[k], 'data-pdx-locker-strength="weak"', "Weak excerpt on public_schools");
+      ok(el && /Weak signal/.test(el), `strength: a 0.4 item shows with the Weak signal badge in ${name}`);
+    }
+    {
+      const leafAt = mixed.tree.indexOf('data-pdxtree-issue="public_schools"');
+      const at = mixed.tree.indexOf("Weak excerpt on public_schools");
+      const next = mixed.tree.indexOf('data-pdxtree-issue="', leafAt + 1);
+      ok(leafAt !== -1 && at > leafAt && (next === -1 || at < next), "strength: the weak line sits inside its own topic leaf");
+    }
+
+    // Mentions: "no clear position" and below-0.3 items.
+    for (const [needle, what] of [["Mention excerpt on healthcare_costs", "a no-clear-position item"], ["Low excerpt on public_schools", "a 0.2 item"]]) {
+      for (const [k, name] of [["conn", "the Evidence tab"], ["tree", "All Issues by Topic"], ["wa", "Word vs Action"]]) {
+        const el = elOf(mixed[k], 'data-pdx-locker-mention="1"', needle);
+        ok(el && /Mentions this topic/.test(el) && /not a stance/.test(el),
+          `strength: ${what} shows a "Mentions this topic" line in ${name}`);
+        ok(el && !/Supports|Opposes|Weak signal/.test(el), `strength: ${what} is not presented as a stance in ${name}`);
+        ok(/https:\/\/example\.org\/(mention|low)\//.test(el) && /Source: campaign page/.test(el),
+          `strength: ${what}'s mention line carries its link and attribution in ${name}`);
+      }
+    }
+    ok(!Object.values(mixed).join("").includes(MENTION.headline) && !Object.values(mixed).join("").includes(LOW.headline),
+      "strength: a mention's generated headline (which names a direction) is never printed");
+    ok(!/example\.org\/bare\//.test(Object.values(mixed).join("")), "strength: an item with no position and no excerpt shows nothing");
+
+    // Weaker items never reach the evidence the rest of the profile reads.
+    ok(mixed.stances === strongOnly.stances && mixed.sum === strongOnly.sum,
+      "strength: weak and mention items do not change Key Issue Stances or the Evidence banner counts");
+    ok(mixed.conn.startsWith(strongOnly.conn), "strength: Connected Evidence is unchanged; weaker items are added after it");
+    ok(!(wMixed.SPOTLIGHT_DATA[PID] || []).some((e) => /\/(weak|mention|low)\//.test(e.source.url)),
+      "strength: weak and mention items are kept out of SPOTLIGHT_DATA");
+    {
+      const num = (h) => (h.match(/class="pdxwa-num-v">([^<]*)</) || [])[1];
+      ok(num(mixed.wa) === num(strongOnly.wa), "strength: weak and mention items never move Word vs Action's figure");
+    }
+    ok(/data-evd-locker-weakblock="1"/.test(weakOnly.conn) && /Weak signal/.test(weakOnly.conn),
+      "strength: a profile with only weaker items still shows them in the Evidence tab");
+    ok(weakOnly.stances === empty.stances && weakOnly.sum === empty.sum,
+      "strength: a profile with only weaker items keeps Key Issue Stances and the banner as before");
+  }
 }
 
 // ── Report ───────────────────────────────────────────────────────────────────
