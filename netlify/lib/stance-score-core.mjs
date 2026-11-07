@@ -41,7 +41,12 @@ export const CONFIDENCE_TOLERANCE = 0.1;
 const HIGH_TYPES = /\b(speech|press release|statement|remarks|interview|transcript)\b/i;
 const MEDIUM_TYPES = /\b(campaign|issue page|platform|toolkit)\b/i;
 
-// Topic vocabulary. Only cost_living is encoded in this phase.
+// Topic vocabulary. R1–R5 and WEIGHTS are shared by every topic; a topic only
+// supplies what counts as a mention and what counts as a clear statement.
+//   cost_living       — Phase 4, calibrated against the Talarico ground truth.
+//   healthcare_costs  — Phase 5, the second topic. Same shape; a clear statement
+//                       must also be ABOUT health care (`context`), so "lower
+//                       grocery costs" on a mixed page never counts here.
 export const TOPIC_RULES = {
   cost_living: {
     mention: /\b(cost[- ]of[- ]living|expensive|afford\w*|prices?|rent|groceries|grocery|utilit(y|ies)|gas|diesel|childcare|insulin|housing|tax(es)?|tax cut|interest rates?|wages?|pay)\b/i,
@@ -49,6 +54,12 @@ export const TOPIC_RULES = {
     support: /\b(lower(ing)?|cut(ting)?|bring(ing)? down|cap(ped|ping|s)?|reduc(e|es|ed|ing)|suspend(ing)?)\b[^.!?]{0,80}?\b(costs?|prices?|tax(es)?|rent|groceries|interest rates?|bills?)\b|\bcost[- ]of[- ]living tax cut\b/i,
     // Explicitly against measures that lower costs.
     oppose: /\b(I|we)\s+(?:now\s+|still\s+|strongly\s+)?(oppose|reject|will vote against|won'?t support)\b[^.!?]{0,80}\b(tax cuts?|caps?|relief|lower(ing)? (costs|prices)|minimum wage)\b|\b(raise|raising|increase|increasing) (taxes|prices|rent) on (working|middle)/i,
+  },
+  healthcare_costs: {
+    mention: /\b(health ?care|health insurance|insurance premiums?|premiums?|prescriptions?|drugs?|insulin|medicaid|medicare|co-?pays?|deductibles?|hospitals?|pharma\w*|medical (debt|bills?|costs?))\b/i,
+    context: /\b(health|medical|medicaid|medicare|insurance|premiums?|prescriptions?|drugs?|insulin|co-?pays?|deductibles?|hospitals?|pharma\w*|patients?)\b/i,
+    support: /\b(lower(ing)?|cut(ting)?|bring(ing)? down|cap(ped|ping|s)?|reduc(e|es|ed|ing)|drive down)\b[^.!?]{0,80}?\b(costs?|prices?|premiums?|co-?pays?|deductibles?|insulin|out-of-pocket|bills?|debt)\b/i,
+    oppose: /\b(I|we)\s+(?:now\s+|still\s+|strongly\s+)?(oppose|reject|will vote against|won'?t support)\b[^.!?]{0,80}\b(price caps?|caps?|drug price negotiation|lower(ing)? (costs|prices|premiums))\b/i,
   },
 };
 
@@ -97,8 +108,9 @@ export function classify(sentence, topic) {
   const r = TOPIC_RULES[topic];
   if (!r) throw new Error(`no scoring rules for topic ${topic}`);
   const reversal = REVERSAL.test(sentence);
-  const sup = r.support.test(sentence);
-  const opp = r.oppose.test(sentence);
+  const inContext = !r.context || r.context.test(sentence);
+  const sup = inContext && r.support.test(sentence);
+  const opp = inContext && r.oppose.test(sentence);
   if ((sup || opp) && !(sup && opp) && (!THIRD_PARTY.test(sentence) || reversal)) {
     return { kind: "clear", side: sup ? "support" : "oppose", reversal };
   }
@@ -220,4 +232,32 @@ export async function scoreWithGroundTruthFile(raw, groundTruthPath, opts) {
   const { readFile } = await import("node:fs/promises");
   const gt = JSON.parse(await readFile(groundTruthPath, "utf8"));
   return scoreAgainstGroundTruth(raw, gt, opts);
+}
+
+/** Whether the scorer has rules for a topic. */
+export const hasRulesFor = (topic) => Object.prototype.hasOwnProperty.call(TOPIC_RULES, topic);
+
+/**
+ * Phase 5 log-only hook for the ingest cron: score one freshly stored raw
+ * record and LOG the candidate. Never writes anything, never throws.
+ * Logs two lines: the candidate (position + confidence + reason), and a
+ * one-line note on whether the rules produced a clear position.
+ */
+export function logCandidateStance(raw, { log = console.log } = {}) {
+  const id = `${raw?.politician_id}|${raw?.topic}${raw?.source_id ? "|" + raw.source_id : ""}`;
+  try {
+    if (!hasRulesFor(raw?.topic)) {
+      log(`stance-score: SKIP ${id} — no scoring rules for topic ${raw?.topic}`);
+      return null;
+    }
+    const c = scoreRawRecord(raw);
+    const src = c.sources[0];
+    log(`stance-score: candidate ${JSON.stringify({ politician_id: c.politician_id, topic: c.topic, ...(raw.source_id ? { source_id: raw.source_id } : {}), url: src.link, position: c.position, confidence: c.confidence, confidence_reason: c.confidence_reason, rules_version: c.rules_version })}`);
+    const clear = c.position !== "no clear position";
+    log(`stance-score: ${id} → ${clear ? `CLEAR POSITION (${c.position}, ${c.confidence})` : "NO CLEAR POSITION"} — ${src.note}`);
+    return c;
+  } catch (e) {
+    log(`stance-score: ERROR ${id} — ${e?.message || e}`);
+    return null;
+  }
 }

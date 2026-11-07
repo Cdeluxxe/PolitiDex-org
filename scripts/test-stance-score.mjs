@@ -133,6 +133,53 @@ await t('file entry point reads the ground truth read-only and agrees', async ()
   const r = await S.scoreWithGroundTruthFile(RAW, gtPath, { log: () => {} });
   assert.equal(r.comparison.positionMatch, true);
 });
+// ── Phase 5: second topic (healthcare_costs) and a new politician ──
+const HC_PAGE = `<html><head><title>Issues | Ken Paxton for U.S. Senate</title></head><body>
+<h2>Take on Big Pharma</h2>
+<p>In the Senate, he will fight to lower prescription drug costs and cap insulin co-pays for Texas families.</p>
+<p>Families deserve to bring down out-of-pocket costs at the pharmacy counter.</p>
+<p>We will reduce health insurance premiums by increasing competition.</p>
+<p>America spends more on healthcare than any nation in the world.</p>
+<p>Lower grocery costs: stop price gouging at the checkout.</p>
+</body></html>`;
+const HC_RAW = deepFreeze({ ...RAW, politician_id: 'ken_paxton', topic: 'healthcare_costs',
+  url: 'https://www.kenpaxton.com/issues', final_url: 'https://www.kenpaxton.com/issues', source_type: 'campaign issues page', body: HC_PAGE });
+
+await t('healthcare_costs: new politician page scores with the same R1–R5 and weights', () => {
+  assert.ok(S.hasRulesFor('healthcare_costs'));
+  const c = S.scoreRawRecord(HC_RAW);
+  assert.equal(c.politician_id, 'ken_paxton');
+  assert.equal(c.topic, 'healthcare_costs');
+  assert.equal(c.position, 'support');
+  assert.equal(c.confidence, S.WEIGHTS.baseConfidence.medium + S.WEIGHTS.corroborationBonus);
+  const st = c.sources[0].statements;
+  assert.equal(st.find((x) => x.text.startsWith('America spends')).kind, 'mention', 'mention only, zero weight');
+  assert.ok(!st.some((x) => x.text.startsWith('Lower grocery costs')), 'off-topic cost line is not a healthcare statement');
+});
+
+await t('logCandidateStance logs a candidate + clear/no-clear note, never writes, never throws', () => {
+  const logs = [];
+  const c = S.logCandidateStance(HC_RAW, { log: (l) => logs.push(l) });
+  assert.equal(c.position, 'support');
+  const cand = logs.find((l) => l.startsWith('stance-score: candidate '));
+  const j = JSON.parse(cand.slice('stance-score: candidate '.length));
+  assert.equal(j.position, 'support'); assert.equal(j.confidence, 0.85); assert.equal(j.topic, 'healthcare_costs');
+  assert.ok(logs.some((l) => l.startsWith('stance-score: ken_paxton|healthcare_costs → CLEAR POSITION (support, 0.85)')));
+  const none = []; S.logCandidateStance({ ...HC_RAW, body: '<p>America spends more on healthcare than any nation.</p>' }, { log: (l) => none.push(l) });
+  assert.ok(none.some((l) => /→ NO CLEAR POSITION — 0 clear statement/.test(l)));
+  const skip = []; assert.equal(S.logCandidateStance({ ...HC_RAW, topic: 'crypto_cbdc' }, { log: (l) => skip.push(l) }), null);
+  assert.match(skip[0], /^stance-score: SKIP .* no scoring rules for topic crypto_cbdc/);
+  const err = []; assert.equal(S.logCandidateStance({ topic: 'cost_living' }, { log: (l) => err.push(l) }), null);
+  assert.match(err[0], /^stance-score: ERROR /);
+  assert.equal(JSON.stringify(RAW), RAW_SNAPSHOT);
+});
+
+await t('the Talarico ground-truth result is unaffected by the second topic', () => {
+  const again = S.scoreAgainstGroundTruth(RAW, gt, { log: () => {} });
+  assert.equal(again.candidate.position, gt.position);
+  assert.equal(again.comparison.delta, 0);
+});
+
 await t('ground-truth file is unchanged', () => assert.equal(sha(gtPath), GT_SHA256));
 await t('raw record and raw store are unchanged; scorer has no store access', () => {
   assert.equal(JSON.stringify(RAW), RAW_SNAPSHOT);

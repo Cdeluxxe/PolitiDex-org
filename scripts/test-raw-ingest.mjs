@@ -55,15 +55,20 @@ const fn = await import(pathToFileURL(fnPath).href);
 const core = await import(pathToFileURL(corePath).href);
 const N = core.SOURCES.length;
 
-await t('8–10 real sources: Talarico ground-truth page first, plus 2–3 other politicians', () => {
-  assert.ok(N >= 8 && N <= 10, `${N} sources`);
+await t('8–12 real sources: 3–4 politicians beyond Talarico, exactly 2 topics, ground-truth page first', () => {
+  assert.ok(N >= 8 && N <= 12, `${N} sources`);
   const [first] = core.SOURCES;
   assert.equal(first.politician_id, 'james_talarico');
   assert.equal(first.topic, 'cost_living');
   assert.equal(first.url, 'https://jamestalarico.com/issue/taxes-cost-of-living/');
-  assert.ok(core.SOURCES.filter((s) => s.politician_id === 'james_talarico').length >= 2, 'more Talarico pages');
   const others = new Set(core.SOURCES.map((s) => s.politician_id).filter((p) => p !== 'james_talarico'));
-  assert.ok(others.size >= 2 && others.size <= 3, `${others.size} other politicians`);
+  assert.ok(others.size >= 3 && others.size <= 4, `${others.size} other politicians`);
+  const topics = new Set(core.SOURCES.map((s) => s.topic));
+  assert.deepEqual([...topics].sort(), ['cost_living', 'healthcare_costs'], 'two topics');
+  for (const topic of topics) {
+    assert.ok(new Set(core.SOURCES.filter((s) => s.topic === topic).map((s) => s.politician_id)).size >= 2,
+      `${topic} covers at least 2 politicians`);
+  }
   for (const s of core.SOURCES) {
     assert.match(s.url, /^https:\/\/[^/]+\.[a-z]{2,}\//, 'real https URL: ' + s.url);
     assert.ok(s.politician_id && s.topic && s.source_type, 'source fields: ' + s.url);
@@ -71,7 +76,7 @@ await t('8–10 real sources: Talarico ground-truth page first, plus 2–3 other
   assert.equal(new Set(core.SOURCES.map((s) => s.url)).size, N, 'no duplicate URLs');
   const keys = core.SOURCES.map((s) => core.rawKey(s, NOW().toISOString()));
   assert.equal(new Set(keys).size, N, 'every source gets its own record key');
-  assert.ok(N * 6 >= 48 && N * 6 <= 60, `${N * 6} records/day`);
+  assert.ok(N * 6 >= 48 && N * 6 <= 72, `${N * 6} records/day`);
 });
 
 await t('one invocation processes every source and writes one raw record each (url, timestamp, source type, body)', async () => {
@@ -106,7 +111,7 @@ await t('no scoring or stance fields are written', async () => {
   }
   const coreSrc = readFileSync(corePath, 'utf8').replace(/^\s*\/\/.*$/gm, '');
   assert.ok(!/stance-ground-truth/.test(coreSrc), 'core must not touch the ground-truth file');
-  assert.ok(!/stance-score/.test(coreSrc + readFileSync(fnPath, 'utf8')), 'ingest must not call the scorer');
+  assert.ok(!/stance-score/.test(coreSrc), 'ingest core stays scorer-free (the cron wires the log-only hook)');
 });
 
 await t('a failed source writes nothing and does not block the others', async () => {
@@ -148,6 +153,49 @@ await t('every source failing logs FAIL per source, returns 502, and writes noth
     assert.equal(store.data.size, 0);
     assert.equal(lines.filter((l) => l.startsWith('raw-ingest: FAIL ')).length, N);
   }
+});
+
+// ── Phase 5: log-only candidate scoring on every stored record ──
+const CORNYN_URL = 'https://www.cornyn.senate.gov/issues/health-care/';
+const HC_HTML = '<html><body><h1>Health Care</h1><p>In the Senate, he will fight to lower prescription drug costs and cap insulin co-pays.</p>'
+  + '<p>Our bill to bring down out-of-pocket costs for patients passed.</p><p>We will reduce insurance premiums for Texas families.</p></body></html>';
+const byUrl = (map) => async (url, opts) => fakeFetch(200, map[url] ?? HTML)(url, opts);
+
+await t('every stored record produces a logged candidate stance (both topics, new politician included)', async () => {
+  const store = fakeStore(); const logs = [];
+  const { lines } = await quiet(() => fn.run({ fetch: byUrl({ [CORNYN_URL]: HC_HTML }), store, now: NOW, log: (l) => logs.push(l) }));
+  const cands = logs.filter((l) => l.startsWith('stance-score: candidate ')).map((l) => JSON.parse(l.slice('stance-score: candidate '.length)));
+  assert.equal(cands.length, N, 'one candidate per stored record');
+  for (const c of cands) {
+    assert.ok(['support', 'oppose', 'mixed', 'no clear position'].includes(c.position));
+    assert.equal(typeof c.confidence, 'number');
+  }
+  const cornyn = cands.find((c) => c.politician_id === 'john_cornyn');
+  assert.ok(cornyn && cornyn.topic === 'healthcare_costs', 'new politician, second topic');
+  assert.equal(cornyn.position, 'support');
+  assert.equal(cornyn.confidence, 0.85);
+  assert.ok(logs.some((l) => /^stance-score: john_cornyn\|healthcare_costs → CLEAR POSITION \(support, 0\.85\)/.test(l)));
+  // Generic fixture → the rules find nothing clear, and say so in one line.
+  assert.ok(logs.some((l) => /^stance-score: ken_paxton\|healthcare_costs → NO CLEAR POSITION/.test(l)));
+  assert.equal(logs.filter((l) => / → (CLEAR POSITION|NO CLEAR POSITION)/.test(l)).length, N, 'one clear/no-clear note per record');
+  // Log only: the store holds exactly the raw records, none carrying a candidate.
+  assert.equal(store.data.size, N);
+  for (const rec of store.data.values()) for (const k of FORBIDDEN) assert.ok(!(k in rec), k);
+  assert.ok(lines.some((l) => l === `raw-ingest: run complete — ${N} ok, 0 failed`));
+});
+
+await t('a failed source gets no candidate; a failing scorer hook never blocks storage', async () => {
+  const store = fakeStore(); const logs = [];
+  const flaky = async (url, opts) => (url === CORNYN_URL ? fakeFetch(500, 'x')(url, opts) : fakeFetch(200, HTML)(url, opts));
+  await quiet(() => fn.run({ fetch: flaky, store, now: NOW, log: (l) => logs.push(l) }));
+  assert.equal(store.data.size, N - 1);
+  assert.ok(!logs.some((l) => l.includes('john_cornyn')), 'no candidate for a failed pull');
+  // Hook that throws: every record is still stored and the run completes.
+  const store2 = fakeStore();
+  const { lines } = await quiet(() => core.runRawIngest({ fetch: fakeFetch(200, HTML), store: store2, now: NOW, onRecord: () => { throw new Error('boom'); } }));
+  assert.equal(store2.data.size, N);
+  assert.equal(lines.filter((l) => l.startsWith('raw-ingest: hook error')).length, N);
+  assert.ok(lines.some((l) => l === `raw-ingest: run complete — ${N} ok, 0 failed`));
 });
 
 await t('ground-truth file is unchanged', () => {

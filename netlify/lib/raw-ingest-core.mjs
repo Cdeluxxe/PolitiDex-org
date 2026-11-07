@@ -12,32 +12,33 @@
 
 export const RAW_STORE_NAME = "raw-ingest";
 
-// Load-test source set: 9 real, stable campaign pages across 4 politicians on
-// cost of living and closely related economic topics. Each source's key is
-// unique: (politician_id, topic) alone when that pair has one source, plus a
-// `source_id` slug when a pair has more than one — so every source writes its
-// own raw record per run and the original Talarico key layout is unchanged.
-// The first entry is the Phase 2 ground-truth source and stays first.
+// Phase 5 source set: 8 real, stable campaign/official pages, 5 politicians,
+// 2 topics (cost_living — the ground-truth topic — and healthcare_costs).
+// Each source's key is unique: (politician_id, topic) alone when that pair has
+// one source, plus a `source_id` slug when a pair has more than one — so every
+// source writes its own raw record per run and the original Talarico key
+// layout is unchanged. The first entry is the Phase 2 ground-truth source.
 export const SOURCES = [
+  // ── cost_living ──
   { politician_id: "james_talarico", topic: "cost_living", source_type: "campaign issue page",
     url: "https://jamestalarico.com/issue/taxes-cost-of-living/" },
-  { politician_id: "james_talarico", topic: "healthcare_costs", source_type: "campaign issue page",
-    url: "https://jamestalarico.com/issue/health-care/" },
-  { politician_id: "james_talarico", topic: "econ_workers", source_type: "campaign issue page",
-    url: "https://jamestalarico.com/issue/labor-business/" },
-  { politician_id: "james_talarico", topic: "energy_production", source_type: "campaign issue page",
-    url: "https://jamestalarico.com/issue/energy-environment/" },
   { politician_id: "gina_hinojosa", topic: "cost_living", source_type: "campaign priority page",
     url: "https://ginafortexas.com/priority/an-affordable-texas-that-works-for-everyone/" },
-  { politician_id: "ken_paxton", topic: "lower_taxes", source_type: "campaign issues page",
-    url: "https://www.kenpaxton.com/issues" },
+  { politician_id: "gina_hinojosa", topic: "cost_living", source_type: "speech (victory remarks transcript)",
+    source_id: "victory-remarks",
+    url: "https://ginafortexas.com/2026/11/remarks-governor-elect-hinojosa-declares-victory-in-texas-governors-race/" },
   { politician_id: "greg_abbott", topic: "cost_living", source_type: "campaign policy page",
     url: "https://www.gregabbott.com/policy/" },
   { politician_id: "greg_abbott", topic: "cost_living", source_type: "campaign newsletter post",
     source_id: "affordability-agenda",
     url: "https://govgregabbott.substack.com/p/the-path-to-number-one-governor-abbotts" },
-  { politician_id: "greg_abbott", topic: "property_tax", source_type: "campaign accomplishments page",
-    url: "https://www.gregabbott.com/accomplishments/" },
+  // ── healthcare_costs ──
+  { politician_id: "james_talarico", topic: "healthcare_costs", source_type: "campaign issue page",
+    url: "https://jamestalarico.com/issue/health-care/" },
+  { politician_id: "ken_paxton", topic: "healthcare_costs", source_type: "campaign issues page",
+    url: "https://www.kenpaxton.com/issues" },
+  { politician_id: "john_cornyn", topic: "healthcare_costs", source_type: "official Senate issue page",
+    url: "https://www.cornyn.senate.gov/issues/health-care/" },
 ];
 
 // Per-source fetch ceiling. Sources are pulled concurrently, so a whole run
@@ -56,7 +57,7 @@ export function rawKey(src, fetchedAt) {
   return `${parts.join("/")}/${ts}.json`;
 }
 
-export async function pullOne(src, { fetch, store, now = () => new Date() }) {
+export async function pullOne(src, { fetch, store, now = () => new Date(), onRecord }) {
   const fetchedAt = now().toISOString();
   try {
     const res = await fetch(src.url, {
@@ -83,6 +84,13 @@ export async function pullOne(src, { fetch, store, now = () => new Date() }) {
     const key = rawKey(src, fetchedAt);
     await store.setJSON(key, record);
     console.log(`raw-ingest: OK ${src.url} → ${RAW_STORE_NAME}/${key} (${body.length} chars, HTTP ${res.status})`);
+    // Optional post-store hook (Phase 5: log-only candidate scoring). It runs
+    // only after the record is safely stored, gets a frozen copy, and its
+    // errors are contained here — it can never undo a store or stop the run.
+    if (onRecord) {
+      try { await onRecord(Object.freeze({ ...record, key })); }
+      catch (e) { console.log(`raw-ingest: hook error for ${key} — ${e?.message || e}`); }
+    }
     return { ok: true, key, url: src.url, fetched_at: fetchedAt, body_chars: body.length };
   } catch (e) {
     const error = e?.message || String(e);
