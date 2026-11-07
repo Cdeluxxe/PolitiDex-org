@@ -411,3 +411,13 @@
 @media (prefers-reduced-motion: reduce) {
   .pdxtree-caret { transition: none; }
 }
+
+/* Evidence Locker lines (profile-locker.js): a full-width source line under the
+   leaf face, and the topic-section foot for Locker issues with no leaf. */
+.pdxtree-locker { flex: 1 0 100%; margin: .15rem 0 .2rem 1.35rem; font-size: .72rem; line-height: 1.45; }
+.pdxtree-locker .pdxtree-src { color: #9fb4d4; text-decoration: none; }
+.pdxtree-locker .pdxtree-src:hover { color: #f5c842; text-decoration: underline; }
+.pdxtree-locker .pdxtree-src b { color: #f5c842; font-weight: 700; }
+.pdxtree-lockerfoot { margin-top: .75rem; padding-top: .5rem; border-top: 1px solid rgba(159, 180, 212, .18); }
+.pdxtree-lockergrp { margin: .35rem 0; }
+.pdxtree-lockergrp .pdxtree-locker { margin-left: .35rem; }

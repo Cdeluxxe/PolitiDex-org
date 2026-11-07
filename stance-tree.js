@@ -1062,6 +1062,26 @@
       esc(rc.pct) + '%</span>';
   }
 
+  // ── EVIDENCE LOCKER LINES ─────────────────────────────────────────────────
+  // Finished Locker items (profile-locker.js) for this person on this issue, as
+  // source lines beside the face button — the claim source's own style. A
+  // sibling of the button, never inside it, for the reason the claim source is.
+  // Context only: nothing here feeds the leaf's band, cue or record slot, and a
+  // person with no Locker items gets '' and an unchanged leaf.
+  function lockerLeafHtml(lf) {
+    var L = window.PDXProfileLocker;
+    if (!L || typeof L.treeLeafHtml !== 'function' || !lf) return '';
+    try { return L.treeLeafHtml(lf.pid, lf.key) || ''; } catch (e) { return ''; }
+  }
+  function lockerFootHtml(pid) {
+    var L = window.PDXProfileLocker;
+    if (!L || typeof L.treeFootHtml !== 'function' || typeof L.items !== 'function') return '';
+    try {
+      if (!L.items(pid).length) return '';
+      return L.treeFootHtml(pid, leaves(pid).map(function (lf) { return lf.key; })) || '';
+    } catch (e) { return ''; }
+  }
+
   function leafHtml(lf, uid) {
     var id = leafId(uid, lf.key);
     var rc = lf.record;
@@ -1106,6 +1126,7 @@
           '<span class="pdxtree-go" aria-hidden="true">›</span>' +
         '</button>' +
         claimSrcHtml(lf.claim) +
+        lockerLeafHtml(lf) +
         scopeCtlHtml(lf) +
         issueFileHtml(lf) +
       '</div>';
@@ -1489,6 +1510,7 @@
           'their formal <b>record</b> did — then tap an issue for the full dossier.</p>' +
         findHtml(host) +
         '<div class="pdxtree-body">' + body + '</div>' +
+        lockerFootHtml(pid) +
       '</section>';
   }
 
@@ -2115,4 +2137,22 @@
     sectionHtml: sectionHtml,
     leafHtml: function (lf, uid) { return leafHtml(lf, uid || 'pdxtree'); }
   };
+
+  // ── LOAD THE EVIDENCE LOCKER FOLD ON THE PERSON DOCUMENT ──────────────────
+  // profile-locker.js fetches /api/evidence-locker/items and supplies the leaf
+  // lines above. It is loaded from here rather than by its own <script> tag:
+  // this module is the person document's first caller of it, and person.html
+  // stays byte-identical. Person document only (index.html folds the same items
+  // through spotlight-cards-data.js); once; a failed load changes nothing,
+  // because every caller of PDXProfileLocker is guarded.
+  try {
+    if (window.__PDX_PERSON_DOC && !window.PDXProfileLocker && !window.__pdxLockerLoad &&
+        typeof document !== 'undefined' && document.createElement) {
+      window.__pdxLockerLoad = true;
+      var _ls = document.createElement('script');
+      _ls.src = '/profile-locker.js';
+      _ls.defer = true;
+      (document.head || document.documentElement).appendChild(_ls);
+    }
+  } catch (e) {}
 })();
