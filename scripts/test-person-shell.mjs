@@ -979,6 +979,73 @@ ok(!bare.includes('id="pdx-topnav"'), "dom: index.html's two-row nav is not here
       ok(num(withItems.wa) === num(before.wa), "locker: Word vs Action's figure is unchanged by Locker items");
     }
   }
+
+  // ── Where this conflicts: a Locker item against the voting record ──────────
+  // The record's way is read through window._pdxRecordDirection (what
+  // PDXRelatedIssues.recordOf reads). The stub answers for the keys named and
+  // defers to the real index for every other key.
+  const withRecord = (ways) => {
+    const w = boot(true);
+    const real = w._pdxRecordDirection;
+    w._pdxRecordDirection = function (pid, key, opts) {
+      if (pid === PID && Object.prototype.hasOwnProperty.call(ways, key)) {
+        const lead = ways[key];
+        return { characterised: true, lead, token: "record_direction", total: 4, judged: 4,
+          advances: lead === "advances" ? 4 : 0, opposes: lead === "opposes" ? 4 : 0,
+          counted: true, clause: lead === "advances" ? "all 4 advanced it" : "all 4 cut against it" };
+      }
+      return typeof real === "function" ? real.apply(this, arguments) : null;
+    };
+    w.PDXProfileLocker.onBody(JSON.parse(JSON.stringify(BODY)));
+    return views(w, PID);
+  };
+  const CF = /data-pdx-locker-conflict="/;
+  const cfFor = (h, key) => new RegExp(`data-pdx-locker-conflict="${key}"`).test(h);
+  const LINE = /On [^<]+, their record runs against this statement\./;
+  if (withItems) {
+    ok(!CF.test(Object.values(withItems).join("")),
+      "conflict: a Locker item with no voting record on its issue (or a related one) shows no conflict line");
+    ok(!CF.test(Object.values(empty).join("")), "conflict: a profile with no Locker items shows no conflict line");
+  }
+  let opp = null, agree = null, rel = null, relAgree = null;
+  try {
+    opp = withRecord({ public_schools: "opposes" });          // item supports, record runs against
+    agree = withRecord({ public_schools: "advances" });       // item supports, record runs with
+    rel = withRecord({ healthcare: "opposes" });              // related issue runs against healthcare_costs item
+    relAgree = withRecord({ healthcare: "opposes", healthcare_market: "advances" });
+  } catch (e) {
+    failures.push(`conflict: the sandboxed profile failed to render with a voting record — ${e && e.stack || e}`);
+  }
+  if (opp && agree && rel && relAgree) {
+    for (const [k, name] of [["conn", "the Evidence tab"], ["tree", "All Issues by Topic"], ["wa", "Word vs Action"]]) {
+      ok(cfFor(opp[k], "public_schools") && LINE.test(opp[k]),
+        `conflict: an opposing voting record puts the conflict line on the Locker item in ${name}`);
+      ok(!CF.test(agree[k]), `conflict: a matching voting record shows no conflict line in ${name}`);
+    }
+    {
+      const m = opp.conn.match(/data-pdx-locker-conflict="public_schools"[^>]*>([\s\S]*?)<\/p>/);
+      ok(m && /Where this conflicts/.test(m[1]) && /On [^,]*School[^,]*, their record runs against this statement\./i.test(m[1].replace(/<[^>]+>/g, "")),
+        `conflict: the line names the issue — "On [issue], their record runs against this statement." (got ${m && m[1]})`);
+    }
+    {
+      const at = opp.tree.indexOf('data-pdxtree-locker-issue="public_schools"');
+      const cf = opp.tree.indexOf('data-pdx-locker-conflict="public_schools"');
+      const next = opp.tree.indexOf('data-pdxtree-locker-issue="', at + 1);
+      ok(at !== -1 && cf > at && (next === -1 || cf < next), "conflict: the topic-tree line sits with its own Locker line");
+    }
+    ok(!cfFor(opp.conn + opp.tree + opp.wa, "cost_living") && !cfFor(opp.conn + opp.tree + opp.wa, "healthcare_costs"),
+      "conflict: items on issues with no opposing record carry no conflict line");
+    ok(cfFor(rel.wa, "healthcare_costs") && /data-pdx-locker-conflict-on="healthcare"/.test(rel.wa) && cfFor(rel.tree, "healthcare_costs") && cfFor(rel.conn, "healthcare_costs"),
+      "conflict: an opposing record on a related issue flags the item, naming the related issue");
+    ok(!cfFor(relAgree.conn + relAgree.tree + relAgree.wa, "healthcare_costs"),
+      "conflict: no flag when a related issue's record agrees with the item");
+    {
+      const num = (h) => (h.match(/class="pdxwa-num-v">([^<]*)</) || [])[1];
+      ok(num(opp.wa) === num(agree.wa), "conflict: the line never moves Word vs Action's figure");
+    }
+    ok((opp.conn.match(/data-pdx-locker-conflict="public_schools"/g) || []).length === 1,
+      "conflict: the Evidence tab prints the line once per Locker card");
+  }
 }
 
 // ── Report ───────────────────────────────────────────────────────────────────

@@ -11694,7 +11694,21 @@
 //     before. No location key or other stored reader state is written or
 //     rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v529';
+// v530 - WHERE A LOCKER ITEM CONFLICTS WITH THE VOTING RECORD.
+//     profile-locker.js (the person-profile script, a runtime entry) now
+//     prints one short "Where this conflicts" line under a Locker item when the
+//     person's voting record on the same issue — or, where that issue has no
+//     one-way record, on a related issue — runs the other way from the item's
+//     position: "On [issue], their record runs against this statement." It
+//     appears in the Evidence tab card, the 🌳 All Issues by Topic leaf line and
+//     the ⚖️ Word vs Action Locker list. No record, or a record that agrees,
+//     prints nothing. The record's way is read through PDXRelatedIssues.recordOf
+//     (the shared record-direction index); nothing enters any score. The
+//     profile script changed, so the shell moves one version; the precache list
+//     is unchanged. No route or gate. No stored reader state is written or
+//     rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v530';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

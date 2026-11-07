@@ -19,6 +19,13 @@
        and ⚖️ Word vs Action (word-action.js) — can print them in their own line
        style.
 
+   WHERE THIS CONFLICTS. Each of those three Locker lines (Evidence tab card,
+   topic-tree leaf, Word vs Action list) gains one short line when the voting
+   record on the item's issue — or on a related issue, when its own has no
+   one-way record — runs the other way from the item's position: "On [issue],
+   their record runs against this statement." No record, or an agreeing one,
+   prints nothing. See conflictOf below.
+
    If the open profile gained items, the file is repainted in place (same
    renderer, scroll position kept), the way the cold-open document merge does it.
 
@@ -126,9 +133,64 @@
     };
   }
 
+  // ── Where this conflicts ─────────────────────────────────────────────────
+  // A Locker item states a position (support / oppose). The person's voting
+  // record on the same issue — or, where that issue has no one-way record, on
+  // an issue PDXRelatedIssues lists as related — may run the other way. That is
+  // the whole test, and it reads only what is already published:
+  //   · the record's way, from PDXRelatedIssues.recordOf (the shared
+  //     record-direction index: a characterised one-way read, 'with' or
+  //     'against'; a split, thin, poleless or unloaded record is null);
+  //   · the item's own position.
+  // The item's own issue decides when it has a one-way record (agreeing → no
+  // flag). Only when it has none are the related issues asked, and then a flag
+  // needs at least one related record running the other way and none running
+  // the same way. No record anywhere → no flag. Context only: nothing here is a
+  // score input, and no verdict word is printed.
+  var CONFLICT_RUNS = { support: 'against', oppose: 'with' };
+  function recordWay(pid, key) {
+    try {
+      var RI = window.PDXRelatedIssues;
+      if (!pid || !key || !RI || typeof RI.recordOf !== 'function') return null;
+      var r = RI.recordOf(pid, key);
+      return (r === 'with' || r === 'against') ? r : null;
+    } catch (e) { return null; }
+  }
+  function conflictOf(pid, it) {
+    var pos = it && it.pipeline && it.pipeline.position;
+    var bad = CONFLICT_RUNS[pos];
+    if (!bad || !it.issueKey) return null;
+    var id = canon(pid);
+    var own = recordWay(id, it.issueKey);
+    if (own) return own === bad ? { key: it.issueKey, related: false } : null;
+    var RI = window.PDXRelatedIssues, rel = [];
+    try { rel = (RI && typeof RI.related === 'function') ? (RI.related(it.issueKey) || []) : []; } catch (e) { rel = []; }
+    var hit = null;
+    for (var i = 0; i < rel.length; i++) {
+      var w = recordWay(id, rel[i]);
+      if (!w) continue;
+      if (w !== bad) return null;           // a related record agrees: no flag
+      if (!hit) hit = { key: rel[i], related: true };
+    }
+    return hit;
+  }
+  function conflictText(c) {
+    return c ? 'On ' + issueLabel(c.key) + ', their record runs against this statement.' : '';
+  }
+  // One short line, in whichever surface's box it is placed in.
+  function conflictHtml(pid, it, tag, style) {
+    var c = conflictOf(pid, it);
+    if (!c) return '';
+    return '<' + tag + ' class="pdx-locker-conflict" data-pdx-locker-conflict="' + esc(it.issueKey) + '"' +
+      ' data-pdx-locker-conflict-on="' + esc(c.key) + '" style="' + style + '">' +
+      '⚠️ <b style="color:#f5c842;">Where this conflicts:</b> ' + esc(conflictText(c)) +
+      '</' + tag + '>';
+  }
+  var CONFLICT_STYLE = 'font-size:0.7rem;line-height:1.4;color:#f8b4b4;';
+
   // ── 🌳 All Issues by Topic ───────────────────────────────────────────────
   // One line under a leaf, in the leaf's own source-link style (.pdxtree-src).
-  function treeLineHtml(it) {
+  function treeLineHtml(it, pid) {
     var x = partsOf(it);
     if (!/^https?:\/\//.test(x.url)) return '';
     return '<div class="pdxtree-locker" data-pdxtree-locker="1" data-pdxtree-locker-issue="' + esc(it.issueKey) + '">' +
@@ -136,10 +198,11 @@
         '📂 ' + (x.pos ? '<b>' + esc(x.pos) + ':</b> ' : '') +
         (x.excerpt ? '“' + esc(x.excerpt) + '”' : esc(x.headline)) +
         ' — ' + esc(x.attribution) + (x.date ? ' · ' + esc(x.date) : '') + ' ↗</a>' +
+        (pid ? conflictHtml(pid, it, 'div', 'margin:0.15rem 0 0;' + CONFLICT_STYLE) : '') +
       '</div>';
   }
   function treeLeafHtml(pid, key) {
-    return forIssue(pid, key).map(treeLineHtml).join('');
+    return forIssue(pid, key).map(function (it) { return treeLineHtml(it, pid); }).join('');
   }
   // Items whose issue has no leaf in the tree still belong in the topic
   // section: they are listed under it, grouped by issue, in the same line style.
@@ -158,7 +221,7 @@
       order.map(function (k) {
         return '<div class="pdxtree-lockergrp" data-pdxtree-locker-grp="' + esc(k) + '">' +
           '<span class="pdxtree-name">' + esc(issueLabel(k)) + '</span>' +
-          byKey[k].map(treeLineHtml).join('') +
+          byKey[k].map(function (it) { return treeLineHtml(it, pid); }).join('') +
         '</div>';
       }).join('') +
     '</div>';
@@ -207,7 +270,8 @@
             ? '<a href="' + esc(y.url) + '" target="_blank" rel="noopener noreferrer" style="color:#9fb4d4;">' + esc(y.attribution) + ' ↗</a>'
             : esc(y.attribution)) +
           (y.date ? ' <span style="color:#5f7da6;">· ' + esc(y.date) + '</span>' : '') +
-        '</p>';
+        '</p>' +
+        conflictHtml(pid, x.item, 'p', 'margin:-0.25rem 0 0.45rem;' + CONFLICT_STYLE);
       }).join('') +
     '</div>';
   }
@@ -218,20 +282,23 @@
   // has no slot for is the quoted excerpt and the position, so they are added
   // under the headline of each Locker item's card — matched by the exact
   // escaped headline the card printed — and nowhere else.
-  function evdExcerptHtml(it) {
+  function evdExcerptHtml(it, pid) {
     var x = partsOf(it);
-    if (!x.excerpt) return '';
+    var cf = pid ? conflictHtml(pid, it, 'p', 'margin:0.1rem 0 0.15rem 1.1rem;' + CONFLICT_STYLE) : '';
+    // A conflict line carries the same marker so a second wrap never repeats it.
+    if (cf) cf = cf.replace('class="pdx-locker-conflict"', 'class="pdx-locker-conflict" data-evd-locker="1"');
+    if (!x.excerpt) return cf;
     return '<p class="evd-spot-excerpt" data-evd-locker="1" style="margin:0.2rem 0 0.15rem 1.1rem;font-size:0.72rem;line-height:1.45;color:#c9d6ea;">' +
       (x.pos ? '<b style="color:#f5c842;">' + esc(x.pos) + ':</b> ' : '') +
       '“' + esc(x.excerpt) + '”' +
       (x.attribution ? ' <span style="color:#5f7da6;">— ' + esc(x.attribution) + '</span>' : '') +
-    '</p>';
+    '</p>' + cf;
   }
   function decorateEvidence(html, pid) {
     var mine = items(pid);
     if (!html || !mine.length) return html;
     mine.forEach(function (it) {
-      var add = evdExcerptHtml(it);
+      var add = evdExcerptHtml(it, pid);
       if (!add) return;
       var needle = 'evd-spot-headline">' + esc(it.headline);
       var from = 0, at;
@@ -327,6 +394,7 @@
     items: items, forIssue: forIssue,
     treeLeafHtml: treeLeafHtml, treeFootHtml: treeFootHtml, treeLineHtml: treeLineHtml,
     waMatches: waMatches, waHtml: waHtml,
+    conflictOf: conflictOf, conflictText: conflictText, conflictHtml: conflictHtml,
     decorateEvidence: decorateEvidence, wrap: wrap,
     // Test seam: forget everything ingested (does not touch SPOTLIGHT_DATA).
     _reset: function () { byPid = {}; loading = null; }
