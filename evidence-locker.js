@@ -3051,6 +3051,31 @@
     // discovery showcase + visible results (re-syncing any active filter), and
     // re-fires `pdx-evidence-ready` so the People's Mandate reform cards upgrade
     // their live "on the record" counts in place.
+    function _rebuildAll() {
+      try { _items = _build(); }
+      catch (e) { console.error('Evidence Locker extended build failed:', e); return; }
+      _guarded('the filter controls', _populateFilters);
+      _guarded('the filter controls', _syncControls);
+      _guarded('the discovery showcase', _renderDiscovery);
+      _guarded('the receipt grid', _render);
+      _statedFloor();
+      if (_polActive) _guarded('the by-politician view', _renderPolView);
+      if (_issueActive) _guarded('the by-issue view', _renderIssueView);
+      try { document.dispatchEvent(new CustomEvent('pdx-evidence-ready')); } catch (e) {}
+    }
+
+    // ── Pipeline receipts (raw ingest → scorer → Locker) ───────────────────
+    // spotlight-cards-data.js folds the ingest pipeline's finished items into
+    // SPOTLIGHT_DATA — the same map _build() already reads — and fires
+    // 'pdx-spotlight-data-updated'. When that lands after the library is
+    // built, rebuild once so they pass the same gate and paint on the same
+    // cards as every other receipt. Before the build, _build() picks them up.
+    try {
+      document.addEventListener('pdx-spotlight-data-updated', function () {
+        if (_loaded) _rebuildAll();
+      });
+    } catch (e) {}
+
     var _extStarted = false;
     function _loadExtended() {
       if (_extStarted) return;
@@ -3067,18 +3092,7 @@
       // one is wrapped the way finish() wraps its own — and the floor runs
       // after, because a rebuild that fails must not be able to leave the grid
       // worse off than the priority wave left it.
-      function rebuild() {
-        try { _items = _build(); }
-        catch (e) { console.error('Evidence Locker extended build failed:', e); return; }
-        _guarded('the filter controls', _populateFilters);
-        _guarded('the filter controls', _syncControls);
-        _guarded('the discovery showcase', _renderDiscovery);
-        _guarded('the receipt grid', _render);
-        _statedFloor();
-        if (_polActive) _guarded('the by-politician view', _renderPolView);
-        if (_issueActive) _guarded('the by-issue view', _renderIssueView);
-        try { document.dispatchEvent(new CustomEvent('pdx-evidence-ready')); } catch (e) {}
-      }
+      var rebuild = _rebuildAll;
       function pump() {
         while (active < LIMIT && i < total) {
           var id = ids[i++]; active++;
