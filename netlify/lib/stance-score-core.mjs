@@ -16,19 +16,34 @@
 //   R5  A single outlier (a clear statement on the other side) does not flip
 //       the position — it only lowers confidence — unless it carries explicit
 //       reversal language, in which case the reversal sets the position.
+//   R6  Hard implication (phase7): when the page's own politician is the actor
+//       and a sentence is not an explicit statement, directional language still
+//       counts as a MEDIUM-weight signal (support or oppose) when it either
+//         (a) names a problem and a remedy — "cap credit card rates",
+//             "make insulin affordable", "freeze rent hikes"; or
+//         (b) highlights an outcome the speaker wants changed — "rent is too
+//             high", "families can't afford groceries" — and the source does so
+//             REPEATEDLY (at least WEIGHTS.outcomeRepeatMin such sentences). A
+//             single outcome line, or a rhetorical question, stays a mention.
+//       Implications count toward R4 corroboration alongside explicit
+//       statements and toward R5 outliers; they never carry reversal power.
+//       Explicit statements keep their tier weight (HIGH in speeches/remarks).
 //
+
 // Calibration: the ground truth (0.85) rests on first-party campaign pages
 // with several explicit commitments, so a medium-tier base of 0.70 plus the
 // R4 corroboration bonus of 0.15 reproduces it. These numbers live in WEIGHTS
 // so a later tweak is one edit, and the comparison log prints the exact delta.
 
-export const RULES_VERSION = "phase6-v2";
+export const RULES_VERSION = "phase7-v1";
 
 export const WEIGHTS = {
   high: 1.0,              // R2
   medium: 0.5,            // R1
   zero: 0,                // R3
-  baseConfidence: { high: 0.8, medium: 0.7 },
+  implication: 0.5,       // R6: medium-weight directional signal
+  outcomeRepeatMin: 2,    // R6(b): outcome highlights count only when repeated
+  baseConfidence: { high: 0.8, medium: 0.7, implication: 0.7 },
   corroborationMin: 3,    // R4: this many consistent clear statements…
   corroborationBonus: 0.15, // …add this much
   outlierPenalty: 0.1,    // R5: per opposite-side clear statement
@@ -54,12 +69,20 @@ export const TOPIC_RULES = {
     support: /\b(lower(ing)?|cut(ting)?|bring(ing)? down|cap(ped|ping|s)?|reduc(e|es|ed|ing)|suspend(ing)?)\b[^.!?]{0,80}?\b(costs?|prices?|tax(es)?|rent|groceries|interest rates?|bills?)\b|\bcost[- ]of[- ]living tax cut\b/i,
     // Explicitly against measures that lower costs.
     oppose: /\b(I|we)\s+(?:now\s+|still\s+|strongly\s+)?(oppose|reject|will vote against|won'?t support)\b[^.!?]{0,80}\b(tax cuts?|caps?|relief|lower(ing)? (costs|prices)|minimum wage)\b|\b(raise|raising|increase|increasing) (taxes|prices|rent) on (working|middle)/i,
+    // R6(a) problem + remedy: a remedy aimed at a named cost problem.
+    implySupport: /\b(?:lower(?:ing)?|cut(?:ting)?|bring(?:ing)? down|cap(?:ped|ping|s)?|reduc(?:e|es|ed|ing)|suspend(?:ing)?|freez(?:e|es|ing)|slash(?:es|ing)?|drive down|roll(?:ing)? back|rein(?:ing)? in|crack(?:ing)? down on|stop(?:ping)?|end(?:ing)?|ban(?:ning)?|limit(?:ing)?|fix(?:ing)?|tackl(?:e|es|ing))\b[^.!?]{0,80}?\b(?:rates?|fees?|junk fees|price gouging|gouging|rent hikes?|price hikes?|inflation|gas tax|diesel tax|insulin|childcare|housing|utilit(?:y|ies)|electricity|energy)\b|\bmake\b[^.!?]{0,60}?\baffordable\b|\b(?:tax )?(?:relief|rebates?) for (?:working|middle|families|seniors)/i,
+    implyOppose: /\b(?:repeal(?:ing)?|scrap(?:ping)?|kill(?:ing)?|block(?:ing)?|eliminat(?:e|es|ing))\b[^.!?]{0,60}?\b(?:price caps?|rate caps?|rent control|gas tax (?:holiday|suspension)|minimum wage (?:increase|hike)|child tax credit|earned income tax credit|tax rebates?)\b/i,
+    // R6(b) outcome the speaker wants changed (support = bring costs down).
+    outcome: /\b(?:too (?:high|expensive|much)|so expensive|sky-?high|skyrocket\w*|soar(?:ing|ed)|through the roof|out of reach|unaffordable|can(?:no|'|’)?t afford|cannot afford|struggl\w* to (?:pay|afford)|priced out|price gouging|crushing|rip-?off)\b/i,
   },
   healthcare_costs: {
     mention: /\b(health ?care|health insurance|insurance premiums?|premiums?|prescriptions?|drugs?|insulin|medicaid|medicare|co-?pays?|deductibles?|hospitals?|pharma\w*|medical (debt|bills?|costs?))\b/i,
     context: /\b(health|medical|medicaid|medicare|insurance|premiums?|prescriptions?|drugs?|insulin|co-?pays?|deductibles?|hospitals?|pharma\w*|patients?)\b/i,
     support: /\b(lower(ing)?|cut(ting)?|bring(ing)? down|cap(ped|ping|s)?|reduc(e|es|ed|ing)|drive down)\b[^.!?]{0,80}?\b(costs?|prices?|premiums?|co-?pays?|deductibles?|insulin|out-of-pocket|bills?|debt)\b/i,
     oppose: /\b(I|we)\s+(?:now\s+|still\s+|strongly\s+)?(oppose|reject|will vote against|won'?t support)\b[^.!?]{0,80}\b(price caps?|caps?|drug price negotiation|lower(ing)? (costs|prices|premiums))\b/i,
+    implySupport: /\b(?:lower(?:ing)?|cut(?:ting)?|bring(?:ing)? down|cap(?:ped|ping|s)?|reduc(?:e|es|ed|ing)|freez(?:e|es|ing)|slash(?:es|ing)?|drive down|rein(?:ing)? in|crack(?:ing)? down on|stop(?:ping)?|end(?:ing)?|ban(?:ning)?|limit(?:ing)?|fix(?:ing)?|tackl(?:e|es|ing)|negotiat(?:e|es|ing))\b[^.!?]{0,80}?\b(?:drug prices?|prescription prices?|price gouging|gouging|surprise (?:billing|bills?)|medical debt|insulin|premium hikes?|rates?|fees?)\b|\bmake\b[^.!?]{0,60}?\baffordable\b/i,
+    implyOppose: /\b(?:repeal(?:ing)?|scrap(?:ping)?|kill(?:ing)?|block(?:ing)?|eliminat(?:e|es|ing))\b[^.!?]{0,60}?\b(?:price caps?|insulin caps?|drug price negotiation|premium tax credits?|out-of-pocket caps?)\b/i,
+    outcome: /\b(?:too (?:high|expensive|much)|so expensive|sky-?high|skyrocket\w*|soar(?:ing|ed)|through the roof|out of reach|unaffordable|can(?:no|'|’)?t afford|cannot afford|struggl\w* to (?:pay|afford)|priced out|price gouging|crushing|rip-?off|ration(?:ing)? (?:insulin|medication|their medicine))\b/i,
   },
 };
 
@@ -187,8 +210,44 @@ export function tierFor(sourceType) {
   return "medium";
 }
 
+// R6 actor check. A topic noun that happens to be capitalised at the start of a
+// sentence ("Rent is too high") is the subject, not a named opponent.
+function implicationActor(prefix, r, politicianId) {
+  const a = actorFor(prefix, politicianId);
+  if (a.kind === "opponent" && r.mention.test(a.via) && !OPPONENT_FRAMING_TEST.test(a.via)) return { kind: "self", via: "page voice" };
+  return a;
+}
+const OPPONENT_FRAMING_TEST = new RegExp(OPPONENT_FRAMING.source, "i");
+
 /**
- * Classify one sentence → { kind: 'clear'|'mention'|null, side, reversal, actor }.
+ * R6: a non-explicit sentence with directional implication → kind 'implication'
+ * (via 'remedy' or 'outcome'), a mention attributed to someone else, or null.
+ * Outcome implications are provisional: scoreRawRecord keeps them only when the
+ * source repeats them (WEIGHTS.outcomeRepeatMin).
+ */
+function classifyImplication(sentence, r, politicianId) {
+  if (!r.implySupport) return null;
+  const ps = r.implySupport.exec(sentence);
+  const po = r.implyOppose.exec(sentence);
+  if ((ps || po) && !(ps && po)) {
+    const m = ps || po;
+    const actor = implicationActor(sentence.slice(0, m.index), r, politicianId);
+    if (actor.kind === "self") return { kind: "implication", via: "remedy", side: ps ? "support" : "oppose", reversal: false, actor };
+    return { kind: "mention", side: null, reversal: false, actor };
+  }
+  if (ps && po) return null;
+  const om = r.outcome.exec(sentence);
+  // A rhetorical question names a problem without saying what should change.
+  if (om && !/\?\s*$/.test(sentence) && r.mention.test(sentence)) {
+    const actor = implicationActor(sentence.slice(0, om.index), r, politicianId);
+    if (actor.kind === "self") return { kind: "implication", via: "outcome", side: "support", reversal: false, actor };
+    return { kind: "mention", side: null, reversal: false, actor };
+  }
+  return null;
+}
+
+/**
+ * Classify one sentence → { kind: 'clear'|'implication'|'mention'|null, side, reversal, actor, via? }.
  * `politicianId` is the page's own politician (raw.politician_id).
  */
 export function classify(sentence, topic, politicianId = null) {
@@ -206,6 +265,8 @@ export function classify(sentence, topic, politicianId = null) {
     }
     return { kind: "mention", side: null, reversal: false, actor };
   }
+  const imp = !(sm || om) && inContext ? classifyImplication(sentence, r, politicianId) : null;
+  if (imp) return imp;
   if (sm || om || r.mention.test(sentence)) return { kind: "mention", side: null, reversal: false, actor: null };
   return { kind: null, side: null, reversal: false, actor: null };
 }
@@ -228,15 +289,25 @@ export function scoreRawRecord(raw) {
       kind: c.kind,
       side: c.side,
       reversal: c.reversal,
+      ...(c.kind === "implication" ? { implication: c.via } : {}),
       ...(c.actor && c.actor.kind !== "self" ? { attributed_to: c.actor.kind, attributed_via: c.actor.via } : {}),
-      weight: c.kind === "clear" ? WEIGHTS[tier] : WEIGHTS.zero,
+      weight: c.kind === "clear" ? WEIGHTS[tier] : c.kind === "implication" ? WEIGHTS.implication : WEIGHTS.zero,
     });
   }
+  // R6(b): a lone outcome highlight is not repeated → back to a zero-weight mention.
+  const outcomes = statements.filter((s) => s.kind === "implication" && s.implication === "outcome");
+  if (outcomes.length < WEIGHTS.outcomeRepeatMin) {
+    for (const s of outcomes) { s.kind = "mention"; s.side = null; s.weight = WEIGHTS.zero; delete s.implication; }
+  }
   const clear = statements.filter((s) => s.kind === "clear");
-  const mentions = statements.length - clear.length;
+  const implied = statements.filter((s) => s.kind === "implication");
+  const mentions = statements.length - clear.length - implied.length;
   const w = { support: 0, oppose: 0 };
-  const n = { support: 0, oppose: 0 };
+  const n = { support: 0, oppose: 0 };     // explicit statements per side
+  const ni = { support: 0, oppose: 0 };    // implications per side
   for (const s of clear) { w[s.side] += s.weight; n[s.side] += 1; }
+  for (const s of implied) { w[s.side] += s.weight; ni[s.side] += 1; }
+  const signals = clear.length + implied.length;
 
   let position, confidence, reason;
   const reversal = clear.filter((s) => s.reversal).at(-1);
@@ -244,34 +315,39 @@ export function scoreRawRecord(raw) {
     position = reversal.side;
     confidence = WEIGHTS.baseConfidence[tier];
     reason = `explicit reversal language sets the position to ${position} (R5); earlier statements not counted as corroboration`;
-  } else if (!clear.length) {
+  } else if (!signals) {
     position = "no clear position";
     confidence = mentions ? WEIGHTS.mentionOnlyConfidence : 0;
     reason = mentions ? `${mentions} topic mention(s), none states a clear position (R3)` : "topic not found in source";
   } else if (w.support === w.oppose) {
     position = "mixed";
     confidence = 0.5;
-    reason = `equal weight of clear statements on both sides (${n.support} vs ${n.oppose})`;
+    reason = `equal weight of directional signals on both sides (${n.support + ni.support} vs ${n.oppose + ni.oppose}; ${implied.length} implication(s))`;
   } else {
     position = w.support > w.oppose ? "support" : "oppose";
     const other = position === "support" ? "oppose" : "support";
-    const consistent = n[position];
-    confidence = WEIGHTS.baseConfidence[tier];
-    const parts = [`${consistent} clear ${tier}-weight statement(s) for ${position}`];
+    const consistent = n[position] + ni[position];
+    const outliers = n[other] + ni[other];
+    // Base rests on the strongest kind of signal for the winning side.
+    confidence = n[position] ? WEIGHTS.baseConfidence[tier] : WEIGHTS.baseConfidence.implication;
+    const parts = [];
+    if (n[position]) parts.push(`${n[position]} clear ${tier}-weight statement(s) for ${position}`);
+    parts.push(`${ni[position]} implication(s) for ${position} at medium weight (R6)`);
     if (consistent >= WEIGHTS.corroborationMin) {
       confidence += WEIGHTS.corroborationBonus;
       parts.push(`≥${WEIGHTS.corroborationMin} consistent raise confidence (R4)`);
     }
-    if (n[other]) {
-      if (n[other] >= consistent) { position = "mixed"; confidence = 0.5; }
-      else confidence -= WEIGHTS.outlierPenalty * n[other];
-      parts.push(`${n[other]} outlier(s) without reversal language lower confidence, do not flip (R5)`);
+    if (outliers) {
+      if (outliers >= consistent) { position = "mixed"; confidence = 0.5; }
+      else confidence -= WEIGHTS.outlierPenalty * outliers;
+      parts.push(`${outliers} outlier(s) without reversal language lower confidence, do not flip (R5)`);
     }
     if (mentions) parts.push(`${mentions} mention(s) recorded at zero weight (R3)`);
     reason = parts.join("; ");
   }
 
-  const firstClear = clear.find((s) => s.side === position) || clear[0];
+  const firstClear = clear.find((s) => s.side === position) || clear[0]
+    || implied.find((s) => s.side === position) || implied[0];
   return {
     politician_id: raw.politician_id,
     topic: raw.topic,
@@ -283,9 +359,10 @@ export function scoreRawRecord(raw) {
       date: String(raw.fetched_at).slice(0, 10),
       link: raw.url,
       excerpt: firstClear ? firstClear.text : (statements[0]?.text ?? null),
-      note: `${clear.length} clear statement(s) (${n.support} support, ${n.oppose} oppose), ${mentions} mention(s) at zero weight`,
+      note: `${clear.length} clear statement(s) (${n.support} support, ${n.oppose} oppose), ${implied.length} implication(s) (${ni.support} support, ${ni.oppose} oppose), ${mentions} mention(s) at zero weight`,
       weight_tier: tier,
       takes_clear_position: clear.length > 0,
+      implication_count: implied.length,
       statements,
     }],
     rules_version: RULES_VERSION,
