@@ -222,13 +222,17 @@ const TALARICO_HTML = '<html><body><h1>Taxes &amp; Cost of Living</h1>'
   + '<p>Cap credit card interest rates so families can keep more of their pay.</p></body></html>';
 const REQUIRED = ['politician_id', 'topic', 'position', 'confidence', 'source_type', 'link', 'excerpt', 'date', 'attribution'];
 const lockerItems = (st) => [...st.data.values()];
+// Generic fixture pages for cost_living mention the topic, so they now land as
+// mention items; the high-confidence assertions look at strong items only.
+const strongItems = (st) => lockerItems(st).filter((i) => locker.storedStrength(i) === 'strong');
 
 await t('a high-confidence candidate produces exactly one Evidence Locker item with every required field and a working link', async () => {
   const store = fakeStore(); const lockerStore = lockerFakeStore(); const logs = [];
   const { value: res } = await quiet(() => fn.run({ fetch: byUrl({ [CORNYN_URL]: HC_HTML }), store, lockerStore, now: NOW, log: (l) => logs.push(l) }));
   const report = await res.json();
-  assert.equal(lockerStore.data.size, 1, 'one Locker item (only Cornyn is clear + ≥0.8 on an official page)');
-  const [item] = lockerItems(lockerStore);
+  assert.equal(strongItems(lockerStore).length, 1, 'one strong Locker item (only Cornyn is clear + ≥0.8 on an official page)');
+  const [item] = strongItems(lockerStore);
+  assert.equal(item.strength, 'strong');
   for (const k of REQUIRED) assert.ok(item[k] !== undefined && item[k] !== null && item[k] !== '', 'missing ' + k);
   assert.equal(item.politician_id, 'john_cornyn');
   assert.equal(item.topic, 'healthcare_costs');
@@ -245,8 +249,9 @@ await t('a high-confidence candidate produces exactly one Evidence Locker item w
   assert.equal(item.link, CORNYN_URL);
   assert.equal(item.link_status, 200);
   assert.ok(report.results.find((r) => r.url === item.link)?.ok, 'link was pulled successfully this run');
-  assert.equal(report.locker_writes.length, 1);
-  assert.equal(logs.filter((l) => l.startsWith('evidence-locker: WRITE ')).length, 1, 'every write is logged');
+  assert.equal(report.locker_writes.filter((w) => w.strength === 'strong').length, 1);
+  assert.equal(logs.filter((l) => l.startsWith('evidence-locker: WRITE ')).length, report.locker_writes.length, 'every write is logged');
+  assert.equal(logs.filter((l) => /^evidence-locker: (WRITE|SKIP|EXISTS) /.test(l)).length, N, 'every record logs a write or a skip');
   assert.ok(logs.some((l) => /^evidence-locker: WRITE john_cornyn\|healthcare_costs → evidence-locker\//.test(l)));
   // The existing Locker components read it as a spotlight entry.
   const entry = locker.toSpotlightEntry(item);
@@ -262,8 +267,9 @@ await t('a high-confidence candidate produces exactly one Evidence Locker item w
 await t('Talarico cost of living writes only when it matches the ground-truth position', async () => {
   const lockerStore = lockerFakeStore(); const logs = [];
   await quiet(() => fn.run({ fetch: byUrl({ [TALARICO_URL]: TALARICO_HTML }), store: fakeStore(), lockerStore, now: NOW, log: (l) => logs.push(l) }));
-  const items = lockerItems(lockerStore);
+  const items = lockerItems(lockerStore).filter((i) => i.politician_id === 'james_talarico');
   assert.equal(items.length, 1);
+  assert.equal(items[0].strength, 'strong');
   assert.equal(items[0].politician_id, 'james_talarico');
   assert.equal(items[0].position, gt.position);
   assert.equal(items[0].attribution, 'Source: campaign page');
@@ -276,12 +282,13 @@ await t('Talarico cost of living writes only when it matches the ground-truth po
 await t('a low-confidence or "no clear position" candidate produces no Locker item', async () => {
   const lockerStore = lockerFakeStore(); const logs = [];
   await quiet(() => fn.run({ fetch: fakeFetch(200, HTML), store: fakeStore(), lockerStore, now: NOW, log: (l) => logs.push(l) }));
-  assert.equal(lockerStore.data.size, 0, 'generic pages → no clear position → nothing written');
-  assert.equal(logs.filter((l) => l.startsWith('evidence-locker: WRITE')).length, 0);
-  assert.ok(logs.some((l) => /^evidence-locker: SKIP ken_paxton\|healthcare_costs — position "no clear position" is not clear/.test(l)));
+  assert.equal(strongItems(lockerStore).length, 0, 'generic pages → no clear position → no strong item');
+  assert.ok(lockerItems(lockerStore).every((i) => i.strength === 'mention'), 'only mention items from topic-mentioning pages');
+  assert.ok(logs.some((l) => /^evidence-locker: SKIP ken_paxton\|healthcare_costs — position "no clear position" is not clear and no topic mentions/.test(l)));
   const raw = { url: CORNYN_URL, fetched_at: NOW().toISOString(), source_type: 'official Senate issue page', politician_id: 'john_cornyn', topic: 'healthcare_costs', http_status: 200 };
   const base = { politician_id: 'john_cornyn', topic: 'healthcare_costs', sources: [{ excerpt: 'We will reduce insurance premiums.' }] };
-  for (const c of [{ position: 'support', confidence: 0.7 }, { position: 'support', confidence: 0.79 },
+  // No topic statements recorded → below 0.8 writes nothing (no mention to fall back to).
+  for (const c of [{ position: 'support', confidence: 0.2 }, { position: 'oppose', confidence: 0.29 },
     { position: 'no clear position', confidence: 0.3 }, { position: 'mixed', confidence: 0.9 }]) {
     const st = lockerFakeStore();
     const r = await locker.maybeWriteLockerItem({ ...base, ...c }, raw, { store: st, gt, log: () => {} });
@@ -297,15 +304,122 @@ await t('existing Locker items are never overwritten', async () => {
   const lockerStore = lockerFakeStore();
   const run1 = () => quiet(() => fn.run({ fetch: byUrl({ [CORNYN_URL]: HC_HTML }), store: fakeStore(), lockerStore, now: NOW, log: () => {} }));
   await run1();
-  const [key] = lockerStore.data.keys();
+  const key = [...lockerStore.data.keys()].find((k) => k.startsWith('john_cornyn/'));
   lockerStore.data.set(key, { ...lockerStore.data.get(key), curator_note: 'keep me' });
   const logs = [];
   await quiet(() => fn.run({ fetch: byUrl({ [CORNYN_URL]: HC_HTML }), store: fakeStore(), lockerStore, now: () => new Date('2026-11-07T12:00:00.000Z'), log: (l) => logs.push(l) }));
-  assert.equal(lockerStore.data.size, 1);
+  assert.equal(strongItems(lockerStore).length, 1);
   assert.equal(lockerStore.data.get(key).curator_note, 'keep me');
   assert.equal(lockerStore.data.get(key).date, '2026-11-07');
   assert.ok(logs.some((l) => l.startsWith('evidence-locker: EXISTS john_cornyn|healthcare_costs')));
   assert.equal(logs.filter((l) => l.startsWith('evidence-locker: WRITE')).length, 0);
+  // A strong item is not replaced by a weaker read of the same page either.
+  const raw = { url: CORNYN_URL, fetched_at: NOW().toISOString(), source_type: 'official Senate issue page', politician_id: 'john_cornyn', topic: 'healthcare_costs', http_status: 200 };
+  const weak = { politician_id: 'john_cornyn', topic: 'healthcare_costs', position: 'support', confidence: 0.4, sources: [{ excerpt: 'We will reduce insurance premiums.', statements: [{}] }] };
+  const r = await locker.maybeWriteLockerItem(weak, raw, { store: lockerStore, gt, log: () => {} });
+  assert.equal(r.written, false);
+  assert.equal(lockerStore.data.get(key).curator_note, 'keep me');
+  assert.equal(lockerStore.data.get(key).confidence, 0.85);
+});
+
+// ── Weak and mention signals → Evidence Locker ──
+const CORNYN_RAW = { url: CORNYN_URL, fetched_at: NOW().toISOString(), source_type: 'official Senate issue page', politician_id: 'john_cornyn', topic: 'healthcare_costs', http_status: 200 };
+const IMPL_HTML = '<html><body><h1>Health Care</h1><p>Make insulin affordable again for every family.</p></body></html>';
+
+await t('a 0.4 clear candidate produces one weak Locker item (fields as before, plus strength)', async () => {
+  const st = lockerFakeStore(); const logs = [];
+  const cand = { politician_id: 'john_cornyn', topic: 'healthcare_costs', position: 'support', confidence: 0.4, confidence_reason: 'r', rules_version: 'v',
+    sources: [{ excerpt: 'We will reduce insurance premiums.', implication_count: 0, statements: [{ kind: 'clear' }] }] };
+  const r = await locker.maybeWriteLockerItem(cand, CORNYN_RAW, { store: st, gt, log: (l) => logs.push(l) });
+  assert.equal(r.written, true, r.reason);
+  assert.equal(st.data.size, 1);
+  const [item] = lockerItems(st);
+  for (const k of REQUIRED) assert.ok(item[k] !== undefined && item[k] !== null && item[k] !== '', 'missing ' + k);
+  assert.equal(item.strength, 'weak');
+  assert.equal(item.confidence, 0.4);
+  assert.ok(!('implication_count' in item), 'no implication count when none present');
+  assert.ok(logs.some((l) => l.startsWith('evidence-locker: WRITE john_cornyn|healthcare_costs') && l.includes('"strength":"weak"')));
+});
+
+await t('an implication-driven 0.4 clear candidate produces one weak item carrying the implication count', async () => {
+  const st = lockerFakeStore(); const logs = [];
+  const cand = { politician_id: 'john_cornyn', topic: 'healthcare_costs', position: 'support', confidence: 0.4, confidence_reason: 'r', rules_version: 'v',
+    sources: [{ excerpt: 'He wrote the law that capped insulin co-pays for seniors.', implication_count: 2, statements: [{ kind: 'implication' }, { kind: 'implication' }] }] };
+  const r = await locker.maybeWriteLockerItem(cand, CORNYN_RAW, { store: st, gt, log: (l) => logs.push(l) });
+  assert.equal(r.written, true, r.reason);
+  assert.equal(st.data.size, 1);
+  const [item] = lockerItems(st);
+  assert.equal(item.strength, 'weak');
+  assert.equal(item.implication_count, 2);
+  const entry = locker.toSpotlightEntry(item);
+  assert.equal(entry.pipeline.implication_count, 2);
+  assert.equal(entry.pipeline.strength, 'weak');
+  assert.ok(logs.some((l) => l.startsWith('evidence-locker: WRITE') && l.includes('"implication_count":2')));
+  // End to end: a real implication-only page (scorer R6, below 0.8) lands as one weak item via the cron.
+  const ls = lockerFakeStore(); const runLogs = [];
+  await quiet(() => fn.run({ fetch: byUrl({ [CORNYN_URL]: IMPL_HTML }), store: fakeStore(), lockerStore: ls, now: NOW, log: (l) => runLogs.push(l) }));
+  const cornyn = lockerItems(ls).filter((i) => i.politician_id === 'john_cornyn');
+  assert.equal(cornyn.length, 1);
+  assert.equal(cornyn[0].strength, 'weak');
+  assert.equal(cornyn[0].position, 'support');
+  assert.ok(cornyn[0].confidence >= 0.3 && cornyn[0].confidence < 0.8, String(cornyn[0].confidence));
+  assert.equal(cornyn[0].implication_count, 1);
+});
+
+await t('a "no clear position" candidate with mentions and an excerpt produces one mention item', async () => {
+  const st = lockerFakeStore(); const logs = [];
+  const cand = { politician_id: 'john_cornyn', topic: 'healthcare_costs', position: 'no clear position', confidence: 0.3, confidence_reason: 'r', rules_version: 'v',
+    sources: [{ excerpt: 'Health care matters to Texas families.', implication_count: 0, statements: [{ kind: 'mention' }] }] };
+  const r = await locker.maybeWriteLockerItem(cand, CORNYN_RAW, { store: st, gt, log: (l) => logs.push(l) });
+  assert.equal(r.written, true, r.reason);
+  assert.equal(st.data.size, 1);
+  const [item] = lockerItems(st);
+  assert.equal(item.strength, 'mention');
+  assert.equal(item.position, 'no clear position');
+  assert.equal(item.excerpt, 'Health care matters to Texas families.');
+  assert.ok(logs.some((l) => l.startsWith('evidence-locker: WRITE') && l.includes('"strength":"mention"')));
+  // End to end: the generic fixture mentions the cost of living → mention items from the cron.
+  const ls = lockerFakeStore();
+  const { value: res } = await quiet(() => fn.run({ fetch: fakeFetch(200, HTML), store: fakeStore(), lockerStore: ls, now: NOW, log: () => {} }));
+  const report = await res.json();
+  const costLiving = core.SOURCES.filter((s) => s.topic === 'cost_living' && locker.isCampaignOrOfficial(s.source_type, s.url)).length;
+  assert.ok(costLiving > 0);
+  assert.equal(lockerItems(ls).length, costLiving, 'one mention item per campaign/official cost-of-living page');
+  assert.ok(report.locker_writes.every((w) => w.strength === 'mention'));
+});
+
+await t('a candidate below 0.3 with no mentions or no excerpt writes nothing, and the skip is logged with a reason', async () => {
+  const cases = [
+    [{ position: 'support', confidence: 0.2, sources: [{ excerpt: 'We will reduce insurance premiums.', statements: [] }] }, /no topic mentions/],
+    [{ position: 'no clear position', confidence: 0, sources: [{ excerpt: null, statements: [] }] }, /no topic mentions/],
+    [{ position: 'support', confidence: 0.1, sources: [{ excerpt: '', statements: [{ kind: 'mention' }] }] }, /no excerpt/],
+    [{ position: 'no clear position', confidence: 0.3, sources: [{ excerpt: null, statements: [{ kind: 'mention' }] }] }, /no excerpt/],
+  ];
+  for (const [c, why] of cases) {
+    const st = lockerFakeStore(); const logs = [];
+    const r = await locker.maybeWriteLockerItem({ politician_id: 'john_cornyn', topic: 'healthcare_costs', ...c }, CORNYN_RAW, { store: st, gt, log: (l) => logs.push(l) });
+    assert.equal(r.written, false, JSON.stringify(c));
+    assert.equal(st.data.size, 0);
+    assert.equal(logs.length, 1);
+    assert.match(logs[0], /^evidence-locker: SKIP john_cornyn\|healthcare_costs — /);
+    assert.match(logs[0], why);
+  }
+});
+
+await t('a weak or mention item is upgraded by a stronger read of the same page, never downgraded', async () => {
+  const st = lockerFakeStore();
+  const mk = (position, confidence) => ({ politician_id: 'john_cornyn', topic: 'healthcare_costs', position, confidence,
+    sources: [{ excerpt: 'We will reduce insurance premiums.', statements: [{ kind: 'mention' }] }] });
+  assert.equal((await locker.maybeWriteLockerItem(mk('no clear position', 0.3), CORNYN_RAW, { store: st, gt, log: () => {} })).written, true);
+  assert.equal((await locker.maybeWriteLockerItem(mk('no clear position', 0.3), CORNYN_RAW, { store: st, gt, log: () => {} })).written, false);
+  assert.equal((await locker.maybeWriteLockerItem(mk('support', 0.5), CORNYN_RAW, { store: st, gt, log: () => {} })).written, true);
+  assert.equal(lockerItems(st)[0].strength, 'weak');
+  assert.equal((await locker.maybeWriteLockerItem(mk('no clear position', 0.3), CORNYN_RAW, { store: st, gt, log: () => {} })).written, false);
+  assert.equal((await locker.maybeWriteLockerItem(mk('support', 0.85), CORNYN_RAW, { store: st, gt, log: () => {} })).written, true);
+  assert.equal(st.data.size, 1);
+  assert.equal(lockerItems(st)[0].strength, 'strong');
+  assert.equal((await locker.maybeWriteLockerItem(mk('support', 0.9), CORNYN_RAW, { store: st, gt, log: () => {} })).written, false, 'strong never overwritten');
+  assert.equal(lockerItems(st)[0].confidence, 0.85);
 });
 
 const LONG_HTML = '<html><body><h1>Issues</h1>' + '<p>Priorities for Texas families and their budgets.</p>'.repeat(8) + '</body></html>';
@@ -358,7 +472,7 @@ await t('the scheduled entry point turns on discovery and Locker writes; the ite
   const lockerStore = lockerFakeStore();
   await quiet(() => fn.run({ fetch: byUrl({ [CORNYN_URL]: HC_HTML }), store: fakeStore(), lockerStore, now: NOW, log: () => {} }));
   const body = await items.listLockerEntries(lockerStore);
-  assert.equal(body.count, 1);
+  assert.equal(body.count, lockerStore.data.size);
   assert.equal(body.items.john_cornyn.length, 1);
   assert.equal(body.items.john_cornyn[0].source.url, CORNYN_URL);
   assert.equal(items.config.path, '/api/evidence-locker/items');

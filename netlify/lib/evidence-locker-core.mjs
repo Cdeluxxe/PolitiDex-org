@@ -1,21 +1,30 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// evidence-locker-core.mjs — Phase 6: high-confidence candidates → Evidence Locker
+// evidence-locker-core.mjs — scored candidates → Evidence Locker
 // ─────────────────────────────────────────────────────────────────────────────
 // After the scorer logs a candidate for a freshly stored raw record, this module
-// decides whether that candidate is good enough to become a FINISHED Evidence
-// Locker item, and if so writes it once to the "evidence-locker" Blobs store.
+// decides whether that candidate becomes an Evidence Locker item, at which
+// STRENGTH, and if so writes it to the "evidence-locker" Blobs store.
+//
+// STRENGTH (same thresholds the profile's strengthOf() reads):
+//   strong   clear position (support/oppose) at confidence ≥ 0.8
+//   weak     clear position at 0.3 ≤ confidence < 0.8 (incl. implication-driven)
+//   mention  confidence < 0.3, or no clear position ("no clear position" /
+//            "mixed"), when the source has topic mentions AND an excerpt
+//   anything else writes nothing.
 //
 // WRITE RULES (all must hold):
-//   W1  The position is clear: "support" or "oppose" ("mixed" and "no clear
-//       position" never write).
-//   W2  Confidence ≥ LOCKER_MIN_CONFIDENCE (0.8).
+//   W1  A strength above applies (see lockerStrength).
+//   W2  An excerpt to show.
 //   W3  Provenance:
-//         · the ground-truth pair (james_talarico | cost_living) writes only
-//           when the candidate's position MATCHES the ground-truth position;
+//         · the ground-truth pair (james_talarico | cost_living) writes a
+//           strong/weak item only when the candidate's position MATCHES the
+//           ground-truth position (a mention carries no position, so it may);
 //         · every other pair writes only when the source is a campaign or
 //           official page (source type says "campaign"/"official", or the link
 //           is on a .gov host).
-//   W4  Never overwrite: an item already at the key is left exactly as it is.
+//   W4  Never overwrite a strong item. A weak or mention item already at the
+//       key is only replaced by a STRONGER read of the same page; same or
+//       weaker reads leave it exactly as it is.
 //
 // The ground-truth record is passed in read-only; this module never writes it.
 // Pure and dependency-injected (store, log) so the test suite runs it without a
@@ -25,10 +34,12 @@ import { createHash } from "node:crypto";
 
 export const LOCKER_STORE_NAME = "evidence-locker";
 export const LOCKER_MIN_CONFIDENCE = 0.8;
-export const LOCKER_ITEM_VERSION = "locker-v1";
+export const LOCKER_WEAK_MIN_CONFIDENCE = 0.3;
+export const LOCKER_ITEM_VERSION = "locker-v2";
 
 const CLEAR_POSITIONS = new Set(["support", "oppose"]);
 const EXCERPT_MAX = 280;
+const STRENGTH_RANK = { mention: 1, weak: 2, strong: 3 };
 
 export const TOPIC_LABELS = {
   cost_living: "the cost of living",
@@ -76,35 +87,69 @@ export function lockerKey({ politician_id, topic, link }) {
   return `${politician_id}/${topic}/${h}.json`;
 }
 
+const numOr = (v, d) => (typeof v === "number" && isFinite(v) ? v : d);
+const isClear = (position) => CLEAR_POSITIONS.has(position);
+
+/** Number of topic statements the scorer recorded for the candidate's source. */
+export function topicMentionCount(candidate) {
+  const src = candidate?.sources?.[0] || {};
+  return Array.isArray(src.statements) ? src.statements.length : 0;
+}
+
+/**
+ * The strength a candidate would be stored at, or null with a reason.
+ * Returns { strength: 'strong'|'weak'|'mention'|null, reason }.
+ */
+export function lockerStrength(candidate) {
+  const c = numOr(candidate?.confidence, 0);
+  const clear = isClear(candidate?.position);
+  if (clear && c >= LOCKER_MIN_CONFIDENCE) return { strength: "strong", reason: `clear ${candidate.position} at confidence ${c} ≥ ${LOCKER_MIN_CONFIDENCE}` };
+  if (clear && c >= LOCKER_WEAK_MIN_CONFIDENCE) return { strength: "weak", reason: `clear ${candidate.position} at confidence ${c} (${LOCKER_WEAK_MIN_CONFIDENCE}–${LOCKER_MIN_CONFIDENCE})` };
+  const why = clear ? `confidence ${c} < ${LOCKER_WEAK_MIN_CONFIDENCE}` : `position "${candidate?.position}" is not clear`;
+  const mentions = topicMentionCount(candidate);
+  const excerpt = String(candidate?.sources?.[0]?.excerpt || "").trim();
+  if (!mentions) return { strength: null, reason: `${why} and no topic mentions` };
+  if (!excerpt) return { strength: null, reason: `${why} and no excerpt to show` };
+  return { strength: "mention", reason: `${why}; ${mentions} topic mention(s) with an excerpt` };
+}
+
+/** Strength of an item already in the Locker (older items carry no field). */
+export function storedStrength(item) {
+  if (!item) return null;
+  if (STRENGTH_RANK[item.strength]) return item.strength;
+  const clear = isClear(item.position);
+  const c = numOr(item.confidence, null);
+  if (clear && (c === null || c >= LOCKER_MIN_CONFIDENCE)) return "strong";
+  if (clear && c >= LOCKER_WEAK_MIN_CONFIDENCE) return "weak";
+  return "mention";
+}
+
 /**
  * Should this candidate become a Locker item?
- * `gt` is the ground-truth record (or null). Returns { write, reason }.
+ * `gt` is the ground-truth record (or null). Returns { write, strength?, reason }.
  */
 export function lockerDecision(candidate, raw, gt = null) {
   if (!candidate) return { write: false, reason: "no candidate" };
-  if (!CLEAR_POSITIONS.has(candidate.position)) {
-    return { write: false, reason: `position "${candidate.position}" is not clear` };
-  }
-  if (!(candidate.confidence >= LOCKER_MIN_CONFIDENCE)) {
-    return { write: false, reason: `confidence ${candidate.confidence} < ${LOCKER_MIN_CONFIDENCE}` };
-  }
+  const { strength, reason } = lockerStrength(candidate);
+  if (!strength) return { write: false, reason };
   const src = candidate.sources?.[0] || {};
-  if (!src.excerpt) return { write: false, reason: "no excerpt to show" };
+  if (!String(src.excerpt || "").trim()) return { write: false, reason: "no excerpt to show" };
   const isGtPair = gt && candidate.politician_id === gt.politician_id && candidate.topic === gt.topic;
   if (isGtPair) {
+    if (strength === "mention") return { write: true, strength, reason: `${reason}; ground-truth pair, mention carries no position` };
     return candidate.position === gt.position
-      ? { write: true, reason: `matches ground-truth position (${gt.position})` }
+      ? { write: true, strength, reason: `${reason}; matches ground-truth position (${gt.position})` }
       : { write: false, reason: `position ${candidate.position} does not match ground truth (${gt.position})` };
   }
   const link = raw?.final_url || raw?.url || src.link;
   if (!isCampaignOrOfficial(raw?.source_type ?? src.type, link)) {
     return { write: false, reason: `source "${raw?.source_type ?? src.type}" is not a campaign/official page` };
   }
-  return { write: true, reason: `confidence ≥ ${LOCKER_MIN_CONFIDENCE} on a campaign/official page` };
+  return { write: true, strength, reason: `${reason} on a campaign/official page` };
 }
 
 /** The finished Locker item for a candidate + the raw record it came from. */
-export function buildLockerItem(candidate, raw) {
+export function buildLockerItem(candidate, raw, strength = lockerStrength(candidate).strength) {
   const src = candidate.sources?.[0] || {};
   const link = raw?.final_url || raw?.url || src.link;
   const source_type = raw?.source_type ?? src.type;
@@ -119,6 +164,8 @@ export function buildLockerItem(candidate, raw) {
     excerpt: trimExcerpt(src.excerpt),
     date,
     attribution: attributionFor(source_type, link),
+    strength,
+    ...(numOr(src.implication_count, 0) > 0 ? { implication_count: src.implication_count } : {}),
     // Provenance — how this item was made, for audit.
     link_status: raw?.http_status ?? null,
     confidence_reason: candidate.confidence_reason,
@@ -165,6 +212,8 @@ export function toSpotlightEntry(item) {
       attribution: item.attribution,
       rules_version: item.rules_version,
       captured: item.date,
+      ...(item.strength ? { strength: item.strength } : {}),
+      ...(item.implication_count ? { implication_count: item.implication_count } : {}),
     },
   };
 }
@@ -182,12 +231,21 @@ export async function maybeWriteLockerItem(candidate, raw, { store, gt = null, l
       log(`evidence-locker: SKIP ${id} — ${d.reason}`);
       return { written: false, reason: d.reason };
     }
-    const item = buildLockerItem(candidate, raw);
+    const item = buildLockerItem(candidate, raw, d.strength);
     const key = lockerKey(item);
     const existing = await store.get(key, { type: "json" });
+    const fields = () => JSON.stringify({ strength: item.strength, position: item.position, confidence: item.confidence, ...(item.implication_count ? { implication_count: item.implication_count } : {}), link: item.link, attribution: item.attribution, reason: d.reason });
     if (existing) {
-      log(`evidence-locker: EXISTS ${id} → ${LOCKER_STORE_NAME}/${key} — left unchanged`);
-      return { written: false, key, reason: "already in locker" };
+      const was = storedStrength(existing);
+      if (STRENGTH_RANK[item.strength] <= STRENGTH_RANK[was]) {
+        log(`evidence-locker: EXISTS ${id} → ${LOCKER_STORE_NAME}/${key} — ${was} item left unchanged (new read is ${item.strength})`);
+        return { written: false, key, reason: "already in locker" };
+      }
+      // A weaker item is upgraded to a stronger read of the same page; a strong
+      // item never reaches here.
+      await store.setJSON(key, item);
+      log(`evidence-locker: WRITE ${id} → ${LOCKER_STORE_NAME}/${key} (upgrade ${was} → ${item.strength}) ${fields()}`);
+      return { written: true, key, item, reason: d.reason, upgraded_from: was };
     }
     // onlyIfNew guards the get→set race between overlapping runs.
     const res = await store.setJSON(key, item, { onlyIfNew: true });
@@ -195,7 +253,7 @@ export async function maybeWriteLockerItem(candidate, raw, { store, gt = null, l
       log(`evidence-locker: EXISTS ${id} → ${LOCKER_STORE_NAME}/${key} — left unchanged`);
       return { written: false, key, reason: "already in locker" };
     }
-    log(`evidence-locker: WRITE ${id} → ${LOCKER_STORE_NAME}/${key} ${JSON.stringify({ position: item.position, confidence: item.confidence, link: item.link, attribution: item.attribution, reason: d.reason })}`);
+    log(`evidence-locker: WRITE ${id} → ${LOCKER_STORE_NAME}/${key} ${fields()}`);
     return { written: true, key, item, reason: d.reason };
   } catch (e) {
     log(`evidence-locker: ERROR ${id} — ${e?.message || e}`);

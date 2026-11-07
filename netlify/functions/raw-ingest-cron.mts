@@ -19,10 +19,13 @@
 //     known URL checked (issues index / newsroom; DISCOVERY_PATTERNS). New
 //     stable pages join this run's pull list, total capped at
 //     MAX_SOURCES_PER_RUN (11, i.e. under 12). Every new URL is logged.
-//   · EVIDENCE LOCKER — after a candidate is logged, a clear position at
-//     confidence ≥ 0.8 becomes a finished item in the "evidence-locker" Blobs
-//     store (ground-truth pair: must match the ground-truth position; anything
-//     else: campaign/official page only). Write-once; every write is logged.
+//   · EVIDENCE LOCKER — after a candidate is logged, it becomes an item in the
+//     "evidence-locker" Blobs store at one of three strengths: strong (clear
+//     position, confidence ≥ 0.8), weak (clear, 0.3–0.79, incl. implication-
+//     driven reads) or mention (< 0.3 or no clear position, with topic mentions
+//     and an excerpt). Ground-truth pair: a clear read must match the
+//     ground-truth position; anything else: campaign/official page only. A
+//     strong item is never overwritten; every write and skip is logged.
 //     The ground-truth file is imported read-only and never written.
 
 import type { Config } from "@netlify/functions";
@@ -53,14 +56,21 @@ export async function run(deps: {
   const gt = deps.groundTruth ?? groundTruth;
   const onRecord = async (rec: any) => {
     const candidate = logCandidateStance(rec, { log });
-    if (!deps.lockerStore || !candidate) return;
+    if (!deps.lockerStore) return;
+    if (!candidate) {
+      log(`evidence-locker: SKIP ${rec?.politician_id}|${rec?.topic}${rec?.source_id ? "|" + rec.source_id : ""} — no scored candidate`);
+      return;
+    }
     const w = await maybeWriteLockerItem(candidate, rec, { store: deps.lockerStore, gt, log });
-    if (w.written) lockerWrites.push({ key: w.key, politician_id: candidate.politician_id, topic: candidate.topic });
+    if (w.written) lockerWrites.push({ key: w.key, politician_id: candidate.politician_id, topic: candidate.topic, strength: w.item?.strength });
   };
   const report: any = await runRawIngest({ ...deps, onRecord }, sources);
   report.discovered = discovered.map((s: any) => ({ politician_id: s.politician_id, topic: s.topic, url: s.url }));
   report.locker_writes = lockerWrites;
-  if (deps.lockerStore) log(`evidence-locker: run complete — ${lockerWrites.length} new item(s) written`);
+  if (deps.lockerStore) {
+    const by = (s: string) => lockerWrites.filter((w) => w.strength === s).length;
+    log(`evidence-locker: run complete — ${lockerWrites.length} new item(s) written (${by("strong")} strong, ${by("weak")} weak, ${by("mention")} mention)`);
+  }
   const okCount = report.results.filter((r: any) => r.ok).length;
   // 200 all sources stored · 207 some failed (the rest still stored) · 502 none stored
   const status = report.ok ? 200 : okCount > 0 ? 207 : 502;
