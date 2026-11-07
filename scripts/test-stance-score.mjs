@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// test-stance-score.mjs — Phase 4 scoring rules against the ground truth.
+// test-stance-score.mjs — Phase 4 scoring rules against the ground truth (+ Phase 7 R6 implication layer).
 // Feeds the scoring module a raw ingest record shaped like the Talarico
 // "Taxes & Cost of Living" campaign page and checks the candidate against the
 // ground-truth record: position must match; confidence must be within 0.1 (the
@@ -249,6 +249,91 @@ await t('Talarico ground-truth match is unchanged: support 0.85, Δ 0.00', () =>
   assert.equal(r.candidate.confidence, 0.85);
   assert.equal(gt.position, 'support'); assert.equal(gt.confidence, 0.85);
   assert.equal(r.comparison.delta, 0);
+});
+
+// ── Phase 7: hard implication layer (R6) ──
+const speech = (body, over = {}) => S.scoreRawRecord({ ...RAW, source_type: 'speech (town hall remarks)', body, ...over });
+
+await t('R6: problem + remedy language with the politician as actor is a medium-weight directional signal', () => {
+  for (const [text, topic] of [
+    ['I am going to cap credit card rates for working families.', 'cost_living'],
+    ['We have to freeze rent hikes and crack down on junk fees.', 'cost_living'],
+    ['Make insulin affordable again for every family.', 'healthcare_costs'],
+  ]) {
+    const c = speech(`<p>${text}</p>`, { topic });
+    const [st] = c.sources[0].statements;
+    assert.equal(st.kind, 'implication', text);
+    assert.equal(st.implication, 'remedy');
+    assert.equal(st.side, 'support');
+    assert.equal(st.weight, S.WEIGHTS.implication);
+    assert.equal(S.WEIGHTS.implication, S.WEIGHTS.medium, 'implication is medium weight');
+    assert.ok(st.weight < S.WEIGHTS.high, 'explicit statements in a speech stay heavier');
+    assert.equal(c.position, 'support');
+    assert.equal(c.confidence, S.WEIGHTS.baseConfidence.implication);
+    assert.match(c.confidence_reason, /1 implication\(s\) for support/);
+    assert.match(c.sources[0].note, /1 implication\(s\)/);
+    assert.equal(c.sources[0].implication_count, 1);
+  }
+  const opp = speech('<p>We should repeal the price caps on credit cards.</p>');
+  assert.equal(opp.sources[0].statements[0].side, 'oppose');
+  assert.equal(opp.position, 'oppose');
+  // Someone else's remedy is not the speaker's implication.
+  const third = speech('<p>They want to cap credit card rates only for their friends.</p>').sources[0].statements[0];
+  assert.equal(third.kind, 'mention'); assert.equal(third.weight, 0); assert.equal(third.attributed_to, 'third');
+});
+
+await t('R6: repeatedly highlighted outcomes count; a single one stays a mention', () => {
+  const rep = speech('<p>Rent is too high in Austin.</p><p>Families can’t afford groceries anymore.</p>');
+  assert.ok(rep.sources[0].statements.every((s) => s.kind === 'implication' && s.implication === 'outcome' && s.side === 'support'));
+  assert.equal(rep.position, 'support');
+  const once = speech('<p>Rent is too high in Austin.</p>');
+  assert.equal(once.sources[0].statements[0].kind, 'mention');
+  assert.equal(once.sources[0].statements[0].weight, 0);
+  assert.equal(once.position, 'no clear position');
+  // Rhetorical questions name a problem but not a wanted change.
+  const q = speech('<p>Why is rent so expensive?</p><p>Can you afford groceries? Are prices too high?</p>');
+  assert.ok(q.sources[0].statements.every((s) => s.kind === 'mention'));
+});
+
+await t('R6 + R4: three consistent implications raise confidence above a single explicit statement', () => {
+  const single = speech('<p>We will cut taxes for working families.</p>');
+  assert.equal(single.sources[0].statements[0].kind, 'clear');
+  assert.equal(single.sources[0].statements[0].weight, S.WEIGHTS.high, 'explicit stays high weight');
+  assert.equal(single.confidence, S.WEIGHTS.baseConfidence.high);
+  const three = speech('<p>Cap credit card rates.</p><p>Freeze rent hikes for seniors.</p><p>Crack down on junk fees.</p>');
+  const imps = three.sources[0].statements.filter((s) => s.kind === 'implication');
+  assert.equal(imps.length, 3);
+  assert.equal(three.position, 'support');
+  assert.ok(three.confidence > single.confidence, `${three.confidence} should exceed ${single.confidence}`);
+  assert.match(three.confidence_reason, /3 implication\(s\) for support.*\(R4\)/);
+  // Implications and explicit statements corroborate each other.
+  const both = speech('<p>We will cut taxes for working families.</p><p>Cap credit card rates.</p><p>Freeze rent hikes.</p>');
+  assert.equal(both.confidence, Math.round((S.WEIGHTS.baseConfidence.high + S.WEIGHTS.corroborationBonus) * 100) / 100);
+  assert.match(both.confidence_reason, /1 clear high-weight statement\(s\) for support; 2 implication\(s\)/);
+  // An opposite implication is an outlier (R5): lowers confidence, no flip.
+  const out = speech('<p>Cap credit card rates.</p><p>Freeze rent hikes.</p><p>Crack down on junk fees.</p><p>Repeal the rate caps.</p>');
+  assert.equal(out.position, 'support');
+  assert.ok(out.confidence < three.confidence);
+});
+
+await t('R3: a pure mention with no direction stays zero weight', () => {
+  for (const text of ['Grocery prices came up a lot at the town hall.', 'We talked about housing and childcare tonight.']) {
+    const c = speech(`<p>${text}</p>`);
+    const [st] = c.sources[0].statements;
+    assert.equal(st.kind, 'mention', text);
+    assert.equal(st.weight, 0);
+    assert.equal(c.position, 'no clear position');
+    assert.equal(c.sources[0].implication_count, 0);
+  }
+});
+
+await t('Phase 7: Talarico ground-truth match stays support 0.85 with no implications added', () => {
+  const r = S.scoreAgainstGroundTruth(RAW, gt, { log: () => {} });
+  assert.equal(r.candidate.position, 'support');
+  assert.equal(r.candidate.confidence, 0.85);
+  assert.equal(r.comparison.delta, 0);
+  assert.equal(r.candidate.rules_version, 'phase7-v1');
+  assert.match(r.candidate.confidence_reason, /implication\(s\)/);
 });
 
 await t('ground-truth file is unchanged', () => assert.equal(sha(gtPath), GT_SHA256));
