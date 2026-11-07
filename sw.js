@@ -11663,7 +11663,19 @@
 //     or other stored reader state is written or rewritten, so nothing is
 //     migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v527';
+// v528 - PIPELINE RECEIPTS IN THE EVIDENCE LOCKER.
+//     spotlight-cards-data.js (a runtime entry) now fetches
+//     /api/evidence-locker/items once and folds the finished, high-confidence
+//     items the raw-ingest cron writes (clear position, confidence >= 0.8,
+//     campaign/official page) into SPOTLIGHT_DATA, so they pass the same
+//     admission gate and render on the same cards as every other receipt.
+//     evidence-locker.js gains a listener that rebuilds an already-built
+//     library when they land; it is precached and changed, so the shell moves
+//     one version; the precache list is unchanged. The new /api/ route is
+//     network-only like every /api/* request. No stored reader state is
+//     written or rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v528';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

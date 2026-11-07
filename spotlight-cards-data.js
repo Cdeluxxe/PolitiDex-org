@@ -674,3 +674,38 @@ Object.assign((window.SPOTLIGHT_DATA = window.SPOTLIGHT_DATA || {}),
           ],
         }
 );
+
+// ── Pipeline receipts ────────────────────────────────────────────────────────
+// The raw-ingest cron writes finished, high-confidence Evidence Locker items
+// (clear position, confidence >= 0.8, campaign/official page) to its own store;
+// /api/evidence-locker/items serves them already in the entry shape above. They
+// are folded into SPOTLIGHT_DATA (never replacing a curated row with the same
+// headline) and 'pdx-spotlight-data-updated' is fired so an already-built
+// Evidence Locker rebuilds. Fetched once; a failure changes nothing.
+(function () {
+  if (typeof fetch !== 'function' || typeof document === 'undefined' || window._pdxPipelineSpotlight) return;
+  window._pdxPipelineSpotlight = true;
+  fetch('/api/evidence-locker/items', { headers: { accept: 'application/json' } })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (body) {
+      var items = body && body.items;
+      if (!items || !body.count) return;
+      var SD = (window.SPOTLIGHT_DATA = window.SPOTLIGHT_DATA || {});
+      var added = 0;
+      Object.keys(items).forEach(function (pid) {
+        if (!Array.isArray(items[pid])) return;
+        var list = SD[pid] || (SD[pid] = []);
+        var have = {};
+        list.forEach(function (it) { if (it && it.headline) have[String(it.headline).toLowerCase()] = 1; });
+        items[pid].forEach(function (it) {
+          var h = it && it.headline && String(it.headline).toLowerCase();
+          if (!h || have[h]) return;
+          have[h] = 1; list.push(it); added++;
+        });
+      });
+      if (added) {
+        try { document.dispatchEvent(new CustomEvent('pdx-spotlight-data-updated', { detail: { added: added } })); } catch (e) {}
+      }
+    })
+    .catch(function () {});
+})();
