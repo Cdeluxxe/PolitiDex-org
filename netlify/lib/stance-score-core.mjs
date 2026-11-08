@@ -28,6 +28,16 @@
 //       Implications count toward R4 corroboration alongside explicit
 //       statements and toward R5 outliers; they never carry reversal power.
 //       Explicit statements keep their tier weight (HIGH in speeches/remarks).
+//   R7  Nearby implication: a pure mention that names a problem ("families are
+//       struggling with grocery bills") followed within the next
+//       WEIGHTS.pairWindow sentences by a direction or remedy from the same
+//       speaker ("So we will fight to change that.") is scored as ONE
+//       medium-weight implication (support: the speaker wants the problem
+//       fixed). The direction sentence is folded into the pair, never counted
+//       twice. Only when that sentence is not already directional on the topic
+//       (then it counts on its own, as before), is not a question, is not
+//       negated and is not attributed to someone else. An isolated mention
+//       stays zero weight (R3).
 //
 
 // Calibration: the ground truth (0.85) rests on first-party campaign pages
@@ -48,6 +58,7 @@ export const WEIGHTS = {
   zero: 0,                // R3
   implication: 0.5,       // R6: medium-weight directional signal
   outcomeRepeatMin: 2,    // R6(b): outcome highlights count only when repeated
+  pairWindow: 2,          // R7: a direction this many sentences after a problem mention
   baseConfidence: { high: 0.8, medium: 0.7, implication: 0.7 },
   corroborationMin: 3,    // R4: this many consistent clear statements…
   corroborationBonus: 0.15, // …add this much
@@ -291,6 +302,32 @@ export function classify(sentence, topic, politicianId = null) {
   return { kind: null, side: null, reversal: false, actor: null };
 }
 
+// ── R7: a problem mention + a nearby direction from the same speaker ────────
+// Problem framing on the mention sentence: the topic's own outcome rule, or
+// common hardship language. Only topics with an outcome rule pair (that rule is
+// what fixes the side: support = the speaker wants the problem changed).
+const PROBLEM_CUE = /\b(?:struggl\w*|hurting|falling behind|can(?:no|'|’)?t keep up|stretched (?:thin|to the limit)|squeez\w*|burden\w*|crisis|paying more|feel(?:ing)? the pinch|getting harder|harder (?:and harder )?to|making ends meet|paycheck to paycheck|too many (?:families|people|Texans|Americans|workers|seniors))\b/i;
+// A direction from the speaker: a first-person commitment, "that's why I/we",
+// "let's …" or "it's time to …". Negated commitments do not count.
+const DIRECTION_CUE = /\b(?:(?:I|we)\s+(?:will|must|should|need to|have to|am going to|are going to|plan to|intend to|promise to|pledge to|am committed to|are committed to|am fighting|are fighting|fight|can)|(?:I|we)['’](?:ll|m going to|re going to|m fighting|re fighting))\b(?!\s+(?:not|never)\b)|\b(?:that['’]s why|this is why|which is why)\s+(?:I|we)\b|\blet['’]s\s+(?!not\b)\w+|\bit['’]s time (?:to|for)\b/i;
+
+/** Is `sentence` a direction/remedy from the page's own speaker? (R7) */
+export function nearbyDirection(sentence, politicianId = null) {
+  if (/\?\s*$/.test(sentence)) return false;
+  const m = DIRECTION_CUE.exec(sentence);
+  if (!m) return false;
+  return actorFor(sentence.slice(0, m.index), politicianId).kind === "self";
+}
+
+/** Does this mention sentence frame a problem the topic's outcome rule gives a side to? (R7) */
+export function namesProblem(sentence, topic) {
+  const r = TOPIC_RULES[topic];
+  if (!r?.outcome || /\?\s*$/.test(sentence)) return false;
+  return r.outcome.test(sentence) || PROBLEM_CUE.test(sentence);
+}
+
+const trunc = (t) => (t.length > 300 ? t.slice(0, 297) + "…" : t);
+
 const round2 = (n) => Math.round(n * 100) / 100;
 const clamp = (n) => Math.max(0, Math.min(WEIGHTS.maxConfidence, n));
 
@@ -304,13 +341,18 @@ export function scoreRawRecord(raw, topic = raw?.topic, sentences = null) {
     if (!(k in (raw || {}))) throw new Error(`raw record missing ${k}`);
   }
   const tier = tierFor(raw.source_type);
-  const statements = [];
+  let statements = [];
   // `sentences` lets scoreAllTopics parse the page once for every topic.
-  for (const text of sentences || extractSentences(raw.body)) {
+  const list = sentences || extractSentences(raw.body);
+  const at = new Map(); // sentence index → its statement (R7 pairing)
+  for (let i = 0; i < list.length; i++) {
+    const text = list[i];
     const c = classify(text, topic, raw.politician_id);
     if (!c.kind) continue;
+    at.set(i, statements.length);
     statements.push({
-      text: text.length > 300 ? text.slice(0, 297) + "…" : text,
+      _i: i,
+      text: trunc(text),
       kind: c.kind,
       side: c.side,
       reversal: c.reversal,
@@ -324,6 +366,25 @@ export function scoreRawRecord(raw, topic = raw?.topic, sentences = null) {
   if (outcomes.length < WEIGHTS.outcomeRepeatMin) {
     for (const s of outcomes) { s.kind = "mention"; s.side = null; s.weight = WEIGHTS.zero; delete s.implication; }
   }
+  // R7: a problem mention + a direction within the next pairWindow sentences
+  // from the same speaker → one medium-weight implication.
+  const folded = new Set();
+  for (const s of statements) {
+    if (s.kind !== "mention" || s.attributed_to || folded.has(s._i) || !namesProblem(list[s._i], topic)) continue;
+    for (let j = s._i + 1; j <= s._i + WEIGHTS.pairWindow && j < list.length; j++) {
+      const other = at.has(j) ? statements[at.get(j)] : null;
+      if (other && (other.kind === "clear" || other.kind === "implication")) break; // already counts on its own
+      if (folded.has(j) || other?.attributed_to) continue;
+      if (!nearbyDirection(list[j], raw.politician_id)) continue;
+      s.kind = "implication"; s.implication = "nearby"; s.side = "support"; s.weight = WEIGHTS.implication;
+      s.text = trunc(`${list[s._i]} ${list[j]}`);
+      s.paired_with = trunc(list[j]);
+      folded.add(s._i); folded.add(j);
+      break;
+    }
+  }
+  statements = statements.filter((s) => !(s.kind === "mention" && folded.has(s._i)));
+  for (const s of statements) delete s._i;
   const clear = statements.filter((s) => s.kind === "clear");
   const implied = statements.filter((s) => s.kind === "implication");
   const mentions = statements.length - clear.length - implied.length;
