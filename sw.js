@@ -11769,7 +11769,22 @@
 //     version; the precache list is unchanged. No location key or other
 //     stored reader state is written or rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v534';
+// v535 - PROMOTED LOCKER STANCES ON EVERY STANCE SURFACE.
+//     stance-tree.js (precached): All Issues by Topic now files every issue with
+//     a promoted Evidence Locker stance as a real leaf under its topic (keys
+//     with no topic stay in the Locker section), with a pipeline-marked Said
+//     slot, and the tree header counts those leaves and stated positions.
+//     profile-locker.js (the person-profile script, a runtime entry): the Evidence tab card a promoted stance
+//     fills drops its "Stance not yet written" badge, and the top section's
+//     promoted rows are re-skinned to the same shared "Said:" line every other
+//     surface prints (word-action.js itself is unchanged), so the wording and
+//     strength label match everywhere. app.css (precached): the badge's
+//     pipeline-sourced replacement. Curated stances still win; mentions
+//     never promote; no cron, scorer or Sunlight Governance change. Precached
+//     shell files changed, so the shell moves one version; the precache list is
+//     unchanged. No stored reader state is written, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v535';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

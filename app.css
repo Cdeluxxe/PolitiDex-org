@@ -3180,6 +3180,7 @@
     .evd-card.evd-has   { border-left-color: rgba(159,219,208,0.55); }
     .evd-card.evd-gap   { border-left-color: rgba(167,139,250,0.6); }
     .evd-card.evd-thin  { border-left-color: rgba(159,180,212,0.35); }
+    .evd-card.evd-said  { border-left-color: rgba(245,200,66,0.5); }
 
     .evd-head {
       display: flex; align-items: center; gap: 0.45rem;
@@ -3199,6 +3200,7 @@
     .evd-read.evd-has   { background: rgba(159,219,208,0.12); color: #9fdbd0; border-color: rgba(159,219,208,0.3); }
     .evd-read.evd-gap   { background: rgba(139,92,246,0.16); color: #c4b5fd; border-color: rgba(167,139,250,0.36); }
     .evd-read.evd-thin  { background: rgba(159,180,212,0.12); color: #9fb4d4; border-color: rgba(159,180,212,0.26); }
+    .evd-read.evd-said  { background: rgba(245,200,66,0.12); color: #f5c842; border-color: rgba(245,200,66,0.34); }
 
     /* Per-issue deep link into the Evidence Locker, pre-filtered to this
        official + issue. Sits under the lanes; only shown when on-record items

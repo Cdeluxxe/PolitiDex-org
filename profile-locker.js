@@ -490,15 +490,18 @@
   }
   // One "Said:" line, the same in every surface; `opts.issue` prefixes the
   // issue name (for lists that are not already under an issue heading).
+  // `opts.bare` drops the data attributes, for a host element (the top
+  // section's row) that already carries them, so one stance is one marked node.
   function saidLineHtml(ps, tag, cls, opts) {
     if (!ps) return '';
     opts = opts || {};
     tag = tag || 'div';
     return '<' + tag + ' class="pdx-locker-said' + (cls ? ' ' + cls : '') + '"' +
+      (opts.bare ? '' :
       ' data-pdx-locker-said="' + esc(ps.key) + '"' +
       ' data-pdx-locker-said-side="' + esc(ps.side) + '"' +
       ' data-pdx-locker-said-strength="' + esc(ps.strength) + '"' +
-      ' data-pdx-stance-source="pipeline"' +
+      ' data-pdx-stance-source="pipeline"') +
       ' style="' + (opts.style || 'margin:0.2rem 0;') + 'font-size:0.74rem;line-height:1.45;color:#c9d6ea;">' +
       (opts.issue ? '<span style="color:#cbd9ec;">' + esc(issueLabel(ps.key)) + ' — </span>' : '') +
       '<b class="pdx-locker-said-lb">' + esc(SAID_LABEL) + '</b> ' +
@@ -801,9 +804,17 @@
       if (end === -1) { rest[ps.key] = ps; return; }
       end += 4;
       html = html.slice(0, from) + saidLineHtml(ps, 'div', 'evd-locker-said', { style: 'margin:0.15rem 0;' }) + html.slice(end);
+      // The card no longer lacks a stance, so its "◆ Stance not yet written"
+      // read badge (and the gap rail) give way to a pipeline-sourced one.
+      var head = html.slice(start, lane);
+      var fixed = head
+        .replace(/class="evd-card evd-gap"/, 'class="evd-card evd-said"')
+        .replace(/<span class="evd-read evd-gap">[^<]*<\/span>/, EVD_READ_SAID);
+      if (fixed !== head) html = html.slice(0, start) + fixed + html.slice(lane);
     });
     return { html: html, rest: rest };
   }
+  var EVD_READ_SAID = '<span class="evd-read evd-said" data-evd-read="pipeline" title="' + esc(PROMO_TITLE) + '">📂 Stance read from the Locker</span>';
   function evdSaidRestHtml(rest) {
     var keys = Object.keys(rest || {});
     if (!keys.length) return '';
@@ -900,6 +911,15 @@
       w.__pdxLocker = true;
       WA.sectionHtml = w;
     }
+    if (WA && typeof WA.saidBriefHtml === 'function' && !WA.saidBriefHtml.__pdxLocker) {
+      var origSB = WA.saidBriefHtml;
+      var sb = function (pid) {
+        var h = origSB.apply(this, arguments);
+        try { return decorateTopRows(h, pid); } catch (e) { return h; }
+      };
+      sb.__pdxLocker = true;
+      WA.saidBriefHtml = sb;
+    }
     var RC = window._renderEvidenceConnections;
     if (typeof RC === 'function' && !RC.__pdxLocker) {
       var e = function (id) {
@@ -966,6 +986,7 @@
     var r = ingest(body);
     if (!r.added) return r;
     try { wrap(); } catch (e) {}
+    try { watchTop(); } catch (e) {}
     try { if (typeof window.PDXDataChanged === 'function') window.PDXDataChanged(); } catch (e) {}
     try { document.dispatchEvent(new CustomEvent('pdx-spotlight-data-updated', { detail: { added: r.added } })); } catch (e) {}
     try { document.dispatchEvent(new CustomEvent('pdx-locker-items', { detail: { added: r.added, pids: r.pids } })); } catch (e) {}
@@ -1000,6 +1021,7 @@
     REVIEWED_LABEL: REVIEWED_LABEL, reviewOf: reviewOf, reviewedHtml: reviewedHtml,
     PROMOTE_WEAK_N: PROMOTE_WEAK_N, PROMO_TAG: PROMO_TAG, PROMO_STRONG_BADGE: PROMO_STRONG_BADGE,
     promotedStance: promotedStance, promotedStances: promotedStances, saidLineHtml: saidLineHtml,
+    decorateTopRows: decorateTopRows, decorateTopDom: decorateTopDom,
     curatedOn: curatedOn, decorateStanceLanes: decorateStanceLanes,
     // Test seam: forget everything ingested (does not touch SPOTLIGHT_DATA).
     _reset: function () { byPid = {}; loading = null; }
@@ -1037,6 +1059,70 @@
       });
     } catch (e) { return []; }
   };
+
+  // ── ✒️ The top section's "Said" rows ─────────────────────────────────────
+  // word-action.js prints a promoted row's bar as its own chips (side, lane tag,
+  // strength). That file is a twin-boot engine and is not edited, so the bar is
+  // swapped here for the lane tag plus the shared "Said:" line, word for word
+  // what the tree, the Evidence tab and Word vs Action print. Two seams: the
+  // exported saidBriefHtml (string callers) and, on the live page, the mounted
+  // rows (the hero mounts and repaints through innerHTML inside word-action.js).
+  var TOP_BAR = '<span class="pdxwa-shape-bar">';
+  var TOP_TAG_RE = /<span class="pdxwa-said-tag pdxwa-said-tag-pipeline"[^>]*>[^<]*<\/span>/;
+  function topLineHtml(pid, key, side) {
+    var ps = promotedStance(pid, key);
+    if (!ps || (side && ps.side !== side)) return '';
+    return saidLineHtml(ps, 'span', 'pdxwa-said-line', { bare: true, style: 'display:inline;margin:0;' });
+  }
+  function decorateTopRows(html, pid) {
+    if (!html || html.indexOf('data-pdx-locker-said="') === -1) return html;
+    var re = /<li class="pdxwa-shape-row pdxwa-said-row"[^>]*data-pdx-locker-said="([^"]+)" data-pdx-locker-said-side="([^"]*)"[^>]*>/g;
+    var out = '', last = 0, m;
+    while ((m = re.exec(html))) {
+      var rowEnd = html.indexOf('</li>', re.lastIndex);
+      var bar = html.indexOf(TOP_BAR, re.lastIndex);
+      if (rowEnd === -1 || bar === -1 || bar > rowEnd) continue;
+      var st = html.indexOf('class="pdxwa-said-strength', bar);
+      var stEnd = st === -1 ? -1 : html.indexOf('</span>', st);
+      var barEnd = stEnd === -1 ? -1 : html.indexOf('</span>', stEnd + 7);
+      if (barEnd === -1 || barEnd > rowEnd) continue;
+      var inner = html.slice(bar + TOP_BAR.length, barEnd);
+      var line = topLineHtml(pid, m[1], m[2]);
+      var tag = (inner.match(TOP_TAG_RE) || [''])[0];
+      if (!line) continue;
+      out += html.slice(last, bar + TOP_BAR.length) + tag + line;
+      last = barEnd;
+    }
+    return last ? out + html.slice(last) : html;
+  }
+  function decorateTopDom(root) {
+    try {
+      var rows = (root || document).querySelectorAll('li.pdxwa-said-row[data-pdx-locker-said]:not([data-pdx-locker-line])');
+      for (var i = 0; i < rows.length; i++) {
+        var li = rows[i];
+        li.setAttribute('data-pdx-locker-line', '1');
+        var bar = li.querySelector('.pdxwa-shape-bar');
+        if (!bar || bar.querySelector('.pdx-locker-said')) continue;
+        var door = li.querySelector('[data-pdxst-pid]');
+        var pid = (door && door.getAttribute('data-pdxst-pid')) || String(window._pdxCurrentProfileId || '');
+        var line = topLineHtml(pid, li.getAttribute('data-pdx-locker-said'), li.getAttribute('data-pdx-locker-said-side'));
+        if (!line) continue;
+        var tag = bar.querySelector('.pdxwa-said-tag-pipeline');
+        bar.innerHTML = (tag ? tag.outerHTML : '') + line;
+      }
+    } catch (e) {}
+  }
+  var topObs = null;
+  function watchTop() {
+    if (topObs || typeof MutationObserver !== 'function' || typeof document === 'undefined' || !document.documentElement) return;
+    try {
+      topObs = new MutationObserver(function () {
+        if (document.querySelector('li.pdxwa-said-row[data-pdx-locker-said]:not([data-pdx-locker-line])')) decorateTopDom(document);
+      });
+      topObs.observe(document.documentElement, { childList: true, subtree: true });
+      decorateTopDom(document);
+    } catch (e) { topObs = null; }
+  }
 
   // Person document only: index.html and the Locker page fold these items
   // through spotlight-cards-data.js already.

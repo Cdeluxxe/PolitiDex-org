@@ -148,6 +148,92 @@ if (before && after) {
     }
   }
   ok(/Said:/.test(after.tree) && /Said:/.test(after.conn) && /Said:/.test(after.wa), "the lines read “Said:”");
+
+  // ── One wording, one strength label, on every surface ─────────────────────
+  {
+    const strip = (t) => t.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+    const core = (el) => {
+      const said = strip(el);
+      // The shared line runs from "Said:" to its Locker-item count.
+      return (said.match(/Said: .*?from \d+ Locker items?/) || [""])[0];
+    };
+    for (const k of ["climate_action", "border_security", "housing_build"]) {
+      const read = Object.fromEntries(Object.entries(surfaces).map(([n, h]) => {
+        const el = saidEl(h, k);
+        return [n, {
+          text: core(el),
+          strength: (el.match(/data-pdx-locker-said-strength="([^"]*)"/) || [])[1] || "",
+          side: (el.match(/data-pdx-locker-said-side="([^"]*)"/) || [])[1] || "",
+        }];
+      }));
+      const ref = read.top;
+      ok(ref.text && /^Said: (Supports|Opposes)/.test(ref.text), `top: the ${k} line reads “Said: …” (${ref.text})`);
+      for (const [n, r] of Object.entries(read)) {
+        ok(r.text === ref.text, `${n}: the ${k} "Said" wording matches the top section (“${r.text}” vs “${ref.text}”)`);
+        ok(r.strength === ref.strength && r.side === ref.side, `${n}: the ${k} strength label and side match the top section`);
+      }
+    }
+  }
+
+  // ── All Issues by Topic: promoted issues are leaves, and they are counted ──
+  {
+    const T = w.PDXStanceTree;
+    const leafOpen = (h, k) => (h.match(new RegExp(`<div class="pdxtree-leaf[^"]*"[^>]*data-pdxtree-issue="${k}"[^>]*>`)) || [])[0] || "";
+    const keysOf = (h) => [...h.matchAll(/<div class="pdxtree-leaf[^"]*"[^>]*data-pdxtree-issue="([^"]+)"/g)].map((m) => m[1]);
+    const curatedKeysBefore = keysOf(before.tree);
+    for (const k of ["climate_action", "border_security", "housing_build"]) {
+      const lo = leafOpen(after.tree, k);
+      ok(lo, `tree: ${k} is a leaf in the topic tree`);
+      ok(/data-pdxtree-said-source="pipeline"/.test(lo) && new RegExp(`data-pdxtree-said="${L.promotedStance(PID, k).side}"`).test(lo),
+        `tree: the ${k} leaf's Said slot carries the promoted side, marked pipeline-sourced`);
+      ok(/data-pdxtree-topic="[^"]+"/.test(lo), `tree: the ${k} leaf is filed under a topic group`);
+      ok(!after.tree.includes(`data-pdxtree-locker-grp="${k}"`), `tree: ${k} is not also listed in the Locker section`);
+    }
+    for (const k of ["voter_id", "tax_cuts"]) {
+      ok(!leafOpen(after.tree, k) || leafOpen(before.tree, k), `tree: ${k} gets no leaf from a mention or from nothing`);
+    }
+    ok(curatedKeysBefore.every((k) => keysOf(after.tree).includes(k)), "tree: every curated leaf is still on the tree");
+    const lf = (T.leaves ? T.leaves(PID) : []).find((x) => x.key === "healthcare");
+    ok(!lf || (lf.said.key === "support" && !lf.promoted), "tree: the curated healthcare leaf is not replaced by a promoted one");
+
+    const tally = (h) => {
+      const m = h.match(/(\d+) issues? on this tree<\/span><span[^>]*>(\d+) with a stated position/);
+      return m ? { shown: +m[1], stated: +m[2] } : null;
+    };
+    const t0 = tally(before.tree), t1 = tally(after.tree);
+    const newLeaves = keysOf(after.tree).filter((k) => !curatedKeysBefore.includes(k)).length;
+    const promotedOnTree = ["climate_action", "border_security", "housing_build"].filter((k) => leafOpen(after.tree, k)).length;
+    ok(t1, "tree: the header prints “X issues on this tree · Y with a stated position”");
+    ok(t1 && t1.shown === keysOf(after.tree).length, `tree: the header's issue count equals the leaves on the tree (${t1 && t1.shown} vs ${keysOf(after.tree).length})`);
+    if (t0 && t1) {
+      ok(t1.shown === t0.shown + newLeaves, `tree: the issue count rises by the promoted leaves (${t0.shown} → ${t1.shown}, +${newLeaves})`);
+      ok(t1.stated === t0.stated + promotedOnTree, `tree: the stated count includes the promoted stances (${t0.stated} → ${t1.stated}, +${promotedOnTree})`);
+    } else if (t1) {
+      ok(t1.stated >= promotedOnTree, "tree: the stated count includes the promoted stances");
+    }
+  }
+
+  // ── Evidence tab: no "Stance not yet written" on an issue with a promoted stance
+  {
+    const card = (h, k) => {
+      const a = h.indexOf(`id="${w._pdxEvAnchor(PID, k)}"`);
+      if (a === -1) return null;
+      const nx = h.indexOf('class="evd-card', h.indexOf(">", a));
+      return h.slice(a, nx === -1 ? h.length : nx);
+    };
+    let cards = 0;
+    for (const k of ["climate_action", "border_security", "housing_build"]) {
+      const c = card(after.conn, k);
+      if (c === null) continue;
+      cards++;
+      ok(!/Stance not yet written/i.test(c) && !/evd-read evd-gap/.test(c),
+        `evidence: the ${k} card no longer carries the “Stance not yet written” badge`);
+      ok(/data-evd-read="pipeline"/.test(c), `evidence: the ${k} card's badge says the stance came from the Locker`);
+    }
+    ok(cards > 0, "evidence: at least one promoted issue has its own card");
+    const hc = card(after.conn, "healthcare");
+    ok(hc === null || !/data-evd-read="pipeline"/.test(hc), "evidence: the curated healthcare card keeps its own badge");
+  }
   ok(/SAID · PIPELINE/.test(top), "top: the promoted rows carry the pipeline lane tag");
 
   // ── Evidence tab: the strong issue fills its card's Stated stance slot ────

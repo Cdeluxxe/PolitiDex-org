@@ -727,11 +727,17 @@
              url: String(hits[0].source.url) };
   }
 
-  function leafOf(row) {
+  // `promo` is an optional promoted Locker stance (profile-locker.js
+  // promotedStance) for an issue with NO curated stance. It fills the Said slot
+  // under its own pipeline-sourced mark and admits the leaf on its own, but it is
+  // never compared with the record: no cue, no baseline, no pattern-only tag, and
+  // nothing here feeds a verdict or a score. A curated stance always wins.
+  function leafOf(row, promo) {
     if (!row || !row.key) return null;
     var CS = window.PDXConsistency;
     var stanceKey = (row.stance && row.stance.key) || null;
-    var said = SAID[stanceKey] || SAID.none;
+    if (stanceKey || !promo || !SAID[promo.side]) promo = null;
+    var said = SAID[stanceKey] || (promo ? SAID[promo.side] : SAID.none);
     // The record slot, whole, from the shared accessor. Its `state` is the only
     // thing this file branches on and it is never recomputed here.
     var rec = null;
@@ -741,9 +747,9 @@
       }
     } catch (e) { rec = null; }
     var onRecord = !!(rec && rec.onRecord);
-    if (!stanceKey && !onRecord) return null;
+    if (!stanceKey && !onRecord && !promo) return null;
 
-    var patternOnly = !stanceKey;
+    var patternOnly = !stanceKey && !promo;
     // The baseline, from the shared derivation and never re-derived here. Only on
     // a leaf with no stated position — a quote always wins, and the accessor
     // enforces that on its own side too.
@@ -769,7 +775,8 @@
     // record with no direction read from it yet, or no record at all all land on
     // `split`/no-cue rather than being forced into agreement or disagreement.
     var cue = null;
-    if (patternOnly) cue = CUES.pattern_only;
+    if (promo) cue = null;
+    else if (patternOnly) cue = CUES.pattern_only;
     else if (rec && rec.state === 'scored') {
       cue = CUES[VERDICT_CUE[rec.token]] || null;
     } else if (rec && rec.state === 'direction') {
@@ -789,7 +796,7 @@
     // as a tie-break — one integer, used only to order rows.
     var band;
     if (!rec || !onRecord) band = 'nofile';
-    else if (patternOnly) band = rec.directional ? 'pattern' : 'onfile';
+    else if (patternOnly || promo) band = rec.directional ? 'pattern' : 'onfile';
     else band = (cue && CUE_BAND[cue.key]) || 'onfile';
     var rank = rankOf(band, rec ? rec.weight : 'flat');
 
@@ -798,7 +805,10 @@
       pid: row.pid, key: row.key, label: row.label || row.key,
       topic: topic,
       group: row.category || 'other', groupLabel: row.categoryLabel || 'Other',
-      said: { key: said.key, label: said.label, stated: !!stanceKey, color: said.c, ico: said.ico },
+      said: { key: said.key, label: said.label, stated: !!(stanceKey || promo), color: said.c, ico: said.ico,
+              source: promo ? 'pipeline' : (stanceKey ? 'curated' : ''),
+              strength: promo ? promo.strength : '' },
+      promoted: !!promo,
       // The record slot, projected. `pct` lives HERE and nowhere else on the leaf:
       // there is one percentage on a leaf, it belongs to one issue's Direction
       // Match result, and nothing that sorts or groups leaves can reach it.
@@ -850,15 +860,53 @@
     });
   }
 
-  function leaves(pid) {
-    var CS = window.PDXConsistency;
-    if (!CS || typeof CS.issueRows !== 'function') return [];
-    var rows = [];
-    try { rows = CS.issueRows(pid) || []; } catch (e) { return []; }
-    var out = [];
-    rows.forEach(function (r) { var lf = leafOf(r); if (lf) out.push(lf); });
-    return sortLeaves(out);
+  // ── PROMOTED LOCKER STANCES ───────────────────────────────────────────────
+  // profile-locker.js promotes directional Evidence Locker items to a visible
+  // "Said" stance on an issue with no curated stance. Each such issue is a leaf:
+  // on its existing row when the row model already has one, otherwise on the
+  // row the row model builds for that key. An issue whose key maps to no topic
+  // stays in the Locker section under the tree (lockerFootHtml) rather than
+  // being filed under a guessed branch. Mentions never promote, and a curated
+  // stance is never overridden (both enforced by promotedStance itself).
+  function promotedFor(pid) {
+    var L = window.PDXProfileLocker;
+    var by = {};
+    if (!L || typeof L.promotedStances !== 'function' || typeof L.items !== 'function') return by;
+    try {
+      if (!L.items(pid).length) return by;
+      (L.promotedStances(pid) || []).forEach(function (ps) { if (ps && ps.key) by[ps.key] = ps; });
+    } catch (e) { return {}; }
+    return by;
   }
+  function leavesAll(pid) {
+    var CS = window.PDXConsistency;
+    if (!CS || typeof CS.issueRows !== 'function') return { list: [], added: 0, promoted: 0 };
+    var rows = [];
+    try { rows = CS.issueRows(pid) || []; } catch (e) { return { list: [], added: 0, promoted: 0 }; }
+    var promo = promotedFor(pid);
+    var out = [], seen = {}, added = 0, promoted = 0;
+    rows.forEach(function (r) {
+      if (!r || !r.key) return;
+      seen[r.key] = 1;
+      var base = leafOf(r);
+      var lf = leafOf(r, promo[r.key]);
+      if (!lf) return;
+      if (lf.promoted) { promoted++; if (!base) added++; }
+      out.push(lf);
+    });
+    Object.keys(promo).forEach(function (k) {
+      if (seen[k] || !coreKeyOf(k)) return;
+      var row = null;
+      try { row = (CS.issueRows(pid, [k]) || [])[0] || null; } catch (e) { row = null; }
+      if (!row || row.key !== k) return;
+      var lf = leafOf(row, promo[k]);
+      if (!lf || !lf.promoted) return;
+      promoted++; added++;
+      out.push(lf);
+    });
+    return { list: sortLeaves(out), added: added, promoted: promoted };
+  }
+  function leaves(pid) { return leavesAll(pid).list; }
 
   // ── THE MID LEVEL, AS A PURE FUNCTION ─────────────────────────────────────
   // Exposed so the gate is testable on its own: given a branch's leaves, either
@@ -956,7 +1004,9 @@
   function leafSay(lf) {
     var rc = lf.record;
     var s = lf.label + '. ';
-    s += lf.said.stated ? ('Their stated position: ' + lf.said.label + '. ')
+    s += lf.promoted ? ('Stated position read from Evidence Locker items (pipeline-sourced, ' +
+                          (lf.said.strength === 'strong' ? 'stronger signal' : 'weak signal') + '): ' + lf.said.label + '. ')
+       : lf.said.stated ? ('Their stated position: ' + lf.said.label + '. ')
                         : 'No stated position on file. ';
     // The baseline is read out in the same breath as the absence it fills, so a
     // screen reader never hears a side without hearing where it came from.
@@ -1093,6 +1143,7 @@
         ' data-pdxtree-issue="' + escAttr(lf.key) + '"' +
         ' data-pdxtree-topic="' + escAttr(lf.topic || '') + '"' +
         ' data-pdxtree-said="' + escAttr(lf.said.key) + '"' +
+        (lf.promoted ? ' data-pdxtree-said-source="pipeline" data-pdxtree-said-strength="' + escAttr(lf.said.strength) + '"' : '') +
         ' data-pdxtree-pat="' + escAttr(rc ? rc.tier : 'none') + '"' +
         ' data-pdxtree-rec="' + escAttr(rc ? rc.state : 'none') + '"' +
         ' data-pdxtree-cue="' + escAttr(lf.cue ? lf.cue.key : '') + '"' +
@@ -1113,8 +1164,9 @@
                   ' title="' + escAttr(BASELINE_NOTE) + '">' +
                   '<b>' + esc(BASELINE_LABEL) + ':</b> ' + esc(lf.baseline.word) +
                   '<i class="pdxtree-basefrom"> \u00b7 ' + esc(BASELINE_FROM) + '</i></span>'
-              : '<span class="pdxtree-said s-' + escAttr(lf.said.key) + '">' +
-                  '<b>Said:</b> ' + esc(lf.said.label) + '</span>') +
+              : '<span class="pdxtree-said s-' + escAttr(lf.said.key) + (lf.promoted ? ' is-pipeline' : '') + '"' +
+                  (lf.promoted ? ' data-pdx-stance-source="pipeline"' : '') + '>' +
+                  '<b>Said:</b> ' + esc(lf.said.label) + (lf.promoted ? ' \uD83D\uDCC2' : '') + '</span>') +
             (lf.claim ? claimHtml(lf.claim) : recHtml(rc)) +
             pctHtml(rc) +
             (lf.cue ? '<span class="pdxtree-cue c-' + escAttr(lf.cue.key) + '">' +
@@ -1266,8 +1318,25 @@
   // object's figure for this tree — so a filtered view narrows what a reader sees
   // without inventing a second total for anything.
   var TALLY_WARM = 'Checking the formal record…';
-  function tallyHtml(pid, shownNow, filterKey, query) {
+  // The shared counts do not know about promoted Locker stances (they are display
+  // only and never enter the row model), so the tree's own header adds the leaves
+  // they put on this tree and the stated positions they fill. Nothing else that
+  // reads profileCounts changes.
+  function treeCountsOf(pid) {
     var c = countsOf(pid);
+    if (!c) return null;
+    var x = { added: 0, promoted: 0 };
+    try { x = leavesAll(pid); } catch (e) {}
+    if (!x.added && !x.promoted) return c;
+    var out = {};
+    Object.keys(c).forEach(function (k) { out[k] = c[k]; });
+    out.shown = (c.shown || 0) + x.added;
+    out.stated = (c.stated || 0) + x.promoted;
+    out.promoted = x.promoted;
+    return out;
+  }
+  function tallyHtml(pid, shownNow, filterKey, query) {
+    var c = treeCountsOf(pid);
     if (!c) return '';
     var of = c.of || {};
     var bits = [];
