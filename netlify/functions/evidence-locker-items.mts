@@ -5,22 +5,35 @@
 // "evidence-locker" Blobs store and returns them in the spotlight-entry shape
 // the existing Evidence Locker components already render, grouped by
 // politician id: { items: { <pid>: [entry, …] }, count }.
+//
+// Manual review flags (db/evidence-locker-review.json, or a `review` field on
+// the stored item): a "hidden" item is left out entirely, so no profile or
+// Locker page can show it; "reviewed" and "needs_edit" items are served with
+// `review.status` so the profile can print its "Reviewed" note. Every entry
+// carries its store key under pipeline.key, which is what a flag row names.
 
 import type { Config } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
-import { LOCKER_STORE_NAME, toSpotlightEntry } from "../lib/evidence-locker-core.mjs";
+import { LOCKER_STORE_NAME, toSpotlightEntry, loadReviewFlags, reviewFor } from "../lib/evidence-locker-core.mjs";
+import reviewFile from "../../db/evidence-locker-review.json" with { type: "json" };
 
-export async function listLockerEntries(store: any) {
+export async function listLockerEntries(store: any, flagsDoc: any = reviewFile) {
+  const flags = loadReviewFlags(flagsDoc);
   const { blobs } = await store.list();
   const items: Record<string, any[]> = {};
-  let count = 0;
-  const docs = await Promise.all(blobs.map((b: any) => store.get(b.key, { type: "json" }).catch(() => null)));
-  for (const doc of docs) {
+  let count = 0, hidden = 0;
+  const docs = await Promise.all(blobs.map(async (b: any) => {
+    const doc = await store.get(b.key, { type: "json" }).catch(() => null);
+    return { key: b.key, doc };
+  }));
+  for (const { key, doc } of docs) {
     if (!doc || !doc.politician_id || !doc.link) continue;
-    (items[doc.politician_id] ||= []).push(toSpotlightEntry(doc));
+    const review = reviewFor(doc, key, flags);
+    if (review?.status === "hidden") { hidden++; continue; }
+    (items[doc.politician_id] ||= []).push(toSpotlightEntry(doc, { key, review }));
     count++;
   }
-  return { items, count };
+  return { items, count, hidden };
 }
 
 export default async (req: Request): Promise<Response> => {
