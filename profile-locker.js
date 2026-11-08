@@ -41,6 +41,20 @@
    their record runs against this statement." No record, or an agreeing one,
    prints nothing. See conflictOf below.
 
+   PLEDGES. A Locker item (strong or weak) on the same issue as a tracked
+   pledge that has no outcome yet is that pledge's connected evidence, and every
+   surface says so where the pledge is (pledgeMatches below):
+     · the pledge row in "What the record can't test yet" and in Word vs
+       Action's gap list prints the excerpt, link and attribution in place of
+       the "Open gap / no sourced outcome" copy. A weak-only match keeps a light
+       gap note under the item, because a weak read is not a firm stance;
+     · the pledge's row in the Promise Tracker gains the same line;
+     · the item's line under its topic leaf names the pledge;
+     · in the Evidence tab the item sits under the pledge in that issue's card
+       (a weak one moves there out of the separate weaker-signals block);
+     · in Word vs Action it is listed first, as evidence for the pledge.
+   It is context: no pledge is resolved by it and nothing is counted.
+
    If the open profile gained items, the file is repainted in place (same
    renderer, scroll position kept), the way the cold-open document merge does it.
 
@@ -159,6 +173,79 @@
     return items(pid).filter(function (it) { return !isStrong(it); });
   }
 
+  // ── Pledges ──────────────────────────────────────────────────────────────
+  function profileOf(pid, p) {
+    if (p && typeof p === 'object') return p;
+    var ids = [String(pid || ''), canon(pid)];
+    for (var i = 0; i < ids.length; i++) {
+      var k = ids[i];
+      if (!k) continue;
+      try { if (window.PROFILES && window.PROFILES[k]) return window.PROFILES[k]; } catch (e) {}
+      try { if (window.CMP_DATA && window.CMP_DATA[k]) return window.CMP_DATA[k]; } catch (e) {}
+    }
+    return null;
+  }
+  // A tracked pledge with no sourced outcome: the same split Word vs Action's
+  // ledger makes (anything that is not kept or broken is still open).
+  function isOpenPledge(pr) {
+    if (!pr || !pr.title || !pr.issueKey) return false;
+    var v = String(pr.verdict == null ? '' : pr.verdict).toLowerCase();
+    return v !== 'kept' && v !== 'broken';
+  }
+  // The Locker items that count as a pledge's evidence: a firm or weak stance on
+  // the pledge's own issue. A mention is not evidence for a commitment.
+  function pledgeItems(pid, key) {
+    if (!key) return [];
+    return forIssue(pid, key).filter(function (it) {
+      var st = strengthOf(it);
+      return st === 'strong' || st === 'weak';
+    });
+  }
+  // [{ pledge, items, strong }] for every open pledge with at least one match.
+  function pledgeMatches(pid, p) {
+    if (!pid || !items(pid).length) return [];
+    var d = profileOf(pid, p);
+    var proms = (d && Array.isArray(d.promises)) ? d.promises : [];
+    var out = [];
+    proms.forEach(function (pr) {
+      if (!isOpenPledge(pr)) return;
+      var its = pledgeItems(pid, pr.issueKey);
+      if (!its.length) return;
+      out.push({ pledge: pr, items: its, strong: its.some(isStrong) });
+    });
+    return out;
+  }
+  // The open pledges on one issue that an item is evidence for.
+  function pledgesFor(pid, it, p) {
+    var st = strengthOf(it);
+    if (st !== 'strong' && st !== 'weak') return [];
+    return pledgeMatches(pid, p).filter(function (m) { return m.pledge.issueKey === it.issueKey; })
+      .map(function (m) { return m.pledge; });
+  }
+
+  // One Locker line in a pledge's own box: badge, position, excerpt, link,
+  // attribution, date. Shared by the gap row, the Promise Tracker row and the
+  // Evidence tab, so the pledge reads the same wherever it is.
+  function pledgeLineHtml(it, tag, cls, attr) {
+    var x = partsOf(it);
+    if (!/^https?:\/\//.test(x.url)) return '';
+    var st = strengthOf(it);
+    return '<' + tag + ' class="' + cls + '" ' + attr + '="' + esc(it.issueKey) + '"' +
+      (st === 'weak' ? ' data-pdx-locker-strength="weak"' : '') +
+      ' style="margin:0.25rem 0 0;font-size:0.74rem;line-height:1.45;color:#c9d6ea;">' +
+      weakBadgeHtml(it) + '📂 ' +
+      (x.pos ? '<b style="color:#f5c842;">' + esc(x.pos) + ':</b> ' : '') +
+      (x.excerpt ? '“' + esc(x.excerpt) + '”' : esc(x.headline)) + ' ' +
+      '<a href="' + esc(x.url) + '" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" style="color:#9fb4d4;">— ' +
+        esc(x.attribution) + ' ↗</a>' +
+      (x.date ? ' <span style="color:#5f7da6;">· ' + esc(x.date) + '</span>' : '') +
+    '</' + tag + '>';
+  }
+  var PLEDGE_TAG = '📂 Locker evidence on file';
+  var PLEDGE_TAG_WEAK = '📂 Locker item on file';
+  var PLEDGE_NOTE = 'From the Evidence Locker, on this pledge’s issue. Context for the pledge, not a sourced outcome — it counts neither for nor against them.';
+  var PLEDGE_GAP_NOTE = 'Open gap · no sourced outcome for this pledge yet. The Locker item above is a weak signal, not a firm stance.';
+
   // The badge a weak item carries in every surface; '' for any other strength.
   function weakBadgeHtml(it) {
     if (strengthOf(it) !== 'weak') return '';
@@ -273,7 +360,18 @@
         (x.excerpt ? '“' + esc(x.excerpt) + '”' : esc(x.headline)) +
         ' — ' + esc(x.attribution) + (x.date ? ' · ' + esc(x.date) : '') + ' ↗</a>' +
         (pid ? conflictHtml(pid, it, 'div', 'margin:0.15rem 0 0;' + CONFLICT_STYLE) : '') +
+        (pid ? treePledgeHtml(pid, it) : '') +
       '</div>';
+  }
+  // Under the leaf, the item names the open pledge it is evidence for.
+  function treePledgeHtml(pid, it) {
+    var ps = pledgesFor(pid, it);
+    if (!ps.length) return '';
+    return ps.map(function (pr) {
+      return '<div class="pdxtree-locker-pledge" data-pdxtree-locker-pledge="' + esc(it.issueKey) + '"' +
+        ' style="margin:0.15rem 0 0;font-size:0.7rem;line-height:1.4;color:#9fb4d4;">' +
+        '🤝 <b style="color:#cbd9ec;">Evidence for their pledge:</b> ' + esc(pr.title) + '</div>';
+    }).join('');
   }
   function treeLeafHtml(pid, key) {
     return forIssue(pid, key).map(function (it) { return treeLineHtml(it, pid); }).join('');
@@ -331,29 +429,46 @@
   function waHtml(pid, p) {
     var m = waMatches(pid, p);
     if (!m.length) return '';
+    // An item on an open pledge's issue is that pledge's evidence: it is listed
+    // first, under the pledge it belongs to, rather than as one more statement.
+    var forPledge = [], rest = [];
+    m.forEach(function (x) {
+      var ps = x.direct ? pledgesFor(pid, x.item, p) : [];
+      if (ps.length) { x.pledges = ps; forPledge.push(x); } else rest.push(x);
+    });
     return '<div class="modal-section pdxwa-locker" data-pdxwa-locker="1" style="margin-top:-0.4rem;padding-top:0.6rem;border-top:1px solid rgba(159,180,212,0.18);">' +
       '<div class="pdxwa-verdict" style="color:#f5c842;font-size:0.8rem;">' + esc(HEAD) + '</div>' +
       '<p class="pdxwa-line" style="font-size:0.72rem;color:#9fb4d4;">' + esc(WA_NOTE) + '</p>' +
-      m.map(function (x) {
-        var y = partsOf(x.item);
-        var on = (x.direct ? 'On ' : 'Related to ') + issueLabel(x.via);
-        var st = strengthOf(x.item);
-        var mention = st === 'mention';
-        return '<p class="pdxwa-line" data-pdxwa-locker-item="' + esc(x.item.issueKey) + '"' +
-          (mention ? ' data-pdx-locker-mention="1"' : st === 'weak' ? ' data-pdx-locker-strength="weak"' : '') + '>' +
-          weakBadgeHtml(x.item) +
-          (mention
-            ? '<b>' + esc(on) + ':</b> ' + mentionLeadHtml() + ' “' + esc(y.excerpt) + '” '
-            : '<b>' + esc(on) + (y.pos ? ' · ' + esc(y.pos) : '') + ':</b> ' +
-              (y.excerpt ? '“' + esc(y.excerpt) + '”' : esc(y.headline)) + ' ') +
-          (/^https?:\/\//.test(y.url)
-            ? '<a href="' + esc(y.url) + '" target="_blank" rel="noopener noreferrer" style="color:#9fb4d4;">' + esc(y.attribution) + ' ↗</a>'
-            : esc(y.attribution)) +
-          (y.date ? ' <span style="color:#5f7da6;">· ' + esc(y.date) + '</span>' : '') +
-        '</p>' +
-        conflictHtml(pid, x.item, 'p', 'margin:-0.25rem 0 0.45rem;' + CONFLICT_STYLE);
-      }).join('') +
+      (forPledge.length
+        ? '<div class="pdxwa-locker-pledges" data-pdxwa-locker-pledges="1">' +
+            '<p class="pdxwa-line" style="font-size:0.74rem;color:#cbd9ec;margin-bottom:0.2rem;"><b>🤝 Evidence for their open pledges</b></p>' +
+            forPledge.map(function (x) { return waLineHtml(pid, x); }).join('') +
+          '</div>'
+        : '') +
+      rest.map(function (x) { return waLineHtml(pid, x); }).join('') +
     '</div>';
+  }
+  function waLineHtml(pid, x) {
+    var y = partsOf(x.item);
+    var on = x.pledges
+      ? 'Pledge: ' + x.pledges.map(function (pr) { return pr.title; }).join(' · ')
+      : (x.direct ? 'On ' : 'Related to ') + issueLabel(x.via);
+    var st = strengthOf(x.item);
+    var mention = st === 'mention';
+    return '<p class="pdxwa-line" data-pdxwa-locker-item="' + esc(x.item.issueKey) + '"' +
+      (x.pledges ? ' data-pdxwa-locker-pledge="' + esc(x.item.issueKey) + '"' : '') +
+      (mention ? ' data-pdx-locker-mention="1"' : st === 'weak' ? ' data-pdx-locker-strength="weak"' : '') + '>' +
+      weakBadgeHtml(x.item) +
+      (mention
+        ? '<b>' + esc(on) + ':</b> ' + mentionLeadHtml() + ' “' + esc(y.excerpt) + '” '
+        : '<b>' + esc(on) + (y.pos ? ' · ' + esc(y.pos) : '') + ':</b> ' +
+          (y.excerpt ? '“' + esc(y.excerpt) + '”' : esc(y.headline)) + ' ') +
+      (/^https?:\/\//.test(y.url)
+        ? '<a href="' + esc(y.url) + '" target="_blank" rel="noopener noreferrer" style="color:#9fb4d4;">' + esc(y.attribution) + ' ↗</a>'
+        : esc(y.attribution)) +
+      (y.date ? ' <span style="color:#5f7da6;">· ' + esc(y.date) + '</span>' : '') +
+    '</p>' +
+      conflictHtml(pid, x.item, 'p', 'margin:-0.25rem 0 0.45rem;' + CONFLICT_STYLE);
   }
 
   // ── 🧩 Connected Evidence (the Evidence tab) ────────────────────────────
@@ -373,6 +488,39 @@
       '“' + esc(x.excerpt) + '”' +
       (x.attribution ? ' <span style="color:#5f7da6;">— ' + esc(x.attribution) + '</span>' : '') +
     '</p>' + cf;
+  }
+  // Under an open pledge in its issue card's 🤝 Promises lane, the Locker items
+  // that are its evidence. Returns the html and the items it placed, so a weak
+  // item placed here is not listed a second time in the weaker-signals block.
+  function decoratePledges(html, pid) {
+    var placed = [];
+    if (!html) return { html: html, placed: placed };
+    pledgeMatches(pid).forEach(function (m) {
+      var key = m.pledge.issueKey;
+      var anchor = '';
+      try { anchor = typeof window._pdxEvAnchor === 'function' ? window._pdxEvAnchor(pid, key) : ''; } catch (e) { anchor = ''; }
+      if (!anchor) return;
+      var start = html.indexOf('id="' + anchor + '"');
+      if (start === -1) return;
+      var tagEnd = html.indexOf('>', start);
+      var stop = tagEnd === -1 ? -1 : html.indexOf('class="evd-card', tagEnd);
+      if (stop === -1) stop = html.length;
+      var needle = '<span>' + esc(m.pledge.title) + '<span class="evd-prom-verdict';
+      var at = html.indexOf(needle, start);
+      if (at === -1 || at > stop) return;
+      var close = html.indexOf('</div>', at);
+      if (close === -1 || close > stop) return;
+      close += 6;
+      if (html.slice(close, close + 80).indexOf('data-evd-locker-pledge=') !== -1) return;
+      var add = '<div class="evd-prom-locker" data-evd-locker-pledge="' + esc(key) + '" style="margin:0 0 0.35rem 1rem;">' +
+        m.items.map(function (it) {
+          return pledgeLineHtml(it, 'p', 'evd-prom-locker-line', 'data-evd-locker-pledge-item');
+        }).join('') +
+      '</div>';
+      html = html.slice(0, close) + add + html.slice(close);
+      m.items.forEach(function (it) { placed.push(it); });
+    });
+    return { html: html, placed: placed };
   }
   function decorateEvidence(html, pid) {
     var mine = items(pid).filter(isStrong);
@@ -421,8 +569,8 @@
       '<div class="evd-spot-head"><span class="evd-spot-impact neutral" aria-hidden="true">•</span>' + head + '</div>' +
       body + link + '</div>';
   }
-  function evdWeakHtml(pid) {
-    var rest = weaker(pid);
+  function evdWeakHtml(pid, skip) {
+    var rest = weaker(pid).filter(function (it) { return !skip || skip.indexOf(it) === -1; });
     if (!rest.length) return '';
     var byKey = {}, order = [];
     rest.forEach(function (it) {
@@ -438,6 +586,74 @@
           byKey[k].map(evdWeakCardHtml).join('') +
         '</div>';
       }).join('') +
+    '</div>';
+  }
+
+  // ── 🤝 The pledge rows ───────────────────────────────────────────────────
+  // gaps.js prints an open pledge as "Pledge still open — <title>" with an Open
+  // gap pill, "no sourced outcome" copy and an ask. Where the Locker holds a
+  // strong item on the pledge's issue, that row is replaced by the pledge and
+  // its evidence: excerpt, link, attribution, and the row's own lead bar. A
+  // weak-only match shows the item AND keeps a light gap note plus the ask.
+  // Matched by the gap's own key, so nothing else in the list moves.
+  function gapRowHtml(g, its, orig) {
+    var strong = its.some(isStrong);
+    var open = orig.slice(0, orig.indexOf('>') + 1);
+    var ic = (open.match(/\sstyle="[^"]*"/) || [''])[0];
+    var barAt = orig.indexOf('<div class="pdxg-row-bar">');
+    var tail = barAt === -1 ? '' : orig.slice(barAt, orig.lastIndexOf('</li>'));
+    var askAt = orig.indexOf('<p class="pdxg-row-ask">');
+    var ask = (!strong && askAt !== -1) ? orig.slice(askAt, barAt === -1 ? orig.lastIndexOf('</li>') : barAt) : '';
+    var title = g.label.replace(/^Pledge still open — /, '');
+    return '<li class="pdxg-row pdxg-row-locker" data-pdx-gap="' + esc(g.key) + '"' +
+        ' data-pdx-gap-locker="' + (strong ? 'strong' : 'weak') + '"' + ic + '>' +
+        '<div class="pdxg-row-h">' +
+          '<span class="pdxg-row-label">' + esc('Pledge — ' + title) + '</span>' +
+          '<span class="pdxg-row-tag pdxg-row-tag-locker" style="color:#f5c842;border-color:rgba(245,200,66,0.45);">' +
+            esc(strong ? PLEDGE_TAG : PLEDGE_TAG_WEAK) + '</span>' +
+        '</div>' +
+        its.map(function (it) { return pledgeLineHtml(it, 'p', 'pdxg-row-locker-line', 'data-pdx-gap-locker-item'); }).join('') +
+        '<p class="pdxg-row-detail" style="font-size:0.7rem;color:#7596c0;">' + esc(PLEDGE_NOTE) + '</p>' +
+        (strong ? '' :
+          '<p class="pdxg-row-gapnote" data-pdx-gap-note="1" style="margin:0.2rem 0 0;font-size:0.66rem;line-height:1.4;color:#7596c0;opacity:0.85;">' +
+            esc(PLEDGE_GAP_NOTE) + '</p>') +
+        ask + tail +
+      '</li>';
+  }
+  function decorateGaps(html, pid, p, pre) {
+    if (!html || !pid || !items(pid).length) return html;
+    var G = window.PDXGaps;
+    if (!G || typeof G.forPolitician !== 'function') return html;
+    var gaps = [];
+    try { gaps = G.forPolitician(pid, p, pre) || []; } catch (e) { gaps = []; }
+    gaps.forEach(function (g) {
+      if (!g || g.type !== 'pending_pledge' || !g.issueKey) return;
+      var its = pledgeItems(pid, g.issueKey);
+      if (!its.length) return;
+      var mark = 'data-pdx-gap="' + esc(g.key) + '"';
+      var from = 0, at;
+      while ((at = html.indexOf(mark, from)) !== -1) {
+        var start = html.lastIndexOf('<li', at);
+        var end = html.indexOf('</li>', at);
+        if (start === -1 || end === -1) break;
+        end += 5;
+        var orig = html.slice(start, end);
+        if (orig.indexOf('data-pdx-gap-locker=') !== -1) { from = end; continue; }
+        var row = gapRowHtml(g, its, orig);
+        html = html.slice(0, start) + row + html.slice(end);
+        from = start + row.length;
+      }
+    });
+    return html;
+  }
+
+  // The Promise Tracker row: the open pledge gains its Locker evidence under it.
+  function promiseHtml(id, p, pr) {
+    if (!isOpenPledge(pr)) return '';
+    var its = pledgeItems(id, pr.issueKey);
+    if (!its.length) return '';
+    return '<div class="pdx-locker-pledge" data-pdx-locker-pledge="' + esc(pr.issueKey) + '" style="margin-top:0.4rem;">' +
+      its.map(function (it) { return pledgeLineHtml(it, 'p', 'pdx-locker-pledge-line', 'data-pdx-locker-pledge-item'); }).join('') +
     '</div>';
   }
 
@@ -464,12 +680,36 @@
       var e = function (id) {
         var h = RC.apply(this, arguments);
         try { h = decorateEvidence(h, id); } catch (er) {}
+        var placed = [];
+        try { var d = decoratePledges(h, id); h = d.html; placed = d.placed; } catch (er) { placed = []; }
         var extra = '';
-        try { extra = evdWeakHtml(id) || ''; } catch (er) { extra = ''; }
+        try { extra = evdWeakHtml(id, placed) || ''; } catch (er) { extra = ''; }
         return extra ? (h || '') + extra : h;
       };
       e.__pdxLocker = true;
       window._renderEvidenceConnections = e;
+    }
+    var G = window.PDXGaps;
+    ['panelHtml', 'sectionHtml'].forEach(function (name) {
+      if (!G || typeof G[name] !== 'function' || G[name].__pdxLocker) return;
+      var orig = G[name];
+      var g = function (pid, p, pre) {
+        var h = orig.apply(this, arguments);
+        try { return decorateGaps(h, pid, p, pre); } catch (er) { return h; }
+      };
+      g.__pdxLocker = true;
+      G[name] = g;
+    });
+    var PE = window._pdxPromiseEvidenceLink;
+    if (typeof PE === 'function' && !PE.__pdxLocker) {
+      var pe = function (id, p, pr) {
+        var h = PE.apply(this, arguments);
+        var extra = '';
+        try { extra = promiseHtml(id, p, pr) || ''; } catch (er) { extra = ''; }
+        return extra ? (h || '') + extra : h;
+      };
+      pe.__pdxLocker = true;
+      window._pdxPromiseEvidenceLink = pe;
     }
   }
 
@@ -497,6 +737,7 @@
   function onBody(body) {
     var r = ingest(body);
     if (!r.added) return r;
+    try { wrap(); } catch (e) {}
     try { if (typeof window.PDXDataChanged === 'function') window.PDXDataChanged(); } catch (e) {}
     try { document.dispatchEvent(new CustomEvent('pdx-spotlight-data-updated', { detail: { added: r.added } })); } catch (e) {}
     try { document.dispatchEvent(new CustomEvent('pdx-locker-items', { detail: { added: r.added, pids: r.pids } })); } catch (e) {}
@@ -525,8 +766,27 @@
     strengthOf: strengthOf, weaker: weaker, evdWeakHtml: evdWeakHtml,
     conflictOf: conflictOf, conflictText: conflictText, conflictHtml: conflictHtml,
     decorateEvidence: decorateEvidence, wrap: wrap,
+    pledgeMatches: pledgeMatches, pledgesFor: pledgesFor, decorateGaps: decorateGaps,
+    decoratePledges: decoratePledges, promiseHtml: promiseHtml,
+    PLEDGE_NOTE: PLEDGE_NOTE, PLEDGE_GAP_NOTE: PLEDGE_GAP_NOTE,
     // Test seam: forget everything ingested (does not touch SPOTLIGHT_DATA).
     _reset: function () { byPid = {}; loading = null; }
+  };
+
+  // The word-first letterhead's citation hook (word-action.js): a strong item
+  // on the same issue stating the same side is a sourced statement, and its
+  // link cites a stated position whose card has none. Weak reads never cite.
+  window._pdxSaidCitation = function (pid, key, side) {
+    try {
+      var its = forIssue(pid, key);
+      for (var i = 0; i < its.length; i++) {
+        var it = its[i];
+        if (!isStrong(it) || !it.pipeline || it.pipeline.position !== side) continue;
+        var src = it.source || {};
+        if (/^https?:\/\//.test(String(src.url || ''))) return { url: src.url, label: src.label || 'Evidence Locker' };
+      }
+    } catch (e) {}
+    return null;
   };
 
   // Person document only: index.html and the Locker page fold these items

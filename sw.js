@@ -11721,7 +11721,26 @@
 //     unchanged. No route or gate. No stored reader state is written or
 //     rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v531';
+// v532 - LOCKER ITEMS AS PLEDGE EVIDENCE; MORE STATED POSITIONS AT THE TOP.
+//     profile-locker.js (the person-profile script, a runtime entry): when a
+//     strong or weak Locker item is on the same issue as an open pledge, the
+//     pledge row in "What the record can't test yet" and Word vs Action's gap
+//     list prints the excerpt, link and attribution in place of the "Open gap /
+//     no sourced outcome" copy (a weak-only match keeps a light gap note); the
+//     Promise Tracker row, the topic-tree leaf line, the pledge's Evidence tab
+//     card and the Word vs Action Locker list all name it as the pledge's
+//     evidence. word-action.js + word-action.css (precached): on the word-first
+//     letterhead a stated position whose card has no link is cited by a strong
+//     Locker item on the same issue and side (that item's own link), so it is
+//     listed up to the same cap; a position cited nowhere is still never a row
+//     and is named in the "more in the topic tree" count instead. "See all
+//     positions" sits directly under the rows with stronger contrast. No count,
+//     figure or score moves. A person with no Locker items, and a pledge with
+//     no match, render as before. Precached shell files changed, so the shell
+//     moves one version; the precache list is unchanged. No location key or
+//     other stored reader state is written or rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v532';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

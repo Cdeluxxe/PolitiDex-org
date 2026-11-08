@@ -2104,7 +2104,27 @@
    same quiet chrome as "Explore all N issues by topic". The extra class exists
    so this destination can be found from a test and a stylesheet without
    scraping the label, and it adds nothing to the paint. */
-.pdxwa-said-all { margin-bottom: 0; }
+/* …EXCEPT THAT IT HAS TO BE FOUND. On the word-first letterhead it is the only
+   way from the few rows shown to the rest of what they have said, and in the
+   quiet chrome it read as a footnote. So here it sits directly under the rows,
+   full width, in the house gold on a solid tint with a readable contrast. */
+.pdxwa-said-all {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  margin: 0.55rem 0 0;
+  background: rgba(245, 200, 66, 0.14);
+  border: 1px solid rgba(245, 200, 66, 0.6);
+  color: #f5d77a;
+  font-size: 0.74rem;
+}
+.pdxwa-said-all:hover,
+.pdxwa-said-all:focus-visible {
+  background: rgba(245, 200, 66, 0.22);
+  border-color: #f5c842;
+  color: #fff3c4;
+}
+.pdxwa-said-all:focus-visible { outline: 2px solid #f5c842; outline-offset: 2px; }
 
 /* THE HERO PLEDGE CHIP IS GONE — see pledgeChipHtml's obituary in word-action.js.
    "🤝 6 kept · 6 broken · 2 pending" no longer renders under the ring on any

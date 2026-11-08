@@ -6042,8 +6042,25 @@
       return pid;
     } catch (e) { return pid; }
   }
+  // window._pdxSaidCitation(pid, issueKey, side) is an optional hook another
+  // module may provide: it returns { url, label } for a sourced statement of
+  // the same side on the same issue, or null. Absent hook → nothing changes.
+  function saidOutsideCitation(id, key, st) {
+    try {
+      var side = st && st.key;
+      if (side !== 'support' && side !== 'oppose') return null;
+      var f = window._pdxSaidCitation;
+      if (typeof f !== 'function') return null;
+      var src = f(id, key, side);
+      if (!src || !/^https?:\/\//.test(String(src.url || ''))) return null;
+      var copy = {};
+      for (var k in st) if (Object.prototype.hasOwnProperty.call(st, k)) copy[k] = st[k];
+      copy.source = { url: String(src.url), label: String(src.label || 'Source') };
+      return copy;
+    } catch (e) { return null; }
+  }
   function saidRowsUnder(id) {
-    var out = { rows: [], shown: [], cited: 0, stated: 0 };
+    var out = { rows: [], shown: [], cited: 0, stated: 0, uncited: [] };
     var CS = window.PDXConsistency;
     if (!CS || typeof CS.issueRows !== 'function') return out;
     var rows = CS.issueRows(id) || [];
@@ -6055,6 +6072,14 @@
       if (seen[r.key]) continue;
       seen[r.key] = 1;
       out.stated++;
+      // A card with no link of its own can still be cited: a strong Evidence
+      // Locker item on the same issue, stating the same side, carries its own
+      // source link. That item IS the citation, so the row is read through a
+      // copy that holds it. The shared stance object is never touched, and a
+      // position with no citation anywhere is still never published here.
+      if (!(st.source && st.source.url)) st = saidOutsideCitation(id, r.key, st) || st;
+      // Counted for the "more in the topic tree" line only; never a row.
+      if (!(st.source && st.source.url)) out.uncited.push(r.key);
       if (!(st.source && st.source.url)) continue;
       out.cited++;
       out.rows.push({
@@ -6393,6 +6418,11 @@
     set = set || saidLead(pid, p);
     if (!set) return '';
     var shown = set.shown, more = Math.max(0, set.rows.length - shown.length);
+    // Stated positions with no citation anywhere are never rows. They are
+    // named as a count, so the gap between the rows and "See all N positions"
+    // is said out loud rather than left for a reader to wonder about.
+    var uncited = Array.isArray(set.uncited) ? set.uncited.length : 0;
+    more += uncited;
     return '<div class="pdxwa-brief pdxwa-brief-said">' +
         '<div class="pdxwa-shape-hd pdxwa-said-hd">' +
           '<span aria-hidden="true">✒️</span> ' + esc(SAID_EYEBROW) +
@@ -6409,13 +6439,14 @@
           '<ul class="pdxwa-said-list">' +
             shown.map(function (x) { return saidRowHtml(x, pid); }).join('') +
           '</ul>' +
+          // The route out sits directly under the rows it extends.
+          saidAllHtml(set.stated || set.cited) +
           (more
             ? '<p class="pdxwa-shape-more">' + more + ' more stated position' +
                 (more === 1 ? '' : 's') + ' in the topic tree below.</p>'
             : '') +
         '</div>' +
         '<p class="pdxwa-said-note">' + esc(SAID_NOTE) + '</p>' +
-        saidAllHtml(set.stated || set.cited) +
       '</div>';
   }
 
