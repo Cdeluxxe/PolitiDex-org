@@ -51,6 +51,13 @@
 import { COMPOSER_SEATS, LOCKED_LINE, COPY as BOARD_COPY, composerSeat, gate, seatHash } from "./district-board-voice-core.mjs";
 import { CAP_COPY, DAILY_COMMENTS, dayStart, memberFor } from "./membership-core.mjs";
 import { holderFor } from "./general-room-core.mjs";
+// The entry file is a plain browser script that also publishes itself on
+// globalThis. Importing it here makes it the ONE source for the Filed vs.
+// Ordered pair and the manual list of public filings since the order.
+import "../../sunlight-entries.js";
+
+const LIVE = globalThis.PDXSunlightEntries;
+const LIVE_ENTRY = LIVE && LIVE.byId ? LIVE.byId["UT-PSC-24-035-04"] : null;
 
 // ── THE ENTRY ───────────────────────────────────────────────────────────────
 // The id, title and ask label are the ones sunlight-entries.js publishes;
@@ -79,13 +86,20 @@ export const SUPPORT_VOTE = "support";
 export const REP_POSITIONS = Object.freeze({});
 
 // ── PSC FILING UPDATES (THE MANUAL FLAG) ────────────────────────────────────
-// When a new public filing appears in the docket, add a row here:
-//   { date: 'YYYY-MM-DD', title: '…', url: 'https://pscdocs.utah.gov/…' }
-// Rows dated after the April 25, 2025 order print as an update note on every
-// Utah board. Empty in this pass, so the note reads "none flagged".
+// The list lives in sunlight-entries.js (FILINGS_SINCE_ORDER), so /sunlight and
+// every Utah board read the same rows. Rows dated after the April 25, 2025
+// order print as an "Update" note with a link. Empty in this pass.
 // The public order the entry cites (the same URL sunlight-entries.js carries).
 export const ORDER_URL = "https://pscdocs.utah.gov/electric/24docs/2403504/3395032403504,2303540,and2303544o4-25-2025.pdf";
-export const FILING_UPDATES = Object.freeze([]);
+export const FILING_UPDATES = Object.freeze(((LIVE_ENTRY && LIVE_ENTRY.filingsSinceOrder) || []).slice());
+
+// ── FILED VS. ORDERED ───────────────────────────────────────────────────────
+// The utility's application and the PSC's order, by title, date and public
+// link, exactly as sunlight-entries.js carries them. No figures.
+export const FILED_VS_ORDERED = Object.freeze(((LIVE_ENTRY && LIVE_ENTRY.filedVsOrdered) || []).map((r) => Object.freeze({
+  step: String(r.step), label: String(r.label), date: String(r.date),
+  dateLabel: LIVE.longDate(r.date), title: String(r.title), url: String(r.url),
+})));
 
 export const POST_MAX = 280;
 export const COMMENTS_CAP = 20;
@@ -193,19 +207,7 @@ export function sentimentFrom(rows) {
 
 // ── THE FILING NOTE ─────────────────────────────────────────────────────────
 export function filingsNote(updates = FILING_UPDATES) {
-  const fresh = (Array.isArray(updates) ? updates : [])
-    .filter((u) => u && /^\d{4}-\d{2}-\d{2}$/.test(String(u.date)) && u.date > ENTRY.orderDate && u.title && /^https:\/\//.test(String(u.url || "")))
-    .map((u) => ({ date: u.date, title: String(u.title), url: String(u.url) }))
-    .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
-  return {
-    docket: ENTRY.docket,
-    orderUrl: ORDER_URL,
-    hasUpdates: fresh.length > 0,
-    note: fresh.length
-      ? `${fresh.length === 1 ? "A new public filing" : fresh.length + " new public filings"} in Docket No. ${ENTRY.docket} since the April 25, 2025 order.`
-      : COPY.noFilings,
-    updates: fresh,
-  };
+  return LIVE.filingsNote(Array.isArray(updates) ? updates : []);
 }
 
 export function positionFor(pid, table = REP_POSITIONS) {
@@ -267,7 +269,8 @@ export async function handle(req, deps) {
     const rawSeat = url.searchParams.get("seat");
     const sentiment = await sentimentOf(deps);
     const base = { entry: entryOut(), sentiment, sentimentEmpty: sentiment.length ? "" : COPY.emptySentiment,
-      sentimentNote: COPY.sentimentNote, filings: filingsNote(deps.filings || FILING_UPDATES) };
+      sentimentNote: COPY.sentimentNote, filedVsOrdered: FILED_VS_ORDERED.map((r) => ({ ...r })),
+      filings: filingsNote(deps.filings || FILING_UPDATES) };
     if (!rawSeat) return json(base);
     const seatKey = utahSeat(rawSeat);
     if (!seatKey) return json({ error: COPY.noSeat, code: "no_seat" }, 404);

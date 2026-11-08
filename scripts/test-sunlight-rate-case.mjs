@@ -20,6 +20,10 @@
  *      Services" all print the Sunlight thread with the rate case in it.
  *   5. NEUTRAL FRAMING, AND NOTHING ELSE MOVED. No partisan language; the
  *      stance generator and District Voice do not name the tag.
+ *   6. FILED VS. ORDERED (Phase 4). The utility's application and the PSC's
+ *      April 25, 2025 order, each with a date and a public PSC link, in the
+ *      data and on /sunlight; and the "Public filings since the order" note
+ *      turns into an Update with a link when a filing is added to the list.
  *
  *   node scripts/test-sunlight-rate-case.mjs
  */
@@ -248,6 +252,95 @@ const thread = (h) => /data-eye-sunlight-thread="1"([\s\S]*?)(?=<div class="pdx-
 section("the stance generator and District Voice do not name the tag or the entry");
 for (const f of ["issue-map.js", "alignment-tool.js", "stance-studio.js", "voice-room.js", "issue-page.js", "issue.html", "voice.html"]) {
   if (existsSync(join(ROOT, f))) ok(!/sunlight_governance|Sunlight Governance|sunlight-entries/.test(R(f)), `${f} names the Sunlight Governance tag`);
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 6 · Filed vs. Ordered, and the public filings since the order (Phase 4)
+// ═════════════════════════════════════════════════════════════════════════════
+section("Filed vs. Ordered lists the utility request and the PSC order with dates and links");
+const PSC_DOC = /^https:\/\/pscdocs\.utah\.gov\/electric\/24docs\/2403504\/[^\s"]+\.pdf$/;
+if (item) {
+  const fo = item.filedVsOrdered;
+  ok(Array.isArray(fo) && fo.length === 2, "Filed vs. Ordered is not a two-line pair");
+  const filed = (fo || []).find((r) => r.step === "filed");
+  const ordered = (fo || []).find((r) => r.step === "ordered");
+  ok(filed, "no Filed line");
+  ok(ordered, "no Ordered line");
+  if (filed) {
+    ok(/Rocky Mountain Power/.test(filed.label) && /Application for General Rate Increase/.test(filed.title), "the Filed line is not the utility's application");
+    eq(filed.date, "2024-06-28", "Filed date");
+    ok(PSC_DOC.test(filed.url), "the Filed line does not link a public PSC document");
+  }
+  if (ordered) {
+    ok(/PSC/.test(ordered.label), "the Ordered line is not the PSC's");
+    eq(ordered.date, "2025-04-25", "Ordered date");
+    eq(ordered.date, item.orderDate, "the Ordered line is the entry's order");
+    eq(ordered.url, item.source.url, "the Ordered line links the public order");
+  }
+  // No percentages, scores or reading of either document.
+  const foText = JSON.stringify(fo);
+  ok(!/%|\bscore|\$\d/.test(foText), "Filed vs. Ordered carries a figure, percentage or score");
+  ok(!PARTISAN.test(foText), "Filed vs. Ordered carries partisan language");
+
+  // On /sunlight.
+  const tbl = /<table[^>]*data-sg-filed-ordered[^>]*>([\s\S]*?)<\/table>/.exec(html);
+  ok(tbl, "/sunlight has no Filed vs. Ordered section");
+  ok(/<h3[^>]*>Filed vs\. Ordered<\/h3>/.test(html), "/sunlight has no Filed vs. Ordered heading");
+  if (tbl) {
+    const t = tbl[1];
+    const E = load(["sunlight-entries.js"]).PDXSunlightEntries;
+    for (const r of fo || []) {
+      const row = new RegExp(`<tr data-sg-fo="${r.step}">([\\s\\S]*?)</tr>`).exec(t);
+      ok(row, `/sunlight lacks the ${r.step} line`);
+      if (!row) continue;
+      ok(row[1].includes(r.label), `${r.step} label disagrees with the data`);
+      ok(row[1].includes(`<time datetime="${r.date}">${E.longDate(r.date)}</time>`), `${r.step} date disagrees with the data`);
+      ok(row[1].includes(`href="${r.url}"`) && row[1].includes(`>${r.title}</a>`), `${r.step} link disagrees with the data`);
+    }
+    ok(!/%/.test(t.replace(/<[^>]+>/g, "")), "the page's Filed vs. Ordered prints a percentage");
+  }
+}
+
+section("the filings note turns into an Update when a filing is added to the list");
+{
+  const w = load(["sunlight-governance.js", "sunlight-entries.js"]);
+  const E = w.PDXSunlightEntries;
+  const rc = E.byId[ID];
+  ok(Array.isArray(rc.filingsSinceOrder), "the entry has no filings list");
+  eq(rc.filingsSinceOrder.length, 0, "the filings list starts empty");
+  const before = E.filingsNote();
+  eq(before.hasUpdates, false, "an empty list is not an update");
+  eq(before.note, "No new public PSC filings flagged since the April 25, 2025 order.", "the empty note");
+  ok(!/Update/.test(E.filingsHtml(before)), "the empty note reads as an update");
+
+  // The page's static block is the empty-list rendering.
+  const blk = /<div[^>]*data-sg-filings="([a-z]+)"[^>]*>([\s\S]*?)<\/div>/.exec(html);
+  ok(blk, "/sunlight has no filings block");
+  ok(/<h3[^>]*>Public filings since the order<\/h3>/.test(html), "/sunlight has no filings heading");
+  if (blk) {
+    eq(blk[1], "none", "the static block is not the empty state");
+    eq(blk[2], E.filingsHtml(before), "the static block disagrees with the empty note");
+  }
+  ok(/<script src="\/sunlight-entries\.js" defer><\/script>/.test(html), "/sunlight does not load the entry to repaint the note");
+
+  // Add a dated, sourced filing to the list: the note becomes an Update.
+  const filing = { date: "2026-07-31", title: "Order Approving Settlement Stipulation", url: "https://pscdocs.utah.gov/electric/24docs/2403504/example-7-31-2026.pdf" };
+  rc.filingsSinceOrder.push({ date: "2024-12-01", title: "Before the order", url: "https://pscdocs.utah.gov/x.pdf" }, { date: "2026-08-01", title: "No link" }, filing);
+  const after = E.filingsNote();
+  eq(after.hasUpdates, true, "a dated, sourced filing after the order is an update");
+  eq(after.updates.length, 1, "only dated, sourced filings after the order count");
+  const h = E.filingsHtml(after);
+  ok(h.startsWith("<p><b>Update:</b> A new public filing in Docket No. 24-035-04 since the April 25, 2025 order.</p>"), "the note does not read as an Update");
+  ok(h.includes(`<a href="${filing.url}" rel="noopener">${filing.title}</a>`), "the Update does not link the filing");
+  ok(h.includes('<time datetime="2026-07-31">July 31, 2026</time>'), "the Update does not date the filing");
+  ok(!h.includes("Before the order") && !h.includes("No link"), "an undated, unsourced or pre-order row was printed");
+
+  // The page repaints its block from the list.
+  const el = { innerHTML: blk ? blk[2] : "", attrs: { "data-sg-filings": "none" }, setAttribute(k, v) { this.attrs[k] = v; } };
+  ok(E.paint({ querySelector: (sel) => (sel === "[data-sg-filings]" ? el : null) }), "paint did not find the block");
+  eq(el.attrs["data-sg-filings"], "new", "the repainted block is not marked new");
+  eq(el.innerHTML, h, "the repainted block is not the Update");
+  ok(!PARTISAN.test(h), "the filings note carries partisan language");
 }
 
 if (failures.length) {

@@ -6,6 +6,8 @@
    under the board's composer for the live Sunlight Governance entry (Rocky
    Mountain Power's rate case, Utah PSC Docket No. 24-035-04):
 
+     · "Filed vs. Ordered": the utility's application and the PSC's order,
+       each by title, date and public link (Phase 4)
      · a light update note when a new public PSC filing has been flagged
      · "Support this ask" — one signal per verified resident of this seat
      · "Ask your representative" — a request that the seat's sitting member
@@ -35,6 +37,8 @@
     hd: 'Rate case: residents of this seat',
     frame: 'Verified residents of this seat. Counts are actions taken, not a measure of opinion.',
     readEntry: 'Read the entry',
+    foHd: 'Filed vs. Ordered',
+    filingsHd: 'Public filings since the order',
     supportBtn: 'Support this ask',
     supportOn: 'You support this ask · Withdraw',
     supportCount: function (n) { return n === 1 ? '1 resident of this seat supports this ask.' : n + ' residents of this seat support this ask.'; },
@@ -97,12 +101,26 @@
   }
 
   // ── PIECES ────────────────────────────────────────────────────────────────
+  // Filed vs. Ordered: the utility's request and the PSC's order, each by the
+  // public document's title and date, as the entry carries them.
+  function filedOrderedHtml(rows) {
+    if (!rows || !rows.length) return '';
+    var li = rows.map(function (r) {
+      return '<li data-sv-fo="' + esc(r.step) + '"><span class="pdxsv-fo-l">' + esc(r.label) + '</span> · ' +
+        '<time datetime="' + esc(r.date) + '">' + esc(r.dateLabel || r.date) + '</time> · ' +
+        '<a href="' + esc(r.url) + '" target="_blank" rel="noopener">' + esc(r.title) + '</a></li>';
+    }).join('');
+    return '<div class="pdxsv-fo" data-sv-filed-ordered="1">' +
+      '<h4 class="pdxsv-h4">' + esc(COPY.foHd) + '</h4><ul>' + li + '</ul></div>';
+  }
+
   function filingsHtml(f) {
     if (!f) return '';
     var items = (f.updates || []).map(function (u) {
       return '<li><a href="' + esc(u.url) + '" target="_blank" rel="noopener">' + esc(u.title) + '</a> <span class="pdxsv-dim">' + esc(u.date) + '</span></li>';
     }).join('');
     return '<div class="pdxsv-filings' + (f.hasUpdates ? ' is-new' : '') + '" data-sv-filings="' + (f.hasUpdates ? 'new' : 'none') + '">' +
+      '<h4 class="pdxsv-h4">' + esc(COPY.filingsHd) + '</h4>' +
       '<p>' + (f.hasUpdates ? '<strong>Update:</strong> ' : '') + esc(f.note) + '</p>' +
       (items ? '<ul>' + items + '</ul>' : '') + '</div>';
   }
@@ -178,6 +196,7 @@
       '<p class="pdxsv-entry"><strong>' + esc(e.title) + '</strong> · <a href="' + esc(e.href) + '">' + esc(COPY.readEntry) + '</a></p>' +
       '<p class="pdxsv-ask-label">The ask: <strong>' + esc(e.askLabel) + '</strong></p>' +
       '<p class="pdxsv-dim">' + esc(COPY.frame) + '</p>' +
+      filedOrderedHtml(r.filedVsOrdered) +
       filingsHtml(r.filings) +
       (open ? '' : '<p class="pdxdc-locked" data-sv-locked="1">' + esc(v.line || '') + (v.note ? ' <span class="pdxsv-dim">' + esc(v.note) + '</span>' : '') + '</p>') +
       supportHtml(r.support, open) +
@@ -239,6 +258,8 @@
       '.pdxsv-h4{font:600 1rem/1.3 "Barlow Condensed",sans-serif;margin:1rem 0 .35rem;letter-spacing:.02em}' +
       '.pdxsv-btn{display:inline-block;margin:.35rem .5rem .35rem 0;padding:.45rem .85rem;border-radius:8px;border:1px solid rgba(245,197,66,.6);background:transparent;color:inherit;font-weight:600;cursor:pointer}' +
       '.pdxsv-btn.is-on{background:rgba(245,197,66,.18)}.pdxsv-btn[disabled]{opacity:.5;cursor:not-allowed}' +
+      '.pdxsv-fo{margin:.6rem 0;font-size:.9rem}.pdxsv-fo ul{margin:.25rem 0 0 1rem;padding:0}.pdxsv-fo li+li{margin-top:.2rem}.pdxsv-fo-l{font-weight:600}' +
+      '.pdxsv-filings .pdxsv-h4{margin:0 0 .2rem}' +
       '.pdxsv-filings{margin:.6rem 0;padding:.5rem .75rem;border-radius:8px;background:rgba(148,163,184,.1);font-size:.9rem}' +
       '.pdxsv-filings.is-new{background:rgba(245,197,66,.14)}.pdxsv-filings ul{margin:.25rem 0 0 1rem}' +
       '.pdxsv-opts{display:flex;gap:.4rem;margin:.25rem 0}.pdxsv-opt{padding:.1rem .5rem;border:1px solid rgba(148,163,184,.4);border-radius:999px;font-size:.8rem;text-transform:capitalize}' +

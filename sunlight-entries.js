@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// sunlight-entries.js — Sunlight Governance live entries (Phase 2)
+// sunlight-entries.js — Sunlight Governance live entries (Phases 2 and 4)
 // ─────────────────────────────────────────────────────────────────────────────
 // The category tag and its registry live in sunlight-governance.js
 // (window.PDXSunlight). This file holds the ENTRIES: sourced public records
@@ -20,6 +20,10 @@
 // why stays with the utility that designated it. The ask is one narrow,
 // voluntary step about one existing contract. It is not a call for legislation.
 //
+// PHASE 4 adds the evidence layer: a "Filed vs. Ordered" pair (the utility's
+// application and the PSC's order, each by title, date and public link) and a
+// manual "Public filings since the order" list, FILINGS_SINCE_ORDER below.
+//
 // sunlight.html prints the same entry as static markup, and
 // scripts/test-sunlight-rate-case.mjs pins the two copies to each other.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -28,6 +32,55 @@
   if (root.PDXSunlightEntries && root.PDXSunlightEntries.__v) return;
 
   var ORDER_URL = 'https://pscdocs.utah.gov/electric/24docs/2403504/3395032403504,2303540,and2303544o4-25-2025.pdf';
+  var APPLICATION_URL = 'https://pscdocs.utah.gov/electric/24docs/2403504/334469RMPGRCAplctn6-28-2024.pdf';
+
+  // ── PUBLIC FILINGS SINCE THE ORDER (THE MANUAL CONFIG LIST) ───────────────
+  // When a new public filing appears in Docket No. 24-035-04, add one row:
+  //   { date: 'YYYY-MM-DD', title: 'Document title as posted', url: 'https://pscdocs.utah.gov/…' }
+  // Only rows dated after the April 25, 2025 order and linked to a public
+  // https document count. One such row turns the note on /sunlight and on
+  // every Utah District Voice board into an "Update" with a link. This list
+  // is the only one to edit: the District Voice API core imports this file.
+  var FILINGS_SINCE_ORDER = [];
+
+  var NO_FILINGS = 'No new public PSC filings flagged since the April 25, 2025 order.';
+
+  // The note both surfaces print. Pure: the same list gives the same note.
+  function filingsNote(list) {
+    var src = Array.isArray(list) ? list : FILINGS_SINCE_ORDER;
+    var fresh = src.filter(function (u) {
+      return u && /^\d{4}-\d{2}-\d{2}$/.test(String(u.date)) && String(u.date) > '2025-04-25' &&
+        u.title && /^https:\/\//.test(String(u.url || ''));
+    }).map(function (u) {
+      return { date: String(u.date), title: String(u.title), url: String(u.url) };
+    }).sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; });
+    return {
+      docket: '24-035-04',
+      orderUrl: ORDER_URL,
+      hasUpdates: fresh.length > 0,
+      note: fresh.length
+        ? (fresh.length === 1 ? 'A new public filing' : fresh.length + ' new public filings') +
+          ' in Docket No. 24-035-04 since the April 25, 2025 order.'
+        : NO_FILINGS,
+      updates: fresh
+    };
+  }
+
+  var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  function longDate(iso) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ''));
+    return m ? MONTHS[Number(m[2]) - 1] + ' ' + Number(m[3]) + ', ' + m[1] : '';
+  }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  // Inner markup of the /sunlight filings block for a note.
+  function filingsHtml(n) {
+    var items = n.updates.map(function (u) {
+      return '<li><a href="' + esc(u.url) + '" rel="noopener">' + esc(u.title) + '</a> <time datetime="' + esc(u.date) + '">' + esc(longDate(u.date)) + '</time></li>';
+    }).join('');
+    return '<p>' + (n.hasUpdates ? '<b>Update:</b> ' : '') + esc(n.note) + '</p>' + (items ? '<ul>' + items + '</ul>' : '');
+  }
 
   var RMP_RATE_CASE = {
     kind: 'rate_case',
@@ -60,6 +113,19 @@
       { label: 'Return on equity', value: '9.65% requested; 9.375% approved' },
       { label: 'Average single-family residential bill (700 kWh)', value: '+$4.31 a month (4.7%) in 2025' }
     ],
+
+    // ── Filed vs. Ordered ─────────────────────────────────────────────────────
+    // The utility's main public request and the PSC's order, each as the
+    // public document's own title and date. No figures, no reading of either.
+    filedVsOrdered: [
+      { step: 'filed', label: 'Filed by Rocky Mountain Power', date: '2024-06-28',
+        title: 'Rocky Mountain Power’s Application for General Rate Increase', url: APPLICATION_URL },
+      { step: 'ordered', label: 'Ordered by the PSC', date: '2025-04-25',
+        title: 'Order, Docket Nos. 24-035-04, 23-035-40 and 23-035-44', url: ORDER_URL }
+    ],
+
+    // ── Public filings since the order (see FILINGS_SINCE_ORDER above) ────────
+    filingsSinceOrder: FILINGS_SINCE_ORDER,
 
     // ── Confidential or redacted portions ─────────────────────────────────────
     redaction: {
@@ -148,7 +214,28 @@
   };
 
   var list = [RMP_RATE_CASE];
-  root.PDXSunlightEntries = { __v: 1, list: list, byId: { 'UT-PSC-24-035-04': RMP_RATE_CASE } };
+  root.PDXSunlightEntries = {
+    __v: 1, list: list, byId: { 'UT-PSC-24-035-04': RMP_RATE_CASE },
+    filingsNote: filingsNote, filingsHtml: filingsHtml, longDate: longDate, paint: paint
+  };
+
+  // On /sunlight the filings block ships as static markup (the no-script
+  // reading). When the list above has a dated, sourced filing, repaint it.
+  function paint(doc) {
+    try {
+      var el = doc && doc.querySelector && doc.querySelector('[data-sg-filings]');
+      if (!el) return false;
+      var n = filingsNote();
+      el.innerHTML = filingsHtml(n);
+      el.setAttribute('data-sg-filings', n.hasUpdates ? 'new' : 'none');
+      return true;
+    } catch (e) { return false; }
+  }
+  var doc = root.document;
+  if (doc && doc.querySelector) {
+    if (doc.readyState === 'loading' && doc.addEventListener) doc.addEventListener('DOMContentLoaded', function () { paint(doc); });
+    else paint(doc);
+  }
 
   var S = root.PDXSunlight;
   if (S && typeof S.register === 'function') {
