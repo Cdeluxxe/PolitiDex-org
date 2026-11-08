@@ -20,6 +20,12 @@
  *      prints no thread.
  *   4. NOTHING ELSE MOVED. The issue register, the stance generator and
  *      District Voice do not name the tag.
+ *   5. THE PAGE IS A VISUAL EXPLAINER. A 2–3 sentence plain-language summary
+ *      opens /sunlight; the rate case reads as three steps (asked / ordered /
+ *      stayed confidential, each with a title, one sentence and its public
+ *      document), large labelled figures, confidential quotes led by
+ *      plain-English labels, and the ask as the closing call to action — and
+ *      every document link, figure and page number from before is still there.
  *
  *   node scripts/test-sunlight-governance.mjs
  */
@@ -221,6 +227,120 @@ const thread = (h) => /data-eye-sunlight-thread="1"([\s\S]*?)(?=<div class="pdx-
 section("the stance generator, District Voice and the issue register do not name the tag");
 for (const f of ["issue-map.js", "alignment-tool.js", "stance-studio.js", "voice-room.js", "issue-page.js", "issue.html", "voice.html"]) {
   if (existsSync(join(ROOT, f))) ok(!/sunlight_governance|Sunlight Governance/.test(R(f)), `${f} names the Sunlight Governance tag`);
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 5 · The visual explainer: summary, three steps, figures, labelled quotes, ask
+// ═════════════════════════════════════════════════════════════════════════════
+section("/sunlight reads as a visual explainer and keeps every link and figure");
+{
+  const html = R("sunlight.html");
+  const strip = (s) => s.replace(/<[^>]+>/g, " ").replace(/&middot;/g, "·").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
+  const ORDER = "https://pscdocs.utah.gov/electric/24docs/2403504/3395032403504,2303540,and2303544o4-25-2025.pdf";
+  const APPL = "https://pscdocs.utah.gov/electric/24docs/2403504/334469RMPGRCAplctn6-28-2024.pdf";
+  const PARTISAN = /\b(republican|democrat|conservative|liberal|progressive|left-wing|right-wing|corrupt|greed|gop)\b/i;
+
+  // The plain-language summary opens the page, before the category explanation.
+  const sum = /<p class="sg-summary" id="sg-summary" data-sg-summary>([\s\S]*?)<\/p>/.exec(html);
+  ok(sum, "the page has no plain-language summary");
+  if (sum) {
+    const text = strip(sum[1]);
+    const sentences = text.split(/(?<=[.!?])\s+/).filter(Boolean);
+    ok(sentences.length >= 2 && sentences.length <= 3, `the summary is not 2–3 sentences (got ${sentences.length})`);
+    ok(/public record of a utility rate case is already open/i.test(text), "the summary does not say the record is already open");
+    ok(/the request, the order, and what stayed confidential in one place/.test(text), "the summary does not name the three pieces");
+    ok(/gaps visible/.test(text), "the summary does not say the gaps become visible");
+    ok(/actual results of the current rules/.test(text) && /judge what works/.test(text), "the summary does not state the goal");
+    ok(/most concentrated control over the process/.test(text), "the summary drops the concentrated-control clause");
+    ok(/first working example is the Rocky Mountain Power rate case/.test(text), "the summary does not point at the rate case");
+    ok(!PARTISAN.test(text), "the summary carries partisan language");
+    ok(html.indexOf('id="sg-summary"') < html.indexOf('id="sg-explanation"'), "the summary does not open the page");
+    ok(html.indexOf('id="sg-summary"') > html.indexOf("<h1"), "the summary sits above the page title");
+  }
+
+  // Three steps, in order, each with a title, one sentence and a document link.
+  const art = (/<article[^>]*id="rmp-24-035-04"[^>]*>([\s\S]*?)<\/article>/.exec(html) || [])[1] || "";
+  const ol = /<ol class="sg-steps" data-sg-steps>([\s\S]*?)<\/ol>/.exec(art);
+  ok(ol, "the entry has no three-step structure");
+  if (ol) {
+    const steps = [...ol[1].matchAll(/<li class="sg-step" data-sg-step="([a-z]+)">([\s\S]*?)<\/li>/g)];
+    eq(steps.map((m) => m[1]).join(","), "asked,ordered,confidential", "the three steps are not asked / ordered / confidential, in order");
+    const want = {
+      asked: ["What the utility asked for", APPL],
+      ordered: ["What the commission ordered", ORDER],
+      confidential: ["What stayed confidential", ORDER],
+    };
+    for (const [, key, body] of steps) {
+      const [title, url] = want[key];
+      ok(new RegExp(`<h4>${title}</h4>`).test(body), `step "${key}" has no "${title}" title`);
+      const p = /<p>([\s\S]*?)<\/p>/.exec(body);
+      ok(p, `step "${key}" has no sentence`);
+      if (p) eq(strip(p[1]).split(/(?<=[.!?])\s+/).filter(Boolean).length, 1, `step "${key}" is not one sentence`);
+      ok(body.includes(`href="${url}"`), `step "${key}" does not link its public document`);
+      ok(/aria-hidden="true"/.test(body), `step "${key}" has no icon`);
+    }
+    ok(art.indexOf("data-sg-steps") < art.indexOf("data-sg-figures"), "the steps do not come before the figures");
+  }
+
+  // Large labelled figures.
+  const figs = /<div class="sg-figs" data-sg-figures>([\s\S]*?)<\/div>\s*<details/.exec(art);
+  ok(figs, "the entry has no large figures");
+  if (figs) {
+    const f = figs[1];
+    for (const [key, label, num] of [["original", "Original request", "$667.3"], ["approved", "Approved increase", "$87.2"], ["bill", "residential bill", "+$4.31"]]) {
+      const m = new RegExp(`data-sg-fig="${key}">([\\s\\S]*?)</div>`).exec(f);
+      ok(m, `no "${key}" figure`);
+      if (m) {
+        ok(m[1].includes(label), `the "${key}" figure is not labelled "${label}"`);
+        ok(/class="sg-fig-num"/.test(m[1]) && strip(m[1]).includes(num), `the "${key}" figure does not print ${num} large`);
+      }
+    }
+  }
+
+  // Every document link that was on the page before is still there.
+  for (const href of [
+    ORDER, APPL, "/b/2024GS/S.B.%20224", "/b/2025GS/H.B.%20201",
+    "https://le.utah.gov/DynaBill/svotes.jsp?sessionid=2024GS&amp;voteid=1434&amp;house=H",
+    "https://le.utah.gov/DynaBill/svotes.jsp?sessionid=2024GS&amp;voteid=2154&amp;house=S",
+    "https://le.utah.gov/DynaBill/svotes.jsp?sessionid=2025GS&amp;voteid=587&amp;house=H",
+    "https://le.utah.gov/DynaBill/svotes.jsp?sessionid=2025GS&amp;voteid=812&amp;house=S",
+    "/#say-vs-do",
+  ]) ok(html.includes(`href="${href}"`), `the page lost the link ${href}`);
+
+  // Every figure and page number that was on the page before is still there.
+  const text = strip(art);
+  for (const fig of [
+    "$667.3 million", "$393.7 million", "$330.2 million", "$87.2 million (26.4% of the final revised request)",
+    "up to $240.1 million", "9.65% requested; 9.375% approved", "+$4.31 a month (4.7%) in 2025", "(700 kWh)",
+    "$15,289,781", "$5,681,724", "$9,608,057", "350.4 MW", "54-19-2", "21-6-2", "57-10-8",
+    "June 28, 2024", "April 25, 2025", "Dockets 23-035-40 and 23-035-44",
+    "p. 103", "p. 89", "p. 88", "p. 59", "p. 147", "p. 21", "p. 131", "p. 148", "p. 158",
+  ]) ok(text.includes(fig), `the page lost the figure "${fig}"`);
+  for (const dt of ["Original request", "Amended application", "Final revised request", "Approved increase",
+    "Deferred to a future Energy Balancing Account filing", "Return on equity", "Average single-family residential bill (700 kWh)"]) {
+    ok(new RegExp(`<dt>${dt.replace(/[()]/g, "\\$&")}</dt>`).test(art), `the decision list lost "${dt}"`);
+  }
+
+  // Each confidential quote is led by a short plain-English label.
+  const conf = /<ul class="sg-conf" data-sg-conf>([\s\S]*?)<\/ul>/.exec(art);
+  ok(conf, "the confidential quotes are not in the labelled list");
+  if (conf) {
+    const items = [...conf[1].matchAll(/<li>([\s\S]*?)<\/li>/g)];
+    eq(items.length, 5, "the confidential list does not hold all five quotes");
+    for (const [, li] of items) {
+      const lab = /^<span class="sg-conf-plain">([^<]+)<\/span><b>[^<]+<\/b><blockquote>/.exec(li);
+      ok(lab, `a confidential quote is not led by a plain-English label: ${strip(li).slice(0, 40)}`);
+      if (lab) ok(lab[1].split(/\s+/).length <= 9, `the plain-English label is not short: ${lab[1]}`);
+    }
+  }
+
+  // The ask is the call to action: the last block in the entry, styled apart.
+  ok(/<div class="sg-ask" id="rmp-ask" data-sg-ask>[\s\S]*?<\/div>\s*$/.test(art), "the ask is not the closing block of the entry");
+  ok(/\.sg-ask \{[^}]*border: 2px solid/.test(html), "the ask is not visually set apart");
+  ok(/class="sg-ask-title"><b>The ask: Publish one confidential contract\.<\/b>/.test(art), "the ask headline moved");
+
+  // No scoring crept in.
+  ok(!/\bscore|grade|rating\b/i.test(text), "the explainer prints a score");
 }
 
 if (failures.length) {

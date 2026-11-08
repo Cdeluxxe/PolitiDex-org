@@ -11807,7 +11807,19 @@
 //     No location key or other stored reader state is written or rewritten,
 //     so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v537';
+// v538 - SUNLIGHT AS A VISUAL EXPLAINER.
+//     sunlight.html (the /sunlight shell, served fresh) is re-laid out as a
+//     visual explainer: a plain-language summary opens the page, the Utah PSC
+//     rate case reads as three steps (asked / ordered / stayed confidential),
+//     three large labelled figures sit above the full decision list, each
+//     confidential quote is led by a plain-English label, and the ask closes
+//     the entry as a call to action. No fact, figure, document link or page
+//     number changed; sunlight-entries.js and sunlight-voice.js are unchanged.
+//     The sunlight shell changed, so the shell moves one version; the precache
+//     list is unchanged. No stored reader state is written or rewritten, so
+//     nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v538';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
