@@ -34,6 +34,15 @@
    An item with no clear position and no excerpt has nothing to show and is
    dropped.
 
+   PROMOTED STANCES. On an issue with no hand-curated stance, directional
+   items (strong or weak, never mentions) fill the Stated stance slot with a
+   "Said: Supports/Opposes" line marked pipeline-sourced: one weak item → a weak
+   stance ("Weak signal"); one strong item or three weak items on that side → a
+   stronger stance ("Stronger signal"). Shown in the top section's Said rows,
+   All Issues by Topic, the Evidence tab and Word vs Action. A curated stance
+   always wins and is never touched; an even split promotes nothing; display
+   only (see promotedStance below).
+
    WHERE THIS CONFLICTS. Each of those three Locker lines (Evidence tab card,
    topic-tree leaf, Word vs Action list) gains one short line when the voting
    record on the item's issue — or on a related issue, when its own has no
@@ -365,6 +374,140 @@
   }
   var CONFLICT_STYLE = 'font-size:0.7rem;line-height:1.4;color:#f8b4b4;';
 
+  // ── Promoted stances: Locker evidence in the "Stated stance" slot ───────
+  // An issue with NO hand-curated stance, but with directional Locker evidence
+  // (strong or weak — never a mention), gets a visible "Said: Supports/Opposes"
+  // line in the slot a curated stance would fill:
+  //   · weak   — at least one weak item on that side: the line carries a
+  //              "Weak signal" badge;
+  //   · strong — at least one strong item, or PROMOTE_WEAK_N weak items, on
+  //              that side: the line carries a "Stronger signal" note instead.
+  // Every line is marked pipeline-sourced (data-pdx-stance-source="pipeline"
+  // and a visible tag) so it never reads as a curated card.
+  // Rules:
+  //   · a curated stance on the issue (any side, including mixed) always wins:
+  //     no promoted line is drawn there, and the curated one is never touched;
+  //   · evidence on both sides at the same level is a split, not a stance:
+  //     nothing is promoted; otherwise the better-evidenced side is shown;
+  //   · display only. Nothing here enters _resolveStanceList, the row model,
+  //     a verdict, a count or a score.
+  var PROMOTE_WEAK_N = 3;
+  var SAID_LABEL = 'Said:';
+  var PROMO_TAG = 'Pipeline-sourced';
+  var PROMO_TITLE = 'Read automatically from Evidence Locker items, not a hand-curated stance. Not counted in any score.';
+  var PROMO_WEAK_TITLE = 'Weak stance: limited, low-confidence Locker evidence on this issue. Not a firm stance.';
+  var PROMO_STRONG_BADGE = 'Stronger signal';
+  var PROMO_STRONG_TITLE = 'Stronger stance: a high-confidence Locker item, or ' + PROMOTE_WEAK_N +
+    '+ weaker items, on the same side of this issue.';
+  var EVD_SAID_HEAD = '📂 Stated stances read from the Evidence Locker';
+  var EVD_SAID_NOTE = 'Issues with no curated stance yet, where the pipeline found statements that lean one way. Pipeline-sourced; not counted anywhere on this profile.';
+  var WA_SAID_HEAD = '✒️ Stated stances read from the Locker';
+
+  // Does a hand-curated stance already sit in this issue's slot?
+  function curatedOn(pid, key) {
+    var ids = [String(pid || '')];
+    var c = canon(pid);
+    if (c && ids.indexOf(c) === -1) ids.push(c);
+    for (var i = 0; i < ids.length; i++) {
+      var id = ids[i];
+      if (!id) continue;
+      try {
+        if (typeof window._resolveStanceList === 'function') {
+          var list = window._resolveStanceList(id, profileOf(id)) || [];
+          for (var j = 0; j < list.length; j++) if (list[j] && list[j].issueKey === key) return true;
+        }
+      } catch (e) {}
+      try {
+        var CS = window.PDXConsistency;
+        if (CS && typeof CS.issueRows === 'function') {
+          var rows = CS.issueRows(id, [key]) || [];
+          for (var r = 0; r < rows.length; r++) {
+            var row = rows[r];
+            if (row && row.key === key && (row.said || (row.stance && row.stance.key))) return true;
+          }
+        }
+      } catch (e) {}
+    }
+    return false;
+  }
+  // { key, side, label, strength: 'weak'|'strong', strong, weak, items, source }
+  // or null when nothing should be promoted.
+  function promotedStance(pid, key) {
+    if (!pid || !key) return null;
+    var side = { support: { strong: 0, weak: 0, items: [] }, oppose: { strong: 0, weak: 0, items: [] } };
+    forIssue(pid, key).forEach(function (it) {
+      var st = strengthOf(it);
+      if (st !== 'strong' && st !== 'weak') return;      // a mention is never a stance
+      var s = side[it.pipeline.position];
+      if (!s) return;
+      s[st]++;
+      s.items.push(it);
+    });
+    var level = function (s) { return (s.strong || s.weak >= PROMOTE_WEAK_N) ? 2 : (s.weak ? 1 : 0); };
+    var ls = level(side.support), lo = level(side.oppose);
+    if (ls === lo) return null;                          // nothing, or an even split
+    if (curatedOn(pid, key)) return null;                // curated always wins
+    var pos = ls > lo ? 'support' : 'oppose';
+    var s = side[pos];
+    return {
+      key: key, side: pos, label: POS[pos],
+      strength: Math.max(ls, lo) === 2 ? 'strong' : 'weak',
+      strong: s.strong, weak: s.weak, items: s.items.slice(), source: 'pipeline'
+    };
+  }
+  function promotedStances(pid) {
+    var seen = {}, out = [];
+    items(pid).forEach(function (it) {
+      var k = it.issueKey;
+      if (!k || seen[k]) return;
+      seen[k] = 1;
+      var ps = promotedStance(pid, k);
+      if (ps) out.push(ps);
+    });
+    return out;
+  }
+  function promoBadgeHtml(ps) {
+    if (ps.strength === 'weak') {
+      return '<span class="pdx-locker-weak pdx-locker-said-weak" data-pdx-locker-weak="1" title="' + esc(PROMO_WEAK_TITLE) + '" ' +
+        'style="display:inline-block;margin-left:0.3rem;padding:0 0.35rem;border:1px dashed rgba(245,200,66,0.55);' +
+        'border-radius:0.6rem;font-size:0.62rem;font-weight:700;letter-spacing:0.02em;color:#f5c842;vertical-align:1px;">' +
+        '◔ ' + esc(WEAK_BADGE) + '</span>';
+    }
+    return '<span class="pdx-locker-said-strong" data-pdx-locker-stronger="1" title="' + esc(PROMO_STRONG_TITLE) + '" ' +
+      'style="display:inline-block;margin-left:0.3rem;padding:0 0.35rem;border:1px solid rgba(110,231,183,0.45);' +
+      'border-radius:0.6rem;font-size:0.62rem;font-weight:700;letter-spacing:0.02em;color:#6ee7b7;vertical-align:1px;">' +
+      '● ' + esc(PROMO_STRONG_BADGE) + '</span>';
+  }
+  function promoTagHtml() {
+    return '<span class="pdx-locker-said-src" data-pdx-stance-source-tag="pipeline" title="' + esc(PROMO_TITLE) + '" ' +
+      'style="display:inline-block;margin-left:0.3rem;padding:0 0.35rem;border:1px solid rgba(159,180,212,0.4);' +
+      'border-radius:0.6rem;font-size:0.6rem;font-weight:600;color:#9fb4d4;vertical-align:1px;">' +
+      '📂 ' + esc(PROMO_TAG) + '</span>';
+  }
+  function promoCountText(ps) {
+    var n = ps.items.length;
+    return n + ' Locker item' + (n === 1 ? '' : 's');
+  }
+  // One "Said:" line, the same in every surface; `opts.issue` prefixes the
+  // issue name (for lists that are not already under an issue heading).
+  function saidLineHtml(ps, tag, cls, opts) {
+    if (!ps) return '';
+    opts = opts || {};
+    tag = tag || 'div';
+    return '<' + tag + ' class="pdx-locker-said' + (cls ? ' ' + cls : '') + '"' +
+      ' data-pdx-locker-said="' + esc(ps.key) + '"' +
+      ' data-pdx-locker-said-side="' + esc(ps.side) + '"' +
+      ' data-pdx-locker-said-strength="' + esc(ps.strength) + '"' +
+      ' data-pdx-stance-source="pipeline"' +
+      ' style="' + (opts.style || 'margin:0.2rem 0;') + 'font-size:0.74rem;line-height:1.45;color:#c9d6ea;">' +
+      (opts.issue ? '<span style="color:#cbd9ec;">' + esc(issueLabel(ps.key)) + ' — </span>' : '') +
+      '<b class="pdx-locker-said-lb">' + esc(SAID_LABEL) + '</b> ' +
+      '<b class="pdx-locker-said-pos" style="color:#f5c842;">' + esc(ps.label) + '</b>' +
+      promoBadgeHtml(ps) + promoTagHtml() +
+      ' <span style="color:#5f7da6;">· from ' + esc(promoCountText(ps)) + '</span>' +
+    '</' + tag + '>';
+  }
+
   // ── 🌳 All Issues by Topic ───────────────────────────────────────────────
   // One line under a leaf, in the leaf's own source-link style (.pdxtree-src).
   function treeLineHtml(it, pid) {
@@ -401,7 +544,10 @@
     }).join('');
   }
   function treeLeafHtml(pid, key) {
-    return forIssue(pid, key).map(function (it) { return treeLineHtml(it, pid); }).join('');
+    var its = forIssue(pid, key);
+    if (!its.length) return '';
+    return saidLineHtml(promotedStance(pid, key), 'div', 'pdxtree-locker-said') +
+      its.map(function (it) { return treeLineHtml(it, pid); }).join('');
   }
   // Items whose issue has no leaf in the tree still belong in the topic
   // section: they are listed under it, grouped by issue, in the same line style.
@@ -420,6 +566,7 @@
       order.map(function (k) {
         return '<div class="pdxtree-lockergrp" data-pdxtree-locker-grp="' + esc(k) + '">' +
           '<span class="pdxtree-name">' + esc(issueLabel(k)) + '</span>' +
+          saidLineHtml(promotedStance(pid, k), 'div', 'pdxtree-locker-said') +
           byKey[k].map(function (it) { return treeLineHtml(it, pid); }).join('') +
         '</div>';
       }).join('') +
@@ -455,7 +602,8 @@
   }
   function waHtml(pid, p) {
     var m = waMatches(pid, p);
-    if (!m.length) return '';
+    var promo = items(pid).length ? promotedStances(pid) : [];
+    if (!m.length && !promo.length) return '';
     // An item on an open pledge's issue is that pledge's evidence: it is listed
     // first, under the pledge it belongs to, rather than as one more statement.
     var forPledge = [], rest = [];
@@ -466,6 +614,12 @@
     return '<div class="modal-section pdxwa-locker" data-pdxwa-locker="1" style="margin-top:-0.4rem;padding-top:0.6rem;border-top:1px solid rgba(159,180,212,0.18);">' +
       '<div class="pdxwa-verdict" style="color:#f5c842;font-size:0.8rem;">' + esc(HEAD) + '</div>' +
       '<p class="pdxwa-line" style="font-size:0.72rem;color:#9fb4d4;">' + esc(WA_NOTE) + '</p>' +
+      (promo.length
+        ? '<div class="pdxwa-locker-said" data-pdxwa-locker-said="1">' +
+            '<p class="pdxwa-line" style="font-size:0.74rem;color:#cbd9ec;margin-bottom:0.2rem;"><b>' + esc(WA_SAID_HEAD) + '</b></p>' +
+            promo.map(function (ps) { return saidLineHtml(ps, 'p', 'pdxwa-line', { issue: true, style: 'margin:0 0 0.3rem;' }); }).join('') +
+          '</div>'
+        : '') +
       (forPledge.length
         ? '<div class="pdxwa-locker-pledges" data-pdxwa-locker-pledges="1">' +
             '<p class="pdxwa-line" style="font-size:0.74rem;color:#cbd9ec;margin-bottom:0.2rem;"><b>🤝 Evidence for their open pledges</b></p>' +
@@ -598,7 +752,7 @@
       '<div class="evd-spot-head"><span class="evd-spot-impact neutral" aria-hidden="true">•</span>' + head + '</div>' +
       body + link + '</div>';
   }
-  function evdWeakHtml(pid, skip) {
+  function evdWeakHtml(pid, skip, promoBy) {
     var rest = weaker(pid).filter(function (it) { return !skip || skip.indexOf(it) === -1; });
     if (!rest.length) return '';
     var byKey = {}, order = [];
@@ -610,11 +764,53 @@
       '<div class="modal-section-title">' + esc(EVD_HEAD) + '</div>' +
       '<p class="evd-foot-note" style="margin-top:0;">' + esc(EVD_NOTE) + '</p>' +
       order.map(function (k) {
+        var ps = promoBy && promoBy[k];
+        if (ps) delete promoBy[k];
         return '<div class="evd-card" data-evd-locker-grp="' + esc(k) + '">' +
           '<div class="evd-head"><span class="evd-head-label">' + esc(issueLabel(k)) + '</span></div>' +
+          (ps ? saidLineHtml(ps, 'div', 'evd-locker-said', { style: 'margin:0.2rem 0 0.3rem;' }) : '') +
           byKey[k].map(evdWeakCardHtml).join('') +
         '</div>';
       }).join('') +
+    '</div>';
+  }
+  // The issue card's "📌 Stated stance" lane prints "No curated stance written
+  // yet" when no curated card exists. A promoted stance takes that slot. Returns
+  // the html and a key → stance map of the stances it could not place (no card
+  // for that issue on the tab).
+  var EVD_LANE_H = '<div class="evd-lane-h">📌 Stated stance</div>';
+  function decorateStanceLanes(html, pid) {
+    var rest = {};
+    var promo = items(pid).length ? promotedStances(pid) : [];
+    promo.forEach(function (ps) {
+      var anchor = '';
+      try { anchor = typeof window._pdxEvAnchor === 'function' ? window._pdxEvAnchor(pid, ps.key) : ''; } catch (e) { anchor = ''; }
+      var start = (html && anchor) ? html.indexOf('id="' + anchor + '"') : -1;
+      var tagEnd = start === -1 ? -1 : html.indexOf('>', start);
+      var lane = tagEnd === -1 ? -1 : html.indexOf(EVD_LANE_H, tagEnd);
+      var next = tagEnd === -1 ? -1 : html.indexOf('class="evd-card', tagEnd);
+      if (lane === -1 || (next !== -1 && lane > next)) { rest[ps.key] = ps; return; }
+      var from = lane + EVD_LANE_H.length;
+      var emptyOpen = '<p class="evd-empty-line">';
+      if (html.slice(from, from + emptyOpen.length) !== emptyOpen) {
+        // The lane already holds something (a curated badge, or this line):
+        // never replaced.
+        return;
+      }
+      var end = html.indexOf('</p>', from);
+      if (end === -1) { rest[ps.key] = ps; return; }
+      end += 4;
+      html = html.slice(0, from) + saidLineHtml(ps, 'div', 'evd-locker-said', { style: 'margin:0.15rem 0;' }) + html.slice(end);
+    });
+    return { html: html, rest: rest };
+  }
+  function evdSaidRestHtml(rest) {
+    var keys = Object.keys(rest || {});
+    if (!keys.length) return '';
+    return '<div class="modal-section evd-locker-said-block" data-evd-locker-saidblock="1">' +
+      '<div class="modal-section-title">' + esc(EVD_SAID_HEAD) + '</div>' +
+      '<p class="evd-foot-note" style="margin-top:0;">' + esc(EVD_SAID_NOTE) + '</p>' +
+      keys.map(function (k) { return saidLineHtml(rest[k], 'div', 'evd-locker-said', { issue: true }); }).join('') +
     '</div>';
   }
 
@@ -711,8 +907,11 @@
         try { h = decorateEvidence(h, id); } catch (er) {}
         var placed = [];
         try { var d = decoratePledges(h, id); h = d.html; placed = d.placed; } catch (er) { placed = []; }
+        var promoRest = {};
+        try { var sl = decorateStanceLanes(h, id); h = sl.html; promoRest = sl.rest; } catch (er) { promoRest = {}; }
         var extra = '';
-        try { extra = evdWeakHtml(id, placed) || ''; } catch (er) { extra = ''; }
+        try { extra = evdWeakHtml(id, placed, promoRest) || ''; } catch (er) { extra = ''; }
+        try { extra += evdSaidRestHtml(promoRest) || ''; } catch (er) {}
         return extra ? (h || '') + extra : h;
       };
       e.__pdxLocker = true;
@@ -799,6 +998,9 @@
     decoratePledges: decoratePledges, promiseHtml: promiseHtml,
     PLEDGE_NOTE: PLEDGE_NOTE, PLEDGE_GAP_NOTE: PLEDGE_GAP_NOTE,
     REVIEWED_LABEL: REVIEWED_LABEL, reviewOf: reviewOf, reviewedHtml: reviewedHtml,
+    PROMOTE_WEAK_N: PROMOTE_WEAK_N, PROMO_TAG: PROMO_TAG, PROMO_STRONG_BADGE: PROMO_STRONG_BADGE,
+    promotedStance: promotedStance, promotedStances: promotedStances, saidLineHtml: saidLineHtml,
+    curatedOn: curatedOn, decorateStanceLanes: decorateStanceLanes,
     // Test seam: forget everything ingested (does not touch SPOTLIGHT_DATA).
     _reset: function () { byPid = {}; loading = null; }
   };
@@ -817,6 +1019,23 @@
       }
     } catch (e) {}
     return null;
+  };
+
+  // The word-first letterhead's promoted-stance hook (word-action.js): the
+  // issues with no curated stance where Locker evidence leans one way, as rows
+  // for the top section's "Said" list. Display only — never a score input.
+  window._pdxLockerSaidRows = function (pid) {
+    try {
+      if (!items(pid).length) return [];
+      return promotedStances(pid).map(function (ps) {
+        var src = (ps.items[0] && ps.items[0].source) || {};
+        return {
+          key: ps.key, label: issueLabel(ps.key), side: ps.side, sideLabel: ps.label,
+          strength: ps.strength, n: ps.items.length, source: 'pipeline',
+          url: String(src.url || ''), sourceLabel: String(src.label || 'Evidence Locker')
+        };
+      });
+    } catch (e) { return []; }
   };
 
   // Person document only: index.html and the Locker page fold these items

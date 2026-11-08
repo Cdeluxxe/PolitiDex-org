@@ -11740,7 +11740,24 @@
 //     moves one version; the precache list is unchanged. No location key or
 //     other stored reader state is written or rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v532';
+// v533 - LOCKER EVIDENCE PROMOTED TO VISIBLE STANCES.
+//     profile-locker.js (the person-profile script, a runtime entry): on an
+//     issue with NO hand-curated stance, directional Evidence Locker evidence
+//     (never a mention) fills the Stated stance slot as a "Said: Supports /
+//     Opposes" line, marked pipeline-sourced. One weak item reads as a weak
+//     stance ("Weak signal"); one strong item or three weak items on the same
+//     side read as a stronger one ("Stronger signal"). An even split promotes
+//     nothing. The line shows in All Issues by Topic, the Evidence tab (the
+//     issue card's Stated stance lane, or a short block when there is no card)
+//     and Word vs Action. word-action.js + word-action.css (precached): the
+//     word-first letterhead's "Said" rows gain the same promoted stances after
+//     every curated row, with a pipeline tag and a strength chip. Curated
+//     stances are never overwritten; nothing enters a count, figure or score.
+//     Precached shell files changed, so the shell moves one version; the
+//     precache list is unchanged. No stored reader state is written or
+//     rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v533';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

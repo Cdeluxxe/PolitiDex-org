@@ -6087,19 +6087,49 @@
         side: st.key, sideLabel: st.label || ''
       });
     }
+    out.keys = seen;
     out.shown = out.rows.slice(0, SAID_CAP);
+    return out;
+  }
+  // window._pdxLockerSaidRows(pid) is an optional hook profile-locker.js
+  // provides: promoted stances read from Evidence Locker items on issues with
+  // NO curated stance. They join the row list after every curated row (curator
+  // order first), are marked pipeline-sourced, and never replace a curated row:
+  // any issue already in the set is skipped. Absent hook → nothing changes.
+  function saidWithLocker(out, pid) {
+    try {
+      var f = window._pdxLockerSaidRows;
+      if (typeof f !== 'function') return out;
+      var extra = f(pid) || [];
+      if (!extra.length) return out;
+      var seen = out.keys || {};
+      for (var i = 0; i < out.rows.length; i++) seen[out.rows[i].key] = 1;
+      for (var j = 0; j < extra.length; j++) {
+        var x = extra[j];
+        if (!x || !x.key || seen[x.key]) continue;
+        if (x.side !== 'support' && x.side !== 'oppose') continue;
+        seen[x.key] = 1;
+        out.stated++;
+        out.cited++;
+        out.rows.push({
+          key: x.key, label: x.label || x.key, side: x.side, sideLabel: x.sideLabel || '',
+          locker: { strength: x.strength === 'strong' ? 'strong' : 'weak', n: x.n || 0 }
+        });
+      }
+      out.shown = out.rows.slice(0, SAID_CAP);
+    } catch (e) {}
     return out;
   }
   function saidRowSet(pid, p) {
     try {
       var out = saidRowsUnder(pid);
-      if (out.cited) return out;
+      if (out.cited) return saidWithLocker(out, pid);
       var alt = saidStanceId(pid, p);
       if (alt && alt !== pid) {
         var hop = saidRowsUnder(alt);
-        if (hop.cited) return hop;
+        if (hop.cited) return saidWithLocker(hop, pid);
       }
-      return out;
+      return saidWithLocker(out, pid);
     } catch (e) { return { rows: [], shown: [], cited: 0, stated: 0 }; }
   }
 
@@ -6356,13 +6386,26 @@
     var key = x.key || '';
     var door = !!(pid && key);
     var rowId = door ? shapeRowId('said', pid, key) : '';
+    var lk = x.locker || null;
     var say = x.label + ' — said: ' + (x.sideLabel || 'position on file') +
-      '. A documented position of theirs. Open what they said on it.';
+      (lk
+        ? '. Read from Evidence Locker items (pipeline-sourced, ' +
+          (lk.strength === 'weak' ? 'weak signal' : 'stronger signal') + '), not a curated stance. Open what they said on it.'
+        : '. A documented position of theirs. Open what they said on it.');
     var bar = '<span class="pdxwa-shape-bar">' +
         '<span class="pdxwa-said-pat">' + esc(x.sideLabel || 'Position on file') + '</span>' +
-        '<span class="pdxwa-said-tag" title="' +
-          esc('A documented position of theirs, with a citation. Not a vote and not a formal act.') +
-          '">SAID</span>' +
+        (lk
+          ? '<span class="pdxwa-said-tag pdxwa-said-tag-pipeline" title="' +
+              esc('Read automatically from Evidence Locker items, not a hand-curated stance. Not a vote, not a formal act, and not counted in any score.') +
+              '">SAID · PIPELINE</span>' +
+            (lk.strength === 'weak'
+              ? '<span class="pdxwa-said-strength is-weak" data-pdx-locker-weak="1" title="' +
+                  esc('Weak stance: limited, low-confidence Locker evidence on this issue.') + '">◔ Weak signal</span>'
+              : '<span class="pdxwa-said-strength is-strong" data-pdx-locker-stronger="1" title="' +
+                  esc('Stronger stance: a high-confidence Locker item, or several weaker ones, on the same side.') + '">● Stronger signal</span>')
+          : '<span class="pdxwa-said-tag" title="' +
+              esc('A documented position of theirs, with a citation. Not a vote and not a formal act.') +
+              '">SAID</span>') +
       '</span>';
     var body = door
       ? '<span class="pdxwa-shape-door"' +
@@ -6377,6 +6420,8 @@
         '</span>'
       : '<span class="pdxwa-shape-iss">' + esc(x.label) + '</span>' + bar;
     return '<li class="pdxwa-shape-row pdxwa-said-row"' + (rowId ? ' id="' + esc(rowId) + '"' : '') +
+      (lk ? ' data-pdx-locker-said="' + esc(key) + '" data-pdx-locker-said-side="' + esc(x.side || '') + '"' +
+        ' data-pdx-locker-said-strength="' + esc(lk.strength) + '" data-pdx-stance-source="pipeline"' : '') +
       issueTintAttr(key) + '>' +
       body +
       (door ? scopeControlHtml(key) : '') +
