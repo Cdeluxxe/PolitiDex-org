@@ -3310,6 +3310,17 @@
     });
   }
 
+  function loadSunlightVoice() {
+    try {
+      if (window.PDXSunlightVoice || document.querySelector('script[data-pdx-sunlight-voice]')) return;
+      var s = document.createElement('script');
+      s.src = '/sunlight-voice.js';
+      s.defer = true;
+      s.setAttribute('data-pdx-sunlight-voice', '1');
+      (document.head || document.body).appendChild(s);
+    } catch (e) {}
+  }
+
   function mount(host) {
     var el = host || document.getElementById('pdx-district-composer');
     if (!el) return false;
@@ -3317,6 +3328,10 @@
     if (!Object.prototype.hasOwnProperty.call(COMPOSER_SEATS, seat)) return false;
     _host = el;
     _seat = seat;
+    // A Utah board also carries the Sunlight Governance rate-case panel
+    // (sunlight-voice.js), loaded once and only here. It has its own endpoint
+    // and the same residency gate; this file paints none of it.
+    if (/^ut-/.test(seat)) loadSunlightVoice();
     // Back from the vendor. This is a hint for the copy only — it opens
     // nothing; the server's next answer does. Re-ask a few times while the
     // vendor's decision is in flight. Didit appends its own
