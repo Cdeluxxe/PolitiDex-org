@@ -2048,7 +2048,12 @@ section("9 · the engines did not move");
           "briefSeedHtml", "briefLiveN", "briefRecordOnHand", "formalKnown",
           "bindHero", "shapeMatchHtml", "briefAsked",
           "shapeHeroHtml", "briefBodyHtml", "compactBadgeHtml",
-          "figure", "apparatusHtml", "feedsHtml", "heroRead"];
+          "figure", "apparatusHtml", "feedsHtml", "heroRead",
+          // The word-first letterhead's "Said" rows: promoted Evidence Locker
+          // stances (issues with no curated stance) join the row set after every
+          // curated row and carry a pipeline tag and a strength chip. Display only;
+          // no figure, floor or Direction Match input is read or written.
+          "saidRowsUnder", "saidRowSet", "saidRowHtml"];
         // …and the readers the two passes added. Every one is a pure read of state
         // that already existed in the tab — the live member payload, the crawl
         // header's rows, the static formal index, the pattern index's shape, the
@@ -2119,7 +2124,10 @@ section("9 · the engines did not move");
           //   figureOf   the object — pct, tested, eligible, token, the one
           //              fraction sentence, the both-halves answer and the stamp —
           //              for a read the caller hands in
-          "figureOf"];
+          "figureOf",
+          // saidWithLocker  appends profile-locker.js's promoted stances to the
+          //                 said-row set, skipping every issue already in it
+          "saidWithLocker"];
 
         const changed = [], added = [], removed = [];
         for (const [k, v] of A.fns) {

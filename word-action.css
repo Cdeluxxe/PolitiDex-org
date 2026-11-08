@@ -2079,7 +2079,20 @@
   border-radius: 0.25rem;
   border: 1px solid rgba(159, 180, 212, 0.2);
 }
-/* The eyebrow. The record brief's own heading type — same family, size,
+/* A row promoted from Evidence Locker items (no curated stance on the issue):
+   the lane tag says it is pipeline-sourced, dashed so it never reads as a
+   curated card, and a strength chip says how much evidence sits behind it. */
+.pdxwa-said-tag-pipeline { border-style: dashed; color: #9fb4d4; }
+.pdxwa-said-strength {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  padding: 0 0.35rem;
+  border-radius: 0.6rem;
+}
+.pdxwa-said-strength.is-weak { color: #f5c842; border: 1px dashed rgba(245, 200, 66, 0.55); }
+.pdxwa-said-strength.is-strong { color: #6ee7b7; border: 1px solid rgba(110, 231, 183, 0.45); }
    tracking, colour and spacing — because it occupies the same slot and a louder
    one would stage the word lane as the more important of the two rather than as
    the one this file happens to hold. It is longer than "The formal record", so
