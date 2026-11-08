@@ -224,7 +224,10 @@ const REQUIRED = ['politician_id', 'topic', 'position', 'confidence', 'source_ty
 const lockerItems = (st) => [...st.data.values()];
 // Generic fixture pages for cost_living mention the topic, so they now land as
 // mention items; the high-confidence assertions look at strong items only.
-const strongItems = (st) => lockerItems(st).filter((i) => locker.storedStrength(i) === 'strong');
+// The all-topics pass also lands items on other issues a page speaks to; those
+// carry `page_topic`. The per-page assertions below look at the page's own topic.
+const ownTopic = (i) => !i.page_topic;
+const strongItems = (st) => lockerItems(st).filter((i) => ownTopic(i) && locker.storedStrength(i) === 'strong');
 
 await t('a high-confidence candidate produces exactly one Evidence Locker item with every required field and a working link', async () => {
   const store = fakeStore(); const lockerStore = lockerFakeStore(); const logs = [];
@@ -249,9 +252,10 @@ await t('a high-confidence candidate produces exactly one Evidence Locker item w
   assert.equal(item.link, CORNYN_URL);
   assert.equal(item.link_status, 200);
   assert.ok(report.results.find((r) => r.url === item.link)?.ok, 'link was pulled successfully this run');
-  assert.equal(report.locker_writes.filter((w) => w.strength === 'strong').length, 1);
+  assert.equal(report.locker_writes.filter((w) => ownTopic(w) && w.strength === 'strong').length, 1);
   assert.equal(logs.filter((l) => l.startsWith('evidence-locker: WRITE ')).length, report.locker_writes.length, 'every write is logged');
-  assert.equal(logs.filter((l) => /^evidence-locker: (WRITE|SKIP|EXISTS) /.test(l)).length, N, 'every record logs a write or a skip');
+  const crossCandidates = logs.filter((l) => l.startsWith('stance-score: cross-topic candidate ')).length;
+  assert.equal(logs.filter((l) => /^evidence-locker: (WRITE|SKIP|EXISTS) /.test(l)).length, N + crossCandidates, 'every candidate (own topic + cross-topic) logs a write or a skip');
   assert.ok(logs.some((l) => /^evidence-locker: WRITE john_cornyn\|healthcare_costs → evidence-locker\//.test(l)));
   // The existing Locker components read it as a spotlight entry.
   const entry = locker.toSpotlightEntry(item);
@@ -267,7 +271,7 @@ await t('a high-confidence candidate produces exactly one Evidence Locker item w
 await t('Talarico cost of living writes only when it matches the ground-truth position', async () => {
   const lockerStore = lockerFakeStore(); const logs = [];
   await quiet(() => fn.run({ fetch: byUrl({ [TALARICO_URL]: TALARICO_HTML }), store: fakeStore(), lockerStore, now: NOW, log: (l) => logs.push(l) }));
-  const items = lockerItems(lockerStore).filter((i) => i.politician_id === 'james_talarico');
+  const items = lockerItems(lockerStore).filter((i) => i.politician_id === 'james_talarico' && ownTopic(i));
   assert.equal(items.length, 1);
   assert.equal(items[0].strength, 'strong');
   assert.equal(items[0].politician_id, 'james_talarico');
@@ -358,7 +362,7 @@ await t('an implication-driven 0.4 clear candidate produces one weak item carryi
   // End to end: a real implication-only page (scorer R6, below 0.8) lands as one weak item via the cron.
   const ls = lockerFakeStore(); const runLogs = [];
   await quiet(() => fn.run({ fetch: byUrl({ [CORNYN_URL]: IMPL_HTML }), store: fakeStore(), lockerStore: ls, now: NOW, log: (l) => runLogs.push(l) }));
-  const cornyn = lockerItems(ls).filter((i) => i.politician_id === 'john_cornyn');
+  const cornyn = lockerItems(ls).filter((i) => i.politician_id === 'john_cornyn' && ownTopic(i));
   assert.equal(cornyn.length, 1);
   assert.equal(cornyn[0].strength, 'weak');
   assert.equal(cornyn[0].position, 'support');
@@ -473,8 +477,10 @@ await t('the scheduled entry point turns on discovery and Locker writes; the ite
   await quiet(() => fn.run({ fetch: byUrl({ [CORNYN_URL]: HC_HTML }), store: fakeStore(), lockerStore, now: NOW, log: () => {} }));
   const body = await items.listLockerEntries(lockerStore);
   assert.equal(body.count, lockerStore.data.size);
-  assert.equal(body.items.john_cornyn.length, 1);
-  assert.equal(body.items.john_cornyn[0].source.url, CORNYN_URL);
+  const own = body.items.john_cornyn.filter((e) => e.issueKey === 'healthcare_costs');
+  assert.equal(own.length, 1);
+  assert.equal(own[0].source.url, CORNYN_URL);
+  for (const e of body.items.john_cornyn) assert.equal(e.source.url, CORNYN_URL, 'cross-topic entries cite the same page');
   assert.equal(items.config.path, '/api/evidence-locker/items');
 });
 
@@ -598,7 +604,7 @@ await t('review flags: the cron never overwrites a manually flagged item', async
       sources: [cornynSrc], reviewFlags: { items: [{ key, status }] }, log: (l) => logs.push(l) }));
     const report = await res.json();
     assert.deepEqual(ls.data.get(key), prior, `${status}: item unchanged`);
-    assert.equal(report.locker_writes.length, 0);
+    assert.equal(report.locker_writes.filter((w) => w.topic === 'healthcare_costs').length, 0);
     assert.ok(logs.some((l) => l.startsWith('evidence-locker: FLAGGED ') && l.includes(`"${status}"`)), `${status}: FLAGGED is logged`);
   }
   // Flag matched by politician + link, with nothing in the store yet: still never written.
@@ -643,6 +649,56 @@ await t('review flags: the items endpoint leaves hidden items out and marks revi
   assert.equal(rev.review.status, 'reviewed');
   assert.equal(rev.pipeline.key, locker.lockerKey(b), 'served entries carry their store key');
   assert.ok(!body.items.crockett.find((e) => e.source.url === c.link).review, 'unflagged item carries no review');
+});
+
+await t('all topics: one page writes Locker items on more than one topic, each under its own issue key, and the run logs which topics produced items', async () => {
+  const cornynSrc = core.SOURCES.find((s) => s.url === CORNYN_URL);
+  const MULTI_HTML = '<html><body><h1>Issues</h1>'
+    + '<p>In the Senate, he will fight to lower prescription drug costs and cap insulin co-pays.</p>'
+    + '<p>We will reduce insurance premiums for Texas families.</p>'
+    + '<p>I will secure the border and finish the wall.</p>'
+    + '<p>We must end catch and release.</p>'
+    + '<p>We will crack down on the cartels.</p>'
+    + '<p>I will raise teacher pay and fully fund our public schools.</p></body></html>';
+  const ls = lockerFakeStore(); const logs = [];
+  const { value: res } = await quiet(() => fn.run({ fetch: byUrl({ [CORNYN_URL]: MULTI_HTML }), store: fakeStore(), lockerStore: ls, now: NOW,
+    sources: [cornynSrc], log: (l) => logs.push(l) }));
+  const report = await res.json();
+  const items = lockerItems(ls);
+  const topics = [...new Set(items.map((i) => i.topic))];
+  assert.ok(topics.length > 1, `items on ${topics.length} topic(s): ${topics}`);
+  for (const k of ['healthcare_costs', 'border_security', 'public_schools']) assert.ok(topics.includes(k), `item on ${k}`);
+  const issueKeys = JSON.parse(readFileSync(path.join(root, 'db/issue-keys.json'), 'utf8')).keys;
+  for (const i of items) {
+    assert.ok(issueKeys.includes(i.topic), `${i.topic} is a register key`);
+    assert.equal(i.link, CORNYN_URL, 'every item cites the one page');
+    assert.ok(['strong', 'weak', 'mention'].includes(i.strength));
+    assert.equal(locker.lockerKey(i).split('/')[1], i.topic, 'stored under its own issue key');
+    assert.equal(locker.toSpotlightEntry(i).issueKey, i.topic, 'served under its own issue key, so it attaches to that leaf');
+    if (i.topic !== 'healthcare_costs') assert.equal(i.page_topic, 'healthcare_costs');
+  }
+  // Same thresholds: border has 3 consistent statements → strong; schools 1 → weak.
+  assert.equal(items.find((i) => i.topic === 'border_security').strength, 'strong');
+  assert.equal(items.find((i) => i.topic === 'public_schools').strength, 'weak');
+  assert.equal(locker.toSpotlightEntry(items.find((i) => i.topic === 'border_security')).headline,
+    'Cornyn supports “Strong Border & Enforcement” (official Senate issue page)');
+  // The run logs which topics produced items, and the report carries the same.
+  const line = logs.find((l) => l.startsWith('evidence-locker: topics with new items this run — '));
+  assert.ok(line, 'topic log line');
+  for (const k of ['healthcare_costs', 'border_security', 'public_schools']) assert.ok(line.includes(k), `${k} in topic log`);
+  assert.ok(logs.some((l) => l.startsWith('stance-score: run topics — ')));
+  assert.equal(report.topics.scored_against, issueKeys.length);
+  for (const k of ['healthcare_costs', 'border_security', 'public_schools']) assert.ok(report.topics.items[k], `report.topics.items.${k}`);
+  // Roster, cap and flags are untouched: one source pulled, one raw record.
+  assert.equal(report.results.length, 1);
+  // A review flag on one topic's item still blocks only that item.
+  const key = locker.lockerKey({ politician_id: 'john_cornyn', topic: 'border_security', link: CORNYN_URL });
+  const ls2 = lockerFakeStore(); const logs2 = [];
+  await quiet(() => fn.run({ fetch: byUrl({ [CORNYN_URL]: MULTI_HTML }), store: fakeStore(), lockerStore: ls2, now: NOW,
+    sources: [cornynSrc], reviewFlags: { items: [{ key, status: 'hidden' }] }, log: (l) => logs2.push(l) }));
+  assert.ok(!ls2.data.has(key), 'flagged cross-topic item is not written');
+  assert.ok(lockerItems(ls2).some((i) => i.topic === 'healthcare_costs'), 'the other topics still write');
+  assert.ok(logs2.some((l) => l.startsWith('evidence-locker: FLAGGED john_cornyn|border_security')));
 });
 
 if (failures) { console.error(`${failures} failing`); process.exit(1); }

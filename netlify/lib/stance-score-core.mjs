@@ -35,7 +35,12 @@
 // R4 corroboration bonus of 0.15 reproduces it. These numbers live in WEIGHTS
 // so a later tweak is one edit, and the comparison log prints the exact delta.
 
+import { buildTopicRules, ISSUE_TOPIC_VOCAB, ISSUE_TOPIC_LABELS } from "./stance-topic-vocab.mjs";
+
 export const RULES_VERSION = "phase7-v1";
+// Vocabulary version for the issue keys scored from stance-topic-vocab.mjs
+// (every register key except the two hand-calibrated core topics).
+export const VOCAB_VERSION = "issue-vocab-v1";
 
 export const WEIGHTS = {
   high: 1.0,              // R2
@@ -84,7 +89,22 @@ export const TOPIC_RULES = {
     implyOppose: /\b(?:repeal(?:ing)?|scrap(?:ping)?|kill(?:ing)?|block(?:ing)?|eliminat(?:e|es|ing))\b[^.!?]{0,60}?\b(?:price caps?|insulin caps?|drug price negotiation|premium tax credits?|out-of-pocket caps?)\b/i,
     outcome: /\b(?:too (?:high|expensive|much)|so expensive|sky-?high|skyrocket\w*|soar(?:ing|ed)|through the roof|out of reach|unaffordable|can(?:no|'|’)?t afford|cannot afford|struggl\w* to (?:pay|afford)|priced out|price gouging|crushing|rip-?off|ration(?:ing)? (?:insulin|medication|their medicine))\b/i,
   },
+  // Every other issue key in the register (education, immigration, debt,
+  // housing, energy, …): same rule engine, vocabulary from stance-topic-vocab.mjs.
+  // The two core topics above are never replaced by a vocabulary entry.
+  ...Object.fromEntries(Object.entries(buildTopicRules()).filter(([k]) => k !== "cost_living" && k !== "healthcare_costs")),
 };
+
+/** The hand-calibrated topics (Phase 4/5); every other key reads the vocabulary. */
+export const CORE_TOPICS = ["cost_living", "healthcare_costs"];
+
+/** Every topic the scorer has rules for, core topics first. */
+export const SCORED_TOPICS = [...CORE_TOPICS, ...Object.keys(TOPIC_RULES).filter((k) => !CORE_TOPICS.includes(k))];
+
+/** Topics that are scored for mentions only (no pole: a subject, not a position). */
+export const NO_POLE_TOPICS = new Set(Object.entries(ISSUE_TOPIC_VOCAB).filter(([, v]) => v.noPole).map(([k]) => k));
+
+export const topicLabel = (topic) => ISSUE_TOPIC_LABELS[topic] || String(topic || "").replace(/_/g, " ");
 
 // ── WHO IS ACTING (rules version phase6-v2) ─────────────────────────────────
 // A clear statement only counts as the page's own politician's position when
@@ -228,7 +248,7 @@ const OPPONENT_FRAMING_TEST = new RegExp(OPPONENT_FRAMING.source, "i");
 function classifyImplication(sentence, r, politicianId) {
   if (!r.implySupport) return null;
   const ps = r.implySupport.exec(sentence);
-  const po = r.implyOppose.exec(sentence);
+  const po = r.implyOppose ? r.implyOppose.exec(sentence) : null;
   if ((ps || po) && !(ps && po)) {
     const m = ps || po;
     const actor = implicationActor(sentence.slice(0, m.index), r, politicianId);
@@ -236,7 +256,7 @@ function classifyImplication(sentence, r, politicianId) {
     return { kind: "mention", side: null, reversal: false, actor };
   }
   if (ps && po) return null;
-  const om = r.outcome.exec(sentence);
+  const om = r.outcome ? r.outcome.exec(sentence) : null;
   // A rhetorical question names a problem without saying what should change.
   if (om && !/\?\s*$/.test(sentence) && r.mention.test(sentence)) {
     const actor = implicationActor(sentence.slice(0, om.index), r, politicianId);
@@ -274,15 +294,20 @@ export function classify(sentence, topic, politicianId = null) {
 const round2 = (n) => Math.round(n * 100) / 100;
 const clamp = (n) => Math.max(0, Math.min(WEIGHTS.maxConfidence, n));
 
-/** Score one raw ingest record → candidate stance. Pure: never mutates `raw`. */
-export function scoreRawRecord(raw) {
+/**
+ * Score one raw ingest record → candidate stance. Pure: never mutates `raw`.
+ * `topic` defaults to the record's own topic; the cron also scores the same
+ * page against every other topic (see scoreAllTopics).
+ */
+export function scoreRawRecord(raw, topic = raw?.topic, sentences = null) {
   for (const k of ["url", "fetched_at", "source_type", "politician_id", "topic", "body"]) {
     if (!(k in (raw || {}))) throw new Error(`raw record missing ${k}`);
   }
   const tier = tierFor(raw.source_type);
   const statements = [];
-  for (const text of extractSentences(raw.body)) {
-    const c = classify(text, raw.topic, raw.politician_id);
+  // `sentences` lets scoreAllTopics parse the page once for every topic.
+  for (const text of sentences || extractSentences(raw.body)) {
+    const c = classify(text, topic, raw.politician_id);
     if (!c.kind) continue;
     statements.push({
       text: text.length > 300 ? text.slice(0, 297) + "…" : text,
@@ -350,7 +375,7 @@ export function scoreRawRecord(raw) {
     || implied.find((s) => s.side === position) || implied[0];
   return {
     politician_id: raw.politician_id,
-    topic: raw.topic,
+    topic,
     position,
     confidence: round2(clamp(confidence)),
     confidence_reason: reason,
@@ -366,8 +391,43 @@ export function scoreRawRecord(raw) {
       statements,
     }],
     rules_version: RULES_VERSION,
+    ...(CORE_TOPICS.includes(topic) ? {} : { vocab_version: VOCAB_VERSION }),
+    ...(topic !== raw.topic ? { page_topic: raw.topic } : {}),
     raw_fetched_at: raw.fetched_at,
   };
+}
+
+/** Did the scorer find any directional signal (explicit or implied) for this candidate? */
+export const directionalSignals = (c) => {
+  const st = c?.sources?.[0]?.statements || [];
+  return st.filter((s) => s.kind === "clear" || s.kind === "implication").length;
+};
+
+/** Cross-topic scoring reads at most this many sentences per page (a campaign page has far fewer). */
+export const CROSS_TOPIC_MAX_SENTENCES = 1200;
+
+/**
+ * Score one page against EVERY topic. Returns candidates in SCORED_TOPICS order
+ * with the page's own topic first:
+ *   · the page's own topic always (exactly as before — strong, weak or mention);
+ *   · any other topic only when the page carries at least one directional
+ *     signal on it (explicit or implied). A bare passing mention of another
+ *     issue is not a finding about that issue, so it produces no candidate.
+ *   · a no-pole topic never yields a cross-topic candidate (it has no direction).
+ */
+export function scoreAllTopics(raw, { topics = SCORED_TOPICS, maxCrossSentences = CROSS_TOPIC_MAX_SENTENCES } = {}) {
+  const out = [];
+  const sentences = extractSentences(raw?.body);
+  if (hasRulesFor(raw?.topic)) out.push(scoreRawRecord(raw, raw.topic, sentences));
+  // The page's own topic reads every sentence, as before; the other topics read
+  // the first CROSS_TOPIC_MAX_SENTENCES so a runaway page cannot stretch a run.
+  const cross = sentences.length > maxCrossSentences ? sentences.slice(0, maxCrossSentences) : sentences;
+  for (const t of topics) {
+    if (t === raw?.topic || !hasRulesFor(t) || NO_POLE_TOPICS.has(t)) continue;
+    const c = scoreRawRecord(raw, t, cross);
+    if (directionalSignals(c) > 0) out.push(c);
+  }
+  return out;
 }
 
 /** Compare a candidate to the ground truth. */
@@ -430,4 +490,30 @@ export function logCandidateStance(raw, { log = console.log } = {}) {
     log(`stance-score: ERROR ${id} — ${e?.message || e}`);
     return null;
   }
+}
+
+/**
+ * Multi-topic hook for the ingest cron. Logs the page's own topic exactly as
+ * logCandidateStance does, then one pair of "stance-score: cross-topic …" lines
+ * per other topic the page produced a directional candidate on. Never writes,
+ * never throws. Returns every candidate (own topic first).
+ */
+export function logCandidateStances(raw, { log = console.log, topics } = {}) {
+  const own = logCandidateStance(raw, { log });
+  const id = `${raw?.politician_id}${raw?.source_id ? "|" + raw.source_id : ""}`;
+  let extra = [];
+  try {
+    extra = scoreAllTopics(raw, topics ? { topics } : {}).filter((c) => c.topic !== raw?.topic);
+  } catch (e) {
+    log(`stance-score: ERROR ${id} cross-topic — ${e?.message || e}`);
+    extra = [];
+  }
+  for (const c of extra) {
+    const src = c.sources[0];
+    log(`stance-score: cross-topic candidate ${JSON.stringify({ politician_id: c.politician_id, topic: c.topic, page_topic: raw.topic, ...(raw.source_id ? { source_id: raw.source_id } : {}), url: src.link, position: c.position, confidence: c.confidence, confidence_reason: c.confidence_reason, rules_version: c.rules_version, vocab_version: c.vocab_version })}`);
+    log(`stance-score: cross-topic ${raw.politician_id}|${c.topic}${raw.source_id ? "|" + raw.source_id : ""} (from ${raw.topic} page) — ${c.position === "no clear position" ? "NO CLEAR POSITION" : `${c.position.toUpperCase()} ${c.confidence}`} — ${src.note}`);
+  }
+  const topicsHit = [...new Set(extra.map((c) => c.topic))];
+  if (own || extra.length) log(`stance-score: ${id} scored against ${SCORED_TOPICS.length} topics — page topic ${raw?.topic}${topicsHit.length ? `; also ${topicsHit.join(", ")}` : "; no other topic"}`);
+  return [...(own ? [own] : []), ...extra];
 }

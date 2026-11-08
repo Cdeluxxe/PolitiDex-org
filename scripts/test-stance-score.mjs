@@ -167,8 +167,8 @@ await t('logCandidateStance logs a candidate + clear/no-clear note, never writes
   assert.ok(logs.some((l) => l.startsWith('stance-score: ken_paxton|healthcare_costs → CLEAR POSITION (support, 0.85)')));
   const none = []; S.logCandidateStance({ ...HC_RAW, body: '<p>America spends more on healthcare than any nation.</p>' }, { log: (l) => none.push(l) });
   assert.ok(none.some((l) => /→ NO CLEAR POSITION — 0 clear statement/.test(l)));
-  const skip = []; assert.equal(S.logCandidateStance({ ...HC_RAW, topic: 'crypto_cbdc' }, { log: (l) => skip.push(l) }), null);
-  assert.match(skip[0], /^stance-score: SKIP .* no scoring rules for topic crypto_cbdc/);
+  const skip = []; assert.equal(S.logCandidateStance({ ...HC_RAW, topic: 'not_a_register_key' }, { log: (l) => skip.push(l) }), null);
+  assert.match(skip[0], /^stance-score: SKIP .* no scoring rules for topic not_a_register_key/);
   const err = []; assert.equal(S.logCandidateStance({ topic: 'cost_living' }, { log: (l) => err.push(l) }), null);
   assert.match(err[0], /^stance-score: ERROR /);
   assert.equal(JSON.stringify(RAW), RAW_SNAPSHOT);
@@ -334,6 +334,90 @@ await t('Phase 7: Talarico ground-truth match stays support 0.85 with no implica
   assert.equal(r.comparison.delta, 0);
   assert.equal(r.candidate.rules_version, 'phase7-v1');
   assert.match(r.candidate.confidence_reason, /implication\(s\)/);
+});
+
+// ── All-topics pass: every register issue key is scored ────────────────────
+const issueKeys = JSON.parse(readFileSync(path.join(root, 'db/issue-keys.json'), 'utf8')).keys;
+const pageOn = (body, extra = {}) => deepFreeze({ ...RAW, body, ...extra });
+
+await t('all topics: the scorer has rules for every issue key in the register, and only those', () => {
+  for (const k of issueKeys) assert.ok(S.hasRulesFor(k), `no rules for ${k}`);
+  assert.deepEqual([...S.SCORED_TOPICS].sort(), [...issueKeys].sort());
+  assert.deepEqual(S.SCORED_TOPICS.slice(0, 2), ['cost_living', 'healthcare_costs'], 'core topics first');
+});
+
+await t('all topics: clear education language produces a directional candidate on public_schools', () => {
+  const raw = pageOn('<h1>Education</h1><p>I will raise teacher pay across Texas.</p><p>We will fully fund our public schools.</p><p>I will invest in public education in every classroom.</p>',
+    { topic: 'cost_living', politician_id: 'james_talarico' });
+  const c = S.scoreRawRecord(raw, 'public_schools');
+  assert.equal(c.topic, 'public_schools');
+  assert.equal(c.position, 'support');
+  assert.ok(c.confidence >= 0.8, `3 consistent statements corroborate (R4): ${c.confidence}`);
+  assert.equal(c.vocab_version, S.VOCAB_VERSION);
+  assert.equal(c.page_topic, 'cost_living', 'scored from a page filed under another topic');
+  const all = S.scoreAllTopics(raw);
+  assert.equal(all[0].topic, 'cost_living', "the page's own topic is always first");
+  assert.ok(all.some((x) => x.topic === 'public_schools' && x.position === 'support'), 'scoreAllTopics finds it too');
+});
+
+await t('all topics: clear immigration language produces a directional candidate on border_security', () => {
+  const raw = pageOn('<h1>Border</h1><p>I will secure the border and finish the wall.</p><p>We must end catch and release.</p><p>We will crack down on the cartels and human trafficking.</p>',
+    { topic: 'healthcare_costs', politician_id: 'ken_paxton', source_type: 'campaign issues page' });
+  const c = S.scoreAllTopics(raw).find((x) => x.topic === 'border_security');
+  assert.ok(c, 'border_security candidate');
+  assert.equal(c.position, 'support');
+  assert.ok(c.sources[0].takes_clear_position);
+  // Oppose side reads from the same rules: "abolish ICE" opposes deportations.
+  const o = S.scoreRawRecord(pageOn('<p>We will abolish ICE.</p>', { politician_id: 'ken_paxton' }), 'deportations');
+  assert.equal(o.position, 'oppose');
+});
+
+await t('all topics: one page can produce candidates on several issues, each under its own key', () => {
+  const raw = pageOn('<p>I will raise teacher pay and fully fund our public schools.</p><p>I will secure the border.</p><p>We will bring down the national debt.</p>');
+  const topics = S.scoreAllTopics(raw).map((c) => c.topic);
+  for (const k of ['public_schools', 'border_security', 'national_debt']) assert.ok(topics.includes(k), `${k} in ${topics}`);
+  for (const k of topics) assert.ok(issueKeys.includes(k), `${k} is a register key`);
+});
+
+await t('all topics: the same rules apply — third-party lines are zero weight; a bare mention of another issue is no candidate', () => {
+  const third = S.scoreRawRecord(pageOn('<p>Republicans want to cut Social Security.</p><p>They voted to privatize Medicare.</p>'), 'social_security');
+  assert.equal(third.position, 'no clear position');
+  assert.ok(third.sources[0].statements.every((x) => x.weight === 0));
+  const bare = S.scoreAllTopics(pageOn('<p>Our schools, the border and the national debt all matter.</p>'));
+  assert.deepEqual(bare.map((c) => c.topic), ['cost_living'], 'mentions alone never produce a cross-topic candidate');
+});
+
+await t('all topics: implication rules (R6) work on a vocabulary topic', () => {
+  const imp = S.scoreRawRecord(pageOn('<p>We will confront fentanyl trafficking in every county.</p>'), 'immig_fentanyl');
+  assert.equal(imp.position, 'support');
+  assert.equal(imp.sources[0].implication_count, 1);
+  assert.equal(imp.confidence, 0.7);
+});
+
+await t('all topics: no-pole country keys never read a direction', () => {
+  const raw = pageOn('<p>I will sanction Iran and confront the regime in Tehran.</p><p>We must stand with Ukraine.</p>');
+  for (const k of ['iran_policy', 'ukraine_policy', 'yemen_policy', 'venezuela_policy']) {
+    assert.ok(S.NO_POLE_TOPICS.has(k));
+    const c = S.scoreRawRecord(raw, k);
+    assert.ok(!['support', 'oppose'].includes(c.position), `${k}: ${c.position}`);
+  }
+  assert.ok(!S.scoreAllTopics(raw).some((c) => S.NO_POLE_TOPICS.has(c.topic)));
+});
+
+await t('all topics: cost of living and health care keep their calibrated rules; Talarico stays support 0.85', () => {
+  const r = S.scoreAgainstGroundTruth(RAW, gt, { log: () => {} });
+  assert.equal(r.candidate.position, 'support');
+  assert.equal(r.candidate.confidence, 0.85);
+  assert.equal(r.comparison.delta, 0);
+  assert.ok(!('vocab_version' in r.candidate), 'core topics are not vocabulary-scored');
+  const own = S.scoreAllTopics(RAW)[0];
+  assert.equal(own.topic, 'cost_living');
+  assert.equal(own.confidence, 0.85);
+  const logs = [];
+  const cands = S.logCandidateStances(RAW, { log: (l) => logs.push(l) });
+  assert.equal(cands[0].confidence, 0.85);
+  assert.equal(logs.filter((l) => l.startsWith('stance-score: candidate ')).length, 1, 'own-topic log line unchanged');
+  assert.ok(logs.some((l) => /^stance-score: james_talarico scored against \d+ topics — page topic cost_living/.test(l)));
 });
 
 await t('ground-truth file is unchanged', () => assert.equal(sha(gtPath), GT_SHA256));
