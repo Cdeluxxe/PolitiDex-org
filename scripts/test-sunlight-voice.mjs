@@ -15,6 +15,8 @@
  *   3. "ASK YOUR REP" IS AVAILABLE and records the yes / no / abstain request
  *      against the seat's sitting member (never a caller-sent pid), once per
  *      resident.
+ *   4b. FILED VS. ORDERED (Phase 4) prints in the panel on Utah boards — the
+ *      entry's two lines, dated and linked — and is absent elsewhere.
  *   4. THE PSC FILING NOTE prints "none flagged" by default and an update when
  *      a filing dated after the order is flagged.
  *   5. THE PANEL: loaded only on Utah boards, controls off until the server
@@ -422,6 +424,56 @@ async function bootPanel(deps, token, alias) {
 
   const wa = await bootPanel(D, "tok-wa", "wa-hd-17-p2");
   ok(!wa.host, "the panel mounted on a non-Utah board");
+}
+
+section("Filed vs. Ordered appears in the panel on Utah boards and nowhere else");
+{
+  const w0 = {}; w0.window = w0;
+  vm.runInContext(R("sunlight-entries.js"), vm.createContext(w0));
+  const e = w0.PDXSunlightEntries.byId[SV.ENTRY.id];
+  // The server read carries the entry's pair, unchanged.
+  const g = await call(D, "GET", { query: "?seat=ut-hd-68" });
+  const fo = g.data.filedVsOrdered || [];
+  eq(fo.length, 2, "the board's read carries both lines");
+  for (const r of e.filedVsOrdered) {
+    const got = fo.find((x) => x.step === r.step);
+    ok(got && got.date === r.date && got.url === r.url && got.title === r.title && got.label === r.label, `${r.step} line disagrees with the entry`);
+  }
+  // The one filings list is the entry's.
+  eq(SV.FILING_UPDATES.length, e.filingsSinceOrder.length, "the core does not read the entry's filings list");
+
+  for (const [alias, tok] of [["ut-hd-68", "tok-hd68"], ["ut-hd-68", null]]) {
+    const { host } = await bootPanel(D, tok, alias);
+    const h = host ? host.innerHTML : "";
+    const sec = /<div class="pdxsv-fo" data-sv-filed-ordered="1">([\s\S]*?)<\/div>/.exec(h);
+    ok(sec, `[${tok ? "verified" : "signed out"}] the panel has no Filed vs. Ordered section`);
+    if (!sec) continue;
+    ok(/Filed vs\. Ordered/.test(sec[1]), "the section is not headed Filed vs. Ordered");
+    for (const r of e.filedVsOrdered) {
+      const li = new RegExp(`<li data-sv-fo="${r.step}">([\\s\\S]*?)</li>`).exec(sec[1]);
+      ok(li, `the panel lacks the ${r.step} line`);
+      if (!li) continue;
+      ok(li[1].includes(r.label), `${r.step} label`);
+      ok(li[1].includes(`<time datetime="${r.date}">${w0.PDXSunlightEntries.longDate(r.date)}</time>`), `${r.step} date`);
+      ok(li[1].includes(`href="${r.url}"`) && li[1].includes(r.title), `${r.step} link`);
+    }
+    ok(!/%/.test(sec[1]), "the panel's Filed vs. Ordered prints a percentage");
+    ok(/Public filings since the order/.test(h) && h.includes('data-sv-filings="none"'), "the panel has no filings note");
+  }
+  // A flagged filing turns the panel's note into an Update with a link.
+  const D6 = { ...D, filings: [{ date: "2026-07-31", title: "Order Approving Settlement Stipulation", url: "https://pscdocs.utah.gov/c.pdf" }] };
+  const up = await bootPanel(D6, "tok-hd68", "ut-hd-68");
+  const uh = up.host ? up.host.innerHTML : "";
+  ok(uh.includes('data-sv-filings="new"') && uh.includes("<strong>Update:</strong>") && uh.includes('href="https://pscdocs.utah.gov/c.pdf"'), "a flagged filing does not print as an Update in the panel");
+
+  // Absent off Utah boards: the panel does not mount, so neither does the section.
+  for (const alias of ["wa-hd-17-p2"]) {
+    const off = await bootPanel(D, "tok-wa", alias);
+    ok(!off.host, `the panel (and Filed vs. Ordered) mounted on ${alias}`);
+  }
+  const offRead = await call(D, "GET", { query: "?seat=wa-hd-17-p2" });
+  eq(offRead.status, 404, "a non-Utah seat gets the rate-case read");
+  ok(!offRead.data.filedVsOrdered, "a non-Utah seat's read carries Filed vs. Ordered");
 }
 
 section("district-composer.js loads the panel on Utah boards only");

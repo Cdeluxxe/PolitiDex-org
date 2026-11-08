@@ -11784,7 +11784,19 @@
 //     shell files changed, so the shell moves one version; the precache list is
 //     unchanged. No stored reader state is written, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v535';
+// v536 - SUNLIGHT GOVERNANCE EVIDENCE LAYER.
+//     sunlight-entries.js (a runtime entry) gains a "Filed vs. Ordered" pair for
+//     the Utah PSC rate case (the utility's June 28, 2024 application and the
+//     PSC's April 25, 2025 order, each by title, date and public PSC link) and
+//     a manual "Public filings since the order" list that starts empty;
+//     sunlight.html prints both and loads the entry to repaint the note.
+//     sunlight-voice.js (a runtime entry) prints the same section in the
+//     District Voice panel on Utah boards. The entry and panel scripts changed,
+//     so the shell moves one version; the precache list is unchanged.
+//     No location key or other stored reader state is written or rewritten,
+//     so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v536';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
