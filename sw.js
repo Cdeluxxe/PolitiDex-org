@@ -11757,7 +11757,19 @@
 //     precache list is unchanged. No stored reader state is written or
 //     rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v533';
+// v534 - SUNLIGHT GOVERNANCE IN DISTRICT VOICE.
+//     district-composer.js (precached) lazy-loads sunlight-voice.js (a new
+//     runtime entry, not precached) on Utah district boards only. The panel
+//     lets a verified resident of the seat comment on the Utah PSC rate-case
+//     entry, signal support for its narrow ask, and ask the seat's sitting
+//     member for a public position (yes / no / abstain); it also prints a
+//     district engagement view (counts only) and a PSC filing update note. It
+//     reads and writes /api/sunlight-voice behind District Voice's unchanged
+//     residency gate. A precached shell file changed, so the shell moves one
+//     version; the precache list is unchanged. No location key or other
+//     stored reader state is written or rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v534';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
