@@ -3740,22 +3740,35 @@
     // additive block printed beside the claim block, so no lane's ranking,
     // count or order moves because of it. The module is fetched once, lazily, on
     // a document that did not ship it; until it lands the block is simply absent.
-    var sunlightAsked = false;
-    function ensureSunlight() {
-      if (window.PDXSunlight || sunlightAsked) return;
-      sunlightAsked = true;
+    // The category's live entries (sunlight-entries.js) are fetched the same
+    // way, once, beside the module; either file registers the entries with the
+    // other whichever lands first.
+    var sunlightAsked = false, sunlightEntriesAsked = false;
+    function sunScript(src) {
       try {
         var s = document.createElement('script');
-        s.src = '/sunlight-governance.js';
+        s.src = src;
         s.async = true;
         s.onload = function () { try { quietRepaint(true); } catch (e) {} };
         (document.head || document.body).appendChild(s);
       } catch (e) {}
     }
+    function ensureSunlightEntries() {
+      if (window.PDXSunlightEntries || sunlightEntriesAsked) return;
+      sunlightEntriesAsked = true;
+      sunScript('/sunlight-entries.js');
+    }
+    function ensureSunlight() {
+      ensureSunlightEntries();
+      if (window.PDXSunlight || sunlightAsked) return;
+      sunlightAsked = true;
+      sunScript('/sunlight-governance.js');
+    }
     var SUN_KIND = { issue: 'Issue', bill: 'Bill', rate_case: 'Rate case', lobbying: 'Lobbying record' };
     function sunlightBlock(q) {
       var S = window.PDXSunlight;
       if (!S || typeof S.search !== 'function') { ensureSunlight(); return ''; }
+      ensureSunlightEntries();
       var res = null;
       try { res = S.search(q); } catch (e) { res = null; }
       if (!res || !res.landing) return '';

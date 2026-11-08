@@ -16,8 +16,9 @@
 //     the item's own text names a regulated-utility subject (AUTO_TERMS), and
 //     records tagSource: 'auto' so a reader can tell the two apart.
 // Tagged items registered with PDXSunlight.register(item) are what the search
-// panel's Sunlight Governance thread lists. Phase 1 ships NO live entries: the
-// registry starts empty and the thread then offers the landing page alone.
+// panel's Sunlight Governance thread lists. This module ships NO entries of its
+// own: the registry starts empty, and the live entries (Phase 2: one Utah PSC
+// rate case) arrive from sunlight-entries.js, which registers them on load.
 //
 // NEUTRAL FRAMING. Every string here describes transparency in regulated
 // monopolies. None of it argues for or against any party, rate outcome or
@@ -137,8 +138,21 @@
 
   // What the search panel prints for a query: the landing page first, then any
   // tagged items. Null when the query does not name a Sunlight subject.
+  // A query also opens the thread when it names a registered item's own
+  // keywords (a docket number, a party), so an entry is findable by the words
+  // its record uses as well as by the category's terms.
+  function matchesItem(q) {
+    var s = norm(q);
+    if (!s) return false;
+    var list = items();
+    for (var i = 0; i < list.length; i++) {
+      var kw = Array.isArray(list[i].keywords) ? list[i].keywords : [];
+      if (kw.length && termRe(kw.map(norm).filter(Boolean)).test(s)) return true;
+    }
+    return false;
+  }
   function search(q) {
-    if (!matchesQuery(q)) return null;
+    if (!matchesQuery(q) && !matchesItem(q)) return null;
     return {
       landing: { kind: 'landing', title: TAG.label, href: TAG.href, desc: TAG.blurb },
       items: items()
@@ -163,4 +177,9 @@
     clear: clear,
     search: search
   };
+
+  // Phase 2: live entries ship in sunlight-entries.js. If that file loaded
+  // before this one, register what it published.
+  var E = root.PDXSunlightEntries;
+  if (E && Array.isArray(E.list)) E.list.forEach(function (it) { try { register(it); } catch (e) {} });
 })(typeof window !== 'undefined' ? window : globalThis);
