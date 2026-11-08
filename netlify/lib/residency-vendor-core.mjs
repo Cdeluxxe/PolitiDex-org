@@ -58,7 +58,7 @@
 // handlers with no database and no network.
 
 import crypto from "node:crypto";
-import { COMPOSER_SEATS, STATEWIDE_KEY_RE, anyVerifiedSeat, composerSeat, seatHash } from "./district-board-voice-core.mjs";
+import { COMPOSER_SEATS, NATIONAL_SEAT, STATEWIDE_KEY_RE, anyVerifiedSeat, composerSeat, seatAlias, seatHash } from "./district-board-voice-core.mjs";
 
 export const VENDOR = "didit";
 export const SESSION_URL = "https://verification.didit.me/v3/session/";
@@ -154,6 +154,8 @@ export function statewideSeatsFor(seatKey) {
 export function coveredSeats(seatKey, resolved) {
   const own = composerSeat(seatKey);
   if (!own) return [];
+  // The national board's session covers the national board and nothing else.
+  if (own === NATIONAL_SEAT) return [NATIONAL_SEAT];
   const st = own.slice(0, 3);
   const out = [own];
   for (const raw of Array.isArray(resolved) ? resolved.slice(0, 32) : []) {
@@ -180,6 +182,7 @@ export function parseVendorData(raw) {
   const uid = typeof v.uid === "string" ? v.uid : "";
   const seat = typeof v.seat === "string" ? v.seat : "";
   if (!uid || uid.length > 128 || /\s/.test(uid)) return null;
+  if (seat === NATIONAL_SEAT) return { uid, seat, seats: [NATIONAL_SEAT] };
   if (!seat || !Object.prototype.hasOwnProperty.call(COMPOSER_SEATS, seat)) return null;
   const seats = [seat];
   for (const k of Array.isArray(v.seats) ? v.seats : []) {
@@ -216,6 +219,32 @@ export function decisionPassed(payload) {
   if (!allApproved(features(d, "id_verifications", "id_verification"))) return false;
   if (!allApproved(features(d, "poa_verifications", "poa"))) return false;
   return true;
+}
+
+// THE NATIONAL DECISION (/usa). The same final, positive session decision, with
+// at least one ID verification and every one of them Approved AND issued by the
+// United States — a driver's license, state ID, passport, naturalization
+// certificate or any other U.S.-issued document Didit accepts. No proof-of-
+// address check is required: the ID is the proof. A non-U.S. document, a
+// document with no issuing country, or any declined / in-review session is a no.
+const US_ISSUERS = new Set(["USA", "US", "UNITED STATES", "UNITED STATES OF AMERICA"]);
+export function usIssued(f) {
+  if (!f || typeof f !== "object") return false;
+  const codes = [f.issuing_state, f.issuing_country, f.issuing_state_name, f.issuing_country_name]
+    .filter((v) => typeof v === "string" && v.trim())
+    .map((v) => v.trim().toUpperCase());
+  return codes.length > 0 && codes.every((c) => US_ISSUERS.has(c));
+}
+export function nationalDecisionPassed(payload) {
+  if (!payload || typeof payload !== "object") return false;
+  if (payload.webhook_type != null && !SESSION_EVENTS.has(payload.webhook_type)) return false;
+  if (payload.status !== "Approved") return false;
+  const d = payload.decision;
+  if (!d || typeof d !== "object") return false;
+  if (d.status != null && d.status !== "Approved") return false;
+  const ids = features(d, "id_verifications", "id_verification");
+  if (!allApproved(ids)) return false;
+  return ids.every(usIssued);
 }
 
 // The vendor_data the session was created with: the envelope's, else the
@@ -259,6 +288,12 @@ export async function handleStart(req, deps) {
     return json({ verified: true, message: COPY.already }, 200);
   }
 
+  // USA Voice: an approved Didit check already on file for any district board
+  // opens the national board, so there is nothing to start.
+  if (seatKey === NATIONAL_SEAT && await anyVerifiedSeat(deps, user.uid)) {
+    return json({ verified: true, message: COPY.already }, 200);
+  }
+
   if (await anyVerifiedSeat(deps, user.uid)) {
     return json({ error: COPY.alreadyChecked, code: "already_checked" }, 403);
   }
@@ -271,7 +306,7 @@ export async function handleStart(req, deps) {
   const body = JSON.stringify({
     workflow_id: String(cfg.workflowId),
     vendor_data: vendorData(user.uid, seatKey, payload.seats),
-    callback: deps.callbackUrl(req, COMPOSER_SEATS[seatKey]),
+    callback: deps.callbackUrl(req, seatAlias(seatKey)),
   });
   let res;
   try {
@@ -287,7 +322,7 @@ export async function handleStart(req, deps) {
   if (typeof url !== "string" || !/^https:\/\//.test(url)) {
     return json({ error: COPY.unavailable, code: "vendor_unavailable" }, 502);
   }
-  return json({ url, seat: COMPOSER_SEATS[seatKey] }, 200);
+  return json({ url, seat: seatAlias(seatKey) }, 200);
 }
 
 // ── WEBHOOK ─────────────────────────────────────────────────────────────────
@@ -318,9 +353,12 @@ export async function handleWebhook(req, deps) {
 
   // Signed but not a pass: acknowledged (so the vendor does not retry) and
   // nothing is written. In-progress and other session events land here too.
-  if (!decisionPassed(payload)) return json({ ok: true, written: false, reason: "not_passed" });
-
+  // A national session (/usa) is judged on a U.S.-issued ID alone; every other
+  // session on the district rule, unchanged.
   const who = parseVendorData(vendorDataOf(payload));
+  const passed = who && who.seat === NATIONAL_SEAT ? nationalDecisionPassed(payload) : decisionPassed(payload);
+  if (!passed) return json({ ok: true, written: false, reason: "not_passed" });
+
   if (!who) return json({ ok: true, written: false, reason: "bad_seat" });
 
   // The session's own seat is validated first and a revoked row there stops

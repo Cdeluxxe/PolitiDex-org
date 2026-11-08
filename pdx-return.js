@@ -37,7 +37,7 @@
     // A BOARD SLUG MAY CARRY AN UNDERSCORE. A U.S. Senate board is keyed by the
     // holder's roster pid (/district/ak-us-senate-dan_sullivan), and a pid is
     // [a-z][a-z0-9_]*, so a slug without `_` would drop the way back to it.
-    var OK_RE = /^\/(?:voice|me|ballot|district\/[a-z0-9][a-z0-9_-]{0,63})?\/?$/;
+    var OK_RE = /^\/(?:voice|usa|me|ballot|district\/[a-z0-9][a-z0-9_-]{0,63})?\/?$/;
 
     function strip(p) {
       return String(p == null ? '' : p).replace(/\.html$/, '').replace(/\/+$/, '') || '/';

@@ -1274,12 +1274,12 @@ export const ddDistricts = pgTable(
     // cannot be written here. See 20261113000000_dd_districts_every_board_seat.
     check(
       "dd_districts_seat_key_check",
-      sql`${t.seatKey} in ('house', 'statesenate', 'statehouse', 'gov', 'us-senate')`
+      sql`${t.seatKey} in ('house', 'statesenate', 'statehouse', 'gov', 'us-senate', 'national')`
     ),
     check("dd_districts_state_check", sql`${t.state} ~ '^[A-Z]{2}$'`),
     check(
       "dd_districts_number_check",
-      sql`${t.districtNumber} > 0 OR (${t.seatKey} in ('gov', 'us-senate') AND ${t.districtNumber} = 0)`
+      sql`${t.districtNumber} > 0 OR (${t.seatKey} in ('gov', 'us-senate', 'national') AND ${t.districtNumber} = 0)`
     ),
   ]
 );

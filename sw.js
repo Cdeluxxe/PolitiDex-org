@@ -11796,7 +11796,18 @@
 //     No location key or other stored reader state is written or rewritten,
 //     so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v536';
+// v537 - USA VOICE, THE ONE NATIONAL BOARD.
+//     /usa (usa.html, new) carries the same room, chat and poll tools as the
+//     district boards on one national seat ("usa"), painted by usa-voice.js
+//     (new) against the same endpoints and the same Didit start. Both are new
+//     precache entries, and /usa gets its own offline fallback. index.html
+//     gains a USA Voice card, voice.html the board switcher, and
+//     voter-hub-location.js / pdx-return.js admit /usa as a return address.
+//     Precached shell files changed, so the shell moves one version.
+//     No location key or other stored reader state is written or rewritten,
+//     so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v537';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -11935,6 +11946,9 @@ const SHELL_ASSETS = [
   '/mandate.html',
   '/voice.html',
   '/money.html',
+  // USA Voice, the one national board (/usa), and its module.
+  '/usa.html',
+  '/usa-voice.js',
 
   // THE FIFTEENTH SHELL. netlify.toml rewrites /b/* here, so this is the
   // document every bill address receives. Like /issue.html it is NOT keyed per
@@ -13002,6 +13016,7 @@ const COURTS_NAV_RE = /^\/courts\/?$/;
 // fallback answers every arrival.
 const MANDATE_NAV_RE = /^\/mandate\/?$/;
 const VOICE_NAV_RE = /^\/voice\/?$/;
+const USA_NAV_RE = /^\/usa\/?$/;
 const MONEY_NAV_RE = /^\/money\/?$/;
 // The two Utah 2026 ballot-question pages: three exact spellings each, matching
 // the six exact rules netlify.toml declares with no /ballot/* splat. A FALLBACK
@@ -13317,6 +13332,7 @@ async function handleNavigate(req) {
   // a query and money-room.js is what forwards it.
   const isMandate = !isHome && !!(url && url.origin === self.location.origin && MANDATE_NAV_RE.test(url.pathname));
   const isVoice = !isHome && !!(url && url.origin === self.location.origin && VOICE_NAV_RE.test(url.pathname));
+  const isUsa = !isHome && !!(url && url.origin === self.location.origin && USA_NAV_RE.test(url.pathname));
   const isMoney = !isHome && !!(url && url.origin === self.location.origin && MONEY_NAV_RE.test(url.pathname));
   // Eleventh of the same kind, and navDocKey gives this one no key either — it
   // returns '' for any path it does not recognise, and /district/... is not one
@@ -13496,6 +13512,12 @@ async function handleNavigate(req) {
   if (isVoice) {
     const voiceDoc = await shell.match('/voice.html');
     if (voiceDoc) return voiceDoc;
+  }
+
+  // Offline on USA Voice: its own document, never the hallway or '/'.
+  if (isUsa) {
+    const usaDoc = await shell.match('/usa.html');
+    if (usaDoc) return usaDoc;
   }
 
   // Offline in Follow the Money. Twelfth shell, and LAST of the ten so none of

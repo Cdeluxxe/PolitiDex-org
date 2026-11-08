@@ -2642,6 +2642,33 @@ export const COPY = {
   noPost: "That comment is not on this board.",
 };
 
+// ── THE NATIONAL BOARD, /usa ("USA Voice") ───────────────────────────────────
+// ONE named seat outside COMPOSER_SEATS, because COMPOSER_SEATS is the district
+// list (one row per district board document) and the national board is not a
+// district. Its key and its alias are both "usa". The gate is the same vendor
+// row, read for THIS seat, with one difference written in nationalRow(): any
+// approved Didit check already on file for a district board also opens it,
+// because that check already ran a U.S. ID document. A national session's own
+// decision needs an approved U.S.-issued ID and no address check
+// (residency-vendor-core.mjs nationalDecisionPassed()). A national row never
+// counts as a district check: anyVerifiedSeat() walks COMPOSER_SEATS only, so
+// every district rule is byte-for-byte what it was.
+export const NATIONAL_SEAT = "usa";
+export const NATIONAL_LABEL = "USA Voice";
+export const NATIONAL_COPY = {
+  locked: "Only verified U.S. people get a voice on USA Voice.",
+  unverified: "Posting opens after a Didit check of a U.S. government ID. A typed address or saved location is not accepted as proof.",
+  open: "Your U.S. ID check is on file. Posts are public and carry no name.",
+};
+export function isNationalSeat(k) { return k === NATIONAL_SEAT; }
+// The alias a canonical composer key is spelled in on the wire.
+export function seatAlias(k) {
+  return k === NATIONAL_SEAT ? NATIONAL_SEAT : (Object.prototype.hasOwnProperty.call(COMPOSER_SEATS, k) ? COMPOSER_SEATS[k] : "");
+}
+// The national room's one thread. Not a person: the room has no sitting member,
+// so its general thread is the board's own.
+export const NATIONAL_HOLDERS = { [NATIONAL_SEAT]: { pid: NATIONAL_SEAT, name: NATIONAL_LABEL, previous: [] } };
+
 // A statewide board's key IS its canonical key (ut-gov, ut-us-senate-<pid>);
 // the same shape district-board.mts and gen-district-boards.mjs accept.
 export const STATEWIDE_KEY_RE = /^[a-z]{2}-(?:gov|us-senate-[a-z][a-z0-9_]*)$/;
@@ -2666,6 +2693,7 @@ export function positionSeatKey(raw) {
 // The canonical seat if it has a composer, else ''.
 export function composerSeat(raw) {
   const s = String(raw == null ? "" : raw).trim().toLowerCase();
+  if (s === NATIONAL_SEAT) return NATIONAL_SEAT;
   const k = STATEWIDE_KEY_RE.test(s) ? s : (positionSeatKey(s) || normalizeSeatKey(s));
   return k && Object.prototype.hasOwnProperty.call(COMPOSER_SEATS, k) ? k : "";
 }
@@ -2679,7 +2707,7 @@ export function seatHash(uid, seatKey) {
   const k = composerSeat(seatKey);
   const u = String(uid == null ? "" : uid).trim();
   if (!k || !u) return "";
-  if (!STATEWIDE_KEY_RE.test(k) && !POSITION_KEY_RE.test(k)) return authorHash(u, k);
+  if (!STATEWIDE_KEY_RE.test(k) && !POSITION_KEY_RE.test(k) && k !== NATIONAL_SEAT) return authorHash(u, k);
   return crypto.createHash("sha256").update(`${u}:${k}`).digest("hex").slice(0, 32);
 }
 
@@ -2689,7 +2717,7 @@ export function verifiedSeat(row, seatKey) {
   if (!row || typeof row !== "object") return "";
   if (row.status !== "verified" || row.method !== "vendor") return "";
   const k = composerSeat(row.seatKey || seatKey);
-  return k ? COMPOSER_SEATS[k] : "";
+  return k ? seatAlias(k) : "";
 }
 
 // The gate over RESOLVED inputs. `user` is the server-verified identity or null;
@@ -2698,9 +2726,12 @@ export function gate(user, row, seatKey) {
   const k = composerSeat(seatKey);
   if (!k) return { ok: false, status: 404, code: "no_seat", message: COPY.noSeat };
   if (!user || user.isAnonymous || !user.uid) {
-    return { ok: false, status: 403, code: "signed_out", message: LOCKED_LINE, note: COPY.signedOut };
+    return { ok: false, status: 403, code: "signed_out", message: k === NATIONAL_SEAT ? NATIONAL_COPY.locked : LOCKED_LINE, note: COPY.signedOut };
   }
-  if (verifiedSeat(row, k) !== COMPOSER_SEATS[k]) {
+  if (verifiedSeat(row, k) !== seatAlias(k)) {
+    if (k === NATIONAL_SEAT) {
+      return { ok: false, status: 403, code: "unverified", message: NATIONAL_COPY.locked, note: NATIONAL_COPY.unverified };
+    }
     return { ok: false, status: 403, code: "unverified", message: LOCKED_LINE, note: COPY.unverified };
   }
   return { ok: true, seatKey: k };
@@ -2739,6 +2770,23 @@ export async function anyVerifiedSeat(deps, uid) {
     if (row && row.method === "vendor" && row.status === "verified") return COMPOSER_SEATS[p.seatKey];
   }
   return "";
+}
+
+// THE NATIONAL ROW. The caller's own row for "usa" when it is a verified vendor
+// row; otherwise, when the caller is signed in, not revoked on "usa", and holds
+// an approved Didit check on any district board, a verified vendor row standing
+// in for it (that check ran a U.S. ID). Anything else is the row as stored.
+// For every district seat this returns the row unchanged.
+export async function nationalRow(deps, user, row, seatKey) {
+  if (seatKey !== NATIONAL_SEAT) return row;
+  if (!user || user.isAnonymous || !user.uid) return row;
+  if (row && (row.status === "revoked" || (row.status === "verified" && row.method === "vendor"))) return row;
+  try {
+    if (await anyVerifiedSeat(deps, user.uid)) return { seatKey: NATIONAL_SEAT, status: "verified", method: "vendor" };
+  } catch {
+    return row;
+  }
+  return row;
 }
 
 // May THIS caller start the vendor check on THIS seat? Any signed-in reader
@@ -2863,9 +2911,12 @@ export async function handle(req, deps) {
     if (!seatKey) return json({ error: COPY.noSeat, code: "no_seat" }, 404);
     const user = await deps.verifyUser(req);
     const hash = user && !user.isAnonymous ? seatHash(user.uid, seatKey) : "";
-    const row = hash ? await deps.findResidency(seatKey, hash) : null;
+    const row = await nationalRow(deps, user, hash ? await deps.findResidency(seatKey, hash) : null, seatKey);
     const verdict = gate(user, row, seatKey);
     const check = verdict.code === "unverified" ? await canVerifyHere(deps, user, row, seatKey) : { ok: false };
+    const national = seatKey === NATIONAL_SEAT;
+    const lockedLine = national ? NATIONAL_COPY.locked : LOCKED_LINE;
+    const openNote = national ? NATIONAL_COPY.open : COPY.open;
     // ONE ISSUE'S COMMENTS, ON ASK. `?issue=<key>` narrows the read to that
     // issue's posts on this seat — the topic jump from an issue file lands on
     // them — under the same cap and the same public shape. A key of the wrong
@@ -2874,12 +2925,12 @@ export async function handle(req, deps) {
     const voiceOf = (open) => ({
       canPost: open,
       reason: verdict.ok ? (open ? "verified" : "previous_holder") : verdict.code,
-      line: verdict.ok ? "" : LOCKED_LINE,
-      note: verdict.ok ? (open ? COPY.open : "") : (check.alreadyChecked ? COPY.alreadyChecked : verdict.note || ""),
+      line: verdict.ok ? "" : lockedLine,
+      note: verdict.ok ? (open ? openNote : "") : (check.alreadyChecked ? COPY.alreadyChecked : verdict.note || ""),
       canVerify: check.ok === true,
     });
     if (url.searchParams.get("room") === "general") {
-      const thread = threadFor(seatKey, url.searchParams.get("holder"), holdersOf(deps));
+      const thread = threadFor(seatKey, url.searchParams.get("holder"), national ? NATIONAL_HOLDERS : holdersOf(deps));
       if (!thread) return json({ error: COPY.noHolder, code: "no_holder" }, 404);
       const grows = typeof deps.listGeneral === "function"
         ? ((await deps.listGeneral(seatKey, thread.pid, POSTS_CAP)) || [])
@@ -2889,9 +2940,9 @@ export async function handle(req, deps) {
       const likes = await likesFor(deps, mineRows.map((r) => r.id), hash);
       const gposts = mineRows.map((r) => publicPost(r, hash, likes));
       return json({
-        seat: COMPOSER_SEATS[seatKey],
+        seat: seatAlias(seatKey),
         room: "general",
-        general: generalOf(seatKey, thread, holdersOf(deps)),
+        general: generalOf(seatKey, thread, national ? NATIONAL_HOLDERS : holdersOf(deps)),
         posts: gposts,
         postsEmpty: gposts.length ? "" : COPY.emptyGeneral,
         // A previous holder's thread is read-only: comments go to the sitting member.
@@ -2909,15 +2960,15 @@ export async function handle(req, deps) {
     const likes = await likesFor(deps, kept.map((r) => r.id), hash);
     const posts = kept.map((r) => publicPost(r, hash, likes));
     return json({
-      seat: COMPOSER_SEATS[seatKey],
+      seat: seatAlias(seatKey),
       issue: issueKey,
       posts,
       postsEmpty: posts.length ? "" : COPY.emptyFeed,
       voice: {
         canPost: verdict.ok,
         reason: verdict.ok ? "verified" : verdict.code,
-        line: verdict.ok ? "" : LOCKED_LINE,
-        note: verdict.ok ? COPY.open : (check.alreadyChecked ? COPY.alreadyChecked : verdict.note || ""),
+        line: verdict.ok ? "" : lockedLine,
+        note: verdict.ok ? openNote : (check.alreadyChecked ? COPY.alreadyChecked : verdict.note || ""),
         // The proof button paints only on this. A signed-out reader, a
         // non-member and a verified resident all read false.
         canVerify: check.ok === true,
@@ -2940,7 +2991,7 @@ export async function handle(req, deps) {
     if (limited) return limited;
   }
   const hash = user && !user.isAnonymous ? seatHash(user.uid, seatKey) : "";
-  const row = hash ? await deps.findResidency(seatKey, hash) : null;
+  const row = await nationalRow(deps, user, hash ? await deps.findResidency(seatKey, hash) : null, seatKey);
 
   const verdict = gate(user, row, seatKey);
   if (!verdict.ok || !hash) {
@@ -2956,7 +3007,7 @@ export async function handle(req, deps) {
   let values;
   if (payload.room === "general") {
     // The holder is the seat's sitting member NOW; a pid in the payload is ignored.
-    const holder = holderFor(verdict.seatKey, holdersOf(deps));
+    const holder = holderFor(verdict.seatKey, verdict.seatKey === NATIONAL_SEAT ? NATIONAL_HOLDERS : holdersOf(deps));
     if (!holder) return json({ error: COPY.noHolder, code: "no_holder" }, 404);
     const body = normalizeBody(payload.body);
     if (!body) return json({ error: COPY.empty, code: "empty" }, 400);

@@ -1372,6 +1372,19 @@
   to = "/voice.html"
   status = 200
 
+# USA VOICE — the one national board. Exact paths, no splat, disjoint from
+# every rule above. The trailing-slash form is declared for the same
+# root-absolute reason as /voice/.
+[[redirects]]
+  from = "/usa"
+  to = "/usa.html"
+  status = 200
+
+[[redirects]]
+  from = "/usa/"
+  to = "/usa.html"
+  status = 200
+
 # ═════════════════════════════════════════════════════════════════════════════
 # THE DISTRICT VOICE READERS: /district/<alias> -> district-<alias>.html
 # ─────────────────────────────────────────────────────────────────────────────
