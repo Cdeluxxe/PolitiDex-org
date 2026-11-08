@@ -3732,6 +3732,56 @@
       return 'issue';
     }
 
+    // ── SUNLIGHT GOVERNANCE, ONE THREAD ─────────────────────────────────────
+    // A query that names a regulated-utility subject ("utility", "Rocky Mountain
+    // Power", "rate case", "PSC" — the list is PDXSunlight.SEARCH_TERMS, owned by
+    // sunlight-governance.js) opens ONE thread: the category's landing page
+    // first, then every item that carries the Sunlight Governance tag. It is an
+    // additive block printed beside the claim block, so no lane's ranking,
+    // count or order moves because of it. The module is fetched once, lazily, on
+    // a document that did not ship it; until it lands the block is simply absent.
+    var sunlightAsked = false;
+    function ensureSunlight() {
+      if (window.PDXSunlight || sunlightAsked) return;
+      sunlightAsked = true;
+      try {
+        var s = document.createElement('script');
+        s.src = '/sunlight-governance.js';
+        s.async = true;
+        s.onload = function () { try { quietRepaint(true); } catch (e) {} };
+        (document.head || document.body).appendChild(s);
+      } catch (e) {}
+    }
+    var SUN_KIND = { issue: 'Issue', bill: 'Bill', rate_case: 'Rate case', lobbying: 'Lobbying record' };
+    function sunlightBlock(q) {
+      var S = window.PDXSunlight;
+      if (!S || typeof S.search !== 'function') { ensureSunlight(); return ''; }
+      var res = null;
+      try { res = S.search(q); } catch (e) { res = null; }
+      if (!res || !res.landing) return '';
+      var row = 'display:flex;gap:0.6rem;align-items:flex-start;padding:0.55rem 0.65rem;border-radius:10px;' +
+        'text-decoration:none;color:inherit;border:1px solid rgba(245,215,122,0.22);background:rgba(245,215,122,0.05);margin:0 0 0.35rem;';
+      var h = '<div class="pdx-eye-cat pdx-eye-sunlight" data-eye-sunlight-thread="1">' +
+        '<div class="pdx-eye-cat-h"><span class="pdx-eye-cat-dot" style="background:#f5d77a;"></span>' +
+        esc(S.TAG.label) + ' · one thread' +
+        '<span class="pdx-eye-cat-n">' + (res.items.length + 1) + '</span></div>' +
+        '<a href="' + esc(res.landing.href) + '" data-eye-sunlight="landing" style="' + row + '">' +
+          '<span aria-hidden="true" style="font-size:1.1rem;line-height:1.3;">' + esc(S.TAG.icon) + '</span>' +
+          '<span><b style="color:#fff7d6;">' + esc(res.landing.title) + '</b>' +
+          '<span style="display:block;font-size:0.82rem;color:#9fb4d4;">Category page · ' + esc(res.landing.desc) + '</span></span>' +
+        '</a>';
+      res.items.slice(0, 12).forEach(function (it) {
+        var href = it.href || res.landing.href;
+        h += '<a href="' + esc(href) + '" data-eye-sunlight="item" data-kind="' + esc(it.kind) + '" style="' + row + '">' +
+          '<span aria-hidden="true" style="font-size:1rem;line-height:1.3;">' + esc(S.TAG.icon) + '</span>' +
+          '<span><b>' + esc(it.title) + '</b>' +
+          '<span style="display:block;font-size:0.82rem;color:#9fb4d4;">' + esc(SUN_KIND[it.kind] || 'Record') +
+            (it.tagSource === 'auto' ? ' · auto-tagged' : '') + (it.desc ? ' · ' + esc(it.desc) : '') + '</span></span>' +
+        '</a>';
+      });
+      return h + '</div>';
+    }
+
     function render(q) {
       var data = getIndex();
       curCtx = personalContext();   // who this eye belongs to, refreshed each render
@@ -3946,6 +3996,9 @@
       // (every term-in-hay check fails on a sentence) while still being the one
       // input this surface can now actually answer.
       var claimHtml = claimBlock(rawQ);
+      // The Sunlight Governance thread (see sunlightBlock). Not in the mandate
+      // lane, whose only document is a proposed reform.
+      var sunHtml = isMandate ? '' : sunlightBlock(q);
       // What each lane holds for THIS query. The toggle prints both, so a reader
       // in the wrong lane is told where their answer is instead of being told
       // there isn't one. People are counted in both because a name is a name in
@@ -3981,7 +4034,7 @@
       // to a person hit there, and for the same reason.
       var nothingElse = isMandate
         ? !mands.length
-        : (!keyHtml && !ansHtml && !pols.length && !polsAlso.length && !jdgs.length &&
+        : (!keyHtml && !ansHtml && !sunHtml && !pols.length && !polsAlso.length && !jdgs.length &&
             (formal ? (!fils.length && !fams.length && !bls.length)
                     : (!spots.length && !sts.length)));
 
@@ -4016,6 +4069,7 @@
 
       html += laneModeBar(laneCounts, warm);
       html += claimHtml;
+      html += sunHtml;
       // A claim that ranked nothing still gets the honest note under its block,
       // so the reader is not left wondering whether the search silently failed.
       if (nothingElse) {
@@ -4267,6 +4321,12 @@
           close();
           try { if (typeof window.pdxDoor1Issue === 'function') window.pdxDoor1Issue(key); } catch (e) {}
         });
+      });
+      // The Sunlight Governance thread's rows are plain anchors. Holding focus on
+      // mousedown keeps the panel open long enough for the click to navigate.
+      panel.querySelectorAll('[data-eye-sunlight]').forEach(function (el) {
+        el.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
+        el.addEventListener('click', function (ev) { ev.stopPropagation(); });
       });
       panel.querySelectorAll('[data-ans-act]').forEach(function (el) {
         el.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
