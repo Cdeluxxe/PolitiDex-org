@@ -338,3 +338,32 @@ export function reviewFor(item, key, flags) {
   const own = item?.review;
   return own && REVIEW_STATUSES.includes(own.status) ? own : null;
 }
+
+/**
+ * Strong and weak Locker items per politician + issue (the per-issue baseline
+ * count): { "pid|topic": { strong, weak } }. Mentions and hidden items are left
+ * out. `pids` limits the count to those politicians. Read-only; returns {} when
+ * the store cannot be listed.
+ */
+export async function lockerBaselineCounts(store, { flags = null, pids = null, log = console.log } = {}) {
+  const counts = {};
+  if (!store || typeof store.list !== "function") return counts;
+  const want = pids ? new Set(pids) : null;
+  try {
+    const { blobs = [] } = (await store.list()) || {};
+    const keys = blobs.map((b) => b.key).filter((k) => !want || want.has(String(k).split("/")[0]));
+    const docs = await Promise.all(keys.map(async (key) => ({ key, doc: await store.get(key, { type: "json" }).catch(() => null) })));
+    for (const { key, doc } of docs) {
+      if (!doc || !doc.politician_id || !doc.topic) continue;
+      if (want && !want.has(doc.politician_id)) continue;
+      if (reviewFor(doc, key, flags)?.status === "hidden") continue;
+      const s = storedStrength(doc);
+      if (s !== "strong" && s !== "weak") continue;
+      const c = (counts[`${doc.politician_id}|${doc.topic}`] ||= { strong: 0, weak: 0 });
+      c[s] += 1;
+    }
+  } catch (e) {
+    log(`evidence-locker: baseline count unavailable — ${e?.message || e}`);
+  }
+  return counts;
+}

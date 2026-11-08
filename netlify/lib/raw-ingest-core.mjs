@@ -200,24 +200,34 @@ export async function runRawIngest(deps, sources = SOURCES) {
 // government pattern (state legislature member/news page, a member's House or
 // Senate newsroom — the Congress pattern — or a governor/agency newsroom).
 //
-// PRIORITY. `has_board` = the politician holds a seat with a district board
-// (SEAT_HOLDERS); `has_stances` = at least one stated position on file
-// (ISSUE_STANCE_DATA). Tier 1 has both, tier 2 has one, tier 3 neither (kept
-// only because it was in the original five). The rotation order is tier, then
-// roster order, so prioritised people are always reached first in a cycle.
+// PRIORITY. `has_board` = the politician is the sitting holder of a seat with a
+// district board (SEAT_HOLDERS); `has_stances` = at least one stated position
+// on file (ISSUE_STANCE_DATA). Tier 1 = a sitting member with a board AND
+// several (≥ SEVERAL_STANCES) stated positions; tier 2 = a board or stated
+// positions; tier 3 = the rest of the previous 13-politician roster, kept so
+// nobody already rotating drops out.
 //
-// ROTATION. planRun(cursor) walks the ordered roster from `cursor`, adding
-// whole politicians (their pages + their official pattern) while the run stays
-// within MAX_SOURCES_PER_RUN. The next run starts where this one stopped, so
-// successive runs check different people and every politician is reached once
-// per cycle. The cursor lives in its own tiny Blobs store (ROTATION_STORE_NAME);
-// a missing or bad cursor starts at 0.
+// BASELINE (per issue). A politician + issue is FILLED once the Locker holds
+// 1 strong item or 3 weak items for it (any mix of the same weight; mentions
+// count for nothing). The planner stops chasing a filled issue: that
+// politician's pages on it are left out of the pull list. A politician whose
+// every page is on a filled issue drops to the "deprioritised" band — behind
+// everyone with an open issue, and in only one rotation cycle out of
+// DEPRIORITISED_EVERY_CYCLES. Anything new a run happens to find on a filled
+// issue is still stored by the Locker writer as usual.
+//
+// ROTATION. planRun(state) works in cycles. Each cycle visits every eligible
+// politician once, in priority order (band, then tier, then roster order),
+// taking whole politicians (their pages + their official pattern) while the run
+// stays within MAX_SOURCES_PER_RUN. `state` ({ cycle, done }) lives in
+// its own tiny Blobs store (ROTATION_STORE_NAME); a missing or unreadable
+// state — or the older `{ cursor }` doc — starts a fresh cycle.
 //
 // Congress.gov member pages answer automated fetches with HTTP 403, so they
 // fail the stable-page check; the member's own House/Senate newsroom is the
 // Congress pattern used here.
 export const ROTATION_STORE_NAME = "raw-ingest-rotation";
-export const ROTATION_KEY = "cursor.json";
+export const ROTATION_KEY = "cursor.json"; // holds the rotation state (name kept so the old doc is replaced in place)
 
 const bySrc = (pid) => SOURCES.filter((s) => s.politician_id === pid);
 
@@ -296,18 +306,242 @@ export const ROSTER = [
     sources: [],
     official: { politician_id: "dan_patrick", topic: "cost_living", source_type: "official lieutenant governor newsroom",
       official_kind: "executive", source_id: "official-newsroom", url: "https://www.ltgov.texas.gov/news/" } },
-  // ── Tier 3 · carried over from the original five ──
+  // ── Expansion · tier 1 · sitting House members with a board + several stated positions ──
+  { politician_id: "bmoore", tier: 1, has_board: true, has_stances: true,
+    sources: [{ politician_id: "bmoore", topic: "cost_living", source_type: "official House issues index",
+      url: "https://blakemoore.house.gov/issues" }],
+    official: { politician_id: "bmoore", topic: "cost_living", source_type: "official House newsroom",
+      official_kind: "congress", source_id: "official-newsroom", url: "https://blakemoore.house.gov/media/press-releases" } },
+  { politician_id: "kennedy", tier: 1, has_board: true, has_stances: true,
+    sources: [{ politician_id: "kennedy", topic: "cost_living", source_type: "official House issue page",
+      url: "https://mikekennedy.house.gov/issues/economy" }],
+    official: { politician_id: "kennedy", topic: "cost_living", source_type: "official House newsroom",
+      official_kind: "congress", source_id: "official-newsroom", url: "https://mikekennedy.house.gov/media/press-releases" } },
+  { politician_id: "boebert", tier: 1, has_board: true, has_stances: true,
+    sources: [{ politician_id: "boebert", topic: "cost_living", source_type: "official House issue page",
+      url: "https://boebert.house.gov/issues/economy-and-jobs" }],
+    official: { politician_id: "boebert", topic: "cost_living", source_type: "official House newsroom",
+      official_kind: "congress", source_id: "official-newsroom", url: "https://boebert.house.gov/media/press-releases" } },
+  { politician_id: "tom_cole", tier: 1, has_board: true, has_stances: true,
+    sources: [
+      { politician_id: "tom_cole", topic: "cost_living", source_type: "official House issue page",
+        url: "https://cole.house.gov/issues/economy" },
+      { politician_id: "tom_cole", topic: "healthcare_costs", source_type: "official House issue page",
+        url: "https://cole.house.gov/issues/healthcare" },
+    ],
+    official: { politician_id: "tom_cole", topic: "cost_living", source_type: "official House newsroom",
+      official_kind: "congress", source_id: "official-newsroom", url: "https://cole.house.gov/media-center/press-releases" } },
+  { politician_id: "scalise", tier: 1, has_board: true, has_stances: true,
+    sources: [],
+    official: { politician_id: "scalise", topic: "cost_living", source_type: "official House newsroom",
+      official_kind: "congress", source_id: "official-newsroom", url: "https://scalise.house.gov/media/press-releases" } },
+  { politician_id: "mike_johnson", tier: 1, has_board: true, has_stances: true,
+    sources: [{ politician_id: "mike_johnson", topic: "cost_living", source_type: "official House issues index",
+      url: "https://mikejohnson.house.gov/issues/" }],
+    official: { politician_id: "mike_johnson", topic: "cost_living", source_type: "official House newsroom",
+      official_kind: "congress", source_id: "official-newsroom", url: "https://mikejohnson.house.gov/news/documentquery.aspx?DocumentTypeID=27" } },
+  { politician_id: "jim_jordan", tier: 1, has_board: true, has_stances: true,
+    sources: [
+      { politician_id: "jim_jordan", topic: "healthcare_costs", source_type: "official House issue page",
+        url: "https://jordan.house.gov/issues/healthcare" },
+      { politician_id: "jim_jordan", topic: "cost_living", source_type: "official House issue page",
+        url: "https://jordan.house.gov/issues/budget-and-fiscal-issues" },
+    ],
+    official: { politician_id: "jim_jordan", topic: "cost_living", source_type: "official House newsroom",
+      official_kind: "congress", source_id: "official-newsroom", url: "https://jordan.house.gov/media/press-releases" } },
+  { politician_id: "khanna", tier: 1, has_board: true, has_stances: true,
+    sources: [
+      { politician_id: "khanna", topic: "cost_living", source_type: "official House issue page",
+        url: "https://khanna.house.gov/issues/economy" },
+      { politician_id: "khanna", topic: "healthcare_costs", source_type: "official House issue page",
+        url: "https://khanna.house.gov/issues/health" },
+    ],
+    official: { politician_id: "khanna", topic: "cost_living", source_type: "official House newsroom",
+      official_kind: "congress", source_id: "official-newsroom", url: "https://khanna.house.gov/media/press-releases" } },
+  { politician_id: "jayapal", tier: 1, has_board: true, has_stances: true,
+    sources: [
+      { politician_id: "jayapal", topic: "cost_living", source_type: "official House issue page",
+        url: "https://jayapal.house.gov/issue/jobs-labor-economy/" },
+      { politician_id: "jayapal", topic: "healthcare_costs", source_type: "official House issue page",
+        url: "https://jayapal.house.gov/issue/health-care/" },
+    ],
+    official: { politician_id: "jayapal", topic: "cost_living", source_type: "official House newsroom",
+      official_kind: "congress", source_id: "official-newsroom", url: "https://jayapal.house.gov/category/press-releases/" } },
+  // ── Expansion · tier 2 · board, fewer stated positions on file ──
+  { politician_id: "dan_crenshaw", tier: 2, has_board: true, has_stances: true,
+    sources: [{ politician_id: "dan_crenshaw", topic: "cost_living", source_type: "official House issues index",
+      url: "https://crenshaw.house.gov/issues-legislation" }],
+    official: { politician_id: "dan_crenshaw", topic: "cost_living", source_type: "official House newsroom",
+      official_kind: "congress", source_id: "official-newsroom", url: "https://crenshaw.house.gov/press-releases" } },
+  { politician_id: "brian_babin", tier: 2, has_board: true, has_stances: true,
+    sources: [
+      { politician_id: "brian_babin", topic: "healthcare_costs", source_type: "official House issue page",
+        url: "https://babin.house.gov/issues/issue/?IssueID=14899" },
+      { politician_id: "brian_babin", topic: "cost_living", source_type: "official House issue page",
+        url: "https://babin.house.gov/issues/issue/?IssueID=14890" },
+    ],
+    official: { politician_id: "brian_babin", topic: "cost_living", source_type: "official House newsroom",
+      official_kind: "congress", source_id: "official-newsroom", url: "https://babin.house.gov/news/documentquery.aspx?DocumentTypeID=27" } },
+  { politician_id: "roger_williams", tier: 2, has_board: true, has_stances: true,
+    sources: [
+      { politician_id: "roger_williams", topic: "cost_living", source_type: "official House issue page",
+        url: "https://williams.house.gov/issues/economy" },
+      { politician_id: "roger_williams", topic: "healthcare_costs", source_type: "official House issue page",
+        url: "https://williams.house.gov/issues/healthcare" },
+    ],
+    official: { politician_id: "roger_williams", topic: "cost_living", source_type: "official House newsroom",
+      official_kind: "congress", source_id: "official-newsroom", url: "https://williams.house.gov/media-center/press-releases" } },
+  // ── Tier 3 · the rest of the previous 13 (no board, no stated positions) ──
   { politician_id: "gina_hinojosa", tier: 3, has_board: false, has_stances: false,
     sources: bySrc("gina_hinojosa"),
     official: { politician_id: "gina_hinojosa", topic: "cost_living", source_type: "official state legislature member page",
       official_kind: "state_legislature", source_id: "official-legislature", url: "https://house.texas.gov/members/49" } },
 ];
 
+// The 13 politicians the rotation covered before the roster-priority pass.
+export const PREVIOUS_ROSTER = [
+  "greg_abbott", "john_cornyn", "chip_roy", "crockett", "aoc", "maloy", "cox",
+  "james_talarico", "ken_paxton", "lloyd_doggett", "casar", "dan_patrick", "gina_hinojosa",
+];
+
 export const ORIGINAL_FIVE = ["james_talarico", "gina_hinojosa", "greg_abbott", "ken_paxton", "john_cornyn"];
 
-/** Roster in rotation order: tier first, then roster order (stable). */
+/** Roster in tier order: tier first, then roster order (stable). */
 export function rotationOrder(roster = ROSTER) {
   return roster.map((r, i) => ({ r, i })).sort((a, b) => (a.r.tier - b.r.tier) || (a.i - b.i)).map((x) => x.r);
+}
+
+// ── Per-issue baseline ──────────────────────────────────────────────────────
+export const SEVERAL_STANCES = 5;            // "several stated positions" for tier 1
+export const BASELINE_STRONG = 1;            // 1 strong item fills a politician + issue …
+export const BASELINE_WEAK = 3;              // … or 3 weak items (any mix of the same weight)
+export const DEPRIORITISED_EVERY_CYCLES = 3; // fully-filled politicians join 1 cycle in 3
+
+export const pairKey = (pid, topic) => `${pid}|${topic}`;
+
+/** Weight of a pair in thirds of the baseline (strong = 3, weak = 1, mention = 0). */
+export function pairWeight(c) {
+  const strong = Number(c?.strong) || 0, weak = Number(c?.weak) || 0;
+  return strong * (BASELINE_WEAK / BASELINE_STRONG) + weak;
+}
+
+/** Has this politician + issue reached the baseline? `counts` maps pairKey → { strong, weak }. */
+export function isFilled(counts, pid, topic) {
+  return pairWeight(counts?.[pairKey(pid, topic)]) >= BASELINE_WEAK;
+}
+
+/**
+ * One roster row split by the per-issue baseline: `open` = its pages (and its
+ * official pattern) whose politician + issue is not filled yet; `filled` = the
+ * rest. A row with nothing open is deprioritised (band 1).
+ */
+export function splitByBaseline(r, counts = {}) {
+  const all = [...(r.sources || []).map((s) => ({ s, official: false })), ...(r.official ? [{ s: r.official, official: true }] : [])];
+  const open = all.filter((x) => !isFilled(counts, r.politician_id, x.s.topic));
+  const filled = all.filter((x) => isFilled(counts, r.politician_id, x.s.topic));
+  return { open, filled, band: open.length ? 0 : 1 };
+}
+
+/**
+ * Roster in priority order: politicians with an unfilled issue first, then
+ * fully-filled ones; within each band by tier, then roster order.
+ */
+export function priorityOrder(roster = ROSTER, counts = {}) {
+  return rotationOrder(roster)
+    .map((r, i) => ({ r, i, ...splitByBaseline(r, counts) }))
+    .sort((a, b) => (a.band - b.band) || (a.i - b.i))
+    .map(({ i, ...x }) => x);
+}
+
+/** A rotation state from whatever was stored (older `{ cursor }` docs start fresh). */
+export function normaliseRotationState(doc) {
+  const cycle = Number(doc?.cycle);
+  return {
+    cycle: Number.isFinite(cycle) && cycle >= 0 ? Math.trunc(cycle) : 0,
+    done: Array.isArray(doc?.done) ? doc.done.map(String) : [],
+  };
+}
+
+/**
+ * The pull list for one run. Works through the current cycle's eligible
+ * politicians not yet checked this cycle, in priority order, taking whole
+ * politicians while the total stays ≤ `max`. For a politician with an unfilled
+ * issue only the pages on unfilled issues are pulled (filled issues are not
+ * chased); a politician whose every issue is filled is eligible only in one
+ * cycle out of `every`, and then everything of theirs is pulled. When a cycle
+ * has nobody left the next one starts.
+ * `counts` maps pairKey(pid, topic) → { strong, weak } from the Locker.
+ * Returns { sources, patterns, politicians, deprioritised, skipped, cycle,
+ * remaining_in_cycle, state, size }; `state` is what to persist for next run.
+ * Never returns more than `max` sources even after every pattern is added.
+ */
+export function planRun(state = {}, { roster = ROSTER, max = MAX_SOURCES_PER_RUN, counts = {}, every = DEPRIORITISED_EVERY_CYCLES } = {}) {
+  const st = normaliseRotationState(state);
+  const ids = new Set(roster.map((r) => r.politician_id));
+  const order = priorityOrder(roster, counts);
+  const eligibleIn = (cycle) => order.filter((x) => x.band === 0 || cycle % Math.max(1, every) === 0);
+  let cycle = st.cycle;
+  let done = new Set(st.done.filter((p) => ids.has(p)));
+  let pending = eligibleIn(cycle).filter((x) => !done.has(x.r.politician_id));
+  for (let guard = 0; !pending.length && order.length && guard <= Math.max(1, every); guard++) {
+    cycle += 1; done = new Set();
+    pending = eligibleIn(cycle);
+  }
+  const sources = [], patterns = [], politicians = [], deprioritised = [], skipped = [];
+  const seen = new Set();
+  let used = 0;
+  for (const x of pending) {
+    const { r } = x;
+    const take = x.band === 0 ? x.open : x.filled;
+    const pages = take.filter((y) => !y.official && !seen.has(normUrl(y.s.url))).map((y) => y.s);
+    const offRow = take.find((y) => y.official);
+    const off = offRow && !seen.has(normUrl(offRow.s.url)) && !pages.some((s) => normUrl(s.url) === normUrl(offRow.s.url)) ? offRow.s : null;
+    const cost = pages.length + (off ? 1 : 0);
+    if (cost && used + cost > max) {
+      if (politicians.length) break; // priority order: never skip ahead to someone smaller
+      // A single politician larger than the cap: take what fits.
+      const fit = pages.slice(0, Math.max(0, max - (off ? 1 : 0)));
+      fit.forEach((s) => { sources.push(s); seen.add(normUrl(s.url)); });
+      if (off && fit.length < max) { patterns.push(off); seen.add(normUrl(off.url)); }
+      used = max;
+    } else {
+      pages.forEach((s) => { sources.push(s); seen.add(normUrl(s.url)); });
+      if (off) { patterns.push(off); seen.add(normUrl(off.url)); }
+      used += cost;
+    }
+    politicians.push(r.politician_id);
+    if (x.band === 1) deprioritised.push(r.politician_id);
+    else for (const y of x.filled) skipped.push({ politician_id: r.politician_id, topic: y.s.topic, url: y.s.url });
+    done.add(r.politician_id);
+    if (used >= max) break;
+  }
+  return {
+    sources, patterns, politicians, deprioritised, skipped, cycle,
+    remaining_in_cycle: pending.filter((x) => !done.has(x.r.politician_id)).map((x) => x.r.politician_id),
+    state: { cycle, done: [...done] },
+    size: sources.length + patterns.length,
+  };
+}
+
+/** Roster summary for the run log: size, tiers, and the filled politician + issue pairs. */
+export function rosterSummary(roster = ROSTER, counts = {}) {
+  const tiers = {};
+  for (const r of roster) tiers[r.tier] = (tiers[r.tier] || 0) + 1;
+  const ids = new Set(roster.map((r) => r.politician_id));
+  const reached = Object.entries(counts || {})
+    .map(([k, c]) => { const [politician_id, topic] = k.split("|"); return { politician_id, topic, strong: Number(c?.strong) || 0, weak: Number(c?.weak) || 0 }; })
+    .filter((x) => ids.has(x.politician_id) && x.topic && pairWeight(x) >= BASELINE_WEAK)
+    .sort((a, b) => a.politician_id.localeCompare(b.politician_id) || a.topic.localeCompare(b.topic));
+  return { size: roster.length, tiers, reached };
+}
+
+/** One short baseline-progress line (lists up to `limit` pairs). */
+export function baselineLine(roster = ROSTER, counts = {}, { limit = 30 } = {}) {
+  const { reached } = rosterSummary(roster, counts);
+  const pols = new Set(reached.map((x) => x.politician_id)).size;
+  const shown = reached.slice(0, limit).map((x) => `${x.politician_id}|${x.topic} (${x.strong}s/${x.weak}w)`);
+  const more = reached.length > limit ? `, +${reached.length - limit} more` : "";
+  return `raw-ingest: baseline progress — ${reached.length} politician + issue pair(s) filled across ${pols} politician(s) (${BASELINE_STRONG} strong or ${BASELINE_WEAK} weak): ${shown.length ? shown.join(", ") + more : "none yet"}`;
 }
 
 /** "campaign" | "official" | "other" for one source (for the run log). */
@@ -317,46 +551,6 @@ export function sourceKind(src) {
   try { if (/\.(gov|mil)$/i.test(new URL(src.url).hostname)) return "official"; } catch {}
   if (/\bcampaign\b/i.test(st)) return "campaign";
   return "other";
-}
-
-/**
- * The pull list for one run. Walks the ordered roster from `cursor`, taking
- * whole politicians — their pages plus one slot for their official pattern
- * when it is not already one of their pages — while the total stays ≤ `max`.
- * Returns { sources, patterns, politicians, cursor, next_cursor, size }.
- * Never returns more than `max` sources even after every pattern is added.
- */
-export function planRun(cursor = 0, { roster = ROSTER, max = MAX_SOURCES_PER_RUN } = {}) {
-  const order = rotationOrder(roster);
-  const n = order.length;
-  const start = n ? ((Math.trunc(Number(cursor) || 0) % n) + n) % n : 0;
-  const sources = [], patterns = [], politicians = [];
-  const seen = new Set();
-  let used = 0, taken = 0;
-  for (; taken < n; taken++) {
-    const r = order[(start + taken) % n];
-    const pages = (r.sources || []).filter((s) => !seen.has(normUrl(s.url)));
-    const off = r.official && !seen.has(normUrl(r.official.url)) && !pages.some((s) => normUrl(s.url) === normUrl(r.official.url)) ? r.official : null;
-    const cost = pages.length + (off ? 1 : 0);
-    if (!cost) continue;
-    if (used + cost > max) {
-      if (taken === 0) {
-        // A single politician larger than the cap: take what fits.
-        const fit = pages.slice(0, Math.max(0, max - (off ? 1 : 0)));
-        fit.forEach((s) => { sources.push(s); seen.add(normUrl(s.url)); });
-        if (off && fit.length < max) { patterns.push(off); seen.add(normUrl(off.url)); }
-        politicians.push(r.politician_id);
-        taken = 1;
-      }
-      break;
-    }
-    pages.forEach((s) => { sources.push(s); seen.add(normUrl(s.url)); });
-    if (off) { patterns.push(off); seen.add(normUrl(off.url)); }
-    politicians.push(r.politician_id);
-    used += cost;
-  }
-  const next = n ? (start + Math.max(taken, 1)) % n : 0;
-  return { sources, patterns, politicians, cursor: start, next_cursor: next, size: sources.length + patterns.length };
 }
 
 /** One summary line: who and which source types were included in this run. */

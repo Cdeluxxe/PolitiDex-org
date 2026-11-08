@@ -329,11 +329,62 @@ await t('R3: a pure mention with no direction stays zero weight', () => {
 
 await t('Phase 7: Talarico ground-truth match stays support 0.85 with no implications added', () => {
   const r = S.scoreAgainstGroundTruth(RAW, gt, { log: () => {} });
+  assert.ok(!r.candidate.sources[0].statements.some((x) => x.implication === 'nearby'), 'R7 adds no pair on the Talarico page');
   assert.equal(r.candidate.position, 'support');
   assert.equal(r.candidate.confidence, 0.85);
   assert.equal(r.comparison.delta, 0);
   assert.equal(r.candidate.rules_version, 'phase7-v1');
   assert.match(r.candidate.confidence_reason, /implication\(s\)/);
+});
+
+// ── R7: a problem mention + a nearby remedy from the same speaker ──
+await t('R7: a mention + a nearby remedy sentence is ONE medium-weight directional signal', () => {
+  for (const body of [
+    '<p>Families are struggling with grocery bills.</p><p>So we will fight to change that.</p>',
+    '<p>Too many families are falling behind on rent.</p><p>I grew up in this district.</p><p>That’s why I am running.</p>',
+    '<p>Seniors are squeezed by rising prices.</p><p>It’s time for real relief in Washington.</p>',
+  ]) {
+    const c = speech(body);
+    const st = c.sources[0].statements;
+    const imps = st.filter((x) => x.kind === 'implication');
+    assert.equal(imps.length, 1, body);
+    assert.equal(imps[0].implication, 'nearby');
+    assert.equal(imps[0].side, 'support');
+    assert.equal(imps[0].weight, S.WEIGHTS.implication, 'medium weight');
+    assert.ok(imps[0].paired_with, 'the direction sentence is recorded on the pair');
+    assert.equal(st.filter((x) => x.kind === 'mention').length, 0, 'the pair is one statement, not a mention + a signal');
+    assert.equal(c.position, 'support');
+    assert.equal(c.confidence, S.WEIGHTS.baseConfidence.implication);
+    assert.equal(c.sources[0].implication_count, 1);
+    assert.equal(S.directionalSignals(c), 1);
+  }
+  // Works on healthcare too (its outcome rule fixes the side).
+  const hc = speech('<p>Families are struggling to pay for insulin.</p><p>We must act now.</p>', { topic: 'healthcare_costs' });
+  assert.equal(hc.position, 'support');
+  assert.equal(S.directionalSignals(hc), 1);
+});
+
+await t('R7: an isolated mention stays zero weight; no pair across too wide a gap, a question, a negation or another speaker', () => {
+  for (const body of [
+    '<p>Families are struggling with grocery bills.</p>',
+    '<p>Families are struggling with grocery bills.</p><p>I grew up here.</p><p>My mom was a teacher.</p><p>So we will fight to change that.</p>',
+    '<p>Families are struggling with grocery bills.</p><p>Will we fix it?</p>',
+    '<p>Families are struggling with grocery bills.</p><p>We will not raise a dime for this.</p>',
+    '<p>Families are struggling with grocery bills.</p><p>Senator Smith promised to fix it.</p>',
+    '<p>Grocery prices came up a lot at the town hall.</p><p>We will fight to change that.</p>',
+  ]) {
+    const c = speech(body);
+    assert.equal(S.directionalSignals(c), 0, body);
+    for (const x of c.sources[0].statements) assert.equal(x.weight, 0, body);
+    assert.equal(c.position, 'no clear position', body);
+  }
+  // A direction that already counts on its own is not folded in or double-counted.
+  const own = speech('<p>Families are struggling with grocery bills.</p><p>We will cut taxes for working families.</p>');
+  assert.equal(own.sources[0].statements.filter((x) => x.kind === 'clear').length, 1);
+  assert.equal(own.sources[0].statements.filter((x) => x.kind === 'implication').length, 0);
+  // Each direction sentence pairs with one mention only.
+  const two = speech('<p>Families are struggling with rent.</p><p>Seniors are squeezed by prices.</p><p>We will fight to change that.</p>');
+  assert.equal(two.sources[0].statements.filter((x) => x.implication === 'nearby').length, 1);
 });
 
 // ── All-topics pass: every register issue key is scored ────────────────────

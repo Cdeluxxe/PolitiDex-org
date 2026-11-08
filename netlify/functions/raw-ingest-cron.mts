@@ -61,26 +61,44 @@
 //     "evidence-locker: topics with new items this run …" (items per topic, by
 //     strength) close every run; the report carries the same under `topics`.
 
+// Roster priority + baseline pass:
+//   · ROSTER grows beyond the previous 13 to more sitting members with a
+//     district board and/or stated positions. Tier 1 = board + several stated
+//     positions; tier 2 = board or stated positions; tier 3 = the rest of the
+//     previous 13.
+//   · PER-ISSUE BASELINE — before each run the Locker is counted per
+//     politician + issue; a pair with 1 strong or 3 weak items (any mix of the
+//     same weight; mentions do not count) is filled. Pages on a filled issue are
+//     not chased (left out of the pull list); a politician with every issue
+//     filled is deprioritised — behind everyone else, and in only one rotation
+//     cycle out of three. New finds on a filled issue are still stored.
+//   · ROTATION — planRun works in cycles from a persisted state ({ cycle, done })
+//     instead of a bare cursor; the per-run cap, the 4-hour schedule,
+//     official-source checks, review flags, scoring and Locker thresholds are
+//     unchanged.
+//   · RUN LOG — "raw-ingest: roster …" (size, tiers), "raw-ingest: run plan …"
+//     (who, tier, deprioritised, filled issues skipped) and "raw-ingest:
+//     baseline progress …" (which politician + issue pairs are filled).
+
 import type { Config } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
 import {
-  runRawIngest, discoverSources, planRun, runPlanLine, sourceKind,
+  runRawIngest, discoverSources, planRun, runPlanLine, sourceKind, normaliseRotationState,
+  rosterSummary, baselineLine, ROSTER, BASELINE_STRONG, BASELINE_WEAK,
   RAW_STORE_NAME, SOURCES, ROTATION_STORE_NAME, ROTATION_KEY, MAX_SOURCES_PER_RUN,
 } from "../lib/raw-ingest-core.mjs";
 import { logCandidateStances, SCORED_TOPICS } from "../lib/stance-score-core.mjs";
-import { maybeWriteLockerItem, loadReviewFlags, LOCKER_STORE_NAME } from "../lib/evidence-locker-core.mjs";
+import { maybeWriteLockerItem, loadReviewFlags, lockerBaselineCounts, LOCKER_STORE_NAME } from "../lib/evidence-locker-core.mjs";
 import groundTruth from "../../db/stance-ground-truth-talarico-cost-of-living.json" with { type: "json" };
 import reviewFile from "../../db/evidence-locker-review.json" with { type: "json" };
 
-async function readCursor(store: any, log: (l: string) => void): Promise<number> {
-  if (!store) return 0;
+async function readRotationState(store: any, log: (l: string) => void): Promise<any> {
+  if (!store) return normaliseRotationState(null);
   try {
-    const doc = await store.get(ROTATION_KEY, { type: "json" });
-    const c = Number(doc?.cursor);
-    return Number.isFinite(c) && c >= 0 ? Math.trunc(c) : 0;
+    return normaliseRotationState(await store.get(ROTATION_KEY, { type: "json" }));
   } catch (e: any) {
-    log(`raw-ingest: rotation cursor unreadable — starting at 0 (${e?.message || e})`);
-    return 0;
+    log(`raw-ingest: rotation state unreadable — starting a fresh cycle (${e?.message || e})`);
+    return normaliseRotationState(null);
   }
 }
 
@@ -92,8 +110,10 @@ export async function run(deps: {
   lockerStore?: any; groundTruth?: any; discover?: boolean | { patterns?: any[]; max?: number };
   sources?: any[];
   // Coverage pass: plan the run from the roster (see header). `rotationStore`
-  // persists the cursor between runs; `cursor` overrides it (tests).
-  rotate?: boolean | { roster?: any[]; max?: number; cursor?: number };
+  // persists the rotation state between runs.
+  // `state` overrides the stored rotation state and `counts` the Locker
+  // per-issue baseline counts ("pid|topic" → { strong, weak }) (tests).
+  rotate?: boolean | { roster?: any[]; max?: number; state?: any; counts?: Record<string, { strong?: number; weak?: number }> };
   rotationStore?: any;
   reviewFlags?: any;
 }) {
@@ -101,19 +121,30 @@ export async function run(deps: {
   let sources = deps.sources ?? SOURCES;
   let discovered: any[] = [];
   let plan: any = null;
+  let roster: any[] = ROSTER;
+  let counts: Record<string, any> = {};
+  const flags = loadReviewFlags(deps.reviewFlags ?? reviewFile);
   if (deps.rotate && !deps.sources) {
     const ro = typeof deps.rotate === "object" ? deps.rotate : {};
-    const cursor = typeof ro.cursor === "number" ? ro.cursor : await readCursor(deps.rotationStore, log);
+    roster = ro.roster ?? ROSTER;
+    const pids = roster.map((r: any) => r.politician_id);
+    const state = ro.state !== undefined ? normaliseRotationState(ro.state) : await readRotationState(deps.rotationStore, log);
+    counts = ro.counts ?? await lockerBaselineCounts(deps.lockerStore, { flags, pids, log });
     const max = ro.max ?? MAX_SOURCES_PER_RUN;
-    plan = planRun(cursor, { ...(ro.roster ? { roster: ro.roster } : {}), max });
-    sources = plan.sources;
-    console.log(`raw-ingest: run plan — cursor ${plan.cursor} → ${plan.next_cursor} · ${plan.politicians.length} politician(s): ${plan.politicians.join(", ")} · ${plan.sources.length} page(s) + ${plan.patterns.length} official pattern(s) (cap ${max})`);
-    const d = await discoverSources(sources, { fetch: deps.fetch, log, patterns: plan.patterns, max, restrict: false });
+    plan = planRun(state, { roster, max, counts });
+    const rs = rosterSummary(roster, counts);
+    const tierOf = new Map(roster.map((r: any) => [r.politician_id, r.tier]));
+    log(`raw-ingest: roster — ${rs.size} politician(s) (${Object.entries(rs.tiers).map(([t, n]) => `tier ${t}: ${n}`).join(", ")}) · ${rs.reached.length} politician + issue pair(s) filled`);
+    const dep = new Set(plan.deprioritised);
+    const who = plan.politicians.map((p: string) => `${p} (t${tierOf.get(p)}${dep.has(p) ? ", deprioritised: every issue filled" : ""})`);
+    const skip = plan.skipped.length ? ` · not chased (filled): ${plan.skipped.map((x: any) => `${x.politician_id}|${x.topic}`).join(", ")}` : "";
+    console.log(`raw-ingest: run plan — cycle ${plan.cycle} · ${plan.politicians.length} politician(s): ${who.join(", ")} · ${plan.sources.length} page(s) + ${plan.patterns.length} official pattern(s) (cap ${max}) · ${plan.remaining_in_cycle.length} left this cycle${skip}`);
+    const d = await discoverSources(plan.sources, { fetch: deps.fetch, log, patterns: plan.patterns, max, restrict: false });
     sources = d.sources;
     discovered = d.added;
     if (deps.rotationStore) {
-      try { await deps.rotationStore.setJSON(ROTATION_KEY, { cursor: plan.next_cursor, updated_at: (deps.now ?? (() => new Date()))().toISOString(), last_politicians: plan.politicians }); }
-      catch (e: any) { log(`raw-ingest: rotation cursor not saved — ${e?.message || e}`); }
+      try { await deps.rotationStore.setJSON(ROTATION_KEY, { ...plan.state, updated_at: (deps.now ?? (() => new Date()))().toISOString(), last_politicians: plan.politicians }); }
+      catch (e: any) { log(`raw-ingest: rotation state not saved — ${e?.message || e}`); }
     }
   } else if (deps.discover) {
     const opts = typeof deps.discover === "object" ? deps.discover : {};
@@ -125,7 +156,6 @@ export async function run(deps: {
   console.log(`raw-ingest: run included ${included.count} source(s) · politicians: ${included.politicians.join(", ")} · source kinds: ${JSON.stringify(included.kinds)} · source types: ${JSON.stringify(included.source_types)}`);
   const lockerWrites: any[] = [];
   const gt = deps.groundTruth ?? groundTruth;
-  const flags = loadReviewFlags(deps.reviewFlags ?? reviewFile);
   // Every page is scored against every topic (SCORED_TOPICS): its own topic as
   // before, plus each other issue key it carries directional language on. Each
   // candidate goes through the same Locker writer, so one page can land items
@@ -150,7 +180,7 @@ export async function run(deps: {
     ...included,
     sources: sources.map((s: any) => ({ politician_id: s.politician_id, topic: s.topic, url: s.url, source_type: s.source_type, kind: sourceKind(s) })),
   };
-  if (plan) report.plan = { cursor: plan.cursor, next_cursor: plan.next_cursor, politicians: plan.politicians, planned_size: plan.size };
+  if (plan) report.plan = { cycle: plan.cycle, politicians: plan.politicians, deprioritised: plan.deprioritised, skipped: plan.skipped, remaining_in_cycle: plan.remaining_in_cycle, planned_size: plan.size, roster_size: roster.length, state: plan.state };
   report.locker_writes = lockerWrites;
   // Which topics produced candidates / items this run.
   const itemsByTopic: Record<string, { strong: number; weak: number; mention: number }> = {};
@@ -165,6 +195,17 @@ export async function run(deps: {
     log(`evidence-locker: run complete — ${lockerWrites.length} new item(s) written (${by("strong")} strong, ${by("weak")} weak, ${by("mention")} mention)`);
     const tl = Object.entries(itemsByTopic).map(([t, c]) => `${t} ${c.strong + c.weak + c.mention} (${c.strong} strong, ${c.weak} weak, ${c.mention} mention)`);
     log(`evidence-locker: topics with new items this run — ${tl.length ? tl.join("; ") : "none"}`);
+  }
+  if (plan) {
+    // Baseline progress after this run's writes (recounted from the Locker when
+    // anything new landed; the injected/pre-run counts otherwise).
+    const ro = typeof deps.rotate === "object" ? deps.rotate : {};
+    const after = lockerWrites.length && deps.lockerStore && !ro.counts
+      ? await lockerBaselineCounts(deps.lockerStore, { flags, pids: roster.map((r: any) => r.politician_id), log })
+      : counts;
+    const rs = rosterSummary(roster, after);
+    report.baseline = { strong: BASELINE_STRONG, weak: BASELINE_WEAK, reached: rs.reached, counts: after };
+    log(baselineLine(roster, after));
   }
   const okCount = report.results.filter((r: any) => r.ok).length;
   // 200 all sources stored · 207 some failed (the rest still stored) · 502 none stored
