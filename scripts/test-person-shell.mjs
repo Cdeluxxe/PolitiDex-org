@@ -955,8 +955,18 @@ ok(!bare.includes('id="pdx-topnav"'), "dom: index.html's two-row nav is not here
     // Topic / stance sections.
     ok(/data-pdxtree-locker-issue="public_schools"/.test(withItems.tree) && withItems.tree.includes("Locker excerpt on public_schools"),
       "locker: 🌳 All Issues by Topic prints the Locker line under the matching issue leaf");
-    ok(/data-pdxtree-locker-grp="cost_living"/.test(withItems.tree) && withItems.tree.includes("Locker excerpt on cost_living"),
-      "locker: an item on an issue with no leaf is listed in the topic section's Locker foot");
+    // cost_living has no curated leaf, but its strong oppose item promotes a
+    // Locker stance, so it is now a leaf of its own (under its topic) carrying
+    // its Locker line, and it is not repeated in the Locker foot.
+    {
+      const at = withItems.tree.indexOf('data-pdxtree-issue="cost_living"');
+      const line = withItems.tree.indexOf('data-pdxtree-locker-issue="cost_living"');
+      const next = at === -1 ? -1 : withItems.tree.indexOf('data-pdxtree-issue="', at + 1);
+      ok(before.tree.indexOf('data-pdxtree-issue="cost_living"') === -1 && at !== -1 &&
+         line > at && (next === -1 || line < next) && withItems.tree.includes("Locker excerpt on cost_living") &&
+         !/data-pdxtree-locker-grp="cost_living"/.test(withItems.tree),
+        "locker: an item on an issue with no curated leaf that promotes a stance gets its own leaf, with its Locker line");
+    }
     {
       const leafAt = withItems.tree.indexOf('data-pdxtree-issue="public_schools"');
       const lineAt = withItems.tree.indexOf('data-pdxtree-locker-issue="public_schools"');
