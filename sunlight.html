@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<!-- ══════════════════════════════════════════════════════════════════════════════
+     sunlight.html — SUNLIGHT GOVERNANCE, THE CATEGORY'S LANDING PAGE (/sunlight)
+     ────────────────────────────────────────────────────────────────────────────
+     Phase 1 of the Sunlight Governance category: the place the category tag
+     (sunlight-governance.js, window.PDXSunlight) points at, and the first row
+     the All-Seeing Eye prints when a search names a regulated-utility subject
+     ("utility", "Rocky Mountain Power", "rate case", "PSC").
+
+     The page is static on purpose. The two-sentence explanation and the
+     proof-of-concept reference are in the markup, so they read with no script
+     at all; the same two sentences live in PDXSunlight.EXPLANATION and
+     scripts/test-sunlight-governance.mjs pins the two copies to each other.
+
+     NEUTRAL FRAMING ONLY: transparency in regulated monopolies. No party, no
+     outcome, no utility is argued for or against anywhere on this document.
+     /sunlight-governance (sunlight-governance.html) forwards to this address.
+     ════════════════════════════════════════════════════════════════════════════════ -->
+  <title>Sunlight Governance &middot; transparency in regulated monopolies &middot; PolitiDex</title>
+  <link rel="canonical" href="https://politidex.fyi/sunlight" />
+  <meta name="description" content="Sunlight Governance is PolitiDex's transparency-first category for regulated monopolies: utility rate cases, the commissions that decide them, and the lobbying records around them, in one sourced public place." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PolitiDex" />
+  <meta property="og:title" content="Sunlight Governance &middot; PolitiDex" />
+  <meta property="og:description" content="Transparency in regulated monopolies: rate cases, regulator decisions and related lobbying records, in one sourced public place." />
+  <meta property="og:url" content="https://politidex.fyi/sunlight" />
+  <meta property="og:image" content="https://politidex.fyi/og-image.png" />
+  <meta property="og:image:alt" content="PolitiDex — Sunlight Governance" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Sunlight Governance &middot; PolitiDex" />
+  <meta name="twitter:description" content="Transparency in regulated monopolies, in one sourced public place." />
+  <meta name="theme-color" content="#0a0f1e" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" onload="this.rel='stylesheet'" />
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" /></noscript>
+  <link rel="stylesheet" href="/shell-chrome.css" />
+  <style>
+    :root { --pdx-chrome: 3.25rem; color-scheme: dark; }
+    @supports (padding-top: env(safe-area-inset-top)) {
+      :root { --pdx-chrome: calc(3.25rem + env(safe-area-inset-top, 0px)); }
+    }
+    html { -webkit-text-size-adjust: 100%; }
+    html, body { background: #070b16; color: #e7eefb; }
+    body {
+      margin: 0;
+      font-family: 'Barlow', system-ui, -apple-system, sans-serif;
+      padding-top: calc(var(--pdx-chrome) + 0.75rem);
+    }
+    .sg-main { max-width: 44rem; margin: 0 auto; padding: 2.25rem 1.15rem 3rem; }
+    .sg-eyebrow {
+      font: 600 0.8rem/1 'Barlow Condensed', system-ui, sans-serif;
+      letter-spacing: 0.14em; text-transform: uppercase; color: #f5d77a; margin: 0 0 0.6rem;
+    }
+    .sg-title {
+      font: 400 clamp(2.4rem, 7vw, 3.4rem)/1 'Bebas Neue', 'Barlow Condensed', sans-serif;
+      letter-spacing: 0.02em; margin: 0 0 1.1rem; color: #fff7d6;
+    }
+    .sg-lede { font-size: 1.1rem; line-height: 1.65; color: #d6e1f5; margin: 0 0 1.6rem; }
+    .sg-card {
+      border: 1px solid rgba(245,215,122,0.28); background: rgba(245,215,122,0.05);
+      border-radius: 12px; padding: 1.05rem 1.15rem; margin: 0 0 1.25rem;
+    }
+    .sg-card h2 {
+      font: 600 1.05rem/1.2 'Barlow Condensed', system-ui, sans-serif; letter-spacing: 0.04em;
+      text-transform: uppercase; color: #f5d77a; margin: 0 0 0.5rem;
+    }
+    .sg-card p, .sg-card li { color: #c3d1ea; line-height: 1.6; margin: 0; }
+    .sg-card ul { margin: 0; padding-left: 1.15rem; }
+    .sg-card li + li { margin-top: 0.3rem; }
+    .sg-tag {
+      display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.6rem;
+      border-radius: 999px; border: 1px solid rgba(245,215,122,0.55); color: #f5d77a;
+      font: 600 0.85rem/1.3 'Barlow', system-ui, sans-serif;
+    }
+    .sg-foot { color: #8ea3c6; font-size: 0.9rem; line-height: 1.55; margin-top: 1.75rem; }
+    .sg-foot a, .sg-main a { color: #f5d77a; }
+  </style>
+</head>
+<body>
+  <header class="pdx-sh-bar">
+    <a class="pdx-sh-wordmark" href="/" title="PolitiDex — the front page">POLITI<span>DEX</span></a>
+    <nav class="pdx-sh-links" aria-label="PolitiDex">
+      <a class="pdx-sh-link" href="/#who-represents-me"><span class="pdx-sh-full">🏛️ Who Represents Me</span><span class="pdx-sh-short">Reps</span></a>
+      <a class="pdx-sh-link" href="/#say-vs-do"><span class="pdx-sh-full">👁️ Find the Record</span><span class="pdx-sh-short">Record</span></a>
+      <a class="pdx-sh-link" href="/ballot"><span class="pdx-sh-full">⭐ Your Ballot</span><span class="pdx-sh-short">Ballot</span></a>
+      <a class="pdx-sh-link" href="/money"><span class="pdx-sh-full">💰 Follow the Money</span><span class="pdx-sh-short">Money</span></a>
+      <a class="pdx-sh-link" href="/"><span class="pdx-sh-full">&larr; Home</span><span class="pdx-sh-short">&larr; Home</span></a>
+    </nav>
+  </header>
+
+  <main id="sunlight-governance" class="sg-main" data-category="sunlight_governance">
+    <p class="sg-eyebrow">Category &middot; <span class="sg-tag" data-sunlight-tag="sunlight_governance">☀️ Sunlight Governance</span></p>
+    <h1 class="sg-title">Sunlight Governance</h1>
+
+    <p class="sg-lede" id="sg-explanation"><span data-sg-sentence="1">Sunlight Governance tracks how regulated monopolies — such as electric, gas and water utilities — are overseen, by putting rate cases, regulator decisions and related lobbying records into one public, sourced place.</span> <span data-sg-sentence="2">The working proof-of-concept is the Philippines Digital Bayanihan Chain, which shows how public records of this kind can be published openly so anyone can follow them.</span></p>
+
+    <section class="sg-card" aria-labelledby="sg-what">
+      <h2 id="sg-what">What can carry this tag</h2>
+      <ul>
+        <li>Issues about how a regulated utility is overseen</li>
+        <li>Bills that change utility regulation or a commission's process</li>
+        <li>Rate cases before a state public service or utilities commission</li>
+        <li>Lobbying records tied to a regulated utility</li>
+      </ul>
+    </section>
+
+    <section class="sg-card" aria-labelledby="sg-now">
+      <h2 id="sg-now">On file now</h2>
+      <p id="sg-onfile">No items carry the Sunlight Governance tag yet. As rate cases, bills and lobbying records are tagged, searching for terms like “utility”, “Rocky Mountain Power”, “rate case” or “PSC” brings them together in one thread with this page.</p>
+    </section>
+
+    <p class="sg-foot">The tag is a filing label for transparency, not a verdict on any utility, regulator or official. <a href="/#say-vs-do">Search the record</a>.</p>
+  </main>
+</body>
+</html>
