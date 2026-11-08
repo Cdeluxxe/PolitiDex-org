@@ -22,6 +22,8 @@
 //         · every other pair writes only when the source is a campaign or
 //           official page (source type says "campaign"/"official", or the link
 //           is on a .gov host).
+//   W5  Never overwrite a manually flagged item (reviewed / needs_edit /
+//       hidden — see "Manual review flags" below), whatever its strength.
 //   W4  Never overwrite a strong item. A weak or mention item already at the
 //       key is only replaced by a STRONGER read of the same page; same or
 //       weaker reads leave it exactly as it is.
@@ -187,7 +189,7 @@ function displayDate(iso) {
  * components already render (headline / facts / date / issueKey / source).
  * The pipeline fields ride along under `pipeline` for transparency.
  */
-export function toSpotlightEntry(item) {
+export function toSpotlightEntry(item, { key = null, review = null } = {}) {
   const who = surnameOf(item.politician_id);
   const subject = TOPIC_LABELS[item.topic] || String(item.topic).replace(/_/g, " ");
   const verb = item.position === "support" ? "commits to lowering" : "opposes measures to lower";
@@ -214,7 +216,9 @@ export function toSpotlightEntry(item) {
       captured: item.date,
       ...(item.strength ? { strength: item.strength } : {}),
       ...(item.implication_count ? { implication_count: item.implication_count } : {}),
+      ...(key ? { key } : {}),
     },
+    ...(review ? { review: { status: review.status, ...(review.note ? { note: review.note } : {}), ...(review.date ? { date: review.date } : {}) } } : {}),
   };
 }
 
@@ -223,7 +227,7 @@ export function toSpotlightEntry(item) {
  * Logs exactly one "evidence-locker:" line per call. Returns
  * { written, key?, item?, reason }.
  */
-export async function maybeWriteLockerItem(candidate, raw, { store, gt = null, log = console.log } = {}) {
+export async function maybeWriteLockerItem(candidate, raw, { store, gt = null, log = console.log, flags = null } = {}) {
   const id = `${candidate?.politician_id}|${candidate?.topic}${raw?.source_id ? "|" + raw.source_id : ""}`;
   try {
     const d = lockerDecision(candidate, raw, gt);
@@ -234,6 +238,13 @@ export async function maybeWriteLockerItem(candidate, raw, { store, gt = null, l
     const item = buildLockerItem(candidate, raw, d.strength);
     const key = lockerKey(item);
     const existing = await store.get(key, { type: "json" });
+    // A manually flagged item (override file or the item's own review field) is
+    // an editor's call: the cron never writes over it, upgrade or not.
+    const flag = reviewFor(existing || item, key, flags);
+    if (flag) {
+      log(`evidence-locker: FLAGGED ${id} → ${LOCKER_STORE_NAME}/${key} — manually flagged "${flag.status}", left unchanged`);
+      return { written: false, key, reason: `manually flagged (${flag.status})`, flagged: flag.status };
+    }
     const fields = () => JSON.stringify({ strength: item.strength, position: item.position, confidence: item.confidence, ...(item.implication_count ? { implication_count: item.implication_count } : {}), link: item.link, attribution: item.attribution, reason: d.reason });
     if (existing) {
       const was = storedStrength(existing);
@@ -259,4 +270,56 @@ export async function maybeWriteLockerItem(candidate, raw, { store, gt = null, l
     log(`evidence-locker: ERROR ${id} — ${e?.message || e}`);
     return { written: false, reason: `error: ${e?.message || e}` };
   }
+}
+
+// ── Manual review flags ─────────────────────────────────────────────────────
+// An editor can flag any Locker item in db/evidence-locker-review.json:
+//
+//   { "items": [ { "key": "<politician_id>/<topic>/<hash>.json",   ← or:
+//                  "politician_id": "…", "link": "https://…", "topic": "…",
+//                  "status": "reviewed" | "needs_edit" | "hidden",
+//                  "note": "optional", "by": "optional", "date": "YYYY-MM-DD" } ] }
+//
+// A flag matches by the item's store key (every served entry carries it under
+// pipeline.key) or by politician + link (+ topic when given). A flag can also
+// be stored on the Blobs item itself as `review: { status, … }`; the file wins
+// when both exist.
+//   · hidden      — the item is never served, so no profile shows it.
+//   · reviewed    — served with review.status, and profiles print a small
+//                   "Reviewed" note on its line.
+//   · needs_edit  — served as before (status visible in the API for audit).
+// The cron NEVER writes over a flagged item (see maybeWriteLockerItem).
+export const REVIEW_STATUSES = ["reviewed", "needs_edit", "hidden"];
+
+const normLink = (u) => {
+  try { const x = new URL(u); x.hash = ""; return (x.origin + x.pathname.replace(/\/+$/, "") + x.search).toLowerCase(); }
+  catch { return String(u || "").toLowerCase(); }
+};
+
+/** Validate the override file into a lookup. Bad rows are dropped, never thrown. */
+export function loadReviewFlags(doc) {
+  const rows = Array.isArray(doc) ? doc : Array.isArray(doc?.items) ? doc.items : [];
+  const byKey = new Map(), byLink = new Map();
+  for (const r of rows) {
+    if (!r || !REVIEW_STATUSES.includes(r.status)) continue;
+    const flag = { status: r.status, ...(r.note ? { note: String(r.note) } : {}), ...(r.by ? { by: String(r.by) } : {}), ...(r.date ? { date: String(r.date) } : {}) };
+    if (r.key) byKey.set(String(r.key), flag);
+    if (r.politician_id && r.link) {
+      byLink.set(`${r.politician_id}|${normLink(r.link)}`, [...(byLink.get(`${r.politician_id}|${normLink(r.link)}`) || []), { topic: r.topic || null, flag }]);
+    }
+  }
+  return { byKey, byLink };
+}
+
+/** The manual flag for one item (file first, then the item's own), or null. */
+export function reviewFor(item, key, flags) {
+  if (flags) {
+    const k = key || (item && item.politician_id && item.topic && item.link ? lockerKey(item) : null);
+    if (k && flags.byKey?.has(k)) return flags.byKey.get(k);
+    const hits = flags.byLink?.get(`${item?.politician_id}|${normLink(item?.link)}`) || [];
+    const hit = hits.find((h) => !h.topic || h.topic === item?.topic);
+    if (hit) return hit.flag;
+  }
+  const own = item?.review;
+  return own && REVIEW_STATUSES.includes(own.status) ? own : null;
 }

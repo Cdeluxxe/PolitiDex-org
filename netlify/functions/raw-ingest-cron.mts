@@ -27,13 +27,48 @@
 //     ground-truth position; anything else: campaign/official page only. A
 //     strong item is never overwritten; every write and skip is logged.
 //     The ground-truth file is imported read-only and never written.
+//
+// Coverage pass:
+//   · ROTATION — the scheduled run no longer pulls only the fixed five. It
+//     plans each run from ROSTER (planRun): politicians with a district board
+//     and stated positions first, then those with one of the two, taking whole
+//     politicians from a persisted cursor until the run reaches
+//     MAX_SOURCES_PER_RUN (11). The next run continues from where this one
+//     stopped, so successive runs check different people.
+//   · OFFICIAL SOURCES — each planned politician's official pattern (state
+//     legislature page, House/Senate newsroom, governor/agency newsroom) is
+//     checked with the existing stable-page test and joins the pull list when
+//     it is stable and not already included. Its slot is reserved in the plan,
+//     so the cap holds either way.
+//   · REVIEW FLAGS — db/evidence-locker-review.json is passed to the Locker
+//     writer; a flagged item (reviewed / needs_edit / hidden) is never written
+//     over. Logged as "evidence-locker: FLAGGED …".
+//   · RUN LOG — one "raw-ingest: run plan …" line (politicians, cursor) before
+//     pulling and one "raw-ingest: run included …" line (politicians and source
+//     types actually pulled) after discovery.
 
 import type { Config } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
-import { runRawIngest, discoverSources, RAW_STORE_NAME, SOURCES } from "../lib/raw-ingest-core.mjs";
+import {
+  runRawIngest, discoverSources, planRun, runPlanLine, sourceKind,
+  RAW_STORE_NAME, SOURCES, ROTATION_STORE_NAME, ROTATION_KEY, MAX_SOURCES_PER_RUN,
+} from "../lib/raw-ingest-core.mjs";
 import { logCandidateStance } from "../lib/stance-score-core.mjs";
-import { maybeWriteLockerItem, LOCKER_STORE_NAME } from "../lib/evidence-locker-core.mjs";
+import { maybeWriteLockerItem, loadReviewFlags, LOCKER_STORE_NAME } from "../lib/evidence-locker-core.mjs";
 import groundTruth from "../../db/stance-ground-truth-talarico-cost-of-living.json" with { type: "json" };
+import reviewFile from "../../db/evidence-locker-review.json" with { type: "json" };
+
+async function readCursor(store: any, log: (l: string) => void): Promise<number> {
+  if (!store) return 0;
+  try {
+    const doc = await store.get(ROTATION_KEY, { type: "json" });
+    const c = Number(doc?.cursor);
+    return Number.isFinite(c) && c >= 0 ? Math.trunc(c) : 0;
+  } catch (e: any) {
+    log(`raw-ingest: rotation cursor unreadable — starting at 0 (${e?.message || e})`);
+    return 0;
+  }
+}
 
 // Exported so the test suite can invoke this exact entry point with fakes.
 // `lockerStore` and `discover` are opt-in so each phase can be exercised on its
@@ -42,18 +77,41 @@ export async function run(deps: {
   fetch: typeof fetch; store: any; now?: () => Date; log?: (l: string) => void;
   lockerStore?: any; groundTruth?: any; discover?: boolean | { patterns?: any[]; max?: number };
   sources?: any[];
+  // Coverage pass: plan the run from the roster (see header). `rotationStore`
+  // persists the cursor between runs; `cursor` overrides it (tests).
+  rotate?: boolean | { roster?: any[]; max?: number; cursor?: number };
+  rotationStore?: any;
+  reviewFlags?: any;
 }) {
   const log = deps.log ?? ((l: string) => console.log(l));
   let sources = deps.sources ?? SOURCES;
   let discovered: any[] = [];
-  if (deps.discover) {
+  let plan: any = null;
+  if (deps.rotate && !deps.sources) {
+    const ro = typeof deps.rotate === "object" ? deps.rotate : {};
+    const cursor = typeof ro.cursor === "number" ? ro.cursor : await readCursor(deps.rotationStore, log);
+    const max = ro.max ?? MAX_SOURCES_PER_RUN;
+    plan = planRun(cursor, { ...(ro.roster ? { roster: ro.roster } : {}), max });
+    sources = plan.sources;
+    console.log(`raw-ingest: run plan — cursor ${plan.cursor} → ${plan.next_cursor} · ${plan.politicians.length} politician(s): ${plan.politicians.join(", ")} · ${plan.sources.length} page(s) + ${plan.patterns.length} official pattern(s) (cap ${max})`);
+    const d = await discoverSources(sources, { fetch: deps.fetch, log, patterns: plan.patterns, max, restrict: false });
+    sources = d.sources;
+    discovered = d.added;
+    if (deps.rotationStore) {
+      try { await deps.rotationStore.setJSON(ROTATION_KEY, { cursor: plan.next_cursor, updated_at: (deps.now ?? (() => new Date()))().toISOString(), last_politicians: plan.politicians }); }
+      catch (e: any) { log(`raw-ingest: rotation cursor not saved — ${e?.message || e}`); }
+    }
+  } else if (deps.discover) {
     const opts = typeof deps.discover === "object" ? deps.discover : {};
     const d = await discoverSources(sources, { fetch: deps.fetch, log, ...opts });
     sources = d.sources;
     discovered = d.added;
   }
+  const included = runPlanLine(sources);
+  console.log(`raw-ingest: run included ${included.count} source(s) · politicians: ${included.politicians.join(", ")} · source kinds: ${JSON.stringify(included.kinds)} · source types: ${JSON.stringify(included.source_types)}`);
   const lockerWrites: any[] = [];
   const gt = deps.groundTruth ?? groundTruth;
+  const flags = loadReviewFlags(deps.reviewFlags ?? reviewFile);
   const onRecord = async (rec: any) => {
     const candidate = logCandidateStance(rec, { log });
     if (!deps.lockerStore) return;
@@ -61,11 +119,16 @@ export async function run(deps: {
       log(`evidence-locker: SKIP ${rec?.politician_id}|${rec?.topic}${rec?.source_id ? "|" + rec.source_id : ""} — no scored candidate`);
       return;
     }
-    const w = await maybeWriteLockerItem(candidate, rec, { store: deps.lockerStore, gt, log });
+    const w = await maybeWriteLockerItem(candidate, rec, { store: deps.lockerStore, gt, log, flags });
     if (w.written) lockerWrites.push({ key: w.key, politician_id: candidate.politician_id, topic: candidate.topic, strength: w.item?.strength });
   };
   const report: any = await runRawIngest({ ...deps, onRecord }, sources);
-  report.discovered = discovered.map((s: any) => ({ politician_id: s.politician_id, topic: s.topic, url: s.url }));
+  report.discovered = discovered.map((s: any) => ({ politician_id: s.politician_id, topic: s.topic, url: s.url, kind: sourceKind(s), ...(s.official_kind ? { official_kind: s.official_kind } : {}) }));
+  report.included = {
+    ...included,
+    sources: sources.map((s: any) => ({ politician_id: s.politician_id, topic: s.topic, url: s.url, source_type: s.source_type, kind: sourceKind(s) })),
+  };
+  if (plan) report.plan = { cursor: plan.cursor, next_cursor: plan.next_cursor, politicians: plan.politicians, planned_size: plan.size };
   report.locker_writes = lockerWrites;
   if (deps.lockerStore) {
     const by = (s: string) => lockerWrites.filter((w) => w.strength === s).length;
@@ -86,6 +149,8 @@ export default async (): Promise<Response> =>
     store: getStore(RAW_STORE_NAME),
     lockerStore: getStore(LOCKER_STORE_NAME),
     discover: true,
+    rotate: true,
+    rotationStore: getStore(ROTATION_STORE_NAME),
   });
 
 // Every 4 hours, on the hour (00, 04, 08, 12, 16, 20 UTC).

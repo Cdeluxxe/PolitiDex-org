@@ -55,6 +55,13 @@
      · in Word vs Action it is listed first, as evidence for the pledge.
    It is context: no pledge is resolved by it and nothing is counted.
 
+   REVIEW FLAGS. An editor can mark an item reviewed, needs_edit or hidden
+   (db/evidence-locker-review.json; the endpoint serves the flag as
+   entry.review.status). A hidden item is dropped here as well as at the
+   endpoint, so no surface on the profile can print it. A reviewed item's line
+   carries a small "✓ Reviewed" note in every surface that prints the item.
+   needs_edit changes nothing on the profile.
+
    If the open profile gained items, the file is repainted in place (same
    renderer, scroll position kept), the way the cold-open document merge does it.
 
@@ -85,6 +92,9 @@
   var EVD_HEAD = '📂 From the Evidence Locker: weaker signals';
   var EVD_NOTE = 'What the pipeline found that does not reach a firm stance. Weak signals are low-confidence reads; ' +
     'mentions only show the topic came up. Neither is counted anywhere on this profile.';
+
+  var REVIEWED_LABEL = 'Reviewed';
+  var REVIEWED_TITLE = 'A PolitiDex editor checked this item against its source.';
 
   var byPid = {};      // profile id → [entry]
   var loading = null;
@@ -119,6 +129,20 @@
     return isStrong(it) ? hk(it)
       : 'u:' + String((it.source && it.source.url) || '') + '|' + String(it.issueKey || '');
   }
+  function reviewOf(it) {
+    var r = it && (it.review || (it.pipeline && it.pipeline.review));
+    var st = r && r.status;
+    return (st === 'reviewed' || st === 'needs_edit' || st === 'hidden') ? st : '';
+  }
+  function isHidden(it) { return reviewOf(it) === 'hidden'; }
+  // The small note a manually reviewed item carries; '' for anything else.
+  function reviewedHtml(it) {
+    if (reviewOf(it) !== 'reviewed') return '';
+    return ' <span class="pdx-locker-reviewed" data-pdx-locker-reviewed="1" title="' + esc(REVIEWED_TITLE) + '" ' +
+      'style="display:inline-block;margin-left:0.3rem;padding:0 0.35rem;border:1px solid rgba(110,231,183,0.45);' +
+      'border-radius:0.6rem;font-size:0.62rem;font-weight:700;letter-spacing:0.02em;color:#6ee7b7;vertical-align:1px;">' +
+      '✓ ' + esc(REVIEWED_LABEL) + '</span>';
+  }
   function isEntry(it) {
     return !!(it && it.headline && it.issueKey && it.source && /^https?:\/\//.test(String(it.source.url || '')));
   }
@@ -145,7 +169,7 @@
       var keys = (id && id !== raw) ? [id, raw] : [raw];
       var gained = false;
       arr.forEach(function (it) {
-        if (!isEntry(it) || !strengthOf(it)) return;
+        if (!isEntry(it) || !strengthOf(it) || isHidden(it)) return;
         var mine = byPid[id] || (byPid[id] = []);
         if (!pushUnique(mine, it, ik)) return;
         gained = true; out.added++;
@@ -239,6 +263,7 @@
       '<a href="' + esc(x.url) + '" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" style="color:#9fb4d4;">— ' +
         esc(x.attribution) + ' ↗</a>' +
       (x.date ? ' <span style="color:#5f7da6;">· ' + esc(x.date) + '</span>' : '') +
+      reviewedHtml(it) +
     '</' + tag + '>';
   }
   var PLEDGE_TAG = '📂 Locker evidence on file';
@@ -351,6 +376,7 @@
         mentionLeadHtml() + ' ' +
         '<a class="pdxtree-src" data-pdxtree-src="1" href="' + esc(x.url) + '" target="_blank" rel="noopener noreferrer">' +
           '“' + esc(x.excerpt) + '” — ' + esc(x.attribution) + (x.date ? ' · ' + esc(x.date) : '') + ' ↗</a>' +
+        reviewedHtml(it) +
       '</div>';
     }
     return '<div class="pdxtree-locker" data-pdxtree-locker="1"' + (st === 'weak' ? ' data-pdx-locker-strength="weak"' : '') +
@@ -359,6 +385,7 @@
         '📂 ' + (x.pos ? '<b>' + esc(x.pos) + ':</b> ' : '') +
         (x.excerpt ? '“' + esc(x.excerpt) + '”' : esc(x.headline)) +
         ' — ' + esc(x.attribution) + (x.date ? ' · ' + esc(x.date) : '') + ' ↗</a>' +
+        reviewedHtml(it) +
         (pid ? conflictHtml(pid, it, 'div', 'margin:0.15rem 0 0;' + CONFLICT_STYLE) : '') +
         (pid ? treePledgeHtml(pid, it) : '') +
       '</div>';
@@ -467,6 +494,7 @@
         ? '<a href="' + esc(y.url) + '" target="_blank" rel="noopener noreferrer" style="color:#9fb4d4;">' + esc(y.attribution) + ' ↗</a>'
         : esc(y.attribution)) +
       (y.date ? ' <span style="color:#5f7da6;">· ' + esc(y.date) + '</span>' : '') +
+      reviewedHtml(x.item) +
     '</p>' +
       conflictHtml(pid, x.item, 'p', 'margin:-0.25rem 0 0.45rem;' + CONFLICT_STYLE);
   }
@@ -487,6 +515,7 @@
       (x.pos ? '<b style="color:#f5c842;">' + esc(x.pos) + ':</b> ' : '') +
       '“' + esc(x.excerpt) + '”' +
       (x.attribution ? ' <span style="color:#5f7da6;">— ' + esc(x.attribution) + '</span>' : '') +
+      reviewedHtml(it) +
     '</p>' + cf;
   }
   // Under an open pledge in its issue card's 🤝 Promises lane, the Locker items
@@ -563,7 +592,7 @@
       ? '<p class="evd-spot-excerpt" style="margin:0.2rem 0 0.15rem 1.1rem;font-size:0.72rem;line-height:1.45;color:#c9d6ea;">' +
         (st === 'weak' && x.pos ? '<b style="color:#f5c842;">' + esc(x.pos) + ':</b> ' : '') +
         '“' + esc(x.excerpt) + '”' +
-        ' <span style="color:#5f7da6;">— ' + esc(x.attribution) + '</span></p>' : '';
+        ' <span style="color:#5f7da6;">— ' + esc(x.attribution) + '</span>' + reviewedHtml(it) + '</p>' : '';
     return '<div class="evd-spot" data-evd-locker-weak="' + esc(st) + '" data-evd-locker-issue="' + esc(it.issueKey) + '"' +
       (st === 'mention' ? ' data-pdx-locker-mention="1"' : ' data-pdx-locker-strength="weak"') + '>' +
       '<div class="evd-spot-head"><span class="evd-spot-impact neutral" aria-hidden="true">•</span>' + head + '</div>' +
@@ -769,6 +798,7 @@
     pledgeMatches: pledgeMatches, pledgesFor: pledgesFor, decorateGaps: decorateGaps,
     decoratePledges: decoratePledges, promiseHtml: promiseHtml,
     PLEDGE_NOTE: PLEDGE_NOTE, PLEDGE_GAP_NOTE: PLEDGE_GAP_NOTE,
+    REVIEWED_LABEL: REVIEWED_LABEL, reviewOf: reviewOf, reviewedHtml: reviewedHtml,
     // Test seam: forget everything ingested (does not touch SPOTLIGHT_DATA).
     _reset: function () { byPid = {}; loading = null; }
   };

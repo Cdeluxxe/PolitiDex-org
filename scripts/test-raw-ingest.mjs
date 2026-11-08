@@ -483,5 +483,167 @@ await t('ground-truth file is unchanged', () => {
   assert.equal(h, GT_SHA256);
 });
 
+// ── Coverage pass: roster rotation, official sources, manual review flags ──
+const seatHolders = await import(pathToFileURL(path.join(root, 'netlify/lib/seat-holders.mjs')).href);
+const STANCE_SRC = ['politician-stances.js', 'politician-stances-core.js', 'politician-stances-ext.js']
+  .filter((f) => existsSync(path.join(root, f))).map((f) => readFileSync(path.join(root, f), 'utf8')).join('\n');
+const hasBoard = (pid) => Object.values(seatHolders.SEAT_HOLDERS).some((h) => h && h.pid === pid);
+const hasStances = (pid) => new RegExp(`^\\s*['"]?${pid}['"]?\\s*:\\s*\\[`, 'm').test(STANCE_SRC);
+const ORIGINAL = new Set(core.ORIGINAL_FIVE);
+const memStore = () => {
+  const data = new Map();
+  return { data, async get(k) { return data.has(k) ? JSON.parse(JSON.stringify(data.get(k))) : null; },
+    async setJSON(k, v) { data.set(k, JSON.parse(JSON.stringify(v))); return { modified: true }; } };
+};
+
+await t('roster: priority flags are true to the data, and prioritised people come first in the rotation', () => {
+  assert.ok(core.ROSTER.length > 5, 'more than the original five');
+  for (const p of core.ORIGINAL_FIVE) assert.ok(core.ROSTER.some((r) => r.politician_id === p), `original ${p} stays in the roster`);
+  assert.equal(new Set(core.ROSTER.map((r) => r.politician_id)).size, core.ROSTER.length, 'one roster row per politician');
+  for (const r of core.ROSTER) {
+    assert.equal(r.has_board, hasBoard(r.politician_id), `${r.politician_id}: has_board matches SEAT_HOLDERS`);
+    assert.equal(r.has_stances, hasStances(r.politician_id), `${r.politician_id}: has_stances matches the stance data`);
+    const want = r.has_board && r.has_stances ? 1 : (r.has_board || r.has_stances) ? 2 : 3;
+    assert.equal(r.tier, want, `${r.politician_id}: tier ${r.tier} should be ${want}`);
+    if (r.tier === 3) assert.ok(ORIGINAL.has(r.politician_id), `${r.politician_id}: a tier-3 row is only kept from the original five`);
+    for (const s of r.sources) {
+      assert.equal(s.politician_id, r.politician_id);
+      // New roster pages must be campaign/official; the original five keep their configured SOURCES rows.
+      if (ORIGINAL.has(r.politician_id)) assert.ok(core.SOURCES.includes(s), `${s.url} is one of the configured SOURCES`);
+      else assert.ok(locker.isCampaignOrOfficial(s.source_type, s.url), `${s.url} is a campaign/official page`);
+      assert.ok(['cost_living', 'healthcare_costs'].includes(s.topic));
+    }
+    const o = r.official;
+    assert.ok(o, `${r.politician_id} has an official pattern`);
+    assert.equal(o.politician_id, r.politician_id);
+    assert.ok(Object.keys(core.OFFICIAL_KINDS).includes(o.official_kind), `${o.url}: official_kind`);
+    assert.ok(/\.gov$/.test(new URL(o.url).hostname), `${o.url} is on a .gov host`);
+    assert.equal(core.sourceKind(o), 'official');
+    assert.ok(o.source_id && !r.sources.some((s) => s.url === o.url), `${o.url} is not one of their configured pages`);
+  }
+  const kinds = new Set(core.ROSTER.map((r) => r.official.official_kind));
+  for (const k of ['state_legislature', 'congress', 'executive']) assert.ok(kinds.has(k), `an official ${k} pattern exists`);
+  const fsrc = readFileSync(fnPath, 'utf8');
+  assert.match(fsrc, /rotate:\s*true/, 'the scheduled entry point rotates');
+  assert.match(fsrc, /rotationStore:\s*getStore\(ROTATION_STORE_NAME\)/, 'the rotation cursor is persisted');
+  assert.equal(core.MAX_SOURCES_PER_RUN, 11, 'per-run cap unchanged');
+  const order = core.rotationOrder().map((r) => r.tier);
+  assert.deepEqual(order, [...order].sort((a, b) => a - b), 'rotation order is by tier');
+});
+
+await t('a rotated run includes politicians beyond the original five and at least one official source, within the cap', async () => {
+  const store = fakeStore(); const logs = [];
+  const { value: res, lines } = await quiet(() => fn.run({ fetch: fakeFetch(200, LONG_HTML), store, now: NOW,
+    rotate: { cursor: 0 }, log: (l) => logs.push(l) }));
+  const report = await res.json();
+  const pols = new Set(report.included.politicians);
+  assert.ok([...pols].some((p) => !ORIGINAL.has(p)), `beyond the original five (got ${[...pols].join(', ')})`);
+  assert.ok(report.discovered.length >= 1 && report.discovered.every((d) => d.kind === 'official'), 'official patterns joined the pull list');
+  assert.ok((report.included.kinds.official || 0) >= 1, 'at least one official source pulled');
+  assert.ok(report.results.length <= core.MAX_SOURCES_PER_RUN && report.results.length < 12, `cap respected (${report.results.length})`);
+  assert.equal(report.results.length, report.included.count);
+  assert.equal(store.data.size, report.results.length, 'every included source pulled and stored');
+  // Logged: who and which source types.
+  const plan = lines.find((l) => l.startsWith('raw-ingest: run plan — '));
+  const inc = lines.find((l) => l.startsWith('raw-ingest: run included '));
+  assert.ok(plan && inc, 'run plan and run included lines are logged');
+  for (const p of pols) assert.ok(inc.includes(p), `run log names ${p}`);
+  assert.ok(/source kinds: \{.*"official":\d+/.test(inc) && /source types: \{/.test(inc), 'run log names the source kinds and types');
+  assert.ok(logs.some((l) => l.startsWith('discovery: NEW ') && /newsroom|legislature|key-issue/.test(l)), 'each new official URL is logged');
+});
+
+await t('successive runs rotate through the whole roster, and every run respects the cap', async () => {
+  const rot = memStore(); const seen = new Set(); const sets = [];
+  for (let i = 0; i < core.ROSTER.length; i++) {
+    const { value: res } = await quiet(() => fn.run({ fetch: fakeFetch(200, LONG_HTML), store: fakeStore(), now: NOW,
+      rotate: true, rotationStore: rot, log: () => {} }));
+    const r = await res.json();
+    assert.ok(r.results.length <= core.MAX_SOURCES_PER_RUN, `run ${i}: ${r.results.length} ≤ cap`);
+    r.plan.politicians.forEach((p) => seen.add(p));
+    sets.push(r.plan.politicians.join(','));
+    assert.equal(rot.data.get(core.ROTATION_KEY).cursor, r.plan.next_cursor, 'cursor persisted');
+  }
+  assert.notEqual(sets[0], sets[1], 'consecutive runs check different people');
+  assert.equal(seen.size, core.ROSTER.length, 'every roster politician is reached');
+  // Cap holds for every start point, including a cap smaller than one politician.
+  for (let c = 0; c < core.ROSTER.length; c++) {
+    for (const max of [core.MAX_SOURCES_PER_RUN, 4, 1]) {
+      const p = core.planRun(c, { max });
+      assert.ok(p.size <= max && p.size >= 1, `planRun(${c}, max ${max}) → ${p.size}`);
+      const d = await core.discoverSources(p.sources, { fetch: fakeFetch(200, LONG_HTML), log: () => {}, patterns: p.patterns, max, restrict: false });
+      assert.ok(d.sources.length <= max, 'cap holds after discovery');
+      assert.equal(new Set(d.sources.map((s) => s.url)).size, d.sources.length, 'no duplicate URLs in a run');
+    }
+  }
+  // An unstable official page is skipped, not pulled.
+  const p0 = core.planRun(0);
+  const { value: res } = await quiet(() => fn.run({ fetch: async (u, o) => (p0.patterns.some((x) => x.url === u) ? fakeFetch(404, LONG_HTML)(u, o) : fakeFetch(200, LONG_HTML)(u, o)),
+    store: fakeStore(), now: NOW, rotate: { cursor: 0 }, log: () => {} }));
+  const r0 = await res.json();
+  assert.equal(r0.discovered.length, 0);
+  assert.equal(r0.results.length, p0.sources.length);
+});
+
+await t('review flags: the cron never overwrites a manually flagged item', async () => {
+  const cornynSrc = core.SOURCES.find((s) => s.url === CORNYN_URL);
+  const key = locker.lockerKey({ politician_id: 'john_cornyn', topic: 'healthcare_costs', link: CORNYN_URL });
+  for (const status of ['reviewed', 'needs_edit', 'hidden']) {
+    // A weak item already there would normally be upgraded by this strong read.
+    const ls = lockerFakeStore();
+    const prior = { politician_id: 'john_cornyn', topic: 'healthcare_costs', position: 'support', confidence: 0.4, strength: 'weak',
+      link: CORNYN_URL, excerpt: 'editor-checked text', attribution: 'Source: official Senate page', date: '2026-11-01' };
+    ls.data.set(key, prior);
+    const logs = [];
+    const { value: res } = await quiet(() => fn.run({ fetch: byUrl({ [CORNYN_URL]: HC_HTML }), store: fakeStore(), lockerStore: ls, now: NOW,
+      sources: [cornynSrc], reviewFlags: { items: [{ key, status }] }, log: (l) => logs.push(l) }));
+    const report = await res.json();
+    assert.deepEqual(ls.data.get(key), prior, `${status}: item unchanged`);
+    assert.equal(report.locker_writes.length, 0);
+    assert.ok(logs.some((l) => l.startsWith('evidence-locker: FLAGGED ') && l.includes(`"${status}"`)), `${status}: FLAGGED is logged`);
+  }
+  // Flag matched by politician + link, with nothing in the store yet: still never written.
+  const ls2 = lockerFakeStore();
+  await quiet(() => fn.run({ fetch: byUrl({ [CORNYN_URL]: HC_HTML }), store: fakeStore(), lockerStore: ls2, now: NOW,
+    sources: [cornynSrc], reviewFlags: { items: [{ politician_id: 'john_cornyn', link: CORNYN_URL + '#x', status: 'hidden' }] }, log: () => {} }));
+  assert.equal(ls2.data.size, 0, 'a hidden flag by link blocks the write');
+  // A review field on the stored item itself also protects it.
+  const ls3 = lockerFakeStore();
+  const own = { politician_id: 'john_cornyn', topic: 'healthcare_costs', position: 'support', confidence: 0.4, strength: 'weak', link: CORNYN_URL, excerpt: 'x', review: { status: 'reviewed' } };
+  ls3.data.set(key, own);
+  await quiet(() => fn.run({ fetch: byUrl({ [CORNYN_URL]: HC_HTML }), store: fakeStore(), lockerStore: ls3, now: NOW, sources: [cornynSrc], log: () => {} }));
+  assert.deepEqual(ls3.data.get(key), own);
+  // Unflagged, the same weak item IS upgraded (the flag is what stopped it).
+  const ls4 = lockerFakeStore();
+  ls4.data.set(key, { ...own, review: undefined });
+  await quiet(() => fn.run({ fetch: byUrl({ [CORNYN_URL]: HC_HTML }), store: fakeStore(), lockerStore: ls4, now: NOW, sources: [cornynSrc], log: () => {} }));
+  assert.equal(ls4.data.get(key).strength, 'strong', 'control: an unflagged weak item is upgraded');
+  // The shipped override file parses and only uses known statuses.
+  const file = JSON.parse(readFileSync(path.join(root, 'db/evidence-locker-review.json'), 'utf8'));
+  assert.ok(Array.isArray(file.items));
+  for (const r of file.items) assert.ok(locker.REVIEW_STATUSES.includes(r.status), `bad status ${r.status}`);
+});
+
+await t('review flags: the items endpoint leaves hidden items out and marks reviewed ones', async () => {
+  const items = await import(pathToFileURL(itemsFnPath).href);
+  const ls = lockerFakeStore();
+  const mk = (n, extra = {}) => ({ politician_id: 'crockett', topic: 'cost_living', position: 'support', confidence: 0.9, strength: 'strong',
+    source_type: 'official House issue page', link: `https://crockett.house.gov/p${n}`, excerpt: `excerpt ${n}`,
+    attribution: 'Source: official House page', date: '2026-11-07', ...extra });
+  const [a, b, c] = [mk(1), mk(2), mk(3)];
+  for (const it of [a, b, c]) ls.data.set(locker.lockerKey(it), it);
+  const body = await items.listLockerEntries(ls, { items: [
+    { key: locker.lockerKey(a), status: 'hidden' },
+    { politician_id: 'crockett', link: b.link, status: 'reviewed', note: 'checked' },
+  ] });
+  assert.equal(body.count, 2);
+  assert.equal(body.hidden, 1);
+  const urls = body.items.crockett.map((e) => e.source.url);
+  assert.ok(!urls.includes(a.link), 'hidden item is not served');
+  const rev = body.items.crockett.find((e) => e.source.url === b.link);
+  assert.equal(rev.review.status, 'reviewed');
+  assert.equal(rev.pipeline.key, locker.lockerKey(b), 'served entries carry their store key');
+  assert.ok(!body.items.crockett.find((e) => e.source.url === c.link).review, 'unflagged item carries no review');
+});
+
 if (failures) { console.error(`${failures} failing`); process.exit(1); }
 console.log('raw ingest: all checks pass');
