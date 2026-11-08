@@ -207,6 +207,7 @@ const lockerFakeStore = () => {
   const data = new Map();
   return {
     data,
+    async list() { return { blobs: [...data.keys()].map((key) => ({ key })) }; },
     async get(k) { return data.has(k) ? JSON.parse(JSON.stringify(data.get(k))) : null; },
     async setJSON(k, v, opts = {}) {
       if (opts.onlyIfNew && data.has(k)) return { modified: false };
@@ -495,6 +496,16 @@ const STANCE_SRC = ['politician-stances.js', 'politician-stances-core.js', 'poli
   .filter((f) => existsSync(path.join(root, f))).map((f) => readFileSync(path.join(root, f), 'utf8')).join('\n');
 const hasBoard = (pid) => Object.values(seatHolders.SEAT_HOLDERS).some((h) => h && h.pid === pid);
 const hasStances = (pid) => new RegExp(`^\\s*['"]?${pid}['"]?\\s*:\\s*\\[`, 'm').test(STANCE_SRC);
+// Stated positions on file: issueKey entries in the politician's stance block(s).
+const STANCE_BLOCKS = (() => {
+  const re = /^\s*['"]?([a-z0-9_]+)['"]?\s*:\s*\[/gm; const starts = []; let m;
+  while ((m = re.exec(STANCE_SRC))) starts.push([m[1], m.index]);
+  const out = {};
+  starts.forEach(([pid, at], i) => { const seg = STANCE_SRC.slice(at, starts[i + 1]?.[1] ?? STANCE_SRC.length); out[pid] = (out[pid] || 0) + (seg.match(/\bissueKey\s*:/g) || []).length; });
+  return out;
+})();
+const stanceCount = (pid) => STANCE_BLOCKS[pid] || 0;
+const PREVIOUS = new Set(core.PREVIOUS_ROSTER);
 const ORIGINAL = new Set(core.ORIGINAL_FIVE);
 const memStore = () => {
   const data = new Map();
@@ -509,9 +520,10 @@ await t('roster: priority flags are true to the data, and prioritised people com
   for (const r of core.ROSTER) {
     assert.equal(r.has_board, hasBoard(r.politician_id), `${r.politician_id}: has_board matches SEAT_HOLDERS`);
     assert.equal(r.has_stances, hasStances(r.politician_id), `${r.politician_id}: has_stances matches the stance data`);
-    const want = r.has_board && r.has_stances ? 1 : (r.has_board || r.has_stances) ? 2 : 3;
-    assert.equal(r.tier, want, `${r.politician_id}: tier ${r.tier} should be ${want}`);
-    if (r.tier === 3) assert.ok(ORIGINAL.has(r.politician_id), `${r.politician_id}: a tier-3 row is only kept from the original five`);
+    const want = r.has_board && stanceCount(r.politician_id) >= core.SEVERAL_STANCES ? 1 : (r.has_board || r.has_stances) ? 2 : 3;
+    assert.equal(r.tier, want, `${r.politician_id}: tier ${r.tier} should be ${want} (${stanceCount(r.politician_id)} stated positions)`);
+    if (r.tier === 3) assert.ok(PREVIOUS.has(r.politician_id), `${r.politician_id}: a tier-3 row is only kept from the previous 13`);
+    if (!PREVIOUS.has(r.politician_id)) assert.ok(r.has_board || r.has_stances, `${r.politician_id}: a new roster row has a board or stated positions`);
     for (const s of r.sources) {
       assert.equal(s.politician_id, r.politician_id);
       // New roster pages must be campaign/official; the original five keep their configured SOURCES rows.
@@ -531,16 +543,111 @@ await t('roster: priority flags are true to the data, and prioritised people com
   for (const k of ['state_legislature', 'congress', 'executive']) assert.ok(kinds.has(k), `an official ${k} pattern exists`);
   const fsrc = readFileSync(fnPath, 'utf8');
   assert.match(fsrc, /rotate:\s*true/, 'the scheduled entry point rotates');
-  assert.match(fsrc, /rotationStore:\s*getStore\(ROTATION_STORE_NAME\)/, 'the rotation cursor is persisted');
+  assert.match(fsrc, /rotationStore:\s*getStore\(ROTATION_STORE_NAME\)/, 'the rotation state is persisted');
   assert.equal(core.MAX_SOURCES_PER_RUN, 11, 'per-run cap unchanged');
   const order = core.rotationOrder().map((r) => r.tier);
   assert.deepEqual(order, [...order].sort((a, b) => a - b), 'rotation order is by tier');
 });
 
+await t('roster expansion: beyond the previous 13, with priority order respected across a cycle', async () => {
+  for (const p of core.PREVIOUS_ROSTER) assert.ok(core.ROSTER.some((r) => r.politician_id === p), `previous ${p} stays in the roster`);
+  const extra = core.ROSTER.filter((r) => !PREVIOUS.has(r.politician_id));
+  assert.ok(core.ROSTER.length > 13 && extra.length >= 5, `roster grew beyond the previous 13 (${core.ROSTER.length})`);
+  assert.ok(extra.some((r) => r.tier === 1), 'new tier-1 politicians were added');
+  // Successive runs through one cycle: concatenated plans follow the priority order exactly.
+  const rot = memStore(); const visited = []; const lines = [];
+  for (let i = 0; i < core.ROSTER.length; i++) {
+    const { value: res, lines: l } = await quiet(() => fn.run({ fetch: fakeFetch(200, LONG_HTML), store: fakeStore(), now: NOW,
+      rotate: { counts: {} }, rotationStore: rot, log: (x) => lines.push(x) }));
+    const r = await res.json();
+    lines.push(...l);
+    if (r.plan.cycle !== 0) break;
+    visited.push(...r.plan.politicians);
+    assert.ok(r.results.length <= core.MAX_SOURCES_PER_RUN, `run ${i} within cap`);
+  }
+  assert.deepEqual(visited, core.priorityOrder(core.ROSTER, {}).map((x) => x.r.politician_id), 'a cycle visits everyone once, in priority order');
+  const tiers = visited.map((p) => core.ROSTER.find((r) => r.politician_id === p).tier);
+  assert.deepEqual(tiers, [...tiers].sort((a, b) => a - b), 'tier 1 before tier 2 before tier 3');
+  const first = core.planRun({}, { counts: {} });
+  assert.ok(first.politicians.every((p) => core.ROSTER.find((r) => r.politician_id === p).tier === 1), 'the first run is all tier 1');
+  // Run log: roster size, who was included, and the baseline line.
+  assert.ok(lines.some((l) => l.startsWith(`raw-ingest: roster — ${core.ROSTER.length} politician(s)`)), 'roster size logged');
+  assert.ok(lines.some((l) => l.startsWith('raw-ingest: run plan — cycle 0 · ')), 'run plan logged');
+  assert.ok(lines.some((l) => l.startsWith('raw-ingest: baseline progress — 0 politician + issue pair(s)')), 'baseline progress logged');
+});
+
+await t('per-issue baseline: a filled politician + issue is not chased on later runs; mentions never count', async () => {
+  const ls = lockerFakeStore();
+  let n = 0;
+  const put = (pid, topic, strength, extra = {}) => {
+    const it = { politician_id: pid, topic, position: strength === 'mention' ? 'unclear' : 'support',
+      confidence: strength === 'strong' ? 0.9 : strength === 'weak' ? 0.5 : 0.1, strength, link: `https://example.gov/${pid}/${n++}`, excerpt: 'x', ...extra };
+    ls.data.set(locker.lockerKey(it), it);
+  };
+  const HEALTH = 'https://crockett.house.gov/issues/health';
+  const plan = async (rot = null) => {
+    const { value } = await quiet(() => fn.run({ fetch: fakeFetch(404, ''), store: fakeStore(), now: NOW, lockerStore: ls,
+      rotate: rot ? true : { state: {} }, ...(rot ? { rotationStore: rot } : {}), log: () => {} }));
+    return (await value.json()).plan;
+  };
+  // Mentions, hidden items and 2 weak do not fill crockett|healthcare_costs.
+  for (let i = 0; i < 5; i++) put('crockett', 'healthcare_costs', 'mention');
+  put('crockett', 'healthcare_costs', 'strong', { review: { status: 'hidden' } });
+  put('crockett', 'healthcare_costs', 'weak'); put('crockett', 'healthcare_costs', 'weak');
+  const c0 = await locker.lockerBaselineCounts(ls, { log: () => {} });
+  assert.deepEqual(c0['crockett|healthcare_costs'], { strong: 0, weak: 2 });
+  assert.ok(!core.isFilled(c0, 'crockett', 'healthcare_costs'), '2 weak is not the baseline');
+  assert.ok(core.planRun({}, { counts: c0 }).sources.some((s) => s.url === HEALTH), 'still chased below the baseline');
+  // A third weak item fills it: the health page is no longer pulled, the open issue still is.
+  put('crockett', 'healthcare_costs', 'weak');
+  const c1 = await locker.lockerBaselineCounts(ls, { log: () => {} });
+  assert.ok(core.isFilled(c1, 'crockett', 'healthcare_costs'), '3 weak fills the issue');
+  const p1 = core.planRun({}, { counts: c1 });
+  assert.ok(p1.politicians.includes('crockett'), 'crockett still has an open issue');
+  assert.ok(!p1.sources.some((s) => s.url === HEALTH), 'filled issue is not chased');
+  assert.ok(p1.sources.some((s) => s.politician_id === 'crockett' && s.topic === 'cost_living'), 'open issue still pulled');
+  assert.deepEqual(p1.skipped.filter((x) => x.politician_id === 'crockett').map((x) => x.topic), ['healthcare_costs']);
+  // Mix of the same weight: 1 strong alone, or 1 weak + … does not; 1 strong does.
+  assert.ok(core.isFilled({ 'a|t': { strong: 1, weak: 0 } }, 'a', 't'));
+  assert.ok(!core.isFilled({ 'a|t': { strong: 0, weak: 2 } }, 'a', 't'));
+  // Every issue of the top politician filled (1 strong on their only topic) → deprioritised.
+  const top = core.priorityOrder(core.ROSTER, {})[0];
+  const topics = [...new Set([...top.r.sources, top.r.official].map((s) => s.topic))];
+  assert.ok((await plan()).politicians.includes(top.r.politician_id), `${top.r.politician_id} leads the first run when open`);
+  for (const t of topics) put(top.r.politician_id, t, 'strong');
+  const logs = []; const rot = memStore();
+  const { value: res, lines: runLines } = await quiet(() => fn.run({ fetch: fakeFetch(404, ''), store: fakeStore(), now: NOW, rotate: true, rotationStore: rot, lockerStore: ls, log: (l) => logs.push(l) }));
+  const r = await res.json();
+  assert.ok(!r.plan.politicians.includes(top.r.politician_id), `${top.r.politician_id} with every issue filled drops out of the first run`);
+  assert.ok(r.baseline.reached.some((x) => x.politician_id === 'crockett' && x.topic === 'healthcare_costs'));
+  const line = logs.find((l) => l.startsWith('raw-ingest: baseline progress — '));
+  assert.ok(line && line.includes('crockett|healthcare_costs (0s/3w)') && line.includes(`${top.r.politician_id}|${topics[0]} (1s/0w)`), `baseline line names the filled pairs: ${line}`);
+  assert.ok([...logs, ...runLines].some((l) => l.startsWith('raw-ingest: run plan — ') && l.includes('not chased (filled): crockett|healthcare_costs')), 'skipped pair logged');
+  // Later runs in the cycle: the deprioritised politician comes only after everyone with an open issue.
+  const visited = [...r.plan.politicians];
+  for (let i = 0; i < core.ROSTER.length; i++) {
+    const x = await plan(rot);
+    if (x.cycle !== 0) break;
+    visited.push(...x.politicians);
+  }
+  assert.equal(visited[visited.length - 1], top.r.politician_id, 'checked last in the cycle');
+  const counts = await locker.lockerBaselineCounts(ls, { log: () => {} });
+  const c1p = core.planRun({ cycle: 1 }, { counts });
+  assert.ok(!c1p.politicians.includes(top.r.politician_id) && !c1p.remaining_in_cycle.includes(top.r.politician_id), 'skips cycles that are not its turn');
+  const others = core.ROSTER.map((x) => x.politician_id).filter((p) => p !== top.r.politician_id);
+  assert.deepEqual(core.planRun({ cycle: 3, done: others }, { counts }).politicians, [top.r.politician_id], 'back in on its cycle');
+  // A filled issue can still take anything new the run happens to find.
+  const cornynSrc = core.SOURCES.find((s) => s.url === CORNYN_URL);
+  const ls2 = lockerFakeStore();
+  for (let i = 0; i < 3; i++) { const it = { politician_id: 'john_cornyn', topic: 'healthcare_costs', position: 'support', confidence: 0.5, strength: 'weak', link: `https://example.gov/c${i}`, excerpt: 'x' }; ls2.data.set(locker.lockerKey(it), it); }
+  await quiet(() => fn.run({ fetch: byUrl({ [CORNYN_URL]: HC_HTML }), store: fakeStore(), lockerStore: ls2, now: NOW, sources: [cornynSrc], log: () => {} }));
+  assert.ok(ls2.data.has(locker.lockerKey({ politician_id: 'john_cornyn', topic: 'healthcare_costs', link: CORNYN_URL })), 'new item on a filled issue is still stored');
+});
+
 await t('a rotated run includes politicians beyond the original five and at least one official source, within the cap', async () => {
   const store = fakeStore(); const logs = [];
   const { value: res, lines } = await quiet(() => fn.run({ fetch: fakeFetch(200, LONG_HTML), store, now: NOW,
-    rotate: { cursor: 0 }, log: (l) => logs.push(l) }));
+    rotate: { state: {} }, log: (l) => logs.push(l) }));
   const report = await res.json();
   const pols = new Set(report.included.politicians);
   assert.ok([...pols].some((p) => !ORIGINAL.has(p)), `beyond the original five (got ${[...pols].join(', ')})`);
@@ -560,31 +667,34 @@ await t('a rotated run includes politicians beyond the original five and at leas
 
 await t('successive runs rotate through the whole roster, and every run respects the cap', async () => {
   const rot = memStore(); const seen = new Set(); const sets = [];
-  for (let i = 0; i < core.ROSTER.length; i++) {
+  rot.data.set(core.ROTATION_KEY, { cursor: 4 }); // an older cursor doc starts a fresh cycle
+  for (let i = 0; i < core.ROSTER.length * 2; i++) {
     const { value: res } = await quiet(() => fn.run({ fetch: fakeFetch(200, LONG_HTML), store: fakeStore(), now: NOW,
-      rotate: true, rotationStore: rot, log: () => {} }));
+      rotate: { counts: {} }, rotationStore: rot, log: () => {} }));
     const r = await res.json();
-    assert.ok(r.results.length <= core.MAX_SOURCES_PER_RUN, `run ${i}: ${r.results.length} ≤ cap`);
+    assert.ok(r.results.length <= core.MAX_SOURCES_PER_RUN && r.results.length < 12, `run ${i}: ${r.results.length} ≤ cap`);
+    assert.ok(r.plan.planned_size <= core.MAX_SOURCES_PER_RUN, `run ${i}: planned ${r.plan.planned_size} ≤ cap`);
     r.plan.politicians.forEach((p) => seen.add(p));
     sets.push(r.plan.politicians.join(','));
-    assert.equal(rot.data.get(core.ROTATION_KEY).cursor, r.plan.next_cursor, 'cursor persisted');
+    assert.deepEqual(rot.data.get(core.ROTATION_KEY).done, r.plan.state.done, 'state persisted');
   }
   assert.notEqual(sets[0], sets[1], 'consecutive runs check different people');
   assert.equal(seen.size, core.ROSTER.length, 'every roster politician is reached');
-  // Cap holds for every start point, including a cap smaller than one politician.
-  for (let c = 0; c < core.ROSTER.length; c++) {
+  // Cap holds at every point in a cycle, including a cap smaller than one politician.
+  const ids = core.priorityOrder(core.ROSTER, {}).map((x) => x.r.politician_id);
+  for (let c = 0; c < ids.length; c++) {
     for (const max of [core.MAX_SOURCES_PER_RUN, 4, 1]) {
-      const p = core.planRun(c, { max });
-      assert.ok(p.size <= max && p.size >= 1, `planRun(${c}, max ${max}) → ${p.size}`);
+      const p = core.planRun({ done: ids.slice(0, c) }, { max });
+      assert.ok(p.size <= max && p.size >= 1, `planRun(done ${c}, max ${max}) → ${p.size}`);
       const d = await core.discoverSources(p.sources, { fetch: fakeFetch(200, LONG_HTML), log: () => {}, patterns: p.patterns, max, restrict: false });
       assert.ok(d.sources.length <= max, 'cap holds after discovery');
       assert.equal(new Set(d.sources.map((s) => s.url)).size, d.sources.length, 'no duplicate URLs in a run');
     }
   }
   // An unstable official page is skipped, not pulled.
-  const p0 = core.planRun(0);
+  const p0 = core.planRun({});
   const { value: res } = await quiet(() => fn.run({ fetch: async (u, o) => (p0.patterns.some((x) => x.url === u) ? fakeFetch(404, LONG_HTML)(u, o) : fakeFetch(200, LONG_HTML)(u, o)),
-    store: fakeStore(), now: NOW, rotate: { cursor: 0 }, log: () => {} }));
+    store: fakeStore(), now: NOW, rotate: { state: {} }, log: () => {} }));
   const r0 = await res.json();
   assert.equal(r0.discovered.length, 0);
   assert.equal(r0.results.length, p0.sources.length);
