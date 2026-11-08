@@ -19,6 +19,11 @@
      NEUTRAL FRAMING ONLY: transparency in regulated monopolies. No party, no
      outcome, no utility is argued for or against anywhere on this document.
      /sunlight-governance (sunlight-governance.html) forwards to this address.
+
+     Phase 2 adds the first live entry, printed statically below: Rocky Mountain
+     Power's Utah PSC rate case, Docket No. 24-035-04. Its data lives in
+     sunlight-entries.js; scripts/test-sunlight-rate-case.mjs pins the markup
+     and the data to each other.
      ════════════════════════════════════════════════════════════════════════════════ -->
   <title>Sunlight Governance &middot; transparency in regulated monopolies &middot; PolitiDex</title>
   <link rel="canonical" href="https://politidex.fyi/sunlight" />
@@ -77,6 +82,35 @@
       border-radius: 999px; border: 1px solid rgba(245,215,122,0.55); color: #f5d77a;
       font: 600 0.85rem/1.3 'Barlow', system-ui, sans-serif;
     }
+    .sg-entry { border-color: rgba(245,215,122,0.45); }
+    .sg-entry h3 {
+      font: 600 0.92rem/1.2 'Barlow Condensed', system-ui, sans-serif; letter-spacing: 0.05em;
+      text-transform: uppercase; color: #fff7d6; margin: 1.15rem 0 0.45rem;
+    }
+    .sg-entry .sg-entry-title { font: 600 1.15rem/1.35 'Barlow', system-ui, sans-serif; color: #fff7d6; margin: 0.15rem 0 0.35rem; text-transform: none; letter-spacing: 0; }
+    .sg-meta { font-size: 0.88rem; color: #9fb4d4 !important; }
+    .sg-entry dl { display: grid; grid-template-columns: minmax(9rem, 40%) 1fr; gap: 0.3rem 0.8rem; margin: 0; }
+    .sg-entry dt { color: #9fb4d4; font-size: 0.9rem; }
+    .sg-entry dd { margin: 0; color: #e7eefb; font-size: 0.92rem; }
+    .sg-entry blockquote { margin: 0.2rem 0 0; padding-left: 0.7rem; border-left: 2px solid rgba(245,215,122,0.4); color: #c3d1ea; font-size: 0.9rem; }
+    .sg-pg { color: #8ea3c6; font-size: 0.82rem; white-space: nowrap; }
+    .sg-compare { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    .sg-compare th, .sg-compare td { text-align: left; vertical-align: top; padding: 0.45rem 0.5rem; border-top: 1px solid rgba(245,215,122,0.18); }
+    .sg-compare thead th { color: #f5d77a; font-weight: 600; border-top: 0; }
+    .sg-compare td { color: #c3d1ea; }
+    .sg-compare td.sg-public { background: rgba(10,15,30,0.55); }
+    .sg-compare td.sg-full { background: rgba(245,215,122,0.07); }
+    .sg-redact { display: inline-block; background: #0b0f18; color: #0b0f18; border-radius: 3px; padding: 0 0.25rem; user-select: none; }
+    .sg-ask { border: 1px dashed rgba(245,215,122,0.6); border-radius: 10px; padding: 0.75rem 0.9rem; margin-top: 1.1rem; }
+    .sg-ask b { color: #fff7d6; }
+    @media (max-width: 34rem) {
+      .sg-compare thead { display: none; }
+      .sg-compare tr { display: block; border-top: 1px solid rgba(245,215,122,0.25); padding: 0.35rem 0; }
+      .sg-compare td, .sg-compare th { display: block; border: 0; padding: 0.25rem 0.4rem; }
+      .sg-compare td.sg-public::before { content: 'Public version: '; color: #f5d77a; }
+      .sg-compare td.sg-full::before { content: 'Full visibility: '; color: #f5d77a; }
+      .sg-entry dl { grid-template-columns: 1fr; }
+    }
     .sg-foot { color: #8ea3c6; font-size: 0.9rem; line-height: 1.55; margin-top: 1.75rem; }
     .sg-foot a, .sg-main a { color: #f5d77a; }
   </style>
@@ -111,8 +145,69 @@
 
     <section class="sg-card" aria-labelledby="sg-now">
       <h2 id="sg-now">On file now</h2>
-      <p id="sg-onfile">No items carry the Sunlight Governance tag yet. As rate cases, bills and lobbying records are tagged, searching for terms like “utility”, “Rocky Mountain Power”, “rate case” or “PSC” brings them together in one thread with this page.</p>
+      <p id="sg-onfile">One item carries the Sunlight Governance tag: the Rocky Mountain Power rate case below. Searching for terms like “utility”, “Rocky Mountain Power”, “rate case” or “PSC” brings it together in one thread with this page.</p>
     </section>
+
+    <article class="sg-card sg-entry" id="rmp-24-035-04" data-sunlight-item="UT-PSC-24-035-04" data-kind="rate_case" data-tags="sunlight_governance" aria-labelledby="rmp-title">
+      <p class="sg-eyebrow" style="margin:0;">Rate case &middot; <span class="sg-tag" data-sunlight-tag="sunlight_governance">☀️ Sunlight Governance</span></p>
+      <h2 class="sg-entry-title" id="rmp-title">Rocky Mountain Power general rate case, Utah PSC Docket No. 24-035-04</h2>
+      <p class="sg-meta">Public Service Commission of Utah &middot; consolidated with Dockets 23-035-40 and 23-035-44 &middot; order issued April 25, 2025 &middot; <a href="https://pscdocs.utah.gov/electric/24docs/2403504/3395032403504,2303540,and2303544o4-25-2025.pdf" rel="noopener">read the public order (PDF)</a>. Page numbers below are the order’s printed pages.</p>
+
+      <h3>What the order decided</h3>
+      <dl>
+        <dt>Original request</dt><dd>$667.3 million</dd>
+        <dt>Amended application</dt><dd>$393.7 million</dd>
+        <dt>Final revised request</dt><dd>$330.2 million</dd>
+        <dt>Approved increase</dt><dd>$87.2 million (26.4% of the final revised request)</dd>
+        <dt>Deferred to a future Energy Balancing Account filing</dt><dd>up to $240.1 million</dd>
+        <dt>Return on equity</dt><dd>9.65% requested; 9.375% approved</dd>
+        <dt>Average single-family residential bill (700 kWh)</dt><dd>+$4.31 a month (4.7%) in 2025</dd>
+      </dl>
+
+      <h3 id="rmp-redaction">What is confidential or redacted</h3>
+      <p data-sg-redaction-note>The public order does not state what share of the filing is confidential. It does name specific parts of the record that are designated confidential or redacted, listed below. Testimony in the docket is posted in redacted public versions.</p>
+      <ul style="margin-top:0.5rem;">
+        <li><b>Wind contract pricing.</b><blockquote>“Because the pricing of the PPAs and the costs associated with the other Wind Projects are designated confidential, the PSC discusses these issues in general terms.” <span class="sg-pg">p. 103</span></blockquote></li>
+        <li><b>Generation overhaul adjustments.</b><blockquote>“They argue that RMP should remove the converted units from its four-year calculation, each recommending a confidential adjustment to correct the issue.” <span class="sg-pg">p. 89</span></blockquote></li>
+        <li><b>Injuries and damages claims data.</b><blockquote>“DPU acknowledges RMP provided data on the origin of claims but notes the information is heavily redacted, precluding reasonable evaluation.” <span class="sg-pg">p. 88</span></blockquote></li>
+        <li><b>Load forecast model variables.</b><blockquote>“much information is designated confidential in GRCs and RMP may avail itself of existing processes to protect any confidential information.” <span class="sg-pg">p. 59</span></blockquote></li>
+        <li><b>Insurer underwriting exhibit.</b><blockquote>“RMP also provided a confidential exhibit it requested one of its insurers to prepare, which discusses the insurer’s underwriting process” <span class="sg-pg">p. 147</span></blockquote></li>
+      </ul>
+
+      <h3 id="rmp-ocs">What the Office of Consumer Services argued</h3>
+      <p>The Office of Consumer Services (OCS), which represents residential and small business customers before the PSC, was a party to the case.</p>
+      <ul style="margin-top:0.5rem;" data-sg-ocs>
+        <li>Recommended a 9.375% return on equity, below the 9.65% Rocky Mountain Power requested. The PSC adopted 9.375%, finding the OCS recommendation reasonable under the principle of gradualism. <span class="sg-pg">p. 21</span></li>
+        <li>Asked the PSC to disallow at least $15,289,781 of claimed wildfire-related deferred costs: $5,681,724 in labor costs OCS argued were already recovered through base rates, and $9,608,057 spent under a 2023 wildfire plan the PSC had not approved. <span class="sg-pg">p. 131</span></li>
+        <li>Joined other parties in opposing full recovery of projected excess liability insurance premiums, arguing the utility had not provided substantial evidence that the full amount was prudent. <span class="sg-pg">p. 148</span></li>
+        <li>Argued the allocation factor used to spread those insurance premiums across states “does not assign the costs to the jurisdictions in proportion to the amount each jurisdiction contributes to the increase,” violating cost-causation principles. <span class="sg-pg">p. 158</span></li>
+        <li>Recommended removing two Jim Bridger units converted to natural gas, and Craig Unit 2, from the generation overhaul expense average; the amount of its adjustment is confidential. <span class="sg-pg">p. 89</span></li>
+      </ul>
+
+      <h3 id="rmp-compare">The public version vs. full visibility</h3>
+      <p>The left column is what anyone can read in the posted order. The right column names what the confidential version holds, as the order describes it. No withheld value is guessed.</p>
+      <table class="sg-compare" style="margin-top:0.5rem;" data-sg-compare>
+        <thead><tr><th scope="col">Record</th><th scope="col">Public version</th><th scope="col">Full visibility would show</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Cedar Springs IV wind power purchase agreement (350.4 MW)</th><td class="sg-public">Pricing designated confidential. The order says DPU noted a “significant increase in price” from the 2020 bid, but discusses it only “in general terms.” <span class="sg-redact" aria-label="redacted">██████</span></td><td class="sg-full">The contract price and how much it rose from the 2020 All-Source RFP bid.</td></tr>
+          <tr><th scope="row">Generation overhaul expense adjustment</th><td class="sg-public">OCS, UAE and DPU each proposed a correction; the amounts are confidential. <span class="sg-redact" aria-label="redacted">██████</span></td><td class="sg-full">Each party’s proposed dollar adjustment.</td></tr>
+          <tr><th scope="row">Injuries and damages claims data</th><td class="sg-public">DPU describes the claims-origin data it received as “heavily redacted.” <span class="sg-redact" aria-label="redacted">██████</span></td><td class="sg-full">Where the claims behind the test-year expense came from.</td></tr>
+          <tr><th scope="row">Insurer underwriting exhibit</th><td class="sg-public">A confidential exhibit. The order says its threshold for a significant verdict is “a small fraction” of the utility’s liability in the James wildfire case. <span class="sg-redact" aria-label="redacted">██████</span></td><td class="sg-full">The insurer’s stated threshold and underwriting factors.</td></tr>
+        </tbody>
+      </table>
+
+      <h3 id="rmp-votes">Related legislator votes on PolitiDex</h3>
+      <p>These Utah bills changed how the PSC evaluates utility resource decisions. PolitiDex does not yet have a Utah bill on PSC confidentiality or disclosure.</p>
+      <ul style="margin-top:0.5rem;" data-sg-votes>
+        <li><a href="/b/2024GS/S.B.%20224">S.B. 224 (2024), Energy Independence Amendments</a>, enacted. Changes the factors the PSC weighs in evaluating energy resource decisions and sets terms for cost recovery. House <a href="https://le.utah.gov/DynaBill/svotes.jsp?sessionid=2024GS&amp;voteid=1434&amp;house=H" rel="noopener">54-19-2</a> &middot; Senate <a href="https://le.utah.gov/DynaBill/svotes.jsp?sessionid=2024GS&amp;voteid=2154&amp;house=S" rel="noopener">21-6-2</a></li>
+        <li><a href="/b/2025GS/H.B.%20201">H.B. 201 (2025), Energy Resource Amendments</a>, enacted. Changes how the PSC evaluates integrated resource plans. House <a href="https://le.utah.gov/DynaBill/svotes.jsp?sessionid=2025GS&amp;voteid=587&amp;house=H" rel="noopener">57-10-8</a> &middot; Senate <a href="https://le.utah.gov/DynaBill/svotes.jsp?sessionid=2025GS&amp;voteid=812&amp;house=S" rel="noopener">21-6-2</a></li>
+      </ul>
+
+      <div class="sg-ask" id="rmp-ask" data-sg-ask>
+        <p><b>The ask: Publish one confidential contract.</b></p>
+        <p style="margin-top:0.35rem;">Ask Rocky Mountain Power to file a public version of one confidential contract in this docket: the pricing terms of the Cedar Springs IV wind power purchase agreement. The utility holds the contract, so the burden of showing why any term must stay confidential rests with the utility. This is a request about one existing document. It does not ask for any new law.</p>
+      </div>
+    </article>
 
     <p class="sg-foot">The tag is a filing label for transparency, not a verdict on any utility, regulator or official. <a href="/#say-vs-do">Search the record</a>.</p>
   </main>
