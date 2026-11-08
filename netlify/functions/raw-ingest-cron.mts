@@ -46,6 +46,20 @@
 //   · RUN LOG — one "raw-ingest: run plan …" line (politicians, cursor) before
 //     pulling and one "raw-ingest: run included …" line (politicians and source
 //     types actually pulled) after discovery.
+//
+// All-topics pass:
+//   · Every stored page is scored against EVERY issue key in the register
+//     (SCORED_TOPICS — cost_living and healthcare_costs keep their calibrated
+//     rules; the rest read stance-topic-vocab.mjs). The page's own topic is
+//     handled exactly as before; another topic yields a candidate only when the
+//     page carries directional language on it (explicit or implied). Each
+//     candidate goes through the same Locker writer and thresholds, keyed by its
+//     own issue key, so one page can write items on several issues.
+//   · Sources, discovery, roster, official-source check, review flags and the
+//     per-run cap are unchanged.
+//   · TOPIC LOG — "stance-score: run topics …" (candidates per topic) and
+//     "evidence-locker: topics with new items this run …" (items per topic, by
+//     strength) close every run; the report carries the same under `topics`.
 
 import type { Config } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
@@ -53,7 +67,7 @@ import {
   runRawIngest, discoverSources, planRun, runPlanLine, sourceKind,
   RAW_STORE_NAME, SOURCES, ROTATION_STORE_NAME, ROTATION_KEY, MAX_SOURCES_PER_RUN,
 } from "../lib/raw-ingest-core.mjs";
-import { logCandidateStance } from "../lib/stance-score-core.mjs";
+import { logCandidateStances, SCORED_TOPICS } from "../lib/stance-score-core.mjs";
 import { maybeWriteLockerItem, loadReviewFlags, LOCKER_STORE_NAME } from "../lib/evidence-locker-core.mjs";
 import groundTruth from "../../db/stance-ground-truth-talarico-cost-of-living.json" with { type: "json" };
 import reviewFile from "../../db/evidence-locker-review.json" with { type: "json" };
@@ -112,15 +126,23 @@ export async function run(deps: {
   const lockerWrites: any[] = [];
   const gt = deps.groundTruth ?? groundTruth;
   const flags = loadReviewFlags(deps.reviewFlags ?? reviewFile);
+  // Every page is scored against every topic (SCORED_TOPICS): its own topic as
+  // before, plus each other issue key it carries directional language on. Each
+  // candidate goes through the same Locker writer, so one page can land items
+  // on several issues — each under its own issue key.
+  const topicsScored: Record<string, number> = {};
   const onRecord = async (rec: any) => {
-    const candidate = logCandidateStance(rec, { log });
+    const candidates = logCandidateStances(rec, { log });
+    for (const c of candidates) topicsScored[c.topic] = (topicsScored[c.topic] || 0) + 1;
     if (!deps.lockerStore) return;
-    if (!candidate) {
+    if (!candidates.length) {
       log(`evidence-locker: SKIP ${rec?.politician_id}|${rec?.topic}${rec?.source_id ? "|" + rec.source_id : ""} — no scored candidate`);
       return;
     }
-    const w = await maybeWriteLockerItem(candidate, rec, { store: deps.lockerStore, gt, log, flags });
-    if (w.written) lockerWrites.push({ key: w.key, politician_id: candidate.politician_id, topic: candidate.topic, strength: w.item?.strength });
+    for (const candidate of candidates) {
+      const w = await maybeWriteLockerItem(candidate, rec, { store: deps.lockerStore, gt, log, flags });
+      if (w.written) lockerWrites.push({ key: w.key, politician_id: candidate.politician_id, topic: candidate.topic, strength: w.item?.strength, ...(candidate.topic !== rec.topic ? { page_topic: rec.topic } : {}) });
+    }
   };
   const report: any = await runRawIngest({ ...deps, onRecord }, sources);
   report.discovered = discovered.map((s: any) => ({ politician_id: s.politician_id, topic: s.topic, url: s.url, kind: sourceKind(s), ...(s.official_kind ? { official_kind: s.official_kind } : {}) }));
@@ -130,9 +152,19 @@ export async function run(deps: {
   };
   if (plan) report.plan = { cursor: plan.cursor, next_cursor: plan.next_cursor, politicians: plan.politicians, planned_size: plan.size };
   report.locker_writes = lockerWrites;
+  // Which topics produced candidates / items this run.
+  const itemsByTopic: Record<string, { strong: number; weak: number; mention: number }> = {};
+  for (const w of lockerWrites) {
+    const t = (itemsByTopic[w.topic] ||= { strong: 0, weak: 0, mention: 0 });
+    if (w.strength in t) (t as any)[w.strength] += 1;
+  }
+  report.topics = { scored_against: SCORED_TOPICS.length, candidates: topicsScored, items: itemsByTopic };
+  log(`stance-score: run topics — ${Object.keys(topicsScored).length ? Object.entries(topicsScored).map(([t, n]) => `${t} ×${n}`).join(", ") : "none"} (each page scored against ${SCORED_TOPICS.length} topics)`);
   if (deps.lockerStore) {
     const by = (s: string) => lockerWrites.filter((w) => w.strength === s).length;
     log(`evidence-locker: run complete — ${lockerWrites.length} new item(s) written (${by("strong")} strong, ${by("weak")} weak, ${by("mention")} mention)`);
+    const tl = Object.entries(itemsByTopic).map(([t, c]) => `${t} ${c.strong + c.weak + c.mention} (${c.strong} strong, ${c.weak} weak, ${c.mention} mention)`);
+    log(`evidence-locker: topics with new items this run — ${tl.length ? tl.join("; ") : "none"}`);
   }
   const okCount = report.results.filter((r: any) => r.ok).length;
   // 200 all sources stored · 207 some failed (the rest still stored) · 502 none stored

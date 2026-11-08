@@ -33,6 +33,7 @@
 // Blobs environment.
 
 import { createHash } from "node:crypto";
+import { ISSUE_TOPIC_LABELS } from "./stance-topic-vocab.mjs";
 
 export const LOCKER_STORE_NAME = "evidence-locker";
 export const LOCKER_MIN_CONFIDENCE = 0.8;
@@ -47,6 +48,20 @@ export const TOPIC_LABELS = {
   cost_living: "the cost of living",
   healthcare_costs: "health care costs",
 };
+
+/**
+ * Headline verb phrase for an item. The two cost topics keep their original
+ * wording; every other issue key names the register position it bears on.
+ */
+export function headlinePhrase(topic, position) {
+  if (TOPIC_LABELS[topic]) {
+    return `${position === "support" ? "commits to lowering" : "opposes measures to lower"} ${TOPIC_LABELS[topic]}`;
+  }
+  const label = ISSUE_TOPIC_LABELS[topic] || String(topic).replace(/_/g, " ");
+  if (position === "support") return `supports “${label}”`;
+  if (position === "oppose") return `opposes “${label}”`;
+  return `speaks to “${label}”`;
+}
 
 /** Is this a first-party campaign page or an official government page? */
 export function isCampaignOrOfficial(sourceType, link) {
@@ -175,6 +190,8 @@ export function buildLockerItem(candidate, raw, strength = lockerStrength(candid
     item_version: LOCKER_ITEM_VERSION,
     captured_at: raw?.fetched_at ?? null,
     ...(raw?.source_id ? { source_id: raw.source_id } : {}),
+    // Scored from a page filed under another topic (multi-topic pass).
+    ...(candidate.page_topic && candidate.page_topic !== candidate.topic ? { page_topic: candidate.page_topic } : {}),
   };
 }
 
@@ -191,13 +208,11 @@ function displayDate(iso) {
  */
 export function toSpotlightEntry(item, { key = null, review = null } = {}) {
   const who = surnameOf(item.politician_id);
-  const subject = TOPIC_LABELS[item.topic] || String(item.topic).replace(/_/g, " ");
-  const verb = item.position === "support" ? "commits to lowering" : "opposes measures to lower";
   const page = /official/i.test(item.attribution) ? "official page" : "campaign page";
   return {
     // The page type rides in the headline so two pages on one topic stay two
     // receipts (the Locker de-duplicates by headline within a member).
-    headline: `${who} ${verb} ${subject} (${item.source_type})`,
+    headline: `${who} ${headlinePhrase(item.topic, item.position)} (${item.source_type})`,
     facts: `On ${who}'s ${page}, ${who} stated: “${item.excerpt}” ${item.attribution}. Captured ${displayDate(item.date)}.`,
     date: displayDate(item.date),
     issueKey: item.topic,
