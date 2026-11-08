@@ -24,7 +24,7 @@
 // No delete.
 
 import type { Config } from "@netlify/functions";
-import { and, count, eq, gte, sql } from "drizzle-orm";
+import { and, count, eq, gte, inArray, sql } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import { ddIssueKeys, voiceMembership, voicePollVotes, voiceResidency } from "../../db/schema.js";
 import { verifyUser } from "../../db/firebase-auth.js";
@@ -44,6 +44,27 @@ const deps = {
       .from(voiceResidency)
       .where(and(eq(voiceResidency.seatKey, seatKey), eq(voiceResidency.authorHash, hash)));
     return row || null;
+  },
+
+  // Every composer seat's (seat, hash) pair in ONE query — read only on the
+  // national board (/usa), where an approved district check also opens voting.
+  // The author hash is never selected: only the seat comes back, and each row
+  // is matched to the caller's own pair for that seat.
+  async findVendorVerified(pairs: { seatKey: string; authorHash: string }[]) {
+    const hashes = pairs.map((p) => p.authorHash).filter(Boolean);
+    if (!hashes.length) return [];
+    const rows = await db
+      .select({ seatKey: voiceResidency.seatKey, status: voiceResidency.status, method: voiceResidency.method })
+      .from(voiceResidency)
+      .where(and(
+        inArray(voiceResidency.authorHash, hashes),
+        eq(voiceResidency.status, "verified"),
+        eq(voiceResidency.method, "vendor"),
+      ));
+    const bySeat = new Map(pairs.map((p) => [p.seatKey, p.authorHash]));
+    return rows
+      .filter((r) => bySeat.has(r.seatKey))
+      .map((r) => ({ seatKey: r.seatKey, authorHash: bySeat.get(r.seatKey), status: r.status, method: r.method }));
   },
 
   async issueExists(issueKey: string) {

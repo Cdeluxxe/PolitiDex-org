@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<!-- ═════════════════════════════════════════════════════════════════════════════
+     usa.html — USA VOICE, THE ONE NATIONAL BOARD, served at /usa.
+     ───────────────────────────────────────────────────────────────────────────
+     The same room, chat and poll tools the district boards carry, on one board
+     for the whole country (seat "usa"), painted by usa-voice.js against the same
+     endpoints. Reading is open to everyone. Posting, liking and voting open after
+     an approved Didit check of a U.S. government ID — the same Didit start the
+     district boards use; a check already on file for a district board counts.
+     Every same-origin path is root-absolute, because /usa/ serves this file too.
+     ═════════════════════════════════════════════════════════════════════════════ -->
+  <title>USA Voice &middot; the national board &middot; PolitiDex</title>
+  <link rel="canonical" href="https://politidex.fyi/usa" />
+  <meta name="description" content="USA Voice &mdash; one national board for every verified U.S. person. Anyone can read; posting and polls open after a Didit check of a U.S. government ID." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PolitiDex" />
+  <meta property="og:title" content="USA Voice &middot; the national board" />
+  <meta property="og:description" content="One board for the whole country. Anyone can read; verified U.S. people get a voice." />
+  <meta property="og:url" content="https://politidex.fyi/usa" />
+  <meta property="og:image" content="https://politidex.fyi/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="theme-color" content="#0a0f1e" />
+  <link rel="manifest" href="/manifest.json" />
+  <!-- Barlow / Bebas Neue, non-blocking, with the same swap index.html,
+       person.html, issue.html, ballot.html, me.html, stances.html,
+       evidence.html, courts.html and voice.html use. A swap written differently
+       on one document is a visible font flash on exactly one URL shape. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" onload="this.rel='stylesheet'" />
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" /></noscript>
+
+  <!-- THE TWO SHEETS THAT DRAW THIS PAGE, render-blocking on purpose: they are
+       the page. /css/tailwind.css is the same utility sheet index.html links.
+       /shell-chrome.css is the bar and the chip, shared with /voice, /mandate
+       and /money so one row cannot be four rows. The bands' own shapes are in
+       the <style> below rather than a third sheet, because they are 4 KB and
+       this is the only document that has them. -->
+  <link rel="stylesheet" href="/css/tailwind.css" />
+  <link rel="stylesheet" href="/shell-chrome.css" />
+  <style>
+    :root { --pdx-chrome: 3.25rem; color-scheme: dark; }
+    @supports (padding-top: env(safe-area-inset-top)) {
+      :root { --pdx-chrome: calc(3.25rem + env(safe-area-inset-top, 0px)); }
+    }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--pdx-chrome) + 0.5rem); }
+    html, body { background: #070b16; color: #e7eefb; }
+    body { margin: 0; font-family: 'Barlow', system-ui, -apple-system, sans-serif; padding-top: calc(var(--pdx-chrome) + 0.75rem); }
+    /* `pdxus-` is this document's own prefix; nothing else ships it. */
+    .pdxus-wrap { max-width: 46rem; margin: 0 auto; padding: 1.25rem 1.1rem 2.5rem; }
+    .pdxus-kick { margin: 0 0 0.35rem; font: 700 0.72rem/1 'Barlow Condensed', 'Barlow', sans-serif; letter-spacing: 0.16em; text-transform: uppercase; color: #7fb2ff; }
+    .pdxus-h1 { margin: 0 0 0.25rem; font: 400 2.5rem/1 'Bebas Neue', 'Barlow Condensed', sans-serif; letter-spacing: 0.01em; color: #f2f7ff; }
+    .pdxus-sub { margin: 0 0 1rem; font-size: 0.95rem; line-height: 1.55; color: #b6c6de; max-width: 40rem; }
+    .pdxus-switch { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0 0 1.3rem; padding: 0; list-style: none; }
+    .pdxus-switch a { display: inline-block; padding: 0.35rem 0.75rem; border: 1px solid #22324f; border-radius: 999px; color: #cfe0fa; text-decoration: none; font: 600 0.82rem/1.2 'Barlow', sans-serif; }
+    .pdxus-switch a[aria-current="page"] { background: #17305a; border-color: #3d6bb3; color: #fff; }
+    .pdxus-switch a:hover, .pdxus-switch a:focus-visible { border-color: #7fb2ff; color: #fff; }
+    .pdxus-band { margin: 0 0 1.15rem; padding: 1rem 1.05rem; background: #0c1324; border: 1px solid #1b2942; border-radius: 0.65rem; }
+    .pdxus-h2 { margin: 0 0 0.5rem; font: 700 0.78rem/1 'Barlow Condensed', 'Barlow', sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: #8fb6ef; }
+    .pdxus-h3 { margin: 1rem 0 0.45rem; font: 700 0.72rem/1 'Barlow Condensed', 'Barlow', sans-serif; letter-spacing: 0.12em; text-transform: uppercase; color: #7d8fa9; }
+    .pdxus-note { margin: 0.4rem 0 0.6rem; font-size: 0.82rem; line-height: 1.5; color: #8496b0; }
+    .pdxus-wait, .pdxus-none { margin: 0.4rem 0 0; font-size: 0.88rem; line-height: 1.5; color: #93a5bf; }
+    .pdxus-locked { margin: 0 0 0.6rem; padding: 0.55rem 0.7rem; border-left: 3px solid #c4b58a; background: #121a2c; font-size: 0.9rem; line-height: 1.45; color: #e2d6ae; }
+    .pdxus-open { margin: 0; padding: 0.55rem 0.7rem; border-left: 3px solid #3f8f69; background: #0b1a17; font-size: 0.9rem; line-height: 1.45; color: #d9f5e6; }
+    .pdxus-act { margin: 0.5rem 0 0; }
+    .pdxus-status { margin: 0.4rem 0 0; font-size: 0.84rem; color: #a9c7f0; }
+    .pdxus-form { display: grid; gap: 0.45rem; margin: 0 0 0.9rem; }
+    .pdxus-l { font-size: 0.8rem; color: #93a8c6; }
+    .pdxus-sel, .pdxus-ta { width: 100%; box-sizing: border-box; padding: 0.55rem 0.65rem; background: #0a1020; color: #e7eefb; border: 1px solid #22324f; border-radius: 0.45rem; font: 400 0.95rem/1.45 'Barlow', system-ui, sans-serif; }
+    .pdxus-ta { resize: vertical; min-height: 5rem; }
+    .pdxus-row { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+    .pdxus-len { font-size: 0.76rem; color: #74849c; }
+    .pdxus-btn { display: inline-block; padding: 0.5rem 1.1rem; border: 0; border-radius: 0.45rem; background: #2f6fd6; color: #fff; font: 700 0.85rem/1 'Barlow Condensed', 'Barlow', sans-serif; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; text-decoration: none; }
+    .pdxus-btn:disabled, .pdxus-ta:disabled, .pdxus-choice:disabled, .pdxus-like:disabled { opacity: 0.55; cursor: not-allowed; }
+    .pdxus-btn:focus-visible, .pdxus-ta:focus-visible, .pdxus-sel:focus-visible, .pdxus-choice:focus-visible, .pdxus-like:focus-visible { outline: 2px solid #7fb2ff; outline-offset: 2px; }
+    .pdxus-feed { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.7rem; }
+    .pdxus-post { padding: 0.6rem 0 0; border-top: 1px solid #16223a; }
+    .pdxus-post-meta { margin: 0 0 0.25rem; display: flex; flex-wrap: wrap; gap: 0.3rem 0.7rem; font-size: 0.74rem; color: #7d8fa9; }
+    .pdxus-mine { color: #c4b58a; }
+    .pdxus-post-body { margin: 0; font-size: 0.93rem; line-height: 1.5; color: #dbe6f7; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .pdxus-post-act { margin: 0.3rem 0 0; }
+    .pdxus-like { padding: 0.2rem 0.6rem; border: 1px solid #22324f; border-radius: 999px; background: transparent; color: #a9c7f0; font: 600 0.75rem/1.3 'Barlow', sans-serif; cursor: pointer; }
+    .pdxus-poll { display: grid; gap: 0.4rem; grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); }
+    .pdxus-choice { display: flex; justify-content: space-between; gap: 0.6rem; padding: 0.5rem 0.7rem; border: 1px solid #22324f; border-radius: 0.45rem; background: #0a1020; color: #dbe6f7; font: 500 0.88rem/1.3 'Barlow', sans-serif; text-align: left; cursor: pointer; }
+    .pdxus-choice.is-mine { border-color: #3f8f69; background: #0b1a17; }
+    .pdxus-n { font-variant-numeric: tabular-nums; color: #a9c7f0; }
+    @media (max-width: 34rem) { .pdxus-h1 { font-size: 2rem; } }
+  </style>
+  <script>window.__PDX_USA_VOICE_DOC = true;</script>
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<!-- The Firebase Web API key is injected at request time from the Netlify
+     environment variable FIREBASE_API_KEY by netlify/edge-functions/firebase-config.ts.
+     It is intentionally NOT hardcoded here so the value never lives in source
+     control or the deployed HTML (and the build's secrets scanner passes). -->
+<script defer src="/firebase-config.js"></script>
+<script>
+  // Run 1 perf: the Firebase SDKs and the bootstrap below are DEFERRED so they no
+  // longer block first paint. This tiny synchronous stub guarantees the globals
+  // that other inline code could touch at parse time exist; firebase-boot.js
+  // (deferred → runs after the SDK, before DOMContentLoaded) then replaces them
+  // with the live Firebase objects and starts the lightweight roster load. Net
+  // effect: identical behavior, but the ~800 KB compat SDK no longer gates paint.
+  var app, db, firestore, auth;
+  var PROFILES = window.PROFILES || {}; window.PROFILES = PROFILES;
+  window._pdxFullIds = window._pdxFullIds || new Set();
+  window._pdxFullPending = window._pdxFullPending || {};
+  function setDoc(docRef, data, options) { return docRef.set(data, options); }
+  db = { collection: null }; firestore = db;
+  // AUTH UNKNOWN IS NOT AUTH SIGNED-OUT. This stub used to answer every
+  // registration with cb(null) before the SDK had loaded, which told every
+  // module that a returning member was a guest. It queues instead;
+  // firebase-boot.js replays the queue onto the real auth object, and until then
+  // window.PDXAuth.state is 'unknown'. See the long note in index.html.
+  window.PDXAuth = window.PDXAuth || { state: 'unknown', user: null, known: false };
+  window.__pdxAuthQueue = window.__pdxAuthQueue || [];
+  auth = { currentUser: null, onAuthStateChanged: function (cb) { var rec = { cb: cb, off: false, unsub: null }; window.__pdxAuthQueue.push(rec); return function () { rec.off = true; if (rec.unsub) { try { rec.unsub(); } catch (e) {} } }; }, signInAnonymously: function () { return Promise.reject(new Error('auth pending')); }, signOut: function () { return Promise.resolve(); } };
+  // AND THE QUEUE IS NOT A TRAP. If firebase-boot.js never arrives to drain it —
+  // a blocked SDK, a failed deploy, a warm shell paired with an older copy of
+  // that file out of the runtime cache — the registrations above would wait for
+  // the whole visit and nothing on the page would ever learn there is no
+  // session. So the queue self-heals: once the SDK has had every chance to land,
+  // whatever is still queued is flushed with null, which is exactly the answer
+  // this stub used to give instantly. A LATE fallback is a different thing from
+  // a first guess — the first guess was the bug, and five seconds is not a
+  // guess, it is a timeout. firebase-boot.js nulls the queue when it replays, so
+  // on every normal load this is a no-op.
+  setTimeout(function () {
+    var q = window.__pdxAuthQueue;
+    if (!q) return;
+    window.__pdxAuthQueue = null;
+    try {
+      window.PDXAuth.known = true;
+      window.PDXAuth.state = 'out';
+      window.PDXAuth.user = null;
+      if (typeof window.updateNavAuth === 'function') window.updateNavAuth(null, 'out');
+    } catch (e) {}
+    for (var i = 0; i < q.length; i++) {
+      if (q[i] && !q[i].off && typeof q[i].cb === 'function') { try { q[i].cb(null); } catch (e) {} }
+    }
+  }, 5000);
+</script>
+<script src="/firebase-boot.js" defer></script>
+  <!-- The issue vocabulary, for the chat and poll's issue picker. -->
+  <script defer src="/issue-map.js"></script>
+  <!-- The return intent, so the sign-in door brings the reader back to /usa. -->
+  <script defer src="/pdx-return.js"></script>
+  <script defer src="/usa-voice.js"></script>
+  <script defer src="/shell-account-chip.js"></script>
+</head>
+<body>
+  <header class="pdx-sh-bar">
+    <a class="pdx-sh-wordmark" href="/" title="PolitiDex — the front page">POLITI<span>DEX</span></a>
+    <nav class="pdx-sh-links" aria-label="PolitiDex">
+      <a class="pdx-sh-link" href="/#who-represents-me"><span class="pdx-sh-full">🏛️ Who Represents Me</span><span class="pdx-sh-short">Reps</span></a>
+      <a class="pdx-sh-link" href="/#say-vs-do"><span class="pdx-sh-full">👁️ Find the Record</span><span class="pdx-sh-short">Record</span></a>
+      <a class="pdx-sh-link" href="/ballot"><span class="pdx-sh-full">⭐ Your Ballot</span><span class="pdx-sh-short">Ballot</span></a>
+      <a class="pdx-sh-link" href="/mandate"><span class="pdx-sh-full">✊ Mandate</span><span class="pdx-sh-short">Mandate</span></a>
+      <a class="pdx-sh-link" href="/voice"><span class="pdx-sh-full">📣 District Voice</span><span class="pdx-sh-short">Voice</span></a>
+      <a class="pdx-sh-link" href="/money"><span class="pdx-sh-full">💰 Follow the Money</span><span class="pdx-sh-short">Money</span></a>
+      <a class="pdx-sh-link" href="/"><span class="pdx-sh-full">&larr; Home</span><span class="pdx-sh-short">&larr; Home</span></a>
+    </nav>
+    <div id="pdx-shell-acct" data-pdx-acct-sig="unknown"></div>
+  </header>
+
+  <main id="usa-voice-board">
+    <div class="pdxus-wrap">
+      <p class="pdxus-kick">National board</p>
+      <h1 class="pdxus-h1">USA Voice</h1>
+      <p class="pdxus-sub">One board for the whole country. Anyone can read it. Any verified U.S.
+        person can post, like and vote here after one Didit check of a U.S. government ID
+        &mdash; no address check beyond what the ID already shows.</p>
+      <!-- THE BOARD SWITCHER. The same two doors /voice carries. -->
+      <nav aria-label="Boards"><ul class="pdxus-switch" data-pdx-board-switcher="1">
+        <li><a href="/usa" aria-current="page" data-pdx-board="usa">USA Voice</a></li>
+        <li><a href="/voice" data-pdx-board="district">District Voice</a></li>
+      </ul></nav>
+      <div id="pdx-usa-voice" data-pdxus-seat="usa" data-pdxus-boot="waiting">
+        <p class="pdxus-wait" role="status">Reading USA Voice&hellip;</p>
+      </div>
+      <noscript><p class="pdxus-note">USA Voice needs JavaScript to read the room and the polls.</p></noscript>
+    </div>
+  </main>
+</body>
+</html>

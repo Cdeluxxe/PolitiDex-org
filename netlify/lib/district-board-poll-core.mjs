@@ -35,7 +35,7 @@
 // Pure over injected dependencies, so scripts/test-district-board-poll.mjs
 // drives the real handler against an in-memory fake — no database, no network.
 
-import { COMPOSER_SEATS, LOCKED_LINE, composerSeat, gate, seatHash } from "./district-board-voice-core.mjs";
+import { COMPOSER_SEATS, LOCKED_LINE, composerSeat, gate, nationalRow, seatAlias, seatHash } from "./district-board-voice-core.mjs";
 import { CAP_COPY, DAILY_VOTES, dayStart, memberFor } from "./membership-core.mjs";
 
 export { COMPOSER_SEATS, LOCKED_LINE };
@@ -121,7 +121,7 @@ export async function handle(req, deps) {
     if (!seatKey) return json({ error: COPY.noSeat, code: "no_seat" }, 404);
     const user = await deps.verifyUser(req);
     const hash = user && !user.isAnonymous && user.uid ? seatHash(user.uid, seatKey) : "";
-    const row = hash ? await deps.findResidency(seatKey, hash) : null;
+    const row = await nationalRow(deps, user, hash ? await deps.findResidency(seatKey, hash) : null, seatKey);
     const verdict = gate(user, row, seatKey);
     const polls = tallies(await deps.countVotes(seatKey));
     const mine = {};
@@ -132,7 +132,7 @@ export async function handle(req, deps) {
       }
     }
     return json({
-      seat: COMPOSER_SEATS[seatKey],
+      seat: seatAlias(seatKey),
       choices: CHOICES,
       issueChoices: ISSUE_CHOICES,
       polls,
@@ -140,7 +140,7 @@ export async function handle(req, deps) {
       voice: {
         canVote: verdict.ok,
         reason: verdict.ok ? "verified" : verdict.code,
-        line: verdict.ok ? "" : LOCKED_LINE,
+        line: verdict.ok ? "" : (verdict.message || LOCKED_LINE),
         note: verdict.ok ? "" : verdict.note || "",
       },
     });
@@ -160,7 +160,7 @@ export async function handle(req, deps) {
     if (limited) return limited;
   }
   const hash = user && !user.isAnonymous && user.uid ? seatHash(user.uid, seatKey) : "";
-  const row = hash ? await deps.findResidency(seatKey, hash) : null;
+  const row = await nationalRow(deps, user, hash ? await deps.findResidency(seatKey, hash) : null, seatKey);
   const verdict = gate(user, row, seatKey);
   if (!verdict.ok || !hash) {
     return json({

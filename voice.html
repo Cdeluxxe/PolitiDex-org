@@ -546,6 +546,14 @@
            the honest arrival is the immediate one and there is no flash of a
            wrong answer before the deferred resolver lands. voice-room.js
            replaces it in place; it is never appended to. -->
+      <!-- THE BOARD SWITCHER. District Voice lists the reader's own seats below;
+           USA Voice is the one national board, open to any verified U.S. person. -->
+      <nav aria-label="Boards" class="pdxvr-switch-nav"><ul class="pdxvr-switch" data-pdx-board-switcher="1">
+        <li><a href="/voice" aria-current="page" data-pdx-board="district">District Voice</a></li>
+        <li><a href="/usa" data-pdx-board="usa">USA Voice</a></li>
+      </ul></nav>
+      <style>.pdxvr-switch{display:flex;flex-wrap:wrap;gap:0.4rem;margin:0 0 1.1rem;padding:0;list-style:none;}.pdxvr-switch a{display:inline-block;padding:0.35rem 0.75rem;border:1px solid #22324f;border-radius:999px;color:#cfe0fa;text-decoration:none;font:600 0.82rem/1.2 'Barlow',sans-serif;}.pdxvr-switch a[aria-current="page"]{background:#17305a;border-color:#3d6bb3;color:#fff;}.pdxvr-switch a:hover,.pdxvr-switch a:focus-visible{border-color:#7fb2ff;color:#fff;}</style>
+
       <div id="pdx-voice-standing" data-pdxvr-standing="checking">
         <div class="pdxvr-card pdxvr-card--wait" aria-live="polite">
           <p class="pdxvr-line"><span class="pdxvr-dot" aria-hidden="true"></span>Checking where you vote&hellip;</p>

@@ -77,7 +77,10 @@ const deps = {
   // Back to the board the reader started from, so they land where they pressed.
   callbackUrl(req: Request, alias: string) {
     const origin = process.env.URL || new URL(req.url).origin;
-    return `${origin.replace(/\/+$/, "")}/district/${alias}?residency=returned`;
+    const base = origin.replace(/\/+$/, "");
+    // The national board lives at /usa, not under /district/.
+    if (alias === "usa") return `${base}/usa?residency=returned`;
+    return `${base}/district/${alias}?residency=returned`;
   },
 
   async limit(req: Request, user: { uid?: string } | null) {
