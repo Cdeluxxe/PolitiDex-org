@@ -896,7 +896,7 @@ ok(!bare.includes('id="pdx-topnav"'), "dom: index.html's two-row nav is not here
     win.PROFILES = win.CMP_DATA;
     return win;
   };
-  const PID = "james_talarico";   // stated: public_schools, healthcare, …; none on cost_living
+  const PID = "james_talarico";   // stated: public_schools, healthcare, …; none on water_storage (cost_living became a stance in v541)
   const OTHER = "khanna";
   const raw = (topic, position, extra = {}) => ({
     politician_id: PID, topic, position, confidence: 0.91, source_type: "campaign page",
@@ -907,7 +907,7 @@ ok(!bare.includes('id="pdx-topnav"'), "dom: index.html's two-row nav is not here
     items: { [PID]: [
       toSpotlightEntry(raw("public_schools", "support")),    // a leaf + a stated position
       toSpotlightEntry(raw("healthcare_costs", "support")),  // related to stated healthcare
-      toSpotlightEntry(raw("cost_living", "oppose")),        // no leaf, not related
+      toSpotlightEntry(raw("water_storage", "oppose")),        // no leaf, not related
     ] },
     count: 3,
   };
@@ -945,7 +945,7 @@ ok(!bare.includes('id="pdx-topnav"'), "dom: index.html's two-row nav is not here
       "locker: no Locker markup appears on a profile the endpoint returned nothing for");
 
     // Evidence tab: Connected Evidence + the Locker banner.
-    ok(withItems.conn.includes("Locker excerpt on public_schools") && withItems.conn.includes("Locker excerpt on cost_living"),
+    ok(withItems.conn.includes("Locker excerpt on public_schools") && withItems.conn.includes("Locker excerpt on water_storage"),
       "locker: the Evidence tab (Connected Evidence) shows the Locker items' excerpts");
     ok(withItems.conn.includes('data-evd-locker="1"') && withItems.conn.includes("https://example.org/public_schools") &&
        withItems.conn.includes("Source: campaign page") && withItems.conn.includes("Nov 1, 2026") && /Supports:/.test(withItems.conn),
@@ -955,16 +955,16 @@ ok(!bare.includes('id="pdx-topnav"'), "dom: index.html's two-row nav is not here
     // Topic / stance sections.
     ok(/data-pdxtree-locker-issue="public_schools"/.test(withItems.tree) && withItems.tree.includes("Locker excerpt on public_schools"),
       "locker: 🌳 All Issues by Topic prints the Locker line under the matching issue leaf");
-    // cost_living has no curated leaf, but its strong oppose item promotes a
+    // water_storage has no curated leaf, but its strong oppose item promotes a
     // Locker stance, so it is now a leaf of its own (under its topic) carrying
     // its Locker line, and it is not repeated in the Locker foot.
     {
-      const at = withItems.tree.indexOf('data-pdxtree-issue="cost_living"');
-      const line = withItems.tree.indexOf('data-pdxtree-locker-issue="cost_living"');
+      const at = withItems.tree.indexOf('data-pdxtree-issue="water_storage"');
+      const line = withItems.tree.indexOf('data-pdxtree-locker-issue="water_storage"');
       const next = at === -1 ? -1 : withItems.tree.indexOf('data-pdxtree-issue="', at + 1);
-      ok(before.tree.indexOf('data-pdxtree-issue="cost_living"') === -1 && at !== -1 &&
-         line > at && (next === -1 || line < next) && withItems.tree.includes("Locker excerpt on cost_living") &&
-         !/data-pdxtree-locker-grp="cost_living"/.test(withItems.tree),
+      ok(before.tree.indexOf('data-pdxtree-issue="water_storage"') === -1 && at !== -1 &&
+         line > at && (next === -1 || line < next) && withItems.tree.includes("Locker excerpt on water_storage") &&
+         !/data-pdxtree-locker-grp="water_storage"/.test(withItems.tree),
         "locker: an item on an issue with no curated leaf that promotes a stance gets its own leaf, with its Locker line");
     }
     {
@@ -982,7 +982,7 @@ ok(!bare.includes('id="pdx-topnav"'), "dom: index.html's two-row nav is not here
       "locker: Word vs Action lists the Locker item on a stated position");
     ok(/data-pdxwa-locker-item="healthcare_costs"/.test(withItems.wa) && /Related to/.test(withItems.wa),
       "locker: Word vs Action lists the Locker item on an issue related to a stated position");
-    ok(!/data-pdxwa-locker-item="cost_living"/.test(withItems.wa),
+    ok(!/data-pdxwa-locker-item="water_storage"/.test(withItems.wa),
       "locker: Word vs Action does not list an item whose topic matches no stated or related issue");
     {
       const num = (h) => (h.match(/class="pdxwa-num-v">([^<]*)</) || [])[1];
@@ -1043,7 +1043,7 @@ ok(!bare.includes('id="pdx-topnav"'), "dom: index.html's two-row nav is not here
       const next = opp.tree.indexOf('data-pdxtree-locker-issue="', at + 1);
       ok(at !== -1 && cf > at && (next === -1 || cf < next), "conflict: the topic-tree line sits with its own Locker line");
     }
-    ok(!cfFor(opp.conn + opp.tree + opp.wa, "cost_living") && !cfFor(opp.conn + opp.tree + opp.wa, "healthcare_costs"),
+    ok(!cfFor(opp.conn + opp.tree + opp.wa, "water_storage") && !cfFor(opp.conn + opp.tree + opp.wa, "healthcare_costs"),
       "conflict: items on issues with no opposing record carry no conflict line");
     ok(cfFor(rel.wa, "healthcare_costs") && /data-pdx-locker-conflict-on="healthcare"/.test(rel.wa) && cfFor(rel.tree, "healthcare_costs") && cfFor(rel.conn, "healthcare_costs"),
       "conflict: an opposing record on a related issue flags the item, naming the related issue");

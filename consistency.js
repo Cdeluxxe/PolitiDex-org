@@ -3811,10 +3811,13 @@
     oppose:  { lb: 'Opposes',  c: '#f87171', ico: '👎' },
     mixed:   { lb: 'Mixed',    c: '#f5c842', ico: '⚖️' }
   };
-  function _orStanceChip(pid, issueKey) {
+  // `lead` swaps the "Says:" lead word for a surface that words it differently
+  // (the issue drawer's header reads "Stated:"); every other caller
+  // passes nothing and keeps "Says:".
+  function _orStanceChip(pid, issueKey, lead) {
     var s = positionStance(pid, issueKey);
     var m = _OR_STANCE[s]; if (!m) return '';
-    return '<span class="pdxor-stance" style="--c:' + m.c + '" title="Their stated position">' + m.ico + ' Says: ' + m.lb + '</span>';
+    return '<span class="pdxor-stance" style="--c:' + m.c + '" title="Their stated position">' + m.ico + ' ' + esc(lead || 'Says:') + ' ' + m.lb + '</span>';
   }
   // ── THE BASELINE CHIP ───────────────────────────────────────────────────────
   // The same slot _orStanceChip fills for a stated position, filled from the
@@ -20106,21 +20109,25 @@
     tag = tag || 'span';
     return '<' + tag + ' class="pdx-stance-line' + (cls ? ' ' + cls : '') + '">' +
         (opts.issue ? '<span class="pdx-stance-iss">' + esc(opts.issueLabel || _issueLabel(s.key)) + ' — </span>' : '') +
-        '<b class="pdx-stance-lb">Said:</b> <b class="pdx-stance-pos">' + esc(s.sideLabel || '') + '</b>' +
+        '<b class="pdx-stance-lb">' + esc(opts.lead || 'Said:') + '</b> <b class="pdx-stance-pos">' + esc(s.sideLabel || '') + '</b>' +
       '</' + tag + '>' + statedStanceNoteHtml(s);
   }
-  // The drawer's stance slot. A curated entry keeps its "Says:" chip and gains
+  // The drawer's stance slot. The header states the claim it holds the person
+  // to: "Stated: Supports / Opposes" (v542 reverted v541's softer "Campaign
+  // position:"); the evidence section below backs it. A curated entry keeps its chip and
   // the store's signal + source note; a promoted Locker entry prints the shared
-  // "Said:" line profile-locker.js prints on every other surface, word for word.
+  // Locker line with the same lead word and its Stronger signal and
+  // Pipeline-sourced chips unchanged. Every other surface keeps its wording.
+  var _GAP_STANCE_LEAD = 'Stated:';
   function _gapStanceHtml(pid, issueKey) {
     var s = statedStance(pid, issueKey);
     if (!s) return '';
     var inner = '';
     if (s.source === 'pipeline') {
-      inner = statedStanceLineHtml(s, 'span', 'pdxgap-locker-said', { style: 'display:inline;margin:0;' });
+      inner = statedStanceLineHtml(s, 'span', 'pdxgap-locker-said', { style: 'display:inline;margin:0;', lead: _GAP_STANCE_LEAD });
       if (!inner) return '';
     } else {
-      inner = _orStanceChip(pid, issueKey) + statedStanceNoteHtml(s);
+      inner = _orStanceChip(pid, issueKey, _GAP_STANCE_LEAD) + statedStanceNoteHtml(s);
     }
     return '<span class="pdxgap-stance"' + statedStanceAttrs(s) + '>' + inner + '</span>';
   }
@@ -20205,7 +20212,9 @@
           srcs.forEach(function (x) {
             if (!x) return;
             if (typeof x === 'string') { add(x, '', c.evidence || c.text, 'stance'); return; }
-            add(x.url, x.label || x.title,
+            // The locked stance-record schema names the URL `link` and the
+            // kind of source `type`; older cards use `url` and `label`.
+            add(x.url || x.link, x.label || x.title || x.type,
               x.excerpt || x.summary || x.quote || c.evidence || c.text, 'stance');
           });
         });
