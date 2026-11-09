@@ -43,7 +43,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
-import { HEAD, AT, PRE_13_STATE, PASS_WORKER, DECLARED_MIGRATIONS, isElectionDay, withoutElectionDayRewrites, withoutEveryBoardVoice, isEveryBoardSeat } from "./state-leg-harness.mjs";
+import { HEAD, AT, PRE_13_STATE, PASS_WORKER, DECLARED_MIGRATIONS, PRECACHE_BASELINE, isElectionDay, withoutElectionDayRewrites, withoutEveryBoardVoice, isEveryBoardSeat } from "./state-leg-harness.mjs";
 // What THIS pass added is measured against the commit it was built on, so the
 // check stays exact after the pass lands; "nothing else moved" stays on HEAD.
 const BASE = AT(PRE_13_STATE);
@@ -442,10 +442,16 @@ section("7 · the Layton boards and every non-contested board are unchanged");
   ok(ver(R("sw.js")) >= PASS_WORKER["13-state"] && ver(R("sw.js")) <= ver(HEAD("sw.js")) + 1, "sw.js: CACHE_VERSION is at least that version, and at most one step past HEAD");
   const pre = (src) => (src.match(/^  '\/[^']*',$/gm) || []).sort().join("\n");
   eq(pre(R("sw.js")), pre(HEAD("sw.js")), "sw.js: the precache list is unchanged");
-  eq(pre(R("sw.js")), pre(BASE("sw.js")), "sw.js: this pass precached nothing new");
+  // Measured against the frozen v543 baseline, not the pass's own base: later
+  // passes grew the list legitimately (see PRECACHE_BASELINE in the harness).
+  // Nothing the base precached has been dropped.
+  eq(pre(R("sw.js")), PRECACHE_BASELINE, "sw.js: this pass precached nothing new");
+  ok(pre(BASE("sw.js")).split("\n").every((l) => pre(R("sw.js")).split("\n").includes(l)), "sw.js: every entry the pass's base precached is still precached");
   const migs = readdirSync(join(ROOT, "netlify/database/migrations"));
+  // The USA Voice national board landed after this pass, with its own suite.
+  const LATER_USA_MIG = "20261204000000_dd_districts_usa_national_board";
   const newSince = (rd) => migs.filter((f) => rd(`netlify/database/migrations/${f}`) === null && rd(`netlify/database/migrations/${f}/migration.sql`) === null);
-  eq(JSON.stringify(newSince(BASE).filter((f) => f !== CA_MIG && f !== WA_MIG && f !== "20261203000000_dd_districts_every_existing_board_seat.sql")), JSON.stringify(["20261130000000_dd_districts_contested_legislative_board_seats.sql"]), "the one new migration is the dd_districts seed");
+  eq(JSON.stringify(newSince(BASE).filter((f) => f !== CA_MIG && f !== WA_MIG && f !== "20261203000000_dd_districts_every_existing_board_seat.sql" && f !== LATER_USA_MIG)), JSON.stringify(["20261130000000_dd_districts_contested_legislative_board_seats.sql"]), "the one new migration is the dd_districts seed");
   ok(newSince(HEAD).every((f) => DECLARED_MIGRATIONS.includes(f)), `every migration not yet in HEAD is a declared one — ${newSince(HEAD).join(", ")}`);
 }
 

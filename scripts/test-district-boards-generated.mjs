@@ -263,7 +263,10 @@ for (const s of SKIPPED) {
     /^(\/|\.html)?$/.test(r.from.slice(`/district/${s.alias}`.length))), `${s.alias}: no rewrite`);
 }
 const HD17 = SKIPPED.filter((s) => s.alias === "ut-hd-17")[0];
-ok(!!HD17 && /no sitting pid/.test(HD17.reason), "HD-17 is skipped because the roster names nobody for it");
+// Before the 2026 election the roster named nobody for HD-17; since the
+// election every Utah House seat has a member on the roster, and HD-17 stays
+// skipped because its board was never opened.
+ok(!!HD17 && /member named, board not opened/.test(HD17.reason), "HD-17 is skipped because its board was never opened");
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("6 · band 1 on a generated board, and the claim gate");
@@ -378,7 +381,7 @@ const opened = (who, html, label, n, pid, name, alias) => {
   const html = voice({ state: "Utah", city: "Farmington", county: "Davis County", district: "2", stateSenateDistrict: "7", stateHouseDistrict: "17" });
   const card = cardFor(html, "State House", 17);
   must(!!card, "Farmington: no State House District 17 card");
-  has(card, "this room is not open", "Farmington: HD-17, which the roster names nobody for, says the room is not open");
+  has(card, "this room is not open", "Farmington: HD-17, whose board was never opened, says the room is not open");
   no(card, "Open board", "Farmington: HD-17 has no door");
   no(card, "/district/", "Farmington: HD-17 offers no board address");
 }

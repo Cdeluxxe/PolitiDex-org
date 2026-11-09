@@ -362,12 +362,14 @@ for (const [who, loc, legCards, resolverSrc] of [
     `${who}: only the U.S. House and U.S. Senate cards open`);
   ok(!/\byet\b/i.test(visible(html)), `${who}: the hallway never says "yet"`);
 }
-// A SEAT WITH NO SITTING MEMBER: Utah's HD-7 is mapped and the roster names
-// nobody for it, so it has no board, and its card is the empty grammar.
+// A SEAT WITH NO BOARD: Utah's HD-7 is mapped but its board was never opened,
+// so its card is the empty grammar. (Before the 2026 election the roster named
+// nobody for HD-7; since the election every Utah House seat has a member on the
+// roster, so the fixture is the plan's skip, "member named, board not opened".)
 {
-  const w = loadRoster();
-  must(!w.pdxSeatedMemberFor("ut-statehouse-7", 7), "fixture: Utah HD-7 now has a sitting member on the roster");
-  ok(SKIPPED.some((s) => s.seat === "ut-statehouse-7"), "Utah HD-7 is skipped by the plan");
+  const hd7 = SKIPPED.find((s) => s.seat === "ut-statehouse-7");
+  must(!!hd7, "fixture: Utah HD-7 is no longer skipped by the plan");
+  ok(!there("district-ut-hd-7.html"), "Utah HD-7 has no board document");
   const { html, seats } = voice({ state: "Utah", city: "", county: "", district: "1", stateSenateDistrict: "", stateHouseDistrict: "7" });
   const s = seats.filter((x) => x.key === "statehouse")[0];
   must(!!s, "Utah HD-7: no State House card");
@@ -411,8 +413,10 @@ section("6 · the coverage sentence and the coach say what is on disk");
   const COACH = R("first-visit-coach.js");
   const note = (C && C.SCOPE_NOTE) || ((/var SCOPE_NOTE = '([^']*)'/.exec(COACH) || [])[1] || "");
   must(note.length > 0, "first-visit-coach.js: SCOPE_NOTE could not be read");
-  has(note, "State legislative boards and mapping are live in Utah first.", "the coach says state legislative boards are Utah's");
-  has(note, "U.S. House and U.S. Senate boards are open in every state.", "the coach says the federal boards are everywhere");
+  // The coach's scope line was rewritten when board access moved to verified
+  // residency: it no longer lists where boards are, only who gets a voice.
+  has(note, "District Voice is open for the seats PolitiDex already has.", "the coach says boards are open for the seats on hand");
+  has(note, "Only a verified resident of that seat gets a voice that counts.", "the coach says only a verified resident's voice counts");
   for (const st of FEDERAL_STATES) no(note, st.name, `the coach names no other state (${st.name}) as having boards`);
   ok(!/\byet\b/i.test(note), "the coach never says \"yet\"");
   ok(!/\bequity\b/i.test(note + " " + sentence), "no equity language");
