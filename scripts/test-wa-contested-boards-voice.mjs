@@ -42,7 +42,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
-import { HEAD, AT, PRE_CA_WA, PASS_WORKER, DECLARED_MIGRATIONS, undoMsVtMiTnEdits, isElectionDay, withoutEveryBoardVoice, isEveryBoardSeat } from "./state-leg-harness.mjs";
+import { HEAD, AT, PRE_CA_WA, PASS_WORKER, DECLARED_MIGRATIONS, PRECACHE_BASELINE, undoMsVtMiTnEdits, isElectionDay, withoutEveryBoardVoice, isEveryBoardSeat } from "./state-leg-harness.mjs";
 // What THIS pass added is measured against the commit it was built on, so the
 // check stays exact after the pass lands; "nothing else moved" stays on HEAD.
 const BASE = AT(PRE_CA_WA);
@@ -428,7 +428,11 @@ section("7 · existing voiced boards are unchanged");
   ok(ver(R("sw.js")) >= PASS_WORKER.wa && ver(R("sw.js")) <= ver(HEAD("sw.js")) + 1, "sw.js: CACHE_VERSION is at least that version, and at most one step past HEAD");
   const pre = (src) => (src.match(/^  '\/[^']*',$/gm) || []).sort().join("\n");
   eq(pre(R("sw.js")), pre(HEAD("sw.js")), "sw.js: the precache list is unchanged");
-  eq(pre(R("sw.js")), pre(BASE("sw.js")), "sw.js: this pass precached nothing new");
+  // Measured against the frozen v543 baseline, not the pass's own base: later
+  // passes grew the list legitimately (see PRECACHE_BASELINE in the harness).
+  // Nothing the base precached has been dropped.
+  eq(pre(R("sw.js")), PRECACHE_BASELINE, "sw.js: this pass precached nothing new");
+  ok(pre(BASE("sw.js")).split("\n").every((l) => pre(R("sw.js")).split("\n").includes(l)), "sw.js: every entry the pass's base precached is still precached");
   for (const f of ["/district-composer.js", "/district-poll.js", "/district-board.js"]) has(R("sw.js"), `  '${f}',`, `sw.js precaches ${f}, so the move is owed`);
   const migs = readdirSync(join(ROOT, "netlify/database/migrations"));
   const newSince = (rd) => migs.filter((f) => rd(`netlify/database/migrations/${f}`) === null && rd(`netlify/database/migrations/${f}/migration.sql`) === null);

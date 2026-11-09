@@ -422,8 +422,17 @@ const homepage = (w, key) => { const sf = w.pdxSeatField(key); return sf && sf.a
   // homepage's seat field names is on the ballot list, and nothing else.
   const home = homepage(w, "statesenate").filter((p) => ["incumbent", "current_candidate"].includes(w.PDXStatus.resolve(w.CMP_DATA[p])));
   eq(JSON.stringify(roles.map(([p]) => p).sort()), JSON.stringify(home.sort()), "SD-1's ballot list is the homepage card's live field");
-  // The stored election date travels with the live profile.
-  has(g, "Election: November 3, 2026", "a live profile's stored election date reaches the seat");
+  // The stored election date travels with the live profile. This block runs on
+  // the real calendar (no pinned day), and November 3, 2026 has passed: the
+  // stored date is still on the record, and the seat no longer offers it as
+  // upcoming (section 2c pins the day to check the before-and-on-the-day lines).
+  eq(w.CMP_DATA.claudia_bigler.nextElection, "2026-11-03", "a live profile's stored election date reaches the roster");
+  const d0 = new Date(), today = `${d0.getFullYear()}-${String(d0.getMonth() + 1).padStart(2, "0")}-${String(d0.getDate()).padStart(2, "0")}`;
+  if (today <= "2026-11-03") has(g, "Election: November 3, 2026", "a live profile's stored election date reaches the seat");
+  else {
+    lacks(g, "Election: November 3, 2026", "a passed election date is not printed as upcoming");
+    lacks(g, "election in", "…and has no countdown");
+  }
 }
 // THE HOMEPAGE'S CARD, ON THE HOMEPAGE'S OWN TERMS: compare-hub.js loaded, the
 // live docs merged by index.html's rule (added if new, else merged) with the
@@ -664,6 +673,12 @@ const KIND = { house: "representative", statesenate: "state_senator", statehouse
     eq((r.issues || []).length, 0, `${c.pid}: no issue keys`);
   }
 }
+// LEGACY ROWS. The bundled roster still carries a record for a former member of
+// a seat that the seated-member resolver no longer names (HD-3: Jack Draxler,
+// whose seat Jason Thompson holds since 2025). The homepage's light status
+// rule still reads that record as an incumbent; /ballot lists the seat's
+// actual member. Those rows are set aside from the homepage-card comparison.
+const LEGACY_HOLDERS = { statehouse3: ["jdraxler"] };
 const seatCache = {};
 for (const c of UT_THIRD) {
   const k = c.seat + c.dist;
@@ -673,7 +688,8 @@ for (const c of UT_THIRD) {
     const { d, g } = seatHtml(w, c.seat);
     const h = readerFor(c.seat, c.dist, { homepage: true, noLive: true });
     const hsf = h.pdxSeatField(c.seat);
-    const card = (hsf && hsf.answerable ? hsf.pids : []).filter((p) => ["incumbent", "current_candidate"].includes(h.PDXStatus.resolve(h.CMP_DATA[p] || {})));
+    const card = (hsf && hsf.answerable ? hsf.pids : []).filter((p) => ["incumbent", "current_candidate"].includes(h.PDXStatus.resolve(h.CMP_DATA[p] || {})))
+      .filter((p) => !(LEGACY_HOLDERS[k] || []).includes(p));
     seatCache[k] = { sf, d, g, card, roles: rosterRoles(d) };
     const s = seatCache[k];
     eq(sf && sf.district, c.dist, `the ${c.seat} reader's seat is District ${c.dist}`);

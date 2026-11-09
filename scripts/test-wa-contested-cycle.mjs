@@ -40,7 +40,7 @@
 //
 //   node scripts/test-wa-contested-cycle.mjs
 
-import { R, HEAD, AT, PRE_CA_WA, PASS_WORKER, boot, levelOf, band, settled, DECLARED_MIGRATIONS, withoutSixStateShells, withoutFourStateShells, withoutMsVtMiTnShells, isElectionDay, withoutElectionDay, withoutWave5Rows } from "./state-leg-harness.mjs";
+import { R, HEAD, AT, PRE_CA_WA, PASS_WORKER, boot, levelOf, band, settled, DECLARED_MIGRATIONS, PRECACHE_BASELINE, withoutSixStateShells, withoutFourStateShells, withoutMsVtMiTnShells, isElectionDay, withoutElectionDay, withoutWave5Rows } from "./state-leg-harness.mjs";
 // Every later whole-state pass, carved out the way each reverses exactly.
 // …and the election-day wave (its candidate block and declared districts).
 // …and the fifth newly elected wave's declared rows (its own suite holds them).
@@ -354,7 +354,11 @@ section("6 · every other state is unchanged");
   ok(ver(R("sw.js")) >= PASS_WORKER.wa && ver(R("sw.js")) <= ver(HEAD("sw.js")) + 1, "sw.js: CACHE_VERSION is at least this pass's, and at most one step past HEAD");
   const pre = (src) => (src.match(/^  '\/[^']*',$/gm) || []).sort().join("\n");
   eq(pre(R("sw.js")), pre(HEAD("sw.js")), "sw.js: the precache list is unchanged");
-  eq(pre(R("sw.js")), pre(BASE("sw.js")), "sw.js: this pass precached nothing new");
+  // Measured against the frozen v543 baseline, not the pass's own base: later
+  // passes grew the list legitimately (see PRECACHE_BASELINE in the harness).
+  // Nothing the base precached has been dropped.
+  eq(pre(R("sw.js")), PRECACHE_BASELINE, "sw.js: this pass precached nothing new");
+  ok(pre(BASE("sw.js")).split("\n").every((l) => pre(R("sw.js")).split("\n").includes(l)), "sw.js: every entry the pass's base precached is still precached");
   ok(DECLARED_MIGRATIONS.includes(MIGRATION), "the Washington seed is a declared migration");
   for (const f of readdirSync(join(ROOT, "netlify/database/migrations"))) {
     ok(HEAD(`netlify/database/migrations/${f}`) !== null || HEAD(`netlify/database/migrations/${f}/migration.sql`) !== null || DECLARED_MIGRATIONS.includes(f), `${f}: a migration this pass added`);

@@ -40,7 +40,7 @@ import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { planBoards, HAND_SEATS, GOVERNOR_STATES, FEDERAL_READ_ONLY_SEATS } from "./gen-district-boards.mjs";
 import { DECLARED_ADMISSIONS, DECLARED_DISTRICT_PIDS } from "./v103-chrome-seams.mjs";
-import { isEveryBoardSeat, withoutEveryBoardVoice, EVERY_BOARD_MIGRATION } from "./state-leg-harness.mjs";
+import { isEveryBoardSeat, withoutEveryBoardVoice, EVERY_BOARD_MIGRATION, PRECACHE_BASELINE } from "./state-leg-harness.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -334,7 +334,11 @@ section("6 · nothing else moved: Utah, the hand-opened and composer boards, sw.
   ok(ver(SW) >= 512 && ver(SW0) === 511, "sw.js: the shell moved from v511 to at least v512");
   has(SW, "// v512 - ELECTION DAY: BOARDS FOR TOMORROW'S HOUSE AND GOVERNOR SEATS.", "sw.js: the v512 changelog entry says why");
   const pre = (src) => (src.match(/^  '\/[^']*',$/gm) || []).sort().join("\n");
-  eq(pre(SW), pre(SW0), "sw.js: the precache list is unchanged — no board outside Utah is precached");
+  // Later passes grew the list legitimately; it is pinned at v543 in the
+  // harness. Nothing the base precached was dropped, and no board outside
+  // Utah is on it.
+  eq(pre(SW), PRECACHE_BASELINE, "sw.js: the precache list is the pinned v543 list — no board outside Utah is precached");
+  ok(pre(SW0).split("\n").every((l) => pre(SW).split("\n").includes(l)), "sw.js: every entry the base precached is still precached");
   ok(!/district-(?!ut-)[a-z]{2}-(?:cd|gov)/.test(SW.slice(SW.indexOf("CACHE_VERSION"))), "sw.js: no new board document is named after the version line");
   // Every board that took a voice before still does, unchanged.
   const comp0 = new Set([...BASE("district-composer.js").matchAll(/'([a-z]{2}-[a-z0-9-]+)':/g)].map((m) => m[1]));
@@ -344,7 +348,9 @@ section("6 · nothing else moved: Utah, the hand-opened and composer boards, sw.
   // `git show <rev>:<dir>` lists the tree: a "tree <rev>:<dir>" line, a blank
   // line, then one name per line.
   const base = BASE("netlify/database/migrations/").trim().split("\n").slice(2).filter(Boolean).map((n) => n.replace(/\/$/, "")).sort();
-  eq(now.filter((n) => n !== EVERY_BOARD_MIGRATION).join(","), base.join(","), "no migration added (v517's seed aside)");
+  // Migrations from later passes, each covered by its own suite.
+  const LATER_MIGRATIONS = ["20261204000000_dd_districts_usa_national_board"];
+  eq(now.filter((n) => n !== EVERY_BOARD_MIGRATION && !LATER_MIGRATIONS.includes(n)).join(","), base.join(","), "no migration added (v517's seed and later passes' declared migrations aside)");
   const out = execFileSync("node", [join(ROOT, "scripts/gen-district-boards.mjs"), "--check"], { cwd: ROOT, encoding: "utf8" });
   ok(/up to date/.test(out), "gen-district-boards --check reports no drift");
 }
