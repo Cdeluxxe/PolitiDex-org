@@ -2082,9 +2082,38 @@
       '.pdxgap-rel-hero{display:inline-flex;align-items:center;gap:0.35rem;font-weight:700;font-size:0.8rem;letter-spacing:0.01em;padding:0.24rem 0.6rem;border-radius:999px;color:var(--c,#9fb4d4);border:1px solid var(--c,#9fb4d4);background:rgba(10,15,30,0.55);}' +
       '.pdxgap-relpct{font-family:"Bebas Neue",sans-serif;font-size:1.05rem;line-height:0.9;letter-spacing:0.02em;}' +
       '.pdxgap-note{font-size:0.74rem;color:#c6d4ec;line-height:1.4;margin-top:0.45rem;}' +
-      // The header's person-level share row. Sits between the verdict chips and the
-      // explanatory note, which is where a reader's thumb already is on a phone.
-      '.pdxgap-hshare{margin-top:0.6rem;}' +
+      // ── The drawer as a sourced story ─────────────────────────────────────
+      // Header row: issue title, stated position and verdict in one tight,
+      // wrapping row. The right margin clears the close button and the share icon.
+      '.pdxgap-h2{position:relative;}' +
+      '.pdxgap-hrow{display:flex;flex-wrap:wrap;align-items:center;gap:0.3rem 0.55rem;margin:0 4.3rem 0.35rem 0;}' +
+      '.pdxgap-hrow>.pdxgap-title,.pdxgap-hrow>.pdxgap-titlerow{margin:0;min-width:0;}' +
+      '.pdxgap-hrow>.pdxgap-hmeta{gap:0.3rem 0.45rem;}' +
+      '.pdxgap-hrow .pdxlg-find{margin:0;}' +
+      '.pdxgap-nopat{display:inline-flex;align-items:center;font-weight:700;font-size:0.72rem;padding:0.16rem 0.5rem;border-radius:999px;color:#9fb4d4;border:1px dashed rgba(159,180,212,0.55);background:rgba(10,15,30,0.4);}' +
+      // The share icon, top-right of the header, beside the close button.
+      '.pdxgap-hshare{position:absolute;top:-0.2rem;right:2.15rem;margin:0;}' +
+      '.pdxgap-hshare .pdxsa-share-btn.pdxgap-shareico{width:1.85rem;height:1.85rem;min-height:0;padding:0;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.85rem;}' +
+      '.pdxgap-shareico .pdxsa-lbl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}' +
+      '.pdxgap-shareico .pdxsa-ico{width:auto;margin:0;}' +
+      // The quiet text share at the foot.
+      '.pdxgap-sharefoot{margin-top:0.6rem;text-align:center;}' +
+      '.pdxsa-share-btn.pdxgap-sharetxt{background:none;border:none;box-shadow:none;min-height:0;padding:0.2rem 0.4rem;font-size:0.74rem;font-weight:600;letter-spacing:0;text-transform:none;color:#9fb4d4;text-decoration:underline;text-underline-offset:2px;cursor:pointer;}' +
+      '.pdxsa-share-btn.pdxgap-sharetxt:hover,.pdxsa-share-btn.pdxgap-sharetxt:focus-visible{color:#e8eefc;}' +
+      '.pdxgap-sharetxt .pdxsa-ico{font-size:0.8rem;}' +
+      // Section heads and the issue sentence.
+      '.pdxgap-sec-h{font-size:0.66rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#7e93b3;margin:0.75rem 0 0.3rem;}' +
+      '.pdxgap-sec-k{font-size:0.62rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#7e93b3;margin-right:0.2rem;}' +
+      '.pdxgap-sum{margin:0.45rem 0 0;font-size:0.86rem;line-height:1.45;color:#dbe5f5;}' +
+      '.pdxgap-sig{margin-top:0.6rem;font-size:0.8rem;line-height:1.45;color:#c9d6ea;}' +
+      '.pdxgap-sig-side{color:#e8eefc;}' +
+      '.pdxgap-sig-w{color:#9fb4d4;}' +
+      // Evidence: one block per source, summary then link.
+      '.pdxgap-ev-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0.4rem;}' +
+      '.pdxgap-ev-item{margin:0;padding:0.5rem 0.6rem;border:1px solid rgba(255,255,255,0.1);border-left:3px solid rgba(127,180,255,0.55);border-radius:0.5rem;background:rgba(10,15,30,0.4);}' +
+      '.pdxgap-ev-sum{margin:0 0 0.3rem;font-size:0.8rem;line-height:1.45;color:#dbe5f5;}' +
+      '.pdxgap-ev-src{font-size:0.72rem;font-weight:600;color:#7fb4ff;text-decoration:none;word-break:break-word;}' +
+      '.pdxgap-ev-src:hover,.pdxgap-ev-src:focus-visible{text-decoration:underline;}' +
       '.pdxgap-note b{color:#f5d9a0;}' +
       '.pdxgap-sides{display:flex;flex-direction:column;gap:0.6rem;margin-top:0.7rem;}' +
       // Official-Record-only arrivals do NOT get a mostly-empty second column: the
@@ -4926,13 +4955,26 @@
   // control at all. It is also fail-open and fixed-size, which is why it can sit in
   // the gap sheet header: hydrating it changes an icon and an accessible name, not
   // the height of a bottom sheet the reader is already looking at.
-  function _saShareHtml(pid, issueKey) {
+  //
+  // TWO QUIET SLOTS, NOT ONE BAR. The drawer used to carry this as a full-width
+  // "Share this" bar with a hint line under it, between the verdict and the
+  // record, so a reader met a call to action before the evidence. It is now a
+  // small icon in the header's top-right corner (mode 'icon', the label kept
+  // for the accessible name and hidden visually) and a plain text button at the
+  // foot of the drawer (mode 'text'). Same control, same tiers, same hydration.
+  function _saShareHtml(pid, issueKey, mode) {
     try {
       var SA = window.PDXShareAnywhere;
       if (!SA || typeof SA.buttonHtml !== 'function' || !pid) return '';
-      return '<div class="pdxgap-hshare">' +
-        SA.buttonHtml({ pid: pid, issueKey: issueKey || '', block: true, hint: true,
-                        text: 'Share this' }) +
+      if (mode === 'text') {
+        return '<div class="pdxgap-sharefoot" data-pdxgap-share="text">' +
+          SA.buttonHtml({ pid: pid, issueKey: issueKey || '', cls: 'pdxgap-sharetxt',
+                          text: 'Share this issue' }) +
+          '</div>';
+      }
+      return '<div class="pdxgap-hshare" data-pdxgap-share="icon">' +
+        SA.buttonHtml({ pid: pid, issueKey: issueKey || '', cls: 'pdxgap-shareico',
+                        text: 'Share' }) +
         '</div>';
     } catch (e) { return ''; }
   }
@@ -20082,6 +20124,141 @@
     }
     return '<span class="pdxgap-stance"' + statedStanceAttrs(s) + '>' + inner + '</span>';
   }
+  // ── THE DRAWER, AS A SOURCED STORY ──────────────────────────────────────────
+  // The drawer runs top to bottom in one order: the header row (issue, stated
+  // position, record verdict), the issue in one sentence, position and
+  // connections (the stance signal, the related-issues lines, Where this
+  // conflicts), the evidence behind the stance, the formal record, and a quiet
+  // share at the foot. Each section's lead element carries data-pdxgap-sec so
+  // the order is checkable. Nothing below writes, scores or invents: every line
+  // is read from a store the drawer already held.
+
+  // THE ISSUE IN ONE SENTENCE — the register's own plain-language line for the
+  // key (ISSUE_MAP[key].chip), word for word. No line on file → no section.
+  function _gapIssueLineText(issueKey) {
+    try {
+      var M = window.ISSUE_MAP;
+      var e = M && issueKey && Object.prototype.hasOwnProperty.call(M, issueKey) ? M[issueKey] : null;
+      var t = e && typeof e.chip === 'string' ? e.chip.trim() : '';
+      return t;
+    } catch (e2) { return ''; }
+  }
+  function _gapIssueLineHtml(issueKey) {
+    var t = _gapIssueLineText(issueKey);
+    return t ? '<p class="pdxgap-sum" data-pdxgap-sec="sentence">' + esc(t) + '</p>' : '';
+  }
+  // THE STANCE SIGNAL — what kind of stance the header's position is: a curated
+  // card or a pipeline read, and how strong. The same entry the header prints
+  // (statedStance), so the two can never disagree. No stance → nothing.
+  function _gapSignalHtml(s) {
+    if (!s) return '';
+    var bits = [s.signalLabel];
+    if (s.source === 'pipeline' && s.note) bits.push(s.note);
+    return '<div class="pdxgap-sig" data-pdxgap-sec="connections" data-pdxgap-sig="' + escAttr(s.signal) + '">' +
+      '<span class="pdxgap-sec-k">Position</span> ' +
+      '<b class="pdxgap-sig-side">' + esc(s.sideLabel || '') + '</b>' +
+      '<span class="pdxgap-sig-w"> · ' + esc(bits.filter(Boolean).join(' · ')) + '</span>' +
+    '</div>';
+  }
+  var _GAP_EV_CLIP = 260;
+  function _gapClip(t) {
+    t = String(t == null ? '' : t).replace(/\s+/g, ' ').trim();
+    if (t.length <= _GAP_EV_CLIP) return t;
+    var cut = t.slice(0, _GAP_EV_CLIP);
+    var sp = cut.lastIndexOf(' ');
+    return (sp > 120 ? cut.slice(0, sp) : cut).replace(/[\s,;:.—-]+$/, '') + '…';
+  }
+  function _gapHttp(u) { return /^https?:\/\//.test(String(u || '')); }
+  // THE EVIDENCE BEHIND THE STANCE. Only what is already attached to it:
+  //   · the stance card's own sources — its `sources` array, or the single
+  //     `source` a card carries when it has no array;
+  //   · Evidence Locker items on the same issue — the promoted stance's own
+  //     items for a pipeline stance; for a curated stance, the Locker items on
+  //     the issue that do not state the other side (a mention is not a stance
+  //     and never backs one).
+  // One entry per link, in that order. No stance → no evidence, because there is
+  // nothing for it to back. [] means the section is omitted.
+  function _gapEvidence(pid, issueKey, s) {
+    var out = [], seen = {};
+    if (!s || !pid || !issueKey) return out;
+    var add = function (url, label, summary, from) {
+      if (!_gapHttp(url)) return;
+      var u = String(url);
+      if (seen[u]) return;
+      seen[u] = 1;
+      out.push({ url: u, label: String(label || '').trim() || 'Source', summary: _gapClip(summary), from: from });
+    };
+    // 1 · the stance card's own sources (curated stances only).
+    if (s.source === 'curated') {
+      try {
+        var list = (typeof window._resolveStanceList === 'function')
+          ? (window._resolveStanceList(pid, (window.CMP_DATA || {})[pid]) || []) : [];
+        var cards = [];
+        for (var i = 0; i < list.length; i++) {
+          var c = list[i];
+          if (!c || c.issueKey !== issueKey) continue;
+          var st = c.issueStance || c.pos || 'mixed';
+          if (st === s.side) cards.push(c);
+        }
+        cards.forEach(function (c) {
+          var srcs = Array.isArray(c.sources) && c.sources.length ? c.sources : (c.source ? [c.source] : []);
+          srcs.forEach(function (x) {
+            if (!x) return;
+            if (typeof x === 'string') { add(x, '', c.evidence || c.text, 'stance'); return; }
+            add(x.url, x.label || x.title,
+              x.excerpt || x.summary || x.quote || c.evidence || c.text, 'stance');
+          });
+        });
+      } catch (e) {}
+    }
+    // 2 · Evidence Locker items on the same issue.
+    var lockerItems = [];
+    try {
+      if (s.source === 'pipeline') {
+        lockerItems = (s.items || []).slice();
+      } else {
+        var L = window.PDXProfileLocker;
+        if (L && typeof L.forIssue === 'function') lockerItems = lockerItems.concat(L.forIssue(pid, issueKey) || []);
+        var SD = window.SPOTLIGHT_DATA || {};
+        var ids = [pid];
+        try { var cp = window.PDXCanonicalPid ? window.PDXCanonicalPid(pid) : pid; if (cp && cp !== pid) ids.push(cp); } catch (e0) {}
+        ids.forEach(function (id) {
+          (Array.isArray(SD[id]) ? SD[id] : []).forEach(function (it) {
+            if (it && it.issueKey === issueKey) lockerItems.push(it);
+          });
+        });
+      }
+    } catch (e) {}
+    var L2 = window.PDXProfileLocker;
+    lockerItems.forEach(function (it) {
+      if (!it || !it.source) return;
+      var pl = it.pipeline || {};
+      var rv = (it.review && it.review.status) || (pl.review && pl.review.status) || '';
+      if (rv === 'hidden') return;
+      if (s.source !== 'pipeline') {
+        var pos = pl.position;
+        if ((pos === 'support' || pos === 'oppose') && pos !== s.side) return;
+        try { if (L2 && typeof L2.strengthOf === 'function' && it.pipeline && L2.strengthOf(it) === 'mention') return; } catch (e3) {}
+      }
+      add(it.source.url, it.source.label, pl.excerpt || it.facts || it.headline, 'locker');
+    });
+    return out;
+  }
+  function _gapEvidenceHtml(pid, issueKey, s) {
+    var ev = _gapEvidence(pid, issueKey, s);
+    if (!ev.length) return '';
+    return '<section class="pdxgap-ev" data-pdxgap-sec="evidence" data-pdxgap-ev-n="' + ev.length + '">' +
+      '<div class="pdxgap-sec-h">Evidence</div>' +
+      '<ul class="pdxgap-ev-list">' +
+        ev.map(function (x) {
+          return '<li class="pdxgap-ev-item" data-pdxgap-ev="' + escAttr(x.from) + '">' +
+            (x.summary ? '<p class="pdxgap-ev-sum">' + esc(x.summary) + '</p>' : '') +
+            '<a class="pdxgap-ev-src" href="' + escAttr(x.url) + '" target="_blank" rel="noopener noreferrer">' +
+              esc(x.label) + ' ↗</a></li>';
+        }).join('') +
+      '</ul>' +
+    '</section>';
+  }
   function _gapViewHtml(pid, issueKey) {
     var off = officialIssue(pid, issueKey);
     var say = saydoIssue(pid, issueKey);
@@ -20229,13 +20406,22 @@
     // ledger sheet they move down into the scoring disclosure, unchanged and in
     // the same order, and the header states the finding once. Where there is no
     // ledger they stay exactly where they were.
+    // THE HEADER ROW. The issue, the stated position and the record verdict sit
+    // in one tight row, so a reader sees what they said and what the record
+    // shows before anything else. On a ledger sheet the verdict is the finding
+    // line; elsewhere it is the verdict chip, or "No pattern yet" when the row
+    // model has no word to print. The stance is the store's one entry, with the
+    // same chips it carries everywhere (Supports / Opposes, Stronger signal,
+    // Pipeline-sourced). The share control is a small icon in the corner.
+    var _verdictHtml = _lgOn ? _dosFindHtml(_dosRow, _lgT)
+      : (relHtml || '<span class="pdxgap-nopat" data-pdxgap-nopat="1">No pattern yet</span>');
     var head =
-      '<div class="pdxgap-h">' +
-        _issueTitleHtml(issueKey, lbl, _titleAttr, pid) +
-        (_lgOn ? _dosFindHtml(_dosRow, _lgT) : _dosBucketHtml(_dosRow) +
-          // Verdict first, stated position second. The verdict is what the reader came
-          // to check; the stance is the thing it was checked against.
-          '<div class="pdxgap-meta">' + relHtml + (stance || '') + '</div>') +
+      '<div class="pdxgap-h pdxgap-h2">' +
+        '<div class="pdxgap-hrow" data-pdxgap-sec="header">' +
+          _issueTitleHtml(issueKey, lbl, _titleAttr, pid) +
+          '<div class="pdxgap-meta pdxgap-hmeta">' + (stance || '') + _verdictHtml + '</div>' +
+        '</div>' +
+        (_lgOn ? '' : _dosBucketHtml(_dosRow)) +
         // Whose record this is, on one line, under the finding. The eyebrow that
         // used to sit above the name is folded in here as the lane cue it always
         // was, so the header carries the same facts in fewer rows.
@@ -20246,17 +20432,13 @@
           '</div>' +
           '<span class="pdxgap-eyebrow">' + esc(eyebrow) + '</span>' +
         '</div>' +
-        // Person-level share, at the TOP of the sheet. This is the surface a shared
-        // card lands on and the surface a phone reader reaches from the profile, and
-        // until now its only share sat at the bottom of the 🏛️ column — below the
-        // fold, and deleted outright whenever no Official Record card cleared the
-        // guards. So a reader who wanted to pass this on either had to scroll for
-        // the control or found none at all. PDXShareAnywhere always has an answer
-        // (record card → Say-vs-Do receipt → profile link) and says which one it is
-        // in the hint, and it never appears or disappears, so adding it here does
-        // not make this bottom sheet resize after it opens. The 🏛️ column keeps its
-        // own button unchanged: that one promises one specific vote and must stay
-        // fail-closed and Official-Record-only.
+        // Person-level share now sits as the icon in the header's corner (above)
+        // and a quiet text button at the foot of the drawer. PDXShareAnywhere
+        // always has an answer (record card → Say-vs-Do receipt → profile link),
+        // never appears or disappears, and so never resizes the open sheet. The
+        // 🏛️ column keeps its own button unchanged: that one promises one
+        // specific vote and must stay fail-closed and Official-Record-only. The
+        // icon is positioned into the header's top-right corner by the stylesheet.
         _saShareHtml(pid, issueKey) +
         // The depth sentence goes with the score it qualifies: on a ledger sheet
         // both are inside the scoring disclosure, because "3 judged votes on this
@@ -20434,8 +20616,9 @@
       // ── L1 ── the assembled answer. The bucket line and the verdict chip lead
       // it on a ledger sheet: they came down from the header together, in that
       // order, so the index's word still arrives before the index's number.
+      // The stated position is in the header row now, so it is not repeated here.
       (_lgOn ? _dosBucketHtml(_dosRow) +
-        '<div class="pdxgap-meta">' + relHtml + (stance || '') + '</div>' +
+        (relHtml ? '<div class="pdxgap-meta">' + relHtml + '</div>' : '') +
         gapNote : '') +
       _dosSummaryHtml(pid, issueKey, _dosRow, { noSaid: _lgOn, dirNamed: _dirNamed }) +
       '<div class="pdxgap-sides' + sidesCls + '">' + offSide + saySide + '</div>' +
@@ -20446,12 +20629,22 @@
       // laneDisagreement(). It reaches no verdict and shows no number.
       _laneBandHtml(_dosRow);
 
+    var _st = statedStance(pid, issueKey);
     return head +
-      // RELATED ISSUES (related-issues.js): every issue the map relates to this
-      // one, with a stated line and / or a record line for each, after the
-      // finding line and before the vote table. Read-only; '' when there is none.
+      // THE ISSUE IN ONE SENTENCE — the register's own line for this key.
+      _gapIssueLineHtml(issueKey) +
+      // POSITION AND CONNECTIONS. The stance signal, then RELATED ISSUES
+      // (related-issues.js): every issue the map relates to this one, with a
+      // stated line and / or a record line for each, then WHERE THIS CONFLICTS.
+      // Read-only; each part is '' when it has nothing to say.
+      _gapSignalHtml(_st) +
       _gapRelatedHtml(pid, issueKey) +
       _gapConflictsHtml(pid, issueKey) +
+      // EVIDENCE — the sources attached to the stance, one block per link. Only
+      // when the stance card or the Evidence Locker holds one; never a placeholder.
+      _gapEvidenceHtml(pid, issueKey, _st) +
+      // THE FORMAL RECORD — everything below, as it always was.
+      '<div class="pdxgap-sec-h pdxgap-recsec" data-pdxgap-sec="record">Formal record</div>' +
       // Not in Direction Match: once, never on each row. On a ledger sheet it is
       // the first thing inside How this is scored rather than a gray box between
       // the finding and the tally: a reader meets the votes first, and the note
@@ -20490,7 +20683,9 @@
       _gapNextHtml(pid, issueKey) +
       '<div class="pdxgap-foot">🏛️ formal record and 🧾 public record are kept separate — this shows both side by side, it never blends them into one score. ' +
         LT('contradiction', 'What counts as a contradiction') + ' · ' +
-        LHOWTO('say-vs-do', 'How to read this') + '</div>';
+        LHOWTO('say-vs-do', 'How to read this') + '</div>' +
+      // SHARE, quietly, at the foot of the drawer.
+      _saShareHtml(pid, issueKey, 'text');
   }
 
   // ── HOW MANY MAPPINGS ON THIS ISSUE NOBODY HAS EXPLAINED ────────────────────
