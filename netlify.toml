@@ -899,6 +899,27 @@
   to = "/ballot-ut-amendment-b.html"
   status = 200
 
+# ─────────────────────────────────────────────────────────────────────────────
+# SUNLIGHT GOVERNANCE, FIRST WORKING EXAMPLE: /sunlight/rocky-mountain-power
+# ─────────────────────────────────────────────────────────────────────────────
+# /sunlight (sunlight.html, by pretty URLs) is the category's short big-picture
+# home; the Rocky Mountain Power rate-case detail that used to be that page is
+# sunlight-rocky-mountain-power.html. Three exact spellings — bare, trailing
+# slash and .html — and no /sunlight/* splat, so any other path under /sunlight/
+# stays a 404. Every same-origin path inside the document is root-absolute.
+[[redirects]]
+  from = "/sunlight/rocky-mountain-power"
+  to = "/sunlight-rocky-mountain-power.html"
+  status = 200
+[[redirects]]
+  from = "/sunlight/rocky-mountain-power/"
+  to = "/sunlight-rocky-mountain-power.html"
+  status = 200
+[[redirects]]
+  from = "/sunlight/rocky-mountain-power.html"
+  to = "/sunlight-rocky-mountain-power.html"
+  status = 200
+
 # ═════════════════════════════════════════════════════════════════════════════
 # THE VOTER'S OWN FILE GETS ITS OWN DOCUMENT: /me -> me.html
 # ─────────────────────────────────────────────────────────────────────────────

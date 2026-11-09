@@ -9,8 +9,11 @@
  *      applied manually to an issue, a bill, a rate case or a lobbying record,
  *      removed again, and auto-applied only when an item's own text names a
  *      regulated-utility subject.
- *   2. THE LANDING PAGE RENDERS. sunlight.html (served at /sunlight, with
- *      /sunlight-governance as an alias) carries the two-sentence explanation
+ *   2. THE PAGES RENDER. sunlight.html (served at /sunlight, with
+ *      /sunlight-governance as an alias) is the category's big-picture home
+ *      (pinned in detail by test-sunlight-home.mjs). The Rocky Mountain Power
+ *      page, sunlight-rocky-mountain-power.html at
+ *      /sunlight/rocky-mountain-power, carries the two-sentence explanation
  *      and names the Philippines Digital Bayanihan Chain as the working
  *      proof-of-concept — and the module's copy of the two sentences matches.
  *   3. SEARCH OPENS ONE THREAD. In the real All-Seeing Eye, "utility",
@@ -21,7 +24,7 @@
  *   4. NOTHING ELSE MOVED. The issue register, the stance generator and
  *      District Voice do not name the tag.
  *   5. THE PAGE IS A VISUAL EXPLAINER. A 2–3 sentence plain-language summary
- *      opens /sunlight; the rate case reads as three steps (asked / ordered /
+ *      opens /sunlight/rocky-mountain-power; the rate case reads as three steps (asked / ordered /
  *      stayed confidential, each with a title, one sentence and its public
  *      document), large labelled figures, confidential quotes led by
  *      plain-English labels, and the ask as the closing call to action — and
@@ -103,11 +106,16 @@ section("the category tag exists and can be applied");
   // ═══════════════════════════════════════════════════════════════════════════
   // 2 · The landing page
   // ═══════════════════════════════════════════════════════════════════════════
-  section("the landing page renders the explanation and the Bayanihan reference");
+  section("the landing page and the Rocky Mountain Power page render; the explanation and the Bayanihan reference");
   ok(existsSync(join(ROOT, "sunlight.html")), "sunlight.html is missing");
-  const html = R("sunlight.html");
-  ok(/<link rel="canonical" href="https:\/\/politidex\.fyi\/sunlight" \/>/.test(html), "canonical is not /sunlight");
-  ok(/<h1[^>]*>Sunlight Governance<\/h1>/.test(html), "the page has no Sunlight Governance heading");
+  const home = R("sunlight.html");
+  ok(/<link rel="canonical" href="https:\/\/politidex\.fyi\/sunlight" \/>/.test(home), "canonical is not /sunlight");
+  ok(/<h1[^>]*>Sunlight Governance<\/h1>/.test(home), "the home has no Sunlight Governance heading");
+  ok(existsSync(join(ROOT, "sunlight-rocky-mountain-power.html")), "sunlight-rocky-mountain-power.html is missing");
+  const html = R("sunlight-rocky-mountain-power.html");
+  ok(/<link rel="canonical" href="https:\/\/politidex\.fyi\/sunlight\/rocky-mountain-power" \/>/.test(html), "canonical is not /sunlight/rocky-mountain-power");
+  ok(/<h1[^>]*>Rocky Mountain Power rate case<\/h1>/.test(html), "the Rocky Mountain Power page has no heading");
+  ok(/href="\/sunlight" data-sg-home/.test(html), "the Rocky Mountain Power page does not link back to /sunlight");
   const lede = /<p class="sg-lede" id="sg-explanation">([\s\S]*?)<\/p>/.exec(html);
   ok(lede, "the explanation paragraph is missing");
   if (lede) {
@@ -232,9 +240,9 @@ for (const f of ["issue-map.js", "alignment-tool.js", "stance-studio.js", "voice
 // ═════════════════════════════════════════════════════════════════════════════
 // 5 · The visual explainer: summary, three steps, figures, labelled quotes, ask
 // ═════════════════════════════════════════════════════════════════════════════
-section("/sunlight reads as a visual explainer and keeps every link and figure");
+section("/sunlight/rocky-mountain-power reads as a visual explainer and keeps every link and figure");
 {
-  const html = R("sunlight.html");
+  const html = R("sunlight-rocky-mountain-power.html");
   const strip = (s) => s.replace(/<[^>]+>/g, " ").replace(/&middot;/g, "·").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
   const ORDER = "https://pscdocs.utah.gov/electric/24docs/2403504/3395032403504,2303540,and2303544o4-25-2025.pdf";
   const APPL = "https://pscdocs.utah.gov/electric/24docs/2403504/334469RMPGRCAplctn6-28-2024.pdf";

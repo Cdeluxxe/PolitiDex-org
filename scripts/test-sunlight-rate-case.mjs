@@ -13,7 +13,8 @@
  *      Consumer Services reference, a public-vs-full comparison, the related
  *      PSC-oversight votes already on PolitiDex, and the narrow ask "Publish
  *      one confidential contract" — with no call to pass a law.
- *   3. IT APPEARS ON /sunlight. sunlight.html prints the entry statically, and
+ *   3. IT APPEARS ON /sunlight/rocky-mountain-power.
+ *      sunlight-rocky-mountain-power.html prints the entry statically, and
  *      the markup agrees with the data.
  *   4. IT APPEARS IN SEARCH. In the real All-Seeing Eye, "rate case", "Rocky
  *      Mountain Power", "PSC", the docket number and "Office of Consumer
@@ -70,7 +71,7 @@ for (const order of [["sunlight-governance.js", "sunlight-entries.js"], ["sunlig
     ok(S.isTagged(rc), "the rate case does not carry the sunlight_governance tag");
     ok(rc.tags.includes("sunlight_governance"), "tags[] lacks sunlight_governance");
     eq(rc.tagSource, "manual", "the entry is tagged manually, not by auto-match");
-    eq(rc.href, "/sunlight#rmp-24-035-04", "the entry points at its anchor on /sunlight");
+    eq(rc.href, "/sunlight/rocky-mountain-power#rmp-24-035-04", "the entry points at its anchor on /sunlight/rocky-mountain-power");
     item = rc;
   }
 }
@@ -132,10 +133,10 @@ if (item) {
 // ═════════════════════════════════════════════════════════════════════════════
 // 3 · The landing page
 // ═════════════════════════════════════════════════════════════════════════════
-section("the entry appears on /sunlight");
-const html = R("sunlight.html");
+section("the entry appears on /sunlight/rocky-mountain-power");
+const html = R("sunlight-rocky-mountain-power.html");
 const art = /<article[^>]*id="rmp-24-035-04"[^>]*>([\s\S]*?)<\/article>/.exec(html);
-ok(art, "sunlight.html has no rate-case article");
+ok(art, "sunlight-rocky-mountain-power.html has no rate-case article");
 if (art && item) {
   const open = /<article[^>]*id="rmp-24-035-04"[^>]*>/.exec(html)[0];
   ok(open.includes(`data-sunlight-item="${ID}"`), "article does not carry the item id");
@@ -231,7 +232,7 @@ const thread = (h) => /data-eye-sunlight-thread="1"([\s\S]*?)(?=<div class="pdx-
       ok(t, `[${lane}] "${q}" prints no Sunlight thread`);
       if (!t) continue;
       ok(t[1].includes('data-eye-sunlight="landing"'), `[${lane}] "${q}" thread lacks the landing page`);
-      ok(/href="\/sunlight#rmp-24-035-04" data-eye-sunlight="item" data-kind="rate_case"/.test(t[1]), `[${lane}] "${q}" thread lacks the rate case`);
+      ok(/href="\/sunlight\/rocky-mountain-power#rmp-24-035-04" data-eye-sunlight="item" data-kind="rate_case"/.test(t[1]), `[${lane}] "${q}" thread lacks the rate case`);
       ok(t[1].includes("Rocky Mountain Power general rate case, Utah PSC Docket No. 24-035-04"), `[${lane}] "${q}" thread lacks the rate-case title`);
     }
     ok(!thread(E.search("housing", lane)), `[${lane}] an unrelated query printed the Sunlight thread`);
