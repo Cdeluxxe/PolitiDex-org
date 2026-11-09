@@ -11836,7 +11836,26 @@
 //     version; the precache list is unchanged. No location key or other
 //     stored reader state is written or rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v539';
+// v540 - THE ISSUE DRAWER TELLS A SOURCED STORY.
+//     consistency.js (precached): the issue drawer now runs in one order. A
+//     header row holds the issue title, the stated position (the stance
+//     store's entry, with its Supports / Opposes, Stronger signal and
+//     Pipeline-sourced chips) and the record verdict, or "No pattern yet".
+//     Under it, the issue in one sentence (the register's own line), then
+//     position and connections: the stance signal, the related-issues lines
+//     and "Where this conflicts" in its existing place. Then the evidence
+//     behind the stance - one block per linked source on the stance card or
+//     matching Evidence Locker item, summary then link, omitted when there is
+//     none - and then the formal record, unchanged. The full-width "Share
+//     this" bar became a small icon in the header's corner and a quiet text
+//     button at the foot. The related-issues map, the conflicts rules, the
+//     stance reader, the Locker data and every stance record are unchanged.
+//     No route, gate or issue key. A precached shell file changed, so the
+//     shell moves one version; the precache list is unchanged.
+//     No location key or other stored reader state is written or
+//     rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v540';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

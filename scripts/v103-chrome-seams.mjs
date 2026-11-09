@@ -1942,7 +1942,12 @@ export function assertConsistencyExportSeams(bodies, api) {
   ok(!/MIN_|FLOOR|floor|publishable|score|party/.test(strip(lgOn)),
     "the shape of the sheet is decided on a floor, a score or a party");
   // C4. ONE FINDING LINE IN THE HEADER, and the other two moved down together.
-  has(mount, "(_lgOn ? _dosFindHtml(_dosRow, _lgT) : _dosBucketHtml(_dosRow) +",
+  // v540: the header row holds the issue, the stated position and ONE verdict —
+  // the finding line on a ledger sheet — and the bucket line prints only off-ledger.
+  has(mount, "var _verdictHtml = _lgOn ? _dosFindHtml(_dosRow, _lgT)",
+    "the header still stacks the bucket line and the verdict chip on a sheet that leads with a ledger — " +
+    "three headline verdicts in one inch read as three findings about one issue");
+  has(mount, "(_lgOn ? '' : _dosBucketHtml(_dosRow)) +",
     "the header still stacks the bucket line and the verdict chip on a sheet that leads with a ledger — " +
     "three headline verdicts in one inch read as three findings about one issue");
   ok(mount.split("_dosFindHtml").length === 2, "the header states its finding more than once");
