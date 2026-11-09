@@ -2857,3 +2857,41 @@
   /* Full-width thumb target for the route back to the one score. */
   .pdx-ft-primary { width: 100%; justify-content: center; min-height: 42px; }
 }
+
+/* ── ✒️ Stated positions on file — the one stance store, in Word vs Action ──
+   One row per entry of PDXConsistency.statedStances: the same side, signal and
+   source note the person-file "Said" list and the issue drawer print. Rows wear
+   their issue's topic colour exactly as the person-file list's rows do
+   (.pdxwa-shape-row[data-ic]): a 4px spine and the wash fading out. */
+.pdxwa-stated { margin-top: -0.4rem; padding-top: 0.6rem; border-top: 1px solid rgba(159, 180, 212, 0.18); }
+.pdxwa-stated-h { color: #cbd9ec; font-size: 0.8rem; font-weight: 700; }
+.pdxwa-stated-note { font-size: 0.7rem; color: #9fb4d4; margin: 0.15rem 0 0.4rem; line-height: 1.45; }
+.pdxwa-stated-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.3rem; }
+.pdxwa-stated-row {
+  font-size: 0.74rem;
+  line-height: 1.45;
+  color: #c9d6ea;
+  padding: 0.25rem 0.45rem;
+  border-left: 4px solid rgba(159, 180, 212, 0.25);
+  border-radius: 0.25rem;
+}
+.pdxwa-stated-row[data-ic] {
+  border-left: 4px solid var(--pdx-ic);
+  padding-left: 0.5rem;
+  background: linear-gradient(
+    90deg,
+    var(--pdx-ic-wash, var(--pdx-ic-soft, transparent)),
+    transparent 66%
+  );
+}
+.pdxwa-stated-row .pdx-stance-iss { color: #dbe6f5; }
+.pdxwa-stated-row[data-ic] .pdx-stance-iss { color: var(--pdx-ic-ink, #dbe6f5); }
+.pdxwa-stated-row .pdx-stance-pos { color: #f5c842; }
+.pdx-stance-note a { color: #9fb4d4; }
+/* The Evidence Locker's statement lines under Word vs Action take the same
+   topic spine (profile-locker.js tintAttr). */
+.pdxwa-locker .pdxwa-line[data-ic] {
+  border-left: 3px solid var(--pdx-ic);
+  padding-left: 0.45rem;
+  background: linear-gradient(90deg, var(--pdx-ic-soft, transparent), transparent 66%);
+}
