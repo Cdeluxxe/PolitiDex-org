@@ -100,7 +100,7 @@ function orderFaults(h, tag) {
 // The header block: from the start to the end of the identity strip.
 const headOf = (h) => h.slice(0, Math.max(0, h.indexOf(M.sentence) >= 0 ? h.indexOf(M.sentence) : h.indexOf(M.record)));
 const hrowOf = (h) => { const i = h.indexOf(M.header); const j = h.indexOf('<div class="pdxgap-id">', i); return i >= 0 ? h.slice(i, j > i ? j : undefined) : ""; };
-const text = (h) => String(h || "").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
+const text = (h) => String(h || "").replace(/<[^>]+>/g, " ").replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
 
 const SAMPLE = ["lee", "schiff", "trump", "ryan_arbon", "warren", "cruz", "romney", "ocasio_cortez", "sanders", "mcconnell"];
 
@@ -109,7 +109,7 @@ for (const [vocab, pages] of [["alignment-tool.js", "homepage, ballot"], ["issue
   const win = boot({ vocab });
   if (win.__err) failures.push(`boot (${vocab}): ${win.__err}`);
   const CS = win.PDXConsistency;
-  let sheets = 0, withEv = 0, ledger = 0;
+  let sheets = 0, withEv = 0, ledger = 0, chipN = 0;
   for (const pid of SAMPLE) {
     if (!win.CMP_DATA[pid]) continue;
     for (const r of CS.issueRows(pid) || []) {
@@ -125,6 +125,12 @@ for (const [vocab, pages] of [["alignment-tool.js", "homepage, ballot"], ["issue
       ok(/class="pdxgap-title/.test(row), `${tag}: the title is not in the header row`);
       const s = CS.statedStance(pid, r.key);
       if (s) ok(row.indexOf(`data-pdx-stance="${r.key}"`) >= 0, `${tag}: the stated position is not in the header row`);
+      // The chip reads "Campaign position:", never the hard "Says:" / "Said:".
+      if (s) {
+        ok(/Campaign position: (Supports|Opposes|Mixed)/.test(text(row)), `${tag}: the header chip does not read "Campaign position:"`);
+        ok(!/\bSays: |\bSaid:/.test(text(row)), `${tag}: the header still reads "Says:" / "Said:"`);
+        chipN++;
+      }
       ok(/class="pdxlg-find"|class="pdxgap-rel-hero"|class="pdxdv-rel"|data-pdxgap-nopat="1"/.test(row), `${tag}: no verdict (or No pattern yet) in the header row`);
       ok((h.match(/data-pdx-stance="/g) || []).length <= 1, `${tag}: the stance element is printed twice`);
       // The sentence is the register's line, word for word.
@@ -147,6 +153,7 @@ for (const [vocab, pages] of [["alignment-tool.js", "homepage, ballot"], ["issue
   ok(sheets > 50, `${vocab}: only ${sheets} drawers rendered`);
   ok(ledger > 5, `${vocab}: only ${ledger} ledger drawers — the formal-record order is untested`);
   ok(withEv > 5, `${vocab}: only ${withEv} drawers carried evidence`);
+  ok(chipN > 20, `${vocab}: only ${chipN} drawers carried a stance chip`);
   console.log(`   ${vocab}: ${sheets} drawers · ${ledger} with a vote table · ${withEv} with evidence`);
 }
 
@@ -213,6 +220,9 @@ for (const [page, vocab] of [["index.html", "alignment-tool.js"], ["person.html"
   const h = CS.gapViewHtml("lee", "lands_preserve") || "";
   orderFaults(h, "locker fixture").forEach((f) => failures.push(f));
   ok(/Pipeline-sourced/.test(hrowOf(h)), "the header row lost the Pipeline-sourced chip");
+  ok(/Stronger signal/.test(hrowOf(h)), "the header row lost the Stronger signal chip");
+  ok(/Campaign position: Supports/.test(text(hrowOf(h))) && !/\bSaid:/.test(text(hrowOf(h))),
+    "a pipeline stance in the header does not read \u201cCampaign position: Supports\u201d");
   const ev = (/<section class="pdxgap-ev"[\s\S]*?<\/section>/.exec(h) || [""])[0];
   ok(/data-pdxgap-ev="locker"[\s\S]*We should protect these wild places[\s\S]*href="https:\/\/example\.org\/locker-a"/.test(ev),
     "the promoted Locker stance does not render its item's excerpt and link");
@@ -237,6 +247,50 @@ for (const [page, vocab] of [["index.html", "alignment-tool.js"], ["person.html"
   ok(h2.indexOf(M.signal) < 0, "a drawer with no stance printed a stance signal");
 }
 
+// ── 4b · the flagstone record: Talarico × Tackle the Cost of Living ─────────
+{
+  const PID = "james_talarico", KEY = "cost_living";
+  for (const vocab of ["alignment-tool.js", "issue-map.js"]) {
+    const win = boot({ vocab });
+    const CS = win.PDXConsistency;
+    const cards = (win.ISSUE_STANCE_DATA[PID] || []).filter((c) => c.issueKey === KEY);
+    eq(cards.length, 1, `${vocab}: Talarico has one cost-of-living card`);
+    const c = cards[0] || {};
+    eq(c.position, "support", "the flagstone record's position");
+    eq(c.status, "active", "the flagstone record's status");
+    eq((c.sources || []).length, 2, "the flagstone record has two sources");
+    for (const [i, x] of (c.sources || []).entries()) {
+      ok(x && typeof x.type === "string" && x.type.trim(), `flagstone source ${i}: type`);
+      ok(x && "date" in x && (x.date === null || /^\d{4}-\d{2}-\d{2}$/.test(x.date)), `flagstone source ${i}: date`);
+      ok(x && /^https:\/\//.test(x.link || ""), `flagstone source ${i}: link`);
+      ok(x && typeof x.excerpt === "string" && x.excerpt.trim(), `flagstone source ${i}: excerpt`);
+      ok(x && ["strong", "weak", "mention"].includes(x.weight), `flagstone source ${i}: weight`);
+    }
+    ok((c.sources || []).some((x) => x.date === "2026-11-03" && /victory speech/.test(x.type)), "the Nov 3 victory speech is a source");
+    ok((c.sources || []).some((x) => /jamestalarico\.com\/issue\//.test(x.link)), "the campaign issue page is a source");
+    const s = CS.statedStance(PID, KEY);
+    ok(s && s.side === "support" && s.source === "curated", `${vocab}: the record is not Talarico's stated stance`);
+    const h = CS.gapViewHtml(PID, KEY) || "";
+    orderFaults(h, "flagstone").forEach((f) => failures.push(f));
+    ok(/Campaign position: Supports/.test(text(hrowOf(h))), `${vocab}: Talarico's header does not read "Campaign position: Supports"`);
+    const ev = (/<section class="pdxgap-ev"[\s\S]*?<\/section>/.exec(h) || [""])[0];
+    const items = [...ev.matchAll(/<li class="pdxgap-ev-item"[^>]*>([\s\S]*?)<\/li>/g)].map((m) => m[1]);
+    eq(items.length, 2, `${vocab}: Talarico's drawer shows two evidence blocks`);
+    for (const [i, x] of (c.sources || []).entries()) {
+      const it = items[i] || "";
+      ok(/<p class="pdxgap-ev-sum">[^<]+<\/p>/.test(it), `${vocab}: evidence block ${i} has no excerpt`);
+      ok(text(it).includes(text(x.excerpt).replace(/\s+/g, " ").slice(0, 30)), `${vocab}: evidence block ${i} is not its source's excerpt`);
+      ok(it.includes(`href="${x.link}"`), `${vocab}: evidence block ${i} does not link its source`);
+    }
+  }
+  // Every other Talarico card is untouched: no `sources` array, no status field.
+  const win = boot();
+  for (const c of win.ISSUE_STANCE_DATA.james_talarico || []) {
+    if (c.issueKey === "cost_living") continue;
+    ok(!c.sources && !c.status && !c.position, `Talarico ${c.issueKey}: an untouched card gained record fields`);
+  }
+}
+
 // ── 5 · Where this conflicts keeps its place ───────────────────────────────
 {
   const win = boot();
@@ -259,6 +313,9 @@ for (const [page, vocab] of [["index.html", "alignment-tool.js"], ["person.html"
   ok(/_rcShareHtml\(pid, issueKey, \{ block: true \}\)/.test(cs), "the 🏛️ column lost its own share");
   ok(/v540 - [\s\S]*?MIGRATION COST: none/.test(sw), "the shell's v540 note is missing or does not say no migration");
   ok(Number((sw.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1]) >= 540, "the shell did not move for the drawer");
+  ok(/v541 - [\s\S]*?MIGRATION COST: none/.test(sw), "the shell's v541 note is missing or does not say no migration");
+  ok(Number((sw.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1]) >= 541, "the shell did not move for the chip wording");
+  ok(/_GAP_STANCE_LEAD = 'Campaign position:'/.test(cs), "the drawer's stance lead is not \u201cCampaign position:\u201d");
   ok(sw.includes("  '/consistency.js',\n"), "consistency.js is not precached");
 }
 

@@ -11855,7 +11855,23 @@
 //     No location key or other stored reader state is written or
 //     rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v540';
+// v541 - THE DRAWER HEADER SAYS "CAMPAIGN POSITION", AND ONE STANCE IS LOCKED.
+//     consistency.js (precached): the issue drawer's header chip now reads
+//     "Campaign position: Supports / Opposes" instead of "Says:" / "Said:",
+//     because most stances rest on a single source or a pipeline read. The
+//     Stronger signal and Pipeline-sourced chips are unchanged, and every
+//     other surface keeps its wording. The evidence section also reads the
+//     locked stance-record schema (a source's `link` and `type`).
+//     profile-locker.js gains an optional lead word for that one line.
+//     politician-stances-ext.js (runtime-cached, not precached) carries the
+//     first stance in the locked schema: James Talarico on Tackle the Cost
+//     of Living (support, two sources, status active). Every other stance is
+//     unchanged. No route, gate or issue key. A precached shell file changed,
+//     so the shell moves one version; the precache list is unchanged.
+//     No location key or other stored reader state is written or
+//     rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v541';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

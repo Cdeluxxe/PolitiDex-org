@@ -490,6 +490,8 @@
   }
   // One "Said:" line, the same in every surface; `opts.issue` prefixes the
   // issue name (for lists that are not already under an issue heading).
+  // `opts.lead` replaces the "Said:" lead word (the issue drawer's header
+  // reads "Campaign position:"); every other surface passes nothing.
   // `opts.bare` drops the data attributes, for a host element (the top
   // section's row) that already carries them, so one stance is one marked node.
   function saidLineHtml(ps, tag, cls, opts) {
@@ -504,7 +506,7 @@
       ' data-pdx-stance-source="pipeline"') +
       ' style="' + (opts.style || 'margin:0.2rem 0;') + 'font-size:0.74rem;line-height:1.45;color:#c9d6ea;">' +
       (opts.issue ? '<span style="color:#cbd9ec;">' + esc(issueLabel(ps.key)) + ' — </span>' : '') +
-      '<b class="pdx-locker-said-lb">' + esc(SAID_LABEL) + '</b> ' +
+      '<b class="pdx-locker-said-lb">' + esc(opts.lead || SAID_LABEL) + '</b> ' +
       '<b class="pdx-locker-said-pos" style="color:#f5c842;">' + esc(ps.label) + '</b>' +
       promoBadgeHtml(ps) + promoTagHtml() +
       ' <span style="color:#5f7da6;">· from ' + esc(promoCountText(ps)) + '</span>' +

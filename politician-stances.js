@@ -1728,6 +1728,26 @@
       { topic:'Health Care & Costs', icon:'🏥', pos:'support', issueKey:'healthcare', issueStance:'support', text:'Campaigns on expanding health coverage and lowering costs in a state with the nation\'s highest uninsured rate.' },
       { topic:'Gun Safety', icon:'🦺', pos:'support', issueKey:'gun_safety', issueStance:'support', text:'Backs stronger gun-safety measures.' },
       { topic:'Reproductive Rights', icon:'✊', pos:'support', issueKey:'pro_choice', issueStance:'support', text:'Supports restoring reproductive rights.' },
+      // FLAGSTONE STANCE RECORD (Nov 2026) — the first stance written in the
+      // locked schema (position · sources[type, date, link, excerpt, weight] ·
+      // status), from the ground-truth record in
+      // db/stance-ground-truth-talarico-cost-of-living.json. Two sources: the
+      // campaign issue page (states the position: weight strong) and the Nov 3
+      // victory speech (names the topic, states no policy: weight mention). No
+      // official transcript of the speech was found; the link is the full video
+      // and the excerpt is the line as quoted verbatim by the Houston Chronicle.
+      { topic:'Cost of Living', icon:'🛒', pos:'support', issueKey:'cost_living', issueStance:'support',
+        position:'support', status:'active',
+        text:'Campaigns on lowering everyday costs: a middle-class tax cut paid for by higher taxes on billionaires and corporations, plus lower housing, grocery, energy and health-care costs.',
+        source:{label:'jamestalarico.com', url:'https://jamestalarico.com/issue/taxes-cost-of-living/'},
+        sources:[
+          { type:'campaign issue page', label:'Campaign platform: Taxes & Cost of Living', date:null,
+            link:'https://jamestalarico.com/issue/taxes-cost-of-living/',
+            excerpt:'\u201c\u2026worked with Republicans to deliver the largest property tax cut in Texas history\u201d', weight:'strong' },
+          { type:'speech (victory speech)', label:'Victory speech, Nov 3, 2026 (video)', date:'2026-11-03',
+            link:'https://www.fox7austin.com/video/fmc-fs7m9d1olo029kv6',
+            excerpt:'\u201cHate can\'t lower our energy bills.\u201d', weight:'mention' },
+        ] },
     ],
     john_cornyn: [ // John Cornyn — U.S. Senate — 2026 Republican Candidate (Texas)
       { topic:'Gun Policy', icon:'⚖️', pos:'support', issueKey:'gun_balance', issueStance:'support', text:'Co-negotiated the 2022 Bipartisan Safer Communities Act after the Uvalde school shooting.', evidence:'Bipartisan Safer Communities Act enacted (2022).', source:{label:'Congress.gov', url:'https://www.congress.gov'} },

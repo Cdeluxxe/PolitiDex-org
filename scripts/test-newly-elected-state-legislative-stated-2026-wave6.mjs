@@ -27,7 +27,7 @@
 //      Every key is in the issue register and in the related-issues map. The four
 //      states are new to these waves.
 //   2. THE DRAWER'S STATED LINE: for every one of those positions the drawer
-//      prints "Says: Supports|Opposes", and the related-issues block lists a
+//      prints "Campaign position: Supports|Opposes", and the related-issues block lists a
 //      related stated issue as "<issue>: supports · no record".
 //   3. WHERE THIS CONFLICTS: a reader on the opposite side of a related pair
 //      gets a conflicts line naming both issues, the member's stated side and
@@ -108,7 +108,7 @@ const text = (h) => String(h || "").replace(/<span class="pdxri-ico"[^>]*>[^<]*<
 const block = (h) => (/<div class="pdxri pdxri-drawer"[\s\S]*?<\/ul><\/div>/.exec(h) || [""])[0];
 const lines = (h) => [...block(h).matchAll(/<li class="pdxri-item"[\s\S]*?<\/li>/g)].map((m) => text(m[0]));
 const WORD = { support: "supports", oppose: "opposes" };
-const SAYS = { support: "Says: Supports", oppose: "Says: Opposes" };
+const SAYS = { support: "Campaign position: Supports", oppose: "Campaign position: Opposes" }; // the drawer header chip (v541)
 const OTHER = { support: "oppose", oppose: "support" };
 
 const win = boot();
