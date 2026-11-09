@@ -11871,7 +11871,17 @@
 //     No location key or other stored reader state is written or
 //     rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v541';
+// v542 - THE DRAWER HEADER CHIP READS "STATED:" AGAIN, MORE FIRMLY.
+//     consistency.js (precached): the issue drawer's header chip now reads
+//     "Stated: Supports / Opposes", reverting v541's softer "Campaign
+//     position:" so the main claim stays accountable. The Stronger signal and
+//     Pipeline-sourced chips, the evidence section, Talarico's cost-of-living
+//     record and every other surface are unchanged. No route, gate or issue
+//     key. A precached shell file changed, so the shell moves one version;
+//     the precache list is unchanged. No location key or other stored reader
+//     state is written or rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v542';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

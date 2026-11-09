@@ -3812,7 +3812,7 @@
     mixed:   { lb: 'Mixed',    c: '#f5c842', ico: '⚖️' }
   };
   // `lead` swaps the "Says:" lead word for a surface that words it differently
-  // (the issue drawer's header reads "Campaign position:"); every other caller
+  // (the issue drawer's header reads "Stated:"); every other caller
   // passes nothing and keeps "Says:".
   function _orStanceChip(pid, issueKey, lead) {
     var s = positionStance(pid, issueKey);
@@ -20112,13 +20112,13 @@
         '<b class="pdx-stance-lb">' + esc(opts.lead || 'Said:') + '</b> <b class="pdx-stance-pos">' + esc(s.sideLabel || '') + '</b>' +
       '</' + tag + '>' + statedStanceNoteHtml(s);
   }
-  // The drawer's stance slot. Most stances rest on one source or a pipeline
-  // read, so the header does not say "Said:" / "Says:" flatly: it reads
-  // "Campaign position: Supports / Opposes". A curated entry keeps its chip and
+  // The drawer's stance slot. The header states the claim it holds the person
+  // to: "Stated: Supports / Opposes" (v542 reverted v541's softer "Campaign
+  // position:"); the evidence section below backs it. A curated entry keeps its chip and
   // the store's signal + source note; a promoted Locker entry prints the shared
   // Locker line with the same lead word and its Stronger signal and
   // Pipeline-sourced chips unchanged. Every other surface keeps its wording.
-  var _GAP_STANCE_LEAD = 'Campaign position:';
+  var _GAP_STANCE_LEAD = 'Stated:';
   function _gapStanceHtml(pid, issueKey) {
     var s = statedStance(pid, issueKey);
     if (!s) return '';

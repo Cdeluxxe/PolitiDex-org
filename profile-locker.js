@@ -491,7 +491,7 @@
   // One "Said:" line, the same in every surface; `opts.issue` prefixes the
   // issue name (for lists that are not already under an issue heading).
   // `opts.lead` replaces the "Said:" lead word (the issue drawer's header
-  // reads "Campaign position:"); every other surface passes nothing.
+  // reads "Stated:"); every other surface passes nothing.
   // `opts.bare` drops the data attributes, for a host element (the top
   // section's row) that already carries them, so one stance is one marked node.
   function saidLineHtml(ps, tag, cls, opts) {
