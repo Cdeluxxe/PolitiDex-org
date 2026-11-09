@@ -558,3 +558,36 @@ html.pdx-instant-scroll {
   filter: none;
   opacity: 0.5;
 }
+
+/* ── 7i · The other full-screen overlays stop blurring the page on phones ──
+   §7d removed the blur from the profile overlay. The sign-in, comment,
+   evidence, verify and first-visit welcome overlays use the same pattern: a
+   80–85% black scrim plus a Tailwind `backdrop-blur-*`. At that opacity the
+   blur can hardly be seen, but it still costs a full-viewport rasterisation on
+   every open, every close and every frame of scrolling inside the sheet. On
+   phones the scrim stays and the blur goes. Tablet and desktop are unchanged. */
+@media (max-width: 640px) {
+  #auth-overlay,
+  #comment-overlay,
+  #evidence-overlay,
+  #verify-overlay,
+  #pdx-welcome-overlay {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* ── 7j · The mobile drawer answers the tap, not the double-tap check ─────
+   The drawer's links and buttons, and the search results the All-Seeing Eye
+   paints, are the controls a phone reader taps most while moving between
+   overlays. `manipulation` lets the tap fire as soon as the finger lifts.
+   Pinch-zoom still works. Touch screens only. */
+@media (hover: none) and (pointer: coarse) {
+  #mobileMenu a,
+  #mobileMenu button,
+  .pdx-eye-panel a,
+  .pdx-eye-panel button {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
