@@ -11896,7 +11896,25 @@
 //     No location key or other stored reader state is written or rewritten,
 //     so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v543';
+// v544 - THE SEARCH AND THE OVERLAYS STAY SMOOTH ON A PHONE.
+//     all-seeing-eye.js (runtime-cached, not precached): on a touch screen
+//     only, a short one-line query no longer forces a layout measurement on
+//     each keystroke, focus paints the panel one frame after the caret, a
+//     background repaint waits until the reader stops touching or flinging
+//     the pane, the pane's height is capped to the visible screen above the
+//     keyboard, and a tap on plain page background closes the panel. Search
+//     results, their order and the data they read are unchanged, and so are
+//     Direction Match and every formal tier. index.html
+//     (precached as '/') sets the eye's field to 16px on touch screens, so iOS
+//     no longer zooms the page on focus, and adds tap hints. mobile-polish.css
+//     (precached) removes the backdrop blur behind five full-screen overlays
+//     on phones and adds tap hints to the drawer and the search results.
+//     Desktop is unchanged. A precached shell file changed, so the shell
+//     moves one version; the precache list is unchanged. No location key or
+//     other stored reader state is written or rewritten, so nothing is
+//     migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v544';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

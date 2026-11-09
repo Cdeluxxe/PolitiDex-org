@@ -3667,7 +3667,28 @@
     // a late source must never repaint the list a fraction of a second before the
     // keystroke that is about to replace it anyway. That double paint is the
     // "two lists painting, then collapsing" the reader sees.
-    var typing = false, quietRaf = 0, quietKeep = false;
+    var typing = false, quietRaf = 0, quietKeep = false, quietHold = 0;
+    var GESTURE_IDLE_MS = 450;
+    var lastGesture = -1e9, touchDown = false;
+    function gestureNow() {
+      try { if (window.performance && typeof window.performance.now === 'function') return window.performance.now(); } catch (e) {}
+      return Date.now();
+    }
+    function gestureWait() {
+      if (!isTouch()) return 0;
+      if (touchDown) return GESTURE_IDLE_MS;
+      var left = GESTURE_IDLE_MS - (gestureNow() - lastGesture);
+      return left > 0 ? Math.ceil(left) : 0;
+    }
+    function markGesture() { lastGesture = gestureNow(); }
+    try {
+      // Passive, so they can never delay the scroll they are observing.
+      var gOpt = { passive: true };
+      panel.addEventListener('touchstart', function () { touchDown = true; markGesture(); }, gOpt);
+      panel.addEventListener('touchend', function () { touchDown = false; markGesture(); }, gOpt);
+      panel.addEventListener('touchcancel', function () { touchDown = false; markGesture(); }, gOpt);
+      panel.addEventListener('scroll', markGesture, gOpt);
+    } catch (e) {}
     function raf(fn) {
       try {
         if (typeof window.requestAnimationFrame === 'function') return window.requestAnimationFrame(fn);
@@ -3679,6 +3700,18 @@
       if (typing) return;
       if (keepFocus) quietKeep = true;
       if (quietRaf) return;
+      // A LATE SOURCE WAITS FOR THE THUMB. On a touch screen a background repaint
+      // (a measures page arriving, the warming recheck, a saved-collection event)
+      // replaces the panel's whole contents. If that happens mid-swipe, the
+      // momentum scroll stops dead and the list freezes under the finger. While
+      // the reader is touching or flinging the pane, the repaint is held and tried
+      // again once the gesture has been still for GESTURE_IDLE_MS. The repaint
+      // itself is unchanged; only its timing moves. Desktop never waits here.
+      var wait = gestureWait();
+      if (wait > 0) {
+        if (!quietHold) quietHold = setTimeout(function () { quietHold = 0; quietRepaint(false); }, wait);
+        return;
+      }
       quietRaf = raf(function () {
         quietRaf = 0;
         var keep = quietKeep; quietKeep = false;
@@ -4479,6 +4512,7 @@
         return a.top >= b.top - 1 && a.bottom <= b.bottom + 1;
       } catch (e) { return true; }
     }
+    var keyNav = false;   // true only while a keydown handler is running
     function setActive(i) {
       var els = resEls();
       if (!els.length) { active = -1; actIdx = -1; return; }
@@ -4490,7 +4524,12 @@
         el.classList.toggle('is-active', on);
         if (on) {
           input.setAttribute('aria-activedescendant', '');
-          if (!inPane(el)) { try { el.scrollIntoView({ block: 'nearest' }); } catch (e) {} }
+          // On a touch screen this check is only made for a key press (a
+          // hardware keyboard's arrows). Measuring a row straight after a paint
+          // forces a synchronous layout on every keystroke, and on a phone the
+          // highlighted row is always row 0 of a pane that has just been
+          // scrolled to the top.
+          if ((!isTouch() || keyNav) && !inPane(el)) { try { el.scrollIntoView({ block: 'nearest' }); } catch (e) {} }
         } else { clearActFocus(el); }
       });
     }
@@ -4504,7 +4543,52 @@
 
     // ── open / close ──────────────────────────────────────────────────
     function open() { eye.classList.add('is-open'); input.setAttribute('aria-expanded', 'true'); }
-    function close() { eye.classList.remove('is-open'); input.setAttribute('aria-expanded', 'false'); active = -1; actIdx = -1; }
+    function close() {
+      eye.classList.remove('is-open'); input.setAttribute('aria-expanded', 'false'); active = -1; actIdx = -1;
+      if (fitApplied) { fitApplied = false; try { panel.style.maxHeight = ''; } catch (e) {} }
+    }
+
+    // ── on a phone the pane ends where the visible screen ends ────────
+    // The stylesheet caps the pane at min(70vh, 32rem). On a phone, `vh` is the
+    // viewport with the toolbar hidden and the on-screen keyboard ignored, so
+    // with the keyboard up the bottom of the pane sat behind the keyboard. The
+    // reader could still scroll, but the last rows could never be brought into
+    // view, which reads as the list being stuck. On a touch screen, while the
+    // pane is open, its cap is also bounded by the visual viewport (the glass
+    // the reader can actually see). The pane is measured once per open and once
+    // per keyboard or toolbar resize, coalesced into one frame and never per
+    // keystroke. Desktop keeps the stylesheet's cap alone.
+    var fitApplied = false, fitRaf = 0;
+    function fitPanel() {
+      if (!isTouch() || fitRaf) return;
+      fitRaf = raf(function () {
+        fitRaf = 0;
+        try {
+          if (!eye.classList.contains('is-open')) return;
+          var vv = window.visualViewport;
+          var vh = (vv && vv.height) ? (vv.height + (vv.offsetTop || 0)) : (window.innerHeight || 0);
+          if (!vh) return;
+          var top = panel.getBoundingClientRect().top;
+          var css = Math.min((window.innerHeight || vh) * 0.7, 512);
+          var avail = Math.max(160, Math.floor(vh - top - 8));
+          panel.style.maxHeight = Math.min(css, avail) + 'px';
+          fitApplied = true;
+        } catch (e) {}
+      }) || 1;
+    }
+    if (isTouch()) {
+      try {
+        var vvp = window.visualViewport;
+        // `scroll` here is the visual viewport panning (iOS moving the page
+        // to keep the field above the keyboard), not a page scroll, so it
+        // does not fire on every frame of a normal swipe.
+        if (vvp && typeof vvp.addEventListener === 'function') {
+          vvp.addEventListener('resize', fitPanel, { passive: true });
+          vvp.addEventListener('scroll', fitPanel, { passive: true });
+        }
+        else window.addEventListener('resize', fitPanel, { passive: true });
+      } catch (e) {}
+    }
 
     // ── the field grows for a paste ────────────────────────────────────
     // The field is a one-line-tall <textarea> so a pasted claim is visible
@@ -4516,17 +4600,36 @@
     // rather than unbounded growth, because this is a search field that tolerates
     // a paste, not a composer.
     var GROW_MAX_LINES = 4;
+    // ON A PHONE, A SHORT ONE-LINE QUERY IS NOT MEASURED. Measuring means writing
+    // `height: auto`, reading scrollHeight and reading computed style. That is a
+    // forced synchronous layout of the whole document, and it ran on every
+    // keystroke, ahead of the browser drawing the letter. Typing "lee" or
+    // "chew" can never wrap, so on a touch screen a field that has not grown
+    // and holds no newline skips the measurement and keeps the one-line height
+    // it already has. The line height is read once and reused. A paste, a
+    // newline or a long query still takes the full measured path, so the field
+    // grows exactly as before. Desktop always measures, as it did before.
+    var GROW_SHORT_CHARS = 16;
+    var growLine = 0, grown = false;
     function growField() {
       try {
         if (!input || input.tagName !== 'TEXTAREA') return;
+        var touchFast = isTouch();
+        if (touchFast && !grown) {
+          var v = String(input.value || '');
+          if (v.length <= GROW_SHORT_CHARS && v.indexOf('\n') < 0) return;
+        }
         input.style.height = 'auto';
-        var line = parseFloat(window.getComputedStyle(input).lineHeight) || 22;
+        var line = (touchFast && growLine) ? growLine
+          : (parseFloat(window.getComputedStyle(input).lineHeight) || 22);
+        if (touchFast) growLine = line;
         var want = Math.max(line, input.scrollHeight);
         var cap = line * GROW_MAX_LINES;
         input.style.height = Math.min(want, cap) + 'px';
         // Only past the cap does a scrollbar appear; below it the textarea is
         // exactly as tall as its text and nothing can scroll.
         input.classList.toggle('is-multiline', want > cap + 1);
+        grown = want > line + 1;
       } catch (e) {}
     }
 
@@ -4576,15 +4679,39 @@
         var t0 = nowMs();
         render(input.value); setActive(input.value.trim() ? 0 : -1); open();
         lastPaintMs = nowMs() - t0;
+        if (!fitApplied) fitPanel();
       }, keyWait());
     });
+    // ON A PHONE THE CARET COMES FIRST. A focus that builds the index and paints
+    // the panel inside the same task holds back the caret and the on-screen
+    // keyboard until that work is done, so the field looks frozen right at the
+    // first tap. On a touch screen the first paint waits one frame: the focus
+    // ring, the caret and the keyboard come up straight away, and the panel
+    // paints on the next frame. If a keystroke is already waiting (`typing`),
+    // that keystroke's paint is the one that counts and this one stands down.
+    // Desktop paints in the same task, as before.
+    var focusRaf = 0;
+    function focusPaint() {
+      render(input.value); open();
+      setActive(input.value.trim() ? 0 : -1);
+    }
     input.addEventListener('focus', function () {
       eye.classList.add('is-focus');
       growField();
-      render(input.value); open();
-      setActive(input.value.trim() ? 0 : -1);
+      if (!isTouch()) { focusPaint(); return; }
+      if (focusRaf) return;
+      focusRaf = raf(function () {
+        focusRaf = 0;
+        if (typing || document.activeElement !== input) return;
+        focusPaint();
+        fitPanel();
+      }) || 1;
     });
     input.addEventListener('keydown', function (ev) {
+      keyNav = true;
+      try { onKey(ev); } finally { keyNav = false; }
+    });
+    function onKey(ev) {
       if (ev.key === 'ArrowDown') { ev.preventDefault(); if (!eye.classList.contains('is-open')) { render(input.value); open(); } setActFocus(-1); setActive(active + 1); }
       else if (ev.key === 'ArrowUp') { ev.preventDefault(); setActFocus(-1); setActive(active - 1); }
       else if (ev.key === 'ArrowRight') {
@@ -4614,7 +4741,7 @@
         else if (input.value) { input.value = ''; eye.classList.remove('has-text'); growField(); render(''); }
         else { close(); input.blur(); }
       }
-    });
+    }
     clear.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
     clear.addEventListener('click', function () {
       input.value = ''; eye.classList.remove('has-text'); growField(); input.focus(); render(''); open();
@@ -4624,6 +4751,32 @@
     document.addEventListener('mousedown', function (ev) {
       if (!eye.contains(ev.target)) { close(); eye.classList.remove('is-focus'); }
     });
+    // A TAP OUTSIDE CLOSES THE PANEL WHEN THE FINGER LIFTS. Mobile Safari only
+    // sends the compatibility `mousedown` to elements it treats as clickable, so
+    // a tap on plain page background never reached the listener above, and the
+    // panel stayed open over the page. A touch that starts outside the eye and
+    // lifts within TAP_SLOP px of where it began is a tap, and it closes the
+    // panel. A touch that moves is a scroll, and scrolling the page does not
+    // dismiss the panel, the same as the mouse path. Touch and pen only; a
+    // mouse still goes through `mousedown` above.
+    var TAP_SLOP = 10, tapX = null, tapY = 0;
+    try {
+      document.addEventListener('pointerdown', function (ev) {
+        tapX = null;
+        if (!ev || ev.pointerType === 'mouse' || !eye.classList.contains('is-open')) return;
+        if (eye.contains(ev.target)) return;
+        tapX = ev.clientX; tapY = ev.clientY;
+      }, { passive: true });
+      document.addEventListener('pointercancel', function () { tapX = null; }, { passive: true });
+      document.addEventListener('pointerup', function (ev) {
+        if (tapX === null || !ev) return;
+        var dx = ev.clientX - tapX, dy = ev.clientY - tapY;
+        tapX = null;
+        if (dx * dx + dy * dy > TAP_SLOP * TAP_SLOP) return;
+        if (eye.contains(ev.target)) return;
+        close(); eye.classList.remove('is-focus');
+      }, { passive: true });
+    } catch (e) {}
     input.addEventListener('blur', function () {
       // defer so an item click (which blurs the input) can still fire
       setTimeout(function () { if (!eye.contains(document.activeElement)) { eye.classList.remove('is-focus'); if (!eye.matches(':hover')) close(); } }, 120);
