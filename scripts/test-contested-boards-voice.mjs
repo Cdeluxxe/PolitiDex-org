@@ -416,7 +416,9 @@ section("7 · the Layton boards and every non-contested board are unchanged");
     .replace(/# California['’]s contested legislative seats[^\n]*\n(?:\[\[redirects\]\]\n  from = "\/ballot\/ca[^"]*"\n  to = "\/ballot-ca\.html"\n  status = 200\n)+/g, "")
     .replace(/# California (?:Assembly|Senate) District \d+ — [a-z0-9_]+\n(?:\[\[redirects\]\]\n  from = "\/district\/ca-(?:hd|sd)-\d+[^"]*"\n  to = "\/district-ca-(?:hd|sd)-\d+\.html"\n  status = 200\n)+\n/g, "")
     .replace(/# Washington['’]s contested legislative seats[^\n]*\n(?:\[\[redirects\]\]\n  from = "\/ballot\/wa[^"]*"\n  to = "\/ballot-wa\.html"\n  status = 200\n)+/g, "")
-    .replace(/# Washington (?:House|Senate) District \d+(?:, Position \d)? — [a-z0-9_]+\n(?:\[\[redirects\]\]\n  from = "\/district\/wa-(?:hd|sd)-\d+(?:-p\d)?[^"]*"\n  to = "\/district-wa-(?:hd|sd)-\d+(?:-p\d)?\.html"\n  status = 200\n)+\n/g, "");
+    .replace(/# Washington (?:House|Senate) District \d+(?:, Position \d)? — [a-z0-9_]+\n(?:\[\[redirects\]\]\n  from = "\/district\/wa-(?:hd|sd)-\d+(?:-p\d)?[^"]*"\n  to = "\/district-wa-(?:hd|sd)-\d+(?:-p\d)?\.html"\n  status = 200\n)+\n/g, "")
+    // The Sunlight Governance example page's three rewrites (v543).
+    .replace(/\n# ─+\n# SUNLIGHT GOVERNANCE, FIRST WORKING EXAMPLE[\s\S]*?from = "\/sunlight\/rocky-mountain-power\.html"\n  to = "\/sunlight-rocky-mountain-power\.html"\n  status = 200\n/, "");
   eq(tomlNoCa(withoutElectionDayRewrites(TOML)), tomlNoCa(withoutElectionDayRewrites(HEAD("netlify.toml"))), "netlify.toml did not move");
   ok(![...TOML.matchAll(/from = "([^"]+)"/g)].some((m) => /^\/district\/.*\*/.test(m[1])), "no /district/* splat");
   // Utah's composer and poll rows are HEAD's; the rows this pass added in the

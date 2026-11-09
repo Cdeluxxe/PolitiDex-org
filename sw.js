@@ -11881,7 +11881,22 @@
 //     the precache list is unchanged. No location key or other stored reader
 //     state is written or rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v542';
+// v543 - SUNLIGHT SPLITS INTO A BIG-PICTURE HOME AND A ROCKY MOUNTAIN POWER PAGE.
+//     sunlight.html (the /sunlight document, served fresh, not precached) is
+//     now a short visual home: the full-public-ledger idea in plain language,
+//     symbols, a picture example, one before/after and one bar graph, and a
+//     link to the first working example. The rate-case detail moved, unchanged,
+//     to sunlight-rocky-mountain-power.html at /sunlight/rocky-mountain-power
+//     (new, served fresh, not precached; netlify.toml rewrites the address).
+//     sunlight-entries.js and the District Voice panel's entry link point at
+//     the new address, and old /sunlight#rmp-... links forward there.
+//     index.html (precached as '/') gains a Sunlight Governance row in the
+//     main menu, the mobile menu and the footer. A precached shell file
+//     changed, so the shell moves one version; the precache list is unchanged.
+//     No location key or other stored reader state is written or rewritten,
+//     so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v543';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

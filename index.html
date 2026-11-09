@@ -3985,7 +3985,7 @@ window.PDXLazy = (function () {
               <a href="#myteam-browse-panel" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">🏛</span><span class="pdx-navmenu__lb">All Politicians</span></a>
               <a href="/money" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">💰</span><span class="pdx-navmenu__lb">Follow the Money</span></a>
               <a href="/money" onclick="if(window.PDXContracts&&window.PDXContracts.open){event.preventDefault();window.PDXContracts.open();}" role="menuitem" class="pdx-navmenu__item" title="Federal Spending Tracker — major government contracts"><span class="pdx-navmenu__ico" aria-hidden="true">🏛️</span><span class="pdx-navmenu__lb">Government Contracts</span></a>
-              <a href="/money#wealth-leaderboard" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">📈</span><span class="pdx-navmenu__lb">Wealth Leaderboard</span></a>
+              <a href="/money#wealth-leaderboard" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">📈</span><span class="pdx-navmenu__lb">Wealth Leaderboard</span></a> <a href="/sunlight" role="menuitem" class="pdx-navmenu__item" data-pdx-sunlight-link title="Sunlight Governance — a full public ledger of costs, profits and contracts for regulated monopolies"><span class="pdx-navmenu__ico" aria-hidden="true">☀️</span><span class="pdx-navmenu__lb">Sunlight Governance</span></a>
               <!-- THE TWO CURATOR ROWS ARE GONE, not hidden. "Expand Database"
                    and "Manage Politicians" sat here behind data-admin-only and an
                    inline display:none, flipped by the front page's admin gate.
@@ -4636,7 +4636,7 @@ window.PDXLazy = (function () {
       <div class="mnav-group-label mnav-group-label--money">💰 Money &amp; Spending</div>
       <a href="/money" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-money flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">💰 Follow the Money</a>
       <a href="/money" title="Federal Spending Tracker — major government contracts by agency, company &amp; state" onclick="document.getElementById('mobileMenu').classList.add('hidden');if(window.PDXContracts&&window.PDXContracts.open){event.preventDefault();window.PDXContracts.open();}" class="clr-money flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">🏛️ Government Contracts &amp; Spending</a>
-      <a href="/money#wealth-leaderboard" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-wealth flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">📈 Wealth Leaderboard</a>
+      <a href="/money#wealth-leaderboard" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-wealth flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">📈 Wealth Leaderboard</a> <a href="/sunlight" data-pdx-sunlight-link title="Sunlight Governance — a full public ledger of costs, profits and contracts for regulated monopolies" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-money flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">☀️ Sunlight Governance</a>
       <!-- ── Education, elevated to its own hub. Was a single buried "Education"
            row; now a lead destination with jump-links straight into each Voter
            Academy curriculum track so the connection to the deep-dive content
@@ -13303,7 +13303,7 @@ window.PDXLazy = (function () {
                 <a href="/ballot" class="hover:text-white transition-colors">Work Your Ballot</a>
                 <a href="#compare-hub" class="hover:text-white transition-colors">Compare Tool</a>
                 <a href="/money#wealth-leaderboard" class="hover:text-white transition-colors">Wealth Tracker</a>
-                <a href="/money" class="hover:text-white transition-colors">Follow the Money</a>
+                <a href="/money" class="hover:text-white transition-colors">Follow the Money</a> <a href="/sunlight" data-pdx-sunlight-link class="hover:text-white transition-colors">Sunlight Governance</a>
                 <a href="#dig-deeper" class="hover:text-white transition-colors">Dig Deeper · Tools</a>
               </div>
             </div>

@@ -66,7 +66,7 @@ export const ENTRY = Object.freeze({
   id: "UT-PSC-24-035-04",
   slug: "ut-psc-24-035-04",
   title: "Rocky Mountain Power general rate case, Utah PSC Docket No. 24-035-04",
-  href: "/sunlight#rmp-24-035-04",
+  href: "/sunlight/rocky-mountain-power#rmp-24-035-04",
   docket: "24-035-04",
   orderDate: "2025-04-25",
   askLabel: "Publish one confidential contract",

@@ -403,7 +403,7 @@ async function bootPanel(deps, token, alias) {
   ok(host, "the panel did not mount on a Utah board");
   const h = host ? host.innerHTML : "";
   ok(h.includes('data-sv-entry="UT-PSC-24-035-04"'), "panel names the entry");
-  ok(h.includes(SV.ENTRY.title) && h.includes('href="/sunlight#rmp-24-035-04"'), "panel links the entry");
+  ok(h.includes(SV.ENTRY.title) && h.includes('href="/sunlight/rocky-mountain-power#rmp-24-035-04"'), "panel links the entry");
   ok(/data-sv-act="support"(?![^>]*disabled)/.test(h), "support is enabled for a verified resident");
   ok(/data-sv-act="comment"(?![^>]*disabled)/.test(h), "comment is enabled for a verified resident");
   ok(h.includes('data-sv-ask-mine="1"'), "the panel shows the resident already asked");
@@ -490,7 +490,7 @@ section("neutral framing, and nothing else moved");
   ok(!PARTISAN.test(copy), "the panel copy carries partisan or ideological language");
   ok(!/\b(pass|enact) (a|the|new) (law|bill)\b/i.test(copy), "the panel calls for legislation");
   // The stance generator and the core entry do not know about this panel.
-  for (const f of ["issue-map.js", "alignment-tool.js", "stance-studio.js", "sunlight-entries.js", "sunlight.html"]) {
+  for (const f of ["issue-map.js", "alignment-tool.js", "stance-studio.js", "sunlight-entries.js", "sunlight.html", "sunlight-rocky-mountain-power.html"]) {
     ok(!/sunlight-voice|sunlight_voice|PDXSunlightVoice/.test(R(f)), `${f} names the District Voice panel`);
   }
   // The residency gate is imported, not re-implemented.

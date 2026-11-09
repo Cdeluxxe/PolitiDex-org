@@ -24,7 +24,7 @@
 // application and the PSC's order, each by title, date and public link) and a
 // manual "Public filings since the order" list, FILINGS_SINCE_ORDER below.
 //
-// sunlight.html prints the same entry as static markup, and
+// sunlight-rocky-mountain-power.html prints the same entry as static markup, and
 // scripts/test-sunlight-rate-case.mjs pins the two copies to each other.
 // ─────────────────────────────────────────────────────────────────────────────
 (function (root) {
@@ -38,7 +38,7 @@
   // When a new public filing appears in Docket No. 24-035-04, add one row:
   //   { date: 'YYYY-MM-DD', title: 'Document title as posted', url: 'https://pscdocs.utah.gov/…' }
   // Only rows dated after the April 25, 2025 order and linked to a public
-  // https document count. One such row turns the note on /sunlight and on
+  // https document count. One such row turns the note on /sunlight/rocky-mountain-power and on
   // every Utah District Voice board into an "Update" with a link. This list
   // is the only one to edit: the District Voice API core imports this file.
   var FILINGS_SINCE_ORDER = [];
@@ -74,7 +74,7 @@
   function esc(s) {
     return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
-  // Inner markup of the /sunlight filings block for a note.
+  // Inner markup of the /sunlight/rocky-mountain-power filings block for a note.
   function filingsHtml(n) {
     var items = n.updates.map(function (u) {
       return '<li><a href="' + esc(u.url) + '" rel="noopener">' + esc(u.title) + '</a> <time datetime="' + esc(u.date) + '">' + esc(longDate(u.date)) + '</time></li>';
@@ -86,7 +86,7 @@
     kind: 'rate_case',
     id: 'UT-PSC-24-035-04',
     anchor: 'rmp-24-035-04',
-    href: '/sunlight#rmp-24-035-04',
+    href: '/sunlight/rocky-mountain-power#rmp-24-035-04',
     tags: ['sunlight_governance'],
     tagSource: 'manual',
     title: 'Rocky Mountain Power general rate case, Utah PSC Docket No. 24-035-04',
@@ -219,7 +219,7 @@
     filingsNote: filingsNote, filingsHtml: filingsHtml, longDate: longDate, paint: paint
   };
 
-  // On /sunlight the filings block ships as static markup (the no-script
+  // On /sunlight/rocky-mountain-power the filings block ships as static markup (the no-script
   // reading). When the list above has a dated, sourced filing, repaint it.
   function paint(doc) {
     try {

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<!-- ══════════════════════════════════════════════════════════════════════════════
+     sunlight-rocky-mountain-power.html — SUNLIGHT GOVERNANCE, FIRST WORKING
+     EXAMPLE (/sunlight/rocky-mountain-power)
+     ────────────────────────────────────────────────────────────────────────────
+     Rocky Mountain Power's Utah PSC rate case, Docket No. 24-035-04: the
+     docket, the request vs. the order, the confidential items, the comparison
+     tables and the ask "Publish one confidential contract". This content used
+     to be the /sunlight page itself; /sunlight is now the category's short
+     big-picture home (sunlight.html) and links here as the first working
+     example. netlify.toml rewrites /sunlight/rocky-mountain-power (bare,
+     trailing slash and .html) to this file.
+
+     The page is static on purpose: every fact reads with no script. The entry
+     data lives in sunlight-entries.js; scripts/test-sunlight-rate-case.mjs pins
+     the markup and the data to each other, and scripts/test-sunlight-
+     governance.mjs pins the layout, links, figures and page numbers. The
+     two-sentence category explanation here matches PDXSunlight.EXPLANATION.
+
+     NEUTRAL FRAMING ONLY: transparency in regulated monopolies. No party, no
+     outcome, no utility is argued for or against anywhere on this document.
+     ════════════════════════════════════════════════════════════════════════════════ -->
+  <title>Rocky Mountain Power rate case &middot; Sunlight Governance &middot; PolitiDex</title>
+  <link rel="canonical" href="https://politidex.fyi/sunlight/rocky-mountain-power" />
+  <meta name="description" content="Rocky Mountain Power's Utah rate case, Docket No. 24-035-04: what the utility asked for, what the Public Service Commission ordered, and what stayed confidential, with every source document." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PolitiDex" />
+  <meta property="og:title" content="Rocky Mountain Power rate case &middot; Sunlight Governance &middot; PolitiDex" />
+  <meta property="og:description" content="Transparency in regulated monopolies: rate cases, regulator decisions and related lobbying records, in one sourced public place." />
+  <meta property="og:url" content="https://politidex.fyi/sunlight/rocky-mountain-power" />
+  <meta property="og:image" content="https://politidex.fyi/og-image.png" />
+  <meta property="og:image:alt" content="PolitiDex — Sunlight Governance" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Rocky Mountain Power rate case &middot; PolitiDex" />
+  <meta name="twitter:description" content="Transparency in regulated monopolies, in one sourced public place." />
+  <meta name="theme-color" content="#0a0f1e" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" onload="this.rel='stylesheet'" />
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" /></noscript>
+  <link rel="stylesheet" href="/shell-chrome.css" />
+  <style>
+    :root { --pdx-chrome: 3.25rem; color-scheme: dark; }
+    @supports (padding-top: env(safe-area-inset-top)) {
+      :root { --pdx-chrome: calc(3.25rem + env(safe-area-inset-top, 0px)); }
+    }
+    html { -webkit-text-size-adjust: 100%; }
+    html, body { background: #070b16; color: #e7eefb; }
+    body {
+      margin: 0;
+      font-family: 'Barlow', system-ui, -apple-system, sans-serif;
+      padding-top: calc(var(--pdx-chrome) + 0.75rem);
+    }
+    .sg-main { max-width: 44rem; margin: 0 auto; padding: 2.25rem 1.15rem 3rem; }
+    .sg-eyebrow {
+      font: 600 0.8rem/1 'Barlow Condensed', system-ui, sans-serif;
+      letter-spacing: 0.14em; text-transform: uppercase; color: #f5d77a; margin: 0 0 0.6rem;
+    }
+    .sg-title {
+      font: 400 clamp(2.4rem, 7vw, 3.4rem)/1 'Bebas Neue', 'Barlow Condensed', sans-serif;
+      letter-spacing: 0.02em; margin: 0 0 1.1rem; color: #fff7d6;
+    }
+    .sg-lede { font-size: 1.1rem; line-height: 1.65; color: #d6e1f5; margin: 0 0 1.6rem; }
+    .sg-card {
+      border: 1px solid rgba(245,215,122,0.28); background: rgba(245,215,122,0.05);
+      border-radius: 12px; padding: 1.05rem 1.15rem; margin: 0 0 1.25rem;
+    }
+    .sg-card h2 {
+      font: 600 1.05rem/1.2 'Barlow Condensed', system-ui, sans-serif; letter-spacing: 0.04em;
+      text-transform: uppercase; color: #f5d77a; margin: 0 0 0.5rem;
+    }
+    .sg-card p, .sg-card li { color: #c3d1ea; line-height: 1.6; margin: 0; }
+    .sg-card ul { margin: 0; padding-left: 1.15rem; }
+    .sg-card li + li { margin-top: 0.3rem; }
+    .sg-tag {
+      display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.6rem;
+      border-radius: 999px; border: 1px solid rgba(245,215,122,0.55); color: #f5d77a;
+      font: 600 0.85rem/1.3 'Barlow', system-ui, sans-serif;
+    }
+    .sg-entry { border-color: rgba(245,215,122,0.45); }
+    .sg-entry h3 {
+      font: 600 0.92rem/1.2 'Barlow Condensed', system-ui, sans-serif; letter-spacing: 0.05em;
+      text-transform: uppercase; color: #fff7d6; margin: 1.15rem 0 0.45rem;
+    }
+    .sg-entry .sg-entry-title { font: 600 1.15rem/1.35 'Barlow', system-ui, sans-serif; color: #fff7d6; margin: 0.15rem 0 0.35rem; text-transform: none; letter-spacing: 0; }
+    .sg-meta { font-size: 0.88rem; color: #9fb4d4 !important; }
+    .sg-entry dl { display: grid; grid-template-columns: minmax(9rem, 40%) 1fr; gap: 0.3rem 0.8rem; margin: 0; }
+    .sg-entry dt { color: #9fb4d4; font-size: 0.9rem; }
+    .sg-entry dd { margin: 0; color: #e7eefb; font-size: 0.92rem; }
+    .sg-entry blockquote { margin: 0.2rem 0 0; padding-left: 0.7rem; border-left: 2px solid rgba(245,215,122,0.4); color: #c3d1ea; font-size: 0.9rem; }
+    .sg-pg { color: #8ea3c6; font-size: 0.82rem; white-space: nowrap; }
+    .sg-compare { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    .sg-compare th, .sg-compare td { text-align: left; vertical-align: top; padding: 0.45rem 0.5rem; border-top: 1px solid rgba(245,215,122,0.18); }
+    .sg-compare thead th { color: #f5d77a; font-weight: 600; border-top: 0; }
+    .sg-compare td { color: #c3d1ea; }
+    .sg-compare td.sg-public { background: rgba(10,15,30,0.55); }
+    .sg-compare td.sg-full { background: rgba(245,215,122,0.07); }
+    .sg-redact { display: inline-block; background: #0b0f18; color: #0b0f18; border-radius: 3px; padding: 0 0.25rem; user-select: none; }
+    .sg-filings { margin-top: 0.4rem; padding: 0.5rem 0.75rem; border-radius: 8px; background: rgba(148,163,184,0.1); }
+    .sg-filings[data-sg-filings="new"] { background: rgba(245,215,122,0.12); }
+    .sg-filings ul { margin-top: 0.3rem; }
+    .sg-ask {
+      margin: 2rem -0.35rem 0.1rem; padding: 1.25rem 1.3rem 1.3rem; border-radius: 14px;
+      border: 2px solid #f5d77a; background: linear-gradient(160deg, rgba(245,215,122,0.22), rgba(245,215,122,0.06));
+      box-shadow: 0 0 0 6px rgba(245,215,122,0.07), 0 10px 30px rgba(0,0,0,0.35);
+    }
+    .sg-ask p { color: #e7eefb !important; }
+    .sg-ask-kicker { font: 600 0.78rem/1 'Barlow Condensed', system-ui, sans-serif !important; letter-spacing: 0.16em; text-transform: uppercase; color: #f5d77a !important; margin: 0 0 0.45rem !important; }
+    .sg-ask-title b { font: 400 1.75rem/1.1 'Bebas Neue', 'Barlow Condensed', sans-serif; letter-spacing: 0.02em; color: #fff7d6; }
+    .sg-summary {
+      font-size: 1.22rem; line-height: 1.6; color: #fff7d6; margin: 0 0 1.1rem;
+      padding: 1rem 1.15rem; border-left: 4px solid #f5d77a; background: rgba(245,215,122,0.08);
+      border-radius: 0 12px 12px 0;
+    }
+    .sg-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; }
+    .sg-steps { list-style: none; margin: 0.3rem 0 0.4rem; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; counter-reset: none; }
+    .sg-step {
+      position: relative; display: flex; flex-direction: column; gap: 0.35rem;
+      border: 1px solid rgba(245,215,122,0.35); background: rgba(10,15,30,0.6);
+      border-radius: 12px; padding: 0.9rem 0.9rem 1rem;
+    }
+    .sg-step + .sg-step { margin-top: 0 !important; }
+    .sg-step-icon { font-size: 1.7rem; line-height: 1; }
+    .sg-step-n { font: 600 0.72rem/1 'Barlow Condensed', system-ui, sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: #f5d77a; }
+    .sg-step h4 { font: 600 1.05rem/1.25 'Barlow', system-ui, sans-serif; color: #fff7d6; margin: 0; }
+    .sg-step p { font-size: 0.9rem; flex: 1; }
+    .sg-step > a { font-size: 0.86rem; font-weight: 600; }
+    .sg-figs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin: 0.3rem 0 0.6rem; }
+    .sg-fig { display: flex; flex-direction: column; gap: 0.25rem; border-radius: 12px; padding: 0.85rem 0.9rem; background: rgba(10,15,30,0.6); border: 1px solid rgba(245,215,122,0.22); }
+    .sg-fig-key { border-color: rgba(245,215,122,0.7); background: rgba(245,215,122,0.1); }
+    .sg-fig-label { font: 600 0.78rem/1.25 'Barlow Condensed', system-ui, sans-serif; letter-spacing: 0.08em; text-transform: uppercase; color: #9fb4d4; }
+    .sg-fig-num { font: 400 2.6rem/1 'Bebas Neue', 'Barlow Condensed', sans-serif; color: #fff7d6; letter-spacing: 0.02em; }
+    .sg-fig-num small { font-size: 1.1rem; color: #c3d1ea; margin-left: 0.15rem; }
+    .sg-fig-sub { font-size: 0.82rem; color: #c3d1ea; }
+    .sg-more { margin: 0 0 0.3rem; }
+    .sg-more summary { cursor: pointer; color: #f5d77a; font-size: 0.88rem; font-weight: 600; margin-bottom: 0.45rem; }
+    .sg-conf { list-style: none; padding: 0 !important; margin: 0.6rem 0 0 !important; display: grid; gap: 0.6rem; }
+    .sg-conf li { border-left: 3px solid rgba(245,215,122,0.55); background: rgba(10,15,30,0.5); border-radius: 0 10px 10px 0; padding: 0.6rem 0.8rem; margin: 0 !important; }
+    .sg-conf-plain { display: block; font: 600 1rem/1.3 'Barlow', system-ui, sans-serif; color: #fff7d6; margin-bottom: 0.15rem; }
+    .sg-conf b { display: block; font: 600 0.74rem/1.3 'Barlow Condensed', system-ui, sans-serif; letter-spacing: 0.1em; text-transform: uppercase; color: #9fb4d4; margin-bottom: 0.25rem; }
+    .sg-conf blockquote { margin-top: 0.15rem; }
+    @media (max-width: 34rem) {
+      .sg-compare thead { display: none; }
+      .sg-compare tr { display: block; border-top: 1px solid rgba(245,215,122,0.25); padding: 0.35rem 0; }
+      .sg-compare td, .sg-compare th { display: block; border: 0; padding: 0.25rem 0.4rem; }
+      .sg-compare td.sg-public::before { content: 'Public version: '; color: #f5d77a; }
+      .sg-compare td.sg-full::before { content: 'Full visibility: '; color: #f5d77a; }
+      .sg-entry dl { grid-template-columns: 1fr; }
+      .sg-pair, .sg-steps, .sg-figs { grid-template-columns: 1fr; }
+    }
+    .sg-foot { color: #8ea3c6; font-size: 0.9rem; line-height: 1.55; margin-top: 1.75rem; }
+    .sg-foot a, .sg-main a { color: #f5d77a; }
+  </style>
+</head>
+<body>
+  <header class="pdx-sh-bar">
+    <a class="pdx-sh-wordmark" href="/" title="PolitiDex — the front page">POLITI<span>DEX</span></a>
+    <nav class="pdx-sh-links" aria-label="PolitiDex">
+      <a class="pdx-sh-link" href="/#who-represents-me"><span class="pdx-sh-full">🏛️ Who Represents Me</span><span class="pdx-sh-short">Reps</span></a>
+      <a class="pdx-sh-link" href="/#say-vs-do"><span class="pdx-sh-full">👁️ Find the Record</span><span class="pdx-sh-short">Record</span></a>
+      <a class="pdx-sh-link" href="/ballot"><span class="pdx-sh-full">⭐ Your Ballot</span><span class="pdx-sh-short">Ballot</span></a>
+      <a class="pdx-sh-link" href="/money"><span class="pdx-sh-full">💰 Follow the Money</span><span class="pdx-sh-short">Money</span></a>
+      <a class="pdx-sh-link" href="/"><span class="pdx-sh-full">&larr; Home</span><span class="pdx-sh-short">&larr; Home</span></a>
+    </nav>
+  </header>
+
+  <main id="rocky-mountain-power" class="sg-main" data-category="sunlight_governance">
+    <p class="sg-eyebrow"><a href="/sunlight" data-sg-home>&larr; Sunlight Governance</a> &middot; First working example &middot; <span class="sg-tag" data-sunlight-tag="sunlight_governance">☀️ Sunlight Governance</span></p>
+    <h1 class="sg-title">Rocky Mountain Power rate case</h1>
+
+    <p class="sg-summary" id="sg-summary" data-sg-summary><span data-sg-summary-sentence="1">The public record of a utility rate case is already open, and putting the request, the order, and what stayed confidential in one place makes the gaps visible.</span> <span data-sg-summary-sentence="2">The goal is to let people see the actual results of the current rules so they can judge what works, instead of the outcome being shaped only by whoever has the most concentrated control over the process.</span> <span data-sg-summary-sentence="3">The first working example is the Rocky Mountain Power rate case below.</span></p>
+
+    <p class="sg-lede" id="sg-explanation"><span data-sg-sentence="1">Sunlight Governance tracks how regulated monopolies — such as electric, gas and water utilities — are overseen, by putting rate cases, regulator decisions and related lobbying records into one public, sourced place.</span> <span data-sg-sentence="2">The working proof-of-concept is the Philippines Digital Bayanihan Chain, which shows how public records of this kind can be published openly so anyone can follow them.</span></p>
+
+    <div class="sg-pair">
+      <section class="sg-card" aria-labelledby="sg-what">
+        <h2 id="sg-what">What can carry this tag</h2>
+        <ul>
+          <li>Issues about how a regulated utility is overseen</li>
+          <li>Bills that change utility regulation or a commission's process</li>
+          <li>Rate cases before a state public service or utilities commission</li>
+          <li>Lobbying records tied to a regulated utility</li>
+        </ul>
+      </section>
+
+      <section class="sg-card" aria-labelledby="sg-now">
+        <h2 id="sg-now">On file now</h2>
+        <p id="sg-onfile">One item carries the Sunlight Governance tag: the Rocky Mountain Power rate case below. Searching for terms like “utility”, “Rocky Mountain Power”, “rate case” or “PSC” brings it together in one thread with this page.</p>
+      </section>
+    </div>
+
+    <article class="sg-card sg-entry" id="rmp-24-035-04" data-sunlight-item="UT-PSC-24-035-04" data-kind="rate_case" data-tags="sunlight_governance" aria-labelledby="rmp-title">
+      <p class="sg-eyebrow" style="margin:0;">Rate case &middot; <span class="sg-tag" data-sunlight-tag="sunlight_governance">☀️ Sunlight Governance</span></p>
+      <h2 class="sg-entry-title" id="rmp-title">Rocky Mountain Power general rate case, Utah PSC Docket No. 24-035-04</h2>
+      <p class="sg-meta">Public Service Commission of Utah &middot; consolidated with Dockets 23-035-40 and 23-035-44 &middot; order issued April 25, 2025 &middot; <a href="https://pscdocs.utah.gov/electric/24docs/2403504/3395032403504,2303540,and2303544o4-25-2025.pdf" rel="noopener">read the public order (PDF)</a>. Page numbers below are the order’s printed pages.</p>
+
+      <h3 id="rmp-steps">The record in three steps</h3>
+      <ol class="sg-steps" data-sg-steps>
+        <li class="sg-step" data-sg-step="asked">
+          <span class="sg-step-icon" aria-hidden="true">📄</span>
+          <span class="sg-step-n">Step 1</span>
+          <h4>What the utility asked for</h4>
+          <p>On June 28, 2024, Rocky Mountain Power filed its application for a general rate increase, with an original request of $667.3 million.</p>
+          <a href="https://pscdocs.utah.gov/electric/24docs/2403504/334469RMPGRCAplctn6-28-2024.pdf" rel="noopener">Rocky Mountain Power’s Application for General Rate Increase (PDF)</a>
+        </li>
+        <li class="sg-step" data-sg-step="ordered">
+          <span class="sg-step-icon" aria-hidden="true">⚖️</span>
+          <span class="sg-step-n">Step 2</span>
+          <h4>What the commission ordered</h4>
+          <p>On April 25, 2025, the Public Service Commission of Utah approved an increase of $87.2 million.</p>
+          <a href="https://pscdocs.utah.gov/electric/24docs/2403504/3395032403504,2303540,and2303544o4-25-2025.pdf" rel="noopener">Order, Docket Nos. 24-035-04, 23-035-40 and 23-035-44 (PDF)</a>
+        </li>
+        <li class="sg-step" data-sg-step="confidential">
+          <span class="sg-step-icon" aria-hidden="true">🔒</span>
+          <span class="sg-step-n">Step 3</span>
+          <h4>What stayed confidential</h4>
+          <p>The public order names five parts of the record that are designated confidential or redacted, <a href="#rmp-redaction">listed below</a>.</p>
+          <a href="https://pscdocs.utah.gov/electric/24docs/2403504/3395032403504,2303540,and2303544o4-25-2025.pdf" rel="noopener">The public order, pp. 59, 88, 89, 103 and 147 (PDF)</a>
+        </li>
+      </ol>
+
+      <h3 id="rmp-decided">What the order decided</h3>
+      <div class="sg-figs" data-sg-figures>
+        <div class="sg-fig" data-sg-fig="original"><span class="sg-fig-label">Original request</span><span class="sg-fig-num">$667.3<small>million</small></span><span class="sg-fig-sub">$667.3 million</span></div>
+        <div class="sg-fig sg-fig-key" data-sg-fig="approved"><span class="sg-fig-label">Approved increase</span><span class="sg-fig-num">$87.2<small>million</small></span><span class="sg-fig-sub">$87.2 million (26.4% of the final revised request)</span></div>
+        <div class="sg-fig" data-sg-fig="bill"><span class="sg-fig-label">Average single-family residential bill (700 kWh)</span><span class="sg-fig-num">+$4.31<small>/mo</small></span><span class="sg-fig-sub">+$4.31 a month (4.7%) in 2025</span></div>
+      </div>
+      <details class="sg-more" open>
+        <summary>Every figure in the order’s decision</summary>
+        <dl data-sg-decided>
+          <dt>Original request</dt><dd>$667.3 million</dd>
+          <dt>Amended application</dt><dd>$393.7 million</dd>
+          <dt>Final revised request</dt><dd>$330.2 million</dd>
+          <dt>Approved increase</dt><dd>$87.2 million (26.4% of the final revised request)</dd>
+          <dt>Deferred to a future Energy Balancing Account filing</dt><dd>up to $240.1 million</dd>
+          <dt>Return on equity</dt><dd>9.65% requested; 9.375% approved</dd>
+          <dt>Average single-family residential bill (700 kWh)</dt><dd>+$4.31 a month (4.7%) in 2025</dd>
+        </dl>
+      </details>
+
+      <h3 id="rmp-redaction">What is confidential or redacted</h3>
+      <p data-sg-redaction-note>The public order does not state what share of the filing is confidential. It does name specific parts of the record that are designated confidential or redacted, listed below. Testimony in the docket is posted in redacted public versions.</p>
+      <ul class="sg-conf" data-sg-conf>
+        <li><span class="sg-conf-plain">The price of the wind contracts</span><b>Wind contract pricing.</b><blockquote>“Because the pricing of the PPAs and the costs associated with the other Wind Projects are designated confidential, the PSC discusses these issues in general terms.” <span class="sg-pg">p. 103</span></blockquote></li>
+        <li><span class="sg-conf-plain">The size of each proposed overhaul-cost correction</span><b>Generation overhaul adjustments.</b><blockquote>“They argue that RMP should remove the converted units from its four-year calculation, each recommending a confidential adjustment to correct the issue.” <span class="sg-pg">p. 89</span></blockquote></li>
+        <li><span class="sg-conf-plain">Where the injury and damage claims came from</span><b>Injuries and damages claims data.</b><blockquote>“DPU acknowledges RMP provided data on the origin of claims but notes the information is heavily redacted, precluding reasonable evaluation.” <span class="sg-pg">p. 88</span></blockquote></li>
+        <li><span class="sg-conf-plain">The inputs to the load forecast</span><b>Load forecast model variables.</b><blockquote>“much information is designated confidential in GRCs and RMP may avail itself of existing processes to protect any confidential information.” <span class="sg-pg">p. 59</span></blockquote></li>
+        <li><span class="sg-conf-plain">An insurer’s report on its underwriting</span><b>Insurer underwriting exhibit.</b><blockquote>“RMP also provided a confidential exhibit it requested one of its insurers to prepare, which discusses the insurer’s underwriting process” <span class="sg-pg">p. 147</span></blockquote></li>
+      </ul>
+
+      <h3 id="rmp-compare">The public version vs. full visibility</h3>
+      <p>The left column is what anyone can read in the posted order. The right column names what the confidential version holds, as the order describes it. No withheld value is guessed.</p>
+      <table class="sg-compare" style="margin-top:0.5rem;" data-sg-compare>
+        <thead><tr><th scope="col">Record</th><th scope="col">Public version</th><th scope="col">Full visibility would show</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Cedar Springs IV wind power purchase agreement (350.4 MW)</th><td class="sg-public">Pricing designated confidential. The order says DPU noted a “significant increase in price” from the 2020 bid, but discusses it only “in general terms.” <span class="sg-redact" aria-label="redacted">██████</span></td><td class="sg-full">The contract price and how much it rose from the 2020 All-Source RFP bid.</td></tr>
+          <tr><th scope="row">Generation overhaul expense adjustment</th><td class="sg-public">OCS, UAE and DPU each proposed a correction; the amounts are confidential. <span class="sg-redact" aria-label="redacted">██████</span></td><td class="sg-full">Each party’s proposed dollar adjustment.</td></tr>
+          <tr><th scope="row">Injuries and damages claims data</th><td class="sg-public">DPU describes the claims-origin data it received as “heavily redacted.” <span class="sg-redact" aria-label="redacted">██████</span></td><td class="sg-full">Where the claims behind the test-year expense came from.</td></tr>
+          <tr><th scope="row">Insurer underwriting exhibit</th><td class="sg-public">A confidential exhibit. The order says its threshold for a significant verdict is “a small fraction” of the utility’s liability in the James wildfire case. <span class="sg-redact" aria-label="redacted">██████</span></td><td class="sg-full">The insurer’s stated threshold and underwriting factors.</td></tr>
+        </tbody>
+      </table>
+
+      <h3 id="rmp-ocs">What the Office of Consumer Services argued</h3>
+      <p>The Office of Consumer Services (OCS), which represents residential and small business customers before the PSC, was a party to the case.</p>
+      <ul style="margin-top:0.5rem;" data-sg-ocs>
+        <li>Recommended a 9.375% return on equity, below the 9.65% Rocky Mountain Power requested. The PSC adopted 9.375%, finding the OCS recommendation reasonable under the principle of gradualism. <span class="sg-pg">p. 21</span></li>
+        <li>Asked the PSC to disallow at least $15,289,781 of claimed wildfire-related deferred costs: $5,681,724 in labor costs OCS argued were already recovered through base rates, and $9,608,057 spent under a 2023 wildfire plan the PSC had not approved. <span class="sg-pg">p. 131</span></li>
+        <li>Joined other parties in opposing full recovery of projected excess liability insurance premiums, arguing the utility had not provided substantial evidence that the full amount was prudent. <span class="sg-pg">p. 148</span></li>
+        <li>Argued the allocation factor used to spread those insurance premiums across states “does not assign the costs to the jurisdictions in proportion to the amount each jurisdiction contributes to the increase,” violating cost-causation principles. <span class="sg-pg">p. 158</span></li>
+        <li>Recommended removing two Jim Bridger units converted to natural gas, and Craig Unit 2, from the generation overhaul expense average; the amount of its adjustment is confidential. <span class="sg-pg">p. 89</span></li>
+      </ul>
+
+      <h3 id="rmp-filed-ordered">Filed vs. Ordered</h3>
+      <p>The utility’s main public request and the PSC’s order in this docket, the record behind the ask “Publish one confidential contract.” Each line is the public document’s title and date.</p>
+      <table class="sg-compare" style="margin-top:0.5rem;" data-sg-filed-ordered>
+        <thead><tr><th scope="col">Step</th><th scope="col">Date</th><th scope="col">Public document</th></tr></thead>
+        <tbody>
+          <tr data-sg-fo="filed"><th scope="row">Filed by Rocky Mountain Power</th><td><time datetime="2024-06-28">June 28, 2024</time></td><td><a href="https://pscdocs.utah.gov/electric/24docs/2403504/334469RMPGRCAplctn6-28-2024.pdf" rel="noopener">Rocky Mountain Power’s Application for General Rate Increase</a></td></tr>
+          <tr data-sg-fo="ordered"><th scope="row">Ordered by the PSC</th><td><time datetime="2025-04-25">April 25, 2025</time></td><td><a href="https://pscdocs.utah.gov/electric/24docs/2403504/3395032403504,2303540,and2303544o4-25-2025.pdf" rel="noopener">Order, Docket Nos. 24-035-04, 23-035-40 and 23-035-44</a></td></tr>
+        </tbody>
+      </table>
+
+      <h3 id="rmp-filings">Public filings since the order</h3>
+      <div class="sg-filings" data-sg-filings="none"><p>No new public PSC filings flagged since the April 25, 2025 order.</p></div>
+
+      <h3 id="rmp-votes">Related legislator votes on PolitiDex</h3>
+      <p>These Utah bills changed how the PSC evaluates utility resource decisions. PolitiDex does not yet have a Utah bill on PSC confidentiality or disclosure.</p>
+      <ul style="margin-top:0.5rem;" data-sg-votes>
+        <li><a href="/b/2024GS/S.B.%20224">S.B. 224 (2024), Energy Independence Amendments</a>, enacted. Changes the factors the PSC weighs in evaluating energy resource decisions and sets terms for cost recovery. House <a href="https://le.utah.gov/DynaBill/svotes.jsp?sessionid=2024GS&amp;voteid=1434&amp;house=H" rel="noopener">54-19-2</a> &middot; Senate <a href="https://le.utah.gov/DynaBill/svotes.jsp?sessionid=2024GS&amp;voteid=2154&amp;house=S" rel="noopener">21-6-2</a></li>
+        <li><a href="/b/2025GS/H.B.%20201">H.B. 201 (2025), Energy Resource Amendments</a>, enacted. Changes how the PSC evaluates integrated resource plans. House <a href="https://le.utah.gov/DynaBill/svotes.jsp?sessionid=2025GS&amp;voteid=587&amp;house=H" rel="noopener">57-10-8</a> &middot; Senate <a href="https://le.utah.gov/DynaBill/svotes.jsp?sessionid=2025GS&amp;voteid=812&amp;house=S" rel="noopener">21-6-2</a></li>
+      </ul>
+
+      <div class="sg-ask" id="rmp-ask" data-sg-ask>
+        <p class="sg-ask-kicker">Take one step</p>
+        <p class="sg-ask-title"><b>The ask: Publish one confidential contract.</b></p>
+        <p style="margin-top:0.35rem;">Ask Rocky Mountain Power to file a public version of one confidential contract in this docket: the pricing terms of the Cedar Springs IV wind power purchase agreement. The utility holds the contract, so the burden of showing why any term must stay confidential rests with the utility. This is a request about one existing document. It does not ask for any new law.</p>
+      </div>
+    </article>
+
+    <p class="sg-foot">The tag is a filing label for transparency, not a verdict on any utility, regulator or official. <a href="/sunlight">What Sunlight Governance is</a> &middot; <a href="/#say-vs-do">Search the record</a>.</p>
+  </main>
+  <script src="/sunlight-entries.js" defer></script>
+</body>
+</html>
