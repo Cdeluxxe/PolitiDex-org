@@ -605,7 +605,16 @@
   }
   function waHtml(pid, p) {
     var m = waMatches(pid, p);
-    var promo = items(pid).length ? promotedStances(pid) : [];
+    // Promoted stances are no longer listed here: Word vs Action's own
+    // "✒️ Stated positions on file" list (word-action.js statedListHtml) reads
+    // every stance — curated and Locker-promoted — from the one stance store,
+    // PDXConsistency.statedStances, the same entries the person-file list and
+    // the issue drawer print. This block keeps the Locker's statements only.
+    // (Older shells without the store keep the list here, unchanged.)
+    var CS = window.PDXConsistency;
+    var storeOn = !!(CS && typeof CS.statedStances === 'function' && window.PDXWordAction &&
+      typeof window.PDXWordAction.statedListHtml === 'function');
+    var promo = (!storeOn && items(pid).length) ? promotedStances(pid) : [];
     if (!m.length && !promo.length) return '';
     // An item on an open pledge's issue is that pledge's evidence: it is listed
     // first, under the pledge it belongs to, rather than as one more statement.
@@ -632,6 +641,17 @@
       rest.map(function (x) { return waLineHtml(pid, x); }).join('') +
     '</div>';
   }
+  // Word vs Action rows wear their issue's topic colour, the same
+  // [data-ic] + inline-property spelling the person-file list and All Issues
+  // by Topic use (PDXIssueColors). An unresolved key gets nothing.
+  function tintAttr(key) {
+    try {
+      var IC = window.PDXIssueColors;
+      if (!IC || typeof IC.styleFor !== 'function' || typeof IC.isCore !== 'function' || !IC.isCore(key)) return '';
+      var st = IC.styleFor(key);
+      return st ? ' data-ic="on" style="' + esc(st) + '"' : '';
+    } catch (e) { return ''; }
+  }
   function waLineHtml(pid, x) {
     var y = partsOf(x.item);
     var on = x.pledges
@@ -640,6 +660,7 @@
     var st = strengthOf(x.item);
     var mention = st === 'mention';
     return '<p class="pdxwa-line" data-pdxwa-locker-item="' + esc(x.item.issueKey) + '"' +
+      tintAttr(x.item.issueKey) +
       (x.pledges ? ' data-pdxwa-locker-pledge="' + esc(x.item.issueKey) + '"' : '') +
       (mention ? ' data-pdx-locker-mention="1"' : st === 'weak' ? ' data-pdx-locker-strength="weak"' : '') + '>' +
       weakBadgeHtml(x.item) +

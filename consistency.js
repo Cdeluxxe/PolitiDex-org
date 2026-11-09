@@ -5415,6 +5415,123 @@
       text: text, source: source
     };
   }
+
+  // ── THE ONE STANCE STORE, READ ONE WAY ──────────────────────────────────────
+  // Every stated position (the curated position map behind _rowStance) and every
+  // Evidence Locker item (profile-locker.js, promoted to a side by its own rules)
+  // lands in one store. The person-file "Said" list, Word vs Action and the issue
+  // drawer used to reach it by three different paths — the row model, a Locker
+  // hook, and positionStance() — so one politician could read "Supports" in one
+  // place and "no stated position" in another. They now all ask statedStance():
+  //
+  //   { key, side: 'support'|'oppose'|'mixed', sideLabel,
+  //     source: 'curated'|'pipeline', signal: 'curated'|'strong'|'weak',
+  //     signalLabel, note, url, cited, n, label, strength, items }
+  //
+  // or null — and null means every surface omits the stance. Nothing here
+  // invents a side, defaults one or reads the formal record: a curated stance
+  // wins outright, a promoted Locker stance fills only an empty slot (its own
+  // rule, in promotedStance), and anything else is no stance at all. Display
+  // only: nothing here feeds a verdict, a count or a score, and the store
+  // itself is never written.
+  var STORE_SIGNAL = { curated: 'Curated stance', strong: 'Stronger signal', weak: 'Weak signal' };
+  function statedStance(pid, issueKey) {
+    if (!pid || !issueKey) return null;
+    try {
+      // The curated half is read off the row model's own stance slot (the
+      // public issueRows, so whatever supplies the row model supplies this),
+      // and straight from the position map for an issue with no row.
+      var rs = null;
+      try {
+        var CSx = window.PDXConsistency;
+        var rows = (CSx && typeof CSx.issueRows === 'function') ? CSx.issueRows(pid) : issueRows(pid);
+        for (var ri = 0; rows && ri < rows.length; ri++) {
+          if (rows[ri] && rows[ri].key === issueKey) { rs = rows[ri].stance || { key: null }; break; }
+        }
+      } catch (e0) { rs = null; }
+      if (!rs) rs = _rowStance(pid, issueKey);
+      if (rs && rs.key && _OR_STANCE[rs.key]) {
+        var src = (rs.source && /^https?:\/\//.test(String(rs.source.url || ''))) ? rs.source : null;
+        // A card with no link of its own is cited by a strong Locker item stating
+        // the same side, when one exists — the same rule the "Said" list has
+        // always used, now in the one place every surface reads.
+        if (!src && typeof window._pdxSaidCitation === 'function' && (rs.key === 'support' || rs.key === 'oppose')) {
+          var alt = window._pdxSaidCitation(pid, issueKey, rs.key);
+          if (alt && /^https?:\/\//.test(String(alt.url || ''))) src = { url: String(alt.url), label: String(alt.label || 'Source') };
+        }
+        return {
+          key: issueKey, side: rs.key, sideLabel: rs.label, label: rs.label,
+          source: 'curated', signal: 'curated', strength: 'curated', signalLabel: STORE_SIGNAL.curated,
+          note: src ? 'Source: ' + String(src.label || 'Source') : 'No linked source',
+          url: src ? String(src.url) : '', cited: !!src, n: 0, items: [], text: rs.text || ''
+        };
+      }
+      var L = window.PDXProfileLocker;
+      if (L && typeof L.promotedStance === 'function') {
+        var ps = L.promotedStance(pid, issueKey);
+        if (ps && (ps.side === 'support' || ps.side === 'oppose')) {
+          var its = ps.items || [];
+          var s0 = (its[0] && its[0].source) || {};
+          var strong = ps.strength === 'strong';
+          return {
+            key: issueKey, side: ps.side, sideLabel: ps.label || _OR_STANCE[ps.side].lb, label: ps.label || _OR_STANCE[ps.side].lb,
+            source: 'pipeline', signal: strong ? 'strong' : 'weak', strength: strong ? 'strong' : 'weak',
+            signalLabel: STORE_SIGNAL[strong ? 'strong' : 'weak'],
+            note: 'Pipeline-sourced · from ' + its.length + ' Locker item' + (its.length === 1 ? '' : 's'),
+            url: /^https?:\/\//.test(String(s0.url || '')) ? String(s0.url) : '', cited: true,
+            n: its.length, items: its.slice(), strong: ps.strong, weak: ps.weak, text: ''
+          };
+        }
+      }
+    } catch (e) {}
+    return null;
+  }
+  // Every stance in the store for one person: curated issues in row-model order,
+  // then promoted Locker issues in the Locker's own order. Each key once.
+  function statedStances(pid) {
+    var out = [], seen = {};
+    if (!pid) return out;
+    var add = function (k) {
+      if (!k || seen[k]) return;
+      seen[k] = 1;
+      var s = statedStance(pid, k);
+      if (s) out.push(s);
+    };
+    try {
+      var CSx = window.PDXConsistency;
+      var rows = (CSx && typeof CSx.issueRows === 'function') ? CSx.issueRows(pid) : issueRows(pid);
+      (rows || []).forEach(function (r) { if (r && r.stance && r.stance.key) add(r.key); });
+    } catch (e) {}
+    try {
+      var L = window.PDXProfileLocker;
+      if (L && typeof L.items === 'function' && typeof L.promotedStances === 'function' && L.items(pid).length) {
+        (L.promotedStances(pid) || []).forEach(function (ps) { if (ps) add(ps.key); });
+      }
+    } catch (e) {}
+    return out;
+  }
+  // The same marks on every surface's stance element, so a reader (or a test)
+  // can see that the three surfaces print one entry.
+  function statedStanceAttrs(s) {
+    if (!s) return '';
+    return ' data-pdx-stance="' + escAttr(s.key) + '"' +
+      ' data-pdx-stance-side="' + escAttr(s.side) + '"' +
+      ' data-pdx-stance-signal="' + escAttr(s.signal) + '"' +
+      ' data-pdx-stance-note="' + escAttr(s.note) + '"';
+  }
+  // The one visible note: signal, then source. A pipeline stance's own line
+  // (profile-locker.js saidLineHtml) already prints its tag and count, so this is
+  // the curated note — same words the attribute carries.
+  function statedStanceNoteHtml(s) {
+    if (!s) return '';
+    var srcTxt = esc(s.note);
+    var body = s.url
+      ? '<a href="' + escAttr(s.url) + '" target="_blank" rel="noopener noreferrer" class="pdx-stance-src">' + srcTxt + ' ↗</a>'
+      : '<span class="pdx-stance-src">' + srcTxt + '</span>';
+    return '<span class="pdx-stance-note" data-pdx-stance-note-for="' + escAttr(s.key) + '"' +
+      ' style="font-size:0.66rem;color:#9fb4d4;margin-left:0.3rem;">' +
+      '<span class="pdx-stance-signal">' + esc(s.signalLabel) + '</span> · ' + body + '</span>';
+  }
   // Tiers are the profile's sort contract, stated once:
   //   0  said + did, and they disagree      (contradiction / cuts both ways)
   //   1  said + did, and they line up       (backed it up / too thin to call)
@@ -19927,12 +20044,53 @@
   }
 
   var _GAP_SOLO_LINE = 'No public-record item on file for this issue.';
+  // One stance entry's visible line. A pipeline entry is profile-locker.js's
+  // shared "Said:" line, word for word what the tree and the Evidence tab
+  // print; a curated entry is "Said: <side>" plus the store's note. `opts` is
+  // passed through (issue prefix, bare, style). '' when nothing can be drawn.
+  function statedStanceLineHtml(s, tag, cls, opts) {
+    if (!s) return '';
+    opts = opts || {};
+    if (s.source === 'pipeline') {
+      var L = window.PDXProfileLocker;
+      try {
+        if (L && typeof L.saidLineHtml === 'function') {
+          return L.saidLineHtml({ key: s.key, side: s.side, label: s.sideLabel, strength: s.strength, items: s.items, source: 'pipeline' },
+            tag || 'span', cls || '', opts) || '';
+        }
+      } catch (e) {}
+      return '';
+    }
+    tag = tag || 'span';
+    return '<' + tag + ' class="pdx-stance-line' + (cls ? ' ' + cls : '') + '">' +
+        (opts.issue ? '<span class="pdx-stance-iss">' + esc(opts.issueLabel || _issueLabel(s.key)) + ' — </span>' : '') +
+        '<b class="pdx-stance-lb">Said:</b> <b class="pdx-stance-pos">' + esc(s.sideLabel || '') + '</b>' +
+      '</' + tag + '>' + statedStanceNoteHtml(s);
+  }
+  // The drawer's stance slot. A curated entry keeps its "Says:" chip and gains
+  // the store's signal + source note; a promoted Locker entry prints the shared
+  // "Said:" line profile-locker.js prints on every other surface, word for word.
+  function _gapStanceHtml(pid, issueKey) {
+    var s = statedStance(pid, issueKey);
+    if (!s) return '';
+    var inner = '';
+    if (s.source === 'pipeline') {
+      inner = statedStanceLineHtml(s, 'span', 'pdxgap-locker-said', { style: 'display:inline;margin:0;' });
+      if (!inner) return '';
+    } else {
+      inner = _orStanceChip(pid, issueKey) + statedStanceNoteHtml(s);
+    }
+    return '<span class="pdxgap-stance"' + statedStanceAttrs(s) + '>' + inner + '</span>';
+  }
   function _gapViewHtml(pid, issueKey) {
     var off = officialIssue(pid, issueKey);
     var say = saydoIssue(pid, issueKey);
     var oNum = typeof off.score === 'number', sNum = typeof say.score === 'number';
     var lbl = _issueLabel(issueKey);
-    var stance = _orStanceChip(pid, issueKey);
+    // The stated position, read from the one stance store (statedStance) — the
+    // same entry the person-file "Said" list and Word vs Action print, with the
+    // same side, signal and source note. No entry → no stance in this slot.
+    var stance = _gapStanceHtml(pid, issueKey);
     // The row model, resolved once for this whole sheet. Everything the dossier says
     // about the verdict, the depth, the composition and where the issue lands in the
     // profile score is read off this — the sheet computes no opinion of its own.
@@ -21290,6 +21448,13 @@
     // scripts/test-receipt-cards.mjs can assert what an arrival actually reads
     // rather than assert on the source text of the function that writes it.
     gapViewHtml: _gapViewHtml,
+    // The one stance store, read one way (see statedStance). The person-file
+    // "Said" list, Word vs Action and the issue drawer all print these entries.
+    statedStance: statedStance,
+    statedStances: statedStances,
+    statedStanceAttrs: statedStanceAttrs,
+    statedStanceNoteHtml: statedStanceNoteHtml,
+    statedStanceLineHtml: statedStanceLineHtml,
     sameTextHtml: _dosSameTextHtml,
     // The issue dossier's own pieces, exported so each level can be checked on its
     // own terms rather than only through the assembled sheet: the normalised item

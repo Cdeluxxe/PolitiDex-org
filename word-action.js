@@ -4118,7 +4118,52 @@
     if (!html) return '';
     var m = /data-pdxwa="([^"]+)"/.exec(html);
     if (m) { try { setTimeout(function () { bind(m[1], pid, p); }, 0); } catch (e) {} }
-    return html;
+    return html + statedListHtml(pid);
+  }
+
+  // ── ✒️ STATED POSITIONS, FROM THE ONE STANCE STORE ─────────────────────────
+  // Word vs Action's list of what they have said, read from
+  // PDXConsistency.statedStances — the same entries the person-file "Said" list
+  // and the issue drawer print, with the same side, signal and source note. Each
+  // row wears its issue's topic colour (issueTintAttr, the person-file list's
+  // own spelling). A curated entry prints "Said: <side>" plus the store's note;
+  // a promoted Locker entry prints profile-locker.js's shared "Said:" line. An
+  // issue with no entry is simply not here: nothing is defaulted or inferred,
+  // and nothing in this list is a vote, a formal act or a score input.
+  var STATED_HEAD = '✒️ Stated positions on file';
+  var STATED_NOTE = 'What they have said, issue by issue — curated stances and stances read from the Evidence Locker. Word only: none of these is a formal act, and Locker-read stances are not counted in the figure above.';
+  function statedListHtml(pid) {
+    var CS = window.PDXConsistency;
+    if (!pid || !CS || typeof CS.statedStances !== 'function') return '';
+    var list = [];
+    try { list = CS.statedStances(pid) || []; } catch (e) { list = []; }
+    if (!list.length) return '';
+    var rows = [];
+    for (var i = 0; i < list.length; i++) {
+      var se = list[i];
+      if (!se || !se.key || !se.side) continue;
+      var pipe = se.source === 'pipeline';
+      var line = '';
+      try {
+        line = (typeof CS.statedStanceLineHtml === 'function')
+          ? CS.statedStanceLineHtml(se, 'span', 'pdxwa-stated-line',
+              { issue: true, issueLabel: issueLabelOf(se.key), bare: pipe, style: 'display:inline;margin:0;' })
+          : '';
+      } catch (e) { line = ''; }
+      if (!line) continue;
+      var lockerAttrs = pipe
+        ? ' data-pdx-locker-said="' + esc(se.key) + '" data-pdx-locker-said-side="' + esc(se.side) + '"' +
+          ' data-pdx-locker-said-strength="' + esc(se.strength) + '" data-pdx-stance-source="pipeline"'
+        : '';
+      rows.push('<li class="pdxwa-stated-row" data-pdxwa-stated="' + esc(se.key) + '"' +
+        lockerAttrs + storeAttrs(se) + issueTintAttr(se.key) + '>' + line + '</li>');
+    }
+    if (!rows.length) return '';
+    return '<div class="modal-section pdxwa-stated" data-pdxwa-stated-list="1" data-pdxwa-stated-pid="' + esc(pid) + '">' +
+      '<div class="pdxwa-stated-h">' + esc(STATED_HEAD) + '</div>' +
+      '<p class="pdxwa-stated-note">' + esc(STATED_NOTE) + '</p>' +
+      '<ul class="pdxwa-stated-list">' + rows.join('') + '</ul>' +
+    '</div>';
   }
 
   // ── THE PROFILE HERO ───────────────────────────────────────────────────────
@@ -6065,12 +6110,26 @@
     if (!CS || typeof CS.issueRows !== 'function') return out;
     var rows = CS.issueRows(id) || [];
     var seen = {};
+    // THE ONE STANCE STORE. Each row's side, signal and source note come from
+    // PDXConsistency.statedStance — the entry Word vs Action and the issue drawer
+    // print too — so this list cannot read a side the others do not.
+    var store = (typeof CS.statedStance === 'function') ? CS.statedStance : null;
     for (var i = 0; i < rows.length; i++) {
       var r = rows[i];
       var st = r && r.stance;
       if (!r || !r.key || !st || !st.key) continue;
       if (seen[r.key]) continue;
       seen[r.key] = 1;
+      if (store) {
+        var se = null;
+        try { se = store(id, r.key); } catch (e) { se = null; }
+        if (!se || se.source !== 'curated') continue;
+        out.stated++;
+        if (!se.cited) { out.uncited.push(r.key); continue; }
+        out.cited++;
+        out.rows.push({ key: r.key, label: r.label || r.key, side: se.side, sideLabel: se.sideLabel || '', store: se });
+        continue;
+      }
       out.stated++;
       // A card with no link of its own can still be cited: a strong Evidence
       // Locker item on the same issue, stating the same side, carries its own
@@ -6096,7 +6155,41 @@
   // NO curated stance. They join the row list after every curated row (curator
   // order first), are marked pipeline-sourced, and never replace a curated row:
   // any issue already in the set is skipped. Absent hook → nothing changes.
+  // The issue's name as the Locker lines print it (profile-locker.js issueLabel):
+  // the shared label with its leading emoji dropped.
+  function issueLabelOf(k) {
+    var l = '';
+    try { if (typeof window._issueLabel === 'function') l = window._issueLabel(k) || ''; } catch (e) {}
+    if (!l) l = String(k || '').replace(/_/g, ' ');
+    var parts = String(l).trim().split(/\s+/);
+    if (parts.length > 1 && /[^\x00-\x7F]/.test(parts[0])) parts.shift();
+    return parts.join(' ');
+  }
   function saidWithLocker(out, pid) {
+    // The store first: its pipeline entries are the promoted Locker stances,
+    // with the same side, signal and note every other surface prints.
+    try {
+      var CS = window.PDXConsistency;
+      if (CS && typeof CS.statedStances === 'function') {
+        var all = CS.statedStances(pid) || [];
+        var seenS = out.keys || {};
+        for (var a = 0; a < out.rows.length; a++) seenS[out.rows[a].key] = 1;
+        for (var b = 0; b < all.length; b++) {
+          var e = all[b];
+          if (!e || e.source !== 'pipeline' || seenS[e.key]) continue;
+          if (e.side !== 'support' && e.side !== 'oppose') continue;
+          seenS[e.key] = 1;
+          out.stated++;
+          out.cited++;
+          out.rows.push({
+            key: e.key, label: issueLabelOf(e.key), side: e.side, sideLabel: e.sideLabel || '',
+            locker: { strength: e.signal === 'strong' ? 'strong' : 'weak', n: e.n || 0 }, store: e
+          });
+        }
+        out.shown = out.rows.slice(0, SAID_CAP);
+        return out;
+      }
+    } catch (e0) {}
     try {
       var f = window._pdxLockerSaidRows;
       if (typeof f !== 'function') return out;
@@ -6382,6 +6475,17 @@
   // With no focus the sheet opens at the top, where _dosSummaryHtml already leads
   // with its "They said" line — which is the word column, and is where this row
   // promised to take them.
+  // The store's marks and note (PDXConsistency.statedStanceAttrs / NoteHtml).
+  // A row without a store entry — the store absent on an older shell — prints
+  // exactly what it did before.
+  function storeAttrs(se) {
+    var CS = window.PDXConsistency;
+    try { return (se && CS && typeof CS.statedStanceAttrs === 'function') ? CS.statedStanceAttrs(se) : ''; } catch (e) { return ''; }
+  }
+  function storeNoteHtml(se) {
+    var CS = window.PDXConsistency;
+    try { return (se && CS && typeof CS.statedStanceNoteHtml === 'function') ? CS.statedStanceNoteHtml(se) : ''; } catch (e) { return ''; }
+  }
   function saidRowHtml(x, pid) {
     var key = x.key || '';
     var door = !!(pid && key);
@@ -6405,7 +6509,10 @@
                   esc('Stronger stance: a high-confidence Locker item, or several weaker ones, on the same side.') + '">● Stronger signal</span>')
           : '<span class="pdxwa-said-tag" title="' +
               esc('A documented position of theirs, with a citation. Not a vote and not a formal act.') +
-              '">SAID</span>') +
+              '">SAID</span>' +
+            // The store's own signal + source note, the words the issue drawer
+            // and Word vs Action print beside the same entry.
+            storeNoteHtml(x.store)) +
       '</span>';
     var body = door
       ? '<span class="pdxwa-shape-door"' +
@@ -6422,6 +6529,7 @@
     return '<li class="pdxwa-shape-row pdxwa-said-row"' + (rowId ? ' id="' + esc(rowId) + '"' : '') +
       (lk ? ' data-pdx-locker-said="' + esc(key) + '" data-pdx-locker-said-side="' + esc(x.side || '') + '"' +
         ' data-pdx-locker-said-strength="' + esc(lk.strength) + '" data-pdx-stance-source="pipeline"' : '') +
+      storeAttrs(x.store) +
       issueTintAttr(key) + '>' +
       body +
       (door ? scopeControlHtml(key) : '') +
@@ -6949,6 +7057,7 @@
     SAID_EYEBROW: SAID_EYEBROW,
     SAID_NOTE: SAID_NOTE,
     saidRowSet: saidRowSet,
+    statedListHtml: statedListHtml,
     saidLeadApplies: saidLeadApplies,
     saidEmptyLegal: saidEmptyLegal,
     saidPayloadHasAct: saidPayloadHasAct,

@@ -11819,7 +11819,24 @@
 //     list is unchanged. No stored reader state is written or rewritten, so
 //     nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v538';
+// v539 - ONE STANCE STORE, THREE PURE READERS.
+//     consistency.js (precached) gains PDXConsistency.statedStance /
+//     statedStances: the one reader of the stance store - curated stated
+//     positions and promoted Evidence Locker stances - returning one entry per
+//     issue (side, signal, source note) or nothing. The issue drawer's stance
+//     slot now prints that entry (a promoted Locker stance no longer reads as
+//     "no stated position" there). word-action.js + word-action.css
+//     (precached): the person-file "Said" list reads the same entries, and
+//     Word vs Action gains a "Stated positions on file" list built from them,
+//     its rows wearing the same topic colours as the person-file list and All
+//     Issues by Topic. profile-locker.js (runtime) stops printing its own copy
+//     of the promoted list under Word vs Action and tints its statement lines.
+//     The store itself, every score, verdict, count and route are unchanged.
+//     Precached scripts that read the store changed, so the shell moves one
+//     version; the precache list is unchanged. No location key or other
+//     stored reader state is written or rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v539';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
