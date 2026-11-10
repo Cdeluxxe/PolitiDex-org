@@ -175,7 +175,7 @@
 
 /* 🔗 Related issues (related-issues.js) — each issue, then its related issues,
    one line per reading: a stated line ("supports" / "opposes", in the house's
-   support/oppose tint) and a record line ("record runs with" / "against", in the
+   support/oppose tint) and a record line ("voting record runs with" / "against", in the
    same green / red; the wording keeps it a record reading). No badge, no verdict. */
 .pdxri-groups { list-style: none; margin: 0.35rem 0 0; padding: 0; }
 .pdxri-group {
@@ -195,7 +195,7 @@
 .pdxri-rec.r-with { color: #4ade80; }
 .pdxri-rec.r-against { color: #f87171; }
 /* Each part of a related-issue line wraps as a unit, so a narrow screen never
-   splits "record runs with" or "1 for · 1 against" across lines. */
+   splits "voting record runs with" or "1 for · 1 against" across lines. */
 .pdxri-dir, .pdxri-rec, .pdxri-tally { white-space: nowrap; }
 .pdxri-ico { font-weight: 400; }
 /* Each issue name opens that issue's drawer for this person. */

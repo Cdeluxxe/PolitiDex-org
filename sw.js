@@ -11937,7 +11937,15 @@
 //     every other section are unchanged. A precached shell file changed, so
 //     the shell moves one version; the precache list is unchanged.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v546';
+// v547 - "RECORD" READS "VOTING RECORD". related-issues.js, profile-locker.js,
+//     consistency.js, alignment-tool.js and person-file.css (precached) now say
+//     "voting record runs with / against" (and "their voting record runs ...
+//     it / this statement") wherever a short label used bare "record" for a
+//     politician's votes. Same meaning, layout and logic; no score or data
+//     moves. A precached shell file changed, so the shell moves one version;
+//     the precache list is unchanged.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v547';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

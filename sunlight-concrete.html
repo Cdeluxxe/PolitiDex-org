@@ -155,6 +155,19 @@
     .sg-mpt li b { color: #fff7d6; }
     .sg-live { display:block; text-decoration:none; border:2px solid #f5d77a; }
     .sg-live b { color:#fff7d6; }
+    .sg-viz { margin-top: 0.8rem; padding: 0.7rem 0.8rem; background: rgba(10,15,30,0.5); border: 1px solid rgba(245,215,122,0.18); border-radius: 10px; }
+    .sg-viz-title { color: #fff7d6 !important; font-weight: 600; }
+    .sg-card ul.sg-bars { list-style: none; padding: 0; margin: 0.5rem 0 0; }
+    .sg-card .sg-bars li { display: grid; grid-template-columns: 7.2rem 1fr 6.6rem; gap: 0.55rem; align-items: center; font-size: 0.86rem; margin: 0; padding: 0.14rem 0; }
+    .sg-bar-name { color: #e7eefb; }
+    .sg-bar-val { color: #c3d1ea; text-align: right; font-variant-numeric: tabular-nums; }
+    .sg-bar-track { height: 0.72rem; background: rgba(245,215,122,0.07); border-radius: 0 4px 4px 0; overflow: hidden; }
+    .sg-bar { display: block; height: 100%; min-width: 2px; background: #f5d77a; border-radius: 0 4px 4px 0; }
+    .sg-bar.is-est { background: repeating-linear-gradient(135deg, #f5d77a 0 6px, rgba(245,215,122,0.45) 6px 9px); }
+    .sg-bar.is-break { background: repeating-linear-gradient(135deg, #f5d77a 0 6px, rgba(245,215,122,0.35) 6px 9px); }
+    .sg-howto dt { color: #fff7d6; font-weight: 600; margin-top: 0.45rem; font-size: 0.9rem; }
+    .sg-howto dd { color: #c3d1ea; margin: 0.1rem 0 0; font-size: 0.88rem; line-height: 1.55; }
+    @media (max-width: 34rem) { .sg-card .sg-bars li { grid-template-columns: 5.8rem 1fr 5.6rem; gap: 0.4rem; font-size: 0.8rem; } }
   </style>
 </head>
 <body>
@@ -246,6 +259,26 @@
           <p class="sg-meta" style="margin-top:0.4rem;">This counts cement delivered to Utah customers, not cement made in Utah. The USGS groups Utah’s plants with other states for production figures, so a Utah-only production number is not published in this report.</p>
           <p style="margin-top:0.9rem;"><b>Clinker made in Utah’s production group, 2024:</b> about 3.38 million metric tons (3,378,012 t) of clinker, the main ingredient of cement, were produced in the USGS district that covers Idaho, Montana, Nevada, Oregon, Utah and Washington. That is about 4.7% of the 71.5 million metric tons produced nationwide. Source: USGS Mineral Industry Surveys, <i>Cement in August 2025</i> (published December 2025), table 4, from the <a href="https://www.usgs.gov/centers/national-minerals-information-center/cement-statistics-and-information" rel="noopener">USGS cement statistics page</a>.</p>
           <p class="sg-meta" style="margin-top:0.4rem;">This is a six-state total, not a Utah figure, and the USGS does not publish a split by state or by plant. It measures clinker, which is ground with other materials to make cement, so it is not the same as cement shipped. The USGS notes these figures are accurate to about three significant digits. A table of Utah public-project concrete bids was not added because the bid data could not be reliably reached and read for this sample.</p>
+          <p style="margin-top:0.9rem;"><b>Average U.S. cement price, 2025 (estimated):</b> about $160 per metric ton, measured as the average mill unit value, unchanged from the 2024 estimate and up from $127 in 2021 and $152 in 2023. Source: USGS, <i>Mineral Commodity Summaries 2026</i> (published February 2026), Cement chapter, from the <a href="https://pubs.usgs.gov/periodicals/mcs2026/mcs2026-cement.pdf" rel="noopener">USGS cement summary</a>.</p>
+          <p class="sg-meta" style="margin-top:0.4rem;">This is a national average, not a Utah price, and the USGS does not publish a state-level price in this summary. It is the value at the plant, before delivery, so it is not what a contractor pays for cement or for ready-mixed concrete. The 2024 and 2025 figures are USGS estimates, rounded to two significant digits.</p>
+          <p style="margin-top:0.9rem;"><b>U.S. cement use and imports, 2025 (estimated):</b> about 110 million metric tons of cement were used nationwide (apparent consumption), unchanged from 2024. Imports made up about 21% of that use (net import reliance), and about 23 million metric tons of hydraulic cement were imported. Source: USGS, <i>Mineral Commodity Summaries 2026</i> (published February 2026), Cement chapter, from the <a href="https://pubs.usgs.gov/periodicals/mcs2026/mcs2026-cement.pdf" rel="noopener">USGS cement summary</a>.</p>
+          <p class="sg-meta" style="margin-top:0.4rem;">“Apparent consumption” is worked out from production plus imports minus exports, adjusted for stock changes. It is not a count of cement actually poured. These are national figures, the 2025 values are USGS estimates rounded to two significant digits, and no Utah import share is published.</p>
+          <p style="margin-top:0.9rem;"><b>Where U.S. cement is made, 2025:</b> cement was produced at 97 plants in 34 states and Puerto Rico. Texas, Missouri, California and Florida, the four leading producers, made about 44% of the U.S. total. Source: USGS, <i>Mineral Commodity Summaries 2026</i> (published February 2026), Cement chapter, from the <a href="https://pubs.usgs.gov/periodicals/mcs2026/mcs2026-cement.pdf" rel="noopener">USGS cement summary</a>.</p>
+          <p class="sg-meta" style="margin-top:0.4rem;">This counts plants, not owners. Several plants can belong to one company, so it does not show how many companies control supply. Utah is not named among the leading states, and the summary gives no Utah plant count.</p>
+          <p style="margin-top:0.9rem;"><b>U.S. cement shipments, 2025 (estimated):</b> about 100 million metric tons shipped to final customers, with an estimated value of about $17 billion. An estimated 70% to 75% of sales went to ready-mixed concrete producers. Source: USGS, <i>Mineral Commodity Summaries 2026</i> (published February 2026), Cement chapter, from the <a href="https://pubs.usgs.gov/periodicals/mcs2026/mcs2026-cement.pdf" rel="noopener">USGS cement summary</a>.</p>
+          <p class="sg-meta" style="margin-top:0.4rem;">This is a national estimate rounded by the USGS, and its shipment total includes exports. It sits beside the Utah figure above, which counts about 1.62 million metric tons shipped to Utah in 2024, but the two figures come from different USGS reports and years, so they should not be divided into a precise Utah share.</p>
+          <div class="sg-viz" data-sg-viz="cement-price-trend">
+            <p class="sg-viz-title">Average U.S. cement price, 2021 to 2025</p>
+            <p class="sg-meta" style="margin-top:0.2rem;">Average mill unit value in dollars per metric ton, from the figure above. Bars start at $0. Striped bars are USGS estimates.</p>
+            <ul class="sg-bars">
+              <li title="2021: $127 per metric ton"><span class="sg-bar-name">2021</span><span class="sg-bar-track" aria-hidden="true"><span class="sg-bar" style="width:79.4%;"></span></span><span class="sg-bar-val">$127</span></li>
+              <li title="2022: $139 per metric ton"><span class="sg-bar-name">2022</span><span class="sg-bar-track" aria-hidden="true"><span class="sg-bar" style="width:86.9%;"></span></span><span class="sg-bar-val">$139</span></li>
+              <li title="2023: $152 per metric ton"><span class="sg-bar-name">2023</span><span class="sg-bar-track" aria-hidden="true"><span class="sg-bar" style="width:95.0%;"></span></span><span class="sg-bar-val">$152</span></li>
+              <li title="2024: $160 per metric ton (USGS estimate)"><span class="sg-bar-name">2024</span><span class="sg-bar-track" aria-hidden="true"><span class="sg-bar is-est" style="width:100.0%;"></span></span><span class="sg-bar-val">$160 (est.)</span></li>
+              <li title="2025: $160 per metric ton (USGS estimate)"><span class="sg-bar-name">2025</span><span class="sg-bar-track" aria-hidden="true"><span class="sg-bar is-est" style="width:100.0%;"></span></span><span class="sg-bar-val">$160 (est.)</span></li>
+            </ul>
+            <p class="sg-meta" style="margin-top:0.45rem;">The price rose about 26% from 2021 to 2025, from $127 to an estimated $160. It is a national value at the plant, before delivery, not a Utah price. Source: USGS, <i>Mineral Commodity Summaries 2026</i> (published February 2026), Cement chapter, from the <a href="https://pubs.usgs.gov/periodicals/mcs2026/mcs2026-cement.pdf" rel="noopener">USGS cement summary</a>.</p>
+          </div>
           <p class="sg-meta" data-sg-sample-foot style="margin-top:0.5rem;">First sample — not a full ledger.</p>
         </div>
       </div>

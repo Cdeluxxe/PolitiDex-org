@@ -1011,7 +1011,7 @@ ok(!bare.includes('id="pdx-topnav"'), "dom: index.html's two-row nav is not here
   };
   const CF = /data-pdx-locker-conflict="/;
   const cfFor = (h, key) => new RegExp(`data-pdx-locker-conflict="${key}"`).test(h);
-  const LINE = /On [^<]+, their record runs against this statement\./;
+  const LINE = /On [^<]+, their voting record runs against this statement\./;
   if (withItems) {
     ok(!CF.test(Object.values(withItems).join("")),
       "conflict: a Locker item with no voting record on its issue (or a related one) shows no conflict line");
@@ -1019,8 +1019,8 @@ ok(!bare.includes('id="pdx-topnav"'), "dom: index.html's two-row nav is not here
   }
   let opp = null, agree = null, rel = null, relAgree = null;
   try {
-    opp = withRecord({ public_schools: "opposes" });          // item supports, record runs against
-    agree = withRecord({ public_schools: "advances" });       // item supports, record runs with
+    opp = withRecord({ public_schools: "opposes" });          // item supports, voting record runs against
+    agree = withRecord({ public_schools: "advances" });       // item supports, voting record runs with
     rel = withRecord({ healthcare: "opposes" });              // related issue runs against healthcare_costs item
     relAgree = withRecord({ healthcare: "opposes", healthcare_market: "advances" });
   } catch (e) {
@@ -1034,8 +1034,8 @@ ok(!bare.includes('id="pdx-topnav"'), "dom: index.html's two-row nav is not here
     }
     {
       const m = opp.conn.match(/data-pdx-locker-conflict="public_schools"[^>]*>([\s\S]*?)<\/p>/);
-      ok(m && /Where this conflicts/.test(m[1]) && /On [^,]*School[^,]*, their record runs against this statement\./i.test(m[1].replace(/<[^>]+>/g, "")),
-        `conflict: the line names the issue — "On [issue], their record runs against this statement." (got ${m && m[1]})`);
+      ok(m && /Where this conflicts/.test(m[1]) && /On [^,]*School[^,]*, their voting record runs against this statement\./i.test(m[1].replace(/<[^>]+>/g, "")),
+        `conflict: the line names the issue — "On [issue], their voting record runs against this statement." (got ${m && m[1]})`);
     }
     {
       const at = opp.tree.indexOf('data-pdxtree-locker-issue="public_schools"');

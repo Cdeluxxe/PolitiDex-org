@@ -4096,7 +4096,7 @@
         return c.stated > 0 ? '<span class="align-consist-chip is-muted" title="States positions, but little or no voting record to verify them against yet">🏛️ Limited record</span>' : '';
       }
       var col = _alignScoreColor(c.score);
-      var flag = c.contradictions > 0 ? '<span class="align-consist-flag compact" title="' + c.contradictions + ' stated position' + (c.contradictions === 1 ? '' : 's') + ' the record runs against">⚑' + c.contradictions + '</span>' : '';
+      var flag = c.contradictions > 0 ? '<span class="align-consist-flag compact" title="' + c.contradictions + ' stated position' + (c.contradictions === 1 ? '' : 's') + ' the voting record runs against">⚑' + c.contradictions + '</span>' : '';
       return '<button type="button" onclick="' + open + '" class="align-consist-chip" title="Official Record: ' + c.score + '% — record backs ' + c.rated + ' of ' + c.stated + ' stated positions. Tap for breakdown." style="cursor:pointer;font:inherit;border-color:' + col + '40;color:' + col + ';background:' + col + '18;">🏛️ ' + c.score + '%' + flag + '</button>';
     }
     window._alignConsistencyBadge = _alignConsistencyBadge;

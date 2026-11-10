@@ -13,7 +13,7 @@
 //      Control. No second list: the module carries no PAIRS table.
 //   2. PERSON FILE: for each issue with a published direction, every related
 //      issue with a published direction or votes, as one line with both parts:
-//      "Label: supports|opposes|no stated position · record runs with|record
+//      "Label: supports|opposes|no stated position · voting record runs with|record
 //      runs against|N for · N against|no record"; a related issue with no
 //      position (or a mixed one) and no votes is left out; no group with no
 //      related lines; no section with none at all.
@@ -179,22 +179,22 @@ const LBL = (k) => String(IM[k].label).replace(/^[^A-Za-z0-9]+/, "").trim();
   const groups = Object.fromEntries([...h.matchAll(/<li class="pdxri-group" data-pdxri-issue="([^"]+)">([\s\S]*?)<\/ul><\/li>/g)].map((g) => [g[1], g[2]]));
   const items = (html) => [...String(html || "").matchAll(/<li class="pdxri-item"[\s\S]*?<\/li>/g)].map((m) => strip(m[0]));
   const anchors = (html) => [...String(html || "").matchAll(/<div class="pdxri-anchor"[\s\S]*?<\/div>/g)].map((m) => strip(m[0]));
-  eq(JSON.stringify(anchors(groups.lands_preserve)), JSON.stringify(["Protect Public Lands: supports · record runs against"]),
+  eq(JSON.stringify(anchors(groups.lands_preserve)), JSON.stringify(["Protect Public Lands: supports · voting record runs against"]),
      "an issue with both readings prints one line, stated first");
   eq(JSON.stringify(items(groups.lands_preserve)), JSON.stringify([
     "Keep Public Lands Public: supports · no record",
     "Expand Domestic Energy Production: opposes · no record", "Local Land Control: opposes · no record",
-    `${LBL("lands_balance")}: no stated position · record runs with`,
+    `${LBL("lands_balance")}: no stated position · voting record runs with`,
   ]), "every related line shows a stated part and a record part, in map order");
   ok(!("lands_keep_public" in groups), "a block with nothing new is repeated");
   ok(items(groups.lands_preserve).includes("Expand Domestic Energy Production: opposes · no record"),
      "a stated-only related issue says no record");
-  ok(items(groups.lands_preserve).includes(`${LBL("lands_balance")}: no stated position · record runs with`),
+  ok(items(groups.lands_preserve).includes(`${LBL("lands_balance")}: no stated position · voting record runs with`),
      "a record-only related issue says no stated position");
   ok(/<span class="pdxri-dir s-none">no stated position<\/span>/.test(h) && /<span class="pdxri-rec r-none">no record<\/span>/.test(h),
      "the absent parts carry the neutral classes");
-  ok(/<span class="pdxri-rec r-against">record runs against<\/span>/.test(h), "record runs against does not carry the red class");
-  ok(/<span class="pdxri-rec r-with">record runs with<\/span>/.test(h), "record runs with does not carry the green class");
+  ok(/<span class="pdxri-rec r-against">voting record runs against<\/span>/.test(h), "record runs against does not carry the red class");
+  ok(/<span class="pdxri-rec r-with">voting record runs with<\/span>/.test(h), "record runs with does not carry the green class");
   ok(!/class="pdxri-dir[^"]*">record/.test(h), "a record word is printed as a stated position");
   // Icons: every name is led by its chip icon, inside the one link.
   const names = [...h.matchAll(/<span class="pdxri-issue" data-pdxri-color="([^"]+)"[^>]*>(?:<a class="pdxri-go"[^>]*>)?(<span class="pdxri-ico" aria-hidden="true">([^<]*)<\/span> )?/g)];
@@ -213,7 +213,7 @@ const LBL = (k) => String(IM[k].label).replace(/^[^A-Za-z0-9]+/, "").trim();
 
   const ro = R2.sectionHtml("recOnly", {});
   const rg = Object.fromEntries([...ro.matchAll(/<li class="pdxri-group" data-pdxri-issue="([^"]+)">([\s\S]*?)<\/ul><\/li>/g)].map((g) => [g[1], g[2]]));
-  eq(JSON.stringify(items(rg.lands_preserve)), JSON.stringify(["Keep Public Lands Public: no stated position · record runs with"]), "record-only file: no stated position beside the record");
+  eq(JSON.stringify(items(rg.lands_preserve)), JSON.stringify(["Keep Public Lands Public: no stated position · voting record runs with"]), "record-only file: no stated position beside the record");
   ok(!/pdxri-dir s-(support|oppose)/.test(ro), "record-only file prints a stated word");
   eq(R2.sectionHtml("split", {}), "", "a split or uncharacterised record gives no line, and nothing related is left");
   eq(R2.recordOf("lands", "gov_regulation"), null, "no record on file: no record reading");
@@ -286,7 +286,7 @@ const LBL = (k) => String(IM[k].label).replace(/^[^A-Za-z0-9]+/, "").trim();
         if (it.dir && pm[it.key].stance !== it.dir) bad++;
         if (w.PDXRelatedIssues.lineTexts(it).length !== 1) bad++;
         for (const l of w.PDXRelatedIssues.lineTexts(it)) {
-          if (!/^[A-Za-z0-9 &,+\-'.:()]+: (supports|opposes|no stated position) · (record runs with|record runs against|no record|\d+ for · \d+ against( · \d+ took no side)?|\d+ formal acts?|\d+ votes? on file)$/.test(l)) bad++;
+          if (!/^[A-Za-z0-9 &,+\-'.:()]+: (supports|opposes|no stated position) · (voting record runs with|voting record runs against|no record|\d+ for · \d+ against( · \d+ took no side)?|\d+ formal acts?|\d+ votes? on file)$/.test(l)) bad++;
         }
       }
     }

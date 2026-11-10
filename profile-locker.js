@@ -47,7 +47,7 @@
    topic-tree leaf, Word vs Action list) gains one short line when the voting
    record on the item's issue — or on a related issue, when its own has no
    one-way record — runs the other way from the item's position: "On [issue],
-   their record runs against this statement." No record, or an agreeing one,
+   their voting record runs against this statement." No record, or an agreeing one,
    prints nothing. See conflictOf below.
 
    PLEDGES. A Locker item (strong or weak) on the same issue as a tracked
@@ -361,7 +361,7 @@
     return hit;
   }
   function conflictText(c) {
-    return c ? 'On ' + issueLabel(c.key) + ', their record runs against this statement.' : '';
+    return c ? 'On ' + issueLabel(c.key) + ', their voting record runs against this statement.' : '';
   }
   // One short line, in whichever surface's box it is placed in.
   function conflictHtml(pid, it, tag, style) {
