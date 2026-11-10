@@ -32,13 +32,13 @@
          "no stated position".
        Record — which way their votes run, from window._pdxRecordDirection (the
          shared record-direction index). A characterised one-way read reads
-         "record runs with" / "record runs against". Votes on file with no
+         "voting record runs with" / "voting record runs against". Votes on file with no
          one-way read (split, thin, poleless) read as the tally the issue's own
          drawer prints, in its words ("1 for · 1 against"), from the drawer
          ledger (PDXConsistency.drawerTally); a subject key whose drawer prints
          no for/against line gives its act count ("3 formal acts"). No votes
          on file reads "no record".
-           Cut Income & Business Taxes: supports · record runs with
+           Cut Income & Business Taxes: supports · voting record runs with
            Middle-Class Tax Relief: no stated position · 1 for · 1 against
            Local Land Control: opposes · no record
      An issue with no stated position and no votes is left out.
@@ -231,7 +231,7 @@
   };
 
   var WORD = { support: 'supports', oppose: 'opposes' };
-  var REC_WORD = { 'with': 'record runs with', against: 'record runs against' };
+  var REC_WORD = { 'with': 'voting record runs with', against: 'voting record runs against' };
   var NO_STATED = 'no stated position';
   var NO_RECORD = 'no record';
 
@@ -415,7 +415,7 @@
   function statedPart(it) { return it.dir ? it.word : NO_STATED; }
   function recordPart(it) { return it.rec ? it.recWord : (it.tally || NO_RECORD); }
   // The printed line for one issue:
-  // "Label: supports · record runs with", "Label: no stated position · 1 for · 1 against".
+  // "Label: supports · voting record runs with", "Label: no stated position · 1 for · 1 against".
   function lineTexts(it) {
     return [it.label + ': ' + statedPart(it) + ' · ' + recordPart(it)];
   }
@@ -560,7 +560,7 @@
   var NO_CONFLICT = 'No conflicts with your stances on these issues.';
   var YOU_WORD = { support: 'support', oppose: 'oppose' };
   var THEY_STATED = { support: 'they support', oppose: 'they oppose' };
-  var THEY_RECORD = { 'with': 'their record runs with it', against: 'their record runs against it' };
+  var THEY_RECORD = { 'with': 'their voting record runs with it', against: 'their voting record runs against it' };
 
   // The reader's own sides, support / oppose only ('mixed' takes no side),
   // keyed by issue. null when no stance reader is on this document or the

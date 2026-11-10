@@ -121,7 +121,7 @@
   var FRAME = { icon: '⚖️', label: 'Say-vs-Do', question: 'Do their actions match their words?' };
   var VERDICTS = {
     consistent:  { key: 'consistent',  ico: '✓', label: 'Backs it up',                 short: 'Their record backs up what they say.',                              tone: 'good',  color: '#6ee7a0', cls: 'consistent' },
-    contradicts: { key: 'contradicts', ico: '⚠', label: 'Says one thing, does another', short: 'Their record runs against what they say.',                           tone: 'bad',   color: '#f89b9b', cls: 'contradicts' },
+    contradicts: { key: 'contradicts', ico: '⚠', label: 'Says one thing, does another', short: 'Their voting record runs against what they say.',                           tone: 'bad',   color: '#f89b9b', cls: 'contradicts' },
     mixed:       { key: 'mixed',       ico: '◑', label: 'Mixed record',                short: 'Their record cuts both ways on this.',                              tone: 'warn',  color: '#93c5fd', cls: 'mixed' },
     flag:        { key: 'flag',        ico: '⚑', label: 'Red flag on record',          short: 'A documented red flag on their record.',                            tone: 'bad',   color: '#f89b9b', cls: 'flag' },
     limited:     { key: 'limited',     ico: '…', label: 'Limited record',              short: 'They\'ve stated a position, but there isn\'t enough record to check it yet.', tone: 'muted', color: '#9fb4d4', cls: 'limited' },
@@ -3369,7 +3369,7 @@
   // classes so the board's CSS keeps working, but the answer now includes receipts.
   var _DOT = {
     consistent:  { ch: '✓', cls: 'vrdot-consistent', tip: 'Their record backs up what they say' },
-    contradicts: { ch: '⚠', cls: 'vrdot-contradicts', tip: 'Their record runs against what they say' },
+    contradicts: { ch: '⚠', cls: 'vrdot-contradicts', tip: 'Their voting record runs against what they say' },
     mixed:       { ch: '~', cls: 'vrdot-mixed',       tip: 'Mixed record on this issue' },
     flag:        { ch: '⚑', cls: 'vrdot-contradicts', tip: 'A documented red flag on their record' },
     limited:     { ch: '•', cls: 'vrdot-record',      tip: 'Has some record, not enough to judge yet' },
@@ -17310,7 +17310,7 @@
     var res = _stResult(r), b = null;
     try { b = _dosBucket(r); } catch (e) { b = null; }
     if (_dosLopsided(t)) {
-      return { word: (res.state === 'thin') ? 'Record runs one way'
+      return { word: (res.state === 'thin') ? 'Voting record runs one way'
                  : ((b && b.short) ? b.short : res.label),
                q: '', ico: res.ico, color: res.color, rule: 'one_way' };
     }
