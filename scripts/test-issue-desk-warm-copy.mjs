@@ -68,6 +68,7 @@ import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
+import { declaredStanceMovesAtHead } from "./v103-chrome-seams.mjs";
 import { makeSandbox, ENGINE_FILES } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 import { withDeclaredNoPole } from "./head-no-pole.mjs";
@@ -727,6 +728,7 @@ section("9 · twin boot — formal tiers and Direction Match are byte-identical"
   const drift = [];
   let swept = 0;
   for (const [pid] of corpus.byMember) {
+    if (declaredStanceMovesAtHead().moved.has(pid)) continue; // a declared stance pass (v103-chrome-seams.mjs) moves its own people
     swept++;
     for (const sc of scopes) {
       if (JSON.stringify(A.PDXConsistency.scopedOverall(sc, pid)) !==

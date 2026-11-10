@@ -1866,6 +1866,18 @@
       { topic:'Bipartisanship', icon:'⚖️', pos:'support', issueKey:'reform_balance', issueStance:'support', text:'Brands himself as an independent-minded, bipartisan legislator.', evidence:'Ranked among the most bipartisan U.S. House members by the Lugar Center.', source:{label:'dondavis.house.gov', url:'https://dondavis.house.gov/media/press-releases/congressman-don-davis-votes-again-laken-riley-act'} },
       { topic:'Social Security & Medicare', icon:'👵', pos:'support', issueKey:'social_security', issueStance:'support', text:'Pledges to protect Social Security and Medicare.' },
       { topic:'Military Readiness', icon:'🎖', pos:'support', issueKey:'strong_defense', issueStance:'support', text:'An Air Force Academy graduate and Vice Ranking Member of the House Armed Services Committee who says the annual defense bill "helps ensure our servicemembers remain ready to meet evolving global security challenges," and called the planned F-15E divestment at Seymour Johnson Air Force Base "unacceptable."', evidence:'An Air Force Academy graduate serving as Vice Ranking Member of the House Armed Services Committee.', source:{label:'dondavis.house.gov', url:'https://dondavis.house.gov/media/press-releases/congressman-don-davis-votes-house-passage-eastern-north-carolina-defense'} },
+      // ── SECTION 219 PASS (Nov 2026) — FY2027 NDAA, H.R. 8800 §219 (was §224) ──
+      // A sourced statement on the provision or the FUTURES Act it came from; see
+      // db/section-219-ndaa-stated-2026-11.json. Filed first on israel_support so
+      // the drawer's stated line reads it; no other card is edited.
+      { topic:'Section 219 · U.S.–Israel Defense Tech', icon:'🇮🇱', pos:'support', issueKey:'israel_support', issueStance:'support', position:'support', status:'active',
+        text:'Co-led the U.S.-Israel FUTURES Act (H.R. 7540), the bill Section 219 of the FY2027 NDAA was drawn from, saying "By establishing the United States–Israel Defense Technology Cooperation Initiative, we are fortifying a vital partnership."',
+        evidence:'Voted yes on final passage of H.R. 8800 with Section 219 in the bill, Roll Call 278, July 22, 2026; it passed 216–212.',
+        source:{label:'dondavis.house.gov, Feb. 19, 2026', url:'https://dondavis.house.gov/media/press-releases/congressman-don-davis-co-leads-bipartisan-bill-modernize-americas-defense'},
+        sources:[
+          { type:'press release', label:'Rep. Don Davis co-leads the U.S.-Israel FUTURES Act, Feb. 19, 2026', date:'2026-02-19', link:'https://dondavis.house.gov/media/press-releases/congressman-don-davis-co-leads-bipartisan-bill-modernize-americas-defense', excerpt:'\u201cBy establishing the United States\u2013Israel Defense Technology Cooperation Initiative, we are fortifying a vital partnership, accelerating joint development, and transforming groundbreaking research into operational capabilities.\u201d', weight:'strong' },
+          { type:'recorded vote', label:'House Clerk — Roll Call 278 (2026)', date:'2026-07-22', link:'https://clerk.house.gov/Votes/2026278', excerpt:'Voted yes on passage of H.R. 8800, which passed 216–212 with Section 219 in the bill.', weight:'strong' },
+        ] },
       { topic:'Israel Aid & Humanitarian Access', icon:'🇮🇱', pos:'mixed', issueKey:'israel_support', issueStance:'mixed',
         text:'Voted for the Israel security supplemental while criticizing the strings attached to it, saying "we must continue to stand together with our ally, Israel, and simultaneously call for the humane conduct of war consistent with international law," and backed a temporary suspension of operations in northern Gaza for humanitarian access.',
         evidence:'Reaffirmed in 2025 that supporting allies including Israel is essential to countering the Iranian regime and its proxies, after his state party called for an arms embargo.',
@@ -2397,6 +2409,18 @@
       { topic:'Pentagon Budget', icon:'🪖', pos:'oppose', issueKey:'strong_defense', issueStance:'oppose', text:'Argues the annual defense budget should be cut by ten percent — roughly $73 billion — while exempting military personnel, the civilian workforce and the defense health program from the reduction.', source:{label:'Congress.gov', url:'https://www.congress.gov/bill/117th-congress/house-bill/4350/all-actions'} },
       { topic:'Federal Spending', icon:'🛡️', pos:'oppose', issueKey:'cut_spending', issueStance:'oppose', text:'Told the House floor that under the funding bill "we are robbing people of their food assistance and of their health care to pay for it," adding "we cannot support it and we cannot stand for it."', evidence:'Delivered as floor remarks denouncing the Republican funding bill.', source:{ label:'Rep. Alexandria Ocasio-Cortez — Denounces Republican Funding Bill on House Floor', url:'https://ocasio-cortez.house.gov/media/press-releases/ocasio-cortez-denounces-republican-funding-bill-house-floor' } },
       { topic:'America First Foreign Policy', icon:'🌐', pos:'support', issueKey:'restraint', issueStance:'support', text:'Says Americans were "once again dragged into a war they did not want by a president who does not care about the long-term consequences," calling the Iran operation "unlawful" and "unnecessary."', evidence:'On congressional authority: "In moments of war, our Constitution is unambiguous: Congress authorizes war. The President does not." She backed the Khanna-Massie War Powers Resolution, urging colleagues to join "in rejecting this aimless war."', source:{ label:'Rep. Alexandria Ocasio-Cortez — Statement on Combat Operations in Iran', url:'https://ocasio-cortez.house.gov/media/press-releases/ocasio-cortez-statement-trumps-combat-operations-iran' } },
+      // ── SECTION 219 PASS (Nov 2026) — FY2027 NDAA, H.R. 8800 §219 (was §224) ──
+      // A sourced statement on the provision or the FUTURES Act it came from; see
+      // db/section-219-ndaa-stated-2026-11.json. Filed first on israel_support so
+      // the drawer's stated line reads it; no other card is edited.
+      { topic:'Section 219 · U.S.–Israel Defense Tech', icon:'🇮🇱', pos:'oppose', issueKey:'israel_support', issueStance:'oppose', position:'oppose', status:'active',
+        text:'Opposes Section 219 of the FY2027 NDAA (H.R. 8800), posting the night before the House vote that the bill "includes a provision to merge parts of our military with the IDF" and calling it "an existential threat to American sovereignty and democracy."',
+        evidence:'Voted no on final passage of H.R. 8800, Roll Call 278, July 22, 2026; it passed 216–212 with Section 219 in the bill.',
+        source:{label:'Rep. Alexandria Ocasio-Cortez on Bluesky, July 21, 2026', url:'https://bsky.app/profile/ocasio-cortez.house.gov/post/3mr742gcfrc2a'},
+        sources:[
+          { type:'social post', label:'Rep. Alexandria Ocasio-Cortez on Bluesky, July 21, 2026', date:'2026-07-21', link:'https://bsky.app/profile/ocasio-cortez.house.gov/post/3mr742gcfrc2a', excerpt:'\u201cTomorrow, the House will vote on the NDAA, which includes a provision to merge parts of our military with the IDF.\u201d', weight:'strong' },
+          { type:'recorded vote', label:'House Clerk — Roll Call 278 (2026)', date:'2026-07-22', link:'https://clerk.house.gov/Votes/2026278', excerpt:'Voted no on passage of H.R. 8800, which passed 216–212 with Section 219 in the bill.', weight:'strong' },
+        ] },
       { topic:'Military Aid to Israel', icon:'🇮🇱', pos:'oppose', issueKey:'israel_support', issueStance:'oppose',
         text:'Says she is opposed to any further military aid to Israel, including defensive systems, because "the Israeli government is well able to fund the Iron Dome system" and she will not send more taxpayer dollars to a government that "consistently ignores international law."',
         evidence:'A shift from her earlier record, which opposed offensive weapons while explicitly backing Iron Dome and other defensive systems.',
@@ -2728,6 +2752,18 @@
       { topic:'Pentagon Budget & Modernization', icon:'🪖', pos:'mixed', issueKey:'strong_defense', issueStance:'mixed', text:'Was the lone committee vote against an $886 billion defense authorization, objecting to a "bloated defense budget that privileges defense contractors\' profits over a modern national security strategy" and naming specific cuts — retiring the B-1B, extending Minuteman III rather than building its replacement. But he pairs that with calls to spend more on cyber, AI, quantum, space, long-range missiles, submarines and drones, summarizing his own position as "it\'s not what we spend, but how we spend it."', evidence:'Op-ed explaining his lone no vote on the FY2024 National Defense Authorization Act in committee; his 2026 Foreign Affairs essay presses the rest of the Defense Department to follow the Marine Corps in passing an audit.', source:{label:'khanna.house.gov', url:'https://khanna.house.gov/media/ros-op-eds/why-i-was-proud-be-lone-vote-against-defense-budget'} },
       { topic:'Federal Spending', icon:'⚖️', pos:'mixed', issueKey:'cut_spending', issueStance:'mixed', text:'Authored a Progressive Deficit Reduction Plan to "reduce the deficit by $12 trillion over the next decade" that would "cut spending by modernizing the Pentagon, tackling Medicare Advantage upcoding and fraud, negotiating drug prices" — while redirecting the savings into new spending.', evidence:'His plan lists $2.4 trillion in cuts ($850B military, $830B Medicare Advantage fraud, $200B drug prices, $170B fossil-fuel subsidies, $333B procurement) and spends the proceeds on "childcare, universal healthcare, affordable housing, free college, advanced manufacturing, and good-paying jobs."', source:{ label:'Rep. Ro Khanna — Unveils Progressive Deficit Reduction Plan to Reduce Deficit by $12 Trillion', url:'https://khanna.house.gov/media/press-releases/rep-khanna-unveils-progressive-deficit-reduction-plan-reduce-deficit-12' } },
       { topic:'America First Foreign Policy', icon:'🌐', pos:'support', issueKey:'restraint', issueStance:'support', text:'Co-founded the bipartisan War Powers Caucus to make "congressional war making powers, military restraint, and removing the U.S. from endless wars the pillars of our foreign policy," and says Americans "want peace abroad and good-paying jobs at home."', evidence:'He calls for "redirecting massive defense spending toward priorities here at home" and urged investment in "good jobs at home, not billions in more missiles that we cannot afford." He distinguishes his restraint from abandonment — on Syria he called withdrawing troops so Turkish forces could attack Kurdish communities "incomprehensible."', source:{ label:'Rep. Ro Khanna — Khanna, Biggs Launch Bipartisan War Powers Caucus', url:'https://khanna.house.gov/media/press-releases/release-khanna-briggs-launch-bipartisan-war-powers-caucus' } },
+      // ── SECTION 219 PASS (Nov 2026) — FY2027 NDAA, H.R. 8800 §219 (was §224) ──
+      // A sourced statement on the provision or the FUTURES Act it came from; see
+      // db/section-219-ndaa-stated-2026-11.json. Filed first on israel_support so
+      // the drawer's stated line reads it; no other card is edited.
+      { topic:'Section 219 · U.S.–Israel Defense Tech', icon:'🇮🇱', pos:'oppose', issueKey:'israel_support', issueStance:'oppose', position:'oppose', status:'active',
+        text:'Opposes Section 219 of the FY2027 NDAA (H.R. 8800), posting "I am opposing Section 219, that would integrate our military with Israel\'s. The United States does not have this arrangement with any other country in the world."',
+        evidence:'Co-led the Massie–Khanna amendment to strike the section, which the Rules Committee did not allow a floor vote. Voted no on final passage of H.R. 8800, Roll Call 278, July 22, 2026; it passed 216–212.',
+        source:{label:'Rep. Ro Khanna on X, Sept. 28, 2026', url:'https://x.com/RepRoKhanna/status/2104622503582904423'},
+        sources:[
+          { type:'social post', label:'Rep. Ro Khanna on X, Sept. 28, 2026', date:'2026-09-28', link:'https://x.com/RepRoKhanna/status/2104622503582904423', excerpt:'\u201cI am opposing Section 219, that would integrate our military with Israel\u2019s.\u201d He said Congress should strip it from the final NDAA.', weight:'strong' },
+          { type:'recorded vote', label:'House Clerk — Roll Call 278 (2026)', date:'2026-07-22', link:'https://clerk.house.gov/Votes/2026278', excerpt:'Voted no on passage of H.R. 8800, which passed 216–212 with Section 219 in the bill.', weight:'strong' },
+        ] },
       { topic:'Military Aid to Israel', icon:'🇮🇱', pos:'oppose', issueKey:'israel_support', issueStance:'oppose',
         text:'Opposes U.S. aid to Israel, including funding for offensive and defensive weapons such as the Iron Dome, having earlier objected to "a blank check for Netanyahu and offensive weapons unconditionally."',
         evidence:'His 2024 position affirmed Israel\'s right to self-defense and support for strengthening Iron Dome; by 2026 he argued Israel can buy the system with its own money.',
@@ -2766,6 +2802,18 @@
       // ── State vs. Federal Power (July 2026, verified) ──
       { topic:'Who Decides on Schools', icon:'🏫', pos:'support', issueKey:'states_federal_power', issueStance:'support', text:'Reintroduced his one-sentence bill to abolish the U.S. Department of Education, arguing that "States and local communities are best positioned to shape curricula that meet the needs of their students" and that officials in Washington should not direct what children are taught.', evidence:'Statement on reintroducing his one-sentence bill to abolish the Department of Education, January 31, 2025.', source:{label:'massie.house.gov', url:'https://massie.house.gov'} },
       { topic:'Federal Meat-Inspection Rules', icon:'🥩', pos:'support', issueKey:'gov_regulation', issueStance:'support', text:'Lead sponsor of the PRIME Act, which would exempt custom slaughterhouses from federal USDA inspection requirements and leave in-state sales to state regulation instead, arguing "federal inspection requirements make it difficult to purchase food from trusted, local farmers."', evidence:'Has introduced the Processing Revival and Intrastate Meat Exemption (PRIME) Act in every Congress since 2015; a pilot version was included in the House-passed farm bill.', source:{label:'massie.house.gov', url:'https://massie.house.gov/news/documentsingle.aspx?DocumentID=395821'} },
+      // ── SECTION 219 PASS (Nov 2026) — FY2027 NDAA, H.R. 8800 §219 (was §224) ──
+      // A sourced statement on the provision or the FUTURES Act it came from; see
+      // db/section-219-ndaa-stated-2026-11.json. Filed first on israel_support so
+      // the drawer's stated line reads it; no other card is edited.
+      { topic:'Section 219 · U.S.–Israel Defense Tech', icon:'🇮🇱', pos:'oppose', issueKey:'israel_support', issueStance:'oppose', position:'oppose', status:'active',
+        text:'Opposes Section 219 of the FY2027 NDAA (H.R. 8800), the U.S.–Israel Defense Technology Cooperation Initiative, calling it "a dangerous provision to integrate our military tech with Israel\'s"; he and Rep. Ro Khanna filed an amendment to strike it.',
+        evidence:'The Rules Committee did not allow the Massie–Khanna amendment a floor vote. He voted no on final passage of H.R. 8800 with Section 219 in the bill, Roll Call 278, July 22, 2026; it passed 216–212.',
+        source:{label:'Rep. Thomas Massie on X, June 14, 2026', url:'https://x.com/RepThomasMassie/status/2066346451123294706'},
+        sources:[
+          { type:'social post', label:'Rep. Thomas Massie on X, June 14, 2026', date:'2026-06-14', link:'https://x.com/RepThomasMassie/status/2066346451123294706', excerpt:'\u201cSection 219 (was 224) of the NDAA contains a dangerous provision to integrate our military tech with Israel\u2019s. @RepRoKhanna & I submitted an amendment to strike 219.\u201d', weight:'strong' },
+          { type:'recorded vote', label:'House Clerk — Roll Call 278 (2026)', date:'2026-07-22', link:'https://clerk.house.gov/Votes/2026278', excerpt:'Voted no on passage of H.R. 8800, which passed 216–212 with Section 219 in the bill.', weight:'strong' },
+        ] },
       { topic:'Zeroing Out Israel Aid', icon:'🇮🇱', pos:'oppose', issueKey:'israel_support', issueStance:'oppose',
         text:'Offers an annual amendment barring the use of appropriated funds for Israel and cutting the Foreign Military Financing account accordingly; during floor debate he said "there have been 70,000 casualties in Gaza, and I don\'t think we should be part of that."',
         evidence:'A fiscal opponent of all foreign aid who added the humanitarian argument. His H.Amdt. 235 to H.R. 8595 failed 104–314 on July 15, 2026 (Roll Call 243).',
@@ -3964,6 +4012,18 @@
         text:'Headlined a nationwide "Fighting Oligarchy" rally tour through 2025, often alongside Rep. Alexandria Ocasio-Cortez, drawing some of the largest crowds of his career against what he calls the outsized political power of billionaires and large corporations.',
         source:{label:'sanders.senate.gov', url:'https://www.sanders.senate.gov'} },
       // ── Recent action (Batch 17, July 2026, verified) ──
+      // ── SECTION 219 PASS (Nov 2026) — FY2027 NDAA, H.R. 8800 §219 (was §224) ──
+      // A sourced statement on the provision or the FUTURES Act it came from; see
+      // db/section-219-ndaa-stated-2026-11.json. Filed first on israel_support so
+      // the drawer's stated line reads it; no other card is edited.
+      { topic:'Section 219 · U.S.–Israel Defense Tech', icon:'🇮🇱', pos:'oppose', issueKey:'israel_support', issueStance:'oppose', position:'oppose', status:'active',
+        text:'Opposes Section 219 of the FY2027 NDAA, the U.S.–Israel defense technology initiative (numbered Section 224 when he posted), saying that Congress is "burying a provision in the defense bill that would give Israel more military integration than any NATO ally" and "We must strip Section 224 from the Pentagon budget."',
+        evidence:'Signed the July 9, 2026 letter asking senators not to advance the Senate bill (S. 4784), whose Section 1217 carries the same initiative, until its Israel provisions could be debated. The Senate has cast no vote on the section itself.',
+        source:{label:'Sen. Bernie Sanders on X, June 15, 2026', url:'https://x.com/SenSanders/status/2066585100293185928'},
+        sources:[
+          { type:'social post', label:'Sen. Bernie Sanders on X, June 15, 2026', date:'2026-06-15', link:'https://x.com/SenSanders/status/2066585100293185928', excerpt:'\u201cWe must strip Section 224 from the Pentagon budget.\u201d', weight:'strong' },
+          { type:'letter', label:'Senators\u2019 Dear Colleague letter on the FY27 NDAA, July 9, 2026', date:'2026-07-09', link:'https://www.welch.senate.gov/wp-content/uploads/2026/07/07-09-2026-FY27-NDAA-Dear-Colleague.pdf', excerpt:'Asked colleagues not to advance S. 4784 until the U.S.–Israel provisions, including Section 1217, could be debated.', weight:'strong' },
+        ] },
       { topic:'Blocking Arms Sales to Israel', icon:'🕊', pos:'support', issueKey:'israel_support', issueStance:'support',
         text:'Forced Senate votes on resolutions to block certain U.S. weapons sales to Israel over the conduct of the war in Gaza, arguing Washington should not arm what he calls a humanitarian catastrophe; the resolutions were defeated.',
         evidence:'Forced Senate votes on Joint Resolutions of Disapproval on Israel arms sales (2024–2025).',
@@ -9068,6 +9128,17 @@
       { topic:'9/11 & Toxic-Exposure Health', icon:'🚒', pos:'support', issueKey:'veterans', issueStance:'support', text:'A lead force behind extending the 9/11 first-responder health program and toxic-exposure (PACT Act) benefits for veterans.', source:{label:'gillibrand.senate.gov', url:'https://www.gillibrand.senate.gov/news/press/'} },
       { topic:'Tech & AI', icon:'🤖', pos:'support', issueKey:'tech_balance', issueStance:'support', text:'Backs guardrails on AI and social media, data privacy, and online child-safety protections.', source:{label:'gillibrand.senate.gov', url:'https://www.gillibrand.senate.gov/news/press/'} },
       { topic:'National Paid Family and Medical Leave', icon:'👪', pos:'support', issueKey:'family_support', issueStance:'support', text:'Argues that without a national paid leave program workers are “forced to make devastating choices between their livelihood and the health of themselves or their families,” and wants up to twelve weeks of partial income guaranteed.', source:{label:'Gillibrand Senate Office', url:'https://www.gillibrand.senate.gov/news/press/release/senator-gillibrand-rep-delauro-colleagues-introduce-family-act-in-fight-for-universal-paid-leave/'} },
+      // ── SECTION 219 PASS (Nov 2026) — FY2027 NDAA, H.R. 8800 §219 (was §224) ──
+      // A sourced statement on the provision or the FUTURES Act it came from; see
+      // db/section-219-ndaa-stated-2026-11.json. Filed first on israel_support so
+      // the drawer's stated line reads it; no other card is edited.
+      { topic:'Section 219 · U.S.–Israel Defense Tech', icon:'🇮🇱', pos:'support', issueKey:'israel_support', issueStance:'support', position:'support', status:'active',
+        text:'Introduced the Senate U.S.-Israel FUTURES Act with Sen. Ted Budd, the initiative the Senate FY2027 NDAA carries as Section 1217 and the House bill as Section 219, saying "This bipartisan initiative will enable long-term collaboration on shared security goals."',
+        evidence:'A sponsor\'s statement on the standalone bill. The Senate has cast no vote on Section 1217: cloture on taking up S. 4784 failed 50–46 on July 14, 2026.',
+        source:{label:'budd.senate.gov, Feb. 12, 2026', url:'https://www.budd.senate.gov/2026/02/12/budd-gillibrand-introduce-bipartisan-bill-to-strengthen-bilateral-defense-programs-between-the-u-s-and-israel/'},
+        sources:[
+          { type:'press release', label:'Budd, Gillibrand introduce the U.S.-Israel FUTURES Act, Feb. 12, 2026', date:'2026-02-12', link:'https://www.budd.senate.gov/2026/02/12/budd-gillibrand-introduce-bipartisan-bill-to-strengthen-bilateral-defense-programs-between-the-u-s-and-israel/', excerpt:'\u201cThis bipartisan initiative will enable long-term collaboration on shared security goals.\u201d', weight:'strong' },
+        ] },
     ],
     debbie_dingell: [ // Debbie Dingell — 🚗 U.S. Representative (D-MI)
       { topic:'PFAS', icon:'💧', pos:'support', issueKey:'water', issueStance:'support', text:'A co-chair of the House PFAS Task Force, Dingell is a leading House voice for regulating and cleaning up PFAS "forever chemicals" and setting enforceable drinking-water limits.', evidence:'Co-chair of the Congressional PFAS Task Force; Energy & Commerce Committee.', source:{label:'debbiedingell.house.gov', url:'https://debbiedingell.house.gov/news/'} },
@@ -9286,6 +9357,45 @@
       { topic:'Energy Production', icon:'🛢', pos:'support', issueKey:'energy_production', issueStance:'support', text:'Backs expanding oil, gas, and nuclear energy and cutting regulations he says raise energy costs.', source:{label:'budd.senate.gov', url:'https://www.budd.senate.gov/press-releases/'} },
       { topic:'Border Security', icon:'🛂', pos:'support', issueKey:'border_security', issueStance:'support', text:'Supports strict border enforcement, finishing the wall, and stopping fentanyl trafficking.', source:{label:'budd.senate.gov', url:'https://www.budd.senate.gov/press-releases/'} },
       { topic:'National Defense', icon:'🛡', pos:'support', issueKey:'strong_defense', issueStance:'support', text:'On Armed Services, backs a strong military, servicemember pay, and aid to Israel.', source:{label:'budd.senate.gov', url:'https://www.budd.senate.gov/press-releases/'} },
+      // ── SECTION 219 PASS (Nov 2026) — FY2027 NDAA, H.R. 8800 §219 (was §224) ──
+      // A sourced statement on the provision or the FUTURES Act it came from; see
+      // db/section-219-ndaa-stated-2026-11.json. Filed first on israel_support so
+      // the drawer's stated line reads it; no other card is edited.
+      { topic:'Section 219 · U.S.–Israel Defense Tech', icon:'🇮🇱', pos:'support', issueKey:'israel_support', issueStance:'support', position:'support', status:'active',
+        text:'Introduced the Senate U.S.-Israel FUTURES Act with Sen. Kirsten Gillibrand, the initiative the Senate FY2027 NDAA carries as Section 1217 and the House bill as Section 219, saying it "offers an opportunity to strengthen existing bilateral programs."',
+        evidence:'A sponsor\'s statement on the standalone bill. The Senate has cast no vote on Section 1217: cloture on taking up S. 4784 failed 50–46 on July 14, 2026.',
+        source:{label:'budd.senate.gov, Feb. 12, 2026', url:'https://www.budd.senate.gov/2026/02/12/budd-gillibrand-introduce-bipartisan-bill-to-strengthen-bilateral-defense-programs-between-the-u-s-and-israel/'},
+        sources:[
+          { type:'press release', label:'Budd, Gillibrand introduce the U.S.-Israel FUTURES Act, Feb. 12, 2026', date:'2026-02-12', link:'https://www.budd.senate.gov/2026/02/12/budd-gillibrand-introduce-bipartisan-bill-to-strengthen-bilateral-defense-programs-between-the-u-s-and-israel/', excerpt:'\u201cThe U.S.-Israel FUTURES Act offers an opportunity to strengthen existing bilateral programs.\u201d', weight:'strong' },
+        ] },
+    ],
+    ronny_jackson: [ // Ronny Jackson — U.S. Representative (R-TX-13); Section 219 pass (Nov 2026)
+      // ── SECTION 219 PASS (Nov 2026) — FY2027 NDAA, H.R. 8800 §219 (was §224) ──
+      // A sourced statement on the provision or the FUTURES Act it came from; see
+      // db/section-219-ndaa-stated-2026-11.json. Filed first on israel_support so
+      // the drawer's stated line reads it; no other card is edited.
+      { topic:'Section 219 · U.S.–Israel Defense Tech', icon:'🇮🇱', pos:'support', issueKey:'israel_support', issueStance:'support', position:'support', status:'active',
+        text:'Introduced the U.S.-Israel FUTURES Act (H.R. 7540), which set up the United States–Israel Defense Technology Cooperation Initiative later carried as Section 219 of the FY2027 NDAA, saying it "secures America\'s competitive edge in defense technology and reinforces our alliance with Israel."',
+        evidence:'Voted yes on final passage of H.R. 8800 with Section 219 in the bill, Roll Call 278, July 22, 2026; it passed 216–212.',
+        source:{label:'jackson.house.gov, Feb. 12, 2026', url:'https://jackson.house.gov/news/documentsingle.aspx?DocumentID=2482'},
+        sources:[
+          { type:'press release', label:'Rep. Jackson introduces the U.S.-Israel FUTURES Act, Feb. 12, 2026', date:'2026-02-12', link:'https://jackson.house.gov/news/documentsingle.aspx?DocumentID=2482', excerpt:'\u201cThis legislation secures America\u2019s competitive edge in defense technology and reinforces our alliance with Israel.\u201d', weight:'strong' },
+          { type:'recorded vote', label:'House Clerk — Roll Call 278 (2026)', date:'2026-07-22', link:'https://clerk.house.gov/Votes/2026278', excerpt:'Voted yes on passage of H.R. 8800, which passed 216–212 with Section 219 in the bill.', weight:'strong' },
+        ] },
+    ],
+    marlin_stutzman: [ // Marlin Stutzman — U.S. Representative (R-IN-03); Section 219 pass (Nov 2026)
+      // ── SECTION 219 PASS (Nov 2026) — FY2027 NDAA, H.R. 8800 §219 (was §224) ──
+      // A sourced statement on the provision or the FUTURES Act it came from; see
+      // db/section-219-ndaa-stated-2026-11.json. Filed first on israel_support so
+      // the drawer's stated line reads it; no other card is edited.
+      { topic:'Section 219 · U.S.–Israel Defense Tech', icon:'🇮🇱', pos:'support', issueKey:'israel_support', issueStance:'support', position:'support', status:'active',
+        text:'Defends Section 219 of the FY2027 NDAA against the charge that it surrenders U.S. control, telling The Intercept the cooperation "doesn\'t mean we are giving away American sovereignty."',
+        evidence:'Voted yes on final passage of H.R. 8800 with Section 219 in the bill, Roll Call 278, July 22, 2026; it passed 216–212.',
+        source:{label:'The Intercept, July 22, 2026', url:'https://theintercept.com/2026/07/22/ndaa-defense-bill-pentagon-israel-massie/'},
+        sources:[
+          { type:'interview (quoted)', label:'The Intercept, July 22, 2026', date:'2026-07-22', link:'https://theintercept.com/2026/07/22/ndaa-defense-bill-pentagon-israel-massie/', excerpt:'\u201cdoesn\u2019t mean we are giving away American sovereignty\u201d', weight:'strong' },
+          { type:'recorded vote', label:'House Clerk — Roll Call 278 (2026)', date:'2026-07-22', link:'https://clerk.house.gov/Votes/2026278', excerpt:'Voted yes on passage of H.R. 8800, which passed 216–212 with Section 219 in the bill.', weight:'strong' },
+        ] },
     ],
     kevin_hern: [ // Kevin Hern — 🧾 U.S. Representative (R-OK)
       { topic:'Government Spending & Debt', icon:'🧾', pos:'support', issueKey:'cut_spending', issueStance:'support', text:'As chair of the Republican Study Committee — the largest conservative House caucus — Hern authors budget blueprints built around deep spending cuts and balancing the budget.', evidence:'Chair of the Republican Study Committee; member of the House Ways & Means Committee.', source:{label:'hern.house.gov', url:'https://hern.house.gov/press/'} },

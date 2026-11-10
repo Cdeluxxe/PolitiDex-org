@@ -543,6 +543,7 @@ section("7 · a drawer with no roll call renders exactly as it did before");
   const moved = [];
   let swept = 0;
   for (const [pid] of corpus.byMember) {
+    if (declaredStanceMovesAtHead().moved.has(pid)) continue; // a declared stance pass (v103-chrome-seams.mjs) moves its own people
     swept++;
     for (const sc of scopes) {
       if (JSON.stringify(A.PDXConsistency.scopedOverall(sc, pid)) !==
