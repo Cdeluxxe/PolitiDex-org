@@ -3767,6 +3767,16 @@ export const DECLARED_STANCE_PASSES = [
     // other card byte-identical; Ronny Jackson and Marlin Stutzman had none.
     pids: ["massie", "khanna", "aoc", "sanders", "don_davis", "gillibrand", "ted_budd", "ronny_jackson", "marlin_stutzman"],
   },
+  {
+    pass: "ndaa_fy27_right_to_repair_stated_nov2026",
+    // The military right-to-repair / technical-data rights language of the
+    // FY2027 NDAA (H.R. 8800 Section 861; S. 4784 Section 804;
+    // db/ndaa-fy27-right-to-repair-stated-2026-11.json): one sourced card each
+    // on the existing strong_defense key, filed first among that member's
+    // strong_defense cards. Warren and Sheehy already had stance lists and keep
+    // every other card byte-identical; Maggie Goodlander and Pat Harrigan had none.
+    pids: ["maggie_goodlander", "pat_harrigan", "warren", "sheehy"],
+  },
 ];
 export const DECLARED_STANCE_PIDS = DECLARED_STANCE_PASSES.flatMap((d) => d.pids);
 // sw.js with its comment lines and the CACHE_VERSION line set aside: what a

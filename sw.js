@@ -11957,7 +11957,18 @@
 //     unchanged. No location key or other stored reader state is written or
 //     rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v548';
+// v549 - FY2027 NDAA MILITARY RIGHT TO REPAIR, STATED. politician-stances-core.js
+//     (precached) carries a sourced stance for Elizabeth Warren on the
+//     technical-data rights language of the FY2027 NDAA (Section 861 of
+//     H.R. 8800; Section 804 of S. 4784), filed on the existing Peace Through
+//     Strength key; politician-stances-ext.js (runtime-cached) adds Tim Sheehy,
+//     Maggie Goodlander and Pat Harrigan. No issue key, related pair, route or
+//     gate is added, and no other card is edited. A precached shell file
+//     changed, so the shell moves one version; the precache list is unchanged.
+//     No location key or other stored reader state is written or rewritten, so
+//     nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v549';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

@@ -2706,6 +2706,18 @@
       { topic:'Israel Aid & Conditions', icon:'🇮🇱', pos:'mixed', issueKey:'israel_support', issueStance:'mixed',
         text:'Supports military assistance to Israel but argues that continuing it without restriction provides "no incentive for Israel to adjust course," and has used floor speeches to press for conditioning aid on compliance with international law, civilian protection and humanitarian access.',
         source:{label:'warren.senate.gov', url:'https://www.warren.senate.gov/newsroom/press-releases/senator-warren-delivers-floor-speech-on-israel-gaza-and-conditioning-aid'} },
+      // ── RIGHT-TO-REPAIR PASS (Nov 2026) — FY2027 NDAA, H.R. 8800 §861 / S. 4784 §804 ──
+      // A sourced statement on the technical-data rights language or the bill it came
+      // from; see db/ndaa-fy27-right-to-repair-stated-2026-11.json. Filed first on
+      // strong_defense so the drawer's stated line reads it; no other card is edited.
+      { topic:'Military Right to Repair · FY2027 NDAA', icon:'🔧', pos:'support', issueKey:'strong_defense', issueStance:'support', position:'support', status:'active',
+        text:'Co-wrote the Warrior Right to Repair Act with Sen. Tim Sheehy, carried into the Senate FY2027 NDAA (S. 4784) as Section 804 and matched by Section 861 of the House bill; their joint statement says "It\'s common sense that our military should have the right to repair its own equipment."',
+        evidence:'The Senate Armed Services Committee added the language 27–0. The Senate has cast no vote on Section 804 itself; she voted no when cloture on taking up S. 4784 failed 50–46 on July 14, 2026.',
+        source:{label:'warren.senate.gov, June 15, 2026', url:'https://www.warren.senate.gov/newsroom/press-releases/warren-sheehy-statement-on-right-to-repair-win-in-senate-fy-27-ndaa/'},
+        sources:[
+          { type:'joint statement', label:'Warren, Sheehy statement on the right-to-repair win in the Senate FY27 NDAA, June 15, 2026', date:'2026-06-15', link:'https://www.warren.senate.gov/newsroom/press-releases/warren-sheehy-statement-on-right-to-repair-win-in-senate-fy-27-ndaa/', excerpt:'\u201cIt\u2019s common sense that our military should have the right to repair its own equipment.\u201d', weight:'strong' },
+          { type:'recorded vote', label:'U.S. Senate — Roll Call Vote 195 (2026)', date:'2026-07-14', link:'https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00195.htm', excerpt:'Voted no on cloture on the motion to proceed to S. 4784, which was rejected 50–46; not a vote on Section 804 itself.', weight:'strong' },
+        ] },
     ],
     fetterman: [ // John Fetterman — 🏛 U.S. Senator (D-PA)
       { topic:'Independent Streak', icon:'⚖️', pos:'mixed', issueKey:'gov_balance', issueStance:'mixed', text:'Judges legislation and nominations case by case rather than on a fixed ideological line, positioning himself as pragmatic and hard to pigeonhole.', source:{label:'fetterman.senate.gov', url:'https://www.fetterman.senate.gov'} },
@@ -8482,6 +8494,18 @@
       { topic:'Ohio Energy', icon:'🛢', pos:'support', issueKey:'energy_production', issueStance:'support', text:'Supports expanded oil, gas, and nuclear production and opposes rules he says raise energy costs for Ohio.', source:{label:'moreno.senate.gov', url:'https://www.moreno.senate.gov/press-releases/'} },
     ],
     sheehy: [ // Tim Sheehy — 🎖 U.S. Senator (R-MT)
+      // ── RIGHT-TO-REPAIR PASS (Nov 2026) — FY2027 NDAA, H.R. 8800 §861 / S. 4784 §804 ──
+      // A sourced statement on the technical-data rights language or the bill it came
+      // from; see db/ndaa-fy27-right-to-repair-stated-2026-11.json. Filed first on
+      // strong_defense so the drawer's stated line reads it; no other card is edited.
+      { topic:'Military Right to Repair · FY2027 NDAA', icon:'🔧', pos:'support', issueKey:'strong_defense', issueStance:'support', position:'support', status:'active',
+        text:'Co-wrote the Warrior Right to Repair Act with Sen. Elizabeth Warren, carried into the Senate FY2027 NDAA (S. 4784) as Section 804 and matched by Section 861 of the House bill; their joint statement says "We\'re going to fight tooth and nail to get our troops the full right to repair into law."',
+        evidence:'The Senate Armed Services Committee added the language 27–0. The Senate has cast no vote on Section 804 itself; he voted yes when cloture on taking up S. 4784 failed 50–46 on July 14, 2026.',
+        source:{label:'warren.senate.gov, June 15, 2026', url:'https://www.warren.senate.gov/newsroom/press-releases/warren-sheehy-statement-on-right-to-repair-win-in-senate-fy-27-ndaa/'},
+        sources:[
+          { type:'joint statement', label:'Warren, Sheehy statement on the right-to-repair win in the Senate FY27 NDAA, June 15, 2026', date:'2026-06-15', link:'https://www.warren.senate.gov/newsroom/press-releases/warren-sheehy-statement-on-right-to-repair-win-in-senate-fy-27-ndaa/', excerpt:'\u201cWe\u2019re going to fight tooth and nail to get our troops the full right to repair into law.\u201d', weight:'strong' },
+          { type:'recorded vote', label:'U.S. Senate — Roll Call Vote 195 (2026)', date:'2026-07-14', link:'https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00195.htm', excerpt:'Voted yes on cloture on the motion to proceed to S. 4784, which was rejected 50–46; not a vote on Section 804 itself.', weight:'strong' },
+        ] },
       { topic:'Defense & Israel', icon:'🛡', pos:'support', issueKey:'strong_defense', issueStance:'support', text:'A former Navy SEAL, Sheehy supports a strong military, robust aid to Israel, and a hard line on adversaries.', source:{label:'sheehy.senate.gov', url:'https://www.sheehy.senate.gov/press-releases/'} },
       { topic:'Montana Energy', icon:'⛏', pos:'support', issueKey:'energy_production', issueStance:'support', text:'Backs expanded domestic energy, mining, and timber production and opposes federal rules he argues hurt Montana\'s resource economy.', source:{label:'sheehy.senate.gov', url:'https://www.sheehy.senate.gov/press-releases/'} },
       { topic:'Border Security', icon:'🛂', pos:'support', issueKey:'border_security', issueStance:'support', text:'Supports stricter enforcement, more agents and barriers, and fentanyl interdiction.', source:{label:'sheehy.senate.gov', url:'https://www.sheehy.senate.gov/press-releases/'} },
@@ -9395,6 +9419,34 @@
         sources:[
           { type:'interview (quoted)', label:'The Intercept, July 22, 2026', date:'2026-07-22', link:'https://theintercept.com/2026/07/22/ndaa-defense-bill-pentagon-israel-massie/', excerpt:'\u201cdoesn\u2019t mean we are giving away American sovereignty\u201d', weight:'strong' },
           { type:'recorded vote', label:'House Clerk — Roll Call 278 (2026)', date:'2026-07-22', link:'https://clerk.house.gov/Votes/2026278', excerpt:'Voted yes on passage of H.R. 8800, which passed 216–212 with Section 219 in the bill.', weight:'strong' },
+        ] },
+    ],
+    maggie_goodlander: [ // Maggie Goodlander — U.S. Representative (D-NH-02); right-to-repair pass (Nov 2026)
+      // ── RIGHT-TO-REPAIR PASS (Nov 2026) — FY2027 NDAA, H.R. 8800 §861 / S. 4784 §804 ──
+      // A sourced statement on the technical-data rights language or the bill it came
+      // from; see db/ndaa-fy27-right-to-repair-stated-2026-11.json. Filed first on
+      // strong_defense so the drawer's stated line reads it; no other card is edited.
+      { topic:'Military Right to Repair · FY2027 NDAA', icon:'🔧', pos:'support', issueKey:'strong_defense', issueStance:'support', position:'support', status:'active',
+        text:'Led the amendment that became Section 861 of the FY2027 NDAA (H.R. 8800), making government purpose rights the default for the technical data and software the Pentagon buys, saying "servicemembers should have the tools and the ability to fix and maintain the equipment they rely on."',
+        evidence:'The House Armed Services Committee adopted the Goodlander–Harrigan amendment by voice vote on June 4, 2026, with no recorded vote. She voted no on final passage of H.R. 8800, Roll Call 278, July 22, 2026; it passed 216–212 with Section 861 in the bill.',
+        source:{label:'goodlander.house.gov, June 5, 2026', url:'https://goodlander.house.gov/media/press-releases/house-armed-services-committee-adopts-goodlander-led-bipartisan-amendment-to-strengthen-militarys-right-to-repair-its-own-equipment/'},
+        sources:[
+          { type:'press release', label:'Rep. Goodlander: House Armed Services adopts her military right-to-repair amendment, June 5, 2026', date:'2026-06-05', link:'https://goodlander.house.gov/media/press-releases/house-armed-services-committee-adopts-goodlander-led-bipartisan-amendment-to-strengthen-militarys-right-to-repair-its-own-equipment/', excerpt:'\u201cThis amendment cuts red tape, closes loopholes, and helps ensure our warfighters can do the jobs we\u2019ve asked them to do.\u201d', weight:'strong' },
+          { type:'recorded vote', label:'House Clerk — Roll Call 278 (2026)', date:'2026-07-22', link:'https://clerk.house.gov/Votes/2026278', excerpt:'Voted no on passage of H.R. 8800, which passed 216–212 with Section 861 in the bill.', weight:'strong' },
+        ] },
+    ],
+    pat_harrigan: [ // Pat Harrigan — U.S. Representative (R-NC-10); right-to-repair pass (Nov 2026)
+      // ── RIGHT-TO-REPAIR PASS (Nov 2026) — FY2027 NDAA, H.R. 8800 §861 / S. 4784 §804 ──
+      // A sourced statement on the technical-data rights language or the bill it came
+      // from; see db/ndaa-fy27-right-to-repair-stated-2026-11.json. Filed first on
+      // strong_defense so the drawer's stated line reads it; no other card is edited.
+      { topic:'Military Right to Repair · FY2027 NDAA', icon:'🔧', pos:'support', issueKey:'strong_defense', issueStance:'support', position:'support', status:'active',
+        text:'Co-led the amendment that became Section 861 of the FY2027 NDAA (H.R. 8800), the military right-to-repair and technical-data rights language, calling it "a readiness requirement, not a nice to have."',
+        evidence:'The House Armed Services Committee adopted the amendment by voice vote on June 4, 2026. He voted yes on final passage of H.R. 8800 with Section 861 in the bill, Roll Call 278, July 22, 2026; it passed 216–212.',
+        source:{label:'harrigan.house.gov, June 4, 2026', url:'https://harrigan.house.gov/media/press-releases/congressman-pat-harrigan-secures-military-right-repair-final-fy27-ndaa'},
+        sources:[
+          { type:'press release', label:'Rep. Harrigan secures military right to repair in the House FY27 NDAA, June 4, 2026', date:'2026-06-04', link:'https://harrigan.house.gov/media/press-releases/congressman-pat-harrigan-secures-military-right-repair-final-fy27-ndaa', excerpt:'\u201cRight to repair is in the House\u2019s final version of the NDAA, and every service that asked us for it is going to get it.\u201d', weight:'strong' },
+          { type:'recorded vote', label:'House Clerk — Roll Call 278 (2026)', date:'2026-07-22', link:'https://clerk.house.gov/Votes/2026278', excerpt:'Voted yes on passage of H.R. 8800, which passed 216–212 with Section 861 in the bill.', weight:'strong' },
         ] },
     ],
     kevin_hern: [ // Kevin Hern — 🧾 U.S. Representative (R-OK)
