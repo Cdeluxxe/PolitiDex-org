@@ -11896,6 +11896,22 @@
 //     No location key or other stored reader state is written or rewritten,
 //     so nothing is migrated.
 //     MIGRATION COST: none.
+// v545 - A PERSON FILE PAINTS ONCE, AS THE RIGHT PERSON.
+//     The provisional first paint on /p/<pid> is gone. profiles-full.js
+//     (precached) no longer mounts the file early off the bundled roster row
+//     and repaints it when the full document lands, and its loading shell no
+//     longer repeats the arrival header with a "Loading the latest roster…"
+//     line — the wait is a plain spinner and the file paints once.
+//     person-file.js (precached) drops the skeleton builder that fed it, and
+//     firebase-boot.js (precached) no longer shows the floating roster-loading
+//     pill on the person document (the error pill and its Retry are kept).
+//     It also stops the lightweight roster index from overwriting a full
+//     document that already landed, so a painted file keeps its record.
+//     pdx-perf.js (precached) drops the two stage names only that early paint
+//     ever marked. Profile content, routes and data are unchanged. Precached scripts
+//     changed, so the shell moves one version; the precache list is
+//     unchanged. Nothing stored is written or rewritten.
+//     MIGRATION COST: none.
 // v544 - THE SEARCH AND THE OVERLAYS STAY SMOOTH ON A PHONE.
 //     all-seeing-eye.js (runtime-cached, not precached): on a touch screen
 //     only, a short one-line query no longer forces a layout measurement on
@@ -11914,7 +11930,7 @@
 //     other stored reader state is written or rewritten, so nothing is
 //     migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v544';
+const CACHE_VERSION = 'v545';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

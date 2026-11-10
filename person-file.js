@@ -844,7 +844,7 @@
   }
 
   // ── THE FORMAL ROWS THE HEADER ALREADY PRINTED ────────────────────────────
-  // The same rows arrivalSkeleton repeats below, parsed rather than pasted, so a
+  // The rows the edge's arrival header printed, parsed rather than pasted, so a
   // surface that renders the formal record can print what the first byte already
   // showed instead of a sentence saying there is nothing to show. That was a live
   // defect: the gold brief on a cold /p/steven_lund said "No formal pattern on
@@ -857,7 +857,7 @@
   // parts are taken and the REST is rejoined: the line is never split into more
   // fields than were written into it.
   //
-  // IT WIDENS NOTHING. Same node and the same identity guard as arrivalSkeleton —
+  // IT WIDENS NOTHING. Same node and the same identity guard as stampId above —
   // the block must be stamped for the address in the bar (crawlHeader) and must
   // name the person being asked about — and the same six-row cap the edge itself
   // applies. `text` is the untouched line for a caller that wants to repeat it
@@ -907,78 +907,6 @@
   // answer, and only ever with an id that has a record on hand.
   function resolveArrival(pid) {
     return resolve(pid) || stampId();
-  }
-
-  // ── The skeleton that keeps the first paint on screen ─────────────────────
-  // A cold /p/<pid> arrival opens the modal on a loading shell, because the full
-  // profile document has not been fetched yet. That shell used to be a spinner
-  // and the sentence "Loading <name>…", drawn OVER a header that was already
-  // showing the reader the name, the office and up to six formal-record rows. The
-  // page went backwards at the exact moment it was supposed to go forwards.
-  //
-  // So the shell repeats what the first paint already said. Same strings, read
-  // out of the same header, re-escaped as text — nothing here parses or re-hosts
-  // markup that came off the wire, and nothing here computes a row. The status
-  // line under it is the only new sentence, and it is a status rather than the
-  // whole content: the rows above it are real and stay put until the file lands.
-  //
-  // Returns '' when the header cannot be trusted for this pid, which is the
-  // caller's cue to keep the spinner it always had. Two conditions, both cheap:
-  // the header must be stamped for the address in the bar (crawlHeader), and the
-  // id it names must be the id being opened — a person opened from a card while
-  // some earlier arrival's header is still in the document gets no skeleton, and
-  // above all not that other person's rows.
-  var SKEL_STYLE = '<style>' +
-    '.pdx-file-skel{padding:1.25rem 1.15rem 1.4rem;color:#eef4ff;text-align:left;}' +
-    '.pdx-file-skel h2{margin:0 0 .35rem;font-size:1.55rem;line-height:1.15;' +
-      "font-family:'Barlow Condensed',sans-serif;letter-spacing:.01em;color:#fff;}" +
-    '.pdx-file-skel-line{margin:0 0 1rem;color:#9fb4d4;font-size:.9rem;line-height:1.45;max-width:60ch;}' +
-    '.pdx-file-skel h3{margin:0 0 .45rem;font-size:.7rem;letter-spacing:.14em;' +
-      'text-transform:uppercase;color:#f5c842;}' +
-    '.pdx-file-skel ul{margin:0 0 1.15rem;padding:0;list-style:none;}' +
-    '.pdx-file-skel li{margin:0 0 .3rem;padding:.5rem .7rem;border-radius:.4rem;' +
-      'background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);' +
-      'color:#c9d8f2;font-size:.86rem;line-height:1.4;}' +
-    '.pdx-file-skel-status{display:flex;align-items:center;gap:.5rem;margin:0;' +
-      'color:#6b7c9c;font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;}' +
-    '</style>';
-
-  function arrivalSkeleton(pid) {
-    try {
-      var h = crawlHeader();
-      if (!h) return '';
-      // Same spelling normalisation crawlRecord makes, for the same reason: the
-      // id this document was served for and the canonical id the edge stamped
-      // are one claim about one person.
-      if (ARRIVAL && String(pid) === ARRIVAL) pid = h.pid;
-      // The header names one person. Opening anybody else must not borrow it.
-      if (canonId(h.pid) !== canonId(pid) && h.pid !== pid) return '';
-
-      var nameEl = h.el.querySelector ? h.el.querySelector('h1') : null;
-      var name = nameEl ? String(nameEl.textContent || '').trim() : '';
-      if (!name) return '';
-
-      var ps = h.el.querySelectorAll ? h.el.querySelectorAll('p') : [];
-      var line = ps && ps.length ? String(ps[0].textContent || '').trim() : '';
-
-      // The same six rows, off the same node, through the one reader that parses
-      // them (crawlRecord above) — repeated here as the header's own text, which
-      // is what this shell has always printed.
-      var rows = crawlRecord(pid).map(function (x) { return '<li>' + esc(x.text) + '</li>'; });
-
-      return SKEL_STYLE +
-        '<div class="pdx-file-skel" role="status" aria-live="polite" data-pdx-file-skel="' + esc(pid) + '">' +
-          '<h2>' + esc(name) + '</h2>' +
-          (line ? '<p class="pdx-file-skel-line">' + esc(line) + '</p>' : '') +
-          (rows.length
-            ? '<h3>Formal record</h3><ul>' + rows.join('') + '</ul>'
-            : '') +
-          '<p class="pdx-file-skel-status">' +
-            '<span class="pdx-roster-spin" aria-hidden="true"></span>' +
-            '<span>Loading the latest roster…</span>' +
-          '</p>' +
-        '</div>';
-    } catch (e) { return ''; }
   }
 
   // ── The first-byte crawl block ────────────────────────────────────────────
@@ -1719,9 +1647,9 @@
   //   · THE WAIT MUST HAVE ENDED. attempt() below owns the only clock here and
   //     keeps every number it had (CEILING, MAX_TRIES, SETTLED_GRACE); this flag
   //     is set while that loop is live and cleared the moment it stops. While it
-  //     is live the honest surface is the one already on screen — the skeleton's
-  //     "Loading the latest roster…" — and silence is what that sentence needs
-  //     to stay true.
+  //     is live the honest surface is the one already on screen — the arrival
+  //     header and then the loading spinner — and silence is what that wait
+  //     needs to stay true.
   //   · NOTHING ON THE PAGE MAY ALREADY DISPROVE IT. Three reads, all of them
   //     things this module already consults, none of them a new source:
   //       — PROFILES and CMP_DATA, re-asked at the moment of speaking rather
@@ -1864,7 +1792,6 @@
     // The arrival surface: what the edge already told this document about the
     // address in the bar, and the two things the renderer needs from it.
     resolveArrival: resolveArrival,
-    arrivalSkeleton: arrivalSkeleton,
     // The header's formal rows, for the record surfaces that must not contradict
     // them. Read-only, identity-guarded, capped where the edge capped it.
     crawlRecord: crawlRecord,

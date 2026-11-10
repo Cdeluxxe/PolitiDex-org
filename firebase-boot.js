@@ -442,6 +442,10 @@
         }).then(function (data) {
           (data.documents || []).forEach(function (doc) {
             var id = doc.name.split('/').pop();
+            // A full document that already landed (a person file opened while
+            // this index was still paging) is never replaced by its lite stub:
+            // that file has painted off the full record and must stay on it.
+            if (window._pdxFullIds.has(id) && PROFILES[id]) { count++; return; }
             var fields = doc.fields || {};
             var obj = {};
             for (var k in fields) obj[k] = _pdxRestVal(fields[k]);
@@ -628,6 +632,14 @@
     var el = document.getElementById('pdx-roster-status');
     var st = window._pdxRosterState;
     if (st === 'loading' && _pdxJudicialFileOpen()) {
+      if (el && el.parentNode) el.parentNode.removeChild(el);
+      return;
+    }
+    // Nor on the person document. The file there waits on its own spinner and
+    // then paints once; a "Loading the latest roster…" overlay on top of that
+    // wait was half of the flash readers saw before the correct profile settled.
+    // The error pill still shows, for the same reason as above.
+    if (st === 'loading' && window.__PDX_PERSON_DOC === true) {
       if (el && el.parentNode) el.parentNode.removeChild(el);
       return;
     }

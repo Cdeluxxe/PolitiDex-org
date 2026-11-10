@@ -3743,52 +3743,18 @@
   // #modal-content (which openModal overwrites once the data arrives), so a cold
   // open / deep link gives immediate feedback instead of a frozen tap.
   //
-  // ON A COLD /p/<pid> IT IS NOT A SPINNER.
-  //
-  // A cold arrival on a person address is served a document whose first byte
-  // already names the person, their office and up to six formal-record rows — the
-  // header the edge writes (netlify/edge-functions/share-preview.ts). This shell
-  // then opened on top of it saying "Loading Ro Khanna…" and nothing else, which
-  // took a page that was ahead and put it behind: the reader had the name, and we
-  // covered it with the word "loading".
-  //
-  // So when the arrival header is provably about the person being opened,
-  // PDXPerson.arrivalSkeleton repeats those rows here, as text, with the roster
-  // status demoted to the small line it should always have been. It is the same
-  // first paint held in place until the real file replaces it — not a second
-  // rendering of anything, and not a computation: the strings come from the
-  // document that was served, and person-file.js refuses the header outright
-  // unless its address stamp matches the address in the bar.
-  //
-  // Every other caller — a card tap on a member whose full document has not been
-  // fetched, an in-app hop — gets exactly the spinner it always got, because there
-  // is no arrival header to repeat.
+  // IT SHOWS NO PROFILE CONTENT. It used to repeat the edge's arrival header
+  // (name, office, formal rows) with a "Loading the latest roster…" line under
+  // it, as a provisional first paint. Since the person split the real file
+  // arrives quickly, and that provisional paint was what readers saw flash
+  // before the correct file settled. So the wait is a spinner and nothing else:
+  // no name, no photo, no rows — the file paints once, when its data is in.
   window._pdxOpenFullModalShell = function (id) {
-    var d = (typeof CMP_DATA !== 'undefined' && CMP_DATA[id]) ||
-            (window.PROFILES && window.PROFILES[id]) || {};
-    var nm = d && d.name ? (typeof window._slEsc === 'function' ? window._slEsc(d.name) : d.name) : 'profile';
     var host = document.getElementById('modal-content');
-    var skel = '';
-    try {
-      if (window.PDXPerson && typeof window.PDXPerson.arrivalSkeleton === 'function') {
-        skel = window.PDXPerson.arrivalSkeleton(id) || '';
-      }
-    } catch (e) { skel = ''; }
     if (host) {
-      host.innerHTML = skel || ('<div class="pdx-modal-loading">' +
+      host.innerHTML = '<div class="pdx-modal-loading" role="status" aria-label="Loading profile">' +
           '<span class="pdx-roster-spin" aria-hidden="true"></span>' +
-          '<p>Loading ' + nm + '…</p>' +
-        '</div>');
-    }
-    // The stage clock's mark for "the skeleton is up": the name and the formal
-    // rows are on screen, and that is worth timing — but it is NOT `file-named`,
-    // which it used to take. `file-named` is the number the cold open is judged
-    // on and it has to mean the FULL letterhead (photo, office, tenure, formal
-    // brief, money chip), not a repeat of the crawl block with a spinner under
-    // it. While the skeleton was allowed to claim it, a file that then sat 39
-    // seconds on "Loading the latest roster…" reported a fast cold open.
-    if (host && skel) {
-      try { if (window.PDXPerf && window.PDXPerf.mark) window.PDXPerf.mark('skeleton-named'); } catch (e) {}
+        '</div>';
     }
     var overlay = document.getElementById('modal-overlay');
     if (overlay) {
@@ -4578,131 +4544,6 @@
     window.addEventListener('pdx-record-noted', _vrhiSettled);
   }
 
-  // ── THE COLD MOUNT: PAINT FROM WHAT IS ON HAND, MERGE WHAT ARRIVES ────────
-  // A cold arrival on /p/<pid> used to open the modal on a loading shell and then
-  // sit there — measured at ~39 seconds on /p/lee — because openModal's next step
-  // was `_pdxEnsureFullProfile(id)`, and that is a Firestore document read behind
-  // anonymous sign-in behind the lightweight roster index. None of those three are
-  // inputs to the letterhead. The name, the office, the state, the district, the
-  // photo and the party are in cmp-data.js, which is a bundled script: they are in
-  // memory before person-file.js has even executed. The formal brief is computed
-  // by word-action.js from the member vote payload the head block already has in
-  // flight. So the file was gated on the cloud for fields the cloud does not own.
-  //
-  // WHAT CHANGED. When a record for this id is already on hand, the file mounts
-  // NOW — the whole letterhead, through the same renderer, off the local record —
-  // and the Firestore document is fetched BEHIND the paint. When it lands with
-  // something new, openModal re-runs and the richer photo, the bio, the comments
-  // and every field the bundled roster lacks merge in. Firestore wins on any field
-  // it actually carries, which is firebase-boot's own merge order
-  // (Object.assign({}, PROFILES[id], full)) and not a rule invented here.
-  //
-  // WHAT DID NOT CHANGE. An id with NO local record still opens the shell and
-  // still waits, because there is nothing to paint; the shell is the honest state
-  // there, and person-file.js still refuses to call that id unknown until the
-  // roster has settled. In-app opens (a card tap, a hop between files) also keep
-  // the old path exactly: they are not the latency this fixes, and swapping a
-  // spinner for a paint-then-repaint under a reader's finger buys nothing.
-  window._pdxColdOpen = {
-    // Is this open the cold /p/<pid> arrival for THIS id? Three ways an address
-    // can name an id, all of them person-file's own (the alias tables, the case
-    // fold, the display-name slug, and the edge's first-byte stamp) — never a new
-    // resolution rule, and never true once a file is already on screen, which is
-    // what distinguishes an arrival from an in-app hop.
-    isArrival: function (id) {
-      try {
-        var P = window.PDXPerson;
-        if (!id || !P || typeof P.fromPath !== 'function') return false;
-        if (window._pdxCurrentProfileId) return false;
-        var raw = P.fromPath();
-        if (!raw) return false;
-        if (raw === id) return true;
-        var r = (typeof P.resolveArrival === 'function') ? P.resolveArrival(raw)
-              : ((typeof P.resolve === 'function') ? P.resolve(raw) : '');
-        return !!r && r === id;
-      } catch (e) { return false; }
-    },
-
-    // The record to mount from, or null when nothing local knows this id.
-    //
-    // Both rosters, merged in the order the merge itself runs: the bundled index
-    // as the base, whatever Firestore has already delivered (the lightweight
-    // stub) on top. A key is only overlaid when it carries something — a null or
-    // an empty string from the index would blank a name the bundled roster has,
-    // and a blank letterhead is worse than a slightly staler one.
-    seed: function (id) {
-      var live = null, bundled = null;
-      try { live = (window.PROFILES && window.PROFILES[id]) || null; } catch (e) {}
-      try { bundled = (typeof CMP_DATA !== 'undefined' && CMP_DATA[id]) || null; } catch (e) {}
-      if (!live && !bundled) return null;
-      if (!bundled) return live;
-      if (!live) return bundled;
-      if (live === bundled) return live;
-      var out = {};
-      for (var k in bundled) if (Object.prototype.hasOwnProperty.call(bundled, k)) out[k] = bundled[k];
-      for (var j in live) {
-        if (!Object.prototype.hasOwnProperty.call(live, j)) continue;
-        var v = live[j];
-        if (v === undefined || v === null || v === '') continue;
-        out[j] = v;
-      }
-      return out;
-    },
-
-    // The Firestore read, started behind the paint. Once per id: openModal can be
-    // re-entered for the same person (person-file's open(), then a popstate, then
-    // a card), and _pdxEnsureFullProfile shares one request across all of them —
-    // but a second .then would mean a second repaint of a file that only changed
-    // once.
-    _merging: {},
-    merge: function (id, rerender) {
-      if (!id || this._merging[id]) return null;
-      if (typeof window._pdxEnsureFullProfile !== 'function') return null;
-      this._merging[id] = 1;
-      var self = this;
-      var before = null;
-      try { before = window.PROFILES ? window.PROFILES[id] : null; } catch (e) {}
-      var pr;
-      try { pr = window._pdxEnsureFullProfile(id); } catch (e) { delete this._merging[id]; return null; }
-      if (!pr || typeof pr.then !== 'function') { delete this._merging[id]; return null; }
-      return pr.then(function () {
-        delete self._merging[id];
-        var now = null;
-        try { now = window.PROFILES ? window.PROFILES[id] : null; } catch (e) {}
-        // Nothing arrived. _pdxEnsureFullProfile replaces PROFILES[id] with a new
-        // object when — and only when — a document existed, so identity is the
-        // exact test for "was there anything to merge". A no-document id (or a page
-        // with no Firebase at all) therefore costs no repaint, which matters: that
-        // branch resolves in a microtask, and repainting there would be a second
-        // full render of a file the reader is already reading.
-        if (!now || now === before) return null;
-        // A MERGE MAY NOT BLANK THE FILE. The identity fields are what the reader
-        // is looking at; a document that has lost its name is a data fault, not an
-        // instruction to erase the letterhead, so anything the local record had and
-        // the merged one does not is put back before the repaint.
-        if (before) {
-          ['name', 'office', 'state', 'district', 'party', 'icon'].forEach(function (k) {
-            var v = now[k];
-            if ((v === undefined || v === null || v === '') && before[k]) now[k] = before[k];
-          });
-        }
-        if (!now.name) return null;
-        if (String(window._pdxCurrentProfileId || '') !== String(id)) return null;
-        if (typeof rerender !== 'function') return null;
-        // The reader may have scrolled into the file while the document was in
-        // flight, and openModal ends by putting #modal-body back at the top. The
-        // merge is a repaint of a file they are already inside, so it keeps their
-        // place instead of throwing them back up to the photo.
-        var body = null, top = 0;
-        try { body = document.getElementById('modal-body'); top = body ? body.scrollTop : 0; } catch (e) {}
-        rerender(id);
-        try { if (body && top) body.scrollTop = top; } catch (e) {}
-        try { if (window.PDXPerf && window.PDXPerf.mark) window.PDXPerf.mark('roster-merged'); } catch (e) {}
-        return now;
-      }, function () { delete self._merging[id]; return null; });
-    }
-  };
-
   // ── The paint hold, for the file that covers every surface it repaints ──
   // _alignRefreshAll is sixteen document-wide passes (alignment-tool.js) and an
   // open person file covers all sixteen of them: the relevant-to-me grid, the
@@ -4729,6 +4570,9 @@
   // not, go there instead of painting". Declared out here because the guard has
   // to survive openModal's own re-entrant call into itself.
   var _pdxOpenModalNavTried = false;
+  // One-shot pass from the loading shell's fetch to openModal's re-entry; see
+  // the shell branch in openModal.
+  var _pdxShellSettled = {};
   function _pdxHoldAlign(on) {
     try {
       if (on) { if (_pdxAlignHeld) return; _pdxAlignHeld = true; }
@@ -4812,33 +4656,34 @@
     // (which now finds the cached full data and renders normally). This also
     // covers cold deep-links (?p=<id>) where no modal was opened first.
     //
-    // EXCEPT ON A COLD /p/<pid> ARRIVAL FOR A PERSON WE ALREADY HOLD. There the
-    // shell is not feedback, it is a 39-second wait for fields the cloud does not
-    // own — so the file mounts from the local record now and the Firestore document
-    // merges in behind it. See window._pdxColdOpen above for the whole argument.
-    if (id && window._pdxFullIds && typeof window._pdxEnsureFullProfile === 'function' && !window._pdxFullIds.has(id)) {
-      var _cold = window._pdxColdOpen;
-      var _seed = (_cold && _cold.isArrival(id)) ? _cold.seed(id) : null;
-      // A seed with no name is not a letterhead. Fall back to the shell rather
-      // than mount a file whose h1 is empty.
-      if (_seed && _seed.name) {
-        PROFILES[id] = _seed;
-        _cold.merge(id, openModal);
-        // …and fall through: the render below is the full file, off the local record.
-      } else {
-        if (typeof window._pdxOpenFullModalShell === 'function') window._pdxOpenFullModalShell(id);
-        window._pdxEnsureFullProfile(id).then(function () {
-          // Firestore may not have a document for this id — some current officeholders
-          // (e.g. recently appointed state legislators) live only in the bundled static
-          // roster (CMP_DATA). Seed PROFILES from that fallback so the full profile still
-          // opens instead of dead-ending on a spinner.
-          if (!PROFILES[id] && typeof CMP_DATA !== 'undefined' && CMP_DATA[id]) {
-            PROFILES[id] = CMP_DATA[id];
-          }
-          openModal(id);
-        });
-        return;
-      }
+    // ONE PAINT, OF THE RIGHT PERSON. This used to have an exception for a cold
+    // /p/<pid> arrival: the file mounted early from a seed (the bundled roster row
+    // merged with the lightweight stub) and the Firestore document repainted it
+    // when it landed. That provisional paint is what readers saw flash — a stale
+    // or placeholder photo and a half-built header, then the real file swapping
+    // in. Since the person split the document read is quick enough that the
+    // early paint buys nothing, so every open now waits on the shell (a plain
+    // spinner, no profile content) and paints the file exactly once.
+    //
+    // The re-entry after the fetch renders whatever is on hand even when the read
+    // failed (a failed read leaves the id out of _pdxFullIds), so a dead network
+    // shows the file from the roster row instead of looping on the spinner.
+    if (id && _pdxShellSettled[id]) {
+      delete _pdxShellSettled[id];
+    } else if (id && window._pdxFullIds && typeof window._pdxEnsureFullProfile === 'function' && !window._pdxFullIds.has(id)) {
+      if (typeof window._pdxOpenFullModalShell === 'function') window._pdxOpenFullModalShell(id);
+      window._pdxEnsureFullProfile(id).then(function () {
+        // Firestore may not have a document for this id — some current officeholders
+        // (e.g. recently appointed state legislators) live only in the bundled static
+        // roster (CMP_DATA). Seed PROFILES from that fallback so the full profile still
+        // opens instead of dead-ending on a spinner.
+        if (!PROFILES[id] && typeof CMP_DATA !== 'undefined' && CMP_DATA[id]) {
+          PROFILES[id] = CMP_DATA[id];
+        }
+        _pdxShellSettled[id] = 1;
+        openModal(id);
+      });
+      return;
     }
     let p = PROFILES[id];
     // The full-profile modal is normally PROFILES-backed (the live Firestore mirror).

@@ -365,7 +365,7 @@ section("3 · the header is bound to the arrival, not to the bar");
   eq(wl.location.pathname, "/p/" + LEE, "the stamp moved the bar off the address the block was generated at");
   eq(wl.PDXPerson.crawlRecord(LEE).length, LROWS.length,
     "…and the rows are STILL read — this is the defect the report describes");
-  ok(wl.PDXPerson.arrivalSkeleton(LEE).length > 0, "…and the skeleton still has its rows too");
+  eq(typeof wl.PDXPerson.arrivalSkeleton, "undefined", "…and no provisional skeleton is built from them");
 
   // AND NOBODY ELSE'S ROWS, EVER. The widening is one id: the address's own.
   eq(wl.PDXPerson.crawlRecord(GARNER), [], "a person the block does not name gets nothing");

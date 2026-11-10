@@ -24,8 +24,9 @@
 //      bytes. openModal then opened its loading shell on top of it — a spinner
 //      and the words "Loading Ro Khanna…" — because the full profile document
 //      still had to be fetched. The page went backwards at the moment it was
-//      meant to go forwards. arrivalSkeleton repeats that header's own strings,
-//      as text, and the header is retired only once the real file is mounted.
+//      meant to go forwards. The header is retired only once the real file is
+//      mounted. (A skeleton that repeated the header's rows inside the shell was
+//      later removed: it was the flash before the correct file settled.)
 //
 // WHAT THIS FILE HOLDS:
 //
@@ -36,10 +37,8 @@
 //      all cost exactly one request for the member the file opens.
 //   3. A PREFETCH FOR SOMEBODY ELSE IS ABANDONED, not left racing the request the
 //      reader is waiting on — and claimed, so nothing can adopt an aborted promise.
-//   4. THE SKELETON IS THAT PERSON'S OWN ROWS. It repeats the header's name,
-//      office line and formal rows; it escapes them; and it refuses outright when
-//      the header names anybody else, is generic, or is stamped for another
-//      address.
+//   4. THERE IS NO PROVISIONAL SKELETON. The loading shell is a spinner and
+//      shows no profile content until the file itself paints.
 //   5. THE HEADER YIELDS TO A FILE, NOT TO A SPINNER. Hidden on mount, kept while
 //      the shell is up.
 //
@@ -294,84 +293,24 @@ section("2 · one in-flight request per pid");
 // ═════════════════════════════════════════════════════════════════════════════
 section("3 · a prefetch for somebody else is abandoned, not left racing");
 // ═════════════════════════════════════════════════════════════════════════════
-{
-  // /p/mike_lee is the case the head block cannot resolve: the display-name slug
-  // is derived from the roster, which the head does not have. So it prefetches
-  // `mike_lee` and the file opens `lee`. That request is now dead weight on the
-  // one connection the reader is waiting on, so it is aborted and claimed.
-  const a = arrive({ pathname: "/p/mike_lee", header: { forPath: "/p/mike_lee", pid: "lee" } });
-  const box = a.prefetch("mike_lee");
-  a.P.bootAdopt();
-  eq(box.aborted, true, "the wrong member's prefetch is aborted");
-  eq(box.claimed, true, "…and claimed, so fetchMember cannot adopt an aborted promise");
-  eq(a.memberLog(), ["mike_lee", "lee"], "the request the file waits on is issued, and it is the only new one");
-  eq(a.calls.openModal, ["lee"], "the file opens the person the address resolves to");
-  a.P.open("lee");
-  eq(a.memberLog(), ["mike_lee", "lee"], "opening does not spend a third request");
-
-  // A prefetch that IS about this arrival is left alone.
-  const b = arrive({ pathname: "/p/lee", header: { forPath: "/p/lee", pid: "lee" } });
-  const good = b.prefetch("lee");
-  b.P.bootAdopt();
-  eq(good.aborted, false, "a prefetch for the right member is never aborted");
-  eq(b.memberLog(), ["lee"], "…and no second request goes out beside it");
-
-  // A box fetchMember has already taken is somebody's answer, not ours to abort.
-  const c = arrive({ pathname: "/p/mike_lee", header: { forPath: "/p/mike_lee", pid: "lee" } });
-  const taken = c.prefetch("mike_lee");
-  taken.claimed = true;
-  c.P.bootAdopt();
-  eq(taken.aborted, false, "an already-claimed box is left alone");
-}
-
-// ═════════════════════════════════════════════════════════════════════════════
-section("4 · the loading shell is that person's own rows");
+section("4 · there is no provisional skeleton");
 // ═════════════════════════════════════════════════════════════════════════════
 {
+  // The shell used to repeat the arrival header's name and rows with a
+  // "Loading the latest roster…" line under it. That provisional paint was the
+  // flash before the real file settled, so it is gone: the person module no
+  // longer builds one, and the shell in profiles-full.js is a spinner only.
   const a = arrive({ pathname: "/p/lee", header: { forPath: "/p/lee", pid: "lee" } });
-  const sk = a.P.arrivalSkeleton("lee");
-  ok(!!sk, "an arrival header stamped for this address yields a skeleton");
-  has(sk, "Mike Lee", "the name the first paint already showed is repeated");
-  has(sk, "U.S. Senator · Utah", "…with the office line under it");
-  has(sk, "Strongly opposes · Health care · 12 actions advanced", "…and the header's own formal rows");
-  has(sk, "Split · Housing · 3 actions advanced · 2 against", "…all of them, in order");
-  has(sk, "Loading the latest roster…", "the wait is stated");
-  has(sk, "pdx-file-skel-status", "…as a status line rather than as the content");
-  ok(sk.indexOf("Mike Lee") < sk.indexOf("Loading the latest roster…"),
-    "the name is above the status, not replaced by it");
-  hasnt(sk, "Loading Mike Lee…", "the shell no longer says only that it is loading a person it can already name");
-  has(sk, 'data-pdx-file-skel="lee"', "the skeleton says who it is standing in for");
-  has(sk, 'role="status"', "…and announces itself to a screen reader");
-
-  // At most six rows: the shell is a held first paint, not a second brief.
-  const many = arrive({
-    pathname: "/p/lee",
-    header: { forPath: "/p/lee", pid: "lee", rows: ["r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8"] },
-  });
-  const big = many.P.arrivalSkeleton("lee");
-  has(big, "<li>r6</li>", "six rows are repeated");
-  hasnt(big, "<li>r7</li>", "…and the seventh is not");
-
-  // Escaped as text. The header came off the wire; nothing here re-hosts markup.
-  const evil = arrive({
-    pathname: "/p/lee",
-    header: { forPath: "/p/lee", pid: "lee", name: 'Mike <img src=x onerror="boom()">', rows: ["<script>boom()</script>"] },
-  });
-  const esc = evil.P.arrivalSkeleton("lee");
-  hasnt(esc, "<img", "a name carrying markup is escaped, not rendered");
-  hasnt(esc, "<script>boom", "…and so is a row");
-  has(esc, "&lt;img", "the escaped form is what ships");
-
-  // REFUSALS. Each of these must fall back to the spinner the shell always had,
-  // and above all must never lend one person's rows to another person's file.
-  eq(a.P.arrivalSkeleton("khanna"), "", "the header's rows are refused for a different person");
-  const gen = arrive({ pathname: "/p/nobody", header: { forPath: "/p/nobody", pid: null, generic: true } });
-  eq(gen.P.arrivalSkeleton("nobody"), "", "a generic header names nobody, so it yields nothing");
-  const stale = arrive({ pathname: "/p/khanna", header: { forPath: "/p/lee", pid: "lee" } });
-  eq(stale.P.arrivalSkeleton("khanna"), "", "a header stamped for another address is refused");
-  eq(stale.P.arrivalSkeleton("lee"), "", "…for its own person too, because the address is what was poisoned");
-  const none = arrive({ pathname: "/p/lee", crawl: false });
-  eq(none.P.arrivalSkeleton("lee"), "", "a document with no header yields nothing");
+  eq(typeof a.P.arrivalSkeleton, "undefined", "person-file.js no longer exports a skeleton builder");
+  hasnt(PF_SRC, "pdx-file-skel", "…and carries no skeleton markup");
+  hasnt(PF_SRC, "'<span>Loading the latest roster…</span>'", "…and prints no roster-wait line into the file");
+  const PROF = R("profiles-full.js");
+  const shell = (PROF.match(/window\._pdxOpenFullModalShell = function \(id\) \{[\s\S]*?\n  \};/) || [])[0] || "";
+  ok(!!shell, "profiles-full.js still defines the loading shell");
+  hasnt(shell, "arrivalSkeleton", "the shell does not ask for a skeleton");
+  hasnt(shell, "Loading the latest roster", "the shell does not state a roster wait");
+  hasnt(shell, "d.name", "the shell prints no name");
+  has(shell, "pdx-roster-spin", "the shell is a spinner");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

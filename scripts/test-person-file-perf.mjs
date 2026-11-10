@@ -581,21 +581,11 @@ section("11 · the loading shell repeats the first paint instead of hiding it");
   ok(openIdx < PROF.indexOf("window.PDXPerson.mounted(id)"),
     "the callback fires after the content is in the DOM, not before");
 
-  // The shell itself carries the same rows.
-  const sk = PF.match(/function arrivalSkeleton\(pid\) \{[\s\S]*?\n  \}/);
-  must(sk, "person-file's arrivalSkeleton is gone");
-  const SK = sk[0];
-  has(SK, "if (!h) return ''", "no trustworthy header means no skeleton");
-  has(SK, "if (canonId(h.pid) !== canonId(pid) && h.pid !== pid) return ''",
-    "one person's rows are never borrowed for another person's file");
-  has(SK, "textContent", "the rows are read as text");
-  // The row parse moved out of the skeleton into crawlRecord(), so that the gold
-  // brief can print the same rows without a second parser and without a second
-  // copy of the identity guard. The two facts this section has always asserted are
-  // asserted where they now live: the rows come off the header's own <li>s, and the
-  // skeleton re-hosts them as TEXT.
-  has(SK, "crawlRecord(pid)", "the formal rows come from the one reader that parses the header");
-  has(SK, "esc(x.text)", "and re-escaped as text, never re-hosted as markup");
+  // THE SHELL CARRIES NO PROFILE CONTENT. A skeleton that repeated the header's
+  // rows under a "Loading the latest roster…" line used to fill it; that
+  // provisional paint was the flash before the correct file settled, so it is
+  // gone. The header's rows are still read — by crawlRecord, for the gold brief.
+  hasnt(PF, "function arrivalSkeleton(", "person-file's provisional skeleton is gone");
   const cr = PF.match(/function crawlRecord\(pid\) \{[\s\S]*?\n  \}/);
   must(cr, "person-file's crawlRecord is gone");
   has(cr[0], "[data-pdx-crawl-record] li", "…off the header's own rows");
@@ -604,11 +594,6 @@ section("11 · the loading shell repeats the first paint instead of hiding it");
     "…and refused outright for anybody the header does not name");
   has(cr[0], "i < 6", "…under the same six-row cap the edge itself applies");
   hasnt(cr[0], "innerHTML", "…and it reads the node, it never writes to it");
-  has(SK, "Loading the latest roster…", "the roster wait is stated");
-  has(SK, "pdx-file-skel-status", "…as a small status line, not as the content");
-  ok(SK.indexOf("esc(name)") < SK.indexOf("pdx-file-skel-status"),
-    "the name is above the status line, not replaced by it");
-  hasnt(SK, "innerHTML", "the skeleton is a string, it does not write to the DOM itself");
 
   // querySelector, not getElementById: the resolve path must not be the thing
   // that decides the header node was looked for.
@@ -620,23 +605,19 @@ section("11 · the loading shell repeats the first paint instead of hiding it");
   eq((PF.match(/getElementById\('pdx-crawl-person'\)/g) || []).length, 1,
     "exactly one place still asks for the header node by id (crawlDone)");
 
-  // The shell prefers the skeleton and keeps the spinner as the fallback.
+  // The shell is a spinner and nothing else: no name, no rows, no roster line.
   const shell = PROF.match(/window\._pdxOpenFullModalShell = function \(id\) \{[\s\S]*?\n  \};/);
   must(shell, "profiles-full.js's _pdxOpenFullModalShell is gone");
   const SH2 = shell[0];
-  has(SH2, "window.PDXPerson.arrivalSkeleton(id)", "the shell asks for the skeleton");
-  has(SH2, "skel ||", "and falls back to the old spinner when there is none");
-  has(SH2, "pdx-modal-loading", "the fallback loading state is still there");
-  ok(SH2.indexOf("arrivalSkeleton(id)") < SH2.indexOf("host.innerHTML"),
-    "the skeleton is resolved before the shell is written");
-  // THE SHELL DOES NOT CLAIM THE NUMBER THE PASS IS JUDGED ON. It takes its own
-  // mark — the skeleton IS on screen and that is worth timing — but `file-named`
-  // has to mean the full letterhead, or a cold open that sat 39 seconds on
-  // "Loading the latest roster…" reports as a fast one.
-  has(SH2, "PDXPerf.mark('skeleton-named')",
-    "a shell that painted the name takes the skeleton mark");
+  hasnt(SH2, "arrivalSkeleton", "the shell no longer asks for a skeleton");
+  has(SH2, "pdx-modal-loading", "the loading state is still there");
+  has(SH2, "pdx-roster-spin", "…as a spinner");
+  hasnt(SH2, "Loading the latest roster", "…with no roster-wait line");
+  hasnt(SH2, "d.name", "…and no name");
+  // THE SHELL DOES NOT CLAIM THE NUMBER THE PASS IS JUDGED ON. `file-named`
+  // has to mean the full letterhead, which only the mount can take.
   hasnt(SH2, "mark('file-named')",
-    "the shell no longer claims name-on-file — that mark means the mounted letterhead");
+    "the shell does not claim name-on-file — that mark means the mounted letterhead");
 }
 
 // ── 12 · the file does not wait on the full roster ──────────────────────────
