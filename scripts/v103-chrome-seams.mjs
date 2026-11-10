@@ -4095,3 +4095,15 @@ export function assertParentTableIsTheOnlyMove(api, headSrc, treeSrc, wave) {
     `and a rename is refused; a label may only widen to name what has been filed under it`);
   return { renamed: renamed.map((c) => c.key), grew: [...grew], identical: false };
 }
+
+// related-issues.js reduced to its map. The newly elected stated passes pin the
+// related-issues map, not the module's rendering: the person-file collapse
+// (v546, each related issue printed once) changed how the list is drawn and
+// left MAP untouched, so these passes compare the map's own literal.
+export function relatedIssuesMapOnly(src) {
+  if (src == null) return src;
+  const s = String(src);
+  const at = s.indexOf("var MAP = {");
+  const end = at < 0 ? -1 : s.indexOf("\n  };", at);
+  return at < 0 || end < 0 ? s : s.slice(at, end + 5);
+}
