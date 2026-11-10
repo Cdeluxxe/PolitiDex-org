@@ -128,9 +128,13 @@ const LBL = (k) => String(IM[k].label).replace(/^[^A-Za-z0-9]+/, "").trim();
   ]), "Protect Public Lands lists every related issue with a published direction, in map order, with both parts");
   ok(/<span class="pdxri-rec r-none">no record<\/span>/.test(lp), "no votes: the record part says no record, neutral");
   ok(!/Cut Federal Red Tape/.test(lp), "a mixed related position is printed");
-  eq(JSON.stringify(items(byIssue.lands_keep_public || "")),
-     JSON.stringify(["Protect Public Lands: supports · no record", "Expand Domestic Energy Production: opposes · no record", "Local Land Control: opposes · no record"]),
-     "Keep Public Lands Public lists Protect Public Lands and the same set");
+  // Collapsed: Keep Public Lands Public is already listed under Protect Public
+  // Lands, and everything it relates to is too, so it gets no repeat block.
+  ok(!("lands_keep_public" in byIssue), "Keep Public Lands Public repeats the block Protect Public Lands already printed");
+  {
+    const keys = [...h.matchAll(/data-pdxri-key="([^"]+)"/g)].map((m) => m[1]);
+    eq(new Set(keys).size, keys.length, "an issue is printed more than once in the section");
+  }
   ok(!("gun_rights" in byIssue), "an issue with no related positions gets a group");
   ok(!("gov_regulation" in byIssue), "an issue with a mixed position gets a group");
   eq(RI.sectionHtml("oneSided", {}), "", "no related positions: no section");
@@ -147,7 +151,10 @@ const LBL = (k) => String(IM[k].label).replace(/^[^A-Za-z0-9]+/, "").trim();
     ok(d[1].includes("lands") && d[1].includes(encodeURIComponent(d[3])), `${d[3]} fallback href is not this person on this issue`);
   }
   const gs = RI.groupsFor("lands", {});
-  ok(gs.every((g) => g.related.every((it) => RI.MAP[g.issue.key].includes(it.key))), "a group lists a key the map does not relate");
+  // Each related line is related (by the map) to its block's lead or to a line
+  // printed before it in the same block.
+  const relatedInBlock = (M, g) => g.related.every((it, i) => [g.issue, ...g.related.slice(0, i)].some((x) => M[x.key].includes(it.key)));
+  ok(gs.every((g) => relatedInBlock(RI.MAP, g)), "a group lists a key the map does not relate");
 }
 
 // 2b. stated and record lines, two lines not one
@@ -174,14 +181,15 @@ const LBL = (k) => String(IM[k].label).replace(/^[^A-Za-z0-9]+/, "").trim();
   const anchors = (html) => [...String(html || "").matchAll(/<div class="pdxri-anchor"[\s\S]*?<\/div>/g)].map((m) => strip(m[0]));
   eq(JSON.stringify(anchors(groups.lands_preserve)), JSON.stringify(["Protect Public Lands: supports · record runs against"]),
      "an issue with both readings prints one line, stated first");
-  eq(JSON.stringify(items(groups.lands_keep_public)), JSON.stringify([
-    "Protect Public Lands: supports · record runs against",
+  eq(JSON.stringify(items(groups.lands_preserve)), JSON.stringify([
+    "Keep Public Lands Public: supports · no record",
     "Expand Domestic Energy Production: opposes · no record", "Local Land Control: opposes · no record",
     `${LBL("lands_balance")}: no stated position · record runs with`,
   ]), "every related line shows a stated part and a record part, in map order");
-  ok(items(groups.lands_keep_public).includes("Expand Domestic Energy Production: opposes · no record"),
+  ok(!("lands_keep_public" in groups), "a block with nothing new is repeated");
+  ok(items(groups.lands_preserve).includes("Expand Domestic Energy Production: opposes · no record"),
      "a stated-only related issue says no record");
-  ok(items(groups.lands_keep_public).includes(`${LBL("lands_balance")}: no stated position · record runs with`),
+  ok(items(groups.lands_preserve).includes(`${LBL("lands_balance")}: no stated position · record runs with`),
      "a record-only related issue says no stated position");
   ok(/<span class="pdxri-dir s-none">no stated position<\/span>/.test(h) && /<span class="pdxri-rec r-none">no record<\/span>/.test(h),
      "the absent parts carry the neutral classes");
@@ -212,15 +220,17 @@ const LBL = (k) => String(IM[k].label).replace(/^[^A-Za-z0-9]+/, "").trim();
   // Votes on file, no stance, no one-way read, no drawer ledger: the index's count.
   const bh = R2.sectionHtml("bare", {});
   const bg = Object.fromEntries([...bh.matchAll(/<li class="pdxri-group" data-pdxri-issue="([^"]+)">([\s\S]*?)<\/ul><\/li>/g)].map((g) => [g[1], g[2]]));
-  eq(JSON.stringify(items(bg.lands_keep_public)), JSON.stringify(["Protect Public Lands: no stated position · 2 votes on file"]), "a votes-only related issue with no drawer ledger prints the index's count");
+  eq(JSON.stringify(anchors(bg.lands_preserve)), JSON.stringify(["Protect Public Lands: no stated position · 2 votes on file"]), "a votes-only issue with no drawer ledger prints the index's count");
+  eq(JSON.stringify(items(bg.lands_preserve)), JSON.stringify(["Keep Public Lands Public: supports · no record"]), "the votes-only issue's related line");
+  ok(!("lands_keep_public" in bg), "the pair is printed twice, once from each side");
   ok(/data-pdxri-rec="tally"><span class="pdxri-issue"[^>]*><a class="pdxri-go"[^>]*data-pdxc-gap="lands_preserve"/.test(bh),
      "the votes-only name is a link");
   // With the drawer ledger's tally available, the votes-only line prints it.
   w2.PDXConsistency = { drawerTally: (pid, key) => key === "lands_preserve" ? { acts: 2, advances: 1, opposes: 1, tookNoSide: 0, noSide: false } : null };
   const th = R2.sectionHtml("bare", {});
   const tg = Object.fromEntries([...th.matchAll(/<li class="pdxri-group" data-pdxri-issue="([^"]+)">([\s\S]*?)<\/ul><\/li>/g)].map((g) => [g[1], g[2]]));
-  eq(JSON.stringify(items(tg.lands_keep_public)), JSON.stringify(["Protect Public Lands: no stated position · 1 for · 1 against"]), "a split related issue prints no stated position and the drawer tally");
-  ok(/data-pdxri-rec="tally">[\s\S]*?<\/a>:<\/span> <span class="pdxri-dir s-none">no stated position<\/span><span class="pdxri-sep"> · <\/span><span class="pdxri-tally">1 for · 1 against<\/span><\/li>/.test(th),
+  eq(JSON.stringify(anchors(tg.lands_preserve)), JSON.stringify(["Protect Public Lands: no stated position · 1 for · 1 against"]), "a split issue prints no stated position and the drawer tally");
+  ok(/data-pdxri-rec="tally">[\s\S]*?<\/a>:<\/span> <span class="pdxri-dir s-none">no stated position<\/span><span class="pdxri-sep"> · <\/span><span class="pdxri-tally">1 for · 1 against<\/span><\/(li|div)>/.test(th),
      "the tally is a neutral span after the stated part");
   ok(!/pdxri-tally[^>]*(r-with|r-against|s-support|s-oppose)/.test(th), "the tally carries a green / red class");
   w2.PDXConsistency = { drawerTally: () => ({ acts: 1, advances: 0, opposes: 0, tookNoSide: 1, noSide: true }) };
@@ -281,6 +291,23 @@ const LBL = (k) => String(IM[k].label).replace(/^[^A-Za-z0-9]+/, "").trim();
       }
     }
     eq(bad, 0, "every real line reads the published stance and the fixed vocabulary");
+    // Collapsed: no real person file prints the same issue twice in the section.
+    let repeats = 0;
+    for (const pid of Object.keys(SD)) {
+      const h = w.PDXRelatedIssues.sectionHtml(pid, { name: "" });
+      const keys = [...h.matchAll(/data-pdxri-key="([^"]+)"/g)].map((m) => m[1]);
+      if (new Set(keys).size !== keys.length) { repeats++; if (repeats <= 3) failures.push(`${pid}: an issue repeats in Related issues`); }
+    }
+    eq(repeats, 0, "real person files repeat issues in Related issues");
+    for (const pid of ["bmoore", "mike_lee"]) {
+      const h = w.PDXRelatedIssues.sectionHtml(pid, { name: "" });
+      ok(h.length > 0, `${pid}: the Related issues section is gone`);
+      const keys = [...h.matchAll(/data-pdxri-key="([^"]+)"/g)].map((m) => m[1]);
+      eq(new Set(keys).size, keys.length, `${pid}: an issue is printed in more than one block`);
+      const gs = w.PDXRelatedIssues.groupsFor(pid, { name: "" });
+      const M = w.PDXRelatedIssues.MAP;
+      ok(gs.every((g) => g.related.every((it, i) => [g.issue, ...g.related.slice(0, i)].some((x) => M[x.key].includes(it.key)))), `${pid}: a block lists a pair the map does not relate`);
+    }
     ok(shown > 0, "at least one real person file carries related issues");
     eq(JSON.stringify(SD), before, "stance corpus is not mutated");
     console.log(`   real corpus: ${shown} files with related issues · ${lines} lines`);

@@ -47,7 +47,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
-import { DECLARED_STANCE_PASSES, DECLARED_ADMISSIONS, carveDeclaredAdmissions } from "./v103-chrome-seams.mjs";
+import { DECLARED_STANCE_PASSES, DECLARED_ADMISSIONS, carveDeclaredAdmissions, relatedIssuesMapOnly } from "./v103-chrome-seams.mjs";
 // A later declared admission is that pass's product, pinned by its own suite.
 const LATER_ADMITTED = DECLARED_ADMISSIONS.slice(DECLARED_ADMISSIONS.findIndex((d) => d.wave === "newly_elected_state_legislators_wave6_nov2026") + 1).flatMap((d) => d.pids);
 
@@ -288,6 +288,7 @@ section("4 · nothing else moved; no new route or gate; one shell move, no migra
       ...Object.values(BALLOT), ...(REC.members || []).flatMap((m) => m.boards)]) {
       const b = BASE(f);
       let now = null; try { now = R(f); } catch { /* absent */ }
+      if (f === "related-issues.js") { eq(relatedIssuesMapOnly(now), relatedIssuesMapOnly(b), `${f}: the related-issues map changed`); continue; }
       eq(now, b, `${f} changed`);
     }
     const ls = BASE_LS();

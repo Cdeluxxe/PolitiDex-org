@@ -55,7 +55,10 @@
 
    · PERSON FILE. sectionHtml(pid, p): for every issue with a stated or record
      line, that issue's lines, then each related issue's lines. An issue with
-     no related lines is left out.
+     no related lines is left out. The list is collapsed so each issue prints
+     once: an issue already on the list is not printed again, and the new
+     related issues of an issue already printed join its block, right after
+     it, instead of opening a repeat block. The drawer block is not collapsed.
 
    · DRAWER. drawerHtml(pid, p, key): the lines of every issue related to
      `key`. The open issue itself is not repeated — the drawer's own header
@@ -373,15 +376,37 @@
   }
 
   // Person file: every issue with a stated or record direction and at least
-  // one related issue with one, in map order.
+  // one related issue with one, in map order — collapsed so each issue is
+  // printed once. Walking the map in order, an issue's related issues that
+  // are already on the list are not printed again. When the issue itself is
+  // not on the list yet, it leads a new block; when it is already printed
+  // (as a lead or as a related line), its new related issues join that same
+  // block, right after it, instead of opening a repeat block under the same
+  // name. An issue whose related issues are all printed adds nothing. Because
+  // the map is symmetric, every issue with a line and a related line still
+  // appears exactly once, and every related line sits in the block of an issue
+  // the map relates it to (its lead, or the line it follows).
   function groupsFor(pid, p) {
     var pm = positionMap(pid, p);
-    var out = [];
+    var out = [], blockOf = {};
     Object.keys(MAP).forEach(function (k) {
       var anchor = itemOf(pid, pm, k);
       if (!anchor) return;
-      var items = itemsFor(pid, p, k, pm);
-      if (items.length) out.push({ issue: anchor, related: items });
+      var items = itemsFor(pid, p, k, pm).filter(function (it) { return !blockOf[it.key]; });
+      if (!items.length) return;
+      var g = blockOf[k];
+      if (!g) {
+        g = { issue: anchor, related: [] };
+        out.push(g);
+        blockOf[k] = g;
+        g.related = g.related.concat(items);
+      } else {
+        // After the printed line of k (the top of the block when k leads it).
+        var at = 0;
+        for (var i = 0; i < g.related.length; i++) if (g.related[i].key === k) { at = i + 1; break; }
+        Array.prototype.splice.apply(g.related, [at, 0].concat(items));
+      }
+      items.forEach(function (it) { blockOf[it.key] = g; });
     });
     return out;
   }

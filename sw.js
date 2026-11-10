@@ -11930,7 +11930,14 @@
 //     other stored reader state is written or rewritten, so nothing is
 //     migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v545';
+// v546 - THE RELATED ISSUES LIST, COLLAPSED. related-issues.js (precached) no
+//     longer repeats the same issues in successive groups on the person file:
+//     an issue printed once is not printed again further down, and a group
+//     with nothing new is dropped. The map, the line wording, the drawers and
+//     every other section are unchanged. A precached shell file changed, so
+//     the shell moves one version; the precache list is unchanged.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v546';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
