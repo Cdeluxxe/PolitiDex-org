@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<!-- ══════════════════════════════════════════════════════════════════════════════
+     sunlight-concrete.html — SUNLIGHT GOVERNANCE SUB-TAG STUB (/sunlight-concrete)
+     ────────────────────────────────────────────────────────────────────────────
+     The stub page for the Sunlight Concrete sub-tag (sunlight_concrete, under
+     sunlight_governance; see PDXSunlight.SUB_TAGS in sunlight-governance.js).
+     Served by pretty URLs, so there is no rewrite in netlify.toml. It states
+     the goal in one sentence, lists the minimum viable ledger, the Utah
+     starting moves and the public data sources, and carries the reusable
+     Market-Power Test (PDXSunlight.MARKET_POWER_TEST) as static markup. No
+     ledger entries are filed yet; Rocky Mountain Power
+     (/sunlight/rocky-mountain-power) stays the live example and is linked.
+
+     PUBLIC DATA ONLY. Every source below is a public record or public
+     dataset. NEUTRAL FRAMING: a filing label, not a verdict on any firm.
+     scripts/test-sunlight-subtags.mjs pins this page.
+     ════════════════════════════════════════════════════════════════════════════════ -->
+  <title>Sunlight Concrete &middot; Sunlight Governance &middot; PolitiDex</title>
+  <link rel="canonical" href="https://politidex.fyi/sunlight-concrete" />
+  <meta name="description" content="Sunlight Concrete puts the public record of concrete, cement and gravel supply for public works in one open place, so anyone can see who bids, who wins and who owns the pits and plants nearby." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PolitiDex" />
+  <meta property="og:title" content="Sunlight Concrete &middot; Sunlight Governance &middot; PolitiDex" />
+  <meta property="og:description" content="Sunlight Concrete puts the public record of concrete, cement and gravel supply for public works in one open place, so anyone can see who bids, who wins and who owns the pits and plants nearby." />
+  <meta property="og:url" content="https://politidex.fyi/sunlight-concrete" />
+  <meta property="og:image" content="https://politidex.fyi/og-image.png" />
+  <meta property="og:image:alt" content="PolitiDex — Sunlight Governance" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Sunlight Concrete &middot; PolitiDex" />
+  <meta name="twitter:description" content="Sunlight Concrete puts the public record of concrete, cement and gravel supply for public works in one open place, so anyone can see who bids, who wins and who owns the pits and plants nearby." />
+  <meta name="theme-color" content="#0a0f1e" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" onload="this.rel='stylesheet'" />
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" /></noscript>
+  <link rel="stylesheet" href="/shell-chrome.css" />
+  <style>
+    :root { --pdx-chrome: 3.25rem; color-scheme: dark; }
+    @supports (padding-top: env(safe-area-inset-top)) {
+      :root { --pdx-chrome: calc(3.25rem + env(safe-area-inset-top, 0px)); }
+    }
+    html { -webkit-text-size-adjust: 100%; }
+    html, body { background: #070b16; color: #e7eefb; }
+    body {
+      margin: 0;
+      font-family: 'Barlow', system-ui, -apple-system, sans-serif;
+      padding-top: calc(var(--pdx-chrome) + 0.75rem);
+    }
+    .sg-main { max-width: 44rem; margin: 0 auto; padding: 2.25rem 1.15rem 3rem; }
+    .sg-eyebrow {
+      font: 600 0.8rem/1 'Barlow Condensed', system-ui, sans-serif;
+      letter-spacing: 0.14em; text-transform: uppercase; color: #f5d77a; margin: 0 0 0.6rem;
+    }
+    .sg-title {
+      font: 400 clamp(2.4rem, 7vw, 3.4rem)/1 'Bebas Neue', 'Barlow Condensed', sans-serif;
+      letter-spacing: 0.02em; margin: 0 0 1.1rem; color: #fff7d6;
+    }
+    .sg-lede { font-size: 1.1rem; line-height: 1.65; color: #d6e1f5; margin: 0 0 1.6rem; }
+    .sg-card {
+      border: 1px solid rgba(245,215,122,0.28); background: rgba(245,215,122,0.05);
+      border-radius: 12px; padding: 1.05rem 1.15rem; margin: 0 0 1.25rem;
+    }
+    .sg-card h2 {
+      font: 600 1.05rem/1.2 'Barlow Condensed', system-ui, sans-serif; letter-spacing: 0.04em;
+      text-transform: uppercase; color: #f5d77a; margin: 0 0 0.5rem;
+    }
+    .sg-card p, .sg-card li { color: #c3d1ea; line-height: 1.6; margin: 0; }
+    .sg-card ul { margin: 0; padding-left: 1.15rem; }
+    .sg-card li + li { margin-top: 0.3rem; }
+    .sg-tag {
+      display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.6rem;
+      border-radius: 999px; border: 1px solid rgba(245,215,122,0.55); color: #f5d77a;
+      font: 600 0.85rem/1.3 'Barlow', system-ui, sans-serif;
+    }
+    .sg-entry { border-color: rgba(245,215,122,0.45); }
+    .sg-entry h3 {
+      font: 600 0.92rem/1.2 'Barlow Condensed', system-ui, sans-serif; letter-spacing: 0.05em;
+      text-transform: uppercase; color: #fff7d6; margin: 1.15rem 0 0.45rem;
+    }
+    .sg-entry .sg-entry-title { font: 600 1.15rem/1.35 'Barlow', system-ui, sans-serif; color: #fff7d6; margin: 0.15rem 0 0.35rem; text-transform: none; letter-spacing: 0; }
+    .sg-meta { font-size: 0.88rem; color: #9fb4d4 !important; }
+    .sg-entry dl { display: grid; grid-template-columns: minmax(9rem, 40%) 1fr; gap: 0.3rem 0.8rem; margin: 0; }
+    .sg-entry dt { color: #9fb4d4; font-size: 0.9rem; }
+    .sg-entry dd { margin: 0; color: #e7eefb; font-size: 0.92rem; }
+    .sg-entry blockquote { margin: 0.2rem 0 0; padding-left: 0.7rem; border-left: 2px solid rgba(245,215,122,0.4); color: #c3d1ea; font-size: 0.9rem; }
+    .sg-pg { color: #8ea3c6; font-size: 0.82rem; white-space: nowrap; }
+    .sg-compare { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    .sg-compare th, .sg-compare td { text-align: left; vertical-align: top; padding: 0.45rem 0.5rem; border-top: 1px solid rgba(245,215,122,0.18); }
+    .sg-compare thead th { color: #f5d77a; font-weight: 600; border-top: 0; }
+    .sg-compare td { color: #c3d1ea; }
+    .sg-compare td.sg-public { background: rgba(10,15,30,0.55); }
+    .sg-compare td.sg-full { background: rgba(245,215,122,0.07); }
+    .sg-redact { display: inline-block; background: #0b0f18; color: #0b0f18; border-radius: 3px; padding: 0 0.25rem; user-select: none; }
+    .sg-filings { margin-top: 0.4rem; padding: 0.5rem 0.75rem; border-radius: 8px; background: rgba(148,163,184,0.1); }
+    .sg-filings[data-sg-filings="new"] { background: rgba(245,215,122,0.12); }
+    .sg-filings ul { margin-top: 0.3rem; }
+    .sg-ask {
+      margin: 2rem -0.35rem 0.1rem; padding: 1.25rem 1.3rem 1.3rem; border-radius: 14px;
+      border: 2px solid #f5d77a; background: linear-gradient(160deg, rgba(245,215,122,0.22), rgba(245,215,122,0.06));
+      box-shadow: 0 0 0 6px rgba(245,215,122,0.07), 0 10px 30px rgba(0,0,0,0.35);
+    }
+    .sg-ask p { color: #e7eefb !important; }
+    .sg-ask-kicker { font: 600 0.78rem/1 'Barlow Condensed', system-ui, sans-serif !important; letter-spacing: 0.16em; text-transform: uppercase; color: #f5d77a !important; margin: 0 0 0.45rem !important; }
+    .sg-ask-title b { font: 400 1.75rem/1.1 'Bebas Neue', 'Barlow Condensed', sans-serif; letter-spacing: 0.02em; color: #fff7d6; }
+    .sg-summary {
+      font-size: 1.22rem; line-height: 1.6; color: #fff7d6; margin: 0 0 1.1rem;
+      padding: 1rem 1.15rem; border-left: 4px solid #f5d77a; background: rgba(245,215,122,0.08);
+      border-radius: 0 12px 12px 0;
+    }
+    .sg-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; }
+    .sg-steps { list-style: none; margin: 0.3rem 0 0.4rem; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; counter-reset: none; }
+    .sg-step {
+      position: relative; display: flex; flex-direction: column; gap: 0.35rem;
+      border: 1px solid rgba(245,215,122,0.35); background: rgba(10,15,30,0.6);
+      border-radius: 12px; padding: 0.9rem 0.9rem 1rem;
+    }
+    .sg-step + .sg-step { margin-top: 0 !important; }
+    .sg-step-icon { font-size: 1.7rem; line-height: 1; }
+    .sg-step-n { font: 600 0.72rem/1 'Barlow Condensed', system-ui, sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: #f5d77a; }
+    .sg-step h4 { font: 600 1.05rem/1.25 'Barlow', system-ui, sans-serif; color: #fff7d6; margin: 0; }
+    .sg-step p { font-size: 0.9rem; flex: 1; }
+    .sg-step > a { font-size: 0.86rem; font-weight: 600; }
+    .sg-figs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin: 0.3rem 0 0.6rem; }
+    .sg-fig { display: flex; flex-direction: column; gap: 0.25rem; border-radius: 12px; padding: 0.85rem 0.9rem; background: rgba(10,15,30,0.6); border: 1px solid rgba(245,215,122,0.22); }
+    .sg-fig-key { border-color: rgba(245,215,122,0.7); background: rgba(245,215,122,0.1); }
+    .sg-fig-label { font: 600 0.78rem/1.25 'Barlow Condensed', system-ui, sans-serif; letter-spacing: 0.08em; text-transform: uppercase; color: #9fb4d4; }
+    .sg-fig-num { font: 400 2.6rem/1 'Bebas Neue', 'Barlow Condensed', sans-serif; color: #fff7d6; letter-spacing: 0.02em; }
+    .sg-fig-num small { font-size: 1.1rem; color: #c3d1ea; margin-left: 0.15rem; }
+    .sg-fig-sub { font-size: 0.82rem; color: #c3d1ea; }
+    .sg-more { margin: 0 0 0.3rem; }
+    .sg-more summary { cursor: pointer; color: #f5d77a; font-size: 0.88rem; font-weight: 600; margin-bottom: 0.45rem; }
+    .sg-conf { list-style: none; padding: 0 !important; margin: 0.6rem 0 0 !important; display: grid; gap: 0.6rem; }
+    .sg-conf li { border-left: 3px solid rgba(245,215,122,0.55); background: rgba(10,15,30,0.5); border-radius: 0 10px 10px 0; padding: 0.6rem 0.8rem; margin: 0 !important; }
+    .sg-conf-plain { display: block; font: 600 1rem/1.3 'Barlow', system-ui, sans-serif; color: #fff7d6; margin-bottom: 0.15rem; }
+    .sg-conf b { display: block; font: 600 0.74rem/1.3 'Barlow Condensed', system-ui, sans-serif; letter-spacing: 0.1em; text-transform: uppercase; color: #9fb4d4; margin-bottom: 0.25rem; }
+    .sg-conf blockquote { margin-top: 0.15rem; }
+    @media (max-width: 34rem) {
+      .sg-compare thead { display: none; }
+      .sg-compare tr { display: block; border-top: 1px solid rgba(245,215,122,0.25); padding: 0.35rem 0; }
+      .sg-compare td, .sg-compare th { display: block; border: 0; padding: 0.25rem 0.4rem; }
+      .sg-compare td.sg-public::before { content: 'Public version: '; color: #f5d77a; }
+      .sg-compare td.sg-full::before { content: 'Full visibility: '; color: #f5d77a; }
+      .sg-entry dl { grid-template-columns: 1fr; }
+      .sg-pair, .sg-steps, .sg-figs { grid-template-columns: 1fr; }
+    }
+    .sg-foot { color: #8ea3c6; font-size: 0.9rem; line-height: 1.55; margin-top: 1.75rem; }
+    .sg-foot a, .sg-main a { color: #f5d77a; }
+    .sg-stub { display:inline-block; margin-left:0.35rem; padding:0.1rem 0.5rem; border-radius:999px; border:1px dashed rgba(159,180,212,0.6); color:#9fb4d4; font-size:0.78rem; }
+    .sg-mpt ol { margin: 0.4rem 0 0.5rem; padding-left: 1.3rem; }
+    .sg-mpt li { color: #e7eefb; }
+    .sg-mpt li b { color: #fff7d6; }
+    .sg-live { display:block; text-decoration:none; border:2px solid #f5d77a; }
+    .sg-live b { color:#fff7d6; }
+  </style>
+</head>
+<body>
+  <header class="pdx-sh-bar">
+    <a class="pdx-sh-wordmark" href="/" title="PolitiDex — the front page">POLITI<span>DEX</span></a>
+    <nav class="pdx-sh-links" aria-label="PolitiDex">
+      <a class="pdx-sh-link" href="/#who-represents-me"><span class="pdx-sh-full">🏛️ Who Represents Me</span><span class="pdx-sh-short">Reps</span></a>
+      <a class="pdx-sh-link" href="/#say-vs-do"><span class="pdx-sh-full">👁️ Find the Record</span><span class="pdx-sh-short">Record</span></a>
+      <a class="pdx-sh-link" href="/ballot"><span class="pdx-sh-full">⭐ Your Ballot</span><span class="pdx-sh-short">Ballot</span></a>
+      <a class="pdx-sh-link" href="/money"><span class="pdx-sh-full">💰 Follow the Money</span><span class="pdx-sh-short">Money</span></a>
+      <a class="pdx-sh-link" href="/"><span class="pdx-sh-full">&larr; Home</span><span class="pdx-sh-short">&larr; Home</span></a>
+    </nav>
+  </header>
+
+  <main id="sunlight-concrete" class="sg-main" data-category="sunlight_governance" data-sunlight-subtag="sunlight_concrete">
+    <p class="sg-eyebrow"><a href="/sunlight" data-sg-home>&larr; Sunlight Governance</a> &middot; <span class="sg-tag" data-sunlight-tag="sunlight_governance">☀️ Sunlight Governance</span> <span class="sg-tag" data-sunlight-tag="sunlight_concrete">🏗️ Sunlight Concrete</span><span class="sg-stub" data-sg-stub>Stub &middot; no ledger entries yet</span></p>
+    <h1 class="sg-title">Sunlight Concrete</h1>
+
+    <p class="sg-summary" id="sg-goal" data-sg-goal>Sunlight Concrete puts the public record of concrete, cement and gravel supply for public works in one open place, so anyone can see who bids, who wins and who owns the pits and plants nearby.</p>
+
+    <section class="sg-card" aria-labelledby="sg-facts">
+      <h2 id="sg-facts">What the public record already says</h2>
+      <ul data-sg-facts>
+          <li data-sg-fact="local_market">Ready-mixed concrete is generally placed within about 90 minutes of mixing under the common ASTM C94 specification, so it is sold close to where it is made.</li>
+          <li data-sg-fact="haul_cost">Sand, gravel and crushed stone are heavy and costly to haul, so each area’s supply comes mostly from nearby pits and quarries.</li>
+          <li data-sg-fact="public_buyer">Public agencies, including the Utah Department of Transportation and cities and counties, are major buyers of concrete and aggregate for roads, bridges and buildings.</li>
+          <li data-sg-fact="public_records">Public bids, contracts and payments are public records in Utah under the Government Records Access and Management Act (GRAMA).</li>
+      </ul>
+    </section>
+
+    <section class="sg-card" aria-labelledby="sg-mvl">
+      <h2 id="sg-mvl">Minimum viable ledger</h2>
+      <p>The smallest set of lines that makes this ledger useful. Each line is filled from a public source below.</p>
+      <ul style="margin-top:0.5rem;" data-sg-mvl>
+          <li data-sg-mvl-item="bids">Bids and awards: who bid and who won on public concrete and paving work.</li>
+          <li data-sg-mvl-item="payments">Public payments: what state agencies paid each supplier and contractor.</li>
+          <li data-sg-mvl-item="supply_sites">Supply sites: the permitted pits, quarries, cement and ready-mix plants in each area, and their owners.</li>
+          <li data-sg-mvl-item="concentration">Concentration: how many independent suppliers serve each area.</li>
+          <li data-sg-mvl-item="prices">Unit prices: public bid prices per unit of concrete and aggregate over time.</li>
+      </ul>
+    </section>
+
+    <section class="sg-card sg-mpt" data-sunlight-mpt aria-labelledby="sunlight-mpt-h">
+      <h2 id="sunlight-mpt-h">Market-Power Test: Concrete</h2>
+      <p>Three questions to ask of any company or sector. Each one is answered from public records, not opinion.</p>
+      <ol>
+          <li data-mpt-q="choice"><b>Choice.</b> Can a customer or taxpayer walk away and use a real alternative?</li>
+          <li data-mpt-q="concentration"><b>Concentration.</b> Do a few firms hold most of the market in this place?</li>
+          <li data-mpt-q="public_backing"><b>Public backing.</b> Does public money, a public charter or a public guarantee stand behind it?</li>
+      </ol>
+      <p>The more of these the record answers “no choice”, “a few firms” or “yes, public backing”, the more a full public ledger helps people see the whole picture.</p>
+    </section>
+
+    <section class="sg-card" aria-labelledby="sg-moves">
+      <h2 id="sg-moves">Utah starting moves</h2>
+      <ol style="margin:0.3rem 0 0;padding-left:1.3rem;" data-sg-moves>
+          <li data-sg-move="udot_bids">Pull a recent year of UDOT bid results and list who bid and who won on concrete paving and structures.</li>
+          <li data-sg-move="permits">Map the permitted gravel pits, quarries and concrete plants from Utah’s public air-quality approval orders and mine permits, by county.</li>
+          <li data-sg-move="first_ledger">For one county, file one ledger page: the supply sites and their owners, the public bids and awards, and the state payments, each linked to its source.</li>
+      </ol>
+    </section>
+
+    <section class="sg-card" aria-labelledby="sg-sources">
+      <h2 id="sg-sources">Public data sources</h2>
+      <p>Public records and public datasets only. Nothing here asks for or holds private account data.</p>
+      <ul style="margin-top:0.5rem;" data-sg-sources>
+          <li data-sg-source="udot"><a href="https://www.udot.utah.gov/" rel="noopener">Utah Department of Transportation</a> &middot; construction bid results and awarded contracts</li>
+          <li data-sg-source="transparent_utah"><a href="https://transparent.utah.gov/" rel="noopener">Transparent Utah</a> &middot; state and local government payments to vendors</li>
+          <li data-sg-source="utah_purchasing"><a href="https://purchasing.utah.gov/" rel="noopener">Utah Division of Purchasing</a> &middot; state contracts and solicitations</li>
+          <li data-sg-source="utah_daq"><a href="https://deq.utah.gov/air-quality" rel="noopener">Utah Division of Air Quality</a> &middot; approval orders for pits, quarries and plants</li>
+          <li data-sg-source="utah_dogm"><a href="https://ogm.utah.gov/" rel="noopener">Utah Division of Oil, Gas and Mining</a> &middot; mine permits</li>
+          <li data-sg-source="usgs_cement"><a href="https://www.usgs.gov/centers/national-minerals-information-center/cement-statistics-and-information" rel="noopener">USGS Cement statistics</a> &middot; national and state cement figures</li>
+          <li data-sg-source="usgs_gravel"><a href="https://www.usgs.gov/centers/national-minerals-information-center/construction-sand-and-gravel-statistics-and-information" rel="noopener">USGS Construction sand and gravel statistics</a> &middot; national and state aggregate figures</li>
+      </ul>
+    </section>
+
+    <a class="sg-card sg-live" href="/sunlight/rocky-mountain-power" data-sg-live-example>
+      <span class="sg-ask-kicker" style="display:block;font:600 0.78rem/1 'Barlow Condensed',system-ui,sans-serif;letter-spacing:0.16em;text-transform:uppercase;color:#f5d77a;margin-bottom:0.45rem;">The live example</span>
+      <b>Rocky Mountain Power rate case &rarr;</b>
+      <span style="display:block;color:#c3d1ea;margin-top:0.3rem;">The same ledger pattern, filled in: what was asked for, what was ordered, what stayed confidential, and every source document.</span>
+    </a>
+
+    <p class="sg-foot">Sunlight Concrete is a filing label for transparency under Sunlight Governance, not a verdict on any company, regulator or official. <a href="/sunlight">What Sunlight Governance is</a> &middot; <a href="/#say-vs-do">Search the record</a>.</p>
+  </main>
+</body>
+</html>

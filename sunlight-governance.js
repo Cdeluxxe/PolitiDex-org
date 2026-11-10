@@ -54,6 +54,77 @@
 
   var ITEM_KINDS = Object.freeze(['issue', 'bill', 'rate_case', 'lobbying']);
 
+  // ── SUB-TAGS ──────────────────────────────────────────────────────────────
+  // Narrower filing labels that sit UNDER Sunlight Governance. Applying a
+  // sub-tag always applies the parent tag too, so a sub-tagged item is listed
+  // in the same search thread and nothing that reads the parent tag changes.
+  // Each sub-tag has a stub page (served by pretty URLs, no rewrite) that
+  // states its goal, its minimum viable ledger, the Utah starting moves and its
+  // public data sources. Rocky Mountain Power (/sunlight/rocky-mountain-power)
+  // stays the live example both stubs point at.
+  var SUB_TAGS = Object.freeze([
+    Object.freeze({
+      key: 'sunlight_banking',
+      label: 'Sunlight Banking',
+      icon: '🏦',
+      parent: 'sunlight_governance',
+      href: '/sunlight-banking',
+      blurb: 'Banks that hold public money or carry a public guarantee: ' +
+        'who holds deposits where, and what the public backing is.'
+    }),
+    Object.freeze({
+      key: 'sunlight_concrete',
+      label: 'Sunlight Concrete',
+      icon: '🏗️',
+      parent: 'sunlight_governance',
+      href: '/sunlight-concrete',
+      blurb: 'Concrete, cement and aggregate supply for public works: ' +
+        'who bids, who wins and who owns the nearby pits and plants.'
+    })
+  ]);
+  function subTagOf(key) {
+    for (var i = 0; i < SUB_TAGS.length; i++) if (SUB_TAGS[i].key === key) return SUB_TAGS[i];
+    return null;
+  }
+
+  // ── THE MARKET-POWER TEST ─────────────────────────────────────────────────
+  // A short, reusable three-question block that can be attached to any company
+  // or sector page. It asks; it does not score or rank. Pages print it as
+  // static markup (data-sunlight-mpt) so it reads with no script, and
+  // marketPowerTestHTML() renders the same block for any page that wants it.
+  var MARKET_POWER_TEST = Object.freeze({
+    title: 'Market-Power Test',
+    intro: 'Three questions to ask of any company or sector. Each one is ' +
+      'answered from public records, not opinion.',
+    questions: Object.freeze([
+      Object.freeze({ key: 'choice', label: 'Choice',
+        q: 'Can a customer or taxpayer walk away and use a real alternative?' }),
+      Object.freeze({ key: 'concentration', label: 'Concentration',
+        q: 'Do a few firms hold most of the market in this place?' }),
+      Object.freeze({ key: 'public_backing', label: 'Public backing',
+        q: 'Does public money, a public charter or a public guarantee stand behind it?' })
+    ]),
+    note: 'The more of these the record answers “no choice”, “a few firms” ' +
+      'or “yes, public backing”, the more a full public ledger helps people ' +
+      'see the whole picture.'
+  });
+  function escHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  // subject: optional name printed in the heading ("… for Banking").
+  function marketPowerTestHTML(subject) {
+    var T = MARKET_POWER_TEST;
+    var h = '<section class="sunlight-mpt" data-sunlight-mpt aria-labelledby="sunlight-mpt-h">' +
+      '<h2 id="sunlight-mpt-h">' + escHtml(T.title) + (subject ? ': ' + escHtml(subject) : '') + '</h2>' +
+      '<p>' + escHtml(T.intro) + '</p><ol>';
+    T.questions.forEach(function (x) {
+      h += '<li data-mpt-q="' + escHtml(x.key) + '"><b>' + escHtml(x.label) + '.</b> ' + escHtml(x.q) + '</li>';
+    });
+    return h + '</ol><p>' + escHtml(T.note) + '</p></section>';
+  }
+
   // Words a reader types when the subject is a regulated utility. A query that
   // contains any of these (as a whole word or phrase) opens the Sunlight
   // Governance thread in search. Lowercase; matched on word boundaries.
@@ -61,7 +132,8 @@
     'utility', 'utilities', 'rocky mountain power', 'rate case', 'rate cases',
     'psc', 'public service commission', 'puc', 'public utilities commission',
     'public utility commission', 'sunlight governance', 'sunlight',
-    'regulated monopoly', 'regulated monopolies', 'bayanihan'
+    'regulated monopoly', 'regulated monopolies', 'bayanihan',
+    'sunlight banking', 'sunlight concrete', 'market power', 'market-power test'
   ]);
 
   // The subset strong enough to auto-tag an item's OWN text. Narrower than the
@@ -105,9 +177,22 @@
     if (!item.tagSource || source === 'manual') item.tagSource = source === 'auto' ? 'auto' : 'manual';
     return item;
   }
+  // Apply a sub-tag (and, with it, the parent tag).
+  function subTag(item, key) {
+    var st = subTagOf(key);
+    if (!st) throw new TypeError('PDXSunlight.subTag: unknown sub-tag ' + key);
+    tag(item, 'manual');
+    if (item.tags.indexOf(st.key) === -1) item.tags.push(st.key);
+    return item;
+  }
+  function subTagsOf(item) {
+    var t = tagsOf(item);
+    return SUB_TAGS.filter(function (st) { return t.indexOf(st.key) !== -1; });
+  }
   function untag(item) {
     if (item && Array.isArray(item.tags)) {
-      item.tags = item.tags.filter(function (t) { return t !== TAG.key; });
+      // Removing the parent removes its sub-tags with it.
+      item.tags = item.tags.filter(function (t) { return t !== TAG.key && !subTagOf(t); });
       if (!isTagged(item)) delete item.tagSource;
     }
     return item;
@@ -164,6 +249,12 @@
     TAG: TAG,
     EXPLANATION: EXPLANATION.slice(),
     ITEM_KINDS: ITEM_KINDS,
+    SUB_TAGS: SUB_TAGS,
+    subTagOf: subTagOf,
+    subTag: subTag,
+    subTagsOf: subTagsOf,
+    MARKET_POWER_TEST: MARKET_POWER_TEST,
+    marketPowerTestHTML: marketPowerTestHTML,
     SEARCH_TERMS: SEARCH_TERMS,
     AUTO_TERMS: AUTO_TERMS,
     matchesQuery: matchesQuery,
