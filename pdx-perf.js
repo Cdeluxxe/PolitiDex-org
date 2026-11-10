@@ -74,9 +74,7 @@
     ['person-boot',         'person-file.js began adopting the /p/ address'],
     ['roster',              'roster state settled (time to roster)'],
     ['person-open',         'PDXPerson.open() rendered the shell'],
-    ['skeleton-named',      'arrival skeleton up (crawl rows repeated, file not mounted yet)'],
     ['file-named',          'the FULL letterhead is mounted (h1 + office + formal brief)'],
-    ['roster-merged',       'Firestore document merged into the mounted file (never gates file-named)'],
     ['vr-adopt',            'fetchMember adopted the head prefetch (no 2nd request)'],
     ['vr-fetch-start',      'fetchMember issued its OWN request (prefetch missed)'],
     ['vr-data',             'first voting-record page in hand (time to first page)'],
@@ -248,9 +246,8 @@
     // 'file-named' itself, so a cold open that mounted nothing for 39 seconds
     // still printed a small number here. Only the mount takes this mark now; a
     // cold open that never mounted prints an em dash, and the em dash is the
-    // finding. 'roster-merged' is deliberately NOT in this line: the Firestore
-    // settle is behind the paint, so it cannot move the number the pass is judged
-    // on — read it off PDXPerf.waterfall() when you want it.
+    // finding. (The file now waits for its full document and mounts once, so
+    // there is no separate skeleton or roster-merge stage to report.)
     ['name on file',  ['file-named']]
   ];
 
