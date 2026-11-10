@@ -1,0 +1,71 @@
+{
+  "_note": "Military right to repair / technical-data rights in the FY2027 NDAA, stated positions (November 2026). Section 861 of H.R. 8800 and its Senate counterpart, Section 804 of S. 4784, are filed on the existing issue key strong_defense (Peace Through Strength), whose scope covers what the armed forces are authorised, funded and equipped to do, including NDAA procurement. H.R. 8800 is already mapped to strong_defense as its primary issue in db/vr-issue-seed.json, so the bill's House vote record already lands on this key. The key has no acquisition-reform or defense-industrial-base sibling; a new key would need a stored-table migration, so none is added. No related-issues pair is added: strong_defense already pairs with Cut Federal Spending, the National Debt, Strategic Engagement, Diplomacy & Restraint, America First, America First Foreign Aid, Veterans, Support for Israel, Iran, Ukraine, Yemen, Venezuela and War Powers. POLARITY: 'support' here means the member backs the default-government-purpose-rights language as a way to keep the armed forces' equipment repairable and ready, which is the sense the member's own statement gives. Each member below has a published statement on this language itself or on the Warrior Right to Repair Act it was drawn from, quoted with a link; nothing is inferred from party, a general defense vote or a Section 219 position. Each card is filed first among the member's strong_defense cards so the drawer's stated line reads it; no other card is edited. Read by scripts/test-ndaa-fy27-right-to-repair.mjs.",
+  "read": "2026-11-10",
+  "issueKey": "strong_defense",
+  "provision": {
+    "bill": "H.R. 8800",
+    "congress": 119,
+    "title": "National Defense Authorization Act for Fiscal Year 2027",
+    "section": "Sec. 861",
+    "heading": "Reform of technical data and software rights to support competition, sustainment, and readiness",
+    "subtitle": "Division A, Title VIII, Subtitle D (Intellectual Property Matters)",
+    "text": {
+      "label": "H.R. 8800, engrossed in the House (GovInfo)",
+      "url": "https://www.govinfo.gov/content/pkg/BILLS-119hr8800eh/html/BILLS-119hr8800eh.htm",
+      "defaultRights": "any technical data, computer software, or computer software documentation delivered under a contract, subcontract, or other agreement entered into by the Department of Defense shall be provided with government purpose rights unless the contractor establishes, through clear and convincing evidence, entitlement to more restrictive rights",
+      "newSection": "10 U.S.C. 3776, Default government purpose rights for deliverables under Department of Defense contracts",
+      "contractorBurden": "A contractor asserting less than government purpose rights must provide an assertions table, documentation of private development funding, clause-specific exclusions at the lowest segregable level and portion markings; any failure means the deliverable is treated as provided with government purpose rights.",
+      "improperMarkings": "For noncommercial critical readiness items of supply, an incorrect restrictive marking, a missing exclusion, a missing portion mark or an invalid assertions table means all affected data and software are deemed government purpose rights.",
+      "clawbackReport": "Within 180 days the Secretary of Defense reports on whether a mechanism to recover excess payments caused by improper restrictive markings is feasible and advisable.",
+      "wartimeRepair": "Amends 10 U.S.C. 3771(b) so detailed manufacturing or process data may be released for operation, maintenance, installation, or training supporting wartime or contingency operations when the original supplier will be unable to satisfy military readiness or operational requirements.",
+      "applicability": "Applies only to solicitations issued and awards made after enactment."
+    },
+    "related": [
+      { "section": "Sec. 862", "heading": "Intellectual property ombudsman; voluntary expert mediation for certain intellectual property matters", "note": "The narrower mediation provision from the chairman's mark (numbered Section 842 there), which industry groups back as the alternative to Sections 861 and 804." },
+      { "section": "Sec. 824", "heading": "Requirement for modular open system approach and modifications to rights in technical data" },
+      { "section": "Sec. 167", "heading": "F-35 technical data needs for sustainment (GAO recommendations)" }
+    ],
+    "committeeReport": "H. Rept. 119-698 (House Armed Services Committee, reported June 15, 2026)",
+    "origin": "Added at the House Armed Services Committee markup on June 4, 2026 by an amendment from Reps. Maggie Goodlander and Pat Harrigan, adopted by voice vote over the objection of Chairman Mike Rogers. The Senate text was drawn from the Warrior Right to Repair Act of Sens. Elizabeth Warren and Tim Sheehy."
+  },
+  "house": {
+    "committee": "Adopted by voice vote at the House Armed Services Committee markup, June 4, 2026; no recorded committee vote on the amendment.",
+    "floor": "No floor amendment to strike or change Section 861 was made in order under the structured rule, so the House cast no separate vote on it.",
+    "passage": {
+      "result": "Passed 216-212",
+      "date": "2026-07-22",
+      "roll": 278,
+      "url": "https://clerk.house.gov/Votes/2026278",
+      "note": "Passed with Section 861 in the bill. Already mapped to strong_defense in the voting record, so every attributed member's yea or nay shows in the Peace Through Strength drawer. Neither House member below has an attributed Roll Call 278 cell, so each card cites the House Clerk for the vote."
+    }
+  },
+  "senate": {
+    "bill": "S. 4784",
+    "section": "Sec. 804",
+    "heading": "Modifications to technical data rights",
+    "text": {
+      "label": "S. 4784, reported in the Senate (GovInfo)",
+      "url": "https://www.govinfo.gov/content/pkg/BILLS-119s4784rs/html/BILLS-119s4784rs.htm"
+    },
+    "committeeReport": "S. Rept. 119-127 (Senate Armed Services Committee, reported June 15, 2026)",
+    "committeeVote": "Added by the Senate Armed Services Committee 27-0.",
+    "differences": "Section 804 limits the default to the acquisition of noncommercial products or services, adds a clawback that turns overpayments under an unjustified sole-source environment into a contract debt with interest, and bars contractors that repeatedly mismark data from awards that require technical data. Section 861 has no explicit commercial carve-out and asks only for a report on a clawback.",
+    "cloture": {
+      "result": "Cloture on the motion to proceed rejected, 50-46",
+      "date": "2026-07-14",
+      "roll": 195,
+      "url": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00195.htm"
+    },
+    "status": "As of November 10, 2026 the Senate has not passed S. 4784 and no final NDAA text has been enacted; no recorded Senate vote addresses Section 804 itself. Similar language was dropped in conference from the FY2026 NDAA."
+  },
+  "members": [
+    { "pid": "maggie_goodlander", "name": "Maggie Goodlander", "side": "support", "chamber": "house", "vote": "nay", "voteAttributed": false, "source": "https://goodlander.house.gov/media/press-releases/house-armed-services-committee-adopts-goodlander-led-bipartisan-amendment-to-strengthen-militarys-right-to-repair-its-own-equipment/" },
+    { "pid": "pat_harrigan", "name": "Pat Harrigan", "side": "support", "chamber": "house", "vote": "yea", "voteAttributed": false, "source": "https://harrigan.house.gov/media/press-releases/congressman-pat-harrigan-secures-military-right-repair-final-fy27-ndaa" },
+    { "pid": "warren", "name": "Elizabeth Warren", "side": "support", "chamber": "senate", "vote": null, "clotureVote": "nay", "source": "https://www.warren.senate.gov/newsroom/press-releases/warren-sheehy-statement-on-right-to-repair-win-in-senate-fy-27-ndaa/" },
+    { "pid": "sheehy", "name": "Tim Sheehy", "side": "support", "chamber": "senate", "vote": null, "clotureVote": "yea", "source": "https://www.warren.senate.gov/newsroom/press-releases/warren-sheehy-statement-on-right-to-repair-win-in-senate-fy-27-ndaa/" }
+  ],
+  "notCarried": [
+    { "name": "Mike Rogers (AL-03)", "why": "Opposed the amendment at markup, saying it would \"force companies to choose between protecting their IP and working with the Department of Defense.\" That is a stated objection to the provision, but filing it as 'oppose' on Peace Through Strength would misstate his position on the key itself, so no card is filed." },
+    { "name": "Marie Gluesenkamp Perez", "why": "Her published statement backs the FY2026 right-to-repair amendment, not the FY2027 language; she already has a general Right to Repair card." }
+  ]
+}

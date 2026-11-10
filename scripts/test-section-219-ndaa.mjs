@@ -321,11 +321,12 @@ section("7 · nothing else moved; declared; one shell version; no migration");
       eq(JSON.stringify(kept), JSON.stringify(before[pid]), `${pid}: another card changed`);
       eq((before[pid] || []).filter((c) => c.topic === TOPIC).length, 0, `${pid}: a Section 219 card existed at the base`);
     }
-    const others = Object.keys(before).filter((pid) => !SET.includes(pid));
-    ok(others.every((pid) => JSON.stringify(before[pid]) === JSON.stringify(after[pid])), "another person's stance entries changed");
-    // People a LATER declared stance pass added are that pass's product.
+    // People a LATER declared stance pass added or moved are that pass's
+    // product, pinned by its own suite.
     const own = DECLARED_STANCE_PASSES.findIndex((x) => x.pass === "section_219_ndaa_stated_nov2026");
     const later = new Set(DECLARED_STANCE_PASSES.slice(own + 1).flatMap((x) => x.pids));
+    const others = Object.keys(before).filter((pid) => !SET.includes(pid) && !later.has(pid));
+    ok(others.every((pid) => JSON.stringify(before[pid]) === JSON.stringify(after[pid])), "another person's stance entries changed");
     eq(Object.keys(after).filter((pid) => !later.has(pid) && !(pid in before)).sort().join(","), NEW_LISTS.slice().sort().join(","), "a person other than the set was added");
     for (const f of ["related-issues.js", "consistency.js", "issue-map.js", "alignment-tool.js", "stance-helpers.js", "cmp-data.js",
       "cmp-data-detail.js", "db/issue-keys.json", "db/issue-core-categories.json", "db/vr-issue-seed.json", "db/bill-docs.json",
@@ -353,7 +354,11 @@ section("7 · nothing else moved; declared; one shell version; no migration");
   const pre = (src) => (String(src).match(/^  '\/[^']*',$/gm) || []).map((l) => l.slice(4, -2));
   ok(pre(sw).includes("politician-stances-core.js"), "the core chunk is not precached");
   ok(!pre(sw).includes("politician-stances-ext.js"), "the ext chunk is precached");
-  ok(/^const CACHE_VERSION = 'v548';$/m.test(sw), "the shell is not at v548");
+  // A LATER declared stance pass may move the shell for its own precached
+  // file; the v548 note stays, and worker code and precache list still compare.
+  const _laterPass = DECLARED_STANCE_PASSES.findIndex((x) => x.pass === "section_219_ndaa_stated_nov2026") < DECLARED_STANCE_PASSES.length - 1;
+  const _ver = Number((/^const CACHE_VERSION = 'v(\d+)';$/m.exec(sw) || [])[1]);
+  ok(_laterPass ? _ver >= 548 : _ver === 548, `the shell is not at v548 (got v${_ver})`);
   ok(/v548 - SECTION 219 OF THE FY2027 NDAA[\s\S]*?MIGRATION COST: none\./.test(sw), "the v548 note is missing or does not say no migration");
   const baseSw = BASE("sw.js");
   if (baseSw != null) {
