@@ -21,17 +21,17 @@
      ════════════════════════════════════════════════════════════════════════════════ -->
   <title>Sunlight Banking &middot; Sunlight Governance &middot; PolitiDex</title>
   <link rel="canonical" href="https://politidex.fyi/sunlight-banking" />
-  <meta name="description" content="Sunlight Banking puts the public record of banks that hold public money or carry a public guarantee in one open place, so anyone can see who holds deposits where and what public backing stands behind them." />
+  <meta name="description" content="Credit is still created, but the spread and outcomes are visible and biased toward local use instead of distant shareholders." />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="PolitiDex" />
   <meta property="og:title" content="Sunlight Banking &middot; Sunlight Governance &middot; PolitiDex" />
-  <meta property="og:description" content="Sunlight Banking puts the public record of banks that hold public money or carry a public guarantee in one open place, so anyone can see who holds deposits where and what public backing stands behind them." />
+  <meta property="og:description" content="Credit is still created, but the spread and outcomes are visible and biased toward local use instead of distant shareholders." />
   <meta property="og:url" content="https://politidex.fyi/sunlight-banking" />
   <meta property="og:image" content="https://politidex.fyi/og-image.png" />
   <meta property="og:image:alt" content="PolitiDex — Sunlight Governance" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Sunlight Banking &middot; PolitiDex" />
-  <meta name="twitter:description" content="Sunlight Banking puts the public record of banks that hold public money or carry a public guarantee in one open place, so anyone can see who holds deposits where and what public backing stands behind them." />
+  <meta name="twitter:description" content="Credit is still created, but the spread and outcomes are visible and biased toward local use instead of distant shareholders." />
   <meta name="theme-color" content="#0a0f1e" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -173,7 +173,7 @@
     <p class="sg-eyebrow"><a href="/sunlight" data-sg-home>&larr; Sunlight Governance</a> &middot; <span class="sg-tag" data-sunlight-tag="sunlight_governance">☀️ Sunlight Governance</span> <span class="sg-tag" data-sunlight-tag="sunlight_banking">🏦 Sunlight Banking</span><span class="sg-stub" data-sg-stub>Stub &middot; no ledger entries yet</span></p>
     <h1 class="sg-title">Sunlight Banking</h1>
 
-    <p class="sg-summary" id="sg-goal" data-sg-goal>Sunlight Banking puts the public record of banks that hold public money or carry a public guarantee in one open place, so anyone can see who holds deposits where and what public backing stands behind them.</p>
+    <p class="sg-summary" id="sg-goal" data-sg-goal>Credit is still created, but the spread and outcomes are visible and biased toward local use instead of distant shareholders.</p>
 
     <section class="sg-card" aria-labelledby="sg-facts">
       <h2 id="sg-facts">What the public record already says</h2>
@@ -189,11 +189,12 @@
       <h2 id="sg-mvl">Minimum viable ledger</h2>
       <p>The smallest set of lines that makes this ledger useful. Each line is filled from a public source below.</p>
       <ul style="margin-top:0.5rem;" data-sg-mvl>
-          <li data-sg-mvl-item="deposit_share">Deposit share by county: which banks hold most of the deposits in each Utah county.</li>
-          <li data-sg-mvl-item="public_backing">Public backing: FDIC insurance, charter type and charter authority for each bank.</li>
-          <li data-sg-mvl-item="public_deposits">Public deposits: which banks are eligible to hold Utah public funds.</li>
-          <li data-sg-mvl-item="financials">Income and fees: the headline lines of each bank’s quarterly Call Report.</li>
-          <li data-sg-mvl-item="community_record">Community record: each bank’s latest Community Reinvestment Act rating and its home-lending data.</li>
+          <li data-sg-mvl-item="public_deposits">Public deposits (city, county, state): which banks and credit unions hold them.</li>
+          <li data-sg-mvl-item="public_loans">Loans originated or participated in by any public or public-partner bank.</li>
+          <li data-sg-mvl-item="loan_terms">Borrower type (contractor, small business, housing, farm and so on), amount, rate and term.</li>
+          <li data-sg-mvl-item="outcomes">Real outcomes: jobs created, units built, projects completed, repayments and defaults.</li>
+          <li data-sg-mvl-item="lender_ownership">Ownership of the lender: shareholder-owned bank, credit union or public bank.</li>
+          <li data-sg-mvl-item="pac_votes">PAC donations, and how legislators voted on banking bills.</li>
       </ul>
     </section>
 
@@ -211,9 +212,9 @@
     <section class="sg-card" aria-labelledby="sg-moves">
       <h2 id="sg-moves">Utah starting moves</h2>
       <ol style="margin:0.3rem 0 0;padding-left:1.3rem;" data-sg-moves>
-          <li data-sg-move="county_share">Pull the FDIC Summary of Deposits for Utah and list the top deposit holders in each county.</li>
-          <li data-sg-move="public_funds">Match those banks against the Money Management Council’s public list of depositories eligible to hold Utah public funds.</li>
-          <li data-sg-move="first_ledger">For the largest public-funds depository, file one ledger page: charter, insurance, deposit share, latest Call Report lines and CRA rating, each linked to its source.</li>
+          <li data-sg-move="redirect_deposits">Redirect even one Utah city’s or county’s deposits from the big four banks into credit unions or a future public option.</li>
+          <li data-sg-move="public_bank_model">Model a Utah public bank after North Dakota’s: it holds public deposits, partners with community banks and credit unions on loans (it does not compete for retail customers), and returns its surplus to the state and local level.</li>
+          <li data-sg-move="track_loans">Track every loan on the ledger so the next county can copy what works.</li>
       </ol>
     </section>
 
@@ -229,6 +230,46 @@
           <li data-sg-source="utah_dfi"><a href="https://dfi.utah.gov/" rel="noopener">Utah Department of Financial Institutions</a> &middot; Utah charters and supervision</li>
           <li data-sg-source="utah_treasurer"><a href="https://treasurer.utah.gov/" rel="noopener">Utah State Treasurer (Money Management Council)</a> &middot; rules and depositories for Utah public funds</li>
       </ul>
+      <div class="sg-public-data" data-sg-public-data-list style="margin-top:1rem;">
+        <h3 style="font:600 0.92rem/1.2 'Barlow Condensed',system-ui,sans-serif;letter-spacing:0.05em;text-transform:uppercase;color:#fff7d6;margin:0 0 0.4rem;">Public data</h3>
+        <p>No ledger entries yet. These public pages are starting points for the public record; nothing is pulled or stored from them yet.</p>
+        <ul style="margin-top:0.5rem;">
+          <li data-sg-public-data="fdic_sod"><a href="https://www7.fdic.gov/sod/" rel="noopener">FDIC Summary of Deposits</a></li>
+          <li data-sg-public-data="fdic_bankfind"><a href="https://banks.data.fdic.gov/" rel="noopener">FDIC BankFind Suite</a></li>
+          <li data-sg-public-data="ffiec_call_reports"><a href="https://cdr.ffiec.gov/public/" rel="noopener">FFIEC Call Reports</a></li>
+          <li data-sg-public-data="utah_dfi"><a href="https://dfi.utah.gov/" rel="noopener">Utah Department of Financial Institutions</a></li>
+          <li data-sg-public-data="utah_treasurer"><a href="https://treasurer.utah.gov/" rel="noopener">Utah State Treasurer / Money Management Council</a></li>
+        </ul>
+        <div class="sg-sample" data-sg-sample>
+          <p class="sg-meta" style="margin-top:0.9rem;"><b style="color:#f5d77a;">First look</b> &middot; copied by hand from the published public figures; not pulled automatically.</p>
+          <p style="margin-top:0.4rem;"><b>Largest deposit holders in Davis County, Utah</b></p>
+          <table class="sg-compare" style="margin-top:0.4rem;">
+            <thead><tr><th scope="col">Institution</th><th scope="col">Total deposits in Davis County offices</th><th scope="col">Source and date</th></tr></thead>
+            <tbody>
+              <tr><td>Zions Bancorporation, N.A.</td><td>$1.06 billion</td><td><a href="https://www7.fdic.gov/sod/" rel="noopener">FDIC Summary of Deposits</a>, June 30, 2026</td></tr>
+              <tr><td>Prime Alliance Bank</td><td>$966.1 million</td><td><a href="https://www7.fdic.gov/sod/" rel="noopener">FDIC Summary of Deposits</a>, June 30, 2026</td></tr>
+              <tr><td>Wells Fargo Bank, N.A.</td><td>$774.3 million</td><td><a href="https://www7.fdic.gov/sod/" rel="noopener">FDIC Summary of Deposits</a>, June 30, 2026</td></tr>
+              <tr><td>JPMorgan Chase Bank, N.A.</td><td>$419.7 million</td><td><a href="https://www7.fdic.gov/sod/" rel="noopener">FDIC Summary of Deposits</a>, June 30, 2026</td></tr>
+              <tr><td>Glacier Bank</td><td>$320.3 million</td><td><a href="https://www7.fdic.gov/sod/" rel="noopener">FDIC Summary of Deposits</a>, June 30, 2026</td></tr>
+            </tbody>
+          </table>
+          <p class="sg-meta" style="margin-top:0.5rem;">All 13 FDIC-insured institutions together held $4.35 billion in 43 Davis County offices. Figures are total deposits; the Summary of Deposits does not break out public deposits. Deposits count where the institution books them, so a single-office bank’s total can include deposits from outside the county. Credit unions are not in this dataset.</p>
+          <p style="margin-top:1rem;"><b>Largest deposit holders in Weber County, Utah</b></p>
+          <table class="sg-compare" style="margin-top:0.4rem;">
+            <thead><tr><th scope="col">Institution</th><th scope="col">Total deposits in Weber County offices</th><th scope="col">Source and date</th></tr></thead>
+            <tbody>
+              <tr><td>Bank of Utah</td><td>$1.62 billion</td><td><a href="https://www7.fdic.gov/sod/" rel="noopener">FDIC Summary of Deposits</a>, June 30, 2026</td></tr>
+              <tr><td>Transportation Alliance Bank (TAB Bank)</td><td>$1.38 billion</td><td><a href="https://www7.fdic.gov/sod/" rel="noopener">FDIC Summary of Deposits</a>, June 30, 2026</td></tr>
+              <tr><td>Zions Bancorporation, N.A.</td><td>$683.0 million</td><td><a href="https://www7.fdic.gov/sod/" rel="noopener">FDIC Summary of Deposits</a>, June 30, 2026</td></tr>
+              <tr><td>JPMorgan Chase Bank, N.A.</td><td>$401.2 million</td><td><a href="https://www7.fdic.gov/sod/" rel="noopener">FDIC Summary of Deposits</a>, June 30, 2026</td></tr>
+              <tr><td>Wells Fargo Bank, N.A.</td><td>$363.5 million</td><td><a href="https://www7.fdic.gov/sod/" rel="noopener">FDIC Summary of Deposits</a>, June 30, 2026</td></tr>
+            </tbody>
+          </table>
+          <p class="sg-meta" style="margin-top:0.5rem;">All 11 FDIC-insured institutions together held $5.01 billion in 30 Weber County offices. Figures are total deposits; the Summary of Deposits does not break out public deposits. Deposits count where the institution books them, so a single-office bank’s total can include deposits from outside the county. Credit unions are not in this dataset.</p>
+          <p style="margin-top:0.6rem;">To see every institution, office and county, use the full <a href="https://www7.fdic.gov/sod/" rel="noopener">FDIC Summary of Deposits tool</a>.</p>
+          <p class="sg-meta" data-sg-sample-foot style="margin-top:0.5rem;">First sample — not a full ledger.</p>
+        </div>
+      </div>
     </section>
 
     <a class="sg-card sg-live" href="/sunlight/rocky-mountain-power" data-sg-live-example>
