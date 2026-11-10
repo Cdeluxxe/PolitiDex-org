@@ -76,6 +76,7 @@ import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
+import { declaredStanceMovesAtHead } from "./v103-chrome-seams.mjs";
 import { makeSandbox, ENGINE_FILES } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 
@@ -405,6 +406,7 @@ section("7 · twin boot — the pair list and the DM ledger never saw this");
     const drift = [];
     let swept = 0;
     for (const [pid] of corpus.byMember) {
+      if (declaredStanceMovesAtHead().moved.has(pid)) continue; // a declared stance pass (v103-chrome-seams.mjs) moves its own people
       swept++;
       if (JSON.stringify(A.PDXWordAction.read(pid)) !== JSON.stringify(B.PDXWordAction.read(pid))) {
         drift.push(`${pid}/ledger`);

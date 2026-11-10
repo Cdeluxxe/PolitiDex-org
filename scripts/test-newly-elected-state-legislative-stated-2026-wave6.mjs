@@ -111,6 +111,17 @@ const WORD = { support: "supports", oppose: "opposes" };
 const SAYS = { support: "Stated: Supports", oppose: "Stated: Opposes" }; // the drawer header chip (v542)
 const OTHER = { support: "oppose", oppose: "support" };
 
+// The core stance chunk with the people a LATER declared stance pass moved set
+// aside (v103-chrome-seams.mjs): their cards are that pass's product, pinned by
+// its own suite. Every other person's entries still compare byte for byte.
+const coreSansLater = (src) => {
+  if (src == null) return src;
+  const own = DECLARED_STANCE_PASSES.findIndex((d) => d.pass === "newly_elected_state_legislative_stated_nov2026_wave6");
+  const later = new Set(DECLARED_STANCE_PASSES.slice(own + 1).flatMap((d) => d.pids));
+  const w = {}; w.window = w; vm.runInContext(String(src), vm.createContext(w));
+  const t = w.ISSUE_STANCE_DATA || {};
+  return JSON.stringify(Object.keys(t).filter((p) => !later.has(p)).map((p) => [p, t[p]]));
+};
 const win = boot();
 if (win.__err) failures.push(`boot: ${win.__err}`);
 const RI = win.PDXRelatedIssues, CS = win.PDXConsistency, MAP = RI && RI.MAP;
@@ -268,12 +279,15 @@ section("4 · nothing else moved; no new route or gate; one shell move, no migra
     const before = stanceData(base), after = stanceData(R("politician-stances.js"));
     for (const pid of SET) ok(!(pid in before), `${pid} already had stance entries at the base`);
     const others = Object.keys(before);
-    ok(others.every((pid) => JSON.stringify(before[pid]) === JSON.stringify(after[pid])), "another person's stance entries changed");
+    // A LATER declared stance pass may add a card to someone already here; that
+    // card is the later pass's product, pinned by its own suite.
+    const laterMoved = new Set(DECLARED_STANCE_PASSES.slice(DECLARED_STANCE_PASSES.findIndex((d) => d.pass === "newly_elected_state_legislative_stated_nov2026_wave6") + 1).flatMap((d) => d.pids));
+    ok(others.filter((pid) => !laterMoved.has(pid)).every((pid) => JSON.stringify(before[pid]) === JSON.stringify(after[pid])), "another person's stance entries changed");
     // People a LATER declared stance pass added (v103-chrome-seams.mjs) are that
     // pass's product, pinned by its own suite.
     const own = DECLARED_STANCE_PASSES.findIndex((d) => d.pass === "newly_elected_state_legislative_stated_nov2026_wave6");
     const later = new Set(DECLARED_STANCE_PASSES.slice(own + 1).flatMap((d) => d.pids));
-    eq(Object.keys(after).filter((pid) => !later.has(pid)).length, others.length + SET.length, "a person other than the set was added");
+    eq(Object.keys(after).filter((pid) => !later.has(pid) || pid in before).length, others.length + SET.length, "a person other than the set was added");
     // The roster: the declared block is the only move.
     const cmpNow = R("cmp-data.js");
     ok(!!ADMIT && ADMIT.pids.slice().sort().join(",") === SET.slice().sort().join(","), "the declared admission is not exactly the set");
@@ -289,6 +303,7 @@ section("4 · nothing else moved; no new route or gate; one shell move, no migra
       const b = BASE(f);
       let now = null; try { now = R(f); } catch { /* absent */ }
       if (f === "related-issues.js") { eq(relatedIssuesMapOnly(now), relatedIssuesMapOnly(b), `${f}: the related-issues map changed`); continue; }
+      if (f === "politician-stances-core.js") { eq(coreSansLater(now), coreSansLater(b), `${f} changed`); continue; }
       eq(now, b, `${f} changed`);
     }
     const ls = BASE_LS();
@@ -318,7 +333,7 @@ section("4 · nothing else moved; no new route or gate; one shell move, no migra
     ok(ver(sw) >= ver(baseSw) + 1, "the shell did not move one version for the precached roster");
     ok(/v527 - NEWLY ELECTED STATE LEGISLATORS IN NEW YORK, OHIO, PENNSYLVANIA AND TEXAS[\s\S]*?MIGRATION COST: none\.\n(\/\/[^\n]*\n)*const CACHE_VERSION = 'v\d+'/.test(sw), "the version note is missing or does not say no migration");
     eq(JSON.stringify(pre(sw)), JSON.stringify(pre(baseSw)), "the precache list changed");
-    eq(R("politician-stances-core.js"), BASE("politician-stances-core.js"), "the precached stance chunk changed");
+    eq(coreSansLater(R("politician-stances-core.js")), coreSansLater(BASE("politician-stances-core.js")), "the precached stance chunk changed");
   }
   const sm = R("sitemap.xml");
   for (const pid of SET) ok(sm.includes(`<loc>https://politidex.fyi/p/${pid}</loc>`), `${pid}: the sitemap does not list the person page`);

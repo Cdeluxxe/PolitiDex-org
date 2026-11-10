@@ -42,6 +42,7 @@ import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
+import { declaredStanceMovesAtHead } from "./v103-chrome-seams.mjs";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 import { withDeclaredNoPole } from "./head-no-pole.mjs";
@@ -574,6 +575,7 @@ section("7 · twin boot — one new node, nothing else");
   let identical = 0, nodeOnly = 0;
   const drifted = [];
   for (const [pid] of corpus.byMember) {
+    if (declaredStanceMovesAtHead().moved.has(pid)) continue; // a declared stance pass (v103-chrome-seams.mjs) moves its own people
     const a = H.PDXWordAction.heroHtml(pid, prof(H, pid)) || "";
     const b = hero(pid);
     if (a === b) { identical++; continue; }
@@ -590,7 +592,7 @@ section("7 · twin boot — one new node, nothing else");
   // brief in the corpus is accounted for by one of the two buckets and nothing
   // drifted (above), and the sentence really is on the live corpus — section 5
   // counts that directly, off the live boot, and requires more than 200 files.
-  eq(identical + nodeOnly, corpus.byMember.size,
+  eq(identical + nodeOnly, [...corpus.byMember.keys()].filter((p) => !declaredStanceMovesAtHead().moved.has(p)).length,
     "a brief fell out of both buckets — every file is either untouched or differs by the node alone");
   ok(identical > 0, `twin boot rendered nothing at all (identical=${identical}, nodeOnly=${nodeOnly})`);
   console.log(`      ${identical} briefs byte-identical, ${nodeOnly} differ only by the new node`);
@@ -603,6 +605,7 @@ section("7 · twin boot — one new node, nothing else");
   // Direction Match, the word ledger and every shape count, everywhere.
   const dm = [], sp = [];
   for (const [pid] of corpus.byMember) {
+    if (declaredStanceMovesAtHead().moved.has(pid)) continue; // a declared stance pass (v103-chrome-seams.mjs) moves its own people
     for (const sc of Object.keys(CS.SCOPES)) {
       if (JSON.stringify(H.PDXConsistency.scopedOverall(sc, pid)) !==
           JSON.stringify(CS.scopedOverall(sc, pid))) dm.push(`${pid}/${sc}`);

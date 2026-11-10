@@ -11945,7 +11945,19 @@
 //     moves. A precached shell file changed, so the shell moves one version;
 //     the precache list is unchanged.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v547';
+// v548 - SECTION 219 OF THE FY2027 NDAA, STATED. politician-stances-core.js
+//     (precached) carries sourced stances on Section 219 of H.R. 8800 (the
+//     United States-Israel Defense Technology Cooperation Initiative, formerly
+//     Section 224) for Thomas Massie, Ro Khanna, Alexandria Ocasio-Cortez,
+//     Bernie Sanders, Don Davis and Kirsten Gillibrand, filed on the existing
+//     Support for Israel key; politician-stances-ext.js (runtime-cached) adds
+//     Ted Budd, Ronny Jackson and Marlin Stutzman. No issue key, related pair,
+//     route or gate is added, and no other card is edited. A precached shell
+//     file changed, so the shell moves one version; the precache list is
+//     unchanged. No location key or other stored reader state is written or
+//     rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v548';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

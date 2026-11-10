@@ -3757,6 +3757,16 @@ export const DECLARED_STANCE_PASSES = [
       "elizabeth_moro", "stephanie_guerrero_saenz", "oziel_ochoa", "chris_jimenez", "zach_herbert", "zack_dunn",
       "tyler_smith"],
   },
+  {
+    pass: "section_219_ndaa_stated_nov2026",
+    // Section 219 of the FY2027 NDAA (H.R. 8800; was Section 224), the
+    // United States-Israel Defense Technology Cooperation Initiative
+    // (db/section-219-ndaa-stated-2026-11.json): one sourced card each on the
+    // existing israel_support key, filed first among that member's
+    // israel_support cards. Seven already had stance lists and keep every
+    // other card byte-identical; Ronny Jackson and Marlin Stutzman had none.
+    pids: ["massie", "khanna", "aoc", "sanders", "don_davis", "gillibrand", "ted_budd", "ronny_jackson", "marlin_stutzman"],
+  },
 ];
 export const DECLARED_STANCE_PIDS = DECLARED_STANCE_PASSES.flatMap((d) => d.pids);
 // sw.js with its comment lines and the CACHE_VERSION line set aside: what a

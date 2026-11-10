@@ -1,0 +1,73 @@
+{
+  "_note": "Section 219 of the FY2027 NDAA, stated positions (November 2026). Section 219 of H.R. 8800 (formerly Section 224) is filed on the existing issue key israel_support (Support for Israel), which already carries the bill's House vote record: H.R. 8800 is mapped to israel_support in db/vr-issue-seed.json and its consistency.js effect line names the U.S.-Israel defense technology initiative. No new issue key, related-issues pair or migration: a new key would need a stored-table migration, and the Support for Israel pairs (Iran, Ukraine, Yemen, Venezuela, Diplomacy & Restraint, Peace Through Strength, America First Foreign Aid & Commitments, Congress and War Powers) already cover the relevant issues. Each member below has a published statement that directly addresses the section or the FUTURES Act it was drawn from, quoted with a link; nothing is inferred from party or a general position on Israel. Each card is filed first among the member's israel_support cards so the drawer's stated line reads it; no other card is edited. Read by scripts/test-section-219-ndaa.mjs.",
+  "read": "2026-11-10",
+  "issueKey": "israel_support",
+  "provision": {
+    "bill": "H.R. 8800",
+    "congress": 119,
+    "title": "National Defense Authorization Act for Fiscal Year 2027",
+    "section": "Sec. 219",
+    "formerly": "Sec. 224",
+    "heading": "United States-Israel Defense Technology Cooperation Initiative",
+    "text": {
+      "label": "H.R. 8800, engrossed in the House (GovInfo)",
+      "url": "https://www.govinfo.gov/content/pkg/BILLS-119hr8800eh/html/BILLS-119hr8800eh.htm",
+      "establishment": "The Secretary of Defense shall designate an executive agent, as such term is defined in Department of Defense Directive 5101.01 (relating to DoD Executive Agent, issued February 7, 2022), responsible for synchronizing cooperative efforts between the United States and Israel, to expand and accelerate bilateral defense technology research, development, testing, evaluation, and industrial cooperation",
+      "domains": [
+        "Counter-Unmanned Systems including aerial, maritime, and ground platforms.",
+        "Anti-tunneling and subterranean threats.",
+        "Missile and air defense technologies.",
+        "Artificial intelligence, quantum, machine learning, and autonomous systems.",
+        "Directed energy and advanced sensing.",
+        "Cyber defense, electronic warfare, and digital resilience.",
+        "Biotechnology, biomanufacturing, and medical defense.",
+        "Networks, data fusion, and contested logistics.",
+        "Defense industrial base cooperation, manufacturing, and co-production.",
+        "Other emerging technologies as jointly agreed by the United States and Israel."
+      ],
+      "reporting": "An interim briefing within 180 days, then an annual report to the congressional defense committees until there is no longer an executive agent designated, plus periodic public unclassified updates."
+    },
+    "committeeReport": "H. Rept. 119-698 (House Armed Services Committee, reported June 15, 2026)",
+    "origin": "Drawn from the United States-Israel FUTURES Act (H.R. 7540, Reps. Ronny Jackson and Don Davis; S. 3855, Sens. Ted Budd and Kirsten Gillibrand), introduced February 2026."
+  },
+  "house": {
+    "strikeAmendment": "The Massie-Khanna amendment to strike the section was not made in order by the Rules Committee and got no floor vote; Rep. Anna Paulina Luna's separate amendment to strike it was not made in order either. An earlier Khanna amendment to strike it (as Section 224) was rejected in the House Armed Services Committee markup in June 2026.",
+    "rule": "The rule for H.R. 8800 passed 214-211 on July 21, 2026, with no vote on striking Section 219.",
+    "passage": {
+      "result": "Passed 216-212",
+      "date": "2026-07-22",
+      "roll": 278,
+      "url": "https://clerk.house.gov/Votes/2026278",
+      "note": "Passed with Section 219 in the bill. Already mapped to israel_support (and strong_defense) in the voting record, so every attributed member's yea or nay shows in the Support for Israel drawer."
+    }
+  },
+  "senate": {
+    "bill": "S. 4784",
+    "section": "Sec. 1217",
+    "note": "The Senate committee bill carries the same initiative as Section 1217.",
+    "cloture": {
+      "result": "Cloture on the motion to proceed rejected, 50-46",
+      "date": "2026-07-14",
+      "roll": 195,
+      "url": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00195.htm"
+    },
+    "status": "As of November 10, 2026 the Senate has not passed S. 4784 and no final NDAA text has been enacted; no recorded Senate vote addresses Section 1217 itself."
+  },
+  "members": [
+    { "pid": "massie", "name": "Thomas Massie", "side": "oppose", "chamber": "house", "vote": "nay", "source": "https://x.com/RepThomasMassie/status/2066346451123294706" },
+    { "pid": "khanna", "name": "Ro Khanna", "side": "oppose", "chamber": "house", "vote": "nay", "source": "https://x.com/RepRoKhanna/status/2104622503582904423" },
+    { "pid": "aoc", "name": "Alexandria Ocasio-Cortez", "side": "oppose", "chamber": "house", "vote": "nay", "source": "https://bsky.app/profile/ocasio-cortez.house.gov/post/3mr742gcfrc2a" },
+    { "pid": "sanders", "name": "Bernie Sanders", "side": "oppose", "chamber": "senate", "vote": null, "source": "https://x.com/SenSanders/status/2066585100293185928" },
+    { "pid": "don_davis", "name": "Don Davis", "side": "support", "chamber": "house", "vote": "yea", "source": "https://dondavis.house.gov/media/press-releases/congressman-don-davis-co-leads-bipartisan-bill-modernize-americas-defense" },
+    { "pid": "ronny_jackson", "name": "Ronny Jackson", "side": "support", "chamber": "house", "vote": "yea", "voteAttributed": false, "source": "https://jackson.house.gov/news/documentsingle.aspx?DocumentID=2482" },
+    { "pid": "marlin_stutzman", "name": "Marlin Stutzman", "side": "support", "chamber": "house", "vote": "yea", "voteAttributed": false, "source": "https://theintercept.com/2026/07/22/ndaa-defense-bill-pentagon-israel-massie/" },
+    { "pid": "ted_budd", "name": "Ted Budd", "side": "support", "chamber": "senate", "vote": null, "source": "https://www.budd.senate.gov/2026/02/12/budd-gillibrand-introduce-bipartisan-bill-to-strengthen-bilateral-defense-programs-between-the-u-s-and-israel/" },
+    { "pid": "gillibrand", "name": "Kirsten Gillibrand", "side": "support", "chamber": "senate", "vote": null, "source": "https://www.budd.senate.gov/2026/02/12/budd-gillibrand-introduce-bipartisan-bill-to-strengthen-bilateral-defense-programs-between-the-u-s-and-israel/" }
+  ],
+  "notCarried": [
+    { "name": "Anna Paulina Luna", "why": "Filed amendments to strike or soften the section, but no statement of her own on it was found; a filed amendment is not a recorded vote." },
+    { "name": "Chris Van Hollen", "why": "Filed Senate amendments to strike Section 1217 and led the July 9 letter, but no direct quote of his own was sourced for this pass." },
+    { "name": "Lauren Boebert", "why": "Reported remarks relay constituents' views and do not state her own side; she did not vote on passage." },
+    { "name": "Marjorie Taylor Greene", "why": "No longer a member of Congress." }
+  ]
+}

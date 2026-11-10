@@ -829,9 +829,12 @@ for (const pid of PIDS) {
 }
 console.log(`      (published figures compared: ${published}; of them thin-and-near-perfect: ${thinPerfect}; ` +
   `curated this pass: ${curated}; lifted over the floor: ${lifted})`);
-eq(curated, Object.keys(CURATED).length,
+// A profile a declared stance pass moved is skipped above (its own suite pins
+// it), so it is not owed a visit here.
+const _notDeclared = (o) => Object.keys(o).filter((p) => !declaredStanceMovesAtHead().moved.has(p)).length;
+eq(curated, _notDeclared(CURATED),
   "every profile on the curated list was actually reached — a stale name would hide a real freeze");
-eq(lifted, Object.keys(LIFTED).length,
+eq(lifted, _notDeclared(LIFTED),
   "every profile on the lifted list was actually reached — a stale name would hide a real freeze");
 eq(withdrawn, Object.keys(WITHDRAWN).length,
   "every profile on the withdrawn list was actually reached — a stale name would hide a real removal");
