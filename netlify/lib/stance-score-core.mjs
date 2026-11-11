@@ -38,6 +38,25 @@
 //       (then it counts on its own, as before), is not a question, is not
 //       negated and is not attributed to someone else. An isolated mention
 //       stays zero weight (R3).
+//   R8  Stated position from a primary source (phase8): a verifiable
+//       first-party source — a campaign or official page (or a .gov/.mil
+//       link), a press release, statement, speech or remarks — is normal
+//       evidence of what the candidate SAID. When at least one EXPLICIT clear
+//       statement by the page's own politician sets the position, nothing on
+//       the page runs the other way and there is no reversal, confidence is
+//       floored at WEIGHTS.statedPositionConfidence (the Locker's strong bar),
+//       so one specific on-topic campaign claim reads as a normal stated
+//       position instead of a weak signal. No external verification is needed
+//       for this STATED layer. It is never a formal record: the candidate is
+//       marked stated_position (layer "stated"), and nothing here makes a
+//       claim count as a vote, bill or completed action — that still needs an
+//       independent match to an official record. Implication-only reads (R6,
+//       R7) and pure mentions (R3) are unchanged.
+//   R9  One claim, one issue (phase8): when a page's cross-topic candidate rests
+//       only on sentences another kept candidate from the same page already
+//       carries, it restates the same claim under another issue key and is
+//       dropped (scoreAllTopics). The page's own topic is always kept; among
+//       other topics the one resting on more explicit statements wins.
 //
 
 // Calibration: the ground truth (0.85) rests on first-party campaign pages
@@ -47,7 +66,7 @@
 
 import { buildTopicRules, ISSUE_TOPIC_VOCAB, ISSUE_TOPIC_LABELS } from "./stance-topic-vocab.mjs";
 
-export const RULES_VERSION = "phase7-v1";
+export const RULES_VERSION = "phase8-v1";
 // Vocabulary version for the issue keys scored from stance-topic-vocab.mjs
 // (every register key except the two hand-calibrated core topics).
 export const VOCAB_VERSION = "issue-vocab-v1";
@@ -65,12 +84,21 @@ export const WEIGHTS = {
   outlierPenalty: 0.1,    // R5: per opposite-side clear statement
   maxConfidence: 0.95,
   mentionOnlyConfidence: 0.3, // "no clear position" when only mentions exist
+  statedPositionConfidence: 0.8, // R8: floor for an explicit claim on a primary source
 };
 
 export const CONFIDENCE_TOLERANCE = 0.1;
 
 const HIGH_TYPES = /\b(speech|press release|statement|remarks|interview|transcript)\b/i;
 const MEDIUM_TYPES = /\b(campaign|issue page|platform|toolkit)\b/i;
+// R8: a verifiable first-party source of what the candidate said.
+const PRIMARY_TYPES = /\b(campaign|official|issues? page|platform|press release|statement|speech|remarks|transcript)\b/i;
+
+/** Is this a primary source of the candidate's own words (R8)? */
+export function isPrimarySource(sourceType, link) {
+  if (PRIMARY_TYPES.test(String(sourceType || ""))) return true;
+  try { return /\.(gov|mil)$/i.test(new URL(link).hostname); } catch { return false; }
+}
 
 // Topic vocabulary. R1–R5 and WEIGHTS are shared by every topic; a topic only
 // supplies what counts as a mention and what counts as a clear statement.
@@ -428,9 +456,18 @@ export function scoreRawRecord(raw, topic = raw?.topic, sentences = null) {
       else confidence -= WEIGHTS.outlierPenalty * outliers;
       parts.push(`${outliers} outlier(s) without reversal language lower confidence, do not flip (R5)`);
     }
+    // R8: an explicit, uncontested claim on a primary source is a normal
+    // stated position. Only the stated layer moves; formal record is untouched.
+    if (position !== "mixed" && n[position] && !outliers && isPrimarySource(raw.source_type, raw.final_url || raw.url)
+        && confidence < WEIGHTS.statedPositionConfidence) {
+      confidence = WEIGHTS.statedPositionConfidence;
+      parts.push(`explicit claim on a primary source reads as a stated position (R8)`);
+    }
     if (mentions) parts.push(`${mentions} mention(s) recorded at zero weight (R3)`);
     reason = parts.join("; ");
   }
+  const stated = (position === "support" || position === "oppose") && n[position] > 0 &&
+    isPrimarySource(raw.source_type, raw.final_url || raw.url);
 
   const firstClear = clear.find((s) => s.side === position) || clear[0]
     || implied.find((s) => s.side === position) || implied[0];
@@ -451,6 +488,11 @@ export function scoreRawRecord(raw, topic = raw?.topic, sentences = null) {
       implication_count: implied.length,
       statements,
     }],
+    // R8: the stated layer only. A stated position is what the candidate said
+    // on a primary source; it is never a formal record or completed action.
+    ...(stated ? { stated_position: true } : {}),
+    layer: "stated",
+    formal_record: false,
     rules_version: RULES_VERSION,
     ...(CORE_TOPICS.includes(topic) ? {} : { vocab_version: VOCAB_VERSION }),
     ...(topic !== raw.topic ? { page_topic: raw.topic } : {}),
@@ -483,12 +525,39 @@ export function scoreAllTopics(raw, { topics = SCORED_TOPICS, maxCrossSentences 
   // The page's own topic reads every sentence, as before; the other topics read
   // the first CROSS_TOPIC_MAX_SENTENCES so a runaway page cannot stretch a run.
   const cross = sentences.length > maxCrossSentences ? sentences.slice(0, maxCrossSentences) : sentences;
+  const extra = [];
   for (const t of topics) {
     if (t === raw?.topic || !hasRulesFor(t) || NO_POLE_TOPICS.has(t)) continue;
     const c = scoreRawRecord(raw, t, cross);
-    if (directionalSignals(c) > 0) out.push(c);
+    if (directionalSignals(c) > 0) extra.push(c);
   }
-  return out;
+  return [...out, ...collapseRestatements(out, extra)];
+}
+
+/** The directional sentences a candidate rests on (R9). */
+const claimSet = (c) => new Set((c?.sources?.[0]?.statements || [])
+  .filter((s) => s.kind === "clear" || s.kind === "implication").map((s) => s.text));
+const explicitCount = (c) => (c?.sources?.[0]?.statements || []).filter((s) => s.kind === "clear").length;
+
+/**
+ * R9: drop cross-topic candidates that only restate claims a kept candidate
+ * from the same page already carries. `kept` (the page's own topic) always
+ * stays; the rest are considered most-explicit first, then by confidence, then
+ * in SCORED_TOPICS order. Returns the survivors in their original order.
+ */
+export function collapseRestatements(kept, extra) {
+  const held = kept.map(claimSet);
+  const order = extra.map((c, i) => ({ c, i }))
+    .sort((a, b) => explicitCount(b.c) - explicitCount(a.c) || b.c.confidence - a.c.confidence || a.i - b.i);
+  const keep = new Set();
+  for (const { c, i } of order) {
+    const mine = claimSet(c);
+    const dup = mine.size > 0 && held.some((h) => [...mine].every((x) => h.has(x)));
+    if (dup) continue;
+    held.push(mine);
+    keep.add(i);
+  }
+  return extra.filter((_, i) => keep.has(i));
 }
 
 /** Compare a candidate to the ground truth. */

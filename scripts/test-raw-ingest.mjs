@@ -787,9 +787,11 @@ await t('all topics: one page writes Locker items on more than one topic, each u
     assert.equal(locker.toSpotlightEntry(i).issueKey, i.topic, 'served under its own issue key, so it attaches to that leaf');
     if (i.topic !== 'healthcare_costs') assert.equal(i.page_topic, 'healthcare_costs');
   }
-  // Same thresholds: border has 3 consistent statements → strong; schools 1 → weak.
+  // Same thresholds: border has 3 consistent statements → strong. Schools has 1
+  // explicit claim on the official page: a normal stated position (R8), strong.
   assert.equal(items.find((i) => i.topic === 'border_security').strength, 'strong');
-  assert.equal(items.find((i) => i.topic === 'public_schools').strength, 'weak');
+  assert.equal(items.find((i) => i.topic === 'public_schools').strength, 'strong');
+  assert.equal(items.find((i) => i.topic === 'public_schools').confidence, 0.8);
   assert.equal(locker.toSpotlightEntry(items.find((i) => i.topic === 'border_security')).headline,
     'Cornyn supports “Strong Border & Enforcement” (official Senate issue page)');
   // The run logs which topics produced items, and the report carries the same.

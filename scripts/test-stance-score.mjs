@@ -333,7 +333,7 @@ await t('Phase 7: Talarico ground-truth match stays support 0.85 with no implica
   assert.equal(r.candidate.position, 'support');
   assert.equal(r.candidate.confidence, 0.85);
   assert.equal(r.comparison.delta, 0);
-  assert.equal(r.candidate.rules_version, 'phase7-v1');
+  assert.equal(r.candidate.rules_version, 'phase8-v1');
   assert.match(r.candidate.confidence_reason, /implication\(s\)/);
 });
 

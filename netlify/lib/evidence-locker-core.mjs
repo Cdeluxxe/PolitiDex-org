@@ -28,12 +28,21 @@
 //       key is only replaced by a STRONGER read of the same page; same or
 //       weaker reads leave it exactly as it is.
 //
+// STATED LAYER ONLY. Every item is what a politician SAID (layer "stated",
+// formal_record false). An explicit claim on a primary source (scorer R8)
+// carries stated_position: true and reads as a normal stated position; it is
+// never a vote, bill or completed action until it is independently matched to
+// an official record elsewhere. Items written under the older rules are
+// re-read the same way when served (regradeStatedPosition), and one claim
+// restated under several issue keys is served once (collapseRestatedItems).
+//
 // The ground-truth record is passed in read-only; this module never writes it.
 // Pure and dependency-injected (store, log) so the test suite runs it without a
 // Blobs environment.
 
 import { createHash } from "node:crypto";
 import { ISSUE_TOPIC_LABELS } from "./stance-topic-vocab.mjs";
+import { isPrimarySource, WEIGHTS as SCORE_WEIGHTS } from "./stance-score-core.mjs";
 
 export const LOCKER_STORE_NAME = "evidence-locker";
 export const LOCKER_MIN_CONFIDENCE = 0.8;
@@ -187,6 +196,9 @@ export function buildLockerItem(candidate, raw, strength = lockerStrength(candid
     link_status: raw?.http_status ?? null,
     confidence_reason: candidate.confidence_reason,
     rules_version: candidate.rules_version,
+    ...(candidate.stated_position ? { stated_position: true } : {}),
+    layer: "stated",
+    formal_record: false,
     item_version: LOCKER_ITEM_VERSION,
     captured_at: raw?.fetched_at ?? null,
     ...(raw?.source_id ? { source_id: raw.source_id } : {}),
@@ -230,6 +242,11 @@ export function toSpotlightEntry(item, { key = null, review = null } = {}) {
       rules_version: item.rules_version,
       captured: item.date,
       ...(item.strength ? { strength: item.strength } : {}),
+      ...(item.stated_position ? { stated_position: true } : {}),
+      // What the candidate said, never a formal record or completed action.
+      layer: "stated",
+      formal_record: false,
+      ...(item.regraded_from ? { regraded_from: item.regraded_from } : {}),
       ...(item.implication_count ? { implication_count: item.implication_count } : {}),
       ...(key ? { key } : {}),
     },
@@ -357,7 +374,7 @@ export async function lockerBaselineCounts(store, { flags = null, pids = null, l
       if (!doc || !doc.politician_id || !doc.topic) continue;
       if (want && !want.has(doc.politician_id)) continue;
       if (reviewFor(doc, key, flags)?.status === "hidden") continue;
-      const s = storedStrength(doc);
+      const s = storedStrength(regradeStatedPosition(doc));
       if (s !== "strong" && s !== "weak") continue;
       const c = (counts[`${doc.politician_id}|${doc.topic}`] ||= { strong: 0, weak: 0 });
       c[s] += 1;
@@ -366,4 +383,64 @@ export async function lockerBaselineCounts(store, { flags = null, pids = null, l
     log(`evidence-locker: baseline count unavailable — ${e?.message || e}`);
   }
   return counts;
+}
+
+// ── Stated positions written under the older rules ─────────────────────────
+// Before scorer R8, one or two explicit claims on a campaign/official page
+// scored 0.70 and were stored as "weak". The stored confidence_reason says
+// exactly what the read rested on, so an item is re-read as R8 would score it
+// when (all hold): a clear position, stored below the strong bar, from a
+// primary source, resting on at least one explicit statement for that side,
+// with no outliers and no reversal. Implication-only reads stay as they are.
+// Pure: returns the item unchanged, or a new object.
+const EXPLICIT_FOR = /\b([1-9]\d*) clear (?:medium|high)-weight statement\(s\) for (support|oppose)\b/;
+export function regradeStatedPosition(item) {
+  if (!item || !isClear(item.position)) return item;
+  const c = numOr(item.confidence, null);
+  if (c === null || c >= LOCKER_MIN_CONFIDENCE || c < LOCKER_WEAK_MIN_CONFIDENCE) return item;
+  if (item.strength && item.strength !== "weak") return item;
+  const reason = String(item.confidence_reason || "");
+  const m = EXPLICIT_FOR.exec(reason);
+  if (!m || m[2] !== item.position || /outlier|reversal|R5\b/i.test(reason)) return item;
+  if (!isPrimarySource(item.source_type, item.link)) return item;
+  const floor = SCORE_WEIGHTS.statedPositionConfidence;
+  return {
+    ...item,
+    confidence: floor,
+    strength: floor >= LOCKER_MIN_CONFIDENCE ? "strong" : "weak",
+    stated_position: true,
+    confidence_reason: `${reason}; explicit claim on a primary source reads as a stated position (R8, re-read when served)`,
+    regraded_from: { confidence: c, rules_version: item.rules_version ?? null },
+  };
+}
+
+const normClaim = (t) => String(t || "").toLowerCase().replace(/[“”"‘’'…]/g, "").replace(/\s+/g, " ").trim();
+const REVIEW_RANK = { reviewed: 2, needs_edit: 1 };
+
+/**
+ * One claim, one issue. Items for ONE politician that quote the same excerpt
+ * from the same page under different issue keys restate one claim: only one
+ * is kept. Preference: an editor-reviewed item, then the page's own topic (no
+ * page_topic), then the stronger read, then higher confidence, then first seen.
+ * `rows` is [{ key, doc, review }]; returns the survivors in input order.
+ */
+export function collapseRestatedItems(rows) {
+  const groups = new Map();
+  rows.forEach((r, i) => {
+    const d = r.doc || {};
+    const ex = normClaim(d.excerpt);
+    const g = ex ? `${d.politician_id}|${normLink(d.link)}|${ex}` : `#${i}`;
+    (groups.get(g) || groups.set(g, []).get(g)).push({ r, i });
+  });
+  const keep = new Set();
+  for (const list of groups.values()) {
+    list.sort((a, b) =>
+      (REVIEW_RANK[b.r.review?.status] || 0) - (REVIEW_RANK[a.r.review?.status] || 0) ||
+      (a.r.doc.page_topic ? 1 : 0) - (b.r.doc.page_topic ? 1 : 0) ||
+      (STRENGTH_RANK[storedStrength(b.r.doc)] || 0) - (STRENGTH_RANK[storedStrength(a.r.doc)] || 0) ||
+      numOr(b.r.doc.confidence, 0) - numOr(a.r.doc.confidence, 0) ||
+      a.i - b.i);
+    keep.add(list[0].i);
+  }
+  return rows.filter((_, i) => keep.has(i));
 }
