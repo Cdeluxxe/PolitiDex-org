@@ -450,7 +450,12 @@ section("7 · nothing else moved; declared; no shell bump; no migration");
     ok(SET.every((p) => !(p in core)), "a member of the set is in the precached core chunk");
     if (!later.size) {
       eq(R("politician-stances-core.js"), BASE("politician-stances-core.js"), "the precached core chunk changed");
-      eq(R("sw.js"), BASE("sw.js"), "sw.js changed although no precached file did");
+      // A later pass may bump the shell for a precached file of its own (e.g.
+      // word-action.js); only a bump with NO precached file changed is wrong.
+      const swNow = R("sw.js");
+      const precached = [...swNow.matchAll(/^\s*'\/([\w.-]+\.(?:js|css|html))',/gm)].map((m) => m[1]);
+      const anyPrecachedMoved = precached.some((f) => { try { return R(f) !== BASE(f); } catch { return false; } });
+      if (!anyPrecachedMoved) eq(swNow, BASE("sw.js"), "sw.js changed although no precached file did");
     }
   }
   const sw = R("sw.js");

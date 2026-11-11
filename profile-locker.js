@@ -90,7 +90,8 @@
   var ENDPOINT = '/api/evidence-locker/items';
   var HEAD = '📂 From the Evidence Locker';
   var WA_NOTE = 'Public statements the Locker holds on issues they have taken a position on. ' +
-    'Context only — they are not formal actions and are not part of the figure above.';
+    'Context only — they are not formal actions and are not part of the figure above, ' +
+    'unless a claim names a measure their own formal record on the same issue answers.';
   var TREE_NOTE = 'Locker statements on issues not yet listed above.';
   var POS = { support: 'Supports', oppose: 'Opposes' };
   var STRONG_MIN = 0.8, WEAK_MIN = 0.3;
@@ -1013,6 +1014,7 @@
     try { if (typeof window.PDXDataChanged === 'function') window.PDXDataChanged(); } catch (e) {}
     try { document.dispatchEvent(new CustomEvent('pdx-spotlight-data-updated', { detail: { added: r.added } })); } catch (e) {}
     try { document.dispatchEvent(new CustomEvent('pdx-locker-items', { detail: { added: r.added, pids: r.pids } })); } catch (e) {}
+    try { announceVerified(r.pids); } catch (e) {}
     var cur = canon(window._pdxCurrentProfileId || '');
     if (cur && r.pids.indexOf(cur) !== -1) repaint(cur);
     return r;
@@ -1026,6 +1028,130 @@
       .then(function (body) { return (body && body.count) ? onBody(body) : null; })
       .catch(function () { return null; });
     return loading;
+  }
+
+  // ── FORMAL-RECORD MATCHING (strongest campaign claims) ──────────────────
+  // A Locker item is what a politician SAID (layer "stated"). It only enters
+  // the formal-record layer — and so Word vs Action's figure — when it is
+  // independently matched to an official record. The matcher is deliberately
+  // narrow:
+  //   · only the members in FORMAL_MATCH_MEMBERS (each already holds strong
+  //     Locker claims) and only the issues in FORMAL_MATCH_ISSUES;
+  //   · only the issue's promoted pipeline stance, which is strong (a weak
+  //     read, a mention, an even split or an issue a curated card already
+  //     speaks for never gets this far — see promotedStance);
+  //   · the claim must NAME the measure: its bill number ("H.R. 5376") or its
+  //     title ("Inflation Reduction Act"). A shared subject word is not a match;
+  //   · the record must be this member's own substantive act on that measure —
+  //     a roll call cast yea/nay or a sponsorship/co-sponsorship — already
+  //     mapped by the record ingest to the SAME issue key. Procedural votes and
+  //     amendments do not count;
+  //   · the act's direction is read by the shared record engine
+  //     (_issueRecordSummary) against the claim's side. A record that points
+  //     the other way is still a match: it is reported, and counted, as the
+  //     contradiction it is. Only a record with no direction is no match.
+  // The record is read from the warm voting-record cache. Until it is warm the
+  // claim stays a stated position, exactly as before. Pure: nothing ingested
+  // is mutated; the match is returned alongside the item.
+  var FORMAL_MATCH_ISSUES = { healthcare_costs: 1, cost_living: 1 };
+  var FORMAL_MATCH_MEMBERS = {
+    james_talarico: 1, gina_hinojosa: 1, greg_abbott: 1, ken_paxton: 1, dan_patrick: 1,
+    john_cornyn: 1, chip_roy: 1, aoc: 1, khanna: 1, boebert: 1, roger_williams: 1, tom_cole: 1
+  };
+  var FORMAL_BALLOTS = { yea: 1, nay: 1, aye: 1, no: 1, yes: 1 };
+
+  function _reEsc(x) { return String(x).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+  function _flat(t) {
+    return String(t == null ? '' : t).toLowerCase().replace(/&amp;/g, '&')
+      .replace(/[“”"‘’'.,:;()–—-]+/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+  // "H.R. 5376" → /H\.?\s?R\.?\s?5376\b/ ; "S. 56" needs its dot (an "S 56" is too loose).
+  function numberNamedIn(text, number) {
+    var m = /^\s*([A-Za-z.\s]+?)\s*(\d+)\s*$/.exec(String(number || ''));
+    if (!m) return false;
+    var letters = m[1].replace(/[^A-Za-z]/g, '');
+    if (!letters) return false;
+    var body = letters.split('').map(function (c, i) {
+      return _reEsc(c) + (letters.length === 1 ? '\\.' : '\\.?') + (i < letters.length - 1 ? '\\s?' : '');
+    }).join('');
+    return new RegExp('(?:^|[^A-Za-z])' + body + '\\s?' + m[2] + '(?!\\d)', 'i').test(String(text || ''));
+  }
+  // The measure's own title, without a trailing "of 2022", as words in the claim.
+  // At least two words and an "Act"/"Resolution" noun, so a generic word never matches.
+  function titleNamedIn(text, title) {
+    var t = _flat(String(title || '').replace(/\s+of\s+\d{4}\s*$/i, ''));
+    if (!/\b(act|resolution)\b/.test(t) || t.split(' ').length < 2 || t.length > 90) return false;
+    return (' ' + _flat(text) + ' ').indexOf(' ' + t + ' ') !== -1;
+  }
+  function measureNamedIn(text, rec) {
+    return numberNamedIn(text, rec && rec.number) || titleNamedIn(text, rec && rec.title);
+  }
+  function substantiveAct(rec) {
+    if (!rec || rec.isProcedural || rec.isAmendment) return false;
+    if (rec.kind === 'position') return rec.supports === true || rec.supports === false;
+    return FORMAL_BALLOTS[String(rec.position || '').toLowerCase()] === 1;
+  }
+
+  /**
+   * The formal-record match for one member + issue, or null. Shape:
+   *   { key, side, verified: true, layer: 'formal', claim (the Locker item),
+   *     records (the matched acts), measures [{ number, title }], summary
+   *     (the record engine's verdict for these acts against the claim's side),
+   *     token: 'consistent'|'contradicts' }
+   */
+  function formalMatch(pid, key) {
+    if (!pid || !FORMAL_MATCH_ISSUES[key]) return null;
+    var id = canon(pid);
+    if (!FORMAL_MATCH_MEMBERS[id] && !FORMAL_MATCH_MEMBERS[String(pid)]) return null;
+    var ps = promotedStance(pid, key);
+    if (!ps || ps.strength !== 'strong') return null;
+    var recs = null;
+    try { recs = (typeof window._pdxRecordIssueItems === 'function') ? window._pdxRecordIssueItems(pid, key) : null; } catch (e) { recs = null; }
+    if ((!recs || !recs.length) && id !== String(pid)) {
+      try { recs = window._pdxRecordIssueItems(id, key); } catch (e) { recs = null; }
+    }
+    if (!recs || !recs.length || typeof window._issueRecordSummary !== 'function') return null;
+    var claims = ps.items.filter(function (it) {
+      return isStrong(it) && it.pipeline && it.pipeline.position === ps.side && String(it.pipeline.excerpt || '').trim();
+    });
+    for (var i = 0; i < claims.length; i++) {
+      var claim = claims[i], text = claim.pipeline.excerpt;
+      var hit = recs.filter(function (r) { return substantiveAct(r) && measureNamedIn(text, r); });
+      if (!hit.length) continue;
+      var sum = null;
+      try { sum = window._issueRecordSummary(key, ps.side, hit); } catch (e) { sum = null; }
+      if (!sum || (sum.netVerdict !== 'consistent' && sum.netVerdict !== 'contradicts')) continue;
+      var seen = {}, measures = [];
+      hit.forEach(function (r) {
+        var k = String(r.measureId != null ? r.measureId : (r.number || r.title));
+        if (seen[k]) return;
+        seen[k] = 1;
+        measures.push({ number: r.number || null, title: r.title || '' });
+      });
+      return {
+        key: key, side: ps.side, verified: true, layer: 'formal',
+        claim: claim, records: hit, measures: measures, summary: sum, token: sum.netVerdict
+      };
+    }
+    return null;
+  }
+  /** Every verified claim for a member (one per issue at most). */
+  function formalMatches(pid) {
+    var out = [];
+    Object.keys(FORMAL_MATCH_ISSUES).forEach(function (k) {
+      var m = formalMatch(pid, k);
+      if (m) out.push(m);
+    });
+    return out;
+  }
+  // Tell Word vs Action a member now has a verified claim (it repaints its figure).
+  function announceVerified(pids) {
+    (pids || []).forEach(function (id) {
+      var n = 0;
+      try { n = formalMatches(id).length; } catch (e) { n = 0; }
+      if (!n) return;
+      try { window.dispatchEvent(new CustomEvent('pdx-locker-verified', { detail: { pid: id } })); } catch (e) {}
+    });
   }
 
   window.PDXProfileLocker = {
@@ -1046,8 +1172,16 @@
     promotedStance: promotedStance, promotedStances: promotedStances, saidLineHtml: saidLineHtml,
     decorateTopRows: decorateTopRows, decorateTopDom: decorateTopDom,
     curatedOn: curatedOn, decorateStanceLanes: decorateStanceLanes,
+    FORMAL_MATCH_ISSUES: FORMAL_MATCH_ISSUES, FORMAL_MATCH_MEMBERS: FORMAL_MATCH_MEMBERS,
+    formalMatch: formalMatch, formalMatches: formalMatches, measureNamedIn: measureNamedIn,
     // Test seam: forget everything ingested (does not touch SPOTLIGHT_DATA).
     _reset: function () { byPid = {}; loading = null; }
+  };
+
+  // Word vs Action's formal-record hook (word-action.js wordLedger): the
+  // Locker claims this member has matched to a formal record (formalMatch).
+  window._pdxLockerFormalMatches = function (pid) {
+    try { return formalMatches(pid); } catch (e) { return []; }
   };
 
   // The word-first letterhead's citation hook (word-action.js): a strong item
