@@ -11,10 +11,16 @@
 // Locker page can show it; "reviewed" and "needs_edit" items are served with
 // `review.status` so the profile can print its "Reviewed" note. Every entry
 // carries its store key under pipeline.key, which is what a flag row names.
+//
+// Stated layer: an explicit campaign/official claim stored under the older
+// rules is served as a normal stated position (regradeStatedPosition), and one
+// claim quoted under several issue keys is served once (collapseRestatedItems).
+// Every entry is marked layer "stated" / formal_record false: what was said,
+// never a formal action.
 
 import type { Config } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
-import { LOCKER_STORE_NAME, toSpotlightEntry, loadReviewFlags, reviewFor } from "../lib/evidence-locker-core.mjs";
+import { LOCKER_STORE_NAME, toSpotlightEntry, loadReviewFlags, reviewFor, regradeStatedPosition, collapseRestatedItems } from "../lib/evidence-locker-core.mjs";
 import reviewFile from "../../db/evidence-locker-review.json" with { type: "json" };
 
 export async function listLockerEntries(store: any, flagsDoc: any = reviewFile) {
@@ -26,14 +32,20 @@ export async function listLockerEntries(store: any, flagsDoc: any = reviewFile) 
     const doc = await store.get(b.key, { type: "json" }).catch(() => null);
     return { key: b.key, doc };
   }));
+  const rows: any[] = [];
   for (const { key, doc } of docs) {
     if (!doc || !doc.politician_id || !doc.link) continue;
     const review = reviewFor(doc, key, flags);
     if (review?.status === "hidden") { hidden++; continue; }
+    rows.push({ key, doc: regradeStatedPosition(doc), review });
+  }
+  const kept = collapseRestatedItems(rows);
+  const restated = rows.length - kept.length;
+  for (const { key, doc, review } of kept) {
     (items[doc.politician_id] ||= []).push(toSpotlightEntry(doc, { key, review }));
     count++;
   }
-  return { items, count, hidden };
+  return { items, count, hidden, ...(restated ? { restated } : {}) };
 }
 
 export default async (req: Request): Promise<Response> => {
