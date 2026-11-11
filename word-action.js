@@ -391,6 +391,35 @@
       });
     });
 
+    // 2b. Locker claims matched to a formal record. A strong Evidence Locker
+    //    stance is word only (layer "stated") and never enters this ledger on its
+    //    own. The narrow formal-record matcher (profile-locker.js formalMatch)
+    //    promotes one when the claim names a measure — bill number or title — and
+    //    this member's own substantive act on that measure is on the record under
+    //    the same issue key. Then it is a POSITION like any sourced card: one per
+    //    issue, never over a curated card (promotedStance already stands down
+    //    there) or an issue another scored item holds, and it must still pass
+    //    the circularity rule — a claim that only narrates the vote is not
+    //    independent word (Rule 3). It is tested in testOf against the matched
+    //    acts only, never against the issue's whole record. Rule 1 holds: the
+    //    word is the member's own sourced claim, read through the Locker hook
+    //    window._pdxLockerFormalMatches(pid).
+    var fm = [];
+    try { fm = (typeof window._pdxLockerFormalMatches === 'function') ? (window._pdxLockerFormalMatches(pid) || []) : []; } catch (e) { fm = []; }
+    fm.forEach(function (m, i) {
+      if (!m || !m.key || scoredIssue[m.key] || !m.claim) return;
+      var pl = m.claim.pipeline || {}, src = m.claim.source || {};
+      if (!isIndependentWord(pl.excerpt, src)) return;
+      scoredIssue[m.key] = 1;
+      out.push({
+        id: 'wa-fm-' + i, seq: n++, tier: 'position', scored: true, kind: 'position-verified',
+        weight: TIERS.position.weight,
+        issueKey: m.key, label: issueLabel(m.key), text: String(pl.excerpt || ''),
+        stance: m.side, sources: src.url ? [src] : [], resolution: null,
+        formalMatch: m
+      });
+    });
+
     // 3. Soft branding — signature issues they run on. Suppressed only where a
     //    SCORED item already speaks for the issue, so a record-derived stance card
     //    never silences an independent campaign claim on the same subject.
@@ -521,6 +550,21 @@
     }
     // Word we cannot point at an issue cannot be pointed at an action either.
     if (!it.issueKey) return { state: 'untested', reason: 'not_issue_linked', token: 'no_record' };
+
+    // A Locker claim matched to a formal record is tested by exactly the acts it
+    // was matched to — the record engine's own verdict for them against the
+    // claim's side (Rule 2: this module classifies nothing).
+    if (it.kind === 'position-verified') {
+      var sm = it.formalMatch && it.formalMatch.summary;
+      var jd = sm ? (sm.consistent || 0) + (sm.contradicts || 0) : 0;
+      if (!jd || (sm.netVerdict !== 'consistent' && sm.netVerdict !== 'contradicts')) {
+        return { state: 'untested', reason: 'no_action_yet', token: 'no_record' };
+      }
+      return {
+        state: 'tested', score: Math.round(100 * (sm.consistent || 0) / jd),
+        token: sm.netVerdict, evidence: evidenceOf({ record: sm }), judged: jd, basis: 'formal-match'
+      };
+    }
 
     var cs = C();
     if (!cs || typeof cs.officialRecord !== 'function') {
@@ -1223,9 +1267,14 @@
       try { return ex.proofLines(pid, it.issueKey, 2) || []; } catch (e) { return []; }
     }
     var items = null;
-    try {
-      items = (typeof window._pdxRecordIssueItems === 'function') ? window._pdxRecordIssueItems(pid, it.issueKey) : null;
-    } catch (e) { items = null; }
+    // A Locker claim matched to a formal record names the acts it was matched to.
+    if (it.kind === 'position-verified' && it.formalMatch && Array.isArray(it.formalMatch.records)) {
+      items = it.formalMatch.records;
+    } else {
+      try {
+        items = (typeof window._pdxRecordIssueItems === 'function') ? window._pdxRecordIssueItems(pid, it.issueKey) : null;
+      } catch (e) { items = null; }
+    }
     if (!items || !items.length) return [];
     var cs = C();
     var proof = (cs && cs.proof && typeof cs.proof.proofText === 'function') ? cs.proof.proofText : null;
@@ -4131,7 +4180,7 @@
   // issue with no entry is simply not here: nothing is defaulted or inferred,
   // and nothing in this list is a vote, a formal act or a score input.
   var STATED_HEAD = '✒️ Stated positions on file';
-  var STATED_NOTE = 'What they have said, issue by issue — curated stances and stances read from the Evidence Locker. Word only: none of these is a formal act, and Locker-read stances are not counted in the figure above.';
+  var STATED_NOTE = 'What they have said, issue by issue — curated stances and stances read from the Evidence Locker. Word only: none of these is a formal act, and Locker-read stances are not counted in the figure above unless the claim names a measure their own formal record on that issue answers.';
   function statedListHtml(pid) {
     var CS = window.PDXConsistency;
     if (!pid || !CS || typeof CS.statedStances !== 'function') return '';
@@ -6813,7 +6862,7 @@
   // listens for it. Anything that puts rows in memory repaints the brief; nothing
   // has to remember to warm a queue first.
   var HERO_REPAINT = ['pdx-consistency-warm', 'pdx-voting-warm', 'pdx-brief-timeout',
-    'pdx-record-noted'];
+    'pdx-record-noted', 'pdx-locker-verified'];
 
   // Does an event about SOME member concern the one this hero is drawing? Both
   // ids travel on 'pdx-record-noted' (the caller's and the canonical one the rows

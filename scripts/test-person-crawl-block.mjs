@@ -2053,7 +2053,19 @@ section("9 · the engines did not move");
           // stances (issues with no curated stance) join the row set after every
           // curated row and carry a pipeline tag and a strength chip. Display only;
           // no figure, floor or Direction Match input is read or written.
-          "saidRowsUnder", "saidRowSet", "saidRowHtml"];
+          "saidRowsUnder", "saidRowSet", "saidRowHtml",
+          // Formal-record matching for the strongest Locker claims (CACHE_VERSION
+          // v551). A strong Locker claim on healthcare_costs / cost_living that
+          // names a measure the member's own act answers (profile-locker.js
+          // formalMatch, read through window._pdxLockerFormalMatches) enters the
+          // ledger as one position and is tested against the matched acts only:
+          //   wordLedger    step 2b, one verified item per issue, never over a
+          //                 curated card or a scored slot, Rule 3 still applies
+          //   testOf        the 'position-verified' branch: the record engine's
+          //                 own verdict for the matched acts
+          //   namedActions  names the matched acts instead of the issue's record
+          // Floors, weights, the Mixed gate and read() itself are unchanged.
+          "wordLedger", "testOf", "namedActions"];
         // …and the readers the two passes added. Every one is a pure read of state
         // that already existed in the tab — the live member payload, the crawl
         // header's rows, the static formal index, the pattern index's shape, the
@@ -2457,7 +2469,14 @@ section("9 · the engines did not move");
           .replace(/\n\s*var PAYLOAD_GRACE_MS = [^\n]*\n/g, "\n")
           .replace(/\n\s*var _liveAt = [^\n]*\n/g, "\n")
           .replace(REPAINT_RE, "\n")
+          // STATED_NOTE (v551) gained one clause: a Locker claim matched to a formal
+          // record is the exception to "not counted in the figure". Asserted below.
+          .replace(/\n\s*var STATED_NOTE = [^\n]*\n/g, "\n")
           .replace(/\n\s*\n/g, "\n").trim();
+        has(B.rest, "none of these is a formal act, and Locker-read stances are not counted in the figure above unless the claim names a measure their own formal record on that issue answers.",
+          "STATED_NOTE says Locker stances stay out of the figure unless matched to a formal record");
+        has(B.rest.match(REPAINT_RE)[0], "pdx-locker-verified",
+          "HERO_REPAINT listens for a Locker claim being matched to a formal record");
         const xa = bare(A.rest), xb = bare(B.rest);
         ok(xa.length > 3000, "the file's top-level constants were isolated from its functions");
         eq(sha(xa), sha(xb),

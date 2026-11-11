@@ -52,6 +52,15 @@
 //       claim count as a vote, bill or completed action — that still needs an
 //       independent match to an official record. Implication-only reads (R6,
 //       R7) and pure mentions (R3) are unchanged.
+//       phase8-v2 extends R8 to further first-party sources: floor speeches
+//       (a "floor speech"/"Congressional Record" label or a Congressional
+//       Record link), co-sponsor statements, and press/news/media releases —
+//       a release not labelled official and not on a .gov/.mil host must name
+//       a specific bill or a concrete outcome. The statement that sets the
+//       position must be the candidate's own: a quote attributed to someone
+//       else ("…,” said Rep. Jane Doe) never lifts the read (quoteSpeakers).
+//       The candidate carries primary_kind. News articles, third-party
+//       summaries, implication-only reads and pure mentions do not move.
 //   R9  One claim, one issue (phase8): when a page's cross-topic candidate rests
 //       only on sentences another kept candidate from the same page already
 //       carries, it restates the same claim under another issue key and is
@@ -66,7 +75,7 @@
 
 import { buildTopicRules, ISSUE_TOPIC_VOCAB, ISSUE_TOPIC_LABELS } from "./stance-topic-vocab.mjs";
 
-export const RULES_VERSION = "phase8-v1";
+export const RULES_VERSION = "phase8-v2";
 // Vocabulary version for the issue keys scored from stance-topic-vocab.mjs
 // (every register key except the two hand-calibrated core topics).
 export const VOCAB_VERSION = "issue-vocab-v1";
@@ -94,11 +103,66 @@ const MEDIUM_TYPES = /\b(campaign|issue page|platform|toolkit)\b/i;
 // R8: a verifiable first-party source of what the candidate said.
 const PRIMARY_TYPES = /\b(campaign|official|issues? page|platform|press release|statement|speech|remarks|transcript)\b/i;
 
+// R8 (phase8-v2): further first-party sources of the candidate's own words.
+const FLOOR_TYPES = /\b(?:floor (?:speech|remarks|statement|debate)|congressional record)\b/i;
+const COSPONSOR_TYPES = /\bco-?sponsor(?:s|ed|ing|ship)?\b/i;
+const RELEASE_TYPES = /\b(?:press|news|media) (?:release|statement)s?\b|\bnewsroom\b/i;
+
+const linkParts = (link) => {
+  try { const u = new URL(link); return { host: u.hostname.toLowerCase(), path: u.pathname.toLowerCase() }; }
+  catch { return { host: "", path: "" }; }
+};
+
+/**
+ * What kind of first-party source is this (R8)? → "floor_speech" |
+ * "cosponsor_statement" | "press_release" | "speech" | "statement" |
+ * "official_page" | "campaign_page" | null (secondary: news articles,
+ * third-party summaries, anything unlabelled off a .gov/.mil host).
+ */
+export function primarySourceKind(sourceType, link) {
+  const t = String(sourceType || "");
+  const { host, path } = linkParts(link);
+  if (FLOOR_TYPES.test(t) || (/(^|\.)congress\.gov$/.test(host) && /congressional-record/.test(path))
+      || (/(^|\.)govinfo\.gov$/.test(host) && /\bcrec\b|crec-/.test(path))) return "floor_speech";
+  if (COSPONSOR_TYPES.test(t)) return "cosponsor_statement";
+  if (RELEASE_TYPES.test(t) || /\bpress release\b/i.test(t)) return "press_release";
+  if (/\b(?:speech|remarks|transcript)\b/i.test(t)) return "speech";
+  if (/\bstatement\b/i.test(t)) return "statement";
+  if (PRIMARY_TYPES.test(t)) return /\bofficial\b/i.test(t) ? "official_page" : "campaign_page";
+  if (/\.(gov|mil)$/.test(host)) return "official_page";
+  return null;
+}
+
+/**
+ * R8 eligibility of a source: { kind, needsSpecific } or null. Sources the
+ * phase8-v1 rule already read as primary (campaign/official pages, .gov/.mil
+ * links, press releases, statements, speeches) keep reading that way with no
+ * extra condition. Of the sources added in phase8-v2, floor speeches and
+ * co-sponsor statements qualify as they are; a release that is neither
+ * labelled official nor on a .gov/.mil host (a "news release", a "newsroom"
+ * post) qualifies only when it names a specific bill or a concrete outcome.
+ */
+export function statedSourceRule(sourceType, link) {
+  const kind = primarySourceKind(sourceType, link);
+  if (!kind) return null;
+  const legacy = PRIMARY_TYPES.test(String(sourceType || "")) || /\.(gov|mil)$/.test(linkParts(link).host);
+  return { kind, needsSpecific: kind === "press_release" && !legacy };
+}
+
 /** Is this a primary source of the candidate's own words (R8)? */
 export function isPrimarySource(sourceType, link) {
-  if (PRIMARY_TYPES.test(String(sourceType || ""))) return true;
-  try { return /\.(gov|mil)$/i.test(new URL(link).hostname); } catch { return false; }
+  return primarySourceKind(sourceType, link) !== null;
 }
+
+/** Reader-facing labels for the R8 reason line (page kinds keep the old wording). */
+export const KIND_LABELS = { floor_speech: "floor speech", cosponsor_statement: "co-sponsor statement", press_release: "press release" };
+
+// A specific bill (H.R. 1234, S. 56, H.Res. 7, "the Affordable Insulin Now Act")
+// or a concrete outcome ($35 a month, 10 percent, 2 million families).
+const NAMED_BILL = /\b(?:H\.\s?R|H\.\s?(?:J\.\s?|Con\.\s?)?Res|S\.\s?(?:J\.\s?|Con\.\s?)?Res)\.\s?\d+\b|(?<![\w.])S\.\s?\d+\b|\b(?:[A-Z][\w'’-]*,?\s+(?:(?:of|for|and|the|to|in|on|&)\s+)*){1,10}Act\b(?:\s+of\s+\d{4})?/;
+const NAMED_OUTCOME = /\$\s?\d[\d,.]*|\b\d[\d,.]*\s?(?:%|percent)\b|\b\d[\d,.]*\s+(?:thousand|million|billion|trillion|families|people|seniors|veterans|students|workers|jobs|homes|patients)\b/i;
+/** Does this text name a specific bill or a concrete outcome (R8, releases)? */
+export const namesBillOrOutcome = (text) => NAMED_BILL.test(String(text || "")) || NAMED_OUTCOME.test(String(text || ""));
 
 // Topic vocabulary. R1–R5 and WEIGHTS are shared by every topic; a topic only
 // supplies what counts as a mention and what counts as a clear statement.
@@ -230,6 +294,71 @@ export function actorFor(prefix, politicianId) {
   return { kind: h.kind, via: h.text };
 }
 
+// ── WHO IS QUOTED (phase8-v2) ───────────────────────────────────────────────
+// Press releases and co-sponsor statements quote other members, co-leads and
+// outside groups. A sentence inside quotation marks attributed to someone
+// other than the page's own politician ("…,” said Rep. Jane Doe.) is not a
+// statement BY the candidate, so it never sets an R8 stated position. The
+// speaker is read from a trailing ("…,” said X / “…,” X said) or leading
+// (X said, “…) attribution; a quote that runs over several sentences takes the
+// speaker named where it closes (or opens). Unknown speaker → no change.
+const SAY_VERB = "(?:said|says|added|adds|stated|states|noted|notes|explained|continued|remarked|declared|urged|wrote)";
+const HONORIFIC = "(?:(?:Rep|Reps|Sen|Sens|Gov|Lt|Dr|Mr|Mrs|Ms|Rev|Hon|Del|Amb|Sec|Gen)\\.\\s+)";
+const TRAIL_SAY_X = new RegExp(`[”"]\\s*,?\\s*${SAY_VERB}\\s+(${HONORIFIC}?[^,.;:”"]{1,80}?)\\s*(?:[,.;:]|$)`);
+const TRAIL_X_SAY = new RegExp(`[”"]\\s*,?\\s*(${HONORIFIC}?[A-Za-z][^,.;:”"]{0,60}?)\\s+${SAY_VERB}\\b`);
+const LEAD_X_SAY = new RegExp(`^\\s*(${HONORIFIC}?[A-Za-z][^,.;:”"]{0,60}?)\\s+${SAY_VERB}\\s*[,:]?\\s*[“"]`);
+
+/** "self" | "other" | null for a speaker phrase ("Rep. Jane Doe", "she", "Crockett"). */
+function speakerKind(phrase, politicianId) {
+  const p = String(phrase || "").trim();
+  if (!p) return null;
+  if (/^(?:I|we|he|she)$/i.test(p)) return "self";
+  const self = selfNamePattern(politicianId);
+  if (self && (self.lastIndex = 0, self.test(p))) return "self";
+  // A named person or group (a capitalised word, after any honorific).
+  if (/[A-Z]/.test(p.replace(new RegExp(`^${HONORIFIC}`), ""))) return "other";
+  return null;
+}
+
+/** The speaker one sentence names for its own quote → "self" | "other" | null. */
+export function quotedSpeakerOf(sentence, politicianId = null) {
+  const s = String(sentence || "");
+  const m = TRAIL_SAY_X.exec(s) || TRAIL_X_SAY.exec(s) || LEAD_X_SAY.exec(s);
+  return m ? speakerKind(m[1], politicianId) : null;
+}
+
+const QUOTE_SPAN_MAX = 6;
+/**
+ * Per sentence of `list`: "self" | "other" | null — who is quoted in it. A
+ * sentence that opens a quote without closing it starts a span; the span takes
+ * the speaker named where it opens or closes. Spans longer than
+ * QUOTE_SPAN_MAX sentences, or never closed, are left unattributed.
+ */
+export function quoteSpeakers(list, politicianId = null) {
+  const out = new Array(list.length).fill(null);
+  let start = -1, spanKind = null;
+  const marks = (s) => ({ o: (s.match(/“/g) || []).length, c: (s.match(/”/g) || []).length, st: (s.match(/"/g) || []).length });
+  for (let i = 0; i < list.length; i++) {
+    const s = list[i];
+    const { o, c, st } = marks(s);
+    const own = (o || c || st) ? quotedSpeakerOf(s, politicianId) : null;
+    if (start !== -1) {
+      const closes = c > o || st % 2 === 1;
+      if (closes) {
+        const k = own || spanKind;
+        for (let j = start; j <= i; j++) out[j] = k;
+        start = -1; spanKind = null;
+      } else if (i - start + 1 >= QUOTE_SPAN_MAX) {
+        start = -1; spanKind = null;
+      }
+      continue;
+    }
+    if (o > c || (st % 2 === 1 && !c)) { start = i; spanKind = own; continue; }
+    out[i] = own;
+  }
+  return out;
+}
+
 const REVERSAL = /\b(I('ve| have) changed my (mind|position)|I no longer (support|oppose)|I was wrong (about|to)|I now (support|oppose)|reversing my position)\b/i;
 
 const ENTITIES = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", rsquo: "’", lsquo: "‘", ldquo: "“", rdquo: "”", hellip: "…", mdash: "—", ndash: "–" };
@@ -253,12 +382,26 @@ export function extractSentences(body) {
   const seen = new Set();
   const out = [];
   for (const block of text.split(/\n+/)) {
-    for (const raw of block.split(/(?<=[.!?…])\s+/)) {
+    for (const raw of mergeAbbreviations(block.split(/(?<=[.!?…])\s+/))) {
       const s = raw.replace(/\s+/g, " ").trim();
       if (s.length < 12 || seen.has(s)) continue;
       seen.add(s);
       out.push(s);
     }
+  }
+  return out;
+}
+
+// A title ("Rep.", "Sen.") or a bill number ("H.R. 1234", "S. 56") is not a
+// sentence end: the fragment is joined back to the text that follows (phase8-v2).
+const TITLE_END = /(?:^|[^\w.])(?:Rep|Reps|Sen|Sens|Gov|Lt|Dr|Mr|Mrs|Ms|Rev|Hon|Del|Amb|Sec|Gen)\.$/;
+const BILL_END = /(?:^|[^\w.])(?:H\.\s?R|H\.\s?(?:J\.\s?|Con\.\s?)?Res|S\.\s?(?:J\.\s?|Con\.\s?)?Res|S|No)\.$/;
+function mergeAbbreviations(parts) {
+  const out = [];
+  for (const p of parts) {
+    const prev = out[out.length - 1];
+    if (prev !== undefined && (TITLE_END.test(prev) || (BILL_END.test(prev) && /^\d/.test(p)))) out[out.length - 1] = `${prev} ${p}`;
+    else out.push(p);
   }
   return out;
 }
@@ -373,6 +516,7 @@ export function scoreRawRecord(raw, topic = raw?.topic, sentences = null) {
   // `sentences` lets scoreAllTopics parse the page once for every topic.
   const list = sentences || extractSentences(raw.body);
   const at = new Map(); // sentence index → its statement (R7 pairing)
+  const speakers = quoteSpeakers(list, raw.politician_id); // who is quoted (R8)
   for (let i = 0; i < list.length; i++) {
     const text = list[i];
     const c = classify(text, topic, raw.politician_id);
@@ -384,6 +528,7 @@ export function scoreRawRecord(raw, topic = raw?.topic, sentences = null) {
       kind: c.kind,
       side: c.side,
       reversal: c.reversal,
+      ...(speakers[i] === "other" ? { quoted_speaker: "other" } : {}),
       ...(c.kind === "implication" ? { implication: c.via } : {}),
       ...(c.actor && c.actor.kind !== "self" ? { attributed_to: c.actor.kind, attributed_via: c.actor.via } : {}),
       weight: c.kind === "clear" ? WEIGHTS[tier] : c.kind === "implication" ? WEIGHTS.implication : WEIGHTS.zero,
@@ -423,6 +568,17 @@ export function scoreRawRecord(raw, topic = raw?.topic, sentences = null) {
   for (const s of implied) { w[s.side] += s.weight; ni[s.side] += 1; }
   const signals = clear.length + implied.length;
 
+  // R8 eligibility: a first-party source, at least one explicit statement for
+  // the side made by the candidate (not a quote from someone else), and — for
+  // a release that is not labelled official — a named bill or concrete outcome.
+  const rule = statedSourceRule(raw.source_type, raw.final_url || raw.url);
+  const statedOk = (side) => {
+    if (!rule || (side !== "support" && side !== "oppose")) return false;
+    const own = clear.filter((s) => s.side === side && s.quoted_speaker !== "other");
+    if (!own.length) return false;
+    return !rule.needsSpecific || statements.some((s) => s.quoted_speaker !== "other" && namesBillOrOutcome(s.text));
+  };
+
   let position, confidence, reason;
   const reversal = clear.filter((s) => s.reversal).at(-1);
   if (reversal) {
@@ -456,18 +612,18 @@ export function scoreRawRecord(raw, topic = raw?.topic, sentences = null) {
       else confidence -= WEIGHTS.outlierPenalty * outliers;
       parts.push(`${outliers} outlier(s) without reversal language lower confidence, do not flip (R5)`);
     }
-    // R8: an explicit, uncontested claim on a primary source is a normal
-    // stated position. Only the stated layer moves; formal record is untouched.
-    if (position !== "mixed" && n[position] && !outliers && isPrimarySource(raw.source_type, raw.final_url || raw.url)
-        && confidence < WEIGHTS.statedPositionConfidence) {
+    // R8: an explicit, uncontested claim by the candidate on a primary source
+    // is a normal stated position. Only the stated layer moves; formal record
+    // is untouched.
+    if (position !== "mixed" && !outliers && statedOk(position) && confidence < WEIGHTS.statedPositionConfidence) {
       confidence = WEIGHTS.statedPositionConfidence;
-      parts.push(`explicit claim on a primary source reads as a stated position (R8)`);
+      const label = KIND_LABELS[rule.kind];
+      parts.push(`explicit claim on a primary source${label ? ` (${label})` : ""} reads as a stated position (R8)`);
     }
     if (mentions) parts.push(`${mentions} mention(s) recorded at zero weight (R3)`);
     reason = parts.join("; ");
   }
-  const stated = (position === "support" || position === "oppose") && n[position] > 0 &&
-    isPrimarySource(raw.source_type, raw.final_url || raw.url);
+  const stated = statedOk(position);
 
   const firstClear = clear.find((s) => s.side === position) || clear[0]
     || implied.find((s) => s.side === position) || implied[0];
@@ -490,7 +646,7 @@ export function scoreRawRecord(raw, topic = raw?.topic, sentences = null) {
     }],
     // R8: the stated layer only. A stated position is what the candidate said
     // on a primary source; it is never a formal record or completed action.
-    ...(stated ? { stated_position: true } : {}),
+    ...(stated ? { stated_position: true, primary_kind: rule.kind } : {}),
     layer: "stated",
     formal_record: false,
     rules_version: RULES_VERSION,

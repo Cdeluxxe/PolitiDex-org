@@ -11981,7 +11981,21 @@
 //     the precache list is unchanged. No location key or other stored reader
 //     state is written or rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v550';
+// v551 - STRONGEST LOCKER CLAIMS MATCHED TO A FORMAL RECORD.
+//     profile-locker.js adds a narrow formal-record matcher: a strong Evidence
+//     Locker claim on healthcare_costs or cost_living, from a short starting
+//     list of members, that names a measure (bill number or title) the
+//     member's own substantive act on that measure answers under the same
+//     issue key is marked verified for the formal-record layer.
+//     word-action.js (precached) counts a verified claim as one tested
+//     position, scored against the matched acts only, and repaints on the new
+//     'pdx-locker-verified' event. Claims with no match stay stated positions
+//     and never move the figure. No issue key, route or gate is added. A
+//     precached shell file changed, so the shell moves one version; the
+//     precache list is unchanged. No location key or other stored reader
+//     state is written or rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v551';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

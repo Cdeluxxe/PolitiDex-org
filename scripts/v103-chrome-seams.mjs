@@ -900,6 +900,20 @@ export const AT_SEAMS = [
 
 // ── word-action.js: the shared figure, the chip, the section, the gate, the mounts ────
 export const WA_SEAMS = [
+  // ── formal-record matching for the strongest Locker claims (v551) ──────────
+  // A strong Evidence Locker claim on healthcare_costs / cost_living that NAMES a
+  // measure the member's own substantive act answers under the same issue key
+  // (profile-locker.js formalMatch) joins the word ledger as one position and is
+  // tested against the matched acts only, with the record engine's own verdict.
+  // The floors, the weights, the Mixed gate and read() are outside these spans
+  // and stay pinned. Five spans: the ledger step, the test branch, the named
+  // acts, the stated-list note and the repaint list.
+  ["        sources: s.source ? [s.source] : [], resolution: null\n      });\n    });\n",
+   "    // 3. Soft branding — signature issues they run on.",
+   "the ledger's verified Locker claims"],
+  ["    if (!it.issueKey) return { state: 'untested', reason: 'not_issue_linked', token: 'no_record' };\n",
+   "    var cs = C();\n    if (!cs || typeof cs.officialRecord !== 'function') {",
+   "the verified claim's action test"],
   // ── the empty formal lane's veto (v163) ───────────────────────────────────
   // TWO SPANS IN THE ENGINE ITSELF, which nothing in this list had needed before,
   // and they are here because /p/cox published "56% Word vs Action · 9 of 25
@@ -963,6 +977,10 @@ export const WA_SEAMS = [
   ["    if (typeof a === 'number' && typeof b === 'number') out.delta = b - a;\n    return out;\n  }\n",
    "  // ── CONNECTING THE DOTS",
    "the shared figure and the shared repaint"],
+  // v551: the named acts of a verified Locker claim are the matched acts.
+  ["      try { return ex.proofLines(pid, it.issueKey, 2) || []; } catch (e) { return []; }\n    }\n",
+   "    if (!items || !items.length) return [];\n    var cs = C();\n",
+   "the verified claim's named acts"],
   // ── the thin copy's empty-lane sentence (v163) ────────────────────────────
   // One branch in thinCopy(), placed AFTER the warming branch and never before it:
   // a lane still being fetched is not an empty one. The sentence a reader is shown
@@ -1079,6 +1097,10 @@ export const WA_SEAMS = [
   ["        }, 0);\n      } catch (e) {}\n",
    "  // Mountable wrapper: emit the section AND arm its refresh.",
    "the section's repaint, closed"],
+  // v551: the stated list's note names the one exception to "not counted".
+  ["  var STATED_HEAD = '✒️ Stated positions on file';\n",
+   "  function statedListHtml(pid) {",
+   "the stated list's figure note"],
   // ── the hero ring's sub-line (v141) ───────────────────────────────────────
   // The profile's LOUDEST figure, and the last face still sizing itself by hand.
   // The ring is the first number a reader meets and its sub-line spelled the
@@ -1241,6 +1263,10 @@ export const WA_SEAMS = [
   ["      return briefBodyHtml(pid, p, sh, { census: depth, total: total, cls: '' });\n    } catch (e) { return ''; }\n  }\n",
    "  function ringHtml(pid, p, opts) {\n",
    "the brief's two stages, on the clock"],
+  // v551: the repaint list gains 'pdx-locker-verified'.
+  ["  var HERO_REPAINT = [",
+   "  // Does an event about SOME member concern",
+   "the repaint list's verified-claim event"],
   // ── the empty-lane predicate, published (v163) ────────────────────────────
   // Four exports beside heroRead, so a surface that needs the answer without
   // paying for a scoring pass — the card score slot every browse and compare
@@ -3058,6 +3084,42 @@ export function assertWordActionSeams(bodies, api) {
     eq(globals.join(", "), "window.PDXPerf, window.location",
       "the brief's clock span reaches a global other than window.PDXPerf and the address it guards on");
   }
+  // ── formal-record matching for the strongest Locker claims (v551) ──────────
+  // A verified Locker claim is one position, one issue, tested against the acts it
+  // was matched to by the record engine's own verdict. No floor, weight or gate.
+  {
+    const strip = (x) => String(x).replace(/^[ \t]*\/\/.*$/gm, "");
+    const led = wa("the ledger's verified Locker claims");
+    has(led, "window._pdxLockerFormalMatches(pid)", "the ledger reads verified claims through the Locker hook");
+    has(led, "if (!m || !m.key || scoredIssue[m.key] || !m.claim) return;",
+      "a verified claim may take an issue another scored item already holds");
+    has(led, "if (!isIndependentWord(pl.excerpt, src)) return;",
+      "a verified claim skips the circularity rule (Rule 3)");
+    has(led, "tier: 'position', scored: true, kind: 'position-verified',",
+      "a verified claim is not a position-tier item");
+    has(led, "weight: TIERS.position.weight,", "a verified claim carries a weight other than the position tier's");
+    ok(!/MIN_TESTED|EVIDENCE_CAP|_mixedGate|TIERS\.pledge/.test(strip(led)),
+      "the ledger's verified-claim span touches a floor, the evidence cap, the Mixed gate or the pledge tier");
+    const tst = wa("the verified claim's action test");
+    has(tst, "if (it.kind === 'position-verified') {", "the verified branch is not scoped to verified claims");
+    has(tst, "var sm = it.formalMatch && it.formalMatch.summary;", "the verified claim is not tested by its own matched acts");
+    has(tst, "token: sm.netVerdict, evidence: evidenceOf({ record: sm }), judged: jd, basis: 'formal-match'",
+      "the verified claim's token is not the record engine's verdict, or its evidence is not the shared evidenceOf");
+    ok(!/MIN_TESTED|_mixedGate|officialRecord\(/.test(strip(tst)),
+      "the verified-claim test reads a floor, the Mixed gate, or the issue's whole record");
+    const nam = wa("the verified claim's named acts");
+    has(nam, "items = it.formalMatch.records;", "a verified claim does not name its matched acts");
+    has(nam, "window._pdxRecordIssueItems(pid, it.issueKey)", "every other item no longer names the issue's record");
+    const stn = wa("the stated list's figure note");
+    has(stn, "none of these is a formal act", "the stated list no longer says its rows are not formal acts");
+    has(stn, "unless the claim names a measure their own formal record on that issue answers",
+      "the stated list's note does not name the one way a Locker stance reaches the figure");
+    const rep = wa("the repaint list's verified-claim event");
+    for (const ev of ["pdx-consistency-warm", "pdx-voting-warm", "pdx-brief-timeout", "pdx-record-noted", "pdx-locker-verified"]) {
+      has(rep, `'${ev}'`, `HERO_REPAINT lost or lacks ${ev}`);
+    }
+  }
+
   // ── EVERY CARVED SPAN, ARGUED ─────────────────────────────────────────────
   const unspent = WA_SEAMS.map((s) => s[2]).filter((why) => !spent.has(why));
   eq(unspent.join(" | "), "",
