@@ -148,9 +148,12 @@ section("1 · the defined set holds stated positions on existing issue keys");
   // Everyone considered and left out carries a reason and no stance entries.
   for (const l of REC.leftOut || []) {
     ok(typeof l.reason === "string" && l.reason.length > 20, `${l.pid}: left out with no reason`);
+    ok(!SET.includes(l.pid), `${l.pid}: both left out and in the set`);
+    // Held for a later wave and admitted there (Amelia Gallitano, the seventh
+    // wave): that wave's row and cards are its own suite's product.
+    if (LATER_ADMITTED.includes(l.pid)) { ok(/later wave/.test(l.reason), `${l.pid}: admitted by a later wave but not held for one`); continue; }
     ok(!(l.pid in S), `${l.pid}: left out but holds stance entries`);
     ok(!win.CMP_DATA[l.pid] || BASE_CMP == null || BASE_CMP.includes(`\n "${l.pid}": {`), `${l.pid}: left out but admitted to the roster`);
-    ok(!SET.includes(l.pid), `${l.pid}: both left out and in the set`);
   }
   // Only State Senate and State House seats, each with a board that already exists.
   for (const m of REC.members || []) {

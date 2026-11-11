@@ -1,0 +1,258 @@
+{
+ "_note": "Newly elected state legislative members, stated positions, seventh wave (November 2026): Arizona, California and Washington, the last states with district boards and uncovered November 3, 2026 winners (the sixth wave, -wave6.json, left them out because no board race had a published call). The November 3, 2026 State Senate, State House and (California) State Assembly winners on seats whose district board already exists. Each unseated the sitting member the board names, and the roster had no row for them (the ballot file names each as a challenger, by name only), so this pass admitted one identity row each in cmp-data.js (the block named by rosterBanner). The issue keys their stated positions were filed on are in politician-stances.js, regenerated into politician-stances-ext.js. Every entry is the member-elect's own published position, read from the campaign's own priorities, issues or platform page and marked claim:'campaign'. Each line quotes that page directly, and nothing is inferred from party. Each member has a published race call naming them: a news outlet's call or AP call, or the losing incumbent's concession reported by a news outlet. A candidate's own declaration of victory, a leadership appointment or an incumbent saying the gap is hard to close is not a call; those winners are listed under leftOut. All results are unofficial and uncertified. Every board race in the three states is accounted for exactly once, in members or leftOut (with the seat). 'boards' are the board files that seat already had. Existing profiles and roster rows, vote records, the drawer, the related-issues map, the boards and the ballot files are unchanged. Earlier waves: db/newly-elected-state-legislative-stated-2026-11.json (Michigan), -wave2.json through -wave6.json. Read by scripts/test-newly-elected-state-legislative-stated-2026-wave7.mjs.",
+ "read": "2026-11-11",
+ "states": [
+  "az",
+  "ca",
+  "wa"
+ ],
+ "statesNotCovered": {},
+ "boards": "Every seat in the set already has a district board (district-<state>-<sd|hd>-<n>[-p<position>].html); no board was opened for this pass.",
+ "rosterBanner": "// ── Newly elected state legislators, Arizona, California and Washington — roster rows (Nov 2026)",
+ "rosterRows": "Each member below is a new cmp-data.js row (rosterRow: \"admitted\"; candidate: true, the same shape as the other state legislative candidate rows), admitted on purpose and declared in scripts/v103-chrome-seams.mjs (DECLARED_ADMISSIONS, wave newly_elected_state_legislators_wave7_nov2026).",
+ "members": [
+  {
+   "pid": "amelia_gallitano",
+   "name": "Amelia Gallitano",
+   "office": "Arizona State Senate (District 2)",
+   "district": "2",
+   "seat": "az-statesenate-2",
+   "boards": [
+    "district-az-sd-2.html"
+   ],
+   "party": "D",
+   "rosterRow": "admitted",
+   "raceCall": "https://tucson.com/news/state-regional/government-politics/elections/article_dd2c862f-8515-4df4-9d34-964ca203ac85.html",
+   "raceCallNote": "Arizona Daily Star (Nov. 10): voters \"ultimately ousted incumbent Republican Sen. Shawnna Bolick in favor of Democrat Amelia Gallitano\" (outlet call). Unofficial Maricopa County count, all 48 precincts: Gallitano 43,887 (56.02%) to Bolick 34,382 (43.89%). A physician and medical educator; her first state office.",
+   "source": "https://www.ameliaforaz.com/amelias-priorities",
+   "issueKeys": [
+    "cost_living",
+    "healthcare_costs",
+    "housing_build",
+    "public_schools",
+    "healthcare",
+    "water",
+    "justice_balance"
+   ]
+  },
+  {
+   "pid": "amy_slavensky",
+   "name": "Amy Slavensky",
+   "nameOnBallot": "Amy L. Slavensky",
+   "office": "California State Assembly (District 7)",
+   "district": "7",
+   "seat": "ca-statehouse-7",
+   "boards": [
+    "district-ca-hd-7.html"
+   ],
+   "party": "D",
+   "rosterRow": "admitted",
+   "raceCall": "https://folsomtimes.com/election-latest-hoover-concedes-dist-7-race-to-slavensky-folsom-council-incumbents-hold-their-leads/",
+   "raceCallNote": "Folsom Times (Nov. 10): Assemblymember Josh Hoover conceded after the Sacramento County update showed Slavensky ahead 90,313 (53.20%) to 79,450 (46.80%). A former teacher, principal and superintendent; her first state office.",
+   "source": "https://www.amyslavensky.com/",
+   "issueKeys": [
+    "cost_living",
+    "child_care",
+    "housing_build",
+    "housing_support",
+    "healthcare_costs",
+    "public_schools"
+   ]
+  },
+  {
+   "pid": "ida_obeso_martinez",
+   "name": "Ida Obeso-Martinez",
+   "nameOnBallot": "Ida S. Obeso-Martinez",
+   "office": "California State Assembly (District 36)",
+   "district": "36",
+   "seat": "ca-statehouse-36",
+   "boards": [
+    "district-ca-hd-36.html"
+   ],
+   "party": "D",
+   "rosterRow": "admitted",
+   "raceCall": "https://www.ivpressonline.com/news/assemblyman-jeff-gonzalez-speaks-on-election-results/article_c11c6cd1-9a18-4958-a89c-0d2e79e74c3c.html",
+   "raceCallNote": "Imperial Valley Press (Nov. 10): the AP called the race for Obeso-Martinez on Nov. 7 and Assemblymember Jeff Gonzalez conceded in a statement on Nov. 8; she led 49,039 (59.1%) to 33,913 (40.9%) in the unofficial count.",
+   "source": "https://idaforassembly.com/issues",
+   "issueKeys": [
+    "cost_living",
+    "public_schools",
+    "healthcare",
+    "health_drug_prices",
+    "infrastructure",
+    "justice_balance"
+   ]
+  },
+  {
+   "pid": "leila_namvar",
+   "name": "Leila Namvar",
+   "office": "California State Assembly (District 47)",
+   "district": "47",
+   "seat": "ca-statehouse-47",
+   "boards": [
+    "district-ca-hd-47.html"
+   ],
+   "party": "D",
+   "rosterRow": "admitted",
+   "raceCall": "https://kesq.com/news/2026/11/10/greg-wallis-concedes-to-leila-namvar-in-47th-assembly-district-race/",
+   "raceCallNote": "KESQ (Nov. 10): Assemblymember Greg Wallis conceded, saying he called Namvar to congratulate her; unofficial results show Namvar 75,568 (55.8%) to Wallis 59,961 (44.2%). An urban planner; her first state office.",
+   "source": "https://www.leilanamvar.com/issues",
+   "issueKeys": [
+    "cost_living",
+    "healthcare_costs",
+    "housing_build",
+    "housing_support",
+    "econ_corp_account",
+    "pro_choice",
+    "datacenter_power"
+   ]
+  },
+  {
+   "pid": "ben_christly",
+   "name": "Ben Christly",
+   "office": "Washington State House (District 17, Position 1)",
+   "district": "17",
+   "position": 1,
+   "seat": "wa-statehouse-17-p1",
+   "boards": [
+    "district-wa-hd-17-p1.html"
+   ],
+   "party": "D",
+   "rosterRow": "admitted",
+   "raceCall": "https://www.opb.org/article/2026/11/06/washington-state-house-democrat-supermajority/",
+   "raceCallNote": "OPB / Washington State Standard (Nov. 6): \"Rep. Kevin Waters, R-Stevenson, formally conceded Wednesday night, congratulating his opponent, Democrat Ben Christly\", who led 55.5% to 44.3%. A Navy veteran, flight nurse and former small business owner; his first state office.",
+   "source": "https://www.electbenchristly.com/values",
+   "issueKeys": [
+    "public_schools",
+    "edu_college_cost",
+    "healthcare",
+    "cost_living",
+    "econ_smallbiz",
+    "tax_middle_class",
+    "housing"
+   ]
+  }
+ ],
+ "leftOut": [
+  {
+   "pid": "aaron_lieberman_az",
+   "name": "Aaron Lieberman",
+   "office": "Arizona State Senate (District 4)",
+   "district": "4",
+   "seat": "az-statesenate-4",
+   "reason": "Not called: leads Sen. Carine Werner 52.36% to 47.56% (about 5,600 votes) in the unofficial count, but no news outlet or AP has published a call and Werner has not conceded. A KTAR report (Nov. 9) naming him a majority chair of the incoming Senate is not a race call."
+  },
+  {
+   "pid": "bridget_fitzgibbons_az",
+   "name": "Bridget Fitzgibbons",
+   "office": "Arizona State Senate (District 9)",
+   "district": "9",
+   "seat": "az-statesenate-9",
+   "reason": "Not a winner: Sen. Kiana Sears (the sitting member) leads 60.56% to 39.35% in the unofficial count and has claimed victory (Tempe Independent); the seat stays with the board's member."
+  },
+  {
+   "pid": "michelle_altherr_az",
+   "name": "Michelle Altherr",
+   "office": "Arizona State Senate (District 23)",
+   "district": "23",
+   "seat": "az-statesenate-23",
+   "reason": "Not a winner: Sen. Brian Fernandez (the sitting member) leads 63.08% to 36.81% and the Daily Independent (Nov. 4) reports he keeps his seat."
+  },
+  {
+   "pid": "guillermo_asuncion_gonzalez_ca",
+   "name": "Guillermo Asuncion Gonzalez",
+   "office": "California State Senate (District 16)",
+   "district": "16",
+   "seat": "ca-statesenate-16",
+   "reason": "Not a winner: Sen. Melissa Hurtado (the sitting member) leads by about 18 points (CalMatters, Nov. 4); no challenger win to cover."
+  },
+  {
+   "pid": "laura_bassett_ca",
+   "name": "Laura Bassett",
+   "office": "California State Senate (District 38)",
+   "district": "38",
+   "seat": "ca-statesenate-38",
+   "reason": "Not a winner: Sen. Catherine Blakespear (the sitting member) leads 57.1% to 42.9% in unofficial Secretary of State results; no challenger win to cover."
+  },
+  {
+   "pid": "clarissa_cervantes_ca",
+   "name": "Clarissa Cervantes",
+   "office": "California State Assembly (District 58)",
+   "district": "58",
+   "seat": "ca-statehouse-58",
+   "reason": "Not called: leads Assemblymember Leticia Castillo about 61% to 39% and declared victory (KVCR, Nov. 7), but no outlet or AP has called the race and Castillo has not conceded. A candidate's own declaration is not a call."
+  },
+  {
+   "pid": "sergio_farias_ca",
+   "name": "Sergio Farias",
+   "office": "California State Assembly (District 74)",
+   "district": "74",
+   "seat": "ca-statehouse-74",
+   "reason": "Not called and not a winner: Assemblymember Laurie Davies leads by about 1,172 votes (50.4% to 49.6%) with California still counting; too close to call."
+  },
+  {
+   "pid": "gary_parker_wa",
+   "name": "Gary Parker",
+   "office": "Washington State Senate (District 26)",
+   "district": "26",
+   "seat": "wa-statesenate-26",
+   "reason": "Not a winner: Sen. Deborah Krishnadasan (the sitting member) leads 56.30% to 43.60% in unofficial Secretary of State results; no challenger win to cover."
+  },
+  {
+   "pid": "carolina_mejia_wa",
+   "name": "Carolina Mejia",
+   "office": "Washington State Senate (District 35)",
+   "district": "35",
+   "seat": "wa-statesenate-35",
+   "reason": "Not called: leads Sen. Drew MacEwen by 88 votes (50.06% to 49.94%, Northwest Progressive Institute, Nov. 9) with ballots outstanding and a recount likely; MacEwen has not conceded."
+  },
+  {
+   "pid": "robert_hicks_wa",
+   "name": "Robert (Chili) Hicks",
+   "office": "Washington State House (District 10, Position 1)",
+   "district": "10",
+   "seat": "wa-statehouse-10-p1",
+   "reason": "Not a winner: Rep. Clyde Shavers (the sitting member) leads 56.43% to 43.44% (Skagit Valley Herald); no challenger win to cover."
+  },
+  {
+   "pid": "tim_hazelo_wa",
+   "name": "Tim Hazelo",
+   "office": "Washington State House (District 10, Position 2)",
+   "district": "10",
+   "seat": "wa-statehouse-10-p2",
+   "reason": "Not a winner: Rep. Dave Paul (the sitting member) leads 58.28% to 41.59% (Skagit Valley Herald); no challenger win to cover."
+  },
+  {
+   "pid": "diana_perez_wa",
+   "name": "Diana H. Perez",
+   "office": "Washington State House (District 17, Position 2)",
+   "district": "17",
+   "seat": "wa-statehouse-17-p2",
+   "reason": "Not called: leads Rep. David Stuebe about 55% to 45%, and Stuebe told OPB (Nov. 6) he does not expect to close the gap, but he did not concede and objected to his seatmate conceding for him (\"You don't do that for me\"); no outlet or AP call found."
+  },
+  {
+   "pid": "randi_knott_wa",
+   "name": "Randi L. Knott",
+   "office": "Washington State House (District 18, Position 1)",
+   "district": "18",
+   "seat": "wa-statehouse-18-p1",
+   "reason": "Not called: leads Rep. Stephanie McClintock 52.25% to 47.58% (The Reflector, Nov. 10); McClintock has not conceded and Knott has not declared victory."
+  },
+  {
+   "pid": "deken_letinich_wa",
+   "name": "Deken Letinich",
+   "office": "Washington State House (District 18, Position 2)",
+   "district": "18",
+   "seat": "wa-statehouse-18-p2",
+   "reason": "Not called: leads Rep. John Ley about 54% to 46%; Ley told OPB (Nov. 6) it is \"highly unlikely for things to turn around\" but told The Center Square \"we won't know the final outcome for a couple days\" and has not conceded; no outlet or AP call found."
+  },
+  {
+   "pid": "david_olson_wa",
+   "name": "David Olson",
+   "office": "Washington State House (District 26, Position 1)",
+   "district": "26",
+   "seat": "wa-statehouse-26-p1",
+   "reason": "Not a winner: Rep. Adison Richards (the sitting member) leads with about 55% in the unofficial count; no challenger win to cover."
+  }
+ ]
+}

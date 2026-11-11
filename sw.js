@@ -12008,7 +12008,21 @@
 //     is added. No location key or other stored reader state is written or
 //     rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v552';
+// v553 - NEWLY ELECTED STATE LEGISLATORS IN ARIZONA, CALIFORNIA AND WASHINGTON.
+//     cmp-data.js (precached) gains one identity row each for five November 3,
+//     2026 winners who unseated a sitting member on a seat whose district board
+//     already exists: one Arizona Senate, three California Assembly and one
+//     Washington House member, the last states with boards and uncovered
+//     winners. Each has a published race call and a readable campaign page;
+//     politician-stances-ext.js (runtime-cached) files their stated positions
+//     as campaign claims on existing, mapped issue keys, and sitemap.xml lists
+//     their person pages. A precached shell file changed, so the shell moves one
+//     version; the precache list and the precached stance chunk are unchanged.
+//     No board, issue key, related pair, route or gate is added.
+//     No location key or other stored reader state is written or rewritten,
+//     so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v553';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

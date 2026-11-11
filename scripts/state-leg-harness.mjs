@@ -897,9 +897,12 @@ const WAVE5_PIDS = JSON.parse(readFileSync(new URL("../db/newly-elected-state-le
 // block just above the fifth's; its record names the banner and the rows
 // (db/newly-elected-state-legislative-stated-2026-11-wave6.json, rosterBanner).
 const WAVE6_REC = JSON.parse(readFileSync(new URL("../db/newly-elected-state-legislative-stated-2026-11-wave6.json", import.meta.url), "utf8"));
+const WAVE7_REC = JSON.parse(readFileSync(new URL("../db/newly-elected-state-legislative-stated-2026-11-wave7.json", import.meta.url), "utf8"));
 const NEWLY_ELECTED_ROW_BLOCKS = [
   { banner: WAVE5_BANNER, pids: WAVE5_PIDS },
   { banner: WAVE6_REC.rosterBanner, pids: WAVE6_REC.members.filter((m) => m.rosterRow === "admitted").map((m) => m.pid) },
+  // …and the seventh (Arizona, California and Washington), just above the sixth's.
+  { banner: WAVE7_REC.rosterBanner, pids: WAVE7_REC.members.filter((m) => m.rosterRow === "admitted").map((m) => m.pid) },
 ];
 // Every newly elected wave's admitted rows (each is its own suite's product).
 export const WAVE5_CANDIDATES = new Set(NEWLY_ELECTED_ROW_BLOCKS.flatMap((b) => b.pids));
