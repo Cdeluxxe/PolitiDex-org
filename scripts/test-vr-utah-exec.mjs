@@ -79,6 +79,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { DECLARED_STANCE_PIDS } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -588,7 +589,8 @@ must(BEFORE_REV, "no revision of the engine without gov_signed is reachable — 
 const HEAD = FILES.map((f) => [f, showAt(BEFORE_REV, f)]);
 must(HEAD.every(([, s]) => s != null),
   `${BEFORE_REV.slice(0, 8)} is missing a file the engine needs`);
-const before = boot(HEAD);
+const before0 = boot(HEAD);
+const before = before0;
 must(before.PDXWordAction && before.PDXConsistency, "the pre-wave engine did not boot");
 // The control the paragraph above is about: the second engine must not know this
 // wave, or section 8 is vacuous.
@@ -597,7 +599,13 @@ must(before._PDX_ACT_CLASSES && !before._PDX_ACT_CLASSES.gov_signed,
 console.log(`      (counterfactual engine: ${BEFORE_REV.slice(0, 8)}, which has no gov_signed)`);
 const after = boot(NOW);
 const KEYS = [...ISSUE_KEYS];
+// A declared stance pass (v103-chrome-seams.mjs) may give one of these people a
+// new stated card. The question here is the engine, not the data, so for them
+// the counterfactual engine reads the same stance chunks the live one does.
+const _STANCE_CHUNKS = new Set(["politician-stances-core.js", "politician-stances-ext.js"]);
+const beforeLive = boot(HEAD.map(([f, s]) => (_STANCE_CHUNKS.has(f) ? [f, R(f)] : [f, s])));
 for (const pid of ["lee", "chew_h68", "defay_h15"]) {
+  const before = DECLARED_STANCE_PIDS.includes(pid) ? beforeLive : before0;
   const read = (w) => { try { return JSON.stringify(w.PDXWordAction.read(pid)); } catch (e) { return `err:${e.message}`; } };
   eq(read(after), read(before), `${pid}'s Word-vs-Action read is byte-identical across the two engines`);
   const rec = (w) => { try { return JSON.stringify(w.PDXConsistency.officialRecord(pid)); } catch (e) { return `err:${e.message}`; } };

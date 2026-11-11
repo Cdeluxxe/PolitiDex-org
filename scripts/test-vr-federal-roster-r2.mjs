@@ -626,6 +626,9 @@ section("6 · no Direction Match or formal-brief drift — twin boot, HEAD vs th
 
     // THE FOUR THE BRIEF PINS, byte for byte.
     for (const pid of PINNED) {
+      // A declared stance pass that gave the member a new stated card moves
+      // the read on purpose; that pass's own suite pins it.
+      if (declaredStanceMovesAtHead().moved.has(pid)) continue;
       const a = head.PDXWordAction.read(pid);
       const b = work.PDXWordAction.read(pid);
       if (!ok(!!a && !!b, `${pid}: Direction Match does not read on both sides`)) continue;

@@ -331,10 +331,19 @@ section("7 · nothing else moved; declared; one shell version; no migration");
     for (const f of ["related-issues.js", "consistency.js", "issue-map.js", "alignment-tool.js", "stance-helpers.js", "cmp-data.js",
       "cmp-data-detail.js", "db/issue-keys.json", "db/issue-core-categories.json", "db/vr-issue-seed.json", "db/bill-docs.json",
       "issue-scope.js", "stance-sides.js", "my-stances.js", "voting-record.js", "person.html", "index.html", "issue.html",
-      "ballot.html", "netlify.toml", "_redirects", "sitemap.xml"]) {
+      "ballot.html", "netlify.toml", "_redirects"]) {
       const b = BASE(f);
       let now = null; try { now = R(f); } catch { /* absent */ }
       eq(now, b, `${f} changed`);
+    }
+    {
+      // sitemap.xml advertises the person pages that clear the publication
+      // floor. A declared stance pass can lift one of its own members over it;
+      // that page's line is the only thing allowed to move.
+      const allowed = new Set([...later].map((p) => `  <url><loc>https://politidex.fyi/p/${p}</loc></url>`));
+      const strip = (x) => String(x || "").split("\n").filter((l) => !allowed.has(l)).join("\n");
+      const smNow = R("sitemap.xml"), smBase = BASE("sitemap.xml");
+      eq(strip(smNow).replace(/\(\d+ urls\)/g, ""), strip(smBase).replace(/\(\d+ urls\)/g, ""), "sitemap.xml changed beyond a declared pass's person pages");
     }
     const ls = BASE_LS();
     if (ls) {

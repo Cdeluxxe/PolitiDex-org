@@ -11968,7 +11968,20 @@
 //     No location key or other stored reader state is written or rewritten, so
 //     nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v549';
+// v550 - FY2027 NDAA SECTION 815 AND CHINA TECHNOLOGY, STATED.
+//     politician-stances-core.js (precached) carries sourced stances for
+//     Elizabeth Warren, Josh Hawley, Mike Lee and Rick Scott on Section 815 of
+//     S. 4784 (limitations relating to capital distributions for defense
+//     contractors), filed on the existing Corporate Accountability key;
+//     politician-stances-ext.js (runtime-cached) adds the same for Jack Reed, and
+//     a card for Pat Harrigan on the Chinese optical-fiber ban (H.R. 8800
+//     Section 1814; S. 4784 Section 846) on the existing Peace Through Strength
+//     key. No issue key, related pair, route or gate is added, and no other card
+//     is edited. A precached shell file changed, so the shell moves one version;
+//     the precache list is unchanged. No location key or other stored reader
+//     state is written or rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v550';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

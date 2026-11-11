@@ -1,0 +1,57 @@
+{
+  "_note": "Section 815 of S. 4784, the Senate FY2027 NDAA (Limitations relating to capital distributions for defense contractors), stated positions (November 2026). Filed on the existing issue key econ_corp_account (Corporate Accountability), whose chip is using enforcement to check large corporations and whose keywords include profiteering and executive pay; the section conditions every Defense Department goods-or-services contract on a written promise not to buy back listed stock or pay dividends, which is a check on how large contractors spend money received from taxpayers. Peace Through Strength was considered and not used: its pole reads whether a vote authorised, funded or equipped the armed forces, and a limit on shareholder payouts does neither on its face. No new key and no related-issues pair is added; econ_corp_account already pairs with Pro-Growth Deregulation, Help Small Businesses, Balanced Prosperity, Raise Wages & Protect Workers, Cut Federal Red Tape and Cut Income & Business Taxes. POLARITY: 'support' means the member backs barring buybacks and dividends by defense contractors (the section or the Prioritizing the Warfighter in Defense Contracting Act it draws on), the sense the member's own statement gives. Each member below has a published, direct statement on the section or on that bill, quoted with a link; nothing is inferred from party, from the cloture vote or from a general defense vote. Each card is filed first among the member's econ_corp_account cards so the drawer's stated line reads it; no other card is edited. Read by scripts/test-ndaa-fy27-sec815-china.mjs.",
+  "read": "2026-11-10",
+  "issueKey": "econ_corp_account",
+  "provision": {
+    "bill": "S. 4784",
+    "congress": 119,
+    "title": "National Defense Authorization Act for Fiscal Year 2027",
+    "section": "Sec. 815",
+    "heading": "Limitations relating to capital distributions for defense contractors",
+    "subtitle": "Division A, Title VIII (Acquisition Policy, Acquisition Management, and Related Matters)",
+    "text": {
+      "label": "S. 4784, reported in the Senate (GovInfo)",
+      "url": "https://www.govinfo.gov/content/pkg/BILLS-119s4784rs/html/BILLS-119s4784rs.htm",
+      "prohibition": "beginning on June 15, 2027, the Secretary of Defense may not enter into a contract for the procurement of goods or services, unless the contractor agrees in writing that the entity shall not-- (1) purchase an equity security of such entity, or any parent entity of such entity, that is listed on a national securities exchange; or (2) pay dividends or make any other capital distribution with respect to the equity securities of the entity",
+      "effectiveDate": "2027-06-15",
+      "waiver": "The Secretary of Defense may waive the limitation in subsection (a) for the purpose of rewarding contractors that agree to a qualifying defense investment plan that is approved by the Secretary.",
+      "qualifyingInvestment": "A qualifying defense investment is spending by the contractor's defense segment on facilities, tooling, non-reimbursable research and development, workforce training or stockpiling; costs that are allowable or reimbursable under a contract, or used as a basis for contract financing, do not count.",
+      "enforcement": "A formal review process within 30 days of enactment; written notice of a violation; a 15-day window for a board-approved remediation plan; and penalties that include suspending payment, revoking the waiver, a finding that the contractor lacks responsibility for competitive awards, ending progress payments under 10 U.S.C. 3804, and referral for other administrative action.",
+      "report": "An annual report to the Senate and House Armed Services Committees, made public within 30 days.",
+      "sunset": "Ceases to have effect on January 1, 2031."
+    },
+    "committeeReport": "S. Rept. 119-127 (Senate Armed Services Committee, reported June 15, 2026)",
+    "committeeReportUrl": "https://www.armed-services.senate.gov/imo/media/doc/fy27_ndaa_report_language_committee_filing_version.pdf",
+    "origin": "Drawn from the Prioritizing the Warfighter in Defense Contracting Act of 2026, introduced by Sens. Elizabeth Warren and Josh Hawley on March 26, 2026 to codify the President's executive order on defense contractor buybacks; Sen. Mike Lee later joined the effort."
+  },
+  "house": {
+    "inHouseBill": false,
+    "note": "H.R. 8800 as passed by the House has no counterpart: its engrossed text never uses \"capital distribution\" or \"repurchase\". Its one buyback clause, in Sec. 3643 (Shipbuilding financial incentives), bars recipients of that shipbuilding assistance from stock buybacks for 5 years and is a grant condition, not a rule for Defense Department contractors generally.",
+    "text": { "label": "H.R. 8800, engrossed in the House (GovInfo)", "url": "https://www.govinfo.gov/content/pkg/BILLS-119hr8800eh/html/BILLS-119hr8800eh.htm" },
+    "floor": "A Deluzio–Garamendi buyback amendment to H.R. 8800 was not made in order by the Rules Committee, so the House cast no vote on buyback limits. House passage of H.R. 8800 (216-212, Roll Call 278, July 22, 2026) is not a vote on Section 815."
+  },
+  "senate": {
+    "committee": "Included in the bill as reported by the Senate Armed Services Committee. The committee's roll-call tabulation in S. Rept. 119-127 records no separate vote on Section 815; the committee voted 18-9 to report the whole bill on June 10, 2026 and filed it on June 15.",
+    "committeeReportVote": { "result": "Ordered reported 18-9", "date": "2026-06-10", "note": "A vote on the whole bill, not on Section 815." },
+    "cloture": {
+      "result": "Cloture on the motion to proceed rejected, 50-46",
+      "date": "2026-07-14",
+      "roll": 195,
+      "url": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00195.htm"
+    },
+    "status": "As of November 10, 2026 the Senate has not passed S. 4784 (CRS reported on September 1, 2026 that it had taken no further procedural steps, with a motion to reconsider the failed cloture vote entered), and no final NDAA text has been enacted; no recorded vote in either chamber addresses Section 815 itself. Defense industry groups are lobbying to strip it in conference."
+  },
+  "recordedVotes": "No stored voting-record cell exists for S. 4784; each card cites Senate Roll Call Vote 195 directly and says it is not a vote on Section 815.",
+  "members": [
+    { "pid": "warren", "name": "Elizabeth Warren", "side": "support", "chamber": "senate", "clotureVote": "nay", "source": "https://www.warren.senate.gov/newsroom/press-releases/warren-secures-wins-on-military-right-to-repair-defense-contractor-stock-buybacks-service-member-safety-in-senate-fy-2027-ndaa/" },
+    { "pid": "hawley", "name": "Josh Hawley", "side": "support", "chamber": "senate", "clotureVote": "yea", "source": "https://www.warren.senate.gov/newsroom/press-releases/warren-hawley-introduce-bipartisan-bill-to-limit-stock-buybacks-in-defense-contracting-following-president-trumps-executive-order/" },
+    { "pid": "lee", "name": "Mike Lee", "side": "support", "chamber": "senate", "clotureVote": "yea", "source": "https://www.warren.senate.gov/newsroom/press-releases/warren-lee-publish-new-bipartisan-analysis-revealing-progress-on-limiting-defense-contractor-stock-buybacks-urge-pentagon-to-support-codifying-reforms-in-law/" },
+    { "pid": "reed", "name": "Jack Reed", "side": "support", "chamber": "senate", "clotureVote": "nay", "source": "https://www.cnbc.com/2026/06/17/defense-contractors-stock-buybacks-senate-warren-trump.html" },
+    { "pid": "rick_scott", "name": "Rick Scott", "side": "support", "chamber": "senate", "clotureVote": "yea", "source": "https://www.cnbc.com/2026/06/17/defense-contractors-stock-buybacks-senate-warren-trump.html" }
+  ],
+  "notCarried": [
+    { "name": "Tim Sheehy", "why": "Reported only as giving a thumbs-up when asked about the provision; that is not a published statement." },
+    { "name": "Chris Deluzio", "why": "His published release lists the buyback amendment that was not made in order but carries no statement on it; quotes attributed to him elsewhere could not be traced to a primary source." },
+    { "name": "Roger Wicker", "why": "No public statement on Section 815 was found; industry letters were addressed to him as chairman." }
+  ]
+}

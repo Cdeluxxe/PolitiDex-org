@@ -3777,6 +3777,19 @@ export const DECLARED_STANCE_PASSES = [
     // every other card byte-identical; Maggie Goodlander and Pat Harrigan had none.
     pids: ["maggie_goodlander", "pat_harrigan", "warren", "sheehy"],
   },
+  {
+    pass: "ndaa_fy27_sec815_china_tech_stated_nov2026",
+    // Section 815 of S. 4784 (limitations relating to capital distributions for
+    // defense contractors; db/ndaa-fy27-sec-815-capital-distributions-stated-2026-11.json):
+    // one sourced card each on the existing econ_corp_account key, filed first
+    // among that member's econ_corp_account cards. The China / foreign-adversary
+    // technology sections (db/ndaa-fy27-china-tech-stated-2026-11.json): one
+    // sourced card for Pat Harrigan on the optical-fiber ban (H.R. 8800 Sec. 1814;
+    // S. 4784 Sec. 846), filed second on strong_defense after his right-to-repair
+    // card. Every member already had a stance list and keeps every other card
+    // byte-identical.
+    pids: ["warren", "hawley", "lee", "reed", "rick_scott", "pat_harrigan"],
+  },
 ];
 export const DECLARED_STANCE_PIDS = DECLARED_STANCE_PASSES.flatMap((d) => d.pids);
 // sw.js with its comment lines and the CACHE_VERSION line set aside: what a
