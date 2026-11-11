@@ -3790,6 +3790,19 @@ export const DECLARED_STANCE_PASSES = [
     // byte-identical.
     pids: ["warren", "hawley", "lee", "reed", "rick_scott", "pat_harrigan"],
   },
+  {
+    pass: "ndaa_fy27_multiyear_industrial_base_stated_nov2026",
+    // The multiyear procurement authorities of the FY2027 NDAA and three more
+    // China / industrial-base sections (db/ndaa-fy27-multiyear-industrial-base-
+    // stated-2026-11.json): one sourced card each on the existing strong_defense
+    // key, filed first among that member's strong_defense cards — Ted Budd on the
+    // F-15EX authority (S. 4784 Sec. 133; H.R. 8800 Sec. 161), Jeanne Shaheen on
+    // the F-35 and F-15EX authorities (S. 4784 Secs. 132, 133) and Joe Courtney on
+    // the destroyer and oiler authorities (H.R. 8800 Secs. 123, 124). Budd and
+    // Shaheen keep every other card byte-identical; Courtney had no stance list.
+    // The humanoid-robot, consolidation and circuit-board sections carry no card.
+    pids: ["ted_budd", "shaheen", "joe_courtney"],
+  },
 ];
 export const DECLARED_STANCE_PIDS = DECLARED_STANCE_PASSES.flatMap((d) => d.pids);
 // sw.js with its comment lines and the CACHE_VERSION line set aside: what a

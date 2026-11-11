@@ -1,0 +1,122 @@
+{
+  "_note": "Multiyear procurement authorities and further China / industrial-base sections of the FY2027 NDAA (H.R. 8800 and S. 4784), stated positions (November 2026). Filed on the existing issue key strong_defense (Peace Through Strength), whose pole reads whether a measure authorised, funded or equipped the armed forces and whose scope names NDAA procurement and secure defense supply chains; every multiyear authority below lets the Defense Department commit to several years of buying a weapon system, and every sourcing provision limits what it may buy. H.R. 8800 is already mapped to strong_defense as its primary issue. Cut Federal Spending & Reduce Debt was considered and not used: none of these sections sets a dollar amount, and each multiyear contract stays subject to later appropriations. No new key and no related-issues pair is added. This pass adds to the earlier FY2027 NDAA records (Section 219, military right to repair, Senate Section 815 and the four China technology provisions) and edits none of them. POLARITY: 'support' means the member backs the multiyear authority as a way to give the defense industrial base steady demand, the sense the member's own statement gives. Only a published, direct statement on the multiyear authority itself (or on the standalone bill it was taken from) is carried; nothing is inferred from party, from a passage or cloture vote or from a general defense vote. The humanoid-robot, consolidation and circuit-board sections have no such statement on file, so they are recorded without cards. Read by scripts/test-ndaa-fy27-multiyear-industrial-base.mjs.",
+  "read": "2026-11-11",
+  "issueKey": "strong_defense",
+  "bills": {
+    "house": { "bill": "H.R. 8800", "label": "H.R. 8800, engrossed in the House (GovInfo)", "url": "https://www.govinfo.gov/content/pkg/BILLS-119hr8800eh/html/BILLS-119hr8800eh.htm",
+      "passage": { "result": "Passed 216-212", "date": "2026-07-22", "roll": 278, "url": "https://clerk.house.gov/Votes/2026278" } },
+    "senate": { "bill": "S. 4784", "label": "S. 4784, reported in the Senate (GovInfo)", "url": "https://www.govinfo.gov/content/pkg/BILLS-119s4784rs/html/BILLS-119s4784rs.htm",
+      "committeeReport": "S. Rept. 119-127",
+      "cloture": { "result": "Cloture on the motion to proceed rejected, 50-46", "date": "2026-07-14", "roll": 195, "url": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00195.htm" } }
+  },
+  "multiyear": [
+    {
+      "id": "f35",
+      "name": "F-35 aircraft",
+      "house": [ { "section": "Sec. 162", "heading": "Multiyear procurement authority for F-35 aircraft" } ],
+      "senate": [ { "section": "Sec. 132", "heading": "Multiyear procurement authority for F-35 aircraft" } ],
+      "description": "Both bills let the Secretary of Defense sign multiyear contracts for F-35 aircraft, with advance procurement in economic order quantities. The House text begins with the fiscal year 2027 program year and bars a contract until the Under Secretary for Acquisition and Sustainment certifies savings of not less than 5 percent over annual contracts, validated by the Director of Cost Assessment and Program Evaluation, and reports a plan to improve F-35 readiness rates; until then half of that office's travel money is withheld. The Senate text covers the F-35A, F-35B and F-35C, deems the contracts to meet the statutory findings in 10 U.S.C. 3501(a), and asks for a report of preliminary findings within 90 days.",
+      "excerpt": "any multiyear contracts for the procurement of F-35 aircraft units will achieve savings of not less than 5 percent compared with the estimated cost of procuring the same number and configuration of F-35 aircraft through annual contracts over the same period",
+      "status": "In the House-passed H.R. 8800 and the Senate-reported S. 4784; not enacted.",
+      "statements": ["shaheen"]
+    },
+    {
+      "id": "f15ex",
+      "name": "F-15EX aircraft",
+      "house": [ { "section": "Sec. 161", "heading": "Multiyear procurement authority for F-15EX aircraft" } ],
+      "senate": [ { "section": "Sec. 133", "heading": "Multiyear procurement authority for F-15EX aircraft" } ],
+      "description": "Both bills let the Secretary of Defense sign multiyear contracts for F-15EX aircraft, with advance procurement. The House text starts with the fiscal year 2027 program year and requires a certification that each contract buys the full complement of initial spare parts, alternate mission equipment and conformal fuel tanks. The Senate text bars use of the authority until the Secretary certifies that the contractor can increase production to reach an inventory of not less than 268 F-15EX aircraft by 2035.",
+      "excerpt": "the contractor concerned has the ability to increase production to achieve the objective inventory goal of not less than 268 F-15EX aircraft by 2035",
+      "status": "In the House-passed H.R. 8800 and the Senate-reported S. 4784; not enacted.",
+      "statements": ["ted_budd", "shaheen"]
+    },
+    {
+      "id": "ddg51",
+      "name": "Arleigh Burke class destroyers",
+      "house": [ { "section": "Sec. 123", "heading": "Multiyear procurement authority for Arleigh Burke class destroyers" } ],
+      "senate": [],
+      "description": "Lets the Secretary of the Navy sign multiyear contracts for up to 15 Arleigh Burke class Flight III guided missile destroyers, with advance procurement. If the base quantity is under 15, a prepriced option must make up the difference, and no contract change may raise a destroyer's target price by more than 10 percent. House only.",
+      "excerpt": "the Secretary of the Navy may enter into one or more multiyear contracts for the procurement of up to 15 Arleigh Burke class Flight III guided missile destroyers",
+      "status": "In the House-passed H.R. 8800 only; no Senate counterpart; not enacted.",
+      "statements": ["joe_courtney"]
+    },
+    {
+      "id": "john_lewis_oilers",
+      "name": "John Lewis class oilers",
+      "house": [ { "section": "Sec. 124", "heading": "Multiyear procurement authority for John Lewis class Oilers" } ],
+      "senate": [],
+      "description": "Lets the Secretary of the Navy sign multiyear contracts for John Lewis class fleet oilers and their systems, components and long-lead materials, with economic order quantity buys to support continuous production. The government's termination liability is limited to the funds obligated at the time. House only.",
+      "excerpt": "the Secretary of the Navy may enter into one or more multiyear contracts for the procurement of John Lewis class Oilers and systems, components, and long-lead time materials associated with such vessels",
+      "status": "In the House-passed H.R. 8800 only; no Senate counterpart; not enacted.",
+      "statements": ["joe_courtney"]
+    },
+    {
+      "id": "e2d",
+      "name": "E-2D Advanced Hawkeye aircraft",
+      "house": [ { "section": "Sec. 127", "heading": "Multiyear procurement authority for E-2D Advanced Hawkeye aircraft" } ],
+      "senate": [ { "section": "Sec. 126", "heading": "Procurement authority for E-2D Advanced Hawkeye aircraft program" } ],
+      "description": "The House text lets the Navy sign multiyear contracts for twelve E-2D Advanced Hawkeye aircraft from the fiscal year 2027 program year. The Senate text instead authorizes one block buy contract for twelve or more aircraft in fiscal years 2027 through 2029. Both limit termination liability to funds obligated.",
+      "excerpt": "the Secretary of the Navy may enter into one or more multiyear contracts, beginning with the fiscal year 2027 program year, for the procurement of twelve E-2D Advanced Hawkeye aircraft",
+      "status": "In the House-passed H.R. 8800 and the Senate-reported S. 4784 (as a block buy); not enacted.",
+      "statements": []
+    },
+    {
+      "id": "munitions",
+      "name": "Munitions",
+      "house": [
+        { "section": "Sec. 1839", "heading": "Multiyear procurement authority for certain munitions" },
+        { "section": "Sec. 1840", "heading": "Multiyear procurement authority for platforms and components systems" }
+      ],
+      "senate": [ { "section": "Sec. 801", "heading": "Multi-year procurement for certain munitions" } ],
+      "description": "The House text authorizes multiyear contracts of up to seven program years for 13 munitions in Section 1839 (among them SM-3, SM-6, PrSM, AMRAAM, JASSM, LRASM, Tomahawk, THAAD and PAC-3 MSE) and 18 more systems in Section 1840 (among them GMLRS, Javelin, AIM-9X and ESSM), each only after a written certification to the defense committees at least seven days before award. The Senate text authorizes multiyear contracts for 19 munitions, among them the Joint Strike Missile, Naval Strike Missile, PrSM, Mk 48 and Mk 54 torpedoes, JDAM, GMLRS and Javelin.",
+      "excerpt": "the head of an agency may enter into one or more multiyear contracts for more than one but not more than seven program years, beginning in fiscal year 2027",
+      "status": "In the House-passed H.R. 8800 and the Senate-reported S. 4784; not enacted.",
+      "statements": []
+    }
+  ],
+  "industrialBase": [
+    {
+      "id": "humanoid_robots",
+      "name": "Ban on foreign-adversary humanoid robots",
+      "house": [ { "section": "Sec. 163", "heading": "Prohibition on procurement and use of humanoid robotic systems produced, developed, or controlled by foreign adversaries" } ],
+      "senate": [],
+      "description": "Bars the Defense Department from buying, leasing or otherwise obtaining a networked, AI-driven humanoid robot made or developed by a foreign adversary, running a foreign adversary's firmware, software, AI models or cloud services, or open to its remote access or updates. Foreign adversaries are the covered nations in 10 U.S.C. 4872 (China, Russia, Iran and North Korea). A waiver covers air-gapped counterintelligence, testing and research use with notice to Congress within 30 days; fixed factory robots and FDA-regulated assistive devices are excluded. House only.",
+      "excerpt": "The Secretary of Defense may not procure, lease, or otherwise obtain a covered humanoid robotic system that-- (A) is produced or developed by a foreign adversary or foreign adversary entity",
+      "status": "In the House-passed H.R. 8800 only; no Senate counterpart; not enacted.",
+      "statements": []
+    },
+    {
+      "id": "consolidated_country_bans",
+      "name": "Consolidation of foreign-country procurement bans",
+      "house": [],
+      "senate": [ { "section": "Sec. 811", "heading": "Consolidation and rationalization of restrictions on procurement from certain foreign countries" } ],
+      "description": "Gathers the Defense Department's existing bans on buying from North Korea, China, Russia and Iran into a new chapter 390 of title 10, effective January 1, 2028. Covered items include critical chemicals, munitions-list goods, strategic and critical materials and rare earth elements, unmanned aircraft, printed circuit boards, protective equipment, batteries from specified companies and Huawei, ZTE, Hytera, Hikvision and Dahua telecommunications gear. The ban reaches subcontracts at any tier, contractors may rely on supplier certifications, and the Secretary may waive it in writing. Senate only.",
+      "excerpt": "procure, renew, or extend a contract for the procurement of any covered item that is, or contains materials or components that are mined, refined, processed, manufactured, or assembled, in whole or in part, by a covered country or covered entity",
+      "status": "In the Senate-reported S. 4784 only; no House counterpart; not enacted.",
+      "statements": []
+    },
+    {
+      "id": "pcb_inputs",
+      "name": "Circuit-board inputs: copper foil, laminate and glass",
+      "house": [],
+      "senate": [ { "section": "Sec. 844", "heading": "Amendments to requirements pertaining to printed circuit boards" } ],
+      "description": "Extends the existing ban on buying printed circuit boards from China, Russia, North Korea and Iran (10 U.S.C. 4873) to the copper clad laminate, copper foil and glass fiber that go into them, effective January 1, 2029. Senate only; the House bill's Section 827 changes only the small-purchase threshold of the same law.",
+      "excerpt": "by inserting ``, copper clad laminate, copper foil, or glass'' after ``printed circuit board''",
+      "status": "In the Senate-reported S. 4784 only; no House counterpart; not enacted.",
+      "statements": []
+    }
+  ],
+  "status": "As of November 11, 2026 the House has passed H.R. 8800 (216-212, Roll Call 278) and the Senate has not passed S. 4784 after cloture on the motion to proceed failed 50-46 (Roll Call Vote 195). No final NDAA text has been enacted, and no recorded vote in either chamber addresses any of these sections by itself.",
+  "members": [
+    { "pid": "ted_budd", "name": "Ted Budd", "side": "support", "chamber": "senate", "provisions": ["f15ex"], "clotureVote": "yea", "source": "https://www.budd.senate.gov/2026/08/20/senator-budd-secures-f-15ex-aircraft-for-seymour-johnson-air-force-base/", "position": "first" },
+    { "pid": "shaheen", "name": "Jeanne Shaheen", "side": "support", "chamber": "senate", "provisions": ["f35", "f15ex"], "clotureVote": "nay", "source": "https://www.shaheen.senate.gov/news/press/icymi-shaheen-and-budd-pen-wall-street-journal-op-ed-underscoring-need-for-senators-bipartisan-three-bill-package-to-enhance-american-airpower-boost-defense-industrial-base", "position": "first" },
+    { "pid": "joe_courtney", "name": "Joe Courtney", "side": "support", "chamber": "house", "provisions": ["ddg51", "john_lewis_oilers"], "vote": "nay", "voteAttributed": false, "source": "https://courtney.house.gov/media-center/press-releases/courtney-statement-delivered-fy27-ndaa-full-committee-markup", "position": "first" }
+  ],
+  "notCarried": [
+    { "name": "Kevin Cramer", "why": "Co-sponsored the Airpower Acceleration Act and praised it in the April 22, 2026 release, but his statement does not address the multiyear authority itself." },
+    { "name": "Angus King, Eric Schmitt, Tim Sheehy, Mike Rounds", "why": "Co-sponsors of the Airpower Acceleration Act whose published statements do not address the multiyear authority." },
+    { "name": "Roger Wicker", "why": "Praised the whole Senate bill as chairman; no statement on a multiyear section was found." },
+    { "name": "John Moolenaar", "why": "His June 2026 statement is on the GUARD Act, a broader bill that would put adversary robots on the FCC Covered List, not on the Defense Department procurement ban in Sec. 163." },
+    { "name": "Elise Stefanik", "why": "Introduced a separate government-wide robot procurement bill; no statement on Sec. 163 was found." }
+  ]
+}
