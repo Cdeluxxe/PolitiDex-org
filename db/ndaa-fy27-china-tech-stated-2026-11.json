@@ -1,0 +1,66 @@
+{
+  "_note": "China / foreign-adversary technology provisions of the FY2027 NDAA (H.R. 8800 and S. 4784), stated positions (November 2026). Filed on the existing issue key strong_defense (Peace Through Strength), whose scope names procurement and supply-chain and industrial-base measures; every provision below limits what the Defense Department may buy or whom it may contract with, and H.R. 8800 is already mapped to strong_defense as its primary issue. Tariffs on China & Unfair Trade was considered and not used: it holds trade and tariff policy, not Defense Department procurement. No new key and no related-issues pair is added. The four provisions were chosen because each appears in both bills or carries a Defense-wide procurement consequence; the Senate-only router, television and drone sections (Secs. 880, 881, 847) and the connected-vehicle sections are not carried. Neither bill refers anything to the International Trade Commission or Commerce, and neither text changes AUKUS export controls; the Senate's AUKUS sections (Secs. 1231, 1234) are implementation and industrial-security items, so none is recorded here. POLARITY: 'support' means the member backs the restriction as a way to keep Chinese-controlled technology out of the armed forces' networks and supply chain, the sense the member's own statement gives. Only a published, direct statement on the specific provision is carried; the 1260H, exclusion-order and IT-vulnerability provisions have none on file, so they are recorded without cards. Read by scripts/test-ndaa-fy27-sec815-china.mjs.",
+  "read": "2026-11-10",
+  "issueKey": "strong_defense",
+  "bills": {
+    "house": { "bill": "H.R. 8800", "label": "H.R. 8800, engrossed in the House (GovInfo)", "url": "https://www.govinfo.gov/content/pkg/BILLS-119hr8800eh/html/BILLS-119hr8800eh.htm",
+      "passage": { "result": "Passed 216-212", "date": "2026-07-22", "roll": 278, "url": "https://clerk.house.gov/Votes/2026278" } },
+    "senate": { "bill": "S. 4784", "label": "S. 4784, reported in the Senate (GovInfo)", "url": "https://www.govinfo.gov/content/pkg/BILLS-119s4784rs/html/BILLS-119s4784rs.htm",
+      "cloture": { "result": "Cloture on the motion to proceed rejected, 50-46", "date": "2026-07-14", "roll": 195, "url": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00195.htm" } }
+  },
+  "provisions": [
+    {
+      "id": "cmc_list_1260h",
+      "name": "Section 1260H Chinese military companies list",
+      "house": [
+        { "section": "Sec. 1243", "heading": "Extension of requirement for public reporting of Chinese military companies operating in the United States" },
+        { "section": "Sec. 1244", "heading": "Modifications to public reporting of Chinese military companies operating in the United States" }
+      ],
+      "senate": [
+        { "section": "Sec. 849", "heading": "Full accountability for Chinese military companies" },
+        { "section": "Sec. 843", "heading": "Modifications to requirement for public reporting of Chinese military companies" }
+      ],
+      "description": "Both bills extend the Defense Department's annual list of Chinese military companies from 2030 to 2035. The House lets the list be updated as the Secretary determines appropriate and defines 'assistance' and formal and informal association; the Senate drops the requirement that a listed company operate in the United States, reaches majority-owned subsidiaries and affiliates, and provides that 'Single Champion' or 'Little Giant' designations associated with Chinese industrial planning may constitute knowing receipt of assistance.",
+      "excerpt": "by striking ``2030'' and inserting ``2035''",
+      "status": "In the House-passed H.R. 8800 and the Senate-reported S. 4784; not enacted.",
+      "statements": []
+    },
+    {
+      "id": "fasc_exclusion_orders",
+      "name": "Exclusion-order referral for listed Chinese military companies",
+      "house": [ { "section": "Sec. 1812", "heading": "Federal Acquisition Security Council exclusion orders for Chinese military company designees" } ],
+      "senate": [],
+      "description": "Within 90 days of adding a company to the 1260H list, the Secretary of Defense must send the Federal Acquisition Security Council a written referral recommending an exclusion order for what that company produces or provides; removal from the list does not by itself rescind an exclusion order. House only.",
+      "excerpt": "the Secretary of Defense shall transmit to the Council a written referral recommending that the Council recommend an exclusion order for covered articles produced or provided by such entity",
+      "status": "In the House-passed H.R. 8800 only; no Senate counterpart; not enacted.",
+      "statements": []
+    },
+    {
+      "id": "optical_fiber_ban",
+      "name": "Ban on Chinese-made optical fiber",
+      "house": [ { "section": "Sec. 1814", "heading": "Prohibition on the use of Chinese-manufactured optical fiber by the Department of Defense" } ],
+      "senate": [ { "section": "Sec. 846", "heading": "Prohibition on the use of Chinese-manufactured optical fiber by the Department of Defense" } ],
+      "description": "Bars the Defense Department from buying optical fiber and optical fiber cable made by an entity owned, controlled or directed by the People's Republic of China for its information networks or communications systems, with a case-by-case national-security waiver. The House text says 'procure or obtain'; the Senate text adds 'or use' and extends the ban to contractors and subcontractors at any tier.",
+      "excerpt": "The Secretary of Defense may not procure or obtain optical fiber and optical fiber cable produced, manufactured, or assembled by an entity that is owned by, controlled by, or subject to the jurisdiction or direction of the People's Republic of China",
+      "status": "In the House-passed H.R. 8800 and the Senate-reported S. 4784; not enacted.",
+      "statements": ["pat_harrigan"]
+    },
+    {
+      "id": "it_vulnerability_sharing",
+      "name": "IT providers that share cyber vulnerabilities with countries of concern",
+      "house": [ { "section": "Sec. 1526", "heading": "Requirement for memoranda of agreement regarding vulnerability disclosure and prohibition on procurement from IT providers who share cyber vulnerabilities with countries of concern" } ],
+      "senate": [ { "section": "Sec. 1635", "heading": "Requirement for memoranda of agreement regarding vulnerability disclosure and prohibition on procurement from IT providers who share cyber vulnerabilities with countries of concern" } ],
+      "description": "From 270 days after enactment, the Defense Department may not enter into or renew an information-technology contract with a company that sells in or operates in a country of concern unless it agrees to disclose security vulnerabilities to the Department before anyone else and not to give advance disclosure to a covered company.",
+      "excerpt": "the Secretary of Defense shall not enter into or renew a contract for the procurement of information technology with any entity that makes such technology commercially available to customers in a country of concern or has operations, subsidiaries, or personnel located in a country of concern unless such entity has entered into a memorandum of agreement with the Department of Defense",
+      "status": "In the House-passed H.R. 8800 and the Senate-reported S. 4784; not enacted.",
+      "statements": []
+    }
+  ],
+  "status": "As of November 10, 2026 the House has passed H.R. 8800 (216-212, Roll Call 278) and the Senate has not passed S. 4784 after cloture on the motion to proceed failed 50-46 (Roll Call Vote 195). No final NDAA text has been enacted, and no recorded vote in either chamber addresses any of these sections by itself.",
+  "members": [
+    { "pid": "pat_harrigan", "name": "Pat Harrigan", "side": "support", "chamber": "house", "provision": "optical_fiber_ban", "vote": "yea", "voteAttributed": false, "source": "https://harrigan.house.gov/media/press-releases/congressman-pat-harrigan-secures-five-amendments-during-hasc-markup-fy27-ndaa", "position": "second", "after": "Military Right to Repair · FY2027 NDAA" }
+  ],
+  "notCarried": [
+    { "name": "Andy Ogles", "why": "Listed as the sponsor of the House amendment behind Sec. 1526, but no published statement on it was found." }
+  ]
+}

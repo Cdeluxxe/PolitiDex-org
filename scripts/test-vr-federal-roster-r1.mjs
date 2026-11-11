@@ -543,6 +543,9 @@ section("6 · no Direction Match drift — twin boot, HEAD against this tree");
 
     // THE THREE THE BRIEF PINS, spelled out so a regression names them.
     for (const pid of ["lee", "curtis", "bmoore"]) {
+      // A declared stance pass that gave the member a new stated card moves
+      // the read on purpose; that pass's own suite pins it.
+      if (declaredStanceMovesAtHead().moved.has(pid)) continue;
       const a = head.PDXWordAction.read(pid);
       const b = work.PDXWordAction.read(pid);
       if (!ok(!!a && !!b, `${pid}: Direction Match does not read on both sides`)) continue;

@@ -2229,6 +2229,18 @@
         text:'Cosponsored the U.S.-Israel Security Assistance Authorization Act backing full funding under the 2016 memorandum of understanding, and joined colleagues urging the administration to lift what they called its "partial arms embargo against Israel."',
         evidence:'A fiscal skeptic of large supplemental packages, he pushed a stand-alone Israel aid bill rather than one bundling Ukraine, Taiwan and border funding — his objection is to the vehicle, not the assistance.',
         source:{label:'lee.senate.gov', url:'https://www.lee.senate.gov'} },
+      // ── SECTION 815 PASS (Nov 2026) — FY2027 NDAA, S. 4784 §815 (capital distributions) ──
+      // A sourced statement on the defense-contractor buyback and dividend limit or the
+      // bill it came from; see db/ndaa-fy27-sec-815-capital-distributions-stated-2026-11.json.
+      // Filed first on econ_corp_account so the drawer's stated line reads it.
+      { topic:'Defense Contractor Buybacks · FY2027 NDAA §815', icon:'🏦', pos:'support', issueKey:'econ_corp_account', issueStance:'support', position:'support', status:'active',
+        text:'Backs the Prioritizing the Warfighter in Defense Contracting Act, the bill behind Section 815 of the Senate FY2027 NDAA (S. 4784) limiting contractor buybacks and dividends; his letter with Sen. Warren says holdout contractors "reveal the need for legislation that emboldens the Department to enforce accountability."',
+        evidence:'The August 11, 2026 Warren–Lee letter urged the Secretary of Defense to support codifying the executive order on contractor buybacks. No vote has addressed Section 815 itself; he voted yes when cloture on taking up S. 4784 failed 50–46 on July 14, 2026.',
+        source:{label:'warren.senate.gov, August 11, 2026', url:'https://www.warren.senate.gov/newsroom/press-releases/warren-lee-publish-new-bipartisan-analysis-revealing-progress-on-limiting-defense-contractor-stock-buybacks-urge-pentagon-to-support-codifying-reforms-in-law/'},
+        sources:[
+          { type:'joint letter', label:'Warren, Lee analysis on defense contractor stock buybacks; letter urging the Pentagon to support codifying reforms, August 11, 2026', date:'2026-08-11', link:'https://www.warren.senate.gov/newsroom/press-releases/warren-lee-publish-new-bipartisan-analysis-revealing-progress-on-limiting-defense-contractor-stock-buybacks-urge-pentagon-to-support-codifying-reforms-in-law/', excerpt:'“These contractors who did not respond to the President’s executive order reveal the need for legislation that emboldens the Department to enforce accountability.”', weight:'strong' },
+          { type:'recorded vote', label:'U.S. Senate — Roll Call Vote 195 (2026)', date:'2026-07-14', link:'https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00195.htm', excerpt:'Voted yes on cloture on the motion to proceed to S. 4784, which was rejected 50–46; not a vote on Section 815 itself.', weight:'strong' },
+        ] },
     ],
     curtis: [
       // ── Phase 3 · Wave 2 (first-class issue records) ──────────────────────────
@@ -2665,6 +2677,18 @@
         source:{label:'lgraham.senate.gov', url:'https://www.lgraham.senate.gov/public/index.cfm/press-releases?ID=7F64BE07-E477-41B3-A17E-E7FB7688640D'} },
     ],
     hawley: [ // Josh Hawley — 🏛 U.S. Senator (R-MO)
+      // ── SECTION 815 PASS (Nov 2026) — FY2027 NDAA, S. 4784 §815 (capital distributions) ──
+      // A sourced statement on the defense-contractor buyback and dividend limit or the
+      // bill it came from; see db/ndaa-fy27-sec-815-capital-distributions-stated-2026-11.json.
+      // Filed first on econ_corp_account so the drawer's stated line reads it.
+      { topic:'Defense Contractor Buybacks · FY2027 NDAA §815', icon:'🏦', pos:'support', issueKey:'econ_corp_account', issueStance:'support', position:'support', status:'active',
+        text:'Introduced, with Sen. Elizabeth Warren, the buyback-limits bill behind Section 815 of the Senate FY2027 NDAA (S. 4784), which conditions Pentagon contracts on no stock buybacks or dividends: "America\'s defense contractors should be focused on expanding production, not padding their bottom lines."',
+        evidence:'The Prioritizing the Warfighter in Defense Contracting Act of 2026 would codify the President\'s executive order on contractor buybacks. No vote has addressed Section 815 itself; he voted yes when cloture on taking up S. 4784 failed 50–46 on July 14, 2026.',
+        source:{label:'warren.senate.gov, March 26, 2026', url:'https://www.warren.senate.gov/newsroom/press-releases/warren-hawley-introduce-bipartisan-bill-to-limit-stock-buybacks-in-defense-contracting-following-president-trumps-executive-order/'},
+        sources:[
+          { type:'joint statement', label:'Warren, Hawley introduce bipartisan bill to limit stock buybacks in defense contracting, March 26, 2026', date:'2026-03-26', link:'https://www.warren.senate.gov/newsroom/press-releases/warren-hawley-introduce-bipartisan-bill-to-limit-stock-buybacks-in-defense-contracting-following-president-trumps-executive-order/', excerpt:'“Now, it’s time for Congress to act by codifying the President’s executive order into law, ensuring that America’s warfighters are prioritized over corporate profit.”', weight:'strong' },
+          { type:'recorded vote', label:'U.S. Senate — Roll Call Vote 195 (2026)', date:'2026-07-14', link:'https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00195.htm', excerpt:'Voted yes on cloture on the motion to proceed to S. 4784, which was rejected 50–46; not a vote on Section 815 itself.', weight:'strong' },
+        ] },
       { topic:'Big Tech & Antitrust', icon:'🖥', pos:'support', issueKey:'econ_corp_account', issueStance:'support', text:'A populist conservative who breaks with free-market orthodoxy to back antitrust action and tighter regulation of large technology companies.', source:{label:'hawley.senate.gov', url:'https://www.hawley.senate.gov'} },
       { topic:'Workers & Wages', icon:'👷', pos:'support', issueKey:'econ_workers', issueStance:'support', text:'Has courted union workers, walked a picket line, and proposed capping credit-card interest rates at 10% — backing organized labor and a federal ceiling on consumer-lending rates.', source:{label:'hawley.senate.gov', url:'https://www.hawley.senate.gov'} },
       { topic:'Medicaid Cuts', icon:'🏥', pos:'mixed', issueKey:'healthcare', issueStance:'mixed', text:'Publicly warned against the 2025 law\'s Medicaid reductions and their impact on rural hospitals, then voted for the law, and later introduced a bill to roll back some of those cuts.', source:{label:'hawley.senate.gov', url:'https://www.hawley.senate.gov'} },
@@ -2694,6 +2718,18 @@
     ],
     warren: [ // Elizabeth Warren — 🏛 U.S. Senator (D-MA)
       { topic:'Cryptocurrency Regulation', icon:'🪙', pos:'oppose', issueKey:'crypto_cbdc', issueStance:'oppose', text:'Supports much stricter anti-money-laundering and consumer-protection rules for digital assets and has argued that crypto firms should meet safeguards comparable to traditional finance.', evidence:'Introduced the Digital Asset Anti-Money Laundering Act.', source:{label:'Congress.gov', url:'https://www.congress.gov/bill/118th-congress/senate-bill/2669'} },
+      // ── SECTION 815 PASS (Nov 2026) — FY2027 NDAA, S. 4784 §815 (capital distributions) ──
+      // A sourced statement on the defense-contractor buyback and dividend limit or the
+      // bill it came from; see db/ndaa-fy27-sec-815-capital-distributions-stated-2026-11.json.
+      // Filed first on econ_corp_account so the drawer's stated line reads it.
+      { topic:'Defense Contractor Buybacks · FY2027 NDAA §815', icon:'🏦', pos:'support', issueKey:'econ_corp_account', issueStance:'support', position:'support', status:'active',
+        text:'Secured Section 815 of the Senate FY2027 NDAA (S. 4784), which bars Pentagon contracts unless the contractor pledges no stock buybacks or dividends, waivable for a qualifying defense investment plan: "It\'s time to stop these contractors from putting Wall Street over our national security."',
+        evidence:'Drawn from the Prioritizing the Warfighter in Defense Contracting Act she introduced with Sen. Josh Hawley; the House bill (H.R. 8800) has no counterpart. No vote has addressed Section 815 itself; she voted no when cloture on taking up S. 4784 failed 50–46 on July 14, 2026.',
+        source:{label:'warren.senate.gov, June 11, 2026', url:'https://www.warren.senate.gov/newsroom/press-releases/warren-secures-wins-on-military-right-to-repair-defense-contractor-stock-buybacks-service-member-safety-in-senate-fy-2027-ndaa/'},
+        sources:[
+          { type:'press release', label:'Warren secures wins on right to repair and defense contractor stock buybacks in the Senate FY 2027 NDAA, June 11, 2026', date:'2026-06-11', link:'https://www.warren.senate.gov/newsroom/press-releases/warren-secures-wins-on-military-right-to-repair-defense-contractor-stock-buybacks-service-member-safety-in-senate-fy-2027-ndaa/', excerpt:'“Giant military contractors are cheating our government out of billions in taxpayer dollars and lining their executives’ and shareholders’ pockets instead of investing in our national defense.”', weight:'strong' },
+          { type:'recorded vote', label:'U.S. Senate — Roll Call Vote 195 (2026)', date:'2026-07-14', link:'https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00195.htm', excerpt:'Voted no on cloture on the motion to proceed to S. 4784, which was rejected 50–46; not a vote on Section 815 itself.', weight:'strong' },
+        ] },
       { topic:'Consumer & Bank Watchdog', icon:'🏦', pos:'support', issueKey:'econ_corp_account', issueStance:'support', text:'The architect of the Consumer Financial Protection Bureau and a leading voice for tougher bank regulation and action against what she calls corporate abuses.', source:{label:'warren.senate.gov', url:'https://www.warren.senate.gov'} },
       { topic:'Taxing Extreme Wealth', icon:'📈', pos:'support', issueKey:'econ_workers', issueStance:'support', text:'Proposes an annual wealth tax on ultra-high-net-worth households to fund child care, education and health programs.', source:{label:'warren.senate.gov', url:'https://www.warren.senate.gov'} },
       { topic:'Prescription Drug Prices', icon:'💊', pos:'support', issueKey:'health_drug_prices', issueStance:'support', text:'Backs Medicare drug-price negotiation and lower health costs, and opposed the 2025 law\'s Medicaid reductions.', source:{label:'warren.senate.gov', url:'https://www.warren.senate.gov'} },
@@ -8440,6 +8476,18 @@
       { topic:'Ukraine Aid', icon:'🇺🇦', pos:'support', issueKey:'strong_defense', issueStance:'support', text:'A firm supporter of sustained military and economic aid to Ukraine to deter Russian aggression.', source:{label:'reed.senate.gov', url:'https://www.reed.senate.gov/news/releases'} },
       { topic:'Defense Modernization', icon:'🛰', pos:'support', issueKey:'tech_innovation', issueStance:'support', text:'Prioritizes modernizing the force around AI, shipbuilding, and munitions capacity, and reforming procurement to field capability faster.', source:{label:'reed.senate.gov', url:'https://www.reed.senate.gov/news/releases'} },
       { topic:'Veterans', icon:'🎖', pos:'support', issueKey:'veterans', issueStance:'support', text:'A former Army Ranger who champions veterans\' health care and benefits.', source:{label:'reed.senate.gov', url:'https://www.reed.senate.gov/news/releases'} },
+      // ── SECTION 815 PASS (Nov 2026) — FY2027 NDAA, S. 4784 §815 (capital distributions) ──
+      // A sourced statement on the defense-contractor buyback and dividend limit or the
+      // bill it came from; see db/ndaa-fy27-sec-815-capital-distributions-stated-2026-11.json.
+      // Filed first on econ_corp_account so the drawer's stated line reads it.
+      { topic:'Defense Contractor Buybacks · FY2027 NDAA §815', icon:'🏦', pos:'support', issueKey:'econ_corp_account', issueStance:'support', position:'support', status:'active',
+        text:'Defended Section 815 of the Senate FY2027 NDAA (S. 4784), limiting Pentagon contractor buybacks and dividends, telling CNBC: "We establish contractual requirements and when they can\'t meet them, to then turn around and buy back stock rather than reinvesting in their production facilities and other aspects is wrong."',
+        evidence:'As Armed Services ranking member he voted to report S. 4784 (18–9); the committee recorded no separate vote on Section 815. No floor vote has addressed it; he voted no when cloture on taking up S. 4784 failed 50–46 on July 14, 2026.',
+        source:{label:'CNBC, June 17, 2026', url:'https://www.cnbc.com/2026/06/17/defense-contractors-stock-buybacks-senate-warren-trump.html'},
+        sources:[
+          { type:'interview', label:'CNBC — Defense contractors would be barred from buying back their stock in bill approved by Senate panel, June 17, 2026', date:'2026-06-17', link:'https://www.cnbc.com/2026/06/17/defense-contractors-stock-buybacks-senate-warren-trump.html', excerpt:'“We establish contractual requirements and when they can’t meet them, to then turn around and buy back stock rather than reinvesting in their production facilities and other aspects is wrong.”', weight:'strong' },
+          { type:'recorded vote', label:'U.S. Senate — Roll Call Vote 195 (2026)', date:'2026-07-14', link:'https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00195.htm', excerpt:'Voted no on cloture on the motion to proceed to S. 4784, which was rejected 50–46; not a vote on Section 815 itself.', weight:'strong' },
+        ] },
     ],
     shaheen: [ // Jeanne Shaheen — 🌐 Senate Foreign Relations Ranking Member (D-NH)
       { topic:'Israel Aid', icon:'🇮🇱', pos:'mixed', issueKey:'israel_support', issueStance:'mixed', text:'The top Democrat on Foreign Relations, Shaheen supports Israel\'s security and its U.S. aid while pressing for humanitarian access and a diplomatic path.', evidence:'Ranking Member of the Senate Foreign Relations Committee.', source:{label:'Senate Foreign Relations Committee', url:'https://www.foreign.senate.gov/'} },
@@ -8696,6 +8744,18 @@
       { topic:'Border Security', icon:'🛂', pos:'support', issueKey:'border_security', issueStance:'support', text:'Backs strict border enforcement, more agents and barriers, and tighter asylum rules.', source:{label:'rickscott.senate.gov', url:'https://www.rickscott.senate.gov/newsroom/press-releases'} },
       { topic:'China', icon:'🇨🇳', pos:'support', issueKey:'tariffs_china', issueStance:'support', text:'A China hawk on trade, security, and investment, backing tariffs and restrictions on Chinese firms.', source:{label:'rickscott.senate.gov', url:'https://www.rickscott.senate.gov/newsroom/press-releases'} },
       { topic:'Reckless Spending', icon:'📉', pos:'support', issueKey:'gov_waste', issueStance:'support', text:'Says he has “been fighting for YEARS to stop this reckless spending and balance the federal budget,” and wants the government barred from spending beyond its receipts while the debt keeps climbing.', source:{label:'Rick Scott Senate Office', url:'https://www.rickscott.senate.gov/2026/2/sen-rick-scott-leads-balanced-budget-responsibility-act-to-stop-washington-s-reckless-spending'} },
+      // ── SECTION 815 PASS (Nov 2026) — FY2027 NDAA, S. 4784 §815 (capital distributions) ──
+      // A sourced statement on the defense-contractor buyback and dividend limit or the
+      // bill it came from; see db/ndaa-fy27-sec-815-capital-distributions-stated-2026-11.json.
+      // Filed first on econ_corp_account so the drawer's stated line reads it.
+      { topic:'Defense Contractor Buybacks · FY2027 NDAA §815', icon:'🏦', pos:'support', issueKey:'econ_corp_account', issueStance:'support', position:'support', status:'active',
+        text:'Backed Section 815 of the Senate FY2027 NDAA (S. 4784), which bars Pentagon contracts unless the contractor pledges no stock buybacks or dividends, telling CNBC: "If you\'re making money off the federal government, you shouldn\'t be giving shareholders a return before we get our stuff done."',
+        evidence:'As an Armed Services member he voted to report S. 4784 (18–9); the committee recorded no separate vote on Section 815. No floor vote has addressed it; he voted yes when cloture on taking up S. 4784 failed 50–46 on July 14, 2026.',
+        source:{label:'CNBC, June 17, 2026', url:'https://www.cnbc.com/2026/06/17/defense-contractors-stock-buybacks-senate-warren-trump.html'},
+        sources:[
+          { type:'interview', label:'CNBC — Defense contractors would be barred from buying back their stock in bill approved by Senate panel, June 17, 2026', date:'2026-06-17', link:'https://www.cnbc.com/2026/06/17/defense-contractors-stock-buybacks-senate-warren-trump.html', excerpt:'“If you’re making money off the federal government, you shouldn’t be giving shareholders a return before we get our stuff done.”', weight:'strong' },
+          { type:'recorded vote', label:'U.S. Senate — Roll Call Vote 195 (2026)', date:'2026-07-14', link:'https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00195.htm', excerpt:'Voted yes on cloture on the motion to proceed to S. 4784, which was rejected 50–46; not a vote on Section 815 itself.', weight:'strong' },
+        ] },
     ],
     foxx: [ // Virginia Foxx — 📜 House Rules Committee Chair (R-NC)
       { topic:'Higher-Education Reform', icon:'🎓', pos:'support', issueKey:'edu_college_cost', issueStance:'support', text:'A former community-college president and Education & Workforce chair, Foxx pushes college price transparency, accountability for student outcomes, and reining in federal student-loan costs.', evidence:'Former Chair of the House Education & the Workforce Committee.', source:{label:'foxx.house.gov', url:'https://foxx.house.gov/news/'} },
@@ -9447,6 +9507,18 @@
         sources:[
           { type:'press release', label:'Rep. Harrigan secures military right to repair in the House FY27 NDAA, June 4, 2026', date:'2026-06-04', link:'https://harrigan.house.gov/media/press-releases/congressman-pat-harrigan-secures-military-right-repair-final-fy27-ndaa', excerpt:'\u201cRight to repair is in the House\u2019s final version of the NDAA, and every service that asked us for it is going to get it.\u201d', weight:'strong' },
           { type:'recorded vote', label:'House Clerk — Roll Call 278 (2026)', date:'2026-07-22', link:'https://clerk.house.gov/Votes/2026278', excerpt:'Voted yes on passage of H.R. 8800, which passed 216–212 with Section 861 in the bill.', weight:'strong' },
+        ] },
+      // ── CHINA TECHNOLOGY PASS (Nov 2026) — FY2027 NDAA, H.R. 8800 §1814 / S. 4784 §846 ──
+      // A sourced statement on the ban on Chinese-made optical fiber; see
+      // db/ndaa-fy27-china-tech-stated-2026-11.json. Filed second on strong_defense,
+      // after the right-to-repair card, which keeps the drawer's stated line.
+      { topic:'Chinese Optical Fiber Ban · FY2027 NDAA', icon:'🛰', pos:'support', issueKey:'strong_defense', issueStance:'support', position:'support', status:'active',
+        text:'Secured the markup amendment banning Chinese-made optical fiber from Pentagon networks, Section 1814 of the House FY2027 NDAA (H.R. 8800), matched by Section 846 of the Senate bill (S. 4784), calling it one of the amendments he got "across the line": "we are banning Chinese optical fiber from our defense networks".',
+        evidence:'Section 1814 bars the Defense Department from buying optical fiber made by an entity owned, controlled or directed by the People\'s Republic of China; Section 846 also reaches contractors at any tier. No separate vote was cast on it. He voted yes on final passage of H.R. 8800, Roll Call 278, July 22, 2026; it passed 216–212.',
+        source:{label:'harrigan.house.gov, June 5, 2026', url:'https://harrigan.house.gov/media/press-releases/congressman-pat-harrigan-secures-five-amendments-during-hasc-markup-fy27-ndaa'},
+        sources:[
+          { type:'press release', label:'Rep. Harrigan secures five amendments during the HASC markup of the FY27 NDAA, June 5, 2026', date:'2026-06-05', link:'https://harrigan.house.gov/media/press-releases/congressman-pat-harrigan-secures-five-amendments-during-hasc-markup-fy27-ndaa', excerpt:'“Last night was a good night for the warfighter and a bad night for our adversaries… we are banning Chinese optical fiber from our defense networks…”', weight:'strong' },
+          { type:'recorded vote', label:'House Clerk — Roll Call 278 (2026)', date:'2026-07-22', link:'https://clerk.house.gov/Votes/2026278', excerpt:'Voted yes on passage of H.R. 8800, which passed 216–212 with Section 1814 in the bill.', weight:'strong' },
         ] },
     ],
     kevin_hern: [ // Kevin Hern — 🧾 U.S. Representative (R-OK)

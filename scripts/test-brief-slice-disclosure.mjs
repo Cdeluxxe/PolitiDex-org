@@ -599,6 +599,9 @@ section("7 · twin boot — one new node, nothing else");
 
   // The three the brief pins are byte-identical, node included.
   for (const pid of ["lee", "curtis", "bmoore"]) {
+    // A declared stance pass that gave the member a new stated card moves the
+    // brief's said side on purpose; that pass's own suite pins the card.
+    if (declaredStanceMovesAtHead().moved.has(pid)) continue;
     eq(hero(pid), H.PDXWordAction.heroHtml(pid, prof(H, pid)) || "",
       `${pid}: the formal brief is not byte-identical to HEAD`);
   }
