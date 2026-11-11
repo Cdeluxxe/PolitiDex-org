@@ -1,6 +1,7 @@
 import { execFileSync as _execFileSync } from "node:child_process";
 import { readFileSync as _readFileSync } from "node:fs";
 const _W6_REC = JSON.parse(_readFileSync(new URL("../db/newly-elected-state-legislative-stated-2026-11-wave6.json", import.meta.url), "utf8"));
+const _GAP_REC = JSON.parse(_readFileSync(new URL("../db/newly-elected-state-legislative-gap-fill-2026-11.json", import.meta.url), "utf8"));
 /**
  * scripts/v103-chrome-seams.mjs
  *
@@ -3820,6 +3821,14 @@ export const DECLARED_STANCE_PASSES = [
       "tyler_smith"],
   },
   {
+    pass: "talarico_cost_of_living_record_nov2026",
+    // James Talarico's cost-of-living stance card (7c0a51a, locked in 0579716):
+    // a deliberate stance edit that shipped undeclared, so every newly elected
+    // suite read it as "another person's stance entries changed". Declared here
+    // by the gap-fill pass so those suites pin everyone else again.
+    pids: ["james_talarico"],
+  },
+  {
     pass: "section_219_ndaa_stated_nov2026",
     // Section 219 of the FY2027 NDAA (H.R. 8800; was Section 224), the
     // United States-Israel Defense Technology Cooperation Initiative
@@ -3865,7 +3874,109 @@ export const DECLARED_STANCE_PASSES = [
     // The humanoid-robot, consolidation and circuit-board sections carry no card.
     pids: ["ted_budd", "shaheen", "joe_courtney"],
   },
+  {
+    pass: "newly_elected_state_legislative_gap_fill_nov2026",
+    // The gap-fill pass on the six state legislative waves
+    // (db/newly-elected-state-legislative-gap-fill-2026-11.json): members who
+    // held fewer than five stated positions and whose campaign page still read
+    // get any further explicit claims on existing, mapped issue keys, appended
+    // after their existing cards. Members with nothing further are listed under
+    // "unchanged" and are not declared here.
+    pids: _GAP_REC.members.map((m) => m.pid),
+  },
 ];
+/**
+ * The gap-fill pass's additions by pid: the issue keys appended after each
+ * member's wave cards. Each wave suite compares its record's issueKeys plus
+ * these, in order, against the data.
+ */
+export const GAP_FILL_ADDED = Object.fromEntries(_GAP_REC.members.map((m) => [m.pid, m.added.map((a) => a.issueKey)]));
+export const gapFillKeys = (pid, keys) => (keys || []).concat(GAP_FILL_ADDED[pid] || []);
+/**
+ * DECLARED LATER REVISIONS — commits that changed a file the newly elected
+ * suites byte-pin (the drawer engine, consistency.js; the home shell,
+ * index.html; the build config, netlify.toml) on purpose, after those waves were built. Each wave suite pins
+ * the file to its own base; once only these commits have touched it since that
+ * base, the pin moves to HEAD instead, so a working-tree edit is still caught
+ * and a declared, later change is not read as this wave's.
+ */
+export const DECLARED_LATER_REVISIONS = {
+  "consistency.js": [
+    { rev: "65227ca", pass: "stated stances read from one store (person file, Word vs Action, drawer)" },
+    { rev: "f2d37b4", pass: "issue drawer rebuilt as a sourced story" },
+    { rev: "7c0a51a", pass: "drawer stance chip softened to \"Campaign position\"" },
+    { rev: "0579716", pass: "stance language update" },
+    { rev: "5ce1cb3", pass: "\"voting record\" in short voting labels" },
+  ],
+  "index.html": [
+    { rev: "8ac0289", pass: "national USA Voice board at /usa" },
+    { rev: "c1644d5", pass: "Sunlight split into a visual home and a rate-case page" },
+    { rev: "72a4b40", pass: "mobile search typing and overlay responsiveness" },
+  ],
+  "netlify.toml": [
+    { rev: "8ac0289", pass: "national USA Voice board at /usa" },
+    { rev: "c1644d5", pass: "Sunlight split into a visual home and a rate-case page" },
+  ],
+  // Every commit that moved the service worker after the first newly elected
+  // wave's base (63d0b80), each with its own version note in sw.js. The wave
+  // suites compare sw.js's code and precache list against this pin; their own
+  // version-note checks still read their base.
+  "sw.js": [
+    { rev: "72966a7" },
+    { rev: "f296d83" },
+    { rev: "6cc1d8b" },
+    { rev: "05558a2" },
+    { rev: "5ce1cb3" },
+    { rev: "c9ab74f" },
+    { rev: "c1c957a" },
+    { rev: "72a4b40" },
+    { rev: "c1644d5" },
+    { rev: "0579716" },
+    { rev: "7c0a51a" },
+    { rev: "f2d37b4" },
+    { rev: "65227ca" },
+    { rev: "c14e80d" },
+    { rev: "8ac0289" },
+    { rev: "470e768" },
+    { rev: "54e6ecd" },
+    { rev: "71538b5" },
+    { rev: "be55148" },
+    { rev: "71bcbda" },
+    { rev: "00f09fa" },
+    { rev: "17f64a2" },
+    { rev: "7e0009c" },
+    { rev: "fbd0d88" },
+    { rev: "9cb713f" },
+    { rev: "5ee2fef" },
+    { rev: "2ced228" },
+  ],
+  "netlify/database/migrations/20261204000000_dd_districts_usa_national_board": [
+    { rev: "8ac0289", pass: "national USA Voice board at /usa" },
+  ],
+};
+export function declaredPin(baseRev, file, root) {
+  const git = (args) => { try { return _execFileSync("git", args, { cwd: root, encoding: "utf8", maxBuffer: 1 << 28, stdio: ["ignore", "pipe", "ignore"] }); } catch { return null; } };
+  const base = git(["show", `${baseRev}:${file}`]);
+  const log = git(["log", "--format=%h", "--abbrev=7", `${baseRev}..HEAD`, "--", file]);
+  if (log == null) return base;
+  const revs = log.split("\n").filter(Boolean);
+  const declared = new Set((DECLARED_LATER_REVISIONS[file] || []).map((d) => d.rev));
+  if (!revs.length || !revs.every((r) => declared.has(r.slice(0, 7)))) return base;
+  return git(["show", `HEAD:${file}`]);
+}
+/**
+ * index.html with the generated "Read a record" strip set aside (the block
+ * between the hero-crawl markers that scripts/gen-hero-showcase.mjs rewrites
+ * from stance coverage; test-person-links.mjs pins it to the generator). A
+ * stance pass that lifts someone into the showcase moves only that block, so
+ * the newly elected suites compare everything else in the shell byte for byte.
+ */
+export function withoutHeroCrawl(src) {
+  if (src == null) return src;
+  const s = String(src), B = "<!-- pdx:hero-crawl:begin -->", E = "<!-- pdx:hero-crawl:end -->";
+  const b = s.indexOf(B), e = b < 0 ? -1 : s.indexOf(E, b);
+  return b < 0 || e < 0 ? s : s.slice(0, b + B.length) + s.slice(e);
+}
 export const DECLARED_STANCE_PIDS = DECLARED_STANCE_PASSES.flatMap((d) => d.pids);
 // sw.js with its comment lines and the CACHE_VERSION line set aside: what a
 // pass that moved the shell only to re-ship a precached file (a version note

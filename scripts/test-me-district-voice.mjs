@@ -795,7 +795,11 @@ const VERIFIED_OPTS = { uid: "u_7", loc: { state: "Utah", city: "Layton", county
     .replace(/    <!-- pdx:hero-election-day:begin -->[\s\S]*?<!-- pdx:hero-election-day:end -->\n/, "")
     // The Sunlight Governance rows (v543) joined the main menu, the mobile
     // menu and the footer. They are navigation to /sunlight, not money markup.
-    .replace(/ <a href="\/sunlight"[^>]*data-pdx-sunlight-link[^>]*>[\s\S]*?<\/a>/g, "");
+    .replace(/ <a href="\/sunlight"[^>]*data-pdx-sunlight-link[^>]*>[\s\S]*?<\/a>/g, "")
+    // The "Read a record" strip is generated from stance coverage
+    // (scripts/gen-hero-showcase.mjs) and moves when a stance pass lifts someone
+    // into the showcase. It is a list of person links, not money markup.
+    .replace(/<!-- pdx:hero-crawl:begin -->[\s\S]*?<!-- pdx:hero-crawl:end -->/, "<HERO-CRAWL>");
   for (const f of MONEY) {
     const src = R(f);
     if (head) eq(sansAlias(src) === sansAlias(head(f)), true, `${f}: money markup changed in this pass`);

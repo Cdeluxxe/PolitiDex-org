@@ -5490,6 +5490,11 @@
         detail:'Campaign claim, not a vote — Tommy Butler for House District 50 — On the Issues.', source:{label:'Tommy Butler for House District 50 — On the Issues', url:'https://www.butlerforhd50.com/on-the-issues-1'} },
       { topic:'Affordable Childcare', icon:'🧸', pos:'support', issueKey:'child_care', issueStance:'support', claim:'campaign', text:'Saying "Weld County has a child care crisis," Butler proposes a near-term fix plus long-range sustainable child care funding.',
         detail:'Campaign claim, not a vote — Tommy Butler for House District 50 — On the Issues.', source:{label:'Tommy Butler for House District 50 — On the Issues', url:'https://www.butlerforhd50.com/on-the-issues-1'} },
+      // Gap-fill (Nov 2026): further explicit claims re-read on the same campaign page.
+      { topic:'Tackle Homelessness', icon:'🏕', pos:'support', issueKey:'homeless', issueStance:'support', claim:'campaign', text:'Butler says "We need to make sure we continue to fund permanent supportive housing, homeless shelters, and mental health supports to tackle the rapidly growing problem of homelessness."',
+        detail:'Campaign claim, not a vote — Tommy Butler for House District 50 — On the Issues.', source:{label:'Tommy Butler for House District 50 — On the Issues', url:'https://www.butlerforhd50.com/on-the-issues-1'} },
+      { topic:'Graduated Income Tax', icon:'🏛', pos:'support', issueKey:'gov_services', issueStance:'support', claim:'campaign', text:'Butler backs higher rates on Coloradans earning over $500k to fund schools, roads and child care, saying those who can afford it should "pay a little more–to pay their fair share."',
+        detail:'Campaign claim, not a vote — Tommy Butler for House District 50 — On the Issues.', source:{label:'Tommy Butler for House District 50 — On the Issues', url:'https://www.butlerforhd50.com/on-the-issues-1'} },
     ],
     jeff_livingston: [ // Jeff K. Livingston — Colorado State House (District 15) — elected Nov. 3, 2026; campaign claims only, no voting record
       { topic:'Affordable Homes', icon:'🏘', pos:'support', issueKey:'housing_support', issueStance:'support', claim:'campaign', text:'Livingston pledges to "make housing more affordable by supporting real affordable housing projects."',
@@ -5499,6 +5504,9 @@
       { topic:'Better Jobs, Better Pay', icon:'🛠', pos:'support', issueKey:'econ_workers', issueStance:'support', claim:'campaign', text:'Livingston pledges to "raise job standards, expand union access, and open new training opportunities."',
         detail:'Campaign claim, not a vote — Jeff Livingston for Colorado — Putting Colorado Families First.', source:{label:'Jeff Livingston for Colorado — Putting Colorado Families First', url:'https://jefflivingstonforcolorado.com/'} },
       { topic:'Strong Schools', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', claim:'campaign', text:'Livingston says "I\'ll work to raise teacher pay, ensure classrooms have the tools they need."',
+        detail:'Campaign claim, not a vote — Jeff Livingston for Colorado — Putting Colorado Families First.', source:{label:'Jeff Livingston for Colorado — Putting Colorado Families First', url:'https://jefflivingstonforcolorado.com/'} },
+      // Gap-fill (Nov 2026): further explicit claims re-read on the same campaign page.
+      { topic:'Small-Business Funding', icon:'🏪', pos:'support', issueKey:'econ_smallbiz', issueStance:'support', claim:'campaign', text:'Livingston would end special breaks for big corporations and redirect that support to local businesses, pledging: "I\'ll fight to expand small-business funding."',
         detail:'Campaign claim, not a vote — Jeff Livingston for Colorado — Putting Colorado Families First.', source:{label:'Jeff Livingston for Colorado — Putting Colorado Families First', url:'https://jefflivingstonforcolorado.com/'} },
     ],
     steph_vigil: [ // Steph Vigil — Colorado State House (District 16) — elected Nov. 3, 2026; campaign claims only, no voting record
@@ -5525,6 +5533,11 @@
       { topic:'Light Rail for Las Vegas', icon:'🚆', pos:'support', issueKey:'transit', issueStance:'support', claim:'campaign', text:'Spotleson\'s issues page states "I support Light Rail in Las Vegas."',
         detail:'Campaign claim, not a vote — Vinny Spotleson for Assembly District 41 — Issues.', source:{label:'Vinny Spotleson for Assembly District 41 — Issues', url:'https://winwithvin.org/issues/'} },
       { topic:'Homes, Not Corporate Buyers', icon:'🏘', pos:'support', issueKey:'housing_support', issueStance:'support', claim:'campaign', text:'Spotleson\'s issues page lists "Stop Corporations from Buying Up All the Homes" and "Everyone Deserves a Roof Over Their Head."',
+        detail:'Campaign claim, not a vote — Vinny Spotleson for Assembly District 41 — Issues.', source:{label:'Vinny Spotleson for Assembly District 41 — Issues', url:'https://winwithvin.org/issues/'} },
+      // Gap-fill (Nov 2026): further explicit claims re-read on the same campaign page.
+      { topic:'Fighting Climate Change', icon:'🌱', pos:'support', issueKey:'climate_action', issueStance:'support', claim:'campaign', text:'Spotleson\'s issues page lists his video statement "Nevada can lead the world by example in Fighting Climate Change."',
+        detail:'Campaign claim, not a vote — Vinny Spotleson for Assembly District 41 — Issues.', source:{label:'Vinny Spotleson for Assembly District 41 — Issues', url:'https://winwithvin.org/issues/'} },
+      { topic:'Mental Health Access', icon:'🧠', pos:'support', issueKey:'health_mental', issueStance:'support', claim:'campaign', text:'Spotleson\'s issues page lists his video statement "We need better Mental Health Accessibility," alongside "Mental Health Creates School Safety."',
         detail:'Campaign claim, not a vote — Vinny Spotleson for Assembly District 41 — Issues.', source:{label:'Vinny Spotleson for Assembly District 41 — Issues', url:'https://winwithvin.org/issues/'} },
     ],
     chris_ford: [ // Chris Ford — Minnesota State Senate (District 32) — elected Nov. 3, 2026; campaign claims only, no voting record
@@ -5581,6 +5594,9 @@
         detail:'Campaign claim, not a vote — Connie Casha for Tennessee — Our Priorities.', source:{label:'Connie Casha for Tennessee — Our Priorities', url:'https://conniecasha4tndistrict-49.com/issues.html'} },
       { topic:'Prescription Drug Costs', icon:'💉', pos:'support', issueKey:'health_drug_prices', issueStance:'support', claim:'campaign', text:'Among her health care priorities, Casha says she will fight for "Lower prescription drug costs."',
         detail:'Campaign claim, not a vote — Connie Casha for Tennessee — Our Priorities.', source:{label:'Connie Casha for Tennessee — Our Priorities', url:'https://conniecasha4tndistrict-49.com/issues.html'} },
+      // Gap-fill (Nov 2026): further explicit claims re-read on the same campaign page.
+      { topic:'Mental Health Services', icon:'🧠', pos:'support', issueKey:'health_mental', issueStance:'support', claim:'campaign', text:'Under health care for all, Casha lists "Improved mental health services" among the things she will fight for.',
+        detail:'Campaign claim, not a vote — Connie Casha for Tennessee — Our Priorities.', source:{label:'Connie Casha for Tennessee — Our Priorities', url:'https://conniecasha4tndistrict-49.com/issues.html'} },
     ],
     owen_farnsworth: [ // Owen Farnsworth — Tennessee State House (District 34) — elected Nov. 3, 2026; campaign claims only, no voting record
       { topic:'Fund Public Schools', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', claim:'campaign', text:'Farnsworth says "it\'s time to put the money where success is, and that\'s in public schools."',
@@ -5629,6 +5645,15 @@
         detail:'Campaign claim, not a vote — Patrick Leahy for Nebraska — On The Issues.', source:{label:'Patrick Leahy for Nebraska — On The Issues', url:'https://leahyfornebraska.com/on-the-issues'} },
       { topic:'Protecting Public Education', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', claim:'campaign', text:'Under "Protecting Public Education," Leahy says "Every child deserves a strong education and to be set up for success in life."',
         detail:'Campaign claim, not a vote — Patrick Leahy for Nebraska — On The Issues.', source:{label:'Patrick Leahy for Nebraska — On The Issues', url:'https://leahyfornebraska.com/on-the-issues'} },
+      // Gap-fill (Nov 2026): further explicit claims re-read on the same campaign page.
+      { topic:'Prescription Drug Prices', icon:'💉', pos:'support', issueKey:'health_drug_prices', issueStance:'support', claim:'campaign', text:'Leahy pledges to help more Nebraskans get health insurance they can afford "and to end price-gouging on prescription drugs."',
+        detail:'Campaign claim, not a vote — Patrick Leahy for Nebraska — On The Issues.', source:{label:'Patrick Leahy for Nebraska — On The Issues', url:'https://leahyfornebraska.com/on-the-issues'} },
+      { topic:'Health Insurance Access', icon:'🏥', pos:'support', issueKey:'healthcare', issueStance:'support', claim:'campaign', text:'Leahy says "No one should ever have to choose between getting the medical care they need and putting food on the table" and will work to widen affordable coverage.',
+        detail:'Campaign claim, not a vote — Patrick Leahy for Nebraska — On The Issues.', source:{label:'Patrick Leahy for Nebraska — On The Issues', url:'https://leahyfornebraska.com/on-the-issues'} },
+      { topic:'Data Centers & the Aquifer', icon:'💧', pos:'support', issueKey:'datacenter_water', issueStance:'support', claim:'campaign', text:'Leahy pledges "voting against any AI data center that tries to use resources from the Ogallala Aquifer, our public power, or pollutes our air."',
+        detail:'Campaign claim, not a vote — Patrick Leahy for Nebraska — On The Issues.', source:{label:'Patrick Leahy for Nebraska — On The Issues', url:'https://leahyfornebraska.com/on-the-issues'} },
+      { topic:'Protect Critical Services', icon:'🏛', pos:'support', issueKey:'gov_services', issueStance:'support', claim:'campaign', text:'Faulting a revenue system that taxes the very richest at the same rate as a family making $57,000, Leahy will work to "responsibly grow our revenues" and "prevent cuts to critical services."',
+        detail:'Campaign claim, not a vote — Patrick Leahy for Nebraska — On The Issues.', source:{label:'Patrick Leahy for Nebraska — On The Issues', url:'https://leahyfornebraska.com/on-the-issues'} },
     ],
     erin_feichtinger: [ // Erin Feichtinger — Nebraska State Senate (District 8) — elected Nov. 3, 2026; campaign claims only, no voting record
       { topic:'Expanding Affordable Housing', icon:'🏠', pos:'support', issueKey:'housing', issueStance:'support', claim:'campaign', text:'Feichtinger says "we have to invest in both maintaining and expanding our affordable housing options."',
@@ -5651,6 +5676,11 @@
         detail:'Campaign claim, not a vote — Cindy Johnson For Nebraska — Priorities.', source:{label:'Cindy Johnson For Nebraska — Priorities', url:'https://cindyjohnsonforne.com/priorities'} },
       { topic:'Lowering Cost of Living', icon:'🛒', pos:'support', issueKey:'cost_living', issueStance:'support', claim:'campaign', text:'Johnson\'s priorities page says "From groceries, to rent, to property taxes, Cindy knows the financial strain our residents are under."',
         detail:'Campaign claim, not a vote — Cindy Johnson For Nebraska — Priorities.', source:{label:'Cindy Johnson For Nebraska — Priorities', url:'https://cindyjohnsonforne.com/priorities'} },
+      // Gap-fill (Nov 2026): further explicit claims re-read on the same campaign page.
+      { topic:'Supporting Public Schools', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', claim:'campaign', text:'Under "Supporting our Public Schools," Johnson pledges to make sure schools can "provide a competitive education that lifts up all students."',
+        detail:'Campaign claim, not a vote — Cindy Johnson For Nebraska — Priorities.', source:{label:'Cindy Johnson For Nebraska — Priorities', url:'https://cindyjohnsonforne.com/priorities'} },
+      { topic:'Jobs and Wages', icon:'🛠', pos:'support', issueKey:'econ_workers', issueStance:'support', claim:'campaign', text:'Johnson "will work to increase access to high quality jobs and wages that keep up with the cost of living."',
+        detail:'Campaign claim, not a vote — Cindy Johnson For Nebraska — Priorities.', source:{label:'Cindy Johnson For Nebraska — Priorities', url:'https://cindyjohnsonforne.com/priorities'} },
     ],
     nelly_burdette: [ // Nelly Burdette — Rhode Island State Senate (District 17) — elected Nov. 3, 2026; campaign claims only, no voting record
       { topic:'Accessible Healthcare', icon:'🏥', pos:'support', issueKey:'healthcare', issueStance:'support', claim:'campaign', text:'Burdette says she "believes healthcare should be easier to access, easier to understand, and affordable for families."',
@@ -5669,6 +5699,15 @@
         detail:'Campaign claim, not a vote — Samantha Wilcox for State Senate District 34 — Issues.', source:{label:'Samantha Wilcox for State Senate District 34 — Issues', url:'https://samwilcoxforri.com/posts/'} },
       { topic:'Transparent Government', icon:'🔍', pos:'support', issueKey:'gov_transparency', issueStance:'support', claim:'campaign', text:'Wilcox lists "Transparent and Accountable Government" as a priority and promises to be responsive to constituents of all parties.',
         detail:'Campaign claim, not a vote — Samantha Wilcox for State Senate District 34 — Issues.', source:{label:'Samantha Wilcox for State Senate District 34 — Issues', url:'https://samwilcoxforri.com/posts/'} },
+      // Gap-fill (Nov 2026): further explicit claims re-read on the same campaign page.
+      { topic:'Reliable School Funding', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', claim:'campaign', text:'Wilcox backs "Reliable State School Funding," saying predictable state aid would steady property taxes and give every community the resources for a quality education.',
+        detail:'Campaign claim, not a vote — Samantha Wilcox for State Senate District 34 — Issues.', source:{label:'Samantha Wilcox for State Senate District 34 — Issues', url:'https://samwilcoxforri.com/posts/'} },
+      { topic:'Prescription Drug Costs', icon:'💉', pos:'support', issueKey:'health_drug_prices', issueStance:'support', claim:'campaign', text:'Wilcox\'s healthcare plank: "Lower prescription drug costs, support local providers, and make healthcare more affordable."',
+        detail:'Campaign claim, not a vote — Samantha Wilcox for State Senate District 34 — Issues.', source:{label:'Samantha Wilcox for State Senate District 34 — Issues', url:'https://samwilcoxforri.com/posts/'} },
+      { topic:'Mental Health Resources', icon:'🧠', pos:'support', issueKey:'health_mental', issueStance:'support', claim:'campaign', text:'Wilcox backs more mental health resources "By strengthening prevention, improving access, and reducing stigma."',
+        detail:'Campaign claim, not a vote — Samantha Wilcox for State Senate District 34 — Issues.', source:{label:'Samantha Wilcox for State Senate District 34 — Issues', url:'https://samwilcoxforri.com/posts/'} },
+      { topic:'Roads & Bridges', icon:'🚧', pos:'support', issueKey:'infrastructure', issueStance:'support', claim:'campaign', text:'Wilcox would "Prioritize the maintenance and repair of critical infrastructure" so roads and bridges stay safe for residents, school buses and emergency vehicles.',
+        detail:'Campaign claim, not a vote — Samantha Wilcox for State Senate District 34 — Issues.', source:{label:'Samantha Wilcox for State Senate District 34 — Issues', url:'https://samwilcoxforri.com/posts/'} },
     ],
     edward_stravato: [ // Edward W. Stravato — Rhode Island State House (District 42) — elected Nov. 3, 2026; campaign claims only, no voting record
       { topic:'Support Small Businesses', icon:'🏪', pos:'support', issueKey:'econ_smallbiz', issueStance:'support', claim:'campaign', text:'Under "Support Small Businesses," Stravato says "Rhode Island continually ranks amongst the worst states to do business."',
@@ -5677,11 +5716,23 @@
         detail:'Campaign claim, not a vote — Ed for RI — Priorities.', source:{label:'Ed for RI — Priorities', url:'https://edforri.com/priorities'} },
       { topic:'Support Police', icon:'🚓', pos:'support', issueKey:'back_police', issueStance:'support', claim:'campaign', text:'Stravato says "This is not the time to defund the police" and backs more grant funding for first responders.',
         detail:'Campaign claim, not a vote — Ed for RI — Priorities.', source:{label:'Ed for RI — Priorities', url:'https://edforri.com/priorities'} },
+      // Gap-fill (Nov 2026): further explicit claims re-read on the same campaign page.
+      { topic:'Roll Back Red Tape', icon:'✂️', pos:'support', issueKey:'gov_regulation', issueStance:'support', claim:'campaign', text:'Stravato\'s vision is "to roll back the red tape that constrains businesses from starting, growing, and staying in Rhode Island."',
+        detail:'Campaign claim, not a vote — Ed for RI — Priorities.', source:{label:'Ed for RI — Priorities', url:'https://edforri.com/priorities'} },
     ],
     zakary_pereira: [ // Zakary J. Pereira — Rhode Island State House (District 22) — elected Nov. 3, 2026; campaign claims only, no voting record
       { topic:'Healthcare Access', icon:'🏥', pos:'support', issueKey:'healthcare', issueStance:'support', claim:'campaign', text:'Pereira says "No one should have to spend months on a waiting list to see a doctor."',
         detail:'Campaign claim, not a vote — Zakary Pereira for RI House District 22 — Issues.', source:{label:'Zakary Pereira for RI House District 22 — Issues', url:'https://www.zakaryforri.com/issues'} },
       { topic:'Wind and Solar Energy', icon:'🌱', pos:'support', issueKey:'climate_action', issueStance:'support', claim:'campaign', text:'Pereira says he "will support expanding Rhode Island\'s blue economy energy production through wind and solar."',
+        detail:'Campaign claim, not a vote — Zakary Pereira for RI House District 22 — Issues.', source:{label:'Zakary Pereira for RI House District 22 — Issues', url:'https://www.zakaryforri.com/issues'} },
+      // Gap-fill (Nov 2026): further explicit claims re-read on the same campaign page.
+      { topic:'Strong Public Schools', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', claim:'campaign', text:'Pereira says "Every child deserves access to a high-quality public education" and pledges to keep Warwick tax dollars in its neighborhood public schools.',
+        detail:'Campaign claim, not a vote — Zakary Pereira for RI House District 22 — Issues.', source:{label:'Zakary Pereira for RI House District 22 — Issues', url:'https://www.zakaryforri.com/issues'} },
+      { topic:'First Responders', icon:'👮', pos:'support', issueKey:'back_police', issueStance:'support', claim:'campaign', text:'Pereira pledges to "recruit and retain the best first responders by supporting good pay and retirement benefits" for police, firefighters and EMTs.',
+        detail:'Campaign claim, not a vote — Zakary Pereira for RI House District 22 — Issues.', source:{label:'Zakary Pereira for RI House District 22 — Issues', url:'https://www.zakaryforri.com/issues'} },
+      { topic:'Veterans\' Opportunity', icon:'🎖', pos:'support', issueKey:'veterans', issueStance:'support', claim:'campaign', text:'Pereira "will support apprenticeships and other career transition assistance for veterans returning to civilian life."',
+        detail:'Campaign claim, not a vote — Zakary Pereira for RI House District 22 — Issues.', source:{label:'Zakary Pereira for RI House District 22 — Issues', url:'https://www.zakaryforri.com/issues'} },
+      { topic:'Senior Housing', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support', claim:'campaign', text:'Pereira would "offer incentives to developers who build one-floor condos, townhomes, 55-plus communities, and mixed-income senior developments."',
         detail:'Campaign claim, not a vote — Zakary Pereira for RI House District 22 — Issues.', source:{label:'Zakary Pereira for RI House District 22 — Issues', url:'https://www.zakaryforri.com/issues'} },
     ],
     nancy_gregory: [ // Nancy Gregory — Idaho State Senate (District 15) — elected Nov. 3, 2026; campaign claims only, no voting record
@@ -5703,6 +5754,9 @@
         detail:'Campaign claim, not a vote — Brent Reinke for State Senate — Priorities.', source:{label:'Brent Reinke for State Senate — Priorities', url:'https://reinkeforidaho.com/'} },
       { topic:'Support Local Law Enforcement', icon:'🚓', pos:'support', issueKey:'back_police', issueStance:'support', claim:'campaign', text:'Reinke\'s "Safe Communities" priority is "Supporting border security, local law enforcement, and strong public safety."',
         detail:'Campaign claim, not a vote — Brent Reinke for State Senate — Priorities.', source:{label:'Brent Reinke for State Senate — Priorities', url:'https://reinkeforidaho.com/'} },
+      // Gap-fill (Nov 2026): further explicit claims re-read on the same campaign page.
+      { topic:'Border Security', icon:'🛡', pos:'support', issueKey:'border_security', issueStance:'support', claim:'campaign', text:'Under safe communities, Reinke lists "Supporting border security, local law enforcement, and strong public safety."',
+        detail:'Campaign claim, not a vote — Brent Reinke for State Senate — Priorities.', source:{label:'Brent Reinke for State Senate — Priorities', url:'https://reinkeforidaho.com/'} },
     ],
     casey_swensen: [ // Casey Swensen — Idaho State Senate (District 25) — elected Nov. 3, 2026; campaign claims only, no voting record
       { topic:'Support Small Businesses', icon:'🏪', pos:'support', issueKey:'econ_smallbiz', issueStance:'support', claim:'campaign', text:'Swensen says "I’ll fight to support our small businesses, make housing affordable, and bring in good-paying jobs."',
@@ -5712,6 +5766,11 @@
       { topic:'Back Law Enforcement', icon:'🚓', pos:'support', issueKey:'back_police', issueStance:'support', claim:'campaign', text:'Under public safety, Swensen says "I\'ll back our law enforcement, secure our borders to keep drugs out."',
         detail:'Campaign claim, not a vote — Casey Swensen for Idaho State Senate — Priorities.', source:{label:'Casey Swensen for Idaho State Senate — Priorities', url:'https://swensenforidaho.com/'} },
       { topic:'Secure the Border', icon:'🛂', pos:'support', issueKey:'border_security', issueStance:'support', claim:'campaign', text:'Swensen pledges to "secure our borders to keep drugs out."',
+        detail:'Campaign claim, not a vote — Casey Swensen for Idaho State Senate — Priorities.', source:{label:'Casey Swensen for Idaho State Senate — Priorities', url:'https://swensenforidaho.com/'} },
+      // Gap-fill (Nov 2026): further explicit claims re-read on the same campaign page.
+      { topic:'Affordable Housing', icon:'🏠', pos:'support', issueKey:'housing', issueStance:'support', claim:'campaign', text:'Swensen pledges: "I\'ll fight to support our small businesses, make housing affordable, and bring in good-paying jobs."',
+        detail:'Campaign claim, not a vote — Casey Swensen for Idaho State Senate — Priorities.', source:{label:'Casey Swensen for Idaho State Senate — Priorities', url:'https://swensenforidaho.com/'} },
+      { topic:'Cost of Living', icon:'🛒', pos:'support', issueKey:'cost_living', issueStance:'support', claim:'campaign', text:'Swensen says "Families are already stretched thin" and pledges to "ease the cost of living."',
         detail:'Campaign claim, not a vote — Casey Swensen for Idaho State Senate — Priorities.', source:{label:'Casey Swensen for Idaho State Senate — Priorities', url:'https://swensenforidaho.com/'} },
     ],
     // ── 2026 newly elected state legislators in Alaska, Montana, South Dakota, Vermont and Utah (Nov 2026)
@@ -5799,6 +5858,9 @@
       { topic:'Invest in public schools', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', claim:'campaign', text:'Horsted says the state should "Invest in strong public schools, educators, students," from early learning through workforce training.',
         detail:'Campaign claim, not a vote — Ali for District 13 — Vision.', source:{label:'Ali for District 13 — Vision', url:'https://www.aliforsd.com/vision'} },
       { topic:'Open, accountable government', icon:'🔍', pos:'support', issueKey:'gov_transparency', issueStance:'support', claim:'campaign', text:'Horsted advocates an open government where "decisions, spending, and public business are accessible to the people" and officials are accountable.',
+        detail:'Campaign claim, not a vote — Ali for District 13 — Vision.', source:{label:'Ali for District 13 — Vision', url:'https://www.aliforsd.com/vision'} },
+      // Gap-fill (Nov 2026): further explicit claims re-read on the same campaign page.
+      { topic:'Accessible Healthcare', icon:'🏥', pos:'support', issueKey:'healthcare', issueStance:'support', claim:'campaign', text:'Horsted pledges to "Work toward accessible, affordable healthcare" so people can get the care they need without unnecessary financial barriers.',
         detail:'Campaign claim, not a vote — Ali for District 13 — Vision.', source:{label:'Ali for District 13 — Vision', url:'https://www.aliforsd.com/vision'} },
     ],
     june_copperstad: [ // June CopperStad — South Dakota State House (District 15) — elected Nov. 3, 2026; campaign claims only, no voting record
@@ -5945,6 +6007,9 @@
       { topic:'Adequate school funding', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', claim:'campaign', text:'Tollefson says "we need to ensure funding for public school and our teachers remains adequate in the years ahead."',
         detail:'Campaign claim, not a vote — Brandy Tollefson for Wisconsin — Priorities on Day One.', source:{label:'Brandy Tollefson for Wisconsin — Priorities on Day One', url:'https://www.brandyforwisconsin.com/'} },
       { topic:'Against moving funds to private schools', icon:'🎓', pos:'oppose', issueKey:'school_choice', issueStance:'oppose', claim:'campaign', text:'Tollefson opposes reallocating public school funds to private schools: "I will fight against any attempt to hurt our public schools."',
+        detail:'Campaign claim, not a vote — Brandy Tollefson for Wisconsin — Priorities on Day One.', source:{label:'Brandy Tollefson for Wisconsin — Priorities on Day One', url:'https://www.brandyforwisconsin.com/'} },
+      // Gap-fill (Nov 2026): further explicit claims re-read on the same campaign page.
+      { topic:'Affordable Medical Care', icon:'💵', pos:'support', issueKey:'healthcare_costs', issueStance:'support', claim:'campaign', text:'Tollefson says "No family should have to worry about getting sick or injured and not being able to afford proper medical care."',
         detail:'Campaign claim, not a vote — Brandy Tollefson for Wisconsin — Priorities on Day One.', source:{label:'Brandy Tollefson for Wisconsin — Priorities on Day One', url:'https://www.brandyforwisconsin.com/'} },
     ],
     jeremiah_fredrickson: [ // Jeremiah Fredrickson — Wisconsin State Assembly (District 92) — elected Nov. 3, 2026; campaign claims only, no voting record
@@ -6142,6 +6207,11 @@
         detail:'Campaign claim, not a vote — Todd Delmay for Florida — On the Issues.', source:{label:'Todd Delmay for Florida — On the Issues', url:'https://delmayforflorida.com/issues/'} },
       { topic:'Flooding and drainage', icon:'🛣', pos:'support', issueKey:'infrastructure', issueStance:'support', claim:'campaign', text:'Delmay says "Todd will fight for stormwater and drainage improvements, stronger infrastructure".',
         detail:'Campaign claim, not a vote — Todd Delmay for Florida — On the Issues.', source:{label:'Todd Delmay for Florida — On the Issues', url:'https://delmayforflorida.com/issues/'} },
+      // Gap-fill (Nov 2026): further explicit claims re-read on the same campaign page.
+      { topic:'Lower Healthcare Bills', icon:'💵', pos:'support', issueKey:'healthcare_costs', issueStance:'support', claim:'campaign', text:'Delmay "will also work to lower healthcare bills through a transparent system that puts patients first."',
+        detail:'Campaign claim, not a vote — Todd Delmay for Florida — On the Issues.', source:{label:'Todd Delmay for Florida — On the Issues', url:'https://delmayforflorida.com/issues/'} },
+      { topic:'Flooding & Storms', icon:'🔥', pos:'support', issueKey:'disaster_resilience', issueStance:'support', claim:'campaign', text:'Delmay will fight for "stormwater and drainage improvements, stronger infrastructure, and the resources communities need to prepare for extreme weather."',
+        detail:'Campaign claim, not a vote — Todd Delmay for Florida — On the Issues.', source:{label:'Todd Delmay for Florida — On the Issues', url:'https://delmayforflorida.com/issues/'} },
     ],
     lucia_baez_geller: [ // Lucia Báez-Geller — Florida State House (District 106) — elected Nov. 3, 2026; campaign claims only, no voting record
       { topic:'Insurance and everyday costs', icon:'🛒', pos:'support', issueKey:'cost_living', issueStance:'support', claim:'campaign', text:'Báez-Geller will "Work to reduce skyrocketing property insurance premiums and address the rising cost of everyday life".',
@@ -6244,6 +6314,21 @@
         detail:'Campaign claim, not a vote — Rose Lounsbury for Ohio House — Working Families.', source:{label:'Rose Lounsbury for Ohio House — Working Families', url:'https://www.roseforohio.com/platform/workingfamilies'} },
       { topic:'Common sense gun safety', icon:'🦺', pos:'support', issueKey:'gun_safety', issueStance:'support', claim:'campaign', text:'Lounsbury says "This requires that we adopt common sense gun safety measures", including red flag laws and background checks.',
         detail:'Campaign claim, not a vote — Rose Lounsbury for Ohio House — Gun Safety.', source:{label:'Rose Lounsbury for Ohio House — Gun Safety', url:'https://www.roseforohio.com/platform/gunsafety'} },
+      // Gap-fill (Nov 2026): further explicit claims re-read on the same campaign page.
+      { topic:'EdChoice Vouchers', icon:'🎓', pos:'oppose', issueKey:'school_choice', issueStance:'oppose', claim:'campaign', text:'Lounsbury will "push back against the universal EdChoice school voucher system," saying public dollars should not finance private education.',
+        detail:'Campaign claim, not a vote — Rose Lounsbury for Ohio House — Public Education.', source:{label:'Rose Lounsbury for Ohio House — Public Education', url:'https://www.roseforohio.com/platform/education'} },
+      { topic:'Climate & Clean Energy', icon:'🌱', pos:'support', issueKey:'climate_action', issueStance:'support', claim:'campaign', text:'Lounsbury says "we need to take immediate and decisive legislative action" on climate change, with incentives to switch to renewable energy.',
+        detail:'Campaign claim, not a vote — Rose Lounsbury for Ohio House — Environment.', source:{label:'Rose Lounsbury for Ohio House — Environment', url:'https://www.roseforohio.com/platform/environment'} },
+      { topic:'Voting Rights', icon:'📩', pos:'support', issueKey:'voting_access', issueStance:'support', claim:'campaign', text:'Lounsbury will "push to increase voting rights" through "same-day voter registration and automatic voter registration."',
+        detail:'Campaign claim, not a vote — Rose Lounsbury for Ohio House — Protecting Democracy.', source:{label:'Rose Lounsbury for Ohio House — Protecting Democracy', url:'https://www.roseforohio.com/platform/democracy'} },
+      { topic:'Healthcare Access', icon:'🏥', pos:'support', issueKey:'healthcare', issueStance:'support', claim:'campaign', text:'Lounsbury says "Healthcare is a basic human right" and will fight against cuts to Medicaid expansion.',
+        detail:'Campaign claim, not a vote — Rose Lounsbury for Ohio House — Healthcare.', source:{label:'Rose Lounsbury for Ohio House — Healthcare', url:'https://www.roseforohio.com/platform/healthcare'} },
+      { topic:'Labor Unions', icon:'🛠', pos:'support', issueKey:'econ_workers', issueStance:'support', claim:'campaign', text:'Lounsbury pledges to "fight to ensure that strong Ohio unions exist" so working families get safe conditions and living wages.',
+        detail:'Campaign claim, not a vote — Rose Lounsbury for Ohio House — Labor.', source:{label:'Rose Lounsbury for Ohio House — Labor', url:'https://www.roseforohio.com/platform/labor'} },
+      { topic:'LGBTQ+ Rights', icon:'🏳️‍🌈', pos:'support', issueKey:'lgbtq_rights', issueStance:'support', claim:'campaign', text:'Lounsbury will "seek to end the state-sanctioned bullying of LGBTQ+ children and families," saying everyone deserves a life free from discrimination.',
+        detail:'Campaign claim, not a vote — Rose Lounsbury for Ohio House — Justice.', source:{label:'Rose Lounsbury for Ohio House — Justice', url:'https://www.roseforohio.com/platform/justice'} },
+      { topic:'Women\'s Rights', icon:'✊', pos:'support', issueKey:'pro_choice', issueStance:'support', claim:'campaign', text:'Lounsbury will "champion and defend efforts to promote the freedom and autonomy of women," including reproductive rights.',
+        detail:'Campaign claim, not a vote — Rose Lounsbury for Ohio House — Women\'s Rights.', source:{label:'Rose Lounsbury for Ohio House — Women\'s Rights', url:'https://www.roseforohio.com/platform/womensrights'} },
     ],
     shelby_kimball: [ // Shelby Kimball — Ohio State House (District 60) — elected Nov. 3, 2026; campaign claims only, no voting record
       { topic:'Fully fund public schools', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', claim:'campaign', text:'Kimball supports "fully funding Ohio\'s public schools, supporting teachers" and resourcing classrooms.',
@@ -6253,6 +6338,11 @@
       { topic:'Services for veterans', icon:'🎖', pos:'support', issueKey:'veterans', issueStance:'support', claim:'campaign', text:'Kimball, a Marine veteran, is committed to "improving access to benefits, mental health services, job opportunities, and healthcare" for veterans.',
         detail:'Campaign claim, not a vote — Shelby Kimball for Ohio — Issues.', source:{label:'Shelby Kimball for Ohio — Issues', url:'https://kimballforohio.com/'} },
       { topic:'Affordable childcare', icon:'🧸', pos:'support', issueKey:'child_care', issueStance:'support', claim:'campaign', text:'Kimball supports policies that "help working parents afford childcare, keep costs down, grow small businesses".',
+        detail:'Campaign claim, not a vote — Shelby Kimball for Ohio — Issues.', source:{label:'Shelby Kimball for Ohio — Issues', url:'https://kimballforohio.com/'} },
+      // Gap-fill (Nov 2026): further explicit claims re-read on the same campaign page.
+      { topic:'Grow Small Businesses', icon:'🏪', pos:'support', issueKey:'econ_smallbiz', issueStance:'support', claim:'campaign', text:'Kimball "supports policies that help working parents afford childcare, keep costs down, grow small businesses, and create pathways to good-paying jobs."',
+        detail:'Campaign claim, not a vote — Shelby Kimball for Ohio — Issues.', source:{label:'Shelby Kimball for Ohio — Issues', url:'https://kimballforohio.com/'} },
+      { topic:'Keep Costs Down', icon:'🛒', pos:'support', issueKey:'cost_living', issueStance:'support', claim:'campaign', text:'Under family-focused economic opportunity, Kimball backs policies that "keep costs down" so Ohio families can thrive.',
         detail:'Campaign claim, not a vote — Shelby Kimball for Ohio — Issues.', source:{label:'Shelby Kimball for Ohio — Issues', url:'https://kimballforohio.com/'} },
     ],
     mark_pinsley: [ // Mark Pinsley — Pennsylvania State Senate (District 16) — elected Nov. 3, 2026; campaign claims only, no voting record
@@ -6379,6 +6469,13 @@
       { topic:'Reproductive rights', icon:'⚖️', pos:'support', issueKey:'pro_choice', issueStance:'support', claim:'campaign', text:'Herbert says "women should have the unequivocal right to make medical decisions for their own bodies".',
         detail:'Campaign claim, not a vote — Zach For Texas — Issues.', source:{label:'Zach For Texas — Issues', url:'https://zach4texas.com/issues/'} },
       { topic:'Gun safety measures', icon:'🦺', pos:'support', issueKey:'gun_safety', issueStance:'support', claim:'campaign', text:'Herbert says "common-sense gun safety measures should be implemented".',
+        detail:'Campaign claim, not a vote — Zach For Texas — Issues.', source:{label:'Zach For Texas — Issues', url:'https://zach4texas.com/issues/'} },
+      // Gap-fill (Nov 2026): further explicit claims re-read on the same campaign page.
+      { topic:'Teacher Pay', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', claim:'campaign', text:'Herbert says "our Teachers are grossly underpaid and should be rewarded for their hard work" and backs Pre-K for all Texans.',
+        detail:'Campaign claim, not a vote — Zach For Texas — Issues.', source:{label:'Zach For Texas — Issues', url:'https://zach4texas.com/issues/'} },
+      { topic:'Small Businesses', icon:'🏪', pos:'support', issueKey:'econ_smallbiz', issueStance:'support', claim:'campaign', text:'Herbert says "small businesses should be prioritized over large corporations."',
+        detail:'Campaign claim, not a vote — Zach For Texas — Issues.', source:{label:'Zach For Texas — Issues', url:'https://zach4texas.com/issues/'} },
+      { topic:'Ballot Access', icon:'📩', pos:'support', issueKey:'voting_access', issueStance:'support', claim:'campaign', text:'Herbert backs "protecting women\'s access to the ballot box" and opposes "any legislation akin to the SAVE Act."',
         detail:'Campaign claim, not a vote — Zach For Texas — Issues.', source:{label:'Zach For Texas — Issues', url:'https://zach4texas.com/issues/'} },
     ],
     zack_dunn: [ // Zack Dunn — Texas State House (District 121) — elected Nov. 3, 2026; campaign claims only, no voting record

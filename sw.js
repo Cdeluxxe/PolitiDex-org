@@ -11995,7 +11995,20 @@
 //     precache list is unchanged. No location key or other stored reader
 //     state is written or rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v551';
+// v552 - NEWLY ELECTED STATE LEGISLATORS, GAP FILL; HOMEPAGE STRIP REGENERATED.
+//     politician-stances-ext.js (runtime-cached) appends 40 further campaign
+//     claims for 17 newly elected state legislators who held fewer than five
+//     stated positions, each quoted from the campaign page their wave record
+//     names and filed on an existing, mapped issue key. Rose Lounsbury now
+//     clears the homepage showcase's cutoff, so scripts/gen-hero-showcase.mjs
+//     was re-run: index.html's static "Read a record" strip and
+//     hero-showcase-data.js name her in place of Rashida Tlaib. A precached
+//     shell file changed, so the shell moves one version; the precache list is
+//     unchanged. No roster row, board, issue key, related pair, route or gate
+//     is added. No location key or other stored reader state is written or
+//     rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v552';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

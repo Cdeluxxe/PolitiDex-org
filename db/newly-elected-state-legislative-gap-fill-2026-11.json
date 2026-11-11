@@ -1,0 +1,714 @@
+{
+  "_note": "Gap-fill pass on the newly elected state legislative waves (November 2026). Every member of the six state legislative waves who held fewer than five stated positions and whose campaign issues or platform page still read was re-read on that same page (or, where the record's source is a platform index, one of its own sub-pages). Any further explicit, on-topic claim on an issue key already in the related-issues map was filed in politician-stances.js (regenerated into politician-stances-ext.js), appended after the member's existing cards and marked claim:'campaign'. Each line quotes the page. No roster row, board, issue key, related-issues pair, drawer code, route or gate changed, and there is no migration. Members whose page held nothing further are listed under unchanged with the reason, and their cards are byte-identical. Declared in scripts/v103-chrome-seams.mjs (DECLARED_STANCE_PASSES, newly_elected_state_legislative_gap_fill_nov2026). Read by scripts/test-newly-elected-state-legislative-gap-fill-2026.mjs and by each wave's own suite, which adds 'added' to the wave record's issueKeys.",
+  "read": "2026-11-11",
+  "threshold": 5,
+  "members": [
+    {
+      "pid": "tommy_butler",
+      "name": "Tommy Butler",
+      "wave": "db/newly-elected-state-legislative-stated-2026-11-wave2.json",
+      "seat": "co-statehouse-50",
+      "source": "https://www.butlerforhd50.com/on-the-issues-1",
+      "issueKeysBefore": [
+        "housing_support",
+        "public_schools",
+        "infrastructure",
+        "child_care"
+      ],
+      "added": [
+        {
+          "issueKey": "homeless",
+          "issueStance": "support",
+          "topic": "Tackle Homelessness",
+          "icon": "🏕",
+          "text": "Butler says \"We need to make sure we continue to fund permanent supportive housing, homeless shelters, and mental health supports to tackle the rapidly growing problem of homelessness.\""
+        },
+        {
+          "issueKey": "gov_services",
+          "issueStance": "support",
+          "topic": "Graduated Income Tax",
+          "icon": "🏛",
+          "text": "Butler backs higher rates on Coloradans earning over $500k to fund schools, roads and child care, saying those who can afford it should \"pay a little more–to pay their fair share.\""
+        }
+      ]
+    },
+    {
+      "pid": "jeff_livingston",
+      "name": "Jeff K. Livingston",
+      "wave": "db/newly-elected-state-legislative-stated-2026-11-wave2.json",
+      "seat": "co-statehouse-15",
+      "source": "https://jefflivingstonforcolorado.com/",
+      "issueKeysBefore": [
+        "housing_support",
+        "econ_corp_account",
+        "econ_workers",
+        "public_schools"
+      ],
+      "added": [
+        {
+          "issueKey": "econ_smallbiz",
+          "issueStance": "support",
+          "topic": "Small-Business Funding",
+          "icon": "🏪",
+          "text": "Livingston would end special breaks for big corporations and redirect that support to local businesses, pledging: \"I'll fight to expand small-business funding.\""
+        }
+      ]
+    },
+    {
+      "pid": "vinny_spotleson",
+      "name": "Vinny Spotleson",
+      "wave": "db/newly-elected-state-legislative-stated-2026-11-wave2.json",
+      "seat": "nv-statehouse-41",
+      "source": "https://winwithvin.org/issues/",
+      "issueKeysBefore": [
+        "transit",
+        "housing_support"
+      ],
+      "added": [
+        {
+          "issueKey": "climate_action",
+          "issueStance": "support",
+          "topic": "Fighting Climate Change",
+          "icon": "🌱",
+          "text": "Spotleson's issues page lists his video statement \"Nevada can lead the world by example in Fighting Climate Change.\""
+        },
+        {
+          "issueKey": "health_mental",
+          "issueStance": "support",
+          "topic": "Mental Health Access",
+          "icon": "🧠",
+          "text": "Spotleson's issues page lists his video statement \"We need better Mental Health Accessibility,\" alongside \"Mental Health Creates School Safety.\""
+        }
+      ]
+    },
+    {
+      "pid": "connie_casha",
+      "name": "Connie Casha",
+      "wave": "db/newly-elected-state-legislative-stated-2026-11-wave3.json",
+      "seat": "tn-statehouse-49",
+      "source": "https://conniecasha4tndistrict-49.com/issues.html",
+      "issueKeysBefore": [
+        "public_schools",
+        "child_care",
+        "healthcare",
+        "health_drug_prices"
+      ],
+      "added": [
+        {
+          "issueKey": "health_mental",
+          "issueStance": "support",
+          "topic": "Mental Health Services",
+          "icon": "🧠",
+          "text": "Under health care for all, Casha lists \"Improved mental health services\" among the things she will fight for."
+        }
+      ]
+    },
+    {
+      "pid": "patrick_leahy",
+      "name": "Patrick Leahy",
+      "wave": "db/newly-elected-state-legislative-stated-2026-11-wave3.json",
+      "seat": "ne-statesenate-6",
+      "source": "https://leahyfornebraska.com/on-the-issues",
+      "issueKeysBefore": [
+        "prop_tax",
+        "child_care",
+        "school_choice",
+        "public_schools"
+      ],
+      "added": [
+        {
+          "issueKey": "health_drug_prices",
+          "issueStance": "support",
+          "topic": "Prescription Drug Prices",
+          "icon": "💉",
+          "text": "Leahy pledges to help more Nebraskans get health insurance they can afford \"and to end price-gouging on prescription drugs.\""
+        },
+        {
+          "issueKey": "healthcare",
+          "issueStance": "support",
+          "topic": "Health Insurance Access",
+          "icon": "🏥",
+          "text": "Leahy says \"No one should ever have to choose between getting the medical care they need and putting food on the table\" and will work to widen affordable coverage."
+        },
+        {
+          "issueKey": "datacenter_water",
+          "issueStance": "support",
+          "topic": "Data Centers & the Aquifer",
+          "icon": "💧",
+          "text": "Leahy pledges \"voting against any AI data center that tries to use resources from the Ogallala Aquifer, our public power, or pollutes our air.\""
+        },
+        {
+          "issueKey": "gov_services",
+          "issueStance": "support",
+          "topic": "Protect Critical Services",
+          "icon": "🏛",
+          "text": "Faulting a revenue system that taxes the very richest at the same rate as a family making $57,000, Leahy will work to \"responsibly grow our revenues\" and \"prevent cuts to critical services.\""
+        }
+      ]
+    },
+    {
+      "pid": "cindy_johnson",
+      "name": "Cindy Johnson",
+      "wave": "db/newly-elected-state-legislative-stated-2026-11-wave3.json",
+      "seat": "ne-statesenate-10",
+      "source": "https://cindyjohnsonforne.com/priorities",
+      "issueKeysBefore": [
+        "health_drug_prices",
+        "healthcare",
+        "child_care",
+        "cost_living"
+      ],
+      "added": [
+        {
+          "issueKey": "public_schools",
+          "issueStance": "support",
+          "topic": "Supporting Public Schools",
+          "icon": "🍎",
+          "text": "Under \"Supporting our Public Schools,\" Johnson pledges to make sure schools can \"provide a competitive education that lifts up all students.\""
+        },
+        {
+          "issueKey": "econ_workers",
+          "issueStance": "support",
+          "topic": "Jobs and Wages",
+          "icon": "🛠",
+          "text": "Johnson \"will work to increase access to high quality jobs and wages that keep up with the cost of living.\""
+        }
+      ]
+    },
+    {
+      "pid": "samantha_wilcox",
+      "name": "Samantha R. Wilcox",
+      "wave": "db/newly-elected-state-legislative-stated-2026-11-wave3.json",
+      "seat": "ri-statesenate-34",
+      "source": "https://samwilcoxforri.com/posts/",
+      "issueKeysBefore": [
+        "cost_living",
+        "lands_preserve",
+        "gov_transparency"
+      ],
+      "added": [
+        {
+          "issueKey": "public_schools",
+          "issueStance": "support",
+          "topic": "Reliable School Funding",
+          "icon": "🍎",
+          "text": "Wilcox backs \"Reliable State School Funding,\" saying predictable state aid would steady property taxes and give every community the resources for a quality education."
+        },
+        {
+          "issueKey": "health_drug_prices",
+          "issueStance": "support",
+          "topic": "Prescription Drug Costs",
+          "icon": "💉",
+          "text": "Wilcox's healthcare plank: \"Lower prescription drug costs, support local providers, and make healthcare more affordable.\""
+        },
+        {
+          "issueKey": "health_mental",
+          "issueStance": "support",
+          "topic": "Mental Health Resources",
+          "icon": "🧠",
+          "text": "Wilcox backs more mental health resources \"By strengthening prevention, improving access, and reducing stigma.\""
+        },
+        {
+          "issueKey": "infrastructure",
+          "issueStance": "support",
+          "topic": "Roads & Bridges",
+          "icon": "🚧",
+          "text": "Wilcox would \"Prioritize the maintenance and repair of critical infrastructure\" so roads and bridges stay safe for residents, school buses and emergency vehicles."
+        }
+      ]
+    },
+    {
+      "pid": "zakary_pereira",
+      "name": "Zakary J. Pereira",
+      "wave": "db/newly-elected-state-legislative-stated-2026-11-wave3.json",
+      "seat": "ri-statehouse-22",
+      "source": "https://www.zakaryforri.com/issues",
+      "issueKeysBefore": [
+        "healthcare",
+        "climate_action"
+      ],
+      "added": [
+        {
+          "issueKey": "public_schools",
+          "issueStance": "support",
+          "topic": "Strong Public Schools",
+          "icon": "🍎",
+          "text": "Pereira says \"Every child deserves access to a high-quality public education\" and pledges to keep Warwick tax dollars in its neighborhood public schools."
+        },
+        {
+          "issueKey": "back_police",
+          "issueStance": "support",
+          "topic": "First Responders",
+          "icon": "👮",
+          "text": "Pereira pledges to \"recruit and retain the best first responders by supporting good pay and retirement benefits\" for police, firefighters and EMTs."
+        },
+        {
+          "issueKey": "veterans",
+          "issueStance": "support",
+          "topic": "Veterans' Opportunity",
+          "icon": "🎖",
+          "text": "Pereira \"will support apprenticeships and other career transition assistance for veterans returning to civilian life.\""
+        },
+        {
+          "issueKey": "housing_build",
+          "issueStance": "support",
+          "topic": "Senior Housing",
+          "icon": "🏗",
+          "text": "Pereira would \"offer incentives to developers who build one-floor condos, townhomes, 55-plus communities, and mixed-income senior developments.\""
+        }
+      ]
+    },
+    {
+      "pid": "brent_reinke",
+      "name": "Brent D. Reinke",
+      "wave": "db/newly-elected-state-legislative-stated-2026-11-wave3.json",
+      "seat": "id-statesenate-24",
+      "source": "https://reinkeforidaho.com/",
+      "issueKeysBefore": [
+        "cost_living",
+        "lower_taxes",
+        "back_police"
+      ],
+      "added": [
+        {
+          "issueKey": "border_security",
+          "issueStance": "support",
+          "topic": "Border Security",
+          "icon": "🛡",
+          "text": "Under safe communities, Reinke lists \"Supporting border security, local law enforcement, and strong public safety.\""
+        }
+      ]
+    },
+    {
+      "pid": "casey_swensen",
+      "name": "Casey Swensen",
+      "wave": "db/newly-elected-state-legislative-stated-2026-11-wave3.json",
+      "seat": "id-statesenate-25",
+      "source": "https://swensenforidaho.com/",
+      "issueKeysBefore": [
+        "econ_smallbiz",
+        "lower_taxes",
+        "back_police",
+        "border_security"
+      ],
+      "added": [
+        {
+          "issueKey": "housing",
+          "issueStance": "support",
+          "topic": "Affordable Housing",
+          "icon": "🏠",
+          "text": "Swensen pledges: \"I'll fight to support our small businesses, make housing affordable, and bring in good-paying jobs.\""
+        },
+        {
+          "issueKey": "cost_living",
+          "issueStance": "support",
+          "topic": "Cost of Living",
+          "icon": "🛒",
+          "text": "Swensen says \"Families are already stretched thin\" and pledges to \"ease the cost of living.\""
+        }
+      ]
+    },
+    {
+      "pid": "edward_stravato",
+      "name": "Edward W. Stravato",
+      "wave": "db/newly-elected-state-legislative-stated-2026-11-wave3.json",
+      "seat": "ri-statehouse-42",
+      "source": "https://edforri.com/priorities",
+      "issueKeysBefore": [
+        "econ_smallbiz",
+        "gov_waste",
+        "back_police"
+      ],
+      "added": [
+        {
+          "issueKey": "gov_regulation",
+          "issueStance": "support",
+          "topic": "Roll Back Red Tape",
+          "icon": "✂️",
+          "text": "Stravato's vision is \"to roll back the red tape that constrains businesses from starting, growing, and staying in Rhode Island.\""
+        }
+      ]
+    },
+    {
+      "pid": "ali_horsted",
+      "name": "Ali Rae Horsted",
+      "wave": "db/newly-elected-state-legislative-stated-2026-11-wave4.json",
+      "seat": "sd-statehouse-13",
+      "source": "https://www.aliforsd.com/vision",
+      "issueKeysBefore": [
+        "cost_living",
+        "healthcare_costs",
+        "public_schools",
+        "gov_transparency"
+      ],
+      "added": [
+        {
+          "issueKey": "healthcare",
+          "issueStance": "support",
+          "topic": "Accessible Healthcare",
+          "icon": "🏥",
+          "text": "Horsted pledges to \"Work toward accessible, affordable healthcare\" so people can get the care they need without unnecessary financial barriers."
+        }
+      ]
+    },
+    {
+      "pid": "brandy_tollefson",
+      "name": "Brandy Tollefson",
+      "wave": "db/newly-elected-state-legislative-stated-2026-11-wave5.json",
+      "seat": "wi-statehouse-88",
+      "source": "https://www.brandyforwisconsin.com/",
+      "issueKeysBefore": [
+        "healthcare",
+        "cost_living",
+        "public_schools",
+        "school_choice"
+      ],
+      "added": [
+        {
+          "issueKey": "healthcare_costs",
+          "issueStance": "support",
+          "topic": "Affordable Medical Care",
+          "icon": "💵",
+          "text": "Tollefson says \"No family should have to worry about getting sick or injured and not being able to afford proper medical care.\""
+        }
+      ]
+    },
+    {
+      "pid": "todd_delmay",
+      "name": "Todd Delmay",
+      "wave": "db/newly-elected-state-legislative-stated-2026-11-wave5.json",
+      "seat": "fl-statehouse-101",
+      "source": "https://delmayforflorida.com/issues/",
+      "issueKeysBefore": [
+        "cost_living",
+        "housing_first_time",
+        "healthcare",
+        "infrastructure"
+      ],
+      "added": [
+        {
+          "issueKey": "healthcare_costs",
+          "issueStance": "support",
+          "topic": "Lower Healthcare Bills",
+          "icon": "💵",
+          "text": "Delmay \"will also work to lower healthcare bills through a transparent system that puts patients first.\""
+        },
+        {
+          "issueKey": "disaster_resilience",
+          "issueStance": "support",
+          "topic": "Flooding & Storms",
+          "icon": "🔥",
+          "text": "Delmay will fight for \"stormwater and drainage improvements, stronger infrastructure, and the resources communities need to prepare for extreme weather.\""
+        }
+      ]
+    },
+    {
+      "pid": "rose_lounsbury",
+      "name": "Rose Lounsbury",
+      "wave": "db/newly-elected-state-legislative-stated-2026-11-wave6.json",
+      "seat": "oh-statehouse-36",
+      "source": "https://www.roseforohio.com/platform",
+      "issueKeysBefore": [
+        "public_schools",
+        "paid_leave",
+        "child_care",
+        "gun_safety"
+      ],
+      "added": [
+        {
+          "issueKey": "school_choice",
+          "issueStance": "oppose",
+          "topic": "EdChoice Vouchers",
+          "icon": "🎓",
+          "text": "Lounsbury will \"push back against the universal EdChoice school voucher system,\" saying public dollars should not finance private education.",
+          "url": "https://www.roseforohio.com/platform/education",
+          "label": "Rose Lounsbury for Ohio House — Public Education"
+        },
+        {
+          "issueKey": "climate_action",
+          "issueStance": "support",
+          "topic": "Climate & Clean Energy",
+          "icon": "🌱",
+          "text": "Lounsbury says \"we need to take immediate and decisive legislative action\" on climate change, with incentives to switch to renewable energy.",
+          "url": "https://www.roseforohio.com/platform/environment",
+          "label": "Rose Lounsbury for Ohio House — Environment"
+        },
+        {
+          "issueKey": "voting_access",
+          "issueStance": "support",
+          "topic": "Voting Rights",
+          "icon": "📩",
+          "text": "Lounsbury will \"push to increase voting rights\" through \"same-day voter registration and automatic voter registration.\"",
+          "url": "https://www.roseforohio.com/platform/democracy",
+          "label": "Rose Lounsbury for Ohio House — Protecting Democracy"
+        },
+        {
+          "issueKey": "healthcare",
+          "issueStance": "support",
+          "topic": "Healthcare Access",
+          "icon": "🏥",
+          "text": "Lounsbury says \"Healthcare is a basic human right\" and will fight against cuts to Medicaid expansion.",
+          "url": "https://www.roseforohio.com/platform/healthcare",
+          "label": "Rose Lounsbury for Ohio House — Healthcare"
+        },
+        {
+          "issueKey": "econ_workers",
+          "issueStance": "support",
+          "topic": "Labor Unions",
+          "icon": "🛠",
+          "text": "Lounsbury pledges to \"fight to ensure that strong Ohio unions exist\" so working families get safe conditions and living wages.",
+          "url": "https://www.roseforohio.com/platform/labor",
+          "label": "Rose Lounsbury for Ohio House — Labor"
+        },
+        {
+          "issueKey": "lgbtq_rights",
+          "issueStance": "support",
+          "topic": "LGBTQ+ Rights",
+          "icon": "🏳️‍🌈",
+          "text": "Lounsbury will \"seek to end the state-sanctioned bullying of LGBTQ+ children and families,\" saying everyone deserves a life free from discrimination.",
+          "url": "https://www.roseforohio.com/platform/justice",
+          "label": "Rose Lounsbury for Ohio House — Justice"
+        },
+        {
+          "issueKey": "pro_choice",
+          "issueStance": "support",
+          "topic": "Women's Rights",
+          "icon": "✊",
+          "text": "Lounsbury will \"champion and defend efforts to promote the freedom and autonomy of women,\" including reproductive rights.",
+          "url": "https://www.roseforohio.com/platform/womensrights",
+          "label": "Rose Lounsbury for Ohio House — Women's Rights"
+        }
+      ]
+    },
+    {
+      "pid": "shelby_kimball",
+      "name": "Shelby Kimball",
+      "wave": "db/newly-elected-state-legislative-stated-2026-11-wave6.json",
+      "seat": "oh-statehouse-60",
+      "source": "https://kimballforohio.com/",
+      "issueKeysBefore": [
+        "public_schools",
+        "healthcare",
+        "veterans",
+        "child_care"
+      ],
+      "added": [
+        {
+          "issueKey": "econ_smallbiz",
+          "issueStance": "support",
+          "topic": "Grow Small Businesses",
+          "icon": "🏪",
+          "text": "Kimball \"supports policies that help working parents afford childcare, keep costs down, grow small businesses, and create pathways to good-paying jobs.\""
+        },
+        {
+          "issueKey": "cost_living",
+          "issueStance": "support",
+          "topic": "Keep Costs Down",
+          "icon": "🛒",
+          "text": "Under family-focused economic opportunity, Kimball backs policies that \"keep costs down\" so Ohio families can thrive."
+        }
+      ]
+    },
+    {
+      "pid": "zach_herbert",
+      "name": "Zach Herbert",
+      "wave": "db/newly-elected-state-legislative-stated-2026-11-wave6.json",
+      "seat": "tx-statehouse-112",
+      "source": "https://zach4texas.com/issues/",
+      "issueKeysBefore": [
+        "healthcare",
+        "econ_workers",
+        "pro_choice",
+        "gun_safety"
+      ],
+      "added": [
+        {
+          "issueKey": "public_schools",
+          "issueStance": "support",
+          "topic": "Teacher Pay",
+          "icon": "🍎",
+          "text": "Herbert says \"our Teachers are grossly underpaid and should be rewarded for their hard work\" and backs Pre-K for all Texans."
+        },
+        {
+          "issueKey": "econ_smallbiz",
+          "issueStance": "support",
+          "topic": "Small Businesses",
+          "icon": "🏪",
+          "text": "Herbert says \"small businesses should be prioritized over large corporations.\""
+        },
+        {
+          "issueKey": "voting_access",
+          "issueStance": "support",
+          "topic": "Ballot Access",
+          "icon": "📩",
+          "text": "Herbert backs \"protecting women's access to the ballot box\" and opposes \"any legislation akin to the SAVE Act.\""
+        }
+      ]
+    }
+  ],
+  "unchanged": [
+    {
+      "pid": "alex_hawkins",
+      "name": "Alex Hawkins",
+      "wave": "db/newly-elected-state-legislative-stated-2026-11.json",
+      "source": "https://www.alexhawkins.org/issues",
+      "issueKeys": [
+        "public_schools",
+        "health_mental",
+        "cost_living",
+        "gov_transparency"
+      ],
+      "reason": "The issues page's only other line (\"stand up to powerful special interests, crack down on rigged systems\") names no policy on any existing issue key."
+    },
+    {
+      "pid": "eileen_eady",
+      "name": "Eileen Eady",
+      "wave": "db/newly-elected-state-legislative-stated-2026-11-wave2.json",
+      "source": "https://eadyfornevada.com/",
+      "issueKeys": [
+        "housing_support",
+        "public_schools",
+        "healthcare"
+      ],
+      "reason": "Every remaining line on the page (protect renters, protect Medicaid, more specialist providers) restates a position already filed on housing_support or healthcare."
+    },
+    {
+      "pid": "owen_farnsworth",
+      "name": "Owen Farnsworth",
+      "wave": "db/newly-elected-state-legislative-stated-2026-11-wave3.json",
+      "source": "https://www.owenfarnsworth.com/education",
+      "issueKeys": [
+        "public_schools",
+        "school_choice",
+        "edu_college_cost"
+      ],
+      "reason": "The record's source is the campaign's education page; its remaining lines (teacher pay, loan forgiveness, after-school money) restate the filed public_schools card. Other topics sit on separate pages outside the recorded source."
+    },
+    {
+      "pid": "michael_scott",
+      "name": "Michael R. Scott",
+      "wave": "db/newly-elected-state-legislative-stated-2026-11-wave3.json",
+      "source": "https://www.mikescottformaine.com/issues",
+      "issueKeys": [
+        "public_schools",
+        "back_police",
+        "cost_living"
+      ],
+      "reason": "The issues page holds three short planks, each already filed; nothing further is stated."
+    },
+    {
+      "pid": "patric_moore",
+      "name": "Patric Aaron Moore",
+      "wave": "db/newly-elected-state-legislative-stated-2026-11-wave3.json",
+      "source": "https://www.patricmooreformaine.com/issues",
+      "issueKeys": [
+        "housing_build",
+        "cost_living",
+        "econ_smallbiz",
+        "healthcare"
+      ],
+      "reason": "The remaining lines (\"protect our essential services,\" \"combat food insecurity\") are too general to file on an existing issue key."
+    },
+    {
+      "pid": "nelly_burdette",
+      "name": "Nelly Burdette",
+      "wave": "db/newly-elected-state-legislative-stated-2026-11-wave3.json",
+      "source": "https://electnelly.com/issues",
+      "issueKeys": [
+        "healthcare",
+        "healthcare_costs",
+        "housing",
+        "econ_smallbiz"
+      ],
+      "reason": "The page's other lines describe past work (integrated care) or restate filed healthcare, housing and small-business positions."
+    },
+    {
+      "pid": "lisa_keller",
+      "name": "Lisa M. Keller",
+      "wave": "db/newly-elected-state-legislative-stated-2026-11-wave4.json",
+      "source": "https://www.lisakellerforalaska.com/",
+      "issueKeys": [
+        "justice_balance",
+        "public_schools",
+        "gov_waste"
+      ],
+      "reason": "The page holds three planks (public safety, education, fiscal responsibility), each already filed."
+    },
+    {
+      "pid": "marsia_geldert_murphey",
+      "name": "Marsia Geldert-Murphey",
+      "wave": "db/newly-elected-state-legislative-stated-2026-11-wave5.json",
+      "source": "https://www.marsieforillinois.info/",
+      "issueKeys": [
+        "infrastructure",
+        "child_care",
+        "public_schools",
+        "healthcare"
+      ],
+      "reason": "The remaining lines (clean-energy jobs as an example industry, school nutrition) are not explicit positions on an existing issue key, or restate filed cards."
+    },
+    {
+      "pid": "lorenza_wilkins",
+      "name": "Lorenza Wilkins",
+      "wave": "db/newly-elected-state-legislative-stated-2026-11-wave5.json",
+      "source": "https://www.lorenzawilkinsfornc.com/about-3-1",
+      "issueKeys": [
+        "public_schools",
+        "econ_smallbiz",
+        "health_mental",
+        "cost_living"
+      ],
+      "reason": "The voucher passage says she has \"no problem\" with private-school choice so long as public schools are not harmed; it is not a clear support or oppose on school_choice."
+    },
+    {
+      "pid": "danielle_bell",
+      "name": "Danielle Bell",
+      "wave": "db/newly-elected-state-legislative-stated-2026-11-wave5.json",
+      "source": "https://www.danielleforgeorgia.com/reduce-cost-of-living",
+      "issueKeys": [
+        "cost_living",
+        "climate_action",
+        "datacenter_power",
+        "econ_workers"
+      ],
+      "reason": "The record's source is the cost-of-living page; its solar and data-center lines are already filed, and the tax line names no specific policy."
+    },
+    {
+      "pid": "bryan_allen",
+      "name": "Bryan Allen",
+      "wave": "db/newly-elected-state-legislative-stated-2026-11-wave6.json",
+      "source": "https://www.bryanallenforpa.com/issues",
+      "issueKeys": [
+        "datacenter_power",
+        "climate_action",
+        "econ_workers",
+        "public_schools"
+      ],
+      "reason": "The issues page shows teaser lines only; the healthcare teaser describes a problem without a stated position, and the full platform pages sit outside the recorded source."
+    },
+    {
+      "pid": "kristin_egan",
+      "name": "Kristin Egan",
+      "wave": "db/newly-elected-state-legislative-stated-2026-11-wave6.json",
+      "source": "https://www.kristineganforpa.com/priorities",
+      "issueKeys": [
+        "cost_living",
+        "public_schools",
+        "infrastructure"
+      ],
+      "reason": "The page's remaining lines (\"strengthen public safety,\" \"plan responsibly for growth\") are too general to file on an existing issue key."
+    },
+    {
+      "pid": "zack_dunn",
+      "name": "Zack Dunn",
+      "wave": "db/newly-elected-state-legislative-stated-2026-11-wave6.json",
+      "source": "https://zackdunn.com/",
+      "issueKeys": [
+        "veterans",
+        "back_police",
+        "public_schools"
+      ],
+      "reason": "The economic-security plank (high-paying jobs, workforce development, vocational careers) does not match an existing issue key's stated position."
+    }
+  ]
+}
