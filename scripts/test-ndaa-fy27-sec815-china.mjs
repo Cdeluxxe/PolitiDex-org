@@ -47,7 +47,7 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
-import { DECLARED_STANCE_PASSES, swCodeOnly } from "./v103-chrome-seams.mjs";
+import { DECLARED_STANCE_PASSES, swCodeOnly, withoutHeroCrawl } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -419,6 +419,9 @@ section("7 · nothing else moved; declared; one shell version; no migration");
       "person.html", "index.html", "issue.html", "ballot.html", "netlify.toml", "_redirects"]) {
       const b = BASE(f);
       let now = null; try { now = R(f); } catch { /* absent */ }
+      // index.html: the generated record strip follows stance coverage
+      // (scripts/gen-hero-showcase.mjs); everything else stays byte-pinned.
+      if (f === "index.html") { eq(withoutHeroCrawl(now), withoutHeroCrawl(b), `${f} changed outside the generated record strip`); continue; }
       eq(now, b, `${f} changed`);
     }
     {

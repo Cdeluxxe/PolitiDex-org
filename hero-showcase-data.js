@@ -61,8 +61,8 @@
         "color": "#f87171"
       },
       "_coverage": {
-        "scorable": 14,
-        "word": 21,
+        "scorable": 15,
+        "word": 22,
         "actionIssues": 1
       }
     },
@@ -123,17 +123,17 @@
       }
     },
     {
-      "pid": "blouin_s13",
-      "name": "Nate Blouin",
-      "office": "Utah State Senator · UT District 13 (Millcreek / Salt Lake City)",
+      "pid": "rose_lounsbury",
+      "name": "Rose Lounsbury",
+      "office": "Ohio State House Candidate (District 36) · 36 · Ohio",
       "party": {
         "label": "D",
         "color": "#60a5fa"
       },
       "_coverage": {
-        "scorable": 9,
+        "scorable": 11,
         "word": 11,
-        "actionIssues": 1
+        "actionIssues": 0
       }
     },
     {
@@ -151,16 +151,16 @@
       }
     },
     {
-      "pid": "verona_mauga",
-      "name": "Verona Mauga",
-      "office": "Utah State Representative · UT District 31 (West Valley City / Taylorsville, Salt Lake County)",
+      "pid": "blouin_s13",
+      "name": "Nate Blouin",
+      "office": "Utah State Senator · UT District 13 (Millcreek / Salt Lake City)",
       "party": {
         "label": "D",
         "color": "#60a5fa"
       },
       "_coverage": {
         "scorable": 9,
-        "word": 14,
+        "word": 11,
         "actionIssues": 1
       }
     },
@@ -179,17 +179,17 @@
       }
     },
     {
-      "pid": "kclark",
-      "name": "Katherine Clark",
-      "office": "House Minority Whip · MA-5 · Massachusetts",
+      "pid": "verona_mauga",
+      "name": "Verona Mauga",
+      "office": "Utah State Representative · UT District 31 (West Valley City / Taylorsville, Salt Lake County)",
       "party": {
         "label": "D",
         "color": "#60a5fa"
       },
       "_coverage": {
-        "scorable": 10,
-        "word": 13,
-        "actionIssues": 0
+        "scorable": 9,
+        "word": 14,
+        "actionIssues": 1
       }
     },
     {
@@ -207,17 +207,17 @@
       }
     },
     {
-      "pid": "don_davis",
-      "name": "Don Davis",
-      "office": "U.S. Representative · North Carolina · NC-01",
+      "pid": "kclark",
+      "name": "Katherine Clark",
+      "office": "House Minority Whip · MA-5 · Massachusetts",
       "party": {
         "label": "D",
         "color": "#60a5fa"
       },
       "_coverage": {
-        "scorable": 7,
-        "word": 16,
-        "actionIssues": 2
+        "scorable": 10,
+        "word": 13,
+        "actionIssues": 0
       }
     },
     {
@@ -235,17 +235,17 @@
       }
     },
     {
-      "pid": "aoc",
-      "name": "Alexandria Ocasio-Cortez",
-      "office": "U.S. Representative · NY-14 · New York",
+      "pid": "don_davis",
+      "name": "Don Davis",
+      "office": "U.S. Representative · North Carolina · NC-01",
       "party": {
         "label": "D",
         "color": "#60a5fa"
       },
       "_coverage": {
-        "scorable": 9,
-        "word": 14,
-        "actionIssues": 0
+        "scorable": 7,
+        "word": 16,
+        "actionIssues": 2
       }
     },
     {
@@ -263,16 +263,16 @@
       }
     },
     {
-      "pid": "tlaib",
-      "name": "Rashida Tlaib",
-      "office": "U.S. Representative · MI-12 · Michigan",
+      "pid": "aoc",
+      "name": "Alexandria Ocasio-Cortez",
+      "office": "U.S. Representative · NY-14 · New York",
       "party": {
         "label": "D",
         "color": "#60a5fa"
       },
       "_coverage": {
         "scorable": 9,
-        "word": 12,
+        "word": 14,
         "actionIssues": 0
       }
     }

@@ -37,7 +37,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
-import { DECLARED_STANCE_PASSES, swCodeOnly, withoutWave5RosterRows, relatedIssuesMapOnly } from "./v103-chrome-seams.mjs";
+import { DECLARED_STANCE_PASSES, swCodeOnly, withoutWave5RosterRows, relatedIssuesMapOnly, gapFillKeys, declaredPin, withoutHeroCrawl } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -138,7 +138,9 @@ section("1 · the defined set holds stated positions on existing issue keys");
     ok(JSON.stringify(ext[pid]) === JSON.stringify(src[pid]), `${pid}: the ext chunk is not regenerated from politician-stances.js`);
     const keys = list.map((e) => e.issueKey);
     eq(keys.length, new Set(keys).size, `${pid} files two entries on one key`);
-    eq(JSON.stringify(keys), JSON.stringify(m.issueKeys), `${pid}: the record's issue keys do not match the data`);
+    // The gap-fill pass (db/newly-elected-state-legislative-gap-fill-2026-11.json)
+    // appends its claims after the wave's own cards.
+    eq(JSON.stringify(keys), JSON.stringify(gapFillKeys(pid, m.issueKeys)), `${pid}: the record's issue keys do not match the data`);
     for (const e of list) {
       ok(!!win.ISSUE_MAP[e.issueKey], `${pid}: ${e.issueKey} is not an existing issue key`);
       ok(Array.isArray(MAP && MAP[e.issueKey]), `${pid}: ${e.issueKey} is not in the related-issues map`);
@@ -224,7 +226,7 @@ section("4 · nothing else moved; no new route or gate; no shell move, no migrat
     // pass's product, pinned by its own suite.
     const own = DECLARED_STANCE_PASSES.findIndex((d) => d.pass === "newly_elected_state_legislative_stated_nov2026");
     const later = new Set(DECLARED_STANCE_PASSES.slice(own + 1).flatMap((d) => d.pids));
-    eq(Object.keys(after).filter((pid) => !later.has(pid) || pid in before).length, others.length + SET.length, "a person other than the set was added");
+    eq(Object.keys(after).filter((pid) => !later.has(pid) || pid in before || SET.includes(pid)).length, others.length + SET.length, "a person other than the set was added");
     for (const f of ["politician-stances-core.js", "cmp-data.js", "cmp-data-detail.js", "related-issues.js", "consistency.js",
       "stance-sides.js", "my-stances.js", "voting-record.js", "person.html", "index.html", "issue.html", "ballot.html", "netlify.toml", "_redirects"]) {
       const b = BASE(f);
@@ -233,6 +235,10 @@ section("4 · nothing else moved; no new route or gate; no shell move, no migrat
       if (f === "cmp-data.js") now = withoutWave5RosterRows(now);
       if (f === "related-issues.js") { eq(relatedIssuesMapOnly(now), relatedIssuesMapOnly(b), `${f}: the related-issues map changed`); continue; }
       if (f === "politician-stances-core.js") { eq(coreSansLater(now), coreSansLater(b), `${f} changed`); continue; }
+      // consistency.js, index.html and netlify.toml: once only declared later
+      // revisions (v103-chrome-seams.mjs) moved them since the base, they pin to HEAD.
+      if (f === "index.html") { eq(withoutHeroCrawl(now), withoutHeroCrawl(declaredPin(BASE_REV, f, ROOT)), `${f} changed outside the generated record strip`); continue; }
+      if (f === "consistency.js" || f === "netlify.toml") { eq(now, declaredPin(BASE_REV, f, ROOT), `${f} changed`); continue; }
       eq(now, b, `${f} changed`);
     }
     const ls = BASE_LS();
@@ -258,13 +264,13 @@ section("4 · nothing else moved; no new route or gate; no shell move, no migrat
   if (baseSw != null) {
     // A later pass may move the shell for its own precached file; the worker
     // code and the precache list still compare.
-    eq(swCodeOnly(sw), swCodeOnly(baseSw), "sw.js changed although no precached file did");
+    eq(swCodeOnly(sw), swCodeOnly(declaredPin(BASE_REV, "sw.js", ROOT)), "sw.js changed although no precached file did");
     eq(coreSansLater(R("politician-stances-core.js")), coreSansLater(BASE("politician-stances-core.js")), "the precached stance chunk changed");
   }
   const sm = R("sitemap.xml");
   for (const pid of SET) ok(sm.includes(`<loc>https://politidex.fyi/p/${pid}</loc>`), `${pid}: the sitemap does not list the person page`);
   let migs = []; try { migs = readdirSync(join(ROOT, "netlify/database/migrations")); } catch { /* none */ }
-  for (const f of migs) ok(BASE(`netlify/database/migrations/${f}`) != null, `${f}: a migration this pass added`);
+  for (const f of migs) ok(declaredPin(BASE_REV, `netlify/database/migrations/${f}`, ROOT) != null, `${f}: a migration this pass added`);
 }
 
 if (failures.length) {
