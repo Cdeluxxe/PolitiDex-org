@@ -8491,6 +8491,18 @@
     ],
     shaheen: [ // Jeanne Shaheen — 🌐 Senate Foreign Relations Ranking Member (D-NH)
       { topic:'Israel Aid', icon:'🇮🇱', pos:'mixed', issueKey:'israel_support', issueStance:'mixed', text:'The top Democrat on Foreign Relations, Shaheen supports Israel\'s security and its U.S. aid while pressing for humanitarian access and a diplomatic path.', evidence:'Ranking Member of the Senate Foreign Relations Committee.', source:{label:'Senate Foreign Relations Committee', url:'https://www.foreign.senate.gov/'} },
+      // ── MULTIYEAR PROCUREMENT PASS (Nov 2026) — FY2027 NDAA, S. 4784 §§132–133 / H.R. 8800 §§161–162 ──
+      // A sourced statement on the multiyear authority or the bill it came from; see
+      // db/ndaa-fy27-multiyear-industrial-base-stated-2026-11.json. Filed first on
+      // strong_defense so the drawer's stated line reads it; no other card is edited.
+      { topic:'Multiyear Procurement · FY2027 NDAA', icon:'🛩', pos:'support', issueKey:'strong_defense', issueStance:'support', position:'support', status:'active',
+        text:'Co-sponsored the Airpower Acceleration Act behind the F-35 and F-15EX multiyear procurement authorities in the FY2027 NDAA (S. 4784 Sections 132 and 133), writing with Sen. Ted Budd that "a multiyear procurement authorization for the F-35 and F-15EX fighters would lock in production stability."',
+        evidence:'Sections 132 and 133 let the Defense Department sign multiyear contracts for both fighters; the House bill carries them as Sections 162 and 161. No vote has addressed them. She voted no when cloture on taking up S. 4784 failed 50–46 on July 14, 2026.',
+        source:{label:'shaheen.senate.gov, May 5, 2026', url:'https://www.shaheen.senate.gov/news/press/icymi-shaheen-and-budd-pen-wall-street-journal-op-ed-underscoring-need-for-senators-bipartisan-three-bill-package-to-enhance-american-airpower-boost-defense-industrial-base'},
+        sources:[
+          { type:'op-ed', label:'Shaheen and Budd, \u201cAmerica\u2019s Air Superiority Is Losing Altitude,\u201d republished by her office, May 5, 2026', date:'2026-05-05', link:'https://www.shaheen.senate.gov/news/press/icymi-shaheen-and-budd-pen-wall-street-journal-op-ed-underscoring-need-for-senators-bipartisan-three-bill-package-to-enhance-american-airpower-boost-defense-industrial-base', excerpt:'\u201cA multiyear procurement authorization for the F-35 and F-15EX fighters would lock in production stability, reduce cost per aircraft, and supercharge our defense industrial base.\u201d', weight:'strong' },
+          { type:'recorded vote', label:'Senate Roll Call Vote 195 (119th Congress, 2nd Session)', date:'2026-07-14', link:'https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00195.htm', excerpt:'Voted no on cloture on the motion to proceed to S. 4784, which was rejected 50–46; not a vote on Sections 132 and 133 themselves.', weight:'strong' },
+        ] },
       { topic:'Ukraine & NATO', icon:'🇺🇦', pos:'support', issueKey:'strong_defense', issueStance:'support', text:'A leading supporter of aid to Ukraine and of NATO, Shaheen frames a strong alliance as central to deterring Russia.', source:{label:'shaheen.senate.gov', url:'https://www.shaheen.senate.gov/news/press'} },
       { topic:'Diplomacy & Foreign Aid', icon:'🕊', pos:'support', issueKey:'foreign_balance', issueStance:'support', text:'Defends State Department, development, and foreign-assistance funding against deep cuts, arguing diplomacy protects U.S. interests.', source:{label:'shaheen.senate.gov', url:'https://www.shaheen.senate.gov/news/press'} },
       { topic:'Prescription Drug Prices', icon:'💊', pos:'support', issueKey:'health_drug_prices', issueStance:'support', text:'Backs Medicare drug-price negotiation and capping out-of-pocket and insulin costs.', source:{label:'shaheen.senate.gov', url:'https://www.shaheen.senate.gov/news/press'} },
@@ -9440,6 +9452,18 @@
       { topic:'Gun Rights', icon:'🔫', pos:'support', issueKey:'gun_rights', issueStance:'support', text:'A former gun-store owner, Budd is a strong Second Amendment advocate who opposes new firearm restrictions and backs concealed-carry reciprocity.', evidence:'Member of the Senate Armed Services, Banking, and HELP committees; former firearms retailer.', source:{label:'budd.senate.gov', url:'https://www.budd.senate.gov/press-releases/'} },
       { topic:'Energy Production', icon:'🛢', pos:'support', issueKey:'energy_production', issueStance:'support', text:'Backs expanding oil, gas, and nuclear energy and cutting regulations he says raise energy costs.', source:{label:'budd.senate.gov', url:'https://www.budd.senate.gov/press-releases/'} },
       { topic:'Border Security', icon:'🛂', pos:'support', issueKey:'border_security', issueStance:'support', text:'Supports strict border enforcement, finishing the wall, and stopping fentanyl trafficking.', source:{label:'budd.senate.gov', url:'https://www.budd.senate.gov/press-releases/'} },
+      // ── MULTIYEAR PROCUREMENT PASS (Nov 2026) — FY2027 NDAA, S. 4784 §133 / H.R. 8800 §161 ──
+      // A sourced statement on the multiyear authority or the bill it came from; see
+      // db/ndaa-fy27-multiyear-industrial-base-stated-2026-11.json. Filed first on
+      // strong_defense so the drawer's stated line reads it; no other card is edited.
+      { topic:'Multiyear Procurement · FY2027 NDAA', icon:'🛩', pos:'support', issueKey:'strong_defense', issueStance:'support', position:'support', status:'active',
+        text:'Wrote the Airpower Acceleration Act behind the F-15EX multiyear procurement authority in the FY2027 NDAA (S. 4784 Section 133; H.R. 8800 Section 161), saying "Congress must do its job and pass the NDAA with a multiyear procurement provision that accelerates F-15EX production."',
+        evidence:'Section 133 lets the Defense Department sign multiyear F-15EX contracts once it certifies the contractor can reach an inventory of at least 268 aircraft by 2035. No vote has addressed it. He voted yes when cloture on taking up S. 4784 failed 50–46 on July 14, 2026.',
+        source:{label:'budd.senate.gov, Aug. 20, 2026', url:'https://www.budd.senate.gov/2026/08/20/senator-budd-secures-f-15ex-aircraft-for-seymour-johnson-air-force-base/'},
+        sources:[
+          { type:'press release', label:'Senator Budd secures F-15EX aircraft for Seymour Johnson Air Force Base, Aug. 20, 2026', date:'2026-08-20', link:'https://www.budd.senate.gov/2026/08/20/senator-budd-secures-f-15ex-aircraft-for-seymour-johnson-air-force-base/', excerpt:'\u201cCongress must do its job and pass the NDAA with a multiyear procurement provision that accelerates F-15EX production, strengthens our air defenses, and ensures we have no gap in our operational or training capabilities.\u201d', weight:'strong' },
+          { type:'recorded vote', label:'Senate Roll Call Vote 195 (119th Congress, 2nd Session)', date:'2026-07-14', link:'https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00195.htm', excerpt:'Voted yes on cloture on the motion to proceed to S. 4784, which was rejected 50–46; not a vote on Section 133 itself.', weight:'strong' },
+        ] },
       { topic:'National Defense', icon:'🛡', pos:'support', issueKey:'strong_defense', issueStance:'support', text:'On Armed Services, backs a strong military, servicemember pay, and aid to Israel.', source:{label:'budd.senate.gov', url:'https://www.budd.senate.gov/press-releases/'} },
       // ── SECTION 219 PASS (Nov 2026) — FY2027 NDAA, H.R. 8800 §219 (was §224) ──
       // A sourced statement on the provision or the FUTURES Act it came from; see
@@ -9519,6 +9543,20 @@
         sources:[
           { type:'press release', label:'Rep. Harrigan secures five amendments during the HASC markup of the FY27 NDAA, June 5, 2026', date:'2026-06-05', link:'https://harrigan.house.gov/media/press-releases/congressman-pat-harrigan-secures-five-amendments-during-hasc-markup-fy27-ndaa', excerpt:'“Last night was a good night for the warfighter and a bad night for our adversaries… we are banning Chinese optical fiber from our defense networks…”', weight:'strong' },
           { type:'recorded vote', label:'House Clerk — Roll Call 278 (2026)', date:'2026-07-22', link:'https://clerk.house.gov/Votes/2026278', excerpt:'Voted yes on passage of H.R. 8800, which passed 216–212 with Section 1814 in the bill.', weight:'strong' },
+        ] },
+    ],
+    joe_courtney: [ // Joe Courtney — U.S. Representative (D-CT-02); multiyear procurement pass (Nov 2026)
+      // ── MULTIYEAR PROCUREMENT PASS (Nov 2026) — FY2027 NDAA, H.R. 8800 §§123–124 ──
+      // A sourced statement on the multiyear authority or the bill it came from; see
+      // db/ndaa-fy27-multiyear-industrial-base-stated-2026-11.json. Filed first on
+      // strong_defense so the drawer's stated line reads it; no other card is edited.
+      { topic:'Multiyear Procurement · FY2027 NDAA', icon:'⚓', pos:'support', issueKey:'strong_defense', issueStance:'support', position:'support', status:'active',
+        text:'Presented the House Seapower mark that became Sections 123 and 124 of the FY2027 NDAA (H.R. 8800), saying it "provides multi-year procurement for up to 15 Arleigh Burke destroyers and for multiple John Lewis-class oilers."',
+        evidence:'Section 123 bars any contract change that raises a destroyer\'s target price by more than 10 percent; Section 124 limits termination liability to funds obligated. The Senate bill has no counterpart. No separate vote was cast on them. He voted no on final passage of H.R. 8800, Roll Call 278, July 22, 2026; it passed 216–212.',
+        source:{label:'courtney.house.gov, June 4, 2026', url:'https://courtney.house.gov/media-center/press-releases/courtney-statement-delivered-fy27-ndaa-full-committee-markup'},
+        sources:[
+          { type:'press release', label:'Courtney statement (as delivered) at the FY27 NDAA full committee markup, June 4, 2026', date:'2026-06-04', link:'https://courtney.house.gov/media-center/press-releases/courtney-statement-delivered-fy27-ndaa-full-committee-markup', excerpt:'\u201cThis year\u2019s mark provides multi-year procurement for up to 15 Arleigh Burke destroyers and for multiple John Lewis-class oilers, and for the E-2D advanced Hawkeye aircraft.\u201d', weight:'strong' },
+          { type:'recorded vote', label:'House Clerk — Roll Call 278 (2026)', date:'2026-07-22', link:'https://clerk.house.gov/Votes/2026278', excerpt:'Voted no on passage of H.R. 8800, which passed 216–212 with Sections 123 and 124 in the bill.', weight:'strong' },
         ] },
     ],
     kevin_hern: [ // Kevin Hern — 🧾 U.S. Representative (R-OK)

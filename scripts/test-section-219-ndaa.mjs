@@ -315,8 +315,12 @@ section("7 · nothing else moved; declared; one shell version; no migration");
   } else {
     const before = stanceData(base), after = stanceData(R("politician-stances.js"));
     for (const pid of NEW_LISTS) ok(!(pid in before), `${pid} already had stance entries at the base`);
+    // A member a LATER declared stance pass gave another card is pinned, card
+    // by card, by that pass's own suite; here only this pass's card is checked.
+    const laterPids = new Set(DECLARED_STANCE_PASSES.slice(DECLARED_STANCE_PASSES.findIndex((x) => x.pass === "section_219_ndaa_stated_nov2026") + 1).flatMap((x) => x.pids));
     for (const pid of SET.filter((p) => !NEW_LISTS.includes(p))) {
       ok(pid in before, `${pid} had no stance entries at the base`);
+      if (laterPids.has(pid)) { eq((before[pid] || []).filter((c) => c.topic === TOPIC).length, 0, `${pid}: a Section 219 card existed at the base`); continue; }
       const kept = (after[pid] || []).filter((c) => c.topic !== TOPIC);
       eq(JSON.stringify(kept), JSON.stringify(before[pid]), `${pid}: another card changed`);
       eq((before[pid] || []).filter((c) => c.topic === TOPIC).length, 0, `${pid}: a Section 219 card existed at the base`);
