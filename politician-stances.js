@@ -6500,6 +6500,92 @@
       { topic:'Against the voucher program', icon:'🎓', pos:'oppose', issueKey:'school_choice', issueStance:'oppose', claim:'campaign', text:'Smith opposes "diverting funds to private, for-profit schools through the new voucher program".',
         detail:'Campaign claim, not a vote — Tyler Smith Campaign — What I\'m Fighting For.', source:{label:'Tyler Smith Campaign — What I\'m Fighting For', url:'https://tylerfortx.com/what-im-fighting-for/'} },
     ],
+    // ── 2026 newly elected state legislators in Arizona, California and Washington (Nov 2026)
+    // Same shape as the New York, Ohio, Pennsylvania and Texas block above:
+    // November 3, 2026 State Senate, State House and State Assembly winners on
+    // seats whose district board already exists. The roster had no row for the
+    // winning challenger, so this pass admitted one identity row each in
+    // cmp-data.js. Each line is the member-elect's own published position from the
+    // campaign's priorities, issues or platform page, filed on an existing issue
+    // key and marked a CAMPAIGN CLAIM, NOT A VOTE. Nothing is inferred from party.
+    // The set, each source, each race call and who was left out are recorded in
+    // db/newly-elected-state-legislative-stated-2026-11-wave7.json.
+    amelia_gallitano: [ // Amelia Gallitano — Arizona State Senate (District 2) — elected Nov. 3, 2026; campaign claims only, no voting record
+      { topic:'Utility rate hikes', icon:'🛒', pos:'support', issueKey:'cost_living', issueStance:'support', claim:'campaign', text:'Gallitano will "protect families from unfair utility rate hikes so working families can get ahead, not fall behind."',
+        detail:'Campaign claim, not a vote — Dr. Amelia Gallitano For Arizona — Priorities.', source:{label:'Dr. Amelia Gallitano For Arizona — Priorities', url:'https://www.ameliaforaz.com/amelias-priorities'} },
+      { topic:'Lower health and drug costs', icon:'💵', pos:'support', issueKey:'healthcare_costs', issueStance:'support', claim:'campaign', text:'Gallitano says she "will work to lower healthcare and prescription drug costs, expand access to care".',
+        detail:'Campaign claim, not a vote — Dr. Amelia Gallitano For Arizona — Priorities.', source:{label:'Dr. Amelia Gallitano For Arizona — Priorities', url:'https://www.ameliaforaz.com/amelias-priorities'} },
+      { topic:'Address the housing shortage', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support', claim:'campaign', text:'Gallitano lists "address the housing shortage" among the steps she will take so families "can get ahead".',
+        detail:'Campaign claim, not a vote — Dr. Amelia Gallitano For Arizona — Priorities.', source:{label:'Dr. Amelia Gallitano For Arizona — Priorities', url:'https://www.ameliaforaz.com/amelias-priorities'} },
+      { topic:'Fully fund public schools', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', claim:'campaign', text:'Gallitano "will fight to fully fund public schools, raise teacher pay", saying "Arizona\'s public schools are underfunded and stretched thin."',
+        detail:'Campaign claim, not a vote — Dr. Amelia Gallitano For Arizona — Priorities.', source:{label:'Dr. Amelia Gallitano For Arizona — Priorities', url:'https://www.ameliaforaz.com/amelias-priorities'} },
+      { topic:'Affordable, accessible care', icon:'🏥', pos:'support', issueKey:'healthcare', issueStance:'support', claim:'campaign', text:'Gallitano says "Healthcare should be affordable and accessible for every Arizona family."',
+        detail:'Campaign claim, not a vote — Dr. Amelia Gallitano For Arizona — Priorities.', source:{label:'Dr. Amelia Gallitano For Arizona — Priorities', url:'https://www.ameliaforaz.com/amelias-priorities'} },
+      { topic:'Science-based water policy', icon:'💧', pos:'support', issueKey:'water', issueStance:'support', claim:'campaign', text:'Gallitano "supports science-based water policy that protects long-term supply, holds large users accountable".',
+        detail:'Campaign claim, not a vote — Dr. Amelia Gallitano For Arizona — Priorities.', source:{label:'Dr. Amelia Gallitano For Arizona — Priorities', url:'https://www.ameliaforaz.com/amelias-priorities'} },
+      { topic:'Prevention and law enforcement', icon:'⚖️', pos:'support', issueKey:'justice_balance', issueStance:'support', claim:'campaign', text:'Gallitano says "public safety means supporting law enforcement, investing in prevention, and addressing the root causes of crime."',
+        detail:'Campaign claim, not a vote — Dr. Amelia Gallitano For Arizona — Priorities.', source:{label:'Dr. Amelia Gallitano For Arizona — Priorities', url:'https://www.ameliaforaz.com/amelias-priorities'} },
+    ],
+    amy_slavensky: [ // Amy Slavensky — California State Assembly (District 7) — elected Nov. 3, 2026; campaign claims only, no voting record
+      { topic:'Lower food and gas costs', icon:'🛒', pos:'support', issueKey:'cost_living', issueStance:'support', claim:'campaign', text:'Slavensky\'s priorities: "bring down the cost of food and gas, make it easier to find affordable housing".',
+        detail:'Campaign claim, not a vote — Amy Slavensky for Assembly 2026 — What I Stand For.', source:{label:'Amy Slavensky for Assembly 2026 — What I Stand For', url:'https://www.amyslavensky.com/'} },
+      { topic:'Universal affordable childcare', icon:'🧸', pos:'support', issueKey:'child_care', issueStance:'support', claim:'campaign', text:'On affordability, Slavensky says she will "protect against price gouging, and prioritize universal affordable childcare".',
+        detail:'Campaign claim, not a vote — Amy Slavensky for Assembly 2026 — What I Stand For.', source:{label:'Amy Slavensky for Assembly 2026 — What I Stand For', url:'https://www.amyslavensky.com/'} },
+      { topic:'Cut housing red tape', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support', claim:'campaign', text:'Slavensky says "I will work to cut red tape blocking housing production".',
+        detail:'Campaign claim, not a vote — Amy Slavensky for Assembly 2026 — What I Stand For.', source:{label:'Amy Slavensky for Assembly 2026 — What I Stand For', url:'https://www.amyslavensky.com/'} },
+      { topic:'Rental subsidies', icon:'🏘', pos:'support', issueKey:'housing_support', issueStance:'support', claim:'campaign', text:'Slavensky will "provide rental subsidies to prevent homelessness, and speed up affordable housing production."',
+        detail:'Campaign claim, not a vote — Amy Slavensky for Assembly 2026 — What I Stand For.', source:{label:'Amy Slavensky for Assembly 2026 — What I Stand For', url:'https://www.amyslavensky.com/'} },
+      { topic:'No medical bankruptcy', icon:'💵', pos:'support', issueKey:'healthcare_costs', issueStance:'support', claim:'campaign', text:'Slavensky will prioritize "protecting Californians from being bankrupted by healthcare costs, and expanding mental health services."',
+        detail:'Campaign claim, not a vote — Amy Slavensky for Assembly 2026 — What I Stand For.', source:{label:'Amy Slavensky for Assembly 2026 — What I Stand For', url:'https://www.amyslavensky.com/'} },
+      { topic:'Pay teachers what they deserve', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', claim:'campaign', text:'Slavensky says "we must pay public school teachers and staff what they deserve and invest in early childhood and career technical education."',
+        detail:'Campaign claim, not a vote — Amy Slavensky for Assembly 2026 — What I Stand For.', source:{label:'Amy Slavensky for Assembly 2026 — What I Stand For', url:'https://www.amyslavensky.com/'} },
+    ],
+    ida_obeso_martinez: [ // Ida Obeso-Martinez — California State Assembly (District 36) — elected Nov. 3, 2026; campaign claims only, no voting record
+      { topic:'Lower the cost of living', icon:'🛒', pos:'support', issueKey:'cost_living', issueStance:'support', claim:'campaign', text:'Obeso-Martinez pledges to "Crack down on corporate price gouging, expand affordable housing, and bring in high-paying jobs to lower the cost of living".',
+        detail:'Campaign claim, not a vote — Ida for Assembly — Issues.', source:{label:'Ida for Assembly — Issues', url:'https://idaforassembly.com/issues'} },
+      { topic:'Strong public schools', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', claim:'campaign', text:'Obeso-Martinez pledges to "Strengthen our public schools, support teachers, and expand career training and apprenticeship programs".',
+        detail:'Campaign claim, not a vote — Ida for Assembly — Issues.', source:{label:'Ida for Assembly — Issues', url:'https://idaforassembly.com/issues'} },
+      { topic:'Affordable healthcare access', icon:'🏥', pos:'support', issueKey:'healthcare', issueStance:'support', claim:'campaign', text:'Obeso-Martinez pledges to "Expand access to affordable healthcare" and "protect the healthcare programs families depend on."',
+        detail:'Campaign claim, not a vote — Ida for Assembly — Issues.', source:{label:'Ida for Assembly — Issues', url:'https://idaforassembly.com/issues'} },
+      { topic:'Lower drug costs', icon:'💊', pos:'support', issueKey:'health_drug_prices', issueStance:'support', claim:'campaign', text:'Obeso-Martinez pledges to "Expand access to affordable healthcare, lower prescription drug costs".',
+        detail:'Campaign claim, not a vote — Ida for Assembly — Issues.', source:{label:'Ida for Assembly — Issues', url:'https://idaforassembly.com/issues'} },
+      { topic:'Modern infrastructure', icon:'🚧', pos:'support', issueKey:'infrastructure', issueStance:'support', claim:'campaign', text:'Under "Good Jobs and Modern Infrastructure", Obeso-Martinez says "strong infrastructure means more jobs, more economic opportunity".',
+        detail:'Campaign claim, not a vote — Ida for Assembly — Issues.', source:{label:'Ida for Assembly — Issues', url:'https://idaforassembly.com/issues'} },
+      { topic:'Crime prevention', icon:'⚖️', pos:'support', issueKey:'justice_balance', issueStance:'support', claim:'campaign', text:'Obeso-Martinez pledges to "Increase neighborhood crime prevention, domestic violence programs, and secure the public safety resources our communities need".',
+        detail:'Campaign claim, not a vote — Ida for Assembly — Issues.', source:{label:'Ida for Assembly — Issues', url:'https://idaforassembly.com/issues'} },
+    ],
+    leila_namvar: [ // Leila Namvar — California State Assembly (District 47) — elected Nov. 3, 2026; campaign claims only, no voting record
+      { topic:'Lower everyday costs', icon:'🛒', pos:'support', issueKey:'cost_living', issueStance:'support', claim:'campaign', text:'Namvar "will make lowering everyday costs her top priority in Sacramento, cracking down on price gouging".',
+        detail:'Campaign claim, not a vote — Leila Namvar for Assembly District 47 — Issues.', source:{label:'Leila Namvar for Assembly District 47 — Issues', url:'https://www.leilanamvar.com/issues'} },
+      { topic:'Lower healthcare costs', icon:'💵', pos:'support', issueKey:'healthcare_costs', issueStance:'support', claim:'campaign', text:'Namvar "will lower costs by expanding preventive care, increasing price transparency, and holding insurers and drug companies accountable."',
+        detail:'Campaign claim, not a vote — Leila Namvar for Assembly District 47 — Issues.', source:{label:'Leila Namvar for Assembly District 47 — Issues', url:'https://www.leilanamvar.com/issues'} },
+      { topic:'Cut housing red tape', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support', claim:'campaign', text:'Namvar "has worked to cut the red tape that slows housing construction and drives up costs".',
+        detail:'Campaign claim, not a vote — Leila Namvar for Assembly District 47 — Issues.', source:{label:'Leila Namvar for Assembly District 47 — Issues', url:'https://www.leilanamvar.com/issues'} },
+      { topic:'Renting and owning within reach', icon:'🏘', pos:'support', issueKey:'housing_support', issueStance:'support', claim:'campaign', text:'Namvar will "push to increase the supply of affordable housing and make both renting and homeownership more attainable for working families."',
+        detail:'Campaign claim, not a vote — Leila Namvar for Assembly District 47 — Issues.', source:{label:'Leila Namvar for Assembly District 47 — Issues', url:'https://www.leilanamvar.com/issues'} },
+      { topic:'Take on special interests', icon:'🛡', pos:'support', issueKey:'econ_corp_account', issueStance:'support', claim:'campaign', text:'Namvar says "She will stand up to lobbyists and greedy corporations jacking up your costs."',
+        detail:'Campaign claim, not a vote — Leila Namvar for Assembly District 47 — Issues.', source:{label:'Leila Namvar for Assembly District 47 — Issues', url:'https://www.leilanamvar.com/issues'} },
+      { topic:'Protect abortion rights', icon:'⚖️', pos:'support', issueKey:'pro_choice', issueStance:'support', claim:'campaign', text:'Namvar\'s page says "she will always protect women\'s reproductive freedom" and cites her Planned Parenthood endorsement.',
+        detail:'Campaign claim, not a vote — Leila Namvar for Assembly District 47 — Issues.', source:{label:'Leila Namvar for Assembly District 47 — Issues', url:'https://www.leilanamvar.com/issues'} },
+      { topic:'Data centers pay their costs', icon:'⚡', pos:'support', issueKey:'datacenter_power', issueStance:'support', claim:'campaign', text:'Namvar will hold data centers "accountable by blocking new data centers that don\'t sign community benefit agreements to offset those costs".',
+        detail:'Campaign claim, not a vote — Leila Namvar for Assembly District 47 — Issues.', source:{label:'Leila Namvar for Assembly District 47 — Issues', url:'https://www.leilanamvar.com/issues'} },
+    ],
+    ben_christly: [ // Ben Christly — Washington State House (District 17, Position 1) — elected Nov. 3, 2026; campaign claims only, no voting record
+      { topic:'Fully fund public schools', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', claim:'campaign', text:'Christly says good jobs start "with fully funding our public schools" and "supporting K-12 schools, teachers, and staff".',
+        detail:'Campaign claim, not a vote — Elect Ben Christly — My Values.', source:{label:'Elect Ben Christly — My Values', url:'https://www.electbenchristly.com/values'} },
+      { topic:'Trade schools without debt', icon:'🎓', pos:'support', issueKey:'edu_college_cost', issueStance:'support', claim:'campaign', text:'Christly wants to "expand access to trade schools, apprenticeships, vocational programs, and community colleges" that "don\'t leave students buried in debt".',
+        detail:'Campaign claim, not a vote — Elect Ben Christly — My Values.', source:{label:'Elect Ben Christly — My Values', url:'https://www.electbenchristly.com/values'} },
+      { topic:'Affordable care in every corner', icon:'🏥', pos:'support', issueKey:'healthcare', issueStance:'support', claim:'campaign', text:'Christly says "We need to make healthcare affordable and accessible in every corner of our district".',
+        detail:'Campaign claim, not a vote — Elect Ben Christly — My Values.', source:{label:'Elect Ben Christly — My Values', url:'https://www.electbenchristly.com/values'} },
+      { topic:'Make Washington affordable', icon:'🛒', pos:'support', issueKey:'cost_living', issueStance:'support', claim:'campaign', text:'Christly wants "practical, common-sense solutions that make Washington more affordable and give people a fair chance to get ahead."',
+        detail:'Campaign claim, not a vote — Elect Ben Christly — My Values.', source:{label:'Elect Ben Christly — My Values', url:'https://www.electbenchristly.com/values'} },
+      { topic:'Small-business-friendly state', icon:'🏪', pos:'support', issueKey:'econ_smallbiz', issueStance:'support', claim:'campaign', text:'Christly says "I will fight to make Washington a more small-business-friendly state".',
+        detail:'Campaign claim, not a vote — Elect Ben Christly — My Values.', source:{label:'Elect Ben Christly — My Values', url:'https://www.electbenchristly.com/values'} },
+      { topic:'Fair share of the tax burden', icon:'💵', pos:'support', issueKey:'tax_middle_class', issueStance:'support', claim:'campaign', text:'Christly says working families "should not be carrying a disproportionate share of the tax burden while billion-dollar corporations find ways to avoid paying theirs."',
+        detail:'Campaign claim, not a vote — Elect Ben Christly — My Values.', source:{label:'Elect Ben Christly — My Values', url:'https://www.electbenchristly.com/values'} },
+      { topic:'Housing that stabilizes costs', icon:'🏠', pos:'support', issueKey:'housing', issueStance:'support', claim:'campaign', text:'Christly wants "housing policies that support working families, stabilize costs, and help more people put down roots".',
+        detail:'Campaign claim, not a vote — Elect Ben Christly — My Values.', source:{label:'Elect Ben Christly — My Values', url:'https://www.electbenchristly.com/values'} },
+    ],
     // ── 2026 federal independent and third-party nominees, light profiles (Oct 2026)
     // Same shape as the block above: each line is the candidate's own published
     // claim (campaign site, or a direct quote in a story that quotes them), filed

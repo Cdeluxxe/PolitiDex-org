@@ -2,6 +2,7 @@ import { execFileSync as _execFileSync } from "node:child_process";
 import { readFileSync as _readFileSync } from "node:fs";
 const _W6_REC = JSON.parse(_readFileSync(new URL("../db/newly-elected-state-legislative-stated-2026-11-wave6.json", import.meta.url), "utf8"));
 const _GAP_REC = JSON.parse(_readFileSync(new URL("../db/newly-elected-state-legislative-gap-fill-2026-11.json", import.meta.url), "utf8"));
+const _W7_REC = JSON.parse(_readFileSync(new URL("../db/newly-elected-state-legislative-stated-2026-11-wave7.json", import.meta.url), "utf8"));
 /**
  * scripts/v103-chrome-seams.mjs
  *
@@ -3626,6 +3627,16 @@ export const DECLARED_ADMISSIONS = [
     banner: _W6_REC.rosterBanner,
     pids: _W6_REC.members.filter((m) => m.rosterRow === "admitted").map((m) => m.pid),
   },
+  {
+    // The seventh newly elected state legislative wave: the Arizona, California
+    // and Washington challengers who won a called November 3, 2026 race on a seat
+    // whose board already exists, which the roster held by name only (the ballot
+    // files). One identity row each, sitting just above the sixth wave's block;
+    // the record names the banner, the states and the rows (rosterRow: "admitted").
+    wave: "newly_elected_state_legislators_wave7_nov2026",
+    banner: _W7_REC.rosterBanner,
+    pids: _W7_REC.members.filter((m) => m.rosterRow === "admitted").map((m) => m.pid),
+  },
 ];
 /**
  * DECLARED STANCE PASSES — people whose curated stance list a pass rewrote ON
@@ -3884,6 +3895,16 @@ export const DECLARED_STANCE_PASSES = [
     // "unchanged" and are not declared here.
     pids: _GAP_REC.members.map((m) => m.pid),
   },
+  {
+    pass: "newly_elected_state_legislative_stated_nov2026_wave7",
+    // The seventh state legislative wave: November 3, 2026 winners in Arizona,
+    // California and Washington on seats whose board already exists, admitted as
+    // candidate rows by this pass
+    // (db/newly-elected-state-legislative-stated-2026-11-wave7.json): one Arizona
+    // Senate, three California Assembly and one Washington House member. Everyone
+    // whose race is uncalled, or who did not win, is in the record's leftOut.
+    pids: _W7_REC.members.map((m) => m.pid),
+  },
 ];
 /**
  * The gap-fill pass's additions by pid: the issue keys appended after each
@@ -3912,6 +3933,9 @@ export const DECLARED_LATER_REVISIONS = {
     { rev: "8ac0289", pass: "national USA Voice board at /usa" },
     { rev: "c1644d5", pass: "Sunlight split into a visual home and a rate-case page" },
     { rev: "72a4b40", pass: "mobile search typing and overlay responsiveness" },
+    // Declared by the seventh newly elected wave: the gap-fill pass regenerated
+    // the homepage "Read a record" strip (and moved the shell for it).
+    { rev: "e7a6d88", pass: "newly elected gap fill: homepage record strip regenerated" },
   ],
   "netlify.toml": [
     { rev: "8ac0289", pass: "national USA Voice board at /usa" },
@@ -3922,6 +3946,7 @@ export const DECLARED_LATER_REVISIONS = {
   // suites compare sw.js's code and precache list against this pin; their own
   // version-note checks still read their base.
   "sw.js": [
+    { rev: "e7a6d88" },
     { rev: "72966a7" },
     { rev: "f296d83" },
     { rev: "6cc1d8b" },
@@ -3987,10 +4012,11 @@ export function swCodeOnly(src) {
 }
 // cmp-data.js with exactly the newly elected waves' declared blocks set aside
 // (the fifth, db/newly-elected-state-legislative-stated-2026-11-wave5.json, and
-// the sixth, …-wave6.json); any other move, or a block whose rows are not
-// exactly the record's, stays put.
+// the sixth, …-wave6.json, and the seventh, …-wave7.json); any other move, or a
+// block whose rows are not exactly the record's, stays put.
 const _W5_BANNER = "// ── Newly elected state legislators, Wisconsin, Illinois, North Carolina, Georgia and Florida — roster rows (Nov 2026)";
 const _W6_BANNER = _W6_REC.rosterBanner;
+const _W7_BANNER = _W7_REC.rosterBanner;
 function _withoutBlock(src, banner) {
   if (src == null) return src;
   const at = String(src).indexOf(banner);
@@ -4002,7 +4028,7 @@ function _withoutBlock(src, banner) {
   return pids === d.pids.slice().sort().join(",") ? src.slice(0, at) + src.slice(end + 1) : src;
 }
 export function withoutWave5RosterRows(src) {
-  return _withoutBlock(_withoutBlock(src, _W6_BANNER), _W5_BANNER);
+  return _withoutBlock(_withoutBlock(_withoutBlock(src, _W7_BANNER), _W6_BANNER), _W5_BANNER);
 }
 const stanceTable = (src) => {
   if (src == null) return null;

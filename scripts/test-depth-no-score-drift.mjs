@@ -480,6 +480,9 @@ const rosterWaveAdmissions = (() => {
     // …and the sixth wave's winners in New York, Ohio, Pennsylvania and Texas
     // (…-wave6.json, "members"), the same shape.
     try { for (const m of JSON.parse(readFileSync(join(ROOT, "db/newly-elected-state-legislative-stated-2026-11-wave6.json"), "utf8")).members) out.add(m.pid); } catch {}
+    // …and the seventh wave's winners in Arizona, California and Washington
+    // (…-wave7.json, "members"), the same shape.
+    try { for (const m of JSON.parse(readFileSync(join(ROOT, "db/newly-elected-state-legislative-stated-2026-11-wave7.json"), "utf8")).members) out.add(m.pid); } catch {}
     return out;
   })();
   const notInertCandidates = added.filter((p) => candidateBatch.has(p)).filter((p) => {

@@ -53192,6 +53192,57 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
  },
+// ── Newly elected state legislators, Arizona, California and Washington — roster rows (Nov 2026)
+// The November 3, 2026 State Senate, State House and (California) State
+// Assembly winners who unseated a sitting member on a seat whose district board
+// already exists (az-, ca- and wa-ballot-2026.js name them as challengers, by
+// name only, with no row). Each win has a published race call, and each
+// member's own campaign issues page could be read; both are recorded, with the
+// issue keys their stated positions were filed on, in
+// db/newly-elected-state-legislative-stated-2026-11-wave7.json. Identity rows
+// only, the same shape as the other state legislative candidate rows: name, the
+// seat they won (Washington House rows carry the position), `party` and
+// `partyFiled` as the race call reports them. `candidate: true` on every row, so
+// no seat lookup names one as a sitting member and the sitting member's row, the
+// board and the ballot file are unchanged.
+ // Arizona
+ "amelia_gallitano": {
+  "name": "Amelia Gallitano", "office": "Arizona State Senate Candidate (District 2)",
+  "state": "Arizona", "district": "2",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // California
+ "amy_slavensky": {
+  "name": "Amy Slavensky", "office": "California State Assembly Candidate (District 7)",
+  "state": "California", "district": "7",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "ida_obeso_martinez": {
+  "name": "Ida Obeso-Martinez", "office": "California State Assembly Candidate (District 36)",
+  "state": "California", "district": "36",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ "leila_namvar": {
+  "name": "Leila Namvar", "office": "California State Assembly Candidate (District 47)",
+  "state": "California", "district": "47",
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // Washington
+ "ben_christly": {
+  "name": "Ben Christly", "office": "Washington State House Candidate (District 17, Position 1)",
+  "state": "Washington", "district": "17", "position": 1,
+  "party": "D", "partyFiled": "Democratic", "candidate": true, "candidacyStatus": "active", "nextElection": "2026-11-03",
+  "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
 // ── Newly elected state legislators, New York, Ohio, Pennsylvania and Texas — roster rows (Nov 2026)
 // The November 3, 2026 State Senate, State House and (New York) State Assembly
 // winners who unseated a sitting member on a seat whose district board already

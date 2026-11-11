@@ -42,7 +42,10 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
-import { DECLARED_STANCE_PASSES, GAP_FILL_ADDED, swCodeOnly, withoutHeroCrawl } from "./v103-chrome-seams.mjs";
+import { DECLARED_STANCE_PASSES, GAP_FILL_ADDED, swCodeOnly, withoutHeroCrawl, carveDeclaredAdmissions } from "./v103-chrome-seams.mjs";
+// People a LATER declared stance pass added or moved (v103-chrome-seams.mjs) are
+// that pass's product, pinned by its own suite.
+const LATER_STANCE = new Set(DECLARED_STANCE_PASSES.slice(DECLARED_STANCE_PASSES.findIndex((d) => d.pass === "newly_elected_state_legislative_gap_fill_nov2026") + 1).flatMap((d) => d.pids));
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -248,8 +251,8 @@ section("4 · no roster row, board or issue key moved; no route, gate, migration
     console.log("     (no git baseline — byte-identity checks skipped)");
   } else {
     const after = stanceData(R("politician-stances.js"));
-    eq(Object.keys(after).length, Object.keys(before).length, "a person was added to or removed from the stance data");
-    const moved = Object.keys(after).filter((pid) => JSON.stringify(before[pid]) !== JSON.stringify(after[pid])).sort();
+    eq(Object.keys(after).filter((pid) => pid in before || !LATER_STANCE.has(pid)).length, Object.keys(before).length, "a person was added to or removed from the stance data");
+    const moved = Object.keys(after).filter((pid) => !LATER_STANCE.has(pid) && JSON.stringify(before[pid]) !== JSON.stringify(after[pid])).sort();
     eq(JSON.stringify(moved), JSON.stringify(FILLED.slice().sort()), "a person outside the filled set has different stance entries");
     // Roster rows, issue keys, the related-issues map, drawer code, gates and routes.
     for (const f of ["cmp-data.js", "cmp-data-detail.js", "issue-map.js", "alignment-tool.js", "issue-colors.js",
@@ -257,6 +260,9 @@ section("4 · no roster row, board or issue key moved; no route, gate, migration
       "state-senate-stances.js", "politician-stances-core.js", "district-board.js",
       "person.html", "issue.html", "ballot.html", "netlify.toml", "_redirects"]) {
       let now = null; try { now = R(f); } catch { /* absent */ }
+      // cmp-data.js: a later declared roster admission (the seventh newly
+      // elected wave's block) is that pass's product; everything else is pinned.
+      if (f === "cmp-data.js") { eq(carveDeclaredAdmissions(now), carveDeclaredAdmissions(BASE(f)), `${f} changed outside a later declared admission`); continue; }
       eq(now, BASE(f), `${f} changed`);
     }
     const keysNow = Object.keys(win.ISSUE_MAP).sort().join(",");
@@ -300,8 +306,9 @@ section("4 · no roster row, board or issue key moved; no route, gate, migration
   const baseSw = BASE("sw.js");
   if (baseSw != null) {
     const ver = (s) => +((/const CACHE_VERSION = 'v(\d+)'/.exec(s) || [])[1] || 0);
-    eq(ver(sw), ver(baseSw) + 1, "the shell did not move exactly one version");
-    ok(/v552 - NEWLY ELECTED STATE LEGISLATORS, GAP FILL[\s\S]*?MIGRATION COST: none\.\nconst CACHE_VERSION = 'v552';/.test(sw), "the version note is missing or does not say no migration");
+    // This pass moved the shell one version (v552); a later pass may move it further.
+    ok(ver(sw) >= ver(baseSw) + 1, "the shell did not move one version");
+    ok(/v552 - NEWLY ELECTED STATE LEGISLATORS, GAP FILL[\s\S]*?MIGRATION COST: none\.\n(\/\/[^\n]*\n)*const CACHE_VERSION = 'v\d+';/.test(sw), "the version note is missing or does not say no migration");
     eq(swCodeOnly(sw), swCodeOnly(baseSw), "sw.js changed beyond its version note");
     eq(JSON.stringify(pre(sw)), JSON.stringify(pre(baseSw)), "the precache list changed");
   }
