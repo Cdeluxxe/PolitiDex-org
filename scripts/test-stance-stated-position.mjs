@@ -16,6 +16,9 @@
 //   · Profile: the claim prints as a stated position (no "Weak signal"), Word vs
 //     Action's figure does not move and the row says it is not a formal act; a
 //     pure mention stays "Mentions this topic · not a stance".
+//   · phase8-v2: explicit floor-speech, press-release and co-sponsor claims are
+//     normal stated positions too (never formal records); secondary sources,
+//     implication-only pages and other people's quotes stay lower.
 // ═══════════════════════════════════════════════════════════════════════════
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
@@ -97,6 +100,95 @@ await t("R8 does not lift a non-primary source, an implication-only read, or a c
   assert.ok(!imp.stated_position);
   const split = S.scoreRawRecord(rawOf({ body: HC_PAGE.replace("</body>", "<p>In the Senate, James will cap the price of insulin.</p><p>We will lower insulin costs.</p><p>I oppose price caps on drugs.</p></body>") }));
   assert.ok(!/\(R8\)/.test(split.confidence_reason), "an outlier keeps the page off the floor");
+});
+
+// ── More primary sources (phase8-v2): floor speeches, releases, co-sponsors ──
+const CR = "crockett";
+const rawFor = (source_type, body, over = {}) => ({
+  url: "https://example.org/r", final_url: "https://example.org/r", fetched_at: "2026-11-10T08:00:00.000Z",
+  source_type, politician_id: CR, topic: "healthcare_costs", http_status: 200, body, ...over,
+});
+const FLOOR = "<p>Madam Speaker, I rise in strong support of H.R. 1234, the Affordable Insulin Now Act, which caps insulin costs at $35 a month.</p>";
+const RELEASE = "<p>WASHINGTON — Today, Congresswoman Jasmine Crockett introduced the Affordable Insulin Now Act, legislation that would cap insulin costs at $35 a month.</p>";
+const COSPONSOR = "<p>I am proud to co-sponsor the Affordable Insulin Now Act to cap insulin costs for every family.</p>";
+
+await t("phase8-v2: explicit floor-speech, press-release and co-sponsor claims are normal stated positions on existing keys", () => {
+  assert.ok(issueKeys.includes("healthcare_costs"));
+  const cases = [
+    ["floor speech", FLOOR, {}, "floor_speech"],
+    ["Congressional Record", FLOOR, {}, "floor_speech"],
+    ["page", FLOOR, { url: "https://www.congress.gov/congressional-record/volume-172/issue-1/house-section/article/H100-1", final_url: "https://www.congress.gov/congressional-record/volume-172/issue-1/house-section/article/H100-1" }, "floor_speech"],
+    ["news release", RELEASE, {}, "press_release"],
+    ["media release", RELEASE, {}, "press_release"],
+    ["official House newsroom", RELEASE, {}, "press_release"],
+    ["cosponsor announcement", COSPONSOR, {}, "cosponsor_statement"],
+    ["co-sponsor statement", COSPONSOR, {}, "cosponsor_statement"],
+  ];
+  for (const [type, body, over, kind] of cases) {
+    const c = S.scoreRawRecord(rawFor(type, body, over));
+    assert.equal(c.position, "support", type);
+    assert.equal(c.confidence, 0.8, `${type}: ${c.confidence} (${c.confidence_reason})`);
+    assert.equal(c.stated_position, true, type);
+    assert.equal(c.primary_kind, kind, type);
+    assert.equal(c.formal_record, false, type);
+    assert.equal(c.layer, "stated", type);
+    assert.equal(L.lockerStrength(c).strength, "strong", type);
+  }
+  // The bill number stays inside its sentence ("H.R." is not a sentence end).
+  const floor = S.scoreRawRecord(rawFor("floor speech", FLOOR));
+  assert.match(floor.sources[0].excerpt, /H\.R\. 1234, the Affordable Insulin Now Act/);
+  // Before phase8-v2 these two read 0.70 (weak): the rule is what moved them.
+  assert.match(S.scoreRawRecord(rawFor("news release", RELEASE)).confidence_reason, /\(press release\) reads as a stated position \(R8\)/);
+  assert.match(S.scoreRawRecord(rawFor("cosponsor announcement", COSPONSOR)).confidence_reason, /\(co-sponsor statement\) reads as a stated position \(R8\)/);
+});
+
+await t("phase8-v2: a non-official release must name a bill or outcome; quotes from someone else never set the position", () => {
+  const vague = S.scoreRawRecord(rawFor("news release", "<p>Crockett will lower health care costs.</p>"));
+  assert.equal(vague.position, "support");
+  assert.equal(vague.confidence, 0.7, "no named bill or outcome: still a weak read");
+  assert.ok(!vague.stated_position);
+  // The same sentence on an official release, or one naming a figure, qualifies.
+  assert.equal(S.scoreRawRecord(rawFor("official news release", "<p>Crockett will lower health care costs.</p>")).confidence, 0.8);
+  assert.equal(S.scoreRawRecord(rawFor("news release", "<p>Crockett will lower health care costs by $600 a year.</p>")).confidence, 0.8);
+  // Another member quoted in the release is not the candidate speaking.
+  const quoted = S.scoreRawRecord(rawFor("news release",
+    "<p>“This bill will lower drug costs for every family,” said Rep. Jane Doe, lead sponsor of the Affordable Insulin Now Act.</p>"));
+  assert.equal(quoted.confidence, 0.7);
+  assert.ok(!quoted.stated_position);
+  assert.equal(quoted.sources[0].statements.find((x) => x.kind === "clear").quoted_speaker, "other");
+  const multi = S.scoreRawRecord(rawFor("cosponsor announcement",
+    "<p>“We have to act. This bill will lower insulin costs at last,” Senator Doe said.</p>"));
+  assert.ok(!multi.stated_position, "a multi-sentence quote takes the speaker named where it closes");
+  // The candidate's own quote counts.
+  const own = S.scoreRawRecord(rawFor("news release",
+    "<p>“This bill caps insulin costs at $35 a month,” said Congresswoman Crockett.</p>"));
+  assert.equal(own.confidence, 0.8); assert.equal(own.stated_position, true);
+  assert.equal(S.quotedSpeakerOf("“We will cut costs,” she said.", CR), "self");
+});
+
+await t("phase8-v2: secondary sources and implication-only pages still score lower", () => {
+  for (const type of ["news article", "news report", "third-party summary", "voter guide"]) {
+    for (const body of [FLOOR, RELEASE, COSPONSOR]) {
+      const c = S.scoreRawRecord(rawFor(type, body, { url: "https://news.example.com/x", final_url: "https://news.example.com/x" }));
+      assert.ok(c.confidence < 0.8, `${type}: ${c.confidence}`);
+      assert.ok(!c.stated_position, type);
+      assert.equal(S.primarySourceKind(type, "https://news.example.com/x"), null, type);
+    }
+  }
+  for (const type of ["floor speech", "news release", "cosponsor announcement"]) {
+    const imp = S.scoreRawRecord(rawFor(type, "<p>We will confront fentanyl trafficking in every county under H.R. 99.</p>", { topic: "immig_fentanyl" }), "immig_fentanyl");
+    assert.ok(imp.confidence < 0.8, `${type}: implication-only stays weak (${imp.confidence})`);
+    assert.ok(!imp.stated_position, type);
+    const m = S.scoreRawRecord(rawFor(type, "<p>The House debated H.R. 1234 on health care today.</p>"));
+    assert.equal(m.position, "no clear position", type);
+    assert.equal(L.lockerStrength(m).strength, "mention", type);
+  }
+  // A weak (non-stated) read from these sources still never enters the Locker.
+  const weak = S.scoreRawRecord(rawFor("news release", "<p>Crockett will lower health care costs.</p>"));
+  assert.equal(L.lockerDecision(weak, rawFor("news release", "")).write, false);
+  // Contested: a floor speech that also runs the other way stays off the floor.
+  const split = S.scoreRawRecord(rawFor("cosponsor announcement", COSPONSOR + "<p>I oppose price caps on drugs.</p>"));
+  assert.ok(!/\(R8\)/.test(split.confidence_reason));
 });
 
 await t("pure topic mentions stay non-stances", () => {
@@ -181,6 +273,34 @@ await t("legacy weak items: an explicit campaign claim is re-read as a stated po
   assert.deepEqual(counts[`${PID}|healthcare_costs`], { strong: 1, weak: 0 });
 });
 
+await t("phase8-v2 Locker: floor speech / release / co-sponsor items are strong stated items, never formal records; legacy weak copies re-read", async () => {
+  for (const [type, body, kind, label] of [["floor speech", FLOOR, "floor_speech", "floor speech"], ["news release", RELEASE, "press_release", "press release"], ["cosponsor announcement", COSPONSOR, "cosponsor_statement", "co-sponsor statement"]]) {
+    const st = fakeStore();
+    const raw = rawFor(type, body, { url: `https://example.org/${kind}`, final_url: `https://example.org/${kind}` });
+    await L.maybeWriteLockerItem(S.scoreRawRecord(raw), raw, { store: st, gt, log: () => {} });
+    const item = [...st.data.values()].find((i) => i.topic === "healthcare_costs");
+    assert.ok(item, type);
+    assert.equal(item.strength, "strong", type); assert.equal(item.stated_position, true, type);
+    assert.equal(item.primary_kind, kind, type); assert.equal(item.formal_record, false, type);
+    const e = L.toSpotlightEntry(item);
+    assert.equal(e.category, "statement", type);
+    assert.equal(e.pipeline.formal_record, false, type); assert.equal(e.pipeline.layer, "stated", type);
+    assert.equal(e.pipeline.primary_kind, kind, type);
+    assert.match(e.facts, new RegExp(`^In Crockett's ${label}, Crockett stated`), type);
+    // The same claim stored as weak under the older rules is re-read when served.
+    const legacy = { ...item, confidence: 0.7, strength: "weak", rules_version: "phase8-v1", stated_position: undefined, primary_kind: undefined,
+      confidence_reason: "1 clear medium-weight statement(s) for support; 0 implication(s) for support at medium weight (R6)" };
+    const up = L.regradeStatedPosition(legacy);
+    assert.equal(up.strength, "strong", type); assert.equal(up.primary_kind, kind, type);
+  }
+  const weakRelease = { politician_id: CR, topic: "healthcare_costs", position: "support", confidence: 0.7, strength: "weak", source_type: "news release",
+    link: "https://example.org/n", date: "2026-11-01", attribution: "Source: news release", rules_version: "phase8-v1",
+    confidence_reason: "1 clear medium-weight statement(s) for support; 0 implication(s) for support at medium weight (R6)" };
+  assert.equal(L.regradeStatedPosition({ ...weakRelease, excerpt: "Crockett will lower health care costs." }).strength, "weak", "no bill or outcome named");
+  assert.equal(L.regradeStatedPosition({ ...weakRelease, excerpt: "“This bill will lower drug costs at $35,” said Rep. Jane Doe." }).strength, "weak", "someone else's quote");
+  assert.equal(L.regradeStatedPosition({ ...weakRelease, source_type: "news article", link: "https://news.example.com/x", excerpt: "Crockett will cap insulin at $35." }).strength, "weak", "secondary");
+});
+
 // ── Profile: stated position, never a formal action ─────────────────────────
 const html = read("person.html");
 const TAGS = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)].map((m) => ({ attrs: m[1], body: m[2] }));
@@ -208,7 +328,12 @@ const mentionItem = L.buildLockerItem(S.scoreRawRecord(rawOf({ url: HC_URL + "m"
 
 await t("profile: the insulin claim is a stated position (no Weak signal); Word vs Action does not count it as an action", () => {
   const w0 = boot(false), w = boot(true);
-  const entries = [L.toSpotlightEntry(hcItem), L.toSpotlightEntry(mentionItem)];
+  const floorRaw = rawOf({ url: HC_URL + "floor", final_url: HC_URL + "floor", source_type: "floor speech", topic: "public_schools",
+    body: "<p>Madam Speaker, I rise in support of H.R. 77, and I will fully fund our public schools.</p>" });
+  const floorCand = S.scoreRawRecord(floorRaw);
+  assert.equal(floorCand.stated_position, true, "fixture: the floor speech is a stated position");
+  const floorItem = L.buildLockerItem(floorCand, floorRaw);
+  const entries = [L.toSpotlightEntry(hcItem), L.toSpotlightEntry(mentionItem), L.toSpotlightEntry(floorItem)];
   const r = w.PDXProfileLocker.onBody(JSON.parse(JSON.stringify({ items: { [PID]: entries }, count: entries.length })));
   assert.ok(r && r.added >= 1);
   const P = w.PDXProfileLocker;
@@ -220,7 +345,8 @@ await t("profile: the insulin claim is a stated position (no Weak signal); Word 
   const p = w.CMP_DATA[PID], p0 = w0.CMP_DATA[PID];
   const wa = w.PDXWordAction.sectionHtml(PID, p) || "", wa0 = w0.PDXWordAction.sectionHtml(PID, p0) || "";
   const num = (h) => (h.match(/class="pdxwa-num-v">([^<]*)</) || [])[1];
-  assert.equal(num(wa), num(wa0), "Word vs Action figure unchanged");
+  assert.equal(num(wa), num(wa0), "Word vs Action figure unchanged (floor speech, release and co-sponsor reads are not formal records)");
+  assert.equal(P.forIssue(PID, "public_schools")[0] && P.strengthOf(P.forIssue(PID, "public_schools")[0]), "strong", "the floor-speech claim is a stated position");
   const tree = w.PDXStanceTree.sectionHtml(PID) || "";
   const surfaces = wa + tree + (w._renderEvidenceConnections(PID, p) || "");
   const near = (h) => { const i = h.indexOf("insulin at $35"); return i === -1 ? "" : h.slice(Math.max(0, i - 1500), i + 1500); };

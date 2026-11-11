@@ -29,7 +29,9 @@
 //       weaker reads leave it exactly as it is.
 //
 // STATED LAYER ONLY. Every item is what a politician SAID (layer "stated",
-// formal_record false). An explicit claim on a primary source (scorer R8)
+// formal_record false). An explicit claim on a primary source (scorer R8 —
+// campaign/official pages, floor speeches, press releases, co-sponsor
+// statements; primary_kind says which)
 // carries stated_position: true and reads as a normal stated position; it is
 // never a vote, bill or completed action until it is independently matched to
 // an official record elsewhere. Items written under the older rules are
@@ -42,7 +44,7 @@
 
 import { createHash } from "node:crypto";
 import { ISSUE_TOPIC_LABELS } from "./stance-topic-vocab.mjs";
-import { isPrimarySource, WEIGHTS as SCORE_WEIGHTS } from "./stance-score-core.mjs";
+import { statedSourceRule, namesBillOrOutcome, quotedSpeakerOf, KIND_LABELS, WEIGHTS as SCORE_WEIGHTS } from "./stance-score-core.mjs";
 
 export const LOCKER_STORE_NAME = "evidence-locker";
 export const LOCKER_MIN_CONFIDENCE = 0.8;
@@ -168,7 +170,11 @@ export function lockerDecision(candidate, raw, gt = null) {
       : { write: false, reason: `position ${candidate.position} does not match ground truth (${gt.position})` };
   }
   const link = raw?.final_url || raw?.url || src.link;
-  if (!isCampaignOrOfficial(raw?.source_type ?? src.type, link)) {
+  // A floor speech, press release or co-sponsor statement that the scorer read
+  // as a stated position (R8, phase8-v2) is the candidate's own first-party
+  // words too; any other read from those sources stays out, as before.
+  const statedPrimary = candidate.stated_position === true && Boolean(KIND_LABELS[candidate.primary_kind]);
+  if (!statedPrimary && !isCampaignOrOfficial(raw?.source_type ?? src.type, link)) {
     return { write: false, reason: `source "${raw?.source_type ?? src.type}" is not a campaign/official page` };
   }
   return { write: true, strength, reason: `${reason} on a campaign/official page` };
@@ -197,6 +203,7 @@ export function buildLockerItem(candidate, raw, strength = lockerStrength(candid
     confidence_reason: candidate.confidence_reason,
     rules_version: candidate.rules_version,
     ...(candidate.stated_position ? { stated_position: true } : {}),
+    ...(candidate.stated_position && candidate.primary_kind ? { primary_kind: candidate.primary_kind } : {}),
     layer: "stated",
     formal_record: false,
     item_version: LOCKER_ITEM_VERSION,
@@ -220,12 +227,13 @@ function displayDate(iso) {
  */
 export function toSpotlightEntry(item, { key = null, review = null } = {}) {
   const who = surnameOf(item.politician_id);
-  const page = /official/i.test(item.attribution) ? "official page" : "campaign page";
+  // A floor speech, release or co-sponsor statement is named as what it is.
+  const page = KIND_LABELS[item.primary_kind] || (/official/i.test(item.attribution) ? "official page" : "campaign page");
   return {
     // The page type rides in the headline so two pages on one topic stay two
     // receipts (the Locker de-duplicates by headline within a member).
     headline: `${who} ${headlinePhrase(item.topic, item.position)} (${item.source_type})`,
-    facts: `On ${who}'s ${page}, ${who} stated: “${item.excerpt}” ${item.attribution}. Captured ${displayDate(item.date)}.`,
+    facts: `${KIND_LABELS[item.primary_kind] ? "In" : "On"} ${who}'s ${page}, ${who} stated: “${item.excerpt}” ${item.attribution}. Captured ${displayDate(item.date)}.`,
     date: displayDate(item.date),
     issueKey: item.topic,
     impact: "neutral",
@@ -243,6 +251,7 @@ export function toSpotlightEntry(item, { key = null, review = null } = {}) {
       captured: item.date,
       ...(item.strength ? { strength: item.strength } : {}),
       ...(item.stated_position ? { stated_position: true } : {}),
+      ...(item.primary_kind ? { primary_kind: item.primary_kind } : {}),
       // What the candidate said, never a formal record or completed action.
       layer: "stated",
       formal_record: false,
@@ -402,14 +411,21 @@ export function regradeStatedPosition(item) {
   const reason = String(item.confidence_reason || "");
   const m = EXPLICIT_FOR.exec(reason);
   if (!m || m[2] !== item.position || /outlier|reversal|R5\b/i.test(reason)) return item;
-  if (!isPrimarySource(item.source_type, item.link)) return item;
+  const rule = statedSourceRule(item.source_type, item.link);
+  if (!rule) return item;
+  // The stored excerpt is the claim the read rests on: it must be the
+  // candidate's own words, and a non-official release must name a bill or outcome.
+  if (quotedSpeakerOf(item.excerpt, item.politician_id) === "other") return item;
+  if (rule.needsSpecific && !namesBillOrOutcome(item.excerpt)) return item;
   const floor = SCORE_WEIGHTS.statedPositionConfidence;
+  const label = KIND_LABELS[rule.kind];
   return {
     ...item,
     confidence: floor,
     strength: floor >= LOCKER_MIN_CONFIDENCE ? "strong" : "weak",
     stated_position: true,
-    confidence_reason: `${reason}; explicit claim on a primary source reads as a stated position (R8, re-read when served)`,
+    primary_kind: rule.kind,
+    confidence_reason: `${reason}; explicit claim on a primary source${label ? ` (${label})` : ""} reads as a stated position (R8, re-read when served)`,
     regraded_from: { confidence: c, rules_version: item.rules_version ?? null },
   };
 }
