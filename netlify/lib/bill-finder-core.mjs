@@ -29,10 +29,15 @@
 //
 // Pure: no I/O. The catalog is passed in (catalogFromBillDocs).
 // Nothing here is wired into the site.
+//
+// v3 adds each mention's DOCUMENT IDEA (`doc`, see docIdeasFor): the same
+// document scope, cut by measure rather than by subject, for keys whose
+// subject the stance scorer's spans do not track (tariffs_china,
+// border_security). The subject idea (`idea`) is unchanged.
 // ═══════════════════════════════════════════════════════════════════════════
-import { extractSentenceBlocks, subjectSpans, spanScopeFor } from "./stance-score-core.mjs";
+import { extractSentenceBlocks, subjectSpans, spanScopeFor, TRANSITION } from "./stance-score-core.mjs";
 
-export const FINDER_VERSION = "bill-finder-v2";
+export const FINDER_VERSION = "bill-finder-v3";
 
 // ─── Bill numbers ───────────────────────────────────────────────────────────
 // Single letters are upper-case only; the word parts (Con, Res, Amdt) match any
@@ -293,12 +298,62 @@ function ideasFor(mentions, sentences, html, { own, scope }) {
   return spans;
 }
 
+// ─── Document idea (v3) ──────────────────────────────────────────────────────
+// Key-agnostic: the stretch of the page a mention belongs to, cut by MEASURE,
+// not by subject. Same scope rule as the subject idea: a speech, interview,
+// press release, statement or bill text is one document scope (spanScopeFor);
+// a campaign issue page or roll call keeps the paragraph scope. Inside a
+// document the idea runs until a clear break — a page heading, an explicit
+// transition, or a DISTINCT NEW MEASURE (a sentence naming only bills — by
+// number or short title — the stretch has not named, once it has named one). On a bill-text page the
+// whole document is the bill's idea; in paragraph scope the idea is the
+// mention's paragraph. Every entry keeps the scorer subject of its sentence
+// (`subject` / `subjects`, null when none), so a key with no scorer subject can
+// leave out the sentences that belong to the Israel / Ukraine / Iran keys.
+function headingTexts(html) {
+  const out = new Set();
+  for (const m of String(html || "").matchAll(/<h[1-6]\b[^>]*>([\s\S]*?)<\/h[1-6]>/gi)) for (const b of extractSentenceBlocks(`<p>${m[1]}</p>`)) out.add(b.text);
+  return out;
+}
+function docIdeasFor(mentions, sentences, html, spans, { own, scope }) {
+  const heads = headingTexts(html);
+  // A measure is a bill number or a short title, by catalog identity where it
+  // has one, so "H.R. 2" and "the Secure the Border Act of 2023" are one measure.
+  const measure = (m) => (m.kind === "number" ? `${m.congress}|${m.bill}` : m.title_rows?.length === 1 ? m.title_rows[0] : `title|${m.match.toLowerCase()}`);
+  const numbersAt = new Map();
+  for (const m of mentions) if ((m.kind === "number" || m.kind === "short_title") && m.span.sentence != null) {
+    if (!numbersAt.has(m.span.sentence)) numbersAt.set(m.span.sentence, new Set());
+    numbersAt.get(m.span.sentence).add(measure(m));
+  }
+  const seg = [];
+  let n = 1, named = new Set(), used = false;
+  const cut = () => { if (used) { n++; named = new Set(); used = false; } };
+  for (let k = 0; k < sentences.length; k++) {
+    const s = sentences[k];
+    if (own) { seg.push(1); continue; }
+    if (scope !== "document") { seg.push(s.block); continue; }
+    const bills = [...(numbersAt.get(k) || [])];
+    if (heads.has(s.text) || TRANSITION.test(s.text)) cut();
+    else if (bills.length && named.size && !bills.some((b) => named.has(b))) cut();
+    for (const b of bills) named.add(b);
+    seg.push(n); used = true;
+  }
+  const entry = (k, i) => ({ id: k, text: sentences[k].text, sentence: k, subject: spans[k]?.subject ?? null,
+    ...(spans[k]?.subjects ? { subjects: spans[k].subjects } : {}), ...(k === i ? { mention: true } : {}) });
+  for (const m of mentions) {
+    const i = m.span.sentence;
+    if (m.origin === "url_slug") { m.doc = [{ id: "slug", text: m.span.text, slug: true, mention: true, subject: null }]; continue; }
+    m.doc = sentences.map((_, k) => k).filter((k) => i == null || seg[k] === seg[i]).map((k) => entry(k, i));
+  }
+}
+
 /**
  * findBills(page, { catalog }) → { candidates, sentences, scope }
  *   page: { body (HTML) | text, url, date (YYYY-MM-DD), politician_id, source_type }
  * Each candidate: { id, bill, congress, kind, origin, in_catalog, catalog, mentions[], resolves_to? }
  *   mentions[]: { kind, origin, match, span: { text, block, sentence }, idea: [entry…], window: [idea text…] }
  *   idea entry: { text, sentence, subject, subjects?, facet?, mention? } (see ideasFor)
+ *   doc: [entry…] — the mention's document idea, cut by measure (see docIdeasFor)
  */
 export function findBills(page, { catalog = null } = {}) {
   const html = bodyHtml(page);
@@ -374,7 +429,8 @@ export function findBills(page, { catalog = null } = {}) {
   if (slug) scan({ text: slug, block: null, sentence: null }, "url_slug");
 
   const scope = own ? "document" : spanScopeFor(page.source_type);
-  ideasFor(mentions, sentences, html, { own, scope });
+  const spans = ideasFor(mentions, sentences, html, { own, scope });
+  docIdeasFor(mentions, sentences, html, spans, { own, scope });
   for (const m of mentions) {
     m.window = m.idea.map((e) => e.text);
     if (m.kind === "phrase") m.countries = countriesIn(m.window.join(" "));
@@ -390,7 +446,7 @@ function groupMentions(mentions, page, catalog, own) {
     if (!byKey.has(k)) byKey.set(k, { ...seed, mentions: [] });
     byKey.get(k).mentions.push(strip(m));
   };
-  const strip = ({ kind, origin, match, span, window, idea, family, countries, congress_from }) => ({ kind, origin, match, span, window, idea, ...(congress_from ? { congress_from } : {}), ...(family ? { family, countries } : {}) });
+  const strip = ({ kind, origin, match, span, window, idea, doc, family, countries, congress_from }) => ({ kind, origin, match, span, window, idea, doc, ...(congress_from ? { congress_from } : {}), ...(family ? { family, countries } : {}) });
   const seedFor = (congress, bill, kind) => {
     const row = catalog && congress ? catalog.byId.get(keyOf(congress, bill)) : null;
     return { id: row ? row.id : keyOf(congress, bill), bill, congress, kind, in_catalog: !!row, catalog: row ? brief(row) : null };

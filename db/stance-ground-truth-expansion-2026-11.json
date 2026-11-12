@@ -1,0 +1,125 @@
+{
+  "_note": "Ground-truth stance records added in the expansion pass (2026-11-12): one human label per person on one of the five keys that have a bill mapping pattern (israel_offensive_arms, ukraine_aid, iran_hostilities, tariffs_china, border_security). Same fields as the six locked records in db/stance-ground-truth-talarico-cost-of-living.json, which this file does not change. Each excerpt is quoted verbatim from the linked first-party page; fragments are separated by \" ... \".",
+  "records": [
+    {
+      "stance_id": "owens|ukraine_aid|gt-007",
+      "politician_id": "owens",
+      "topic": "ukraine_aid",
+      "position": "support",
+      "position_on": "sending further U.S. military, humanitarian and economic aid to Ukraine (here, H.R. 7691 in May 2022)",
+      "confidence": 0.8,
+      "confidence_reason": "He states his yes vote on a Ukraine aid supplemental and the reason for it in his own words; held at 0.8 because it is one release about one vote, with no later statement on further aid.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2022-05-10",
+          "link": "https://owens.house.gov/posts/owens-backs-additional-ukraine-aid",
+          "excerpt": "\"WASHINGTON, D.C. – Tonight, Rep. Burgess Owens (UT-04) released the following statement after his vote in support of H.R. 7691, the Additional Ukraine Supplemental Appropriations Act.\" ... \"Tonight, I voted yes on H.R. 7691 to deliver immediate military, humanitarian, and economic aid to Ukraine.\" ... \"The stakes are high, and adversaries like China are analyzing our strength.\" ... \"The U.S.A. must not waiver in our full-scale response.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release from his House office on his vote for H.R. 7691 (117th Congress), the Additional Ukraine Supplemental Appropriations Act, 2022. The first fragment is the office's framing; the rest is his quoted statement. The China line is about adversaries watching, not trade.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "rick_crawford|ukraine_aid|gt-008",
+      "politician_id": "rick_crawford",
+      "topic": "ukraine_aid",
+      "position": "mixed",
+      "position_on": "further U.S. aid to Ukraine: for direct lethal military aid, against the April 2024 package's non-military and economic aid",
+      "confidence": 0.75,
+      "confidence_reason": "In one statement he votes against the $60.8 billion Ukraine package and says he backed an amendment for military-only aid, so he supports one part of the proposition and opposes another; one source, so held at 0.75.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2024-04-20",
+          "link": "https://crawford.house.gov/media/press-releases/rep-crawford-votes-to-stop-endless-funding-to-ukraine",
+          "excerpt": "\"Washington, D.C. — Congressman Rick Crawford (AR-01) issued the statement below concerning his vote today against an additional $60.8 billion aid bill to Ukraine, including $9 billion in economic assistance in the form of \"forgivable loans.\" ... \"While the entire Western world stands in support of Ukraine's fight to expel Vladimir Putin's Ukraine invasion force, I cannot in good faith vote to send billions of dollars in non-military financial aid to Ukraine to prop up its economy when Americans are struggling with rising costs at home.\" ... \"I voted in favor of the Cammack amendment that would have focused American taxpayer dollars on direct military aid for the fighting men and women in Ukraine and on replenishing American military stockpiles.\" ... \"We need to help Ukraine with lethal, military aid so that it can stop Russia in its tracks.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release from his House office on his vote against the April 2024 Ukraine aid bill (the House's $60.8 billion Ukraine title). The release names no bill number. He opposes the non-military aid in the package and supports direct military aid, so the record is mixed rather than oppose.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "michael_guest|border_security|gt-009",
+      "politician_id": "michael_guest",
+      "topic": "border_security",
+      "position": "support",
+      "position_on": "stronger border enforcement: more agents, walls and barriers, and stopping illegal crossings (here, H.R. 2, the Secure the Border Act of 2023)",
+      "confidence": 0.85,
+      "confidence_reason": "He votes for H.R. 2 and, in his own floor remarks, backs its agents, walls and barriers and calls for ending illegal crossings; held below 0.9 because both parts come from one release about one bill.",
+      "sources": [
+        {
+          "type": "official press release (with floor speech transcript)",
+          "date": "2023-05-12",
+          "link": "https://guest.house.gov/media/press-releases/congressman-guest-supports-critical-legislation-address-border-crisis",
+          "excerpt": "\"Washington, D.C. – Yesterday, Vice Chairman of the Committee on Homeland Security Michael Guest voted in favor of H.R. 2 – Secure the Border Act of 2023.\" ... \"Make no mistake, our border is broken.\" ... \"This legislation will hire thousands of new agents, pay retention bonuses to our front-line officers, invest in new technology, construct hundreds of miles of walls and barriers, and will support our local and state partners.\" ... \"We must end the flood of immigrants that are coming across each and every day, and we must support the hard-working men and women of law enforcement who are on the front lines of this crisis.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release from his House office on his vote for H.R. 2 (118th Congress), with the transcript of his floor speech. The first fragment is the office's framing; the rest is his speech. He is Vice Chairman of the Homeland Security Committee.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "tlaib|iran_hostilities|gt-010",
+      "politician_id": "tlaib",
+      "topic": "iran_hostilities",
+      "position": "support",
+      "position_on": "requiring congressional consent before U.S. forces strike Iran, and Congress acting to stop strikes it did not authorize (June 2025)",
+      "confidence": 0.8,
+      "confidence_reason": "She says in her own words that striking Iran without the consent of Congress violates the Constitution and that Congress must use its war powers to stop it; one statement on one event, so held at 0.8.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2025-06-21",
+          "link": "https://tlaib.house.gov/posts/tlaib-denounces-trumps-disastrous-unconstitutional-bombing-of-iran",
+          "excerpt": "\"President Trump sending U.S. troops to bomb Iran without the consent of Congress is a blatant violation of our Constitution.\" ... \"Congress must act immediately to exert its war powers and stop this unconstitutional act of war.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party statement from her House office on the June 2025 U.S. strikes on Iran. Both fragments are her quoted words. The statement names no resolution or bill.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "cotton|israel_offensive_arms|gt-011",
+      "politician_id": "cotton",
+      "topic": "israel_offensive_arms",
+      "position": "support",
+      "position_on": "approving and delivering U.S. offensive weapons to Israel without delay (2,000-pound bombs, warheads, guidance kits, Hellfire missiles)",
+      "confidence": 0.85,
+      "confidence_reason": "In his own letter he names the offensive munitions being held back and demands they be fast-tracked to Israel; it is his fourth such letter by his own count, but only this one is read here, so held below 0.9.",
+      "sources": [
+        {
+          "type": "official press release (letter to the President)",
+          "date": "2024-11-26",
+          "link": "https://www.cotton.senate.gov/news/press-releases/cotton-to-biden-delayed-arms-to-israel-emboldens-iran",
+          "excerpt": "\"I write—for the fourth time— to condemn your administration’s continued denial and delay of needed weapons to Israel.\" ... \"While you continue your public hold on the MK-84 2,000-pound bombs, your administration has manipulated Department of Defense, Department of State, and congressional approval processes to broaden the arms embargo behind the scenes.\" ... \"The Department of Defense is withholding or delaying the approval of thousands of MK-83 warheads and guidance kits as well as thousands of MK-82 guidance kits.\" ... \"It’s time to fast-track these weapons deliveries now.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release from his Senate office with the full text of his letter to President Biden. All fragments are from the letter in his own words. It names no bill or resolution.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    }
+  ]
+}

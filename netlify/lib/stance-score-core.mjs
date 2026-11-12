@@ -854,7 +854,7 @@ const ISSUE_BREAK_RES = Object.entries(ISSUE_TOPIC_VOCAB).filter(([k]) => !SPAN_
 export const issueBreakTerms = () => Object.fromEntries(Object.entries(ISSUE_TOPIC_VOCAB).filter(([k]) => !SPAN_FAMILY.has(k))
   .map(([k, v]) => [k, topAlternatives(v.terms).filter((t) => !BROAD_BREAK_TERMS.has(t))]));
 // Explicit transition: the speaker announces a new subject.
-const TRANSITION = /\b(?:(?:let me|let['’]s|I(?:['’]d| would| want to)?) (?:now )?(?:turn|move|pivot|switch|shift) (?:now )?to|turning (?:now )?to|moving on|on (?:a|another) (?:different |separate )?(?:subject|topic|note|issue)|switching gears|changing (?:the )?subject|another (?:issue|subject|topic) (?:I|we)|next,? I want to talk about)\b/i;
+export const TRANSITION = /\b(?:(?:let me|let['’]s|I(?:['’]d| would| want to)?) (?:now )?(?:turn|move|pivot|switch|shift) (?:now )?to|turning (?:now )?to|moving on|on (?:a|another) (?:different |separate )?(?:subject|topic|note|issue)|switching gears|changing (?:the )?subject|another (?:issue|subject|topic) (?:I|we)|next,? I want to talk about)\b/i;
 const isIssueChange = (s) => !CLAIM_WORD.test(s) && ISSUE_BREAK_RES.some((re) => re.test(s));
 const isFragment = (s) => /[,:;—–-]["”’]?$/.test(s);
 

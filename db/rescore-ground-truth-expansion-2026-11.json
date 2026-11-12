@@ -1,0 +1,176 @@
+{
+  "_note": "Offline score of the expansion ground-truth records with the current stance scorer, compared with each human label. Diagnostic only: no ground-truth label, rule or site file changes, and a disagreement is left as it is.",
+  "rules_version": "phase8-v3",
+  "vocab_version": "issue-vocab-v2-directional",
+  "confidence_tolerance": 0.1,
+  "summary": {
+    "records": 5,
+    "scorer_agrees_on_position": 1,
+    "verdicts": {
+      "owens|ukraine_aid|gt-007": "support → no clear position (disagrees)",
+      "rick_crawford|ukraine_aid|gt-008": "mixed → support (disagrees)",
+      "michael_guest|border_security|gt-009": "support → support (agrees)",
+      "tlaib|iran_hostilities|gt-010": "support → no clear position (disagrees)",
+      "cotton|israel_offensive_arms|gt-011": "support → no clear position (disagrees)"
+    }
+  },
+  "records": [
+    {
+      "stance_id": "owens|ukraine_aid|gt-007",
+      "politician_id": "owens",
+      "topic": "ukraine_aid",
+      "human": {
+        "position": "support",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "2 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: owens|ukraine_aid position MISMATCH (candidate no clear position, ground truth support); confidence 0.3 vs 0.8, Δ=-0.50 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2022-05-10",
+          "link": "https://owens.house.gov/posts/owens-backs-additional-ukraine-aid",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "2 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "rick_crawford|ukraine_aid|gt-008",
+      "politician_id": "rick_crawford",
+      "topic": "ukraine_aid",
+      "human": {
+        "position": "mixed",
+        "confidence": 0.75
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 3 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): While the entire Western world stands in support of Ukraine's fight to expel Vladimir Putin's Ukraine invasion force, I cannot in good faith vote to send billions of dollars in non-military financial aid to Ukraine to prop up its economy when Americans are struggling with rising costs at home."
+        ]
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: rick_crawford|ukraine_aid position MISMATCH (candidate support, ground truth mixed); confidence 0.8 vs 0.75, Δ=+0.05 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2024-04-20",
+          "link": "https://crawford.house.gov/media/press-releases/rep-crawford-votes-to-stop-endless-funding-to-ukraine",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 3 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): While the entire Western world stands in support of Ukraine's fight to expel Vladimir Putin's Ukraine invasion force, I cannot in good faith vote to send billions of dollars in non-military financial aid to Ukraine to prop up its economy when Americans are struggling with rising costs at home."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "michael_guest|border_security|gt-009",
+      "politician_id": "michael_guest",
+      "topic": "border_security",
+      "human": {
+        "position": "support",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.95,
+        "reason": "3 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); ≥3 consistent raise confidence (R4)",
+        "statements": [
+          "support (clear): Washington, D.C. – Yesterday, Vice Chairman of the Committee on Homeland Security Michael Guest voted in favor of H.R. 2 – Secure the Border Act of 2023.",
+          "support (clear): Make no mistake, our border is broken.",
+          "support (clear): This legislation will hire thousands of new agents, pay retention bonuses to our front-line officers, invest in new technology, construct hundreds of miles of walls and barriers, and will support our local and state partners."
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: michael_guest|border_security position MATCH (candidate support, ground truth support); confidence 0.95 vs 0.85, Δ=+0.10 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release (with floor speech transcript)",
+          "date": "2023-05-12",
+          "link": "https://guest.house.gov/media/press-releases/congressman-guest-supports-critical-legislation-address-border-crisis",
+          "position": "support",
+          "confidence": 0.95,
+          "reason": "3 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); ≥3 consistent raise confidence (R4)",
+          "statements": [
+            "support (clear): Washington, D.C. – Yesterday, Vice Chairman of the Committee on Homeland Security Michael Guest voted in favor of H.R. 2 – Secure the Border Act of 2023.",
+            "support (clear): Make no mistake, our border is broken.",
+            "support (clear): This legislation will hire thousands of new agents, pay retention bonuses to our front-line officers, invest in new technology, construct hundreds of miles of walls and barriers, and will support our local and state partners."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "tlaib|iran_hostilities|gt-010",
+      "politician_id": "tlaib",
+      "topic": "iran_hostilities",
+      "human": {
+        "position": "support",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0,
+        "reason": "topic not found in source",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: tlaib|iran_hostilities position MISMATCH (candidate no clear position, ground truth support); confidence 0 vs 0.8, Δ=-0.80 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2025-06-21",
+          "link": "https://tlaib.house.gov/posts/tlaib-denounces-trumps-disastrous-unconstitutional-bombing-of-iran",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "cotton|israel_offensive_arms|gt-011",
+      "politician_id": "cotton",
+      "topic": "israel_offensive_arms",
+      "human": {
+        "position": "support",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "2 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: cotton|israel_offensive_arms position MISMATCH (candidate no clear position, ground truth support); confidence 0.3 vs 0.85, Δ=-0.55 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release (letter to the President)",
+          "date": "2024-11-26",
+          "link": "https://www.cotton.senate.gov/news/press-releases/cotton-to-biden-delayed-arms-to-israel-emboldens-iran",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "2 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    }
+  ]
+}

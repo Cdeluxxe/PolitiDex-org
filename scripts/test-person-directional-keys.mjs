@@ -2,10 +2,12 @@
 // test-person-directional-keys.mjs — the person-file section for directional-key
 // bill matches and stance-scorer reads (person-directional-keys.js / .json).
 //   · the table is current with the finder and scorer code, and names only the
-//     three keys with a pattern;
+//     five keys with a pattern;
 //   · Massie: H.R. 8035 / H.R. 7691 → ukraine_aid, H.Con.Res. 38 → iran_hostilities;
 //     scorer reads ukraine_aid oppose and iran_hostilities support;
 //   · Sanders: Israel bills → israel_offensive_arms only; scorer read on that key;
+//   · the expansion people (Owens, Crawford, Guest, Tlaib, Cotton) are in the
+//     table on their record's key, with the scorer's read (agree or not);
 //   · the section renders for people with rows and is absent for everyone else;
 //   · wording is plain: no partnership, equity or "coming later" language;
 //   · person-bills.js loads it; person.html and the precache list are unchanged,
@@ -23,7 +25,7 @@ const R = (p) => fs.readFileSync(path.join(root, p), 'utf8');
 let failures = 0;
 const t = (name, fn) => { try { fn(); console.log('  ✓', name); } catch (e) { failures++; console.error('  ✗', name, '\n    ', e.message); } };
 const data = JSON.parse(R('person-directional-keys.json'));
-const KEYS = ['israel_offensive_arms', 'ukraine_aid', 'iran_hostilities'];
+const KEYS = ['israel_offensive_arms', 'ukraine_aid', 'iran_hostilities', 'tariffs_china', 'border_security'];
 
 // ── A minimal DOM, enough for mount / fill ──────────────────────────────────
 function el(tag, cls) {
@@ -57,7 +59,7 @@ function boot(pid, stages = ['explore', 'record']) {
 }
 const tick = () => new Promise((r) => setTimeout(r, 0));
 
-t('the table is current with the finder and scorer, and names only the three keys with a pattern', () => {
+t('the table is current with the finder and scorer, and names only the five keys with a pattern', () => {
   execFileSync(process.execPath, [path.join(root, 'scripts/gen-person-directional-keys.mjs'), '--check'], { stdio: 'pipe' });
   assert.deepEqual(Object.keys(data.keys), KEYS);
   for (const p of Object.values(data.people)) for (const x of [...p.mappings, ...p.stances]) assert.ok(KEYS.includes(x.key), x.key);
@@ -81,7 +83,26 @@ t('Sanders: Israel bills on israel_offensive_arms only; the scorer read on that 
   assert.deepEqual(s.stances.map((x) => [x.key, x.position]), [['israel_offensive_arms', 'oppose']]);
 });
 t('only people with rows are in the table (no Talarico, no one else)', () => {
-  assert.deepEqual(Object.keys(data.people), ['massie', 'sanders']);
+  assert.deepEqual(Object.keys(data.people), ['cotton', 'massie', 'michael_guest', 'owens', 'rick_crawford', 'sanders', 'tlaib']);
+});
+t('expansion people: each on their record key, with bill matches where the source names a bill and the scorer read as it is', () => {
+  const P = data.people;
+  assert.deepEqual(P.owens.mappings.map((x) => [x.bill, x.key, x.confidence]), [['H.R. 7691', 'ukraine_aid', 'high']]);
+  assert.deepEqual(P.michael_guest.mappings.map((x) => [x.bill, x.key, x.confidence]), [['H.R. 2', 'border_security', 'high']]);
+  for (const pid of ['rick_crawford', 'tlaib', 'cotton']) assert.deepEqual(P[pid].mappings, [], `${pid} names no bill`);
+  assert.deepEqual(Object.fromEntries(['owens', 'rick_crawford', 'michael_guest', 'tlaib', 'cotton'].map((pid) => [pid, P[pid].stances.map((x) => [x.key, x.position])])), {
+    owens: [['ukraine_aid', 'no clear position']], rick_crawford: [['ukraine_aid', 'support']], michael_guest: [['border_security', 'support']],
+    tlaib: [['iran_hostilities', 'no clear position']], cotton: [['israel_offensive_arms', 'no clear position']],
+  });
+  // The reads match the expansion re-score report, which records the human label next to each.
+  const rep = JSON.parse(R('db/rescore-ground-truth-expansion-2026-11.json'));
+  for (const r of rep.records) {
+    const st = P[r.politician_id].stances.find((x) => x.key === r.topic);
+    assert.equal(st.position, r.scorer.position, r.stance_id);
+    assert.equal(st.confidence, r.scorer.confidence, r.stance_id);
+  }
+  assert.deepEqual(rep.records.filter((r) => r.scorer_agrees).map((r) => r.stance_id), ['michael_guest|border_security|gt-009']);
+  execFileSync(process.execPath, [path.join(root, 'scripts/rescore-ground-truth-expansion-2026-11.mjs'), '--check'], { stdio: 'pipe' });
 });
 t('the scorer reads in the table match a fresh scorer read; ground-truth labels are unchanged', () => {
   const gt = JSON.parse(R('db/stance-ground-truth-talarico-cost-of-living.json'));
@@ -114,6 +135,19 @@ at('the section renders for Sanders with the Israel rows only', async () => {
   assert.ok(h.includes('Offensive Arms Sales to Israel') && h.includes('One of') && h.includes('S.J.Res. 33') && h.includes('Floor speech (prepared remarks, official release), 2024-11-20'));
   assert.ok(!h.includes('Further U.S. Aid to Ukraine</span>') && !h.includes('Hostilities with Iran</span>'));
 });
+at('the heading counts and names the five keys from the table; Guest’s border row renders', async () => {
+  const { body } = boot('michael_guest');
+  await tick(); await tick();
+  const h = find(body, '#pdx-dirkeys').innerHTML;
+  assert.ok(h.includes('Bills and stances on five directional issues'));
+  assert.ok(h.includes('on five issues only: Offensive Arms Sales to Israel, Further U.S. Aid to Ukraine, Congress Must Authorize Hostilities with Iran, Tariffs on China &amp; Unfair Trade, and Strong Border &amp; Enforcement.'));
+  for (const s of ['H.R. 2', 'Strong Border &amp; Enforcement</span>', 'High confidence', 'Official press release (with floor speech transcript), 2023-05-12', 'Supports']) assert.ok(h.includes(s), s);
+  for (const pid of ['owens', 'rick_crawford', 'tlaib', 'cotton']) {
+    const r = boot(pid); await tick(); await tick();
+    const x = find(r.body, '#pdx-dirkeys');
+    assert.ok(x && !x.hidden && x.innerHTML.includes('Stance scorer reads'), pid);
+  }
+});
 at('people with no row get no section (hidden and empty)', async () => {
   for (const pid of ['james_talarico', 'aoc', 'tommy_butler']) {
     const { body, api } = boot(pid);
@@ -135,7 +169,7 @@ at('falls back to Stances & connections, then ahead of the Official record', asy
 at('wording is plain: no partnership, equity or "coming later" language', async () => {
   const banned = /\b(?:partner\w*|equity|coming (?:soon|later)|stay tuned|in the future|roadmap|beta)\b/i;
   const { api } = boot('massie');
-  const rendered = api.html(api.entryFor(data, 'massie')) + api.html(api.entryFor(data, 'sanders'));
+  const rendered = Object.keys(data.people).map((pid) => api.html(api.entryFor(data, pid))).join('');
   assert.ok(!banned.test(rendered), rendered.match(banned)?.[0]);
   const visible = R('person-directional-keys.js').split('\n').filter((l) => !/^\s*(?:\/\/|\*|\/\*)/.test(l)).join('\n');
   assert.ok(!banned.test(visible));

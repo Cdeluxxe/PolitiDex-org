@@ -1,12 +1,14 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   person-directional-keys.js — bill matches and scorer reads on three
-   directional issue keys, on the person's file
+   person-directional-keys.js — bill matches and scorer reads on the
+   directional issue keys with a bill pattern, on the person's file
    ────────────────────────────────────────────────────────────────────────────
    WHAT IT SHOWS. For a person listed in person-directional-keys.json (written
    by scripts/gen-person-directional-keys.mjs), one section with up to two
-   lists, on the three directional keys that have a bill mapping pattern —
-   Offensive Arms Sales to Israel, Further U.S. Aid to Ukraine, and Congress
-   Must Authorize Hostilities with Iran — and no other key:
+   lists, on the keys that have a bill mapping pattern — the table's `keys`:
+   Offensive Arms Sales to Israel, Further U.S. Aid to Ukraine, Congress Must
+   Authorize Hostilities with Iran, Tariffs on China & Unfair Trade, and Strong
+   Border & Enforcement — and no other key. The heading counts and names them
+   from the table, so it never says more or fewer than the table holds:
      · Bills matched to a key: each bill the bill finder matched to one of those
        keys in the person's sources — the bill (linked to its bill page when
        there is one), the key, the match confidence (high / medium / low), a
@@ -34,6 +36,7 @@
   var SRC = '/person-directional-keys.json';
   var POSITION = { support: 'Supports', oppose: 'Opposes', mixed: 'Mixed', 'no clear position': 'No clear position' };
   var CONF = { high: 'High confidence', medium: 'Medium confidence', low: 'Low confidence' };
+  var NUMBER_WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
@@ -115,8 +118,11 @@
 
   function html(entry) {
     if (!entry) return '';
-    var parts = ['<div class="modal-section-title">\u{1F9ED} Bills and stances on three directional issues</div>',
-      '<p class="modal-section-sub">Bill matches made by the bill finder in this person’s sources, and the automated stance scorer’s read, on three issues only: offensive arms sales to Israel, further U.S. aid to Ukraine, and congressional authorization of hostilities with Iran.</p>'];
+    var labels = Object.keys(entry.keys).map(function (k) { return entry.keys[k].label; });
+    var count = NUMBER_WORDS[labels.length] || String(labels.length);
+    var list = labels.length > 1 ? labels.slice(0, -1).join(', ') + ', and ' + labels[labels.length - 1] : labels.join('');
+    var parts = ['<div class="modal-section-title">\u{1F9ED} Bills and stances on ' + esc(count) + ' directional issues</div>',
+      '<p class="modal-section-sub">Bill matches made by the bill finder in this person’s sources, and the automated stance scorer’s read, on ' + esc(count) + ' issues only: ' + esc(list) + '.</p>'];
     if (entry.mappings.length) {
       parts.push('<div class="pdx-dk-group" data-pdx-dirkeys-group="mappings"><div class="pdx-dk-gh">Bills matched to an issue <span>' + entry.mappings.length + '</span></div>' +
         '<ul>' + entry.mappings.map(function (m) { return mappingHtml(m, entry.keys); }).join('') + '</ul></div>');

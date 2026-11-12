@@ -1,11 +1,13 @@
 // ═══════════════════════════════════════════════════════════════════════════
-// bill-key-patterns.mjs — per-key bill mapping patterns (three keys)
+// bill-key-patterns.mjs — per-key bill mapping patterns (five keys)
 //
 // Links a bill found by bill-finder-core.mjs to an issue key when the text
 // says the bill is about that key's subject. Mapped so far:
 //   israel_offensive_arms  (v1)
 //   ukraine_aid            (v2 — "Further U.S. Aid to Ukraine")
 //   iran_hostilities       (v4 — "Congress Must Authorize Hostilities with Iran")
+//   tariffs_china          (v5 — "Tariffs on China & Unfair Trade", register key)
+//   border_security        (v5 — "Strong Border & Enforcement", register key)
 // Every other key is left for later passes using the same shape:
 //   subject     the subject the key is about (Israel / Ukraine)
 //   instrument  what the bill does to it (an arms sale or transfer / aid,
@@ -39,7 +41,7 @@
 import { DIRECTIONAL_ISSUE_KEYS } from "./stance-topic-vocab.mjs";
 import { subjectOf, facetExcludes } from "./stance-score-core.mjs";
 
-export const PATTERNS_VERSION = "bill-key-patterns-v4";
+export const PATTERNS_VERSION = "bill-key-patterns-v5";
 export const CONFIDENCE_SCORE = { high: 0.9, medium: 0.6, low: 0.35 };
 
 export const BILL_KEY_PATTERNS = {
@@ -79,6 +81,33 @@ export const BILL_KEY_PATTERNS = {
     about: "U.S. hostilities with Iran",
     subjectWords: "Iran hostilities",
   },
+  // Tariffs on China: a bill (or provision) that puts tariffs or duties on
+  // Chinese goods, ends China's trade preferences, or sets trade remedies
+  // against it. Naming China without a trade-remedy word (export controls,
+  // espionage, Taiwan, the CCP in general) does not map.
+  tariffs_china: {
+    label: "Tariffs on China & Unfair Trade",
+    words: true,
+    subject: /\b(?:china|chinese|PRC|people['’]s republic of china|beijing|CCP|chinese communist party)\b/i,
+    instrument: /\b(?:tariffs?|duties|duty|import tax\w*|section 301|trade remed\w+|unfair trade|countervailing|anti-?dumping|dumping|(?:permanent )?normal trade relations|most[- ]favored[- ]nation|de minimis|trade (?:war|deficit|enforcement|cheating|practices))\b/i,
+    facet: null,
+    about: "tariffs on China",
+    subjectWords: "China tariff",
+  },
+  // Strong border and enforcement: a bill that builds barriers, funds or adds
+  // border agents, tightens asylum and parole at the border, or steps up
+  // enforcement against illegal crossings and entry. "Cross-border" (energy,
+  // trade) is not the subject; naming the border without an enforcement word
+  // does not map.
+  border_security: {
+    label: "Strong Border & Enforcement",
+    words: true,
+    subject: /\b(?:(?<!cross-)borders?(?![- ](?:towns|communities|energy|projects|adjustment|tax))|illegal (?:immigration|immigrants|aliens|crossings|entry)|asylum|migrants?|immigration)\b/i,
+    instrument: /\b(?:secur\w*|enforce\w*|wall|barriers?|patrol|agents|officers|detention|detain\w*|deport\w*|removals?|Title 42|catch[- ]and[- ]release|remain in mexico|parole|E-?Verify|ICE|CBP|crisis|smuggling|fentanyl)\b/i,
+    facet: null,
+    about: "border enforcement",
+    subjectWords: "border enforcement",
+  },
 };
 
 /** Keys with a mapping pattern. */
@@ -93,7 +122,7 @@ export function mapCandidate(cand, key) {
   const P = BILL_KEY_PATTERNS[key];
   if (!P) return { mapped: false, reason: `no mapping pattern for ${key}` };
   const best = cand.mentions.find((m) => m.kind === "number") || cand.mentions.find((m) => m.kind === "short_title") || cand.mentions[0];
-  const ev = evidenceFor(cand, key);
+  const ev = P.words ? wordEvidenceFor(cand, key) : evidenceFor(cand, key);
   const texts = ev.texts;
   const joined = texts.join(" ");
   const ideaText = uniq(cand.mentions.flatMap((m) => m.window)).join(" ");
@@ -101,12 +130,13 @@ export function mapCandidate(cand, key) {
   const resolvedTitles = (cand.resolves_to || []).map((r) => r.title);
 
   const textSubject = texts.length > 0 && P.subject.test(joined) && P.instrument.test(joined);
-  const titleSubject = !!title && P.subject.test(title) && P.instrument.test(title);
+  const titleSubject = !ev.keyed && !!title && P.subject.test(title) && P.instrument.test(title);
   const textFacet = !P.facet || P.facet.test(joined);
   const titleFacet = !!title && !!P.facet && P.facet.test(title);
   const kind = cand.mentions.some((m) => m.kind === "number") ? "number" : cand.mentions.some((m) => m.kind === "short_title") ? "short_title" : "phrase";
 
   if (!textSubject && !titleSubject) {
+    if (ev.keyed) return { mapped: false, reason: `the mention sits in a passage about ${KEYED_SUBJECT_NAME[ev.keyed] || ev.keyed}, not ${P.about}` };
     if (ev.excluded && P.excludes) return { mapped: false, reason: `about Israel arms, but only defensive systems are named (→ ${P.excludes.key}, not mapped)` };
     return { mapped: false, reason: subjectMiss(cand, ideaText, key) };
   }
@@ -157,6 +187,30 @@ function evidenceFor(cand, key) {
   return { texts: [...kept.values()].sort((a, b) => order(a) - order(b)).map((e) => e.text), excluded };
 }
 
+// Word-subject keys: the document-idea sentences that name the key's subject
+// and sit on no Israel / Ukraine / Iran subject; the mention sentence joins
+// when the idea is on the key and it sits on no such subject either. `keyed`
+// names the subject the mention itself sits on, when it does.
+const KEYED_SUBJECT_NAME = { [subjectOf("israel_offensive_arms")]: "Israel (→ israel_* keys)", [subjectOf("ukraine_aid")]: "Ukraine (→ ukraine_aid)", [subjectOf("iran_hostilities")]: "Iran (→ iran_hostilities)" };
+const keyedSubject = (e) => (e.subject || (e.subjects || []).some((x) => x !== "other") ? (e.subject || e.subjects.find((x) => x !== "other")) : null);
+// Page chrome — a site's issue tag or category line ("Issues : Border Security")
+// — names a subject but says nothing about the bill, so it is never evidence.
+const CHROME_LINE = /^\s*(?:issues?|tags?|categor(?:y|ies)|topics?|filed under|related (?:issues|topics)|press release)\s*:/i;
+function wordEvidenceFor(cand, key) {
+  const P = BILL_KEY_PATTERNS[key];
+  const kept = new Map();
+  const all = cand.mentions.flatMap((m) => m.doc || []);
+  for (const e of all) {
+    if (kept.has(e.id) || keyedSubject(e) || CHROME_LINE.test(e.text) || !P.subject.test(e.text)) continue;
+    kept.set(e.id, e);
+  }
+  if (kept.size) for (const e of all) if (e.mention && !keyedSubject(e) && !kept.has(e.id)) kept.set(e.id, e);
+  const own = all.filter((e) => e.mention);
+  const keyed = own.length && own.every((e) => keyedSubject(e)) ? keyedSubject(own[0]) : null;
+  const order = (e) => (e.slug ? Infinity : e.sentence);
+  return { texts: [...kept.values()].sort((a, b) => order(a) - order(b)).map((e) => e.text), excluded: false, keyed };
+}
+
 // Among several resolved bills, the one whose official title alone fits the key.
 const titleFits = (t, P) => P.subject.test(t) && P.instrument.test(t) && (!P.facet || P.facet.test(t));
 function bestFit(rows, P) {
@@ -170,6 +224,8 @@ const OTHER_SUBJECTS = [
   [/\biran\w*|islamic republic|tehran/i, "Iran (→ iran_hostilities)", "iran_hostilities"],
   [/\bmedicare|health ?care|health insurance|medicaid/i, "health care"],
   [/\bvouchers?|school choice|public schools?|education/i, "education"],
+  [/\b(?:china|chinese|beijing|CCP)\b/i, "China (→ tariffs_china)", "tariffs_china"],
+  [/\b(?<!cross-)border\b|illegal immigration|asylum/i, "the border (→ border_security)", "border_security"],
 ];
 function subjectMiss(cand, text, key) {
   const P = BILL_KEY_PATTERNS[key];

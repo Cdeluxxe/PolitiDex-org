@@ -4,16 +4,19 @@
 //
 // Runs the shared bill finder (netlify/lib/bill-finder-core.mjs) and the
 // mapping patterns (netlify/lib/bill-key-patterns.mjs: israel_offensive_arms,
-// ukraine_aid, iran_hostilities) over:
-//   1. GROUND TRUTH — every source excerpt in the ground-truth file, scored as
+// ukraine_aid, iran_hostilities, tariffs_china, border_security) over:
+//   1. GROUND TRUTH — every source excerpt in the ground-truth files (the six
+//      locked records and db/stance-ground-truth-expansion-2026-11.json), scored as
 //      the reviewer recorded it (the same text rescore-ground-truth-directional
 //      reads: fragments split on " ... " become paragraphs), with the source's
-//      own link and date. The Sanders and Massie records are the targets; the
-//      Talarico and Sanders-healthcare records are off-key controls.
+//      own link and date. The Sanders and Massie records and the expansion
+//      records are the targets; the Talarico and Sanders-healthcare records are
+//      off-key controls.
 //   2. ROUTINE SWEEP — the pages the raw-ingest cron pulls on its fixed list
 //      (SOURCES + DISCOVERY_PATTERNS) and the newly-elected state-legislative
-//      ingest roster, fetched live. None is about Israel arms, Ukraine aid or
-//      Iran hostilities, so any mapping there is a false mapping. Skip with --no-sweep (no network).
+//      ingest roster, fetched live. None is about Israel arms, Ukraine aid,
+//      Iran hostilities, tariffs on China or border enforcement, so any mapping
+//      there is a false mapping. Skip with --no-sweep (no network).
 //
 // Read-only: no ground-truth label, scoring rule, issue key, store or site
 // file is touched. The report goes to db/bill-finder-ground-truth-2026-11.json.
@@ -29,8 +32,16 @@ import { SOURCES, DISCOVERY_PATTERNS, FETCH_TIMEOUT_MS, MAX_BODY_CHARS } from ".
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const GT_PATH = path.join(root, "db/stance-ground-truth-talarico-cost-of-living.json");
+const GT_EXPANSION_PATH = path.join(root, "db/stance-ground-truth-expansion-2026-11.json");
 const ROSTER_PATH = path.join(root, "db/raw-ingest-roster-newly-elected-state-legislative-2026-11.json");
 const OUT = path.join(root, "db/bill-finder-ground-truth-2026-11.json");
+
+/** The six locked records plus the expansion records, in the one-file shape groundTruthRows reads. Neither file is changed. */
+export function loadGroundTruth() {
+  const gt = JSON.parse(fs.readFileSync(GT_PATH, "utf8"));
+  const exp = fs.existsSync(GT_EXPANSION_PATH) ? JSON.parse(fs.readFileSync(GT_EXPANSION_PATH, "utf8")).records || [] : [];
+  return { ...gt, additional_records: [...(gt.additional_records || []), ...exp] };
+}
 
 export const loadCatalog = () => F.catalogFromBillDocs(JSON.parse(fs.readFileSync(path.join(root, "db/bill-docs.json"), "utf8")));
 
@@ -107,7 +118,7 @@ async function sweepRows(catalog) {
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const catalog = loadCatalog();
-  const gt = groundTruthRows(JSON.parse(fs.readFileSync(GT_PATH, "utf8")), catalog);
+  const gt = groundTruthRows(loadGroundTruth(), catalog);
   const sweep = process.argv.includes("--no-sweep") ? null : await sweepRows(catalog);
   const okSweep = sweep ? sweep.rows.filter((r) => r.ok) : [];
   const report = {
