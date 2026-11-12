@@ -92,6 +92,14 @@
 //         (b) on the oppose side, a non-speaker subject directly before an -ing
 //             verb is the actor — "the Supreme Court Ruling Gutting the Voting
 //             Rights Act" is the ruling, not the candidate.
+//   R12 Subject spans (directional keys only): a sentence that continues a
+//       subject without naming it again (a follow-up within SPAN_CARRY
+//       sentences, with no clear subject change in between) is read as about
+//       that subject. Spans need not be contiguous: every span on a subject,
+//       anywhere on the page, feeds the one candidate for each key on that
+//       subject, weighed with the usual support / oppose / mixed logic. The
+//       candidate records how many spans were joined (`subject`). Register
+//       topics (SCORED_TOPICS) have no subject and read exactly as before.
 //
 
 // Calibration: the ground truth (0.85) rests on first-party campaign pages
@@ -630,11 +638,13 @@ function claimMatch(sentence, topic) {
  * (phase8-v3, R10) turns on the campaign-claim patterns — set for campaign
  * pages, official issue pages and the candidate's own speeches.
  */
-export function classify(sentence, topic, politicianId = null, { claims = false } = {}) {
+export function classify(sentence, topic, politicianId = null, { claims = false, inSpan = false } = {}) {
   const r = TOPIC_RULES[topic];
   if (!r) throw new Error(`no scoring rules for topic ${topic}`);
   const reversal = REVERSAL.test(sentence);
-  const inContext = !r.context || r.context.test(sentence);
+  // Subject spans: a sentence inside a span on this topic's subject is ABOUT
+  // the subject even when it does not name it again (see subjectSpans).
+  const inContext = !r.context || inSpan || r.context.test(sentence);
   let sm = inContext ? r.support.exec(sentence) : null;
   let om = inContext ? r.oppose.exec(sentence) : null;
   let via;
@@ -686,6 +696,101 @@ const trunc = (t) => (t.length > 300 ? t.slice(0, 297) + "…" : t);
 const round2 = (n) => Math.round(n * 100) / 100;
 const clamp = (n) => Math.max(0, Math.min(WEIGHTS.maxConfidence, n));
 
+// ── SUBJECT SPANS ───────────────────────────────────────────────────────────
+// A subject span is a stretch of a page about one subject (Ukraine, Iran,
+// Israel). Each directional key reads one subject: its `context` check. Keys
+// that share a context (the three Israel keys) share a subject.
+//
+//   · A sentence that NAMES exactly one subject starts or continues a span on it.
+//   · A sentence that names no subject CARRIES the current subject forward, for
+//     at most SPAN_CARRY sentences after the last sentence that named it.
+//   · A clear subject change ends the span: a sentence naming a different
+//     subject (scored or not, e.g. Yemen, China), a sentence naming two or more
+//     subjects (no single subject to carry), or a page heading.
+//   · Spans are NOT required to be contiguous: when the page comes back to a
+//     subject later, the new span continues the same subject. A key reads every
+//     sentence of every span on its subject, and weighs them as one position
+//     with the usual support / oppose / mixed logic (one candidate per key).
+//
+// Only the grouping is new. The directional key rules are unchanged, and the
+// register sweep (SCORED_TOPICS, which has no directional keys) is unaffected:
+// a topic without a subject reads exactly as before.
+export const SPAN_CARRY = 3;
+const SUBJECT_OF = {}; // topic → subject id
+const SUBJECT_RES = {}; // subject id → RegExp (what names the subject)
+for (const k of DIRECTIONAL_TOPICS) {
+  const ctx = DIRECTIONAL_TOPIC_VOCAB[k].context;
+  if (!ctx) continue;
+  const id = Object.keys(SUBJECT_RES).find((sid) => DIRECTIONAL_TOPIC_VOCAB[sid].context === ctx) || k;
+  SUBJECT_OF[k] = id;
+  SUBJECT_RES[id] ||= TOPIC_RULES[k].context;
+}
+// Subjects with no directional key: naming one is still a clear subject change.
+const OTHER_SUBJECT_RES = {
+  ...Object.fromEntries(["yemen_policy", "venezuela_policy"].map((k) => [k, new RegExp(String.raw`\b(?:${ISSUE_TOPIC_VOCAB[k].terms})\b`, "i")])),
+  other_country: /\b(?:china|chinese|beijing|taiwan\w*|north korea\w*|pyongyang|syria\w*|cuba\w*|mexic\w*)\b/i,
+};
+// A sentence about a different register issue is a clear subject change too —
+// except the issues an aid / war / arms debate naturally runs through, which a
+// span carries across: foreign policy, defense, veterans, war powers and
+// Congress's checks, spending and debt, and the border. The two core topics'
+// mention lists are too broad ("pay", "tax") to mark a change and are left out.
+const SPAN_FAMILY = new Set(["strong_defense", "foreign_balance", "restraint", "america_first", "america_first_fp", "israel_support",
+  "iran_policy", "ukraine_policy", "yemen_policy", "venezuela_policy", "veterans", "checks_balances", "war_powers", "power_of_purse",
+  "congress_oversight", "judicial_check", "guard_authority", "states_federal_power", "cut_spending", "national_debt", "gov_waste",
+  "audit_spending", "gov_balance", "border_security", "immig_fentanyl", "deportations"]);
+const OTHER_ISSUE_RES = Object.entries(ISSUE_TOPIC_VOCAB).filter(([k]) => !SPAN_FAMILY.has(k)).map(([, v]) => new RegExp(String.raw`\b(?:${v.terms})\b`, "i"));
+// Explicit transition: the speaker announces a new subject.
+const TRANSITION = /\b(?:(?:let me|let['’]s|I(?:['’]d| would| want to)?) (?:now )?(?:turn|move|pivot|switch|shift) (?:now )?to|turning (?:now )?to|moving on|on (?:a|another) (?:different |separate )?(?:subject|topic|note|issue)|switching gears|changing (?:the )?subject|another (?:issue|subject|topic) (?:I|we)|next,? I want to talk about)\b/i;
+const isSubjectChange = (s) => TRANSITION.test(s) || OTHER_ISSUE_RES.some((re) => re.test(s));
+
+/** The subject a topic reads (directional keys only), or null. */
+export const subjectOf = (topic) => SUBJECT_OF[topic] || null;
+
+/** Sentences that are page headings (a heading always ends a span). */
+function headingSentences(body) {
+  const out = new Set();
+  for (const m of String(body || "").matchAll(/<h[1-6]\b[^>]*>([\s\S]*?)<\/h[1-6]>/gi)) {
+    for (const h of extractSentences(`<p>${m[1]}</p>`)) out.add(h);
+  }
+  return out;
+}
+
+/**
+ * Subject spans over a page's sentences → one entry per sentence:
+ * { subject, span, named } — `subject` is the subject id or null, `span` a
+ * span number (1, 2, … in page order; null outside any span), `named` whether
+ * the sentence names the subject itself (false = carried).
+ */
+export function subjectSpans(sentences, body = "") {
+  const heads = headingSentences(body);
+  const out = [];
+  let cur = null, span = 0, lastNamed = -Infinity;
+  for (let i = 0; i < sentences.length; i++) {
+    const s = sentences[i];
+    const named = Object.keys(SUBJECT_RES).filter((id) => SUBJECT_RES[id].test(s));
+    const other = Object.values(OTHER_SUBJECT_RES).some((re) => re.test(s)) || (!named.length && isSubjectChange(s));
+    if (heads.has(s) || named.length + (other ? 1 : 0) > 1 || (other && !named.length)) {
+      // Clear subject change (or no single subject): the open span ends. A
+      // heading naming one scored subject still opens a span on it.
+      cur = null;
+      if (heads.has(s) && named.length === 1 && !other) { cur = named[0]; span++; lastNamed = i; out.push({ subject: cur, span, named: true }); continue; }
+      out.push({ subject: null, span: null, named: false, ...(named.length > 1 ? { subjects: named } : {}) });
+      continue;
+    }
+    if (named.length === 1) {
+      if (named[0] !== cur) { cur = named[0]; span++; }
+      lastNamed = i;
+      out.push({ subject: cur, span, named: true });
+      continue;
+    }
+    if (cur && i - lastNamed <= SPAN_CARRY) { out.push({ subject: cur, span, named: false }); continue; }
+    cur = null;
+    out.push({ subject: null, span: null, named: false });
+  }
+  return out;
+}
+
 /**
  * Score one raw ingest record → candidate stance. Pure: never mutates `raw`.
  * `topic` defaults to the record's own topic; the cron also scores the same
@@ -702,9 +807,14 @@ export function scoreRawRecord(raw, topic = raw?.topic, sentences = null) {
   const at = new Map(); // sentence index → its statement (R7 pairing)
   const speakers = quoteSpeakers(list, raw.politician_id); // who is quoted (R8)
   const claims = isClaimPage(raw.source_type, raw.final_url || raw.url); // R10
+  // Subject spans (directional keys only): every span on the topic's subject,
+  // wherever it sits on the page, is read for this one candidate.
+  const subject = subjectOf(topic);
+  const spans = subject ? subjectSpans(list, raw.body) : null;
   for (let i = 0; i < list.length; i++) {
     const text = list[i];
-    const c = classify(text, topic, raw.politician_id, { claims });
+    const sp = spans && spans[i].subject === subject ? spans[i] : null;
+    const c = classify(text, topic, raw.politician_id, { claims, inSpan: !!sp });
     if (!c.kind) continue;
     at.set(i, statements.length);
     statements.push({
@@ -717,6 +827,7 @@ export function scoreRawRecord(raw, topic = raw?.topic, sentences = null) {
       ...(c.kind === "implication" ? { implication: c.via } : {}),
       ...(c.kind === "clear" && c.via === "claim" ? { claim_pattern: true } : {}),
       ...(c.actor && c.actor.kind !== "self" ? { attributed_to: c.actor.kind, attributed_via: c.actor.via } : {}),
+      ...(sp ? { subject_span: sp.span, ...(sp.named ? {} : { span_carried: true }) } : {}),
       weight: c.kind === "clear" ? WEIGHTS[tier] : c.kind === "implication" ? WEIGHTS.implication : WEIGHTS.zero,
     });
   }
@@ -833,6 +944,7 @@ export function scoreRawRecord(raw, topic = raw?.topic, sentences = null) {
     // R8: the stated layer only. A stated position is what the candidate said
     // on a primary source; it is never a formal record or completed action.
     ...(stated ? { stated_position: true, primary_kind: rule.kind } : {}),
+    ...(subject ? { subject: subjectSummary(subject, spans, statements) } : {}),
     layer: "stated",
     formal_record: false,
     rules_version: RULES_VERSION,
@@ -840,6 +952,13 @@ export function scoreRawRecord(raw, topic = raw?.topic, sentences = null) {
     ...(topic !== raw.topic ? { page_topic: raw.topic } : {}),
     raw_fetched_at: raw.fetched_at,
   };
+}
+
+/** Candidate-level subject note: how many spans the subject has, and which carried a signal. */
+function subjectSummary(subject, spans, statements) {
+  const all = [...new Set(spans.filter((x) => x.subject === subject).map((x) => x.span))];
+  const signal = [...new Set(statements.filter((x) => x.subject_span && (x.kind === "clear" || x.kind === "implication")).map((x) => x.subject_span))];
+  return { id: subject, spans: all.length, spans_with_signal: signal.length, joined: all.length > 1 };
 }
 
 /** Did the scorer find any directional signal (explicit or implied) for this candidate? */

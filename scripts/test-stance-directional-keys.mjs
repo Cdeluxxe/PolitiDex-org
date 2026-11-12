@@ -86,6 +86,57 @@ t('mixed comes from the engine: one own line each way on a page reads mixed', ()
   assert.equal(c.vocab_version, S.DIRECTIONAL_VOCAB_VERSION);
 });
 
+// ── Subject spans (non-contiguous) ──────────────────────────────────────────
+const page = (body, topic, extra = {}) => ({ url: 'https://example.com', fetched_at: '2026-11-12', source_type: 'speech', politician_id: 'massie', topic, body, ...extra });
+const TWO_PLACES = `<p>Tonight I want to talk about Iran.</p>
+<p>Congress must vote before any president sends troops into hostilities.</p>
+<p>Now let me turn to health care in Kentucky.</p><p>Rural hospitals are closing across the state.</p>
+<p>Back to the strikes on Iran last June.</p><p>Congress has to authorize the use of force before strikes like that.</p>`;
+t('spans: a speech on the same issue in two separate places is ONE position built from both spans', () => {
+  const c = S.scoreRawRecord(page(TWO_PLACES, 'iran_hostilities'), 'iran_hostilities');
+  assert.equal(c.position, 'support');
+  assert.deepEqual(c.subject, { id: 'iran_hostilities', spans: 2, spans_with_signal: 2, joined: true });
+  const clear = c.sources[0].statements.filter((x) => x.kind === 'clear');
+  assert.deepEqual(clear.map((x) => [x.subject_span, x.span_carried]), [[1, true], [2, true]]);
+  // Only one candidate on the key, even when the page is swept with the key opted in.
+  // (Swept with the directional keys only: alongside war_powers, R9 keeps one key for the same sentences.)
+  const all = S.scoreAllTopics(page(TWO_PLACES, 'cost_living'), { topics: KEYS });
+  assert.equal(all.filter((x) => x.topic === 'iran_hostilities').length, 1);
+});
+t('spans: support in one span and oppose in a later span weigh together (mixed), not as two reads', () => {
+  const body = `<p>I will fully fund Iron Dome.</p><p>Now let me turn to rural broadband.</p><p>Every county needs fast internet.</p>
+<p>On Israel again.</p><p>We must block the sale of offensive weaponry to Israel.</p>`;
+  const c = S.scoreRawRecord(page(body, 'israel_military_aid', { politician_id: 'sanders' }), 'israel_military_aid');
+  assert.equal(c.position, 'mixed');
+  assert.equal(c.subject.spans, 2);
+  assert.equal(c.subject.spans_with_signal, 2);
+});
+t('spans: an unnamed follow-up sentence carries the subject only within SPAN_CARRY sentences', () => {
+  const near = S.scoreRawRecord(page('<p>Iran is on everyone’s mind.</p><p>Congress must vote before troops enter hostilities.</p>', 'iran_hostilities'), 'iran_hostilities');
+  assert.equal(near.position, 'support');
+  const filler = Array.from({ length: S.SPAN_CARRY }, (_, i) => `<p>That was a long night for everyone number ${i + 1}.</p>`).join('');
+  const far = S.scoreRawRecord(page(`<p>Iran is on everyone’s mind.</p>${filler}<p>Congress must vote before troops enter hostilities.</p>`, 'iran_hostilities'), 'iran_hostilities');
+  assert.equal(far.position, 'no clear position');
+});
+t('spans: a clear subject change ends the span — another country, another issue, a heading, two subjects at once', () => {
+  const line = '<p>Congress must vote before troops enter hostilities.</p>';
+  for (const brk of ['<p>Turning to Yemen and the Houthis.</p>', '<p>Moving on to something else entirely tonight.</p>',
+    '<p>Our public schools need more teachers.</p>', '<h2>Next section</h2>', '<p>Iran funds attacks on Israel.</p>']) {
+    const c = S.scoreRawRecord(page(`<p>Iran is on everyone’s mind.</p>${brk}${line}`, 'iran_hostilities'), 'iran_hostilities');
+    assert.equal(c.position, 'no clear position', brk);
+  }
+  // War powers, spending and the border are part of the same debate and do not break the span.
+  const c = S.scoreRawRecord(page(`<p>Iran is on everyone’s mind.</p><p>We cannot keep adding to the national debt.</p>${line}`, 'iran_hostilities'), 'iran_hostilities');
+  assert.equal(c.position, 'support');
+});
+t('spans: only directional keys read spans; register topics read exactly as before', () => {
+  assert.equal(S.subjectOf('war_powers'), null);
+  assert.equal(S.subjectOf('israel_offensive_arms'), 'israel_military_aid', 'the three Israel keys share one subject');
+  const c = S.scoreRawRecord(page(TWO_PLACES, 'war_powers'), 'war_powers');
+  assert.ok(!('subject' in c));
+  assert.ok(c.sources[0].statements.every((x) => !('subject_span' in x)));
+});
+
 // ── Nothing existing moves ──────────────────────────────────────────────────
 const fingerprint = (rules, keys) => createHash('sha256').update(JSON.stringify(keys.map((k) =>
   [k, Object.fromEntries(Object.entries(rules[k]).map(([f, r]) => [f, r ? String(r) : null]))]))).digest('hex');
