@@ -32,7 +32,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 import { extractSentenceBlocks } from "./stance-score-core.mjs";
 
-export const FINDER_VERSION = "bill-finder-v1";
+export const FINDER_VERSION = "bill-finder-v1.1";
 
 // ─── Bill numbers ───────────────────────────────────────────────────────────
 // Single letters are upper-case only; the word parts (Con, Res, Amdt) match any
@@ -329,6 +329,12 @@ function groupMentions(mentions, page, catalog, own) {
     const rows = (m.title_rows || []).map((id) => catalog.byId.get(id));
     const sameNumber = rows.find((r) => byKey.has(r.id));
     if (sameNumber || rows.length === 1) { const r = sameNumber || rows[0]; add(r.id, seedFor(r.congress, r.bill, "short_title"), m); continue; }
+    // An uncatalogued title in the same sentence as exactly one federal number
+    // names that bill ("H R 7691 · On Passage · Additional Ukraine Supplemental …").
+    if (!rows.length && m.span.sentence != null) {
+      const same = [...new Set(mentions.filter((x) => x.kind === "number" && x.span.sentence === m.span.sentence).map((x) => keyOf(x.congress, x.bill)))];
+      if (same.length === 1) { add(same[0], null, m); continue; }
+    }
     const k = `title|${m.match.toLowerCase()}`;
     add(k, { id: null, bill: null, congress: null, kind: "short_title", in_catalog: rows.length > 0, catalog: null, name: m.match,
       ...(rows.length ? { resolves_to: rows.map((r) => ({ id: r.id, bill: r.bill, congress: r.congress, title: r.title, why: "same short title" })) } : {}) }, m);

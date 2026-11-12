@@ -1,14 +1,20 @@
 // ═══════════════════════════════════════════════════════════════════════════
-// bill-key-patterns.mjs — per-key bill mapping patterns (v1: ONE key)
+// bill-key-patterns.mjs — per-key bill mapping patterns (v2: two keys)
 //
 // Links a bill found by bill-finder-core.mjs to an issue key when the text
-// says the bill is about that key's subject. Only `israel_offensive_arms` is
-// mapped in v1; every other key is left for later passes using the same shape:
-//   subject     the subject the key is about (here: Israel)
-//   instrument  what the bill does to it (here: a sale / transfer / export of arms)
-//   facet       what narrows a parent key to this child (here: OFFENSIVE weapons)
-//   excludes    a facet that belongs to a sibling key and, alone, means "not this
-//               key" (here: missile defence → israel_defensive_systems)
+// says the bill is about that key's subject. Mapped so far:
+//   israel_offensive_arms  (v1)
+//   ukraine_aid            (v2 — "Further U.S. Aid to Ukraine")
+// Every other key is left for later passes using the same shape:
+//   subject     the subject the key is about (Israel / Ukraine)
+//   instrument  what the bill does to it (an arms sale or transfer / aid,
+//               funding or a supplemental)
+//   facet       optional: what narrows a parent key to this child (OFFENSIVE
+//               weapons for israel_offensive_arms; none for ukraine_aid)
+//   excludes    optional: a facet that belongs to a sibling key and, alone,
+//               means "not this key" (missile defence → israel_defensive_systems)
+//   about       how the key's subject reads in an unmapped reason
+//   facetMiss   the reason given when subject + instrument read but no facet
 // Evidence is read from the text around the mention (the sentence and its
 // neighbours in the same paragraph) and, for a catalog bill, its official title.
 //
@@ -26,7 +32,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 import { DIRECTIONAL_ISSUE_KEYS } from "./stance-topic-vocab.mjs";
 
-export const PATTERNS_VERSION = "bill-key-patterns-v1";
+export const PATTERNS_VERSION = "bill-key-patterns-v2";
 export const CONFIDENCE_SCORE = { high: 0.9, medium: 0.6, low: 0.35 };
 
 export const BILL_KEY_PATTERNS = {
@@ -36,13 +42,28 @@ export const BILL_KEY_PATTERNS = {
     instrument: /\b(?:arms|weapons?|weaponry|munitions|bombs?|(?:foreign )?military sales?|sales?|transfers?|exports?|defense articles|license amendment)\b/i,
     facet: /\b(?:offensive|bombs?|bomb bodies|JDAMs?|guidance kits|small[- ]diameter bombs?|precision[- ]guided|tank (?:rounds|shells|cartridges)|mortar(?: cartridges| rounds)?|artillery|shells|munitions|assault rifles|carbine rifles?)\b/i,
     excludes: { key: "israel_defensive_systems", re: /\b(?:iron dome|david['’]?s sling|arrow (?:\d )?(?:missile|system)|missile defen[cs]e|air defen[cs]e|interceptors?|defend itself)\b/i },
+    about: "Israel offensive arms",
+    subjectWords: "Israel arms-transfer",
+    facetMiss: "about arms for Israel, but neither the text nor the official title says the weapons are offensive (→ parent key israel_military_aid, not mapped)",
+  },
+  // Further U.S. aid to Ukraine: a supplemental, an appropriation, security or
+  // economic assistance, weapons, or lend-lease for Ukraine. No facet: any U.S.
+  // aid measure for Ukraine is on the key. A bill that only names Ukraine
+  // (sanctions on Russia, a resolution of support) has no instrument word and
+  // does not map. Russia / Putin alone is not the subject.
+  ukraine_aid: {
+    label: DIRECTIONAL_ISSUE_KEYS.ukraine_aid.label,
+    subject: /\b(?:ukrain\w*|kyiv|zelensky\w*)\b/i,
+    instrument: /\b(?:aid|assistance|funding|funds?|appropriations?|supplementals?|packages?|weapons|arms|money|dollars|blank checks?|lend-lease)\b/i,
+    facet: null,
+    about: "further U.S. aid to Ukraine",
+    subjectWords: "Ukraine aid",
   },
 };
 
 /** Keys with a mapping pattern. */
 export const MAPPED_KEYS = Object.keys(BILL_KEY_PATTERNS);
 
-const firstMatch = (re, texts) => texts.find((t) => re.test(t)) || null;
 const uniq = (a) => [...new Set(a.filter(Boolean))];
 
 /**
@@ -59,56 +80,61 @@ export function mapCandidate(cand, key) {
 
   const textSubject = P.subject.test(joined) && P.instrument.test(joined);
   const titleSubject = !!title && P.subject.test(title) && P.instrument.test(title);
-  const textFacet = P.facet.test(joined);
-  const titleFacet = !!title && P.facet.test(title);
+  const textFacet = !P.facet || P.facet.test(joined);
+  const titleFacet = !!title && !!P.facet && P.facet.test(title);
   const kind = cand.mentions.some((m) => m.kind === "number") ? "number" : cand.mentions.some((m) => m.kind === "short_title") ? "short_title" : "phrase";
 
   if (!textSubject && !titleSubject) {
-    return { mapped: false, reason: subjectMiss(cand, joined) };
+    return { mapped: false, reason: subjectMiss(cand, joined, key) };
   }
   if (!textFacet && !titleFacet) {
-    const defensive = P.excludes.re.test(joined) || P.excludes.re.test(title);
-    return { mapped: false, reason: defensive
-      ? `about Israel arms, but only defensive systems are named (→ ${P.excludes.key}, not mapped in v1)`
-      : "about arms for Israel, but neither the text nor the official title says the weapons are offensive (→ parent key israel_military_aid, not mapped in v1)" };
+    const excluded = P.excludes && (P.excludes.re.test(joined) || P.excludes.re.test(title));
+    return { mapped: false, reason: excluded
+      ? `about Israel arms, but only defensive systems are named (→ ${P.excludes.key}, not mapped)`
+      : P.facetMiss };
   }
 
   let confidence, basis;
   if (kind === "number") [confidence, basis] = textSubject ? ["high", "bill number + subject words in the text"] : ["medium", "bill number in the text; subject from the bill's official title"];
   else if (kind === "short_title") [confidence, basis] = textSubject ? ["medium", "short title + subject words in the text"] : ["low", "short title; subject from the bill's official title"];
   else [confidence, basis] = ["low", "descriptive phrase + subject words in the text"];
-  if (!textFacet) basis += "; 'offensive' from the official title";
+  if (P.facet && !textFacet) basis += "; 'offensive' from the official title";
 
   const justify = textSubject
-    ? texts.filter((t) => P.subject.test(t) || P.instrument.test(t) || P.facet.test(t))
+    ? texts.filter((t) => P.subject.test(t) || P.instrument.test(t) || (P.facet && P.facet.test(t)))
     : [`[official title] ${title}`];
   return {
     mapped: true, key, confidence, confidence_score: CONFIDENCE_SCORE[confidence], basis,
     bill: cand.bill, id: cand.id, matched: best.match,
     span: justify.join(" … "),
-    ...(cand.resolves_to ? { resolves_to: cand.resolves_to.map((r) => ({ ...r, title_fits_key: P.subject.test(r.title) && P.facet.test(r.title) })) } : {}),
+    ...(cand.resolves_to ? { resolves_to: cand.resolves_to.map((r) => ({ ...r, title_fits_key: titleFits(r.title, P) })) } : {}),
     ...(resolvedTitles.length > 1 ? { best_fit: bestFit(cand.resolves_to, P) } : {}),
   };
 }
 
 // Among several resolved bills, the one whose official title alone fits the key.
+const titleFits = (t, P) => P.subject.test(t) && P.instrument.test(t) && (!P.facet || P.facet.test(t));
 function bestFit(rows, P) {
-  const fit = rows.filter((r) => P.subject.test(r.title) && P.facet.test(r.title));
+  const fit = rows.filter((r) => titleFits(r.title, P));
   return fit.length === 1 ? fit[0].id : null;
 }
 
 const OTHER_SUBJECTS = [
-  [/\bukrain\w*|kyiv|zelensky/i, "Ukraine (→ ukraine_aid)"],
+  [/\bisrael\w*|gaza|iron dome/i, "Israel (→ israel_* keys)", "israel_offensive_arms"],
+  [/\bukrain\w*|kyiv|zelensky/i, "Ukraine (→ ukraine_aid)", "ukraine_aid"],
   [/\biran\w*|islamic republic|tehran/i, "Iran (→ iran_hostilities)"],
   [/\bmedicare|health ?care|health insurance|medicaid/i, "health care"],
   [/\bvouchers?|school choice|public schools?|education/i, "education"],
 ];
-function subjectMiss(cand, text) {
+function subjectMiss(cand, text, key) {
+  const P = BILL_KEY_PATTERNS[key];
   const pool = `${text} ${cand.catalog?.title || ""}`;
-  const other = OTHER_SUBJECTS.find(([re]) => re.test(pool));
+  // The key's own subject named without an instrument word ("Ukraine" with no aid word).
+  const other = OTHER_SUBJECTS.find(([re, , own]) => own !== key && re.test(pool));
   const keys = cand.catalog?.issue_keys?.length ? `; catalog files it under ${cand.catalog.issue_keys.join(", ")}` : "";
-  if (other) return `about ${other[1]}, not Israel offensive arms${keys}`;
-  return `no Israel arms-transfer words in the text around the mention${cand.catalog ? " or the official title" : " (and the bill is not in the catalog)"}${keys}`;
+  if (other) return `about ${other[1]}, not ${P.about}${keys}`;
+  if (P.subject.test(pool)) return `names the subject but no ${P.subjectWords} words (aid, funding, a sale …) around the mention or in the title${keys}`;
+  return `no ${P.subjectWords} words in the text around the mention${cand.catalog ? " or the official title" : " (and the bill is not in the catalog)"}${keys}`;
 }
 
 /**

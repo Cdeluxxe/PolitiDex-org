@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 // test-bill-finder.mjs — the shared bill finder (bill-finder-core.mjs) and the
-// v1 per-key mapping pattern (bill-key-patterns.mjs, israel_offensive_arms).
+// per-key mapping patterns (bill-key-patterns.mjs: israel_offensive_arms,
+// ukraine_aid).
 //   · bill numbers, URL identities, short titles and descriptive phrases read;
 //   · statute references and look-alike programs do not read as bills;
 //   · on the ground-truth excerpts the known Sanders and Massie bills are found,
-//     only the Israel offensive-arms references map, at the expected confidence;
-//   · only one key is mapped; the ground-truth labels and scorer are untouched;
+//     the Israel offensive-arms and Ukraine aid references map to their own key
+//     only, at the expected confidence;
+//   · only the two keys are mapped; the ground-truth labels and scorer are untouched;
 //   · the committed report's ground-truth section is current.
 // Offline: no network (the live sweep is in the report script, not here).
 import fs from 'node:fs';
@@ -68,9 +70,24 @@ t('descriptive phrases read; the 1973 statute and look-alike programs do not', (
 
 // ── The per-key pattern (one key) ───────────────────────────────────────────
 const map = (text, extra) => K.mapFound(find(text, extra));
-t('only israel_offensive_arms has a mapping pattern', () => {
-  assert.deepEqual(K.MAPPED_KEYS, ['israel_offensive_arms']);
-  assert.equal(K.mapCandidate({ mentions: [] }, 'ukraine_aid').mapped, false);
+t('only israel_offensive_arms and ukraine_aid have a mapping pattern', () => {
+  assert.deepEqual(K.MAPPED_KEYS, ['israel_offensive_arms', 'ukraine_aid']);
+  assert.equal(K.mapCandidate({ mentions: [] }, 'iran_hostilities').mapped, false);
+  assert.equal(K.mapCandidate({ mentions: [] }, 'israel_defensive_systems').mapped, false);
+});
+t('ukraine_aid: aid, funding and supplementals map; Ukraine without an aid word does not', () => {
+  const keyed = (text, extra) => map(text, extra).mappings.map((m) => [m.key, m.confidence]);
+  assert.deepEqual(keyed('I voted against H.R. 8035, more military aid to Ukraine.', { date: '2024-04-20' }), [['ukraine_aid', 'high']]);
+  assert.deepEqual(keyed('H.R. 8035 · On Passage · Nay', { date: '2024-04-20' }), [['ukraine_aid', 'medium']]);
+  assert.deepEqual(keyed('I opposed the Ukraine Security Supplemental Appropriations Act, 2024.'), [['ukraine_aid', 'medium']]);
+  assert.deepEqual(keyed('I will vote for S. 4 to condemn Russia and honor the people of Ukraine.', { date: '2025-02-24' }), []);
+  assert.deepEqual(keyed('I voted for S.J.Res. 33 to block the sale of bombs to Israel.', { date: '2025-04-03' }), [['israel_offensive_arms', 'high']]);
+});
+t('an uncatalogued short title in the same sentence as one bill number folds into that bill', () => {
+  const c = find('H R 7691 · On Passage · Additional Ukraine Supplemental Appropriations Act, 2022 · Nay', { date: '2022-05-10' }).candidates;
+  assert.equal(c.length, 1);
+  assert.equal(c[0].id, '117|H.R. 7691');
+  assert.deepEqual(c[0].mentions.map((m) => m.kind), ['number', 'short_title']);
 });
 t('confidence: high for number + subject words; medium for number + title subject; low for a phrase', () => {
   assert.equal(map('I voted for S.J.Res. 33 to block the sale of bombs to Israel.', { date: '2025-04-03' }).mappings[0].confidence, 'high');
@@ -83,7 +100,7 @@ t('defensive-only and non-Israel bills do not map', () => {
   const d = map('I voted for H.R. 9 to fund Iron Dome interceptors for Israel and its missile defense sales.', { date: '2024-04-20' });
   assert.equal(d.mappings.length, 0);
   assert.match(d.unmapped[0].reason, /israel_defensive_systems/);
-  assert.equal(map('I opposed H.R. 8035, the Ukraine supplemental.', { date: '2024-04-20' }).mappings.length, 0);
+  assert.deepEqual(map('I opposed H.R. 8035, the Ukraine supplemental.', { date: '2024-04-20' }).mappings.map((m) => m.key), ['ukraine_aid']);
   assert.equal(map('We will pass the Affordable Care Act fix in S. 12.', { date: '2025-04-20' }).mappings.length, 0);
 });
 
@@ -107,15 +124,27 @@ t('Sanders: the Feb 2025 release resolves to the spring 2025 resolutions; S.J.Re
   assert.ok(m[0].resolves_to.some((r) => r.id === '119|S.J.Res. 33'));
   assert.equal(m[0].best_fit, '119|S.J.Res. 33');
 });
-t('Massie: H.R. 8035, H.R. 7691 and the Iran war powers resolution H.Con.Res. 38 are found, none mapped', () => {
-  const ids = GT.filter((r) => r.politician_id === 'massie').flatMap((r) => r.candidates.map((c) => c.id));
-  for (const id of ['118|H.R. 8035', '117|H.R. 7691', '119|H.Con.Res. 38']) assert.ok(ids.includes(id), id);
-  assert.equal(GT.filter((r) => r.politician_id === 'massie').flatMap((r) => r.mappings).length, 0);
-  const iran = src('massie|iran_hostilities|gt-005', 'resolution text');
-  assert.match(iran.unmapped[0].reason, /iran_hostilities/);
+t('Massie: H.R. 8035 and H.R. 7691 (Additional Ukraine Supplemental) map to ukraine_aid, high', () => {
+  const m = GT.filter((r) => r.stance_id === 'massie|ukraine_aid|gt-002').flatMap((r) => r.mappings);
+  assert.deepEqual(m.map((x) => [x.id, x.key, x.confidence]), [['118|H.R. 8035', 'ukraine_aid', 'high'], ['117|H.R. 7691', 'ukraine_aid', 'high']]);
+  assert.ok(m[1].span.includes('Additional Ukraine Supplemental Appropriations Act, 2022'));
 });
-t('no mapping on any off-key ground-truth record (Talarico, Sanders health care)', () => {
-  assert.equal(GT.filter((r) => r.stance_id !== 'sanders|israel_military_aid|gt-006').flatMap((r) => r.mappings).length, 0);
+t('Massie: the Iran war powers resolution H.Con.Res. 38 is found and maps to neither key', () => {
+  const iran = src('massie|iran_hostilities|gt-005', 'resolution text');
+  assert.ok(iran.candidates.some((c) => c.id === '119|H.Con.Res. 38'));
+  assert.equal(iran.mappings.length, 0);
+  assert.match(iran.unmapped[0].reason, /israel_offensive_arms: about Iran.*ukraine_aid: about Iran/);
+});
+t('Israel bills never map to ukraine_aid; Ukraine bills never map to israel_offensive_arms', () => {
+  const all = GT.flatMap((r) => r.mappings.map((m) => [r.stance_id, m.key]));
+  for (const [id, key] of all) {
+    if (id.startsWith('sanders|israel')) assert.equal(key, 'israel_offensive_arms', id);
+    if (id.startsWith('massie|ukraine')) assert.equal(key, 'ukraine_aid', id);
+  }
+});
+t('no mapping on any off-key ground-truth record (Talarico, Sanders health care, Massie Iran)', () => {
+  const keyed = ['sanders|israel_military_aid|gt-006', 'massie|ukraine_aid|gt-002'];
+  assert.equal(GT.filter((r) => !keyed.includes(r.stance_id)).flatMap((r) => r.mappings).length, 0);
 });
 
 // ── Constraints ─────────────────────────────────────────────────────────────
