@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════════════
-// bill-key-patterns.mjs — per-key bill mapping patterns (five keys)
+// bill-key-patterns.mjs — per-key bill mapping patterns (nine keys)
 //
 // Links a bill found by bill-finder-core.mjs to an issue key when the text
 // says the bill is about that key's subject. Mapped so far:
@@ -8,6 +8,10 @@
 //   iran_hostilities       (v4 — "Congress Must Authorize Hostilities with Iran")
 //   tariffs_china          (v5 — "Tariffs on China & Unfair Trade", register key)
 //   border_security        (v5 — "Strong Border & Enforcement", register key)
+//   energy_production      (v6 — "Expand Domestic Energy Production", register key)
+//   school_choice          (v6 — "School Choice & Education Freedom", register key)
+//   healthcare             (v6 — "Expand Healthcare Access", register key)
+//   cut_spending           (v6 — "Cut Federal Spending & Reduce Debt", register key)
 // Every other key is left for later passes using the same shape:
 //   subject     the subject the key is about (Israel / Ukraine)
 //   instrument  what the bill does to it (an arms sale or transfer / aid,
@@ -41,7 +45,7 @@
 import { DIRECTIONAL_ISSUE_KEYS } from "./stance-topic-vocab.mjs";
 import { subjectOf, facetExcludes } from "./stance-score-core.mjs";
 
-export const PATTERNS_VERSION = "bill-key-patterns-v5";
+export const PATTERNS_VERSION = "bill-key-patterns-v6";
 export const CONFIDENCE_SCORE = { high: 0.9, medium: 0.6, low: 0.35 };
 
 export const BILL_KEY_PATTERNS = {
@@ -108,6 +112,54 @@ export const BILL_KEY_PATTERNS = {
     about: "border enforcement",
     subjectWords: "border enforcement",
   },
+  // Domestic energy production: oil, gas, coal, nuclear and pipelines —
+  // leasing, permits, drilling, exports, or bans and restrictions on them.
+  // "Energy" alone (bills, prices, solar credits) is not the subject.
+  energy_production: {
+    label: "Expand Domestic Energy Production",
+    words: true, yields: ["tariffs_china", "border_security"],
+    subject: /\b(?:oil|natural gas|LNG|crude|coal|pipelines?|fossil fuels?|petroleum|offshore drilling|fracking|hydraulic fracturing|(?:domestic|american) energy|energy (?:production|independence|dominance|development|resources)|nuclear (?:power|energy|plants?|reactors?))\b/i,
+    instrument: /\b(?:produc\w+|leas\w+|permit\w*|drill\w*|exports?|expand\w*|unleash\w*|ban\w*|moratori\w+|frack\w*|approv\w+|restrict\w*|develop\w*|open\w*|lock(?:ed|ing)? up|shut(?:ting)? down|subsid\w+|independence|dominance|extract\w*)\b/i,
+    facet: null,
+    about: "domestic energy production",
+    subjectWords: "energy production",
+  },
+  // School choice: vouchers, education savings accounts, charter schools,
+  // tax-credit scholarships and 529 K–12 use. "Public schools" or "education"
+  // alone is not the subject.
+  school_choice: {
+    label: "School Choice & Education Freedom",
+    words: true, yields: ["tariffs_china", "border_security"],
+    subject: /\b(?:school[- ]choice|vouchers?|education savings accounts?|charter schools?|private schools?|scholarship[- ]granting|scholarship (?:accounts?|programs?|organizations?)|tax[- ]credit scholarships?|educational choice|education freedom|(?:section )?529 (?:plans?|accounts?|college[- ]savings(?: plans?)?))\b/i,
+    instrument: /\b(?:fund\w*|expand\w*|creat\w+|establish\w*|programs?|accounts?|(?:tax )?credits?|scholarships?|choice|parents|families|students|tuition|K[–-]12|dollars|money|ban\w*|oppos\w*|vouchers?|provisions?)\b/i,
+    facet: null,
+    about: "school choice",
+    subjectWords: "school choice",
+  },
+  // Health care access: coverage through Medicaid, Medicare, the ACA and its
+  // tax credits — expanding, extending, protecting or cutting it.
+  healthcare: {
+    label: "Expand Healthcare Access",
+    words: true, yields: ["tariffs_china", "border_security"],
+    subject: /\b(?:health (?:care|insurance|coverage)|healthcare|medicaid|medicare|affordable care act|ACA|obamacare|CHIP|uninsured)\b/i,
+    instrument: /\b(?:coverage|cover\w*|access|expan\w+|extend\w*|extension|subsid\w+|tax credits?|cuts?|cutting|slash\w*|enroll\w*|eligib\w+|insur\w+|lose|losing|protect\w*|repeal\w*|premiums?|take \w+ away)\b/i,
+    facet: null,
+    about: "health care access",
+    subjectWords: "health coverage",
+  },
+  // Cutting federal spending and the debt: budget resolutions, spending caps,
+  // rescissions, debt-limit deals tied to cuts, a balanced budget amendment.
+  // A bill that only spends money (an aid supplemental) is not the subject,
+  // nor is the Congressional Budget Office.
+  cut_spending: {
+    label: "Cut Federal Spending & Reduce Debt",
+    words: true, yields: ["tariffs_china", "border_security"],
+    subject: /\b(?:federal spending|government spending|wasteful spending|reckless spending|discretionary spending|mandatory spending|deficit spending|future spending|deficits?|national debt|debt (?:ceiling|limit)|balanced (?:federal )?budget|balance (?:the|its|our) budget|spending (?:cuts?|caps?|levels?)|rescissions?|(?:house |senate |concurrent )?budget resolution|fiscal (?:responsibility|discipline)|overspending)\b/i,
+    instrument: /\b(?:cut\w*|reduc\w+|slash\w*|balanc\w+|rescind\w*|rescission\w*|caps?|capp\w+|freez\w+|trim\w*|sav(?:e|es|ed|ing|ings)|waste\w*|lower\w*|rein\w*|limit\w*|restrain\w*|reckless|discipline|responsib\w+|explod\w+|rais\w+|lift\w*|suspend\w*|align\w*)\b/i,
+    facet: null,
+    about: "cutting federal spending",
+    subjectWords: "spending-cut",
+  },
 };
 
 /** Keys with a mapping pattern. */
@@ -130,12 +182,13 @@ export function mapCandidate(cand, key) {
   const resolvedTitles = (cand.resolves_to || []).map((r) => r.title);
 
   const textSubject = texts.length > 0 && P.subject.test(joined) && P.instrument.test(joined);
-  const titleSubject = !ev.keyed && !!title && P.subject.test(title) && P.instrument.test(title);
+  const titleSubject = !ev.keyed && !ev.historic && !!title && P.subject.test(title) && P.instrument.test(title);
   const textFacet = !P.facet || P.facet.test(joined);
   const titleFacet = !!title && !!P.facet && P.facet.test(title);
   const kind = cand.mentions.some((m) => m.kind === "number") ? "number" : cand.mentions.some((m) => m.kind === "short_title") ? "short_title" : "phrase";
 
   if (!textSubject && !titleSubject) {
+    if (ev.historic) return { mapped: false, reason: `a statute named next to a 19xx year, cited in passing (not a measure the page is about)` };
     if (ev.keyed) return { mapped: false, reason: `the mention sits in a passage about ${KEYED_SUBJECT_NAME[ev.keyed] || ev.keyed}, not ${P.about}` };
     if (ev.excluded && P.excludes) return { mapped: false, reason: `about Israel arms, but only defensive systems are named (→ ${P.excludes.key}, not mapped)` };
     return { mapped: false, reason: subjectMiss(cand, ideaText, key) };
@@ -196,15 +249,46 @@ const keyedSubject = (e) => (e.subject || (e.subjects || []).some((x) => x !== "
 // Page chrome — a site's issue tag or category line ("Issues : Border Security")
 // — names a subject but says nothing about the bill, so it is never evidence.
 const CHROME_LINE = /^\s*(?:issues?|tags?|categor(?:y|ies)|topics?|filed under|related (?:issues|topics)|press release)\s*:/i;
+// A sentence another word key claims (its subject and measure words both read).
+const yieldsTo = (P, text) => (P.yields || []).some((k) => BILL_KEY_PATTERNS[k].subject.test(text) && BILL_KEY_PATTERNS[k].instrument.test(text));
+// v6 keys, two more rules for "different ideas apart":
+//   · ONE BILL PER SENTENCE. Inside the document idea each sentence belongs to
+//     one measure: a sentence that names measures belongs to the one it names
+//     first ("The Limit, Save, Grow Act would … repeal … the Inflation
+//     Reduction Act's credits" is Limit, Save, Grow evidence, not IRA
+//     evidence); a sentence that names none belongs to the measure named last
+//     before it; lead-in sentences before the page first names a measure
+//     belong to it only when the whole page names a single measure (a one-bill
+//     release), so an opening statement's preface never feeds the first of
+//     several bills;
+//   · an uncatalogued "… Act" named next to a 19xx year is a statute cited in
+//     passing ("in 1935, the Social Security Act has provided …"), not a
+//     measure the page is about.
+const candMeasure = (cand) => cand.id || `title|${String(cand.name || "").toLowerCase()}`;
+const HISTORIC_YEAR = /\b19\d\d\b/;
 function wordEvidenceFor(cand, key) {
   const P = BILL_KEY_PATTERNS[key];
   const kept = new Map();
   const all = cand.mentions.flatMap((m) => m.doc || []);
+  const v6 = !!P.yields;
+  if (v6 && cand.kind === "short_title" && !cand.in_catalog && !cand.id && cand.mentions.every((m) => HISTORIC_YEAR.test(m.span.text))) return { texts: [], excluded: false, keyed: null, historic: true };
+  const mine = candMeasure(cand);
+  const owned = new Set();
+  if (v6) for (const m of cand.mentions) {
+    const doc = m.doc || [];
+    const distinct = new Set(doc.flatMap((e) => e.measures || []));
+    let owner = distinct.size === 1 ? [...distinct][0] : null;
+    for (const e of doc) {
+      if (e.measures) owner = e.measures[0];
+      if ((owner === mine && !e.lead) || e.slug) owned.add(e.id);
+    }
+  }
   for (const e of all) {
-    if (kept.has(e.id) || keyedSubject(e) || CHROME_LINE.test(e.text) || !P.subject.test(e.text)) continue;
+    if (v6 && !owned.has(e.id)) continue;
+    if (kept.has(e.id) || keyedSubject(e) || CHROME_LINE.test(e.text) || !P.subject.test(e.text) || yieldsTo(P, e.text)) continue;
     kept.set(e.id, e);
   }
-  if (kept.size) for (const e of all) if (e.mention && !keyedSubject(e) && !kept.has(e.id)) kept.set(e.id, e);
+  if (kept.size) for (const e of all) if (e.mention && !keyedSubject(e) && !kept.has(e.id) && (!v6 || owned.has(e.id))) kept.set(e.id, e);
   const own = all.filter((e) => e.mention);
   const keyed = own.length && own.every((e) => keyedSubject(e)) ? keyedSubject(own[0]) : null;
   const order = (e) => (e.slug ? Infinity : e.sentence);
@@ -222,10 +306,12 @@ const OTHER_SUBJECTS = [
   [/\bisrael\w*|gaza|iron dome/i, "Israel (→ israel_* keys)", "israel_offensive_arms"],
   [/\bukrain\w*|kyiv|zelensky/i, "Ukraine (→ ukraine_aid)", "ukraine_aid"],
   [/\biran\w*|islamic republic|tehran/i, "Iran (→ iran_hostilities)", "iran_hostilities"],
-  [/\bmedicare|health ?care|health insurance|medicaid/i, "health care"],
-  [/\bvouchers?|school choice|public schools?|education/i, "education"],
+  [/\bmedicare|health ?care|health insurance|medicaid/i, "health care", "healthcare"],
+  [/\bvouchers?|school choice|public schools?|education/i, "education", "school_choice"],
   [/\b(?:china|chinese|beijing|CCP)\b/i, "China (→ tariffs_china)", "tariffs_china"],
   [/\b(?<!cross-)border\b|illegal immigration|asylum/i, "the border (→ border_security)", "border_security"],
+  [/\b(?:oil|natural gas|coal|pipelines?|fossil fuels?|petroleum)\b/i, "energy production (→ energy_production)", "energy_production"],
+  [/\b(?:national debt|deficits?|debt (?:ceiling|limit)|balanced budget|spending cuts?)\b/i, "federal spending (→ cut_spending)", "cut_spending"],
 ];
 function subjectMiss(cand, text, key) {
   const P = BILL_KEY_PATTERNS[key];

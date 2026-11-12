@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // test-bill-finder.mjs — the shared bill finder (bill-finder-core.mjs) and the
 // per-key mapping patterns (bill-key-patterns.mjs: israel_offensive_arms,
-// ukraine_aid, iran_hostilities, tariffs_china, border_security).
+// ukraine_aid, iran_hostilities, tariffs_china, border_security, and v6:
+// energy_production, school_choice, healthcare, cut_spending).
 //   · bill numbers, URL identities, short titles and descriptive phrases read;
 //   · statute references and look-alike programs do not read as bills;
 //   · on the ground-truth excerpts the known Sanders and Massie bills are found,
@@ -9,7 +10,11 @@
 //     only, at the expected confidence;
 //   · tariffs_china and border_security map only their own bills, never a bill
 //     of the first three keys, and the first three keys' mappings are unchanged;
-//   · only the five keys are mapped; the ground-truth labels and scorer are untouched;
+//   · the four v6 keys map only their own bills (one bill per sentence; a
+//     statute cited in passing is not a measure), never a bill of the first
+//     five keys, and the first five keys' mappings are unchanged;
+//   · only the nine keys are mapped; the ground-truth labels and scorer are untouched;
+//   · every routine-sweep mapping matches the hand review (none false, none unreviewed);
 //   · the committed report's ground-truth section is current.
 // Offline: no network (the live sweep is in the report script, not here).
 import fs from 'node:fs';
@@ -19,7 +24,7 @@ import assert from 'node:assert/strict';
 import * as F from '../netlify/lib/bill-finder-core.mjs';
 import * as K from '../netlify/lib/bill-key-patterns.mjs';
 import * as S from '../netlify/lib/stance-score-core.mjs';
-import { groundTruthRows, loadCatalog, loadGroundTruth } from './bill-finder-ground-truth-2026-11.mjs';
+import { groundTruthRows, loadCatalog, loadGroundTruth, sweepVerdict } from './bill-finder-ground-truth-2026-11.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 let failures = 0;
@@ -73,9 +78,11 @@ t('descriptive phrases read; the 1973 statute and look-alike programs do not', (
 
 // ── The per-key patterns (five keys) ────────────────────────────────────────────
 const map = (text, extra) => K.mapFound(find(text, extra));
-t('only israel_offensive_arms, ukraine_aid, iran_hostilities, tariffs_china and border_security have a mapping pattern', () => {
-  assert.deepEqual(K.MAPPED_KEYS, ['israel_offensive_arms', 'ukraine_aid', 'iran_hostilities', 'tariffs_china', 'border_security']);
-  assert.equal(K.PATTERNS_VERSION, 'bill-key-patterns-v5');
+const V6 = ['energy_production', 'school_choice', 'healthcare', 'cut_spending'];
+t('only the nine keys have a mapping pattern (the first five plus the four v6 keys)', () => {
+  assert.deepEqual(K.MAPPED_KEYS, ['israel_offensive_arms', 'ukraine_aid', 'iran_hostilities', 'tariffs_china', 'border_security', ...V6]);
+  assert.equal(K.PATTERNS_VERSION, 'bill-key-patterns-v6');
+  assert.equal(F.FINDER_VERSION, 'bill-finder-v3');
   assert.equal(K.mapCandidate({ mentions: [] }, 'deportations').mapped, false);
   assert.equal(K.mapCandidate({ mentions: [] }, 'israel_military_aid').mapped, false);
   assert.equal(K.mapCandidate({ mentions: [] }, 'israel_defensive_systems').mapped, false);
@@ -199,9 +206,14 @@ t('iran_hostilities: war powers, removal and authorization measures map; Iran wi
   assert.deepEqual(keyed('I voted against H.R. 8035, more military aid to Ukraine.', { date: '2024-04-20' }), [['ukraine_aid', 'high']]);
   assert.deepEqual(keyed('H.R. 8034 replenishes Iron Dome interceptors that shield Israel from Iranian missiles.', { date: '2024-04-20' }), []);
 });
-t('no mapping on any off-key or bill-less ground-truth record (Talarico, Sanders health care; Crawford, Tlaib, Cotton name no bill)', () => {
-  const keyed = ['sanders|israel_military_aid|gt-006', 'massie|ukraine_aid|gt-002', 'massie|iran_hostilities|gt-005', 'owens|ukraine_aid|gt-007', 'michael_guest|border_security|gt-009'];
-  assert.equal(GT.filter((r) => !keyed.includes(r.stance_id)).flatMap((r) => r.mappings).length, 0);
+t('no mapping on any off-key or bill-less ground-truth record', () => {
+  const keyed = ['sanders|israel_military_aid|gt-006', 'massie|ukraine_aid|gt-002', 'massie|iran_hostilities|gt-005', 'owens|ukraine_aid|gt-007', 'michael_guest|border_security|gt-009',
+    'french_hill|cut_spending|gt-012', 'frank_lucas|cut_spending|gt-014', 'mariannette_miller_meeks|cut_spending|gt-015', 'bennie_thompson|healthcare|gt-016',
+    'cruz|school_choice|gt-017', 'aoc|healthcare|gt-018', 'jason_smith|cut_spending|gt-024'];
+  assert.deepEqual(GT.filter((r) => !keyed.includes(r.stance_id)).flatMap((r) => r.mappings.map((m) => `${r.stance_id} ${m.bill ?? m.matched}`)), []);
+});
+t('every ground-truth mapping is on its record’s own key (or, for Sanders, the pattern child of it)', () => {
+  for (const r of GT) for (const m of r.mappings) assert.equal(m.key, r.topic === 'israel_military_aid' ? 'israel_offensive_arms' : r.topic, `${r.stance_id} ${m.bill ?? m.matched} → ${m.key}`);
 });
 
 // ── tariffs_china and border_security (v5, document idea) ──────────────────
@@ -256,6 +268,73 @@ t('expansion records: Owens H.R. 7691 → ukraine_aid (high); Guest H.R. 2 → b
   assert.deepEqual(g.map((m) => [m.id, m.key, m.confidence]), [['118|H.R. 2', 'border_security', 'high']]);
 });
 
+// ── v6 keys: energy_production, school_choice, healthcare, cut_spending ──────
+const keyedV6 = (text, extra) => map(text, extra).mappings.map((m) => [m.bill ?? m.matched, m.key, m.confidence]);
+t('energy_production: oil, gas and leasing measures map; "energy" alone does not', () => {
+  assert.deepEqual(keyedV6('I voted for H.R. 1335 to restart offshore oil and gas lease sales.', { date: '2025-05-01' }), [['H.R. 1335', 'energy_production', 'high']]);
+  assert.deepEqual(keyedV6('I voted for H.R. 1335 to lower energy bills with rooftop solar.', { date: '2025-05-01' }), []);
+});
+t('school_choice: vouchers, ESAs and tax-credit scholarships map; public schools alone do not', () => {
+  assert.deepEqual(keyedV6('I voted for H.R. 817 to create tax-credit scholarships for families.', { date: '2025-05-01' }), [['H.R. 817', 'school_choice', 'high']]);
+  assert.deepEqual(keyedV6('I voted for H.R. 817 to raise teacher pay in our public schools.', { date: '2025-05-01' }), []);
+});
+t('healthcare: coverage measures map; a drug-price or hospital name alone does not', () => {
+  assert.deepEqual(keyedV6('I voted for H.R. 3000 to extend the ACA tax credits so families keep their coverage.', { date: '2025-05-01' }), [['H.R. 3000', 'healthcare', 'high']]);
+  assert.deepEqual(keyedV6('I voted for H.R. 3000 to rename the veterans hospital.', { date: '2025-05-01' }), []);
+});
+t('cut_spending: budget, cap and debt-limit measures map; an aid supplemental and the CBO do not', () => {
+  assert.deepEqual(keyedV6('I voted for H.R. 2811 to cap discretionary spending and cut the deficit.', { date: '2023-04-26' }), [['H.R. 2811', 'cut_spending', 'high']]);
+  assert.deepEqual(keyedV6('I voted against H.R. 8035. It adds $60 billion in aid for Ukraine to our national debt.', { date: '2024-04-20' }), [['H.R. 8035', 'ukraine_aid', 'high']]);
+  assert.deepEqual(keyedV6('The Congressional Budget Office scored H.R. 5100, which cuts rural broadband grants.', { date: '2025-05-01' }), []);
+});
+t('v6 keys yield to the v5 keys: a border bill’s wall money is not a spending-cut bill', () => {
+  assert.deepEqual(keyedV6('I voted for H.R. 2 to secure the border with $46 billion for the wall, and to cut the deficit.', { date: '2023-05-11' }).map((x) => x[1]), ['border_security']);
+});
+t('one bill per sentence: a sentence naming two bills belongs to the first (Lucas, April 2023, verbatim)', () => {
+  const body = ['<p>Washington, DC – Congressman Frank Lucas (OK-03) released the following statement after the U.S. House of Representatives passed H.R. 2811- the Limit, Save, Grow Act of 2023 , a bill to address the debt ceiling and reduce federal spending.</p>',
+    '<p>The Limit, Save, Grow Act would return total discretionary spending to the Fiscal Year (FY) 2022 level in FY 2024 and cap annual growth at 1 percent for a decade thereafter; rescind unspent COVID relief funds; repeal most of the Inflation Reduction Act’s (IRA) energy and climate tax credit expansions.</p>'].join('');
+  const r = doc(body, { source_type: 'official press release', date: '2023-04-26' });
+  assert.deepEqual(keyed(r), [['H.R. 2811', 'cut_spending', 'high']], 'the IRA is named, but the spending cap is the Limit, Save, Grow Act’s');
+  assert.ok(F.findBills({ body, date: '2023-04-26', source_type: 'official press release' }, { catalog }).candidates.find((c) => c.bill === 'H.R. 2811').mentions.length >= 2, 'the page-local title reads as H.R. 2811');
+});
+t('lead-in: an opening statement’s preface does not feed the first of several bills (Smith, March 2024, verbatim)', () => {
+  const body = ['<p>“Today, taxpayers face high prices sparked by reckless government spending and $34 trillion of debt and counting.</p>',
+    '<p>“Part of our commitment to helping America’s seniors and workers today is to protect and strengthen Medicare and Social Security.</p>',
+    '<p>Some estimates show that the tax breaks in the Inflation Reduction Act now cost as much as three times the original projection.</p>',
+    '<p>“And finally, last year, we secured the most meaningful pro-work reform to TANF in a generation in the Fiscal Responsibility Act.</p>',
+    '<p>These reforms not only help lift more families out of poverty and grow our economy but were also a part of our reforms to rein in spending.</p>'].join('');
+  const r = doc(body, { source_type: 'committee opening statement (official)', date: '2024-03-06' });
+  assert.deepEqual(keyed(r), [['H.R. 3746', 'cut_spending', 'medium']]);
+});
+t('a statute cited in passing is not a measure (Waters, October 2018, verbatim)', () => {
+  const body = '<p>Roosevelt in 1935, the Social Security Act has provided economic stability and retirement security to millions of hard working Americans.</p><p>Medicare and Medicaid save lives, help people live longer, and provide the peace of mind that comes with affordable health care that is there when you need it.</p><p>One would think by now that Republicans would have learned that the American people will not tolerate cuts to these essential programs.</p>';
+  const r = doc(body, { source_type: 'official press release', date: '2018-10-19' });
+  assert.deepEqual(r.mappings, []);
+  assert.match(r.unmapped[0].reason, /cited in passing/);
+});
+t('the four v6 keys map nothing on the multi-bill test release (Miller-Meeks, April 2024) and nothing in the first five keys’ sources', () => {
+  const body = ['<h1>Rep. Miller-Meeks Statement on Votes to Secure Southern Border, Support U.S. National Security</h1>',
+    '<p>“I urge the Senate and President Biden to take immediate action to pass H.R. 2 and secure the southern border to stop the flow of illegal immigration, people on terrorist watch list, and fentanyl. Border security is national security.</p>',
+    '<p>Israel Security Supplemental Appropriations Act</p><p>$26.38 billion to support Israel in its effort to defend itself against Iran and its proxies, and to reimburse U.S. military operations in response to recent attacks.</p>',
+    '<p>Ukraine Security Supplemental Appropriations Act</p><p>$60.84 billion to address the conflict in Ukraine and assist our regional partners as they counter Russia, $23.2 billion of which will be used for replenishment of U.S. weapons, stocks, and facilities.</p>',
+    '<p>Indo-Pacific Security Supplemental Appropriations Act</p><p>$8.12 billion to continue efforts to counter communist China and ensure a strong deterrence in the region.</p>'].join('');
+  assert.deepEqual(doc(body, { source_type: 'official press release' }).mappings.filter((m) => V6.includes(m.key)), []);
+  const FIRST5 = ['sanders|israel_military_aid|gt-006', 'massie|ukraine_aid|gt-002', 'massie|iran_hostilities|gt-005', 'owens|ukraine_aid|gt-007', 'michael_guest|border_security|gt-009'];
+  for (const r of GT.filter((x) => FIRST5.includes(x.stance_id))) assert.ok(!r.mappings.some((m) => V6.includes(m.key)), r.stance_id);
+});
+t('v6 mappings of catalog bills sit on a key the catalog files the bill under', () => {
+  for (const r of GT) for (const m of r.mappings) if (V6.includes(m.key) && m.id && catalog.byId.get(m.id)) assert.ok(catalog.byId.get(m.id).issue_keys.includes(m.key), `${m.id} → ${m.key}`);
+});
+t('expansion records (second pass): the bills found map to the record key at the expected confidence', () => {
+  const got = (id) => GT.filter((r) => r.stance_id === id).flatMap((r) => r.mappings.map((m) => [m.bill ?? m.matched, m.key, m.confidence]));
+  assert.deepEqual(got('french_hill|cut_spending|gt-012'), [['H.Con.Res. 71', 'cut_spending', 'high']]);
+  assert.deepEqual(got('frank_lucas|cut_spending|gt-014'), [['H.R. 2811', 'cut_spending', 'high']]);
+  assert.deepEqual(got('mariannette_miller_meeks|cut_spending|gt-015'), [['H.J.Res. 139', 'cut_spending', 'high']]);
+  assert.deepEqual(got('bennie_thompson|healthcare|gt-016'), [['H.R. 1', 'healthcare', 'high'], ['Affordable Care Act', 'healthcare', 'medium']]);
+  assert.deepEqual(got('cruz|school_choice|gt-017'), [['Educational Choice for Children Act', 'school_choice', 'medium'], ['Tax Cuts and Jobs Act', 'school_choice', 'medium']]);
+  assert.deepEqual(got('jason_smith|cut_spending|gt-024'), [['H.R. 3746', 'cut_spending', 'medium']]);
+});
+
 // ── Constraints ─────────────────────────────────────────────────────────────
 t('ground-truth labels and scorer versions are unchanged', () => {
   const labels = Object.fromEntries([gtFile, ...gtFile.additional_records].map((r) => [r.stance_id, [r.position, r.confidence]]));
@@ -271,7 +350,12 @@ t('ground-truth labels and scorer versions are unchanged', () => {
 t('the committed report ground-truth section is current', () => {
   const report = JSON.parse(fs.readFileSync(path.join(root, 'db/bill-finder-ground-truth-2026-11.json'), 'utf8'));
   assert.deepEqual(report.ground_truth, JSON.parse(JSON.stringify(GT)), 'run node scripts/bill-finder-ground-truth-2026-11.mjs');
-  if (report.routine_sweep) assert.equal(report.summary.sweep_mappings, 0, 'false mapping on a routine sweep page');
+  if (report.routine_sweep) {
+    assert.equal(report.summary.sweep_false_mappings, 0, 'a routine-sweep mapping that is unreviewed or reviewed false');
+    const review = JSON.parse(fs.readFileSync(path.join(root, 'db/bill-finder-sweep-review-2026-11.json'), 'utf8'));
+    for (const r of report.routine_sweep.rows.filter((x) => x.ok)) for (const m of r.mappings) assert.equal(sweepVerdict(review, r.url, m), 'correct', `${r.url} ${m.bill ?? m.matched} → ${m.key}`);
+    assert.ok(review.reviewed.every((x) => x.verdict === 'correct'), 'no reviewed-false mapping remains');
+  }
 });
 
 if (failures) { console.error(`\n${failures} failing`); process.exit(1); }

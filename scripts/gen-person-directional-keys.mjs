@@ -60,7 +60,7 @@ export function buildTable(gtFile, catalog) {
   const byRow = new Map();
   for (const r of rows) for (const m of r.mappings) {
     if (!K.MAPPED_KEYS.includes(m.key)) continue;
-    const ident = m.id || `phrase:${(m.resolves_to || []).map((x) => x.id).join(",")}`;
+    const ident = m.id || (m.resolves_to ? `phrase:${m.resolves_to.map((x) => x.id).join(",")}` : `name:${String(m.matched).toLowerCase()}`);
     const k = `${r.politician_id}|${ident}|${m.key}`;
     const row = byRow.get(k);
     const entry = { pid: r.politician_id, m, src: source(r) };
@@ -79,6 +79,8 @@ export function buildTable(gtFile, catalog) {
       key: m.key,
       ...(m.bill ? { bill: m.bill, congress: Number(m.id.split("|")[0]) || null } : {}),
       ...(cat ? { title: cat.title, page: page(cat) } : {}),
+      // A bill named only by its title, with no number on the page and no catalog row.
+      ...(!m.bill && !m.resolves_to ? { name: m.matched } : {}),
       ...(!m.bill && m.resolves_to ? {
         one_of: m.resolves_to.map((x) => { const c = catalog.byId.get(x.id); return c ? { bill: c.bill, congress: c.congress, page: page(c) } : { bill: x.id.split("|")[1], congress: Number(x.id.split("|")[0]) }; }),
         ...(m.best_fit ? { best_fit: catalog.byId.get(m.best_fit)?.bill || m.best_fit } : {}) } : {}),
@@ -133,7 +135,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const t = JSON.parse(text);
   for (const [pid, p] of Object.entries(t.people)) {
     console.log(`${pid}: ${p.mappings.length} mapping(s), ${p.stances.length} stance read(s)`);
-    for (const m of p.mappings) console.log(`   map  ${m.bill || `one of ${m.one_of.map((x) => x.bill).join(", ")}`} → ${m.key} · ${m.confidence} · ${m.source.type} :: ${m.justification.slice(0, 90)}`);
+    for (const m of p.mappings) console.log(`   map  ${m.bill || m.name || `one of ${m.one_of.map((x) => x.bill).join(", ")}`} → ${m.key} · ${m.confidence} · ${m.source.type} :: ${m.justification.slice(0, 90)}`);
     for (const s of p.stances) console.log(`   read ${s.key}: ${s.position} (${s.confidence})`);
   }
 }

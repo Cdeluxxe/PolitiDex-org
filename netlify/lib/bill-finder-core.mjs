@@ -220,8 +220,8 @@ export function resolvePhrase({ family, countries, date, politician_id }, catalo
 const GENERIC_ACT = /(?:\b\d{1,3}(?:st|nd|rd|th)\s+)?\b(?:[A-Z][\w'’-]*\s+(?:(?:of|for|and|the|to|in|on|&)\s+)*){1,10}Act\b(?:,?\s+(?:of\s+)?\d{4})?/g;
 // A sentence run into a name ("… Trump in the Working Families Tax Cut Act",
 // "… Made Possible Through Cornyn-Supported …"): keep what follows the break.
-const NAME_BREAK = /^.*\b(?:in the|through the|by the|via the|Through|Via|Enacted|Passed|Signed)\s+/;
-const LEAD_STOP = /^(?:(?:The|This|That|These|Those|A|An|Under|Our|His|Her|Their|My|Its|In|On|To|For|And|Of|With|By|Pass|Passed|Passing|Support|Supported|Supporting|Oppose|Opposed|Cosponsor|Cosponsored|Sponsored|Introduced|Signed|Vote|Voted|Repeal|Protect|Through|From|Since|After|Before|When|While|If|As|At|But|So|Like|Including)\s+)+/;
+const NAME_BREAK = /^.*\b(?:in the|through the|by the|via the|and the|Through|Via|Enacted|Passed|Signed)\s+/;
+const LEAD_STOP = /^(?:(?:The|This|That|These|Those|A|An|Under|Our|His|Her|Their|My|Its|In|On|To|For|And|Of|With|By|Pass|Passed|Passing|Support|Supports|Supported|Supporting|Oppose|Opposes|Opposed|Backs|Cosponsor|Cosponsored|Sponsored|Introduced|Signed|Vote|Voted|Repeal|Protect|Through|From|Since|After|Before|When|While|If|As|At|But|So|Like|Including)\s+)+/;
 // Spaced prefixes ("S. J. Res. 41", "H. Con. Res. 38") are closed up before the
 // sentence splitter runs, which would otherwise end a sentence at "S." or "J.".
 // "H.Amdt. 478" loses its space too: the splitter only knows the H.R./Res. forms.
@@ -298,6 +298,38 @@ function ideasFor(mentions, sentences, html, { own, scope }) {
   return spans;
 }
 
+// ─── Page-local titles (v3) ──────────────────────────────────────────────────
+// A page that writes a bill's number and its title together ("H.R. 2811- the
+// Limit, Save, Grow Act of 2023", "the Secure the Border Act (H.R. 2)") has
+// told us the title's bill. Every later use of that title on the page is that
+// bill, even when the catalog lacks it or the generic "… Act" reader cannot
+// read it (a name with commas).
+const AFTER_NUMBER = /^\s*(?:[-–—:,]\s*)?(?:the\s+)?((?:[A-Z][\w'’-]*,?\s+(?:(?:of|for|and|the|to|in|on|&)\s+)*){1,10}Act)\b(?:,?\s+(?:of\s+)?\d{4})?/;
+const BEFORE_NUMBER = /((?:[A-Z][\w'’-]*,?\s+(?:(?:of|for|and|the|to|in|on|&)\s+)*){1,10}Act)\b(?:,?\s+(?:of\s+)?\d{4})?\s*\(\s*$/;
+function pageAliases(mentions, sentences) {
+  const aliases = new Map();
+  for (const m of mentions) {
+    if (m.kind !== "number" || m.origin !== "text") continue;
+    const text = m.span.text, at = text.indexOf(m.match);
+    if (at < 0) continue;
+    const after = AFTER_NUMBER.exec(text.slice(at + m.match.length));
+    const before = BEFORE_NUMBER.exec(text.slice(0, at));
+    const name = ((after && after[1]) || (before && before[1]) || "").replace(LEAD_STOP, "").replace(/,$/, "");
+    if (name.split(/\s+/).length < 3 || !/^[A-Z]/.test(name)) continue;
+    if (!aliases.has(name)) aliases.set(name, { bill: m.bill, congress: m.congress, congress_from: m.congress_from });
+  }
+  for (const [name, own] of aliases) {
+    const re = new RegExp(`(?<![\\w])${escRe(name).replace(/,?\\ |,?\s+/g, ",?\\s+")}(?:,?\\s+(?:of\\s+)?\\d{4})?(?![\\w])`);
+    for (const s of sentences) {
+      const hit = re.exec(s.text);
+      if (!hit) continue;
+      const same = mentions.find((x) => x.kind === "short_title" && x.span.sentence === s.sentence && (x.match.includes(name) || name.includes(x.match.replace(/,?\s+(?:of\s+)?\d{4}$/, ""))));
+      if (same) { same.alias_of = own; continue; }
+      mentions.push({ kind: "short_title", origin: "text", match: hit[0], title_rows: [], alias_of: own, span: { text: s.text, block: s.block, sentence: s.sentence } });
+    }
+  }
+}
+
 // ─── Document idea (v3) ──────────────────────────────────────────────────────
 // Key-agnostic: the stretch of the page a mention belongs to, cut by MEASURE,
 // not by subject. Same scope rule as the subject idea: a speech, interview,
@@ -319,7 +351,8 @@ function docIdeasFor(mentions, sentences, html, spans, { own, scope }) {
   const heads = headingTexts(html);
   // A measure is a bill number or a short title, by catalog identity where it
   // has one, so "H.R. 2" and "the Secure the Border Act of 2023" are one measure.
-  const measure = (m) => (m.kind === "number" ? `${m.congress}|${m.bill}` : m.title_rows?.length === 1 ? m.title_rows[0] : `title|${m.match.toLowerCase()}`);
+  const measure = (m) => (m.kind === "number" ? `${m.congress}|${m.bill}` : m.alias_of ? `${m.alias_of.congress}|${m.alias_of.bill}`
+    : m.title_rows?.length === 1 ? m.title_rows[0] : `title|${m.match.toLowerCase()}`);
   const numbersAt = new Map();
   for (const m of mentions) if ((m.kind === "number" || m.kind === "short_title") && m.span.sentence != null) {
     if (!numbersAt.has(m.span.sentence)) numbersAt.set(m.span.sentence, new Set());
@@ -338,8 +371,33 @@ function docIdeasFor(mentions, sentences, html, spans, { own, scope }) {
     for (const b of bills) named.add(b);
     seg.push(n); used = true;
   }
-  const entry = (k, i) => ({ id: k, text: sentences[k].text, sentence: k, subject: spans[k]?.subject ?? null,
-    ...(spans[k]?.subjects ? { subjects: spans[k].subjects } : {}), ...(k === i ? { mention: true } : {}) });
+  // The measures each sentence names, in the order it names them (`measures`;
+  // v6 keys give a sentence to one measure, see bill-key-patterns.mjs). A title
+  // folded into the one number in its sentence (a roll-call line) is the same
+  // measure.
+  const firstAt = new Map();
+  const bySentence = new Map();
+  for (const m of mentions) if ((m.kind === "number" || m.kind === "short_title") && m.span.sentence != null) {
+    if (!bySentence.has(m.span.sentence)) bySentence.set(m.span.sentence, []);
+    bySentence.get(m.span.sentence).push(m);
+  }
+  for (const [k, ms] of bySentence) {
+    const nums = new Set(ms.filter((m) => m.kind === "number").map(measure));
+    const ids = new Map();
+    for (const m of ms) {
+      const id = m.kind === "short_title" && !m.title_rows?.length && nums.size === 1 ? [...nums][0] : measure(m);
+      const at = sentences[k].text.indexOf(m.match);
+      if (!ids.has(id) || at < ids.get(id)) ids.set(id, at < 0 ? Infinity : at);
+    }
+    firstAt.set(k, [...ids].sort((a, b) => a[1] - b[1]).map(([id]) => id));
+  }
+  // Lead-in sentences (before the page first names a measure) on a page that
+  // names more than one measure: no measure owns them (`lead`).
+  const pageMeasures = new Set([...firstAt.values()].flat());
+  const firstNamed = firstAt.size ? Math.min(...firstAt.keys()) : Infinity;
+  const lead = (k) => pageMeasures.size > 1 && k < firstNamed;
+  const entry = (k, i) => ({ id: k, ...(lead(k) ? { lead: true } : {}), text: sentences[k].text, sentence: k, subject: spans[k]?.subject ?? null,
+    ...(spans[k]?.subjects ? { subjects: spans[k].subjects } : {}), ...(firstAt.has(k) ? { measures: firstAt.get(k) } : {}), ...(k === i ? { mention: true } : {}) });
   for (const m of mentions) {
     const i = m.span.sentence;
     if (m.origin === "url_slug") { m.doc = [{ id: "slug", text: m.span.text, slug: true, mention: true, subject: null }]; continue; }
@@ -425,6 +483,7 @@ export function findBills(page, { catalog = null } = {}) {
     }
   };
   for (const s of sentences) scan(s, "text");
+  pageAliases(mentions, sentences);
   const slug = urlSlugText(page.url);
   if (slug) scan({ text: slug, block: null, sentence: null }, "url_slug");
 
@@ -457,6 +516,7 @@ function groupMentions(mentions, page, catalog, own) {
       ? { id: `state|${m.bill}`, bill: m.bill, congress: null, kind: "state_number", in_catalog: false, catalog: null } : seedFor(m.congress, m.bill, "number"), m);
   // 2. Short titles: one catalog row → that bill; several → ambiguous; none → unresolved name.
   for (const m of mentions.filter((x) => x.kind === "short_title")) {
+    if (m.alias_of) { add(keyOf(m.alias_of.congress, m.alias_of.bill), seedFor(m.alias_of.congress, m.alias_of.bill, "number"), m); continue; }
     const rows = (m.title_rows || []).map((id) => catalog.byId.get(id));
     const sameNumber = rows.find((r) => byKey.has(r.id));
     if (sameNumber || rows.length === 1) { const r = sameNumber || rows[0]; add(r.id, seedFor(r.congress, r.bill, "short_title"), m); continue; }

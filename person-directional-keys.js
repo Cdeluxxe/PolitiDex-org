@@ -15,7 +15,7 @@
        short quote of the text that justified it, and the source it was found
        in (bill text, roll call, floor speech, press release …), linked.
        A descriptive phrase that names no number ("these resolutions") lists
-       the bills it can be.
+       the bills it can be; a bill named only by its title shows the title.
      · Stance scorer reads: the automated scorer's read on each of those keys
        that has a record — the position, its confidence, and the sources read.
    Nothing is computed here; the rows are the table's.
@@ -90,6 +90,8 @@
   function mappingHtml(m, keys) {
     var head = m.bill
       ? billHtml(m)
+      : m.name
+      ? '<span data-pdx-dirkeys-bill-name>' + esc(m.name) + '</span> <span class="pdx-dk-note">(named by title; no bill number in the source)</span>'
       : 'One of ' + (m.one_of || []).map(billHtml).join(', ') +
         (m.best_fit ? ' <span class="pdx-dk-note">(official title closest: ' + esc(m.best_fit) + ')</span>' : '');
     var also = (m.also_found_in || []).map(sourceHtml).join('; ');
