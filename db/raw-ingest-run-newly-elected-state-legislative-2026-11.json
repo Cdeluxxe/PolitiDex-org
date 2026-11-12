@@ -1,0 +1,891 @@
+{
+  "_note": "Manifest of the one ingest run over the newly elected state legislative roster: one row per page with the raw-ingest Blobs key it was stored under (or the fetch error). The raw text lives in the raw-ingest store, not in the repo.",
+  "store": "raw-ingest",
+  "run_at": "2026-11-12T00:46:30.335Z",
+  "stored": 97,
+  "failed": 0,
+  "results": [
+    {
+      "politician_id": "tommy_butler",
+      "topic": "housing_support",
+      "url": "https://www.butlerforhd50.com/on-the-issues-1",
+      "fetched_at": "2026-11-12T00:46:30.335Z",
+      "ok": true,
+      "key": "tommy_butler/housing_support/2026-11-12T00-46-30-335Z.json",
+      "body_chars": 167553
+    },
+    {
+      "politician_id": "jeff_livingston",
+      "topic": "housing_support",
+      "url": "https://jefflivingstonforcolorado.com/",
+      "fetched_at": "2026-11-12T00:46:30.382Z",
+      "ok": true,
+      "key": "jeff_livingston/housing_support/2026-11-12T00-46-30-382Z.json",
+      "body_chars": 473301
+    },
+    {
+      "politician_id": "vinny_spotleson",
+      "topic": "transit",
+      "url": "https://winwithvin.org/issues/",
+      "fetched_at": "2026-11-12T00:46:30.382Z",
+      "ok": true,
+      "key": "vinny_spotleson/transit/2026-11-12T00-46-30-382Z.json",
+      "body_chars": 743151
+    },
+    {
+      "politician_id": "connie_casha",
+      "topic": "public_schools",
+      "url": "https://conniecasha4tndistrict-49.com/issues.html",
+      "fetched_at": "2026-11-12T00:46:30.383Z",
+      "ok": true,
+      "key": "connie_casha/public_schools/2026-11-12T00-46-30-383Z.json",
+      "body_chars": 6254
+    },
+    {
+      "politician_id": "patrick_leahy",
+      "topic": "prop_tax",
+      "url": "https://leahyfornebraska.com/on-the-issues",
+      "fetched_at": "2026-11-12T00:46:30.384Z",
+      "ok": true,
+      "key": "patrick_leahy/prop_tax/2026-11-12T00-46-30-384Z.json",
+      "body_chars": 102032
+    },
+    {
+      "politician_id": "cindy_johnson",
+      "topic": "health_drug_prices",
+      "url": "https://cindyjohnsonforne.com/priorities",
+      "fetched_at": "2026-11-12T00:46:30.385Z",
+      "ok": true,
+      "key": "cindy_johnson/health_drug_prices/2026-11-12T00-46-30-385Z.json",
+      "body_chars": 70293
+    },
+    {
+      "politician_id": "samantha_wilcox",
+      "topic": "cost_living",
+      "url": "https://samwilcoxforri.com/posts/",
+      "fetched_at": "2026-11-12T00:46:30.386Z",
+      "ok": true,
+      "key": "samantha_wilcox/cost_living/2026-11-12T00-46-30-386Z.json",
+      "body_chars": 133336
+    },
+    {
+      "politician_id": "zakary_pereira",
+      "topic": "healthcare",
+      "url": "https://www.zakaryforri.com/issues",
+      "fetched_at": "2026-11-12T00:46:30.387Z",
+      "ok": true,
+      "key": "zakary_pereira/healthcare/2026-11-12T00-46-30-387Z.json",
+      "body_chars": 979334
+    },
+    {
+      "politician_id": "brent_reinke",
+      "topic": "cost_living",
+      "url": "https://reinkeforidaho.com/",
+      "fetched_at": "2026-11-12T00:46:31.173Z",
+      "ok": true,
+      "key": "brent_reinke/cost_living/2026-11-12T00-46-31-173Z.json",
+      "body_chars": 112549
+    },
+    {
+      "politician_id": "casey_swensen",
+      "topic": "econ_smallbiz",
+      "url": "https://swensenforidaho.com/",
+      "fetched_at": "2026-11-12T00:46:31.174Z",
+      "ok": true,
+      "key": "casey_swensen/econ_smallbiz/2026-11-12T00-46-31-174Z.json",
+      "body_chars": 98616
+    },
+    {
+      "politician_id": "edward_stravato",
+      "topic": "econ_smallbiz",
+      "url": "https://edforri.com/priorities",
+      "fetched_at": "2026-11-12T00:46:31.175Z",
+      "ok": true,
+      "key": "edward_stravato/econ_smallbiz/2026-11-12T00-46-31-175Z.json",
+      "body_chars": 449288
+    },
+    {
+      "politician_id": "ali_horsted",
+      "topic": "cost_living",
+      "url": "https://www.aliforsd.com/vision",
+      "fetched_at": "2026-11-12T00:46:31.175Z",
+      "ok": true,
+      "key": "ali_horsted/cost_living/2026-11-12T00-46-31-175Z.json",
+      "body_chars": 164795
+    },
+    {
+      "politician_id": "brandy_tollefson",
+      "topic": "healthcare",
+      "url": "https://www.brandyforwisconsin.com/",
+      "fetched_at": "2026-11-12T00:46:31.176Z",
+      "ok": true,
+      "key": "brandy_tollefson/healthcare/2026-11-12T00-46-31-176Z.json",
+      "body_chars": 1383422
+    },
+    {
+      "politician_id": "todd_delmay",
+      "topic": "cost_living",
+      "url": "https://delmayforflorida.com/issues/",
+      "fetched_at": "2026-11-12T00:46:31.176Z",
+      "ok": true,
+      "key": "todd_delmay/cost_living/2026-11-12T00-46-31-176Z.json",
+      "body_chars": 139060
+    },
+    {
+      "politician_id": "rose_lounsbury",
+      "topic": "public_schools",
+      "source_id": "platform-education",
+      "url": "https://www.roseforohio.com/platform/education",
+      "fetched_at": "2026-11-12T00:46:31.176Z",
+      "ok": true,
+      "key": "rose_lounsbury/public_schools/platform-education/2026-11-12T00-46-31-176Z.json",
+      "body_chars": 255081
+    },
+    {
+      "politician_id": "rose_lounsbury",
+      "topic": "paid_leave",
+      "source_id": "platform-workingfamilies",
+      "url": "https://www.roseforohio.com/platform/workingfamilies",
+      "fetched_at": "2026-11-12T00:46:31.177Z",
+      "ok": true,
+      "key": "rose_lounsbury/paid_leave/platform-workingfamilies/2026-11-12T00-46-31-177Z.json",
+      "body_chars": 168018
+    },
+    {
+      "politician_id": "rose_lounsbury",
+      "topic": "gun_safety",
+      "source_id": "platform-gunsafety",
+      "url": "https://www.roseforohio.com/platform/gunsafety",
+      "fetched_at": "2026-11-12T00:46:31.720Z",
+      "ok": true,
+      "key": "rose_lounsbury/gun_safety/platform-gunsafety/2026-11-12T00-46-31-720Z.json",
+      "body_chars": 216618
+    },
+    {
+      "politician_id": "rose_lounsbury",
+      "topic": "climate_action",
+      "source_id": "platform-environment",
+      "url": "https://www.roseforohio.com/platform/environment",
+      "fetched_at": "2026-11-12T00:46:31.721Z",
+      "ok": true,
+      "key": "rose_lounsbury/climate_action/platform-environment/2026-11-12T00-46-31-721Z.json",
+      "body_chars": 218828
+    },
+    {
+      "politician_id": "rose_lounsbury",
+      "topic": "voting_access",
+      "source_id": "platform-democracy",
+      "url": "https://www.roseforohio.com/platform/democracy",
+      "fetched_at": "2026-11-12T00:46:31.721Z",
+      "ok": true,
+      "key": "rose_lounsbury/voting_access/platform-democracy/2026-11-12T00-46-31-721Z.json",
+      "body_chars": 167211
+    },
+    {
+      "politician_id": "rose_lounsbury",
+      "topic": "healthcare",
+      "source_id": "platform-healthcare",
+      "url": "https://www.roseforohio.com/platform/healthcare",
+      "fetched_at": "2026-11-12T00:46:31.721Z",
+      "ok": true,
+      "key": "rose_lounsbury/healthcare/platform-healthcare/2026-11-12T00-46-31-721Z.json",
+      "body_chars": 287959
+    },
+    {
+      "politician_id": "rose_lounsbury",
+      "topic": "econ_workers",
+      "source_id": "platform-labor",
+      "url": "https://www.roseforohio.com/platform/labor",
+      "fetched_at": "2026-11-12T00:46:31.722Z",
+      "ok": true,
+      "key": "rose_lounsbury/econ_workers/platform-labor/2026-11-12T00-46-31-722Z.json",
+      "body_chars": 176442
+    },
+    {
+      "politician_id": "rose_lounsbury",
+      "topic": "lgbtq_rights",
+      "source_id": "platform-justice",
+      "url": "https://www.roseforohio.com/platform/justice",
+      "fetched_at": "2026-11-12T00:46:31.722Z",
+      "ok": true,
+      "key": "rose_lounsbury/lgbtq_rights/platform-justice/2026-11-12T00-46-31-722Z.json",
+      "body_chars": 312280
+    },
+    {
+      "politician_id": "rose_lounsbury",
+      "topic": "pro_choice",
+      "source_id": "platform-womensrights",
+      "url": "https://www.roseforohio.com/platform/womensrights",
+      "fetched_at": "2026-11-12T00:46:31.723Z",
+      "ok": true,
+      "key": "rose_lounsbury/pro_choice/platform-womensrights/2026-11-12T00-46-31-723Z.json",
+      "body_chars": 287810
+    },
+    {
+      "politician_id": "shelby_kimball",
+      "topic": "public_schools",
+      "url": "https://kimballforohio.com/",
+      "fetched_at": "2026-11-12T00:46:31.723Z",
+      "ok": true,
+      "key": "shelby_kimball/public_schools/2026-11-12T00-46-31-723Z.json",
+      "body_chars": 303195
+    },
+    {
+      "politician_id": "zach_herbert",
+      "topic": "healthcare",
+      "url": "https://zach4texas.com/issues/",
+      "fetched_at": "2026-11-12T00:46:31.891Z",
+      "ok": true,
+      "key": "zach_herbert/healthcare/2026-11-12T00-46-31-891Z.json",
+      "body_chars": 122340
+    },
+    {
+      "politician_id": "jillaire_mcmillan",
+      "topic": "public_schools",
+      "url": "https://www.jillaireforcolorado.com/issues",
+      "fetched_at": "2026-11-12T00:46:31.892Z",
+      "ok": true,
+      "key": "jillaire_mcmillan/public_schools/2026-11-12T00-46-31-892Z.json",
+      "body_chars": 953857
+    },
+    {
+      "politician_id": "steph_vigil",
+      "topic": "housing_build",
+      "url": "https://www.vigilforcolorado.com/issues",
+      "fetched_at": "2026-11-12T00:46:31.892Z",
+      "ok": true,
+      "key": "steph_vigil/housing_build/2026-11-12T00-46-31-892Z.json",
+      "body_chars": 635714
+    },
+    {
+      "politician_id": "eileen_eady",
+      "topic": "housing_support",
+      "url": "https://eadyfornevada.com/",
+      "fetched_at": "2026-11-12T00:46:31.893Z",
+      "ok": true,
+      "key": "eileen_eady/housing_support/2026-11-12T00-46-31-893Z.json",
+      "body_chars": 558582
+    },
+    {
+      "politician_id": "chris_ford",
+      "topic": "gov_transparency",
+      "url": "https://www.chrisfordformn.com/priorities",
+      "fetched_at": "2026-11-12T00:46:31.893Z",
+      "ok": true,
+      "key": "chris_ford/gov_transparency/2026-11-12T00-46-31-893Z.json",
+      "body_chars": 308764
+    },
+    {
+      "politician_id": "kristy_janigo",
+      "topic": "cost_living",
+      "url": "https://kristyjanigoformn.com/priorities/",
+      "fetched_at": "2026-11-12T00:46:31.894Z",
+      "ok": true,
+      "key": "kristy_janigo/cost_living/2026-11-12T00-46-31-894Z.json",
+      "body_chars": 228242
+    },
+    {
+      "politician_id": "mark_legvold",
+      "topic": "public_schools",
+      "url": "https://legvold4mnsenate58.com/policy",
+      "fetched_at": "2026-11-12T00:46:31.894Z",
+      "ok": true,
+      "key": "mark_legvold/public_schools/2026-11-12T00-46-31-894Z.json",
+      "body_chars": 383485
+    },
+    {
+      "politician_id": "owen_farnsworth",
+      "topic": "public_schools",
+      "url": "https://www.owenfarnsworth.com/education",
+      "fetched_at": "2026-11-12T00:46:31.895Z",
+      "ok": true,
+      "key": "owen_farnsworth/public_schools/2026-11-12T00-46-31-895Z.json",
+      "body_chars": 1242067
+    },
+    {
+      "politician_id": "allie_phillips",
+      "topic": "public_schools",
+      "url": "https://www.alliep4tn.com/",
+      "fetched_at": "2026-11-12T00:46:32.142Z",
+      "ok": true,
+      "key": "allie_phillips/public_schools/2026-11-12T00-46-32-142Z.json",
+      "body_chars": 487298
+    },
+    {
+      "politician_id": "michael_scott",
+      "topic": "public_schools",
+      "url": "https://www.mikescottformaine.com/issues",
+      "fetched_at": "2026-11-12T00:46:32.142Z",
+      "ok": true,
+      "key": "michael_scott/public_schools/2026-11-12T00-46-32-142Z.json",
+      "body_chars": 544832
+    },
+    {
+      "politician_id": "patric_moore",
+      "topic": "housing_build",
+      "url": "https://www.patricmooreformaine.com/issues",
+      "fetched_at": "2026-11-12T00:46:32.143Z",
+      "ok": true,
+      "key": "patric_moore/housing_build/2026-11-12T00-46-32-143Z.json",
+      "body_chars": 539443
+    },
+    {
+      "politician_id": "erin_feichtinger",
+      "topic": "housing",
+      "url": "https://erinfornebraska.com/issues",
+      "fetched_at": "2026-11-12T00:46:32.144Z",
+      "ok": true,
+      "key": "erin_feichtinger/housing/2026-11-12T00-46-32-144Z.json",
+      "body_chars": 186587
+    },
+    {
+      "politician_id": "nelly_burdette",
+      "topic": "healthcare",
+      "url": "https://electnelly.com/issues",
+      "fetched_at": "2026-11-12T00:46:32.144Z",
+      "ok": true,
+      "key": "nelly_burdette/healthcare/2026-11-12T00-46-32-144Z.json",
+      "body_chars": 171275
+    },
+    {
+      "politician_id": "nancy_gregory",
+      "topic": "public_schools",
+      "url": "https://nancygregory4idaho.com/priorities",
+      "fetched_at": "2026-11-12T00:46:32.145Z",
+      "ok": true,
+      "key": "nancy_gregory/public_schools/2026-11-12T00-46-32-145Z.json",
+      "body_chars": 539264
+    },
+    {
+      "politician_id": "kathy_simpler",
+      "topic": "public_schools",
+      "url": "https://www.simplerforstatehouse.com/priorities",
+      "fetched_at": "2026-11-12T00:46:32.145Z",
+      "ok": true,
+      "key": "kathy_simpler/public_schools/2026-11-12T00-46-32-145Z.json",
+      "body_chars": 145489
+    },
+    {
+      "politician_id": "lisa_keller",
+      "topic": "justice_balance",
+      "url": "https://www.lisakellerforalaska.com/",
+      "fetched_at": "2026-11-12T00:46:32.146Z",
+      "ok": true,
+      "key": "lisa_keller/justice_balance/2026-11-12T00-46-32-146Z.json",
+      "body_chars": 336320
+    },
+    {
+      "politician_id": "margaret_mitchell",
+      "topic": "property_tax",
+      "url": "https://mitchell406.com/",
+      "fetched_at": "2026-11-12T00:46:32.643Z",
+      "ok": true,
+      "key": "margaret_mitchell/property_tax/2026-11-12T00-46-32-643Z.json",
+      "body_chars": 229786
+    },
+    {
+      "politician_id": "jim_riley",
+      "topic": "school_choice",
+      "url": "https://www.jimrileyforhd6.com/",
+      "fetched_at": "2026-11-12T00:46:32.643Z",
+      "ok": true,
+      "key": "jim_riley/school_choice/2026-11-12T00-46-32-643Z.json",
+      "body_chars": 356856
+    },
+    {
+      "politician_id": "michelle_bianco",
+      "topic": "prop_tax",
+      "url": "https://bianco4mt2026.com/",
+      "fetched_at": "2026-11-12T00:46:32.644Z",
+      "ok": true,
+      "key": "michelle_bianco/prop_tax/2026-11-12T00-46-32-644Z.json",
+      "body_chars": 154856
+    },
+    {
+      "politician_id": "adam_bair",
+      "topic": "housing_build",
+      "url": "https://adambairsouthdakota.com/issues/",
+      "fetched_at": "2026-11-12T00:46:32.644Z",
+      "ok": true,
+      "key": "adam_bair/housing_build/2026-11-12T00-46-32-644Z.json",
+      "body_chars": 67098
+    },
+    {
+      "politician_id": "june_copperstad",
+      "topic": "housing_support",
+      "url": "https://juneforsd.com/issues/",
+      "fetched_at": "2026-11-12T00:46:32.644Z",
+      "ok": true,
+      "key": "june_copperstad/housing_support/2026-11-12T00-46-32-644Z.json",
+      "body_chars": 63712
+    },
+    {
+      "politician_id": "jeff_haylon",
+      "topic": "healthcare",
+      "url": "https://jeffhaylon.com/policies/",
+      "fetched_at": "2026-11-12T00:46:32.645Z",
+      "ok": true,
+      "key": "jeff_haylon/healthcare/2026-11-12T00-46-32-645Z.json",
+      "body_chars": 34257
+    },
+    {
+      "politician_id": "phoebe_tucker",
+      "topic": "healthcare",
+      "url": "https://www.phoebeforvermont.com/priorities",
+      "fetched_at": "2026-11-12T00:46:32.645Z",
+      "ok": true,
+      "key": "phoebe_tucker/healthcare/2026-11-12T00-46-32-645Z.json",
+      "body_chars": 236572
+    },
+    {
+      "politician_id": "kim_gleason",
+      "topic": "healthcare",
+      "url": "https://www.kimgleasonforvt.org/priorities",
+      "fetched_at": "2026-11-12T00:46:32.645Z",
+      "ok": true,
+      "key": "kim_gleason/healthcare/2026-11-12T00-46-32-645Z.json",
+      "body_chars": 331704
+    },
+    {
+      "politician_id": "hannah_sessions",
+      "topic": "prop_tax",
+      "url": "https://hannahsessionsforvt.com/issues/",
+      "fetched_at": "2026-11-12T00:46:33.244Z",
+      "ok": true,
+      "key": "hannah_sessions/prop_tax/2026-11-12T00-46-33-244Z.json",
+      "body_chars": 182720
+    },
+    {
+      "politician_id": "iva_williams",
+      "topic": "property_tax",
+      "url": "https://electivawilliams.com/priorities",
+      "fetched_at": "2026-11-12T00:46:33.245Z",
+      "ok": true,
+      "key": "iva_williams/property_tax/2026-11-12T00-46-33-245Z.json",
+      "body_chars": 194961
+    },
+    {
+      "politician_id": "kevin_knoke",
+      "topic": "housing",
+      "url": "https://www.kevinknoke.com/issues",
+      "fetched_at": "2026-11-12T00:46:33.245Z",
+      "ok": true,
+      "key": "kevin_knoke/housing/2026-11-12T00-46-33-245Z.json",
+      "body_chars": 645895
+    },
+    {
+      "politician_id": "ben_gruber",
+      "topic": "public_schools",
+      "url": "https://www.ben-gruber.com/issues",
+      "fetched_at": "2026-11-12T00:46:33.246Z",
+      "ok": true,
+      "key": "ben_gruber/public_schools/2026-11-12T00-46-33-246Z.json",
+      "body_chars": 614722
+    },
+    {
+      "politician_id": "ben_brist",
+      "topic": "cost_living",
+      "url": "https://www.bristforassembly.com/issues",
+      "fetched_at": "2026-11-12T00:46:33.246Z",
+      "ok": true,
+      "key": "ben_brist/cost_living/2026-11-12T00-46-33-246Z.json",
+      "body_chars": 571282
+    },
+    {
+      "politician_id": "john_kroll",
+      "topic": "public_schools",
+      "url": "https://www.krollforwi.com/issues",
+      "fetched_at": "2026-11-12T00:46:33.247Z",
+      "ok": true,
+      "key": "john_kroll/public_schools/2026-11-12T00-46-33-247Z.json",
+      "body_chars": 615394
+    },
+    {
+      "politician_id": "jeremiah_fredrickson",
+      "topic": "public_schools",
+      "url": "https://www.jeremiahfredricksonforstateassembly.com/issues",
+      "fetched_at": "2026-11-12T00:46:33.247Z",
+      "ok": true,
+      "key": "jeremiah_fredrickson/public_schools/2026-11-12T00-46-33-247Z.json",
+      "body_chars": 626262
+    },
+    {
+      "politician_id": "ben_mcadams_il",
+      "topic": "healthcare",
+      "url": "https://www.mcadamsforil.com/platform",
+      "fetched_at": "2026-11-12T00:46:33.247Z",
+      "ok": true,
+      "key": "ben_mcadams_il/healthcare/2026-11-12T00-46-33-247Z.json",
+      "body_chars": 207735
+    },
+    {
+      "politician_id": "marsia_geldert_murphey",
+      "topic": "infrastructure",
+      "url": "https://www.marsieforillinois.info/",
+      "fetched_at": "2026-11-12T00:46:33.434Z",
+      "ok": true,
+      "key": "marsia_geldert_murphey/infrastructure/2026-11-12T00-46-33-434Z.json",
+      "body_chars": 61920
+    },
+    {
+      "politician_id": "maria_peterson",
+      "topic": "tax_middle_class",
+      "url": "https://www.mariafor52.com/issues/",
+      "fetched_at": "2026-11-12T00:46:33.434Z",
+      "ok": true,
+      "key": "maria_peterson/tax_middle_class/2026-11-12T00-46-33-434Z.json",
+      "body_chars": 93977
+    },
+    {
+      "politician_id": "jessica_bichler",
+      "topic": "public_schools",
+      "url": "https://www.jessicabichler.com/issues",
+      "fetched_at": "2026-11-12T00:46:33.435Z",
+      "ok": true,
+      "key": "jessica_bichler/public_schools/2026-11-12T00-46-33-435Z.json",
+      "body_chars": 602880
+    },
+    {
+      "politician_id": "lorenza_wilkins",
+      "topic": "public_schools",
+      "url": "https://www.lorenzawilkinsfornc.com/about-3-1",
+      "fetched_at": "2026-11-12T00:46:33.435Z",
+      "ok": true,
+      "key": "lorenza_wilkins/public_schools/2026-11-12T00-46-33-435Z.json",
+      "body_chars": 681901
+    },
+    {
+      "politician_id": "winn_decker",
+      "topic": "public_schools",
+      "url": "https://winn4nc.com/",
+      "fetched_at": "2026-11-12T00:46:33.435Z",
+      "ok": true,
+      "key": "winn_decker/public_schools/2026-11-12T00-46-33-435Z.json",
+      "body_chars": 179848
+    },
+    {
+      "politician_id": "ken_mccool",
+      "topic": "school_choice",
+      "url": "https://www.kenmccool.com/priorities",
+      "fetched_at": "2026-11-12T00:46:33.436Z",
+      "ok": true,
+      "key": "ken_mccool/school_choice/2026-11-12T00-46-33-436Z.json",
+      "body_chars": 850299
+    },
+    {
+      "politician_id": "laura_murvartian",
+      "topic": "healthcare",
+      "url": "https://www.lauramurvartian.com/priorities",
+      "fetched_at": "2026-11-12T00:46:33.436Z",
+      "ok": true,
+      "key": "laura_murvartian/healthcare/2026-11-12T00-46-33-436Z.json",
+      "body_chars": 209756
+    },
+    {
+      "politician_id": "danielle_bell",
+      "topic": "cost_living",
+      "url": "https://www.danielleforgeorgia.com/reduce-cost-of-living",
+      "fetched_at": "2026-11-12T00:46:33.437Z",
+      "ok": true,
+      "key": "danielle_bell/cost_living/2026-11-12T00-46-33-437Z.json",
+      "body_chars": 98418
+    },
+    {
+      "politician_id": "adam_cleveland",
+      "topic": "healthcare",
+      "url": "https://www.adamcleveland.com/priorities",
+      "fetched_at": "2026-11-12T00:46:33.883Z",
+      "ok": true,
+      "key": "adam_cleveland/healthcare/2026-11-12T00-46-33-883Z.json",
+      "body_chars": 275248
+    },
+    {
+      "politician_id": "beth_fuller",
+      "topic": "pro_choice",
+      "url": "https://www.bethfullerforgeorgia.com/policy-priorities",
+      "fetched_at": "2026-11-12T00:46:33.883Z",
+      "ok": true,
+      "key": "beth_fuller/pro_choice/2026-11-12T00-46-33-883Z.json",
+      "body_chars": 293575
+    },
+    {
+      "politician_id": "michelle_kang",
+      "topic": "gun_safety",
+      "url": "https://michellekangforga.com/2026-platform",
+      "fetched_at": "2026-11-12T00:46:33.884Z",
+      "ok": true,
+      "key": "michelle_kang/gun_safety/2026-11-12T00-46-33-884Z.json",
+      "body_chars": 371057
+    },
+    {
+      "politician_id": "john_lowndes",
+      "topic": "gov_transparency",
+      "url": "https://www.johnlowndesforflorida.com/priorities",
+      "fetched_at": "2026-11-12T00:46:33.884Z",
+      "ok": true,
+      "key": "john_lowndes/gov_transparency/2026-11-12T00-46-33-884Z.json",
+      "body_chars": 388946
+    },
+    {
+      "politician_id": "eric_gray",
+      "topic": "housing_build",
+      "url": "https://www.ericgrayforflorida.com/issues/",
+      "fetched_at": "2026-11-12T00:46:33.885Z",
+      "ok": true,
+      "key": "eric_gray/housing_build/2026-11-12T00-46-33-885Z.json",
+      "body_chars": 24752
+    },
+    {
+      "politician_id": "lucia_baez_geller",
+      "topic": "cost_living",
+      "url": "https://luciabaezgeller.com/",
+      "fetched_at": "2026-11-12T00:46:33.885Z",
+      "ok": true,
+      "key": "lucia_baez_geller/cost_living/2026-11-12T00-46-33-885Z.json",
+      "body_chars": 178666
+    },
+    {
+      "politician_id": "joe_rand",
+      "topic": "healthcare_costs",
+      "url": "https://joerand.com/",
+      "fetched_at": "2026-11-12T00:46:33.885Z",
+      "ok": true,
+      "key": "joe_rand/healthcare_costs/2026-11-12T00-46-33-885Z.json",
+      "body_chars": 324128
+    },
+    {
+      "politician_id": "sarah_rogerson",
+      "topic": "tax_middle_class",
+      "url": "https://www.sarahfornysenate.com/issues",
+      "fetched_at": "2026-11-12T00:46:33.886Z",
+      "ok": true,
+      "key": "sarah_rogerson/tax_middle_class/2026-11-12T00-46-33-886Z.json",
+      "body_chars": 582535
+    },
+    {
+      "politician_id": "chris_mccreight",
+      "topic": "datacenter_power",
+      "url": "https://www.chrismccreight.com/issues",
+      "fetched_at": "2026-11-12T00:46:34.129Z",
+      "ok": true,
+      "key": "chris_mccreight/datacenter_power/2026-11-12T00-46-34-129Z.json",
+      "body_chars": 488186
+    },
+    {
+      "politician_id": "chloe_pierce",
+      "topic": "cost_living",
+      "url": "https://www.chloepierce.com/",
+      "fetched_at": "2026-11-12T00:46:34.130Z",
+      "ok": true,
+      "key": "chloe_pierce/cost_living/2026-11-12T00-46-34-130Z.json",
+      "body_chars": 417667
+    },
+    {
+      "politician_id": "megan_coy",
+      "topic": "healthcare",
+      "url": "https://www.coyforohio.com/",
+      "fetched_at": "2026-11-12T00:46:34.130Z",
+      "ok": true,
+      "key": "megan_coy/healthcare/2026-11-12T00-46-34-130Z.json",
+      "body_chars": 440664
+    },
+    {
+      "politician_id": "mark_pinsley",
+      "topic": "datacenter_growth",
+      "url": "https://votemarkpinsley.com/issues/",
+      "fetched_at": "2026-11-12T00:46:34.131Z",
+      "ok": true,
+      "key": "mark_pinsley/datacenter_growth/2026-11-12T00-46-34-131Z.json",
+      "body_chars": 80704
+    },
+    {
+      "politician_id": "chris_thomas_pa",
+      "topic": "campaign_finance",
+      "url": "https://christhomas.vote/platform",
+      "fetched_at": "2026-11-12T00:46:34.131Z",
+      "ok": true,
+      "key": "chris_thomas_pa/campaign_finance/2026-11-12T00-46-34-131Z.json",
+      "body_chars": 414769
+    },
+    {
+      "politician_id": "bryan_allen",
+      "topic": "datacenter_power",
+      "url": "https://www.bryanallenforpa.com/issues",
+      "fetched_at": "2026-11-12T00:46:34.132Z",
+      "ok": true,
+      "key": "bryan_allen/datacenter_power/2026-11-12T00-46-34-132Z.json",
+      "body_chars": 705092
+    },
+    {
+      "politician_id": "jeff_warren_pa",
+      "topic": "public_schools",
+      "url": "https://www.jeffwarrenforpa.com/issues",
+      "fetched_at": "2026-11-12T00:46:34.132Z",
+      "ok": true,
+      "key": "jeff_warren_pa/public_schools/2026-11-12T00-46-34-132Z.json",
+      "body_chars": 354527
+    },
+    {
+      "politician_id": "kristin_egan",
+      "topic": "cost_living",
+      "url": "https://www.kristineganforpa.com/priorities",
+      "fetched_at": "2026-11-12T00:46:34.132Z",
+      "ok": true,
+      "key": "kristin_egan/cost_living/2026-11-12T00-46-34-132Z.json",
+      "body_chars": 283005
+    },
+    {
+      "politician_id": "elizabeth_moro",
+      "topic": "health_drug_prices",
+      "url": "https://elizabethmoro.com/issues/",
+      "fetched_at": "2026-11-12T00:46:34.518Z",
+      "ok": true,
+      "key": "elizabeth_moro/health_drug_prices/2026-11-12T00-46-34-518Z.json",
+      "body_chars": 182459
+    },
+    {
+      "politician_id": "stephanie_guerrero_saenz",
+      "topic": "public_schools",
+      "url": "https://www.stephanie4texas.com/",
+      "fetched_at": "2026-11-12T00:46:34.519Z",
+      "ok": true,
+      "key": "stephanie_guerrero_saenz/public_schools/2026-11-12T00-46-34-519Z.json",
+      "body_chars": 439408
+    },
+    {
+      "politician_id": "oziel_ochoa",
+      "topic": "property_tax",
+      "url": "https://www.ochoafortx37.com/issues",
+      "fetched_at": "2026-11-12T00:46:34.519Z",
+      "ok": true,
+      "key": "oziel_ochoa/property_tax/2026-11-12T00-46-34-519Z.json",
+      "body_chars": 691738
+    },
+    {
+      "politician_id": "chris_jimenez",
+      "topic": "property_tax",
+      "url": "https://chrisjimenezforhd52.com/priorities",
+      "fetched_at": "2026-11-12T00:46:34.520Z",
+      "ok": true,
+      "key": "chris_jimenez/property_tax/2026-11-12T00-46-34-520Z.json",
+      "body_chars": 633488
+    },
+    {
+      "politician_id": "zack_dunn",
+      "topic": "veterans",
+      "url": "https://zackdunn.com/",
+      "fetched_at": "2026-11-12T00:46:34.520Z",
+      "ok": true,
+      "key": "zack_dunn/veterans/2026-11-12T00-46-34-520Z.json",
+      "body_chars": 156123
+    },
+    {
+      "politician_id": "tyler_smith",
+      "topic": "housing_build",
+      "url": "https://tylerfortx.com/what-im-fighting-for/",
+      "fetched_at": "2026-11-12T00:46:34.520Z",
+      "ok": true,
+      "key": "tyler_smith/housing_build/2026-11-12T00-46-34-520Z.json",
+      "body_chars": 69139
+    },
+    {
+      "politician_id": "amelia_gallitano",
+      "topic": "cost_living",
+      "url": "https://www.ameliaforaz.com/amelias-priorities",
+      "fetched_at": "2026-11-12T00:46:34.521Z",
+      "ok": true,
+      "key": "amelia_gallitano/cost_living/2026-11-12T00-46-34-521Z.json",
+      "body_chars": 213837
+    },
+    {
+      "politician_id": "amy_slavensky",
+      "topic": "cost_living",
+      "url": "https://www.amyslavensky.com/",
+      "fetched_at": "2026-11-12T00:46:34.521Z",
+      "ok": true,
+      "key": "amy_slavensky/cost_living/2026-11-12T00-46-34-521Z.json",
+      "body_chars": 789325
+    },
+    {
+      "politician_id": "ida_obeso_martinez",
+      "topic": "cost_living",
+      "url": "https://idaforassembly.com/issues",
+      "fetched_at": "2026-11-12T00:46:35.559Z",
+      "ok": true,
+      "key": "ida_obeso_martinez/cost_living/2026-11-12T00-46-35-559Z.json",
+      "body_chars": 217986
+    },
+    {
+      "politician_id": "leila_namvar",
+      "topic": "cost_living",
+      "url": "https://www.leilanamvar.com/issues",
+      "fetched_at": "2026-11-12T00:46:35.559Z",
+      "ok": true,
+      "key": "leila_namvar/cost_living/2026-11-12T00-46-35-559Z.json",
+      "body_chars": 592961
+    },
+    {
+      "politician_id": "ben_christly",
+      "topic": "public_schools",
+      "url": "https://www.electbenchristly.com/values",
+      "fetched_at": "2026-11-12T00:46:35.560Z",
+      "ok": true,
+      "key": "ben_christly/public_schools/2026-11-12T00-46-35-560Z.json",
+      "body_chars": 205099
+    },
+    {
+      "politician_id": "theresa_brooks",
+      "topic": "healthcare",
+      "url": "https://www.drbrooksforsenate.com/issues",
+      "fetched_at": "2026-11-12T00:46:35.560Z",
+      "ok": true,
+      "key": "theresa_brooks/healthcare/2026-11-12T00-46-35-560Z.json",
+      "body_chars": 640666
+    },
+    {
+      "politician_id": "jaime_churches",
+      "topic": "infrastructure",
+      "url": "https://www.jaimechurches.com/priorities",
+      "fetched_at": "2026-11-12T00:46:35.561Z",
+      "ok": true,
+      "key": "jaime_churches/infrastructure/2026-11-12T00-46-35-561Z.json",
+      "body_chars": 157453
+    },
+    {
+      "politician_id": "jan_maino",
+      "topic": "cost_living",
+      "url": "https://mainoformichigan.com/priorities/",
+      "fetched_at": "2026-11-12T00:46:35.561Z",
+      "ok": true,
+      "key": "jan_maino/cost_living/2026-11-12T00-46-35-561Z.json",
+      "body_chars": 133151
+    },
+    {
+      "politician_id": "alex_hawkins",
+      "topic": "public_schools",
+      "url": "https://www.alexhawkins.org/issues",
+      "fetched_at": "2026-11-12T00:46:35.561Z",
+      "ok": true,
+      "key": "alex_hawkins/public_schools/2026-11-12T00-46-35-561Z.json",
+      "body_chars": 72869
+    },
+    {
+      "politician_id": "joseph_mcclusky",
+      "topic": "housing_support",
+      "url": "https://www.mccluskyformi.com/platform",
+      "fetched_at": "2026-11-12T00:46:35.562Z",
+      "ok": true,
+      "key": "joseph_mcclusky/housing_support/2026-11-12T00-46-35-562Z.json",
+      "body_chars": 184075
+    },
+    {
+      "politician_id": "sarah_pounds",
+      "topic": "cost_living",
+      "url": "https://www.electsarahpounds.com/priorities",
+      "fetched_at": "2026-11-12T00:46:35.903Z",
+      "ok": true,
+      "key": "sarah_pounds/cost_living/2026-11-12T00-46-35-903Z.json",
+      "body_chars": 348352
+    }
+  ]
+}

@@ -136,6 +136,29 @@ t("R11(a): a pronoun after another person’s possessive is that person, not the
   assert.equal(S.actorFor("Alongside President Trump, he will ", "ken_paxton").kind, "self");
   assert.equal(S.actorFor("Rep. Doggett said his ", "lloyd_doggett").kind, "self");
 });
+t("R11(a): only a PERSON possessive takes the pronoun — places, organisations and generic nouns do not", () => {
+  const actor = (prefix, pid = "x_y") => S.actorFor(prefix, pid).kind;
+  // Still someone else: a person name, a title + name, a person role.
+  assert.equal(actor("Trump’s declaration that he will "), "opponent");
+  assert.equal(actor("President Trump’s order means he will "), "opponent");
+  assert.equal(actor("The President’s budget says he will "), "opponent");
+  assert.equal(actor("My opponent’s plan says he will "), "opponent");
+  assert.equal(actor("the governor’s office says he will "), "opponent");
+  assert.equal(S.classify("My opponent claims his plan lowers premiums.", "healthcare_costs", "x_y", { claims: true }).kind, "mention");
+  // Not a person: the pronoun stays the page's politician.
+  for (const p of ["Hollywood’s committee showed him that he will ", "The state’s plan is broken, so she will ",
+    "The city’s budget is tight, and he will ", "Austin’s NPR station reported that she will ",
+    "Ohio’s families deserve better, and she will ", "The Association’s board said he will ", "Capitol Hill’s gridlock means she will "]) {
+    assert.equal(actor(p), "self", p);
+  }
+  // The Delmay flooding sentence reads as his own again.
+  const c = S.classify("His work on Hollywood’s Sustainability Advisory Committee showed him why local knowledge matters, and he will work with communities to address the flooding residents experience in their own neighborhoods.",
+    "disaster_resilience", "todd_delmay", { claims: true });
+  assert.equal(c.actor.kind, "self");
+  assert.equal(c.side, "support");
+  // A place-name surname is a person only with the full name or a title.
+  assert.equal(actor("Mayor Jackson’s plan means he will "), "opponent");
+});
 
 if (failures) { console.error(`${failures} failing`); process.exit(1); }
 console.log("phase8-v3: all checks pass");
