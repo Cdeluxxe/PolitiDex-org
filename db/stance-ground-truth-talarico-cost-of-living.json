@@ -4,22 +4,24 @@
   "topic": "cost_living",
   "position": "support",
   "confidence": 0.85,
-  "confidence_reason": "Two first-party campaign pages explicitly commit to lowering costs and name specific measures; held below 0.9 because the issue page was read through a fetch tool that paraphrased parts of it, and the victory speech only mentions the topic.",
+  "confidence_reason": "The campaign platform page plainly commits to lowering costs and lists specific measures, and the toolkit page and on-record remarks say the same; held below 0.9 because all clear-position evidence is campaign messaging (no votes yet), the platform page is undated, and the victory speech only mentions the topic.",
   "sources": [
     {
       "type": "campaign issue page",
       "date": null,
       "link": "https://jamestalarico.com/issue/taxes-cost-of-living/",
-      "excerpt": "\"worked with Republicans to deliver the largest property tax cut in Texas history\"",
-      "note": "States a position: for a middle-class tax cut (expanded Child Tax Credit and EITC, restored ACA credits, a tariff rebate), paid for by higher taxes on billionaires and corporations. Also for a $15 minimum wage, repealing Trump tariffs, capping credit card interest rates, and lowering healthcare, housing, grocery and energy costs. The page itself has no date; the embedded posts are dated May 2021 to Aug 2026.",
+      "excerpt": "\"In the Senate, he’ll cut taxes for working people, cap credit card interest rates, and lower the cost of rent, groceries, utilities, and gas by making billionaires and giant corporations pay their fair share.\" ... \"Pass a cost-of-living tax cut for the middle class\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-12. The platform page states a position: a middle-class cost-of-living tax cut (expanded Child Tax Credit and EITC, restored ACA credits, a tariff rebate) paid for by taxing the wealthiest and corporations; a $15 minimum wage; repealing the Trump tariffs; capping credit card interest; and named plans to lower health care, housing, grocery and energy costs. The page has no date of its own; the embedded posts are dated May 2021 to Aug 2026.",
       "takes_clear_position": true
     },
     {
       "type": "campaign toolkit page",
       "date": null,
       "link": "https://share.jamestalarico.com/toolkit/2c2d0ae4-56bb-48b6-b349-7b009f2708af",
-      "excerpt": "\"cut taxes for working people, cap credit card interest rates\" ... \"lower the cost of rent, groceries, utilities, and gas\"",
-      "note": "Official campaign messaging, tagged Economy/Affordability. States a position: cut taxes for working people, cap credit card interest, temporarily suspend federal gas and diesel taxes, and fund this by having the wealthiest pay more. The page has no date.",
+      "excerpt": "\"In the Senate, he'll cut taxes for working people, cap credit card interest rates, and lower the cost of rent, groceries, utilities, and gas by making billionaires and giant corporations pay their fair share in taxes.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-12. Official campaign messaging that repeats the platform page's position almost word for word. Supporting evidence only, not independent of the platform page. The page has no date.",
       "takes_clear_position": true
     },
     {
@@ -27,18 +29,22 @@
       "date": "2026-04-21",
       "link": "https://www.texastribune.org/2026/04/21/james-talarico-federal-gas-tax-suspension-iran-war/",
       "excerpt": "\"Texans need relief. Americans need relief.\" ... \"We can make billionaires pay their fair share so that we can cut our taxes.\"",
-      "note": "On-record remarks at an Austin gas station event, with the article linking to video. Consistent with the campaign pages. Only the verbatim quotes are relied on here; the article's paraphrase of the gas-tax plan is not counted as evidence.",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-12. On-record remarks at an Austin gas station event; the article links to video. Only the verbatim quotes count here, not the article's paraphrase of the gas-tax plan. Consistent with the campaign pages.",
       "takes_clear_position": true
     },
     {
       "type": "speech (victory speech)",
       "date": "2026-11-03",
-      "link": "https://www.fox7austin.com/video/fmc-fs7m9d1olo029kv6",
-      "excerpt": "\"Hate can't lower our energy bills.\" (verbatim as quoted by the Houston Chronicle, Nov 4 2026: https://www.houstonchronicle.com/politics/election/2026/article/talarico-victory-speech-22511134.php)",
-      "note": "Mentions the topic but does not state a policy position. No official full transcript was found; the link is the full video, and the excerpt is the only economic line in published verbatim quotes. Recorded for completeness and given no weight in the position.",
+      "link": "https://www.rev.com/transcripts/james-talarico-victory-speech",
+      "excerpt": "\"Hate can't lower our energy bills.\" (13:14) ... \"We must unrig this economic system that only benefits the top 1%.\" (16:46)",
+      "weight": "mention",
+      "note": "Read directly on 2026-11-12 in Rev's timestamped transcript (published Nov 4 2026). Full video: https://www.fox7austin.com/video/fmc-fs7m9d1olo029kv6 (no text on that page). The speech names energy bills, prices, and the economy, but it does not propose or commit to any cost-of-living measure. Recorded for completeness and given no weight in the position.",
       "takes_clear_position": false
     }
   ],
-  "last_updated": "2026-11-07",
-  "status": "active"
+  "last_updated": "2026-11-12",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-12"
 }
