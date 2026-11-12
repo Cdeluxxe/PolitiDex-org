@@ -15,7 +15,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const gtPath = path.join(root, 'db/stance-ground-truth-talarico-cost-of-living.json');
 const corePath = path.join(root, 'netlify/lib/stance-score-core.mjs');
 const rawCorePath = path.join(root, 'netlify/lib/raw-ingest-core.mjs');
-const GT_SHA256 = 'bb6e142baca13f44880af9108e85c0adeb867377a19742240cd6ac1be2343587';
+const GT_SHA256 = 'f2889f2a8e30dbae8f4bd099719ed2c53f290a9fb1a017ca0a3601b46da59586';
 const sha = (p) => createHash('sha256').update(readFileSync(p)).digest('hex');
 const rawCoreBefore = sha(rawCorePath);
 

@@ -49,9 +49,12 @@
   "locked_on": "2026-11-12",
   "additional_records": [
     {
-      "stance_id": "massie|ukraine_policy|gt-002",
+      "stance_id": "massie|ukraine_aid|gt-002",
+      "previous_stance_id": "massie|ukraine_policy|gt-002",
       "politician_id": "massie",
-      "topic": "ukraine_policy",
+      "topic": "ukraine_aid",
+      "previous_topic": "ukraine_policy",
+      "topic_remapped_on": "2026-11-12",
       "position": "oppose",
       "position_on": "further U.S. aid to Ukraine (supplemental appropriations / security assistance)",
       "confidence": 0.85,
@@ -166,9 +169,12 @@
       "locked_on": "2026-11-12"
     },
     {
-      "stance_id": "massie|war_powers|gt-005",
+      "stance_id": "massie|iran_hostilities|gt-005",
+      "previous_stance_id": "massie|war_powers|gt-005",
       "politician_id": "massie",
-      "topic": "war_powers",
+      "topic": "iran_hostilities",
+      "previous_topic": "war_powers",
+      "topic_remapped_on": "2026-11-12",
       "position": "support",
       "position_on": "requiring congressional authorization before U.S. forces engage in hostilities (here, against Iran)",
       "confidence": 0.85,
@@ -199,9 +205,12 @@
       "locked_on": "2026-11-12"
     },
     {
-      "stance_id": "sanders|israel_support|gt-006",
+      "stance_id": "sanders|israel_military_aid|gt-006",
+      "previous_stance_id": "sanders|israel_support|gt-006",
       "politician_id": "sanders",
-      "topic": "israel_support",
+      "topic": "israel_military_aid",
+      "previous_topic": "israel_support",
+      "topic_remapped_on": "2026-11-12",
       "position": "mixed",
       "position_on": "U.S. military support for Israel: opposes certain offensive arms sales; leaves defensive systems alone and affirms Israel's right to self-defense",
       "confidence": 0.75,

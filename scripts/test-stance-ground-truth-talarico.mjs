@@ -73,8 +73,8 @@ const WEIGHTS = ['strong', 'weak', 'mention'];
 const extra = Array.isArray(rec.additional_records) ? rec.additional_records : [];
 t('additional records: five more locked records, ids unique', () => {
   assert.deepEqual(extra.map((r) => r.stance_id), [
-    'massie|ukraine_policy|gt-002', 'sanders|healthcare|gt-003',
-    'james_talarico|school_choice|gt-004', 'massie|war_powers|gt-005', 'sanders|israel_support|gt-006',
+    'massie|ukraine_aid|gt-002', 'sanders|healthcare|gt-003',
+    'james_talarico|school_choice|gt-004', 'massie|iran_hostilities|gt-005', 'sanders|israel_military_aid|gt-006',
   ]);
   const ids = [rec.stance_id, ...extra.map((r) => r.stance_id)];
   assert.equal(new Set(ids).size, ids.length);
@@ -109,6 +109,54 @@ t('every record is locked and each politician has two distinct topics', () => {
   for (const pid of ['james_talarico', 'massie', 'sanders']) {
     const topics = all.filter((r) => r.politician_id === pid).map((r) => r.topic);
     assert.equal(new Set(topics).size, 2, pid);
+  }
+});
+
+
+// Vocab v2: every record sits on a directional key that can take support /
+// oppose / mixed, the three remapped records keep their old key on file, and
+// the remap changed no human label (position, confidence, sources, notes).
+const vocab = await import(path.join(root, 'netlify/lib/stance-topic-vocab.mjs'));
+const CORE = ['cost_living', 'healthcare_costs'];
+const isDirectional = (k) => CORE.includes(k) || k in vocab.DIRECTIONAL_ISSUE_KEYS ||
+  (k in vocab.ISSUE_TOPIC_VOCAB && !vocab.ISSUE_TOPIC_VOCAB[k].noPole && !vocab.ISSUE_TOPIC_VOCAB[k].grouping);
+t('vocab v2: all six records sit on directional keys', () => {
+  for (const r of [rec, ...extra]) assert.ok(isDirectional(r.topic), `${r.stance_id} is on ${r.topic}`);
+});
+const REMAP = {
+  'massie|ukraine_aid|gt-002': { from: 'ukraine_policy', to: 'ukraine_aid', position: 'oppose', confidence: 0.85, sources: 3 },
+  'massie|iran_hostilities|gt-005': { from: 'war_powers', to: 'iran_hostilities', position: 'support', confidence: 0.85, sources: 2 },
+  'sanders|israel_military_aid|gt-006': { from: 'israel_support', to: 'israel_military_aid', position: 'mixed', confidence: 0.75, sources: 4 },
+};
+t('vocab v2: remapped records keep their old key, parent link and human label', () => {
+  for (const [id, m] of Object.entries(REMAP)) {
+    const r = extra.find((x) => x.stance_id === id);
+    assert.ok(r, id);
+    assert.equal(r.topic, m.to);
+    assert.equal(r.previous_topic, m.from);
+    assert.equal(r.previous_stance_id, id.replace(`|${m.to}|`, `|${m.from}|`));
+    assert.equal(r.position, m.position, `${id}: position`);
+    assert.equal(r.confidence, m.confidence, `${id}: confidence`);
+    assert.equal(r.sources.length, m.sources, `${id}: sources`);
+    assert.equal(r.locked, true);
+    // The new key sits under the old one (directly or through a directional parent).
+    let k = m.to; const seen = [];
+    while (k in vocab.DIRECTIONAL_ISSUE_KEYS) { seen.push(k); k = vocab.DIRECTIONAL_ISSUE_KEYS[k].parent; }
+    const also = vocab.DIRECTIONAL_ISSUE_KEYS[m.to].also || [];
+    assert.ok(k === m.from || also.includes(m.from), `${m.to} is not under ${m.from}`);
+  }
+});
+t('vocab v2: the old broad keys stay in the vocabulary as grouping keys', () => {
+  for (const k of ['ukraine_policy', 'war_powers', 'israel_support', 'iran_policy']) {
+    assert.ok(k in vocab.ISSUE_TOPIC_VOCAB, k);
+    assert.ok(vocab.GROUPING_ISSUE_KEYS.includes(k), k);
+    assert.ok(vocab.directionalChildren(k).length > 0, k);
+  }
+  for (const [k, v] of Object.entries(vocab.DIRECTIONAL_ISSUE_KEYS)) {
+    assert.ok(!(k in vocab.ISSUE_TOPIC_VOCAB), `${k} must not enter the scored vocabulary`);
+    assert.ok(v.label && v.pos && v.against && v.parent, k);
+    assert.ok(v.parent in vocab.ISSUE_TOPIC_VOCAB || v.parent in vocab.DIRECTIONAL_ISSUE_KEYS, k);
+    assert.equal(vocab.ISSUE_TOPIC_LABELS[k], v.label);
   }
 });
 
