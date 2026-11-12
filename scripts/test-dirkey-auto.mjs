@@ -6,7 +6,8 @@
 //     row internally { source: "auto" }, and leaves the rest queued;
 //   · ground-truth people and non-first-party links never enter the queue;
 //   · the person page shows the section and ONE disclosure, with no status word
-//     and no tag visible; hand-checked rows win over automatic ones;
+//     beyond the per-row "Under review" / "Cross-checked" labels and no tag
+//     visible; hand-checked rows win over automatic ones;
 //   · a flag records person id, key, optional note and timestamp, and the
 //     public row renders the same before and after;
 //   · proposed keys are written but not used until approved and given a pattern;
@@ -189,7 +190,9 @@ function boot(pid, { autoTable = auto, posts = [] } = {}) {
   return { api: ctx.window.PDXPersonDirectionalKeys, body, posts };
 }
 const tick = () => new Promise((r) => setTimeout(r, 0));
-const chrome = (h) => h.replace(/<blockquote[\s\S]*?<\/blockquote>/g, '').replace(/<div class="pdx-dk-t">[\s\S]*?<\/div>/g, '').replace(/<a [^>]*>[\s\S]*?<\/a>/g, '');
+// The per-row review labels ("Under review" / "Cross-checked") are the only
+// status text the section may carry; test-dirkey-review.mjs checks when they show.
+const chrome = (h) => h.replace(/ <span class="pdx-dk-st" data-pdx-dirkeys-check="(?:open|done)">(?:Under review|Cross-checked)<\/span>/g, '').replace(/<blockquote[\s\S]*?<\/blockquote>/g, '').replace(/<div class="pdx-dk-t">[\s\S]*?<\/div>/g, '').replace(/<a [^>]*>[\s\S]*?<\/a>/g, '');
 const DISC = 'These bill matches and position reads are generated automatically and may contain errors.';
 const AUTO_PID = Object.keys(auto.people)[0];
 
@@ -222,7 +225,7 @@ t('every person in either table renders one disclosure; the page chrome has no s
   // Every string the module can put on the page: no status word in any of them.
   const strings = (code.match(/'(?:[^'\\\n]|\\.)*'/g) || []).map((x) => x.replace(/data-pdx-[\w-]+/g, ''));
   assert.ok(strings.length > 50);
-  for (const x of strings) assert.ok(!/\b(?:pending|review\w*|status|unverified|draft)\b/i.test(x), x);
+  for (const x of strings) if (x !== "'Under review'") assert.ok(!/\b(?:pending|review\w*|status|unverified|draft)\b/i.test(x), x);
 });
 t('a hand-checked person is never read from the automatic table', async () => {
   const fake = { ...auto, people: { ...auto.people, massie: { tag: { source: 'auto' }, mappings: [], stances: [{ key: 'healthcare', position: 'oppose', confidence: 0.9, sources: [], tag: { source: 'auto' } }] } } };

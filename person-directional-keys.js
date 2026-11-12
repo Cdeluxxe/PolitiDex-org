@@ -28,6 +28,14 @@
    like the hand-checked rows; a person in the hand-checked table is never read
    from it. Its internal { source: "auto" } tag is never rendered.
 
+   REVIEW STATUS (automatic rows only). A row the second-model check tagged
+   `needs_review: true` carries a small "Under review" label; once a person has
+   finished the review (scripts/review-dirkey-auto.mjs writes an internal
+   `reviewed` object and clears the tag) it carries "Cross-checked" instead.
+   Rows never tagged carry nothing. Only those two labels come from the review
+   fields: the review note and date, and the second-model results, are never
+   rendered. Hand-checked rows never carry a label.
+
    DISCLOSURE AND FLAG. One line under the heading says the matches and reads
    are generated automatically and may contain errors, followed by a "Flag a
    problem" control (issue, optional note). A flag is POSTed to the existing
@@ -52,6 +60,7 @@
   var FLAG_ENDPOINT = '/api/evidence-locker/items';
   var DISCLOSURE = 'These bill matches and position reads are generated automatically and may contain errors.';
   var POSITION = { support: 'Supports', oppose: 'Opposes', mixed: 'Mixed', 'no clear position': 'No clear position' };
+  var STATUS = { open: 'Under review', done: 'Cross-checked' };
   var CONF = { high: 'High confidence', medium: 'Medium confidence', low: 'Low confidence' };
   var NUMBER_WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty',
     'twenty-one', 'twenty-two', 'twenty-three', 'twenty-four', 'twenty-five', 'twenty-six', 'twenty-seven', 'twenty-eight', 'twenty-nine', 'thirty'];
@@ -119,10 +128,24 @@
     // Only keys the table names as having a pattern.
     var mappings = (e.mappings || []).filter(function (m) { return keys[m.key]; });
     var stances = (e.stances || []).filter(function (s) { return keys[s.key]; });
-    return mappings.length || stances.length ? { pid: String(pid), mappings: mappings, stances: stances, keys: keys } : null;
+    var auto = !!(e.tag && e.tag.source === 'auto');
+    return mappings.length || stances.length ? { pid: String(pid), mappings: mappings, stances: stances, keys: keys, auto: auto } : null;
   }
 
-  function mappingHtml(m, keys) {
+  // The per-row label on an automatic row: open (tagged) → "Under review",
+  // done (review finished, tag cleared) → "Cross-checked", else nothing.
+  function rowStatus(r) {
+    if (!r) return '';
+    if (r.needs_review === true) return 'open';
+    if (r.reviewed && r.reviewed.reviewed === true) return 'done';
+    return '';
+  }
+  function statusHtml(r, auto) {
+    var st = auto ? rowStatus(r) : '';
+    return st ? ' <span class="pdx-dk-st" data-pdx-dirkeys-check="' + st + '">' + STATUS[st] + '</span>' : '';
+  }
+
+  function mappingHtml(m, keys, auto) {
     var head = m.bill
       ? billHtml(m)
       : m.name
@@ -134,6 +157,7 @@
       '<div class="pdx-dk-line">' + head +
       ' <span class="pdx-dk-key">' + esc(keys[m.key].label) + '</span>' +
       ' <span class="pdx-dk-conf" data-confidence="' + esc(m.confidence) + '">' + esc(CONF[m.confidence] || m.confidence) + '</span>' +
+      statusHtml(m, auto) +
       '</div>' +
       (m.title ? '<div class="pdx-dk-t">' + esc(m.title) + '</div>' : '') +
       (m.justification ? '<blockquote class="pdx-dk-q" data-pdx-dirkeys-justification>' + esc(m.justification) + '</blockquote>' : '') +
@@ -141,12 +165,12 @@
     '</li>';
   }
 
-  function stanceHtml(s, keys) {
+  function stanceHtml(s, keys, auto) {
     var srcs = (s.sources || []).map(sourceHtml).join('; ');
     return '<li data-pdx-dirkeys-stance data-key="' + esc(s.key) + '" data-position="' + esc(s.position) + '">' +
       '<div class="pdx-dk-line"><span class="pdx-dk-keyname">' + esc(keys[s.key].label) + '</span>' +
       ' <span class="pdx-dk-pos" data-position="' + esc(s.position) + '">' + esc(POSITION[s.position] || s.position) + '</span>' +
-      ' <span class="pdx-dk-conf">Confidence ' + esc(Number(s.confidence).toFixed(2)) + '</span></div>' +
+      ' <span class="pdx-dk-conf">Confidence ' + esc(Number(s.confidence).toFixed(2)) + '</span>' + statusHtml(s, auto) + '</div>' +
       '<div class="pdx-dk-t">' + esc(keys[s.key].pos) + '</div>' +
       (s.quote ? '<blockquote class="pdx-dk-q">' + esc(s.quote) + '</blockquote>' : '') +
       (srcs ? '<div class="pdx-dk-src">Sources read: ' + srcs + '</div>' : '') +
@@ -206,11 +230,11 @@
       flagHtml(entry)];
     if (entry.mappings.length) {
       parts.push('<div class="pdx-dk-group" data-pdx-dirkeys-group="mappings"><div class="pdx-dk-gh">Bills matched to an issue <span>' + entry.mappings.length + '</span></div>' +
-        '<ul>' + entry.mappings.map(function (m) { return mappingHtml(m, entry.keys); }).join('') + '</ul></div>');
+        '<ul>' + entry.mappings.map(function (m) { return mappingHtml(m, entry.keys, entry.auto); }).join('') + '</ul></div>');
     }
     if (entry.stances.length) {
       parts.push('<div class="pdx-dk-group" data-pdx-dirkeys-group="stances"><div class="pdx-dk-gh">Stance scorer reads <span>' + entry.stances.length + '</span></div>' +
-        '<ul>' + entry.stances.map(function (s) { return stanceHtml(s, entry.keys); }).join('') + '</ul></div>');
+        '<ul>' + entry.stances.map(function (s) { return stanceHtml(s, entry.keys, entry.auto); }).join('') + '</ul></div>');
     }
     return parts.join('');
   }
@@ -230,6 +254,7 @@
       '#pdx-dirkeys a:hover,#pdx-dirkeys a:focus-visible{text-decoration:underline;}' +
       '#pdx-dirkeys .pdx-dk-line{display:flex;flex-wrap:wrap;align-items:center;gap:0.3rem 0.4rem;font-weight:700;color:#dbe6f7;}' +
       '#pdx-dirkeys .pdx-dk-sit,#pdx-dirkeys .pdx-dk-key,#pdx-dirkeys .pdx-dk-conf,#pdx-dirkeys .pdx-dk-pos{display:inline-flex;align-items:center;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;line-height:1.15;border-radius:999px;padding:0.14rem 0.5rem;white-space:nowrap;border:1px solid rgba(159,180,212,0.24);color:#c9d8f2;}' +
+      '#pdx-dirkeys .pdx-dk-st{font-weight:400;font-size:0.72rem;color:#9fb4d4;}' +
       '#pdx-dirkeys .pdx-dk-sit{border-color:transparent;padding-left:0.2rem;color:#9fb4d4;}' +
       '#pdx-dirkeys .pdx-dk-key{background:rgba(96,165,250,0.1);}' +
       '#pdx-dirkeys .pdx-dk-t{color:#c9d8f2;font-size:0.82rem;line-height:1.4;margin-top:0.2rem;}' +
@@ -293,7 +318,7 @@
     if (host) fill(host);
   }
 
-  window.PDXPersonDirectionalKeys = { scan: scan, entryFor: entryFor, html: html, load: load, merge: merge, onFlagSubmit: onFlagSubmit, DISCLOSURE: DISCLOSURE };
+  window.PDXPersonDirectionalKeys = { scan: scan, entryFor: entryFor, html: html, load: load, merge: merge, rowStatus: rowStatus, STATUS: STATUS, onFlagSubmit: onFlagSubmit, DISCLOSURE: DISCLOSURE };
 
   function boot() {
     scan();
