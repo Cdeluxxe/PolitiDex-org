@@ -129,6 +129,20 @@
           ],
           "tag": {
             "source": "auto"
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence",
+              "single_stated"
+            ],
+            "scorer_label": "support",
+            "second_label": "support",
+            "agree": true,
+            "second_reason": "A press release headline from Attorney General Ford says he 'Defends Access to Birth Control and Other Contraceptive Care,' which is an official action favoring reproductive freedom. It covers contrac",
+            "context": "page"
           }
         },
         {
@@ -146,6 +160,20 @@
           ],
           "tag": {
             "source": "auto"
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence",
+              "single_stated"
+            ],
+            "scorer_label": "support",
+            "second_label": "support",
+            "agree": true,
+            "second_reason": "Ford's office announces a win protecting Nevadans' privacy and sues over demands for drivers' personal data, which supports protecting personal data, though the Big Tech side is not addressed.",
+            "context": "page"
           }
         }
       ]
@@ -172,7 +200,22 @@
           ],
           "tag": {
             "source": "auto"
-          }
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence",
+              "single_stated"
+            ],
+            "scorer_label": "support",
+            "second_label": "no clear position",
+            "agree": false,
+            "second_reason": "The quote and surrounding text cover anti-gerrymandering and redistricting process, which is an adjacent topic and does not address ballot access, registration, or voting barriers.",
+            "context": "page"
+          },
+          "needs_review": true
         }
       ]
     },
@@ -198,6 +241,19 @@
           ],
           "tag": {
             "source": "auto"
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence"
+            ],
+            "scorer_label": "oppose",
+            "second_label": "oppose",
+            "agree": true,
+            "second_reason": "She says public schools 'have been defunded by vouchers,' which criticizes voucher funding and so signals opposition to a position that funds vouchers and charters, though she doesn't address charters",
+            "context": "page"
           }
         }
       ]
@@ -224,6 +280,19 @@
           ],
           "tag": {
             "source": "auto"
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence"
+            ],
+            "scorer_label": "support",
+            "second_label": "support",
+            "agree": true,
+            "second_reason": "The campaign's issues page lists modernizing the VA and giving veterans freedom to choose their healthcare providers as goals, which clearly favors better veteran healthcare and support.",
+            "context": "page"
           }
         }
       ]
@@ -250,6 +319,20 @@
           ],
           "tag": {
             "source": "auto"
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence",
+              "single_stated"
+            ],
+            "scorer_label": "support",
+            "second_label": "support",
+            "agree": true,
+            "second_reason": "Parrott's campaign site says reducing government spending is 'the beginning of it all' and criticizes omnibus waste and pork, which clearly favors cutting federal spending, though it says nothing expl",
+            "context": "page"
           }
         },
         {
@@ -267,6 +350,20 @@
           ],
           "tag": {
             "source": "auto"
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence",
+              "single_stated"
+            ],
+            "scorer_label": "support",
+            "second_label": "support",
+            "agree": true,
+            "second_reason": "The campaign site criticizes VA wait times and care quality and says he will fight so veterans get the care they are owed, which clearly favors better veterans' healthcare.",
+            "context": "page"
           }
         }
       ]
@@ -293,6 +390,20 @@
           ],
           "tag": {
             "source": "auto"
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence",
+              "single_stated"
+            ],
+            "scorer_label": "support",
+            "second_label": "support",
+            "agree": true,
+            "second_reason": "Harris, as Chairman of the House Agriculture Appropriations Subcommittee, publicly applauded an $8 billion USDA relief program for agricultural producers facing rising fuel costs and market disruption",
+            "context": "page"
           }
         }
       ]
@@ -319,6 +430,19 @@
           ],
           "tag": {
             "source": "auto"
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence"
+            ],
+            "scorer_label": "support",
+            "second_label": "support",
+            "agree": true,
+            "second_reason": "Craig introduced a bill to lower insulin costs, which is concrete action toward lowering prescription drug prices, though the headline doesn't say whether it uses caps or negotiation.",
+            "context": "page"
           }
         }
       ]
@@ -429,6 +553,20 @@
           ],
           "tag": {
             "source": "auto"
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence",
+              "single_stated"
+            ],
+            "scorer_label": "support",
+            "second_label": "support",
+            "agree": true,
+            "second_reason": "His campaign platform says Illinois must build a green energy system and economy to combat climate change and protect against oil shocks, which clearly favors acting on climate and investing in clean ",
+            "context": "page"
           }
         }
       ]
@@ -455,6 +593,20 @@
           ],
           "tag": {
             "source": "auto"
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence",
+              "single_stated"
+            ],
+            "scorer_label": "support",
+            "second_label": "support",
+            "agree": true,
+            "second_reason": "Redpath's campaign FAQ is headed 'REDUCE FEDERAL GOVERNMENT SPENDING' and calls for eliminating the Departments of Education and HUD, ending corporate welfare and farm subsidies, and changing entitlem",
+            "context": "page"
           }
         }
       ]
@@ -481,6 +633,19 @@
           ],
           "tag": {
             "source": "auto"
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence"
+            ],
+            "scorer_label": "support",
+            "second_label": "support",
+            "agree": true,
+            "second_reason": "Blumenthal co-led a letter urging the administration to halt expanded surveillance of ED visits and raising privacy concerns over AI analysis of patient data, which backs the 'protect personal data' p",
+            "context": "page"
           }
         }
       ]
@@ -524,6 +689,20 @@
           ],
           "tag": {
             "source": "auto"
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence",
+              "no_position_with_bill"
+            ],
+            "scorer_label": "no clear position",
+            "second_label": "no clear position",
+            "agree": true,
+            "second_reason": "The only material is a House Clerk link and a bill match for the Rescissions Act, with no quote, page text, or record of how bmoore voted, so no stance can be determined.",
+            "context": "quote only"
           }
         }
       ]
@@ -550,6 +729,19 @@
           ],
           "tag": {
             "source": "auto"
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence"
+            ],
+            "scorer_label": "support",
+            "second_label": "support",
+            "agree": true,
+            "second_reason": "Governor Ferguson announced a new tax credit to accelerate Washington's sustainable aviation fuel industry and reduce pollution, which is an action favoring clean energy investment and climate action.",
+            "context": "page"
           }
         }
       ]
@@ -608,7 +800,23 @@
           ],
           "tag": {
             "source": "auto"
-          }
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence",
+              "single_stated",
+              "homepage"
+            ],
+            "scorer_label": "support",
+            "second_label": "no clear position",
+            "agree": false,
+            "second_reason": "The quote is generic committee-page text describing what the Farm Bill is. It does not state Boozman's own view on fair prices or access for farmers, and no bill matches are recorded.",
+            "context": "page"
+          },
+          "needs_review": true
         }
       ]
     },
@@ -634,7 +842,21 @@
           ],
           "tag": {
             "source": "auto"
-          }
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence"
+            ],
+            "scorer_label": "support",
+            "second_label": "no clear position",
+            "agree": false,
+            "second_reason": "The only material is a menu-style heading on human trafficking, an adjacent topic that says nothing about border barriers or deportation, and no bill matches were recorded.",
+            "context": "page"
+          },
+          "needs_review": true
         }
       ]
     },
@@ -660,7 +882,21 @@
           ],
           "tag": {
             "source": "auto"
-          }
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence"
+            ],
+            "scorer_label": "support",
+            "second_label": "no clear position",
+            "agree": false,
+            "second_reason": "The quote links keeping Social Security strong to immigration and border reform, which is an adjacent topic; it never says whether benefits should be protected from cuts or privatization.",
+            "context": "page"
+          },
+          "needs_review": true
         }
       ]
     },
@@ -686,6 +922,20 @@
           ],
           "tag": {
             "source": "auto"
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence",
+              "single_stated"
+            ],
+            "scorer_label": "support",
+            "second_label": "support",
+            "agree": true,
+            "second_reason": "His own campaign platform has a section titled \"Lowering Energy Bills & Investing in Clean Energy\", which shows he favors investing in clean energy, though the excerpt says little about climate action",
+            "context": "page"
           }
         },
         {
@@ -703,6 +953,20 @@
           ],
           "tag": {
             "source": "auto"
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence",
+              "single_stated"
+            ],
+            "scorer_label": "support",
+            "second_label": "support",
+            "agree": true,
+            "second_reason": "The platform has a section headed \"Raising the Minimum Wage\" stating that no one working full-time in Pennsylvania should live in poverty, which clearly favors raising the minimum wage, though it says",
+            "context": "page"
           }
         }
       ]
@@ -743,7 +1007,22 @@
           ],
           "tag": {
             "source": "auto"
-          }
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence",
+              "no_position_with_bill"
+            ],
+            "scorer_label": "no clear position",
+            "second_label": "support",
+            "agree": false,
+            "second_reason": "The page has no issue statement, but it says Townsend worked to pass SB 10, the Compassionate Release Act, which allows early release of some incarcerated people and so points toward reducing incarcer",
+            "context": "quote only"
+          },
+          "needs_review": true
         }
       ]
     },
@@ -769,7 +1048,22 @@
           ],
           "tag": {
             "source": "auto"
-          }
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence",
+              "single_stated"
+            ],
+            "scorer_label": "support",
+            "second_label": "no clear position",
+            "agree": false,
+            "second_reason": "The quote opposes unconstitutional domestic surveillance, a government-privacy adjacent topic, but says nothing about protecting personal data or holding Big Tech accountable, and no bill matches were",
+            "context": "page"
+          },
+          "needs_review": true
         }
       ]
     },
@@ -810,7 +1104,22 @@
           ],
           "tag": {
             "source": "auto"
-          }
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence",
+              "homepage"
+            ],
+            "scorer_label": "support",
+            "second_label": "no clear position",
+            "agree": false,
+            "second_reason": "The quote is DOL website boilerplate about self-audit compliance programs and apprenticeships, and a bare FLSA bill match shows no stance on raising the minimum wage or protecting workers.",
+            "context": "page"
+          },
+          "needs_review": true
         }
       ]
     },
@@ -836,6 +1145,20 @@
           ],
           "tag": {
             "source": "auto"
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence",
+              "single_stated"
+            ],
+            "scorer_label": "support",
+            "second_label": "support",
+            "agree": true,
+            "second_reason": "Roy says securing the border from illegal immigration is the federal government's most basic duty and praises Texas for doing it, which favors strong border enforcement, though the excerpt never menti",
+            "context": "page"
           }
         }
       ]
@@ -862,6 +1185,19 @@
           ],
           "tag": {
             "source": "auto"
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence"
+            ],
+            "scorer_label": "support",
+            "second_label": "support",
+            "agree": true,
+            "second_reason": "The campaign's worker-focused proposals (triple-time overtime after 12 hours and 60 hours, a feasibility study for retirement coverage for all workers, a shorter work week) favor protecting workers, t",
+            "context": "page"
           }
         }
       ]
@@ -914,6 +1250,20 @@
           ],
           "tag": {
             "source": "auto"
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence",
+              "single_stated"
+            ],
+            "scorer_label": "support",
+            "second_label": "support",
+            "agree": true,
+            "second_reason": "The campaign site has a 'Supporting Veterans' section stating 'Let Veterans Choose Their Own Care,' which favors better healthcare and support for veterans, though the evidence is brief and no bills a",
+            "context": "page"
           }
         }
       ]
@@ -940,7 +1290,23 @@
           ],
           "tag": {
             "source": "auto"
-          }
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence",
+              "single_stated",
+              "homepage"
+            ],
+            "scorer_label": "support",
+            "second_label": "no clear position",
+            "agree": false,
+            "second_reason": "The quote only mentions 'responsible federal spending' in a general list of business-friendly goals, with no explicit call to slash spending, cut debt, or shrink government, and no bill actions are re",
+            "context": "page"
+          },
+          "needs_review": true
         }
       ]
     },
@@ -984,6 +1350,20 @@
           ],
           "tag": {
             "source": "auto"
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence",
+              "no_position_with_bill"
+            ],
+            "scorer_label": "no clear position",
+            "second_label": "no clear position",
+            "agree": true,
+            "second_reason": "The only evidence is a page title and menu text reading \"Medicare for all\", with no statement of his view, and the matched bill text only describes a prescription payment plan.",
+            "context": "page"
           }
         },
         {
@@ -1001,7 +1381,22 @@
           ],
           "tag": {
             "source": "auto"
-          }
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence",
+              "single_stated"
+            ],
+            "scorer_label": "oppose",
+            "second_label": "support",
+            "agree": false,
+            "second_reason": "The page is titled 'Codify Roe' and says he will 'oppose utterly' making abortion illegal, calling it a valid medical procedure; his aim of reducing the number of abortions does not conflict with prot",
+            "context": "page"
+          },
+          "needs_review": true
         },
         {
           "key": "econ_workers",
@@ -1018,6 +1413,19 @@
           ],
           "tag": {
             "source": "auto"
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence"
+            ],
+            "scorer_label": "support",
+            "second_label": "support",
+            "agree": true,
+            "second_reason": "He says the $15 minimum wage is already outdated and proposes tying the federal minimum wage to the MIT Living Wage Calculator, which clearly favors raising it, though the page says nothing on protect",
+            "context": "page"
           }
         }
       ]
@@ -1044,6 +1452,19 @@
           ],
           "tag": {
             "source": "auto"
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence"
+            ],
+            "scorer_label": "support",
+            "second_label": "support",
+            "agree": true,
+            "second_reason": "The campaign platform explicitly calls for creating universal public healthcare, which clearly favors expanding healthcare access and coverage for everyone.",
+            "context": "page"
           }
         }
       ]
@@ -1070,7 +1491,22 @@
           ],
           "tag": {
             "source": "auto"
-          }
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence",
+              "single_stated"
+            ],
+            "scorer_label": "support",
+            "second_label": "no clear position",
+            "agree": false,
+            "second_reason": "The quote is a cut-off announcement of $32 million for an Agriculture Research Service construction project, and the surrounding text is about military infrastructure. Neither speaks to fair prices or",
+            "context": "page"
+          },
+          "needs_review": true
         }
       ]
     },
@@ -1095,7 +1531,19 @@
           },
           "tag": {
             "source": "auto"
-          }
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "congress_check": {
+              "recorded": 119,
+              "cited": [
+                117
+              ],
+              "ok": false
+            }
+          },
+          "needs_review": true
         }
       ],
       "stances": [
@@ -1113,7 +1561,22 @@
           ],
           "tag": {
             "source": "auto"
-          }
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence",
+              "no_position_with_bill"
+            ],
+            "scorer_label": "no clear position",
+            "second_label": "oppose",
+            "agree": false,
+            "second_reason": "Bacon voted against H.R. 1, the For the People Act, which was the main voting-access expansion bill, and framed the vote as defending the Constitution, though the page offers no explicit statement on ",
+            "context": "quote only"
+          },
+          "needs_review": true
         }
       ]
     },
@@ -1181,7 +1644,22 @@
           ],
           "tag": {
             "source": "auto"
-          }
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence",
+              "single_stated"
+            ],
+            "scorer_label": "support",
+            "second_label": "oppose",
+            "agree": false,
+            "second_reason": "Donalds issued a statement opposing the John R. Lewis Voting Rights Advancement Act (H.R. 5746) as a federal power grab over state elections, so despite his 'fundamental voting rights' language his ac",
+            "context": "page"
+          },
+          "needs_review": true
         }
       ]
     },
@@ -1207,7 +1685,23 @@
           ],
           "tag": {
             "source": "auto"
-          }
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence",
+              "single_stated",
+              "homepage"
+            ],
+            "scorer_label": "support",
+            "second_label": "no clear position",
+            "agree": false,
+            "second_reason": "The only source is the VA.gov homepage banner ('Welcome to VA'), which is agency boilerplate and shows nothing about Doug Collins's own stance, and no bill matches were recorded.",
+            "context": "page"
+          },
+          "needs_review": true
         }
       ]
     },
@@ -1233,6 +1727,19 @@
           ],
           "tag": {
             "source": "auto"
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence"
+            ],
+            "scorer_label": "support",
+            "second_label": "support",
+            "agree": true,
+            "second_reason": "Durazo states that healthcare is a human right and that all Californians should have coverage, and she is promoting her Health4All bill, which directly matches the goal of expanding coverage for every",
+            "context": "page"
           }
         }
       ]
@@ -1276,7 +1783,21 @@
           ],
           "tag": {
             "source": "auto"
-          }
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence"
+            ],
+            "scorer_label": "support",
+            "second_label": "no clear position",
+            "agree": false,
+            "second_reason": "The only relevant text is a firearms-privacy plank (banning merchant category code tracking of gun purchases), which is an adjacent gun-rights topic and does not address broader personal data protecti",
+            "context": "page"
+          },
+          "needs_review": true
         }
       ]
     },
@@ -1362,7 +1883,21 @@
           ],
           "tag": {
             "source": "auto"
-          }
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence"
+            ],
+            "scorer_label": "support",
+            "second_label": "no clear position",
+            "agree": false,
+            "second_reason": "The only evidence is a press-release headline about a radio address on preventing gun violence. It does not say he backs stronger gun safety laws, and there is no surrounding text or bill record to co",
+            "context": "quote only"
+          },
+          "needs_review": true
         },
         {
           "key": "pro_choice",
@@ -1379,6 +1914,19 @@
           ],
           "tag": {
             "source": "auto"
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence"
+            ],
+            "scorer_label": "support",
+            "second_label": "support",
+            "agree": true,
+            "second_reason": "Evers's own office headlines the court ruling as 'Preserving Abortion Access', which signals approval, though the statement text itself is not available.",
+            "context": "quote only"
           }
         }
       ]
@@ -1405,6 +1953,20 @@
           ],
           "tag": {
             "source": "auto"
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence",
+              "single_stated"
+            ],
+            "scorer_label": "support",
+            "second_label": "support",
+            "agree": true,
+            "second_reason": "Gallego co-sponsored bipartisan legislation, now law, that transfers land to Gila County for a veterans retreat and community center supporting nearly 5,500 veterans, which is a concrete step to suppo",
+            "context": "page"
           }
         }
       ]
@@ -1431,7 +1993,23 @@
           ],
           "tag": {
             "source": "auto"
-          }
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence",
+              "single_stated",
+              "homepage"
+            ],
+            "scorer_label": "support",
+            "second_label": "no clear position",
+            "agree": false,
+            "second_reason": "The quote is a general pledge to keep borders secure and support DHS, and it says nothing about finishing border barriers or deporting people here illegally; no bill matches were recorded.",
+            "context": "quote only"
+          },
+          "needs_review": true
         }
       ]
     },
@@ -1457,9 +2035,226 @@
           ],
           "tag": {
             "source": "auto"
+          },
+          "verify": {
+            "version": "dirkey-verify-v1",
+            "at": "2026-11-12T19:25:54.445Z",
+            "model": "claude-sonnet-5-5",
+            "risks": [
+              "low_confidence",
+              "single_stated"
+            ],
+            "scorer_label": "support",
+            "second_label": "support",
+            "agree": true,
+            "second_reason": "The campaign site says to \"forgive student loan debt and subsidize higher education,\" which directly matches cutting student debt and making college more affordable.",
+            "context": "page"
           }
         }
       ]
     }
+  },
+  "verify": {
+    "_comment": "WRITTEN by scripts/verify-dirkey-auto.mjs. Internal second-check results; never shown on the page. `review_queue` lists every row tagged needs_review, for the batch-review pass to take first.",
+    "verify_version": "dirkey-verify-v1",
+    "at": "2026-11-12T19:25:54.445Z",
+    "model": "claude-sonnet-5-5",
+    "rows": 49,
+    "checked": 41,
+    "skipped": 8,
+    "already": 0,
+    "agreed": 25,
+    "disagreed": 16,
+    "errors": 0,
+    "congress_mismatch": 1,
+    "tagged_for_review": 17,
+    "review_queue": [
+      {
+        "politician_id": "alan_wessman",
+        "row": "stance",
+        "key": "voting_access",
+        "scorer_label": "support",
+        "second_label": "no clear position",
+        "risks": [
+          "low_confidence",
+          "single_stated"
+        ]
+      },
+      {
+        "politician_id": "boozman",
+        "row": "stance",
+        "key": "rural_ag",
+        "scorer_label": "support",
+        "second_label": "no clear position",
+        "risks": [
+          "low_confidence",
+          "single_stated",
+          "homepage"
+        ]
+      },
+      {
+        "politician_id": "brenna_bird",
+        "row": "stance",
+        "key": "border_security",
+        "scorer_label": "support",
+        "second_label": "no clear position",
+        "risks": [
+          "low_confidence"
+        ]
+      },
+      {
+        "politician_id": "brian_bengs",
+        "row": "stance",
+        "key": "social_security",
+        "scorer_label": "support",
+        "second_label": "no clear position",
+        "risks": [
+          "low_confidence"
+        ]
+      },
+      {
+        "politician_id": "bryan_townsend",
+        "row": "stance",
+        "key": "justice_reform",
+        "scorer_label": "no clear position",
+        "second_label": "support",
+        "risks": [
+          "low_confidence",
+          "no_position_with_bill"
+        ]
+      },
+      {
+        "politician_id": "carlton_bowen",
+        "row": "stance",
+        "key": "privacy_rights",
+        "scorer_label": "support",
+        "second_label": "no clear position",
+        "risks": [
+          "low_confidence",
+          "single_stated"
+        ]
+      },
+      {
+        "politician_id": "chavez_deremer",
+        "row": "stance",
+        "key": "econ_workers",
+        "scorer_label": "support",
+        "second_label": "no clear position",
+        "risks": [
+          "low_confidence",
+          "homepage"
+        ]
+      },
+      {
+        "politician_id": "comer",
+        "row": "stance",
+        "key": "cut_spending",
+        "scorer_label": "support",
+        "second_label": "no clear position",
+        "risks": [
+          "low_confidence",
+          "single_stated",
+          "homepage"
+        ]
+      },
+      {
+        "politician_id": "curtis_stinnett",
+        "row": "stance",
+        "key": "pro_choice",
+        "scorer_label": "oppose",
+        "second_label": "support",
+        "risks": [
+          "low_confidence",
+          "single_stated"
+        ]
+      },
+      {
+        "politician_id": "deb_fischer",
+        "row": "stance",
+        "key": "rural_ag",
+        "scorer_label": "support",
+        "second_label": "no clear position",
+        "risks": [
+          "low_confidence",
+          "single_stated"
+        ]
+      },
+      {
+        "politician_id": "don_bacon",
+        "row": "stance",
+        "key": "voting_access",
+        "scorer_label": "no clear position",
+        "second_label": "oppose",
+        "risks": [
+          "low_confidence",
+          "no_position_with_bill"
+        ]
+      },
+      {
+        "politician_id": "donalds",
+        "row": "stance",
+        "key": "voting_access",
+        "scorer_label": "support",
+        "second_label": "oppose",
+        "risks": [
+          "low_confidence",
+          "single_stated"
+        ]
+      },
+      {
+        "politician_id": "doug_collins",
+        "row": "stance",
+        "key": "veterans",
+        "scorer_label": "support",
+        "second_label": "no clear position",
+        "risks": [
+          "low_confidence",
+          "single_stated",
+          "homepage"
+        ]
+      },
+      {
+        "politician_id": "elias_montgomery",
+        "row": "stance",
+        "key": "privacy_rights",
+        "scorer_label": "support",
+        "second_label": "no clear position",
+        "risks": [
+          "low_confidence"
+        ]
+      },
+      {
+        "politician_id": "evers",
+        "row": "stance",
+        "key": "gun_safety",
+        "scorer_label": "support",
+        "second_label": "no clear position",
+        "risks": [
+          "low_confidence"
+        ]
+      },
+      {
+        "politician_id": "garbarino",
+        "row": "stance",
+        "key": "border_security",
+        "scorer_label": "support",
+        "second_label": "no clear position",
+        "risks": [
+          "low_confidence",
+          "single_stated",
+          "homepage"
+        ]
+      },
+      {
+        "politician_id": "don_bacon",
+        "row": "bill_match",
+        "key": "voting_access",
+        "bill": "H.R. 1",
+        "recorded_congress": 119,
+        "cited_congress": [
+          117
+        ]
+      }
+    ]
   }
 }
