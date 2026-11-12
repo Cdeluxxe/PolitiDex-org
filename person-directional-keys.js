@@ -4,10 +4,12 @@
    ────────────────────────────────────────────────────────────────────────────
    WHAT IT SHOWS. For a person listed in person-directional-keys.json (written
    by scripts/gen-person-directional-keys.mjs), one section with up to two
-   lists, on the keys that have a bill mapping pattern — the table's `keys`:
-   Offensive Arms Sales to Israel, Further U.S. Aid to Ukraine, Congress Must
-   Authorize Hostilities with Iran, Tariffs on China & Unfair Trade, and Strong
-   Border & Enforcement — and no other key. The heading counts and names them
+   lists, on the keys that have a bill mapping pattern — the table's `keys`
+   (twenty-five in bill-key-patterns-v8: the Israel, Ukraine and Iran keys,
+   China tariffs, the border, energy, school choice, health care, spending,
+   climate, gun safety, abortion, voting rules, housing, trade, wages and
+   unions, criminal justice, Social Security, veterans, farming, privacy, drug
+   prices, law enforcement, college costs and public lands) — and no other key. The heading counts and names them
    from the table, so it never says more or fewer than the table holds:
      · Bills matched to a key: each bill the bill finder matched to one of those
        keys in the person's sources — the bill (linked to its bill page when
@@ -36,7 +38,8 @@
   var SRC = '/person-directional-keys.json';
   var POSITION = { support: 'Supports', oppose: 'Opposes', mixed: 'Mixed', 'no clear position': 'No clear position' };
   var CONF = { high: 'High confidence', medium: 'Medium confidence', low: 'Low confidence' };
-  var NUMBER_WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
+  var NUMBER_WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty',
+    'twenty-one', 'twenty-two', 'twenty-three', 'twenty-four', 'twenty-five', 'twenty-six', 'twenty-seven', 'twenty-eight', 'twenty-nine', 'thirty'];
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {

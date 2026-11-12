@@ -3,10 +3,10 @@
 // gen-person-directional-keys.mjs — the table person-directional-keys.js shows
 //
 // For each person with a ground-truth record (the six locked records and
-// db/stance-ground-truth-expansion-2026-11.json), two things, on the five keys
-// that have a bill mapping pattern (bill-key-patterns.mjs: israel_offensive_arms,
-// ukraine_aid, iran_hostilities, and the register keys tariffs_china and
-// border_security) and on no other key:
+// db/stance-ground-truth-expansion-2026-11.json), two things, on the keys that
+// have a bill mapping pattern (bill-key-patterns.mjs, MAPPED_KEYS: twenty-five
+// in v8 — israel_offensive_arms, ukraine_aid, iran_hostilities, the v5/v6
+// register keys and the eight v7 and eight v8 register keys) and on no other key:
 //
 //   mappings  every bill the shared bill finder matched to one of those keys in
 //             that person's ground-truth sources (bill, key, confidence, a short
