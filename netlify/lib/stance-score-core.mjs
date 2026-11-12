@@ -66,6 +66,29 @@
 //       carries, it restates the same claim under another issue key and is
 //       dropped (scoreAllTopics). The page's own topic is always kept; among
 //       other topics the one resting on more explicit statements wins.
+//       (phase8-v3) A candidate resting on an R10 campaign-claim statement is
+//       specific to its key and is never dropped as a restatement.
+//   R10 Campaign-claim patterns (phase8-v3): on campaign pages, official issue
+//       pages and the candidate's own speeches/remarks (claimPageKind), a small
+//       set of explicit-claim forms the general rules missed also count as
+//       clear statements — other verb forms ("lowers premiums", "will lower"),
+//       the passive ("so that costs are lowered"), "works to expand access,
+//       lower cost", "is a proponent of … housing", "leading the effort to
+//       provide … $10 per day childcare", "rein in … excessive government
+//       spending … inflation" across a long clause, "ensure … can afford their
+//       prescription drugs", and "the … vouchers scam" (CLAIM_RULES). The same
+//       own-words checks apply: the actor must be the page's politician, and a
+//       quote from someone else never sets an R8 stated position. Newsrooms,
+//       releases and secondary sources do not read these patterns.
+//   R11 Who is acting, two corrections (phase8-v3):
+//         (a) he / she / his / her after another person's possessive or after
+//             opponent framing in the same sentence refers to that person —
+//             "Trump’s declaration that he … his promise to bring down prices"
+//             is Trump and "my opponent claims his plan …" is the opponent,
+//             not the page's politician;
+//         (b) on the oppose side, a non-speaker subject directly before an -ing
+//             verb is the actor — "the Supreme Court Ruling Gutting the Voting
+//             Rights Act" is the ruling, not the candidate.
 //
 
 // Calibration: the ground truth (0.85) rests on first-party campaign pages
@@ -75,7 +98,7 @@
 
 import { buildTopicRules, ISSUE_TOPIC_VOCAB, ISSUE_TOPIC_LABELS } from "./stance-topic-vocab.mjs";
 
-export const RULES_VERSION = "phase8-v2";
+export const RULES_VERSION = "phase8-v3";
 // Vocabulary version for the issue keys scored from stance-topic-vocab.mjs
 // (every register key except the two hand-calibrated core topics).
 export const VOCAB_VERSION = "issue-vocab-v1";
@@ -198,6 +221,48 @@ export const TOPIC_RULES = {
   ...Object.fromEntries(Object.entries(buildTopicRules()).filter(([k]) => k !== "cost_living" && k !== "healthcare_costs")),
 };
 
+// R10 (phase8-v3): explicit-claim forms the general rules miss, read only on
+// campaign pages, official issue pages and the candidate's own speeches. Each
+// rule is { side, re, context? }: `context`, when set, must also match the
+// sentence (it replaces the topic's general context check). Deliberately
+// narrow: no generic "fight for", no "money in your pocket", no bare problem
+// statements — every form names the remedy or the thing supported.
+const HEALTH_CONTEXT = /\b(?:health\w*|medical|medicaid|medicare|insurance|premiums?|prescriptions?|drugs?|insulin|co-?pays?|deductibles?|hospitals?|patients?|Affordable Care Act|ACA|Obamacare)\b/i;
+const HEALTH_COST_OBJECT = String.raw`(?:premiums?|co-?pays?|deductibles?|out-of-pocket (?:costs?|spending)|(?:health ?care|medical|drug|prescription(?: drug)?|insurance) (?:costs?|prices?|bills?))`;
+export const CLAIM_RULES = {
+  healthcare_costs: [
+    // Verb forms: "a solution which lowers premiums", "lowered co-pays", "will lower premiums".
+    { side: "support", context: HEALTH_CONTEXT, re: new RegExp(String.raw`\b(?:lowers|lowered|will lower)\b[^.!?]{0,40}?\b${HEALTH_COST_OBJECT}\b`, "i") },
+    // Passive: "so that costs are lowered", "premiums will be reduced".
+    { side: "support", context: HEALTH_CONTEXT, re: /\b(?:costs?|prices?|premiums?|co-?pays?|deductibles?|out-of-pocket costs?)\s+(?:are|is|will be|would be|can be|get|gets)\s+(?:lowered|reduced|cut|capped|brought down)\b/i },
+    // "works to expand access, lower cost, and keep Texans healthy".
+    { side: "support", context: HEALTH_CONTEXT, re: /\bwork(?:s|ed|ing)? to expand access\b,?\s+(?:and\s+)?lower(?:s|ing)? (?:the )?costs?\b/i },
+    // "ensure that families … can afford their prescription drugs".
+    { side: "support", re: /\bensur(?:e|es|ed|ing)\b[^.!?]{0,60}?\bcan afford\b[^.!?]{0,20}?\b(?:(?:their|the|its|our|your) )?(?:prescription drugs?|prescriptions|medications?|medicines?|insulin|health ?care(?: costs)?|health insurance|medical (?:care|bills|costs))\b/i },
+  ],
+  housing: [
+    // "Congresswoman Crockett is a proponent of an array of housing options".
+    { side: "support", re: /\b(?:is|am|are|been|be)\s+an?\s+(?:\w+\s+)?proponent of\b[^.!?]{0,40}?\b(?:affordable )?housing\b/i },
+  ],
+  child_care: [
+    // "I am leading the effort to provide families with $10 per day childcare".
+    { side: "support", re: /\blead(?:s|ing)? the effort to provide\b[^.!?]{0,40}?(?:\$\s?\d+(?:\.\d{2})?\s?(?:per|a|\/)\s?day|affordable|universal)\s+child ?care\b/i },
+  ],
+  cut_spending: [
+    // "rein in … excessive government spending …, which instigated our present inflation crisis" — however long the clause.
+    { side: "support", re: /\brein(?:s|ing)? in\b[^.!?]{0,60}?\b(?:excessive|wasteful|reckless|runaway|out-of-control) (?:government |federal )?spending\b[^.!?]{0,200}?\binflation\b/i },
+  ],
+  school_choice: [
+    // "repair the damage of the Texas vouchers scam" (against vouchers).
+    { side: "oppose", re: /(?:\brepair(?:s|ing)? the damage (?:of|from|done by)\b[^.!?]{0,40}?)?\bvouchers? scams?\b/i },
+  ],
+};
+
+/** Source kinds that read the R10 campaign-claim patterns. */
+const CLAIM_PAGE_KINDS = new Set(["campaign_page", "official_page", "speech"]);
+/** Does this source read the R10 campaign-claim patterns? (campaign / official issue pages, own speeches) */
+export const isClaimPage = (sourceType, link) => CLAIM_PAGE_KINDS.has(primarySourceKind(sourceType, link));
+
 /** The hand-calibrated topics (Phase 4/5); every other key reads the vocabulary. */
 export const CORE_TOPICS = ["cost_living", "healthcare_costs"];
 
@@ -252,6 +317,39 @@ function selfNamePattern(politicianId) {
   return new RegExp(`\\b(?:${names.join("|")})(?:['’]s)?\\b`, "gi");
 }
 
+// R11(a): a named person a he / she / his / her refers back to — a capitalised
+// possessive ("Trump’s declaration that he …") or opponent framing ("my
+// opponent claims his plan …"). A name that is only an object
+// ("Alongside President Trump, he will …") does not take the pronoun.
+// Possessives of places and institutions are not people.
+const OTHER_PERSON = /\b[A-Z][a-z][\w-]*['’]s(?=\s)/g;
+const NOT_A_PERSON = new Set(["America", "Texas", "Nation", "State", "Country", "World", "Today", "District", "Congress", "Senate", "House", "Court", "Government", "Administration", "City", "County", "Party", "Department", "Agency", "Committee", "Year", "Week", "Month", "Family", "Community", "Women", "Children", "People", "Everyone"]);
+
+/** The other named person `before` ends with (no self name after it), or null. */
+function pronounAntecedent(before, selfName) {
+  let m, other = null;
+  OTHER_PERSON.lastIndex = 0;
+  while ((m = OTHER_PERSON.exec(before))) {
+    const name = m[0];
+    const head = name.replace(/['’]s$/, "");
+    if (NOT_A_NAME.has(head) || NOT_A_PERSON.has(head)) continue;
+    if (selfName && (selfName.lastIndex = 0, selfName.test(name))) continue;
+    other = { text: name, end: m.index + name.length };
+  }
+  // "My opponent claims his plan …" — the pronoun is the opponent's.
+  OPPONENT_FRAMING.lastIndex = 0;
+  while ((m = OPPONENT_FRAMING.exec(before))) {
+    const end = m.index + m[0].length;
+    if (!other || end > other.end) other = { text: m[0], end };
+  }
+  if (!other) return null;
+  const tail = before.slice(other.end);
+  FIRST_PERSON.lastIndex = 0;
+  if (FIRST_PERSON.test(tail)) return null;
+  if (selfName && (selfName.lastIndex = 0, selfName.test(tail))) return null;
+  return other.text;
+}
+
 function lastMatch(re, text) {
   let m, last = null; re.lastIndex = 0;
   while ((m = re.exec(text))) { last = m; if (m[0] === "") re.lastIndex++; }
@@ -267,7 +365,12 @@ export function actorFor(prefix, politicianId) {
   FIRST_PERSON.lastIndex = 0;
   while ((m = FIRST_PERSON.exec(prefix))) push("self", m);
   SELF_PRONOUN.lastIndex = 0;
-  while ((m = SELF_PRONOUN.exec(prefix))) push("self", m);
+  while ((m = SELF_PRONOUN.exec(prefix))) {
+    // R11(a): a third-person pronoun refers to the nearest named person before it.
+    const other = pronounAntecedent(prefix.slice(0, m.index), selfName);
+    if (other) hits.push({ kind: "opponent", end: m.index + m[0].length, text: other });
+    else push("self", m);
+  }
   if (selfName) { selfName.lastIndex = 0; while ((m = selfName.exec(prefix))) push("self", m); }
   OPPONENT_FRAMING.lastIndex = 0;
   while ((m = OPPONENT_FRAMING.exec(prefix))) push("opponent", m);
@@ -433,7 +536,8 @@ function classifyImplication(sentence, r, politicianId) {
   const po = r.implyOppose ? r.implyOppose.exec(sentence) : null;
   if ((ps || po) && !(ps && po)) {
     const m = ps || po;
-    const actor = implicationActor(sentence.slice(0, m.index), r, politicianId);
+    const prefix = sentence.slice(0, m.index);
+    const actor = (po && participleSubject(prefix, m[0], politicianId)) || implicationActor(prefix, r, politicianId);
     if (actor.kind === "self") return { kind: "implication", via: "remedy", side: ps ? "support" : "oppose", reversal: false, actor };
     return { kind: "mention", side: null, reversal: false, actor };
   }
@@ -448,22 +552,59 @@ function classifyImplication(sentence, r, politicianId) {
   return null;
 }
 
+// R11(b): on the oppose side, "<subject> gutting / repealing …" names who acts.
+// A decision noun or a capitalised non-speaker word directly before an -ing
+// verb is the actor ("the Supreme Court Ruling Gutting the Voting Rights Act",
+// "Callais gutting Section 2"). The candidate's own instruments (Act, Bill …)
+// are not someone else acting.
+const PARTICIPLE_SUBJECT = /(?:\b(ruling|decision|opinion|order|court|justices|majority)|\b([A-Z][\w'’-]+))\s+$/i;
+const OWN_INSTRUMENT = /^(?:Act|Bill|Law|Legislation|Resolution|Amendment|Plan|Program|Agenda|Initiative|Policy|Proposal|Package)$/;
+function participleSubject(prefix, match, politicianId) {
+  if (!/^\w+ing\b/i.test(match)) return null;
+  const m = PARTICIPLE_SUBJECT.exec(prefix);
+  if (!m) return null;
+  if (m[1]) return { kind: "third", via: m[1] };
+  const word = m[2];
+  if (!/^[A-Z]/.test(word) || NOT_A_NAME.has(word) || OWN_INSTRUMENT.test(word)) return null;
+  const self = selfNamePattern(politicianId);
+  if (self && (self.lastIndex = 0, self.test(word))) return null;
+  return { kind: "opponent", via: word };
+}
+
+/** R10: the first campaign-claim pattern for `topic` that matches → { m, side } or null. */
+function claimMatch(sentence, topic) {
+  for (const c of CLAIM_RULES[topic] || []) {
+    if (c.context && !c.context.test(sentence)) continue;
+    const m = c.re.exec(sentence);
+    if (m) return { m, side: c.side };
+  }
+  return null;
+}
+
 /**
  * Classify one sentence → { kind: 'clear'|'implication'|'mention'|null, side, reversal, actor, via? }.
- * `politicianId` is the page's own politician (raw.politician_id).
+ * `politicianId` is the page's own politician (raw.politician_id). `claims`
+ * (phase8-v3, R10) turns on the campaign-claim patterns — set for campaign
+ * pages, official issue pages and the candidate's own speeches.
  */
-export function classify(sentence, topic, politicianId = null) {
+export function classify(sentence, topic, politicianId = null, { claims = false } = {}) {
   const r = TOPIC_RULES[topic];
   if (!r) throw new Error(`no scoring rules for topic ${topic}`);
   const reversal = REVERSAL.test(sentence);
   const inContext = !r.context || r.context.test(sentence);
-  const sm = inContext ? r.support.exec(sentence) : null;
-  const om = inContext ? r.oppose.exec(sentence) : null;
+  let sm = inContext ? r.support.exec(sentence) : null;
+  let om = inContext ? r.oppose.exec(sentence) : null;
+  let via;
+  if (!sm && !om && claims) {
+    const cm = claimMatch(sentence, topic);
+    if (cm) { if (cm.side === "support") sm = cm.m; else om = cm.m; via = "claim"; }
+  }
   if ((sm || om) && !(sm && om)) {
     const m = sm || om;
-    const actor = actorFor(sentence.slice(0, m.index), politicianId);
+    const prefix = sentence.slice(0, m.index);
+    const actor = (om && participleSubject(prefix, m[0], politicianId)) || actorFor(prefix, politicianId);
     if (actor.kind === "self" || reversal) {
-      return { kind: "clear", side: sm ? "support" : "oppose", reversal, actor };
+      return { kind: "clear", side: sm ? "support" : "oppose", reversal, actor, ...(via ? { via } : {}) };
     }
     return { kind: "mention", side: null, reversal: false, actor };
   }
@@ -517,9 +658,10 @@ export function scoreRawRecord(raw, topic = raw?.topic, sentences = null) {
   const list = sentences || extractSentences(raw.body);
   const at = new Map(); // sentence index → its statement (R7 pairing)
   const speakers = quoteSpeakers(list, raw.politician_id); // who is quoted (R8)
+  const claims = isClaimPage(raw.source_type, raw.final_url || raw.url); // R10
   for (let i = 0; i < list.length; i++) {
     const text = list[i];
-    const c = classify(text, topic, raw.politician_id);
+    const c = classify(text, topic, raw.politician_id, { claims });
     if (!c.kind) continue;
     at.set(i, statements.length);
     statements.push({
@@ -530,6 +672,7 @@ export function scoreRawRecord(raw, topic = raw?.topic, sentences = null) {
       reversal: c.reversal,
       ...(speakers[i] === "other" ? { quoted_speaker: "other" } : {}),
       ...(c.kind === "implication" ? { implication: c.via } : {}),
+      ...(c.kind === "clear" && c.via === "claim" ? { claim_pattern: true } : {}),
       ...(c.actor && c.actor.kind !== "self" ? { attributed_to: c.actor.kind, attributed_via: c.actor.via } : {}),
       weight: c.kind === "clear" ? WEIGHTS[tier] : c.kind === "implication" ? WEIGHTS.implication : WEIGHTS.zero,
     });
@@ -693,6 +836,7 @@ export function scoreAllTopics(raw, { topics = SCORED_TOPICS, maxCrossSentences 
 /** The directional sentences a candidate rests on (R9). */
 const claimSet = (c) => new Set((c?.sources?.[0]?.statements || [])
   .filter((s) => s.kind === "clear" || s.kind === "implication").map((s) => s.text));
+const hasClaimPattern = (c) => (c?.sources?.[0]?.statements || []).some((s) => s.claim_pattern);
 const explicitCount = (c) => (c?.sources?.[0]?.statements || []).filter((s) => s.kind === "clear").length;
 
 /**
@@ -708,7 +852,9 @@ export function collapseRestatements(kept, extra) {
   const keep = new Set();
   for (const { c, i } of order) {
     const mine = claimSet(c);
-    const dup = mine.size > 0 && held.some((h) => [...mine].every((x) => h.has(x)));
+    // An R10 campaign-claim statement is specific to its key, so a candidate
+    // carrying one is never a restatement of another key's read.
+    const dup = mine.size > 0 && !hasClaimPattern(c) && held.some((h) => [...mine].every((x) => h.has(x)));
     if (dup) continue;
     held.push(mine);
     keep.add(i);
