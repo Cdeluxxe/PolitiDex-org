@@ -1,0 +1,437 @@
+{
+  "_note": "Ground-truth stance records added in the expansion passes (2026-11-12): one human label per person on one of the keys that have a bill mapping pattern (israel_offensive_arms, ukraine_aid, iran_hostilities, tariffs_china, border_security; second pass: energy_production, school_choice, healthcare, cut_spending). Same fields as the six locked records in db/stance-ground-truth-talarico-cost-of-living.json, which this file does not change. Each excerpt is quoted verbatim from the linked first-party page; fragments are separated by \" ... \".",
+  "records": [
+    {
+      "stance_id": "owens|ukraine_aid|gt-007",
+      "politician_id": "owens",
+      "topic": "ukraine_aid",
+      "position": "support",
+      "position_on": "sending further U.S. military, humanitarian and economic aid to Ukraine (here, H.R. 7691 in May 2022)",
+      "confidence": 0.8,
+      "confidence_reason": "He states his yes vote on a Ukraine aid supplemental and the reason for it in his own words; held at 0.8 because it is one release about one vote, with no later statement on further aid.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2022-05-10",
+          "link": "https://owens.house.gov/posts/owens-backs-additional-ukraine-aid",
+          "excerpt": "\"WASHINGTON, D.C. – Tonight, Rep. Burgess Owens (UT-04) released the following statement after his vote in support of H.R. 7691, the Additional Ukraine Supplemental Appropriations Act.\" ... \"Tonight, I voted yes on H.R. 7691 to deliver immediate military, humanitarian, and economic aid to Ukraine.\" ... \"The stakes are high, and adversaries like China are analyzing our strength.\" ... \"The U.S.A. must not waiver in our full-scale response.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release from his House office on his vote for H.R. 7691 (117th Congress), the Additional Ukraine Supplemental Appropriations Act, 2022. The first fragment is the office's framing; the rest is his quoted statement. The China line is about adversaries watching, not trade.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "rick_crawford|ukraine_aid|gt-008",
+      "politician_id": "rick_crawford",
+      "topic": "ukraine_aid",
+      "position": "mixed",
+      "position_on": "further U.S. aid to Ukraine: for direct lethal military aid, against the April 2024 package's non-military and economic aid",
+      "confidence": 0.75,
+      "confidence_reason": "In one statement he votes against the $60.8 billion Ukraine package and says he backed an amendment for military-only aid, so he supports one part of the proposition and opposes another; one source, so held at 0.75.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2024-04-20",
+          "link": "https://crawford.house.gov/media/press-releases/rep-crawford-votes-to-stop-endless-funding-to-ukraine",
+          "excerpt": "\"Washington, D.C. — Congressman Rick Crawford (AR-01) issued the statement below concerning his vote today against an additional $60.8 billion aid bill to Ukraine, including $9 billion in economic assistance in the form of \"forgivable loans.\" ... \"While the entire Western world stands in support of Ukraine's fight to expel Vladimir Putin's Ukraine invasion force, I cannot in good faith vote to send billions of dollars in non-military financial aid to Ukraine to prop up its economy when Americans are struggling with rising costs at home.\" ... \"I voted in favor of the Cammack amendment that would have focused American taxpayer dollars on direct military aid for the fighting men and women in Ukraine and on replenishing American military stockpiles.\" ... \"We need to help Ukraine with lethal, military aid so that it can stop Russia in its tracks.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release from his House office on his vote against the April 2024 Ukraine aid bill (the House's $60.8 billion Ukraine title). The release names no bill number. He opposes the non-military aid in the package and supports direct military aid, so the record is mixed rather than oppose.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "michael_guest|border_security|gt-009",
+      "politician_id": "michael_guest",
+      "topic": "border_security",
+      "position": "support",
+      "position_on": "stronger border enforcement: more agents, walls and barriers, and stopping illegal crossings (here, H.R. 2, the Secure the Border Act of 2023)",
+      "confidence": 0.85,
+      "confidence_reason": "He votes for H.R. 2 and, in his own floor remarks, backs its agents, walls and barriers and calls for ending illegal crossings; held below 0.9 because both parts come from one release about one bill.",
+      "sources": [
+        {
+          "type": "official press release (with floor speech transcript)",
+          "date": "2023-05-12",
+          "link": "https://guest.house.gov/media/press-releases/congressman-guest-supports-critical-legislation-address-border-crisis",
+          "excerpt": "\"Washington, D.C. – Yesterday, Vice Chairman of the Committee on Homeland Security Michael Guest voted in favor of H.R. 2 – Secure the Border Act of 2023.\" ... \"Make no mistake, our border is broken.\" ... \"This legislation will hire thousands of new agents, pay retention bonuses to our front-line officers, invest in new technology, construct hundreds of miles of walls and barriers, and will support our local and state partners.\" ... \"We must end the flood of immigrants that are coming across each and every day, and we must support the hard-working men and women of law enforcement who are on the front lines of this crisis.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release from his House office on his vote for H.R. 2 (118th Congress), with the transcript of his floor speech. The first fragment is the office's framing; the rest is his speech. He is Vice Chairman of the Homeland Security Committee.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "tlaib|iran_hostilities|gt-010",
+      "politician_id": "tlaib",
+      "topic": "iran_hostilities",
+      "position": "support",
+      "position_on": "requiring congressional consent before U.S. forces strike Iran, and Congress acting to stop strikes it did not authorize (June 2025)",
+      "confidence": 0.8,
+      "confidence_reason": "She says in her own words that striking Iran without the consent of Congress violates the Constitution and that Congress must use its war powers to stop it; one statement on one event, so held at 0.8.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2025-06-21",
+          "link": "https://tlaib.house.gov/posts/tlaib-denounces-trumps-disastrous-unconstitutional-bombing-of-iran",
+          "excerpt": "\"President Trump sending U.S. troops to bomb Iran without the consent of Congress is a blatant violation of our Constitution.\" ... \"Congress must act immediately to exert its war powers and stop this unconstitutional act of war.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party statement from her House office on the June 2025 U.S. strikes on Iran. Both fragments are her quoted words. The statement names no resolution or bill.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "cotton|israel_offensive_arms|gt-011",
+      "politician_id": "cotton",
+      "topic": "israel_offensive_arms",
+      "position": "support",
+      "position_on": "approving and delivering U.S. offensive weapons to Israel without delay (2,000-pound bombs, warheads, guidance kits, Hellfire missiles)",
+      "confidence": 0.85,
+      "confidence_reason": "In his own letter he names the offensive munitions being held back and demands they be fast-tracked to Israel; it is his fourth such letter by his own count, but only this one is read here, so held below 0.9.",
+      "sources": [
+        {
+          "type": "official press release (letter to the President)",
+          "date": "2024-11-26",
+          "link": "https://www.cotton.senate.gov/news/press-releases/cotton-to-biden-delayed-arms-to-israel-emboldens-iran",
+          "excerpt": "\"I write—for the fourth time— to condemn your administration’s continued denial and delay of needed weapons to Israel.\" ... \"While you continue your public hold on the MK-84 2,000-pound bombs, your administration has manipulated Department of Defense, Department of State, and congressional approval processes to broaden the arms embargo behind the scenes.\" ... \"The Department of Defense is withholding or delaying the approval of thousands of MK-83 warheads and guidance kits as well as thousands of MK-82 guidance kits.\" ... \"It’s time to fast-track these weapons deliveries now.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release from his Senate office with the full text of his letter to President Biden. All fragments are from the letter in his own words. It names no bill or resolution.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "french_hill|cut_spending|gt-012",
+      "politician_id": "french_hill",
+      "topic": "cut_spending",
+      "position": "support",
+      "position_on": "cutting federal spending and balancing the budget (here, the House FY2018 budget resolution, H.Con.Res. 71)",
+      "confidence": 0.8,
+      "confidence_reason": "He backs a budget resolution in his own words for its deficit reduction, its spending level and its cuts to wasteful spending; one release about one vote, so held at 0.8.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2017-10-05",
+          "link": "https://hill.house.gov/media-center/press-releases/hill-supports-house-budget-build-better-future",
+          "excerpt": "\"Congressman French Hill (AR-02) issued the following statement after supporting the House Concurrent Budget Resolution:\" ... \"The House has already done our job passing all twelve funding bills for fiscal year 2018, and we’re making progress to responsibly govern and balance our budget within 10 years.\" ... \"This budget achieves $6.5 trillion in deficit reduction and sets our overall discretionary spending at $1.132 trillion.\" ... \"By cutting down on wasteful government spending and reforming government programs, we can better spur on economic growth for Arkansans and Americans, which will help put our nation on a healthy, sustainable path forward.\" ... \"To read the House Concurrent Budget Resolution, H.Con.Res.71, click HERE\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release from his House office. The first and last fragments are the office's framing and the link to the resolution; the rest is his quoted statement.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "bruce_westerman|cut_spending|gt-013",
+      "politician_id": "bruce_westerman",
+      "topic": "cut_spending",
+      "position": "support",
+      "position_on": "lowering future federal spending before raising the debt limit (December 2021)",
+      "confidence": 0.85,
+      "confidence_reason": "In his own column he says he voted against raising the debt limit without a plan to lower future spending and calls for fiscal responsibility and limited government; one column, held below 0.9.",
+      "sources": [
+        {
+          "type": "weekly column (official)",
+          "date": "2021-12-17",
+          "link": "https://westerman.house.gov/media-center/weekly-columns/america-addicted-spending",
+          "excerpt": "\"And just last week, the Congressional Budget Office predicted that President Biden's so-call Build Back Better Act could cost $3 trillion more over the next ten years.\" ... \"I voted against raising the debt limit because we must stop the cycle of endless spending.\" ... \"I simply couldn't be party to raising the debt limit without also committing to a concrete plan to lower our future spending.\" ... \"I will always fight for fiscal responsibility and advocate for a limited government for the sake of individual liberty and the economic freedom of the next generation who will be harmed by our reckless spending.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party weekly column from his House office, in his own words. It names the Build Back Better Act as spending he opposes; it names no bill number.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "frank_lucas|cut_spending|gt-014",
+      "politician_id": "frank_lucas",
+      "topic": "cut_spending",
+      "position": "support",
+      "position_on": "limiting future federal spending alongside a debt-ceiling increase (here, H.R. 2811, the Limit, Save, Grow Act of 2023)",
+      "confidence": 0.8,
+      "confidence_reason": "He praises a bill that caps spending and calls for cutting wasteful spending, while also saying the debt ceiling must be lifted; the support is for spending limits, not default, so held at 0.8.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2023-04-26",
+          "link": "https://lucas.house.gov/posts/lucas-statement-on-house-gop-plan-addressing-debt-ceiling-applauds-passage-of-limit-save-grow-act",
+          "excerpt": "\"Washington, DC – Congressman Frank Lucas (OK-03) released the following statement after the U.S. House of Representatives passed H.R. 2811- the Limit, Save, Grow Act of 2023 , a bill to address the debt ceiling and reduce federal spending.\" ... \"Simply put, our national debt is unsustainable and a symptom of Washington’s fiscal irresponsibility- but it’s not unfixable.\" ... \"House Republicans’ Limit, Save, Grow Act is a responsible act that reins-in and limits future federal spending, saves taxpayer dollars, and is a good faith effort to bring President Biden to the negotiating table.\" ... \"Now Washington must act to cut wasteful spending, lift the debt ceiling, and return our fiscal house to order.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release from his House office on the House passage of H.R. 2811 (118th Congress). The first fragment is the office's framing; the rest is his quoted statement.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "mariannette_miller_meeks|cut_spending|gt-015",
+      "politician_id": "mariannette_miller_meeks",
+      "topic": "cut_spending",
+      "position": "support",
+      "position_on": "requiring a balanced federal budget (here, H.J.Res. 139, a balanced budget amendment)",
+      "confidence": 0.85,
+      "confidence_reason": "She votes for a balanced budget amendment and, in her own words, condemns overspending and the debt; one release about one vote, held below 0.9.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2026-03-18",
+          "link": "https://millermeeks.house.gov/media/press-releases/miller-meeks-votes-advance-constitutional-amendment-requiring-balanced-federal",
+          "excerpt": "\"WASHINGTON, D.C. — Congresswoman Mariannette Miller-Meeks (IA-01) voted in favor of H.J. Res. 139, a constitutional amendment requiring the federal government to balance its budget.\" ... \"For too long, Washington has spent taxpayer money it doesn’t have, racking up trillions in debt and passing the burden on to our children and grandchildren,\" Said Miller-Meeks .\" ... \"That kind of reckless spending drives inflation, raises interest rates, and makes it harder for families to afford everyday necessities.\" ... \"I’m fighting to restore common sense in Washington, protect taxpayers, and ensure future generations aren’t saddled with the consequences of today’s overspending,\" said Miller-Meeks .\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release from her House office. The first fragment is the office's framing; the rest is her quoted statement.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "bennie_thompson|healthcare|gt-016",
+      "politician_id": "bennie_thompson",
+      "topic": "healthcare",
+      "position": "support",
+      "position_on": "keeping health coverage through Medicaid and the ACA (here, voting against H.R. 1 in May 2025 over its health care cuts)",
+      "confidence": 0.85,
+      "confidence_reason": "He says in his own words he will never vote for cuts to Medicaid or Medicare and opposes H.R. 1 because it takes health care away; one release, held below 0.9.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2025-05-22",
+          "link": "https://benniethompson.house.gov/media/press-releases/congressman-bennie-g-thompson-statement-republicans-jamming-their-gop-tax-scam",
+          "excerpt": "\"Thompson (D-MS) voted against House Republicans' Reconciliation Bill (H.R. 1).\" ... \"Since my first day in Congress, I have been clear that I will never vote for any cuts to Medicaid, Medicare, Social Security, or any programs that benefit my constituents.\" ... \"The bill would take health care away from nearly 14 million people due to its harmful cuts to health care and nutrition assistance, which will cause tens of thousands of Mississippians to lose their benefits if this bill passes through the Senate and becomes law.\" ... \"These cuts to Medicaid and the Affordable Care Act will cause more than 664,000 Mississippi residents to lose health care coverage.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release from his House office. The first and last fragments are the office's framing; the middle two are his quoted statement. H.R. 1 is the 119th Congress reconciliation bill.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "cruz|school_choice|gt-017",
+      "politician_id": "cruz",
+      "topic": "school_choice",
+      "position": "support",
+      "position_on": "federal school choice: tax-credit scholarships (the Educational Choice for Children Act, in the 2025 reconciliation law) and K–12 use of 529 plans",
+      "confidence": 0.85,
+      "confidence_reason": "His office's release credits him with authoring and fighting for two federal school choice provisions, with his own quoted threat to sink the bill without one; most of the page is quoted press coverage, so held below 0.9.",
+      "sources": [
+        {
+          "type": "official press release (quoting National Review)",
+          "date": "2025-07-15",
+          "link": "https://www.cruz.senate.gov/newsroom/press-releases/icymi-sen-cruz-secures-historic-school-choice-wins-in-the-one-big-beautiful-bill",
+          "excerpt": "\"But he made clear to Senate Majority Leader John Thune that if the Educational Choice for Children Act (ECCA) was removed from the package, he would “burn the whole bill down.\" ... \"The ECCA will allow eligible taxpayers to receive a federal tax credit for contributions up to $1,700 per year to scholarship-granting nonprofits.\" ... \"Until this year’s bill, Cruz’s biggest school-choice legislative achievement was the amendment he authored and passed through Congress’s 2017 Tax Cuts and Jobs Act.\" ... \"The amendment allowed parents to pay for K–12 education expenses up to $10,000 per year by expanding Section 529 college-savings plans, and was at the time the most “far-reaching” piece of federal legislation on school choice, Cruz said.\" ... \"Sen. Cruz is the leading voice in the Senate on school choice and for parental rights in education.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release from his Senate office reprinting a National Review report. Only the quoted \"burn the whole bill down\" and \"far-reaching\" are his words; the release adopts the rest as his record.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "aoc|healthcare|gt-018",
+      "politician_id": "aoc",
+      "topic": "healthcare",
+      "position": "support",
+      "position_on": "extending the Affordable Care Act subsidies so people keep their health insurance (November 2025 funding bill)",
+      "confidence": 0.8,
+      "confidence_reason": "In her own floor remarks she argues for extending the ACA so people keep their insurance and objects to cutting health care; one speech, held at 0.8.",
+      "sources": [
+        {
+          "type": "floor speech (official release)",
+          "date": "2025-11-13",
+          "link": "https://ocasio-cortez.house.gov/media/press-releases/ocasio-cortez-denounces-republican-funding-bill-house-floor",
+          "excerpt": "\"In addition to not including an extension of Affordable Care Act subsidies, the funding bill allows Republican Senators to sue the government for millions of taxpayer dollars\" ... \"Because God forbid we have a member of the Republican caucus who stands up and wants to extend the Affordable Care Act so that people with cancer, insulin, and all sorts of health care issues across this country have their health insurance protected and extended throughout 2026.\" ... \"And we are robbing people of their food assistance and of their health care to pay for it.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release from her House office with her floor remarks. The first fragment is the office's summary line; the rest is her speech. It names no bill number.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "kclark|healthcare|gt-019",
+      "politician_id": "kclark",
+      "topic": "healthcare",
+      "position": "support",
+      "position_on": "protecting health coverage: the ACA tax credits, Medicaid and Medicare (November 2025 budget vote)",
+      "confidence": 0.8,
+      "confidence_reason": "She condemns the ending of the ACA tax credits and the Medicaid and Medicare cuts and pledges to protect health care, in her own words; one statement, held at 0.8.",
+      "sources": [
+        {
+          "type": "official statement",
+          "date": "2025-11-09",
+          "link": "https://katherineclark.house.gov/2025/11/whip-clark-statement-on-the-senate-budget-vote",
+          "excerpt": "\"A GOP budget that spikes health care premiums and everyday costs to fund tax cuts for billionaires is a grave betrayal of everyday Americans.\" ... \"Republicans eliminated the ACA tax credits and slashed $1 trillion from Medicaid, $500 billion from Medicare, and billions from medical research.\" ... \"Democrats have called on Republicans to work with us to protect health care and lower costs since March.\" ... \"The American people deserve affordable health car, and we will continue to fight back on their behalf.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party statement from her office as House Democratic Whip; all fragments are her quoted words. It names no bill number.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "murkowski|energy_production|gt-020",
+      "politician_id": "murkowski",
+      "topic": "energy_production",
+      "position": "support",
+      "position_on": "opening the National Petroleum Reserve–Alaska to oil and gas exploration and production (July 2025)",
+      "confidence": 0.75,
+      "confidence_reason": "In her own quoted words she backs rescinding the limits on the petroleum reserve so its resources can be explored and produced; one joint release with two other members, so held at 0.75.",
+      "sources": [
+        {
+          "type": "official press release (joint)",
+          "date": "2025-07-29",
+          "link": "https://www.murkowski.senate.gov/press/release/latest-interior-moves-will-restore-balanced-management-in-alaskas-petroleum-reserve",
+          "excerpt": "\"Washington, DC – U.S. Senators Lisa Murkowski and Dan Sullivan and Congressman Nick Begich (all R-AK) today expressed their strong support for the Department of the Interior’s (DOI) rescission of three policy documents released by the Bureau of Land Management (BLM) at or near the end of the last administration.\" ... \"This latest announcement builds on the progress we have made throughout this year to return to the rule of law for resource development in Alaska.\" ... \"While the last administration sought to shut down our petroleum reserve – and refused to meaningfully consult with the Alaska Natives who actually live on the North Slope – Secretary Burgum and his team are decisively correcting that course,” Senator Murkowski said.\" ... \"These rescissions are another key step to restoring balanced management that provides renewed opportunity to explore for and responsibly produce the NPR-A’s prolific resources.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release from her Senate office, joint with Sen. Sullivan and Rep. Begich. Only her own quoted lines are used, after the office's framing sentence. It is about an Interior action, not a bill.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "khanna|cut_spending|gt-021",
+      "politician_id": "khanna",
+      "topic": "cut_spending",
+      "position": "mixed",
+      "position_on": "cutting federal spending and the deficit: for deficit reduction and targeted spending cuts, against shrinking government (his plan reinvests in new programs)",
+      "confidence": 0.7,
+      "confidence_reason": "His plan cuts some spending and the deficit but pairs this with new revenue and new spending on health care, housing and college, so it backs part of the key's proposition and opposes the shrinking-government part; one release.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2025-06-10",
+          "link": "https://khanna.house.gov/media/press-releases/rep-khanna-unveils-progressive-deficit-reduction-plan-reduce-deficit-12",
+          "excerpt": "\"Washington, DC — Today Representative Ro Khanna (CA-17) announced a new Progressive Deficit Reduction Plan to reduce the deficit by $12 trillion over the next decade – allowing for investment in essential programs for ordinary Americans: childcare, universal healthcare, affordable housing, free college, advanced manufacturing, and good-paying jobs.\" ... \"The plan will cut spending by modernizing the Pentagon, tackling Medicare Advantage upcoding and fraud, negotiating drug prices, and ending fossil fuel subsidies.\" ... \"It will also increase revenue through taxing corporations and billionaires fairly while ending the cap that allows the wealthy to stop paying into Social Security each year after their first $176,000.\" ... \"In contrast, Khanna's Progressive Deficit Reduction Plan brings the deficit-to-GDP ratio to 3% in 2034 and cuts interest payments on the debt by more than $1.9 trillion over a decade, bringing total savings to $14 trillion.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release from his House office describing his own plan. It names no bill.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "jayapal|healthcare|gt-022",
+      "politician_id": "jayapal",
+      "topic": "healthcare",
+      "position": "support",
+      "position_on": "keeping health coverage, against the July 2025 reconciliation bill's Medicaid cuts",
+      "confidence": 0.8,
+      "confidence_reason": "In her own statement she opposes the bill because it takes health care away from 17 million people and cuts Medicaid; one statement, held at 0.8.",
+      "sources": [
+        {
+          "type": "official statement",
+          "date": "2025-07-03",
+          "link": "https://jayapal.house.gov/2025/07/03/jayapal-statement-on-the-big-bad-budget-betrayal/",
+          "excerpt": "\"WASHINGTON, D.C. – U.S. Representative Pramila Jayapal (WA-07), a Member of the House Budget Committee, released the following statement after the House of Representatives passed the Big Bad Betrayal Bill 218-214:\" ... \"It will throw 17 million Americans off health care and increase health care costs for everyone.\" ... \"When you add in the massive Medicaid and SNAP cuts, poor and middle class Americans will go backwards, not forward.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party statement from her House office. The first fragment is the office's framing; the rest is her quoted statement. It names the bill only by a nickname, with no number.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "maxine_waters|healthcare|gt-023",
+      "politician_id": "maxine_waters",
+      "topic": "healthcare",
+      "position": "support",
+      "position_on": "protecting Medicare and Medicaid coverage against proposed cuts (October 2018)",
+      "confidence": 0.8,
+      "confidence_reason": "In her own statement she defends Medicare and Medicaid as affordable health care and opposes cuts to them; one statement, held at 0.8.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2018-10-19",
+          "link": "https://waters.house.gov/media-center/press-releases/congresswoman-waters-statement-gop-plan-cut-social-security-medicare",
+          "excerpt": "\"Like so many Americans across this country, I was utterly appalled to learn that Senate Majority Leader Mitch McConnell is once again proposing devastating cuts to Social Security, Medicare and Medicaid.\" ... \"Medicare and Medicaid save lives, help people live longer, and provide the peace of mind that comes with affordable health care that is there when you need it.\" ... \"One would think by now that Republicans would have learned that the American people will not tolerate cuts to these essential programs.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release from her House office; all fragments are her quoted words. It names no pending bill.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "jason_smith|cut_spending|gt-024",
+      "politician_id": "jason_smith",
+      "topic": "cut_spending",
+      "position": "support",
+      "position_on": "reining in federal spending (Ways and Means FY2025 budget views and estimates, March 2024)",
+      "confidence": 0.75,
+      "confidence_reason": "In his own opening statement he blames high prices on reckless spending and credits the Fiscal Responsibility Act with reining it in; it is a committee statement covering several topics, so held at 0.75.",
+      "sources": [
+        {
+          "type": "committee opening statement (official)",
+          "date": "2024-03-06",
+          "link": "https://waysandmeans.house.gov/2024/03/06/chairman-smith-opening-statement-fy-2025-budget-views-estimates/",
+          "excerpt": "\"Today, taxpayers face high prices sparked by reckless government spending and $34 trillion of debt and counting.\" ... \"And finally, last year, we secured the most meaningful pro-work reform to TANF in a generation in the Fiscal Responsibility Act.\" ... \"These reforms not only help lift more families out of poverty and grow our economy but were also a part of our reforms to rein in spending.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party opening statement from the Ways and Means Committee he chairs, in his own words. The Fiscal Responsibility Act is H.R. 3746 (118th Congress).",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    }
+  ]
+}

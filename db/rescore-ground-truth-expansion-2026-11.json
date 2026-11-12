@@ -1,0 +1,602 @@
+{
+  "_note": "Offline score of the expansion ground-truth records with the current stance scorer, compared with each human label. Diagnostic only: no ground-truth label, rule or site file changes, and a disagreement is left as it is.",
+  "rules_version": "phase8-v3",
+  "vocab_version": "issue-vocab-v2-directional",
+  "confidence_tolerance": 0.1,
+  "summary": {
+    "records": 18,
+    "scorer_agrees_on_position": 7,
+    "verdicts": {
+      "owens|ukraine_aid|gt-007": "support → no clear position (disagrees)",
+      "rick_crawford|ukraine_aid|gt-008": "mixed → support (disagrees)",
+      "michael_guest|border_security|gt-009": "support → support (agrees)",
+      "tlaib|iran_hostilities|gt-010": "support → no clear position (disagrees)",
+      "cotton|israel_offensive_arms|gt-011": "support → no clear position (disagrees)",
+      "french_hill|cut_spending|gt-012": "support → support (agrees)",
+      "bruce_westerman|cut_spending|gt-013": "support → support (agrees)",
+      "frank_lucas|cut_spending|gt-014": "support → support (agrees)",
+      "mariannette_miller_meeks|cut_spending|gt-015": "support → support (agrees on position, confidence outside tolerance)",
+      "bennie_thompson|healthcare|gt-016": "support → no clear position (disagrees)",
+      "cruz|school_choice|gt-017": "support → no clear position (disagrees)",
+      "aoc|healthcare|gt-018": "support → no clear position (disagrees)",
+      "kclark|healthcare|gt-019": "support → mixed (disagrees)",
+      "murkowski|energy_production|gt-020": "support → no clear position (disagrees)",
+      "khanna|cut_spending|gt-021": "mixed → support (disagrees)",
+      "jayapal|healthcare|gt-022": "support → support (agrees)",
+      "maxine_waters|healthcare|gt-023": "support → no clear position (disagrees)",
+      "jason_smith|cut_spending|gt-024": "support → support (agrees)"
+    }
+  },
+  "records": [
+    {
+      "stance_id": "owens|ukraine_aid|gt-007",
+      "politician_id": "owens",
+      "topic": "ukraine_aid",
+      "human": {
+        "position": "support",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "2 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: owens|ukraine_aid position MISMATCH (candidate no clear position, ground truth support); confidence 0.3 vs 0.8, Δ=-0.50 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2022-05-10",
+          "link": "https://owens.house.gov/posts/owens-backs-additional-ukraine-aid",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "2 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "rick_crawford|ukraine_aid|gt-008",
+      "politician_id": "rick_crawford",
+      "topic": "ukraine_aid",
+      "human": {
+        "position": "mixed",
+        "confidence": 0.75
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 3 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): While the entire Western world stands in support of Ukraine's fight to expel Vladimir Putin's Ukraine invasion force, I cannot in good faith vote to send billions of dollars in non-military financial aid to Ukraine to prop up its economy when Americans are struggling with rising costs at home."
+        ]
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: rick_crawford|ukraine_aid position MISMATCH (candidate support, ground truth mixed); confidence 0.8 vs 0.75, Δ=+0.05 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2024-04-20",
+          "link": "https://crawford.house.gov/media/press-releases/rep-crawford-votes-to-stop-endless-funding-to-ukraine",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 3 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): While the entire Western world stands in support of Ukraine's fight to expel Vladimir Putin's Ukraine invasion force, I cannot in good faith vote to send billions of dollars in non-military financial aid to Ukraine to prop up its economy when Americans are struggling with rising costs at home."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "michael_guest|border_security|gt-009",
+      "politician_id": "michael_guest",
+      "topic": "border_security",
+      "human": {
+        "position": "support",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.95,
+        "reason": "3 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); ≥3 consistent raise confidence (R4)",
+        "statements": [
+          "support (clear): Washington, D.C. – Yesterday, Vice Chairman of the Committee on Homeland Security Michael Guest voted in favor of H.R. 2 – Secure the Border Act of 2023.",
+          "support (clear): Make no mistake, our border is broken.",
+          "support (clear): This legislation will hire thousands of new agents, pay retention bonuses to our front-line officers, invest in new technology, construct hundreds of miles of walls and barriers, and will support our local and state partners."
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: michael_guest|border_security position MATCH (candidate support, ground truth support); confidence 0.95 vs 0.85, Δ=+0.10 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release (with floor speech transcript)",
+          "date": "2023-05-12",
+          "link": "https://guest.house.gov/media/press-releases/congressman-guest-supports-critical-legislation-address-border-crisis",
+          "position": "support",
+          "confidence": 0.95,
+          "reason": "3 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); ≥3 consistent raise confidence (R4)",
+          "statements": [
+            "support (clear): Washington, D.C. – Yesterday, Vice Chairman of the Committee on Homeland Security Michael Guest voted in favor of H.R. 2 – Secure the Border Act of 2023.",
+            "support (clear): Make no mistake, our border is broken.",
+            "support (clear): This legislation will hire thousands of new agents, pay retention bonuses to our front-line officers, invest in new technology, construct hundreds of miles of walls and barriers, and will support our local and state partners."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "tlaib|iran_hostilities|gt-010",
+      "politician_id": "tlaib",
+      "topic": "iran_hostilities",
+      "human": {
+        "position": "support",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0,
+        "reason": "topic not found in source",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: tlaib|iran_hostilities position MISMATCH (candidate no clear position, ground truth support); confidence 0 vs 0.8, Δ=-0.80 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2025-06-21",
+          "link": "https://tlaib.house.gov/posts/tlaib-denounces-trumps-disastrous-unconstitutional-bombing-of-iran",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "cotton|israel_offensive_arms|gt-011",
+      "politician_id": "cotton",
+      "topic": "israel_offensive_arms",
+      "human": {
+        "position": "support",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "2 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: cotton|israel_offensive_arms position MISMATCH (candidate no clear position, ground truth support); confidence 0.3 vs 0.85, Δ=-0.55 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release (letter to the President)",
+          "date": "2024-11-26",
+          "link": "https://www.cotton.senate.gov/news/press-releases/cotton-to-biden-delayed-arms-to-israel-emboldens-iran",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "2 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "french_hill|cut_spending|gt-012",
+      "politician_id": "french_hill",
+      "topic": "cut_spending",
+      "human": {
+        "position": "support",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): By cutting down on wasteful government spending and reforming government programs, we can better spur on economic growth for Arkansans and Americans, which will help put our nation on a healthy, sustainable path forward."
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: french_hill|cut_spending position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.8, Δ=+0.00 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2017-10-05",
+          "link": "https://hill.house.gov/media-center/press-releases/hill-supports-house-budget-build-better-future",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): By cutting down on wasteful government spending and reforming government programs, we can better spur on economic growth for Arkansans and Americans, which will help put our nation on a healthy, sustainable path forward."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "bruce_westerman|cut_spending|gt-013",
+      "politician_id": "bruce_westerman",
+      "topic": "cut_spending",
+      "human": {
+        "position": "support",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): I voted against raising the debt limit because we must stop the cycle of endless spending.",
+          "support (clear): I simply couldn't be party to raising the debt limit without also committing to a concrete plan to lower our future spending."
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: bruce_westerman|cut_spending position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.85, Δ=-0.05 within 0.1",
+      "per_source": [
+        {
+          "type": "weekly column (official)",
+          "date": "2021-12-17",
+          "link": "https://westerman.house.gov/media-center/weekly-columns/america-addicted-spending",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "2 clear medium-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); explicit claim on a primary source reads as a stated position (R8); 1 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): I voted against raising the debt limit because we must stop the cycle of endless spending.",
+            "support (clear): I simply couldn't be party to raising the debt limit without also committing to a concrete plan to lower our future spending."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "frank_lucas|cut_spending|gt-014",
+      "politician_id": "frank_lucas",
+      "topic": "cut_spending",
+      "human": {
+        "position": "support",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): Now Washington must act to cut wasteful spending, lift the debt ceiling, and return our fiscal house to order."
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: frank_lucas|cut_spending position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.8, Δ=+0.00 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2023-04-26",
+          "link": "https://lucas.house.gov/posts/lucas-statement-on-house-gop-plan-addressing-debt-ceiling-applauds-passage-of-limit-save-grow-act",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): Now Washington must act to cut wasteful spending, lift the debt ceiling, and return our fiscal house to order."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "mariannette_miller_meeks|cut_spending|gt-015",
+      "politician_id": "mariannette_miller_meeks",
+      "topic": "cut_spending",
+      "human": {
+        "position": "support",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.7,
+        "reason": "1 implication(s) for support at medium weight (R6)",
+        "statements": [
+          "support (implication): That kind of reckless spending drives inflation, raises interest rates, and makes it harder for families to afford everyday necessities. I’m fighting to restore common sense in Washington, protect taxpayers, and ensure future generations aren’t saddled with the consequences of today’s overspendin…"
+        ]
+      },
+      "verdict": "agrees on position, confidence outside tolerance",
+      "scorer_agrees": true,
+      "note": "stance-score: mariannette_miller_meeks|cut_spending position MATCH (candidate support, ground truth support); confidence 0.7 vs 0.85, Δ=-0.15 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2026-03-18",
+          "link": "https://millermeeks.house.gov/media/press-releases/miller-meeks-votes-advance-constitutional-amendment-requiring-balanced-federal",
+          "position": "support",
+          "confidence": 0.7,
+          "reason": "1 implication(s) for support at medium weight (R6)",
+          "statements": [
+            "support (implication): That kind of reckless spending drives inflation, raises interest rates, and makes it harder for families to afford everyday necessities. I’m fighting to restore common sense in Washington, protect taxpayers, and ensure future generations aren’t saddled with the consequences of today’s overspendin…"
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "bennie_thompson|healthcare|gt-016",
+      "politician_id": "bennie_thompson",
+      "topic": "healthcare",
+      "human": {
+        "position": "support",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "1 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: bennie_thompson|healthcare position MISMATCH (candidate no clear position, ground truth support); confidence 0.3 vs 0.85, Δ=-0.55 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2025-05-22",
+          "link": "https://benniethompson.house.gov/media/press-releases/congressman-bennie-g-thompson-statement-republicans-jamming-their-gop-tax-scam",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "1 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "cruz|school_choice|gt-017",
+      "politician_id": "cruz",
+      "topic": "school_choice",
+      "human": {
+        "position": "support",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "2 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: cruz|school_choice position MISMATCH (candidate no clear position, ground truth support); confidence 0.3 vs 0.85, Δ=-0.55 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release (quoting National Review)",
+          "date": "2025-07-15",
+          "link": "https://www.cruz.senate.gov/newsroom/press-releases/icymi-sen-cruz-secures-historic-school-choice-wins-in-the-one-big-beautiful-bill",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "2 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "aoc|healthcare|gt-018",
+      "politician_id": "aoc",
+      "topic": "healthcare",
+      "human": {
+        "position": "support",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "2 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: aoc|healthcare position MISMATCH (candidate no clear position, ground truth support); confidence 0.3 vs 0.8, Δ=-0.50 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "floor speech (official release)",
+          "date": "2025-11-13",
+          "link": "https://ocasio-cortez.house.gov/media/press-releases/ocasio-cortez-denounces-republican-funding-bill-house-floor",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "2 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "kclark|healthcare|gt-019",
+      "politician_id": "kclark",
+      "topic": "healthcare",
+      "human": {
+        "position": "support",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "mixed",
+        "confidence": 0.5,
+        "reason": "equal weight of directional signals on both sides (1 vs 1; 0 implication(s))",
+        "statements": [
+          "oppose (clear): Republicans eliminated the ACA tax credits and slashed $1 trillion from Medicaid, $500 billion from Medicare, and billions from medical research.",
+          "support (clear): Democrats have called on Republicans to work with us to protect health care and lower costs since March."
+        ]
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: kclark|healthcare position MISMATCH (candidate mixed, ground truth support); confidence 0.5 vs 0.8, Δ=-0.30 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official statement",
+          "date": "2025-11-09",
+          "link": "https://katherineclark.house.gov/2025/11/whip-clark-statement-on-the-senate-budget-vote",
+          "position": "mixed",
+          "confidence": 0.5,
+          "reason": "equal weight of directional signals on both sides (1 vs 1; 0 implication(s))",
+          "statements": [
+            "oppose (clear): Republicans eliminated the ACA tax credits and slashed $1 trillion from Medicaid, $500 billion from Medicare, and billions from medical research.",
+            "support (clear): Democrats have called on Republicans to work with us to protect health care and lower costs since March."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "murkowski|energy_production|gt-020",
+      "politician_id": "murkowski",
+      "topic": "energy_production",
+      "human": {
+        "position": "support",
+        "confidence": 0.75
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0,
+        "reason": "topic not found in source",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: murkowski|energy_production position MISMATCH (candidate no clear position, ground truth support); confidence 0 vs 0.75, Δ=-0.75 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release (joint)",
+          "date": "2025-07-29",
+          "link": "https://www.murkowski.senate.gov/press/release/latest-interior-moves-will-restore-balanced-management-in-alaskas-petroleum-reserve",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "khanna|cut_spending|gt-021",
+      "politician_id": "khanna",
+      "topic": "cut_spending",
+      "human": {
+        "position": "mixed",
+        "confidence": 0.7
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6)",
+        "statements": [
+          "support (clear): The plan will cut spending by modernizing the Pentagon, tackling Medicare Advantage upcoding and fraud, negotiating drug prices, and ending fossil fuel subsidies."
+        ]
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: khanna|cut_spending position MISMATCH (candidate support, ground truth mixed); confidence 0.8 vs 0.7, Δ=+0.10 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2025-06-10",
+          "link": "https://khanna.house.gov/media/press-releases/rep-khanna-unveils-progressive-deficit-reduction-plan-reduce-deficit-12",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6)",
+          "statements": [
+            "support (clear): The plan will cut spending by modernizing the Pentagon, tackling Medicare Advantage upcoding and fraud, negotiating drug prices, and ending fossil fuel subsidies."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "jayapal|healthcare|gt-022",
+      "politician_id": "jayapal",
+      "topic": "healthcare",
+      "human": {
+        "position": "support",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6)",
+        "statements": [
+          "support (clear): It will throw 17 million Americans off health care and increase health care costs for everyone."
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: jayapal|healthcare position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.8, Δ=+0.00 within 0.1",
+      "per_source": [
+        {
+          "type": "official statement",
+          "date": "2025-07-03",
+          "link": "https://jayapal.house.gov/2025/07/03/jayapal-statement-on-the-big-bad-budget-betrayal/",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6)",
+          "statements": [
+            "support (clear): It will throw 17 million Americans off health care and increase health care costs for everyone."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "maxine_waters|healthcare|gt-023",
+      "politician_id": "maxine_waters",
+      "topic": "healthcare",
+      "human": {
+        "position": "support",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0,
+        "reason": "topic not found in source",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: maxine_waters|healthcare position MISMATCH (candidate no clear position, ground truth support); confidence 0 vs 0.8, Δ=-0.80 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2018-10-19",
+          "link": "https://waters.house.gov/media-center/press-releases/congresswoman-waters-statement-gop-plan-cut-social-security-medicare",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "jason_smith|cut_spending|gt-024",
+      "politician_id": "jason_smith",
+      "topic": "cut_spending",
+      "human": {
+        "position": "support",
+        "confidence": 0.75
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): These reforms not only help lift more families out of poverty and grow our economy but were also a part of our reforms to rein in spending."
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: jason_smith|cut_spending position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.75, Δ=+0.05 within 0.1",
+      "per_source": [
+        {
+          "type": "committee opening statement (official)",
+          "date": "2024-03-06",
+          "link": "https://waysandmeans.house.gov/2024/03/06/chairman-smith-opening-statement-fy-2025-budget-views-estimates/",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): These reforms not only help lift more families out of poverty and grow our economy but were also a part of our reforms to rein in spending."
+          ]
+        }
+      ]
+    }
+  ]
+}

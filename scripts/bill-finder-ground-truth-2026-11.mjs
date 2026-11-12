@@ -4,16 +4,23 @@
 //
 // Runs the shared bill finder (netlify/lib/bill-finder-core.mjs) and the
 // mapping patterns (netlify/lib/bill-key-patterns.mjs: israel_offensive_arms,
-// ukraine_aid, iran_hostilities) over:
-//   1. GROUND TRUTH — every source excerpt in the ground-truth file, scored as
+// ukraine_aid, iran_hostilities, tariffs_china, border_security) over:
+//   1. GROUND TRUTH — every source excerpt in the ground-truth files (the six
+//      locked records and db/stance-ground-truth-expansion-2026-11.json), scored as
 //      the reviewer recorded it (the same text rescore-ground-truth-directional
 //      reads: fragments split on " ... " become paragraphs), with the source's
-//      own link and date. The Sanders and Massie records are the targets; the
-//      Talarico and Sanders-healthcare records are off-key controls.
+//      own link and date. The Sanders and Massie records and the expansion
+//      records are the targets; the Talarico and Sanders-healthcare records are
+//      off-key controls.
 //   2. ROUTINE SWEEP — the pages the raw-ingest cron pulls on its fixed list
 //      (SOURCES + DISCOVERY_PATTERNS) and the newly-elected state-legislative
-//      ingest roster, fetched live. None is about Israel arms, Ukraine aid or
-//      Iran hostilities, so any mapping there is a false mapping. Skip with --no-sweep (no network).
+//      ingest roster, fetched live. None is about Israel arms, Ukraine aid,
+//      Iran hostilities, tariffs on China or border enforcement, but the v6
+//      keys (energy, school choice, health care, spending) are ordinary
+//      campaign topics, so a sweep page can name a real bill on one. Every
+//      sweep mapping is checked against the hand review in
+//      db/bill-finder-sweep-review-2026-11.json: one that is not reviewed, or
+//      is reviewed false, counts as a false mapping. Skip with --no-sweep (no network).
 //
 // Read-only: no ground-truth label, scoring rule, issue key, store or site
 // file is touched. The report goes to db/bill-finder-ground-truth-2026-11.json.
@@ -29,8 +36,24 @@ import { SOURCES, DISCOVERY_PATTERNS, FETCH_TIMEOUT_MS, MAX_BODY_CHARS } from ".
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const GT_PATH = path.join(root, "db/stance-ground-truth-talarico-cost-of-living.json");
+const GT_EXPANSION_PATH = path.join(root, "db/stance-ground-truth-expansion-2026-11.json");
 const ROSTER_PATH = path.join(root, "db/raw-ingest-roster-newly-elected-state-legislative-2026-11.json");
 const OUT = path.join(root, "db/bill-finder-ground-truth-2026-11.json");
+const REVIEW_PATH = path.join(root, "db/bill-finder-sweep-review-2026-11.json");
+
+/** A sweep mapping's review verdict ("correct" / "false"), or null when no one has read it. */
+export function sweepVerdict(review, url, m) {
+  const bill = m.bill ?? m.matched;
+  const r = (review?.reviewed || []).find((x) => x.url === url && x.key === m.key && x.bill === bill);
+  return r ? r.verdict : null;
+}
+
+/** The six locked records plus the expansion records, in the one-file shape groundTruthRows reads. Neither file is changed. */
+export function loadGroundTruth() {
+  const gt = JSON.parse(fs.readFileSync(GT_PATH, "utf8"));
+  const exp = fs.existsSync(GT_EXPANSION_PATH) ? JSON.parse(fs.readFileSync(GT_EXPANSION_PATH, "utf8")).records || [] : [];
+  return { ...gt, additional_records: [...(gt.additional_records || []), ...exp] };
+}
 
 export const loadCatalog = () => F.catalogFromBillDocs(JSON.parse(fs.readFileSync(path.join(root, "db/bill-docs.json"), "utf8")));
 
@@ -107,8 +130,10 @@ async function sweepRows(catalog) {
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const catalog = loadCatalog();
-  const gt = groundTruthRows(JSON.parse(fs.readFileSync(GT_PATH, "utf8")), catalog);
+  const gt = groundTruthRows(loadGroundTruth(), catalog);
   const sweep = process.argv.includes("--no-sweep") ? null : await sweepRows(catalog);
+  const review = JSON.parse(fs.readFileSync(REVIEW_PATH, "utf8"));
+  if (sweep) for (const r of sweep.rows) if (r.ok) for (const m of r.mappings) m.review = sweepVerdict(review, r.url, m) || "unreviewed";
   const okSweep = sweep ? sweep.rows.filter((r) => r.ok) : [];
   const report = {
     _note: "Diagnostic run of the shared bill finder and the per-key mapping patterns (see mapped_keys). Read-only: nothing here changes a ground-truth label, a scoring rule, an issue key or the site. `ground_truth` reads the reviewer's verbatim excerpts with each source's own link and date; `routine_sweep` reads live pages the raw-ingest runs already pull, where every mapping would be a false mapping.",
@@ -125,6 +150,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
         sweep_pages: sweep.rows.length, sweep_fetched: okSweep.length, sweep_failed: sweep.rows.length - okSweep.length,
         sweep_candidates: okSweep.reduce((n, r) => n + r.candidates, 0),
         sweep_mappings: okSweep.reduce((n, r) => n + r.mappings.length, 0),
+        sweep_mappings_reviewed_correct: okSweep.reduce((n, r) => n + r.mappings.filter((m) => m.review === "correct").length, 0),
+        sweep_false_mappings: okSweep.reduce((n, r) => n + r.mappings.filter((m) => m.review !== "correct").length, 0),
       } : { sweep: "skipped (--no-sweep)" }),
     },
     ground_truth: gt,
@@ -132,6 +159,6 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   };
   fs.writeFileSync(OUT, JSON.stringify(report, null, 2) + "\n");
   console.log(JSON.stringify(report.summary, null, 2));
-  for (const r of gt) for (const m of r.mappings) console.log(`MAP  ${r.stance_id} · ${r.source_type} → ${m.bill ?? `(phrase → ${m.resolves_to.map((x) => x.id).join(", ")})`} · ${m.key} · ${m.confidence}`);
-  if (sweep) for (const r of okSweep) for (const m of r.mappings) console.log(`SWEEP MAP (false?) ${r.url} → ${m.bill} ${m.confidence} :: ${m.span.slice(0, 160)}`);
+  for (const r of gt) for (const m of r.mappings) console.log(`MAP  ${r.stance_id} · ${r.source_type} → ${m.bill ?? (m.resolves_to ? `(phrase → ${m.resolves_to.map((x) => x.id).join(", ")})` : `"${m.matched}"`)} · ${m.key} · ${m.confidence}`);
+  if (sweep) for (const r of okSweep) for (const m of r.mappings) console.log(`SWEEP MAP [${m.review}] ${r.url} → ${m.bill ?? `"${m.matched}"`} · ${m.key} · ${m.confidence} :: ${m.span.slice(0, 160)}`);
 }

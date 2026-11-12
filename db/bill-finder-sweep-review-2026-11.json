@@ -1,0 +1,17 @@
+{
+  "_note": "Hand review of every mapping the bill finder makes on the routine sweep pages (scripts/bill-finder-ground-truth-2026-11.mjs). Until the v6 keys, no sweep page was about a mapped key, so any sweep mapping was false. The v6 keys (energy production, school choice, health care access, cutting spending) are ordinary campaign topics, so a sweep page can now name a real bill on its key. Each mapping here was read against the page and marked correct (the named bill is about the key, in a passage about it) or false. The report counts a sweep mapping that is not in this list, or is marked false, as a false mapping. Reviewed 2026-11-12.",
+  "reviewed": [
+    { "url": "https://jamestalarico.com/issue/taxes-cost-of-living/", "key": "healthcare", "bill": "Affordable Care Act", "verdict": "correct",
+      "why": "A campaign issue page; the passage on health coverage (a public option, caps on costs) names the Affordable Care Act, a health coverage law." },
+    { "url": "https://jamestalarico.com/issue/health-care/", "key": "healthcare", "bill": "Affordable Care Act", "verdict": "correct",
+      "why": "\"Protect and improve the Affordable Care Act (ACA) and reverse … cuts to the ACA\": the ACA, on health coverage." },
+    { "url": "https://www.cornyn.senate.gov/issues/health-care/", "key": "healthcare", "bill": "Cornyn-Supported Working Families Tax Cuts Act", "verdict": "correct",
+      "why": "His health care issue page lists a release headlined \"Funding Made Possible Through Cornyn-Supported Working Families Tax Cuts Act\" (the finder keeps the \"Cornyn-Supported\" lead-in of the headline in the name): health funding from the Working Families Tax Cut Act (the 2025 reconciliation law, which changed Medicaid and created a rural health fund)." },
+    { "url": "https://www.cornyn.senate.gov/issues/health-care/", "key": "healthcare", "bill": "Working Families Tax Cut Act", "verdict": "correct",
+      "why": "The same page lists his op-ed \"The Working Families Tax Cut Act Prescribes Real Remedies for Health Care\": the same law, on health care." },
+    { "url": "https://www.vigilforcolorado.com/issues", "key": "healthcare", "bill": "Affordable Care Act", "verdict": "correct",
+      "why": "\"the Medicaid expansion under the Affordable Care Act\": the ACA, on health coverage." },
+    { "url": "https://www.phoebeforvermont.com/priorities", "key": "healthcare", "bill": "Medicare for All Act", "verdict": "correct",
+      "why": "\"Efforts to expand access have stalled in Washington (Medicare for All Act)\": a health coverage bill, on access." }
+  ]
+}
