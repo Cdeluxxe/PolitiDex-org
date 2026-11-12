@@ -1,0 +1,4713 @@
+{
+  "_note": "Ingest roster for the newly elected (November 3, 2026) state legislators who already have curated stated positions. Every URL is a page already cited as the source of a curated stance claim for that member; no URL was added from search or guessed. All are campaign pages: no official legislature issue page or press release is cited for this set. `topic` is the first curated issue key on the page (the raw-ingest record key); `curated` lists every curated key + side the page backs. Separate from the cron rotation ROSTER (raw-ingest-core.mjs) — pulled once by scripts/ingest-newly-elected-state-legislative-2026-11.mjs into the raw-ingest store, with no Locker hook.",
+  "built": "2026-11-12",
+  "members": 89,
+  "pages": 97,
+  "roster": [
+    {
+      "politician_id": "tommy_butler",
+      "name": "Tommy Butler",
+      "seat": "co-statehouse-50",
+      "curated_in": [
+        "newly-elected-state-legislative-gap-fill-2026-11.json",
+        "newly-elected-state-legislative-stated-2026-11-wave2.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "tommy_butler",
+          "topic": "housing_support",
+          "source_type": "campaign issues page",
+          "url": "https://www.butlerforhd50.com/on-the-issues-1",
+          "curated_label": "Tommy Butler for House District 50 — On the Issues",
+          "curated": [
+            {
+              "key": "housing_support",
+              "side": "support",
+              "pos": "support",
+              "topic": "Housing Affordability"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Public Education"
+            },
+            {
+              "key": "infrastructure",
+              "side": "support",
+              "pos": "support",
+              "topic": "Roads and Infrastructure"
+            },
+            {
+              "key": "child_care",
+              "side": "support",
+              "pos": "support",
+              "topic": "Affordable Childcare"
+            },
+            {
+              "key": "homeless",
+              "side": "support",
+              "pos": "support",
+              "topic": "Tackle Homelessness"
+            },
+            {
+              "key": "gov_services",
+              "side": "support",
+              "pos": "support",
+              "topic": "Graduated Income Tax"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "jeff_livingston",
+      "name": "Jeff K. Livingston",
+      "seat": "co-statehouse-15",
+      "curated_in": [
+        "newly-elected-state-legislative-gap-fill-2026-11.json",
+        "newly-elected-state-legislative-stated-2026-11-wave2.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "jeff_livingston",
+          "topic": "housing_support",
+          "source_type": "campaign issues page",
+          "url": "https://jefflivingstonforcolorado.com/",
+          "curated_label": "Jeff Livingston for Colorado — Putting Colorado Families First",
+          "curated": [
+            {
+              "key": "housing_support",
+              "side": "support",
+              "pos": "support",
+              "topic": "Affordable Homes"
+            },
+            {
+              "key": "econ_corp_account",
+              "side": "support",
+              "pos": "support",
+              "topic": "Tax Fairness"
+            },
+            {
+              "key": "econ_workers",
+              "side": "support",
+              "pos": "support",
+              "topic": "Better Jobs, Better Pay"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Strong Schools"
+            },
+            {
+              "key": "econ_smallbiz",
+              "side": "support",
+              "pos": "support",
+              "topic": "Small-Business Funding"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "vinny_spotleson",
+      "name": "Vinny Spotleson",
+      "seat": "nv-statehouse-41",
+      "curated_in": [
+        "newly-elected-state-legislative-gap-fill-2026-11.json",
+        "newly-elected-state-legislative-stated-2026-11-wave2.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "vinny_spotleson",
+          "topic": "transit",
+          "source_type": "campaign issues page",
+          "url": "https://winwithvin.org/issues/",
+          "curated_label": "Vinny Spotleson for Assembly District 41 — Issues",
+          "curated": [
+            {
+              "key": "transit",
+              "side": "support",
+              "pos": "support",
+              "topic": "Light Rail for Las Vegas"
+            },
+            {
+              "key": "housing_support",
+              "side": "support",
+              "pos": "support",
+              "topic": "Homes, Not Corporate Buyers"
+            },
+            {
+              "key": "climate_action",
+              "side": "support",
+              "pos": "support",
+              "topic": "Fighting Climate Change"
+            },
+            {
+              "key": "health_mental",
+              "side": "support",
+              "pos": "support",
+              "topic": "Mental Health Access"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "connie_casha",
+      "name": "Connie Casha",
+      "seat": "tn-statehouse-49",
+      "curated_in": [
+        "newly-elected-state-legislative-gap-fill-2026-11.json",
+        "newly-elected-state-legislative-stated-2026-11-wave3.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "connie_casha",
+          "topic": "public_schools",
+          "source_type": "campaign priorities page",
+          "url": "https://conniecasha4tndistrict-49.com/issues.html",
+          "curated_label": "Connie Casha for Tennessee — Our Priorities",
+          "curated": [
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Fully Funded Public Schools"
+            },
+            {
+              "key": "child_care",
+              "side": "support",
+              "pos": "support",
+              "topic": "Affordable Child Care"
+            },
+            {
+              "key": "healthcare",
+              "side": "support",
+              "pos": "support",
+              "topic": "Health Care Access"
+            },
+            {
+              "key": "health_drug_prices",
+              "side": "support",
+              "pos": "support",
+              "topic": "Prescription Drug Costs"
+            },
+            {
+              "key": "health_mental",
+              "side": "support",
+              "pos": "support",
+              "topic": "Mental Health Services"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "patrick_leahy",
+      "name": "Patrick Leahy",
+      "seat": "ne-statesenate-6",
+      "curated_in": [
+        "newly-elected-state-legislative-gap-fill-2026-11.json",
+        "newly-elected-state-legislative-stated-2026-11-wave3.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "patrick_leahy",
+          "topic": "prop_tax",
+          "source_type": "campaign issues page",
+          "url": "https://leahyfornebraska.com/on-the-issues",
+          "curated_label": "Patrick Leahy for Nebraska — On The Issues",
+          "curated": [
+            {
+              "key": "prop_tax",
+              "side": "support",
+              "pos": "support",
+              "topic": "Lowering Property Taxes"
+            },
+            {
+              "key": "child_care",
+              "side": "support",
+              "pos": "support",
+              "topic": "Affordable Childcare"
+            },
+            {
+              "key": "school_choice",
+              "side": "oppose",
+              "pos": "oppose",
+              "topic": "Public Dollars, Public Schools"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Protecting Public Education"
+            },
+            {
+              "key": "health_drug_prices",
+              "side": "support",
+              "pos": "support",
+              "topic": "Prescription Drug Prices"
+            },
+            {
+              "key": "healthcare",
+              "side": "support",
+              "pos": "support",
+              "topic": "Health Insurance Access"
+            },
+            {
+              "key": "datacenter_water",
+              "side": "support",
+              "pos": "support",
+              "topic": "Data Centers & the Aquifer"
+            },
+            {
+              "key": "gov_services",
+              "side": "support",
+              "pos": "support",
+              "topic": "Protect Critical Services"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "cindy_johnson",
+      "name": "Cindy Johnson",
+      "seat": "ne-statesenate-10",
+      "curated_in": [
+        "newly-elected-state-legislative-gap-fill-2026-11.json",
+        "newly-elected-state-legislative-stated-2026-11-wave3.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "cindy_johnson",
+          "topic": "health_drug_prices",
+          "source_type": "campaign priorities page",
+          "url": "https://cindyjohnsonforne.com/priorities",
+          "curated_label": "Cindy Johnson For Nebraska — Priorities",
+          "curated": [
+            {
+              "key": "health_drug_prices",
+              "side": "support",
+              "pos": "support",
+              "topic": "Prescription Drug Costs"
+            },
+            {
+              "key": "healthcare",
+              "side": "support",
+              "pos": "support",
+              "topic": "Affordable Healthcare"
+            },
+            {
+              "key": "child_care",
+              "side": "support",
+              "pos": "support",
+              "topic": "Affordable Childcare"
+            },
+            {
+              "key": "cost_living",
+              "side": "support",
+              "pos": "support",
+              "topic": "Lowering Cost of Living"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Supporting Public Schools"
+            },
+            {
+              "key": "econ_workers",
+              "side": "support",
+              "pos": "support",
+              "topic": "Jobs and Wages"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "samantha_wilcox",
+      "name": "Samantha R. Wilcox",
+      "seat": "ri-statesenate-34",
+      "curated_in": [
+        "newly-elected-state-legislative-gap-fill-2026-11.json",
+        "newly-elected-state-legislative-stated-2026-11-wave3.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "samantha_wilcox",
+          "topic": "cost_living",
+          "source_type": "campaign issues page",
+          "url": "https://samwilcoxforri.com/posts/",
+          "curated_label": "Samantha Wilcox for State Senate District 34 — Issues",
+          "curated": [
+            {
+              "key": "cost_living",
+              "side": "support",
+              "pos": "support",
+              "topic": "Rising Cost of Living"
+            },
+            {
+              "key": "lands_preserve",
+              "side": "support",
+              "pos": "support",
+              "topic": "Protect Open Space"
+            },
+            {
+              "key": "gov_transparency",
+              "side": "support",
+              "pos": "support",
+              "topic": "Transparent Government"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Reliable School Funding"
+            },
+            {
+              "key": "health_drug_prices",
+              "side": "support",
+              "pos": "support",
+              "topic": "Prescription Drug Costs"
+            },
+            {
+              "key": "health_mental",
+              "side": "support",
+              "pos": "support",
+              "topic": "Mental Health Resources"
+            },
+            {
+              "key": "infrastructure",
+              "side": "support",
+              "pos": "support",
+              "topic": "Roads & Bridges"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "zakary_pereira",
+      "name": "Zakary J. Pereira",
+      "seat": "ri-statehouse-22",
+      "curated_in": [
+        "newly-elected-state-legislative-gap-fill-2026-11.json",
+        "newly-elected-state-legislative-stated-2026-11-wave3.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "zakary_pereira",
+          "topic": "healthcare",
+          "source_type": "campaign issues page",
+          "url": "https://www.zakaryforri.com/issues",
+          "curated_label": "Zakary Pereira for RI House District 22 — Issues",
+          "curated": [
+            {
+              "key": "healthcare",
+              "side": "support",
+              "pos": "support",
+              "topic": "Healthcare Access"
+            },
+            {
+              "key": "climate_action",
+              "side": "support",
+              "pos": "support",
+              "topic": "Wind and Solar Energy"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Strong Public Schools"
+            },
+            {
+              "key": "back_police",
+              "side": "support",
+              "pos": "support",
+              "topic": "First Responders"
+            },
+            {
+              "key": "veterans",
+              "side": "support",
+              "pos": "support",
+              "topic": "Veterans' Opportunity"
+            },
+            {
+              "key": "housing_build",
+              "side": "support",
+              "pos": "support",
+              "topic": "Senior Housing"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "brent_reinke",
+      "name": "Brent D. Reinke",
+      "seat": "id-statesenate-24",
+      "curated_in": [
+        "newly-elected-state-legislative-gap-fill-2026-11.json",
+        "newly-elected-state-legislative-stated-2026-11-wave3.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "brent_reinke",
+          "topic": "cost_living",
+          "source_type": "campaign priorities page",
+          "url": "https://reinkeforidaho.com/",
+          "curated_label": "Brent Reinke for State Senate — Priorities",
+          "curated": [
+            {
+              "key": "cost_living",
+              "side": "support",
+              "pos": "support",
+              "topic": "Affordability for Families"
+            },
+            {
+              "key": "lower_taxes",
+              "side": "support",
+              "pos": "support",
+              "topic": "Keep Taxes Low"
+            },
+            {
+              "key": "back_police",
+              "side": "support",
+              "pos": "support",
+              "topic": "Support Local Law Enforcement"
+            },
+            {
+              "key": "border_security",
+              "side": "support",
+              "pos": "support",
+              "topic": "Border Security"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "casey_swensen",
+      "name": "Casey Swensen",
+      "seat": "id-statesenate-25",
+      "curated_in": [
+        "newly-elected-state-legislative-gap-fill-2026-11.json",
+        "newly-elected-state-legislative-stated-2026-11-wave3.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "casey_swensen",
+          "topic": "econ_smallbiz",
+          "source_type": "campaign priorities page",
+          "url": "https://swensenforidaho.com/",
+          "curated_label": "Casey Swensen for Idaho State Senate — Priorities",
+          "curated": [
+            {
+              "key": "econ_smallbiz",
+              "side": "support",
+              "pos": "support",
+              "topic": "Support Small Businesses"
+            },
+            {
+              "key": "lower_taxes",
+              "side": "support",
+              "pos": "support",
+              "topic": "Lower Taxes"
+            },
+            {
+              "key": "back_police",
+              "side": "support",
+              "pos": "support",
+              "topic": "Back Law Enforcement"
+            },
+            {
+              "key": "border_security",
+              "side": "support",
+              "pos": "support",
+              "topic": "Secure the Border"
+            },
+            {
+              "key": "housing",
+              "side": "support",
+              "pos": "support",
+              "topic": "Affordable Housing"
+            },
+            {
+              "key": "cost_living",
+              "side": "support",
+              "pos": "support",
+              "topic": "Cost of Living"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "edward_stravato",
+      "name": "Edward W. Stravato",
+      "seat": "ri-statehouse-42",
+      "curated_in": [
+        "newly-elected-state-legislative-gap-fill-2026-11.json",
+        "newly-elected-state-legislative-stated-2026-11-wave3.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "edward_stravato",
+          "topic": "econ_smallbiz",
+          "source_type": "campaign priorities page",
+          "url": "https://edforri.com/priorities",
+          "curated_label": "Ed for RI — Priorities",
+          "curated": [
+            {
+              "key": "econ_smallbiz",
+              "side": "support",
+              "pos": "support",
+              "topic": "Support Small Businesses"
+            },
+            {
+              "key": "gov_waste",
+              "side": "support",
+              "pos": "support",
+              "topic": "Cut Wasteful Spending"
+            },
+            {
+              "key": "back_police",
+              "side": "support",
+              "pos": "support",
+              "topic": "Support Police"
+            },
+            {
+              "key": "gov_regulation",
+              "side": "support",
+              "pos": "support",
+              "topic": "Roll Back Red Tape"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "ali_horsted",
+      "name": "Ali Rae Horsted",
+      "seat": "sd-statehouse-13",
+      "curated_in": [
+        "newly-elected-state-legislative-gap-fill-2026-11.json",
+        "newly-elected-state-legislative-stated-2026-11-wave4.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "ali_horsted",
+          "topic": "cost_living",
+          "source_type": "campaign issues page",
+          "url": "https://www.aliforsd.com/vision",
+          "curated_label": "Ali for District 13 — Vision",
+          "curated": [
+            {
+              "key": "cost_living",
+              "side": "support",
+              "pos": "support",
+              "topic": "Everyday affordability"
+            },
+            {
+              "key": "healthcare_costs",
+              "side": "support",
+              "pos": "support",
+              "topic": "Affordable healthcare"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Invest in public schools"
+            },
+            {
+              "key": "gov_transparency",
+              "side": "support",
+              "pos": "support",
+              "topic": "Open, accountable government"
+            },
+            {
+              "key": "healthcare",
+              "side": "support",
+              "pos": "support",
+              "topic": "Accessible Healthcare"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "brandy_tollefson",
+      "name": "Brandy Tollefson",
+      "seat": "wi-statehouse-88",
+      "curated_in": [
+        "newly-elected-state-legislative-gap-fill-2026-11.json",
+        "newly-elected-state-legislative-stated-2026-11-wave5.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "brandy_tollefson",
+          "topic": "healthcare",
+          "source_type": "campaign priorities page",
+          "url": "https://www.brandyforwisconsin.com/",
+          "curated_label": "Brandy Tollefson for Wisconsin — Priorities on Day One",
+          "curated": [
+            {
+              "key": "healthcare",
+              "side": "support",
+              "pos": "support",
+              "topic": "Strengthen health protections"
+            },
+            {
+              "key": "cost_living",
+              "side": "support",
+              "pos": "support",
+              "topic": "Lower costs for families"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Adequate school funding"
+            },
+            {
+              "key": "school_choice",
+              "side": "oppose",
+              "pos": "oppose",
+              "topic": "Against moving funds to private schools"
+            },
+            {
+              "key": "healthcare_costs",
+              "side": "support",
+              "pos": "support",
+              "topic": "Affordable Medical Care"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "todd_delmay",
+      "name": "Todd Delmay",
+      "seat": "fl-statehouse-101",
+      "curated_in": [
+        "newly-elected-state-legislative-gap-fill-2026-11.json",
+        "newly-elected-state-legislative-stated-2026-11-wave5.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "todd_delmay",
+          "topic": "cost_living",
+          "source_type": "campaign issues page",
+          "url": "https://delmayforflorida.com/issues/",
+          "curated_label": "Todd Delmay for Florida — On the Issues",
+          "curated": [
+            {
+              "key": "cost_living",
+              "side": "support",
+              "pos": "support",
+              "topic": "Property insurance rates"
+            },
+            {
+              "key": "housing_first_time",
+              "side": "support",
+              "pos": "support",
+              "topic": "Down-payment assistance"
+            },
+            {
+              "key": "healthcare",
+              "side": "support",
+              "pos": "support",
+              "topic": "Medicaid expansion"
+            },
+            {
+              "key": "infrastructure",
+              "side": "support",
+              "pos": "support",
+              "topic": "Flooding and drainage"
+            },
+            {
+              "key": "healthcare_costs",
+              "side": "support",
+              "pos": "support",
+              "topic": "Lower Healthcare Bills"
+            },
+            {
+              "key": "disaster_resilience",
+              "side": "support",
+              "pos": "support",
+              "topic": "Flooding & Storms"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "rose_lounsbury",
+      "name": "Rose Lounsbury",
+      "seat": "oh-statehouse-36",
+      "curated_in": [
+        "newly-elected-state-legislative-gap-fill-2026-11.json",
+        "newly-elected-state-legislative-stated-2026-11-wave6.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "rose_lounsbury",
+          "topic": "public_schools",
+          "source_type": "campaign platform page",
+          "source_id": "platform-education",
+          "url": "https://www.roseforohio.com/platform/education",
+          "curated_label": "Rose Lounsbury for Ohio House — Public Education",
+          "curated": [
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Fix school funding"
+            },
+            {
+              "key": "school_choice",
+              "side": "oppose",
+              "pos": "oppose",
+              "topic": "EdChoice Vouchers"
+            }
+          ]
+        },
+        {
+          "politician_id": "rose_lounsbury",
+          "topic": "paid_leave",
+          "source_type": "campaign platform page",
+          "source_id": "platform-workingfamilies",
+          "url": "https://www.roseforohio.com/platform/workingfamilies",
+          "curated_label": "Rose Lounsbury for Ohio House — Working Families",
+          "curated": [
+            {
+              "key": "paid_leave",
+              "side": "support",
+              "pos": "support",
+              "topic": "Paid family leave"
+            },
+            {
+              "key": "child_care",
+              "side": "support",
+              "pos": "support",
+              "topic": "Affordable childcare"
+            }
+          ]
+        },
+        {
+          "politician_id": "rose_lounsbury",
+          "topic": "gun_safety",
+          "source_type": "campaign platform page",
+          "source_id": "platform-gunsafety",
+          "url": "https://www.roseforohio.com/platform/gunsafety",
+          "curated_label": "Rose Lounsbury for Ohio House — Gun Safety",
+          "curated": [
+            {
+              "key": "gun_safety",
+              "side": "support",
+              "pos": "support",
+              "topic": "Common sense gun safety"
+            }
+          ]
+        },
+        {
+          "politician_id": "rose_lounsbury",
+          "topic": "climate_action",
+          "source_type": "campaign platform page",
+          "source_id": "platform-environment",
+          "url": "https://www.roseforohio.com/platform/environment",
+          "curated_label": "Rose Lounsbury for Ohio House — Environment",
+          "curated": [
+            {
+              "key": "climate_action",
+              "side": "support",
+              "pos": "support",
+              "topic": "Climate & Clean Energy"
+            }
+          ]
+        },
+        {
+          "politician_id": "rose_lounsbury",
+          "topic": "voting_access",
+          "source_type": "campaign platform page",
+          "source_id": "platform-democracy",
+          "url": "https://www.roseforohio.com/platform/democracy",
+          "curated_label": "Rose Lounsbury for Ohio House — Protecting Democracy",
+          "curated": [
+            {
+              "key": "voting_access",
+              "side": "support",
+              "pos": "support",
+              "topic": "Voting Rights"
+            }
+          ]
+        },
+        {
+          "politician_id": "rose_lounsbury",
+          "topic": "healthcare",
+          "source_type": "campaign platform page",
+          "source_id": "platform-healthcare",
+          "url": "https://www.roseforohio.com/platform/healthcare",
+          "curated_label": "Rose Lounsbury for Ohio House — Healthcare",
+          "curated": [
+            {
+              "key": "healthcare",
+              "side": "support",
+              "pos": "support",
+              "topic": "Healthcare Access"
+            }
+          ]
+        },
+        {
+          "politician_id": "rose_lounsbury",
+          "topic": "econ_workers",
+          "source_type": "campaign platform page",
+          "source_id": "platform-labor",
+          "url": "https://www.roseforohio.com/platform/labor",
+          "curated_label": "Rose Lounsbury for Ohio House — Labor",
+          "curated": [
+            {
+              "key": "econ_workers",
+              "side": "support",
+              "pos": "support",
+              "topic": "Labor Unions"
+            }
+          ]
+        },
+        {
+          "politician_id": "rose_lounsbury",
+          "topic": "lgbtq_rights",
+          "source_type": "campaign platform page",
+          "source_id": "platform-justice",
+          "url": "https://www.roseforohio.com/platform/justice",
+          "curated_label": "Rose Lounsbury for Ohio House — Justice",
+          "curated": [
+            {
+              "key": "lgbtq_rights",
+              "side": "support",
+              "pos": "support",
+              "topic": "LGBTQ+ Rights"
+            }
+          ]
+        },
+        {
+          "politician_id": "rose_lounsbury",
+          "topic": "pro_choice",
+          "source_type": "campaign platform page",
+          "source_id": "platform-womensrights",
+          "url": "https://www.roseforohio.com/platform/womensrights",
+          "curated_label": "Rose Lounsbury for Ohio House — Women's Rights",
+          "curated": [
+            {
+              "key": "pro_choice",
+              "side": "support",
+              "pos": "support",
+              "topic": "Women's Rights"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "shelby_kimball",
+      "name": "Shelby Kimball",
+      "seat": "oh-statehouse-60",
+      "curated_in": [
+        "newly-elected-state-legislative-gap-fill-2026-11.json",
+        "newly-elected-state-legislative-stated-2026-11-wave6.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "shelby_kimball",
+          "topic": "public_schools",
+          "source_type": "campaign issues page",
+          "url": "https://kimballforohio.com/",
+          "curated_label": "Shelby Kimball for Ohio — Issues",
+          "curated": [
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Fully fund public schools"
+            },
+            {
+              "key": "healthcare",
+              "side": "support",
+              "pos": "support",
+              "topic": "Expand access to care"
+            },
+            {
+              "key": "veterans",
+              "side": "support",
+              "pos": "support",
+              "topic": "Services for veterans"
+            },
+            {
+              "key": "child_care",
+              "side": "support",
+              "pos": "support",
+              "topic": "Affordable childcare"
+            },
+            {
+              "key": "econ_smallbiz",
+              "side": "support",
+              "pos": "support",
+              "topic": "Grow Small Businesses"
+            },
+            {
+              "key": "cost_living",
+              "side": "support",
+              "pos": "support",
+              "topic": "Keep Costs Down"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "zach_herbert",
+      "name": "Zach Herbert",
+      "seat": "tx-statehouse-112",
+      "curated_in": [
+        "newly-elected-state-legislative-gap-fill-2026-11.json",
+        "newly-elected-state-legislative-stated-2026-11-wave6.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "zach_herbert",
+          "topic": "healthcare",
+          "source_type": "campaign issues page",
+          "url": "https://zach4texas.com/issues/",
+          "curated_label": "Zach For Texas — Issues",
+          "curated": [
+            {
+              "key": "healthcare",
+              "side": "support",
+              "pos": "support",
+              "topic": "Expand Medicaid"
+            },
+            {
+              "key": "econ_workers",
+              "side": "support",
+              "pos": "support",
+              "topic": "A livable minimum wage"
+            },
+            {
+              "key": "pro_choice",
+              "side": "support",
+              "pos": "support",
+              "topic": "Reproductive rights"
+            },
+            {
+              "key": "gun_safety",
+              "side": "support",
+              "pos": "support",
+              "topic": "Gun safety measures"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Teacher Pay"
+            },
+            {
+              "key": "econ_smallbiz",
+              "side": "support",
+              "pos": "support",
+              "topic": "Small Businesses"
+            },
+            {
+              "key": "voting_access",
+              "side": "support",
+              "pos": "support",
+              "topic": "Ballot Access"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "jillaire_mcmillan",
+      "name": "Jillaire McMillan",
+      "office": "Colorado State House (District 19)",
+      "seat": "co-statehouse-19",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave2.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "jillaire_mcmillan",
+          "topic": "public_schools",
+          "source_type": "campaign issues page",
+          "url": "https://www.jillaireforcolorado.com/issues",
+          "curated_label": "Jillaire McMillan for Colorado — Issues",
+          "curated": [
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Public Money for Public Schools"
+            },
+            {
+              "key": "pro_choice",
+              "side": "support",
+              "pos": "support",
+              "topic": "Reproductive Care"
+            },
+            {
+              "key": "gun_safety",
+              "side": "support",
+              "pos": "support",
+              "topic": "Gun Violence Prevention"
+            },
+            {
+              "key": "housing_support",
+              "side": "support",
+              "pos": "support",
+              "topic": "Housing and Renters"
+            },
+            {
+              "key": "climate_action",
+              "side": "support",
+              "pos": "support",
+              "topic": "Protecting Our Environment"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "steph_vigil",
+      "name": "Steph Vigil",
+      "office": "Colorado State House (District 16)",
+      "seat": "co-statehouse-16",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave2.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "steph_vigil",
+          "topic": "housing_build",
+          "source_type": "campaign issues page",
+          "url": "https://www.vigilforcolorado.com/issues",
+          "curated_label": "Vigil for Colorado — On the Issues",
+          "curated": [
+            {
+              "key": "housing_build",
+              "side": "support",
+              "pos": "support",
+              "topic": "Abundant Housing"
+            },
+            {
+              "key": "transit",
+              "side": "support",
+              "pos": "support",
+              "topic": "Front Range Rail"
+            },
+            {
+              "key": "climate_action",
+              "side": "support",
+              "pos": "support",
+              "topic": "Climate and Polluters"
+            },
+            {
+              "key": "healthcare",
+              "side": "support",
+              "pos": "support",
+              "topic": "Single-Payer Health Care"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Public Dollars for Public Education"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "eileen_eady",
+      "name": "Eileen Eady",
+      "office": "Nevada State Assembly (District 4)",
+      "seat": "nv-statehouse-4",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave2.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "eileen_eady",
+          "topic": "housing_support",
+          "source_type": "campaign issues page",
+          "url": "https://eadyfornevada.com/",
+          "curated_label": "Eady for Nevada — Issues",
+          "curated": [
+            {
+              "key": "housing_support",
+              "side": "support",
+              "pos": "support",
+              "topic": "Housing and Renters"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Fully Fund Schools"
+            },
+            {
+              "key": "healthcare",
+              "side": "support",
+              "pos": "support",
+              "topic": "Protect Medicaid"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "chris_ford",
+      "name": "Chris Ford",
+      "office": "Minnesota State Senate (District 32)",
+      "seat": "mn-statesenate-32",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave2.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "chris_ford",
+          "topic": "gov_transparency",
+          "source_type": "campaign priorities page",
+          "url": "https://www.chrisfordformn.com/priorities",
+          "curated_label": "Chris Ford for MN — Priorities",
+          "curated": [
+            {
+              "key": "gov_transparency",
+              "side": "support",
+              "pos": "support",
+              "topic": "Combating Fraud"
+            },
+            {
+              "key": "housing",
+              "side": "support",
+              "pos": "support",
+              "topic": "Make Life More Affordable"
+            },
+            {
+              "key": "healthcare_costs",
+              "side": "support",
+              "pos": "support",
+              "topic": "Lower Healthcare Costs"
+            },
+            {
+              "key": "health_drug_prices",
+              "side": "support",
+              "pos": "support",
+              "topic": "Prescription Costs"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Strengthen Education"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "kristy_janigo",
+      "name": "Kristy Janigo",
+      "office": "Minnesota State Senate (District 37)",
+      "seat": "mn-statesenate-37",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave2.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "kristy_janigo",
+          "topic": "cost_living",
+          "source_type": "campaign priorities page",
+          "url": "https://kristyjanigoformn.com/priorities/",
+          "curated_label": "Kristy Janigo for Minnesota State Senate 37 — Priorities",
+          "curated": [
+            {
+              "key": "cost_living",
+              "side": "support",
+              "pos": "support",
+              "topic": "Bringing Down Costs"
+            },
+            {
+              "key": "healthcare_costs",
+              "side": "support",
+              "pos": "support",
+              "topic": "Quality Healthcare"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Strengthening Public Education"
+            },
+            {
+              "key": "gov_transparency",
+              "side": "support",
+              "pos": "support",
+              "topic": "Fighting Fraud"
+            },
+            {
+              "key": "veterans",
+              "side": "support",
+              "pos": "support",
+              "topic": "Standing Up for Veterans"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "mark_legvold",
+      "name": "Mark Legvold",
+      "office": "Minnesota State Senate (District 58)",
+      "seat": "mn-statesenate-58",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave2.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "mark_legvold",
+          "topic": "public_schools",
+          "source_type": "campaign issues page",
+          "url": "https://legvold4mnsenate58.com/policy",
+          "curated_label": "Legvold for MN Senate 58 — Policy",
+          "curated": [
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Nation-Leading Schools"
+            },
+            {
+              "key": "rural_ag",
+              "side": "support",
+              "pos": "support",
+              "topic": "Farmers and Input Costs"
+            },
+            {
+              "key": "broadband",
+              "side": "support",
+              "pos": "support",
+              "topic": "Rural Broadband"
+            },
+            {
+              "key": "gov_transparency",
+              "side": "support",
+              "pos": "support",
+              "topic": "Prevent and Combat Fraud"
+            },
+            {
+              "key": "econ_smallbiz",
+              "side": "support",
+              "pos": "support",
+              "topic": "Support Local Businesses"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "owen_farnsworth",
+      "name": "Owen Farnsworth",
+      "office": "Tennessee State House (District 34)",
+      "seat": "tn-statehouse-34",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave3.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "owen_farnsworth",
+          "topic": "public_schools",
+          "source_type": "campaign issues page",
+          "url": "https://www.owenfarnsworth.com/education",
+          "curated_label": "Owen For State House 34 — Education",
+          "curated": [
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Fund Public Schools"
+            },
+            {
+              "key": "school_choice",
+              "side": "oppose",
+              "pos": "oppose",
+              "topic": "No Private School Funding"
+            },
+            {
+              "key": "edu_college_cost",
+              "side": "support",
+              "pos": "support",
+              "topic": "Free College"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "allie_phillips",
+      "name": "Allie Phillips",
+      "office": "Tennessee State House (District 75)",
+      "seat": "tn-statehouse-75",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave3.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "allie_phillips",
+          "topic": "public_schools",
+          "source_type": "campaign platform page",
+          "url": "https://www.alliep4tn.com/",
+          "curated_label": "Allie Phillips for TN State House District 75 — Platform",
+          "curated": [
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Public Education"
+            },
+            {
+              "key": "school_choice",
+              "side": "oppose",
+              "pos": "oppose",
+              "topic": "Against School Vouchers"
+            },
+            {
+              "key": "econ_workers",
+              "side": "support",
+              "pos": "support",
+              "topic": "Workers and Unions"
+            },
+            {
+              "key": "veterans",
+              "side": "support",
+              "pos": "support",
+              "topic": "Veterans' Health Care"
+            },
+            {
+              "key": "infrastructure",
+              "side": "support",
+              "pos": "support",
+              "topic": "Roads and Bridges"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "michael_scott",
+      "name": "Michael R. Scott",
+      "office": "Maine State Senate (District 20)",
+      "seat": "me-statesenate-20",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave3.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "michael_scott",
+          "topic": "public_schools",
+          "source_type": "campaign issues page",
+          "url": "https://www.mikescottformaine.com/issues",
+          "curated_label": "Mike Scott for Maine Senate — Issues",
+          "curated": [
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Fully Fund Public Schools"
+            },
+            {
+              "key": "back_police",
+              "side": "support",
+              "pos": "support",
+              "topic": "Police and First Responders"
+            },
+            {
+              "key": "cost_living",
+              "side": "support",
+              "pos": "support",
+              "topic": "Rising Family Costs"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "patric_moore",
+      "name": "Patric Aaron Moore",
+      "office": "Maine State Senate (District 16)",
+      "seat": "me-statesenate-16",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave3.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "patric_moore",
+          "topic": "housing_build",
+          "source_type": "campaign issues page",
+          "url": "https://www.patricmooreformaine.com/issues",
+          "curated_label": "Patric Moore for Maine Senate — Issues",
+          "curated": [
+            {
+              "key": "housing_build",
+              "side": "support",
+              "pos": "support",
+              "topic": "Build More Homes"
+            },
+            {
+              "key": "cost_living",
+              "side": "support",
+              "pos": "support",
+              "topic": "Lower Everyday Costs"
+            },
+            {
+              "key": "econ_smallbiz",
+              "side": "support",
+              "pos": "support",
+              "topic": "Small Business Investment"
+            },
+            {
+              "key": "healthcare",
+              "side": "support",
+              "pos": "support",
+              "topic": "Healthcare Access"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "erin_feichtinger",
+      "name": "Erin Feichtinger",
+      "office": "Nebraska State Senate (District 8)",
+      "seat": "ne-statesenate-8",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave3.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "erin_feichtinger",
+          "topic": "housing",
+          "source_type": "campaign issues page",
+          "url": "https://erinfornebraska.com/issues",
+          "curated_label": "Erin for Nebraska — Key Issues",
+          "curated": [
+            {
+              "key": "housing",
+              "side": "support",
+              "pos": "support",
+              "topic": "Expanding Affordable Housing"
+            },
+            {
+              "key": "housing_support",
+              "side": "support",
+              "pos": "support",
+              "topic": "Help for Tenants"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Supporting Public Schools"
+            },
+            {
+              "key": "econ_workers",
+              "side": "support",
+              "pos": "support",
+              "topic": "Minimum Wage and Leave"
+            },
+            {
+              "key": "child_care",
+              "side": "support",
+              "pos": "support",
+              "topic": "Strengthening Childcare"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "nelly_burdette",
+      "name": "Nelly Burdette",
+      "office": "Rhode Island State Senate (District 17)",
+      "seat": "ri-statesenate-17",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave3.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "nelly_burdette",
+          "topic": "healthcare",
+          "source_type": "campaign issues page",
+          "url": "https://electnelly.com/issues",
+          "curated_label": "Dr Nelly Burdette for Rhode Island Senate District 17 — Issues",
+          "curated": [
+            {
+              "key": "healthcare",
+              "side": "support",
+              "pos": "support",
+              "topic": "Accessible Healthcare"
+            },
+            {
+              "key": "healthcare_costs",
+              "side": "support",
+              "pos": "support",
+              "topic": "Affordable Healthcare"
+            },
+            {
+              "key": "housing",
+              "side": "support",
+              "pos": "support",
+              "topic": "Housing Affordability"
+            },
+            {
+              "key": "econ_smallbiz",
+              "side": "support",
+              "pos": "support",
+              "topic": "Small Business Support"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "nancy_gregory",
+      "name": "Nancy Gregory",
+      "office": "Idaho State Senate (District 15)",
+      "seat": "id-statesenate-15",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave3.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "nancy_gregory",
+          "topic": "public_schools",
+          "source_type": "campaign priorities page",
+          "url": "https://nancygregory4idaho.com/priorities",
+          "curated_label": "Nancy Gregory for Idaho — Priorities",
+          "curated": [
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Public School Commitment"
+            },
+            {
+              "key": "healthcare",
+              "side": "support",
+              "pos": "support",
+              "topic": "Protect Medicare and Medicaid"
+            },
+            {
+              "key": "healthcare_costs",
+              "side": "support",
+              "pos": "support",
+              "topic": "Rising Medical Costs"
+            },
+            {
+              "key": "housing",
+              "side": "support",
+              "pos": "support",
+              "topic": "Affordable Places to Live"
+            },
+            {
+              "key": "lands_keep_public",
+              "side": "support",
+              "pos": "support",
+              "topic": "Keep Lands Public"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "kathy_simpler",
+      "name": "Kathy C. Simpler",
+      "office": "Alaska State House (District 5)",
+      "seat": "ak-statehouse-5",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave4.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "kathy_simpler",
+          "topic": "public_schools",
+          "source_type": "campaign priorities page",
+          "url": "https://www.simplerforstatehouse.com/priorities",
+          "curated_label": "Simpler for State House — Priorities",
+          "curated": [
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Raise school funding"
+            },
+            {
+              "key": "healthcare_costs",
+              "side": "support",
+              "pos": "support",
+              "topic": "Lower healthcare costs"
+            },
+            {
+              "key": "health_rural",
+              "side": "support",
+              "pos": "support",
+              "topic": "Local hospitals and clinics"
+            },
+            {
+              "key": "child_care",
+              "side": "support",
+              "pos": "support",
+              "topic": "Childcare access"
+            },
+            {
+              "key": "transit",
+              "side": "support",
+              "pos": "support",
+              "topic": "Alaska Marine Highway ferries"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "lisa_keller",
+      "name": "Lisa M. Keller",
+      "office": "Alaska State House (District 13)",
+      "seat": "ak-statehouse-13",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave4.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "lisa_keller",
+          "topic": "justice_balance",
+          "source_type": "campaign priorities page",
+          "url": "https://www.lisakellerforalaska.com/",
+          "curated_label": "Lisa Keller for State House District 13 — Home / My Priorities",
+          "curated": [
+            {
+              "key": "justice_balance",
+              "side": "support",
+              "pos": "support",
+              "topic": "Prevention-focused public safety"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Fund public schools"
+            },
+            {
+              "key": "gov_waste",
+              "side": "support",
+              "pos": "support",
+              "topic": "Careful use of tax dollars"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "margaret_mitchell",
+      "name": "Margaret Mitchell",
+      "office": "Montana State Senate (District 10)",
+      "seat": "mt-statesenate-10",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave4.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "margaret_mitchell",
+          "topic": "property_tax",
+          "source_type": "campaign issues page",
+          "url": "https://mitchell406.com/",
+          "curated_label": "Margaret Mitchell for Montana Senate District 10 — Protecting the Montana Dream (Vision)",
+          "curated": [
+            {
+              "key": "property_tax",
+              "side": "support",
+              "pos": "support",
+              "topic": "No endless property tax hikes"
+            },
+            {
+              "key": "cost_living",
+              "side": "support",
+              "pos": "support",
+              "topic": "Keeping Montana affordable"
+            },
+            {
+              "key": "healthcare_costs",
+              "side": "support",
+              "pos": "support",
+              "topic": "Affordable healthcare and utilities"
+            },
+            {
+              "key": "econ_smallbiz",
+              "side": "support",
+              "pos": "support",
+              "topic": "Montana-grown businesses"
+            },
+            {
+              "key": "lands_preserve",
+              "side": "support",
+              "pos": "support",
+              "topic": "Safeguarding public lands"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "jim_riley",
+      "name": "Jim Riley",
+      "office": "Montana State House (District 6)",
+      "seat": "mt-statehouse-6",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave4.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "jim_riley",
+          "topic": "school_choice",
+          "source_type": "campaign home page",
+          "url": "https://www.jimrileyforhd6.com/",
+          "curated_label": "Jim Riley for HD 6 — Campaign Pillars (home page)",
+          "curated": [
+            {
+              "key": "school_choice",
+              "side": "support",
+              "pos": "support",
+              "topic": "School choice and charters"
+            },
+            {
+              "key": "edu_parental",
+              "side": "support",
+              "pos": "support",
+              "topic": "Parents decide education"
+            },
+            {
+              "key": "lower_taxes",
+              "side": "support",
+              "pos": "support",
+              "topic": "No new taxes"
+            },
+            {
+              "key": "gov_regulation",
+              "side": "support",
+              "pos": "support",
+              "topic": "Cutting red tape"
+            },
+            {
+              "key": "gun_rights",
+              "side": "support",
+              "pos": "support",
+              "topic": "Second Amendment defense"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "michelle_bianco",
+      "name": "Michelle Bianco",
+      "office": "Montana State House (District 1)",
+      "seat": "mt-statehouse-1",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave4.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "michelle_bianco",
+          "topic": "prop_tax",
+          "source_type": "campaign home page",
+          "url": "https://bianco4mt2026.com/",
+          "curated_label": "Bianco For Montana — What Matters Most (home page)",
+          "curated": [
+            {
+              "key": "prop_tax",
+              "side": "support",
+              "pos": "support",
+              "topic": "Fighting property taxes"
+            },
+            {
+              "key": "lands_energy",
+              "side": "support",
+              "pos": "support",
+              "topic": "Bring back logging"
+            },
+            {
+              "key": "gun_rights",
+              "side": "support",
+              "pos": "support",
+              "topic": "Protecting the 2A"
+            },
+            {
+              "key": "tough_on_crime",
+              "side": "support",
+              "pos": "support",
+              "topic": "Tough on crime"
+            },
+            {
+              "key": "border_security",
+              "side": "support",
+              "pos": "support",
+              "topic": "Northern border security"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "adam_bair",
+      "name": "Adam Bair",
+      "office": "South Dakota State House (District 10)",
+      "seat": "sd-statehouse-10",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave4.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "adam_bair",
+          "topic": "housing_build",
+          "source_type": "campaign issues page",
+          "url": "https://adambairsouthdakota.com/issues/",
+          "curated_label": "Adam Bair For South Dakota District 10 — Issues",
+          "curated": [
+            {
+              "key": "housing_build",
+              "side": "support",
+              "pos": "support",
+              "topic": "Expand housing inventory"
+            },
+            {
+              "key": "housing_first_time",
+              "side": "support",
+              "pos": "support",
+              "topic": "Expand homeownership programs"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Fund public schools"
+            },
+            {
+              "key": "datacenter_growth",
+              "side": "oppose",
+              "pos": "oppose",
+              "topic": "Opposes data centers"
+            },
+            {
+              "key": "lands_keep_public",
+              "side": "support",
+              "pos": "support",
+              "topic": "No public land sales"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "june_copperstad",
+      "name": "June CopperStad",
+      "office": "South Dakota State House (District 15)",
+      "seat": "sd-statehouse-15",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave4.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "june_copperstad",
+          "topic": "housing_support",
+          "source_type": "campaign issues page",
+          "url": "https://juneforsd.com/issues/",
+          "curated_label": "June for South Dakota — The Issues",
+          "curated": [
+            {
+              "key": "housing_support",
+              "side": "support",
+              "pos": "support",
+              "topic": "Housing within reach"
+            },
+            {
+              "key": "child_care",
+              "side": "support",
+              "pos": "support",
+              "topic": "Accessible, affordable childcare"
+            },
+            {
+              "key": "family_support",
+              "side": "support",
+              "pos": "support",
+              "topic": "Real support for families"
+            },
+            {
+              "key": "econ_workers",
+              "side": "support",
+              "pos": "support",
+              "topic": "Work that pays"
+            },
+            {
+              "key": "voting_access",
+              "side": "support",
+              "pos": "support",
+              "topic": "Protect voting rights"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "jeff_haylon",
+      "name": "Jeff Haylon",
+      "office": "Vermont State House (District Rutland-9)",
+      "seat": "vt-statehouse-77",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave4.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "jeff_haylon",
+          "topic": "healthcare",
+          "source_type": "campaign issues page",
+          "url": "https://jeffhaylon.com/policies/",
+          "curated_label": "Jeff Haylon for State Representative — Policies",
+          "curated": [
+            {
+              "key": "healthcare",
+              "side": "support",
+              "pos": "support",
+              "topic": "Single-payer health care"
+            },
+            {
+              "key": "healthcare_costs",
+              "side": "support",
+              "pos": "support",
+              "topic": "Rising premiums and costs"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Keep local schools open"
+            },
+            {
+              "key": "pro_choice",
+              "side": "support",
+              "pos": "support",
+              "topic": "Reproductive freedom"
+            },
+            {
+              "key": "econ_smallbiz",
+              "side": "support",
+              "pos": "support",
+              "topic": "Simplify small-business regulation"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "phoebe_tucker",
+      "name": "Phoebe Tucker",
+      "office": "Vermont State House (District Rutland-Windsor)",
+      "seat": "vt-statehouse-79",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave4.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "phoebe_tucker",
+          "topic": "healthcare",
+          "source_type": "campaign priorities page",
+          "url": "https://www.phoebeforvermont.com/priorities",
+          "curated_label": "Phoebe Tucker for VT State Rep 2026 — Priorities",
+          "curated": [
+            {
+              "key": "healthcare",
+              "side": "support",
+              "pos": "support",
+              "topic": "Universal primary care"
+            },
+            {
+              "key": "healthcare_costs",
+              "side": "support",
+              "pos": "support",
+              "topic": "Reference-based hospital pricing"
+            },
+            {
+              "key": "housing",
+              "side": "support",
+              "pos": "support",
+              "topic": "Housing as a basic right"
+            },
+            {
+              "key": "prop_tax",
+              "side": "support",
+              "pos": "support",
+              "topic": "Shift taxes to vacation homes"
+            },
+            {
+              "key": "rural_ag",
+              "side": "support",
+              "pos": "support",
+              "topic": "Local food and farm income"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "kim_gleason",
+      "name": "Kim Gleason",
+      "office": "Vermont State Senate (District Grand Isle)",
+      "seat": "vt-statesenate-9",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave4.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "kim_gleason",
+          "topic": "healthcare",
+          "source_type": "campaign priorities page",
+          "url": "https://www.kimgleasonforvt.org/priorities",
+          "curated_label": "Kim Gleason for Vermont Senate — Kim's Priorities",
+          "curated": [
+            {
+              "key": "healthcare",
+              "side": "support",
+              "pos": "support",
+              "topic": "Universal primary care"
+            },
+            {
+              "key": "health_rural",
+              "side": "support",
+              "pos": "support",
+              "topic": "Rural health access"
+            },
+            {
+              "key": "housing_build",
+              "side": "support",
+              "pos": "support",
+              "topic": "Streamline housing growth"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "No forced school mergers"
+            },
+            {
+              "key": "gov_transparency",
+              "side": "support",
+              "pos": "support",
+              "topic": "Accountability for tax dollars"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "hannah_sessions",
+      "name": "Hannah Sessions",
+      "office": "Vermont State Senate (District Addison)",
+      "seat": "vt-statesenate-1",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave4.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "hannah_sessions",
+          "topic": "prop_tax",
+          "source_type": "campaign issues page",
+          "url": "https://hannahsessionsforvt.com/issues/",
+          "curated_label": "Hannah Sessions for Vermont Senate — Issues",
+          "curated": [
+            {
+              "key": "prop_tax",
+              "side": "support",
+              "pos": "support",
+              "topic": "Cap residential property tax"
+            },
+            {
+              "key": "housing_build",
+              "side": "support",
+              "pos": "support",
+              "topic": "Increase housing stock"
+            },
+            {
+              "key": "healthcare",
+              "side": "support",
+              "pos": "support",
+              "topic": "Universal primary care"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Support small and large schools"
+            },
+            {
+              "key": "pro_choice",
+              "side": "support",
+              "pos": "support",
+              "topic": "Reproductive rights"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "iva_williams",
+      "name": "Iva Williams",
+      "office": "Utah State House (District 42)",
+      "seat": "ut-statehouse-42",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave4.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "iva_williams",
+          "topic": "property_tax",
+          "source_type": "campaign priorities page",
+          "url": "https://electivawilliams.com/priorities",
+          "curated_label": "Elect Iva Williams — Priorities",
+          "curated": [
+            {
+              "key": "property_tax",
+              "side": "support",
+              "pos": "support",
+              "topic": "Property taxes for retirees"
+            },
+            {
+              "key": "housing_build",
+              "side": "support",
+              "pos": "support",
+              "topic": "More starter homes"
+            },
+            {
+              "key": "econ_workers",
+              "side": "support",
+              "pos": "support",
+              "topic": "Collective bargaining rights"
+            },
+            {
+              "key": "datacenter_growth",
+              "side": "oppose",
+              "pos": "oppose",
+              "topic": "Data center moratorium"
+            },
+            {
+              "key": "lands_preserve",
+              "side": "support",
+              "pos": "support",
+              "topic": "Protecting natural spaces"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "kevin_knoke",
+      "name": "Kevin Knoke",
+      "office": "Wisconsin State Assembly (District 30)",
+      "seat": "wi-statehouse-30",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave5.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "kevin_knoke",
+          "topic": "housing",
+          "source_type": "campaign issues page",
+          "url": "https://www.kevinknoke.com/issues",
+          "curated_label": "Kevin Knoke for Assembly — Issues",
+          "curated": [
+            {
+              "key": "housing",
+              "side": "support",
+              "pos": "support",
+              "topic": "Affordable housing"
+            },
+            {
+              "key": "health_rural",
+              "side": "support",
+              "pos": "support",
+              "topic": "Rural healthcare access"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Fund public schools"
+            },
+            {
+              "key": "tax_middle_class",
+              "side": "support",
+              "pos": "support",
+              "topic": "No shift onto the middle class"
+            },
+            {
+              "key": "veterans",
+              "side": "support",
+              "pos": "support",
+              "topic": "Support disabled veterans"
+            },
+            {
+              "key": "lands_preserve",
+              "side": "support",
+              "pos": "support",
+              "topic": "Protect natural resources"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "ben_gruber",
+      "name": "Ben Gruber",
+      "office": "Wisconsin State Assembly (District 51)",
+      "seat": "wi-statehouse-51",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave5.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "ben_gruber",
+          "topic": "public_schools",
+          "source_type": "campaign issues page",
+          "url": "https://www.ben-gruber.com/issues",
+          "curated_label": "Ben Gruber for State Assembly — Issues",
+          "curated": [
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Fair school funding"
+            },
+            {
+              "key": "property_tax",
+              "side": "support",
+              "pos": "support",
+              "topic": "Fewer property tax increases"
+            },
+            {
+              "key": "health_rural",
+              "side": "support",
+              "pos": "support",
+              "topic": "Rural EMS and healthcare"
+            },
+            {
+              "key": "rural_ag",
+              "side": "support",
+              "pos": "support",
+              "topic": "Strengthen rural communities"
+            },
+            {
+              "key": "lands_preserve",
+              "side": "support",
+              "pos": "support",
+              "topic": "Protect natural resources"
+            },
+            {
+              "key": "econ_workers",
+              "side": "support",
+              "pos": "support",
+              "topic": "Workers' freedom to organize"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "ben_brist",
+      "name": "Ben Brist",
+      "office": "Wisconsin State Assembly (District 61)",
+      "seat": "wi-statehouse-61",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave5.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "ben_brist",
+          "topic": "cost_living",
+          "source_type": "campaign issues page",
+          "url": "https://www.bristforassembly.com/issues",
+          "curated_label": "Brist for Assembly — Issues",
+          "curated": [
+            {
+              "key": "cost_living",
+              "side": "support",
+              "pos": "support",
+              "topic": "Bring down costs"
+            },
+            {
+              "key": "healthcare_costs",
+              "side": "support",
+              "pos": "support",
+              "topic": "Lower healthcare costs"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Fully fund public schools"
+            },
+            {
+              "key": "datacenter_power",
+              "side": "support",
+              "pos": "support",
+              "topic": "Data centers pay their way"
+            },
+            {
+              "key": "econ_workers",
+              "side": "support",
+              "pos": "support",
+              "topic": "Minimum wage and labor laws"
+            },
+            {
+              "key": "property_tax",
+              "side": "support",
+              "pos": "support",
+              "topic": "Lower property taxes"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "john_kroll",
+      "name": "John Kroll",
+      "office": "Wisconsin State Assembly (District 85)",
+      "seat": "wi-statehouse-85",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave5.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "john_kroll",
+          "topic": "public_schools",
+          "source_type": "campaign issues page",
+          "url": "https://www.krollforwi.com/issues",
+          "curated_label": "John Kroll for Assembly — Issues",
+          "curated": [
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Fully fund classrooms"
+            },
+            {
+              "key": "cost_living",
+              "side": "support",
+              "pos": "support",
+              "topic": "Lower everyday costs"
+            },
+            {
+              "key": "health_drug_prices",
+              "side": "support",
+              "pos": "support",
+              "topic": "Lower prescription prices"
+            },
+            {
+              "key": "datacenter_power",
+              "side": "support",
+              "pos": "support",
+              "topic": "Data centers pay their share"
+            },
+            {
+              "key": "water",
+              "side": "support",
+              "pos": "support",
+              "topic": "Protect drinking water"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "jeremiah_fredrickson",
+      "name": "Jeremiah Fredrickson",
+      "office": "Wisconsin State Assembly (District 92)",
+      "seat": "wi-statehouse-92",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave5.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "jeremiah_fredrickson",
+          "topic": "public_schools",
+          "source_type": "campaign issues page",
+          "url": "https://www.jeremiahfredricksonforstateassembly.com/issues",
+          "curated_label": "Fredrickson for State Assembly — Issues",
+          "curated": [
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Support public schools"
+            },
+            {
+              "key": "lands_preserve",
+              "side": "support",
+              "pos": "support",
+              "topic": "Protect land, water and air"
+            },
+            {
+              "key": "health_drug_prices",
+              "side": "support",
+              "pos": "support",
+              "topic": "More affordable drugs"
+            },
+            {
+              "key": "health_rural",
+              "side": "support",
+              "pos": "support",
+              "topic": "Local hospital and clinic access"
+            },
+            {
+              "key": "cost_living",
+              "side": "support",
+              "pos": "support",
+              "topic": "Lower food costs"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "ben_mcadams_il",
+      "name": "Benjamin “Ben” McAdams",
+      "office": "Illinois State Senate (District 24)",
+      "seat": "il-statesenate-24",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave5.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "ben_mcadams_il",
+          "topic": "healthcare",
+          "source_type": "campaign platform page",
+          "url": "https://www.mcadamsforil.com/platform",
+          "curated_label": "Ben McAdams for IL State Senate 24 — The Platform",
+          "curated": [
+            {
+              "key": "healthcare",
+              "side": "support",
+              "pos": "support",
+              "topic": "Invest in public healthcare"
+            },
+            {
+              "key": "campaign_finance",
+              "side": "support",
+              "pos": "support",
+              "topic": "Small-dollar matching"
+            },
+            {
+              "key": "property_tax",
+              "side": "support",
+              "pos": "support",
+              "topic": "Ease property tax burden"
+            },
+            {
+              "key": "econ_corp_account",
+              "side": "support",
+              "pos": "support",
+              "topic": "Close corporate loopholes"
+            },
+            {
+              "key": "datacenter_power",
+              "side": "support",
+              "pos": "support",
+              "topic": "Regulate data centers"
+            },
+            {
+              "key": "climate_action",
+              "side": "support",
+              "pos": "support",
+              "topic": "Green energy system"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "marsia_geldert_murphey",
+      "name": "Marsia Geldert-Murphey",
+      "office": "Illinois State Senate (District 56)",
+      "seat": "il-statesenate-56",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave5.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "marsia_geldert_murphey",
+          "topic": "infrastructure",
+          "source_type": "campaign issues page",
+          "url": "https://www.marsieforillinois.info/",
+          "curated_label": "Marsie for Illinois — Opportunity, Education, Healthcare",
+          "curated": [
+            {
+              "key": "infrastructure",
+              "side": "support",
+              "pos": "support",
+              "topic": "Roads, bridges, public works"
+            },
+            {
+              "key": "child_care",
+              "side": "support",
+              "pos": "support",
+              "topic": "Early care and education"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Support public schools"
+            },
+            {
+              "key": "healthcare",
+              "side": "support",
+              "pos": "support",
+              "topic": "Protect Medicaid"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "maria_peterson",
+      "name": "Maria Peterson",
+      "office": "Illinois State House (District 52)",
+      "seat": "il-statehouse-52",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave5.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "maria_peterson",
+          "topic": "tax_middle_class",
+          "source_type": "campaign issues page",
+          "url": "https://www.mariafor52.com/issues/",
+          "curated_label": "Maria for 52 — Where I Stand On The Issues",
+          "curated": [
+            {
+              "key": "tax_middle_class",
+              "side": "support",
+              "pos": "support",
+              "topic": "Middle-class tax relief"
+            },
+            {
+              "key": "housing",
+              "side": "support",
+              "pos": "support",
+              "topic": "Affordable housing options"
+            },
+            {
+              "key": "child_care",
+              "side": "support",
+              "pos": "support",
+              "topic": "Childcare subsidies and pre-K"
+            },
+            {
+              "key": "gun_safety",
+              "side": "support",
+              "pos": "support",
+              "topic": "Stronger red flag laws"
+            },
+            {
+              "key": "pro_choice",
+              "side": "support",
+              "pos": "support",
+              "topic": "Abortion rights in the constitution"
+            },
+            {
+              "key": "climate_action",
+              "side": "support",
+              "pos": "support",
+              "topic": "Clean energy"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "jessica_bichler",
+      "name": "Jessica Bichler",
+      "office": "North Carolina State Senate (District 7)",
+      "seat": "nc-statesenate-7",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave5.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "jessica_bichler",
+          "topic": "public_schools",
+          "source_type": "campaign issues page",
+          "url": "https://www.jessicabichler.com/issues",
+          "curated_label": "Jessica Bichler — Issues",
+          "curated": [
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Fund public schools"
+            },
+            {
+              "key": "school_choice",
+              "side": "oppose",
+              "pos": "oppose",
+              "topic": "Public dollars for public schools"
+            },
+            {
+              "key": "econ_workers",
+              "side": "support",
+              "pos": "support",
+              "topic": "Raise the minimum wage"
+            },
+            {
+              "key": "econ_corp_account",
+              "side": "support",
+              "pos": "support",
+              "topic": "Corporations pay fair share"
+            },
+            {
+              "key": "datacenter_power",
+              "side": "support",
+              "pos": "support",
+              "topic": "Shield ratepayers from data centers"
+            },
+            {
+              "key": "back_police",
+              "side": "support",
+              "pos": "support",
+              "topic": "Fund local law enforcement"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "lorenza_wilkins",
+      "name": "Lorenza Wilkins",
+      "office": "North Carolina State House (District 25)",
+      "seat": "nc-statehouse-25",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave5.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "lorenza_wilkins",
+          "topic": "public_schools",
+          "source_type": "campaign platform page",
+          "url": "https://www.lorenzawilkinsfornc.com/about-3-1",
+          "curated_label": "Lorenza M Wilkins — Platform",
+          "curated": [
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Fund public schools"
+            },
+            {
+              "key": "econ_smallbiz",
+              "side": "support",
+              "pos": "support",
+              "topic": "Small business development"
+            },
+            {
+              "key": "health_mental",
+              "side": "support",
+              "pos": "support",
+              "topic": "Mental health crisis"
+            },
+            {
+              "key": "cost_living",
+              "side": "support",
+              "pos": "support",
+              "topic": "Affordability"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "winn_decker",
+      "name": "Winn Decker",
+      "office": "North Carolina State House (District 37)",
+      "seat": "nc-statehouse-37",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave5.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "winn_decker",
+          "topic": "public_schools",
+          "source_type": "campaign issues page",
+          "url": "https://winn4nc.com/",
+          "curated_label": "Winn Decker for North Carolina House District 37 — Winn on the issues",
+          "curated": [
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Public schools and teacher pay"
+            },
+            {
+              "key": "cost_living",
+              "side": "support",
+              "pos": "support",
+              "topic": "Utility rate hikes"
+            },
+            {
+              "key": "healthcare_costs",
+              "side": "support",
+              "pos": "support",
+              "topic": "Affordable health care"
+            },
+            {
+              "key": "property_tax",
+              "side": "support",
+              "pos": "support",
+              "topic": "Reduce property taxes"
+            },
+            {
+              "key": "infrastructure",
+              "side": "support",
+              "pos": "support",
+              "topic": "Infrastructure for growth"
+            },
+            {
+              "key": "back_police",
+              "side": "support",
+              "pos": "support",
+              "topic": "Fund first responders"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "ken_mccool",
+      "name": "Ken McCool",
+      "office": "North Carolina State House (District 105)",
+      "seat": "nc-statehouse-105",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave5.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "ken_mccool",
+          "topic": "school_choice",
+          "source_type": "campaign priorities page",
+          "url": "https://www.kenmccool.com/priorities",
+          "curated_label": "McCool for NC — Priorities",
+          "curated": [
+            {
+              "key": "school_choice",
+              "side": "oppose",
+              "pos": "oppose",
+              "topic": "Against unregulated vouchers"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Fully fund public schools"
+            },
+            {
+              "key": "gov_services",
+              "side": "support",
+              "pos": "support",
+              "topic": "Fund local services"
+            },
+            {
+              "key": "property_tax",
+              "side": "support",
+              "pos": "support",
+              "topic": "Ease property tax burden"
+            },
+            {
+              "key": "back_police",
+              "side": "support",
+              "pos": "support",
+              "topic": "First responders"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "laura_murvartian",
+      "name": "Laura Murvartian",
+      "office": "Georgia State Senate (District 48)",
+      "seat": "ga-statesenate-48",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave5.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "laura_murvartian",
+          "topic": "healthcare",
+          "source_type": "campaign priorities page",
+          "url": "https://www.lauramurvartian.com/priorities",
+          "curated_label": "Laura Murvartian — Priorities",
+          "curated": [
+            {
+              "key": "healthcare",
+              "side": "support",
+              "pos": "support",
+              "topic": "Expand Medicaid"
+            },
+            {
+              "key": "pro_choice",
+              "side": "support",
+              "pos": "support",
+              "topic": "No prosecution for care"
+            },
+            {
+              "key": "veterans",
+              "side": "support",
+              "pos": "support",
+              "topic": "Veterans' healthcare"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Teacher pay"
+            },
+            {
+              "key": "voting_access",
+              "side": "support",
+              "pos": "support",
+              "topic": "Remove barriers to voting"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "danielle_bell",
+      "name": "Danielle Bell",
+      "office": "Georgia State House (District 44)",
+      "seat": "ga-statehouse-44",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave5.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "danielle_bell",
+          "topic": "cost_living",
+          "source_type": "campaign issues page",
+          "url": "https://www.danielleforgeorgia.com/reduce-cost-of-living",
+          "curated_label": "Danielle for Georgia — Reducing the cost of living",
+          "curated": [
+            {
+              "key": "cost_living",
+              "side": "support",
+              "pos": "support",
+              "topic": "Reduce utility costs"
+            },
+            {
+              "key": "climate_action",
+              "side": "support",
+              "pos": "support",
+              "topic": "Community and balcony solar"
+            },
+            {
+              "key": "datacenter_power",
+              "side": "support",
+              "pos": "support",
+              "topic": "No data center cost shifting"
+            },
+            {
+              "key": "econ_workers",
+              "side": "support",
+              "pos": "support",
+              "topic": "A livable wage"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "adam_cleveland",
+      "name": "Adam Cleveland",
+      "office": "Georgia State House (District 48)",
+      "seat": "ga-statehouse-48",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave5.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "adam_cleveland",
+          "topic": "healthcare",
+          "source_type": "campaign priorities page",
+          "url": "https://www.adamcleveland.com/priorities",
+          "curated_label": "Adam Cleveland — Priorities",
+          "curated": [
+            {
+              "key": "healthcare",
+              "side": "support",
+              "pos": "support",
+              "topic": "Medicaid expansion"
+            },
+            {
+              "key": "pro_choice",
+              "side": "support",
+              "pos": "support",
+              "topic": "Medical decisions"
+            },
+            {
+              "key": "school_choice",
+              "side": "oppose",
+              "pos": "oppose",
+              "topic": "Public funds, public schools"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Raise teacher pay"
+            },
+            {
+              "key": "gun_safety",
+              "side": "support",
+              "pos": "support",
+              "topic": "Responsible gun laws"
+            },
+            {
+              "key": "housing_build",
+              "side": "support",
+              "pos": "support",
+              "topic": "More home inventory"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "beth_fuller",
+      "name": "Beth Fuller",
+      "office": "Georgia State House (District 53)",
+      "seat": "ga-statehouse-53",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave5.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "beth_fuller",
+          "topic": "pro_choice",
+          "source_type": "campaign priorities page",
+          "url": "https://www.bethfullerforgeorgia.com/policy-priorities",
+          "curated_label": "Beth Fuller for Georgia — Policy Priorities",
+          "curated": [
+            {
+              "key": "pro_choice",
+              "side": "support",
+              "pos": "support",
+              "topic": "Reproductive freedom"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Fully funded schools"
+            },
+            {
+              "key": "school_choice",
+              "side": "oppose",
+              "pos": "oppose",
+              "topic": "Public dollars, public schools"
+            },
+            {
+              "key": "gun_safety",
+              "side": "support",
+              "pos": "support",
+              "topic": "Safe storage and background checks"
+            },
+            {
+              "key": "housing_support",
+              "side": "support",
+              "pos": "support",
+              "topic": "Rein in corporate landlords"
+            },
+            {
+              "key": "datacenter_power",
+              "side": "support",
+              "pos": "support",
+              "topic": "Data centers pay for upgrades"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "michelle_kang",
+      "name": "Michelle Kang",
+      "office": "Georgia State House (District 99)",
+      "seat": "ga-statehouse-99",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave5.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "michelle_kang",
+          "topic": "gun_safety",
+          "source_type": "campaign platform page",
+          "url": "https://michellekangforga.com/2026-platform",
+          "curated_label": "Michelle Kang for Georgia House District 99 — Platform",
+          "curated": [
+            {
+              "key": "gun_safety",
+              "side": "support",
+              "pos": "support",
+              "topic": "Universal background checks"
+            },
+            {
+              "key": "housing_support",
+              "side": "support",
+              "pos": "support",
+              "topic": "Renter protections"
+            },
+            {
+              "key": "child_care",
+              "side": "support",
+              "pos": "support",
+              "topic": "Universal childcare"
+            },
+            {
+              "key": "healthcare",
+              "side": "support",
+              "pos": "support",
+              "topic": "Healthcare for all"
+            },
+            {
+              "key": "health_mental",
+              "side": "support",
+              "pos": "support",
+              "topic": "Mental healthcare"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "john_lowndes",
+      "name": "John Lowndes",
+      "office": "Florida State Senate (District 10)",
+      "seat": "fl-statesenate-10",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave5.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "john_lowndes",
+          "topic": "gov_transparency",
+          "source_type": "campaign priorities page",
+          "url": "https://www.johnlowndesforflorida.com/priorities",
+          "curated_label": "John Lowndes For Florida Senate — Priorities",
+          "curated": [
+            {
+              "key": "gov_transparency",
+              "side": "support",
+              "pos": "support",
+              "topic": "Crack down on corruption"
+            },
+            {
+              "key": "cost_living",
+              "side": "support",
+              "pos": "support",
+              "topic": "Property insurance relief"
+            },
+            {
+              "key": "lands_preserve",
+              "side": "support",
+              "pos": "support",
+              "topic": "Protect the rural boundary"
+            },
+            {
+              "key": "school_choice",
+              "side": "oppose",
+              "pos": "oppose",
+              "topic": "No diverting tax dollars"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Strengthen public education"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "eric_gray",
+      "name": "Eric Gray",
+      "office": "Florida State House (District 35)",
+      "seat": "fl-statehouse-35",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave5.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "eric_gray",
+          "topic": "housing_build",
+          "source_type": "campaign issues page",
+          "url": "https://www.ericgrayforflorida.com/issues/",
+          "curated_label": "Eric Gray for State Representative District 35 — Issues",
+          "curated": [
+            {
+              "key": "housing_build",
+              "side": "support",
+              "pos": "support",
+              "topic": "Zoning reform for housing"
+            },
+            {
+              "key": "transit",
+              "side": "support",
+              "pos": "support",
+              "topic": "Expand public transit"
+            },
+            {
+              "key": "infrastructure",
+              "side": "support",
+              "pos": "support",
+              "topic": "Improve roads"
+            },
+            {
+              "key": "water",
+              "side": "support",
+              "pos": "support",
+              "topic": "Phase out septic systems"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Teacher pay increases"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "lucia_baez_geller",
+      "name": "Lucia Báez-Geller",
+      "office": "Florida State House (District 106)",
+      "seat": "fl-statehouse-106",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave5.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "lucia_baez_geller",
+          "topic": "cost_living",
+          "source_type": "campaign issues page",
+          "url": "https://luciabaezgeller.com/",
+          "curated_label": "Lucia Báez-Geller — On The Issues",
+          "curated": [
+            {
+              "key": "cost_living",
+              "side": "support",
+              "pos": "support",
+              "topic": "Insurance and everyday costs"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Defend public education"
+            },
+            {
+              "key": "climate_action",
+              "side": "support",
+              "pos": "support",
+              "topic": "Take climate change seriously"
+            },
+            {
+              "key": "disaster_resilience",
+              "side": "support",
+              "pos": "support",
+              "topic": "Invest in resilience"
+            },
+            {
+              "key": "health_drug_prices",
+              "side": "support",
+              "pos": "support",
+              "topic": "Lower drug costs"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "joe_rand",
+      "name": "Joe Rand",
+      "office": "New York State Senate (District 38)",
+      "seat": "ny-statesenate-38",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave6.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "joe_rand",
+          "topic": "healthcare_costs",
+          "source_type": "campaign priorities page",
+          "url": "https://joerand.com/",
+          "curated_label": "Joe Rand For Rockland — Priorities",
+          "curated": [
+            {
+              "key": "healthcare_costs",
+              "side": "support",
+              "pos": "support",
+              "topic": "Lower healthcare costs"
+            },
+            {
+              "key": "cost_living",
+              "side": "support",
+              "pos": "support",
+              "topic": "Utility and housing costs"
+            },
+            {
+              "key": "infrastructure",
+              "side": "support",
+              "pos": "support",
+              "topic": "Infrastructure support from Albany"
+            },
+            {
+              "key": "transit",
+              "side": "support",
+              "pos": "support",
+              "topic": "Public transportation"
+            },
+            {
+              "key": "back_police",
+              "side": "support",
+              "pos": "support",
+              "topic": "Resources for law enforcement"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Invest in local schools"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "sarah_rogerson",
+      "name": "Sarah Rogerson",
+      "office": "New York State Senate (District 44)",
+      "seat": "ny-statesenate-44",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave6.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "sarah_rogerson",
+          "topic": "tax_middle_class",
+          "source_type": "campaign issues page",
+          "url": "https://www.sarahfornysenate.com/issues",
+          "curated_label": "Sarah Rogerson for NY Senate — Issues",
+          "curated": [
+            {
+              "key": "tax_middle_class",
+              "side": "support",
+              "pos": "support",
+              "topic": "Working families, fair share"
+            },
+            {
+              "key": "pro_choice",
+              "side": "support",
+              "pos": "support",
+              "topic": "Reproductive freedom"
+            },
+            {
+              "key": "healthcare",
+              "side": "support",
+              "pos": "support",
+              "topic": "New York Health Act"
+            },
+            {
+              "key": "climate_action",
+              "side": "support",
+              "pos": "support",
+              "topic": "Clean, affordable energy"
+            },
+            {
+              "key": "cost_living",
+              "side": "support",
+              "pos": "support",
+              "topic": "Lower utility bills"
+            },
+            {
+              "key": "back_police",
+              "side": "support",
+              "pos": "support",
+              "topic": "Support local law enforcement"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "chris_mccreight",
+      "name": "Chris McCreight",
+      "office": "New York State Assembly (District 46)",
+      "seat": "ny-statehouse-46",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave6.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "chris_mccreight",
+          "topic": "datacenter_power",
+          "source_type": "campaign issues page",
+          "url": "https://www.chrismccreight.com/issues",
+          "curated_label": "Chris McCreight — Issues",
+          "curated": [
+            {
+              "key": "datacenter_power",
+              "side": "support",
+              "pos": "support",
+              "topic": "No special deals for AI data centers"
+            },
+            {
+              "key": "tax_middle_class",
+              "side": "support",
+              "pos": "support",
+              "topic": "Middle-class tax cuts"
+            },
+            {
+              "key": "child_care",
+              "side": "support",
+              "pos": "support",
+              "topic": "Universal free childcare"
+            },
+            {
+              "key": "transit",
+              "side": "support",
+              "pos": "support",
+              "topic": "Bridge tolls for NYC transit"
+            },
+            {
+              "key": "justice_reform",
+              "side": "oppose",
+              "pos": "oppose",
+              "topic": "Against bail reform"
+            },
+            {
+              "key": "gun_safety",
+              "side": "support",
+              "pos": "support",
+              "topic": "Gun safety and red flag laws"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "chloe_pierce",
+      "name": "Chloe Pierce",
+      "office": "New York State Assembly (District 107)",
+      "seat": "ny-statehouse-107",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave6.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "chloe_pierce",
+          "topic": "cost_living",
+          "source_type": "campaign issues page",
+          "url": "https://www.chloepierce.com/",
+          "curated_label": "Chloe Pierce — Issues",
+          "curated": [
+            {
+              "key": "cost_living",
+              "side": "support",
+              "pos": "support",
+              "topic": "Stop utility cost increases"
+            },
+            {
+              "key": "housing",
+              "side": "support",
+              "pos": "support",
+              "topic": "Cost of housing"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Schools and vocational education"
+            },
+            {
+              "key": "child_care",
+              "side": "support",
+              "pos": "support",
+              "topic": "Access to childcare"
+            },
+            {
+              "key": "econ_smallbiz",
+              "side": "support",
+              "pos": "support",
+              "topic": "Small businesses and jobs"
+            },
+            {
+              "key": "lands_preserve",
+              "side": "support",
+              "pos": "support",
+              "topic": "Land preservation"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "megan_coy",
+      "name": "Megan Coy",
+      "office": "Ohio State House (District 17)",
+      "seat": "oh-statehouse-17",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave6.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "megan_coy",
+          "topic": "healthcare",
+          "source_type": "campaign issues page",
+          "url": "https://www.coyforohio.com/",
+          "curated_label": "Megan Coy for Ohio — Issues",
+          "curated": [
+            {
+              "key": "healthcare",
+              "side": "support",
+              "pos": "support",
+              "topic": "Universal health coverage"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Fair School Funding Plan"
+            },
+            {
+              "key": "property_tax",
+              "side": "support",
+              "pos": "support",
+              "topic": "Targeted property tax relief"
+            },
+            {
+              "key": "housing",
+              "side": "support",
+              "pos": "support",
+              "topic": "More affordable housing"
+            },
+            {
+              "key": "voting_access",
+              "side": "support",
+              "pos": "support",
+              "topic": "Make it easier to vote"
+            },
+            {
+              "key": "pro_choice",
+              "side": "support",
+              "pos": "support",
+              "topic": "Reproductive care"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "mark_pinsley",
+      "name": "Mark Pinsley",
+      "office": "Pennsylvania State Senate (District 16)",
+      "seat": "pa-statesenate-16",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave6.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "mark_pinsley",
+          "topic": "datacenter_growth",
+          "source_type": "campaign issues page",
+          "url": "https://votemarkpinsley.com/issues/",
+          "curated_label": "Mark Pinsley for PA Senate — The Issues",
+          "curated": [
+            {
+              "key": "datacenter_growth",
+              "side": "oppose",
+              "pos": "oppose",
+              "topic": "Data center moratorium"
+            },
+            {
+              "key": "health_drug_prices",
+              "side": "support",
+              "pos": "support",
+              "topic": "Lower drug prices"
+            },
+            {
+              "key": "pro_choice",
+              "side": "support",
+              "pos": "support",
+              "topic": "Reproductive freedom in law"
+            },
+            {
+              "key": "lgbtq_rights",
+              "side": "support",
+              "pos": "support",
+              "topic": "LGBTQ protections"
+            },
+            {
+              "key": "property_tax",
+              "side": "support",
+              "pos": "support",
+              "topic": "Cut property taxes"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Increase school funding"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "chris_thomas_pa",
+      "name": "Chris Thomas",
+      "office": "Pennsylvania State Senate (District 24)",
+      "seat": "pa-statesenate-24",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave6.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "chris_thomas_pa",
+          "topic": "campaign_finance",
+          "source_type": "campaign platform page",
+          "url": "https://christhomas.vote/platform",
+          "curated_label": "Chris Thomas for PA Senate — Platform",
+          "curated": [
+            {
+              "key": "campaign_finance",
+              "side": "support",
+              "pos": "support",
+              "topic": "No corporate PAC checks"
+            },
+            {
+              "key": "stock_trading_ban",
+              "side": "support",
+              "pos": "support",
+              "topic": "Ban legislator stock trading"
+            },
+            {
+              "key": "datacenter_power",
+              "side": "support",
+              "pos": "support",
+              "topic": "Data centers supply their own power"
+            },
+            {
+              "key": "healthcare_costs",
+              "side": "support",
+              "pos": "support",
+              "topic": "End surprise medical billing"
+            },
+            {
+              "key": "econ_workers",
+              "side": "support",
+              "pos": "support",
+              "topic": "Raise the minimum wage"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Quality education everywhere"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "bryan_allen",
+      "name": "Bryan Allen",
+      "office": "Pennsylvania State House (District 18)",
+      "seat": "pa-statehouse-18",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave6.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "bryan_allen",
+          "topic": "datacenter_power",
+          "source_type": "campaign platform page",
+          "url": "https://www.bryanallenforpa.com/issues",
+          "curated_label": "Bryan Allen for PA — Platform",
+          "curated": [
+            {
+              "key": "datacenter_power",
+              "side": "support",
+              "pos": "support",
+              "topic": "Data centers and rate hikes"
+            },
+            {
+              "key": "climate_action",
+              "side": "support",
+              "pos": "support",
+              "topic": "Clean energy"
+            },
+            {
+              "key": "econ_workers",
+              "side": "support",
+              "pos": "support",
+              "topic": "A living wage"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "High-quality education"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "jeff_warren_pa",
+      "name": "Jeff Warren",
+      "office": "Pennsylvania State House (District 137)",
+      "seat": "pa-statehouse-137",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave6.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "jeff_warren_pa",
+          "topic": "public_schools",
+          "source_type": "campaign issues page",
+          "url": "https://www.jeffwarrenforpa.com/issues",
+          "curated_label": "Jeff Warren for PA — Issues",
+          "curated": [
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "State funding for schools"
+            },
+            {
+              "key": "lands_preserve",
+              "side": "support",
+              "pos": "support",
+              "topic": "Preserve farmland and open space"
+            },
+            {
+              "key": "back_police",
+              "side": "support",
+              "pos": "support",
+              "topic": "Police, fire and EMS funding"
+            },
+            {
+              "key": "econ_corp_account",
+              "side": "support",
+              "pos": "support",
+              "topic": "Hold price-gougers accountable"
+            },
+            {
+              "key": "housing",
+              "side": "support",
+              "pos": "support",
+              "topic": "More attainable housing"
+            },
+            {
+              "key": "econ_workers",
+              "side": "support",
+              "pos": "support",
+              "topic": "Union rights"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "kristin_egan",
+      "name": "Kristin Egan",
+      "office": "Pennsylvania State House (District 142)",
+      "seat": "pa-statehouse-142",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave6.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "kristin_egan",
+          "topic": "cost_living",
+          "source_type": "campaign priorities page",
+          "url": "https://www.kristineganforpa.com/priorities",
+          "curated_label": "Kristin Egan for PA State Representative — Priorities",
+          "curated": [
+            {
+              "key": "cost_living",
+              "side": "support",
+              "pos": "support",
+              "topic": "Lower everyday costs"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Strong public schools"
+            },
+            {
+              "key": "infrastructure",
+              "side": "support",
+              "pos": "support",
+              "topic": "Invest in infrastructure"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "elizabeth_moro",
+      "name": "Elizabeth Moro",
+      "office": "Pennsylvania State House (District 160)",
+      "seat": "pa-statehouse-160",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave6.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "elizabeth_moro",
+          "topic": "health_drug_prices",
+          "source_type": "campaign issues page",
+          "url": "https://elizabethmoro.com/issues/",
+          "curated_label": "Elizabeth Moro — Issues",
+          "curated": [
+            {
+              "key": "health_drug_prices",
+              "side": "support",
+              "pos": "support",
+              "topic": "Lower prescription drug costs"
+            },
+            {
+              "key": "health_mental",
+              "side": "support",
+              "pos": "support",
+              "topic": "Insurers cover mental health"
+            },
+            {
+              "key": "datacenter_power",
+              "side": "support",
+              "pos": "support",
+              "topic": "Data centers and the grid"
+            },
+            {
+              "key": "property_tax",
+              "side": "support",
+              "pos": "support",
+              "topic": "Property tax relief"
+            },
+            {
+              "key": "child_care",
+              "side": "support",
+              "pos": "support",
+              "topic": "Accessible childcare"
+            },
+            {
+              "key": "gun_safety",
+              "side": "support",
+              "pos": "support",
+              "topic": "Guns out of schools"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "stephanie_guerrero_saenz",
+      "name": "Stephanie Guerrero Sáenz",
+      "office": "Texas State House (District 34)",
+      "seat": "tx-statehouse-34",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave6.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "stephanie_guerrero_saenz",
+          "topic": "public_schools",
+          "source_type": "campaign issues page",
+          "url": "https://www.stephanie4texas.com/",
+          "curated_label": "Stephanie Guerrero Sáenz for HD 34 — Issues",
+          "curated": [
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Stronger public schools"
+            },
+            {
+              "key": "health_drug_prices",
+              "side": "support",
+              "pos": "support",
+              "topic": "Lower prescription drug costs"
+            },
+            {
+              "key": "healthcare",
+              "side": "support",
+              "pos": "support",
+              "topic": "Expand affordable healthcare"
+            },
+            {
+              "key": "econ_workers",
+              "side": "support",
+              "pos": "support",
+              "topic": "Wages and the right to organize"
+            },
+            {
+              "key": "water",
+              "side": "support",
+              "pos": "support",
+              "topic": "Water security"
+            },
+            {
+              "key": "lands_preserve",
+              "side": "support",
+              "pos": "support",
+              "topic": "Protect bays and waterways"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "oziel_ochoa",
+      "name": "Oziel Ochoa Jr.",
+      "office": "Texas State House (District 37)",
+      "seat": "tx-statehouse-37",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave6.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "oziel_ochoa",
+          "topic": "property_tax",
+          "source_type": "campaign priorities page",
+          "url": "https://www.ochoafortx37.com/issues",
+          "curated_label": "Oziel Ochoa Jr. — Priorities",
+          "curated": [
+            {
+              "key": "property_tax",
+              "side": "support",
+              "pos": "support",
+              "topic": "Bigger homestead exemption"
+            },
+            {
+              "key": "econ_workers",
+              "side": "support",
+              "pos": "support",
+              "topic": "$15 minimum wage"
+            },
+            {
+              "key": "healthcare",
+              "side": "support",
+              "pos": "support",
+              "topic": "Expand Medicaid"
+            },
+            {
+              "key": "health_mental",
+              "side": "support",
+              "pos": "support",
+              "topic": "Mental health services"
+            },
+            {
+              "key": "school_choice",
+              "side": "oppose",
+              "pos": "oppose",
+              "topic": "Against vouchers"
+            },
+            {
+              "key": "infrastructure",
+              "side": "support",
+              "pos": "support",
+              "topic": "Roads, drainage and water"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "chris_jimenez",
+      "name": "Chris Jimenez",
+      "office": "Texas State House (District 52)",
+      "seat": "tx-statehouse-52",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave6.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "chris_jimenez",
+          "topic": "property_tax",
+          "source_type": "campaign priorities page",
+          "url": "https://chrisjimenezforhd52.com/priorities",
+          "curated_label": "Chris Jimenez for Texas House District 52 — Priorities",
+          "curated": [
+            {
+              "key": "property_tax",
+              "side": "support",
+              "pos": "support",
+              "topic": "Lower property taxes"
+            },
+            {
+              "key": "school_choice",
+              "side": "oppose",
+              "pos": "oppose",
+              "topic": "Repeal private school vouchers"
+            },
+            {
+              "key": "housing_build",
+              "side": "support",
+              "pos": "support",
+              "topic": "More housing supply"
+            },
+            {
+              "key": "healthcare",
+              "side": "support",
+              "pos": "support",
+              "topic": "Expand Medicaid"
+            },
+            {
+              "key": "back_police",
+              "side": "support",
+              "pos": "support",
+              "topic": "Support first responders"
+            },
+            {
+              "key": "datacenter_water",
+              "side": "support",
+              "pos": "support",
+              "topic": "Data center water disclosure"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "zack_dunn",
+      "name": "Zack Dunn",
+      "office": "Texas State House (District 121)",
+      "seat": "tx-statehouse-121",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave6.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "zack_dunn",
+          "topic": "veterans",
+          "source_type": "campaign issues page",
+          "url": "https://zackdunn.com/",
+          "curated_label": "Zack Dunn — Issues",
+          "curated": [
+            {
+              "key": "veterans",
+              "side": "support",
+              "pos": "support",
+              "topic": "Veterans' healthcare"
+            },
+            {
+              "key": "back_police",
+              "side": "support",
+              "pos": "support",
+              "topic": "Police, fire and EMS resources"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Fund public schools"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "tyler_smith",
+      "name": "Tyler Smith",
+      "office": "Texas State House (District 138)",
+      "seat": "tx-statehouse-138",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave6.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "tyler_smith",
+          "topic": "housing_build",
+          "source_type": "campaign priorities page",
+          "url": "https://tylerfortx.com/what-im-fighting-for/",
+          "curated_label": "Tyler Smith Campaign — What I'm Fighting For",
+          "curated": [
+            {
+              "key": "housing_build",
+              "side": "support",
+              "pos": "support",
+              "topic": "Affordable housing construction"
+            },
+            {
+              "key": "housing_first_time",
+              "side": "support",
+              "pos": "support",
+              "topic": "First-time buyer help"
+            },
+            {
+              "key": "healthcare",
+              "side": "support",
+              "pos": "support",
+              "topic": "Medicaid expansion"
+            },
+            {
+              "key": "datacenter_power",
+              "side": "support",
+              "pos": "support",
+              "topic": "Data centers and the grid"
+            },
+            {
+              "key": "climate_action",
+              "side": "support",
+              "pos": "support",
+              "topic": "Renewable energy"
+            },
+            {
+              "key": "school_choice",
+              "side": "oppose",
+              "pos": "oppose",
+              "topic": "Against the voucher program"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "amelia_gallitano",
+      "name": "Amelia Gallitano",
+      "office": "Arizona State Senate (District 2)",
+      "seat": "az-statesenate-2",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave7.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "amelia_gallitano",
+          "topic": "cost_living",
+          "source_type": "campaign priorities page",
+          "url": "https://www.ameliaforaz.com/amelias-priorities",
+          "curated_label": "Dr. Amelia Gallitano For Arizona — Priorities",
+          "curated": [
+            {
+              "key": "cost_living",
+              "side": "support",
+              "pos": "support",
+              "topic": "Utility rate hikes"
+            },
+            {
+              "key": "healthcare_costs",
+              "side": "support",
+              "pos": "support",
+              "topic": "Lower health and drug costs"
+            },
+            {
+              "key": "housing_build",
+              "side": "support",
+              "pos": "support",
+              "topic": "Address the housing shortage"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Fully fund public schools"
+            },
+            {
+              "key": "healthcare",
+              "side": "support",
+              "pos": "support",
+              "topic": "Affordable, accessible care"
+            },
+            {
+              "key": "water",
+              "side": "support",
+              "pos": "support",
+              "topic": "Science-based water policy"
+            },
+            {
+              "key": "justice_balance",
+              "side": "support",
+              "pos": "support",
+              "topic": "Prevention and law enforcement"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "amy_slavensky",
+      "name": "Amy Slavensky",
+      "office": "California State Assembly (District 7)",
+      "seat": "ca-statehouse-7",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave7.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "amy_slavensky",
+          "topic": "cost_living",
+          "source_type": "campaign issues page",
+          "url": "https://www.amyslavensky.com/",
+          "curated_label": "Amy Slavensky for Assembly 2026 — What I Stand For",
+          "curated": [
+            {
+              "key": "cost_living",
+              "side": "support",
+              "pos": "support",
+              "topic": "Lower food and gas costs"
+            },
+            {
+              "key": "child_care",
+              "side": "support",
+              "pos": "support",
+              "topic": "Universal affordable childcare"
+            },
+            {
+              "key": "housing_build",
+              "side": "support",
+              "pos": "support",
+              "topic": "Cut housing red tape"
+            },
+            {
+              "key": "housing_support",
+              "side": "support",
+              "pos": "support",
+              "topic": "Rental subsidies"
+            },
+            {
+              "key": "healthcare_costs",
+              "side": "support",
+              "pos": "support",
+              "topic": "No medical bankruptcy"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Pay teachers what they deserve"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "ida_obeso_martinez",
+      "name": "Ida Obeso-Martinez",
+      "office": "California State Assembly (District 36)",
+      "seat": "ca-statehouse-36",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave7.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "ida_obeso_martinez",
+          "topic": "cost_living",
+          "source_type": "campaign issues page",
+          "url": "https://idaforassembly.com/issues",
+          "curated_label": "Ida for Assembly — Issues",
+          "curated": [
+            {
+              "key": "cost_living",
+              "side": "support",
+              "pos": "support",
+              "topic": "Lower the cost of living"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Strong public schools"
+            },
+            {
+              "key": "healthcare",
+              "side": "support",
+              "pos": "support",
+              "topic": "Affordable healthcare access"
+            },
+            {
+              "key": "health_drug_prices",
+              "side": "support",
+              "pos": "support",
+              "topic": "Lower drug costs"
+            },
+            {
+              "key": "infrastructure",
+              "side": "support",
+              "pos": "support",
+              "topic": "Modern infrastructure"
+            },
+            {
+              "key": "justice_balance",
+              "side": "support",
+              "pos": "support",
+              "topic": "Crime prevention"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "leila_namvar",
+      "name": "Leila Namvar",
+      "office": "California State Assembly (District 47)",
+      "seat": "ca-statehouse-47",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave7.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "leila_namvar",
+          "topic": "cost_living",
+          "source_type": "campaign issues page",
+          "url": "https://www.leilanamvar.com/issues",
+          "curated_label": "Leila Namvar for Assembly District 47 — Issues",
+          "curated": [
+            {
+              "key": "cost_living",
+              "side": "support",
+              "pos": "support",
+              "topic": "Lower everyday costs"
+            },
+            {
+              "key": "healthcare_costs",
+              "side": "support",
+              "pos": "support",
+              "topic": "Lower healthcare costs"
+            },
+            {
+              "key": "housing_build",
+              "side": "support",
+              "pos": "support",
+              "topic": "Cut housing red tape"
+            },
+            {
+              "key": "housing_support",
+              "side": "support",
+              "pos": "support",
+              "topic": "Renting and owning within reach"
+            },
+            {
+              "key": "econ_corp_account",
+              "side": "support",
+              "pos": "support",
+              "topic": "Take on special interests"
+            },
+            {
+              "key": "pro_choice",
+              "side": "support",
+              "pos": "support",
+              "topic": "Protect abortion rights"
+            },
+            {
+              "key": "datacenter_power",
+              "side": "support",
+              "pos": "support",
+              "topic": "Data centers pay their costs"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "ben_christly",
+      "name": "Ben Christly",
+      "office": "Washington State House (District 17, Position 1)",
+      "seat": "wa-statehouse-17-p1",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11-wave7.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "ben_christly",
+          "topic": "public_schools",
+          "source_type": "campaign issues page",
+          "url": "https://www.electbenchristly.com/values",
+          "curated_label": "Elect Ben Christly — My Values",
+          "curated": [
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Fully fund public schools"
+            },
+            {
+              "key": "edu_college_cost",
+              "side": "support",
+              "pos": "support",
+              "topic": "Trade schools without debt"
+            },
+            {
+              "key": "healthcare",
+              "side": "support",
+              "pos": "support",
+              "topic": "Affordable care in every corner"
+            },
+            {
+              "key": "cost_living",
+              "side": "support",
+              "pos": "support",
+              "topic": "Make Washington affordable"
+            },
+            {
+              "key": "econ_smallbiz",
+              "side": "support",
+              "pos": "support",
+              "topic": "Small-business-friendly state"
+            },
+            {
+              "key": "tax_middle_class",
+              "side": "support",
+              "pos": "support",
+              "topic": "Fair share of the tax burden"
+            },
+            {
+              "key": "housing",
+              "side": "support",
+              "pos": "support",
+              "topic": "Housing that stabilizes costs"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "theresa_brooks",
+      "name": "Theresa Brooks",
+      "office": "Michigan State Senate (District 9)",
+      "seat": "mi-statesenate-9",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "theresa_brooks",
+          "topic": "healthcare",
+          "source_type": "campaign priorities page",
+          "url": "https://www.drbrooksforsenate.com/issues",
+          "curated_label": "Dr. Theresa Brooks for Senate — Priorities",
+          "curated": [
+            {
+              "key": "healthcare",
+              "side": "support",
+              "pos": "support",
+              "topic": "Protect Access to Health Care"
+            },
+            {
+              "key": "health_drug_prices",
+              "side": "support",
+              "pos": "support",
+              "topic": "Prescription Costs"
+            },
+            {
+              "key": "child_care",
+              "side": "support",
+              "pos": "support",
+              "topic": "Child Care Costs"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Strong Schools"
+            },
+            {
+              "key": "pro_choice",
+              "side": "support",
+              "pos": "support",
+              "topic": "Reproductive Health"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "jaime_churches",
+      "name": "Jaime Churches",
+      "office": "Michigan State House (District 27)",
+      "seat": "mi-statehouse-27",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "jaime_churches",
+          "topic": "infrastructure",
+          "source_type": "campaign priorities page",
+          "url": "https://www.jaimechurches.com/priorities",
+          "curated_label": "Jaime Churches for State Representative — Priorities",
+          "curated": [
+            {
+              "key": "infrastructure",
+              "side": "support",
+              "pos": "support",
+              "topic": "Roads, Bridges and Rail"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Elevate Education"
+            },
+            {
+              "key": "econ_workers",
+              "side": "support",
+              "pos": "support",
+              "topic": "Higher Pay and Bargaining"
+            },
+            {
+              "key": "econ_smallbiz",
+              "side": "support",
+              "pos": "support",
+              "topic": "Support Small Businesses"
+            },
+            {
+              "key": "pro_choice",
+              "side": "support",
+              "pos": "support",
+              "topic": "Right to Choose"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "jan_maino",
+      "name": "Jan Maino",
+      "office": "Michigan State House (District 46)",
+      "seat": "mi-statehouse-46",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "jan_maino",
+          "topic": "cost_living",
+          "source_type": "campaign priorities page",
+          "url": "https://mainoformichigan.com/priorities/",
+          "curated_label": "Jan Maino for Michigan — Priorities",
+          "curated": [
+            {
+              "key": "cost_living",
+              "side": "support",
+              "pos": "support",
+              "topic": "Lowering the Cost of Living"
+            },
+            {
+              "key": "housing_support",
+              "side": "support",
+              "pos": "support",
+              "topic": "Affordable Housing"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Investing in Public Schools"
+            },
+            {
+              "key": "econ_workers",
+              "side": "support",
+              "pos": "support",
+              "topic": "Good Paying Jobs"
+            },
+            {
+              "key": "health_mental",
+              "side": "support",
+              "pos": "support",
+              "topic": "Mental Health Care"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "alex_hawkins",
+      "name": "Alex Hawkins",
+      "office": "Michigan State House (District 55)",
+      "seat": "mi-statehouse-55",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "alex_hawkins",
+          "topic": "public_schools",
+          "source_type": "campaign issues page",
+          "url": "https://www.alexhawkins.org/issues",
+          "curated_label": "Alex Hawkins for State Representative — The Issues",
+          "curated": [
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Strong Schools"
+            },
+            {
+              "key": "health_mental",
+              "side": "support",
+              "pos": "support",
+              "topic": "Safe, Healthy Communities"
+            },
+            {
+              "key": "cost_living",
+              "side": "support",
+              "pos": "support",
+              "topic": "Lower Everyday Costs"
+            },
+            {
+              "key": "gov_transparency",
+              "side": "support",
+              "pos": "support",
+              "topic": "Government Accountability"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "joseph_mcclusky",
+      "name": "Joseph McClusky",
+      "office": "Michigan State House (District 86)",
+      "seat": "mi-statehouse-86",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "joseph_mcclusky",
+          "topic": "housing_support",
+          "source_type": "campaign platform page",
+          "url": "https://www.mccluskyformi.com/platform",
+          "curated_label": "Joseph McClusky for State Representative — Platform",
+          "curated": [
+            {
+              "key": "housing_support",
+              "side": "support",
+              "pos": "support",
+              "topic": "Affordable Housing"
+            },
+            {
+              "key": "healthcare_costs",
+              "side": "support",
+              "pos": "support",
+              "topic": "Lower Healthcare Costs"
+            },
+            {
+              "key": "econ_workers",
+              "side": "support",
+              "pos": "support",
+              "topic": "Prevailing Wage"
+            },
+            {
+              "key": "campaign_finance",
+              "side": "support",
+              "pos": "support",
+              "topic": "No Corporate PAC Money"
+            },
+            {
+              "key": "gov_transparency",
+              "side": "support",
+              "pos": "support",
+              "topic": "Open Records for Lansing"
+            },
+            {
+              "key": "transit",
+              "side": "support",
+              "pos": "support",
+              "topic": "Passenger Rail"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "politician_id": "sarah_pounds",
+      "name": "Sarah Pounds",
+      "office": "Michigan State House (District 54)",
+      "seat": "mi-statehouse-54",
+      "curated_in": [
+        "newly-elected-state-legislative-stated-2026-11.json"
+      ],
+      "sources": [
+        {
+          "politician_id": "sarah_pounds",
+          "topic": "cost_living",
+          "source_type": "campaign priorities page",
+          "url": "https://www.electsarahpounds.com/priorities",
+          "curated_label": "Elect Sarah Pounds — Priorities",
+          "curated": [
+            {
+              "key": "cost_living",
+              "side": "support",
+              "pos": "support",
+              "topic": "Making Life More Affordable"
+            },
+            {
+              "key": "housing_support",
+              "side": "support",
+              "pos": "support",
+              "topic": "Housing People Can Afford"
+            },
+            {
+              "key": "public_schools",
+              "side": "support",
+              "pos": "support",
+              "topic": "Strong Public Schools"
+            },
+            {
+              "key": "econ_workers",
+              "side": "support",
+              "pos": "support",
+              "topic": "Good Jobs"
+            },
+            {
+              "key": "healthcare_costs",
+              "side": "support",
+              "pos": "support",
+              "topic": "Healthcare People Can Afford"
+            },
+            {
+              "key": "pro_choice",
+              "side": "support",
+              "pos": "support",
+              "topic": "Reproductive Freedom"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
