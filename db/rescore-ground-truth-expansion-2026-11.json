@@ -4,8 +4,8 @@
   "vocab_version": "issue-vocab-v2-directional",
   "confidence_tolerance": 0.1,
   "summary": {
-    "records": 18,
-    "scorer_agrees_on_position": 7,
+    "records": 47,
+    "scorer_agrees_on_position": 21,
     "verdicts": {
       "owens|ukraine_aid|gt-007": "support → no clear position (disagrees)",
       "rick_crawford|ukraine_aid|gt-008": "mixed → support (disagrees)",
@@ -24,7 +24,36 @@
       "khanna|cut_spending|gt-021": "mixed → support (disagrees)",
       "jayapal|healthcare|gt-022": "support → support (agrees)",
       "maxine_waters|healthcare|gt-023": "support → no clear position (disagrees)",
-      "jason_smith|cut_spending|gt-024": "support → support (agrees)"
+      "jason_smith|cut_spending|gt-024": "support → support (agrees)",
+      "heinrich|climate_action|gt-025": "support → support (agrees)",
+      "lujan|climate_action|gt-026": "support → support (agrees)",
+      "hickenlooper|climate_action|gt-027": "support → no clear position (disagrees)",
+      "robert_garcia|climate_action|gt-028": "support → support (agrees on position, confidence outside tolerance)",
+      "boebert|gun_safety|gt-029": "oppose → support (disagrees)",
+      "scalise|gun_safety|gt-030": "oppose → no clear position (disagrees)",
+      "fitzpatrick|gun_safety|gt-031": "support → support (agrees)",
+      "steve_womack|gun_safety|gt-032": "oppose → no clear position (disagrees)",
+      "dina_titus|pro_choice|gt-033": "support → support (agrees)",
+      "diana_degette|pro_choice|gt-034": "support → no clear position (disagrees)",
+      "mike_flood|pro_choice|gt-035": "oppose → no clear position (disagrees)",
+      "mike_simpson|pro_choice|gt-036": "oppose → oppose (agrees)",
+      "emmer|voting_access|gt-037": "oppose → no clear position (disagrees)",
+      "stephanie_bice|voting_access|gt-038": "oppose → no clear position (disagrees)",
+      "tom_cole|voting_access|gt-039": "oppose → no clear position (disagrees)",
+      "adam_smith|voting_access|gt-040": "support → support (agrees)",
+      "haley_stevens|voting_access|gt-041": "support → support (agrees)",
+      "marie_gluesenkamp_perez|voting_access|gt-042": "mixed → no clear position (disagrees)",
+      "aguilar|housing|gt-043": "support → support (agrees)",
+      "ayanna_pressley|housing|gt-044": "support → support (agrees)",
+      "delia_ramirez|housing|gt-045": "support → no clear position (disagrees)",
+      "jared_golden|econ_workers|gt-046": "support → support (agrees)",
+      "brendan_boyle|econ_workers|gt-047": "support → support (agrees)",
+      "casar|econ_workers|gt-048": "support → mixed (disagrees)",
+      "bobby_scott|justice_reform|gt-049": "support → support (agrees)",
+      "nadler|justice_reform|gt-050": "support → support (agrees)",
+      "walberg|econ_trade|gt-051": "support → no clear position (disagrees)",
+      "neal|econ_trade|gt-052": "support → no clear position (disagrees)",
+      "steven_horsford|econ_trade|gt-053": "support → no clear position (disagrees)"
     }
   },
   "records": [
@@ -595,6 +624,932 @@
           "statements": [
             "support (clear): These reforms not only help lift more families out of poverty and grow our economy but were also a part of our reforms to rein in spending."
           ]
+        }
+      ]
+    },
+    {
+      "stance_id": "heinrich|climate_action|gt-025",
+      "politician_id": "heinrich",
+      "topic": "climate_action",
+      "human": {
+        "position": "support",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): To power these new electrified machines, and to meet our carbon emission goals, America must also modernize our electricity grid, build much more clean energy generation, and continue on the path towards decarbonizing the entire electricity sector by 2035.”"
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: heinrich|climate_action position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.8, Δ=+0.00 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2021-05-18",
+          "link": "https://www.heinrich.senate.gov/newsroom/press-releases/heinrich-leads-colleagues-in-introducing-electrifying-americas-future-resolution",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): To power these new electrified machines, and to meet our carbon emission goals, America must also modernize our electricity grid, build much more clean energy generation, and continue on the path towards decarbonizing the entire electricity sector by 2035.”"
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "lujan|climate_action|gt-026",
+      "politician_id": "lujan",
+      "topic": "climate_action",
+      "human": {
+        "position": "support",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.95,
+        "reason": "3 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); ≥3 consistent raise confidence (R4); 1 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): Washington, D.C. – Today, U.S. Senator Ben Ray Luján (D-N.M.) reintroduced the Community Solar Consumer Choice Act, legislation that would support community solar projects and expand access to solar energy across the country, regardless of one’s income or ability to host a solar system on their r…",
+          "support (clear): “I’m proud to reintroduce the Community Solar Consumer Choice Act to expand access to solar power through community solar projects for all Americans and create more good-paying, clean energy jobs.",
+          "support (clear): This bill is a step forward in combating the climate crisis, and I look forward to working with Representative Castor to get this bill passed.”"
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: lujan|climate_action position MATCH (candidate support, ground truth support); confidence 0.95 vs 0.85, Δ=+0.10 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2025-06-26",
+          "link": "https://www.lujan.senate.gov/newsroom/press-releases/as-congressional-republicans-take-an-axe-to-clean-energy-lujan-reintroduces-commonsense-legislation-to-expand-access-to-solar-energy-for-families-and-businesses/",
+          "position": "support",
+          "confidence": 0.95,
+          "reason": "3 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); ≥3 consistent raise confidence (R4); 1 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): Washington, D.C. – Today, U.S. Senator Ben Ray Luján (D-N.M.) reintroduced the Community Solar Consumer Choice Act, legislation that would support community solar projects and expand access to solar energy across the country, regardless of one’s income or ability to host a solar system on their r…",
+            "support (clear): “I’m proud to reintroduce the Community Solar Consumer Choice Act to expand access to solar power through community solar projects for all Americans and create more good-paying, clean energy jobs.",
+            "support (clear): This bill is a step forward in combating the climate crisis, and I look forward to working with Representative Castor to get this bill passed.”"
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "hickenlooper|climate_action|gt-027",
+      "politician_id": "hickenlooper",
+      "topic": "climate_action",
+      "human": {
+        "position": "support",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "2 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: hickenlooper|climate_action position MISMATCH (candidate no clear position, ground truth support); confidence 0.3 vs 0.85, Δ=-0.55 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2022-08-16",
+          "link": "https://www.hickenlooper.senate.gov/press_releases/hickenlooper-this-begins-the-great-transition/",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "2 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "robert_garcia|climate_action|gt-028",
+      "politician_id": "robert_garcia",
+      "topic": "climate_action",
+      "human": {
+        "position": "support",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.95,
+        "reason": "3 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); ≥3 consistent raise confidence (R4)",
+        "statements": [
+          "support (clear): Congressman Garcia is proud to support the Green New Deal and expand our investment in the jobs and technology of the future.",
+          "support (clear): He knows that climate change is an existential threat to the safety and wellbeing of the entire global community—and that we must push to reduce our emissions and dependence on fossil fuels.",
+          "support (clear): This bill establishes a path to eliminate greenhouse gas emissions from large ships that come to U.S. ports, protecting the health of port communities and addressing the environmental and climate impacts of shipping pollution."
+        ]
+      },
+      "verdict": "agrees on position, confidence outside tolerance",
+      "scorer_agrees": true,
+      "note": "stance-score: robert_garcia|climate_action position MATCH (candidate support, ground truth support); confidence 0.95 vs 0.8, Δ=+0.15 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official issue page",
+          "link": "https://robertgarcia.house.gov/issues/reducing-emissions-through-green-jobs-and-technology",
+          "position": "support",
+          "confidence": 0.85,
+          "reason": "3 clear medium-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); ≥3 consistent raise confidence (R4)",
+          "statements": [
+            "support (clear): Congressman Garcia is proud to support the Green New Deal and expand our investment in the jobs and technology of the future.",
+            "support (clear): He knows that climate change is an existential threat to the safety and wellbeing of the entire global community—and that we must push to reduce our emissions and dependence on fossil fuels.",
+            "support (clear): This bill establishes a path to eliminate greenhouse gas emissions from large ships that come to U.S. ports, protecting the health of port communities and addressing the environmental and climate impacts of shipping pollution."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "boebert|gun_safety|gt-029",
+      "politician_id": "boebert",
+      "topic": "gun_safety",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.7,
+        "reason": "1 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (implication): Rep. Lauren Boebert stated, “The so-called ‘Bipartisan Safer Communities Act’ tramples on the constitutional rights of law-abiding citizens and will have no significant impact in stopping mass shootings and deterring gun violence."
+        ]
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: boebert|gun_safety position MISMATCH (candidate support, ground truth oppose); confidence 0.7 vs 0.85, Δ=-0.15 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2022-07-14",
+          "link": "https://boebert.house.gov/media/press-releases/rep-boebert-introduces-bill-repeal-rino-gun-grab",
+          "position": "support",
+          "confidence": 0.7,
+          "reason": "1 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (implication): Rep. Lauren Boebert stated, “The so-called ‘Bipartisan Safer Communities Act’ tramples on the constitutional rights of law-abiding citizens and will have no significant impact in stopping mass shootings and deterring gun violence."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "scalise|gun_safety|gt-030",
+      "politician_id": "scalise",
+      "topic": "gun_safety",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "1 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: scalise|gun_safety position MISMATCH (candidate no clear position, ground truth oppose); confidence 0.3 vs 0.8, Δ=-0.50 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release (quoting television interview)",
+          "date": "2019-03-27",
+          "link": "https://scalise.house.gov/media/press-releases/scalise-democrat-gun-control-legislation-makes-criminals-law-abiding-americans",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "1 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "fitzpatrick|gun_safety|gt-031",
+      "politician_id": "fitzpatrick",
+      "topic": "gun_safety",
+      "human": {
+        "position": "support",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): “All options must be on the table, including comprehensive background checks, a bump stock ban, prohibiting the sale of military assault weapons and full funding for gun violence research in a comprehensive manner that could have prevented tragedies like this."
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: fitzpatrick|gun_safety position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.8, Δ=+0.00 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2018-02-27",
+          "link": "https://fitzpatrick.house.gov/media-center/press-releases/fitzpatrick-takes-leadership-role-addressing-gun-violence-community",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): “All options must be on the table, including comprehensive background checks, a bump stock ban, prohibiting the sale of military assault weapons and full funding for gun violence research in a comprehensive manner that could have prevented tragedies like this."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "steve_womack|gun_safety|gt-032",
+      "politician_id": "steve_womack",
+      "topic": "gun_safety",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.75
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0,
+        "reason": "topic not found in source",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: steve_womack|gun_safety position MISMATCH (candidate no clear position, ground truth oppose); confidence 0 vs 0.75, Δ=-0.75 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2022-06-08",
+          "link": "https://womack.house.gov/news/documentsingle.aspx?DocumentID=405523",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "dina_titus|pro_choice|gt-033",
+      "politician_id": "dina_titus",
+      "topic": "pro_choice",
+      "human": {
+        "position": "support",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): Washington, D.C. – Today Representative Dina Titus of Nevada’s First Congressional District voted to pass H.R. 3755, the Women’s Health Protection Act, legislation she cosponsored to defend women’s constitutional right to reproductive health care.",
+          "support (clear): “Today Democrats in the House passed the Women’s Health Protection Act, legislation I cosponsored which codifies the constitutional right to an abortion found in Roe v."
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: dina_titus|pro_choice position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.85, Δ=-0.05 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2021-09-24",
+          "link": "https://titus.house.gov/news/documentsingle.aspx?DocumentID=3138",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): Washington, D.C. – Today Representative Dina Titus of Nevada’s First Congressional District voted to pass H.R. 3755, the Women’s Health Protection Act, legislation she cosponsored to defend women’s constitutional right to reproductive health care.",
+            "support (clear): “Today Democrats in the House passed the Women’s Health Protection Act, legislation I cosponsored which codifies the constitutional right to an abortion found in Roe v."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "diana_degette|pro_choice|gt-034",
+      "politician_id": "diana_degette",
+      "topic": "pro_choice",
+      "human": {
+        "position": "support",
+        "confidence": 0.75
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "2 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: diana_degette|pro_choice position MISMATCH (candidate no clear position, ground truth support); confidence 0.3 vs 0.75, Δ=-0.45 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2021-09-24",
+          "link": "https://degette.house.gov/media-center/press-releases/house-moves-guarantee-all-americans-access-abortion-care",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "2 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "mike_flood|pro_choice|gt-035",
+      "politician_id": "mike_flood",
+      "topic": "pro_choice",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "3 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: mike_flood|pro_choice position MISMATCH (candidate no clear position, ground truth oppose); confidence 0.3 vs 0.8, Δ=-0.50 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2025-01-23",
+          "link": "https://flood.house.gov/media/press-releases/congressman-flood-votes-commonsense-born-alive-abortion-survivors-protection",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "3 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "mike_simpson|pro_choice|gt-036",
+      "politician_id": "mike_simpson",
+      "topic": "pro_choice",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "oppose",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); 3 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "oppose (clear): This bill would prevent all federal funds from being used to pay for abortion or health benefits that include abortion."
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: mike_simpson|pro_choice position MATCH (candidate oppose, ground truth oppose); confidence 0.8 vs 0.85, Δ=-0.05 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2025-01-23",
+          "link": "https://simpson.house.gov/news/documentsingle.aspx?DocumentID=401558",
+          "position": "oppose",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); 3 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "oppose (clear): This bill would prevent all federal funds from being used to pay for abortion or health benefits that include abortion."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "emmer|voting_access|gt-037",
+      "politician_id": "emmer",
+      "topic": "voting_access",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.75
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0,
+        "reason": "topic not found in source",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: emmer|voting_access position MISMATCH (candidate no clear position, ground truth oppose); confidence 0 vs 0.75, Δ=-0.75 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release (with floor remarks)",
+          "date": "2021-03-03",
+          "link": "https://emmer.house.gov/media-center/press-releases/emmer-statement-on-passage-of-hr-1",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "stephanie_bice|voting_access|gt-038",
+      "politician_id": "stephanie_bice",
+      "topic": "voting_access",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0,
+        "reason": "topic not found in source",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: stephanie_bice|voting_access position MISMATCH (candidate no clear position, ground truth oppose); confidence 0 vs 0.8, Δ=-0.80 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "weekly column (official)",
+          "date": "2022-01-19",
+          "link": "https://bice.house.gov/media/weekly-columns/democrats-election-takeover-bill",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "tom_cole|voting_access|gt-039",
+      "politician_id": "tom_cole",
+      "topic": "voting_access",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "1 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: tom_cole|voting_access position MISMATCH (candidate no clear position, ground truth oppose); confidence 0.3 vs 0.8, Δ=-0.50 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2022-01-13",
+          "link": "https://cole.house.gov/media/press-releases/cole-votes-against-democrats-latest-scheme-federalize-elections",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "1 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "adam_smith|voting_access|gt-040",
+      "politician_id": "adam_smith",
+      "topic": "voting_access",
+      "human": {
+        "position": "support",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6)",
+        "statements": [
+          "support (clear): \"Today, I voted with House Democrats to answer the call from the American people to restore our democracy with a broad package of reforms to take on campaign finance regulations, expand voting rights, and combat corruption with improved transparency and ethics in all three branches of the federal…",
+          "support (clear): By instituting automatic voter registration, requiring early voting options, supporting voting by mail, and increasing voting locations especially near public transportation, this legislation will empower voters across our country and ensure their voices are heard at all levels of government."
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: adam_smith|voting_access position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.85, Δ=-0.05 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2021-03-03",
+          "link": "https://adamsmith.house.gov/news/press-releases/rep-smith-statement-passage-hr-1-historic-voting-rights-anti-corruption-and",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6)",
+          "statements": [
+            "support (clear): \"Today, I voted with House Democrats to answer the call from the American people to restore our democracy with a broad package of reforms to take on campaign finance regulations, expand voting rights, and combat corruption with improved transparency and ethics in all three branches of the federal…",
+            "support (clear): By instituting automatic voter registration, requiring early voting options, supporting voting by mail, and increasing voting locations especially near public transportation, this legislation will empower voters across our country and ensure their voices are heard at all levels of government."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "haley_stevens|voting_access|gt-041",
+      "politician_id": "haley_stevens",
+      "topic": "voting_access",
+      "human": {
+        "position": "support",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6)",
+        "statements": [
+          "support (clear): “I am hopeful that The For The People Act will revitalize our democracy by combatting the dominant influence of big money in politics, expanding voting rights, and strengthening ethics laws to combat the culture of corruption in Washington,” said Congresswoman Haley Stevens."
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: haley_stevens|voting_access position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.8, Δ=+0.00 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2021-03-03",
+          "link": "https://stevens.house.gov/media/press-releases/rep-stevens-votes-hr-1-people-act",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6)",
+          "statements": [
+            "support (clear): “I am hopeful that The For The People Act will revitalize our democracy by combatting the dominant influence of big money in politics, expanding voting rights, and strengthening ethics laws to combat the culture of corruption in Washington,” said Congresswoman Haley Stevens."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "marie_gluesenkamp_perez|voting_access|gt-042",
+      "politician_id": "marie_gluesenkamp_perez",
+      "topic": "voting_access",
+      "human": {
+        "position": "mixed",
+        "confidence": 0.7
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0,
+        "reason": "topic not found in source",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: marie_gluesenkamp_perez|voting_access position MISMATCH (candidate no clear position, ground truth mixed); confidence 0 vs 0.7, Δ=-0.70 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official statement",
+          "date": "2025-04-10",
+          "link": "https://gluesenkampperez.house.gov/posts/gluesenkamp-perez-statement-on-save-act-vote",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "aguilar|housing|gt-043",
+      "politician_id": "aguilar",
+      "topic": "housing",
+      "human": {
+        "position": "support",
+        "confidence": 0.75
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): Rep. Pete Aguilar recently reintroduced the Affordable Housing Resident Services Act , which would provide funding to owners of affordable housing properties to offer supportive services for their residents."
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: aguilar|housing position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.75, Δ=+0.05 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2025-09-15",
+          "link": "https://aguilar.house.gov/2025/09/15/rep-aguilar-highlights-rising-cost-of-living-and-importance-of-affordable-housing-in-the-inland-empire/",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): Rep. Pete Aguilar recently reintroduced the Affordable Housing Resident Services Act , which would provide funding to owners of affordable housing properties to offer supportive services for their residents."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "ayanna_pressley|housing|gt-044",
+      "politician_id": "ayanna_pressley",
+      "topic": "housing",
+      "human": {
+        "position": "support",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6)",
+        "statements": [
+          "support (clear): In her questioning of witnesses , Congresswoman Pressley discussed the need to confront the policies that helped create the housing crisis in America—like exclusionary zoning, redlining, restrictive covenants, and land-use restrictions—which have made it difficult to build affordable housing and …",
+          "support (clear): Congresswoman Pressley also called for the passage of her Innovation Fund Act , which was included in the landmark ROAD to Housing Act and would reward communities that are taking innovative steps to increase housing supply."
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: ayanna_pressley|housing position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.8, Δ=+0.00 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2026-01-14",
+          "link": "https://pressley.house.gov/2026/01/14/video-pressley-co-chairs-hearing-on-housing-affordability-demands-congress-affirm-housing-as-a-human-right/",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6)",
+          "statements": [
+            "support (clear): In her questioning of witnesses , Congresswoman Pressley discussed the need to confront the policies that helped create the housing crisis in America—like exclusionary zoning, redlining, restrictive covenants, and land-use restrictions—which have made it difficult to build affordable housing and …",
+            "support (clear): Congresswoman Pressley also called for the passage of her Innovation Fund Act , which was included in the landmark ROAD to Housing Act and would reward communities that are taking innovative steps to increase housing supply."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "delia_ramirez|housing|gt-045",
+      "politician_id": "delia_ramirez",
+      "topic": "housing",
+      "human": {
+        "position": "support",
+        "confidence": 0.7
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "3 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: delia_ramirez|housing position MISMATCH (candidate no clear position, ground truth support); confidence 0.3 vs 0.7, Δ=-0.40 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2026-04-23",
+          "link": "https://ramirez.house.gov/media/press-releases/ramirez-leads-resolution-recognizing-role-housing-keeping-families-together",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "3 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "jared_golden|econ_workers|gt-046",
+      "politician_id": "jared_golden",
+      "topic": "econ_workers",
+      "human": {
+        "position": "support",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): Trumka Protecting the Right to Organize (PRO) Act , a comprehensive proposal to protect workers’ right to bargain collectively for higher wages, better benefits and safer workplaces.",
+          "support (clear): The PRO Act restores democracy on the job by strengthening workers’ rights and clamping down on union-busting tactics so that those who want to form a union can do so and get to the business of securing better conditions in the workplace.”"
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: jared_golden|econ_workers position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.85, Δ=-0.05 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2025-03-06",
+          "link": "https://golden.house.gov/media/press-releases/golden-reintroduces-pro-act-to-protect-workers-right-to-organize",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): Trumka Protecting the Right to Organize (PRO) Act , a comprehensive proposal to protect workers’ right to bargain collectively for higher wages, better benefits and safer workplaces.",
+            "support (clear): The PRO Act restores democracy on the job by strengthening workers’ rights and clamping down on union-busting tactics so that those who want to form a union can do so and get to the business of securing better conditions in the workplace.”"
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "brendan_boyle|econ_workers|gt-047",
+      "politician_id": "brendan_boyle",
+      "topic": "econ_workers",
+      "human": {
+        "position": "support",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 3 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): Boyle (PA-02) released the following statement regarding U.S. House passage today of the Protecting the Right to Organize Act (PRO Act), legislation that he co-led to passage in the House, and legislation that is the most significant upgrade to U.S. labor law in 80 years.",
+          "support (clear): The PRO Act guarantees workers have the power to stand together, and it prevents employers from engaging in union busting tactics."
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: brendan_boyle|econ_workers position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.85, Δ=-0.05 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2021-03-09",
+          "link": "https://boyle.house.gov/media-center/press-releases/boyle-statement-passage-pro-act-0",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 3 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): Boyle (PA-02) released the following statement regarding U.S. House passage today of the Protecting the Right to Organize Act (PRO Act), legislation that he co-led to passage in the House, and legislation that is the most significant upgrade to U.S. labor law in 80 years.",
+            "support (clear): The PRO Act guarantees workers have the power to stand together, and it prevents employers from engaging in union busting tactics."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "casar|econ_workers|gt-048",
+      "politician_id": "casar",
+      "topic": "econ_workers",
+      "human": {
+        "position": "support",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "mixed",
+        "confidence": 0.5,
+        "reason": "equal weight of directional signals on both sides (1 vs 1; 0 implication(s))",
+        "statements": [
+          "support (clear): Trumka Protecting the Right to Organize Act (PRO Act), H.R. 20 .",
+          "oppose (clear): Especially in a right-to-work-for-less state like Texas, workers deserve a union to protect their rights, create safer workplaces, and hold exploitative employers accountable."
+        ]
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: casar|econ_workers position MISMATCH (candidate mixed, ground truth support); confidence 0.5 vs 0.85, Δ=-0.35 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2023-02-28",
+          "link": "https://casar.house.gov/media/press-releases/news-congressman-greg-casar-co-sponsors-pro-act-hr-20",
+          "position": "mixed",
+          "confidence": 0.5,
+          "reason": "equal weight of directional signals on both sides (1 vs 1; 0 implication(s))",
+          "statements": [
+            "support (clear): Trumka Protecting the Right to Organize Act (PRO Act), H.R. 20 .",
+            "oppose (clear): Especially in a right-to-work-for-less state like Texas, workers deserve a union to protect their rights, create safer workplaces, and hold exploitative employers accountable."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "bobby_scott|justice_reform|gt-049",
+      "politician_id": "bobby_scott",
+      "topic": "justice_reform",
+      "human": {
+        "position": "support",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6)",
+        "statements": [
+          "support (clear): WASHINGTON, DC – Congressman Bobby Scott (VA-03) issued the following statement after the House of Representatives passed the First Step Act of 2018:",
+          "support (clear): I decided to vote for this legislation, but I hope that in the new year and with a new Congress we can revisit some of these problematic provisions and actually advance legislation that is based on evidence and research and will address the injustices in our justice system and truly reduce mass i…"
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: bobby_scott|justice_reform position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.8, Δ=+0.00 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2018-12-20",
+          "link": "https://bobbyscott.house.gov/media-center/press-releases/scott-statement-passage-first-step-act",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6)",
+          "statements": [
+            "support (clear): WASHINGTON, DC – Congressman Bobby Scott (VA-03) issued the following statement after the House of Representatives passed the First Step Act of 2018:",
+            "support (clear): I decided to vote for this legislation, but I hope that in the new year and with a new Congress we can revisit some of these problematic provisions and actually advance legislation that is based on evidence and research and will address the injustices in our justice system and truly reduce mass i…"
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "nadler|justice_reform|gt-050",
+      "politician_id": "nadler",
+      "topic": "justice_reform",
+      "human": {
+        "position": "support",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6)",
+        "statements": [
+          "support (clear): “I’m proud to support to the First Step Act, an important bill that will advance criminal justice reform."
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: nadler|justice_reform position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.8, Δ=+0.00 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release (joint)",
+          "date": "2018-12-20",
+          "link": "https://nadler.house.gov/news/documentsingle.aspx?DocumentID=391349",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6)",
+          "statements": [
+            "support (clear): “I’m proud to support to the First Step Act, an important bill that will advance criminal justice reform."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "walberg|econ_trade|gt-051",
+      "politician_id": "walberg",
+      "topic": "econ_trade",
+      "human": {
+        "position": "support",
+        "confidence": 0.75
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "1 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: walberg|econ_trade position MISMATCH (candidate no clear position, ground truth support); confidence 0.3 vs 0.75, Δ=-0.45 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2019-12-19",
+          "link": "https://walberg.house.gov/media/press-releases/walberg-applauds-passage-usmca-help-michigan-workers",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "1 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "neal|econ_trade|gt-052",
+      "politician_id": "neal",
+      "topic": "econ_trade",
+      "human": {
+        "position": "support",
+        "confidence": 0.7
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "1 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: neal|econ_trade position MISMATCH (candidate no clear position, ground truth support); confidence 0.3 vs 0.7, Δ=-0.40 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2019-12-19",
+          "link": "https://neal.house.gov/2019/12/20/news-documentsingle-aspx-documentid-1721/",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "1 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "steven_horsford|econ_trade|gt-053",
+      "politician_id": "steven_horsford",
+      "topic": "econ_trade",
+      "human": {
+        "position": "support",
+        "confidence": 0.65
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0,
+        "reason": "topic not found in source",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: steven_horsford|econ_trade position MISMATCH (candidate no clear position, ground truth support); confidence 0 vs 0.65, Δ=-0.65 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2019-12-17",
+          "link": "https://horsford.house.gov/media/press-releases/congressman-steven-horsford-speaks-in-support-of-usmca-in-ways-and-means-committee",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
         }
       ]
     }

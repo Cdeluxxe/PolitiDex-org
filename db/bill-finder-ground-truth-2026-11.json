@@ -1,7 +1,7 @@
 {
   "_note": "Diagnostic run of the shared bill finder and the per-key mapping patterns (see mapped_keys). Read-only: nothing here changes a ground-truth label, a scoring rule, an issue key or the site. `ground_truth` reads the reviewer's verbatim excerpts with each source's own link and date; `routine_sweep` reads live pages the raw-ingest runs already pull, where every mapping would be a false mapping.",
   "finder_version": "bill-finder-v3",
-  "patterns_version": "bill-key-patterns-v6",
+  "patterns_version": "bill-key-patterns-v7",
   "mapped_keys": [
     "israel_offensive_arms",
     "ukraine_aid",
@@ -11,7 +11,15 @@
     "energy_production",
     "school_choice",
     "healthcare",
-    "cut_spending"
+    "cut_spending",
+    "climate_action",
+    "gun_safety",
+    "pro_choice",
+    "voting_access",
+    "housing",
+    "econ_trade",
+    "econ_workers",
+    "justice_reform"
   ],
   "catalog": {
     "source": "db/bill-docs.json",
@@ -19,16 +27,16 @@
     "short_titles": 419
   },
   "summary": {
-    "ground_truth_sources": 36,
-    "ground_truth_candidates": 23,
-    "ground_truth_mappings": 18,
-    "ground_truth_mentioned_not_mapped": 5,
+    "ground_truth_sources": 65,
+    "ground_truth_candidates": 53,
+    "ground_truth_mappings": 46,
+    "ground_truth_mentioned_not_mapped": 7,
     "sweep_pages": 110,
-    "sweep_fetched": 107,
-    "sweep_failed": 3,
+    "sweep_fetched": 109,
+    "sweep_failed": 1,
     "sweep_candidates": 43,
-    "sweep_mappings": 6,
-    "sweep_mappings_reviewed_correct": 6,
+    "sweep_mappings": 15,
+    "sweep_mappings_reviewed_correct": 15,
     "sweep_false_mappings": 0
   },
   "ground_truth": [
@@ -209,7 +217,7 @@
           "matched": "https://www.govinfo.gov/content/pkg/BILLS-118s1655is/html/BILLS-118s1655is.htm",
           "congress_from": "url",
           "span": "https://www.govinfo.gov/content/pkg/BILLS-118s1655is/html/BILLS-118s1655is.htm",
-          "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine | iran_hostilities: about health care, not U.S. hostilities with Iran | tariffs_china: about health care, not tariffs on China | border_security: about health care, not border enforcement | energy_production: about health care, not domestic energy production | school_choice: about health care, not school choice | healthcare: names the subject but no health coverage words (aid, funding, a sale …) around the mention or in the title | cut_spending: about health care, not cutting federal spending"
+          "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine | iran_hostilities: about health care, not U.S. hostilities with Iran | tariffs_china: about health care, not tariffs on China | border_security: about health care, not border enforcement | energy_production: about health care, not domestic energy production | school_choice: about health care, not school choice | healthcare: names the subject but no health coverage words (aid, funding, a sale …) around the mention or in the title | cut_spending: about health care, not cutting federal spending | climate_action: about health care, not climate and clean energy | gun_safety: about health care, not gun safety laws | pro_choice: about health care, not abortion and reproductive rights | voting_access: about health care, not voting access and election rules | housing: about health care, not housing affordability | econ_trade: about health care, not trade deals and trade rules | econ_workers: about health care, not wages and workers' rights | justice_reform: about health care, not criminal justice reform"
         }
       ]
     },
@@ -244,7 +252,7 @@
           "kind": "short_title",
           "matched": "Medicare for All Act",
           "span": "today introduced the Medicare for All Act",
-          "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine | iran_hostilities: about health care, not U.S. hostilities with Iran | tariffs_china: about health care, not tariffs on China | border_security: about health care, not border enforcement | energy_production: about health care, not domestic energy production | school_choice: about health care, not school choice | healthcare: names the subject but no health coverage words (aid, funding, a sale …) around the mention or in the title | cut_spending: about health care, not cutting federal spending"
+          "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine | iran_hostilities: about health care, not U.S. hostilities with Iran | tariffs_china: about health care, not tariffs on China | border_security: about health care, not border enforcement | energy_production: about health care, not domestic energy production | school_choice: about health care, not school choice | healthcare: names the subject but no health coverage words (aid, funding, a sale …) around the mention or in the title | cut_spending: about health care, not cutting federal spending | climate_action: about health care, not climate and clean energy | gun_safety: about health care, not gun safety laws | pro_choice: about health care, not abortion and reproductive rights | voting_access: about health care, not voting access and election rules | housing: about health care, not housing affordability | econ_trade: about health care, not trade deals and trade rules | econ_workers: about health care, not wages and workers' rights | justice_reform: about health care, not criminal justice reform"
         }
       ]
     },
@@ -279,7 +287,7 @@
           "kind": "short_title",
           "matched": "Medicare for All Act of 2022",
           "span": "introduced the Medicare for All Act of 2022 to guarantee health care in the United States as a fundamental human right to all",
-          "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine | iran_hostilities: about health care, not U.S. hostilities with Iran | tariffs_china: about health care, not tariffs on China | border_security: about health care, not border enforcement | energy_production: about health care, not domestic energy production | school_choice: about health care, not school choice | healthcare: names the subject but no health coverage words (aid, funding, a sale …) around the mention or in the title | cut_spending: about health care, not cutting federal spending"
+          "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine | iran_hostilities: about health care, not U.S. hostilities with Iran | tariffs_china: about health care, not tariffs on China | border_security: about health care, not border enforcement | energy_production: about health care, not domestic energy production | school_choice: about health care, not school choice | healthcare: names the subject but no health coverage words (aid, funding, a sale …) around the mention or in the title | cut_spending: about health care, not cutting federal spending | climate_action: about health care, not climate and clean energy | gun_safety: about health care, not gun safety laws | pro_choice: about health care, not abortion and reproductive rights | voting_access: about health care, not voting access and election rules | housing: about health care, not housing affordability | econ_trade: about health care, not trade deals and trade rules | econ_workers: about health care, not wages and workers' rights | justice_reform: about health care, not criminal justice reform"
         }
       ]
     },
@@ -325,7 +333,7 @@
           "kind": "state_number",
           "matched": "SB 2",
           "span": "SB 2 was passed by (Record 300): 86 Yeas, 61 Nays, 0 Present, not voting.\" · Nays list includes Talarico",
-          "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog)"
+          "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog) | climate_action: no climate or clean-energy words in the text around the mention (and the bill is not in the catalog) | gun_safety: no gun words in the text around the mention (and the bill is not in the catalog) | pro_choice: no abortion or reproductive-rights words in the text around the mention (and the bill is not in the catalog) | voting_access: no voting-rules words in the text around the mention (and the bill is not in the catalog) | housing: no housing words in the text around the mention (and the bill is not in the catalog) | econ_trade: no trade words in the text around the mention (and the bill is not in the catalog) | econ_workers: no wage or labor-law words in the text around the mention (and the bill is not in the catalog) | justice_reform: no criminal-justice words in the text around the mention (and the bill is not in the catalog)"
         }
       ]
     },
@@ -805,7 +813,7 @@
           "kind": "short_title",
           "matched": "Build Back Better Act",
           "span": "And just last week, the Congressional Budget Office predicted that President Biden's so-call Build Back Better Act could cost $3 trillion more over the next ten years.",
-          "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog)"
+          "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog) | climate_action: no climate or clean-energy words in the text around the mention (and the bill is not in the catalog) | gun_safety: no gun words in the text around the mention (and the bill is not in the catalog) | pro_choice: no abortion or reproductive-rights words in the text around the mention (and the bill is not in the catalog) | voting_access: no voting-rules words in the text around the mention (and the bill is not in the catalog) | housing: no housing words in the text around the mention (and the bill is not in the catalog) | econ_trade: no trade words in the text around the mention (and the bill is not in the catalog) | econ_workers: no wage or labor-law words in the text around the mention (and the bill is not in the catalog) | justice_reform: no criminal-justice words in the text around the mention (and the bill is not in the catalog)"
         }
       ]
     },
@@ -1156,10 +1164,1204 @@
         }
       ],
       "unmapped": []
+    },
+    {
+      "stance_id": "heinrich|climate_action|gt-025",
+      "politician_id": "heinrich",
+      "topic": "climate_action",
+      "source_type": "official press release",
+      "date": "2021-05-18",
+      "link": "https://www.heinrich.senate.gov/newsroom/press-releases/heinrich-leads-colleagues-in-introducing-electrifying-americas-future-resolution",
+      "candidates": [],
+      "mappings": [],
+      "unmapped": []
+    },
+    {
+      "stance_id": "lujan|climate_action|gt-026",
+      "politician_id": "lujan",
+      "topic": "climate_action",
+      "source_type": "official press release",
+      "date": "2025-06-26",
+      "link": "https://www.lujan.senate.gov/newsroom/press-releases/as-congressional-republicans-take-an-axe-to-clean-energy-lujan-reintroduces-commonsense-legislation-to-expand-access-to-solar-energy-for-families-and-businesses/",
+      "candidates": [
+        {
+          "id": null,
+          "bill": "Community Solar Consumer Choice Act",
+          "kind": "short_title",
+          "in_catalog": false,
+          "mentions": [
+            {
+              "kind": "short_title",
+              "origin": "text",
+              "match": "Community Solar Consumer Choice Act",
+              "span": "Washington, D.C. – Today, U.S. Senator Ben Ray Luján (D-N.M.) reintroduced the Community Solar Consumer Choice Act, legislation that would support community solar projects and expand access to solar energy across the country, regardless of one’s income or ability to host a solar system on their roof."
+            },
+            {
+              "kind": "short_title",
+              "origin": "text",
+              "match": "Community Solar Consumer Choice Act",
+              "span": "“I’m proud to reintroduce the Community Solar Consumer Choice Act to expand access to solar power through community solar projects for all Americans and create more good-paying, clean energy jobs."
+            }
+          ]
+        }
+      ],
+      "mappings": [
+        {
+          "bill": null,
+          "id": null,
+          "key": "climate_action",
+          "confidence": "medium",
+          "confidence_score": 0.6,
+          "basis": "short title + subject words in the text",
+          "matched": "Community Solar Consumer Choice Act",
+          "span": "Washington, D.C. – Today, U.S. Senator Ben Ray Luján (D-N.M.) reintroduced the Community Solar Consumer Choice Act, legislation that would support community solar projects and expand access to solar energy across the country, regardless of one’s income or ability to host a solar system on their roof. … “As the climate crisis intensifies and Republican lawmakers push to cut clean energy funding, fighting for practical solutions like community solar is more critical than ever,” said Senator Luján . … “I’m proud to reintroduce the Community Solar Consumer Choice Act to expand access to solar power through community solar projects for all Americans and create more good-paying, clean energy jobs. … This bill is a step forward in combating the climate crisis, and I look forward to working with Representative Castor to get this bill passed.”"
+        }
+      ],
+      "unmapped": []
+    },
+    {
+      "stance_id": "hickenlooper|climate_action|gt-027",
+      "politician_id": "hickenlooper",
+      "topic": "climate_action",
+      "source_type": "official press release",
+      "date": "2022-08-16",
+      "link": "https://www.hickenlooper.senate.gov/press_releases/hickenlooper-this-begins-the-great-transition/",
+      "candidates": [
+        {
+          "id": "117|H.R. 5376",
+          "bill": "H.R. 5376",
+          "kind": "short_title",
+          "in_catalog": true,
+          "official_title": "Inflation Reduction Act of 2022",
+          "mentions": [
+            {
+              "kind": "short_title",
+              "origin": "text",
+              "match": "Inflation Reduction Act",
+              "span": "The climate investments in the Inflation Reduction Act will reduce carbon emissions roughly 40 percent by 2030."
+            }
+          ]
+        }
+      ],
+      "mappings": [
+        {
+          "bill": "H.R. 5376",
+          "id": "117|H.R. 5376",
+          "key": "climate_action",
+          "confidence": "medium",
+          "confidence_score": 0.6,
+          "basis": "short title + subject words in the text",
+          "matched": "Inflation Reduction Act",
+          "span": "“Today America takes a giant step into the clean energy future,” said Hickenlooper. … The climate investments in the Inflation Reduction Act will reduce carbon emissions roughly 40 percent by 2030."
+        }
+      ],
+      "unmapped": []
+    },
+    {
+      "stance_id": "robert_garcia|climate_action|gt-028",
+      "politician_id": "robert_garcia",
+      "topic": "climate_action",
+      "source_type": "official issue page",
+      "link": "https://robertgarcia.house.gov/issues/reducing-emissions-through-green-jobs-and-technology",
+      "candidates": [
+        {
+          "id": null,
+          "bill": "Clean Shipping Act",
+          "kind": "short_title",
+          "in_catalog": false,
+          "mentions": [
+            {
+              "kind": "short_title",
+              "origin": "text",
+              "match": "Clean Shipping Act",
+              "span": "Washington, D.C. – Today, Congressman Robert Garcia (CA-42) and Senator Alex Padilla (D-CA) reintroduced the Clean Shipping Act ."
+            }
+          ]
+        }
+      ],
+      "mappings": [
+        {
+          "bill": null,
+          "id": null,
+          "key": "climate_action",
+          "confidence": "medium",
+          "confidence_score": 0.6,
+          "basis": "short title + subject words in the text",
+          "matched": "Clean Shipping Act",
+          "span": "This bill establishes a path to eliminate greenhouse gas emissions from large ships that come to U.S. ports, protecting the health of port communities and addressing the environmental and climate impacts of shipping pollution."
+        }
+      ],
+      "unmapped": []
+    },
+    {
+      "stance_id": "boebert|gun_safety|gt-029",
+      "politician_id": "boebert",
+      "topic": "gun_safety",
+      "source_type": "official press release",
+      "date": "2022-07-14",
+      "link": "https://boebert.house.gov/media/press-releases/rep-boebert-introduces-bill-repeal-rino-gun-grab",
+      "candidates": [
+        {
+          "id": null,
+          "bill": "Shall Not Be Infringed Act",
+          "kind": "short_title",
+          "in_catalog": false,
+          "mentions": [
+            {
+              "kind": "short_title",
+              "origin": "text",
+              "match": "Shall Not Be Infringed Act",
+              "span": "Today, Rep. Lauren Boebert led 28 of her colleagues in introducing the Shall Not Be Infringed Act ."
+            }
+          ]
+        },
+        {
+          "id": "117|S. 2938",
+          "bill": "S. 2938",
+          "kind": "short_title",
+          "in_catalog": true,
+          "official_title": "Bipartisan Safer Communities Act",
+          "mentions": [
+            {
+              "kind": "short_title",
+              "origin": "text",
+              "match": "Bipartisan Safer Communities Act",
+              "span": "This bill seeks to repeal the so-called “Bipartisan Safer Communities Act,” legislation that was signed into law after numerous RINOs broke rank and failed to defend the Second Amendment."
+            },
+            {
+              "kind": "short_title",
+              "origin": "text",
+              "match": "Bipartisan Safer Communities Act",
+              "span": "Rep. Lauren Boebert stated, “The so-called ‘Bipartisan Safer Communities Act’ tramples on the constitutional rights of law-abiding citizens and will have no significant impact in stopping mass shootings and deterring gun violence."
+            }
+          ]
+        }
+      ],
+      "mappings": [
+        {
+          "bill": "S. 2938",
+          "id": "117|S. 2938",
+          "key": "gun_safety",
+          "confidence": "medium",
+          "confidence_score": 0.6,
+          "basis": "short title + subject words in the text",
+          "matched": "Bipartisan Safer Communities Act",
+          "span": "This bill seeks to repeal the so-called “Bipartisan Safer Communities Act,” legislation that was signed into law after numerous RINOs broke rank and failed to defend the Second Amendment. … Rep. Lauren Boebert stated, “The so-called ‘Bipartisan Safer Communities Act’ tramples on the constitutional rights of law-abiding citizens and will have no significant impact in stopping mass shootings and deterring gun violence. … This terrible public law seeks to implement “backdoor” universal background checks by reclassifying private sellers as gun dealers, and was widely criticized for incentivizing states to adopt unconstitutional red-flag gun seizure laws, extending background checks for adults under 21-years-old, creating criminal prohibitions on straw purchases, disarming teachers, increasing the likelihood that someone selling a gun from their personal collection will catch a federal gun charge, and more."
+        }
+      ],
+      "unmapped": [
+        {
+          "bill": "Shall Not Be Infringed Act",
+          "id": null,
+          "kind": "short_title",
+          "matched": "Shall Not Be Infringed Act",
+          "span": "Today, Rep. Lauren Boebert led 28 of her colleagues in introducing the Shall Not Be Infringed Act .",
+          "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog) | climate_action: no climate or clean-energy words in the text around the mention (and the bill is not in the catalog) | gun_safety: no gun words in the text around the mention (and the bill is not in the catalog) | pro_choice: no abortion or reproductive-rights words in the text around the mention (and the bill is not in the catalog) | voting_access: no voting-rules words in the text around the mention (and the bill is not in the catalog) | housing: no housing words in the text around the mention (and the bill is not in the catalog) | econ_trade: no trade words in the text around the mention (and the bill is not in the catalog) | econ_workers: no wage or labor-law words in the text around the mention (and the bill is not in the catalog) | justice_reform: no criminal-justice words in the text around the mention (and the bill is not in the catalog)"
+        }
+      ]
+    },
+    {
+      "stance_id": "scalise|gun_safety|gt-030",
+      "politician_id": "scalise",
+      "topic": "gun_safety",
+      "source_type": "official press release (quoting television interview)",
+      "date": "2019-03-27",
+      "link": "https://scalise.house.gov/media/press-releases/scalise-democrat-gun-control-legislation-makes-criminals-law-abiding-americans",
+      "candidates": [],
+      "mappings": [],
+      "unmapped": []
+    },
+    {
+      "stance_id": "fitzpatrick|gun_safety|gt-031",
+      "politician_id": "fitzpatrick",
+      "topic": "gun_safety",
+      "source_type": "official press release",
+      "date": "2018-02-27",
+      "link": "https://fitzpatrick.house.gov/media-center/press-releases/fitzpatrick-takes-leadership-role-addressing-gun-violence-community",
+      "candidates": [
+        {
+          "id": "115|H.R. 4240",
+          "bill": "H.R. 4240",
+          "kind": "number",
+          "in_catalog": false,
+          "mentions": [
+            {
+              "kind": "number",
+              "origin": "text",
+              "match": "H.R.4240",
+              "congress_from": "date",
+              "span": "H.R.4240 - Public Safety and Second Amendment Rights Protection Act of 2017 (Cosponsor)"
+            },
+            {
+              "kind": "short_title",
+              "origin": "text",
+              "match": "Public Safety and Second Amendment Rights Protection Act of 2017",
+              "span": "H.R.4240 - Public Safety and Second Amendment Rights Protection Act of 2017 (Cosponsor)"
+            }
+          ]
+        },
+        {
+          "id": "115|H.R. 2598",
+          "bill": "H.R. 2598",
+          "kind": "number",
+          "in_catalog": false,
+          "mentions": [
+            {
+              "kind": "number",
+              "origin": "text",
+              "match": "H.R. 2598",
+              "congress_from": "date",
+              "span": "H.R. 2598 - Gun Violence Restraining Order Act (Cosponsor) Would enable states to empower family members or law enforcement officials to go to a court to seek a “gun violence prevention order,” to temporarily stop someone who poses a threat to themselves or others from purchasing or possessing a gun."
+            },
+            {
+              "kind": "short_title",
+              "origin": "text",
+              "match": "Gun Violence Restraining Order Act",
+              "span": "H.R. 2598 - Gun Violence Restraining Order Act (Cosponsor) Would enable states to empower family members or law enforcement officials to go to a court to seek a “gun violence prevention order,” to temporarily stop someone who poses a threat to themselves or others from purchasing or possessing a gun."
+            }
+          ]
+        }
+      ],
+      "mappings": [
+        {
+          "bill": "H.R. 4240",
+          "id": "115|H.R. 4240",
+          "key": "gun_safety",
+          "confidence": "high",
+          "confidence_score": 0.9,
+          "basis": "bill number + subject words in the text",
+          "matched": "H.R.4240",
+          "span": "H.R.4240 - Public Safety and Second Amendment Rights Protection Act of 2017 (Cosponsor) … Expands the existing background check system to cover all commercial firearm sales, including those at gun shows, over the internet or in classified ads while providing reasonable exceptions for family and friend transfers."
+        },
+        {
+          "bill": "H.R. 2598",
+          "id": "115|H.R. 2598",
+          "key": "gun_safety",
+          "confidence": "high",
+          "confidence_score": 0.9,
+          "basis": "bill number + subject words in the text",
+          "matched": "H.R. 2598",
+          "span": "H.R. 2598 - Gun Violence Restraining Order Act (Cosponsor) Would enable states to empower family members or law enforcement officials to go to a court to seek a “gun violence prevention order,” to temporarily stop someone who poses a threat to themselves or others from purchasing or possessing a gun."
+        }
+      ],
+      "unmapped": []
+    },
+    {
+      "stance_id": "steve_womack|gun_safety|gt-032",
+      "politician_id": "steve_womack",
+      "topic": "gun_safety",
+      "source_type": "official press release",
+      "date": "2022-06-08",
+      "link": "https://womack.house.gov/news/documentsingle.aspx?DocumentID=405523",
+      "candidates": [],
+      "mappings": [],
+      "unmapped": []
+    },
+    {
+      "stance_id": "dina_titus|pro_choice|gt-033",
+      "politician_id": "dina_titus",
+      "topic": "pro_choice",
+      "source_type": "official press release",
+      "date": "2021-09-24",
+      "link": "https://titus.house.gov/news/documentsingle.aspx?DocumentID=3138",
+      "candidates": [
+        {
+          "id": "117|H.R. 3755",
+          "bill": "H.R. 3755",
+          "kind": "number",
+          "in_catalog": false,
+          "mentions": [
+            {
+              "kind": "number",
+              "origin": "text",
+              "match": "H.R. 3755",
+              "congress_from": "date",
+              "span": "Washington, D.C. – Today Representative Dina Titus of Nevada’s First Congressional District voted to pass H.R. 3755, the Women’s Health Protection Act, legislation she cosponsored to defend women’s constitutional right to reproductive health care."
+            },
+            {
+              "kind": "short_title",
+              "origin": "text",
+              "match": "Women’s Health Protection Act",
+              "span": "Washington, D.C. – Today Representative Dina Titus of Nevada’s First Congressional District voted to pass H.R. 3755, the Women’s Health Protection Act, legislation she cosponsored to defend women’s constitutional right to reproductive health care."
+            },
+            {
+              "kind": "short_title",
+              "origin": "text",
+              "match": "Women’s Health Protection Act",
+              "span": "“Today Democrats in the House passed the Women’s Health Protection Act, legislation I cosponsored which codifies the constitutional right to an abortion found in Roe v."
+            }
+          ]
+        }
+      ],
+      "mappings": [
+        {
+          "bill": "H.R. 3755",
+          "id": "117|H.R. 3755",
+          "key": "pro_choice",
+          "confidence": "high",
+          "confidence_score": 0.9,
+          "basis": "bill number + subject words in the text",
+          "matched": "H.R. 3755",
+          "span": "Washington, D.C. – Today Representative Dina Titus of Nevada’s First Congressional District voted to pass H.R. 3755, the Women’s Health Protection Act, legislation she cosponsored to defend women’s constitutional right to reproductive health care. … “Today Democrats in the House passed the Women’s Health Protection Act, legislation I cosponsored which codifies the constitutional right to an abortion found in Roe v. … I'll continue to fight attacks on reproductive health care.”"
+        }
+      ],
+      "unmapped": []
+    },
+    {
+      "stance_id": "diana_degette|pro_choice|gt-034",
+      "politician_id": "diana_degette",
+      "topic": "pro_choice",
+      "source_type": "official press release",
+      "date": "2021-09-24",
+      "link": "https://degette.house.gov/media-center/press-releases/house-moves-guarantee-all-americans-access-abortion-care",
+      "candidates": [
+        {
+          "id": null,
+          "bill": "Women's Health Protection Act",
+          "kind": "short_title",
+          "in_catalog": false,
+          "mentions": [
+            {
+              "kind": "short_title",
+              "origin": "text",
+              "match": "Women's Health Protection Act",
+              "span": "The Women's Health Protection Act would – for the first time – establish a federal statutory right for all health care providers throughout the country to provide abortion services, and a federal statutory right for all Americans to receive such care, regardless of where they live."
+            }
+          ]
+        }
+      ],
+      "mappings": [
+        {
+          "bill": null,
+          "id": null,
+          "key": "pro_choice",
+          "confidence": "medium",
+          "confidence_score": 0.6,
+          "basis": "short title + subject words in the text",
+          "matched": "Women's Health Protection Act",
+          "span": "The Women's Health Protection Act would – for the first time – establish a federal statutory right for all health care providers throughout the country to provide abortion services, and a federal statutory right for all Americans to receive such care, regardless of where they live. … It would codify the protections currently guaranteed to most Americans by the Supreme Court's decision in the landmark case of Roe v."
+        }
+      ],
+      "unmapped": []
+    },
+    {
+      "stance_id": "mike_flood|pro_choice|gt-035",
+      "politician_id": "mike_flood",
+      "topic": "pro_choice",
+      "source_type": "official press release",
+      "date": "2025-01-23",
+      "link": "https://flood.house.gov/media/press-releases/congressman-flood-votes-commonsense-born-alive-abortion-survivors-protection",
+      "candidates": [
+        {
+          "id": "119|H.R. 21",
+          "bill": "H.R. 21",
+          "kind": "number",
+          "in_catalog": true,
+          "official_title": "Born-Alive Abortion Survivors Protection Act",
+          "mentions": [
+            {
+              "kind": "number",
+              "origin": "text",
+              "match": "H.R. 21",
+              "congress_from": "date",
+              "span": "WASHINGTON, D.C. – Today, U.S. Congressman Mike Flood issued a statement following a vote on H.R. 21, the Born-Alive Abortion Survivors Protection Act."
+            },
+            {
+              "kind": "short_title",
+              "origin": "text",
+              "match": "Born-Alive Abortion Survivors Protection Act",
+              "span": "WASHINGTON, D.C. – Today, U.S. Congressman Mike Flood issued a statement following a vote on H.R. 21, the Born-Alive Abortion Survivors Protection Act."
+            },
+            {
+              "kind": "short_title",
+              "origin": "text",
+              "match": "Born-Alive Abortion Survivors Protection Act",
+              "span": "The Born-Alive Abortion Survivors Protection Act places a federal standard into law and provides basic protections."
+            }
+          ]
+        }
+      ],
+      "mappings": [
+        {
+          "bill": "H.R. 21",
+          "id": "119|H.R. 21",
+          "key": "pro_choice",
+          "confidence": "high",
+          "confidence_score": 0.9,
+          "basis": "bill number + subject words in the text",
+          "matched": "H.R. 21",
+          "span": "WASHINGTON, D.C. – Today, U.S. Congressman Mike Flood issued a statement following a vote on H.R. 21, the Born-Alive Abortion Survivors Protection Act. … Right now, federal law does not make it clear whether children born, even amid an attempted abortion, have a right to medical care. … The Born-Alive Abortion Survivors Protection Act places a federal standard into law and provides basic protections."
+        }
+      ],
+      "unmapped": []
+    },
+    {
+      "stance_id": "mike_simpson|pro_choice|gt-036",
+      "politician_id": "mike_simpson",
+      "topic": "pro_choice",
+      "source_type": "official press release",
+      "date": "2025-01-23",
+      "link": "https://simpson.house.gov/news/documentsingle.aspx?DocumentID=401558",
+      "candidates": [
+        {
+          "id": "119|H.R. 21",
+          "bill": "H.R. 21",
+          "kind": "number",
+          "in_catalog": true,
+          "official_title": "Born-Alive Abortion Survivors Protection Act",
+          "mentions": [
+            {
+              "kind": "number",
+              "origin": "text",
+              "match": "H.R.21",
+              "congress_from": "date",
+              "span": "WASHINGTON — Today, Idaho Congressman Mike Simpson voted in favor of H.R.21 - the Born-Alive Abortion Survivors Protection Act."
+            },
+            {
+              "kind": "short_title",
+              "origin": "text",
+              "match": "Born-Alive Abortion Survivors Protection Act",
+              "span": "WASHINGTON — Today, Idaho Congressman Mike Simpson voted in favor of H.R.21 - the Born-Alive Abortion Survivors Protection Act."
+            }
+          ]
+        },
+        {
+          "id": "119|H.R. 7",
+          "bill": "H.R. 7",
+          "kind": "number",
+          "in_catalog": false,
+          "mentions": [
+            {
+              "kind": "number",
+              "origin": "text",
+              "match": "H.R.7",
+              "congress_from": "date",
+              "span": "Additionally, this week, Rep. Simpson cosponsored H.R.7 – the No Taxpayer Funding for Abortion and Abortion Insurance Full Disclosure Act of 2025."
+            },
+            {
+              "kind": "short_title",
+              "origin": "text",
+              "match": "No Taxpayer Funding for Abortion and Abortion Insurance Full Disclosure Act of 2025",
+              "span": "Additionally, this week, Rep. Simpson cosponsored H.R.7 – the No Taxpayer Funding for Abortion and Abortion Insurance Full Disclosure Act of 2025."
+            }
+          ]
+        }
+      ],
+      "mappings": [
+        {
+          "bill": "H.R. 21",
+          "id": "119|H.R. 21",
+          "key": "pro_choice",
+          "confidence": "high",
+          "confidence_score": 0.9,
+          "basis": "bill number + subject words in the text",
+          "matched": "H.R.21",
+          "span": "WASHINGTON — Today, Idaho Congressman Mike Simpson voted in favor of H.R.21 - the Born-Alive Abortion Survivors Protection Act. … This legislation protects infants who survive an attempted abortion to ensure they receive the same care as any other newborn. … Throughout my time in Congress, I have consistently supported pro-life policies and worked to protect the most vulnerable among us."
+        },
+        {
+          "bill": "H.R. 7",
+          "id": "119|H.R. 7",
+          "key": "pro_choice",
+          "confidence": "high",
+          "confidence_score": 0.9,
+          "basis": "bill number + subject words in the text",
+          "matched": "H.R.7",
+          "span": "Additionally, this week, Rep. Simpson cosponsored H.R.7 – the No Taxpayer Funding for Abortion and Abortion Insurance Full Disclosure Act of 2025. … This bill would prevent all federal funds from being used to pay for abortion or health benefits that include abortion."
+        }
+      ],
+      "unmapped": []
+    },
+    {
+      "stance_id": "emmer|voting_access|gt-037",
+      "politician_id": "emmer",
+      "topic": "voting_access",
+      "source_type": "official press release (with floor remarks)",
+      "date": "2021-03-03",
+      "link": "https://emmer.house.gov/media-center/press-releases/emmer-statement-on-passage-of-hr-1",
+      "candidates": [
+        {
+          "id": "117|H.R. 1",
+          "bill": "H.R. 1",
+          "kind": "number",
+          "in_catalog": true,
+          "official_title": "For the People Act of 2021",
+          "mentions": [
+            {
+              "kind": "number",
+              "origin": "text",
+              "match": "H.R. 1",
+              "congress_from": "date",
+              "span": "Instead of prioritizing these important issues, they’ve offered H.R. 1 to eliminate our state-based system of elections, codify practices like ballot harvesting, and establish a federal match for campaign contributions using public funds."
+            }
+          ]
+        }
+      ],
+      "mappings": [
+        {
+          "bill": "H.R. 1",
+          "id": "117|H.R. 1",
+          "key": "voting_access",
+          "confidence": "high",
+          "confidence_score": 0.9,
+          "basis": "bill number + subject words in the text",
+          "matched": "H.R. 1",
+          "span": "\"223 Democrats are permanently on record for sponsoring a bill that would erode state control of their elections and provide government funding for partisan campaigns. … Instead of prioritizing these important issues, they’ve offered H.R. 1 to eliminate our state-based system of elections, codify practices like ballot harvesting, and establish a federal match for campaign contributions using public funds."
+        }
+      ],
+      "unmapped": []
+    },
+    {
+      "stance_id": "stephanie_bice|voting_access|gt-038",
+      "politician_id": "stephanie_bice",
+      "topic": "voting_access",
+      "source_type": "weekly column (official)",
+      "date": "2022-01-19",
+      "link": "https://bice.house.gov/media/weekly-columns/democrats-election-takeover-bill",
+      "candidates": [
+        {
+          "id": "117|H.R. 5746",
+          "bill": "H.R. 5746",
+          "kind": "number",
+          "in_catalog": true,
+          "official_title": "Freedom to Vote: John R. Lewis Act",
+          "mentions": [
+            {
+              "kind": "number",
+              "origin": "text",
+              "match": "H.R. 5746",
+              "congress_from": "date",
+              "span": "As if it couldn’t get worse, there are many more policies within H.R. 5746 that threaten one of Americans’ most fundamental rights and beliefs, including 24-hour ballot drop boxes with no staff or monitoring required and allowing for same-day voter registration, which Schumer’s own state voted against."
+            },
+            {
+              "kind": "number",
+              "origin": "text",
+              "match": "H.R. 5746",
+              "congress_from": "date",
+              "span": "H.R. 5746 would do just the opposite, which is why House Republicans unanimously voted against this legislation."
+            }
+          ]
+        }
+      ],
+      "mappings": [
+        {
+          "bill": "H.R. 5746",
+          "id": "117|H.R. 5746",
+          "key": "voting_access",
+          "confidence": "high",
+          "confidence_score": 0.9,
+          "basis": "bill number + subject words in the text",
+          "matched": "H.R. 5746",
+          "span": "As if it couldn’t get worse, there are many more policies within H.R. 5746 that threaten one of Americans’ most fundamental rights and beliefs, including 24-hour ballot drop boxes with no staff or monitoring required and allowing for same-day voter registration, which Schumer’s own state voted against. … We want an election process that makes it easy for all citizens to vote, but hard to cheat."
+        }
+      ],
+      "unmapped": []
+    },
+    {
+      "stance_id": "tom_cole|voting_access|gt-039",
+      "politician_id": "tom_cole",
+      "topic": "voting_access",
+      "source_type": "official press release",
+      "date": "2022-01-13",
+      "link": "https://cole.house.gov/media/press-releases/cole-votes-against-democrats-latest-scheme-federalize-elections",
+      "candidates": [
+        {
+          "id": "117|H.R. 5746",
+          "bill": "H.R. 5746",
+          "kind": "number",
+          "in_catalog": true,
+          "official_title": "Freedom to Vote: John R. Lewis Act",
+          "mentions": [
+            {
+              "kind": "number",
+              "origin": "text",
+              "match": "H.R. 5746",
+              "congress_from": "date",
+              "span": "Washington, D.C. – Congressman Tom Cole (OK-04) released the following statement after voting against the House Amendment to the Senate Amendment to H.R. 5746, the text of which was released with an hour's notice before its consideration in the House Rules Committee last night."
+            }
+          ]
+        }
+      ],
+      "mappings": [
+        {
+          "bill": "H.R. 5746",
+          "id": "117|H.R. 5746",
+          "key": "voting_access",
+          "confidence": "high",
+          "confidence_score": 0.9,
+          "basis": "bill number + subject words in the text",
+          "matched": "H.R. 5746",
+          "span": "Washington, D.C. – Congressman Tom Cole (OK-04) released the following statement after voting against the House Amendment to the Senate Amendment to H.R. 5746, the text of which was released with an hour's notice before its consideration in the House Rules Committee last night. … The result would be an unprecedented power grab by Washington that would completely change the character of elections as we know it, including requiring states to provide automatic and same-day voter registration, requiring vote by mail and early voting, overriding state voter ID laws and establishing a new taxpayer-funded campaign ATM that would ensure certain candidates to receive millions of dollars in federal taxpayer dollars.\""
+        }
+      ],
+      "unmapped": []
+    },
+    {
+      "stance_id": "adam_smith|voting_access|gt-040",
+      "politician_id": "adam_smith",
+      "topic": "voting_access",
+      "source_type": "official press release",
+      "date": "2021-03-03",
+      "link": "https://adamsmith.house.gov/news/press-releases/rep-smith-statement-passage-hr-1-historic-voting-rights-anti-corruption-and",
+      "candidates": [
+        {
+          "id": "117|H.R. 1",
+          "bill": "H.R. 1",
+          "kind": "number",
+          "in_catalog": true,
+          "official_title": "For the People Act of 2021",
+          "mentions": [
+            {
+              "kind": "number",
+              "origin": "text",
+              "match": "H.R. 1",
+              "congress_from": "date",
+              "span": "\"H.R. 1 will modernize voter registration and increase access to support free and fair elections with more equitable electoral practices fit for the 21st century."
+            }
+          ]
+        }
+      ],
+      "mappings": [
+        {
+          "bill": "H.R. 1",
+          "id": "117|H.R. 1",
+          "key": "voting_access",
+          "confidence": "high",
+          "confidence_score": 0.9,
+          "basis": "bill number + subject words in the text",
+          "matched": "H.R. 1",
+          "span": "\"Today, I voted with House Democrats to answer the call from the American people to restore our democracy with a broad package of reforms to take on campaign finance regulations, expand voting rights, and combat corruption with improved transparency and ethics in all three branches of the federal government. … \"H.R. 1 will modernize voter registration and increase access to support free and fair elections with more equitable electoral practices fit for the 21st century. … By instituting automatic voter registration, requiring early voting options, supporting voting by mail, and increasing voting locations especially near public transportation, this legislation will empower voters across our country and ensure their voices are heard at all levels of government."
+        }
+      ],
+      "unmapped": []
+    },
+    {
+      "stance_id": "haley_stevens|voting_access|gt-041",
+      "politician_id": "haley_stevens",
+      "topic": "voting_access",
+      "source_type": "official press release",
+      "date": "2021-03-03",
+      "link": "https://stevens.house.gov/media/press-releases/rep-stevens-votes-hr-1-people-act",
+      "candidates": [
+        {
+          "id": "117|H.R. 1",
+          "bill": "H.R. 1",
+          "kind": "number",
+          "in_catalog": true,
+          "official_title": "For the People Act of 2021",
+          "mentions": [
+            {
+              "kind": "number",
+              "origin": "text",
+              "match": "HR 1",
+              "congress_from": "text",
+              "span": "WASHINGTON - Tonight, Rep. Haley Stevens voted for HR 1, the For the People Act, a top priority of House Democrats in the 117th Congress which passed in the House and will soon be sent to the Senate."
+            },
+            {
+              "kind": "short_title",
+              "origin": "text",
+              "match": "For the People Act",
+              "span": "WASHINGTON - Tonight, Rep. Haley Stevens voted for HR 1, the For the People Act, a top priority of House Democrats in the 117th Congress which passed in the House and will soon be sent to the Senate."
+            },
+            {
+              "kind": "short_title",
+              "origin": "text",
+              "match": "For The People Act",
+              "span": "“I am hopeful that The For The People Act will revitalize our democracy by combatting the dominant influence of big money in politics, expanding voting rights, and strengthening ethics laws to combat the culture of corruption in Washington,” said Congresswoman Haley Stevens."
+            }
+          ]
+        }
+      ],
+      "mappings": [
+        {
+          "bill": "H.R. 1",
+          "id": "117|H.R. 1",
+          "key": "voting_access",
+          "confidence": "high",
+          "confidence_score": 0.9,
+          "basis": "bill number + subject words in the text",
+          "matched": "HR 1",
+          "span": "“I am hopeful that The For The People Act will revitalize our democracy by combatting the dominant influence of big money in politics, expanding voting rights, and strengthening ethics laws to combat the culture of corruption in Washington,” said Congresswoman Haley Stevens."
+        }
+      ],
+      "unmapped": []
+    },
+    {
+      "stance_id": "marie_gluesenkamp_perez|voting_access|gt-042",
+      "politician_id": "marie_gluesenkamp_perez",
+      "topic": "voting_access",
+      "source_type": "official statement",
+      "date": "2025-04-10",
+      "link": "https://gluesenkampperez.house.gov/posts/gluesenkamp-perez-statement-on-save-act-vote",
+      "candidates": [],
+      "mappings": [],
+      "unmapped": []
+    },
+    {
+      "stance_id": "aguilar|housing|gt-043",
+      "politician_id": "aguilar",
+      "topic": "housing",
+      "source_type": "official press release",
+      "date": "2025-09-15",
+      "link": "https://aguilar.house.gov/2025/09/15/rep-aguilar-highlights-rising-cost-of-living-and-importance-of-affordable-housing-in-the-inland-empire/",
+      "candidates": [
+        {
+          "id": null,
+          "bill": "Affordable Housing Resident Services Act",
+          "kind": "short_title",
+          "in_catalog": false,
+          "mentions": [
+            {
+              "kind": "short_title",
+              "origin": "text",
+              "match": "Affordable Housing Resident Services Act",
+              "span": "Rep. Pete Aguilar recently reintroduced the Affordable Housing Resident Services Act , which would provide funding to owners of affordable housing properties to offer supportive services for their residents."
+            }
+          ]
+        }
+      ],
+      "mappings": [
+        {
+          "bill": null,
+          "id": null,
+          "key": "housing",
+          "confidence": "medium",
+          "confidence_score": 0.6,
+          "basis": "short title + subject words in the text",
+          "matched": "Affordable Housing Resident Services Act",
+          "span": "Here in the Inland Empire, we know firsthand that nothing has become more burdensome for families than the rising cost of rent and housing. … Rep. Pete Aguilar recently reintroduced the Affordable Housing Resident Services Act , which would provide funding to owners of affordable housing properties to offer supportive services for their residents."
+        }
+      ],
+      "unmapped": []
+    },
+    {
+      "stance_id": "ayanna_pressley|housing|gt-044",
+      "politician_id": "ayanna_pressley",
+      "topic": "housing",
+      "source_type": "official press release",
+      "date": "2026-01-14",
+      "link": "https://pressley.house.gov/2026/01/14/video-pressley-co-chairs-hearing-on-housing-affordability-demands-congress-affirm-housing-as-a-human-right/",
+      "candidates": [
+        {
+          "id": null,
+          "bill": "Innovation Fund Act",
+          "kind": "short_title",
+          "in_catalog": false,
+          "mentions": [
+            {
+              "kind": "short_title",
+              "origin": "text",
+              "match": "Innovation Fund Act",
+              "span": "Congresswoman Pressley also called for the passage of her Innovation Fund Act , which was included in the landmark ROAD to Housing Act and would reward communities that are taking innovative steps to increase housing supply."
+            }
+          ]
+        },
+        {
+          "id": null,
+          "bill": "ROAD to Housing Act",
+          "kind": "short_title",
+          "in_catalog": false,
+          "mentions": [
+            {
+              "kind": "short_title",
+              "origin": "text",
+              "match": "ROAD to Housing Act",
+              "span": "Congresswoman Pressley also called for the passage of her Innovation Fund Act , which was included in the landmark ROAD to Housing Act and would reward communities that are taking innovative steps to increase housing supply."
+            }
+          ]
+        }
+      ],
+      "mappings": [
+        {
+          "bill": null,
+          "id": null,
+          "key": "housing",
+          "confidence": "medium",
+          "confidence_score": 0.6,
+          "basis": "short title + subject words in the text",
+          "matched": "Innovation Fund Act",
+          "span": "Congresswoman Pressley also called for the passage of her Innovation Fund Act , which was included in the landmark ROAD to Housing Act and would reward communities that are taking innovative steps to increase housing supply."
+        }
+      ],
+      "unmapped": [
+        {
+          "bill": "ROAD to Housing Act",
+          "id": null,
+          "kind": "short_title",
+          "matched": "ROAD to Housing Act",
+          "span": "Congresswoman Pressley also called for the passage of her Innovation Fund Act , which was included in the landmark ROAD to Housing Act and would reward communities that are taking innovative steps to increase housing supply.",
+          "reason": "israel_offensive_arms: about housing (→ housing), not Israel offensive arms | ukraine_aid: about housing (→ housing), not further U.S. aid to Ukraine | iran_hostilities: about housing (→ housing), not U.S. hostilities with Iran | tariffs_china: about housing (→ housing), not tariffs on China | border_security: about housing (→ housing), not border enforcement | energy_production: about housing (→ housing), not domestic energy production | school_choice: about housing (→ housing), not school choice | healthcare: about housing (→ housing), not health care access | cut_spending: about housing (→ housing), not cutting federal spending | climate_action: about housing (→ housing), not climate and clean energy | gun_safety: about housing (→ housing), not gun safety laws | pro_choice: about housing (→ housing), not abortion and reproductive rights | voting_access: about housing (→ housing), not voting access and election rules | housing: names the subject but no housing words (aid, funding, a sale …) around the mention or in the title | econ_trade: about housing (→ housing), not trade deals and trade rules | econ_workers: about housing (→ housing), not wages and workers' rights | justice_reform: about housing (→ housing), not criminal justice reform"
+        }
+      ]
+    },
+    {
+      "stance_id": "delia_ramirez|housing|gt-045",
+      "politician_id": "delia_ramirez",
+      "topic": "housing",
+      "source_type": "official press release",
+      "date": "2026-04-23",
+      "link": "https://ramirez.house.gov/media/press-releases/ramirez-leads-resolution-recognizing-role-housing-keeping-families-together",
+      "candidates": [],
+      "mappings": [],
+      "unmapped": []
+    },
+    {
+      "stance_id": "jared_golden|econ_workers|gt-046",
+      "politician_id": "jared_golden",
+      "topic": "econ_workers",
+      "source_type": "official press release",
+      "date": "2025-03-06",
+      "link": "https://golden.house.gov/media/press-releases/golden-reintroduces-pro-act-to-protect-workers-right-to-organize",
+      "candidates": [
+        {
+          "id": "119|H.R. 20",
+          "bill": "H.R. 20",
+          "kind": "number",
+          "in_catalog": false,
+          "mentions": [
+            {
+              "kind": "number",
+              "origin": "text",
+              "match": "H.R. 20",
+              "congress_from": "date",
+              "span": "WASHINGTON – Congressman Jared Golden (ME-02) last night reintroduced H.R. 20, the Richard L."
+            }
+          ]
+        }
+      ],
+      "mappings": [
+        {
+          "bill": "H.R. 20",
+          "id": "119|H.R. 20",
+          "key": "econ_workers",
+          "confidence": "high",
+          "confidence_score": 0.9,
+          "basis": "bill number + subject words in the text",
+          "matched": "H.R. 20",
+          "span": "Trumka Protecting the Right to Organize (PRO) Act , a comprehensive proposal to protect workers’ right to bargain collectively for higher wages, better benefits and safer workplaces. … “Strong unions make for a strong middle class,” Golden said. … “When workers come together in a union to collectively bargain, they get a voice on the job to fight for fair wages and benefits and safer working conditions. … The PRO Act restores democracy on the job by strengthening workers’ rights and clamping down on union-busting tactics so that those who want to form a union can do so and get to the business of securing better conditions in the workplace.”"
+        }
+      ],
+      "unmapped": []
+    },
+    {
+      "stance_id": "brendan_boyle|econ_workers|gt-047",
+      "politician_id": "brendan_boyle",
+      "topic": "econ_workers",
+      "source_type": "official press release",
+      "date": "2021-03-09",
+      "link": "https://boyle.house.gov/media-center/press-releases/boyle-statement-passage-pro-act-0",
+      "candidates": [
+        {
+          "id": null,
+          "bill": "Protecting the Right to Organize Act",
+          "kind": "short_title",
+          "in_catalog": false,
+          "mentions": [
+            {
+              "kind": "short_title",
+              "origin": "text",
+              "match": "Protecting the Right to Organize Act",
+              "span": "Boyle (PA-02) released the following statement regarding U.S. House passage today of the Protecting the Right to Organize Act (PRO Act), legislation that he co-led to passage in the House, and legislation that is the most significant upgrade to U.S. labor law in 80 years."
+            }
+          ]
+        }
+      ],
+      "mappings": [
+        {
+          "bill": null,
+          "id": null,
+          "key": "econ_workers",
+          "confidence": "medium",
+          "confidence_score": 0.6,
+          "basis": "short title + subject words in the text",
+          "matched": "Protecting the Right to Organize Act",
+          "span": "Boyle (PA-02) released the following statement regarding U.S. House passage today of the Protecting the Right to Organize Act (PRO Act), legislation that he co-led to passage in the House, and legislation that is the most significant upgrade to U.S. labor law in 80 years. … \"When unions are strong, our economy is strong,\" said Congressman Boyle. … \"Unions are essential to rebuilding the American middle class, and in Philadelphia, they are the backbone of our city. … Our unions ensure workers have high wages, strong benefits, and safe working conditions. … The PRO Act guarantees workers have the power to stand together, and it prevents employers from engaging in union busting tactics."
+        }
+      ],
+      "unmapped": []
+    },
+    {
+      "stance_id": "casar|econ_workers|gt-048",
+      "politician_id": "casar",
+      "topic": "econ_workers",
+      "source_type": "official press release",
+      "date": "2023-02-28",
+      "link": "https://casar.house.gov/media/press-releases/news-congressman-greg-casar-co-sponsors-pro-act-hr-20",
+      "candidates": [
+        {
+          "id": "118|H.R. 20",
+          "bill": "H.R. 20",
+          "kind": "number",
+          "in_catalog": false,
+          "mentions": [
+            {
+              "kind": "number",
+              "origin": "text",
+              "match": "H.R. 20",
+              "congress_from": "date",
+              "span": "Trumka Protecting the Right to Organize Act (PRO Act), H.R. 20 ."
+            },
+            {
+              "kind": "short_title",
+              "origin": "text",
+              "match": "Trumka Protecting the Right to Organize Act",
+              "span": "Trumka Protecting the Right to Organize Act (PRO Act), H.R. 20 ."
+            }
+          ]
+        }
+      ],
+      "mappings": [
+        {
+          "bill": "H.R. 20",
+          "id": "118|H.R. 20",
+          "key": "econ_workers",
+          "confidence": "high",
+          "confidence_score": 0.9,
+          "basis": "bill number + subject words in the text",
+          "matched": "H.R. 20",
+          "span": "Trumka Protecting the Right to Organize Act (PRO Act), H.R. 20 . … Especially in a right-to-work-for-less state like Texas, workers deserve a union to protect their rights, create safer workplaces, and hold exploitative employers accountable. … If we restore union rights for the American people, we’ll restore an economy that works for all.”"
+        }
+      ],
+      "unmapped": []
+    },
+    {
+      "stance_id": "bobby_scott|justice_reform|gt-049",
+      "politician_id": "bobby_scott",
+      "topic": "justice_reform",
+      "source_type": "official press release",
+      "date": "2018-12-20",
+      "link": "https://bobbyscott.house.gov/media-center/press-releases/scott-statement-passage-first-step-act",
+      "candidates": [
+        {
+          "id": null,
+          "bill": "First Step Act of 2018",
+          "kind": "short_title",
+          "in_catalog": false,
+          "mentions": [
+            {
+              "kind": "short_title",
+              "origin": "text",
+              "match": "First Step Act of 2018",
+              "span": "WASHINGTON, DC – Congressman Bobby Scott (VA-03) issued the following statement after the House of Representatives passed the First Step Act of 2018:"
+            }
+          ]
+        },
+        {
+          "id": null,
+          "bill": "Fair Sentencing Act of 2010",
+          "kind": "short_title",
+          "in_catalog": false,
+          "mentions": [
+            {
+              "kind": "short_title",
+              "origin": "text",
+              "match": "Fair Sentencing Act of 2010",
+              "span": "The bill finally makes retroactive the Fair Sentencing Act of 2010, legislation that I authored in the House and that was signed into law by President Obama that finally reduced the crack-power cocaine sentencing disparity from 100-1 to 18-1."
+            }
+          ]
+        }
+      ],
+      "mappings": [
+        {
+          "bill": null,
+          "id": null,
+          "key": "justice_reform",
+          "confidence": "medium",
+          "confidence_score": 0.6,
+          "basis": "short title + subject words in the text",
+          "matched": "First Step Act of 2018",
+          "span": "\"Our criminal justice system is long overdue for significant and comprehensive reform. … Some of the sentencing provisions are long overdue."
+        },
+        {
+          "bill": null,
+          "id": null,
+          "key": "justice_reform",
+          "confidence": "medium",
+          "confidence_score": 0.6,
+          "basis": "short title + subject words in the text",
+          "matched": "Fair Sentencing Act of 2010",
+          "span": "The bill finally makes retroactive the Fair Sentencing Act of 2010, legislation that I authored in the House and that was signed into law by President Obama that finally reduced the crack-power cocaine sentencing disparity from 100-1 to 18-1. … I decided to vote for this legislation, but I hope that in the new year and with a new Congress we can revisit some of these problematic provisions and actually advance legislation that is based on evidence and research and will address the injustices in our justice system and truly reduce mass incarceration.\""
+        }
+      ],
+      "unmapped": []
+    },
+    {
+      "stance_id": "nadler|justice_reform|gt-050",
+      "politician_id": "nadler",
+      "topic": "justice_reform",
+      "source_type": "official press release (joint)",
+      "date": "2018-12-20",
+      "link": "https://nadler.house.gov/news/documentsingle.aspx?DocumentID=391349",
+      "candidates": [
+        {
+          "id": null,
+          "bill": "First Step Act",
+          "kind": "short_title",
+          "in_catalog": false,
+          "mentions": [
+            {
+              "kind": "short_title",
+              "origin": "text",
+              "match": "First Step Act",
+              "span": "“I’m proud to support to the First Step Act, an important bill that will advance criminal justice reform."
+            }
+          ]
+        },
+        {
+          "id": null,
+          "bill": "Fair Sentencing Act of 2010",
+          "kind": "short_title",
+          "in_catalog": false,
+          "mentions": [
+            {
+              "kind": "short_title",
+              "origin": "text",
+              "match": "Fair Sentencing Act of 2010",
+              "span": "This bill includes critical changes to our sentencing laws that will reduce the impact of some mandatory minimum sentences, notably with retroactive application of the reduced crack cocaine sentences under the Fair Sentencing Act of 2010."
+            }
+          ]
+        }
+      ],
+      "mappings": [
+        {
+          "bill": null,
+          "id": null,
+          "key": "justice_reform",
+          "confidence": "medium",
+          "confidence_score": 0.6,
+          "basis": "short title + subject words in the text",
+          "matched": "First Step Act",
+          "span": "“I’m proud to support to the First Step Act, an important bill that will advance criminal justice reform."
+        },
+        {
+          "bill": null,
+          "id": null,
+          "key": "justice_reform",
+          "confidence": "medium",
+          "confidence_score": 0.6,
+          "basis": "short title + subject words in the text",
+          "matched": "Fair Sentencing Act of 2010",
+          "span": "This bill includes critical changes to our sentencing laws that will reduce the impact of some mandatory minimum sentences, notably with retroactive application of the reduced crack cocaine sentences under the Fair Sentencing Act of 2010."
+        }
+      ],
+      "unmapped": []
+    },
+    {
+      "stance_id": "walberg|econ_trade|gt-051",
+      "politician_id": "walberg",
+      "topic": "econ_trade",
+      "source_type": "official press release",
+      "date": "2019-12-19",
+      "link": "https://walberg.house.gov/media/press-releases/walberg-applauds-passage-usmca-help-michigan-workers",
+      "candidates": [
+        {
+          "id": "116|H.R. 5430",
+          "bill": "H.R. 5430",
+          "kind": "number",
+          "in_catalog": false,
+          "mentions": [
+            {
+              "kind": "number",
+              "origin": "text",
+              "match": "H.R. 5430",
+              "congress_from": "date",
+              "span": "Washington, D.C. —Congressman Tim Walberg (MI-07) today voted for H.R. 5430, the United States-Mexico-Canada Agreement (USMCA) Implementation Act, to replace an outdated NAFTA."
+            }
+          ]
+        }
+      ],
+      "mappings": [
+        {
+          "bill": "H.R. 5430",
+          "id": "116|H.R. 5430",
+          "key": "econ_trade",
+          "confidence": "high",
+          "confidence_score": 0.9,
+          "basis": "bill number + subject words in the text",
+          "matched": "H.R. 5430",
+          "span": "Washington, D.C. —Congressman Tim Walberg (MI-07) today voted for H.R. 5430, the United States-Mexico-Canada Agreement (USMCA) Implementation Act, to replace an outdated NAFTA. … \"For too long, Michigan has needed better trade deals, and today's vote will help finally put NAFTA in the rearview mirror. … The USMCA is a significant leap forward towards leveling the playing field for farmers, workers, and manufacturers,\" said Walberg ."
+        }
+      ],
+      "unmapped": []
+    },
+    {
+      "stance_id": "neal|econ_trade|gt-052",
+      "politician_id": "neal",
+      "topic": "econ_trade",
+      "source_type": "official press release",
+      "date": "2019-12-19",
+      "link": "https://neal.house.gov/2019/12/20/news-documentsingle-aspx-documentid-1721/",
+      "candidates": [
+        {
+          "id": "116|H.R. 5430",
+          "bill": "H.R. 5430",
+          "kind": "number",
+          "in_catalog": false,
+          "mentions": [
+            {
+              "kind": "number",
+              "origin": "text",
+              "match": "H.R. 5430",
+              "congress_from": "date",
+              "span": "Neal (D-MA) released the following statement after the U.S. House of Representatives passed H.R. 5430, Legislation to implement the Agreement between the United States of America, the United Mexican States, and Canada attached as an Annex to the Protocol Replacing the North American Free Trade Agreement:"
+            }
+          ]
+        }
+      ],
+      "mappings": [
+        {
+          "bill": "H.R. 5430",
+          "id": "116|H.R. 5430",
+          "key": "econ_trade",
+          "confidence": "high",
+          "confidence_score": 0.9,
+          "basis": "bill number + subject words in the text",
+          "matched": "H.R. 5430",
+          "span": "Neal (D-MA) released the following statement after the U.S. House of Representatives passed H.R. 5430, Legislation to implement the Agreement between the United States of America, the United Mexican States, and Canada attached as an Annex to the Protocol Replacing the North American Free Trade Agreement: … With the House’s passage of implementing legislation for the vastly improved, enforceable version of the USMCA, we replace a deeply flawed trade deal and set enhanced standards for all future U.S. trade agreements to build upon."
+        }
+      ],
+      "unmapped": []
+    },
+    {
+      "stance_id": "steven_horsford|econ_trade|gt-053",
+      "politician_id": "steven_horsford",
+      "topic": "econ_trade",
+      "source_type": "official press release",
+      "date": "2019-12-17",
+      "link": "https://horsford.house.gov/media/press-releases/congressman-steven-horsford-speaks-in-support-of-usmca-in-ways-and-means-committee",
+      "candidates": [
+        {
+          "id": "116|H.R. 5430",
+          "bill": "H.R. 5430",
+          "kind": "number",
+          "in_catalog": false,
+          "mentions": [
+            {
+              "kind": "number",
+              "origin": "text",
+              "match": "H.R. 5430",
+              "congress_from": "date",
+              "span": "Washington, D.C. — Today, December 17, 2019, Congressman Steven Horsford (NV-04) spoke in support of H.R. 5430, legislation to implement the Agreement between the United States of America, the United Mexican States, and Canada (USMCA) in the Ways and Means Committee mark-up of the legislation."
+            }
+          ]
+        }
+      ],
+      "mappings": [
+        {
+          "bill": "H.R. 5430",
+          "id": "116|H.R. 5430",
+          "key": "econ_trade",
+          "confidence": "high",
+          "confidence_score": 0.9,
+          "basis": "bill number + subject words in the text",
+          "matched": "H.R. 5430",
+          "span": "Washington, D.C. — Today, December 17, 2019, Congressman Steven Horsford (NV-04) spoke in support of H.R. 5430, legislation to implement the Agreement between the United States of America, the United Mexican States, and Canada (USMCA) in the Ways and Means Committee mark-up of the legislation."
+        }
+      ],
+      "unmapped": []
     }
   ],
   "routine_sweep": {
-    "fetched_at": "2026-11-12T14:44:11.266Z",
+    "fetched_at": "2026-11-12T15:19:31.512Z",
     "rows": [
       {
         "group": "raw-ingest SOURCES",
@@ -1219,7 +2421,7 @@
         "source_type": "campaign policy page",
         "url": "https://www.gregabbott.com/policy/",
         "ok": true,
-        "body_chars": 193983,
+        "body_chars": 193986,
         "sentences": 220,
         "candidates": 0,
         "mappings": [],
@@ -1308,6 +2510,17 @@
             "matched": "Working Families Tax Cut Act",
             "span": "Cornyn, Moran Op-Ed: The Working Families Tax Cut Act Prescribes Real Remedies for Health Care",
             "review": "correct"
+          },
+          {
+            "bill": null,
+            "id": null,
+            "key": "pro_choice",
+            "confidence": "medium",
+            "confidence_score": 0.6,
+            "basis": "short title + subject words in the text",
+            "matched": "Chemical Abortion Act",
+            "span": "News March 13, 2026 AUSTIN – U.S. Senator John Cornyn (R-TX) cosponsored Senator Josh Hawley (R-MO)’s Safeguarding Women from Chemical Abortion Act, which would ban the chemical abortion drug mifepristone and empower women harmed by the drug to sue its manufacturers: “The data is clear that mifepristone, a mail-order drug that kills unborn children, also […]",
+            "review": "correct"
           }
         ],
         "mentioned_not_mapped": [
@@ -1315,25 +2528,19 @@
             "bill": "One Big Beautiful Bill Act",
             "kind": "short_title",
             "matched": "One Big Beautiful Bill Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog) | climate_action: no climate or clean-energy words in the text around the mention (and the bill is not in the catalog) | gun_safety: no gun words in the text around the mention (and the bill is not in the catalog) | pro_choice: no abortion or reproductive-rights words in the text around the mention (and the bill is not in the catalog) | voting_access: no voting-rules words in the text around the mention (and the bill is not in the catalog) | housing: no housing words in the text around the mention (and the bill is not in the catalog) | econ_trade: no trade words in the text around the mention (and the bill is not in the catalog) | econ_workers: no wage or labor-law words in the text around the mention (and the bill is not in the catalog) | justice_reform: no criminal-justice words in the text around the mention (and the bill is not in the catalog)"
           },
           {
             "bill": "Affordable Prescriptions for Patients Act",
             "kind": "short_title",
             "matched": "Affordable Prescriptions for Patients Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog) | climate_action: no climate or clean-energy words in the text around the mention (and the bill is not in the catalog) | gun_safety: no gun words in the text around the mention (and the bill is not in the catalog) | pro_choice: no abortion or reproductive-rights words in the text around the mention (and the bill is not in the catalog) | voting_access: no voting-rules words in the text around the mention (and the bill is not in the catalog) | housing: no housing words in the text around the mention (and the bill is not in the catalog) | econ_trade: no trade words in the text around the mention (and the bill is not in the catalog) | econ_workers: no wage or labor-law words in the text around the mention (and the bill is not in the catalog) | justice_reform: no criminal-justice words in the text around the mention (and the bill is not in the catalog)"
           },
           {
             "bill": "Working Families Tax Cuts Act",
             "kind": "short_title",
             "matched": "Working Families Tax Cuts Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog)"
-          },
-          {
-            "bill": "Chemical Abortion Act",
-            "kind": "short_title",
-            "matched": "Chemical Abortion Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog) | climate_action: no climate or clean-energy words in the text around the mention (and the bill is not in the catalog) | gun_safety: no gun words in the text around the mention (and the bill is not in the catalog) | pro_choice: no abortion or reproductive-rights words in the text around the mention (and the bill is not in the catalog) | voting_access: no voting-rules words in the text around the mention (and the bill is not in the catalog) | housing: no housing words in the text around the mention (and the bill is not in the catalog) | econ_trade: no trade words in the text around the mention (and the bill is not in the catalog) | econ_workers: no wage or labor-law words in the text around the mention (and the bill is not in the catalog) | justice_reform: no criminal-justice words in the text around the mention (and the bill is not in the catalog)"
           }
         ]
       },
@@ -1388,7 +2595,7 @@
             "bill": "Open Meetings Act",
             "kind": "short_title",
             "matched": "Open Meetings Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog) | climate_action: no climate or clean-energy words in the text around the mention (and the bill is not in the catalog) | gun_safety: no gun words in the text around the mention (and the bill is not in the catalog) | pro_choice: no abortion or reproductive-rights words in the text around the mention (and the bill is not in the catalog) | voting_access: no voting-rules words in the text around the mention (and the bill is not in the catalog) | housing: no housing words in the text around the mention (and the bill is not in the catalog) | econ_trade: no trade words in the text around the mention (and the bill is not in the catalog) | econ_workers: no wage or labor-law words in the text around the mention (and the bill is not in the catalog) | justice_reform: no criminal-justice words in the text around the mention (and the bill is not in the catalog)"
           }
         ]
       },
@@ -1408,31 +2615,31 @@
             "bill": "One Big Beautiful Bill Act",
             "kind": "short_title",
             "matched": "One Big Beautiful Bill Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog) | climate_action: no climate or clean-energy words in the text around the mention (and the bill is not in the catalog) | gun_safety: no gun words in the text around the mention (and the bill is not in the catalog) | pro_choice: no abortion or reproductive-rights words in the text around the mention (and the bill is not in the catalog) | voting_access: no voting-rules words in the text around the mention (and the bill is not in the catalog) | housing: no housing words in the text around the mention (and the bill is not in the catalog) | econ_trade: no trade words in the text around the mention (and the bill is not in the catalog) | econ_workers: no wage or labor-law words in the text around the mention (and the bill is not in the catalog) | justice_reform: no criminal-justice words in the text around the mention (and the bill is not in the catalog)"
           },
           {
             "bill": "Affordable Prescriptions for Patients Act",
             "kind": "short_title",
             "matched": "Affordable Prescriptions for Patients Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog) | climate_action: no climate or clean-energy words in the text around the mention (and the bill is not in the catalog) | gun_safety: no gun words in the text around the mention (and the bill is not in the catalog) | pro_choice: no abortion or reproductive-rights words in the text around the mention (and the bill is not in the catalog) | voting_access: no voting-rules words in the text around the mention (and the bill is not in the catalog) | housing: no housing words in the text around the mention (and the bill is not in the catalog) | econ_trade: no trade words in the text around the mention (and the bill is not in the catalog) | econ_workers: no wage or labor-law words in the text around the mention (and the bill is not in the catalog) | justice_reform: no criminal-justice words in the text around the mention (and the bill is not in the catalog)"
           },
           {
             "bill": "S. 2938",
             "kind": "short_title",
             "matched": "Bipartisan Safer Communities Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention or the official title; catalog files it under healthcare, public_schools, health_mental, gun_rights, gun_safety | ukraine_aid: no Ukraine aid words in the text around the mention or the official title; catalog files it under healthcare, public_schools, health_mental, gun_rights, gun_safety | iran_hostilities: no Iran hostilities words in the text around the mention or the official title; catalog files it under healthcare, public_schools, health_mental, gun_rights, gun_safety | tariffs_china: no China tariff words in the text around the mention or the official title; catalog files it under healthcare, public_schools, health_mental, gun_rights, gun_safety | border_security: no border enforcement words in the text around the mention or the official title; catalog files it under healthcare, public_schools, health_mental, gun_rights, gun_safety | energy_production: no energy production words in the text around the mention or the official title; catalog files it under healthcare, public_schools, health_mental, gun_rights, gun_safety | school_choice: no school choice words in the text around the mention or the official title; catalog files it under healthcare, public_schools, health_mental, gun_rights, gun_safety | healthcare: no health coverage words in the text around the mention or the official title; catalog files it under healthcare, public_schools, health_mental, gun_rights, gun_safety | cut_spending: no spending-cut words in the text around the mention or the official title; catalog files it under healthcare, public_schools, health_mental, gun_rights, gun_safety"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention or the official title; catalog files it under healthcare, public_schools, health_mental, gun_rights, gun_safety | ukraine_aid: no Ukraine aid words in the text around the mention or the official title; catalog files it under healthcare, public_schools, health_mental, gun_rights, gun_safety | iran_hostilities: no Iran hostilities words in the text around the mention or the official title; catalog files it under healthcare, public_schools, health_mental, gun_rights, gun_safety | tariffs_china: no China tariff words in the text around the mention or the official title; catalog files it under healthcare, public_schools, health_mental, gun_rights, gun_safety | border_security: no border enforcement words in the text around the mention or the official title; catalog files it under healthcare, public_schools, health_mental, gun_rights, gun_safety | energy_production: no energy production words in the text around the mention or the official title; catalog files it under healthcare, public_schools, health_mental, gun_rights, gun_safety | school_choice: no school choice words in the text around the mention or the official title; catalog files it under healthcare, public_schools, health_mental, gun_rights, gun_safety | healthcare: no health coverage words in the text around the mention or the official title; catalog files it under healthcare, public_schools, health_mental, gun_rights, gun_safety | cut_spending: no spending-cut words in the text around the mention or the official title; catalog files it under healthcare, public_schools, health_mental, gun_rights, gun_safety | climate_action: no climate or clean-energy words in the text around the mention or the official title; catalog files it under healthcare, public_schools, health_mental, gun_rights, gun_safety | gun_safety: no gun words in the text around the mention or the official title; catalog files it under healthcare, public_schools, health_mental, gun_rights, gun_safety | pro_choice: no abortion or reproductive-rights words in the text around the mention or the official title; catalog files it under healthcare, public_schools, health_mental, gun_rights, gun_safety | voting_access: no voting-rules words in the text around the mention or the official title; catalog files it under healthcare, public_schools, health_mental, gun_rights, gun_safety | housing: no housing words in the text around the mention or the official title; catalog files it under healthcare, public_schools, health_mental, gun_rights, gun_safety | econ_trade: no trade words in the text around the mention or the official title; catalog files it under healthcare, public_schools, health_mental, gun_rights, gun_safety | econ_workers: no wage or labor-law words in the text around the mention or the official title; catalog files it under healthcare, public_schools, health_mental, gun_rights, gun_safety | justice_reform: no criminal-justice words in the text around the mention or the official title; catalog files it under healthcare, public_schools, health_mental, gun_rights, gun_safety"
           },
           {
             "bill": "Century CURES Act",
             "kind": "short_title",
             "matched": "Century CURES Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: about criminal justice (→ justice_reform), not Israel offensive arms | ukraine_aid: about criminal justice (→ justice_reform), not further U.S. aid to Ukraine | iran_hostilities: about criminal justice (→ justice_reform), not U.S. hostilities with Iran | tariffs_china: about criminal justice (→ justice_reform), not tariffs on China | border_security: about criminal justice (→ justice_reform), not border enforcement | energy_production: about criminal justice (→ justice_reform), not domestic energy production | school_choice: about criminal justice (→ justice_reform), not school choice | healthcare: about criminal justice (→ justice_reform), not health care access | cut_spending: about criminal justice (→ justice_reform), not cutting federal spending | climate_action: about criminal justice (→ justice_reform), not climate and clean energy | gun_safety: about criminal justice (→ justice_reform), not gun safety laws | pro_choice: about criminal justice (→ justice_reform), not abortion and reproductive rights | voting_access: about criminal justice (→ justice_reform), not voting access and election rules | housing: about criminal justice (→ justice_reform), not housing affordability | econ_trade: about criminal justice (→ justice_reform), not trade deals and trade rules | econ_workers: about criminal justice (→ justice_reform), not wages and workers' rights | justice_reform: names the subject but no criminal-justice words (aid, funding, a sale …) around the mention or in the title"
           },
           {
             "bill": "Drug Patents Act",
             "kind": "short_title",
             "matched": "Drug Patents Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog) | climate_action: no climate or clean-energy words in the text around the mention (and the bill is not in the catalog) | gun_safety: no gun words in the text around the mention (and the bill is not in the catalog) | pro_choice: no abortion or reproductive-rights words in the text around the mention (and the bill is not in the catalog) | voting_access: no voting-rules words in the text around the mention (and the bill is not in the catalog) | housing: no housing words in the text around the mention (and the bill is not in the catalog) | econ_trade: no trade words in the text around the mention (and the bill is not in the catalog) | econ_workers: no wage or labor-law words in the text around the mention (and the bill is not in the catalog) | justice_reform: no criminal-justice words in the text around the mention (and the bill is not in the catalog)"
           }
         ]
       },
@@ -1456,7 +2663,7 @@
         "source_type": "campaign issues page",
         "url": "https://jefflivingstonforcolorado.com/",
         "ok": true,
-        "body_chars": 733799,
+        "body_chars": 1165831,
         "sentences": 108,
         "candidates": 0,
         "mappings": [],
@@ -1521,7 +2728,7 @@
         "source_type": "campaign issues page",
         "url": "https://samwilcoxforri.com/posts/",
         "ok": true,
-        "body_chars": 133321,
+        "body_chars": 133403,
         "sentences": 41,
         "candidates": 0,
         "mappings": [],
@@ -1625,7 +2832,7 @@
         "source_type": "campaign platform page",
         "url": "https://www.roseforohio.com/platform/education",
         "ok": true,
-        "body_chars": 328353,
+        "body_chars": 239601,
         "sentences": 39,
         "candidates": 0,
         "mappings": [],
@@ -1638,7 +2845,7 @@
         "source_type": "campaign platform page",
         "url": "https://www.roseforohio.com/platform/workingfamilies",
         "ok": true,
-        "body_chars": 280460,
+        "body_chars": 222778,
         "sentences": 39,
         "candidates": 0,
         "mappings": [],
@@ -1651,7 +2858,7 @@
         "source_type": "campaign platform page",
         "url": "https://www.roseforohio.com/platform/gunsafety",
         "ok": true,
-        "body_chars": 387930,
+        "body_chars": 283698,
         "sentences": 35,
         "candidates": 0,
         "mappings": [],
@@ -1664,7 +2871,7 @@
         "source_type": "campaign platform page",
         "url": "https://www.roseforohio.com/platform/environment",
         "ok": true,
-        "body_chars": 211616,
+        "body_chars": 168196,
         "sentences": 32,
         "candidates": 0,
         "mappings": [],
@@ -1677,7 +2884,7 @@
         "source_type": "campaign platform page",
         "url": "https://www.roseforohio.com/platform/democracy",
         "ok": true,
-        "body_chars": 364387,
+        "body_chars": 167323,
         "sentences": 32,
         "candidates": 0,
         "mappings": [],
@@ -1690,7 +2897,7 @@
         "source_type": "campaign platform page",
         "url": "https://www.roseforohio.com/platform/healthcare",
         "ok": true,
-        "body_chars": 278627,
+        "body_chars": 255923,
         "sentences": 40,
         "candidates": 0,
         "mappings": [],
@@ -1703,7 +2910,7 @@
         "source_type": "campaign platform page",
         "url": "https://www.roseforohio.com/platform/labor",
         "ok": true,
-        "body_chars": 168122,
+        "body_chars": 180570,
         "sentences": 34,
         "candidates": 0,
         "mappings": [],
@@ -1716,7 +2923,7 @@
         "source_type": "campaign platform page",
         "url": "https://www.roseforohio.com/platform/justice",
         "ok": true,
-        "body_chars": 310716,
+        "body_chars": 250722,
         "sentences": 34,
         "candidates": 1,
         "mappings": [],
@@ -1725,7 +2932,7 @@
             "bill": "HB 68",
             "kind": "state_number",
             "matched": "HB 68",
-            "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine | iran_hostilities: about health care, not U.S. hostilities with Iran | tariffs_china: about health care, not tariffs on China | border_security: about health care, not border enforcement | energy_production: about health care, not domestic energy production | school_choice: about health care, not school choice | healthcare: names the subject but no health coverage words (aid, funding, a sale …) around the mention or in the title | cut_spending: about health care, not cutting federal spending"
+            "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine | iran_hostilities: about health care, not U.S. hostilities with Iran | tariffs_china: about health care, not tariffs on China | border_security: about health care, not border enforcement | energy_production: about health care, not domestic energy production | school_choice: about health care, not school choice | healthcare: names the subject but no health coverage words (aid, funding, a sale …) around the mention or in the title | cut_spending: about health care, not cutting federal spending | climate_action: about health care, not climate and clean energy | gun_safety: about health care, not gun safety laws | pro_choice: about health care, not abortion and reproductive rights | voting_access: about health care, not voting access and election rules | housing: about health care, not housing affordability | econ_trade: about health care, not trade deals and trade rules | econ_workers: about health care, not wages and workers' rights | justice_reform: about health care, not criminal justice reform"
           }
         ]
       },
@@ -1736,7 +2943,7 @@
         "source_type": "campaign platform page",
         "url": "https://www.roseforohio.com/platform/womensrights",
         "ok": true,
-        "body_chars": 389820,
+        "body_chars": 169048,
         "sentences": 31,
         "candidates": 0,
         "mappings": [],
@@ -1749,7 +2956,7 @@
         "source_type": "campaign issues page",
         "url": "https://kimballforohio.com/",
         "ok": true,
-        "body_chars": 303195,
+        "body_chars": 397255,
         "sentences": 36,
         "candidates": 0,
         "mappings": [],
@@ -1762,7 +2969,7 @@
         "source_type": "campaign issues page",
         "url": "https://zach4texas.com/issues/",
         "ok": true,
-        "body_chars": 122417,
+        "body_chars": 122336,
         "sentences": 36,
         "candidates": 0,
         "mappings": [],
@@ -1802,22 +3009,31 @@
             "matched": "Affordable Care Act",
             "span": "Colorado does better than some other states on account of having embraced the Medicaid expansion under the Affordable Care Act, but we still have a lot of work to do. … The public health emergency unwind caused many eligible patients to get dropped from the rolls, and the Department of Healthcare Policy and Financing (HCPF)–the department that administers Medicaid in Colorado–has had significant internal difficulties and has gone over their budget. … Difficult decisions will be made in the 2027 legislative session, but I believe that what is most critical is to cover primary care and to at least maintain the Medicaid providers we have. … The Commission on Medicaid that has been meeting throughout the interim this year is finding many areas of improvement that are absolutely fixable – coding issues, for instance, and gaps in oversight. … There are also structural challenges that are much harder to overcome, such as Medicaid’s inability to negotiate drug prices the way a private insurer can.",
             "review": "correct"
-          }
-        ],
-        "mentioned_not_mapped": [
-          {
-            "bill": "Colorado Labor Peace Act",
-            "kind": "short_title",
-            "matched": "Colorado Labor Peace Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog)"
           },
           {
-            "bill": "Colorado’s Labor Peace Act",
-            "kind": "short_title",
+            "bill": null,
+            "id": null,
+            "key": "econ_workers",
+            "confidence": "medium",
+            "confidence_score": 0.6,
+            "basis": "short title + subject words in the text",
+            "matched": "Colorado Labor Peace Act",
+            "span": "Make it easier to form a union by removing the second election from the Colorado Labor Peace Act",
+            "review": "correct"
+          },
+          {
+            "bill": null,
+            "id": null,
+            "key": "econ_workers",
+            "confidence": "medium",
+            "confidence_score": 0.6,
+            "basis": "short title + subject words in the text",
             "matched": "Colorado’s Labor Peace Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog)"
+            "span": "Attacks on organized labor have played a big hand in this, as well as corporate power in politics and government affairs, and working people are feeling the squeeze. … I support a living minimum wage and robust enforcement of Colorado's labor laws. … I also support the repeal of the confusing second election required by Colorado’s Labor Peace Act, so that workers can form a union and a collective bargaining unit with one election.",
+            "review": "correct"
           }
-        ]
+        ],
+        "mentioned_not_mapped": []
       },
       {
         "group": "newly-elected state-legislative roster",
@@ -1839,18 +3055,23 @@
         "source_type": "campaign priorities page",
         "url": "https://www.chrisfordformn.com/priorities",
         "ok": true,
-        "body_chars": 234244,
+        "body_chars": 251932,
         "sentences": 63,
         "candidates": 1,
-        "mappings": [],
-        "mentioned_not_mapped": [
+        "mappings": [
           {
-            "bill": "Minnesota Starter Home Act",
-            "kind": "short_title",
+            "bill": null,
+            "id": null,
+            "key": "housing",
+            "confidence": "medium",
+            "confidence_score": 0.6,
+            "basis": "short title + subject words in the text",
             "matched": "Minnesota Starter Home Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog)"
+            "span": "We also need to limit out-of-state private equity firms and hedge funds from buying up single-family starter homes driving families out of homeownership. … Beyond that we need to also increase the supply of housing. … I believe in bipartisan legislation like the Minnesota Starter Home Act and the Yes to Homes agenda because these reforms are helping increase the number of available duplexes and townhomes, Overall, I want to ease financial burdens on families, not add to them, and I will stay focused on guaranteeing that every Minnesotan has a place to sleep at night.",
+            "review": "correct"
           }
-        ]
+        ],
+        "mentioned_not_mapped": []
       },
       {
         "group": "newly-elected state-legislative roster",
@@ -1862,15 +3083,20 @@
         "body_chars": 228242,
         "sentences": 92,
         "candidates": 1,
-        "mappings": [],
-        "mentioned_not_mapped": [
+        "mappings": [
           {
-            "bill": "Veterans Restorative Justice Act",
-            "kind": "short_title",
+            "bill": null,
+            "id": null,
+            "key": "justice_reform",
+            "confidence": "medium",
+            "confidence_score": 0.6,
+            "basis": "short title + subject words in the text",
             "matched": "Veterans Restorative Justice Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog)"
+            "span": "Kristy wants to see the state do more to provide justice-involved veterans a second chance.",
+            "review": "correct"
           }
-        ]
+        ],
+        "mentioned_not_mapped": []
       },
       {
         "group": "newly-elected state-legislative roster",
@@ -1879,7 +3105,7 @@
         "source_type": "campaign issues page",
         "url": "https://legvold4mnsenate58.com/policy",
         "ok": true,
-        "body_chars": 225895,
+        "body_chars": 353301,
         "sentences": 81,
         "candidates": 0,
         "mappings": [],
@@ -1956,8 +3182,12 @@
         "topic": "healthcare",
         "source_type": "campaign issues page",
         "url": "https://electnelly.com/issues",
-        "ok": false,
-        "error": "fetch failed"
+        "ok": true,
+        "body_chars": 171275,
+        "sentences": 40,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
       },
       {
         "group": "newly-elected state-legislative roster",
@@ -1979,7 +3209,7 @@
         "source_type": "campaign priorities page",
         "url": "https://www.simplerforstatehouse.com/priorities",
         "ok": true,
-        "body_chars": 213429,
+        "body_chars": 146349,
         "sentences": 36,
         "candidates": 0,
         "mappings": [],
@@ -1992,7 +3222,7 @@
         "source_type": "campaign priorities page",
         "url": "https://www.lisakellerforalaska.com/",
         "ok": true,
-        "body_chars": 240180,
+        "body_chars": 206968,
         "sentences": 31,
         "candidates": 0,
         "mappings": [],
@@ -2018,7 +3248,7 @@
         "source_type": "campaign home page",
         "url": "https://www.jimrileyforhd6.com/",
         "ok": true,
-        "body_chars": 687146,
+        "body_chars": 494420,
         "sentences": 66,
         "candidates": 0,
         "mappings": [],
@@ -2105,7 +3335,7 @@
             "kind": "number",
             "matched": "S.60",
             "congress_from": "date",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: about climate and clean energy (→ climate_action), not Israel offensive arms | ukraine_aid: about climate and clean energy (→ climate_action), not further U.S. aid to Ukraine | iran_hostilities: about climate and clean energy (→ climate_action), not U.S. hostilities with Iran | tariffs_china: about climate and clean energy (→ climate_action), not tariffs on China | border_security: about climate and clean energy (→ climate_action), not border enforcement | energy_production: about climate and clean energy (→ climate_action), not domestic energy production | school_choice: about climate and clean energy (→ climate_action), not school choice | healthcare: about climate and clean energy (→ climate_action), not health care access | cut_spending: about climate and clean energy (→ climate_action), not cutting federal spending | climate_action: no climate or clean-energy words in the text around the mention (and the bill is not in the catalog) | gun_safety: about climate and clean energy (→ climate_action), not gun safety laws | pro_choice: about climate and clean energy (→ climate_action), not abortion and reproductive rights | voting_access: about climate and clean energy (→ climate_action), not voting access and election rules | housing: about climate and clean energy (→ climate_action), not housing affordability | econ_trade: about climate and clean energy (→ climate_action), not trade deals and trade rules | econ_workers: about climate and clean energy (→ climate_action), not wages and workers' rights | justice_reform: about climate and clean energy (→ climate_action), not criminal justice reform"
           }
         ]
       },
@@ -2116,7 +3346,7 @@
         "source_type": "campaign priorities page",
         "url": "https://www.kimgleasonforvt.org/priorities",
         "ok": true,
-        "body_chars": 367020,
+        "body_chars": 203256,
         "sentences": 38,
         "candidates": 0,
         "mappings": [],
@@ -2139,7 +3369,7 @@
             "kind": "number",
             "matched": "S.100",
             "congress_from": "date",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: about housing (→ housing), not Israel offensive arms | ukraine_aid: about housing (→ housing), not further U.S. aid to Ukraine | iran_hostilities: about housing (→ housing), not U.S. hostilities with Iran | tariffs_china: about housing (→ housing), not tariffs on China | border_security: about housing (→ housing), not border enforcement | energy_production: about housing (→ housing), not domestic energy production | school_choice: about housing (→ housing), not school choice | healthcare: about housing (→ housing), not health care access | cut_spending: about housing (→ housing), not cutting federal spending | climate_action: about housing (→ housing), not climate and clean energy | gun_safety: about housing (→ housing), not gun safety laws | pro_choice: about housing (→ housing), not abortion and reproductive rights | voting_access: about housing (→ housing), not voting access and election rules | housing: a bill number on a state legislator's page that the federal catalog does not hold (most likely a state bill) | econ_trade: about housing (→ housing), not trade deals and trade rules | econ_workers: about housing (→ housing), not wages and workers' rights | justice_reform: about housing (→ housing), not criminal justice reform"
           }
         ]
       },
@@ -2228,52 +3458,58 @@
         "source_type": "campaign platform page",
         "url": "https://www.mcadamsforil.com/platform",
         "ok": true,
-        "body_chars": 207735,
+        "body_chars": 218513,
         "sentences": 111,
         "candidates": 7,
-        "mappings": [],
+        "mappings": [
+          {
+            "bill": null,
+            "id": null,
+            "key": "voting_access",
+            "confidence": "medium",
+            "confidence_score": 0.6,
+            "basis": "short title + subject words in the text",
+            "matched": "Voting Rights Act",
+            "span": "We’ve also seen the gutting of the Voting Rights Act earlier this year, leading to the disenfranchisement of millions across the country. … We have seen an unprecedented attack on laws like the Voting Rights Act, which helps ensure everyone gets to vote and that their vote matters regardless of the color of their skin.",
+            "review": "correct"
+          }
+        ],
         "mentioned_not_mapped": [
           {
             "bill": "SB 3376",
             "kind": "state_number",
             "matched": "SB 3376",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog) | climate_action: no climate or clean-energy words in the text around the mention (and the bill is not in the catalog) | gun_safety: no gun words in the text around the mention (and the bill is not in the catalog) | pro_choice: no abortion or reproductive-rights words in the text around the mention (and the bill is not in the catalog) | voting_access: no voting-rules words in the text around the mention (and the bill is not in the catalog) | housing: no housing words in the text around the mention (and the bill is not in the catalog) | econ_trade: no trade words in the text around the mention (and the bill is not in the catalog) | econ_workers: no wage or labor-law words in the text around the mention (and the bill is not in the catalog) | justice_reform: no criminal-justice words in the text around the mention (and the bill is not in the catalog)"
           },
           {
             "bill": "SB 3796",
             "kind": "state_number",
             "matched": "SB 3796",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog) | climate_action: no climate or clean-energy words in the text around the mention (and the bill is not in the catalog) | gun_safety: no gun words in the text around the mention (and the bill is not in the catalog) | pro_choice: no abortion or reproductive-rights words in the text around the mention (and the bill is not in the catalog) | voting_access: no voting-rules words in the text around the mention (and the bill is not in the catalog) | housing: no housing words in the text around the mention (and the bill is not in the catalog) | econ_trade: no trade words in the text around the mention (and the bill is not in the catalog) | econ_workers: no wage or labor-law words in the text around the mention (and the bill is not in the catalog) | justice_reform: no criminal-justice words in the text around the mention (and the bill is not in the catalog)"
           },
           {
             "bill": "SB 2462",
             "kind": "state_number",
             "matched": "SB 2462",
-            "reason": "israel_offensive_arms: names the subject but no Israel arms-transfer words (aid, funding, a sale …) around the mention or in the title | ukraine_aid: about Israel (→ israel_* keys), not further U.S. aid to Ukraine | iran_hostilities: about Israel (→ israel_* keys), not U.S. hostilities with Iran | tariffs_china: the mention sits in a passage about Israel (→ israel_* keys), not tariffs on China | border_security: the mention sits in a passage about Israel (→ israel_* keys), not border enforcement | energy_production: the mention sits in a passage about Israel (→ israel_* keys), not domestic energy production | school_choice: the mention sits in a passage about Israel (→ israel_* keys), not school choice | healthcare: the mention sits in a passage about Israel (→ israel_* keys), not health care access | cut_spending: the mention sits in a passage about Israel (→ israel_* keys), not cutting federal spending"
-          },
-          {
-            "bill": "Voting Rights Act",
-            "kind": "short_title",
-            "matched": "Voting Rights Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: names the subject but no Israel arms-transfer words (aid, funding, a sale …) around the mention or in the title | ukraine_aid: about Israel (→ israel_* keys), not further U.S. aid to Ukraine | iran_hostilities: about Israel (→ israel_* keys), not U.S. hostilities with Iran | tariffs_china: the mention sits in a passage about Israel (→ israel_* keys), not tariffs on China | border_security: the mention sits in a passage about Israel (→ israel_* keys), not border enforcement | energy_production: the mention sits in a passage about Israel (→ israel_* keys), not domestic energy production | school_choice: the mention sits in a passage about Israel (→ israel_* keys), not school choice | healthcare: the mention sits in a passage about Israel (→ israel_* keys), not health care access | cut_spending: the mention sits in a passage about Israel (→ israel_* keys), not cutting federal spending | climate_action: the mention sits in a passage about Israel (→ israel_* keys), not climate and clean energy | gun_safety: the mention sits in a passage about Israel (→ israel_* keys), not gun safety laws | pro_choice: the mention sits in a passage about Israel (→ israel_* keys), not abortion and reproductive rights | voting_access: the mention sits in a passage about Israel (→ israel_* keys), not voting access and election rules | housing: the mention sits in a passage about Israel (→ israel_* keys), not housing affordability | econ_trade: the mention sits in a passage about Israel (→ israel_* keys), not trade deals and trade rules | econ_workers: the mention sits in a passage about Israel (→ israel_* keys), not wages and workers' rights | justice_reform: the mention sits in a passage about Israel (→ israel_* keys), not criminal justice reform"
           },
           {
             "bill": "Illinois Data Center Energy and Water Reporting Act",
             "kind": "short_title",
             "matched": "Illinois Data Center Energy and Water Reporting Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog) | climate_action: no climate or clean-energy words in the text around the mention (and the bill is not in the catalog) | gun_safety: no gun words in the text around the mention (and the bill is not in the catalog) | pro_choice: no abortion or reproductive-rights words in the text around the mention (and the bill is not in the catalog) | voting_access: no voting-rules words in the text around the mention (and the bill is not in the catalog) | housing: no housing words in the text around the mention (and the bill is not in the catalog) | econ_trade: no trade words in the text around the mention (and the bill is not in the catalog) | econ_workers: no wage or labor-law words in the text around the mention (and the bill is not in the catalog) | justice_reform: no criminal-justice words in the text around the mention (and the bill is not in the catalog)"
           },
           {
             "bill": "Clean Air in Schools Act",
             "kind": "short_title",
             "matched": "Clean Air in Schools Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog) | climate_action: no climate or clean-energy words in the text around the mention (and the bill is not in the catalog) | gun_safety: no gun words in the text around the mention (and the bill is not in the catalog) | pro_choice: no abortion or reproductive-rights words in the text around the mention (and the bill is not in the catalog) | voting_access: no voting-rules words in the text around the mention (and the bill is not in the catalog) | housing: no housing words in the text around the mention (and the bill is not in the catalog) | econ_trade: no trade words in the text around the mention (and the bill is not in the catalog) | econ_workers: no wage or labor-law words in the text around the mention (and the bill is not in the catalog) | justice_reform: no criminal-justice words in the text around the mention (and the bill is not in the catalog)"
           },
           {
             "bill": "Illinois Safety and Liberation Together Act",
             "kind": "short_title",
             "matched": "Illinois Safety and Liberation Together Act",
-            "reason": "israel_offensive_arms: names the subject but no Israel arms-transfer words (aid, funding, a sale …) around the mention or in the title | ukraine_aid: about Israel (→ israel_* keys), not further U.S. aid to Ukraine | iran_hostilities: about Israel (→ israel_* keys), not U.S. hostilities with Iran | tariffs_china: the mention sits in a passage about Israel (→ israel_* keys), not tariffs on China | border_security: the mention sits in a passage about Israel (→ israel_* keys), not border enforcement | energy_production: the mention sits in a passage about Israel (→ israel_* keys), not domestic energy production | school_choice: the mention sits in a passage about Israel (→ israel_* keys), not school choice | healthcare: the mention sits in a passage about Israel (→ israel_* keys), not health care access | cut_spending: the mention sits in a passage about Israel (→ israel_* keys), not cutting federal spending"
+            "reason": "israel_offensive_arms: names the subject but no Israel arms-transfer words (aid, funding, a sale …) around the mention or in the title | ukraine_aid: about Israel (→ israel_* keys), not further U.S. aid to Ukraine | iran_hostilities: about Israel (→ israel_* keys), not U.S. hostilities with Iran | tariffs_china: the mention sits in a passage about Israel (→ israel_* keys), not tariffs on China | border_security: the mention sits in a passage about Israel (→ israel_* keys), not border enforcement | energy_production: the mention sits in a passage about Israel (→ israel_* keys), not domestic energy production | school_choice: the mention sits in a passage about Israel (→ israel_* keys), not school choice | healthcare: the mention sits in a passage about Israel (→ israel_* keys), not health care access | cut_spending: the mention sits in a passage about Israel (→ israel_* keys), not cutting federal spending | climate_action: the mention sits in a passage about Israel (→ israel_* keys), not climate and clean energy | gun_safety: the mention sits in a passage about Israel (→ israel_* keys), not gun safety laws | pro_choice: the mention sits in a passage about Israel (→ israel_* keys), not abortion and reproductive rights | voting_access: the mention sits in a passage about Israel (→ israel_* keys), not voting access and election rules | housing: the mention sits in a passage about Israel (→ israel_* keys), not housing affordability | econ_trade: the mention sits in a passage about Israel (→ israel_* keys), not trade deals and trade rules | econ_workers: the mention sits in a passage about Israel (→ israel_* keys), not wages and workers' rights | justice_reform: the mention sits in a passage about Israel (→ israel_* keys), not criminal justice reform"
           }
         ]
       },
@@ -2300,25 +3536,36 @@
         "body_chars": 93977,
         "sentences": 141,
         "candidates": 3,
-        "mappings": [],
+        "mappings": [
+          {
+            "bill": null,
+            "id": null,
+            "key": "gun_safety",
+            "confidence": "medium",
+            "confidence_score": 0.6,
+            "basis": "short title + subject words in the text",
+            "matched": "Illinois Communities Act",
+            "span": "That means passing common-sense gun laws, holding the gun lobby accountable, and building the systems that allow families to thrive. … As part of the grassroots movement that helped pass the Protect Illinois Communities Act, Maria knows real change is possible when we put people over profits and lives over lobbyists.",
+            "review": "correct"
+          },
+          {
+            "bill": null,
+            "id": null,
+            "key": "pro_choice",
+            "confidence": "medium",
+            "confidence_score": 0.6,
+            "basis": "short title + subject words in the text",
+            "matched": "Illinois’ Reproductive Health Act",
+            "span": "Banning cross-state surveillance by enforcing Illinois’ Reproductive Health Act and imposing penalties for violations by out-of-state law enforcement.",
+            "review": "correct"
+          }
+        ],
         "mentioned_not_mapped": [
           {
             "bill": "Climate and Equitable Jobs Act",
             "kind": "short_title",
             "matched": "Climate and Equitable Jobs Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog)"
-          },
-          {
-            "bill": "Illinois Communities Act",
-            "kind": "short_title",
-            "matched": "Illinois Communities Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog)"
-          },
-          {
-            "bill": "Illinois’ Reproductive Health Act",
-            "kind": "short_title",
-            "matched": "Illinois’ Reproductive Health Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: about climate and clean energy (→ climate_action), not Israel offensive arms | ukraine_aid: about climate and clean energy (→ climate_action), not further U.S. aid to Ukraine | iran_hostilities: about climate and clean energy (→ climate_action), not U.S. hostilities with Iran | tariffs_china: about climate and clean energy (→ climate_action), not tariffs on China | border_security: about climate and clean energy (→ climate_action), not border enforcement | energy_production: about climate and clean energy (→ climate_action), not domestic energy production | school_choice: about climate and clean energy (→ climate_action), not school choice | healthcare: about climate and clean energy (→ climate_action), not health care access | cut_spending: about climate and clean energy (→ climate_action), not cutting federal spending | climate_action: no climate or clean-energy words in the text around the mention (and the bill is not in the catalog) | gun_safety: about climate and clean energy (→ climate_action), not gun safety laws | pro_choice: about climate and clean energy (→ climate_action), not abortion and reproductive rights | voting_access: about climate and clean energy (→ climate_action), not voting access and election rules | housing: about climate and clean energy (→ climate_action), not housing affordability | econ_trade: about climate and clean energy (→ climate_action), not trade deals and trade rules | econ_workers: about climate and clean energy (→ climate_action), not wages and workers' rights | justice_reform: about climate and clean energy (→ climate_action), not criminal justice reform"
           }
         ]
       },
@@ -2397,37 +3644,43 @@
         "body_chars": 98418,
         "sentences": 26,
         "candidates": 5,
-        "mappings": [],
+        "mappings": [
+          {
+            "bill": null,
+            "id": null,
+            "key": "climate_action",
+            "confidence": "medium",
+            "confidence_score": 0.6,
+            "basis": "short title + subject words in the text",
+            "matched": "Georgia Homegrown Solar Act of 2024",
+            "span": "* HB 507 and HB 1152 – Georgia Homegrown Solar Act of 2024, and 2025 would have expanded Georgians’ access to community solar, lowering costs for renters and people living in multi-family dwellings. … Community solar is routine in most U.S. states, but not Georgia.",
+            "review": "correct"
+          }
+        ],
         "mentioned_not_mapped": [
           {
             "bill": "HB 1304",
             "kind": "state_number",
             "matched": "HB 1304",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: about climate and clean energy (→ climate_action), not Israel offensive arms | ukraine_aid: about climate and clean energy (→ climate_action), not further U.S. aid to Ukraine | iran_hostilities: about climate and clean energy (→ climate_action), not U.S. hostilities with Iran | tariffs_china: about climate and clean energy (→ climate_action), not tariffs on China | border_security: about climate and clean energy (→ climate_action), not border enforcement | energy_production: about climate and clean energy (→ climate_action), not domestic energy production | school_choice: about climate and clean energy (→ climate_action), not school choice | healthcare: about climate and clean energy (→ climate_action), not health care access | cut_spending: about climate and clean energy (→ climate_action), not cutting federal spending | climate_action: names the subject but no climate or clean-energy words (aid, funding, a sale …) around the mention or in the title | gun_safety: about climate and clean energy (→ climate_action), not gun safety laws | pro_choice: about climate and clean energy (→ climate_action), not abortion and reproductive rights | voting_access: about climate and clean energy (→ climate_action), not voting access and election rules | housing: about climate and clean energy (→ climate_action), not housing affordability | econ_trade: about climate and clean energy (→ climate_action), not trade deals and trade rules | econ_workers: about climate and clean energy (→ climate_action), not wages and workers' rights | justice_reform: about climate and clean energy (→ climate_action), not criminal justice reform"
           },
           {
             "bill": "HB 507",
             "kind": "state_number",
             "matched": "HB 507",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: about climate and clean energy (→ climate_action), not Israel offensive arms | ukraine_aid: about climate and clean energy (→ climate_action), not further U.S. aid to Ukraine | iran_hostilities: about climate and clean energy (→ climate_action), not U.S. hostilities with Iran | tariffs_china: about climate and clean energy (→ climate_action), not tariffs on China | border_security: about climate and clean energy (→ climate_action), not border enforcement | energy_production: about climate and clean energy (→ climate_action), not domestic energy production | school_choice: about climate and clean energy (→ climate_action), not school choice | healthcare: about climate and clean energy (→ climate_action), not health care access | cut_spending: about climate and clean energy (→ climate_action), not cutting federal spending | climate_action: names the subject but no climate or clean-energy words (aid, funding, a sale …) around the mention or in the title | gun_safety: about climate and clean energy (→ climate_action), not gun safety laws | pro_choice: about climate and clean energy (→ climate_action), not abortion and reproductive rights | voting_access: about climate and clean energy (→ climate_action), not voting access and election rules | housing: about climate and clean energy (→ climate_action), not housing affordability | econ_trade: about climate and clean energy (→ climate_action), not trade deals and trade rules | econ_workers: about climate and clean energy (→ climate_action), not wages and workers' rights | justice_reform: about climate and clean energy (→ climate_action), not criminal justice reform"
           },
           {
             "bill": "HB 1152",
             "kind": "state_number",
             "matched": "HB 1152",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: about climate and clean energy (→ climate_action), not Israel offensive arms | ukraine_aid: about climate and clean energy (→ climate_action), not further U.S. aid to Ukraine | iran_hostilities: about climate and clean energy (→ climate_action), not U.S. hostilities with Iran | tariffs_china: about climate and clean energy (→ climate_action), not tariffs on China | border_security: about climate and clean energy (→ climate_action), not border enforcement | energy_production: about climate and clean energy (→ climate_action), not domestic energy production | school_choice: about climate and clean energy (→ climate_action), not school choice | healthcare: about climate and clean energy (→ climate_action), not health care access | cut_spending: about climate and clean energy (→ climate_action), not cutting federal spending | climate_action: names the subject but no climate or clean-energy words (aid, funding, a sale …) around the mention or in the title | gun_safety: about climate and clean energy (→ climate_action), not gun safety laws | pro_choice: about climate and clean energy (→ climate_action), not abortion and reproductive rights | voting_access: about climate and clean energy (→ climate_action), not voting access and election rules | housing: about climate and clean energy (→ climate_action), not housing affordability | econ_trade: about climate and clean energy (→ climate_action), not trade deals and trade rules | econ_workers: about climate and clean energy (→ climate_action), not wages and workers' rights | justice_reform: about climate and clean energy (→ climate_action), not criminal justice reform"
           },
           {
             "bill": "HB 1063",
             "kind": "state_number",
             "matched": "HB 1063",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog)"
-          },
-          {
-            "bill": "Georgia Homegrown Solar Act of 2024",
-            "kind": "short_title",
-            "matched": "Georgia Homegrown Solar Act of 2024",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog) | climate_action: no climate or clean-energy words in the text around the mention (and the bill is not in the catalog) | gun_safety: no gun words in the text around the mention (and the bill is not in the catalog) | pro_choice: no abortion or reproductive-rights words in the text around the mention (and the bill is not in the catalog) | voting_access: no voting-rules words in the text around the mention (and the bill is not in the catalog) | housing: no housing words in the text around the mention (and the bill is not in the catalog) | econ_trade: no trade words in the text around the mention (and the bill is not in the catalog) | econ_workers: no wage or labor-law words in the text around the mention (and the bill is not in the catalog) | justice_reform: no criminal-justice words in the text around the mention (and the bill is not in the catalog)"
           }
         ]
       },
@@ -2438,7 +3691,7 @@
         "source_type": "campaign priorities page",
         "url": "https://www.adamcleveland.com/priorities",
         "ok": true,
-        "body_chars": 430092,
+        "body_chars": 296622,
         "sentences": 51,
         "candidates": 0,
         "mappings": [],
@@ -2464,7 +3717,7 @@
         "source_type": "campaign platform page",
         "url": "https://michellekangforga.com/2026-platform",
         "ok": true,
-        "body_chars": 371057,
+        "body_chars": 442063,
         "sentences": 146,
         "candidates": 0,
         "mappings": [],
@@ -2477,7 +3730,7 @@
         "source_type": "campaign priorities page",
         "url": "https://www.johnlowndesforflorida.com/priorities",
         "ok": true,
-        "body_chars": 282572,
+        "body_chars": 422576,
         "sentences": 32,
         "candidates": 0,
         "mappings": [],
@@ -2525,7 +3778,7 @@
             "bill": "Responsible Data Center Development Act",
             "kind": "short_title",
             "matched": "Responsible Data Center Development Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog) | climate_action: no climate or clean-energy words in the text around the mention (and the bill is not in the catalog) | gun_safety: no gun words in the text around the mention (and the bill is not in the catalog) | pro_choice: no abortion or reproductive-rights words in the text around the mention (and the bill is not in the catalog) | voting_access: no voting-rules words in the text around the mention (and the bill is not in the catalog) | housing: no housing words in the text around the mention (and the bill is not in the catalog) | econ_trade: no trade words in the text around the mention (and the bill is not in the catalog) | econ_workers: no wage or labor-law words in the text around the mention (and the bill is not in the catalog) | justice_reform: no criminal-justice words in the text around the mention (and the bill is not in the catalog)"
           }
         ]
       },
@@ -2545,7 +3798,7 @@
             "bill": "New York Health Act",
             "kind": "short_title",
             "matched": "New York Health Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog) | climate_action: no climate or clean-energy words in the text around the mention (and the bill is not in the catalog) | gun_safety: no gun words in the text around the mention (and the bill is not in the catalog) | pro_choice: no abortion or reproductive-rights words in the text around the mention (and the bill is not in the catalog) | voting_access: no voting-rules words in the text around the mention (and the bill is not in the catalog) | housing: no housing words in the text around the mention (and the bill is not in the catalog) | econ_trade: no trade words in the text around the mention (and the bill is not in the catalog) | econ_workers: no wage or labor-law words in the text around the mention (and the bill is not in the catalog) | justice_reform: no criminal-justice words in the text around the mention (and the bill is not in the catalog)"
           }
         ]
       },
@@ -2569,7 +3822,7 @@
         "source_type": "campaign issues page",
         "url": "https://www.chloepierce.com/",
         "ok": true,
-        "body_chars": 417667,
+        "body_chars": 606271,
         "sentences": 64,
         "candidates": 1,
         "mappings": [],
@@ -2578,7 +3831,7 @@
             "bill": "New York Health Act",
             "kind": "short_title",
             "matched": "New York Health Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog) | climate_action: no climate or clean-energy words in the text around the mention (and the bill is not in the catalog) | gun_safety: no gun words in the text around the mention (and the bill is not in the catalog) | pro_choice: no abortion or reproductive-rights words in the text around the mention (and the bill is not in the catalog) | voting_access: no voting-rules words in the text around the mention (and the bill is not in the catalog) | housing: no housing words in the text around the mention (and the bill is not in the catalog) | econ_trade: no trade words in the text around the mention (and the bill is not in the catalog) | econ_workers: no wage or labor-law words in the text around the mention (and the bill is not in the catalog) | justice_reform: no criminal-justice words in the text around the mention (and the bill is not in the catalog)"
           }
         ]
       },
@@ -2589,7 +3842,7 @@
         "source_type": "campaign issues page",
         "url": "https://www.coyforohio.com/",
         "ok": true,
-        "body_chars": 440664,
+        "body_chars": 405118,
         "sentences": 54,
         "candidates": 1,
         "mappings": [],
@@ -2598,7 +3851,7 @@
             "bill": "HB 289",
             "kind": "state_number",
             "matched": "HB 289",
-            "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine | iran_hostilities: about health care, not U.S. hostilities with Iran | tariffs_china: about health care, not tariffs on China | border_security: about health care, not border enforcement | energy_production: about health care, not domestic energy production | school_choice: about health care, not school choice | healthcare: names the subject but no health coverage words (aid, funding, a sale …) around the mention or in the title | cut_spending: about health care, not cutting federal spending"
+            "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine | iran_hostilities: about health care, not U.S. hostilities with Iran | tariffs_china: about health care, not tariffs on China | border_security: about health care, not border enforcement | energy_production: about health care, not domestic energy production | school_choice: about health care, not school choice | healthcare: names the subject but no health coverage words (aid, funding, a sale …) around the mention or in the title | cut_spending: about health care, not cutting federal spending | climate_action: about health care, not climate and clean energy | gun_safety: about health care, not gun safety laws | pro_choice: about health care, not abortion and reproductive rights | voting_access: about health care, not voting access and election rules | housing: about health care, not housing affordability | econ_trade: about health care, not trade deals and trade rules | econ_workers: about health care, not wages and workers' rights | justice_reform: about health care, not criminal justice reform"
           }
         ]
       },
@@ -2648,7 +3901,7 @@
         "source_type": "campaign issues page",
         "url": "https://www.jeffwarrenforpa.com/issues",
         "ok": true,
-        "body_chars": 370307,
+        "body_chars": 244067,
         "sentences": 24,
         "candidates": 0,
         "mappings": [],
@@ -2661,7 +3914,7 @@
         "source_type": "campaign priorities page",
         "url": "https://www.kristineganforpa.com/priorities",
         "ok": true,
-        "body_chars": 371827,
+        "body_chars": 283005,
         "sentences": 58,
         "candidates": 0,
         "mappings": [],
@@ -2674,7 +3927,7 @@
         "source_type": "campaign issues page",
         "url": "https://elizabethmoro.com/issues/",
         "ok": true,
-        "body_chars": 182459,
+        "body_chars": 182457,
         "sentences": 56,
         "candidates": 0,
         "mappings": [],
@@ -2778,7 +4031,7 @@
         "source_type": "campaign issues page",
         "url": "https://idaforassembly.com/issues",
         "ok": true,
-        "body_chars": 147138,
+        "body_chars": 198098,
         "sentences": 25,
         "candidates": 0,
         "mappings": [],
@@ -2804,7 +4057,7 @@
         "source_type": "campaign issues page",
         "url": "https://www.electbenchristly.com/values",
         "ok": true,
-        "body_chars": 206099,
+        "body_chars": 232099,
         "sentences": 53,
         "candidates": 0,
         "mappings": [],
@@ -2830,7 +4083,7 @@
         "source_type": "campaign priorities page",
         "url": "https://www.jaimechurches.com/priorities",
         "ok": true,
-        "body_chars": 276119,
+        "body_chars": 233455,
         "sentences": 91,
         "candidates": 0,
         "mappings": [],
@@ -2842,8 +4095,12 @@
         "topic": "cost_living",
         "source_type": "campaign priorities page",
         "url": "https://mainoformichigan.com/priorities/",
-        "ok": false,
-        "error": "fetch failed"
+        "ok": true,
+        "body_chars": 133151,
+        "sentences": 22,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
       },
       {
         "group": "newly-elected state-legislative roster",
@@ -2865,7 +4122,7 @@
         "source_type": "campaign platform page",
         "url": "https://www.mccluskyformi.com/platform",
         "ok": true,
-        "body_chars": 212101,
+        "body_chars": 184075,
         "sentences": 52,
         "candidates": 1,
         "mappings": [],
@@ -2874,7 +4131,7 @@
             "bill": "Freedom of Information Act",
             "kind": "short_title",
             "matched": "Freedom of Information Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog) | tariffs_china: no China tariff words in the text around the mention (and the bill is not in the catalog) | border_security: no border enforcement words in the text around the mention (and the bill is not in the catalog) | energy_production: no energy production words in the text around the mention (and the bill is not in the catalog) | school_choice: no school choice words in the text around the mention (and the bill is not in the catalog) | healthcare: no health coverage words in the text around the mention (and the bill is not in the catalog) | cut_spending: no spending-cut words in the text around the mention (and the bill is not in the catalog) | climate_action: no climate or clean-energy words in the text around the mention (and the bill is not in the catalog) | gun_safety: no gun words in the text around the mention (and the bill is not in the catalog) | pro_choice: no abortion or reproductive-rights words in the text around the mention (and the bill is not in the catalog) | voting_access: no voting-rules words in the text around the mention (and the bill is not in the catalog) | housing: no housing words in the text around the mention (and the bill is not in the catalog) | econ_trade: no trade words in the text around the mention (and the bill is not in the catalog) | econ_workers: no wage or labor-law words in the text around the mention (and the bill is not in the catalog) | justice_reform: no criminal-justice words in the text around the mention (and the bill is not in the catalog)"
           }
         ]
       },

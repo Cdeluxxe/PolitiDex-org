@@ -74,7 +74,7 @@ const briefMapping = (m) => ({ bill: m.bill, id: m.id, key: m.key, confidence: m
 
 export function runPage(page, catalog) {
   const found = F.findBills(page, { catalog });
-  const { mappings, unmapped } = K.mapFound(found);
+  const { mappings, unmapped } = K.mapFound(found, { level: page.level || null });
   return { found, mappings, unmapped };
 }
 
@@ -120,7 +120,8 @@ async function sweepRows(catalog) {
       if (!got.ok) got = await fetchPage(src); // one retry for a slow site
       const head = { group: src.group, politician_id: src.politician_id, topic: src.topic, source_type: src.source_type, url: src.url };
       if (!got.ok) { out[i] = { ...head, ok: false, error: got.error }; continue; }
-      const { found, mappings, unmapped } = runPage({ body: got.body, url: src.url, date: fetchedAt.slice(0, 10), politician_id: src.politician_id, source_type: src.source_type }, catalog);
+      const { found, mappings, unmapped } = runPage({ body: got.body, url: src.url, date: fetchedAt.slice(0, 10), politician_id: src.politician_id, source_type: src.source_type,
+        ...(src.group === "newly-elected state-legislative roster" ? { level: "state" } : {}) }, catalog);
       out[i] = { ...head, ok: true, body_chars: got.body.length, sentences: found.sentences, candidates: found.candidates.length,
         mappings: mappings.map(briefMapping), mentioned_not_mapped: unmapped.map((u) => ({ bill: u.bill, kind: u.kind, matched: u.matched, ...(u.congress_from ? { congress_from: u.congress_from } : {}), reason: u.reason })) };
     }
