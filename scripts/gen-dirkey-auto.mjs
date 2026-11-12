@@ -17,7 +17,13 @@
 // Hand-checked people (person-directional-keys.json and the ground-truth files)
 // are never read or written here.
 //
-//   node scripts/gen-dirkey-auto.mjs [--cap 40] [--dry-run]
+// SECOND CHECK. Once the rows are merged, scripts/verify-dirkey-auto.mjs runs
+// on the table before it is written: lower-confidence and higher-risk stance
+// rows get a second model's four-value label, disagreements and bill matches
+// with a Congress/year mismatch are tagged internally `needs_review: true`, and
+// a one-line summary is logged. Rows stay live; nothing new is rendered.
+//
+//   node scripts/gen-dirkey-auto.mjs [--cap 40] [--dry-run] [--no-verify]
 // ═══════════════════════════════════════════════════════════════════════════
 import fs from "node:fs";
 import path from "node:path";
@@ -26,6 +32,7 @@ import { fileURLToPath } from "node:url";
 import * as A from "../netlify/lib/dirkey-auto-core.mjs";
 import { FETCH_TIMEOUT_MS, MAX_BODY_CHARS } from "../netlify/lib/raw-ingest-core.mjs";
 import { loadCatalog, loadGroundTruth } from "./bill-finder-ground-truth-2026-11.mjs";
+import { runVerify } from "./verify-dirkey-auto.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 export const AUTO_TABLE = path.join(root, "person-directional-keys-auto.json");
@@ -92,7 +99,10 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   console.log(`dirkey-auto: ${queue.length} person(s) queued · soft cap ${cap}`);
   const res = await A.runGenerator({ queue, fetchPage: prefetcher(queue), catalog: loadCatalog(), state, cap, log: (l) => console.log(l) });
   const keysMeta = readJson(path.join(root, "person-directional-keys.json"), { keys: {} }).keys;
-  const nextTable = A.mergeAutoTable(table, res, { keysMeta });
+  let nextTable = A.mergeAutoTable(table, res, { keysMeta });
+  if (table.verify) nextTable.verify = table.verify;
+  // The second check, on the rows just merged (rows already checked are not sent again).
+  if (!argv.includes("--no-verify")) nextTable = (await runVerify(nextTable)).table;
   const proposals = A.proposeKeys(res.unmapped, readJson(PROPOSALS_FILE, {}), { run: res.run });
   const runs = [...(state.runs || []), res.summary].slice(-20);
   const nextState = {
