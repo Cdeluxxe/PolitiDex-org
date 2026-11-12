@@ -71,8 +71,11 @@ t('high confidence (>= 0.7) requires every clear-position source to have a link'
 const POSITIONS = ['support', 'oppose', 'mixed', 'no clear position'];
 const WEIGHTS = ['strong', 'weak', 'mention'];
 const extra = Array.isArray(rec.additional_records) ? rec.additional_records : [];
-t('additional records: Massie and Sanders are present, ids unique', () => {
-  assert.deepEqual(extra.map((r) => r.politician_id), ['massie', 'sanders']);
+t('additional records: five more locked records, ids unique', () => {
+  assert.deepEqual(extra.map((r) => r.stance_id), [
+    'massie|ukraine_policy|gt-002', 'sanders|healthcare|gt-003',
+    'james_talarico|school_choice|gt-004', 'massie|war_powers|gt-005', 'sanders|israel_support|gt-006',
+  ]);
   const ids = [rec.stance_id, ...extra.map((r) => r.stance_id)];
   assert.equal(new Set(ids).size, ids.length);
 });
@@ -96,9 +99,17 @@ for (const r of extra) {
     if (r.position !== 'no clear position') assert.ok(r.sources.some((s) => s.takes_clear_position === true));
   });
 }
-t('the three records cover both directions', () => {
+t('the records cover support, oppose and mixed', () => {
   const pos = new Set([rec.position, ...extra.map((r) => r.position)]);
-  assert.ok(pos.has('support') && pos.has('oppose'));
+  assert.ok(pos.has('support') && pos.has('oppose') && pos.has('mixed'));
+});
+t('every record is locked and each politician has two distinct topics', () => {
+  const all = [rec, ...extra];
+  for (const r of all) assert.equal(r.locked, true, r.stance_id);
+  for (const pid of ['james_talarico', 'massie', 'sanders']) {
+    const topics = all.filter((r) => r.politician_id === pid).map((r) => r.topic);
+    assert.equal(new Set(topics).size, 2, pid);
+  }
 });
 
 if (failures) { console.error(`${failures} failing`); process.exit(1); }

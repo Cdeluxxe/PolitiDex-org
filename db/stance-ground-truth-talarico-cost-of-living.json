@@ -131,6 +131,123 @@
       "status": "active",
       "locked": true,
       "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "james_talarico|school_choice|gt-004",
+      "politician_id": "james_talarico",
+      "topic": "school_choice",
+      "position": "oppose",
+      "position_on": "private-school vouchers / education savings accounts funded with public money",
+      "confidence": 0.9,
+      "confidence_reason": "His campaign education page explicitly pledges to reject voucher programs, and the Texas House Journal records him voting Nay on final passage of the 2025 state voucher bill; held at 0.9 because the vote was on a state program while the pledge is about federal policy.",
+      "sources": [
+        {
+          "type": "campaign issue page",
+          "date": null,
+          "link": "https://jamestalarico.com/issue/public-education/",
+          "excerpt": "\"He’ll keep public money in public schools\" ... \"Reject the voucher scams being pushed by billionaire mega-donors that defund public schools to subsidize private education for the wealthiest Americans.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party platform page; states the position as a Senate priority and says he led the Texas House fight against vouchers. The page has no date.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "recorded vote (Texas House Journal)",
+          "date": "2025-04-17",
+          "link": "https://journals.house.texas.gov/hjrnl/89r/html/89RDAY46FINAL.HTM",
+          "excerpt": "\"SB 2 was passed by (Record 300): 86 Yeas, 61 Nays, 0 Present, not voting.\" · Nays list includes Talarico",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12 in the official House Journal, 89th Legislature, 46th day (journal p. 1667). The quoted sentence is verbatim; 'Nays list includes Talarico' is checked against the Nays roster printed right after it, not quoted. SB 2 created Texas's education savings account (voucher) program and was signed into law.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "massie|war_powers|gt-005",
+      "politician_id": "massie",
+      "topic": "war_powers",
+      "position": "support",
+      "position_on": "requiring congressional authorization before U.S. forces engage in hostilities (here, against Iran)",
+      "confidence": 0.85,
+      "confidence_reason": "He is the lead sponsor of a war powers resolution and states the constitutional principle in his own words; held below 0.9 because both sources concern the same Iran resolution on the same day, so they are not independent.",
+      "sources": [
+        {
+          "type": "resolution text (sponsor)",
+          "date": "2025-06-17",
+          "link": "https://www.govinfo.gov/content/pkg/BILLS-119hconres38ih/html/BILLS-119hconres38ih.htm",
+          "excerpt": "\"Mr. Massie (for himself, Mr. Khanna\" ... \"Directing the President pursuant to section 5(c) of the War Powers Resolution to remove United States Armed Forces from unauthorized hostilities in the Islamic Republic of Iran.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. H.Con.Res. 38 (119th Congress) as introduced, with Massie as the lead sponsor. Sec. 2 directs the President to end hostilities against Iran unless Congress declares war or passes a specific authorization.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "official press release",
+          "date": "2025-06-17",
+          "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395731",
+          "excerpt": "\"The Constitution does not permit the executive branch to unilaterally commit an act of war against a sovereign nation that hasn't attacked the United States,\" ... \"Congress has the sole power to declare war against Iran.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release from his House office announcing the resolution. Only Massie's quoted words count; the second fragment is the opening of a longer quoted sentence on the page.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "sanders|israel_support|gt-006",
+      "politician_id": "sanders",
+      "topic": "israel_support",
+      "position": "mixed",
+      "position_on": "U.S. military support for Israel: opposes certain offensive arms sales; leaves defensive systems alone and affirms Israel's right to self-defense",
+      "confidence": 0.75,
+      "confidence_reason": "His bill, vote and own statements clearly oppose specific offensive arms sales, but in the same sources he says the resolutions would not touch Israel's defensive systems and that Israel had the right to defend itself, so no single support or oppose label fits the whole key; he makes no affirmative commitment on defensive aid, which keeps confidence moderate.",
+      "sources": [
+        {
+          "type": "resolution text (sponsor)",
+          "date": "2024-09-25",
+          "link": "https://www.govinfo.gov/content/pkg/BILLS-118sjres111is/html/BILLS-118sjres111is.htm",
+          "excerpt": "\"Providing for congressional disapproval of the proposed foreign military sale to the Government of Israel of certain defense articles and services.\" ... \"Mr. Sanders (for himself, Mr. Welch, Mr. Merkley, and Mr. Schatz)\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. S.J.Res. 111 (118th Congress) as introduced, with Sanders as sponsor. This is the oppose side: it blocks one specific sale and says nothing on defensive aid.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "roll-call vote (Senate)",
+          "date": "2024-11-20",
+          "link": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1182/vote_118_2_00292.xml",
+          "excerpt": "S.J.Res. 111 · On the Motion to Discharge · Motion to Discharge Rejected · Sanders (I-VT): Yea",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. Assembled from the XML fields document_name, question, vote_result and Sanders's member entry (lis_member_id S313, vote_cast Yea); there is no prose sentence to quote. It was a procedural vote to discharge his own resolution, which failed 18–79. Readable page: https://www.senate.gov/legislative/LIS/roll_call_votes/vote1182/vote_118_2_00292.htm.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "floor speech (prepared remarks, official release)",
+          "date": "2024-11-20",
+          "link": "https://www.sanders.senate.gov/press-releases/prepared-remarks-sanders-speech-on-senate-vote-to-block-offensive-arms-sales-to-israel/",
+          "excerpt": "\"these resolutions are aimed at offensive weapons that have been used to devastating effect against civilians in Gaza and Lebanon. They would not affect any of the systems Israel uses to defend itself from incoming attacks.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. Prepared remarks as published by his office, which may differ slightly from delivery. This is the source that splits the key: it draws an explicit line between offensive and defensive weapons.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "official press release",
+          "date": "2025-02-24",
+          "link": "https://www.sanders.senate.gov/press-releases/news-sanders-files-joint-resolutions-of-disapproval-to-block-trump-arms-sales-to-israel/",
+          "excerpt": "\"Israel had the right to defend itself against Hamas and respond to the barbaric October 7, 2023, terrorist attack, which killed 1,200 innocent people and took over 240 hostages,\" ... \"block the sale of $8.56 billion in offensive U.S. weaponry to Israel\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release; shows the same split held into the next Congress (2025). The 'right to defend itself' line is a statement of principle, not a commitment to fund defensive aid.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
     }
   ]
 }
