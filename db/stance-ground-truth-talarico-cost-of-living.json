@@ -4,22 +4,24 @@
   "topic": "cost_living",
   "position": "support",
   "confidence": 0.85,
-  "confidence_reason": "Two first-party campaign pages explicitly commit to lowering costs and name specific measures; held below 0.9 because the issue page was read through a fetch tool that paraphrased parts of it, and the victory speech only mentions the topic.",
+  "confidence_reason": "The campaign platform page plainly commits to lowering costs and lists specific measures, and the toolkit page and on-record remarks say the same; held below 0.9 because all clear-position evidence is campaign messaging (no votes yet), the platform page is undated, and the victory speech only mentions the topic.",
   "sources": [
     {
       "type": "campaign issue page",
       "date": null,
       "link": "https://jamestalarico.com/issue/taxes-cost-of-living/",
-      "excerpt": "\"worked with Republicans to deliver the largest property tax cut in Texas history\"",
-      "note": "States a position: for a middle-class tax cut (expanded Child Tax Credit and EITC, restored ACA credits, a tariff rebate), paid for by higher taxes on billionaires and corporations. Also for a $15 minimum wage, repealing Trump tariffs, capping credit card interest rates, and lowering healthcare, housing, grocery and energy costs. The page itself has no date; the embedded posts are dated May 2021 to Aug 2026.",
+      "excerpt": "\"In the Senate, he’ll cut taxes for working people, cap credit card interest rates, and lower the cost of rent, groceries, utilities, and gas by making billionaires and giant corporations pay their fair share.\" ... \"Pass a cost-of-living tax cut for the middle class\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-12. The platform page states a position: a middle-class cost-of-living tax cut (expanded Child Tax Credit and EITC, restored ACA credits, a tariff rebate) paid for by taxing the wealthiest and corporations; a $15 minimum wage; repealing the Trump tariffs; capping credit card interest; and named plans to lower health care, housing, grocery and energy costs. The page has no date of its own; the embedded posts are dated May 2021 to Aug 2026.",
       "takes_clear_position": true
     },
     {
       "type": "campaign toolkit page",
       "date": null,
       "link": "https://share.jamestalarico.com/toolkit/2c2d0ae4-56bb-48b6-b349-7b009f2708af",
-      "excerpt": "\"cut taxes for working people, cap credit card interest rates\" ... \"lower the cost of rent, groceries, utilities, and gas\"",
-      "note": "Official campaign messaging, tagged Economy/Affordability. States a position: cut taxes for working people, cap credit card interest, temporarily suspend federal gas and diesel taxes, and fund this by having the wealthiest pay more. The page has no date.",
+      "excerpt": "\"In the Senate, he'll cut taxes for working people, cap credit card interest rates, and lower the cost of rent, groceries, utilities, and gas by making billionaires and giant corporations pay their fair share in taxes.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-12. Official campaign messaging that repeats the platform page's position almost word for word. Supporting evidence only, not independent of the platform page. The page has no date.",
       "takes_clear_position": true
     },
     {
@@ -27,18 +29,225 @@
       "date": "2026-04-21",
       "link": "https://www.texastribune.org/2026/04/21/james-talarico-federal-gas-tax-suspension-iran-war/",
       "excerpt": "\"Texans need relief. Americans need relief.\" ... \"We can make billionaires pay their fair share so that we can cut our taxes.\"",
-      "note": "On-record remarks at an Austin gas station event, with the article linking to video. Consistent with the campaign pages. Only the verbatim quotes are relied on here; the article's paraphrase of the gas-tax plan is not counted as evidence.",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-12. On-record remarks at an Austin gas station event; the article links to video. Only the verbatim quotes count here, not the article's paraphrase of the gas-tax plan. Consistent with the campaign pages.",
       "takes_clear_position": true
     },
     {
       "type": "speech (victory speech)",
       "date": "2026-11-03",
-      "link": "https://www.fox7austin.com/video/fmc-fs7m9d1olo029kv6",
-      "excerpt": "\"Hate can't lower our energy bills.\" (verbatim as quoted by the Houston Chronicle, Nov 4 2026: https://www.houstonchronicle.com/politics/election/2026/article/talarico-victory-speech-22511134.php)",
-      "note": "Mentions the topic but does not state a policy position. No official full transcript was found; the link is the full video, and the excerpt is the only economic line in published verbatim quotes. Recorded for completeness and given no weight in the position.",
+      "link": "https://www.rev.com/transcripts/james-talarico-victory-speech",
+      "excerpt": "\"Hate can't lower our energy bills.\" (13:14) ... \"We must unrig this economic system that only benefits the top 1%.\" (16:46)",
+      "weight": "mention",
+      "note": "Read directly on 2026-11-12 in Rev's timestamped transcript (published Nov 4 2026). Full video: https://www.fox7austin.com/video/fmc-fs7m9d1olo029kv6 (no text on that page). The speech names energy bills, prices, and the economy, but it does not propose or commit to any cost-of-living measure. Recorded for completeness and given no weight in the position.",
       "takes_clear_position": false
     }
   ],
-  "last_updated": "2026-11-07",
-  "status": "active"
+  "last_updated": "2026-11-12",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-12",
+  "additional_records": [
+    {
+      "stance_id": "massie|ukraine_policy|gt-002",
+      "politician_id": "massie",
+      "topic": "ukraine_policy",
+      "position": "oppose",
+      "position_on": "further U.S. aid to Ukraine (supplemental appropriations / security assistance)",
+      "confidence": 0.85,
+      "confidence_reason": "Recorded Nay on final passage of both major Ukraine aid bills (2022, 2024) and said in his own words he does not want to send more aid; held below 0.9 because the key also covers war powers and diplomacy, where these sources state nothing, and his stated reason is opposition to foreign aid in general rather than to Ukraine specifically.",
+      "sources": [
+        {
+          "type": "roll-call vote (House Clerk)",
+          "date": "2024-04-20",
+          "link": "https://clerk.house.gov/evs/2024/roll151.xml",
+          "excerpt": "H R 8035 · On Passage · Ukraine Security Supplemental Appropriations Act, 2024 · Massie (R-KY): Nay",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. The excerpt is assembled from the XML fields legis-num, vote-question, vote-desc and Massie's recorded-vote entry (name-id M001184, vote Nay); the XML has no single prose sentence to quote. Readable page: https://clerk.house.gov/Votes/2024151. The bill passed.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "roll-call vote (House Clerk)",
+          "date": "2022-05-10",
+          "link": "https://clerk.house.gov/evs/2022/roll145.xml",
+          "excerpt": "H R 7691 · On Passage · Additional Ukraine Supplemental Appropriations Act, 2022 · Massie (R-KY): Nay",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. Assembled from XML fields as above (name-id M001184, vote Nay). Readable page: https://clerk.house.gov/Votes/2022145. Shows the position held across two Congresses. The bill passed.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "interview (verbatim Q&A in news report)",
+          "date": "2024-09-24",
+          "link": "https://responsiblestatecraft.org/massie-ukraine-casualty-numbers/",
+          "excerpt": "\"Well, it's certainly the case that I don't want to send more aid to Ukraine.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. Massie's own answer in a printed Q&A about his NDAA amendment on Ukraine casualty reporting. The date is the article's publish date; the interview date is not given. Only the quoted answer counts, not the interviewer's framing.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "sanders|healthcare|gt-003",
+      "politician_id": "sanders",
+      "topic": "healthcare",
+      "position": "support",
+      "position_on": "a single-payer Medicare for All national health insurance program",
+      "confidence": 0.9,
+      "confidence_reason": "He is the lead author of the Medicare for All bill, and his own Senate releases from 2022 and 2025 state the position in his words; not higher because the key covers all of health care policy and these sources speak to one program design.",
+      "sources": [
+        {
+          "type": "bill text (sponsor)",
+          "date": "2023-05-17",
+          "link": "https://www.govinfo.gov/content/pkg/BILLS-118s1655is/html/BILLS-118s1655is.htm",
+          "excerpt": "\"To establish a Medicare-for-all national health insurance program.\" ... \"Mr. Sanders (for himself\" ... \"Every individual who is a resident of the United States is entitled to benefits for health care items and services under this Act.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. S. 1655 (118th Congress) as introduced, with Sanders as the sponsor. Sec. 102 sets up universal entitlement. Sponsoring a bill is the strongest legislative evidence short of a vote; it never reached a floor vote.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "official press release",
+          "date": "2025-04-29",
+          "link": "https://www.sanders.senate.gov/press-releases/news-sanders-jayapal-dingell-hundreds-of-health-care-workers-introduce-medicare-for-all/",
+          "excerpt": "\"today introduced the Medicare for All Act\" ... \"health care is a human right, not a privilege and that we must end the international embarrassment of the United States being the only major country on earth that does not guarantee health care to all of its citizens\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release from his Senate office on the 119th Congress reintroduction. Only the quote attributed to Sanders and the release's own statement of the introduction count, not the quotes from outside groups.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "official press release",
+          "date": "2022-05-12",
+          "link": "https://www.sanders.senate.gov/press-releases/news-sanders-introduces-medicare-for-all-with-14-colleagues-in-the-senate/",
+          "excerpt": "\"introduced the Medicare for All Act of 2022 to guarantee health care in the United States as a fundamental human right to all\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release on the 117th Congress version; shows the position held across Congresses. The 2025 release repeats the same Sanders quote almost word for word, so the two releases are not independent statements.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "james_talarico|school_choice|gt-004",
+      "politician_id": "james_talarico",
+      "topic": "school_choice",
+      "position": "oppose",
+      "position_on": "private-school vouchers / education savings accounts funded with public money",
+      "confidence": 0.9,
+      "confidence_reason": "His campaign education page explicitly pledges to reject voucher programs, and the Texas House Journal records him voting Nay on final passage of the 2025 state voucher bill; held at 0.9 because the vote was on a state program while the pledge is about federal policy.",
+      "sources": [
+        {
+          "type": "campaign issue page",
+          "date": null,
+          "link": "https://jamestalarico.com/issue/public-education/",
+          "excerpt": "\"He’ll keep public money in public schools\" ... \"Reject the voucher scams being pushed by billionaire mega-donors that defund public schools to subsidize private education for the wealthiest Americans.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party platform page; states the position as a Senate priority and says he led the Texas House fight against vouchers. The page has no date.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "recorded vote (Texas House Journal)",
+          "date": "2025-04-17",
+          "link": "https://journals.house.texas.gov/hjrnl/89r/html/89RDAY46FINAL.HTM",
+          "excerpt": "\"SB 2 was passed by (Record 300): 86 Yeas, 61 Nays, 0 Present, not voting.\" · Nays list includes Talarico",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12 in the official House Journal, 89th Legislature, 46th day (journal p. 1667). The quoted sentence is verbatim; 'Nays list includes Talarico' is checked against the Nays roster printed right after it, not quoted. SB 2 created Texas's education savings account (voucher) program and was signed into law.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "massie|war_powers|gt-005",
+      "politician_id": "massie",
+      "topic": "war_powers",
+      "position": "support",
+      "position_on": "requiring congressional authorization before U.S. forces engage in hostilities (here, against Iran)",
+      "confidence": 0.85,
+      "confidence_reason": "He is the lead sponsor of a war powers resolution and states the constitutional principle in his own words; held below 0.9 because both sources concern the same Iran resolution on the same day, so they are not independent.",
+      "sources": [
+        {
+          "type": "resolution text (sponsor)",
+          "date": "2025-06-17",
+          "link": "https://www.govinfo.gov/content/pkg/BILLS-119hconres38ih/html/BILLS-119hconres38ih.htm",
+          "excerpt": "\"Mr. Massie (for himself, Mr. Khanna\" ... \"Directing the President pursuant to section 5(c) of the War Powers Resolution to remove United States Armed Forces from unauthorized hostilities in the Islamic Republic of Iran.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. H.Con.Res. 38 (119th Congress) as introduced, with Massie as the lead sponsor. Sec. 2 directs the President to end hostilities against Iran unless Congress declares war or passes a specific authorization.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "official press release",
+          "date": "2025-06-17",
+          "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395731",
+          "excerpt": "\"The Constitution does not permit the executive branch to unilaterally commit an act of war against a sovereign nation that hasn't attacked the United States,\" ... \"Congress has the sole power to declare war against Iran.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release from his House office announcing the resolution. Only Massie's quoted words count; the second fragment is the opening of a longer quoted sentence on the page.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "sanders|israel_support|gt-006",
+      "politician_id": "sanders",
+      "topic": "israel_support",
+      "position": "mixed",
+      "position_on": "U.S. military support for Israel: opposes certain offensive arms sales; leaves defensive systems alone and affirms Israel's right to self-defense",
+      "confidence": 0.75,
+      "confidence_reason": "His bill, vote and own statements clearly oppose specific offensive arms sales, but in the same sources he says the resolutions would not touch Israel's defensive systems and that Israel had the right to defend itself, so no single support or oppose label fits the whole key; he makes no affirmative commitment on defensive aid, which keeps confidence moderate.",
+      "sources": [
+        {
+          "type": "resolution text (sponsor)",
+          "date": "2024-09-25",
+          "link": "https://www.govinfo.gov/content/pkg/BILLS-118sjres111is/html/BILLS-118sjres111is.htm",
+          "excerpt": "\"Providing for congressional disapproval of the proposed foreign military sale to the Government of Israel of certain defense articles and services.\" ... \"Mr. Sanders (for himself, Mr. Welch, Mr. Merkley, and Mr. Schatz)\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. S.J.Res. 111 (118th Congress) as introduced, with Sanders as sponsor. This is the oppose side: it blocks one specific sale and says nothing on defensive aid.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "roll-call vote (Senate)",
+          "date": "2024-11-20",
+          "link": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1182/vote_118_2_00292.xml",
+          "excerpt": "S.J.Res. 111 · On the Motion to Discharge · Motion to Discharge Rejected · Sanders (I-VT): Yea",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. Assembled from the XML fields document_name, question, vote_result and Sanders's member entry (lis_member_id S313, vote_cast Yea); there is no prose sentence to quote. It was a procedural vote to discharge his own resolution, which failed 18–79. Readable page: https://www.senate.gov/legislative/LIS/roll_call_votes/vote1182/vote_118_2_00292.htm.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "floor speech (prepared remarks, official release)",
+          "date": "2024-11-20",
+          "link": "https://www.sanders.senate.gov/press-releases/prepared-remarks-sanders-speech-on-senate-vote-to-block-offensive-arms-sales-to-israel/",
+          "excerpt": "\"these resolutions are aimed at offensive weapons that have been used to devastating effect against civilians in Gaza and Lebanon. They would not affect any of the systems Israel uses to defend itself from incoming attacks.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. Prepared remarks as published by his office, which may differ slightly from delivery. This is the source that splits the key: it draws an explicit line between offensive and defensive weapons.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "official press release",
+          "date": "2025-02-24",
+          "link": "https://www.sanders.senate.gov/press-releases/news-sanders-files-joint-resolutions-of-disapproval-to-block-trump-arms-sales-to-israel/",
+          "excerpt": "\"Israel had the right to defend itself against Hamas and respond to the barbaric October 7, 2023, terrorist attack, which killed 1,200 innocent people and took over 240 hostages,\" ... \"block the sale of $8.56 billion in offensive U.S. weaponry to Israel\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release; shows the same split held into the next Congress (2025). The 'right to defend itself' line is a statement of principle, not a commitment to fund defensive aid.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    }
+  ]
 }

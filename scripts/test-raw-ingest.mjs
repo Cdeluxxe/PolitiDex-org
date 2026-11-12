@@ -15,7 +15,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const fnPath = path.join(root, 'netlify/functions/raw-ingest-cron.mts');
 const corePath = path.join(root, 'netlify/lib/raw-ingest-core.mjs');
 const gtPath = path.join(root, 'db/stance-ground-truth-talarico-cost-of-living.json');
-const GT_SHA256 = '5b2874ce0159dfde0777c43b6f90b15bf051a3b119373c6aa42640b8d0b861cb';
+const GT_SHA256 = 'bb6e142baca13f44880af9108e85c0adeb867377a19742240cd6ac1be2343587';
 const FORBIDDEN = ['position', 'confidence', 'confidence_reason', 'stance', 'stance_id',
   'score', 'contradiction', 'contradictions', 'takes_clear_position', 'status'];
 

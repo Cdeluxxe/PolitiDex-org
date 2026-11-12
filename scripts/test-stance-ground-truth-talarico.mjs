@@ -67,5 +67,50 @@ t('high confidence (>= 0.7) requires every clear-position source to have a link'
   }
 });
 
+// Additional locked records (Massie, Sanders) share the same file and schema.
+const POSITIONS = ['support', 'oppose', 'mixed', 'no clear position'];
+const WEIGHTS = ['strong', 'weak', 'mention'];
+const extra = Array.isArray(rec.additional_records) ? rec.additional_records : [];
+t('additional records: five more locked records, ids unique', () => {
+  assert.deepEqual(extra.map((r) => r.stance_id), [
+    'massie|ukraine_policy|gt-002', 'sanders|healthcare|gt-003',
+    'james_talarico|school_choice|gt-004', 'massie|war_powers|gt-005', 'sanders|israel_support|gt-006',
+  ]);
+  const ids = [rec.stance_id, ...extra.map((r) => r.stance_id)];
+  assert.equal(new Set(ids).size, ids.length);
+});
+for (const r of extra) {
+  t(`${r.stance_id}: locked schema, sources and confidence rules`, () => {
+    for (const k of ['stance_id', 'politician_id', 'topic', 'position', 'confidence',
+      'confidence_reason', 'sources', 'last_updated', 'status']) assert.ok(k in r, 'missing ' + k);
+    assert.ok(POSITIONS.includes(r.position), r.position);
+    assert.ok(r.confidence >= 0 && r.confidence <= 1);
+    assert.ok(r.confidence_reason.trim() && !r.confidence_reason.includes('\n'));
+    assert.equal(r.status, 'active');
+    assert.match(r.last_updated, /^\d{4}-\d{2}-\d{2}$/);
+    assert.ok(Array.isArray(r.sources) && r.sources.length > 0);
+    for (const [i, s] of r.sources.entries()) {
+      assert.ok(s.type && s.note && 'date' in s, `source ${i}`);
+      if (s.date !== null) assert.match(s.date, /^\d{4}-\d{2}-\d{2}$/);
+      assert.ok(/^https?:\/\//.test(s.link || ''), `source ${i}: link`);
+      assert.ok(String(s.excerpt || '').trim(), `source ${i}: excerpt`);
+      assert.ok(WEIGHTS.includes(s.weight), `source ${i}: weight`);
+    }
+    if (r.position !== 'no clear position') assert.ok(r.sources.some((s) => s.takes_clear_position === true));
+  });
+}
+t('the records cover support, oppose and mixed', () => {
+  const pos = new Set([rec.position, ...extra.map((r) => r.position)]);
+  assert.ok(pos.has('support') && pos.has('oppose') && pos.has('mixed'));
+});
+t('every record is locked and each politician has two distinct topics', () => {
+  const all = [rec, ...extra];
+  for (const r of all) assert.equal(r.locked, true, r.stance_id);
+  for (const pid of ['james_talarico', 'massie', 'sanders']) {
+    const topics = all.filter((r) => r.politician_id === pid).map((r) => r.topic);
+    assert.equal(new Set(topics).size, 2, pid);
+  }
+});
+
 if (failures) { console.error(`${failures} failing`); process.exit(1); }
 console.log('stance ground truth: all checks pass');
