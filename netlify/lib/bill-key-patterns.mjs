@@ -1,10 +1,11 @@
 // ═══════════════════════════════════════════════════════════════════════════
-// bill-key-patterns.mjs — per-key bill mapping patterns (v2: two keys)
+// bill-key-patterns.mjs — per-key bill mapping patterns (three keys)
 //
 // Links a bill found by bill-finder-core.mjs to an issue key when the text
 // says the bill is about that key's subject. Mapped so far:
 //   israel_offensive_arms  (v1)
 //   ukraine_aid            (v2 — "Further U.S. Aid to Ukraine")
+//   iran_hostilities       (v4 — "Congress Must Authorize Hostilities with Iran")
 // Every other key is left for later passes using the same shape:
 //   subject     the subject the key is about (Israel / Ukraine)
 //   instrument  what the bill does to it (an arms sale or transfer / aid,
@@ -38,7 +39,7 @@
 import { DIRECTIONAL_ISSUE_KEYS } from "./stance-topic-vocab.mjs";
 import { subjectOf, facetExcludes } from "./stance-score-core.mjs";
 
-export const PATTERNS_VERSION = "bill-key-patterns-v3";
+export const PATTERNS_VERSION = "bill-key-patterns-v4";
 export const CONFIDENCE_SCORE = { high: 0.9, medium: 0.6, low: 0.35 };
 
 export const BILL_KEY_PATTERNS = {
@@ -64,6 +65,19 @@ export const BILL_KEY_PATTERNS = {
     facet: null,
     about: "further U.S. aid to Ukraine",
     subjectWords: "Ukraine aid",
+  },
+  // U.S. hostilities with Iran: a war powers resolution aimed at Iran, a measure
+  // to remove U.S. forces from hostilities with Iran, or one to authorize or
+  // end such hostilities (an AUMF). No facet: either direction is on the key.
+  // Naming Iran without a hostilities word (sanctions, the nuclear deal,
+  // terrorism designations) does not map.
+  iran_hostilities: {
+    label: DIRECTIONAL_ISSUE_KEYS.iran_hostilities.label,
+    subject: /\b(?:iran\w*|islamic republic|tehran|IRGC)\b/i,
+    instrument: /\b(?:hostilities|war powers|armed forces|(?:use of )?(?:military )?force|military action|strikes?|war|troops|AUMF|authorization for (?:the )?use of military force)\b/i,
+    facet: null,
+    about: "U.S. hostilities with Iran",
+    subjectWords: "Iran hostilities",
   },
 };
 
@@ -153,7 +167,7 @@ function bestFit(rows, P) {
 const OTHER_SUBJECTS = [
   [/\bisrael\w*|gaza|iron dome/i, "Israel (→ israel_* keys)", "israel_offensive_arms"],
   [/\bukrain\w*|kyiv|zelensky/i, "Ukraine (→ ukraine_aid)", "ukraine_aid"],
-  [/\biran\w*|islamic republic|tehran/i, "Iran (→ iran_hostilities)"],
+  [/\biran\w*|islamic republic|tehran/i, "Iran (→ iran_hostilities)", "iran_hostilities"],
   [/\bmedicare|health ?care|health insurance|medicaid/i, "health care"],
   [/\bvouchers?|school choice|public schools?|education/i, "education"],
 ];

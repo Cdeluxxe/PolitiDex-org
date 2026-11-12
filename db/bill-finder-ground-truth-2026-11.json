@@ -1,10 +1,11 @@
 {
-  "_note": "Diagnostic run of the shared bill finder and the v1 mapping pattern (israel_offensive_arms only). Read-only: nothing here changes a ground-truth label, a scoring rule, an issue key or the site. `ground_truth` reads the reviewer's verbatim excerpts with each source's own link and date; `routine_sweep` reads live pages the raw-ingest runs already pull, where every mapping would be a false mapping.",
+  "_note": "Diagnostic run of the shared bill finder and the per-key mapping patterns (see mapped_keys). Read-only: nothing here changes a ground-truth label, a scoring rule, an issue key or the site. `ground_truth` reads the reviewer's verbatim excerpts with each source's own link and date; `routine_sweep` reads live pages the raw-ingest runs already pull, where every mapping would be a false mapping.",
   "finder_version": "bill-finder-v2",
-  "patterns_version": "bill-key-patterns-v3",
+  "patterns_version": "bill-key-patterns-v4",
   "mapped_keys": [
     "israel_offensive_arms",
-    "ukraine_aid"
+    "ukraine_aid",
+    "iran_hostilities"
   ],
   "catalog": {
     "source": "db/bill-docs.json",
@@ -14,11 +15,11 @@
   "summary": {
     "ground_truth_sources": 18,
     "ground_truth_candidates": 11,
-    "ground_truth_mappings": 6,
-    "ground_truth_mentioned_not_mapped": 5,
+    "ground_truth_mappings": 7,
+    "ground_truth_mentioned_not_mapped": 4,
     "sweep_pages": 110,
-    "sweep_fetched": 110,
-    "sweep_failed": 0,
+    "sweep_fetched": 107,
+    "sweep_failed": 3,
     "sweep_candidates": 43,
     "sweep_mappings": 0
   },
@@ -200,7 +201,7 @@
           "matched": "https://www.govinfo.gov/content/pkg/BILLS-118s1655is/html/BILLS-118s1655is.htm",
           "congress_from": "url",
           "span": "https://www.govinfo.gov/content/pkg/BILLS-118s1655is/html/BILLS-118s1655is.htm",
-          "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine"
+          "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine | iran_hostilities: about health care, not U.S. hostilities with Iran"
         }
       ]
     },
@@ -235,7 +236,7 @@
           "kind": "short_title",
           "matched": "Medicare for All Act",
           "span": "today introduced the Medicare for All Act",
-          "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine"
+          "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine | iran_hostilities: about health care, not U.S. hostilities with Iran"
         }
       ]
     },
@@ -270,7 +271,7 @@
           "kind": "short_title",
           "matched": "Medicare for All Act of 2022",
           "span": "introduced the Medicare for All Act of 2022 to guarantee health care in the United States as a fundamental human right to all",
-          "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine"
+          "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine | iran_hostilities: about health care, not U.S. hostilities with Iran"
         }
       ]
     },
@@ -316,7 +317,7 @@
           "kind": "state_number",
           "matched": "SB 2",
           "span": "SB 2 was passed by (Record 300): 86 Yeas, 61 Nays, 0 Present, not voting.\" · Nays list includes Talarico",
-          "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
+          "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
         }
       ]
     },
@@ -350,18 +351,19 @@
           ]
         }
       ],
-      "mappings": [],
-      "unmapped": [
+      "mappings": [
         {
           "bill": "H.Con.Res. 38",
           "id": "119|H.Con.Res. 38",
-          "kind": "number",
+          "key": "iran_hostilities",
+          "confidence": "high",
+          "confidence_score": 0.9,
+          "basis": "bill number + subject words in the text",
           "matched": "https://www.govinfo.gov/content/pkg/BILLS-119hconres38ih/html/BILLS-119hconres38ih.htm",
-          "congress_from": "url",
-          "span": "https://www.govinfo.gov/content/pkg/BILLS-119hconres38ih/html/BILLS-119hconres38ih.htm",
-          "reason": "israel_offensive_arms: about Iran (→ iran_hostilities), not Israel offensive arms | ukraine_aid: about Iran (→ iran_hostilities), not further U.S. aid to Ukraine"
+          "span": "Directing the President pursuant to section 5(c) of the War Powers Resolution to remove United States Armed Forces from unauthorized hostilities in the Islamic Republic of Iran."
         }
-      ]
+      ],
+      "unmapped": []
     },
     {
       "stance_id": "massie|iran_hostilities|gt-005",
@@ -600,7 +602,7 @@
     }
   ],
   "routine_sweep": {
-    "fetched_at": "2026-11-12T05:25:29.823Z",
+    "fetched_at": "2026-11-12T06:54:14.386Z",
     "rows": [
       {
         "group": "raw-ingest SOURCES",
@@ -618,7 +620,7 @@
             "bill": "Affordable Care Act",
             "kind": "short_title",
             "matched": "Affordable Care Act",
-            "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine"
+            "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine | iran_hostilities: about health care, not U.S. hostilities with Iran"
           }
         ]
       },
@@ -655,7 +657,7 @@
         "source_type": "campaign policy page",
         "url": "https://www.gregabbott.com/policy/",
         "ok": true,
-        "body_chars": 193979,
+        "body_chars": 193885,
         "sentences": 220,
         "candidates": 0,
         "mappings": [],
@@ -690,7 +692,7 @@
             "bill": "Affordable Care Act",
             "kind": "short_title",
             "matched": "Affordable Care Act",
-            "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine"
+            "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine | iran_hostilities: about health care, not U.S. hostilities with Iran"
           }
         ]
       },
@@ -723,37 +725,37 @@
             "bill": "One Big Beautiful Bill Act",
             "kind": "short_title",
             "matched": "One Big Beautiful Bill Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
           },
           {
             "bill": "Cornyn-Supported Working Families Tax Cuts Act",
             "kind": "short_title",
             "matched": "Cornyn-Supported Working Families Tax Cuts Act",
-            "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine"
+            "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine | iran_hostilities: about health care, not U.S. hostilities with Iran"
           },
           {
             "bill": "Affordable Prescriptions for Patients Act",
             "kind": "short_title",
             "matched": "Affordable Prescriptions for Patients Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
           },
           {
             "bill": "Working Families Tax Cut Act",
             "kind": "short_title",
             "matched": "Working Families Tax Cut Act",
-            "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine"
+            "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine | iran_hostilities: about health care, not U.S. hostilities with Iran"
           },
           {
             "bill": "Working Families Tax Cuts Act",
             "kind": "short_title",
             "matched": "Working Families Tax Cuts Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
           },
           {
             "bill": "Chemical Abortion Act",
             "kind": "short_title",
             "matched": "Chemical Abortion Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
           }
         ]
       },
@@ -789,19 +791,8 @@
         "topic": "cost_living",
         "source_type": "official newsroom index",
         "url": "https://gov.texas.gov/news",
-        "ok": true,
-        "body_chars": 98413,
-        "sentences": 276,
-        "candidates": 1,
-        "mappings": [],
-        "mentioned_not_mapped": [
-          {
-            "bill": "Public Funds Investment Act",
-            "kind": "short_title",
-            "matched": "Public Funds Investment Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
-          }
-        ]
+        "ok": false,
+        "error": "The operation was aborted due to timeout"
       },
       {
         "group": "raw-ingest DISCOVERY_PATTERNS",
@@ -819,7 +810,7 @@
             "bill": "Open Meetings Act",
             "kind": "short_title",
             "matched": "Open Meetings Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
           }
         ]
       },
@@ -839,31 +830,31 @@
             "bill": "One Big Beautiful Bill Act",
             "kind": "short_title",
             "matched": "One Big Beautiful Bill Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
           },
           {
             "bill": "Affordable Prescriptions for Patients Act",
             "kind": "short_title",
             "matched": "Affordable Prescriptions for Patients Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
           },
           {
             "bill": "S. 2938",
             "kind": "short_title",
             "matched": "Bipartisan Safer Communities Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention or the official title; catalog files it under healthcare, public_schools, health_mental, gun_rights, gun_safety | ukraine_aid: no Ukraine aid words in the text around the mention or the official title; catalog files it under healthcare, public_schools, health_mental, gun_rights, gun_safety"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention or the official title; catalog files it under healthcare, public_schools, health_mental, gun_rights, gun_safety | ukraine_aid: no Ukraine aid words in the text around the mention or the official title; catalog files it under healthcare, public_schools, health_mental, gun_rights, gun_safety | iran_hostilities: no Iran hostilities words in the text around the mention or the official title; catalog files it under healthcare, public_schools, health_mental, gun_rights, gun_safety"
           },
           {
             "bill": "Century CURES Act",
             "kind": "short_title",
             "matched": "Century CURES Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
           },
           {
             "bill": "Drug Patents Act",
             "kind": "short_title",
             "matched": "Drug Patents Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
           }
         ]
       },
@@ -899,12 +890,8 @@
         "topic": "transit",
         "source_type": "campaign issues page",
         "url": "https://winwithvin.org/issues/",
-        "ok": true,
-        "body_chars": 743151,
-        "sentences": 79,
-        "candidates": 0,
-        "mappings": [],
-        "mentioned_not_mapped": []
+        "ok": false,
+        "error": "The operation was aborted due to timeout"
       },
       {
         "group": "newly-elected state-legislative roster",
@@ -952,7 +939,7 @@
         "source_type": "campaign issues page",
         "url": "https://samwilcoxforri.com/posts/",
         "ok": true,
-        "body_chars": 133336,
+        "body_chars": 133321,
         "sentences": 41,
         "candidates": 0,
         "mappings": [],
@@ -1043,8 +1030,8 @@
         "source_type": "campaign issues page",
         "url": "https://delmayforflorida.com/issues/",
         "ok": true,
-        "body_chars": 176,
-        "sentences": 0,
+        "body_chars": 139060,
+        "sentences": 44,
         "candidates": 0,
         "mappings": [],
         "mentioned_not_mapped": []
@@ -1156,7 +1143,7 @@
             "bill": "HB 68",
             "kind": "state_number",
             "matched": "HB 68",
-            "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine"
+            "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine | iran_hostilities: about health care, not U.S. hostilities with Iran"
           }
         ]
       },
@@ -1228,19 +1215,19 @@
             "bill": "Affordable Care Act",
             "kind": "short_title",
             "matched": "Affordable Care Act",
-            "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine"
+            "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine | iran_hostilities: about health care, not U.S. hostilities with Iran"
           },
           {
             "bill": "Colorado Labor Peace Act",
             "kind": "short_title",
             "matched": "Colorado Labor Peace Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
           },
           {
             "bill": "Colorado’s Labor Peace Act",
             "kind": "short_title",
             "matched": "Colorado’s Labor Peace Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
           }
         ]
       },
@@ -1273,7 +1260,7 @@
             "bill": "Minnesota Starter Home Act",
             "kind": "short_title",
             "matched": "Minnesota Starter Home Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
           }
         ]
       },
@@ -1293,7 +1280,7 @@
             "bill": "Veterans Restorative Justice Act",
             "kind": "short_title",
             "matched": "Veterans Restorative Justice Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
           }
         ]
       },
@@ -1368,12 +1355,8 @@
         "topic": "housing",
         "source_type": "campaign issues page",
         "url": "https://erinfornebraska.com/issues",
-        "ok": true,
-        "body_chars": 186587,
-        "sentences": 56,
-        "candidates": 0,
-        "mappings": [],
-        "mentioned_not_mapped": []
+        "ok": false,
+        "error": "The operation was aborted due to timeout"
       },
       {
         "group": "newly-elected state-legislative roster",
@@ -1499,8 +1482,8 @@
         "source_type": "campaign issues page",
         "url": "https://jeffhaylon.com/policies/",
         "ok": true,
-        "body_chars": 178,
-        "sentences": 0,
+        "body_chars": 34257,
+        "sentences": 51,
         "candidates": 0,
         "mappings": [],
         "mentioned_not_mapped": []
@@ -1522,13 +1505,13 @@
             "kind": "number",
             "matched": "S.60",
             "congress_from": "date",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
           },
           {
             "bill": "Medicare for All Act",
             "kind": "short_title",
             "matched": "Medicare for All Act",
-            "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine"
+            "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine | iran_hostilities: about health care, not U.S. hostilities with Iran"
           }
         ]
       },
@@ -1562,7 +1545,7 @@
             "kind": "number",
             "matched": "S.100",
             "congress_from": "date",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
           }
         ]
       },
@@ -1660,43 +1643,43 @@
             "bill": "SB 3376",
             "kind": "state_number",
             "matched": "SB 3376",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
           },
           {
             "bill": "SB 3796",
             "kind": "state_number",
             "matched": "SB 3796",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
           },
           {
             "bill": "SB 2462",
             "kind": "state_number",
             "matched": "SB 2462",
-            "reason": "israel_offensive_arms: names the subject but no Israel arms-transfer words (aid, funding, a sale …) around the mention or in the title | ukraine_aid: about Israel (→ israel_* keys), not further U.S. aid to Ukraine"
+            "reason": "israel_offensive_arms: names the subject but no Israel arms-transfer words (aid, funding, a sale …) around the mention or in the title | ukraine_aid: about Israel (→ israel_* keys), not further U.S. aid to Ukraine | iran_hostilities: about Israel (→ israel_* keys), not U.S. hostilities with Iran"
           },
           {
             "bill": "Voting Rights Act",
             "kind": "short_title",
             "matched": "Voting Rights Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
           },
           {
             "bill": "Illinois Data Center Energy and Water Reporting Act",
             "kind": "short_title",
             "matched": "Illinois Data Center Energy and Water Reporting Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
           },
           {
             "bill": "Clean Air in Schools Act",
             "kind": "short_title",
             "matched": "Clean Air in Schools Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
           },
           {
             "bill": "Illinois Safety and Liberation Together Act",
             "kind": "short_title",
             "matched": "Illinois Safety and Liberation Together Act",
-            "reason": "israel_offensive_arms: names the subject but no Israel arms-transfer words (aid, funding, a sale …) around the mention or in the title | ukraine_aid: about Israel (→ israel_* keys), not further U.S. aid to Ukraine"
+            "reason": "israel_offensive_arms: names the subject but no Israel arms-transfer words (aid, funding, a sale …) around the mention or in the title | ukraine_aid: about Israel (→ israel_* keys), not further U.S. aid to Ukraine | iran_hostilities: about Israel (→ israel_* keys), not U.S. hostilities with Iran"
           }
         ]
       },
@@ -1707,8 +1690,8 @@
         "source_type": "campaign issues page",
         "url": "https://www.marsieforillinois.info/",
         "ok": true,
-        "body_chars": 167,
-        "sentences": 0,
+        "body_chars": 61920,
+        "sentences": 72,
         "candidates": 0,
         "mappings": [],
         "mentioned_not_mapped": []
@@ -1729,19 +1712,19 @@
             "bill": "Climate and Equitable Jobs Act",
             "kind": "short_title",
             "matched": "Climate and Equitable Jobs Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
           },
           {
             "bill": "Illinois Communities Act",
             "kind": "short_title",
             "matched": "Illinois Communities Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
           },
           {
             "bill": "Illinois’ Reproductive Health Act",
             "kind": "short_title",
             "matched": "Illinois’ Reproductive Health Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
           }
         ]
       },
@@ -1804,7 +1787,7 @@
         "source_type": "campaign priorities page",
         "url": "https://www.lauramurvartian.com/priorities",
         "ok": true,
-        "body_chars": 209756,
+        "body_chars": 277572,
         "sentences": 61,
         "candidates": 0,
         "mappings": [],
@@ -1826,31 +1809,31 @@
             "bill": "HB 1304",
             "kind": "state_number",
             "matched": "HB 1304",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
           },
           {
             "bill": "HB 507",
             "kind": "state_number",
             "matched": "HB 507",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
           },
           {
             "bill": "HB 1152",
             "kind": "state_number",
             "matched": "HB 1152",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
           },
           {
             "bill": "HB 1063",
             "kind": "state_number",
             "matched": "HB 1063",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
           },
           {
             "bill": "Georgia Homegrown Solar Act of 2024",
             "kind": "short_title",
             "matched": "Georgia Homegrown Solar Act of 2024",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
           }
         ]
       },
@@ -1939,11 +1922,18 @@
         "source_type": "campaign priorities page",
         "url": "https://joerand.com/",
         "ok": true,
-        "body_chars": 167,
-        "sentences": 0,
-        "candidates": 0,
+        "body_chars": 324088,
+        "sentences": 83,
+        "candidates": 1,
         "mappings": [],
-        "mentioned_not_mapped": []
+        "mentioned_not_mapped": [
+          {
+            "bill": "Responsible Data Center Development Act",
+            "kind": "short_title",
+            "matched": "Responsible Data Center Development Act",
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
+          }
+        ]
       },
       {
         "group": "newly-elected state-legislative roster",
@@ -1961,7 +1951,7 @@
             "bill": "New York Health Act",
             "kind": "short_title",
             "matched": "New York Health Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
           }
         ]
       },
@@ -1994,7 +1984,7 @@
             "bill": "New York Health Act",
             "kind": "short_title",
             "matched": "New York Health Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
           }
         ]
       },
@@ -2014,7 +2004,7 @@
             "bill": "HB 289",
             "kind": "state_number",
             "matched": "HB 289",
-            "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine"
+            "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine | iran_hostilities: about health care, not U.S. hostilities with Iran"
           }
         ]
       },
@@ -2142,7 +2132,7 @@
         "source_type": "campaign issues page",
         "url": "https://zackdunn.com/",
         "ok": true,
-        "body_chars": 155996,
+        "body_chars": 156123,
         "sentences": 31,
         "candidates": 0,
         "mappings": [],
@@ -2168,7 +2158,7 @@
         "source_type": "campaign priorities page",
         "url": "https://www.ameliaforaz.com/amelias-priorities",
         "ok": true,
-        "body_chars": 213837,
+        "body_chars": 156169,
         "sentences": 37,
         "candidates": 0,
         "mappings": [],
@@ -2194,7 +2184,7 @@
         "source_type": "campaign issues page",
         "url": "https://idaforassembly.com/issues",
         "ok": true,
-        "body_chars": 217986,
+        "body_chars": 392458,
         "sentences": 25,
         "candidates": 0,
         "mappings": [],
@@ -2285,7 +2275,7 @@
         "source_type": "campaign platform page",
         "url": "https://www.mccluskyformi.com/platform",
         "ok": true,
-        "body_chars": 184075,
+        "body_chars": 201805,
         "sentences": 52,
         "candidates": 1,
         "mappings": [],
@@ -2294,7 +2284,7 @@
             "bill": "Freedom of Information Act",
             "kind": "short_title",
             "matched": "Freedom of Information Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
           }
         ]
       },

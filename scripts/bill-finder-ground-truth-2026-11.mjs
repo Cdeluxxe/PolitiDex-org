@@ -2,9 +2,9 @@
 // ═══════════════════════════════════════════════════════════════════════════
 // bill-finder-ground-truth-2026-11.mjs — offline diagnostic for the bill finder
 //
-// Runs the shared bill finder (netlify/lib/bill-finder-core.mjs) and the v1
-// mapping pattern (netlify/lib/bill-key-patterns.mjs, israel_offensive_arms
-// only) over:
+// Runs the shared bill finder (netlify/lib/bill-finder-core.mjs) and the
+// mapping patterns (netlify/lib/bill-key-patterns.mjs: israel_offensive_arms,
+// ukraine_aid, iran_hostilities) over:
 //   1. GROUND TRUTH — every source excerpt in the ground-truth file, scored as
 //      the reviewer recorded it (the same text rescore-ground-truth-directional
 //      reads: fragments split on " ... " become paragraphs), with the source's
@@ -12,8 +12,8 @@
 //      Talarico and Sanders-healthcare records are off-key controls.
 //   2. ROUTINE SWEEP — the pages the raw-ingest cron pulls on its fixed list
 //      (SOURCES + DISCOVERY_PATTERNS) and the newly-elected state-legislative
-//      ingest roster, fetched live. None is about Israel arms, so any mapping
-//      there is a false mapping. Skip with --no-sweep (no network).
+//      ingest roster, fetched live. None is about Israel arms, Ukraine aid or
+//      Iran hostilities, so any mapping there is a false mapping. Skip with --no-sweep (no network).
 //
 // Read-only: no ground-truth label, scoring rule, issue key, store or site
 // file is touched. The report goes to db/bill-finder-ground-truth-2026-11.json.
@@ -111,7 +111,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const sweep = process.argv.includes("--no-sweep") ? null : await sweepRows(catalog);
   const okSweep = sweep ? sweep.rows.filter((r) => r.ok) : [];
   const report = {
-    _note: "Diagnostic run of the shared bill finder and the v1 mapping pattern (israel_offensive_arms only). Read-only: nothing here changes a ground-truth label, a scoring rule, an issue key or the site. `ground_truth` reads the reviewer's verbatim excerpts with each source's own link and date; `routine_sweep` reads live pages the raw-ingest runs already pull, where every mapping would be a false mapping.",
+    _note: "Diagnostic run of the shared bill finder and the per-key mapping patterns (see mapped_keys). Read-only: nothing here changes a ground-truth label, a scoring rule, an issue key or the site. `ground_truth` reads the reviewer's verbatim excerpts with each source's own link and date; `routine_sweep` reads live pages the raw-ingest runs already pull, where every mapping would be a false mapping.",
     finder_version: F.FINDER_VERSION,
     patterns_version: K.PATTERNS_VERSION,
     mapped_keys: K.MAPPED_KEYS,

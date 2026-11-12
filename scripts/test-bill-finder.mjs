@@ -68,11 +68,11 @@ t('descriptive phrases read; the 1973 statute and look-alike programs do not', (
   assert.equal(find('I voted against the Ukraine supplemental.').candidates[0].family, 'supplemental');
 });
 
-// ── The per-key pattern (one key) ───────────────────────────────────────────
+// ── The per-key patterns (three keys) ───────────────────────────────────────────
 const map = (text, extra) => K.mapFound(find(text, extra));
-t('only israel_offensive_arms and ukraine_aid have a mapping pattern', () => {
-  assert.deepEqual(K.MAPPED_KEYS, ['israel_offensive_arms', 'ukraine_aid']);
-  assert.equal(K.mapCandidate({ mentions: [] }, 'iran_hostilities').mapped, false);
+t('only israel_offensive_arms, ukraine_aid and iran_hostilities have a mapping pattern', () => {
+  assert.deepEqual(K.MAPPED_KEYS, ['israel_offensive_arms', 'ukraine_aid', 'iran_hostilities']);
+  assert.equal(K.mapCandidate({ mentions: [] }, 'israel_military_aid').mapped, false);
   assert.equal(K.mapCandidate({ mentions: [] }, 'israel_defensive_systems').mapped, false);
 });
 t('ukraine_aid: aid, funding and supplementals map; Ukraine without an aid word does not', () => {
@@ -170,21 +170,32 @@ t('Massie: H.R. 8035 and H.R. 7691 (Additional Ukraine Supplemental) map to ukra
   assert.deepEqual(m.map((x) => [x.id, x.key, x.confidence]), [['118|H.R. 8035', 'ukraine_aid', 'high'], ['117|H.R. 7691', 'ukraine_aid', 'high']]);
   assert.ok(m[1].span.includes('Additional Ukraine Supplemental Appropriations Act, 2022'));
 });
-t('Massie: the Iran war powers resolution H.Con.Res. 38 is found and maps to neither key', () => {
+t('Massie: the Iran war powers resolution H.Con.Res. 38 maps to iran_hostilities only, high', () => {
   const iran = src('massie|iran_hostilities|gt-005', 'resolution text');
-  assert.ok(iran.candidates.some((c) => c.id === '119|H.Con.Res. 38'));
-  assert.equal(iran.mappings.length, 0);
-  assert.match(iran.unmapped[0].reason, /israel_offensive_arms: about Iran.*ukraine_aid: about Iran/);
+  assert.deepEqual(iran.mappings.map((m) => [m.id, m.key, m.confidence]), [['119|H.Con.Res. 38', 'iran_hostilities', 'high']]);
+  assert.match(iran.mappings[0].span, /remove United States Armed Forces from unauthorized hostilities in the Islamic Republic of Iran/);
 });
-t('Israel bills never map to ukraine_aid; Ukraine bills never map to israel_offensive_arms', () => {
+t('each subject maps only to its own key (Israel, Ukraine, Iran)', () => {
   const all = GT.flatMap((r) => r.mappings.map((m) => [r.stance_id, m.key]));
   for (const [id, key] of all) {
     if (id.startsWith('sanders|israel')) assert.equal(key, 'israel_offensive_arms', id);
     if (id.startsWith('massie|ukraine')) assert.equal(key, 'ukraine_aid', id);
+    if (id.startsWith('massie|iran')) assert.equal(key, 'iran_hostilities', id);
   }
 });
-t('no mapping on any off-key ground-truth record (Talarico, Sanders health care, Massie Iran)', () => {
-  const keyed = ['sanders|israel_military_aid|gt-006', 'massie|ukraine_aid|gt-002'];
+t('iran_hostilities: war powers, removal and authorization measures map; Iran without a hostilities word does not', () => {
+  const keyed = (text, extra) => map(text, extra).mappings.map((m) => [m.key, m.confidence]);
+  assert.deepEqual(keyed('I voted for S.J.Res. 59 to end unauthorized hostilities against Iran.', { date: '2025-06-27' }), [['iran_hostilities', 'high']]);
+  assert.deepEqual(keyed('S.J.Res. 59 · On the Joint Resolution · Yea', { date: '2025-06-27' }), [['iran_hostilities', 'medium']]);
+  assert.deepEqual(keyed('My war powers resolution would stop a war with Iran.', { date: '2025-06-17' }).map((x) => x[0]), ['iran_hostilities']);
+  assert.deepEqual(keyed('I cosponsored H.R. 77 to tighten sanctions on Iran.', { date: '2025-06-17' }), []);
+  // Israel and Ukraine bills stay off the Iran key, even when Iran is named nearby.
+  assert.deepEqual(keyed('I voted for S.J.Res. 33 to block the sale of bombs to Israel.', { date: '2025-04-03' }), [['israel_offensive_arms', 'high']]);
+  assert.deepEqual(keyed('I voted against H.R. 8035, more military aid to Ukraine.', { date: '2024-04-20' }), [['ukraine_aid', 'high']]);
+  assert.deepEqual(keyed('H.R. 8034 replenishes Iron Dome interceptors that shield Israel from Iranian missiles.', { date: '2024-04-20' }), []);
+});
+t('no mapping on any off-key ground-truth record (Talarico, Sanders health care)', () => {
+  const keyed = ['sanders|israel_military_aid|gt-006', 'massie|ukraine_aid|gt-002', 'massie|iran_hostilities|gt-005'];
   assert.equal(GT.filter((r) => !keyed.includes(r.stance_id)).flatMap((r) => r.mappings).length, 0);
 });
 
