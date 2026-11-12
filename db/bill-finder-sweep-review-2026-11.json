@@ -1,5 +1,5 @@
 {
-  "_note": "Hand review of every mapping the bill finder makes on the routine sweep pages (scripts/bill-finder-ground-truth-2026-11.mjs). Until the v6 keys, no sweep page was about a mapped key, so any sweep mapping was false. The v6 keys (energy production, school choice, health care access, cutting spending) are ordinary campaign topics, so a sweep page can now name a real bill on its key. Each mapping here was read against the page and marked correct (the named bill is about the key, in a passage about it) or false. The report counts a sweep mapping that is not in this list, or is marked false, as a false mapping. Reviewed 2026-11-12.",
+  "_note": "Hand review of every mapping the bill finder makes on the routine sweep pages (scripts/bill-finder-ground-truth-2026-11.mjs). Until the v6 keys, no sweep page was about a mapped key, so any sweep mapping was false. The v6 keys (energy production, school choice, health care access, cutting spending) are ordinary campaign topics, so a sweep page can now name a real bill on its key. Each mapping here was read against the page and marked correct (the named bill is about the key, in a passage about it) or false. The report counts a sweep mapping that is not in this list, or is marked false, as a false mapping. Reviewed 2026-11-12. The v7 keys (climate and clean energy, gun safety, abortion, voting rules, housing, trade, wages and unions, criminal justice) are also ordinary campaign topics; their sweep mappings were read the same way on 2026-11-12. Three were false on first run and were fixed in the patterns, not marked here: a Vermont farm fund (S.60) read through \"climate disasters\", a union-election law read as a voting bill through \"second election\", and the 21st Century Cures Act read as criminal justice through \"improve … our criminal justice system\"; a Vermont state bill (S.100) read as a federal number is no longer mapped by the v7 keys on a state legislator's page.",
   "reviewed": [
     { "url": "https://jamestalarico.com/issue/taxes-cost-of-living/", "key": "healthcare", "bill": "Affordable Care Act", "verdict": "correct",
       "why": "A campaign issue page; the passage on health coverage (a public option, caps on costs) names the Affordable Care Act, a health coverage law." },
@@ -12,6 +12,24 @@
     { "url": "https://www.vigilforcolorado.com/issues", "key": "healthcare", "bill": "Affordable Care Act", "verdict": "correct",
       "why": "\"the Medicaid expansion under the Affordable Care Act\": the ACA, on health coverage." },
     { "url": "https://www.phoebeforvermont.com/priorities", "key": "healthcare", "bill": "Medicare for All Act", "verdict": "correct",
-      "why": "\"Efforts to expand access have stalled in Washington (Medicare for All Act)\": a health coverage bill, on access." }
+      "why": "\"Efforts to expand access have stalled in Washington (Medicare for All Act)\": a health coverage bill, on access." },
+    { "url": "https://www.cornyn.senate.gov/issues/health-care/", "key": "pro_choice", "bill": "Chemical Abortion Act", "verdict": "correct",
+      "why": "(v7) His health care page lists his cosponsorship of the Safeguarding Women from Chemical Abortion Act, \"which would ban the chemical abortion drug mifepristone\": an abortion bill. The finder starts the name after the possessive \"Hawley (R-MO)’s\" and keeps only \"Chemical Abortion Act\"; the bill is the right one." },
+    { "url": "https://www.vigilforcolorado.com/issues", "key": "econ_workers", "bill": "Colorado Labor Peace Act", "verdict": "correct",
+      "why": "(v7) \"Make it easier to form a union by removing the second election from the Colorado Labor Peace Act\": a state union-election law, on the right to organize." },
+    { "url": "https://www.vigilforcolorado.com/issues", "key": "econ_workers", "bill": "Colorado’s Labor Peace Act", "verdict": "correct",
+      "why": "(v7) The same law, named with a possessive, in the passage on organized labor and the minimum wage: \"so that workers can form a union and a collective bargaining unit with one election\"." },
+    { "url": "https://www.chrisfordformn.com/priorities", "key": "housing", "bill": "Minnesota Starter Home Act", "verdict": "correct",
+      "why": "(v7) \"increase the supply of housing … legislation like the Minnesota Starter Home Act … helping increase the number of available duplexes and townhomes\": a state housing-supply law." },
+    { "url": "https://kristyjanigoformn.com/priorities/", "key": "justice_reform", "bill": "Veterans Restorative Justice Act", "verdict": "correct",
+      "why": "(v7) \"provide justice-involved veterans a second chance … the Veterans Restorative Justice Act\": a state sentencing-alternative law for veterans." },
+    { "url": "https://www.mcadamsforil.com/platform", "key": "voting_access", "bill": "Voting Rights Act", "verdict": "correct",
+      "why": "(v7) \"the gutting of the Voting Rights Act … which helps ensure everyone gets to vote\": the voting-rights law, in a passage on voting access." },
+    { "url": "https://www.mariafor52.com/issues/", "key": "gun_safety", "bill": "Illinois Communities Act", "verdict": "correct",
+      "why": "(v7) The passage on \"common-sense gun laws\" names the Protect Illinois Communities Act (the state's 2023 assault-weapons law). The finder reads \"Protect\" as a verb and keeps \"Illinois Communities Act\"; the bill is the right one." },
+    { "url": "https://www.mariafor52.com/issues/", "key": "pro_choice", "bill": "Illinois’ Reproductive Health Act", "verdict": "correct",
+      "why": "(v7) \"enforcing Illinois’ Reproductive Health Act\" in the reproductive-rights passage: the state law protecting abortion access." },
+    { "url": "https://www.danielleforgeorgia.com/reduce-cost-of-living", "key": "climate_action", "bill": "Georgia Homegrown Solar Act of 2024", "verdict": "correct",
+      "why": "(v7) \"Georgia Homegrown Solar Act … would have expanded Georgians’ access to community solar\": a state clean-energy bill." }
   ]
 }
