@@ -75,7 +75,8 @@ export const ISSUE_TOPIC_VOCAB = {
   lands_energy: { label: "Energy & Resource Development", pos: "Expand domestic energy, mining & resource development",
     terms: String.raw`mining|drilling|resource development|critical minerals|energy development|oil and gas leas\w+`,
     up: [String.raw`(?:domestic )?(?:mining|drilling)`, String.raw`(?:resource|energy|mineral) development`, String.raw`critical minerals?(?: production| mining)?`, String.raw`(?:oil and gas|energy|mineral) leas(?:es|ing)`],
-    down: [String.raw`(?:leasing |drilling |mining )?(?:bans?|moratori(?:um|a))`],
+    // phase8-v3: a bare "ban" is not a drilling ban ("Stop … Act would ban corporations …").
+    down: [String.raw`(?:leasing|drilling|mining|fracking|oil and gas) (?:bans?|moratori(?:um|a))`, String.raw`(?:bans?|moratori(?:um|a)) on (?:new )?(?:leasing|drilling|mining|fracking|oil and gas)`],
     downCon: [String.raw`(?:new )?(?:drilling|mining|oil and gas leas(?:es|ing))`] },
   property_rights: { label: "Private Property Rights", pos: "Protect private property rights and limit eminent-domain seizures",
     terms: String.raw`property rights|private property|eminent domain|takings|condemnation`,
@@ -175,7 +176,8 @@ export const ISSUE_TOPIC_VOCAB = {
   deportations: { label: "Mass Deportations & Border Security", pos: "Carry out large-scale deportations of people here illegally and lock down the border",
     terms: String.raw`deport\w*|removals?|illegal aliens|criminal aliens|ICE`,
     pro: [String.raw`\b(?:deport\w{0,3}|remov\w{0,3})\b${GAP}\b(?:illegal (?:aliens|immigrants)|criminal aliens|(?:those|people|everyone) (?:here|who came) illegally)`, String.raw`\b(?:largest|mass) deportation`],
-    up: [String.raw`(?:mass )?deportations?`, String.raw`ICE(?: agents| enforcement)?`, String.raw`(?:the |our )?border`],
+    // phase8-v3: ICE as the object of harm ("investigate ICE shootings") is not support for ICE.
+    up: [String.raw`(?:mass )?deportations?`, String.raw`ICE(?! (?:shootings?|shot|raids?|detentions?|abuses?|violence|killings?|(?:agents?|officers?) (?:shot|killed))\b)(?: agents| enforcement)?`, String.raw`(?:the |our )?border`],
     downCon: [String.raw`(?:mass )?deportations?`, String.raw`ICE raids`],
     con: [String.raw`\babolish ICE\b`],
     problems: [String.raw`criminal (?:illegal )?aliens`, String.raw`illegal aliens`] },
@@ -632,7 +634,8 @@ export const ISSUE_TOPIC_VOCAB = {
     terms: String.raw`crypto(?:currency|currencies)?|bitcoin|digital assets?|stablecoins?|CBDC|central bank digital currency|digital dollar`,
     up: [String.raw`(?:clear )?(?:crypto|digital asset|stablecoin) (?:rules|regulation|framework|legislation)`, String.raw`(?:bitcoin|crypto|digital assets?)(?: innovation| industry)?`, String.raw`(?:the )?(?:GENIUS|CLARITY) act`],
     down: [String.raw`(?:a )?(?:CBDC|central bank digital currency|digital dollar)`],
-    problems: [String.raw`(?:a )?(?:CBDC|central bank digital currency)`, String.raw`(?:crypto )?(?:fraud|scams)`] },
+    // phase8-v3: fraud counts here only when it is crypto fraud (not "fraud in government programs").
+    problems: [String.raw`(?:a )?(?:CBDC|central bank digital currency)`, String.raw`(?:crypto(?:currency)?|digital asset|bitcoin|stablecoin) (?:fraud|scams?)`] },
   tech_balance: { label: "Smart Tech Guardrails", pos: "Let tech innovate but require data-privacy, online-safety and age-verification rules",
     terms: String.raw`online safety|kids online|age verification|social media|data privacy`,
     up: [String.raw`(?:kids'? |children'?s )?online safety`, String.raw`age verification`, String.raw`(?:the )?kids online safety act`, String.raw`(?:AI|tech) (?:guardrails|safety)`],
@@ -661,12 +664,12 @@ export const ISSUE_TOPIC_VOCAB = {
   // ── Elections & democracy ──
   election_security: { label: "Election Security & Ballot Safeguards", pos: "Verify eligibility and secure how ballots are handled, tracked and audited",
     terms: String.raw`election security|ballot (?:security|tracking|chain of custody)|voter rolls|citizenship verification|noncitizen voting`,
-    up: [String.raw`(?:election|ballot) security`, String.raw`(?:clean|accurate) voter rolls`, String.raw`(?:proof of )?citizenship (?:verification|requirements)`, String.raw`(?:the )?SAVE act`, String.raw`(?:post-election |election )?audits`],
+    up: [String.raw`(?:election|ballot) security`, String.raw`(?:clean|accurate) voter rolls`, String.raw`(?:proof of )?citizenship (?:verification|requirements)`, String.raw`(?:the )?SAVE act`, String.raw`(?:post-election|election|ballot|risk-limiting) audits`], // phase8-v3: product audits are not election audits
     down: [String.raw`(?:non-?citizen|illegal) voting`, String.raw`ballot harvesting`],
     problems: [String.raw`(?:non-?citizen|illegal) voting`, String.raw`ballot harvesting`, String.raw`voter fraud`] },
   election_integrity: { label: "Election Integrity", pos: "Secure elections with voter ID and audits",
     terms: String.raw`election integrity|voter fraud|audits|voter ID|secure elections`,
-    up: [String.raw`election integrity`, String.raw`(?:safe and )?secure elections`, String.raw`(?:election |post-election )?audits`],
+    up: [String.raw`election integrity`, String.raw`(?:safe and )?secure elections`, String.raw`(?:post-election|election|ballot|risk-limiting) audits`], // phase8-v3: product audits are not election audits
     down: [String.raw`(?:voter |election )fraud`],
     problems: [String.raw`(?:voter |election )fraud`],
     pro: [String.raw`\bmake it easy to vote and hard to cheat\b`] },
