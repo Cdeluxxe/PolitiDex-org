@@ -85,7 +85,10 @@
 //             opponent framing in the same sentence refers to that person —
 //             "Trump’s declaration that he … his promise to bring down prices"
 //             is Trump and "my opponent claims his plan …" is the opponent,
-//             not the page's politician;
+//             not the page's politician. Only a PERSON possessive counts — a
+//             person name from the site's people index, a title + name, or a
+//             person role ("the President’s"); places, organisations and
+//             generic nouns ("Hollywood’s", "the state’s") do not;
 //         (b) on the oppose side, a non-speaker subject directly before an -ing
 //             verb is the actor — "the Supreme Court Ruling Gutting the Voting
 //             Rights Act" is the ruling, not the candidate.
@@ -97,6 +100,7 @@
 // so a later tweak is one edit, and the comparison log prints the exact delta.
 
 import { buildTopicRules, ISSUE_TOPIC_VOCAB, ISSUE_TOPIC_LABELS } from "./stance-topic-vocab.mjs";
+import { PERSON_SURNAMES, PLACE_SURNAMES, PLACE_SURNAME_FULL_NAMES } from "./stance-person-names.mjs";
 
 export const RULES_VERSION = "phase8-v3";
 // Vocabulary version for the issue keys scored from stance-topic-vocab.mjs
@@ -321,20 +325,49 @@ function selfNamePattern(politicianId) {
 // possessive ("Trump’s declaration that he …") or opponent framing ("my
 // opponent claims his plan …"). A name that is only an object
 // ("Alongside President Trump, he will …") does not take the pronoun.
-// Possessives of places and institutions are not people.
-const OTHER_PERSON = /\b[A-Z][a-z][\w-]*['’]s(?=\s)/g;
-const NOT_A_PERSON = new Set(["America", "Texas", "Nation", "State", "Country", "World", "Today", "District", "Congress", "Senate", "House", "Court", "Government", "Administration", "City", "County", "Party", "Department", "Agency", "Committee", "Year", "Week", "Month", "Family", "Community", "Women", "Children", "People", "Everyone"]);
+// Only a PERSON possessive takes the pronoun (phase8-v3, R11a person names):
+//   · a person name — a surname of someone in the site's people index
+//     (stance-person-names.mjs: "Trump’s", "Abbott’s"); surnames that are also
+//     places or everyday words (Austin, Hill, King …) only as a full name;
+//   · a title + name — "President Trump’s", "Speaker Johnson’s", "Dr. King’s";
+//   · a person role — "the President’s", "my opponent’s", "the governor’s".
+// Places, organisations and generic nouns ("Hollywood’s", "Ohio’s", "the
+// state’s", "the city’s", "the Association’s") never do.
+const POSSESSIVE = /\b([A-Z][\p{L}'’-]*?)['’]s(?=\s|$)/gu;
+const PERSON_TITLE = /(?:\b(?:President|Vice President|Speaker|Leader|Senator|Sen|Rep|Representative|Congressman|Congresswoman|Governor|Gov|Lt|Lieutenant Governor|Attorney General|General|Mayor|Judge|Justice|Secretary|Commissioner|Sheriff|Chairman|Chairwoman|Mr|Mrs|Ms|Dr)\.?\s+(?:[A-Z][\p{L}.'’-]*\s+){0,2})$/u;
+const PERSON_ROLE = /(?:\b(?:the|my|our|your|his|her|their|this|that)\s+(?:\w+\s+)?|\b)(?:opponents?|president|vice president|governor|lieutenant governor|senator|congressman|congresswoman|congressmember|representative|speaker|mayor|attorney general|secretary|commissioner|candidate|incumbent|challenger|chairman|chairwoman|sheriff|judge)['’]s(?=\s|$)/giu;
+const ROLE_NEEDS_DETERMINER = /^(?:the|my|our|your|his|her|their|this|that)\s/i;
+
+/** Every person possessive in `text` → [{ text, end }]. */
+function personPossessives(text) {
+  const out = [];
+  let m;
+  POSSESSIVE.lastIndex = 0;
+  while ((m = POSSESSIVE.exec(text))) {
+    const head = m[1];
+    const pre = text.slice(0, m.index);
+    const full = (/([A-Z][\p{L}'’-]*)\s+$/u.exec(pre) || [])[1];
+    const titled = PERSON_TITLE.test(pre);
+    const isPerson = titled
+      || PERSON_SURNAMES.has(head)
+      || (PLACE_SURNAMES.has(head) && !!full && PLACE_SURNAME_FULL_NAMES.has(`${full} ${head}`));
+    if (isPerson) out.push({ text: m[0], end: m.index + m[0].length });
+  }
+  PERSON_ROLE.lastIndex = 0;
+  while ((m = PERSON_ROLE.exec(text))) {
+    // A lower-case role needs a determiner ("the governor’s"); a capitalised one does not ("President’s").
+    if (!ROLE_NEEDS_DETERMINER.test(m[0]) && !/^[A-Z]/.test(m[0])) continue;
+    out.push({ text: m[0], end: m.index + m[0].length });
+  }
+  return out.sort((a, b) => a.end - b.end);
+}
 
 /** The other named person `before` ends with (no self name after it), or null. */
 function pronounAntecedent(before, selfName) {
   let m, other = null;
-  OTHER_PERSON.lastIndex = 0;
-  while ((m = OTHER_PERSON.exec(before))) {
-    const name = m[0];
-    const head = name.replace(/['’]s$/, "");
-    if (NOT_A_NAME.has(head) || NOT_A_PERSON.has(head)) continue;
-    if (selfName && (selfName.lastIndex = 0, selfName.test(name))) continue;
-    other = { text: name, end: m.index + name.length };
+  for (const p of personPossessives(before)) {
+    if (selfName && (selfName.lastIndex = 0, selfName.test(p.text))) continue;
+    other = p;
   }
   // "My opponent claims his plan …" — the pronoun is the opponent's.
   OPPONENT_FRAMING.lastIndex = 0;

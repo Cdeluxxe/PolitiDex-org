@@ -1,7 +1,7 @@
 {
   "_note": "Offline re-score of the newly elected state legislative ingest run under the current rules. Diagnostic only: nothing here is a stance record, a Locker item or a curated claim. `verdict` compares the read on each curated key (as the cron's scoreAllTopics path would emit it) to the curator's side.",
   "run_at": "2026-11-12T00:46:30.335Z",
-  "scored_at": "2026-11-12T00:50:33.979Z",
+  "scored_at": "2026-11-12T01:12:04.746Z",
   "summary": {
     "rules_version": "phase8-v3",
     "vocab_version": "issue-vocab-v1",
@@ -11,14 +11,14 @@
     "pages_no_clear_position_on_any_curated_key": 8,
     "pages_unreadable": 0,
     "curated_keys_scored": 474,
-    "curated_keys_match": 203,
+    "curated_keys_match": 204,
     "curated_keys_match_via_r10": 2,
     "curated_keys_wrong_direction": 5,
     "curated_keys_mixed": 2,
-    "curated_keys_no_clear_position": 264,
-    "curated_keys_dropped_by_r9": 72,
+    "curated_keys_no_clear_position": 263,
+    "curated_keys_dropped_by_r9": 71,
     "no_clear_position_reasons": {
-      "r9_sibling_key": 72,
+      "r9_sibling_key": 71,
       "action_language_missed": 87,
       "problem_or_value_language": 32,
       "no_key_vocabulary": 73
@@ -1832,22 +1832,21 @@
           "key": "disaster_resilience",
           "curated_side": "support",
           "curated_text": "Flooding & Storms",
-          "verdict": "no_clear_position",
-          "read": null,
-          "dropped_by_r9": {
+          "verdict": "match",
+          "read": {
             "topic": "disaster_resilience",
             "position": "support",
             "confidence": 0.7,
             "stated": false,
             "r10": false,
             "clear": 0,
-            "implied": 1,
-            "mentions": 2,
+            "implied": 2,
+            "mentions": 1,
             "excerpts": [
-              "support [imp:remedy]: Fighting Flooding by Strengthening Infrastructure"
+              "support [imp:remedy]: Fighting Flooding by Strengthening Infrastructure",
+              "support [imp:remedy]: His work on Hollywood’s Sustainability Advisory Committee showed him why local knowledge matters, and he will work with communities to address the flooding residents experience in their own neighborhoods."
             ]
-          },
-          "low_reason": "r9_sibling_key"
+          }
         }
       ],
       "off_key_directional": [
