@@ -30,9 +30,9 @@
 // Pure: no I/O. The catalog is passed in (catalogFromBillDocs).
 // Nothing here is wired into the site.
 // ═══════════════════════════════════════════════════════════════════════════
-import { extractSentenceBlocks } from "./stance-score-core.mjs";
+import { extractSentenceBlocks, subjectSpans, spanScopeFor } from "./stance-score-core.mjs";
 
-export const FINDER_VERSION = "bill-finder-v1.1";
+export const FINDER_VERSION = "bill-finder-v2";
 
 // ─── Bill numbers ───────────────────────────────────────────────────────────
 // Single letters are upper-case only; the word parts (Con, Res, Amdt) match any
@@ -225,16 +225,85 @@ const closeUp = (html) => String(html)
   .replace(/\b([HS])\.\s?Amdt\.\s+(?=\d)/g, "$1.Amdt.");
 const bodyHtml = (page) => closeUp(page.body ?? `<p>${String(page.text || "").replace(/</g, "&lt;")}</p>`);
 
+// ─── Idea scope (v2) ─────────────────────────────────────────────────────────
+// A mention's evidence is its IDEA, not the sentences next to it. The finder
+// reads the same subject spans the stance scorer reads (subjectSpans in
+// stance-score-core.mjs), with the same scope rule: a speech, interview, press
+// release, statement or bill text is ONE document scope; a campaign issue page
+// or roll call keeps the paragraph scope. Inside a scope:
+//   · the mention's idea is the subject span it sits in — across paragraphs,
+//     until a clear change (another country, a transition, a heading, another
+//     issue, a distinct new measure, or the safety-valve gap);
+//   · a mention in a sentence with no subject (e.g. "Today I voted against
+//     H.R. 8035.") joins the nearest span in the same scope — forward first —
+//     unless another bill is named in between;
+//   · another span in the same scope joins the idea when it names the same bill
+//     again or refers back to it ("the bill", "this package", "it also …") and
+//     names no other bill — so one package's Ukraine and Israel provisions
+//     both belong to the package;
+//   · on a bill-text page (the URL names the bill) the whole document is the
+//     bill's idea.
+// Every idea sentence keeps its own subject and facet, so a key reads only the
+// part of the idea that is about it: distinct provisions (offensive vs.
+// defensive arms, Ukraine aid vs. Israel aid) map independently.
+const BACK_REFERENCE = /\b(?:(?:the|this|that) (?:bill|package|legislation|measure|act|supplemental|resolution|amendment)|it also|the same (?:bill|package|resolution))\b/i;
+
+function ideasFor(mentions, sentences, html, { own, scope }) {
+  const spans = subjectSpans(sentences.map((x) => x.text), html, { scope });
+  const ident = (m) => (m.kind === "number" || m.kind === "state_number" ? m.bill : m.match.toLowerCase());
+  const billsAt = new Map(); // sentence → identities named there
+  for (const m of mentions) if (m.span.sentence != null && m.kind !== "phrase") {
+    if (!billsAt.has(m.span.sentence)) billsAt.set(m.span.sentence, new Set());
+    billsAt.get(m.span.sentence).add(ident(m));
+  }
+  const entry = (k, i) => ({ id: k, text: sentences[k].text, sentence: k, subject: spans[k].subject, ...(spans[k].subjects ? { subjects: spans[k].subjects } : {}),
+    ...(spans[k].facet ? { facet: spans[k].facet } : {}), ...(k === i ? { mention: true } : {}) });
+  const whole = sentences.map((_, k) => entry(k, -1));
+  const otherBill = (k, id) => [...(billsAt.get(k) || [])].some((x) => x !== id);
+  for (const m of mentions) {
+    const i = m.span.sentence;
+    if (m.origin === "url_slug") { m.idea = [{ id: "slug", text: m.span.text, slug: true, mention: true }]; continue; }
+    if (i == null || own) { m.idea = i == null ? whole : whole.map((e) => (e.sentence === i ? { ...e, mention: true } : e)); continue; }
+    const sc = spans[i].scope, id = ident(m);
+    const linked = new Set();
+    if (spans[i].span) linked.add(spans[i].span);
+    else {
+      const look = (dir) => {
+        for (let j = i + dir; j >= 0 && j < sentences.length && spans[j].scope === sc; j += dir) {
+          if (otherBill(j, id)) return null;
+          if (spans[j].span) return spans[j].span;
+        }
+        return null;
+      };
+      const near = look(1) ?? look(-1);
+      if (near) linked.add(near);
+    }
+    // Spans that come back to this bill (re-named, or referred to) and name no other bill.
+    const bySpan = new Map();
+    for (let k = 0; k < sentences.length; k++) if (spans[k].scope === sc && spans[k].span && !linked.has(spans[k].span)) {
+      if (!bySpan.has(spans[k].span)) bySpan.set(spans[k].span, []);
+      bySpan.get(spans[k].span).push(k);
+    }
+    for (const [sp, ks] of bySpan) {
+      if (ks.some((k) => otherBill(k, id))) continue;
+      if (ks.some((k) => billsAt.get(k)?.has(id) || BACK_REFERENCE.test(sentences[k].text))) linked.add(sp);
+    }
+    m.idea = sentences.map((_, k) => k).filter((k) => k === i || (spans[k].scope === sc && linked.has(spans[k].span))).map((k) => entry(k, i));
+  }
+  return spans;
+}
+
 /**
- * findBills(page, { catalog }) → { candidates, sentences }
+ * findBills(page, { catalog }) → { candidates, sentences, scope }
  *   page: { body (HTML) | text, url, date (YYYY-MM-DD), politician_id, source_type }
  * Each candidate: { id, bill, congress, kind, origin, in_catalog, catalog, mentions[], resolves_to? }
- *   mentions[]: { kind, origin, match, span: { text, block, sentence }, window: [sentence…] }
+ *   mentions[]: { kind, origin, match, span: { text, block, sentence }, idea: [entry…], window: [idea text…] }
+ *   idea entry: { text, sentence, subject, subjects?, facet?, mention? } (see ideasFor)
  */
 export function findBills(page, { catalog = null } = {}) {
-  const blocks = extractSentenceBlocks(bodyHtml(page));
+  const html = bodyHtml(page);
+  const blocks = extractSentenceBlocks(html);
   const sentences = blocks.map((b, i) => ({ text: b.text, block: b.block, sentence: i }));
-  const windowOf = (i) => sentences.filter((s) => Math.abs(s.sentence - i) <= 1 && s.block === sentences[i].block).map((s) => s.text);
   const urlCongress = congressFromUrl(page.url);
   const hint = urlCongress ?? congressForDate(page.date);
   // Where a number's Congress came from. "date" is a guess: an older bill, or a
@@ -247,13 +316,13 @@ export function findBills(page, { catalog = null } = {}) {
   // The page's own URL: a bill-text or bill page names its bill.
   const own = billFromUrl(page.url);
   if (own) push({ kind: "number", origin: "url", bill: own.bill, congress: own.congress, congress_from: "url", match: page.url,
-    span: { text: page.url, block: null, sentence: null }, window: sentences.slice(0, 6).map((s) => s.text) });
+    span: { text: page.url, block: null, sentence: null } });
 
   const scan = (s, origin) => {
     const text = s.text;
     const taken = [];
     const overlaps = (a, b) => taken.some(([x, y]) => a < y && b > x);
-    const base = { origin, span: { text, block: s.block, sentence: s.sentence }, window: s.sentence == null ? [text] : windowOf(s.sentence) };
+    const base = { origin, span: { text, block: s.block, sentence: s.sentence } };
     if (origin === "text") {
       for (const m of text.matchAll(FEDERAL_NUMBER)) {
         const i = Object.keys(m.groups).find((k) => k.startsWith("t") && m.groups[k] !== undefined);
@@ -297,14 +366,20 @@ export function findBills(page, { catalog = null } = {}) {
       for (const re of fam.patterns) { const m = re.exec(text); if (m) { hit = m; break; } }
       if (!hit && fam.anaphora && fam.anaphora.test(text) && fam.anaphoraNeeds.test(text)) hit = fam.anaphora.exec(text);
       if (!hit || overlaps(hit.index, hit.index + hit[0].length)) continue;
-      push({ ...base, kind: "phrase", family: fam.family, match: hit[0], countries: countriesIn(base.window.join(" ")) });
+      push({ ...base, kind: "phrase", family: fam.family, match: hit[0] });
     }
   };
   for (const s of sentences) scan(s, "text");
   const slug = urlSlugText(page.url);
   if (slug) scan({ text: slug, block: null, sentence: null }, "url_slug");
 
-  return { candidates: groupMentions(mentions, page, catalog, own), sentences: sentences.length };
+  const scope = own ? "document" : spanScopeFor(page.source_type);
+  ideasFor(mentions, sentences, html, { own, scope });
+  for (const m of mentions) {
+    m.window = m.idea.map((e) => e.text);
+    if (m.kind === "phrase") m.countries = countriesIn(m.window.join(" "));
+  }
+  return { candidates: groupMentions(mentions, page, catalog, own), sentences: sentences.length, scope };
 }
 
 const keyOf = (congress, bill) => (congress ? `${congress}|${bill}` : `?|${bill}`);
@@ -315,7 +390,7 @@ function groupMentions(mentions, page, catalog, own) {
     if (!byKey.has(k)) byKey.set(k, { ...seed, mentions: [] });
     byKey.get(k).mentions.push(strip(m));
   };
-  const strip = ({ kind, origin, match, span, window, family, countries, congress_from }) => ({ kind, origin, match, span, window, ...(congress_from ? { congress_from } : {}), ...(family ? { family, countries } : {}) });
+  const strip = ({ kind, origin, match, span, window, idea, family, countries, congress_from }) => ({ kind, origin, match, span, window, idea, ...(congress_from ? { congress_from } : {}), ...(family ? { family, countries } : {}) });
   const seedFor = (congress, bill, kind) => {
     const row = catalog && congress ? catalog.byId.get(keyOf(congress, bill)) : null;
     return { id: row ? row.id : keyOf(congress, bill), bill, congress, kind, in_catalog: !!row, catalog: row ? brief(row) : null };

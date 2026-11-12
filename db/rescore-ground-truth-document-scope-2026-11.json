@@ -1,0 +1,527 @@
+{
+  "_note": "Offline re-score of the six ground-truth records under the paragraph span scope (before) and the document span scope (after). Diagnostic only: no ground-truth label, rule or site file changes. The pooled read is the record-level read (typed \"statement\", so it reads at document scope).",
+  "rules_version": "phase8-v3",
+  "vocab_version": "issue-vocab-v2-directional",
+  "document_gap_paragraphs": 3,
+  "summary": {
+    "records": 6,
+    "changed_records": 0,
+    "changed_source_reads": 0,
+    "verdicts": {
+      "james_talarico|cost_living|gt-001": "support → support (agrees)",
+      "massie|ukraine_aid|gt-002": "oppose → oppose (agrees)",
+      "sanders|healthcare|gt-003": "support → support (agrees)",
+      "james_talarico|school_choice|gt-004": "oppose → oppose (agrees)",
+      "massie|iran_hostilities|gt-005": "support → support (agrees)",
+      "sanders|israel_military_aid|gt-006": "mixed → oppose (disagrees)"
+    }
+  },
+  "records": [
+    {
+      "stance_id": "james_talarico|cost_living|gt-001",
+      "topic": "cost_living",
+      "reads_spans": false,
+      "human": {
+        "position": "support",
+        "confidence": 0.85
+      },
+      "paragraph_scope": {
+        "position": "support",
+        "confidence": 0.95,
+        "verdict": "agrees"
+      },
+      "document_scope": {
+        "position": "support",
+        "confidence": 0.95,
+        "verdict": "agrees"
+      },
+      "changed": false,
+      "per_source": [
+        {
+          "type": "campaign issue page",
+          "scope_for_type": "paragraph",
+          "paragraph": {
+            "position": "support",
+            "confidence": 0.8,
+            "clear": [
+              "support: In the Senate, he’ll cut taxes for working people, cap credit card interest rates, and lower the cost of rent, groceries, utilities, and gas by making billionaires and giant corporations pay their fair share.",
+              "support: Pass a cost-of-living tax cut for the middle class"
+            ]
+          },
+          "document": {
+            "position": "support",
+            "confidence": 0.8,
+            "clear": [
+              "support: In the Senate, he’ll cut taxes for working people, cap credit card interest rates, and lower the cost of rent, groceries, utilities, and gas by making billionaires and giant corporations pay their fair share.",
+              "support: Pass a cost-of-living tax cut for the middle class"
+            ]
+          },
+          "moved": false,
+          "auto_is": "document"
+        },
+        {
+          "type": "campaign toolkit page",
+          "scope_for_type": "paragraph",
+          "paragraph": {
+            "position": "support",
+            "confidence": 0.8,
+            "clear": [
+              "support: In the Senate, he'll cut taxes for working people, cap credit card interest rates, and lower the cost of rent, groceries, utilities, and gas by making billionaires and giant corporations pay their fair share in taxes."
+            ]
+          },
+          "document": {
+            "position": "support",
+            "confidence": 0.8,
+            "clear": [
+              "support: In the Senate, he'll cut taxes for working people, cap credit card interest rates, and lower the cost of rent, groceries, utilities, and gas by making billionaires and giant corporations pay their fair share in taxes."
+            ]
+          },
+          "moved": false,
+          "auto_is": "document"
+        },
+        {
+          "type": "public remarks (verbatim quotes in news report)",
+          "scope_for_type": "document",
+          "paragraph": {
+            "position": "support",
+            "confidence": 0.8,
+            "clear": [
+              "support: We can make billionaires pay their fair share so that we can cut our taxes."
+            ]
+          },
+          "document": {
+            "position": "support",
+            "confidence": 0.8,
+            "clear": [
+              "support: We can make billionaires pay their fair share so that we can cut our taxes."
+            ]
+          },
+          "moved": false,
+          "auto_is": "document"
+        },
+        {
+          "type": "speech (victory speech)",
+          "scope_for_type": "document",
+          "paragraph": {
+            "position": "support",
+            "confidence": 0.8,
+            "clear": [
+              "support: Hate can't lower our energy bills.\" (13:14)"
+            ]
+          },
+          "document": {
+            "position": "support",
+            "confidence": 0.8,
+            "clear": [
+              "support: Hate can't lower our energy bills.\" (13:14)"
+            ]
+          },
+          "moved": false,
+          "auto_is": "document"
+        }
+      ]
+    },
+    {
+      "stance_id": "massie|ukraine_aid|gt-002",
+      "topic": "ukraine_aid",
+      "reads_spans": true,
+      "human": {
+        "position": "oppose",
+        "confidence": 0.85
+      },
+      "paragraph_scope": {
+        "position": "oppose",
+        "confidence": 0.8,
+        "verdict": "agrees"
+      },
+      "document_scope": {
+        "position": "oppose",
+        "confidence": 0.8,
+        "verdict": "agrees"
+      },
+      "changed": false,
+      "per_source": [
+        {
+          "type": "roll-call vote (House Clerk)",
+          "scope_for_type": "paragraph",
+          "paragraph": {
+            "position": "no clear position",
+            "confidence": 0.3,
+            "spans": 1,
+            "spans_with_signal": 0,
+            "clear": []
+          },
+          "document": {
+            "position": "no clear position",
+            "confidence": 0.3,
+            "spans": 1,
+            "spans_with_signal": 0,
+            "clear": []
+          },
+          "moved": false,
+          "auto_is": "document"
+        },
+        {
+          "type": "roll-call vote (House Clerk)",
+          "scope_for_type": "paragraph",
+          "paragraph": {
+            "position": "no clear position",
+            "confidence": 0.3,
+            "spans": 1,
+            "spans_with_signal": 0,
+            "clear": []
+          },
+          "document": {
+            "position": "no clear position",
+            "confidence": 0.3,
+            "spans": 1,
+            "spans_with_signal": 0,
+            "clear": []
+          },
+          "moved": false,
+          "auto_is": "document"
+        },
+        {
+          "type": "interview (verbatim Q&A in news report)",
+          "scope_for_type": "document",
+          "paragraph": {
+            "position": "oppose",
+            "confidence": 0.8,
+            "spans": 1,
+            "spans_with_signal": 1,
+            "clear": [
+              "oppose: Well, it's certainly the case that I don't want to send more aid to Ukraine."
+            ]
+          },
+          "document": {
+            "position": "oppose",
+            "confidence": 0.8,
+            "spans": 1,
+            "spans_with_signal": 1,
+            "clear": [
+              "oppose: Well, it's certainly the case that I don't want to send more aid to Ukraine."
+            ]
+          },
+          "moved": false,
+          "auto_is": "document"
+        }
+      ]
+    },
+    {
+      "stance_id": "sanders|healthcare|gt-003",
+      "topic": "healthcare",
+      "reads_spans": false,
+      "human": {
+        "position": "support",
+        "confidence": 0.9
+      },
+      "paragraph_scope": {
+        "position": "support",
+        "confidence": 0.8,
+        "verdict": "agrees"
+      },
+      "document_scope": {
+        "position": "support",
+        "confidence": 0.8,
+        "verdict": "agrees"
+      },
+      "changed": false,
+      "per_source": [
+        {
+          "type": "bill text (sponsor)",
+          "scope_for_type": "document",
+          "paragraph": {
+            "position": "no clear position",
+            "confidence": 0,
+            "clear": []
+          },
+          "document": {
+            "position": "no clear position",
+            "confidence": 0,
+            "clear": []
+          },
+          "moved": false,
+          "auto_is": "document"
+        },
+        {
+          "type": "official press release",
+          "scope_for_type": "document",
+          "paragraph": {
+            "position": "support",
+            "confidence": 0.8,
+            "clear": [
+              "support: health care is a human right, not a privilege and that we must end the international embarrassment of the United States being the only major country on earth that does not guarantee health care to all of its citizens"
+            ]
+          },
+          "document": {
+            "position": "support",
+            "confidence": 0.8,
+            "clear": [
+              "support: health care is a human right, not a privilege and that we must end the international embarrassment of the United States being the only major country on earth that does not guarantee health care to all of its citizens"
+            ]
+          },
+          "moved": false,
+          "auto_is": "document"
+        },
+        {
+          "type": "official press release",
+          "scope_for_type": "document",
+          "paragraph": {
+            "position": "support",
+            "confidence": 0.8,
+            "clear": [
+              "support: introduced the Medicare for All Act of 2022 to guarantee health care in the United States as a fundamental human right to all"
+            ]
+          },
+          "document": {
+            "position": "support",
+            "confidence": 0.8,
+            "clear": [
+              "support: introduced the Medicare for All Act of 2022 to guarantee health care in the United States as a fundamental human right to all"
+            ]
+          },
+          "moved": false,
+          "auto_is": "document"
+        }
+      ]
+    },
+    {
+      "stance_id": "james_talarico|school_choice|gt-004",
+      "topic": "school_choice",
+      "reads_spans": false,
+      "human": {
+        "position": "oppose",
+        "confidence": 0.9
+      },
+      "paragraph_scope": {
+        "position": "oppose",
+        "confidence": 0.8,
+        "verdict": "agrees"
+      },
+      "document_scope": {
+        "position": "oppose",
+        "confidence": 0.8,
+        "verdict": "agrees"
+      },
+      "changed": false,
+      "per_source": [
+        {
+          "type": "campaign issue page",
+          "scope_for_type": "paragraph",
+          "paragraph": {
+            "position": "oppose",
+            "confidence": 0.8,
+            "clear": [
+              "oppose: Reject the voucher scams being pushed by billionaire mega-donors that defund public schools to subsidize private education for the wealthiest Americans."
+            ]
+          },
+          "document": {
+            "position": "oppose",
+            "confidence": 0.8,
+            "clear": [
+              "oppose: Reject the voucher scams being pushed by billionaire mega-donors that defund public schools to subsidize private education for the wealthiest Americans."
+            ]
+          },
+          "moved": false,
+          "auto_is": "document"
+        },
+        {
+          "type": "recorded vote (Texas House Journal)",
+          "scope_for_type": "paragraph",
+          "paragraph": {
+            "position": "no clear position",
+            "confidence": 0,
+            "clear": []
+          },
+          "document": {
+            "position": "no clear position",
+            "confidence": 0,
+            "clear": []
+          },
+          "moved": false,
+          "auto_is": "document"
+        }
+      ]
+    },
+    {
+      "stance_id": "massie|iran_hostilities|gt-005",
+      "topic": "iran_hostilities",
+      "reads_spans": true,
+      "human": {
+        "position": "support",
+        "confidence": 0.85
+      },
+      "paragraph_scope": {
+        "position": "support",
+        "confidence": 0.8,
+        "verdict": "agrees"
+      },
+      "document_scope": {
+        "position": "support",
+        "confidence": 0.8,
+        "verdict": "agrees"
+      },
+      "changed": false,
+      "per_source": [
+        {
+          "type": "resolution text (sponsor)",
+          "scope_for_type": "document",
+          "paragraph": {
+            "position": "support",
+            "confidence": 0.8,
+            "spans": 1,
+            "spans_with_signal": 1,
+            "clear": [
+              "support: Directing the President pursuant to section 5(c) of the War Powers Resolution to remove United States Armed Forces from unauthorized hostilities in the Islamic Republic of Iran."
+            ]
+          },
+          "document": {
+            "position": "support",
+            "confidence": 0.8,
+            "spans": 1,
+            "spans_with_signal": 1,
+            "clear": [
+              "support: Directing the President pursuant to section 5(c) of the War Powers Resolution to remove United States Armed Forces from unauthorized hostilities in the Islamic Republic of Iran."
+            ]
+          },
+          "moved": false,
+          "auto_is": "document"
+        },
+        {
+          "type": "official press release",
+          "scope_for_type": "document",
+          "paragraph": {
+            "position": "support",
+            "confidence": 0.8,
+            "spans": 1,
+            "spans_with_signal": 1,
+            "clear": [
+              "support: Congress has the sole power to declare war against Iran."
+            ]
+          },
+          "document": {
+            "position": "support",
+            "confidence": 0.8,
+            "spans": 1,
+            "spans_with_signal": 1,
+            "clear": [
+              "support: Congress has the sole power to declare war against Iran."
+            ]
+          },
+          "moved": false,
+          "auto_is": "document"
+        }
+      ]
+    },
+    {
+      "stance_id": "sanders|israel_military_aid|gt-006",
+      "topic": "israel_military_aid",
+      "reads_spans": true,
+      "human": {
+        "position": "mixed",
+        "confidence": 0.75
+      },
+      "paragraph_scope": {
+        "position": "oppose",
+        "confidence": 0.8,
+        "verdict": "disagrees"
+      },
+      "document_scope": {
+        "position": "oppose",
+        "confidence": 0.8,
+        "verdict": "disagrees"
+      },
+      "changed": false,
+      "per_source": [
+        {
+          "type": "resolution text (sponsor)",
+          "scope_for_type": "document",
+          "paragraph": {
+            "position": "oppose",
+            "confidence": 0.8,
+            "spans": 1,
+            "spans_with_signal": 1,
+            "clear": [
+              "oppose: Providing for congressional disapproval of the proposed foreign military sale to the Government of Israel of certain defense articles and services."
+            ]
+          },
+          "document": {
+            "position": "oppose",
+            "confidence": 0.8,
+            "spans": 1,
+            "spans_with_signal": 1,
+            "clear": [
+              "oppose: Providing for congressional disapproval of the proposed foreign military sale to the Government of Israel of certain defense articles and services."
+            ]
+          },
+          "moved": false,
+          "auto_is": "document"
+        },
+        {
+          "type": "roll-call vote (Senate)",
+          "scope_for_type": "paragraph",
+          "paragraph": {
+            "position": "no clear position",
+            "confidence": 0,
+            "spans": 0,
+            "spans_with_signal": 0,
+            "clear": []
+          },
+          "document": {
+            "position": "no clear position",
+            "confidence": 0,
+            "spans": 0,
+            "spans_with_signal": 0,
+            "clear": []
+          },
+          "moved": false,
+          "auto_is": "document"
+        },
+        {
+          "type": "floor speech (prepared remarks, official release)",
+          "scope_for_type": "document",
+          "paragraph": {
+            "position": "no clear position",
+            "confidence": 0.3,
+            "spans": 1,
+            "spans_with_signal": 0,
+            "clear": []
+          },
+          "document": {
+            "position": "no clear position",
+            "confidence": 0.3,
+            "spans": 1,
+            "spans_with_signal": 0,
+            "clear": []
+          },
+          "moved": false,
+          "auto_is": "document"
+        },
+        {
+          "type": "official press release",
+          "scope_for_type": "document",
+          "paragraph": {
+            "position": "oppose",
+            "confidence": 0.8,
+            "spans": 1,
+            "spans_with_signal": 1,
+            "clear": [
+              "oppose: block the sale of $8.56 billion in offensive U.S. weaponry to Israel"
+            ]
+          },
+          "document": {
+            "position": "oppose",
+            "confidence": 0.8,
+            "spans": 1,
+            "spans_with_signal": 1,
+            "clear": [
+              "oppose: block the sale of $8.56 billion in offensive U.S. weaponry to Israel"
+            ]
+          },
+          "moved": false,
+          "auto_is": "document"
+        }
+      ]
+    }
+  ]
+}

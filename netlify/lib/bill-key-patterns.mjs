@@ -15,8 +15,13 @@
 //               means "not this key" (missile defence → israel_defensive_systems)
 //   about       how the key's subject reads in an unmapped reason
 //   facetMiss   the reason given when subject + instrument read but no facet
-// Evidence is read from the text around the mention (the sentence and its
-// neighbours in the same paragraph) and, for a catalog bill, its official title.
+// Evidence (v3) is read from the mention's IDEA (bill-finder-core.mjs: the
+// whole speech / release / bill when it is one continuous thought, cut at clear
+// subject changes and distinct new measures) — but only the idea sentences on
+// THIS key's subject (the stance scorer's subject spans), minus sentences a
+// sibling facet claims (a defensive-systems passage never feeds
+// israel_offensive_arms). So two provisions in one bill or speech map on their
+// own. A catalog bill's official title is read as before.
 //
 // Confidence (simple, three levels):
 //   high    bill number + subject words (subject AND instrument) in the text
@@ -31,8 +36,9 @@
 // ground-truth label or the site.
 // ═══════════════════════════════════════════════════════════════════════════
 import { DIRECTIONAL_ISSUE_KEYS } from "./stance-topic-vocab.mjs";
+import { subjectOf, facetExcludes } from "./stance-score-core.mjs";
 
-export const PATTERNS_VERSION = "bill-key-patterns-v2";
+export const PATTERNS_VERSION = "bill-key-patterns-v3";
 export const CONFIDENCE_SCORE = { high: 0.9, medium: 0.6, low: 0.35 };
 
 export const BILL_KEY_PATTERNS = {
@@ -73,22 +79,25 @@ export function mapCandidate(cand, key) {
   const P = BILL_KEY_PATTERNS[key];
   if (!P) return { mapped: false, reason: `no mapping pattern for ${key}` };
   const best = cand.mentions.find((m) => m.kind === "number") || cand.mentions.find((m) => m.kind === "short_title") || cand.mentions[0];
-  const texts = uniq(cand.mentions.flatMap((m) => m.window));
+  const ev = evidenceFor(cand, key);
+  const texts = ev.texts;
   const joined = texts.join(" ");
+  const ideaText = uniq(cand.mentions.flatMap((m) => m.window)).join(" ");
   const title = cand.catalog?.title || "";
   const resolvedTitles = (cand.resolves_to || []).map((r) => r.title);
 
-  const textSubject = P.subject.test(joined) && P.instrument.test(joined);
+  const textSubject = texts.length > 0 && P.subject.test(joined) && P.instrument.test(joined);
   const titleSubject = !!title && P.subject.test(title) && P.instrument.test(title);
   const textFacet = !P.facet || P.facet.test(joined);
   const titleFacet = !!title && !!P.facet && P.facet.test(title);
   const kind = cand.mentions.some((m) => m.kind === "number") ? "number" : cand.mentions.some((m) => m.kind === "short_title") ? "short_title" : "phrase";
 
   if (!textSubject && !titleSubject) {
-    return { mapped: false, reason: subjectMiss(cand, joined, key) };
+    if (ev.excluded && P.excludes) return { mapped: false, reason: `about Israel arms, but only defensive systems are named (→ ${P.excludes.key}, not mapped)` };
+    return { mapped: false, reason: subjectMiss(cand, ideaText, key) };
   }
   if (!textFacet && !titleFacet) {
-    const excluded = P.excludes && (P.excludes.re.test(joined) || P.excludes.re.test(title));
+    const excluded = P.excludes && (ev.excluded || P.excludes.re.test(joined) || P.excludes.re.test(title));
     return { mapped: false, reason: excluded
       ? `about Israel arms, but only defensive systems are named (→ ${P.excludes.key}, not mapped)`
       : P.facetMiss };
@@ -110,6 +119,28 @@ export function mapCandidate(cand, key) {
     ...(cand.resolves_to ? { resolves_to: cand.resolves_to.map((r) => ({ ...r, title_fits_key: titleFits(r.title, P) })) } : {}),
     ...(resolvedTitles.length > 1 ? { best_fit: bestFit(cand.resolves_to, P) } : {}),
   };
+}
+
+// The idea sentences on a key's subject (named, carried, or one of two subjects
+// a sentence names), without those a sibling facet claims; the mention sentence
+// itself joins when the idea is on the key. URL-slug headlines count when they
+// name the subject.
+function evidenceFor(cand, key) {
+  const P = BILL_KEY_PATTERNS[key];
+  const subj = subjectOf(key);
+  const kept = new Map();
+  let excluded = false;
+  const all = cand.mentions.flatMap((m) => m.idea || []);
+  for (const e of all) {
+    if (kept.has(e.id)) continue;
+    const onKey = e.slug ? P.subject.test(e.text) : e.subject === subj || (e.subjects || []).includes(subj);
+    if (!onKey) continue;
+    if (facetExcludes(key, e.facet)) { excluded = true; continue; }
+    kept.set(e.id, e);
+  }
+  if (kept.size) for (const e of all) if (e.mention && !e.subject && !e.subjects && !kept.has(e.id)) kept.set(e.id, e);
+  const order = (e) => (e.slug ? Infinity : e.sentence);
+  return { texts: [...kept.values()].sort((a, b) => order(a) - order(b)).map((e) => e.text), excluded };
 }
 
 // Among several resolved bills, the one whose official title alone fits the key.

@@ -104,6 +104,47 @@ t('defensive-only and non-Israel bills do not map', () => {
   assert.equal(map('We will pass the Affordable Care Act fix in S. 12.', { date: '2025-04-20' }).mappings.length, 0);
 });
 
+// ── Document scope (one speech / release / bill is one scope) ───────────────
+const doc = (body, extra = {}) => K.mapFound(F.findBills({ body, url: 'https://example.com/remarks', date: '2024-04-20', source_type: 'speech', ...extra }, { catalog }));
+const keyed = (r) => r.mappings.map((m) => [m.bill, m.key, m.confidence]);
+t('scope: in a speech the bill number and the subject words combine across paragraphs (same idea)', () => {
+  const body = '<p>Today I voted against H.R. 8035.</p><p>It was a long debate on the floor.</p><p>Sending more military aid to Ukraine is wrong.</p>';
+  assert.deepEqual(keyed(doc(body)), [['H.R. 8035', 'ukraine_aid', 'high']]);
+  // On a campaign issue page (paragraph scope) the same text reads as before: the subject comes from the title.
+  assert.deepEqual(keyed(doc(body, { source_type: 'campaign issue page' })), [['H.R. 8035', 'ukraine_aid', 'high']]);
+  const far = '<p>Today I voted against H.R. 8035.</p><p>It was long.</p><p>It was late.</p><p>Sending more military aid to Ukraine is wrong.</p>';
+  assert.deepEqual(keyed(doc(far)), [['H.R. 8035', 'ukraine_aid', 'high']]);
+  assert.deepEqual(keyed(doc(far, { source_type: 'campaign issue page' })), [['H.R. 8035', 'ukraine_aid', 'medium']]);
+});
+t('scope: a clear change splits — a transition or a different bill keeps the next subject off the first bill', () => {
+  const tr = '<p>Today I voted against H.R. 8035.</p><p>Now let me turn to Israel.</p><p>We must block offensive weapons sales to Israel.</p>';
+  assert.deepEqual(keyed(doc(tr)), [['H.R. 8035', 'ukraine_aid', 'medium']]);
+  const other = '<p>I voted for H.R. 8035 to send aid to Ukraine.</p><p>I also voted against H.R. 8034.</p><p>We must block offensive weapons sales to Israel.</p>';
+  const r = doc(other);
+  assert.deepEqual(r.mappings.filter((m) => m.bill === 'H.R. 8035').map((m) => m.key), ['ukraine_aid']);
+  // Two subjects in one speech with no link back to the bill stay apart.
+  const two = '<p>I voted against H.R. 8035, the Ukraine supplemental.</p><p>We must also block offensive weapons sales to Israel.</p>';
+  assert.deepEqual(keyed(doc(two)), [['H.R. 8035', 'ukraine_aid', 'high']]);
+});
+t('scope: distinct provisions of one package map independently (Ukraine aid vs. Israel defensive vs. offensive)', () => {
+  const pkg = (israel) => `<p>I voted for H.R. 815.</p><p>The package sends $61 billion in security assistance to Ukraine.</p><p>It also provides ${israel}</p>`;
+  assert.deepEqual(keyed(doc(pkg('$4 billion for Iron Dome and David’s Sling missile defense in Israel.'))), [['H.R. 815', 'ukraine_aid', 'high']]);
+  const both = doc(pkg('offensive munitions and 2,000-pound bombs for Israel.'));
+  assert.deepEqual(keyed(both).map((x) => x.slice(0, 2)).sort(), [['H.R. 815', 'israel_offensive_arms'], ['H.R. 815', 'ukraine_aid']]);
+  const ukr = both.mappings.find((m) => m.key === 'ukraine_aid'), isr = both.mappings.find((m) => m.key === 'israel_offensive_arms');
+  assert.ok(!ukr.span.includes('Israel') && !isr.span.includes('Ukraine'), 'each key justifies from its own provision');
+  // Offensive and defensive passages in one speech: only the offensive one feeds the offensive key.
+  const mix = doc('<p>I voted for S.J.Res. 33 because these bombs for Israel kill civilians.</p><p>I will always fund Iron Dome for Israel.</p>', { date: '2025-04-03' });
+  assert.equal(mix.mappings.length, 1);
+  assert.ok(!mix.mappings[0].span.includes('Iron Dome'));
+});
+t('scope: a bill-text page is one scope — every provision belongs to the bill', () => {
+  const body = '<p>Making emergency supplemental appropriations for the fiscal year ending September 30, 2024.</p><p>Mr. Cole introduced the following bill.</p><p>For assistance to Ukraine, $13,000,000,000.</p><p>For the Iron Dome defense system for Israel, $4,000,000,000.</p>';
+  const r = K.mapFound(F.findBills({ body, url: 'https://www.govinfo.gov/content/pkg/BILLS-118hr815eah/html/BILLS-118hr815eah.htm', source_type: 'bill text' }, { catalog }));
+  assert.deepEqual(keyed(r), [['H.R. 815', 'ukraine_aid', 'high']]);
+  assert.ok(!r.mappings.some((m) => m.key === 'israel_offensive_arms'), 'the Iron Dome provision is defensive only');
+});
+
 // ── Ground-truth sources ────────────────────────────────────────────────────
 t('Sanders: S.J.Res. 111 is found and mapped (resolution text: high; roll call: medium)', () => {
   const text = src('sanders|israel_military_aid|gt-006', 'resolution text');

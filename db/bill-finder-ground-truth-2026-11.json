@@ -1,7 +1,7 @@
 {
   "_note": "Diagnostic run of the shared bill finder and the v1 mapping pattern (israel_offensive_arms only). Read-only: nothing here changes a ground-truth label, a scoring rule, an issue key or the site. `ground_truth` reads the reviewer's verbatim excerpts with each source's own link and date; `routine_sweep` reads live pages the raw-ingest runs already pull, where every mapping would be a false mapping.",
-  "finder_version": "bill-finder-v1.1",
-  "patterns_version": "bill-key-patterns-v2",
+  "finder_version": "bill-finder-v2",
+  "patterns_version": "bill-key-patterns-v3",
   "mapped_keys": [
     "israel_offensive_arms",
     "ukraine_aid"
@@ -19,7 +19,7 @@
     "sweep_pages": 110,
     "sweep_fetched": 110,
     "sweep_failed": 0,
-    "sweep_candidates": 44,
+    "sweep_candidates": 43,
     "sweep_mappings": 0
   },
   "ground_truth": [
@@ -502,7 +502,7 @@
           "confidence_score": 0.35,
           "basis": "descriptive phrase + subject words in the text",
           "matched": "these resolutions",
-          "span": "these resolutions are aimed at offensive weapons that have been used to devastating effect against civilians in Gaza and Lebanon. … They would not affect any of the systems Israel uses to defend itself from incoming attacks. … prepared remarks sanders speech on senate vote to block offensive arms sales to israel",
+          "span": "these resolutions are aimed at offensive weapons that have been used to devastating effect against civilians in Gaza and Lebanon. … prepared remarks sanders speech on senate vote to block offensive arms sales to israel",
           "resolves_to": [
             {
               "id": "118|S.J.Res. 111",
@@ -600,7 +600,7 @@
     }
   ],
   "routine_sweep": {
-    "fetched_at": "2026-11-12T04:53:57.002Z",
+    "fetched_at": "2026-11-12T05:25:29.823Z",
     "rows": [
       {
         "group": "raw-ingest SOURCES",
@@ -655,7 +655,7 @@
         "source_type": "campaign policy page",
         "url": "https://www.gregabbott.com/policy/",
         "ok": true,
-        "body_chars": 193983,
+        "body_chars": 193979,
         "sentences": 220,
         "candidates": 0,
         "mappings": [],
@@ -952,7 +952,7 @@
         "source_type": "campaign issues page",
         "url": "https://samwilcoxforri.com/posts/",
         "ok": true,
-        "body_chars": 133393,
+        "body_chars": 133336,
         "sentences": 41,
         "candidates": 0,
         "mappings": [],
@@ -1043,8 +1043,8 @@
         "source_type": "campaign issues page",
         "url": "https://delmayforflorida.com/issues/",
         "ok": true,
-        "body_chars": 139060,
-        "sentences": 44,
+        "body_chars": 176,
+        "sentences": 0,
         "candidates": 0,
         "mappings": [],
         "mentioned_not_mapped": []
@@ -1193,7 +1193,7 @@
         "source_type": "campaign issues page",
         "url": "https://zach4texas.com/issues/",
         "ok": true,
-        "body_chars": 122417,
+        "body_chars": 122340,
         "sentences": 36,
         "candidates": 0,
         "mappings": [],
@@ -1460,7 +1460,7 @@
         "source_type": "campaign home page",
         "url": "https://bianco4mt2026.com/",
         "ok": true,
-        "body_chars": 154856,
+        "body_chars": 154779,
         "sentences": 44,
         "candidates": 0,
         "mappings": [],
@@ -1499,8 +1499,8 @@
         "source_type": "campaign issues page",
         "url": "https://jeffhaylon.com/policies/",
         "ok": true,
-        "body_chars": 34257,
-        "sentences": 51,
+        "body_chars": 178,
+        "sentences": 0,
         "candidates": 0,
         "mappings": [],
         "mentioned_not_mapped": []
@@ -1696,7 +1696,7 @@
             "bill": "Illinois Safety and Liberation Together Act",
             "kind": "short_title",
             "matched": "Illinois Safety and Liberation Together Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
+            "reason": "israel_offensive_arms: names the subject but no Israel arms-transfer words (aid, funding, a sale …) around the mention or in the title | ukraine_aid: about Israel (→ israel_* keys), not further U.S. aid to Ukraine"
           }
         ]
       },
@@ -1707,8 +1707,8 @@
         "source_type": "campaign issues page",
         "url": "https://www.marsieforillinois.info/",
         "ok": true,
-        "body_chars": 61920,
-        "sentences": 72,
+        "body_chars": 167,
+        "sentences": 0,
         "candidates": 0,
         "mappings": [],
         "mentioned_not_mapped": []
@@ -1939,18 +1939,11 @@
         "source_type": "campaign priorities page",
         "url": "https://joerand.com/",
         "ok": true,
-        "body_chars": 324128,
-        "sentences": 83,
-        "candidates": 1,
+        "body_chars": 167,
+        "sentences": 0,
+        "candidates": 0,
         "mappings": [],
-        "mentioned_not_mapped": [
-          {
-            "bill": "Responsible Data Center Development Act",
-            "kind": "short_title",
-            "matched": "Responsible Data Center Development Act",
-            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog)"
-          }
-        ]
+        "mentioned_not_mapped": []
       },
       {
         "group": "newly-elected state-legislative roster",
