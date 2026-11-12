@@ -594,7 +594,9 @@ export const ISSUE_TOPIC_VOCAB = {
     upCon: [String.raw`(?:foreign aid|USAID|humanitarian aid|global health programs)`],
     downCon: [String.raw`(?:the )?(?:closure|dismantling) of USAID`],
     protects: [String.raw`USAID`, String.raw`(?:foreign|humanitarian) aid`] },
-  israel_support: { label: "Support for Israel", pos: "Keep backing Israel with U.S. security aid, weapons and sanctions on its adversaries",
+  // Parent / grouping key (vocab v2): stances that need a direction go on the
+  // directional child keys in DIRECTIONAL_ISSUE_KEYS below.
+  israel_support: { label: "Support for Israel", grouping: true, children: ["israel_military_aid"], pos: "Keep backing Israel with U.S. security aid, weapons and sanctions on its adversaries",
     terms: String.raw`israel|iron dome|hamas|hezbollah|gaza|jewish state`,
     up: [String.raw`(?:our (?:ally|alliance) )?israel(?:'?s right to defend itself)?`, String.raw`(?:the )?iron dome`, String.raw`(?:security )?aid (?:to|for) israel`, String.raw`(?:the )?(?:u\.?s\.?-israel|israel) (?:alliance|relationship|partnership)`],
     pro: [String.raw`\bstand\w{0,3} (?:with|by)\b${GAP}\bisrael\b`],
@@ -606,9 +608,9 @@ export const ISSUE_TOPIC_VOCAB = {
   // United States does about Iran"), and no side is ever read on them. They are
   // scored for mentions only: no explicit or implied direction, so a page that
   // talks about Iran can never produce a "supports / opposes Iran" item.
-  iran_policy: { label: "Iran", noPole: true, pos: "What the United States does about Iran (no pole)",
+  iran_policy: { label: "Iran", noPole: true, grouping: true, children: ["iran_hostilities"], pos: "What the United States does about Iran (no pole)",
     terms: String.raw`iran(?:ian)?|tehran|ayatollah|IRGC|JCPOA` },
-  ukraine_policy: { label: "Ukraine", noPole: true, pos: "What the United States does about Ukraine (no pole)",
+  ukraine_policy: { label: "Ukraine", noPole: true, grouping: true, children: ["ukraine_aid"], pos: "What the United States does about Ukraine (no pole)",
     terms: String.raw`ukrain\w+|kyiv|zelensky` },
   yemen_policy: { label: "Yemen", noPole: true, pos: "What the United States does about Yemen (no pole)",
     terms: String.raw`yemen\w*|houthis?` },
@@ -740,7 +742,7 @@ export const ISSUE_TOPIC_VOCAB = {
     down: [String.raw`executive overreach`, String.raw`(?:unchecked|unlimited|imperial) (?:executive |presidential )?power`],
     problems: [String.raw`executive overreach`, String.raw`abuses? of (?:executive |presidential )?power`],
     outcome: String.raw`(?:rule by|government by) executive order|(?:above|ignoring) the law` },
-  war_powers: { label: "Congress and War Powers", pos: "Require a vote of Congress before U.S. forces are committed to hostilities",
+  war_powers: { label: "Congress and War Powers", grouping: true, children: ["iran_hostilities"], pos: "Require a vote of Congress before U.S. forces are committed to hostilities",
     terms: String.raw`war powers|authorization (?:for|of) (?:the )?use of military force|AUMF|declare war`,
     up: [String.raw`(?:the |congress'?s? )?war powers(?: resolution| act| authority)?`],
     pro: [String.raw`\bcongress\b[^.!?]{0,40}\b(?:must|should|has to)\b[^.!?]{0,30}\b(?:vote|authoriz\w+|approv\w+|declare)\b[^.!?]{0,40}\b(?:war|force|hostilities|strikes|troops)\b`, String.raw`\b(?:repeal\w{0,3}|sunset\w{0,3})\b${GAP}\b(?:the )?(?:2001|2002|outdated)? ?AUMFs?\b`],
@@ -783,13 +785,127 @@ export const ISSUE_TOPIC_VOCAB = {
     protects: [String.raw`civil service protections`] },
 };
 
+// ─── DIRECTIONAL KEYS (vocab v2) ────────────────────────────────────────────
+// The broad keys above that name a subject (ukraine_policy, iran_policy) or
+// bundle several separate questions (israel_support, war_powers) cannot carry
+// one clean support / oppose / mixed label. Each directional key below states a
+// single proposition: "support" means for `pos`, "oppose" means for `against`,
+// and "mixed" means the record backs part of the proposition and opposes part.
+//
+// `parent` names the broad key the directional key sits under. The broad keys
+// stay in the vocabulary (marked `grouping: true`) so nothing that reads them
+// breaks; they are not deleted in this pass.
+//
+// These keys are NOT in ISSUE_TOPIC_VOCAB, so the register sweep
+// (SCORED_TOPICS) and NO_POLE_TOPICS are unchanged. Their scoring rules live
+// in DIRECTIONAL_TOPIC_VOCAB below; the scorer adds them to TOPIC_RULES as an
+// opt-in set (DIRECTIONAL_TOPICS). They are the shared key set the locked
+// ground-truth records (db/stance-ground-truth-talarico-cost-of-living.json)
+// are filed on.
+export const DIRECTIONAL_ISSUE_KEYS = {
+  ukraine_aid: { label: "Further U.S. Aid to Ukraine", parent: "ukraine_policy",
+    pos: "Send further U.S. aid to Ukraine (supplemental appropriations, security and economic assistance)",
+    against: "Send no further U.S. aid to Ukraine" },
+  iran_hostilities: { label: "Congress Must Authorize Hostilities with Iran", parent: "war_powers", also: ["iran_policy"],
+    pos: "Require Congress to authorize U.S. hostilities against Iran, and end hostilities it has not authorized",
+    against: "Let the President commit U.S. forces to hostilities against Iran without a specific vote of Congress" },
+  israel_military_aid: { label: "U.S. Military Support for Israel", parent: "israel_support", children: ["israel_offensive_arms", "israel_defensive_systems"],
+    pos: "Keep providing U.S. military aid and arms sales to Israel, offensive and defensive alike",
+    against: "Cut off or block U.S. military aid and arms sales to Israel" },
+  israel_offensive_arms: { label: "Offensive Arms Sales to Israel", parent: "israel_military_aid",
+    pos: "Keep approving U.S. sales and transfers of offensive weapons to Israel",
+    against: "Block or condition U.S. sales and transfers of offensive weapons to Israel" },
+  israel_defensive_systems: { label: "Defensive Systems for Israel", parent: "israel_military_aid",
+    pos: "Keep funding and supplying Israel's missile-defense and other defensive systems (Iron Dome, David's Sling, Arrow)",
+    against: "Cut or block U.S. funding and supply of Israel's defensive systems" },
+};
+
+/** Broad keys kept as parent / grouping keys for the directional keys. */
+export const GROUPING_ISSUE_KEYS = Object.keys(ISSUE_TOPIC_VOCAB).filter((k) => ISSUE_TOPIC_VOCAB[k].grouping);
+
+/** The directional children of a broad key (empty when it has none). */
+export const directionalChildren = (key) =>
+  Object.entries(DIRECTIONAL_ISSUE_KEYS).filter(([, v]) => v.parent === key || (v.also || []).includes(key)).map(([k]) => k);
+
+// ─── DIRECTIONAL KEY RULES (vocab v2, phase8-v3 style) ──────────────────────
+// Same spec fields and the same PRO / DOWN / REMEDY / REPEAL verb sets as the
+// vocabulary above, plus one field the core already reads for healthcare_costs:
+//   context   the sentence must also be ABOUT this subject (Ukraine / Iran /
+//             Israel) for an explicit or implied statement to count, so a war
+//             powers line about Yemen never reads on iran_hostilities.
+// Polarity follows each key's `pos` / `against` line in DIRECTIONAL_ISSUE_KEYS.
+// A mixed read is not written as a pattern: the engine returns "mixed" when a
+// page carries equal weight on both sides (or as many outliers as consistent
+// statements), exactly as for every other key.
+// A carve-out ("would not affect the systems Israel uses to defend itself")
+// states what the speaker is NOT opposing; it is not an affirmative
+// commitment, so it stays a mention on every Israel key.
+const NEG = String.raw`(?<!\b(?:not|never|no|n['’]t|won['’]t|don['’]t|didn['’]t|refuse to|refused to)\b(?:\s+\w+){0,3}\s+)`;
+const UKRAINE_AID_OBJ = String.raw`(?:(?:further |more |additional |continued |new )?(?:military |security |economic |humanitarian |lethal |financial )?(?:aid|assistance|support|funding|money|weapons|arms|dollars|tax ?dollars|blank checks?|supplementals?|packages?) (?:to|for) ukraine|ukraine (?:aid|funding|supplementals?|security assistance|assistance|aid package)|(?:the )?(?:additional )?ukraine (?:security )?supplemental appropriations act)`;
+const ISRAEL_ARMS_OBJ = String.raw`(?:(?:military |security |offensive |defensive )?(?:aid|assistance|funding|weapons|weaponry|arms|munitions|bombs) (?:to|for) israel|(?:(?:foreign )?military |arms |weapons? )?sales? (?:of (?:[^.!?]|\.\d){0,60}?)?to (?:the government of )?israel|(?:u\.?s\.? )?(?:military|security) (?:aid|assistance) (?:to|for) israel)`;
+const OFFENSIVE_OBJ = String.raw`(?:(?:the )?(?:sale|transfer)s? of (?:[^.!?]|\.\d){0,60}?offensive (?:u\.?s\.? )?(?:weapons|weaponry|arms|munitions)(?: sales)? to (?:the government of )?israel|offensive (?:u\.?s\.? )?(?:weapons|weaponry|arms|munitions)(?: sales)? (?:to|for) israel|(?:2,000-pound |500-pound |precision-guided )?(?:bombs|munitions|JDAMs?|tank (?:rounds|shells)) (?:to|for) israel)`;
+const DEFENSIVE_OBJ = String.raw`(?:(?:the )?iron dome|david['’]?s sling|(?:the )?arrow (?:\d )?(?:missile )?(?:defen[cs]e )?(?:system|program)s?|(?:israel['’]?s? )?(?:missile|rocket|air) defen[cs]es?(?: systems?| programs?)?(?: for israel)?|defensive (?:systems|weapons|aid|assistance)(?: (?:to|for) israel)?|(?:the )?systems israel uses to defend itself)`;
+const IRAN_CTX = String.raw`iran\w*|tehran|islamic republic|IRGC|ayatollah`;
+const ISRAEL_CTX = String.raw`israel\w*|IDF|iron dome|david['’]?s sling|gaza|netanyahu`;
+
+export const DIRECTIONAL_TOPIC_VOCAB = {
+  ukraine_aid: { label: DIRECTIONAL_ISSUE_KEYS.ukraine_aid.label,
+    terms: String.raw`ukrain\w+|kyiv|zelensky`,
+    context: String.raw`ukrain\w+|kyiv|zelensky`,
+    up: [UKRAINE_AID_OBJ],
+    pro: [String.raw`${NEG}\b(?:send\w{0,3}|provid\w{0,3}|approv\w{0,3}|vot\w{0,3} for|arm\w{0,3}|replenish\w{0,3})\b${GAP}\b${UKRAINE_AID_OBJ}`,
+      String.raw`${NEG}\b(?:arm\w{0,3}|stand\w{0,3} (?:with|by))\b${GAP}\bukraine\b`],
+    downCon: [UKRAINE_AID_OBJ],
+    con: [String.raw`\b(?:don['’]t|do not|won['’]t|will not|shouldn['’]t|should not|refuse to|never)\b(?:\s+\w+){0,3}\s+\b(?:send|give|fund|approve|support|vote for)\b${GAP}\b${UKRAINE_AID_OBJ}`,
+      String.raw`\b(?:no|not (?:one|another)) (?:more )?(?:dime|penny|cent|dollars?|money|blank checks?|aid)\b[^.!?]{0,30}\b(?:for|to) ukraine\b`,
+      String.raw`\bvot\w{0,3} against\b${GAP}\b${UKRAINE_AID_OBJ}`],
+    problems: [String.raw`(?:russia['’]?s?|putin['’]?s?) (?:war|invasion|aggression)(?: (?:in|on|against) ukraine)?`],
+    protects: [UKRAINE_AID_OBJ] },
+  iran_hostilities: { label: DIRECTIONAL_ISSUE_KEYS.iran_hostilities.label,
+    terms: String.raw`(?:war|strikes?|hostilities|military (?:action|force)|attack)\b[^.!?]{0,40}\b(?:${IRAN_CTX})|(?:${IRAN_CTX})\b[^.!?]{0,40}\b(?:war|strikes?|hostilities|war powers)`,
+    context: IRAN_CTX,
+    up: [String.raw`(?:the |this |an? |my |our )?(?:iran )?war powers resolution`, String.raw`congress['’]?s? (?:constitutional )?(?:power|authority) to declare war`],
+    down: [String.raw`(?:the )?(?:unauthorized|illegal|unconstitutional) (?:war|hostilities|strikes|military action)`],
+    pro: [String.raw`\bcongress\b[^.!?]{0,40}\b(?:must|should|has to|alone (?:can|has)|has (?:the )?(?:sole )?(?:power|authority) to)\b[^.!?]{0,40}\b(?:vote|authoriz\w+|approv\w+|declare)\b[^.!?]{0,40}\b(?:war|force|hostilities|strikes|military action)\b`,
+      String.raw`\b(?:remov\w{0,3}|withdraw\w{0,3}|end\w{0,3}|terminat\w{0,3})\b${GAP}\b(?:united states |u\.?s\.? |american )?(?:armed )?(?:forces|troops)\b[^.!?]{0,40}\bfrom\b[^.!?]{0,20}\b(?:unauthorized )?hostilities\b`,
+      String.raw`\b(?:no|cannot|can['’]?t|must not|may not|shouldn['’]?t|should not)\b[^.!?]{0,40}\b(?:war|strikes?|attack|hostilities|military action)\b[^.!?]{0,60}\bwithout\b[^.!?]{0,20}\b(?:congress|congressional (?:approval|authorization)|a vote of congress)\b`],
+    downCon: [String.raw`(?:the |this |an? )?(?:iran )?war powers resolution`],
+    con: [String.raw`\b(?:president|commander[- ]in[- ]chief)\b[^.!?]{0,30}\b(?:does not need|doesn['’]t need|need not|has (?:the )?(?:full |every )?(?:authority|right) to)\b[^.!?]{0,40}\b(?:strike|attack|act|use force|authorization|congress)\b`,
+      String.raw`\bwar powers resolution\b[^.!?]{0,40}\b(?:is |are )?unconstitutional\b`],
+    problems: [String.raw`(?:an? |the )?(?:unauthorized|illegal|unconstitutional) (?:war|hostilities|strikes|military action)`] },
+  israel_military_aid: { label: DIRECTIONAL_ISSUE_KEYS.israel_military_aid.label,
+    terms: String.raw`israel\w*|iron dome|IDF`,
+    context: ISRAEL_CTX,
+    up: [ISRAEL_ARMS_OBJ, DEFENSIVE_OBJ, String.raw`(?:the )?(?:u\.?s\.?-israel )?memorandum of understanding`],
+    downCon: [ISRAEL_ARMS_OBJ, OFFENSIVE_OBJ],
+    con: [String.raw`\b(?:arms|weapons) embargo on israel\b`, String.raw`\bcondition\w{0,3}\b${GAP}\b(?:military |security )?(?:aid|assistance|arms sales) (?:to|for) israel\b`,
+      String.raw`\b(?:joint )?resolutions? of disapproval\b[^.!?]{0,80}\bisrael\b`, String.raw`\bcongressional disapproval of the proposed foreign military sale to (?:the government of )?israel\b`],
+    protects: [ISRAEL_ARMS_OBJ] },
+  israel_offensive_arms: { label: DIRECTIONAL_ISSUE_KEYS.israel_offensive_arms.label,
+    terms: String.raw`offensive (?:weapons|weaponry|arms)|arms sales?|bombs|munitions|israel\w*`,
+    context: ISRAEL_CTX,
+    up: [OFFENSIVE_OBJ],
+    downCon: [OFFENSIVE_OBJ],
+    con: [String.raw`\b(?:arms|weapons) embargo on israel\b`, String.raw`\bcondition\w{0,3}\b${GAP}\b(?:offensive )?(?:weapons|arms)(?: sales)? (?:to|for) israel\b`,
+      String.raw`\bresolutions? of disapproval\b[^.!?]{0,80}\boffensive\b`],
+    protects: [OFFENSIVE_OBJ] },
+  israel_defensive_systems: { label: DIRECTIONAL_ISSUE_KEYS.israel_defensive_systems.label,
+    terms: String.raw`iron dome|david['’]?s sling|missile defen[cs]e|defensive (?:systems|weapons|aid)|defend itself`,
+    context: ISRAEL_CTX,
+    up: [DEFENSIVE_OBJ],
+    pro: [String.raw`${NEG}\b(?:replenish\w{0,3}|resuppl\w{0,3}|supply\w{0,3}|supplie[sd])\b${GAP}\b${DEFENSIVE_OBJ}`],
+    downCon: [DEFENSIVE_OBJ],
+    protects: [DEFENSIVE_OBJ] },
+};
+
 const strip = (s) => String(s || "").replace(/^[^\p{L}\p{N}]+/u, "").trim();
 
-/** Reader-facing label per issue key (vocabulary keys + the two core topics). */
+/** Reader-facing label per issue key (vocabulary keys, the two core topics, the directional keys). */
 export const ISSUE_TOPIC_LABELS = Object.fromEntries([
   ["cost_living", "Tackle the Cost of Living"],
   ["healthcare_costs", "Lower Healthcare Costs"],
   ...Object.entries(ISSUE_TOPIC_VOCAB).map(([k, v]) => [k, strip(v.label)]),
+  ...Object.entries(DIRECTIONAL_ISSUE_KEYS).map(([k, v]) => [k, v.label]),
 ]);
 
 const re = (src) => (src ? new RegExp(src, "i") : null);
@@ -808,6 +924,22 @@ export function compileTopicRules(spec) {
     implyOppose: re(act(REPEAL, spec.protects)) || /(?!)/,
     outcome: re(spec.outcome ? String.raw`\b(?:${spec.outcome})` : null),
   };
+}
+
+/** TOPIC_RULES for the directional keys (adds the per-key `context` check). */
+// A support read may not start right after a down verb or a negation, so
+// "cut funding for Iron Dome" and "voted against aid to Ukraine" read as
+// oppose instead of matching both sides (and falling back to a mention).
+const SUPPORT_GUARD = String.raw`(?<!\b(?:${DOWN}|not|never|no|n['’]t|won['’]t|don['’]t|refuse to)\s+(?:[\w'’$.,-]+\s+){0,2})`;
+export function buildDirectionalTopicRules(vocab = DIRECTIONAL_TOPIC_VOCAB) {
+  return Object.fromEntries(Object.entries(vocab).map(([k, spec]) => {
+    const rules = compileTopicRules(spec);
+    return [k, {
+      ...rules,
+      support: new RegExp(`${SUPPORT_GUARD}(?:${rules.support.source})`, "i"),
+      ...(spec.context ? { context: re(String.raw`\b(?:${spec.context})\b`) } : {}),
+    }];
+  }));
 }
 
 /** TOPIC_RULES for every vocabulary key. */
