@@ -22,6 +22,18 @@
        that has a record — the position, its confidence, and the sources read.
    Nothing is computed here; the rows are the table's.
 
+   AUTOMATIC ROWS. person-directional-keys-auto.json (written by
+   scripts/gen-dirkey-auto.mjs) adds people outside the ground-truth set, read
+   automatically from first-party pages the site links. They render exactly
+   like the hand-checked rows; a person in the hand-checked table is never read
+   from it. Its internal { source: "auto" } tag is never rendered.
+
+   DISCLOSURE AND FLAG. One line under the heading says the matches and reads
+   are generated automatically and may contain errors, followed by a "Flag a
+   problem" control (issue, optional note). A flag is POSTed to the existing
+   /api/evidence-locker/items endpoint and only queues the row for a later
+   look; nothing on the page is hidden or changed by it.
+
    WHAT IT DOES NOT. No score, rank, grade or Direction Match. A person with no
    row in the table gets no section at all — not an empty one, and no "none".
 
@@ -36,6 +48,9 @@
   if (window.PDXPersonDirectionalKeys) return;
 
   var SRC = '/person-directional-keys.json';
+  var SRC_AUTO = '/person-directional-keys-auto.json';
+  var FLAG_ENDPOINT = '/api/evidence-locker/items';
+  var DISCLOSURE = 'These bill matches and position reads are generated automatically and may contain errors.';
   var POSITION = { support: 'Supports', oppose: 'Opposes', mixed: 'Mixed', 'no clear position': 'No clear position' };
   var CONF = { high: 'High confidence', medium: 'Medium confidence', low: 'Low confidence' };
   var NUMBER_WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty',
@@ -66,12 +81,29 @@
     return href ? '<a href="' + esc(href) + '" data-pdx-dirkeys-bill="' + esc(b.congress + '|' + b.bill) + '">' + txt + '</a>' : '<span data-pdx-dirkeys-bill="' + esc(b.congress + '|' + b.bill) + '">' + txt + '</span>';
   }
 
+  function getJson(url) {
+    return fetch(url, { headers: { accept: 'application/json' } })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .catch(function () { return null; });
+  }
+  // The hand-checked table, with the automatic table's people added for anyone
+  // not already in it. The hand-checked table's keys decide what is shown.
+  function merge(main, auto) {
+    if (!main || !main.people) return main || null;
+    if (!auto || !auto.people) return main;
+    var people = {};
+    var k;
+    for (k in main.people) if (Object.prototype.hasOwnProperty.call(main.people, k)) people[k] = main.people[k];
+    for (k in auto.people) if (Object.prototype.hasOwnProperty.call(auto.people, k) && !people[k]) people[k] = auto.people[k];
+    var out = {};
+    for (k in main) if (Object.prototype.hasOwnProperty.call(main, k)) out[k] = main[k];
+    out.people = people;
+    return out;
+  }
   var _data = null;
   function load() {
     if (!_data) {
-      _data = fetch(SRC, { headers: { accept: 'application/json' } })
-        .then(function (r) { return r.ok ? r.json() : null; })
-        .catch(function () { return null; });
+      _data = Promise.all([getJson(SRC), getJson(SRC_AUTO)]).then(function (r) { return merge(r[0], r[1]); });
     }
     return _data;
   }
@@ -87,7 +119,7 @@
     // Only keys the table names as having a pattern.
     var mappings = (e.mappings || []).filter(function (m) { return keys[m.key]; });
     var stances = (e.stances || []).filter(function (s) { return keys[s.key]; });
-    return mappings.length || stances.length ? { mappings: mappings, stances: stances, keys: keys } : null;
+    return mappings.length || stances.length ? { pid: String(pid), mappings: mappings, stances: stances, keys: keys } : null;
   }
 
   function mappingHtml(m, keys) {
@@ -121,13 +153,57 @@
     '</li>';
   }
 
+  // One "Flag a problem" control for the section: which issue, an optional note.
+  function flagHtml(entry) {
+    var seen = {};
+    var opts = [];
+    entry.mappings.concat(entry.stances).forEach(function (x) {
+      if (seen[x.key] || !entry.keys[x.key]) return;
+      seen[x.key] = true;
+      opts.push('<option value="' + esc(x.key) + '">' + esc(entry.keys[x.key].label) + '</option>');
+    });
+    return '<details class="pdx-dk-flag" data-pdx-dirkeys-flag>' +
+      '<summary>Flag a problem</summary>' +
+      '<form data-pdx-dirkeys-flag-form data-pid="' + esc(entry.pid || '') + '">' +
+        '<label>Issue <select name="key">' + opts.join('') + '</select></label>' +
+        '<label>Note (optional) <textarea name="note" rows="2" maxlength="1000" placeholder="What looks wrong?"></textarea></label>' +
+        '<button type="submit">Send</button>' +
+        '<span class="pdx-dk-flag-msg" data-pdx-dirkeys-flag-msg aria-live="polite"></span>' +
+      '</form>' +
+    '</details>';
+  }
+
+  function onFlagSubmit(ev) {
+    var form = ev && ev.target;
+    if (!form || !form.getAttribute || form.getAttribute('data-pdx-dirkeys-flag-form') === null) return;
+    if (ev.preventDefault) ev.preventDefault();
+    var msg = form.querySelector('[data-pdx-dirkeys-flag-msg]');
+    var btn = form.querySelector('button');
+    var key = form.elements && form.elements.key ? form.elements.key.value : '';
+    var note = form.elements && form.elements.note ? form.elements.note.value : '';
+    if (btn) btn.disabled = true;
+    fetch(FLAG_ENDPOINT, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', accept: 'application/json' },
+      body: JSON.stringify({ kind: 'dirkey_flag', politician_id: form.getAttribute('data-pid'), key: key, note: note })
+    }).then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      if (form.elements && form.elements.note) form.elements.note.value = '';
+      if (msg) msg.textContent = 'Thanks. Your flag was sent.';
+    }).catch(function () {
+      if (msg) msg.textContent = 'That did not go through. Try again in a moment.';
+    }).then(function () { if (btn) btn.disabled = false; });
+  }
+
   function html(entry) {
     if (!entry) return '';
     var labels = Object.keys(entry.keys).map(function (k) { return entry.keys[k].label; });
     var count = NUMBER_WORDS[labels.length] || String(labels.length);
     var list = labels.length > 1 ? labels.slice(0, -1).join(', ') + ', and ' + labels[labels.length - 1] : labels.join('');
     var parts = ['<div class="modal-section-title">\u{1F9ED} Bills and stances on ' + esc(count) + ' directional issues</div>',
-      '<p class="modal-section-sub">Bill matches made by the bill finder in this person’s sources, and the automated stance scorer’s read, on ' + esc(count) + ' issues only: ' + esc(list) + '.</p>'];
+      '<p class="modal-section-sub">Bill matches made by the bill finder in this person’s sources, and the automated stance scorer’s read, on ' + esc(count) + ' issues only: ' + esc(list) + '.</p>',
+      '<p class="pdx-dk-disclose" data-pdx-dirkeys-disclosure>' + esc(DISCLOSURE) + '</p>',
+      flagHtml(entry)];
     if (entry.mappings.length) {
       parts.push('<div class="pdx-dk-group" data-pdx-dirkeys-group="mappings"><div class="pdx-dk-gh">Bills matched to an issue <span>' + entry.mappings.length + '</span></div>' +
         '<ul>' + entry.mappings.map(function (m) { return mappingHtml(m, entry.keys); }).join('') + '</ul></div>');
@@ -159,6 +235,15 @@
       '#pdx-dirkeys .pdx-dk-t{color:#c9d8f2;font-size:0.82rem;line-height:1.4;margin-top:0.2rem;}' +
       '#pdx-dirkeys .pdx-dk-note{font-weight:400;font-size:0.78rem;color:#9fb4d4;}' +
       '#pdx-dirkeys .pdx-dk-q{margin:0.35rem 0 0;padding:0.1rem 0 0.1rem 0.6rem;border-left:2px solid rgba(159,180,212,0.35);color:#dbe6f7;font-size:0.82rem;line-height:1.45;font-style:italic;overflow-wrap:anywhere;}' +
+      '#pdx-dirkeys .pdx-dk-disclose{font-size:0.78rem;color:#9fb4d4;margin:0 0 0.35rem;}' +
+      '#pdx-dirkeys .pdx-dk-flag{margin:0 0 0.8rem;font-size:0.78rem;color:#c9d8f2;}' +
+      '#pdx-dirkeys .pdx-dk-flag summary{cursor:pointer;color:#9fdbff;display:inline-block;}' +
+      '#pdx-dirkeys .pdx-dk-flag form{display:flex;flex-wrap:wrap;align-items:flex-end;gap:0.4rem 0.6rem;margin-top:0.4rem;}' +
+      '#pdx-dirkeys .pdx-dk-flag label{display:flex;flex-direction:column;gap:0.2rem;flex:1 1 12rem;}' +
+      '#pdx-dirkeys .pdx-dk-flag select,#pdx-dirkeys .pdx-dk-flag textarea{font:inherit;color:#dbe6f7;background:rgba(10,15,30,0.6);border:1px solid rgba(159,180,212,0.3);border-radius:0.4rem;padding:0.3rem 0.4rem;}' +
+      '#pdx-dirkeys .pdx-dk-flag button{font:inherit;font-weight:700;color:#0a0f1e;background:#9fdbff;border:0;border-radius:999px;padding:0.3rem 0.9rem;cursor:pointer;}' +
+      '#pdx-dirkeys .pdx-dk-flag button[disabled]{opacity:0.6;cursor:default;}' +
+      '#pdx-dirkeys .pdx-dk-flag-msg{flex-basis:100%;color:#9fb4d4;}' +
       '#pdx-dirkeys .pdx-dk-src{font-size:0.76rem;margin-top:0.3rem;color:#9fb4d4;overflow-wrap:anywhere;}';
     (document.head || document.documentElement).appendChild(st);
   }
@@ -174,6 +259,10 @@
       style();
       host.innerHTML = html(entry);
       host.hidden = false;
+      if (!host._pdxDkFlag && typeof host.addEventListener === 'function') {
+        host._pdxDkFlag = true;
+        host.addEventListener('submit', onFlagSubmit);
+      }
     });
   }
 
@@ -204,7 +293,7 @@
     if (host) fill(host);
   }
 
-  window.PDXPersonDirectionalKeys = { scan: scan, entryFor: entryFor, html: html, load: load };
+  window.PDXPersonDirectionalKeys = { scan: scan, entryFor: entryFor, html: html, load: load, merge: merge, onFlagSubmit: onFlagSubmit, DISCLOSURE: DISCLOSURE };
 
   function boot() {
     scan();

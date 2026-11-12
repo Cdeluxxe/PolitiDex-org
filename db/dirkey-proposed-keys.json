@@ -1,0 +1,4 @@
+{
+  "_comment": "WRITTEN by scripts/gen-dirkey-auto.mjs. Proposed directional keys: clusters of bills the bill finder found on first-party pages that match no key with a bill pattern. A proposal is ignored by the generator. To adopt one, set approved: true and add its pattern to netlify/lib/bill-key-patterns.mjs — only keys with a pattern are read. Re-runs never change the approved flag.",
+  "proposals": {}
+}
