@@ -98,8 +98,7 @@ t('spans: a speech on the same issue in two separate places is ONE position buil
   assert.deepEqual(c.subject, { id: 'iran_hostilities', spans: 2, spans_with_signal: 2, joined: true });
   const clear = c.sources[0].statements.filter((x) => x.kind === 'clear');
   assert.deepEqual(clear.map((x) => [x.subject_span, x.span_carried]), [[1, true], [2, true]]);
-  // Only one candidate on the key, even when the page is swept with the key opted in.
-  // (Swept with the directional keys only: alongside war_powers, R9 keeps one key for the same sentences.)
+  // One candidate on the key when the page is swept with the key opted in.
   const all = S.scoreAllTopics(page(TWO_PLACES, 'cost_living'), { topics: KEYS });
   assert.equal(all.filter((x) => x.topic === 'iran_hostilities').length, 1);
 });
@@ -111,23 +110,103 @@ t('spans: support in one span and oppose in a later span weigh together (mixed),
   assert.equal(c.subject.spans, 2);
   assert.equal(c.subject.spans_with_signal, 2);
 });
-t('spans: an unnamed follow-up sentence carries the subject only within SPAN_CARRY sentences', () => {
+t('spans (carry): a subject carries through long paragraphs and across one off-claim paragraph, then stops', () => {
   const near = S.scoreRawRecord(page('<p>Iran is on everyone’s mind.</p><p>Congress must vote before troops enter hostilities.</p>', 'iran_hostilities'), 'iran_hostilities');
   assert.equal(near.position, 'support');
-  const filler = Array.from({ length: S.SPAN_CARRY }, (_, i) => `<p>That was a long night for everyone number ${i + 1}.</p>`).join('');
-  const far = S.scoreRawRecord(page(`<p>Iran is on everyone’s mind.</p>${filler}<p>Congress must vote before troops enter hostilities.</p>`, 'iran_hostilities'), 'iran_hostilities');
+  // A long paragraph: the follow-up five sentences later is still carried (no sentence-count limit).
+  const filler = Array.from({ length: 5 }, (_, i) => `That was a long night for everyone, number ${i + 1}.`).join(' ');
+  const longPara = S.scoreRawRecord(page(`<p>Iran is on everyone’s mind. ${filler} Congress must vote before troops enter hostilities.</p>`, 'iran_hostilities'), 'iran_hostilities');
+  assert.equal(longPara.position, 'support');
+  // One paragraph with no subject or claim word in between still carries; two do not.
+  const gap = (n) => Array.from({ length: n }, (_, i) => `<p>That was a long night for everyone, number ${i + 1}.</p>`).join('');
+  assert.equal(S.SPAN_GAP_PARAGRAPHS, 1);
+  const one = S.scoreRawRecord(page(`<p>Iran is on everyone’s mind.</p>${gap(1)}<p>It was late. Congress must vote before troops enter hostilities.</p>`, 'iran_hostilities'), 'iran_hostilities');
+  assert.equal(one.position, 'support');
+  const far = S.scoreRawRecord(page(`<p>Iran is on everyone’s mind.</p>${gap(2)}<p>Congress must vote before troops enter hostilities.</p>`, 'iran_hostilities'), 'iran_hostilities');
   assert.equal(far.position, 'no clear position');
+  // A carried claim word keeps the span alive across further paragraphs.
+  const chain = S.scoreRawRecord(page(`<p>Iran is on everyone’s mind.</p><p>The troops are tired.</p>${gap(1)}<p>Congress must vote before troops enter hostilities.</p>`, 'iran_hostilities'), 'iran_hostilities');
+  assert.equal(chain.position, 'support');
 });
-t('spans: a clear subject change ends the span — another country, another issue, a heading, two subjects at once', () => {
+t('spans: a clear subject change ends the span — another country, a transition, another issue, a heading', () => {
   const line = '<p>Congress must vote before troops enter hostilities.</p>';
   for (const brk of ['<p>Turning to Yemen and the Houthis.</p>', '<p>Moving on to something else entirely tonight.</p>',
-    '<p>Our public schools need more teachers.</p>', '<h2>Next section</h2>', '<p>Iran funds attacks on Israel.</p>']) {
+    '<p>Our public schools need more teachers.</p>', '<h2>Next section</h2>', '<p>Abortion rights are on the ballot.</p>']) {
     const c = S.scoreRawRecord(page(`<p>Iran is on everyone’s mind.</p>${brk}${line}`, 'iran_hostilities'), 'iran_hostilities');
     assert.equal(c.position, 'no clear position', brk);
   }
   // War powers, spending and the border are part of the same debate and do not break the span.
   const c = S.scoreRawRecord(page(`<p>Iran is on everyone’s mind.</p><p>We cannot keep adding to the national debt.</p>${line}`, 'iran_hostilities'), 'iran_hostilities');
   assert.equal(c.position, 'support');
+});
+t('spans (break list): broad terms no longer cut a span; a claim word keeps the debate open', () => {
+  const line = '<p>Congress must vote before troops enter hostilities.</p>';
+  for (const mid of ['<p>Their nuclear program worries everyone.</p>', '<p>Oil prices jumped overnight.</p>', '<p>Our officers briefed us this morning.</p>',
+    '<p>Europe should pay its fair share.</p>', '<p>The news coverage was relentless.</p>', '<p>Civilians fled to the shelters.</p>',
+    '<p>The strikes hit roads and bridges.</p>']) {
+    const c = S.scoreRawRecord(page(`<p>Iran is on everyone’s mind.</p>${mid}${line}`, 'iran_hostilities'), 'iran_hostilities');
+    assert.equal(c.position, 'support', mid);
+  }
+  for (const k of ['nuclear', 'oil', 'officers', 'fair share', 'coverage', 'shelters?', 'infrastructure', 'critical minerals']) assert.ok(S.BROAD_BREAK_TERMS.has(k), k);
+  const kept = Object.values(S.issueBreakTerms()).flat();
+  for (const k of ['abortion', 'public (?:schools?|education)', 'medicaid expansion', 'zoning', 'cannabis']) assert.ok(kept.includes(k), k);
+});
+t('spans (backward): the sentence just before a subject is named joins the span when it is the same claim', () => {
+  // Massie: "The Constitution does not permit …" sits ahead of "… against Iran" and is pulled in.
+  const body = '<p>The Constitution does not permit the executive branch to unilaterally commit an act of war against a sovereign nation that hasn’t attacked the United States.</p><p>Congress has the sole power to declare war against Iran.</p>';
+  const sp = S.subjectSpans(S.extractSentences(body), body);
+  assert.deepEqual(sp.map((x) => [x.subject, x.named, !!x.backward]), [['iran_hostilities', false, true], ['iran_hostilities', true, false]]);
+  // An unfinished fragment joins too; an unrelated sentence, a heading or a subject change does not.
+  const frag = '<p>And so, before any strike,</p><p>Congress must vote on Iran.</p>';
+  assert.equal(S.subjectSpans(S.extractSentences(frag), frag)[0].backward, true);
+  for (const before of ['<p>We had a lovely dinner downtown.</p>', '<h2>Congress and the war</h2>', '<p>Yemen’s war drags on with no end.</p>']) {
+    const b2 = `${before}<p>Congress has the sole power to declare war against Iran.</p>`;
+    assert.equal(S.subjectSpans(S.extractSentences(b2), b2)[0].subject, null, before);
+  }
+});
+t('spans (two subjects): the open subject stays open after a sentence naming two, unless that sentence switches', () => {
+  const line = '<p>Congress must vote before troops enter hostilities.</p>';
+  const stay = S.scoreRawRecord(page(`<p>Iran is on everyone’s mind.</p><p>Iran funds attacks on Israel.</p>${line}`, 'iran_hostilities'), 'iran_hostilities');
+  assert.equal(stay.position, 'support');
+  const sw = `<p>Iran is on everyone’s mind.</p><p>Now let me turn to Israel, which Iran attacked.</p>${line}`;
+  assert.equal(S.scoreRawRecord(page(sw, 'iran_hostilities'), 'iran_hostilities').position, 'no clear position');
+  const sp = S.subjectSpans(S.extractSentences(sw), sw);
+  assert.equal(sp[1].subject, 'israel_military_aid');
+  // With no open subject, a two-subject sentence carries nothing.
+  const none = S.scoreRawRecord(page(`<p>Iran funds attacks on Israel.</p>${line}`, 'iran_hostilities'), 'iran_hostilities');
+  assert.equal(none.position, 'no clear position');
+});
+t('spans (Israel facets): offensive and defensive passages are claimed by their own key', () => {
+  const body = `<p>We must block the sale of offensive weaponry to Israel.</p><p>Those bombs have killed thousands.</p>
+<p>I will fully fund Iron Dome.</p><p>Those interceptors save lives every night.</p>`;
+  const sp = S.subjectSpans(S.extractSentences(body), body);
+  assert.deepEqual(sp.map((x) => x.facet), ['offensive', 'offensive', 'defensive', 'defensive']);
+  const off = S.scoreRawRecord(page(body, 'israel_offensive_arms', { politician_id: 'sanders' }), 'israel_offensive_arms');
+  const def = S.scoreRawRecord(page(body, 'israel_defensive_systems', { politician_id: 'sanders' }), 'israel_defensive_systems');
+  const all = S.scoreRawRecord(page(body, 'israel_military_aid', { politician_id: 'sanders' }), 'israel_military_aid');
+  assert.equal(off.position, 'oppose');
+  assert.ok(off.sources[0].statements.every((x) => x.facet !== 'defensive'));
+  assert.equal(def.position, 'support');
+  assert.ok(def.sources[0].statements.every((x) => x.facet !== 'offensive'));
+  assert.equal(all.position, 'mixed', 'the combined key reads both facets');
+  // A sentence with both cues is read by both split keys.
+  assert.equal(S.facetExcludes('israel_defensive_systems', 'both'), false);
+  assert.equal(S.facetExcludes('israel_military_aid', 'offensive'), false);
+});
+t('R9 linked keys: an Iran war-powers line counts on both war_powers and iran_hostilities', () => {
+  const raw = page('<p>Congress has the sole power to declare war against Iran.</p><p>We must pass the Iran war powers resolution.</p>', 'cost_living');
+  const got = S.scoreAllTopics(raw, { topics: [...S.SCORED_TOPICS, ...KEYS] }).map((c) => c.topic);
+  assert.ok(got.includes('war_powers') && got.includes('iran_hostilities'), got.join(','));
+  assert.ok(S.linkedKeys('iran_hostilities', 'war_powers') && S.linkedKeys('israel_offensive_arms', 'israel_support'));
+  assert.ok(!S.linkedKeys('israel_offensive_arms', 'israel_defensive_systems'), 'siblings are not linked');
+  assert.ok(!S.linkedKeys('war_powers', 'checks_balances'), 'register-only pairs keep the old R9');
+});
+t('splitter: "U.S." and similar abbreviations do not end a sentence', () => {
+  assert.deepEqual(S.extractSentences('<p>block the sale of $8.56 billion in offensive U.S. weaponry to Israel.</p>'), ['block the sale of $8.56 billion in offensive U.S. weaponry to Israel.']);
+  assert.deepEqual(S.extractSentences('<p>The U.S. Senate voted today on the bill. Then we went home.</p>'), ['The U.S. Senate voted today on the bill.', 'Then we went home.']);
+  assert.deepEqual(S.extractSentences('<p>It was all made in the U.S. We need more of that here.</p>'), ['It was all made in the U.S.', 'We need more of that here.']);
+  assert.deepEqual(S.extractSentences('<p>We met on Jan. 6 at noon in the hall. It was cold out.</p>'), ['We met on Jan. 6 at noon in the hall.', 'It was cold out.']);
+  assert.deepEqual(S.extractSentences('<p>Regulate A.I. & Data Centers now, she said.</p>'), ['Regulate A.I. & Data Centers now, she said.']);
 });
 t('spans: only directional keys read spans; register topics read exactly as before', () => {
   assert.equal(S.subjectOf('war_powers'), null);

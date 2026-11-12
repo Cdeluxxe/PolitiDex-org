@@ -160,8 +160,8 @@
       "scorer": {
         "position": "oppose",
         "confidence": 0.8,
-        "confidence_reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); 3 mention(s) recorded at zero weight (R3)",
-        "note": "1 clear statement(s) (0 support, 1 oppose), 0 implication(s) (0 support, 0 oppose), 3 mention(s) at zero weight"
+        "confidence_reason": "2 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
+        "note": "2 clear statement(s) (0 support, 2 oppose), 0 implication(s) (0 support, 0 oppose), 2 mention(s) at zero weight"
       },
       "verdict": "disagrees",
       "confidence_delta": 0.05,
@@ -220,10 +220,10 @@
           "date": "2025-02-24",
           "link": "https://www.sanders.senate.gov/press-releases/news-sanders-files-joint-resolutions-of-disapproval-to-block-trump-arms-sales-to-israel/",
           "human_weight": "strong",
-          "position": "no clear position",
-          "confidence": 0.3,
-          "confidence_reason": "2 topic mention(s), none states a clear position (R3)",
-          "note": "0 clear statement(s) (0 support, 0 oppose), 0 implication(s) (0 support, 0 oppose), 2 mention(s) at zero weight",
+          "position": "oppose",
+          "confidence": 0.8,
+          "confidence_reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+          "note": "1 clear statement(s) (0 support, 1 oppose), 0 implication(s) (0 support, 0 oppose), 1 mention(s) at zero weight",
           "statements": [
             {
               "kind": "mention",
@@ -232,20 +232,21 @@
               "text": "Israel had the right to defend itself against Hamas and respond to the barbaric October 7, 2023, terrorist attack, which killed 1,200 innocent people and took over 240 hostages."
             },
             {
-              "kind": "mention",
-              "side": null,
-              "weight": 0,
-              "text": "weaponry to Israel"
+              "kind": "clear",
+              "side": "oppose",
+              "weight": 1,
+              "text": "block the sale of $8.56 billion in offensive U.S. weaponry to Israel"
             }
-          ]
+          ],
+          "stated_position": true
         }
       ],
       "also_read": {
         "israel_offensive_arms": {
-          "position": "no clear position",
-          "confidence": 0.3,
-          "confidence_reason": "5 topic mention(s), none states a clear position (R3)",
-          "note": "0 clear statement(s) (0 support, 0 oppose), 0 implication(s) (0 support, 0 oppose), 5 mention(s) at zero weight",
+          "position": "oppose",
+          "confidence": 0.8,
+          "confidence_reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
+          "note": "1 clear statement(s) (0 support, 1 oppose), 0 implication(s) (0 support, 0 oppose), 2 mention(s) at zero weight",
           "statements": [
             {
               "kind": "mention",
@@ -260,24 +261,13 @@
               "text": "these resolutions are aimed at offensive weapons that have been used to devastating effect against civilians in Gaza and Lebanon."
             },
             {
-              "kind": "mention",
-              "side": null,
-              "weight": 0,
-              "text": "They would not affect any of the systems Israel uses to defend itself from incoming attacks."
-            },
-            {
-              "kind": "mention",
-              "side": null,
-              "weight": 0,
-              "text": "Israel had the right to defend itself against Hamas and respond to the barbaric October 7, 2023, terrorist attack, which killed 1,200 innocent people and took over 240 hostages."
-            },
-            {
-              "kind": "mention",
-              "side": null,
-              "weight": 0,
-              "text": "weaponry to Israel"
+              "kind": "clear",
+              "side": "oppose",
+              "weight": 1,
+              "text": "block the sale of $8.56 billion in offensive U.S. weaponry to Israel"
             }
-          ]
+          ],
+          "stated_position": true
         },
         "israel_defensive_systems": {
           "position": "no clear position",

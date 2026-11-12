@@ -93,13 +93,20 @@
 //             verb is the actor — "the Supreme Court Ruling Gutting the Voting
 //             Rights Act" is the ruling, not the candidate.
 //   R12 Subject spans (directional keys only): a sentence that continues a
-//       subject without naming it again (a follow-up within SPAN_CARRY
-//       sentences, with no clear subject change in between) is read as about
-//       that subject. Spans need not be contiguous: every span on a subject,
+//       subject without naming it again (paragraph-aware carry, the sentence
+//       just before the subject is named when it is the same claim, and
+//       follow-ups after a sentence naming two subjects) is read as about that
+//       subject, until a clear subject change. Inside the Israel subject each
+//       split key reads only its own facet (offensive / defensive). Spans need not be contiguous: every span on a subject,
 //       anywhere on the page, feeds the one candidate for each key on that
 //       subject, weighed with the usual support / oppose / mixed logic. The
 //       candidate records how many spans were joined (`subject`). Register
 //       topics (SCORED_TOPICS) have no subject and read exactly as before.
+//       R9 linked keys: a directional key and its parent (iran_hostilities /
+//       war_powers) are never restatements of each other — the line counts on
+//       both.
+//   Splitter: an initialism ("U.S.", "U.N.", "A.I.") or a short abbreviation
+//       ("Jan.", "vs.", "e.g.") does not end a sentence (mergeAbbreviations).
 //
 
 // Calibration: the ground truth (0.85) rests on first-party campaign pages
@@ -107,7 +114,7 @@
 // R4 corroboration bonus of 0.15 reproduces it. These numbers live in WEIGHTS
 // so a later tweak is one edit, and the comparison log prints the exact delta.
 
-import { buildTopicRules, buildDirectionalTopicRules, ISSUE_TOPIC_VOCAB, ISSUE_TOPIC_LABELS, DIRECTIONAL_TOPIC_VOCAB } from "./stance-topic-vocab.mjs";
+import { buildTopicRules, buildDirectionalTopicRules, ISSUE_TOPIC_VOCAB, ISSUE_TOPIC_LABELS, DIRECTIONAL_TOPIC_VOCAB, DIRECTIONAL_ISSUE_KEYS } from "./stance-topic-vocab.mjs";
 import { PERSON_SURNAMES, PLACE_SURNAMES, PLACE_SURNAME_FULL_NAMES } from "./stance-person-names.mjs";
 
 export const RULES_VERSION = "phase8-v3";
@@ -525,6 +532,15 @@ function decode(s) {
 
 /** HTML → list of de-duplicated sentences. Text bodies pass through unchanged. */
 export function extractSentences(body) {
+  return extractSentenceBlocks(body).map((x) => x.text);
+}
+
+/**
+ * HTML → de-duplicated sentences with the paragraph (block) each sits in:
+ * [{ text, block }]. `block` counts non-empty blocks (p, li, h1–h6, div …) in
+ * page order; extractSentences is this list's text.
+ */
+export function extractSentenceBlocks(body) {
   const text = decode(
     String(body || "")
       .replace(/<(script|style|noscript|svg|head)\b[^>]*>[\s\S]*?<\/\1>/gi, " ")
@@ -535,12 +551,15 @@ export function extractSentences(body) {
   );
   const seen = new Set();
   const out = [];
+  let b = -1;
   for (const block of text.split(/\n+/)) {
+    if (!block.trim()) continue;
+    b++;
     for (const raw of mergeAbbreviations(block.split(/(?<=[.!?…])\s+/))) {
       const s = raw.replace(/\s+/g, " ").trim();
       if (s.length < 12 || seen.has(s)) continue;
       seen.add(s);
-      out.push(s);
+      out.push({ text: s, block: b });
     }
   }
   return out;
@@ -550,11 +569,23 @@ export function extractSentences(body) {
 // sentence end: the fragment is joined back to the text that follows (phase8-v2).
 const TITLE_END = /(?:^|[^\w.])(?:Rep|Reps|Sen|Sens|Gov|Lt|Dr|Mr|Mrs|Ms|Rev|Hon|Del|Amb|Sec|Gen)\.$/;
 const BILL_END = /(?:^|[^\w.])(?:H\.\s?R|H\.\s?(?:J\.\s?|Con\.\s?)?Res|S\.\s?(?:J\.\s?|Con\.\s?)?Res|S|No)\.$/;
+// Abbreviations are not sentence ends either:
+//   · an initialism ("U.S.", "U.K.", "U.N.", "D.C.") is joined to what follows
+//     unless the next fragment opens like a new sentence ("…made in the U.S. We
+//     need…"): "U.S. weaponry", "U.S. Armed Forces", "U.S. 1st Fleet" join;
+//   · a short abbreviation ("vs.", "e.g.", "i.e.", "etc.", "approx.", "Jan.")
+//     is joined only when the next fragment starts in lower case or a digit.
+const INITIALISM_END = /(?:^|[^\w.])(?:[A-Z]\.){2,}["”’)]?$/;
+const SHORT_ABBR_END = /(?:^|[^\w.])(?:vs|etc|e\.g|i\.e|approx|incl|est|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)\.$/i;
+const SENTENCE_START = /^["“'‘(]?(?:The|A|An|We|I|It|It['’]s|This|That|These|Those|He|She|They|Our|My|But|And|So|In|On|At|If|When|While|Now|Today|There|Here|As|For|Yet|Still|Then|Its|Their|His|Her|You|Your|What|Why|How|Who|Every|No|Not|One|After|Before|Since|With|Without|Under|Last|Let|Let['’]s|That['’]s|Thank|Instead|Meanwhile|However|Also|Is|Are|Was|Were|Do|Does|Did|Can|Will|Should|Would|Could)\b/;
+const joinsAbbreviation = (prev, next) =>
+  (INITIALISM_END.test(prev) && (/^[a-z\d]/.test(next) || !SENTENCE_START.test(next))) ||
+  (SHORT_ABBR_END.test(prev) && /^[a-z\d]/.test(next));
 function mergeAbbreviations(parts) {
   const out = [];
   for (const p of parts) {
     const prev = out[out.length - 1];
-    if (prev !== undefined && (TITLE_END.test(prev) || (BILL_END.test(prev) && /^\d/.test(p)))) out[out.length - 1] = `${prev} ${p}`;
+    if (prev !== undefined && (TITLE_END.test(prev) || (BILL_END.test(prev) && /^\d/.test(p)) || joinsAbbreviation(prev, p))) out[out.length - 1] = `${prev} ${p}`;
     else out.push(p);
   }
   return out;
@@ -702,20 +733,38 @@ const clamp = (n) => Math.max(0, Math.min(WEIGHTS.maxConfidence, n));
 // that share a context (the three Israel keys) share a subject.
 //
 //   · A sentence that NAMES exactly one subject starts or continues a span on it.
-//   · A sentence that names no subject CARRIES the current subject forward, for
-//     at most SPAN_CARRY sentences after the last sentence that named it.
-//   · A clear subject change ends the span: a sentence naming a different
-//     subject (scored or not, e.g. Yemen, China), a sentence naming two or more
-//     subjects (no single subject to carry), or a page heading.
+//   · CARRY (paragraph-aware): a sentence that names no subject carries the
+//     open subject across sentences and paragraphs — however many sentences a
+//     paragraph holds — until a clear subject change, or until more than
+//     SPAN_GAP_PARAGRAPHS whole paragraph(s) pass with no sentence that names
+//     the subject or carries a claim word of the debate (CLAIM_WORD).
+//   · BACKWARD: when a span opens, the sentence just before it joins the span
+//     if it is clearly part of the same claim — it sits in the same or the
+//     previous paragraph, is not itself a subject change, and either shares a
+//     claim word with the opening sentence (war, force, troops, aid, arms …)
+//     or is an unfinished fragment (ends in a comma, colon or dash).
+//   · TWO SUBJECTS in one sentence: the sentence counts for each subject it
+//     names, and the open subject stays open for the follow-up sentences —
+//     unless the sentence itself switches (an explicit transition naming the
+//     other subject). With no open subject, nothing carries.
+//   · A clear subject change ends the span: a sentence naming only a subject
+//     without a key (Yemen, Venezuela, China …), an explicit transition, a page
+//     heading, or a sentence about a clearly different register issue
+//     (ISSUE_BREAK_RES — narrow terms only, and never a sentence that still
+//     carries a claim word of the debate).
 //   · Spans are NOT required to be contiguous: when the page comes back to a
 //     subject later, the new span continues the same subject. A key reads every
 //     sentence of every span on its subject, and weighs them as one position
 //     with the usual support / oppose / mixed logic (one candidate per key).
+//   · FACETS (Israel): inside the shared Israel subject each sentence is tagged
+//     offensive, defensive, both or none (own cue, else the facet carried in the
+//     span). israel_offensive_arms skips defensive-only sentences and
+//     israel_defensive_systems skips offensive-only ones; israel_military_aid
+//     reads them all.
 //
-// Only the grouping is new. The directional key rules are unchanged, and the
-// register sweep (SCORED_TOPICS, which has no directional keys) is unaffected:
-// a topic without a subject reads exactly as before.
-export const SPAN_CARRY = 3;
+// The directional key rules are unchanged, and the register sweep
+// (SCORED_TOPICS, which has no directional keys) does not read spans.
+export const SPAN_GAP_PARAGRAPHS = 1;
 const SUBJECT_OF = {}; // topic → subject id
 const SUBJECT_RES = {}; // subject id → RegExp (what names the subject)
 for (const k of DIRECTIONAL_TOPICS) {
@@ -725,11 +774,15 @@ for (const k of DIRECTIONAL_TOPICS) {
   SUBJECT_OF[k] = id;
   SUBJECT_RES[id] ||= TOPIC_RULES[k].context;
 }
-// Subjects with no directional key: naming one is still a clear subject change.
+// Subjects with no directional key: naming only one of them is a clear subject change.
 const OTHER_SUBJECT_RES = {
   ...Object.fromEntries(["yemen_policy", "venezuela_policy"].map((k) => [k, new RegExp(String.raw`\b(?:${ISSUE_TOPIC_VOCAB[k].terms})\b`, "i")])),
   other_country: /\b(?:china|chinese|beijing|taiwan\w*|north korea\w*|pyongyang|syria\w*|cuba\w*|mexic\w*)\b/i,
 };
+// Claim words of the aid / war / arms debate. A sentence carrying one is still
+// part of the debate: it never breaks a span on issue terms, and it lets the
+// sentence before a span's opening join the span (BACKWARD).
+const CLAIM_WORD = /\b(?:wars?|warfare|hostilities|force|forces|troops|military|strikes?|attack\w*|invasion|invad\w+|aid|assistance|arms|weapons?|weaponry|munitions|bombs?|sales?|defen[cs]e\w*|defend\w*|constitution\w*|congress\w*|authoriz\w+|declare|commander[- ]in[- ]chief|sovereign\w*|ceasefire|missiles?)\b/i;
 // A sentence about a different register issue is a clear subject change too —
 // except the issues an aid / war / arms debate naturally runs through, which a
 // span carries across: foreign policy, defense, veterans, war powers and
@@ -739,13 +792,69 @@ const SPAN_FAMILY = new Set(["strong_defense", "foreign_balance", "restraint", "
   "iran_policy", "ukraine_policy", "yemen_policy", "venezuela_policy", "veterans", "checks_balances", "war_powers", "power_of_purse",
   "congress_oversight", "judicial_check", "guard_authority", "states_federal_power", "cut_spending", "national_debt", "gov_waste",
   "audit_spending", "gov_balance", "border_security", "immig_fentanyl", "deportations"]);
-const OTHER_ISSUE_RES = Object.entries(ISSUE_TOPIC_VOCAB).filter(([k]) => !SPAN_FAMILY.has(k)).map(([, v]) => new RegExp(String.raw`\b(?:${v.terms})\b`, "i"));
+// Mention terms too broad to mark a subject change on their own: they turn up
+// in foreign-policy speech ("nuclear", "oil", "officers", "corruption",
+// "shelters", "infrastructure", "critical minerals", "fair share", "coverage").
+// Dropped from the break list term by term; the issue's narrow terms stay.
+export const BROAD_BREAK_TERMS = new Set([
+  "conservation", "stewardship", "local control", "state control", "mining", "drilling", "resource development", "critical minerals",
+  "energy development", "takings", "condemnation", "public services", "fair share", "safety net", "regulations?", "regulatory",
+  "bureaucra\\w+", "gold", "silver", "border security", "legal status", "every school", "all students", "college", "parents",
+  "competition", "investment", "hiring", "deregulation", "job creators", "main street", "american (?:jobs|manufacturing|workers)",
+  "china", "chinese", "CCP", "tariffs?", "unfair trade", "reshor\\w+", "onshor\\w+", "manufacturing", "reciprocal", "trade war",
+  "trade authority", "worker protections", "overtime", "business growth", "good-paying jobs", "wages?", "workers", "unions?", "labor",
+  "coverage", "mandates?", "suicide", "addiction", "farm(?:ers|s|ing)?", "ranch(?:ers|es)?", "rural", "agricultur\\w+", "producers",
+  "public financing", "infrastructure", "roads", "bridges", "power grid", "water systems", "transit", "rail", "buses",
+  "commut\\w+", "rivers?", "drought", "droughts?", "floods?", "flooding", "hurricanes?", "disaster(?: relief| recovery)?",
+  "clean air", "clean water", "responsible development", "all-of-the-above", "climate(?: change| crisis)?", "emissions", "carbon",
+  "energy independen\\w+", "reliable (?:power|energy|grid)", "nuclear", "oil", "natural gas", 
+  "pipelines?", "LNG", "energy production", "fossil fuels?", "permitting", "permits?", "housing", "rent", "shelters?", "density",
+  "apartments", "homestead", "police", "law enforcement", "officers", "defund", "crime", "criminals", 
+  "sentences?", "prosecut\\w+", "exceptions", "conscience", "faith", "churches", "people of faith", "equal treatment",
+  "nondiscrimination", "fairness for all", "gay", "merit", "woke", "innovation", "artificial intelligence", "\\bAI\\b",
+  "social media", "privacy", "surveillance", "audits", "accessible", "transparency", "corruption", "ethics", "disclosure",
+  "accountability in government", "big money", "justices", "efficiency", "career politicians", "deep state",
+]);
+// Split a terms source on its top-level "|" (alternations inside groups stay whole).
+const topAlternatives = (src) => {
+  const out = []; let depth = 0, cur = "";
+  for (let i = 0; i < src.length; i++) {
+    const ch = src[i];
+    if (ch === "\\") { cur += ch + (src[++i] ?? ""); continue; }
+    if (ch === "(") depth++;
+    if (ch === ")") depth--;
+    if (ch === "|" && depth === 0) { out.push(cur); cur = ""; continue; }
+    cur += ch;
+  }
+  out.push(cur);
+  return out;
+};
+const ISSUE_BREAK_RES = Object.entries(ISSUE_TOPIC_VOCAB).filter(([k]) => !SPAN_FAMILY.has(k)).map(([, v]) => {
+  const keep = topAlternatives(v.terms).filter((t) => !BROAD_BREAK_TERMS.has(t));
+  return keep.length ? new RegExp(String.raw`\b(?:${keep.join("|")})\b`, "i") : null;
+}).filter(Boolean);
+/** Break-list terms by issue (for review): the narrow terms that end a span. */
+export const issueBreakTerms = () => Object.fromEntries(Object.entries(ISSUE_TOPIC_VOCAB).filter(([k]) => !SPAN_FAMILY.has(k))
+  .map(([k, v]) => [k, topAlternatives(v.terms).filter((t) => !BROAD_BREAK_TERMS.has(t))]));
 // Explicit transition: the speaker announces a new subject.
 const TRANSITION = /\b(?:(?:let me|let['’]s|I(?:['’]d| would| want to)?) (?:now )?(?:turn|move|pivot|switch|shift) (?:now )?to|turning (?:now )?to|moving on|on (?:a|another) (?:different |separate )?(?:subject|topic|note|issue)|switching gears|changing (?:the )?subject|another (?:issue|subject|topic) (?:I|we)|next,? I want to talk about)\b/i;
-const isSubjectChange = (s) => TRANSITION.test(s) || OTHER_ISSUE_RES.some((re) => re.test(s));
+const isIssueChange = (s) => !CLAIM_WORD.test(s) && ISSUE_BREAK_RES.some((re) => re.test(s));
+const isFragment = (s) => /[,:;—–-]["”’]?$/.test(s);
 
 /** The subject a topic reads (directional keys only), or null. */
 export const subjectOf = (topic) => SUBJECT_OF[topic] || null;
+
+// Israel facets: which part of military support a sentence is about.
+const OFFENSIVE_CUE = /\b(?:offensive|bombs?|munitions|JDAMs?|tank (?:rounds|shells)|precision-guided|2,000-pound|500-pound|artillery|F-?(?:15|16|35)s?)\b/i;
+const DEFENSIVE_CUE = /\b(?:iron dome|david['’]?s sling|arrow (?:\d )?(?:missile|system|defen\w+)|missile defen[cs]e|air defen[cs]e|rocket defen[cs]e|defensive|interceptors?|defend (?:itself|themselves|against)|incoming (?:attacks?|missiles?|rockets?))\b/i;
+const FACET_OF = { israel_offensive_arms: "offensive", israel_defensive_systems: "defensive" };
+const FACET_SUBJECTS = new Set(Object.keys(FACET_OF).map((k) => SUBJECT_OF[k]));
+const ownFacet = (s) => {
+  const o = OFFENSIVE_CUE.test(s), d = DEFENSIVE_CUE.test(s);
+  return o && d ? "both" : o ? "offensive" : d ? "defensive" : null;
+};
+/** Does a sentence's facet keep it off this topic? (Israel split keys only.) */
+export const facetExcludes = (topic, facet) => !!FACET_OF[topic] && !!facet && facet !== "both" && facet !== FACET_OF[topic];
 
 /** Sentences that are page headings (a heading always ends a span). */
 function headingSentences(body) {
@@ -758,35 +867,89 @@ function headingSentences(body) {
 
 /**
  * Subject spans over a page's sentences → one entry per sentence:
- * { subject, span, named } — `subject` is the subject id or null, `span` a
- * span number (1, 2, … in page order; null outside any span), `named` whether
- * the sentence names the subject itself (false = carried).
+ * { subject, span, named, backward?, subjects?, facet?, change? } — `subject`
+ * is the subject id or null, `span` a span number (1, 2, … in page order; null
+ * outside any span), `named` whether the sentence names the subject itself
+ * (false = carried), `backward` when it joined the span from just before the
+ * opening sentence, `subjects` when it names two or more, `facet` (Israel
+ * only) and `change` when the sentence is a clear subject change.
  */
 export function subjectSpans(sentences, body = "") {
   const heads = headingSentences(body);
+  const blockOf = new Map();
+  for (const x of extractSentenceBlocks(body)) if (!blockOf.has(x.text)) blockOf.set(x.text, x.block);
   const out = [];
-  let cur = null, span = 0, lastNamed = -Infinity;
+  const blocks = [];
+  let cur = null, span = 0, lastBlock = -Infinity, prevBlock = 0;
+  const open = (id, i) => {
+    const opened = id !== cur;
+    if (opened) { cur = id; span++; }
+    return opened;
+  };
   for (let i = 0; i < sentences.length; i++) {
     const s = sentences[i];
+    const b = blockOf.has(s) ? blockOf.get(s) : prevBlock;
+    prevBlock = b;
+    blocks.push(b);
     const named = Object.keys(SUBJECT_RES).filter((id) => SUBJECT_RES[id].test(s));
-    const other = Object.values(OTHER_SUBJECT_RES).some((re) => re.test(s)) || (!named.length && isSubjectChange(s));
-    if (heads.has(s) || named.length + (other ? 1 : 0) > 1 || (other && !named.length)) {
-      // Clear subject change (or no single subject): the open span ends. A
-      // heading naming one scored subject still opens a span on it.
+    const otherNamed = Object.values(OTHER_SUBJECT_RES).some((re) => re.test(s));
+    const transition = TRANSITION.test(s);
+    let opened = false;
+    if (heads.has(s)) {
+      // A heading always ends the open span; one naming a single subject opens a new one.
       cur = null;
-      if (heads.has(s) && named.length === 1 && !other) { cur = named[0]; span++; lastNamed = i; out.push({ subject: cur, span, named: true }); continue; }
-      out.push({ subject: null, span: null, named: false, ...(named.length > 1 ? { subjects: named } : {}) });
-      continue;
-    }
-    if (named.length === 1) {
-      if (named[0] !== cur) { cur = named[0]; span++; }
-      lastNamed = i;
+      if (named.length === 1 && !otherNamed) { opened = open(named[0], i); lastBlock = b; out.push({ subject: cur, span, named: true }); }
+      else { out.push({ subject: null, span: null, named: false, change: true }); continue; }
+    } else if (named.length + (otherNamed ? 1 : 0) > 1) {
+      // Two subjects in one sentence. The open subject stays open unless the
+      // sentence itself switches (a transition naming another subject).
+      const subjects = otherNamed ? [...named, "other"] : named;
+      let to = null;
+      if (transition) {
+        const at = TRANSITION.exec(s).index;
+        to = named.map((id) => [id, s.slice(at).search(SUBJECT_RES[id])]).filter(([, j]) => j >= 0).sort((x, y) => x[1] - y[1])[0]?.[0]
+          || (otherNamed ? "other" : null);
+      }
+      if (cur && named.includes(cur) && (!to || to === cur)) { lastBlock = b; out.push({ subject: cur, span, named: true, subjects }); continue; }
+      if (to && to !== "other") { opened = open(to, i); lastBlock = b; out.push({ subject: cur, span, named: true, subjects }); }
+      else { cur = null; out.push({ subject: null, span: null, named: false, subjects, change: true }); continue; }
+    } else if (named.length === 1) {
+      opened = open(named[0], i);
+      lastBlock = b;
       out.push({ subject: cur, span, named: true });
+    } else if (otherNamed || transition || isIssueChange(s)) {
+      cur = null;
+      out.push({ subject: null, span: null, named: false, change: true });
+      continue;
+    } else if (cur && b - lastBlock <= SPAN_GAP_PARAGRAPHS + 1) {
+      // A carried sentence with a claim word shows the debate is still going.
+      if (CLAIM_WORD.test(s)) lastBlock = b;
+      out.push({ subject: cur, span, named: false });
+      continue;
+    } else {
+      cur = null;
+      out.push({ subject: null, span: null, named: false });
       continue;
     }
-    if (cur && i - lastNamed <= SPAN_CARRY) { out.push({ subject: cur, span, named: false }); continue; }
-    cur = null;
-    out.push({ subject: null, span: null, named: false });
+    // BACKWARD: the sentence just before a span opens joins it when it is clearly part of the same claim.
+    if (opened && i > 0) {
+      const p = out[i - 1], ps = sentences[i - 1];
+      if (p.subject === null && !p.change && !p.subjects && !heads.has(ps) && b - blocks[i - 1] <= 1 &&
+          (isFragment(ps) || (CLAIM_WORD.test(ps) && CLAIM_WORD.test(s)))) {
+        out[i - 1] = { subject: cur, span, named: false, backward: true };
+      }
+    }
+  }
+  // Facets for subjects with split keys: own cue, else the facet carried in the span.
+  let facet = null, lastSpan = null;
+  for (let i = 0; i < out.length; i++) {
+    const e = out[i];
+    if (!e.subject || !FACET_SUBJECTS.has(e.subject)) { if (!e.subject) { facet = null; lastSpan = null; } continue; }
+    if (e.span !== lastSpan) { facet = null; lastSpan = e.span; }
+    const own = ownFacet(sentences[i]);
+    if (own) facet = own === "both" ? null : own;
+    const f = own || facet;
+    if (f) e.facet = f;
   }
   return out;
 }
@@ -814,6 +977,8 @@ export function scoreRawRecord(raw, topic = raw?.topic, sentences = null) {
   for (let i = 0; i < list.length; i++) {
     const text = list[i];
     const sp = spans && spans[i].subject === subject ? spans[i] : null;
+    // Israel split keys: a sentence another facet claims is not read here.
+    if (sp && facetExcludes(topic, sp.facet)) continue;
     const c = classify(text, topic, raw.politician_id, { claims, inSpan: !!sp });
     if (!c.kind) continue;
     at.set(i, statements.length);
@@ -827,7 +992,7 @@ export function scoreRawRecord(raw, topic = raw?.topic, sentences = null) {
       ...(c.kind === "implication" ? { implication: c.via } : {}),
       ...(c.kind === "clear" && c.via === "claim" ? { claim_pattern: true } : {}),
       ...(c.actor && c.actor.kind !== "self" ? { attributed_to: c.actor.kind, attributed_via: c.actor.via } : {}),
-      ...(sp ? { subject_span: sp.span, ...(sp.named ? {} : { span_carried: true }) } : {}),
+      ...(sp ? { subject_span: sp.span, ...(sp.named ? {} : { span_carried: true }), ...(sp.backward ? { span_backward: true } : {}), ...(sp.facet ? { facet: sp.facet } : {}) } : {}),
       weight: c.kind === "clear" ? WEIGHTS[tier] : c.kind === "implication" ? WEIGHTS.implication : WEIGHTS.zero,
     });
   }
@@ -1001,6 +1166,15 @@ const claimSet = (c) => new Set((c?.sources?.[0]?.statements || [])
 const hasClaimPattern = (c) => (c?.sources?.[0]?.statements || []).some((s) => s.claim_pattern);
 const explicitCount = (c) => (c?.sources?.[0]?.statements || []).filter((s) => s.kind === "clear").length;
 
+/** Every key above a directional key (its parents and `also` keys, recursively). */
+function ancestors(k, seen = new Set()) {
+  const d = DIRECTIONAL_ISSUE_KEYS[k];
+  for (const up of d ? [d.parent, ...(d.also || [])].filter(Boolean) : []) if (!seen.has(up)) { seen.add(up); ancestors(up, seen); }
+  return seen;
+}
+/** Is one key a directional child of the other? (R9 linked keys.) Register-only pairs are never linked. */
+export const linkedKeys = (a, b) => a !== b && (ancestors(a).has(b) || ancestors(b).has(a));
+
 /**
  * R9: drop cross-topic candidates that only restate claims a kept candidate
  * from the same page already carries. `kept` (the page's own topic) always
@@ -1008,7 +1182,7 @@ const explicitCount = (c) => (c?.sources?.[0]?.statements || []).filter((s) => s
  * in SCORED_TOPICS order. Returns the survivors in their original order.
  */
 export function collapseRestatements(kept, extra) {
-  const held = kept.map(claimSet);
+  const held = kept.map((c) => ({ topic: c.topic, set: claimSet(c) }));
   const order = extra.map((c, i) => ({ c, i }))
     .sort((a, b) => explicitCount(b.c) - explicitCount(a.c) || b.c.confidence - a.c.confidence || a.i - b.i);
   const keep = new Set();
@@ -1016,9 +1190,12 @@ export function collapseRestatements(kept, extra) {
     const mine = claimSet(c);
     // An R10 campaign-claim statement is specific to its key, so a candidate
     // carrying one is never a restatement of another key's read.
-    const dup = mine.size > 0 && !hasClaimPattern(c) && held.some((h) => [...mine].every((x) => h.has(x)));
+    // A directional key and its parent (iran_hostilities and war_powers, an
+    // Israel key and israel_support) read the same line at two levels, so
+    // neither is a restatement of the other: the line counts on both.
+    const dup = mine.size > 0 && !hasClaimPattern(c) && held.some((h) => !linkedKeys(c.topic, h.topic) && [...mine].every((x) => h.set.has(x)));
     if (dup) continue;
-    held.push(mine);
+    held.push({ topic: c.topic, set: mine });
     keep.add(i);
   }
   return extra.filter((_, i) => keep.has(i));
