@@ -9,7 +9,9 @@
 //     agreement is left as it was; the row's own read never changes;
 //   · a bill match whose Congress does not match the year cited is tagged;
 //   · the person-page section and its disclosure render the same with or
-//     without the internal results;
+//     without the internal results, apart from the per-row "Under review"
+//     label on a tagged row;
+//   · a row marked reviewed is not re-tagged by a later pass;
 //   · the generator runs the check before it writes.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -183,23 +185,27 @@ async function render(pid, autoTable) {
 const strip = (tbl) => ({ ...Object.fromEntries(Object.entries(tbl).filter(([k]) => k !== 'verify')), people: Object.fromEntries(Object.entries(tbl.people).map(([pid, p]) => [pid, { ...p, stances: p.stances.map(({ verify, needs_review, ...s }) => s), mappings: p.mappings.map(({ verify, needs_review, ...m }) => m) }])) });
 const DISC = 'These bill matches and position reads are generated automatically and may contain errors.';
 
-t('the person-page section and its disclosure render identically with and without the internal results', async () => {
+const unlabel = (h) => h.replace(/ <span class="pdx-dk-st" data-pdx-dirkeys-check="open">Under review<\/span>/g, '');
+t('the person-page section and its disclosure render identically with and without the internal results, apart from the per-row Under review label', async () => {
   // Tag every row in the committed table, the worst case for the page.
   const disagreeAll = async () => JSON.stringify({ label: 'mixed', reason: 'x' });
   const tagged = (await V.verifyTable(structuredClone(auto), { askModel: disagreeAll, force: true, now: NOW })).table;
   const plain = strip(tagged);
   for (const pid of Object.keys(auto.people)) {
     const a = await render(pid, plain), b = await render(pid, tagged);
-    assert.equal(b.html, a.html, pid);
+    assert.equal(unlabel(b.html), a.html, pid);
     assert.ok(a.html, pid);
+    assert.ok(!a.html.includes('pdx-dk-st'), `${pid}: untagged rows carry no label`);
+    const tags = [...tagged.people[pid].stances, ...tagged.people[pid].mappings].filter((r) => r.needs_review).length;
+    assert.equal(b.html.split('Under review').length - 1, tags, `${pid}: one label per tagged row`);
     assert.equal(b.html.split(DISC).length - 1, 1, `${pid}: one disclosure`);
     assert.ok(b.html.includes('Flag a problem'), pid);
-    assert.ok(!/needs[_ ]review|second[_ ]label|verify|agree/i.test(b.html), `${pid}: no internal field shows`);
+    assert.ok(!/needs[_ ]review|second[_ ]label|verify|agree|reviewed_at/i.test(b.html), `${pid}: no internal field shows`);
   }
   const { api } = await render(Object.keys(auto.people)[0], tagged);
   assert.equal(api.DISCLOSURE, DISC);
   const code = R('person-directional-keys.js');
-  assert.ok(!/needs_review|\.verify\b|second_label/.test(code), 'the page module never reads the internal results');
+  assert.ok(!/\.verify\b|second_label|second_reason|reviewed\.note|reviewed_at/.test(code), 'the page module never reads the second-check results or the review note/date');
 });
 
 // ── Wiring and the committed table ───────────────────────────────────────────
@@ -222,11 +228,11 @@ t('the committed table: every risky row carries a second label, disagreements ar
       if (!s.verify) { assert.ok(auto.verify.errors > 0, `${pid} ${s.key} has no second label`); continue; }
       assert.ok(V.LABELS.includes(s.verify.second_label));
       assert.equal(s.verify.agree, s.verify.second_label === s.position);
-      assert.equal(!!s.needs_review, !s.verify.agree, `${pid} ${s.key}`);
+      assert.equal(!!s.needs_review || V.isReviewed(s), !s.verify.agree, `${pid} ${s.key}`);
       if (s.needs_review) { tagged++; assert.ok(queued.has(`stance|${pid}|${s.key}|`), `${pid} ${s.key} queued`); }
     }
     for (const m of p.mappings) {
-      assert.equal(!!m.needs_review, V.congressCheck(m).ok === false, `${pid} ${m.bill || m.name}`);
+      assert.equal(!!m.needs_review || V.isReviewed(m), V.congressCheck(m).ok === false, `${pid} ${m.bill || m.name}`);
       if (m.needs_review) { tagged++; assert.ok(queued.has(`bill_match|${pid}|${m.key}|${m.bill || m.name}`)); }
     }
   }

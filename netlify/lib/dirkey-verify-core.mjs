@@ -25,8 +25,11 @@
 // The table's top-level `verify` block lists every tagged row, tagged rows
 // first, for the later batch-review pass.
 //
-// NOTHING HERE IS RENDERED. person-directional-keys.js reads only the fields it
-// always read; `verify` and `needs_review` never reach the page.
+// WHAT THE PAGE SEES. person-directional-keys.js never reads `verify`. From
+// `needs_review` and the `reviewed` object written by dirkey-review-core.mjs it
+// shows one per-row label in the automatic section ("Under review" /
+// "Cross-checked"), nothing more. A row marked reviewed is left as it is by
+// later passes, so the review is not undone by the next generator run.
 //
 // Pure and dependency-injected (askModel, fetchContext, now) so the suite runs
 // offline. scripts/verify-dirkey-auto.mjs supplies the model and the pages.
@@ -176,6 +179,9 @@ export function parseLabel(raw) {
 }
 
 // ── The pass over the table ─────────────────────────────────────────────────
+/** A row whose review was finished: `reviewed.reviewed` set and no open tag. */
+export const isReviewed = (row) => row?.reviewed?.reviewed === true && row.needs_review !== true;
+
 /**
  * Annotate a table. Stance rows that need the check and have no current
  * `verify` (or all of them, with force) are sent to askModel; bill matches get
@@ -196,6 +202,8 @@ export async function verifyTable(table, { askModel, fetchContext = async () => 
       summary.rows++;
       const risks = riskReasons(row, p);
       if (!risks.length) { summary.skipped++; stances.push(row); continue; }
+      // A row a person has finished reviewing (dirkey-review-core.mjs) is not re-tagged by a later pass.
+      if (isReviewed(row)) { summary.already++; stances.push(row); continue; }
       if (!force && row.verify?.version === VERIFY_VERSION && row.verify.second_label) { summary.already++; stances.push(row); continue; }
       let context = "";
       try { context = String((await fetchContext(row, pid)) || ""); } catch { context = ""; }
@@ -214,6 +222,7 @@ export async function verifyTable(table, { askModel, fetchContext = async () => 
       log(`dirkey-verify: ${pid} ${row.key} — scorer ${row.position} · second ${got.label}${agree ? "" : " · needs review"}`);
     }
     const mappings = (p.mappings || []).map((m) => {
+      if (isReviewed(m)) return m;
       const cc = congressCheck(m);
       const { needs_review: _drop, verify: _old, ...base } = m;
       if (cc.ok === false) {
