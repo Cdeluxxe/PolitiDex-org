@@ -12022,7 +12022,22 @@
 //     No location key or other stored reader state is written or rewritten,
 //     so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v553';
+// v554 - BILL MATCHES AND STANCE-SCORER READS ON THREE DIRECTIONAL KEYS, ON THE
+//     PERSON FILE. person-bills.js (precached) now also loads
+//     person-directional-keys.js (runtime, not precached), which adds one
+//     section at the end of the Explore by topic stage for a person listed in
+//     person-directional-keys.json (data, not precached; written by
+//     scripts/gen-person-directional-keys.mjs): the bills the bill finder
+//     matched to Offensive Arms Sales to Israel, Further U.S. Aid to Ukraine or
+//     Congress Must Authorize Hostilities with Iran in that person's sources
+//     (bill, key, confidence, a short quote, the source), and the stance
+//     scorer's read on those keys. A person with no row gets no section. No
+//     other key is shown, and no score, rank or Direction Match is added.
+//     person.html and the precache list are unchanged; a precached file
+//     changed, so the shell moves one version. No location key or other stored
+//     reader state is written or rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v554';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

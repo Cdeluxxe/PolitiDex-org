@@ -1,0 +1,2306 @@
+{
+  "_note": "Diagnostic run of the shared bill finder and the per-key mapping patterns (see mapped_keys). Read-only: nothing here changes a ground-truth label, a scoring rule, an issue key or the site. `ground_truth` reads the reviewer's verbatim excerpts with each source's own link and date; `routine_sweep` reads live pages the raw-ingest runs already pull, where every mapping would be a false mapping.",
+  "finder_version": "bill-finder-v2",
+  "patterns_version": "bill-key-patterns-v4",
+  "mapped_keys": [
+    "israel_offensive_arms",
+    "ukraine_aid",
+    "iran_hostilities"
+  ],
+  "catalog": {
+    "source": "db/bill-docs.json",
+    "bills": 543,
+    "short_titles": 419
+  },
+  "summary": {
+    "ground_truth_sources": 18,
+    "ground_truth_candidates": 11,
+    "ground_truth_mappings": 7,
+    "ground_truth_mentioned_not_mapped": 4,
+    "sweep_pages": 110,
+    "sweep_fetched": 107,
+    "sweep_failed": 3,
+    "sweep_candidates": 43,
+    "sweep_mappings": 0
+  },
+  "ground_truth": [
+    {
+      "stance_id": "james_talarico|cost_living|gt-001",
+      "politician_id": "james_talarico",
+      "topic": "cost_living",
+      "source_type": "campaign issue page",
+      "date": null,
+      "link": "https://jamestalarico.com/issue/taxes-cost-of-living/",
+      "candidates": [],
+      "mappings": [],
+      "unmapped": []
+    },
+    {
+      "stance_id": "james_talarico|cost_living|gt-001",
+      "politician_id": "james_talarico",
+      "topic": "cost_living",
+      "source_type": "campaign toolkit page",
+      "date": null,
+      "link": "https://share.jamestalarico.com/toolkit/2c2d0ae4-56bb-48b6-b349-7b009f2708af",
+      "candidates": [],
+      "mappings": [],
+      "unmapped": []
+    },
+    {
+      "stance_id": "james_talarico|cost_living|gt-001",
+      "politician_id": "james_talarico",
+      "topic": "cost_living",
+      "source_type": "public remarks (verbatim quotes in news report)",
+      "date": "2026-04-21",
+      "link": "https://www.texastribune.org/2026/04/21/james-talarico-federal-gas-tax-suspension-iran-war/",
+      "candidates": [],
+      "mappings": [],
+      "unmapped": []
+    },
+    {
+      "stance_id": "james_talarico|cost_living|gt-001",
+      "politician_id": "james_talarico",
+      "topic": "cost_living",
+      "source_type": "speech (victory speech)",
+      "date": "2026-11-03",
+      "link": "https://www.rev.com/transcripts/james-talarico-victory-speech",
+      "candidates": [],
+      "mappings": [],
+      "unmapped": []
+    },
+    {
+      "stance_id": "massie|ukraine_aid|gt-002",
+      "politician_id": "massie",
+      "topic": "ukraine_aid",
+      "source_type": "roll-call vote (House Clerk)",
+      "date": "2024-04-20",
+      "link": "https://clerk.house.gov/evs/2024/roll151.xml",
+      "candidates": [
+        {
+          "id": "118|H.R. 8035",
+          "bill": "H.R. 8035",
+          "kind": "number",
+          "in_catalog": true,
+          "official_title": "Ukraine Security Supplemental Appropriations Act, 2024",
+          "mentions": [
+            {
+              "kind": "number",
+              "origin": "text",
+              "match": "H R 8035",
+              "congress_from": "url",
+              "span": "H R 8035 · On Passage · Ukraine Security Supplemental Appropriations Act, 2024 · Massie (R-KY): Nay"
+            },
+            {
+              "kind": "short_title",
+              "origin": "text",
+              "match": "Ukraine Security Supplemental Appropriations Act, 2024",
+              "span": "H R 8035 · On Passage · Ukraine Security Supplemental Appropriations Act, 2024 · Massie (R-KY): Nay"
+            }
+          ]
+        }
+      ],
+      "mappings": [
+        {
+          "bill": "H.R. 8035",
+          "id": "118|H.R. 8035",
+          "key": "ukraine_aid",
+          "confidence": "high",
+          "confidence_score": 0.9,
+          "basis": "bill number + subject words in the text",
+          "matched": "H R 8035",
+          "span": "H R 8035 · On Passage · Ukraine Security Supplemental Appropriations Act, 2024 · Massie (R-KY): Nay"
+        }
+      ],
+      "unmapped": []
+    },
+    {
+      "stance_id": "massie|ukraine_aid|gt-002",
+      "politician_id": "massie",
+      "topic": "ukraine_aid",
+      "source_type": "roll-call vote (House Clerk)",
+      "date": "2022-05-10",
+      "link": "https://clerk.house.gov/evs/2022/roll145.xml",
+      "candidates": [
+        {
+          "id": "117|H.R. 7691",
+          "bill": "H.R. 7691",
+          "kind": "number",
+          "in_catalog": false,
+          "mentions": [
+            {
+              "kind": "number",
+              "origin": "text",
+              "match": "H R 7691",
+              "congress_from": "url",
+              "span": "H R 7691 · On Passage · Additional Ukraine Supplemental Appropriations Act, 2022 · Massie (R-KY): Nay"
+            },
+            {
+              "kind": "short_title",
+              "origin": "text",
+              "match": "Additional Ukraine Supplemental Appropriations Act, 2022",
+              "span": "H R 7691 · On Passage · Additional Ukraine Supplemental Appropriations Act, 2022 · Massie (R-KY): Nay"
+            }
+          ]
+        }
+      ],
+      "mappings": [
+        {
+          "bill": "H.R. 7691",
+          "id": "117|H.R. 7691",
+          "key": "ukraine_aid",
+          "confidence": "high",
+          "confidence_score": 0.9,
+          "basis": "bill number + subject words in the text",
+          "matched": "H R 7691",
+          "span": "H R 7691 · On Passage · Additional Ukraine Supplemental Appropriations Act, 2022 · Massie (R-KY): Nay"
+        }
+      ],
+      "unmapped": []
+    },
+    {
+      "stance_id": "massie|ukraine_aid|gt-002",
+      "politician_id": "massie",
+      "topic": "ukraine_aid",
+      "source_type": "interview (verbatim Q&A in news report)",
+      "date": "2024-09-24",
+      "link": "https://responsiblestatecraft.org/massie-ukraine-casualty-numbers/",
+      "candidates": [],
+      "mappings": [],
+      "unmapped": []
+    },
+    {
+      "stance_id": "sanders|healthcare|gt-003",
+      "politician_id": "sanders",
+      "topic": "healthcare",
+      "source_type": "bill text (sponsor)",
+      "date": "2023-05-17",
+      "link": "https://www.govinfo.gov/content/pkg/BILLS-118s1655is/html/BILLS-118s1655is.htm",
+      "candidates": [
+        {
+          "id": "118|S. 1655",
+          "bill": "S. 1655",
+          "kind": "number",
+          "in_catalog": false,
+          "mentions": [
+            {
+              "kind": "number",
+              "origin": "url",
+              "match": "https://www.govinfo.gov/content/pkg/BILLS-118s1655is/html/BILLS-118s1655is.htm",
+              "congress_from": "url",
+              "span": "https://www.govinfo.gov/content/pkg/BILLS-118s1655is/html/BILLS-118s1655is.htm"
+            }
+          ]
+        }
+      ],
+      "mappings": [],
+      "unmapped": [
+        {
+          "bill": "S. 1655",
+          "id": "118|S. 1655",
+          "kind": "number",
+          "matched": "https://www.govinfo.gov/content/pkg/BILLS-118s1655is/html/BILLS-118s1655is.htm",
+          "congress_from": "url",
+          "span": "https://www.govinfo.gov/content/pkg/BILLS-118s1655is/html/BILLS-118s1655is.htm",
+          "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine | iran_hostilities: about health care, not U.S. hostilities with Iran"
+        }
+      ]
+    },
+    {
+      "stance_id": "sanders|healthcare|gt-003",
+      "politician_id": "sanders",
+      "topic": "healthcare",
+      "source_type": "official press release",
+      "date": "2025-04-29",
+      "link": "https://www.sanders.senate.gov/press-releases/news-sanders-jayapal-dingell-hundreds-of-health-care-workers-introduce-medicare-for-all/",
+      "candidates": [
+        {
+          "id": null,
+          "bill": "Medicare for All Act",
+          "kind": "short_title",
+          "in_catalog": false,
+          "mentions": [
+            {
+              "kind": "short_title",
+              "origin": "text",
+              "match": "Medicare for All Act",
+              "span": "today introduced the Medicare for All Act"
+            }
+          ]
+        }
+      ],
+      "mappings": [],
+      "unmapped": [
+        {
+          "bill": "Medicare for All Act",
+          "id": null,
+          "kind": "short_title",
+          "matched": "Medicare for All Act",
+          "span": "today introduced the Medicare for All Act",
+          "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine | iran_hostilities: about health care, not U.S. hostilities with Iran"
+        }
+      ]
+    },
+    {
+      "stance_id": "sanders|healthcare|gt-003",
+      "politician_id": "sanders",
+      "topic": "healthcare",
+      "source_type": "official press release",
+      "date": "2022-05-12",
+      "link": "https://www.sanders.senate.gov/press-releases/news-sanders-introduces-medicare-for-all-with-14-colleagues-in-the-senate/",
+      "candidates": [
+        {
+          "id": null,
+          "bill": "Medicare for All Act of 2022",
+          "kind": "short_title",
+          "in_catalog": false,
+          "mentions": [
+            {
+              "kind": "short_title",
+              "origin": "text",
+              "match": "Medicare for All Act of 2022",
+              "span": "introduced the Medicare for All Act of 2022 to guarantee health care in the United States as a fundamental human right to all"
+            }
+          ]
+        }
+      ],
+      "mappings": [],
+      "unmapped": [
+        {
+          "bill": "Medicare for All Act of 2022",
+          "id": null,
+          "kind": "short_title",
+          "matched": "Medicare for All Act of 2022",
+          "span": "introduced the Medicare for All Act of 2022 to guarantee health care in the United States as a fundamental human right to all",
+          "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine | iran_hostilities: about health care, not U.S. hostilities with Iran"
+        }
+      ]
+    },
+    {
+      "stance_id": "james_talarico|school_choice|gt-004",
+      "politician_id": "james_talarico",
+      "topic": "school_choice",
+      "source_type": "campaign issue page",
+      "date": null,
+      "link": "https://jamestalarico.com/issue/public-education/",
+      "candidates": [],
+      "mappings": [],
+      "unmapped": []
+    },
+    {
+      "stance_id": "james_talarico|school_choice|gt-004",
+      "politician_id": "james_talarico",
+      "topic": "school_choice",
+      "source_type": "recorded vote (Texas House Journal)",
+      "date": "2025-04-17",
+      "link": "https://journals.house.texas.gov/hjrnl/89r/html/89RDAY46FINAL.HTM",
+      "candidates": [
+        {
+          "id": "state|SB 2",
+          "bill": "SB 2",
+          "kind": "state_number",
+          "in_catalog": false,
+          "mentions": [
+            {
+              "kind": "state_number",
+              "origin": "text",
+              "match": "SB 2",
+              "span": "SB 2 was passed by (Record 300): 86 Yeas, 61 Nays, 0 Present, not voting.\" · Nays list includes Talarico"
+            }
+          ]
+        }
+      ],
+      "mappings": [],
+      "unmapped": [
+        {
+          "bill": "SB 2",
+          "id": "state|SB 2",
+          "kind": "state_number",
+          "matched": "SB 2",
+          "span": "SB 2 was passed by (Record 300): 86 Yeas, 61 Nays, 0 Present, not voting.\" · Nays list includes Talarico",
+          "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
+        }
+      ]
+    },
+    {
+      "stance_id": "massie|iran_hostilities|gt-005",
+      "politician_id": "massie",
+      "topic": "iran_hostilities",
+      "source_type": "resolution text (sponsor)",
+      "date": "2025-06-17",
+      "link": "https://www.govinfo.gov/content/pkg/BILLS-119hconres38ih/html/BILLS-119hconres38ih.htm",
+      "candidates": [
+        {
+          "id": "119|H.Con.Res. 38",
+          "bill": "H.Con.Res. 38",
+          "kind": "number",
+          "in_catalog": false,
+          "mentions": [
+            {
+              "kind": "number",
+              "origin": "url",
+              "match": "https://www.govinfo.gov/content/pkg/BILLS-119hconres38ih/html/BILLS-119hconres38ih.htm",
+              "congress_from": "url",
+              "span": "https://www.govinfo.gov/content/pkg/BILLS-119hconres38ih/html/BILLS-119hconres38ih.htm"
+            },
+            {
+              "kind": "phrase",
+              "origin": "text",
+              "match": "Directing the President pursuant to section 5(c) of the War Powers Resolution to remove United States Armed Forces from unauthorized hostilities",
+              "span": "Directing the President pursuant to section 5(c) of the War Powers Resolution to remove United States Armed Forces from unauthorized hostilities in the Islamic Republic of Iran."
+            }
+          ]
+        }
+      ],
+      "mappings": [
+        {
+          "bill": "H.Con.Res. 38",
+          "id": "119|H.Con.Res. 38",
+          "key": "iran_hostilities",
+          "confidence": "high",
+          "confidence_score": 0.9,
+          "basis": "bill number + subject words in the text",
+          "matched": "https://www.govinfo.gov/content/pkg/BILLS-119hconres38ih/html/BILLS-119hconres38ih.htm",
+          "span": "Directing the President pursuant to section 5(c) of the War Powers Resolution to remove United States Armed Forces from unauthorized hostilities in the Islamic Republic of Iran."
+        }
+      ],
+      "unmapped": []
+    },
+    {
+      "stance_id": "massie|iran_hostilities|gt-005",
+      "politician_id": "massie",
+      "topic": "iran_hostilities",
+      "source_type": "official press release",
+      "date": "2025-06-17",
+      "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395731",
+      "candidates": [],
+      "mappings": [],
+      "unmapped": []
+    },
+    {
+      "stance_id": "sanders|israel_military_aid|gt-006",
+      "politician_id": "sanders",
+      "topic": "israel_military_aid",
+      "source_type": "resolution text (sponsor)",
+      "date": "2024-09-25",
+      "link": "https://www.govinfo.gov/content/pkg/BILLS-118sjres111is/html/BILLS-118sjres111is.htm",
+      "candidates": [
+        {
+          "id": "118|S.J.Res. 111",
+          "bill": "S.J.Res. 111",
+          "kind": "number",
+          "in_catalog": true,
+          "official_title": "A joint resolution providing for congressional disapproval of the proposed foreign military sale of certain defense articles and services, including tank rounds and mortar cartridges to Israel.",
+          "mentions": [
+            {
+              "kind": "number",
+              "origin": "url",
+              "match": "https://www.govinfo.gov/content/pkg/BILLS-118sjres111is/html/BILLS-118sjres111is.htm",
+              "congress_from": "url",
+              "span": "https://www.govinfo.gov/content/pkg/BILLS-118sjres111is/html/BILLS-118sjres111is.htm"
+            },
+            {
+              "kind": "phrase",
+              "origin": "text",
+              "match": "congressional disapproval of the proposed foreign military sale",
+              "span": "Providing for congressional disapproval of the proposed foreign military sale to the Government of Israel of certain defense articles and services."
+            }
+          ]
+        }
+      ],
+      "mappings": [
+        {
+          "bill": "S.J.Res. 111",
+          "id": "118|S.J.Res. 111",
+          "key": "israel_offensive_arms",
+          "confidence": "high",
+          "confidence_score": 0.9,
+          "basis": "bill number + subject words in the text; 'offensive' from the official title",
+          "matched": "https://www.govinfo.gov/content/pkg/BILLS-118sjres111is/html/BILLS-118sjres111is.htm",
+          "span": "Providing for congressional disapproval of the proposed foreign military sale to the Government of Israel of certain defense articles and services."
+        }
+      ],
+      "unmapped": []
+    },
+    {
+      "stance_id": "sanders|israel_military_aid|gt-006",
+      "politician_id": "sanders",
+      "topic": "israel_military_aid",
+      "source_type": "roll-call vote (Senate)",
+      "date": "2024-11-20",
+      "link": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1182/vote_118_2_00292.xml",
+      "candidates": [
+        {
+          "id": "118|S.J.Res. 111",
+          "bill": "S.J.Res. 111",
+          "kind": "number",
+          "in_catalog": true,
+          "official_title": "A joint resolution providing for congressional disapproval of the proposed foreign military sale of certain defense articles and services, including tank rounds and mortar cartridges to Israel.",
+          "mentions": [
+            {
+              "kind": "number",
+              "origin": "text",
+              "match": "S.J.Res. 111",
+              "congress_from": "url",
+              "span": "S.J.Res. 111 · On the Motion to Discharge · Motion to Discharge Rejected · Sanders (I-VT): Yea"
+            }
+          ]
+        }
+      ],
+      "mappings": [
+        {
+          "bill": "S.J.Res. 111",
+          "id": "118|S.J.Res. 111",
+          "key": "israel_offensive_arms",
+          "confidence": "medium",
+          "confidence_score": 0.6,
+          "basis": "bill number in the text; subject from the bill's official title; 'offensive' from the official title",
+          "matched": "S.J.Res. 111",
+          "span": "[official title] A joint resolution providing for congressional disapproval of the proposed foreign military sale of certain defense articles and services, including tank rounds and mortar cartridges to Israel."
+        }
+      ],
+      "unmapped": []
+    },
+    {
+      "stance_id": "sanders|israel_military_aid|gt-006",
+      "politician_id": "sanders",
+      "topic": "israel_military_aid",
+      "source_type": "floor speech (prepared remarks, official release)",
+      "date": "2024-11-20",
+      "link": "https://www.sanders.senate.gov/press-releases/prepared-remarks-sanders-speech-on-senate-vote-to-block-offensive-arms-sales-to-israel/",
+      "candidates": [
+        {
+          "id": null,
+          "bill": null,
+          "kind": "phrase",
+          "family": "disapproval",
+          "in_catalog": false,
+          "resolves_to": [
+            "118|S.J.Res. 111 — resolution of disapproval (arms sale / export / rule); names Israel; action on 2024-11-20; politician is a sponsor",
+            "118|S.J.Res. 113 — resolution of disapproval (arms sale / export / rule); names Israel; action on 2024-11-20; politician is a sponsor",
+            "118|S.J.Res. 115 — resolution of disapproval (arms sale / export / rule); names Israel; action on 2024-11-20; politician is a sponsor"
+          ],
+          "mentions": [
+            {
+              "kind": "phrase",
+              "origin": "text",
+              "match": "these resolutions",
+              "span": "these resolutions are aimed at offensive weapons that have been used to devastating effect against civilians in Gaza and Lebanon."
+            },
+            {
+              "kind": "phrase",
+              "origin": "url_slug",
+              "match": "vote to block offensive arms sales",
+              "span": "prepared remarks sanders speech on senate vote to block offensive arms sales to israel"
+            }
+          ]
+        }
+      ],
+      "mappings": [
+        {
+          "bill": null,
+          "id": null,
+          "key": "israel_offensive_arms",
+          "confidence": "low",
+          "confidence_score": 0.35,
+          "basis": "descriptive phrase + subject words in the text",
+          "matched": "these resolutions",
+          "span": "these resolutions are aimed at offensive weapons that have been used to devastating effect against civilians in Gaza and Lebanon. … prepared remarks sanders speech on senate vote to block offensive arms sales to israel",
+          "resolves_to": [
+            {
+              "id": "118|S.J.Res. 111",
+              "title": "A joint resolution providing for congressional disapproval of the proposed foreign military sale of certain defense articles and services, including tank rounds and mortar cartridges to Israel.",
+              "title_fits_key": true
+            },
+            {
+              "id": "118|S.J.Res. 113",
+              "title": "A joint resolution providing for congressional disapproval of the proposed foreign military sale of certain defense articles and services, including JDAM guidance kits and small-diameter bombs to Israel.",
+              "title_fits_key": true
+            },
+            {
+              "id": "118|S.J.Res. 115",
+              "title": "A joint resolution providing for congressional disapproval of the proposed license amendment for the export of certain defense articles, defense services and technical data to Israel.",
+              "title_fits_key": false
+            }
+          ],
+          "best_fit": null
+        }
+      ],
+      "unmapped": []
+    },
+    {
+      "stance_id": "sanders|israel_military_aid|gt-006",
+      "politician_id": "sanders",
+      "topic": "israel_military_aid",
+      "source_type": "official press release",
+      "date": "2025-02-24",
+      "link": "https://www.sanders.senate.gov/press-releases/news-sanders-files-joint-resolutions-of-disapproval-to-block-trump-arms-sales-to-israel/",
+      "candidates": [
+        {
+          "id": null,
+          "bill": null,
+          "kind": "phrase",
+          "family": "disapproval",
+          "in_catalog": false,
+          "resolves_to": [
+            "119|S.J.Res. 26 — resolution of disapproval (arms sale / export / rule); names Israel; introduced 2025-02-25 (+1 days); politician is a sponsor",
+            "119|S.J.Res. 32 — resolution of disapproval (arms sale / export / rule); names Israel; introduced 2025-03-10 (+14 days); politician is a sponsor",
+            "119|S.J.Res. 33 — resolution of disapproval (arms sale / export / rule); names Israel; introduced 2025-03-10 (+14 days); politician is a sponsor",
+            "119|S.J.Res. 34 — resolution of disapproval (arms sale / export / rule); names Israel; introduced 2025-03-10 (+14 days); politician is a sponsor"
+          ],
+          "mentions": [
+            {
+              "kind": "phrase",
+              "origin": "text",
+              "match": "block the sale of $8.56 billion",
+              "span": "block the sale of $8.56 billion in offensive U.S. weaponry to Israel"
+            },
+            {
+              "kind": "phrase",
+              "origin": "url_slug",
+              "match": "joint resolutions of disapproval",
+              "span": "news sanders files joint resolutions of disapproval to block trump arms sales to israel"
+            }
+          ]
+        }
+      ],
+      "mappings": [
+        {
+          "bill": null,
+          "id": null,
+          "key": "israel_offensive_arms",
+          "confidence": "low",
+          "confidence_score": 0.35,
+          "basis": "descriptive phrase + subject words in the text",
+          "matched": "block the sale of $8.56 billion",
+          "span": "block the sale of $8.56 billion in offensive U.S. weaponry to Israel … news sanders files joint resolutions of disapproval to block trump arms sales to israel",
+          "resolves_to": [
+            {
+              "id": "119|S.J.Res. 26",
+              "title": "A joint resolution providing for congressional disapproval of the proposed foreign military sale of certain defense articles and services, including bulldozers and related equipment to Israel.",
+              "title_fits_key": false
+            },
+            {
+              "id": "119|S.J.Res. 32",
+              "title": "A joint resolution providing for congressional disapproval of the proposed foreign military sale of certain defense articles and services to Israel.",
+              "title_fits_key": false
+            },
+            {
+              "id": "119|S.J.Res. 33",
+              "title": "A joint resolution providing for congressional disapproval of the proposed foreign military sale of certain defense articles and services, including bomb bodies and guidance kits to Israel.",
+              "title_fits_key": true
+            },
+            {
+              "id": "119|S.J.Res. 34",
+              "title": "A joint resolution providing for congressional disapproval of the proposed foreign military sale of certain defense articles and services to Israel.",
+              "title_fits_key": false
+            }
+          ],
+          "best_fit": "119|S.J.Res. 33"
+        }
+      ],
+      "unmapped": []
+    }
+  ],
+  "routine_sweep": {
+    "fetched_at": "2026-11-12T06:54:14.386Z",
+    "rows": [
+      {
+        "group": "raw-ingest SOURCES",
+        "politician_id": "james_talarico",
+        "topic": "cost_living",
+        "source_type": "campaign issue page",
+        "url": "https://jamestalarico.com/issue/taxes-cost-of-living/",
+        "ok": true,
+        "body_chars": 139557,
+        "sentences": 148,
+        "candidates": 1,
+        "mappings": [],
+        "mentioned_not_mapped": [
+          {
+            "bill": "Affordable Care Act",
+            "kind": "short_title",
+            "matched": "Affordable Care Act",
+            "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine | iran_hostilities: about health care, not U.S. hostilities with Iran"
+          }
+        ]
+      },
+      {
+        "group": "raw-ingest SOURCES",
+        "politician_id": "gina_hinojosa",
+        "topic": "cost_living",
+        "source_type": "campaign priority page",
+        "url": "https://ginafortexas.com/priority/an-affordable-texas-that-works-for-everyone/",
+        "ok": true,
+        "body_chars": 76148,
+        "sentences": 70,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "raw-ingest SOURCES",
+        "politician_id": "gina_hinojosa",
+        "topic": "cost_living",
+        "source_type": "speech (victory remarks transcript)",
+        "url": "https://ginafortexas.com/2026/11/remarks-governor-elect-hinojosa-declares-victory-in-texas-governors-race/",
+        "ok": true,
+        "body_chars": 74767,
+        "sentences": 172,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "raw-ingest SOURCES",
+        "politician_id": "greg_abbott",
+        "topic": "cost_living",
+        "source_type": "campaign policy page",
+        "url": "https://www.gregabbott.com/policy/",
+        "ok": true,
+        "body_chars": 193885,
+        "sentences": 220,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "raw-ingest SOURCES",
+        "politician_id": "greg_abbott",
+        "topic": "cost_living",
+        "source_type": "campaign newsletter post",
+        "url": "https://govgregabbott.substack.com/p/the-path-to-number-one-governor-abbotts",
+        "ok": true,
+        "body_chars": 189581,
+        "sentences": 57,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "raw-ingest SOURCES",
+        "politician_id": "james_talarico",
+        "topic": "healthcare_costs",
+        "source_type": "campaign issue page",
+        "url": "https://jamestalarico.com/issue/health-care/",
+        "ok": true,
+        "body_chars": 131839,
+        "sentences": 105,
+        "candidates": 1,
+        "mappings": [],
+        "mentioned_not_mapped": [
+          {
+            "bill": "Affordable Care Act",
+            "kind": "short_title",
+            "matched": "Affordable Care Act",
+            "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine | iran_hostilities: about health care, not U.S. hostilities with Iran"
+          }
+        ]
+      },
+      {
+        "group": "raw-ingest SOURCES",
+        "politician_id": "ken_paxton",
+        "topic": "healthcare_costs",
+        "source_type": "campaign issues page",
+        "url": "https://www.kenpaxton.com/issues",
+        "ok": true,
+        "body_chars": 119143,
+        "sentences": 49,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "raw-ingest SOURCES",
+        "politician_id": "john_cornyn",
+        "topic": "healthcare_costs",
+        "source_type": "official Senate issue page",
+        "url": "https://www.cornyn.senate.gov/issues/health-care/",
+        "ok": true,
+        "body_chars": 98188,
+        "sentences": 62,
+        "candidates": 6,
+        "mappings": [],
+        "mentioned_not_mapped": [
+          {
+            "bill": "One Big Beautiful Bill Act",
+            "kind": "short_title",
+            "matched": "One Big Beautiful Bill Act",
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
+          },
+          {
+            "bill": "Cornyn-Supported Working Families Tax Cuts Act",
+            "kind": "short_title",
+            "matched": "Cornyn-Supported Working Families Tax Cuts Act",
+            "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine | iran_hostilities: about health care, not U.S. hostilities with Iran"
+          },
+          {
+            "bill": "Affordable Prescriptions for Patients Act",
+            "kind": "short_title",
+            "matched": "Affordable Prescriptions for Patients Act",
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
+          },
+          {
+            "bill": "Working Families Tax Cut Act",
+            "kind": "short_title",
+            "matched": "Working Families Tax Cut Act",
+            "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine | iran_hostilities: about health care, not U.S. hostilities with Iran"
+          },
+          {
+            "bill": "Working Families Tax Cuts Act",
+            "kind": "short_title",
+            "matched": "Working Families Tax Cuts Act",
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
+          },
+          {
+            "bill": "Chemical Abortion Act",
+            "kind": "short_title",
+            "matched": "Chemical Abortion Act",
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
+          }
+        ]
+      },
+      {
+        "group": "raw-ingest DISCOVERY_PATTERNS",
+        "politician_id": "james_talarico",
+        "topic": "cost_living",
+        "source_type": "campaign issues index",
+        "url": "https://jamestalarico.com/issues/",
+        "ok": true,
+        "body_chars": 89401,
+        "sentences": 35,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "raw-ingest DISCOVERY_PATTERNS",
+        "politician_id": "gina_hinojosa",
+        "topic": "cost_living",
+        "source_type": "campaign priorities index",
+        "url": "https://ginafortexas.com/priorities/",
+        "ok": true,
+        "body_chars": 72872,
+        "sentences": 31,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "raw-ingest DISCOVERY_PATTERNS",
+        "politician_id": "greg_abbott",
+        "topic": "cost_living",
+        "source_type": "official newsroom index",
+        "url": "https://gov.texas.gov/news",
+        "ok": false,
+        "error": "The operation was aborted due to timeout"
+      },
+      {
+        "group": "raw-ingest DISCOVERY_PATTERNS",
+        "politician_id": "ken_paxton",
+        "topic": "healthcare_costs",
+        "source_type": "official newsroom index",
+        "url": "https://www.texasattorneygeneral.gov/news/releases",
+        "ok": true,
+        "body_chars": 132394,
+        "sentences": 89,
+        "candidates": 1,
+        "mappings": [],
+        "mentioned_not_mapped": [
+          {
+            "bill": "Open Meetings Act",
+            "kind": "short_title",
+            "matched": "Open Meetings Act",
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
+          }
+        ]
+      },
+      {
+        "group": "raw-ingest DISCOVERY_PATTERNS",
+        "politician_id": "john_cornyn",
+        "topic": "healthcare_costs",
+        "source_type": "official Senate key-issue page",
+        "url": "https://www.cornyn.senate.gov/key-issues/health-care/",
+        "ok": true,
+        "body_chars": 110627,
+        "sentences": 64,
+        "candidates": 5,
+        "mappings": [],
+        "mentioned_not_mapped": [
+          {
+            "bill": "One Big Beautiful Bill Act",
+            "kind": "short_title",
+            "matched": "One Big Beautiful Bill Act",
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
+          },
+          {
+            "bill": "Affordable Prescriptions for Patients Act",
+            "kind": "short_title",
+            "matched": "Affordable Prescriptions for Patients Act",
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
+          },
+          {
+            "bill": "S. 2938",
+            "kind": "short_title",
+            "matched": "Bipartisan Safer Communities Act",
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention or the official title; catalog files it under healthcare, public_schools, health_mental, gun_rights, gun_safety | ukraine_aid: no Ukraine aid words in the text around the mention or the official title; catalog files it under healthcare, public_schools, health_mental, gun_rights, gun_safety | iran_hostilities: no Iran hostilities words in the text around the mention or the official title; catalog files it under healthcare, public_schools, health_mental, gun_rights, gun_safety"
+          },
+          {
+            "bill": "Century CURES Act",
+            "kind": "short_title",
+            "matched": "Century CURES Act",
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
+          },
+          {
+            "bill": "Drug Patents Act",
+            "kind": "short_title",
+            "matched": "Drug Patents Act",
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
+          }
+        ]
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "tommy_butler",
+        "topic": "housing_support",
+        "source_type": "campaign issues page",
+        "url": "https://www.butlerforhd50.com/on-the-issues-1",
+        "ok": true,
+        "body_chars": 167553,
+        "sentences": 41,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "jeff_livingston",
+        "topic": "housing_support",
+        "source_type": "campaign issues page",
+        "url": "https://jefflivingstonforcolorado.com/",
+        "ok": true,
+        "body_chars": 473301,
+        "sentences": 108,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "vinny_spotleson",
+        "topic": "transit",
+        "source_type": "campaign issues page",
+        "url": "https://winwithvin.org/issues/",
+        "ok": false,
+        "error": "The operation was aborted due to timeout"
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "connie_casha",
+        "topic": "public_schools",
+        "source_type": "campaign priorities page",
+        "url": "https://conniecasha4tndistrict-49.com/issues.html",
+        "ok": true,
+        "body_chars": 6254,
+        "sentences": 36,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "patrick_leahy",
+        "topic": "prop_tax",
+        "source_type": "campaign issues page",
+        "url": "https://leahyfornebraska.com/on-the-issues",
+        "ok": true,
+        "body_chars": 102032,
+        "sentences": 54,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "cindy_johnson",
+        "topic": "health_drug_prices",
+        "source_type": "campaign priorities page",
+        "url": "https://cindyjohnsonforne.com/priorities",
+        "ok": true,
+        "body_chars": 70293,
+        "sentences": 26,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "samantha_wilcox",
+        "topic": "cost_living",
+        "source_type": "campaign issues page",
+        "url": "https://samwilcoxforri.com/posts/",
+        "ok": true,
+        "body_chars": 133321,
+        "sentences": 41,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "zakary_pereira",
+        "topic": "healthcare",
+        "source_type": "campaign issues page",
+        "url": "https://www.zakaryforri.com/issues",
+        "ok": true,
+        "body_chars": 979334,
+        "sentences": 43,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "brent_reinke",
+        "topic": "cost_living",
+        "source_type": "campaign priorities page",
+        "url": "https://reinkeforidaho.com/",
+        "ok": true,
+        "body_chars": 112549,
+        "sentences": 85,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "casey_swensen",
+        "topic": "econ_smallbiz",
+        "source_type": "campaign priorities page",
+        "url": "https://swensenforidaho.com/",
+        "ok": true,
+        "body_chars": 98616,
+        "sentences": 45,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "edward_stravato",
+        "topic": "econ_smallbiz",
+        "source_type": "campaign priorities page",
+        "url": "https://edforri.com/priorities",
+        "ok": true,
+        "body_chars": 449288,
+        "sentences": 36,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "ali_horsted",
+        "topic": "cost_living",
+        "source_type": "campaign issues page",
+        "url": "https://www.aliforsd.com/vision",
+        "ok": true,
+        "body_chars": 164795,
+        "sentences": 17,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "brandy_tollefson",
+        "topic": "healthcare",
+        "source_type": "campaign priorities page",
+        "url": "https://www.brandyforwisconsin.com/",
+        "ok": true,
+        "body_chars": 1383422,
+        "sentences": 65,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "todd_delmay",
+        "topic": "cost_living",
+        "source_type": "campaign issues page",
+        "url": "https://delmayforflorida.com/issues/",
+        "ok": true,
+        "body_chars": 139060,
+        "sentences": 44,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "rose_lounsbury",
+        "topic": "public_schools",
+        "source_type": "campaign platform page",
+        "url": "https://www.roseforohio.com/platform/education",
+        "ok": true,
+        "body_chars": 255081,
+        "sentences": 39,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "rose_lounsbury",
+        "topic": "paid_leave",
+        "source_type": "campaign platform page",
+        "url": "https://www.roseforohio.com/platform/workingfamilies",
+        "ok": true,
+        "body_chars": 168018,
+        "sentences": 39,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "rose_lounsbury",
+        "topic": "gun_safety",
+        "source_type": "campaign platform page",
+        "url": "https://www.roseforohio.com/platform/gunsafety",
+        "ok": true,
+        "body_chars": 216618,
+        "sentences": 35,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "rose_lounsbury",
+        "topic": "climate_action",
+        "source_type": "campaign platform page",
+        "url": "https://www.roseforohio.com/platform/environment",
+        "ok": true,
+        "body_chars": 218828,
+        "sentences": 32,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "rose_lounsbury",
+        "topic": "voting_access",
+        "source_type": "campaign platform page",
+        "url": "https://www.roseforohio.com/platform/democracy",
+        "ok": true,
+        "body_chars": 167211,
+        "sentences": 32,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "rose_lounsbury",
+        "topic": "healthcare",
+        "source_type": "campaign platform page",
+        "url": "https://www.roseforohio.com/platform/healthcare",
+        "ok": true,
+        "body_chars": 287959,
+        "sentences": 40,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "rose_lounsbury",
+        "topic": "econ_workers",
+        "source_type": "campaign platform page",
+        "url": "https://www.roseforohio.com/platform/labor",
+        "ok": true,
+        "body_chars": 176442,
+        "sentences": 34,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "rose_lounsbury",
+        "topic": "lgbtq_rights",
+        "source_type": "campaign platform page",
+        "url": "https://www.roseforohio.com/platform/justice",
+        "ok": true,
+        "body_chars": 312280,
+        "sentences": 34,
+        "candidates": 1,
+        "mappings": [],
+        "mentioned_not_mapped": [
+          {
+            "bill": "HB 68",
+            "kind": "state_number",
+            "matched": "HB 68",
+            "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine | iran_hostilities: about health care, not U.S. hostilities with Iran"
+          }
+        ]
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "rose_lounsbury",
+        "topic": "pro_choice",
+        "source_type": "campaign platform page",
+        "url": "https://www.roseforohio.com/platform/womensrights",
+        "ok": true,
+        "body_chars": 287810,
+        "sentences": 31,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "shelby_kimball",
+        "topic": "public_schools",
+        "source_type": "campaign issues page",
+        "url": "https://kimballforohio.com/",
+        "ok": true,
+        "body_chars": 303195,
+        "sentences": 36,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "zach_herbert",
+        "topic": "healthcare",
+        "source_type": "campaign issues page",
+        "url": "https://zach4texas.com/issues/",
+        "ok": true,
+        "body_chars": 122340,
+        "sentences": 36,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "jillaire_mcmillan",
+        "topic": "public_schools",
+        "source_type": "campaign issues page",
+        "url": "https://www.jillaireforcolorado.com/issues",
+        "ok": true,
+        "body_chars": 953857,
+        "sentences": 37,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "steph_vigil",
+        "topic": "housing_build",
+        "source_type": "campaign issues page",
+        "url": "https://www.vigilforcolorado.com/issues",
+        "ok": true,
+        "body_chars": 635714,
+        "sentences": 106,
+        "candidates": 3,
+        "mappings": [],
+        "mentioned_not_mapped": [
+          {
+            "bill": "Affordable Care Act",
+            "kind": "short_title",
+            "matched": "Affordable Care Act",
+            "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine | iran_hostilities: about health care, not U.S. hostilities with Iran"
+          },
+          {
+            "bill": "Colorado Labor Peace Act",
+            "kind": "short_title",
+            "matched": "Colorado Labor Peace Act",
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
+          },
+          {
+            "bill": "Colorado’s Labor Peace Act",
+            "kind": "short_title",
+            "matched": "Colorado’s Labor Peace Act",
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
+          }
+        ]
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "eileen_eady",
+        "topic": "housing_support",
+        "source_type": "campaign issues page",
+        "url": "https://eadyfornevada.com/",
+        "ok": true,
+        "body_chars": 558582,
+        "sentences": 50,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "chris_ford",
+        "topic": "gov_transparency",
+        "source_type": "campaign priorities page",
+        "url": "https://www.chrisfordformn.com/priorities",
+        "ok": true,
+        "body_chars": 308764,
+        "sentences": 63,
+        "candidates": 1,
+        "mappings": [],
+        "mentioned_not_mapped": [
+          {
+            "bill": "Minnesota Starter Home Act",
+            "kind": "short_title",
+            "matched": "Minnesota Starter Home Act",
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
+          }
+        ]
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "kristy_janigo",
+        "topic": "cost_living",
+        "source_type": "campaign priorities page",
+        "url": "https://kristyjanigoformn.com/priorities/",
+        "ok": true,
+        "body_chars": 228242,
+        "sentences": 92,
+        "candidates": 1,
+        "mappings": [],
+        "mentioned_not_mapped": [
+          {
+            "bill": "Veterans Restorative Justice Act",
+            "kind": "short_title",
+            "matched": "Veterans Restorative Justice Act",
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
+          }
+        ]
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "mark_legvold",
+        "topic": "public_schools",
+        "source_type": "campaign issues page",
+        "url": "https://legvold4mnsenate58.com/policy",
+        "ok": true,
+        "body_chars": 383485,
+        "sentences": 81,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "owen_farnsworth",
+        "topic": "public_schools",
+        "source_type": "campaign issues page",
+        "url": "https://www.owenfarnsworth.com/education",
+        "ok": true,
+        "body_chars": 1242067,
+        "sentences": 37,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "allie_phillips",
+        "topic": "public_schools",
+        "source_type": "campaign platform page",
+        "url": "https://www.alliep4tn.com/",
+        "ok": true,
+        "body_chars": 487298,
+        "sentences": 50,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "michael_scott",
+        "topic": "public_schools",
+        "source_type": "campaign issues page",
+        "url": "https://www.mikescottformaine.com/issues",
+        "ok": true,
+        "body_chars": 544832,
+        "sentences": 19,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "patric_moore",
+        "topic": "housing_build",
+        "source_type": "campaign issues page",
+        "url": "https://www.patricmooreformaine.com/issues",
+        "ok": true,
+        "body_chars": 539443,
+        "sentences": 23,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "erin_feichtinger",
+        "topic": "housing",
+        "source_type": "campaign issues page",
+        "url": "https://erinfornebraska.com/issues",
+        "ok": false,
+        "error": "The operation was aborted due to timeout"
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "nelly_burdette",
+        "topic": "healthcare",
+        "source_type": "campaign issues page",
+        "url": "https://electnelly.com/issues",
+        "ok": true,
+        "body_chars": 171275,
+        "sentences": 40,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "nancy_gregory",
+        "topic": "public_schools",
+        "source_type": "campaign priorities page",
+        "url": "https://nancygregory4idaho.com/priorities",
+        "ok": true,
+        "body_chars": 539264,
+        "sentences": 32,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "kathy_simpler",
+        "topic": "public_schools",
+        "source_type": "campaign priorities page",
+        "url": "https://www.simplerforstatehouse.com/priorities",
+        "ok": true,
+        "body_chars": 145489,
+        "sentences": 36,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "lisa_keller",
+        "topic": "justice_balance",
+        "source_type": "campaign priorities page",
+        "url": "https://www.lisakellerforalaska.com/",
+        "ok": true,
+        "body_chars": 336320,
+        "sentences": 31,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "margaret_mitchell",
+        "topic": "property_tax",
+        "source_type": "campaign issues page",
+        "url": "https://mitchell406.com/",
+        "ok": true,
+        "body_chars": 229786,
+        "sentences": 64,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "jim_riley",
+        "topic": "school_choice",
+        "source_type": "campaign home page",
+        "url": "https://www.jimrileyforhd6.com/",
+        "ok": true,
+        "body_chars": 356856,
+        "sentences": 66,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "michelle_bianco",
+        "topic": "prop_tax",
+        "source_type": "campaign home page",
+        "url": "https://bianco4mt2026.com/",
+        "ok": true,
+        "body_chars": 154779,
+        "sentences": 44,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "adam_bair",
+        "topic": "housing_build",
+        "source_type": "campaign issues page",
+        "url": "https://adambairsouthdakota.com/issues/",
+        "ok": true,
+        "body_chars": 67098,
+        "sentences": 78,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "june_copperstad",
+        "topic": "housing_support",
+        "source_type": "campaign issues page",
+        "url": "https://juneforsd.com/issues/",
+        "ok": true,
+        "body_chars": 63712,
+        "sentences": 37,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "jeff_haylon",
+        "topic": "healthcare",
+        "source_type": "campaign issues page",
+        "url": "https://jeffhaylon.com/policies/",
+        "ok": true,
+        "body_chars": 34257,
+        "sentences": 51,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "phoebe_tucker",
+        "topic": "healthcare",
+        "source_type": "campaign priorities page",
+        "url": "https://www.phoebeforvermont.com/priorities",
+        "ok": true,
+        "body_chars": 236572,
+        "sentences": 53,
+        "candidates": 2,
+        "mappings": [],
+        "mentioned_not_mapped": [
+          {
+            "bill": "S. 60",
+            "kind": "number",
+            "matched": "S.60",
+            "congress_from": "date",
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
+          },
+          {
+            "bill": "Medicare for All Act",
+            "kind": "short_title",
+            "matched": "Medicare for All Act",
+            "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine | iran_hostilities: about health care, not U.S. hostilities with Iran"
+          }
+        ]
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "kim_gleason",
+        "topic": "healthcare",
+        "source_type": "campaign priorities page",
+        "url": "https://www.kimgleasonforvt.org/priorities",
+        "ok": true,
+        "body_chars": 203256,
+        "sentences": 38,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "hannah_sessions",
+        "topic": "prop_tax",
+        "source_type": "campaign issues page",
+        "url": "https://hannahsessionsforvt.com/issues/",
+        "ok": true,
+        "body_chars": 182720,
+        "sentences": 70,
+        "candidates": 1,
+        "mappings": [],
+        "mentioned_not_mapped": [
+          {
+            "bill": "S. 100",
+            "kind": "number",
+            "matched": "S.100",
+            "congress_from": "date",
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
+          }
+        ]
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "iva_williams",
+        "topic": "property_tax",
+        "source_type": "campaign priorities page",
+        "url": "https://electivawilliams.com/priorities",
+        "ok": true,
+        "body_chars": 194961,
+        "sentences": 36,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "kevin_knoke",
+        "topic": "housing",
+        "source_type": "campaign issues page",
+        "url": "https://www.kevinknoke.com/issues",
+        "ok": true,
+        "body_chars": 665993,
+        "sentences": 26,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "ben_gruber",
+        "topic": "public_schools",
+        "source_type": "campaign issues page",
+        "url": "https://www.ben-gruber.com/issues",
+        "ok": true,
+        "body_chars": 614722,
+        "sentences": 18,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "ben_brist",
+        "topic": "cost_living",
+        "source_type": "campaign issues page",
+        "url": "https://www.bristforassembly.com/issues",
+        "ok": true,
+        "body_chars": 571282,
+        "sentences": 40,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "john_kroll",
+        "topic": "public_schools",
+        "source_type": "campaign issues page",
+        "url": "https://www.krollforwi.com/issues",
+        "ok": true,
+        "body_chars": 615394,
+        "sentences": 22,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "jeremiah_fredrickson",
+        "topic": "public_schools",
+        "source_type": "campaign issues page",
+        "url": "https://www.jeremiahfredricksonforstateassembly.com/issues",
+        "ok": true,
+        "body_chars": 626262,
+        "sentences": 18,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "ben_mcadams_il",
+        "topic": "healthcare",
+        "source_type": "campaign platform page",
+        "url": "https://www.mcadamsforil.com/platform",
+        "ok": true,
+        "body_chars": 207735,
+        "sentences": 111,
+        "candidates": 7,
+        "mappings": [],
+        "mentioned_not_mapped": [
+          {
+            "bill": "SB 3376",
+            "kind": "state_number",
+            "matched": "SB 3376",
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
+          },
+          {
+            "bill": "SB 3796",
+            "kind": "state_number",
+            "matched": "SB 3796",
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
+          },
+          {
+            "bill": "SB 2462",
+            "kind": "state_number",
+            "matched": "SB 2462",
+            "reason": "israel_offensive_arms: names the subject but no Israel arms-transfer words (aid, funding, a sale …) around the mention or in the title | ukraine_aid: about Israel (→ israel_* keys), not further U.S. aid to Ukraine | iran_hostilities: about Israel (→ israel_* keys), not U.S. hostilities with Iran"
+          },
+          {
+            "bill": "Voting Rights Act",
+            "kind": "short_title",
+            "matched": "Voting Rights Act",
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
+          },
+          {
+            "bill": "Illinois Data Center Energy and Water Reporting Act",
+            "kind": "short_title",
+            "matched": "Illinois Data Center Energy and Water Reporting Act",
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
+          },
+          {
+            "bill": "Clean Air in Schools Act",
+            "kind": "short_title",
+            "matched": "Clean Air in Schools Act",
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
+          },
+          {
+            "bill": "Illinois Safety and Liberation Together Act",
+            "kind": "short_title",
+            "matched": "Illinois Safety and Liberation Together Act",
+            "reason": "israel_offensive_arms: names the subject but no Israel arms-transfer words (aid, funding, a sale …) around the mention or in the title | ukraine_aid: about Israel (→ israel_* keys), not further U.S. aid to Ukraine | iran_hostilities: about Israel (→ israel_* keys), not U.S. hostilities with Iran"
+          }
+        ]
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "marsia_geldert_murphey",
+        "topic": "infrastructure",
+        "source_type": "campaign issues page",
+        "url": "https://www.marsieforillinois.info/",
+        "ok": true,
+        "body_chars": 61920,
+        "sentences": 72,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "maria_peterson",
+        "topic": "tax_middle_class",
+        "source_type": "campaign issues page",
+        "url": "https://www.mariafor52.com/issues/",
+        "ok": true,
+        "body_chars": 93977,
+        "sentences": 141,
+        "candidates": 3,
+        "mappings": [],
+        "mentioned_not_mapped": [
+          {
+            "bill": "Climate and Equitable Jobs Act",
+            "kind": "short_title",
+            "matched": "Climate and Equitable Jobs Act",
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
+          },
+          {
+            "bill": "Illinois Communities Act",
+            "kind": "short_title",
+            "matched": "Illinois Communities Act",
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
+          },
+          {
+            "bill": "Illinois’ Reproductive Health Act",
+            "kind": "short_title",
+            "matched": "Illinois’ Reproductive Health Act",
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
+          }
+        ]
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "jessica_bichler",
+        "topic": "public_schools",
+        "source_type": "campaign issues page",
+        "url": "https://www.jessicabichler.com/issues",
+        "ok": true,
+        "body_chars": 602880,
+        "sentences": 71,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "lorenza_wilkins",
+        "topic": "public_schools",
+        "source_type": "campaign platform page",
+        "url": "https://www.lorenzawilkinsfornc.com/about-3-1",
+        "ok": true,
+        "body_chars": 681901,
+        "sentences": 33,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "winn_decker",
+        "topic": "public_schools",
+        "source_type": "campaign issues page",
+        "url": "https://winn4nc.com/",
+        "ok": true,
+        "body_chars": 179110,
+        "sentences": 47,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "ken_mccool",
+        "topic": "school_choice",
+        "source_type": "campaign priorities page",
+        "url": "https://www.kenmccool.com/priorities",
+        "ok": true,
+        "body_chars": 850299,
+        "sentences": 29,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "laura_murvartian",
+        "topic": "healthcare",
+        "source_type": "campaign priorities page",
+        "url": "https://www.lauramurvartian.com/priorities",
+        "ok": true,
+        "body_chars": 277572,
+        "sentences": 61,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "danielle_bell",
+        "topic": "cost_living",
+        "source_type": "campaign issues page",
+        "url": "https://www.danielleforgeorgia.com/reduce-cost-of-living",
+        "ok": true,
+        "body_chars": 98418,
+        "sentences": 26,
+        "candidates": 5,
+        "mappings": [],
+        "mentioned_not_mapped": [
+          {
+            "bill": "HB 1304",
+            "kind": "state_number",
+            "matched": "HB 1304",
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
+          },
+          {
+            "bill": "HB 507",
+            "kind": "state_number",
+            "matched": "HB 507",
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
+          },
+          {
+            "bill": "HB 1152",
+            "kind": "state_number",
+            "matched": "HB 1152",
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
+          },
+          {
+            "bill": "HB 1063",
+            "kind": "state_number",
+            "matched": "HB 1063",
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
+          },
+          {
+            "bill": "Georgia Homegrown Solar Act of 2024",
+            "kind": "short_title",
+            "matched": "Georgia Homegrown Solar Act of 2024",
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
+          }
+        ]
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "adam_cleveland",
+        "topic": "healthcare",
+        "source_type": "campaign priorities page",
+        "url": "https://www.adamcleveland.com/priorities",
+        "ok": true,
+        "body_chars": 275248,
+        "sentences": 51,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "beth_fuller",
+        "topic": "pro_choice",
+        "source_type": "campaign priorities page",
+        "url": "https://www.bethfullerforgeorgia.com/policy-priorities",
+        "ok": true,
+        "body_chars": 293575,
+        "sentences": 28,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "michelle_kang",
+        "topic": "gun_safety",
+        "source_type": "campaign platform page",
+        "url": "https://michellekangforga.com/2026-platform",
+        "ok": true,
+        "body_chars": 662287,
+        "sentences": 146,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "john_lowndes",
+        "topic": "gov_transparency",
+        "source_type": "campaign priorities page",
+        "url": "https://www.johnlowndesforflorida.com/priorities",
+        "ok": true,
+        "body_chars": 388946,
+        "sentences": 32,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "eric_gray",
+        "topic": "housing_build",
+        "source_type": "campaign issues page",
+        "url": "https://www.ericgrayforflorida.com/issues/",
+        "ok": true,
+        "body_chars": 24752,
+        "sentences": 83,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "lucia_baez_geller",
+        "topic": "cost_living",
+        "source_type": "campaign issues page",
+        "url": "https://luciabaezgeller.com/",
+        "ok": true,
+        "body_chars": 178666,
+        "sentences": 102,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "joe_rand",
+        "topic": "healthcare_costs",
+        "source_type": "campaign priorities page",
+        "url": "https://joerand.com/",
+        "ok": true,
+        "body_chars": 324088,
+        "sentences": 83,
+        "candidates": 1,
+        "mappings": [],
+        "mentioned_not_mapped": [
+          {
+            "bill": "Responsible Data Center Development Act",
+            "kind": "short_title",
+            "matched": "Responsible Data Center Development Act",
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
+          }
+        ]
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "sarah_rogerson",
+        "topic": "tax_middle_class",
+        "source_type": "campaign issues page",
+        "url": "https://www.sarahfornysenate.com/issues",
+        "ok": true,
+        "body_chars": 582535,
+        "sentences": 27,
+        "candidates": 1,
+        "mappings": [],
+        "mentioned_not_mapped": [
+          {
+            "bill": "New York Health Act",
+            "kind": "short_title",
+            "matched": "New York Health Act",
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
+          }
+        ]
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "chris_mccreight",
+        "topic": "datacenter_power",
+        "source_type": "campaign issues page",
+        "url": "https://www.chrismccreight.com/issues",
+        "ok": true,
+        "body_chars": 488186,
+        "sentences": 35,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "chloe_pierce",
+        "topic": "cost_living",
+        "source_type": "campaign issues page",
+        "url": "https://www.chloepierce.com/",
+        "ok": true,
+        "body_chars": 417667,
+        "sentences": 64,
+        "candidates": 1,
+        "mappings": [],
+        "mentioned_not_mapped": [
+          {
+            "bill": "New York Health Act",
+            "kind": "short_title",
+            "matched": "New York Health Act",
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
+          }
+        ]
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "megan_coy",
+        "topic": "healthcare",
+        "source_type": "campaign issues page",
+        "url": "https://www.coyforohio.com/",
+        "ok": true,
+        "body_chars": 440664,
+        "sentences": 54,
+        "candidates": 1,
+        "mappings": [],
+        "mentioned_not_mapped": [
+          {
+            "bill": "HB 289",
+            "kind": "state_number",
+            "matched": "HB 289",
+            "reason": "israel_offensive_arms: about health care, not Israel offensive arms | ukraine_aid: about health care, not further U.S. aid to Ukraine | iran_hostilities: about health care, not U.S. hostilities with Iran"
+          }
+        ]
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "mark_pinsley",
+        "topic": "datacenter_growth",
+        "source_type": "campaign issues page",
+        "url": "https://votemarkpinsley.com/issues/",
+        "ok": true,
+        "body_chars": 80704,
+        "sentences": 113,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "chris_thomas_pa",
+        "topic": "campaign_finance",
+        "source_type": "campaign platform page",
+        "url": "https://christhomas.vote/platform",
+        "ok": true,
+        "body_chars": 414769,
+        "sentences": 132,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "bryan_allen",
+        "topic": "datacenter_power",
+        "source_type": "campaign platform page",
+        "url": "https://www.bryanallenforpa.com/issues",
+        "ok": true,
+        "body_chars": 705092,
+        "sentences": 17,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "jeff_warren_pa",
+        "topic": "public_schools",
+        "source_type": "campaign issues page",
+        "url": "https://www.jeffwarrenforpa.com/issues",
+        "ok": true,
+        "body_chars": 354527,
+        "sentences": 24,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "kristin_egan",
+        "topic": "cost_living",
+        "source_type": "campaign priorities page",
+        "url": "https://www.kristineganforpa.com/priorities",
+        "ok": true,
+        "body_chars": 473779,
+        "sentences": 58,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "elizabeth_moro",
+        "topic": "health_drug_prices",
+        "source_type": "campaign issues page",
+        "url": "https://elizabethmoro.com/issues/",
+        "ok": true,
+        "body_chars": 182459,
+        "sentences": 56,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "stephanie_guerrero_saenz",
+        "topic": "public_schools",
+        "source_type": "campaign issues page",
+        "url": "https://www.stephanie4texas.com/",
+        "ok": true,
+        "body_chars": 439408,
+        "sentences": 42,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "oziel_ochoa",
+        "topic": "property_tax",
+        "source_type": "campaign priorities page",
+        "url": "https://www.ochoafortx37.com/issues",
+        "ok": true,
+        "body_chars": 691738,
+        "sentences": 72,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "chris_jimenez",
+        "topic": "property_tax",
+        "source_type": "campaign priorities page",
+        "url": "https://chrisjimenezforhd52.com/priorities",
+        "ok": true,
+        "body_chars": 633488,
+        "sentences": 58,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "zack_dunn",
+        "topic": "veterans",
+        "source_type": "campaign issues page",
+        "url": "https://zackdunn.com/",
+        "ok": true,
+        "body_chars": 156123,
+        "sentences": 31,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "tyler_smith",
+        "topic": "housing_build",
+        "source_type": "campaign priorities page",
+        "url": "https://tylerfortx.com/what-im-fighting-for/",
+        "ok": true,
+        "body_chars": 69139,
+        "sentences": 79,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "amelia_gallitano",
+        "topic": "cost_living",
+        "source_type": "campaign priorities page",
+        "url": "https://www.ameliaforaz.com/amelias-priorities",
+        "ok": true,
+        "body_chars": 156169,
+        "sentences": 37,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "amy_slavensky",
+        "topic": "cost_living",
+        "source_type": "campaign issues page",
+        "url": "https://www.amyslavensky.com/",
+        "ok": true,
+        "body_chars": 789325,
+        "sentences": 43,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "ida_obeso_martinez",
+        "topic": "cost_living",
+        "source_type": "campaign issues page",
+        "url": "https://idaforassembly.com/issues",
+        "ok": true,
+        "body_chars": 392458,
+        "sentences": 25,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "leila_namvar",
+        "topic": "cost_living",
+        "source_type": "campaign issues page",
+        "url": "https://www.leilanamvar.com/issues",
+        "ok": true,
+        "body_chars": 592961,
+        "sentences": 32,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "ben_christly",
+        "topic": "public_schools",
+        "source_type": "campaign issues page",
+        "url": "https://www.electbenchristly.com/values",
+        "ok": true,
+        "body_chars": 205099,
+        "sentences": 53,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "theresa_brooks",
+        "topic": "healthcare",
+        "source_type": "campaign priorities page",
+        "url": "https://www.drbrooksforsenate.com/issues",
+        "ok": true,
+        "body_chars": 640666,
+        "sentences": 41,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "jaime_churches",
+        "topic": "infrastructure",
+        "source_type": "campaign priorities page",
+        "url": "https://www.jaimechurches.com/priorities",
+        "ok": true,
+        "body_chars": 157453,
+        "sentences": 91,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "jan_maino",
+        "topic": "cost_living",
+        "source_type": "campaign priorities page",
+        "url": "https://mainoformichigan.com/priorities/",
+        "ok": true,
+        "body_chars": 133151,
+        "sentences": 22,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "alex_hawkins",
+        "topic": "public_schools",
+        "source_type": "campaign issues page",
+        "url": "https://www.alexhawkins.org/issues",
+        "ok": true,
+        "body_chars": 72869,
+        "sentences": 39,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "joseph_mcclusky",
+        "topic": "housing_support",
+        "source_type": "campaign platform page",
+        "url": "https://www.mccluskyformi.com/platform",
+        "ok": true,
+        "body_chars": 201805,
+        "sentences": 52,
+        "candidates": 1,
+        "mappings": [],
+        "mentioned_not_mapped": [
+          {
+            "bill": "Freedom of Information Act",
+            "kind": "short_title",
+            "matched": "Freedom of Information Act",
+            "reason": "israel_offensive_arms: no Israel arms-transfer words in the text around the mention (and the bill is not in the catalog) | ukraine_aid: no Ukraine aid words in the text around the mention (and the bill is not in the catalog) | iran_hostilities: no Iran hostilities words in the text around the mention (and the bill is not in the catalog)"
+          }
+        ]
+      },
+      {
+        "group": "newly-elected state-legislative roster",
+        "politician_id": "sarah_pounds",
+        "topic": "cost_living",
+        "source_type": "campaign priorities page",
+        "url": "https://www.electsarahpounds.com/priorities",
+        "ok": true,
+        "body_chars": 348352,
+        "sentences": 57,
+        "candidates": 0,
+        "mappings": [],
+        "mentioned_not_mapped": []
+      }
+    ]
+  }
+}

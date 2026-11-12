@@ -765,6 +765,23 @@ const clamp = (n) => Math.max(0, Math.min(WEIGHTS.maxConfidence, n));
 // The directional key rules are unchanged, and the register sweep
 // (SCORED_TOPICS, which has no directional keys) does not read spans.
 export const SPAN_GAP_PARAGRAPHS = 1;
+// DOCUMENT SCOPE (speech, interview, press release, statement, op-ed, bill or
+// resolution text): the whole document is the unit of scope, not the
+// paragraph. A subject stays open until a clear subject change — another
+// country, an explicit transition, a heading, a clearly different issue, or a
+// DISTINCT NEW MEASURE (a bill number not yet named in the span, once the span
+// has named one). The no-debate-words limit stays only as a safety valve: a
+// span closes after this many whole paragraphs with no subject, claim word or
+// bill number. Campaign issue / policy pages (many issues on one page), roll
+// calls and anything else keep the paragraph scope above, unchanged.
+export const SPAN_DOCUMENT_GAP_PARAGRAPHS = 3;
+const DOCUMENT_SOURCE = /\b(?:speech|remarks|transcript|interview|q&a|press release|news release|release|statement|op-?ed|letter|newsletter|post|blog|bill text|resolution text|floor|testimony|address|podcast|town hall)\b/i;
+const NOT_DOCUMENT_SOURCE = /\b(?:issues?|policy|priorit\w+|platform|index|toolkit|roll-call|vote|journal|newsroom)\b/i;
+/** Span scope for a source type: "document" (one speech / release / bill) or "paragraph". */
+export const spanScopeFor = (sourceType) => (DOCUMENT_SOURCE.test(sourceType || "") && !NOT_DOCUMENT_SOURCE.test(sourceType || "") ? "document" : "paragraph");
+// Federal bill numbers, for the distinct-measure break ("S.J.Res. 33" → "S.J.Res.33").
+const BILL_NUMBER_G = /\b(?:H\.\s?R|H\.\s?(?:J\.\s?|Con\.\s?)?Res|S\.\s?(?:J\.\s?|Con\.\s?)?Res)\.\s?\d+\b|(?<![\w.])S\.\s?\d+\b/g;
+const billNumbersIn = (s) => [...String(s).matchAll(BILL_NUMBER_G)].map((m) => m[0].replace(/\s+/g, ""));
 const SUBJECT_OF = {}; // topic → subject id
 const SUBJECT_RES = {}; // subject id → RegExp (what names the subject)
 for (const k of DIRECTIONAL_TOPICS) {
@@ -867,23 +884,34 @@ function headingSentences(body) {
 
 /**
  * Subject spans over a page's sentences → one entry per sentence:
- * { subject, span, named, backward?, subjects?, facet?, change? } — `subject`
+ * { subject, span, scope, named, backward?, subjects?, facet?, change? } — `subject`
  * is the subject id or null, `span` a span number (1, 2, … in page order; null
  * outside any span), `named` whether the sentence names the subject itself
  * (false = carried), `backward` when it joined the span from just before the
  * opening sentence, `subjects` when it names two or more, `facet` (Israel
- * only) and `change` when the sentence is a clear subject change.
+ * only) and `change` when the sentence is a clear subject change. `scope` is
+ * the idea the sentence belongs to (1, 2, … in page order): a new scope starts
+ * at every clear subject change, heading, transition, distinct new measure or
+ * safety-valve gap. Moving between two keyed subjects (Ukraine → Israel inside
+ * one aid package) opens a new span but stays in the same scope.
+ *   opts.scope  "paragraph" (default — the original carry rule) or "document"
+ *               (see SPAN_DOCUMENT_GAP_PARAGRAPHS; spanScopeFor picks it).
  */
-export function subjectSpans(sentences, body = "") {
+export function subjectSpans(sentences, body = "", { scope: mode = "paragraph" } = {}) {
+  const doc = mode === "document";
+  const gapLimit = doc ? SPAN_DOCUMENT_GAP_PARAGRAPHS : SPAN_GAP_PARAGRAPHS;
   const heads = headingSentences(body);
   const blockOf = new Map();
   for (const x of extractSentenceBlocks(body)) if (!blockOf.has(x.text)) blockOf.set(x.text, x.block);
   const out = [];
   const blocks = [];
   let cur = null, span = 0, lastBlock = -Infinity, prevBlock = 0;
+  let scopeN = 1, scopeUsed = false, lastDebate = -Infinity, spanBills = new Set();
+  const newScope = () => { if (scopeUsed) { scopeN++; scopeUsed = false; } };
+  const put = (e) => { scopeUsed = true; out.push({ ...e, scope: scopeN }); };
   const open = (id, i) => {
     const opened = id !== cur;
-    if (opened) { cur = id; span++; }
+    if (opened) { cur = id; span++; spanBills = new Set(); }
     return opened;
   };
   for (let i = 0; i < sentences.length; i++) {
@@ -894,12 +922,27 @@ export function subjectSpans(sentences, body = "") {
     const named = Object.keys(SUBJECT_RES).filter((id) => SUBJECT_RES[id].test(s));
     const otherNamed = Object.values(OTHER_SUBJECT_RES).some((re) => re.test(s));
     const transition = TRANSITION.test(s);
+    const bills = billNumbersIn(s);
+    // Scope bookkeeping (both modes): a gap past the valve, a heading, a
+    // transition or a clear change starts a new idea.
+    if (b - lastDebate > gapLimit + 1) newScope();
+    if (named.length || bills.length || CLAIM_WORD.test(s)) lastDebate = b;
+    if (heads.has(s) || transition || (otherNamed && !named.length) || (!named.length && isIssueChange(s))) newScope();
+    if (doc) {
+      // DISTINCT NEW MEASURE: a bill number the open span has not named, once it has named one.
+      if (cur && bills.length && spanBills.size && !bills.some((x) => spanBills.has(x))) {
+        cur = null; newScope();
+        if (!named.length) { spanBills = new Set(bills); put({ subject: null, span: null, named: false, change: true, measure: true }); continue; }
+      }
+      // An explicit transition re-opens even the same subject as a new span.
+      if (transition) cur = null;
+    }
     let opened = false;
     if (heads.has(s)) {
       // A heading always ends the open span; one naming a single subject opens a new one.
       cur = null;
-      if (named.length === 1 && !otherNamed) { opened = open(named[0], i); lastBlock = b; out.push({ subject: cur, span, named: true }); }
-      else { out.push({ subject: null, span: null, named: false, change: true }); continue; }
+      if (named.length === 1 && !otherNamed) { opened = open(named[0], i); lastBlock = b; put({ subject: cur, span, named: true }); }
+      else { put({ subject: null, span: null, named: false, change: true }); continue; }
     } else if (named.length + (otherNamed ? 1 : 0) > 1) {
       // Two subjects in one sentence. The open subject stays open unless the
       // sentence itself switches (a transition naming another subject).
@@ -910,33 +953,36 @@ export function subjectSpans(sentences, body = "") {
         to = named.map((id) => [id, s.slice(at).search(SUBJECT_RES[id])]).filter(([, j]) => j >= 0).sort((x, y) => x[1] - y[1])[0]?.[0]
           || (otherNamed ? "other" : null);
       }
-      if (cur && named.includes(cur) && (!to || to === cur)) { lastBlock = b; out.push({ subject: cur, span, named: true, subjects }); continue; }
-      if (to && to !== "other") { opened = open(to, i); lastBlock = b; out.push({ subject: cur, span, named: true, subjects }); }
-      else { cur = null; out.push({ subject: null, span: null, named: false, subjects, change: true }); continue; }
+      if (cur && named.includes(cur) && (!to || to === cur)) { lastBlock = b; put({ subject: cur, span, named: true, subjects }); continue; }
+      if (to && to !== "other") { opened = open(to, i); lastBlock = b; put({ subject: cur, span, named: true, subjects }); }
+      else { cur = null; put({ subject: null, span: null, named: false, subjects, change: true }); continue; }
     } else if (named.length === 1) {
       opened = open(named[0], i);
       lastBlock = b;
-      out.push({ subject: cur, span, named: true });
+      put({ subject: cur, span, named: true });
+      if (doc) for (const x of bills) spanBills.add(x);
     } else if (otherNamed || transition || isIssueChange(s)) {
       cur = null;
-      out.push({ subject: null, span: null, named: false, change: true });
+      put({ subject: null, span: null, named: false, change: true });
       continue;
-    } else if (cur && b - lastBlock <= SPAN_GAP_PARAGRAPHS + 1) {
-      // A carried sentence with a claim word shows the debate is still going.
-      if (CLAIM_WORD.test(s)) lastBlock = b;
-      out.push({ subject: cur, span, named: false });
+    } else if (cur && b - lastBlock <= gapLimit + 1) {
+      // A carried sentence with a claim word (or, in a document, a bill number)
+      // shows the debate is still going.
+      if (CLAIM_WORD.test(s) || (doc && bills.length)) lastBlock = b;
+      if (doc) for (const x of bills) spanBills.add(x);
+      put({ subject: cur, span, named: false });
       continue;
     } else {
       cur = null;
-      out.push({ subject: null, span: null, named: false });
+      put({ subject: null, span: null, named: false });
       continue;
     }
     // BACKWARD: the sentence just before a span opens joins it when it is clearly part of the same claim.
     if (opened && i > 0) {
       const p = out[i - 1], ps = sentences[i - 1];
-      if (p.subject === null && !p.change && !p.subjects && !heads.has(ps) && b - blocks[i - 1] <= 1 &&
+      if (p.subject === null && !p.change && !p.subjects && !heads.has(ps) && b - blocks[i - 1] <= 1 && p.scope === scopeN &&
           (isFragment(ps) || (CLAIM_WORD.test(ps) && CLAIM_WORD.test(s)))) {
-        out[i - 1] = { subject: cur, span, named: false, backward: true };
+        out[i - 1] = { subject: cur, span, named: false, backward: true, scope: scopeN };
       }
     }
   }
@@ -959,7 +1005,7 @@ export function subjectSpans(sentences, body = "") {
  * `topic` defaults to the record's own topic; the cron also scores the same
  * page against every other topic (see scoreAllTopics).
  */
-export function scoreRawRecord(raw, topic = raw?.topic, sentences = null) {
+export function scoreRawRecord(raw, topic = raw?.topic, sentences = null, opts = {}) {
   for (const k of ["url", "fetched_at", "source_type", "politician_id", "topic", "body"]) {
     if (!(k in (raw || {}))) throw new Error(`raw record missing ${k}`);
   }
@@ -973,7 +1019,9 @@ export function scoreRawRecord(raw, topic = raw?.topic, sentences = null) {
   // Subject spans (directional keys only): every span on the topic's subject,
   // wherever it sits on the page, is read for this one candidate.
   const subject = subjectOf(topic);
-  const spans = subject ? subjectSpans(list, raw.body) : null;
+  // Scope follows the source type (spanScopeFor); `opts.spanScope` overrides it for diagnostics.
+  const spanScope = opts.spanScope || spanScopeFor(raw.source_type);
+  const spans = subject ? subjectSpans(list, raw.body, { scope: spanScope }) : null;
   for (let i = 0; i < list.length; i++) {
     const text = list[i];
     const sp = spans && spans[i].subject === subject ? spans[i] : null;

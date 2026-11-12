@@ -52,6 +52,9 @@
    the tally travel together in one sticky header, held just under the
    profile's own sticky nav, so a reader deep in a long list still sees what
    the list is and what it counts. Nothing about which rows appear moves.
+
+   COMPANION. It also loads person-directional-keys.js once (loadCompanion),
+   which places its own section; nothing in the bills list depends on it.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -320,7 +323,24 @@
 
   window.PDXPersonBills = { scan: scan, rowsFor: rowsFor, html: html, load: load, jumpHtml: jumpHtml, jump: jump };
 
+  // ── companion: directional-key bill matches and scorer reads (v554) ────────
+  // person-directional-keys.js mounts its own #pdx-dirkeys section (see that
+  // file). It is loaded from here, once, so the person shell and its precache
+  // list stay as they are; it is fetched at runtime like its data table.
+  function loadCompanion() {
+    try {
+      if (window.PDXPersonDirectionalKeys || !document.createElement || !document.head) return;
+      if (document.querySelector && document.querySelector('script[data-pdx-dirkeys-loader]')) return;
+      var sc = document.createElement('script');
+      sc.src = '/person-directional-keys.js';
+      sc.defer = true;
+      sc.setAttribute('data-pdx-dirkeys-loader', '');
+      document.head.appendChild(sc);
+    } catch (e) { /* the bills list does not depend on it */ }
+  }
+
   function boot() {
+    loadCompanion();
     scan();
     if (typeof MutationObserver === 'function' && document.body) {
       var queued = false;

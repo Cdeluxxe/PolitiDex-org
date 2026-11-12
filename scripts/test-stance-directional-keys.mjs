@@ -117,16 +117,52 @@ t('spans (carry): a subject carries through long paragraphs and across one off-c
   const filler = Array.from({ length: 5 }, (_, i) => `That was a long night for everyone, number ${i + 1}.`).join(' ');
   const longPara = S.scoreRawRecord(page(`<p>Iran is on everyone’s mind. ${filler} Congress must vote before troops enter hostilities.</p>`, 'iran_hostilities'), 'iran_hostilities');
   assert.equal(longPara.position, 'support');
-  // One paragraph with no subject or claim word in between still carries; two do not.
+  // PARAGRAPH scope (campaign issue pages): one paragraph with no subject or claim word still carries; two do not.
   const gap = (n) => Array.from({ length: n }, (_, i) => `<p>That was a long night for everyone, number ${i + 1}.</p>`).join('');
+  const issuePage = (body) => page(body, 'iran_hostilities', { source_type: 'campaign issue page' });
   assert.equal(S.SPAN_GAP_PARAGRAPHS, 1);
-  const one = S.scoreRawRecord(page(`<p>Iran is on everyone’s mind.</p>${gap(1)}<p>It was late. Congress must vote before troops enter hostilities.</p>`, 'iran_hostilities'), 'iran_hostilities');
+  const one = S.scoreRawRecord(issuePage(`<p>Iran is on everyone’s mind.</p>${gap(1)}<p>It was late. Congress must vote before troops enter hostilities.</p>`), 'iran_hostilities');
   assert.equal(one.position, 'support');
-  const far = S.scoreRawRecord(page(`<p>Iran is on everyone’s mind.</p>${gap(2)}<p>Congress must vote before troops enter hostilities.</p>`, 'iran_hostilities'), 'iran_hostilities');
+  const far = S.scoreRawRecord(issuePage(`<p>Iran is on everyone’s mind.</p>${gap(2)}<p>Congress must vote before troops enter hostilities.</p>`), 'iran_hostilities');
   assert.equal(far.position, 'no clear position');
   // A carried claim word keeps the span alive across further paragraphs.
-  const chain = S.scoreRawRecord(page(`<p>Iran is on everyone’s mind.</p><p>The troops are tired.</p>${gap(1)}<p>Congress must vote before troops enter hostilities.</p>`, 'iran_hostilities'), 'iran_hostilities');
+  const chain = S.scoreRawRecord(issuePage(`<p>Iran is on everyone’s mind.</p><p>The troops are tired.</p>${gap(1)}<p>Congress must vote before troops enter hostilities.</p>`), 'iran_hostilities');
   assert.equal(chain.position, 'support');
+});
+t('spans (document scope): in a speech or release a new paragraph does not close the subject; the gap limit is only a safety valve', () => {
+  const gap = (n) => Array.from({ length: n }, (_, i) => `<p>That was a long night for everyone, number ${i + 1}.</p>`).join('');
+  const line = '<p>Congress must vote before troops enter hostilities.</p>';
+  assert.equal(S.SPAN_DOCUMENT_GAP_PARAGRAPHS, 3);
+  for (const type of ['speech', 'floor speech', 'official press release', 'interview (verbatim Q&A in news report)', 'statement', 'resolution text (sponsor)']) {
+    assert.equal(S.spanScopeFor(type), 'document', type);
+    for (const n of [2, 3]) assert.equal(S.scoreRawRecord(page(`<p>Iran is on everyone’s mind.</p>${gap(n)}${line}`, 'iran_hostilities', { source_type: type }), 'iran_hostilities').position, 'support', `${type} gap ${n}`);
+    assert.equal(S.scoreRawRecord(page(`<p>Iran is on everyone’s mind.</p>${gap(4)}${line}`, 'iran_hostilities', { source_type: type }), 'iran_hostilities').position, 'no clear position', `${type} valve`);
+  }
+  for (const type of ['campaign issue page', 'campaign policy page', 'roll-call vote (House Clerk)', 'official Senate issue page', 'campaign issues page']) assert.equal(S.spanScopeFor(type), 'paragraph', type);
+  // The paragraph rule is still there for a diagnostic override.
+  assert.equal(S.scoreRawRecord(page(`<p>Iran is on everyone’s mind.</p>${gap(2)}${line}`, 'iran_hostilities'), 'iran_hostilities', null, { spanScope: 'paragraph' }).position, 'no clear position');
+});
+t('spans (document scope): clear changes still close the subject — country, transition, issue, heading, a distinct new measure', () => {
+  const line = '<p>Congress must vote before troops enter hostilities.</p>';
+  for (const brk of ['<p>Turning to Yemen and the Houthis.</p>', '<p>Moving on to something else entirely tonight.</p>',
+    '<p>Our public schools need more teachers.</p>', '<h2>Next section</h2>']) {
+    assert.equal(S.scoreRawRecord(page(`<p>Iran is on everyone’s mind.</p><p>It was a long night.</p>${brk}${line}`, 'iran_hostilities'), 'iran_hostilities').position, 'no clear position', brk);
+  }
+  // A new bill number, once the span has named one, is a new measure: the next line is not carried onto Iran.
+  const body = '<p>I wrote H.Con.Res. 38 about Iran.</p><p>It was a long night.</p><p>Separately, H.R. 4 is on the floor this week.</p>' + line;
+  assert.equal(S.scoreRawRecord(page(body, 'iran_hostilities'), 'iran_hostilities').position, 'no clear position');
+  const sp = S.subjectSpans(S.extractSentences(body), body, { scope: 'document' });
+  assert.equal(sp[2].measure, true);
+  assert.ok(sp[2].scope > sp[0].scope);
+  // Re-naming the same bill keeps it open.
+  const same = '<p>I wrote H.Con.Res. 38 about Iran.</p><p>It was a long night.</p><p>H.Con.Res. 38 is privileged.</p>' + line;
+  assert.equal(S.scoreRawRecord(page(same, 'iran_hostilities'), 'iran_hostilities').position, 'support');
+});
+t('spans (document scope): two keyed subjects in one package open separate spans in the same scope', () => {
+  const body = '<p>This package sends $61 billion in security assistance to Ukraine.</p><p>It also provides $4 billion for Iron Dome in Israel.</p><p>Those interceptors save lives.</p>';
+  const sp = S.subjectSpans(S.extractSentences(body), body, { scope: 'document' });
+  assert.deepEqual(sp.map((x) => [x.subject, x.span, x.scope]), [['ukraine_aid', 1, 1], ['israel_military_aid', 2, 1], ['israel_military_aid', 2, 1]]);
+  assert.deepEqual(sp.map((x) => x.facet || null), [null, 'defensive', 'defensive']);
 });
 t('spans: a clear subject change ends the span — another country, a transition, another issue, a heading', () => {
   const line = '<p>Congress must vote before troops enter hostilities.</p>';
@@ -248,6 +284,18 @@ t('the re-score report is current and records the comparison for all three remap
     ['massie|ukraine_aid|gt-002', 'oppose', 'oppose', 'agrees'],
     ['massie|iran_hostilities|gt-005', 'support', 'support', 'agrees'],
     ['sanders|israel_military_aid|gt-006', 'mixed', 'oppose', 'disagrees'],
+  ]);
+});
+
+t('document scope: the six ground-truth records read the same as under paragraph scope, and the report is current', () => {
+  execFileSync(process.execPath, [path.join(root, 'scripts/rescore-ground-truth-document-scope-2026-11.mjs'), '--check'], { stdio: 'pipe' });
+  const rep = JSON.parse(readFileSync(path.join(root, 'db/rescore-ground-truth-document-scope-2026-11.json'), 'utf8'));
+  assert.equal(rep.summary.records, 6);
+  assert.equal(rep.summary.changed_records, 0);
+  assert.equal(rep.summary.changed_source_reads, 0);
+  assert.deepEqual(rep.records.map((r) => [r.stance_id, r.human.position]), [
+    ['james_talarico|cost_living|gt-001', 'support'], ['massie|ukraine_aid|gt-002', 'oppose'], ['sanders|healthcare|gt-003', 'support'],
+    ['james_talarico|school_choice|gt-004', 'oppose'], ['massie|iran_hostilities|gt-005', 'support'], ['sanders|israel_military_aid|gt-006', 'mixed'],
   ]);
 });
 
