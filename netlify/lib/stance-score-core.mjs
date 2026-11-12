@@ -99,13 +99,16 @@
 // R4 corroboration bonus of 0.15 reproduces it. These numbers live in WEIGHTS
 // so a later tweak is one edit, and the comparison log prints the exact delta.
 
-import { buildTopicRules, ISSUE_TOPIC_VOCAB, ISSUE_TOPIC_LABELS } from "./stance-topic-vocab.mjs";
+import { buildTopicRules, buildDirectionalTopicRules, ISSUE_TOPIC_VOCAB, ISSUE_TOPIC_LABELS, DIRECTIONAL_TOPIC_VOCAB } from "./stance-topic-vocab.mjs";
 import { PERSON_SURNAMES, PLACE_SURNAMES, PLACE_SURNAME_FULL_NAMES } from "./stance-person-names.mjs";
 
 export const RULES_VERSION = "phase8-v3";
 // Vocabulary version for the issue keys scored from stance-topic-vocab.mjs
 // (every register key except the two hand-calibrated core topics).
 export const VOCAB_VERSION = "issue-vocab-v1";
+// Vocabulary version for the directional keys (DIRECTIONAL_TOPICS); the 125
+// register keys keep VOCAB_VERSION.
+export const DIRECTIONAL_VOCAB_VERSION = "issue-vocab-v2-directional";
 
 export const WEIGHTS = {
   high: 1.0,              // R2
@@ -223,7 +226,14 @@ export const TOPIC_RULES = {
   // housing, energy, …): same rule engine, vocabulary from stance-topic-vocab.mjs.
   // The two core topics above are never replaced by a vocabulary entry.
   ...Object.fromEntries(Object.entries(buildTopicRules()).filter(([k]) => k !== "cost_living" && k !== "healthcare_costs")),
+  // Directional keys (vocab v2): ukraine_aid, iran_hostilities and the three
+  // Israel keys. Scored by name (scoreRawRecord(raw, key)) or by passing them
+  // to scoreAllTopics({ topics }); they are NOT in the default register sweep.
+  ...buildDirectionalTopicRules(),
 };
+
+/** Directional keys with rules (vocab v2). Opt-in: not part of SCORED_TOPICS. */
+export const DIRECTIONAL_TOPICS = Object.keys(DIRECTIONAL_TOPIC_VOCAB);
 
 // R10 (phase8-v3): explicit-claim forms the general rules miss, read only on
 // campaign pages, official issue pages and the candidate's own speeches. Each
@@ -271,7 +281,7 @@ export const isClaimPage = (sourceType, link) => CLAIM_PAGE_KINDS.has(primarySou
 export const CORE_TOPICS = ["cost_living", "healthcare_costs"];
 
 /** Every topic the scorer has rules for, core topics first. */
-export const SCORED_TOPICS = [...CORE_TOPICS, ...Object.keys(TOPIC_RULES).filter((k) => !CORE_TOPICS.includes(k))];
+export const SCORED_TOPICS = [...CORE_TOPICS, ...Object.keys(TOPIC_RULES).filter((k) => !CORE_TOPICS.includes(k) && !DIRECTIONAL_TOPICS.includes(k))];
 
 /** Topics that are scored for mentions only (no pole: a subject, not a position). */
 export const NO_POLE_TOPICS = new Set(Object.entries(ISSUE_TOPIC_VOCAB).filter(([, v]) => v.noPole).map(([k]) => k));
@@ -826,7 +836,7 @@ export function scoreRawRecord(raw, topic = raw?.topic, sentences = null) {
     layer: "stated",
     formal_record: false,
     rules_version: RULES_VERSION,
-    ...(CORE_TOPICS.includes(topic) ? {} : { vocab_version: VOCAB_VERSION }),
+    ...(CORE_TOPICS.includes(topic) ? {} : { vocab_version: DIRECTIONAL_TOPICS.includes(topic) ? DIRECTIONAL_VOCAB_VERSION : VOCAB_VERSION }),
     ...(topic !== raw.topic ? { page_topic: raw.topic } : {}),
     raw_fetched_at: raw.fetched_at,
   };

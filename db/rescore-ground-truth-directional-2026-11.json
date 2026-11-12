@@ -1,0 +1,305 @@
+{
+  "_note": "Offline re-score of the three ground-truth records remapped onto directional keys, read from the reviewer's verbatim excerpts. Diagnostic only: nothing here changes a ground-truth record, a stance, a Locker item or a scoring rule. `scorer` is the pooled record-level read; `per_source` scores each excerpt on its own.",
+  "rules_version": "phase8-v3",
+  "vocab_version": "issue-vocab-v2-directional",
+  "confidence_tolerance": 0.1,
+  "input": "ground-truth source excerpts (db/stance-ground-truth-talarico-cost-of-living.json)",
+  "summary": {
+    "records": 3,
+    "agree": 2,
+    "agree_position_only": 0,
+    "disagree": 1
+  },
+  "records": [
+    {
+      "stance_id": "massie|ukraine_aid|gt-002",
+      "politician_id": "massie",
+      "topic": "ukraine_aid",
+      "previous_topic": "ukraine_policy",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.85,
+        "position_on": "further U.S. aid to Ukraine (supplemental appropriations / security assistance)"
+      },
+      "scorer": {
+        "position": "oppose",
+        "confidence": 0.8,
+        "confidence_reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
+        "note": "1 clear statement(s) (0 support, 1 oppose), 0 implication(s) (0 support, 0 oppose), 2 mention(s) at zero weight"
+      },
+      "verdict": "agrees",
+      "confidence_delta": -0.05,
+      "comparison": "stance-score: massie|ukraine_aid position MATCH (candidate oppose, ground truth oppose); confidence 0.8 vs 0.85, Δ=-0.05 within 0.1",
+      "per_source": [
+        {
+          "type": "roll-call vote (House Clerk)",
+          "date": "2024-04-20",
+          "link": "https://clerk.house.gov/evs/2024/roll151.xml",
+          "human_weight": "strong",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "confidence_reason": "1 topic mention(s), none states a clear position (R3)",
+          "note": "0 clear statement(s) (0 support, 0 oppose), 0 implication(s) (0 support, 0 oppose), 1 mention(s) at zero weight",
+          "statements": [
+            {
+              "kind": "mention",
+              "side": null,
+              "weight": 0,
+              "text": "H R 8035 · On Passage · Ukraine Security Supplemental Appropriations Act, 2024 · Massie (R-KY): Nay"
+            }
+          ]
+        },
+        {
+          "type": "roll-call vote (House Clerk)",
+          "date": "2022-05-10",
+          "link": "https://clerk.house.gov/evs/2022/roll145.xml",
+          "human_weight": "strong",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "confidence_reason": "1 topic mention(s), none states a clear position (R3)",
+          "note": "0 clear statement(s) (0 support, 0 oppose), 0 implication(s) (0 support, 0 oppose), 1 mention(s) at zero weight",
+          "statements": [
+            {
+              "kind": "mention",
+              "side": null,
+              "weight": 0,
+              "text": "H R 7691 · On Passage · Additional Ukraine Supplemental Appropriations Act, 2022 · Massie (R-KY): Nay"
+            }
+          ]
+        },
+        {
+          "type": "interview (verbatim Q&A in news report)",
+          "date": "2024-09-24",
+          "link": "https://responsiblestatecraft.org/massie-ukraine-casualty-numbers/",
+          "human_weight": "strong",
+          "position": "oppose",
+          "confidence": 0.8,
+          "confidence_reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6)",
+          "note": "1 clear statement(s) (0 support, 1 oppose), 0 implication(s) (0 support, 0 oppose), 0 mention(s) at zero weight",
+          "statements": [
+            {
+              "kind": "clear",
+              "side": "oppose",
+              "weight": 1,
+              "text": "Well, it's certainly the case that I don't want to send more aid to Ukraine."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "massie|iran_hostilities|gt-005",
+      "politician_id": "massie",
+      "topic": "iran_hostilities",
+      "previous_topic": "war_powers",
+      "human": {
+        "position": "support",
+        "confidence": 0.85,
+        "position_on": "requiring congressional authorization before U.S. forces engage in hostilities (here, against Iran)"
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "confidence_reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6)",
+        "note": "2 clear statement(s) (2 support, 0 oppose), 0 implication(s) (0 support, 0 oppose), 0 mention(s) at zero weight"
+      },
+      "verdict": "agrees",
+      "confidence_delta": -0.05,
+      "comparison": "stance-score: massie|iran_hostilities position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.85, Δ=-0.05 within 0.1",
+      "per_source": [
+        {
+          "type": "resolution text (sponsor)",
+          "date": "2025-06-17",
+          "link": "https://www.govinfo.gov/content/pkg/BILLS-119hconres38ih/html/BILLS-119hconres38ih.htm",
+          "human_weight": "strong",
+          "position": "support",
+          "confidence": 0.8,
+          "confidence_reason": "1 clear medium-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); explicit claim on a primary source reads as a stated position (R8)",
+          "note": "1 clear statement(s) (1 support, 0 oppose), 0 implication(s) (0 support, 0 oppose), 0 mention(s) at zero weight",
+          "statements": [
+            {
+              "kind": "clear",
+              "side": "support",
+              "weight": 0.5,
+              "text": "Directing the President pursuant to section 5(c) of the War Powers Resolution to remove United States Armed Forces from unauthorized hostilities in the Islamic Republic of Iran."
+            }
+          ],
+          "stated_position": true
+        },
+        {
+          "type": "official press release",
+          "date": "2025-06-17",
+          "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395731",
+          "human_weight": "strong",
+          "position": "support",
+          "confidence": 0.8,
+          "confidence_reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6)",
+          "note": "1 clear statement(s) (1 support, 0 oppose), 0 implication(s) (0 support, 0 oppose), 0 mention(s) at zero weight",
+          "statements": [
+            {
+              "kind": "clear",
+              "side": "support",
+              "weight": 1,
+              "text": "Congress has the sole power to declare war against Iran."
+            }
+          ],
+          "stated_position": true
+        }
+      ]
+    },
+    {
+      "stance_id": "sanders|israel_military_aid|gt-006",
+      "politician_id": "sanders",
+      "topic": "israel_military_aid",
+      "previous_topic": "israel_support",
+      "human": {
+        "position": "mixed",
+        "confidence": 0.75,
+        "position_on": "U.S. military support for Israel: opposes certain offensive arms sales; leaves defensive systems alone and affirms Israel's right to self-defense"
+      },
+      "scorer": {
+        "position": "oppose",
+        "confidence": 0.8,
+        "confidence_reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); 3 mention(s) recorded at zero weight (R3)",
+        "note": "1 clear statement(s) (0 support, 1 oppose), 0 implication(s) (0 support, 0 oppose), 3 mention(s) at zero weight"
+      },
+      "verdict": "disagrees",
+      "confidence_delta": 0.05,
+      "comparison": "stance-score: sanders|israel_military_aid position MISMATCH (candidate oppose, ground truth mixed); confidence 0.8 vs 0.75, Δ=+0.05 within 0.1",
+      "per_source": [
+        {
+          "type": "resolution text (sponsor)",
+          "date": "2024-09-25",
+          "link": "https://www.govinfo.gov/content/pkg/BILLS-118sjres111is/html/BILLS-118sjres111is.htm",
+          "human_weight": "strong",
+          "position": "oppose",
+          "confidence": 0.8,
+          "confidence_reason": "1 clear medium-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); explicit claim on a primary source reads as a stated position (R8)",
+          "note": "1 clear statement(s) (0 support, 1 oppose), 0 implication(s) (0 support, 0 oppose), 0 mention(s) at zero weight",
+          "statements": [
+            {
+              "kind": "clear",
+              "side": "oppose",
+              "weight": 0.5,
+              "text": "Providing for congressional disapproval of the proposed foreign military sale to the Government of Israel of certain defense articles and services."
+            }
+          ],
+          "stated_position": true
+        },
+        {
+          "type": "roll-call vote (Senate)",
+          "date": "2024-11-20",
+          "link": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1182/vote_118_2_00292.xml",
+          "human_weight": "strong",
+          "position": "no clear position",
+          "confidence": 0,
+          "confidence_reason": "topic not found in source",
+          "note": "0 clear statement(s) (0 support, 0 oppose), 0 implication(s) (0 support, 0 oppose), 0 mention(s) at zero weight",
+          "statements": []
+        },
+        {
+          "type": "floor speech (prepared remarks, official release)",
+          "date": "2024-11-20",
+          "link": "https://www.sanders.senate.gov/press-releases/prepared-remarks-sanders-speech-on-senate-vote-to-block-offensive-arms-sales-to-israel/",
+          "human_weight": "strong",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "confidence_reason": "1 topic mention(s), none states a clear position (R3)",
+          "note": "0 clear statement(s) (0 support, 0 oppose), 0 implication(s) (0 support, 0 oppose), 1 mention(s) at zero weight",
+          "statements": [
+            {
+              "kind": "mention",
+              "side": null,
+              "weight": 0,
+              "text": "They would not affect any of the systems Israel uses to defend itself from incoming attacks."
+            }
+          ]
+        },
+        {
+          "type": "official press release",
+          "date": "2025-02-24",
+          "link": "https://www.sanders.senate.gov/press-releases/news-sanders-files-joint-resolutions-of-disapproval-to-block-trump-arms-sales-to-israel/",
+          "human_weight": "strong",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "confidence_reason": "2 topic mention(s), none states a clear position (R3)",
+          "note": "0 clear statement(s) (0 support, 0 oppose), 0 implication(s) (0 support, 0 oppose), 2 mention(s) at zero weight",
+          "statements": [
+            {
+              "kind": "mention",
+              "side": null,
+              "weight": 0,
+              "text": "Israel had the right to defend itself against Hamas and respond to the barbaric October 7, 2023, terrorist attack, which killed 1,200 innocent people and took over 240 hostages."
+            },
+            {
+              "kind": "mention",
+              "side": null,
+              "weight": 0,
+              "text": "weaponry to Israel"
+            }
+          ]
+        }
+      ],
+      "also_read": {
+        "israel_offensive_arms": {
+          "position": "no clear position",
+          "confidence": 0.3,
+          "confidence_reason": "5 topic mention(s), none states a clear position (R3)",
+          "note": "0 clear statement(s) (0 support, 0 oppose), 0 implication(s) (0 support, 0 oppose), 5 mention(s) at zero weight",
+          "statements": [
+            {
+              "kind": "mention",
+              "side": null,
+              "weight": 0,
+              "text": "Providing for congressional disapproval of the proposed foreign military sale to the Government of Israel of certain defense articles and services."
+            },
+            {
+              "kind": "mention",
+              "side": null,
+              "weight": 0,
+              "text": "these resolutions are aimed at offensive weapons that have been used to devastating effect against civilians in Gaza and Lebanon."
+            },
+            {
+              "kind": "mention",
+              "side": null,
+              "weight": 0,
+              "text": "They would not affect any of the systems Israel uses to defend itself from incoming attacks."
+            },
+            {
+              "kind": "mention",
+              "side": null,
+              "weight": 0,
+              "text": "Israel had the right to defend itself against Hamas and respond to the barbaric October 7, 2023, terrorist attack, which killed 1,200 innocent people and took over 240 hostages."
+            },
+            {
+              "kind": "mention",
+              "side": null,
+              "weight": 0,
+              "text": "weaponry to Israel"
+            }
+          ]
+        },
+        "israel_defensive_systems": {
+          "position": "no clear position",
+          "confidence": 0.3,
+          "confidence_reason": "2 topic mention(s), none states a clear position (R3)",
+          "note": "0 clear statement(s) (0 support, 0 oppose), 0 implication(s) (0 support, 0 oppose), 2 mention(s) at zero weight",
+          "statements": [
+            {
+              "kind": "mention",
+              "side": null,
+              "weight": 0,
+              "text": "They would not affect any of the systems Israel uses to defend itself from incoming attacks."
+            },
+            {
+              "kind": "mention",
+              "side": null,
+              "weight": 0,
+              "text": "Israel had the right to defend itself against Hamas and respond to the barbaric October 7, 2023, terrorist attack, which killed 1,200 innocent people and took over 240 hostages."
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
