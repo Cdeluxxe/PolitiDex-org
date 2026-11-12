@@ -2,7 +2,7 @@
 // test-person-directional-keys.mjs — the person-file section for directional-key
 // bill matches and stance-scorer reads (person-directional-keys.js / .json).
 //   · the table is current with the finder and scorer code, and names only the
-//     seventeen keys with a pattern;
+//     twenty-five keys with a pattern;
 //   · Massie: H.R. 8035 / H.R. 7691 → ukraine_aid, H.Con.Res. 38 → iran_hostilities;
 //     scorer reads ukraine_aid oppose and iran_hostilities support;
 //   · Sanders: Israel bills → israel_offensive_arms only; scorer read on that key;
@@ -10,7 +10,8 @@
 //     table on their record's key, with the scorer's read (agree or not), and
 //     so are the thirteen second-pass people (cut_spending, healthcare,
 //     school_choice, energy_production), and the twenty-nine third-pass people
-//     on the eight v7 keys — fifty people with rows in all;
+//     on the eight v7 keys, and the thirty fourth-pass people on the eight v8
+//     keys — eighty people with rows in all;
 //   · the section renders for people with rows and is absent for everyone else;
 //   · wording is plain: no partnership, equity or "coming later" language;
 //   · person-bills.js loads it; person.html and the precache list are unchanged,
@@ -29,7 +30,8 @@ let failures = 0;
 const t = (name, fn) => { try { fn(); console.log('  ✓', name); } catch (e) { failures++; console.error('  ✗', name, '\n    ', e.message); } };
 const data = JSON.parse(R('person-directional-keys.json'));
 const KEYS = ['israel_offensive_arms', 'ukraine_aid', 'iran_hostilities', 'tariffs_china', 'border_security', 'energy_production', 'school_choice', 'healthcare', 'cut_spending',
-  'climate_action', 'gun_safety', 'pro_choice', 'voting_access', 'housing', 'econ_trade', 'econ_workers', 'justice_reform'];
+  'climate_action', 'gun_safety', 'pro_choice', 'voting_access', 'housing', 'econ_trade', 'econ_workers', 'justice_reform',
+  'social_security', 'veterans', 'rural_ag', 'privacy_rights', 'health_drug_prices', 'back_police', 'edu_college_cost', 'lands_preserve'];
 
 // ── A minimal DOM, enough for mount / fill ──────────────────────────────────
 function el(tag, cls) {
@@ -63,7 +65,7 @@ function boot(pid, stages = ['explore', 'record']) {
 }
 const tick = () => new Promise((r) => setTimeout(r, 0));
 
-t('the table is current with the finder and scorer, and names only the seventeen keys with a pattern', () => {
+t('the table is current with the finder and scorer, and names only the twenty-five keys with a pattern', () => {
   execFileSync(process.execPath, [path.join(root, 'scripts/gen-person-directional-keys.mjs'), '--check'], { stdio: 'pipe' });
   assert.deepEqual(Object.keys(data.keys), KEYS);
   for (const p of Object.values(data.people)) for (const x of [...p.mappings, ...p.stances]) assert.ok(KEYS.includes(x.key), x.key);
@@ -90,10 +92,12 @@ const SECOND = ['french_hill', 'bruce_westerman', 'frank_lucas', 'mariannette_mi
 const FIRST21 = ['aoc', 'bennie_thompson', 'bruce_westerman', 'cotton', 'cruz', 'frank_lucas', 'french_hill', 'james_talarico', 'jason_smith',
   'jayapal', 'kclark', 'khanna', 'mariannette_miller_meeks', 'massie', 'maxine_waters', 'michael_guest', 'murkowski', 'owens', 'rick_crawford', 'sanders', 'tlaib'];
 const THIRD = ['heinrich', 'lujan', 'hickenlooper', 'robert_garcia', 'boebert', 'scalise', 'fitzpatrick', 'steve_womack', 'dina_titus', 'diana_degette', 'mike_flood', 'mike_simpson', 'emmer', 'stephanie_bice', 'tom_cole', 'adam_smith', 'haley_stevens', 'marie_gluesenkamp_perez', 'aguilar', 'ayanna_pressley', 'delia_ramirez', 'jared_golden', 'brendan_boyle', 'casar', 'bobby_scott', 'nadler', 'walberg', 'neal', 'steven_horsford'];
-t('only people with rows are in the table: 50 — the 21 from earlier passes and 29 new third-pass people (at least forty-six)', () => {
-  assert.deepEqual(Object.keys(data.people), [...FIRST21, ...THIRD].sort());
+const FOURTH = ['joe_courtney', 'mike_lawler', 'debbie_dingell', 'takano', 'mike_bost', 'pat_harrigan', 'zach_nunn', 'don_davis', 'julie_fedorchak', 'rob_bresnahan', 'zoe_lofgren', 'jan_schakowsky', 'pallone', 'delbene', 'rick_larsen', 'delauro', 'josh_gottheimer', 'susie_lee', 'mike_ezell', 'stefanik', 'ryan_mackenzie', 'omar', 'maxwell_frost', 'summer_lee', 'bryan_steil', 'mcclain', 'gabe_vasquez', 'jared_huffman', 'neguse', 'russ_fulcher'];
+t('only people with rows are in the table: 80 — 21 from the first passes, 29 third-pass and 30 fourth-pass people (at least eighty)', () => {
+  assert.deepEqual(Object.keys(data.people), [...FIRST21, ...THIRD, ...FOURTH].sort());
   assert.equal(THIRD.length, 29);
-  assert.ok(Object.keys(data.people).length >= 46);
+  assert.equal(FOURTH.length, 30);
+  assert.ok(Object.keys(data.people).length >= 80);
   // Talarico and Sanders join on their locked school_choice / healthcare records, now on mapped keys.
   assert.deepEqual(data.people.james_talarico.stances.map((x) => [x.key, x.position]), [['school_choice', 'oppose']]);
   assert.deepEqual(data.people.sanders.stances.map((x) => [x.key, x.position]), [['israel_offensive_arms', 'oppose'], ['healthcare', 'support']]);
@@ -134,7 +138,7 @@ t('expansion people: each on their record key, with bill matches where the sourc
     assert.equal(st.position, r.scorer.position, r.stance_id);
     assert.equal(st.confidence, r.scorer.confidence, r.stance_id);
   }
-  assert.deepEqual(rep.records.filter((r) => r.scorer_agrees && !THIRD.includes(r.politician_id)).map((r) => r.stance_id), ['michael_guest|border_security|gt-009',
+  assert.deepEqual(rep.records.filter((r) => r.scorer_agrees && !THIRD.includes(r.politician_id) && !FOURTH.includes(r.politician_id)).map((r) => r.stance_id), ['michael_guest|border_security|gt-009',
     'french_hill|cut_spending|gt-012', 'bruce_westerman|cut_spending|gt-013', 'frank_lucas|cut_spending|gt-014', 'mariannette_miller_meeks|cut_spending|gt-015',
     'jayapal|healthcare|gt-022', 'jason_smith|cut_spending|gt-024']);
   execFileSync(process.execPath, [path.join(root, 'scripts/rescore-ground-truth-expansion-2026-11.mjs'), '--check'], { stdio: 'pipe' });
@@ -381,6 +385,243 @@ t('third-pass people: each on their v7 record key, bills where the source names 
   // Agreement is recorded as it is; nothing was tuned to raise it.
   assert.deepEqual(third.filter((r) => r.scorer_agrees).map((r) => r.stance_id), ["heinrich|climate_action|gt-025", "lujan|climate_action|gt-026", "robert_garcia|climate_action|gt-028", "fitzpatrick|gun_safety|gt-031", "dina_titus|pro_choice|gt-033", "mike_simpson|pro_choice|gt-036", "adam_smith|voting_access|gt-040", "haley_stevens|voting_access|gt-041", "aguilar|housing|gt-043", "ayanna_pressley|housing|gt-044", "jared_golden|econ_workers|gt-046", "brendan_boyle|econ_workers|gt-047", "bobby_scott|justice_reform|gt-049", "nadler|justice_reform|gt-050"]);
 });
+t('fourth-pass people: each on their v8 record key, bills where the source names one, the scorer read as it is (agree or not)', () => {
+  const P = data.people;
+  const rows = Object.fromEntries(FOURTH.map((pid) => [pid, [P[pid].mappings.map((x) => `${x.bill || x.name}→${x.key}`), P[pid].stances.map((x) => `${x.key}:${x.position}`)]]));
+  assert.deepEqual(rows, {
+      "joe_courtney": [
+          [
+              "H.R. 82→social_security"
+          ],
+          [
+              "social_security:no clear position"
+          ]
+      ],
+      "mike_lawler": [
+          [
+              "H.R. 82→social_security"
+          ],
+          [
+              "social_security:support"
+          ]
+      ],
+      "debbie_dingell": [
+          [],
+          [
+              "social_security:support"
+          ]
+      ],
+      "takano": [
+          [
+              "H.R. 3967→veterans"
+          ],
+          [
+              "veterans:support"
+          ]
+      ],
+      "mike_bost": [
+          [
+              "SFC Heath Robinson Honoring Our PACT Act→veterans"
+          ],
+          [
+              "veterans:support"
+          ]
+      ],
+      "pat_harrigan": [
+          [
+              "H.R. 8469→veterans"
+          ],
+          [
+              "veterans:support"
+          ]
+      ],
+      "zach_nunn": [
+          [
+              "H.R. 7567→rural_ag"
+          ],
+          [
+              "rural_ag:support"
+          ]
+      ],
+      "don_davis": [
+          [
+              "H.R. 7567→rural_ag"
+          ],
+          [
+              "rural_ag:no clear position"
+          ]
+      ],
+      "julie_fedorchak": [
+          [
+              "H.R. 7567→rural_ag"
+          ],
+          [
+              "rural_ag:support"
+          ]
+      ],
+      "rob_bresnahan": [
+          [
+              "H.R. 7567→rural_ag"
+          ],
+          [
+              "rural_ag:no clear position"
+          ]
+      ],
+      "zoe_lofgren": [
+          [
+              "Government Surveillance Reform Act→privacy_rights"
+          ],
+          [
+              "privacy_rights:no clear position"
+          ]
+      ],
+      "jan_schakowsky": [
+          [
+              "Banning Surveillance Advertising Act→privacy_rights"
+          ],
+          [
+              "privacy_rights:support"
+          ]
+      ],
+      "pallone": [
+          [
+              "H.R. 5376→health_drug_prices"
+          ],
+          [
+              "health_drug_prices:support"
+          ]
+      ],
+      "delbene": [
+          [
+              "H.R. 5376→health_drug_prices"
+          ],
+          [
+              "health_drug_prices:no clear position"
+          ]
+      ],
+      "rick_larsen": [
+          [
+              "H.R. 5376→health_drug_prices"
+          ],
+          [
+              "health_drug_prices:no clear position"
+          ]
+      ],
+      "delauro": [
+          [
+              "H.R. 5376→health_drug_prices"
+          ],
+          [
+              "health_drug_prices:no clear position"
+          ]
+      ],
+      "josh_gottheimer": [
+          [
+              "Invest to Protect Act→back_police"
+          ],
+          [
+              "back_police:no clear position"
+          ]
+      ],
+      "susie_lee": [
+          [
+              "Invest to Protect Act→back_police"
+          ],
+          [
+              "back_police:support"
+          ]
+      ],
+      "mike_ezell": [
+          [],
+          [
+              "back_police:no clear position"
+          ]
+      ],
+      "stefanik": [
+          [],
+          [
+              "back_police:support"
+          ]
+      ],
+      "ryan_mackenzie": [
+          [],
+          [
+              "back_police:support"
+          ]
+      ],
+      "omar": [
+          [],
+          [
+              "edu_college_cost:support"
+          ]
+      ],
+      "maxwell_frost": [
+          [],
+          [
+              "edu_college_cost:no clear position"
+          ]
+      ],
+      "summer_lee": [
+          [
+              "H.J.Res. 45→edu_college_cost"
+          ],
+          [
+              "edu_college_cost:no clear position"
+          ]
+      ],
+      "bryan_steil": [
+          [],
+          [
+              "edu_college_cost:support"
+          ]
+      ],
+      "mcclain": [
+          [],
+          [
+              "edu_college_cost:no clear position"
+          ]
+      ],
+      "gabe_vasquez": [
+          [
+              "Public Lands in Public Hands Act→lands_preserve"
+          ],
+          [
+              "lands_preserve:support"
+          ]
+      ],
+      "jared_huffman": [
+          [
+              "Great American Outdoors Act→lands_preserve"
+          ],
+          [
+              "lands_preserve:no clear position"
+          ]
+      ],
+      "neguse": [
+          [],
+          [
+              "lands_preserve:no clear position"
+          ]
+      ],
+      "russ_fulcher": [
+          [
+              "H.R. 803→lands_preserve"
+          ],
+          [
+              "lands_preserve:support"
+          ]
+      ]
+  });
+  const rep = JSON.parse(R('db/rescore-ground-truth-expansion-2026-11.json'));
+  const fourth = rep.records.filter((r) => FOURTH.includes(r.politician_id));
+  assert.equal(fourth.length, 30);
+  for (const r of fourth) {
+    assert.ok(KEYS.slice(17).includes(r.topic), r.stance_id);
+    assert.equal(P[r.politician_id].stances.find((x) => x.key === r.topic).position, r.scorer.position, r.stance_id);
+  }
+  // Agreement is recorded as it is; nothing was tuned to raise it.
+  assert.deepEqual(fourth.filter((r) => r.scorer_agrees).map((r) => r.stance_id), ["mike_lawler|social_security|gt-055", "debbie_dingell|social_security|gt-056", "takano|veterans|gt-057", "mike_bost|veterans|gt-058", "pat_harrigan|veterans|gt-059", "zach_nunn|rural_ag|gt-060", "julie_fedorchak|rural_ag|gt-062", "jan_schakowsky|privacy_rights|gt-065", "pallone|health_drug_prices|gt-066", "susie_lee|back_police|gt-071", "stefanik|back_police|gt-073", "ryan_mackenzie|back_police|gt-074", "omar|edu_college_cost|gt-075", "gabe_vasquez|lands_preserve|gt-080"]);
+});
 t('the scorer reads in the table match a fresh scorer read; ground-truth labels are unchanged', () => {
   const gt = JSON.parse(R('db/stance-ground-truth-talarico-cost-of-living.json'));
   assert.deepEqual([gt, ...gt.additional_records].map((r) => [r.stance_id, r.position, r.confidence]), [
@@ -412,12 +653,12 @@ at('the section renders for Sanders with the Israel rows only', async () => {
   assert.ok(h.includes('Offensive Arms Sales to Israel') && h.includes('One of') && h.includes('S.J.Res. 33') && h.includes('Floor speech (prepared remarks, official release), 2024-11-20'));
   assert.ok(!h.includes('Further U.S. Aid to Ukraine</span>') && !h.includes('Hostilities with Iran</span>'));
 });
-at('the heading counts and names the seventeen keys from the table; Guest’s border row renders', async () => {
+at('the heading counts and names the twenty-five keys from the table; Guest’s border row renders', async () => {
   const { body } = boot('michael_guest');
   await tick(); await tick();
   const h = find(body, '#pdx-dirkeys').innerHTML;
-  assert.ok(h.includes('Bills and stances on seventeen directional issues'));
-  assert.ok(h.includes('on seventeen issues only: Offensive Arms Sales to Israel, Further U.S. Aid to Ukraine, Congress Must Authorize Hostilities with Iran, Tariffs on China &amp; Unfair Trade, Strong Border &amp; Enforcement, Expand Domestic Energy Production, School Choice &amp; Education Freedom, Expand Healthcare Access, Cut Federal Spending &amp; Reduce Debt, Climate Action &amp; Clean Energy, Stronger Gun Safety Laws, Protect Reproductive Rights, Expand Voting Access, Housing Affordability, Protect American Jobs, Raise Wages &amp; Protect Workers, and Criminal Justice Reform.'));
+  assert.ok(h.includes('Bills and stances on twenty-five directional issues'));
+  assert.ok(h.includes('on twenty-five issues only: Offensive Arms Sales to Israel, Further U.S. Aid to Ukraine, Congress Must Authorize Hostilities with Iran, Tariffs on China &amp; Unfair Trade, Strong Border &amp; Enforcement, Expand Domestic Energy Production, School Choice &amp; Education Freedom, Expand Healthcare Access, Cut Federal Spending &amp; Reduce Debt, Climate Action &amp; Clean Energy, Stronger Gun Safety Laws, Protect Reproductive Rights, Expand Voting Access, Housing Affordability, Protect American Jobs, Raise Wages &amp; Protect Workers, Criminal Justice Reform, Protect Social Security &amp; Medicare, Take Care of Veterans, Farmers &amp; Rural Communities, Privacy &amp; Big-Tech Accountability, Lower Prescription Drug Prices, Back Law Enforcement, Lower College &amp; Trade Costs, and Protect Public Lands.'));
   // The count comes from the table, not a fixed word.
   const { api } = boot('michael_guest');
   const two = { ...data, keys: Object.fromEntries(Object.entries(data.keys).slice(0, 2)) };
@@ -427,7 +668,7 @@ at('the heading counts and names the seventeen keys from the table; Guest’s bo
   const c = find(t2.body, '#pdx-dirkeys').innerHTML;
   assert.ok(c.includes('Educational Choice for Children Act</span> <span class="pdx-dk-note">(named by title; no bill number in the source)</span>'));
   assert.ok(!c.includes('One of </'), 'a title-only bill is not shown as an empty "One of"');
-  for (const pid of ['owens', 'rick_crawford', 'tlaib', 'cotton', ...SECOND, ...THIRD]) {
+  for (const pid of ['owens', 'rick_crawford', 'tlaib', 'cotton', ...SECOND, ...THIRD, ...FOURTH]) {
     const r = boot(pid); await tick(); await tick();
     const x = find(r.body, '#pdx-dirkeys');
     assert.ok(x && !x.hidden && x.innerHTML.includes('Stance scorer reads'), pid);

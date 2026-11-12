@@ -37,7 +37,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 import { extractSentenceBlocks, subjectSpans, spanScopeFor, TRANSITION } from "./stance-score-core.mjs";
 
-export const FINDER_VERSION = "bill-finder-v3";
+export const FINDER_VERSION = "bill-finder-v4";
 
 // ─── Bill numbers ───────────────────────────────────────────────────────────
 // Single letters are upper-case only; the word parts (Con, Res, Amdt) match any
@@ -132,14 +132,19 @@ export function catalogFromBillDocs(billDocs) {
   const byId = new Map(rows.map((r) => [r.id, r]));
   const groups = new Map();
   for (const r of rows) {
-    const t = r.title.trim();
+    // v4: a short title with a trailing note ("Farm, Food, and National Security
+    // Act (2026 Farm Bill, House)") is read without the note; a year in the note
+    // is the title's year.
+    const note = /^(.*\bAct)\s*\(([^()]*)\)$/.exec(r.title.trim());
+    const t = note ? note[1] : r.title.trim();
+    const noteYear = note ? (/\b((?:19|20)\d\d)\b/.exec(note[2]) || [])[1] || null : null;
     if (!t || LONG_TITLE.test(t) || t.includes(" — ") || t.length > 120 || t.split(/\s+/).length < 2) continue;
     const ym = TITLE_YEAR.exec(t);
     const base = ym ? t.slice(0, ym.index) : t;
     if (base.split(/\s+/).length < 2) continue;
     const k = base.toLowerCase();
     if (!groups.has(k)) groups.set(k, { base, re: new RegExp(`(?<![\\w])${escRe(base).replace(/\\ |\s+/g, "\\s+")}(?:,?\\s+(?:of\\s+)?(\\d{4}))?(?![\\w])`, "i"), rows: [] });
-    groups.get(k).rows.push({ ...r, year: ym ? ym[1] : null });
+    groups.get(k).rows.push({ ...r, year: ym ? ym[1] : noteYear });
   }
   return { rows, byId, shortTitles: [...groups.values()] };
 }

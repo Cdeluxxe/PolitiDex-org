@@ -1,5 +1,5 @@
 {
-  "_note": "Ground-truth stance records added in the expansion passes (2026-11-12): one human label per person on one of the keys that have a bill mapping pattern (israel_offensive_arms, ukraine_aid, iran_hostilities, tariffs_china, border_security; second pass: energy_production, school_choice, healthcare, cut_spending; third pass: climate_action, gun_safety, pro_choice, voting_access, housing, econ_workers, justice_reform, econ_trade). Same fields as the six locked records in db/stance-ground-truth-talarico-cost-of-living.json, which this file does not change. Each excerpt is quoted verbatim from the linked first-party page; fragments are separated by \" ... \".",
+  "_note": "Ground-truth stance records added in the expansion passes (2026-11-12): one human label per person on one of the keys that have a bill mapping pattern (israel_offensive_arms, ukraine_aid, iran_hostilities, tariffs_china, border_security; second pass: energy_production, school_choice, healthcare, cut_spending; third pass: climate_action, gun_safety, pro_choice, voting_access, housing, econ_workers, justice_reform, econ_trade; fourth pass: social_security, veterans, rural_ag, privacy_rights, health_drug_prices, back_police, edu_college_cost, lands_preserve). Same fields as the six locked records in db/stance-ground-truth-talarico-cost-of-living.json, which this file does not change. Each excerpt is quoted verbatim from the linked first-party page; fragments are separated by \" ... \".",
   "records": [
     {
       "stance_id": "owens|ukraine_aid|gt-007",
@@ -1120,6 +1120,726 @@
           "excerpt": "\"Washington, D.C. — Today, December 17, 2019, Congressman Steven Horsford (NV-04) spoke in support of H.R. 5430, legislation to implement the Agreement between the United States of America, the United Mexican States, and Canada (USMCA) in the Ways and Means Committee mark-up of the legislation.\" ... \"The Congressman worked within the Committee to ensure that important worker protections were included in the final agreement.\"",
           "weight": "moderate",
           "note": "Read directly on 2026-11-12. First-party release; H.R. 5430 is a 116th Congress bill.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "joe_courtney|social_security|gt-054",
+      "politician_id": "joe_courtney",
+      "topic": "social_security",
+      "position": "support",
+      "position_on": "protecting Social Security benefits and the Social Security Fairness Act (February 2025)",
+      "confidence": 0.8,
+      "confidence_reason": "In his own words he calls a cut to the agency's workforce an attack on earned benefits and says he championed the Social Security Fairness Act; the statement is about staffing, so 0.8.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2025-02-28",
+          "link": "https://courtney.house.gov/media-center/press-releases/rep-courtney-statement-president-trumps-plan-slash-social-security",
+          "excerpt": "\"“The dedicated workforce at Social Security Administration field offices across the nation help seniors, people with disabilities, and survivors whose parents have died access the benefits they are owed. President Trump’s plan to fire 50% of the Administration’s workforce is an attack on Americans’ earned benefits and would completely degrade the critical services communities need.\" ... \"“A workforce cut would also undoubtedly delay the benefits promised to the millions of public servants after Congress repealed the GPO and WEP through the Social Security Fairness Act . The bill—which I championed since my first term in Congress – was a triumph for millions of teachers, fire fighters, police officers, and other public servants.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release. The Social Security Fairness Act is H.R. 82 (118th Congress); the page names it by title only.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "mike_lawler|social_security|gt-055",
+      "politician_id": "mike_lawler",
+      "topic": "social_security",
+      "position": "support",
+      "position_on": "protecting Social Security and the Social Security Fairness Act (August 2025)",
+      "confidence": 0.85,
+      "confidence_reason": "He says in his own words he cosponsored the Social Security Fairness Act, will never vote to cut benefits and does not support privatizing the program.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2025-08-14",
+          "link": "https://lawler.house.gov/news/documentsingle.aspx?DocumentID=4628",
+          "excerpt": "\"Last Congress, I was proud to cosponsor the bipartisan Social Security Fairness Act, which repeals the Windfall Elimination Provision (WEP) and Government Pension Offset (GPO) and ensures the program treats all retirees fairly, strengthening its long-term stability. This bill was signed into law in January 2025.\" ... \"Protecting Social Security has always been one of my top priorities in Congress. I will never vote to cut benefits, and I do not support privatizing the program.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release; H.R. 82 (118th) named by title only.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "debbie_dingell|social_security|gt-056",
+      "politician_id": "debbie_dingell",
+      "topic": "social_security",
+      "position": "support",
+      "position_on": "strengthening and expanding Social Security (Social Security 2100 Act, August 2024)",
+      "confidence": 0.85,
+      "confidence_reason": "Her release quotes her on Social Security's promise and says she introduced the Social Security 2100 Act to raise benefits and repeal the WEP and GPO.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2024-08-14",
+          "link": "https://debbiedingell.house.gov/news/documentsingle.aspx?DocumentID=5225",
+          "excerpt": "\"“Social Security was created on the promise that no American will grow poor into retirement - a promise of economic security and dignity after a lifetime of hard work, and a promise to make sure no one is left behind as they age,” Dingell said.\" ... \"As co-chair of the Expand Social Security Caucus and Vice Chair of the House Democratic Caucus Task Force on Aging and Families, Rep. Dingell has long been an advocate for strengthening and expanding Social Security. She introduced the Social Security 2100 Act with her colleagues to provide an across-the-board benefit increase for the first time in more than 50 years, improve the annual Cost-of-Living Adjustment (COLA), repeal the Windfall Elimination Provision (WEP) and Government Pension Offset (GPO)\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release. The Social Security 2100 Act is named by title only.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "takano|veterans|gt-057",
+      "politician_id": "takano",
+      "topic": "veterans",
+      "position": "support",
+      "position_on": "the Honoring our PACT Act (H.R. 3967, March 2022)",
+      "confidence": 0.85,
+      "confidence_reason": "His own bill, H.R. 3967, passed the House, and he says in his own words it keeps the promise to toxic-exposed veterans.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2022-03-03",
+          "link": "https://takano.house.gov/newsroom/press-releases/rep-mark-takanos-comprehensive-honoring-our-pact-act-passes-the-house",
+          "excerpt": "\"Washington, DC – Today, Rep. Mark Takano (D-Calif.), Chairman of the House Committee on Veterans’ Affairs, made the following statement after his comprehensive bill, H.R. 3967, as amended, the Honoring our Promise to Address Comprehensive Toxics Act of 2021 or Honoring our PACT Act , passed the House of Representatives with a bipartisan vote of 256-174.\" ... \"“For too long, Congress and VA have been slow to act on toxic exposure—but today, the House took a bipartisan vote to change that and finally make good on our promise to toxic-exposed veterans by passing my Honoring our PACT Act, ” said Rep. Takano .\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release; H.R. 3967 is a 117th Congress bill (the enacted PACT Act is S. 3373).",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "mike_bost|veterans|gt-058",
+      "politician_id": "mike_bost",
+      "topic": "veterans",
+      "position": "support",
+      "position_on": "the SFC Heath Robinson Honoring Our PACT Act (July 2022)",
+      "confidence": 0.85,
+      "confidence_reason": "He voted for the PACT Act and says in his own words it will expand health care and disability benefits to toxic-exposed veterans.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2022-07-13",
+          "link": "https://bost.house.gov/press-releases?ID=C65EFC49-C6FF-4959-B7D1-8900C365A982",
+          "excerpt": "\"WASHINGTON, DC – U.S. Representative Mike Bost (IL-12) tonight voted in support of legislation to connect toxic-exposed veterans and their survivors with the health care and benefits they have earned. The SFC Heath Robinson Honoring Our PACT Act passed the House on a bipartisan basis and now heads to the Senate for consideration.\" ... \"“Since 9/11, an estimated 3.5 million servicemembers were exposed to burn pits and other dangerous substances in service to our nation,” said Bost. “This bill is for them and the survivors they left behind. The PACT Act will expand health care and disability benefits to toxic-exposed veterans and equip VA to take better care of them and their loved ones.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release. The enacted PACT Act is S. 3373 (117th Congress); the page names it by title only.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "pat_harrigan|veterans|gt-059",
+      "politician_id": "pat_harrigan",
+      "topic": "veterans",
+      "position": "support",
+      "position_on": "FY2027 military construction and veterans appropriations (H.R. 8469, May 2026)",
+      "confidence": 0.8,
+      "confidence_reason": "He voted for H.R. 8469 and says in his own words veterans have earned the healthcare it funds; an appropriations bill that also funds bases, so 0.8.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2026-05-15",
+          "link": "https://harrigan.house.gov/media/press-releases/congressman-pat-harrigan-votes-fund-military-construction-and-veterans",
+          "excerpt": "\"WASHINGTON, D.C.— Today, Congressman Pat Harrigan (NC-10) voted in favor of H.R. 8469 , the Military Construction, Veterans Affairs, and Related Agencies Appropriations Act of 2027, legislation providing full-year funding for military installations, veterans healthcare, and benefits for fiscal year 2027.\" ... \"\"The men and women who served this country have earned every dollar in this bill and I was proud to cast this vote,\" said Congressman Harrigan. \"We ask our troops to be ready to fight and our veterans to live with what that costs them. The least we can do is make sure their bases are funded, their families are taken care of, and their healthcare is there when they need it. That is a promise we made and this bill keeps it.\"\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release; H.R. 8469 is a 119th Congress bill.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "zach_nunn|rural_ag|gt-060",
+      "politician_id": "zach_nunn",
+      "topic": "rural_ag",
+      "position": "support",
+      "position_on": "the Farm, Food, and National Security Act of 2026 (House passage, April 2026)",
+      "confidence": 0.85,
+      "confidence_reason": "He voted for the farm bill and says in his own words it delivers for Iowa farmers and that farmers need certainty now.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2026-04-30",
+          "link": "https://nunn.house.gov/2026/04/30/farm-bill-passes-u-s-house-with-21-priorities-secured-by-rep-nunn/",
+          "excerpt": "\"WASHINGTON, D.C. — Representative Zach Nunn (IA-03) today released the following statement after the U.S. House of Representatives passed the Farm, Food, and National Security Act of 2026 in a bipartisan vote of 224-200. The legislation includes 21 priorities championed by Rep. Nunn to support Iowa farmers, producers, and rural communities.\" ... \"“I fought to make sure this bill got across the finish line because Iowa farmers need certainty now — not another year of delay,” continued Rep. Nunn .\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release. The bill is H.R. 7567 (119th Congress), named by title only.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "don_davis|rural_ag|gt-061",
+      "politician_id": "don_davis",
+      "topic": "rural_ag",
+      "position": "support",
+      "position_on": "the Farm, Food, and National Security Act of 2026 (H.R. 7567, April 2026)",
+      "confidence": 0.8,
+      "confidence_reason": "He voted for H.R. 7567 and says in his own words a farm bill matters for farmers under pressure; he calls it not perfect, so 0.8.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2026-04-30",
+          "link": "https://dondavis.house.gov/media/press-releases/congressman-don-davis-votes-advance-bipartisan-farm-bill-eastern-north",
+          "excerpt": "\"Washington, D.C. — Congressman Don Davis (NC-01) stood with eastern North Carolina farmers and voted in support of H.R. 7567, the Farm, Food, and National Security Act of 2026 , which passed the House by a bipartisan vote of 224 to 200.\" ... \"While not perfect, the Farm, Food, and National Security Act of 2026 (H.R. 7567) provides necessary support: expanding access to risk management tools, opening new markets through trade promotion, strengthening support for specialty crop growers, and improving access to credit and loans.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release; H.R. 7567 is a 119th Congress bill.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "julie_fedorchak|rural_ag|gt-062",
+      "politician_id": "julie_fedorchak",
+      "topic": "rural_ag",
+      "position": "support",
+      "position_on": "the Farm, Food, and National Security Act of 2026 (April 2026)",
+      "confidence": 0.85,
+      "confidence_reason": "She voted for the farm bill and says in her own words it strengthens the farm safety net and gives producers certainty.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2026-04-30",
+          "link": "https://fedorchak.house.gov/media/press-releases/fedorchak-helps-advance-farm-bill-deliver-certainty-north-dakota-producers",
+          "excerpt": "\"Washington, D.C. – Congresswoman Julie Fedorchak (R-ND) today voted in favor of the Farm, Food, and National Security Act of 2026 , comprehensive legislation to strengthen the farm safety net, expand access to credit, and deliver long-term certainty for North Dakota’s farmers and ranchers.\" ... \"“Our producers need certainty, not short-term extensions, and this bill delivers. It strengthens the farm safety net, locks in key improvements we’ve fought for, and gives farmers and ranchers the tools they need to manage risk, invest in their operations, and plan for the future.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release; H.R. 7567 (119th) named by title only.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "rob_bresnahan|rural_ag|gt-063",
+      "politician_id": "rob_bresnahan",
+      "topic": "rural_ag",
+      "position": "support",
+      "position_on": "the 2026 farm bill and his Local Farmers Feeding our Communities Act (committee passage, March 2026)",
+      "confidence": 0.8,
+      "confidence_reason": "He says in his own words farm policy must work for those who grow the nation's food and that the farm bill will strengthen agriculture; a committee-stage release, so 0.8.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2026-03-05",
+          "link": "https://bresnahan.house.gov/media/press-releases/bresnahans-local-farmers-feeding-our-communities-act-advances-house-farm-bill",
+          "excerpt": "\"WASHINGTON, DC: Today, U.S. Representative Rob Bresnahan, Jr. (PA-08) and the House Committee on Agriculture passed the Farm, Food, and National Security Act of 2026, this year’s Farm Bill, by a bipartisan vote of 34-17.\" ... \"“Congress has a responsibility to ensure farm policy works for those who grow, raise, and produce our nation’s food,” said Rep. Bresnahan.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release. The farm bill is H.R. 7567 (119th); his bill is named by title only.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "zoe_lofgren|privacy_rights|gt-064",
+      "politician_id": "zoe_lofgren",
+      "topic": "privacy_rights",
+      "position": "support",
+      "position_on": "the Government Surveillance Reform Act (March 2026)",
+      "confidence": 0.85,
+      "confidence_reason": "She introduces a bill to end warrantless government access to Americans' data and says in her own words unchecked access threatens their privacy.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2026-03-13",
+          "link": "https://lofgren.house.gov/media/press-releases/lofgren-davidson-wyden-and-lee-introduce-bipartisan-fisa-reform-bill-protect",
+          "excerpt": "\"WASHINGTON, DC — Rep. Zoe Lofgren (D-CA), Rep. Warren Davidson (R-OH), Sen. Ron Wyden (D-OR), and Mike Lee (R-UT), yesterday introduced an updated version of the Government Surveillance Reform Act to enact new protections for Americans’ rights, including stopping the federal government from buying data on Americans from shady data brokers, while reauthorizing and reforming Section 702 of the Foreign Intelligence Surveillance Act (FISA).\" ... \"“Now more than ever, unchecked government access to Americans’ personal information threatens their privacy, their civil liberties, and our democracy,” Rep. Lofgren said. “Congress should not reauthorize broad domestic surveillance authorities without putting meaningful safeguards in place.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release; only her own quote is excerpted. The bill is named by title only.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "jan_schakowsky|privacy_rights|gt-065",
+      "politician_id": "jan_schakowsky",
+      "topic": "privacy_rights",
+      "position": "support",
+      "position_on": "the Banning Surveillance Advertising Act (January 2022)",
+      "confidence": 0.85,
+      "confidence_reason": "She introduces a bill to stop ad networks using personal data to target ads and says in her own words surveillance advertising violates people's privacy.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2022-01-18",
+          "link": "https://schakowsky.house.gov/media/press-releases/schakowsky-eshoo-booker-introduce-bill-ban-surveillance-advertising",
+          "excerpt": "\"WASHINGTON – Today, Congresswomen Jan Schakowsky (D-IL) and Anna G. Eshoo (D-CA) and Senator Cory Booker (D-NJ) introduced the Banning Surveillance Advertising Act , legislation that prohibits advertising networks and facilitators from using personal data to target advertisements\" ... \"\"Surveillance advertising is at the heart of every exploitative online business model that exacerbates manipulation, discrimination, misinformation, extremism, and fundamentally violates people's privacy in ways they would never choose if given a true choice.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release; only her own quote is excerpted. The bill is named by title only.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "pallone|health_drug_prices|gt-066",
+      "politician_id": "pallone",
+      "topic": "health_drug_prices",
+      "position": "support",
+      "position_on": "Medicare drug price negotiation under the Inflation Reduction Act (August 2023)",
+      "confidence": 0.9,
+      "confidence_reason": "In his own words he backs Medicare negotiating lower drug prices, the $35 insulin cap and penalties on price hikes.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2023-08-30",
+          "link": "https://pallone.house.gov/media/press-releases/pallone-applauds-biden-administrations-announcement-medicare-drug-price",
+          "excerpt": "\"Energy and Commerce Committee Ranking Member Frank Pallone, Jr. (D-NJ) released the following statement today after the Biden Administration announced the first ten drugs that the Centers for Medicare & Medicaid Services (CMS) will negotiate lower prices for using its new authorities under the Inflation Reduction Act:\" ... \"“This announcement is part of Democrats’ ongoing effort to lower prescription drug prices and cap seniors’ Medicare Part D out-of-pocket spending. Seniors are already benefiting from the Inflation Reduction Act’s monthly $35 cap on insulin and penalties to pharmaceutical companies for raising prices faster than inflation. Democrats are committed to reining in the excesses of the pharmaceutical industry and lowering prescription drug prices for the American people, and today’s announcement is a major step in that effort.”\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release. The Inflation Reduction Act is H.R. 5376 (117th), named by title only.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "delbene|health_drug_prices|gt-067",
+      "politician_id": "delbene",
+      "topic": "health_drug_prices",
+      "position": "support",
+      "position_on": "Medicare drug price negotiation under the Inflation Reduction Act (August 2024)",
+      "confidence": 0.75,
+      "confidence_reason": "Her release celebrates the first negotiated Medicare drug prices; it is written in the third person with no quote of her own in the excerpt, so 0.75.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2024-08-15",
+          "link": "https://delbene.house.gov/news/documentsingle.aspx?DocumentID=3937",
+          "excerpt": "\"Today, Congresswoman Suzan DelBene (WA-01) celebrated the historic announcement from the Biden-Harris Administration around Medicare’s first-ever drug price negotiations made possible by the Inflation Reduction Act. These negotiations will lower prices on 10 of the most expensive and frequently used drugs in the Medicare program.\" ... \"These negotiated prices will save Medicare beneficiaries an estimated $1.5 billion in out-of-pocket costs and taxpayers will save $6 billion in Medicare spending in the first year alone.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release; the Inflation Reduction Act (H.R. 5376, 117th) is named by title only.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "rick_larsen|health_drug_prices|gt-068",
+      "politician_id": "rick_larsen",
+      "topic": "health_drug_prices",
+      "position": "support",
+      "position_on": "Medicare drug price negotiation under the Inflation Reduction Act (August 2023)",
+      "confidence": 0.8,
+      "confidence_reason": "He supported the Inflation Reduction Act's drug price negotiation and says in his own words it lets seniors afford their prescription drugs.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2023-08-20",
+          "link": "https://larsen.house.gov/news/documentsingle.aspx?DocumentID=2800",
+          "excerpt": "\"WASHINGTON, D.C. – This week, the U.S. Department of Health and Human Services (HHS) announced the first 10 prescription drugs covered under Medicare Part D selected for price negotiation. In August 2022, Rep. Rick Larsen (WA-02) supported the Inflation Reduction Act , which, for the first time, authorizes HHS to directly negotiate the price of prescription drugs with participating drug companies.\" ... \"“Thanks to the Inflation Reduction Act , more people can focus on improving their health and well-being without worrying how they will be able afford essential prescription drugs.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release; H.R. 5376 (117th) named by title only.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "delauro|health_drug_prices|gt-069",
+      "politician_id": "delauro",
+      "topic": "health_drug_prices",
+      "position": "support",
+      "position_on": "lowering prescription drug costs through the Inflation Reduction Act (October 2022)",
+      "confidence": 0.8,
+      "confidence_reason": "In her own words she says the Inflation Reduction Act will lower prescription drug costs by letting Medicare negotiate; the quote opens on general costs, so 0.8.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2022-10-13",
+          "link": "https://delauro.house.gov/media-center/press-releases/delauro-unveils-prescription-drug-savings-report-connecticut-s-third",
+          "excerpt": "\"Chair of the House Appropriations Committee Rosa DeLauro (CT-03) today released a report prepared by the Democratic staff of the House Committee on Oversight and Government Reform highlighting how the Inflation Reduction Act will help seniors better afford the cost of prescription drugs.\" ... \"In fact, the recently enacted Inflation Reduction Act will take historic steps to lower prescription drug and health care costs by finally allowing Medicare to negotiate prescription drug prices, capping the price of insulin at $35 a month, and setting a $2,000 annual out-of-pocket cap for prescription drug costs.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release; H.R. 5376 (117th) named by title only.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "josh_gottheimer|back_police|gt-070",
+      "politician_id": "josh_gottheimer",
+      "topic": "back_police",
+      "position": "support",
+      "position_on": "the Invest to Protect Act (May 2023)",
+      "confidence": 0.85,
+      "confidence_reason": "He leads a bill to fund recruitment, retention and training for small police departments and says in his own words officers need those resources.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2023-05-11",
+          "link": "https://gottheimer.house.gov/posts/release-bipartisan-invest-to-protect-act-introduced-in-the-house-to-support-local-police-departments",
+          "excerpt": "\"WASHINGTON, D.C. — Today, May 11, 2023, ahead of National Police Week, the bipartisan Invest to Protect Act is being introduced in the House. This bipartisan legislation will make critical, targeted investments in small and midsize police departments with fewer than 200 sworn officers for the recruitment, retention, mental health support, and training they need to protect themselves and their communities.\" ... \"“The bipartisan Invest to Protect Act will make critical investments in our departments and ensure that our police officers in smaller towns across Northern New Jersey, and our nation, have the resources and training they need to keep themselves and communities safe,”\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release; the bill is named by title only.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "susie_lee|back_police|gt-071",
+      "politician_id": "susie_lee",
+      "topic": "back_police",
+      "position": "support",
+      "position_on": "the Invest to Protect Act (May 2025)",
+      "confidence": 0.85,
+      "confidence_reason": "She introduces a bill to fund small police departments and says in her own words police need the tools, training and support to keep people safe.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2025-05-06",
+          "link": "https://susielee.house.gov/media/press-releases/congresswoman-lee-helps-introduce-bipartisan-legislation-invest-local-law",
+          "excerpt": "\"WASHINGTON, D.C. – Today, Congresswoman Susie Lee (NV-03) joined Congressman Josh Gottheimer (NJ-5) to announce the introduction of the bipartisan, bicameral Invest to Protect Act in the U.S. House. This legislation makes targeted investments in small and midsize departments with fewer than 175 sworn police officers, providing vital funds for recruitment, retention, training, and officer support.\" ... \"“Every day, when our police officers show up to work, they are putting their lives on the line every day to protect us,” said Congresswoman Lee . “I’m introducing the bipartisan Invest to Protect Act to ensure that our police in Nevada have the tools, training, and support they need to keep us safe.”\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release; the bill is named by title only.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "mike_ezell|back_police|gt-072",
+      "politician_id": "mike_ezell",
+      "topic": "back_police",
+      "position": "support",
+      "position_on": "a House resolution honoring local law enforcement (May 2025)",
+      "confidence": 0.8,
+      "confidence_reason": "A former sheriff, he reintroduces a resolution backing local law enforcement and praises officers in his own words; a resolution, not funding, so 0.8.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2025-05-06",
+          "link": "https://ezell.house.gov/news/documentsingle.aspx?DocumentID=774",
+          "excerpt": "\"Today, Sheriffs Mike Ezell (MS-04) and Troy Nehls (TX-22) announced the reintroduction of a House resolution formally recognizing the essential role that local law enforcement officers play in protecting communities, enforcing the law, and maintaining public safety across the United States.\" ... \"“As a former sheriff, I know firsthand the courage, professionalism, and selflessness that our law enforcement officers bring to the job every single day,” Ezell said. “These men and women are the backbone of public safety in our communities.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release; only his own quote is excerpted. No resolution number on the page.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "stefanik|back_police|gt-073",
+      "politician_id": "stefanik",
+      "topic": "back_police",
+      "position": "support",
+      "position_on": "backing police and opposing \"Defund the Police\" (National Police Week, May 2023)",
+      "confidence": 0.85,
+      "confidence_reason": "In her own words she stands with officers, opposes efforts to defund police and cosponsors the POLICE Act.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2023-05-16",
+          "link": "https://stefanik.house.gov/2023/5/stefanik-statement-on-national-police-week",
+          "excerpt": "\"“This National Police Week, we honor the fallen law enforcement officers who have given up their lives in the name of our safety and protection, and we stand in full support of the brave men and women in blue who continue to make sacrifices for us every single day.\" ... \"“This week, House Republicans will bring to the floor the Federal Law Enforcement Officer Service Weapon Purchase Act and the POLICE Act, which I am a co-sponsor of.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release. The POLICE Act is H.R. 2494 (118th); the page names it by title only.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "ryan_mackenzie|back_police|gt-074",
+      "politician_id": "ryan_mackenzie",
+      "topic": "back_police",
+      "position": "support",
+      "position_on": "public-safety bills he cosponsors during National Police Week (May 2026)",
+      "confidence": 0.8,
+      "confidence_reason": "He says in his own words officers deserve full support year-round and lists bills he cosponsors; several bills on one page, so 0.8.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2026-05-14",
+          "link": "https://mackenzie.house.gov/media/press-releases/congressman-ryan-mackenzie-highlights-public-safety-legislation-during",
+          "excerpt": "\"“During National Police Week, we honor the men and women of law enforcement throughout the Lehigh Valley and the Poconos who put their lives on the line to keep our communities safe,” said Congressman Mackenzie. “Police officers and first responders face increasingly difficult challenges every day, from violent crime and fentanyl trafficking to mental health pressures and growing threats in the line of duty. They deserve our full support, not just during National Police Week, but year-round.”\" ... \"As part of National Police Week, Congressman Mackenzie is co-sponsoring multiple pieces of bipartisan legislation focused on strengthening law enforcement, improving officer safety, supporting first responders, and combating violent crime and fentanyl trafficking, including:\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release; no bill numbers in the excerpt.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "omar|edu_college_cost|gt-075",
+      "politician_id": "omar",
+      "topic": "edu_college_cost",
+      "position": "support",
+      "position_on": "cancelling student debt and tuition-free college (August 2022)",
+      "confidence": 0.85,
+      "confidence_reason": "In her own words she welcomes the student debt cancellation, says it is not enough, and calls for full cancellation and tuition-free college.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2022-08-24",
+          "link": "https://omar.house.gov/media/press-releases/rep-omars-statement-biden-executive-order-cancel-student-debt-0",
+          "excerpt": "\"\"While this partial cancellation is an important step, it’s not nearly enough. Right now, student debt is holding thousands of people across my district back from homeownership, opening a business, starting a family, or saving for the future. A full cancellation of student debt will ensure all borrowers can achieve economic dignity.\" ... \"“Student debt relief is just one component of a moral society. We also need to make college tuition-free so debt is not accumulated moving forward and invest in universal early education.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release; no bill is named (an executive action).",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "maxwell_frost|edu_college_cost|gt-076",
+      "politician_id": "maxwell_frost",
+      "topic": "edu_college_cost",
+      "position": "support",
+      "position_on": "President Biden's student loan forgiveness program (June 2023)",
+      "confidence": 0.8,
+      "confidence_reason": "In his own words he calls the forgiveness program legal, attacks the ruling that struck it down and promises to fight for relief; no bill, so 0.8.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2023-06-30",
+          "link": "https://frost.house.gov/media/press-releases/congressman-maxwell-frost-student-loan-forgiveness-legal-packed-court",
+          "excerpt": "\"“President Biden’s student loan forgiveness program is legal, this Court’s inability to see that underscores SCOTUS’ intent to prop up systems of oppression that have kept education out of reach for onlypoor people.\" ... \"“This ruling cannot mark the end of President Biden’s promise to the nearly 40 million Americans counting on this relief. The President and his Administration have many tools at their disposal to helpborrowers, and I will fight to ensure we act swiftly.”\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release; no bill is named.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "summer_lee|edu_college_cost|gt-077",
+      "politician_id": "summer_lee",
+      "topic": "edu_college_cost",
+      "position": "support",
+      "position_on": "student debt relief, against H.J.Res. 45 (May 2023)",
+      "confidence": 0.85,
+      "confidence_reason": "She votes against a resolution that would block student debt relief and says in her own words she shares borrowers' anger at the burden of student debt.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2023-05-24",
+          "link": "https://summerlee.house.gov/newsroom/press-releases/summer-lee-blasts-republicans-plan-to-deny-tear-away-relief-to-122500-students-in-district-more-than-43-million-student-borrowers-nationwide",
+          "excerpt": "\"Washington, D.C. – Today, Congresswoman Summer Lee (PA-12) will vote \"NO\" on H.J.Res.45, a partisan student loan debt Congressional Review Act Resolution that will cause economic havoc for more than 43 million borrowers and their families.\" ... \"Congresswoman Summer Lee said, \"To over a million Pennsylvanians fearing the potential revocation of your debt relief (over 100,000 in my district alone ), I feel your pain. As a first-generation college student who attended college on a Pell grant and is still in HUNDREDS OF THOUSANDS of student debt, I share your anger and exhaustion caused by a failing system.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release; H.J.Res. 45 is a 118th Congress resolution.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "bryan_steil|edu_college_cost|gt-078",
+      "politician_id": "bryan_steil",
+      "topic": "edu_college_cost",
+      "position": "oppose",
+      "position_on": "President Biden's student loan cancellation (August 2022)",
+      "confidence": 0.8,
+      "confidence_reason": "In his own words he says shifting college debt to all taxpayers does nothing about rising tuition; he opposes the cancellation, not lower college costs as such, so 0.8.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2022-08-24",
+          "link": "https://steil.house.gov/media/press-releases/steil-statement-on-president-biden-s-student-loan-spending",
+          "excerpt": "\"JANESVILLE, WI – Today, Congressman Bryan Steil (WI-01) released a statement following President Biden’s announcement that his Administration will take Executive Action to force taxpayers to pay off $10,000 in student debt for borrowers earning $125,000 a year and $20,000 in debt for Pell Grant recipients.\" ... \"“President Biden is using the Covid “national emergency” as his authority to continue reckless spending. His plan to shift the burden of college debt to all taxpayers accelerates inflation and does nothing to address the underlying issue of rising tuition costs.”\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release; no bill is named.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "mcclain|edu_college_cost|gt-079",
+      "politician_id": "mcclain",
+      "topic": "edu_college_cost",
+      "position": "oppose",
+      "position_on": "a resolution to overturn the SAVE student-loan repayment plan (September 2023)",
+      "confidence": 0.85,
+      "confidence_reason": "She introduces a resolution to overturn the SAVE repayment plan and says in her own words it leaves debt at the feet of taxpayers.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2023-09-05",
+          "link": "https://mcclain.house.gov/press-releases?id=EE8F97D4-8FA5-4D1B-ADCB-7D85CDF8E849",
+          "excerpt": "\"WASHINGTON, D.C. - Today, Rep. Lisa McClain (R-MI) and House Education and the Workforce Committee Chairwoman Virginia Foxx (R-NC) introduced a Congressional Review Act (CRA) resolution to overturn President Biden’s reckless income-driven repayment (IDR) rule—known as “Savings on a Valuable Education (SAVE)” plan. Experts estimate that the SAVE scheme could leave taxpayers on the hook for as much as $559 billion, making it the costliest regulation in U.S. history.\" ... \"“This scheme will leave mountains of debt at the feet of taxpayers while absolving millions of borrowers of their loans. What’s worse is that future borrowers will take on loans expecting forgiveness, which in turn encourages schools to raise tuition rates.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release. The resolution is H.J.Res. 88 (118th); the page does not give its number.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "gabe_vasquez|lands_preserve|gt-080",
+      "politician_id": "gabe_vasquez",
+      "topic": "lands_preserve",
+      "position": "support",
+      "position_on": "keeping public lands public and opposing their sale (April 2025)",
+      "confidence": 0.85,
+      "confidence_reason": "In his own words he says public lands are not for sale and points to his Public Lands in Public Hands Act.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2025-04-04",
+          "link": "https://vasquez.house.gov/media/press-releases/vasquez-our-public-lands-are-not-sale",
+          "excerpt": "\"“Let me be absolutely clear—our public lands are not for sale. New Mexicans cherish our open spaces, our national parks, and the public lands that fuel our outdoor economy and define us as Americans.\" ... \"“I’ve worked across the aisle with Republicans to protect our public lands, including the Public Lands in Public Hands Act, because across the West, public lands are the great equalizer.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release; the Public Lands in Public Hands Act is named by title only.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "jared_huffman|lands_preserve|gt-081",
+      "politician_id": "jared_huffman",
+      "topic": "lands_preserve",
+      "position": "support",
+      "position_on": "the Great American Outdoors Act 250 (June 2026)",
+      "confidence": 0.8,
+      "confidence_reason": "He introduces a bill investing in national parks and public lands and says in his own words it keeps the promise to care for parks; an investment bill, so 0.8.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2026-06-10",
+          "link": "https://huffman.house.gov/media-center/press-releases/huffman-and-westerman-introduce-bipartisan-great-american-outdoors-act-250",
+          "excerpt": "\"Washington, D.C. — Today, House Committee on Natural Resources Ranking Member Jared Huffman (D-Calif.) and Chairman Bruce Westerman (R-Ark.) introduced the bipartisan Great American Outdoors Act 250 (GAOA 250).\" ... \"The GAOA250 invests $1.9 billion annually in America’s national parks, public lands, and Bureau of Indian Education (BIE) facilities over each of the next five years.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party release; the bill is named by title only.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "neguse|lands_preserve|gt-082",
+      "politician_id": "neguse",
+      "topic": "lands_preserve",
+      "position": "support",
+      "position_on": "opposing the sale of public lands in reconciliation (June 2025)",
+      "confidence": 0.85,
+      "confidence_reason": "In a joint statement he opposes Senate text that would sell 2 to 3 million acres of federal land and calls auctioning it an affront to core values.",
+      "sources": [
+        {
+          "type": "official press release (joint)",
+          "date": "2025-06-12",
+          "link": "https://neguse.house.gov/media/press-releases/neguse-and-bennet-we-must-oppose-any-provisions-would-stake-sale-sign-our",
+          "excerpt": "\"Washington, D.C. — Congressman Joe Neguse and Senator Michael Bennet issued the following statement after the U.S. Senate Committee on Energy and Natural Resources issued newly released budget reconciliation text. The bill now seeks to sell off between 2 and 3 million acres of land under the jurisdiction of the Bureau of Land Management and the Forest Service—greenlighting the sale of public lands in Colorado, Alaska, Arizona, California, Idaho, Nevada, New Mexico, Oregon, Utah, Washington, and Wyoming.\" ... \"Auctioning off these lands to pay for President Trump’s radical agenda, including the prioritization of tax cuts for billionaires and big corporations, is an affront to our core values.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-12. First-party joint statement with Sen. Bennet. The reconciliation bill (H.R. 1, 119th) is not named.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-12",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-12"
+    },
+    {
+      "stance_id": "russ_fulcher|lands_preserve|gt-083",
+      "politician_id": "russ_fulcher",
+      "topic": "lands_preserve",
+      "position": "oppose",
+      "position_on": "the Protecting America's Wilderness and Public Lands Act (H.R. 803, February 2021)",
+      "confidence": 0.7,
+      "confidence_reason": "He spoke on the floor against H.R. 803, a bill to designate new wilderness, and offered amendments for local and state control; the excerpt is in the third person, so 0.7.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2021-02-25",
+          "link": "https://fulcher.house.gov/press-releases?ID=A2A65AB5-6FE3-456C-8736-ECD36DDD1614",
+          "excerpt": "\"WASHINGTON, D.C. — This week Congressman Russ Fulcher joined many of his Republican colleagues to submit amendments to H.R. 803, the Protecting America’s Wilderness and Public Lands Act . While all three amendments were rejected by the Democrat-controlled rules committee earlier this week, Congressman Fulcher spoke on the House floor this evening in opposition of the overall bill.\"",
+          "weight": "moderate",
+          "note": "Read directly on 2026-11-12. First-party release; H.R. 803 is a 117th Congress bill.",
           "takes_clear_position": true
         }
       ],

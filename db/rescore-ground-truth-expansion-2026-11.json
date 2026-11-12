@@ -4,8 +4,8 @@
   "vocab_version": "issue-vocab-v2-directional",
   "confidence_tolerance": 0.1,
   "summary": {
-    "records": 47,
-    "scorer_agrees_on_position": 21,
+    "records": 77,
+    "scorer_agrees_on_position": 35,
     "verdicts": {
       "owens|ukraine_aid|gt-007": "support → no clear position (disagrees)",
       "rick_crawford|ukraine_aid|gt-008": "mixed → support (disagrees)",
@@ -53,7 +53,37 @@
       "nadler|justice_reform|gt-050": "support → support (agrees)",
       "walberg|econ_trade|gt-051": "support → no clear position (disagrees)",
       "neal|econ_trade|gt-052": "support → no clear position (disagrees)",
-      "steven_horsford|econ_trade|gt-053": "support → no clear position (disagrees)"
+      "steven_horsford|econ_trade|gt-053": "support → no clear position (disagrees)",
+      "joe_courtney|social_security|gt-054": "support → no clear position (disagrees)",
+      "mike_lawler|social_security|gt-055": "support → support (agrees)",
+      "debbie_dingell|social_security|gt-056": "support → support (agrees)",
+      "takano|veterans|gt-057": "support → support (agrees)",
+      "mike_bost|veterans|gt-058": "support → support (agrees)",
+      "pat_harrigan|veterans|gt-059": "support → support (agrees)",
+      "zach_nunn|rural_ag|gt-060": "support → support (agrees)",
+      "don_davis|rural_ag|gt-061": "support → no clear position (disagrees)",
+      "julie_fedorchak|rural_ag|gt-062": "support → support (agrees)",
+      "rob_bresnahan|rural_ag|gt-063": "support → no clear position (disagrees)",
+      "zoe_lofgren|privacy_rights|gt-064": "support → no clear position (disagrees)",
+      "jan_schakowsky|privacy_rights|gt-065": "support → support (agrees)",
+      "pallone|health_drug_prices|gt-066": "support → support (agrees)",
+      "delbene|health_drug_prices|gt-067": "support → no clear position (disagrees)",
+      "rick_larsen|health_drug_prices|gt-068": "support → no clear position (disagrees)",
+      "delauro|health_drug_prices|gt-069": "support → no clear position (disagrees)",
+      "josh_gottheimer|back_police|gt-070": "support → no clear position (disagrees)",
+      "susie_lee|back_police|gt-071": "support → support (agrees)",
+      "mike_ezell|back_police|gt-072": "support → no clear position (disagrees)",
+      "stefanik|back_police|gt-073": "support → support (agrees)",
+      "ryan_mackenzie|back_police|gt-074": "support → support (agrees)",
+      "omar|edu_college_cost|gt-075": "support → support (agrees)",
+      "maxwell_frost|edu_college_cost|gt-076": "support → no clear position (disagrees)",
+      "summer_lee|edu_college_cost|gt-077": "support → no clear position (disagrees)",
+      "bryan_steil|edu_college_cost|gt-078": "oppose → support (disagrees)",
+      "mcclain|edu_college_cost|gt-079": "oppose → no clear position (disagrees)",
+      "gabe_vasquez|lands_preserve|gt-080": "support → support (agrees)",
+      "jared_huffman|lands_preserve|gt-081": "support → no clear position (disagrees)",
+      "neguse|lands_preserve|gt-082": "support → no clear position (disagrees)",
+      "russ_fulcher|lands_preserve|gt-083": "oppose → support (disagrees)"
     }
   },
   "records": [
@@ -1550,6 +1580,946 @@
           "confidence": 0,
           "reason": "topic not found in source",
           "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "joe_courtney|social_security|gt-054",
+      "politician_id": "joe_courtney",
+      "topic": "social_security",
+      "human": {
+        "position": "support",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "3 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: joe_courtney|social_security position MISMATCH (candidate no clear position, ground truth support); confidence 0.3 vs 0.8, Δ=-0.50 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2025-02-28",
+          "link": "https://courtney.house.gov/media-center/press-releases/rep-courtney-statement-president-trumps-plan-slash-social-security",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "3 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "mike_lawler|social_security|gt-055",
+      "politician_id": "mike_lawler",
+      "topic": "social_security",
+      "human": {
+        "position": "support",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): Protecting Social Security has always been one of my top priorities in Congress."
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: mike_lawler|social_security position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.85, Δ=-0.05 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2025-08-14",
+          "link": "https://lawler.house.gov/news/documentsingle.aspx?DocumentID=4628",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): Protecting Social Security has always been one of my top priorities in Congress."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "debbie_dingell|social_security|gt-056",
+      "politician_id": "debbie_dingell",
+      "topic": "social_security",
+      "human": {
+        "position": "support",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): As co-chair of the Expand Social Security Caucus and Vice Chair of the House Democratic Caucus Task Force on Aging and Families, Rep. Dingell has long been an advocate for strengthening and expanding Social Security."
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: debbie_dingell|social_security position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.85, Δ=-0.05 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2024-08-14",
+          "link": "https://debbiedingell.house.gov/news/documentsingle.aspx?DocumentID=5225",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): As co-chair of the Expand Social Security Caucus and Vice Chair of the House Democratic Caucus Task Force on Aging and Families, Rep. Dingell has long been an advocate for strengthening and expanding Social Security."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "takano|veterans|gt-057",
+      "politician_id": "takano",
+      "topic": "veterans",
+      "human": {
+        "position": "support",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): Washington, DC – Today, Rep. Mark Takano (D-Calif.), Chairman of the House Committee on Veterans’ Affairs, made the following statement after his comprehensive bill, H.R. 3967, as amended, the Honoring our Promise to Address Comprehensive Toxics Act of 2021 or Honoring our PACT Act , passed the H…"
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: takano|veterans position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.85, Δ=-0.05 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2022-03-03",
+          "link": "https://takano.house.gov/newsroom/press-releases/rep-mark-takanos-comprehensive-honoring-our-pact-act-passes-the-house",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): Washington, DC – Today, Rep. Mark Takano (D-Calif.), Chairman of the House Committee on Veterans’ Affairs, made the following statement after his comprehensive bill, H.R. 3967, as amended, the Honoring our Promise to Address Comprehensive Toxics Act of 2021 or Honoring our PACT Act , passed the H…"
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "mike_bost|veterans|gt-058",
+      "politician_id": "mike_bost",
+      "topic": "veterans",
+      "human": {
+        "position": "support",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): WASHINGTON, DC – U.S. Representative Mike Bost (IL-12) tonight voted in support of legislation to connect toxic-exposed veterans and their survivors with the health care and benefits they have earned.",
+          "support (clear): The SFC Heath Robinson Honoring Our PACT Act passed the House on a bipartisan basis and now heads to the Senate for consideration."
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: mike_bost|veterans position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.85, Δ=-0.05 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2022-07-13",
+          "link": "https://bost.house.gov/press-releases?ID=C65EFC49-C6FF-4959-B7D1-8900C365A982",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): WASHINGTON, DC – U.S. Representative Mike Bost (IL-12) tonight voted in support of legislation to connect toxic-exposed veterans and their survivors with the health care and benefits they have earned.",
+            "support (clear): The SFC Heath Robinson Honoring Our PACT Act passed the House on a bipartisan basis and now heads to the Senate for consideration."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "pat_harrigan|veterans|gt-059",
+      "politician_id": "pat_harrigan",
+      "topic": "veterans",
+      "human": {
+        "position": "support",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): WASHINGTON, D.C.— Today, Congressman Pat Harrigan (NC-10) voted in favor of H.R. 8469 , the Military Construction, Veterans Affairs, and Related Agencies Appropriations Act of 2027, legislation providing full-year funding for military installations, veterans healthcare, and benefits for fiscal ye…"
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: pat_harrigan|veterans position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.8, Δ=+0.00 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2026-05-15",
+          "link": "https://harrigan.house.gov/media/press-releases/congressman-pat-harrigan-votes-fund-military-construction-and-veterans",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): WASHINGTON, D.C.— Today, Congressman Pat Harrigan (NC-10) voted in favor of H.R. 8469 , the Military Construction, Veterans Affairs, and Related Agencies Appropriations Act of 2027, legislation providing full-year funding for military installations, veterans healthcare, and benefits for fiscal ye…"
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "zach_nunn|rural_ag|gt-060",
+      "politician_id": "zach_nunn",
+      "topic": "rural_ag",
+      "human": {
+        "position": "support",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): The legislation includes 21 priorities championed by Rep. Nunn to support Iowa farmers, producers, and rural communities."
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: zach_nunn|rural_ag position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.85, Δ=-0.05 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2026-04-30",
+          "link": "https://nunn.house.gov/2026/04/30/farm-bill-passes-u-s-house-with-21-priorities-secured-by-rep-nunn/",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): The legislation includes 21 priorities championed by Rep. Nunn to support Iowa farmers, producers, and rural communities."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "don_davis|rural_ag|gt-061",
+      "politician_id": "don_davis",
+      "topic": "rural_ag",
+      "human": {
+        "position": "support",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "2 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: don_davis|rural_ag position MISMATCH (candidate no clear position, ground truth support); confidence 0.3 vs 0.8, Δ=-0.50 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2026-04-30",
+          "link": "https://dondavis.house.gov/media/press-releases/congressman-don-davis-votes-advance-bipartisan-farm-bill-eastern-north",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "2 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "julie_fedorchak|rural_ag|gt-062",
+      "politician_id": "julie_fedorchak",
+      "topic": "rural_ag",
+      "human": {
+        "position": "support",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): Washington, D.C. – Congresswoman Julie Fedorchak (R-ND) today voted in favor of the Farm, Food, and National Security Act of 2026 , comprehensive legislation to strengthen the farm safety net, expand access to credit, and deliver long-term certainty for North Dakota’s farmers and ranchers.",
+          "support (clear): It strengthens the farm safety net, locks in key improvements we’ve fought for, and gives farmers and ranchers the tools they need to manage risk, invest in their operations, and plan for the future."
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: julie_fedorchak|rural_ag position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.85, Δ=-0.05 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2026-04-30",
+          "link": "https://fedorchak.house.gov/media/press-releases/fedorchak-helps-advance-farm-bill-deliver-certainty-north-dakota-producers",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): Washington, D.C. – Congresswoman Julie Fedorchak (R-ND) today voted in favor of the Farm, Food, and National Security Act of 2026 , comprehensive legislation to strengthen the farm safety net, expand access to credit, and deliver long-term certainty for North Dakota’s farmers and ranchers.",
+            "support (clear): It strengthens the farm safety net, locks in key improvements we’ve fought for, and gives farmers and ranchers the tools they need to manage risk, invest in their operations, and plan for the future."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "rob_bresnahan|rural_ag|gt-063",
+      "politician_id": "rob_bresnahan",
+      "topic": "rural_ag",
+      "human": {
+        "position": "support",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "2 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: rob_bresnahan|rural_ag position MISMATCH (candidate no clear position, ground truth support); confidence 0.3 vs 0.8, Δ=-0.50 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2026-03-05",
+          "link": "https://bresnahan.house.gov/media/press-releases/bresnahans-local-farmers-feeding-our-communities-act-advances-house-farm-bill",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "2 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "zoe_lofgren|privacy_rights|gt-064",
+      "politician_id": "zoe_lofgren",
+      "topic": "privacy_rights",
+      "human": {
+        "position": "support",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "3 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: zoe_lofgren|privacy_rights position MISMATCH (candidate no clear position, ground truth support); confidence 0.3 vs 0.85, Δ=-0.55 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2026-03-13",
+          "link": "https://lofgren.house.gov/media/press-releases/lofgren-davidson-wyden-and-lee-introduce-bipartisan-fisa-reform-bill-protect",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "3 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "jan_schakowsky|privacy_rights|gt-065",
+      "politician_id": "jan_schakowsky",
+      "topic": "privacy_rights",
+      "human": {
+        "position": "support",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): Eshoo (D-CA) and Senator Cory Booker (D-NJ) introduced the Banning Surveillance Advertising Act , legislation that prohibits advertising networks and facilitators from using personal data to target advertisements"
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: jan_schakowsky|privacy_rights position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.85, Δ=-0.05 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2022-01-18",
+          "link": "https://schakowsky.house.gov/media/press-releases/schakowsky-eshoo-booker-introduce-bill-ban-surveillance-advertising",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): Eshoo (D-CA) and Senator Cory Booker (D-NJ) introduced the Banning Surveillance Advertising Act , legislation that prohibits advertising networks and facilitators from using personal data to target advertisements"
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "pallone|health_drug_prices|gt-066",
+      "politician_id": "pallone",
+      "topic": "health_drug_prices",
+      "human": {
+        "position": "support",
+        "confidence": 0.9
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): “This announcement is part of Democrats’ ongoing effort to lower prescription drug prices and cap seniors’ Medicare Part D out-of-pocket spending."
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: pallone|health_drug_prices position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.9, Δ=-0.10 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2023-08-30",
+          "link": "https://pallone.house.gov/media/press-releases/pallone-applauds-biden-administrations-announcement-medicare-drug-price",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): “This announcement is part of Democrats’ ongoing effort to lower prescription drug prices and cap seniors’ Medicare Part D out-of-pocket spending."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "delbene|health_drug_prices|gt-067",
+      "politician_id": "delbene",
+      "topic": "health_drug_prices",
+      "human": {
+        "position": "support",
+        "confidence": 0.75
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "1 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: delbene|health_drug_prices position MISMATCH (candidate no clear position, ground truth support); confidence 0.3 vs 0.75, Δ=-0.45 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2024-08-15",
+          "link": "https://delbene.house.gov/news/documentsingle.aspx?DocumentID=3937",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "1 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "rick_larsen|health_drug_prices|gt-068",
+      "politician_id": "rick_larsen",
+      "topic": "health_drug_prices",
+      "human": {
+        "position": "support",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "3 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: rick_larsen|health_drug_prices position MISMATCH (candidate no clear position, ground truth support); confidence 0.3 vs 0.8, Δ=-0.50 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2023-08-20",
+          "link": "https://larsen.house.gov/news/documentsingle.aspx?DocumentID=2800",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "3 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "delauro|health_drug_prices|gt-069",
+      "politician_id": "delauro",
+      "topic": "health_drug_prices",
+      "human": {
+        "position": "support",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "2 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: delauro|health_drug_prices position MISMATCH (candidate no clear position, ground truth support); confidence 0.3 vs 0.8, Δ=-0.50 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2022-10-13",
+          "link": "https://delauro.house.gov/media-center/press-releases/delauro-unveils-prescription-drug-savings-report-connecticut-s-third",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "2 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "josh_gottheimer|back_police|gt-070",
+      "politician_id": "josh_gottheimer",
+      "topic": "back_police",
+      "human": {
+        "position": "support",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "3 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: josh_gottheimer|back_police position MISMATCH (candidate no clear position, ground truth support); confidence 0.3 vs 0.85, Δ=-0.55 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2023-05-11",
+          "link": "https://gottheimer.house.gov/posts/release-bipartisan-invest-to-protect-act-introduced-in-the-house-to-support-local-police-departments",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "3 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "susie_lee|back_police|gt-071",
+      "politician_id": "susie_lee",
+      "topic": "back_police",
+      "human": {
+        "position": "support",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): “I’m introducing the bipartisan Invest to Protect Act to ensure that our police in Nevada have the tools, training, and support they need to keep us safe.”"
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: susie_lee|back_police position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.85, Δ=-0.05 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2025-05-06",
+          "link": "https://susielee.house.gov/media/press-releases/congresswoman-lee-helps-introduce-bipartisan-legislation-invest-local-law",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): “I’m introducing the bipartisan Invest to Protect Act to ensure that our police in Nevada have the tools, training, and support they need to keep us safe.”"
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "mike_ezell|back_police|gt-072",
+      "politician_id": "mike_ezell",
+      "topic": "back_police",
+      "human": {
+        "position": "support",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "2 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: mike_ezell|back_police position MISMATCH (candidate no clear position, ground truth support); confidence 0.3 vs 0.8, Δ=-0.50 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2025-05-06",
+          "link": "https://ezell.house.gov/news/documentsingle.aspx?DocumentID=774",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "2 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "stefanik|back_police|gt-073",
+      "politician_id": "stefanik",
+      "topic": "back_police",
+      "human": {
+        "position": "support",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): “This National Police Week, we honor the fallen law enforcement officers who have given up their lives in the name of our safety and protection, and we stand in full support of the brave men and women in blue who continue to make sacrifices for us every single day."
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: stefanik|back_police position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.85, Δ=-0.05 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2023-05-16",
+          "link": "https://stefanik.house.gov/2023/5/stefanik-statement-on-national-police-week",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): “This National Police Week, we honor the fallen law enforcement officers who have given up their lives in the name of our safety and protection, and we stand in full support of the brave men and women in blue who continue to make sacrifices for us every single day."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "ryan_mackenzie|back_police|gt-074",
+      "politician_id": "ryan_mackenzie",
+      "topic": "back_police",
+      "human": {
+        "position": "support",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): They deserve our full support, not just during National Police Week, but year-round.”",
+          "support (clear): As part of National Police Week, Congressman Mackenzie is co-sponsoring multiple pieces of bipartisan legislation focused on strengthening law enforcement, improving officer safety, supporting first responders, and combating violent crime and fentanyl trafficking, including:"
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: ryan_mackenzie|back_police position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.8, Δ=+0.00 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2026-05-14",
+          "link": "https://mackenzie.house.gov/media/press-releases/congressman-ryan-mackenzie-highlights-public-safety-legislation-during",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): They deserve our full support, not just during National Police Week, but year-round.”",
+            "support (clear): As part of National Police Week, Congressman Mackenzie is co-sponsoring multiple pieces of bipartisan legislation focused on strengthening law enforcement, improving officer safety, supporting first responders, and combating violent crime and fentanyl trafficking, including:"
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "omar|edu_college_cost|gt-075",
+      "politician_id": "omar",
+      "topic": "edu_college_cost",
+      "human": {
+        "position": "support",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 3 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): We also need to make college tuition-free so debt is not accumulated moving forward and invest in universal early education."
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: omar|edu_college_cost position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.85, Δ=-0.05 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2022-08-24",
+          "link": "https://omar.house.gov/media/press-releases/rep-omars-statement-biden-executive-order-cancel-student-debt-0",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 3 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): We also need to make college tuition-free so debt is not accumulated moving forward and invest in universal early education."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "maxwell_frost|edu_college_cost|gt-076",
+      "politician_id": "maxwell_frost",
+      "topic": "edu_college_cost",
+      "human": {
+        "position": "support",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "1 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: maxwell_frost|edu_college_cost position MISMATCH (candidate no clear position, ground truth support); confidence 0.3 vs 0.8, Δ=-0.50 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2023-06-30",
+          "link": "https://frost.house.gov/media/press-releases/congressman-maxwell-frost-student-loan-forgiveness-legal-packed-court",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "1 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "summer_lee|edu_college_cost|gt-077",
+      "politician_id": "summer_lee",
+      "topic": "edu_college_cost",
+      "human": {
+        "position": "support",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "2 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: summer_lee|edu_college_cost position MISMATCH (candidate no clear position, ground truth support); confidence 0.3 vs 0.85, Δ=-0.55 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2023-05-24",
+          "link": "https://summerlee.house.gov/newsroom/press-releases/summer-lee-blasts-republicans-plan-to-deny-tear-away-relief-to-122500-students-in-district-more-than-43-million-student-borrowers-nationwide",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "2 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "bryan_steil|edu_college_cost|gt-078",
+      "politician_id": "bryan_steil",
+      "topic": "edu_college_cost",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.7,
+        "reason": "1 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (implication): His plan to shift the burden of college debt to all taxpayers accelerates inflation and does nothing to address the underlying issue of rising tuition costs.”"
+        ]
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: bryan_steil|edu_college_cost position MISMATCH (candidate support, ground truth oppose); confidence 0.7 vs 0.8, Δ=-0.10 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2022-08-24",
+          "link": "https://steil.house.gov/media/press-releases/steil-statement-on-president-biden-s-student-loan-spending",
+          "position": "support",
+          "confidence": 0.7,
+          "reason": "1 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (implication): His plan to shift the burden of college debt to all taxpayers accelerates inflation and does nothing to address the underlying issue of rising tuition costs.”"
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "mcclain|edu_college_cost|gt-079",
+      "politician_id": "mcclain",
+      "topic": "edu_college_cost",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "1 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: mcclain|edu_college_cost position MISMATCH (candidate no clear position, ground truth oppose); confidence 0.3 vs 0.85, Δ=-0.55 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2023-09-05",
+          "link": "https://mcclain.house.gov/press-releases?id=EE8F97D4-8FA5-4D1B-ADCB-7D85CDF8E849",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "1 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "gabe_vasquez|lands_preserve|gt-080",
+      "politician_id": "gabe_vasquez",
+      "topic": "lands_preserve",
+      "human": {
+        "position": "support",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): “I’ve worked across the aisle with Republicans to protect our public lands, including the Public Lands in Public Hands Act, because across the West, public lands are the great equalizer."
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: gabe_vasquez|lands_preserve position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.85, Δ=-0.05 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2025-04-04",
+          "link": "https://vasquez.house.gov/media/press-releases/vasquez-our-public-lands-are-not-sale",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): “I’ve worked across the aisle with Republicans to protect our public lands, including the Public Lands in Public Hands Act, because across the West, public lands are the great equalizer."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "jared_huffman|lands_preserve|gt-081",
+      "politician_id": "jared_huffman",
+      "topic": "lands_preserve",
+      "human": {
+        "position": "support",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "1 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: jared_huffman|lands_preserve position MISMATCH (candidate no clear position, ground truth support); confidence 0.3 vs 0.8, Δ=-0.50 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2026-06-10",
+          "link": "https://huffman.house.gov/media-center/press-releases/huffman-and-westerman-introduce-bipartisan-great-american-outdoors-act-250",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "1 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "neguse|lands_preserve|gt-082",
+      "politician_id": "neguse",
+      "topic": "lands_preserve",
+      "human": {
+        "position": "support",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "1 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: neguse|lands_preserve position MISMATCH (candidate no clear position, ground truth support); confidence 0.3 vs 0.85, Δ=-0.55 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release (joint)",
+          "date": "2025-06-12",
+          "link": "https://neguse.house.gov/media/press-releases/neguse-and-bennet-we-must-oppose-any-provisions-would-stake-sale-sign-our",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "1 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "russ_fulcher|lands_preserve|gt-083",
+      "politician_id": "russ_fulcher",
+      "topic": "lands_preserve",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.7
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6)",
+        "statements": [
+          "support (clear): WASHINGTON, D.C. — This week Congressman Russ Fulcher joined many of his Republican colleagues to submit amendments to H.R. 803, the Protecting America’s Wilderness and Public Lands Act ."
+        ]
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: russ_fulcher|lands_preserve position MISMATCH (candidate support, ground truth oppose); confidence 0.8 vs 0.7, Δ=+0.10 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2021-02-25",
+          "link": "https://fulcher.house.gov/press-releases?ID=A2A65AB5-6FE3-456C-8736-ECD36DDD1614",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6)",
+          "statements": [
+            "support (clear): WASHINGTON, D.C. — This week Congressman Russ Fulcher joined many of his Republican colleagues to submit amendments to H.R. 803, the Protecting America’s Wilderness and Public Lands Act ."
+          ]
         }
       ]
     }

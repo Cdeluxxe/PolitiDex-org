@@ -17,7 +17,12 @@
 //     housing, econ_trade, econ_workers, justice_reform) map only their own
 //     bills, never a bill of the first nine keys, nothing on the multi-bill test
 //     releases, and the first nine keys' mappings are unchanged;
-//   · only the seventeen keys are mapped; the ground-truth labels and scorer are untouched;
+//   · the eight v8 keys (social_security, veterans, rural_ag, privacy_rights,
+//     health_drug_prices, back_police, edu_college_cost, lands_preserve) map
+//     only their own bills, never a bill of the first seventeen keys, nothing on
+//     the multi-bill test releases, and the first seventeen keys' mappings are
+//     unchanged (finder v4 reads a catalog short title with a trailing note);
+//   · only the twenty-five keys are mapped; the ground-truth labels and scorer are untouched;
 //   · every routine-sweep mapping matches the hand review (none false, none unreviewed);
 //   · the committed report's ground-truth section is current.
 // Offline: no network (the live sweep is in the report script, not here).
@@ -84,17 +89,45 @@ t('descriptive phrases read; the 1973 statute and look-alike programs do not', (
 const map = (text, extra) => K.mapFound(find(text, extra));
 const V6 = ['energy_production', 'school_choice', 'healthcare', 'cut_spending'];
 const V7 = ['climate_action', 'gun_safety', 'pro_choice', 'voting_access', 'housing', 'econ_trade', 'econ_workers', 'justice_reform'];
+const V8 = ['social_security', 'veterans', 'rural_ag', 'privacy_rights', 'health_drug_prices', 'back_police', 'edu_college_cost', 'lands_preserve'];
+// Fourth-pass records whose source names a bill the v8 keys map, and what they map.
+const V8_WANT = {
+  'joe_courtney|social_security|gt-054': [['H.R. 82', 'social_security', 'medium']],
+  'mike_lawler|social_security|gt-055': [['H.R. 82', 'social_security', 'medium']],
+  'takano|veterans|gt-057': [['H.R. 3967', 'veterans', 'high']],
+  'mike_bost|veterans|gt-058': [['SFC Heath Robinson Honoring Our PACT Act', 'veterans', 'medium']],
+  'pat_harrigan|veterans|gt-059': [['H.R. 8469', 'veterans', 'high']],
+  'zach_nunn|rural_ag|gt-060': [['H.R. 7567', 'rural_ag', 'medium']],
+  'don_davis|rural_ag|gt-061': [['H.R. 7567', 'rural_ag', 'high']],
+  'julie_fedorchak|rural_ag|gt-062': [['H.R. 7567', 'rural_ag', 'medium']],
+  'rob_bresnahan|rural_ag|gt-063': [['H.R. 7567', 'rural_ag', 'medium']],
+  'zoe_lofgren|privacy_rights|gt-064': [['Government Surveillance Reform Act', 'privacy_rights', 'medium']],
+  'jan_schakowsky|privacy_rights|gt-065': [['Banning Surveillance Advertising Act', 'privacy_rights', 'medium']],
+  'pallone|health_drug_prices|gt-066': [['H.R. 5376', 'health_drug_prices', 'medium']],
+  'delbene|health_drug_prices|gt-067': [['H.R. 5376', 'health_drug_prices', 'medium']],
+  'rick_larsen|health_drug_prices|gt-068': [['H.R. 5376', 'health_drug_prices', 'medium']],
+  'delauro|health_drug_prices|gt-069': [['H.R. 5376', 'health_drug_prices', 'medium']],
+  'josh_gottheimer|back_police|gt-070': [['Invest to Protect Act', 'back_police', 'medium']],
+  'susie_lee|back_police|gt-071': [['Invest to Protect Act', 'back_police', 'medium']],
+  'summer_lee|edu_college_cost|gt-077': [['H.J.Res. 45', 'edu_college_cost', 'high']],
+  'gabe_vasquez|lands_preserve|gt-080': [['Public Lands in Public Hands Act', 'lands_preserve', 'medium']],
+  'jared_huffman|lands_preserve|gt-081': [['Great American Outdoors Act', 'lands_preserve', 'medium']],
+  'russ_fulcher|lands_preserve|gt-083': [['H.R. 803', 'lands_preserve', 'high']],
+};
 // Third-pass records whose source names a bill the v7 keys map.
 const V7_MAPPED = ['lujan|climate_action|gt-026', 'hickenlooper|climate_action|gt-027', 'robert_garcia|climate_action|gt-028', 'boebert|gun_safety|gt-029',
   'fitzpatrick|gun_safety|gt-031', 'dina_titus|pro_choice|gt-033', 'diana_degette|pro_choice|gt-034', 'mike_flood|pro_choice|gt-035', 'mike_simpson|pro_choice|gt-036',
   'emmer|voting_access|gt-037', 'stephanie_bice|voting_access|gt-038', 'tom_cole|voting_access|gt-039', 'adam_smith|voting_access|gt-040', 'haley_stevens|voting_access|gt-041',
   'aguilar|housing|gt-043', 'ayanna_pressley|housing|gt-044', 'jared_golden|econ_workers|gt-046', 'brendan_boyle|econ_workers|gt-047', 'casar|econ_workers|gt-048',
   'bobby_scott|justice_reform|gt-049', 'nadler|justice_reform|gt-050', 'walberg|econ_trade|gt-051', 'neal|econ_trade|gt-052', 'steven_horsford|econ_trade|gt-053'];
-t('only the seventeen keys have a mapping pattern (the first five, the four v6 keys and the eight v7 keys)', () => {
-  assert.deepEqual(K.MAPPED_KEYS, ['israel_offensive_arms', 'ukraine_aid', 'iran_hostilities', 'tariffs_china', 'border_security', ...V6, ...V7]);
+t('only the twenty-five keys have a mapping pattern (the first five, the four v6 keys, the eight v7 keys and the eight v8 keys)', () => {
+  assert.deepEqual(K.MAPPED_KEYS, ['israel_offensive_arms', 'ukraine_aid', 'iran_hostilities', 'tariffs_china', 'border_security', ...V6, ...V7, ...V8]);
   assert.deepEqual(K.FIRST_NINE_KEYS, K.MAPPED_KEYS.slice(0, 9));
-  assert.equal(K.PATTERNS_VERSION, 'bill-key-patterns-v7');
-  assert.equal(F.FINDER_VERSION, 'bill-finder-v3');
+  assert.deepEqual(K.FIRST_SEVENTEEN_KEYS, K.MAPPED_KEYS.slice(0, 17));
+  assert.deepEqual(K.V7_KEYS, V7);
+  assert.deepEqual(K.V8_KEYS, V8);
+  assert.equal(K.PATTERNS_VERSION, 'bill-key-patterns-v8');
+  assert.equal(F.FINDER_VERSION, 'bill-finder-v4');
   assert.equal(K.mapCandidate({ mentions: [] }, 'deportations').mapped, false);
   assert.equal(K.mapCandidate({ mentions: [] }, 'israel_military_aid').mapped, false);
   assert.equal(K.mapCandidate({ mentions: [] }, 'israel_defensive_systems').mapped, false);
@@ -221,7 +254,7 @@ t('iran_hostilities: war powers, removal and authorization measures map; Iran wi
 t('no mapping on any off-key or bill-less ground-truth record', () => {
   const keyed = ['sanders|israel_military_aid|gt-006', 'massie|ukraine_aid|gt-002', 'massie|iran_hostilities|gt-005', 'owens|ukraine_aid|gt-007', 'michael_guest|border_security|gt-009',
     'french_hill|cut_spending|gt-012', 'frank_lucas|cut_spending|gt-014', 'mariannette_miller_meeks|cut_spending|gt-015', 'bennie_thompson|healthcare|gt-016',
-    'cruz|school_choice|gt-017', 'aoc|healthcare|gt-018', 'jason_smith|cut_spending|gt-024', ...V7_MAPPED];
+    'cruz|school_choice|gt-017', 'aoc|healthcare|gt-018', 'jason_smith|cut_spending|gt-024', ...V7_MAPPED, ...Object.keys(V8_WANT)];
   assert.deepEqual(GT.filter((r) => !keyed.includes(r.stance_id)).flatMap((r) => r.mappings.map((m) => `${r.stance_id} ${m.bill ?? m.matched}`)), []);
 });
 t('every ground-truth mapping is on its record’s own key (or, for Sanders, the pattern child of it)', () => {
@@ -297,7 +330,7 @@ t('healthcare: coverage measures map; a drug-price or hospital name alone does n
 t('cut_spending: budget, cap and debt-limit measures map; an aid supplemental and the CBO do not', () => {
   assert.deepEqual(keyedV6('I voted for H.R. 2811 to cap discretionary spending and cut the deficit.', { date: '2023-04-26' }), [['H.R. 2811', 'cut_spending', 'high']]);
   assert.deepEqual(keyedV6('I voted against H.R. 8035. It adds $60 billion in aid for Ukraine to our national debt.', { date: '2024-04-20' }), [['H.R. 8035', 'ukraine_aid', 'high']]);
-  assert.deepEqual(keyedV6('The Congressional Budget Office scored H.R. 5100, which cuts rural broadband grants.', { date: '2025-05-01' }), []);
+  assert.deepEqual(keyedV6('The Congressional Budget Office scored H.R. 5100, which cuts rural broadband grants.', { date: '2025-05-01' }).filter((x) => x[1] === 'cut_spending'), []);
 });
 t('v6 keys yield to the v5 keys: a border bill’s wall money is not a spending-cut bill', () => {
   assert.deepEqual(keyedV6('I voted for H.R. 2 to secure the border with $46 billion for the wall, and to cut the deficit.', { date: '2023-05-11' }).map((x) => x[1]), ['border_security']);
@@ -360,7 +393,7 @@ t('v7 keys read like the v6 keys: full-document idea, one bill per sentence, and
 t('climate_action: emissions, clean-energy and solar measures map; "climate disasters" and oil leasing do not', () => {
   assert.deepEqual(keyedV7('I voted for H.R. 5100 to cut carbon emissions from power plants in half.', { date: '2025-05-01' }), [['H.R. 5100', 'climate_action', 'high']]);
   assert.deepEqual(keyedV7('I voted for H.R. 1335 to lower energy bills with rooftop solar.', { date: '2025-05-01' }), [['H.R. 1335', 'climate_action', 'high']]);
-  assert.deepEqual(keyedV7('I voted for H.R. 5100 to fund farms hit by climate disasters.', { date: '2025-05-01' }), []);
+  assert.deepEqual(keyedV7('I voted for H.R. 5100 to fund farms hit by climate disasters.', { date: '2025-05-01' }).filter((x) => x[1] === 'climate_action'), []);
   assert.deepEqual(keyedV7('I voted for H.R. 1335 to restart offshore oil and gas lease sales.', { date: '2025-05-01' }).map((x) => x[1]), ['energy_production']);
 });
 t('gun_safety: background checks, bans and red-flag orders map either way; a bill naming no gun word does not', () => {
@@ -466,6 +499,101 @@ t('expansion records (third pass): the bills found map to the record key at the 
   // Records whose source names no bill the finder reads: no mapping, the scorer read still shows.
   for (const id of ['heinrich|climate_action|gt-025', 'scalise|gun_safety|gt-030', 'steve_womack|gun_safety|gt-032', 'marie_gluesenkamp_perez|voting_access|gt-042', 'delia_ramirez|housing|gt-045'])
     assert.deepEqual(got(id), [], id);
+});
+
+// ── v8 keys: social_security, veterans, rural_ag, privacy_rights, health_drug_prices, back_police, edu_college_cost, lands_preserve ──
+const keyedV8 = (text, extra) => map(text, extra).mappings.map((m) => [m.bill ?? m.matched, m.key, m.confidence]);
+t('v8 keys read like the v7 keys and yield to every key before them (sentence and bill)', () => {
+  for (const k of V8) {
+    const P = K.BILL_KEY_PATTERNS[k];
+    assert.ok(P.words && P.yieldsBill && !P.facet && P.pass === 8, k);
+    for (const y of ['tariffs_china', 'border_security', ...V6, ...V7, ...V8.slice(0, V8.indexOf(k))]) assert.ok(P.yields.includes(y), `${k} yields to ${y}`);
+  }
+  // The v7 keys yield exactly as before (to the v6 word keys and earlier v7 keys only).
+  for (const k of V7) assert.deepEqual(K.BILL_KEY_PATTERNS[k].yields, ['tariffs_china', 'border_security', ...V6, ...V7.slice(0, V7.indexOf(k))], k);
+});
+t('social_security: benefit and WEP/GPO measures map; Medicare coverage stays with healthcare', () => {
+  assert.deepEqual(keyedV8('I voted for H.R. 82 to repeal the Windfall Elimination Provision so retirees get their full Social Security benefits.', { date: '2024-11-12' }), [['H.R. 82', 'social_security', 'high']]);
+  assert.deepEqual(keyedV8('I voted for H.R. 3000 to extend the ACA tax credits so families keep their coverage.', { date: '2025-05-01' }).map((x) => x[1]), ['healthcare']);
+});
+t('veterans: VA care and toxic-exposure measures map; "VA-03" and veterans’ courts do not', () => {
+  assert.deepEqual(keyedV8('I voted for H.R. 3967 to expand VA health care to toxic-exposed veterans.', { date: '2022-03-03' }), [['H.R. 3967', 'veterans', 'high']]);
+  assert.deepEqual(keyedV8('Congressman Smith (VA-03) voted for H.R. 5100 to support small businesses.', { date: '2025-05-01' }).filter((x) => x[1] === 'veterans'), []);
+  assert.deepEqual(keyedV8('I wrote H.R. 5100, which funds drug courts and Veterans’ Courts for treatment.', { date: '2025-05-01' }).filter((x) => x[1] === 'veterans'), []);
+});
+t('rural_ag: farm bill and crop-insurance measures map; a wind farm does not', () => {
+  assert.deepEqual(keyedV8('I voted for H.R. 7567 to strengthen crop insurance for family farms.', { date: '2026-04-30' }), [['H.R. 7567', 'rural_ag', 'high']]);
+  assert.deepEqual(keyedV8('I voted for H.R. 5100 to permit an offshore wind farm.', { date: '2025-05-01' }).filter((x) => x[1] === 'rural_ag'), []);
+});
+t('privacy_rights: surveillance and data-broker measures map; a bill with no privacy word does not', () => {
+  assert.deepEqual(keyedV8('I voted for H.R. 7888 only with a warrant requirement to protect Americans from warrantless surveillance.', { date: '2024-04-12' }), [['H.R. 7888', 'privacy_rights', 'high']]);
+  assert.deepEqual(keyedV8('I voted for H.R. 5100 to rename a post office.', { date: '2025-05-01' }), []);
+});
+t('health_drug_prices: negotiation and insulin-cap measures map; healthcare keeps a sentence that names coverage', () => {
+  assert.deepEqual(keyedV8('I voted for H.R. 5100 to cap insulin at $35 a month and lower prescription drug prices.', { date: '2025-05-01' }), [['H.R. 5100', 'health_drug_prices', 'high']]);
+  // Coverage and drug prices in one sentence: healthcare (earlier) keeps the bill; the drug-price key yields it.
+  const both = keyedV8('I voted for H.R. 5100 to expand health insurance coverage and lower prescription drug prices.', { date: '2025-05-01' }).map((x) => x[1]);
+  assert.deepEqual(both, ['healthcare']);
+});
+t('back_police: police funding and hiring measures map; police reform stays with justice_reform', () => {
+  assert.deepEqual(keyedV8('I voted for H.R. 5100 to fund recruitment and training for small police departments.', { date: '2025-05-01' }), [['H.R. 5100', 'back_police', 'high']]);
+  assert.deepEqual(keyedV8('I voted for H.R. 7120 to reform policing and end qualified immunity.', { date: '2021-03-03' }).map((x) => x[1]), ['justice_reform']);
+});
+t('edu_college_cost: student-debt and Pell measures map; the Congressional Review Act named as the procedure does not', () => {
+  assert.deepEqual(keyedV8('I voted against H.J.Res. 45, which would block student debt relief for borrowers.', { date: '2023-05-24' }), [['H.J.Res. 45', 'edu_college_cost', 'high']]);
+  const r = map('Today we introduced a Congressional Review Act (CRA) resolution to overturn the SAVE plan, which leaves student debt to taxpayers.', { date: '2023-09-05' });
+  assert.deepEqual(r.mappings, []);
+  assert.match(r.unmapped.find((u) => /Congressional Review Act/.test(u.bill)).reason, /named as the procedure/);
+});
+t('lands_preserve: public-land and wilderness measures map either way; a farm conservation program does not', () => {
+  assert.deepEqual(keyedV8('I oppose H.R. 803, which designates new wilderness and withdraws public lands from mining.', { date: '2021-02-25' }), [['H.R. 803', 'lands_preserve', 'high']]);
+  assert.deepEqual(keyedV8('I voted for H.R. 7567 to fund voluntary conservation on working farms.', { date: '2026-04-30' }).map((x) => x[1]), ['rural_ag']);
+});
+t('a bill an earlier key maps stays there: a v8 key yields it unless the catalog files it under the v8 key too', () => {
+  // The Social Security Fairness Act's line about police officers: social_security (earlier) keeps it.
+  assert.deepEqual(keyedV8('The Social Security Fairness Act repeals the WEP so police officers keep their full benefits.', { date: '2024-11-12' }).map((x) => x[1]), ['social_security']);
+  // A gun law line naming veterans’ health care: gun_safety (v7) keeps it.
+  const r = K.mapCandidate(find('I voted for H.R. 8 to require background checks on gun sales. It also funds VA health care for veterans in crisis.', { date: '2021-03-11' }).candidates[0], 'veterans');
+  assert.equal(r.mapped, false);
+  // The Inflation Reduction Act: the catalog files it under health_drug_prices, so it maps there as well as on an earlier key.
+  assert.ok(catalog.byId.get('117|H.R. 5376').issue_keys.includes('health_drug_prices'));
+});
+t('an uncatalogued v8 measure needs the key’s subject in a sentence that names it or carries it on (a list page)', () => {
+  const list = doc('<p>She helped advance Healthy School Meals for All, the New York Health Act, and Medical Aid in Dying.</p><p>She has also led work to support New York agriculture and family farms.</p>', { source_type: 'campaign page', date: '2026-11-12' });
+  assert.deepEqual(list.mappings.filter((m) => V8.includes(m.key)), []);
+  const carried = doc('<p>Today we introduced the Great American Outdoors Act 250.</p><p>The GAOA250 invests $1.9 billion annually in our national parks and public lands.</p>', { source_type: 'official press release', date: '2026-06-10' });
+  assert.deepEqual(carried.mappings.map((m) => m.key), ['lands_preserve']);
+});
+t('finder v4: a catalog short title with a trailing note reads as the bill (Farm, Food, and National Security Act → H.R. 7567)', () => {
+  assert.deepEqual(find('The House passed the Farm, Food, and National Security Act of 2026 today.', { date: '2026-04-30' }).candidates.map((c) => c.id), ['119|H.R. 7567']);
+  assert.ok(catalog.shortTitles.some((g) => g.base === 'Farm, Food, and National Security Act'));
+});
+t('the v8 keys map nothing on the multi-bill test releases or in the first seventeen keys’ ground-truth sources', () => {
+  const mm = ['<h1>Rep. Miller-Meeks Statement on Votes to Secure Southern Border, Support U.S. National Security</h1>',
+    '<p>“I urge the Senate and President Biden to take immediate action to pass H.R. 2 and secure the southern border to stop the flow of illegal immigration, people on terrorist watch list, and fentanyl. Border security is national security.</p>',
+    '<p>End the Border Catastrophe Act</p><p>Forces the Biden Administration to restart construction of the border wall.</p><p>Ends catch and release.</p>',
+    '<p>Israel Security Supplemental Appropriations Act</p><p>$26.38 billion to support Israel in its effort to defend itself against Iran and its proxies, and to reimburse U.S. military operations in response to recent attacks.</p>',
+    '<p>Ukraine Security Supplemental Appropriations Act</p><p>$60.84 billion to address the conflict in Ukraine and assist our regional partners as they counter Russia, $23.2 billion of which will be used for replenishment of U.S. weapons, stocks, and facilities.</p>',
+    '<p>Indo-Pacific Security Supplemental Appropriations Act</p><p>$8.12 billion to continue efforts to counter communist China and ensure a strong deterrence in the region.</p>'].join('');
+  const lucas = ['<p>Washington, DC – Congressman Frank Lucas (OK-03) released the following statement after the U.S. House of Representatives passed H.R. 2811- the Limit, Save, Grow Act of 2023 , a bill to address the debt ceiling and reduce federal spending.</p>',
+    '<p>The Limit, Save, Grow Act would return total discretionary spending to the Fiscal Year (FY) 2022 level in FY 2024 and cap annual growth at 1 percent for a decade thereafter; rescind unspent COVID relief funds; repeal most of the Inflation Reduction Act’s (IRA) energy and climate tax credit expansions.</p>'].join('');
+  const smith = ['<p>“Today, taxpayers face high prices sparked by reckless government spending and $34 trillion of debt and counting.</p>',
+    '<p>“Part of our commitment to helping America’s seniors and workers today is to protect and strengthen Medicare and Social Security.</p>',
+    '<p>Some estimates show that the tax breaks in the Inflation Reduction Act now cost as much as three times the original projection.</p>',
+    '<p>“And finally, last year, we secured the most meaningful pro-work reform to TANF in a generation in the Fiscal Responsibility Act.</p>'].join('');
+  const waters = '<p>Roosevelt in 1935, the Social Security Act has provided economic stability and retirement security to millions of hard working Americans.</p><p>Medicare and Medicaid save lives, help people live longer, and provide the peace of mind that comes with affordable health care that is there when you need it.</p>';
+  for (const [body, date] of [[mm, '2024-04-20'], [lucas, '2023-04-26'], [smith, '2024-03-06'], [waters, '2018-10-19']])
+    assert.deepEqual(doc(body, { source_type: 'official press release', date }).mappings.filter((m) => V8.includes(m.key)).map((m) => `${m.bill ?? m.matched} → ${m.key}`), []);
+  for (const r of GT.filter((x) => Number(x.stance_id.slice(-3)) < 54)) assert.ok(!r.mappings.some((m) => V8.includes(m.key)), r.stance_id);
+});
+t('expansion records (fourth pass): the bills found map to the record key at the expected confidence, and nothing else maps', () => {
+  const got = (id) => GT.filter((r) => r.stance_id === id).flatMap((r) => r.mappings.map((m) => [m.bill ?? m.matched, m.key, m.confidence]));
+  for (const [id, rows] of Object.entries(V8_WANT)) assert.deepEqual(got(id), rows, id);
+  const fourth = GT.filter((r) => Number(r.stance_id.slice(-3)) >= 54);
+  assert.equal(new Set(fourth.map((r) => r.stance_id)).size, 30);
+  for (const r of fourth) if (!(r.stance_id in V8_WANT)) assert.deepEqual(got(r.stance_id), [], r.stance_id);
+  // McClain's "Congressional Review Act" is the procedure, not the measure.
+  assert.deepEqual(got('mcclain|edu_college_cost|gt-079'), []);
 });
 
 // ── Constraints ─────────────────────────────────────────────────────────────
