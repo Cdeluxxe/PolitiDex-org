@@ -41,9 +41,18 @@ export const SOURCES = [
     url: "https://www.cornyn.senate.gov/issues/health-care/" },
 ];
 
-// Per-source fetch ceiling. Sources are pulled concurrently, so a whole run
-// stays well inside the scheduled-function time limit even if one site hangs.
-export const FETCH_TIMEOUT_MS = 20_000;
+// Per-run time budget. The cron runs every minute and a scheduled function is
+// cut off at 30 s, so a run aims to finish inside RUN_BUDGET_MS. A run makes
+// two concurrent fetch passes — the official-pattern/discovery check, then the
+// pull — so the two ceilings below add up to well under the budget even if
+// every site hangs, leaving room for Blobs writes and scoring. A run that goes
+// over the budget logs a "raw-ingest: SLOW RUN" line; if those show up
+// regularly, lower MAX_POLITICIANS_PER_RUN toward 5–6.
+export const RUN_BUDGET_MS = 25_000;
+// Per-source fetch ceiling for the pull. Sources are pulled concurrently.
+export const FETCH_TIMEOUT_MS = 12_000;
+// Per-page ceiling for the stable-page (discovery / official pattern) check.
+export const DISCOVERY_TIMEOUT_MS = 8_000;
 
 // Hard ceiling on stored body size (bytes of text) — a campaign page is far
 // smaller; this only guards against a runaway response.
@@ -107,7 +116,15 @@ export async function pullOne(src, { fetch, store, now = () => new Date(), onRec
 // is persisted), until the run reaches MAX_SOURCES_PER_RUN. Each discovered
 // page keeps the politician's existing topic and carries a `source_id` so its
 // raw record key never collides with the configured source's key.
-export const MAX_SOURCES_PER_RUN = 11; // "under 12"
+// Per-run caps (the cron runs every minute):
+//   · MAX_POLITICIANS_PER_RUN — whole politicians the planner takes per run
+//     (raised from the old effective 3; drop toward 5–6 if runs run slow).
+//   · MAX_SOURCES_PER_POLITICIAN — pages + official pattern pulled for one
+//     politician in one run (raised from 2–3).
+//   · MAX_SOURCES_PER_RUN — total pulled sources per run (raised from 11).
+export const MAX_POLITICIANS_PER_RUN = 8;
+export const MAX_SOURCES_PER_POLITICIAN = 6;
+export const MAX_SOURCES_PER_RUN = 36;
 
 export const DISCOVERY_PATTERNS = [
   { politician_id: "james_talarico", topic: "cost_living", source_type: "campaign issues index",
@@ -163,7 +180,7 @@ export async function discoverSources(sources, { fetch, log = console.log, patte
       const res = await fetch(p.url, {
         headers: { "user-agent": "PolitiDex raw-ingest (+https://politidex.fyi)", accept: "text/html,*/*" },
         redirect: "follow",
-        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+        signal: AbortSignal.timeout(DISCOVERY_TIMEOUT_MS),
       });
       const body = await res.text();
       return { p, ...isStablePage(p.url, res, body) };
@@ -475,7 +492,7 @@ export function normaliseRotationState(doc) {
  * remaining_in_cycle, state, size }; `state` is what to persist for next run.
  * Never returns more than `max` sources even after every pattern is added.
  */
-export function planRun(state = {}, { roster = ROSTER, max = MAX_SOURCES_PER_RUN, counts = {}, every = DEPRIORITISED_EVERY_CYCLES } = {}) {
+export function planRun(state = {}, { roster = ROSTER, max = MAX_SOURCES_PER_RUN, counts = {}, every = DEPRIORITISED_EVERY_CYCLES, maxPoliticians = MAX_POLITICIANS_PER_RUN, perPolitician = MAX_SOURCES_PER_POLITICIAN } = {}) {
   const st = normaliseRotationState(state);
   const ids = new Set(roster.map((r) => r.politician_id));
   const order = priorityOrder(roster, counts);
@@ -493,9 +510,13 @@ export function planRun(state = {}, { roster = ROSTER, max = MAX_SOURCES_PER_RUN
   for (const x of pending) {
     const { r } = x;
     const take = x.band === 0 ? x.open : x.filled;
-    const pages = take.filter((y) => !y.official && !seen.has(normUrl(y.s.url))).map((y) => y.s);
+    if (politicians.length >= Math.max(1, maxPoliticians)) break;
     const offRow = take.find((y) => y.official);
-    const off = offRow && !seen.has(normUrl(offRow.s.url)) && !pages.some((s) => normUrl(s.url) === normUrl(offRow.s.url)) ? offRow.s : null;
+    const per = Math.max(1, perPolitician);
+    // Per-politician cap: the official pattern keeps its slot, pages fill the rest.
+    const pageCap = offRow ? per - 1 : per;
+    const pages = take.filter((y) => !y.official && !seen.has(normUrl(y.s.url))).map((y) => y.s).slice(0, Math.max(0, pageCap));
+    const off = offRow && per >= 1 && !seen.has(normUrl(offRow.s.url)) && !pages.some((s) => normUrl(s.url) === normUrl(offRow.s.url)) ? offRow.s : null;
     const cost = pages.length + (off ? 1 : 0);
     if (cost && used + cost > max) {
       if (politicians.length) break; // priority order: never skip ahead to someone smaller

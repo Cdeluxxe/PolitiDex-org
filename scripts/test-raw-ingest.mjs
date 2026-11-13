@@ -42,11 +42,12 @@ const quiet = async (fn) => {
 const NOW = () => new Date('2026-11-07T08:00:00.000Z');
 const HTML = '<html><body><h1>Taxes &amp; Cost of Living</h1></body></html>';
 
-await t('function and core exist; function is scheduled every 4 hours and uses the core', () => {
+await t('function and core exist; function is scheduled every minute and uses the core', () => {
   assert.ok(existsSync(fnPath), 'missing ' + fnPath);
   assert.ok(existsSync(corePath), 'missing ' + corePath);
   const src = readFileSync(fnPath, 'utf8');
-  assert.match(src, /schedule:\s*"0 \*\/4 \* \* \*"/, 'every 4 hours = 6 runs/day');
+  assert.match(src, /schedule:\s*"\* \* \* \* \*"/, 'every minute');
+  assert.doesNotMatch(src, /schedule:\s*"0 \*\/4/, 'the old 4-hour schedule is gone');
   assert.match(src, /raw-ingest-core\.mjs/);
   assert.match(src, /export default/);
 });
@@ -143,6 +144,9 @@ await t('a hung source is cut off by a timeout signal rather than stalling the r
   assert.equal(seen.length, N);
   assert.ok(seen.every((sig) => sig instanceof AbortSignal), 'every fetch carries an AbortSignal');
   assert.ok(core.FETCH_TIMEOUT_MS > 0 && core.FETCH_TIMEOUT_MS <= 25_000);
+  // Two fetch passes per run (stable-page check, then pull) stay inside the run budget, under the 30 s limit.
+  assert.ok(core.RUN_BUDGET_MS <= 30_000 && core.RUN_BUDGET_MS >= 20_000, 'run budget ~25–30 s');
+  assert.ok(core.DISCOVERY_TIMEOUT_MS + core.FETCH_TIMEOUT_MS < core.RUN_BUDGET_MS, 'worst-case fetch time leaves headroom');
 });
 
 await t('every source failing logs FAIL per source, returns 502, and writes nothing', async () => {
@@ -447,15 +451,15 @@ await t('discovery adds one new stable URL to the run without exceeding the sour
 });
 
 await t('discovery never exceeds the cap, skips unstable pages, and only checks politicians in the source list', async () => {
-  assert.ok(core.MAX_SOURCES_PER_RUN < 12);
+  const CAP = 11; // a cap smaller than SOURCES + patterns, so the CAP path is exercised
   const pols = new Set(core.SOURCES.map((s) => s.politician_id));
   assert.ok(core.DISCOVERY_PATTERNS.every((p) => pols.has(p.politician_id) && p.source_id && /^https:\/\//.test(p.url)));
   assert.equal(new Set(core.DISCOVERY_PATTERNS.map((p) => p.politician_id)).size, pols.size, 'one pattern per politician');
   // Every pattern stable → filled to the cap, the rest logged as CAP.
   const logs = [];
-  const { value: d } = await quiet(() => core.discoverSources(core.SOURCES, { fetch: fakeFetch(200, LONG_HTML), log: (l) => logs.push(l) }));
-  assert.equal(d.sources.length, core.MAX_SOURCES_PER_RUN);
-  assert.equal(d.added.length, core.MAX_SOURCES_PER_RUN - N);
+  const { value: d } = await quiet(() => core.discoverSources(core.SOURCES, { fetch: fakeFetch(200, LONG_HTML), log: (l) => logs.push(l), max: CAP }));
+  assert.equal(d.sources.length, CAP);
+  assert.equal(d.added.length, CAP - N);
   assert.equal(logs.filter((l) => l.startsWith('discovery: CAP ')).length, core.DISCOVERY_PATTERNS.length - d.added.length);
   // 404, tiny body, redirect to home page, or an already-listed URL → not added.
   const home = async (url) => ({ ok: true, status: 200, url: new URL(url).origin + '/', headers: new Map([['content-type', 'text/html']]), text: async () => LONG_HTML });
@@ -544,7 +548,7 @@ await t('roster: priority flags are true to the data, and prioritised people com
   const fsrc = readFileSync(fnPath, 'utf8');
   assert.match(fsrc, /rotate:\s*true/, 'the scheduled entry point rotates');
   assert.match(fsrc, /rotationStore:\s*getStore\(ROTATION_STORE_NAME\)/, 'the rotation state is persisted');
-  assert.equal(core.MAX_SOURCES_PER_RUN, 11, 'per-run cap unchanged');
+  assert.equal(core.MAX_SOURCES_PER_RUN, 36, 'per-run cap: 30–40 sources');
   const order = core.rotationOrder().map((r) => r.tier);
   assert.deepEqual(order, [...order].sort((a, b) => a - b), 'rotation order is by tier');
 });
@@ -653,7 +657,7 @@ await t('a rotated run includes politicians beyond the original five and at leas
   assert.ok([...pols].some((p) => !ORIGINAL.has(p)), `beyond the original five (got ${[...pols].join(', ')})`);
   assert.ok(report.discovered.length >= 1 && report.discovered.every((d) => d.kind === 'official'), 'official patterns joined the pull list');
   assert.ok((report.included.kinds.official || 0) >= 1, 'at least one official source pulled');
-  assert.ok(report.results.length <= core.MAX_SOURCES_PER_RUN && report.results.length < 12, `cap respected (${report.results.length})`);
+  assert.ok(report.results.length <= core.MAX_SOURCES_PER_RUN, `cap respected (${report.results.length})`);
   assert.equal(report.results.length, report.included.count);
   assert.equal(store.data.size, report.results.length, 'every included source pulled and stored');
   // Logged: who and which source types.
@@ -672,7 +676,7 @@ await t('successive runs rotate through the whole roster, and every run respects
     const { value: res } = await quiet(() => fn.run({ fetch: fakeFetch(200, LONG_HTML), store: fakeStore(), now: NOW,
       rotate: { counts: {} }, rotationStore: rot, log: () => {} }));
     const r = await res.json();
-    assert.ok(r.results.length <= core.MAX_SOURCES_PER_RUN && r.results.length < 12, `run ${i}: ${r.results.length} ≤ cap`);
+    assert.ok(r.results.length <= core.MAX_SOURCES_PER_RUN, `run ${i}: ${r.results.length} ≤ cap`);
     assert.ok(r.plan.planned_size <= core.MAX_SOURCES_PER_RUN, `run ${i}: planned ${r.plan.planned_size} ≤ cap`);
     r.plan.politicians.forEach((p) => seen.add(p));
     sets.push(r.plan.politicians.join(','));
@@ -811,6 +815,47 @@ await t('all topics: one page writes Locker items on more than one topic, each u
   assert.ok(!ls2.data.has(key), 'flagged cross-topic item is not written');
   assert.ok(lockerItems(ls2).some((i) => i.topic === 'healthcare_costs'), 'the other topics still write');
   assert.ok(logs2.some((l) => l.startsWith('evidence-locker: FLAGGED john_cornyn|border_security')));
+});
+
+await t('every-minute caps: 8 politicians, 6 sources each, 30–40 per run — enforced by the planner and logged against the time budget', async () => {
+  assert.equal(core.MAX_POLITICIANS_PER_RUN, 8);
+  assert.equal(core.MAX_SOURCES_PER_POLITICIAN, 6);
+  assert.ok(core.MAX_SOURCES_PER_RUN >= 30 && core.MAX_SOURCES_PER_RUN <= 40);
+  // A synthetic roster with more pages than any cap allows.
+  const page = (pid, i) => ({ politician_id: pid, topic: i % 2 ? 'healthcare_costs' : 'cost_living', source_type: 'official House issue page', url: `https://${pid}.example.gov/issues/${i}` });
+  const mk = (pages) => Array.from({ length: 12 }, (_, k) => {
+    const pid = `pol_${k}`;
+    return { politician_id: pid, tier: 1, sources: Array.from({ length: pages }, (_, i) => page(pid, i)),
+      official: { ...page(pid, 99), source_type: 'official House newsroom', official_kind: 'congress', source_id: 'official-newsroom' } };
+  });
+  // 4 sources each: the politician cap binds first (8 × 4 = 32 ≤ 36).
+  const small = core.planRun({}, { roster: mk(3) });
+  assert.equal(small.politicians.length, core.MAX_POLITICIANS_PER_RUN, 'politicians per run capped at 8');
+  assert.equal(small.size, 32);
+  // 10 sources each: trimmed to 6 per politician, and the run total holds at ≤ 36.
+  const p = core.planRun({}, { roster: mk(9) });
+  assert.ok(p.politicians.length <= core.MAX_POLITICIANS_PER_RUN);
+  assert.ok(p.size <= core.MAX_SOURCES_PER_RUN && p.size >= 30, `total ${p.size} within 30–${core.MAX_SOURCES_PER_RUN}`);
+  for (const pid of p.politicians) {
+    const n = [...p.sources, ...p.patterns].filter((s) => s.politician_id === pid).length;
+    assert.equal(n, core.MAX_SOURCES_PER_POLITICIAN, `${pid}: ${n} = ${core.MAX_SOURCES_PER_POLITICIAN}`);
+    assert.ok(p.patterns.some((s) => s.politician_id === pid), `${pid} keeps its official slot`);
+  }
+  // Small rosters rows: whole politicians up to 8 per run, so one run reaches well past the old 3.
+  const real = core.planRun({});
+  assert.ok(real.politicians.length > 3 && real.politicians.length <= 8, `real roster run takes ${real.politicians.length} politician(s)`);
+  // End to end: a run stores valid raw records (same locked shape, no stance fields) and logs its duration.
+  const store = fakeStore(); const logs = [];
+  const { value: res } = await quiet(() => fn.run({ fetch: fakeFetch(200, LONG_HTML), store, now: NOW, rotate: { state: {}, counts: {} }, log: (l) => logs.push(l) }));
+  const r = await res.json();
+  assert.ok(r.plan.politicians.length <= 8 && r.results.length <= core.MAX_SOURCES_PER_RUN);
+  assert.ok(r.results.length > 11, `more sources than the old cap (${r.results.length})`);
+  for (const rec of store.data.values()) {
+    for (const k of ['url', 'final_url', 'fetched_at', 'source_type', 'politician_id', 'topic', 'http_status', 'body']) assert.ok(k in rec, `raw record has ${k}`);
+    for (const k of FORBIDDEN) assert.ok(!(k in rec), `raw record carries no ${k}`);
+  }
+  assert.ok(Number.isFinite(r.duration_ms) && r.budget_ms === core.RUN_BUDGET_MS);
+  assert.ok(logs.some((l) => l.startsWith('raw-ingest: run duration — ') || l.startsWith('raw-ingest: SLOW RUN — ')), 'duration logged against the budget');
 });
 
 if (failures) { console.error(`${failures} failing`); process.exit(1); }

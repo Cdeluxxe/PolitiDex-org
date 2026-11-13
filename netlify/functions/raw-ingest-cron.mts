@@ -61,6 +61,16 @@
 //     "evidence-locker: topics with new items this run …" (items per topic, by
 //     strength) close every run; the report carries the same under `topics`.
 
+// Every-minute pass:
+//   · SCHEDULE — every minute ("* * * * *") instead of every 4 hours.
+//   · CAPS — up to MAX_POLITICIANS_PER_RUN (8) politicians, MAX_SOURCES_PER_
+//     POLITICIAN (6) sources each and MAX_SOURCES_PER_RUN (36) sources in total
+//     per run. Fetch ceilings keep a run inside RUN_BUDGET_MS (25 s); each run
+//     logs "raw-ingest: run duration …" or "raw-ingest: SLOW RUN …".
+//   · Record shape, Locker writer, thresholds, review flags and rotation logic
+//     are unchanged. (Notes below that mention the 4-hour schedule or a cap of
+//     11 describe earlier passes.)
+
 // Roster priority + baseline pass:
 //   · ROSTER grows beyond the previous 13 to more sitting members with a
 //     district board and/or stated positions. Tier 1 = board + several stated
@@ -86,6 +96,7 @@ import {
   runRawIngest, discoverSources, planRun, runPlanLine, sourceKind, normaliseRotationState,
   rosterSummary, baselineLine, ROSTER, BASELINE_STRONG, BASELINE_WEAK,
   RAW_STORE_NAME, SOURCES, ROTATION_STORE_NAME, ROTATION_KEY, MAX_SOURCES_PER_RUN,
+  MAX_POLITICIANS_PER_RUN, MAX_SOURCES_PER_POLITICIAN, RUN_BUDGET_MS,
 } from "../lib/raw-ingest-core.mjs";
 import { logCandidateStances, SCORED_TOPICS } from "../lib/stance-score-core.mjs";
 import { maybeWriteLockerItem, loadReviewFlags, lockerBaselineCounts, LOCKER_STORE_NAME } from "../lib/evidence-locker-core.mjs";
@@ -118,6 +129,7 @@ export async function run(deps: {
   reviewFlags?: any;
 }) {
   const log = deps.log ?? ((l: string) => console.log(l));
+  const startedAt = Date.now();
   let sources = deps.sources ?? SOURCES;
   let discovered: any[] = [];
   let plan: any = null;
@@ -131,7 +143,7 @@ export async function run(deps: {
     const state = ro.state !== undefined ? normaliseRotationState(ro.state) : await readRotationState(deps.rotationStore, log);
     counts = ro.counts ?? await lockerBaselineCounts(deps.lockerStore, { flags, pids, log });
     const max = ro.max ?? MAX_SOURCES_PER_RUN;
-    plan = planRun(state, { roster, max, counts });
+    plan = planRun(state, { roster, max, counts, maxPoliticians: MAX_POLITICIANS_PER_RUN, perPolitician: MAX_SOURCES_PER_POLITICIAN });
     const rs = rosterSummary(roster, counts);
     const tierOf = new Map(roster.map((r: any) => [r.politician_id, r.tier]));
     log(`raw-ingest: roster — ${rs.size} politician(s) (${Object.entries(rs.tiers).map(([t, n]) => `tier ${t}: ${n}`).join(", ")}) · ${rs.reached.length} politician + issue pair(s) filled`);
@@ -207,6 +219,14 @@ export async function run(deps: {
     report.baseline = { strong: BASELINE_STRONG, weak: BASELINE_WEAK, reached: rs.reached, counts: after };
     log(baselineLine(roster, after));
   }
+  // Time guardrail: every run logs its duration against the budget; a run over
+  // it logs SLOW RUN (if that is regular, lower MAX_POLITICIANS_PER_RUN to 5–6).
+  const durationMs = Date.now() - startedAt;
+  report.duration_ms = durationMs;
+  report.budget_ms = RUN_BUDGET_MS;
+  log(durationMs > RUN_BUDGET_MS
+    ? `raw-ingest: SLOW RUN — ${durationMs}ms (budget ${RUN_BUDGET_MS}ms, ${report.results.length} source(s), ${MAX_POLITICIANS_PER_RUN} politician cap) · consider lowering MAX_POLITICIANS_PER_RUN toward 5–6`
+    : `raw-ingest: run duration — ${durationMs}ms (budget ${RUN_BUDGET_MS}ms, ${report.results.length} source(s))`);
   const okCount = report.results.filter((r: any) => r.ok).length;
   // 200 all sources stored · 207 some failed (the rest still stored) · 502 none stored
   const status = report.ok ? 200 : okCount > 0 ? 207 : 502;
@@ -226,7 +246,8 @@ export default async (): Promise<Response> =>
     rotationStore: getStore(ROTATION_STORE_NAME),
   });
 
-// Every 4 hours, on the hour (00, 04, 08, 12, 16, 20 UTC).
+// Every minute. Each run is sized (caps + fetch ceilings in raw-ingest-core)
+// to finish inside RUN_BUDGET_MS (~25 s), under the 30 s function limit.
 export const config: Config = {
-  schedule: "0 */4 * * *",
+  schedule: "* * * * *",
 };
