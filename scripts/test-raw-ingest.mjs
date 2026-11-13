@@ -514,6 +514,7 @@ const REQUESTED = new Set(REQUESTED_POLITICIANS.map((r) => r.politician_id));
 const ACTIVE_ROSTER = core.ROSTER.filter((r) => r.sources.length || r.official);
 const PREVIOUS = new Set(core.PREVIOUS_ROSTER);
 const ORIGINAL = new Set(core.ORIGINAL_FIVE);
+const SCORED = new Set((await import('../netlify/lib/stance-score-core.mjs')).SCORED_TOPICS);
 const memStore = () => {
   const data = new Map();
   return { data, async get(k) { return data.has(k) ? JSON.parse(JSON.stringify(data.get(k))) : null; },
@@ -534,9 +535,12 @@ await t('roster: priority flags are true to the data, and prioritised people com
     for (const s of r.sources) {
       assert.equal(s.politician_id, r.politician_id);
       // New roster pages must be campaign/official; the original five keep their configured SOURCES rows.
-      if (ORIGINAL.has(r.politician_id) && s.source_id !== "known-homepage") assert.ok(core.SOURCES.includes(s), `${s.url} is one of the configured SOURCES`);
+      if (ORIGINAL.has(r.politician_id) && s.source_id !== "known-homepage" && !s.source_class) assert.ok(core.SOURCES.includes(s), `${s.url} is one of the configured SOURCES`);
       else assert.ok(locker.isCampaignOrOfficial(s.source_type, s.url), `${s.url} is a campaign/official page`);
-      assert.ok(['cost_living', 'healthcare_costs'].includes(s.topic));
+      // Extra source types carry the issue key the site already cites the page
+      // for; every other page stays on the two original topic keys.
+      if (s.source_class) assert.ok(SCORED.has(s.topic), `${s.url}: ${s.topic} is a scored issue key`);
+      else assert.ok(['cost_living', 'healthcare_costs'].includes(s.topic));
     }
     const o = r.official;
     if (!o && REQUESTED.has(r.politician_id)) {
@@ -895,6 +899,116 @@ await t('requested national expansion: all 104 unique names, known URLs or expli
     state = plan.state;
   }
   for (const person of REQUESTED_POLITICIANS.filter((r) => r.page)) assert.ok(reached.has(person.politician_id), `${person.name} joins a planner cycle`);
+});
+
+// ── Extra source types: member press/issue pages, Congress.gov, state legislature,
+//    governor/statewide, campaign Issues/Priorities sub-pages ──
+const types = await import('../netlify/lib/raw-ingest-source-types.mjs');
+const CLASSES = ['congress_member', 'congress_gov', 'state_legislature', 'statewide_official', 'campaign_issues'];
+const rowOf = (pid) => core.ROSTER.find((r) => r.politician_id === pid);
+const pagesOf = (r) => [...r.sources, ...(r.official ? [r.official] : [])];
+const RAW_FIELDS = ['url', 'final_url', 'fetched_at', 'source_type', 'politician_id', 'topic', 'source_id', 'http_status', 'content_type', 'body_chars', 'body'];
+
+await t('extra source types: every configured URL is already cited on the site for that politician, on their own or an official host', () => {
+  assert.deepEqual(Object.keys(types.SOURCE_CLASSES).sort(), [...CLASSES].sort());
+  const cache = new Map();
+  const read = (f) => (cache.has(f) ? cache.get(f) : (cache.set(f, readFileSync(path.join(root, f), 'utf8')), cache.get(f)));
+  assert.equal(new Set(types.EXTRA_SOURCES.map((e) => `${e.politician_id} ${e.url}`)).size, types.EXTRA_SOURCES.length, 'no duplicate entries');
+  for (const e of types.EXTRA_SOURCES) {
+    assert.ok(CLASSES.includes(e.source_class), `${e.url}: known class`);
+    assert.ok(read(e.known_from).includes(e.url), `${e.url}: cited verbatim in ${e.known_from} (not invented)`);
+    assert.ok(SCORED.has(e.topic), `${e.url}: ${e.topic} is a scored issue key`);
+    const row = rowOf(e.politician_id);
+    assert.ok(row, `${e.politician_id} is in the roster`);
+    const h = new URL(e.url).hostname.replace(/^www\./, '');
+    assert.match(e.url, /^https:\/\//);
+    if (e.source_class === 'congress_member') {
+      assert.match(h, /\.(house|senate)\.gov$/, `${e.url}: a house.gov / senate.gov page`);
+      const own = new Set(pagesOf(row).filter((s) => !s.source_class).map((s) => new URL(s.url).hostname.replace(/^www\./, '')));
+      assert.ok(own.has(h), `${e.url}: on the member's own host, not a colleague's or a committee's`);
+      assert.match(e.source_type, /^official (House|Senate) /);
+    }
+    if (e.source_class === 'congress_gov') {
+      assert.equal(h, 'congress.gov');
+      assert.match(new URL(e.url).pathname, /^\/(member|bill)\//, `${e.url}: a member page or a measure page`);
+    }
+    if (e.source_class === 'state_legislature' || e.source_class === 'statewide_official') assert.match(h, /\.gov$/, `${e.url}: a .gov host`);
+    if (e.source_class === 'campaign_issues') {
+      assert.doesNotMatch(h, /\.gov$/);
+      assert.match(e.url, /issue|priorit/i, `${e.url}: an Issues / Priorities page`);
+      const own = new Set(pagesOf(row).filter((s) => !s.source_class).map((s) => new URL(s.url).hostname.replace(/^www\./, '')));
+      assert.ok(own.has(h), `${e.url}: on the politician's own campaign site`);
+    }
+    assert.ok(locker.isCampaignOrOfficial(e.source_type, e.url), `${e.url}: counts as a campaign/official page`);
+    // Merged into the roster exactly once, with a unique raw record key.
+    const hits = pagesOf(row).filter((s) => s.url === e.url);
+    assert.equal(hits.length, 1, `${e.url} appears once in ${row.politician_id}'s row`);
+    assert.equal(hits[0].source_class, e.source_class);
+  }
+  for (const r of core.ROSTER) {
+    const keys = pagesOf(r).map((s) => core.rawKey(s, NOW().toISOString()));
+    assert.equal(new Set(keys).size, keys.length, `${r.politician_id}: every page writes its own raw record key`);
+  }
+});
+
+await t('extra source types: one of each is configured for a test politician who already has an official page', () => {
+  const TEST = { congress_member: 'aoc', congress_gov: 'aoc', state_legislature: 'dustin_burrows', statewide_official: 'cox', campaign_issues: 'james_talarico' };
+  for (const [cls, pid] of Object.entries(TEST)) {
+    const row = rowOf(pid);
+    assert.ok(row?.official, `${pid} has an official page`);
+    assert.equal(core.sourceKind(row.official), 'official');
+    assert.ok(pagesOf(row).some((s) => s.source_class === cls), `${pid} carries a ${cls} source`);
+  }
+  // The new state legislator's member page is already cited on the site and is their official pattern.
+  const burrows = rowOf('dustin_burrows');
+  assert.equal(burrows.official.official_kind, 'state_legislature');
+  assert.ok(readFileSync(path.join(root, 'politician-stances.js'), 'utf8').includes(burrows.official.url));
+  for (const pid of ['carl_heastie', 'mike_kohler']) assert.equal(rowOf(pid).official?.source_class, 'state_legislature');
+});
+
+await t('extra source types: a planner dry-run over the real roster pulls every new type, under the existing caps', () => {
+  const seen = new Set(); const extraUrls = new Set();
+  let state = {}; let runs = 0;
+  for (; runs < 400; runs++) {
+    const plan = core.planRun(state);
+    assert.ok(plan.politicians.length <= core.MAX_POLITICIANS_PER_RUN, 'politician cap');
+    assert.ok(plan.size <= core.MAX_SOURCES_PER_RUN, `run cap (${plan.size})`);
+    for (const pid of plan.politicians) assert.ok([...plan.sources, ...plan.patterns].filter((s) => s.politician_id === pid).length <= core.MAX_SOURCES_PER_POLITICIAN, `${pid}: per-politician cap`);
+    const n = Object.values(plan.classes).reduce((a, b) => a + b, 0);
+    assert.equal(n, plan.size, 'plan.classes counts every planned source');
+    for (const s of [...plan.sources, ...plan.patterns]) if (s.source_class) { seen.add(s.source_class); extraUrls.add(`${s.politician_id} ${s.url}`); }
+    state = plan.state;
+    if (plan.cycle >= 6) break;
+  }
+  for (const c of CLASSES) assert.ok(seen.has(c), `${c} is pulled by the rotation`);
+  // Over a handful of cycles every extra page gets its turn (overflow rotates by cycle).
+  for (const e of types.EXTRA_SOURCES) assert.ok(extraUrls.has(`${e.politician_id} ${e.url}`), `${e.url} is pulled within ${runs} runs`);
+  // Overflow rotation keeps the original pages first and moves the extras' window by cycle.
+  const page = (i, cls) => ({ politician_id: 'x', topic: 'cost_living', source_type: 'official House press release', url: `https://x.house.gov/p${i}`, ...(cls ? { source_class: cls } : {}) });
+  const pages = [page(0), page(1, 'congress_gov'), page(2, 'congress_member'), page(3, 'congress_member'), page(4, 'congress_member')];
+  const a = core.orderPagesForRun(pages, 3, 0).slice(0, 3).map((s) => s.url.slice(-2));
+  const b = core.orderPagesForRun(pages, 3, 1).slice(0, 3).map((s) => s.url.slice(-2));
+  assert.deepEqual(a, ['p0', 'p2', 'p3'], 'original page first, Congress.gov after the other extras');
+  assert.deepEqual(b, ['p0', 'p4', 'p1'], 'next cycle: the window moves on');
+  assert.deepEqual(core.orderPagesForRun(pages.slice(0, 2), 5, 3).map((s) => s.url.slice(-2)), ['p0', 'p1'], 'everything fits: no reordering beyond class order');
+});
+
+await t('extra source types: a rotated run stores them as plain raw records (locked shape) and logs their classes', async () => {
+  const roster = ['aoc', 'dustin_burrows', 'cox', 'james_talarico'].map(rowOf);
+  const store = fakeStore(); const logs = [];
+  const { value: res, lines } = await quiet(() => fn.run({ fetch: fakeFetch(200, LONG_HTML), store, now: NOW, rotate: { roster, state: { cycle: 1, done: [] }, counts: {} }, log: (l) => logs.push(l) }));
+  const r = await res.json();
+  // Cycle 1: AOC's slots past her original pages reach her Congress.gov page.
+  assert.ok(r.results.length <= core.MAX_SOURCES_PER_RUN && r.plan.politicians.length <= core.MAX_POLITICIANS_PER_RUN);
+  const cls = new Set(r.included.sources.map((s) => s.source_class).filter(Boolean));
+  for (const c of CLASSES) assert.ok(cls.has(c), `${c} included in the run`);
+  assert.ok(lines.some((l) => l.startsWith('raw-ingest: run included ') && l.includes('source classes: ') && l.includes('congress_member')), 'run log lists the source classes');
+  assert.equal(store.data.size, r.results.length);
+  for (const rec of store.data.values()) {
+    for (const k of Object.keys(rec)) assert.ok(RAW_FIELDS.includes(k), `raw record carries only the locked fields (found ${k})`);
+    for (const k of FORBIDDEN) assert.ok(!(k in rec));
+  }
+  assert.ok([...store.data.values()].some((rec) => /congress\.gov/.test(rec.url)), 'a Congress.gov page is pulled like any other source');
 });
 
 if (failures) { console.error(`${failures} failing`); process.exit(1); }

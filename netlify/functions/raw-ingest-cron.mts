@@ -71,6 +71,17 @@
 //     are unchanged. (Notes below that mention the 4-hour schedule or a cap of
 //     11 describe earlier passes.)
 
+// Extra source types pass:
+//   · Five more source classes join the rotation (raw-ingest-source-types.mjs):
+//     a member's own house.gov / senate.gov press releases and issue sections,
+//     Congress.gov member / lead-author pages, state legislature member pages,
+//     governor / statewide releases, and more campaign Issues / Priorities
+//     sub-pages. Every URL is one the site already cites for that politician.
+//   · Same caps, schedule, record shape and Locker writer. A politician with
+//     more pages than their per-run slots rotates through them by cycle.
+//   · RUN LOG — "raw-ingest: run included …" adds "source classes" (pages per
+//     class; "existing" = the pages configured before this pass).
+
 // Roster priority + baseline pass:
 //   · ROSTER grows beyond the previous 13 to more sitting members with a
 //     district board and/or stated positions. Tier 1 = board + several stated
@@ -165,7 +176,7 @@ export async function run(deps: {
     discovered = d.added;
   }
   const included = runPlanLine(sources);
-  console.log(`raw-ingest: run included ${included.count} source(s) · politicians: ${included.politicians.join(", ")} · source kinds: ${JSON.stringify(included.kinds)} · source types: ${JSON.stringify(included.source_types)}`);
+  console.log(`raw-ingest: run included ${included.count} source(s) · politicians: ${included.politicians.join(", ")} · source kinds: ${JSON.stringify(included.kinds)} · source types: ${JSON.stringify(included.source_types)} · source classes: ${JSON.stringify(included.source_classes)}`);
   const lockerWrites: any[] = [];
   const gt = deps.groundTruth ?? groundTruth;
   // Every page is scored against every topic (SCORED_TOPICS): its own topic as
@@ -190,9 +201,9 @@ export async function run(deps: {
   report.discovered = discovered.map((s: any) => ({ politician_id: s.politician_id, topic: s.topic, url: s.url, kind: sourceKind(s), ...(s.official_kind ? { official_kind: s.official_kind } : {}) }));
   report.included = {
     ...included,
-    sources: sources.map((s: any) => ({ politician_id: s.politician_id, topic: s.topic, url: s.url, source_type: s.source_type, kind: sourceKind(s) })),
+    sources: sources.map((s: any) => ({ politician_id: s.politician_id, topic: s.topic, url: s.url, source_type: s.source_type, kind: sourceKind(s), ...(s.source_class ? { source_class: s.source_class } : {}) })),
   };
-  if (plan) report.plan = { cycle: plan.cycle, politicians: plan.politicians, deprioritised: plan.deprioritised, skipped: plan.skipped, remaining_in_cycle: plan.remaining_in_cycle, planned_size: plan.size, roster_size: roster.length, state: plan.state };
+  if (plan) report.plan = { cycle: plan.cycle, classes: plan.classes, politicians: plan.politicians, deprioritised: plan.deprioritised, skipped: plan.skipped, remaining_in_cycle: plan.remaining_in_cycle, planned_size: plan.size, roster_size: roster.length, state: plan.state };
   report.locker_writes = lockerWrites;
   // Which topics produced candidates / items this run.
   const itemsByTopic: Record<string, { strong: number; weak: number; mention: number }> = {};

@@ -1,4 +1,7 @@
 import { REQUESTED_POLITICIANS } from "./raw-ingest-expansion.mjs";
+import { EXTRA_SOURCES, NEW_STATE_LEGISLATORS, SOURCE_CLASSES } from "./raw-ingest-source-types.mjs";
+
+export { EXTRA_SOURCES, SOURCE_CLASSES };
 
 // ─────────────────────────────────────────────────────────────────────────────
 // raw-ingest-core.mjs — Phase 3 ingestion pipeline, RAW STORE ONLY
@@ -434,6 +437,33 @@ for (const person of REQUESTED_POLITICIANS) {
   }
 }
 
+// Extra source types (raw-ingest-source-types.mjs): the member's own press
+// releases and issue sections, Congress.gov member/lead-author pages, state
+// legislature member pages, governor/statewide releases and more campaign
+// Issues/Priorities sub-pages. Each joins its politician's row as one more topic
+// page (a URL already in the row is skipped; a new state legislator's member
+// page becomes their official pattern instead), tagged with `source_class` and a
+// `source_id` so its raw record key never collides with an existing page.
+for (const person of NEW_STATE_LEGISLATORS) {
+  if (!ROSTER.some((r) => r.politician_id === person.politician_id)) ROSTER.push({ ...person, sources: [] });
+}
+for (const extra of EXTRA_SOURCES) {
+  const row = ROSTER.find((r) => r.politician_id === extra.politician_id);
+  if (!row) continue;
+  if ([...row.sources, row.official].some((s) => s && normUrl(s.url) === normUrl(extra.url))) continue;
+  // A state legislator new to the rotation: their legislature member page is
+  // their official pattern (the same slot every other roster row has).
+  if (!row.official && extra.source_class === "state_legislature") {
+    row.official = { politician_id: row.politician_id, topic: extra.topic, source_type: extra.source_type,
+      official_kind: "state_legislature", source_class: extra.source_class, source_id: "official-legislature", url: extra.url };
+    continue;
+  }
+  const prefix = extra.source_class.replace(/_/g, "-");
+  const n = row.sources.filter((s) => s.topic === extra.topic && String(s.source_id || "").startsWith(prefix + "-")).length + 1;
+  row.sources.push({ politician_id: row.politician_id, topic: extra.topic, source_type: extra.source_type,
+    source_class: extra.source_class, source_id: `${prefix}-${n}`, url: extra.url });
+}
+
 // The 13 politicians the rotation covered before the roster-priority pass.
 export const PREVIOUS_ROSTER = [
   "greg_abbott", "john_cornyn", "chip_roy", "crockett", "aoc", "maloy", "cox",
@@ -499,6 +529,26 @@ export function normaliseRotationState(doc) {
 }
 
 /**
+ * One politician's pages in pull order for this run. Pages without a
+ * `source_class` (the original topic pages) come first; then the extra source
+ * classes, Congress.gov last (it often refuses automated fetches). When the
+ * extras do not all fit in the slots left under the per-politician cap, the
+ * window moves on by one cycle each time, so every extra page is pulled in turn
+ * while the cap holds.
+ */
+export function orderPagesForRun(pages, cap, cycle = 0) {
+  const base = pages.filter((s) => !s.source_class);
+  const rest = [
+    ...pages.filter((s) => s.source_class && s.source_class !== "congress_gov"),
+    ...pages.filter((s) => s.source_class === "congress_gov"),
+  ];
+  const free = Math.max(0, cap - base.length);
+  if (!free || rest.length <= free) return [...base, ...rest];
+  const off = (Math.max(0, Math.trunc(cycle)) * free) % rest.length;
+  return [...base, ...rest.slice(off), ...rest.slice(0, off)];
+}
+
+/**
  * The pull list for one run. Works through the current cycle's eligible
  * politicians not yet checked this cycle, in priority order, taking whole
  * politicians while the total stays ≤ `max`. For a politician with an unfilled
@@ -534,7 +584,7 @@ export function planRun(state = {}, { roster = ROSTER, max = MAX_SOURCES_PER_RUN
     const per = Math.max(1, perPolitician);
     // Per-politician cap: the official pattern keeps its slot, pages fill the rest.
     const pageCap = offRow ? per - 1 : per;
-    const pages = take.filter((y) => !y.official && !seen.has(normUrl(y.s.url))).map((y) => y.s).slice(0, Math.max(0, pageCap));
+    const pages = orderPagesForRun(take.filter((y) => !y.official && !seen.has(normUrl(y.s.url))).map((y) => y.s), pageCap, cycle).slice(0, Math.max(0, pageCap));
     const off = offRow && per >= 1 && !seen.has(normUrl(offRow.s.url)) && !pages.some((s) => normUrl(s.url) === normUrl(offRow.s.url)) ? offRow.s : null;
     const cost = pages.length + (off ? 1 : 0);
     if (cost && used + cost > max) {
@@ -555,8 +605,10 @@ export function planRun(state = {}, { roster = ROSTER, max = MAX_SOURCES_PER_RUN
     done.add(r.politician_id);
     if (used >= max) break;
   }
+  const classes = {};
+  for (const src of [...sources, ...patterns]) { const k = src.source_class || "existing"; classes[k] = (classes[k] || 0) + 1; }
   return {
-    sources, patterns, politicians, deprioritised, skipped, cycle,
+    sources, patterns, politicians, deprioritised, skipped, cycle, classes,
     remaining_in_cycle: pending.filter((x) => !done.has(x.r.politician_id)).map((x) => x.r.politician_id),
     state: { cycle, done: [...done] },
     size: sources.length + patterns.length,
@@ -596,11 +648,13 @@ export function sourceKind(src) {
 /** One summary line: who and which source types were included in this run. */
 export function runPlanLine(sources) {
   const pols = [...new Set(sources.map((s) => s.politician_id))];
-  const kinds = {}, types = {};
+  const kinds = {}, types = {}, classes = {};
   for (const s of sources) {
     const k = sourceKind(s);
     kinds[k] = (kinds[k] || 0) + 1;
     types[s.source_type] = (types[s.source_type] || 0) + 1;
+    const c = s.source_class || "existing";
+    classes[c] = (classes[c] || 0) + 1;
   }
-  return { politicians: pols, kinds, source_types: types, count: sources.length };
+  return { politicians: pols, kinds, source_types: types, source_classes: classes, count: sources.length };
 }
