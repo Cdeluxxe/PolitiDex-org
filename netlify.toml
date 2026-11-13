@@ -38118,6 +38118,15 @@
   to = "/admin.html"
   status = 200
 
+# /admin/suggestions — the raw-ingest suggestions log (admin-suggestions.html).
+# Same curator login as /admin; the data comes from
+# /api/admin/raw-ingest-suggestions, which re-verifies that login server-side.
+# A literal path, not a splat: /admin/* stays undeclared (see above).
+[[redirects]]
+  from = "/admin/suggestions"
+  to = "/admin-suggestions.html"
+  status = 200
+
 # /api/votes IS RETIRED, AND ON PURPOSE THERE IS NO RULE FOR IT HERE.
 #
 # Netlify's top-resources-not-found report for Aug 12 - Sep 11 put /api/votes at
@@ -38349,6 +38358,18 @@
   for = "/admin"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/admin/suggestions"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-store"
+
+[[headers]]
+  for = "/admin-suggestions.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-store"
 
 [[headers]]
   for = "/admin/"

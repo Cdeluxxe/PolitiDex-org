@@ -418,7 +418,11 @@ section("7 · the Layton boards and every non-contested board are unchanged");
     .replace(/# Washington['’]s contested legislative seats[^\n]*\n(?:\[\[redirects\]\]\n  from = "\/ballot\/wa[^"]*"\n  to = "\/ballot-wa\.html"\n  status = 200\n)+/g, "")
     .replace(/# Washington (?:House|Senate) District \d+(?:, Position \d)? — [a-z0-9_]+\n(?:\[\[redirects\]\]\n  from = "\/district\/wa-(?:hd|sd)-\d+(?:-p\d)?[^"]*"\n  to = "\/district-wa-(?:hd|sd)-\d+(?:-p\d)?\.html"\n  status = 200\n)+\n/g, "")
     // The Sunlight Governance example page's three rewrites (v543).
-    .replace(/\n# ─+\n# SUNLIGHT GOVERNANCE, FIRST WORKING EXAMPLE[\s\S]*?from = "\/sunlight\/rocky-mountain-power\.html"\n  to = "\/sunlight-rocky-mountain-power\.html"\n  status = 200\n/, "");
+    .replace(/\n# ─+\n# SUNLIGHT GOVERNANCE, FIRST WORKING EXAMPLE[\s\S]*?from = "\/sunlight\/rocky-mountain-power\.html"\n  to = "\/sunlight-rocky-mountain-power\.html"\n  status = 200\n/, "")
+    // The raw-ingest suggestions log's curator page (/admin/suggestions): one
+    // rewrite and its two noindex header blocks, a later pass's.
+    .replace(/\n# \/admin\/suggestions — the raw-ingest suggestions log[\s\S]*?from = "\/admin\/suggestions"\n  to = "\/admin-suggestions\.html"\n  status = 200\n/, "")
+    .replace(/\n\[\[headers\]\]\n  for = "\/(?:admin\/suggestions|admin-suggestions\.html)"\n  \[headers\.values\]\n    X-Robots-Tag = "noindex, nofollow"\n    Cache-Control = "no-store"\n/g, "");
   eq(tomlNoCa(withoutElectionDayRewrites(TOML)), tomlNoCa(withoutElectionDayRewrites(HEAD("netlify.toml"))), "netlify.toml did not move");
   ok(![...TOML.matchAll(/from = "([^"]+)"/g)].some((m) => /^\/district\/.*\*/.test(m[1])), "no /district/* splat");
   // Utah's composer and poll rows are HEAD's; the rows this pass added in the

@@ -71,6 +71,28 @@
 //     are unchanged. (Notes below that mention the 4-hour schedule or a cap of
 //     11 describe earlier passes.)
 
+// Extra source types pass:
+//   · Five more source classes join the rotation (raw-ingest-source-types.mjs):
+//     a member's own house.gov / senate.gov press releases and issue sections,
+//     Congress.gov member / lead-author pages, state legislature member pages,
+//     governor / statewide releases, and more campaign Issues / Priorities
+//     sub-pages. Every URL is one the site already cites for that politician.
+//   · Same caps, schedule, record shape and Locker writer. A politician with
+//     more pages than their per-run slots rotates through them by cycle.
+//   · RUN LOG — "raw-ingest: run included …" adds "source classes" (pages per
+//     class; "existing" = the pages configured before this pass).
+
+// Official social pass (YouTube only for now):
+//   · Official / campaign YouTube channels already cited on the site
+//     (raw-ingest-social.mjs). One channel = one source slot; each new recent
+//     video becomes its own raw item record — type "video", date, link,
+//     excerpt, weight "mention" — with no scoring and no Locker write.
+//   · Excerpt = transcript first; on failure/empty, the description, logged as
+//     "raw-ingest: TRANSCRIPT FALLBACK …". "raw-ingest: youtube — …" closes the
+//     run with the transcript vs. fallback tally (also report.youtube).
+//   · Social slots are filled last (after every official / campaign page), so
+//     the caps and the priority of official pages are unchanged.
+
 // Roster priority + baseline pass:
 //   · ROSTER grows beyond the previous 13 to more sitting members with a
 //     district board and/or stated positions. Tier 1 = board + several stated
@@ -100,6 +122,7 @@ import {
 } from "../lib/raw-ingest-core.mjs";
 import { logCandidateStances, SCORED_TOPICS } from "../lib/stance-score-core.mjs";
 import { maybeWriteLockerItem, loadReviewFlags, lockerBaselineCounts, LOCKER_STORE_NAME } from "../lib/evidence-locker-core.mjs";
+import { appendRunSuggestions, SUGGESTIONS_STORE_NAME } from "../lib/raw-ingest-suggestions.mjs";
 import groundTruth from "../../db/stance-ground-truth-talarico-cost-of-living.json" with { type: "json" };
 import reviewFile from "../../db/evidence-locker-review.json" with { type: "json" };
 
@@ -165,7 +188,7 @@ export async function run(deps: {
     discovered = d.added;
   }
   const included = runPlanLine(sources);
-  console.log(`raw-ingest: run included ${included.count} source(s) · politicians: ${included.politicians.join(", ")} · source kinds: ${JSON.stringify(included.kinds)} · source types: ${JSON.stringify(included.source_types)}`);
+  console.log(`raw-ingest: run included ${included.count} source(s) · politicians: ${included.politicians.join(", ")} · source kinds: ${JSON.stringify(included.kinds)} · source types: ${JSON.stringify(included.source_types)} · source classes: ${JSON.stringify(included.source_classes)}`);
   const lockerWrites: any[] = [];
   const gt = deps.groundTruth ?? groundTruth;
   // Every page is scored against every topic (SCORED_TOPICS): its own topic as
@@ -187,12 +210,20 @@ export async function run(deps: {
     }
   };
   const report: any = await runRawIngest({ ...deps, onRecord }, sources);
+  // YouTube: how often the transcript worked vs. the description fallback.
+  const yt = report.results.filter((r: any) => r.youtube);
+  if (yt.length) {
+    const sum = (k: string) => yt.reduce((n: number, r: any) => n + (r.youtube[k] || 0), 0);
+    report.youtube = { channels: yt.length, videos: sum("videos"), stored: sum("stored"), already_stored: sum("seen"), transcript: sum("transcript"), description_fallback: sum("fallback") };
+    const tried = report.youtube.transcript + report.youtube.description_fallback;
+    log(`raw-ingest: youtube — ${yt.length} channel(s), ${report.youtube.stored} new video record(s) · transcript ${report.youtube.transcript}/${tried}, description fallback ${report.youtube.description_fallback}/${tried} · ${report.youtube.already_stored} already stored`);
+  }
   report.discovered = discovered.map((s: any) => ({ politician_id: s.politician_id, topic: s.topic, url: s.url, kind: sourceKind(s), ...(s.official_kind ? { official_kind: s.official_kind } : {}) }));
   report.included = {
     ...included,
-    sources: sources.map((s: any) => ({ politician_id: s.politician_id, topic: s.topic, url: s.url, source_type: s.source_type, kind: sourceKind(s) })),
+    sources: sources.map((s: any) => ({ politician_id: s.politician_id, topic: s.topic, url: s.url, source_type: s.source_type, kind: sourceKind(s), ...(s.source_class ? { source_class: s.source_class } : {}) })),
   };
-  if (plan) report.plan = { cycle: plan.cycle, politicians: plan.politicians, deprioritised: plan.deprioritised, skipped: plan.skipped, remaining_in_cycle: plan.remaining_in_cycle, planned_size: plan.size, roster_size: roster.length, state: plan.state };
+  if (plan) report.plan = { cycle: plan.cycle, classes: plan.classes, politicians: plan.politicians, deprioritised: plan.deprioritised, skipped: plan.skipped, remaining_in_cycle: plan.remaining_in_cycle, planned_size: plan.size, roster_size: roster.length, state: plan.state };
   report.locker_writes = lockerWrites;
   // Which topics produced candidates / items this run.
   const itemsByTopic: Record<string, { strong: number; weak: number; mention: number }> = {};
@@ -236,15 +267,38 @@ export async function run(deps: {
   });
 }
 
-export default async (): Promise<Response> =>
-  run({
-    fetch: globalThis.fetch,
+// The scheduled entry point. `run` is unchanged; this wrapper only tees the
+// lines it already logs (still printed to the function log as before) and,
+// after the run, hands them and the report to the suggestions log
+// (raw-ingest-suggestions.mjs). A suggestions failure never touches the run.
+export async function scheduled(deps: { run?: typeof run; suggestionsStore?: any; now?: () => Date; [k: string]: any } = {}): Promise<Response> {
+  const lines: string[] = [];
+  const log = (l: string) => { lines.push(l); console.log(l); };
+  const { run: runFn = run, suggestionsStore, now, ...rest } = deps;
+  // The production stores, built only when a caller (a test) has not injected all three.
+  const productionStores = () => ({
     store: getStore(RAW_STORE_NAME),
     lockerStore: getStore(LOCKER_STORE_NAME),
-    discover: true,
-    rotate: true,
     rotationStore: getStore(ROTATION_STORE_NAME),
   });
+  const res = await runFn({
+    fetch: globalThis.fetch,
+    discover: true,
+    rotate: true,
+    ...(rest.store && rest.lockerStore && rest.rotationStore ? {} : productionStores()),
+    ...rest,
+    log,
+  } as any);
+  try {
+    const report = await res.clone().json();
+    await appendRunSuggestions(suggestionsStore ?? getStore(SUGGESTIONS_STORE_NAME), { lines, report, now: (now ?? (() => new Date()))() });
+  } catch (e: any) {
+    console.log(`raw-ingest-suggestions: not written — ${e?.message || e}`);
+  }
+  return res;
+}
+
+export default async (): Promise<Response> => scheduled();
 
 // Every minute. Each run is sized (caps + fetch ceilings in raw-ingest-core)
 // to finish inside RUN_BUDGET_MS (~25 s), under the 30 s function limit.

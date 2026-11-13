@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Raw-ingest suggestions · PolitiDex curator</title>
+  <!-- /admin/suggestions — THE RAW-INGEST SUGGESTIONS LOG. Same curator login as
+       /admin (Firebase, the one curator account admin.html allows); the entries come from
+       /api/admin/raw-ingest-suggestions, which re-checks that login server-side,
+       so this page holds no data of its own. Not linked from any reader page,
+       not in the sitemap, not precached by sw.js, noindex in head and header. -->
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #0b1424; color: #dbe6f6; font: 400 15px/1.5 system-ui, -apple-system, 'Segoe UI', sans-serif;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+    .sg-top { position: sticky; top: 0; z-index: 2; background: #0b1424; border-bottom: 1px solid #1f2d46; padding: 12px 14px; }
+    .sg-top h1 { margin: 0; font-size: 17px; letter-spacing: .02em; }
+    .sg-top a { color: #f5d77a; font-size: 13px; }
+    .sg-meta { font-size: 12px; color: #8ea3c4; margin-top: 2px; }
+    .sg-filters { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+    .sg-filters button { font: inherit; font-size: 13px; color: #dbe6f6; background: #15233a; border: 1px solid #2a3c5c; border-radius: 999px; padding: 6px 12px; min-height: 34px; }
+    .sg-filters button[aria-pressed="true"] { background: #f5d77a; color: #0b1424; border-color: #f5d77a; font-weight: 600; }
+    main { max-width: 760px; margin: 0 auto; padding: 10px 12px 40px; }
+    .sg-note { color: #9fb4d4; padding: 18px 4px; }
+    .sg-list { list-style: none; margin: 0; padding: 0; }
+    .sg-item { background: #111e33; border: 1px solid #1f2d46; border-left-width: 4px; border-radius: 10px; padding: 10px 12px; margin: 8px 0; overflow-wrap: anywhere; }
+    .sg-item[data-type="url"] { border-left-color: #5aa9ff; }
+    .sg-item[data-type="score"] { border-left-color: #6fd39b; }
+    .sg-item[data-type="key"] { border-left-color: #c79bff; }
+    .sg-item[data-type="fail"] { border-left-color: #ff7a7a; }
+    .sg-head { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: #8ea3c4; }
+    .sg-type { text-transform: uppercase; letter-spacing: .08em; font-weight: 700; }
+    .sg-line { margin-top: 4px; }
+    .sg-line b { color: #fff; }
+    .sg-pos-support { color: #6fd39b; font-weight: 700; }
+    .sg-pos-oppose { color: #ff8f8f; font-weight: 700; }
+    .sg-item a { color: #9cc8ff; word-break: break-all; font-size: 13px; }
+    .sg-sub { font-size: 13px; color: #9fb4d4; }
+  </style>
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<!-- The Firebase Web API key is injected at request time from the Netlify
+     environment variable FIREBASE_API_KEY by netlify/edge-functions/firebase-config.ts.
+     It is intentionally NOT hardcoded here so the value never lives in source
+     control or the deployed HTML (and the build's secrets scanner passes). -->
+<script defer src="/firebase-config.js"></script>
+<script>
+  // Run 1 perf: the Firebase SDKs and the bootstrap below are DEFERRED so they no
+  // longer block first paint. This tiny synchronous stub guarantees the globals
+  // that other inline code could touch at parse time exist; firebase-boot.js
+  // (deferred → runs after the SDK, before DOMContentLoaded) then replaces them
+  // with the live Firebase objects and starts the lightweight roster load. Net
+  // effect: identical behavior, but the ~800 KB compat SDK no longer gates paint.
+  var app, db, firestore, auth;
+  var PROFILES = window.PROFILES || {}; window.PROFILES = PROFILES;
+  window._pdxFullIds = window._pdxFullIds || new Set();
+  window._pdxFullPending = window._pdxFullPending || {};
+  function setDoc(docRef, data, options) { return docRef.set(data, options); }
+  db = { collection: null }; firestore = db;
+  // AUTH UNKNOWN IS NOT AUTH SIGNED-OUT. This stub used to answer every
+  // registration with cb(null) before the SDK had loaded, which told every
+  // module that a returning member was a guest. It queues instead;
+  // firebase-boot.js replays the queue onto the real auth object, and until then
+  // window.PDXAuth.state is 'unknown'. See the long note in index.html.
+  window.PDXAuth = window.PDXAuth || { state: 'unknown', user: null, known: false };
+  window.__pdxAuthQueue = window.__pdxAuthQueue || [];
+  auth = { currentUser: null, onAuthStateChanged: function (cb) { var rec = { cb: cb, off: false, unsub: null }; window.__pdxAuthQueue.push(rec); return function () { rec.off = true; if (rec.unsub) { try { rec.unsub(); } catch (e) {} } }; }, signInAnonymously: function () { return Promise.reject(new Error('auth pending')); }, signOut: function () { return Promise.resolve(); } };
+  // AND THE QUEUE IS NOT A TRAP. If firebase-boot.js never arrives to drain it —
+  // a blocked SDK, a failed deploy, a warm shell paired with an older copy of
+  // that file out of the runtime cache — the registrations above would wait for
+  // the whole visit and nothing on the page would ever learn there is no
+  // session. So the queue self-heals: once the SDK has had every chance to land,
+  // whatever is still queued is flushed with null, which is exactly the answer
+  // this stub used to give instantly. A LATE fallback is a different thing from
+  // a first guess — the first guess was the bug, and five seconds is not a
+  // guess, it is a timeout. firebase-boot.js nulls the queue when it replays, so
+  // on every normal load this is a no-op.
+  setTimeout(function () {
+    var q = window.__pdxAuthQueue;
+    if (!q) return;
+    window.__pdxAuthQueue = null;
+    try {
+      window.PDXAuth.known = true;
+      window.PDXAuth.state = 'out';
+      window.PDXAuth.user = null;
+      if (typeof window.updateNavAuth === 'function') window.updateNavAuth(null, 'out');
+    } catch (e) {}
+    for (var i = 0; i < q.length; i++) {
+      if (q[i] && !q[i].off && typeof q[i].cb === 'function') { try { q[i].cb(null); } catch (e) {} }
+    }
+  }, 5000);
+</script>
+<script src="/firebase-boot.js" defer></script>
+  <script defer src="/admin-suggestions.js"></script>
+</head>
+<body>
+  <div class="sg-top">
+    <h1>Raw-ingest suggestions</h1>
+    <div class="sg-meta" id="sg-meta">Checking your sign-in…</div>
+    <div class="sg-filters" id="sg-filters" role="group" aria-label="Filter by type" hidden>
+      <button type="button" data-filter="" aria-pressed="true">All</button>
+      <button type="button" data-filter="url" aria-pressed="false">New URLs</button>
+      <button type="button" data-filter="score" aria-pressed="false">Scores</button>
+      <button type="button" data-filter="key" aria-pressed="false">New keys</button>
+      <button type="button" data-filter="fail" aria-pressed="false">Failing</button>
+    </div>
+  </div>
+  <main>
+    <p class="sg-note" id="sg-note">Loading…</p>
+    <ul class="sg-list" id="sg-list"></ul>
+  </main>
+  <noscript><p class="sg-note">This page needs JavaScript.</p></noscript>
+</body>
+</html>
