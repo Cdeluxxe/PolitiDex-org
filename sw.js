@@ -12060,7 +12060,24 @@
 //     gate is added. No location key or other stored reader state is written
 //     or rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v555';
+// v556 - PERSON PAGE POLISH: NO LOADING FLASH, CHIPS THAT LAND WHERE THEY SAY.
+//     profiles-full.js (precached): on /p/<pid> the full-document wait no
+//     longer raises the dimmed spinner dialog over the arrival header, so the
+//     header gives way straight to the file; and a section jump re-measures
+//     its target once the smooth scroll settles, so the Word vs Action chip
+//     lands on Word vs Action instead of Related Issues above it.
+//     consistency.js (precached): the issue drawer header leads with the
+//     stated position (Supports / Opposes) as its largest line, adds a
+//     "Formal record · N acts on file" jump to the record section, and sets
+//     "No side published on this subject" as a quiet note after both.
+//     pdx-aipac.js (precached): the "No AIPAC file on hand" chip opens its own
+//     short explanation in place, in its existing words, instead of jumping
+//     to the money section. The precache list is unchanged; precached files
+//     changed, so the shell moves one version. No route, gate or issue key is
+//     added. No location key or other stored reader state is written or
+//     rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v556';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

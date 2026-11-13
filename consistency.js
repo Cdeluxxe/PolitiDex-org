@@ -2090,6 +2090,25 @@
       '.pdxgap-hrow>.pdxgap-title,.pdxgap-hrow>.pdxgap-titlerow{margin:0;min-width:0;}' +
       '.pdxgap-hrow>.pdxgap-hmeta{gap:0.3rem 0.45rem;}' +
       '.pdxgap-hrow .pdxlg-find{margin:0;}' +
+      // THE STATED POSITION LEADS THE HEADER. Supports / Opposes is the answer a
+      // reader opens an issue for, so on the header row it is the largest line in
+      // the drawer's own voice, on a line of its own under the issue name — not a
+      // small pill beside a louder sentence about something else.
+      '.pdxgap-hrow>.pdxgap-hmeta{flex-basis:100%;}' +
+      '.pdxgap-hmeta .pdxgap-stance .pdxor-stance{font-family:"Barlow Condensed",sans-serif;font-size:1.35rem;' +
+        'font-weight:800;letter-spacing:0.01em;line-height:1.15;padding:0.16rem 0.75rem;border-width:2px;}' +
+      '.pdxgap-hmeta .pdxgap-stance .pdxgap-locker-said{font-family:"Barlow Condensed",sans-serif;font-size:1.2rem;' +
+        'font-weight:700;line-height:1.2;}' +
+      // The door to the formal record, in the header: one tap down to the acts.
+      '.pdxgap-torec{cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;font-family:inherit;' +
+        'font-size:0.74rem;font-weight:700;color:#cfe0ff;background:rgba(127,180,255,0.1);' +
+        'border:1px solid rgba(127,180,255,0.45);border-radius:999px;padding:0.22rem 0.7rem;min-height:1.9rem;}' +
+      '.pdxgap-torec:hover,.pdxgap-torec:focus-visible{background:rgba(127,180,255,0.2);color:#fff;}' +
+      // "No side published on this subject" is true about the SUBJECT, not about
+      // the person: it says the record cannot be read for a direction. Beside a
+      // stated position and a record on file it is a footnote, not the headline.
+      '.pdxgap-hmeta[data-pdxgap-noside="1"] .pdxlg-find{flex-basis:100%;font-family:system-ui,sans-serif;' +
+        'font-size:0.72rem;font-weight:500;color:#8fa2c0;}' +
       '.pdxgap-nopat{display:inline-flex;align-items:center;font-weight:700;font-size:0.72rem;padding:0.16rem 0.5rem;border-radius:999px;color:#9fb4d4;border:1px dashed rgba(159,180,212,0.55);background:rgba(10,15,30,0.4);}' +
       // The share icon, top-right of the header, beside the close button.
       '.pdxgap-hshare{position:absolute;top:-0.2rem;right:2.15rem;margin:0;}' +
@@ -20118,6 +20137,34 @@
   // the store's signal + source note; a promoted Locker entry prints the shared
   // Locker line with the same lead word and its Stronger signal and
   // Pipeline-sourced chips unchanged. Every other surface keeps its wording.
+  // ── THE DOOR TO THE FORMAL RECORD, IN THE HEADER ────────────────────────────
+  // The record section sits several blocks down the drawer (sentence, signal,
+  // related issues, evidence first). A reader who opened the issue to see what
+  // they DID gets one scannable control at the top that lands on it. Printed only
+  // when there are acts on file to land on; the count is the ledger's own.
+  function _gapToRecordHtml(acts) {
+    var n = (typeof acts === 'number' && isFinite(acts) && acts > 0) ? Math.round(acts) : 0;
+    if (!n) return '';
+    return '<button type="button" class="pdxgap-torec" onclick="event.stopPropagation();' +
+      'if(window._pdxGapToRecord)window._pdxGapToRecord(this);">' +
+      '<span aria-hidden="true">🏛️</span> Formal record · ' + n + ' act' + (n === 1 ? '' : 's') + ' on file' +
+      ' <span aria-hidden="true">↓</span></button>';
+  }
+  // Lands through the sheet's own scroll-and-flash helper, the one the 🧾 tally
+  // and the lane line already use, so this door scrolls the sheet (not the page
+  // behind it) and lights the heading it stops on.
+  window._pdxGapToRecord = function (btn) {
+    try {
+      var sheet = btn && btn.closest ? btn.closest('.pdxgap-sheet') : null;
+      if (sheet && _gapFocusSel(sheet, sheet, '.pdxgap-recsec')) return false;
+      var rec = sheet ? null : (btn && btn.closest ? btn.closest('.pdxgap-h') : null);
+      while (rec && !rec.querySelector('.pdxgap-recsec')) rec = rec.parentElement;
+      var tgt = rec ? rec.querySelector('.pdxgap-recsec') : null;
+      if (tgt && tgt.scrollIntoView) tgt.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (e) {}
+    return false;
+  };
+
   var _GAP_STANCE_LEAD = 'Stated:';
   function _gapStanceHtml(pid, issueKey) {
     var s = statedStance(pid, issueKey);
@@ -20424,11 +20471,17 @@
     // Pipeline-sourced). The share control is a small icon in the corner.
     var _verdictHtml = _lgOn ? _dosFindHtml(_dosRow, _lgT)
       : (relHtml || '<span class="pdxgap-nopat" data-pdxgap-nopat="1">No pattern yet</span>');
+    // Is the finding the subject-level "no side" line? Then it is set quiet and
+    // sits after the stance and the record door, never ahead of them.
+    var _noSide = false;
+    try { _noSide = _lgOn && _dosFinding(_dosRow, _lgT).rule === 'no_side'; } catch (e) { _noSide = false; }
+    var _toRec = _gapToRecordHtml(_lgOn ? _lgT.acts : 0);
+    var _metaHtml = (stance || '') + (_noSide ? _toRec + _verdictHtml : _verdictHtml + _toRec);
     var head =
       '<div class="pdxgap-h pdxgap-h2">' +
         '<div class="pdxgap-hrow" data-pdxgap-sec="header">' +
           _issueTitleHtml(issueKey, lbl, _titleAttr, pid) +
-          '<div class="pdxgap-meta pdxgap-hmeta">' + (stance || '') + _verdictHtml + '</div>' +
+          '<div class="pdxgap-meta pdxgap-hmeta"' + (_noSide ? ' data-pdxgap-noside="1"' : '') + '>' + _metaHtml + '</div>' +
         '</div>' +
         (_lgOn ? '' : _dosBucketHtml(_dosRow)) +
         // Whose record this is, on one line, under the finding. The eyebrow that

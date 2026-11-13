@@ -3750,6 +3750,19 @@
   // before the correct file settled. So the wait is a spinner and nothing else:
   // no name, no photo, no rows — the file paints once, when its data is in.
   window._pdxOpenFullModalShell = function (id) {
+    // ON THE PERSON PAGE THE ARRIVAL HEADER IS THE WAIT. /p/<pid> paints the
+    // edge's header first, and the file retires it the moment it mounts. Raising
+    // the overlay over it in between flashed a small dimmed spinner dialog for
+    // the length of the document read, on every cold open — the "while loading"
+    // pop-up. So while that header is still on screen, it stays the only thing
+    // there; the overlay is revealed once, by the real file. A person page with
+    // no header (or the homepage modal) still gets the spinner.
+    try {
+      if (window.PDXPerson && typeof window.PDXPerson.isPersonDoc === 'function' && window.PDXPerson.isPersonDoc()) {
+        var crawl = document.getElementById('pdx-crawl-person');
+        if (crawl && !crawl.hidden && crawl.style.display !== 'none') return;
+      }
+    } catch (e) {}
     var host = document.getElementById('modal-content');
     if (host) {
       host.innerHTML = '<div class="pdx-modal-loading" role="status" aria-label="Loading profile">' +
@@ -3875,7 +3888,43 @@
       window._pdxNavUserJumping = false;
       try { if (typeof window._pdxNavRepaint === 'function') window._pdxNavRepaint(true); } catch (e) {}
     }, 650);
+    _pdxNavSettle(body, el);
   };
+
+  // ── THE JUMP LANDS WHERE IT WAS AIMED, EVEN IF THE PAGE GREW UNDER IT ──────
+  // The offset above is measured once, at the tap. On a fresh file the sections
+  // ABOVE a target are often still growing while the smooth scroll runs — the
+  // topic tree hydrates, Related Issues injects its stylesheet, a drawer lid
+  // measures itself — so the scroll stops where the target USED to be. The
+  // visible symptom: the ⚖️ Word vs Action chip at the top of the file landed in
+  // Related Issues, the block that sits directly above the Word vs Action stage.
+  // So the target is re-measured after the scroll settles and, if it has drifted,
+  // nudged into place. A reader who scrolls, wheels, taps or presses a key in the
+  // meantime has taken the scroll back, and the correction stands down.
+  var _pdxSettleTimers = [];
+  function _pdxNavSettle(body, el) {
+    _pdxSettleTimers.forEach(clearTimeout);
+    _pdxSettleTimers = [];
+    if (!body || !el) return;
+    var cancelled = false;
+    function stop() { cancelled = true; }
+    var evs = ['wheel', 'touchstart', 'keydown', 'mousedown'];
+    evs.forEach(function (n) { try { body.addEventListener(n, stop, { passive: true, once: true }); } catch (e) {} });
+    function fix(last) {
+      if (cancelled || !el.isConnected) return;
+      var nav = document.getElementById('pdx-profile-nav');
+      var navH = nav ? nav.offsetHeight : 0;
+      var off = el.getBoundingClientRect().top - body.getBoundingClientRect().top - navH - 12;
+      if (Math.abs(off) > 24) {
+        var top = Math.max(0, body.scrollTop + off);
+        try { body.scrollTo({ top: top, behavior: last ? 'auto' : 'smooth' }); }
+        catch (e) { body.scrollTop = top; }
+      }
+      if (last) evs.forEach(function (n) { try { body.removeEventListener(n, stop); } catch (e) {} });
+    }
+    _pdxSettleTimers.push(setTimeout(function () { fix(false); }, 700));
+    _pdxSettleTimers.push(setTimeout(function () { fix(true); }, 1400));
+  }
 
   // ═══════════════════════════════════════════════════════════════════════════
   // THE QUICK CHIPS ARE LIVE, AND THEY ARE ONE DERIVATION

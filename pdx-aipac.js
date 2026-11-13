@@ -1468,6 +1468,33 @@
     return false;
   }
 
+  // The empty state's short explanation, toggled under the chip. The sentence
+  // is the chip's own accessible name less its lead-in, so the wording and the
+  // attribution are the ones it already publishes; nothing is navigated.
+  function explain(btn) {
+    try {
+      if (!btn || !btn.parentNode) return false;
+      var doc = W.document;
+      var next = btn.nextSibling;
+      if (next && next.className === 'pdx-aipac-why') {
+        next.parentNode.removeChild(next);
+        btn.setAttribute('aria-expanded', 'false');
+        return false;
+      }
+      var txt = String(btn.getAttribute('aria-label') || '').replace(/^AIPAC relationship: No AIPAC file on hand\.\s*/, '');
+      var note = doc.createElement('span');
+      note.className = 'pdx-aipac-why';
+      note.setAttribute('role', 'note');
+      note.style.cssText = 'display:block;flex-basis:100%;margin:0.3rem 0 0.1rem;padding:0.4rem 0.6rem;' +
+        'font-size:0.72rem;line-height:1.45;color:#cbd9ec;background:rgba(15,25,45,0.85);' +
+        'border:1px solid rgba(159,180,212,0.25);border-radius:0.5rem;max-width:34rem;';
+      note.textContent = txt;
+      btn.parentNode.insertBefore(note, btn.nextSibling);
+      btn.setAttribute('aria-expanded', 'true');
+    } catch (e) {}
+    return false;
+  }
+
   // Same token as the two 💰 pills (finance-lane.css): .pdx-mchip, the gold
   // glyph, the separators. Its own data attributes, so the row still carries
   // exactly two money LANES and nothing that counts those pills counts this one.
@@ -1482,7 +1509,12 @@
       }
       return '<button type="button" class="pdx-mchip" data-pdx-aipac="' + esc(pid || '') + '"' +
         ' data-pdx-aipac-state="' + r.state + '"' +
-        ' onclick="event.stopPropagation();if(window.PDXAipac)window.PDXAipac.open(\'' + targetFor(r) + '\');"' +
+        (r.state === 'empty'
+          // Nothing on file means no section to send the reader to: the money
+          // section would open on someone else's subject. The chip explains itself
+          // in place instead, in the words its accessible name already carries.
+          ? ' aria-expanded="false" onclick="event.stopPropagation();if(window.PDXAipac)window.PDXAipac.explain(this);"'
+          : ' onclick="event.stopPropagation();if(window.PDXAipac)window.PDXAipac.open(\'' + targetFor(r) + '\');"') +
         ' aria-label="' + esc(label(r)) + '">' +
           '<span class="pdx-mchip-ico" aria-hidden="true">💰</span>' + inner +
         '</button>';
@@ -1605,6 +1637,7 @@
     TRACKER: AIPAC_TRACKER,
     TRACKER_AS_OF: TRACKER_AS_OF,
     open: open,
+    explain: explain,
     isAffiliated: isAffiliated,
     scorecardDefects: scorecardDefects,
     SCORECARD: SCORECARD,
