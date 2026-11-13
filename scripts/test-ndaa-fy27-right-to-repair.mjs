@@ -48,7 +48,7 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
-import { DECLARED_STANCE_PASSES, swCodeOnly, withoutHeroCrawl, carveDeclaredAdmissions } from "./v103-chrome-seams.mjs";
+import { DECLARED_STANCE_PASSES, swCodeOnly, withoutHeroCrawl, carveDeclaredAdmissions, withoutDeclaredRelatedIssues } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -362,6 +362,8 @@ section("7 · nothing else moved; declared; one shell version; no migration");
       // cmp-data.js: a later declared roster admission (the seventh newly elected
       // wave's block, v103-chrome-seams.mjs) is that pass's product.
       if (f === "cmp-data.js") { eq(carveDeclaredAdmissions(now), carveDeclaredAdmissions(b), `${f} changed outside a declared admission`); continue; }
+      // related-issues.js: the Trump–Massie pass's declared edits (v103-chrome-seams.mjs) are that pass's product.
+      if (f === "related-issues.js") { eq(withoutDeclaredRelatedIssues(now), b, `${f} changed`); continue; }
       eq(now, b, `${f} changed`);
     }
     {
@@ -383,7 +385,7 @@ section("7 · nothing else moved; declared; one shell version; no migration");
       eq(edNow.sort().join(","), (BASE_LS("netlify/edge-functions") || []).sort().join(","), "an edge function (gate) was added or removed");
     }
     let migs = []; try { migs = readdirSync(join(ROOT, "netlify/database/migrations")); } catch { /* none */ }
-    for (const f of migs) ok(BASE(`netlify/database/migrations/${f}`) != null, `${f}: a migration this pass added`);
+    for (const f of migs) ok(BASE(`netlify/database/migrations/${f}`) != null || f === "20261205000000_seed_exec_actions_wave14.sql" /* the later Trump–Massie pass, gated by test-exec-seed.mjs */, `${f}: a migration this pass added`);
   }
   // Warren's card is in the precached core chunk, so the shell moves one version;
   // the precache list and every line of worker code are unchanged.

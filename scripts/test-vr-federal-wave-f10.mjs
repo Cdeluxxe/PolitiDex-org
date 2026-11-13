@@ -604,6 +604,7 @@ const C = decide._counts || {};
 
     let dm = 0, dmBad = 0;
     for (const pid of PIDS) {
+      if (declaredStanceMovesAtHead().moved.has(pid)) continue; // a declared stance pass (v103-chrome-seams.mjs)
       let a = null, b = null;
       try { a = head.PDXWordAction.read(pid); } catch (e) { continue; }
       try { b = work.PDXWordAction.read(pid); } catch (e) { b = null; }

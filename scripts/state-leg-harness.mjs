@@ -400,7 +400,9 @@ export const DECLARED_MIGRATIONS = ["20261130000000_dd_districts_contested_legis
   "20261201000000_dd_districts_california_contested_board_seats.sql",
   "20261202000000_dd_districts_washington_contested_board_seats.sql",
   // v517: every existing board takes a voice — one dd_districts row per seat.
-  "20261203000000_dd_districts_every_existing_board_seat.sql"];
+  "20261203000000_dd_districts_every_existing_board_seat.sql",
+  // Executive seed wave 14 (the Trump–Massie pass): inserts only, no district rows.
+  "20261205000000_seed_exec_actions_wave14.sql"];
 export const FIND = R("find.html");
 export const MAP = (() => {
   const a = FIND.indexOf("INTERACTIVE UTAH DISTRICT MAP");

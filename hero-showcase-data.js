@@ -33,8 +33,8 @@
         "color": "#f87171"
       },
       "_coverage": {
-        "scorable": 34,
-        "word": 50,
+        "scorable": 38,
+        "word": 54,
         "actionIssues": 0
       }
     },
@@ -109,17 +109,17 @@
       }
     },
     {
-      "pid": "jim_jordan",
-      "name": "Jim Jordan",
-      "office": "House Judiciary Committee Chair · OH-4 · Ohio",
+      "pid": "massie",
+      "name": "Thomas Massie",
+      "office": "U.S. Representative · KY-04",
       "party": {
         "label": "R",
         "color": "#f87171"
       },
       "_coverage": {
-        "scorable": 13,
-        "word": 17,
-        "actionIssues": 0
+        "scorable": 12,
+        "word": 34,
+        "actionIssues": 2
       }
     },
     {
@@ -137,16 +137,16 @@
       }
     },
     {
-      "pid": "mike_flood",
-      "name": "Mike Flood",
-      "office": "U.S. Representative · Nebraska · NE-01",
+      "pid": "jim_jordan",
+      "name": "Jim Jordan",
+      "office": "House Judiciary Committee Chair · OH-4 · Ohio",
       "party": {
         "label": "R",
         "color": "#f87171"
       },
       "_coverage": {
         "scorable": 13,
-        "word": 24,
+        "word": 17,
         "actionIssues": 0
       }
     },
@@ -165,16 +165,16 @@
       }
     },
     {
-      "pid": "steve_womack",
-      "name": "Steve Womack",
-      "office": "U.S. Representative · Arkansas · AR-03",
+      "pid": "mike_flood",
+      "name": "Mike Flood",
+      "office": "U.S. Representative · Nebraska · NE-01",
       "party": {
         "label": "R",
         "color": "#f87171"
       },
       "_coverage": {
         "scorable": 13,
-        "word": 26,
+        "word": 24,
         "actionIssues": 0
       }
     },
@@ -193,17 +193,17 @@
       }
     },
     {
-      "pid": "massie",
-      "name": "Thomas Massie",
-      "office": "U.S. Representative · KY-04",
+      "pid": "steve_womack",
+      "name": "Steve Womack",
+      "office": "U.S. Representative · Arkansas · AR-03",
       "party": {
         "label": "R",
         "color": "#f87171"
       },
       "_coverage": {
-        "scorable": 10,
-        "word": 33,
-        "actionIssues": 2
+        "scorable": 13,
+        "word": 26,
+        "actionIssues": 0
       }
     },
     {

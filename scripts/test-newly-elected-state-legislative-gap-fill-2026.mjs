@@ -42,7 +42,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
-import { DECLARED_STANCE_PASSES, GAP_FILL_ADDED, swCodeOnly, withoutHeroCrawl, carveDeclaredAdmissions } from "./v103-chrome-seams.mjs";
+import { DECLARED_STANCE_PASSES, GAP_FILL_ADDED, swCodeOnly, withoutHeroCrawl, carveDeclaredAdmissions, withoutDeclaredRelatedIssues, declaredStanceMovesAtHead } from "./v103-chrome-seams.mjs";
 // People a LATER declared stance pass added or moved (v103-chrome-seams.mjs) are
 // that pass's product, pinned by its own suite.
 const LATER_STANCE = new Set(DECLARED_STANCE_PASSES.slice(DECLARED_STANCE_PASSES.findIndex((d) => d.pass === "newly_elected_state_legislative_gap_fill_nov2026") + 1).flatMap((d) => d.pids));
@@ -263,6 +263,11 @@ section("4 · no roster row, board or issue key moved; no route, gate, migration
       // cmp-data.js: a later declared roster admission (the seventh newly
       // elected wave's block) is that pass's product; everything else is pinned.
       if (f === "cmp-data.js") { eq(carveDeclaredAdmissions(now), carveDeclaredAdmissions(BASE(f)), `${f} changed outside a later declared admission`); continue; }
+      // related-issues.js: the Trump–Massie pass's declared edits (v103-chrome-seams.mjs) are that pass's product.
+      if (f === "related-issues.js") { eq(withoutDeclaredRelatedIssues(now), BASE(f), `${f} changed`); continue; }
+      // politician-stances-core.js: when it moved only for people a LATER declared
+      // stance pass names, the per-person check above already pins everyone else.
+      if (f === "politician-stances-core.js" && declaredStanceMovesAtHead().ok && [...declaredStanceMovesAtHead().moved].every((p) => LATER_STANCE.has(p))) continue;
       eq(now, BASE(f), `${f} changed`);
     }
     const keysNow = Object.keys(win.ISSUE_MAP).sort().join(",");

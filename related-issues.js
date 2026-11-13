@@ -19,6 +19,13 @@
      border and spending (border enforcement with spending cuts). Each is an existing key
      on both sides, listed at the end of both keys' lists.
 
+   · SURVEILLANCE PAIR (Nov 2026). Privacy & Big-Tech Accountability sits with
+     Congressional Oversight: a Section 702 reauthorization (H.R. 7888, the
+     Reforming Intelligence and Securing America Act) is mapped to both, so a
+     FISA vote and a stated position on warrantless surveillance meet in one
+     drawer. Existing keys on both sides, last in both lists, like the pairs
+     above.
+
    · ONE MAP. MAP below is the only place that decides what is related: issue
      key → the keys that share its ground. It is symmetric (if A lists B, B
      lists A) and names only keys in the issue register. Nothing is derived from
@@ -36,8 +43,10 @@
          one-way read (split, thin, poleless) read as the tally the issue's own
          drawer prints, in its words ("1 for · 1 against"), from the drawer
          ledger (PDXConsistency.drawerTally); a subject key whose drawer prints
-         no for/against line gives its act count ("3 formal acts"). No votes
-         on file reads "no record".
+         no for/against line gives its act count ("3 formal acts"). An office
+         that casts no roll calls (the executive record) reads its formal acts
+         the same way: the drawer's own tally of signed laws and orders on that
+         issue ("0 for · 1 against"). No votes or acts on file reads "no record".
            Cut Income & Business Taxes: supports · voting record runs with
            Middle-Class Tax Relief: no stated position · 1 for · 1 against
            Local Land Control: opposes · no record
@@ -199,7 +208,7 @@
     lgbtq_rights: ['religious_liberty', 'rights_balance', 'free_speech', 'end_dei'],
     free_speech: ['religious_liberty', 'rights_balance', 'lgbtq_rights', 'end_dei', 'privacy_rights', 'tech_innovation', 'tech_balance'],
     end_dei: ['religious_liberty', 'rights_balance', 'lgbtq_rights', 'free_speech'],
-    privacy_rights: ['free_speech', 'tech_innovation', 'tech_balance', 'crypto_cbdc', 'datacenter_growth'],
+    privacy_rights: ['free_speech', 'tech_innovation', 'tech_balance', 'crypto_cbdc', 'datacenter_growth', 'congress_oversight'],
     tech_balance: ['free_speech', 'privacy_rights', 'tech_innovation', 'crypto_cbdc', 'datacenter_growth'],
     foreign_balance: ['strong_defense', 'restraint', 'america_first', 'america_first_fp', 'veterans'],
     restraint: ['strong_defense', 'foreign_balance', 'america_first', 'america_first_fp', 'veterans', 'israel_support', 'iran_policy', 'ukraine_policy', 'yemen_policy', 'venezuela_policy', 'war_powers'],
@@ -220,7 +229,7 @@
     campaign_finance: ['term_limits', 'gov_transparency', 'stock_trading_ban', 'reform_balance', 'congress_oversight'],
     stock_trading_ban: ['term_limits', 'gov_transparency', 'campaign_finance', 'reform_balance', 'congress_oversight'],
     reform_balance: ['term_limits', 'gov_transparency', 'campaign_finance', 'stock_trading_ban', 'congress_oversight'],
-    congress_oversight: ['term_limits', 'gov_transparency', 'campaign_finance', 'stock_trading_ban', 'reform_balance', 'checks_balances', 'war_powers', 'judicial_check', 'power_of_purse', 'tariffs_authority', 'civil_service_control', 'scotus_reform'],
+    congress_oversight: ['term_limits', 'gov_transparency', 'campaign_finance', 'stock_trading_ban', 'reform_balance', 'checks_balances', 'war_powers', 'judicial_check', 'power_of_purse', 'tariffs_authority', 'civil_service_control', 'scotus_reform', 'privacy_rights'],
     checks_balances: ['war_powers', 'judicial_check', 'power_of_purse', 'congress_oversight', 'tariffs_authority', 'civil_service_control', 'scotus_reform', 'guard_authority'],
     judicial_check: ['checks_balances', 'war_powers', 'power_of_purse', 'congress_oversight', 'tariffs_authority', 'civil_service_control', 'scotus_reform'],
     civil_service_control: ['checks_balances', 'war_powers', 'judicial_check', 'power_of_purse', 'congress_oversight', 'tariffs_authority', 'scotus_reform', 'gov_waste', 'gov_regulation'],
@@ -298,6 +307,19 @@
   // Any vote on file for this key, whichever way (or no way) it ran.
   function hasVotes(idx) { return !!(idx && (idx.total || 0) > 0); }
 
+  // An office that casts no roll calls (the executive record, PDXExecRecord):
+  // its record is the formal acts the issue's own drawer counts — signed laws,
+  // orders, proclamations — read from the same drawer ledger, in the drawer's
+  // own words ("0 for · 1 against"). '' for anyone who casts votes, or when the
+  // drawer holds nothing for this key, so a legislator's line never changes.
+  function execActsTally(pid, key) {
+    try {
+      var E = window.PDXExecRecord;
+      if (!pid || !E || typeof E.eligible !== 'function' || !E.eligible(pid)) return '';
+    } catch (e) { return ''; }
+    return tallyText(pid, key);
+  }
+
   // The drawer's own tally, worded as the drawer words it: "1 for · 1 against"
   // (plus "· N took no side" when the drawer prints it). A subject key whose
   // drawer has no for/against line gives "N formal acts". '' when the drawer
@@ -348,11 +370,13 @@
   function itemOf(pid, pm, key) {
     var idx = recordRead(pid, key);
     var d = directionOf(pm, key), r = recordOf(pid, key, idx), v = hasVotes(idx);
+    var acts = (!r && !v) ? execActsTally(pid, key) : '';
+    if (acts) v = true;
     if (!d && !r && !v) return null;
     var bare = !d && !r;
     // Votes with no one-way read: the drawer's tally; if the ledger is not
     // loaded, the index's own count of the same votes, in the same words.
-    var tally = (!r && v) ? (tallyText(pid, key) || indexTally(idx)) : '';
+    var tally = (!r && v) ? (acts || tallyText(pid, key) || indexTally(idx)) : '';
     return { key: key, label: labelOf(key), icon: iconOf(key),
       dir: d, word: d ? WORD[d] : '',
       rec: r, recWord: r ? REC_WORD[r] : '',
@@ -653,7 +677,7 @@
     recordOf: recordOf,
     iconOf: iconOf,
     colorStyle: colorStyle,
-    hasVotes: function (pid, key) { return hasVotes(recordRead(pid, key)); },
+    hasVotes: function (pid, key) { return hasVotes(recordRead(pid, key)) || !!execActsTally(pid, key); },
     sectionHtml: sectionHtml,
     drawerHtml: drawerHtml
   };
