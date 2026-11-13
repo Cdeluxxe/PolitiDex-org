@@ -282,7 +282,8 @@ section("6 · boards byte-identical; no migration; the shell moved");
   for (const f of SHARED) eq(R(f), LAST(f), `${f}: byte-identical to its last commit`);
   for (const f of utah.concat(gov)) eq(R(f), LAST(f), `${f}: byte-identical to its last commit`);
   eq(git(["diff", "--name-only", "HEAD", "--", ...boards]).trim(), "", "no board document differs from HEAD");
-  eq(git(["status", "--porcelain", "--", "netlify/database/migrations"]).trim(), "", "no migration added or changed");
+  // Executive seed wave 14 is the later Trump–Massie pass's, gated by test-exec-seed.mjs.
+  eq(git(["status", "--porcelain", "--", "netlify/database/migrations"]).split("\n").filter((l) => l.trim() && l !== "?? netlify/database/migrations/20261205000000_seed_exec_actions_wave14.sql").join("\n"), "", "no migration added or changed");
   const v = (s) => +((String(s).match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1] || 0);
   const headSw = HEAD("sw.js");
   if (headSw && BEFORE) eq(v(R("sw.js")), v(headSw) + 1, "cmp-data.js is precached and changed, so the shell moved one version");

@@ -79,7 +79,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
-import { DECLARED_STANCE_PIDS } from "./v103-chrome-seams.mjs";
+import { DECLARED_STANCE_PIDS, DECLARED_EXEC_WAVE, declaredExecWaveAtHead } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -642,12 +642,32 @@ eq(JSON.stringify(after.PDXConsistency.recordLanes("trump")),
 const STRIP_DCPD = ["strip-dcpd.js",
   "(function(){var A=window.EXEC_ACTIONS||{};Object.keys(A).forEach(function(p){(A[p]||[]).forEach(function(a){" +
   "a.status=(a.status||[]).filter(function(s){return s.status!=='published_dcpd';});});});})();"];
-const noDcpd = boot(NOW.flatMap((e) => (e[0] === "exec-action-data.js" ? [e, STRIP_DCPD] : [e])));
+// The Trump–Massie pass (v103-chrome-seams.mjs) is DATA on this same file: new stance
+// cards and executive seed wave 14. It is not this wave's doing either, so while it is
+// the declared change in the tree, the comparison reads HEAD's stance chunks and strips
+// that wave's five documents the same way — the engine is the question, not the data.
+const _DEW = declaredExecWaveAtHead();
+const STRIP_W14 = ["strip-exec-wave14.js",
+  "(function(){var ids=" + JSON.stringify(DECLARED_EXEC_WAVE.documentIds) + ";var A=window.EXEC_ACTIONS||{};" +
+  "Object.keys(A).forEach(function(p){A[p]=(A[p]||[]).filter(function(a){return ids.indexOf(a.documentId)<0;});});})();"];
+const _stanceAtHead = (f) => showAt("HEAD", f);
+const noDcpd = boot(NOW.flatMap((e) => {
+  if (_DEW && _STANCE_CHUNKS.has(e[0])) return [[e[0], _stanceAtHead(e[0])]];
+  if (e[0] === "exec-action-data.js") return _DEW ? [e, STRIP_DCPD, STRIP_W14] : [e, STRIP_DCPD];
+  return [e];
+}));
 eq(JSON.stringify(noDcpd.PDXWordAction.read("trump")),
   JSON.stringify(before.PDXWordAction.read("trump")),
   "trump's Word-vs-Action read is byte-identical across the two engines");
 {
-  const was = noDcpd.PDXWordAction.read("trump"), now = after.PDXWordAction.read("trump");
+  // With the Trump–Massie pass's data set aside on this side too, so the only
+  // difference between the two boots is the DCPD standing.
+  const afterSansW14 = _DEW ? boot(NOW.flatMap((e) => {
+    if (_STANCE_CHUNKS.has(e[0])) return [[e[0], _stanceAtHead(e[0])]];
+    if (e[0] === "exec-action-data.js") return [e, STRIP_W14];
+    return [e];
+  })) : after;
+  const was = noDcpd.PDXWordAction.read("trump"), now = afterSansW14.PDXWordAction.read("trump");
   const wp = (r) => (r.items || []).find((i) => i.key === "war_powers");
   const a = wp(was), b = wp(now);
   eq(b && b.test && b.test.judged, a && a.test && a.test.judged + 1,

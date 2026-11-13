@@ -349,7 +349,9 @@ section("6 · nothing else moved: Utah, the hand-opened and composer boards, sw.
   // line, then one name per line.
   const base = BASE("netlify/database/migrations/").trim().split("\n").slice(2).filter(Boolean).map((n) => n.replace(/\/$/, "")).sort();
   // Migrations from later passes, each covered by its own suite.
-  const LATER_MIGRATIONS = ["20261204000000_dd_districts_usa_national_board"];
+  const LATER_MIGRATIONS = ["20261204000000_dd_districts_usa_national_board",
+    // Executive seed wave 14 (Trump–Massie pass), covered by test-exec-seed.mjs.
+    "20261205000000_seed_exec_actions_wave14.sql"];
   eq(now.filter((n) => n !== EVERY_BOARD_MIGRATION && !LATER_MIGRATIONS.includes(n)).join(","), base.join(","), "no migration added (v517's seed and later passes' declared migrations aside)");
   const out = execFileSync("node", [join(ROOT, "scripts/gen-district-boards.mjs"), "--check"], { cwd: ROOT, encoding: "utf8" });
   ok(/up to date/.test(out), "gen-district-boards --check reports no drift");

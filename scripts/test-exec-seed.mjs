@@ -76,6 +76,8 @@ const MIGRATION_RELS = [
   "netlify/database/migrations/20260903000000_seed_exec_actions_wave11.sql",
   "netlify/database/migrations/20260905000000_seed_exec_actions_wave12.sql",
   "netlify/database/migrations/20261107000000_seed_exec_actions_wave13.sql",
+  // Wave 14: the Trump–Massie pass — FISA, bump stocks, EO 14206, EO 14214.
+  "netlify/database/migrations/20261205000000_seed_exec_actions_wave14.sql",
   // Not a wave: the forward migration that gives wave 13's two DCPD-only
   // documents their published_dcpd standing. Standing rows only.
   "netlify/database/migrations/20261108000000_vr_exec_dcpd_publication_standing.sql"
@@ -158,7 +160,7 @@ section("1 · shape and vocabulary");
 // cost_living mappings onto documents already on file. The brief it answers asked for
 // fewer strong items over many weak ones, so if this count grows without a wave note
 // explaining which row went thin, something was padded rather than found.
-ok(ACTIONS.length === 83, `the seed carries eighty-three actions — 5 from wave 1, 1 from wave 2, 11 from wave 3, 10 from wave 4, 9 from wave 5, 4 from wave 6, 8 from wave 7, 8 from wave 8, 1 from wave 9, 5 from wave 10, 15 from wave 11, 3 from wave 12, 3 from wave 13 (got ${ACTIONS.length})`);
+ok(ACTIONS.length === 88, `the seed carries eighty-eight actions — 5 from wave 1, 1 from wave 2, 11 from wave 3, 10 from wave 4, 9 from wave 5, 4 from wave 6, 8 from wave 7, 8 from wave 8, 1 from wave 9, 5 from wave 10, 15 from wave 11, 3 from wave 12, 3 from wave 13, 5 from wave 14 (got ${ACTIONS.length})`);
 
 /* TERM SCOPE IS REAL, and this is the assertion that keeps it real.
    This line used to read `a.term === EX.currentTerm("trump")`, which was true of
@@ -639,8 +641,8 @@ if (sum && sumAll) {
     `Axis A counts ${SUMKEYS.buckets.issues.unit}s and Axis B counts ${SUMKEYS.buckets.actions.unit}s`);
 
   ok(sum.score === null, "summary score is null");
-  ok(C.signed_law === 8 && C.executive_order === 57 && C.directive === 14 && C.vetoed_law === 4,
-    `class split is 8 laws + 57 orders + 14 directives + 4 vetoes (got ${C.signed_law}+${C.executive_order}+${C.directive}+${C.vetoed_law})`);
+  ok(C.signed_law === 10 && C.executive_order === 59 && C.directive === 15 && C.vetoed_law === 4,
+    `class split is 10 laws + 59 orders + 15 directives + 4 vetoes (got ${C.signed_law}+${C.executive_order}+${C.directive}+${C.vetoed_law})`);
   // The veto class existed in the vocabulary for six waves with no row using it.
   // Pinned so a later edit cannot quietly empty it again: an unexercised class is a
   // pipeline nobody has proven works.

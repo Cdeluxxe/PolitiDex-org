@@ -21,6 +21,7 @@ import assert from 'node:assert/strict';
 import * as A from '../netlify/lib/dirkey-auto-core.mjs';
 import * as FL from '../netlify/lib/dirkey-flag-core.mjs';
 import * as K from '../netlify/lib/bill-key-patterns.mjs';
+import { swCodeOnly } from './v103-chrome-seams.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const R = (p) => fs.readFileSync(path.join(root, p), 'utf8');
@@ -299,11 +300,16 @@ t('the flag goes to the existing items path (no new route); GET still serves the
 t('no migration, no new function, and the worker precache list is untouched', () => {
   const git = (args) => { try { return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }); } catch { return null; } };
   const added = git(['status', '--porcelain', '--untracked-files=all', '--', 'netlify/functions', 'netlify/edge-functions', 'netlify/database', 'db/migrations']);
-  if (added != null) assert.deepEqual(added.split('\n').filter((l) => /^(?:\?\?|A)/.test(l)), [], 'no new function or migration file');
+  // A later pass's declared migration (executive seed wave 14, the Trump–Massie
+  // pass) is not this pass's; anything else new still fails.
+  const LATER = ['netlify/database/migrations/20261205000000_seed_exec_actions_wave14.sql'];
+  if (added != null) assert.deepEqual(added.split('\n').filter((l) => /^(?:\?\?|A)/.test(l) && !LATER.some((f) => l.endsWith(' ' + f))), [], 'no new function or migration file');
   const sw = R('sw.js');
   for (const f of ['person-directional-keys.js', 'person-directional-keys-auto.json', 'person-directional-keys.json']) assert.ok(!sw.includes(`'/${f}'`), `${f} is not precached`);
   const headSw = git(['show', 'HEAD:sw.js']);
-  if (headSw) assert.equal(sw, headSw, 'no precached file changed, so the worker is unchanged');
+  // Worker code and the precache list are this pass's to hold; a later pass's
+  // version note and one-step bump (it re-ships a precached file) are not.
+  if (headSw) assert.equal(swCodeOnly(sw), swCodeOnly(headSw), 'no worker code or precache entry changed');
 });
 
 for (const [name, fn] of tests) {

@@ -3905,6 +3905,12 @@ export const DECLARED_STANCE_PASSES = [
     // whose race is uncalled, or who did not win, is in the record's leftOut.
     pids: _W7_REC.members.map((m) => m.pid),
   },
+  {
+    // The Trump–Massie contrast (Nov 2026): cited cards on spending, FISA,
+    // COVID spending, bump stocks, tariffs, the IRS and mandates.
+    pass: "trump_massie_contrast_nov2026",
+    pids: ["trump", "massie"],
+  },
 ];
 /**
  * The gap-fill pass's additions by pid: the issue keys appended after each
@@ -4061,9 +4067,37 @@ export function declaredStanceMovesAtHead() {
   return (_dsmMemo = declaredStanceMoves(hs.join("\n"), ts.join("\n")));
 }
 // A booted-file list with the stance chunks taken out when they moved only for declared people.
+// exec-action-data.js (generated from db/exec-action-seed.json) is taken out the same way
+// when it differs from HEAD by exactly the declared executive seed wave — every action HEAD
+// carried is still there, byte for byte and in order, and the only additions are the
+// wave's own documents (declaredExecWaveAtHead below).
 export function withoutDeclaredStanceChunks(files) {
   const d = declaredStanceMovesAtHead();
-  return d.ok ? files.filter((f) => !STANCE_CHUNKS.includes(f)) : files;
+  const out = d.ok ? files.filter((f) => !STANCE_CHUNKS.includes(f)) : files;
+  return declaredExecWaveAtHead() ? out.filter((f) => f !== "exec-action-data.js") : out;
+}
+
+// THE DECLARED EXECUTIVE SEED WAVE — the Trump–Massie pass (Nov 2026), seed wave 14,
+// netlify/database/migrations/20261205000000_seed_exec_actions_wave14.sql.
+export const DECLARED_EXEC_WAVE = {
+  pass: "trump_massie_contrast_nov2026",
+  documentIds: ["Public Law 115-118", "Presidential Memorandum, 83 FR 7949", "Executive Order 14206",
+    "Executive Order 14214", "Public Law 119-87"],
+};
+let _dewMemo;
+export function declaredExecWaveAtHead() {
+  if (_dewMemo !== undefined) return _dewMemo;
+  const root = new URL("..", import.meta.url).pathname;
+  const load = (src) => { const w = {}; try { new Function("window", String(src))(w); } catch { return null; } return (w.EXEC_ACTIONS || {}).trump || null; };
+  let head = null;
+  try { head = _execFileSync("git", ["show", "HEAD:exec-action-data.js"], { cwd: root, encoding: "utf8", maxBuffer: 1 << 28, stdio: ["ignore", "pipe", "ignore"] }); } catch { head = null; }
+  const now = _readFileSync(root + "exec-action-data.js", "utf8");
+  if (head == null || head === now) return (_dewMemo = false);
+  const a = load(head), b = load(now);
+  if (!a || !b || b.length !== a.length + DECLARED_EXEC_WAVE.documentIds.length) return (_dewMemo = false);
+  const sameHead = a.every((x, i) => JSON.stringify(x) === JSON.stringify(b[i]));
+  const added = b.slice(a.length).map((x) => x.documentId);
+  return (_dewMemo = sameHead && JSON.stringify(added) === JSON.stringify(DECLARED_EXEC_WAVE.documentIds));
 }
 
 export const DECLARED_ADMISSION_PIDS = DECLARED_ADMISSIONS.flatMap((d) => d.pids);
@@ -4351,4 +4385,21 @@ export function relatedIssuesMapOnly(src) {
   const at = s.indexOf("var MAP = {");
   const end = at < 0 ? -1 : s.indexOf("\n  };", at);
   return at < 0 || end < 0 ? s : s.slice(at, end + 5);
+}
+
+/**
+ * related-issues.js with exactly the Trump–Massie pass's declared edits set
+ * aside (scripts/related-issues-declared-edits.json: the privacy_rights /
+ * congress_oversight pair, its note, and the formal-act tally for an office
+ * that casts no roll calls). Each recorded "after" text must appear exactly
+ * once, or nothing is set aside and the caller's byte pin compares the file
+ * as it stands — so any other edit to the module still fails that pin.
+ */
+const _RI_EDITS = JSON.parse(_readFileSync(new URL("./related-issues-declared-edits.json", import.meta.url), "utf8")).edits;
+export function withoutDeclaredRelatedIssues(src) {
+  if (src == null) return src;
+  let s = String(src);
+  if (!_RI_EDITS.every((e) => s.split(e.after).length === 2)) return src;
+  for (const e of _RI_EDITS) s = s.replace(e.after, () => e.before);
+  return s;
 }

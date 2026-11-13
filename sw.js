@@ -12037,7 +12037,30 @@
 //     changed, so the shell moves one version. No location key or other stored
 //     reader state is written or rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v554';
+// v555 - THE TRUMP–MASSIE CONTRAST, CITED, ON EXISTING ISSUE KEYS.
+//     politician-stances-core.js (precached) appends cited cards for Donald
+//     Trump and Thomas Massie on spending and omnibus bills, FISA Section 702,
+//     COVID spending and the CARES Act, bump stocks, corporate lending,
+//     tariffs, the IRS and pandemic mandates: House Clerk roll calls for
+//     Massie; signed public laws, executive orders, a Federal Register rule
+//     and dated statements for Trump. Every card sits on an existing key;
+//     cards on keys a person already held are appended, so no stated position
+//     changes. related-issues.js (precached) gains one symmetric pair —
+//     Privacy & Big-Tech Accountability / Congressional Oversight — and, for
+//     an office that casts no roll calls, prints the drawer's own formal-act
+//     tally as the record part instead of "no record". exec-action-data.js
+//     (generated from db/exec-action-seed.json) gains five presidential
+//     actions on those keys — Public Laws 115-118 and 119-87 on Section 702,
+//     the 2018 bump-stock memorandum, Executive Orders 14206 and 14214 —
+//     written to the database by the forward seed wave 14 migration. Massie's
+//     longer record moves him up the homepage "Read a record" strip, so
+//     scripts/gen-hero-showcase.mjs was re-run (index.html, precached as '/',
+//     and hero-showcase-data.js). The precache list is unchanged; a precached
+//     file changed, so the shell moves one version. No issue key, route or
+//     gate is added. No location key or other stored reader state is written
+//     or rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v555';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

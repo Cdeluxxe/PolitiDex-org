@@ -369,7 +369,11 @@ section("the tree");
     "20261201000000_dd_districts_california_contested_board_seats.sql",
     "20261202000000_dd_districts_washington_contested_board_seats.sql",
     "20261203000000_dd_districts_every_existing_board_seat.sql"];
-  if (st != null) ok(st.trim().split("\n").filter(Boolean).every((l) => l === `?? ${MIG_PATH}` || LATER.some((f) => l === `?? netlify/database/migrations/${f}`)) || st.trim() === "", `another migration was added or edited:\n${st}`);
+  // Executive seed wave 14 (Trump–Massie pass) writes executive measures, so it is
+  // not a rows-only LATER file; it is admitted to the status check here and still
+  // held below to naming none of this pass's measures.
+  const LATER_EXEC = ["20261205000000_seed_exec_actions_wave14.sql"];
+  if (st != null) ok(st.trim().split("\n").filter(Boolean).every((l) => l === `?? ${MIG_PATH}` || LATER.concat(LATER_EXEC).some((f) => l === `?? netlify/database/migrations/${f}`)) || st.trim() === "", `another migration was added or edited:\n${st}`);
   // EVERY OTHER LATER MIGRATION. When this pass landed, nothing could sort
   // after it; later voting-record waves (the Epstein files, H.R. 1, the Iran
   // withdrawal family…) have since landed after it, and they are free to write

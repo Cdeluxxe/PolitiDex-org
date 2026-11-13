@@ -1,0 +1,38 @@
+{
+  "_comment": "The related-issues.js edits of the Trump–Massie pass (Nov 2026): the privacy_rights / congress_oversight pair, its note, and the formal-act tally for an office that casts no roll calls. Each entry is the exact text before and after. Read by v103-chrome-seams.mjs#withoutDeclaredRelatedIssues so earlier passes' byte pins on related-issues.js set aside exactly these edits and nothing else.",
+  "pass": "trump_massie_contrast_nov2026",
+  "edits": [
+    {
+      "before": "",
+      "after": "\n   · SURVEILLANCE PAIR (Nov 2026). Privacy & Big-Tech Accountability sits with\n     Congressional Oversight: a Section 702 reauthorization (H.R. 7888, the\n     Reforming Intelligence and Securing America Act) is mapped to both, so a\n     FISA vote and a stated position on warrantless surveillance meet in one\n     drawer. Existing keys on both sides, last in both lists, like the pairs\n     above.\n"
+    },
+    {
+      "before": "         no for/against line gives its act count (\"3 formal acts\"). No votes\n         on file reads \"no record\".",
+      "after": "         no for/against line gives its act count (\"3 formal acts\"). An office\n         that casts no roll calls (the executive record) reads its formal acts\n         the same way: the drawer's own tally of signed laws and orders on that\n         issue (\"0 for · 1 against\"). No votes or acts on file reads \"no record\"."
+    },
+    {
+      "before": "    privacy_rights: ['free_speech', 'tech_innovation', 'tech_balance', 'crypto_cbdc', 'datacenter_growth'],",
+      "after": "    privacy_rights: ['free_speech', 'tech_innovation', 'tech_balance', 'crypto_cbdc', 'datacenter_growth', 'congress_oversight'],"
+    },
+    {
+      "before": "    congress_oversight: ['term_limits', 'gov_transparency', 'campaign_finance', 'stock_trading_ban', 'reform_balance', 'checks_balances', 'war_powers', 'judicial_check', 'power_of_purse', 'tariffs_authority', 'civil_service_control', 'scotus_reform'],",
+      "after": "    congress_oversight: ['term_limits', 'gov_transparency', 'campaign_finance', 'stock_trading_ban', 'reform_balance', 'checks_balances', 'war_powers', 'judicial_check', 'power_of_purse', 'tariffs_authority', 'civil_service_control', 'scotus_reform', 'privacy_rights'],"
+    },
+    {
+      "before": "",
+      "after": "\n  // An office that casts no roll calls (the executive record, PDXExecRecord):\n  // its record is the formal acts the issue's own drawer counts — signed laws,\n  // orders, proclamations — read from the same drawer ledger, in the drawer's\n  // own words (\"0 for · 1 against\"). '' for anyone who casts votes, or when the\n  // drawer holds nothing for this key, so a legislator's line never changes.\n  function execActsTally(pid, key) {\n    try {\n      var E = window.PDXExecRecord;\n      if (!pid || !E || typeof E.eligible !== 'function' || !E.eligible(pid)) return '';\n    } catch (e) { return ''; }\n    return tallyText(pid, key);\n  }\n"
+    },
+    {
+      "before": "    var d = directionOf(pm, key), r = recordOf(pid, key, idx), v = hasVotes(idx);",
+      "after": "    var d = directionOf(pm, key), r = recordOf(pid, key, idx), v = hasVotes(idx);\n    var acts = (!r && !v) ? execActsTally(pid, key) : '';\n    if (acts) v = true;"
+    },
+    {
+      "before": "    var tally = (!r && v) ? (tallyText(pid, key) || indexTally(idx)) : '';",
+      "after": "    var tally = (!r && v) ? (acts || tallyText(pid, key) || indexTally(idx)) : '';"
+    },
+    {
+      "before": "    hasVotes: function (pid, key) { return hasVotes(recordRead(pid, key)); },",
+      "after": "    hasVotes: function (pid, key) { return hasVotes(recordRead(pid, key)) || !!execActsTally(pid, key); },"
+    }
+  ]
+}

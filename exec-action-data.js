@@ -3814,6 +3814,195 @@
             "note": "Published in the Daily Compilation of Presidential Documents as DCPD-202500715, under the date June 23, 2025. A letter to congressional leaders is not published in the Federal Register, so there is no register disposition record for it; this records that it was published and does not say anything it reported remains in effect. This is not a statement about any challenge to it."
           }
         ]
+      },
+      {
+        "actionClass": "signed_law",
+        "documentId": "Public Law 115-118",
+        "measureNumber": "S. 139",
+        "congress": 115,
+        "chamber": "senate",
+        "title": "FISA Amendments Reauthorization Act of 2017",
+        "actedAt": "2018-01-19",
+        "term": "45",
+        "sourceUrl": "https://www.congress.gov/bill/115th-congress/senate-bill/139",
+        "sourceLabel": "Congress.gov — S. 139, 115th Congress",
+        "issues": [
+          {
+            "issueKey": "privacy_rights",
+            "direction": "opposes",
+            "isPrimary": true,
+            "weight": 85,
+            "plain": "Signed a six-year extension of the Section 702 surveillance authority. It required a court order only for some FBI reviews in criminal cases unrelated to national security, not for searches of Americans' communications generally.",
+            "counts": "This issue is about limits on government surveillance of Americans. The law kept warrantless Section 702 searches running through 2023, which runs against those limits.",
+            "rationale": "Section 201(a) amends section 403(b) of the FISA Amendments Act of 2008 by striking 'December 31, 2017' and inserting 'December 31, 2023', extending title VII of FISA, which holds section 702. Section 101 requires querying procedures and adds section 702(f)(2), under which the FBI may not access the contents of communications retrieved by a United States person query in 'a predicated criminal investigation ... that does not relate to the national security of the United States' unless the Foreign Intelligence Surveillance Court approves an application. Outside that narrow case no order is required, so the law extends warrantless querying of section 702 collection. Mapped opposes on the privacy key on the enrolled text's own terms."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2018-01-19",
+            "authority": "Passed by Congress and signed by the President",
+            "basis": "enacted_law_published",
+            "sourceLabel": "GovInfo — Public Law 115-118, enrolled text as published by GPO",
+            "sourceUrl": "https://www.govinfo.gov/content/pkg/PLAW-115publ118/html/PLAW-115publ118.htm",
+            "note": "Enacted and published as Public Law 115-118, approved January 19, 2018. The December 31, 2023 date its section 201 set was later moved by subsequent laws extending title VII; this row is about the Act as published, which nothing on file repeals. This states that the law exists and stands as published; it is not a statement about any challenge to it."
+          }
+        ]
+      },
+      {
+        "actionClass": "directive",
+        "documentId": "Presidential Memorandum, 83 FR 7949",
+        "title": "Application of the Definition of Machinegun to “Bump Fire” Stocks and Other Similar Devices",
+        "actedAt": "2018-02-20",
+        "term": "45",
+        "sourceUrl": "https://www.federalregister.gov/documents/2018/02/23/2018-03868/application-of-the-definition-of-machinegun-to-bump-fire-stocks-and-other-similar-devices",
+        "sourceLabel": "Federal Register — Presidential Memorandum of February 20, 2018, 83 FR 7949",
+        "frCitation": "83 FR 7949",
+        "frDocumentNumber": "2018-03868",
+        "publishedAt": "2018-02-23",
+        "issues": [
+          {
+            "issueKey": "gun_safety",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 85,
+            "plain": "Directed the Justice Department to propose a rule banning bump stocks and every other device that turns a legal weapon into a machine gun.",
+            "counts": "This issue is about stronger federal limits on dangerous firearms and accessories. A directed ban on bump stocks is exactly such a limit.",
+            "rationale": "The memorandum directs the Department of Justice 'to dedicate all available resources to complete the review of the comments received, and, as expeditiously as possible, to propose for notice and comment a rule banning all devices that turn legal weapons into machineguns.' A directed ban on a class of firearm accessory advances stronger gun-safety law on the document's own words."
+          },
+          {
+            "issueKey": "gun_rights",
+            "direction": "opposes",
+            "isPrimary": false,
+            "weight": 70,
+            "plain": "The ban it ordered would make owning a bump stock illegal, which narrows what gun owners may lawfully possess.",
+            "counts": "This issue is about what law-abiding owners may keep. A ban on a lawfully sold accessory takes one item off that list.",
+            "rationale": "The same directive — a rule 'banning all devices that turn legal weapons into machineguns' — removes a category of lawfully purchased accessory from lawful possession. Filed as the secondary, opposing face of the same act rather than as a separate claim."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2018-02-23",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Presidential Memorandum of February 20, 2018 document record, 83 FR 7949",
+            "sourceUrl": "https://www.federalregister.gov/documents/2018/02/23/2018-03868/application-of-the-definition-of-machinegun-to-bump-fire-stocks-and-other-similar-devices",
+            "note": "Published February 23, 2018 at 83 FR 7949. The register's record for this memorandum carries no disposition note revoking or superseding it. The rule it directed is a separate Justice Department document and is not described by this row. This describes the memorandum's status in the register and is not a statement about any challenge to it."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 14206",
+        "executiveOrderNumber": 14206,
+        "title": "Protecting Second Amendment Rights",
+        "actedAt": "2025-02-07",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2025/02/12/2025-02636/protecting-second-amendment-rights",
+        "sourceLabel": "Federal Register — Executive Order 14206, 90 FR 9503",
+        "frCitation": "90 FR 9503",
+        "frDocumentNumber": "2025-02636",
+        "publishedAt": "2025-02-12",
+        "issues": [
+          {
+            "issueKey": "gun_rights",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 90,
+            "plain": "Declared that the right to keep and bear arms must not be infringed and ordered the Attorney General to review federal firearms rules and actions since 2021 for infringements.",
+            "counts": "This issue is about protecting the right to own firearms from federal restriction. The order makes that protection its stated purpose and orders a hunt for restrictions to remove.",
+            "rationale": "Section 1 states that 'the right to keep and bear arms must not be infringed.' Section 2(a) directs the Attorney General, within 30 days, to examine agency actions 'to assess any ongoing infringements of the Second Amendment rights of our citizens' and present a plan of action; section 2(b) names Justice Department and ATF firearms rules from January 2021 through January 2025, firearm classifications and the government's litigation positions among what must be reviewed."
+          },
+          {
+            "issueKey": "gun_safety",
+            "direction": "opposes",
+            "isPrimary": false,
+            "weight": 60,
+            "plain": "Put the firearms rules issued from 2021 through early 2025 under review for rollback, cutting against keeping those safety rules in place.",
+            "counts": "This issue is about keeping federal gun-safety rules in force. The order puts the rules issued from 2021 through early 2025 up for rollback.",
+            "rationale": "Section 2(b)(i) and (ii) direct review of 'All Presidential and agencies' actions from January 2021 through January 2025 that purport to promote safety but may have impinged on the Second Amendment rights' and of the Department of Justice and ATF firearms rules of that period, and section 3 directs a process to implement the resulting plan. Reduced weight because the order sets a review and a plan rather than revoking a rule itself."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-02-12",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14206 document record, 90 FR 9503",
+            "sourceUrl": "https://www.federalregister.gov/documents/2025/02/12/2025-02636/protecting-second-amendment-rights",
+            "note": "Signed February 7, 2025 and published February 12, 2025 at 90 FR 9503. The register's record for this order carries no disposition note revoking or superseding it, so it stands as published by later presidential action. This describes the order's status in the register and is not a statement about any challenge to it."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 14214",
+        "executiveOrderNumber": 14214,
+        "title": "Keeping Education Accessible and Ending COVID-19 Vaccine Mandates in Schools",
+        "actedAt": "2025-02-14",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2025/02/20/2025-02931/keeping-education-accessible-and-ending-covid-19-vaccine-mandates-in-schools",
+        "sourceLabel": "Federal Register — Executive Order 14214, 90 FR 9949",
+        "frCitation": "90 FR 9949",
+        "frDocumentNumber": "2025-02931",
+        "publishedAt": "2025-02-20",
+        "issues": [
+          {
+            "issueKey": "medical_freedom",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 90,
+            "plain": "Set a policy that discretionary federal money should not support schools or colleges that require students to be vaccinated against COVID-19, and ordered a plan to end those requirements.",
+            "counts": "This issue is about personal choice over vaccine requirements. The order uses federal money against schools that require the COVID-19 shot.",
+            "rationale": "Section 1 states the policy that 'discretionary Federal funds should not be used to directly or indirectly support or subsidize' an educational agency, school or institution of higher education 'that requires students to have received a COVID-19 vaccination to attend any in-person education program.' Section 3(b) directs the Secretary of Education, with the Secretary of Health and Human Services, to provide within 90 days 'a plan to end coercive COVID-19 school mandates.' A measure against a vaccine requirement advances personal choice over that requirement on the order's own words; it reaches COVID-19 vaccination only."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-02-20",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14214 document record, 90 FR 9949",
+            "sourceUrl": "https://www.federalregister.gov/documents/2025/02/20/2025-02931/keeping-education-accessible-and-ending-covid-19-vaccine-mandates-in-schools",
+            "note": "Signed February 14, 2025 and published February 20, 2025 at 90 FR 9949. The register's record for this order carries no disposition note revoking or superseding it, so it stands as published by later presidential action. This describes the order's status in the register and is not a statement about any challenge to it."
+          }
+        ]
+      },
+      {
+        "actionClass": "signed_law",
+        "documentId": "Public Law 119-87",
+        "measureNumber": "S. 4465",
+        "congress": 119,
+        "chamber": "senate",
+        "title": "To amend the FISA Amendments Act of 2008 to extend the authorities of title VII of the Foreign Intelligence Surveillance Act of 1978, and for other purposes",
+        "actedAt": "2026-04-30",
+        "term": "47",
+        "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/4465",
+        "sourceLabel": "Congress.gov — S. 4465, 119th Congress",
+        "issues": [
+          {
+            "issueKey": "privacy_rights",
+            "direction": "opposes",
+            "isPrimary": true,
+            "weight": 70,
+            "plain": "Signed a short extension keeping the Section 702 surveillance authority running from April 30 to June 12, 2026, without adding new limits.",
+            "rationale": "Section 1(a) amends section 403(b) of the FISA Amendments Act of 2008 by striking 'April 30, 2026' and inserting 'June 12, 2026', keeping title VII of FISA, which holds section 702, in force for six more weeks. The Act adds no querying or warrant limits. Weighted below the 2018 reauthorization because the extension runs six weeks rather than six years."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2026-04-30",
+            "authority": "Passed by Congress and signed by the President",
+            "basis": "enacted_law_published",
+            "sourceLabel": "GovInfo — Public Law 119-87, enrolled text as published by GPO",
+            "sourceUrl": "https://www.govinfo.gov/content/pkg/PLAW-119publ87/html/PLAW-119publ87.htm",
+            "note": "Enacted and published as Public Law 119-87, approved April 30, 2026, at 140 Stat. 811. The extension date it set has its own terms; this row is about the Act as published, which nothing on file repeals. This states that the law exists and stands as published; it is not a statement about any challenge to it."
+          }
+        ]
       }
     ]
   };

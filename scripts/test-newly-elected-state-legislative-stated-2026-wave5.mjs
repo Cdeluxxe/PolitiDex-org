@@ -46,7 +46,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
-import { DECLARED_STANCE_PASSES, DECLARED_ADMISSIONS, carveDeclaredAdmissions, relatedIssuesMapOnly, gapFillKeys, declaredPin, withoutHeroCrawl } from "./v103-chrome-seams.mjs";
+import { DECLARED_STANCE_PASSES, DECLARED_ADMISSIONS, carveDeclaredAdmissions, relatedIssuesMapOnly, gapFillKeys, declaredPin, withoutHeroCrawl, withoutDeclaredRelatedIssues } from "./v103-chrome-seams.mjs";
 // A later declared admission (the sixth newly elected wave) is that pass's product.
 const LATER_ADMITTED = DECLARED_ADMISSIONS.slice(DECLARED_ADMISSIONS.findIndex((d) => d.wave === "newly_elected_state_legislators_wi_il_nc_ga_fl_nov2026") + 1).flatMap((d) => d.pids);
 
@@ -297,7 +297,7 @@ section("4 · nothing else moved; no new route or gate; one shell move, no migra
       ...Object.values(BALLOT), ...(REC.members || []).flatMap((m) => m.boards)]) {
       const b = BASE(f);
       let now = null; try { now = R(f); } catch { /* absent */ }
-      if (f === "related-issues.js") { eq(relatedIssuesMapOnly(now), relatedIssuesMapOnly(b), `${f}: the related-issues map changed`); continue; }
+      if (f === "related-issues.js") { eq(relatedIssuesMapOnly(withoutDeclaredRelatedIssues(now)), relatedIssuesMapOnly(b), `${f}: the related-issues map changed`); continue; }
       if (f === "politician-stances-core.js") { eq(coreSansLater(now), coreSansLater(b), `${f} changed`); continue; }
       // consistency.js, index.html and netlify.toml: once only declared later
       // revisions (v103-chrome-seams.mjs) moved them since the base, they pin to HEAD.
@@ -337,7 +337,7 @@ section("4 · nothing else moved; no new route or gate; one shell move, no migra
   const sm = R("sitemap.xml");
   for (const pid of SET) ok(sm.includes(`<loc>https://politidex.fyi/p/${pid}</loc>`), `${pid}: the sitemap does not list the person page`);
   let migs = []; try { migs = readdirSync(join(ROOT, "netlify/database/migrations")); } catch { /* none */ }
-  for (const f of migs) ok(declaredPin(BASE_REV, `netlify/database/migrations/${f}`, ROOT) != null, `${f}: a migration this pass added`);
+  for (const f of migs) ok(declaredPin(BASE_REV, `netlify/database/migrations/${f}`, ROOT) != null || f === "20261205000000_seed_exec_actions_wave14.sql" /* the later Trump–Massie pass, gated by test-exec-seed.mjs */, `${f}: a migration this pass added`);
 }
 
 if (failures.length) {
