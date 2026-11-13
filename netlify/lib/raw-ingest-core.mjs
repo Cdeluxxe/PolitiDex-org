@@ -1,3 +1,5 @@
+import { REQUESTED_POLITICIANS } from "./raw-ingest-expansion.mjs";
+
 // ─────────────────────────────────────────────────────────────────────────────
 // raw-ingest-core.mjs — Phase 3 ingestion pipeline, RAW STORE ONLY
 // ─────────────────────────────────────────────────────────────────────────────
@@ -415,6 +417,23 @@ export const ROSTER = [
       official_kind: "state_legislature", source_id: "official-legislature", url: "https://house.texas.gov/members/49" } },
 ];
 
+// Keep existing topic pages and official patterns, then add the requested people.
+// A homepage is a raw capture under the existing topic key, not a stance claim.
+for (const person of REQUESTED_POLITICIANS) {
+  let row = ROSTER.find((r) => r.politician_id === person.politician_id);
+  if (!row) {
+    const { page, note, ...identity } = person;
+    row = { ...identity, sources: [], ...(note ? { note } : {}) };
+    ROSTER.push(row);
+  } else {
+    row.name = person.name;
+  }
+  if (person.page && ![...row.sources, row.official].some((s) => s?.url.replace(/\/$/, "") === person.page.url.replace(/\/$/, ""))) {
+    row.sources.push({ politician_id: row.politician_id, topic: "cost_living",
+      source_id: "known-homepage", source_type: person.page.source_type, url: person.page.url });
+  }
+}
+
 // The 13 politicians the rotation covered before the roster-priority pass.
 export const PREVIOUS_ROSTER = [
   "greg_abbott", "john_cornyn", "chip_roy", "crockett", "aoc", "maloy", "cox",
@@ -495,7 +514,7 @@ export function normaliseRotationState(doc) {
 export function planRun(state = {}, { roster = ROSTER, max = MAX_SOURCES_PER_RUN, counts = {}, every = DEPRIORITISED_EVERY_CYCLES, maxPoliticians = MAX_POLITICIANS_PER_RUN, perPolitician = MAX_SOURCES_PER_POLITICIAN } = {}) {
   const st = normaliseRotationState(state);
   const ids = new Set(roster.map((r) => r.politician_id));
-  const order = priorityOrder(roster, counts);
+  const order = priorityOrder(roster, counts).filter((x) => x.open.length || x.filled.length);
   const eligibleIn = (cycle) => order.filter((x) => x.band === 0 || cycle % Math.max(1, every) === 0);
   let cycle = st.cycle;
   let done = new Set(st.done.filter((p) => ids.has(p)));
