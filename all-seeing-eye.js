@@ -2212,6 +2212,12 @@
       }
       if (id === 'compare') {
         close();
+        // Add just this person to the reader's comparison set (the sticky bar);
+        // the bar's Jump button opens the right view for the set.
+        if (window.PDXCompareTray && typeof window.PDXCompareTray.add === 'function') {
+          try { window.PDXCompareTray.add(e.id); } catch (err) {}
+          return;
+        }
         try {
           if (window._cmpSelected && typeof window._cmpSelected.add === 'function') window._cmpSelected.add(e.id);
           if (typeof window.openCompare === 'function') window.openCompare();

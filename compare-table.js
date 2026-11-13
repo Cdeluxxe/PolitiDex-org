@@ -2914,3 +2914,21 @@
   }
 
   
+
+  // ── ⚖️ COMPARISON BAR LOADER ────────────────────────────────────────────────
+  // The sticky comparison set (compare-tray.js / compare-tray.css) rides in with
+  // the table it feeds, so only the document that has the compare table pays for
+  // it. compare-tray.js reads _cmpSelected above and guards the existing toggles;
+  // it re-installs those guards at DOMContentLoaded and load, so load order
+  // against compare-hub.js does not matter.
+  (function () {
+    try {
+      if (document.getElementById('pdx-cmp-tray-css')) return;
+      var l = document.createElement('link');
+      l.id = 'pdx-cmp-tray-css'; l.rel = 'stylesheet'; l.href = '/compare-tray.css';
+      document.head.appendChild(l);
+      var s = document.createElement('script');
+      s.id = 'pdx-cmp-tray-js'; s.src = '/compare-tray.js'; s.defer = true;
+      document.head.appendChild(s);
+    } catch (e) {}
+  })();
