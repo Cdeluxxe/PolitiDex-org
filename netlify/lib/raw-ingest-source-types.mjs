@@ -235,3 +235,43 @@ export const EXTRA_SOURCES = [
   ...CAMPAIGN_ISSUES.map((s) => ({ ...s, source_class: "campaign_issues" })),
   ...CONGRESS_GOV.map((s) => ({ ...s, source_class: "congress_gov" })),
 ];
+
+// ── Official social sources (raw-ingest-social.mjs) — YouTube only for now ──
+// A channel is used only when the site already cites one of its videos and
+// labels it the politician's OWN official / campaign channel (`known_video`,
+// cited in `known_from`). The channel id is the uploader of that cited video
+// (YouTube oEmbed author → channel page), not a guess. The Utah Senate's
+// channel (cited for Sen. Hinkins) is skipped: it is the chamber's channel, not
+// his. X and Facebook are not configured (no anonymous access to posts).
+//
+// Each politician gets a roster row with their official government page as the
+// official pattern; the channel is a lower-priority page that only fills slots
+// left over after official and campaign pages (planRun's social fill).
+export const NEW_SOCIAL_ROSTER = [
+  { politician_id: "curtis", name: "John Curtis", tier: 1, has_board: true, has_stances: true,
+    official: { politician_id: "curtis", topic: "enviro_energy", source_type: "official Senate press release",
+      official_kind: "congress", source_id: "official-newsroom",
+      url: "https://www.curtis.senate.gov/press-releases/curtis-calls-for-federal-permitting-reform-to-boost-utahs-clean-energy-development/",
+      known_from: "politician-stances.js" } },
+  { politician_id: "hoang_nguyen", name: "Hoang Nguyen", tier: 1, has_board: true, has_stances: true,
+    official: { politician_id: "hoang_nguyen", topic: "public_schools", source_type: "official state legislature member page",
+      official_kind: "state_legislature", source_id: "official-legislature",
+      url: "https://house.utleg.gov/rep/NGUYEH/", known_from: "spotlight-cards-data.js" } },
+];
+
+export const OFFICIAL_YOUTUBE = [
+  { politician_id: "curtis", topic: "religious_liberty", source_type: "official YouTube channel",
+    channel_id: "UChAQ4MD-HigmGnImSoAKBVA", channel_url: "https://www.youtube.com/@SenatorJohnCurtis",
+    known_video: "https://www.youtube.com/watch?v=iYHH_IfBiVQ", known_label: "Senator John Curtis (official channel)",
+    known_from: "scripts/spotlight-video-social-batch-jul2026.mjs" },
+  { politician_id: "hoang_nguyen", topic: "public_schools", source_type: "campaign YouTube channel",
+    channel_id: "UCNilDuFLmC7FBsyJoDYUzPA", channel_url: "https://www.youtube.com/@Hoangforhouse",
+    known_video: "https://www.youtube.com/watch?v=c7mYbUvbHq4", known_label: "Nguyen's official campaign channel",
+    known_from: "spotlight-cards-data.js" },
+];
+
+/** Every social source, tagged with its class; `url` is the channel's public feed. */
+export const SOCIAL_SOURCES = OFFICIAL_YOUTUBE.map((s) => ({
+  ...s, source_class: "youtube", source_id: "youtube-channel",
+  url: `https://www.youtube.com/feeds/videos.xml?channel_id=${s.channel_id}`,
+}));

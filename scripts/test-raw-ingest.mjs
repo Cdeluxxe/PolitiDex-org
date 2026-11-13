@@ -1011,5 +1011,135 @@ await t('extra source types: a rotated run stores them as plain raw records (loc
   assert.ok([...store.data.values()].some((rec) => /congress\.gov/.test(rec.url)), 'a Congress.gov page is pulled like any other source');
 });
 
+// ── Official social sources: YouTube (transcript first, description fallback) ──
+const social = await import('../netlify/lib/raw-ingest-social.mjs');
+const SOCIAL_ITEM_FIELDS = ['type', 'date', 'link', 'excerpt', 'weight', 'politician_id', 'topic', 'source_type', 'source_id', 'url', 'fetched_at'];
+const FEED = (pid) => `<?xml version="1.0"?><feed>${[1, 2, 3, 4].map((i) => `<entry><yt:videoId>${pid.slice(0, 6).padEnd(6, 'x')}vid0${i}</yt:videoId><title>Video ${i} &amp; more</title><published>2026-11-0${i}T12:00:00+00:00</published><media:group><media:description>Description of video ${i}: lowering costs for Utah families.</media:description></media:group></entry>`).join('')}</feed>`;
+const ytFetch = ({ captions = true } = {}) => async (url) => {
+  const res = (status, body, ct = 'text/html') => ({ ok: status >= 200 && status < 300, status, url, headers: new Map([['content-type', ct]]), text: async () => body });
+  if (url.includes('/feeds/videos.xml')) return res(200, FEED(new URL(url).searchParams.get('channel_id').toLowerCase()), 'application/atom+xml');
+  if (url.includes('/watch?v=')) {
+    const id = new URL(url).searchParams.get('v');
+    // Videos 3 and 4 carry an auto-generated English track; 1 and 2 have none.
+    if (!captions || !/[34]$/.test(id)) return res(200, '<html>no captions here</html>'.repeat(20));
+    const tracks = JSON.stringify([{ baseUrl: `https://www.youtube.com/api/timedtext?v=${id}&lang=en`, name: { runs: [{ text: 'English (auto-generated)' }] }, languageCode: 'en', kind: 'asr' }]);
+    return res(200, `<html><script>var x = {"captions":{"playerCaptionsTracklistRenderer":{"captionTracks":${tracks},"audioTracks":[]}}};</script></html>`);
+  }
+  if (url.includes('/api/timedtext')) return res(200, JSON.stringify({ events: [{ segs: [{ utf8: 'Transcript words ' }, { utf8: 'about water and schools.' }] }] }), 'application/json');
+  return res(200, LONG_HTML);
+};
+const memGetStore = () => { const data = new Map(); return { data, async get(k) { return data.has(k) ? JSON.stringify(data.get(k)) : null; }, async setJSON(k, v) { data.set(k, JSON.parse(JSON.stringify(v))); } }; };
+
+await t('social: official YouTube channels are configured only from videos the site already cites on the politician\'s own channel; no X / Facebook', () => {
+  assert.deepEqual(Object.keys(social.SOCIAL_CLASSES), ['youtube']);
+  assert.ok(types.SOCIAL_SOURCES.length >= 1);
+  for (const sc of types.SOCIAL_SOURCES) {
+    const cited = readFileSync(path.join(root, sc.known_from), 'utf8');
+    const vid = new URL(sc.known_video).searchParams.get('v');
+    assert.ok(cited.includes(vid), `${sc.known_video} is cited in ${sc.known_from}`);
+    assert.ok(cited.includes(sc.known_label.replace(/'/g, "\\'")) || cited.includes(sc.known_label), `${sc.politician_id}: the site labels it "${sc.known_label}"`);
+    assert.match(sc.known_label, /official/i, 'labelled official on the site');
+    assert.match(sc.channel_id, /^UC[A-Za-z0-9_-]{22}$/);
+    assert.equal(sc.url, social.youtubeFeedUrl(sc.channel_id));
+    assert.ok(locker.isCampaignOrOfficial(sc.source_type, sc.url));
+    assert.ok(SCORED.has(sc.topic));
+    const row = rowOf(sc.politician_id);
+    assert.ok(row?.official, `${sc.politician_id} has an official page`);
+    assert.ok(readFileSync(path.join(root, 'politician-stances.js'), 'utf8').includes(row.official.url) || readFileSync(path.join(root, 'spotlight-cards-data.js'), 'utf8').includes(row.official.url), `${row.official.url} is already cited on the site`);
+    assert.equal(row.sources.filter((s) => s.source_class === 'youtube').length, 1, 'one channel source in the row');
+  }
+  assert.ok(!types.SOCIAL_SOURCES.some((sc) => sc.politician_id === 'dhinkins'), 'the Utah Senate chamber channel is not treated as a member channel');
+  for (const r of core.ROSTER) for (const s of pagesOf(r)) assert.doesNotMatch(new URL(s.url).hostname, /(^|\.)(x|twitter|facebook)\.com$/, `${s.url}: no X / Facebook source configured`);
+  // A test politician with an official page and an official YouTube channel.
+  const curtis = rowOf('curtis');
+  assert.equal(core.sourceKind(curtis.official), 'official');
+  assert.ok(curtis.sources.some((s) => s.source_class === 'youtube' && s.source_type === 'official YouTube channel'));
+});
+
+await t('social: the planner fills social slots only after official/campaign pages, under the existing caps', () => {
+  const pg = (pid, i, extra = {}) => ({ politician_id: pid, topic: 'cost_living', source_type: 'official House issue page', url: `https://${pid}.example.gov/issues/${i}`, ...extra });
+  const yt = (pid) => ({ politician_id: pid, topic: 'cost_living', source_type: 'official YouTube channel', source_class: 'youtube', source_id: 'youtube-channel', url: social.youtubeFeedUrl(`UC${pid.padEnd(22, 'x')}`) });
+  const row = (pid, pages) => ({ politician_id: pid, tier: 1, sources: [yt(pid), ...Array.from({ length: pages }, (_, i) => pg(pid, i))],
+    official: { ...pg(pid, 99), source_type: 'official House newsroom', official_kind: 'congress', source_id: 'official-newsroom' } });
+  // Room left: the channel joins after the pages, even though it is listed first.
+  const roomy = core.planRun({}, { roster: [row('a', 2), row('b', 2)] });
+  for (const pid of ['a', 'b']) assert.ok(roomy.sources.some((s) => s.politician_id === pid && s.source_class === 'youtube'), `${pid}: channel fills a spare slot`);
+  assert.ok(roomy.sources.findIndex((s) => s.source_class === 'youtube') >= 4, 'channels come after every official page');
+  // A politician at the per-politician cap with official pages gets no social slot.
+  const full = core.planRun({}, { roster: [row('a', 9)] });
+  assert.equal([...full.sources, ...full.patterns].filter((s) => s.politician_id === 'a').length, core.MAX_SOURCES_PER_POLITICIAN);
+  assert.ok(!full.sources.some((s) => s.source_class === 'youtube'), 'official pages win the slots');
+  // Run cap tight: social never displaces a later politician's official pages.
+  const tight = core.planRun({}, { roster: [row('a', 2), row('b', 2)], max: 6 });
+  assert.equal(tight.size, 6);
+  assert.ok(tight.politicians.includes('b') && [...tight.sources, ...tight.patterns].filter((s) => s.politician_id === 'b').length === 3, 'b keeps all three official pages');
+  assert.ok(!tight.sources.some((s) => s.source_class === 'youtube'));
+  // Real roster dry run: the YouTube class shows up within a few cycles and every run stays capped.
+  let state = {}; const got = new Set();
+  for (let i = 0; i < 400; i++) {
+    const plan = core.planRun(state);
+    assert.ok(plan.politicians.length <= core.MAX_POLITICIANS_PER_RUN && plan.size <= core.MAX_SOURCES_PER_RUN);
+    for (const pid of plan.politicians) assert.ok([...plan.sources, ...plan.patterns].filter((s) => s.politician_id === pid).length <= core.MAX_SOURCES_PER_POLITICIAN);
+    for (const s of plan.sources) if (s.source_class === 'youtube') got.add(s.politician_id);
+    state = plan.state;
+    if (plan.cycle >= 3) break;
+  }
+  for (const sc of types.SOCIAL_SOURCES) assert.ok(got.has(sc.politician_id), `${sc.politician_id}'s channel is planned`);
+});
+
+await t('social: a YouTube pull writes one locked-shape item per new video — transcript first, description fallback logged, no scoring', async () => {
+  const roster = [rowOf('curtis'), rowOf('hoang_nguyen')];
+  const store = memGetStore(); const logs = []; const hooked = [];
+  const { value: res, lines } = await quiet(() => fn.run({ fetch: ytFetch(), store, now: NOW, rotate: { roster, state: {}, counts: {} }, log: (l) => logs.push(l) }));
+  const r = await res.json();
+  const items = [...store.data.entries()].filter(([, v]) => v.type === 'video');
+  assert.equal(items.length, 2 * social.YOUTUBE_MAX_VIDEOS, 'the 3 most recent videos per channel');
+  for (const [k, v] of items) {
+    assert.deepEqual(Object.keys(v).sort(), [...SOCIAL_ITEM_FIELDS].sort(), `${k}: locked item fields only`);
+    for (const f of FORBIDDEN) assert.ok(!(f in v));
+    assert.match(v.date, /^20\d\d-\d\d-\d\d$/);
+    assert.match(v.link, /^https:\/\/www\.youtube\.com\/watch\?v=[A-Za-z0-9_-]{11}$/);
+    assert.equal(v.weight, 'mention');
+    assert.ok(v.excerpt.length > 0 && v.excerpt.length <= social.SOCIAL_EXCERPT_MAX);
+    assert.ok(k.endsWith(`/${new URL(v.link).searchParams.get('v')}.json`), 'keyed by video id');
+  }
+  assert.ok(!items.some(([, v]) => /vid01/.test(v.link)), 'only the most recent videos (the oldest is left out)');
+  const byTranscript = items.filter(([, v]) => v.excerpt.startsWith('Transcript words'));
+  const byDescription = items.filter(([, v]) => v.excerpt.startsWith('Description of video'));
+  assert.equal(byTranscript.length, 4, 'videos 3 and 4 use the transcript');
+  assert.equal(byDescription.length, 2, 'video 2 falls back to the description');
+  assert.equal(logs.filter((l) => l.startsWith('raw-ingest: TRANSCRIPT FALLBACK ')).length, 2, 'every fallback is logged');
+  assert.ok(logs.some((l) => /^raw-ingest: youtube — 2 channel\(s\), 6 new video record\(s\) · transcript 4\/6, description fallback 2\/6/.test(l)), 'the run logs the transcript vs. fallback tally');
+  assert.deepEqual({ t: r.youtube.transcript, f: r.youtube.description_fallback }, { t: 4, f: 2 });
+  assert.ok(!lines.concat(logs).some((l) => /stance-score: .*vid0/.test(l)), 'no scoring on social items');
+  // Next run: already-stored videos are skipped before any transcript fetch.
+  const seenUrls = [];
+  const countingFetch = async (u, o) => { seenUrls.push(u); return ytFetch()(u, o); };
+  const { value: res2 } = await quiet(() => fn.run({ fetch: countingFetch, store, now: NOW, rotate: { roster, state: {}, counts: {} }, log: () => {} }));
+  const r2 = await res2.json();
+  assert.equal(r2.youtube.stored, 0);
+  assert.equal(r2.youtube.already_stored, 6);
+  assert.ok(!seenUrls.some((u) => u.includes('/watch?v=')), 'no transcript fetch for stored videos');
+  // No captions anywhere → everything falls back, nothing fails.
+  const st3 = memGetStore(); const l3 = [];
+  await quiet(() => fn.run({ fetch: ytFetch({ captions: false }), store: st3, now: NOW, rotate: { roster, state: {}, counts: {} }, log: (l) => l3.push(l) }));
+  assert.equal([...st3.data.values()].filter((v) => v.type === 'video' && v.excerpt.startsWith('Description')).length, 6);
+  assert.equal(l3.filter((l) => l.startsWith('raw-ingest: TRANSCRIPT FALLBACK ')).length, 6);
+  // A broken feed fails only that source.
+  const bad = await quiet(() => social.pullYouTube(types.SOCIAL_SOURCES[0], { fetch: fakeFetch(500, 'x'), store: memGetStore(), now: NOW, log: () => {} }));
+  assert.equal(bad.value.ok, false);
+});
+
+await t('social: transcript helpers parse caption tracks and bodies', () => {
+  const html = `x "captionTracks":[{"baseUrl":"https://y/t?a=1\\u0026lang=en","name":{"runs":[{"text":"English"}]},"languageCode":"en"},{"baseUrl":"https://y/t2","languageCode":"en","kind":"asr"}],"z":1`;
+  const tracks = social.extractCaptionTracks(html);
+  assert.equal(tracks.length, 2);
+  assert.equal(social.pickCaptionTrack(tracks).kind, 'asr', 'auto-generated English preferred');
+  assert.equal(social.captionText('<transcript><text start="0">Hello &amp;amp; welcome</text><text>to Utah</text></transcript>'), 'Hello &amp; welcome to Utah'.replace('&amp;', '&'));
+  assert.equal(social.captionText(''), '');
+  assert.equal(social.extractCaptionTracks('<html></html>'), null);
+  assert.equal(social.parseYouTubeFeed(FEED('abcdef'))[0].published.slice(0, 10), '2026-11-04');
+});
+
 if (failures) { console.error(`${failures} failing`); process.exit(1); }
 console.log('raw ingest: all checks pass');

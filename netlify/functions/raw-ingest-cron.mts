@@ -82,6 +82,17 @@
 //   · RUN LOG — "raw-ingest: run included …" adds "source classes" (pages per
 //     class; "existing" = the pages configured before this pass).
 
+// Official social pass (YouTube only for now):
+//   · Official / campaign YouTube channels already cited on the site
+//     (raw-ingest-social.mjs). One channel = one source slot; each new recent
+//     video becomes its own raw item record — type "video", date, link,
+//     excerpt, weight "mention" — with no scoring and no Locker write.
+//   · Excerpt = transcript first; on failure/empty, the description, logged as
+//     "raw-ingest: TRANSCRIPT FALLBACK …". "raw-ingest: youtube — …" closes the
+//     run with the transcript vs. fallback tally (also report.youtube).
+//   · Social slots are filled last (after every official / campaign page), so
+//     the caps and the priority of official pages are unchanged.
+
 // Roster priority + baseline pass:
 //   · ROSTER grows beyond the previous 13 to more sitting members with a
 //     district board and/or stated positions. Tier 1 = board + several stated
@@ -198,6 +209,14 @@ export async function run(deps: {
     }
   };
   const report: any = await runRawIngest({ ...deps, onRecord }, sources);
+  // YouTube: how often the transcript worked vs. the description fallback.
+  const yt = report.results.filter((r: any) => r.youtube);
+  if (yt.length) {
+    const sum = (k: string) => yt.reduce((n: number, r: any) => n + (r.youtube[k] || 0), 0);
+    report.youtube = { channels: yt.length, videos: sum("videos"), stored: sum("stored"), already_stored: sum("seen"), transcript: sum("transcript"), description_fallback: sum("fallback") };
+    const tried = report.youtube.transcript + report.youtube.description_fallback;
+    log(`raw-ingest: youtube — ${yt.length} channel(s), ${report.youtube.stored} new video record(s) · transcript ${report.youtube.transcript}/${tried}, description fallback ${report.youtube.description_fallback}/${tried} · ${report.youtube.already_stored} already stored`);
+  }
   report.discovered = discovered.map((s: any) => ({ politician_id: s.politician_id, topic: s.topic, url: s.url, kind: sourceKind(s), ...(s.official_kind ? { official_kind: s.official_kind } : {}) }));
   report.included = {
     ...included,

@@ -1,7 +1,8 @@
 import { REQUESTED_POLITICIANS } from "./raw-ingest-expansion.mjs";
-import { EXTRA_SOURCES, NEW_STATE_LEGISLATORS, SOURCE_CLASSES } from "./raw-ingest-source-types.mjs";
+import { EXTRA_SOURCES, NEW_STATE_LEGISLATORS, SOURCE_CLASSES, NEW_SOCIAL_ROSTER, SOCIAL_SOURCES } from "./raw-ingest-source-types.mjs";
+import { pullYouTube, isSocial, SOCIAL_CLASSES } from "./raw-ingest-social.mjs";
 
-export { EXTRA_SOURCES, SOURCE_CLASSES };
+export { EXTRA_SOURCES, SOURCE_CLASSES, SOCIAL_SOURCES, SOCIAL_CLASSES, isSocial };
 
 // ─────────────────────────────────────────────────────────────────────────────
 // raw-ingest-core.mjs — Phase 3 ingestion pipeline, RAW STORE ONLY
@@ -71,7 +72,9 @@ export function rawKey(src, fetchedAt) {
   return `${parts.join("/")}/${ts}.json`;
 }
 
-export async function pullOne(src, { fetch, store, now = () => new Date(), onRecord }) {
+export async function pullOne(src, { fetch, store, now = () => new Date(), onRecord, log }) {
+  // Social sources write one raw item record per video and skip the scorer hook.
+  if (src.source_class === "youtube") return pullYouTube(src, { fetch, store, now, log: log ?? console.log, storeName: RAW_STORE_NAME });
   const fetchedAt = now().toISOString();
   try {
     const res = await fetch(src.url, {
@@ -464,6 +467,20 @@ for (const extra of EXTRA_SOURCES) {
     source_class: extra.source_class, source_id: `${prefix}-${n}`, url: extra.url });
 }
 
+// Official social sources (YouTube): new rows first, then each channel joins its
+// politician's row as a low-priority page (planRun fills social last).
+for (const person of NEW_SOCIAL_ROSTER) {
+  if (ROSTER.some((r) => r.politician_id === person.politician_id)) continue;
+  const { known_from, ...official } = person.official;
+  ROSTER.push({ ...person, sources: [], official });
+}
+for (const social of SOCIAL_SOURCES) {
+  const row = ROSTER.find((r) => r.politician_id === social.politician_id);
+  if (!row || row.sources.some((s) => normUrl(s.url) === normUrl(social.url))) continue;
+  row.sources.push({ politician_id: row.politician_id, topic: social.topic, source_type: social.source_type,
+    source_class: social.source_class, source_id: social.source_id, url: social.url, channel_id: social.channel_id });
+}
+
 // The 13 politicians the rotation covered before the roster-priority pass.
 export const PREVIOUS_ROSTER = [
   "greg_abbott", "john_cornyn", "chip_roy", "crockett", "aoc", "maloy", "cox",
@@ -575,6 +592,7 @@ export function planRun(state = {}, { roster = ROSTER, max = MAX_SOURCES_PER_RUN
   }
   const sources = [], patterns = [], politicians = [], deprioritised = [], skipped = [];
   const seen = new Set();
+  const planned = [];
   let used = 0;
   for (const x of pending) {
     const { r } = x;
@@ -584,7 +602,7 @@ export function planRun(state = {}, { roster = ROSTER, max = MAX_SOURCES_PER_RUN
     const per = Math.max(1, perPolitician);
     // Per-politician cap: the official pattern keeps its slot, pages fill the rest.
     const pageCap = offRow ? per - 1 : per;
-    const pages = orderPagesForRun(take.filter((y) => !y.official && !seen.has(normUrl(y.s.url))).map((y) => y.s), pageCap, cycle).slice(0, Math.max(0, pageCap));
+    const pages = orderPagesForRun(take.filter((y) => !y.official && !isSocial(y.s) && !seen.has(normUrl(y.s.url))).map((y) => y.s), pageCap, cycle).slice(0, Math.max(0, pageCap));
     const off = offRow && per >= 1 && !seen.has(normUrl(offRow.s.url)) && !pages.some((s) => normUrl(s.url) === normUrl(offRow.s.url)) ? offRow.s : null;
     const cost = pages.length + (off ? 1 : 0);
     if (cost && used + cost > max) {
@@ -600,10 +618,23 @@ export function planRun(state = {}, { roster = ROSTER, max = MAX_SOURCES_PER_RUN
       used += cost;
     }
     politicians.push(r.politician_id);
+    planned.push({ pid: r.politician_id, take });
     if (x.band === 1) deprioritised.push(r.politician_id);
     else for (const y of x.filled) skipped.push({ politician_id: r.politician_id, topic: y.s.topic, url: y.s.url });
     done.add(r.politician_id);
     if (used >= max) break;
+  }
+  // Social fill: official social channels are lower priority than every
+  // official / campaign page, so they only take slots left over after the whole
+  // plan above — within each politician's cap and the run cap.
+  const per = Math.max(1, perPolitician);
+  for (const { pid, take } of planned) {
+    let have = [...sources, ...patterns].filter((s) => s.politician_id === pid).length;
+    for (const y of take) {
+      if (used >= max || have >= per) break;
+      if (!isSocial(y.s) || seen.has(normUrl(y.s.url))) continue;
+      sources.push(y.s); seen.add(normUrl(y.s.url)); used++; have++;
+    }
   }
   const classes = {};
   for (const src of [...sources, ...patterns]) { const k = src.source_class || "existing"; classes[k] = (classes[k] || 0) + 1; }
