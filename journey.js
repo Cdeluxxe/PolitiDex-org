@@ -349,6 +349,14 @@
       e.preventDefault(); e.stopPropagation();
 
       if (act === 'compare') {
+        // Add to the reader's comparison set (the sticky bar) instead of opening
+        // the table; the bar's Jump button opens the right view for the set.
+        var CT = G('PDXCompareTray');
+        if (CT && typeof CT.add === 'function') {
+          CT.add(pid);
+          record('compare', { label: 'Compare', icon: '⚖️', nav: { type: 'compare' } });
+          return;
+        }
         if (window._cmpSelected && typeof window._cmpSelected.add === 'function') window._cmpSelected.add(pid);
         var R = G('PDXReceipts'); if (R && typeof R.close === 'function') R.close();
         record('compare', { label: 'Compare', icon: '⚖️', nav: { type: 'compare' } });

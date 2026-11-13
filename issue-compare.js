@@ -807,6 +807,9 @@
     },
     compareOne: function (pid) {
       try {
+        // Adds this person to the reader's comparison set (the sticky bar) rather
+        // than opening the table; the bar's Jump button opens the right view.
+        if (window.PDXCompareTray && isFn(window.PDXCompareTray.add)) { window.PDXCompareTray.add(String(pid)); return; }
         if (window._cmpSelected && isFn(window._cmpSelected.add)) window._cmpSelected.add(String(pid));
         else if (isFn(window.chubToggle)) window.chubToggle(pid);
         if (isFn(window.openCompare)) window.openCompare();

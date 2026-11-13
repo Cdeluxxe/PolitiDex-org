@@ -12077,7 +12077,21 @@
 //     added. No location key or other stored reader state is written or
 //     rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v556';
+// v557 - COMPARISON BAR. A reader now builds a short comparison set (up to
+//     four) from any card's ⚖️ Compare button and jumps to it from a sticky bar
+//     under the top nav: two people open the existing side-by-side, three or
+//     four open a condensed summary with a "View with…" drop into any pair.
+//     compare-tray.js and compare-tray.css are NEW runtime entries (not
+//     precached, like compare-table.js; the precache list is unchanged).
+//     compare-table.js (runtime) loads them, so index.html is unchanged;
+//     journey.js (precached), issue-compare.js and all-seeing-eye.js route
+//     their card Compare buttons
+//     into the set instead of opening the table. The compare table, match %,
+//     Direction Match, Word vs Action and the drawers are unchanged. No route, gate or issue key
+//     is added. No location key or other stored reader state is written or
+//     rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v557';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

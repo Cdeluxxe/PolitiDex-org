@@ -1,0 +1,165 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   ⚖️ COMPARISON BAR + CONDENSED SUMMARY (compare-tray.js)
+   The bar sits fixed directly under the top nav (its `top` is set from the nav's
+   measured bottom), stays one line tall, and scrolls its chips sideways on a
+   phone. It replaces the bottom "Compare (n)" float while it is showing so there
+   is one control for the set, not two.
+   ───────────────────────────────────────────────────────────────────────────── */
+.pdx-cmp-tray {
+  position: fixed; left: 0; right: 0; top: 0; z-index: 49;
+  background: rgba(10, 20, 40, 0.96);
+  border-bottom: 1px solid rgba(96, 165, 250, 0.28);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  font-family: 'Barlow Condensed', 'Barlow', system-ui, sans-serif;
+}
+.pdx-cmp-tray[hidden] { display: none !important; }
+.pdx-cmp-tray__in {
+  max-width: 80rem; margin: 0 auto; padding: 0.4rem 0.75rem;
+  display: flex; align-items: center; gap: 0.55rem; min-height: 2.6rem;
+}
+.pdx-cmp-tray__count {
+  flex: 0 0 auto; font-weight: 800; font-size: 0.7rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: #93c5fd; white-space: nowrap;
+}
+.pdx-cmp-tray__chips {
+  flex: 1 1 auto; min-width: 0; display: flex; gap: 0.35rem; align-items: center;
+  overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.pdx-cmp-tray__chips::-webkit-scrollbar { display: none; }
+.pdx-cmp-chip {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.25rem;
+  background: rgba(30, 53, 96, 0.7); border: 1px solid rgba(96, 165, 250, 0.35);
+  color: #fff; font-weight: 700; font-size: 0.72rem; letter-spacing: 0.04em;
+  padding: 0.18rem 0.3rem 0.18rem 0.6rem; border-radius: 999px; white-space: nowrap;
+}
+.pdx-cmp-chip__nm { max-width: 11rem; overflow: hidden; text-overflow: ellipsis; }
+.pdx-cmp-chip__x, .pdx-cmp-tray__close {
+  background: none; border: 0; color: #9fb4d4; cursor: pointer; line-height: 1;
+  border-radius: 999px;
+}
+.pdx-cmp-chip__x { font-size: 0.7rem; padding: 0.2rem 0.3rem; }
+.pdx-cmp-chip__x:hover, .pdx-cmp-tray__close:hover { color: #fff; background: rgba(255, 255, 255, 0.08); }
+.pdx-cmp-tray__jump {
+  flex: 0 0 auto; cursor: pointer; white-space: nowrap;
+  font-family: inherit; font-weight: 800; font-size: 0.72rem; letter-spacing: 0.06em;
+  text-transform: uppercase; color: #fff;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  border: 1px solid rgba(147, 197, 253, 0.5); border-radius: 0.55rem;
+  padding: 0.45rem 0.8rem;
+}
+.pdx-cmp-tray__jump.is-waiting { background: rgba(37, 99, 235, 0.18); color: #93c5fd; }
+.pdx-cmp-tray__close { flex: 0 0 auto; font-size: 0.85rem; padding: 0.35rem 0.45rem; }
+.pdx-cmp-tray__note {
+  position: absolute; left: 50%; top: calc(100% + 0.4rem); transform: translate(-50%, -4px);
+  background: #0f1f3d; color: #e2ecff; border: 1px solid rgba(96, 165, 250, 0.45);
+  font-weight: 700; font-size: 0.78rem; letter-spacing: 0.03em;
+  padding: 0.35rem 0.8rem; border-radius: 999px; white-space: nowrap;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+  opacity: 0; pointer-events: none; transition: opacity 0.18s, transform 0.18s;
+}
+.pdx-cmp-tray__note.is-on { opacity: 1; transform: translate(-50%, 0); }
+.pdx-cmp-tray__note:empty { display: none; }
+
+/* One control for the set while the bar shows. */
+body.pdx-cmp-tray-on #compare-float-btn { display: none !important; }
+
+@media (max-width: 640px) {
+  .pdx-cmp-tray__in { padding: 0.35rem 0.5rem; gap: 0.4rem; min-height: 2.4rem; }
+  .pdx-cmp-tray__jump { padding: 0.42rem 0.6rem; font-size: 0.68rem; }
+  .pdx-cmp-chip__nm { max-width: 8rem; }
+}
+
+/* ── Condensed summary (3–4 people) ─────────────────────────────────────── */
+.pdx-cmp-sum {
+  position: fixed; inset: 0; z-index: 55; display: flex; align-items: flex-start;
+  justify-content: center; padding: 4.5rem 0.75rem 1.5rem; overflow-y: auto;
+  background: rgba(3, 8, 20, 0.72);
+  font-family: 'Barlow', system-ui, sans-serif;
+}
+.pdx-cmp-sum[hidden] { display: none !important; }
+body.pdx-cmp-sum-open { overflow: hidden; }
+.pdx-cs-card {
+  width: 100%; max-width: 64rem; background: #0b1730;
+  border: 1px solid rgba(96, 165, 250, 0.3); border-radius: 1rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); color: #dbe6f7; overflow: hidden;
+}
+.pdx-cs-hd {
+  display: flex; gap: 0.75rem; align-items: flex-start; justify-content: space-between;
+  padding: 1rem 1.1rem 0.8rem; border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+.pdx-cs-title {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 1.05rem;
+  letter-spacing: 0.06em; text-transform: uppercase; color: #fff;
+}
+.pdx-cs-sub { font-size: 0.8rem; color: #9fb4d4; margin-top: 0.2rem; line-height: 1.4; }
+.pdx-cs-x {
+  background: none; border: 0; color: #9fb4d4; font-size: 1rem; cursor: pointer;
+  padding: 0.3rem 0.45rem; border-radius: 999px;
+}
+.pdx-cs-x:hover { color: #fff; background: rgba(255, 255, 255, 0.08); }
+.pdx-cs-head, .pdx-cs-row {
+  display: grid; grid-template-columns: minmax(10rem, 1.3fr) 4.5rem minmax(12rem, 2fr) minmax(10rem, 1.4fr) 7rem;
+  gap: 0.75rem; align-items: start; padding: 0.75rem 1.1rem;
+}
+.pdx-cs-head {
+  padding-top: 0.55rem; padding-bottom: 0.4rem;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.66rem; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; color: #7596c0;
+}
+.pdx-cs-row { border-top: 1px solid rgba(255, 255, 255, 0.06); }
+.pdx-cs-who { display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
+.pdx-cs-name { font-weight: 700; color: #fff; font-size: 0.95rem; }
+.pdx-cs-seat { font-size: 0.75rem; color: #9fb4d4; }
+.pdx-cs-match b { font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif; font-size: 1.15rem; color: #c4b5fd; letter-spacing: 0.03em; }
+.pdx-cs-als { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.pdx-cs-al {
+  display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.74rem;
+  padding: 0.12rem 0.5rem; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+}
+.pdx-cs-al b { font-weight: 800; }
+.pdx-cs-al.is-yes b { color: #4ade80; }
+.pdx-cs-al.is-no b { color: #f87171; }
+.pdx-cs-al.is-mixed b { color: #f5c842; }
+.pdx-cs-wa { font-size: 0.8rem; color: #dbe6f7; line-height: 1.35; }
+.pdx-cs-muted { font-size: 0.76rem; color: #7e8aa3; }
+.pdx-cs-lbl { display: none; }
+.pdx-cs-act { position: relative; text-align: right; }
+.pdx-cs-with {
+  cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: #93c5fd;
+  background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(96, 165, 250, 0.4);
+  padding: 0.4rem 0.65rem; border-radius: 0.55rem; white-space: nowrap;
+}
+.pdx-cs-with-menu {
+  position: absolute; right: 0; top: calc(100% + 0.3rem); z-index: 2; min-width: 12rem;
+  display: flex; flex-direction: column; background: #0f1f3d;
+  border: 1px solid rgba(96, 165, 250, 0.4); border-radius: 0.6rem; overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+.pdx-cs-with-menu[hidden] { display: none; }
+.pdx-cs-with-opt {
+  text-align: left; background: none; border: 0; color: #e2ecff; cursor: pointer;
+  font-size: 0.8rem; padding: 0.55rem 0.75rem;
+}
+.pdx-cs-with-opt + .pdx-cs-with-opt { border-top: 1px solid rgba(255, 255, 255, 0.06); }
+.pdx-cs-with-opt:hover, .pdx-cs-with-opt:focus-visible { background: rgba(59, 130, 246, 0.18); }
+.pdx-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+@media (max-width: 760px) {
+  .pdx-cmp-sum { padding: 3.75rem 0.5rem 1rem; }
+  .pdx-cs-head { display: none; }
+  .pdx-cs-row { grid-template-columns: 1fr auto; gap: 0.5rem 0.75rem; padding: 0.8rem 0.9rem; }
+  .pdx-cs-who { grid-column: 1; }
+  .pdx-cs-match { grid-column: 2; text-align: right; }
+  .pdx-cs-als, .pdx-cs-wa, .pdx-cs-act { grid-column: 1 / -1; }
+  .pdx-cs-act { text-align: left; }
+  .pdx-cs-with-menu { left: 0; right: auto; }
+  .pdx-cs-lbl {
+    display: block; width: 100%; font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: #7596c0; margin-bottom: 0.15rem;
+  }
+  .pdx-cs-match .pdx-cs-lbl { text-align: right; }
+}
