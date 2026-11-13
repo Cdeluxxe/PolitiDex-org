@@ -122,6 +122,7 @@ import {
 } from "../lib/raw-ingest-core.mjs";
 import { logCandidateStances, SCORED_TOPICS } from "../lib/stance-score-core.mjs";
 import { maybeWriteLockerItem, loadReviewFlags, lockerBaselineCounts, LOCKER_STORE_NAME } from "../lib/evidence-locker-core.mjs";
+import { appendRunSuggestions, SUGGESTIONS_STORE_NAME } from "../lib/raw-ingest-suggestions.mjs";
 import groundTruth from "../../db/stance-ground-truth-talarico-cost-of-living.json" with { type: "json" };
 import reviewFile from "../../db/evidence-locker-review.json" with { type: "json" };
 
@@ -266,15 +267,38 @@ export async function run(deps: {
   });
 }
 
-export default async (): Promise<Response> =>
-  run({
-    fetch: globalThis.fetch,
+// The scheduled entry point. `run` is unchanged; this wrapper only tees the
+// lines it already logs (still printed to the function log as before) and,
+// after the run, hands them and the report to the suggestions log
+// (raw-ingest-suggestions.mjs). A suggestions failure never touches the run.
+export async function scheduled(deps: { run?: typeof run; suggestionsStore?: any; now?: () => Date; [k: string]: any } = {}): Promise<Response> {
+  const lines: string[] = [];
+  const log = (l: string) => { lines.push(l); console.log(l); };
+  const { run: runFn = run, suggestionsStore, now, ...rest } = deps;
+  // The production stores, built only when a caller (a test) has not injected all three.
+  const productionStores = () => ({
     store: getStore(RAW_STORE_NAME),
     lockerStore: getStore(LOCKER_STORE_NAME),
-    discover: true,
-    rotate: true,
     rotationStore: getStore(ROTATION_STORE_NAME),
   });
+  const res = await runFn({
+    fetch: globalThis.fetch,
+    discover: true,
+    rotate: true,
+    ...(rest.store && rest.lockerStore && rest.rotationStore ? {} : productionStores()),
+    ...rest,
+    log,
+  } as any);
+  try {
+    const report = await res.clone().json();
+    await appendRunSuggestions(suggestionsStore ?? getStore(SUGGESTIONS_STORE_NAME), { lines, report, now: (now ?? (() => new Date()))() });
+  } catch (e: any) {
+    console.log(`raw-ingest-suggestions: not written — ${e?.message || e}`);
+  }
+  return res;
+}
+
+export default async (): Promise<Response> => scheduled();
 
 // Every minute. Each run is sized (caps + fetch ceilings in raw-ingest-core)
 // to finish inside RUN_BUDGET_MS (~25 s), under the 30 s function limit.

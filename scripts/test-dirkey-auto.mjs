@@ -302,7 +302,9 @@ t('no migration, no new function, and the worker precache list is untouched', ()
   const added = git(['status', '--porcelain', '--untracked-files=all', '--', 'netlify/functions', 'netlify/edge-functions', 'netlify/database', 'db/migrations']);
   // A later pass's declared migration (executive seed wave 14, the Trump–Massie
   // pass) is not this pass's; anything else new still fails.
-  const LATER = ['netlify/database/migrations/20261205000000_seed_exec_actions_wave14.sql'];
+  const LATER = ['netlify/database/migrations/20261205000000_seed_exec_actions_wave14.sql',
+    // The raw-ingest suggestions log's curator endpoint (a later pass's).
+    'netlify/functions/raw-ingest-suggestions.mts'];
   if (added != null) assert.deepEqual(added.split('\n').filter((l) => /^(?:\?\?|A)/.test(l) && !LATER.some((f) => l.endsWith(' ' + f))), [], 'no new function or migration file');
   const sw = R('sw.js');
   for (const f of ['person-directional-keys.js', 'person-directional-keys-auto.json', 'person-directional-keys.json']) assert.ok(!sw.includes(`'/${f}'`), `${f} is not precached`);
