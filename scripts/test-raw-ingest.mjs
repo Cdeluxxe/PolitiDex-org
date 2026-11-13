@@ -42,11 +42,12 @@ const quiet = async (fn) => {
 const NOW = () => new Date('2026-11-07T08:00:00.000Z');
 const HTML = '<html><body><h1>Taxes &amp; Cost of Living</h1></body></html>';
 
-await t('function and core exist; function is scheduled every 4 hours and uses the core', () => {
+await t('function and core exist; function is scheduled every minute and uses the core', () => {
   assert.ok(existsSync(fnPath), 'missing ' + fnPath);
   assert.ok(existsSync(corePath), 'missing ' + corePath);
   const src = readFileSync(fnPath, 'utf8');
-  assert.match(src, /schedule:\s*"0 \*\/4 \* \* \*"/, 'every 4 hours = 6 runs/day');
+  assert.match(src, /schedule:\s*"\* \* \* \* \*"/, 'every minute');
+  assert.doesNotMatch(src, /schedule:\s*"0 \*\/4/, 'the old 4-hour schedule is gone');
   assert.match(src, /raw-ingest-core\.mjs/);
   assert.match(src, /export default/);
 });
@@ -143,6 +144,9 @@ await t('a hung source is cut off by a timeout signal rather than stalling the r
   assert.equal(seen.length, N);
   assert.ok(seen.every((sig) => sig instanceof AbortSignal), 'every fetch carries an AbortSignal');
   assert.ok(core.FETCH_TIMEOUT_MS > 0 && core.FETCH_TIMEOUT_MS <= 25_000);
+  // Two fetch passes per run (stable-page check, then pull) stay inside the run budget, under the 30 s limit.
+  assert.ok(core.RUN_BUDGET_MS <= 30_000 && core.RUN_BUDGET_MS >= 20_000, 'run budget ~25–30 s');
+  assert.ok(core.DISCOVERY_TIMEOUT_MS + core.FETCH_TIMEOUT_MS < core.RUN_BUDGET_MS, 'worst-case fetch time leaves headroom');
 });
 
 await t('every source failing logs FAIL per source, returns 502, and writes nothing', async () => {
@@ -447,15 +451,15 @@ await t('discovery adds one new stable URL to the run without exceeding the sour
 });
 
 await t('discovery never exceeds the cap, skips unstable pages, and only checks politicians in the source list', async () => {
-  assert.ok(core.MAX_SOURCES_PER_RUN < 12);
+  const CAP = 11; // a cap smaller than SOURCES + patterns, so the CAP path is exercised
   const pols = new Set(core.SOURCES.map((s) => s.politician_id));
   assert.ok(core.DISCOVERY_PATTERNS.every((p) => pols.has(p.politician_id) && p.source_id && /^https:\/\//.test(p.url)));
   assert.equal(new Set(core.DISCOVERY_PATTERNS.map((p) => p.politician_id)).size, pols.size, 'one pattern per politician');
   // Every pattern stable → filled to the cap, the rest logged as CAP.
   const logs = [];
-  const { value: d } = await quiet(() => core.discoverSources(core.SOURCES, { fetch: fakeFetch(200, LONG_HTML), log: (l) => logs.push(l) }));
-  assert.equal(d.sources.length, core.MAX_SOURCES_PER_RUN);
-  assert.equal(d.added.length, core.MAX_SOURCES_PER_RUN - N);
+  const { value: d } = await quiet(() => core.discoverSources(core.SOURCES, { fetch: fakeFetch(200, LONG_HTML), log: (l) => logs.push(l), max: CAP }));
+  assert.equal(d.sources.length, CAP);
+  assert.equal(d.added.length, CAP - N);
   assert.equal(logs.filter((l) => l.startsWith('discovery: CAP ')).length, core.DISCOVERY_PATTERNS.length - d.added.length);
   // 404, tiny body, redirect to home page, or an already-listed URL → not added.
   const home = async (url) => ({ ok: true, status: 200, url: new URL(url).origin + '/', headers: new Map([['content-type', 'text/html']]), text: async () => LONG_HTML });
@@ -505,6 +509,9 @@ const STANCE_BLOCKS = (() => {
   return out;
 })();
 const stanceCount = (pid) => STANCE_BLOCKS[pid] || 0;
+const { REQUESTED_POLITICIANS } = await import('../netlify/lib/raw-ingest-expansion.mjs');
+const REQUESTED = new Set(REQUESTED_POLITICIANS.map((r) => r.politician_id));
+const ACTIVE_ROSTER = core.ROSTER.filter((r) => r.sources.length || r.official);
 const PREVIOUS = new Set(core.PREVIOUS_ROSTER);
 const ORIGINAL = new Set(core.ORIGINAL_FIVE);
 const memStore = () => {
@@ -522,16 +529,20 @@ await t('roster: priority flags are true to the data, and prioritised people com
     assert.equal(r.has_stances, hasStances(r.politician_id), `${r.politician_id}: has_stances matches the stance data`);
     const want = r.has_board && stanceCount(r.politician_id) >= core.SEVERAL_STANCES ? 1 : (r.has_board || r.has_stances) ? 2 : 3;
     assert.equal(r.tier, want, `${r.politician_id}: tier ${r.tier} should be ${want} (${stanceCount(r.politician_id)} stated positions)`);
-    if (r.tier === 3) assert.ok(PREVIOUS.has(r.politician_id), `${r.politician_id}: a tier-3 row is only kept from the previous 13`);
-    if (!PREVIOUS.has(r.politician_id)) assert.ok(r.has_board || r.has_stances, `${r.politician_id}: a new roster row has a board or stated positions`);
+    if (r.tier === 3) assert.ok(PREVIOUS.has(r.politician_id) || REQUESTED.has(r.politician_id), `${r.politician_id}: a tier-3 row is only kept from the previous 13`);
+    if (!PREVIOUS.has(r.politician_id) && !REQUESTED.has(r.politician_id)) assert.ok(r.has_board || r.has_stances, `${r.politician_id}: a new roster row has a board or stated positions`);
     for (const s of r.sources) {
       assert.equal(s.politician_id, r.politician_id);
       // New roster pages must be campaign/official; the original five keep their configured SOURCES rows.
-      if (ORIGINAL.has(r.politician_id)) assert.ok(core.SOURCES.includes(s), `${s.url} is one of the configured SOURCES`);
+      if (ORIGINAL.has(r.politician_id) && s.source_id !== "known-homepage") assert.ok(core.SOURCES.includes(s), `${s.url} is one of the configured SOURCES`);
       else assert.ok(locker.isCampaignOrOfficial(s.source_type, s.url), `${s.url} is a campaign/official page`);
       assert.ok(['cost_living', 'healthcare_costs'].includes(s.topic));
     }
     const o = r.official;
+    if (!o && REQUESTED.has(r.politician_id)) {
+      assert.ok(r.sources.length || r.note, "a missing source has an explicit note");
+      continue;
+    }
     assert.ok(o, `${r.politician_id} has an official pattern`);
     assert.equal(o.politician_id, r.politician_id);
     assert.ok(Object.keys(core.OFFICIAL_KINDS).includes(o.official_kind), `${o.url}: official_kind`);
@@ -539,12 +550,12 @@ await t('roster: priority flags are true to the data, and prioritised people com
     assert.equal(core.sourceKind(o), 'official');
     assert.ok(o.source_id && !r.sources.some((s) => s.url === o.url), `${o.url} is not one of their configured pages`);
   }
-  const kinds = new Set(core.ROSTER.map((r) => r.official.official_kind));
+  const kinds = new Set(core.ROSTER.filter((r) => r.official).map((r) => r.official.official_kind));
   for (const k of ['state_legislature', 'congress', 'executive']) assert.ok(kinds.has(k), `an official ${k} pattern exists`);
   const fsrc = readFileSync(fnPath, 'utf8');
   assert.match(fsrc, /rotate:\s*true/, 'the scheduled entry point rotates');
   assert.match(fsrc, /rotationStore:\s*getStore\(ROTATION_STORE_NAME\)/, 'the rotation state is persisted');
-  assert.equal(core.MAX_SOURCES_PER_RUN, 11, 'per-run cap unchanged');
+  assert.equal(core.MAX_SOURCES_PER_RUN, 36, 'per-run cap: 30–40 sources');
   const order = core.rotationOrder().map((r) => r.tier);
   assert.deepEqual(order, [...order].sort((a, b) => a - b), 'rotation order is by tier');
 });
@@ -565,7 +576,7 @@ await t('roster expansion: beyond the previous 13, with priority order respected
     visited.push(...r.plan.politicians);
     assert.ok(r.results.length <= core.MAX_SOURCES_PER_RUN, `run ${i} within cap`);
   }
-  assert.deepEqual(visited, core.priorityOrder(core.ROSTER, {}).map((x) => x.r.politician_id), 'a cycle visits everyone once, in priority order');
+  assert.deepEqual(visited, core.priorityOrder(ACTIVE_ROSTER, {}).map((x) => x.r.politician_id), 'a cycle visits everyone once, in priority order');
   const tiers = visited.map((p) => core.ROSTER.find((r) => r.politician_id === p).tier);
   assert.deepEqual(tiers, [...tiers].sort((a, b) => a - b), 'tier 1 before tier 2 before tier 3');
   const first = core.planRun({}, { counts: {} });
@@ -653,7 +664,7 @@ await t('a rotated run includes politicians beyond the original five and at leas
   assert.ok([...pols].some((p) => !ORIGINAL.has(p)), `beyond the original five (got ${[...pols].join(', ')})`);
   assert.ok(report.discovered.length >= 1 && report.discovered.every((d) => d.kind === 'official'), 'official patterns joined the pull list');
   assert.ok((report.included.kinds.official || 0) >= 1, 'at least one official source pulled');
-  assert.ok(report.results.length <= core.MAX_SOURCES_PER_RUN && report.results.length < 12, `cap respected (${report.results.length})`);
+  assert.ok(report.results.length <= core.MAX_SOURCES_PER_RUN, `cap respected (${report.results.length})`);
   assert.equal(report.results.length, report.included.count);
   assert.equal(store.data.size, report.results.length, 'every included source pulled and stored');
   // Logged: who and which source types.
@@ -672,16 +683,16 @@ await t('successive runs rotate through the whole roster, and every run respects
     const { value: res } = await quiet(() => fn.run({ fetch: fakeFetch(200, LONG_HTML), store: fakeStore(), now: NOW,
       rotate: { counts: {} }, rotationStore: rot, log: () => {} }));
     const r = await res.json();
-    assert.ok(r.results.length <= core.MAX_SOURCES_PER_RUN && r.results.length < 12, `run ${i}: ${r.results.length} ≤ cap`);
+    assert.ok(r.results.length <= core.MAX_SOURCES_PER_RUN, `run ${i}: ${r.results.length} ≤ cap`);
     assert.ok(r.plan.planned_size <= core.MAX_SOURCES_PER_RUN, `run ${i}: planned ${r.plan.planned_size} ≤ cap`);
     r.plan.politicians.forEach((p) => seen.add(p));
     sets.push(r.plan.politicians.join(','));
     assert.deepEqual(rot.data.get(core.ROTATION_KEY).done, r.plan.state.done, 'state persisted');
   }
   assert.notEqual(sets[0], sets[1], 'consecutive runs check different people');
-  assert.equal(seen.size, core.ROSTER.length, 'every roster politician is reached');
+  assert.equal(seen.size, ACTIVE_ROSTER.length, 'every roster politician is reached');
   // Cap holds at every point in a cycle, including a cap smaller than one politician.
-  const ids = core.priorityOrder(core.ROSTER, {}).map((x) => x.r.politician_id);
+  const ids = core.priorityOrder(ACTIVE_ROSTER, {}).map((x) => x.r.politician_id);
   for (let c = 0; c < ids.length; c++) {
     for (const max of [core.MAX_SOURCES_PER_RUN, 4, 1]) {
       const p = core.planRun({ done: ids.slice(0, c) }, { max });
@@ -811,6 +822,79 @@ await t('all topics: one page writes Locker items on more than one topic, each u
   assert.ok(!ls2.data.has(key), 'flagged cross-topic item is not written');
   assert.ok(lockerItems(ls2).some((i) => i.topic === 'healthcare_costs'), 'the other topics still write');
   assert.ok(logs2.some((l) => l.startsWith('evidence-locker: FLAGGED john_cornyn|border_security')));
+});
+
+await t('every-minute caps: 8 politicians, 6 sources each, 30–40 per run — enforced by the planner and logged against the time budget', async () => {
+  assert.equal(core.MAX_POLITICIANS_PER_RUN, 8);
+  assert.equal(core.MAX_SOURCES_PER_POLITICIAN, 6);
+  assert.ok(core.MAX_SOURCES_PER_RUN >= 30 && core.MAX_SOURCES_PER_RUN <= 40);
+  // A synthetic roster with more pages than any cap allows.
+  const page = (pid, i) => ({ politician_id: pid, topic: i % 2 ? 'healthcare_costs' : 'cost_living', source_type: 'official House issue page', url: `https://${pid}.example.gov/issues/${i}` });
+  const mk = (pages) => Array.from({ length: 12 }, (_, k) => {
+    const pid = `pol_${k}`;
+    return { politician_id: pid, tier: 1, sources: Array.from({ length: pages }, (_, i) => page(pid, i)),
+      official: { ...page(pid, 99), source_type: 'official House newsroom', official_kind: 'congress', source_id: 'official-newsroom' } };
+  });
+  // 4 sources each: the politician cap binds first (8 × 4 = 32 ≤ 36).
+  const small = core.planRun({}, { roster: mk(3) });
+  assert.equal(small.politicians.length, core.MAX_POLITICIANS_PER_RUN, 'politicians per run capped at 8');
+  assert.equal(small.size, 32);
+  // 10 sources each: trimmed to 6 per politician, and the run total holds at ≤ 36.
+  const p = core.planRun({}, { roster: mk(9) });
+  assert.ok(p.politicians.length <= core.MAX_POLITICIANS_PER_RUN);
+  assert.ok(p.size <= core.MAX_SOURCES_PER_RUN && p.size >= 30, `total ${p.size} within 30–${core.MAX_SOURCES_PER_RUN}`);
+  for (const pid of p.politicians) {
+    const n = [...p.sources, ...p.patterns].filter((s) => s.politician_id === pid).length;
+    assert.equal(n, core.MAX_SOURCES_PER_POLITICIAN, `${pid}: ${n} = ${core.MAX_SOURCES_PER_POLITICIAN}`);
+    assert.ok(p.patterns.some((s) => s.politician_id === pid), `${pid} keeps its official slot`);
+  }
+  // Small rosters rows: whole politicians up to 8 per run, so one run reaches well past the old 3.
+  const real = core.planRun({});
+  assert.ok(real.politicians.length > 3 && real.politicians.length <= 8, `real roster run takes ${real.politicians.length} politician(s)`);
+  // End to end: a run stores valid raw records (same locked shape, no stance fields) and logs its duration.
+  const store = fakeStore(); const logs = [];
+  const { value: res } = await quiet(() => fn.run({ fetch: fakeFetch(200, LONG_HTML), store, now: NOW, rotate: { state: {}, counts: {} }, log: (l) => logs.push(l) }));
+  const r = await res.json();
+  assert.ok(r.plan.politicians.length <= 8 && r.results.length <= core.MAX_SOURCES_PER_RUN);
+  assert.ok(r.results.length > 11, `more sources than the old cap (${r.results.length})`);
+  for (const rec of store.data.values()) {
+    for (const k of ['url', 'final_url', 'fetched_at', 'source_type', 'politician_id', 'topic', 'http_status', 'body']) assert.ok(k in rec, `raw record has ${k}`);
+    for (const k of FORBIDDEN) assert.ok(!(k in rec), `raw record carries no ${k}`);
+  }
+  assert.ok(Number.isFinite(r.duration_ms) && r.budget_ms === core.RUN_BUDGET_MS);
+  assert.ok(logs.some((l) => l.startsWith('raw-ingest: run duration — ') || l.startsWith('raw-ingest: SLOW RUN — ')), 'duration logged against the budget');
+});
+
+await t('requested national expansion: all 104 unique names, known URLs or explicit skips, capped rotation', () => {
+  const expectedNames = ["Donald Trump", "JD Vance", "Joe Biden", "Kamala Harris", "Hakeem Jeffries", "Chuck Schumer", "Mike Johnson", "Bernie Sanders", "Alexandria Ocasio-Cortez", "Nancy Pelosi", "Ted Cruz", "Elizabeth Warren", "Thomas Massie", "Ilhan Omar", "Gavin Newsom", "Greg Abbott", "Ron DeSantis", "Marco Rubio", "Pete Hegseth", "Zohran Mamdani", "John Thune", "Steve Scalise", "Jim Jordan", "Mitch McConnell", "Chris Van Hollen", "Mark Kelly", "Jon Ossoff", "Raphael Warnock", "Susan Collins", "John Cornyn", "Mike Lee", "Byron Donalds", "Nancy Mace", "James Talarico", "Abdul El-Sayed", "Ken Paxton", "Kristi Noem", "Lindsey Graham", "Tim Scott", "Rick Scott", "Marjorie Taylor Greene", "Lauren Boebert", "Ayanna Pressley", "Rashida Tlaib", "Katie Porter", "Ro Khanna", "Pramila Jayapal", "Amy Klobuchar", "Cory Booker", "Chris Murphy", "Sheldon Whitehouse", "Thom Tillis", "Josh Hawley", "Marsha Blackburn", "Tommy Tuberville", "Gretchen Whitmer", "Josh Shapiro", "Wes Moore", "Brian Kemp", "Glenn Youngkin", "Adam Schiff", "Eric Swalwell", "Maxine Waters", "Cori Bush", "Jamaal Bowman", "Stephen Miller", "Jared Kushner", "Elon Musk", "Pete Buttigieg", "Nikki Haley", "Vivek Ramaswamy", "Robert F. Kennedy Jr.", "Tulsi Gabbard", "Bill Cassidy", "John Kennedy", "Rand Paul", "Ron Johnson", "Ted Budd", "Joni Ernst", "Deb Fischer", "John Hoeven", "Kevin Cramer", "Shelley Moore Capito", "Cynthia Lummis", "Dan Sullivan", "Lisa Murkowski", "Mitt Romney", "Kyrsten Sinema", "Joe Manchin", "Jon Tester", "Sherrod Brown", "Bob Casey", "John Fetterman", "Bob Menendez", "Chris Coons", "Tom Carper", "Dick Durbin", "Tammy Duckworth", "Tammy Baldwin", "Tina Smith", "Gary Peters", "Debbie Stabenow", "Kirsten Gillibrand", "Chuck Grassley"];
+  assert.deepEqual(REQUESTED_POLITICIANS.map((r) => r.name), expectedNames);
+  assert.equal(REQUESTED.size, 104, 'duplicate names never create duplicate identities');
+  for (const person of REQUESTED_POLITICIANS) {
+    const row = core.ROSTER.find((r) => r.politician_id === person.politician_id);
+    assert.ok(row, `${person.name} is configured`);
+    if (person.page) {
+      const prior = readFileSync(path.join(root, person.page.known_from), 'utf8');
+      assert.ok(prior.includes(person.page.url), `${person.name}: URL already exists in the recorded source file`);
+      assert.ok([...row.sources, row.official].some((source) => source?.url === person.page.url));
+    } else {
+      assert.ok(person.note && row.note, `${person.name}: a missing page has a note`);
+      assert.equal(row.sources.length, 0);
+    }
+  }
+  const noSourceIds = core.ROSTER.filter((r) => !r.sources.length && !r.official).map((r) => r.politician_id);
+  let state = {}; const reached = new Set();
+  for (let i = 0; i < core.ROSTER.length; i++) {
+    const plan = core.planRun(state);
+    if (plan.cycle > 0) break;
+    assert.ok(plan.politicians.length <= 8 && plan.size <= 36);
+    for (const id of plan.politicians) {
+      assert.ok(!noSourceIds.includes(id), 'missing sources do not consume run slots');
+      assert.ok([...plan.sources, ...plan.patterns].filter((s) => s.politician_id === id).length <= 6);
+      reached.add(id);
+    }
+    state = plan.state;
+  }
+  for (const person of REQUESTED_POLITICIANS.filter((r) => r.page)) assert.ok(reached.has(person.politician_id), `${person.name} joins a planner cycle`);
 });
 
 if (failures) { console.error(`${failures} failing`); process.exit(1); }
