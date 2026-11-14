@@ -2268,12 +2268,12 @@ window.PDXLazy = (function () {
       border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 0.5rem;
       padding: 0.3rem 0.65rem;
     }
-    /* The document's own flow starts below the bar. This offset lives on <body>
-       rather than on a wrapper because the crawl header is not written by this
-       file: netlify/edge-functions/share-preview.ts injects #pdx-crawl-person
-       immediately after the <body> tag, which puts it AHEAD of the bar markup
-       below and outside anything this document could wrap it in. The bar is
-       fixed, so it does not move; the profile modal is fixed and full-bleed, so
+    /* The document's own flow starts below the bar. This offset lives on the
+       body element rather than on a wrapper because the crawl header is not
+       written by this file: netlify/edge-functions/share-preview.ts injects
+       #pdx-crawl-person immediately after the opening body tag, which puts it
+       AHEAD of the bar markup below and outside anything this document could
+       wrap it in. The bar is fixed, so it does not move; the profile modal is fixed and full-bleed, so
        it ignores this too. What the padding actually protects is the static
        header a crawler and a cold reader see before the modal opens. */
     body { padding-top: calc(var(--pdx-chrome) + 0.75rem); }

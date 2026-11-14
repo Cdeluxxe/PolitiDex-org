@@ -12091,7 +12091,29 @@
 //     is added. No location key or other stored reader state is written or
 //     rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v557';
+// v558 - PERSON PAGE STOPS PRINTING ITS OWN CSS. A comment in person.html's
+//     <style> spelled out the opening body tag, and share-preview.ts injects
+//     the crawl header after the first match of that tag. The header landed
+//     inside the comment, its own </style> closed the style element, and the
+//     rest of the comment plus a body{} rule rendered as text under "Open the
+//     full file" on every /p/<pid>. The comment no longer spells the tag (and
+//     bill.html's head comment likewise); the injection, the crawl header and
+//     the layout are unchanged. person.html and bill.html are precached, so the
+//     shell is bumped.
+//     MIGRATION COST: none.
+// v559 - FIRST-VISIT STEPS ARE CARDS YOU CAN TAP. The "Here's how it works"
+//     welcome keeps its three points and their wording, and each is now a
+//     tappable card (number, line, chevron) with larger numbers, more room and
+//     a gold accent on step 1, the one the reader is about to take. Step 1 goes
+//     to the finder like "Set my location"; step 2 closes the welcome and
+//     focuses the homepage search (the existing /#say-vs-do link elsewhere);
+//     step 3 scrolls to the homepage District Voice card, or goes to /voice.
+//     Set my location, Got it and Not now are unchanged, the welcome still
+//     shows only on a first visit, and the guided path is untouched. No route
+//     or gate is added. first-visit-coach.js is precached and changed, so the
+//     shell moves.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v559';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

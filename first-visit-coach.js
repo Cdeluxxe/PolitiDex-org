@@ -70,7 +70,7 @@
   'use strict';
   if (window.PDXCoach) return;
 
-  var BUILD = 'v520';                  // logged, so DevTools shows which copy is running
+  var BUILD = 'v559';                  // logged, so DevTools shows which copy is running
   var KEY = 'pdx_coach_seen';          // localStorage: set once, when the popup closes
   var DELAY_MS = 9000;                 // after the page is parsed, so the hero is seen first
   var RETRY_MS = 2000;                 // another dialog is open: look again this soon
@@ -93,6 +93,10 @@
   var ROOMS = '/voice';
   var BALLOT = '/ballot';
   var ALIGN_ID = 'alignment-panel';
+  var EYE_ID = 'pdx-eye-input';        // the homepage's search box (the All-Seeing Eye)
+  var EYE_HREF = '/#say-vs-do';        // the existing "Find the Record" link other pages carry
+  var HOME_VOICE_DOOR = 'pdx-home-voice-door';   // inside the homepage's District Voice card
+  var VOICE_ROOM = 'voice-room';       // /voice's own <main>
   // The locked District Voice line, verbatim. district-board.js and /voice's
   // own meta carry the same sentence.
   var VOICE_LINE = 'Anyone can read a board. Only verified residents of that seat get a voice that counts.';
@@ -228,6 +232,22 @@
     });
   }
 
+  // THE THREE STEP CARDS. Each point is a real link to a place that already
+  // exists, so it works with scripting off and with a middle-click:
+  //   1 loc     the finder, the same address as "Set my location"
+  //   2 search  the search box: the homepage's Eye in place, or the existing
+  //             Find the Record link (/#say-vs-do) from /voice and /find
+  //   3 voice   District Voice: /voice, or the homepage's District Voice card in
+  //             place, or the rooms in place on /voice itself
+  // The card the reader is about to tap — step 1, since the welcome only shows
+  // without a location — carries data-pdxfc-up for the accent.
+  function cardHref(i) {
+    if (i === 0) return finderHref();
+    if (i === 1) return page() === 'home' ? '#' + EYE_ID : EYE_HREF;
+    return ROOMS;
+  }
+  var CARD_KEYS = ['loc', 'search', 'voice'];
+
   function html() {
     return '<div class="pdxfc-card">' +
         '<button type="button" class="pdxfc-x" data-pdxfc-act="skip" aria-label="Close">×</button>' +
@@ -235,10 +255,15 @@
         '<h2 class="pdxfc-title" id="' + TITLE_ID + '" tabindex="-1">Here’s how it works</h2>' +
         '<ol class="pdxfc-points">' +
           POINTS.map(function (p, i) {
-            return '<li class="pdxfc-point"><span class="pdxfc-n" aria-hidden="true">' + (i + 1) + '</span>' +
-              '<span>' + esc(p) +
+            return '<li class="pdxfc-point">' +
+              '<a class="pdxfc-step" href="' + esc(cardHref(i)) + '" data-pdxfc-card="' + CARD_KEYS[i] + '"' +
+                (i === 0 ? ' data-pdxfc-up="1"' : '') + '>' +
+              '<span class="pdxfc-n" aria-hidden="true">' + (i + 1) + '</span>' +
+              '<span class="pdxfc-body">' + esc(p) +
               (i === POINTS.length - 1 ? '<span class="pdxfc-scope" data-pdxfc-scope="open" style="' + SCOPE_STYLE + '">' + esc(SCOPE_NOTE) + '</span>' : '') +
-              '</span></li>';
+              '</span>' +
+              '<span class="pdxfc-go" aria-hidden="true">›</span>' +
+              '</a></li>';
           }).join('') +
         '</ol>' +
         '<div class="pdxfc-acts">' +
@@ -317,10 +342,15 @@
     '.pdxfc-x:hover,.pdxfc-x:focus-visible{color:#fff7dc;}',
     '.pdxfc-kick{margin:0 0 0.5rem;font:800 0.85rem/1 \'Barlow Condensed\',\'Barlow\',sans-serif;letter-spacing:0.18em;text-transform:uppercase;color:#f5c842;}',
     '.pdxfc-title{margin:0 2rem 0.8rem 0;font:800 clamp(1.35rem,4vw,1.7rem)/1.15 \'Barlow Condensed\',\'Barlow\',sans-serif;color:#fff7dc;outline:none;}',
-    '.pdxfc-points{margin:0 0 1rem;padding:0;list-style:none;display:grid;gap:0.7rem;}',
-    '.pdxfc-point{display:flex;gap:0.65rem;align-items:flex-start;font:400 1rem/1.5 \'Barlow\',system-ui,sans-serif;color:#d8e8dc;}',
-    '.pdxfc-n{flex:none;display:inline-flex;align-items:center;justify-content:center;width:1.6rem;height:1.6rem;border-radius:999px;font:800 0.85rem/1 \'Barlow Condensed\',\'Barlow\',sans-serif;background:linear-gradient(135deg,#fad96a,#e6b800);color:#0a0f1e;}',
-    '.pdxfc-point>span:last-child{flex:1 1 auto;min-width:0;}',
+    '.pdxfc-points{margin:0 0 1.15rem;padding:0;list-style:none;display:grid;gap:0.65rem;}',
+    '.pdxfc-point{margin:0;padding:0;}',
+    '.pdxfc-step{display:flex;gap:0.8rem;align-items:flex-start;min-height:44px;padding:0.8rem 0.85rem;border:1px solid rgba(255,255,255,0.1);border-radius:0.7rem;background:rgba(255,255,255,0.035);font:400 1rem/1.5 \'Barlow\',system-ui,sans-serif;color:#d8e8dc;text-decoration:none;cursor:pointer;transition:border-color 0.2s ease,background 0.2s ease,transform 0.2s ease;}',
+    '.pdxfc-step[data-pdxfc-up]{border-color:rgba(245,200,66,0.6);background:rgba(245,200,66,0.07);box-shadow:inset 3px 0 0 #f5c842;}',
+    '.pdxfc-step:hover,.pdxfc-step:focus-visible{border-color:rgba(245,200,66,0.85);background:rgba(245,200,66,0.1);transform:translateY(-1px);}',
+    '.pdxfc-step:focus-visible{outline:2px solid #fff7dc;outline-offset:2px;}',
+    '.pdxfc-n{flex:none;display:inline-flex;align-items:center;justify-content:center;width:2.1rem;height:2.1rem;border-radius:999px;font:800 1.1rem/1 \'Barlow Condensed\',\'Barlow\',sans-serif;background:linear-gradient(135deg,#fad96a,#e6b800);color:#0a0f1e;}',
+    '.pdxfc-body{flex:1 1 auto;min-width:0;padding-top:0.2rem;}',
+    '.pdxfc-go{flex:none;align-self:center;font:700 1.4rem/1 \'Barlow\',system-ui,sans-serif;color:#f5c842;opacity:0.75;}',
     '.pdxfc-scope{display:block !important;visibility:visible !important;opacity:1 !important;margin-top:0.35rem;font:400 0.9rem/1.5 \'Barlow\',system-ui,sans-serif;color:#9fb5a8;}',
     '.pdxfc-acts{display:flex;flex-wrap:wrap;align-items:center;gap:0.6rem;}',
     '.pdxfc-door{display:inline-flex;align-items:center;min-height:44px;padding:0.55rem 1.15rem;border:1.5px solid rgba(245,200,66,0.9);border-radius:999px;font:700 1rem/1 \'Barlow\',system-ui,sans-serif;color:#0a0f1e;text-decoration:none;background:linear-gradient(135deg,#fad96a,#e6b800);cursor:pointer;transition:filter 0.2s ease;}',
@@ -340,7 +370,7 @@
     '#' + NEXT_ID + ':hover,#' + NEXT_ID + ':focus-visible{border-color:rgba(245,200,66,0.9);}',
     '#' + NEXT_ID + ':focus-visible{outline:2px solid #fff7dc;outline-offset:3px;}',
     '@media (max-width:480px){#' + ROOT_ID + '{align-items:flex-end;padding:0.5rem;}}',
-    '@media (prefers-reduced-motion:reduce){.pdxfc-door{transition:none;}}',
+    '@media (prefers-reduced-motion:reduce){.pdxfc-door,.pdxfc-step{transition:none;}.pdxfc-step:hover,.pdxfc-step:focus-visible{transform:none;}}',
     '@media print{#' + ROOT_ID + ',#' + NEXT_ID + '{display:none;}}'
   ].join('\n');
 
@@ -418,6 +448,8 @@
     }
     var door = t && t.closest ? t.closest('[data-pdxfc-door]') : null;
     if (door) { openFinder(e); return; }
+    var card = t && t.closest ? t.closest('[data-pdxfc-card]') : null;
+    if (card) { openCard(card.getAttribute('data-pdxfc-card'), e); return; }
     // Steps 2 and 3: real anchors; the click records the step they lead to.
     var go = t && t.closest ? t.closest('[data-pdxfc-go]') : null;
     if (!go) return;
@@ -433,6 +465,50 @@
       return;
     }
     close(to === 'stance' ? 'stance' : to === 'ballot' ? 'ballot' : to === 'align' ? 'align' : 'rooms');
+  }
+
+  // THE STEP CARDS. Step 1 is the finder door exactly. Steps 2 and 3 end the
+  // welcome the way "Got it" does (no path step is recorded), then take the
+  // reader to the place the card names — in place when it is on this page,
+  // otherwise by following the card's own link.
+  function scrollTo(n) {
+    try {
+      if (!n || !fn(n.scrollIntoView)) return;
+      var still = fn(window.matchMedia) && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      n.scrollIntoView({ behavior: still ? 'auto' : 'smooth', block: 'start' });
+    } catch (e) {}
+  }
+  function openCard(which, e) {
+    if (which === 'loc') { openFinder(e); return; }
+    var modified = e && (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button > 0);
+    var pg = page();
+    if (which === 'search') {
+      close('search');
+      if (modified || pg !== 'home') return;      // off the homepage: follow /#say-vs-do
+      if (e && fn(e.preventDefault)) e.preventDefault();
+      // After close(), which hands focus back to where it was.
+      try {
+        if (fn(window.pdxOpenEye)) window.pdxOpenEye();
+        else { var i = document.getElementById(EYE_ID); if (i && fn(i.focus)) i.focus(); }
+      } catch (err) {}
+      return;
+    }
+    if (which === 'voice') {
+      close('voice');
+      if (modified) return;
+      var here = null;
+      try {
+        if (pg === 'home') {
+          var d = document.getElementById(HOME_VOICE_DOOR);
+          here = d && fn(d.closest) ? (d.closest('.pdxhv-card') || d) : d;
+        } else if (pg === 'voice') {
+          here = document.getElementById(VOICE_ROOM);
+        }
+      } catch (err) { here = null; }
+      if (!here) return;                          // follow the link to /voice
+      if (e && fn(e.preventDefault)) e.preventDefault();
+      scrollTo(here);
+    }
   }
 
   function onKey(e) {

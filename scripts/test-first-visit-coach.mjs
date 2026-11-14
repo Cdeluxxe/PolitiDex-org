@@ -345,8 +345,10 @@ section("3 · Set my location points at the finder");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const h = visit().C._html();
-  const doors = [...h.matchAll(/<a\b[^>]*href="([^"]*)"[^>]*>([^<]*)<\/a>/g)];
-  eq(doors.length, 1, "the popup carries more than one link");
+  // The button row carries one link, the finder. (The three step cards are
+  // links too since v559; section 8 pins where each one goes.)
+  const doors = [...h.matchAll(/<a\b[^>]*class="pdxfc-door"[^>]*href="([^"]*)"[^>]*>([^<]*)<\/a>/g)];
+  eq(doors.length, 1, "the button row carries more than one link");
   // next=/ so a confirmed pin on /find brings the reader back to the
   // homepage band, where the guided path is on step 2.
   eq(doors[0] && doors[0][1], "/find?next=%2F", "Set my location does not point at the finder with the way back");
@@ -855,6 +857,121 @@ section("7 · the guided path: location → seats → rooms → optional stance"
   no(INDEX.slice(a, b), "pdx-path", "path: the homepage District Voice card mentions the path");
   no(VOICE, "pdx-path", "path: voice.html was edited for the path");
   has(VOICE, '<h1 class="pdxvr-h1">The rooms for your seats</h1>', "path: the /voice header changed");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("8 · the three steps are tappable cards that go to existing places");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  const cardsOf = (h) => [...h.matchAll(/<a class="pdxfc-step" href="([^"]*)" data-pdxfc-card="([a-z]+)"([^>]*)>/g)]
+    .map((m) => ({ href: m[1].replace(/&amp;/g, "&"), key: m[2], rest: m[3] }));
+  // Markup, per page: three cards, in order, each a real link.
+  for (const [page, search] of [["home", "#pdx-eye-input"], ["voice", "/#say-vs-do"], ["find", "/#say-vs-do"]]) {
+    const v = visit({ page });
+    v.tick(v.C.DELAY_MS);
+    const h = v.popup().innerHTML;
+    const cards = cardsOf(h);
+    eq(cards.length, 3, `${page}: the welcome does not carry three step cards`);
+    eq(cards.map((c) => c.key).join(","), "loc,search,voice", `${page}: the step cards are out of order`);
+    eq(cards[0] && cards[0].href, "/find?next=%2F", `${page}: step 1 does not go to the finder`);
+    eq(cards[1] && cards[1].href, search, `${page}: step 2 does not go to the search box`);
+    eq(cards[2] && cards[2].href, "/voice", `${page}: step 3 does not go to District Voice`);
+    ok(/data-pdxfc-up/.test(cards[0] ? cards[0].rest : "") && !/data-pdxfc-up/.test(cards[1].rest + cards[2].rest),
+      `${page}: the accent is not on step 1 alone`);
+    // Same three points, same wording, each inside its own card.
+    const items = h.split("<li").slice(1);
+    v.C.POINTS.forEach((p, i) => ok(items[i] && items[i].indexOf(p) >= 0 && /pdxfc-step/.test(items[i]), `${page}: point ${i + 1} is not in its card`));
+    for (const b of ['data-pdxfc-door="finder">Set my location<', 'data-pdxfc-act="finish">Got it<', 'data-pdxfc-act="skip">Not now<']) {
+      has(h, b, `${page}: the button row lost ${b}`);
+    }
+  }
+  // Visual weight: the cards, the larger numbers and the accent are styled.
+  for (const rule of [".pdxfc-step{", ".pdxfc-step[data-pdxfc-up]{", ".pdxfc-step:hover,.pdxfc-step:focus-visible{", ".pdxfc-step:focus-visible{"]) {
+    has(SRC, rule, "the step cards lost a style rule");
+  }
+  const n = (/\.pdxfc-n\{[^}]*width:([\d.]+)rem/.exec(SRC) || [, 0])[1];
+  ok(Number(n) > 1.6, `the step numbers are not larger than before (${n}rem)`);
+
+  // Step 1: exactly the finder door — same flag, same path step, same /find map.
+  {
+    const local = memStore(), session = memStore();
+    const v = visit({ local, session });
+    v.tick(v.C.DELAY_MS);
+    const prevented = click(v, "data-pdxfc-card", "loc");
+    ok(!prevented && !v.popup(), "step 1: did not close and follow its link to /find");
+    ok(!!local.getItem(v.C.KEY), "step 1: the flag was not written");
+    eq(v.C.pathStep(), "see", "step 1: did not record step 2 like Set my location");
+    let opened = 0;
+    const f = visit({ page: "find", extra: { openDistrictMapModal: () => { opened++; } } });
+    f.tick(f.C.DELAY_MS);
+    click(f, "data-pdxfc-card", "loc");
+    eq(opened, 1, "step 1 on /find: did not open the map in place");
+  }
+  // Step 2: homepage focuses the Eye in place, after focus is handed back.
+  {
+    const local = memStore(), session = memStore();
+    let eye = 0;
+    const order = [];
+    const v = visit({ local, session, extra: { pdxOpenEye: () => { eye++; order.push("eye"); } } });
+    v.document.activeElement = { focus: () => order.push("return") };
+    v.tick(v.C.DELAY_MS);
+    const prevented = click(v, "data-pdxfc-card", "search");
+    ok(prevented, "step 2: the homepage followed a link instead of focusing the search in place");
+    eq(eye, 1, "step 2: the search box was not focused");
+    ok(!v.popup(), "step 2: the welcome stayed open");
+    ok(!!local.getItem(v.C.KEY), "step 2: the flag was not written");
+    eq(order.join(","), "return,eye", "step 2: focus went back to the page after the search was focused");
+    eq(v.C.pathStep(), "", "step 2: recorded a guided-path step");
+    // Off the homepage: closes and follows /#say-vs-do.
+    const w = visit({ page: "voice", extra: { pdxOpenEye: () => { eye++; } } });
+    w.tick(w.C.DELAY_MS);
+    ok(!click(w, "data-pdxfc-card", "search") && !w.popup(), "step 2 on /voice: did not close and follow the search link");
+    eq(eye, 1, "step 2 on /voice: called a search that is not on the page");
+  }
+  // Step 3: homepage scrolls to its District Voice card; /voice to its rooms;
+  // /find follows the link to /voice.
+  {
+    const v = visit();
+    let scrolled = 0;
+    const cardEl = { scrollIntoView: () => { scrolled++; } };
+    const door = el("a", "pdx-home-voice-door");
+    door.closest = (sel) => (sel === ".pdxhv-card" ? cardEl : null);
+    v.document.body.appendChild(door);
+    v.tick(v.C.DELAY_MS);
+    const prevented = click(v, "data-pdxfc-card", "voice");
+    ok(prevented && scrolled === 1, "step 3: the homepage did not scroll to its District Voice card");
+    ok(!v.popup(), "step 3: the welcome stayed open");
+    eq(v.C.pathStep(), "", "step 3: recorded a guided-path step");
+
+    const w = visit({ page: "voice" });
+    let s2 = 0;
+    const room = el("main", "voice-room"); room.scrollIntoView = () => { s2++; };
+    w.document.body.appendChild(room);
+    w.tick(w.C.DELAY_MS);
+    ok(click(w, "data-pdxfc-card", "voice") && s2 === 1, "step 3 on /voice: did not scroll to the rooms in place");
+
+    const f = visit({ page: "find" });
+    f.tick(f.C.DELAY_MS);
+    ok(!click(f, "data-pdxfc-card", "voice") && !f.popup(), "step 3 on /find: did not close and follow the link to /voice");
+
+    const m = visit();
+    m.document.body.appendChild(door);
+    m.tick(m.C.DELAY_MS);
+    ok(!click(m, "data-pdxfc-card", "voice", { metaKey: true }), "step 3: a modified click was intercepted");
+  }
+  // Still first visit only: a card closes it for good.
+  {
+    const local = memStore();
+    const v = visit({ local });
+    v.tick(v.C.DELAY_MS);
+    click(v, "data-pdxfc-card", "voice");
+    const again = visit({ local });
+    again.tick(60000);
+    ok(!again.popup(), "a step card did not keep the welcome from coming back");
+    const placed = visit({ located: true });
+    placed.tick(60000);
+    ok(!placed.popup(), "the welcome showed with a location saved");
+  }
 }
 
 console.log("");
