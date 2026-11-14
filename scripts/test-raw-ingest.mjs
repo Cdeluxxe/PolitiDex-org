@@ -39,6 +39,7 @@ const quiet = async (fn) => {
   console.log = (...a) => lines.push(a.join(' '));
   try { return { value: await fn(), lines }; } finally { console.log = orig; }
 };
+const normUrl = (u) => String(u || "").trim().replace(/\/+$/, "").toLowerCase();
 const NOW = () => new Date('2026-11-07T08:00:00.000Z');
 const HTML = '<html><body><h1>Taxes &amp; Cost of Living</h1></body></html>';
 
@@ -511,6 +512,9 @@ const STANCE_BLOCKS = (() => {
 const stanceCount = (pid) => STANCE_BLOCKS[pid] || 0;
 const { REQUESTED_POLITICIANS } = await import('../netlify/lib/raw-ingest-expansion.mjs');
 const REQUESTED = new Set(REQUESTED_POLITICIANS.map((r) => r.politician_id));
+const { RETIRED_SOURCES, retiredSourcesLine } = await import('../netlify/lib/raw-ingest-retired.mjs');
+const RETIRED_URLS_BY_PID = new Map();
+for (const r of RETIRED_SOURCES) (RETIRED_URLS_BY_PID.get(r.politician_id) || RETIRED_URLS_BY_PID.set(r.politician_id, new Set()).get(r.politician_id)).add(r.url);
 const ACTIVE_ROSTER = core.ROSTER.filter((r) => r.sources.length || r.official);
 const PREVIOUS = new Set(core.PREVIOUS_ROSTER);
 const ORIGINAL = new Set(core.ORIGINAL_FIVE);
@@ -882,7 +886,10 @@ await t('requested national expansion: all 104 unique names, known URLs or expli
       assert.ok([...row.sources, row.official].some((source) => source?.url === person.page.url));
     } else {
       assert.ok(person.note && row.note, `${person.name}: a missing page has a note`);
-      assert.equal(row.sources.length, 0);
+      const retired = RETIRED_URLS_BY_PID.get(person.politician_id);
+      // A retired page leaves whatever other (non-failing) sources the row has.
+      if (retired) assert.ok(![...row.sources, row.official].some((s) => s && retired.has(s.url)), `${person.name}: retired page is gone`);
+      else assert.equal(row.sources.length, 0);
     }
   }
   const noSourceIds = core.ROSTER.filter((r) => !r.sources.length && !r.official).map((r) => r.politician_id);
@@ -905,6 +912,7 @@ await t('requested national expansion: all 104 unique names, known URLs or expli
 //    governor/statewide, campaign Issues/Priorities sub-pages ──
 const types = await import('../netlify/lib/raw-ingest-source-types.mjs');
 const CLASSES = ['congress_member', 'congress_gov', 'state_legislature', 'statewide_official', 'campaign_issues'];
+const LIVE_CLASSES = CLASSES.filter((c) => c !== 'congress_gov'); // congress_gov: all pages retired
 const rowOf = (pid) => core.ROSTER.find((r) => r.politician_id === pid);
 const pagesOf = (r) => [...r.sources, ...(r.official ? [r.official] : [])];
 const RAW_FIELDS = ['url', 'final_url', 'fetched_at', 'source_type', 'politician_id', 'topic', 'source_id', 'http_status', 'content_type', 'body_chars', 'body'];
@@ -924,7 +932,8 @@ await t('extra source types: every configured URL is already cited on the site f
     assert.match(e.url, /^https:\/\//);
     if (e.source_class === 'congress_member') {
       assert.match(h, /\.(house|senate)\.gov$/, `${e.url}: a house.gov / senate.gov page`);
-      const own = new Set(pagesOf(row).filter((s) => !s.source_class).map((s) => new URL(s.url).hostname.replace(/^www\./, '')));
+      // The member's own host: their non-classed pages, plus a retired own page (raw-ingest-retired.mjs).
+      const own = new Set([...pagesOf(row).filter((s) => !s.source_class).map((s) => s.url), ...(RETIRED_URLS_BY_PID.get(row.politician_id) || [])].map((u) => new URL(u).hostname.replace(/^www\./, '')));
       assert.ok(own.has(h), `${e.url}: on the member's own host, not a colleague's or a committee's`);
       assert.match(e.source_type, /^official (House|Senate) /);
     }
@@ -952,7 +961,9 @@ await t('extra source types: every configured URL is already cited on the site f
 });
 
 await t('extra source types: one of each is configured for a test politician who already has an official page', () => {
-  const TEST = { congress_member: 'aoc', congress_gov: 'aoc', state_legislature: 'dustin_burrows', statewide_official: 'cox', campaign_issues: 'james_talarico' };
+  // congress_gov: every Congress.gov page was retired (HTTP 403), so none is configured.
+  assert.equal(types.CONGRESS_GOV.length, 0);
+  const TEST = { congress_member: 'aoc', state_legislature: 'dustin_burrows', statewide_official: 'cox', campaign_issues: 'james_talarico' };
   for (const [cls, pid] of Object.entries(TEST)) {
     const row = rowOf(pid);
     assert.ok(row?.official, `${pid} has an official page`);
@@ -980,7 +991,8 @@ await t('extra source types: a planner dry-run over the real roster pulls every 
     state = plan.state;
     if (plan.cycle >= 6) break;
   }
-  for (const c of CLASSES) assert.ok(seen.has(c), `${c} is pulled by the rotation`);
+  for (const c of LIVE_CLASSES) assert.ok(seen.has(c), `${c} is pulled by the rotation`);
+  assert.ok(!seen.has('congress_gov'), 'retired Congress.gov pages are not planned');
   // Over a handful of cycles every extra page gets its turn (overflow rotates by cycle).
   for (const e of types.EXTRA_SOURCES) assert.ok(extraUrls.has(`${e.politician_id} ${e.url}`), `${e.url} is pulled within ${runs} runs`);
   // Overflow rotation keeps the original pages first and moves the extras' window by cycle.
@@ -998,17 +1010,17 @@ await t('extra source types: a rotated run stores them as plain raw records (loc
   const store = fakeStore(); const logs = [];
   const { value: res, lines } = await quiet(() => fn.run({ fetch: fakeFetch(200, LONG_HTML), store, now: NOW, rotate: { roster, state: { cycle: 1, done: [] }, counts: {} }, log: (l) => logs.push(l) }));
   const r = await res.json();
-  // Cycle 1: AOC's slots past her original pages reach her Congress.gov page.
+  // Cycle 1: AOC's slots past her original pages reach her extra pages.
   assert.ok(r.results.length <= core.MAX_SOURCES_PER_RUN && r.plan.politicians.length <= core.MAX_POLITICIANS_PER_RUN);
   const cls = new Set(r.included.sources.map((s) => s.source_class).filter(Boolean));
-  for (const c of CLASSES) assert.ok(cls.has(c), `${c} included in the run`);
+  for (const c of LIVE_CLASSES) assert.ok(cls.has(c), `${c} included in the run`);
   assert.ok(lines.some((l) => l.startsWith('raw-ingest: run included ') && l.includes('source classes: ') && l.includes('congress_member')), 'run log lists the source classes');
   assert.equal(store.data.size, r.results.length);
   for (const rec of store.data.values()) {
     for (const k of Object.keys(rec)) assert.ok(RAW_FIELDS.includes(k), `raw record carries only the locked fields (found ${k})`);
     for (const k of FORBIDDEN) assert.ok(!(k in rec));
   }
-  assert.ok([...store.data.values()].some((rec) => /congress\.gov/.test(rec.url)), 'a Congress.gov page is pulled like any other source');
+  assert.ok(![...store.data.values()].some((rec) => /congress\.gov/.test(rec.url)), 'no retired Congress.gov page is pulled');
 });
 
 // ── Official social sources: YouTube (transcript first, description fallback) ──
@@ -1032,7 +1044,8 @@ const memGetStore = () => { const data = new Map(); return { data, async get(k) 
 
 await t('social: official YouTube channels are configured only from videos the site already cites on the politician\'s own channel; no X / Facebook', () => {
   assert.deepEqual(Object.keys(social.SOCIAL_CLASSES), ['youtube']);
-  assert.ok(types.SOCIAL_SOURCES.length >= 1);
+  // Both configured channels were retired (feeds kept failing); the class and puller stay.
+  assert.equal(types.SOCIAL_SOURCES.length, 0);
   for (const sc of types.SOCIAL_SOURCES) {
     const cited = readFileSync(path.join(root, sc.known_from), 'utf8');
     const vid = new URL(sc.known_video).searchParams.get('v');
@@ -1050,10 +1063,10 @@ await t('social: official YouTube channels are configured only from videos the s
   }
   assert.ok(!types.SOCIAL_SOURCES.some((sc) => sc.politician_id === 'dhinkins'), 'the Utah Senate chamber channel is not treated as a member channel');
   for (const r of core.ROSTER) for (const s of pagesOf(r)) assert.doesNotMatch(new URL(s.url).hostname, /(^|\.)(x|twitter|facebook)\.com$/, `${s.url}: no X / Facebook source configured`);
-  // A test politician with an official page and an official YouTube channel.
+  // Curtis keeps his official page; his retired channel feed is no longer in the row.
   const curtis = rowOf('curtis');
   assert.equal(core.sourceKind(curtis.official), 'official');
-  assert.ok(curtis.sources.some((s) => s.source_class === 'youtube' && s.source_type === 'official YouTube channel'));
+  assert.ok(!curtis.sources.some((s) => s.source_class === 'youtube'));
 });
 
 await t('social: the planner fills social slots only after official/campaign pages, under the existing caps', () => {
@@ -1087,8 +1100,14 @@ await t('social: the planner fills social slots only after official/campaign pag
   for (const sc of types.SOCIAL_SOURCES) assert.ok(got.has(sc.politician_id), `${sc.politician_id}'s channel is planned`);
 });
 
+// Fixture channels (no channel is configured in the live roster any more).
+const ytSource = (pid, channel_id) => ({ politician_id: pid, topic: 'cost_living', source_type: 'official YouTube channel',
+  source_class: 'youtube', source_id: 'youtube-channel', url: social.youtubeFeedUrl(channel_id), channel_id });
+const YT_FIXTURE = [ytSource('curtis', 'UCaaaaaaFixtureChannel01'), ytSource('hoang_nguyen', 'UCbbbbbbFixtureChannel02')];
+const ytRow = (src) => ({ ...rowOf(src.politician_id), sources: [src] });
+
 await t('social: a YouTube pull writes one locked-shape item per new video — transcript first, description fallback logged, no scoring', async () => {
-  const roster = [rowOf('curtis'), rowOf('hoang_nguyen')];
+  const roster = YT_FIXTURE.map(ytRow);
   const store = memGetStore(); const logs = []; const hooked = [];
   const { value: res, lines } = await quiet(() => fn.run({ fetch: ytFetch(), store, now: NOW, rotate: { roster, state: {}, counts: {} }, log: (l) => logs.push(l) }));
   const r = await res.json();
@@ -1126,7 +1145,7 @@ await t('social: a YouTube pull writes one locked-shape item per new video — t
   assert.equal([...st3.data.values()].filter((v) => v.type === 'video' && v.excerpt.startsWith('Description')).length, 6);
   assert.equal(l3.filter((l) => l.startsWith('raw-ingest: TRANSCRIPT FALLBACK ')).length, 6);
   // A broken feed fails only that source.
-  const bad = await quiet(() => social.pullYouTube(types.SOCIAL_SOURCES[0], { fetch: fakeFetch(500, 'x'), store: memGetStore(), now: NOW, log: () => {} }));
+  const bad = await quiet(() => social.pullYouTube(YT_FIXTURE[0], { fetch: fakeFetch(500, 'x'), store: memGetStore(), now: NOW, log: () => {} }));
   assert.equal(bad.value.ok, false);
 });
 
@@ -1139,6 +1158,41 @@ await t('social: transcript helpers parse caption tracks and bodies', () => {
   assert.equal(social.captionText(''), '');
   assert.equal(social.extractCaptionTracks('<html></html>'), null);
   assert.equal(social.parseYouTubeFeed(FEED('abcdef'))[0].published.slice(0, 10), '2026-11-04');
+});
+
+// ── Retired sources: kept failing (3+ pulls in a row), removed from the rotation ──
+await t('retired sources: the planner no longer schedules any known-failing URL', () => {
+  const MUST = ['curtis', 'hoang_nguyen', 'congress.gov/member/', 'congress.gov/bill/', 'defense.gov', 'state.gov', 'hhs.gov', 'democraticleader.house.gov',
+    'pressley.house.gov/media/press-releases/', 'donalds.house.gov/media/press-releases', 'waters.house.gov/media/press-releases', 'ronjohnson.senate.gov/press-releases',
+    'michigan.gov/whitmer/news', 'rickscott.senate.gov/newsroom/press-releases', 'lgraham.senate.gov', 'gillibrand.senate.gov/news/press/'];
+  for (const m of MUST) assert.ok(RETIRED_SOURCES.some((r) => r.url.includes(m) || r.politician_id === m), `${m} is recorded as retired`);
+  assert.equal(new Set(RETIRED_SOURCES.map((r) => r.url)).size, RETIRED_SOURCES.length);
+  for (const r of RETIRED_SOURCES) assert.ok(r.streak >= 3 && r.last_error && r.from, `${r.url}: recorded with its streak, error and source list`);
+  const retired = new Set(RETIRED_SOURCES.map((r) => normUrl(r.url)));
+  // Not in any configured list the planner reads …
+  for (const r of core.ROSTER) for (const s of pagesOf(r)) assert.ok(!retired.has(normUrl(s.url)), `${s.url} is not in ${r.politician_id}'s row`);
+  for (const s of [...types.EXTRA_SOURCES, ...types.SOCIAL_SOURCES, ...core.SOURCES]) assert.ok(!retired.has(normUrl(s.url)), `${s.url} is not a known source`);
+  for (const p of REQUESTED_POLITICIANS) if (p.page) assert.ok(!retired.has(normUrl(p.page.url)), `${p.page.url} is not a requested page`);
+  // … and a dry run over several full cycles never plans one.
+  let state = {}; let planned = 0;
+  for (let i = 0; i < 600; i++) {
+    const plan = core.planRun(state);
+    for (const s of [...plan.sources, ...plan.patterns]) { planned++; assert.ok(!retired.has(normUrl(s.url)), `${s.url} planned in cycle ${plan.cycle}`); }
+    state = plan.state;
+    if (plan.cycle >= 6) break;
+  }
+  assert.ok(planned > 0);
+  assert.match(retiredSourcesLine(), new RegExp(`^raw-ingest: retired sources — ${RETIRED_SOURCES.length} source\\(s\\) removed`));
+});
+
+await t('retired sources: the cron logs the removal once, then stays quiet', async () => {
+  const { logRetiredOnce } = fn;
+  const store = memGetStore(); const logs = [];
+  assert.equal(await logRetiredOnce(store, (l) => logs.push(l), NOW), true);
+  assert.equal(await logRetiredOnce(store, (l) => logs.push(l), NOW), false);
+  assert.equal(logs.filter((l) => l.startsWith('raw-ingest: retired sources — ')).length, 1, 'logged exactly once');
+  for (const r of RETIRED_SOURCES) assert.ok(logs[0].includes(r.url), `${r.url} named in the log line`);
+  assert.equal(await logRetiredOnce(null, (l) => logs.push(l), NOW), false, 'no store: nothing logged');
 });
 
 if (failures) { console.error(`${failures} failing`); process.exit(1); }

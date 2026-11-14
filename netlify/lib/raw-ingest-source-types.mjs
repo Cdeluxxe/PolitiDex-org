@@ -19,8 +19,8 @@
 //     record key; scoring still reads every topic).
 //   · Each was checked as a stable page (2xx, HTML, no off-host or home-page
 //     redirect) before it was added; candidates that answered 404, redirected
-//     off-site or were blocked were skipped. The Congress.gov entries are the
-//     exception — see CONGRESS_GOV below.
+//     off-site or were blocked were skipped. The Congress.gov entries were the
+//     exception until they were retired — see CONGRESS_GOV below.
 //   · Nothing here changes the record shape: each page is pulled by the same
 //     pullOne() and goes through the same Locker writer, so the stored raw
 //     record and any Locker item keep the locked schema.
@@ -182,24 +182,12 @@ export const CONGRESS_MEMBER = [
 ];
 
 // ── Congress.gov — the member's page, or a measure they are lead author of ──
-// Congress.gov currently answers automated fetches with HTTP 403. These are
-// still configured (the URLs are clean and official), are ordered after every
-// other page for the politician, and a refused fetch logs a FAIL and writes
-// nothing — exactly like any other failed source.
-export const CONGRESS_GOV = [
-  { politician_id: "jeffries", topic: "immigration_reform", source_type: "Congress.gov member page",
-    url: "https://www.congress.gov/member/hakeem-jeffries/J000294", known_from: "politician-stances.js" },
-  { politician_id: "schumer", topic: "gov_balance", source_type: "Congress.gov member page",
-    url: "https://www.congress.gov/member/charles-schumer/S000148", known_from: "politician-stances.js" },
-  { politician_id: "aoc", topic: "climate_action", source_type: "Congress.gov sponsored measure page",
-    url: "https://www.congress.gov/bill/116th-congress/house-resolution/109", known_from: "politician-stances.js" },
-  { politician_id: "cruz", topic: "tech_balance", source_type: "Congress.gov sponsored measure page",
-    url: "https://www.congress.gov/bill/119th-congress/senate-bill/146", known_from: "politician-stances.js" },
-  { politician_id: "warren", topic: "crypto_cbdc", source_type: "Congress.gov sponsored measure page",
-    url: "https://www.congress.gov/bill/118th-congress/senate-bill/2669", known_from: "politician-stances.js" },
-  { politician_id: "lummis", topic: "crypto_cbdc", source_type: "Congress.gov sponsored measure page",
-    url: "https://www.congress.gov/bill/119th-congress/senate-bill/954", known_from: "politician-stances.js" },
-];
+// Congress.gov answers automated fetches with HTTP 403. The six member/measure
+// pages configured here (Jeffries, Schumer, AOC, Cruz, Warren, Lummis) failed
+// every pull and were retired from the rotation on 2026-11-14 — see
+// raw-ingest-retired.mjs. The class stays defined so a page can be re-added if
+// Congress.gov starts answering again.
+export const CONGRESS_GOV = [];
 
 // ── State legislature official member pages ──
 export const STATE_LEGISLATURE = [
@@ -259,16 +247,11 @@ export const NEW_SOCIAL_ROSTER = [
       url: "https://house.utleg.gov/rep/NGUYEH/", known_from: "spotlight-cards-data.js" } },
 ];
 
-export const OFFICIAL_YOUTUBE = [
-  { politician_id: "curtis", topic: "religious_liberty", source_type: "official YouTube channel",
-    channel_id: "UChAQ4MD-HigmGnImSoAKBVA", channel_url: "https://www.youtube.com/@SenatorJohnCurtis",
-    known_video: "https://www.youtube.com/watch?v=iYHH_IfBiVQ", known_label: "Senator John Curtis (official channel)",
-    known_from: "scripts/spotlight-video-social-batch-jul2026.mjs" },
-  { politician_id: "hoang_nguyen", topic: "public_schools", source_type: "campaign YouTube channel",
-    channel_id: "UCNilDuFLmC7FBsyJoDYUzPA", channel_url: "https://www.youtube.com/@Hoangforhouse",
-    known_video: "https://www.youtube.com/watch?v=c7mYbUvbHq4", known_label: "Nguyen's official campaign channel",
-    known_from: "spotlight-cards-data.js" },
-];
+// Both configured channel feeds (Curtis — HTTP 500, Nguyen — HTTP 404) failed
+// every pull and were retired from the rotation on 2026-11-14 — see
+// raw-ingest-retired.mjs. The YouTube class and puller stay in place; the
+// politicians keep their official pages above.
+export const OFFICIAL_YOUTUBE = [];
 
 /** Every social source, tagged with its class; `url` is the channel's public feed. */
 export const SOCIAL_SOURCES = OFFICIAL_YOUTUBE.map((s) => ({
