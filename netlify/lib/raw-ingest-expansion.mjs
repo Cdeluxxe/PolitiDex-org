@@ -47,11 +47,7 @@ export const REQUESTED_POLITICIANS = [
     "tier": 1,
     "has_board": true,
     "has_stances": true,
-    "page": {
-      "url": "https://www.democraticleader.house.gov",
-      "source_type": "official homepage",
-      "known_from": "politician-stances.js"
-    }
+    "note": "Page source retired 2026-11-14: https://www.democraticleader.house.gov failed 3+ pulls in a row (see raw-ingest-retired.mjs)."
   },
   {
     "name": "Chuck Schumer",
@@ -199,11 +195,7 @@ export const REQUESTED_POLITICIANS = [
     "tier": 2,
     "has_board": false,
     "has_stances": true,
-    "page": {
-      "url": "https://www.state.gov",
-      "source_type": "official homepage",
-      "known_from": "politician-stances.js"
-    }
+    "note": "Page source retired 2026-11-14: https://www.state.gov failed 3+ pulls in a row (see raw-ingest-retired.mjs)."
   },
   {
     "name": "Pete Hegseth",
@@ -211,11 +203,7 @@ export const REQUESTED_POLITICIANS = [
     "tier": 2,
     "has_board": false,
     "has_stances": true,
-    "page": {
-      "url": "https://www.defense.gov",
-      "source_type": "official homepage",
-      "known_from": "politician-stances.js"
-    }
+    "note": "Page source retired 2026-11-14: https://www.defense.gov failed 3+ pulls in a row (see raw-ingest-retired.mjs)."
   },
   {
     "name": "Zohran Mamdani",
@@ -367,11 +355,7 @@ export const REQUESTED_POLITICIANS = [
     "tier": 1,
     "has_board": true,
     "has_stances": true,
-    "page": {
-      "url": "https://donalds.house.gov/media/press-releases",
-      "source_type": "official page",
-      "known_from": "politician-stances.js"
-    }
+    "note": "Page source retired 2026-11-14: https://donalds.house.gov/media/press-releases failed 3+ pulls in a row (see raw-ingest-retired.mjs)."
   },
   {
     "name": "Nancy Mace",
@@ -435,11 +419,7 @@ export const REQUESTED_POLITICIANS = [
     "tier": 1,
     "has_board": true,
     "has_stances": true,
-    "page": {
-      "url": "https://www.lgraham.senate.gov",
-      "source_type": "official homepage",
-      "known_from": "politician-stances.js"
-    }
+    "note": "Page source retired 2026-11-14: https://www.lgraham.senate.gov failed 3+ pulls in a row (see raw-ingest-retired.mjs)."
   },
   {
     "name": "Tim Scott",
@@ -459,11 +439,7 @@ export const REQUESTED_POLITICIANS = [
     "tier": 1,
     "has_board": true,
     "has_stances": true,
-    "page": {
-      "url": "https://www.rickscott.senate.gov/newsroom/press-releases",
-      "source_type": "official page",
-      "known_from": "politician-stances.js"
-    }
+    "note": "Page source retired 2026-11-14: https://www.rickscott.senate.gov/newsroom/press-releases failed 3+ pulls in a row (see raw-ingest-retired.mjs)."
   },
   {
     "name": "Marjorie Taylor Greene",
@@ -491,11 +467,7 @@ export const REQUESTED_POLITICIANS = [
     "tier": 1,
     "has_board": true,
     "has_stances": true,
-    "page": {
-      "url": "https://pressley.house.gov/media/press-releases/",
-      "source_type": "official page",
-      "known_from": "politician-stances.js"
-    }
+    "note": "Page source retired 2026-11-14: https://pressley.house.gov/media/press-releases/ failed 3+ pulls in a row (see raw-ingest-retired.mjs)."
   },
   {
     "name": "Rashida Tlaib",
@@ -643,11 +615,7 @@ export const REQUESTED_POLITICIANS = [
     "tier": 1,
     "has_board": true,
     "has_stances": true,
-    "page": {
-      "url": "https://www.michigan.gov/whitmer/news",
-      "source_type": "official page",
-      "known_from": "politician-stances.js"
-    }
+    "note": "Page source retired 2026-11-14: https://www.michigan.gov/whitmer/news failed 3+ pulls in a row (see raw-ingest-retired.mjs)."
   },
   {
     "name": "Josh Shapiro",
@@ -723,11 +691,7 @@ export const REQUESTED_POLITICIANS = [
     "tier": 1,
     "has_board": true,
     "has_stances": true,
-    "page": {
-      "url": "https://waters.house.gov/media/press-releases",
-      "source_type": "official page",
-      "known_from": "politician-stances.js"
-    }
+    "note": "Page source retired 2026-11-14: https://waters.house.gov/media/press-releases failed 3+ pulls in a row (see raw-ingest-retired.mjs)."
   },
   {
     "name": "Cori Bush",
@@ -803,11 +767,7 @@ export const REQUESTED_POLITICIANS = [
     "tier": 2,
     "has_board": false,
     "has_stances": true,
-    "page": {
-      "url": "https://www.hhs.gov",
-      "source_type": "official homepage",
-      "known_from": "politician-stances.js"
-    }
+    "note": "Page source retired 2026-11-14: https://www.hhs.gov failed 3+ pulls in a row (see raw-ingest-retired.mjs)."
   },
   {
     "name": "Tulsi Gabbard",
@@ -863,11 +823,7 @@ export const REQUESTED_POLITICIANS = [
     "tier": 1,
     "has_board": true,
     "has_stances": true,
-    "page": {
-      "url": "https://www.ronjohnson.senate.gov/press-releases",
-      "source_type": "official page",
-      "known_from": "politician-stances.js"
-    }
+    "note": "Page source retired 2026-11-14: https://www.ronjohnson.senate.gov/press-releases failed 3+ pulls in a row (see raw-ingest-retired.mjs)."
   },
   {
     "name": "Ted Budd",
@@ -1139,11 +1095,7 @@ export const REQUESTED_POLITICIANS = [
     "tier": 1,
     "has_board": true,
     "has_stances": true,
-    "page": {
-      "url": "https://www.gillibrand.senate.gov/news/press/",
-      "source_type": "official page",
-      "known_from": "politician-stances.js"
-    }
+    "note": "Page source retired 2026-11-14: https://www.gillibrand.senate.gov/news/press/ failed 3+ pulls in a row (see raw-ingest-retired.mjs)."
   },
   {
     "name": "Chuck Grassley",

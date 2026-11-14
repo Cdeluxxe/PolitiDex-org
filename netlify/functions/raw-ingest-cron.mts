@@ -123,8 +123,26 @@ import {
 import { logCandidateStances, SCORED_TOPICS } from "../lib/stance-score-core.mjs";
 import { maybeWriteLockerItem, loadReviewFlags, lockerBaselineCounts, LOCKER_STORE_NAME } from "../lib/evidence-locker-core.mjs";
 import { appendRunSuggestions, SUGGESTIONS_STORE_NAME } from "../lib/raw-ingest-suggestions.mjs";
+import { retiredSourcesLine, RETIRED_VERSION, RETIRED_LOG_KEY } from "../lib/raw-ingest-retired.mjs";
 import groundTruth from "../../db/stance-ground-truth-talarico-cost-of-living.json" with { type: "json" };
 import reviewFile from "../../db/evidence-locker-review.json" with { type: "json" };
+
+// Retired sources (raw-ingest-retired.mjs): logged ONCE per RETIRED_VERSION —
+// a tiny marker doc in the rotation store remembers that the line was written.
+export async function logRetiredOnce(store: any, log: (l: string) => void, now: () => Date = () => new Date()): Promise<boolean> {
+  if (!store) return false;
+  try {
+    let seen = await store.get(RETIRED_LOG_KEY, { type: "json" });
+    if (typeof seen === "string") seen = JSON.parse(seen);
+    if (seen && Number(seen.version) >= RETIRED_VERSION) return false;
+    log(retiredSourcesLine());
+    await store.setJSON(RETIRED_LOG_KEY, { version: RETIRED_VERSION, logged_at: now().toISOString() });
+    return true;
+  } catch (e: any) {
+    log(`raw-ingest: retired-sources marker unavailable — ${e?.message || e}`);
+    return false;
+  }
+}
 
 async function readRotationState(store: any, log: (l: string) => void): Promise<any> {
   if (!store) return normaliseRotationState(null);
@@ -187,6 +205,7 @@ export async function run(deps: {
     sources = d.sources;
     discovered = d.added;
   }
+  await logRetiredOnce(deps.rotationStore, log, deps.now);
   const included = runPlanLine(sources);
   console.log(`raw-ingest: run included ${included.count} source(s) · politicians: ${included.politicians.join(", ")} · source kinds: ${JSON.stringify(included.kinds)} · source types: ${JSON.stringify(included.source_types)} · source classes: ${JSON.stringify(included.source_classes)}`);
   const lockerWrites: any[] = [];
