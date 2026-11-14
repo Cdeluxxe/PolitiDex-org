@@ -12113,7 +12113,15 @@
 //     or gate is added. first-visit-coach.js is precached and changed, so the
 //     shell moves.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v559';
+// v560 - ONE TESTED SET FOR WORD VS ACTION. The chip's "X of Y tested", its
+//     percentage, the section's "across N tested issues" and the three result
+//     buckets now count the same issues: those with a stated position and a
+//     formal-record Direction Match verdict. The percentage is taken over that
+//     set, one entry per issue, with each row's own verdict. No verdict rule
+//     changed. word-action.js and inventory.js are precached and changed, so the
+//     shell moves. No location key is touched or migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v560';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

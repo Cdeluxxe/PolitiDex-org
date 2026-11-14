@@ -61,6 +61,7 @@ import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
+import { testedSetPassAtHead } from "./wva-tested-set-pass.mjs";
 import { declaredStanceMovesAtHead } from "./v103-chrome-seams.mjs";
 import { makeSandbox, ENGINE_FILES } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
@@ -498,14 +499,18 @@ section("7 · twin boot — the pair list and the DM ledger never saw this");
     for (const [pid] of corpus.byMember) {
       if (declaredStanceMovesAtHead().moved.has(pid)) continue; // a declared stance pass (v103-chrome-seams.mjs) moves its own people
       swept++;
-      if (JSON.stringify(A.PDXWordAction.read(pid)) !== JSON.stringify(B.PDXWordAction.read(pid))) {
+      // THE ONE-TESTED-SET PASS MOVES THE READ BY DESIGN (wva-tested-set-pass.mjs):
+      // while HEAD predates it, the read itself is not held to HEAD's bytes. The
+      // Direction Match overall and the formal tiers below still are.
+      const passMoves = testedSetPassAtHead();
+      if (!passMoves && JSON.stringify(A.PDXWordAction.read(pid)) !== JSON.stringify(B.PDXWordAction.read(pid))) {
         drift.push(`${pid}/ledger`);
       }
       // …and the sub-line itself, which is the one rendered string this pass
       // rewrote: same value as HEAD's, from a different builder.
       const ha = A.PDXWordAction.heroRead(pid, A.CMP_DATA[pid]);
       const hb = B.PDXWordAction.heroRead(pid, B.CMP_DATA[pid]);
-      if (JSON.stringify(ha) !== JSON.stringify(hb)) drift.push(`${pid}/hero`);
+      if (!passMoves && JSON.stringify(ha) !== JSON.stringify(hb)) drift.push(`${pid}/hero`);
       if (A.PDXConsistency && B.PDXConsistency) {
         if (sansPortrait(A.PDXConsistency.scopedOverall(A.CMP_DATA[pid], pid), pid) !==
             sansPortrait(B.PDXConsistency.scopedOverall(B.CMP_DATA[pid], pid), pid)) drift.push(`${pid}/dm`);

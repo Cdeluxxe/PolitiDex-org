@@ -44,6 +44,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { buildCorpus } from "./vr-record-corpus.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -67,8 +68,18 @@ function boot() {
     try { vm.runInContext(src, ctx, { filename: f }); }
     catch (e) { console.error(`  ! ${f}: ${e.message}`); }
   }
+  // WARM, as a settled page is. Word vs Action scores issues with a stated
+  // position AND a formal-record verdict — the tested set its section shows — so
+  // a cold sandbox, where every member's roll calls are still "in flight",
+  // publishes almost nobody. The offline record corpus is the warm state.
+  try {
+    for (const [pid, recs] of CORPUS.byMember) {
+      try { win.PDXVotingRecord.noteMember(pid, recs); } catch { /* not a member surface */ }
+    }
+  } catch (e) { console.error(`  ! corpus: ${e.message}`); }
   return win;
 }
+const CORPUS = buildCorpus(ROOT);
 
 let passed = 0;
 const failures = [];

@@ -124,7 +124,15 @@ must(typeof win._pdxRecordMappedCounts === "function" && typeof win._pdxMappedSu
 must(typeof ER.volumeText === "function" && typeof ER.summary === "function",
   "PDXExecRecord no longer publishes the volume clause its label is built from");
 
-const ISSUE_KEYS = Object.keys(win.ISSUE_MAP || {}).filter((k) => !/_balance$/.test(k));
+// Stated issues of the member first: Word vs Action scores issues with a stated
+// position AND a formal-record verdict (the tested set its ⚖️ section shows), so
+// votes seeded only on issues they never spoke to would leave the ring with
+// nothing to test — the member's pledge-ledger results no longer publish alone.
+const STATED_KEYS = [...new Set((WA.read(MEMBER, win.CMP_DATA[MEMBER]).items || [])
+  .filter((it) => it.kind === "position" && it.issueKey && !/_balance$/.test(it.issueKey))
+  .map((it) => it.issueKey))];
+const ISSUE_KEYS = [...new Set(STATED_KEYS.concat(Object.keys(win.ISSUE_MAP || {})))]
+  .filter((k) => !/_balance$/.test(k) && (win.ISSUE_MAP || {})[k]);
 must(ISSUE_KEYS.length >= 6, "the issue map no longer offers six non-balance keys to seed against");
 
 let seq = 0;

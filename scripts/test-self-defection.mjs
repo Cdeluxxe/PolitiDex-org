@@ -220,10 +220,14 @@ const FEED = SD.feed({ pids: POP.map(([p]) => p) });
       verdict: "broken", issueKey: "gun_rights",
       sources: [{ label: "harness", url: "https://example.org/planted" }] }];
     const read = w.PDXWordAction.read(pid, prof);
-    const planted = (read.tested || []).find((t) => t.kind === "pledge-tracked");
-    ok(!!planted, "the planted pledge is tested by Direction Match");
-    eq(planted && planted.test.token, "contradicts", "…as a contradiction");
-    eq(planted && planted.test.basis, "pledge-ledger", "…resolved by the pledge ledger");
+    // Word vs Action scores ISSUES with a formal-record verdict (the tested set its
+    // ⚖️ section shows), so a broken pledge is never scored by its ledger result on
+    // its own: it is either the stated word on an issue the formal record tested,
+    // or coverage. Either way nothing here may treat the pledge as a formal act.
+    const planted = (read.items || []).find((t) => t.kind === "pledge-tracked");
+    ok(!!planted, "the planted pledge is on the Direction Match word ledger");
+    ok(!(read.tested || []).some((t) => t.test && t.test.basis === "pledge-ledger"),
+      "…and no tested issue rests on the pledge ledger alone");
     const after = w.PDXSelfDefection.itemsFor(pid, prof);
     ok(!after.some((x) => x.said.label === "A planted broken pledge"),
       "a broken pledge is not published as a formal-act item");

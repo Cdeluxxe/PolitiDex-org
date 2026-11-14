@@ -77,6 +77,7 @@ import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
+import { testedSetPassAtHead } from "./wva-tested-set-pass.mjs";
 import { makeSandbox, ENGINE_FILES } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 import { declaredStanceMovesAtHead } from "./v103-chrome-seams.mjs";
@@ -358,6 +359,15 @@ section("4 · twin boot — the arithmetic never saw this");
     for (const pid of ROSTER) {
       if (declaredStanceMovesAtHead().moved.has(pid)) continue; // a declared stance pass (v103-chrome-seams.mjs)
       swept++;
+      // THE ONE-TESTED-SET PASS MOVES THE READ BY DESIGN (wva-tested-set-pass.mjs):
+      // while HEAD predates it, the read itself is not held to HEAD's bytes. The
+      // Direction Match overall and the formal tiers below still are.
+      if (testedSetPassAtHead()) {
+        if (A.PDXConsistency && B.PDXConsistency &&
+            JSON.stringify(A.PDXConsistency.formalPatternIndex.shape(pid)) !==
+            JSON.stringify(B.PDXConsistency.formalPatternIndex.shape(pid))) drift.push(`${pid}/formal`);
+        continue;
+      }
       if (WITHDRAWN[pid]) {
         const a = A.PDXWordAction.read(pid, A.CMP_DATA[pid]);
         const b = B.PDXWordAction.read(pid, B.CMP_DATA[pid]);

@@ -54,12 +54,46 @@ const FILES = [
   "profiles-full.js",
 ];
 const SRC = FILES.map((f) => [f, R(f)]);
+// BOTH's baseline record. Word vs Action scores ISSUES with a stated position and
+// a formal-record verdict — the tested set its ⚖️ section shows — so a member's
+// bundled pledge-ledger results no longer publish a percentage on their own. The
+// "already publishes" subject is therefore given a small roll-call baseline on
+// issues they state a position on, in every boot, standing in for the record a
+// warm profile carries. It is noted as the member's record; any later seed for
+// them is appended to it, never swapped for it.
+let WORD_SEED = null;
+function wordSeed(win) {
+  if (WORD_SEED) return WORD_SEED;
+  const items = (win.PDXWordAction.read("bennie_thompson", win.CMP_DATA.bennie_thompson).items || []);
+  const keys = [...new Set(items.filter((it) => it.kind === "position" && it.issueKey).map((it) => it.issueKey))].slice(0, 5);
+  WORD_SEED = [];
+  keys.forEach((k, i) => {
+    for (let j = 0; j < 3; j++) {
+      const n = 5000 + i * 10 + j;
+      WORD_SEED.push({
+        kind: "vote", rollcallId: 700 + n, measureId: 800 + n, number: "S. " + (100 + n),
+        date: "2025-0" + ((n % 9) + 1) + "-11", action: "On Passage", position: "yea",
+        isProcedural: false, title: "Baseline measure " + n,
+        source: { url: "https://www.congress.gov/roll-call-vote/" + (700 + n), label: "Congress.gov" },
+        issues: [{ issueKey: k, weight: 100, isPrimary: true, supportMeaning: "yea_supports" }],
+      });
+    }
+  });
+  return WORD_SEED;
+}
 function boot() {
   const win = makeSandbox();
   const sandbox = vm.createContext(win);
   win.PROFILES = win.CMP_DATA;
   for (const [f, src] of SRC) vm.runInContext(src, sandbox, { filename: f });
   win.PROFILES = win.CMP_DATA;
+  try {
+    const seedB = wordSeed(win);
+    const note = win.PDXVotingRecord.noteMember.bind(win.PDXVotingRecord);
+    note("bennie_thompson", seedB);
+    win.PDXVotingRecord.noteMember = (pid, recs) =>
+      note(pid, pid === "bennie_thompson" ? seedB.concat(recs || []) : recs);
+  } catch { /* the probe below reports a subject that cannot publish */ }
   return win;
 }
 
@@ -96,7 +130,7 @@ const txt = (h) => String(h || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ")
 //         record on them and you have the exact case this pass exists for:
 //         everything on file is formal, and the old hero said "Monitoring".
 // BOTH  — a member whose Direction Match already publishes a percentage from the
-//         bundled data. Seed the same record and the demoted block has to keep
+//         bundled data plus the baseline record boot() notes for them. Seed the same record and the demoted block has to keep
 //         printing that figure, small, under the shape.
 // THIN  — nobody seeds them. The hero they had is the hero they keep.
 const QUIET = "doug_mastriano";

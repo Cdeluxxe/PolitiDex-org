@@ -552,7 +552,15 @@ section("4 · no score moved");
   const DM = "bennie_thompson";
   const before = boot(BASE);
   const after = boot(WITH_SCOPE);
-  [before, after].forEach((w) => w.PDXVotingRecord.noteMember(DM, seed.apply(null, WIDE)));
+  // Word vs Action scores issues with a stated position AND a formal-record
+  // verdict (the tested set its section shows), so the subject also gets votes on
+  // issues they state a position on — pledge-ledger results no longer publish a
+  // figure on their own.
+  const statedKeys = [...new Set((before.PDXWordAction.read(DM, before.CMP_DATA[DM]).items || [])
+    .filter((it) => it.kind === "position" && it.issueKey).map((it) => it.issueKey))].slice(0, 5);
+  const wordVotes = [];
+  statedKeys.forEach((k, i) => { for (let j = 0; j < 3; j++) wordVotes.push(vote(5000 + i * 10 + j, k, "yea")); });
+  [before, after].forEach((w) => w.PDXVotingRecord.noteMember(DM, seed.apply(null, WIDE).concat(wordVotes)));
   const hb = before.PDXWordAction.heroRead(DM, before.CMP_DATA[DM]);
   const ha = after.PDXWordAction.heroRead(DM, after.CMP_DATA[DM]);
   must(hb && hb.pct !== null, `${DM} publishes no Direction Match figure — the case is untestable`);

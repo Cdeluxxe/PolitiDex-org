@@ -442,7 +442,10 @@ ok(bindSrc.indexOf("_pdxRestoreDD") < bindSrc.indexOf("restoreSel("),
 // The fold is presentation. read() is the scoring surface, and it is pinned here
 // digit by digit on a seeded record: three testable issues, all backed up, 75%.
 // If this section fails, the pass stopped being presentation.
-const R = withRows(ROWS, PID, () => WA.read(PID, ctx.PROFILES[PID]));
+// Pinned on the ENGINE'S OWN row model, not the stubbed one: Word vs Action scores
+// the issues its section shows, with each row's verdict, so a stub row's invented
+// verdict would be a stub's opinion — exactly what this pin exists to exclude.
+const R = WA.read(PID, ctx.PROFILES[PID]);
 must(R && typeof R === "object", "PDXWordAction.read returned nothing on the seeded profile");
 eq(R.pct, 75, "scoring: the Direction Match figure moved");
 eq(R.publishable, true, "scoring: the publishability floor moved");
@@ -452,7 +455,7 @@ eq(R.coverage.scorable, 3, "scoring: the scorable denominator moved");
 eq(R.coverage.untested, 0, "scoring: the untested count moved");
 eq((R.tested || []).length, 3, "scoring: the tested set moved");
 // The fold reads r.coverage for its label. Reading is fine; writing is not.
-eq(withRows(ROWS, PID, () => WA.read(PID, ctx.PROFILES[PID])).pct, 75,
+eq(WA.read(PID, ctx.PROFILES[PID]).pct, 75,
   "scoring: rendering the section changed what read() answers the second time");
 
 // ═════════════════════════════════════════════════════════════════════════════

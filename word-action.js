@@ -875,9 +875,16 @@
     var tiers = {};
     TIER_ORDER.forEach(function (t) { tiers[t] = { key: t, total: 0, scorable: 0, tested: 0, weight: 0 }; });
 
+    items.forEach(function (it) { it.test = testOf(it, pid); });
+    // ONE TESTED SET — the issues the ⚖️ section shows. See sectionIssueSet().
+    // Built from THIS read's own ledger, so a caller handing in a person record
+    // gets the set its own word defines; the section asks with the roster's.
+    var ranked0 = rankedRows(pid);
+    var issueSet = ranked0 ? issueSetOf(pid, items, ranked0) : null;
+    if (issueSet) alignToIssues(items, issueSet);
+
     items.forEach(function (it) {
-      var t = testOf(it, pid);
-      it.test = t;
+      var t = it.test;
       if (it.issueKey) issueLinked++;
       if (it.kind === 'position-derived') derived++;
       if (it.kind === 'pledge-tracked') trackedPledges++;
@@ -1250,7 +1257,11 @@
   // Recommit · Voted Yea" — rather than a bare count. A pledge resolved in the
   // ledger has its own sourced outcome instead of a roll call, and says so.
   function namedActions(pid, it) {
-    if (it.kind === 'pledge-tracked') {
+    // A tracked pledge that carries its issue's formal-record verdict (the issue
+    // had no other statement to carry it) is explained by the formal acts, like
+    // any other tested issue — not by its ledger resolution, which is not what
+    // was scored.
+    if (it.kind === 'pledge-tracked' && !(it.test && it.test.issueRow)) {
       return [{ text: it.resolution === 'kept' ? 'Resolved in the pledge ledger as kept, against its own sources.'
                                                : 'Resolved in the pledge ledger as broken, against its own sources.',
                 kind: 'ledger' }];
@@ -1383,8 +1394,8 @@
         digestHtml +
         '<ul class="pdxwa-tiers">' + TIER_ORDER.map(function (t) { return tierRowHtml(t, r.tiers[t], r); }).join('') + '</ul>' +
         '<div class="pdxwa-cov">' +
-          '<span class="pdxwa-cov-n">' + r.coverage.tested + ' of ' + r.coverage.scorable + '</span> testable statement' +
-          (r.coverage.scorable === 1 ? '' : 's') + ' have a formal action behind them' +
+          '<span class="pdxwa-cov-n">' + r.coverage.tested + ' of ' + r.coverage.scorable + '</span> stated issue' +
+          (r.coverage.scorable === 1 ? '' : 's') + ' have a formal-record verdict behind them' +
           (r.coverage.recordDerived
             ? ' · ' + r.coverage.recordDerived + ' more position' + (r.coverage.recordDerived === 1 ? '' : 's') +
               ' on file came from the record itself, so ' + (r.coverage.recordDerived === 1 ? 'it cannot' : 'they cannot') + ' test it'
@@ -1406,7 +1417,7 @@
       return 'No documented position, pledge or signature issue is on file for ' + name + ' yet, so there is nothing to test a vote against. ' +
              'Word is added only as it is sourced — never inferred from how they voted.';
     }
-    if (c.warming) return 'Checking ' + name + '’s formal record against ' + c.scorable + ' documented statement' + (c.scorable === 1 ? '' : 's') + '…';
+    if (c.warming) return 'Checking ' + name + '’s formal record against ' + c.scorable + ' stated issue' + (c.scorable === 1 ? '' : 's') + '…';
     // AFTER the warming branch, never before it: a lane still being fetched is not
     // an empty one. See formalLaneReadable — this is the office with no formal
     // record on file, not the person with a thin one, and the two are different
@@ -1419,10 +1430,10 @@
              'This read needs something ' + name + ' said independently — a quote, an interview, a platform position.';
     }
     if (!c.tested) {
-      return c.scorable + ' independently documented statement' + (c.scorable === 1 ? '' : 's') + ' on file, and no formal action on record to test ' +
+      return c.scorable + ' stated issue' + (c.scorable === 1 ? '' : 's') + ' on file, and no formal action on record to test ' +
              (c.scorable === 1 ? 'it' : 'any of them') + ' against yet. That is a gap in the record, not a mark against ' + name + '.';
     }
-    return 'Only ' + c.tested + ' of ' + c.scorable + ' independently documented statement' + (c.scorable === 1 ? '' : 's') + ' has a formal action behind it so far — ' +
+    return 'Only ' + c.tested + ' of ' + c.scorable + ' stated issue' + (c.scorable === 1 ? '' : 's') + ' has a formal-record verdict so far — ' +
            'below the ' + r.floors.items + '-item floor this read needs before it publishes a percentage. ' +
            'The tested items are shown below; the number waits until the record is deep enough to carry it.';
   }
@@ -2344,19 +2355,45 @@
     // failure: the record-only population below is drawn from it, and a bucketing
     // held over a stale key set would report a different inventory size than the
     // browse chip and the shape hero, which read the index directly.
+    // …and on the tested-issue set (see issueSetOf), because a Locker claim landing
+    // or a pledge being itemized moves an issue in or out of the tested set without
+    // moving the rows at all.
     var keys = formalKeySet(pid);
+    var iv = issueSetOf(pid, ledgerTested(pid, briefPerson(pid, null)), ranked);
     var hit = _obCache[ck];
-    if (hit && hit.ranked === ranked && hit.keys === keys) return hit.val;
+    if (hit && hit.ranked === ranked && hit.keys === keys && hit.sig === iv.sig) return hit.val;
     var b = { buckets: {}, total: 0, word: 0, judged: 0, formal: 0,
               contested: 0, contestedClean: 0, thin: 0, tension: 0, ranked: ranked };
     ranked.forEach(function (r) {
-      if (!OUTCOMES.some(function (o) { return o.token === r.verdict.token; })) return;
-      // RECORD-ONLY. Nothing of theirs to test, something of the record's to show.
-      // Re-filed, not dropped, and re-filed under a token that carries no verdict.
-      var recordOnly = (!r.stance.label && r.verdict.token === 'limited');
-      if (recordOnly && !(keys && keys[r.key])) return;
-      var tok = recordOnly ? 'record' : r.verdict.token;
-      (b.buckets[tok] = b.buckets[tok] || []).push(r);
+      var t = iv.tested[r.key];
+      var tok, row = r;
+      var recordOnly = false;
+      if (t) {
+        // A TESTED ISSUE is filed under the verdict read() scores it with. That is
+        // the row's own verdict whenever the row has one; only a Locker claim
+        // matched to a formal record can supply it otherwise, and then the row is
+        // shown with that claim's verdict so the bucket and its chip agree.
+        tok = t.token;
+        if (r.verdict.token !== tok) row = withVerdict(r, tok, t.score);
+      } else {
+        if (!OUTCOMES.some(function (o) { return o.token === r.verdict.token; })) return;
+        // RECORD-ONLY. Nothing of theirs to test, something of the record's to show.
+        // Re-filed, not dropped, and re-filed under a token that carries no verdict.
+        var recordOnly = (!r.stance.label && r.verdict.token === 'limited');
+        if (recordOnly && !(keys && keys[r.key])) return;
+        tok = recordOnly ? 'record' : r.verdict.token;
+        // A ROW WITH A RESULT THAT WORD VS ACTION DOES NOT TEST is not filed as a
+        // result: the stated word on it was written up from the record itself (the
+        // circularity rule), or its verdict came from the public record rather than
+        // a formal act, or there is no stated word of theirs on it at all. Its own
+        // verdict is untouched; it sits with the coverage piles, so the three
+        // result buckets are exactly the tested set the percentage is taken over.
+        if (!recordOnly && JUDGED_TOKENS[tok]) {
+          if (r.stance.label) tok = 'limited';
+          else { tok = 'record'; recordOnly = true; }
+        }
+      }
+      (b.buckets[tok] = b.buckets[tok] || []).push(row);
       b.total++;
       if (recordOnly) { b.formal++; return; }
       // Below this line every row has a documented stated position behind it, and
@@ -2364,21 +2401,178 @@
       // returned above rather than being guarded four times.
       b.word++;
       if (tok !== 'limited') b.judged++;
-      if (isThin(r)) b.thin++;
-      if (isContested(r)) {
+      if (isThin(row)) b.thin++;
+      if (isContested(row)) {
         b.contested++;
         // The row this whole pass exists for: the word and the action pointed the
         // same way, and the action did not survive. Counted separately because it
         // is invisible in every other tally on the card — it lands in the green
         // bucket, it raises the mean, and nothing about it is disputed except
         // whether it still stands.
-        if (r.verdict.token === 'consistent') b.contestedClean++;
+        if (row.verdict.token === 'consistent') b.contestedClean++;
       }
-      if (isTension(r)) b.tension++;
+      if (isTension(row)) b.tension++;
     });
     var res = b.total ? b : null;
-    _obCache[ck] = { ranked: ranked, keys: keys, val: res };
+    _obCache[ck] = { ranked: ranked, keys: keys, sig: iv.sig, val: res };
     return res;
+  }
+  var JUDGED_TOKENS = { contradicts: 1, mixed: 1, consistent: 1 };
+  // A row shown under a verdict it did not carry itself — only ever the matched
+  // Locker claim's formal verdict, above. A copy: the row model is read-only.
+  function withVerdict(r, tok, score) {
+    var cs = C();
+    var V = (cs && cs.VERDICTS && cs.VERDICTS[tok]) || {};
+    var out = {};
+    for (var k in r) if (Object.prototype.hasOwnProperty.call(r, k)) out[k] = r[k];
+    out.verdict = { token: tok, label: V.label || r.verdict.label, cls: V.cls || r.verdict.cls,
+                    ico: V.ico || r.verdict.ico, color: V.color || r.verdict.color,
+                    score: (typeof score === 'number') ? score : null, basis: 'formal-match' };
+    out.tested = true;
+    return out;
+  }
+
+  // ── ONE TESTED SET: THE ISSUES THE SECTION SHOWS ───────────────────────────
+  // The letterhead chip printed "74% · 48 of 53 tested" over a section whose
+  // buckets read "across 39 issues". Two denominators for one read: the chip's
+  // came from read()'s STATEMENT ledger — several statements per issue, pledge
+  // ledger resolutions included — and the section's from the ISSUE rows. So the
+  // tested set is now defined once, here, and both read() and the buckets use it:
+  //
+  //     an ISSUE with a stated position of theirs (independent word on the
+  //     ledger — never word written up from the record, which cannot test it)
+  //     AND a formal-record Direction Match verdict: the issue row's own
+  //     Contradicted / Mixed / Backed up from a formal act, or — where the row
+  //     has none — a Locker claim's verdict against the measure it named.
+  //
+  // `tested` maps those keys to the verdict; `eligible` is every issue with such
+  // stated word. read() scores `tested`, one entry per issue, with that verdict
+  // and score — so the percentage, the chip's "X of Y", the tallies' "across N
+  // tested issues" and the three result buckets are one population. No verdict
+  // is re-derived: every token is the row's, or the claim's own formal match.
+  //
+  // The ledger half: which issues carry independent stated word, and which of
+  // them carry a Locker claim matched to a formal record (with that test).
+  function ledgerTested(pid, p) {
+    var items = [];
+    try { items = wordLedger(pid, p) || []; } catch (e) { items = []; }
+    items.forEach(function (it) { if (it.kind === 'position-verified') it.test = testOf(it, pid); });
+    return items;
+  }
+  function issueSetOf(pid, items, ranked) {
+    var rows = {};
+    (ranked || []).forEach(function (r) { if (r && r.key) rows[r.key] = r; });
+    var out = { tested: {}, eligible: {}, nTested: 0, nEligible: 0, rows: rows, sig: '' };
+    var sig = [];
+    var onLedger = {};
+    (items || []).forEach(function (it) {
+      var k = it.issueKey;
+      if (!k) return;
+      onLedger[k] = true;
+      if (it.kind === 'position-derived') return;
+      if (!out.eligible[k]) { out.eligible[k] = true; out.nEligible++; }
+    });
+    // A row carrying a stated position the word ledger does not hold at all is
+    // still stated word: it is eligible on the row's own stance. Only an issue
+    // whose ledger word is ALL record-derived is kept out (the circularity rule).
+    (ranked || []).forEach(function (r) {
+      if (!r || !r.key || onLedger[r.key] || out.eligible[r.key] || !(r.stance && r.stance.label)) return;
+      out.eligible[r.key] = true; out.nEligible++;
+    });
+    Object.keys(out.eligible).forEach(function (k) {
+      var r = rows[k];
+      if (r && r.verdict && JUDGED_TOKENS[r.verdict.token] && (!r.verdict.basis || r.verdict.basis === 'action')) {
+        out.tested[k] = rowTest(r);
+      } else {
+        for (var i = 0; i < items.length; i++) {
+          var it = items[i];
+          if (it.issueKey === k && it.kind === 'position-verified' && it.test && it.test.state === 'tested') {
+            out.tested[k] = { state: 'tested', score: it.test.score, token: it.test.token,
+                              evidence: it.test.evidence, judged: it.test.judged, basis: 'formal-match',
+                              issueRow: true, verified: true };
+            break;
+          }
+        }
+      }
+      if (out.tested[k]) { out.nTested++; sig.push(k + ':' + out.tested[k].token); }
+    });
+    out.sig = sig.sort().join(',') + '|' + Object.keys(out.eligible).sort().join(',');
+    return out;
+  }
+  // The set for a pid, as the section reads it (the roster's person record).
+  // null when the row model cannot be reached (a page or harness that loads this
+  // file without the consistency lane); read() then keeps its statement ledger.
+  function sectionIssueSet(pid, p) {
+    var ranked = rankedRows(pid);
+    if (!ranked) return null;
+    return issueSetOf(pid, ledgerTested(pid, briefPerson(pid, p)), ranked);
+  }
+  // The row's verdict as a test result. The score is the row's own; a row whose
+  // score was cleared by its Mixed floor falls back to the score its resolved
+  // token stands for, never to a new judgement.
+  var TOKEN_SCORE = { consistent: 100, contradicts: 0, mixed: 50 };
+  function rowTest(r) {
+    var v = r.verdict || {};
+    var score = (typeof v.score === 'number' && isFinite(v.score)) ? v.score : TOKEN_SCORE[v.token];
+    var basis = (r.lane === 'exec') ? 'exec-actions' : ((r.ov && r.ov.sources && r.ov.sources[0]) || 'record');
+    return { state: 'tested', score: score, token: v.token, evidence: evidenceOf(r.ov),
+             judged: judgedOf(r.ov), basis: basis, issueRow: true };
+  }
+  // Puts the statement ledger onto the issue set. One representative statement
+  // per eligible issue carries the issue: the matched Locker claim when it is what
+  // supplies the verdict, otherwise a stated position before a tracked pledge,
+  // then tier order, then ledger order. Every other statement on that issue is
+  // spoken for, and record-derived word is reported as such, exactly as before.
+  var TIER_RANK = { pledge: 0, position: 1, branding: 2 };
+  function repRank(it, t) {
+    if (t && t.verified && it.kind === 'position-verified') return -1;
+    var r = (it.kind === 'pledge-tracked') ? 10 : 0;
+    return r + (TIER_RANK[it.tier] == null ? 9 : TIER_RANK[it.tier]);
+  }
+  function alignToIssues(items, set) {
+    var rep = {};
+    items.forEach(function (it) {
+      var k = it.issueKey;
+      if (!k || !set.eligible[k] || it.kind === 'position-derived') return;
+      var cur = rep[k];
+      if (!cur || repRank(it, set.tested[k]) < repRank(cur, set.tested[k])) rep[k] = it;
+    });
+    // An eligible issue with no statement on the ledger (its stance is the row's)
+    // gets a position entry built from that stance, so nothing the section counts
+    // is missing from the read.
+    var seq = items.length;
+    Object.keys(set.eligible).forEach(function (k) {
+      if (rep[k]) return;
+      var r = set.rows[k] || {};
+      var it = { id: 'wa-ix-' + k, seq: seq++, tier: 'position', kind: 'position', scored: true,
+                 weight: TIERS.position.weight, issueKey: k,
+                 label: (r.stance && r.stance.label) || r.label || k, text: '', sources: [] };
+      items.push(it);
+      rep[k] = it;
+    });
+    items.forEach(function (it) {
+      var prior = it.test;
+      var k = it.issueKey;
+      if (k && rep[k] === it) {
+        it.scored = true;
+        var row = set.rows[k];
+        if (set.tested[k]) it.test = set.tested[k];
+        else if ((prior && prior.reason === 'warming') ||
+                 (row && row.verdict && row.verdict.token === 'pending')) {
+          it.test = { state: 'untested', reason: 'warming', token: 'pending' };
+        }
+        // Untested statements keep the reason they already had (an unresolved
+        // pledge stays "unresolved" — the gap list prints it).
+        else if (prior && prior.state === 'untested') it.test = prior;
+        else it.test = { state: 'untested', reason: 'no_action_yet', token: 'no_record' };
+        return;
+      }
+      it.scored = false;
+      if (prior && prior.state === 'untested') return;
+      it.test = { state: 'untested', token: 'no_record',
+                  reason: it.kind === 'position-derived' ? 'record_derived'
+                        : (!k ? 'not_issue_linked' : (set.eligible[k] ? 'spoken_for' : 'no_action_yet')) };
+    });
   }
   // The bucketed index, memoized alongside the ranked rows it groups — see THE
   // DERIVATION EPOCH in stance-helpers.js. Six surfaces ask for it while one
@@ -2746,6 +2940,23 @@
     return bits.join(', ') || _plural(b.total, 'issue');
   }
 
+  // THE TALLY'S HEADLINE COUNT IS THE TESTED SET. "Across N issues" used to be
+  // every row in the index — the coverage piles included — while the percentage
+  // beside it was taken over a different set again. N is now b.judged: the issues
+  // in Contradicted + Mixed + Backed up, which is exactly the set read() scores
+  // (sectionIssueSet), so the three result buckets add up to N and N is the X in
+  // the chip's "X of Y tested". The coverage piles are still listed and still
+  // reachable; the caption names them as outside the tested set.
+  function tallyCaption(b, lead) {
+    var n = b.judged || 0;
+    var bits = [];
+    var lim = (b.buckets.limited || []).length, rec = (b.buckets.record || []).length;
+    if (lim) bits.push(lim + ' not testable yet');
+    if (rec) bits.push(rec + ' record only');
+    return lead + ' ' + n + ' tested issue' + (n === 1 ? '' : 's') +
+      (bits.length ? ' (+' + bits.join(', ') + ')' : '');
+  }
+
   function tallyItemsHtml(b, uid, openTok, gate, extra) {
     return COMP_ORDER.map(function (t) {
       var o = outcomeFor(t);
@@ -2753,13 +2964,16 @@
       var n = (b.buckets[t] || []).length;
       var on = t === openTok;
       var issues = n + ' issue' + (n === 1 ? '' : 's');
+      // A result bucket is a share of the tested set; a coverage pile is not in it.
+      var ofWhat = JUDGED_TOKENS[t] ? (' of ' + b.judged + ' tested')
+                                    : (', outside the ' + b.judged + ' tested');
       return '<li class="pdxwa-tally-i' + (n ? '' : ' is-zero') + '" style="--pdxwa-col:' + o.col + ';">' +
           '<button type="button" class="pdxwa-tally-b' + (on ? ' is-on' : '') + '"' +
             ' data-pdxwa-seg="' + esc(o.token) + '" data-pdxwa-seg-uid="' + esc(uid) + '"' +
             ' data-pdxwa-gate="' + esc(gate) + '"' + (extra || '') +
             ' aria-pressed="' + (on ? 'true' : 'false') + '"' +
             ' aria-controls="' + esc(uid + '-p-' + _idPart(o.token)) + '"' +
-            ' aria-label="' + esc(o.short + ': ' + issues + ' of ' + b.total +
+            ' aria-label="' + esc(o.short + ': ' + issues + ofWhat +
               '. Opens that list of issues below.') + '">' +
             '<span class="pdxwa-tally-n">' + n + '</span>' +
             '<span class="pdxwa-tally-lbl">' + esc(o.short) + '</span>' +
@@ -2780,7 +2994,7 @@
       return '' +
         '<div class="pdxwa-tally">' +
           '<div class="pdxwa-tally-k">' +
-            esc('Across ' + b.total + ' issue' + (b.total === 1 ? '' : 's') + ' — tap one to open its list') +
+            esc(tallyCaption(b, 'Across') + ' — tap one to open its list') +
           '</div>' +
           '<ul class="pdxwa-tally-l">' +
             tallyItemsHtml(b, uid, openTok, 'tally', '') +
@@ -2873,8 +3087,7 @@
       return '' +
         '<div class="pdxwa-tally pdxwa-htally">' +
           '<div class="pdxwa-tally-k">' +
-            esc('The shape behind it — across ' + b.total + ' issue' +
-              (b.total === 1 ? '' : 's') + ', tap one to open its list') +
+            esc('The shape behind it — ' + tallyCaption(b, 'across') + ', tap one to open its list') +
           '</div>' +
           '<ul class="pdxwa-tally-l">' +
             tallyItemsHtml(b, uid, openTok, 'header', ' data-pdxwa-outside="' + esc(uid) + '"') +
@@ -7145,6 +7358,12 @@
     // carry two different "tested" counts for one person. See the wall over it.
     figure: figure,
     fractionOf: fractionOf,
+    // 📏 …AND THE SET ITSELF. sectionIssueSet(pid) is the tested-issue definition
+    // read() scores and the ⚖️ section's buckets display; outcomeBuckets(pid) is
+    // that bucketing. Published read-only so a harness can hold the chip's X, the
+    // tally's N and the three result buckets to one population.
+    sectionIssueSet: sectionIssueSet,
+    outcomeBuckets: outcomeBuckets,
     // 📏 …AND THE REPAINT LIST THE FIGURE TRAVELS ON. Two surfaces printing one
     // object still hold different ages of it if they hear about the arrival at
     // different times. HERO_REPAINT is the four moments a record can land (see
