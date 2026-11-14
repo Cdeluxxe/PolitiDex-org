@@ -1,6 +1,6 @@
 {
   "_generatedBy": "scripts/gen-issue-keys.mjs (from ISSUE_MAP in alignment-tool.js)",
-  "count": 125,
+  "count": 128,
   "keys": [
     "america_first",
     "america_first_fp",
@@ -40,6 +40,7 @@
     "energy_production",
     "enviro_balance",
     "enviro_energy",
+    "epstein_files_transparency",
     "family_support",
     "foreign_balance",
     "free_speech",
@@ -83,6 +84,7 @@
     "lower_taxes",
     "medical_freedom",
     "national_debt",
+    "no_new_wars",
     "paid_leave",
     "permitting_reform",
     "power_of_purse",
@@ -92,6 +94,7 @@
     "prop_tax",
     "property_rights",
     "property_tax",
+    "public_health_vs_chemical_liability",
     "public_schools",
     "reform_balance",
     "religious_liberty",
@@ -693,6 +696,9 @@
       "all of the above",
       "domestic energy",
       "baseload"
+    ],
+    "epstein_files_transparency": [
+      "epstein files transparency act"
     ],
     "family_support": [
       "child tax credit",
@@ -1319,6 +1325,10 @@
       "spending",
       "fiscal"
     ],
+    "no_new_wars": [
+      "no new wars pledge",
+      "start no new wars"
+    ],
     "paid_leave": [
       "paid leave",
       "family leave",
@@ -1443,6 +1453,14 @@
       "fixed income",
       "homestead",
       "escrow"
+    ],
+    "public_health_vs_chemical_liability": [
+      "chemical company liability",
+      "chemical liability",
+      "glyphosate",
+      "failure to warn",
+      "failure-to-warn",
+      "passive receiver"
     ],
     "public_schools": [
       "public education",

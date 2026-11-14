@@ -1,0 +1,42 @@
+{
+  "_comment": "The related-issues.js edits of the accountability stances pass (Nov 2026): the three new keys' pairs, both ways, and their note. Each entry is the exact text before and after. Read by v103-chrome-seams.mjs#withoutDeclaredRelatedIssues.",
+  "pass": "accountability_stances_nov2026",
+  "edits": [
+    {
+      "before": "\n    cost_living: ['child_care', 'paid_leave', 'family_support', 'tax_middle_class', 'tariffs_china', 'tariffs_growth', 'tariffs_prices', 'tariffs_authority', 'econ_trade', 'rural_ag', 'housing', 'housing_build', 'housing_support', 'housing_first_time', 'homeless', 'property_tax', 'prop_tax', 'healthcare_costs', 'energy_production', 'enviro_energy', 'datacenter_power', 'climate_action'],",
+      "after": "\n    cost_living: ['child_care', 'paid_leave', 'family_support', 'tax_middle_class', 'tariffs_china', 'tariffs_growth', 'tariffs_prices', 'tariffs_authority', 'econ_trade', 'rural_ag', 'housing', 'housing_build', 'housing_support', 'housing_first_time', 'homeless', 'property_tax', 'prop_tax', 'healthcare_costs', 'energy_production', 'enviro_energy', 'datacenter_power', 'climate_action', 'public_health_vs_chemical_liability'],"
+    },
+    {
+      "before": "\n    gov_regulation: ['lands_preserve', 'lands_keep_public', 'lands_energy', 'energy_production', 'permitting_reform', 'climate_action', 'enviro_balance', 'econ_growth', 'econ_smallbiz', 'econ_balance', 'econ_workers', 'econ_corp_account', 'lower_taxes', 'civil_service_control', 'gov_waste', 'housing_build'],",
+      "after": "\n    gov_regulation: ['lands_preserve', 'lands_keep_public', 'lands_energy', 'energy_production', 'permitting_reform', 'climate_action', 'enviro_balance', 'econ_growth', 'econ_smallbiz', 'econ_balance', 'econ_workers', 'econ_corp_account', 'lower_taxes', 'civil_service_control', 'gov_waste', 'housing_build', 'public_health_vs_chemical_liability'],"
+    },
+    {
+      "before": "\n    healthcare: ['social_security', 'national_debt', 'cut_spending', 'gov_balance', 'healthcare_market', 'healthcare_costs', 'health_balance', 'health_drug_prices', 'health_rural', 'medical_freedom', 'health_mental', 'homeless', 'veterans'],",
+      "after": "\n    healthcare: ['social_security', 'national_debt', 'cut_spending', 'gov_balance', 'healthcare_market', 'healthcare_costs', 'health_balance', 'health_drug_prices', 'health_rural', 'medical_freedom', 'health_mental', 'homeless', 'veterans', 'public_health_vs_chemical_liability'],"
+    },
+    {
+      "before": "\n    gov_transparency: ['dev_district_finance', 'prop_tax', 'property_tax', 'housing_build', 'term_limits', 'campaign_finance', 'stock_trading_ban', 'reform_balance', 'congress_oversight', 'audit_spending', 'gov_waste', 'cut_spending'],",
+      "after": "\n    gov_transparency: ['dev_district_finance', 'prop_tax', 'property_tax', 'housing_build', 'term_limits', 'campaign_finance', 'stock_trading_ban', 'reform_balance', 'congress_oversight', 'audit_spending', 'gov_waste', 'cut_spending', 'epstein_files_transparency'],"
+    },
+    {
+      "before": "\n    restraint: ['strong_defense', 'foreign_balance', 'america_first', 'america_first_fp', 'veterans', 'israel_support', 'iran_policy', 'ukraine_policy', 'yemen_policy', 'venezuela_policy', 'war_powers'],",
+      "after": "\n    restraint: ['strong_defense', 'foreign_balance', 'america_first', 'america_first_fp', 'veterans', 'israel_support', 'iran_policy', 'ukraine_policy', 'yemen_policy', 'venezuela_policy', 'war_powers', 'no_new_wars'],"
+    },
+    {
+      "before": "\n    war_powers: ['israel_support', 'iran_policy', 'ukraine_policy', 'yemen_policy', 'venezuela_policy', 'restraint', 'strong_defense', 'america_first_fp', 'checks_balances', 'judicial_check', 'power_of_purse', 'congress_oversight', 'tariffs_authority', 'civil_service_control', 'scotus_reform', 'guard_authority'],",
+      "after": "\n    war_powers: ['israel_support', 'iran_policy', 'ukraine_policy', 'yemen_policy', 'venezuela_policy', 'restraint', 'strong_defense', 'america_first_fp', 'checks_balances', 'judicial_check', 'power_of_purse', 'congress_oversight', 'tariffs_authority', 'civil_service_control', 'scotus_reform', 'guard_authority', 'no_new_wars'],"
+    },
+    {
+      "before": "\n    strong_defense: ['cut_spending', 'national_debt', 'foreign_balance', 'restraint', 'america_first', 'america_first_fp', 'veterans', 'israel_support', 'iran_policy', 'ukraine_policy', 'yemen_policy', 'venezuela_policy', 'war_powers'],",
+      "after": "\n    strong_defense: ['cut_spending', 'national_debt', 'foreign_balance', 'restraint', 'america_first', 'america_first_fp', 'veterans', 'israel_support', 'iran_policy', 'ukraine_policy', 'yemen_policy', 'venezuela_policy', 'war_powers', 'no_new_wars'],"
+    },
+    {
+      "before": "    guard_authority: ['states_federal_power', 'state_standing', 'lands_local', 'war_powers', 'checks_balances']\n  };",
+      "after": "    guard_authority: ['states_federal_power', 'state_standing', 'lands_local', 'war_powers', 'checks_balances'],\n    public_health_vs_chemical_liability: ['cost_living', 'gov_regulation', 'healthcare'],\n    epstein_files_transparency: ['gov_transparency'],\n    no_new_wars: ['restraint', 'war_powers', 'strong_defense']\n  };"
+    },
+    {
+      "before": "\n   · ONE MAP. MAP below is the only place",
+      "after": "\n   · ACCOUNTABILITY PAIRS (Nov 2026). Three keys joined the register with the\n     accountability stances pass (db/accountability-stances-2026-11.json), each\n     paired both ways with the existing keys whose ground it shares: Public\n     Health vs. Chemical Company Liability with the cost of living, federal red\n     tape and healthcare access; Epstein Files Transparency with Transparency &\n     Anti-Corruption; No New Wars with Diplomacy & Restraint, Congress and War\n     Powers and Peace Through Strength. Each new key is last in the existing\n     keys' lists and has its own list at the end of the map.\n\n   · ONE MAP. MAP below is the only place"
+    }
+  ]
+}

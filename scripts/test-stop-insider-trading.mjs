@@ -60,6 +60,7 @@ import vm from "node:vm";
 import { ENGINE_FILES, makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 import { measureAddresses } from "./vr-measure-addresses.mjs";
+import { withoutAccountabilityRegisterBlock, withoutAccountabilityIssueKeys } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -160,8 +161,8 @@ section("1 · nothing moved");
     eq(JSON.stringify(seedOf()), JSON.stringify(seedOf(JSON.parse(head).measures)), "seed: H.R. 7008 is byte-identical to HEAD");
     const HE = tableOf(headCons, "_DOS_EFFECT");
     for (const k of KEYS) eq(lineOf(k), HE[`${NUM}|119|${k}`], `${k}: its line is the one already shipped`);
-    ok(gitShow("issue-map.js") === R("issue-map.js"), "issue-map.js is unchanged: no new issue key");
-    ok(gitShow("db/issue-keys.json") === R("db/issue-keys.json"), "db/issue-keys.json is unchanged");
+    ok(gitShow("issue-map.js") === withoutAccountabilityRegisterBlock(R("issue-map.js")) /* the accountability pass's declared keys aside */, "issue-map.js is unchanged: no new issue key");
+    ok(gitShow("db/issue-keys.json") === withoutAccountabilityIssueKeys(R("db/issue-keys.json")), "db/issue-keys.json is unchanged");
   }
 }
 

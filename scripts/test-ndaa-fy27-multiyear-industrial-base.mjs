@@ -46,6 +46,7 @@ import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 import { DECLARED_STANCE_PASSES, withoutHeroCrawl, carveDeclaredAdmissions, withoutDeclaredRelatedIssues } from "./v103-chrome-seams.mjs";
+import { withoutAccountabilityKeyList, withoutAccountabilityVocab } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -145,7 +146,7 @@ section("1 · the issue key exists, and no key was added");
   for (const v of VOCABS) {
     const b = BASE(v);
     if (b == null) continue;
-    const keysOf = (src) => { const w = makeSandbox(); const c = vm.createContext(w); try { vm.runInContext(src, c); } catch { /* partial */ } return Object.keys(w.ISSUE_MAP || {}).sort().join(","); };
+    const keysOf = (src) => { const w = makeSandbox(); const c = vm.createContext(w); try { vm.runInContext(src, c); } catch { /* partial */ } return withoutAccountabilityKeyList(Object.keys(w.ISSUE_MAP || {})).sort().join(","); };
     eq(keysOf(R(v)), keysOf(b), `${v}: the issue-key set changed`);
   }
   ok(/Cut Federal Spending & Reduce Debt was considered and not used/.test(REC._note || "") && /No new key and no related-issues pair is added/.test(REC._note || ""), "the record does not say why the key was chosen");
@@ -424,6 +425,8 @@ section("7 · nothing else moved; declared; no shell bump; no migration");
       "person.html", "index.html", "issue.html", "ballot.html", "netlify.toml", "_redirects"]) {
       const b = BASE(f);
       let now = null; try { now = R(f); } catch { /* absent */ }
+      // The accountability stances pass's declared vocabulary (v103-chrome-seams.mjs) is that pass's product.
+      now = withoutAccountabilityVocab(f, now);
       // index.html: the generated record strip follows stance coverage
       // (scripts/gen-hero-showcase.mjs); everything else stays byte-pinned.
       if (f === "index.html") { eq(withoutHeroCrawl(now), withoutHeroCrawl(b), `${f} changed outside the generated record strip`); continue; }

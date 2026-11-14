@@ -42,6 +42,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
+import { ACCOUNTABILITY_KEYS } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (p) => readFileSync(join(ROOT, p), "utf8");
@@ -704,8 +705,10 @@ if (sum && sumAll) {
   // closed that. Asserting `> 0` on live data would now be asserting that a coverage
   // hole stays open, which is the opposite of what this file is for — so the count is
   // pinned at zero here and the DISCLOSURE is proved on a pool that reopens a hole.
-  ok(A.noActionFound === 0,
-    `every stated position has at least one action on file in the current-term scope (noActionFound ${A.noActionFound})`);
+  // The accountability stances pass (Nov 2026) reopened exactly three holes: its
+  // stated positions on three new keys have no action on file yet.
+  ok(A.noActionFound === ACCOUNTABILITY_KEYS.length,
+    `every stated position outside the accountability pass's three keys has at least one action on file in the current-term scope (noActionFound ${A.noActionFound})`);
   {
     const pmap = ctx.window._polPositionMap("trump", ctx.window.CMP_DATA.trump) || {};
     const holeKey = Object.keys(pmap).sort().find((k) => {

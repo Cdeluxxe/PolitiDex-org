@@ -1,6 +1,6 @@
 {
   "_generatedBy": "scripts/gen-issue-core-categories.mjs (from CORE_NATIONAL_ISSUES in issue-map.js)",
-  "count": 125,
+  "count": 128,
   "categoryOf": {
     "america_first": "foreign_policy_defense",
     "america_first_fp": "foreign_policy_defense",
@@ -40,6 +40,7 @@
     "energy_production": "climate_energy",
     "enviro_balance": "climate_energy",
     "enviro_energy": "climate_energy",
+    "epstein_files_transparency": "checks_and_balances",
     "family_support": "economy_cost_of_living",
     "foreign_balance": "foreign_policy_defense",
     "free_speech": "civil_rights_culture",
@@ -83,6 +84,7 @@
     "lower_taxes": "spending_debt_waste",
     "medical_freedom": "healthcare",
     "national_debt": "spending_debt_waste",
+    "no_new_wars": "foreign_policy_defense",
     "paid_leave": "economy_cost_of_living",
     "permitting_reform": "climate_energy",
     "power_of_purse": "checks_and_balances",
@@ -92,6 +94,7 @@
     "prop_tax": "economy_cost_of_living",
     "property_rights": "climate_energy",
     "property_tax": "economy_cost_of_living",
+    "public_health_vs_chemical_liability": "healthcare",
     "public_schools": "education_parental",
     "reform_balance": "checks_and_balances",
     "religious_liberty": "civil_rights_culture",

@@ -3,6 +3,58 @@ import { readFileSync as _readFileSync } from "node:fs";
 const _W6_REC = JSON.parse(_readFileSync(new URL("../db/newly-elected-state-legislative-stated-2026-11-wave6.json", import.meta.url), "utf8"));
 const _GAP_REC = JSON.parse(_readFileSync(new URL("../db/newly-elected-state-legislative-gap-fill-2026-11.json", import.meta.url), "utf8"));
 const _W7_REC = JSON.parse(_readFileSync(new URL("../db/newly-elected-state-legislative-stated-2026-11-wave7.json", import.meta.url), "utf8"));
+// The accountability stances pass (Nov 2026). The record names members by its own
+// id and issues in its own spelling; ACCOUNTABILITY_PID_OF and accountabilityIssueKey
+// read them onto the roster's pid and the register's key (hyphens become underscores).
+const _ACC_REC = JSON.parse(_readFileSync(new URL("../db/accountability-stances-2026-11.json", import.meta.url), "utf8"));
+export const ACCOUNTABILITY_PID_OF = { "trump-donald": "trump" };
+export const accountabilityIssueKey = (issue) => String(issue).replace(/-/g, "_");
+export const ACCOUNTABILITY_RECORD = _ACC_REC;
+// alignment-tool.js or issue-map.js with exactly the accountability pass's
+// register block set aside: its three commented ISSUE_MAP entries and the three
+// keys it appended to CORE_NATIONAL_ISSUES. Any other edit still compares.
+export const ACCOUNTABILITY_KEYS = ["public_health_vs_chemical_liability", "epstein_files_transparency", "no_new_wars"];
+// db/issue-keys.json with the accountability pass's three keys set aside and its
+// count put back; any other change to the allow-list still compares.
+export function withoutAccountabilityIssueKeys(src) {
+  if (src == null) return src;
+  let o;
+  try { o = JSON.parse(String(src)); } catch { return src; }
+  if (!Array.isArray(o.keys) || !ACCOUNTABILITY_KEYS.every((k) => o.keys.includes(k))) return src;
+  o.keys = o.keys.filter((k) => !ACCOUNTABILITY_KEYS.includes(k));
+  if (typeof o.count === "number") o.count = o.keys.length;
+  for (const v of Object.values(o)) if (v && typeof v === "object" && !Array.isArray(v)) for (const k of ACCOUNTABILITY_KEYS) delete v[k];
+  return JSON.stringify(o, null, 2) + "\n";
+}
+// db/issue-core-categories.json the same way: the three keys out of
+// categoryOf, the count put back.
+export function withoutAccountabilityCoreCategories(src) {
+  if (src == null) return src;
+  let o;
+  try { o = JSON.parse(String(src)); } catch { return src; }
+  if (!o.categoryOf || !ACCOUNTABILITY_KEYS.every((k) => k in o.categoryOf)) return src;
+  for (const k of ACCOUNTABILITY_KEYS) delete o.categoryOf[k];
+  if (typeof o.count === "number") o.count = Object.keys(o.categoryOf).length;
+  return JSON.stringify(o, null, 2) + "\n";
+}
+// One call for a byte pin: the file's text with exactly the accountability
+// pass's vocabulary set aside (the register, its two generated JSON mirrors);
+// any other file is returned as it is.
+export function withoutAccountabilityVocab(file, src) {
+  const f = String(file);
+  if (f === "alignment-tool.js" || f === "issue-map.js") return withoutAccountabilityRegisterBlock(src);
+  if (f === "db/issue-keys.json") return withoutAccountabilityIssueKeys(src);
+  if (f === "db/issue-core-categories.json") return withoutAccountabilityCoreCategories(src);
+  return src;
+}
+// An issue-key list with the accountability pass's three keys taken out.
+export const withoutAccountabilityKeyList = (keys) => (keys || []).filter((k) => !ACCOUNTABILITY_KEYS.includes(k));
+export function withoutAccountabilityRegisterBlock(src) {
+  if (src == null) return src;
+  return String(src)
+    .replace(/ {6}\/\/ ACCOUNTABILITY STANCES PASS \(Nov 2026[^\n]*\n(?: {6}\/\/[^\n]*\n)*? {6}(?:public_health_vs_chemical_liability|epstein_files_transparency|no_new_wars): [^\n]*\n/g, "")
+    .replace(/,'(?:public_health_vs_chemical_liability|epstein_files_transparency|no_new_wars)'/g, "");
+}
 /**
  * scripts/v103-chrome-seams.mjs
  *
@@ -3911,6 +3963,15 @@ export const DECLARED_STANCE_PASSES = [
     pass: "trump_massie_contrast_nov2026",
     pids: ["trump", "massie"],
   },
+  {
+    // The accountability stances pass (Nov 2026;
+    // db/accountability-stances-2026-11.json): three sourced campaign-claim cards
+    // for Donald Trump on three keys this pass added to the register —
+    // public_health_vs_chemical_liability, epstein_files_transparency and
+    // no_new_wars — appended after his existing cards, which stay byte-identical.
+    pass: "accountability_stances_nov2026",
+    pids: _ACC_REC.members.map((m) => ACCOUNTABILITY_PID_OF[m.id]),
+  },
 ];
 /**
  * The gap-fill pass's additions by pid: the issue keys appended after each
@@ -4281,6 +4342,10 @@ export function assertRosterOfficeIsTheOnlyMove(api, headSrc, treeSrc, allowed, 
 export function assertParentTableIsTheOnlyMove(api, headSrc, treeSrc, wave) {
   const { ok, eq } = api;
   const tag = wave ? `${wave}: ` : "";
+  // The accountability stances pass's declared register block (three keys and
+  // their core slots) is that pass's product, pinned by its own suite; it is set
+  // aside until it is at HEAD, and every other line still compares.
+  if (headSrc != null && !/\n {6}no_new_wars: /.test(String(headSrc))) treeSrc = withoutAccountabilityRegisterBlock(treeSrc);
   const A = carveParentTable(headSrc), B = carveParentTable(treeSrc);
   if (!ok(!!A && !!B, `${tag}alignment-tool.js no longer carries the CORE NATIONAL ISSUES banner this region is cut at — widen the anchor here, do not loosen the check`)) return null;
 
@@ -4395,7 +4460,10 @@ export function relatedIssuesMapOnly(src) {
  * once, or nothing is set aside and the caller's byte pin compares the file
  * as it stands — so any other edit to the module still fails that pin.
  */
-const _RI_EDITS = JSON.parse(_readFileSync(new URL("./related-issues-declared-edits.json", import.meta.url), "utf8")).edits;
+// The accountability stances pass's edits (…-accountability-2026-11.json) come
+// first: a later pass's edits are set aside before an earlier one's.
+const _RI_EDITS = JSON.parse(_readFileSync(new URL("./related-issues-declared-edits-accountability-2026-11.json", import.meta.url), "utf8")).edits
+  .concat(JSON.parse(_readFileSync(new URL("./related-issues-declared-edits.json", import.meta.url), "utf8")).edits);
 export function withoutDeclaredRelatedIssues(src) {
   if (src == null) return src;
   let s = String(src);

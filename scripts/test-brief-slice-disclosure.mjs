@@ -46,6 +46,7 @@ import { declaredStanceMovesAtHead } from "./v103-chrome-seams.mjs";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 import { withDeclaredNoPole } from "./head-no-pole.mjs";
+import { withoutAccountabilityVocab } from "./v103-chrome-seams.mjs"; // the accountability pass's declared vocabulary
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -549,7 +550,7 @@ section("6 · the gate reads published counts, and moves nothing");
         `${f} gained a line of the slice pass — the sentence belongs to the renderer alone`);
       continue;
     }
-    eq(R(f), h, `${f} changed in a copy-only pass`);
+    eq(withoutAccountabilityVocab(f, R(f)), h, `${f} changed in a copy-only pass`);
   }
 
   // The service worker ships the renderer and its stylesheet as a pair.

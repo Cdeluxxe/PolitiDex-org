@@ -4,7 +4,7 @@
 // The scorer (stance-score-core.mjs) keeps its hand-calibrated rules for
 // cost_living (the Talarico ground truth) and healthcare_costs. Every OTHER key
 // in the issue register (ISSUE_MAP in alignment-tool.js → db/issue-keys.json,
-// the same 125 keys the related-issues map relates) gets its rules from the
+// the same 128 keys the related-issues map relates) gets its rules from the
 // compact spec below. The rule engine is unchanged: R1–R6 and WEIGHTS apply to
 // every topic alike; a topic only supplies what counts as a mention, an
 // explicit statement and an implication.
@@ -736,6 +736,21 @@ export const ISSUE_TOPIC_VOCAB = {
   reform_balance: { label: "Practical Government Reform", pos: "Make government work better through common-sense efficiency, ethics and accountability",
     terms: String.raw`government (?:that|which) works|common[- ]sense reform|good government|efficiency`,
     pro: [String.raw`\bmak\w{0,3}\b${GAP}\bgovernment work (?:better|for)\b`, String.raw`\bcommon[- ]sense (?:government )?reforms?\b`, String.raw`\bgood government\b`] },
+  // The accountability stances pass (Nov 2026): three keys added to the register.
+  public_health_vs_chemical_liability: { label: "Public Health vs. Chemical Company Liability", pos: "Keep chemical and pesticide makers answerable in court for health harm, including state failure-to-warn suits",
+    terms: String.raw`chemical (?:company|companies|makers?|manufacturers?) liability|failure[- ]to[- ]warn|glyphosate|roundup lawsuits?|passive receivers?|pesticide (?:makers?|liability|labels?)`,
+    up: [String.raw`(?:the )?right to sue (?:chemical|pesticide) (?:companies|makers|manufacturers)`, String.raw`(?:chemical|pesticide) (?:company |maker |manufacturer )?liability`, String.raw`failure[- ]to[- ]warn (?:suits|lawsuits|claims)`],
+    downCon: [String.raw`(?:roundup|glyphosate|failure[- ]to[- ]warn) (?:lawsuits|suits|claims)`, String.raw`passive receiver liability`] },
+  epstein_files_transparency: { label: "Epstein Files Transparency", pos: "Release the federal government’s Epstein files in full and on the deadline the law sets",
+    terms: String.raw`epstein (?:files|documents|records)|epstein files transparency act`,
+    up: [String.raw`(?:the )?(?:full )?release of (?:all )?(?:the )?epstein (?:files|documents|records)`, String.raw`(?:the )?epstein files transparency act`],
+    pro: [String.raw`\brelease\w{0,3}\b${GAP}\bepstein (?:files|documents|records)\b`],
+    downCon: [String.raw`(?:the )?release of (?:the )?epstein (?:files|documents|records)`],
+    con: [String.raw`\bmove on from (?:the )?epstein (?:files|documents|records)\b`] },
+  no_new_wars: { label: "No New Wars", pos: "Pledge that the United States will start no new wars",
+    terms: String.raw`no new wars|start(?:ing)? (?:a |any )?(?:new )?wars?|stop wars`,
+    pro: [String.raw`\bno new wars\b`, String.raw`\bnot (?:going to )?start (?:a |any )?(?:new )?wars?\b`, String.raw`\bstop(?:ping)? wars\b`],
+    down: [String.raw`new wars?`] },
   checks_balances: { label: "Congress as a Check on the Executive", pos: "Keep Congress and the courts as a real check on executive power, whoever is president",
     terms: String.raw`checks and balances|separation of powers|executive overreach|executive power|article I`,
     up: [String.raw`(?:our )?(?:system of )?checks and balances`, String.raw`(?:the )?separation of powers`, String.raw`(?:congress'?s? )?(?:article I|constitutional) (?:authority|powers?|role)`],

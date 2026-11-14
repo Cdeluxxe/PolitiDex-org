@@ -40,6 +40,7 @@ import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
+import { ACCOUNTABILITY_KEYS } from "./v103-chrome-seams.mjs";
 import { buildExecActionData, OUT_PATH, SEED_PATH } from "./gen-exec-action-data.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -207,10 +208,13 @@ has(HTML, "In force", "the in-force standing did not surface in the rendering");
 // but it also means decisions 5 and 11 would go silently untested from here on. So
 // the empty state is asserted here on the real render, and both decisions are
 // exercised below against a fixture that puts the bucket back.
-eq(SUM.issues.noActionFound, 0,
-  "the all-time record has a no-action-found bucket again — assert decision 5 on the real render, not only the fixture");
-ok(!/coverage, not a finding/.test(HTML),
-  "the coverage copy rendered with nothing in the bucket to cover");
+// The accountability stances pass (Nov 2026) put the bucket back on the real
+// record: three stated positions on new keys with no action on file yet. So
+// decision 5 is asserted on the real render again.
+eq(SUM.issues.noActionFound, ACCOUNTABILITY_KEYS.length,
+  "the all-time no-action-found bucket is not exactly the accountability pass's three keys");
+ok(/coverage, not a finding/.test(HTML),
+  "the real render has a no-action-found bucket but does not say it is coverage");
 ok(!/declined to act/.test(HTML.split("not that the figure declined to act").join("")),
   "the coverage copy reads as an accusation rather than as coverage");
 

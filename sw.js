@@ -12130,7 +12130,21 @@
 //     by the listing changes. pdx-aipac.js is precached and changed, so the
 //     shell moves. No location key is touched or migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v561';
+// v562 - THREE ACCOUNTABILITY KEYS, STATED. The issue register (alignment-tool.js,
+//     issue-map.js) gains Public Health vs. Chemical Company Liability, Epstein
+//     Files Transparency and No New Wars, and related-issues.js pairs each one
+//     both ways with existing keys (the cost of living, federal red tape and
+//     healthcare access; Transparency & Anti-Corruption; Diplomacy & Restraint,
+//     Congress and War Powers and Peace Through Strength). politician-stances-core.js
+//     carries one sourced campaign-claim card for Donald Trump on each new key
+//     (db/accountability-stances-2026-11.json), after his existing cards, which
+//     are unchanged, and hero-showcase-data.js regenerates for his larger
+//     stance count (his published figure does not move). No route or gate is
+//     added. Precached files changed, so the shell moves; the precache list
+//     is unchanged. No location key or other stored reader state is written
+//     or rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v562';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

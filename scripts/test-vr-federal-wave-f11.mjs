@@ -76,6 +76,7 @@ import { createHash } from "node:crypto";
 import { WA_SEAMS, CJ_SEAMS_ALL, AT_SEAMS, SH_SEAMS, carveSeams, assertConsistencySeams,
   assertStanceHelpersSeam, assertRosterOfficeIsTheOnlyMove, deOrigin } from "./v103-chrome-seams.mjs";
 import { declaredStanceMovesAtHead, withoutDeclaredStanceChunks } from "./v103-chrome-seams.mjs";
+import { withoutAccountabilityVocab } from "./v103-chrome-seams.mjs"; // the accountability pass's declared vocabulary
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -430,7 +431,8 @@ const NO_POLE = (() => {
   }
   if (touched.includes("alignment-tool.js")) {
     const aa = carveSeams(headSrc("alignment-tool.js"), AT_SEAMS, "HEAD", "alignment-tool.js", ok);
-    const ab = carveSeams(nowSrc("alignment-tool.js"), AT_SEAMS, "now", "alignment-tool.js", ok);
+    // The accountability stances pass's declared register block is that pass's product (v103-chrome-seams.mjs).
+    const ab = carveSeams(withoutAccountabilityVocab("alignment-tool.js", nowSrc("alignment-tool.js")), AT_SEAMS, "now", "alignment-tool.js", ok);
     eq(sha16(ab.pinned), sha16(aa.pinned),
       "alignment-tool.js changed outside the one span named in scripts/v103-chrome-seams.mjs — " +
       "ISSUE_MAP, the reverse lookup and both scoring lanes are not a coverage wave's to touch " +
@@ -709,7 +711,7 @@ if (!process.env.NETLIFY_DB_URL) {
       let h = null;
       try { h = execFileSync("git", ["show", `HEAD:${f}`], { cwd: ROOT, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 }); } catch { h = null; }
       if (ok(h !== null, `HEAD:${f} is unreadable, so the seed ledger could not be compared`))
-        eq(R(f), h, `${f} moved after the wave landed — it records what F11 measured before the deploy, and ` +
+        eq(withoutAccountabilityVocab(f, R(f)), h, `${f} moved after the wave landed — it records what F11 measured before the deploy, and ` +
           "re-running its generator against a corpus that already holds F11 rewrites it as a wave that changes nothing");
     }
   }

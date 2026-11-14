@@ -33,6 +33,7 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
+import { ACCOUNTABILITY_KEYS } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -226,7 +227,9 @@ ok(RI.hasVotes("trump", "national_debt") === true, "Trump's signed record on the
       ok(r && r.actions.length > 0 && r.token !== "said_not_done", `trump × ${k} (${allTerms ? "all time" : "current term"}): ${r && r.token}`);
     }
     const sum = EX.summary("trump", allTerms ? { allTerms: true } : {});
-    ok(sum && sum.issues.noActionFound === 0, `trump executive summary (${allTerms ? "all time" : "current term"}) has ${sum && sum.issues.noActionFound} stated issues with no action`);
+    // The accountability stances pass (Nov 2026) filed three stated positions on
+    // new keys with no executive action on file yet; nothing else may lack one.
+    ok(sum && sum.issues.noActionFound === ACCOUNTABILITY_KEYS.length, `trump executive summary (${allTerms ? "all time" : "current term"}) has ${sum && sum.issues.noActionFound} stated issues with no action`);
   }
   const ids = (win.EXEC_ACTIONS.trump || []).map((a) => a.documentId);
   for (const id of ["Public Law 115-118", "Presidential Memorandum, 83 FR 7949", "Executive Order 14206", "Executive Order 14214", "Public Law 119-87"]) {

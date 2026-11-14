@@ -33,6 +33,7 @@ import vm from "node:vm";
 import { ENGINE_FILES, makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 import { measureAddresses } from "./vr-measure-addresses.mjs";
+import { withoutAccountabilityRegisterBlock, withoutAccountabilityIssueKeys } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -91,7 +92,7 @@ ok(/issue_key = 'housing_build'\s+AND weight = 100 AND is_primary/.test(BODY), "
       const n = D.m.find((x) => x.k === m.k);
       ok(n && n.l === m.l && n.i === m.i, `bill page: ${m.k} reads as it did`);
     }
-    ok(gitShow("issue-map.js") === R("issue-map.js"), "issue-map.js is unchanged: no new issue key");
+    ok(gitShow("issue-map.js") === withoutAccountabilityRegisterBlock(R("issue-map.js")) /* the accountability pass's declared keys aside */, "issue-map.js is unchanged: no new issue key");
   }
   const addr = measureAddresses(ROOT).published.find((a) => a.sitting === "119" && a.number === NUM);
   eq(JSON.stringify([...addr.issues].sort()), JSON.stringify(["crypto_cbdc", "econ_corp_account", "housing", "housing_build", "housing_support", "permitting_reform"]),

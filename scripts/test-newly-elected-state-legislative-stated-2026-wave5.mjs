@@ -47,6 +47,7 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { DECLARED_STANCE_PASSES, DECLARED_ADMISSIONS, carveDeclaredAdmissions, relatedIssuesMapOnly, gapFillKeys, declaredPin, withoutHeroCrawl, withoutDeclaredRelatedIssues } from "./v103-chrome-seams.mjs";
+import { withoutAccountabilityVocab } from "./v103-chrome-seams.mjs";
 // A later declared admission (the sixth newly elected wave) is that pass's product.
 const LATER_ADMITTED = DECLARED_ADMISSIONS.slice(DECLARED_ADMISSIONS.findIndex((d) => d.wave === "newly_elected_state_legislators_wi_il_nc_ga_fl_nov2026") + 1).flatMap((d) => d.pids);
 
@@ -297,6 +298,8 @@ section("4 · nothing else moved; no new route or gate; one shell move, no migra
       ...Object.values(BALLOT), ...(REC.members || []).flatMap((m) => m.boards)]) {
       const b = BASE(f);
       let now = null; try { now = R(f); } catch { /* absent */ }
+      // The accountability stances pass's declared vocabulary (v103-chrome-seams.mjs) is that pass's product.
+      now = withoutAccountabilityVocab(f, now);
       if (f === "related-issues.js") { eq(relatedIssuesMapOnly(withoutDeclaredRelatedIssues(now)), relatedIssuesMapOnly(b), `${f}: the related-issues map changed`); continue; }
       if (f === "politician-stances-core.js") { eq(coreSansLater(now), coreSansLater(b), `${f} changed`); continue; }
       // consistency.js, index.html and netlify.toml: once only declared later
