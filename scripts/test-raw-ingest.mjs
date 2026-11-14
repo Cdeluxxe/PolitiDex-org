@@ -873,10 +873,12 @@ await t('every-minute caps: 8 politicians, 6 sources each, 30–40 per run — e
   assert.ok(logs.some((l) => l.startsWith('raw-ingest: run duration — ') || l.startsWith('raw-ingest: SLOW RUN — ')), 'duration logged against the budget');
 });
 
-await t('requested national expansion: all 104 unique names, known URLs or explicit skips, capped rotation', () => {
-  const expectedNames = ["Donald Trump", "JD Vance", "Joe Biden", "Kamala Harris", "Hakeem Jeffries", "Chuck Schumer", "Mike Johnson", "Bernie Sanders", "Alexandria Ocasio-Cortez", "Nancy Pelosi", "Ted Cruz", "Elizabeth Warren", "Thomas Massie", "Ilhan Omar", "Gavin Newsom", "Greg Abbott", "Ron DeSantis", "Marco Rubio", "Pete Hegseth", "Zohran Mamdani", "John Thune", "Steve Scalise", "Jim Jordan", "Mitch McConnell", "Chris Van Hollen", "Mark Kelly", "Jon Ossoff", "Raphael Warnock", "Susan Collins", "John Cornyn", "Mike Lee", "Byron Donalds", "Nancy Mace", "James Talarico", "Abdul El-Sayed", "Ken Paxton", "Kristi Noem", "Lindsey Graham", "Tim Scott", "Rick Scott", "Marjorie Taylor Greene", "Lauren Boebert", "Ayanna Pressley", "Rashida Tlaib", "Katie Porter", "Ro Khanna", "Pramila Jayapal", "Amy Klobuchar", "Cory Booker", "Chris Murphy", "Sheldon Whitehouse", "Thom Tillis", "Josh Hawley", "Marsha Blackburn", "Tommy Tuberville", "Gretchen Whitmer", "Josh Shapiro", "Wes Moore", "Brian Kemp", "Glenn Youngkin", "Adam Schiff", "Eric Swalwell", "Maxine Waters", "Cori Bush", "Jamaal Bowman", "Stephen Miller", "Jared Kushner", "Elon Musk", "Pete Buttigieg", "Nikki Haley", "Vivek Ramaswamy", "Robert F. Kennedy Jr.", "Tulsi Gabbard", "Bill Cassidy", "John Kennedy", "Rand Paul", "Ron Johnson", "Ted Budd", "Joni Ernst", "Deb Fischer", "John Hoeven", "Kevin Cramer", "Shelley Moore Capito", "Cynthia Lummis", "Dan Sullivan", "Lisa Murkowski", "Mitt Romney", "Kyrsten Sinema", "Joe Manchin", "Jon Tester", "Sherrod Brown", "Bob Casey", "John Fetterman", "Bob Menendez", "Chris Coons", "Tom Carper", "Dick Durbin", "Tammy Duckworth", "Tammy Baldwin", "Tina Smith", "Gary Peters", "Debbie Stabenow", "Kirsten Gillibrand", "Chuck Grassley"];
+await t('requested national expansion: all 212 unique names, known URLs or explicit skips, capped rotation', () => {
+  const expectedNames = ["Donald Trump", "JD Vance", "Joe Biden", "Kamala Harris", "Hakeem Jeffries", "Chuck Schumer", "Mike Johnson", "Bernie Sanders", "Alexandria Ocasio-Cortez", "Nancy Pelosi", "Ted Cruz", "Elizabeth Warren", "Thomas Massie", "Ilhan Omar", "Gavin Newsom", "Greg Abbott", "Ron DeSantis", "Marco Rubio", "Pete Hegseth", "Zohran Mamdani", "John Thune", "Steve Scalise", "Jim Jordan", "Mitch McConnell", "Chris Van Hollen", "Mark Kelly", "Jon Ossoff", "Raphael Warnock", "Susan Collins", "John Cornyn", "Mike Lee", "Byron Donalds", "Nancy Mace", "James Talarico", "Abdul El-Sayed", "Ken Paxton", "Kristi Noem", "Lindsey Graham", "Tim Scott", "Rick Scott", "Marjorie Taylor Greene", "Lauren Boebert", "Ayanna Pressley", "Rashida Tlaib", "Katie Porter", "Ro Khanna", "Pramila Jayapal", "Amy Klobuchar", "Cory Booker", "Chris Murphy", "Sheldon Whitehouse", "Thom Tillis", "Josh Hawley", "Marsha Blackburn", "Tommy Tuberville", "Gretchen Whitmer", "Josh Shapiro", "Wes Moore", "Brian Kemp", "Glenn Youngkin", "Adam Schiff", "Eric Swalwell", "Maxine Waters", "Cori Bush", "Jamaal Bowman", "Stephen Miller", "Jared Kushner", "Elon Musk", "Pete Buttigieg", "Nikki Haley", "Vivek Ramaswamy", "Robert F. Kennedy Jr.", "Tulsi Gabbard", "Bill Cassidy", "John Kennedy", "Rand Paul", "Ron Johnson", "Ted Budd", "Joni Ernst", "Deb Fischer", "John Hoeven", "Kevin Cramer", "Shelley Moore Capito", "Cynthia Lummis", "Dan Sullivan", "Lisa Murkowski", "Mitt Romney", "Kyrsten Sinema", "Joe Manchin", "Jon Tester", "Sherrod Brown", "Bob Casey", "John Fetterman", "Bob Menendez", "Chris Coons", "Tom Carper", "Dick Durbin", "Tammy Duckworth", "Tammy Baldwin", "Tina Smith", "Gary Peters", "Debbie Stabenow", "Kirsten Gillibrand", "Chuck Grassley",
+    // Next 200 high-visibility + 2026 winners: only the names not already in the roster.
+    "Angela Alsobrooks", "Jon Husted", "Ron Wyden", "Roger Wicker", "Cindy Hyde-Smith", "Josh Gottheimer", "Summer Lee", "Maxwell Frost", "Matt Gaetz", "Elise Stefanik", "Tom Emmer", "Michael McCaul", "Katie Britt", "Pete Ricketts", "Elissa Slotkin", "Bernie Moreno", "Steve Daines", "John Barrasso", "Jim Justice", "Mark Warner", "Tim Kaine", "Richard Blumenthal", "Jeanne Shaheen", "Maggie Hassan", "Angus King", "Ed Markey", "Jack Reed", "Peter Welch", "Lisa Blunt Rochester", "Brian Schatz", "Mazie Hirono", "Catherine Cortez Masto", "Jacky Rosen", "Alex Padilla", "Patty Murray", "Maria Cantwell", "Jeff Merkley", "Todd Young", "Mike Braun", "Eric Schmitt", "John Boozman", "Tom Cotton", "Mike Rounds", "JB Pritzker", "Kathy Hochul", "Josh Stein", "Andy Beshear", "Roy Cooper", "Keisha Lance Bottoms", "Deb Haaland", "Jonathan Kreiss-Tomkins", "Amy Acton", "Rob Sand", "Katie Hobbs", "Andy Biggs", "Sarah Huckabee Sanders", "Jared Polis", "Tina Kotek", "Bob Ferguson", "Maura Healey", "Ned Lamont", "Dan McKee", "Janet Mills", "Phil Scott", "Josh Turek", "Adam Hamilton", "Troy Jackson", "Annie Andrews", "Scott Colom", "Mary Peltola", "Juliana Stratton", "Peggy Flanagan", "Chris Pappas", "Barry Moore", "Julia Letlow", "Andy Barr", "Ashley Moody", "Zach Dembo", "Sean McCann", "William Lawrence", "Christina Hines", "Richard Ojeda", "Mitchell Berman", "Rebecca Cooke", "Stefany Shaheen", "Cait Conley", "Zack Mullock", "Nancy Lacore", "JoAnna Mendoza", "Jessica Killin", "Sam Forstag", "Ben McAdams", "Bob Brooks", "Kristina Knickerbocker", "Melissa Bean", "Daniel Biss", "Jeremy Moss", "Darializa Avila Chevalier", "Aaron Ford", "Xavier Becerra", "Cindy Holscher", "Phil Weiser", "Jocelyn Benson", "Jim Pillen", "David Crowley", "Helena Foulkes", "Hannah Pingree", "Kelly Ayotte"];
   assert.deepEqual(REQUESTED_POLITICIANS.map((r) => r.name), expectedNames);
-  assert.equal(REQUESTED.size, 104, 'duplicate names never create duplicate identities');
+  assert.equal(REQUESTED.size, 212, 'duplicate names never create duplicate identities');
   for (const person of REQUESTED_POLITICIANS) {
     const row = core.ROSTER.find((r) => r.politician_id === person.politician_id);
     assert.ok(row, `${person.name} is configured`);
@@ -1193,6 +1195,43 @@ await t('retired sources: the cron logs the removal once, then stays quiet', asy
   assert.equal(logs.filter((l) => l.startsWith('raw-ingest: retired sources — ')).length, 1, 'logged exactly once');
   for (const r of RETIRED_SOURCES) assert.ok(logs[0].includes(r.url), `${r.url} named in the log line`);
   assert.equal(await logRetiredOnce(null, (l) => logs.push(l), NOW), false, 'no store: nothing logged');
+});
+
+await t('retired sources: the three known-bad pulls (2 YouTube feeds, Pressley press releases) are paused with a re-check note', () => {
+  const BAD = ['https://www.youtube.com/feeds/videos.xml?channel_id=UCNilDuFLmC7FBsyJoDYUzPA', 'https://www.youtube.com/feeds/videos.xml?channel_id=UChAQ4MD-HigmGnImSoAKBVA', 'https://pressley.house.gov/media/press-releases/'];
+  for (const u of BAD) {
+    const r = RETIRED_SOURCES.find((x) => x.url === u);
+    assert.ok(r && r.last_error && r.from, `${u} recorded as retired`);
+    for (const s of [...types.EXTRA_SOURCES, ...types.SOCIAL_SOURCES, ...core.SOURCES]) assert.notEqual(normUrl(s.url), normUrl(u), `${u} still configured`);
+  }
+  const pressley = REQUESTED_POLITICIANS.find((p) => p.politician_id === 'ayanna_pressley');
+  if (pressley) assert.ok(!pressley.page || normUrl(pressley.page.url) !== normUrl(BAD[2]));
+  assert.ok(readFileSync(path.join(root, 'netlify/lib/raw-ingest-retired.mjs'), 'utf8').includes('To bring a source back'), 're-check note in the source config');
+});
+
+await t('locker W6: a cross-topic read never writes a stance that conflicts with one already held (Doggett social_security)', async () => {
+  const store = lockerFakeStore(); const logs = []; const log = (l) => logs.push(l);
+  const ECON = 'https://doggett.house.gov/issues/growing-our-economy-0', HEALTH = 'https://doggett.house.gov/issues/healthcare-0';
+  const cand = (page_topic, url, position) => ({ politician_id: 'lloyd_doggett', topic: 'social_security', position, confidence: 0.85, confidence_reason: 'x', rules_version: 'phase8-v3', page_topic,
+    sources: [{ link: url, type: 'official House issue page', excerpt: 'I continue working to defend Social Security.', statements: [{ kind: 'clear', side: position, text: 'x' }] }] });
+  const rec = (topic, url) => ({ politician_id: 'lloyd_doggett', topic, url, final_url: url, source_type: 'official House issue page', fetched_at: '2026-11-14T00:00:00Z', http_status: 200 });
+  const a = await locker.maybeWriteLockerItem(cand('cost_living', ECON, 'oppose'), rec('cost_living', ECON), { store, log });
+  assert.equal(a.written, true);
+  for (let i = 0; i < 3; i++) {
+    const b = await locker.maybeWriteLockerItem(cand('healthcare_costs', HEALTH, 'support'), rec('healthcare_costs', HEALTH), { store, log });
+    assert.equal(b.written, false, 'conflicting cross-topic read held');
+    assert.equal(b.held, a.key);
+  }
+  assert.equal(store.data.size, 1, 'no second, conflicting record');
+  assert.ok(logs.some((l) => l.startsWith('evidence-locker: HELD lloyd_doggett|social_security')));
+  // An agreeing cross-topic read from another page still writes; an on-topic read writes as before.
+  const agree = await locker.maybeWriteLockerItem(cand('healthcare_costs', HEALTH, 'oppose'), rec('healthcare_costs', HEALTH), { store, log });
+  assert.equal(agree.written, true);
+  const onTopic = { ...cand(undefined, 'https://doggett.house.gov/issues/seniors', 'support') }; delete onTopic.page_topic;
+  const c = await locker.maybeWriteLockerItem(onTopic, rec('social_security', 'https://doggett.house.gov/issues/seniors'), { store, log });
+  assert.equal(c.written, true, 'on-topic scoring is not gated');
+  // A store that cannot be listed never blocks a write.
+  assert.equal(await locker.heldConflict(cand('cost_living', ECON, 'support'), 'k', { store: { async list() { throw new Error('down'); } } }), null);
 });
 
 if (failures) { console.error(`${failures} failing`); process.exit(1); }

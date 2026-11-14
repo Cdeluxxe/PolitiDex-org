@@ -168,8 +168,14 @@ await t('a score is logged once per politician + topic; again only when the posi
     r = sug.foldRun(r.doc, { lines: [scoreLine('p', 'climate_action', 'support'), scoreLine('p', 'climate_action', 'support', `https://p.example.gov/other-${i}`)] });
     assert.equal(r.added.length, 0, `run ${i}: the same score does not reappear`);
   }
+  // A cross-topic read from ANOTHER page never rewrites the held stance.
   r = sug.foldRun(r.doc, { lines: [scoreLine('p', 'climate_action', 'oppose', 'https://p.example.gov/new')] });
-  assert.equal(r.added.length, 1, 'a flip is logged');
+  assert.equal(r.added.length, 0, 'a conflicting cross-topic page does not rewrite the held stance');
+  assert.equal(r.held.length, 1);
+  assert.equal(r.doc.seen.score['p|climate_action'].position, 'support');
+  // The same page re-read with a new position is a real flip.
+  r = sug.foldRun(r.doc, { lines: [scoreLine('p', 'climate_action', 'oppose')] });
+  assert.equal(r.added.length, 1, 'a flip on the same page is logged');
   assert.deepEqual([r.added[0].details.position, r.added[0].details.previous_position], ['oppose', 'support']);
   r = sug.foldRun(r.doc, { lines: [scoreLine('p', 'climate_action', 'oppose')] });
   assert.equal(r.added.length, 0, 'the flipped position is not repeated');
@@ -178,8 +184,39 @@ await t('a score is logged once per politician + topic; again only when the posi
   const old = { entries: [], seen: { url: {}, key: {}, score: { 'q|tax_middle_class|https://q.example.gov/a': 'support', 'q|tax_middle_class|https://q.example.gov/b': 'oppose' } } };
   r = sug.foldRun(old, { lines: [scoreLine('q', 'tax_middle_class', 'oppose', 'https://q.example.gov/c')] });
   assert.equal(r.added.length, 0, 'an already-logged pair is not re-logged after the upgrade');
+  assert.equal(r.doc.seen.score['q|tax_middle_class'].url, 'https://q.example.gov/c', 'the older stance adopts the agreeing source');
   r = sug.foldRun(r.doc, { lines: [scoreLine('q', 'tax_middle_class', 'support')] });
+  assert.equal(r.added.length, 0, 'another cross-topic page does not flip it');
+  r = sug.foldRun(r.doc, { lines: [scoreLine('q', 'tax_middle_class', 'support', 'https://q.example.gov/c')] });
   assert.equal(r.added[0].details.previous_position, 'oppose');
+});
+
+await t('cross-topic thrash: two issue pages scored onto one topic do not flip it back and forth (Doggett social_security)', () => {
+  const ECON = 'https://doggett.house.gov/issues/growing-our-economy-0', HEALTH = 'https://doggett.house.gov/issues/healthcare-0';
+  const cross = (page_topic, url, position) => `stance-score: cross-topic candidate ${JSON.stringify({ politician_id: 'lloyd_doggett', topic: 'social_security', page_topic, url, position, confidence: 0.8 })}`;
+  let r = sug.foldRun(null, { lines: [cross('cost_living', ECON, 'oppose')] });
+  assert.equal(r.added.length, 1);
+  for (let i = 0; i < 10; i++) {
+    r = sug.foldRun(r.doc, { lines: [cross('healthcare_costs', HEALTH, 'support')] });
+    assert.equal(r.added.length, 0, `minute ${i}: the healthcare page does not rewrite it`);
+    r = sug.foldRun(r.doc, { lines: [cross('cost_living', ECON, 'oppose')] });
+    assert.equal(r.added.length, 0, `minute ${i}: nothing to re-log`);
+  }
+  assert.equal(r.doc.entries.filter((e) => e.type === 'score').length, 1, 'one record, no flip-flop');
+  assert.equal(r.doc.seen.score['lloyd_doggett|social_security'].url, ECON);
+  // An on-topic read (a page filed under the topic) outranks the cross-topic one, silently …
+  const own = (url, position, confidence = 0.85) => `stance-score: candidate ${JSON.stringify({ politician_id: 'lloyd_doggett', topic: 'social_security', url, position, confidence })}`;
+  r = sug.foldRun(r.doc, { lines: [own('https://doggett.house.gov/issues/social-security', 'support')] });
+  assert.equal(r.added.length, 0);
+  assert.deepEqual([r.doc.seen.score['lloyd_doggett|social_security'].position, r.doc.seen.score['lloyd_doggett|social_security'].on_topic], ['support', true]);
+  // … and no cross-topic read rewrites it afterwards, not even the earlier page.
+  r = sug.foldRun(r.doc, { lines: [cross('cost_living', ECON, 'oppose')] });
+  assert.equal(r.added.length, 0);
+  assert.equal(r.doc.seen.score['lloyd_doggett|social_security'].position, 'support');
+  // A weaker on-topic page does not rewrite a stronger one.
+  r = sug.foldRun(r.doc, { lines: [own('https://doggett.house.gov/other', 'oppose', 0.7)] });
+  assert.equal(r.doc.seen.score['lloyd_doggett|social_security'].position, 'support');
+  assert.equal(sug.shouldReplaceStance(null, { url: 'x' }), true);
 });
 
 await t('a url is logged once, never again', () => {
