@@ -12,7 +12,13 @@
 //           support or oppose (politician, topic, position, confidence, URL).
 //           Logged once per politician + topic, whatever page it came from;
 //           logged again only when the position flips (support ↔ oppose), with
-//           the earlier position as `previous_position`
+//           the earlier position as `previous_position` — and only when the
+//           flip comes from a source allowed to rewrite the held stance
+//           (shouldReplaceStance): the same page re-read, or an on-topic page
+//           (a "stance-score: candidate" line on its own topic, remembered
+//           silently) over a cross-topic one. A cross-topic read from another
+//           page never rewrites a held stance, so two pages scored onto one
+//           topic from different issue pages cannot flip it back and forth.
 //   key   — an issue key the scorer used this run that the related-issues map
 //           (RELATED_ISSUE_KEYS) does not name; logged once
 //   fail  — a source that has now failed FAIL_THRESHOLD pulls in a row (once
@@ -63,7 +69,7 @@ const OWN_RE = /^stance-score: candidate (\{.*\})$/;
 
 /** Pull the interesting facts out of one run's log lines. Never throws. */
 export function parseRunLines(lines = []) {
-  const urls = [], scores = [], topics = new Set();
+  const urls = [], scores = [], own = [], topics = new Set();
   for (const raw of lines) {
     const l = String(raw ?? "");
     let m = l.match(NEW_URL_RE);
@@ -81,22 +87,60 @@ export function parseRunLines(lines = []) {
       continue;
     }
     m = l.match(OWN_RE);
-    if (m) { try { const c = JSON.parse(m[1]); if (c?.topic) topics.add(c.topic); } catch {} }
+    if (m) {
+      try {
+        const c = JSON.parse(m[1]);
+        if (c?.topic) topics.add(c.topic);
+        if (c?.politician_id && (c.position === "support" || c.position === "oppose")) {
+          own.push({ politician_id: c.politician_id, topic: c.topic, position: c.position, confidence: c.confidence, url: c.url });
+        }
+      } catch {}
+    }
   }
-  return { urls, scores, topics: [...topics] };
+  return { urls, scores, own, topics: [...topics] };
 }
 
-/** Score memory keyed by "politician|topic". Older docs keyed it by
- *  "politician|topic|url"; those fold into their pair (latest position wins,
- *  insertion order = oldest first), so already-logged pairs stay logged. */
+/** A held stance in the score memory: { position, url, on_topic, confidence }. */
+const heldStance = (v) => {
+  if (v === "support" || v === "oppose") return { position: v, url: null, on_topic: false, confidence: null }; // older docs
+  if (v && (v.position === "support" || v.position === "oppose")) {
+    return { position: v.position, url: v.url ?? null, on_topic: v.on_topic === true, confidence: typeof v.confidence === "number" ? v.confidence : null };
+  }
+  return null;
+};
+const sameUrl = (a, b) => Boolean(a && b) && String(a).replace(/\/+$/, "").toLowerCase() === String(b).replace(/\/+$/, "").toLowerCase();
+
+/**
+ * May `next` (a scored read) rewrite the stance `held` for its politician +
+ * topic? Yes when nothing is held, when it is the same page re-read, or when an
+ * on-topic page replaces a cross-topic one. Another on-topic page replaces an
+ * on-topic stance only with a strictly higher confidence. A cross-topic read
+ * from a different page never rewrites a held stance. A stance remembered by an
+ * older doc (position only, no source) is adopted by the first read that
+ * agrees with it; until then only an on-topic read replaces it.
+ */
+export function shouldReplaceStance(held, next) {
+  const h = heldStance(held);
+  if (!h) return true;
+  if (sameUrl(h.url, next.url)) return true;
+  if (next.on_topic && !h.on_topic) return true;
+  if (next.on_topic && h.on_topic) return typeof next.confidence === "number" && typeof h.confidence === "number" && next.confidence > h.confidence;
+  return false;
+}
+
+/** Score memory keyed by "politician|topic" → the held stance. Older docs
+ *  keyed it by "politician|topic|url" and stored the position alone; those
+ *  fold into their pair (latest position wins, insertion order = oldest
+ *  first), so already-logged pairs stay logged. */
 export function scoreSeenByPair(seen = {}) {
   const out = {};
   for (const [k, v] of Object.entries(seen || {})) {
-    if (v !== "support" && v !== "oppose") continue;
+    const h = heldStance(v);
+    if (!h) continue;
     const [pid, topic] = k.split("|");
     if (!pid || !topic) continue;
     const pk = `${pid}|${topic}`;
-    delete out[pk]; out[pk] = v;
+    delete out[pk]; out[pk] = typeof v === "string" ? v : h;
   }
   return out;
 }
@@ -132,7 +176,8 @@ export function foldRun(doc, { lines = [], report = {}, now = new Date(), relate
   const ts = now.toISOString();
   const added = [];
   const push = (type, details) => { const e = { ts, type, details }; d.entries.push(e); added.push(e); };
-  const { urls, scores, topics } = parseRunLines(lines);
+  const { urls, scores, own, topics } = parseRunLines(lines);
+  const held = [];
 
   for (const u of urls) {
     const k = u.url.toLowerCase();
@@ -140,12 +185,28 @@ export function foldRun(doc, { lines = [], report = {}, now = new Date(), relate
     d.seen.url[k] = ts;
     push("url", u);
   }
+  const remember = (k, s, on_topic) => {
+    delete d.seen.score[k]; // most recent last for the cap
+    d.seen.score[k] = { position: s.position, url: s.url ?? null, on_topic, confidence: typeof s.confidence === "number" ? s.confidence : null };
+  };
+  // On-topic reads: remembered (they outrank cross-topic reads), never logged.
+  for (const s of own) {
+    const k = `${s.politician_id}|${s.topic}`;
+    if (shouldReplaceStance(d.seen.score[k], { ...s, on_topic: true })) remember(k, s, true);
+  }
   for (const s of scores) {
     const k = `${s.politician_id}|${s.topic}`;
-    const previous = d.seen.score[k];
-    if (previous === s.position) continue;
-    delete d.seen.score[k]; d.seen.score[k] = s.position; // most recent last for the cap
-    push("score", previous ? { ...s, previous_position: previous } : s);
+    const h = heldStance(d.seen.score[k]);
+    if (h && h.position === s.position) {
+      if (!h.url) remember(k, s, false); // an older doc's stance adopts its source
+      continue;
+    }
+    if (!shouldReplaceStance(d.seen.score[k], { ...s, on_topic: false })) {
+      held.push({ ...s, held_position: h.position, held_url: h.url, held_on_topic: h.on_topic });
+      continue;
+    }
+    remember(k, s, false);
+    push("score", h ? { ...s, previous_position: h.position } : s);
   }
   const mapped = new Set(relatedKeys);
   for (const t of topics) {
@@ -170,7 +231,7 @@ export function foldRun(doc, { lines = [], report = {}, now = new Date(), relate
   for (const k of Object.keys(d.seen)) d.seen[k] = capMap(d.seen[k], MAX_SEEN);
   d.fails = capMap(d.fails, MAX_FAILS_TRACKED);
   d.updated_at = ts;
-  return { doc: d, added };
+  return { doc: d, added, held };
 }
 
 /** Read the doc, fold the run in, write it back. Never throws. */

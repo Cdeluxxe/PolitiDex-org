@@ -1195,5 +1195,42 @@ await t('retired sources: the cron logs the removal once, then stays quiet', asy
   assert.equal(await logRetiredOnce(null, (l) => logs.push(l), NOW), false, 'no store: nothing logged');
 });
 
+await t('retired sources: the three known-bad pulls (2 YouTube feeds, Pressley press releases) are paused with a re-check note', () => {
+  const BAD = ['https://www.youtube.com/feeds/videos.xml?channel_id=UCNilDuFLmC7FBsyJoDYUzPA', 'https://www.youtube.com/feeds/videos.xml?channel_id=UChAQ4MD-HigmGnImSoAKBVA', 'https://pressley.house.gov/media/press-releases/'];
+  for (const u of BAD) {
+    const r = RETIRED_SOURCES.find((x) => x.url === u);
+    assert.ok(r && r.last_error && r.from, `${u} recorded as retired`);
+    for (const s of [...types.EXTRA_SOURCES, ...types.SOCIAL_SOURCES, ...core.SOURCES]) assert.notEqual(normUrl(s.url), normUrl(u), `${u} still configured`);
+  }
+  const pressley = REQUESTED_POLITICIANS.find((p) => p.politician_id === 'ayanna_pressley');
+  if (pressley) assert.ok(!pressley.page || normUrl(pressley.page.url) !== normUrl(BAD[2]));
+  assert.ok(readFileSync(path.join(root, 'netlify/lib/raw-ingest-retired.mjs'), 'utf8').includes('To bring a source back'), 're-check note in the source config');
+});
+
+await t('locker W6: a cross-topic read never writes a stance that conflicts with one already held (Doggett social_security)', async () => {
+  const store = lockerFakeStore(); const logs = []; const log = (l) => logs.push(l);
+  const ECON = 'https://doggett.house.gov/issues/growing-our-economy-0', HEALTH = 'https://doggett.house.gov/issues/healthcare-0';
+  const cand = (page_topic, url, position) => ({ politician_id: 'lloyd_doggett', topic: 'social_security', position, confidence: 0.85, confidence_reason: 'x', rules_version: 'phase8-v3', page_topic,
+    sources: [{ link: url, type: 'official House issue page', excerpt: 'I continue working to defend Social Security.', statements: [{ kind: 'clear', side: position, text: 'x' }] }] });
+  const rec = (topic, url) => ({ politician_id: 'lloyd_doggett', topic, url, final_url: url, source_type: 'official House issue page', fetched_at: '2026-11-14T00:00:00Z', http_status: 200 });
+  const a = await locker.maybeWriteLockerItem(cand('cost_living', ECON, 'oppose'), rec('cost_living', ECON), { store, log });
+  assert.equal(a.written, true);
+  for (let i = 0; i < 3; i++) {
+    const b = await locker.maybeWriteLockerItem(cand('healthcare_costs', HEALTH, 'support'), rec('healthcare_costs', HEALTH), { store, log });
+    assert.equal(b.written, false, 'conflicting cross-topic read held');
+    assert.equal(b.held, a.key);
+  }
+  assert.equal(store.data.size, 1, 'no second, conflicting record');
+  assert.ok(logs.some((l) => l.startsWith('evidence-locker: HELD lloyd_doggett|social_security')));
+  // An agreeing cross-topic read from another page still writes; an on-topic read writes as before.
+  const agree = await locker.maybeWriteLockerItem(cand('healthcare_costs', HEALTH, 'oppose'), rec('healthcare_costs', HEALTH), { store, log });
+  assert.equal(agree.written, true);
+  const onTopic = { ...cand(undefined, 'https://doggett.house.gov/issues/seniors', 'support') }; delete onTopic.page_topic;
+  const c = await locker.maybeWriteLockerItem(onTopic, rec('social_security', 'https://doggett.house.gov/issues/seniors'), { store, log });
+  assert.equal(c.written, true, 'on-topic scoring is not gated');
+  // A store that cannot be listed never blocks a write.
+  assert.equal(await locker.heldConflict(cand('cost_living', ECON, 'support'), 'k', { store: { async list() { throw new Error('down'); } } }), null);
+});
+
 if (failures) { console.error(`${failures} failing`); process.exit(1); }
 console.log('raw ingest: all checks pass');

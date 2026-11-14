@@ -27,6 +27,12 @@
 //   W4  Never overwrite a strong item. A weak or mention item already at the
 //       key is only replaced by a STRONGER read of the same page; same or
 //       weaker reads leave it exactly as it is.
+//   W6  A cross-topic read (a candidate scored from a page filed under another
+//       topic — `page_topic`) never writes a position that conflicts with a
+//       stance the Locker already holds for that politician + topic from a
+//       different page (heldConflict). The held stance stays; an on-topic read
+//       is written as before. So two issue pages scored onto one topic cannot
+//       leave a support and an oppose record for it.
 //
 // STATED LAYER ONLY. Every item is what a politician SAID (layer "stated",
 // formal_record false). An explicit claim on a primary source (scorer R8 —
@@ -286,6 +292,12 @@ export async function maybeWriteLockerItem(candidate, raw, { store, gt = null, l
       log(`evidence-locker: FLAGGED ${id} → ${LOCKER_STORE_NAME}/${key} — manually flagged "${flag.status}", left unchanged`);
       return { written: false, key, reason: `manually flagged (${flag.status})`, flagged: flag.status };
     }
+    const conflict = await heldConflict(candidate, key, { store, flags });
+    if (conflict) {
+      const why = `cross-topic ${candidate.position} read (from a ${candidate.page_topic} page) conflicts with the held ${conflict.position} stance from ${conflict.link || conflict.key}`;
+      log(`evidence-locker: HELD ${id} → ${LOCKER_STORE_NAME}/${key} — ${why}; not written`);
+      return { written: false, key, reason: why, held: conflict.key };
+    }
     const fields = () => JSON.stringify({ strength: item.strength, position: item.position, confidence: item.confidence, ...(item.implication_count ? { implication_count: item.implication_count } : {}), link: item.link, attribution: item.attribution, reason: d.reason });
     if (existing) {
       const was = storedStrength(existing);
@@ -311,6 +323,28 @@ export async function maybeWriteLockerItem(candidate, raw, { store, gt = null, l
     log(`evidence-locker: ERROR ${id} — ${e?.message || e}`);
     return { written: false, reason: `error: ${e?.message || e}` };
   }
+}
+
+/**
+ * W6: for a cross-topic candidate with a clear position, the first item the
+ * Locker holds for the same politician + topic from a different page whose
+ * clear position runs the other way ({ key, position, link }), or null. Hidden
+ * items do not count. On-topic candidates, and stores that cannot be listed,
+ * never conflict.
+ */
+export async function heldConflict(candidate, key, { store, flags = null } = {}) {
+  if (!candidate?.page_topic || candidate.page_topic === candidate.topic || !isClear(candidate.position)) return null;
+  if (!store || typeof store.list !== "function") return null;
+  const prefix = `${candidate.politician_id}/${candidate.topic}/`;
+  let blobs = [];
+  try { ({ blobs = [] } = (await store.list({ prefix })) || {}); } catch { return null; }
+  for (const k of blobs.map((b) => b.key).filter((k) => String(k).startsWith(prefix) && k !== key)) {
+    let doc = await store.get(k, { type: "json" }).catch(() => null);
+    if (typeof doc === "string") { try { doc = JSON.parse(doc); } catch { doc = null; } }
+    if (!doc || reviewFor(doc, k, flags)?.status === "hidden") continue;
+    if (isClear(doc.position) && doc.position !== candidate.position) return { key: k, position: doc.position, link: doc.link ?? null };
+  }
+  return null;
 }
 
 // ── Manual review flags ─────────────────────────────────────────────────────

@@ -438,6 +438,52 @@ await t('all topics: the same rules apply — third-party lines are zero weight;
   assert.deepEqual(bare.map((c) => c.topic), ['cost_living'], 'mentions alone never produce a cross-topic candidate');
 });
 
+// ── R13: cross-topic anchor (Doggett social_security thrash) ──
+// Sentences from the two live Doggett issue pages that were scored onto
+// social_security from a cost_living and a healthcare_costs page.
+const DOGGETT_ECON = '<h1>Growing Our Economy</h1><p>To pay for even more tax breaks for billionaires like Elon Musk, their bill includes devoting $20 billion to undermining public schools with a new federal voucher scheme, ripping food assistance away from hungry families, repealing renewable energy credits, and denying nearly 14 million Americans access to a family physician and medications while triggering a $500 billion automatic cut to Medicare.</p>';
+const DOGGETT_HEALTH = '<h1>Health Care</h1><h2>Preserving and Strengthening Medicare</h2><p>As a recent recipient of two national legislative awards from AARP, which recognized my efforts to ensure seniors’ access to health care, I continue working to defend, strengthen, and improve Medicare, a pillar of retirement security.</p><p>My Medicare Identity Theft Prevention Act, which requires the removal of Social Security numbers from Medicare cards, was enacted into law.</p><p>I am also sponsoring multiple pieces of legislation that would allow Medicare to use its purchasing power to lower drug costs for seniors and taxpayers through negotiation.</p>';
+const doggett = (body, topic, url) => pageOn(body, { politician_id: 'lloyd_doggett', topic, source_type: 'official House issue page', url, final_url: url });
+
+await t('R13: a cost_living or healthcare page does not produce a social_security stance (Doggett)', () => {
+  const econ = doggett(DOGGETT_ECON, 'cost_living', 'https://doggett.house.gov/issues/growing-our-economy-0');
+  const health = doggett(DOGGETT_HEALTH, 'healthcare_costs', 'https://doggett.house.gov/issues/healthcare-0');
+  // The raw per-topic read still finds Medicare language (scoring rules unchanged) …
+  assert.ok(['support', 'oppose'].includes(S.scoreRawRecord(health, 'social_security').position), 'per-topic scoring is unchanged');
+  // … but neither page yields a cross-topic social_security candidate.
+  assert.ok(!S.scoreAllTopics(econ).some((c) => c.topic === 'social_security'), 'economy page: no social_security stance');
+  assert.ok(!S.scoreAllTopics(health).some((c) => c.topic === 'social_security'), 'healthcare page: no social_security stance');
+  // The page's own topic is read exactly as before.
+  assert.deepEqual(S.scoreAllTopics(health)[0], S.scoreRawRecord(health, 'healthcare_costs'));
+  assert.deepEqual(S.scoreAllTopics(econ)[0], S.scoreRawRecord(econ, 'cost_living'));
+  // Repeated runs: the same answer every minute, so nothing to rewrite.
+  for (let i = 0; i < 3; i++) for (const r of [econ, health]) assert.ok(!S.scoreAllTopics(r).some((c) => c.topic === 'social_security'));
+});
+
+await t('R13: a statement that itself addresses Social Security still yields the cross-topic stance', () => {
+  const raw = doggett('<p>I will always protect Social Security from cuts and privatization.</p><p>We will lower drug costs for seniors.</p>', 'healthcare_costs', 'https://doggett.house.gov/issues/healthcare-0');
+  const c = S.scoreAllTopics(raw).find((x) => x.topic === 'social_security');
+  assert.ok(c, 'explicit Social Security claim → candidate');
+  assert.equal(c.position, 'support');
+  assert.equal(c.page_topic, 'healthcare_costs');
+  // On a page filed under social_security, Medicare language scores as before.
+  const own = S.scoreAllTopics(doggett(DOGGETT_HEALTH, 'social_security', 'https://doggett.house.gov/issues/seniors'))[0];
+  assert.equal(own.topic, 'social_security');
+  assert.equal(own.position, 'support');
+});
+
+await t('R13: anchor helpers — Social Security numbers are not the program; Medicare alone does not anchor social_security', () => {
+  assert.equal(S.crossTopicAnchorIn('I will defend Social Security.', 'social_security'), true);
+  assert.equal(S.crossTopicAnchorIn('I will never raise the retirement age.', 'social_security'), true);
+  assert.equal(S.crossTopicAnchorIn('I will defend and strengthen Medicare.', 'social_security'), false);
+  assert.equal(S.crossTopicAnchorIn('My bill removed Social Security numbers from Medicare cards.', 'social_security'), false);
+  assert.equal(S.crossTopicAnchorIn('I will fully fund our public schools.', 'public_schools'), true);
+  // Implication-only cross-topic reads are dropped; the page's own topic is never gated.
+  const imp = { topic: 'immig_fentanyl', position: 'support', sources: [{ statements: [{ kind: 'implication', side: 'support', text: 'We will confront fentanyl trafficking.' }] }] };
+  assert.equal(S.crossTopicAnchored(imp, 'cost_living'), false);
+  assert.equal(S.crossTopicAnchored(imp, 'immig_fentanyl'), true);
+});
+
 await t('all topics: implication rules (R6) work on a vocabulary topic', () => {
   const imp = S.scoreRawRecord(pageOn('<p>We will confront fentanyl trafficking in every county.</p>'), 'immig_fentanyl');
   assert.equal(imp.position, 'support');

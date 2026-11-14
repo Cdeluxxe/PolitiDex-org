@@ -105,6 +105,17 @@
 //       R9 linked keys: a directional key and its parent (iran_hostilities /
 //       war_powers) are never restatements of each other — the line counts on
 //       both.
+//   R13 Cross-topic anchor (scoreAllTopics): a page filed under one topic only
+//       yields a candidate on ANOTHER topic when the read rests on at least one
+//       explicit (clear) statement by the page's own politician, on the
+//       candidate's side, whose full sentence names the other topic directly
+//       or sits in a subject span on it (crossTopicAnchored). A key whose
+//       vocabulary bundles a neighbouring issue is anchored only by its own
+//       name (CROSS_TOPIC_ANCHORS): social_security needs "Social Security",
+//       not "Medicare" — Medicare on a health or economy page is health care —
+//       and "Social Security numbers" is not the program.
+//       Implication-only cross-topic reads are dropped. The page's own topic
+//       and directional parent/child keys (linkedKeys) read exactly as before.
 //   Splitter: an initialism ("U.S.", "U.N.", "A.I.") or a short abbreviation
 //       ("Jan.", "vs.", "e.g.") does not end a sentence (mergeAbbreviations).
 //
@@ -1191,6 +1202,8 @@ export const CROSS_TOPIC_MAX_SENTENCES = 1200;
  *     signal on it (explicit or implied). A bare passing mention of another
  *     issue is not a finding about that issue, so it produces no candidate.
  *   · a no-pole topic never yields a cross-topic candidate (it has no direction).
+ *   · R13: another topic only when an explicit own statement names it directly
+ *     (crossTopicAnchored); implication-only cross-topic reads are dropped.
  */
 export function scoreAllTopics(raw, { topics = SCORED_TOPICS, maxCrossSentences = CROSS_TOPIC_MAX_SENTENCES } = {}) {
   const out = [];
@@ -1199,13 +1212,57 @@ export function scoreAllTopics(raw, { topics = SCORED_TOPICS, maxCrossSentences 
   // The page's own topic reads every sentence, as before; the other topics read
   // the first CROSS_TOPIC_MAX_SENTENCES so a runaway page cannot stretch a run.
   const cross = sentences.length > maxCrossSentences ? sentences.slice(0, maxCrossSentences) : sentences;
+  // Stored statement text is truncated; R13 reads the full sentence behind it.
+  const full = new Map(cross.map((s) => [trunc(s), s]));
   const extra = [];
   for (const t of topics) {
     if (t === raw?.topic || !hasRulesFor(t) || NO_POLE_TOPICS.has(t)) continue;
     const c = scoreRawRecord(raw, t, cross);
-    if (directionalSignals(c) > 0) extra.push(c);
+    if (directionalSignals(c) > 0 && crossTopicAnchored(c, raw?.topic, full)) extra.push(c);
   }
   return [...out, ...collapseRestatements(out, extra)];
+}
+
+// ── R13: cross-topic anchor ─────────────────────────────────────────────────
+// Keys whose vocabulary bundles a neighbouring issue: on a page filed under
+// another topic, only the key's own name anchors it.
+export const CROSS_TOPIC_ANCHORS = {
+  social_security: /\bsocial security\b|\bretirement age\b|\bearned (?:retirement )?benefits\b/i,
+};
+// Uses of a topic's words that are not about the topic itself.
+const CROSS_TOPIC_NOISE = {
+  social_security: /\bsocial security (?:numbers?|nos?\.|cards?|#)/gi,
+};
+const globalRe = (re) => new RegExp(re.source, re.flags.includes("g") ? re.flags : re.flags + "g");
+
+/**
+ * R13: does `sentence` name `topic` directly? A key with a CROSS_TOPIC_ANCHORS
+ * entry is named only by that pattern; any other key by its own mention
+ * vocabulary. Non-topic uses ("Social Security numbers") are blanked first.
+ */
+export function crossTopicAnchorIn(sentence, topic) {
+  const r = TOPIC_RULES[topic];
+  if (!r) return false;
+  let s = String(sentence || "");
+  if (CROSS_TOPIC_NOISE[topic]) s = s.replace(CROSS_TOPIC_NOISE[topic], " ");
+  return (CROSS_TOPIC_ANCHORS[topic] || r.mention).test(s);
+}
+
+/**
+ * R13: may this cross-topic candidate stand? Yes when its topic is the page's
+ * topic or a linked directional key, or when at least one explicit statement by
+ * the page's own politician, on the candidate's side, names the topic directly
+ * (or sits in a subject span on it).
+ * `full` maps stored (truncated) statement text → the full sentence.
+ */
+export function crossTopicAnchored(c, pageTopic, full = new Map()) {
+  if (!c || c.topic === pageTopic || (pageTopic && linkedKeys(c.topic, pageTopic))) return true;
+  const sided = c.position === "support" || c.position === "oppose";
+  return (c.sources?.[0]?.statements || []).some((s) =>
+    s.kind === "clear" && !s.attributed_to && s.quoted_speaker !== "other" &&
+    (!sided || s.side === c.position) &&
+    // A subject span (directional keys) is a part of the page about the topic.
+    (s.subject_span != null || crossTopicAnchorIn(full.get(s.text) ?? s.text, c.topic)));
 }
 
 /** The directional sentences a candidate rests on (R9). */
