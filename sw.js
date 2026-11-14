@@ -12121,7 +12121,16 @@
 //     changed. word-action.js and inventory.js are precached and changed, so the
 //     shell moves. No location key is touched or migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v560';
+// v561 - THE AIPAC TRACKER CHIP FINDS /tracker/trump. AIPAC Tracker covers
+//     Donald Trump on a page of its own, outside the person listing the chip's
+//     table is generated from, so his profile read "No data on AIPAC Tracker".
+//     Such pages are now recorded, reviewed against the live page, in
+//     db/aipac-tracker-pages.json and written into pdx-aipac.js; his chip reads
+//     "Accepted $230M+ (AIPAC Tracker)" and links to that page. Nobody placed
+//     by the listing changes. pdx-aipac.js is precached and changed, so the
+//     shell moves. No location key is touched or migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v561';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
