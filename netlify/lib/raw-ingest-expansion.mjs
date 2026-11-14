@@ -1108,5 +1108,1110 @@ export const REQUESTED_POLITICIANS = [
       "source_type": "official homepage",
       "known_from": "politician-stances.js"
     }
+  },
+  // ── Next 200 high-visibility + 2026 winners (added 2026-11-14): only names not already in the roster ──
+  {
+    "name": "Angela Alsobrooks",
+    "politician_id": "alsobrooks",
+    "tier": 2,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.alsobrooks.senate.gov/news/press-releases",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Jon Husted",
+    "politician_id": "jon_husted",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Ron Wyden",
+    "politician_id": "wyden",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.wyden.senate.gov/news/press-releases",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Roger Wicker",
+    "politician_id": "wicker",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.wicker.senate.gov/news/press-releases",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Cindy Hyde-Smith",
+    "politician_id": "hyde_smith",
+    "tier": 2,
+    "has_board": true,
+    "has_stances": false,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Josh Gottheimer",
+    "politician_id": "josh_gottheimer",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://gottheimer.house.gov/posts/release-gottheimer-announces-new-federal-bipartisan-actions-to-protect-ballot-boxes",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Summer Lee",
+    "politician_id": "summer_lee",
+    "tier": 2,
+    "has_board": true,
+    "has_stances": true,
+    "note": "Known official pages failed a reachability check on 2026-11-14 (HTTP 403/404 or no response); source skipped. Re-check before adding a page."
+  },
+  {
+    "name": "Maxwell Frost",
+    "politician_id": "maxwell_frost",
+    "tier": 2,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://frost.house.gov/media/press-releases",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Matt Gaetz",
+    "politician_id": "gaetz",
+    "tier": 2,
+    "has_board": false,
+    "has_stances": true,
+    "note": "Known official pages failed a reachability check on 2026-11-14 (HTTP 403/404 or no response); source skipped. Re-check before adding a page."
+  },
+  {
+    "name": "Elise Stefanik",
+    "politician_id": "stefanik",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://stefanik.house.gov/2025/4/stefanik-votes-to-pass-the-safeguard-american-voter-eligibility-act",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Tom Emmer",
+    "politician_id": "emmer",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://emmer.house.gov/media-center/press-releases/emmer-statement-on-passage-of-hr-1",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Michael McCaul",
+    "politician_id": "michael_mccaul",
+    "tier": 2,
+    "has_board": true,
+    "has_stances": false,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Katie Britt",
+    "politician_id": "britt",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.britt.senate.gov/news/",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Pete Ricketts",
+    "politician_id": "ricketts",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.ricketts.senate.gov/news/press-releases/",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Elissa Slotkin",
+    "politician_id": "slotkin",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.slotkin.senate.gov/",
+      "source_type": "official homepage",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Bernie Moreno",
+    "politician_id": "moreno",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.moreno.senate.gov/press-releases/",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Steve Daines",
+    "politician_id": "daines",
+    "tier": 2,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.daines.senate.gov/news/press-releases",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "John Barrasso",
+    "politician_id": "barrasso",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.barrasso.senate.gov",
+      "source_type": "official homepage",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Jim Justice",
+    "politician_id": "jim_justice",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.justice.senate.gov/press-releases/",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Mark Warner",
+    "politician_id": "warner",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.warner.senate.gov/public/index.cfm/pressreleases",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Tim Kaine",
+    "politician_id": "kaine",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "note": "Known official pages failed a reachability check on 2026-11-14 (HTTP 403/404 or no response); source skipped. Re-check before adding a page."
+  },
+  {
+    "name": "Richard Blumenthal",
+    "politician_id": "blumenthal",
+    "tier": 2,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.blumenthal.senate.gov/newsroom/press",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Jeanne Shaheen",
+    "politician_id": "shaheen",
+    "tier": 2,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.shaheen.senate.gov/news/press/icymi-shaheen-and-budd-pen-wall-street-journal-op-ed-underscoring-need-for-senators-bipartisan-three-bill-package-to-enhance-american-airpower-boost-defense-industrial-base",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Maggie Hassan",
+    "politician_id": "maggie_hassan",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.hassan.senate.gov/news/press-releases",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Angus King",
+    "politician_id": "angus_king",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.king.senate.gov/newsroom/press-releases",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Ed Markey",
+    "politician_id": "markey",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.markey.senate.gov",
+      "source_type": "official homepage",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Jack Reed",
+    "politician_id": "reed",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.reed.senate.gov/news/releases",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Peter Welch",
+    "politician_id": "welch",
+    "tier": 2,
+    "has_board": true,
+    "has_stances": true,
+    "note": "Known official pages failed a reachability check on 2026-11-14 (HTTP 403/404 or no response); source skipped. Re-check before adding a page."
+  },
+  {
+    "name": "Lisa Blunt Rochester",
+    "politician_id": "blunt_rochester",
+    "tier": 2,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.bluntrochester.senate.gov/news/press-releases",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Brian Schatz",
+    "politician_id": "schatz",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.schatz.senate.gov/news/press-releases",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Mazie Hirono",
+    "politician_id": "hirono",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.hirono.senate.gov/news/press-releases",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Catherine Cortez Masto",
+    "politician_id": "cortez_masto",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.cortezmasto.senate.gov/news/press-releases/",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Jacky Rosen",
+    "politician_id": "rosen",
+    "tier": 2,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.rosen.senate.gov/category/press-releases/",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Alex Padilla",
+    "politician_id": "padilla",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.padilla.senate.gov/newsroom/press-releases/",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Patty Murray",
+    "politician_id": "murray",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.murray.senate.gov/category/press-releases/",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Maria Cantwell",
+    "politician_id": "cantwell",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.cantwell.senate.gov/news/press-releases",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Jeff Merkley",
+    "politician_id": "merkley",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.merkley.senate.gov/news/press-releases/",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Todd Young",
+    "politician_id": "todd_young",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.young.senate.gov/newsroom/press-releases/",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Mike Braun",
+    "politician_id": "mike_braun",
+    "tier": 2,
+    "has_board": false,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.in.gov/gov/newsroom/",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Eric Schmitt",
+    "politician_id": "schmitt",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.schmitt.senate.gov/media/press-releases/",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "John Boozman",
+    "politician_id": "boozman",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.boozman.senate.gov/public/index.cfm/press-releases",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Tom Cotton",
+    "politician_id": "cotton",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.cotton.senate.gov/news/press-releases",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Mike Rounds",
+    "politician_id": "mike_rounds",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.rounds.senate.gov/newsroom/press-releases",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "JB Pritzker",
+    "politician_id": "jb_pritzker",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.illinois.gov/news.html",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Kathy Hochul",
+    "politician_id": "kathy_hochul",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.governor.ny.gov/news",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Josh Stein",
+    "politician_id": "josh_stein",
+    "tier": 2,
+    "has_board": false,
+    "has_stances": true,
+    "page": {
+      "url": "https://governor.nc.gov/news/press-releases",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Andy Beshear",
+    "politician_id": "andy_beshear",
+    "tier": 2,
+    "has_board": false,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.kentucky.gov/Pages/Activity-stream.aspx",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Roy Cooper",
+    "politician_id": "roy_cooper",
+    "tier": 2,
+    "has_board": false,
+    "has_stances": true,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Keisha Lance Bottoms",
+    "politician_id": "keisha_bottoms",
+    "tier": 3,
+    "has_board": false,
+    "has_stances": false,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Deb Haaland",
+    "politician_id": "deb_haaland",
+    "tier": 3,
+    "has_board": false,
+    "has_stances": false,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Jonathan Kreiss-Tomkins",
+    "politician_id": "jonathan_tomkins",
+    "tier": 3,
+    "has_board": false,
+    "has_stances": false,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Amy Acton",
+    "politician_id": "amy_acton",
+    "tier": 3,
+    "has_board": false,
+    "has_stances": false,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Rob Sand",
+    "politician_id": "rob_sand",
+    "tier": 3,
+    "has_board": false,
+    "has_stances": false,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Katie Hobbs",
+    "politician_id": "katie_hobbs",
+    "tier": 2,
+    "has_board": true,
+    "has_stances": true,
+    "note": "Known official pages failed a reachability check on 2026-11-14 (HTTP 403/404 or no response); source skipped. Re-check before adding a page."
+  },
+  {
+    "name": "Andy Biggs",
+    "politician_id": "andy_biggs",
+    "tier": 2,
+    "has_board": true,
+    "has_stances": false,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Sarah Huckabee Sanders",
+    "politician_id": "sarah_huckabee_sanders",
+    "tier": 2,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://governor.arkansas.gov/news-media/",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Jared Polis",
+    "politician_id": "jared_polis",
+    "tier": 2,
+    "has_board": true,
+    "has_stances": true,
+    "note": "Known official pages failed a reachability check on 2026-11-14 (HTTP 403/404 or no response); source skipped. Re-check before adding a page."
+  },
+  {
+    "name": "Tina Kotek",
+    "politician_id": "tina_kotek",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "note": "Known official pages failed a reachability check on 2026-11-14 (HTTP 403/404 or no response); source skipped. Re-check before adding a page."
+  },
+  {
+    "name": "Bob Ferguson",
+    "politician_id": "bob_ferguson",
+    "tier": 2,
+    "has_board": false,
+    "has_stances": true,
+    "page": {
+      "url": "https://governor.wa.gov/news",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Maura Healey",
+    "politician_id": "maura_healey",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "note": "Known official pages failed a reachability check on 2026-11-14 (HTTP 403/404 or no response); source skipped. Re-check before adding a page."
+  },
+  {
+    "name": "Ned Lamont",
+    "politician_id": "ned_lamont",
+    "tier": 2,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://portal.ct.gov/governor/news",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Dan McKee",
+    "politician_id": "dan_mckee",
+    "tier": 2,
+    "has_board": true,
+    "has_stances": true,
+    "note": "Known official pages failed a reachability check on 2026-11-14 (HTTP 403/404 or no response); source skipped. Re-check before adding a page."
+  },
+  {
+    "name": "Janet Mills",
+    "politician_id": "janet_mills",
+    "tier": 2,
+    "has_board": true,
+    "has_stances": true,
+    "note": "Known official pages failed a reachability check on 2026-11-14 (HTTP 403/404 or no response); source skipped. Re-check before adding a page."
+  },
+  {
+    "name": "Phil Scott",
+    "politician_id": "phil_scott",
+    "tier": 2,
+    "has_board": true,
+    "has_stances": true,
+    "note": "Known official pages failed a reachability check on 2026-11-14 (HTTP 403/404 or no response); source skipped. Re-check before adding a page."
+  },
+  {
+    "name": "Josh Turek",
+    "politician_id": "josh_turek",
+    "tier": 2,
+    "has_board": false,
+    "has_stances": true,
+    "page": {
+      "url": "https://turek4iowa.com/platform/",
+      "source_type": "campaign homepage or existing page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Adam Hamilton",
+    "politician_id": "adam_hamilton",
+    "tier": 2,
+    "has_board": false,
+    "has_stances": true,
+    "page": {
+      "url": "https://hamiltonforkansas.com/issues/",
+      "source_type": "campaign homepage or existing page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Troy Jackson",
+    "politician_id": "troy_jackson",
+    "tier": 2,
+    "has_board": false,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.jacksonformaine.com/priorities",
+      "source_type": "campaign homepage or existing page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Annie Andrews",
+    "politician_id": "annie_andrews",
+    "tier": 2,
+    "has_board": false,
+    "has_stances": true,
+    "page": {
+      "url": "https://drannieandrews.com/issue/healthcare-is-a-right-not-a-privilege/",
+      "source_type": "campaign homepage or existing page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Scott Colom",
+    "politician_id": "scott_colom",
+    "tier": 3,
+    "has_board": false,
+    "has_stances": false,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Mary Peltola",
+    "politician_id": "mary_peltola",
+    "tier": 3,
+    "has_board": false,
+    "has_stances": false,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Juliana Stratton",
+    "politician_id": "juliana_stratton",
+    "tier": 2,
+    "has_board": false,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.julianastratton.com/issues",
+      "source_type": "campaign homepage or existing page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Peggy Flanagan",
+    "politician_id": "peggy_flanagan",
+    "tier": 2,
+    "has_board": false,
+    "has_stances": true,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Chris Pappas",
+    "politician_id": "chris_pappas",
+    "tier": 2,
+    "has_board": true,
+    "has_stances": false,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Barry Moore",
+    "politician_id": "barry_moore",
+    "tier": 2,
+    "has_board": true,
+    "has_stances": false,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Julia Letlow",
+    "politician_id": "julia_letlow",
+    "tier": 2,
+    "has_board": true,
+    "has_stances": false,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Andy Barr",
+    "politician_id": "andy_barr",
+    "tier": 2,
+    "has_board": true,
+    "has_stances": false,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Ashley Moody",
+    "politician_id": "ashley_moody",
+    "tier": 2,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.moody.senate.gov/press-releases/",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Zach Dembo",
+    "politician_id": "zach_dembo",
+    "tier": 2,
+    "has_board": false,
+    "has_stances": true,
+    "page": {
+      "url": "https://zachdembo.com/priorities/",
+      "source_type": "campaign homepage or existing page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Sean McCann",
+    "politician_id": "sean_mccann",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://seanmccannforcongress.com/issues/",
+      "source_type": "campaign homepage or existing page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "William Lawrence",
+    "politician_id": "william_lawrence",
+    "tier": 2,
+    "has_board": false,
+    "has_stances": true,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Christina Hines",
+    "politician_id": "christina_hines",
+    "tier": 2,
+    "has_board": false,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.christinahinesforcongress.com/",
+      "source_type": "campaign homepage or existing page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Richard Ojeda",
+    "politician_id": "richard_ojeda",
+    "tier": 2,
+    "has_board": false,
+    "has_stances": true,
+    "page": {
+      "url": "https://ojedafornc.com/ensuring-quality-healthcare/",
+      "source_type": "campaign homepage or existing page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Mitchell Berman",
+    "politician_id": "mitchell_berman",
+    "tier": 2,
+    "has_board": false,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.bermanforcongress.com/priorities",
+      "source_type": "campaign homepage or existing page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Rebecca Cooke",
+    "politician_id": "rebecca_cooke",
+    "tier": 2,
+    "has_board": false,
+    "has_stances": true,
+    "page": {
+      "url": "https://cookeforwisconsin.com/priorities/",
+      "source_type": "campaign homepage or existing page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Stefany Shaheen",
+    "politician_id": "stefany_shaheen",
+    "tier": 2,
+    "has_board": false,
+    "has_stances": true,
+    "page": {
+      "url": "https://stefanyshaheen.com/priorities/",
+      "source_type": "campaign homepage or existing page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Cait Conley",
+    "politician_id": "cait_conley",
+    "tier": 3,
+    "has_board": false,
+    "has_stances": false,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Zack Mullock",
+    "politician_id": "zack_mullock",
+    "tier": 3,
+    "has_board": false,
+    "has_stances": false,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Nancy Lacore",
+    "politician_id": "nancy_lacore",
+    "tier": 3,
+    "has_board": false,
+    "has_stances": false,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "JoAnna Mendoza",
+    "politician_id": "joanna_mendoza",
+    "tier": 3,
+    "has_board": false,
+    "has_stances": false,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Jessica Killin",
+    "politician_id": "jessica_killin",
+    "tier": 3,
+    "has_board": false,
+    "has_stances": false,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Sam Forstag",
+    "politician_id": "sam_forstag",
+    "tier": 2,
+    "has_board": false,
+    "has_stances": true,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Ben McAdams",
+    "politician_id": "ben_mcadams",
+    "tier": 3,
+    "has_board": false,
+    "has_stances": false,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Bob Brooks",
+    "politician_id": "bob_brooks",
+    "tier": 2,
+    "has_board": false,
+    "has_stances": true,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Kristina Knickerbocker",
+    "politician_id": "kristina_knickerbocker",
+    "tier": 3,
+    "has_board": false,
+    "has_stances": false,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Melissa Bean",
+    "politician_id": "melissa_bean",
+    "tier": 3,
+    "has_board": false,
+    "has_stances": false,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Daniel Biss",
+    "politician_id": "daniel_biss",
+    "tier": 3,
+    "has_board": false,
+    "has_stances": false,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Jeremy Moss",
+    "politician_id": "jeremy_moss",
+    "tier": 2,
+    "has_board": true,
+    "has_stances": false,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Darializa Avila Chevalier",
+    "politician_id": "darializa_chevalier",
+    "tier": 3,
+    "has_board": false,
+    "has_stances": false,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Aaron Ford",
+    "politician_id": "aaron_ford",
+    "tier": 2,
+    "has_board": false,
+    "has_stances": true,
+    "page": {
+      "url": "https://ag.nv.gov/News/Press_Releases/",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Xavier Becerra",
+    "politician_id": "xavier_becerra",
+    "tier": 3,
+    "has_board": false,
+    "has_stances": false,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Cindy Holscher",
+    "politician_id": "cindy_holscher",
+    "tier": 3,
+    "has_board": false,
+    "has_stances": false,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Phil Weiser",
+    "politician_id": "phil_weiser",
+    "tier": 2,
+    "has_board": false,
+    "has_stances": true,
+    "page": {
+      "url": "https://coag.gov/",
+      "source_type": "official homepage",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Jocelyn Benson",
+    "politician_id": "jocelyn_benson",
+    "tier": 2,
+    "has_board": false,
+    "has_stances": true,
+    "page": {
+      "url": "https://www.michigan.gov/sos",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "Jim Pillen",
+    "politician_id": "jim_pillen",
+    "tier": 2,
+    "has_board": true,
+    "has_stances": true,
+    "page": {
+      "url": "https://governor.nebraska.gov/press-releases",
+      "source_type": "official page",
+      "known_from": "politician-stances.js"
+    }
+  },
+  {
+    "name": "David Crowley",
+    "politician_id": "david_crowley",
+    "tier": 3,
+    "has_board": false,
+    "has_stances": false,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Helena Foulkes",
+    "politician_id": "helena_foulkes",
+    "tier": 3,
+    "has_board": false,
+    "has_stances": false,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Hannah Pingree",
+    "politician_id": "hannah_pingree",
+    "tier": 3,
+    "has_board": false,
+    "has_stances": false,
+    "note": "No usable official or campaign page found in the existing roster or source list; source skipped."
+  },
+  {
+    "name": "Kelly Ayotte",
+    "politician_id": "kelly_ayotte",
+    "tier": 1,
+    "has_board": true,
+    "has_stances": true,
+    "note": "Known official pages failed a reachability check on 2026-11-14 (HTTP 403/404 or no response); source skipped. Re-check before adding a page."
   }
 ];
