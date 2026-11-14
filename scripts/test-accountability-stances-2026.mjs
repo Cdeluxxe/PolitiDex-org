@@ -35,7 +35,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
-import { DECLARED_STANCE_PASSES, ACCOUNTABILITY_PID_OF, accountabilityIssueKey, withoutAccountabilityRegisterBlock, swCodeOnly, relatedIssuesMapOnly } from "./v103-chrome-seams.mjs";
+import { DECLARED_STANCE_PASSES, ACCOUNTABILITY_PID_OF, accountabilityIssueKey, withoutAccountabilityRegisterBlock, swCodeOnly, relatedIssuesMapOnly, withoutFamilyFairnessKeyList, withoutFamilyFairnessRelatedIssues } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -110,12 +110,14 @@ section("1 · the new keys are in the register and in the related-issues map");
     for (const r of d.pairs) {
       ok(!!win.ISSUE_MAP[r], `${k} pairs with ${r}, which is not in the register`);
       ok((MAP[r] || []).includes(k), `${r} does not list ${k} back`);
-      eq((MAP[r] || []).slice(-1)[0] === k || KEYS.some((o) => o !== k && (MAP[r] || []).slice(-1)[0] === o), true, `${r}: ${k} is not appended at the end of its list`);
+      // A later declared pass's keys (the family & economic fairness keys) may follow.
+      const own = withoutFamilyFairnessKeyList(MAP[r] || []);
+      eq(own.slice(-1)[0] === k || KEYS.some((o) => o !== k && own.slice(-1)[0] === o), true, `${r}: ${k} is not appended at the end of its list`);
     }
   }
   eq(allow.count, allow.keys.length, "the allow-list count is its length");
   const base = BASE("db/issue-keys.json");
-  if (base != null) eq(JSON.stringify(allow.keys), JSON.stringify(JSON.parse(base).keys.concat(KEYS).sort()), "db/issue-keys.json moved by more than the three keys");
+  if (base != null) eq(JSON.stringify(withoutFamilyFairnessKeyList(allow.keys)), JSON.stringify(JSON.parse(base).keys.concat(KEYS).sort()), "db/issue-keys.json moved by more than the three keys"); // a later declared pass's keys aside
   // The whole map stays symmetric and names only register keys.
   for (const [k, list] of Object.entries(MAP)) {
     ok(!!win.ISSUE_MAP[k], `map key ${k} is not in the register`);
@@ -236,7 +238,7 @@ section("5 · nothing else moved; no route or gate; one shell version; no migrat
     for (const f of ["alignment-tool.js", "issue-map.js"]) eq(stripReg(R(f)), BASE(f), `${f} changed outside the declared register block`);
     // The related-issues module moved only by its declared edits.
     const edits = JSON.parse(R("scripts/related-issues-declared-edits-accountability-2026-11.json")).edits;
-    let ri = R("related-issues.js");
+    let ri = withoutFamilyFairnessRelatedIssues(R("related-issues.js")); // a later declared pass's edits aside
     for (const e of edits) { ok(ri.split(e.after).length === 2, `related-issues.js: a declared edit is not there exactly once`); ri = ri.replace(e.after, () => e.before); }
     eq(ri, BASE("related-issues.js"), "related-issues.js changed outside the declared edits");
     ok(relatedIssuesMapOnly(R("related-issues.js")) !== relatedIssuesMapOnly(BASE("related-issues.js")), "fixture: the map did move");
@@ -269,7 +271,8 @@ section("5 · nothing else moved; no route or gate; one shell version; no migrat
     ok(!pre(sw).includes("politician-stances-ext.js"), "the ext chunk is precached");
     eq(swCodeOnly(sw), swCodeOnly(baseSw), "sw.js worker code or precache list changed");
     const ver = (src) => Number((/^const CACHE_VERSION = 'v(\d+)';$/m.exec(String(src)) || [])[1]);
-    ok(later.size ? ver(sw) >= ver(baseSw) + 1 : ver(sw) === ver(baseSw) + 1, `the shell did not move exactly one version (v${ver(baseSw)} → v${ver(sw)})`);
+    const laterPass = own < DECLARED_STANCE_PASSES.length - 1; // a later declared pass moves the shell too
+    ok(later.size || laterPass ? ver(sw) >= ver(baseSw) + 1 : ver(sw) === ver(baseSw) + 1, `the shell did not move exactly one version (v${ver(baseSw)} → v${ver(sw)})`);
     ok(/v562 - THREE ACCOUNTABILITY KEYS, STATED\.[\s\S]*?MIGRATION COST: none\./.test(sw), "the v562 note is missing or does not say no migration");
   }
 }

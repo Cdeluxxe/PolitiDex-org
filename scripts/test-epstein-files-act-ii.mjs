@@ -36,7 +36,7 @@ import { execFileSync } from "node:child_process";
 import vm from "node:vm";
 import { ENGINE_FILES, makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
-import { withoutAccountabilityRegisterBlock } from "./v103-chrome-seams.mjs";
+import { withoutAccountabilityRegisterBlock, withoutFamilyFairnessRegisterBlock } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -100,7 +100,8 @@ eq(new Set([...SQL.matchAll(/issue_key = '([a-z_]+)'/g)].map((m) => m[1])).size,
   if (head === null) console.log("      (no git baseline for issue-map.js)");
   // The accountability stances pass (Nov 2026) added three keys on purpose;
   // its declared register block is set aside (v103-chrome-seams.mjs).
-  else ok(head === withoutAccountabilityRegisterBlock(R("issue-map.js")) || head === R("issue-map.js"), "issue-map.js is unchanged: no new issue key");
+  // So did the family & economic fairness keys pass (five keys, no positions).
+  else ok(head === withoutAccountabilityRegisterBlock(R("issue-map.js")) || head === withoutFamilyFairnessRegisterBlock(R("issue-map.js")) || head === R("issue-map.js"), "issue-map.js is unchanged: no new issue key");
   ok(/\bgov_transparency:\s*\{ label: '🔍 Transparency & Anti-Corruption'/.test(R("issue-map.js")), "gov_transparency is the existing Transparency & Anti-Corruption leaf");
 }
 

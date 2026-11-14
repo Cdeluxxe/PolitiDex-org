@@ -1,7 +1,8 @@
 {
   "_generatedBy": "scripts/gen-issue-keys.mjs (from ISSUE_MAP in alignment-tool.js)",
-  "count": 128,
+  "count": 133,
   "keys": [
+    "affordable_childcare_family_leave",
     "america_first",
     "america_first_fp",
     "audit_spending",
@@ -15,6 +16,7 @@
     "civil_service_control",
     "climate_action",
     "congress_oversight",
+    "corporate_concentration_antitrust",
     "cost_living",
     "crypto_cbdc",
     "cut_spending",
@@ -86,6 +88,7 @@
     "national_debt",
     "no_new_wars",
     "paid_leave",
+    "paid_sick_leave_worker_protections",
     "permitting_reform",
     "power_of_purse",
     "privacy_rights",
@@ -110,6 +113,7 @@
     "states_federal_power",
     "stock_trading_ban",
     "strong_defense",
+    "student_debt_college_access",
     "tariffs_authority",
     "tariffs_china",
     "tariffs_growth",
@@ -129,9 +133,15 @@
     "war_powers",
     "water",
     "water_storage",
+    "wealth_inequality_tax_fairness",
     "yemen_policy"
   ],
   "keywords": {
+    "affordable_childcare_family_leave": [
+      "childcare and family leave",
+      "child care and family leave",
+      "childcare and paid leave"
+    ],
     "america_first": [
       "america first",
       "foreign aid",
@@ -315,6 +325,11 @@
       "intelligence oversight",
       "gang of eight",
       "separation of powers"
+    ],
+    "corporate_concentration_antitrust": [
+      "corporate concentration",
+      "market concentration",
+      "merger enforcement"
     ],
     "cost_living": [
       "cost of living",
@@ -1341,6 +1356,11 @@
       "time off",
       "paid family leave"
     ],
+    "paid_sick_leave_worker_protections": [
+      "paid sick leave",
+      "paid sick days",
+      "earned sick time"
+    ],
     "permitting_reform": [
       "permitting",
       "permitting reform",
@@ -1661,6 +1681,11 @@
       "adversaries",
       "strong military"
     ],
+    "student_debt_college_access": [
+      "student debt relief",
+      "student loan forgiveness",
+      "college access"
+    ],
     "tariffs_authority": [
       "tariff",
       "tariffs",
@@ -1910,6 +1935,12 @@
       "lake powell pipeline",
       "drought",
       "colorado river"
+    ],
+    "wealth_inequality_tax_fairness": [
+      "wealth inequality",
+      "tax fairness",
+      "wealth tax",
+      "billionaire minimum tax"
     ],
     "yemen_policy": [
       "yemen",

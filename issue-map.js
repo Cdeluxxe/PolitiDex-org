@@ -72,6 +72,12 @@
       // ── Taxes & Government ──
       lower_taxes:        { label: '💰 Cut Income & Business Taxes', chip: 'Cut income and business tax rates to shrink the size of government', cat: 'gov', lean: 'R', stanceKeys: ['debt'], keywords: ['tax','tax cut','income tax','corporate tax','fiscal','fiscal conservat','small government','deregulation','appropriation'] },
       tax_middle_class:   { label: '💵 Middle-Class Tax Relief', chip: 'Cut taxes for middle-class households through credits and a bigger standard deduction', cat: 'gov', stanceKeys: [], keywords: ['middle class','working families','tax cut','child tax credit','payroll tax','take-home pay','tax relief','standard deduction','cost of living'] },
+      // FAMILY & ECONOMIC FAIRNESS KEYS PASS (Nov 2026; keys only — no position is seeded).
+      // SCOPE (wealth_inequality_tax_fairness): how the tax burden is shared between
+      // the wealthiest households and everyone else — wealth and billionaire minimum
+      // taxes, capital-gains rates at the top, and the gap they answer to. POLARITY:
+      // 'support' = make the wealthiest pay a larger share; 'oppose' = against it. No `lean`.
+      wealth_inequality_tax_fairness: { label: '📊 Wealth Inequality & Tax Fairness', chip: 'Make the wealthiest households and largest corporations pay a fairer share of taxes', cat: 'gov', stanceKeys: [], keywords: ['wealth inequality','tax fairness','wealth tax','billionaire minimum tax'] },
       gov_waste:          { label: '🧹 Cut Waste, Not Services', chip: 'Cut duplicate programs and improper payments before raising any taxes', cat: 'gov', stanceKeys: ['debt'], keywords: ['waste','wasteful spending','government efficiency','fraud','accountability','audit','streamline','reform','spending cut','improper payments','duplicate programs'] },
       // SCOPE, narrowed August 2026. This key used to absorb anything with the word
       // "regulation" in it, and both of its directions meant two opposite things at
@@ -316,6 +322,13 @@
       // funding line is filed as secondary support.
       public_schools:     { label: '🍎 Invest in Public Schools', chip: 'Raise teacher pay and fund public schools and classrooms', cat: 'edu', lean: 'D', stanceKeys: [], keywords: ['public education','public school','teacher pay','teacher','school funding','education funding','student welfare','classroom'] },
       edu_college_cost:   { label: '🎓 Lower College & Trade Costs', chip: 'Make college and trade school affordable and cut student debt', cat: 'edu', stanceKeys: [], keywords: ['college cost','tuition','student debt','student loan','trade school','apprenticeship','community college','pell grant','higher education','workforce training','affordable'] },
+      // FAMILY & ECONOMIC FAIRNESS KEYS PASS (Nov 2026; keys only — no position is seeded).
+      // SCOPE (student_debt_college_access): relief on student debt already owed and
+      // the door into college — loan forgiveness, repayment relief, and access for
+      // students who could not otherwise attend. Beside Lower College & Trade Costs, not
+      // replacing it. POLARITY: 'support' = relieve the debt and widen access;
+      // 'oppose' = against that relief. No `lean`.
+      student_debt_college_access: { label: '🎒 Student Debt & College Access', chip: 'Relieve student debt and widen access to college for students who could not otherwise attend', cat: 'edu', stanceKeys: [], keywords: ['student debt relief','student loan forgiveness','college access'] },
       // SCOPE (edu_parental): the parent's decision rights over their own child's
       // schooling — consent, notice, inspection and opting out. The instruments on file
       // are library-borrowing transparency, annual written consent for student surveys,
@@ -343,6 +356,13 @@
       child_care:         { label: '🧸 Affordable Child Care', chip: 'Cut child-care costs and expand access to pre-K and early learning', cat: 'family', stanceKeys: [], keywords: ['child care','childcare','daycare','pre-k','prek','preschool','early childhood','early learning','head start','working parents','family'] },
       paid_leave:         { label: '👶 Paid Family & Medical Leave', chip: 'Guarantee paid time off to care for a new baby or a sick loved one', cat: 'family', stanceKeys: [], keywords: ['paid leave','family leave','medical leave','maternity','paternity','fmla','parental leave','caregiver','time off','paid family leave'] },
       family_support:     { label: '🍼 Help Families with Kids', chip: 'Expand the child tax credit and support to help with the cost of raising children', cat: 'family', stanceKeys: [], keywords: ['child tax credit','family tax','dependent','raising children','cost of raising','per-child','family budget','working families','adoption','parents'] },
+      // FAMILY & ECONOMIC FAIRNESS KEYS PASS (Nov 2026; keys only — no position is seeded).
+      // SCOPE (affordable_childcare_family_leave): the pairing of affordable childcare
+      // with paid leave to care for family, argued as one household-cost question.
+      // Beside Affordable Child Care and Paid Family & Medical Leave, replacing
+      // neither. POLARITY: 'support' = make childcare affordable and guarantee family
+      // leave; 'oppose' = against those mandates or that spending. No `lean`.
+      affordable_childcare_family_leave: { label: '🧒 Affordable Childcare & Family Leave', chip: 'Make childcare affordable and guarantee paid leave to care for a new child or a sick family member', cat: 'family', stanceKeys: [], keywords: ['childcare and family leave','child care and family leave','childcare and paid leave'] },
 
       // ── Healthcare ──
       healthcare_market:  { label: '💊 Market-Based Healthcare', chip: 'Lower costs through competition and price transparency', cat: 'health', lean: 'R', stanceKeys: ['healthcare'], keywords: ['market-based','market healthcare','aca repeal','obamacare','deregulation','health savings','price transparency','competition','private insurance','medicaid reform','healthcare cost'] },
@@ -436,7 +456,20 @@
       tariffs_authority:  { label: '⚖️ Tariffs & Trade Authority', chip: 'Keep Congress’s constitutional role over tariffs rather than open-ended, unilateral executive tariff power', cat: 'econ', stanceKeys: [], keywords: ['tariff','tariffs','trade authority','congressional authority','ieepa','emergency powers','separation of powers','executive power','constitution','article i','delegation','section 122','major questions','rein in tariffs','congressional approval'] },
       econ_balance:       { label: '⚖️ Balanced Prosperity', chip: 'Support business growth but keep worker protections, overtime and benefit rules in place', cat: 'econ', stanceKeys: [], keywords: ['economy','jobs','small business','workers','wage','cost of living','middle class','manufacturing','affordable','growth','opportunity'] },
       econ_workers:       { label: '🛠 Raise Wages & Protect Workers', chip: 'Raise the minimum wage and protect workers from exploitation', cat: 'econ', lean: 'D', stanceKeys: [], keywords: ['worker','workers','wage','minimum wage','union','labor','paid leave','overtime','collective bargaining','cost of living','affordable','middle class','jobs'] },
+      // FAMILY & ECONOMIC FAIRNESS KEYS PASS (Nov 2026; keys only — no position is seeded).
+      // SCOPE (paid_sick_leave_worker_protections): a guaranteed floor of paid sick
+      // days and the basic workplace protections around them. Beside Raise Wages &
+      // Protect Workers and Paid Family & Medical Leave, replacing neither.
+      // POLARITY: 'support' = guarantee paid sick leave; 'oppose' = against that mandate. No `lean`.
+      paid_sick_leave_worker_protections: { label: '🤒 Paid Sick Leave & Worker Protections', chip: 'Guarantee paid sick days and basic workplace protections for every worker', cat: 'econ', stanceKeys: [], keywords: ['paid sick leave','paid sick days','earned sick time'] },
       econ_corp_account:  { label: '🏦 Corporate Accountability', chip: 'Use antitrust and anti-price-gouging enforcement to check large corporations', cat: 'econ', lean: 'D', stanceKeys: [], keywords: ['corporate accountability','price gouging','monopoly','antitrust','big corporation','wall street','profiteering','consumer protection','fair competition','executive pay'] },
+      // FAMILY & ECONOMIC FAIRNESS KEYS PASS (Nov 2026; keys only — no position is seeded).
+      // SCOPE (corporate_concentration_antitrust): how concentrated markets are
+      // allowed to become — merger review, breaking up dominant firms, and antitrust
+      // enforcement against consolidation. Beside Corporate Accountability, not
+      // replacing it. POLARITY: 'support' = enforce antitrust law against concentration;
+      // 'oppose' = leave mergers and market share to the market. No `lean`.
+      corporate_concentration_antitrust: { label: '🏢 Corporate Concentration & Antitrust', chip: 'Enforce antitrust law to block mergers and break up firms that concentrate markets in a few corporations', cat: 'econ', stanceKeys: [], keywords: ['corporate concentration','market concentration','merger enforcement'] },
       // SCOPE (rural_ag), argued out September 2026. This key shipped as a one-line
       // entry with no boundary, and two federal waves refused to USE it in writing for
       // exactly that reason: F9 declined H.Amdt. 202 and H.Amdt. 207 on it ("rural_ag
@@ -1234,7 +1267,7 @@
     var CORE_NATIONAL_ISSUES = [
       { key: 'economy_cost_of_living', label: '💵 Economy, Cost of Living & Infrastructure',
         blurb: 'Jobs, wages, inflation, taxes on households, housing, the cost of raising children, money and digital assets, the rules the tech and AI industries build under, and the public works — roads, transit, broadband — the rest of it runs on.',
-        keys: ['cost_living','tax_middle_class','prop_tax','econ_growth','econ_smallbiz','econ_trade','econ_balance','econ_workers','econ_corp_account','rural_ag','housing','housing_build','housing_support','housing_first_time','homeless','property_tax','tariffs_china','tariffs_growth','tariffs_prices','tariffs_authority','crypto_cbdc','sound_money','dev_district_finance','child_care','paid_leave','family_support','infrastructure','transit','broadband','tech_innovation','tech_balance'] },
+        keys: ['cost_living','tax_middle_class','prop_tax','econ_growth','econ_smallbiz','econ_trade','econ_balance','econ_workers','econ_corp_account','rural_ag','housing','housing_build','housing_support','housing_first_time','homeless','property_tax','tariffs_china','tariffs_growth','tariffs_prices','tariffs_authority','crypto_cbdc','sound_money','dev_district_finance','child_care','paid_leave','family_support','infrastructure','transit','broadband','tech_innovation','tech_balance','affordable_childcare_family_leave','corporate_concentration_antitrust','paid_sick_leave_worker_protections'] },
       { key: 'immigration_border', label: '🛡 Immigration & Border Security',
         blurb: 'Border enforcement, legal immigration, asylum, and fentanyl trafficking.',
         keys: ['border_security','immig_legal','immig_balance','immigration_reform','immig_fentanyl','deportations'] },
@@ -1243,7 +1276,7 @@
         keys: ['healthcare_market','health_drug_prices','health_balance','healthcare','health_mental','health_rural','medical_freedom','social_security','healthcare_costs','tobacco_nicotine','public_health_vs_chemical_liability'] },
       { key: 'spending_debt_waste', label: '🧾 Government Spending, Debt & Waste',
         blurb: 'Federal spending, the national debt, balanced budgets, rooting out waste, and the case for funding public services instead.',
-        keys: ['lower_taxes','gov_waste','gov_balance','national_debt','audit_spending','gov_regulation','cut_spending','gov_services'] },
+        keys: ['lower_taxes','gov_waste','gov_balance','national_debt','audit_spending','gov_regulation','cut_spending','gov_services','wealth_inequality_tax_fairness'] },
       { key: 'abortion_repro', label: '🕊 Abortion / Reproductive Rights',
         blurb: 'Abortion access, limits and exceptions, and reproductive freedom.',
         keys: ['pro_life','repro_balance','pro_choice'] },
@@ -1264,7 +1297,7 @@
         keys: ['checks_balances','war_powers','judicial_check','power_of_purse','congress_oversight','states_federal_power','state_standing','guard_authority','civil_service_control','scotus_reform','term_limits','stock_trading_ban','gov_transparency','campaign_finance','reform_balance','epstein_files_transparency'] },
       { key: 'education_parental', label: '🎓 Education & Parental Rights',
         blurb: 'Public schools, school choice, college and trade costs, and parents’ role in schools.',
-        keys: ['school_choice','edu_balance','public_schools','edu_college_cost','edu_parental'] },
+        keys: ['school_choice','edu_balance','public_schools','edu_college_cost','edu_parental','student_debt_college_access'] },
       { key: 'civil_rights_culture', label: '⚖️ Civil Rights, Culture & DEI',
         blurb: 'Equal treatment and civil rights, religious liberty, free speech, personal privacy and surveillance, and the debate over DEI.',
         keys: ['religious_liberty','rights_balance','lgbtq_rights','free_speech','end_dei','privacy_rights'] },

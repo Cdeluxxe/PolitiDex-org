@@ -4,7 +4,7 @@
 // The scorer (stance-score-core.mjs) keeps its hand-calibrated rules for
 // cost_living (the Talarico ground truth) and healthcare_costs. Every OTHER key
 // in the issue register (ISSUE_MAP in alignment-tool.js → db/issue-keys.json,
-// the same 128 keys the related-issues map relates) gets its rules from the
+// the same 133 keys the related-issues map relates) gets its rules from the
 // compact spec below. The rule engine is unchanged: R1–R6 and WEIGHTS apply to
 // every topic alike; a topic only supplies what counts as a mention, an
 // explicit statement and an implication.
@@ -751,6 +751,32 @@ export const ISSUE_TOPIC_VOCAB = {
     terms: String.raw`no new wars|start(?:ing)? (?:a |any )?(?:new )?wars?|stop wars`,
     pro: [String.raw`\bno new wars\b`, String.raw`\bnot (?:going to )?start (?:a |any )?(?:new )?wars?\b`, String.raw`\bstop(?:ping)? wars\b`],
     down: [String.raw`new wars?`] },
+  // The family & economic fairness keys pass (Nov 2026): five keys added to the
+  // register, no position seeded. Terms are kept narrow so the neighbouring keys'
+  // reads (child_care, paid_leave, econ_workers, econ_corp_account, edu_college_cost)
+  // do not move.
+  affordable_childcare_family_leave: { label: "Affordable Childcare & Family Leave", pos: "Make childcare affordable and guarantee paid leave to care for a new child or a sick family member",
+    terms: String.raw`child ?care and (?:paid )?(?:family )?leave|(?:paid )?family leave and (?:affordable )?child ?care`,
+    up: [String.raw`(?:affordable )?child ?care and (?:paid )?(?:family )?leave`, String.raw`(?:paid )?family leave and (?:affordable )?child ?care`] },
+  corporate_concentration_antitrust: { label: "Corporate Concentration & Antitrust", pos: "Enforce antitrust law to block mergers and break up firms that concentrate markets in a few corporations",
+    terms: String.raw`corporate concentration|market concentration|industry consolidation|anti-?competitive mergers?|merger (?:review|enforcement)`,
+    up: [String.raw`merger (?:review|enforcement)`],
+    down: [String.raw`(?:corporate|market) concentration`, String.raw`industry consolidation`, String.raw`anti-?competitive mergers?`],
+    problems: [String.raw`(?:corporate|market) concentration`] },
+  wealth_inequality_tax_fairness: { label: "Wealth Inequality & Tax Fairness", pos: "Make the wealthiest households and largest corporations pay a fairer share of taxes",
+    terms: String.raw`wealth inequality|tax fairness|wealth tax|billionaire(?:s'?)? (?:minimum )?tax`,
+    up: [String.raw`(?:a )?wealth tax`, String.raw`(?:a )?billionaire(?:s'?)? (?:minimum )?tax`, String.raw`tax fairness`],
+    down: [String.raw`wealth inequality`],
+    downCon: [String.raw`(?:a )?wealth tax`],
+    problems: [String.raw`wealth inequality`] },
+  student_debt_college_access: { label: "Student Debt & College Access", pos: "Relieve student debt and widen access to college for students who could not otherwise attend",
+    terms: String.raw`student (?:debt|loan) (?:relief|forgiveness|cancellation)|college access`,
+    up: [String.raw`student (?:debt|loan) (?:relief|forgiveness|cancellation)`, String.raw`college access`],
+    downCon: [String.raw`student (?:debt|loan) (?:relief|forgiveness|cancellation)`] },
+  paid_sick_leave_worker_protections: { label: "Paid Sick Leave & Worker Protections", pos: "Guarantee paid sick days and basic workplace protections for every worker",
+    terms: String.raw`(?:paid|earned) sick (?:leave|days|time)`,
+    up: [String.raw`(?:paid|earned) sick (?:leave|days|time)`],
+    downCon: [String.raw`paid sick (?:leave|days) mandates?`] },
   checks_balances: { label: "Congress as a Check on the Executive", pos: "Keep Congress and the courts as a real check on executive power, whoever is president",
     terms: String.raw`checks and balances|separation of powers|executive overreach|executive power|article I`,
     up: [String.raw`(?:our )?(?:system of )?checks and balances`, String.raw`(?:the )?separation of powers`, String.raw`(?:congress'?s? )?(?:article I|constitutional) (?:authority|powers?|role)`],

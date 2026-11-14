@@ -76,7 +76,7 @@ import { createHash } from "node:crypto";
 import { WA_SEAMS, CJ_SEAMS_ALL, AT_SEAMS, SH_SEAMS, carveSeams, assertConsistencySeams,
   assertStanceHelpersSeam, assertRosterOfficeIsTheOnlyMove, deOrigin } from "./v103-chrome-seams.mjs";
 import { declaredStanceMovesAtHead, withoutDeclaredStanceChunks } from "./v103-chrome-seams.mjs";
-import { withoutAccountabilityVocab } from "./v103-chrome-seams.mjs"; // the accountability pass's declared vocabulary
+import { withoutAccountabilityVocab, withoutFamilyFairnessRegisterBlock } from "./v103-chrome-seams.mjs"; // the accountability and family & economic fairness passes' declared vocabulary
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -432,7 +432,9 @@ const NO_POLE = (() => {
   if (touched.includes("alignment-tool.js")) {
     const aa = carveSeams(headSrc("alignment-tool.js"), AT_SEAMS, "HEAD", "alignment-tool.js", ok);
     // The accountability stances pass's declared register block is that pass's product (v103-chrome-seams.mjs).
-    const ab = carveSeams(withoutAccountabilityVocab("alignment-tool.js", nowSrc("alignment-tool.js")), AT_SEAMS, "now", "alignment-tool.js", ok);
+    // Once that block is at HEAD, only the later family & economic fairness keys block is set aside.
+    const atHead = /\n {6}no_new_wars: /.test(String(headSrc("alignment-tool.js")));
+    const ab = carveSeams(atHead ? withoutFamilyFairnessRegisterBlock(nowSrc("alignment-tool.js")) : withoutAccountabilityVocab("alignment-tool.js", nowSrc("alignment-tool.js")), AT_SEAMS, "now", "alignment-tool.js", ok);
     eq(sha16(ab.pinned), sha16(aa.pinned),
       "alignment-tool.js changed outside the one span named in scripts/v103-chrome-seams.mjs — " +
       "ISSUE_MAP, the reverse lookup and both scoring lanes are not a coverage wave's to touch " +

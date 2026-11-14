@@ -1,7 +1,8 @@
 {
   "_generatedBy": "scripts/gen-issue-core-categories.mjs (from CORE_NATIONAL_ISSUES in issue-map.js)",
-  "count": 128,
+  "count": 133,
   "categoryOf": {
+    "affordable_childcare_family_leave": "economy_cost_of_living",
     "america_first": "foreign_policy_defense",
     "america_first_fp": "foreign_policy_defense",
     "audit_spending": "spending_debt_waste",
@@ -15,6 +16,7 @@
     "civil_service_control": "checks_and_balances",
     "climate_action": "climate_energy",
     "congress_oversight": "checks_and_balances",
+    "corporate_concentration_antitrust": "economy_cost_of_living",
     "cost_living": "economy_cost_of_living",
     "crypto_cbdc": "economy_cost_of_living",
     "cut_spending": "spending_debt_waste",
@@ -86,6 +88,7 @@
     "national_debt": "spending_debt_waste",
     "no_new_wars": "foreign_policy_defense",
     "paid_leave": "economy_cost_of_living",
+    "paid_sick_leave_worker_protections": "economy_cost_of_living",
     "permitting_reform": "climate_energy",
     "power_of_purse": "checks_and_balances",
     "privacy_rights": "civil_rights_culture",
@@ -110,6 +113,7 @@
     "states_federal_power": "checks_and_balances",
     "stock_trading_ban": "checks_and_balances",
     "strong_defense": "foreign_policy_defense",
+    "student_debt_college_access": "education_parental",
     "tariffs_authority": "economy_cost_of_living",
     "tariffs_china": "economy_cost_of_living",
     "tariffs_growth": "economy_cost_of_living",
@@ -129,6 +133,7 @@
     "war_powers": "checks_and_balances",
     "water": "climate_energy",
     "water_storage": "climate_energy",
+    "wealth_inequality_tax_fairness": "spending_debt_waste",
     "yemen_policy": "foreign_policy_defense"
   }
 }
