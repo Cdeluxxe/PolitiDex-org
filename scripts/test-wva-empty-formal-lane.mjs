@@ -178,6 +178,21 @@ function ledger(n, kept) {
 must(CMP.cox, "cox is no longer in cmp-data.js — the profile the report was about cannot be read");
 const COX = Object.assign({}, CMP.cox, { promises: ledger(9, 5) });
 
+// ── THE STATEMENT-LEDGER FALLBACK ───────────────────────────────────────────
+// Word vs Action now scores exactly the issues its ⚖️ section shows — a stated
+// position with a formal-record verdict on the issue row — so a tracked pledge's
+// own kept/broken resolution no longer tests anything on its own, and a
+// pledge-only fixture publishes nothing anywhere the row model is on the page.
+// The two vetoes this harness holds are still the gate on the FALLBACK read
+// (a page that loads word-action.js without the consistency lane's row model,
+// where read() keeps its statement ledger). The controls below that need the
+// ledger to publish run through that fallback, by removing the row model.
+function withoutRowModel(fn) {
+  const real = CS.issueRows;
+  delete CS.issueRows;
+  try { return fn(); } finally { CS.issueRows = real; }
+}
+
 // THE EMPTY-LANE SUBJECT. Utah's Lieutenant Governor has no cmp-data.js row at
 // all (Firestore only), so the fixture is the office rather than the file: a
 // statewide executive with the same nine-pledge ledger and nothing formal. The
@@ -210,7 +225,12 @@ section("1. the harness reproduces the bug — the ledger really does publish 56
 // for cox, because his acts test nothing, so the stub would have measured the
 // second veto and reported it as a floor failure.
 const AS_LEGISLATOR = Object.assign({}, HEND, { office: "U.S. Senator" });
-const asIfInScope = WA.read("dhenderson", AS_LEGISLATOR);
+// Under the issue set the fixture tests nothing: no issue row of hers carries a
+// formal-record verdict, so there is nothing for a pledge to be counted against.
+const onIssueSet = WA.read("dhenderson", AS_LEGISLATOR);
+eq(onIssueSet.pct, null, "on the issue set, a pledge-only ledger publishes no percentage");
+eq(onIssueSet.coverage.tested, 0, "…and tests no issue, because no issue row has a formal verdict");
+const asIfInScope = withoutRowModel(() => WA.read("dhenderson", AS_LEGISLATOR));
 eq(asIfInScope.pct, 56, "on an office that casts floor votes the same ledger publishes the reported 56%");
 eq(asIfInScope.publishable, true, "…and clears both publication floors unaided");
 eq(asIfInScope.coverage.tested, 9, "…over the nine tested items the report counted");
@@ -369,8 +389,8 @@ eq((CS.formalPatternIndex.rows("defay_h15") || []).length, 0,
   "…and no pattern row has warmed for him here, so no other reader can answer");
 ok(WA.formalLaneReadable("defay_h15", null, CMP.defay_h15),
   "the generated formal index is enough on its own");
-eq(WA.read("defay_h15", CMP.defay_h15).pct, 83,
-  "…so his published percentage is exactly what it was");
+eq(WA.noFormalLane("defay_h15", WA.read("defay_h15", CMP.defay_h15), CMP.defay_h15), false,
+  "…so the empty-lane veto withholds nothing from him");
 // …and reader 3 is what answers for cox after E1, from the same static table, on
 // the first paint and before anything warms.
 must(FX.has("cox"), "the generated formal index no longer counts cox's executive acts — E1 is not on file");
@@ -396,7 +416,7 @@ ok(withoutReader("formalPatternIndex", () => WA.formalLaneReadable("dhenderson",
   "no formal-pattern index → the gate does not apply");
 ok(withoutReader("execRecordSummary", () => WA.formalLaneReadable("dhenderson", null, HEND)),
   "no executive-record index → the gate does not apply");
-ok(withoutReader("formalPatternIndex", () => WA.read("dhenderson", HEND).publishable === true),
+ok(withoutRowModel(() => withoutReader("formalPatternIndex", () => WA.read("dhenderson", HEND).publishable === true)),
   "…and read() publishes as it always did when the index cannot be asked");
 const realHas = FX.has;
 FX.has = undefined;
@@ -409,8 +429,8 @@ ok(WA.formalLaneReadable("dhenderson", null, HEND), "no generated formal index �
 // cox publishes exactly what he published before this pass.
 ok(!WA.untestedFormalLane("cox", WA.read("cox", COX), COX),
   "no generated formal index → the untested-lane veto does not apply either");
-ok(withoutReader("formalPatternIndex", () => withoutReader("execRecordSummary",
-    () => WA.read("cox", COX).publishable === true)),
+ok(withoutRowModel(() => withoutReader("formalPatternIndex", () => withoutReader("execRecordSummary",
+    () => WA.read("cox", COX).publishable === true))),
   "…and with no reader able to answer, cox's read publishes as it did before E1");
 FX.has = realHas;
 
@@ -445,8 +465,8 @@ ok(!WA.castsNoFloorVotes("x", { office: "Secretary of Defense" }),
 // THE GUARD, end to end: a senator whose roll-call payload has not landed keeps
 // every number they had.
 const LEE = Object.assign({}, CMP.lee, { promises: ledger(9, 5) });
-const leeWarm = withNoRows("lee", () => WA.read("lee", LEE));
-const leeRows = WA.read("lee", LEE);
+const leeWarm = withoutRowModel(() => withNoRows("lee", () => WA.read("lee", LEE)));
+const leeRows = withoutRowModel(() => WA.read("lee", LEE));
 ok(!WA.noFormalLane("lee", leeWarm, CMP.lee),
   "a senator with zero formal rows is a fetch in flight, never an empty lane");
 ok(!WA.untestedFormalLane("lee", leeWarm, CMP.lee),
@@ -460,7 +480,7 @@ hasNot(WA.sectionHtml("lee", LEE) || "", "formal acts are not on file yet",
 // The same guard for a STATE legislator, whose acts are exactly what wave E1 sits
 // next to. A pledge-only tested set is ordinary for him and always was.
 const DEFAY = Object.assign({}, CMP.defay_h15, { promises: ledger(9, 5) });
-const defayLedger = WA.read("defay_h15", DEFAY);
+const defayLedger = withoutRowModel(() => WA.read("defay_h15", DEFAY));
 ok(!WA.untestedFormalLane("defay_h15", defayLedger, CMP.defay_h15),
   "a state representative with a pledge-only tested set is out of both vetoes' scope");
 ok(typeof defayLedger.pct === "number", "…and keeps a real percentage");
@@ -514,7 +534,9 @@ has(hendFinding, "needs a formal record to test against", "dhenderson: …over t
 ["Recorded vote", "roll call", "No votes yet", "Voted ", "vote", "Vote", "%"].forEach((str) => {
   hasNot(hendFinding, str, `dhenderson: the finding never says ${JSON.stringify(str)}`);
 });
-eq(hend.tested.length, 9, "dhenderson's nine pledge items are still counted as coverage, not deleted");
+eq(hend.items.filter((it) => it.kind === "pledge-tracked").length, 9,
+  "dhenderson's nine pledge items are still on the word ledger as coverage, not deleted");
+eq(hend.tested.length, 0, "…and none of them is a tested issue, because none has a formal-record verdict");
 ok(hend.items.length >= 9, "…and the word ledger itself is untouched");
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -604,9 +626,14 @@ eq(WA.untestedFormalLane("cox", coxRead, COX), true,
   "cox: …and not one of them tested a stated position, so the second veto fires");
 eq(coxRead.pct, null, "cox: no percentage");
 eq(coxRead.publishable, false, "cox: not publishable");
-eq(coxRead.coverage.tested, 9, "cox: his nine pledge items are still counted as coverage, not deleted");
+eq(coxRead.items.filter((it) => it.kind === "pledge-tracked").length, 9,
+  "cox: his nine pledge items are still on the word ledger as coverage, not deleted");
+eq(coxRead.coverage.tested, 0, "cox: …and none of them is a tested issue on the issue set");
+const coxLegacy = withoutRowModel(() => WA.read("cox", COX));
+eq(WA.untestedFormalLane("cox", coxLegacy, COX), true,
+  "cox: on the statement-ledger fallback the second veto still fires");
 const coxBases = {};
-coxRead.tested.forEach((it) => { const b = (it.test && it.test.basis) || "?"; coxBases[b] = (coxBases[b] || 0) + 1; });
+coxLegacy.tested.forEach((it) => { const b = (it.test && it.test.basis) || "?"; coxBases[b] = (coxBases[b] || 0) + 1; });
 eq(Object.keys(coxBases).join(","), "pledge-ledger",
   "cox: every tested item is still resolved from the pledge ledger — this is the mechanism, not a guess");
 eq(WA.figure("cox", COX).shows, false, "cox: figure() does not show");

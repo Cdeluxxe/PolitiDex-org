@@ -165,16 +165,16 @@
       }
     },
     {
-      "pid": "mike_flood",
-      "name": "Mike Flood",
-      "office": "U.S. Representative · Nebraska · NE-01",
+      "pid": "steve_womack",
+      "name": "Steve Womack",
+      "office": "U.S. Representative · Arkansas · AR-03",
       "party": {
         "label": "R",
         "color": "#f87171"
       },
       "_coverage": {
         "scorable": 13,
-        "word": 24,
+        "word": 26,
         "actionIssues": 0
       }
     },
@@ -193,16 +193,16 @@
       }
     },
     {
-      "pid": "steve_womack",
-      "name": "Steve Womack",
-      "office": "U.S. Representative · Arkansas · AR-03",
+      "pid": "boebert",
+      "name": "Lauren Boebert",
+      "office": "U.S. Representative · CO-4 · Colorado",
       "party": {
         "label": "R",
         "color": "#f87171"
       },
       "_coverage": {
-        "scorable": 13,
-        "word": 26,
+        "scorable": 12,
+        "word": 29,
         "actionIssues": 0
       }
     },
@@ -221,16 +221,16 @@
       }
     },
     {
-      "pid": "boebert",
-      "name": "Lauren Boebert",
-      "office": "U.S. Representative · CO-4 · Colorado",
+      "pid": "cox",
+      "name": "Spencer Cox",
+      "office": "Governor · Utah",
       "party": {
         "label": "R",
         "color": "#f87171"
       },
       "_coverage": {
         "scorable": 12,
-        "word": 29,
+        "word": 17,
         "actionIssues": 0
       }
     },
@@ -249,16 +249,16 @@
       }
     },
     {
-      "pid": "cox",
-      "name": "Spencer Cox",
-      "office": "Governor · Utah",
+      "pid": "mike_flood",
+      "name": "Mike Flood",
+      "office": "U.S. Representative · Nebraska · NE-01",
       "party": {
         "label": "R",
         "color": "#f87171"
       },
       "_coverage": {
         "scorable": 12,
-        "word": 17,
+        "word": 24,
         "actionIssues": 0
       }
     },

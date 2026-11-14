@@ -144,6 +144,10 @@ const stances = [
   { issueKey: ISSUE, issueStance: "support" },
   { issueKey: "healthcare", issueStance: "support" },
   { issueKey: "border_security", issueStance: "support" },
+  // The stubbed "guns" row is a result row, so the member states a position on it:
+  // Word vs Action files a row as a result only where its word ledger holds
+  // independent stated word on the issue (the tested set its section shows).
+  { issueKey: "guns", issueStance: "support" },
 ];
 ctx.ISSUE_STANCE_DATA = { [MEMBER]: stances, [PREZ]: stances };
 ctx.PROFILES = {

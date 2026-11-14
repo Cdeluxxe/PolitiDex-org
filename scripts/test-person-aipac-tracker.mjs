@@ -53,7 +53,7 @@ const roster = (() => {
 const W = boot();
 const A = W.PDXAipac;
 const T = A.TRACKER;
-const LINES = [/^Accepted \$\d{1,3}(,\d{3})* \(AIPAC Tracker\)$/, /^Has not accepted funds \(AIPAC Tracker\)$/, /^No data on AIPAC Tracker$/];
+const LINES = [/^Accepted (\$\d{1,3}(,\d{3})*|\$\d+[KMB]\+) \(AIPAC Tracker\)$/, /^Has not accepted funds \(AIPAC Tracker\)$/, /^No data on AIPAC Tracker$/];
 const dollars = (n) => "$" + n.toLocaleString("en-US");
 
 section("1 · mounted on the person file, under the chip row");
@@ -160,6 +160,35 @@ section("5 · attribution only — no partnership, no logo");
   // The existing AIPAC chip is unchanged: still no figure, in any state.
   const c = A.chipMount("aaron_bean");
   ok(!/\$|\d/.test(visible(c)), "the AIPAC chip now prints a figure");
+}
+
+section("5b · a tracker page outside the listing — /tracker/trump");
+{
+  const P = A.TRACKER_PAGES || {};
+  ok(!Object.prototype.hasOwnProperty.call(T, "trump"), "trump is now placed by the listing — this case moved");
+  const h = A.trackerHtml("trump");
+  eq(state(h), "accepted", "trump: state");
+  eq(line(h), "Accepted $230M+ (AIPAC Tracker)", "trump: status line");
+  eq(href(h), "https://www.trackaipac.com/tracker/trump", "trump: link");
+  ok(/data-pdx-atk-page="person"/.test(h), "trump: not marked as a person page");
+  ok(/more than \$230 million/.test(aria(h)) && /AIPAC Tracker’s, not PolitiDex’s/.test(aria(h)),
+    `trump: accessible name lacks the figure or the attribution: ${aria(h)}`);
+  // A page row never overrides a listing match, and every row is well formed.
+  for (const p of Object.keys(P)) {
+    ok(roster.includes(p), `${p}: page row is not a roster id`);
+    ok(!Object.prototype.hasOwnProperty.call(T, p), `${p}: page row duplicates a listing match`);
+    ok(/^[a-z0-9-]+$/.test(P[p][0]) && /^\$\d+[KMB]\+?$/.test(P[p][1]), `${p}: malformed page row ${JSON.stringify(P[p])}`);
+  }
+  // Everybody else reads exactly what the listing table alone gives them.
+  const bare = boot();
+  for (const k of Object.keys(bare.PDXAipac.TRACKER_PAGES)) delete bare.PDXAipac.TRACKER_PAGES[k];
+  let moved = 0;
+  for (const pid of roster) {
+    if (Object.prototype.hasOwnProperty.call(P, pid)) continue;
+    if (A.trackerHtml(pid) !== bare.PDXAipac.trackerHtml(pid) && moved++ < 3) failures.push(`${pid}: chip changed`);
+  }
+  eq(moved, 0, "a profile without a page row changed");
+  eq(line(bare.PDXAipac.trackerHtml("trump")), "No data on AIPAC Tracker", "without the page row trump reads no data (the case is real)");
 }
 
 section("6 · the shipped table, and the shell");

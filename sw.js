@@ -12113,7 +12113,24 @@
 //     or gate is added. first-visit-coach.js is precached and changed, so the
 //     shell moves.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v559';
+// v560 - ONE TESTED SET FOR WORD VS ACTION. The chip's "X of Y tested", its
+//     percentage, the section's "across N tested issues" and the three result
+//     buckets now count the same issues: those with a stated position and a
+//     formal-record Direction Match verdict. The percentage is taken over that
+//     set, one entry per issue, with each row's own verdict. No verdict rule
+//     changed. word-action.js and inventory.js are precached and changed, so the
+//     shell moves. No location key is touched or migrated.
+//     MIGRATION COST: none.
+// v561 - THE AIPAC TRACKER CHIP FINDS /tracker/trump. AIPAC Tracker covers
+//     Donald Trump on a page of its own, outside the person listing the chip's
+//     table is generated from, so his profile read "No data on AIPAC Tracker".
+//     Such pages are now recorded, reviewed against the live page, in
+//     db/aipac-tracker-pages.json and written into pdx-aipac.js; his chip reads
+//     "Accepted $230M+ (AIPAC Tracker)" and links to that page. Nobody placed
+//     by the listing changes. pdx-aipac.js is precached and changed, so the
+//     shell moves. No location key is touched or migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v561';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

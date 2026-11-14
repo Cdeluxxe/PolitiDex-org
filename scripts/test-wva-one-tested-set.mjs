@@ -76,6 +76,7 @@ import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
+import { testedSetPassAtHead } from "./wva-tested-set-pass.mjs";
 import { declaredStanceMovesAtHead } from "./v103-chrome-seams.mjs";
 import { makeSandbox, ENGINE_FILES } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
@@ -408,7 +409,11 @@ section("7 · twin boot — the pair list and the DM ledger never saw this");
     for (const [pid] of corpus.byMember) {
       if (declaredStanceMovesAtHead().moved.has(pid)) continue; // a declared stance pass (v103-chrome-seams.mjs) moves its own people
       swept++;
-      if (JSON.stringify(A.PDXWordAction.read(pid)) !== JSON.stringify(B.PDXWordAction.read(pid))) {
+      // THE ONE-TESTED-SET PASS MOVES THE READ BY DESIGN (wva-tested-set-pass.mjs):
+      // while HEAD predates it, the read itself is not held to HEAD's bytes. The
+      // Direction Match overall and the formal tiers below still are.
+      if (!testedSetPassAtHead() &&
+          JSON.stringify(A.PDXWordAction.read(pid)) !== JSON.stringify(B.PDXWordAction.read(pid))) {
         drift.push(`${pid}/ledger`);
       }
       const sc = A.CMP_DATA[pid];

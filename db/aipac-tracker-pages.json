@@ -1,0 +1,13 @@
+{
+  "about": "AIPAC Tracker (trackaipac.com) pages that are not person cards on its /tracker listing, so scripts/gen-aipac-tracker.mjs cannot place them. Each row is one roster pid, the tracker's own page path under /tracker/, and the headline figure exactly as that page prints it. Reviewed by hand against the live page on asOf; written into pdx-aipac.js by scripts/gen-aipac-tracker-pages.mjs. A pid already placed by the listing generator is never listed here.",
+  "rows": [
+    {
+      "pid": "trump",
+      "path": "trump",
+      "asOf": "2026-11-14",
+      "printed": ">$230 MILLION in spending by pro-Israel interest groups benefiting President Donald Trump since 2020",
+      "display": "$230M+",
+      "spoken": "more than $230 million in spending by pro-Israel interest groups benefiting this person since 2020"
+    }
+  ]
+}

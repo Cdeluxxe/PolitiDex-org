@@ -450,8 +450,15 @@ for (const t of r.tested) {
 // record, the pledge tier would be decorative. Both must be carrying rows.
 ok(r.tested.some((t) => t.test.basis === "exec-actions"),
   "read: the executive record is testing at least one row — the adapter is not idle");
-ok(r.tested.some((t) => t.test.basis === "pledge-ledger"),
-  "read: the pledge ledger is testing at least one row — the tier is not decorative");
+// THE TESTED SET IS THE ⚖️ SECTION'S ISSUES. A tracked pledge's own kept/broken
+// resolution no longer tests an issue on its own — every tested entry is an issue
+// with a formal-record verdict, scored with that row's verdict — so no tested row
+// may rest on the pledge ledger, and the pledge tier still carries issues (a
+// pledge is the stated word on them) rather than going decorative.
+ok(!r.tested.some((t) => t.test.basis === "pledge-ledger"),
+  "read: no tested issue rests on the pledge ledger alone — every one has a formal-record verdict");
+ok(r.tested.some((t) => t.tier === "pledge"),
+  "read: the pledge tier still carries tested issues — the tier is not decorative");
 
 // ONE percentage. Not two, not a presidential variant, not a pledge tally.
 eq(ER.issue(PID, "border_security").score, null,

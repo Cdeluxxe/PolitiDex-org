@@ -268,10 +268,17 @@ section("prior outcome tokens survive");
   const sec = WA.sectionHtml(WORD, A.CMP_DATA[WORD]) || "";
   must(sec.length > 200, `${WORD} rendered no ⚖️ section`);
   let checked = 0, wrong = [];
+  // A result row Word vs Action does not test — its only stated word was written
+  // up from the record itself (the circularity rule) — is filed with the stated
+  // rows nothing can test yet, so the result buckets are the tested set the
+  // percentage is taken over. Every other row stays in the bucket its verdict names.
+  const set = WA.sectionIssueSet(WORD);
+  const JUDGED = { contradicts: 1, mixed: 1, consistent: 1 };
   for (const r of said) {
     if (!WA.outcomeFor(r.verdict.token)) continue;
     checked++;
-    const panel = panelOf(sec, r.verdict.token);
+    const want = (JUDGED[r.verdict.token] && !(set && set.tested[r.key])) ? "limited" : r.verdict.token;
+    const panel = panelOf(sec, want);
     if (panel.indexOf('data-pdxwa-issue="' + r.key + '"') === -1) wrong.push(r.key + "/" + r.verdict.token);
   }
   must(checked > 0, `no ${WORD} row carried a named outcome — the assertion below would be vacuous`);

@@ -137,7 +137,10 @@
       // that state the clause reports only what is held, which is the half we
       // actually know offline and mid-load alike.
       return {
-        held: +c.word || 0,
+        // The stated ISSUES the read can test — the same Y the Word vs Action chip
+        // prints in "X of Y tested" — not the raw statement count, which could be
+        // several statements per issue and was a second denominator for one read.
+        held: (typeof c.scorable === 'number' ? +c.scorable : +c.word) || 0,
         tested: +c.tested || 0,
         untested: +c.untested || 0,
         warming: !!c.warming
