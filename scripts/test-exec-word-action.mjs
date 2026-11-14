@@ -41,6 +41,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { ACCOUNTABILITY_KEYS } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -604,9 +605,16 @@ has(sec, "No stated position yet",
   const stated = Object.keys(win._polPositionMap(PID, P) || {});
   ok(stated.length >= 1, "fixture: the president has stated positions to test");
   const controls = stated.filter((k) => (CS.officialRecord(PID, k).execTouched || 0) === 0);
-  eq(controls.length, 0,
+  // The accountability stances pass (Nov 2026) filed three stated positions on
+  // new keys with no executive action behind them yet, so the discovered control
+  // is live again — on exactly those keys, and asserted on below.
+  eq(controls.slice().sort().join(", "), ACCOUNTABILITY_KEYS.slice().sort().join(", "),
     `a stated position has no executive action on file across any term (${controls.join(", ")}) —` +
-    `\n    the discovered control is live again, so assert on it rather than only on the constructed one`);
+    `\n    only the accountability pass's three keys may be such a control`);
+  for (const k of controls) {
+    eq(!!CS.officialRecord(PID, k).pending, false,
+      `${k} is 'pending' on a president with no executive action on file: a wait on a roll call that will never arrive`);
+  }
   for (const k of stated) {
     withIssueUnmapped(k, () => {
       const ov = CS.officialRecord(PID, k);

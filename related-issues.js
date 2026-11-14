@@ -26,6 +26,15 @@
      drawer. Existing keys on both sides, last in both lists, like the pairs
      above.
 
+   · ACCOUNTABILITY PAIRS (Nov 2026). Three keys joined the register with the
+     accountability stances pass (db/accountability-stances-2026-11.json), each
+     paired both ways with the existing keys whose ground it shares: Public
+     Health vs. Chemical Company Liability with the cost of living, federal red
+     tape and healthcare access; Epstein Files Transparency with Transparency &
+     Anti-Corruption; No New Wars with Diplomacy & Restraint, Congress and War
+     Powers and Peace Through Strength. Each new key is last in the existing
+     keys' lists and has its own list at the end of the map.
+
    · ONE MAP. MAP below is the only place that decides what is related: issue
      key → the keys that share its ground. It is symmetric (if A lists B, B
      lists A) and names only keys in the issue register. Nothing is derived from
@@ -120,7 +129,7 @@
     property_rights: ['lands_preserve', 'lands_keep_public', 'lands_local', 'lands_balance', 'lands_energy'],
     energy_production: ['lands_preserve', 'lands_keep_public', 'lands_energy', 'permitting_reform', 'gov_regulation', 'enviro_energy', 'climate_action', 'enviro_balance', 'datacenter_power', 'cost_living', 'econ_growth'],
     permitting_reform: ['lands_preserve', 'lands_keep_public', 'lands_energy', 'energy_production', 'gov_regulation', 'enviro_energy', 'climate_action', 'enviro_balance', 'datacenter_power', 'econ_growth', 'infrastructure', 'broadband', 'transit', 'water_storage', 'housing_build'],
-    gov_regulation: ['lands_preserve', 'lands_keep_public', 'lands_energy', 'energy_production', 'permitting_reform', 'climate_action', 'enviro_balance', 'econ_growth', 'econ_smallbiz', 'econ_balance', 'econ_workers', 'econ_corp_account', 'lower_taxes', 'civil_service_control', 'gov_waste', 'housing_build'],
+    gov_regulation: ['lands_preserve', 'lands_keep_public', 'lands_energy', 'energy_production', 'permitting_reform', 'climate_action', 'enviro_balance', 'econ_growth', 'econ_smallbiz', 'econ_balance', 'econ_workers', 'econ_corp_account', 'lower_taxes', 'civil_service_control', 'gov_waste', 'housing_build', 'public_health_vs_chemical_liability'],
     water: ['water_storage', 'datacenter_water', 'lands_preserve', 'lands_keep_public', 'datacenter_growth', 'datacenter_power', 'tech_innovation', 'rural_ag', 'health_rural', 'broadband'],
     water_storage: ['water', 'datacenter_water', 'lands_preserve', 'lands_keep_public', 'rural_ag', 'health_rural', 'broadband', 'infrastructure', 'transit', 'permitting_reform'],
     datacenter_water: ['water', 'water_storage', 'lands_preserve', 'lands_keep_public', 'datacenter_growth', 'datacenter_power', 'tech_innovation'],
@@ -144,8 +153,8 @@
     audit_spending: ['cut_spending', 'gov_waste', 'gov_balance', 'national_debt', 'gov_services', 'power_of_purse', 'sound_money', 'crypto_cbdc', 'gov_transparency'],
     power_of_purse: ['cut_spending', 'gov_waste', 'gov_balance', 'national_debt', 'audit_spending', 'gov_services', 'checks_balances', 'war_powers', 'judicial_check', 'congress_oversight', 'tariffs_authority', 'civil_service_control', 'scotus_reform'],
     social_security: ['healthcare', 'national_debt', 'cut_spending', 'gov_balance'],
-    healthcare: ['social_security', 'national_debt', 'cut_spending', 'gov_balance', 'healthcare_market', 'healthcare_costs', 'health_balance', 'health_drug_prices', 'health_rural', 'medical_freedom', 'health_mental', 'homeless', 'veterans'],
-    strong_defense: ['cut_spending', 'national_debt', 'foreign_balance', 'restraint', 'america_first', 'america_first_fp', 'veterans', 'israel_support', 'iran_policy', 'ukraine_policy', 'yemen_policy', 'venezuela_policy', 'war_powers'],
+    healthcare: ['social_security', 'national_debt', 'cut_spending', 'gov_balance', 'healthcare_market', 'healthcare_costs', 'health_balance', 'health_drug_prices', 'health_rural', 'medical_freedom', 'health_mental', 'homeless', 'veterans', 'public_health_vs_chemical_liability'],
+    strong_defense: ['cut_spending', 'national_debt', 'foreign_balance', 'restraint', 'america_first', 'america_first_fp', 'veterans', 'israel_support', 'iran_policy', 'ukraine_policy', 'yemen_policy', 'venezuela_policy', 'war_powers', 'no_new_wars'],
     sound_money: ['audit_spending', 'crypto_cbdc', 'national_debt'],
     crypto_cbdc: ['sound_money', 'audit_spending', 'national_debt', 'tech_innovation', 'tech_balance', 'privacy_rights', 'datacenter_growth'],
     border_security: ['deportations', 'immig_fentanyl', 'immig_balance', 'immig_legal', 'immigration_reform', 'cut_spending'],
@@ -165,7 +174,7 @@
     child_care: ['paid_leave', 'family_support', 'cost_living', 'tax_middle_class'],
     paid_leave: ['child_care', 'family_support', 'cost_living', 'tax_middle_class'],
     family_support: ['child_care', 'paid_leave', 'cost_living', 'tax_middle_class'],
-    cost_living: ['child_care', 'paid_leave', 'family_support', 'tax_middle_class', 'tariffs_china', 'tariffs_growth', 'tariffs_prices', 'tariffs_authority', 'econ_trade', 'rural_ag', 'housing', 'housing_build', 'housing_support', 'housing_first_time', 'homeless', 'property_tax', 'prop_tax', 'healthcare_costs', 'energy_production', 'enviro_energy', 'datacenter_power', 'climate_action'],
+    cost_living: ['child_care', 'paid_leave', 'family_support', 'tax_middle_class', 'tariffs_china', 'tariffs_growth', 'tariffs_prices', 'tariffs_authority', 'econ_trade', 'rural_ag', 'housing', 'housing_build', 'housing_support', 'housing_first_time', 'homeless', 'property_tax', 'prop_tax', 'healthcare_costs', 'energy_production', 'enviro_energy', 'datacenter_power', 'climate_action', 'public_health_vs_chemical_liability'],
     healthcare_market: ['healthcare', 'healthcare_costs', 'health_balance', 'health_drug_prices', 'health_rural', 'medical_freedom'],
     healthcare_costs: ['healthcare', 'healthcare_market', 'health_balance', 'health_drug_prices', 'health_rural', 'medical_freedom', 'cost_living', 'tariffs_prices', 'housing', 'tax_middle_class'],
     health_balance: ['healthcare', 'healthcare_market', 'healthcare_costs', 'health_drug_prices', 'health_rural', 'medical_freedom'],
@@ -189,7 +198,7 @@
     econ_workers: ['econ_growth', 'econ_smallbiz', 'econ_balance', 'econ_corp_account', 'gov_regulation', 'lower_taxes', 'immig_legal', 'immigration_reform'],
     econ_corp_account: ['econ_growth', 'econ_smallbiz', 'econ_balance', 'econ_workers', 'gov_regulation', 'lower_taxes'],
     dev_district_finance: ['prop_tax', 'property_tax', 'gov_transparency', 'housing_build'],
-    gov_transparency: ['dev_district_finance', 'prop_tax', 'property_tax', 'housing_build', 'term_limits', 'campaign_finance', 'stock_trading_ban', 'reform_balance', 'congress_oversight', 'audit_spending', 'gov_waste', 'cut_spending'],
+    gov_transparency: ['dev_district_finance', 'prop_tax', 'property_tax', 'housing_build', 'term_limits', 'campaign_finance', 'stock_trading_ban', 'reform_balance', 'congress_oversight', 'audit_spending', 'gov_waste', 'cut_spending', 'epstein_files_transparency'],
     housing_build: ['dev_district_finance', 'prop_tax', 'property_tax', 'gov_transparency', 'housing', 'housing_support', 'housing_first_time', 'homeless', 'cost_living', 'lands_keep_public', 'lands_local', 'permitting_reform', 'gov_regulation'],
     infrastructure: ['broadband', 'transit', 'permitting_reform', 'water_storage'],
     transit: ['infrastructure', 'broadband', 'permitting_reform', 'water_storage'],
@@ -211,7 +220,7 @@
     privacy_rights: ['free_speech', 'tech_innovation', 'tech_balance', 'crypto_cbdc', 'datacenter_growth', 'congress_oversight'],
     tech_balance: ['free_speech', 'privacy_rights', 'tech_innovation', 'crypto_cbdc', 'datacenter_growth'],
     foreign_balance: ['strong_defense', 'restraint', 'america_first', 'america_first_fp', 'veterans'],
-    restraint: ['strong_defense', 'foreign_balance', 'america_first', 'america_first_fp', 'veterans', 'israel_support', 'iran_policy', 'ukraine_policy', 'yemen_policy', 'venezuela_policy', 'war_powers'],
+    restraint: ['strong_defense', 'foreign_balance', 'america_first', 'america_first_fp', 'veterans', 'israel_support', 'iran_policy', 'ukraine_policy', 'yemen_policy', 'venezuela_policy', 'war_powers', 'no_new_wars'],
     america_first: ['strong_defense', 'foreign_balance', 'restraint', 'america_first_fp', 'veterans'],
     america_first_fp: ['strong_defense', 'foreign_balance', 'restraint', 'america_first', 'veterans', 'israel_support', 'iran_policy', 'ukraine_policy', 'yemen_policy', 'venezuela_policy', 'war_powers'],
     israel_support: ['iran_policy', 'ukraine_policy', 'yemen_policy', 'venezuela_policy', 'restraint', 'strong_defense', 'america_first_fp', 'war_powers'],
@@ -219,7 +228,7 @@
     ukraine_policy: ['israel_support', 'iran_policy', 'yemen_policy', 'venezuela_policy', 'restraint', 'strong_defense', 'america_first_fp', 'war_powers'],
     yemen_policy: ['israel_support', 'iran_policy', 'ukraine_policy', 'venezuela_policy', 'restraint', 'strong_defense', 'america_first_fp', 'war_powers'],
     venezuela_policy: ['israel_support', 'iran_policy', 'ukraine_policy', 'yemen_policy', 'restraint', 'strong_defense', 'america_first_fp', 'war_powers'],
-    war_powers: ['israel_support', 'iran_policy', 'ukraine_policy', 'yemen_policy', 'venezuela_policy', 'restraint', 'strong_defense', 'america_first_fp', 'checks_balances', 'judicial_check', 'power_of_purse', 'congress_oversight', 'tariffs_authority', 'civil_service_control', 'scotus_reform', 'guard_authority'],
+    war_powers: ['israel_support', 'iran_policy', 'ukraine_policy', 'yemen_policy', 'venezuela_policy', 'restraint', 'strong_defense', 'america_first_fp', 'checks_balances', 'judicial_check', 'power_of_purse', 'congress_oversight', 'tariffs_authority', 'civil_service_control', 'scotus_reform', 'guard_authority', 'no_new_wars'],
     election_security: ['election_integrity', 'voter_id', 'democracy_balance', 'voting_access'],
     election_integrity: ['election_security', 'voter_id', 'democracy_balance', 'voting_access'],
     voter_id: ['election_security', 'election_integrity', 'democracy_balance', 'voting_access'],
@@ -236,7 +245,10 @@
     scotus_reform: ['checks_balances', 'war_powers', 'judicial_check', 'power_of_purse', 'congress_oversight', 'tariffs_authority', 'civil_service_control'],
     states_federal_power: ['state_standing', 'guard_authority', 'lands_local'],
     state_standing: ['states_federal_power', 'guard_authority', 'lands_local'],
-    guard_authority: ['states_federal_power', 'state_standing', 'lands_local', 'war_powers', 'checks_balances']
+    guard_authority: ['states_federal_power', 'state_standing', 'lands_local', 'war_powers', 'checks_balances'],
+    public_health_vs_chemical_liability: ['cost_living', 'gov_regulation', 'healthcare'],
+    epstein_files_transparency: ['gov_transparency'],
+    no_new_wars: ['restraint', 'war_powers', 'strong_defense']
   };
 
   var WORD = { support: 'supports', oppose: 'opposes' };

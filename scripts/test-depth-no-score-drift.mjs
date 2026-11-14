@@ -713,7 +713,21 @@ const WITHDRAWN = {
 
 let published = 0, thinPerfect = 0, curated = 0, lifted = 0, withdrawn = 0;
 for (const pid of PIDS) {
-  if (declaredStanceMovesAtHead().moved.has(pid)) continue; // a declared stance pass (v103-chrome-seams.mjs)
+  if (declaredStanceMovesAtHead().moved.has(pid)) {
+    // A declared stance pass (v103-chrome-seams.mjs) moved this person's cards, so
+    // the coverage counts are that pass's to pin. The published figure is still
+    // held here: a stated position is not a score, so it may not move.
+    let a = null, b = null;
+    try { a = before.PDXWordAction.read(pid, before.CMP_DATA[pid]); } catch { a = null; }
+    try { b = after.PDXWordAction.read(pid, after.CMP_DATA[pid]); } catch { b = null; }
+    if (a && a.publishable && typeof a.pct === "number") {
+      published++;
+      eq(b && b.publishable, true, `${pid}: declared stance pass — the published figure is still published`);
+      eq(b && b.pct, a.pct, `${pid}: declared stance pass — the published figure did not move`);
+      eq(b && b.coverage && b.coverage.tested, a.coverage && a.coverage.tested, `${pid}: declared stance pass — the tested count did not move`);
+    }
+    continue;
+  }
   const p = before.CMP_DATA[pid];
   let a = null, b = null;
   try { a = before.PDXWordAction.read(pid, p); } catch (e) { a = { __err: String(e) }; }

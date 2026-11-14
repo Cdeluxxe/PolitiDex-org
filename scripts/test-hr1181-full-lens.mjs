@@ -47,6 +47,7 @@ import { ENGINE_FILES, makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 import { measureAddresses } from "./vr-measure-addresses.mjs";
 import { sliceBlocks, keysAfter } from "./vr-slice-blocks.mjs";
+import { withoutAccountabilityRegisterBlock, withoutAccountabilityIssueKeys } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -167,8 +168,8 @@ ok(/^-- pack-generation: derived\b/m.test(SQL), "the migration declares its pack
     for (const k of Object.keys(NEW)) ok(mine.has(`${NUM}|119|${k}`), `${k}: its line is stored in this pass's block`);
     eq(JSON.stringify([...mine]), JSON.stringify(Object.keys(NEW).map((k) => `${NUM}|119|${k}`)), "this pass's block holds exactly its new line");
     ok(JSON.stringify(tableOf(CONS, "_DOS_MECH")) === JSON.stringify(tableOf(headCons, "_DOS_MECH")), "_DOS_MECH is unchanged");
-    ok(gitShow("issue-map.js") === R("issue-map.js"), "issue-map.js is unchanged: no new issue key");
-    ok(gitShow("db/issue-keys.json") === R("db/issue-keys.json"), "db/issue-keys.json is unchanged");
+    ok(gitShow("issue-map.js") === withoutAccountabilityRegisterBlock(R("issue-map.js")) /* the accountability pass's declared keys aside */, "issue-map.js is unchanged: no new issue key");
+    ok(gitShow("db/issue-keys.json") === withoutAccountabilityIssueKeys(R("db/issue-keys.json")), "db/issue-keys.json is unchanged");
   }
   for (const k of Object.keys(WAS)) eq(lineFault(E[`${NUM}|119|${k}`]), "", `${k}: it already prints a short line`);
 }

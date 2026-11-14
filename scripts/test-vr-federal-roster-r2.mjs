@@ -47,6 +47,7 @@ import { CJ_SEAMS_ALL as CJ_SEAMS, SH_SEAMS, WA_SEAMS, PF_SEAMS, carveSeams, ass
   assertStanceHelpersSeam, assertWordActionSeams, assertPublicationFloorSeams,
   assertParentTableIsTheOnlyMove, deOrigin } from "./v103-chrome-seams.mjs";
 import { declaredStanceMovesAtHead, withoutDeclaredStanceChunks } from "./v103-chrome-seams.mjs";
+import { withoutAccountabilityVocab } from "./v103-chrome-seams.mjs"; // the accountability pass's declared vocabulary
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -867,7 +868,7 @@ section("7 · ship discipline — cache, census, floor, and the identity wall");
     if (withoutDeclaredStanceChunks([f]).length === 0) { passed++; continue; }
     const h = HEAD(f);
     if (!ok(h !== null, `${f} is not in HEAD, so "unchanged" could not be checked — if the file moved, fix this list`)) continue;
-    eq(R(f), h, `${f} was modified — this wave admits identity and nothing else`);
+    eq(withoutAccountabilityVocab(f, R(f)), h, `${f} was modified — this wave admits identity and nothing else`);
   }
   {
     // THE IDENTITY compare-hub.js NAMES, AND NOT ITS CHROME. Every pid in LOCAL_PIDS

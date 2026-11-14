@@ -74,6 +74,7 @@ import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 import { assertParentTableIsTheOnlyMove, CJ_SEAMS_ALL, IC_SEAMS, carveSeams,
   assertIssueColorsSeams, deOrigin } from "./v103-chrome-seams.mjs";
+import { withoutAccountabilityVocab } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -1141,7 +1142,9 @@ section("9 · the engines did not move");
       head = execFileSync("git", ["show", `HEAD:${f}`], { cwd: ROOT, encoding: "utf8", maxBuffer: 256 * 1024 * 1024 });
     } catch { continue; }
     compared++;
-    if (sha(deOrigin(head)) !== sha(deOrigin(R(f)))) moved.push(f);
+    // The accountability stances pass's three declared keys (v103-chrome-seams.mjs)
+    // are a vocabulary addition, not an engine edit; everything else still hashes.
+    if (sha(deOrigin(head)) !== sha(deOrigin(withoutAccountabilityVocab(f, R(f))))) moved.push(f);
   }
   if (!compared) {
     console.log("      (no git baseline available — engine byte-identity not checked in this environment)");

@@ -152,7 +152,8 @@ section("One source of truth");
 // 121 after this wave; 122 since the September 2026 Iran pass added iran_policy;
 // 124 since the Ukraine and Yemen pass added ukraine_policy and yemen_policy;
 // 125 since the Venezuela pass added venezuela_policy.
-eq(KEYS_JSON.count, 125, "the generated allow-list holds 125 keys");
+// 128 since the accountability stances pass added three keys (Nov 2026).
+eq(KEYS_JSON.count, 128, "the generated allow-list holds 128 keys");
 eq(KEYS_JSON.count, KEYS_JSON.keys.length, "the count is the length of the list it counts");
 has(KEYS_JSON._generatedBy, "gen-issue-keys.mjs",
   "the allow-list says it is generated, not hand-written");

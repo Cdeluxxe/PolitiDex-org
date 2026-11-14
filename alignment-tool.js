@@ -438,6 +438,13 @@
       health_mental:      { label: '🧠 Mental Health & Addiction', chip: 'Expand mental-health care and fight the opioid and fentanyl crisis', cat: 'health', stanceKeys: ['healthcare'], keywords: ['mental health','addiction','opioid','fentanyl','overdose','substance abuse','suicide','behavioral health','recovery','treatment','crisis','drug epidemic','rehabilitation'] },
       health_rural:       { label: '🚑 Protect Rural Hospitals', chip: 'Keep rural hospitals, maternity wards and emergency care open and funded', cat: 'health', stanceKeys: ['healthcare'], keywords: ['rural hospital','rural health','critical access','emergency room','ambulance','maternity care','hospital closure','telehealth','rural healthcare','clinic','underserved','provider shortage'] },
       medical_freedom:    { label: '🩺 Medical Freedom', chip: 'Protect personal choice over vaccines and government medical mandates', cat: 'health', lean: 'R', stanceKeys: [], keywords: ['medical freedom','vaccine mandate','vaccine choice','informed consent','health freedom','no mandates','medical privacy','personal choice','conscience','natural immunity','bodily autonomy'] },
+      // ACCOUNTABILITY STANCES PASS (Nov 2026; db/accountability-stances-2026-11.json).
+      // SCOPE (public_health_vs_chemical_liability): whether makers of chemicals and
+      // pesticides answer in court for the health harm their products cause — state
+      // failure-to-warn suits, federal label preemption, and who pays to clean up
+      // forever chemicals. POLARITY: 'support' = keep or widen that liability;
+      // 'oppose' = narrow it or shield the industry from it. No `lean`.
+      public_health_vs_chemical_liability: { label: '🧪 Public Health vs. Chemical Company Liability', chip: 'Keep chemical and pesticide makers answerable in court for health harm, including state failure-to-warn suits', cat: 'health', stanceKeys: [], keywords: ['chemical company liability','chemical liability','glyphosate','failure to warn','failure-to-warn','passive receiver'] },
 
       // SCOPE (tobacco_nicotine): the rules on selling tobacco and nicotine products —
       // what may be sold (flavour bans, nicotine caps, a federal-market-authorization
@@ -854,6 +861,11 @@
       strong_defense:     { label: '🦅 Peace Through Strength', chip: 'Maintain the strongest military and stand firm abroad', cat: 'foreign', lean: 'R', stanceKeys: [], keywords: ['national defense','military','defense spending','ndaa','peace through strength','national security','armed forces','deterrence','china','adversaries','strong military'] },
       foreign_balance:    { label: '⚖️ Strategic Engagement', chip: 'Keep a strong military but lead through NATO and allied diplomacy, not solo action', cat: 'foreign', stanceKeys: [], keywords: ['foreign policy','diplomacy','alliances','nato','national security','strategic','allies','defense','engagement','statecraft','bipartisan'] },
       restraint:          { label: '🕊 Diplomacy & Restraint', chip: 'Prioritize diplomacy and limit foreign military intervention', cat: 'foreign', stanceKeys: [], keywords: ['diplomacy','restraint','end endless wars','foreign aid','intervention','peace','de-escalation','troops home','war powers','negotiation'] },
+      // ACCOUNTABILITY STANCES PASS (Nov 2026; db/accountability-stances-2026-11.json).
+      // SCOPE (no_new_wars): the pledge itself — that the United States starts no new
+      // war. Beside Diplomacy & Restraint and Congress and War Powers, replacing
+      // neither. POLARITY: 'support' = makes or holds that pledge. No `lean`.
+      no_new_wars:        { label: '🏳 No New Wars', chip: 'Pledge that the United States will start no new wars', cat: 'foreign', stanceKeys: [], keywords: ['no new wars pledge','start no new wars'] },
       america_first:      { label: '🇺🇸 America First', chip: 'Put U.S. interests first and avoid foreign entanglements', cat: 'foreign', lean: 'R', stanceKeys: [], keywords: ['america first','foreign aid','sovereignty','national interest','entanglement','ukraine aid','nation building','trade','tariff','border'] },
       // SCOPE, narrowed August 2026. The old chip bundled three unrelated claims —
       // "put U.S. interests first", "end endless wars" and "rethink foreign aid" —
@@ -1091,6 +1103,11 @@
       // covering one programme's provider reports sits at the narrow-link floor rather
       // than reading as a transparency record.
       gov_transparency:   { label: '🔍 Transparency & Anti-Corruption', chip: 'Force more disclosure, ban member stock trading and toughen ethics rules', cat: 'reform', stanceKeys: ['campaign'], keywords: ['transparency','ethics','anti-corruption','disclosure','stock trading','insider trading','accountability','open government','dark money','lobbying','conflict of interest','government reform','swamp'] },
+      // ACCOUNTABILITY STANCES PASS (Nov 2026; db/accountability-stances-2026-11.json).
+      // SCOPE (epstein_files_transparency): whether the government's files on Jeffrey
+      // Epstein are released in full and on time. POLARITY: 'support' = release them;
+      // 'oppose' = hold them back or move on from them. No `lean`.
+      epstein_files_transparency: { label: '📂 Epstein Files Transparency', chip: 'Release the federal government’s Epstein files in full and on the deadline the law sets', cat: 'reform', stanceKeys: [], keywords: ['epstein files transparency act'] },
       campaign_finance:   { label: '💸 Get Money Out of Politics', chip: 'Limit big money and super-PAC influence over our elections', cat: 'reform', lean: 'D', stanceKeys: ['campaign'], keywords: ['campaign finance','super pac','dark money','citizens united','money in politics','small donor','public financing','lobbying','special interests','election reform','disclosure'] },
       audit_spending:     { label: '🧾 Audit Spending & the Fed', chip: 'Audit federal agencies and the Federal Reserve and root out wasteful spending', cat: 'reform', lean: 'R', stanceKeys: ['audit','debt'], keywords: ['audit','audit the fed','federal reserve','wasteful spending','spending','government efficiency','accountability','deficit','debt','fraud','government waste','improper payments','duplicate programs'] },
       // SCOPE (cut_spending): taking money back or holding it down, line by line. The
@@ -1290,7 +1307,7 @@
         keys: ['border_security','immig_legal','immig_balance','immigration_reform','immig_fentanyl','deportations'] },
       { key: 'healthcare', label: '🏥 Healthcare Costs & Access',
         blurb: 'Coverage, premiums, drug prices, rural care, mental health, senior benefits, and the rules on tobacco and nicotine products.',
-        keys: ['healthcare_market','health_drug_prices','health_balance','healthcare','health_mental','health_rural','medical_freedom','social_security','healthcare_costs','tobacco_nicotine'] },
+        keys: ['healthcare_market','health_drug_prices','health_balance','healthcare','health_mental','health_rural','medical_freedom','social_security','healthcare_costs','tobacco_nicotine','public_health_vs_chemical_liability'] },
       { key: 'spending_debt_waste', label: '🧾 Government Spending, Debt & Waste',
         blurb: 'Federal spending, the national debt, balanced budgets, rooting out waste, and the case for funding public services instead.',
         keys: ['lower_taxes','gov_waste','gov_balance','national_debt','audit_spending','gov_regulation','cut_spending','gov_services'] },
@@ -1311,7 +1328,7 @@
         keys: ['election_integrity','election_security','democracy_balance','voting_access','voter_id'] },
       { key: 'checks_and_balances', label: '⚖️ Checks, Balances & Government Reform',
         blurb: 'War powers, the power of the purse, congressional oversight, court orders and court structure, the line between federal and state authority, control of the career civil service, and the rules that hold officeholders to account — term limits, ethics, disclosure, stock trading and money in politics.',
-        keys: ['checks_balances','war_powers','judicial_check','power_of_purse','congress_oversight','states_federal_power','state_standing','guard_authority','civil_service_control','scotus_reform','term_limits','stock_trading_ban','gov_transparency','campaign_finance','reform_balance'] },
+        keys: ['checks_balances','war_powers','judicial_check','power_of_purse','congress_oversight','states_federal_power','state_standing','guard_authority','civil_service_control','scotus_reform','term_limits','stock_trading_ban','gov_transparency','campaign_finance','reform_balance','epstein_files_transparency'] },
       { key: 'education_parental', label: '🎓 Education & Parental Rights',
         blurb: 'Public schools, school choice, college and trade costs, and parents’ role in schools.',
         keys: ['school_choice','edu_balance','public_schools','edu_college_cost','edu_parental'] },
@@ -1320,7 +1337,7 @@
         keys: ['religious_liberty','rights_balance','lgbtq_rights','free_speech','end_dei','privacy_rights'] },
       { key: 'foreign_policy_defense', label: '🦅 Foreign Policy & National Security',
         blurb: 'National defense, alliances and diplomacy, America First priorities, support for Israel, U.S. policy toward Iran, Ukraine, Yemen and Venezuela, and support for veterans.',
-        keys: ['strong_defense','foreign_balance','restraint','america_first','america_first_fp','israel_support','iran_policy','ukraine_policy','yemen_policy','venezuela_policy','veterans'] },
+        keys: ['strong_defense','foreign_balance','restraint','no_new_wars','america_first','america_first_fp','israel_support','iran_policy','ukraine_policy','yemen_policy','venezuela_policy','veterans'] },
     ];
     try { window.CORE_NATIONAL_ISSUES = CORE_NATIONAL_ISSUES; } catch (e) {}
 

@@ -77,8 +77,9 @@ section("1 · vocab, cores and key count");
 {
   const keys = JSON.parse(R("db/issue-keys.json"));
   const list = Array.isArray(keys) ? keys : (keys.keys || []);
-  // 124 after this pass; 125 since the Venezuela leaf (20261116000000).
-  eq(list.length, 125, "db/issue-keys.json carries 125 keys");
+  // 124 after this pass; 125 since the Venezuela leaf (20261116000000); 128
+  // since the accountability stances pass (Nov 2026) added three keys.
+  eq(list.length, 128, "db/issue-keys.json carries 128 keys");
   const cores = JSON.parse(R("db/issue-core-categories.json"));
   const mig = R(MIG);
   for (const [k, name] of [[UK, "Ukraine"], [YE, "Yemen"]]) {

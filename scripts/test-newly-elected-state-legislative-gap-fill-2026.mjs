@@ -43,6 +43,7 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { DECLARED_STANCE_PASSES, GAP_FILL_ADDED, swCodeOnly, withoutHeroCrawl, carveDeclaredAdmissions, withoutDeclaredRelatedIssues, declaredStanceMovesAtHead } from "./v103-chrome-seams.mjs";
+import { withoutAccountabilityKeyList, withoutAccountabilityVocab } from "./v103-chrome-seams.mjs";
 // People a LATER declared stance pass added or moved (v103-chrome-seams.mjs) are
 // that pass's product, pinned by its own suite.
 const LATER_STANCE = new Set(DECLARED_STANCE_PASSES.slice(DECLARED_STANCE_PASSES.findIndex((d) => d.pass === "newly_elected_state_legislative_gap_fill_nov2026") + 1).flatMap((d) => d.pids));
@@ -260,6 +261,8 @@ section("4 · no roster row, board or issue key moved; no route, gate, migration
       "state-senate-stances.js", "politician-stances-core.js", "district-board.js",
       "person.html", "issue.html", "ballot.html", "netlify.toml", "_redirects"]) {
       let now = null; try { now = R(f); } catch { /* absent */ }
+      // The accountability stances pass's declared vocabulary (v103-chrome-seams.mjs) is that pass's product.
+      now = withoutAccountabilityVocab(f, now);
       // cmp-data.js: a later declared roster admission (the seventh newly
       // elected wave's block) is that pass's product; everything else is pinned.
       if (f === "cmp-data.js") { eq(carveDeclaredAdmissions(now), carveDeclaredAdmissions(BASE(f)), `${f} changed outside a later declared admission`); continue; }
@@ -270,7 +273,7 @@ section("4 · no roster row, board or issue key moved; no route, gate, migration
       if (f === "politician-stances-core.js" && declaredStanceMovesAtHead().ok && [...declaredStanceMovesAtHead().moved].every((p) => LATER_STANCE.has(p))) continue;
       eq(now, BASE(f), `${f} changed`);
     }
-    const keysNow = Object.keys(win.ISSUE_MAP).sort().join(",");
+    const keysNow = withoutAccountabilityKeyList(Object.keys(win.ISSUE_MAP)).sort().join(","); // the accountability pass's keys aside
     const w0 = makeSandbox(); const c0 = vm.createContext(w0);
     try { vm.runInContext(BASE("alignment-tool.js"), c0); } catch { /* fixture */ }
     if (w0.ISSUE_MAP) eq(keysNow, Object.keys(w0.ISSUE_MAP).sort().join(","), "the issue keys changed");

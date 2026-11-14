@@ -40,6 +40,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { withoutAccountabilityVocab } from "./v103-chrome-seams.mjs"; // the accountability pass's declared vocabulary
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -213,7 +214,7 @@ section("6 · it rolls forward and edits nothing applied");
     const h = head(f);
     if (h === null) continue;
     compared++;
-    eq(R(f), h, `${f} was edited — a repair rolls forward, it does not reach back into an applied migration or a shipped seed`);
+    eq(withoutAccountabilityVocab(f, R(f)), h, `${f} was edited — a repair rolls forward, it does not reach back into an applied migration or a shipped seed`);
   }
   console.log(`      (${compared} applied file(s) compared against HEAD)`);
 }

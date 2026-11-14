@@ -36,6 +36,7 @@ import { ENGINE_FILES, makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 import { measureAddresses } from "./vr-measure-addresses.mjs";
 import { hr1CorpusCitations } from "./vr-audit-hr1-citations.mjs";
+import { withoutAccountabilityRegisterBlock, withoutAccountabilityIssueKeys } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -133,7 +134,7 @@ ok(/WHERE measure_id = m_id AND is_primary;\s*IF n <> 1/.test(BODY), "the migrat
     for (const k of Object.keys(NEW)) ok(!(`${NUM}|119|${k}` in PE), `${k}: no line was stored before this pass`);
     ok(JSON.stringify(MECH) === JSON.stringify(tableOf(headCons, "_DOS_MECH")), "_DOS_MECH is unchanged");
     for (const k of Object.keys(NEW)) ok(!(`${NUM}|119|${k}` in MECH), `${k}: no did is stored for it — its line is in _DOS_EFFECT`);
-    ok(gitShow("issue-map.js") === R("issue-map.js"), "issue-map.js is unchanged: no new issue key");
+    ok(gitShow("issue-map.js") === withoutAccountabilityRegisterBlock(R("issue-map.js")) /* the accountability pass's declared keys aside */, "issue-map.js is unchanged: no new issue key");
   }
   const addr = measureAddresses(ROOT).published.find((a) => a.sitting === "119" && a.number === NUM);
   eq(JSON.stringify([...addr.issues].sort()), JSON.stringify([...KEYS].sort()), "the migrations map H.R. 1 to its fourteen keys plus the eleven new ones");

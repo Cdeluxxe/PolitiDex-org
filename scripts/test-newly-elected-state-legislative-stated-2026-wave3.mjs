@@ -41,6 +41,7 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { DECLARED_STANCE_PASSES, swCodeOnly, withoutWave5RosterRows, relatedIssuesMapOnly, gapFillKeys, declaredPin, withoutHeroCrawl, withoutDeclaredRelatedIssues } from "./v103-chrome-seams.mjs";
+import { withoutAccountabilityVocab } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -257,6 +258,8 @@ section("4 · nothing else moved; no new route or gate; no shell move, no migrat
       "stance-sides.js", "my-stances.js", "voting-record.js", "person.html", "index.html", "issue.html", "ballot.html", "netlify.toml", "_redirects"]) {
       const b = BASE(f);
       let now = null; try { now = R(f); } catch { /* absent */ }
+      // The accountability stances pass's declared vocabulary (v103-chrome-seams.mjs) is that pass's product.
+      now = withoutAccountabilityVocab(f, now);
       // A later pass's declared roster block (wave 5) is that pass's product.
       if (f === "cmp-data.js") now = withoutWave5RosterRows(now);
       if (f === "related-issues.js") { eq(relatedIssuesMapOnly(withoutDeclaredRelatedIssues(now)), relatedIssuesMapOnly(b), `${f}: the related-issues map changed`); continue; }

@@ -1,0 +1,81 @@
+{
+  "pass": "accountability-stances-2026-11",
+  "date": "2026-11-14",
+  "members": [
+    {
+      "name": "Donald Trump",
+      "id": "trump-donald",
+      "positions": [
+        {
+          "issue": "public-health-vs-chemical-liability",
+          "value": "oppose",
+          "type": "campaign-claim",
+          "sources": [
+            {
+              "type": "official",
+              "date": "2025-09-16",
+              "quote": "holding polluters accountable while providing certainty for passive receivers that did not manufacture or generate those chemicals… we will need new statutory language from Congress to fully address our concerns with passive receiver liability.",
+              "link": "https://www.epa.gov/newsreleases/trump-epa-announces-next-steps-regulatory-pfoa-and-pfos-cleanup-efforts-provides"
+            },
+            {
+              "type": "official",
+              "date": "2025-12",
+              "quote": "The administration argued that federal pesticide labeling law preempts state failure-to-warn lawsuits over glyphosate/Roundup.",
+              "link": "https://www.reuters.com/sustainability/boards-policy-regulation/trump-administration-backs-bayers-bid-curb-roundup-lawsuits-2025-12-02/"
+            },
+            {
+              "type": "court",
+              "date": "2026-06",
+              "quote": "Supreme Court held that FIFRA preempts state failure-to-warn claims requiring a cancer warning beyond the EPA-approved label.",
+              "link": "https://www.ewg.org/news-insights/news-release/2026/06/supreme-court-backs-bayer-and-trump-limiting-americans-right-sue"
+            }
+          ]
+        },
+        {
+          "issue": "epstein-files-transparency",
+          "value": "oppose",
+          "type": "campaign-claim",
+          "sources": [
+            {
+              "type": "stated",
+              "date": "2026-02-03",
+              "quote": "I think it’s really time for the country to maybe get onto something else… Now that nothing came out about me.",
+              "link": "https://www.gannettfeeds.co.uk/usa-today/25827042.trump-says-america-move-epstein-files/"
+            },
+            {
+              "type": "stated",
+              "date": "2025-07",
+              "quote": "Are you still talking about Jeffrey Epstein? This guy’s been talked about for years… That is unbelievable.",
+              "link": "https://www.cnn.com/2025/07/28/politics/trump-epstein-relationship-scandal-scotland"
+            },
+            {
+              "type": "official",
+              "date": "2025-11",
+              "quote": "Signed the Epstein Files Transparency Act; DOJ later released more than 3 million pages with heavy redactions and missed statutory deadlines.",
+              "link": "https://www.britannica.com/question/Did-Donald-Trump-sign-a-bill-to-release-the-Epstein-files"
+            }
+          ]
+        },
+        {
+          "issue": "no-new-wars",
+          "value": "support",
+          "type": "campaign-claim",
+          "sources": [
+            {
+              "type": "stated",
+              "date": "2024-11",
+              "quote": "I’m not going to start a war. I’m going to stop wars.",
+              "link": "https://www.politico.com/news/2026/06/07/trump-says-never-promised-no-new-wars-00952870"
+            },
+            {
+              "type": "stated",
+              "date": "2026-06-07",
+              "quote": "I didn’t guarantee no war… I didn’t promise anything.",
+              "link": "https://www.politico.com/news/2026/06/07/trump-says-never-promised-no-new-wars-00952870"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
