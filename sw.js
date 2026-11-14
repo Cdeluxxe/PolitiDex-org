@@ -12091,7 +12091,17 @@
 //     is added. No location key or other stored reader state is written or
 //     rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v557';
+// v558 - PERSON PAGE STOPS PRINTING ITS OWN CSS. A comment in person.html's
+//     <style> spelled out the opening body tag, and share-preview.ts injects
+//     the crawl header after the first match of that tag. The header landed
+//     inside the comment, its own </style> closed the style element, and the
+//     rest of the comment plus a body{} rule rendered as text under "Open the
+//     full file" on every /p/<pid>. The comment no longer spells the tag (and
+//     bill.html's head comment likewise); the injection, the crawl header and
+//     the layout are unchanged. person.html and bill.html are precached, so the
+//     shell is bumped.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v558';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
