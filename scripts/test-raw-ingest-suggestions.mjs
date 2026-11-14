@@ -4,7 +4,7 @@
 //   · A real run (the scheduled wrapper around the unchanged `run`) that finds a
 //     new URL and a cross-topic support/oppose score writes both to the log.
 //   · Repeats are not re-suggested; a source that keeps failing is; a scorer key
-//     missing from the related-issues map is; the log is capped (oldest dropped).
+//     missing from the related-issues map is; each type is capped (oldest dropped), 400 overall.
 //   · The API serves the entries newest first only to the curator's verified
 //     Firebase token, and the page renders them when signed in as the curator.
 //   · The generated related-issues key list matches related-issues.js.
@@ -127,16 +127,68 @@ await t('a scorer key the related-issues map does not name is logged once; mappe
   assert.equal(r.added[0].details.previous_position, 'support');
 });
 
-await t('the log keeps at most MAX_ENTRIES entries, dropping the oldest', () => {
-  assert.ok(sug.MAX_ENTRIES >= 200 && sug.MAX_ENTRIES <= 300);
+const urlLine = (i) => `discovery: NEW p|cost_living https://p.example.gov/${i} (official page) — added to this run's pull list`;
+const scoreLine = (pid, topic, position, url = `https://${pid}.example.gov/`) => `stance-score: cross-topic candidate ${JSON.stringify({ politician_id: pid, topic, page_topic: 'cost_living', url, position, confidence: 0.6 })}`;
+
+await t('each type keeps at most its own cap (oldest of that type dropped); overall limit 400', () => {
+  assert.deepEqual(sug.TYPE_CAPS, { url: 100, score: 200, key: 50, fail: 50 });
+  assert.equal(sug.MAX_ENTRIES, 400);
   let doc = null;
-  for (let i = 0; i < sug.MAX_ENTRIES + 40; i++) {
-    doc = sug.foldRun(doc, { lines: [`discovery: NEW p|cost_living https://p.example.gov/${i} (official page) — added to this run's pull list`], now: new Date(Date.UTC(2026, 10, 1, 0, i)) }).doc;
+  for (let i = 0; i < sug.TYPE_CAPS.url + 40; i++) {
+    doc = sug.foldRun(doc, { lines: [urlLine(i)], now: new Date(Date.UTC(2026, 10, 1, 0, i)) }).doc;
   }
-  assert.equal(doc.entries.length, sug.MAX_ENTRIES);
-  assert.equal(doc.entries[0].details.url, 'https://p.example.gov/40', 'the oldest were dropped');
+  assert.equal(doc.entries.length, sug.TYPE_CAPS.url, 'url entries stop at their cap');
+  assert.equal(doc.entries[0].details.url, 'https://p.example.gov/40', 'the oldest urls were dropped');
   const recent = sug.recentEntries(doc, { limit: 3 });
-  assert.deepEqual(recent.map((e) => e.details.url), [0, 1, 2].map((d) => sug.MAX_ENTRIES + 39 - d).map((i) => `https://p.example.gov/${i}`), 'newest first');
+  assert.deepEqual(recent.map((e) => e.details.url), [0, 1, 2].map((d) => sug.TYPE_CAPS.url + 39 - d).map((i) => `https://p.example.gov/${i}`), 'newest first');
+  // A flood of one type never pushes out another.
+  doc = sug.foldRun(doc, { lines: [scoreLine('keep', 'climate_action', 'support')], report: {} }).doc;
+  for (let i = 0; i < 300; i++) doc = sug.foldRun(doc, { lines: [scoreLine(`p${i}`, 'border_security', 'oppose')] }).doc;
+  for (let i = 0; i < 80; i++) doc = sug.foldRun(doc, { lines: [`stance-score: candidate ${JSON.stringify({ politician_id: 'x', topic: `new_key_${i}`, position: 'no clear position' })}`] }).doc;
+  for (let i = 0; i < 80; i++) for (let j = 0; j < sug.FAIL_THRESHOLD; j++) doc = sug.foldRun(doc, { report: { results: [{ ok: false, url: `https://dead${i}.example.gov/`, error: 'HTTP 404' }] } }).doc;
+  const n = (ty) => doc.entries.filter((e) => e.type === ty).length;
+  for (const ty of sug.SUGGESTION_TYPES) assert.equal(n(ty), sug.TYPE_CAPS[ty], `${ty}: ${n(ty)} kept, cap ${sug.TYPE_CAPS[ty]}`);
+  assert.equal(n('url'), sug.TYPE_CAPS.url, 'urls survive the score / key / fail floods');
+  assert.ok(doc.entries.length <= sug.MAX_ENTRIES);
+  assert.ok(!doc.entries.some((e) => e.details.politician_id === 'keep'), 'the oldest score went first');
+  // The overall limit drops the oldest across types.
+  const mk = (type, i) => ({ ts: new Date(Date.UTC(2026, 0, 1, 0, i)).toISOString(), type, details: { i } });
+  const mixed = Array.from({ length: 12 }, (_, i) => mk(['url', 'score', 'key', 'fail'][i % 4], i));
+  const pruned = sug.pruneEntries(mixed, { caps: { url: 2, score: 5, key: 5, fail: 5 }, max: 6 });
+  assert.equal(pruned.length, 6);
+  assert.deepEqual(pruned.map((e) => e.details.i), [6, 7, 8, 9, 10, 11], 'oldest dropped across all types');
+  assert.ok(pruned.filter((e) => e.type === 'url').length <= 2);
+});
+
+await t('a score is logged once per politician + topic; again only when the position flips, with the previous position', () => {
+  let r = sug.foldRun(null, { lines: [scoreLine('p', 'climate_action', 'support')] });
+  assert.equal(r.added.length, 1);
+  // Later runs: same pair + position, from the same page or another page — never again.
+  for (let i = 0; i < 5; i++) {
+    r = sug.foldRun(r.doc, { lines: [scoreLine('p', 'climate_action', 'support'), scoreLine('p', 'climate_action', 'support', `https://p.example.gov/other-${i}`)] });
+    assert.equal(r.added.length, 0, `run ${i}: the same score does not reappear`);
+  }
+  r = sug.foldRun(r.doc, { lines: [scoreLine('p', 'climate_action', 'oppose', 'https://p.example.gov/new')] });
+  assert.equal(r.added.length, 1, 'a flip is logged');
+  assert.deepEqual([r.added[0].details.position, r.added[0].details.previous_position], ['oppose', 'support']);
+  r = sug.foldRun(r.doc, { lines: [scoreLine('p', 'climate_action', 'oppose')] });
+  assert.equal(r.added.length, 0, 'the flipped position is not repeated');
+  assert.equal(r.doc.entries.filter((e) => e.type === 'score').length, 2);
+  // A doc written by the older per-URL dedupe keeps its memory.
+  const old = { entries: [], seen: { url: {}, key: {}, score: { 'q|tax_middle_class|https://q.example.gov/a': 'support', 'q|tax_middle_class|https://q.example.gov/b': 'oppose' } } };
+  r = sug.foldRun(old, { lines: [scoreLine('q', 'tax_middle_class', 'oppose', 'https://q.example.gov/c')] });
+  assert.equal(r.added.length, 0, 'an already-logged pair is not re-logged after the upgrade');
+  r = sug.foldRun(r.doc, { lines: [scoreLine('q', 'tax_middle_class', 'support')] });
+  assert.equal(r.added[0].details.previous_position, 'oppose');
+});
+
+await t('a url is logged once, never again', () => {
+  let doc = sug.foldRun(null, { lines: [urlLine('once')] }).doc;
+  for (let i = 0; i < sug.TYPE_CAPS.url + 10; i++) doc = sug.foldRun(doc, { lines: [urlLine(i)] }).doc;
+  // Pruned from the visible log, but still remembered.
+  assert.ok(!doc.entries.some((e) => e.details.url === 'https://p.example.gov/once'));
+  const r = sug.foldRun(doc, { lines: [urlLine('once'), urlLine('ONCE'.toLowerCase())] });
+  assert.equal(r.added.length, 0);
 });
 
 await t('the generated related-issues key list matches related-issues.js', () => {

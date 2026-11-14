@@ -2,7 +2,7 @@
 // newest first, for the curator only (the existing /admin Firebase login,
 // verified server-side; see netlify/lib/admin-auth.mjs). Read-only.
 //   ?type=url|score|key|fail   only that type
-//   ?limit=N                   at most N entries (default: all kept, ≤ 250)
+//   ?limit=N                   at most N entries (default: all kept, ≤ 400)
 import type { Config } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
 import { requireAdmin } from "../lib/admin-auth.mjs";
