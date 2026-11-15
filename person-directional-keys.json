@@ -274,10 +274,11 @@
       "stances": [
         {
           "key": "healthcare",
-          "position": "no clear position",
-          "confidence": 0.3,
-          "reason": "1 topic mention(s), none states a clear position (R3)",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); stance verb in the opening sentences acts on a named bill the page says harms the issue reads as a clear support (R14); 1 mention(s) recorded at zero weight (R3)",
           "record": "ground-truth record on this key",
+          "quote": "Thompson (D-MS) voted against House Republicans' Reconciliation Bill (H.R. 1).",
           "sources": [
             {
               "type": "official press release",
@@ -1132,10 +1133,11 @@
       "stances": [
         {
           "key": "lands_preserve",
-          "position": "no clear position",
-          "confidence": 0.3,
-          "reason": "1 topic mention(s), none states a clear position (R3)",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); stance verb in the opening sentences acts on a named bill reads as a clear support (R14); 1 mention(s) recorded at zero weight (R3)",
           "record": "ground-truth record on this key",
+          "quote": "Washington, D.C. — Today, House Committee on Natural Resources Ranking Member Jared Huffman (D-Calif.) and Chairman Bruce Westerman (R-Ark.) introduced the bipartisan Great American Outdoors Act 250…",
           "sources": [
             {
               "type": "official press release",
@@ -1566,10 +1568,11 @@
       "stances": [
         {
           "key": "edu_college_cost",
-          "position": "no clear position",
-          "confidence": 0.3,
-          "reason": "1 topic mention(s), none states a clear position (R3)",
+          "position": "oppose",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); stance verb in the opening sentences acts on a named bill reads as a clear oppose (R14); 1 mention(s) recorded at zero weight (R3)",
           "record": "ground-truth record on this key",
+          "quote": "WASHINGTON, D.C. - Today, Rep. Lisa McClain (R-MI) and House Education and the Workforce Committee Chairwoman Virginia Foxx (R-NC) introduced a Congressional Review Act (CRA) resolution to overturn…",
           "sources": [
             {
               "type": "official press release",
@@ -2611,10 +2614,11 @@
       "stances": [
         {
           "key": "voting_access",
-          "position": "no clear position",
-          "confidence": 0.3,
-          "reason": "1 topic mention(s), none states a clear position (R3)",
+          "position": "oppose",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); stance verb in the opening sentences acts on a named bill reads as a clear oppose (R14); 1 mention(s) recorded at zero weight (R3)",
           "record": "ground-truth record on this key",
+          "quote": "Washington, D.C. – Congressman Tom Cole (OK-04) released the following statement after voting against the House Amendment to the Senate Amendment to H.R. 5746, the text of which was released with an…",
           "sources": [
             {
               "type": "official press release",
@@ -2644,10 +2648,11 @@
       "stances": [
         {
           "key": "econ_trade",
-          "position": "no clear position",
-          "confidence": 0.3,
-          "reason": "1 topic mention(s), none states a clear position (R3)",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); stance verb in the opening sentences acts on a named bill reads as a clear support (R14); 1 mention(s) recorded at zero weight (R3)",
           "record": "ground-truth record on this key",
+          "quote": "Washington, D.C. —Congressman Tim Walberg (MI-07) today voted for H.R. 5430, the United States-Mexico-Canada Agreement (USMCA) Implementation Act, to replace an outdated NAFTA. \"For too long,…",
           "sources": [
             {
               "type": "official press release",
@@ -2712,10 +2717,11 @@
       "stances": [
         {
           "key": "privacy_rights",
-          "position": "no clear position",
-          "confidence": 0.3,
-          "reason": "3 topic mention(s), none states a clear position (R3)",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); stance verb in the opening sentences acts on a named bill reads as a clear support (R14); 2 mention(s) recorded at zero weight (R3)",
           "record": "ground-truth record on this key",
+          "quote": "WASHINGTON, DC — Rep. Zoe Lofgren (D-CA), Rep. Warren Davidson (R-OH), Sen. Ron Wyden (D-OR), and Mike Lee (R-UT), yesterday introduced an updated version of the Government Surveillance Reform Act…",
           "sources": [
             {
               "type": "official press release",
