@@ -794,6 +794,12 @@ export const vrMeasureIssues = pgTable(
     reviewStatus: text("review_status").notNull().default("curated"),
     reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
     reviewedBy: text("reviewed_by"),
+    // 0..100 — how sure the automatic proposal step was of this key (see
+    // scoreProposal in netlify/lib/vr-issue-proposals.ts). Null on every curated
+    // or hand-reviewed row that did not come from the proposal step. At or above
+    // AUTO_APPROVE_CUTOFF the proposal is auto-approved (reviewed_by = 'auto');
+    // below it the row stays 'proposed' in the manual queue.
+    confidence: integer(),
   },
   (t) => ({
     uniq: uniqueIndex("vr_measure_issues_unique").on(t.measureId, t.issueKey),

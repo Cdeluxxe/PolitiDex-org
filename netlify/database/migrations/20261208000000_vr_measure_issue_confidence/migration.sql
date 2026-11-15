@@ -1,0 +1,13 @@
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Confidence on automatic mapping proposals — vr_measure_issues.confidence
+-- ─────────────────────────────────────────────────────────────────────────────
+-- 0..100, written by the proposal step (netlify/lib/vr-issue-proposals.ts
+-- scoreProposal). At or above the auto-approve cutoff a proposal is promoted to
+-- 'reviewed' with reviewed_by = 'auto'; below it the row stays 'proposed' for
+-- manual review. Nullable and additive: every existing row keeps NULL, and no
+-- existing row or column changes.
+--
+-- WHY THE VERSION WAS HAND-SET. One version after the applied tail
+-- (20261207000000_vr_measure_issue_proposals); the drizzle-generated stamp
+-- (20261115064128) sorted behind it.
+ALTER TABLE "vr_measure_issues" ADD COLUMN "confidence" integer;

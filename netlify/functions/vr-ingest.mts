@@ -28,7 +28,9 @@
 //        body: { note?, reviewer? }
 //   POST /propose-issues            propose for named measures that have no mapping yet
 //        body: { measureIds: number[] }   (the ingest does this automatically per run)
-// Only rows in status 'proposed' can be reviewed or rejected; curated and reviewed
+// Each proposal carries a 0..100 confidence; those at or above 60 are auto-approved
+// at write time (reviewed_by 'auto'), so the default queue holds only the
+// low-confidence ones. Only rows in status 'proposed' can be reviewed or rejected; curated and reviewed
 // mappings are never edited here. Each review/proposal re-packs the affected members.
 
 import type { Config } from "@netlify/functions";

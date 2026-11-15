@@ -26,7 +26,9 @@
 // that drive the stance-vs-record verdict, so they stay a CURATION step (the seed).
 // After each run, measures the run touched that have NO mapping row at all get
 // automatic PROPOSALS (netlify/lib/vr-issue-proposals.ts): low weight, rationale
-// "auto — review", review_status 'proposed'. Proposals never overwrite a curated
+// "auto — review", review_status 'proposed', each with a 0..100 confidence. Those at
+// or above the cutoff (60) are auto-approved (reviewed_by 'auto'); the rest wait
+// in the manual queue. Proposals never overwrite a curated
 // or reviewed mapping and are skipped by every public read until a reviewer
 // promotes them (POST /api/vr-ingest/proposals/:id/review), so the read path is
 // never polluted with an unreviewed verdict signal.
@@ -97,6 +99,9 @@ export type IngestReport = {
   // Automatic mapping proposals (review_status 'proposed') written this run, the
   // measures that received them, and pattern keys the issue-keys guard rejected.
   issuesProposed: number;
+  // Of those: auto-approved at or above the confidence cutoff, and left for review.
+  issuesAutoApproved: number;
+  issuesQueuedForReview: number;
   measuresProposed: number[];
   proposalKeysRejected: string[];
   actionsUpserted: number;
@@ -628,7 +633,7 @@ export async function ingestVotes(
   const report: IngestReport = {
     configured: true, fetched: rawVotes.length, measuresUpserted: 0, rollcallsUpserted: 0,
     memberVotesUpserted: 0, membersUnmapped: 0, issuesSuggested: 0,
-    issuesProposed: 0, measuresProposed: [], proposalKeysRejected: [], actionsUpserted: 0,
+    issuesProposed: 0, issuesAutoApproved: 0, issuesQueuedForReview: 0, measuresProposed: [], proposalKeysRejected: [], actionsUpserted: 0,
     curatedTitlesResolved: 0, curatedMeasuresMatched: 0, curatedIssuesUpserted: 0, packsWritten: 0, skipped: 0, errors: [],
   };
   const memberMap = opts.memberMap || (await loadMemberMap());
@@ -776,6 +781,8 @@ export async function ingestVotes(
       const prop = await proposeIssuesForMeasures([...touchedMeasures], { refreshPacks: false });
       report.issuesProposed = prop.proposalsWritten;
       report.issuesSuggested = prop.proposalsWritten;
+      report.issuesAutoApproved = prop.autoApproved;
+      report.issuesQueuedForReview = prop.queuedForReview;
       report.measuresProposed = prop.measuresProposed;
       report.proposalKeysRejected = prop.rejectedKeys;
       for (const pid of prop.affectedMembers) affectedMembers.add(pid);
@@ -823,7 +830,7 @@ export async function runIngest(opts: {
     return {
       configured: false, fetched: 0, measuresUpserted: 0, rollcallsUpserted: 0,
       memberVotesUpserted: 0, membersUnmapped: 0, issuesSuggested: 0,
-    issuesProposed: 0, measuresProposed: [], proposalKeysRejected: [], actionsUpserted: 0,
+    issuesProposed: 0, issuesAutoApproved: 0, issuesQueuedForReview: 0, measuresProposed: [], proposalKeysRejected: [], actionsUpserted: 0,
       curatedTitlesResolved: 0, curatedMeasuresMatched: 0, curatedIssuesUpserted: 0, packsWritten: 0, skipped: 0,
       errors: ["CONGRESS_GOV_API_KEY not configured — House ingest skipped"],
     };

@@ -76,9 +76,10 @@ function memRepo({ measures = [], mappings = [], votes = {} } = {}) {
     async loadMeasures(ids) { return state.measures.filter((m) => ids.includes(m.id)); },
     async mappedMeasureIds(ids) { return new Set(state.mappings.filter((r) => ids.includes(r.measureId)).map((r) => r.measureId)); },
     async insertProposal(row) {
-      if (state.mappings.some((r) => r.measureId === row.measureId && r.issueKey === row.issueKey)) return false;
-      state.mappings.push({ id: state.nextId++, reviewedAt: null, reviewedBy: null, ...row });
-      return true;
+      if (state.mappings.some((r) => r.measureId === row.measureId && r.issueKey === row.issueKey)) return null;
+      const id = state.nextId++;
+      state.mappings.push({ id, reviewedAt: null, reviewedBy: null, ...row });
+      return id;
     },
     async getMapping(id) { return state.mappings.find((r) => r.id === id) ?? null; },
     async findMapping(mid, k) { return state.mappings.find((r) => r.measureId === mid && r.issueKey === k) ?? null; },
@@ -100,7 +101,10 @@ const curatedRow = (id, measureId, issueKey, extra = {}) => ({
   reviewStatus: "curated", reviewedAt: null, reviewedBy: null, ...extra,
 });
 
-const BORDER = { id: 1, measureType: "bill", title: "Secure the Border Act of 2025", summary: "", sourceUrl: "https://www.congress.gov/bill/119/hr/2" };
+// Low confidence on purpose (subject + instrument read only once the summary is
+// added → 45 < the auto-approve cutoff), so this fixture exercises the MANUAL
+// review lane. The auto-approve lane has its own suite: test-vr-issue-confidence.mjs.
+const BORDER = { id: 1, measureType: "bill", title: "To amend the Immigration and Nationality Act", summary: "Strengthens border security enforcement and detention.", sourceUrl: "https://www.congress.gov/bill/119/hr/2" };
 const UKRAINE = { id: 2, measureType: "bill", title: "Ukraine Security Supplemental Appropriations Act — aid to Ukraine", sourceUrl: "https://www.congress.gov/bill/118/hr/8035" };
 const CURATED = { id: 3, measureType: "bill", title: "Secure Border Enforcement Act", sourceUrl: "https://www.congress.gov/bill/119/hr/3" };
 const BLANK = { id: 4, measureType: "bill", title: "To designate the facility of the United States Postal Service", sourceUrl: "https://www.congress.gov/bill/119/hr/4" };
@@ -147,7 +151,7 @@ section("2. curated, reviewed and rejected mappings are never overwritten");
   // even if asked directly, the insert path never clobbers (ON CONFLICT DO NOTHING)
   const wrote = await repo.insertProposal({ measureId: 3, issueKey: "housing", weight: 40, isPrimary: false,
     supportMeaning: "yea_supports", rationale: "auto — review", sourceUrl: null, reviewStatus: "proposed" });
-  eq(wrote, false, "a conflicting proposal insert is a no-op");
+  eq(wrote, null, "a conflicting proposal insert is a no-op");
   eq(repo.state.mappings.find((r) => r.id === 10).weight, 100, "curated weight unchanged");
   eq(repo.state.mappings.find((r) => r.id === 10).supportMeaning, "yea_opposes", "curated supportMeaning unchanged");
 

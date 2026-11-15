@@ -3448,3 +3448,33 @@ and a live-only key is listed bare because no effect line is stored for it. A re
 within about a minute (60 s Function cache plus a 60 s edge memo). A browser that already
 holds the page may keep its copy for up to 5 minutes. An effect line, the sitemap and the
 eye's search index (`bill-search-index.js`) still come only from `gen-bill-docs.mjs`.
+
+### Proposal confidence and auto-approval (`20261208000000`)
+
+Every proposal row carries `confidence` (0–100), scored by `proposeIssueKeys()` in
+`netlify/lib/vr-issue-proposals.ts`:
+
+| Signal | Effect |
+|---|---|
+| bill-key-patterns subject + instrument (+ facet) read in the title / short title | base 70 |
+| …read only once the summary is added | base 45 |
+| keyword suggester only (no pattern fits) | 35 |
+| the key has a facet (narrower child key) and it read | +10 |
+| title and summary each match on their own | +10 |
+| the keyword suggester independently picks the same key | +10 |
+| more than one pattern key fits | −10 each, a further −10 for each key after the first |
+| a reversal or restriction cue in the text (`REVERSAL_CUES`: repeal, disapproval, prohibit, restrict, cut, proof of citizenship, …) | capped at 40 |
+
+The cap exists because the patterns say what a bill is about, not which way a yea pushes
+the issue. Their instrument words run both ways.
+
+Bands: **high ≥ 80, medium 60–79, low < 60**. At or above **60**, and only for a key in
+`db/issue-keys.json` with no reversal cue, a proposal is promoted at write time through the
+same guarded proposed → reviewed update a manual review uses. It gets `support_meaning =
+'yea_supports'` (the only direction the patterns allow), `reviewed_by = 'auto'`, a rationale
+naming the score and the signals that fired, and its low proposal weight. Its voters are
+re-packed like any review. Below 60 the row stays `proposed` with "auto — review" and is the
+only kind of row in `GET /api/vr-ingest/proposals?status=proposed`. A human reviewer can't
+record themselves as `auto`.
+
+To audit machine approvals, list `?status=reviewed` and look at `reviewedBy = "auto"`.

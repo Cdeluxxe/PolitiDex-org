@@ -150,7 +150,9 @@ if (!DB) {
     // is_primary is a retired leaf flag the pack no longer serves; reviewed_at /
     // reviewed_by are the review audit trail, never pack content (review_status,
     // which decides whether the pack serves a row at all, IS fingerprinted).
-    const exempt = ["id", "source_url", "is_primary", "reviewed_at", "reviewed_by"];
+    // confidence is the proposal step's score, never served (review_status, which
+    // it decides, is fingerprinted).
+    const exempt = ["id", "source_url", "is_primary", "reviewed_at", "reviewed_by", "confidence"];
     const unknown = cols.filter((c) => !covered.includes(c) && !exempt.includes(c));
 
     section("3. every mapping column is either fingerprinted or deliberately exempt");

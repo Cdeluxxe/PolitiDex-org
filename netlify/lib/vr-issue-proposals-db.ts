@@ -47,7 +47,7 @@ export const dbProposalRepo: ProposalRepo = {
       .values(row)
       .onConflictDoNothing({ target: [vrMeasureIssues.measureId, vrMeasureIssues.issueKey] })
       .returning({ id: vrMeasureIssues.id });
-    return res.length > 0;
+    return res.length ? res[0].id : null;
   },
 
   async getMapping(id) {

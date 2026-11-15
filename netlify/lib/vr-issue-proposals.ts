@@ -25,6 +25,13 @@
 //      safe there — the client's verdict code would read ANY unknown value as
 //      "yea_supports", so the guard has to be server-side and it is.
 //
+//   2b. SCORE AND AUTO-APPROVE. Each proposed key gets a 0..100 confidence
+//      (see "Confidence" below). At or above AUTO_APPROVE_CUTOFF (60) — and only
+//      for a key in db/issue-keys.json with no reversal cue in the measure's text
+//      — the row is promoted at once through the same guarded proposed→reviewed
+//      transition a manual review uses: support_meaning 'yea_supports',
+//      reviewed_by 'auto'. Below the cutoff it stays 'proposed' ("auto — review").
+//
 //   3. REVIEW. An authenticated operator (POST /api/vr-ingest/proposals/:id/review)
 //      confirms or edits the issue key, sets the final weight and support_meaning,
 //      optionally marks it primary, and the row becomes 'reviewed' — a normal
@@ -77,7 +84,54 @@ export type ProposalCandidate = {
   issueKey: string;
   weight: number;
   basis: string; // which reader produced it — kept out of the served rationale
+  confidence: number; // 0..100, see scoreProposal
+  directionClear: boolean; // false when the measure's text carries a reversal cue
+  signals: string[]; // the scoring rules that fired, for the rationale + tests
 };
+
+// ── Confidence (0..100) and the auto-approve cutoff ─────────────────────────
+// Each proposed key is scored from HOW it was selected:
+//   location     subject + instrument (+ facet) read in the title / short title → 70
+//                read only once the summary is added → 45
+//                keyword suggester only (no pattern fits) → 35
+//   specificity  the key has a facet (a narrower child key) and it read → +10
+//   agreement    title AND summary each match the pattern on their own → +10
+//                the keyword suggester independently picks the same key → +10
+//   competition  more than one pattern key fits the measure → −10 for every key,
+//                and a further −10 for each key after the first
+//   direction    the patterns say what a bill is ABOUT, not which way a yea
+//                pushes the issue: their instrument words run both ways ("expand"
+//                and "restrict", "ban" and "rights"). So a measure whose text
+//                carries a reversal or restriction cue (REVERSAL_CUES) has an
+//                unclear direction and is capped at DIRECTION_UNCLEAR_CAP — below
+//                the cutoff — so a human sets supportMeaning. Without a cue the
+//                one direction the patterns allow is assumed: yea_supports.
+// Bands: high ≥ 80, medium 60–79, low < 60. High and medium (≥ AUTO_APPROVE_CUTOFF)
+// are auto-approved — review_status 'reviewed', reviewed_by 'auto' — and low stays
+// 'proposed' with the "auto — review" rationale in the manual queue.
+export const AUTO_APPROVE_CUTOFF = 60;
+export const HIGH_CONFIDENCE = 80;
+export const AUTO_REVIEWER = "auto";
+export const DIRECTION_UNCLEAR_CAP = 40;
+export const CONF = {
+  titleMatch: 70,
+  summaryMatch: 45,
+  keywordOnly: 35,
+  facet: 10,
+  titleAndSummary: 10,
+  keywordAgrees: 10,
+  competing: 10,
+  secondaryRank: 10,
+} as const;
+
+export const REVERSAL_CUES =
+  /\b(?:repeal\w*|rescind\w*|rescission\w*|disapprov\w*|nullif\w*|terminat\w*|prohibit\w*|ban|bans|banned|banning|restrict\w*|block\w*|defund\w*|roll(?:ing)?[- ]back|overturn\w*|eliminat\w*|limit|limits|limited|limiting|limitations?|freez\w*|deny\w*|denial|suspend\w*|suspension|withdraw\w*|revok\w*|revocation|exempt\w*|waiv\w+|delay\w*|cuts?|cutting|reduc\w+|proof of citizenship|voter id|concealed carry|reciprocity|deregulat\w*)\b/i;
+
+export function confidenceBand(c: number): "high" | "medium" | "low" {
+  return c >= HIGH_CONFIDENCE ? "high" : c >= AUTO_APPROVE_CUTOFF ? "medium" : "low";
+}
+
+const clamp = (n: number) => Math.max(0, Math.min(100, Math.round(n)));
 
 const PATTERN_MEASURE_TYPES_SKIPPED = new Set(["litigation", "nomination"]);
 
@@ -86,11 +140,12 @@ const PATTERN_MEASURE_TYPES_SKIPPED = new Set(["litigation", "nomination"]);
 const stateless = (re: RegExp | undefined | null): RegExp | null =>
   re ? new RegExp(re.source, re.flags.replace(/g|y/g, "")) : null;
 
+const str = (v: unknown) => String(v ?? "").trim();
+function titleText(m: MeasureLite): string {
+  return [m.title, m.shortTitle].map(str).filter(Boolean).join(" — ");
+}
 function measureText(m: MeasureLite): string {
-  return [m.title, m.shortTitle, m.summary]
-    .map((s) => String(s ?? "").trim())
-    .filter(Boolean)
-    .join(" — ");
+  return [m.title, m.shortTitle, m.summary].map(str).filter(Boolean).join(" — ");
 }
 
 // Every key whose bill-key-patterns subject AND instrument (and facet, when the
@@ -114,8 +169,8 @@ function patternHits(text: string): string[] {
   return hits;
 }
 
-// Propose issue keys for ONE measure. Returns accepted proposals (known keys,
-// capped, low weight) and the unknown keys the guard rejected, for the report.
+// Propose issue keys for ONE measure, each scored. Returns accepted proposals
+// (known keys, capped, low weight) and the unknown keys the guard rejected.
 export function proposeIssueKeys(m: MeasureLite): {
   accepted: ProposalCandidate[];
   rejected: Array<{ issueKey: string; basis: string }>;
@@ -126,26 +181,54 @@ export function proposeIssueKeys(m: MeasureLite): {
   const text = measureText(m);
   if (!text) return { accepted, rejected };
 
-  for (const key of patternHits(text)) {
-    if (!ISSUE_KEYS.has(key)) {
-      rejected.push({ issueKey: key, basis: PATTERNS_VERSION });
-      continue;
-    }
-    if (accepted.length >= PROPOSAL_MAX_PER_MEASURE) break;
+  const titleHits = new Set(patternHits(titleText(m)));
+  const summary = str(m.summary);
+  const summaryHits = new Set(summary ? patternHits(summary) : []);
+  const allHits = patternHits(text);
+  const kw = suggestIssue(text);
+  const directionClear = !REVERSAL_CUES.test(text);
+
+  const known = allHits.filter((k) => {
+    if (ISSUE_KEYS.has(k)) return true;
+    rejected.push({ issueKey: k, basis: PATTERNS_VERSION });
+    return false;
+  });
+
+  known.slice(0, PROPOSAL_MAX_PER_MEASURE).forEach((key, rank) => {
+    const P: any = (BILL_KEY_PATTERNS as any)[key];
+    const signals: string[] = [];
+    let c: number;
+    if (titleHits.has(key)) { c = CONF.titleMatch; signals.push("title-match"); }
+    else { c = CONF.summaryMatch; signals.push("summary-match"); }
+    if (P && P.facet) { c += CONF.facet; signals.push("facet"); }
+    if (titleHits.has(key) && summaryHits.has(key)) { c += CONF.titleAndSummary; signals.push("title+summary-agree"); }
+    if (kw === key) { c += CONF.keywordAgrees; signals.push("keyword-agrees"); }
+    if (known.length > 1) { c -= CONF.competing; signals.push("competing-keys"); }
+    if (rank > 0) { c -= CONF.secondaryRank; signals.push("secondary-key"); }
+    if (!directionClear) { c = Math.min(c, DIRECTION_UNCLEAR_CAP); signals.push("direction-unclear"); }
     accepted.push({
       issueKey: key,
-      weight: accepted.length === 0 ? PROPOSAL_PRIMARY_WEIGHT : PROPOSAL_SECONDARY_WEIGHT,
+      weight: rank === 0 ? PROPOSAL_PRIMARY_WEIGHT : PROPOSAL_SECONDARY_WEIGHT,
       basis: PATTERNS_VERSION,
+      confidence: clamp(c),
+      directionClear,
+      signals,
     });
-  }
+  });
 
-  if (!accepted.length) {
-    const kw = suggestIssue(text);
-    if (kw && ISSUE_KEYS.has(kw)) {
-      accepted.push({ issueKey: kw, weight: PROPOSAL_KEYWORD_WEIGHT, basis: "keyword-suggester" });
-    }
+  if (!accepted.length && kw && ISSUE_KEYS.has(kw)) {
+    const signals = ["keyword-only"];
+    let c: number = CONF.keywordOnly;
+    if (!directionClear) { c = Math.min(c, DIRECTION_UNCLEAR_CAP); signals.push("direction-unclear"); }
+    accepted.push({ issueKey: kw, weight: PROPOSAL_KEYWORD_WEIGHT, basis: "keyword-suggester", confidence: clamp(c), directionClear, signals });
   }
   return { accepted, rejected };
+}
+
+// Should this scored candidate be promoted without a human? Never for a key the
+// allow-list lacks, never with an unclear direction, never below the cutoff.
+export function shouldAutoApprove(c: Pick<ProposalCandidate, "issueKey" | "confidence" | "directionClear">): boolean {
+  return ISSUE_KEYS.has(c.issueKey) && c.directionClear && c.confidence >= AUTO_APPROVE_CUTOFF;
 }
 
 // Validate a proposal row against the guard before it is ever written. Exported
@@ -171,6 +254,7 @@ export type MappingRow = {
   reviewStatus: string;
   reviewedAt: Date | string | null;
   reviewedBy: string | null;
+  confidence?: number | null;
 };
 
 export type ProposalInsert = {
@@ -182,6 +266,7 @@ export type ProposalInsert = {
   rationale: string;
   sourceUrl: string | null;
   reviewStatus: "proposed";
+  confidence: number;
 };
 
 export type ReviewUpdate = Partial<
@@ -192,8 +277,9 @@ export interface ProposalRepo {
   loadMeasures(ids: number[]): Promise<MeasureLite[]>;
   // Measure ids (of those given) that already have ANY vr_measure_issues row.
   mappedMeasureIds(ids: number[]): Promise<Set<number>>;
-  // ON CONFLICT (measure_id, issue_key) DO NOTHING. true when a row was written.
-  insertProposal(row: ProposalInsert): Promise<boolean>;
+  // ON CONFLICT (measure_id, issue_key) DO NOTHING. The new row's id, or null
+  // when nothing was written.
+  insertProposal(row: ProposalInsert): Promise<number | null>;
   getMapping(id: number): Promise<MappingRow | null>;
   findMapping(measureId: number, issueKey: string): Promise<MappingRow | null>;
   // Guarded on the row still being in `expectStatus`; null when it was not.
@@ -209,6 +295,9 @@ export type ProposeReport = {
   considered: number;
   skippedMapped: number;
   proposalsWritten: number;
+  // Of those: promoted to 'reviewed' by the confidence cutoff, and left 'proposed'.
+  autoApproved: number;
+  queuedForReview: number;
   measuresProposed: number[];
   rejectedKeys: string[];
   packsWritten: number;
@@ -223,7 +312,7 @@ export async function proposeForMeasures(
 ): Promise<ProposeReport> {
   const ids = [...new Set(measureIds.filter((n) => Number.isInteger(n) && n > 0))];
   const out: ProposeReport = {
-    considered: 0, skippedMapped: 0, proposalsWritten: 0, measuresProposed: [],
+    considered: 0, skippedMapped: 0, proposalsWritten: 0, autoApproved: 0, queuedForReview: 0, measuresProposed: [],
     rejectedKeys: [], packsWritten: 0, affectedMembers: [], errors: [],
   };
   if (!ids.length) return out;
@@ -248,10 +337,31 @@ export async function proposeForMeasures(
           rationale: PROPOSAL_RATIONALE,
           sourceUrl: m.sourceUrl ?? null,
           reviewStatus: REVIEW_STATUS.proposed,
+          confidence: p.confidence,
         };
         const invalid = validateProposalRow(row);
         if (invalid) { out.rejectedKeys.push(p.issueKey); continue; }
-        if (await repo.insertProposal(row)) { out.proposalsWritten++; wrote = true; }
+        const id = await repo.insertProposal(row);
+        if (id == null) continue;
+        out.proposalsWritten++;
+        wrote = true;
+        // AUTO-APPROVAL: the same guarded transition a manual review makes
+        // (proposed → reviewed, only while the row is still 'proposed'), with
+        // the reviewer recorded as "auto". Below the cutoff the row stays in
+        // the manual queue exactly as written above.
+        if (shouldAutoApprove(p)) {
+          const promoted = await repo.updateMapping(id, REVIEW_STATUS.proposed, {
+            supportMeaning: "yea_supports",
+            rationale: `auto-approved — confidence ${p.confidence} (${confidenceBand(p.confidence)}: ${p.signals.join(", ")})`,
+            reviewStatus: REVIEW_STATUS.reviewed,
+            reviewedAt: new Date(),
+            reviewedBy: AUTO_REVIEWER,
+          });
+          if (promoted) out.autoApproved++;
+          else out.queuedForReview++;
+        } else {
+          out.queuedForReview++;
+        }
       }
       if (wrote) out.measuresProposed.push(m.id);
     } catch (e: any) {
@@ -278,9 +388,11 @@ export type ReviewResult =
 
 const fail = (status: 400 | 404 | 409, error: string): ReviewResult => ({ ok: false, status, error });
 
+// "auto" is reserved for the confidence cutoff, so the audit trail can always
+// tell a machine promotion from a human one.
 function cleanReviewer(v: unknown): string {
   const s = String(v ?? "").trim().slice(0, 80);
-  return s || "operator";
+  return s && s.toLowerCase() !== AUTO_REVIEWER ? s : "operator";
 }
 
 // body: { issueKey?, weight, supportMeaning, isPrimary?, rationale?, sourceUrl?, reviewer? }
