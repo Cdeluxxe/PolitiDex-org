@@ -4096,6 +4096,198 @@
     return String(label) + ': ' + String(value == null ? '' : value).replace(/"/g, '') +
       (note ? ' — ' + String(note).replace(/"/g, '') : '');
   };
+  // ── THE REPORT-CARD LINE ────────────────────────────────────────────────────
+  // One plain line under the seat: "12 stances · 0 actions · No formal term yet ·
+  // 11 evidence · Updated Nov 15". It replaced the quick-jump chip row as the
+  // place a reader sees the file's size at a glance, so it reads the SAME figures
+  // that row read — no count here is derived a second way:
+  //   stances  — PDXStanceTree.count(id), the 🌳 By topic chip's figure
+  //   actions  — roll-call records on file (_pdxRecordMappedCounts().total, the
+  //              🗳️ Votes chip's figure) + bills sponsored/co-sponsored
+  //              (PDXPersonBills rows, the bills list's own rows); on an executive
+  //              file, the formal acts PDXConsistency.execRecordSummary counts
+  //   term     — window._pdxTenure (termStart/termEnd), the tenure pill's data
+  //   evidence — window._pdxNavEvidenceCount, the 🔗 Evidence chip's figure
+  //   updated  — the newest dated item among those same evidence receipts
+  // Status (Candidate / Incumbent / Former) is NOT repeated: the badge beside the
+  // name already says it.
+  var _RL_MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  // Years in one term, from the office text. Only offices whose term length is
+  // fixed get a term count; anything else prints its years and no count.
+  function _rlTermLen(office) {
+    var o = String(office || '');
+    if (/candidate/i.test(o)) return 0;
+    if (/U\.?S\.?\s*Senat/i.test(o) || /^Senator\b/i.test(o)) return 6;
+    if (/U\.?S\.?\s*(Rep|House)|Congress(wo)?man|Delegate to Congress/i.test(o)) return 2;
+    if (/State\s*Senat/i.test(o)) return 4;
+    if (/State\s*(Rep|House)|Assembly|House of Delegates/i.test(o)) return 2;
+    if (/President|Governor|Attorney General|Secretary of State|Mayor/i.test(o)) return 4;
+    return 0;
+  }
+  window._pdxReportTerm = function (p) {
+    var t = (typeof window._pdxTenure === 'function') ? window._pdxTenure(p) : null;
+    if (!t || !t.start) {
+      // No term on file. A candidate with no service says so plainly; a sitting
+      // official whose dates are simply not recorded gets no term segment rather
+      // than a claim that they have never served.
+      var st = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(p) : 'office';
+      return st === 'office' ? null : { text: 'No formal term yet', title: '' };
+    }
+    var span = t.start.year + '–' + (t.end ? t.end.year : 'present');
+    var len = _rlTermLen(p && p.office);
+    var txt = span;
+    if (len) {
+      var nowY = new Date().getFullYear();
+      var yrs = (t.end ? t.end.year : nowY) - t.start.year;
+      var n = Math.max(1, Math.ceil(yrs / len));
+      txt = n + ' term' + (n === 1 ? '' : 's') + ' · ' + span;
+    }
+    return { text: txt, title: t.text || '' };
+  };
+  // The newest dated receipt among the ones the evidence count counts. Most
+  // receipts carry a year only ("2024"), some a range ("2019–2023") and a few a
+  // full date, so the date is printed at the precision it was recorded at —
+  // "Updated 2024", "Updated Mar 2025", "Updated Nov 15" — never padded out to a
+  // day nobody wrote down. An open range ("2019–present") is not a dated item.
+  window._pdxReportUpdated = function (id, p) {
+    var best = null;
+    var nowY = new Date().getFullYear();
+    function take(v) {
+      if (v == null || v === '') return;
+      var s = String(v).trim();
+      if (/present|ongoing/i.test(s)) return;
+      var r = s.match(/^\d{4}\s*[–-]\s*(\d{4})$/);
+      if (r) s = r[1];
+      var y, mo = 0, d = 0, prec;
+      var m = s.match(/^(\d{4})(?:-(\d{1,2})(?:-(\d{1,2}))?)?$/);
+      if (m) { y = +m[1]; mo = m[2] ? +m[2] : 0; d = m[3] ? +m[3] : 0; }
+      else {
+        var t = Date.parse(s);
+        if (!isFinite(t)) return;
+        var dt = new Date(t); y = dt.getFullYear(); mo = dt.getMonth() + 1; d = dt.getDate();
+      }
+      if (!y || y < 1900 || y > nowY || mo > 12 || d > 31) return;
+      prec = d ? 3 : (mo ? 2 : 1);
+      var key = y * 10000 + mo * 100 + d;
+      if (!best || key > best.key || (key === best.key && prec > best.prec)) best = { key: key, y: y, mo: mo, d: d, prec: prec };
+    }
+    try {
+      ((p && p.promises) || []).forEach(function (pr) {
+        (pr && Array.isArray(pr.sources) ? pr.sources : []).forEach(function (s) { if (s) take(s.date); });
+      });
+      var ev = (typeof window._issueEvidenceMap === 'function') ? (window._issueEvidenceMap(id, p) || {}) : {};
+      Object.keys(ev).forEach(function (k) {
+        ((ev[k] && ev[k].spotlight) || []).forEach(function (it) { if (it) take(it.date); });
+      });
+    } catch (e) {}
+    if (!best) return '';
+    if (best.prec === 1) return String(best.y);
+    if (best.prec === 2) return _RL_MON[best.mo - 1] + ' ' + best.y;
+    return _RL_MON[best.mo - 1] + ' ' + best.d + (best.y !== nowY ? ', ' + best.y : '');
+  };
+  // Bills sponsored/co-sponsored: null until the table answers, then a count.
+  var _rlBills = {};
+  function _rlBillCount(id) {
+    if (Object.prototype.hasOwnProperty.call(_rlBills, id)) return _rlBills[id];
+    var B = window.PDXPersonBills;
+    if (!B || typeof B.load !== 'function') return 0;
+    _rlBills[id] = null;
+    try {
+      B.load().then(function (data) {
+        _rlBills[id] = data ? (B.rowsFor(data, id) || []).length : 0;
+        window._pdxReportLineLive(id);
+      }, function () { _rlBills[id] = 0; window._pdxReportLineLive(id); });
+    } catch (e) { _rlBills[id] = 0; }
+    return _rlBills[id];
+  }
+  var _rlDeadline = {};
+  window._pdxReportFields = function (id, p) {
+    p = p || (window.PROFILES && window.PROFILES[id]) ||
+        ((typeof CMP_DATA !== 'undefined' && CMP_DATA[id]) ? CMP_DATA[id] : null) || {};
+    var f = {};
+    var TR = window.PDXStanceTree;
+    try { f.stances = (TR && typeof TR.count === 'function') ? (TR.count(id) || 0) : 0; } catch (e) { f.stances = 0; }
+    // Actions. Pending only while a source can still answer; past the deadline,
+    // what has answered is what is printed.
+    var pending = false, acts = 0;
+    var isExec = false;
+    try { isExec = !!(window.PDXExecRecord && window.PDXExecRecord.eligible && window.PDXExecRecord.eligible(id)); } catch (e) {}
+    if (isExec) {
+      try {
+        var XSC = window.PDXConsistency && window.PDXConsistency.execRecordSummary;
+        var xsc = (XSC && typeof XSC.pick === 'function') ? XSC.pick(id) : null;
+        acts += (xsc && xsc.on) ? (xsc.acts || 0) : 0;
+      } catch (e) {}
+    } else {
+      var recs = null;
+      try { recs = window.PDXVotingRecord && window.PDXVotingRecord.memberRecords ? window.PDXVotingRecord.memberRecords(id) : null; } catch (e) {}
+      if (recs) {
+        var mc = null;
+        try { mc = (typeof window._pdxRecordMappedCounts === 'function') ? window._pdxRecordMappedCounts(id) : null; } catch (e) {}
+        acts += (mc && typeof mc.total === 'number') ? mc.total : recs.length;
+      } else if (window.PDXVotingRecord) pending = true;
+    }
+    var bills = _rlBillCount(id);
+    if (bills === null) pending = true; else acts += bills;
+    if (pending && _rlDeadline[id] && Date.now() > _rlDeadline[id]) pending = false;
+    f.actions = acts;
+    f.actionsPending = pending;
+    f.term = window._pdxReportTerm(p);
+    f.evidence = window._pdxNavEvidenceCount(id, p);
+    f.updated = window._pdxReportUpdated(id, p);
+    return f;
+  };
+  function _rlEsc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  window._pdxReportLineInner = function (id, p) {
+    var f = window._pdxReportFields(id, p);
+    var seg = [];
+    seg.push('<span class="pr-seg" data-pr="stances">' + f.stances + ' stance' + (f.stances === 1 ? '' : 's') + '</span>');
+    seg.push('<span class="pr-seg" data-pr="actions"' + (f.actionsPending ? ' data-pr-pending="1"' : '') + '>' +
+      (f.actionsPending ? 'Checking actions…' : (f.actions + ' action' + (f.actions === 1 ? '' : 's'))) + '</span>');
+    if (f.term) seg.push('<span class="pr-seg" data-pr="term"' + (f.term.title ? ' title="' + _rlEsc(f.term.title) + '"' : '') + '>' + _rlEsc(f.term.text) + '</span>');
+    seg.push('<span class="pr-seg" data-pr="evidence">' + f.evidence + ' evidence</span>');
+    if (f.updated) seg.push('<span class="pr-seg" data-pr="updated">Updated ' + _rlEsc(f.updated) + '</span>');
+    return seg.join('<span class="pr-dot" aria-hidden="true"> · </span>');
+  };
+  window._pdxReportLine = function (id, p) {
+    if (!_rlDeadline[id]) _rlDeadline[id] = Date.now() + 8000;
+    _rlBind();
+    // Late sources (stance tables, the roll-call fetch, the bills table) repaint
+    // the line in place; the timers cover sources that land without an event.
+    try {
+      [1500, 4000, 8200].forEach(function (ms) { setTimeout(function () { window._pdxReportLineLive(id); }, ms); });
+    } catch (e) {}
+    return '<div class="profile-report" data-pdx-report="' + _rlEsc(id) + '">' +
+      window._pdxReportLineInner(id, p) + '</div>';
+  };
+  window._pdxReportLineLive = function (pid) {
+    if (typeof document === 'undefined' || !document.querySelector) return;
+    var host = document.querySelector('.profile-report[data-pdx-report]');
+    if (!host) return;
+    var id = host.getAttribute('data-pdx-report') || '';
+    if (!id) return;
+    if (pid && String(pid) !== id) {
+      var canon = '';
+      try { canon = (typeof window.PDXProfilePid === 'function') ? String(window.PDXProfilePid(pid) || '') : ''; } catch (e) {}
+      if (canon !== id) return;
+    }
+    var html;
+    try { html = window._pdxReportLineInner(id, null); } catch (e) { return; }
+    if (host.innerHTML !== html) host.innerHTML = html;
+  };
+  var _rlBound = false;
+  function _rlBind() {
+    if (_rlBound || typeof window.addEventListener !== 'function') return;
+    _rlBound = true;
+    ['pdx-consistency-warm', 'pdx-voting-warm', 'pdx-record-noted'].forEach(function (n) {
+      window.addEventListener(n, function () {
+        // Any arrival may concern the open file under an alias id, so the line
+        // simply re-reads; it is a handful of lookups.
+        try { window._pdxReportLineLive(''); } catch (e) {}
+      });
+    });
+  }
+
   // THE REPAINT. Same event the hero ring, the header tally and the topic tree
   // rebuild on. It writes text and colour into pills that already exist and never
   // adds, removes or reorders one: a rail that grew a pill mid-read would move the
@@ -5292,7 +5484,12 @@
 
     // A single pill isn't a "map" — only render the rail when at least two exist.
     const _navBar = (_navOrdered.length >= 2)
-      ? '<nav id="pdx-profile-nav" class="pdx-pnav" data-pdxnav-pid="' + id +
+      // HIDDEN, NOT REMOVED. The report-card line under the seat now carries these
+      // figures, so the row is not shown; the node stays (hidden, out of the
+      // accessibility tree) because the scroll helpers and the late Votes pill
+      // still look it up, and every one of them already treats a zero-height
+      // rail as no rail.
+      ? '<nav id="pdx-profile-nav" class="pdx-pnav" hidden data-pdxnav-pid="' + id +
           '" aria-label="Jump to a section of this profile">' +
           '<div class="pdx-pnav-track">' +
             _navOrdered.map(function (n) {
@@ -5611,8 +5808,13 @@
           <div class="profile-eyebrow">${p.office || 'Public Official'}</div>
           <h2 class="profile-name">${p.name}</h2>
           ${(function(){ var parts=[p.district,p.state].filter(Boolean); return parts.length ? '<div class="profile-office">' + parts.join('<span class="po-sep">·</span>') + '</div>' : ''; })()}
+          <!-- THE REPORT-CARD LINE — stances · actions · term · evidence · updated,
+               in plain text directly under the seat. It carries the figures the
+               quick-jump chip row used to (that row is now hidden, see .pdx-pnav in
+               app.css) and the term the tenure pill used to, so neither is printed
+               twice. Built and repainted by window._pdxReportLine. -->
+          ${(typeof window._pdxReportLine === 'function') ? window._pdxReportLine(id, p) : ''}
           ${(typeof window._pdxCandidacyLine === 'function') ? window._pdxCandidacyLine(id) : ''}
-          ${(function(){ var tp=(typeof window._pdxTenurePill==='function')?window._pdxTenurePill(p):''; return tp ? '<div class="profile-tenure">' + tp + '</div>' : ''; })()}
           <div class="profile-meta">
             ${(typeof window._pdxStatusBadge === 'function') ? window._pdxStatusBadge(p) : ''}
             <!-- The two record-depth chips — 📋 Limited Record / 🌱 Early in Term and

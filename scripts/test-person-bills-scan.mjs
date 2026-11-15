@@ -147,7 +147,10 @@ section("4. the letterhead is unchanged");
     const A = load(prev);
     for (const st of ["on", "none", "wait"]) ok(A.jumpHtml("blouin_s13", st) === PB.jumpHtml("blouin_s13", st), `the jump control's ${st} markup changed`);
   }
-  for (const f of ["profiles-full.js", "finance-lane.js", "finance-lane.css"]) {
+  // profiles-full.js is no longer frozen here: the report-card line under the seat
+  // edits the letterhead template. The .profile-meta row this file guards is
+  // still checked node-for-node above.
+  for (const f of ["finance-lane.js", "finance-lane.css"]) {
     const h = HEAD(f);
     if (h != null) ok(h === R(f), `${f} changed`);
   }

@@ -12213,7 +12213,16 @@
 //     shell moves; the precache list is unchanged. No location key or other
 //     stored reader state is written or rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v568';
+// v569 - REPORT-CARD LINE UNDER THE SEAT. profiles-full.js prints one plain
+//     line under the seat on every person file — stances · actions · term ·
+//     evidence · updated — from the figures the quick-jump chip row read, and
+//     that row is now hidden (app.css) so the numbers are not printed twice.
+//     The tenure pill's years ride the line's term segment. No route or gate
+//     is added. A precached file changed, so the shell moves; the precache list
+//     is unchanged. No location key or other stored reader state is written or
+//     rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v569';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

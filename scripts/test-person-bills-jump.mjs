@@ -190,7 +190,9 @@ section("3. the letterhead is unchanged around it");
   ok(f.meta.querySelectorAll("[data-pdx-sponsored-jump]").length === 1, "more than one jump on the letterhead");
   f.win.PDXPersonBills.scan(); await settle();
   ok(f.meta.querySelectorAll("[data-pdx-sponsored-jump]").length === 1, "a re-scan added a second jump");
-  for (const file of ["profiles-full.js", "finance-lane.js", "finance-lane.css"]) {
+  // profiles-full.js is no longer frozen here (the report-card line edits the
+  // letterhead template); the .profile-meta row is still checked node-for-node above.
+  for (const file of ["finance-lane.js", "finance-lane.css"]) {
     const h = HEAD(file);
     if (h != null) ok(h === R(file), `${file} changed`);
   }
