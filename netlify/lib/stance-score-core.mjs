@@ -116,6 +116,14 @@
 //       and "Social Security numbers" is not the program.
 //       Implication-only cross-topic reads are dropped. The page's own topic
 //       and directional parent/child keys (linkedKeys) read exactly as before.
+//   R14 Title and lead stance signals: when nothing else on the page reads a
+//       side, a stance verb in the title or the first two sentences (votes
+//       for / against, calls to block, demands no, block / stop / end /
+//       prevent the, will not agree, must not fund, introduces / cosponsors a
+//       bill) by the page's own politician, with the page's topic (or a named
+//       bill) in the lead, is one explicit statement for the side the verb
+//       gives. Own topic and linked directional keys only; never changes a page
+//       that already reads support, oppose or mixed. See leadStance.
 //   Splitter: an initialism ("U.S.", "U.N.", "A.I.") or a short abbreviation
 //       ("Jan.", "vs.", "e.g.") does not end a sentence (mergeAbbreviations).
 //
@@ -733,6 +741,197 @@ export function namesProblem(sentence, topic) {
   return r.outcome.test(sentence) || PROBLEM_CUE.test(sentence);
 }
 
+// ── R14: title and lead-sentence stance signals ─────────────────────────────
+// A press release or statement often puts the whole position in its headline
+// or opening line — "Duckworth Votes Against Final NDAA", "Cortez Masto
+// Introduces Bill to Block Yucca Mountain" — in words the topic vocabulary
+// does not read. R14 reads ONLY the page's title (<title>, og:title, the first
+// <h1>, raw.title) and the first two sentences after it, and ONLY when the
+// rest of the rules found no directional signal at all (the page would read
+// "no clear position"). It never changes a page that already reads support,
+// oppose or mixed, and never adds a cross-topic candidate.
+//
+// Cues, direction from the verb:
+//   vote       votes / voted / voting for → support; … against → oppose
+//   purpose    calls to block, demand(s) no / zero, block / stop / end /
+//              prevent the, will not agree, cannot continue, must not fund /
+//              allow → oppose ("introduces bill to block" is a purpose too)
+//   vehicle    introduces / introduced a bill or legislation, cosponsors /
+//              cosponsored → support, unless the lead also states a purpose
+//              (then the purpose sets the side: "a bill to block …")
+// The verb must be the page's own politician's (actorFor: self), not
+// negated, not in a question, not inside someone else's quote. The lead must
+// be about the page's topic (its vocabulary, or a linked directional key's,
+// anywhere in the title or the two sentences — the topic may sit in one line
+// and the verb in the next), or the verb must act on a named bill (H.R. 4410,
+// "the … Act", NDAA), which on a page filed under the topic is a stance on it.
+// Two firm cues that disagree (a vote for and a vote against) pick no side.
+// The read is one explicit statement at the source's tier weight; every other
+// rule (R4, R5, R8 …) applies to it unchanged.
+export const LEAD_SENTENCES = 2;
+const LEAD_VOTE_FOR = /\b(?:vote[sd]?|voting|cast (?:a|his|her|my|their) vote)\s+(?:yes\s+|aye\s+)?(?:in favor of|for)\b/i;
+const LEAD_VOTE_AGAINST = /\b(?:vote[sd]?|voting|cast (?:a|his|her|my|their) vote)\s+(?:no\s+|nay\s+)?against\b/i;
+const LEAD_PURPOSE = /\bcall(?:s|ed|ing)?\s+(?:on\s+\w+(?:\s+\w+)?\s+)?(?:for\s+\w+\s+)?to\s+block\b|\bdemand(?:s|ed|ing)?\s+(?:for\s+)?(?:no|zero)\b|\b(?:block(?:s|ed|ing)?|stop(?:s|ped|ping)?|end(?:s|ed|ing)?|prevent(?:s|ed|ing)?)\s+the\b|\b(?:will not|won['’]t)\s+agree\b|\b(?:cannot|can['’]t|can not)\s+continue\b|\bmust\s+not\s+(?:fund|allow)\b/i;
+// The purpose of the politician's own bill or vote: "a bill to block Yucca Mountain".
+const LEAD_BILL_PURPOSE = /\b(?:bill|legislation|resolution|act|amendment|measure)s?\s+(?:that would\s+|to\s+)(?:block|stop|end|prevent|halt|bar|prohibit|overturn|repeal|rescind|nullify|reverse|disapprove)\b|\bresolutions?\s+of\s+disapproval\b/i;
+// A purpose verb counts only as the clause's own verb ("Ocasio-Cortez Calls to
+// Block …", "Congress must not fund …") or right after the politician's own
+// vote or bill ("a bill to block …") — not deep inside a bill's description
+// ("… to enact new protections, including stopping the government from …").
+const LEAD_PURPOSE_NEAR = 30;
+const LEAD_CLAUSE_WORDS = 6;
+// Mixed feelings in the lead: the read is not clear.
+const LEAD_RESERVATION = /\b(?:deeply flawed|flawed provisions?|serious (?:concerns|reservations)|reservations about|despite (?:my|our) concerns|stands no chance)\b/i;
+// The lead says the bill harms the issue ("harmful cuts to Medicaid", "take
+// health care away", "strips protections"): then a vote against the bill is
+// a vote FOR the issue, and a vote for it is against.
+const LEAD_HARM = /\b(?:(?:harmful |deep |devastating |massive )?cuts? to|cut(?:s|ting)?|gut(?:s|ted|ting)?|slash(?:es|ed|ing)?|strip(?:s|ped|ping)?|eliminat(?:e|es|ed|ing)|undermin(?:e|es|ed|ing)|attack(?:s|ing)? on|tak(?:e|es|ing) (?:\w+ ){0,3}away)\b[^.!?]{0,40}?\b(?:medicaid|medicare|social security|benefits|coverage|health ?care|nutrition|programs?|protections?|rights|access|funding|services)\b/i;
+// Issues whose own position is a reduction (cut taxes, cut spending, ban …):
+// "cuts" there is the issue's goal, not a harm, so the flip never applies.
+const REDUCTION_POLE = /^(?:Cut|Lower|Reduce|Slash|Ban|End|Bring down|Cap|Shield|Tighten|Crack|Limit|Stop|Audit|Balance|Require adults)/;
+const reductionPole = (topic) => CORE_TOPICS.includes(topic) || REDUCTION_POLE.test(ISSUE_TOPIC_VOCAB[topic]?.pos || "");
+const LEAD_VEHICLE = /\bintroduc(?:e|es|ed|ing)\b[^.!?]{0,80}?\b(?:bill|legislation|resolution|act|amendment|measure)s?\b|\bco-?sponsor(?:s|ed|ing)?\b/i;
+// Words that turn a vote / vehicle cue around ("did not vote for", "never cosponsored").
+const LEAD_NEGATED = /\b(?:not|never|no|n['’]t|refus(?:e|es|ed|ing) to|declin(?:e|es|ed|ing) to)\s+(?:\w+\s+){0,2}$/i;
+const LEAD_BILL = new RegExp(`${NAMED_BILL.source}|\\bNDAA\\b`);
+
+const stripTags = (s) => decode(String(s || "").replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
+
+/** The page's title lines: raw.title, <title>, og:title, first <h1> (deduped, in that order). */
+export function leadTitles(raw) {
+  const body = String(raw?.body || "");
+  const out = [];
+  const add = (x) => { const s = stripTags(x); if (s.length >= 8 && !out.includes(s)) out.push(s); };
+  if (typeof raw?.title === "string") add(raw.title);
+  add((/<title\b[^>]*>([\s\S]*?)<\/title>/i.exec(body) || [])[1]);
+  add((/<meta\b[^>]*property=["']og:title["'][^>]*content=["']([^"']*)["']/i.exec(body) || /<meta\b[^>]*content=["']([^"']*)["'][^>]*property=["']og:title["']/i.exec(body) || [])[1]);
+  add((/<h1\b[^>]*>([\s\S]*?)<\/h1>/i.exec(body) || [])[1]);
+  return out;
+}
+
+/**
+ * The lead units R14 reads: the title lines, then the first LEAD_SENTENCES
+ * sentences after the title (the first <h1> when the page has one, else the
+ * top of the page). → [{ text, i }] where `i` is the sentence index in `list`
+ * (null for a title line that is not a body sentence).
+ */
+export function leadUnits(raw, list) {
+  const titles = leadTitles(raw);
+  const units = [];
+  let start = 0;
+  // The h1 (or a title line) is usually also the first heading sentence of the body.
+  const at = list.findIndex((s, k) => k < 40 && titles.some((t) => s === t || t.startsWith(s) || s.startsWith(t)));
+  if (at !== -1) start = at + 1;
+  for (const t of titles) {
+    const k = list.indexOf(t);
+    units.push({ text: t, i: k !== -1 && k < start ? k : null, title: true });
+  }
+  for (let k = start; k < list.length && k < start + LEAD_SENTENCES; k++) units.push({ text: list[k], i: k, title: false });
+  return units;
+}
+
+// A headline's subject: the capitalised run right before the verb ("Republicans
+// Voted Against …", "Cortez Masto, Rosen Introduce …"). Title case hides the
+// verb from NAMED_ACTOR, so R14 reads the subject itself.
+const HEADLINE_SUBJECT = /((?:[A-Z][\p{L}\d'’.-]*,?\s+(?:(?:and|&)\s+)?)+)$/u;
+const SUBJECT_FILLER = /^(?:Rep|Reps|Sen|Sens|Senators?|Representatives?|Congress(?:wo)?man|Congressmember|U\.S\.|Gov|Governor|Today|Tonight|Yesterday|This|Week|WASHINGTON|D\.C\.)$/;
+const lettersOnly = (x) => String(x || "").toLowerCase().replace(/[^a-z]/g, "");
+/** A name alias from the member's own site host ("ocasio-cortez.house.gov" → "ocasiocortez"). */
+function hostAlias(link) {
+  const { host } = linkParts(link);
+  const label = host.replace(/^www\./, "").split(".")[0] || "";
+  const a = lettersOnly(label);
+  return a.length >= 4 && /\.(gov|com|org|us)$/.test(host) ? a : null;
+}
+// "Congress must not fund …" is the speaker prescribing, not Congress acting.
+const PRESCRIBED_SUBJECT = /^(?:Congress|America|Washington|(?:The )?(?:United States|U\.S\.|Senate|House|Administration|Pentagon))\s*,?\s*$/;
+function headlineSubjectIsOther(prefix, politicianId, alias, prescriptive = false) {
+  const m = HEADLINE_SUBJECT.exec(prefix);
+  if (!m) return false;
+  // The run is the subject only when it opens its clause ("for House NDAA" is an object).
+  if (!/(?:^|[—–:;"“(]|,)\s*$/.test(prefix.slice(0, m.index))) return false;
+  if (prescriptive && PRESCRIBED_SUBJECT.test(m[1])) return false;
+  const words = m[1].split(/[\s,&]+/).filter((w) => w && w !== "and").map((w) => w.replace(/[’']s$/, ""));
+  const named = words.filter((w) => !NOT_A_NAME.has(w) && !SUBJECT_FILLER.test(w.replace(/\.$/, "")) && !SUBJECT_FILLER.test(w));
+  if (!named.length) return false;
+  const self = selfNamePattern(politicianId);
+  if (self && (self.lastIndex = 0, self.test(m[1]))) return false;
+  if (alias && lettersOnly(m[1]).includes(alias)) return false;
+  return true;
+}
+
+/** One lead unit's cue → { side, firm, m } or null (no cue / ambiguous / not the politician's own). */
+function leadCue(text, politicianId, alias = null) {
+  if (/\?\s*["”’]?\s*$/.test(text)) return null;
+  const own = (m, negatable) => {
+    if (!m) return false;
+    const prefix = text.slice(0, m.index);
+    if (negatable && LEAD_NEGATED.test(prefix)) return false;
+    const prescriptive = /^(?:must|cannot|can['’]t|can not|will not|won['’]t)\b/i.test(m[0]);
+    if (headlineSubjectIsOther(prefix, politicianId, alias, prescriptive)) return false;
+    if (prescriptive && PRESCRIBED_SUBJECT.test((HEADLINE_SUBJECT.exec(prefix) || [])[1] || "")) return true;
+    return actorFor(prefix, politicianId).kind === "self";
+  };
+  const va = LEAD_VOTE_AGAINST.exec(text), vf = LEAD_VOTE_FOR.exec(text);
+  const v = LEAD_VEHICLE.exec(text);
+  const p = LEAD_PURPOSE.exec(text) || ((vf || v) ? LEAD_BILL_PURPOSE.exec(text) : null);
+  const okVa = own(va, true), okVf = own(vf, true), okV = own(v, true);
+  // A purpose is the politician's own when it is the clause's own verb with the
+  // politician as actor, or the purpose right after the politician's vote / bill.
+  const clauseStart = (i) => { const pre = text.slice(0, i); const k = Math.max(...[/[—–:;]/g].map((re) => { let m, last = -1; while ((m = re.exec(pre))) last = m.index + m[0].length; return last; })); return k < 0 ? 0 : k; };
+  const shortClause = (m) => text.slice(clauseStart(m.index), m.index).trim().split(/\s+/).filter(Boolean).length <= LEAD_CLAUSE_WORDS;
+  const near = (a) => !!a && a.index < p.index && p.index - (a.index + a[0].length) <= LEAD_PURPOSE_NEAR;
+  const okP = !!p && ((shortClause(p) && own(p, false)) || (okVf && near(vf)) || (okV && near(v)));
+  if (okVa && okP) return null;            // "voted against the bill to end …" — a double negative
+  if (okVa && okVf) return null;           // both ways in one line
+  if (okVa) return { side: "oppose", firm: true, kind: "vote", m: va, bill: LEAD_BILL.test(text.slice(va.index)) };
+  if (okP) return { side: "oppose", firm: true, kind: "purpose", m: p, bill: LEAD_BILL.test(text) };
+  if (okVf) return { side: "support", firm: true, kind: "vote", m: vf, bill: LEAD_BILL.test(text.slice(vf.index)) };
+  if (okV) return { side: "support", firm: false, kind: "vehicle", m: v, bill: LEAD_BILL.test(text.slice(v.index)) };
+  return null;
+}
+
+/**
+ * R14: the clear position the title and lead sentences state on `topic`, or
+ * null. → { side, units: [{ text, i, title }], via } when the cues agree and
+ * the lead is about the topic (or the verb acts on a named bill).
+ */
+export function leadStance(raw, list, topic, speakers = []) {
+  const r = TOPIC_RULES[topic];
+  if (!r || NO_POLE_TOPICS.has(topic)) return null;
+  const units = leadUnits(raw, list);
+  const alias = hostAlias(raw.final_url || raw.url);
+  const cues = [];
+  for (const u of units) {
+    if (u.i != null && speakers[u.i] === "other") continue; // someone else's quote
+    const c = leadCue(u.text, raw.politician_id, alias);
+    if (c) cues.push({ ...c, u });
+  }
+  if (!cues.length) return null;
+  const readable = units.filter((u) => !(u.i != null && speakers[u.i] === "other"));
+  // A reservation in the lead or the sentence right after it qualifies the read.
+  const lastLead = Math.max(-1, ...units.filter((u) => u.i != null).map((u) => u.i));
+  const nextLine = lastLead >= 0 && lastLead + 1 < list.length ? list[lastLead + 1] : "";
+  if (readable.some((u) => LEAD_RESERVATION.test(u.text)) || LEAD_RESERVATION.test(nextLine)) return null;
+  // The bill harms the issue → a vote / bill cue's side turns around (never a purpose cue).
+  if (!reductionPole(topic) && readable.some((u) => LEAD_HARM.test(u.text))) {
+    for (const c of cues) if (c.kind !== "purpose") { c.side = c.side === "support" ? "oppose" : "support"; c.harm = true; }
+  }
+  const firm = new Set(cues.filter((c) => c.firm).map((c) => c.side));
+  const soft = new Set(cues.map((c) => c.side));
+  if (firm.size > 1 || (!firm.size && soft.size > 1)) return null;
+  const side = [...(firm.size ? firm : soft)][0];
+  const linked = Object.keys(TOPIC_RULES).filter((k) => linkedKeys(topic, k)).map((k) => TOPIC_RULES[k]);
+  const about = (s) => [r, ...linked].some((x) => x.mention?.test(s) || x.context?.test(s));
+  const topicUnits = units.filter((u) => !(u.i != null && speakers[u.i] === "other") && about(u.text));
+  const onSide = cues.filter((c) => c.side === side);
+  const billCue = onSide.find((c) => c.bill);
+  if (!topicUnits.length && !billCue) return null;
+  const cue = onSide.find((c) => about(c.u.text)) || billCue || onSide[0];
+  const extra = about(cue.u.text) ? null : topicUnits.find((u) => u !== cue.u) || null;
+  return { side, cue: cue.u, topicUnit: extra, via: cue.u.title ? "title" : "lead", bill: !!cue.bill, ...(cue.harm ? { harm: true } : {}) };
+}
+
 const trunc = (t) => (t.length > 300 ? t.slice(0, 297) + "…" : t);
 
 const round2 = (n) => Math.round(n * 100) / 100;
@@ -1078,6 +1277,22 @@ export function scoreRawRecord(raw, topic = raw?.topic, sentences = null, opts =
     }
   }
   statements = statements.filter((s) => !(s.kind === "mention" && folded.has(s._i)));
+  // R14: no directional signal anywhere on the page → read the title and the
+  // lead sentences for a stance verb. Own topic (and linked directional keys)
+  // only; a page that already reads a side or mixed is never touched.
+  const leadOk = opts.leadSignals !== false && (topic === raw.topic || (raw.topic && linkedKeys(topic, raw.topic)));
+  const lead = leadOk && !statements.some((s) => s.kind === "clear" || s.kind === "implication")
+    ? leadStance(raw, list, topic, speakers) : null;
+  if (lead) {
+    const text = trunc(lead.topicUnit ? `${lead.cue.text} ${lead.topicUnit.text}` : lead.cue.text);
+    const st = { kind: "clear", side: lead.side, reversal: false, lead_signal: lead.via, ...(lead.bill ? { lead_bill: true } : {}), weight: WEIGHTS[tier] };
+    const existing = lead.cue.i != null ? statements.find((s) => s._i === lead.cue.i) : null;
+    // The cue sentence's zero-weight mention becomes the clear statement (never counted twice).
+    if (existing) {
+      for (const k of ["implication", "attributed_to", "attributed_via", "paired_with"]) delete existing[k];
+      Object.assign(existing, st, { text });
+    } else statements.unshift({ _i: -1, text, ...st });
+  }
   for (const s of statements) delete s._i;
   const clear = statements.filter((s) => s.kind === "clear");
   const implied = statements.filter((s) => s.kind === "implication");
@@ -1141,6 +1356,7 @@ export function scoreRawRecord(raw, topic = raw?.topic, sentences = null, opts =
       const label = KIND_LABELS[rule.kind];
       parts.push(`explicit claim on a primary source${label ? ` (${label})` : ""} reads as a stated position (R8)`);
     }
+    if (lead) parts.push(`stance verb in the ${lead.via === "title" ? "title" : "opening sentences"}${lead.bill ? " acts on a named bill" : ""}${lead.harm ? " the page says harms the issue" : ""} reads as a clear ${lead.side} (R14)`);
     if (mentions) parts.push(`${mentions} mention(s) recorded at zero weight (R3)`);
     reason = parts.join("; ");
   }

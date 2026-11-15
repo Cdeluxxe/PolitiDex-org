@@ -5,7 +5,7 @@
   "confidence_tolerance": 0.1,
   "summary": {
     "records": 77,
-    "scorer_agrees_on_position": 35,
+    "scorer_agrees_on_position": 41,
     "verdicts": {
       "owens|ukraine_aid|gt-007": "support → no clear position (disagrees)",
       "rick_crawford|ukraine_aid|gt-008": "mixed → support (disagrees)",
@@ -16,7 +16,7 @@
       "bruce_westerman|cut_spending|gt-013": "support → support (agrees)",
       "frank_lucas|cut_spending|gt-014": "support → support (agrees)",
       "mariannette_miller_meeks|cut_spending|gt-015": "support → support (agrees on position, confidence outside tolerance)",
-      "bennie_thompson|healthcare|gt-016": "support → no clear position (disagrees)",
+      "bennie_thompson|healthcare|gt-016": "support → support (agrees)",
       "cruz|school_choice|gt-017": "support → no clear position (disagrees)",
       "aoc|healthcare|gt-018": "support → no clear position (disagrees)",
       "kclark|healthcare|gt-019": "support → mixed (disagrees)",
@@ -39,7 +39,7 @@
       "mike_simpson|pro_choice|gt-036": "oppose → oppose (agrees)",
       "emmer|voting_access|gt-037": "oppose → no clear position (disagrees)",
       "stephanie_bice|voting_access|gt-038": "oppose → no clear position (disagrees)",
-      "tom_cole|voting_access|gt-039": "oppose → no clear position (disagrees)",
+      "tom_cole|voting_access|gt-039": "oppose → oppose (agrees)",
       "adam_smith|voting_access|gt-040": "support → support (agrees)",
       "haley_stevens|voting_access|gt-041": "support → support (agrees)",
       "marie_gluesenkamp_perez|voting_access|gt-042": "mixed → no clear position (disagrees)",
@@ -51,7 +51,7 @@
       "casar|econ_workers|gt-048": "support → mixed (disagrees)",
       "bobby_scott|justice_reform|gt-049": "support → support (agrees)",
       "nadler|justice_reform|gt-050": "support → support (agrees)",
-      "walberg|econ_trade|gt-051": "support → no clear position (disagrees)",
+      "walberg|econ_trade|gt-051": "support → support (agrees)",
       "neal|econ_trade|gt-052": "support → no clear position (disagrees)",
       "steven_horsford|econ_trade|gt-053": "support → no clear position (disagrees)",
       "joe_courtney|social_security|gt-054": "support → no clear position (disagrees)",
@@ -64,7 +64,7 @@
       "don_davis|rural_ag|gt-061": "support → no clear position (disagrees)",
       "julie_fedorchak|rural_ag|gt-062": "support → support (agrees)",
       "rob_bresnahan|rural_ag|gt-063": "support → no clear position (disagrees)",
-      "zoe_lofgren|privacy_rights|gt-064": "support → no clear position (disagrees)",
+      "zoe_lofgren|privacy_rights|gt-064": "support → support (agrees)",
       "jan_schakowsky|privacy_rights|gt-065": "support → support (agrees)",
       "pallone|health_drug_prices|gt-066": "support → support (agrees)",
       "delbene|health_drug_prices|gt-067": "support → no clear position (disagrees)",
@@ -79,9 +79,9 @@
       "maxwell_frost|edu_college_cost|gt-076": "support → no clear position (disagrees)",
       "summer_lee|edu_college_cost|gt-077": "support → no clear position (disagrees)",
       "bryan_steil|edu_college_cost|gt-078": "oppose → support (disagrees)",
-      "mcclain|edu_college_cost|gt-079": "oppose → no clear position (disagrees)",
+      "mcclain|edu_college_cost|gt-079": "oppose → oppose (agrees)",
       "gabe_vasquez|lands_preserve|gt-080": "support → support (agrees)",
-      "jared_huffman|lands_preserve|gt-081": "support → no clear position (disagrees)",
+      "jared_huffman|lands_preserve|gt-081": "support → support (agrees)",
       "neguse|lands_preserve|gt-082": "support → no clear position (disagrees)",
       "russ_fulcher|lands_preserve|gt-083": "oppose → support (disagrees)"
     }
@@ -387,23 +387,27 @@
         "confidence": 0.85
       },
       "scorer": {
-        "position": "no clear position",
-        "confidence": 0.3,
-        "reason": "1 topic mention(s), none states a clear position (R3)",
-        "statements": []
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); stance verb in the opening sentences acts on a named bill the page says harms the issue reads as a clear support (R14); 1 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): Thompson (D-MS) voted against House Republicans' Reconciliation Bill (H.R. 1)."
+        ]
       },
-      "verdict": "disagrees",
-      "scorer_agrees": false,
-      "note": "stance-score: bennie_thompson|healthcare position MISMATCH (candidate no clear position, ground truth support); confidence 0.3 vs 0.85, Δ=-0.55 OUTSIDE 0.1",
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: bennie_thompson|healthcare position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.85, Δ=-0.05 within 0.1",
       "per_source": [
         {
           "type": "official press release",
           "date": "2025-05-22",
           "link": "https://benniethompson.house.gov/media/press-releases/congressman-bennie-g-thompson-statement-republicans-jamming-their-gop-tax-scam",
-          "position": "no clear position",
-          "confidence": 0.3,
-          "reason": "1 topic mention(s), none states a clear position (R3)",
-          "statements": []
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); stance verb in the opening sentences acts on a named bill the page says harms the issue reads as a clear support (R14); 1 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): Thompson (D-MS) voted against House Republicans' Reconciliation Bill (H.R. 1)."
+          ]
         }
       ]
     },
@@ -1109,23 +1113,27 @@
         "confidence": 0.8
       },
       "scorer": {
-        "position": "no clear position",
-        "confidence": 0.3,
-        "reason": "1 topic mention(s), none states a clear position (R3)",
-        "statements": []
+        "position": "oppose",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); stance verb in the opening sentences acts on a named bill reads as a clear oppose (R14); 1 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "oppose (clear): Washington, D.C. – Congressman Tom Cole (OK-04) released the following statement after voting against the House Amendment to the Senate Amendment to H.R. 5746, the text of which was released with an hour's notice before its consideration in the House Rules Committee last night."
+        ]
       },
-      "verdict": "disagrees",
-      "scorer_agrees": false,
-      "note": "stance-score: tom_cole|voting_access position MISMATCH (candidate no clear position, ground truth oppose); confidence 0.3 vs 0.8, Δ=-0.50 OUTSIDE 0.1",
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: tom_cole|voting_access position MATCH (candidate oppose, ground truth oppose); confidence 0.8 vs 0.8, Δ=+0.00 within 0.1",
       "per_source": [
         {
           "type": "official press release",
           "date": "2022-01-13",
           "link": "https://cole.house.gov/media/press-releases/cole-votes-against-democrats-latest-scheme-federalize-elections",
-          "position": "no clear position",
-          "confidence": 0.3,
-          "reason": "1 topic mention(s), none states a clear position (R3)",
-          "statements": []
+          "position": "oppose",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); stance verb in the opening sentences acts on a named bill reads as a clear oppose (R14); 1 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "oppose (clear): Washington, D.C. – Congressman Tom Cole (OK-04) released the following statement after voting against the House Amendment to the Senate Amendment to H.R. 5746, the text of which was released with an hour's notice before its consideration in the House Rules Committee last night."
+          ]
         }
       ]
     },
@@ -1505,23 +1513,27 @@
         "confidence": 0.75
       },
       "scorer": {
-        "position": "no clear position",
-        "confidence": 0.3,
-        "reason": "1 topic mention(s), none states a clear position (R3)",
-        "statements": []
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); stance verb in the opening sentences acts on a named bill reads as a clear support (R14); 1 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): Washington, D.C. —Congressman Tim Walberg (MI-07) today voted for H.R. 5430, the United States-Mexico-Canada Agreement (USMCA) Implementation Act, to replace an outdated NAFTA. \"For too long, Michigan has needed better trade deals, and today's vote will help finally put NAFTA in the rearview mirror."
+        ]
       },
-      "verdict": "disagrees",
-      "scorer_agrees": false,
-      "note": "stance-score: walberg|econ_trade position MISMATCH (candidate no clear position, ground truth support); confidence 0.3 vs 0.75, Δ=-0.45 OUTSIDE 0.1",
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: walberg|econ_trade position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.75, Δ=+0.05 within 0.1",
       "per_source": [
         {
           "type": "official press release",
           "date": "2019-12-19",
           "link": "https://walberg.house.gov/media/press-releases/walberg-applauds-passage-usmca-help-michigan-workers",
-          "position": "no clear position",
-          "confidence": 0.3,
-          "reason": "1 topic mention(s), none states a clear position (R3)",
-          "statements": []
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); stance verb in the opening sentences acts on a named bill reads as a clear support (R14); 1 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): Washington, D.C. —Congressman Tim Walberg (MI-07) today voted for H.R. 5430, the United States-Mexico-Canada Agreement (USMCA) Implementation Act, to replace an outdated NAFTA. \"For too long, Michigan has needed better trade deals, and today's vote will help finally put NAFTA in the rearview mirror."
+          ]
         }
       ]
     },
@@ -1914,23 +1926,27 @@
         "confidence": 0.85
       },
       "scorer": {
-        "position": "no clear position",
-        "confidence": 0.3,
-        "reason": "3 topic mention(s), none states a clear position (R3)",
-        "statements": []
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); stance verb in the opening sentences acts on a named bill reads as a clear support (R14); 2 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): WASHINGTON, DC — Rep. Zoe Lofgren (D-CA), Rep. Warren Davidson (R-OH), Sen. Ron Wyden (D-OR), and Mike Lee (R-UT), yesterday introduced an updated version of the Government Surveillance Reform Act to enact new protections for Americans’ rights, including stopping the federal government from buyin…"
+        ]
       },
-      "verdict": "disagrees",
-      "scorer_agrees": false,
-      "note": "stance-score: zoe_lofgren|privacy_rights position MISMATCH (candidate no clear position, ground truth support); confidence 0.3 vs 0.85, Δ=-0.55 OUTSIDE 0.1",
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: zoe_lofgren|privacy_rights position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.85, Δ=-0.05 within 0.1",
       "per_source": [
         {
           "type": "official press release",
           "date": "2026-03-13",
           "link": "https://lofgren.house.gov/media/press-releases/lofgren-davidson-wyden-and-lee-introduce-bipartisan-fisa-reform-bill-protect",
-          "position": "no clear position",
-          "confidence": 0.3,
-          "reason": "3 topic mention(s), none states a clear position (R3)",
-          "statements": []
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); stance verb in the opening sentences acts on a named bill reads as a clear support (R14); 2 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): WASHINGTON, DC — Rep. Zoe Lofgren (D-CA), Rep. Warren Davidson (R-OH), Sen. Ron Wyden (D-OR), and Mike Lee (R-UT), yesterday introduced an updated version of the Government Surveillance Reform Act to enact new protections for Americans’ rights, including stopping the federal government from buyin…"
+          ]
         }
       ]
     },
@@ -2379,23 +2395,27 @@
         "confidence": 0.85
       },
       "scorer": {
-        "position": "no clear position",
-        "confidence": 0.3,
-        "reason": "1 topic mention(s), none states a clear position (R3)",
-        "statements": []
+        "position": "oppose",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); stance verb in the opening sentences acts on a named bill reads as a clear oppose (R14); 1 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "oppose (clear): WASHINGTON, D.C. - Today, Rep. Lisa McClain (R-MI) and House Education and the Workforce Committee Chairwoman Virginia Foxx (R-NC) introduced a Congressional Review Act (CRA) resolution to overturn President Biden’s reckless income-driven repayment (IDR) rule—known as “Savings on a Valuable Educa…"
+        ]
       },
-      "verdict": "disagrees",
-      "scorer_agrees": false,
-      "note": "stance-score: mcclain|edu_college_cost position MISMATCH (candidate no clear position, ground truth oppose); confidence 0.3 vs 0.85, Δ=-0.55 OUTSIDE 0.1",
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: mcclain|edu_college_cost position MATCH (candidate oppose, ground truth oppose); confidence 0.8 vs 0.85, Δ=-0.05 within 0.1",
       "per_source": [
         {
           "type": "official press release",
           "date": "2023-09-05",
           "link": "https://mcclain.house.gov/press-releases?id=EE8F97D4-8FA5-4D1B-ADCB-7D85CDF8E849",
-          "position": "no clear position",
-          "confidence": 0.3,
-          "reason": "1 topic mention(s), none states a clear position (R3)",
-          "statements": []
+          "position": "oppose",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); stance verb in the opening sentences acts on a named bill reads as a clear oppose (R14); 1 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "oppose (clear): WASHINGTON, D.C. - Today, Rep. Lisa McClain (R-MI) and House Education and the Workforce Committee Chairwoman Virginia Foxx (R-NC) introduced a Congressional Review Act (CRA) resolution to overturn President Biden’s reckless income-driven repayment (IDR) rule—known as “Savings on a Valuable Educa…"
+          ]
         }
       ]
     },
@@ -2441,23 +2461,27 @@
         "confidence": 0.8
       },
       "scorer": {
-        "position": "no clear position",
-        "confidence": 0.3,
-        "reason": "1 topic mention(s), none states a clear position (R3)",
-        "statements": []
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); stance verb in the opening sentences acts on a named bill reads as a clear support (R14); 1 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): Washington, D.C. — Today, House Committee on Natural Resources Ranking Member Jared Huffman (D-Calif.) and Chairman Bruce Westerman (R-Ark.) introduced the bipartisan Great American Outdoors Act 250 (GAOA 250). The GAOA250 invests $1.9 billion annually in America’s national parks, public lands, a…"
+        ]
       },
-      "verdict": "disagrees",
-      "scorer_agrees": false,
-      "note": "stance-score: jared_huffman|lands_preserve position MISMATCH (candidate no clear position, ground truth support); confidence 0.3 vs 0.8, Δ=-0.50 OUTSIDE 0.1",
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: jared_huffman|lands_preserve position MATCH (candidate support, ground truth support); confidence 0.8 vs 0.8, Δ=+0.00 within 0.1",
       "per_source": [
         {
           "type": "official press release",
           "date": "2026-06-10",
           "link": "https://huffman.house.gov/media-center/press-releases/huffman-and-westerman-introduce-bipartisan-great-american-outdoors-act-250",
-          "position": "no clear position",
-          "confidence": 0.3,
-          "reason": "1 topic mention(s), none states a clear position (R3)",
-          "statements": []
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); stance verb in the opening sentences acts on a named bill reads as a clear support (R14); 1 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): Washington, D.C. — Today, House Committee on Natural Resources Ranking Member Jared Huffman (D-Calif.) and Chairman Bruce Westerman (R-Ark.) introduced the bipartisan Great American Outdoors Act 250 (GAOA 250). The GAOA250 invests $1.9 billion annually in America’s national parks, public lands, a…"
+          ]
         }
       ]
     },

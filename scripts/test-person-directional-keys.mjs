@@ -110,7 +110,7 @@ t('second-pass people: each on their record key, bills where the source names on
     bruce_westerman: [[], ['cut_spending:support']],
     frank_lucas: [['H.R. 2811→cut_spending'], ['cut_spending:support']],
     mariannette_miller_meeks: [['H.J.Res. 139→cut_spending'], ['cut_spending:support']],
-    bennie_thompson: [['H.R. 1→healthcare', 'Affordable Care Act→healthcare'], ['healthcare:no clear position']],
+    bennie_thompson: [['H.R. 1→healthcare', 'Affordable Care Act→healthcare'], ['healthcare:support']],
     cruz: [['Educational Choice for Children Act→school_choice', 'Tax Cuts and Jobs Act→school_choice'], ['school_choice:no clear position']],
     aoc: [['Affordable Care Act→healthcare'], ['healthcare:no clear position']],
     kclark: [[], ['healthcare:mixed']],
@@ -138,9 +138,7 @@ t('expansion people: each on their record key, with bill matches where the sourc
     assert.equal(st.position, r.scorer.position, r.stance_id);
     assert.equal(st.confidence, r.scorer.confidence, r.stance_id);
   }
-  assert.deepEqual(rep.records.filter((r) => r.scorer_agrees && !THIRD.includes(r.politician_id) && !FOURTH.includes(r.politician_id)).map((r) => r.stance_id), ['michael_guest|border_security|gt-009',
-    'french_hill|cut_spending|gt-012', 'bruce_westerman|cut_spending|gt-013', 'frank_lucas|cut_spending|gt-014', 'mariannette_miller_meeks|cut_spending|gt-015',
-    'jayapal|healthcare|gt-022', 'jason_smith|cut_spending|gt-024']);
+  assert.deepEqual(rep.records.filter((r) => r.scorer_agrees && !THIRD.includes(r.politician_id) && !FOURTH.includes(r.politician_id)).map((r) => r.stance_id), ['michael_guest|border_security|gt-009', 'french_hill|cut_spending|gt-012', 'bruce_westerman|cut_spending|gt-013', 'frank_lucas|cut_spending|gt-014', 'mariannette_miller_meeks|cut_spending|gt-015', 'bennie_thompson|healthcare|gt-016', 'jayapal|healthcare|gt-022', 'jason_smith|cut_spending|gt-024']);
   execFileSync(process.execPath, [path.join(root, 'scripts/rescore-ground-truth-expansion-2026-11.mjs'), '--check'], { stdio: 'pipe' });
 });
 t('third-pass people: each on their v7 record key, bills where the source names one, the scorer read as it is (agree or not)', () => {
@@ -260,7 +258,7 @@ t('third-pass people: each on their v7 record key, bills where the source names 
               "H.R. 5746→voting_access"
           ],
           [
-              "voting_access:no clear position"
+              "voting_access:oppose"
           ]
       ],
       "adam_smith": [
@@ -354,7 +352,7 @@ t('third-pass people: each on their v7 record key, bills where the source names 
               "H.R. 5430→econ_trade"
           ],
           [
-              "econ_trade:no clear position"
+              "econ_trade:support"
           ]
       ],
       "neal": [
@@ -383,7 +381,7 @@ t('third-pass people: each on their v7 record key, bills where the source names 
     assert.equal(st.position, r.scorer.position, r.stance_id);
   }
   // Agreement is recorded as it is; nothing was tuned to raise it.
-  assert.deepEqual(third.filter((r) => r.scorer_agrees).map((r) => r.stance_id), ["heinrich|climate_action|gt-025", "lujan|climate_action|gt-026", "robert_garcia|climate_action|gt-028", "fitzpatrick|gun_safety|gt-031", "dina_titus|pro_choice|gt-033", "mike_simpson|pro_choice|gt-036", "adam_smith|voting_access|gt-040", "haley_stevens|voting_access|gt-041", "aguilar|housing|gt-043", "ayanna_pressley|housing|gt-044", "jared_golden|econ_workers|gt-046", "brendan_boyle|econ_workers|gt-047", "bobby_scott|justice_reform|gt-049", "nadler|justice_reform|gt-050"]);
+  assert.deepEqual(third.filter((r) => r.scorer_agrees).map((r) => r.stance_id), ["heinrich|climate_action|gt-025", "lujan|climate_action|gt-026", "robert_garcia|climate_action|gt-028", "fitzpatrick|gun_safety|gt-031", "dina_titus|pro_choice|gt-033", "mike_simpson|pro_choice|gt-036", "tom_cole|voting_access|gt-039", "adam_smith|voting_access|gt-040", "haley_stevens|voting_access|gt-041", "aguilar|housing|gt-043", "ayanna_pressley|housing|gt-044", "jared_golden|econ_workers|gt-046", "brendan_boyle|econ_workers|gt-047", "bobby_scott|justice_reform|gt-049", "nadler|justice_reform|gt-050", "walberg|econ_trade|gt-051"]);
 });
 t('fourth-pass people: each on their v8 record key, bills where the source names one, the scorer read as it is (agree or not)', () => {
   const P = data.people;
@@ -472,7 +470,7 @@ t('fourth-pass people: each on their v8 record key, bills where the source names
               "Government Surveillance Reform Act→privacy_rights"
           ],
           [
-              "privacy_rights:no clear position"
+              "privacy_rights:support"
           ]
       ],
       "jan_schakowsky": [
@@ -578,7 +576,7 @@ t('fourth-pass people: each on their v8 record key, bills where the source names
       "mcclain": [
           [],
           [
-              "edu_college_cost:no clear position"
+              "edu_college_cost:oppose"
           ]
       ],
       "gabe_vasquez": [
@@ -594,7 +592,7 @@ t('fourth-pass people: each on their v8 record key, bills where the source names
               "Great American Outdoors Act→lands_preserve"
           ],
           [
-              "lands_preserve:no clear position"
+              "lands_preserve:support"
           ]
       ],
       "neguse": [
@@ -620,7 +618,7 @@ t('fourth-pass people: each on their v8 record key, bills where the source names
     assert.equal(P[r.politician_id].stances.find((x) => x.key === r.topic).position, r.scorer.position, r.stance_id);
   }
   // Agreement is recorded as it is; nothing was tuned to raise it.
-  assert.deepEqual(fourth.filter((r) => r.scorer_agrees).map((r) => r.stance_id), ["mike_lawler|social_security|gt-055", "debbie_dingell|social_security|gt-056", "takano|veterans|gt-057", "mike_bost|veterans|gt-058", "pat_harrigan|veterans|gt-059", "zach_nunn|rural_ag|gt-060", "julie_fedorchak|rural_ag|gt-062", "jan_schakowsky|privacy_rights|gt-065", "pallone|health_drug_prices|gt-066", "susie_lee|back_police|gt-071", "stefanik|back_police|gt-073", "ryan_mackenzie|back_police|gt-074", "omar|edu_college_cost|gt-075", "gabe_vasquez|lands_preserve|gt-080"]);
+  assert.deepEqual(fourth.filter((r) => r.scorer_agrees).map((r) => r.stance_id), ["mike_lawler|social_security|gt-055", "debbie_dingell|social_security|gt-056", "takano|veterans|gt-057", "mike_bost|veterans|gt-058", "pat_harrigan|veterans|gt-059", "zach_nunn|rural_ag|gt-060", "julie_fedorchak|rural_ag|gt-062", "zoe_lofgren|privacy_rights|gt-064", "jan_schakowsky|privacy_rights|gt-065", "pallone|health_drug_prices|gt-066", "susie_lee|back_police|gt-071", "stefanik|back_police|gt-073", "ryan_mackenzie|back_police|gt-074", "omar|edu_college_cost|gt-075", "mcclain|edu_college_cost|gt-079", "gabe_vasquez|lands_preserve|gt-080", "jared_huffman|lands_preserve|gt-081"]);
 });
 t('the scorer reads in the table match a fresh scorer read; ground-truth labels are unchanged', () => {
   const gt = JSON.parse(R('db/stance-ground-truth-talarico-cost-of-living.json'));
