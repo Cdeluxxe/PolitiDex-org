@@ -78,6 +78,8 @@ import {
   vrDistributionalImpacts,
   vrExecActionStatus,
 } from "../../db/schema.js";
+import { NON_VERDICT_STATUSES } from "../lib/vr-review-status.js";
+import { liveBillTable } from "../lib/bill-live-issues.js";
 import {
   loadCorrections,
   applyCorrections,
@@ -230,6 +232,15 @@ function clean(v: unknown, max: number): string {
 }
 
 // True only for a key that exists in the shipped ISSUE_MAP allow-list.
+// Only verdict-bearing mapping rows reach a public read. An automatic proposal
+// ('proposed', rationale "auto — review") or a rejected one is skipped everywhere
+// vr_measure_issues is read here — as an issue tag, an issue filter, or a count —
+// until a reviewer promotes it (netlify/lib/vr-issue-proposals.ts). The client
+// would otherwise read a proposal's placeholder supportMeaning as a real verdict.
+function verdictBearingMapping() {
+  return notInArray(vrMeasureIssues.reviewStatus, NON_VERDICT_STATUSES);
+}
+
 function assertIssueKey(key: string): boolean {
   return ISSUE_KEYS.has(key);
 }
@@ -440,7 +451,7 @@ async function loadIssuesByMeasure(
   const rows = await db
     .select()
     .from(vrMeasureIssues)
-    .where(inArray(vrMeasureIssues.measureId, measureIds));
+    .where(and(inArray(vrMeasureIssues.measureId, measureIds), verdictBearingMapping()));
   for (const r of rows) {
     if (!assertIssueKey(r.issueKey)) continue; // skip unknown keys
     const list = map.get(r.measureId) ?? [];
@@ -578,7 +589,7 @@ function buildMemberQuery(politicianId: string, f: Filters, skipPosition = false
         db
           .select({ id: vrMeasureIssues.measureId })
           .from(vrMeasureIssues)
-          .where(eq(vrMeasureIssues.issueKey, f.issue))
+          .where(and(eq(vrMeasureIssues.issueKey, f.issue), verdictBearingMapping()))
       )
     );
   }
@@ -760,7 +771,7 @@ async function assembleMemberPayload(politicianId: string, f: Filters) {
           db
             .select({ id: vrMeasureIssues.measureId })
             .from(vrMeasureIssues)
-            .where(eq(vrMeasureIssues.issueKey, f.issue))
+            .where(and(eq(vrMeasureIssues.issueKey, f.issue), verdictBearingMapping()))
         )
       );
     }
@@ -974,7 +985,8 @@ async function getIssueImpacts(issueKey: string): Promise<Response> {
 
   const mapped = await db
     .select({ measureId: vrMeasureIssues.measureId, issueKey: vrMeasureIssues.issueKey })
-    .from(vrMeasureIssues);
+    .from(vrMeasureIssues)
+    .where(verdictBearingMapping());
   const keysByMeasure = new Map<number, string[]>();
   for (const p of mapped) {
     if (!assertIssueKey(p.issueKey)) continue;
@@ -1037,7 +1049,7 @@ async function getIssue(issueKey: string, url: URL): Promise<Response> {
   const measureIdRows = await db
     .select({ id: vrMeasureIssues.measureId })
     .from(vrMeasureIssues)
-    .where(eq(vrMeasureIssues.issueKey, issueKey));
+    .where(and(eq(vrMeasureIssues.issueKey, issueKey), verdictBearingMapping()));
   const measureIds = measureIdRows.map((r) => r.id);
   if (!measureIds.length) {
     return json({ issueKey, byPolitician: {}, ...paginate([], f.page, f.pageSize) });
@@ -1147,7 +1159,7 @@ async function getMemberIssueKeys(politicianId: string): Promise<Response> {
     .from(vrMemberVotes)
     .innerJoin(vrRollcalls, eq(vrMemberVotes.rollcallId, vrRollcalls.id))
     .innerJoin(vrMeasureIssues, eq(vrMeasureIssues.measureId, vrRollcalls.measureId))
-    .where(eq(vrMemberVotes.politicianId, politicianId))
+    .where(and(eq(vrMemberVotes.politicianId, politicianId), verdictBearingMapping()))
     .groupBy(vrMeasureIssues.issueKey);
 
   // Lane two: everything formal that has no roll call to hang on.
@@ -1155,7 +1167,7 @@ async function getMemberIssueKeys(politicianId: string): Promise<Response> {
     .select({ issueKey: vrMeasureIssues.issueKey, acts: count(vrPositions.id) })
     .from(vrPositions)
     .innerJoin(vrMeasureIssues, eq(vrMeasureIssues.measureId, vrPositions.measureId))
-    .where(eq(vrPositions.politicianId, politicianId))
+    .where(and(eq(vrPositions.politicianId, politicianId), verdictBearingMapping()))
     .groupBy(vrMeasureIssues.issueKey);
 
   const acts = new Map<string, number>();
@@ -1464,7 +1476,7 @@ async function getMeasure(measureId: number): Promise<Response> {
   const issueRows = await db
     .select()
     .from(vrMeasureIssues)
-    .where(eq(vrMeasureIssues.measureId, measureId));
+    .where(and(eq(vrMeasureIssues.measureId, measureId), verdictBearingMapping()));
   const issues = issueRows
     .filter((r) => assertIssueKey(r.issueKey))
     .map((r) => ({
@@ -1692,7 +1704,7 @@ async function getCompare(url: URL): Promise<Response> {
         await db
           .select({ id: vrMeasureIssues.measureId })
           .from(vrMeasureIssues)
-          .where(eq(vrMeasureIssues.issueKey, issue))
+          .where(and(eq(vrMeasureIssues.issueKey, issue), verdictBearingMapping()))
       ).map((r) => r.id)
     : null;
 
@@ -1791,7 +1803,7 @@ async function getIssueRecords(url: URL): Promise<Response> {
   const measureIdRows = await db
     .select({ id: vrMeasureIssues.measureId })
     .from(vrMeasureIssues)
-    .where(inArray(vrMeasureIssues.issueKey, keys));
+    .where(and(inArray(vrMeasureIssues.issueKey, keys), verdictBearingMapping()));
   const measureIds = [...new Set(measureIdRows.map((r) => r.id))];
   if (!measureIds.length) return json(empty);
 
@@ -1929,6 +1941,58 @@ async function getIssueRecords(url: URL): Promise<Response> {
   });
 }
 
+// ── GET /measures?view=bill-issue-keys ───────────────────────────────────────
+// Every citable measure's LIVE issue keys, by "<sitting>|<number>" — the table
+// the /b/ document (share-target.ts) and the person bill list (person-bills.js)
+// lay over their build-time snapshot, so a reviewed mapping shows on both without
+// regenerating db/bill-docs.json. See netlify/lib/bill-live-issues.ts.
+//
+// Verdict-bearing rows only (verdictBearingMapping): a proposal awaiting review,
+// or a rejected one, is never in it. Keys are checked against the allow-list.
+// Keys only — no weight, no direction, no primary flag, the same floor the bill
+// document holds itself to.
+//
+// MEMOISED ON THE MAPPING VERSION, the fingerprint that already names the member
+// packs: a review or rejection changes review_status, the version moves, and the
+// next read rebuilds. Responses carry the usual 60-second public cache.
+let _billIssueMemo: { version: string; body: { mappingVersion: string; bills: Record<string, string[]> } } | null = null;
+
+async function buildBillIssueKeys(): Promise<Record<string, string[]>> {
+  const rows = await db
+    .select({
+      congress: vrMeasures.congress,
+      number: vrMeasures.number,
+      externalIds: vrMeasures.externalIds,
+      sourceUrl: vrMeasures.sourceUrl,
+      issueKey: vrMeasureIssues.issueKey,
+      reviewStatus: vrMeasureIssues.reviewStatus,
+    })
+    .from(vrMeasureIssues)
+    .innerJoin(vrMeasures, eq(vrMeasureIssues.measureId, vrMeasures.id))
+    .where(verdictBearingMapping());
+  return liveBillTable(
+    rows.map((r) => ({
+      sitting: r.congress != null ? String(r.congress) : (measureIdent(r.externalIds)?.session ?? ""),
+      number: r.number,
+      sourceUrl: r.sourceUrl,
+      issueKey: r.issueKey,
+      reviewStatus: r.reviewStatus,
+    })),
+    assertIssueKey
+  );
+}
+
+async function getBillIssueKeys(): Promise<Response> {
+  const version = await mappingVersion();
+  if (_billIssueMemo && _billIssueMemo.version === version && version !== MAPPING_VERSION_UNKNOWN) {
+    return json(_billIssueMemo.body);
+  }
+  const body = { mappingVersion: version, bills: await buildBillIssueKeys() };
+  // An unnameable mapping is served, never kept — the pack's fail-closed rule.
+  if (version !== MAPPING_VERSION_UNKNOWN) _billIssueMemo = { version, body };
+  return json(body);
+}
+
 // ── GET /measures ────────────────────────────────────────────────────────────
 // The Legislation / Bill library browse endpoint (Phase 1): a filterable, paginated
 // list of measures rendered as compact cards. Per-measure detail (component issues +
@@ -1975,7 +2039,7 @@ async function getMeasures(url: URL): Promise<Response> {
     const rows = await db
       .select({ measureId: vrMeasureIssues.measureId })
       .from(vrMeasureIssues)
-      .where(eq(vrMeasureIssues.issueKey, issue));
+      .where(and(eq(vrMeasureIssues.issueKey, issue), verdictBearingMapping()));
     issueMeasureIds = [...new Set(rows.map((r) => r.measureId))];
     if (!issueMeasureIds.length) {
       return json({ items: [], page, pageSize, total: 0, totalPages: 1, hasMore: false });
@@ -2179,6 +2243,7 @@ export default async (req: Request): Promise<Response> => {
     }
 
     if (path === "/measures") {
+      if (url.searchParams.get("view") === "bill-issue-keys") return await getBillIssueKeys();
       return await getMeasures(url);
     }
 

@@ -17,9 +17,31 @@
 //        body: { congress?, chamber?: "house"|"senate", limit?, offset?, recent?, classifyIssues? }
 //   POST /seed-issues   apply the curated measure→issue mappings (db/vr-issue-seed.json)
 //                       onto measures that already exist — no Congress.gov key needed
+//
+// Automatic mapping proposals (netlify/lib/vr-issue-proposals.ts) — same bearer gate:
+//   GET  /proposals                 the review queue
+//        ?status=proposed (default) | reviewed | rejected | curated | all, &limit=1..500
+//   POST /proposals/:id/review      promote a proposal to a normal mapping
+//        body: { issueKey?, weight (0..100), supportMeaning ("yea_supports"|"yea_opposes"),
+//                isPrimary?, rationale?, sourceUrl?, reviewer? }
+//   POST /proposals/:id/reject      turn a proposal down (kept, so it is not re-proposed)
+//        body: { note?, reviewer? }
+//   POST /propose-issues            propose for named measures that have no mapping yet
+//        body: { measureIds: number[] }   (the ingest does this automatically per run)
+// Each proposal carries a 0..100 confidence; those at or above 60 are auto-approved
+// at write time (reviewed_by 'auto'), so the default queue holds only the
+// low-confidence ones. Only rows in status 'proposed' can be reviewed or rejected; curated and reviewed
+// mappings are never edited here. Each review/proposal re-packs the affected members.
 
 import type { Config } from "@netlify/functions";
 import { applyCuratedIssueSeed, runIngest, verify } from "../lib/vr-ingest.js";
+import {
+  listProposalQueue,
+  proposeIssuesForMeasures,
+  rejectIssueProposal,
+  reviewIssueProposal,
+} from "../lib/vr-issue-proposals-db.js";
+import { REVIEW_STATUSES } from "../lib/vr-review-status.js";
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -53,6 +75,39 @@ export default async (req: Request): Promise<Response> => {
 
     if (method === "POST" && path === "/seed-issues") {
       return json({ ran: true, seed: await applyCuratedIssueSeed() });
+    }
+
+    if (method === "GET" && path === "/proposals") {
+      const statusParam = (url.searchParams.get("status") || "proposed").toLowerCase();
+      if (statusParam !== "all" && !REVIEW_STATUSES.has(statusParam)) {
+        return json({ error: "status must be proposed, reviewed, rejected, curated or all" }, 400);
+      }
+      const limit = Math.min(Math.max(Number(url.searchParams.get("limit")) || 100, 1), 500);
+      const items = await listProposalQueue(statusParam === "all" ? null : statusParam, limit);
+      return json({ status: statusParam, count: items.length, items });
+    }
+
+    const reviewMatch = path.match(/^\/proposals\/(\d+)\/(review|reject)$/);
+    if (method === "POST" && reviewMatch) {
+      let body: any = {};
+      try { body = await req.json(); } catch { body = {}; }
+      const id = Number(reviewMatch[1]);
+      const result = reviewMatch[2] === "review"
+        ? await reviewIssueProposal(id, body)
+        : await rejectIssueProposal(id, body);
+      if (result.ok === false) return json({ error: result.error }, result.status);
+      return json({ ok: true, row: result.row, packsWritten: result.packsWritten, errors: result.errors });
+    }
+
+    if (method === "POST" && path === "/propose-issues") {
+      let body: any = {};
+      try { body = await req.json(); } catch { body = {}; }
+      const ids = Array.isArray(body.measureIds)
+        ? body.measureIds.map(Number).filter((n: number) => Number.isInteger(n) && n > 0)
+        : [];
+      if (!ids.length) return json({ error: "measureIds must be a non-empty array of measure ids" }, 400);
+      if (ids.length > 500) return json({ error: "at most 500 measureIds per call" }, 400);
+      return json({ ran: true, proposals: await proposeIssuesForMeasures(ids) });
     }
 
     if (method === "POST" && (path === "" || path === "/run")) {

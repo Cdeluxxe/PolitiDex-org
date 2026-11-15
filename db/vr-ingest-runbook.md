@@ -3413,3 +3413,68 @@ node scripts/test-depth-no-score-drift.mjs
 node scripts/gen-sitemap.mjs
 node scripts/test-sitemap-bills.mjs
 ```
+
+## § Automatic mapping proposals — the review lane (`20261207000000`)
+
+Each ingest run (cron and `POST /api/vr-ingest`) proposes issue keys for the measures it
+touched that have **no** `vr_measure_issues` row at all. It runs after the curated seed, so
+any measure the seed covers is mapped first and skipped. A proposal is a normal row with
+`review_status = 'proposed'`, weight ≤ 40 and rationale `auto — review`. The keys come from
+the bill-key-patterns subject/instrument/facet regexes read over the title, short title and
+summary, falling back to the keyword suggester, and are checked against `db/issue-keys.json`.
+Proposals are **not verdict-bearing**. Every public read skips `proposed` and `rejected`
+rows: the live read, the offline pack and the digest.
+
+Review (bearer `VR_INGEST_TOKEN`, same gate as the rest of `/api/vr-ingest`):
+
+    GET  /api/vr-ingest/proposals?status=proposed
+    POST /api/vr-ingest/proposals/:id/review  {"weight":80,"supportMeaning":"yea_supports","issueKey":"…","isPrimary":true,"rationale":"…","reviewer":"…"}
+    POST /api/vr-ingest/proposals/:id/reject  {"note":"…"}
+    POST /api/vr-ingest/propose-issues        {"measureIds":[…]}
+
+Only `proposed` rows can be reviewed or rejected. Curated and reviewed rows are never edited
+from here. A review re-packs the measure's voters, and `review_status` is in the mapping
+fingerprint, so the pack key moves. Bill pages (`gen-bill-docs.mjs`) still replay
+migrations. A reviewed mapping reaches a bill page only when it is also written into a
+migration or `db/vr-issue-seed.json` and the docs are regenerated.
+
+### Live mappings on bill pages and person bill lists
+
+`/b/` documents and person bill lists now lay a live table over their build-time
+snapshot. The table is `GET /api/voting-record/measures?view=bill-issue-keys`, which reads
+verdict-bearing rows only (curated and reviewed) and is memoised on `mappingVersion()`.
+The merge only adds keys: snapshot labels, effect lines and keys print exactly as before,
+and a live-only key is listed bare because no effect line is stored for it. A review shows
+within about a minute (60 s Function cache plus a 60 s edge memo). A browser that already
+holds the page may keep its copy for up to 5 minutes. An effect line, the sitemap and the
+eye's search index (`bill-search-index.js`) still come only from `gen-bill-docs.mjs`.
+
+### Proposal confidence and auto-approval (`20261208000000`)
+
+Every proposal row carries `confidence` (0–100), scored by `proposeIssueKeys()` in
+`netlify/lib/vr-issue-proposals.ts`:
+
+| Signal | Effect |
+|---|---|
+| bill-key-patterns subject + instrument (+ facet) read in the title / short title | base 70 |
+| …read only once the summary is added | base 45 |
+| keyword suggester only (no pattern fits) | 35 |
+| the key has a facet (narrower child key) and it read | +10 |
+| title and summary each match on their own | +10 |
+| the keyword suggester independently picks the same key | +10 |
+| more than one pattern key fits | −10 each, a further −10 for each key after the first |
+| a reversal or restriction cue in the text (`REVERSAL_CUES`: repeal, disapproval, prohibit, restrict, cut, proof of citizenship, …) | capped at 40 |
+
+The cap exists because the patterns say what a bill is about, not which way a yea pushes
+the issue. Their instrument words run both ways.
+
+Bands: **high ≥ 80, medium 60–79, low < 60**. At or above **60**, and only for a key in
+`db/issue-keys.json` with no reversal cue, a proposal is promoted at write time through the
+same guarded proposed → reviewed update a manual review uses. It gets `support_meaning =
+'yea_supports'` (the only direction the patterns allow), `reviewed_by = 'auto'`, a rationale
+naming the score and the signals that fired, and its low proposal weight. Its voters are
+re-packed like any review. Below 60 the row stays `proposed` with "auto — review" and is the
+only kind of row in `GET /api/vr-ingest/proposals?status=proposed`. A human reviewer can't
+record themselves as `auto`.
+
+To audit machine approvals, list `?status=reviewed` and look at `reviewedBy = "auto"`.

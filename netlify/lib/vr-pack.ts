@@ -43,6 +43,7 @@ import {
 } from "../../db/schema.js";
 import issueKeyData from "../../db/issue-keys.json" with { type: "json" };
 import { loadCorrections, applyCorrections } from "./vr-corrections.js";
+import { isVerdictBearingStatus } from "./vr-review-status.js";
 
 const ISSUE_KEYS = new Set<string>((issueKeyData as { keys: string[] }).keys);
 
@@ -85,7 +86,9 @@ export function yeaBlocksMeasure(question: string | null | undefined): boolean {
 // flip is a mapping change. md5 over the table's contents notices it for free.
 //
 // WHAT IS IN THE FINGERPRINT: exactly the four fields the pack SERVES (see
-// PackIssue) plus the row count. `source_url` and `rationale`'s provenance are
+// PackIssue) plus the row count, plus `review_status` — which decides whether the
+// pack serves a row at all (a proposal is skipped until reviewed), so a review that
+// promotes a row without touching its values must still move the version. `source_url` and `rationale`'s provenance are
 // deliberately out of it — a corrected citation URL that the pack never sends
 // should not invalidate every member's pack. `rationale` IS in, because the pack
 // does send it. The count is carried in the token in the clear so the version is
@@ -110,7 +113,8 @@ export async function mappingVersion(): Promise<string> {
       select count(*)::int as n,
              coalesce(md5(string_agg(
                measure_id || ':' || issue_key || ':' || weight || ':' ||
-               support_meaning || ':' || coalesce(rationale, ''),
+               support_meaning || ':' || coalesce(rationale, '') || ':' ||
+               review_status,
                ',' order by id)), 'empty') as h
         from vr_measure_issues
     `)) as any;
@@ -163,6 +167,10 @@ async function loadIssuesByMeasure(measureIds: number[]): Promise<Map<number, Pa
     .where(inArray(vrMeasureIssues.measureId, measureIds));
   for (const r of rows) {
     if (!ISSUE_KEYS.has(r.issueKey)) continue;
+    // An automatic proposal awaiting review (or one rejected) is not a mapping yet:
+    // it must never reach the pack, where the client would read its placeholder
+    // supportMeaning as a verdict. See netlify/lib/vr-review-status.ts.
+    if (!isVerdictBearingStatus((r as any).reviewStatus)) continue;
     const list = map.get(r.measureId) ?? [];
     list.push({
       issueKey: r.issueKey,

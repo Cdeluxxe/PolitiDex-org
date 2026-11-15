@@ -53,6 +53,16 @@
    profile's own sticky nav, so a reader deep in a long list still sees what
    the list is and what it counts. Nothing about which rows appear moves.
 
+   ISSUE TAGS. Each row also carries the issues its bill page lists, as small
+   tags that open /i/<key>: the keys person-bills.json carries for the row (the
+   same ones the bill page's snapshot lists), with the LIVE mapping table laid
+   over them (GET /api/voting-record/measures?view=bill-issue-keys — curated and
+   reviewed mappings only, never a proposal awaiting review or a rejected one).
+   So a mapping a reviewer promotes shows here without regenerating the table.
+   The merge only adds: a snapshot key is never taken away, and if the live table
+   does not answer in time the row prints the snapshot's tags exactly. A key with
+   no label in ISSUE_MAP is not printed. See netlify/lib/bill-live-issues.ts.
+
    COMPANION. It also loads person-directional-keys.js once (loadCompanion),
    which places its own section; nothing in the bills list depends on it.
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -61,6 +71,8 @@
   if (window.PDXPersonBills) return;
 
   var SRC = '/person-bills.json';
+  var LIVE_SRC = '/api/voting-record/measures?view=bill-issue-keys';
+  var LIVE_WAIT_MS = 2500;
   var GROUPS = [
     { key: 'enacted', title: 'Enacted' },
     { key: 'passed', title: 'Passed' },
@@ -92,13 +104,71 @@
   function billHref(s, n) { return '/b/' + encodeURIComponent(s) + '/' + encodeURIComponent(n); }
 
   var _data = null;
+  function getJson(u) {
+    return fetch(u, { headers: { accept: 'application/json' } })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .catch(function () { return null; });
+  }
+  // The live table, given LIVE_WAIT_MS to answer; a miss is null, never an error.
+  function loadLive() {
+    return new Promise(function (resolve) {
+      var done = false;
+      var t = typeof setTimeout === 'function'
+        ? setTimeout(function () { if (!done) { done = true; resolve(null); } }, LIVE_WAIT_MS)
+        : null;
+      getJson(LIVE_SRC).then(function (j) {
+        if (done) return;
+        done = true;
+        if (t !== null && typeof clearTimeout === 'function') clearTimeout(t);
+        resolve(j && j.bills && typeof j.bills === 'object' ? j : null);
+      });
+    });
+  }
   function load() {
     if (!_data) {
-      _data = fetch(SRC, { headers: { accept: 'application/json' } })
-        .then(function (r) { return r.ok ? r.json() : null; })
-        .catch(function () { return null; });
+      _data = Promise.all([getJson(SRC), loadLive()]).then(function (r) {
+        var data = r[0];
+        if (data && r[1]) data._live = r[1];
+        return data;
+      });
     }
     return _data;
+  }
+
+  // The row's issue keys: the snapshot's, then any the live table adds.
+  var KEY_RE = /^[A-Za-z0-9_]+$/;
+  function liveKeys(live, s, n) {
+    if (!live || !live.bills) return null;
+    var k = String(s || '').trim() + '|' + String(n || '').replace(/\s+/g, ' ').trim();
+    return live.bills[k] || live.bills[String(s || '').trim().toUpperCase() + '|' + String(n || '').replace(/\s+/g, ' ').trim()] || null;
+  }
+  function mergeKeys(snap, live) {
+    var out = [];
+    var seen = {};
+    var all = (snap || []).concat(live || []);
+    for (var i = 0; i < all.length; i++) {
+      var k = all[i];
+      if (typeof k !== 'string' || !KEY_RE.test(k) || seen[k]) continue;
+      seen[k] = 1;
+      out.push(k);
+    }
+    return out;
+  }
+  function issueLabel(k) {
+    var M = window.ISSUE_MAP;
+    var e = M && Object.prototype.hasOwnProperty.call(M, k) ? M[k] : null;
+    var l = e && typeof e.label === 'string' ? e.label : '';
+    return l.replace(/^[^\p{L}\p{N}]+/u, '').trim();
+  }
+  // Labelled keys only, in label order — the bill page's own order.
+  function issueTags(keys) {
+    var out = [];
+    for (var i = 0; i < (keys || []).length; i++) {
+      var l = issueLabel(keys[i]);
+      if (l) out.push({ k: keys[i], l: l });
+    }
+    out.sort(function (a, b) { return a.l.localeCompare(b.l); });
+    return out;
   }
 
   function rowsFor(data, pid) {
@@ -111,7 +181,8 @@
     for (var i = 0; refs && i < refs.length; i++) {
       var b = data.bills[refs[i][0]];
       if (!b) continue;
-      out.push({ s: b[0], n: b[1], t: b[2], st: b[3], g: b[4], sl: b[5], r: refs[i][1] });
+      out.push({ s: b[0], n: b[1], t: b[2], st: b[3], g: b[4], sl: b[5], r: refs[i][1],
+        k: mergeKeys(Array.isArray(b[6]) ? b[6] : [], liveKeys(data._live, b[0], b[1])) });
     }
     return out;
   }
@@ -132,6 +203,14 @@
       esc(bits.join(' \u00b7 ')) + '</p>';
   }
 
+  function tagsHtml(keys) {
+    var tags = issueTags(keys);
+    if (!tags.length) return '';
+    return '<div class="pdx-spb-iss" data-pdx-sponsored-issues>' + tags.map(function (t) {
+      return '<a href="/i/' + encodeURIComponent(t.k) + '" data-pdx-sponsored-issue="' + esc(t.k) + '">' + esc(t.l) + '</a>';
+    }).join('') + '</div>';
+  }
+
   function html(rows) {
     var parts = [];
     for (var g = 0; g < GROUPS.length; g++) {
@@ -150,6 +229,7 @@
             '</div>' +
             (x.t ? '<div class="pdx-spb-t">' + esc(x.t) + '</div>' : '') +
             '<div class="pdx-spb-st" data-group="' + esc(x.g) + '">' + esc(x.sl) + '</div>' +
+            tagsHtml(x.k) +
           '</li>';
         }).join('') + '</ul></div>'
       );
@@ -189,6 +269,9 @@
       '#pdx-sponsored .pdx-spb-st{font-size:0.78rem;margin-top:0.2rem;color:#c9d8f2;}' +
       '#pdx-sponsored .pdx-spb-st[data-group="failed"]{color:#fca5a5;}' +
       '#pdx-sponsored .pdx-spb-st[data-group="enacted"]{color:#86efac;}' +
+      // The issue tags: the sitting capsule's shape, in a quieter ink.
+      '#pdx-sponsored .pdx-spb-iss{display:flex;flex-wrap:wrap;gap:0.25rem 0.3rem;margin-top:0.3rem;}' +
+      '#pdx-sponsored .pdx-spb-iss a{display:inline-flex;align-items:center;font-size:0.68rem;font-weight:600;line-height:1.2;color:#c9d8f2;border:1px solid rgba(159,180,212,0.22);border-radius:999px;padding:0.1rem 0.5rem;background:rgba(96,165,250,0.06);}' +
       // The letterhead jump: the money chip's metrics (size, case, padding,
       // radius) so it sits at the same weight in the row, in the neutral ink.
       '.pdx-spj{display:inline-flex;align-items:center;gap:0.3rem;max-width:100%;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;border-radius:999px;padding:0.16rem 0.55rem;background:rgba(96,165,250,0.08);border:1px solid rgba(159,180,212,0.28);color:#c9d8f2;line-height:1.15;white-space:nowrap;cursor:pointer;}' +
@@ -321,7 +404,7 @@
     placeJump(pid);
   }
 
-  window.PDXPersonBills = { scan: scan, rowsFor: rowsFor, html: html, load: load, jumpHtml: jumpHtml, jump: jump };
+  window.PDXPersonBills = { scan: scan, rowsFor: rowsFor, html: html, load: load, jumpHtml: jumpHtml, jump: jump, mergeKeys: mergeKeys, issueTags: issueTags };
 
   // ── companion: directional-key bill matches and scorer reads (v554) ────────
   // person-directional-keys.js mounts its own #pdx-dirkeys section (see that

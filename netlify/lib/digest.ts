@@ -21,7 +21,8 @@
 // digest can never become a firehose — the product goal is calm and non-spammy.
 
 import crypto from "node:crypto";
-import { and, desc, eq, gt, inArray } from "drizzle-orm";
+import { and, desc, eq, gt, inArray, notInArray } from "drizzle-orm";
+import { NON_VERDICT_STATUSES } from "./vr-review-status.js";
 import { db } from "../../db/index.js";
 import {
   ceePosts,
@@ -569,7 +570,7 @@ export async function buildRecordEvents(
       .from(vrMeasureActions)
       .innerJoin(vrMeasures, eq(vrMeasureActions.measureId, vrMeasures.id))
       .innerJoin(vrMeasureIssues, eq(vrMeasureIssues.measureId, vrMeasures.id))
-      .where(and(inArray(vrMeasureIssues.issueKey, issues), gt(vrMeasureActions.createdAt, sinceDate)))
+      .where(and(inArray(vrMeasureIssues.issueKey, issues), notInArray(vrMeasureIssues.reviewStatus, NON_VERDICT_STATUSES), gt(vrMeasureActions.createdAt, sinceDate)))
       .orderBy(desc(vrMeasureActions.createdAt))
       .limit(cap * 4);
     // The issue join fans out one action into one row per mapped issue; fold them
@@ -629,7 +630,7 @@ export async function buildRecordEvents(
       })
       .from(vrMeasures)
       .innerJoin(vrMeasureIssues, eq(vrMeasureIssues.measureId, vrMeasures.id))
-      .where(and(inArray(vrMeasureIssues.issueKey, issues), gt(vrMeasures.updatedAt, sinceDate)))
+      .where(and(inArray(vrMeasureIssues.issueKey, issues), notInArray(vrMeasureIssues.reviewStatus, NON_VERDICT_STATUSES), gt(vrMeasures.updatedAt, sinceDate)))
       .orderBy(desc(vrMeasures.updatedAt))
       .limit(cap * 4);
     const byMeasure = new Map<number, RecordEvent>();
