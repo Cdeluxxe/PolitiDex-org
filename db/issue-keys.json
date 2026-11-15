@@ -1,6 +1,6 @@
 {
   "_generatedBy": "scripts/gen-issue-keys.mjs (from ISSUE_MAP in alignment-tool.js)",
-  "count": 128,
+  "count": 130,
   "keys": [
     "america_first",
     "america_first_fp",
@@ -110,6 +110,7 @@
     "states_federal_power",
     "stock_trading_ban",
     "strong_defense",
+    "student_debt_college_access",
     "tariffs_authority",
     "tariffs_china",
     "tariffs_growth",
@@ -129,6 +130,7 @@
     "war_powers",
     "water",
     "water_storage",
+    "wealth_inequality_tax_fairness",
     "yemen_policy"
   ],
   "keywords": {
@@ -1661,6 +1663,11 @@
       "adversaries",
       "strong military"
     ],
+    "student_debt_college_access": [
+      "student debt relief",
+      "student loan forgiveness",
+      "college access"
+    ],
     "tariffs_authority": [
       "tariff",
       "tariffs",
@@ -1910,6 +1917,12 @@
       "lake powell pipeline",
       "drought",
       "colorado river"
+    ],
+    "wealth_inequality_tax_fairness": [
+      "wealth inequality",
+      "tax fairness",
+      "wealth tax",
+      "billionaire minimum tax"
     ],
     "yemen_policy": [
       "yemen",

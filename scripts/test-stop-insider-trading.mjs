@@ -161,8 +161,8 @@ section("1 · nothing moved");
     eq(JSON.stringify(seedOf()), JSON.stringify(seedOf(JSON.parse(head).measures)), "seed: H.R. 7008 is byte-identical to HEAD");
     const HE = tableOf(headCons, "_DOS_EFFECT");
     for (const k of KEYS) eq(lineOf(k), HE[`${NUM}|119|${k}`], `${k}: its line is the one already shipped`);
-    ok(gitShow("issue-map.js") === withoutAccountabilityRegisterBlock(R("issue-map.js")) /* the accountability pass's declared keys aside */, "issue-map.js is unchanged: no new issue key");
-    ok(gitShow("db/issue-keys.json") === withoutAccountabilityIssueKeys(R("db/issue-keys.json")), "db/issue-keys.json is unchanged");
+    ok(withoutAccountabilityRegisterBlock(gitShow("issue-map.js")) === withoutAccountabilityRegisterBlock(R("issue-map.js")) /* both sides: HEAD may carry a declared pass */ /* the accountability pass's declared keys aside */, "issue-map.js is unchanged: no new issue key");
+    ok(withoutAccountabilityIssueKeys(gitShow("db/issue-keys.json")) === withoutAccountabilityIssueKeys(R("db/issue-keys.json")), "db/issue-keys.json is unchanged");
   }
 }
 

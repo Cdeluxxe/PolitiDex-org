@@ -196,8 +196,8 @@ ok(/^-- pack-generation: derived\b/m.test(SQL), "the migration declares its pack
     for (const k of Object.keys(NEW_LINES)) ok(!(k in HE) || mine.has(k), `${k}: written in this pass's block`);
     ok(JSON.stringify(MECH) === JSON.stringify(tableOf(headCons, "_DOS_MECH")), "_DOS_MECH is unchanged");
     ok(JSON.stringify(tableOf(CONS, "_DOS_POINTER")) === JSON.stringify(tableOf(headCons, "_DOS_POINTER")), "_DOS_POINTER is unchanged");
-    ok(gitShow("issue-map.js") === withoutAccountabilityRegisterBlock(R("issue-map.js")) /* the accountability pass's declared keys aside */, "issue-map.js is unchanged: no new issue key");
-    ok(gitShow("db/issue-keys.json") === withoutAccountabilityIssueKeys(R("db/issue-keys.json")), "db/issue-keys.json is unchanged");
+    ok(withoutAccountabilityRegisterBlock(gitShow("issue-map.js")) === withoutAccountabilityRegisterBlock(R("issue-map.js")) /* both sides: HEAD may carry a declared pass */ /* the accountability pass's declared keys aside */, "issue-map.js is unchanged: no new issue key");
+    ok(withoutAccountabilityIssueKeys(gitShow("db/issue-keys.json")) === withoutAccountabilityIssueKeys(R("db/issue-keys.json")), "db/issue-keys.json is unchanged");
   }
 }
 {

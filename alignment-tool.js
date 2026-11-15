@@ -139,6 +139,12 @@
       // ── Taxes & Government ──
       lower_taxes:        { label: '💰 Cut Income & Business Taxes', chip: 'Cut income and business tax rates to shrink the size of government', cat: 'gov', lean: 'R', stanceKeys: ['debt'], keywords: ['tax','tax cut','income tax','corporate tax','fiscal','fiscal conservat','small government','deregulation','appropriation'] },
       tax_middle_class:   { label: '💵 Middle-Class Tax Relief', chip: 'Cut taxes for middle-class households through credits and a bigger standard deduction', cat: 'gov', stanceKeys: [], keywords: ['middle class','working families','tax cut','child tax credit','payroll tax','take-home pay','tax relief','standard deduction','cost of living'] },
+      // FAMILY & ECONOMIC FAIRNESS KEYS PASS (Nov 2026; keys only — no position is seeded).
+      // SCOPE (wealth_inequality_tax_fairness): how the tax burden is shared between
+      // the wealthiest households and everyone else — wealth and billionaire minimum
+      // taxes, capital-gains rates at the top, and the gap they answer to. POLARITY:
+      // 'support' = make the wealthiest pay a larger share; 'oppose' = against it. No `lean`.
+      wealth_inequality_tax_fairness: { label: '📊 Wealth Inequality & Tax Fairness', chip: 'Make the wealthiest households and largest corporations pay a fairer share of taxes', cat: 'gov', stanceKeys: [], keywords: ['wealth inequality','tax fairness','wealth tax','billionaire minimum tax'] },
       gov_waste:          { label: '🧹 Cut Waste, Not Services', chip: 'Cut duplicate programs and improper payments before raising any taxes', cat: 'gov', stanceKeys: ['debt'], keywords: ['waste','wasteful spending','government efficiency','fraud','accountability','audit','streamline','reform','spending cut','improper payments','duplicate programs'] },
       // SCOPE, narrowed August 2026. This key used to absorb anything with the word
       // "regulation" in it, and both of its directions meant two opposite things at
@@ -383,6 +389,13 @@
       // funding line is filed as secondary support.
       public_schools:     { label: '🍎 Invest in Public Schools', chip: 'Raise teacher pay and fund public schools and classrooms', cat: 'edu', lean: 'D', stanceKeys: [], keywords: ['public education','public school','teacher pay','teacher','school funding','education funding','student welfare','classroom'] },
       edu_college_cost:   { label: '🎓 Lower College & Trade Costs', chip: 'Make college and trade school affordable and cut student debt', cat: 'edu', stanceKeys: [], keywords: ['college cost','tuition','student debt','student loan','trade school','apprenticeship','community college','pell grant','higher education','workforce training','affordable'] },
+      // FAMILY & ECONOMIC FAIRNESS KEYS PASS (Nov 2026; keys only — no position is seeded).
+      // SCOPE (student_debt_college_access): relief on student debt already owed and
+      // the door into college — loan forgiveness, repayment relief, and access for
+      // students who could not otherwise attend. Beside Lower College & Trade Costs, not
+      // replacing it. POLARITY: 'support' = relieve the debt and widen access;
+      // 'oppose' = against that relief. No `lean`.
+      student_debt_college_access: { label: '🎒 Student Debt & College Access', chip: 'Relieve student debt and widen access to college for students who could not otherwise attend', cat: 'edu', stanceKeys: [], keywords: ['student debt relief','student loan forgiveness','college access'] },
       // SCOPE (edu_parental): the parent's decision rights over their own child's
       // schooling — consent, notice, inspection and opting out. The instruments on file
       // are library-borrowing transparency, annual written consent for student surveys,
@@ -1310,7 +1323,7 @@
         keys: ['healthcare_market','health_drug_prices','health_balance','healthcare','health_mental','health_rural','medical_freedom','social_security','healthcare_costs','tobacco_nicotine','public_health_vs_chemical_liability'] },
       { key: 'spending_debt_waste', label: '🧾 Government Spending, Debt & Waste',
         blurb: 'Federal spending, the national debt, balanced budgets, rooting out waste, and the case for funding public services instead.',
-        keys: ['lower_taxes','gov_waste','gov_balance','national_debt','audit_spending','gov_regulation','cut_spending','gov_services'] },
+        keys: ['lower_taxes','gov_waste','gov_balance','national_debt','audit_spending','gov_regulation','cut_spending','gov_services','wealth_inequality_tax_fairness'] },
       { key: 'abortion_repro', label: '🕊 Abortion / Reproductive Rights',
         blurb: 'Abortion access, limits and exceptions, and reproductive freedom.',
         keys: ['pro_life','repro_balance','pro_choice'] },
@@ -1331,7 +1344,7 @@
         keys: ['checks_balances','war_powers','judicial_check','power_of_purse','congress_oversight','states_federal_power','state_standing','guard_authority','civil_service_control','scotus_reform','term_limits','stock_trading_ban','gov_transparency','campaign_finance','reform_balance','epstein_files_transparency'] },
       { key: 'education_parental', label: '🎓 Education & Parental Rights',
         blurb: 'Public schools, school choice, college and trade costs, and parents’ role in schools.',
-        keys: ['school_choice','edu_balance','public_schools','edu_college_cost','edu_parental'] },
+        keys: ['school_choice','edu_balance','public_schools','edu_college_cost','edu_parental','student_debt_college_access'] },
       { key: 'civil_rights_culture', label: '⚖️ Civil Rights, Culture & DEI',
         blurb: 'Equal treatment and civil rights, religious liberty, free speech, personal privacy and surveillance, and the debate over DEI.',
         keys: ['religious_liberty','rights_balance','lgbtq_rights','free_speech','end_dei','privacy_rights'] },

@@ -4,7 +4,7 @@
 // The scorer (stance-score-core.mjs) keeps its hand-calibrated rules for
 // cost_living (the Talarico ground truth) and healthcare_costs. Every OTHER key
 // in the issue register (ISSUE_MAP in alignment-tool.js → db/issue-keys.json,
-// the same 128 keys the related-issues map relates) gets its rules from the
+// the same 130 keys the related-issues map relates) gets its rules from the
 // compact spec below. The rule engine is unchanged: R1–R6 and WEIGHTS apply to
 // every topic alike; a topic only supplies what counts as a mention, an
 // explicit statement and an implication.
@@ -751,6 +751,19 @@ export const ISSUE_TOPIC_VOCAB = {
     terms: String.raw`no new wars|start(?:ing)? (?:a |any )?(?:new )?wars?|stop wars`,
     pro: [String.raw`\bno new wars\b`, String.raw`\bnot (?:going to )?start (?:a |any )?(?:new )?wars?\b`, String.raw`\bstop(?:ping)? wars\b`],
     down: [String.raw`new wars?`] },
+  // The family & economic fairness keys pass (Nov 2026): two keys added to the
+  // register, no position seeded. Terms are kept narrow so the neighbouring keys'
+  // reads (tax_middle_class, edu_college_cost) do not move.
+  wealth_inequality_tax_fairness: { label: "Wealth Inequality & Tax Fairness", pos: "Make the wealthiest households and largest corporations pay a fairer share of taxes",
+    terms: String.raw`wealth inequality|tax fairness|wealth tax|billionaire(?:s'?)? (?:minimum )?tax`,
+    up: [String.raw`(?:a )?wealth tax`, String.raw`(?:a )?billionaire(?:s'?)? (?:minimum )?tax`, String.raw`tax fairness`],
+    down: [String.raw`wealth inequality`],
+    downCon: [String.raw`(?:a )?wealth tax`],
+    problems: [String.raw`wealth inequality`] },
+  student_debt_college_access: { label: "Student Debt & College Access", pos: "Relieve student debt and widen access to college for students who could not otherwise attend",
+    terms: String.raw`student (?:debt|loan) (?:relief|forgiveness|cancellation)|college access`,
+    up: [String.raw`student (?:debt|loan) (?:relief|forgiveness|cancellation)`, String.raw`college access`],
+    downCon: [String.raw`student (?:debt|loan) (?:relief|forgiveness|cancellation)`] },
   checks_balances: { label: "Congress as a Check on the Executive", pos: "Keep Congress and the courts as a real check on executive power, whoever is president",
     terms: String.raw`checks and balances|separation of powers|executive overreach|executive power|article I`,
     up: [String.raw`(?:our )?(?:system of )?checks and balances`, String.raw`(?:the )?separation of powers`, String.raw`(?:congress'?s? )?(?:article I|constitutional) (?:authority|powers?|role)`],

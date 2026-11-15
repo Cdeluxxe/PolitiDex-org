@@ -12144,7 +12144,31 @@
 //     is unchanged. No location key or other stored reader state is written
 //     or rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v562';
+// v563 - FIVE FAMILY & ECONOMIC FAIRNESS KEYS. The issue register
+//     (alignment-tool.js, issue-map.js) gains Affordable Childcare & Family
+//     Leave, Corporate Concentration & Antitrust, Wealth Inequality & Tax
+//     Fairness, Student Debt & College Access and Paid Sick Leave & Worker
+//     Protections, each under a core issue, and related-issues.js pairs each
+//     one both ways with existing keys (the cost of living, wages and workers,
+//     healthcare access, federal red tape, pro-growth deregulation, housing
+//     supply, federal spending and debt, college and trade costs). Keys only:
+//     no stance card, no drawer card and no conflicts line is added. No route
+//     or gate is added. Precached files changed, so the shell moves; the
+//     precache list is unchanged. No location key or other stored reader
+//     state is written or rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+// v564 - THREE OVERLAPPING KEYS REMOVED. The family & economic fairness keys
+//     pass's Affordable Childcare & Family Leave, Corporate Concentration &
+//     Antitrust and Paid Sick Leave & Worker Protections overlapped existing
+//     keys, so the issue register (alignment-tool.js, issue-map.js) drops them
+//     and related-issues.js drops their pairs both ways. Wealth Inequality &
+//     Tax Fairness, Student Debt & College Access and every other key stay as
+//     they were. None of the three carried a position, so no stance card or
+//     drawer line moves. No route or gate is added. Precached files changed,
+//     so the shell moves; the precache list is unchanged. No location key or
+//     other stored reader state is written or rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v564';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
