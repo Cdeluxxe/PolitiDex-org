@@ -160,6 +160,16 @@
 //     thin or empty politician + issue puts that politician first in the
 //     recompute, never deferred by the run budget. Curated rows and rows
 //     resting on reviewed evidence are never written.
+//   · HEADLINE PASS — before the full-page topic signal, the title, first h1
+//     and URL slug are checked; when they clearly name one issue key it is
+//     used ("stance-score: TARGET (headline override) …").
+//   · FRONTIER FILTER — harvested links that are obviously low-signal
+//     (congratulations, awards, "meets with", pure grant announcements,
+//     ceremonial events) never enter the frontier ("discovery: FILTER …" per
+//     page, "discovery: frontier filter — …" per run). Caps unchanged.
+//   · COVERAGE GAPS — one read-only "raw-ingest: coverage gaps — …" line per
+//     rotation run (raw-ingest-coverage.mjs); full lists at
+//     GET /api/admin/raw-ingest-coverage.
 //   Locker thresholds, W1–W6 (never replacing a strong item, review flags,
 //   cross-topic conflicts) and cross-topic scoring are unchanged.
 
@@ -178,8 +188,9 @@ import { lockerEntriesFor, syncPolitician, promotableWrite } from "../lib/stated
 import {
   readFreshState, saveFreshState, harvestLinks, mergeFrontier, markSeen, addFreshSources, targetTopic,
   isHarvestable, sharedHosts, normUrl, normaliseFreshState, FRESH_PER_POLITICIAN,
-  FRESH_SPARE_PER_RUN, noteFreshFailures,
+  FRESH_SPARE_PER_RUN, noteFreshFailures, droppedSummary,
 } from "../lib/raw-ingest-fresh.mjs";
+import { coverageGaps, coverageGapLine } from "../lib/raw-ingest-coverage.mjs";
 import {
   readHostHealth, saveHostHealth, normaliseHostHealth, skippedHosts, filterSkippedHosts, recordHostResults, HOST_LEVEL,
 } from "../lib/raw-ingest-hosts.mjs";
@@ -259,6 +270,8 @@ export async function run(deps: {
   const freshStore = fo ? (fo.store ?? deps.rotationStore) : null;
   const fresh: any = fo ? (fo.state ? normaliseFreshState({ items: fo.state.frontier || {} }, { urls: fo.state.seen || {} }) : await readFreshState(freshStore, log)) : null;
   const freshTally = { harvested: 0, from_pages: 0 };
+  // Frontier quality filter: low-signal links dropped this run ({ url, reason }).
+  const lowSignal: any[] = [];
   const shared = sharedHosts(deps.rotate && typeof deps.rotate === "object" && deps.rotate.roster ? deps.rotate.roster : ROSTER);
   const allRosterUrls = (r: any[]) => new Set<string>(r.flatMap((x: any) => [...(x.sources || []), ...(x.official ? [x.official] : [])]).map((x: any) => normUrl(x.url)));
   // URLs already configured anywhere (never re-offered as "fresh").
@@ -268,7 +281,11 @@ export async function run(deps: {
     const page = { ...src, ...(finalUrl ? { final_url: finalUrl } : {}) };
     if (!isHarvestable(page, shared)) return;
     const seen = new Set(Object.keys(fresh.seen));
-    const found = harvestLinks(page, body, { known: knownUrls, seen, counts, now: nowFn() });
+    const dropped: any[] = [];
+    const found = harvestLinks(page, body, { known: knownUrls, seen, counts, now: nowFn(), dropped });
+    const fresher = dropped.filter((d: any) => !lowSignal.some((x: any) => normUrl(x.url) === normUrl(d.url)));
+    lowSignal.push(...fresher);
+    if (fresher.length) log(`discovery: FILTER ${src.politician_id} ${src.url} — ${fresher.length} low-signal link(s) kept out of the frontier (${droppedSummary(fresher)})`);
     const n = mergeFrontier(fresh, found);
     freshTally.harvested += n;
     if (found.length) freshTally.from_pages += 1;
@@ -362,8 +379,8 @@ export async function run(deps: {
       const tg = targetTopic(incoming, { counts });
       if (tg.moved) {
         rec = Object.freeze({ ...incoming, topic: tg.topic });
-        targeted.push({ politician_id: incoming.politician_id, url: incoming.url, from: tg.from, topic: tg.topic });
-        log(`stance-score: TARGET ${incoming.politician_id}|${tg.from}${incoming.source_id ? "|" + incoming.source_id : ""} → ${tg.topic} — ${tg.reason}`);
+        targeted.push({ politician_id: incoming.politician_id, url: incoming.url, from: tg.from, topic: tg.topic, ...(tg.via ? { via: tg.via } : {}) });
+        log(`stance-score: TARGET${tg.via === "headline" ? " (headline override)" : ""} ${incoming.politician_id}|${tg.from}${incoming.source_id ? "|" + incoming.source_id : ""} → ${tg.topic} — ${tg.reason}`);
       }
     }
     const candidates = logCandidateStances(rec, { log });
@@ -413,8 +430,10 @@ export async function run(deps: {
     if (retired.length) log(`discovery: ${retired.length} failing fresh page(s) retired from the frontier: ${retired.join(", ")}`);
     if (!fo.state) await saveFreshState(freshStore, fresh, { now: nowFn(), log });
     const frontierSize = Object.values(fresh.frontier).reduce((n: number, l: any) => n + l.length, 0);
-    report.fresh = { added: (freshTally as any).added || 0, outcomes, displaced: (freshTally as any).displaced || 0, harvested: freshTally.harvested, frontier: frontierSize, seen: Object.keys(fresh.seen).length, targeted };
-    log(`raw-ingest: fresh evidence — ${report.fresh.added} unfetched page(s) pulled, ${freshTally.harvested} candidate page(s) harvested from ${freshTally.from_pages} page(s), ${targeted.length} page(s) retargeted${targeted.length ? ` (${targeted.map((x) => `${x.politician_id} ${x.from}→${x.topic}`).join(", ")})` : ""} · frontier ${frontierSize}`);
+    const headlineOverrides = targeted.filter((x) => x.via === "headline").length;
+    report.fresh = { added: (freshTally as any).added || 0, outcomes, displaced: (freshTally as any).displaced || 0, harvested: freshTally.harvested, frontier: frontierSize, seen: Object.keys(fresh.seen).length, targeted, headline_overrides: headlineOverrides, low_signal_dropped: lowSignal.length, low_signal_reasons: droppedSummary(lowSignal) || null };
+    log(`discovery: frontier filter — ${lowSignal.length} low-signal link(s) dropped before the frontier this run${lowSignal.length ? ` (${droppedSummary(lowSignal)})` : ""} · caps unchanged`);
+    log(`raw-ingest: fresh evidence — ${report.fresh.added} unfetched page(s) pulled, ${freshTally.harvested} candidate page(s) harvested from ${freshTally.from_pages} page(s), ${targeted.length} page(s) retargeted (${headlineOverrides} by the headline pass)${targeted.length ? ` (${targeted.map((x) => `${x.politician_id} ${x.from}→${x.topic}`).join(", ")})` : ""} · frontier ${frontierSize}`);
   }
   // YouTube: how often the transcript worked vs. the description fallback.
   const yt = report.results.filter((r: any) => r.youtube);
@@ -478,6 +497,12 @@ export async function run(deps: {
     const rs = rosterSummary(roster, after);
     report.baseline = { strong: BASELINE_STRONG, weak: BASELINE_WEAK, reached: rs.reached, counts: after };
     log(baselineLine(roster, after));
+    // Coverage gap report: read-only summary of the counts above + the frontier.
+    try {
+      const gaps = coverageGaps({ roster, counts: after, frontier: fresh?.frontier || {}, now: nowFn() });
+      report.coverage_gaps = gaps.totals;
+      log(coverageGapLine(gaps));
+    } catch (e: any) { log(`raw-ingest: coverage gaps unavailable — ${e?.message || e}`); }
   }
   // Time guardrail: every run logs its duration against the budget; a run over
   // it logs SLOW RUN (if that is regular, lower MAX_POLITICIANS_PER_RUN to 5–6).
