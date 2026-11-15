@@ -3851,6 +3851,25 @@
     } catch (e) {}
   }
 
+  // ── HOW MUCH OF THE TOP THE CHIP ROW COVERS ───────────────────────────────
+  // The chip row used to be sticky at the top of the scroller, so every jump and
+  // spy subtracted its height. It now sits in the letterhead under the seat line
+  // and scrolls away with it, so it covers nothing once a reader is past the top.
+  // One answer for every caller: the row's height only while it is actually
+  // pinned (sticky / fixed), and 0 when it is in the flow. Where styles cannot be
+  // read, the old answer (its height) stands.
+  window._pdxNavStickyH = function (nav) {
+    nav = nav || document.getElementById('pdx-profile-nav');
+    if (!nav) return 0;
+    try {
+      if (typeof window.getComputedStyle === 'function') {
+        var pos = String((window.getComputedStyle(nav) || {}).position || '');
+        if (pos) return (pos === 'sticky' || pos === 'fixed') ? (nav.offsetHeight || 0) : 0;
+      }
+    } catch (e) {}
+    return nav.offsetHeight || 0;
+  };
+
   window._pdxNavJump = function (targetId, btn) {
     // Smooth-scroll the modal body so the target section clears the sticky rail.
     //
@@ -3867,8 +3886,7 @@
     var el = document.getElementById(targetId);
     if (!body || !el) return;
     _pdxOpenClosedChain(el);
-    var nav = document.getElementById('pdx-profile-nav');
-    var navH = nav ? nav.offsetHeight : 0;
+    var navH = window._pdxNavStickyH();
     var top = body.scrollTop + el.getBoundingClientRect().top - body.getBoundingClientRect().top - navH - 12;
     try { body.scrollTo({ top: Math.max(0, top), behavior: 'smooth' }); }
     catch (e) { body.scrollTop = Math.max(0, top); }
@@ -3912,8 +3930,7 @@
     evs.forEach(function (n) { try { body.addEventListener(n, stop, { passive: true, once: true }); } catch (e) {} });
     function fix(last) {
       if (cancelled || !el.isConnected) return;
-      var nav = document.getElementById('pdx-profile-nav');
-      var navH = nav ? nav.offsetHeight : 0;
+      var navH = window._pdxNavStickyH();
       var off = el.getBoundingClientRect().top - body.getBoundingClientRect().top - navH - 12;
       if (Math.abs(off) > 24) {
         var top = Math.max(0, body.scrollTop + off);
@@ -4097,6 +4114,9 @@
       (note ? ' — ' + String(note).replace(/"/g, '') : '');
   };
   // ── THE REPORT-CARD LINE ────────────────────────────────────────────────────
+  // NOT MOUNTED ON THE PERSON FILE ANY MORE. The quick-jump chip row is back under
+  // the seat line and carries these figures as chips; window._pdxReportTerm below
+  // is what its 🗓️ Term chip reads. The line builders stay exported, unused.
   // One plain line under the seat: "12 stances · 0 actions · No formal term yet ·
   // 11 evidence · Updated Nov 15". It replaced the quick-jump chip row as the
   // place a reader sees the file's size at a glance, so it reads the SAME figures
@@ -4410,7 +4430,7 @@
     // One layout read, once, at arm time — where the old code took one per frame.
     // The rail is sticky at the top of the scroller, so its height is the offset
     // between the top of the visible area and the first line a reader can read.
-    var line = (nav.offsetHeight || 0) + 16;
+    var line = window._pdxNavStickyH(nav) + 16;
     var above = [];
     var atEnd = false;
     var active = -1;
@@ -5482,16 +5502,52 @@
       ? window.PDXProfileSpine.railOrder(_navItems)
       : _navItems;
 
-    // A single pill isn't a "map" — only render the rail when at least two exist.
-    const _navBar = (_navOrdered.length >= 2)
-      // HIDDEN, NOT REMOVED. The report-card line under the seat now carries these
-      // figures, so the row is not shown; the node stays (hidden, out of the
-      // accessibility tree) because the scroll helpers and the late Votes pill
-      // still look it up, and every one of them already treats a zero-height
-      // rail as no rail.
-      ? '<nav id="pdx-profile-nav" class="pdx-pnav" hidden data-pdxnav-pid="' + id +
+    // A single pill isn't a "map" — the jump chips need at least two of their own.
+    // ── TERM AND STATUS, AS CHIPS AT THE FRONT OF THE ROW ─────────────────────
+    // Two facts about the person rather than sections of the file, so they lead
+    // the row and jump nowhere: no data-target, so the scroll-spy never lights
+    // them and the order sync keeps them in front. Same skin as the jump chips.
+    //   Term   — window._pdxReportTerm: "No formal term yet" for a candidate with
+    //            no service, "1 term · 2025–present" for anyone who has served;
+    //            the hover is the full tenure sentence from window._pdxTenure.
+    //   Status — the badge beside the name's own wording (PDXStatus.label), so
+    //            the two can never disagree.
+    const _navFacts = [];
+    const _navAttr = function (v) { return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); };
+    try {
+      const _tm = (typeof window._pdxReportTerm === 'function') ? window._pdxReportTerm(p) : null;
+      if (_tm && _tm.text) {
+        _navFacts.push({ key: 'term', icon: '🗓️', label: 'Term', value: _tm.text, color: '#cbd9ec',
+          title: _tm.title || 'No term in office on file — this person has not yet served in the seat.' });
+      }
+    } catch (e) {}
+    try {
+      const PS = window.PDXStatus;
+      if (PS && typeof PS.label === 'function') {
+        const _st = PS.state(PS.resolve(p)) || {};
+        const _sl = PS.label(p);
+        if (_sl) _navFacts.push({ key: 'status', icon: _st.ico || '•', label: 'Status', value: _sl,
+          color: _st.fg || '#cbd9ec', title: 'Status: ' + _sl });
+      }
+    } catch (e) {}
+    const _navFactsHtml = _navFacts.map(function (f) {
+      return '<span class="pdx-pnav-pill pdx-pnav-fact" data-pdxnav-fact="' + f.key + '" ' +
+        'title="' + _navAttr(f.title) + '">' +
+        '<span class="pdx-pnav-ico" aria-hidden="true">' + f.icon + '</span>' +
+        '<span class="pdx-pnav-txt">' +
+          '<span class="pdx-pnav-label">' + f.label + '</span>' +
+          '<span class="pdx-pnav-val" style="color:' + f.color + ';">' + _navAttr(f.value) + '</span>' +
+        '</span>' +
+      '</span>';
+    }).join('');
+
+    // The chip row, at the top of the file directly under the seat line. It
+    // renders whenever it has the jump chips (two or more — one is not a map) or
+    // the Term / Status facts, which every person file carries.
+    const _navBar = (_navOrdered.length >= 2 || _navFacts.length)
+      ? '<nav id="pdx-profile-nav" class="pdx-pnav" data-pdxnav-pid="' + id +
           '" aria-label="Jump to a section of this profile">' +
-          '<div class="pdx-pnav-track">' +
+          '<div class="pdx-pnav-track">' + _navFactsHtml +
             _navOrdered.map(function (n) {
               // Action pill — opens an overlay (Full Stance Record) instead of
               // scrolling to an in-page anchor. It carries no data-target, so the
@@ -5808,12 +5864,12 @@
           <div class="profile-eyebrow">${p.office || 'Public Official'}</div>
           <h2 class="profile-name">${p.name}</h2>
           ${(function(){ var parts=[p.district,p.state].filter(Boolean); return parts.length ? '<div class="profile-office">' + parts.join('<span class="po-sep">·</span>') + '</div>' : ''; })()}
-          <!-- THE REPORT-CARD LINE — stances · actions · term · evidence · updated,
-               in plain text directly under the seat. It carries the figures the
-               quick-jump chip row used to (that row is now hidden, see .pdx-pnav in
-               app.css) and the term the tenure pill used to, so neither is printed
-               twice. Built and repainted by window._pdxReportLine. -->
-          ${(typeof window._pdxReportLine === 'function') ? window._pdxReportLine(id, p) : ''}
+          <!-- THE QUICK-JUMP CHIP ROW, directly under the seat. The same
+               #pdx-profile-nav element that used to sit under the letterhead —
+               the same jump chips, counts and repaint — led by two fact chips,
+               🗓️ Term and the Status badge's wording. It is in the flow here, not
+               sticky; window._pdxNavStickyH tells the jump and spy helpers so. -->
+          ${_navBar}
           ${(typeof window._pdxCandidacyLine === 'function') ? window._pdxCandidacyLine(id) : ''}
           <div class="profile-meta">
             ${(typeof window._pdxStatusBadge === 'function') ? window._pdxStatusBadge(p) : ''}
@@ -5957,12 +6013,8 @@
            word-action.js, and their skins remain in word-action.css and in the phone
            block in app.css; nothing on the profile calls them. -->
 
-      <!-- Quick-jump navigation — a sticky, glanceable map of the profile.
-           Each pill summarizes a section (score, record, positions, evidence,
-           your match, activity) and smooth-scrolls to it; the pill for the
-           section in view is highlighted as you scroll. Full render + behavior
-           live in .pdx-pnav CSS and window._pdxNavJump / _pdxInitProfileNav. -->
-      ${_navBar}
+      <!-- The quick-jump chip row used to be here. It now sits at the top of the
+           letterhead, directly under the seat line (see .profile-hero-id above). -->
 
       <!-- Candidacy status banner — the clearest, top-of-profile read on whether
            this person is still running for 2026 or is out of the race (lost

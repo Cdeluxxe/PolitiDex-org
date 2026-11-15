@@ -1986,20 +1986,21 @@
       border-bottom: 1px solid rgba(255,255,255,0.09);
       box-shadow: 0 10px 22px -14px rgba(0,0,0,0.75);
     }
-    /* The chip row is retired from view: the report-card line under the seat
-       (.profile-report) prints its figures once, in plain text. */
-    #pdx-profile-nav.pdx-pnav, .pdx-pnav[hidden] { display: none !important; }
-    /* THE REPORT-CARD LINE — stances · actions · term · evidence · updated. Plain
-       text with middle dots, sized between the seat line and the chips. */
-    .profile-report {
-      font-family: 'Barlow', sans-serif; font-weight: 500;
-      font-size: 0.8rem; line-height: 1.45; color: #9fb4d4;
-      margin: 0 0 0.6rem;
+    /* AT THE TOP OF THE FILE. The chip row now sits in the letterhead directly
+       under the seat line, so it is in the flow there rather than a sticky,
+       full-bleed bar: no negative margins, no backdrop, and the chips wrap
+       inside the identity column instead of scrolling sideways off it. The jump
+       helpers read window._pdxNavStickyH, which answers 0 for an in-flow row. */
+    .profile-hero-id > .pdx-pnav {
+      position: static; z-index: auto;
+      margin: 0.15rem 0 0.7rem; padding: 0;
+      background: none; border: 0; box-shadow: none;
+      backdrop-filter: none; -webkit-backdrop-filter: none;
     }
-    .profile-office + .profile-report { margin-top: -0.3rem; }
-    .profile-report .pr-seg { white-space: nowrap; }
-    .profile-report .pr-seg[data-pr-pending] { color: #647a9c; font-style: italic; }
-    .profile-report .pr-dot { color: #41597d; }
+    .profile-hero-id > .pdx-pnav .pdx-pnav-track { flex-wrap: wrap; overflow: visible; gap: 0.4rem; }
+    /* Term and Status are facts, not destinations: same skin, no pointer, no lift. */
+    .pdx-pnav-pill.pdx-pnav-fact { cursor: default; }
+    .pdx-pnav-pill.pdx-pnav-fact:hover { transform: none; background: rgba(255,255,255,0.045); border-color: rgba(148,163,184,0.22); }
     @media (min-width: 640px) {
       .pdx-pnav { margin-left: -1.5rem; margin-right: -1.5rem; padding-left: 1.5rem; padding-right: 1.5rem; }
     }

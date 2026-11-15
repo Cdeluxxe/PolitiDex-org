@@ -1575,7 +1575,9 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
      "spy: the per-frame scroll listener is gone entirely, not merely throttled harder");
   ok(!/\.scrollHeight/.test(spy) && !/\.clientHeight/.test(spy) && !/\.scrollTop/.test(spy),
      "spy: and the bottom-of-page test no longer reads scrollHeight, which forces layout every time it is asked");
-  ok((spy.match(/\.offsetHeight/g) || []).length === 1,
+  // The read goes through window._pdxNavStickyH (the row's height while it is
+  // pinned, 0 while it is in the flow), which is still one read per arm.
+  ok(((spy.match(/\.offsetHeight/g) || []).length + (spy.match(/_pdxNavStickyH\(/g) || []).length) === 1,
      "spy: exactly one layout read survives — the rail height, taken once per arm rather than once per frame");
   ok(/root: body/.test(spy) && /rootMargin: \(-line\)/.test(spy),
      "spy: the observer root is the modal body clipped by the rail height, so a callback fires exactly when an anchor crosses the line a reader reads from");

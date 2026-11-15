@@ -371,7 +371,8 @@
   function stickTop(host) {
     try {
       var nav = document.getElementById('pdx-profile-nav');
-      var h = nav && nav.offsetHeight ? nav.offsetHeight : 0;
+      var h = (typeof window._pdxNavStickyH === 'function') ? window._pdxNavStickyH(nav)
+        : (nav && nav.offsetHeight ? nav.offsetHeight : 0);
       if (host && host.style && host.style.setProperty) host.style.setProperty('--pdx-spb-top', h + 'px');
     } catch (e) {}
   }

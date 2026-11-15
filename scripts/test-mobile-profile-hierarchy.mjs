@@ -509,7 +509,11 @@ ok(chipMount > heroTop && chipMount < heroScore,
   'header: the chip is not inside the identity block. It belongs where the reader is already\n' +
   '    looking — among the status pills beside the name — and anywhere below the ring it is a\n' +
   '    strip under the letterhead by another name');
-ok(chipMount < navMount && chipMount < sectionMount,
+// The quick-jump row now sits in the letterhead itself, directly under the seat
+// line, so the chip following it is still a glance inside the identity block.
+// What must not happen is the row sitting below the letterhead with the chip under it.
+const navInIdentity = navMount > heroTop && navMount < heroScore;
+ok((chipMount < navMount || navInIdentity) && chipMount < sectionMount,
   'header: the chip renders below the quick-jump rail or below the section it summarises, either\n' +
   '    of which makes it a second copy rather than a glance');
 

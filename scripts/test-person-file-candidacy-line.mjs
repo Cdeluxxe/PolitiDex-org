@@ -115,7 +115,14 @@ for (const r of REC.rows) {
   // 2 · the office held is the label; never the holder of the race
   const h = hero(html);
   ok(h.indexOf(`<div class="profile-eyebrow">${W.CMP_DATA[r.pid].office}</div>`) >= 0, `${r.pid}: the label is still the office held (${W.CMP_DATA[r.pid].office})`);
-  ok(!SEATED(race).test(visible(html)), `${r.pid}: never described as holding ${race}`);
+  // The chip row under the seat line is its own block: its Status chip says
+  // "Incumbent" about the seat held (the badge's wording), and it never names the
+  // race. So the proximity read runs on the file without it, and the row is
+  // checked on its own for the race name.
+  const _nvA = html.indexOf('<nav id="pdx-profile-nav"');
+  const _nav = _nvA < 0 ? "" : html.slice(_nvA, html.indexOf("</nav>", _nvA) + 6);
+  ok(!SEATED(race).test(visible(_nav ? html.replace(_nav, " ") : html)), `${r.pid}: never described as holding ${race}`);
+  ok(visible(_nav).indexOf(race) < 0, `${r.pid}: the chip row does not name the race`);
   eq(W.CMP_DATA[r.pid].office, (W0.CMP_DATA[r.pid] || {}).office, `${r.pid}: the roster row is untouched`);
 
   // 4 · in the hero, right after the office line

@@ -1702,7 +1702,7 @@
     }
     try {
       var nav = document.getElementById(REVEAL.navId);
-      if (nav && nav.offsetHeight) top += nav.offsetHeight;
+      if (nav) top += (typeof window._pdxNavStickyH === 'function') ? window._pdxNavStickyH(nav) : (nav.offsetHeight || 0);
     } catch (e) {}
     if (num(top) === null || num(bottom) === null) return null;
     return { top: top, bottom: bottom };
