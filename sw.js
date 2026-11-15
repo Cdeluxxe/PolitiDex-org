@@ -12222,7 +12222,16 @@
 //     is unchanged. No location key or other stored reader state is written or
 //     rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v569';
+// v570 - THE CHIP ROW UNDER THE SEAT. The quick-jump chip row (#pdx-profile-nav)
+//     is shown again and moved to the top of every person file, directly under
+//     the seat line, led by two fact chips — Term and Status — in the same skin.
+//     The plain-text report line is no longer mounted. The row is in the flow
+//     there, so the jump / spy helpers read window._pdxNavStickyH instead of the
+//     row's raw height. No route or gate is added. Precached files changed, so the
+//     shell moves; the precache list is unchanged. No stored reader state is
+//     written or rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v570';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

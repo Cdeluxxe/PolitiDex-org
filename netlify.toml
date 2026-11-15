@@ -38422,3 +38422,8 @@
   for = "/*"
   [headers.values]
     Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+
+# The raw-ingest cron's read-only opposing-evidence check (netlify/lib/stance-check.mjs)
+# reads the committed curated stance cards, so the stance data files ship with it.
+[functions."raw-ingest-cron"]
+  included_files = ["politician-stances-core.js", "politician-stances-ext.js", "state-senate-stances*.js"]

@@ -395,7 +395,8 @@
     }
     if (!spy.length) return;
     var nav = document.getElementById('pdx-profile-nav');
-    var line = (nav && nav.offsetHeight ? nav.offsetHeight : 0) + 16;
+    var line = (typeof window._pdxNavStickyH === 'function' ? window._pdxNavStickyH(nav)
+      : (nav && nav.offsetHeight ? nav.offsetHeight : 0)) + 16;
     var above = [];
 
     function paint() {

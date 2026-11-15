@@ -170,6 +170,10 @@
 //   · COVERAGE GAPS — one read-only "raw-ingest: coverage gaps — …" line per
 //     rotation run (raw-ingest-coverage.mjs); full lists at
 //     GET /api/admin/raw-ingest-coverage.
+//   · OPPOSING EVIDENCE — read-only (stance-check.mjs): a pair with a new strong
+//     item whose strong, not-hidden items run predominantly against the curated
+//     stance on file logs "stance-check: OPPOSING — …"; the run logs
+//     "raw-ingest: opposing evidence — N cases". Nothing is written.
 //   Locker thresholds, W1–W6 (never replacing a strong item, review flags,
 //   cross-topic conflicts) and cross-topic scoring are unchanged.
 
@@ -191,6 +195,7 @@ import {
   FRESH_SPARE_PER_RUN, noteFreshFailures, droppedSummary,
 } from "../lib/raw-ingest-fresh.mjs";
 import { coverageGaps, coverageGapLine } from "../lib/raw-ingest-coverage.mjs";
+import { checkOpposingEvidence, opposingSummaryLine, loadCuratedStances } from "../lib/stance-check.mjs";
 import {
   readHostHealth, saveHostHealth, normaliseHostHealth, skippedHosts, filterSkippedHosts, recordHostResults, HOST_LEVEL,
 } from "../lib/raw-ingest-hosts.mjs";
@@ -252,6 +257,10 @@ export async function run(deps: {
   // are skipped for the rest of it. `hostHealth` = { hosts } overrides the
   // stored doc (tests); otherwise it lives in rotationStore. Rotation runs only.
   hostHealth?: any;
+  // Opposing-evidence check (stance-check.mjs): the curated cards
+  // ({ pid: [card…] }). Omitted on a rotation run → read from the committed
+  // stance data files. Read-only; only logs.
+  curatedStances?: Record<string, any[]>;
 }) {
   const log = deps.log ?? ((l: string) => console.log(l));
   const startedAt = Date.now();
@@ -464,6 +473,17 @@ export async function run(deps: {
     const tl = Object.entries(itemsByTopic).map(([t, c]) => `${t} ${c.strong + c.weak + c.mention} (${c.strong} strong, ${c.weak} weak, ${c.mention} mention)`);
     log(`evidence-locker: topics with new items this run — ${tl.length ? tl.join("; ") : "none"}`);
   }
+  // Opposing evidence (read-only, logs only): a pair that got a new strong item
+  // this run, whose strong items now run predominantly against the curated
+  // stance on file. Nothing is written and no rule changes.
+  let opposing: number | null = null;
+  let opposingNote = "";
+  if (deps.lockerStore && (plan || deps.curatedStances)) {
+    try {
+      const curated = deps.curatedStances ?? loadCuratedStances();
+      opposing = (await checkOpposingEvidence({ writes: lockerWrites, curated, lockerStore: deps.lockerStore, flags, log })).length;
+    } catch (e: any) { opposingNote = e?.message || String(e); }
+  }
   // Promotion: recompute the stance records of everyone this run touched.
   if (deps.lockerStore && deps.statedDb) {
     // New strong (or strong-enough weak) evidence on a thin / empty pair goes
@@ -504,6 +524,8 @@ export async function run(deps: {
       log(coverageGapLine(gaps));
     } catch (e: any) { log(`raw-ingest: coverage gaps unavailable — ${e?.message || e}`); }
   }
+  if (opposing !== null) log(opposingSummaryLine(opposing));
+  else if (opposingNote) log(`raw-ingest: opposing evidence — not checked (${opposingNote})`);
   // Time guardrail: every run logs its duration against the budget; a run over
   // it logs SLOW RUN (if that is regular, lower MAX_POLITICIANS_PER_RUN to 5–6).
   const durationMs = Date.now() - startedAt;
