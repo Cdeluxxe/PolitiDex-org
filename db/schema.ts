@@ -1777,3 +1777,58 @@ export const voiceMembership = pgTable(
     check("voice_membership_status_check", sql`${t.status} in ('active', 'inactive')`),
   ]
 );
+
+// ─────────────────────────────────────────────────────────────────────────────
+// pdx_stated_positions — Evidence Locker items promoted to stance cards
+// ─────────────────────────────────────────────────────────────────────────────
+// The runtime half of the stated layer. The curated cards (politician-stances*.js,
+// window.ISSUE_STANCE_DATA) stay the single source of truth; this table only
+// FILLS GAPS. One row per politician + issue key, written by the promotion step
+// (netlify/lib/stated-positions-core.mjs, called from the raw-ingest cron after
+// its Locker writes) from the Evidence Locker items it already wrote:
+//   · at least one strong item, or PROMOTE_WEAK_N (3) weak items, on one side;
+//   · an even split promotes nothing;
+//   · hidden (review-flagged) items never count.
+// The same thresholds profile-locker.js promotedStance() reads on the client.
+//
+// CURATED ALWAYS WINS. This table is never merged over a curated card: the read
+// path (stance-helpers.js _resolveStanceList) appends a pipeline card only for an
+// issue key the person's curated list does not already carry.
+//
+// status: active (served) | withdrawn (the evidence no longer qualifies — kept
+// for audit, never served). provenance is always 'pipeline'. evidence holds the
+// Locker store keys the promotion rests on.
+export const pdxStatedPositions = pgTable(
+  "pdx_stated_positions",
+  {
+    id: serial().primaryKey(),
+    politicianId: text("politician_id").notNull(),
+    issueKey: text("issue_key").notNull(),
+    // support | oppose | mixed (the promoter itself only writes support / oppose)
+    stance: text().notNull(),
+    // The excerpt the card quotes (the chosen Locker item's own words).
+    text: text().notNull().default(""),
+    sourceUrl: text("source_url").notNull(),
+    sourceLabel: text("source_label").notNull().default("Source"),
+    confidence: numeric({ precision: 4, scale: 2, mode: "number" }),
+    // weak | strong — the promotion level (strong = 1 strong item or 3+ weak)
+    strength: text().notNull(),
+    strongCount: integer("strong_count").notNull().default(0),
+    weakCount: integer("weak_count").notNull().default(0),
+    rulesVersion: text("rules_version"),
+    status: text().notNull().default("active"),
+    provenance: text().notNull().default("pipeline"),
+    evidence: jsonb().$type<string[]>().default([]),
+    promotedAt: timestamp("promoted_at", { withTimezone: true }).defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("pdx_stated_positions_pid_issue_unique").on(t.politicianId, t.issueKey),
+    index("pdx_stated_positions_status_idx").on(t.status),
+    check("pdx_stated_positions_stance_check", sql`${t.stance} in ('support', 'oppose', 'mixed')`),
+    check("pdx_stated_positions_strength_check", sql`${t.strength} in ('weak', 'strong')`),
+    check("pdx_stated_positions_status_check", sql`${t.status} in ('active', 'withdrawn')`),
+    check("pdx_stated_positions_provenance_check", sql`${t.provenance} = 'pipeline'`),
+  ]
+);

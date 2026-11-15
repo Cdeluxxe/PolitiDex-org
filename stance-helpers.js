@@ -154,7 +154,144 @@
       if (nameSlug && STANCE_ALIASES[nameSlug] && ISSUE_STANCE_DATA[STANCE_ALIASES[nameSlug]]) return ISSUE_STANCE_DATA[STANCE_ALIASES[nameSlug]];
       return null;
     }
-    window._resolveStanceList = _resolveStanceList;
+    // ── PIPELINE STANCE CARDS (promoted Evidence Locker stances) ───────────
+    // The raw-ingest cron promotes Evidence Locker items into stance records
+    // (netlify/lib/stated-positions-core.mjs: at least one strong item, or three
+    // weak items, on one side of an issue; no even split) and
+    // GET /api/stated-positions serves them in this file's card shape, tagged
+    // provenance 'pipeline'. They join the curated list HERE, in the one
+    // chokepoint every stance surface already reads — the profile's Said rows,
+    // Word vs Action, the Alignment Tool, the comparisons and the related-issues
+    // drawer — so a pipeline card is a stance card like any other.
+    //
+    // CURATED ALWAYS WINS. A pipeline card is appended only for an issue key the
+    // person's curated list does not carry (any side, including mixed); the
+    // curated list itself is returned untouched and in order, and a person with
+    // no pipeline cards gets the very same array back as before.
+    //
+    // Loaded once per page, after first use, at idle time (requestIdleCallback,
+    // else a short timer), so it never sits on the arrival's critical path. On arrival the derivation epoch moves, so every memoized
+    // read rebuilds, and 'pdx-stated-positions' is dispatched for surfaces that
+    // repaint themselves; the open profile is repainted in place. A failed or
+    // empty fetch changes nothing.
+    var PIPELINE_ENDPOINT = '/api/stated-positions';
+    var _pipe = {};          // politician id → [card]
+    var _pipeLoading = null;
+    function _pipeIcon(key) {
+      try {
+        var m = window.ISSUE_MAP && window.ISSUE_MAP[key];
+        var first = m && m.label ? String(m.label).trim().split(/\s+/)[0] : '';
+        return (first && /[^\x00-\x7F]/.test(first)) ? first : '';
+      } catch (e) { return ''; }
+    }
+    function _isPipelineCard(c) {
+      return !!(c && c.provenance === 'pipeline' && c.issueKey &&
+        (c.issueStance === 'support' || c.issueStance === 'oppose' || c.issueStance === 'mixed') &&
+        c.source && /^https?:\/\//.test(String(c.source.url || '')));
+    }
+    // Fold one endpoint body in. Returns the ids that gained cards.
+    function _ingestPipeline(body) {
+      var gained = [];
+      var cards = body && body.cards;
+      if (!cards || typeof cards !== 'object') return gained;
+      Object.keys(cards).forEach(function (pid) {
+        var arr = cards[pid];
+        if (!Array.isArray(arr)) return;
+        var mine = _pipe[pid] || (_pipe[pid] = []);
+        var have = {};
+        mine.forEach(function (c) { have[c.issueKey] = 1; });
+        var n = 0;
+        arr.forEach(function (c) {
+          if (!_isPipelineCard(c) || have[c.issueKey]) return;
+          var card = {};
+          for (var k in c) if (Object.prototype.hasOwnProperty.call(c, k)) card[k] = c[k];
+          if (!card.icon) card.icon = _pipeIcon(card.issueKey);
+          if (!card.pos) card.pos = card.issueStance;
+          mine.push(card); have[card.issueKey] = 1; n++;
+        });
+        if (n) gained.push(pid);
+      });
+      if (gained.length) _epoch++;
+      return gained;
+    }
+    // The pipeline cards filed for this person: the id, its canonical and alias
+    // forms, then the display-name slug — the same hops the curated list takes.
+    function _pipelineFor(id, p) {
+      var ids = [];
+      var add = function (x) { if (x && ids.indexOf(x) === -1) ids.push(x); };
+      add(id);
+      try { add(window.PDXCanonicalPid(id)); } catch (e) {}
+      if (id && STANCE_ALIASES[id]) add(STANCE_ALIASES[id]);
+      try { if (typeof window.PDXProfilePid === 'function') add(window.PDXProfilePid(id)); } catch (e) {}
+      if (p && p.name) add(_stanceSlug(p.name));
+      for (var i = 0; i < ids.length; i++) if (_pipe[ids[i]] && _pipe[ids[i]].length) return _pipe[ids[i]];
+      return null;
+    }
+    var _mergeCache = {}, _mergeEpoch = 0;
+    function _resolveStanceListMerged(id, p) {
+      var curated = _resolveStanceList(id, p);
+      var pipe = _pipelineFor(id, p);
+      if (!pipe) return curated;
+      if (_mergeEpoch !== _epoch) { _mergeCache = {}; _mergeEpoch = _epoch; }
+      var mk = String(id == null ? '' : id) + '||' + String((p && p.name) || '');
+      if (Object.prototype.hasOwnProperty.call(_mergeCache, mk) && _mergeCache[mk].c === curated) return _mergeCache[mk].v;
+      var taken = {};
+      (curated || []).forEach(function (s) { if (s && s.issueKey) taken[s.issueKey] = 1; });
+      var fill = pipe.filter(function (c) { return !taken[c.issueKey]; });
+      var v = fill.length ? (curated || []).concat(fill) : curated;
+      _mergeCache[mk] = { c: curated, v: v };
+      return v;
+    }
+    function _loadPipeline() {
+      if (_pipeLoading) return _pipeLoading;
+      if (typeof fetch !== 'function') return (_pipeLoading = Promise.resolve([]));
+      _pipeLoading = fetch(PIPELINE_ENDPOINT, { headers: { accept: 'application/json' } })
+        .then(function (res) { return res && res.ok ? res.json() : null; })
+        .then(function (body) {
+          var gained = (body && body.count) ? _ingestPipeline(body) : [];
+          if (gained.length) _onPipeline(gained);
+          return gained;
+        })
+        .catch(function () { return []; });
+      return _pipeLoading;
+    }
+    function _onPipeline(gained) {
+      try { document.dispatchEvent(new CustomEvent('pdx-stated-positions', { detail: { pids: gained } })); } catch (e) {}
+      // Repaint the open profile in place when it gained a card (the same
+      // in-place repaint the Evidence Locker fold uses).
+      try {
+        var cur = String(window._pdxCurrentProfileId || '');
+        if (!cur || typeof window.openModal !== 'function') return;
+        var d = (window.CMP_DATA && window.CMP_DATA[cur]) || (window.PROFILES && window.PROFILES[cur]) || null;
+        var mine = _pipelineFor(cur, d);
+        if (!mine) return;
+        var F = window._pdxFullIds;
+        if (F && typeof F.has === 'function' && !F.has(cur)) return; // the full document repaints when it lands
+        var body = document.getElementById('modal-body'), top = body ? body.scrollTop : 0;
+        window.openModal(cur);
+        if (body && top) body.scrollTop = top;
+      } catch (e) {}
+    }
+    var _pipeArmed = false;
+    function _armPipeline() {
+      if (_pipeArmed) return;
+      _pipeArmed = true;
+      // Idle time, never the arrival: the profile's own record request goes
+      // first, and the pipeline cards repaint in place when they land.
+      try {
+        if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(function () { _loadPipeline(); }, { timeout: 4000 });
+        else if (typeof setTimeout === 'function') setTimeout(_loadPipeline, 1500);
+      } catch (e) {}
+    }
+    window.PDXPipelineStances = {
+      endpoint: PIPELINE_ENDPOINT,
+      load: _loadPipeline,
+      ingest: _ingestPipeline,
+      isPipeline: function (c) { return !!(c && c.provenance === 'pipeline'); },
+      cards: function (id, p) { return (_pipelineFor(id, p) || []).slice(); },
+      has: function (id, key, p) { return (_pipelineFor(id, p) || []).some(function (c) { return c.issueKey === key; }); }
+    };
+    window._resolveStanceList = function (id, p) { _armPipeline(); return _resolveStanceListMerged(id, p); };
 
     // COLLAPSE RULE — first directional card wins.
     // An issueKey routinely carries more than one card: a stated-position card and a
@@ -168,7 +305,7 @@
     // directional stance always outranks a non-directional one regardless of order.
     function _polPositionMap(id, p) {
       var out = {};
-      var list = _resolveStanceList(id, p);
+      var list = window._resolveStanceList(id, p);
       if (!list) return out;
       list.forEach(function(s) {
         if (!s || !s.issueKey) return;
@@ -181,6 +318,9 @@
           topic: s.topic, text: s.text, icon: s.icon,
           evidence: s.evidence, source: s.source
         };
+        // A promoted Evidence Locker card (see above) says so; a curated entry
+        // carries no extra field at all.
+        if (s.provenance === 'pipeline') { out[s.issueKey].provenance = 'pipeline'; out[s.issueKey].pipeline = s.pipeline; }
       });
       return out;
     }
@@ -2871,13 +3011,14 @@
         return out[ik];
       }
       // Documented positions
-      var list = (typeof _resolveStanceList === 'function') ? (_resolveStanceList(id, p) || []) : [];
+      var list = (typeof window._resolveStanceList === 'function') ? (window._resolveStanceList(id, p) || []) : [];
       list.forEach(function(s) {
         if (!s || !s.issueKey) return;
         var b = bucket(s.issueKey);
         if (!b.position) b.position = { stance: s.issueStance || s.pos || 'mixed', topic: s.topic,
           text: s.text, icon: s.icon, evidence: s.evidence, source: s.source,
           detail: s.detail, issueKey: s.issueKey };
+        if (!b.position.provenance && s.provenance === 'pipeline') b.position.provenance = 'pipeline';
       });
       // Promises. The shared issueKey was patched onto the bundled static roster
       // (CMP_DATA), so a record opened from there is tagged directly. A record

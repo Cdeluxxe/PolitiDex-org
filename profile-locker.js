@@ -41,7 +41,8 @@
    stronger stance ("Stronger signal"). Shown in the top section's Said rows,
    All Issues by Topic, the Evidence tab and Word vs Action. A curated stance
    always wins and is never touched; an even split promotes nothing; display
-   only (see promotedStance below).
+   only (see promotedStance below). This line is the interim read until the
+   server's promoted card for the issue lands (see NOT A SCORE INPUT below).
 
    WHERE THIS CONFLICTS. Each of those three Locker lines (Evidence tab card,
    topic-tree leaf, Word vs Action list) gains one short line when the voting
@@ -78,9 +79,16 @@
    · ADDITIVE ONLY. Curated content is never removed or reordered; a person the
      endpoint returns nothing for renders byte-for-byte as before, because every
      hook below returns '' when items(pid) is empty.
-   · NOT A SCORE INPUT. An automated stance read is a public statement. Nothing
-     here enters Word vs Action's arithmetic, the record pattern, or any count
-     that a percentage is built from.
+   · NOT A SCORE INPUT — HERE. An automated stance read is a public statement.
+     Nothing in THIS file enters Word vs Action's arithmetic, the record
+     pattern, or any count a percentage is built from. Scoring happens one step
+     later, server-side: the raw-ingest cron promotes the same items with the
+     same thresholds as promotedStance() into pdx_stated_positions, and
+     stance-helpers.js merges those PROMOTED CARDS (provenance 'pipeline') into
+     _resolveStanceList, where Word vs Action and the Alignment Tool count them
+     like any documented position. Once a promoted card is on an issue,
+     curatedOn() sees it and the display-only "Said:" line below stands down,
+     so the issue never prints two stated lines.
    · FAILS CLOSED. A failed fetch, a 503, or a malformed body changes nothing.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {

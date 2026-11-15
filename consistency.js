@@ -375,6 +375,16 @@
       return pm[issueKey] ? pm[issueKey].stance : null;
     } catch (e) { return null; }
   }
+  // Is this person's stance on the issue a promoted pipeline card (an Evidence
+  // Locker promotion merged in by stance-helpers.js) rather than a curated one?
+  function positionIsPipeline(pid, issueKey) {
+    try {
+      if (typeof window._polPositionMap !== 'function' || !window.CMP_DATA) return false;
+      var pm = window._polPositionMap(pid, window.CMP_DATA[pid]) || {};
+      return !!(pm[issueKey] && pm[issueKey].provenance === 'pipeline');
+    } catch (e) { return false; }
+  }
+  var _PIPELINE_CHIP_TITLE = 'Their stated position, promoted automatically from Evidence Locker items (pipeline-sourced, not a hand-curated card)';
   function samePol(a, b) {
     if (a === b) return true;
     return norm(a) === norm(b);
@@ -3836,6 +3846,9 @@
   function _orStanceChip(pid, issueKey, lead) {
     var s = positionStance(pid, issueKey);
     var m = _OR_STANCE[s]; if (!m) return '';
+    if (positionIsPipeline(pid, issueKey)) {
+      return '<span class="pdxor-stance" data-pdx-stance-source="pipeline" style="--c:' + m.c + '" title="' + _PIPELINE_CHIP_TITLE + '">' + m.ico + ' ' + esc(lead || 'Says:') + ' ' + m.lb + ' · ⚙︎ Pipeline-sourced</span>';
+    }
     return '<span class="pdxor-stance" style="--c:' + m.c + '" title="Their stated position">' + m.ico + ' ' + esc(lead || 'Says:') + ' ' + m.lb + '</span>';
   }
   // ── THE BASELINE CHIP ───────────────────────────────────────────────────────
@@ -5461,15 +5474,15 @@
   var _STANCE_DIR = { support: 1, oppose: -1, mixed: 0 };
   function _rowStance(pid, issueKey) {
     var key = positionStance(pid, issueKey);
-    var text = '', source = null;
+    var text = '', source = null, pipe = false;
     try {
       if (typeof window._polPositionMap === 'function' && window.CMP_DATA) {
         var e = (window._polPositionMap(pid, window.CMP_DATA[pid]) || {})[issueKey];
-        if (e) { text = e.text || ''; source = e.source || null; }
+        if (e) { text = e.text || ''; source = e.source || null; pipe = e.provenance === 'pipeline'; }
       }
     } catch (e2) {}
     var m = _OR_STANCE[key] || null;
-    return {
+    var out = {
       key: key || null,
       label: m ? m.lb : '',
       // +1 supports / −1 opposes / 0 explicitly mixed / null nothing stated. A number
@@ -5478,6 +5491,8 @@
       direction: (key && _STANCE_DIR.hasOwnProperty(key)) ? _STANCE_DIR[key] : null,
       text: text, source: source
     };
+    if (pipe) out.provenance = 'pipeline';
+    return out;
   }
 
   // ── THE ONE STANCE STORE, READ ONE WAY ──────────────────────────────────────
@@ -5498,7 +5513,7 @@
   // rule, in promotedStance), and anything else is no stance at all. Display
   // only: nothing here feeds a verdict, a count or a score, and the store
   // itself is never written.
-  var STORE_SIGNAL = { curated: 'Curated stance', strong: 'Stronger signal', weak: 'Weak signal' };
+  var STORE_SIGNAL = { curated: 'Curated stance', pipeline: 'Pipeline-sourced stance', strong: 'Stronger signal', weak: 'Weak signal' };
   function statedStance(pid, issueKey) {
     if (!pid || !issueKey) return null;
     try {
@@ -5522,6 +5537,17 @@
         if (!src && typeof window._pdxSaidCitation === 'function' && (rs.key === 'support' || rs.key === 'oppose')) {
           var alt = window._pdxSaidCitation(pid, issueKey, rs.key);
           if (alt && /^https?:\/\//.test(String(alt.url || ''))) src = { url: String(alt.url), label: String(alt.label || 'Source') };
+        }
+        // A promoted pipeline card sits in the same slot as a curated one (it is
+        // in the position map), and says so in its signal and note.
+        var pipeCard = rs.provenance === 'pipeline' || positionIsPipeline(pid, issueKey);
+        if (pipeCard) {
+          return {
+            key: issueKey, side: rs.key, sideLabel: rs.label, label: rs.label,
+            source: 'curated', provenance: 'pipeline', signal: 'pipeline', strength: 'pipeline', signalLabel: STORE_SIGNAL.pipeline,
+            note: src ? 'Pipeline-sourced · ' + String(src.label || 'Source') : 'Pipeline-sourced',
+            url: src ? String(src.url) : '', cited: !!src, n: 0, items: [], text: rs.text || ''
+          };
         }
         return {
           key: issueKey, side: rs.key, sideLabel: rs.label, label: rs.label,
