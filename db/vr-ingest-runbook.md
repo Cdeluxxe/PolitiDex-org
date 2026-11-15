@@ -3463,18 +3463,40 @@ Every proposal row carries `confidence` (0–100), scored by `proposeIssueKeys()
 | title and summary each match on their own | +10 |
 | the keyword suggester independently picks the same key | +10 |
 | more than one pattern key fits | −10 each, a further −10 for each key after the first |
-| a reversal or restriction cue in the text (`REVERSAL_CUES`: repeal, disapproval, prohibit, restrict, cut, proof of citizenship, …) | capped at 40 |
+The score measures the issue match only. A reversal or restriction cue never lowers it.
 
-The cap exists because the patterns say what a bill is about, not which way a yea pushes
-the issue. Their instrument words run both ways.
+**Direction rule.** The patterns say what a bill is about. The direction comes from one
+separate check, `directionFor()`, over the title, short title and summary:
+
+| Text | `support_meaning` |
+|---|---|
+| carries a reversal or restriction cue (`REVERSAL_CUES`: repeal, rescind, disapproval, nullify, terminate, prohibit, ban, restrict, block, defund, roll back, overturn, eliminate, limit, freeze, deny, suspend, withdraw, revoke, exempt, waive, delay, cut, reduce, deregulate, proof of citizenship, voter ID, concealed carry, reciprocity) | `yea_opposes` |
+| no cue | `yea_supports` |
+
+The direction only decides which way a promoted row reads. It never decides whether a
+row is promoted:
+
+- a strong match (≥ 60) with a cue is auto-approved as `yea_opposes`;
+- a strong match with no cue is auto-approved as `yea_supports`;
+- a weak match (< 60) stays `proposed` either way. The reviewer sets the final direction;
+  the row's `support_meaning` is only a placeholder until then. The signal list shows
+  `reversal-cue` so the reviewer can see the rule fired.
 
 Bands: **high ≥ 80, medium 60–79, low < 60**. At or above **60**, and only for a key in
-`db/issue-keys.json` with no reversal cue, a proposal is promoted at write time through the
-same guarded proposed → reviewed update a manual review uses. It gets `support_meaning =
-'yea_supports'` (the only direction the patterns allow), `reviewed_by = 'auto'`, a rationale
-naming the score and the signals that fired, and its low proposal weight. Its voters are
+`db/issue-keys.json` (an unknown key is never written, let alone approved), a proposal is
+promoted at write time through the same guarded proposed → reviewed update a manual review
+uses. It gets the `support_meaning` the direction rule picked, `reviewed_by = 'auto'`, a
+rationale naming the direction, score and signals (`auto-approved yea_opposes — confidence
+80 (high: …, reversal-cue)`), and its low proposal weight. Its voters are
 re-packed like any review. Below 60 the row stays `proposed` with "auto — review" and is the
 only kind of row in `GET /api/vr-ingest/proposals?status=proposed`. A human reviewer can't
 record themselves as `auto`.
 
 To audit machine approvals, list `?status=reviewed` and look at `reviewedBy = "auto"`.
+Machine `yea_opposes` rows are the ones to spot-check first: a cue word can describe the
+issue itself (a bill that restricts firearms reads as `yea_opposes` on `gun_safety`), and a
+wrong direction is corrected by a roll-forward migration like any other reviewed row.
+
+No migration came with the direction rule. It writes the existing `support_meaning`,
+`review_status`, `reviewed_by` and `confidence` columns, and leaves every existing row as
+it was.

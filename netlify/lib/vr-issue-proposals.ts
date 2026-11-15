@@ -27,10 +27,12 @@
 //
 //   2b. SCORE AND AUTO-APPROVE. Each proposed key gets a 0..100 confidence
 //      (see "Confidence" below). At or above AUTO_APPROVE_CUTOFF (60) — and only
-//      for a key in db/issue-keys.json with no reversal cue in the measure's text
-//      — the row is promoted at once through the same guarded proposed→reviewed
-//      transition a manual review uses: support_meaning 'yea_supports',
-//      reviewed_by 'auto'. Below the cutoff it stays 'proposed' ("auto — review").
+//      for a key in db/issue-keys.json — the row is promoted at once through the
+//      same guarded proposed→reviewed transition a manual review uses, with
+//      reviewed_by 'auto' and the support_meaning the direction rule picks:
+//      'yea_opposes' when the measure's text carries a reversal/restriction cue,
+//      'yea_supports' otherwise. Below the cutoff it stays 'proposed'
+//      ("auto — review"), cue or no cue.
 //
 //   3. REVIEW. An authenticated operator (POST /api/vr-ingest/proposals/:id/review)
 //      confirms or edits the issue key, sets the final weight and support_meaning,
@@ -86,6 +88,7 @@ export type ProposalCandidate = {
   basis: string; // which reader produced it — kept out of the served rationale
   confidence: number; // 0..100, see scoreProposal
   directionClear: boolean; // false when the measure's text carries a reversal cue
+  supportMeaning: "yea_supports" | "yea_opposes"; // the direction rule's pick — see below
   signals: string[]; // the scoring rules that fired, for the rationale + tests
 };
 
@@ -99,20 +102,20 @@ export type ProposalCandidate = {
 //                the keyword suggester independently picks the same key → +10
 //   competition  more than one pattern key fits the measure → −10 for every key,
 //                and a further −10 for each key after the first
-//   direction    the patterns say what a bill is ABOUT, not which way a yea
-//                pushes the issue: their instrument words run both ways ("expand"
-//                and "restrict", "ban" and "rights"). So a measure whose text
-//                carries a reversal or restriction cue (REVERSAL_CUES) has an
-//                unclear direction and is capped at DIRECTION_UNCLEAR_CAP — below
-//                the cutoff — so a human sets supportMeaning. Without a cue the
-//                one direction the patterns allow is assumed: yea_supports.
+// The score measures the ISSUE MATCH only. Direction is decided separately and
+// never lowers the score:
+//   direction    a measure whose text carries a reversal or restriction cue
+//                (REVERSAL_CUES: repeal, rescind, prohibit, ban, restrict, …) gets
+//                supportMeaning 'yea_opposes' — a yea reverses or restricts the
+//                issue. Without a cue: 'yea_supports'. A strong match is
+//                auto-approved in whichever direction the rule picks; a weak match
+//                stays proposed either way, and a human sets the final direction.
 // Bands: high ≥ 80, medium 60–79, low < 60. High and medium (≥ AUTO_APPROVE_CUTOFF)
 // are auto-approved — review_status 'reviewed', reviewed_by 'auto' — and low stays
 // 'proposed' with the "auto — review" rationale in the manual queue.
 export const AUTO_APPROVE_CUTOFF = 60;
 export const HIGH_CONFIDENCE = 80;
 export const AUTO_REVIEWER = "auto";
-export const DIRECTION_UNCLEAR_CAP = 40;
 export const CONF = {
   titleMatch: 70,
   summaryMatch: 45,
@@ -146,6 +149,12 @@ function titleText(m: MeasureLite): string {
 }
 function measureText(m: MeasureLite): string {
   return [m.title, m.shortTitle, m.summary].map(str).filter(Boolean).join(" — ");
+}
+
+// The direction rule: a reversal/restriction cue anywhere in the measure's text
+// (title, short title, summary) means a yea opposes the issue.
+export function directionFor(text: string): "yea_supports" | "yea_opposes" {
+  return REVERSAL_CUES.test(text) ? "yea_opposes" : "yea_supports";
 }
 
 // Every key whose bill-key-patterns subject AND instrument (and facet, when the
@@ -186,7 +195,8 @@ export function proposeIssueKeys(m: MeasureLite): {
   const summaryHits = new Set(summary ? patternHits(summary) : []);
   const allHits = patternHits(text);
   const kw = suggestIssue(text);
-  const directionClear = !REVERSAL_CUES.test(text);
+  const supportMeaning = directionFor(text);
+  const directionClear = supportMeaning === "yea_supports";
 
   const known = allHits.filter((k) => {
     if (ISSUE_KEYS.has(k)) return true;
@@ -205,30 +215,31 @@ export function proposeIssueKeys(m: MeasureLite): {
     if (kw === key) { c += CONF.keywordAgrees; signals.push("keyword-agrees"); }
     if (known.length > 1) { c -= CONF.competing; signals.push("competing-keys"); }
     if (rank > 0) { c -= CONF.secondaryRank; signals.push("secondary-key"); }
-    if (!directionClear) { c = Math.min(c, DIRECTION_UNCLEAR_CAP); signals.push("direction-unclear"); }
+    if (!directionClear) signals.push("reversal-cue");
     accepted.push({
       issueKey: key,
       weight: rank === 0 ? PROPOSAL_PRIMARY_WEIGHT : PROPOSAL_SECONDARY_WEIGHT,
       basis: PATTERNS_VERSION,
       confidence: clamp(c),
       directionClear,
+      supportMeaning,
       signals,
     });
   });
 
   if (!accepted.length && kw && ISSUE_KEYS.has(kw)) {
     const signals = ["keyword-only"];
-    let c: number = CONF.keywordOnly;
-    if (!directionClear) { c = Math.min(c, DIRECTION_UNCLEAR_CAP); signals.push("direction-unclear"); }
-    accepted.push({ issueKey: kw, weight: PROPOSAL_KEYWORD_WEIGHT, basis: "keyword-suggester", confidence: clamp(c), directionClear, signals });
+    if (!directionClear) signals.push("reversal-cue");
+    accepted.push({ issueKey: kw, weight: PROPOSAL_KEYWORD_WEIGHT, basis: "keyword-suggester", confidence: clamp(CONF.keywordOnly), directionClear, supportMeaning, signals });
   }
   return { accepted, rejected };
 }
 
 // Should this scored candidate be promoted without a human? Never for a key the
-// allow-list lacks, never with an unclear direction, never below the cutoff.
-export function shouldAutoApprove(c: Pick<ProposalCandidate, "issueKey" | "confidence" | "directionClear">): boolean {
-  return ISSUE_KEYS.has(c.issueKey) && c.directionClear && c.confidence >= AUTO_APPROVE_CUTOFF;
+// allow-list lacks, never below the cutoff. Direction does not gate it — the
+// direction rule only chooses the support_meaning the promotion writes.
+export function shouldAutoApprove(c: Pick<ProposalCandidate, "issueKey" | "confidence">): boolean {
+  return ISSUE_KEYS.has(c.issueKey) && c.confidence >= AUTO_APPROVE_CUTOFF;
 }
 
 // Validate a proposal row against the guard before it is ever written. Exported
@@ -351,8 +362,8 @@ export async function proposeForMeasures(
         // the manual queue exactly as written above.
         if (shouldAutoApprove(p)) {
           const promoted = await repo.updateMapping(id, REVIEW_STATUS.proposed, {
-            supportMeaning: "yea_supports",
-            rationale: `auto-approved — confidence ${p.confidence} (${confidenceBand(p.confidence)}: ${p.signals.join(", ")})`,
+            supportMeaning: SUPPORT_MEANINGS.has(p.supportMeaning) ? p.supportMeaning : "yea_supports",
+            rationale: `auto-approved ${p.supportMeaning} — confidence ${p.confidence} (${confidenceBand(p.confidence)}: ${p.signals.join(", ")})`,
             reviewStatus: REVIEW_STATUS.reviewed,
             reviewedAt: new Date(),
             reviewedBy: AUTO_REVIEWER,
