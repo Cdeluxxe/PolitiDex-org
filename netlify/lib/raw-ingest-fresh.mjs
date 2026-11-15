@@ -1,0 +1,436 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// raw-ingest-fresh.mjs — fresh pages + topic targeting for the raw-ingest cron
+// ─────────────────────────────────────────────────────────────────────────────
+// The rotation had settled into re-reading the same known homepages and press
+// indexes, each filed under a default topic (mostly cost_living), so runs ended
+// with "0 new items". This module adds three things, all opt-in through the
+// cron's `fresh` dependency (the scheduled entry point turns it on):
+//
+// 1. LINK HARVEST (expanded source types). Every index-like page the run
+//    fetches (a newsroom, an issues index or a homepage, during the discovery
+//    check or the pull) is read for links to the politician's own
+//      · press releases        (…/press-releases/<slug>, …/news/<slug>, DocumentID=…)
+//      · statements / remarks  (…/statement-…, …/remarks-…, op-eds, testimony)
+//      · issue / priority pages (…/issues/<slug>, …/priorities/<slug>, …/platform/…)
+//    Only same-host links count. Nothing is built from a pattern or guessed:
+//    each URL was linked from a page the politician's roster row already
+//    points to. Hosts shared by two roster politicians (whitehouse.gov) and
+//    state-legislature / Congress.gov pages (which list other members) are not
+//    harvested, so a link always belongs to the page's politician. Ceremonial
+//    items (congratulates, honors, grants …) rank last; statements and issue
+//    pages rank first because they are the likeliest to carry clear position
+//    language.
+//
+// 2. FRONTIER + SEEN LEDGER (discovery adds URLs). Harvested links wait in a
+//    per-politician frontier (FRONTIER_KEY in the rotation store); every URL the
+//    run fetches goes into the seen ledger (SEEN_KEY). When the planner picks a
+//    politician, up to FRESH_PER_POLITICIAN unfetched frontier pages join the
+//    run's pull list. The caps do not change: a fresh page takes a free slot
+//    under the per-politician and per-run caps, or displaces a page the ledger
+//    already shows as fetched (never the politician's index pages, which feed
+//    the harvest, and never the ground-truth page).
+//
+// 3. TOPIC TARGETING. A page filed under a default topic — a homepage, index,
+//    newsroom, official pattern, discovery pattern or fresh page — is scored
+//    under the topic the page itself signals (title / h1 ×4, URL slug ×3, body
+//    sentences ×1, cost_living's very broad vocabulary counted at half weight),
+//    with a bonus for topics the politician has no or thin Locker coverage on.
+//    It moves off its filed topic only when another topic clearly wins. Pages
+//    cited for a specific topic (issue pages, extra sources) keep their topic.
+//    Only issue keys the scorer has rules for are ever chosen, so an unknown
+//    key can never enter the Locker this way. Cross-topic scoring is unchanged.
+//
+// Pure and dependency-injected; the cron owns the stores.
+
+import { createHash } from "node:crypto";
+import { TOPIC_RULES, SCORED_TOPICS, NO_POLE_TOPICS, hasRulesFor, extractSentences } from "./stance-score-core.mjs";
+
+export const FRONTIER_KEY = "frontier.json";
+export const SEEN_KEY = "seen.json";
+export const FRESH_VERSION = "fresh-v1";
+// Unfetched pages added for one politician in one run (inside the existing caps).
+export const FRESH_PER_POLITICIAN = 2;
+// Links kept from one harvested page, and per politician in the frontier.
+export const HARVEST_PER_PAGE = 12;
+export const MAX_FRONTIER_PER_POLITICIAN = 30;
+// Seen-ledger size (most recent kept).
+export const MAX_SEEN = 6000;
+// Topic targeting: how far another topic must lead the filed one to move a page.
+export const TARGET_MIN_SIGNAL = 3;
+export const TARGET_BODY_SENTENCES = 600;
+export const TARGET_BODY_CAP = 10;
+export const BROAD_TOPIC_WEIGHT = { cost_living: 0.5 };
+// Coverage bonus: no Locker coverage on the pair / thin coverage (below the baseline).
+export const EMPTY_BONUS = 1.5;
+export const THIN_BONUS = 0.75;
+
+export const FRESH_KINDS = {
+  fresh_statement: "statement, remarks, op-ed or testimony linked from the politician's own page",
+  fresh_press_release: "press release linked from the politician's own newsroom / homepage",
+  fresh_issue_page: "campaign or official issue / priority page linked from the politician's own site",
+};
+
+export const normUrl = (u) => {
+  try { const x = new URL(u); x.hash = ""; return (x.origin + x.pathname.replace(/\/+$/, "") + x.search).toLowerCase(); }
+  catch { return String(u || "").toLowerCase(); }
+};
+const hostOf = (u) => { try { return new URL(u).hostname.replace(/^www\./, "").toLowerCase(); } catch { return ""; } };
+
+// ── Which pages are harvested / retargeted ──────────────────────────────────
+const UNTARGETED_ID = /^(?:known-homepage|official-|discovered-|fresh-)/;
+const UNTARGETED_TYPE = /\b(?:homepage|home page|index|newsroom|press releases page)\b/i;
+const NO_HARVEST_TYPE = /\b(?:legislature|congress\.gov|youtube|video|channel)\b/i;
+const NO_HARVEST_HOST = /(?:^|\.)congress\.gov$|(?:^|\.)capitol\.texas\.gov$|^house\.texas\.gov$|^senate\.texas\.gov$|(?:^|\.)le\.utah\.gov$/i;
+
+/** Was this page filed under a default topic (so its own signals may pick a better one)? */
+export function isUntargeted(src) {
+  return UNTARGETED_ID.test(String(src?.source_id || "")) || UNTARGETED_TYPE.test(String(src?.source_type || ""));
+}
+
+/** Hosts that more than one roster politician's pages live on (their links cannot be told apart). */
+export function sharedHosts(roster = []) {
+  const by = new Map();
+  for (const r of roster) {
+    for (const s of [...(r.sources || []), ...(r.official ? [r.official] : [])]) {
+      const h = hostOf(s?.url);
+      if (!h) continue;
+      (by.get(h) || by.set(h, new Set()).get(h)).add(r.politician_id);
+    }
+  }
+  return new Set([...by].filter(([, p]) => p.size > 1).map(([h]) => h));
+}
+
+/** May links be harvested from this page? */
+export function isHarvestable(src, shared = new Set()) {
+  if (!src?.url || !src.politician_id) return false;
+  if (src.source_class === "youtube" || src.source_class === "congress_gov" || src.source_class === "state_legislature") return false;
+  if (src.official_kind === "state_legislature") return false;
+  if (NO_HARVEST_TYPE.test(String(src.source_type || ""))) return false;
+  const h = hostOf(src.final_url || src.url);
+  return Boolean(h) && !NO_HARVEST_HOST.test(h) && !shared.has(h);
+}
+
+// ── Link classification ─────────────────────────────────────────────────────
+const ASSET = /\.(?:pdf|jpe?g|png|gif|svg|webp|mp4|mp3|mov|zip|docx?|xlsx?|pptx?|css|js|xml|ics|json|txt)$/i;
+const EXCLUDE_SEG = /^(?:tags?|category|categories|author|authors|search|feed|rss|contact|contact-us|donate|volunteer|events?|calendar|photos?|gallery|galleries|videos?|subscribe|newsletter|privacy|privacy-policy|accessibility|sitemap|login|log-in|signup|sign-up|shop|store|careers|jobs|internships?|services|casework|tours?|flags?|grants?|forms?|help|faq|about|biography|bio|offices?|wp-admin|wp-content|wp-json|cdn-cgi|page|archive|archives|espanol|es|map|maps|share|print|email)$/i;
+const EXCLUDE_QUERY = /(?:^|[?&])(?:page|sort|filter|start|offset|year|month|tag|cat|category|s|q|search)=/i;
+const STATEMENT_RE = /(?:^|[\/_-])(?:statements?|remarks|speech(?:es)?|op-?eds?|opinion|column|columns|testimony|floor-?speech|letters?)(?:[\/_-]|$)/i;
+const PRESS_SEG = /\/(?:press-releases?|press|news|newsroom|news-releases?|media|media-center|releases?|blog|updates?)\//i;
+const DOCUMENT_ID = /[?&](?:documentid|id|newsid|releaseid)=\d+/i;
+const ISSUE_SEG = /\/(?:issues?|priorit(?:y|ies)|platform|agenda|polic(?:y|ies)|plans?|vision|key-issues|legislation|on-the-issues)\/[^/]+/i;
+const POLICY_WORDS = /\b(?:introduc\w*|bill|act|legislation|vote[sd]?|oppos\w*|support\w*|calls?|urg\w*|demand\w*|fight\w*|protect\w*|ban\w*|cut\w*|lower\w*|plan|statement|condemn\w*|blast\w*|slam\w*|reject\w*|push\w*|block\w*|repeal\w*|expand\w*|reform\w*|secure\w*|defend\w*|stop\w*|end\w*|rais\w*|reduc\w*|cap)\b/i;
+const CEREMONIAL = /\b(?:honou?r\w*|congratulat\w*|recogni[sz]\w*|celebrat\w*|welcom\w*|visit\w*|tours?|awards?|grants?|ribbon|meets?|condolence\w*|mourn\w*|birthday|anniversary|holiday|thanksgiving|christmas|memorial|tribute|announces? (?:funding|winners?)|art competition|academy nominat\w*|office hours|town hall schedule)\b/i;
+
+const slugWords = (u) => {
+  try { const x = new URL(u); return decodeURIComponent(x.pathname).replace(/[\/_.-]+/g, " ").trim(); }
+  catch { return ""; }
+};
+const lastSegment = (u) => { try { return new URL(u).pathname.replace(/\/+$/, "").split("/").pop() || ""; } catch { return ""; } };
+
+/**
+ * One link → { kind, source_type, base } or null when it is not a content page
+ * worth pulling. `official` = the politician's page is an official (.gov or
+ * "official") page; otherwise campaign.
+ */
+export function classifyLink(url, text, { official = false } = {}) {
+  let x;
+  try { x = new URL(url); } catch { return null; }
+  if (!/^https?:$/.test(x.protocol)) return null;
+  const path = x.pathname.replace(/\/+$/, "");
+  if (!path || path === "/") return null;
+  if (ASSET.test(path)) return null;
+  if (path.split("/").filter(Boolean).some((seg) => EXCLUDE_SEG.test(seg))) return null;
+  if (EXCLUDE_QUERY.test(x.search)) return null;
+  const last = lastSegment(url);
+  const words = last.split(/[-_]+/).filter(Boolean).length;
+  const full = path + x.search;
+  const side = official ? "official" : "campaign";
+  // A content page has a slug of a few words or a document id.
+  const hasSlug = words >= 3 || DOCUMENT_ID.test(x.search);
+  if (STATEMENT_RE.test(path) && hasSlug) return { kind: "fresh_statement", source_type: `${side} statement`, base: 5 };
+  if ((PRESS_SEG.test(full + "/") || DOCUMENT_ID.test(x.search)) && hasSlug) return { kind: "fresh_press_release", source_type: `${side} press release`, base: 3 };
+  if (ISSUE_SEG.test(path) && last && !/^(?:issues?|priorit(?:y|ies)|platform|agenda|polic(?:y|ies)|plans?)$/i.test(last)) {
+    return { kind: "fresh_issue_page", source_type: /priorit/i.test(path) ? `${side} priority page` : `${side} issue page`, base: 4 };
+  }
+  return null;
+}
+
+/** Topics a short piece of text (link text + slug, or a title) names, by hit count. */
+export function topicHits(text, topics = SCORED_TOPICS) {
+  const s = String(text || "");
+  const out = {};
+  if (!s.trim()) return out;
+  for (const t of topics) {
+    if (!hasRulesFor(t) || NO_POLE_TOPICS.has(t)) continue;
+    const re = TOPIC_RULES[t].mention;
+    if (!re) continue;
+    const g = new RegExp(re.source, re.flags.includes("g") ? re.flags : re.flags + "g");
+    const n = (s.match(g) || []).length;
+    if (n) out[t] = n;
+  }
+  return out;
+}
+
+/** Coverage bonus for a politician + topic from the Locker baseline counts. */
+export function coverageBonus(counts, pid, topic, { baseline = 3, weakPerStrong = 3 } = {}) {
+  const c = counts?.[`${pid}|${topic}`];
+  const w = (Number(c?.strong) || 0) * weakPerStrong + (Number(c?.weak) || 0);
+  if (!w) return EMPTY_BONUS;
+  return w < baseline ? THIN_BONUS : 0;
+}
+
+/** Best topic among hit counts, coverage-weighted; null when nothing hits. */
+function bestTopic(scores, { counts, pid, fallback, order = SCORED_TOPICS }) {
+  const idx = new Map(order.map((t, i) => [t, i]));
+  const ranked = Object.entries(scores)
+    .filter(([, v]) => v > 0)
+    .map(([t, v]) => ({ t, v, total: v + coverageBonus(counts, pid, t) }))
+    .sort((a, b) => (b.total - a.total) || (a.t === fallback ? -1 : b.t === fallback ? 1 : 0) || ((idx.get(a.t) ?? 1e9) - (idx.get(b.t) ?? 1e9)));
+  return ranked[0] || null;
+}
+
+const ENT = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", rsquo: "’", lsquo: "‘", ldquo: "“", rdquo: "”", mdash: "—", ndash: "–", hellip: "…" };
+const decode = (s) => String(s || "")
+  .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n)))
+  .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)))
+  .replace(/&([a-z]+);/gi, (m, n) => ENT[n.toLowerCase()] ?? m);
+const stripTags = (s) => decode(String(s || "").replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
+
+/** Every <a href> on a page, resolved against `base`, in page order. */
+export function extractLinks(body, base) {
+  const out = [];
+  const re = /<a\b[^>]*?\bhref\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))[^>]*>([\s\S]*?)<\/a>/gi;
+  let m;
+  const html = String(body || "").slice(0, 600_000);
+  while ((m = re.exec(html))) {
+    const href = decode((m[1] ?? m[2] ?? m[3] ?? "").trim());
+    if (!href || /^(?:#|mailto:|tel:|javascript:|data:)/i.test(href)) continue;
+    let abs;
+    try { abs = new URL(href, base).toString(); } catch { continue; }
+    out.push({ url: abs, text: stripTags(m[4]).slice(0, 200) });
+  }
+  return out;
+}
+
+const officialSide = (src) => /\bofficial\b/i.test(String(src?.source_type || "")) || /\.(?:gov|mil)$/i.test(hostOf(src?.final_url || src?.url));
+
+/**
+ * Candidate content pages linked from one fetched page of `src`'s politician.
+ * Same host only; known (roster) URLs, seen URLs and the page itself are left
+ * out. Ranked by how likely the page is to carry position language (kind,
+ * policy words, ceremonial penalty, thin-topic bonus), then page order.
+ * Returns at most HARVEST_PER_PAGE sources ready for the pull list.
+ */
+export function harvestLinks(src, body, { known = new Set(), seen = new Set(), counts = {}, now = new Date(), limit = HARVEST_PER_PAGE } = {}) {
+  const pageUrl = src.final_url || src.url;
+  const host = hostOf(pageUrl);
+  if (!host) return [];
+  const self = normUrl(pageUrl), selfReq = normUrl(src.url);
+  const official = officialSide(src);
+  const byUrl = new Map();
+  extractLinks(body, pageUrl).forEach((l, i) => {
+    if (hostOf(l.url) !== host) return;
+    const n = normUrl(l.url);
+    if (n === self || n === selfReq || known.has(n) || seen.has(n) || byUrl.has(n)) return;
+    // Parent pages of the page itself (its section index) are not content.
+    if (self.startsWith(n + "/")) return;
+    const c = classifyLink(l.url, l.text, { official });
+    if (!c) return;
+    const words = `${l.text} ${slugWords(l.url)}`;
+    const hits = topicHits(words);
+    const top = bestTopic(hits, { counts, pid: src.politician_id, fallback: src.topic });
+    let score = c.base;
+    if (POLICY_WORDS.test(words)) score += 2;
+    if (CEREMONIAL.test(words)) score -= 4;
+    if (top) score += coverageBonus(counts, src.politician_id, top.t);
+    let clean;
+    try { const x = new URL(l.url); x.hash = ""; clean = x.toString(); } catch { return; }
+    byUrl.set(n, {
+      politician_id: src.politician_id,
+      topic: top && hasRulesFor(top.t) ? top.t : src.topic,
+      source_type: c.source_type,
+      source_class: c.kind,
+      source_id: `fresh-${createHash("sha1").update(n).digest("hex").slice(0, 12)}`,
+      url: clean,
+      found_from: src.url,
+      found_at: now.toISOString(),
+      rank: score,
+      order: i,
+    });
+  });
+  return [...byUrl.values()]
+    .filter((x) => x.rank > 0)
+    .sort((a, b) => (b.rank - a.rank) || (a.order - b.order))
+    .slice(0, limit)
+    .map(({ order, ...x }) => x);
+}
+
+// ── Persisted state ─────────────────────────────────────────────────────────
+/** { frontier: { pid: [source] }, seen: { normUrl: iso } } from whatever was stored. */
+export function normaliseFreshState(frontierDoc, seenDoc) {
+  const parse = (d) => { if (typeof d === "string") { try { return JSON.parse(d); } catch { return null; } } return d; };
+  const f = parse(frontierDoc), s = parse(seenDoc);
+  const frontier = {};
+  for (const [pid, list] of Object.entries((f && f.items) || {})) {
+    if (!Array.isArray(list)) continue;
+    const ok = list.filter((x) => x && x.url && x.politician_id === pid && hasRulesFor(x.topic));
+    if (ok.length) frontier[pid] = ok;
+  }
+  const seen = {};
+  for (const [u, at] of Object.entries((s && s.urls) || {})) if (u) seen[u] = String(at || "");
+  return { frontier, seen };
+}
+
+export async function readFreshState(store, log = console.log) {
+  if (!store) return normaliseFreshState(null, null);
+  try {
+    const [f, s] = await Promise.all([
+      store.get(FRONTIER_KEY, { type: "json" }).catch(() => null),
+      store.get(SEEN_KEY, { type: "json" }).catch(() => null),
+    ]);
+    return normaliseFreshState(f, s);
+  } catch (e) {
+    log(`discovery: fresh-page state unreadable — starting empty (${e?.message || e})`);
+    return normaliseFreshState(null, null);
+  }
+}
+
+export async function saveFreshState(store, state, { now = new Date(), log = console.log } = {}) {
+  if (!store) return false;
+  try {
+    const seenEntries = Object.entries(state.seen || {}).sort((a, b) => String(b[1]).localeCompare(String(a[1]))).slice(0, MAX_SEEN);
+    await store.setJSON(SEEN_KEY, { version: FRESH_VERSION, updated_at: now.toISOString(), urls: Object.fromEntries(seenEntries) });
+    await store.setJSON(FRONTIER_KEY, { version: FRESH_VERSION, updated_at: now.toISOString(), items: state.frontier || {} });
+    return true;
+  } catch (e) {
+    log(`discovery: fresh-page state not saved — ${e?.message || e}`);
+    return false;
+  }
+}
+
+/** Add harvested candidates to a politician's frontier (deduped, best first, capped). */
+export function mergeFrontier(state, candidates) {
+  let added = 0;
+  for (const c of candidates || []) {
+    const n = normUrl(c.url);
+    if (state.seen?.[n]) continue;
+    const list = (state.frontier[c.politician_id] ||= []);
+    if (list.some((x) => normUrl(x.url) === n)) continue;
+    list.push(c);
+    added++;
+  }
+  for (const pid of Object.keys(state.frontier)) {
+    state.frontier[pid] = state.frontier[pid]
+      .filter((x) => !state.seen?.[normUrl(x.url)])
+      .sort((a, b) => (Number(b.rank) || 0) - (Number(a.rank) || 0) || String(b.found_at || "").localeCompare(String(a.found_at || "")))
+      .slice(0, MAX_FRONTIER_PER_POLITICIAN);
+    if (!state.frontier[pid].length) delete state.frontier[pid];
+  }
+  return added;
+}
+
+/** Mark fetched URLs as seen and drop them from the frontier. */
+export function markSeen(state, urls, at) {
+  for (const u of urls) if (u) state.seen[normUrl(u)] = at;
+  for (const pid of Object.keys(state.frontier)) {
+    state.frontier[pid] = state.frontier[pid].filter((x) => !state.seen[normUrl(x.url)]);
+    if (!state.frontier[pid].length) delete state.frontier[pid];
+  }
+}
+
+const isIndexLike = (s) => isUntargeted(s) && !String(s.source_id || "").startsWith("fresh-");
+
+/**
+ * Put up to FRESH_PER_POLITICIAN unfetched frontier pages per planned
+ * politician into the pull list, within `max` (run) and `perPolitician`.
+ * When a politician is at their cap, a page the seen ledger already holds is
+ * displaced (never an index-like page, never `protect`ed URLs).
+ * Returns { sources, added, displaced }. Logs one "discovery: NEW …" line per
+ * fresh page and one "discovery: DISPLACED …" per swap.
+ */
+export function addFreshSources(sources, state, { politicians, max, perPolitician, per = FRESH_PER_POLITICIAN, protect = new Set(), log = console.log } = {}) {
+  const out = [...sources];
+  const known = new Set(out.map((s) => normUrl(s.url)));
+  const added = [], displaced = [];
+  for (const pid of politicians || [...new Set(out.map((s) => s.politician_id))]) {
+    const queue = (state.frontier[pid] || []).filter((x) => !known.has(normUrl(x.url)) && !state.seen[normUrl(x.url)]);
+    let n = 0;
+    for (const cand of queue) {
+      if (n >= per) break;
+      const mine = out.filter((s) => s.politician_id === pid);
+      let room = mine.length < perPolitician && out.length < max;
+      if (!room) {
+        // Swap out a page already fetched before (a pure re-read) for the fresh one.
+        const victim = [...mine].reverse().find((s) => state.seen[normUrl(s.url)] && !isIndexLike(s) && !s.official_kind && !protect.has(normUrl(s.url)) && !String(s.source_id || "").startsWith("fresh-"));
+        if (!victim) break;
+        out.splice(out.indexOf(victim), 1);
+        displaced.push(victim);
+        log(`discovery: DISPLACED ${pid}|${victim.topic} ${victim.url} — already read; slot given to an unfetched page`);
+        room = true;
+      }
+      const { rank, found_from, found_at, ...src } = cand;
+      out.push(src);
+      known.add(normUrl(src.url));
+      added.push({ ...src, found_from });
+      n++;
+      log(`discovery: NEW ${pid}|${src.topic} ${src.url} (${src.source_type} · fresh, linked from ${found_from}) — added to this run's pull list`);
+    }
+  }
+  return { sources: out, added, displaced };
+}
+
+// ── Topic targeting ─────────────────────────────────────────────────────────
+/** Title + h1 text of a page. */
+export function headingText(body) {
+  const html = String(body || "").slice(0, 400_000);
+  const parts = [];
+  const t = /<title[^>]*>([\s\S]*?)<\/title>/i.exec(html);
+  if (t) parts.push(stripTags(t[1]));
+  const re = /<h1\b[^>]*>([\s\S]*?)<\/h1>/gi;
+  let m, k = 0;
+  while ((m = re.exec(html)) && k++ < 3) parts.push(stripTags(m[1]));
+  return parts.join(" · ");
+}
+
+/** Per-topic signal for one page: heading ×4, URL slug ×3, body sentences ×1 (broad topics discounted). */
+export function topicSignals(rec, { topics = SCORED_TOPICS } = {}) {
+  const head = topicHits(headingText(rec?.body), topics);
+  const slug = topicHits(slugWords(rec?.final_url || rec?.url), topics);
+  const body = {};
+  const sentences = extractSentences(rec?.body).slice(0, TARGET_BODY_SENTENCES);
+  for (const t of topics) {
+    if (!hasRulesFor(t) || NO_POLE_TOPICS.has(t)) continue;
+    const re = TOPIC_RULES[t].mention;
+    if (!re) continue;
+    let n = 0;
+    for (const s of sentences) { if (re.test(s) && ++n >= TARGET_BODY_CAP) break; }
+    if (n) body[t] = n;
+  }
+  const out = {};
+  for (const t of new Set([...Object.keys(head), ...Object.keys(slug), ...Object.keys(body)])) {
+    const w = BROAD_TOPIC_WEIGHT[t] ?? 1;
+    out[t] = Math.round(((head[t] ? 4 * Math.min(head[t], 2) : 0) + (slug[t] ? 3 : 0) + (body[t] || 0)) * w * 100) / 100;
+  }
+  return out;
+}
+
+/**
+ * The topic to score an untargeted page under. Returns { topic, from, moved,
+ * reason, signal }. The filed topic stays unless another known topic beats it
+ * by TARGET_MIN_SIGNAL (after the coverage bonus). Never returns an issue key
+ * the scorer has no rules for.
+ */
+export function targetTopic(rec, { counts = {}, topics = SCORED_TOPICS } = {}) {
+  const from = rec?.topic;
+  const keep = (reason) => ({ topic: from, from, moved: false, reason });
+  if (!isUntargeted(rec)) return keep("cited for this topic");
+  const sig = topicSignals(rec, { topics });
+  const best = bestTopic(sig, { counts, pid: rec.politician_id, fallback: from, order: topics });
+  if (!best || !hasRulesFor(best.t)) return keep("no topic signal on the page");
+  if (best.t === from) return { ...keep("the filed topic is the page's strongest signal"), signal: best.v };
+  const own = (sig[from] || 0) + (hasRulesFor(from) ? coverageBonus(counts, rec.politician_id, from) : 0);
+  if (best.v < TARGET_MIN_SIGNAL || best.total - own < TARGET_MIN_SIGNAL) return { ...keep(`no topic clearly ahead (best ${best.t} ${best.v})`), signal: best.v };
+  const cov = coverageBonus(counts, rec.politician_id, best.t);
+  return { topic: best.t, from, moved: true, signal: best.v,
+    reason: `page signals ${best.t} (${best.v} vs ${from} ${sig[from] || 0})${cov === EMPTY_BONUS ? "; no Locker coverage yet" : cov ? "; thin Locker coverage" : ""}` };
+}

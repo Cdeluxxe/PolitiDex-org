@@ -46,6 +46,17 @@ export const STRONG_MIN = 0.8;
 export const WEAK_MIN = 0.3;
 export const PROVENANCE = "pipeline";
 export const STATED_POSITIONS_VERSION = "stated-positions-v1";
+// A new Locker item on a politician + issue that is thin or empty puts that
+// politician first in the run's recompute (never deferred by the run budget)
+// when it is strong, or weak at this confidence or above.
+export const PROMOTE_THIN_WEAK_MIN = 0.5;
+
+/** Does this Locker write warrant an immediate recompute (see PROMOTE_THIN_WEAK_MIN)? */
+export function promotableWrite(w) {
+  if (!w) return false;
+  if (w.strength === "strong") return true;
+  return w.strength === "weak" && typeof w.confidence === "number" && w.confidence >= PROMOTE_THIN_WEAK_MIN;
+}
 
 const SIDES = ["support", "oppose"];
 const isUrl = (u) => /^https?:\/\//.test(String(u || ""));
@@ -148,23 +159,46 @@ const sameRow = (row, p) =>
   && JSON.stringify(row.evidence || []) === JSON.stringify(p.evidence);
 
 /**
- * What to do for one politician: { upserts: [{ issueKey, ...promotion }],
- * withdraw: [issueKey], unchanged: [issueKey] }. `rows` are that politician's
- * existing pdx_stated_positions rows (any status).
+ * A row the promoter must leave exactly as it is: a curated (non-pipeline)
+ * row, or an active pipeline row resting on a Locker item an editor marked
+ * "reviewed". Returns the reason, or null.
  */
-export function planSync(promotions, rows) {
+export function heldRowReason(row, reviewedKeys = new Set()) {
+  if (!row) return null;
+  if (row.provenance && row.provenance !== PROVENANCE) return `curated (${row.provenance})`;
+  if (row.status === "active" && (Array.isArray(row.evidence) ? row.evidence : []).some((k) => reviewedKeys.has(k))) return "rests on reviewed evidence";
+  return null;
+}
+
+/**
+ * What to do for one politician: { upserts: [{ issueKey, ...promotion }],
+ * withdraw: [issueKey], unchanged: [issueKey], held: [{ issueKey, reason }] }.
+ * `rows` are that politician's existing pdx_stated_positions rows (any
+ * status). Curated and reviewed rows (heldRowReason) are never upserted or
+ * withdrawn.
+ */
+export function planSync(promotions, rows, { reviewedKeys = new Set() } = {}) {
   const have = new Map((rows || []).map((r) => [r.issueKey, r]));
-  const upserts = [], withdraw = [], unchanged = [];
+  const upserts = [], withdraw = [], unchanged = [], held = [];
   for (const [issueKey, p] of Object.entries(promotions || {})) {
     const row = have.get(issueKey);
-    if (row && sameRow(row, p)) unchanged.push(issueKey);
+    const why = heldRowReason(row, reviewedKeys);
+    if (why) held.push({ issueKey, reason: why });
+    else if (row && sameRow(row, p)) unchanged.push(issueKey);
     else upserts.push({ issueKey, ...p });
   }
   for (const [issueKey, row] of have) {
-    if (row.status === "active" && !(issueKey in (promotions || {}))) withdraw.push(issueKey);
+    if (row.status !== "active" || issueKey in (promotions || {})) continue;
+    const why = heldRowReason(row, reviewedKeys);
+    if (why) held.push({ issueKey, reason: why });
+    else withdraw.push(issueKey);
   }
-  return { upserts, withdraw, unchanged };
+  return { upserts, withdraw, unchanged, held };
 }
+
+/** Store keys of entries an editor marked "reviewed". */
+export const reviewedKeysOf = (entries) => new Set((entries || [])
+  .filter((e) => e?.review?.status === "reviewed" && e.pipeline?.key).map((e) => e.pipeline.key));
 
 /**
  * Recompute and sync one politician. `entries` = that politician's Locker
@@ -175,17 +209,18 @@ export async function syncPolitician(pid, entries, { db, now = () => new Date(),
   try {
     const promotions = promoteEntries(entries);
     const rows = await db.rowsFor(pid);
-    const plan = planSync(promotions, rows);
+    const plan = planSync(promotions, rows, { reviewedKeys: reviewedKeysOf(entries) });
     const at = now();
     for (const rec of plan.upserts) await db.upsert(pid, rec, at);
     if (plan.withdraw.length) await db.withdraw(pid, plan.withdraw, at);
     if (plan.upserts.length || plan.withdraw.length) {
       log(`stated-positions: ${pid} — ${plan.upserts.length} promoted/updated (${plan.upserts.map((u) => `${u.issueKey}:${u.stance}/${u.strength}`).join(", ") || "none"}), ${plan.withdraw.length} withdrawn${plan.withdraw.length ? ` (${plan.withdraw.join(", ")})` : ""}, ${plan.unchanged.length} unchanged`);
     }
+    if (plan.held.length) log(`stated-positions: ${pid} — ${plan.held.length} row(s) left as they are: ${plan.held.map((h) => `${h.issueKey} (${h.reason})`).join(", ")}`);
     return { pid, ...plan };
   } catch (e) {
     log(`stated-positions: ERROR ${pid} — ${e?.message || e}`);
-    return { pid, upserts: [], withdraw: [], unchanged: [], error: String(e?.message || e) };
+    return { pid, upserts: [], withdraw: [], unchanged: [], held: [], error: String(e?.message || e) };
   }
 }
 
@@ -252,12 +287,13 @@ export function dbAdapter(db, table, { eq, and, inArray }) {
         evidence: rec.evidence, updatedAt: at,
       };
       const { politicianId, issueKey, ...set } = values;
+      // A curated (non-pipeline) row on the same key is never overwritten.
       await db.insert(table).values({ ...values, promotedAt: at, createdAt: at })
-        .onConflictDoUpdate({ target: [table.politicianId, table.issueKey], set });
+        .onConflictDoUpdate({ target: [table.politicianId, table.issueKey], set, setWhere: eq(table.provenance, PROVENANCE) });
     },
     async withdraw(pid, issueKeys, at) {
       await db.update(table).set({ status: "withdrawn", updatedAt: at })
-        .where(and(eq(table.politicianId, pid), inArray(table.issueKey, issueKeys)));
+        .where(and(eq(table.politicianId, pid), inArray(table.issueKey, issueKeys), eq(table.provenance, PROVENANCE)));
     },
   };
 }
