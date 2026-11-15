@@ -257,5 +257,77 @@ await t("cross-topic scoring stays on; without `fresh` the run behaves as before
   assert.ok(!r.discovered.some((d) => d.url === PR), "no fresh pages without the pass");
 });
 
+await t("headline pass: title + h1 + slug naming one issue key win before the body signal", () => {
+  const body = `<html><head><title>Roy Statement on Border Security | Congressman Chip Roy</title></head><body><h1>Roy Statement on Border Security</h1>
+<p>Families are struggling with the cost of groceries, rent and gas.</p><p>Prices are too high and costs keep rising.</p></body></html>`;
+  const rec = { politician_id: "chip_roy", topic: "cost_living", source_id: "fresh-abc", source_type: "official statement", url: "https://roy.house.gov/media/statements/roy-statement-on-border-security", body };
+  const hp = F.headlineTopic(rec);
+  assert.ok(hp && hp.fields.length >= 2, JSON.stringify(hp));
+  const tg = F.targetTopic(rec, { counts: {} });
+  assert.equal(tg.moved, true); assert.equal(tg.via, "headline"); assert.equal(tg.topic, hp.topic);
+  assert.ok(hasRulesFor(tg.topic));
+  // Only one field (the slug) names a topic → not clear; the full pass decides.
+  const weak = F.headlineTopic({ ...rec, body: HOME_HTML, url: "https://roy.house.gov/media/statements/roy-on-border-security-today" });
+  assert.equal(weak, null);
+  // Cited pages are never retargeted.
+  assert.equal(F.targetTopic({ ...rec, source_id: undefined, source_type: "official House issue page" }).moved, false);
+});
+
+await t("frontier filter: low-signal links are dropped before the frontier, with reasons", () => {
+  const cases = {
+    "/media/press-releases/roy-congratulates-local-high-school-champions": "congratulations",
+    "/media/press-releases/roy-honored-with-taxpayer-hero-award": "award / honor",
+    "/media/press-releases/roy-meets-with-county-sheriffs": "\"meets with\"",
+    "/media/press-releases/roy-announces-2-million-grant-for-local-airport": "grant / funding announcement",
+    "/media/press-releases/roy-attends-ribbon-cutting-at-new-clinic": "ceremonial event",
+  };
+  for (const [p, why] of Object.entries(cases)) assert.equal(F.lowSignalReason("https://roy.house.gov" + p, ""), why, p);
+  assert.equal(F.lowSignalReason("https://roy.house.gov/media/press-releases/roy-introduces-bill-to-lower-prescription-drug-costs", ""), null);
+  assert.equal(F.lowSignalReason("https://roy.house.gov/media/press-releases/roy-opposes-grant-program-expansion-bill", ""), null, "a policy fight is kept");
+  const dropped = [];
+  const found = F.harvestLinks({ politician_id: "chip_roy", topic: "cost_living", url: NEWSROOM, source_type: "official House newsroom" }, NEWSROOM_HTML, { dropped });
+  assert.ok(!found.some((x) => x.url === CEREMONY));
+  assert.deepEqual(dropped.map((d) => d.reason), ["congratulations"]);
+  assert.match(F.droppedSummary(dropped), /congratulations ×1/);
+});
+
+await t("coverage gaps: read-only lists of thin politicians, thin topics and frontier-without-strong", async () => {
+  const C = await imp("netlify/lib/raw-ingest-coverage.mjs");
+  const roster = [{ politician_id: "a", tier: 1 }, { politician_id: "b", tier: 2 }, { politician_id: "c", tier: 3 }];
+  const counts = { "a|healthcare_costs": { strong: 2, weak: 0 }, "a|lower_taxes": { strong: 1 }, "b|healthcare_costs": { strong: 1 }, "c|lower_taxes": { strong: 0, weak: 4 } };
+  const frontier = { c: [{ politician_id: "c", topic: "lower_taxes", url: "https://c.gov/x" }], a: [{ politician_id: "a", topic: "lower_taxes", url: "https://a.gov/x" }] };
+  const snap = JSON.stringify({ counts, frontier });
+  const r = C.coverageGaps({ roster, counts, frontier, now: NOW() });
+  assert.equal(JSON.stringify({ counts, frontier }), snap, "inputs untouched");
+  assert.deepEqual(r.politicians_under_strong.map((x) => [x.politician_id, x.strong]), [["c", 0], ["b", 1]]);
+  assert.ok(r.topics_under_politicians.some((x) => x.topic === "healthcare_costs" && x.politicians === 2));
+  assert.deepEqual(r.frontier_waiting_no_strong.map((x) => x.politician_id), ["c"]);
+  assert.match(C.coverageGapLine(r), /^raw-ingest: coverage gaps — 2\/3 politician\(s\) under 3 strong/);
+  // The rotation run logs the line.
+  const logs = [];
+  await runFixture({ log: (l) => logs.push(l) });
+  assert.ok(logs.some((l) => l.startsWith("raw-ingest: coverage gaps — ")));
+  assert.ok(logs.some((l) => l.startsWith("discovery: frontier filter — ")));
+  // The endpoint never writes.
+  const ep = await imp("netlify/functions/raw-ingest-coverage.mts");
+  const ro = (doc) => ({ list: async () => ({ blobs: [] }), get: async (k) => doc?.[k] ?? null, setJSON: async () => { throw new Error("write attempted"); } });
+  const A = await imp("netlify/lib/admin-auth.mjs");
+  const crypto = await import("node:crypto");
+  const { publicKey, privateKey } = crypto.generateKeyPairSync("rsa", { modulusLength: 2048 });
+  const authOpts = { getCerts: async () => ({ k1: publicKey.export({ type: "spki", format: "pem" }) }) };
+  const enc = (o) => Buffer.from(JSON.stringify(o)).toString("base64url");
+  const nowS = Math.floor(Date.now() / 1000);
+  const head = `${enc({ alg: "RS256", kid: "k1", typ: "JWT" })}.${enc({ aud: A.FIREBASE_PROJECT_ID, iss: `https://securetoken.google.com/${A.FIREBASE_PROJECT_ID}`, sub: "u", exp: nowS + 600, email: A.ADMIN_EMAILS[0] })}`;
+  const tok = `${head}.${crypto.sign("RSA-SHA256", Buffer.from(head), privateKey).toString("base64url")}`;
+  const deps = { auth: authOpts, lockerStore: ro(), rotationStore: ro({ "frontier.json": { items: frontier } }), roster, now: NOW };
+  const anon = await ep.handle(new Request("https://x/api/admin/raw-ingest-coverage"), deps);
+  assert.equal(anon.status, 401, "curator only");
+  const res = await ep.handle(new Request("https://x/api/admin/raw-ingest-coverage", { headers: { authorization: `Bearer ${tok}` } }), deps);
+  assert.equal(res.status, 200);
+  const j = await res.json();
+  assert.deepEqual(j.frontier_waiting_no_strong.map((x) => x.politician_id), ["a", "c"]);
+  assert.equal(j.totals.roster, 3);
+});
+
 console.log(`\n${failures ? "✗" : "✓"} raw-ingest fresh evidence: ${passed} passed, ${failures} failed`);
 process.exit(failures ? 1 : 0);

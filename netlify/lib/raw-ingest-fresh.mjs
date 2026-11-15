@@ -40,6 +40,13 @@
 //    Only issue keys the scorer has rules for are ever chosen, so an unknown
 //    key can never enter the Locker this way. Cross-topic scoring is unchanged.
 //
+// 4. HEADLINE PASS + FRONTIER FILTER. On harvested pages, before the full-page signal, a light
+//    pass on the title, first <h1> and URL slug picks the topic when they
+//    clearly name one issue key (headlineTopic). Harvested links that are
+//    obviously low-signal (congratulations, awards / honors, "meets with",
+//    pure grant announcements, ceremonial events) are dropped before they
+//    enter the frontier (lowSignalReason). Scoring rules and caps unchanged.
+//
 // Pure and dependency-injected; the cron owns the stores.
 
 import { createHash } from "node:crypto";
@@ -214,14 +221,52 @@ export function extractLinks(body, base) {
 
 const officialSide = (src) => /\bofficial\b/i.test(String(src?.source_type || "")) || /\.(?:gov|mil)$/i.test(hostOf(src?.final_url || src?.url));
 
+// ── Frontier quality filter ─────────────────────────────────────────────────
+// Before a harvested link enters the frontier, obvious low-signal pages are
+// dropped outright (they would only take a fetch slot to land a mention at
+// best). Judged on the link text + URL slug only; first matching reason wins.
+// A link that also names a bill, a vote or a policy fight is kept (a grant
+// announcement inside a bill statement is not "pure"). Ranking, scoring and
+// the frontier / run caps are unchanged.
+const LOW_SIGNAL_KEEP = /\b(?:bill|act|legislation|introduc\w*|vot(?:e|es|ed|ing)|oppos\w*|statement|testimony|op-?ed|condemn\w*|repeal\w*|veto\w*|amendment|resolution|calls? (?:for|on)|urg\w*|demand\w*|fight\w*|slam\w*|blast\w*|reject\w*|block\w*)\b/i;
+export const LOW_SIGNAL_RULES = [
+  { reason: "congratulations", re: /\bcongratulat\w*|\bcongrats\b/i },
+  { reason: "award / honor", re: /\b(?:awards?|awarded|honou?r(?:s|ed|ing|ee|ees)?|recogni[sz](?:es|ed|ing)|inducted|hall of fame|medal|commend\w*)\b/i, keepIfPolicy: true },
+  { reason: "\"meets with\"", re: /\b(?:meets?|met) with\b|\bmeeting with\b/i },
+  { reason: "grant / funding announcement", re: /\bgrants?\b|\b(?:announc\w*|secur\w*|deliver\w*|bring\w*|award\w*|receiv\w*)\b[^.]{0,40}?\b(?:funding|federal dollars|million|billion)\b|\bcommunity project funding\b|\bearmarks?\b/i, keepIfPolicy: true },
+  { reason: "ceremonial event", re: /\b(?:condolence\w*|mourn\w*|in memoriam|rest in peace|lying in state)\b/i },
+  { reason: "ceremonial event", re: /\b(?:ribbon[- ]cutting|groundbreaking|ground[- ]breaking|proclamation|memorial day|veterans day|birthday|anniversary|holiday|thanksgiving|christmas|hanukkah|easter|tribute|celebrat\w*|art competition|academy nominat\w*|service academy|office hours|mobile office|town hall schedule|tours?|visits?|commencement)\b/i, keepIfPolicy: true },
+];
+
+/** Low-signal reason for a harvested link (link text + slug), or null to keep it. */
+export function lowSignalReason(url, text = "") {
+  const words = `${text || ""} ${slugWords(url)}`;
+  const policy = LOW_SIGNAL_KEEP.test(words);
+  for (const r of LOW_SIGNAL_RULES) {
+    if (!r.re.test(words)) continue;
+    if (r.keepIfPolicy && policy) continue;
+    return r.reason;
+  }
+  return null;
+}
+
+/** "reason ×n; …" summary of dropped links ({ url, reason }[]). */
+export function droppedSummary(dropped = []) {
+  const by = {};
+  for (const d of dropped) by[d.reason] = (by[d.reason] || 0) + 1;
+  return Object.entries(by).sort((a, b) => b[1] - a[1]).map(([r, n]) => `${r} ×${n}`).join("; ");
+}
+
 /**
  * Candidate content pages linked from one fetched page of `src`'s politician.
  * Same host only; known (roster) URLs, seen URLs and the page itself are left
  * out. Ranked by how likely the page is to carry position language (kind,
  * policy words, ceremonial penalty, thin-topic bonus), then page order.
- * Returns at most HARVEST_PER_PAGE sources ready for the pull list.
+ * Returns at most HARVEST_PER_PAGE sources ready for the pull list. Links the
+ * frontier quality filter rejects are left out; pass `dropped` (an array) to
+ * collect them as { url, reason }.
  */
-export function harvestLinks(src, body, { known = new Set(), seen = new Set(), counts = {}, now = new Date(), limit = HARVEST_PER_PAGE } = {}) {
+export function harvestLinks(src, body, { known = new Set(), seen = new Set(), counts = {}, now = new Date(), limit = HARVEST_PER_PAGE, dropped = null } = {}) {
   const pageUrl = src.final_url || src.url;
   const host = hostOf(pageUrl);
   if (!host) return [];
@@ -236,6 +281,9 @@ export function harvestLinks(src, body, { known = new Set(), seen = new Set(), c
     if (self.startsWith(n + "/")) return;
     const c = classifyLink(l.url, l.text, { official });
     if (!c) return;
+    // Frontier quality filter: obvious low-signal pages never enter the frontier.
+    const low = lowSignalReason(l.url, l.text);
+    if (low) { if (dropped && !dropped.some((d) => normUrl(d.url) === n)) dropped.push({ url: l.url, reason: low }); return; }
     const words = `${l.text} ${slugWords(l.url)}`;
     const hits = topicHits(words);
     const top = bestTopic(hits, { counts, pid: src.politician_id, fallback: src.topic });
@@ -493,16 +541,71 @@ export function topicSignals(rec, { topics = SCORED_TOPICS } = {}) {
   return out;
 }
 
+// Topics never chosen by the headline pass: the broad defaults a page falls
+// back to (their vocabulary shows up in almost any headline).
+export const HEADLINE_BROAD = new Set(Object.keys(BROAD_TOPIC_WEIGHT));
+// How many of the three headline fields (title, first h1, slug) must name the
+// topic, and by how many fields it must lead the runner-up.
+export const HEADLINE_MIN_FIELDS = 2;
+export const HEADLINE_MIN_LEAD = 1;
+
+/** Page title, first <h1> and URL slug words of a fetched page. */
+export function headlineFields(rec) {
+  const html = String(rec?.body || "").slice(0, 400_000);
+  const t = /<title[^>]*>([\s\S]*?)<\/title>/i.exec(html);
+  const h = /<h1\b[^>]*>([\s\S]*?)<\/h1>/i.exec(html);
+  return { title: t ? stripTags(t[1]) : "", h1: h ? stripTags(h[1]) : "", slug: slugWords(rec?.final_url || rec?.url) };
+}
+
+/**
+ * Light topic pass on the title, first heading and URL slug (no body). Returns
+ * { topic, fields } when they clearly point to one existing issue key — named
+ * in at least HEADLINE_MIN_FIELDS of the three, leading every other topic by
+ * HEADLINE_MIN_LEAD fields (keys named in exactly the same fields are
+ * siblings, not rivals), not a broad default and with scorer rules — or null
+ * (the full-body targeting then decides).
+ */
+export function headlineTopic(rec, { topics = SCORED_TOPICS } = {}) {
+  const f = headlineFields(rec);
+  const where = {}, hits = {};
+  for (const [name, text] of Object.entries(f)) {
+    for (const [t, n] of Object.entries(topicHits(text, topics))) { (where[t] ||= []).push(name); hits[t] = (hits[t] || 0) + n; }
+  }
+  const idx = new Map(topics.map((t, i) => [t, i]));
+  // Keys named in exactly the same fields are sibling keys reading the same
+  // words (border_security / immig_balance): more hits, then register order.
+  const ranked = Object.keys(where)
+    .filter((t) => !HEADLINE_BROAD.has(t) && hasRulesFor(t) && !NO_POLE_TOPICS.has(t))
+    .sort((a, b) => (where[b].length - where[a].length) || (hits[b] - hits[a]) || ((idx.get(a) ?? 1e9) - (idx.get(b) ?? 1e9)));
+  if (!ranked.length) return null;
+  const top = ranked[0], fields = where[top], sig = fields.join("+");
+  if (fields.length < HEADLINE_MIN_FIELDS) return null;
+  const rival = Math.max(0, ...ranked.slice(1).filter((t) => where[t].join("+") !== sig).map((t) => where[t].length));
+  if (fields.length - rival < HEADLINE_MIN_LEAD) return null;
+  return { topic: top, fields };
+}
+
 /**
  * The topic to score an untargeted page under. Returns { topic, from, moved,
- * reason, signal }. The filed topic stays unless another known topic beats it
- * by TARGET_MIN_SIGNAL (after the coverage bonus). Never returns an issue key
- * the scorer has no rules for.
+ * reason, signal, via? }. On harvested pages (fresh-*) a light headline pass
+ * (headlineTopic) runs first:
+ * when the title, first heading and slug clearly name one issue key, that key
+ * is used (via: "headline"). Otherwise the filed topic stays unless another
+ * known topic beats it by TARGET_MIN_SIGNAL in the full-page signal (after
+ * the coverage bonus). Never returns an issue key the scorer has no rules for.
  */
 export function targetTopic(rec, { counts = {}, topics = SCORED_TOPICS } = {}) {
   const from = rec?.topic;
   const keep = (reason) => ({ topic: from, from, moved: false, reason });
   if (!isUntargeted(rec)) return keep("cited for this topic");
+  // Harvested (frontier) pages: a light pass first on title, first heading and
+  // URL slug only. Homepages / indexes carry many topics and keep the full pass.
+  const hp = String(rec?.source_id || "").startsWith("fresh-") ? headlineTopic(rec, { topics }) : null;
+  if (hp && hp.topic !== from) {
+    return { topic: hp.topic, from, moved: true, via: "headline", signal: hp.fields.length,
+      reason: `headline pass — ${hp.fields.join(" + ")} name ${hp.topic}` };
+  }
+  if (hp) return { ...keep(`headline pass confirms the filed topic (${hp.fields.join(" + ")})`), via: "headline" };
   const sig = topicSignals(rec, { topics });
   const best = bestTopic(sig, { counts, pid: rec.politician_id, fallback: from, order: topics });
   if (!best || !hasRulesFor(best.t)) return keep("no topic signal on the page");
