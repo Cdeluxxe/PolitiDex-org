@@ -10,14 +10,19 @@ const _ACC_REC = JSON.parse(_readFileSync(new URL("../db/accountability-stances-
 export const ACCOUNTABILITY_PID_OF = { "trump-donald": "trump" };
 export const accountabilityIssueKey = (issue) => String(issue).replace(/-/g, "_");
 export const ACCOUNTABILITY_RECORD = _ACC_REC;
-// The family & economic fairness keys pass (Nov 2026): five register keys,
+// The family & economic fairness keys pass (Nov 2026): register keys,
 // their core slots, their related-issues pairs and their scorer vocabulary — no
 // position seeded (scripts/test-family-economic-fairness-keys-2026.mjs). The
 // helpers below set exactly that block aside; every accountability helper sets
 // it aside too, since it is later than every base those helpers compare to.
 export const FAMILY_FAIRNESS_PASS = "family_economic_fairness_keys_nov2026";
-export const FAMILY_FAIRNESS_KEYS = ["affordable_childcare_family_leave", "corporate_concentration_antitrust", "wealth_inequality_tax_fairness", "student_debt_college_access", "paid_sick_leave_worker_protections"];
-const _FF_ALT = FAMILY_FAIRNESS_KEYS.join("|");
+// It first added five keys; its cleanup (v564) removed the three that overlapped
+// existing keys, so the pass's declared block is the two that stayed.
+export const FAMILY_FAIRNESS_KEYS = ["wealth_inequality_tax_fairness", "student_debt_college_access"];
+export const FAMILY_FAIRNESS_REMOVED_KEYS = ["affordable_childcare_family_leave", "corporate_concentration_antitrust", "paid_sick_leave_worker_protections"];
+// The register strip also sets aside the removed keys' lines, so a five-key
+// tree (the commit before the cleanup) reduces to the same base.
+const _FF_ALT = FAMILY_FAIRNESS_KEYS.concat(FAMILY_FAIRNESS_REMOVED_KEYS).join("|");
 export function withoutFamilyFairnessRegisterBlock(src) {
   if (src == null) return src;
   return String(src)
@@ -29,9 +34,11 @@ export function withoutFamilyFairnessIssueKeys(src) {
   let o;
   try { o = JSON.parse(String(src)); } catch { return src; }
   if (!Array.isArray(o.keys) || !FAMILY_FAIRNESS_KEYS.every((k) => o.keys.includes(k))) return src;
-  o.keys = o.keys.filter((k) => !FAMILY_FAIRNESS_KEYS.includes(k));
+  // The removed keys too, so the five-key commit's allow-list reduces to the same base.
+  const all = FAMILY_FAIRNESS_KEYS.concat(FAMILY_FAIRNESS_REMOVED_KEYS);
+  o.keys = o.keys.filter((k) => !all.includes(k));
   if (typeof o.count === "number") o.count = o.keys.length;
-  for (const v of Object.values(o)) if (v && typeof v === "object" && !Array.isArray(v)) for (const k of FAMILY_FAIRNESS_KEYS) delete v[k];
+  for (const v of Object.values(o)) if (v && typeof v === "object" && !Array.isArray(v)) for (const k of all) delete v[k];
   return JSON.stringify(o, null, 2) + "\n";
 }
 export function withoutFamilyFairnessCoreCategories(src) {
@@ -39,18 +46,18 @@ export function withoutFamilyFairnessCoreCategories(src) {
   let o;
   try { o = JSON.parse(String(src)); } catch { return src; }
   if (!o.categoryOf || !FAMILY_FAIRNESS_KEYS.every((k) => k in o.categoryOf)) return src;
-  for (const k of FAMILY_FAIRNESS_KEYS) delete o.categoryOf[k];
+  for (const k of FAMILY_FAIRNESS_KEYS.concat(FAMILY_FAIRNESS_REMOVED_KEYS)) delete o.categoryOf[k];
   if (typeof o.count === "number") o.count = Object.keys(o.categoryOf).length;
   return JSON.stringify(o, null, 2) + "\n";
 }
-// netlify/lib/stance-topic-vocab.mjs with the pass's five scorer entries (and
+// netlify/lib/stance-topic-vocab.mjs with the pass's scorer entries (and
 // the key count in its header) set aside.
 export function withoutFamilyFairnessTopicVocab(src) {
   if (src == null) return src;
   const s = String(src), B = "  // The family & economic fairness keys pass (Nov 2026)";
   const b = s.indexOf(B), e = b < 0 ? -1 : s.indexOf("\n  checks_balances: ", b);
   if (b < 0 || e < 0) return s;
-  return (s.slice(0, b) + s.slice(e + 1)).replace("the same 133 keys the related-issues map relates", "the same 128 keys the related-issues map relates");
+  return (s.slice(0, b) + s.slice(e + 1)).replace("the same 130 keys the related-issues map relates", "the same 128 keys the related-issues map relates");
 }
 const _FF_RI_EDITS = JSON.parse(_readFileSync(new URL("./related-issues-declared-edits-family-economic-fairness-2026-11.json", import.meta.url), "utf8")).edits;
 // related-issues.js with exactly this pass's declared edits set aside (each
@@ -4028,11 +4035,10 @@ export const DECLARED_STANCE_PASSES = [
     pids: _ACC_REC.members.map((m) => ACCOUNTABILITY_PID_OF[m.id]),
   },
   {
-    // The family & economic fairness keys pass (Nov 2026): five register keys —
-    // affordable_childcare_family_leave, corporate_concentration_antitrust,
-    // wealth_inequality_tax_fairness, student_debt_college_access and
-    // paid_sick_leave_worker_protections — with their core slots and map pairs.
-    // Keys only: no position is seeded, so it names no one.
+    // The family & economic fairness keys pass (Nov 2026): two register keys —
+    // wealth_inequality_tax_fairness and student_debt_college_access — with their
+    // core slots and map pairs (three overlapping keys it first added were
+    // removed by its cleanup). Keys only: no position is seeded, so it names no one.
     pass: FAMILY_FAIRNESS_PASS,
     pids: [],
   },
@@ -4410,8 +4416,9 @@ export function assertParentTableIsTheOnlyMove(api, headSrc, treeSrc, wave) {
   // their core slots) is that pass's product, pinned by its own suite; it is set
   // aside until it is at HEAD, and every other line still compares.
   if (headSrc != null && !/\n {6}no_new_wars: /.test(String(headSrc))) treeSrc = withoutAccountabilityRegisterBlock(treeSrc);
-  // The family & economic fairness keys pass's register block likewise.
-  if (headSrc != null && !/\n {6}paid_sick_leave_worker_protections: /.test(String(headSrc))) treeSrc = withoutFamilyFairnessRegisterBlock(treeSrc);
+  // The family & economic fairness keys pass's register block likewise, on both
+  // sides: HEAD may carry its five-key form and the tree its two-key form.
+  if (headSrc != null) { headSrc = withoutFamilyFairnessRegisterBlock(headSrc); treeSrc = withoutFamilyFairnessRegisterBlock(treeSrc); }
   const A = carveParentTable(headSrc), B = carveParentTable(treeSrc);
   if (!ok(!!A && !!B, `${tag}alignment-tool.js no longer carries the CORE NATIONAL ISSUES banner this region is cut at — widen the anchor here, do not loosen the check`)) return null;
 

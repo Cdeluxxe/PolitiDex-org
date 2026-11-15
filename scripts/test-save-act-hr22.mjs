@@ -104,7 +104,7 @@ eq(seedOf().issues.filter((i) => i.isPrimary).map((i) => i.issueKey).join(","), 
     const HE = tableOf(headCons, "_DOS_EFFECT"), HM = tableOf(headCons, "_DOS_MECH");
     for (const [k, v] of Object.entries(HE)) if (k.startsWith(`${NUM}|119|`)) eq(E[k], v, `effect line ${k} is unchanged`);
     for (const [k, v] of Object.entries(HM)) if (k.startsWith(`${NUM}|119|`)) eq(JSON.stringify(MECH[k]), JSON.stringify(v), `did/why ${k} is unchanged`);
-    ok(gitShow("issue-map.js") === withoutAccountabilityRegisterBlock(R("issue-map.js")) /* the accountability pass's declared keys aside */, "issue-map.js is unchanged: no new issue key");
+    ok(withoutAccountabilityRegisterBlock(gitShow("issue-map.js")) === withoutAccountabilityRegisterBlock(R("issue-map.js")) /* both sides: HEAD may carry a declared pass */ /* the accountability pass's declared keys aside */, "issue-map.js is unchanged: no new issue key");
   }
   const addr = measureAddresses(ROOT).published.find((a) => a.sitting === "119" && a.number === NUM);
   eq(JSON.stringify([...addr.issues].sort()), JSON.stringify([...KEYS].sort()), "the migrations map H.R. 22 to its four keys plus states_federal_power");

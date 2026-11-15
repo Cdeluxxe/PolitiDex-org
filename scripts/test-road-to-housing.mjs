@@ -92,7 +92,7 @@ ok(/issue_key = 'housing_build'\s+AND weight = 100 AND is_primary/.test(BODY), "
       const n = D.m.find((x) => x.k === m.k);
       ok(n && n.l === m.l && n.i === m.i, `bill page: ${m.k} reads as it did`);
     }
-    ok(gitShow("issue-map.js") === withoutAccountabilityRegisterBlock(R("issue-map.js")) /* the accountability pass's declared keys aside */, "issue-map.js is unchanged: no new issue key");
+    ok(withoutAccountabilityRegisterBlock(gitShow("issue-map.js")) === withoutAccountabilityRegisterBlock(R("issue-map.js")) /* both sides: HEAD may carry a declared pass */ /* the accountability pass's declared keys aside */, "issue-map.js is unchanged: no new issue key");
   }
   const addr = measureAddresses(ROOT).published.find((a) => a.sitting === "119" && a.number === NUM);
   eq(JSON.stringify([...addr.issues].sort()), JSON.stringify(["crypto_cbdc", "econ_corp_account", "housing", "housing_build", "housing_support", "permitting_reform"]),

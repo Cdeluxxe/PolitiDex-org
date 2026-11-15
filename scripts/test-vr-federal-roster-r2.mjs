@@ -868,7 +868,7 @@ section("7 · ship discipline — cache, census, floor, and the identity wall");
     if (withoutDeclaredStanceChunks([f]).length === 0) { passed++; continue; }
     const h = HEAD(f);
     if (!ok(h !== null, `${f} is not in HEAD, so "unchanged" could not be checked — if the file moved, fix this list`)) continue;
-    eq(withoutAccountabilityVocab(f, R(f)), h, `${f} was modified — this wave admits identity and nothing else`);
+    eq(withoutAccountabilityVocab(f, R(f)), withoutAccountabilityVocab(f, h), `${f} was modified — this wave admits identity and nothing else`);
   }
   {
     // THE IDENTITY compare-hub.js NAMES, AND NOT ITS CHROME. Every pid in LOCAL_PIDS

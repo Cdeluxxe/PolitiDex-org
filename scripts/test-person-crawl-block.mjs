@@ -1144,7 +1144,8 @@ section("9 · the engines did not move");
     compared++;
     // The accountability stances pass's three declared keys (v103-chrome-seams.mjs)
     // are a vocabulary addition, not an engine edit; everything else still hashes.
-    if (sha(deOrigin(head)) !== sha(deOrigin(withoutAccountabilityVocab(f, R(f))))) moved.push(f);
+    // Set aside on both sides: HEAD may itself carry a declared vocabulary pass.
+    if (sha(deOrigin(withoutAccountabilityVocab(f, head))) !== sha(deOrigin(withoutAccountabilityVocab(f, R(f))))) moved.push(f);
   }
   if (!compared) {
     console.log("      (no git baseline available — engine byte-identity not checked in this environment)");

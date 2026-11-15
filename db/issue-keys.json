@@ -1,8 +1,7 @@
 {
   "_generatedBy": "scripts/gen-issue-keys.mjs (from ISSUE_MAP in alignment-tool.js)",
-  "count": 133,
+  "count": 130,
   "keys": [
-    "affordable_childcare_family_leave",
     "america_first",
     "america_first_fp",
     "audit_spending",
@@ -16,7 +15,6 @@
     "civil_service_control",
     "climate_action",
     "congress_oversight",
-    "corporate_concentration_antitrust",
     "cost_living",
     "crypto_cbdc",
     "cut_spending",
@@ -88,7 +86,6 @@
     "national_debt",
     "no_new_wars",
     "paid_leave",
-    "paid_sick_leave_worker_protections",
     "permitting_reform",
     "power_of_purse",
     "privacy_rights",
@@ -137,11 +134,6 @@
     "yemen_policy"
   ],
   "keywords": {
-    "affordable_childcare_family_leave": [
-      "childcare and family leave",
-      "child care and family leave",
-      "childcare and paid leave"
-    ],
     "america_first": [
       "america first",
       "foreign aid",
@@ -325,11 +317,6 @@
       "intelligence oversight",
       "gang of eight",
       "separation of powers"
-    ],
-    "corporate_concentration_antitrust": [
-      "corporate concentration",
-      "market concentration",
-      "merger enforcement"
     ],
     "cost_living": [
       "cost of living",
@@ -1355,11 +1342,6 @@
       "caregiver",
       "time off",
       "paid family leave"
-    ],
-    "paid_sick_leave_worker_protections": [
-      "paid sick leave",
-      "paid sick days",
-      "earned sick time"
     ],
     "permitting_reform": [
       "permitting",

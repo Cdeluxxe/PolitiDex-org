@@ -12157,7 +12157,18 @@
 //     precache list is unchanged. No location key or other stored reader
 //     state is written or rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v563';
+// v564 - THREE OVERLAPPING KEYS REMOVED. The family & economic fairness keys
+//     pass's Affordable Childcare & Family Leave, Corporate Concentration &
+//     Antitrust and Paid Sick Leave & Worker Protections overlapped existing
+//     keys, so the issue register (alignment-tool.js, issue-map.js) drops them
+//     and related-issues.js drops their pairs both ways. Wealth Inequality &
+//     Tax Fairness, Student Debt & College Access and every other key stay as
+//     they were. None of the three carried a position, so no stance card or
+//     drawer line moves. No route or gate is added. Precached files changed,
+//     so the shell moves; the precache list is unchanged. No location key or
+//     other stored reader state is written or rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v564';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

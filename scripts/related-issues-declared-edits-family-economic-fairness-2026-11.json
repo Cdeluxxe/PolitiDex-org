@@ -1,46 +1,38 @@
 {
-  "_comment": "The related-issues.js edits of the family & economic fairness keys pass (Nov 2026): the five new keys' pairs, both ways, and their note. Each entry is the exact text before and after. Read by v103-chrome-seams.mjs#withoutDeclaredRelatedIssues.",
+  "_comment": "The related-issues.js edits of the family & economic fairness keys pass (Nov 2026), after its cleanup removed three overlapping keys: the two kept keys' pairs, both ways, and their note. Each entry is the exact text before and after. Read by v103-chrome-seams.mjs#withoutDeclaredRelatedIssues.",
   "pass": "family_economic_fairness_keys_nov2026",
   "edits": [
     {
       "before": "\n   · ACCOUNTABILITY PAIRS (Nov 2026).",
-      "after": "\n   · FAMILY & ECONOMIC FAIRNESS PAIRS (Nov 2026). Five keys joined the\n     register with no position seeded yet, each paired both ways with the\n     existing keys whose ground it shares: Affordable Childcare & Family\n     Leave and Paid Sick Leave & Worker Protections with the cost of living,\n     wages and workers, and healthcare access; Corporate Concentration &\n     Antitrust with the cost of living, federal red tape, pro-growth\n     deregulation and housing supply; Wealth Inequality & Tax Fairness with\n     federal spending and debt, the cost of living and pro-growth\n     deregulation; Student Debt & College Access with the cost of living,\n     healthcare access, college and trade costs, and wages and workers. Each\n     new key is last in the existing keys' lists and has its own list at the\n     end of the map.\n\n   · ACCOUNTABILITY PAIRS (Nov 2026)."
-    },
-    {
-      "before": "\n    cost_living: ['child_care', 'paid_leave', 'family_support', 'tax_middle_class', 'tariffs_china', 'tariffs_growth', 'tariffs_prices', 'tariffs_authority', 'econ_trade', 'rural_ag', 'housing', 'housing_build', 'housing_support', 'housing_first_time', 'homeless', 'property_tax', 'prop_tax', 'healthcare_costs', 'energy_production', 'enviro_energy', 'datacenter_power', 'climate_action', 'public_health_vs_chemical_liability'],",
-      "after": "\n    cost_living: ['child_care', 'paid_leave', 'family_support', 'tax_middle_class', 'tariffs_china', 'tariffs_growth', 'tariffs_prices', 'tariffs_authority', 'econ_trade', 'rural_ag', 'housing', 'housing_build', 'housing_support', 'housing_first_time', 'homeless', 'property_tax', 'prop_tax', 'healthcare_costs', 'energy_production', 'enviro_energy', 'datacenter_power', 'climate_action', 'public_health_vs_chemical_liability', 'affordable_childcare_family_leave', 'corporate_concentration_antitrust', 'wealth_inequality_tax_fairness', 'student_debt_college_access', 'paid_sick_leave_worker_protections'],"
-    },
-    {
-      "before": "\n    econ_workers: ['econ_growth', 'econ_smallbiz', 'econ_balance', 'econ_corp_account', 'gov_regulation', 'lower_taxes', 'immig_legal', 'immigration_reform'],",
-      "after": "\n    econ_workers: ['econ_growth', 'econ_smallbiz', 'econ_balance', 'econ_corp_account', 'gov_regulation', 'lower_taxes', 'immig_legal', 'immigration_reform', 'affordable_childcare_family_leave', 'student_debt_college_access', 'paid_sick_leave_worker_protections'],"
-    },
-    {
-      "before": "\n    healthcare: ['social_security', 'national_debt', 'cut_spending', 'gov_balance', 'healthcare_market', 'healthcare_costs', 'health_balance', 'health_drug_prices', 'health_rural', 'medical_freedom', 'health_mental', 'homeless', 'veterans', 'public_health_vs_chemical_liability'],",
-      "after": "\n    healthcare: ['social_security', 'national_debt', 'cut_spending', 'gov_balance', 'healthcare_market', 'healthcare_costs', 'health_balance', 'health_drug_prices', 'health_rural', 'medical_freedom', 'health_mental', 'homeless', 'veterans', 'public_health_vs_chemical_liability', 'affordable_childcare_family_leave', 'student_debt_college_access', 'paid_sick_leave_worker_protections'],"
-    },
-    {
-      "before": "\n    gov_regulation: ['lands_preserve', 'lands_keep_public', 'lands_energy', 'energy_production', 'permitting_reform', 'climate_action', 'enviro_balance', 'econ_growth', 'econ_smallbiz', 'econ_balance', 'econ_workers', 'econ_corp_account', 'lower_taxes', 'civil_service_control', 'gov_waste', 'housing_build', 'public_health_vs_chemical_liability'],",
-      "after": "\n    gov_regulation: ['lands_preserve', 'lands_keep_public', 'lands_energy', 'energy_production', 'permitting_reform', 'climate_action', 'enviro_balance', 'econ_growth', 'econ_smallbiz', 'econ_balance', 'econ_workers', 'econ_corp_account', 'lower_taxes', 'civil_service_control', 'gov_waste', 'housing_build', 'public_health_vs_chemical_liability', 'corporate_concentration_antitrust'],"
-    },
-    {
-      "before": "\n    econ_growth: ['climate_action', 'enviro_balance', 'gov_regulation', 'permitting_reform', 'econ_smallbiz', 'econ_balance', 'econ_workers', 'econ_corp_account', 'lower_taxes', 'energy_production'],",
-      "after": "\n    econ_growth: ['climate_action', 'enviro_balance', 'gov_regulation', 'permitting_reform', 'econ_smallbiz', 'econ_balance', 'econ_workers', 'econ_corp_account', 'lower_taxes', 'energy_production', 'corporate_concentration_antitrust', 'wealth_inequality_tax_fairness'],"
-    },
-    {
-      "before": "\n    housing_build: ['dev_district_finance', 'prop_tax', 'property_tax', 'gov_transparency', 'housing', 'housing_support', 'housing_first_time', 'homeless', 'cost_living', 'lands_keep_public', 'lands_local', 'permitting_reform', 'gov_regulation'],",
-      "after": "\n    housing_build: ['dev_district_finance', 'prop_tax', 'property_tax', 'gov_transparency', 'housing', 'housing_support', 'housing_first_time', 'homeless', 'cost_living', 'lands_keep_public', 'lands_local', 'permitting_reform', 'gov_regulation', 'corporate_concentration_antitrust'],"
+      "after": "\n   · FAMILY & ECONOMIC FAIRNESS PAIRS (Nov 2026). Two keys joined the\n     register with no position seeded yet, each paired both ways with the\n     existing keys whose ground it shares: Wealth Inequality & Tax Fairness\n     with federal spending and debt, the cost of living and pro-growth\n     deregulation; Student Debt & College Access with the cost of living,\n     healthcare access, college and trade costs, and wages and workers. Each\n     new key is last in the existing keys' lists and has its own list at the\n     end of the map.\n\n   · ACCOUNTABILITY PAIRS (Nov 2026)."
     },
     {
       "before": "\n    cut_spending: ['gov_waste', 'gov_balance', 'national_debt', 'audit_spending', 'gov_services', 'power_of_purse', 'social_security', 'healthcare', 'strong_defense', 'gov_transparency', 'border_security'],",
       "after": "\n    cut_spending: ['gov_waste', 'gov_balance', 'national_debt', 'audit_spending', 'gov_services', 'power_of_purse', 'social_security', 'healthcare', 'strong_defense', 'gov_transparency', 'border_security', 'wealth_inequality_tax_fairness'],"
     },
     {
+      "before": "\n    cost_living: ['child_care', 'paid_leave', 'family_support', 'tax_middle_class', 'tariffs_china', 'tariffs_growth', 'tariffs_prices', 'tariffs_authority', 'econ_trade', 'rural_ag', 'housing', 'housing_build', 'housing_support', 'housing_first_time', 'homeless', 'property_tax', 'prop_tax', 'healthcare_costs', 'energy_production', 'enviro_energy', 'datacenter_power', 'climate_action', 'public_health_vs_chemical_liability'],",
+      "after": "\n    cost_living: ['child_care', 'paid_leave', 'family_support', 'tax_middle_class', 'tariffs_china', 'tariffs_growth', 'tariffs_prices', 'tariffs_authority', 'econ_trade', 'rural_ag', 'housing', 'housing_build', 'housing_support', 'housing_first_time', 'homeless', 'property_tax', 'prop_tax', 'healthcare_costs', 'energy_production', 'enviro_energy', 'datacenter_power', 'climate_action', 'public_health_vs_chemical_liability', 'wealth_inequality_tax_fairness', 'student_debt_college_access'],"
+    },
+    {
+      "before": "\n    econ_growth: ['climate_action', 'enviro_balance', 'gov_regulation', 'permitting_reform', 'econ_smallbiz', 'econ_balance', 'econ_workers', 'econ_corp_account', 'lower_taxes', 'energy_production'],",
+      "after": "\n    econ_growth: ['climate_action', 'enviro_balance', 'gov_regulation', 'permitting_reform', 'econ_smallbiz', 'econ_balance', 'econ_workers', 'econ_corp_account', 'lower_taxes', 'energy_production', 'wealth_inequality_tax_fairness'],"
+    },
+    {
+      "before": "\n    healthcare: ['social_security', 'national_debt', 'cut_spending', 'gov_balance', 'healthcare_market', 'healthcare_costs', 'health_balance', 'health_drug_prices', 'health_rural', 'medical_freedom', 'health_mental', 'homeless', 'veterans', 'public_health_vs_chemical_liability'],",
+      "after": "\n    healthcare: ['social_security', 'national_debt', 'cut_spending', 'gov_balance', 'healthcare_market', 'healthcare_costs', 'health_balance', 'health_drug_prices', 'health_rural', 'medical_freedom', 'health_mental', 'homeless', 'veterans', 'public_health_vs_chemical_liability', 'student_debt_college_access'],"
+    },
+    {
       "before": "\n    edu_college_cost: ['public_schools', 'edu_balance'],",
       "after": "\n    edu_college_cost: ['public_schools', 'edu_balance', 'student_debt_college_access'],"
     },
     {
+      "before": "\n    econ_workers: ['econ_growth', 'econ_smallbiz', 'econ_balance', 'econ_corp_account', 'gov_regulation', 'lower_taxes', 'immig_legal', 'immigration_reform'],",
+      "after": "\n    econ_workers: ['econ_growth', 'econ_smallbiz', 'econ_balance', 'econ_corp_account', 'gov_regulation', 'lower_taxes', 'immig_legal', 'immigration_reform', 'student_debt_college_access'],"
+    },
+    {
       "before": "\n    no_new_wars: ['restraint', 'war_powers', 'strong_defense']\n  };",
-      "after": "\n    no_new_wars: ['restraint', 'war_powers', 'strong_defense'],\n    affordable_childcare_family_leave: ['cost_living', 'econ_workers', 'healthcare'],\n    corporate_concentration_antitrust: ['cost_living', 'gov_regulation', 'econ_growth', 'housing_build'],\n    wealth_inequality_tax_fairness: ['cut_spending', 'cost_living', 'econ_growth'],\n    student_debt_college_access: ['cost_living', 'healthcare', 'edu_college_cost', 'econ_workers'],\n    paid_sick_leave_worker_protections: ['econ_workers', 'cost_living', 'healthcare']\n  };"
+      "after": "\n    no_new_wars: ['restraint', 'war_powers', 'strong_defense'],\n    wealth_inequality_tax_fairness: ['cut_spending', 'cost_living', 'econ_growth'],\n    student_debt_college_access: ['cost_living', 'healthcare', 'edu_college_cost', 'econ_workers']\n  };"
     }
   ]
 }

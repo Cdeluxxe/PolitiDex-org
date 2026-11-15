@@ -1,15 +1,22 @@
 #!/usr/bin/env node
 // ─────────────────────────────────────────────────────────────────────────────
-// test-family-economic-fairness-keys-2026.mjs — five register keys, no positions
+// test-family-economic-fairness-keys-2026.mjs — two register keys, no positions
 // ─────────────────────────────────────────────────────────────────────────────
-// The family & economic fairness keys pass (Nov 2026) adds five keys to the
+// The family & economic fairness keys pass (Nov 2026) adds keys to the
 // issue register (ISSUE_MAP in alignment-tool.js and its verbatim copy
 // issue-map.js), slots each under a core issue, pairs each both ways in the
 // related-issues map, gives the stance scorer a vocabulary entry for each (the
 // scorer covers exactly the register), and regenerates the three server-side
 // mirrors: db/issue-keys.json, db/issue-core-categories.json and
 // netlify/lib/related-issue-keys.mjs. No position is seeded: no stance card,
-// no drawer card and no "Where this conflicts" line on any of the five yet.
+// no drawer card and no "Where this conflicts" line on any of them yet.
+//
+// THE CLEANUP (v564). The pass first added five keys. Three overlapped existing
+// keys (Affordable Child Care / Paid Family & Medical Leave, Corporate
+// Accountability) and were removed again; two stay: Wealth Inequality & Tax
+// Fairness and Student Debt & College Access. Section 5 proves the three are
+// gone everywhere and that, against the five-key commit, nothing but the
+// cleanup moved.
 //
 // WHAT THIS SUITE PROVES:
 //   1. THE REGISTER AND THE MAP: each key is in both register copies with its
@@ -21,6 +28,9 @@
 //      exactly the register; the stance chunks are exactly politician-stances.js.
 //   3. KEYS ONLY: no stance card names a new key; no drawer prints a conflicts
 //      line for one, whatever the reader says on it.
+//   5. THE CLEANUP: the three removed keys are in no register copy, map row,
+//      scorer entry or generated list, and against the five-key commit only
+//      their lines moved.
 //   4. NOTHING ELSE MOVED since the base: stance records, roster, routes,
 //      functions, documents and migrations are byte-identical; the register,
 //      the map, the mirrors and the scorer vocabulary moved only by the declared
@@ -40,7 +50,7 @@ import { RELATED_ISSUE_KEYS } from "../netlify/lib/related-issue-keys.mjs";
 import * as S from "../netlify/lib/stance-score-core.mjs";
 import { ISSUE_TOPIC_VOCAB } from "../netlify/lib/stance-topic-vocab.mjs";
 import {
-  DECLARED_STANCE_PASSES, ACCOUNTABILITY_KEYS, FAMILY_FAIRNESS_KEYS, FAMILY_FAIRNESS_PASS,
+  DECLARED_STANCE_PASSES, ACCOUNTABILITY_KEYS, FAMILY_FAIRNESS_KEYS, FAMILY_FAIRNESS_PASS, FAMILY_FAIRNESS_REMOVED_KEYS, relatedIssuesMapOnly,
   withoutFamilyFairnessRegisterBlock, withoutFamilyFairnessIssueKeys, withoutFamilyFairnessCoreCategories,
   withoutFamilyFairnessTopicVocab, withoutFamilyFairnessRelatedIssues, swCodeOnly,
 } from "./v103-chrome-seams.mjs";
@@ -51,6 +61,9 @@ const R = (f) => readFileSync(join(ROOT, f), "utf8");
 const BASE_REV = "981421e";
 const git = (args) => { try { return execFileSync("git", args, { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 28, stdio: ["ignore", "pipe", "ignore"] }); } catch { return null; } };
 const BASE = (f) => git(["show", `${BASE_REV}:${f}`]);
+// The commit that carried all five keys, before the cleanup.
+const FIVE_REV = "1aa9ea04";
+const FIVE = (f) => git(["show", `${FIVE_REV}:${f}`]);
 
 let passed = 0;
 const failures = [];
@@ -58,12 +71,10 @@ const ok = (c, m) => { if (c) passed++; else failures.push(m); return !!c; };
 const eq = (a, b, m) => ok(a === b, `${m} — expected ${JSON.stringify(b)}, got ${JSON.stringify(a)}`);
 const section = (t) => console.log(`   ── ${t}`);
 
+const REMOVED = ["affordable_childcare_family_leave", "corporate_concentration_antitrust", "paid_sick_leave_worker_protections"];
 const NEW_KEYS = {
-  affordable_childcare_family_leave: { name: "Affordable Childcare & Family Leave", core: "economy_cost_of_living", pairs: ["cost_living", "econ_workers", "healthcare"] },
-  corporate_concentration_antitrust: { name: "Corporate Concentration & Antitrust", core: "economy_cost_of_living", pairs: ["cost_living", "gov_regulation", "econ_growth", "housing_build"] },
   wealth_inequality_tax_fairness: { name: "Wealth Inequality & Tax Fairness", core: "spending_debt_waste", pairs: ["cut_spending", "cost_living", "econ_growth"] },
   student_debt_college_access: { name: "Student Debt & College Access", core: "education_parental", pairs: ["cost_living", "healthcare", "edu_college_cost", "econ_workers"] },
-  paid_sick_leave_worker_protections: { name: "Paid Sick Leave & Worker Protections", core: "economy_cost_of_living", pairs: ["econ_workers", "cost_living", "healthcare"] },
 };
 const KEYS = Object.keys(NEW_KEYS);
 // The display names the request pairs by, as the register spells them.
@@ -97,7 +108,7 @@ const lbl = (k) => String(win.ISSUE_MAP[k].label).replace(/^[^A-Za-z0-9]+/, "").
 const REG = Object.keys(win.ISSUE_MAP || {}).sort();
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("1 · the five keys are in the register and in the related-issues map, both ways");
+section("1 · the two kept keys are in the register and in the related-issues map, both ways");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const reg = boot(R("issue-map.js")).ISSUE_MAP || {};
@@ -216,12 +227,12 @@ section("4 · nothing else moved; no route or gate; one shell version; no migrat
     console.log("     (no git baseline — byte-identity checks skipped)");
   } else {
     for (const f of ["alignment-tool.js", "issue-map.js"]) eq(withoutFamilyFairnessRegisterBlock(R(f)), BASE(f), `${f} changed outside the declared register block`);
-    eq(withoutFamilyFairnessIssueKeys(R("db/issue-keys.json")), BASE("db/issue-keys.json"), "db/issue-keys.json moved by more than the five keys");
-    eq(withoutFamilyFairnessCoreCategories(R("db/issue-core-categories.json")), BASE("db/issue-core-categories.json"), "db/issue-core-categories.json moved by more than the five keys");
+    eq(withoutFamilyFairnessIssueKeys(R("db/issue-keys.json")), BASE("db/issue-keys.json"), "db/issue-keys.json moved by more than the two keys");
+    eq(withoutFamilyFairnessCoreCategories(R("db/issue-core-categories.json")), BASE("db/issue-core-categories.json"), "db/issue-core-categories.json moved by more than the two keys");
     eq(withoutFamilyFairnessRelatedIssues(R("related-issues.js")), BASE("related-issues.js"), "related-issues.js changed outside the declared edits");
     eq(withoutFamilyFairnessTopicVocab(R("netlify/lib/stance-topic-vocab.mjs")), BASE("netlify/lib/stance-topic-vocab.mjs"), "the scorer vocabulary changed outside the declared block");
     const baseRel = (/RELATED_ISSUE_KEYS = (\[[^\n]*\]);/.exec(BASE("netlify/lib/related-issue-keys.mjs")) || [])[1];
-    eq(JSON.stringify(RELATED_ISSUE_KEYS.filter((k) => !KEYS.includes(k))), JSON.stringify(JSON.parse(baseRel || "[]")), "netlify/lib/related-issue-keys.mjs moved by more than the five keys");
+    eq(JSON.stringify(RELATED_ISSUE_KEYS.filter((k) => !KEYS.includes(k))), JSON.stringify(JSON.parse(baseRel || "[]")), "netlify/lib/related-issue-keys.mjs moved by more than the two keys");
     // The previous pass's register lines are untouched.
     const reg = R("alignment-tool.js");
     for (const k of ACCOUNTABILITY_KEYS) {
@@ -255,8 +266,71 @@ section("4 · nothing else moved; no route or gate; one shell version; no migrat
     for (const f of ["alignment-tool.js", "issue-map.js", "related-issues.js"]) ok(pre(sw).includes(f), `${f} is not precached`);
     eq(swCodeOnly(sw), swCodeOnly(baseSw), "sw.js worker code or precache list changed");
     const ver = (src) => Number((/^const CACHE_VERSION = 'v(\d+)';$/m.exec(String(src)) || [])[1]);
-    eq(ver(sw), ver(baseSw) + 1, `the shell did not move exactly one version (v${ver(baseSw)} → v${ver(sw)})`);
+    // v563 shipped the five keys; v564 is the cleanup.
+    eq(ver(sw), ver(baseSw) + 2, `the shell did not move exactly two versions (v${ver(baseSw)} → v${ver(sw)})`);
     ok(/v563 - FIVE FAMILY & ECONOMIC FAIRNESS KEYS\.[\s\S]*?MIGRATION COST: none\./.test(sw), "the v563 note is missing or does not say no migration");
+    ok(/v564 - THREE OVERLAPPING KEYS REMOVED\.[\s\S]*?MIGRATION COST: none\./.test(sw), "the v564 note is missing or does not say no migration");
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("5 · the cleanup: three overlapping keys gone, nothing else moved");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  eq(JSON.stringify(FAMILY_FAIRNESS_REMOVED_KEYS), JSON.stringify(REMOVED), "the seams module declares a different removed list");
+  const reg2 = boot(R("issue-map.js")).ISSUE_MAP || {};
+  const allow = JSON.parse(R("db/issue-keys.json")), cores = JSON.parse(R("db/issue-core-categories.json"));
+  const textFiles = ["alignment-tool.js", "issue-map.js", "related-issues.js", "netlify/lib/stance-topic-vocab.mjs", "netlify/lib/related-issue-keys.mjs",
+    "db/issue-keys.json", "db/issue-core-categories.json", "politician-stances.js", "politician-stances-core.js", "politician-stances-ext.js", "state-senate-stances.js"];
+  for (const k of REMOVED) {
+    ok(!win.ISSUE_MAP[k], `${k} is still in ISSUE_MAP (alignment-tool.js)`);
+    ok(!reg2[k], `${k} is still in ISSUE_MAP (issue-map.js)`);
+    ok(!(win.CORE_NATIONAL_ISSUES || []).some((c) => c.keys.includes(k)), `${k} is still under a core issue`);
+    ok(!MAP[k], `${k} still has a related-issues list`);
+    for (const [r, list] of Object.entries(MAP)) ok(!list.includes(k), `${r} still lists ${k}`);
+    ok(!(k in ISSUE_TOPIC_VOCAB) && !S.hasRulesFor(k) && !S.SCORED_TOPICS.includes(k), `${k} is still in the scorer`);
+    ok(!allow.keys.includes(k) && !(k in (allow.keywords || {})), `${k} is still in db/issue-keys.json`);
+    ok(!(k in cores.categoryOf), `${k} is still in db/issue-core-categories.json`);
+    ok(!RELATED_ISSUE_KEYS.includes(k), `${k} is still in netlify/lib/related-issue-keys.mjs`);
+    for (const f of textFiles) ok(!R(f).includes(k), `${f} still names ${k}`);
+  }
+  eq(allow.count, 130, "db/issue-keys.json holds 130 keys");
+  eq(cores.count, 130, "db/issue-core-categories.json holds 130 keys");
+  if (FIVE("issue-map.js") == null) {
+    console.log("     (no five-key commit — cleanup byte checks skipped)");
+  } else {
+    const fiveMap = (() => { const w = makeSandbox(); const c = vm.createContext(w); vm.runInContext(FIVE("alignment-tool.js"), c); vm.runInContext(FIVE("related-issues.js"), c); return { reg: w.ISSUE_MAP, map: w.PDXRelatedIssues.MAP }; })();
+    // The kept keys — the two from this pass and the three from the one before — are unchanged.
+    for (const k of [...KEYS, ...ACCOUNTABILITY_KEYS]) {
+      eq(JSON.stringify(win.ISSUE_MAP[k]), JSON.stringify(fiveMap.reg[k]), `${k}: its register entry moved in the cleanup`);
+      eq(JSON.stringify(MAP[k]), JSON.stringify(fiveMap.map[k]), `${k}: its related-issues list moved in the cleanup`);
+      const ventry = (src) => (new RegExp(`\\n  ${k}: \\{ label: [\\s\\S]*?\\] \\},\\n`).exec(String(src)) || [])[0];
+      ok(!!ventry(R("netlify/lib/stance-topic-vocab.mjs")) && ventry(R("netlify/lib/stance-topic-vocab.mjs")) === ventry(FIVE("netlify/lib/stance-topic-vocab.mjs")), `${k}: its scorer entry moved in the cleanup`);
+      ok(!!ISSUE_TOPIC_VOCAB[k], `${k}: no scorer entry`);
+    }
+    // Every other register entry is the five-key commit's.
+    eq(JSON.stringify(Object.keys(fiveMap.reg).filter((k) => !REMOVED.includes(k)).sort()), JSON.stringify(REG), "the cleanup removed or added a key other than the three");
+    for (const k of REG) ok(JSON.stringify(win.ISSUE_MAP[k]) === JSON.stringify(fiveMap.reg[k]), `${k}: register entry moved in the cleanup`);
+    // Every other map row is the five-key commit's with only the three keys taken out.
+    for (const [k, list] of Object.entries(fiveMap.map)) {
+      if (REMOVED.includes(k)) continue;
+      eq(JSON.stringify(MAP[k]), JSON.stringify(list.filter((x) => !REMOVED.includes(x))), `${k}: map row moved by more than the cleanup`);
+    }
+    eq(Object.keys(MAP).length, Object.keys(fiveMap.map).length - REMOVED.length, "the map gained or lost a row other than the three");
+    // Stance records, roster, documents, drawer code and the precache list did not move.
+    for (const f of ["politician-stances.js", "politician-stances-core.js", "politician-stances-ext.js", "state-senate-stances.js",
+      "cmp-data.js", "cmp-data-detail.js", "consistency.js", "stance-helpers.js", "word-action.js", "stance-sides.js", "my-stances.js",
+      "hero-showcase-data.js", "issue-scope.js", "person.html", "index.html", "issue.html", "netlify.toml", "sitemap.xml", "db/schema.ts"]) {
+      let now = null; try { now = R(f); } catch { /* absent */ }
+      eq(now, FIVE(f), `${f} changed in the cleanup`);
+    }
+    const ls = (rev, dir) => (git(["show", `${rev}:${dir}`]) || "").split("\n").slice(2).filter(Boolean).map((n) => n.replace(/\/$/, "")).sort();
+    const list = (dir) => { try { return readdirSync(join(ROOT, dir)).sort(); } catch { return []; } };
+    for (const d of ["netlify/functions", "netlify/edge-functions", "netlify/database/migrations"]) eq(list(d).join(","), ls(FIVE_REV, d).join(","), `${d}: an entry was added or removed in the cleanup`);
+    eq(swCodeOnly(R("sw.js")), swCodeOnly(FIVE("sw.js")), "sw.js worker code or precache list changed in the cleanup");
+    const ver = (src) => Number((/^const CACHE_VERSION = 'v(\d+)';$/m.exec(String(src)) || [])[1]);
+    eq(ver(R("sw.js")), ver(FIVE("sw.js")) + 1, "the cleanup did not move the shell exactly one version");
+    ok(relatedIssuesMapOnly(R("related-issues.js")) !== relatedIssuesMapOnly(FIVE("related-issues.js")), "fixture: the cleanup did move the map");
   }
 }
 

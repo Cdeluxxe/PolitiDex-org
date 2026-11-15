@@ -430,7 +430,7 @@ const NO_POLE = (() => {
       "whole formal read is rendered from is not a coverage wave's to touch");
   }
   if (touched.includes("alignment-tool.js")) {
-    const aa = carveSeams(headSrc("alignment-tool.js"), AT_SEAMS, "HEAD", "alignment-tool.js", ok);
+    const aa = carveSeams(withoutFamilyFairnessRegisterBlock(headSrc("alignment-tool.js")), AT_SEAMS, "HEAD", "alignment-tool.js", ok); // HEAD may carry that pass's five-key form
     // The accountability stances pass's declared register block is that pass's product (v103-chrome-seams.mjs).
     // Once that block is at HEAD, only the later family & economic fairness keys block is set aside.
     const atHead = /\n {6}no_new_wars: /.test(String(headSrc("alignment-tool.js")));

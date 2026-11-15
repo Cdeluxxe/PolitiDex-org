@@ -261,7 +261,7 @@ t('the register sweep and every existing key\'s rules are unchanged', () => {
   assert.deepEqual([...S.SCORED_TOPICS].sort(), [...issueKeys].sort());
   for (const k of KEYS) assert.ok(!S.SCORED_TOPICS.includes(k) && !(k in V.ISSUE_TOPIC_VOCAB), k);
   // The accountability stances pass's three register keys and the family & economic
-  // fairness keys pass's five (v103-chrome-seams.mjs) are new, not existing.
+  // fairness keys pass's two (v103-chrome-seams.mjs) are new, not existing.
   const existing = Object.keys(S.TOPIC_RULES).filter((k) => !KEYS.includes(k) && !ACCOUNTABILITY_KEYS.includes(k) && !FAMILY_FAIRNESS_KEYS.includes(k)).sort();
   assert.equal(existing.length, 125);
   // Fingerprint of the 125 existing keys' compiled rules at the start of this pass.
