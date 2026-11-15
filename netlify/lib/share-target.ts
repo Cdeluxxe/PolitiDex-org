@@ -36,6 +36,7 @@
 import shareIndex from "../../db/share-index.json" with { type: "json" };
 import shareStances from "../../db/share-stances.json" with { type: "json" };
 import billDocsFile from "../../db/bill-docs.json" with { type: "json" };
+import { liveKeysFor, mergeDocIssues, type LiveBillIssues } from "./bill-live-issues.ts";
 
 // ── The generated index (see scripts/gen-share-index.mjs) ────────────────────
 type PersonRec = { n: string; o?: string; s?: string; p?: string };
@@ -572,6 +573,48 @@ async function apiGet(origin: string, path: string): Promise<{ ok: boolean; stat
   }
 }
 
+// ── Live issue keys for bill documents ───────────────────────────────────────
+// The snapshot (db/bill-docs.json) is cut from the migration replay; a mapping
+// that exists only in the database — a reviewed automatic proposal — is in the
+// live table instead (GET /api/voting-record/measures?view=bill-issue-keys,
+// verdict-bearing rows only). It is held for LIVE_BILL_TTL_MS inside a warm edge
+// isolate, one in-flight request shared, and every failure is soft: the document
+// then prints the snapshot exactly as it always did. See bill-live-issues.ts.
+export const LIVE_BILL_TTL_MS = 60_000;
+let _liveBills: { at: number; data: LiveBillIssues | null } | null = null;
+let _liveBillsInflight: Promise<LiveBillIssues | null> | null = null;
+
+export function resetLiveBillIssues(): void {
+  _liveBills = null;
+  _liveBillsInflight = null;
+}
+
+export async function liveBillIssues(origin: string): Promise<LiveBillIssues | null> {
+  const now = Date.now();
+  if (_liveBills && now - _liveBills.at < LIVE_BILL_TTL_MS) return _liveBills.data;
+  if (_liveBillsInflight) return _liveBillsInflight;
+  _liveBillsInflight = (async () => {
+    const res = await apiGet(origin, "/api/voting-record/measures?view=bill-issue-keys");
+    const data =
+      res.ok && res.data && typeof res.data.bills === "object" && res.data.bills
+        ? (res.data as LiveBillIssues)
+        : null;
+    // A failed read is remembered briefly too, so a cold database is not asked
+    // once per page view; a success is remembered for the full window.
+    _liveBills = { at: data ? Date.now() : Date.now() - LIVE_BILL_TTL_MS + 10_000, data };
+    return data;
+  })().finally(() => { _liveBillsInflight = null; });
+  return _liveBillsInflight;
+}
+
+// The document's issues with the live table laid over them: additive only.
+export function withLiveIssues(doc: BillDoc, live: LiveBillIssues | null): BillDoc {
+  const keys = liveKeysFor(live, doc.sitting, doc.number);
+  if (!keys) return doc;
+  const issues = mergeDocIssues(doc.issues, keys, (k) => stripEmoji(INDEX.issues[k] || ""));
+  return issues === doc.issues ? doc : { ...doc, issues };
+}
+
 // A state chamber is named for its state; a federal one is not. The measure rows
 // carry "utah house" / "utah senate", which is the same test the client's chamber
 // table makes.
@@ -894,6 +937,8 @@ export async function resolveTarget(
         held: "live",
       };
     }
+    // The live mapping table, laid over whichever document was found.
+    doc = withLiveIssues(doc, await liveBillIssues(origin));
     const head = measureHeadline({ number: doc.number, title: doc.title });
     return {
       kind: t.kind,

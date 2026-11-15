@@ -79,6 +79,7 @@ import {
   vrExecActionStatus,
 } from "../../db/schema.js";
 import { NON_VERDICT_STATUSES } from "../lib/vr-review-status.js";
+import { liveBillTable } from "../lib/bill-live-issues.js";
 import {
   loadCorrections,
   applyCorrections,
@@ -1940,6 +1941,58 @@ async function getIssueRecords(url: URL): Promise<Response> {
   });
 }
 
+// ── GET /measures?view=bill-issue-keys ───────────────────────────────────────
+// Every citable measure's LIVE issue keys, by "<sitting>|<number>" — the table
+// the /b/ document (share-target.ts) and the person bill list (person-bills.js)
+// lay over their build-time snapshot, so a reviewed mapping shows on both without
+// regenerating db/bill-docs.json. See netlify/lib/bill-live-issues.ts.
+//
+// Verdict-bearing rows only (verdictBearingMapping): a proposal awaiting review,
+// or a rejected one, is never in it. Keys are checked against the allow-list.
+// Keys only — no weight, no direction, no primary flag, the same floor the bill
+// document holds itself to.
+//
+// MEMOISED ON THE MAPPING VERSION, the fingerprint that already names the member
+// packs: a review or rejection changes review_status, the version moves, and the
+// next read rebuilds. Responses carry the usual 60-second public cache.
+let _billIssueMemo: { version: string; body: { mappingVersion: string; bills: Record<string, string[]> } } | null = null;
+
+async function buildBillIssueKeys(): Promise<Record<string, string[]>> {
+  const rows = await db
+    .select({
+      congress: vrMeasures.congress,
+      number: vrMeasures.number,
+      externalIds: vrMeasures.externalIds,
+      sourceUrl: vrMeasures.sourceUrl,
+      issueKey: vrMeasureIssues.issueKey,
+      reviewStatus: vrMeasureIssues.reviewStatus,
+    })
+    .from(vrMeasureIssues)
+    .innerJoin(vrMeasures, eq(vrMeasureIssues.measureId, vrMeasures.id))
+    .where(verdictBearingMapping());
+  return liveBillTable(
+    rows.map((r) => ({
+      sitting: r.congress != null ? String(r.congress) : (measureIdent(r.externalIds)?.session ?? ""),
+      number: r.number,
+      sourceUrl: r.sourceUrl,
+      issueKey: r.issueKey,
+      reviewStatus: r.reviewStatus,
+    })),
+    assertIssueKey
+  );
+}
+
+async function getBillIssueKeys(): Promise<Response> {
+  const version = await mappingVersion();
+  if (_billIssueMemo && _billIssueMemo.version === version && version !== MAPPING_VERSION_UNKNOWN) {
+    return json(_billIssueMemo.body);
+  }
+  const body = { mappingVersion: version, bills: await buildBillIssueKeys() };
+  // An unnameable mapping is served, never kept — the pack's fail-closed rule.
+  if (version !== MAPPING_VERSION_UNKNOWN) _billIssueMemo = { version, body };
+  return json(body);
+}
+
 // ── GET /measures ────────────────────────────────────────────────────────────
 // The Legislation / Bill library browse endpoint (Phase 1): a filterable, paginated
 // list of measures rendered as compact cards. Per-measure detail (component issues +
@@ -2190,6 +2243,7 @@ export default async (req: Request): Promise<Response> => {
     }
 
     if (path === "/measures") {
+      if (url.searchParams.get("view") === "bill-issue-keys") return await getBillIssueKeys();
       return await getMeasures(url);
     }
 

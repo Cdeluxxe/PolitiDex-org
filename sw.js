@@ -12192,7 +12192,18 @@
 //     No location key or other stored reader state is written or rewritten,
 //     so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v566';
+// v567 - LIVE ISSUE TAGS ON BILL PAGES AND PERSON BILL LISTS. person-bills.js
+//     prints each sponsored bill's issues as tags (the keys person-bills.json
+//     now carries per row, the same ones the bill page lists) and lays the live
+//     mapping table over them (GET /api/voting-record/measures?view=bill-issue-keys,
+//     network-only like every /api/* request; curated and reviewed mappings
+//     only). The /b/ document's edge-written body lays the same table over its
+//     snapshot, so a reviewed mapping shows on both without regenerating the
+//     docs. No route or gate is added. A precached file changed, so the shell
+//     moves; the precache list is unchanged. No location key or other stored
+//     reader state is written or rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v567';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

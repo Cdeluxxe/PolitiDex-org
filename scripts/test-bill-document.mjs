@@ -144,11 +144,17 @@ async function serve(path, doc = BILL_HTML) {
 const seamOf = (html) => (html.match(seamRe) || [""])[0];
 const SCORE = /\d\s?%|\bscore\b|\bgrade\b|\bverdict\b|\bsupports?\b|\bopposes?\b|\byeas?\b|\bnays?\b|\bdirection\b|Direction Match/i;
 
-stubFetch("throw"); // a held bill must need no network at all
+// A held bill is written from the snapshot. Its ONE network call is the live
+// mapping table (GET /api/voting-record/measures?view=bill-issue-keys — see
+// netlify/lib/bill-live-issues.ts), which can only ADD reviewed issues; with the
+// network down it fails soft and the snapshot is printed exactly.
+stubFetch("throw");
 const doc = await serve(ACCEPT);
 ok(!doc.untouched, "the edge rewrote the bill document");
 eq(doc.status, 200, "a held bill answers 200");
-eq(fetched.length, 0, "a held bill is written from the snapshot, with no network call");
+ok(fetched.every((u) => u.includes("/api/voting-record/measures?view=bill-issue-keys")),
+  `a held bill asks the network for nothing but the live mapping table (${fetched.join(", ")})`);
+ok(fetched.length <= 1, "…and at most once");
 const body = seamOf(doc.html);
 has(body, `<h1 class="pdx-bill-num">H.J.Res. 131</h1>`, "the body names the measure in its <h1>");
 has(body, "119th Congress", "the body names the sitting");

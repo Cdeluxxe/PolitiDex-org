@@ -3437,3 +3437,14 @@ from here. A review re-packs the measure's voters, and `review_status` is in the
 fingerprint, so the pack key moves. Bill pages (`gen-bill-docs.mjs`) still replay
 migrations. A reviewed mapping reaches a bill page only when it is also written into a
 migration or `db/vr-issue-seed.json` and the docs are regenerated.
+
+### Live mappings on bill pages and person bill lists
+
+`/b/` documents and person bill lists now lay a live table over their build-time
+snapshot. The table is `GET /api/voting-record/measures?view=bill-issue-keys`, which reads
+verdict-bearing rows only (curated and reviewed) and is memoised on `mappingVersion()`.
+The merge only adds keys: snapshot labels, effect lines and keys print exactly as before,
+and a live-only key is listed bare because no effect line is stored for it. A review shows
+within about a minute (60 s Function cache plus a 60 s edge memo). A browser that already
+holds the page may keep its copy for up to 5 minutes. An effect line, the sitemap and the
+eye's search index (`bill-search-index.js`) still come only from `gen-bill-docs.mjs`.
