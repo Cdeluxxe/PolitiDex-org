@@ -1,0 +1,86 @@
+{
+  "_comment": "The related-issues.js edits of the civic rules & safety net keys pass (Nov 2026): the five new keys' pairs, both ways, and their note. Each entry is the exact text before and after. Read by v103-chrome-seams.mjs#withoutCivicKeysRelatedIssues.",
+  "pass": "civic_rules_safety_net_keys_nov2026",
+  "edits": [
+    {
+      "before": "\n   · FAMILY & ECONOMIC FAIRNESS PAIRS (Nov 2026).",
+      "after": "\n   · CIVIC RULES & SAFETY NET PAIRS (Nov 2026). Five keys joined the\n     register with no position seeded yet, each paired both ways with the\n     existing keys whose ground it shares: Redistricting & Gerrymandering\n     with voting access, secure and accessible voting, Supreme Court reform\n     and election integrity; Birthright Citizenship with mass deportations,\n     pathways to citizenship, court orders on the executive and the\n     border-plus-pathways lane; Medicaid & SNAP Work Requirements with\n     healthcare access, rural hospitals, federal spending cuts and help for\n     families with kids; Federal Reserve Independence with auditing the Fed,\n     the cost of living, Congress as a check on the executive and sound\n     money; Senate Filibuster with Congress as a check on the executive, the\n     power of the purse, voting access and term limits. Each new key is last\n     in the existing keys' lists and has its own list at the end of the map.\n\n   · FAMILY & ECONOMIC FAIRNESS PAIRS (Nov 2026)."
+    },
+    {
+      "before": "\n    voting_access: ['election_security', 'election_integrity', 'voter_id', 'democracy_balance'],",
+      "after": "\n    voting_access: ['election_security', 'election_integrity', 'voter_id', 'democracy_balance', 'redistricting_gerrymandering', 'senate_filibuster'],"
+    },
+    {
+      "before": "\n    democracy_balance: ['election_security', 'election_integrity', 'voter_id', 'voting_access'],",
+      "after": "\n    democracy_balance: ['election_security', 'election_integrity', 'voter_id', 'voting_access', 'redistricting_gerrymandering'],"
+    },
+    {
+      "before": "\n    scotus_reform: ['checks_balances', 'war_powers', 'judicial_check', 'power_of_purse', 'congress_oversight', 'tariffs_authority', 'civil_service_control'],",
+      "after": "\n    scotus_reform: ['checks_balances', 'war_powers', 'judicial_check', 'power_of_purse', 'congress_oversight', 'tariffs_authority', 'civil_service_control', 'redistricting_gerrymandering'],"
+    },
+    {
+      "before": "\n    election_integrity: ['election_security', 'voter_id', 'democracy_balance', 'voting_access'],",
+      "after": "\n    election_integrity: ['election_security', 'voter_id', 'democracy_balance', 'voting_access', 'redistricting_gerrymandering'],"
+    },
+    {
+      "before": "\n    deportations: ['border_security', 'immig_fentanyl', 'immig_balance', 'immig_legal', 'immigration_reform'],",
+      "after": "\n    deportations: ['border_security', 'immig_fentanyl', 'immig_balance', 'immig_legal', 'immigration_reform', 'birthright_citizenship'],"
+    },
+    {
+      "before": "\n    immigration_reform: ['border_security', 'deportations', 'immig_fentanyl', 'immig_balance', 'immig_legal', 'rural_ag', 'econ_workers'],",
+      "after": "\n    immigration_reform: ['border_security', 'deportations', 'immig_fentanyl', 'immig_balance', 'immig_legal', 'rural_ag', 'econ_workers', 'birthright_citizenship'],"
+    },
+    {
+      "before": "\n    judicial_check: ['checks_balances', 'war_powers', 'power_of_purse', 'congress_oversight', 'tariffs_authority', 'civil_service_control', 'scotus_reform'],",
+      "after": "\n    judicial_check: ['checks_balances', 'war_powers', 'power_of_purse', 'congress_oversight', 'tariffs_authority', 'civil_service_control', 'scotus_reform', 'birthright_citizenship'],"
+    },
+    {
+      "before": "\n    immig_balance: ['border_security', 'deportations', 'immig_fentanyl', 'immig_legal', 'immigration_reform'],",
+      "after": "\n    immig_balance: ['border_security', 'deportations', 'immig_fentanyl', 'immig_legal', 'immigration_reform', 'birthright_citizenship'],"
+    },
+    {
+      "before": "\n    healthcare: ['social_security', 'national_debt', 'cut_spending', 'gov_balance', 'healthcare_market', 'healthcare_costs', 'health_balance', 'health_drug_prices', 'health_rural', 'medical_freedom', 'health_mental', 'homeless', 'veterans', 'public_health_vs_chemical_liability', 'student_debt_college_access'],",
+      "after": "\n    healthcare: ['social_security', 'national_debt', 'cut_spending', 'gov_balance', 'healthcare_market', 'healthcare_costs', 'health_balance', 'health_drug_prices', 'health_rural', 'medical_freedom', 'health_mental', 'homeless', 'veterans', 'public_health_vs_chemical_liability', 'student_debt_college_access', 'safety_net_work_requirements'],"
+    },
+    {
+      "before": "\n    health_rural: ['healthcare', 'healthcare_market', 'healthcare_costs', 'health_balance', 'health_drug_prices', 'medical_freedom', 'rural_ag', 'broadband', 'water', 'water_storage'],",
+      "after": "\n    health_rural: ['healthcare', 'healthcare_market', 'healthcare_costs', 'health_balance', 'health_drug_prices', 'medical_freedom', 'rural_ag', 'broadband', 'water', 'water_storage', 'safety_net_work_requirements'],"
+    },
+    {
+      "before": "\n    cut_spending: ['gov_waste', 'gov_balance', 'national_debt', 'audit_spending', 'gov_services', 'power_of_purse', 'social_security', 'healthcare', 'strong_defense', 'gov_transparency', 'border_security', 'wealth_inequality_tax_fairness'],",
+      "after": "\n    cut_spending: ['gov_waste', 'gov_balance', 'national_debt', 'audit_spending', 'gov_services', 'power_of_purse', 'social_security', 'healthcare', 'strong_defense', 'gov_transparency', 'border_security', 'wealth_inequality_tax_fairness', 'safety_net_work_requirements'],"
+    },
+    {
+      "before": "\n    family_support: ['child_care', 'paid_leave', 'cost_living', 'tax_middle_class'],",
+      "after": "\n    family_support: ['child_care', 'paid_leave', 'cost_living', 'tax_middle_class', 'safety_net_work_requirements'],"
+    },
+    {
+      "before": "\n    audit_spending: ['cut_spending', 'gov_waste', 'gov_balance', 'national_debt', 'gov_services', 'power_of_purse', 'sound_money', 'crypto_cbdc', 'gov_transparency'],",
+      "after": "\n    audit_spending: ['cut_spending', 'gov_waste', 'gov_balance', 'national_debt', 'gov_services', 'power_of_purse', 'sound_money', 'crypto_cbdc', 'gov_transparency', 'fed_independence'],"
+    },
+    {
+      "before": "\n    cost_living: ['child_care', 'paid_leave', 'family_support', 'tax_middle_class', 'tariffs_china', 'tariffs_growth', 'tariffs_prices', 'tariffs_authority', 'econ_trade', 'rural_ag', 'housing', 'housing_build', 'housing_support', 'housing_first_time', 'homeless', 'property_tax', 'prop_tax', 'healthcare_costs', 'energy_production', 'enviro_energy', 'datacenter_power', 'climate_action', 'public_health_vs_chemical_liability', 'wealth_inequality_tax_fairness', 'student_debt_college_access'],",
+      "after": "\n    cost_living: ['child_care', 'paid_leave', 'family_support', 'tax_middle_class', 'tariffs_china', 'tariffs_growth', 'tariffs_prices', 'tariffs_authority', 'econ_trade', 'rural_ag', 'housing', 'housing_build', 'housing_support', 'housing_first_time', 'homeless', 'property_tax', 'prop_tax', 'healthcare_costs', 'energy_production', 'enviro_energy', 'datacenter_power', 'climate_action', 'public_health_vs_chemical_liability', 'wealth_inequality_tax_fairness', 'student_debt_college_access', 'fed_independence'],"
+    },
+    {
+      "before": "\n    checks_balances: ['war_powers', 'judicial_check', 'power_of_purse', 'congress_oversight', 'tariffs_authority', 'civil_service_control', 'scotus_reform', 'guard_authority'],",
+      "after": "\n    checks_balances: ['war_powers', 'judicial_check', 'power_of_purse', 'congress_oversight', 'tariffs_authority', 'civil_service_control', 'scotus_reform', 'guard_authority', 'fed_independence', 'senate_filibuster'],"
+    },
+    {
+      "before": "\n    sound_money: ['audit_spending', 'crypto_cbdc', 'national_debt'],",
+      "after": "\n    sound_money: ['audit_spending', 'crypto_cbdc', 'national_debt', 'fed_independence'],"
+    },
+    {
+      "before": "\n    power_of_purse: ['cut_spending', 'gov_waste', 'gov_balance', 'national_debt', 'audit_spending', 'gov_services', 'checks_balances', 'war_powers', 'judicial_check', 'congress_oversight', 'tariffs_authority', 'civil_service_control', 'scotus_reform'],",
+      "after": "\n    power_of_purse: ['cut_spending', 'gov_waste', 'gov_balance', 'national_debt', 'audit_spending', 'gov_services', 'checks_balances', 'war_powers', 'judicial_check', 'congress_oversight', 'tariffs_authority', 'civil_service_control', 'scotus_reform', 'senate_filibuster'],"
+    },
+    {
+      "before": "\n    term_limits: ['gov_transparency', 'campaign_finance', 'stock_trading_ban', 'reform_balance', 'congress_oversight'],",
+      "after": "\n    term_limits: ['gov_transparency', 'campaign_finance', 'stock_trading_ban', 'reform_balance', 'congress_oversight', 'senate_filibuster'],"
+    },
+    {
+      "before": "\n    student_debt_college_access: ['cost_living', 'healthcare', 'edu_college_cost', 'econ_workers']\n  };",
+      "after": "\n    student_debt_college_access: ['cost_living', 'healthcare', 'edu_college_cost', 'econ_workers'],\n    redistricting_gerrymandering: ['voting_access', 'democracy_balance', 'scotus_reform', 'election_integrity'],\n    birthright_citizenship: ['deportations', 'immigration_reform', 'judicial_check', 'immig_balance'],\n    safety_net_work_requirements: ['healthcare', 'health_rural', 'cut_spending', 'family_support'],\n    fed_independence: ['audit_spending', 'cost_living', 'checks_balances', 'sound_money'],\n    senate_filibuster: ['checks_balances', 'power_of_purse', 'voting_access', 'term_limits']\n  };"
+    }
+  ]
+}

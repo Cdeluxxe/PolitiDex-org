@@ -4,7 +4,7 @@
 // The scorer (stance-score-core.mjs) keeps its hand-calibrated rules for
 // cost_living (the Talarico ground truth) and healthcare_costs. Every OTHER key
 // in the issue register (ISSUE_MAP in alignment-tool.js → db/issue-keys.json,
-// the same 130 keys the related-issues map relates) gets its rules from the
+// the same 135 keys the related-issues map relates) gets its rules from the
 // compact spec below. The rule engine is unchanged: R1–R6 and WEIGHTS apply to
 // every topic alike; a topic only supplies what counts as a mention, an
 // explicit statement and an implication.
@@ -764,6 +764,32 @@ export const ISSUE_TOPIC_VOCAB = {
     terms: String.raw`student (?:debt|loan) (?:relief|forgiveness|cancellation)|college access`,
     up: [String.raw`student (?:debt|loan) (?:relief|forgiveness|cancellation)`, String.raw`college access`],
     downCon: [String.raw`student (?:debt|loan) (?:relief|forgiveness|cancellation)`] },
+  // The civic rules & safety net keys pass (Nov 2026): five keys added to the
+  // register, no position seeded. Terms are kept narrow so the neighbouring keys'
+  // reads (voting_access, deportations, cut_spending, audit_spending,
+  // checks_balances) do not move.
+  redistricting_gerrymandering: { label: "Redistricting & Gerrymandering", pos: "Draw congressional and legislative maps through independent, nonpartisan processes instead of partisan gerrymanders",
+    terms: String.raw`gerrymander\w*|independent redistricting|redistricting commissions?|mid-decade redistricting|nonpartisan redistricting`,
+    up: [String.raw`(?:an? )?independent redistricting(?: commissions?)?`, String.raw`nonpartisan redistricting(?: commissions?)?`],
+    down: [String.raw`(?:partisan |racial )?gerrymander\w*`],
+    downCon: [String.raw`(?:an? )?independent redistricting commissions?`],
+    problems: [String.raw`(?:partisan |racial )?gerrymander\w*`] },
+  birthright_citizenship: { label: "Birthright Citizenship", pos: "Keep automatic citizenship for every child born on U.S. soil, as the Fourteenth Amendment has long been read",
+    terms: String.raw`birthright citizenship|citizenship clause`,
+    up: [String.raw`(?:the )?birthright citizenship`, String.raw`(?:the )?(?:fourteenth amendment'?s? )?citizenship clause`],
+    downCon: [String.raw`(?:the )?birthright citizenship`] },
+  safety_net_work_requirements: { label: "Medicaid & SNAP Work Requirements", pos: "Require adults who are able to work to work, train or volunteer to keep Medicaid or SNAP benefits",
+    terms: String.raw`(?:medicaid|snap|food stamp) work requirements?|work requirements? (?:for|on|in) (?:medicaid|snap|food stamps)|community engagement requirements?`,
+    up: [String.raw`(?:medicaid|snap|food stamp) work requirements?`, String.raw`work requirements? (?:for|on|in) (?:medicaid|snap|food stamps)`],
+    downCon: [String.raw`(?:medicaid|snap|food stamp) work requirements?`, String.raw`work requirements? (?:for|on|in) (?:medicaid|snap|food stamps)`] },
+  fed_independence: { label: "Federal Reserve Independence", pos: "Keep the Federal Reserve independent, so presidents cannot fire its governors or dictate interest rates",
+    terms: String.raw`(?:fed|federal reserve)(?:'s)? independence|independence of the (?:fed|federal reserve)|independent (?:fed|federal reserve)`,
+    up: [String.raw`(?:the )?(?:fed|federal reserve)(?:'s)? independence`, String.raw`(?:the )?independence of the (?:fed|federal reserve)`, String.raw`(?:an )?independent (?:fed|federal reserve)`],
+    con: [String.raw`\bfir(?:e|es|ed|ing)\b${GAP}\b(?:the )?(?:fed|federal reserve) (?:chair\w*|governors?)\b`] },
+  senate_filibuster: { label: "Senate Filibuster", pos: "Keep the Senate’s 60-vote filibuster rule for passing most legislation",
+    terms: String.raw`filibuster|60-vote (?:threshold|rule)|cloture rule`,
+    up: [String.raw`(?:the )?(?:senate )?filibuster`, String.raw`(?:the )?60-vote (?:threshold|rule)`],
+    downCon: [String.raw`(?:the )?(?:senate )?filibuster`, String.raw`(?:the )?60-vote (?:threshold|rule)`] },
   checks_balances: { label: "Congress as a Check on the Executive", pos: "Keep Congress and the courts as a real check on executive power, whoever is president",
     terms: String.raw`checks and balances|separation of powers|executive overreach|executive power|article I`,
     up: [String.raw`(?:our )?(?:system of )?checks and balances`, String.raw`(?:the )?separation of powers`, String.raw`(?:congress'?s? )?(?:article I|constitutional) (?:authority|powers?|role)`],

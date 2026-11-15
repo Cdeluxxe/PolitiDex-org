@@ -12168,7 +12168,17 @@
 //     so the shell moves; the precache list is unchanged. No location key or
 //     other stored reader state is written or rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v564';
+// v565 - FIVE CIVIC RULES & SAFETY NET KEYS. The issue register
+//     (alignment-tool.js, issue-map.js) gains Redistricting & Gerrymandering,
+//     Birthright Citizenship, Medicaid & SNAP Work Requirements, Federal Reserve
+//     Independence and Senate Filibuster, each under its core issue, and
+//     related-issues.js pairs each both ways with the existing keys whose ground
+//     it shares. No position is seeded, so no stance card or drawer line moves.
+//     No route or gate is added. Precached files changed, so the shell moves;
+//     the precache list is unchanged. No location key or other stored reader
+//     state is written or rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v565';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

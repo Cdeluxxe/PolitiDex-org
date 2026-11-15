@@ -293,6 +293,15 @@
       // POLARITY: 'support' = the vote widened mandatory detention or removal, or funded
       // it. Every instrument on file runs that way.
       deportations:       { label: '🚨 Mass Deportations & Border Security', chip: 'Carry out large-scale deportations of people here illegally and fully lock down the border', cat: 'immig', lean: 'R', stanceKeys: ['border'], keywords: ['deportation','deportations','mass deportation','mass deportations','border security','illegal immigration','ice','removal','remove','secure the border','interior enforcement'] },
+      // CIVIC RULES & SAFETY NET KEYS PASS (Nov 2026; keys only — no position is seeded).
+      // SCOPE (birthright_citizenship): whether a child born on U.S. soil is a citizen
+      // at birth regardless of the parents' status — the Fourteenth Amendment's
+      // citizenship clause, the executive order limiting it, and bills to end or
+      // codify it. Beside Mass Deportations and Pathways to Citizenship, replacing
+      // neither: those are about people already here, this is about who is a citizen
+      // at birth. POLARITY: 'support' = keep birthright citizenship; 'oppose' = end or
+      // narrow it. No `lean`.
+      birthright_citizenship: { label: '📜 Birthright Citizenship', chip: 'Keep automatic citizenship for every child born on U.S. soil, as the Fourteenth Amendment has long been read', cat: 'immig', stanceKeys: [], keywords: ['birthright citizenship','citizenship clause','born on u.s. soil'] },
 
       // ── Gun Policy ──
       // Firearms policy is TWO facets, not one axis, and the two existing keys already
@@ -450,6 +459,14 @@
       healthcare:         { label: '🏥 Expand Healthcare Access', chip: 'Expand healthcare access and coverage for everyone', cat: 'health', lean: 'D', stanceKeys: ['healthcare'], keywords: ['healthcare','health','medicaid','medicaid expansion','aca','coverage','uninsured','hospital','medical','mental health','insurance','prescription','public health','overdose'] },
       health_mental:      { label: '🧠 Mental Health & Addiction', chip: 'Expand mental-health care and fight the opioid and fentanyl crisis', cat: 'health', stanceKeys: ['healthcare'], keywords: ['mental health','addiction','opioid','fentanyl','overdose','substance abuse','suicide','behavioral health','recovery','treatment','crisis','drug epidemic','rehabilitation'] },
       health_rural:       { label: '🚑 Protect Rural Hospitals', chip: 'Keep rural hospitals, maternity wards and emergency care open and funded', cat: 'health', stanceKeys: ['healthcare'], keywords: ['rural hospital','rural health','critical access','emergency room','ambulance','maternity care','hospital closure','telehealth','rural healthcare','clinic','underserved','provider shortage'] },
+      // CIVIC RULES & SAFETY NET KEYS PASS (Nov 2026; keys only — no position is seeded).
+      // SCOPE (safety_net_work_requirements): work, training or volunteer hours as a
+      // condition of keeping Medicaid or SNAP benefits for adults able to work. Beside
+      // Expand Healthcare Access and Cut Federal Spending, replacing neither: votes that
+      // file the requirements as spending reductions stay on cut_spending; this key is
+      // the requirement itself. POLARITY: 'support' = require the work hours; 'oppose'
+      // = against making benefits depend on them. No `lean`.
+      safety_net_work_requirements: { label: '📝 Medicaid & SNAP Work Requirements', chip: 'Require adults who are able to work to work, train or volunteer to keep Medicaid or SNAP benefits', cat: 'health', stanceKeys: [], keywords: ['work requirements','medicaid work requirements','snap work requirements','community engagement requirement'] },
       medical_freedom:    { label: '🩺 Medical Freedom', chip: 'Protect personal choice over vaccines and government medical mandates', cat: 'health', lean: 'R', stanceKeys: [], keywords: ['medical freedom','vaccine mandate','vaccine choice','informed consent','health freedom','no mandates','medical privacy','personal choice','conscience','natural immunity','bodily autonomy'] },
       // ACCOUNTABILITY STANCES PASS (Nov 2026; db/accountability-stances-2026-11.json).
       // SCOPE (public_health_vs_chemical_liability): whether makers of chemicals and
@@ -1093,6 +1110,15 @@
       // scoring asymmetry — nothing in the match reads `lean` since the party nudge was
       // retired. Left in place as branding-disambiguation data for word-action.js.
       voting_access:      { label: '📩 Expand Voting Access', chip: 'Protect and expand access to the ballot box', cat: 'democracy', lean: 'D', stanceKeys: [], keywords: ['voting rights','voting access','ballot access','mail voting','early voting','automatic registration','john lewis','enfranchise','expand voting','democracy'] },
+      // CIVIC RULES & SAFETY NET KEYS PASS (Nov 2026; keys only — no position is seeded).
+      // SCOPE (redistricting_gerrymandering): who draws congressional and legislative
+      // district lines and by what rules — independent or nonpartisan commissions,
+      // bans on partisan gerrymanders, and mid-decade redraws. Beside Secure & Accessible
+      // Voting and Expand Voting Access, replacing neither: those are about casting a
+      // ballot, this is about the map it is counted in. POLARITY: 'support' = take
+      // map-drawing away from partisan control; 'oppose' = keep it with the legislature
+      // that holds the majority. No `lean`.
+      redistricting_gerrymandering: { label: '🧩 Redistricting & Gerrymandering', chip: 'Draw congressional and legislative maps through independent, nonpartisan processes instead of partisan gerrymanders', cat: 'democracy', stanceKeys: [], keywords: ['gerrymandering','gerrymander','independent redistricting commission','mid-decade redistricting'] },
 
       // ── Government Reform & Term Limits ──
       term_limits:        { label: '⏳ Term Limits for Congress', chip: 'Set term limits so Congress gets fresh faces instead of career politicians', cat: 'reform', stanceKeys: ['termLimits'], keywords: ['term limit','term limits','career politician','citizen legislator','rotation in office','government reform','accountability','revolving door'] },
@@ -1123,6 +1149,14 @@
       epstein_files_transparency: { label: '📂 Epstein Files Transparency', chip: 'Release the federal government’s Epstein files in full and on the deadline the law sets', cat: 'reform', stanceKeys: [], keywords: ['epstein files transparency act'] },
       campaign_finance:   { label: '💸 Get Money Out of Politics', chip: 'Limit big money and super-PAC influence over our elections', cat: 'reform', lean: 'D', stanceKeys: ['campaign'], keywords: ['campaign finance','super pac','dark money','citizens united','money in politics','small donor','public financing','lobbying','special interests','election reform','disclosure'] },
       audit_spending:     { label: '🧾 Audit Spending & the Fed', chip: 'Audit federal agencies and the Federal Reserve and root out wasteful spending', cat: 'reform', lean: 'R', stanceKeys: ['audit','debt'], keywords: ['audit','audit the fed','federal reserve','wasteful spending','spending','government efficiency','accountability','deficit','debt','fraud','government waste','improper payments','duplicate programs'] },
+      // CIVIC RULES & SAFETY NET KEYS PASS (Nov 2026; keys only — no position is seeded).
+      // SCOPE (fed_independence): whether the Federal Reserve sets interest rates free
+      // of the President — removal protection for its governors and chair, and
+      // pressure on rate decisions. Beside Audit Spending & the Fed, not replacing it:
+      // that key is about auditing the Fed's books, this one is about who controls it.
+      // POLARITY: 'support' = keep the Fed independent; 'oppose' = give the President
+      // more control over it. No `lean`.
+      fed_independence: { label: '💱 Federal Reserve Independence', chip: 'Keep the Federal Reserve independent, so presidents cannot fire its governors or dictate interest rates', cat: 'reform', stanceKeys: [], keywords: ['fed independence','federal reserve independence','independent fed'] },
       // SCOPE (cut_spending): taking money back or holding it down, line by line. The
       // instruments on file are a rescission act cancelling unobligated balances already
       // appropriated, budget resolution instructions directing committees to find net
@@ -1195,6 +1229,13 @@
       // Distinct from scotus_reform, which is about the ethics and tenure of justices
       // rather than the reach of a court's order against the executive branch.
       power_of_purse:       { label: '🧮 Power of the Purse', chip: 'Require the executive to spend what Congress appropriated instead of withholding or redirecting it', cat: 'reform', stanceKeys: [], keywords: ['power of the purse','impoundment','pocket rescission','rescission','appropriations','apportionment','impoundment control act','withhold funds','funding freeze','reprogramming','transfer authority','antideficiency','separation of powers','gao'] },
+      // CIVIC RULES & SAFETY NET KEYS PASS (Nov 2026; keys only — no position is seeded).
+      // SCOPE (senate_filibuster): the Senate's 60-vote cloture threshold for ending
+      // debate on most legislation, and proposals to abolish or carve exceptions out
+      // of it. Beside Congress as a Check on the Executive, not replacing it: this is
+      // about the Senate's own rules. POLARITY: 'support' = keep the filibuster;
+      // 'oppose' = abolish it or carve exceptions out of it. No `lean`.
+      senate_filibuster: { label: '🎙 Senate Filibuster', chip: 'Keep the Senate’s 60-vote filibuster rule for passing most legislation', cat: 'reform', stanceKeys: [], keywords: ['filibuster','60-vote threshold','cloture rule','nuclear option'] },
       congress_oversight:   { label: '🕵 Congressional Oversight', chip: 'Make the executive branch answer congressional subpoenas, document requests and testimony', cat: 'reform', stanceKeys: [], keywords: ['congressional oversight','oversight','subpoena','document request','testimony','executive privilege','contempt of congress','inspector general','whistleblower','notification requirement','intelligence oversight','gang of eight','separation of powers'] },
       // Distinct from gov_transparency, which is about disclosure BY members —
       // financial disclosure, stock trading, ethics rules — not about compelling
@@ -1317,10 +1358,10 @@
         keys: ['cost_living','tax_middle_class','prop_tax','econ_growth','econ_smallbiz','econ_trade','econ_balance','econ_workers','econ_corp_account','rural_ag','housing','housing_build','housing_support','housing_first_time','homeless','property_tax','tariffs_china','tariffs_growth','tariffs_prices','tariffs_authority','crypto_cbdc','sound_money','dev_district_finance','child_care','paid_leave','family_support','infrastructure','transit','broadband','tech_innovation','tech_balance'] },
       { key: 'immigration_border', label: '🛡 Immigration & Border Security',
         blurb: 'Border enforcement, legal immigration, asylum, and fentanyl trafficking.',
-        keys: ['border_security','immig_legal','immig_balance','immigration_reform','immig_fentanyl','deportations'] },
+        keys: ['border_security','immig_legal','immig_balance','immigration_reform','immig_fentanyl','deportations','birthright_citizenship'] },
       { key: 'healthcare', label: '🏥 Healthcare Costs & Access',
         blurb: 'Coverage, premiums, drug prices, rural care, mental health, senior benefits, and the rules on tobacco and nicotine products.',
-        keys: ['healthcare_market','health_drug_prices','health_balance','healthcare','health_mental','health_rural','medical_freedom','social_security','healthcare_costs','tobacco_nicotine','public_health_vs_chemical_liability'] },
+        keys: ['healthcare_market','health_drug_prices','health_balance','healthcare','health_mental','health_rural','medical_freedom','social_security','healthcare_costs','tobacco_nicotine','public_health_vs_chemical_liability','safety_net_work_requirements'] },
       { key: 'spending_debt_waste', label: '🧾 Government Spending, Debt & Waste',
         blurb: 'Federal spending, the national debt, balanced budgets, rooting out waste, and the case for funding public services instead.',
         keys: ['lower_taxes','gov_waste','gov_balance','national_debt','audit_spending','gov_regulation','cut_spending','gov_services','wealth_inequality_tax_fairness'] },
@@ -1338,10 +1379,10 @@
         keys: ['back_police','justice_balance','justice_reform','cannabis_reform','tough_on_crime'] },
       { key: 'election_integrity', label: '🗳 Election Integrity',
         blurb: 'Election security, voter ID, ballot access, and the integrity of the vote.',
-        keys: ['election_integrity','election_security','democracy_balance','voting_access','voter_id'] },
+        keys: ['election_integrity','election_security','democracy_balance','voting_access','voter_id','redistricting_gerrymandering'] },
       { key: 'checks_and_balances', label: '⚖️ Checks, Balances & Government Reform',
         blurb: 'War powers, the power of the purse, congressional oversight, court orders and court structure, the line between federal and state authority, control of the career civil service, and the rules that hold officeholders to account — term limits, ethics, disclosure, stock trading and money in politics.',
-        keys: ['checks_balances','war_powers','judicial_check','power_of_purse','congress_oversight','states_federal_power','state_standing','guard_authority','civil_service_control','scotus_reform','term_limits','stock_trading_ban','gov_transparency','campaign_finance','reform_balance','epstein_files_transparency'] },
+        keys: ['checks_balances','war_powers','judicial_check','power_of_purse','congress_oversight','states_federal_power','state_standing','guard_authority','civil_service_control','scotus_reform','term_limits','stock_trading_ban','gov_transparency','campaign_finance','reform_balance','epstein_files_transparency','fed_independence','senate_filibuster'] },
       { key: 'education_parental', label: '🎓 Education & Parental Rights',
         blurb: 'Public schools, school choice, college and trade costs, and parents’ role in schools.',
         keys: ['school_choice','edu_balance','public_schools','edu_college_cost','edu_parental','student_debt_college_access'] },

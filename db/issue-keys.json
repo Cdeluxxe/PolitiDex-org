@@ -1,11 +1,12 @@
 {
   "_generatedBy": "scripts/gen-issue-keys.mjs (from ISSUE_MAP in alignment-tool.js)",
-  "count": 130,
+  "count": 135,
   "keys": [
     "america_first",
     "america_first_fp",
     "audit_spending",
     "back_police",
+    "birthright_citizenship",
     "border_security",
     "broadband",
     "campaign_finance",
@@ -42,6 +43,7 @@
     "enviro_energy",
     "epstein_files_transparency",
     "family_support",
+    "fed_independence",
     "foreign_balance",
     "free_speech",
     "gov_balance",
@@ -96,14 +98,17 @@
     "property_tax",
     "public_health_vs_chemical_liability",
     "public_schools",
+    "redistricting_gerrymandering",
     "reform_balance",
     "religious_liberty",
     "repro_balance",
     "restraint",
     "rights_balance",
     "rural_ag",
+    "safety_net_work_requirements",
     "school_choice",
     "scotus_reform",
+    "senate_filibuster",
     "social_security",
     "sound_money",
     "state_standing",
@@ -190,6 +195,11 @@
       "cartel",
       "border crime",
       "safety"
+    ],
+    "birthright_citizenship": [
+      "birthright citizenship",
+      "citizenship clause",
+      "born on u.s. soil"
     ],
     "border_security": [
       "border",
@@ -713,6 +723,11 @@
       "working families",
       "adoption",
       "parents"
+    ],
+    "fed_independence": [
+      "fed independence",
+      "federal reserve independence",
+      "independent fed"
     ],
     "foreign_balance": [
       "foreign policy",
@@ -1474,6 +1489,12 @@
       "student welfare",
       "classroom"
     ],
+    "redistricting_gerrymandering": [
+      "gerrymandering",
+      "gerrymander",
+      "independent redistricting commission",
+      "mid-decade redistricting"
+    ],
     "reform_balance": [
       "government reform",
       "efficiency",
@@ -1551,6 +1572,12 @@
       "drought",
       "water right"
     ],
+    "safety_net_work_requirements": [
+      "work requirements",
+      "medicaid work requirements",
+      "snap work requirements",
+      "community engagement requirement"
+    ],
     "school_choice": [
       "school choice",
       "education choice",
@@ -1576,6 +1603,12 @@
       "judiciary",
       "high court",
       "recusal"
+    ],
+    "senate_filibuster": [
+      "filibuster",
+      "60-vote threshold",
+      "cloture rule",
+      "nuclear option"
     ],
     "social_security": [
       "social security",

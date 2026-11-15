@@ -52,7 +52,7 @@ import { ISSUE_TOPIC_VOCAB } from "../netlify/lib/stance-topic-vocab.mjs";
 import {
   DECLARED_STANCE_PASSES, ACCOUNTABILITY_KEYS, FAMILY_FAIRNESS_KEYS, FAMILY_FAIRNESS_PASS, FAMILY_FAIRNESS_REMOVED_KEYS, relatedIssuesMapOnly,
   withoutFamilyFairnessRegisterBlock, withoutFamilyFairnessIssueKeys, withoutFamilyFairnessCoreCategories,
-  withoutFamilyFairnessTopicVocab, withoutFamilyFairnessRelatedIssues, swCodeOnly,
+  withoutFamilyFairnessTopicVocab, withoutFamilyFairnessRelatedIssues, swCodeOnly, CIVIC_KEYS, withoutCivicKeysKeyList,
 } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -135,7 +135,8 @@ section("1 · the two kept keys are in the register and in the related-issues ma
     eq(JSON.stringify(MAP[k]), JSON.stringify(d.pairs), `${k}: its related-issues list`);
     for (const r of d.pairs) {
       ok(!!win.ISSUE_MAP[r], `${k} pairs with ${r}, which is not in the register`);
-      const back = MAP[r] || [];
+      // A later declared pass's keys (the civic rules & safety net keys) may follow.
+      const back = withoutCivicKeysKeyList(MAP[r] || []);
       ok(back.includes(k), `${r} does not list ${k} back`);
       // New keys are last in an existing key's list, in declared order.
       const tail = back.slice(back.findIndex((x) => KEYS.includes(x)));
@@ -216,7 +217,9 @@ section("3 · keys only: no stance card, no drawer card, no conflicts line");
   const d = DECLARED_STANCE_PASSES.find((x) => x.pass === FAMILY_FAIRNESS_PASS);
   ok(!!d, `${FAMILY_FAIRNESS_PASS} is not a declared stance pass`);
   if (d) eq(JSON.stringify(d.pids), "[]", "the declared pass names people — it seeds no position");
-  eq(DECLARED_STANCE_PASSES[DECLARED_STANCE_PASSES.length - 1].pass, FAMILY_FAIRNESS_PASS, "the declared pass is not the latest");
+  // Only a later keys-only pass (the civic rules & safety net keys) may follow it.
+  const after = DECLARED_STANCE_PASSES.slice(DECLARED_STANCE_PASSES.findIndex((x) => x.pass === FAMILY_FAIRNESS_PASS) + 1);
+  ok(after.every((x) => x.pass === "civic_rules_safety_net_keys_nov2026" && x.pids.length === 0), "a pass other than the declared later keys-only pass follows this one");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -232,7 +235,7 @@ section("4 · nothing else moved; no route or gate; one shell version; no migrat
     eq(withoutFamilyFairnessRelatedIssues(R("related-issues.js")), BASE("related-issues.js"), "related-issues.js changed outside the declared edits");
     eq(withoutFamilyFairnessTopicVocab(R("netlify/lib/stance-topic-vocab.mjs")), BASE("netlify/lib/stance-topic-vocab.mjs"), "the scorer vocabulary changed outside the declared block");
     const baseRel = (/RELATED_ISSUE_KEYS = (\[[^\n]*\]);/.exec(BASE("netlify/lib/related-issue-keys.mjs")) || [])[1];
-    eq(JSON.stringify(RELATED_ISSUE_KEYS.filter((k) => !KEYS.includes(k))), JSON.stringify(JSON.parse(baseRel || "[]")), "netlify/lib/related-issue-keys.mjs moved by more than the two keys");
+    eq(JSON.stringify(withoutCivicKeysKeyList(RELATED_ISSUE_KEYS).filter((k) => !KEYS.includes(k))), JSON.stringify(JSON.parse(baseRel || "[]")), "netlify/lib/related-issue-keys.mjs moved by more than the two keys");
     // The previous pass's register lines are untouched.
     const reg = R("alignment-tool.js");
     for (const k of ACCOUNTABILITY_KEYS) {
@@ -267,7 +270,8 @@ section("4 · nothing else moved; no route or gate; one shell version; no migrat
     eq(swCodeOnly(sw), swCodeOnly(baseSw), "sw.js worker code or precache list changed");
     const ver = (src) => Number((/^const CACHE_VERSION = 'v(\d+)';$/m.exec(String(src)) || [])[1]);
     // v563 shipped the five keys; v564 is the cleanup.
-    eq(ver(sw), ver(baseSw) + 2, `the shell did not move exactly two versions (v${ver(baseSw)} → v${ver(sw)})`);
+    // v565 (the civic rules & safety net keys pass) moves it once more.
+    eq(ver(sw), ver(baseSw) + 2 + (/^\/\/ v565 - FIVE CIVIC RULES & SAFETY NET KEYS\./m.test(sw) ? 1 : 0), `the shell did not move exactly two versions, plus the declared later pass (v${ver(baseSw)} → v${ver(sw)})`);
     ok(/v563 - FIVE FAMILY & ECONOMIC FAIRNESS KEYS\.[\s\S]*?MIGRATION COST: none\./.test(sw), "the v563 note is missing or does not say no migration");
     ok(/v564 - THREE OVERLAPPING KEYS REMOVED\.[\s\S]*?MIGRATION COST: none\./.test(sw), "the v564 note is missing or does not say no migration");
   }
@@ -294,8 +298,10 @@ section("5 · the cleanup: three overlapping keys gone, nothing else moved");
     ok(!RELATED_ISSUE_KEYS.includes(k), `${k} is still in netlify/lib/related-issue-keys.mjs`);
     for (const f of textFiles) ok(!R(f).includes(k), `${f} still names ${k}`);
   }
-  eq(allow.count, 130, "db/issue-keys.json holds 130 keys");
-  eq(cores.count, 130, "db/issue-core-categories.json holds 130 keys");
+  // 130, plus the civic rules & safety net keys pass's five once it is in.
+  const later = CIVIC_KEYS.filter((k) => allow.keys.includes(k)).length;
+  eq(allow.count, 130 + later, "db/issue-keys.json holds 130 keys plus the later pass's");
+  eq(cores.count, 130 + later, "db/issue-core-categories.json holds 130 keys plus the later pass's");
   if (FIVE("issue-map.js") == null) {
     console.log("     (no five-key commit — cleanup byte checks skipped)");
   } else {
@@ -309,14 +315,14 @@ section("5 · the cleanup: three overlapping keys gone, nothing else moved");
       ok(!!ISSUE_TOPIC_VOCAB[k], `${k}: no scorer entry`);
     }
     // Every other register entry is the five-key commit's.
-    eq(JSON.stringify(Object.keys(fiveMap.reg).filter((k) => !REMOVED.includes(k)).sort()), JSON.stringify(REG), "the cleanup removed or added a key other than the three");
-    for (const k of REG) ok(JSON.stringify(win.ISSUE_MAP[k]) === JSON.stringify(fiveMap.reg[k]), `${k}: register entry moved in the cleanup`);
+    eq(JSON.stringify(Object.keys(fiveMap.reg).filter((k) => !REMOVED.includes(k)).sort()), JSON.stringify(withoutCivicKeysKeyList(REG)), "the cleanup removed or added a key other than the three");
+    for (const k of withoutCivicKeysKeyList(REG)) ok(JSON.stringify(win.ISSUE_MAP[k]) === JSON.stringify(fiveMap.reg[k]), `${k}: register entry moved in the cleanup`);
     // Every other map row is the five-key commit's with only the three keys taken out.
     for (const [k, list] of Object.entries(fiveMap.map)) {
       if (REMOVED.includes(k)) continue;
-      eq(JSON.stringify(MAP[k]), JSON.stringify(list.filter((x) => !REMOVED.includes(x))), `${k}: map row moved by more than the cleanup`);
+      eq(JSON.stringify(withoutCivicKeysKeyList(MAP[k])), JSON.stringify(list.filter((x) => !REMOVED.includes(x))), `${k}: map row moved by more than the cleanup`); // a later declared pass's keys aside
     }
-    eq(Object.keys(MAP).length, Object.keys(fiveMap.map).length - REMOVED.length, "the map gained or lost a row other than the three");
+    eq(withoutCivicKeysKeyList(Object.keys(MAP)).length, Object.keys(fiveMap.map).length - REMOVED.length, "the map gained or lost a row other than the three");
     // Stance records, roster, documents, drawer code and the precache list did not move.
     for (const f of ["politician-stances.js", "politician-stances-core.js", "politician-stances-ext.js", "state-senate-stances.js",
       "cmp-data.js", "cmp-data-detail.js", "consistency.js", "stance-helpers.js", "word-action.js", "stance-sides.js", "my-stances.js",
@@ -329,7 +335,7 @@ section("5 · the cleanup: three overlapping keys gone, nothing else moved");
     for (const d of ["netlify/functions", "netlify/edge-functions", "netlify/database/migrations"]) eq(list(d).join(","), ls(FIVE_REV, d).join(","), `${d}: an entry was added or removed in the cleanup`);
     eq(swCodeOnly(R("sw.js")), swCodeOnly(FIVE("sw.js")), "sw.js worker code or precache list changed in the cleanup");
     const ver = (src) => Number((/^const CACHE_VERSION = 'v(\d+)';$/m.exec(String(src)) || [])[1]);
-    eq(ver(R("sw.js")), ver(FIVE("sw.js")) + 1, "the cleanup did not move the shell exactly one version");
+    eq(ver(R("sw.js")), ver(FIVE("sw.js")) + 1 + (/^\/\/ v565 - FIVE CIVIC RULES & SAFETY NET KEYS\./m.test(R("sw.js")) ? 1 : 0), "the cleanup did not move the shell exactly one version (plus the declared later pass)");
     ok(relatedIssuesMapOnly(R("related-issues.js")) !== relatedIssuesMapOnly(FIVE("related-issues.js")), "fixture: the cleanup did move the map");
   }
 }
