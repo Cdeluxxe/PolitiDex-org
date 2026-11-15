@@ -16,7 +16,7 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 import * as S from '../netlify/lib/stance-score-core.mjs';
 import * as V from '../netlify/lib/stance-topic-vocab.mjs';
-import { ACCOUNTABILITY_KEYS, FAMILY_FAIRNESS_KEYS } from "./v103-chrome-seams.mjs";
+import { ACCOUNTABILITY_KEYS, FAMILY_FAIRNESS_KEYS, CIVIC_KEYS } from "./v103-chrome-seams.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 let failures = 0;
@@ -262,7 +262,7 @@ t('the register sweep and every existing key\'s rules are unchanged', () => {
   for (const k of KEYS) assert.ok(!S.SCORED_TOPICS.includes(k) && !(k in V.ISSUE_TOPIC_VOCAB), k);
   // The accountability stances pass's three register keys and the family & economic
   // fairness keys pass's two (v103-chrome-seams.mjs) are new, not existing.
-  const existing = Object.keys(S.TOPIC_RULES).filter((k) => !KEYS.includes(k) && !ACCOUNTABILITY_KEYS.includes(k) && !FAMILY_FAIRNESS_KEYS.includes(k)).sort();
+  const existing = Object.keys(S.TOPIC_RULES).filter((k) => !KEYS.includes(k) && !ACCOUNTABILITY_KEYS.includes(k) && !FAMILY_FAIRNESS_KEYS.includes(k) && !CIVIC_KEYS.includes(k)).sort();
   assert.equal(existing.length, 125);
   // Fingerprint of the 125 existing keys' compiled rules at the start of this pass.
   assert.equal(fingerprint(S.TOPIC_RULES, existing), 'f3ca8a77ce70f58fbef03e2097d2ae260d423189bc20f78a9998c616e03e5bb1');

@@ -10,6 +10,58 @@ const _ACC_REC = JSON.parse(_readFileSync(new URL("../db/accountability-stances-
 export const ACCOUNTABILITY_PID_OF = { "trump-donald": "trump" };
 export const accountabilityIssueKey = (issue) => String(issue).replace(/-/g, "_");
 export const ACCOUNTABILITY_RECORD = _ACC_REC;
+// The civic rules & safety net keys pass (Nov 2026): five register keys, their
+// core slots, their related-issues pairs and their scorer vocabulary — no position
+// seeded (scripts/test-civic-rules-safety-net-keys-2026.mjs). It is later than
+// every earlier pass's base, so every family & economic fairness helper (and so
+// every accountability helper) sets this block aside first.
+export const CIVIC_KEYS_PASS = "civic_rules_safety_net_keys_nov2026";
+export const CIVIC_KEYS = ["redistricting_gerrymandering", "birthright_citizenship", "safety_net_work_requirements", "fed_independence", "senate_filibuster"];
+const _CIV_ALT = CIVIC_KEYS.join("|");
+export function withoutCivicKeysRegisterBlock(src) {
+  if (src == null) return src;
+  return String(src)
+    .replace(new RegExp(String.raw` {6}\/\/ CIVIC RULES & SAFETY NET KEYS PASS \(Nov 2026[^\n]*\n(?: {6}\/\/[^\n]*\n)*? {6}(?:${_CIV_ALT}): [^\n]*\n`, "g"), "")
+    .replace(new RegExp(`,'(?:${_CIV_ALT})'`, "g"), "");
+}
+export function withoutCivicKeysIssueKeys(src) {
+  if (src == null) return src;
+  let o;
+  try { o = JSON.parse(String(src)); } catch { return src; }
+  if (!Array.isArray(o.keys) || !CIVIC_KEYS.every((k) => o.keys.includes(k))) return src;
+  o.keys = o.keys.filter((k) => !CIVIC_KEYS.includes(k));
+  if (typeof o.count === "number") o.count = o.keys.length;
+  for (const v of Object.values(o)) if (v && typeof v === "object" && !Array.isArray(v)) for (const k of CIVIC_KEYS) delete v[k];
+  return JSON.stringify(o, null, 2) + "\n";
+}
+export function withoutCivicKeysCoreCategories(src) {
+  if (src == null) return src;
+  let o;
+  try { o = JSON.parse(String(src)); } catch { return src; }
+  if (!o.categoryOf || !CIVIC_KEYS.every((k) => k in o.categoryOf)) return src;
+  for (const k of CIVIC_KEYS) delete o.categoryOf[k];
+  if (typeof o.count === "number") o.count = Object.keys(o.categoryOf).length;
+  return JSON.stringify(o, null, 2) + "\n";
+}
+// netlify/lib/stance-topic-vocab.mjs with this pass's scorer entries (and the key
+// count in its header) set aside.
+export function withoutCivicKeysTopicVocab(src) {
+  if (src == null) return src;
+  const s = String(src), B = "  // The civic rules & safety net keys pass (Nov 2026)";
+  const b = s.indexOf(B), e = b < 0 ? -1 : s.indexOf("\n  checks_balances: ", b);
+  if (b < 0 || e < 0) return s;
+  return (s.slice(0, b) + s.slice(e + 1)).replace("the same 135 keys the related-issues map relates", "the same 130 keys the related-issues map relates");
+}
+const _CIV_RI_EDITS = JSON.parse(_readFileSync(new URL("./related-issues-declared-edits-civic-rules-safety-net-2026-11.json", import.meta.url), "utf8")).edits;
+// related-issues.js with exactly this pass's declared edits set aside (each
+// "after" must appear exactly once, or the file is returned as it stands).
+export function withoutCivicKeysRelatedIssues(src) {
+  if (src == null) return src;
+  let s = String(src);
+  for (const e of _CIV_RI_EDITS) { if (s.split(e.after).length !== 2) return src; s = s.replace(e.after, () => e.before); }
+  return s;
+}
+export const withoutCivicKeysKeyList = (keys) => (keys || []).filter((k) => !CIVIC_KEYS.includes(k));
 // The family & economic fairness keys pass (Nov 2026): register keys,
 // their core slots, their related-issues pairs and their scorer vocabulary — no
 // position seeded (scripts/test-family-economic-fairness-keys-2026.mjs). The
@@ -25,12 +77,13 @@ export const FAMILY_FAIRNESS_REMOVED_KEYS = ["affordable_childcare_family_leave"
 const _FF_ALT = FAMILY_FAIRNESS_KEYS.concat(FAMILY_FAIRNESS_REMOVED_KEYS).join("|");
 export function withoutFamilyFairnessRegisterBlock(src) {
   if (src == null) return src;
-  return String(src)
+  return String(withoutCivicKeysRegisterBlock(src))
     .replace(new RegExp(String.raw` {6}\/\/ FAMILY & ECONOMIC FAIRNESS KEYS PASS \(Nov 2026[^\n]*\n(?: {6}\/\/[^\n]*\n)*? {6}(?:${_FF_ALT}): [^\n]*\n`, "g"), "")
     .replace(new RegExp(`,'(?:${_FF_ALT})'`, "g"), "");
 }
 export function withoutFamilyFairnessIssueKeys(src) {
   if (src == null) return src;
+  src = withoutCivicKeysIssueKeys(src);
   let o;
   try { o = JSON.parse(String(src)); } catch { return src; }
   if (!Array.isArray(o.keys) || !FAMILY_FAIRNESS_KEYS.every((k) => o.keys.includes(k))) return src;
@@ -43,6 +96,7 @@ export function withoutFamilyFairnessIssueKeys(src) {
 }
 export function withoutFamilyFairnessCoreCategories(src) {
   if (src == null) return src;
+  src = withoutCivicKeysCoreCategories(src);
   let o;
   try { o = JSON.parse(String(src)); } catch { return src; }
   if (!o.categoryOf || !FAMILY_FAIRNESS_KEYS.every((k) => k in o.categoryOf)) return src;
@@ -54,7 +108,7 @@ export function withoutFamilyFairnessCoreCategories(src) {
 // the key count in its header) set aside.
 export function withoutFamilyFairnessTopicVocab(src) {
   if (src == null) return src;
-  const s = String(src), B = "  // The family & economic fairness keys pass (Nov 2026)";
+  const s = String(withoutCivicKeysTopicVocab(src)), B = "  // The family & economic fairness keys pass (Nov 2026)";
   const b = s.indexOf(B), e = b < 0 ? -1 : s.indexOf("\n  checks_balances: ", b);
   if (b < 0 || e < 0) return s;
   return (s.slice(0, b) + s.slice(e + 1)).replace("the same 130 keys the related-issues map relates", "the same 128 keys the related-issues map relates");
@@ -64,11 +118,12 @@ const _FF_RI_EDITS = JSON.parse(_readFileSync(new URL("./related-issues-declared
 // "after" must appear exactly once, or the file is returned as it stands).
 export function withoutFamilyFairnessRelatedIssues(src) {
   if (src == null) return src;
+  src = withoutCivicKeysRelatedIssues(src);
   let s = String(src);
   for (const e of _FF_RI_EDITS) { if (s.split(e.after).length !== 2) return src; s = s.replace(e.after, () => e.before); }
   return s;
 }
-export const withoutFamilyFairnessKeyList = (keys) => (keys || []).filter((k) => !FAMILY_FAIRNESS_KEYS.includes(k));
+export const withoutFamilyFairnessKeyList = (keys) => withoutCivicKeysKeyList(keys).filter((k) => !FAMILY_FAIRNESS_KEYS.includes(k));
 // alignment-tool.js or issue-map.js with exactly the accountability pass's
 // register block set aside: its three commented ISSUE_MAP entries and the three
 // keys it appended to CORE_NATIONAL_ISSUES. Any other edit still compares.
@@ -4042,6 +4097,15 @@ export const DECLARED_STANCE_PASSES = [
     pass: FAMILY_FAIRNESS_PASS,
     pids: [],
   },
+  {
+    // The civic rules & safety net keys pass (Nov 2026): five register keys —
+    // redistricting_gerrymandering, birthright_citizenship,
+    // safety_net_work_requirements, fed_independence and senate_filibuster — with
+    // their core slots and map pairs. Keys only: no position is seeded, so it
+    // names no one.
+    pass: CIVIC_KEYS_PASS,
+    pids: [],
+  },
 ];
 /**
  * The gap-fill pass's additions by pid: the issue keys appended after each
@@ -4535,7 +4599,7 @@ export function relatedIssuesMapOnly(src) {
  */
 // The accountability stances pass's edits (…-accountability-2026-11.json) come
 // first: a later pass's edits are set aside before an earlier one's.
-const _RI_EDITS = _FF_RI_EDITS.concat(JSON.parse(_readFileSync(new URL("./related-issues-declared-edits-accountability-2026-11.json", import.meta.url), "utf8")).edits)
+const _RI_EDITS = _CIV_RI_EDITS.concat(_FF_RI_EDITS).concat(JSON.parse(_readFileSync(new URL("./related-issues-declared-edits-accountability-2026-11.json", import.meta.url), "utf8")).edits)
   .concat(JSON.parse(_readFileSync(new URL("./related-issues-declared-edits.json", import.meta.url), "utf8")).edits);
 export function withoutDeclaredRelatedIssues(src) {
   if (src == null) return src;

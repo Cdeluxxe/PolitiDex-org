@@ -268,8 +268,9 @@ section("2 · no key was invented for this pass");
   // and Yemen pass added ukraine_policy and yemen_policy (20261106000000).
   // 125 since the Venezuela pass added venezuela_policy (20261116000000).
   // 128 since the accountability stances pass added three keys (Nov 2026); 130
-  // since the family & economic fairness keys pass added two (Nov 2026).
-  eq(shipped.count, 130, "the shipped issue vocabulary is 130 keys, the three V1 added, the four country keys, the three accountability keys and the two family & economic fairness keys included");
+  // since the family & economic fairness keys pass added two (Nov 2026); 135
+  // since the civic rules & safety net keys pass added five (Nov 2026).
+  eq(shipped.count, 135, "the shipped issue vocabulary is 135 keys, the three V1 added, the four country keys, the three accountability keys, the two family & economic fairness keys and the five civic rules & safety net keys included");
   for (const k of ["sound_money", "tobacco_nicotine", "dev_district_finance"]) {
     ok(shipped.keys.includes(k), `${k} is a shipped key, reviewed by V1 rather than invented here`);
   }

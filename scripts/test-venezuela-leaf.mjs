@@ -99,15 +99,16 @@ section("1 · vocab, cores and key count");
 {
   const keys = JSON.parse(R("db/issue-keys.json"));
   // 128 since the accountability stances pass (Nov 2026) added three keys; 130
-  // since the family & economic fairness keys pass (Nov 2026) added two.
-  eq(keys.count, 130, "db/issue-keys.json counts 130 keys");
-  eq(keys.keys.length, 130, "db/issue-keys.json lists 130 keys");
+  // since the family & economic fairness keys pass (Nov 2026) added two; 135
+  // since the civic rules & safety net keys pass (Nov 2026) added five.
+  eq(keys.count, 135, "db/issue-keys.json counts 135 keys");
+  eq(keys.keys.length, 135, "db/issue-keys.json lists 135 keys");
   eq(keys.keys.filter((x) => x === VE).length, 1, "db/issue-keys.json carries venezuela_policy once");
   for (const k of ["iran_policy", "ukraine_policy", "yemen_policy", "restraint", "strong_defense", "war_powers", "tariffs_authority", "america_first_fp"]) {
     ok(keys.keys.includes(k) && !!win.ISSUE_MAP[k], `${k} is still a shipped leaf`);
   }
   const cores = JSON.parse(R("db/issue-core-categories.json"));
-  eq(cores.count, 130, "db/issue-core-categories.json counts 130 keys");
+  eq(cores.count, 135, "db/issue-core-categories.json counts 135 keys");
   eq((cores.categoryOf || {})[VE], "foreign_policy_defense", "the core map files venezuela_policy under Foreign Policy");
   const decl = (f) => (R(f).match(new RegExp(`^\\s*${VE}:\\s*\\{[^\\n]*\\},?$`, "m")) || [""])[0].trim();
   for (const f of ["alignment-tool.js", "issue-map.js"]) {
