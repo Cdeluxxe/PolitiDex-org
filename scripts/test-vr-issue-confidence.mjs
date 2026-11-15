@@ -11,6 +11,9 @@
 //      manually reviewed row does
 //   5. unknown issue keys are refused, however confident the pattern
 //   6. curated and already-reviewed rows are untouched
+//   7. the direction rule: a reversal/restriction cue picks yea_opposes and never
+//      lowers confidence — strong match + cue is auto-approved as yea_opposes,
+//      weak match + cue stays proposed
 //
 // vr-issue-proposals.ts and the /api/vr-ingest handler are bundled with esbuild
 // and executed against an in-memory repository with the drizzle repo's contract.
@@ -88,12 +91,14 @@ const HIGH = { id: 1, measureType: "bill", title: "Bipartisan Background Checks 
 const MED = { id: 2, measureType: "bill", title: "Secure the Border Act of 2025", summary: "", sourceUrl: src(2) };
 // LOW: subject + instrument only once the summary is added (45).
 const LOW = { id: 3, measureType: "bill", title: "To amend the Immigration and Nationality Act", summary: "Strengthens border security enforcement and detention.", sourceUrl: src(3) };
-// LOW by direction: strong title match, but a restriction cue — capped at 40.
+// STRONG + CUE: title match + agreement (80) with a restriction cue → auto yea_opposes.
 const SAVE = { id: 4, measureType: "bill", title: "Safeguard American Voter Eligibility Act", summary: "Requires proof of citizenship to register to vote.", sourceUrl: src(22) };
+// WEAK + CUE: summary-only match (45) with a restriction cue → stays proposed.
+const WEAKCUE = { id: 7, measureType: "bill", title: "To amend the Immigration and Nationality Act", summary: "Strengthens border security enforcement and detention; restricts parole.", sourceUrl: src(7) };
 // Unknown key: ukraine_aid is a pattern key but not a shipped issue key.
 const UKR = { id: 5, measureType: "bill", title: "Ukraine Security Supplemental Appropriations Act — aid to Ukraine", summary: "", sourceUrl: src(8035) };
-const ALL = [HIGH, MED, LOW, SAVE, UKR];
-const VOTES = { 1: ["alice"], 2: ["bob"], 3: ["carol"], 4: ["dan"] };
+const ALL = [HIGH, MED, LOW, SAVE, UKR, WEAKCUE];
+const VOTES = { 1: ["alice"], 2: ["bob"], 3: ["carol"], 4: ["dan"], 7: ["erin"] };
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("1. confidence is scored by the documented rules");
@@ -107,8 +112,10 @@ section("1. confidence is scored by the documented rules");
   eq(P.confidenceBand(m.confidence), "medium", "…which is medium");
   eq(l && l.confidence, P.CONF.summaryMatch, "summary-only match = 45");
   eq(P.confidenceBand(l.confidence), "low", "…which is low");
-  ok(s && s.confidence <= P.DIRECTION_UNCLEAR_CAP && s.signals.includes("direction-unclear"),
-    `a reversal/restriction cue caps confidence at ${P.DIRECTION_UNCLEAR_CAP} (${s && s.confidence})`);
+  eq(s && s.confidence, P.CONF.titleMatch + P.CONF.titleAndSummary, "a reversal/restriction cue does not lower the issue-match score");
+  ok(s && s.signals.includes("reversal-cue") && s.supportMeaning === "yea_opposes", "…it only sets the direction: yea_opposes");
+  eq(h.supportMeaning, "yea_supports", "no cue → yea_supports");
+  eq(P.DIRECTION_UNCLEAR_CAP, undefined, "the old direction cap is gone");
   eq(P.AUTO_APPROVE_CUTOFF, 60, "the cutoff is 60");
   ok(sc(HIGH).concat(sc(MED), sc(LOW), sc(SAVE)).every((c) => Number.isInteger(c.confidence) && c.confidence >= 0 && c.confidence <= 100), "every score is an integer 0..100");
 
@@ -133,24 +140,24 @@ section("2–3. high/medium auto-reviewed and out of the queue; low stays queued
   const repo = memRepo({ measures: ALL, votes: VOTES });
   const rep = await P.proposeForMeasures(repo, ALL.map((m) => m.id));
   const row = (mid) => repo.state.mappings.find((r) => r.measureId === mid);
-  for (const [mid, name] of [[1, "high"], [2, "medium"]]) {
+  for (const [mid, name, dir] of [[1, "high", "yea_supports"], [2, "medium", "yea_supports"], [4, "strong + reversal cue", "yea_opposes"]]) {
     const r = row(mid);
     eq(r && r.reviewStatus, "reviewed", `${name} proposal is auto-reviewed`);
     eq(r && r.reviewedBy, "auto", `${name}: reviewer recorded as "auto"`);
-    eq(r && r.supportMeaning, "yea_supports", `${name}: supportMeaning set`);
+    eq(r && r.supportMeaning, dir, `${name}: supportMeaning ${dir}`);
     ok(r && r.reviewedAt instanceof Date, `${name}: review time recorded`);
     ok(r && typeof r.confidence === "number" && r.confidence >= 60, `${name}: confidence stored on the row (${r && r.confidence})`);
-    ok(r && /^auto-approved — confidence \d+/.test(r.rationale), `${name}: rationale names the confidence`);
+    ok(r && new RegExp(`^auto-approved ${dir} — confidence \\d+`).test(r.rationale), `${name}: rationale names the direction and confidence`);
     ok(r && r.weight <= 40, `${name}: proposal weight kept low`);
   }
-  for (const [mid, name] of [[3, "low"], [4, "direction-unclear"]]) {
+  for (const [mid, name] of [[3, "low"], [7, "weak + reversal cue"]]) {
     const r = row(mid);
     eq(r && r.reviewStatus, "proposed", `${name} proposal stays proposed`);
     eq(r && r.rationale, "auto — review", `${name}: rationale is "auto — review"`);
     eq(r && r.reviewedBy, null, `${name}: no reviewer`);
     ok(r && r.confidence < 60, `${name}: confidence stored and below the cutoff (${r && r.confidence})`);
   }
-  eq(rep.autoApproved, 2, "report: two auto-approved");
+  eq(rep.autoApproved, 3, "report: three auto-approved");
   eq(rep.queuedForReview, 2, "report: two queued");
 
   // The queue over HTTP — the shipped handler, its library swapped for this repo.
@@ -171,9 +178,9 @@ section("2–3. high/medium auto-reviewed and out of the queue; low stays queued
   process.env.VR_INGEST_TOKEN = "tok";
   const q = await (await H.default(new Request("https://x.test/api/vr-ingest/proposals?status=proposed", { headers: { authorization: "Bearer tok" } }))).json();
   const qm = q.items.map((r) => r.measureId).sort();
-  eq(qm.join(","), "3,4", "GET /proposals?status=proposed lists only the low-confidence proposals");
+  eq(qm.join(","), "3,7", "GET /proposals?status=proposed lists only the low-confidence proposals (the strong oppose row is not queued)");
   const rv = await (await H.default(new Request("https://x.test/api/vr-ingest/proposals?status=reviewed", { headers: { authorization: "Bearer tok" } }))).json();
-  eq(rv.items.map((r) => r.measureId).sort().join(","), "1,2", "auto-approved rows are listed as reviewed");
+  eq(rv.items.map((r) => r.measureId).sort().join(","), "1,2,4", "auto-approved rows (supports and opposes) are listed as reviewed");
   eq((await H.default(new Request("https://x.test/api/vr-ingest/proposals?status=proposed"))).status, 401, "the queue is still gated");
 
   // The low one can still be reviewed manually through the existing route.
@@ -236,7 +243,11 @@ section("5. unknown issue keys are still refused");
   await P.proposeForMeasures(repo, [5]);
   ok(repo.state.mappings.every((r) => ISSUE_KEYS.has(r.issueKey)), "no unknown key is written, proposed or reviewed");
   eq(P.shouldAutoApprove({ issueKey: "not_a_real_key", confidence: 99, directionClear: true }), false, "a confident unknown key is never auto-approved");
-  eq(P.shouldAutoApprove({ issueKey: "housing", confidence: 99, directionClear: false }), false, "an unclear direction is never auto-approved");
+  eq(P.shouldAutoApprove({ issueKey: "housing", confidence: 99, directionClear: false }), true, "a reversal cue no longer blocks a strong match");
+  eq(P.shouldAutoApprove({ issueKey: "not_a_real_key", confidence: 99, directionClear: false }), false, "…but an unknown key with a cue is still refused");
+  const unk = memRepo({ measures: [{ ...UKR, id: 15, title: "Repeal the Ukraine Security Supplemental Appropriations Act — aid to Ukraine" }] });
+  await P.proposeForMeasures(unk, [15]);
+  ok(unk.state.mappings.every((r) => ISSUE_KEYS.has(r.issueKey) && !(r.reviewedBy === "auto" && !ISSUE_KEYS.has(r.issueKey))), "an unknown key + reversal cue is neither written nor auto-approved");
   eq(P.shouldAutoApprove({ issueKey: "housing", confidence: 59, directionClear: true }), false, "59 is below the cutoff");
   eq(P.shouldAutoApprove({ issueKey: "housing", confidence: 60, directionClear: true }), true, "60 meets it");
 }
@@ -259,6 +270,39 @@ section("6. curated and already-reviewed rows are untouched");
   const mig = read("netlify/database/migrations/20261208000000_vr_measure_issue_confidence/migration.sql");
   ok(/ADD COLUMN "confidence" integer;/.test(mig), "migration adds a nullable confidence column");
   ok(!/UPDATE|DELETE/i.test(mig.replace(/^--.*$/gm, "")), "migration rewrites no existing row");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("7. auto-approved oppose rows read exactly like manual oppose rows");
+{
+  // Auto lane: strong + cue.
+  const autoRepo = memRepo({ measures: [SAVE], votes: VOTES });
+  await P.proposeForMeasures(autoRepo, [4]);
+  const auto = autoRepo.state.mappings[0];
+  eq(auto.supportMeaning, "yea_opposes", "auto row is yea_opposes");
+  eq(autoRepo.state.packs.join(","), "dan", "auto oppose row re-packs its voters");
+  // Manual lane: weak + cue, reviewed by a human as yea_opposes.
+  const manRepo = memRepo({ measures: [WEAKCUE], votes: VOTES });
+  await P.proposeForMeasures(manRepo, [7]);
+  eq(manRepo.state.packs.join(","), "erin", "the weak proposal re-packs on write (fingerprint moves)");
+  manRepo.state.packs.length = 0;
+  const manRes = await P.reviewProposal(manRepo, manRepo.state.mappings[0].id, { weight: 40, supportMeaning: "yea_opposes" });
+  eq(manRes.status, 200, "the weak + cue proposal is reviewed manually");
+  const manual = manRepo.state.mappings[0];
+  eq(manRepo.state.packs.join(","), "erin", "a manual oppose review re-packs the same way");
+  eq(manual.supportMeaning, auto.supportMeaning, "same supportMeaning");
+  eq(manual.reviewStatus, auto.reviewStatus, "same review_status");
+  eq(P.isVerdictBearingStatus(auto.reviewStatus), true, "the auto oppose row is verdict-bearing");
+  const table = L.liveBillTable([
+    { sitting: "119", number: "H.R. 22", sourceUrl: SAVE.sourceUrl, issueKey: auto.issueKey, reviewStatus: auto.reviewStatus },
+    { sitting: "119", number: "H.R. 7", sourceUrl: WEAKCUE.sourceUrl, issueKey: manual.issueKey, reviewStatus: manual.reviewStatus },
+  ], (k) => ISSUE_KEYS.has(k));
+  ok(table["119|H.R. 22"] && table["119|H.R. 7"], "live bill table carries the auto and manual oppose rows alike");
+  // A weak + cue row that nobody reviewed stays out of every public read.
+  const still = memRepo({ measures: [WEAKCUE] });
+  await P.proposeForMeasures(still, [7]);
+  eq(still.state.mappings[0].reviewStatus, "proposed", "unreviewed weak + cue row stays proposed");
+  eq(P.isVerdictBearingStatus(still.state.mappings[0].reviewStatus), false, "…and is never public");
 }
 
 rmSync(TMP, { recursive: true, force: true });

@@ -130,11 +130,13 @@ function check(w, pid, out) {
   eq(r.coverage.tested, uniq.size, `${pid}: coverage.tested is not the number of tested issues`);
   ok(r.coverage.scorable >= r.coverage.tested, `${pid}: Y (${r.coverage.scorable}) undercuts X (${r.coverage.tested})`);
 
-  // The percentage, recomputed over exactly those entries.
+  // The percentage, recomputed over exactly those entries: Backed up counts in
+  // full, Mixed half, Contradicted zero, over the tested issues — the buckets'
+  // own sum (see test-wva-pct-matches-buckets.mjs).
   if (r.pct !== null) {
-    let s = 0, n = 0;
-    r.tested.forEach((it) => { const wgt = it.weight * (it.test.evidence || 1); s += it.test.score * wgt; n += wgt; });
-    eq(r.pct, Math.round(s / n), `${pid}: the percentage is not the weighted mean over the tested issues`);
+    let s = 0;
+    r.tested.forEach((it) => { s += it.test.token === "consistent" ? 1 : it.test.token === "mixed" ? 0.5 : 0; });
+    eq(r.pct, Math.round((100 * s) / r.tested.length), `${pid}: the percentage is not the buckets' sum over the tested issues`);
   }
 
   // The rendered surfaces.
