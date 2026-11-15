@@ -112,9 +112,18 @@ ok(!/maybeWriteLockerItem|setJSON\(\s*key|lockerStore\.set/.test(fn + R("netlify
 const git = (f) => { try { return execFileSync("git", ["show", `HEAD:${f}`], { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 28, stdio: ["ignore", "pipe", "ignore"] }); } catch { return null; } };
 // (The cron and stated-positions-core.mjs were changed on purpose by the fresh
 // evidence pass — scripts/test-raw-ingest-fresh.mjs covers them.)
+// evidence-locker-core.mjs: its whole-Locker read now goes through the bounded
+// reader (netlify/lib/locker-read.mjs — the unbounded Promise.all exhausted the
+// function's sockets); undoing exactly that edit must give back the committed
+// file, so no scoring, grading or promotion rule can have moved with it.
+const LOCKER_READ_UNDO = [
+  ['import { readLockerDocs } from "./locker-read.mjs";\n', ""],
+  ["    const docs = await readLockerDocs(store, keys);", '    const docs = await Promise.all(keys.map(async (key) => ({ key, doc: await store.get(key, { type: "json" }).catch(() => null) })));'],
+];
+const undoLockerRead = (f, src) => f === "netlify/lib/evidence-locker-core.mjs" ? LOCKER_READ_UNDO.reduce((s, [a, b]) => s.split(a).join(b), src) : src;
 for (const f of ["netlify/lib/evidence-locker-core.mjs", "politician-stances.js", "politician-stances-core.js", "politician-stances-ext.js", "state-senate-stances.js"]) {
   const base = git(f);
-  ok(base == null || base === R(f), `${f} is unchanged`);
+  ok(base == null || base === R(f) || base === undoLockerRead(f, R(f)), `${f} is unchanged`);
 }
 
 console.log(`\n${failures.length ? "✗" : "✓"} stated-positions backfill: ${passed} passed, ${failures.length} failed`);

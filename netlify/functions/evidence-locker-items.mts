@@ -27,6 +27,7 @@
 import type { Config } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
 import { LOCKER_STORE_NAME, toSpotlightEntry, loadReviewFlags, reviewFor, regradeStatedPosition, collapseRestatedItems } from "../lib/evidence-locker-core.mjs";
+import { readLockerDocs } from "../lib/locker-read.mjs";
 import reviewFile from "../../db/evidence-locker-review.json" with { type: "json" };
 import { recordFlag, FLAG_STORE_NAME } from "../lib/dirkey-flag-core.mjs";
 
@@ -35,10 +36,7 @@ export async function listLockerEntries(store: any, flagsDoc: any = reviewFile) 
   const { blobs } = await store.list();
   const items: Record<string, any[]> = {};
   let count = 0, hidden = 0;
-  const docs = await Promise.all(blobs.map(async (b: any) => {
-    const doc = await store.get(b.key, { type: "json" }).catch(() => null);
-    return { key: b.key, doc };
-  }));
+  const docs: any[] = await readLockerDocs(store, blobs.map((b: any) => b.key));
   const rows: any[] = [];
   for (const { key, doc } of docs) {
     if (!doc || !doc.politician_id || !doc.link) continue;

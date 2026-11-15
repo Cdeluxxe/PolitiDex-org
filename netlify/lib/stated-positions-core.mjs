@@ -40,6 +40,7 @@
 // builds the production one).
 
 import { toSpotlightEntry, reviewFor, regradeStatedPosition, collapseRestatedItems } from "./evidence-locker-core.mjs";
+import { readLockerDocs } from "./locker-read.mjs";
 
 export const PROMOTE_WEAK_N = 3;
 export const STRONG_MIN = 0.8;
@@ -124,7 +125,7 @@ export function promoteIssue(entries) {
  */
 export async function lockerEntriesFor(store, pid, flags = null) {
   const { blobs = [] } = (await store.list({ prefix: `${pid}/` })) || {};
-  const docs = await Promise.all(blobs.map(async (b) => ({ key: b.key, doc: await store.get(b.key, { type: "json" }).catch(() => null) })));
+  const docs = await readLockerDocs(store, blobs.map((b) => b.key));
   const rows = [];
   for (const { key, doc } of docs) {
     if (!doc || doc.politician_id !== pid || !doc.link) continue;
@@ -201,6 +202,23 @@ export const reviewedKeysOf = (entries) => new Set((entries || [])
   .filter((e) => e?.review?.status === "reviewed" && e.pipeline?.key).map((e) => e.pipeline.key));
 
 /**
+ * A database error in one short line. Drizzle wraps every driver failure as
+ * "Failed query: <the whole SQL>\nparams: …", which hides the reason; the real
+ * one (a network failure such as "fetch failed", a missing column, a
+ * constraint) is on `.cause`, sometimes nested.
+ */
+export function describeDbError(e) {
+  const msg = String(e?.message || e || "unknown error");
+  const head = msg.startsWith("Failed query:") ? `query on ${(/\bfrom "([^"]+)"/.exec(msg) || [])[1] || "the table"} failed` : msg.split("\n")[0].slice(0, 200);
+  const causes = [];
+  for (let c = e?.cause, d = 0; c && d < 4; c = c.cause, d++) {
+    const part = [c.code, c.message].filter(Boolean).join(" ").trim();
+    if (part && !causes.includes(part)) causes.push(part.slice(0, 160));
+  }
+  return causes.length ? `${head} — cause: ${causes.join(" ← ")}` : head;
+}
+
+/**
  * Recompute and sync one politician. `entries` = that politician's Locker
  * entries (spotlight shape). `db` = { rowsFor(pid), upsert(pid, rec, now),
  * withdraw(pid, issueKeys, now) }. Never throws; logs one line.
@@ -219,8 +237,9 @@ export async function syncPolitician(pid, entries, { db, now = () => new Date(),
     if (plan.held.length) log(`stated-positions: ${pid} — ${plan.held.length} row(s) left as they are: ${plan.held.map((h) => `${h.issueKey} (${h.reason})`).join(", ")}`);
     return { pid, ...plan };
   } catch (e) {
-    log(`stated-positions: ERROR ${pid} — ${e?.message || e}`);
-    return { pid, upserts: [], withdraw: [], unchanged: [], held: [], error: String(e?.message || e) };
+    const error = describeDbError(e);
+    log(`stated-positions: ERROR ${pid} — ${error}`);
+    return { pid, upserts: [], withdraw: [], unchanged: [], held: [], error };
   }
 }
 
