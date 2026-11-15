@@ -784,9 +784,20 @@ export const vrMeasureIssues = pgTable(
     rationale: text().default(""),
     // Optional evidence for the mapping itself.
     sourceUrl: text("source_url"),
+    // curated | proposed | reviewed | rejected. Every hand-written migration and the
+    // curated seed write `curated` (the column default). The ingest's automatic
+    // proposal step writes `proposed` rows (low weight, rationale "auto — review")
+    // that are NOT verdict-bearing: every public read skips `proposed` and
+    // `rejected` rows (see isVerdictBearingStatus in netlify/lib/vr-issue-proposals.ts).
+    // A reviewer promotes a proposal to `reviewed` via /api/vr-ingest/proposals, after
+    // which it is a normal mapping.
+    reviewStatus: text("review_status").notNull().default("curated"),
+    reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+    reviewedBy: text("reviewed_by"),
   },
   (t) => ({
     uniq: uniqueIndex("vr_measure_issues_unique").on(t.measureId, t.issueKey),
+    reviewStatusIdx: index("vr_measure_issues_review_status_idx").on(t.reviewStatus),
     issueIdx: index("vr_measure_issues_issue_idx").on(t.issueKey),
     measureIdx: index("vr_measure_issues_measure_idx").on(t.measureId),
   })

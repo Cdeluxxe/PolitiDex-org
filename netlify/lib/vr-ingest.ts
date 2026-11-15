@@ -24,10 +24,12 @@
 //                  than a gap.
 // WHAT IT DOES NOT INVENT: issue mappings + supportMeaning are editorial judgments
 // that drive the stance-vs-record verdict, so they stay a CURATION step (the seed).
-// An optional, conservative keyword classifier (classifyIssues) can SUGGEST an
-// issue at low weight, clearly marked "auto — review", and never overwrites a
-// curated mapping. It is OFF by default so the read path is never polluted with an
-// unreviewed verdict signal.
+// After each run, measures the run touched that have NO mapping row at all get
+// automatic PROPOSALS (netlify/lib/vr-issue-proposals.ts): low weight, rationale
+// "auto — review", review_status 'proposed'. Proposals never overwrite a curated
+// or reviewed mapping and are skipped by every public read until a reviewer
+// promotes them (POST /api/vr-ingest/proposals/:id/review), so the read path is
+// never polluted with an unreviewed verdict signal.
 
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { getStore } from "@netlify/blobs";
@@ -44,6 +46,7 @@ import memberMapSeed from "../../db/vr-member-map.json" with { type: "json" };
 import issueSeedData from "../../db/vr-issue-seed.json" with { type: "json" };
 import measureIdentityData from "../../db/vr-measure-identity.json" with { type: "json" };
 import { writeMemberPack, resetMappingVersionMemo } from "./vr-pack.js";
+import { proposeIssuesForMeasures } from "./vr-issue-proposals-db.js";
 import { fetchSenateRollcalls } from "./vr-senate-source.js";
 import {
   ISSUE_KEYS,
@@ -55,7 +58,6 @@ import {
   normalizePosition,
   originatingChamber,
   splitMeasureNumber,
-  suggestIssue,
   type RawAction,
   type RawMemberVote,
   type RawVote,
@@ -92,6 +94,11 @@ export type IngestReport = {
   memberVotesUpserted: number;
   membersUnmapped: number;
   issuesSuggested: number;
+  // Automatic mapping proposals (review_status 'proposed') written this run, the
+  // measures that received them, and pattern keys the issue-keys guard rejected.
+  issuesProposed: number;
+  measuresProposed: number[];
+  proposalKeysRejected: string[];
   actionsUpserted: number;
   curatedTitlesResolved: number;
   curatedMeasuresMatched: number;
@@ -580,6 +587,10 @@ export async function applyCuratedIssueSeed(
           rationale: iss.rationale || "",
           sourceUrl: iss.sourceUrl || entry.sourceUrl || null,
         };
+        // A curated seed row is curated. If an earlier run had left an automatic
+        // proposal on this same (measure, issue) pair, the seed's upsert replaces
+        // its values below and must also take it out of the review queue —
+        // otherwise the curated mapping would stay hidden as 'proposed'.
         await db
           .insert(vrMeasureIssues)
           .values(values)
@@ -590,6 +601,7 @@ export async function applyCuratedIssueSeed(
               supportMeaning: values.supportMeaning,
               rationale: values.rationale,
               sourceUrl: values.sourceUrl,
+              reviewStatus: "curated",
             },
           });
         out.issuesUpserted++;
@@ -602,15 +614,26 @@ export async function applyCuratedIssueSeed(
 // ── Core loader: idempotent upserts. No network — unit-testable with fixtures. ─
 export async function ingestVotes(
   rawVotes: RawVote[],
-  opts: { classifyIssues?: boolean; memberMap?: Record<string, string>; applyIssueSeed?: boolean; ingestActions?: boolean } = {}
+  opts: {
+    // Deprecated alias: the old inline keyword suggester wrote verdict-bearing rows.
+    // It now routes to the reviewed proposal lane below, which is on by default.
+    classifyIssues?: boolean;
+    // Automatic mapping proposals for unmapped measures (default on).
+    proposeIssues?: boolean;
+    memberMap?: Record<string, string>;
+    applyIssueSeed?: boolean;
+    ingestActions?: boolean;
+  } = {}
 ): Promise<IngestReport> {
   const report: IngestReport = {
     configured: true, fetched: rawVotes.length, measuresUpserted: 0, rollcallsUpserted: 0,
-    memberVotesUpserted: 0, membersUnmapped: 0, issuesSuggested: 0, actionsUpserted: 0,
+    memberVotesUpserted: 0, membersUnmapped: 0, issuesSuggested: 0,
+    issuesProposed: 0, measuresProposed: [], proposalKeysRejected: [], actionsUpserted: 0,
     curatedTitlesResolved: 0, curatedMeasuresMatched: 0, curatedIssuesUpserted: 0, packsWritten: 0, skipped: 0, errors: [],
   };
   const memberMap = opts.memberMap || (await loadMemberMap());
   const affectedMembers = new Set<string>();
+  const touchedMeasures = new Set<number>();
 
   for (const v of rawVotes) {
     try {
@@ -618,6 +641,7 @@ export async function ingestVotes(
 
       const measureId = await upsertMeasure(v.measure);
       report.measuresUpserted++;
+      touchedMeasures.add(measureId);
 
       // Optional: backfill the legislative-action timeline from Congress.gov for this
       // measure (idempotent + additive; never clobbers a curated seed timeline). On by
@@ -630,23 +654,6 @@ export async function ingestVotes(
           if (acts.length) report.actionsUpserted += await upsertMeasureActions(measureId, acts);
         } catch (e: any) {
           report.errors.push(`actions ${v.measure.number ?? measureId}: ${e?.message || String(e)}`);
-        }
-      }
-
-      // Optional issue suggestion (never overwrites a curated mapping).
-      if (opts.classifyIssues) {
-        const suggested = suggestIssue(v.measure.title);
-        if (suggested) {
-          await db
-            .insert(vrMeasureIssues)
-            .values({
-              measureId, issueKey: suggested, weight: 40,
-              supportMeaning: "yea_supports",
-              rationale: "auto-suggested from bill title — review before trusting the verdict",
-              sourceUrl: v.measure.sourceUrl,
-            })
-            .onConflictDoNothing({ target: [vrMeasureIssues.measureId, vrMeasureIssues.issueKey] });
-          report.issuesSuggested++;
         }
       }
 
@@ -760,6 +767,24 @@ export async function ingestVotes(
     }
   }
 
+  // Automatic mapping PROPOSALS for touched measures that still have no mapping
+  // row at all — after the curated seed, so a measure the seed covers is mapped
+  // (and skipped) first. Proposals are not verdict-bearing until reviewed; their
+  // voters join the pack refresh below because the mapping version moves.
+  if (opts.proposeIssues !== false && touchedMeasures.size) {
+    try {
+      const prop = await proposeIssuesForMeasures([...touchedMeasures], { refreshPacks: false });
+      report.issuesProposed = prop.proposalsWritten;
+      report.issuesSuggested = prop.proposalsWritten;
+      report.measuresProposed = prop.measuresProposed;
+      report.proposalKeysRejected = prop.rejectedKeys;
+      for (const pid of prop.affectedMembers) affectedMembers.add(pid);
+      report.errors.push(...prop.errors);
+    } catch (e: any) {
+      report.errors.push(`issue proposals: ${e?.message || String(e)}`);
+    }
+  }
+
   // Refresh the offline packs for everyone whose record changed.
   //
   // THE VERSION IS RE-READ FIRST. writeMemberPack resolves the current mapping
@@ -797,7 +822,8 @@ export async function runIngest(opts: {
   if (chamber !== "senate" && !hasCongressKey) {
     return {
       configured: false, fetched: 0, measuresUpserted: 0, rollcallsUpserted: 0,
-      memberVotesUpserted: 0, membersUnmapped: 0, issuesSuggested: 0, actionsUpserted: 0,
+      memberVotesUpserted: 0, membersUnmapped: 0, issuesSuggested: 0,
+    issuesProposed: 0, measuresProposed: [], proposalKeysRejected: [], actionsUpserted: 0,
       curatedTitlesResolved: 0, curatedMeasuresMatched: 0, curatedIssuesUpserted: 0, packsWritten: 0, skipped: 0,
       errors: ["CONGRESS_GOV_API_KEY not configured — House ingest skipped"],
     };
@@ -843,6 +869,12 @@ export async function verify(): Promise<{
   await count("rollcalls", db.select({ n: sql<number>`count(*)` }).from(vrRollcalls));
   await count("memberVotes", db.select({ n: sql<number>`count(*)` }).from(vrMemberVotes));
   await count("measureIssues", db.select({ n: sql<number>`count(*)` }).from(vrMeasureIssues));
+  // Automatic proposals awaiting review (visibility, not a failure — they are
+  // skipped by every public read until promoted).
+  await count(
+    "proposedMappings",
+    db.select({ n: sql<number>`count(*)` }).from(vrMeasureIssues).where(eq(vrMeasureIssues.reviewStatus, "proposed"))
+  );
   await count("measureActions", db.select({ n: sql<number>`count(*)` }).from(vrMeasureActions));
   await count("measureProvisions", db.select({ n: sql<number>`count(*)` }).from(vrMeasureProvisions));
 

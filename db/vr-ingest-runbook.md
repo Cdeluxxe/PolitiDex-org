@@ -3413,3 +3413,27 @@ node scripts/test-depth-no-score-drift.mjs
 node scripts/gen-sitemap.mjs
 node scripts/test-sitemap-bills.mjs
 ```
+
+## § Automatic mapping proposals — the review lane (`20261207000000`)
+
+Each ingest run (cron and `POST /api/vr-ingest`) proposes issue keys for the measures it
+touched that have **no** `vr_measure_issues` row at all. It runs after the curated seed, so
+any measure the seed covers is mapped first and skipped. A proposal is a normal row with
+`review_status = 'proposed'`, weight ≤ 40 and rationale `auto — review`. The keys come from
+the bill-key-patterns subject/instrument/facet regexes read over the title, short title and
+summary, falling back to the keyword suggester, and are checked against `db/issue-keys.json`.
+Proposals are **not verdict-bearing**. Every public read skips `proposed` and `rejected`
+rows: the live read, the offline pack and the digest.
+
+Review (bearer `VR_INGEST_TOKEN`, same gate as the rest of `/api/vr-ingest`):
+
+    GET  /api/vr-ingest/proposals?status=proposed
+    POST /api/vr-ingest/proposals/:id/review  {"weight":80,"supportMeaning":"yea_supports","issueKey":"…","isPrimary":true,"rationale":"…","reviewer":"…"}
+    POST /api/vr-ingest/proposals/:id/reject  {"note":"…"}
+    POST /api/vr-ingest/propose-issues        {"measureIds":[…]}
+
+Only `proposed` rows can be reviewed or rejected. Curated and reviewed rows are never edited
+from here. A review re-packs the measure's voters, and `review_status` is in the mapping
+fingerprint, so the pack key moves. Bill pages (`gen-bill-docs.mjs`) still replay
+migrations. A reviewed mapping reaches a bill page only when it is also written into a
+migration or `db/vr-issue-seed.json` and the docs are regenerated.

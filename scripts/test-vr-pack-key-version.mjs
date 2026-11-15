@@ -106,7 +106,7 @@ has(FP_SQL, "order by id", "the aggregation is ordered, so the hash is stable ac
 has(FP_SQL, "'empty'", "an empty mapping table still yields a version");
 // The fields the pack actually serves per issue, and the row count. Nothing
 // else. Every one of these is asserted individually against the DB in section 1.
-for (const col of ["measure_id", "issue_key", "weight", "support_meaning", "rationale"])
+for (const col of ["measure_id", "issue_key", "weight", "support_meaning", "rationale", "review_status"])
   has(FP_SQL, col, `the fingerprint covers ${col}`);
 ok(FP_SQL.indexOf("is_primary") < 0,
   "the fingerprint must NOT cover the retired is_primary flag — the pack no longer serves it");
@@ -145,10 +145,12 @@ if (!DB) {
     )).rows.map((r) => r.column_name);
     must(cols.length > 0, "vr_measure_issues does not exist in this database");
     const list = cols.join(", ");
-    const covered = ["measure_id", "issue_key", "weight", "support_meaning", "rationale"];
+    const covered = ["measure_id", "issue_key", "weight", "support_meaning", "rationale", "review_status"];
     // id identifies the row and orders the aggregate; source_url is deliberately out;
-    // is_primary is a retired leaf flag the pack no longer serves.
-    const exempt = ["id", "source_url", "is_primary"];
+    // is_primary is a retired leaf flag the pack no longer serves; reviewed_at /
+    // reviewed_by are the review audit trail, never pack content (review_status,
+    // which decides whether the pack serves a row at all, IS fingerprinted).
+    const exempt = ["id", "source_url", "is_primary", "reviewed_at", "reviewed_by"];
     const unknown = cols.filter((c) => !covered.includes(c) && !exempt.includes(c));
 
     section("3. every mapping column is either fingerprinted or deliberately exempt");

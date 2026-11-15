@@ -281,6 +281,15 @@ const requireShim = (spec) => {
   if (spec.endsWith("issue-keys.json")) return JSON.parse(read("db/issue-keys.json"));
   if (spec.endsWith("vr-corrections.js"))
     return { loadCorrections: async () => new Map(), applyCorrections: (rows) => rows };
+  // The review-status vocabulary is dependency-free and executed as shipped.
+  if (spec.endsWith("vr-review-status.js")) {
+    const js = esbuild.transformSync(read("netlify/lib/vr-review-status.ts"), {
+      loader: "ts", format: "cjs", target: "es2022", sourcefile: "vr-review-status.ts",
+    }).code;
+    const m = { exports: {} };
+    vm.runInThisContext(`(function (exports, module) {${js}\n})`, { filename: "vr-review-status.ts" })(m.exports, m);
+    return m.exports;
+  }
   throw new Error(`vr-pack.ts imported something this harness does not stub: ${spec}`);
 };
 
