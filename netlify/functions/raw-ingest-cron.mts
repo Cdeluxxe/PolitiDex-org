@@ -135,6 +135,24 @@
 //     per planned politician join the pull list, inside the unchanged caps (a
 //     page the seen ledger shows was already read gives up its slot when the
 //     politician is at the cap). "discovery: fresh pages …" logs the tally.
+//     Planned politicians often hold no frontier pages (their pages are single
+//     releases, nothing to harvest), so free run slots under the source cap go
+//     to the best frontier pages of other politicians (FRESH_SPARE_PER_RUN,
+//     FRESH_PER_POLITICIAN each; the rotation itself is untouched).
+//     "discovery: frontier — …" says how many candidates were considered and
+//     why each one passed over was skipped; "discovery: fresh outcome …" says,
+//     per fresh page, whether it was fetched and which Locker item(s) it wrote
+//     or why none.
+//   · HOST HEALTH (raw-ingest-hosts.mjs) — every failure is classified (dns,
+//     timeout, reset, tls, 403, 429, 5xx, 404 …). A host failing at host level
+//     HOST_SKIP_FAILS times in a cycle, with no success, is skipped for the rest
+//     of the cycle; within a run pages on one host are pulled probe-first. A
+//     run where every fetch fails at the network level across hosts is logged
+//     as a RUN-SIDE OUTAGE and penalises no host.
+//   · LOCKER READS are bounded (locker-read.mjs). The unbounded whole-Locker
+//     read (one socket per item, 1,000+ items) used to exhaust the function's
+//     file descriptors, after which every pull and every database query in the
+//     run failed instantly with "fetch failed".
 //   · TOPIC TARGETING — a page filed under a default topic is scored under the
 //     topic the page signals, preferring topics the politician has thin or no
 //     Locker coverage on ("stance-score: TARGET …"). Known issue keys only.
@@ -160,7 +178,11 @@ import { lockerEntriesFor, syncPolitician, promotableWrite } from "../lib/stated
 import {
   readFreshState, saveFreshState, harvestLinks, mergeFrontier, markSeen, addFreshSources, targetTopic,
   isHarvestable, sharedHosts, normUrl, normaliseFreshState, FRESH_PER_POLITICIAN,
+  FRESH_SPARE_PER_RUN, noteFreshFailures,
 } from "../lib/raw-ingest-fresh.mjs";
+import {
+  readHostHealth, saveHostHealth, normaliseHostHealth, skippedHosts, filterSkippedHosts, recordHostResults, HOST_LEVEL,
+} from "../lib/raw-ingest-hosts.mjs";
 import { retiredSourcesLine, RETIRED_VERSION, RETIRED_LOG_KEY } from "../lib/raw-ingest-retired.mjs";
 import groundTruth from "../../db/stance-ground-truth-talarico-cost-of-living.json" with { type: "json" };
 import reviewFile from "../../db/evidence-locker-review.json" with { type: "json" };
@@ -181,6 +203,8 @@ export async function logRetiredOnce(store: any, log: (l: string) => void, now: 
     return false;
   }
 }
+
+const hostOfUrl = (u: string) => { try { return new URL(u).hostname.replace(/^www\./, "").toLowerCase(); } catch { return ""; } };
 
 async function readRotationState(store: any, log: (l: string) => void): Promise<any> {
   if (!store) return normaliseRotationState(null);
@@ -212,7 +236,11 @@ export async function run(deps: {
   // Fresh evidence pass (see header). `store` holds the frontier + seen ledger
   // (defaults to rotationStore); `state` = { frontier, seen } overrides it and
   // `counts` the Locker baseline counts used for topic targeting (tests).
-  fresh?: boolean | { store?: any; state?: any; counts?: Record<string, { strong?: number; weak?: number }>; per?: number };
+  fresh?: boolean | { store?: any; state?: any; counts?: Record<string, { strong?: number; weak?: number }>; per?: number; spare?: number };
+  // Host health (raw-ingest-hosts.mjs): hosts failing at host level this cycle
+  // are skipped for the rest of it. `hostHealth` = { hosts } overrides the
+  // stored doc (tests); otherwise it lives in rotationStore. Rotation runs only.
+  hostHealth?: any;
 }) {
   const log = deps.log ?? ((l: string) => console.log(l));
   const startedAt = Date.now();
@@ -221,6 +249,9 @@ export async function run(deps: {
   let plan: any = null;
   let roster: any[] = ROSTER;
   let counts: Record<string, any> = {};
+  let hostHealth: any = null;
+  let skipHosts: Map<string, any> = new Map();
+  const freshOutcome = new Map<string, { written: string[]; reasons: string[] }>();
   const flags = loadReviewFlags(deps.reviewFlags ?? reviewFile);
   const nowFn = deps.now ?? (() => new Date());
   // ── Fresh evidence pass: state + the discovery-body harvest ──
@@ -260,11 +291,22 @@ export async function run(deps: {
     const who = plan.politicians.map((p: string) => `${p} (t${tierOf.get(p)}${dep.has(p) ? ", deprioritised: every issue filled" : ""})`);
     const skip = plan.skipped.length ? ` · not chased (filled): ${plan.skipped.map((x: any) => `${x.politician_id}|${x.topic}`).join(", ")}` : "";
     console.log(`raw-ingest: run plan — cycle ${plan.cycle} · ${plan.politicians.length} politician(s): ${who.join(", ")} · ${plan.sources.length} page(s) + ${plan.patterns.length} official pattern(s) (cap ${max}) · ${plan.remaining_in_cycle.length} left this cycle${skip}`);
-    const d = await discoverSources(plan.sources, { fetch: deps.fetch, log, patterns: plan.patterns, max, restrict: false, onBody });
+    // Hosts that failed at host level earlier this cycle: their pages, patterns
+    // and frontier pages are left out before any slot is spent on them.
+    hostHealth = deps.hostHealth ? normaliseHostHealth({ ...deps.hostHealth, cycle: plan.cycle }, plan.cycle) : await readHostHealth(deps.rotationStore, plan.cycle, log);
+    skipHosts = skippedHosts(hostHealth);
+    const protect = new Set([normUrl(SOURCES[0].url)]);
+    const ps = filterSkippedHosts(plan.sources, skipHosts, { protect, norm: normUrl });
+    const pp = filterSkippedHosts(plan.patterns, skipHosts, { protect, norm: normUrl });
+    for (const [h, x] of skipHosts) {
+      const n = [...ps.dropped, ...pp.dropped].filter((s: any) => hostOfUrl(s.url) === h).length;
+      log(`raw-ingest: HOST-SKIP ${h} — ${x.fails} host-level failure(s) this cycle, none OK (last: ${x.last_error || x.cls}); ${n} planned page(s) left out for the rest of cycle ${plan.cycle}`);
+    }
+    const d = await discoverSources(ps.kept, { fetch: deps.fetch, log, patterns: pp.kept, max, restrict: false, onBody });
     sources = d.sources;
     discovered = d.added;
     if (fresh) {
-      const f = addFreshSources(sources, fresh, { politicians: plan.politicians, max, perPolitician: MAX_SOURCES_PER_POLITICIAN, per: fo.per ?? FRESH_PER_POLITICIAN, protect: new Set([normUrl(SOURCES[0].url)]), log });
+      const f = addFreshSources(sources, fresh, { politicians: plan.politicians, max, perPolitician: MAX_SOURCES_PER_POLITICIAN, per: fo.per ?? FRESH_PER_POLITICIAN, protect, skipHosts: new Set(skipHosts.keys()), spare: fo.spare ?? FRESH_SPARE_PER_RUN, log });
       sources = f.sources;
       discovered = [...discovered, ...f.added];
       (freshTally as any).added = f.added.length;
@@ -327,22 +369,51 @@ export async function run(deps: {
     const candidates = logCandidateStances(rec, { log });
     for (const c of candidates) topicsScored[c.topic] = (topicsScored[c.topic] || 0) + 1;
     if (!deps.lockerStore) return;
+    const oc = String(rec?.source_id || "").startsWith("fresh-") ? (freshOutcome.get(incoming.url) || freshOutcome.set(incoming.url, { written: [], reasons: [] }).get(incoming.url)!) : null;
     if (!candidates.length) {
+      if (oc) oc.reasons.push("no scored candidate (no topic language the scorer could read)");
       log(`evidence-locker: SKIP ${rec?.politician_id}|${rec?.topic}${rec?.source_id ? "|" + rec.source_id : ""} — no scored candidate`);
       return;
     }
     for (const candidate of candidates) {
       const w = await maybeWriteLockerItem(candidate, rec, { store: deps.lockerStore, gt, log, flags });
+      if (oc) { if (w.written) oc.written.push(`${candidate.topic} ${w.item?.strength}`); else oc.reasons.push(`${candidate.topic}: ${w.reason || "not written"}`); }
       if (w.written) lockerWrites.push({ key: w.key, politician_id: candidate.politician_id, topic: candidate.topic, strength: w.item?.strength, confidence: w.item?.confidence, ...(candidate.topic !== rec.topic ? { page_topic: rec.topic } : {}) });
     }
   };
-  const report: any = await runRawIngest({ ...deps, onRecord }, sources);
+  const report: any = await runRawIngest({ ...deps, onRecord, log, probeHosts: plan ? true : (deps as any).probeHosts }, sources);
+  // Host health: fold this run in (a run-side outage penalises no host).
+  let outage = false;
+  if (hostHealth) {
+    const hr = recordHostResults(hostHealth, report.results, { at: nowFn().toISOString() });
+    outage = hr.outage;
+    if (hr.outage) log(`raw-ingest: RUN-SIDE OUTAGE — every fetch failed at the network level across several hosts (${[...new Set(report.results.map((r: any) => r.error_class))].join(", ")}); no host penalised, the function's own network is the likely cause`);
+    for (const h of hr.newlySkipped) log(`raw-ingest: HOST-SKIP ${h} — now skipped for the rest of cycle ${plan.cycle} (${hostHealth.hosts[h].fails} host-level failure(s): ${hostHealth.hosts[h].last_error})`);
+    if (!deps.hostHealth) await saveHostHealth(deps.rotationStore, hostHealth, { now: nowFn(), log });
+    report.host_health = { cycle: hostHealth.cycle, skipped: [...skippedHosts(hostHealth).keys()], outage };
+  }
   if (fresh) {
+    // Each fresh page this run: fetched? a new Locker item, or why not.
+    const resByUrl = new Map(report.results.map((r: any) => [r.url, r]));
+    const outcomes: any[] = [];
+    for (const a of discovered.filter((x: any) => String(x.source_id || "").startsWith("fresh-"))) {
+      const r: any = resByUrl.get(a.url);
+      const oc = freshOutcome.get(a.url);
+      const what = !r ? "not pulled"
+        : r.host_skipped ? `not fetched — ${r.error}`
+        : !r.ok ? `fetch failed — ${r.error}`
+        : oc?.written.length ? `fetched OK · ${oc.written.length} new Locker item(s): ${oc.written.join(", ")}`
+        : `fetched OK · no new item — ${oc?.reasons.length ? [...new Set(oc.reasons)].join("; ") : "no candidate reached the Locker writer"}`;
+      outcomes.push({ politician_id: a.politician_id, url: a.url, ok: !!r?.ok, items: oc?.written.length || 0, outcome: what });
+      log(`discovery: fresh outcome ${a.politician_id} ${a.url} — ${what}`);
+    }
     // Everything fetched this run is now "seen"; the frontier forgets it.
     markSeen(fresh, report.results.filter((r: any) => r.ok && !r.youtube).map((r: any) => r.url), nowFn().toISOString());
+    const retired = noteFreshFailures(fresh, report.results, { at: nowFn().toISOString(), outage, hostLevel: HOST_LEVEL });
+    if (retired.length) log(`discovery: ${retired.length} failing fresh page(s) retired from the frontier: ${retired.join(", ")}`);
     if (!fo.state) await saveFreshState(freshStore, fresh, { now: nowFn(), log });
     const frontierSize = Object.values(fresh.frontier).reduce((n: number, l: any) => n + l.length, 0);
-    report.fresh = { added: (freshTally as any).added || 0, displaced: (freshTally as any).displaced || 0, harvested: freshTally.harvested, frontier: frontierSize, seen: Object.keys(fresh.seen).length, targeted };
+    report.fresh = { added: (freshTally as any).added || 0, outcomes, displaced: (freshTally as any).displaced || 0, harvested: freshTally.harvested, frontier: frontierSize, seen: Object.keys(fresh.seen).length, targeted };
     log(`raw-ingest: fresh evidence — ${report.fresh.added} unfetched page(s) pulled, ${freshTally.harvested} candidate page(s) harvested from ${freshTally.from_pages} page(s), ${targeted.length} page(s) retargeted${targeted.length ? ` (${targeted.map((x) => `${x.politician_id} ${x.from}→${x.topic}`).join(", ")})` : ""} · frontier ${frontierSize}`);
   }
   // YouTube: how often the transcript worked vs. the description fallback.

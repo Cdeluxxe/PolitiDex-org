@@ -340,43 +340,122 @@ export function markSeen(state, urls, at) {
 
 const isIndexLike = (s) => isUntargeted(s) && !String(s.source_id || "").startsWith("fresh-");
 
+// Spare run slots: when the planned politicians leave the run under its source
+// cap, up to FRESH_SPARE_PER_RUN frontier pages of OTHER politicians (best
+// ranked first, FRESH_PER_POLITICIAN each) take those slots. The rotation is
+// untouched (they are not "planned"); the run and per-politician caps hold.
+export const FRESH_SPARE_PER_RUN = 12;
+// A fresh page that fails at host level this many times leaves the frontier.
+export const FRESH_MAX_ATTEMPTS = 2;
+// Per-candidate skip lines logged per run (the summary line counts them all).
+export const FRESH_SKIP_LOG_LIMIT = 20;
+
 /**
  * Put up to FRESH_PER_POLITICIAN unfetched frontier pages per planned
  * politician into the pull list, within `max` (run) and `perPolitician`.
  * When a politician is at their cap, a page the seen ledger already holds is
- * displaced (never an index-like page, never `protect`ed URLs).
- * Returns { sources, added, displaced }. Logs one "discovery: NEW …" line per
- * fresh page and one "discovery: DISPLACED …" per swap.
+ * displaced (never an index-like page, never `protect`ed URLs). Then, with
+ * `spare` > 0, frontier pages of politicians outside the plan fill free run
+ * slots. Candidates on `skipHosts` (failing this cycle) are passed over.
+ * Returns { sources, added, displaced, considered, skipped, reasons }.
+ * Logs one "discovery: NEW …" line per fresh page, one "discovery: DISPLACED …"
+ * per swap, one "discovery: frontier SKIP …" per passed-over candidate (up to
+ * FRESH_SKIP_LOG_LIMIT) and a "discovery: frontier —" summary line.
  */
-export function addFreshSources(sources, state, { politicians, max, perPolitician, per = FRESH_PER_POLITICIAN, protect = new Set(), log = console.log } = {}) {
+export function addFreshSources(sources, state, { politicians, max, perPolitician, per = FRESH_PER_POLITICIAN, protect = new Set(), skipHosts = new Set(), spare = 0, log = console.log } = {}) {
   const out = [...sources];
   const known = new Set(out.map((s) => normUrl(s.url)));
-  const added = [], displaced = [];
-  for (const pid of politicians || [...new Set(out.map((s) => s.politician_id))]) {
-    const queue = (state.frontier[pid] || []).filter((x) => !known.has(normUrl(x.url)) && !state.seen[normUrl(x.url)]);
-    let n = 0;
-    for (const cand of queue) {
-      if (n >= per) break;
+  const added = [], displaced = [], skipped = [];
+  const reasons = {};
+  let considered = 0, beyondLimit = 0, spareAdded = 0;
+  const skip = (pid, cand, why) => { reasons[why] = (reasons[why] || 0) + 1; skipped.push({ politician_id: pid, url: cand.url, reason: why }); };
+  const planned = politicians || [...new Set(out.map((s) => s.politician_id))];
+
+  const take = (pid, { spareSlot }) => {
+    const list = state.frontier[pid] || [];
+    let n = 0, i = 0;
+    for (; i < list.length; i++) {
+      const cand = list[i];
+      if (n >= per || (spareSlot && spareAdded >= spare)) break;
+      considered++;
+      const u = normUrl(cand.url);
+      if (known.has(u)) { skip(pid, cand, "already in this run's pull list"); continue; }
+      if (state.seen[u]) { skip(pid, cand, "already fetched (seen ledger)"); continue; }
+      const h = hostOf(cand.url);
+      if (skipHosts.has(h)) { skip(pid, cand, "host failing this cycle (skipped)"); continue; }
       const mine = out.filter((s) => s.politician_id === pid);
       let room = mine.length < perPolitician && out.length < max;
       if (!room) {
+        if (spareSlot) { skip(pid, cand, out.length >= max ? `run cap (${max}) reached` : `politician cap (${perPolitician}) reached`); i++; break; }
         // Swap out a page already fetched before (a pure re-read) for the fresh one.
         const victim = [...mine].reverse().find((s) => state.seen[normUrl(s.url)] && !isIndexLike(s) && !s.official_kind && !protect.has(normUrl(s.url)) && !String(s.source_id || "").startsWith("fresh-"));
-        if (!victim) break;
+        if (!victim) {
+          skip(pid, cand, mine.length >= perPolitician
+            ? `politician cap (${perPolitician}) reached and no already-read page to displace (the rest are index, official or unread pages)`
+            : `run cap (${max}) reached and no already-read page of this politician to displace`);
+          i++;
+          break;
+        }
         out.splice(out.indexOf(victim), 1);
         displaced.push(victim);
         log(`discovery: DISPLACED ${pid}|${victim.topic} ${victim.url} — already read; slot given to an unfetched page`);
         room = true;
       }
-      const { rank, found_from, found_at, ...src } = cand;
+      const { rank, found_from, found_at, attempts, ...src } = cand;
       out.push(src);
-      known.add(normUrl(src.url));
-      added.push({ ...src, found_from });
+      known.add(u);
+      added.push({ ...src, found_from, ...(spareSlot ? { spare_slot: true } : {}) });
       n++;
-      log(`discovery: NEW ${pid}|${src.topic} ${src.url} (${src.source_type} · fresh, linked from ${found_from}) — added to this run's pull list`);
+      if (spareSlot) spareAdded++;
+      log(`discovery: NEW ${pid}|${src.topic} ${src.url} (${src.source_type} · fresh, linked from ${found_from}${spareSlot ? " · spare run slot" : ""}) — added to this run's pull list`);
+    }
+    beyondLimit += Math.max(0, list.length - i);
+  };
+
+  for (const pid of planned) take(pid, { spareSlot: false });
+  const plannedSet = new Set(planned);
+  if (spare > 0) {
+    const others = Object.keys(state.frontier)
+      .filter((pid) => !plannedSet.has(pid) && state.frontier[pid]?.length)
+      .sort((a, b) => (Number(state.frontier[b][0]?.rank) || 0) - (Number(state.frontier[a][0]?.rank) || 0) || a.localeCompare(b));
+    for (const pid of others) {
+      if (spareAdded >= spare || out.length >= max) break;
+      take(pid, { spareSlot: true });
     }
   }
-  return { sources: out, added, displaced };
+
+  const withFrontier = planned.filter((pid) => state.frontier[pid]?.length).length;
+  const total = Object.values(state.frontier).reduce((n, l) => n + l.length, 0);
+  const pols = Object.keys(state.frontier).length;
+  skipped.slice(0, FRESH_SKIP_LOG_LIMIT).forEach((x) => log(`discovery: frontier SKIP ${x.politician_id} ${x.url} — ${x.reason}`));
+  if (skipped.length > FRESH_SKIP_LOG_LIMIT) log(`discovery: frontier SKIP … +${skipped.length - FRESH_SKIP_LOG_LIMIT} more (counted below)`);
+  const why = Object.entries(reasons).map(([r, k]) => `${r} ×${k}`);
+  log(`discovery: frontier — ${planned.length} planned politician(s), ${withFrontier} with frontier pages (frontier holds ${total} across ${pols} politician(s)) · considered ${considered} candidate(s): ${added.length} added (${added.length - spareAdded} for planned politicians, ${spareAdded} in spare run slots), ${displaced.length} re-read(s) displaced · skipped: ${why.length ? why.join("; ") : "none"}${beyondLimit ? ` · ${beyondLimit} left queued (past the ${per}-per-politician limit or the cap)` : ""}${!withFrontier && !spareAdded ? " · none of this run's politicians has frontier pages yet" : ""}`);
+  return { sources: out, added, displaced, considered, skipped, reasons, spare_added: spareAdded };
+}
+
+/**
+ * After the pull: a fresh page that failed for page-level reasons (404, empty
+ * body, other 4xx) is retired to the seen ledger; one that failed at host level
+ * is retried until FRESH_MAX_ATTEMPTS, then retired. Pages left out because
+ * their host was down (host_skipped) or during a run-side outage stay queued.
+ * Returns the URLs retired.
+ */
+export function noteFreshFailures(state, results, { at = new Date().toISOString(), outage = false, hostLevel = new Set() } = {}) {
+  const retired = [];
+  if (outage) return retired;
+  for (const r of results || []) {
+    if (r.ok || r.host_skipped || !r.url || r.error_class === "local_fd") continue;
+    const n = normUrl(r.url);
+    for (const list of Object.values(state.frontier)) {
+      const cand = list.find((x) => normUrl(x.url) === n);
+      if (!cand) continue;
+      cand.attempts = (Number(cand.attempts) || 0) + 1;
+      if (!hostLevel.has(r.error_class) || cand.attempts >= FRESH_MAX_ATTEMPTS) { state.seen[n] = at; retired.push(r.url); }
+    }
+  }
+  if (retired.length) markSeen(state, [], at);
+  return retired;
 }
 
 // ── Topic targeting ─────────────────────────────────────────────────────────

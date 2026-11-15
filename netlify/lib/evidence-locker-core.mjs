@@ -51,6 +51,7 @@
 import { createHash } from "node:crypto";
 import { ISSUE_TOPIC_LABELS } from "./stance-topic-vocab.mjs";
 import { statedSourceRule, namesBillOrOutcome, quotedSpeakerOf, KIND_LABELS, WEIGHTS as SCORE_WEIGHTS } from "./stance-score-core.mjs";
+import { readLockerDocs } from "./locker-read.mjs";
 
 export const LOCKER_STORE_NAME = "evidence-locker";
 export const LOCKER_MIN_CONFIDENCE = 0.8;
@@ -412,7 +413,7 @@ export async function lockerBaselineCounts(store, { flags = null, pids = null, l
   try {
     const { blobs = [] } = (await store.list()) || {};
     const keys = blobs.map((b) => b.key).filter((k) => !want || want.has(String(k).split("/")[0]));
-    const docs = await Promise.all(keys.map(async (key) => ({ key, doc: await store.get(key, { type: "json" }).catch(() => null) })));
+    const docs = await readLockerDocs(store, keys);
     for (const { key, doc } of docs) {
       if (!doc || !doc.politician_id || !doc.topic) continue;
       if (want && !want.has(doc.politician_id)) continue;

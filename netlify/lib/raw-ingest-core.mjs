@@ -1,4 +1,5 @@
 import { REQUESTED_POLITICIANS } from "./raw-ingest-expansion.mjs";
+import { describeFetchError, pullProbeFirst } from "./raw-ingest-hosts.mjs";
 import { EXTRA_SOURCES, NEW_STATE_LEGISLATORS, SOURCE_CLASSES, NEW_SOCIAL_ROSTER, SOCIAL_SOURCES } from "./raw-ingest-source-types.mjs";
 import { pullYouTube, isSocial, SOCIAL_CLASSES } from "./raw-ingest-social.mjs";
 
@@ -110,9 +111,11 @@ export async function pullOne(src, { fetch, store, now = () => new Date(), onRec
     }
     return { ok: true, key, url: src.url, fetched_at: fetchedAt, body_chars: body.length };
   } catch (e) {
-    const error = e?.message || String(e);
+    // "fetch failed" alone says nothing: the class + cause (dns, timeout,
+    // reset, tls, 403, 429 …) go into the log line and the result.
+    const { cls, error } = describeFetchError(e);
     console.log(`raw-ingest: FAIL ${src.url} at ${fetchedAt} — ${error}`);
-    return { ok: false, url: src.url, fetched_at: fetchedAt, error };
+    return { ok: false, url: src.url, fetched_at: fetchedAt, error, error_class: cls };
   }
 }
 
@@ -198,7 +201,7 @@ export async function discoverSources(sources, { fetch, log = console.log, patte
       if (stable.ok && onBody) { try { onBody(p, res, body); } catch {} }
       return { p, ...stable };
     } catch (e) {
-      return { p, ok: false, why: e?.message || String(e) };
+      return { p, ok: false, why: describeFetchError(e).error };
     }
   }));
   const out = [...sources];
@@ -218,9 +221,18 @@ export async function discoverSources(sources, { fetch, log = console.log, patte
 export async function runRawIngest(deps, sources = SOURCES) {
   // Concurrent; pullOne never throws, so one failed source cannot block the rest.
   // Results (and the summary) keep source order.
-  const results = await Promise.all(sources.map((src) => pullOne(src, deps)));
+  // `probeHosts` (the cron): pages on one host go probe-first, so a host that is
+  // down costs one fetch (raw-ingest-hosts.mjs pullProbeFirst).
+  const pull = (src) => pullOne(src, deps);
+  const results = deps.probeHosts
+    ? await pullProbeFirst(sources, pull, { log: deps.log ?? console.log })
+    : await Promise.all(sources.map(pull));
   const failed = results.filter((r) => !r.ok).length;
+  const skipped = results.filter((r) => r.host_skipped).length;
+  const classes = {};
+  for (const r of results) if (!r.ok && !r.host_skipped) classes[r.error_class || "other"] = (classes[r.error_class || "other"] || 0) + 1;
   console.log(`raw-ingest: run complete — ${results.length - failed} ok, ${failed} failed`);
+  if (failed) console.log(`raw-ingest: failures by class — ${Object.entries(classes).map(([c, n]) => `${c} ×${n}`).join(", ") || "none"}${skipped ? ` · ${skipped} page(s) skipped (host failed earlier in this run)` : ""}`);
   return { ok: failed === 0, results };
 }
 
