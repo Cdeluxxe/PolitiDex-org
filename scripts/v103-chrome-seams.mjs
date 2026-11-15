@@ -3120,7 +3120,7 @@ export function assertWordActionSeams(bodies, api) {
   has(veto, "var laneUntested = formalActsTestNothing(pid, tested, p);",
     "the second veto no longer asks its own predicate. A lane that is on file and tests nothing is " +
     "not the same silence as a lane that is empty, and read() owns both");
-  has(veto, "var pct = publishable && wN ? Math.round(wSum / wN) : null;",
+  has(veto, "var pct = publishable ? directionPct(counts, tested.length) : null;",
     "the percentage is no longer taken from the gate above it, character for character");
   has(veto, "var token = publishable ? outcomeToken\n              : (warming ? 'pending' : (items.length ? 'limited' : 'no_stance'));",
     "the fallback ladder moved. `no_record` is the more exact word for an empty formal lane than " +

@@ -873,13 +873,21 @@
     try { return cs.execActions.scope(); } catch (e) { return null; }
   }
 
+  // The one formula, exported so every face and every test asks the same thing.
+  // `counts` is read()'s tally by verdict token; `n` is the tested set's size.
+  function directionPct(counts, n) {
+    if (!n) return null;
+    var c = (counts && counts.consistent) || 0, m = (counts && counts.mixed) || 0;
+    return Math.round(100 * (c + m / 2) / n);
+  }
+
   function _read(pid, p, want) {
     var items = wordLedger(pid, p);
     var tested = [], untested = [];
     var counts = { consistent: 0, contradicts: 0, mixed: 0, limited: 0 };
-    var wSum = 0, wN = 0, warming = false, issueLinked = 0, derived = 0, scorable = 0;
+    var wN = 0, warming = false, issueLinked = 0, derived = 0, scorable = 0;
     var trackedPledges = 0;
-    // Weight on each side of the ledger, kept apart from wSum so the overall
+    // Weight on each side of the ledger, kept apart from wN so the overall
     // outcome can be put through the shared Mixed gate rather than flipping to
     // "Mixed record" the instant one contradiction appears next to seven backings.
     var consW = 0, contraW = 0;
@@ -907,7 +915,7 @@
         tested.push(it);
         var w = it.weight * (t.evidence || 1);
         it.appliedWeight = w;
-        wSum += t.score * w; wN += w;
+        wN += w;
         if (t.token === 'consistent') consW += w;
         else if (t.token === 'contradicts') contraW += w;
         bucket.tested++; bucket.weight += w;
@@ -954,7 +962,24 @@
 
     // Rule 4 — fail closed. Both floors must clear before a number exists.
     var publishable = !laneEmpty && !laneUntested && tested.length >= MIN_TESTED_ITEMS && wN >= MIN_TESTED_WEIGHT;
-    var pct = publishable && wN ? Math.round(wSum / wN) : null;
+    // THE PERCENTAGE IS THE BUCKETS' OWN ARITHMETIC. It used to be the weighted
+    // mean of each tested issue's own score (a Backed up issue could score 67 or
+    // 86, a Mixed one 50 or 67) times its tier weight times its evidence depth.
+    // That figure was defensible and nobody could check it: /p/trump printed 79%
+    // over 23 Backed up · 2 Contradicted · 11 Mixed, and no sum of those counts
+    // gives 79. So the number is now a count a reader can redo from the counts
+    // printed under it:
+    //
+    //     pct = round(100 × (Backed up + ½ × Mixed) ÷ issues tested)
+    //
+    // Backed up counts in full, Contradicted counts zero, Mixed — a record that
+    // pointed both ways — counts half. The denominator is the tested set, the
+    // same `coverage.tested` the "N of M issues tested" caption prints and the
+    // same rows the three result buckets hold. Not enough on file and Record only
+    // are not tested and sit outside it. Weight still decides whether a number
+    // exists (the floor above) and which way the verdict word reads (the Mixed
+    // gate), never what the number is.
+    var pct = publishable ? directionPct(counts, tested.length) : null;
 
     // …and the WORDS fail closed with the number. One tested item saying
     // "consistent" would otherwise render a confident "✓ Backs it up" next to a
@@ -1526,7 +1551,7 @@
           '<p><b>Word</b> is weighted by how firmly it was said: a pledge counts ' + TIERS.pledge.weight +
             ', a stated position ' + TIERS.position.weight + ', a signature issue they campaign on ' + TIERS.branding.weight +
             '. An issue also earns up to ' + r.floors.evidenceCap + '× for the depth of formal record behind it, ' +
-            'so an issue decided by ' + (ex ? 'one action' : 'one vote') + ' does not count as much as one decided by ten.</p>' +
+            'so an issue decided by ' + (ex ? 'one action' : 'one vote') + ' does not settle the overall verdict the way one decided by ten can.</p>' +
           '<p><b>Action</b> is the Official Record only — ' +
             (ex ? 'the laws they signed or vetoed, the executive orders and the formal directives on file. '
                 : 'roll-call votes, sponsorships and formal acts. ') +
@@ -1536,7 +1561,9 @@
                 : '“Voted no on H.R. 8”, cited to the House Clerk. Scoring that against the same roll call would return 100% for ') +
             'everyone and mean nothing, so those items are listed as positions and left out of the number. Only word with ' +
             'something of their own in it — a quotation, a stated view, a platform or campaign claim — is tested.</p>' +
-          '<p><b>The percentage</b> is the weighted share of tested word their record backs up. It appears only once at least ' +
+          '<p><b>The percentage</b> is worked out from the counts shown: issues Backed up count in full, Mixed count half, ' +
+            'Contradicted count zero, divided by the issues tested. Not enough on file and Record only are not tested and are left out. ' +
+            'The weights above decide whether there is enough to publish a number, not what the number is. It appears only once at least ' +
             r.floors.items + ' items are tested and their combined weight reaches ' + r.floors.weight +
             ', so a whole-profile read never rests on ' + (ex ? 'a single action' : 'a single vote') + '. Unresolved pledges and untested positions are excluded ' +
             'from the number and reported as coverage instead — they are not counted against anyone.</p>' +
@@ -4083,6 +4110,15 @@
     // under the big number above so a reader comparing the two is comparing like
     // with like.
     var counted = c.coverage.tested + ' of ' + c.coverage.scorable + ' issues tested';
+    // …and the slice's own three result counts, so its percentage can be redone
+    // from this line alone the way the main one can from the buckets: the slice's
+    // tally is not the all-time buckets above it, and without these a reader
+    // holding "79%" and "36 issues tested" has nothing to check it against.
+    if (has) {
+      var k = c.counts || {};
+      counted += ' · ' + (k.consistent || 0) + ' backed up, ' + (k.contradicts || 0) +
+                 ' contradicted, ' + (k.mixed || 0) + ' mixed';
+    }
 
     // The containment sentence — the one line that stops the two figures being read
     // as rival systems. Its tail is the "why they can differ" answer, and it is only
@@ -7263,6 +7299,7 @@
 
   window.PDXWordAction = {
     FRAME: FRAME,
+    directionPct: directionPct,
     TIERS: TIERS,
     TIER_ORDER: TIER_ORDER,
     MIN_TESTED_ITEMS: MIN_TESTED_ITEMS,

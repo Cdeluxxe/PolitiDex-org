@@ -12203,7 +12203,17 @@
 //     moves; the precache list is unchanged. No location key or other stored
 //     reader state is written or rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v567';
+// v568 - DIRECTION MATCH % IS THE BUCKETS' OWN SUM. word-action.js now computes
+//     the person-page percentage as round(100 × (Backed up + ½ Mixed) ÷ issues
+//     tested), the same rows the result buckets and the "N issues tested"
+//     caption count, instead of a tier- and depth-weighted mean of per-issue
+//     scores no reader could redo. The current-term line prints its own counts
+//     beside its percentage. Issue verdicts, floors and the overall verdict word
+//     are unchanged. No route or gate is added. A precached file changed, so the
+//     shell moves; the precache list is unchanged. No location key or other
+//     stored reader state is written or rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v568';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
