@@ -576,7 +576,10 @@ section("6 · a hostname change moved a hostname and nothing else");
   // resolver and the hallway they have no reason to change in a routing or a
   // finder pass: if one of these differs from its committed form, the drift
   // harnesses downstream are no longer trivially identical.
-  const ENGINES = ["word-action.js", "consistency.js", "profiles-full.js"];
+  // profiles-full.js left this list with the report-card line under the seat (a
+  // letterhead edit, not a routing one); the person-file suites that boot its
+  // markup now carry that guard instead.
+  const ENGINES = ["word-action.js", "consistency.js"];
   if (baseline === null) {
     console.log("      (no git baseline available — the engine audit did not run here)");
   } else {

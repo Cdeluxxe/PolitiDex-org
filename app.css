@@ -1986,6 +1986,20 @@
       border-bottom: 1px solid rgba(255,255,255,0.09);
       box-shadow: 0 10px 22px -14px rgba(0,0,0,0.75);
     }
+    /* The chip row is retired from view: the report-card line under the seat
+       (.profile-report) prints its figures once, in plain text. */
+    #pdx-profile-nav.pdx-pnav, .pdx-pnav[hidden] { display: none !important; }
+    /* THE REPORT-CARD LINE — stances · actions · term · evidence · updated. Plain
+       text with middle dots, sized between the seat line and the chips. */
+    .profile-report {
+      font-family: 'Barlow', sans-serif; font-weight: 500;
+      font-size: 0.8rem; line-height: 1.45; color: #9fb4d4;
+      margin: 0 0 0.6rem;
+    }
+    .profile-office + .profile-report { margin-top: -0.3rem; }
+    .profile-report .pr-seg { white-space: nowrap; }
+    .profile-report .pr-seg[data-pr-pending] { color: #647a9c; font-style: italic; }
+    .profile-report .pr-dot { color: #41597d; }
     @media (min-width: 640px) {
       .pdx-pnav { margin-left: -1.5rem; margin-right: -1.5rem; padding-left: 1.5rem; padding-right: 1.5rem; }
     }
