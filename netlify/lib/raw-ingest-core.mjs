@@ -176,7 +176,10 @@ export function isStablePage(requestedUrl, res, body) {
  * extended with every new stable page, never exceeding `max` entries.
  * Never throws. Logs one "discovery:" line per pattern plus a summary.
  */
-export async function discoverSources(sources, { fetch, log = console.log, patterns = DISCOVERY_PATTERNS, max = MAX_SOURCES_PER_RUN, restrict = true } = {}) {
+// `onBody(pattern, res, body)` (optional) receives each stable page's body so
+// the fresh-page harvest (raw-ingest-fresh.mjs) can read its links without a
+// second fetch; its errors never affect discovery.
+export async function discoverSources(sources, { fetch, log = console.log, patterns = DISCOVERY_PATTERNS, max = MAX_SOURCES_PER_RUN, restrict = true, onBody = null } = {}) {
   const known = new Set(sources.map((s) => normUrl(s.url)));
   const pols = new Set(sources.map((s) => s.politician_id));
   // `restrict: false` (the rotation planner) checks every pattern it was given:
@@ -191,7 +194,9 @@ export async function discoverSources(sources, { fetch, log = console.log, patte
         signal: AbortSignal.timeout(DISCOVERY_TIMEOUT_MS),
       });
       const body = await res.text();
-      return { p, ...isStablePage(p.url, res, body) };
+      const stable = isStablePage(p.url, res, body);
+      if (stable.ok && onBody) { try { onBody(p, res, body); } catch {} }
+      return { p, ...stable };
     } catch (e) {
       return { p, ok: false, why: e?.message || String(e) };
     }

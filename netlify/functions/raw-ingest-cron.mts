@@ -125,18 +125,42 @@
 //   · RUN LOG — one "stated-positions:" line per politician whose records
 //     moved, and "stated-positions: run complete …" closing the pass.
 
+// Fresh evidence pass (raw-ingest-fresh.mjs; opt-in through `fresh`, which the
+// scheduled entry point turns on):
+//   · EXPANDED SOURCE TYPES — links on every index-like page the run fetches
+//     (newsroom, issues index, homepage) to the politician's own press
+//     releases, statements / remarks / op-eds and campaign or official issue /
+//     priority pages are harvested into a persisted frontier.
+//   · DISCOVERY ADDS URLs — up to FRESH_PER_POLITICIAN unfetched frontier pages
+//     per planned politician join the pull list, inside the unchanged caps (a
+//     page the seen ledger shows was already read gives up its slot when the
+//     politician is at the cap). "discovery: fresh pages …" logs the tally.
+//   · TOPIC TARGETING — a page filed under a default topic is scored under the
+//     topic the page signals, preferring topics the politician has thin or no
+//     Locker coverage on ("stance-score: TARGET …"). Known issue keys only.
+//   · PROMOTION — a new strong item (or weak at ≥ PROMOTE_THIN_WEAK_MIN) on a
+//     thin or empty politician + issue puts that politician first in the
+//     recompute, never deferred by the run budget. Curated rows and rows
+//     resting on reviewed evidence are never written.
+//   Locker thresholds, W1–W6 (never replacing a strong item, review flags,
+//   cross-topic conflicts) and cross-topic scoring are unchanged.
+
 import type { Config } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
 import {
   runRawIngest, discoverSources, planRun, runPlanLine, sourceKind, normaliseRotationState,
-  rosterSummary, baselineLine, ROSTER, BASELINE_STRONG, BASELINE_WEAK,
+  rosterSummary, baselineLine, isFilled, ROSTER, BASELINE_STRONG, BASELINE_WEAK,
   RAW_STORE_NAME, SOURCES, ROTATION_STORE_NAME, ROTATION_KEY, MAX_SOURCES_PER_RUN,
   MAX_POLITICIANS_PER_RUN, MAX_SOURCES_PER_POLITICIAN, RUN_BUDGET_MS,
 } from "../lib/raw-ingest-core.mjs";
 import { logCandidateStances, SCORED_TOPICS } from "../lib/stance-score-core.mjs";
 import { maybeWriteLockerItem, loadReviewFlags, lockerBaselineCounts, LOCKER_STORE_NAME } from "../lib/evidence-locker-core.mjs";
 import { appendRunSuggestions, SUGGESTIONS_STORE_NAME } from "../lib/raw-ingest-suggestions.mjs";
-import { lockerEntriesFor, syncPolitician } from "../lib/stated-positions-core.mjs";
+import { lockerEntriesFor, syncPolitician, promotableWrite } from "../lib/stated-positions-core.mjs";
+import {
+  readFreshState, saveFreshState, harvestLinks, mergeFrontier, markSeen, addFreshSources, targetTopic,
+  isHarvestable, sharedHosts, normUrl, normaliseFreshState, FRESH_PER_POLITICIAN,
+} from "../lib/raw-ingest-fresh.mjs";
 import { retiredSourcesLine, RETIRED_VERSION, RETIRED_LOG_KEY } from "../lib/raw-ingest-retired.mjs";
 import groundTruth from "../../db/stance-ground-truth-talarico-cost-of-living.json" with { type: "json" };
 import reviewFile from "../../db/evidence-locker-review.json" with { type: "json" };
@@ -185,6 +209,10 @@ export async function run(deps: {
   // Promoted stances: the pdx_stated_positions adapter (stated-positions-core
   // dbAdapter). Omitted → no promotion step (the earlier behaviour).
   statedDb?: any;
+  // Fresh evidence pass (see header). `store` holds the frontier + seen ledger
+  // (defaults to rotationStore); `state` = { frontier, seen } overrides it and
+  // `counts` the Locker baseline counts used for topic targeting (tests).
+  fresh?: boolean | { store?: any; state?: any; counts?: Record<string, { strong?: number; weak?: number }>; per?: number };
 }) {
   const log = deps.log ?? ((l: string) => console.log(l));
   const startedAt = Date.now();
@@ -194,12 +222,35 @@ export async function run(deps: {
   let roster: any[] = ROSTER;
   let counts: Record<string, any> = {};
   const flags = loadReviewFlags(deps.reviewFlags ?? reviewFile);
+  const nowFn = deps.now ?? (() => new Date());
+  // ── Fresh evidence pass: state + the discovery-body harvest ──
+  const fo: any = deps.fresh ? (typeof deps.fresh === "object" ? deps.fresh : {}) : null;
+  const freshStore = fo ? (fo.store ?? deps.rotationStore) : null;
+  const fresh: any = fo ? (fo.state ? normaliseFreshState({ items: fo.state.frontier || {} }, { urls: fo.state.seen || {} }) : await readFreshState(freshStore, log)) : null;
+  const freshTally = { harvested: 0, from_pages: 0 };
+  const shared = sharedHosts(deps.rotate && typeof deps.rotate === "object" && deps.rotate.roster ? deps.rotate.roster : ROSTER);
+  const allRosterUrls = (r: any[]) => new Set<string>(r.flatMap((x: any) => [...(x.sources || []), ...(x.official ? [x.official] : [])]).map((x: any) => normUrl(x.url)));
+  // URLs already configured anywhere (never re-offered as "fresh").
+  let knownUrls = new Set<string>([...allRosterUrls(ROSTER), ...sources.map((x: any) => normUrl(x.url))]);
+  const harvestFrom = (src: any, body: string, finalUrl?: string) => {
+    if (!fresh) return;
+    const page = { ...src, ...(finalUrl ? { final_url: finalUrl } : {}) };
+    if (!isHarvestable(page, shared)) return;
+    const seen = new Set(Object.keys(fresh.seen));
+    const found = harvestLinks(page, body, { known: knownUrls, seen, counts, now: nowFn() });
+    const n = mergeFrontier(fresh, found);
+    freshTally.harvested += n;
+    if (found.length) freshTally.from_pages += 1;
+    if (n) log(`discovery: HARVEST ${src.politician_id} ${src.url} — ${n} new candidate page(s) for the frontier (${[...new Set(found.map((f: any) => f.source_type))].join(", ")})`);
+  };
+  const onBody = fo ? (p: any, res: any, body: string) => harvestFrom(p, body, res?.url) : null;
   if (deps.rotate && !deps.sources) {
     const ro = typeof deps.rotate === "object" ? deps.rotate : {};
     roster = ro.roster ?? ROSTER;
     const pids = roster.map((r: any) => r.politician_id);
     const state = ro.state !== undefined ? normaliseRotationState(ro.state) : await readRotationState(deps.rotationStore, log);
     counts = ro.counts ?? await lockerBaselineCounts(deps.lockerStore, { flags, pids, log });
+    knownUrls = new Set([...knownUrls, ...allRosterUrls(roster)]);
     const max = ro.max ?? MAX_SOURCES_PER_RUN;
     plan = planRun(state, { roster, max, counts, maxPoliticians: MAX_POLITICIANS_PER_RUN, perPolitician: MAX_SOURCES_PER_POLITICIAN });
     const rs = rosterSummary(roster, counts);
@@ -209,18 +260,42 @@ export async function run(deps: {
     const who = plan.politicians.map((p: string) => `${p} (t${tierOf.get(p)}${dep.has(p) ? ", deprioritised: every issue filled" : ""})`);
     const skip = plan.skipped.length ? ` · not chased (filled): ${plan.skipped.map((x: any) => `${x.politician_id}|${x.topic}`).join(", ")}` : "";
     console.log(`raw-ingest: run plan — cycle ${plan.cycle} · ${plan.politicians.length} politician(s): ${who.join(", ")} · ${plan.sources.length} page(s) + ${plan.patterns.length} official pattern(s) (cap ${max}) · ${plan.remaining_in_cycle.length} left this cycle${skip}`);
-    const d = await discoverSources(plan.sources, { fetch: deps.fetch, log, patterns: plan.patterns, max, restrict: false });
+    const d = await discoverSources(plan.sources, { fetch: deps.fetch, log, patterns: plan.patterns, max, restrict: false, onBody });
     sources = d.sources;
     discovered = d.added;
+    if (fresh) {
+      const f = addFreshSources(sources, fresh, { politicians: plan.politicians, max, perPolitician: MAX_SOURCES_PER_POLITICIAN, per: fo.per ?? FRESH_PER_POLITICIAN, protect: new Set([normUrl(SOURCES[0].url)]), log });
+      sources = f.sources;
+      discovered = [...discovered, ...f.added];
+      (freshTally as any).added = f.added.length;
+      (freshTally as any).displaced = f.displaced.length;
+    }
     if (deps.rotationStore) {
       try { await deps.rotationStore.setJSON(ROTATION_KEY, { ...plan.state, updated_at: (deps.now ?? (() => new Date()))().toISOString(), last_politicians: plan.politicians }); }
       catch (e: any) { log(`raw-ingest: rotation state not saved — ${e?.message || e}`); }
     }
   } else if (deps.discover) {
     const opts = typeof deps.discover === "object" ? deps.discover : {};
-    const d = await discoverSources(sources, { fetch: deps.fetch, log, ...opts });
+    const d = await discoverSources(sources, { fetch: deps.fetch, log, ...opts, onBody });
     sources = d.sources;
     discovered = d.added;
+  }
+  // Fresh pages for a run without the rotation planner (fixed / injected sources).
+  if (fresh && !plan) {
+    if (fo.counts) counts = fo.counts;
+    else if (deps.lockerStore) counts = await lockerBaselineCounts(deps.lockerStore, { flags, pids: [...new Set(sources.map((x: any) => x.politician_id))], log });
+    knownUrls = new Set([...knownUrls, ...sources.map((x: any) => normUrl(x.url))]);
+    const max = (typeof deps.discover === "object" && deps.discover.max) || MAX_SOURCES_PER_RUN;
+    const f = addFreshSources(sources, fresh, { max, perPolitician: MAX_SOURCES_PER_POLITICIAN, per: fo.per ?? FRESH_PER_POLITICIAN, protect: new Set([normUrl(SOURCES[0].url)]), log });
+    sources = f.sources;
+    discovered = [...discovered, ...f.added];
+    (freshTally as any).added = f.added.length;
+    (freshTally as any).displaced = f.displaced.length;
+  } else if (fresh && fo.counts) counts = fo.counts;
+  if (fresh) {
+    const frontierSize = Object.values(fresh.frontier).reduce((n: number, l: any) => n + l.length, 0);
+    log(`discovery: fresh pages — ${(freshTally as any).added || 0} unfetched page(s) added to this run (≤ ${fo.per ?? FRESH_PER_POLITICIAN} per politician, caps unchanged)${(freshTally as any).displaced ? `, ${(freshTally as any).displaced} already-read page(s) displaced` : ""} · ${freshTally.harvested} candidate(s) harvested from discovery pages · frontier holds ${frontierSize}`);
+    log(`discovery: ${discovered.length} new URL(s) this run in total`);
   }
   await logRetiredOnce(deps.rotationStore, log, deps.now);
   const included = runPlanLine(sources);
@@ -232,7 +307,23 @@ export async function run(deps: {
   // candidate goes through the same Locker writer, so one page can land items
   // on several issues — each under its own issue key.
   const topicsScored: Record<string, number> = {};
-  const onRecord = async (rec: any) => {
+  const targeted: any[] = [];
+  const srcByUrl = new Map(sources.map((x: any) => [x.url, x]));
+  const onRecord = async (incoming: any) => {
+    let rec = incoming;
+    if (fresh) {
+      const src = srcByUrl.get(incoming.url) || {};
+      // Harvest this page's links for later runs (the frontier).
+      try { harvestFrom({ ...src, ...incoming }, incoming.body, incoming.final_url); }
+      catch (e: any) { log(`discovery: harvest error for ${incoming.url} — ${e?.message || e}`); }
+      // Score a default-topic page under the topic it signals.
+      const tg = targetTopic(incoming, { counts });
+      if (tg.moved) {
+        rec = Object.freeze({ ...incoming, topic: tg.topic });
+        targeted.push({ politician_id: incoming.politician_id, url: incoming.url, from: tg.from, topic: tg.topic });
+        log(`stance-score: TARGET ${incoming.politician_id}|${tg.from}${incoming.source_id ? "|" + incoming.source_id : ""} → ${tg.topic} — ${tg.reason}`);
+      }
+    }
     const candidates = logCandidateStances(rec, { log });
     for (const c of candidates) topicsScored[c.topic] = (topicsScored[c.topic] || 0) + 1;
     if (!deps.lockerStore) return;
@@ -242,10 +333,18 @@ export async function run(deps: {
     }
     for (const candidate of candidates) {
       const w = await maybeWriteLockerItem(candidate, rec, { store: deps.lockerStore, gt, log, flags });
-      if (w.written) lockerWrites.push({ key: w.key, politician_id: candidate.politician_id, topic: candidate.topic, strength: w.item?.strength, ...(candidate.topic !== rec.topic ? { page_topic: rec.topic } : {}) });
+      if (w.written) lockerWrites.push({ key: w.key, politician_id: candidate.politician_id, topic: candidate.topic, strength: w.item?.strength, confidence: w.item?.confidence, ...(candidate.topic !== rec.topic ? { page_topic: rec.topic } : {}) });
     }
   };
   const report: any = await runRawIngest({ ...deps, onRecord }, sources);
+  if (fresh) {
+    // Everything fetched this run is now "seen"; the frontier forgets it.
+    markSeen(fresh, report.results.filter((r: any) => r.ok && !r.youtube).map((r: any) => r.url), nowFn().toISOString());
+    if (!fo.state) await saveFreshState(freshStore, fresh, { now: nowFn(), log });
+    const frontierSize = Object.values(fresh.frontier).reduce((n: number, l: any) => n + l.length, 0);
+    report.fresh = { added: (freshTally as any).added || 0, displaced: (freshTally as any).displaced || 0, harvested: freshTally.harvested, frontier: frontierSize, seen: Object.keys(fresh.seen).length, targeted };
+    log(`raw-ingest: fresh evidence — ${report.fresh.added} unfetched page(s) pulled, ${freshTally.harvested} candidate page(s) harvested from ${freshTally.from_pages} page(s), ${targeted.length} page(s) retargeted${targeted.length ? ` (${targeted.map((x) => `${x.politician_id} ${x.from}→${x.topic}`).join(", ")})` : ""} · frontier ${frontierSize}`);
+  }
   // YouTube: how often the transcript worked vs. the description fallback.
   const yt = report.results.filter((r: any) => r.youtube);
   if (yt.length) {
@@ -277,19 +376,25 @@ export async function run(deps: {
   }
   // Promotion: recompute the stance records of everyone this run touched.
   if (deps.lockerStore && deps.statedDb) {
-    const pids = [...new Set([...lockerWrites.map((w) => w.politician_id), ...(plan ? plan.politicians : [])])].filter(Boolean);
+    // New strong (or strong-enough weak) evidence on a thin / empty pair goes
+    // first and is never deferred by the run budget, so it can surface now.
+    const thin = lockerWrites.filter((w) => promotableWrite(w) && !isFilled(counts, w.politician_id, w.topic));
+    const priority = new Set(thin.map((w) => w.politician_id));
+    const thinPairs = [...new Map(thin.map((w) => [`${w.politician_id}|${w.topic}`, w])).values()];
+    if (thin.length) log(`stated-positions: new evidence on thin topic(s) — ${thinPairs.map((w) => `${w.politician_id}|${w.topic} (${w.strength} ${w.confidence})`).join(", ")}; recomputing first`);
+    const pids = [...new Set([...priority, ...lockerWrites.map((w) => w.politician_id), ...(plan ? plan.politicians : [])])].filter(Boolean);
     const moved: any[] = [];
     let checked = 0, deferred = 0;
     for (const pid of pids) {
-      if (Date.now() - startedAt > RUN_BUDGET_MS) { deferred = pids.length - checked; break; }
+      if (!priority.has(pid) && Date.now() - startedAt > RUN_BUDGET_MS) { deferred = pids.length - checked; break; }
       checked++;
       let entries: any[] = [];
       try { entries = await lockerEntriesFor(deps.lockerStore, pid, flags); }
       catch (e: any) { log(`stated-positions: ERROR ${pid} — Locker unreadable (${e?.message || e})`); continue; }
       const r = await syncPolitician(pid, entries, { db: deps.statedDb, log, now: deps.now });
-      if (r.upserts.length || r.withdraw.length) moved.push({ politician_id: pid, promoted: r.upserts.map((u: any) => ({ issue_key: u.issueKey, stance: u.stance, strength: u.strength })), withdrawn: r.withdraw });
+      if (r.upserts.length || r.withdraw.length) moved.push({ politician_id: pid, promoted: r.upserts.map((u: any) => ({ issue_key: u.issueKey, stance: u.stance, strength: u.strength })), withdrawn: r.withdraw, ...(r.held?.length ? { held: r.held } : {}) });
     }
-    report.stated_positions = { checked, deferred, moved };
+    report.stated_positions = { checked, deferred, moved, priority: [...priority] };
     log(`stated-positions: run complete — ${checked} politician(s) recomputed, ${moved.length} with changes${deferred ? `, ${deferred} deferred (run budget)` : ""}`);
   }
   if (plan) {
@@ -342,6 +447,7 @@ export async function scheduled(deps: { run?: typeof run; suggestionsStore?: any
     fetch: globalThis.fetch,
     discover: true,
     rotate: true,
+    fresh: true,
     ...(injected ? {} : productionStores()),
     ...(statedDb ? { statedDb } : {}),
     ...rest,

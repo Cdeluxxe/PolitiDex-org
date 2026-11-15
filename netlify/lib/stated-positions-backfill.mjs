@@ -23,7 +23,7 @@
 // until `complete`.
 
 import { reviewFor, regradeStatedPosition, collapseRestatedItems, toSpotlightEntry } from "./evidence-locker-core.mjs";
-import { promoteEntries, planSync, strengthOf } from "./stated-positions-core.mjs";
+import { promoteEntries, planSync, strengthOf, reviewedKeysOf } from "./stated-positions-core.mjs";
 
 export const BACKFILL_VERSION = "stated-positions-backfill-v1";
 
@@ -137,7 +137,8 @@ export async function runBackfill({ store, db, flags = null, state = null, budge
     try {
       const promotions = promoteEntries(g.entries);
       const before = await db.rowsFor(pid);
-      const plan = planSync(promotions, before);
+      // Curated and reviewed rows are left exactly as they are (heldRowReason).
+      const plan = planSync(promotions, before, { reviewedKeys: reviewedKeysOf(g.entries) });
       const at = now();
       for (const rec of plan.upserts) await db.upsert(pid, rec, at);
       if (plan.withdraw.length) await db.withdraw(pid, plan.withdraw, at);

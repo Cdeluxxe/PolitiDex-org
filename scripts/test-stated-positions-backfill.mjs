@@ -110,7 +110,9 @@ ok(/saved\?\.complete/.test(fn) && /already complete/.test(fn), "the function st
 ok(/schedule:/.test(fn), "the function is scheduled (runs on its own in production)");
 ok(!/maybeWriteLockerItem|setJSON\(\s*key|lockerStore\.set/.test(fn + R("netlify/lib/stated-positions-backfill.mjs")), "the pass never writes the Locker");
 const git = (f) => { try { return execFileSync("git", ["show", `HEAD:${f}`], { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 28, stdio: ["ignore", "pipe", "ignore"] }); } catch { return null; } };
-for (const f of ["netlify/functions/raw-ingest-cron.mts", "netlify/lib/stated-positions-core.mjs", "netlify/lib/evidence-locker-core.mjs", "politician-stances.js", "politician-stances-core.js", "politician-stances-ext.js", "state-senate-stances.js"]) {
+// (The cron and stated-positions-core.mjs were changed on purpose by the fresh
+// evidence pass — scripts/test-raw-ingest-fresh.mjs covers them.)
+for (const f of ["netlify/lib/evidence-locker-core.mjs", "politician-stances.js", "politician-stances-core.js", "politician-stances-ext.js", "state-senate-stances.js"]) {
   const base = git(f);
   ok(base == null || base === R(f), `${f} is unchanged`);
 }
