@@ -68,6 +68,7 @@
      window.PDXConsistency.officialRecord(pid, issueKey)   → the ACTION test
      window.PDXConsistency.VERDICTS / .proof.proofText     → shared vocabulary
      window._resolveStanceList(pid, p)                     → documented positions
+                                                             (curated + promoted pipeline cards)
      window._pdxRecordIssueItems(pid, issueKey)            → the named votes
      window.ISSUE_MAP                                      → the 110-key issue vocabulary
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -316,8 +317,11 @@
 
   // ── THE WORD LEDGER ────────────────────────────────────────────────────────
   // Everything this person is on record as saying, tiered. Pure and synchronous:
-  // it reads curated data only and never fetches, so it is identical on first
-  // paint and after the voting record warms.
+  // it reads the stance list (curated cards, plus promoted pipeline cards on
+  // issues no curated card covers — stance-helpers.js) and never fetches, so it
+  // is identical on first paint and after the voting record warms. A pipeline
+  // card counts exactly like a curated position (same tier, same scoring rules,
+  // same one-per-issue rule); a curated card on the issue always wins.
   //
   // `scored: false` items are real word that cannot carry a number — a position
   // written from the record (see isIndependentWord), a signature issue we cannot
@@ -389,6 +393,13 @@
         stance: s.issueStance || s.pos || 'mixed',
         sources: s.source ? [s.source] : [], resolution: null
       });
+    });
+    // A promoted Evidence Locker card (stance-helpers.js PIPELINE STANCE CARDS)
+    // is a documented position like any other and is scored like one above; it
+    // only carries its provenance so a row can say where it came from.
+    (list || []).forEach(function (s, i) {
+      if (!s || s.provenance !== 'pipeline') return;
+      for (var j = 0; j < out.length; j++) if (out[j].id === 'wa-st-' + i) { out[j].provenance = 'pipeline'; break; }
     });
 
     // 2b. Locker claims matched to a formal record. A strong Evidence Locker
@@ -1300,6 +1311,16 @@
   // ═════════════════════════════════════════════════════════════════════════
   // RENDERERS
   // ═════════════════════════════════════════════════════════════════════════
+
+  // The tag a pipeline-sourced position carries on every Word vs Action row: it
+  // counts like a curated position, and it says it was read automatically.
+  var PIPELINE_TAG = 'Pipeline-sourced';
+  var PIPELINE_TAG_TITLE = 'Promoted automatically from Evidence Locker items (one high-confidence item, or three weaker ones, on the same side), not a hand-curated card. Counted like any documented position.';
+  function pipelineTagHtml() {
+    return ' <span class="pdxwa-pipeline-tag" data-pdx-stance-source="pipeline" title="' + esc(PIPELINE_TAG_TITLE) + '" ' +
+      'style="display:inline-block;margin-left:0.35rem;padding:0 0.35rem;border:1px dashed rgba(159,180,212,0.6);' +
+      'border-radius:0.6rem;font-size:0.62rem;font-weight:700;color:#9fb4d4;vertical-align:1px;">⚙︎ ' + esc(PIPELINE_TAG) + '</span>';
+  }
 
   function tierRowHtml(t, bucket, r) {
     var def = TIERS[t];
@@ -7195,6 +7216,7 @@
         '<div class="pdxwa-dot-head">' +
           '<span class="pdxwa-dot-tier">' + d.tier.ico + ' ' + esc(d.tier.label) + '</span>' +
           '<span class="pdxwa-dot-title">' + esc(d.title) + '</span>' +
+          (d.item && d.item.provenance === 'pipeline' ? pipelineTagHtml() : '') +
         '</div>' +
         '<div class="pdxwa-dot-step pdxwa-dot-word">' +
           '<span class="pdxwa-dot-k">They said</span>' +

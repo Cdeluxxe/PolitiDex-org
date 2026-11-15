@@ -2502,6 +2502,14 @@
       }
       return next;
     };
+    // Promoted pipeline stance cards land after first paint (stance-helpers.js
+    // fetches /api/stated-positions once); the matches on screen are re-read so
+    // a newly filled issue is matched like any other documented position.
+    try {
+      document.addEventListener('pdx-stated-positions', function () {
+        try { _alignRefreshAll(); } catch (e) {}
+      });
+    } catch (e) {}
     window.alignToggleMatchMode = function () {
       return window.alignSetMatchMode(_alignMode === 'record' ? 'stated' : 'record');
     };
@@ -2597,8 +2605,12 @@
       if (it.source === 'stated' && it.stance) {
         var word = _ALIGN_SIDE_WORD[it.stance] || 'Mixed';
         return '<span class="align-sig align-sig-said is-' + it.stance + '"' +
-            ' title="A documented, sourced position on this exact issue — their own words.">' +
+            (it.provenance === 'pipeline' ? ' data-pdx-stance-source="pipeline"' : '') +
+            ' title="' + (it.provenance === 'pipeline'
+              ? 'A sourced position on this exact issue, promoted automatically from Evidence Locker items (pipeline-sourced, not a hand-curated card). Counted like any documented position.'
+              : 'A documented, sourced position on this exact issue — their own words.') + '">' +
             '<span aria-hidden="true">💬</span><span class="align-sig-k">Says:</span> <b>' + word + '</b>' +
+            (it.provenance === 'pipeline' ? ' <span class="align-sig-pipe">· ⚙︎ Pipeline-sourced</span>' : '') +
           '</span>';
       }
       return '';
@@ -3320,6 +3332,9 @@
           thin: !!(recSig && (recSig.tier === 'thin' || recSig.tier === 'split')),
           conf: recSig ? recSig.conf : 1,
           pattern: recSig ? { side: recSig.side, tier: recSig.tier, tone: recSig.tone, label: recSig.label, counts: recSig.counts, judged: recSig.judged, advances: recSig.advances, opposes: recSig.opposes, conf: recSig.conf, rank: recSig.rank } : null });
+        // A promoted pipeline card (stance-helpers.js) is matched and weighted
+        // exactly like a curated position; the row only records where it came from.
+        if (directPos && directPos.provenance === 'pipeline') perIssue[perIssue.length - 1].provenance = 'pipeline';
       });
 
       if (totalWeight === 0) return null;

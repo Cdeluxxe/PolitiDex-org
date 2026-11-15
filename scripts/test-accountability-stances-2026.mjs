@@ -35,7 +35,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
-import { DECLARED_STANCE_PASSES, ACCOUNTABILITY_PID_OF, accountabilityIssueKey, withoutAccountabilityRegisterBlock, swCodeOnly, relatedIssuesMapOnly, withoutFamilyFairnessKeyList, withoutFamilyFairnessRelatedIssues } from "./v103-chrome-seams.mjs";
+import { withoutPipelineStancesEdits, withoutPipelineStancesEntries, PIPELINE_STANCES_SHELL_BUMPS, DECLARED_STANCE_PASSES, ACCOUNTABILITY_PID_OF, accountabilityIssueKey, withoutAccountabilityRegisterBlock, swCodeOnly, relatedIssuesMapOnly, withoutFamilyFairnessKeyList, withoutFamilyFairnessRelatedIssues } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -235,7 +235,7 @@ section("5 · nothing else moved; no route or gate; one shell version; no migrat
 
     // The register moved only by the three declared entries and their core slots.
     const stripReg = withoutAccountabilityRegisterBlock;
-    for (const f of ["alignment-tool.js", "issue-map.js"]) eq(stripReg(R(f)), BASE(f), `${f} changed outside the declared register block`);
+    for (const f of ["alignment-tool.js", "issue-map.js"]) eq(stripReg(withoutPipelineStancesEdits(f, R(f))), BASE(f), `${f} changed outside the declared register block`);
     // The related-issues module moved only by its declared edits.
     const edits = JSON.parse(R("scripts/related-issues-declared-edits-accountability-2026-11.json")).edits;
     let ri = withoutFamilyFairnessRelatedIssues(R("related-issues.js")); // a later declared pass's edits aside
@@ -249,17 +249,18 @@ section("5 · nothing else moved; no route or gate; one shell version; no migrat
       "netlify.toml", "_redirects", "db/vr-issue-seed.json", "db/bill-docs.json", "db/schema.ts"]) {
       const b = BASE(f);
       let now = null; try { now = R(f); } catch { /* absent */ }
+      now = withoutPipelineStancesEdits(f, now); // a later declared pass's edits aside
       eq(now, b, `${f} changed`);
     }
     const ls = (rev, dir) => (git(["ls-tree", "--name-only", `${rev}:${dir}`]) || "").split("\n").filter(Boolean).sort();
     const baseRoot = ls(BASE_REV, ".");
     if (baseRoot.length) {
       eq(readdirSync(ROOT).filter((f) => f.endsWith(".html")).sort().join(","), baseRoot.filter((f) => f.endsWith(".html")).join(","), "a document was added or removed");
-      let fn = []; try { fn = readdirSync(join(ROOT, "netlify/functions")).sort(); } catch { /* none */ }
+      let fn = []; try { fn = withoutPipelineStancesEntries(readdirSync(join(ROOT, "netlify/functions")).sort()); } catch { /* none */ }
       eq(fn.join(","), ls(BASE_REV, "netlify/functions").join(","), "a function (route) was added or removed");
       let ef = []; try { ef = readdirSync(join(ROOT, "netlify/edge-functions")).sort(); } catch { /* none */ }
       eq(ef.join(","), ls(BASE_REV, "netlify/edge-functions").join(","), "an edge function was added or removed");
-      let mg = []; try { mg = readdirSync(join(ROOT, "netlify/database/migrations")).sort(); } catch { /* none */ }
+      let mg = []; try { mg = withoutPipelineStancesEntries(readdirSync(join(ROOT, "netlify/database/migrations")).sort()); } catch { /* none */ }
       eq(mg.join(","), ls(BASE_REV, "netlify/database/migrations").join(","), "a migration was added or removed");
     }
 

@@ -4609,3 +4609,30 @@ export function withoutDeclaredRelatedIssues(src) {
   for (const e of _RI_EDITS) { if (s.split(e.after).length !== 2) return src; s = s.replace(e.after, () => e.before); }
   return s;
 }
+
+// ── The promoted pipeline stances pass (Nov 2026) ───────────────────────────
+// Its edits to files an earlier pass pins are declared, span by span, in
+// scripts/pipeline-stances-declared-edits.json. withoutPipelineStancesEdits()
+// puts each declared span back (every 'after' must appear exactly once, in
+// order); a file whose spans do not all read as declared is returned as it is,
+// so the pin still fails. Its new route and migration are the two entries below,
+// and it moved the shell one version. Covered by test-stated-positions.mjs.
+const _PS_EDITS = JSON.parse(_readFileSync(new URL("./pipeline-stances-declared-edits.json", import.meta.url), "utf8"));
+export const PIPELINE_STANCES_PASS = _PS_EDITS.pass;
+export const PIPELINE_STANCES_FUNCTIONS = ["stated-positions.mts"];
+export const PIPELINE_STANCES_MIGRATIONS = ["20261206000000_create_pdx_stated_positions"];
+export const PIPELINE_STANCES_SHELL_BUMPS = 1;
+export function withoutPipelineStancesEdits(file, src) {
+  if (src == null) return src;
+  const mine = _PS_EDITS.edits.filter((e) => e.file === String(file));
+  if (!mine.length) return src;
+  let s = String(src);
+  for (const e of mine) {
+    if (s.split(e.after).length !== 2) return src;
+    s = s.replace(e.after, () => e.before);
+  }
+  return s;
+}
+// A directory listing with this pass's new entries taken out.
+export const withoutPipelineStancesEntries = (list) =>
+  (list || []).filter((f) => !PIPELINE_STANCES_FUNCTIONS.includes(f) && !PIPELINE_STANCES_MIGRATIONS.includes(String(f).replace(/\/$/, "")));

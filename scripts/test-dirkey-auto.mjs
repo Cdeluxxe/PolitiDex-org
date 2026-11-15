@@ -304,7 +304,11 @@ t('no migration, no new function, and the worker precache list is untouched', ()
   // pass) is not this pass's; anything else new still fails.
   const LATER = ['netlify/database/migrations/20261205000000_seed_exec_actions_wave14.sql',
     // The raw-ingest suggestions log's curator endpoint (a later pass's).
-    'netlify/functions/raw-ingest-suggestions.mts'];
+    'netlify/functions/raw-ingest-suggestions.mts',
+    // The promoted pipeline stances pass: its read route and its table.
+    'netlify/functions/stated-positions.mts',
+    'netlify/database/migrations/20261206000000_create_pdx_stated_positions/migration.sql',
+    'netlify/database/migrations/20261206000000_create_pdx_stated_positions/snapshot.json'];
   if (added != null) assert.deepEqual(added.split('\n').filter((l) => /^(?:\?\?|A)/.test(l) && !LATER.some((f) => l.endsWith(' ' + f))), [], 'no new function or migration file');
   const sw = R('sw.js');
   for (const f of ['person-directional-keys.js', 'person-directional-keys-auto.json', 'person-directional-keys.json']) assert.ok(!sw.includes(`'/${f}'`), `${f} is not precached`);

@@ -112,6 +112,19 @@
 //     (who, tier, deprioritised, filled issues skipped) and "raw-ingest:
 //     baseline progress …" (which politician + issue pairs are filled).
 
+// Promoted stances pass:
+//   · PROMOTION — after the Locker writes, every politician with a write this
+//     run and every politician the run planned is recomputed from their Locker
+//     items (stated-positions-core.mjs): at least one strong item, or three weak
+//     items, on one side of an issue (no even split) promotes one stance record
+//     per politician + issue into pdx_stated_positions; an issue that stops
+//     qualifying is withdrawn. Served by GET /api/stated-positions as stance
+//     cards that fill gaps the curated cards leave. Opt-in through
+//     `statedDb`; the scheduled entry point turns it on. The Locker writer, its
+//     thresholds and everything above are unchanged.
+//   · RUN LOG — one "stated-positions:" line per politician whose records
+//     moved, and "stated-positions: run complete …" closing the pass.
+
 import type { Config } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
 import {
@@ -123,6 +136,7 @@ import {
 import { logCandidateStances, SCORED_TOPICS } from "../lib/stance-score-core.mjs";
 import { maybeWriteLockerItem, loadReviewFlags, lockerBaselineCounts, LOCKER_STORE_NAME } from "../lib/evidence-locker-core.mjs";
 import { appendRunSuggestions, SUGGESTIONS_STORE_NAME } from "../lib/raw-ingest-suggestions.mjs";
+import { lockerEntriesFor, syncPolitician } from "../lib/stated-positions-core.mjs";
 import { retiredSourcesLine, RETIRED_VERSION, RETIRED_LOG_KEY } from "../lib/raw-ingest-retired.mjs";
 import groundTruth from "../../db/stance-ground-truth-talarico-cost-of-living.json" with { type: "json" };
 import reviewFile from "../../db/evidence-locker-review.json" with { type: "json" };
@@ -168,6 +182,9 @@ export async function run(deps: {
   rotate?: boolean | { roster?: any[]; max?: number; state?: any; counts?: Record<string, { strong?: number; weak?: number }> };
   rotationStore?: any;
   reviewFlags?: any;
+  // Promoted stances: the pdx_stated_positions adapter (stated-positions-core
+  // dbAdapter). Omitted → no promotion step (the earlier behaviour).
+  statedDb?: any;
 }) {
   const log = deps.log ?? ((l: string) => console.log(l));
   const startedAt = Date.now();
@@ -258,6 +275,23 @@ export async function run(deps: {
     const tl = Object.entries(itemsByTopic).map(([t, c]) => `${t} ${c.strong + c.weak + c.mention} (${c.strong} strong, ${c.weak} weak, ${c.mention} mention)`);
     log(`evidence-locker: topics with new items this run — ${tl.length ? tl.join("; ") : "none"}`);
   }
+  // Promotion: recompute the stance records of everyone this run touched.
+  if (deps.lockerStore && deps.statedDb) {
+    const pids = [...new Set([...lockerWrites.map((w) => w.politician_id), ...(plan ? plan.politicians : [])])].filter(Boolean);
+    const moved: any[] = [];
+    let checked = 0, deferred = 0;
+    for (const pid of pids) {
+      if (Date.now() - startedAt > RUN_BUDGET_MS) { deferred = pids.length - checked; break; }
+      checked++;
+      let entries: any[] = [];
+      try { entries = await lockerEntriesFor(deps.lockerStore, pid, flags); }
+      catch (e: any) { log(`stated-positions: ERROR ${pid} — Locker unreadable (${e?.message || e})`); continue; }
+      const r = await syncPolitician(pid, entries, { db: deps.statedDb, log, now: deps.now });
+      if (r.upserts.length || r.withdraw.length) moved.push({ politician_id: pid, promoted: r.upserts.map((u: any) => ({ issue_key: u.issueKey, stance: u.stance, strength: u.strength })), withdrawn: r.withdraw });
+    }
+    report.stated_positions = { checked, deferred, moved };
+    log(`stated-positions: run complete — ${checked} politician(s) recomputed, ${moved.length} with changes${deferred ? `, ${deferred} deferred (run budget)` : ""}`);
+  }
   if (plan) {
     // Baseline progress after this run's writes (recounted from the Locker when
     // anything new landed; the injected/pre-run counts otherwise).
@@ -300,11 +334,16 @@ export async function scheduled(deps: { run?: typeof run; suggestionsStore?: any
     lockerStore: getStore(LOCKER_STORE_NAME),
     rotationStore: getStore(ROTATION_STORE_NAME),
   });
+  const injected = !!(rest.store && rest.lockerStore && rest.rotationStore);
+  // The promotion step's database adapter, built only in production (loaded
+  // lazily so a test that injects its stores never touches the database).
+  const statedDb = rest.statedDb !== undefined || injected ? rest.statedDb : await productionStatedDb(log);
   const res = await runFn({
     fetch: globalThis.fetch,
     discover: true,
     rotate: true,
-    ...(rest.store && rest.lockerStore && rest.rotationStore ? {} : productionStores()),
+    ...(injected ? {} : productionStores()),
+    ...(statedDb ? { statedDb } : {}),
     ...rest,
     log,
   } as any);
@@ -315,6 +354,18 @@ export async function scheduled(deps: { run?: typeof run; suggestionsStore?: any
     console.log(`raw-ingest-suggestions: not written — ${e?.message || e}`);
   }
   return res;
+}
+
+async function productionStatedDb(log: (l: string) => void): Promise<any> {
+  try {
+    const [{ db }, { pdxStatedPositions }, orm, { dbAdapter }] = await Promise.all([
+      import("../../db/index.js"), import("../../db/schema.js"), import("drizzle-orm"), import("../lib/stated-positions-core.mjs"),
+    ]);
+    return dbAdapter(db, pdxStatedPositions, orm);
+  } catch (e: any) {
+    log(`stated-positions: database unavailable — promotion skipped this run (${e?.message || e})`);
+    return null;
+  }
 }
 
 export default async (): Promise<Response> => scheduled();

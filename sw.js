@@ -12178,7 +12178,21 @@
 //     the precache list is unchanged. No location key or other stored reader
 //     state is written or rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v565';
+// v566 - PROMOTED PIPELINE STANCE CARDS. stance-helpers.js fetches
+//     /api/stated-positions once (network-only, like every /api/* request) and
+//     merges the promoted Evidence Locker stances into _resolveStanceList /
+//     _polPositionMap for issue keys with no curated card; curated cards always
+//     win. Word vs Action (word-action.js) and the Alignment Tool
+//     (alignment-tool.js) count them like any documented position and tag them
+//     "Pipeline-sourced"; consistency.js tags the profile's Says:/Said lines.
+//     One read-only route is added (GET /api/stated-positions). Precached files
+//     changed, so the shell moves; the precache list is unchanged. The server
+//     gains one table, pdx_stated_positions (database migration
+//     20261206000000_create_pdx_stated_positions); nothing on the device moves.
+//     No location key or other stored reader state is written or rewritten,
+//     so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v566';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

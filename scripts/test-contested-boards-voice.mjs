@@ -456,8 +456,10 @@ section("7 · the Layton boards and every non-contested board are unchanged");
   const LATER_USA_MIG = "20261204000000_dd_districts_usa_national_board";
   // The executive seed wave 14 (Trump–Massie pass) landed later too; no district rows.
   const LATER_EXEC_MIG = "20261205000000_seed_exec_actions_wave14.sql";
+  // The promoted pipeline stances table (pdx_stated_positions) landed later too; no district rows.
+  const LATER_PIPE_MIG = "20261206000000_create_pdx_stated_positions";
   const newSince = (rd) => migs.filter((f) => rd(`netlify/database/migrations/${f}`) === null && rd(`netlify/database/migrations/${f}/migration.sql`) === null);
-  eq(JSON.stringify(newSince(BASE).filter((f) => f !== CA_MIG && f !== WA_MIG && f !== "20261203000000_dd_districts_every_existing_board_seat.sql" && f !== LATER_USA_MIG && f !== LATER_EXEC_MIG)), JSON.stringify(["20261130000000_dd_districts_contested_legislative_board_seats.sql"]), "the one new migration is the dd_districts seed");
+  eq(JSON.stringify(newSince(BASE).filter((f) => f !== CA_MIG && f !== WA_MIG && f !== "20261203000000_dd_districts_every_existing_board_seat.sql" && f !== LATER_USA_MIG && f !== LATER_EXEC_MIG && f !== LATER_PIPE_MIG)), JSON.stringify(["20261130000000_dd_districts_contested_legislative_board_seats.sql"]), "the one new migration is the dd_districts seed");
   ok(newSince(HEAD).every((f) => DECLARED_MIGRATIONS.includes(f)), `every migration not yet in HEAD is a declared one — ${newSince(HEAD).join(", ")}`);
 }
 

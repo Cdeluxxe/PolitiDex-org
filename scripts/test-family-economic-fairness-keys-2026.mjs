@@ -53,6 +53,7 @@ import {
   DECLARED_STANCE_PASSES, ACCOUNTABILITY_KEYS, FAMILY_FAIRNESS_KEYS, FAMILY_FAIRNESS_PASS, FAMILY_FAIRNESS_REMOVED_KEYS, relatedIssuesMapOnly,
   withoutFamilyFairnessRegisterBlock, withoutFamilyFairnessIssueKeys, withoutFamilyFairnessCoreCategories,
   withoutFamilyFairnessTopicVocab, withoutFamilyFairnessRelatedIssues, swCodeOnly, CIVIC_KEYS, withoutCivicKeysKeyList,
+  withoutPipelineStancesEdits, withoutPipelineStancesEntries, PIPELINE_STANCES_SHELL_BUMPS,
 } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -229,7 +230,7 @@ section("4 · nothing else moved; no route or gate; one shell version; no migrat
   if (BASE("issue-map.js") == null) {
     console.log("     (no git baseline — byte-identity checks skipped)");
   } else {
-    for (const f of ["alignment-tool.js", "issue-map.js"]) eq(withoutFamilyFairnessRegisterBlock(R(f)), BASE(f), `${f} changed outside the declared register block`);
+    for (const f of ["alignment-tool.js", "issue-map.js"]) eq(withoutFamilyFairnessRegisterBlock(withoutPipelineStancesEdits(f, R(f))), BASE(f), `${f} changed outside the declared register block`);
     eq(withoutFamilyFairnessIssueKeys(R("db/issue-keys.json")), BASE("db/issue-keys.json"), "db/issue-keys.json moved by more than the two keys");
     eq(withoutFamilyFairnessCoreCategories(R("db/issue-core-categories.json")), BASE("db/issue-core-categories.json"), "db/issue-core-categories.json moved by more than the two keys");
     eq(withoutFamilyFairnessRelatedIssues(R("related-issues.js")), BASE("related-issues.js"), "related-issues.js changed outside the declared edits");
@@ -251,16 +252,17 @@ section("4 · nothing else moved; no route or gate; one shell version; no migrat
       "netlify.toml", "_redirects", "db/vr-issue-seed.json", "db/bill-docs.json", "db/schema.ts", "sitemap.xml"]) {
       const b = BASE(f);
       let now = null; try { now = R(f); } catch { /* absent */ }
+      now = withoutPipelineStancesEdits(f, now); // a later declared pass's edits aside
       eq(now, b, `${f} changed`);
     }
     // A tree's entries at a revision (git show REV:dir prints "tree …", a blank line, then one name per line; subtrees end in "/").
     const ls = (rev, dir) => (git(["show", `${rev}:${dir === "." ? "" : dir}`]) || "").split("\n").slice(2).filter(Boolean).map((n) => n.replace(/\/$/, "")).sort();
     const list = (dir) => { try { return readdirSync(join(ROOT, dir)).sort(); } catch { return []; } };
     eq(list(".").filter((f) => f.endsWith(".html")).join(","), ls(BASE_REV, ".").filter((f) => f.endsWith(".html")).join(","), "a document was added or removed");
-    eq(list("netlify/functions").join(","), ls(BASE_REV, "netlify/functions").join(","), "a function (route) was added or removed");
+    eq(withoutPipelineStancesEntries(list("netlify/functions")).join(","), ls(BASE_REV, "netlify/functions").join(","), "a function (route) was added or removed");
     eq(list("netlify/edge-functions").join(","), ls(BASE_REV, "netlify/edge-functions").join(","), "an edge function was added or removed");
-    eq(list("netlify/database/migrations").join(","), ls(BASE_REV, "netlify/database/migrations").join(","), "a migration was added or removed");
-    for (const f of list("netlify/functions")) { const b = BASE(`netlify/functions/${f}`); if (b != null) eq(R(`netlify/functions/${f}`), b, `netlify/functions/${f} changed`); }
+    eq(withoutPipelineStancesEntries(list("netlify/database/migrations")).join(","), ls(BASE_REV, "netlify/database/migrations").join(","), "a migration was added or removed");
+    for (const f of list("netlify/functions")) { const b = BASE(`netlify/functions/${f}`); if (b != null) eq(withoutPipelineStancesEdits(`netlify/functions/${f}`, R(`netlify/functions/${f}`)), b, `netlify/functions/${f} changed`); }
 
     // Precached files changed (the register and the map), so the shell moves
     // one version; worker code and precache list do not.
@@ -271,7 +273,7 @@ section("4 · nothing else moved; no route or gate; one shell version; no migrat
     const ver = (src) => Number((/^const CACHE_VERSION = 'v(\d+)';$/m.exec(String(src)) || [])[1]);
     // v563 shipped the five keys; v564 is the cleanup.
     // v565 (the civic rules & safety net keys pass) moves it once more.
-    eq(ver(sw), ver(baseSw) + 2 + (/^\/\/ v565 - FIVE CIVIC RULES & SAFETY NET KEYS\./m.test(sw) ? 1 : 0), `the shell did not move exactly two versions, plus the declared later pass (v${ver(baseSw)} → v${ver(sw)})`);
+    eq(ver(sw), ver(baseSw) + 2 + (/^\/\/ v565 - FIVE CIVIC RULES & SAFETY NET KEYS\./m.test(sw) ? 1 : 0) + (/^\/\/ v566 - PROMOTED PIPELINE STANCE CARDS\./m.test(sw) ? PIPELINE_STANCES_SHELL_BUMPS : 0), `the shell did not move exactly two versions, plus the declared later pass (v${ver(baseSw)} → v${ver(sw)})`);
     ok(/v563 - FIVE FAMILY & ECONOMIC FAIRNESS KEYS\.[\s\S]*?MIGRATION COST: none\./.test(sw), "the v563 note is missing or does not say no migration");
     ok(/v564 - THREE OVERLAPPING KEYS REMOVED\.[\s\S]*?MIGRATION COST: none\./.test(sw), "the v564 note is missing or does not say no migration");
   }
@@ -328,11 +330,12 @@ section("5 · the cleanup: three overlapping keys gone, nothing else moved");
       "cmp-data.js", "cmp-data-detail.js", "consistency.js", "stance-helpers.js", "word-action.js", "stance-sides.js", "my-stances.js",
       "hero-showcase-data.js", "issue-scope.js", "person.html", "index.html", "issue.html", "netlify.toml", "sitemap.xml", "db/schema.ts"]) {
       let now = null; try { now = R(f); } catch { /* absent */ }
+      now = withoutPipelineStancesEdits(f, now); // a later declared pass's edits aside
       eq(now, FIVE(f), `${f} changed in the cleanup`);
     }
     const ls = (rev, dir) => (git(["show", `${rev}:${dir}`]) || "").split("\n").slice(2).filter(Boolean).map((n) => n.replace(/\/$/, "")).sort();
     const list = (dir) => { try { return readdirSync(join(ROOT, dir)).sort(); } catch { return []; } };
-    for (const d of ["netlify/functions", "netlify/edge-functions", "netlify/database/migrations"]) eq(list(d).join(","), ls(FIVE_REV, d).join(","), `${d}: an entry was added or removed in the cleanup`);
+    for (const d of ["netlify/functions", "netlify/edge-functions", "netlify/database/migrations"]) eq(withoutPipelineStancesEntries(list(d)).join(","), ls(FIVE_REV, d).join(","), `${d}: an entry was added or removed in the cleanup`);
     eq(swCodeOnly(R("sw.js")), swCodeOnly(FIVE("sw.js")), "sw.js worker code or precache list changed in the cleanup");
     const ver = (src) => Number((/^const CACHE_VERSION = 'v(\d+)';$/m.exec(String(src)) || [])[1]);
     eq(ver(R("sw.js")), ver(FIVE("sw.js")) + 1 + (/^\/\/ v565 - FIVE CIVIC RULES & SAFETY NET KEYS\./m.test(R("sw.js")) ? 1 : 0), "the cleanup did not move the shell exactly one version (plus the declared later pass)");

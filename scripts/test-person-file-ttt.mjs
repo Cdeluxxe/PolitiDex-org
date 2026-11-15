@@ -151,7 +151,9 @@ function boot(opts) {
   const reqs = [];
   win.__reqs = reqs;
   win.fetch = (url) => {
-    reqs.push(String(url));
+    // The promoted-stance cards (stance-helpers.js, /api/stated-positions) are one
+    // idle-time request of their own, not the record's; the budget below is the record's.
+    if (String(url).indexOf("/api/stated-positions") === -1) reqs.push(String(url));
     const hit = (opts.payloads || []).find((p) => String(url).indexOf("/member/" + p.pid) !== -1);
     if (!hit) return new Promise(() => {});       // a request nobody stubbed hangs, it does not 404-and-pass
     return new Promise((res) => setTimeout(() => res({
