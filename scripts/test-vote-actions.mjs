@@ -266,6 +266,84 @@ rb.votes.set("a", { billKey: "x", topicTags: [], taggerVersion: "old" });
 const r4 = await C.runVoteActions({ fetch: async () => ({ ok: false, status: 404 }), repo: rb, memberMap, apiKey: null, now: () => NOW, log: () => {}, chambers: [] });
 eq([r4.report.retagged, rb.votes.get("a").taggerVersion], [1, C.TAGGER_VERSION], "re-tag follows onto vote rows");
 
+// ── raw payloads (Blobs "raw-ingest-votes") ─────────────────────────────────
+section("raw payloads");
+function memStore({ failWrites = false } = {}) {
+  const m = new Map();
+  return {
+    m, writes: 0,
+    async setJSON(k, v) { this.writes++; if (failWrites) throw new Error("blobs unavailable"); m.set(k, JSON.parse(JSON.stringify(v))); },
+    async get(k) { return m.has(k) ? JSON.parse(JSON.stringify(m.get(k))) : null; },
+    async list({ prefix }) { return { blobs: [...m.keys()].filter((k) => k.startsWith(prefix)).map((key) => ({ key })) }; },
+  };
+}
+eq(C.RAW_VOTES_STORE_NAME, "raw-ingest-votes", "sibling store, not a prefix in the stance raw store");
+const rs = memStore(), rr = memRepo();
+const rawLines = [];
+const rRun = await C.runVoteActions({ fetch: fakeFetch, repo: rr, memberMap, apiKey: "secret-key", now: () => NOW, log: (l) => rawLines.push(l), maxRolls: 20, rawStore: rs });
+eq([rRun.report.done, rRun.report.unsupported, rRun.report.incomplete], [3, 1, 1], "same outcome with a raw store attached");
+const rawKeys = [...rs.m.keys()].sort();
+const tsPart = NOW.toISOString().replace(/[:.]/g, "-");
+ok(rawKeys.includes(`house/119/2/roll-00300/${tsPart}.json`), "House roll payload stored under house/<c>/<s>/roll-<n>/<ts>.json");
+ok(rawKeys.includes(`senate/119/2/roll-00500/${tsPart}.json`), "Senate roll payload stored");
+ok(rawKeys.includes(`bills/us-119-hr-5000/${tsPart}.json`) && rawKeys.includes(`bills/us-119-hamdt-90/${tsPart}.json`), "bill metadata payloads stored");
+ok(rawKeys.includes(`house/119/2/roll-00302/${tsPart}.json`) && rawKeys.includes(`house/119/2/roll-00303/${tsPart}.json`), "unsupported / empty roll payloads are kept too (stored before parsing)");
+const h300 = rs.m.get(`house/119/2/roll-00300/${tsPart}.json`);
+eq(h300.body, JSON.stringify(members(roll300, { voteQuestion: "On Passage", sourceDataURL: "https://clerk.house.gov/evs/2026/roll300.xml" })), "House body stored exactly as served");
+eq([h300.kind, h300.http_status, h300.roll, h300.fetched_at], ["house_vote", 200, 300, NOW.toISOString()], "envelope: kind, status, roll, fetch time");
+ok(h300.list_row && Number(h300.list_row.rollCallNumber) === 300, "House envelope keeps its vote-list row");
+eq(rs.m.get(`senate/119/2/roll-00500/${tsPart}.json`).body, senateVote, "Senate XML stored exactly as served");
+const b5000 = rs.m.get(`bills/us-119-hr-5000/${tsPart}.json`);
+eq(b5000.responses.map((r) => r.part), ["bill", "subjects", "summaries"], "bill envelope keeps every response in order");
+ok(!JSON.stringify([...rs.m.values()]).includes("secret-key"), "no API key in any stored payload or URL");
+const rv = [...rr.votes.values()];
+ok(rv.length > 0 && rv.every((r) => r.rawRef && rs.m.has(r.rawRef)), "every vote row records the payload key it came from");
+eq(rr.bills.get("us-119-hr-5000")?.rawRef, `bills/us-119-hr-5000/${tsPart}.json`, "bill row records its metadata payload key");
+ok(rr.bills.get("us-119-pn-12-3")?.rawRef, "nomination bill row records its payload key");
+
+// Re-parse: identical rows, no network.
+const pick = (rows) => JSON.stringify([...rows].map(({ revisedAt, ...r }) => r).sort((a, b) => `${a.rollNumber}|${a.memberId}`.localeCompare(`${b.rollNumber}|${b.memberId}`)));
+const doneRefs = [...new Set(rv.map((r) => r.rawRef))];
+let fetchDuringReplay = 0;
+const realFetch = globalThis.fetch; globalThis.fetch = async () => { fetchDuringReplay++; throw new Error("network used in replay"); };
+let identical = true, billsIdentical = true;
+for (const ref of doneRefs) {
+  const r = await C.replayRoll(rs, ref, { memberMap, lis: rRun.state.lis?.map || {} });
+  if (!r.ok) { identical = false; continue; }
+  if (pick(r.rows) !== pick(rv.filter((x) => x.rawRef === ref))) identical = false;
+  if (JSON.stringify(r.bill) !== JSON.stringify(rr.bills.get(r.bill.billKey))) billsIdentical = false;
+}
+ok(doneRefs.length === 3 && identical, "re-parsing each stored roll payload rebuilds identical vote rows");
+ok(billsIdentical, "re-parsing rebuilds identical bill rows");
+const rep1 = await C.replayRawRolls({ store: rs, repo: rr, memberMap, lis: rRun.state.lis?.map || {}, write: true, log: () => {} });
+const rep2 = await C.replayRawRolls({ store: rs, repo: rr, memberMap, lis: rRun.state.lis?.map || {}, write: true, log: () => {} });
+globalThis.fetch = realFetch;
+eq(fetchDuringReplay, 0, "replay never touches the network");
+eq([rep1.rolls, rep1.rebuilt, rep1.skipped.length, rep1.inserted, rep1.revised, rep1.errors.length], [5, 3, 2, 0, 0, 0], "write replay over stored payloads: 3 rebuilt, unsupported + empty skipped, nothing new or revised");
+eq([rep2.inserted, rep2.revised], [0, 0], "repeat replay is a no-op");
+eq(pick([...rr.votes.values()]), pick(rv), "vote table unchanged after replay");
+ok(rep1.skipped.some((s) => s.reason === "unsupported vote words") && rep1.skipped.some((s) => s.reason === "no member positions"), "skips name their reason");
+const dry = await C.replayRawRolls({ store: rs, repo: null, memberMap, lis: {}, log: () => {} });
+eq([dry.rebuilt, dry.inserted], [3, 0], "dry run rebuilds but writes nothing");
+const gone = await C.replayRoll(rs, "house/119/2/roll-09999/x.json", { memberMap, lis: {} });
+eq([gone.ok, gone.reason], [false, "payload not found"], "missing payload is a clear skip");
+// A bill row whose payload was never stored is used as-is, not overwritten with a fallback title.
+const keep = await C.replayRoll(rs, doneRefs.find((r) => r.includes("roll-00300")), { memberMap, lis: {} }, { storedBill: { ...rr.bills.get("us-119-hr-5000"), rawRef: null, title: "Curated title" } });
+eq([keep.ok && keep.billRebuilt, keep.ok && keep.bill.title], [false, "Curated title"], "stored bill without a payload is kept as-is");
+
+// Store write failure: logged, run completes, rows written with raw_ref NULL.
+const fs = memStore({ failWrites: true }), fr = memRepo(), failLines = [];
+const fRun = await C.runVoteActions({ fetch: fakeFetch, repo: fr, memberMap, apiKey: "k", now: () => NOW, log: (l) => failLines.push(l), maxRolls: 20, rawStore: fs });
+eq([fRun.report.done, fRun.report.unsupported, fRun.report.incomplete, fRun.report.errors.length], [3, 1, 1, 0], "run completes unchanged when every store write fails");
+ok(fs.writes > 0 && fs.m.size === 0, "writes were attempted and failed");
+ok(failLines.some((l) => l.includes("RAW STORE WRITE FAILED")), "store failure is logged");
+eq(pick([...fr.votes.values()].map((r) => ({ ...r, rawRef: "x" }))), pick(rv.map((r) => ({ ...r, rawRef: "x" }))), "same vote rows as with a working store");
+ok([...fr.votes.values()].every((r) => r.rawRef === null) && [...fr.bills.values()].every((b) => b.rawRef === null), "raw_ref is NULL when nothing was stored");
+// No store at all (e.g. getStore unavailable) behaves like before.
+const nr = memRepo();
+const nRun = await C.runVoteActions({ fetch: fakeFetch, repo: nr, memberMap, apiKey: "k", now: () => NOW, log: () => {}, maxRolls: 20 });
+eq(nRun.report.done, 3, "no raw store → rows still written");
+
 // Regression: healthcare's `cedes` is a { test } predicate, not a RegExp. The
 // tagger used to read `.flags.replace` on it and throw "Cannot read properties
 // of undefined (reading 'replace')" on the first healthcare bill, ending the run.

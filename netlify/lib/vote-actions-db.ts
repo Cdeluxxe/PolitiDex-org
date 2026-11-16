@@ -12,6 +12,7 @@ const toBill = (r: any): BillRow => ({
   tagDetail: r.tagDetail || [], multiTopic: !!r.multiTopic, taggerVersion: r.taggerVersion, metaSource: r.metaSource,
   hasSummary: !!r.hasSummary, metaAttempts: r.metaAttempts || 0,
   metaFetchedAt: r.metaFetchedAt ? new Date(r.metaFetchedAt).toISOString() : null, sourceUrl: r.sourceUrl,
+  rawRef: r.rawRef ?? null,
 });
 
 const CHUNK = 200;
@@ -70,6 +71,7 @@ export const voteActionsRepo: VoteActionsRepo = {
           result: sql`COALESCE(${ex("result")}, ${pdxVoteActions.result})`,
           topicTags: sql`${ex("topic_tags")}`,
           taggerVersion: sql`${ex("tagger_version")}`,
+          rawRef: sql`COALESCE(${ex("raw_ref")}, ${pdxVoteActions.rawRef})`,
           updatedAt: sql`now()`,
         },
       });
