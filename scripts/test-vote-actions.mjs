@@ -80,7 +80,22 @@ ok(multi.tags.includes("border_security"), "border_security tagged");
 ok(multi.tags.some((t) => /drug|health/.test(t)), "a health/drug key tagged");
 ok(multi.tags.every((t) => reg.has(t)), "every tag is a register key");
 ok(multi.detail.every((d) => typeof d.confidence === "number" && d.signals.length), "every candidate carries confidence + signals");
-ok(multi.tags.length <= C.MAX_TAGS, "tag cap");
+ok(!("MAX_TAGS" in C), "no tag-count cap is exported");
+eq(multi.tags, multi.detail.filter((d) => d.confidence >= C.TAG_FLOOR).map((d) => d.key), "every key at or above the floor is a tag");
+// A large multi-topic package keeps every key above the floor, more than six.
+const bigCurated = ["strong_defense", "veterans", "border_security", "healthcare", "housing", "infrastructure", "rural_ag", "climate_action", "public_schools"];
+const big = C.tagMeasure({
+  measureType: "bill",
+  title: "Consolidated Appropriations Act",
+  summary: "Funds defense, veterans health care, border security, housing assistance, highways and transit, agriculture, clean energy, and public schools.",
+  policyArea: "Economics and Public Finance",
+  curatedKeys: bigCurated,
+});
+ok(big.tags.length > 6, `a large bill holds more than six tags (got ${big.tags.length})`);
+ok(bigCurated.every((k) => big.tags.includes(k)), "every curated key on the large bill is kept");
+eq(big.tags, big.detail.filter((d) => d.confidence >= C.TAG_FLOOR).map((d) => d.key), "large bill: tags = every candidate above the floor");
+ok(big.multiTopic, "large bill still flagged multi-topic");
+ok(big.tags.every((t) => reg.has(t)), "large bill: every tag is a register key");
 const nom = C.tagMeasure({ measureType: "nomination", title: "Jane Doe, of Ohio, to be Secretary of Energy" });
 eq([nom.tags, nom.untagged], [[], "nomination"], "nominations stay untagged");
 const cur = C.tagMeasure({ measureType: "bill", title: "To designate a post office", curatedKeys: ["gov_transparency", "not_a_key"] });

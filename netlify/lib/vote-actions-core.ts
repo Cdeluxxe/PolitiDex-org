@@ -47,7 +47,7 @@ import { RELATED_ISSUE_KEYS } from "./related-issue-keys.mjs";
 import coreCategories from "../../db/issue-core-categories.json" with { type: "json" };
 
 // ── Knobs ────────────────────────────────────────────────────────────────────
-export const TAGGER_VERSION = "va-tagger-v1";
+export const TAGGER_VERSION = "va-tagger-v2"; // v2: no tag-count cap
 export const STATE_STORE_NAME = "vote-actions-state";
 export const STATE_KEY = "state.json";
 export const RUN_BUDGET_MS = 22_000;          // scheduled functions stop at ~30 s
@@ -60,8 +60,7 @@ export const META_REFRESH_AFTER_DAYS = 3;
 export const META_MAX_ATTEMPTS = 6;
 export const RETAG_PER_RUN = 200;             // local re-tags after a tagger version bump
 export const LIS_INDEX_MAX_AGE_DAYS = 7;
-export const TAG_FLOOR = 45;                  // a key at or above this becomes a topic tag
-export const MAX_TAGS = 6;
+export const TAG_FLOOR = 45;                  // every key at or above this becomes a topic tag (no count cap)
 export const MULTI_TOPIC_CATEGORIES = 3;
 
 const CONGRESS_API = "https://api.congress.gov/v3";
@@ -500,7 +499,7 @@ export function tagMeasure(m: TagInput): TagResult {
     detail.push({ key, confidence: Math.min(100, c), category: CATEGORY_OF[key] || null, signals });
   }
   detail.sort((a, b) => b.confidence - a.confidence || a.key.localeCompare(b.key));
-  const tags = detail.filter((d) => d.confidence >= TAG_FLOOR).slice(0, MAX_TAGS).map((d) => d.key);
+  const tags = detail.filter((d) => d.confidence >= TAG_FLOOR).map((d) => d.key);
   const cats = new Set(detail.filter((d) => tags.includes(d.key)).map((d) => d.category).filter(Boolean));
   return {
     ...base, tags, detail, multiTopic: cats.size >= MULTI_TOPIC_CATEGORIES,
