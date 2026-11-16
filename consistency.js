@@ -17389,6 +17389,16 @@
       return RI.conflictsHtml(pid, (window.CMP_DATA || {})[pid], issueKey) || '';
     } catch (e) { return ''; }
   }
+  // WORDS VS. ACTIONS (related-issues.js): over the same pairs, where this
+  // person's stated side and a vote on the same issue run opposite ways and the
+  // reader holds the stated side. '' when there is none — the drawer is unchanged.
+  function _gapWvaHtml(pid, issueKey) {
+    try {
+      var RI = window.PDXRelatedIssues;
+      if (!RI || typeof RI.wordsVsActionsHtml !== 'function') return '';
+      return RI.wordsVsActionsHtml(pid, (window.CMP_DATA || {})[pid], issueKey) || '';
+    } catch (e) { return ''; }
+  }
   function _dosFindHtml(r, t) {
     var f = _dosFinding(r, t);
     return '<div class="pdxlg-find" style="--c:' + f.color + '">' +
@@ -17647,6 +17657,58 @@
     return '<tr class="pdxlg-xlr" data-pdxlg-xl="' + escAttr(k) + '" data-pdxlg-xlrow="' + i + '">' +
       '<td colspan="5" class="pdxlg-xl" style="font-size:0.8rem;color:#9fb0d0;">' + lead + parts.join('; ') + '</td></tr>';
   }
+  // The PUBLISHABLE raw rolls on one bill: everything the public endpoint sent
+  // (it only sends gated bills), or, for the curator, only bills the gate passed.
+  function _xlPublishedRolls(pid, billKey) {
+    var got = _xl[pid];
+    if (!got || !got.billKeys || !billKey) return null;
+    var rolls = got.billKeys[billKey];
+    if (!rolls || !rolls.length) return null;
+    if (got.mode === 'public') return rolls;
+    var pub = got.publish && got.publish[billKey];
+    return pub && pub.publishable ? rolls : null;
+  }
+  // ONE ISSUE'S ACTS WITH A SIDE, for the words-vs-actions note (related-issues.js).
+  // Each is a curated act that cut for or against the issue. DIRECTION ALWAYS
+  // COMES FROM THE CURATED MAPPING — a raw vote carries topic tags, not a side.
+  // When a publishable raw roll call is the SAME roll call (chamber, congress,
+  // session, roll), its recorded vote and official record are preferred over the
+  // curated copy: same vote → same side; the other of Yea/Nay → the other side
+  // (the mapping read through the raw vote); present / not voting → no side, so
+  // the act is dropped. Executive acts and acts that took no side are left out.
+  function _wvaActs(pid, issueKey) {
+    var t = null;
+    try { t = _dosTally(pid, issueKey); } catch (e) { t = null; }
+    if (!t || !t.rows || !t.rows.length) return [];
+    var out = [];
+    for (var i = 0; i < t.rows.length; i++) {
+      var p = t.rows[i], d = p && p.d;
+      if (!d || d.execAct || (p.dir !== 'advances' && p.dir !== 'opposes')) continue;
+      var it = d.item || {}, cur = String(it.position || '').toLowerCase();
+      var act = { dir: p.dir, word: (p.vote && p.vote.word) || '', ident: d.ident || d.billNum || '', date: d.date || '',
+        url: /^https?:\/\//.test(String(d.url || '')) ? d.url : '', from: 'curated', procedural: it.isProcedural === true };
+      var rolls = _xlPublishedRolls(pid, _xlBillKey(d));
+      var raw = null;
+      for (var j = 0; rolls && j < rolls.length; j++) {
+        var r = rolls[j] || {};
+        if (r.chamber === it.chamber && +r.congress === +it.congress && +r.session === +it.session && +r.roll === +it.rollNumber) { raw = r; break; }
+      }
+      if (raw) {
+        var same = (raw.vote === 'yes' && cur === 'yea') || (raw.vote === 'no' && cur === 'nay');
+        var flip = (raw.vote === 'yes' && cur === 'nay') || (raw.vote === 'no' && cur === 'yea');
+        if (!same && !flip) continue;
+        act.dir = same ? p.dir : (p.dir === 'advances' ? 'opposes' : 'advances');
+        act.word = raw.voteRaw || (raw.vote === 'yes' ? 'Yea' : 'Nay');
+        act.date = raw.date || act.date;
+        act.url = /^https?:\/\//.test(String(raw.sourceUrl || '')) ? raw.sourceUrl : act.url;
+        act.from = 'raw';
+        act.procedural = raw.procedural === true;
+      }
+      out.push(act);
+    }
+    return out;
+  }
+
   // Fetch once per person per session (per mode), then hand back to repaint.
   function _xlEnsure(pid, repaint) {
     if (!pid || typeof fetch !== 'function') return null;
@@ -20820,6 +20882,7 @@
       _gapSignalHtml(_st) +
       _gapRelatedHtml(pid, issueKey) +
       _gapConflictsHtml(pid, issueKey) +
+      _gapWvaHtml(pid, issueKey) +
       // EVIDENCE — the sources attached to the stance, one block per link. Only
       // when the stance card or the Evidence Locker holds one; never a placeholder.
       _gapEvidenceHtml(pid, issueKey, _st) +
@@ -21841,6 +21904,8 @@
     // to, and a test seam to load a person's raw vote rows without a network.
     voteActionBillKey: _xlBillKey,
     loadVoteActionLinks: _xlEnsure,
+    // Words-vs-actions (related-issues.js): one issue's sided acts, raw-preferred.
+    wordsVsActionsActs: _wvaActs,
     setVoteActionLinks: function (pid, billKeys, opts) {
       if (billKeys && typeof billKeys === 'object') _xl[pid] = { mode: (opts && opts.mode) || 'curator', billKeys: billKeys, publish: (opts && opts.publish) || null };
       else delete _xl[pid];

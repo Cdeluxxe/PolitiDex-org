@@ -12254,7 +12254,18 @@
 //     precache list is unchanged. No stored reader state is written or
 //     rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v572';
+// v573 - WORDS AND VOTES IN THE ISSUE DRAWER. related-issues.js prints one
+//     short note per related pair, after Where this conflicts, where the reader
+//     holds a side, the person states that same side, and one of their votes
+//     on that issue cut the other way. The side is the curated mapping's; the
+//     vote is the matching publishable raw roll call when there is one
+//     (consistency.js wordsVsActionsActs), else the curated vote. Nothing is
+//     scored. With no such vote the drawer is byte-identical. No route, gate,
+//     tally, chip or verdict changes. Precached files changed, so the shell
+//     moves; the precache list is unchanged. No stored reader state is written
+//     or rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v573';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

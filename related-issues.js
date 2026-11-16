@@ -700,7 +700,74 @@
       '<div class="pdxri-cf-h">' + esc(CONFLICT_HD) + '</div>' + body + '</div>';
   }
 
+  // ── WORDS VS. ACTIONS ─────────────────────────────────────────────────────
+  // Over the SAME pairs "Where this conflicts" walks (the open issue and each
+  // related issue itemsFor lists), one short note per pair where, on one issue
+  // of the pair, the reader holds a side, the person STATES that same side, and
+  // a vote of theirs on that issue cut the other way. The vote comes from
+  // PDXConsistency.wordsVsActionsActs: a curated act's side, read through the
+  // matching publishable raw roll call when one exists (preferred), else the
+  // curated vote. Nothing is scored or ranked: the most recent such vote is
+  // named, raw first. The related issue's own side is preferred; a side on the
+  // open issue is printed once, on the first pair that has nothing of its own.
+  // '' when there is no such vote — the drawer is unchanged.
+  var WVA_HD = 'Words and votes';
+  var WVA_SAID = { support: 'they state they support it', oppose: 'they state they oppose it' };
+  function wvaSide(pid, pm, key, label, mine) {
+    var you = mine[key];
+    var said = directionOf(pm, key);
+    if (!you || !said || said !== you) return null;
+    var CS = window.PDXConsistency;
+    if (!CS || typeof CS.wordsVsActionsActs !== 'function') return null;
+    var against = said === 'support' ? 'opposes' : 'advances';
+    var acts = (CS.wordsVsActionsActs(pid, key) || []).filter(function (a) { return a && a.dir === against; });
+    if (!acts.length) return null;
+    var pick = function (from) {
+      return acts.filter(function (a) { return a.from === from; })
+        .sort(function (x, y) { return String(y.date || '').localeCompare(String(x.date || '')); })[0] || null;
+    };
+    return { key: key, label: label, you: you, said: said, act: pick('raw') || pick('curated') };
+  }
+  function wordsVsActionsFor(pid, p, key, mine) {
+    mine = mine || readerSides();
+    if (!key || !mine) return null;
+    var pm = positionMap(pid, p);
+    var items = itemsFor(pid, p, key, pm);
+    if (!items.length) return null;
+    var open = itemOf(pid, pm, key) || { key: key, label: labelOf(key) };
+    var openSide = wvaSide(pid, pm, key, open.label, mine), openUsed = false;
+    var out = [];
+    items.forEach(function (it) {
+      var side = wvaSide(pid, pm, it.key, it.label, mine);
+      if (!side && openSide && !openUsed) { side = openSide; openUsed = true; }
+      if (side) out.push({ a: open.label, b: it.label, bKey: it.key, side: side });
+    });
+    return out;
+  }
+  function wvaText(n) {
+    var s = n.side, a = s.act;
+    return n.a + ' and ' + n.b + ': on ' + s.label + ' ' + WVA_SAID[s.said] + ', but voted ' + a.word +
+      (a.ident ? ' on ' + a.ident : '') + (a.date ? ' (' + String(a.date).slice(0, 10) + ')' : '') +
+      (a.procedural ? ', a procedural vote' : '') + ', which ran against it; you ' + YOU_WORD[s.you] + '.';
+  }
+  function wordsVsActionsHtml(pid, p, key) {
+    var list = wordsVsActionsFor(pid, p, key);
+    if (!list || !list.length) return '';
+    return '<div class="pdxri-wva" data-pdxri-wva="' + esc(key) + '" data-pid="' + esc(pid) + '" style="margin:8px 0;font-size:0.85rem;">' +
+      '<div class="pdxri-wva-h" style="font-weight:700;">' + esc(WVA_HD) + '</div>' +
+      '<ul class="pdxri-wva-list" style="margin:4px 0 0;padding-left:18px;">' + list.map(function (n) {
+        var a = n.side.act;
+        return '<li class="pdxri-wva-item" data-pdxri-wva-pair="' + esc(n.bKey) + '" data-pdxri-wva-key="' + esc(n.side.key) +
+          '" data-pdxri-wva-from="' + esc(a.from) + '">' + esc(wvaText(n)) +
+          (a.url ? ' <a href="' + esc(a.url) + '" target="_blank" rel="noopener">official record</a>' : '') + '</li>';
+      }).join('') + '</ul></div>';
+  }
+
   window.PDXRelatedIssues = {
+    wordsVsActionsFor: wordsVsActionsFor,
+    wordsVsActionsHtml: wordsVsActionsHtml,
+    wordsVsActionsText: wvaText,
+    WVA_HD: WVA_HD,
     RELATED_SHOWN: RELATED_SHOWN,
     MORE_CSS: MORE_CSS,
     CONFLICTS_SHOWN: CONFLICTS_SHOWN,
