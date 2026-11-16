@@ -712,6 +712,46 @@
   // open issue is printed once, on the first pair that has nothing of its own.
   // '' when there is no such vote — the drawer is unchanged.
   var WVA_HD = 'Words and votes';
+  // THE RECENCY WINDOW — the one place to change it. Each value is a number of
+  // months back from today, 'congress' (since the current Congress convened,
+  // Jan 3 of the latest odd year), or null (no limit).
+  //   recent  qualifying votes inside it are used first; older ones only when no
+  //           recent one conflicts (the note still appears, naming that vote)
+  //   cutoff  hard limit: votes older than it are never used (null = none)
+  // Within whichever tier is used, the most recent vote is named; a same-day tie
+  // goes to the publishable raw roll call. A vote with no date counts as older,
+  // and never passes a hard cutoff. `now` is the clock (a test seam).
+  var WVA_WINDOW = { recent: 24, cutoff: null, now: function () { return Date.now(); } };
+  function wvaSince(v, now) {
+    if (v == null || v === '') return null;
+    var d = new Date(now);
+    if (v === 'congress') {
+      // A Congress convenes Jan 3 of an odd year and sits two years.
+      var y = d.getUTCFullYear(), odd = y % 2 === 1 ? y : y - 1;
+      var start = Date.UTC(odd, 0, 3);
+      return start > now ? Date.UTC(odd - 2, 0, 3) : start;
+    }
+    var m = Number(v);
+    if (!(m > 0)) return null;
+    return Date.UTC(d.getUTCFullYear(), d.getUTCMonth() - m, d.getUTCDate(), d.getUTCHours(), d.getUTCMinutes());
+  }
+  // The vote a note names, from the acts that cut against the stated side.
+  function wvaPick(acts) {
+    var now = Number((WVA_WINDOW.now || Date.now)());
+    var recent = wvaSince(WVA_WINDOW.recent, now), cutoff = wvaSince(WVA_WINDOW.cutoff, now);
+    var dated = acts.map(function (a) { var t = Date.parse(a.date || ''); return { a: a, t: isNaN(t) ? null : t }; })
+      .filter(function (x) { return cutoff == null || (x.t != null && x.t >= cutoff); });
+    if (!dated.length) return null;
+    var inside = recent == null ? dated : dated.filter(function (x) { return x.t != null && x.t >= recent; });
+    var pool = inside.length ? inside : dated;
+    var day = function (x) { return x.t == null ? '' : new Date(x.t).toISOString().slice(0, 10); };
+    pool.sort(function (x, y) {
+      return day(y).localeCompare(day(x)) ||
+        ((x.a.from === 'raw' ? 0 : 1) - (y.a.from === 'raw' ? 0 : 1)) ||
+        ((y.t == null ? -Infinity : y.t) - (x.t == null ? -Infinity : x.t)) || 0;
+    });
+    return pool[0].a;
+  }
   var WVA_SAID = { support: 'they state they support it', oppose: 'they state they oppose it' };
   function wvaSide(pid, pm, key, label, mine) {
     var you = mine[key];
@@ -722,11 +762,8 @@
     var against = said === 'support' ? 'opposes' : 'advances';
     var acts = (CS.wordsVsActionsActs(pid, key) || []).filter(function (a) { return a && a.dir === against; });
     if (!acts.length) return null;
-    var pick = function (from) {
-      return acts.filter(function (a) { return a.from === from; })
-        .sort(function (x, y) { return String(y.date || '').localeCompare(String(x.date || '')); })[0] || null;
-    };
-    return { key: key, label: label, you: you, said: said, act: pick('raw') || pick('curated') };
+    var act = wvaPick(acts);
+    return act ? { key: key, label: label, you: you, said: said, act: act } : null;
   }
   function wordsVsActionsFor(pid, p, key, mine) {
     mine = mine || readerSides();
@@ -768,6 +805,7 @@
     wordsVsActionsHtml: wordsVsActionsHtml,
     wordsVsActionsText: wvaText,
     WVA_HD: WVA_HD,
+    WVA_WINDOW: WVA_WINDOW,
     RELATED_SHOWN: RELATED_SHOWN,
     MORE_CSS: MORE_CSS,
     CONFLICTS_SHOWN: CONFLICTS_SHOWN,

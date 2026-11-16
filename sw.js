@@ -12276,7 +12276,17 @@
 //     shell moves; the precache list is unchanged. No stored reader state is
 //     written or rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v574';
+// v575 - A RECENCY WINDOW FOR WORDS AND VOTES. related-issues.js picks the vote
+//     a note names through one window, WVA_WINDOW (recent: 24 months by
+//     default, or 'congress'; optional hard cutoff, off by default): the most
+//     recent conflicting vote inside the window, else the most recent outside
+//     it, raw and curated alike, a same-day tie to the raw roll call. Which
+//     notes appear is unchanged unless a cutoff is set. No route, gate, tally,
+//     chip or verdict changes. A precached file changed, so the shell moves;
+//     the precache list is unchanged. No stored reader state is written or
+//     rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v575';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
