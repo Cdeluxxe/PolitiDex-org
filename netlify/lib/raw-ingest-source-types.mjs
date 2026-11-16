@@ -36,6 +36,8 @@ export const SOURCE_CLASSES = {
   state_legislature: "state legislature official member page",
   statewide_official: "governor or statewide official site — press release or issue page",
   campaign_issues: "campaign Issues / Priorities sub-page",
+  // Pool v2 (db/raw-ingest-pool-expansion-2026-11.json) — evidence tier 2.
+  official_gov: "other official government host that is the politician's own office, committee or member page (tier 2)",
 };
 
 // State legislators the rotation did not cover yet whose official legislature

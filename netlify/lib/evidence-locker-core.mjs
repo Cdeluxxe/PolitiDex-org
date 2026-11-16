@@ -96,6 +96,8 @@ export function attributionFor(sourceType, link) {
   const st = String(sourceType || "").toLowerCase();
   let host = "";
   try { host = new URL(link).hostname.toLowerCase(); } catch {}
+  // A cited video from the politician's own channel (tier 2) is named as one.
+  if (/(?:^|\.)(?:youtube\.com|youtu\.be)$/.test(host)) return `Source: ${/\bcampaign\b/.test(st) ? "campaign" : "official"} YouTube channel`;
   if (/\bofficial\b/.test(st) || /\.(gov|mil)$/.test(host)) {
     if (/senate/.test(st) || /\.senate\.gov$/.test(host)) return "Source: official Senate page";
     if (/house/.test(st) || /\.house\.gov$/.test(host)) return "Source: official House page";
@@ -187,6 +189,10 @@ export function lockerDecision(candidate, raw, gt = null) {
   return { write: true, strength, reason: `${reason} on a campaign/official page` };
 }
 
+/** Evidence tier of a raw record / item: 2 when tagged so, else 1 (older items carry no field). */
+export const sourceTierOf = (x) => (Number(x?.source_tier) === 2 ? 2 : 1);
+export const SOURCE_TIER_LABELS = { 1: "tier 1 · first-party page", 2: "tier 2 · official government source / own YouTube channel" };
+
 /** The finished Locker item for a candidate + the raw record it came from. */
 export function buildLockerItem(candidate, raw, strength = lockerStrength(candidate).strength) {
   const src = candidate.sources?.[0] || {};
@@ -216,6 +222,11 @@ export function buildLockerItem(candidate, raw, strength = lockerStrength(candid
     item_version: LOCKER_ITEM_VERSION,
     captured_at: raw?.fetched_at ?? null,
     ...(raw?.source_id ? { source_id: raw.source_id } : {}),
+    // Evidence tier of the page the item came from (pool v2): 1 = first-party
+    // campaign / official page (every untagged page), 2 = official government
+    // source or the politician's own YouTube channel. Provenance only — the
+    // strength, thresholds and write rules above are the same for both.
+    source_tier: sourceTierOf(raw),
     // Scored from a page filed under another topic (multi-topic pass).
     ...(candidate.page_topic && candidate.page_topic !== candidate.topic ? { page_topic: candidate.page_topic } : {}),
   };
@@ -235,7 +246,7 @@ function displayDate(iso) {
 export function toSpotlightEntry(item, { key = null, review = null } = {}) {
   const who = surnameOf(item.politician_id);
   // A floor speech, release or co-sponsor statement is named as what it is.
-  const page = KIND_LABELS[item.primary_kind] || (/official/i.test(item.attribution) ? "official page" : "campaign page");
+  const page = KIND_LABELS[item.primary_kind] || (/YouTube channel/.test(item.attribution) ? "own YouTube channel" : /official/i.test(item.attribution) ? "official page" : "campaign page");
   return {
     // The page type rides in the headline so two pages on one topic stay two
     // receipts (the Locker de-duplicates by headline within a member).
@@ -264,6 +275,7 @@ export function toSpotlightEntry(item, { key = null, review = null } = {}) {
       formal_record: false,
       ...(item.regraded_from ? { regraded_from: item.regraded_from } : {}),
       ...(item.implication_count ? { implication_count: item.implication_count } : {}),
+      source_tier: sourceTierOf(item),
       ...(key ? { key } : {}),
     },
     ...(review ? { review: { status: review.status, ...(review.note ? { note: review.note } : {}), ...(review.date ? { date: review.date } : {}) } } : {}),
@@ -299,7 +311,7 @@ export async function maybeWriteLockerItem(candidate, raw, { store, gt = null, l
       log(`evidence-locker: HELD ${id} → ${LOCKER_STORE_NAME}/${key} — ${why}; not written`);
       return { written: false, key, reason: why, held: conflict.key };
     }
-    const fields = () => JSON.stringify({ strength: item.strength, position: item.position, confidence: item.confidence, ...(item.implication_count ? { implication_count: item.implication_count } : {}), link: item.link, attribution: item.attribution, reason: d.reason });
+    const fields = () => JSON.stringify({ strength: item.strength, position: item.position, confidence: item.confidence, ...(item.implication_count ? { implication_count: item.implication_count } : {}), link: item.link, attribution: item.attribution, source_tier: item.source_tier, reason: d.reason });
     if (existing) {
       const was = storedStrength(existing);
       if (STRENGTH_RANK[item.strength] <= STRENGTH_RANK[was]) {

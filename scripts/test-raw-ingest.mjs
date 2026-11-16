@@ -552,7 +552,10 @@ await t('roster: priority flags are true to the data, and prioritised people com
     }
     const o = r.official;
     if (!o && POOL.has(r.politician_id)) {
-      assert.ok(r.sources.length && r.sources.every((s) => s.source_class === 'curated_page'), `${r.politician_id}: pool rows carry curated pages`);
+      // Tier 1 = curated first-party pages; tier 2 (pool v2) = official
+      // government sources and own-channel YouTube videos, tagged as such.
+      assert.ok(r.sources.length && r.sources.every((s) => (s.source_class === 'curated_page' && s.source_tier === 1)
+        || (['congress_gov', 'official_gov', 'youtube_video'].includes(s.source_class) && s.source_tier === 2)), `${r.politician_id}: pool rows carry curated (tier 1) or official (tier 2) pages`);
       continue;
     }
     if (!o && REQUESTED.has(r.politician_id)) {
@@ -922,11 +925,14 @@ await t('requested national expansion: all 212 unique names, known URLs or expli
 // ── Extra source types: member press/issue pages, Congress.gov, state legislature,
 //    governor/statewide, campaign Issues/Priorities sub-pages ──
 const types = await import('../netlify/lib/raw-ingest-source-types.mjs');
-const CLASSES = ['congress_member', 'congress_gov', 'state_legislature', 'statewide_official', 'campaign_issues'];
-const LIVE_CLASSES = CLASSES.filter((c) => c !== 'congress_gov'); // congress_gov: all pages retired
+const CLASSES = ['congress_member', 'congress_gov', 'state_legislature', 'statewide_official', 'campaign_issues', 'official_gov'];
+// congress_gov: every configured page retired (pool v2 brings cited ones back as
+// tier 2); official_gov: pool-only (tier 2).
+const LIVE_CLASSES = CLASSES.filter((c) => c !== 'congress_gov' && c !== 'official_gov');
 const rowOf = (pid) => core.ROSTER.find((r) => r.politician_id === pid);
 const pagesOf = (r) => [...r.sources, ...(r.official ? [r.official] : [])];
-const RAW_FIELDS = ['url', 'final_url', 'fetched_at', 'source_type', 'politician_id', 'topic', 'source_id', 'http_status', 'content_type', 'body_chars', 'body'];
+// source_tier: the evidence tier, on pages the pool tags (pool v2).
+const RAW_FIELDS = ['url', 'final_url', 'fetched_at', 'source_type', 'politician_id', 'topic', 'source_id', 'source_tier', 'http_status', 'content_type', 'body_chars', 'body'];
 
 await t('extra source types: every configured URL is already cited on the site for that politician, on their own or an official host', () => {
   assert.deepEqual(Object.keys(types.SOURCE_CLASSES).sort(), [...CLASSES].sort());
@@ -1003,7 +1009,10 @@ await t('extra source types: a planner dry-run over the real roster pulls every 
     if (plan.cycle >= 6) break;
   }
   for (const c of LIVE_CLASSES) assert.ok(seen.has(c), `${c} is pulled by the rotation`);
-  assert.ok(!seen.has('congress_gov'), 'retired Congress.gov pages are not planned');
+  // Congress.gov is back only through the pool, as tier 2 — never a retired page.
+  assert.ok(seen.has('congress_gov'), 'cited Congress.gov pages are planned (pool v2, tier 2)');
+  const RETIRED_NORM = new Set(RETIRED_SOURCES.map((r) => normUrl(r.url)));
+  for (const e of extraUrls) assert.ok(!RETIRED_NORM.has(normUrl(e.split(' ')[1])), `${e}: a retired page is never planned`);
   // Over a handful of cycles every extra page gets its turn (overflow rotates by cycle).
   for (const e of types.EXTRA_SOURCES) assert.ok(extraUrls.has(`${e.politician_id} ${e.url}`), `${e.url} is pulled within ${runs} runs`);
   // Overflow rotation keeps the original pages first and moves the extras' window by cycle.
@@ -1031,7 +1040,9 @@ await t('extra source types: a rotated run stores them as plain raw records (loc
     for (const k of Object.keys(rec)) assert.ok(RAW_FIELDS.includes(k), `raw record carries only the locked fields (found ${k})`);
     for (const k of FORBIDDEN) assert.ok(!(k in rec));
   }
-  assert.ok(![...store.data.values()].some((rec) => /congress\.gov/.test(rec.url)), 'no retired Congress.gov page is pulled');
+  const retiredUrls = new Set(RETIRED_SOURCES.map((x) => normUrl(x.url)));
+  assert.ok(![...store.data.values()].some((rec) => retiredUrls.has(normUrl(rec.url))), 'no retired page is pulled');
+  for (const rec of store.data.values()) if (/(?:^|\.)congress\.gov$/.test(new URL(rec.url).hostname)) assert.equal(rec.source_tier, 2, `${rec.url}: Congress.gov pages are tier 2`);
 });
 
 // ── Official social sources: YouTube (transcript first, description fallback) ──
@@ -1054,7 +1065,7 @@ const ytFetch = ({ captions = true } = {}) => async (url) => {
 const memGetStore = () => { const data = new Map(); return { data, async get(k) { return data.has(k) ? JSON.stringify(data.get(k)) : null; }, async setJSON(k, v) { data.set(k, JSON.parse(JSON.stringify(v))); } }; };
 
 await t('social: official YouTube channels are configured only from videos the site already cites on the politician\'s own channel; no X / Facebook', () => {
-  assert.deepEqual(Object.keys(social.SOCIAL_CLASSES), ['youtube']);
+  assert.deepEqual(Object.keys(social.SOCIAL_CLASSES), ['youtube', 'youtube_video']);
   // Both configured channels were retired (feeds kept failing); the class and puller stay.
   assert.equal(types.SOCIAL_SOURCES.length, 0);
   for (const sc of types.SOCIAL_SOURCES) {

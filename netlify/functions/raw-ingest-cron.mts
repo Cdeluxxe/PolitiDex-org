@@ -93,6 +93,21 @@
 //   · Social slots are filled last (after every official / campaign page), so
 //     the caps and the priority of official pages are unchanged.
 
+// Tier-2 evidence pass (pool v2):
+//   · The rotation pool (db/raw-ingest-pool-expansion-2026-11.json) opens to
+//     official government sources — Congress.gov member / measure pages and
+//     the politician's own office or committee pages on other government hosts
+//     — and videos cited from the politician's OWN YouTube channel (pulled like
+//     a page: transcript, else description, and scored). Every page is tagged
+//     `source_tier` (1 = first-party campaign / official page, unchanged; 2 =
+//     the new sources) and the tier rides onto the raw record and the Locker
+//     item. Scoring, R8 / R15, Locker thresholds and cross-topic checks are the
+//     same for both tiers. News, voter guides, general archives and retired
+//     URLs stay out.
+//   · A rotation state stored under an older pool version starts a fresh cycle
+//     ("raw-ingest: pool version …") so the next runs reach the new sources.
+//   · RUN LOG — "raw-ingest: run included …" adds "evidence tiers".
+
 // Roster priority + baseline pass:
 //   · ROSTER grows beyond the previous 13 to more sitting members with a
 //     district board and/or stated positions. Tier 1 = board + several stated
@@ -183,7 +198,7 @@ import {
   runRawIngest, discoverSources, planRun, runPlanLine, sourceKind, normaliseRotationState,
   rosterSummary, baselineLine, isFilled, ROSTER, BASELINE_STRONG, BASELINE_WEAK,
   RAW_STORE_NAME, SOURCES, ROTATION_STORE_NAME, ROTATION_KEY, MAX_SOURCES_PER_RUN,
-  MAX_POLITICIANS_PER_RUN, MAX_SOURCES_PER_POLITICIAN, RUN_BUDGET_MS,
+  MAX_POLITICIANS_PER_RUN, MAX_SOURCES_PER_POLITICIAN, RUN_BUDGET_MS, POOL_VERSION, rotationStateForPool, sourceTierOf,
 } from "../lib/raw-ingest-core.mjs";
 import { logCandidateStances, SCORED_TOPICS } from "../lib/stance-score-core.mjs";
 import { maybeWriteLockerItem, loadReviewFlags, lockerBaselineCounts, LOCKER_STORE_NAME } from "../lib/evidence-locker-core.mjs";
@@ -225,7 +240,13 @@ const hostOfUrl = (u: string) => { try { return new URL(u).hostname.replace(/^ww
 async function readRotationState(store: any, log: (l: string) => void): Promise<any> {
   if (!store) return normaliseRotationState(null);
   try {
-    return normaliseRotationState(await store.get(ROTATION_KEY, { type: "json" }));
+    let doc = await store.get(ROTATION_KEY, { type: "json" });
+    if (typeof doc === "string") { try { doc = JSON.parse(doc); } catch { doc = null; } }
+    // Pool version changed (e.g. v2 opened tier-2 sources): start a fresh cycle
+    // so the next runs reach the new sources straight away.
+    const { state, reset, from } = rotationStateForPool(doc, POOL_VERSION);
+    if (reset) log(`raw-ingest: pool version ${from} → ${POOL_VERSION} — starting fresh cycle ${state.cycle} so the expanded pool is reached`);
+    return state;
   } catch (e: any) {
     log(`raw-ingest: rotation state unreadable — starting a fresh cycle (${e?.message || e})`);
     return normaliseRotationState(null);
@@ -339,7 +360,7 @@ export async function run(deps: {
       (freshTally as any).displaced = f.displaced.length;
     }
     if (deps.rotationStore) {
-      try { await deps.rotationStore.setJSON(ROTATION_KEY, { ...plan.state, updated_at: (deps.now ?? (() => new Date()))().toISOString(), last_politicians: plan.politicians }); }
+      try { await deps.rotationStore.setJSON(ROTATION_KEY, { ...plan.state, pool_version: POOL_VERSION, updated_at: (deps.now ?? (() => new Date()))().toISOString(), last_politicians: plan.politicians }); }
       catch (e: any) { log(`raw-ingest: rotation state not saved — ${e?.message || e}`); }
     }
   } else if (deps.discover) {
@@ -367,7 +388,7 @@ export async function run(deps: {
   }
   await logRetiredOnce(deps.rotationStore, log, deps.now);
   const included = runPlanLine(sources);
-  console.log(`raw-ingest: run included ${included.count} source(s) · politicians: ${included.politicians.join(", ")} · source kinds: ${JSON.stringify(included.kinds)} · source types: ${JSON.stringify(included.source_types)} · source classes: ${JSON.stringify(included.source_classes)}`);
+  console.log(`raw-ingest: run included ${included.count} source(s) · politicians: ${included.politicians.join(", ")} · source kinds: ${JSON.stringify(included.kinds)} · source types: ${JSON.stringify(included.source_types)} · source classes: ${JSON.stringify(included.source_classes)} · evidence tiers: ${JSON.stringify(included.source_tiers)}`);
   const lockerWrites: any[] = [];
   const gt = deps.groundTruth ?? groundTruth;
   // Every page is scored against every topic (SCORED_TOPICS): its own topic as
@@ -404,7 +425,7 @@ export async function run(deps: {
     for (const candidate of candidates) {
       const w = await maybeWriteLockerItem(candidate, rec, { store: deps.lockerStore, gt, log, flags });
       if (oc) { if (w.written) oc.written.push(`${candidate.topic} ${w.item?.strength}`); else oc.reasons.push(`${candidate.topic}: ${w.reason || "not written"}`); }
-      if (w.written) lockerWrites.push({ key: w.key, politician_id: candidate.politician_id, topic: candidate.topic, strength: w.item?.strength, confidence: w.item?.confidence, ...(candidate.topic !== rec.topic ? { page_topic: rec.topic } : {}) });
+      if (w.written) lockerWrites.push({ key: w.key, politician_id: candidate.politician_id, topic: candidate.topic, strength: w.item?.strength, source_tier: sourceTierOf(w.item), confidence: w.item?.confidence, ...(candidate.topic !== rec.topic ? { page_topic: rec.topic } : {}) });
     }
   };
   const report: any = await runRawIngest({ ...deps, onRecord, log, probeHosts: plan ? true : (deps as any).probeHosts }, sources);

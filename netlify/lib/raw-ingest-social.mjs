@@ -21,9 +21,19 @@
 // Videos already in the store (same channel + video id key) are skipped before
 // any transcript fetch, so a channel costs one feed fetch per run once its
 // recent uploads are stored.
+//
+// CITED OWN-CHANNEL VIDEOS (source_class "youtube_video", evidence tier 2 —
+// pool v2). A video the site already cites from the politician's OWN channel is
+// pulled like a page: its watch page gives the title, description and caption
+// track; the raw record's body is the title plus the transcript (the
+// description when no transcript comes back — logged as TRANSCRIPT FALLBACK).
+// Unlike channel feeds, this record IS handed to the scorer / Locker hook, so a
+// stance in the video becomes a weak or clear item exactly as on a page, tagged
+// source_tier 2.
 
 export const SOCIAL_CLASSES = {
   youtube: "official YouTube channel — recent videos (transcript, else description)",
+  youtube_video: "video already cited from the politician's own YouTube channel — transcript (else description), scored as tier-2 evidence",
 };
 export const SOCIAL_CLASS_SET = new Set(Object.keys(SOCIAL_CLASSES));
 export const isSocial = (s) => SOCIAL_CLASS_SET.has(s?.source_class);
@@ -101,13 +111,10 @@ export function captionText(body) {
   return [...b.matchAll(/<(?:text|p)\b[^>]*>([\s\S]*?)<\/(?:text|p)>/g)].map((m) => decode(decode(m[1]).replace(/<[^>]+>/g, ""))).join(" ").replace(/\s+/g, " ").trim();
 }
 
-/** Try the transcript for one video. Never throws: { text } or { text: "", why }. */
-export async function fetchTranscript(videoId, { fetch, timeoutMs = TRANSCRIPT_TIMEOUT_MS } = {}) {
-  const signal = AbortSignal.timeout(timeoutMs);
+/** The transcript from an already fetched watch page. Never throws. */
+async function transcriptFromWatchHtml(html, { fetch, signal, timeoutMs }) {
   try {
-    const res = await fetch(`${youtubeWatchUrl(videoId)}&hl=en`, { headers: { "user-agent": UA, "accept-language": "en" }, redirect: "follow", signal });
-    if (!res.ok) return { text: "", why: `watch page HTTP ${res.status}` };
-    const track = pickCaptionTrack(extractCaptionTracks(await res.text()));
+    const track = pickCaptionTrack(extractCaptionTracks(html));
     if (!track?.baseUrl) return { text: "", why: "no caption track on the watch page" };
     const base = String(track.baseUrl).replace(/\\u0026/g, "&");
     const cap = await fetch(`${base}${base.includes("fmt=") ? "" : "&fmt=json3"}`, { headers: { "user-agent": UA }, signal });
@@ -116,6 +123,98 @@ export async function fetchTranscript(videoId, { fetch, timeoutMs = TRANSCRIPT_T
     return text ? { text, kind: track.kind === "asr" ? "auto-generated" : "uploaded" } : { text: "", why: "caption track came back empty" };
   } catch (e) {
     return { text: "", why: e?.name === "TimeoutError" ? `timed out after ${timeoutMs}ms` : (e?.message || String(e)) };
+  }
+}
+
+/** Try the transcript for one video. Never throws: { text } or { text: "", why }. */
+export async function fetchTranscript(videoId, { fetch, timeoutMs = TRANSCRIPT_TIMEOUT_MS } = {}) {
+  const signal = AbortSignal.timeout(timeoutMs);
+  try {
+    const res = await fetch(`${youtubeWatchUrl(videoId)}&hl=en`, { headers: { "user-agent": UA, "accept-language": "en" }, redirect: "follow", signal });
+    if (!res.ok) return { text: "", why: `watch page HTTP ${res.status}` };
+    return await transcriptFromWatchHtml(await res.text(), { fetch, signal, timeoutMs });
+  } catch (e) {
+    return { text: "", why: e?.name === "TimeoutError" ? `timed out after ${timeoutMs}ms` : (e?.message || String(e)) };
+  }
+}
+
+/** The 11-character video id of a watch / youtu.be / embed URL, or null. */
+export function youtubeVideoId(url) {
+  const m = /(?:youtube\.com\/(?:watch\?(?:[^#]*&)?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/.exec(String(url || ""));
+  return m ? m[1] : null;
+}
+
+/** { title, description } from a watch page (og:title / <title>; shortDescription). */
+export function watchPageMeta(html) {
+  const h = String(html || "");
+  const og = /<meta\s+(?:property|name)=["']og:title["']\s+content=["']([^"']*)["']/i.exec(h);
+  const tt = /<title>([\s\S]*?)<\/title>/i.exec(h);
+  const title = decode(og ? og[1] : tt ? tt[1].replace(/\s*-\s*YouTube\s*$/i, "") : "").trim();
+  let description = "";
+  const d = /"shortDescription":"((?:[^"\\]|\\.)*)"/.exec(h);
+  if (d) { try { description = JSON.parse(`"${d[1]}"`); } catch { description = d[1]; } }
+  return { title, description: String(description).trim() };
+}
+
+export const VIDEO_PAGE_TIMEOUT_MS = 8_000; // watch page + caption track for one cited video
+const MAX_VIDEO_BODY_CHARS = 2_000_000;
+
+/**
+ * Pull one cited own-channel video (source_class "youtube_video"). Never
+ * throws. Writes ONE page-shaped raw record (body = title + transcript, else
+ * description) and runs `onRecord` on it like any page, so the scorer and the
+ * Locker writer read it. `rawKey(src, fetchedAt)` is the page key function.
+ */
+export async function pullYouTubeVideo(src, { fetch, store, now = () => new Date(), onRecord, log = console.log, storeName = "raw-ingest", rawKey }) {
+  const fetchedAt = now().toISOString();
+  const stats = { videos: 1, stored: 0, transcript: 0, fallback: 0, seen: 0 };
+  const id = youtubeVideoId(src.url);
+  try {
+    if (!id) throw new Error("not a YouTube video URL");
+    const signal = AbortSignal.timeout(VIDEO_PAGE_TIMEOUT_MS);
+    const res = await fetch(`${youtubeWatchUrl(id)}&hl=en`, { headers: { "user-agent": UA, "accept-language": "en", accept: "text/html,*/*" }, redirect: "follow", signal });
+    const html = await res.text();
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const meta = watchPageMeta(html);
+    const tr = await transcriptFromWatchHtml(html, { fetch, signal, timeoutMs: VIDEO_PAGE_TIMEOUT_MS });
+    let text = String(tr.text || "").replace(/\s+/g, " ").trim();
+    if (text) stats.transcript++;
+    else {
+      stats.fallback++;
+      text = meta.description;
+      log(`raw-ingest: TRANSCRIPT FALLBACK ${src.politician_id} ${youtubeWatchUrl(id)} — ${tr.why} → video ${text ? "description" : "title only (description empty)"}`);
+    }
+    const body = [meta.title, text].filter(Boolean).join("\n\n").slice(0, MAX_VIDEO_BODY_CHARS);
+    if (!body.trim()) throw new Error("empty body");
+    const record = {
+      url: src.url,
+      final_url: youtubeWatchUrl(id),
+      fetched_at: fetchedAt,
+      source_type: src.source_type,
+      politician_id: src.politician_id,
+      topic: src.topic,
+      ...(src.source_id ? { source_id: src.source_id } : {}),
+      ...(src.source_tier ? { source_tier: Number(src.source_tier) === 2 ? 2 : 1 } : {}),
+      http_status: res.status,
+      content_type: "text/plain; source=youtube-" + (stats.transcript ? `transcript (${tr.kind})` : "description"),
+      body_chars: body.length,
+      body,
+      type: "video",
+      link: youtubeWatchUrl(id),
+    };
+    const key = rawKey ? rawKey(src, fetchedAt) : `${[src.politician_id, src.topic, src.source_id].filter(Boolean).join("/")}/${fetchedAt.replace(/[:.]/g, "-")}.json`;
+    await store.setJSON(key, record);
+    stats.stored++;
+    console.log(`raw-ingest: OK ${src.url} → ${storeName}/${key} (${body.length} chars, ${stats.transcript ? "transcript" : "description fallback"}, tier ${record.source_tier || 1})`);
+    if (onRecord) {
+      try { await onRecord(Object.freeze({ ...record, key })); }
+      catch (e) { console.log(`raw-ingest: hook error for ${key} — ${e?.message || e}`); }
+    }
+    return { ok: true, key, url: src.url, fetched_at: fetchedAt, body_chars: body.length, youtube: stats };
+  } catch (e) {
+    const error = e?.name === "TimeoutError" ? `timed out after ${VIDEO_PAGE_TIMEOUT_MS}ms` : (e?.message || String(e));
+    console.log(`raw-ingest: FAIL ${src.url} at ${fetchedAt} — ${error}`);
+    return { ok: false, url: src.url, fetched_at: fetchedAt, error, youtube: stats };
   }
 }
 

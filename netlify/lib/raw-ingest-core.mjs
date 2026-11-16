@@ -1,7 +1,7 @@
 import { REQUESTED_POLITICIANS } from "./raw-ingest-expansion.mjs";
 import { describeFetchError, pullProbeFirst } from "./raw-ingest-hosts.mjs";
 import { EXTRA_SOURCES, NEW_STATE_LEGISLATORS, SOURCE_CLASSES, NEW_SOCIAL_ROSTER, SOCIAL_SOURCES } from "./raw-ingest-source-types.mjs";
-import { pullYouTube, isSocial, SOCIAL_CLASSES } from "./raw-ingest-social.mjs";
+import { pullYouTube, pullYouTubeVideo, isSocial, SOCIAL_CLASSES } from "./raw-ingest-social.mjs";
 import POOL_EXPANSION from "../../db/raw-ingest-pool-expansion-2026-11.json" with { type: "json" };
 
 export { EXTRA_SOURCES, SOURCE_CLASSES, SOCIAL_SOURCES, SOCIAL_CLASSES, isSocial };
@@ -77,6 +77,9 @@ export function rawKey(src, fetchedAt) {
 export async function pullOne(src, { fetch, store, now = () => new Date(), onRecord, log }) {
   // Social sources write one raw item record per video and skip the scorer hook.
   if (src.source_class === "youtube") return pullYouTube(src, { fetch, store, now, log: log ?? console.log, storeName: RAW_STORE_NAME });
+  // A cited video from the politician's own channel (tier 2): one page-shaped
+  // raw record (transcript, else description) that IS scored like any page.
+  if (src.source_class === "youtube_video") return pullYouTubeVideo(src, { fetch, store, now, onRecord, log: log ?? console.log, storeName: RAW_STORE_NAME, rawKey });
   const fetchedAt = now().toISOString();
   try {
     const res = await fetch(src.url, {
@@ -95,6 +98,7 @@ export async function pullOne(src, { fetch, store, now = () => new Date(), onRec
       politician_id: src.politician_id,
       topic: src.topic,
       ...(src.source_id ? { source_id: src.source_id } : {}),
+      ...(src.source_tier ? { source_tier: sourceTierOf(src) } : {}),
       http_status: res.status,
       content_type: res.headers?.get?.("content-type") || null,
       body_chars: body.length,
@@ -507,11 +511,31 @@ for (const social of SOCIAL_SOURCES) {
 // while any of its pairs is unfilled (pageTopics); filled pairs keep the
 // existing deprioritisation. Every URL is a first-party page already cited for
 // that politician. The build script reads the roster without it.
+//
+// EVIDENCE TIER (pool v2). Every pool page carries `source_tier`: 1 = the
+// first-party pages above (and every page configured outside the pool — an
+// untagged page reads as tier 1); 2 = official government sources (Congress.gov
+// member / measure pages, the politician's own office or committee pages on
+// other government hosts) and videos from the politician's own YouTube channel.
+// `extra_sources` adds tier-2 pages to politicians already rotating. The tier
+// rides onto the raw record and the Locker item; scoring is the same for both.
+export const POOL_VERSION = POOL_EXPANSION.pool_version || "pool-2026-11-v1";
+export const SOURCE_TIERS = { 1: "first-party campaign / official page", 2: "official government source or own YouTube channel" };
+/** Evidence tier of a source or raw record: 2 when tagged so, else 1. */
+export const sourceTierOf = (s) => (Number(s?.source_tier) === 2 ? 2 : 1);
 export const POOL_EXPANSION_APPLIED = !(typeof process !== "undefined" && process.env?.PDX_RAW_INGEST_NO_POOL_EXPANSION);
 if (POOL_EXPANSION_APPLIED) {
   for (const person of POOL_EXPANSION.politicians || []) {
     if (ROSTER.some((r) => r.politician_id === person.politician_id)) continue;
     ROSTER.push({ ...person, sources: person.sources.map((x) => ({ ...x })) });
+  }
+  for (const [pid, list] of Object.entries(POOL_EXPANSION.extra_sources || {})) {
+    const row = ROSTER.find((r) => r.politician_id === pid);
+    if (!row) continue;
+    for (const x of list) {
+      if ([...row.sources, row.official].some((s) => s && (normUrl(s.url) === normUrl(x.url) || (x.source_id && s.source_id === x.source_id && s.topic === x.topic)))) continue;
+      row.sources.push({ ...x });
+    }
   }
   for (const r of ROSTER) {
     const byUrl = POOL_EXPANSION.issue_pairs?.[r.politician_id] || {};
@@ -581,6 +605,20 @@ export function priorityOrder(roster = ROSTER, counts = {}) {
     .map((r, i) => ({ r, i, ...splitByBaseline(r, counts) }))
     .sort((a, b) => (a.band - b.band) || (a.i - b.i))
     .map(({ i, ...x }) => x);
+}
+
+/**
+ * The stored rotation state, moved on to a FRESH CYCLE when it was planned
+ * under another pool version (POOL_VERSION) — so a pool that gains sources (v2:
+ * tier-2 official government + own YouTube pages) is reached by the very next
+ * runs instead of after the old cycle drains. Returns { state, reset, from }.
+ * A doc with no pool_version predates versioning and counts as v1.
+ */
+export function rotationStateForPool(doc, poolVersion = POOL_VERSION) {
+  const st = normaliseRotationState(doc);
+  const from = doc && typeof doc === "object" ? (doc.pool_version || "pool-2026-11-v1") : null;
+  if (!doc || typeof doc !== "object" || from === poolVersion) return { state: st, reset: false, from };
+  return { state: { cycle: st.cycle + 1, done: [] }, reset: true, from };
 }
 
 /** A rotation state from whatever was stored (older `{ cursor }` docs start fresh). */
@@ -726,13 +764,15 @@ export function sourceKind(src) {
 /** One summary line: who and which source types were included in this run. */
 export function runPlanLine(sources) {
   const pols = [...new Set(sources.map((s) => s.politician_id))];
-  const kinds = {}, types = {}, classes = {};
+  const kinds = {}, types = {}, classes = {}, tiers = {};
   for (const s of sources) {
+    const t = `tier ${sourceTierOf(s)}`;
+    tiers[t] = (tiers[t] || 0) + 1;
     const k = sourceKind(s);
     kinds[k] = (kinds[k] || 0) + 1;
     types[s.source_type] = (types[s.source_type] || 0) + 1;
     const c = s.source_class || "existing";
     classes[c] = (classes[c] || 0) + 1;
   }
-  return { politicians: pols, kinds, source_types: types, source_classes: classes, count: sources.length };
+  return { politicians: pols, kinds, source_types: types, source_classes: classes, source_tiers: tiers, count: sources.length };
 }

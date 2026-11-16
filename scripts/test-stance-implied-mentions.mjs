@@ -182,7 +182,10 @@ t("newly elected members and more politicians join the rotation roster", () => {
   for (const r of POOL.politicians) for (const s of r.sources) {
     assert.ok(/^https?:\/\//.test(s.url));
     assert.ok(S.hasRulesFor(s.topic), `${r.politician_id} ${s.topic}`);
-    assert.ok(!/(?:^|\.)(?:congress|govinfo)\.gov$/.test(new URL(s.url).hostname), s.url);
+    // Congress.gov enters only as tier 2 (pool v2); GovInfo is a general archive and stays out.
+    const h = new URL(s.url).hostname;
+    if (/(?:^|\.)congress\.gov$/.test(h)) assert.equal(s.source_tier, 2, s.url);
+    assert.ok(!/(?:^|\.)govinfo\.gov$/.test(h), s.url);
   }
 });
 t("every new page gets its own raw record key", () => {
