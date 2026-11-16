@@ -12286,7 +12286,19 @@
 //     the precache list is unchanged. No stored reader state is written or
 //     rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v575';
+// v576 - WORDS AND VOTES IN THE PERSON-FILE RELATED ISSUES SECTION. Each
+//     related line is a pair (the issue whose list brought it in, and the line),
+//     and the drawer of that issue lists the same pair; when that drawer prints
+//     a Words and votes note for it, the line carries the very same note, from
+//     the same generator, window and words, at most one per line. The section
+//     asks the same publishable-vote feed the drawers ask (a second asker while
+//     the ask is in flight is now handed the answer too) and repaints in place
+//     only when its notes change. With no note the section is byte-identical.
+//     No route, gate, tally, chip or verdict changes. Precached files changed,
+//     so the shell moves; the precache list is unchanged. No stored reader
+//     state is written or rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v576';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

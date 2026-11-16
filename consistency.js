@@ -17616,6 +17616,7 @@
   };
   var _xl = {};       // pid → { mode: 'public' | 'curator', billKeys: { billKey: [roll, …] }, publish? }
   var _xlAsked = {};  // pid → mode already fetched this session
+  var _xlWait = {};   // pid → repaints waiting on the ask in flight
   function _xlBillKey(d) {
     if (!d || d.execAct) return null;
     var c = parseInt(String(d.congress == null ? '' : d.congress), 10);
@@ -17718,8 +17719,14 @@
     if (!pid || typeof fetch !== 'function') return null;
     var curator = _xlCurator();
     var mode = curator ? 'curator' : 'public';
-    if (_xlAsked[pid] === mode) return null;
+    // A second asker while the first ask is still in flight (the person-file
+    // section and a drawer opened before the answer) is handed the answer too.
+    if (_xlAsked[pid] === mode) {
+      if (_xlWait[pid] && typeof repaint === 'function') _xlWait[pid].push(repaint);
+      return null;
+    }
     _xlAsked[pid] = mode;
+    _xlWait[pid] = typeof repaint === 'function' ? [repaint] : [];
     var req = curator
       ? Promise.resolve(window.PDXAuth.user.getIdToken()).then(function (token) {
           return fetch(_XL_ENDPOINT + '?pid=' + encodeURIComponent(pid), { headers: { authorization: 'Bearer ' + token }, cache: 'no-store' });
@@ -17728,10 +17735,12 @@
     return req.then(function (res) {
       return res && res.ok ? res.json() : null;
     }).then(function (data) {
+      var waiting = _xlWait[pid] || [];
+      delete _xlWait[pid];
       if (!data || !data.billKeys || typeof data.billKeys !== 'object') return;
       _xl[pid] = { mode: mode, billKeys: data.billKeys, publish: data.publish || null };
-      if (typeof repaint === 'function') repaint();
-    }).catch(function () { if (_xlAsked[pid] === mode) delete _xlAsked[pid]; });
+      for (var w = 0; w < waiting.length; w++) { try { waiting[w](); } catch (eW) {} }
+    }).catch(function () { delete _xlWait[pid]; if (_xlAsked[pid] === mode) delete _xlAsked[pid]; });
   }
 
   function _dosLedgerHtml(pid, issueKey, r, t, opts) {

@@ -100,6 +100,13 @@
      once: an issue already on the list is not printed again, and the new
      related issues of an issue already printed join its block, right after
      it, instead of opening a repeat block. The drawer block is not collapsed.
+     WORDS AND VOTES on a related line: each related line is a pair — the
+     issue whose related list brought it in and the line itself — and that
+     issue's drawer lists the same pair. When that drawer prints a "Words and
+     votes" note for the pair, the line carries the very same note (same
+     generator, rules, recency window and words), at most one per line. The
+     section asks for the same publishable-vote feed the drawers do and is
+     repainted in place only when its notes change. No note: byte-identical.
 
    · DRAWER. drawerHtml(pid, p, key): the lines of every issue related to
      `key`. The open issue itself is not repeated — the drawer's own header
@@ -452,9 +459,13 @@
   // the map is symmetric, every issue with a line and a related line still
   // appears exactly once, and every related line sits in the block of an issue
   // the map relates it to (its lead, or the line it follows).
-  function groupsFor(pid, p) {
+  function groupsFor(pid, p) { return groupsVia(pid, p).groups; }
+  // The same walk, also naming for each related line the issue whose related
+  // list brought it in (`via`): the lead of its block, or the printed line it
+  // follows. That issue's drawer is the one that lists the pair.
+  function groupsVia(pid, p) {
     var pm = positionMap(pid, p);
-    var out = [], blockOf = {};
+    var out = [], blockOf = {}, via = {};
     Object.keys(MAP).forEach(function (k) {
       var anchor = itemOf(pid, pm, k);
       if (!anchor) return;
@@ -472,9 +483,9 @@
         for (var i = 0; i < g.related.length; i++) if (g.related[i].key === k) { at = i + 1; break; }
         Array.prototype.splice.apply(g.related, [at, 0].concat(items));
       }
-      items.forEach(function (it) { blockOf[it.key] = g; });
+      items.forEach(function (it) { blockOf[it.key] = g; via[it.key] = k; });
     });
-    return out;
+    return { groups: out, via: via };
   }
 
   // The two parts of one issue's line, stated first.
@@ -530,14 +541,21 @@
 
   // The person-file section, or '' when no issue has a related line.
   function sectionHtml(pid, p) {
-    var groups = groupsFor(pid, p);
+    var gv = groupsVia(pid, p), groups = gv.groups;
     if (!groups.length) return '';
+    var notes = sectionNotes(pid, p, gv.via);
+    armSection(pid, p);
     return '<div id="pdxsec-related-issues" class="modal-section pdxri" data-pid="' + esc(pid) + '">' +
       '<div class="modal-section-title">Related issues</div>' +
       '<ul class="pdxri-groups">' + groups.map(function (g) {
         return '<li class="pdxri-group" data-pdxri-issue="' + esc(g.issue.key) + '">' +
           linesHtml(pid, g.issue, null, 'pdxri-anchor', 'div') +
-          '<ul class="pdxri-list">' + g.related.map(function (it) { return linesHtml(pid, it, null, 'pdxri-item', 'li'); }).join('') + '</ul>' +
+          '<ul class="pdxri-list">' + g.related.map(function (it) {
+            var li = linesHtml(pid, it, null, 'pdxri-item', 'li');
+            var n = notes && notes[it.key];
+            // The note sits inside the related line, before it closes.
+            return n ? li.slice(0, -5) + wvaSectionNoteHtml(pid, n) + '</li>' : li;
+          }).join('') + '</ul>' +
         '</li>';
       }).join('') + '</ul>' +
     '</div>';
@@ -787,17 +805,80 @@
       (a.ident ? ' on ' + a.ident : '') + (a.date ? ' (' + String(a.date).slice(0, 10) + ')' : '') +
       (a.procedural ? ', a procedural vote' : '') + ', which ran against it; you ' + YOU_WORD[s.you] + '.';
   }
+  // One note's line — the drawer's and the person-file section's, the same markup.
+  function wvaItemHtml(n) {
+    var a = n.side.act;
+    return '<li class="pdxri-wva-item" data-pdxri-wva-pair="' + esc(n.bKey) + '" data-pdxri-wva-key="' + esc(n.side.key) +
+      '" data-pdxri-wva-from="' + esc(a.from) + '">' + esc(wvaText(n)) +
+      (a.url ? ' <a href="' + esc(a.url) + '" target="_blank" rel="noopener">official record</a>' : '') + '</li>';
+  }
   function wordsVsActionsHtml(pid, p, key) {
     var list = wordsVsActionsFor(pid, p, key);
     if (!list || !list.length) return '';
     return '<div class="pdxri-wva" data-pdxri-wva="' + esc(key) + '" data-pid="' + esc(pid) + '" style="margin:8px 0;font-size:0.85rem;">' +
       '<div class="pdxri-wva-h" style="font-weight:700;">' + esc(WVA_HD) + '</div>' +
-      '<ul class="pdxri-wva-list" style="margin:4px 0 0;padding-left:18px;">' + list.map(function (n) {
-        var a = n.side.act;
-        return '<li class="pdxri-wva-item" data-pdxri-wva-pair="' + esc(n.bKey) + '" data-pdxri-wva-key="' + esc(n.side.key) +
-          '" data-pdxri-wva-from="' + esc(a.from) + '">' + esc(wvaText(n)) +
-          (a.url ? ' <a href="' + esc(a.url) + '" target="_blank" rel="noopener">official record</a>' : '') + '</li>';
-      }).join('') + '</ul></div>';
+      '<ul class="pdxri-wva-list" style="margin:4px 0 0;padding-left:18px;">' + list.map(wvaItemHtml).join('') + '</ul></div>';
+  }
+
+  // ── WORDS AND VOTES IN THE PERSON-FILE SECTION ────────────────────────────
+  // Each related line of the person-file section is one pair: the issue whose
+  // related list brought it in (`via`) and the line itself. That issue's drawer
+  // lists the same pair, so the line takes the very note that drawer prints for
+  // it — wordsVsActionsFor over `via`, the note whose pair is this line — and
+  // nothing else: one note per related line at most, same rules, same window,
+  // same words. No such note: the line, and the section, are unchanged.
+  function sectionNotes(pid, p, via) {
+    var mine = readerSides();
+    if (!mine) return null;
+    var out = {}, byVia = {}, n = 0;
+    Object.keys(via).forEach(function (k) {
+      var v = via[k];
+      if (!(v in byVia)) { try { byVia[v] = wordsVsActionsFor(pid, p, v, mine) || []; } catch (e) { byVia[v] = []; } }
+      for (var i = 0; i < byVia[v].length; i++) {
+        if (byVia[v][i].bKey === k) { var w = byVia[v][i]; out[k] = { a: w.a, b: w.b, bKey: w.bKey, side: w.side, via: v }; n++; break; }
+      }
+    });
+    return n ? out : null;
+  }
+  function wvaSectionNoteHtml(pid, n) {
+    return '<div class="pdxri-wva pdxri-wva-line" data-pdxri-wva="' + esc(n.via || '') + '" data-pid="' + esc(pid) + '" style="margin:4px 0 6px;font-size:0.85rem;">' +
+      '<div class="pdxri-wva-h" style="font-weight:700;">' + esc(WVA_HD) + '</div>' +
+      '<ul class="pdxri-wva-list" style="margin:4px 0 0;padding-left:18px;">' + wvaItemHtml(n) + '</ul></div>';
+  }
+  // The section is painted once, as markup. The drawers' notes read the
+  // member's votes and the publishable raw roll calls, both of which arrive
+  // after first paint; the section asks for the same publishable-vote feed the
+  // drawers ask for (PDXConsistency.loadVoteActionLinks, once per person) and
+  // hears the same votes-arrived event, and is repainted in place ONLY when its
+  // notes changed. A section with no note stays exactly as painted.
+  var _armed = {};
+  function noteSig(h) { return (String(h || '').match(/<div class="pdxri-wva[\s\S]*?<\/ul><\/div>/g) || []).join('\n'); }
+  function repaintSection(pid, p) {
+    try {
+      var el = document.getElementById('pdxsec-related-issues');
+      if (!el || el.getAttribute('data-pid') !== String(pid)) return;
+      var now = sectionHtml(pid, p);
+      if (!now || noteSig(now) === noteSig(el.outerHTML)) return;
+      el.outerHTML = now;
+    } catch (e) { /* the painted section stays */ }
+  }
+  function armSection(pid, p) {
+    try {
+      if (_armed[pid] || typeof document === 'undefined' || !document || typeof document.getElementById !== 'function') return;
+      if (!readerSides()) return;
+      _armed[pid] = 1;
+      var again = function () { repaintSection(pid, p); };
+      setTimeout(function () {
+        var CS = window.PDXConsistency;
+        if (CS && typeof CS.loadVoteActionLinks === 'function') { try { CS.loadVoteActionLinks(pid, again); } catch (e) { /* no feed */ } }
+      }, 0);
+      if (typeof window.addEventListener === 'function') {
+        window.addEventListener('pdx-consistency-warm', function (ev) {
+          if (ev && ev.detail && ev.detail.pid && String(ev.detail.pid) !== String(pid)) return;
+          again();
+        });
+      }
+    } catch (e) { /* markup only */ }
   }
 
   window.PDXRelatedIssues = {
