@@ -8,7 +8,7 @@
 // politicians per run. Logic: netlify/lib/vote-actions-core.ts.
 //
 // Writes only pdx_action_bills / pdx_vote_actions (+ its own Blobs ledger,
-// "vote-actions-state"). Nothing public reads them; no score, no direction, no
+// "vote-actions-state", and the unmodified source payloads, "raw-ingest-votes"). Nothing public reads them; no score, no direction, no
 // contradiction flag, no curated card or stance store is touched.
 //
 // Without CONGRESS_GOV_API_KEY the House side is skipped (logged) and the Senate
@@ -17,7 +17,7 @@
 //   VOTE_ACTIONS_LOOKBACK_DAYS — "recent" window (default 120)
 import type { Config } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
-import { runVoteActions, summaryLine, STATE_STORE_NAME, STATE_KEY, LOOKBACK_DAYS } from "../lib/vote-actions-core.js";
+import { runVoteActions, summaryLine, STATE_STORE_NAME, STATE_KEY, LOOKBACK_DAYS, RAW_VOTES_STORE_NAME } from "../lib/vote-actions-core.js";
 import { voteActionsRepo } from "../lib/vote-actions-db.js";
 import { loadMemberMap } from "../lib/vr-ingest.js";
 
@@ -31,12 +31,19 @@ export default async (): Promise<void> => {
   try { doc = await store.get(STATE_KEY, { type: "json" }); }
   catch (e: any) { console.log(`vote-actions: state unreadable — starting fresh (${e?.message || e})`); }
 
+  // Raw payloads (unmodified Congress.gov / senate.gov bodies) are kept in a
+  // sibling store before parsing. Unavailable store → the run still writes rows.
+  let rawStore: any = null;
+  try { rawStore = getStore(RAW_VOTES_STORE_NAME); }
+  catch (e: any) { console.log(`vote-actions: raw store unavailable — rows only this run (${e?.message || e})`); }
+
   const lookback = Number(process.env.VOTE_ACTIONS_LOOKBACK_DAYS);
   const { report, state } = await runVoteActions({
     fetch,
     repo: voteActionsRepo,
     state: doc,
     memberMap: await loadMemberMap(),
+    rawStore,
     apiKey: process.env.CONGRESS_GOV_API_KEY || null,
     lookbackDays: Number.isFinite(lookback) && lookback > 0 ? Math.min(lookback, 730) : LOOKBACK_DAYS,
   });

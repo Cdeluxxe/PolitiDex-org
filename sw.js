@@ -12231,7 +12231,62 @@
 //     shell moves; the precache list is unchanged. No stored reader state is
 //     written or rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v570';
+// v571 - CURATOR CROSS-LINK IN THE ISSUE DRAWER. consistency.js prints one
+//     short "Curator · also in the raw vote feed" note under a curated measure
+//     whose bill key (congress + canonical citation, the same key as
+//     vrMeasureBillKey) matches raw vote rows the vote-actions cron recorded. The
+//     rows come from the curator-only /api/admin/vote-actions/cross-links and
+//     are fetched only for the signed-in curator; for every other reader no
+//     request is made and the drawer is byte-identical. No public route, gate,
+//     tally, chip or verdict changes. A precached file changed, so the shell
+//     moves; the precache list is unchanged. No stored reader state is written
+//     or rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+// v572 - THE PUBLISH GATE OPENS THE DRAWER NOTE TO EVERY READER. consistency.js
+//     now asks the public /api/vote-actions/published for a person whose drawer
+//     has a vote table, once per session, and prints "Also in the raw vote feed"
+//     under a curated measure only when its bill passes the automatic publish
+//     gate (tagged, not a nomination, every member mapped, every vote kind known,
+//     every source payload stored). Procedural votes are labelled. A drawer with
+//     nothing that passes is byte-identical and is not repainted. The curator
+//     still reads every row and sees why a bill is held. No tally, chip or
+//     verdict changes. A precached file changed, so the shell moves; the
+//     precache list is unchanged. No stored reader state is written or
+//     rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+// v573 - WORDS AND VOTES IN THE ISSUE DRAWER. related-issues.js prints one
+//     short note per related pair, after Where this conflicts, where the reader
+//     holds a side, the person states that same side, and one of their votes
+//     on that issue cut the other way. The side is the curated mapping's; the
+//     vote is the matching publishable raw roll call when there is one
+//     (consistency.js wordsVsActionsActs), else the curated vote. Nothing is
+//     scored. With no such vote the drawer is byte-identical. No route, gate,
+//     tally, chip or verdict changes. Precached files changed, so the shell
+//     moves; the precache list is unchanged. No stored reader state is written
+//     or rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+// v574 - WORDS AND VOTES ON THE ISSUE AND BALLOT PAGES. Their drawers are the
+//     same openGap sheet, so the note already rendered there; what changes is
+//     WHEN the publishable raw-vote feed is asked. consistency.js now asks it
+//     through one helper, _xlAfterPaint, both after openGap paints and after the
+//     warm repaint that fires when a member's votes arrive — on the issue and
+//     ballot pages a drawer often opens before they have, and only the warm
+//     paint has a vote table. Same rules, same request, same note. No route,
+//     gate, tally, chip or verdict changes. A precached file changed, so the
+//     shell moves; the precache list is unchanged. No stored reader state is
+//     written or rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+// v575 - A RECENCY WINDOW FOR WORDS AND VOTES. related-issues.js picks the vote
+//     a note names through one window, WVA_WINDOW (recent: 24 months by
+//     default, or 'congress'; optional hard cutoff, off by default): the most
+//     recent conflicting vote inside the window, else the most recent outside
+//     it, raw and curated alike, a same-day tie to the raw roll call. Which
+//     notes appear is unchanged unless a cutoff is set. No route, gate, tally,
+//     chip or verdict changes. A precached file changed, so the shell moves;
+//     the precache list is unchanged. No stored reader state is written or
+//     rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v575';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

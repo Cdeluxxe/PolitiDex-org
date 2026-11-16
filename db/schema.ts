@@ -1899,6 +1899,9 @@ export const pdxActionBills = pgTable(
     metaAttempts: integer("meta_attempts").notNull().default(0),
     metaFetchedAt: timestamp("meta_fetched_at", { withTimezone: true }),
     sourceUrl: text("source_url").notNull(),
+    // Blobs key (store "raw-ingest-votes") of the unmodified Congress.gov
+    // responses this row's text was parsed from; NULL when none were stored.
+    rawRef: text("raw_ref"),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
@@ -1944,6 +1947,9 @@ export const pdxVoteActions = pgTable(
     taggerVersion: text("tagger_version").notNull(),
     sourceUrl: text("source_url").notNull(),
     sourceLabel: text("source_label").notNull(),
+    // Blobs key (store "raw-ingest-votes") of the unmodified roll-call payload
+    // this row was parsed from; NULL when the store write failed.
+    rawRef: text("raw_ref"),
     ingestedAt: timestamp("ingested_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
     // Set when a re-read of the source showed a different vote than the one stored.

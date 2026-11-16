@@ -44,6 +44,7 @@ import { BILL_KEY_PATTERNS, MAPPED_KEYS } from "./bill-key-patterns.mjs";
 import { ISSUE_KEYS, suggestIssue, mapActionType, canonicalMeasureNumber } from "./vr-normalize.js";
 import { ISSUE_TOPIC_VOCAB, DIRECTIONAL_TOPIC_VOCAB, buildTopicRules, buildDirectionalTopicRules } from "./stance-topic-vocab.mjs";
 import { RELATED_ISSUE_KEYS } from "./related-issue-keys.mjs";
+import { runQuality, pctText } from "./vote-actions-quality.js";
 import coreCategories from "../../db/issue-core-categories.json" with { type: "json" };
 
 // ── Knobs ────────────────────────────────────────────────────────────────────
@@ -133,6 +134,7 @@ export type BillRow = {
   parentBillKey: string | null; title: string; shortTitle: string | null; summary: string; policyArea: string | null;
   officialSubjects: string[]; topicTags: string[]; tagDetail: TagDetail[]; multiTopic: boolean; taggerVersion: string;
   metaSource: string; hasSummary: boolean; metaAttempts: number; metaFetchedAt: string | null; sourceUrl: string;
+  rawRef?: string | null;   // raw-ingest-votes key of the bill-metadata payload
 };
 export type VoteRow = {
   jurisdiction: string; chamber: string; congress: number; session: number; rollNumber: number; voteDate: string;
@@ -141,6 +143,7 @@ export type VoteRow = {
   party: string | null; state: string | null; vote: Vote; voteRaw: string; question: string | null;
   voteKind: string; isProcedural: boolean | null; result: string | null; topicTags: string[];
   taggerVersion: string; sourceUrl: string; sourceLabel: string;
+  rawRef?: string | null;   // raw-ingest-votes key of the roll-call payload
 };
 export interface VoteActionsRepo {
   getBill(billKey: string): Promise<BillRow | null>;
@@ -152,6 +155,11 @@ export interface VoteActionsRepo {
   retagVotes(billKey: string, tags: string[], version: string): Promise<number>;
   billsNeedingMeta(opts: { olderThan: string; maxAttempts: number; limit: number }): Promise<BillRow[]>;
   billsWithStaleTags(version: string, limit: number): Promise<BillRow[]>;
+  // Roster catch-up (optional): bioguide ids on rows with no politician, and a
+  // fill of politician_id for the ones the member map now knows. Only rows whose
+  // politician_id IS NULL are touched — the value a fresh ingest would write.
+  unmappedBioguides?(): Promise<string[]>;
+  mapMembers?(pairs: Array<[string, string]>): Promise<number>;
 }
 
 // ── Small helpers ────────────────────────────────────────────────────────────
@@ -226,6 +234,20 @@ export function measureRef(congress: number, type: unknown, num: unknown, parent
 export function splitCitation(s: unknown): { type: string; num: string } | null {
   const m = str(s).match(/^([A-Za-z.\s]+?)\s*([0-9][0-9-]*)$/);
   return m ? { type: m[1], num: m[2] } : null;
+}
+
+// THE SHARED BILL KEY. pdx_action_bills.bill_key is "us-<congress>-<type>-<num>";
+// vr_measures has no key column — its identity is (congress, number) where
+// number is canonicalMeasureNumber's citation ("H.R. 5000", "H.Amdt. 90"), the
+// same helper that fills pdx_action_bills.number. This derives one from the
+// other, so both tables join on one canonical id with no new column:
+//   vrMeasureBillKey({ congress: 119, number: "H.R. 5000" }) → "us-119-hr-5000"
+// Null for a numberless measure (Speaker election, quorum call).
+export function vrMeasureBillKey(m: { congress: number | null | undefined; number: string | null | undefined }): string | null {
+  const congress = m && m.congress != null ? Number(m.congress) : NaN;
+  if (!Number.isInteger(congress) || congress < 1) return null;
+  const c = splitCitation(m.number);
+  return c ? measureRef(congress, c.type, c.num)?.billKey || null : null;
 }
 
 // House "rules" (H.Res. "Providing for consideration of the bill (H.R. 2102) …")
@@ -398,8 +420,14 @@ export function lisIndexFrom(legislators: any[]): Record<string, string> {
 //   subject  — a legislative subject term the vocabulary or keyword matcher reads
 // Nothing vote-derived and no curated mapping is consulted; the policy area is
 // stored on the bill but is not a signal.
-const stateless = (re: RegExp | undefined | null): RegExp | null =>
-  re ? new RegExp(re.source, re.flags.replace(/g|y/g, "")) : null;
+// A pattern field is a RegExp OR a predicate object with .test() (healthcare's
+// `cedes` is one). Only a real RegExp is rebuilt without g / y; a predicate is
+// used as-is; anything else counts as absent rather than throwing.
+type Tester = { test: (t: string) => boolean };
+const stateless = (re: RegExp | Tester | undefined | null): Tester | null => {
+  if (re instanceof RegExp) return new RegExp(re.source, String(re.flags || "").replace(/g|y/g, ""));
+  return re && typeof (re as Tester).test === "function" ? (re as Tester) : null;
+};
 
 export function patternHits(text: string): string[] {
   const hits: string[] = [];
@@ -597,31 +625,125 @@ const congressGovPage = (c: number, code: string, num: string) => {
 
 export class RateLimited extends Error {}
 
-async function getJson(fetchFn: typeof fetch, url: string): Promise<any | null> {
-  const res = await fetchFn(url, { headers: { accept: "application/json", "user-agent": UA }, signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
+const JSON_ACCEPT = "application/json";
+const XML_ACCEPT = "application/xml,text/xml,*/*";
+type RawFetch = { ok: boolean; status: number; contentType: string | null; body: string | null };
+// One GET, body read as text exactly as served. 429 stops the run.
+async function fetchRaw(fetchFn: typeof fetch, url: string, accept: string): Promise<RawFetch> {
+  const res = await fetchFn(url, { headers: { accept, "user-agent": UA }, signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
   if (res.status === 429) throw new RateLimited(`429 from ${new URL(url).hostname}`);
-  if (!res.ok) return null;
-  return res.json();
+  return { ok: !!res.ok, status: res.status, contentType: res.headers?.get?.("content-type") || null, body: res.ok ? await res.text() : null };
+}
+async function getJson(fetchFn: typeof fetch, url: string): Promise<any | null> {
+  const r = await fetchRaw(fetchFn, url, JSON_ACCEPT);
+  return r.ok ? JSON.parse(r.body as string) : null;
 }
 async function getText(fetchFn: typeof fetch, url: string): Promise<string | null> {
-  const res = await fetchFn(url, { headers: { accept: "application/xml,text/xml,*/*", "user-agent": UA }, signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
-  if (res.status === 429) throw new RateLimited(`429 from ${new URL(url).hostname}`);
-  if (!res.ok) return null;
-  return res.text();
+  const r = await fetchRaw(fetchFn, url, XML_ACCEPT);
+  return r.ok ? r.body : null;
 }
 const withKey = (url: string, key: string) => `${url}${url.includes("?") ? "&" : "?"}format=json&api_key=${encodeURIComponent(key)}`;
 
-export async function fetchBillMeta(fetchFn: typeof fetch, apiKey: string | null | undefined, congress: number, m: MeasureRef): Promise<BillMeta> {
+// ── Raw payload store (Blobs "raw-ingest-votes") ─────────────────────────────
+// Same philosophy as the stance side's "raw-ingest" store: every fetched source
+// is kept unmodified BEFORE it is parsed, in a JSON envelope with its URL, fetch
+// time, source type and HTTP status, so a parser fix or a new field re-parses
+// what is stored instead of refetching. A SIBLING store (not a prefix inside
+// "raw-ingest"), because the Evidence Locker and the stated-positions backfill
+// list the whole "raw-ingest" store and read every blob there as a stance page.
+//   house/<congress>/<session>/roll-<00000>/<fetched_at>.json   House member votes (+ its vote-list row)
+//   senate/<congress>/<session>/roll-<00000>/<fetched_at>.json  Senate LIS vote XML
+//   bills/<bill_key>/<fetched_at>.json                          Congress.gov bill / subjects / summaries
+//                                                               (or amendment / nomination) responses
+// Bodies are stored as served. Only the request URL is cleaned: the api_key
+// query parameter is dropped so no secret is ever written to the store.
+// A failed store write is logged and the run continues; the row's raw_ref is NULL.
+export const RAW_VOTES_STORE_NAME = "raw-ingest-votes";
+export interface RawStore {
+  setJSON(key: string, value: unknown): Promise<unknown>;
+  get(key: string, opts: { type: "json" }): Promise<any>;
+  list?(opts: { prefix: string }): Promise<{ blobs: Array<{ key: string }> }>;
+}
+export type RawResponse = { part: string; url: string; http_status: number | null; content_type: string | null; body: string | null; error?: string };
+export type RollEnvelope = {
+  kind: "house_vote" | "senate_vote"; chamber: "house" | "senate"; congress: number; session: number; roll: number;
+  url: string; fetched_at: string; source_type: string; http_status: number; content_type: string | null;
+  body_chars: number; body: string; list_row?: any;
+};
+export type BillEnvelope = {
+  kind: "bill_meta"; bill_key: string; congress: number; measure: MeasureRef; fetched_at: string;
+  source_type: string; responses: RawResponse[];
+};
+const tsKey = (iso: string) => iso.replace(/[:.]/g, "-");
+export const rollRawPrefix = (chamber: string, c: number, s: number, roll: number) => `${chamber}/${c}/${s}/roll-${pad5(roll)}/`;
+export const rollRawKey = (chamber: string, c: number, s: number, roll: number, fetchedAt: string) => `${rollRawPrefix(chamber, c, s, roll)}${tsKey(fetchedAt)}.json`;
+export const billRawPrefix = (billKey: string) => `bills/${billKey}/`;
+export const billRawKey = (billKey: string, fetchedAt: string) => `${billRawPrefix(billKey)}${tsKey(fetchedAt)}.json`;
+export function publicUrl(url: string): string {
+  try { const u = new URL(url); u.searchParams.delete("api_key"); return u.toString(); }
+  catch { return String(url).replace(/([?&])api_key=[^&]*&?/g, "$1").replace(/[?&]$/, ""); }
+}
+async function putRaw(store: RawStore | null | undefined, key: string, value: unknown, log: (l: string) => void): Promise<string | null> {
+  if (!store) return null;
+  try { await store.setJSON(key, value); return key; }
+  catch (e: any) { log(`vote-actions: RAW STORE WRITE FAILED ${RAW_VOTES_STORE_NAME}/${key} — ${e?.message || e}; continuing`); return null; }
+}
+
+// A stored roll-call envelope → the same RollRecord the live path parses.
+export function rollFromEnvelope(env: RollEnvelope): RollRecord | null {
+  if (!env || !env.body) return null;
+  if (env.kind === "house_vote") {
+    const d = JSON.parse(env.body);
+    return d ? parseHouseVote(env.list_row, d.houseRollCallVoteMemberVotes || {}, env.congress) : null;
+  }
+  return parseSenateVote(env.body, env.congress, env.session, env.roll);
+}
+
+// Fetch half of the bill text read: the raw responses, in the same order and
+// with the same stop conditions as before (no key → nothing; no bill → no
+// subjects / summaries). Null without a key.
+export async function fetchBillMetaRaw(fetchFn: typeof fetch, apiKey: string | null | undefined, congress: number, m: MeasureRef): Promise<RawResponse[] | null> {
+  if (!apiKey) return null;
+  const out: RawResponse[] = [];
+  const pull = async (part: string, url: string): Promise<RawFetch | null> => {
+    try {
+      const r = await fetchRaw(fetchFn, withKey(url, apiKey), JSON_ACCEPT);
+      out.push({ part, url: publicUrl(withKey(url, apiKey)), http_status: r.status, content_type: r.contentType, body: r.body });
+      return r;
+    } catch (e: any) {
+      if (e instanceof RateLimited) throw e;
+      out.push({ part, url: publicUrl(withKey(url, apiKey)), http_status: null, content_type: null, body: null, error: String(e?.message || e).slice(0, 200) });
+      return null;
+    }
+  };
+  if (m.measureType === "amendment") { await pull("amendment", `${CONGRESS_API}/amendment/${congress}/${m.billType}/${m.num}`); return out; }
+  if (m.measureType === "nomination") { await pull("nomination", `${CONGRESS_API}/nomination/${congress}/${m.num.split("-")[0]}`); return out; }
+  const base = `${CONGRESS_API}/bill/${congress}/${m.billType}/${m.num}`;
+  const main = await pull("bill", base);
+  let b: any = null;
+  try { b = main?.ok ? JSON.parse(main.body as string)?.bill : null; } catch { b = null; }
+  if (!b) return out;
+  await pull("subjects", `${base}/subjects`);
+  await pull("summaries", `${base}/summaries`);
+  return out;
+}
+
+// Parse half: raw responses (live or stored) → BillMeta. Pure, no network.
+export function billMetaFromResponses(responses: RawResponse[] | null | undefined, congress: number, m: MeasureRef): BillMeta {
   const page = congressGovPage(congress, m.billType, m.num);
   const fallback: BillMeta = {
     title: m.feedTitle || m.number || m.billKey, sourceUrl: page,
     metaSource: m.feedTitle ? "senate_xml" : "vote_feed", subjects: [], summary: "",
   };
-  if (!apiKey) return fallback;
+  if (!responses) return fallback;
+  const json = (part: string): any => {
+    const r = responses.find((x) => x.part === part);
+    if (!r || r.body == null || !(r.http_status && r.http_status >= 200 && r.http_status < 300)) return null;
+    try { return JSON.parse(r.body); } catch { return null; }
+  };
   try {
     if (m.measureType === "amendment") {
-      const d = await getJson(fetchFn, withKey(`${CONGRESS_API}/amendment/${congress}/${m.billType}/${m.num}`, apiKey));
-      const a = d?.amendment;
+      const a = json("amendment")?.amendment;
       if (!a) return fallback;
       const purpose = str(a.purpose), desc = str(a.description);
       return {
@@ -630,16 +752,13 @@ export async function fetchBillMeta(fetchFn: typeof fetch, apiKey: string | null
       };
     }
     if (m.measureType === "nomination") {
-      const d = await getJson(fetchFn, withKey(`${CONGRESS_API}/nomination/${congress}/${m.num.split("-")[0]}`, apiKey));
-      const n = d?.nomination;
+      const n = json("nomination")?.nomination;
       return n ? { title: str(n.description) || fallback.title, summary: "", subjects: [], sourceUrl: page, metaSource: "congress_gov" } : fallback;
     }
-    const base = `${CONGRESS_API}/bill/${congress}/${m.billType}/${m.num}`;
-    const d = await getJson(fetchFn, withKey(base, apiKey));
-    const b = d?.bill;
+    const b = json("bill")?.bill;
     if (!b) return fallback;
-    const subj = await getJson(fetchFn, withKey(`${base}/subjects`, apiKey)).catch((e) => { if (e instanceof RateLimited) throw e; return null; });
-    const sums = await getJson(fetchFn, withKey(`${base}/summaries`, apiKey)).catch((e) => { if (e instanceof RateLimited) throw e; return null; });
+    const subj = json("subjects");
+    const sums = json("summaries");
     const summaries: any[] = Array.isArray(sums?.summaries) ? sums.summaries : [];
     summaries.sort((x, y) => str(y.updateDate || y.actionDate).localeCompare(str(x.updateDate || x.actionDate)));
     const subjects: string[] = (subj?.subjects?.legislativeSubjects || []).map((s: any) => str(s?.name)).filter(Boolean);
@@ -651,10 +770,13 @@ export async function fetchBillMeta(fetchFn: typeof fetch, apiKey: string | null
       subjects,
       sourceUrl: page, metaSource: "congress_gov",
     };
-  } catch (e) {
-    if (e instanceof RateLimited) throw e;
+  } catch {
     return fallback;
   }
+}
+
+export async function fetchBillMeta(fetchFn: typeof fetch, apiKey: string | null | undefined, congress: number, m: MeasureRef): Promise<BillMeta> {
+  return billMetaFromResponses(await fetchBillMetaRaw(fetchFn, apiKey, congress, m), congress, m);
 }
 
 // ── Building rows ────────────────────────────────────────────────────────────
@@ -669,7 +791,7 @@ export function buildBillRow(congress: number, m: MeasureRef, meta: BillMeta, ta
   };
 }
 
-export function buildVoteRows(r: RollRecord, bill: BillRow, ids: { memberMap: Record<string, string>; lis: Record<string, string> }): { rows: VoteRow[]; unmapped: number } {
+export function buildVoteRows(r: RollRecord, bill: BillRow, ids: { memberMap: Record<string, string>; lis: Record<string, string> }, rawRef: string | null = null): { rows: VoteRow[]; unmapped: number } {
   let unmapped = 0;
   const rows = r.members.map((m) => {
     const bioguide = m.scheme === "bioguide" ? m.id : ids.lis[m.id] || null;
@@ -681,10 +803,120 @@ export function buildVoteRows(r: RollRecord, bill: BillRow, ids: { memberMap: Re
       politicianId: pid, memberIdScheme: m.scheme, memberId: m.id, bioguideId: bioguide, memberName: m.name ?? null,
       party: m.party ?? null, state: m.state ?? null, vote: m.vote, voteRaw: m.voteRaw, question: r.question,
       voteKind: r.voteKind, isProcedural: r.isProcedural, result: r.result, topicTags: bill.topicTags,
-      taggerVersion: bill.taggerVersion, sourceUrl: r.sourceUrl, sourceLabel: r.sourceLabel,
+      taggerVersion: bill.taggerVersion, sourceUrl: r.sourceUrl, sourceLabel: r.sourceLabel, rawRef,
     };
   });
   return { rows, unmapped };
+}
+
+// ── Shared per-roll assembly (live run AND replay go through these) ──────────
+// A new bill row from its parsed text. `at` is the fetch time of the payload it
+// was parsed from (the live run passes the time it fetched; replay passes the
+// envelope's fetched_at), so a replay rebuilds the identical row.
+export function billFromMeta(rec: RollRecord, meta: BillMeta, at: Date, rawRef: string | null): { bill: BillRow; tags: TagResult } {
+  const m = rec.measure!;
+  const tags = tagMeasure({ measureType: m.measureType, title: meta.title, shortTitle: meta.shortTitle, summary: meta.summary, policyArea: meta.policyArea, subjects: meta.subjects });
+  if (!m.parentBillKey && isRuleResolution(m.billType, meta.title)) m.parentBillKey = ruleTarget(rec.congress, meta.title);
+  const bill = { ...buildBillRow(rec.congress, m, meta, tags, null, at), rawRef };
+  return { bill, tags };
+}
+// The vote rows for one roll call against its bill row.
+export function rowsForRoll(rec: RollRecord, bill: BillRow, ids: { memberMap: Record<string, string>; lis: Record<string, string> }, rawRef: string | null) {
+  if (rec.voteKind === "passage" && isRuleResolution(bill.billType, bill.title)) { rec.voteKind = "rule"; rec.isProcedural = true; }
+  return buildVoteRows(rec, bill, ids, rawRef);
+}
+
+// ── Re-parse from stored payloads (no network) ──────────────────────────────
+// Rebuilds one roll call's bill row and vote rows from what the run stored.
+// Bill text comes from, in order: the explicit billRef (the stored bill row's
+// raw_ref), else `storedBill` as-is (a row whose payload was never stored is not
+// overwritten with a fallback title), else the newest stored bill payload for
+// that key, else the vote document's own title — the same fallback the live run
+// uses without a key.
+export type ReplayResult =
+  | { ok: true; rollRef: string; rec: RollRecord; bill: BillRow; billRebuilt: boolean; rows: VoteRow[]; unmapped: number }
+  | { ok: false; rollRef: string; reason: string };
+const newestKey = async (store: RawStore, prefix: string): Promise<string | null> => {
+  if (!store.list) return null;
+  const { blobs = [] } = (await store.list({ prefix })) || ({} as any);
+  return blobs.map((b) => b.key).sort().pop() || null;
+};
+export async function replayRoll(
+  store: RawStore, rollRef: string,
+  ids: { memberMap: Record<string, string>; lis: Record<string, string> },
+  opts: { billRef?: string | null; storedBill?: BillRow | null } = {},
+): Promise<ReplayResult> {
+  const env = (await store.get(rollRef, { type: "json" })) as RollEnvelope | null;
+  if (!env) return { ok: false, rollRef, reason: "payload not found" };
+  let rec: RollRecord | null;
+  try { rec = rollFromEnvelope(env); } catch (e: any) { return { ok: false, rollRef, reason: `unparseable: ${e?.message || e}` }; }
+  if (!rec || !rec.members.length) return { ok: false, rollRef, reason: "no member positions" };
+  if (rec.unsupported.length) return { ok: false, rollRef, reason: "unsupported vote words" };
+  if (!rec.measure) return { ok: false, rollRef, reason: "no measure" };
+  let bill: BillRow | null = null, billRebuilt = false;
+  const billRef = opts.billRef || (opts.storedBill ? null : await newestKey(store, billRawPrefix(rec.measure.billKey)));
+  if (billRef) {
+    const benv = (await store.get(billRef, { type: "json" })) as BillEnvelope | null;
+    if (benv) {
+      bill = billFromMeta(rec, billMetaFromResponses(benv.responses, rec.congress, rec.measure), new Date(benv.fetched_at), billRef).bill;
+      billRebuilt = true;
+    }
+  }
+  if (!bill && opts.storedBill) bill = opts.storedBill;
+  if (!bill) { bill = billFromMeta(rec, billMetaFromResponses(null, rec.congress, rec.measure), new Date(env.fetched_at), null).bill; billRebuilt = true; }
+  const { rows, unmapped } = rowsForRoll(rec, bill, ids, rollRef);
+  return { ok: true, rollRef, rec, bill, billRebuilt, rows, unmapped };
+}
+
+// Re-parses the newest stored payload of every stored roll call (or `limit` of
+// them) and, with write, upserts the rebuilt rows through the same repo. Safe to
+// repeat: the upsert is keyed exactly like the live run, so re-parsing unchanged
+// payloads inserts and revises nothing. Never fetches.
+export type ReplayReport = { rolls: number; rebuilt: number; skipped: Array<{ rollRef: string; reason: string }>; rows: number; inserted: number; revised: number; billsWritten: number; errors: string[] };
+export async function replayRawRolls(deps: {
+  store: RawStore; repo?: VoteActionsRepo | null; memberMap: Record<string, string>; lis: Record<string, string>;
+  write?: boolean; limit?: number; chambers?: Array<"house" | "senate">; log?: (l: string) => void;
+}): Promise<ReplayReport> {
+  const log = deps.log || ((l: string) => console.log(l));
+  const report: ReplayReport = { rolls: 0, rebuilt: 0, skipped: [], rows: 0, inserted: 0, revised: 0, billsWritten: 0, errors: [] };
+  if (!deps.store.list) { report.errors.push("store cannot list"); return report; }
+  const newest = new Map<string, string>();
+  for (const ch of deps.chambers || ["house", "senate"]) {
+    const { blobs = [] } = (await deps.store.list({ prefix: `${ch}/` })) || ({} as any);
+    for (const { key } of blobs) {
+      const dir = key.slice(0, key.lastIndexOf("/") + 1);
+      if (!newest.has(dir) || key > newest.get(dir)!) newest.set(dir, key);
+    }
+  }
+  const refs = [...newest.values()].sort().slice(0, deps.limit ?? Infinity);
+  for (const rollRef of refs) {
+    report.rolls++;
+    try {
+      let storedBill: BillRow | null = null;
+      if (deps.repo) {
+        const env = (await deps.store.get(rollRef, { type: "json" })) as RollEnvelope | null;
+        const m = env ? rollFromEnvelope(env)?.measure : null;
+        if (m) storedBill = await deps.repo.getBill(m.billKey);
+      }
+      const r = await replayRoll(deps.store, rollRef, { memberMap: deps.memberMap, lis: deps.lis }, { billRef: storedBill?.rawRef || null, storedBill });
+      if (r.ok === false) { report.skipped.push({ rollRef, reason: r.reason }); continue; }
+      report.rebuilt++;
+      report.rows += r.rows.length;
+      if (deps.write && deps.repo) {
+        if (r.billRebuilt && r.bill.rawRef) {
+          await deps.repo.upsertBill({ ...r.bill, metaAttempts: storedBill?.metaAttempts ?? r.bill.metaAttempts });
+          report.billsWritten++;
+        }
+        const w = await deps.repo.upsertVotes(r.rows);
+        report.inserted += w.inserted;
+        report.revised += w.revised;
+      }
+    } catch (e: any) {
+      report.errors.push(`${rollRef}: ${String(e?.message || e).slice(0, 160)}`);
+    }
+  }
+  log(`vote-actions: REPLAY ${deps.write ? "write" : "dry run"} — rolls ${report.rolls} · rebuilt ${report.rebuilt} · skipped ${report.skipped.length} · rows ${report.rows} · new ${report.inserted} · revised ${report.revised} · bills ${report.billsWritten} · errors ${report.errors.length}`);
+  return report;
 }
 
 // ── Run state (Blobs) ────────────────────────────────────────────────────────
@@ -716,11 +948,16 @@ export type RunDeps = {
   lookbackDays?: number;
   chambers?: Array<"house" | "senate">;
   clock?: () => number;
+  rawStore?: RawStore | null;        // Blobs "raw-ingest-votes"; absent → nothing stored, raw_ref NULL
 };
 export type RunReport = {
   congress: number; candidates: { house: number; senate: number }; processed: number;
   done: number; incomplete: number; parked: number; unsupported: number; noMeasure: number;
   billsTagged: number; billsUntagged: number; votesInserted: number; votesRevised: number; membersUnmapped: number;
+  // Report-only (summary-line rates): rows built this run, and of them how many
+  // had a known kind and how many of those were procedural.
+  votesWritten: number; votesKindKnown: number; votesProcedural: number;
+  membersRemapped: number;   // rows given a politician by the roster catch-up
   metaRefreshed: number; retagged: number; rateLimited: boolean; budgetHit: boolean; errors: string[];
   tagCounts: Record<string, number>; houseConfigured: boolean;
 };
@@ -791,7 +1028,7 @@ export async function runVoteActions(deps: RunDeps): Promise<{ report: RunReport
   const chambers = deps.chambers || ["house", "senate"];
   const report: RunReport = {
     congress, candidates: { house: 0, senate: 0 }, processed: 0, done: 0, incomplete: 0, parked: 0, unsupported: 0, noMeasure: 0,
-    billsTagged: 0, billsUntagged: 0, votesInserted: 0, votesRevised: 0, membersUnmapped: 0, metaRefreshed: 0, retagged: 0,
+    billsTagged: 0, billsUntagged: 0, votesInserted: 0, votesRevised: 0, membersUnmapped: 0, votesWritten: 0, votesKindKnown: 0, votesProcedural: 0, membersRemapped: 0, metaRefreshed: 0, retagged: 0,
     rateLimited: false, budgetHit: false, errors: [], tagCounts: {}, houseConfigured: !!deps.apiKey,
   };
   const ledgerSet = (key: string, status: string, date: string, note?: string) => {
@@ -822,13 +1059,24 @@ export async function runVoteActions(deps: RunDeps): Promise<{ report: RunReport
       report.processed++;
       const key = rollKey(c.chamber, c.congress, c.session, c.roll);
       let rec: RollRecord | null = null;
+      let rollRef: string | null = null;
+      // One fetch time per roll call: its payload, its new bill's payload and
+      // that bill row's meta_fetched_at all carry it, so a replay is identical.
+      const fetchedAt = (deps.now || (() => new Date()))().toISOString();
       try {
-        if (c.chamber === "house") {
-          const d = await getJson(deps.fetch, withKey(`${CONGRESS_API}/house-vote/${c.congress}/${c.session}/${c.roll}/members`, deps.apiKey!));
-          rec = d ? parseHouseVote(c.row, d.houseRollCallVoteMemberVotes || {}, c.congress) : null;
-        } else {
-          const xml = await getText(deps.fetch, senateXmlUrl(c.congress, c.session, c.roll));
-          rec = xml ? parseSenateVote(xml, c.congress, c.session, c.roll) : null;
+        const house = c.chamber === "house";
+        const url = house ? withKey(`${CONGRESS_API}/house-vote/${c.congress}/${c.session}/${c.roll}/members`, deps.apiKey!) : senateXmlUrl(c.congress, c.session, c.roll);
+        const r = await fetchRaw(deps.fetch, url, house ? JSON_ACCEPT : XML_ACCEPT);
+        if (r.ok && r.body) {
+          // Stored unmodified BEFORE parsing; a failed write never stops the run.
+          const env: RollEnvelope = {
+            kind: house ? "house_vote" : "senate_vote", chamber: c.chamber, congress: c.congress, session: c.session, roll: c.roll,
+            url: publicUrl(url), fetched_at: fetchedAt, source_type: house ? "Congress.gov house-vote member votes" : "senate.gov LIS roll call vote XML",
+            http_status: r.status, content_type: r.contentType, body_chars: r.body.length, body: r.body,
+            ...(house ? { list_row: c.row } : {}),
+          };
+          rollRef = await putRaw(deps.rawStore, rollRawKey(c.chamber, c.congress, c.session, c.roll, fetchedAt), env, log);
+          rec = rollFromEnvelope(env);
         }
       } catch (e: any) {
         if (e instanceof RateLimited) throw e;
@@ -852,25 +1100,45 @@ export async function runVoteActions(deps: RunDeps): Promise<{ report: RunReport
       }
       if (!rec.measure) { ledgerSet(key, "no_measure", c.date, rec.question || ""); report.noMeasure++; continue; }
 
-      let bill = await deps.repo.getBill(rec.measure.billKey);
-      if (!bill) {
-        const meta = await fetchBillMeta(deps.fetch, deps.apiKey, rec.congress, rec.measure);
-        const tags = tagMeasure({ measureType: rec.measure.measureType, title: meta.title, shortTitle: meta.shortTitle, summary: meta.summary, policyArea: meta.policyArea, subjects: meta.subjects });
-        if (!rec.measure.parentBillKey && isRuleResolution(rec.measure.billType, meta.title)) rec.measure.parentBillKey = ruleTarget(rec.congress, meta.title);
-        bill = buildBillRow(rec.congress, rec.measure, meta, tags, null, now);
-        await deps.repo.upsertBill(bill);
-        tags.tags.length ? report.billsTagged++ : report.billsUntagged++;
-        log(`vote-actions: BILL ${bill.billKey} ${bill.number || ""} — tags high [${tags.highTags.join(", ")}] low [${tags.lowTags.join(", ")}]${tags.untagged ? ` (untagged: ${tags.untagged})` : ""}${tags.multiTopic ? " multi-topic" : ""} · ${meta.metaSource}`);
+      // One roll call's bill / tag / write step failing must not end the run:
+      // it is retried on later runs like a missing member list, then parked.
+      try {
+        let bill = await deps.repo.getBill(rec.measure.billKey);
+        if (!bill) {
+          const responses = await fetchBillMetaRaw(deps.fetch, deps.apiKey, rec.congress, rec.measure);
+          const metaRef = responses
+            ? await putRaw(deps.rawStore, billRawKey(rec.measure.billKey, fetchedAt), {
+                kind: "bill_meta", bill_key: rec.measure.billKey, congress: rec.congress, measure: { ...rec.measure },
+                fetched_at: fetchedAt, source_type: "Congress.gov bill metadata", responses,
+              } satisfies BillEnvelope, log)
+            : null;
+          const meta = billMetaFromResponses(responses, rec.congress, rec.measure);
+          const built = billFromMeta(rec, meta, new Date(fetchedAt), metaRef);
+          const tags = built.tags;
+          bill = built.bill;
+          await deps.repo.upsertBill(bill);
+          tags.tags.length ? report.billsTagged++ : report.billsUntagged++;
+          log(`vote-actions: BILL ${bill.billKey} ${bill.number || ""} — tags high [${tags.highTags.join(", ")}] low [${tags.lowTags.join(", ")}]${tags.untagged ? ` (untagged: ${tags.untagged})` : ""}${tags.multiTopic ? " multi-topic" : ""} · ${meta.metaSource}`);
+        }
+        const { rows, unmapped } = rowsForRoll(rec, bill, { memberMap: deps.memberMap, lis }, rollRef);
+        const w = await deps.repo.upsertVotes(rows);
+        report.votesInserted += w.inserted;
+        report.votesRevised += w.revised;
+        report.membersUnmapped += unmapped;
+        report.votesWritten += rows.length;
+        if (rec.isProcedural !== null) { report.votesKindKnown += rows.length; if (rec.isProcedural) report.votesProcedural += rows.length; }
+        for (const t of bill.topicTags) report.tagCounts[t] = (report.tagCounts[t] || 0) + 1;
+        ledgerSet(key, "done", c.date);
+        report.done++;
+      } catch (e: any) {
+        if (e instanceof RateLimited) throw e;
+        const msg = String(e?.message || e).slice(0, 160);
+        const parked = attempts >= MAX_ATTEMPTS;
+        ledgerSet(key, parked ? "parked" : "incomplete", c.date, `processing error: ${msg}`);
+        parked ? report.parked++ : report.incomplete++;
+        report.errors.push(`${key}: ${msg}`);
+        log(`vote-actions: ${parked ? "PARKED" : "RETRY LATER"} ${key} — processing error: ${msg} (attempt ${attempts})`);
       }
-      if (rec.voteKind === "passage" && isRuleResolution(bill.billType, bill.title)) { rec.voteKind = "rule"; rec.isProcedural = true; }
-      const { rows, unmapped } = buildVoteRows(rec, bill, { memberMap: deps.memberMap, lis });
-      const w = await deps.repo.upsertVotes(rows);
-      report.votesInserted += w.inserted;
-      report.votesRevised += w.revised;
-      report.membersUnmapped += unmapped;
-      for (const t of bill.topicTags) report.tagCounts[t] = (report.tagCounts[t] || 0) + 1;
-      ledgerSet(key, "done", c.date);
-      report.done++;
     }
 
     // 3. Late summaries: refetch a few bills read without one, then re-tag.
@@ -881,9 +1149,19 @@ export async function runVoteActions(deps: RunDeps): Promise<{ report: RunReport
         const m = measureRef(b.congress, b.billType, billNumFromKey(b), null);
         if (!m) continue;
         m.parentBillKey = b.parentBillKey;
-        const meta = await fetchBillMeta(deps.fetch, deps.apiKey, b.congress, m);
+        const at = (deps.now || (() => new Date()))().toISOString();
+        const responses = await fetchBillMetaRaw(deps.fetch, deps.apiKey, b.congress, m);
+        const metaRef = responses
+          ? await putRaw(deps.rawStore, billRawKey(b.billKey, at), {
+              kind: "bill_meta", bill_key: b.billKey, congress: b.congress, measure: { ...m }, fetched_at: at,
+              source_type: "Congress.gov bill metadata", responses,
+            } satisfies BillEnvelope, log)
+          : null;
+        const meta = billMetaFromResponses(responses, b.congress, m);
         const tags = tagMeasure({ measureType: b.measureType, title: meta.title, shortTitle: meta.shortTitle, summary: meta.summary, policyArea: meta.policyArea, subjects: meta.subjects });
-        const row = buildBillRow(b.congress, m, meta.metaSource === "congress_gov" ? meta : { ...meta, title: b.title, summary: b.summary }, tags, b, now);
+        // The row keeps its old text when the refetch found nothing, so it keeps its old raw_ref too.
+        const fresh = meta.metaSource === "congress_gov";
+        const row = { ...buildBillRow(b.congress, m, fresh ? meta : { ...meta, title: b.title, summary: b.summary }, tags, b, new Date(at)), rawRef: fresh ? metaRef : b.rawRef ?? null };
         await deps.repo.upsertBill(row);
         if (row.topicTags.join() !== b.topicTags.join() || row.taggerVersion !== b.taggerVersion) await deps.repo.retagVotes(row.billKey, row.topicTags, row.taggerVersion);
         report.metaRefreshed++;
@@ -899,6 +1177,18 @@ export async function runVoteActions(deps: RunDeps): Promise<{ report: RunReport
         report.retagged++;
       }
     }
+
+    // 5. Roster catch-up: a member added to the roster after their roll calls were
+    //    read (and marked done) gets their politician on those rows now, so the
+    //    publish gate re-evaluates the bill with no manual step and no refetch.
+    if (!overBudget() && deps.repo.unmappedBioguides && deps.repo.mapMembers) {
+      const pairs = (await deps.repo.unmappedBioguides())
+        .filter((b) => deps.memberMap[b]).map((b) => [b, deps.memberMap[b]] as [string, string]);
+      if (pairs.length) {
+        report.membersRemapped = await deps.repo.mapMembers(pairs);
+        log(`vote-actions: ROSTER CATCH-UP — ${pairs.length} member(s) now mapped, ${report.membersRemapped} row(s) filled`);
+      }
+    }
   } catch (e: any) {
     if (e instanceof RateLimited) { report.rateLimited = true; log(`vote-actions: RATE LIMITED — ${e.message}; stopping this run`); }
     else report.errors.push(e?.message || String(e));
@@ -912,6 +1202,7 @@ export async function runVoteActions(deps: RunDeps): Promise<{ report: RunReport
 }
 
 export function summaryLine(r: RunReport): string {
+  const q = runQuality(r);
   const top = Object.entries(r.tagCounts).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([k, n]) => `${k}:${n}`).join(" ");
-  return `vote-actions: run — congress ${r.congress} · candidates house ${r.candidates.house} senate ${r.candidates.senate} · processed ${r.processed} (done ${r.done}, retry ${r.incomplete}, parked ${r.parked}, unsupported ${r.unsupported}, no measure ${r.noMeasure}) · bills tagged ${r.billsTagged} untagged ${r.billsUntagged} · votes new ${r.votesInserted} revised ${r.votesRevised} · off-roster members ${r.membersUnmapped} · late summaries ${r.metaRefreshed} · retagged ${r.retagged}${r.rateLimited ? " · RATE LIMITED" : ""}${r.budgetHit ? " · budget reached" : ""}${r.houseConfigured ? "" : " · house skipped (no key)"}${top ? ` · tags ${top}` : ""}${r.errors.length ? ` · errors ${r.errors.length}` : ""}`;
+  return `vote-actions: run — congress ${r.congress} · candidates house ${r.candidates.house} senate ${r.candidates.senate} · processed ${r.processed} (done ${r.done}, retry ${r.incomplete}, parked ${r.parked}, unsupported ${r.unsupported}, no measure ${r.noMeasure}) · bills tagged ${r.billsTagged} untagged ${r.billsUntagged} · votes new ${r.votesInserted} revised ${r.votesRevised} · off-roster members ${r.membersUnmapped} · late summaries ${r.metaRefreshed} · retagged ${r.retagged}${r.membersRemapped ? ` · remapped ${r.membersRemapped}` : ""} · rates no-politician ${pctText(q.noPolitician)} untagged-bills ${pctText(q.untaggedBills)} procedural ${pctText(q.procedural)} done ${pctText(q.done)}${r.rateLimited ? " · RATE LIMITED" : ""}${r.budgetHit ? " · budget reached" : ""}${r.houseConfigured ? "" : " · house skipped (no key)"}${top ? ` · tags ${top}` : ""}${r.errors.length ? ` · errors ${r.errors.length}` : ""}`;
 }

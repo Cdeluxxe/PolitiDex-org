@@ -3788,7 +3788,11 @@
         var gb = document.getElementById && document.getElementById('pdxc-gap-back');
         if (_gapOpen && String(_gapOpen.pid) === String(pid) && gb && !gb.hidden) {
           var gbody = gb.querySelector && gb.querySelector('.pdxgap-body');
-          if (gbody) gbody.innerHTML = _gapViewHtml(_gapOpen.pid, _gapOpen.key);
+          if (gbody) {
+            var warmHtml = _gapViewHtml(_gapOpen.pid, _gapOpen.key);
+            gbody.innerHTML = warmHtml;
+            _xlAfterPaint(gb, _gapOpen.pid, _gapOpen.key, warmHtml);
+          }
         }
       } catch (eDos) {}
     });
@@ -17389,6 +17393,16 @@
       return RI.conflictsHtml(pid, (window.CMP_DATA || {})[pid], issueKey) || '';
     } catch (e) { return ''; }
   }
+  // WORDS VS. ACTIONS (related-issues.js): over the same pairs, where this
+  // person's stated side and a vote on the same issue run opposite ways and the
+  // reader holds the stated side. '' when there is none — the drawer is unchanged.
+  function _gapWvaHtml(pid, issueKey) {
+    try {
+      var RI = window.PDXRelatedIssues;
+      if (!RI || typeof RI.wordsVsActionsHtml !== 'function') return '';
+      return RI.wordsVsActionsHtml(pid, (window.CMP_DATA || {})[pid], issueKey) || '';
+    } catch (e) { return ''; }
+  }
   function _dosFindHtml(r, t) {
     var f = _dosFinding(r, t);
     return '<div class="pdxlg-find" style="--c:' + f.color + '">' +
@@ -17577,6 +17591,149 @@
     return out;
   }
 
+  // ── CROSS-LINK: curated measure ↔ raw vote feed ─────────────────────────────
+  // A curated measure in this drawer whose bill key matches raw vote rows the
+  // vote-actions cron recorded for this person (pdx_vote_actions) gets ONE short
+  // note row under it. The bill key is the shared one ("us-119-hr-5000"):
+  // congress + canonical citation, as vrMeasureBillKey in vote-actions-core.ts.
+  //   · EVERY READER fetches /api/vote-actions/published, which returns only rows
+  //     on bills that pass the automatic publish gate (vote-actions-publish.ts):
+  //     tagged, not a nomination, every member mapped, every kind classified,
+  //     every row's source payload stored. Their note names the roll call, the
+  //     recorded vote (labelled "procedural" where it was) and the official record.
+  //   · THE CURATOR fetches /api/admin/vote-actions/cross-links instead: every
+  //     row, the stored-payload key, and whether the bill is public or which
+  //     rules hold it back.
+  // Nothing on file or nothing that passes → no note, and the drawer's markup
+  // is byte-identical to before. The note never touches a tally, chip or verdict.
+  var _XL_CURATORS = ['cdeluxxe@gmail.com']; // same account as admin.html's gate (server re-checks)
+  var _XL_ENDPOINT = '/api/admin/vote-actions/cross-links';
+  var _XL_PUBLIC = '/api/vote-actions/published';
+  var _XL_CODES = { hr: 1, s: 1, hres: 1, sres: 1, hjres: 1, sjres: 1, hconres: 1, sconres: 1, hamdt: 1, samdt: 1, suamdt: 1 };
+  var _XL_RULE_WORDS = {
+    bill_record: 'no bill record', not_nomination: 'nomination', has_topic_tag: 'no topic tag', has_votes: 'no vote rows',
+    members_mapped: 'unmapped members', vote_kind_known: 'unclassified vote kind', raw_payload_stored: 'source payload missing'
+  };
+  var _xl = {};       // pid → { mode: 'public' | 'curator', billKeys: { billKey: [roll, …] }, publish? }
+  var _xlAsked = {};  // pid → mode already fetched this session
+  function _xlBillKey(d) {
+    if (!d || d.execAct) return null;
+    var c = parseInt(String(d.congress == null ? '' : d.congress), 10);
+    if (!(c >= 1)) return null;
+    var m = /^([A-Za-z.\s]+?)\s*([0-9]+)$/.exec(String(d.ident || d.billNum || '').trim());
+    if (!m) return null;
+    var code = m[1].toLowerCase().replace(/[^a-z]/g, '');
+    if (!_XL_CODES[code]) return null;
+    return 'us-' + c + '-' + code + '-' + m[2].replace(/^0+(?=\d)/, '');
+  }
+  function _xlCurator() {
+    var A = window.PDXAuth, u = A && A.user;
+    return !!(u && !u.isAnonymous && typeof u.email === 'string' && typeof u.getIdToken === 'function' &&
+      _XL_CURATORS.indexOf(u.email.toLowerCase()) >= 0);
+  }
+  function _xlRowHtml(pid, d, i) {
+    var got = _xl[pid];
+    if (!got || !got.billKeys) return '';
+    var k = _xlBillKey(d);
+    var rolls = k && got.billKeys[k];
+    if (!rolls || !rolls.length) return '';
+    var curator = got.mode === 'curator';
+    var parts = [];
+    for (var n = 0; n < rolls.length && n < 6; n++) {
+      var r = rolls[n] || {};
+      var ch = r.chamber === 'senate' ? 'Senate' : 'House';
+      var label = ch + ' roll ' + esc(r.roll) + (r.date ? ', ' + esc(String(r.date).slice(0, 10)) : '') + ' — ' + esc(r.voteRaw || r.vote || '') +
+        (r.procedural ? ' (procedural)' : '');
+      var off = /^https?:\/\//.test(String(r.sourceUrl || '')) ? ' · <a href="' + escAttr(r.sourceUrl) + '" target="_blank" rel="noopener">official record</a>' : '';
+      var raw = curator && r.rawRef ? ' · raw <code>' + esc(r.rawRef) + '</code>' : '';
+      parts.push(label + off + raw);
+    }
+    if (rolls.length > 6) parts.push('+' + (rolls.length - 6) + ' more');
+    var lead;
+    if (curator) {
+      var pub = got.publish && got.publish[k];
+      var gate = !pub ? '' : pub.publishable ? ' · public' :
+        ' · not public: ' + (pub.failed || []).map(function (f) { return esc(_XL_RULE_WORDS[f] || f); }).join(', ');
+      lead = 'Curator · also in the raw vote feed (<code>' + esc(k) + '</code>' + gate + '): ';
+    } else {
+      lead = 'Also in the raw vote feed: ';
+    }
+    return '<tr class="pdxlg-xlr" data-pdxlg-xl="' + escAttr(k) + '" data-pdxlg-xlrow="' + i + '">' +
+      '<td colspan="5" class="pdxlg-xl" style="font-size:0.8rem;color:#9fb0d0;">' + lead + parts.join('; ') + '</td></tr>';
+  }
+  // The PUBLISHABLE raw rolls on one bill: everything the public endpoint sent
+  // (it only sends gated bills), or, for the curator, only bills the gate passed.
+  function _xlPublishedRolls(pid, billKey) {
+    var got = _xl[pid];
+    if (!got || !got.billKeys || !billKey) return null;
+    var rolls = got.billKeys[billKey];
+    if (!rolls || !rolls.length) return null;
+    if (got.mode === 'public') return rolls;
+    var pub = got.publish && got.publish[billKey];
+    return pub && pub.publishable ? rolls : null;
+  }
+  // ONE ISSUE'S ACTS WITH A SIDE, for the words-vs-actions note (related-issues.js).
+  // Each is a curated act that cut for or against the issue. DIRECTION ALWAYS
+  // COMES FROM THE CURATED MAPPING — a raw vote carries topic tags, not a side.
+  // When a publishable raw roll call is the SAME roll call (chamber, congress,
+  // session, roll), its recorded vote and official record are preferred over the
+  // curated copy: same vote → same side; the other of Yea/Nay → the other side
+  // (the mapping read through the raw vote); present / not voting → no side, so
+  // the act is dropped. Executive acts and acts that took no side are left out.
+  function _wvaActs(pid, issueKey) {
+    var t = null;
+    try { t = _dosTally(pid, issueKey); } catch (e) { t = null; }
+    if (!t || !t.rows || !t.rows.length) return [];
+    var out = [];
+    for (var i = 0; i < t.rows.length; i++) {
+      var p = t.rows[i], d = p && p.d;
+      if (!d || d.execAct || (p.dir !== 'advances' && p.dir !== 'opposes')) continue;
+      var it = d.item || {}, cur = String(it.position || '').toLowerCase();
+      var act = { dir: p.dir, word: (p.vote && p.vote.word) || '', ident: d.ident || d.billNum || '', date: d.date || '',
+        url: /^https?:\/\//.test(String(d.url || '')) ? d.url : '', from: 'curated', procedural: it.isProcedural === true };
+      var rolls = _xlPublishedRolls(pid, _xlBillKey(d));
+      var raw = null;
+      for (var j = 0; rolls && j < rolls.length; j++) {
+        var r = rolls[j] || {};
+        if (r.chamber === it.chamber && +r.congress === +it.congress && +r.session === +it.session && +r.roll === +it.rollNumber) { raw = r; break; }
+      }
+      if (raw) {
+        var same = (raw.vote === 'yes' && cur === 'yea') || (raw.vote === 'no' && cur === 'nay');
+        var flip = (raw.vote === 'yes' && cur === 'nay') || (raw.vote === 'no' && cur === 'yea');
+        if (!same && !flip) continue;
+        act.dir = same ? p.dir : (p.dir === 'advances' ? 'opposes' : 'advances');
+        act.word = raw.voteRaw || (raw.vote === 'yes' ? 'Yea' : 'Nay');
+        act.date = raw.date || act.date;
+        act.url = /^https?:\/\//.test(String(raw.sourceUrl || '')) ? raw.sourceUrl : act.url;
+        act.from = 'raw';
+        act.procedural = raw.procedural === true;
+      }
+      out.push(act);
+    }
+    return out;
+  }
+
+  // Fetch once per person per session (per mode), then hand back to repaint.
+  function _xlEnsure(pid, repaint) {
+    if (!pid || typeof fetch !== 'function') return null;
+    var curator = _xlCurator();
+    var mode = curator ? 'curator' : 'public';
+    if (_xlAsked[pid] === mode) return null;
+    _xlAsked[pid] = mode;
+    var req = curator
+      ? Promise.resolve(window.PDXAuth.user.getIdToken()).then(function (token) {
+          return fetch(_XL_ENDPOINT + '?pid=' + encodeURIComponent(pid), { headers: { authorization: 'Bearer ' + token }, cache: 'no-store' });
+        })
+      : Promise.resolve(fetch(_XL_PUBLIC + '?pid=' + encodeURIComponent(pid)));
+    return req.then(function (res) {
+      return res && res.ok ? res.json() : null;
+    }).then(function (data) {
+      if (!data || !data.billKeys || typeof data.billKeys !== 'object') return;
+      _xl[pid] = { mode: mode, billKeys: data.billKeys, publish: data.publish || null };
+      if (typeof repaint === 'function') repaint();
+    }).catch(function () { if (_xlAsked[pid] === mode) delete _xlAsked[pid]; });
+  }
+
   function _dosLedgerHtml(pid, issueKey, r, t, opts) {
     r = r || issueRow(pid, issueKey);
     t = t || _dosTally(pid, issueKey, r && r.ov);
@@ -17670,6 +17827,7 @@
                 '<span aria-hidden="true"> ▾</span></button>' +
             '</td>' +
           '</tr>';
+        out += _xlRowHtml(pid, d, p.i);
         var eff = d.effLine || '';
         if (eff) {
           // ONE LINE PER ROW UNTIL ASKED. The effect sentence and the Also-on chips
@@ -20728,6 +20886,7 @@
       _gapSignalHtml(_st) +
       _gapRelatedHtml(pid, issueKey) +
       _gapConflictsHtml(pid, issueKey) +
+      _gapWvaHtml(pid, issueKey) +
       // EVIDENCE — the sources attached to the stance, one block per link. Only
       // when the stance card or the Evidence Locker holds one; never a placeholder.
       _gapEvidenceHtml(pid, issueKey, _st) +
@@ -21085,6 +21244,25 @@
     return true;
   }
 
+  // RAW-VOTE FEED AFTER A PAINT (see _xlRowHtml, _wvaActs). Only a drawer with a
+  // vote table asks, once per person per session, and the sheet is repainted
+  // only if the answer changed it — a drawer with no matching record is never
+  // touched. Called by openGap AND by the warm repaint below it: on the issue
+  // and ballot pages a drawer often opens before the member's votes arrive, and
+  // the table (and so the ask) only exists once they have.
+  function _xlAfterPaint(sheet, pid, issueKey, html) {
+    try {
+      if (!sheet || !/<table class="pdxlg-t"/.test(String(html || ''))) return;
+      _xlEnsure(pid, function () {
+        if (!_gapOpen || String(_gapOpen.pid) !== String(pid) || sheet.hidden) return;
+        var now = '';
+        try { now = _gapViewHtml(_gapOpen.pid, _gapOpen.key) || ''; } catch (eR) { return; }
+        var gbx = sheet.querySelector('.pdxgap-body');
+        if (gbx && now && now !== (_gapOpen.key === issueKey ? html : '')) gbx.innerHTML = now;
+      });
+    } catch (eXl) {}
+  }
+
   function openGap(pid, issueKey, opts) {
     if (!pid || !issueKey || !document.body) return false;
     var sheet = _ensureGapSheet();
@@ -21096,6 +21274,7 @@
     try { html = _gapViewHtml(pid, issueKey) || ''; } catch (e) { html = ''; }
     if (!html) { try { html = _gapFallbackHtml(pid, issueKey); } catch (e2) { html = ''; } }
     body.innerHTML = html;
+    _xlAfterPaint(sheet, pid, issueKey, html);
     var arrival = _gapIsArrival(opts);
     // This sheet is one politician on one issue. PDXIssueView is everyone on one
     // issue, and the two used to announce themselves with the same generic label.
@@ -21731,6 +21910,18 @@
     // scripts/test-receipt-cards.mjs can assert what an arrival actually reads
     // rather than assert on the source text of the function that writes it.
     gapViewHtml: _gapViewHtml,
+    // Curator cross-link (see _xlRowHtml): the shared bill key a drawer row maps
+    // to, and a test seam to load a person's raw vote rows without a network.
+    voteActionBillKey: _xlBillKey,
+    loadVoteActionLinks: _xlEnsure,
+    // Test seam: the after-paint ask openGap and the warm repaint both make.
+    voteActionsAfterPaint: _xlAfterPaint,
+    // Words-vs-actions (related-issues.js): one issue's sided acts, raw-preferred.
+    wordsVsActionsActs: _wvaActs,
+    setVoteActionLinks: function (pid, billKeys, opts) {
+      if (billKeys && typeof billKeys === 'object') _xl[pid] = { mode: (opts && opts.mode) || 'curator', billKeys: billKeys, publish: (opts && opts.publish) || null };
+      else delete _xl[pid];
+    },
     // The one stance store, read one way (see statedStance). The person-file
     // "Said" list, Word vs Action and the issue drawer all print these entries.
     statedStance: statedStance,
