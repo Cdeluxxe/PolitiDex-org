@@ -8,15 +8,15 @@
 //
 // WHAT IT WRITES (pdx_action_bills, pdx_vote_actions — see db/schema.ts):
 //   • one bill row per voted-on measure: raw title / summary / official subjects
-//     and the topic tags read from them (with confidence + the signals behind
-//     each tag, so a weak tag is visible as weak)
+//     and every issue key the bill's own text matches (presence only — no
+//     score, ranking, threshold or cap; the matching signals are kept per key)
 //   • one vote row per member per roll call: politician, bill, vote
 //     (yes / no / present / not_voting), date, source, question, vote kind and
 //     the bill's topic tags
 // WHAT IT NEVER DOES: score, pick a support/oppose direction, flag a
 // contradiction, or write any table / store a public read uses (vr_*, packs,
-// pdx_stated_positions, curated stance files). It READS the curated
-// vr_measure_issues mappings as the strongest tag signal, and only reads them.
+// pdx_stated_positions, curated stance files). Tags come from the bill's own
+// text only — no vote-derived signal and no curated mapping is read.
 //
 // SOURCES (federal only in v1):
 //   House  — Congress.gov API house-vote list + /members (bioguide ids). Needs
@@ -40,14 +40,14 @@
 // Pure logic over injected deps (fetch, repo, state store, clock) so
 // scripts/test-vote-actions.mjs runs it with no network and no database.
 
-import { proposeIssueKeys } from "./vr-issue-proposals.js";
+import { BILL_KEY_PATTERNS, MAPPED_KEYS } from "./bill-key-patterns.mjs";
 import { ISSUE_KEYS, suggestIssue, mapActionType, canonicalMeasureNumber } from "./vr-normalize.js";
 import { ISSUE_TOPIC_VOCAB, DIRECTIONAL_TOPIC_VOCAB, buildTopicRules, buildDirectionalTopicRules } from "./stance-topic-vocab.mjs";
 import { RELATED_ISSUE_KEYS } from "./related-issue-keys.mjs";
 import coreCategories from "../../db/issue-core-categories.json" with { type: "json" };
 
 // ── Knobs ────────────────────────────────────────────────────────────────────
-export const TAGGER_VERSION = "va-tagger-v2"; // v2: no tag-count cap
+export const TAGGER_VERSION = "va-tagger-v3"; // v2: no tag-count cap · v3: presence-only, no scores
 export const STATE_STORE_NAME = "vote-actions-state";
 export const STATE_KEY = "state.json";
 export const RUN_BUDGET_MS = 22_000;          // scheduled functions stop at ~30 s
@@ -60,7 +60,6 @@ export const META_REFRESH_AFTER_DAYS = 3;
 export const META_MAX_ATTEMPTS = 6;
 export const RETAG_PER_RUN = 200;             // local re-tags after a tagger version bump
 export const LIS_INDEX_MAX_AGE_DAYS = 7;
-export const TAG_FLOOR = 45;                  // every key at or above this becomes a topic tag (no count cap)
 export const MULTI_TOPIC_CATEGORIES = 3;
 
 const CONGRESS_API = "https://api.congress.gov/v3";
@@ -122,7 +121,7 @@ export type BillMeta = {
   metaSource: "congress_gov" | "senate_xml" | "vote_feed";
   parentBillKey?: string | null;
 };
-export type TagDetail = { key: string; confidence: number; category: string | null; signals: string[] };
+export type TagDetail = { key: string; category: string | null; signals: string[] };
 export type TagResult = { tags: string[]; detail: TagDetail[]; multiTopic: boolean; version: string; untagged?: string };
 export type BillRow = {
   billKey: string; congress: number; measureType: string; billType: string; number: string | null;
@@ -146,8 +145,6 @@ export interface VoteActionsRepo {
   upsertVotes(rows: VoteRow[]): Promise<{ inserted: number; revised: number }>;
   // Copy a bill's (re-)computed tags onto its vote rows.
   retagVotes(billKey: string, tags: string[], version: string): Promise<number>;
-  // Curated / reviewed vr_measure_issues keys for the same measure (read-only).
-  curatedKeysFor(m: { congress: number; number: string | null; measureType: string }): Promise<string[]>;
   billsNeedingMeta(opts: { olderThan: string; maxAttempts: number; limit: number }): Promise<BillRow[]>;
   billsWithStaleTags(version: string, limit: number): Promise<BillRow[]>;
 }
@@ -383,127 +380,92 @@ export function lisIndexFrom(legislators: any[]): Record<string, string> {
 }
 
 // ── The topic sorter ─────────────────────────────────────────────────────────
-// Congress.gov's 32 policy areas → the register's topic categories. Used ONLY to
-// corroborate a key another signal found (+CORROBORATE), never to create one:
-// "Government Operations and Politics" is far too broad to name an issue by itself.
-export const POLICY_AREA_CATEGORIES: Record<string, string[]> = {
-  "Agriculture and Food": ["economy_cost_of_living"],
-  "Armed Forces and National Security": ["foreign_policy_defense"],
-  "International Affairs": ["foreign_policy_defense"],
-  "Civil Rights and Liberties, Minority Issues": ["civil_rights_culture", "abortion_repro", "election_integrity"],
-  "Crime and Law Enforcement": ["crime_safety", "guns"],
-  "Economics and Public Finance": ["spending_debt_waste", "economy_cost_of_living"],
-  "Taxation": ["spending_debt_waste", "economy_cost_of_living"],
-  "Education": ["education_parental"],
-  "Energy": ["climate_energy"],
-  "Environmental Protection": ["climate_energy"],
-  "Public Lands and Natural Resources": ["climate_energy"],
-  "Water Resources Development": ["climate_energy"],
-  "Emergency Management": ["climate_energy"],
-  "Government Operations and Politics": ["checks_and_balances", "election_integrity", "spending_debt_waste"],
-  "Congress": ["checks_and_balances"],
-  "Law": ["checks_and_balances", "crime_safety"],
-  "Health": ["healthcare", "abortion_repro"],
-  "Housing and Community Development": ["economy_cost_of_living"],
-  "Immigration": ["immigration_border"],
-  "Labor and Employment": ["economy_cost_of_living"],
-  "Finance and Financial Sector": ["economy_cost_of_living"],
-  "Commerce": ["economy_cost_of_living"],
-  "Foreign Trade and International Finance": ["economy_cost_of_living", "foreign_policy_defense"],
-  "Social Welfare": ["economy_cost_of_living", "healthcare"],
-  "Families": ["economy_cost_of_living", "education_parental"],
-  "Science, Technology, Communications": ["economy_cost_of_living", "civil_rights_culture", "climate_energy"],
-  "Transportation and Public Works": ["economy_cost_of_living"],
-};
+// PRESENCE ONLY. A key is a tag when any content signal in the bill's own text
+// matches it — no score, no weighting, no ranking, no threshold, no tag cap.
+// Signals (and only these):
+//   pattern  — the bill-key patterns (subject + instrument (+ facet), not ceded)
+//              read over the title / short title / summary
+//   keyword  — the existing keyword matcher (suggestIssue) over the title + summary
+//              and over each legislative subject term
+//   vocab    — the stance generator's topic vocabulary MENTION rules (no direction)
+//              over the title and over the summary
+//   subject  — a legislative subject term the vocabulary or keyword matcher reads
+// Nothing vote-derived and no curated mapping is consulted; the policy area is
+// stored on the bill but is not a signal.
+const stateless = (re: RegExp | undefined | null): RegExp | null =>
+  re ? new RegExp(re.source, re.flags.replace(/g|y/g, "")) : null;
 
-export const SIGNAL = {
-  curated: 100,          // a curated / reviewed vr_measure_issues mapping for the same measure
-  titleMention: 35,      // the key's topic vocabulary names it in the title
-  summaryMention: 20,    // … only in the summary
-  summaryMentionDense: 10, // … and at least 3 times there
-  subject: 35,           // an official legislative subject term reads as the key
-  subjectEach: 10,       // each further subject term agreeing
-  subjectMax: 55,
-  corroborate: 10,       // the policy area's category holds the key
-  agreement: 10,         // two or more independent signals name the key
-} as const;
+export function patternHits(text: string): string[] {
+  const hits: string[] = [];
+  if (!text) return hits;
+  for (const key of MAPPED_KEYS as string[]) {
+    const P: any = (BILL_KEY_PATTERNS as any)[key];
+    if (!P) continue;
+    const subject = stateless(P.subject), instrument = stateless(P.instrument);
+    if (!subject || !instrument || !subject.test(text) || !instrument.test(text)) continue;
+    const facet = stateless(P.facet);
+    if (facet && !facet.test(text)) continue;
+    const cedes = stateless(P.cedes);
+    if (cedes && cedes.test(text)) continue;
+    hits.push(key);
+  }
+  return hits;
+}
 
 let _rules: Record<string, RegExp> | null = null;
 function mentionRules(): Record<string, RegExp> {
   if (_rules) return _rules;
   const out: Record<string, RegExp> = {};
   for (const [k, r] of Object.entries({ ...buildTopicRules(ISSUE_TOPIC_VOCAB), ...buildDirectionalTopicRules(DIRECTIONAL_TOPIC_VOCAB) }) as Array<[string, any]>) {
-    if (TAG_KEYS.has(k) && r?.mention) out[k] = new RegExp(r.mention.source, "gi");
+    if (TAG_KEYS.has(k) && r?.mention) out[k] = new RegExp(r.mention.source, "i");
   }
   return (_rules = out);
 }
-const countHits = (re: RegExp, text: string) => (text ? (text.match(re) || []).length : 0);
 
 export type TagInput = {
   measureType: string; title?: string | null; shortTitle?: string | null; summary?: string | null;
-  policyArea?: string | null; subjects?: string[] | null; curatedKeys?: string[] | null;
+  policyArea?: string | null; subjects?: string[] | null;
 };
 
-// Multi-signal tagger. Every key is scored independently, so a multi-topic bill
-// carries several tags rather than one "winner"; each tag keeps its confidence
-// and signals, and tags that span 3+ categories mark the bill multi_topic.
+// Every key any signal matches becomes a tag; detail lists the signals per key.
+// Tags that span 3+ topic categories mark the bill multi_topic.
 export function tagMeasure(m: TagInput): TagResult {
   const base = { version: TAGGER_VERSION };
   if (m.measureType === "nomination") return { ...base, tags: [], detail: [], multiTopic: false, untagged: "nomination" };
-  const scores = new Map<string, { best: number; bases: Set<string>; signals: string[] }>();
-  const hit = (key: string, conf: number, basis: string, signal: string) => {
-    if (!TAG_KEYS.has(key)) return;
-    const s = scores.get(key) || { best: 0, bases: new Set<string>(), signals: [] };
-    s.best = Math.max(s.best, conf);
-    s.bases.add(basis);
-    s.signals.push(signal);
-    scores.set(key, s);
+  const found = new Map<string, Set<string>>();
+  const hit = (key: string | null, signal: string) => {
+    if (!key || !TAG_KEYS.has(key)) return;
+    if (!found.has(key)) found.set(key, new Set());
+    found.get(key)!.add(signal);
   };
 
-  for (const k of m.curatedKeys || []) hit(k, SIGNAL.curated, "curated", "curated-map");
-
-  // 1. The bill-key patterns + keyword suggester the Voting Record proposer uses.
-  const { accepted } = proposeIssueKeys({ id: 0, measureType: m.measureType, title: m.title, shortTitle: m.shortTitle, summary: m.summary });
-  for (const c of accepted) hit(c.issueKey, c.confidence, c.basis === "keyword-suggester" ? "keyword" : "pattern", `${c.basis === "keyword-suggester" ? "keyword" : "pattern"}:${c.signals.join("+")}`);
-
-  // 2. The stance generator's topic vocabulary (mentions only — no direction).
   const title = [m.title, m.shortTitle].map(str).filter(Boolean).join(" — ");
   const summary = str(m.summary);
+  const full = [title, summary].filter(Boolean).join(" — ");
+
+  // 1. Bill-key patterns, over title alone and over the whole text.
+  for (const k of patternHits(title)) hit(k, "pattern:title");
+  for (const k of patternHits(full)) hit(k, summary ? "pattern:text" : "pattern:title");
+  // 2. The existing keyword matcher.
+  hit(suggestIssue(title), "keyword:title");
+  if (summary) hit(suggestIssue(full), "keyword:text");
+  // 3. Topic vocabulary mentions.
   for (const [k, re] of Object.entries(mentionRules())) {
-    if (countHits(re, title)) { hit(k, SIGNAL.titleMention, "vocab", "vocab:title"); continue; }
-    const n = countHits(re, summary);
-    if (n) hit(k, SIGNAL.summaryMention + (n >= 3 ? SIGNAL.summaryMentionDense : 0), "vocab", `vocab:summary×${n}`);
+    if (title && re.test(title)) hit(k, "vocab:title");
+    if (summary && re.test(summary)) hit(k, "vocab:summary");
   }
-
-  // 3. Official legislative subject terms, one term at a time.
-  const subjectHits = new Map<string, number>();
+  // 4. Legislative subject terms, one term at a time.
   for (const term of (m.subjects || []).map(str).filter(Boolean)) {
-    const keys = new Set<string>();
-    const kw = suggestIssue(term);
-    if (kw) keys.add(kw);
-    for (const [k, re] of Object.entries(mentionRules())) if (countHits(re, term)) keys.add(k);
-    for (const k of keys) subjectHits.set(k, (subjectHits.get(k) || 0) + 1);
+    hit(suggestIssue(term), `subject:${term}`);
+    for (const [k, re] of Object.entries(mentionRules())) if (re.test(term)) hit(k, `subject:${term}`);
   }
-  for (const [k, n] of subjectHits) hit(k, Math.min(SIGNAL.subjectMax, SIGNAL.subject + SIGNAL.subjectEach * (n - 1)), "subject", `subject×${n}`);
 
-  // 4. Combine: agreement and policy-area corroboration lift a key; nothing else does.
-  const areaCats = new Set(POLICY_AREA_CATEGORIES[str(m.policyArea)] || []);
-  const detail: TagDetail[] = [];
-  for (const [key, s] of scores) {
-    let c = s.best;
-    const signals = [...s.signals];
-    if (c < SIGNAL.curated) {
-      if (s.bases.size >= 2) { c += SIGNAL.agreement; signals.push("signals-agree"); }
-      if (areaCats.has(CATEGORY_OF[key])) { c += SIGNAL.corroborate; signals.push("policy-area"); }
-    }
-    detail.push({ key, confidence: Math.min(100, c), category: CATEGORY_OF[key] || null, signals });
-  }
-  detail.sort((a, b) => b.confidence - a.confidence || a.key.localeCompare(b.key));
-  const tags = detail.filter((d) => d.confidence >= TAG_FLOOR).map((d) => d.key);
-  const cats = new Set(detail.filter((d) => tags.includes(d.key)).map((d) => d.category).filter(Boolean));
+  const tags = [...found.keys()].sort();
+  const detail: TagDetail[] = tags.map((key) => ({ key, category: CATEGORY_OF[key] || null, signals: [...found.get(key)!] }));
+  const cats = new Set(detail.map((d) => d.category).filter(Boolean));
   return {
     ...base, tags, detail, multiTopic: cats.size >= MULTI_TOPIC_CATEGORIES,
-    ...(tags.length ? {} : { untagged: detail.length ? "below-floor" : (title || summary ? "no-signal" : "no-text") }),
+    ...(tags.length ? {} : { untagged: title || summary || (m.subjects || []).length ? "no-signal" : "no-text" }),
   };
 }
 
@@ -781,8 +743,7 @@ export async function runVoteActions(deps: RunDeps): Promise<{ report: RunReport
       let bill = await deps.repo.getBill(rec.measure.billKey);
       if (!bill) {
         const meta = await fetchBillMeta(deps.fetch, deps.apiKey, rec.congress, rec.measure);
-        const curatedKeys = await deps.repo.curatedKeysFor({ congress: rec.congress, number: rec.measure.number, measureType: rec.measure.measureType }).catch(() => []);
-        const tags = tagMeasure({ measureType: rec.measure.measureType, title: meta.title, shortTitle: meta.shortTitle, summary: meta.summary, policyArea: meta.policyArea, subjects: meta.subjects, curatedKeys });
+        const tags = tagMeasure({ measureType: rec.measure.measureType, title: meta.title, shortTitle: meta.shortTitle, summary: meta.summary, policyArea: meta.policyArea, subjects: meta.subjects });
         if (!rec.measure.parentBillKey && isRuleResolution(rec.measure.billType, meta.title)) rec.measure.parentBillKey = ruleTarget(rec.congress, meta.title);
         bill = buildBillRow(rec.congress, rec.measure, meta, tags, null, now);
         await deps.repo.upsertBill(bill);
@@ -809,8 +770,7 @@ export async function runVoteActions(deps: RunDeps): Promise<{ report: RunReport
         if (!m) continue;
         m.parentBillKey = b.parentBillKey;
         const meta = await fetchBillMeta(deps.fetch, deps.apiKey, b.congress, m);
-        const curatedKeys = await deps.repo.curatedKeysFor({ congress: b.congress, number: b.number, measureType: b.measureType }).catch(() => []);
-        const tags = tagMeasure({ measureType: b.measureType, title: meta.title, shortTitle: meta.shortTitle, summary: meta.summary, policyArea: meta.policyArea, subjects: meta.subjects, curatedKeys });
+        const tags = tagMeasure({ measureType: b.measureType, title: meta.title, shortTitle: meta.shortTitle, summary: meta.summary, policyArea: meta.policyArea, subjects: meta.subjects });
         const row = buildBillRow(b.congress, m, meta.metaSource === "congress_gov" ? meta : { ...meta, title: b.title, summary: b.summary }, tags, b, now);
         await deps.repo.upsertBill(row);
         if (row.topicTags.join() !== b.topicTags.join() || row.taggerVersion !== b.taggerVersion) await deps.repo.retagVotes(row.billKey, row.topicTags, row.taggerVersion);
@@ -821,8 +781,7 @@ export async function runVoteActions(deps: RunDeps): Promise<{ report: RunReport
     // 4. Tagger version bump: re-tag stored bills from their stored text (no fetch).
     if (!overBudget()) {
       for (const b of await deps.repo.billsWithStaleTags(TAGGER_VERSION, RETAG_PER_RUN)) {
-        const curatedKeys = await deps.repo.curatedKeysFor({ congress: b.congress, number: b.number, measureType: b.measureType }).catch(() => []);
-        const tags = tagMeasure({ measureType: b.measureType, title: b.title, shortTitle: b.shortTitle, summary: b.summary, policyArea: b.policyArea, subjects: b.officialSubjects, curatedKeys });
+        const tags = tagMeasure({ measureType: b.measureType, title: b.title, shortTitle: b.shortTitle, summary: b.summary, policyArea: b.policyArea, subjects: b.officialSubjects });
         await deps.repo.upsertBill({ ...b, topicTags: tags.tags, tagDetail: tags.detail, multiTopic: tags.multiTopic, taggerVersion: tags.version });
         await deps.repo.retagVotes(b.billKey, tags.tags, tags.version);
         report.retagged++;

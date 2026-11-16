@@ -8,7 +8,8 @@
 //   1. vote words map to yes / no / present / not_voting, anything else is refused
 //   2. procedural vs substantive classification, nominations, amendments
 //   3. the tagger: multi-topic bills keep several tags, every tag is a register
-//      key, curated mappings win, nominations stay untagged
+//      key, presence-only (no scores / threshold / cap), text signals only,
+//      nominations stay untagged
 //   4. a run writes one bill row per measure and one vote row per member, maps
 //      roster members, keeps off-roster members with politician_id NULL
 //   5. delayed data: empty member lists are retried then parked; mixed
@@ -79,29 +80,28 @@ ok(multi.tags.length >= 2, `multi-topic bill keeps several tags (got ${multi.tag
 ok(multi.tags.includes("border_security"), "border_security tagged");
 ok(multi.tags.some((t) => /drug|health/.test(t)), "a health/drug key tagged");
 ok(multi.tags.every((t) => reg.has(t)), "every tag is a register key");
-ok(multi.detail.every((d) => typeof d.confidence === "number" && d.signals.length), "every candidate carries confidence + signals");
-ok(!("MAX_TAGS" in C), "no tag-count cap is exported");
-eq(multi.tags, multi.detail.filter((d) => d.confidence >= C.TAG_FLOOR).map((d) => d.key), "every key at or above the floor is a tag");
-// A large multi-topic package keeps every key above the floor, more than six.
-const bigCurated = ["strong_defense", "veterans", "border_security", "healthcare", "housing", "infrastructure", "rural_ag", "climate_action", "public_schools"];
+ok(multi.detail.every((d) => d.signals.length && !("confidence" in d) && !("weight" in d) && !("rank" in d)), "every tag carries its signals and no score");
+eq(multi.tags, multi.detail.map((d) => d.key), "every matched key is a tag (no threshold)");
+eq(multi.tags, [...multi.tags].sort(), "tags are unranked (alphabetical)");
+ok(!("MAX_TAGS" in C) && !("TAG_FLOOR" in C) && !("SIGNAL" in C), "no cap, threshold or weights exported");
+// A single weak signal is enough: one subject term, no title/summary match.
+const one = C.tagMeasure({ measureType: "bill", title: "To amend title 5", subjects: ["Veterans' education, employment, rehabilitation"] });
+ok(one.tags.includes("veterans"), `one subject term alone tags a key (got ${one.tags.join(",")})`);
+// A large multi-topic package carries every key its text matches — any number.
 const big = C.tagMeasure({
   measureType: "bill",
   title: "Consolidated Appropriations Act",
-  summary: "Funds defense, veterans health care, border security, housing assistance, highways and transit, agriculture, clean energy, and public schools.",
-  policyArea: "Economics and Public Finance",
-  curatedKeys: bigCurated,
+  summary: "Funds the military and national defense, veterans health care, border security and the border wall, affordable housing and rent assistance, highways, bridges and public transit, farmers and rural communities, clean energy and climate resilience, public schools and teachers, Social Security and Medicare administration, and law enforcement grants for police.",
+  subjects: ["Veterans' medical care", "Border security and unlawful immigration", "Housing finance and home ownership", "Agricultural practices and innovations", "Elementary and secondary education", "Law enforcement officers"],
 });
-ok(big.tags.length > 6, `a large bill holds more than six tags (got ${big.tags.length})`);
-ok(bigCurated.every((k) => big.tags.includes(k)), "every curated key on the large bill is kept");
-eq(big.tags, big.detail.filter((d) => d.confidence >= C.TAG_FLOOR).map((d) => d.key), "large bill: tags = every candidate above the floor");
-ok(big.multiTopic, "large bill still flagged multi-topic");
+ok(big.tags.length > 6, `a large bill carries more than six tags (got ${big.tags.length}: ${big.tags.join(",")})`);
+eq(big.tags, big.detail.map((d) => d.key), "large bill: every matched key stored");
+ok(big.multiTopic, "large bill flagged multi-topic");
 ok(big.tags.every((t) => reg.has(t)), "large bill: every tag is a register key");
-const nom = C.tagMeasure({ measureType: "nomination", title: "Jane Doe, of Ohio, to be Secretary of Energy" });
-eq([nom.tags, nom.untagged], [[], "nomination"], "nominations stay untagged");
-const cur = C.tagMeasure({ measureType: "bill", title: "To designate a post office", curatedKeys: ["gov_transparency", "not_a_key"] });
-eq(cur.tags, ["gov_transparency"], "curated key wins; unknown key dropped");
-const none = C.tagMeasure({ measureType: "bill", title: "To designate the facility of the United States Postal Service at 1 Main Street as the Jane Doe Post Office" });
-eq(none.tags, [], "a naming bill gets no tag");
+// Only the bill's own text: curated keys and policy area are not signals.
+const nocur = C.tagMeasure({ measureType: "bill", title: "To designate a post office", curatedKeys: ["gov_transparency"], policyArea: "Immigration" });
+eq(nocur.tags, [], "curated keys / policy area do not create tags");
+ok(big.detail.every((d) => d.signals.every((s) => /^(pattern|keyword|vocab|subject):/.test(s))), "signals are text-derived only");
 ok(!("direction" in multi) && multi.detail.every((d) => !("supportMeaning" in d)), "no direction is assigned");
 ok(C.TAG_KEYS.size === reg.size, "tag allow-list = related-issues map ∩ register");
 
@@ -172,7 +172,6 @@ function memRepo() {
       return { inserted, revised };
     },
     async retagVotes(k, tags, v) { let n = 0; for (const r of votes.values()) if (r.billKey === k) { r.topicTags = tags; r.taggerVersion = v; n++; } return n; },
-    async curatedKeysFor() { return []; },
     async billsNeedingMeta() { return []; },
     async billsWithStaleTags(v) { return [...bills.values()].filter((b) => b.taggerVersion !== v); },
   };
@@ -240,7 +239,7 @@ section("isolation");
 const core = read("netlify/lib/vote-actions-core.ts");
 ok(!/from ["'][^"']*db\/(index|schema)/.test(core) && !/@netlify\/blobs/.test(core), "core touches no database or Blobs itself");
 const dbRepo = read("netlify/lib/vote-actions-db.ts");
-ok(!/\.insert\(vr|\.update\(vr|\.delete\(vr/.test(dbRepo), "repo never writes a vr_* table");
+ok(!/\bvr[A-Z]\w*|vr_/.test(dbRepo.replace(/^\/\/.*$/gm, "")), "repo neither reads nor writes a vr_* table");
 const cron = read("netlify/functions/vote-actions-cron.mts");
 const importsOf = (src) => [...src.matchAll(/^import[^;]*from\s+["']([^"']+)["']/gm)].map((m) => m[1]);
 ok(!importsOf(cron).some((p) => /raw-ingest|stance-score|evidence-locker|stated-positions/.test(p)), "cron imports nothing from the stance generator");

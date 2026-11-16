@@ -1,10 +1,8 @@
 // Drizzle-backed repository for the action layer (vote-actions-core.ts).
-// Writes ONLY pdx_action_bills and pdx_vote_actions. The vr_* tables are read
-// (curated / reviewed issue mappings for the same measure) and never written.
-import { and, eq, inArray, lt, ne, notInArray, sql } from "drizzle-orm";
+// Writes ONLY pdx_action_bills and pdx_vote_actions; no other table is read or written.
+import { and, eq, inArray, lt, ne, sql } from "drizzle-orm";
 import { db } from "../../db/index.js";
-import { pdxActionBills, pdxVoteActions, vrMeasures, vrMeasureIssues } from "../../db/schema.js";
-import { NON_VERDICT_STATUSES } from "./vr-review-status.js";
+import { pdxActionBills, pdxVoteActions } from "../../db/schema.js";
 import type { BillRow, VoteActionsRepo, VoteRow } from "./vote-actions-core.js";
 
 const toBill = (r: any): BillRow => ({
@@ -85,21 +83,6 @@ export const voteActionsRepo: VoteActionsRepo = {
       .where(eq(pdxVoteActions.billKey, billKey))
       .returning({ id: pdxVoteActions.id });
     return res.length;
-  },
-
-  async curatedKeysFor({ congress, number, measureType }) {
-    if (!number) return [];
-    const rows = await db
-      .selectDistinct({ key: vrMeasureIssues.issueKey })
-      .from(vrMeasureIssues)
-      .innerJoin(vrMeasures, eq(vrMeasures.id, vrMeasureIssues.measureId))
-      .where(and(
-        eq(vrMeasures.congress, congress),
-        eq(vrMeasures.number, number),
-        eq(vrMeasures.measureType, measureType),
-        notInArray(vrMeasureIssues.reviewStatus, NON_VERDICT_STATUSES),
-      ));
-    return rows.map((r) => r.key);
   },
 
   async billsNeedingMeta({ olderThan, maxAttempts, limit }) {
