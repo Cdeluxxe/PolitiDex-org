@@ -44,6 +44,7 @@ import { BILL_KEY_PATTERNS, MAPPED_KEYS } from "./bill-key-patterns.mjs";
 import { ISSUE_KEYS, suggestIssue, mapActionType, canonicalMeasureNumber } from "./vr-normalize.js";
 import { ISSUE_TOPIC_VOCAB, DIRECTIONAL_TOPIC_VOCAB, buildTopicRules, buildDirectionalTopicRules } from "./stance-topic-vocab.mjs";
 import { RELATED_ISSUE_KEYS } from "./related-issue-keys.mjs";
+import { runQuality, pctText } from "./vote-actions-quality.js";
 import coreCategories from "../../db/issue-core-categories.json" with { type: "json" };
 
 // ── Knobs ────────────────────────────────────────────────────────────────────
@@ -948,6 +949,9 @@ export type RunReport = {
   congress: number; candidates: { house: number; senate: number }; processed: number;
   done: number; incomplete: number; parked: number; unsupported: number; noMeasure: number;
   billsTagged: number; billsUntagged: number; votesInserted: number; votesRevised: number; membersUnmapped: number;
+  // Report-only (summary-line rates): rows built this run, and of them how many
+  // had a known kind and how many of those were procedural.
+  votesWritten: number; votesKindKnown: number; votesProcedural: number;
   metaRefreshed: number; retagged: number; rateLimited: boolean; budgetHit: boolean; errors: string[];
   tagCounts: Record<string, number>; houseConfigured: boolean;
 };
@@ -1018,7 +1022,7 @@ export async function runVoteActions(deps: RunDeps): Promise<{ report: RunReport
   const chambers = deps.chambers || ["house", "senate"];
   const report: RunReport = {
     congress, candidates: { house: 0, senate: 0 }, processed: 0, done: 0, incomplete: 0, parked: 0, unsupported: 0, noMeasure: 0,
-    billsTagged: 0, billsUntagged: 0, votesInserted: 0, votesRevised: 0, membersUnmapped: 0, metaRefreshed: 0, retagged: 0,
+    billsTagged: 0, billsUntagged: 0, votesInserted: 0, votesRevised: 0, membersUnmapped: 0, votesWritten: 0, votesKindKnown: 0, votesProcedural: 0, metaRefreshed: 0, retagged: 0,
     rateLimited: false, budgetHit: false, errors: [], tagCounts: {}, houseConfigured: !!deps.apiKey,
   };
   const ledgerSet = (key: string, status: string, date: string, note?: string) => {
@@ -1115,6 +1119,8 @@ export async function runVoteActions(deps: RunDeps): Promise<{ report: RunReport
         report.votesInserted += w.inserted;
         report.votesRevised += w.revised;
         report.membersUnmapped += unmapped;
+        report.votesWritten += rows.length;
+        if (rec.isProcedural !== null) { report.votesKindKnown += rows.length; if (rec.isProcedural) report.votesProcedural += rows.length; }
         for (const t of bill.topicTags) report.tagCounts[t] = (report.tagCounts[t] || 0) + 1;
         ledgerSet(key, "done", c.date);
         report.done++;
@@ -1178,6 +1184,7 @@ export async function runVoteActions(deps: RunDeps): Promise<{ report: RunReport
 }
 
 export function summaryLine(r: RunReport): string {
+  const q = runQuality(r);
   const top = Object.entries(r.tagCounts).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([k, n]) => `${k}:${n}`).join(" ");
-  return `vote-actions: run — congress ${r.congress} · candidates house ${r.candidates.house} senate ${r.candidates.senate} · processed ${r.processed} (done ${r.done}, retry ${r.incomplete}, parked ${r.parked}, unsupported ${r.unsupported}, no measure ${r.noMeasure}) · bills tagged ${r.billsTagged} untagged ${r.billsUntagged} · votes new ${r.votesInserted} revised ${r.votesRevised} · off-roster members ${r.membersUnmapped} · late summaries ${r.metaRefreshed} · retagged ${r.retagged}${r.rateLimited ? " · RATE LIMITED" : ""}${r.budgetHit ? " · budget reached" : ""}${r.houseConfigured ? "" : " · house skipped (no key)"}${top ? ` · tags ${top}` : ""}${r.errors.length ? ` · errors ${r.errors.length}` : ""}`;
+  return `vote-actions: run — congress ${r.congress} · candidates house ${r.candidates.house} senate ${r.candidates.senate} · processed ${r.processed} (done ${r.done}, retry ${r.incomplete}, parked ${r.parked}, unsupported ${r.unsupported}, no measure ${r.noMeasure}) · bills tagged ${r.billsTagged} untagged ${r.billsUntagged} · votes new ${r.votesInserted} revised ${r.votesRevised} · off-roster members ${r.membersUnmapped} · late summaries ${r.metaRefreshed} · retagged ${r.retagged} · rates no-politician ${pctText(q.noPolitician)} untagged-bills ${pctText(q.untaggedBills)} procedural ${pctText(q.procedural)} done ${pctText(q.done)}${r.rateLimited ? " · RATE LIMITED" : ""}${r.budgetHit ? " · budget reached" : ""}${r.houseConfigured ? "" : " · house skipped (no key)"}${top ? ` · tags ${top}` : ""}${r.errors.length ? ` · errors ${r.errors.length}` : ""}`;
 }

@@ -4,6 +4,7 @@ import { and, eq, inArray, lt, ne, sql } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import { pdxActionBills, pdxVoteActions } from "../../db/schema.js";
 import type { BillRow, VoteActionsRepo, VoteRow } from "./vote-actions-core.js";
+import { META_MAX_ATTEMPTS } from "./vote-actions-core.js";
 
 const toBill = (r: any): BillRow => ({
   billKey: r.billKey, congress: r.congress, measureType: r.measureType, billType: r.billType, number: r.number,
@@ -110,7 +111,11 @@ export async function voteActionsStatus() {
     SELECT count(*)::int AS bills,
            count(*) FILTER (WHERE cardinality(topic_tags) > 0)::int AS tagged,
            count(*) FILTER (WHERE multi_topic)::int AS multi_topic,
-           count(*) FILTER (WHERE NOT has_summary AND measure_type IN ('bill','resolution'))::int AS awaiting_summary
+           count(*) FILTER (WHERE NOT has_summary AND measure_type IN ('bill','resolution'))::int AS awaiting_summary,
+           count(*) FILTER (WHERE measure_type <> 'nomination')::int AS taggable,
+           count(*) FILTER (WHERE measure_type <> 'nomination' AND cardinality(topic_tags) = 0)::int AS taggable_untagged,
+           count(*) FILTER (WHERE measure_type IN ('bill','resolution'))::int AS summarisable,
+           count(*) FILTER (WHERE NOT has_summary AND measure_type IN ('bill','resolution') AND meta_attempts >= ${META_MAX_ATTEMPTS})::int AS summary_gave_up
       FROM pdx_action_bills`));
   const [votes]: any = rowsOf(await db.execute(sql`
     SELECT count(*)::int AS votes,
@@ -118,11 +123,33 @@ export async function voteActionsStatus() {
            count(DISTINCT politician_id)::int AS politicians,
            count(DISTINCT (chamber, congress, session, roll_number))::int AS roll_calls,
            count(*) FILTER (WHERE revised_at IS NOT NULL)::int AS revised,
-           max(vote_date) AS newest_vote
+           max(vote_date) AS newest_vote,
+           count(*) FILTER (WHERE member_id_scheme = 'bioguide')::int AS bioguide_rows,
+           count(*) FILTER (WHERE member_id_scheme = 'bioguide' AND politician_id IS NULL)::int AS bioguide_unmapped,
+           count(*) FILTER (WHERE member_id_scheme = 'lis')::int AS lis_rows,
+           count(*) FILTER (WHERE member_id_scheme = 'lis' AND politician_id IS NULL)::int AS lis_unmapped,
+           count(*) FILTER (WHERE member_id_scheme = 'lis' AND bioguide_id IS NULL)::int AS lis_unresolved,
+           count(*) FILTER (WHERE is_procedural IS TRUE)::int AS procedural,
+           count(*) FILTER (WHERE is_procedural IS FALSE)::int AS substantive,
+           count(*) FILTER (WHERE is_procedural IS NULL)::int AS procedural_unknown
       FROM pdx_vote_actions`));
   const tags: any = rowsOf(await db.execute(sql`
     SELECT t AS issue_key, count(*)::int AS bills
       FROM pdx_action_bills, unnest(topic_tags) AS t
      GROUP BY t ORDER BY 2 DESC LIMIT 40`));
-  return { bills, votes, tags };
+  // Curator to-do: members with vote rows but no politician, most rows first.
+  // "lis id not resolved" = a senator whose LIS id the congress-legislators index
+  // did not map (an identity gap); "bioguide not on roster" = the member-map has
+  // no roster slug for that bioguide id (a roster gap, often expected).
+  const unmappedMembers: any = rowsOf(await db.execute(sql`
+    SELECT member_id_scheme AS scheme, member_id, bioguide_id,
+           max(member_name) AS name, max(party) AS party, max(state) AS state, max(chamber) AS chamber,
+           CASE WHEN bioguide_id IS NULL THEN 'lis id not resolved' ELSE 'bioguide not on roster' END AS reason,
+           count(*)::int AS rows, max(vote_date) AS last_vote
+      FROM pdx_vote_actions
+     WHERE politician_id IS NULL
+     GROUP BY member_id_scheme, member_id, bioguide_id
+     ORDER BY (bioguide_id IS NULL) DESC, count(*) DESC, member_id
+     LIMIT 25`));
+  return { bills, votes, tags, unmappedMembers };
 }
