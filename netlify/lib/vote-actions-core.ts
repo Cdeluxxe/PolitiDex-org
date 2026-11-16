@@ -1,0 +1,847 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// Action layer v1 — bill topic sorter + raw vote mapping generator
+// ─────────────────────────────────────────────────────────────────────────────
+// Runs PARALLEL to the stance generator (raw-ingest-cron), never inside it. The
+// stance generator reads what politicians SAY; this reads what they DID: recent
+// federal roll calls, each voted-on measure tagged with the issue keys it touches,
+// and one raw record per member per roll call. A later pass can compare the two.
+//
+// WHAT IT WRITES (pdx_action_bills, pdx_vote_actions — see db/schema.ts):
+//   • one bill row per voted-on measure: raw title / summary / official subjects
+//     and the topic tags read from them (with confidence + the signals behind
+//     each tag, so a weak tag is visible as weak)
+//   • one vote row per member per roll call: politician, bill, vote
+//     (yes / no / present / not_voting), date, source, question, vote kind and
+//     the bill's topic tags
+// WHAT IT NEVER DOES: score, pick a support/oppose direction, flag a
+// contradiction, or write any table / store a public read uses (vr_*, packs,
+// pdx_stated_positions, curated stance files). It READS the curated
+// vr_measure_issues mappings as the strongest tag signal, and only reads them.
+//
+// SOURCES (federal only in v1):
+//   House  — Congress.gov API house-vote list + /members (bioguide ids). Needs
+//            CONGRESS_GOV_API_KEY; without it the House side is a logged no-op.
+//   Senate — senate.gov LIS XML (vote menu + per-vote document). No key. LIS ids
+//            resolve to bioguide through the public congress-legislators dataset;
+//            an id that does not resolve keeps its LIS id and no politician.
+//   Bill text — Congress.gov bill / subjects / summaries / amendment endpoints
+//            when the key is set; otherwise the vote document's own title.
+//
+// INCOMPLETE / DELAYED DATA:
+//   • a roll call whose member list is missing or empty is NOT marked done — it
+//     is retried on later runs (MAX_ATTEMPTS), then parked as "incomplete"
+//   • a roll call with a vote word outside yes/no/present/not voting (Speaker
+//     elections, impeachment "Guilty") is parked "unsupported" — nothing is
+//     flattened into the four values
+//   • a bill read without a CRS summary (summaries lag passage by weeks) is
+//     refetched later (META_REFRESH_*) and re-tagged; its vote rows' tags follow
+//   • a re-read that shows a different vote updates the row and stamps revised_at
+//
+// Pure logic over injected deps (fetch, repo, state store, clock) so
+// scripts/test-vote-actions.mjs runs it with no network and no database.
+
+import { proposeIssueKeys } from "./vr-issue-proposals.js";
+import { ISSUE_KEYS, suggestIssue, mapActionType, canonicalMeasureNumber } from "./vr-normalize.js";
+import { ISSUE_TOPIC_VOCAB, DIRECTIONAL_TOPIC_VOCAB, buildTopicRules, buildDirectionalTopicRules } from "./stance-topic-vocab.mjs";
+import { RELATED_ISSUE_KEYS } from "./related-issue-keys.mjs";
+import coreCategories from "../../db/issue-core-categories.json" with { type: "json" };
+
+// ── Knobs ────────────────────────────────────────────────────────────────────
+export const TAGGER_VERSION = "va-tagger-v1";
+export const STATE_STORE_NAME = "vote-actions-state";
+export const STATE_KEY = "state.json";
+export const RUN_BUDGET_MS = 22_000;          // scheduled functions stop at ~30 s
+export const FETCH_TIMEOUT_MS = 8_000;
+export const MAX_ROLLS_PER_RUN = 12;          // detail fetches per run (both chambers)
+export const LOOKBACK_DAYS = 120;             // "recent": roll calls newer than this
+export const MAX_ATTEMPTS = 6;                // empty / failed detail fetches before "incomplete"
+export const META_REFRESH_PER_RUN = 3;        // bills refetched for a late summary per run
+export const META_REFRESH_AFTER_DAYS = 3;
+export const META_MAX_ATTEMPTS = 6;
+export const RETAG_PER_RUN = 200;             // local re-tags after a tagger version bump
+export const LIS_INDEX_MAX_AGE_DAYS = 7;
+export const TAG_FLOOR = 45;                  // a key at or above this becomes a topic tag
+export const MAX_TAGS = 6;
+export const MULTI_TOPIC_CATEGORIES = 3;
+
+const CONGRESS_API = "https://api.congress.gov/v3";
+const SENATE_LIS = "https://www.senate.gov/legislative/LIS";
+export const LEGISLATORS_URL = "https://unitedstates.github.io/congress-legislators/legislators-current.json";
+const UA = "PolitiDex vote-actions/1 (+https://politidex.fyi)";
+
+// The tag allow-list: the issue-key register the related-issues map relates.
+// Both lists are generated from the same register and must agree.
+export const TAG_KEYS = new Set<string>((RELATED_ISSUE_KEYS as string[]).filter((k) => ISSUE_KEYS.has(k)));
+const CATEGORY_OF: Record<string, string> = (coreCategories as any).categoryOf || {};
+
+// ── Types ────────────────────────────────────────────────────────────────────
+export type Vote = "yes" | "no" | "present" | "not_voting";
+export type MemberCast = {
+  scheme: "bioguide" | "lis";
+  id: string;
+  name?: string | null;
+  party?: string | null;
+  state?: string | null;
+  vote: Vote;
+  voteRaw: string;
+};
+export type MeasureRef = {
+  billKey: string;
+  billType: string;         // hr, s, hamdt, pn …
+  num: string;
+  number: string | null;    // canonical citation
+  measureType: "bill" | "resolution" | "amendment" | "nomination";
+  parentBillKey: string | null;
+  parentBillType?: string | null;
+  parentNum?: string | null;
+  feedTitle?: string | null; // whatever title / purpose the vote document carries
+};
+export type RollRecord = {
+  jurisdiction: "us";
+  chamber: "house" | "senate";
+  congress: number;
+  session: number;
+  roll: number;
+  voteDate: string;          // ISO
+  question: string | null;
+  voteKind: string;
+  isProcedural: boolean | null;
+  result: string | null;
+  sourceUrl: string;
+  sourceLabel: string;
+  measure: MeasureRef | null;
+  members: MemberCast[];
+  unsupported: string[];     // vote words outside the four values
+};
+export type BillMeta = {
+  title: string;
+  shortTitle?: string | null;
+  summary?: string | null;
+  policyArea?: string | null;
+  subjects?: string[];
+  sourceUrl: string;
+  metaSource: "congress_gov" | "senate_xml" | "vote_feed";
+  parentBillKey?: string | null;
+};
+export type TagDetail = { key: string; confidence: number; category: string | null; signals: string[] };
+export type TagResult = { tags: string[]; detail: TagDetail[]; multiTopic: boolean; version: string; untagged?: string };
+export type BillRow = {
+  billKey: string; congress: number; measureType: string; billType: string; number: string | null;
+  parentBillKey: string | null; title: string; shortTitle: string | null; summary: string; policyArea: string | null;
+  officialSubjects: string[]; topicTags: string[]; tagDetail: TagDetail[]; multiTopic: boolean; taggerVersion: string;
+  metaSource: string; hasSummary: boolean; metaAttempts: number; metaFetchedAt: string | null; sourceUrl: string;
+};
+export type VoteRow = {
+  jurisdiction: string; chamber: string; congress: number; session: number; rollNumber: number; voteDate: string;
+  billKey: string; parentBillKey: string | null; measureNumber: string | null; politicianId: string | null;
+  memberIdScheme: string; memberId: string; bioguideId: string | null; memberName: string | null;
+  party: string | null; state: string | null; vote: Vote; voteRaw: string; question: string | null;
+  voteKind: string; isProcedural: boolean | null; result: string | null; topicTags: string[];
+  taggerVersion: string; sourceUrl: string; sourceLabel: string;
+};
+export interface VoteActionsRepo {
+  getBill(billKey: string): Promise<BillRow | null>;
+  upsertBill(row: BillRow): Promise<void>;
+  // Upsert by the unique roll/member key; returns how many rows were new and how
+  // many changed vote on re-read (revised).
+  upsertVotes(rows: VoteRow[]): Promise<{ inserted: number; revised: number }>;
+  // Copy a bill's (re-)computed tags onto its vote rows.
+  retagVotes(billKey: string, tags: string[], version: string): Promise<number>;
+  // Curated / reviewed vr_measure_issues keys for the same measure (read-only).
+  curatedKeysFor(m: { congress: number; number: string | null; measureType: string }): Promise<string[]>;
+  billsNeedingMeta(opts: { olderThan: string; maxAttempts: number; limit: number }): Promise<BillRow[]>;
+  billsWithStaleTags(version: string, limit: number): Promise<BillRow[]>;
+}
+
+// ── Small helpers ────────────────────────────────────────────────────────────
+const str = (v: unknown) => String(v ?? "").trim();
+const pad3 = (n: number) => String(n).padStart(3, "0");
+const pad5 = (n: number) => String(n).padStart(5, "0");
+const DAY = 86_400_000;
+
+export function congressForDate(d: Date): number {
+  // A Congress starts on Jan 3 of an odd year; the first two days belong to the outgoing one.
+  const y = d.getUTCFullYear();
+  const early = d.getUTCMonth() === 0 && d.getUTCDate() < 3;
+  const yy = early ? y - 1 : y;
+  return Math.floor((yy - 1789) / 2) + 1;
+}
+export function sessionForDate(d: Date): number {
+  const c = congressForDate(d);
+  const start = 1789 + 2 * (c - 1);
+  const early = d.getUTCMonth() === 0 && d.getUTCDate() < 3;
+  return (early ? d.getUTCFullYear() - 1 : d.getUTCFullYear()) - start + 1;
+}
+export const sessionYear = (congress: number, session: number) => 1789 + 2 * (congress - 1) + (session - 1);
+
+export function normalizeVoteCast(raw: unknown): Vote | null {
+  const s = str(raw).toLowerCase();
+  if (s === "yea" || s === "aye" || s === "yes") return "yes";
+  if (s === "nay" || s === "no") return "no";
+  if (s === "present") return "present";
+  if (s === "not voting" || s === "not_voting" || s === "notvoting") return "not_voting";
+  return null; // "Guilty", a Speaker candidate's name, "Present, Giving Live Pair" …
+}
+
+const PROCEDURAL_KINDS = new Set(["procedural", "motion", "cloture"]);
+export function classifyVote(question: string | null, measureType?: string | null): { voteKind: string; isProcedural: boolean | null } {
+  let kind = mapActionType(question || "");
+  if (measureType === "nomination" && kind === "passage") kind = "nomination";
+  if (kind === "unknown") return { voteKind: kind, isProcedural: null };
+  return { voteKind: kind, isProcedural: PROCEDURAL_KINDS.has(kind) };
+}
+
+const TYPE_MEASURE: Record<string, MeasureRef["measureType"]> = {
+  hr: "bill", s: "bill", hres: "resolution", sres: "resolution", hjres: "resolution", sjres: "resolution",
+  hconres: "resolution", sconres: "resolution", hamdt: "amendment", samdt: "amendment", suamdt: "amendment", pn: "nomination",
+};
+// "H.R." → hr, "S.J.Res." → sjres, "S.Amdt." → samdt, "PN" → pn
+export const typeCode = (t: unknown) => str(t).toLowerCase().replace(/[^a-z]/g, "");
+
+export function measureRef(congress: number, type: unknown, num: unknown, parent?: { type?: unknown; num?: unknown } | null, feedTitle?: string | null): MeasureRef | null {
+  const code = typeCode(type);
+  const n = str(num).replace(/^0+(?=\d)/, "");
+  if (!code || !n || !TYPE_MEASURE[code]) return null;
+  // Nomination numbers carry a part suffix ("PN12-3"); keep it in the key.
+  const safeNum = n.replace(/[^0-9a-z-]/gi, "").toLowerCase();
+  if (!safeNum) return null;
+  const pCode = parent ? typeCode(parent.type) : "";
+  const pNum = parent ? str(parent.num).replace(/[^0-9]/g, "") : "";
+  const parentBillKey = pCode && pNum && TYPE_MEASURE[pCode] ? `us-${congress}-${pCode}-${pNum}` : null;
+  return {
+    billKey: `us-${congress}-${code}-${safeNum}`,
+    billType: code,
+    num: safeNum,
+    number: code === "pn" ? `PN ${n}` : canonicalMeasureNumber(`${code}${safeNum}`),
+    measureType: TYPE_MEASURE[code],
+    parentBillKey,
+    parentBillType: parentBillKey ? pCode : null,
+    parentNum: parentBillKey ? pNum : null,
+    feedTitle: feedTitle ? str(feedTitle) : null,
+  };
+}
+
+// "S. 5" / "H.R. 1" / "S.Amdt. 13" → { type, num }
+export function splitCitation(s: unknown): { type: string; num: string } | null {
+  const m = str(s).match(/^([A-Za-z.\s]+?)\s*([0-9][0-9-]*)$/);
+  return m ? { type: m[1], num: m[2] } : null;
+}
+
+// House "rules" (H.Res. "Providing for consideration of the bill (H.R. 2102) …")
+// set floor terms for other bills. Adopting one is a procedural vote, and the
+// measure it really concerns is the first bill it names.
+export const RULE_TITLE = /^\s*providing for (?:the )?consideration of\b/i;
+export function isRuleResolution(billType: string, title: string | null | undefined): boolean {
+  return billType === "hres" && RULE_TITLE.test(str(title));
+}
+export function ruleTarget(congress: number, title: string | null | undefined): string | null {
+  const m = str(title).match(/\((H\.\s?R\.|S\.|H\.\s?J\.\s?Res\.|S\.\s?J\.\s?Res\.|H\.\s?Res\.|H\.\s?Con\.\s?Res\.|S\.\s?Con\.\s?Res\.)\s*(\d+)\)/i);
+  return m ? measureRef(congress, m[1], m[2])?.billKey || null : null;
+}
+
+// ── House (Congress.gov) parsing ─────────────────────────────────────────────
+export function houseVoteListRows(data: any): any[] {
+  return data?.houseRollCallVotes || data?.votes || [];
+}
+export function parseHouseVote(row: any, container: any, congress: number): RollRecord | null {
+  const session = Number(row?.sessionNumber ?? row?.session ?? container?.sessionNumber);
+  const roll = Number(row?.rollCallNumber ?? row?.rollNumber ?? container?.rollCallNumber);
+  const date = row?.startDate || container?.startDate || row?.date;
+  if (!Number.isFinite(session) || !Number.isFinite(roll) || !date) return null;
+  const voteDate = new Date(date);
+  if (Number.isNaN(voteDate.getTime())) return null;
+  const c = { ...(row || {}), ...(container || {}) };
+  const amdt = c.amendmentNumber != null && str(c.amendmentNumber) !== "";
+  const measure = amdt
+    ? measureRef(congress, c.amendmentType, c.amendmentNumber, { type: c.legislationType, num: c.legislationNumber }, c.amendmentPurpose || null)
+    : measureRef(congress, c.legislationType, c.legislationNumber, null, c.legislationTitle || null);
+  const question = str(c.voteQuestion ?? c.question) || null;
+  const members: MemberCast[] = [];
+  const unsupported: string[] = [];
+  for (const m of (Array.isArray(container?.results) ? container.results : [])) {
+    const id = str(m.bioguideID || m.bioguideId);
+    const rawCast = str(m.voteCast ?? m.votePosition);
+    const vote = normalizeVoteCast(rawCast);
+    if (!vote) { unsupported.push(rawCast || "(blank)"); continue; }
+    if (!id) continue;
+    members.push({
+      scheme: "bioguide", id, vote, voteRaw: rawCast,
+      name: [m.firstName, m.lastName].filter(Boolean).join(" ") || m.name || null,
+      party: m.voteParty || m.party || null, state: m.voteState || m.state || null,
+    });
+  }
+  const year = voteDate.getUTCFullYear();
+  const sourceUrl = str(container?.sourceDataURL) || `https://clerk.house.gov/evs/${sessionYear(congress, session) || year}/roll${pad3(roll)}.xml`;
+  return {
+    jurisdiction: "us", chamber: "house", congress, session, roll, voteDate: voteDate.toISOString(),
+    question, ...classifyVote(question, measure?.measureType), result: str(c.result) || null,
+    sourceUrl, sourceLabel: "Office of the Clerk, U.S. House of Representatives",
+    measure, members, unsupported,
+  };
+}
+
+// ── Senate (senate.gov LIS XML) parsing ──────────────────────────────────────
+const decodeXml = (s: string) => s
+  .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
+  .replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&#(\d+);/g, (_m, d) => String.fromCharCode(Number(d))).replace(/&amp;/g, "&");
+export function xmlTag(xml: string, name: string): string {
+  const m = String(xml || "").match(new RegExp(`<${name}>([\\s\\S]*?)</${name}>`));
+  return m ? decodeXml(m[1]).trim() : "";
+}
+const xmlBlocks = (xml: string, name: string) => String(xml || "").match(new RegExp(`<${name}>[\\s\\S]*?</${name}>`, "g")) || [];
+
+const MONTHS: Record<string, number> = { jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11 };
+// Wall-clock time in Washington → UTC, honouring daylight time.
+export function easternToUtc(y: number, mo: number, d: number, h = 12, mi = 0): Date {
+  const guess = Date.UTC(y, mo, d, h + 5, mi);
+  const parts = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", hourCycle: "h23", day: "numeric" }).formatToParts(new Date(guess));
+  const hh = Number(parts.find((p) => p.type === "hour")?.value);
+  const dd = Number(parts.find((p) => p.type === "day")?.value);
+  let diff = hh - h;
+  if (dd !== d) diff += dd > d || (d > 25 && dd === 1) ? 24 : -24;
+  return new Date(guess - diff * 3_600_000);
+}
+// "January 9, 2025, 02:57 PM"
+export function parseSenateDate(s: string): Date | null {
+  const m = str(s).match(/^([A-Za-z]+)\s+(\d{1,2}),\s*(\d{4})(?:,?\s*(\d{1,2}):(\d{2})\s*([AP]M))?/i);
+  if (!m) return null;
+  const mo = MONTHS[m[1].slice(0, 3).toLowerCase()];
+  if (mo == null) return null;
+  let h = m[4] ? Number(m[4]) % 12 : 12;
+  if (m[6] && m[6].toUpperCase() === "PM") h += 12;
+  return easternToUtc(Number(m[3]), mo, Number(m[2]), h, m[5] ? Number(m[5]) : 0);
+}
+// Vote menu rows → { roll, date (noon ET, year from the session) }
+export function parseSenateMenu(xml: string, congress: number, session: number): Array<{ roll: number; date: string }> {
+  const year = sessionYear(congress, session);
+  const out: Array<{ roll: number; date: string }> = [];
+  for (const b of xmlBlocks(xml, "vote")) {
+    const roll = Number(xmlTag(b, "vote_number"));
+    const dm = xmlTag(b, "vote_date").match(/^(\d{1,2})-([A-Za-z]{3})/);
+    if (!Number.isFinite(roll) || roll <= 0 || !dm) continue;
+    const mo = MONTHS[dm[2].toLowerCase()];
+    if (mo == null) continue;
+    out.push({ roll, date: easternToUtc(year, mo, Number(dm[1])).toISOString() });
+  }
+  return out;
+}
+export const senateXmlUrl = (c: number, s: number, roll: number) => `${SENATE_LIS}/roll_call_votes/vote${c}${s}/vote_${c}_${s}_${pad5(roll)}.xml`;
+export const senateHtmUrl = (c: number, s: number, roll: number) => `${SENATE_LIS}/roll_call_votes/vote${c}${s}/vote_${c}_${s}_${pad5(roll)}.htm`;
+export const senateMenuUrl = (c: number, s: number) => `${SENATE_LIS}/roll_call_lists/vote_menu_${c}_${s}.xml`;
+
+export function parseSenateVote(xml: string, congress: number, session: number, roll: number): RollRecord | null {
+  if (!/<roll_call_vote[\s>]/.test(String(xml || ""))) return null;
+  const docC = Number(xmlTag(xml, "congress"));
+  const docS = Number(xmlTag(xml, "session"));
+  const docR = Number(xmlTag(xml, "vote_number"));
+  // The document must be the roll it claims to be — a mismatch is dropped whole.
+  if ((docC && docC !== congress) || (docS && docS !== session) || (docR && docR !== roll)) return null;
+  const voteDate = parseSenateDate(xmlTag(xml, "vote_date"));
+  if (!voteDate) return null;
+  const question = xmlTag(xml, "vote_question_text") || xmlTag(xml, "question") || null;
+  const doc = xmlBlocks(xml, "document")[0] || "";
+  const am = xmlBlocks(xml, "amendment")[0] || "";
+  const amdtNo = splitCitation(xmlTag(am, "amendment_number"));
+  let measure: MeasureRef | null = null;
+  if (amdtNo) {
+    const parent = splitCitation(xmlTag(am, "amendment_to_document_number"));
+    measure = measureRef(congress, amdtNo.type, amdtNo.num, parent ? { type: parent.type, num: parent.num } : null, xmlTag(am, "amendment_purpose") || null);
+  } else {
+    const dtype = xmlTag(doc, "document_type");
+    const dnum = xmlTag(doc, "document_number");
+    measure = measureRef(congress, dtype, dnum, null, xmlTag(doc, "document_title") || xmlTag(doc, "document_short_title") || xmlTag(xml, "vote_title") || null);
+  }
+  const members: MemberCast[] = [];
+  const unsupported: string[] = [];
+  for (const b of xmlBlocks(xml, "member")) {
+    const id = xmlTag(b, "lis_member_id");
+    const rawCast = xmlTag(b, "vote_cast");
+    const vote = normalizeVoteCast(rawCast);
+    if (!vote) { unsupported.push(rawCast || "(blank)"); continue; }
+    if (!id) continue;
+    members.push({
+      scheme: "lis", id, vote, voteRaw: rawCast,
+      name: [xmlTag(b, "first_name"), xmlTag(b, "last_name")].filter(Boolean).join(" ") || xmlTag(b, "member_full") || null,
+      party: xmlTag(b, "party") || null, state: xmlTag(b, "state") || null,
+    });
+  }
+  return {
+    jurisdiction: "us", chamber: "senate", congress, session, roll, voteDate: voteDate.toISOString(),
+    question, ...classifyVote(question, measure?.measureType), result: xmlTag(xml, "vote_result") || null,
+    sourceUrl: senateHtmUrl(congress, session, roll), sourceLabel: "U.S. Senate (LIS roll-call vote)",
+    measure, members, unsupported,
+  };
+}
+
+// LIS id → bioguide, from the public congress-legislators dataset.
+export function lisIndexFrom(legislators: any[]): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const p of legislators || []) {
+    const lis = p?.id?.lis, bio = p?.id?.bioguide;
+    if (lis && bio && !out[lis]) out[lis] = bio;
+  }
+  return out;
+}
+
+// ── The topic sorter ─────────────────────────────────────────────────────────
+// Congress.gov's 32 policy areas → the register's topic categories. Used ONLY to
+// corroborate a key another signal found (+CORROBORATE), never to create one:
+// "Government Operations and Politics" is far too broad to name an issue by itself.
+export const POLICY_AREA_CATEGORIES: Record<string, string[]> = {
+  "Agriculture and Food": ["economy_cost_of_living"],
+  "Armed Forces and National Security": ["foreign_policy_defense"],
+  "International Affairs": ["foreign_policy_defense"],
+  "Civil Rights and Liberties, Minority Issues": ["civil_rights_culture", "abortion_repro", "election_integrity"],
+  "Crime and Law Enforcement": ["crime_safety", "guns"],
+  "Economics and Public Finance": ["spending_debt_waste", "economy_cost_of_living"],
+  "Taxation": ["spending_debt_waste", "economy_cost_of_living"],
+  "Education": ["education_parental"],
+  "Energy": ["climate_energy"],
+  "Environmental Protection": ["climate_energy"],
+  "Public Lands and Natural Resources": ["climate_energy"],
+  "Water Resources Development": ["climate_energy"],
+  "Emergency Management": ["climate_energy"],
+  "Government Operations and Politics": ["checks_and_balances", "election_integrity", "spending_debt_waste"],
+  "Congress": ["checks_and_balances"],
+  "Law": ["checks_and_balances", "crime_safety"],
+  "Health": ["healthcare", "abortion_repro"],
+  "Housing and Community Development": ["economy_cost_of_living"],
+  "Immigration": ["immigration_border"],
+  "Labor and Employment": ["economy_cost_of_living"],
+  "Finance and Financial Sector": ["economy_cost_of_living"],
+  "Commerce": ["economy_cost_of_living"],
+  "Foreign Trade and International Finance": ["economy_cost_of_living", "foreign_policy_defense"],
+  "Social Welfare": ["economy_cost_of_living", "healthcare"],
+  "Families": ["economy_cost_of_living", "education_parental"],
+  "Science, Technology, Communications": ["economy_cost_of_living", "civil_rights_culture", "climate_energy"],
+  "Transportation and Public Works": ["economy_cost_of_living"],
+};
+
+export const SIGNAL = {
+  curated: 100,          // a curated / reviewed vr_measure_issues mapping for the same measure
+  titleMention: 35,      // the key's topic vocabulary names it in the title
+  summaryMention: 20,    // … only in the summary
+  summaryMentionDense: 10, // … and at least 3 times there
+  subject: 35,           // an official legislative subject term reads as the key
+  subjectEach: 10,       // each further subject term agreeing
+  subjectMax: 55,
+  corroborate: 10,       // the policy area's category holds the key
+  agreement: 10,         // two or more independent signals name the key
+} as const;
+
+let _rules: Record<string, RegExp> | null = null;
+function mentionRules(): Record<string, RegExp> {
+  if (_rules) return _rules;
+  const out: Record<string, RegExp> = {};
+  for (const [k, r] of Object.entries({ ...buildTopicRules(ISSUE_TOPIC_VOCAB), ...buildDirectionalTopicRules(DIRECTIONAL_TOPIC_VOCAB) }) as Array<[string, any]>) {
+    if (TAG_KEYS.has(k) && r?.mention) out[k] = new RegExp(r.mention.source, "gi");
+  }
+  return (_rules = out);
+}
+const countHits = (re: RegExp, text: string) => (text ? (text.match(re) || []).length : 0);
+
+export type TagInput = {
+  measureType: string; title?: string | null; shortTitle?: string | null; summary?: string | null;
+  policyArea?: string | null; subjects?: string[] | null; curatedKeys?: string[] | null;
+};
+
+// Multi-signal tagger. Every key is scored independently, so a multi-topic bill
+// carries several tags rather than one "winner"; each tag keeps its confidence
+// and signals, and tags that span 3+ categories mark the bill multi_topic.
+export function tagMeasure(m: TagInput): TagResult {
+  const base = { version: TAGGER_VERSION };
+  if (m.measureType === "nomination") return { ...base, tags: [], detail: [], multiTopic: false, untagged: "nomination" };
+  const scores = new Map<string, { best: number; bases: Set<string>; signals: string[] }>();
+  const hit = (key: string, conf: number, basis: string, signal: string) => {
+    if (!TAG_KEYS.has(key)) return;
+    const s = scores.get(key) || { best: 0, bases: new Set<string>(), signals: [] };
+    s.best = Math.max(s.best, conf);
+    s.bases.add(basis);
+    s.signals.push(signal);
+    scores.set(key, s);
+  };
+
+  for (const k of m.curatedKeys || []) hit(k, SIGNAL.curated, "curated", "curated-map");
+
+  // 1. The bill-key patterns + keyword suggester the Voting Record proposer uses.
+  const { accepted } = proposeIssueKeys({ id: 0, measureType: m.measureType, title: m.title, shortTitle: m.shortTitle, summary: m.summary });
+  for (const c of accepted) hit(c.issueKey, c.confidence, c.basis === "keyword-suggester" ? "keyword" : "pattern", `${c.basis === "keyword-suggester" ? "keyword" : "pattern"}:${c.signals.join("+")}`);
+
+  // 2. The stance generator's topic vocabulary (mentions only — no direction).
+  const title = [m.title, m.shortTitle].map(str).filter(Boolean).join(" — ");
+  const summary = str(m.summary);
+  for (const [k, re] of Object.entries(mentionRules())) {
+    if (countHits(re, title)) { hit(k, SIGNAL.titleMention, "vocab", "vocab:title"); continue; }
+    const n = countHits(re, summary);
+    if (n) hit(k, SIGNAL.summaryMention + (n >= 3 ? SIGNAL.summaryMentionDense : 0), "vocab", `vocab:summary×${n}`);
+  }
+
+  // 3. Official legislative subject terms, one term at a time.
+  const subjectHits = new Map<string, number>();
+  for (const term of (m.subjects || []).map(str).filter(Boolean)) {
+    const keys = new Set<string>();
+    const kw = suggestIssue(term);
+    if (kw) keys.add(kw);
+    for (const [k, re] of Object.entries(mentionRules())) if (countHits(re, term)) keys.add(k);
+    for (const k of keys) subjectHits.set(k, (subjectHits.get(k) || 0) + 1);
+  }
+  for (const [k, n] of subjectHits) hit(k, Math.min(SIGNAL.subjectMax, SIGNAL.subject + SIGNAL.subjectEach * (n - 1)), "subject", `subject×${n}`);
+
+  // 4. Combine: agreement and policy-area corroboration lift a key; nothing else does.
+  const areaCats = new Set(POLICY_AREA_CATEGORIES[str(m.policyArea)] || []);
+  const detail: TagDetail[] = [];
+  for (const [key, s] of scores) {
+    let c = s.best;
+    const signals = [...s.signals];
+    if (c < SIGNAL.curated) {
+      if (s.bases.size >= 2) { c += SIGNAL.agreement; signals.push("signals-agree"); }
+      if (areaCats.has(CATEGORY_OF[key])) { c += SIGNAL.corroborate; signals.push("policy-area"); }
+    }
+    detail.push({ key, confidence: Math.min(100, c), category: CATEGORY_OF[key] || null, signals });
+  }
+  detail.sort((a, b) => b.confidence - a.confidence || a.key.localeCompare(b.key));
+  const tags = detail.filter((d) => d.confidence >= TAG_FLOOR).slice(0, MAX_TAGS).map((d) => d.key);
+  const cats = new Set(detail.filter((d) => tags.includes(d.key)).map((d) => d.category).filter(Boolean));
+  return {
+    ...base, tags, detail, multiTopic: cats.size >= MULTI_TOPIC_CATEGORIES,
+    ...(tags.length ? {} : { untagged: detail.length ? "below-floor" : (title || summary ? "no-signal" : "no-text") }),
+  };
+}
+
+// ── Congress.gov bill text (key-gated) ───────────────────────────────────────
+const stripHtml = (s: string) => decodeXml(String(s || "").replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
+const congressGovPage = (c: number, code: string, num: string) => {
+  const slug: Record<string, string> = {
+    hr: "house-bill", s: "senate-bill", hres: "house-resolution", sres: "senate-resolution",
+    hjres: "house-joint-resolution", sjres: "senate-joint-resolution", hconres: "house-concurrent-resolution",
+    sconres: "senate-concurrent-resolution", hamdt: "house-amendment", samdt: "senate-amendment", suamdt: "senate-amendment",
+  };
+  const ord = (n: number) => { const a = n % 100, b = n % 10; return `${n}${a >= 11 && a <= 13 ? "th" : b === 1 ? "st" : b === 2 ? "nd" : b === 3 ? "rd" : "th"}`; };
+  if (code === "pn") return `https://www.congress.gov/nomination/${ord(c)}-congress/${num.split("-")[0]}`;
+  const isAmdt = code.endsWith("amdt");
+  return `https://www.congress.gov/${isAmdt ? "amendment" : "bill"}/${ord(c)}-congress/${slug[code] || "house-bill"}/${num}`;
+};
+
+export class RateLimited extends Error {}
+
+async function getJson(fetchFn: typeof fetch, url: string): Promise<any | null> {
+  const res = await fetchFn(url, { headers: { accept: "application/json", "user-agent": UA }, signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
+  if (res.status === 429) throw new RateLimited(`429 from ${new URL(url).hostname}`);
+  if (!res.ok) return null;
+  return res.json();
+}
+async function getText(fetchFn: typeof fetch, url: string): Promise<string | null> {
+  const res = await fetchFn(url, { headers: { accept: "application/xml,text/xml,*/*", "user-agent": UA }, signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
+  if (res.status === 429) throw new RateLimited(`429 from ${new URL(url).hostname}`);
+  if (!res.ok) return null;
+  return res.text();
+}
+const withKey = (url: string, key: string) => `${url}${url.includes("?") ? "&" : "?"}format=json&api_key=${encodeURIComponent(key)}`;
+
+export async function fetchBillMeta(fetchFn: typeof fetch, apiKey: string | null | undefined, congress: number, m: MeasureRef): Promise<BillMeta> {
+  const page = congressGovPage(congress, m.billType, m.num);
+  const fallback: BillMeta = {
+    title: m.feedTitle || m.number || m.billKey, sourceUrl: page,
+    metaSource: m.feedTitle ? "senate_xml" : "vote_feed", subjects: [], summary: "",
+  };
+  if (!apiKey) return fallback;
+  try {
+    if (m.measureType === "amendment") {
+      const d = await getJson(fetchFn, withKey(`${CONGRESS_API}/amendment/${congress}/${m.billType}/${m.num}`, apiKey));
+      const a = d?.amendment;
+      if (!a) return fallback;
+      const purpose = str(a.purpose), desc = str(a.description);
+      return {
+        title: purpose || desc || fallback.title, summary: purpose && desc && desc !== purpose ? desc : "",
+        subjects: [], sourceUrl: page, metaSource: "congress_gov",
+      };
+    }
+    if (m.measureType === "nomination") {
+      const d = await getJson(fetchFn, withKey(`${CONGRESS_API}/nomination/${congress}/${m.num.split("-")[0]}`, apiKey));
+      const n = d?.nomination;
+      return n ? { title: str(n.description) || fallback.title, summary: "", subjects: [], sourceUrl: page, metaSource: "congress_gov" } : fallback;
+    }
+    const base = `${CONGRESS_API}/bill/${congress}/${m.billType}/${m.num}`;
+    const d = await getJson(fetchFn, withKey(base, apiKey));
+    const b = d?.bill;
+    if (!b) return fallback;
+    const subj = await getJson(fetchFn, withKey(`${base}/subjects`, apiKey)).catch((e) => { if (e instanceof RateLimited) throw e; return null; });
+    const sums = await getJson(fetchFn, withKey(`${base}/summaries`, apiKey)).catch((e) => { if (e instanceof RateLimited) throw e; return null; });
+    const summaries: any[] = Array.isArray(sums?.summaries) ? sums.summaries : [];
+    summaries.sort((x, y) => str(y.updateDate || y.actionDate).localeCompare(str(x.updateDate || x.actionDate)));
+    const subjects: string[] = (subj?.subjects?.legislativeSubjects || []).map((s: any) => str(s?.name)).filter(Boolean);
+    return {
+      title: str(b.title) || fallback.title,
+      shortTitle: null,
+      summary: summaries.length ? stripHtml(summaries[0].text).slice(0, 6000) : "",
+      policyArea: str(b.policyArea?.name || subj?.subjects?.policyArea?.name) || null,
+      subjects,
+      sourceUrl: page, metaSource: "congress_gov",
+    };
+  } catch (e) {
+    if (e instanceof RateLimited) throw e;
+    return fallback;
+  }
+}
+
+// ── Building rows ────────────────────────────────────────────────────────────
+export function buildBillRow(congress: number, m: MeasureRef, meta: BillMeta, tags: TagResult, prev?: BillRow | null, now = new Date()): BillRow {
+  return {
+    billKey: m.billKey, congress, measureType: m.measureType, billType: m.billType, number: m.number,
+    parentBillKey: m.parentBillKey, title: str(meta.title) || m.billKey, shortTitle: meta.shortTitle ?? null,
+    summary: str(meta.summary), policyArea: meta.policyArea ?? null, officialSubjects: meta.subjects || [],
+    topicTags: tags.tags, tagDetail: tags.detail, multiTopic: tags.multiTopic, taggerVersion: tags.version,
+    metaSource: meta.metaSource, hasSummary: !!str(meta.summary), metaAttempts: (prev?.metaAttempts || 0) + 1,
+    metaFetchedAt: now.toISOString(), sourceUrl: meta.sourceUrl,
+  };
+}
+
+export function buildVoteRows(r: RollRecord, bill: BillRow, ids: { memberMap: Record<string, string>; lis: Record<string, string> }): { rows: VoteRow[]; unmapped: number } {
+  let unmapped = 0;
+  const rows = r.members.map((m) => {
+    const bioguide = m.scheme === "bioguide" ? m.id : ids.lis[m.id] || null;
+    const pid = bioguide ? ids.memberMap[bioguide] || null : null;
+    if (!pid) unmapped++;
+    return {
+      jurisdiction: r.jurisdiction, chamber: r.chamber, congress: r.congress, session: r.session, rollNumber: r.roll,
+      voteDate: r.voteDate, billKey: bill.billKey, parentBillKey: bill.parentBillKey, measureNumber: bill.number,
+      politicianId: pid, memberIdScheme: m.scheme, memberId: m.id, bioguideId: bioguide, memberName: m.name ?? null,
+      party: m.party ?? null, state: m.state ?? null, vote: m.vote, voteRaw: m.voteRaw, question: r.question,
+      voteKind: r.voteKind, isProcedural: r.isProcedural, result: r.result, topicTags: bill.topicTags,
+      taggerVersion: bill.taggerVersion, sourceUrl: r.sourceUrl, sourceLabel: r.sourceLabel,
+    };
+  });
+  return { rows, unmapped };
+}
+
+// ── Run state (Blobs) ────────────────────────────────────────────────────────
+// ledger: "<chamber>|<congress>|<session>|<roll>" → { status, attempts, date, at }
+//   status: done | incomplete (retrying) | parked (gave up) | unsupported | no_measure
+export type LedgerEntry = { status: string; attempts: number; date: string; at: string; note?: string };
+export type RunState = { ledger: Record<string, LedgerEntry>; lis?: { at: string; map: Record<string, string> } | null; lastRun?: any };
+export function normaliseState(doc: any): RunState {
+  const d = doc && typeof doc === "object" ? doc : {};
+  return { ledger: d.ledger && typeof d.ledger === "object" ? d.ledger : {}, lis: d.lis || null, lastRun: d.lastRun || null };
+}
+// The number part of a bill key ("us-119-pn-12-3" → "12-3").
+export const billNumFromKey = (b: { billKey: string; congress: number; billType: string }) =>
+  b.billKey.slice(`us-${b.congress}-${b.billType}-`.length);
+export const rollKey = (chamber: string, c: number, s: number, roll: number) => `${chamber}|${c}|${s}|${roll}`;
+const FINAL = new Set(["done", "parked", "unsupported", "no_measure"]);
+
+// ── The run ──────────────────────────────────────────────────────────────────
+export type RunDeps = {
+  fetch: typeof fetch;
+  repo: VoteActionsRepo;
+  state?: any;                       // RunState doc (already read)
+  memberMap: Record<string, string>; // bioguide → roster slug
+  apiKey?: string | null;
+  now?: () => Date;
+  log?: (l: string) => void;
+  budgetMs?: number;
+  maxRolls?: number;
+  lookbackDays?: number;
+  chambers?: Array<"house" | "senate">;
+  clock?: () => number;
+};
+export type RunReport = {
+  congress: number; candidates: { house: number; senate: number }; processed: number;
+  done: number; incomplete: number; parked: number; unsupported: number; noMeasure: number;
+  billsTagged: number; billsUntagged: number; votesInserted: number; votesRevised: number; membersUnmapped: number;
+  metaRefreshed: number; retagged: number; rateLimited: boolean; budgetHit: boolean; errors: string[];
+  tagCounts: Record<string, number>; houseConfigured: boolean;
+};
+
+async function houseCandidates(deps: RunDeps, congress: number, cutoff: number, ledger: Record<string, LedgerEntry>) {
+  const rows: any[] = [];
+  let offset = 0, total = Infinity;
+  while (offset < total && offset < 5000) {
+    const d = await getJson(deps.fetch, withKey(`${CONGRESS_API}/house-vote/${congress}?limit=250&offset=${offset}`, deps.apiKey!));
+    const page = houseVoteListRows(d);
+    if (!page.length) break;
+    rows.push(...page);
+    offset += page.length;
+    total = Number(d?.pagination?.count ?? offset);
+  }
+  return rows
+    .map((row) => ({ row, session: Number(row.sessionNumber), roll: Number(row.rollCallNumber), date: new Date(row.startDate || row.date || 0) }))
+    .filter((x) => Number.isFinite(x.session) && Number.isFinite(x.roll) && x.date.getTime() >= cutoff)
+    .filter((x) => !FINAL.has(ledger[rollKey("house", congress, x.session, x.roll)]?.status || ""))
+    .map((x) => ({ chamber: "house" as const, congress, session: x.session, roll: x.roll, date: x.date.toISOString(), row: x.row }));
+}
+
+async function senateCandidates(deps: RunDeps, congress: number, cutoff: number, now: Date, ledger: Record<string, LedgerEntry>) {
+  const sessions = new Set<number>([sessionForDate(now)]);
+  const cut = new Date(cutoff);
+  if (congressForDate(cut) === congress) sessions.add(sessionForDate(cut));
+  const out: any[] = [];
+  for (const s of sessions) {
+    const xml = await getText(deps.fetch, senateMenuUrl(congress, s));
+    if (!xml) continue;
+    for (const v of parseSenateMenu(xml, congress, s)) {
+      if (new Date(v.date).getTime() < cutoff) continue;
+      if (FINAL.has(ledger[rollKey("senate", congress, s, v.roll)]?.status || "")) continue;
+      out.push({ chamber: "senate" as const, congress, session: s, roll: v.roll, date: v.date });
+    }
+  }
+  return out;
+}
+
+async function ensureLisIndex(deps: RunDeps, state: RunState, now: Date, log: (l: string) => void): Promise<Record<string, string>> {
+  const fresh = state.lis && now.getTime() - new Date(state.lis.at).getTime() < LIS_INDEX_MAX_AGE_DAYS * DAY;
+  if (fresh && state.lis) return state.lis.map;
+  try {
+    const d = await getJson(deps.fetch, LEGISLATORS_URL);
+    const map = Array.isArray(d) ? lisIndexFrom(d) : {};
+    if (Object.keys(map).length) {
+      state.lis = { at: now.toISOString(), map };
+      log(`vote-actions: LIS → bioguide index refreshed (${Object.keys(map).length} senators)`);
+      return map;
+    }
+  } catch (e: any) {
+    if (e instanceof RateLimited) throw e;
+    log(`vote-actions: LIS index unavailable — ${e?.message || e}`);
+  }
+  return state.lis?.map || {};
+}
+
+export async function runVoteActions(deps: RunDeps): Promise<{ report: RunReport; state: RunState }> {
+  const now = (deps.now || (() => new Date()))();
+  const clock = deps.clock || (() => Date.now());
+  const started = clock();
+  const budget = deps.budgetMs ?? RUN_BUDGET_MS;
+  const overBudget = () => clock() - started > budget;
+  const log = deps.log || ((l: string) => console.log(l));
+  const state = normaliseState(deps.state);
+  const congress = congressForDate(now);
+  const cutoff = now.getTime() - (deps.lookbackDays ?? LOOKBACK_DAYS) * DAY;
+  const chambers = deps.chambers || ["house", "senate"];
+  const report: RunReport = {
+    congress, candidates: { house: 0, senate: 0 }, processed: 0, done: 0, incomplete: 0, parked: 0, unsupported: 0, noMeasure: 0,
+    billsTagged: 0, billsUntagged: 0, votesInserted: 0, votesRevised: 0, membersUnmapped: 0, metaRefreshed: 0, retagged: 0,
+    rateLimited: false, budgetHit: false, errors: [], tagCounts: {}, houseConfigured: !!deps.apiKey,
+  };
+  const ledgerSet = (key: string, status: string, date: string, note?: string) => {
+    const prev = state.ledger[key];
+    state.ledger[key] = { status, attempts: (prev?.attempts || 0) + (status === "done" ? 0 : 1), date, at: now.toISOString(), ...(note ? { note } : {}) };
+  };
+
+  try {
+    // 1. Candidates: every roll call in the window not yet final, newest first.
+    let cands: any[] = [];
+    if (chambers.includes("house")) {
+      if (deps.apiKey) {
+        try { const h = await houseCandidates(deps, congress, cutoff, state.ledger); report.candidates.house = h.length; cands.push(...h); }
+        catch (e: any) { if (e instanceof RateLimited) throw e; report.errors.push(`house list: ${e?.message || e}`); }
+      } else log("vote-actions: CONGRESS_GOV_API_KEY not set — House side skipped this run.");
+    }
+    if (chambers.includes("senate")) {
+      try { const s = await senateCandidates(deps, congress, cutoff, now, state.ledger); report.candidates.senate = s.length; cands.push(...s); }
+      catch (e: any) { if (e instanceof RateLimited) throw e; report.errors.push(`senate menu: ${e?.message || e}`); }
+    }
+    cands.sort((a, b) => b.date.localeCompare(a.date) || a.chamber.localeCompare(b.chamber) || b.roll - a.roll);
+    const lis = cands.some((c) => c.chamber === "senate") ? await ensureLisIndex(deps, state, now, log) : (state.lis?.map || {});
+
+    // 2. Each roll call: detail → measure → bill tags → vote rows.
+    for (const c of cands) {
+      if (report.processed >= (deps.maxRolls ?? MAX_ROLLS_PER_RUN)) break;
+      if (overBudget()) { report.budgetHit = true; break; }
+      report.processed++;
+      const key = rollKey(c.chamber, c.congress, c.session, c.roll);
+      let rec: RollRecord | null = null;
+      try {
+        if (c.chamber === "house") {
+          const d = await getJson(deps.fetch, withKey(`${CONGRESS_API}/house-vote/${c.congress}/${c.session}/${c.roll}/members`, deps.apiKey!));
+          rec = d ? parseHouseVote(c.row, d.houseRollCallVoteMemberVotes || {}, c.congress) : null;
+        } else {
+          const xml = await getText(deps.fetch, senateXmlUrl(c.congress, c.session, c.roll));
+          rec = xml ? parseSenateVote(xml, c.congress, c.session, c.roll) : null;
+        }
+      } catch (e: any) {
+        if (e instanceof RateLimited) throw e;
+        report.errors.push(`${key}: ${e?.message || e}`);
+      }
+      const attempts = (state.ledger[key]?.attempts || 0) + 1;
+      if (!rec || !rec.members.length) {
+        if (rec && rec.unsupported.length) { ledgerSet(key, "unsupported", c.date, rec.unsupported.slice(0, 3).join(", ")); report.unsupported++; continue; }
+        const parked = attempts >= MAX_ATTEMPTS;
+        ledgerSet(key, parked ? "parked" : "incomplete", c.date, rec ? "no member positions yet" : "detail unavailable");
+        parked ? report.parked++ : report.incomplete++;
+        log(`vote-actions: ${parked ? "PARKED" : "RETRY LATER"} ${key} — ${rec ? "no member positions yet" : "detail unavailable"} (attempt ${attempts})`);
+        continue;
+      }
+      if (rec.unsupported.length) {
+        // A mixed vocabulary (Speaker election ballots, "Guilty") is never flattened.
+        ledgerSet(key, "unsupported", c.date, rec.unsupported.slice(0, 3).join(", "));
+        report.unsupported++;
+        log(`vote-actions: UNSUPPORTED ${key} — vote words ${[...new Set(rec.unsupported)].slice(0, 3).join(", ")}`);
+        continue;
+      }
+      if (!rec.measure) { ledgerSet(key, "no_measure", c.date, rec.question || ""); report.noMeasure++; continue; }
+
+      let bill = await deps.repo.getBill(rec.measure.billKey);
+      if (!bill) {
+        const meta = await fetchBillMeta(deps.fetch, deps.apiKey, rec.congress, rec.measure);
+        const curatedKeys = await deps.repo.curatedKeysFor({ congress: rec.congress, number: rec.measure.number, measureType: rec.measure.measureType }).catch(() => []);
+        const tags = tagMeasure({ measureType: rec.measure.measureType, title: meta.title, shortTitle: meta.shortTitle, summary: meta.summary, policyArea: meta.policyArea, subjects: meta.subjects, curatedKeys });
+        if (!rec.measure.parentBillKey && isRuleResolution(rec.measure.billType, meta.title)) rec.measure.parentBillKey = ruleTarget(rec.congress, meta.title);
+        bill = buildBillRow(rec.congress, rec.measure, meta, tags, null, now);
+        await deps.repo.upsertBill(bill);
+        tags.tags.length ? report.billsTagged++ : report.billsUntagged++;
+        log(`vote-actions: BILL ${bill.billKey} ${bill.number || ""} — tags [${tags.tags.join(", ")}]${tags.untagged ? ` (untagged: ${tags.untagged})` : ""}${tags.multiTopic ? " multi-topic" : ""} · ${meta.metaSource}`);
+      }
+      if (rec.voteKind === "passage" && isRuleResolution(bill.billType, bill.title)) { rec.voteKind = "rule"; rec.isProcedural = true; }
+      const { rows, unmapped } = buildVoteRows(rec, bill, { memberMap: deps.memberMap, lis });
+      const w = await deps.repo.upsertVotes(rows);
+      report.votesInserted += w.inserted;
+      report.votesRevised += w.revised;
+      report.membersUnmapped += unmapped;
+      for (const t of bill.topicTags) report.tagCounts[t] = (report.tagCounts[t] || 0) + 1;
+      ledgerSet(key, "done", c.date);
+      report.done++;
+    }
+
+    // 3. Late summaries: refetch a few bills read without one, then re-tag.
+    if (deps.apiKey && !overBudget()) {
+      const stale = await deps.repo.billsNeedingMeta({ olderThan: new Date(now.getTime() - META_REFRESH_AFTER_DAYS * DAY).toISOString(), maxAttempts: META_MAX_ATTEMPTS, limit: META_REFRESH_PER_RUN });
+      for (const b of stale) {
+        if (overBudget()) { report.budgetHit = true; break; }
+        const m = measureRef(b.congress, b.billType, billNumFromKey(b), null);
+        if (!m) continue;
+        m.parentBillKey = b.parentBillKey;
+        const meta = await fetchBillMeta(deps.fetch, deps.apiKey, b.congress, m);
+        const curatedKeys = await deps.repo.curatedKeysFor({ congress: b.congress, number: b.number, measureType: b.measureType }).catch(() => []);
+        const tags = tagMeasure({ measureType: b.measureType, title: meta.title, shortTitle: meta.shortTitle, summary: meta.summary, policyArea: meta.policyArea, subjects: meta.subjects, curatedKeys });
+        const row = buildBillRow(b.congress, m, meta.metaSource === "congress_gov" ? meta : { ...meta, title: b.title, summary: b.summary }, tags, b, now);
+        await deps.repo.upsertBill(row);
+        if (row.topicTags.join() !== b.topicTags.join() || row.taggerVersion !== b.taggerVersion) await deps.repo.retagVotes(row.billKey, row.topicTags, row.taggerVersion);
+        report.metaRefreshed++;
+      }
+    }
+
+    // 4. Tagger version bump: re-tag stored bills from their stored text (no fetch).
+    if (!overBudget()) {
+      for (const b of await deps.repo.billsWithStaleTags(TAGGER_VERSION, RETAG_PER_RUN)) {
+        const curatedKeys = await deps.repo.curatedKeysFor({ congress: b.congress, number: b.number, measureType: b.measureType }).catch(() => []);
+        const tags = tagMeasure({ measureType: b.measureType, title: b.title, shortTitle: b.shortTitle, summary: b.summary, policyArea: b.policyArea, subjects: b.officialSubjects, curatedKeys });
+        await deps.repo.upsertBill({ ...b, topicTags: tags.tags, tagDetail: tags.detail, multiTopic: tags.multiTopic, taggerVersion: tags.version });
+        await deps.repo.retagVotes(b.billKey, tags.tags, tags.version);
+        report.retagged++;
+      }
+    }
+  } catch (e: any) {
+    if (e instanceof RateLimited) { report.rateLimited = true; log(`vote-actions: RATE LIMITED — ${e.message}; stopping this run`); }
+    else report.errors.push(e?.message || String(e));
+  }
+
+  // Keep the ledger bounded to the window (+30 days of slack).
+  const keepAfter = cutoff - 30 * DAY;
+  for (const [k, v] of Object.entries(state.ledger)) if (new Date(v.date).getTime() < keepAfter) delete state.ledger[k];
+  state.lastRun = { at: now.toISOString(), ms: clock() - started, ...report, tagCounts: undefined };
+  return { report, state };
+}
+
+export function summaryLine(r: RunReport): string {
+  const top = Object.entries(r.tagCounts).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([k, n]) => `${k}:${n}`).join(" ");
+  return `vote-actions: run — congress ${r.congress} · candidates house ${r.candidates.house} senate ${r.candidates.senate} · processed ${r.processed} (done ${r.done}, retry ${r.incomplete}, parked ${r.parked}, unsupported ${r.unsupported}, no measure ${r.noMeasure}) · bills tagged ${r.billsTagged} untagged ${r.billsUntagged} · votes new ${r.votesInserted} revised ${r.votesRevised} · off-roster members ${r.membersUnmapped} · late summaries ${r.metaRefreshed} · retagged ${r.retagged}${r.rateLimited ? " · RATE LIMITED" : ""}${r.budgetHit ? " · budget reached" : ""}${r.houseConfigured ? "" : " · house skipped (no key)"}${top ? ` · tags ${top}` : ""}${r.errors.length ? ` · errors ${r.errors.length}` : ""}`;
+}

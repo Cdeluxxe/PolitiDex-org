@@ -1849,3 +1849,114 @@ export const pdxStatedPositions = pgTable(
     check("pdx_stated_positions_provenance_check", sql`${t.provenance} = 'pipeline'`),
   ]
 );
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Action layer (v1) — raw bill topic tags + raw "what they did" vote records
+// ─────────────────────────────────────────────────────────────────────────────
+// Written ONLY by the vote-actions cron (netlify/functions/vote-actions-cron.mts,
+// logic in netlify/lib/vote-actions-core.ts). It runs parallel to the stance
+// generator (raw-ingest-cron) and shares nothing with it but the issue-key
+// register. No public endpoint, pack, card or score reads these tables: they are
+// the raw layer a later pass can compare against curated / promoted stances.
+// The public Voting Record lives in the vr_* tables and is not touched.
+//
+// RAW ONLY. No support/oppose direction, no score, no contradiction flag. A tag
+// says "this bill touches issue X" — never which side a yes vote is on.
+
+// One row per voted-on measure (bill, resolution, amendment or nomination).
+// The raw inputs the tagger read (title, summary, official subjects) are kept so
+// a new tagger version re-tags in place without refetching anything.
+export const pdxActionBills = pgTable(
+  "pdx_action_bills",
+  {
+    id: serial().primaryKey(),
+    // Stable id: "us-<congress>-<type>-<number>", e.g. us-119-hr-1, us-119-samdt-2104.
+    billKey: text("bill_key").notNull(),
+    jurisdiction: text().notNull().default("us"),
+    congress: integer(),
+    // bill | resolution | amendment | nomination
+    measureType: text("measure_type").notNull(),
+    billType: text("bill_type").notNull(), // hr, s, hjres, hamdt, samdt, pn …
+    number: text(), // canonical citation, e.g. "H.R. 1"
+    // An amendment's parent bill (its own key). Tags are NOT inherited from it.
+    parentBillKey: text("parent_bill_key"),
+    title: text().notNull().default(""),
+    shortTitle: text("short_title"),
+    summary: text().default(""),
+    policyArea: text("policy_area"),
+    officialSubjects: jsonb("official_subjects").$type<string[]>().default([]),
+    // Keys at or above the tag floor (validated against the issue-key register).
+    topicTags: text("topic_tags").array().notNull().default(sql`'{}'::text[]`),
+    // Every candidate key with its confidence and the signals behind it.
+    tagDetail: jsonb("tag_detail").$type<any[]>().default([]),
+    // The tags span several topic categories (omnibus / NDAA / approps shape).
+    multiTopic: boolean("multi_topic").notNull().default(false),
+    taggerVersion: text("tagger_version").notNull(),
+    // congress_gov | senate_xml | vote_feed — where title/summary/subjects came from
+    metaSource: text("meta_source").notNull().default("vote_feed"),
+    hasSummary: boolean("has_summary").notNull().default(false),
+    metaAttempts: integer("meta_attempts").notNull().default(0),
+    metaFetchedAt: timestamp("meta_fetched_at", { withTimezone: true }),
+    sourceUrl: text("source_url").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("pdx_action_bills_key_unique").on(t.billKey),
+    index("pdx_action_bills_tags_idx").using("gin", t.topicTags),
+  ]
+);
+
+// One row per member per roll call. Every member the source lists is kept, also
+// those not on the PolitiDex roster (politician_id NULL), so a later roster
+// addition already has its history. Identity is the source's own id
+// (bioguide for the House feed, LIS for senate.gov) — never a name match.
+export const pdxVoteActions = pgTable(
+  "pdx_vote_actions",
+  {
+    id: serial().primaryKey(),
+    jurisdiction: text().notNull().default("us"),
+    chamber: text().notNull(), // house | senate
+    congress: integer().notNull(),
+    session: integer().notNull(),
+    rollNumber: integer("roll_number").notNull(),
+    voteDate: timestamp("vote_date", { withTimezone: true }).notNull(),
+    billKey: text("bill_key").notNull(),
+    parentBillKey: text("parent_bill_key"),
+    measureNumber: text("measure_number"),
+    politicianId: text("politician_id"),
+    memberIdScheme: text("member_id_scheme").notNull(), // bioguide | lis
+    memberId: text("member_id").notNull(),
+    bioguideId: text("bioguide_id"),
+    memberName: text("member_name"),
+    party: text(),
+    state: text(),
+    // yes | no | present | not_voting
+    vote: text().notNull(),
+    voteRaw: text("vote_raw"), // the source's own word ("Yea", "Aye", "Not Voting")
+    question: text(),
+    // passage | amendment | cloture | motion | procedural | rule | nomination | veto_override | unknown
+    voteKind: text("vote_kind").notNull(),
+    isProcedural: boolean("is_procedural"),
+    result: text(),
+    topicTags: text("topic_tags").array().notNull().default(sql`'{}'::text[]`),
+    taggerVersion: text("tagger_version").notNull(),
+    sourceUrl: text("source_url").notNull(),
+    sourceLabel: text("source_label").notNull(),
+    ingestedAt: timestamp("ingested_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+    // Set when a re-read of the source showed a different vote than the one stored.
+    revisedAt: timestamp("revised_at", { withTimezone: true }),
+  },
+  (t) => [
+    uniqueIndex("pdx_vote_actions_unique").on(
+      t.jurisdiction, t.chamber, t.congress, t.session, t.rollNumber, t.memberIdScheme, t.memberId
+    ),
+    index("pdx_vote_actions_politician_idx").on(t.politicianId),
+    index("pdx_vote_actions_bill_idx").on(t.billKey),
+    index("pdx_vote_actions_date_idx").on(t.voteDate),
+    index("pdx_vote_actions_tags_idx").using("gin", t.topicTags),
+    check("pdx_vote_actions_vote_check", sql`${t.vote} in ('yes', 'no', 'present', 'not_voting')`),
+    check("pdx_vote_actions_chamber_check", sql`${t.chamber} in ('house', 'senate')`),
+  ]
+);
