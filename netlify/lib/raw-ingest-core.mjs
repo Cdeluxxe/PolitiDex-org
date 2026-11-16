@@ -2,6 +2,7 @@ import { REQUESTED_POLITICIANS } from "./raw-ingest-expansion.mjs";
 import { describeFetchError, pullProbeFirst } from "./raw-ingest-hosts.mjs";
 import { EXTRA_SOURCES, NEW_STATE_LEGISLATORS, SOURCE_CLASSES, NEW_SOCIAL_ROSTER, SOCIAL_SOURCES } from "./raw-ingest-source-types.mjs";
 import { pullYouTube, isSocial, SOCIAL_CLASSES } from "./raw-ingest-social.mjs";
+import POOL_EXPANSION from "../../db/raw-ingest-pool-expansion-2026-11.json" with { type: "json" };
 
 export { EXTRA_SOURCES, SOURCE_CLASSES, SOCIAL_SOURCES, SOCIAL_CLASSES, isSocial };
 
@@ -498,6 +499,31 @@ for (const social of SOCIAL_SOURCES) {
     source_class: social.source_class, source_id: social.source_id, url: social.url, channel_id: social.channel_id });
 }
 
+// Pool expansion (db/raw-ingest-pool-expansion-2026-11.json, built by
+// scripts/build-raw-ingest-pool-expansion-2026-11.mjs): more politicians —
+// the newly elected state legislators first (tier 2), then everyone else with
+// curated stated positions not rotating yet (tier 3) — and more issue pairs per
+// page (`issue_pairs`: the other curated keys a page backs). A page stays open
+// while any of its pairs is unfilled (pageTopics); filled pairs keep the
+// existing deprioritisation. Every URL is a first-party page already cited for
+// that politician. The build script reads the roster without it.
+export const POOL_EXPANSION_APPLIED = !(typeof process !== "undefined" && process.env?.PDX_RAW_INGEST_NO_POOL_EXPANSION);
+if (POOL_EXPANSION_APPLIED) {
+  for (const person of POOL_EXPANSION.politicians || []) {
+    if (ROSTER.some((r) => r.politician_id === person.politician_id)) continue;
+    ROSTER.push({ ...person, sources: person.sources.map((x) => ({ ...x })) });
+  }
+  for (const r of ROSTER) {
+    const byUrl = POOL_EXPANSION.issue_pairs?.[r.politician_id] || {};
+    const person = POOL_EXPANSION.person_pairs?.[r.politician_id] || [];
+    for (const s of [...r.sources, ...(r.official ? [r.official] : [])]) {
+      const extra = [...(s.issue_pairs || []), ...(byUrl[normUrl(s.url)] || []), ...person]
+        .filter((k, i, a) => k !== s.topic && a.indexOf(k) === i);
+      if (extra.length) s.issue_pairs = extra;
+    }
+  }
+}
+
 // The 13 politicians the rotation covered before the roster-priority pass.
 export const PREVIOUS_ROSTER = [
   "greg_abbott", "john_cornyn", "chip_roy", "crockett", "aoc", "maloy", "cox",
@@ -535,10 +561,14 @@ export function isFilled(counts, pid, topic) {
  * official pattern) whose politician + issue is not filled yet; `filled` = the
  * rest. A row with nothing open is deprioritised (band 1).
  */
+export const pageTopics = (s) => [s.topic, ...(s.issue_pairs || [])];
+/** Is every politician + issue pair this page works on filled? */
+export const pageFilled = (counts, pid, s) => pageTopics(s).every((t) => isFilled(counts, pid, t));
+
 export function splitByBaseline(r, counts = {}) {
   const all = [...(r.sources || []).map((s) => ({ s, official: false })), ...(r.official ? [{ s: r.official, official: true }] : [])];
-  const open = all.filter((x) => !isFilled(counts, r.politician_id, x.s.topic));
-  const filled = all.filter((x) => isFilled(counts, r.politician_id, x.s.topic));
+  const open = all.filter((x) => !pageFilled(counts, r.politician_id, x.s));
+  const filled = all.filter((x) => pageFilled(counts, r.politician_id, x.s));
   return { open, filled, band: open.length ? 0 : 1 };
 }
 

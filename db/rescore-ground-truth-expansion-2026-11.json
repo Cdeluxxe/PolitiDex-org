@@ -1,6 +1,6 @@
 {
   "_note": "Offline score of the expansion ground-truth records with the current stance scorer, compared with each human label. Diagnostic only: no ground-truth label, rule or site file changes, and a disagreement is left as it is.",
-  "rules_version": "phase8-v3",
+  "rules_version": "phase8-v4",
   "vocab_version": "issue-vocab-v2-directional",
   "confidence_tolerance": 0.1,
   "summary": {

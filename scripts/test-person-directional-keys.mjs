@@ -69,7 +69,7 @@ t('the table is current with the finder and scorer, and names only the twenty-fi
   execFileSync(process.execPath, [path.join(root, 'scripts/gen-person-directional-keys.mjs'), '--check'], { stdio: 'pipe' });
   assert.deepEqual(Object.keys(data.keys), KEYS);
   for (const p of Object.values(data.people)) for (const x of [...p.mappings, ...p.stances]) assert.ok(KEYS.includes(x.key), x.key);
-  assert.equal(data.rules_version, 'phase8-v3');
+  assert.equal(data.rules_version, 'phase8-v4');
   assert.equal(data.vocab_version, 'issue-vocab-v2-directional');
 });
 t('Massie: Ukraine bills on ukraine_aid, H.Con.Res. 38 on iran_hostilities; scorer reads oppose / support', () => {
@@ -626,7 +626,7 @@ t('the scorer reads in the table match a fresh scorer read; ground-truth labels 
     ['james_talarico|cost_living|gt-001', gt.position, gt.confidence], ['massie|ukraine_aid|gt-002', 'oppose', 0.85], ['sanders|healthcare|gt-003', 'support', 0.9],
     ['james_talarico|school_choice|gt-004', 'oppose', 0.9], ['massie|iran_hostilities|gt-005', 'support', 0.85], ['sanders|israel_military_aid|gt-006', 'mixed', 0.75]]);
   assert.equal(gt.position, 'support');
-  assert.equal(S.RULES_VERSION, 'phase8-v3');
+  assert.equal(S.RULES_VERSION, 'phase8-v4');
   assert.equal(S.DIRECTIONAL_VOCAB_VERSION, 'issue-vocab-v2-directional');
 });
 
