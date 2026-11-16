@@ -50,6 +50,8 @@ import measureIdentityData from "../../db/vr-measure-identity.json" with { type:
 import { writeMemberPack, resetMappingVersionMemo } from "./vr-pack.js";
 import { proposeIssuesForMeasures } from "./vr-issue-proposals-db.js";
 import { fetchSenateRollcalls } from "./vr-senate-source.js";
+import { readHouseMembers } from "./vr-house-members-source.js";
+import { RAW_VOTES_STORE_NAME, type RawStore } from "./vote-actions-core.js";
 import {
   ISSUE_KEYS,
   canonicalMeasureNumber,
@@ -178,6 +180,9 @@ export async function fetchRollcallsFromCongress(opts: {
   limit?: number;
   offset?: number;
   recent?: boolean;
+  // Blobs "raw-ingest-votes" (written by the vote-actions cron). A roll call whose
+  // member votes are stored there is read from it instead of Congress.gov.
+  rawStore?: RawStore | null;
 }): Promise<RawVote[]> {
   const apiKey = process.env.CONGRESS_GOV_API_KEY;
   if (!apiKey) {
@@ -210,6 +215,7 @@ export async function fetchRollcallsFromCongress(opts: {
     }
 
     const out: RawVote[] = [];
+    const sources = { raw_store: 0, congress_gov: 0, none: 0 };
     for (const row of rows) {
       const session = Number(row.sessionNumber ?? row.session ?? 1);
       const num = Number(row.rollCallNumber ?? row.rollNumber ?? row.number);
@@ -224,27 +230,14 @@ export async function fetchRollcallsFromCongress(opts: {
       // positions, so merging its metadata costs no extra request.
       let meta: Record<string, any> = {};
       if (Number.isFinite(session) && Number.isFinite(num)) {
-        try {
-          const memUrl =
-            `${CONGRESS_API_BASE}/${chamber}-vote/${opts.congress}/${session}/${num}/members` +
-            `?format=json&api_key=${encodeURIComponent(apiKey)}`;
-          const mres = await fetch(memUrl, { headers: { accept: "application/json" } });
-          if (mres.ok) {
-            const md: any = await mres.json();
-            const container =
-              md?.[`${chamber}RollCallVoteMemberVotes`] ||
-              md?.houseRollCallVoteMemberVotes ||
-              md?.senateRollCallVoteMemberVotes ||
-              {};
-            members = Array.isArray(container?.results) ? container.results : [];
-            const { results: _drop, ...rest } = container as Record<string, any>;
-            meta = rest || {};
-          } else {
-            console.warn(`vr-ingest: members ${mres.status} for ${chamber} roll ${num}`);
-          }
-        } catch (e: any) {
-          console.warn(`vr-ingest: members fetch failed for ${chamber} roll ${num} —`, e?.message || String(e));
-        }
+        // Raw store first (the vote-actions cron's unmodified copy of this exact
+        // response), Congress.gov only when none is stored. See vr-house-members-source.ts.
+        const read = await readHouseMembers({ store: opts.rawStore, fetch, apiKey, chamber, congress: opts.congress, session, roll: num });
+        sources[read.source]++;
+        const container = read.container || {};
+        members = Array.isArray(container?.results) ? container.results : [];
+        const { results: _drop, ...rest } = container as Record<string, any>;
+        meta = read.container ? rest || {} : {};
       }
       // Explicit chamber (list items don't carry one) + derived totals (summary has none).
       // `meta` is spread AFTER `row` so the richer sub-resource fields win, but only
@@ -255,6 +248,7 @@ export async function fetchRollcallsFromCongress(opts: {
       );
       if (normalized) out.push(normalized);
     }
+    console.log(`vr-ingest: ${chamber} member votes — ${sources.raw_store} from ${RAW_VOTES_STORE_NAME}, ${sources.congress_gov} from Congress.gov, ${sources.none} unavailable`);
     return out;
   } catch (e: any) {
     console.warn("vr-ingest: fetch failed —", e?.message || String(e));
@@ -855,7 +849,10 @@ async function fetchChamberRollcalls(opts: {
   if (String(opts.chamber).toLowerCase() === "senate") {
     return fetchSenateRollcalls({ congress: opts.congress, limit: opts.limit });
   }
-  return fetchRollcallsFromCongress(opts);
+  let rawStore: RawStore | null = null;
+  try { rawStore = getStore(RAW_VOTES_STORE_NAME) as unknown as RawStore; }
+  catch (e: any) { console.log(`vr-ingest: raw store unavailable — fetching every roll call (${e?.message || e})`); }
+  return fetchRollcallsFromCongress({ ...opts, rawStore });
 }
 
 // ── Verification: an integrity report over the vr_* tables ────────────────────

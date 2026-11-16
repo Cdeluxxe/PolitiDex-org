@@ -230,6 +230,20 @@ export function splitCitation(s: unknown): { type: string; num: string } | null 
   return m ? { type: m[1], num: m[2] } : null;
 }
 
+// THE SHARED BILL KEY. pdx_action_bills.bill_key is "us-<congress>-<type>-<num>";
+// vr_measures has no key column — its identity is (congress, number) where
+// number is canonicalMeasureNumber's citation ("H.R. 5000", "H.Amdt. 90"), the
+// same helper that fills pdx_action_bills.number. This derives one from the
+// other, so both tables join on one canonical id with no new column:
+//   vrMeasureBillKey({ congress: 119, number: "H.R. 5000" }) → "us-119-hr-5000"
+// Null for a numberless measure (Speaker election, quorum call).
+export function vrMeasureBillKey(m: { congress: number | null | undefined; number: string | null | undefined }): string | null {
+  const congress = m && m.congress != null ? Number(m.congress) : NaN;
+  if (!Number.isInteger(congress) || congress < 1) return null;
+  const c = splitCitation(m.number);
+  return c ? measureRef(congress, c.type, c.num)?.billKey || null : null;
+}
+
 // House "rules" (H.Res. "Providing for consideration of the bill (H.R. 2102) …")
 // set floor terms for other bills. Adopting one is a procedural vote, and the
 // measure it really concerns is the first bill it names.
