@@ -153,3 +153,19 @@ export async function voteActionsStatus() {
      LIMIT 25`));
   return { bills, votes, tags, unmappedMembers };
 }
+
+// Curator-only cross-links (GET /api/admin/vote-actions/cross-links): one
+// politician's raw vote rows, for the drawer to match against the curated
+// measures it already shows by the shared bill key. Read-only; pdx_vote_actions only.
+export async function voteActionsForPolitician(politicianId: string, limit = 2000) {
+  return db.select({
+    billKey: pdxVoteActions.billKey, chamber: pdxVoteActions.chamber, congress: pdxVoteActions.congress,
+    session: pdxVoteActions.session, rollNumber: pdxVoteActions.rollNumber, voteDate: pdxVoteActions.voteDate,
+    vote: pdxVoteActions.vote, voteRaw: pdxVoteActions.voteRaw, voteKind: pdxVoteActions.voteKind,
+    question: pdxVoteActions.question, sourceUrl: pdxVoteActions.sourceUrl, sourceLabel: pdxVoteActions.sourceLabel,
+    rawRef: pdxVoteActions.rawRef,
+  }).from(pdxVoteActions)
+    .where(eq(pdxVoteActions.politicianId, politicianId))
+    .orderBy(pdxVoteActions.voteDate, pdxVoteActions.rollNumber)
+    .limit(limit);
+}

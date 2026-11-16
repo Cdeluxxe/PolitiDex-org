@@ -12231,7 +12231,18 @@
 //     shell moves; the precache list is unchanged. No stored reader state is
 //     written or rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v570';
+// v571 - CURATOR CROSS-LINK IN THE ISSUE DRAWER. consistency.js prints one
+//     short "Curator · also in the raw vote feed" note under a curated measure
+//     whose bill key (congress + canonical citation, the same key as
+//     vrMeasureBillKey) matches raw vote rows the vote-actions cron recorded. The
+//     rows come from the curator-only /api/admin/vote-actions/cross-links and
+//     are fetched only for the signed-in curator; for every other reader no
+//     request is made and the drawer is byte-identical. No public route, gate,
+//     tally, chip or verdict changes. A precached file changed, so the shell
+//     moves; the precache list is unchanged. No stored reader state is written
+//     or rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v571';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

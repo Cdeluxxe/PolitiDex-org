@@ -17577,6 +17577,72 @@
     return out;
   }
 
+  // ── CURATOR-ONLY CROSS-LINK: curated measure ↔ raw vote feed ────────────────
+  // When the signed-in CURATOR opens a drawer, the raw vote rows the vote-actions
+  // cron recorded for this person (pdx_vote_actions) are fetched from the
+  // curator-only /api/admin/vote-actions/cross-links, and a curated measure whose
+  // bill key matches gets one short note row under it: the roll call(s) in the
+  // raw feed, each with its official record and stored-payload key. The bill key
+  // is the shared one ("us-119-hr-5000"): congress + the canonical citation, the
+  // same derivation as vrMeasureBillKey in netlify/lib/vote-actions-core.ts.
+  // EVERYONE ELSE: no request is made, _xl stays empty and the drawer's markup is
+  // byte-identical to before. The note never touches a tally, chip or verdict.
+  var _XL_CURATORS = ['cdeluxxe@gmail.com']; // same account as admin.html's gate (server re-checks)
+  var _XL_ENDPOINT = '/api/admin/vote-actions/cross-links';
+  var _XL_CODES = { hr: 1, s: 1, hres: 1, sres: 1, hjres: 1, sjres: 1, hconres: 1, sconres: 1, hamdt: 1, samdt: 1, suamdt: 1 };
+  var _xl = {};       // pid → { billKey: [raw roll, …] } (curator session only)
+  var _xlAsked = {};  // pid → true once a fetch was made for this curator session
+  function _xlBillKey(d) {
+    if (!d || d.execAct) return null;
+    var c = parseInt(String(d.congress == null ? '' : d.congress), 10);
+    if (!(c >= 1)) return null;
+    var m = /^([A-Za-z.\s]+?)\s*([0-9]+)$/.exec(String(d.ident || d.billNum || '').trim());
+    if (!m) return null;
+    var code = m[1].toLowerCase().replace(/[^a-z]/g, '');
+    if (!_XL_CODES[code]) return null;
+    return 'us-' + c + '-' + code + '-' + m[2].replace(/^0+(?=\d)/, '');
+  }
+  function _xlCurator() {
+    var A = window.PDXAuth, u = A && A.user;
+    return !!(u && !u.isAnonymous && typeof u.email === 'string' && typeof u.getIdToken === 'function' &&
+      _XL_CURATORS.indexOf(u.email.toLowerCase()) >= 0);
+  }
+  function _xlRowHtml(pid, d, i) {
+    var map = _xl[pid];
+    if (!map) return '';
+    var k = _xlBillKey(d);
+    var rolls = k && map[k];
+    if (!rolls || !rolls.length) return '';
+    var parts = [];
+    for (var n = 0; n < rolls.length && n < 6; n++) {
+      var r = rolls[n] || {};
+      var ch = r.chamber === 'senate' ? 'Senate' : 'House';
+      var label = ch + ' roll ' + esc(r.roll) + (r.date ? ', ' + esc(String(r.date).slice(0, 10)) : '') + ' — ' + esc(r.voteRaw || r.vote || '');
+      var off = /^https?:\/\//.test(String(r.sourceUrl || '')) ? ' · <a href="' + escAttr(r.sourceUrl) + '" target="_blank" rel="noopener">official record</a>' : '';
+      var raw = r.rawRef ? ' · raw <code>' + esc(r.rawRef) + '</code>' : '';
+      parts.push(label + off + raw);
+    }
+    if (rolls.length > 6) parts.push('+' + (rolls.length - 6) + ' more');
+    return '<tr class="pdxlg-xlr" data-pdxlg-xl="' + escAttr(k) + '" data-pdxlg-xlrow="' + i + '">' +
+      '<td colspan="5" class="pdxlg-xl" style="font-size:0.8rem;color:#9fb0d0;">' +
+      'Curator · also in the raw vote feed (<code>' + esc(k) + '</code>): ' + parts.join('; ') + '</td></tr>';
+  }
+  // Fetch once per curator session per person, then repaint the open drawer.
+  function _xlEnsure(pid, repaint) {
+    if (!pid || _xlAsked[pid] || !_xlCurator() || typeof fetch !== 'function') return null;
+    _xlAsked[pid] = true;
+    var u = window.PDXAuth.user;
+    return Promise.resolve(u.getIdToken()).then(function (token) {
+      return fetch(_XL_ENDPOINT + '?pid=' + encodeURIComponent(pid), { headers: { authorization: 'Bearer ' + token }, cache: 'no-store' });
+    }).then(function (res) {
+      return res && res.ok ? res.json() : null;
+    }).then(function (data) {
+      if (!data || !data.billKeys || typeof data.billKeys !== 'object') return;
+      _xl[pid] = data.billKeys;
+      if (typeof repaint === 'function') repaint();
+    }).catch(function () { _xlAsked[pid] = false; });
+  }
+
   function _dosLedgerHtml(pid, issueKey, r, t, opts) {
     r = r || issueRow(pid, issueKey);
     t = t || _dosTally(pid, issueKey, r && r.ov);
@@ -17670,6 +17736,7 @@
                 '<span aria-hidden="true"> ▾</span></button>' +
             '</td>' +
           '</tr>';
+        out += _xlRowHtml(pid, d, p.i);
         var eff = d.effLine || '';
         if (eff) {
           // ONE LINE PER ROW UNTIL ASKED. The effect sentence and the Also-on chips
@@ -21096,6 +21163,16 @@
     try { html = _gapViewHtml(pid, issueKey) || ''; } catch (e) { html = ''; }
     if (!html) { try { html = _gapFallbackHtml(pid, issueKey); } catch (e2) { html = ''; } }
     body.innerHTML = html;
+    // Curator only: fetch this person's raw vote rows once, then repaint this
+    // sheet if it is still showing them (a no-op for every other reader).
+    try {
+      _xlEnsure(pid, function () {
+        if (_gapOpen && String(_gapOpen.pid) === String(pid) && !sheet.hidden) {
+          var gbx = sheet.querySelector('.pdxgap-body');
+          if (gbx) gbx.innerHTML = _gapViewHtml(_gapOpen.pid, _gapOpen.key);
+        }
+      });
+    } catch (eXl) {}
     var arrival = _gapIsArrival(opts);
     // This sheet is one politician on one issue. PDXIssueView is everyone on one
     // issue, and the two used to announce themselves with the same generic label.
@@ -21731,6 +21808,11 @@
     // scripts/test-receipt-cards.mjs can assert what an arrival actually reads
     // rather than assert on the source text of the function that writes it.
     gapViewHtml: _gapViewHtml,
+    // Curator cross-link (see _xlRowHtml): the shared bill key a drawer row maps
+    // to, and a test seam to load a person's raw vote rows without a network.
+    voteActionBillKey: _xlBillKey,
+    loadVoteActionLinks: _xlEnsure,
+    setVoteActionLinks: function (pid, billKeys) { if (billKeys && typeof billKeys === 'object') _xl[pid] = billKeys; else delete _xl[pid]; },
     // The one stance store, read one way (see statedStance). The person-file
     // "Said" list, Word vs Action and the issue drawer all print these entries.
     statedStance: statedStance,
