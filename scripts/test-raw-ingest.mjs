@@ -517,6 +517,10 @@ const RETIRED_URLS_BY_PID = new Map();
 for (const r of RETIRED_SOURCES) (RETIRED_URLS_BY_PID.get(r.politician_id) || RETIRED_URLS_BY_PID.set(r.politician_id, new Set()).get(r.politician_id)).add(r.url);
 const ACTIVE_ROSTER = core.ROSTER.filter((r) => r.sources.length || r.official);
 const PREVIOUS = new Set(core.PREVIOUS_ROSTER);
+// Pool expansion (2026-11): curated-page rows for politicians with stated
+// positions — newly elected first. Campaign / official pages only; no official
+// pattern is configured for them (none is cited).
+const POOL = new Set(JSON.parse(readFileSync(path.join(root, 'db/raw-ingest-pool-expansion-2026-11.json'), 'utf8')).politicians.map((r) => r.politician_id));
 const ORIGINAL = new Set(core.ORIGINAL_FIVE);
 const SCORED = new Set((await import('../netlify/lib/stance-score-core.mjs')).SCORED_TOPICS);
 const memStore = () => {
@@ -547,6 +551,10 @@ await t('roster: priority flags are true to the data, and prioritised people com
       else assert.ok(['cost_living', 'healthcare_costs'].includes(s.topic));
     }
     const o = r.official;
+    if (!o && POOL.has(r.politician_id)) {
+      assert.ok(r.sources.length && r.sources.every((s) => s.source_class === 'curated_page'), `${r.politician_id}: pool rows carry curated pages`);
+      continue;
+    }
     if (!o && REQUESTED.has(r.politician_id)) {
       assert.ok(r.sources.length || r.note, "a missing source has an explicit note");
       continue;
@@ -631,7 +639,8 @@ await t('per-issue baseline: a filled politician + issue is not chased on later 
   assert.ok(!core.isFilled({ 'a|t': { strong: 0, weak: 2 } }, 'a', 't'));
   // Every issue of the top politician filled (1 strong on their only topic) → deprioritised.
   const top = core.priorityOrder(core.ROSTER, {})[0];
-  const topics = [...new Set([...top.r.sources, top.r.official].map((s) => s.topic))];
+  // Every pair the politician's pages work on (record topic + extra issue pairs).
+  const topics = [...new Set([...top.r.sources, top.r.official].filter(Boolean).flatMap((s) => core.pageTopics(s)))];
   assert.ok((await plan()).politicians.includes(top.r.politician_id), `${top.r.politician_id} leads the first run when open`);
   for (const t of topics) put(top.r.politician_id, t, 'strong');
   const logs = []; const rot = memStore();

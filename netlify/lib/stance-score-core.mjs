@@ -124,6 +124,22 @@
 //       bill) in the lead, is one explicit statement for the side the verb
 //       gives. Own topic and linked directional keys only; never changes a page
 //       that already reads support, oppose or mixed. See leadStance.
+//   R15 Implied stance from aligned mentions (phase8-v4): when nothing else on
+//       the page reads a side (no explicit statement, no implication, no
+//       reversal, no R14 lead signal) and at least WEIGHTS.impliedMentionsMin
+//       (3) of the page's own zero-weight topic mentions lean the SAME way, with
+//       no mention leaning the other way or carrying both directions, the page
+//       reads that side as an IMPLIED stance at WEIGHTS.impliedMentionConfidence
+//       (0.5). A mention leans (mentionLean) when, in the page's own voice (not
+//       attributed to an opponent or third party, not a quote by someone
+//       else, not a question, not negated), it carries the topic's own
+//       directional vocabulary without passing the explicit gates — the
+//       vocabulary outside the subject context check, or in the passive ("Social
+//       Security must be protected") — or frames the problem the topic's
+//       outcome rule gives a side to (support: the speaker wants it fixed). The
+//       mentions keep zero weight; 1–2 aligned mentions produce no position.
+//       Implied reads are never an R8 stated position and never a cross-topic
+//       candidate (R13 still needs an explicit anchor).
 //   Splitter: an initialism ("U.S.", "U.N.", "A.I.") or a short abbreviation
 //       ("Jan.", "vs.", "e.g.") does not end a sentence (mergeAbbreviations).
 //
@@ -136,7 +152,7 @@
 import { buildTopicRules, buildDirectionalTopicRules, ISSUE_TOPIC_VOCAB, ISSUE_TOPIC_LABELS, DIRECTIONAL_TOPIC_VOCAB, DIRECTIONAL_ISSUE_KEYS } from "./stance-topic-vocab.mjs";
 import { PERSON_SURNAMES, PLACE_SURNAMES, PLACE_SURNAME_FULL_NAMES } from "./stance-person-names.mjs";
 
-export const RULES_VERSION = "phase8-v3";
+export const RULES_VERSION = "phase8-v4";
 // Vocabulary version for the issue keys scored from stance-topic-vocab.mjs
 // (every register key except the two hand-calibrated core topics).
 export const VOCAB_VERSION = "issue-vocab-v1";
@@ -158,6 +174,8 @@ export const WEIGHTS = {
   maxConfidence: 0.95,
   mentionOnlyConfidence: 0.3, // "no clear position" when only mentions exist
   statedPositionConfidence: 0.8, // R8: floor for an explicit claim on a primary source
+  impliedMentionsMin: 3,  // R15: this many aligned mentions (and no contradiction)…
+  impliedMentionConfidence: 0.5, // …read as an implied stance at this confidence
 };
 
 export const CONFIDENCE_TOLERANCE = 0.1;
@@ -741,6 +759,79 @@ export function namesProblem(sentence, topic) {
   return r.outcome.test(sentence) || PROBLEM_CUE.test(sentence);
 }
 
+// ── R15: implied stance from aligned mentions ──────────────────────────────
+// Negation anywhere before a directional cue makes the lean unreadable (it may
+// flip the side), so a negated mention never leans.
+const LEAN_NEGATION = /\b(?:not|never|no|nor|n['’]t|cannot|won['’]t|refuse[sd]? to|against)\b/i;
+const PASSIVE_AUX = String.raw`(?:is|are|was|were|be|been|being|get|gets|got|remains?)`;
+const PASSIVE_ADV = String.raw`(?:(?:fully|further|finally|completely|permanently|now|always|properly|significantly|dramatically)\s+)?`;
+
+/**
+ * R15: rewrite each "<subject phrase naming the topic> (is|are|must be …)
+ * <verb>ed" into "<verb>ed <subject phrase>" so the topic's own (active-voice)
+ * vocabulary can read the direction ("Ukraine funding must be halted" →
+ * "halted Ukraine funding"). The subject phrase runs from the start of its
+ * clause. Returns [{ text, at, span }] (at = where the topic term starts; the
+ * actor is read on the sentence before it).
+ */
+const PASSIVE_MODAL = String.raw`(?:(?:must|should|will|would|can|could|shall|has to|have to|needs? to|ought to|deserves? to)\s+)?`;
+const PASSIVE_TAIL = String.raw`\s+${PASSIVE_MODAL}${PASSIVE_AUX}\s+${PASSIVE_ADV}`;
+const PASSIVE_RES = new Map();
+function passiveVariants(sentence, r) {
+  let re = PASSIVE_RES.get(r);
+  if (!re) PASSIVE_RES.set(r, re = new RegExp(String.raw`(?:${r.mention.source})(?:(?!\b(?:and|but|while|or|so|because|yet)\b)[^.!?;:,]){0,40}?${PASSIVE_TAIL}(\w+(?:ed|en)|cut|kept|built|met|paid|won)\b`, "gi"));
+  re.lastIndex = 0;
+  const out = [];
+  let m;
+  while ((m = re.exec(sentence))) {
+    const verb = m[m.length - 1];
+    const clause = Math.max(sentence.lastIndexOf(",", m.index), sentence.lastIndexOf(";", m.index), sentence.lastIndexOf(":", m.index),
+      ...[" and ", " but ", " while "].map((w) => { const i = sentence.lastIndexOf(w, m.index); return i < 0 ? -1 : i + w.length - 1; })) + 1;
+    const subject = sentence.slice(clause, m.index + m[0].length - verb.length).replace(new RegExp(`${PASSIVE_TAIL}$`, "i"), "").trim();
+    out.push({ text: `${verb} ${subject}`, at: m.index, span: sentence.slice(clause, m.index + m[0].length) });
+  }
+  return out;
+}
+
+/**
+ * R15: which way does one zero-weight mention lean? → "support" | "oppose" |
+ * "both" | null. Uses only the topic's own vocabulary (so polarity follows the
+ * key), read in the page's own voice. Questions and negated mentions never lean.
+ */
+export function mentionLean(sentence, topic, politicianId = null) {
+  const r = TOPIC_RULES[topic];
+  if (!r || /\?\s*$/.test(sentence)) return null;
+  let sup = false, opp = false;
+  // Own voice and not negated, read on the text before the cue.
+  const own = (prefix) => !LEAN_NEGATION.test(prefix) && implicationActor(prefix, r, politicianId).kind === "self";
+  // `base` = the sentence before the cue's text; a rewritten passive starts
+  // with its verb, so only `base` is read for the actor there.
+  const read = (text, base, rewritten = false) => {
+    for (const [re, side] of [[r.support, "s"], [r.implySupport, "s"], [r.oppose, "o"], [r.implyOppose, "o"]]) {
+      const m = re ? re.exec(text) : null;
+      if (!m || !own(rewritten ? base : base + text.slice(0, m.index))) continue;
+      if (side === "s") sup = true; else opp = true;
+    }
+  };
+  // The topic's own directional vocabulary on the sentence as written (it
+  // passed none of the explicit gates — e.g. the subject context check).
+  read(sentence, "");
+  // The passive form: "Social Security must be protected".
+  for (const pv of passiveVariants(sentence, r)) {
+    if (!LEAN_NEGATION.test(pv.span)) read(pv.text, sentence.slice(0, pv.at), true);
+  }
+  // Problem framing the topic's outcome rule gives a side to (R6(b) / R7):
+  // support = the speaker wants the problem fixed.
+  if (r.outcome) {
+    const om = r.outcome.exec(sentence);
+    const pm = om ? null : (namesProblem(sentence, topic) ? PROBLEM_CUE.exec(sentence) : null);
+    const at = om ? om.index : pm ? pm.index : -1;
+    if (at >= 0 && own(sentence.slice(0, at))) sup = true;
+  }
+  if (sup && opp) return "both";
+  return sup ? "support" : opp ? "oppose" : null;
+}
+
 // ── R14: title and lead-sentence stance signals ─────────────────────────────
 // A press release or statement often puts the whole position in its headline
 // or opening line — "Duckworth Votes Against Final NDAA", "Cortez Masto
@@ -1293,6 +1384,20 @@ export function scoreRawRecord(raw, topic = raw?.topic, sentences = null, opts =
       Object.assign(existing, st, { text });
     } else statements.unshift({ _i: -1, text, ...st });
   }
+  // R15: no directional signal anywhere → do the page's own mentions lean one way?
+  const leaning = [];
+  let leanConflict = false;
+  if (opts.impliedMentions !== false && !NO_POLE_TOPICS.has(topic) && !statements.some((s) => s.kind === "clear" || s.kind === "implication")) {
+    for (const s of statements) {
+      if (s.kind !== "mention" || s._i < 0 || s.attributed_to || s.quoted_speaker === "other") continue;
+      const lean = mentionLean(list[s._i], topic, raw.politician_id);
+      if (lean === "both") leanConflict = true;
+      else if (lean) leaning.push([s, lean]);
+    }
+    if (new Set(leaning.map(([, l]) => l)).size > 1) leanConflict = true;
+  }
+  const impliedSide = !leanConflict && leaning.length >= WEIGHTS.impliedMentionsMin ? leaning[0][1] : null;
+  if (impliedSide) for (const [s, l] of leaning) s.lean = l;
   for (const s of statements) delete s._i;
   const clear = statements.filter((s) => s.kind === "clear");
   const implied = statements.filter((s) => s.kind === "implication");
@@ -1321,6 +1426,12 @@ export function scoreRawRecord(raw, topic = raw?.topic, sentences = null, opts =
     position = reversal.side;
     confidence = WEIGHTS.baseConfidence[tier];
     reason = `explicit reversal language sets the position to ${position} (R5); earlier statements not counted as corroboration`;
+  } else if (!signals && impliedSide) {
+    // R15: aligned mentions, nothing contradicting → an implied stance.
+    position = impliedSide;
+    confidence = WEIGHTS.impliedMentionConfidence;
+    const rest = mentions - leaning.length;
+    reason = `implied stance: ${leaning.length} aligned mentions imply ${impliedSide}, none contradicting (R15)${rest ? `; ${rest} other mention(s) recorded at zero weight (R3)` : ""}`;
   } else if (!signals) {
     position = "no clear position";
     confidence = mentions ? WEIGHTS.mentionOnlyConfidence : 0;
@@ -1363,7 +1474,8 @@ export function scoreRawRecord(raw, topic = raw?.topic, sentences = null, opts =
   const stated = statedOk(position);
 
   const firstClear = clear.find((s) => s.side === position) || clear[0]
-    || implied.find((s) => s.side === position) || implied[0];
+    || implied.find((s) => s.side === position) || implied[0]
+    || (impliedSide ? leaning[0][0] : null);
   return {
     politician_id: raw.politician_id,
     topic,
@@ -1379,12 +1491,14 @@ export function scoreRawRecord(raw, topic = raw?.topic, sentences = null, opts =
       weight_tier: tier,
       takes_clear_position: clear.length > 0,
       implication_count: implied.length,
+      ...(impliedSide ? { aligned_mentions: leaning.length } : {}),
       statements,
     }],
     // R8: the stated layer only. A stated position is what the candidate said
     // on a primary source; it is never a formal record or completed action.
     ...(stated ? { stated_position: true, primary_kind: rule.kind } : {}),
     ...(subject ? { subject: subjectSummary(subject, spans, statements) } : {}),
+    ...(impliedSide ? { implied_stance: true } : {}),
     layer: "stated",
     formal_record: false,
     rules_version: RULES_VERSION,

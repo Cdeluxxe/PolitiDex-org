@@ -266,7 +266,7 @@ t('the register sweep and every existing key\'s rules are unchanged', () => {
   assert.equal(existing.length, 125);
   // Fingerprint of the 125 existing keys' compiled rules at the start of this pass.
   assert.equal(fingerprint(S.TOPIC_RULES, existing), 'f3ca8a77ce70f58fbef03e2097d2ae260d423189bc20f78a9998c616e03e5bb1');
-  assert.equal(S.RULES_VERSION, 'phase8-v3');
+  assert.equal(S.RULES_VERSION, 'phase8-v4');
   assert.equal(S.VOCAB_VERSION, 'issue-vocab-v1');
   assert.equal(S.WEIGHTS.statedPositionConfidence, 0.8);
   // The register sweep never yields a directional-key candidate unless asked.
