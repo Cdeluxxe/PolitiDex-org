@@ -140,8 +140,14 @@ const PATTERN_MEASURE_TYPES_SKIPPED = new Set(["litigation", "nomination"]);
 
 // A pattern regex is case-insensitive and stateless (no /g) today; re-create
 // defensively so a future /g flag can never make .test() alternate.
-const stateless = (re: RegExp | undefined | null): RegExp | null =>
-  re ? new RegExp(re.source, re.flags.replace(/g|y/g, "")) : null;
+// A pattern field is a RegExp OR a predicate object with .test() (healthcare's
+// `cedes` is one). Only a real RegExp is rebuilt without g / y; a predicate is
+// used as-is; anything else counts as absent rather than throwing.
+type Tester = { test: (t: string) => boolean };
+const stateless = (re: RegExp | Tester | undefined | null): Tester | null => {
+  if (re instanceof RegExp) return new RegExp(re.source, String(re.flags || "").replace(/g|y/g, ""));
+  return re && typeof (re as Tester).test === "function" ? (re as Tester) : null;
+};
 
 const str = (v: unknown) => String(v ?? "").trim();
 function titleText(m: MeasureLite): string {

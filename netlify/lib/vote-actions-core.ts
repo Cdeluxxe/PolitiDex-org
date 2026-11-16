@@ -398,8 +398,14 @@ export function lisIndexFrom(legislators: any[]): Record<string, string> {
 //   subject  — a legislative subject term the vocabulary or keyword matcher reads
 // Nothing vote-derived and no curated mapping is consulted; the policy area is
 // stored on the bill but is not a signal.
-const stateless = (re: RegExp | undefined | null): RegExp | null =>
-  re ? new RegExp(re.source, re.flags.replace(/g|y/g, "")) : null;
+// A pattern field is a RegExp OR a predicate object with .test() (healthcare's
+// `cedes` is one). Only a real RegExp is rebuilt without g / y; a predicate is
+// used as-is; anything else counts as absent rather than throwing.
+type Tester = { test: (t: string) => boolean };
+const stateless = (re: RegExp | Tester | undefined | null): Tester | null => {
+  if (re instanceof RegExp) return new RegExp(re.source, String(re.flags || "").replace(/g|y/g, ""));
+  return re && typeof (re as Tester).test === "function" ? (re as Tester) : null;
+};
 
 export function patternHits(text: string): string[] {
   const hits: string[] = [];
@@ -852,25 +858,37 @@ export async function runVoteActions(deps: RunDeps): Promise<{ report: RunReport
       }
       if (!rec.measure) { ledgerSet(key, "no_measure", c.date, rec.question || ""); report.noMeasure++; continue; }
 
-      let bill = await deps.repo.getBill(rec.measure.billKey);
-      if (!bill) {
-        const meta = await fetchBillMeta(deps.fetch, deps.apiKey, rec.congress, rec.measure);
-        const tags = tagMeasure({ measureType: rec.measure.measureType, title: meta.title, shortTitle: meta.shortTitle, summary: meta.summary, policyArea: meta.policyArea, subjects: meta.subjects });
-        if (!rec.measure.parentBillKey && isRuleResolution(rec.measure.billType, meta.title)) rec.measure.parentBillKey = ruleTarget(rec.congress, meta.title);
-        bill = buildBillRow(rec.congress, rec.measure, meta, tags, null, now);
-        await deps.repo.upsertBill(bill);
-        tags.tags.length ? report.billsTagged++ : report.billsUntagged++;
-        log(`vote-actions: BILL ${bill.billKey} ${bill.number || ""} — tags high [${tags.highTags.join(", ")}] low [${tags.lowTags.join(", ")}]${tags.untagged ? ` (untagged: ${tags.untagged})` : ""}${tags.multiTopic ? " multi-topic" : ""} · ${meta.metaSource}`);
+      // One roll call's bill / tag / write step failing must not end the run:
+      // it is retried on later runs like a missing member list, then parked.
+      try {
+        let bill = await deps.repo.getBill(rec.measure.billKey);
+        if (!bill) {
+          const meta = await fetchBillMeta(deps.fetch, deps.apiKey, rec.congress, rec.measure);
+          const tags = tagMeasure({ measureType: rec.measure.measureType, title: meta.title, shortTitle: meta.shortTitle, summary: meta.summary, policyArea: meta.policyArea, subjects: meta.subjects });
+          if (!rec.measure.parentBillKey && isRuleResolution(rec.measure.billType, meta.title)) rec.measure.parentBillKey = ruleTarget(rec.congress, meta.title);
+          bill = buildBillRow(rec.congress, rec.measure, meta, tags, null, now);
+          await deps.repo.upsertBill(bill);
+          tags.tags.length ? report.billsTagged++ : report.billsUntagged++;
+          log(`vote-actions: BILL ${bill.billKey} ${bill.number || ""} — tags high [${tags.highTags.join(", ")}] low [${tags.lowTags.join(", ")}]${tags.untagged ? ` (untagged: ${tags.untagged})` : ""}${tags.multiTopic ? " multi-topic" : ""} · ${meta.metaSource}`);
+        }
+        if (rec.voteKind === "passage" && isRuleResolution(bill.billType, bill.title)) { rec.voteKind = "rule"; rec.isProcedural = true; }
+        const { rows, unmapped } = buildVoteRows(rec, bill, { memberMap: deps.memberMap, lis });
+        const w = await deps.repo.upsertVotes(rows);
+        report.votesInserted += w.inserted;
+        report.votesRevised += w.revised;
+        report.membersUnmapped += unmapped;
+        for (const t of bill.topicTags) report.tagCounts[t] = (report.tagCounts[t] || 0) + 1;
+        ledgerSet(key, "done", c.date);
+        report.done++;
+      } catch (e: any) {
+        if (e instanceof RateLimited) throw e;
+        const msg = String(e?.message || e).slice(0, 160);
+        const parked = attempts >= MAX_ATTEMPTS;
+        ledgerSet(key, parked ? "parked" : "incomplete", c.date, `processing error: ${msg}`);
+        parked ? report.parked++ : report.incomplete++;
+        report.errors.push(`${key}: ${msg}`);
+        log(`vote-actions: ${parked ? "PARKED" : "RETRY LATER"} ${key} — processing error: ${msg} (attempt ${attempts})`);
       }
-      if (rec.voteKind === "passage" && isRuleResolution(bill.billType, bill.title)) { rec.voteKind = "rule"; rec.isProcedural = true; }
-      const { rows, unmapped } = buildVoteRows(rec, bill, { memberMap: deps.memberMap, lis });
-      const w = await deps.repo.upsertVotes(rows);
-      report.votesInserted += w.inserted;
-      report.votesRevised += w.revised;
-      report.membersUnmapped += unmapped;
-      for (const t of bill.topicTags) report.tagCounts[t] = (report.tagCounts[t] || 0) + 1;
-      ledgerSet(key, "done", c.date);
-      report.done++;
     }
 
     // 3. Late summaries: refetch a few bills read without one, then re-tag.

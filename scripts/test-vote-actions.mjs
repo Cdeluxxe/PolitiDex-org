@@ -266,6 +266,34 @@ rb.votes.set("a", { billKey: "x", topicTags: [], taggerVersion: "old" });
 const r4 = await C.runVoteActions({ fetch: async () => ({ ok: false, status: 404 }), repo: rb, memberMap, apiKey: null, now: () => NOW, log: () => {}, chambers: [] });
 eq([r4.report.retagged, rb.votes.get("a").taggerVersion], [1, C.TAGGER_VERSION], "re-tag follows onto vote rows");
 
+// Regression: healthcare's `cedes` is a { test } predicate, not a RegExp. The
+// tagger used to read `.flags.replace` on it and throw "Cannot read properties
+// of undefined (reading 'replace')" on the first healthcare bill, ending the run.
+let hcHits = null, hcErr = null;
+try { hcHits = C.patternHits("A bill to expand Medicaid coverage and lower premiums under the Affordable Care Act"); } catch (e) { hcErr = e; }
+ok(!hcErr, `healthcare bill text does not throw (${hcErr?.message})`);
+ok(hcHits?.includes("healthcare"), "healthcare bill is tagged healthcare");
+ok(!C.patternHits("Expand Medicaid coverage to pay for abortion services").includes("healthcare"), "healthcare cede predicate still applies");
+let tmErr = null;
+try { C.tagMeasure({ measureType: "bill", title: "Medicaid coverage act", summary: "Expands health insurance coverage under the ACA.", subjects: [] }); } catch (e) { tmErr = e; }
+ok(!tmErr, "tagMeasure on a healthcare bill does not throw");
+ok((() => { try { C.patternHits(""); C.patternHits(undefined); return true; } catch { return false; } })(), "empty / missing bill text does not throw");
+
+// One roll call failing while being processed is retried then parked — the run
+// finishes the other roll calls instead of stopping at the first error.
+const rf = memRepo();
+const realUpsert = rf.upsertBill;
+rf.upsertBill = async (b) => { if (b.billKey === "us-119-hr-5000") throw new TypeError("Cannot read properties of undefined (reading 'replace')"); return realUpsert(b); };
+let rfState = null, rfReport = null;
+({ report: rfReport, state: rfState } = await C.runVoteActions({ fetch: fakeFetch, repo: rf, memberMap, apiKey: "k", now: () => NOW, log: () => {}, maxRolls: 20 }));
+eq(rfState.ledger["house|119|2|300"]?.status, "incomplete", "failing roll call is left for retry, not done");
+ok(/processing error: .*replace/.test(rfState.ledger["house|119|2|300"]?.note || ""), "ledger note names the processing error");
+ok(rfReport.errors.some((e) => e.startsWith("house|119|2|300: ")), "error is reported against its roll call");
+ok(rfState.ledger["house|119|2|301"]?.status === "done" && rfState.ledger["senate|119|2|500"]?.status === "done", "later roll calls in the same run still complete");
+ok(![...rf.votes.values()].some((r) => r.rollNumber === 300), "no partial vote rows for the failing roll call");
+for (let i = 0; i < C.MAX_ATTEMPTS; i++) ({ state: rfState } = await C.runVoteActions({ fetch: fakeFetch, repo: rf, memberMap, apiKey: "k", state: rfState, now: () => NOW, log: () => {} }));
+eq(rfState.ledger["house|119|2|300"]?.status, "parked", "an always-failing roll call is parked after MAX_ATTEMPTS");
+
 // ── 6. isolation ─────────────────────────────────────────────────────────────
 section("isolation");
 const core = read("netlify/lib/vote-actions-core.ts");
