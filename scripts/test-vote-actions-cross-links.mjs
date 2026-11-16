@@ -11,7 +11,8 @@
 //      the roll call, the official record and the stored-payload key
 //   3. one side only (curated only, or raw rows on other bills) → the drawer
 //      HTML is byte-identical to today
-//   4. only the curator's session fetches; everyone else makes no request
+//   4. the curator's session reads the curator endpoint (every row, raw keys);
+//      every other reader reads only the public, publish-gated endpoint
 //   5. the endpoint is curator-only, read-only, and groups rows by bill key
 //
 //   node scripts/test-vote-actions-cross-links.mjs   (no database, no network)
@@ -142,14 +143,13 @@ const hostile = CS.gapViewHtml(dw.pid, dw.key);
 ok(!/<img src=x|<script>|javascript:alert/.test(hostile), "note escapes values and links only http(s) sources");
 CS.setVoteActionLinks(dw.pid, null);
 
-// ── 4 · only the curator's session fetches ──────────────────────────────────
+// ── 4 · who reads what ───────────────────────────────────────────────────────
 const src = R("consistency.js");
-const xl = src.slice(src.indexOf("CURATOR-ONLY CROSS-LINK"), src.indexOf("function _dosLedgerHtml"));
-ok(/_XL_CURATORS\.indexOf\(u\.email\.toLowerCase\(\)\)/.test(xl) && /!u\.isAnonymous/.test(xl), "fetch is gated on a non-anonymous curator account");
-ok(/if \(!pid \|\| _xlAsked\[pid\] \|\| !_xlCurator\(\)/.test(xl), "no curator → no request");
-ok((src.match(/['"]\/api\/admin\//g) || []).length === 1 && xl.includes("'/api/admin/vote-actions/cross-links'"), "the drawer calls only the curator endpoint, in this one place");
+const xl = src.slice(src.indexOf("CROSS-LINK: curated measure ↔ raw vote feed"), src.indexOf("function _dosLedgerHtml"));
+ok(/_XL_CURATORS\.indexOf\(u\.email\.toLowerCase\(\)\)/.test(xl) && /!u\.isAnonymous/.test(xl), "the curator endpoint is gated on a non-anonymous curator account");
+ok((src.match(/['"]\/api\/admin\//g) || []).length === 1 && xl.includes("'/api/admin/vote-actions/cross-links'") && xl.includes("'/api/vote-actions/published'"), "the drawer calls the curator endpoint and the public gated endpoint, in this one place");
 const og = src.slice(src.indexOf("function openGap(pid, issueKey, opts)"));
-ok(/body\.innerHTML = html;\s*\/\/ Curator only[\s\S]{0,200}_xlEnsure\(pid, function \(\)/.test(og.slice(0, 2000)), "openGap asks the loader right after painting, with a repaint of the open sheet");
+ok(/body\.innerHTML = html;[\s\S]{0,400}if \(\/<table class="pdxlg-t"\/\.test\(html\)\) \{\s*_xlEnsure\(pid, function \(\)/.test(og.slice(0, 2500)), "openGap asks the loader right after painting, only for a drawer with a vote table");
 async function sessionFetches(user) {
   const w = boot();
   const seen = [];
@@ -163,13 +163,14 @@ async function sessionFetches(user) {
   if (user && repainted !== (seen.length ? 1 : 0)) failures.push("repaint callback not called exactly once after a load");
   return { seen, html: w.PDXConsistency.gapViewHtml(dw.pid, dw.key) };
 }
+const pubUrl = `/api/vote-actions/published?pid=${encodeURIComponent(dw.pid)}`;
 const guest = await sessionFetches(null);
-eq(guest.seen.length, 0, "signed-out reader: no request");
-eq(guest.html, baseline, "signed-out reader: drawer unchanged");
+eq(guest.seen.map((s) => [s.u, s.auth]), [[pubUrl, ""]], "signed-out reader: only the public gated endpoint, no token");
+ok(!/raw <code>|Curator ·/.test(guest.html), "signed-out reader: never the curator note or a raw key");
 const member = await sessionFetches({ email: "someone@example.com", isAnonymous: false, getIdToken: async () => "t" });
-eq(member.seen.length, 0, "signed-in non-curator: no request");
+eq(member.seen.map((s) => [s.u, s.auth]), [[pubUrl, ""]], "signed-in non-curator: only the public endpoint, no token sent");
 const anon = await sessionFetches({ email: "cdeluxxe@gmail.com", isAnonymous: true, getIdToken: async () => "t" });
-eq(anon.seen.length, 0, "anonymous session: no request");
+eq(anon.seen.map((s) => s.u), [pubUrl], "anonymous session: only the public endpoint");
 const curator = await sessionFetches({ email: "CDeluxxe@gmail.com", isAnonymous: false, getIdToken: async () => "tok" });
 eq(curator.seen.map((s) => [s.u, s.auth]), [[`/api/admin/vote-actions/cross-links?pid=${encodeURIComponent(dw.pid)}`, "Bearer tok"]], "curator: one request with the ID token");
 ok(/pdxlg-xlr/.test(curator.html), "curator: the drawer shows the cross-link once loaded");
@@ -183,7 +184,7 @@ const stub = {
     b.onLoad({ filter: /.*/, namespace: "stub" }, (a) => ({
       loader: "js",
       contents: a.path === "admin" ? "export const requireAdmin = async () => globalThis.__admin;"
-        : "export const voteActionsForPolitician = async (pid) => { globalThis.__asked = pid; return JSON.parse(JSON.stringify(globalThis.__rows)); };",
+        : "export const publishDeps = { rowsForPolitician: async (pid) => { globalThis.__asked = pid; return JSON.parse(JSON.stringify(globalThis.__rows)); }, statsForBills: async () => [] };",
     }));
   },
 };

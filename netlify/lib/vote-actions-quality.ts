@@ -124,30 +124,20 @@ export const pctText = (x: Rate) => (x.pct === null ? "n/a" : `${x.pct.toFixed(1
 
 // The full status body: every field the endpoint returned before, plus quality.
 export function buildStatusBody(input: {
-  lastRun: any; ledger: LedgerLike; status: { bills: any; votes: any; tags: any; unmappedMembers?: any[] };
+  lastRun: any; ledger: LedgerLike; status: { bills: any; votes: any; tags: any; unmappedMembers?: any[]; publishStats?: any[] | null };
+  publish?: (stats: any[]) => unknown;
 }) {
   const ledgerCounts: Record<string, number> = {};
   for (const v of Object.values(input.ledger)) ledgerCounts[v.status] = (ledgerCounts[v.status] || 0) + 1;
   const notDone = Object.entries(input.ledger).filter(([, v]) => v.status !== "done").slice(0, 50).map(([k, v]) => ({ roll: k, ...v }));
-  const { unmappedMembers = [], ...status } = input.status;
+  const { unmappedMembers = [], publishStats = null, ...status } = input.status;
   return {
     lastRun: input.lastRun, ledger: ledgerCounts, notDone, ...status,
-    quality: { tables: tableQuality(status.bills, status.votes), ledger: ledgerQuality(input.ledger) },
+    quality: {
+      tables: tableQuality(status.bills, status.votes), ledger: ledgerQuality(input.ledger),
+      // The automatic publish gate over every bill (vote-actions-publish.ts publishSummary).
+      ...(input.publish && publishStats ? { publish: input.publish(publishStats) } : {}),
+    },
     unmappedMembers,
   };
-}
-
-// Group one politician's raw vote rows by bill key for the drawer cross-link.
-export function crossLinksBody(pid: string, rows: Array<Record<string, any>>) {
-  const billKeys: Record<string, any[]> = {};
-  for (const r of rows || []) {
-    if (!r || !r.billKey) continue;
-    (billKeys[r.billKey] ||= []).push({
-      chamber: r.chamber, congress: r.congress, session: r.session, roll: r.rollNumber,
-      date: r.voteDate ? new Date(r.voteDate).toISOString() : null, vote: r.vote, voteRaw: r.voteRaw ?? null,
-      voteKind: r.voteKind ?? null, question: r.question ?? null,
-      sourceUrl: r.sourceUrl, sourceLabel: r.sourceLabel ?? null, rawRef: r.rawRef ?? null,
-    });
-  }
-  return { pid, bills: Object.keys(billKeys).length, billKeys };
 }

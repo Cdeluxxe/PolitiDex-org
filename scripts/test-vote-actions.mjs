@@ -389,6 +389,19 @@ eq(readers, [], "no other function reads the action tables");
 const edge = readdirSync(join(ROOT, "netlify/edge-functions")).filter((f) => /vote-actions|pdx_vote_actions/.test(read(`netlify/edge-functions/${f}`)));
 eq(edge, [], "no edge function reads the action tables");
 ok(/path: "\/api\/admin\/vote-actions"/.test(read("netlify/functions/vote-actions-status.mts")) && /requireAdmin/.test(read("netlify/functions/vote-actions-status.mts")), "status endpoint is curator-only");
+// THE PUBLISH GATE IS THE ONLY PUBLIC DOOR. Every vote-actions function is the
+// cron, a curator endpoint, or the one public read — and that read reaches the
+// tables only through publishedForPolitician (vote-actions-publish.ts), which
+// drops every row on a bill that fails a rule (behaviour: test-vote-actions-publish.mjs).
+const vaFns = readdirSync(join(ROOT, "netlify/functions")).filter((f) => f.startsWith("vote-actions"));
+const publicFns = vaFns.filter((f) => { const s = read(`netlify/functions/${f}`); return !/schedule:\s*"/.test(s) && !/requireAdmin\(req\)/.test(s); });
+eq(publicFns, ["vote-actions-published.mts"], "the only public vote-actions function is the publish-gated read");
+const pubFn = read("netlify/functions/vote-actions-published.mts");
+eq(importsOf(pubFn).sort(), ["../lib/vote-actions-db.js", "../lib/vote-actions-publish.js", "@netlify/functions"].sort(), "public read imports only the gate and its data deps");
+ok(/publishedForPolitician\(pid, publishDeps\)/.test(pubFn) && !/voteActionsForPolitician|curatorLinksForPolitician|billPublishStats|rawRef|db\.select|sql`/.test(pubFn), "public read goes through publishedForPolitician only");
+const gate = read("netlify/lib/vote-actions-publish.ts");
+const pubBody = gate.slice(gate.indexOf("export async function publishedForPolitician"), gate.indexOf("export async function curatorLinksForPolitician"));
+ok(/if \(!evaluateBill\(r\.billKey, byKey\.get\(r\.billKey\)\)\.publishable\) continue;/.test(pubBody) && !/rawRef|memberId|politicianId/.test(pubBody), "public rows are gated per bill and carry no raw key or member id");
 
 rmSync(dir, { recursive: true, force: true });
 if (failures.length) {

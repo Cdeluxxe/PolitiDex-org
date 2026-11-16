@@ -8,6 +8,7 @@ import { getStore } from "@netlify/blobs";
 import { requireAdmin } from "../lib/admin-auth.mjs";
 import { STATE_STORE_NAME, STATE_KEY, normaliseState } from "../lib/vote-actions-core.js";
 import { buildStatusBody } from "../lib/vote-actions-quality.js";
+import { publishSummary } from "../lib/vote-actions-publish.js";
 import { voteActionsStatus } from "../lib/vote-actions-db.js";
 
 const json = (status: number, body: unknown) =>
@@ -21,7 +22,7 @@ export default async (req: Request): Promise<Response> => {
   try {
     // Same fields as before (lastRun, ledger, notDone, bills, votes, tags) plus
     // quality rates and the unmapped-member to-do list, all recomputed per read.
-    return json(200, buildStatusBody({ lastRun: state.lastRun, ledger: state.ledger, status: await voteActionsStatus() }));
+    return json(200, buildStatusBody({ lastRun: state.lastRun, ledger: state.ledger, status: await voteActionsStatus(), publish: publishSummary }));
   } catch (e: any) {
     return json(500, { error: "status unavailable", detail: e?.message || String(e) });
   }

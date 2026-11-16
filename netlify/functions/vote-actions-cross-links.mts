@@ -4,11 +4,12 @@
 // ONLY for the signed-in curator and prints a short "also in the raw vote feed"
 // note under a curated measure with the same key. Curator only (the existing
 // /admin Firebase login, verified server-side); read-only; nothing public
-// links to it, and no public read changes.
+// links to it. Each bill also carries its automatic publish-gate result
+// (vote-actions-publish.ts), so the curator sees what is public and why not.
 import type { Config } from "@netlify/functions";
 import { requireAdmin } from "../lib/admin-auth.mjs";
-import { voteActionsForPolitician } from "../lib/vote-actions-db.js";
-import { crossLinksBody } from "../lib/vote-actions-quality.js";
+import { publishDeps } from "../lib/vote-actions-db.js";
+import { curatorLinksForPolitician } from "../lib/vote-actions-publish.js";
 
 const json = (status: number, body: unknown) =>
   new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json", "cache-control": "private, no-store" } });
@@ -19,7 +20,8 @@ export default async (req: Request): Promise<Response> => {
   const pid = String(new URL(req.url).searchParams.get("pid") || "").trim();
   if (!/^[A-Za-z0-9_.-]{1,120}$/.test(pid)) return json(400, { error: "pid required" });
   try {
-    return json(200, crossLinksBody(pid, await voteActionsForPolitician(pid)));
+    // Every row (raw keys included) plus each bill's publish-gate result.
+    return json(200, await curatorLinksForPolitician(pid, publishDeps));
   } catch (e: any) {
     return json(500, { error: "cross-links unavailable", detail: e?.message || String(e) });
   }

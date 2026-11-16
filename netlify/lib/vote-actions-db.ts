@@ -1,6 +1,6 @@
 // Drizzle-backed repository for the action layer (vote-actions-core.ts).
 // Writes ONLY pdx_action_bills and pdx_vote_actions; no other table is read or written.
-import { and, eq, inArray, lt, ne, sql } from "drizzle-orm";
+import { and, eq, inArray, isNotNull, isNull, lt, ne, sql } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import { pdxActionBills, pdxVoteActions } from "../../db/schema.js";
 import type { BillRow, VoteActionsRepo, VoteRow } from "./vote-actions-core.js";
@@ -98,6 +98,24 @@ export const voteActionsRepo: VoteActionsRepo = {
     return rows.map(toBill);
   },
 
+  async unmappedBioguides() {
+    const rows = await db.selectDistinct({ b: pdxVoteActions.bioguideId }).from(pdxVoteActions)
+      .where(and(isNull(pdxVoteActions.politicianId), isNotNull(pdxVoteActions.bioguideId)));
+    return rows.map((r) => r.b as string);
+  },
+
+  async mapMembers(pairs) {
+    let n = 0;
+    for (const [bioguide, pid] of pairs) {
+      const res: any = await db.update(pdxVoteActions)
+        .set({ politicianId: pid, updatedAt: new Date() })
+        .where(and(eq(pdxVoteActions.bioguideId, bioguide), isNull(pdxVoteActions.politicianId)))
+        .returning({ id: pdxVoteActions.id });
+      n += res.length;
+    }
+    return n;
+  },
+
   async billsWithStaleTags(version, limit) {
     const rows = await db.select().from(pdxActionBills).where(ne(pdxActionBills.taggerVersion, version)).limit(limit);
     return rows.map(toBill);
@@ -151,7 +169,7 @@ export async function voteActionsStatus() {
      GROUP BY member_id_scheme, member_id, bioguide_id
      ORDER BY (bioguide_id IS NULL) DESC, count(*) DESC, member_id
      LIMIT 25`));
-  return { bills, votes, tags, unmappedMembers };
+  return { bills, votes, tags, unmappedMembers, publishStats: await billPublishStats() };
 }
 
 // Curator-only cross-links (GET /api/admin/vote-actions/cross-links): one
@@ -162,10 +180,43 @@ export async function voteActionsForPolitician(politicianId: string, limit = 200
     billKey: pdxVoteActions.billKey, chamber: pdxVoteActions.chamber, congress: pdxVoteActions.congress,
     session: pdxVoteActions.session, rollNumber: pdxVoteActions.rollNumber, voteDate: pdxVoteActions.voteDate,
     vote: pdxVoteActions.vote, voteRaw: pdxVoteActions.voteRaw, voteKind: pdxVoteActions.voteKind,
-    question: pdxVoteActions.question, sourceUrl: pdxVoteActions.sourceUrl, sourceLabel: pdxVoteActions.sourceLabel,
+    isProcedural: pdxVoteActions.isProcedural, question: pdxVoteActions.question, sourceUrl: pdxVoteActions.sourceUrl, sourceLabel: pdxVoteActions.sourceLabel,
     rawRef: pdxVoteActions.rawRef,
   }).from(pdxVoteActions)
     .where(eq(pdxVoteActions.politicianId, politicianId))
     .orderBy(pdxVoteActions.voteDate, pdxVoteActions.rollNumber)
     .limit(limit);
 }
+
+// Publish-gate inputs per bill (netlify/lib/vote-actions-publish.ts evaluates
+// them): the bill's kind and tag count, and over ALL its vote rows the counts of
+// unmapped members, unclassified kinds and missing raw payloads. Read-only,
+// recomputed on every call — no stored flag. `billKeys` omitted = every bill.
+export async function billPublishStats(billKeys?: string[]) {
+  if (billKeys && !billKeys.length) return [];
+  const rowsOf = (res: any) => (Array.isArray(res) ? res : res?.rows ?? []);
+  const where = billKeys ? sql`WHERE b.bill_key IN (${sql.join(billKeys.map((k) => sql`${k}`), sql`, `)})` : sql``;
+  const res: any[] = rowsOf(await db.execute(sql`
+    SELECT b.bill_key, b.measure_type, cardinality(b.topic_tags)::int AS tag_count,
+           count(v.id)::int AS rows,
+           count(v.id) FILTER (WHERE v.politician_id IS NULL)::int AS unmapped_rows,
+           count(v.id) FILTER (WHERE v.vote_kind = 'unknown' OR v.is_procedural IS NULL)::int AS unknown_kind_rows,
+           count(v.id) FILTER (WHERE v.raw_ref IS NULL)::int AS missing_raw_rows,
+           count(v.id) FILTER (WHERE v.is_procedural IS TRUE)::int AS procedural_rows,
+           count(DISTINCT (v.chamber, v.congress, v.session, v.roll_number)) FILTER (WHERE v.id IS NOT NULL)::int AS rolls
+      FROM pdx_action_bills b
+      LEFT JOIN pdx_vote_actions v ON v.bill_key = b.bill_key
+      ${where}
+     GROUP BY b.bill_key, b.measure_type, b.topic_tags`));
+  return res.map((r) => ({
+    billKey: r.bill_key, measureType: r.measure_type, tagCount: Number(r.tag_count) || 0, rows: Number(r.rows) || 0,
+    unmappedRows: Number(r.unmapped_rows) || 0, unknownKindRows: Number(r.unknown_kind_rows) || 0,
+    missingRawRows: Number(r.missing_raw_rows) || 0, proceduralRows: Number(r.procedural_rows) || 0, rolls: Number(r.rolls) || 0,
+  }));
+}
+
+// The gate's data deps, wired to the tables.
+export const publishDeps = {
+  rowsForPolitician: (pid: string) => voteActionsForPolitician(pid),
+  statsForBills: (keys: string[]) => billPublishStats(keys),
+};

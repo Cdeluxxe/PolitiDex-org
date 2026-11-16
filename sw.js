@@ -12242,7 +12242,19 @@
 //     moves; the precache list is unchanged. No stored reader state is written
 //     or rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v571';
+// v572 - THE PUBLISH GATE OPENS THE DRAWER NOTE TO EVERY READER. consistency.js
+//     now asks the public /api/vote-actions/published for a person whose drawer
+//     has a vote table, once per session, and prints "Also in the raw vote feed"
+//     under a curated measure only when its bill passes the automatic publish
+//     gate (tagged, not a nomination, every member mapped, every vote kind known,
+//     every source payload stored). Procedural votes are labelled. A drawer with
+//     nothing that passes is byte-identical and is not repainted. The curator
+//     still reads every row and sees why a bill is held. No tally, chip or
+//     verdict changes. A precached file changed, so the shell moves; the
+//     precache list is unchanged. No stored reader state is written or
+//     rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v572';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

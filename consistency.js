@@ -17577,21 +17577,31 @@
     return out;
   }
 
-  // ── CURATOR-ONLY CROSS-LINK: curated measure ↔ raw vote feed ────────────────
-  // When the signed-in CURATOR opens a drawer, the raw vote rows the vote-actions
-  // cron recorded for this person (pdx_vote_actions) are fetched from the
-  // curator-only /api/admin/vote-actions/cross-links, and a curated measure whose
-  // bill key matches gets one short note row under it: the roll call(s) in the
-  // raw feed, each with its official record and stored-payload key. The bill key
-  // is the shared one ("us-119-hr-5000"): congress + the canonical citation, the
-  // same derivation as vrMeasureBillKey in netlify/lib/vote-actions-core.ts.
-  // EVERYONE ELSE: no request is made, _xl stays empty and the drawer's markup is
-  // byte-identical to before. The note never touches a tally, chip or verdict.
+  // ── CROSS-LINK: curated measure ↔ raw vote feed ─────────────────────────────
+  // A curated measure in this drawer whose bill key matches raw vote rows the
+  // vote-actions cron recorded for this person (pdx_vote_actions) gets ONE short
+  // note row under it. The bill key is the shared one ("us-119-hr-5000"):
+  // congress + canonical citation, as vrMeasureBillKey in vote-actions-core.ts.
+  //   · EVERY READER fetches /api/vote-actions/published, which returns only rows
+  //     on bills that pass the automatic publish gate (vote-actions-publish.ts):
+  //     tagged, not a nomination, every member mapped, every kind classified,
+  //     every row's source payload stored. Their note names the roll call, the
+  //     recorded vote (labelled "procedural" where it was) and the official record.
+  //   · THE CURATOR fetches /api/admin/vote-actions/cross-links instead: every
+  //     row, the stored-payload key, and whether the bill is public or which
+  //     rules hold it back.
+  // Nothing on file or nothing that passes → no note, and the drawer's markup
+  // is byte-identical to before. The note never touches a tally, chip or verdict.
   var _XL_CURATORS = ['cdeluxxe@gmail.com']; // same account as admin.html's gate (server re-checks)
   var _XL_ENDPOINT = '/api/admin/vote-actions/cross-links';
+  var _XL_PUBLIC = '/api/vote-actions/published';
   var _XL_CODES = { hr: 1, s: 1, hres: 1, sres: 1, hjres: 1, sjres: 1, hconres: 1, sconres: 1, hamdt: 1, samdt: 1, suamdt: 1 };
-  var _xl = {};       // pid → { billKey: [raw roll, …] } (curator session only)
-  var _xlAsked = {};  // pid → true once a fetch was made for this curator session
+  var _XL_RULE_WORDS = {
+    bill_record: 'no bill record', not_nomination: 'nomination', has_topic_tag: 'no topic tag', has_votes: 'no vote rows',
+    members_mapped: 'unmapped members', vote_kind_known: 'unclassified vote kind', raw_payload_stored: 'source payload missing'
+  };
+  var _xl = {};       // pid → { mode: 'public' | 'curator', billKeys: { billKey: [roll, …] }, publish? }
+  var _xlAsked = {};  // pid → mode already fetched this session
   function _xlBillKey(d) {
     if (!d || d.execAct) return null;
     var c = parseInt(String(d.congress == null ? '' : d.congress), 10);
@@ -17608,39 +17618,54 @@
       _XL_CURATORS.indexOf(u.email.toLowerCase()) >= 0);
   }
   function _xlRowHtml(pid, d, i) {
-    var map = _xl[pid];
-    if (!map) return '';
+    var got = _xl[pid];
+    if (!got || !got.billKeys) return '';
     var k = _xlBillKey(d);
-    var rolls = k && map[k];
+    var rolls = k && got.billKeys[k];
     if (!rolls || !rolls.length) return '';
+    var curator = got.mode === 'curator';
     var parts = [];
     for (var n = 0; n < rolls.length && n < 6; n++) {
       var r = rolls[n] || {};
       var ch = r.chamber === 'senate' ? 'Senate' : 'House';
-      var label = ch + ' roll ' + esc(r.roll) + (r.date ? ', ' + esc(String(r.date).slice(0, 10)) : '') + ' — ' + esc(r.voteRaw || r.vote || '');
+      var label = ch + ' roll ' + esc(r.roll) + (r.date ? ', ' + esc(String(r.date).slice(0, 10)) : '') + ' — ' + esc(r.voteRaw || r.vote || '') +
+        (r.procedural ? ' (procedural)' : '');
       var off = /^https?:\/\//.test(String(r.sourceUrl || '')) ? ' · <a href="' + escAttr(r.sourceUrl) + '" target="_blank" rel="noopener">official record</a>' : '';
-      var raw = r.rawRef ? ' · raw <code>' + esc(r.rawRef) + '</code>' : '';
+      var raw = curator && r.rawRef ? ' · raw <code>' + esc(r.rawRef) + '</code>' : '';
       parts.push(label + off + raw);
     }
     if (rolls.length > 6) parts.push('+' + (rolls.length - 6) + ' more');
+    var lead;
+    if (curator) {
+      var pub = got.publish && got.publish[k];
+      var gate = !pub ? '' : pub.publishable ? ' · public' :
+        ' · not public: ' + (pub.failed || []).map(function (f) { return esc(_XL_RULE_WORDS[f] || f); }).join(', ');
+      lead = 'Curator · also in the raw vote feed (<code>' + esc(k) + '</code>' + gate + '): ';
+    } else {
+      lead = 'Also in the raw vote feed: ';
+    }
     return '<tr class="pdxlg-xlr" data-pdxlg-xl="' + escAttr(k) + '" data-pdxlg-xlrow="' + i + '">' +
-      '<td colspan="5" class="pdxlg-xl" style="font-size:0.8rem;color:#9fb0d0;">' +
-      'Curator · also in the raw vote feed (<code>' + esc(k) + '</code>): ' + parts.join('; ') + '</td></tr>';
+      '<td colspan="5" class="pdxlg-xl" style="font-size:0.8rem;color:#9fb0d0;">' + lead + parts.join('; ') + '</td></tr>';
   }
-  // Fetch once per curator session per person, then repaint the open drawer.
+  // Fetch once per person per session (per mode), then hand back to repaint.
   function _xlEnsure(pid, repaint) {
-    if (!pid || _xlAsked[pid] || !_xlCurator() || typeof fetch !== 'function') return null;
-    _xlAsked[pid] = true;
-    var u = window.PDXAuth.user;
-    return Promise.resolve(u.getIdToken()).then(function (token) {
-      return fetch(_XL_ENDPOINT + '?pid=' + encodeURIComponent(pid), { headers: { authorization: 'Bearer ' + token }, cache: 'no-store' });
-    }).then(function (res) {
+    if (!pid || typeof fetch !== 'function') return null;
+    var curator = _xlCurator();
+    var mode = curator ? 'curator' : 'public';
+    if (_xlAsked[pid] === mode) return null;
+    _xlAsked[pid] = mode;
+    var req = curator
+      ? Promise.resolve(window.PDXAuth.user.getIdToken()).then(function (token) {
+          return fetch(_XL_ENDPOINT + '?pid=' + encodeURIComponent(pid), { headers: { authorization: 'Bearer ' + token }, cache: 'no-store' });
+        })
+      : Promise.resolve(fetch(_XL_PUBLIC + '?pid=' + encodeURIComponent(pid)));
+    return req.then(function (res) {
       return res && res.ok ? res.json() : null;
     }).then(function (data) {
       if (!data || !data.billKeys || typeof data.billKeys !== 'object') return;
-      _xl[pid] = data.billKeys;
+      _xl[pid] = { mode: mode, billKeys: data.billKeys, publish: data.publish || null };
       if (typeof repaint === 'function') repaint();
-    }).catch(function () { _xlAsked[pid] = false; });
+    }).catch(function () { if (_xlAsked[pid] === mode) delete _xlAsked[pid]; });
   }
 
   function _dosLedgerHtml(pid, issueKey, r, t, opts) {
@@ -21163,15 +21188,19 @@
     try { html = _gapViewHtml(pid, issueKey) || ''; } catch (e) { html = ''; }
     if (!html) { try { html = _gapFallbackHtml(pid, issueKey); } catch (e2) { html = ''; } }
     body.innerHTML = html;
-    // Curator only: fetch this person's raw vote rows once, then repaint this
-    // sheet if it is still showing them (a no-op for every other reader).
+    // Raw-vote cross-link (see _xlRowHtml): only a drawer with a vote table asks,
+    // once per person per session, and the sheet is repainted only if the answer
+    // changed it — a drawer with no matching record is never touched.
     try {
-      _xlEnsure(pid, function () {
-        if (_gapOpen && String(_gapOpen.pid) === String(pid) && !sheet.hidden) {
+      if (/<table class="pdxlg-t"/.test(html)) {
+        _xlEnsure(pid, function () {
+          if (!_gapOpen || String(_gapOpen.pid) !== String(pid) || sheet.hidden) return;
+          var now = '';
+          try { now = _gapViewHtml(_gapOpen.pid, _gapOpen.key) || ''; } catch (eR) { return; }
           var gbx = sheet.querySelector('.pdxgap-body');
-          if (gbx) gbx.innerHTML = _gapViewHtml(_gapOpen.pid, _gapOpen.key);
-        }
-      });
+          if (gbx && now && now !== (_gapOpen.key === issueKey ? html : '')) gbx.innerHTML = now;
+        });
+      }
     } catch (eXl) {}
     var arrival = _gapIsArrival(opts);
     // This sheet is one politician on one issue. PDXIssueView is everyone on one
@@ -21812,7 +21841,10 @@
     // to, and a test seam to load a person's raw vote rows without a network.
     voteActionBillKey: _xlBillKey,
     loadVoteActionLinks: _xlEnsure,
-    setVoteActionLinks: function (pid, billKeys) { if (billKeys && typeof billKeys === 'object') _xl[pid] = billKeys; else delete _xl[pid]; },
+    setVoteActionLinks: function (pid, billKeys, opts) {
+      if (billKeys && typeof billKeys === 'object') _xl[pid] = { mode: (opts && opts.mode) || 'curator', billKeys: billKeys, publish: (opts && opts.publish) || null };
+      else delete _xl[pid];
+    },
     // The one stance store, read one way (see statedStance). The person-file
     // "Said" list, Word vs Action and the issue drawer all print these entries.
     statedStance: statedStance,
