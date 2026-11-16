@@ -12265,7 +12265,18 @@
 //     moves; the precache list is unchanged. No stored reader state is written
 //     or rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v573';
+// v574 - WORDS AND VOTES ON THE ISSUE AND BALLOT PAGES. Their drawers are the
+//     same openGap sheet, so the note already rendered there; what changes is
+//     WHEN the publishable raw-vote feed is asked. consistency.js now asks it
+//     through one helper, _xlAfterPaint, both after openGap paints and after the
+//     warm repaint that fires when a member's votes arrive — on the issue and
+//     ballot pages a drawer often opens before they have, and only the warm
+//     paint has a vote table. Same rules, same request, same note. No route,
+//     gate, tally, chip or verdict changes. A precached file changed, so the
+//     shell moves; the precache list is unchanged. No stored reader state is
+//     written or rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v574';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

@@ -3788,7 +3788,11 @@
         var gb = document.getElementById && document.getElementById('pdxc-gap-back');
         if (_gapOpen && String(_gapOpen.pid) === String(pid) && gb && !gb.hidden) {
           var gbody = gb.querySelector && gb.querySelector('.pdxgap-body');
-          if (gbody) gbody.innerHTML = _gapViewHtml(_gapOpen.pid, _gapOpen.key);
+          if (gbody) {
+            var warmHtml = _gapViewHtml(_gapOpen.pid, _gapOpen.key);
+            gbody.innerHTML = warmHtml;
+            _xlAfterPaint(gb, _gapOpen.pid, _gapOpen.key, warmHtml);
+          }
         }
       } catch (eDos) {}
     });
@@ -21240,6 +21244,25 @@
     return true;
   }
 
+  // RAW-VOTE FEED AFTER A PAINT (see _xlRowHtml, _wvaActs). Only a drawer with a
+  // vote table asks, once per person per session, and the sheet is repainted
+  // only if the answer changed it — a drawer with no matching record is never
+  // touched. Called by openGap AND by the warm repaint below it: on the issue
+  // and ballot pages a drawer often opens before the member's votes arrive, and
+  // the table (and so the ask) only exists once they have.
+  function _xlAfterPaint(sheet, pid, issueKey, html) {
+    try {
+      if (!sheet || !/<table class="pdxlg-t"/.test(String(html || ''))) return;
+      _xlEnsure(pid, function () {
+        if (!_gapOpen || String(_gapOpen.pid) !== String(pid) || sheet.hidden) return;
+        var now = '';
+        try { now = _gapViewHtml(_gapOpen.pid, _gapOpen.key) || ''; } catch (eR) { return; }
+        var gbx = sheet.querySelector('.pdxgap-body');
+        if (gbx && now && now !== (_gapOpen.key === issueKey ? html : '')) gbx.innerHTML = now;
+      });
+    } catch (eXl) {}
+  }
+
   function openGap(pid, issueKey, opts) {
     if (!pid || !issueKey || !document.body) return false;
     var sheet = _ensureGapSheet();
@@ -21251,20 +21274,7 @@
     try { html = _gapViewHtml(pid, issueKey) || ''; } catch (e) { html = ''; }
     if (!html) { try { html = _gapFallbackHtml(pid, issueKey); } catch (e2) { html = ''; } }
     body.innerHTML = html;
-    // Raw-vote cross-link (see _xlRowHtml): only a drawer with a vote table asks,
-    // once per person per session, and the sheet is repainted only if the answer
-    // changed it — a drawer with no matching record is never touched.
-    try {
-      if (/<table class="pdxlg-t"/.test(html)) {
-        _xlEnsure(pid, function () {
-          if (!_gapOpen || String(_gapOpen.pid) !== String(pid) || sheet.hidden) return;
-          var now = '';
-          try { now = _gapViewHtml(_gapOpen.pid, _gapOpen.key) || ''; } catch (eR) { return; }
-          var gbx = sheet.querySelector('.pdxgap-body');
-          if (gbx && now && now !== (_gapOpen.key === issueKey ? html : '')) gbx.innerHTML = now;
-        });
-      }
-    } catch (eXl) {}
+    _xlAfterPaint(sheet, pid, issueKey, html);
     var arrival = _gapIsArrival(opts);
     // This sheet is one politician on one issue. PDXIssueView is everyone on one
     // issue, and the two used to announce themselves with the same generic label.
@@ -21904,6 +21914,8 @@
     // to, and a test seam to load a person's raw vote rows without a network.
     voteActionBillKey: _xlBillKey,
     loadVoteActionLinks: _xlEnsure,
+    // Test seam: the after-paint ask openGap and the warm repaint both make.
+    voteActionsAfterPaint: _xlAfterPaint,
     // Words-vs-actions (related-issues.js): one issue's sided acts, raw-preferred.
     wordsVsActionsActs: _wvaActs,
     setVoteActionLinks: function (pid, billKeys, opts) {

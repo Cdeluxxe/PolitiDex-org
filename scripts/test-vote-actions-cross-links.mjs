@@ -149,7 +149,9 @@ const xl = src.slice(src.indexOf("CROSS-LINK: curated measure ↔ raw vote feed"
 ok(/_XL_CURATORS\.indexOf\(u\.email\.toLowerCase\(\)\)/.test(xl) && /!u\.isAnonymous/.test(xl), "the curator endpoint is gated on a non-anonymous curator account");
 ok((src.match(/['"]\/api\/admin\//g) || []).length === 1 && xl.includes("'/api/admin/vote-actions/cross-links'") && xl.includes("'/api/vote-actions/published'"), "the drawer calls the curator endpoint and the public gated endpoint, in this one place");
 const og = src.slice(src.indexOf("function openGap(pid, issueKey, opts)"));
-ok(/body\.innerHTML = html;[\s\S]{0,400}if \(\/<table class="pdxlg-t"\/\.test\(html\)\) \{\s*_xlEnsure\(pid, function \(\)/.test(og.slice(0, 2500)), "openGap asks the loader right after painting, only for a drawer with a vote table");
+ok(/body\.innerHTML = html;\s*_xlAfterPaint\(sheet, pid, issueKey, html\);/.test(og.slice(0, 2500)), "openGap asks the loader right after painting");
+const ap = src.slice(src.indexOf("function _xlAfterPaint(sheet, pid, issueKey, html)"));
+ok(/if \(!sheet \|\| !\/<table class="pdxlg-t"\/\.test\(String\(html \|\| ''\)\)\) return;\s*_xlEnsure\(pid, function \(\)/.test(ap.slice(0, 600)), "the after-paint ask only fires for a drawer with a vote table");
 async function sessionFetches(user) {
   const w = boot();
   const seen = [];
