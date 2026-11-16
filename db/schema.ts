@@ -1887,7 +1887,8 @@ export const pdxActionBills = pgTable(
     officialSubjects: jsonb("official_subjects").$type<string[]>().default([]),
     // Every register key the bill's own text matches — presence only, no score or cap.
     topicTags: text("topic_tags").array().notNull().default(sql`'{}'::text[]`),
-    // Per tag: its topic category and the text signals that matched it (no score).
+    // Per tag: topic category, the text signals that matched it, a tiering-only
+    // confidence, impactTier (high | low) and the reasons for that tier.
     tagDetail: jsonb("tag_detail").$type<any[]>().default([]),
     // The tags span several topic categories (omnibus / NDAA / approps shape).
     multiTopic: boolean("multi_topic").notNull().default(false),

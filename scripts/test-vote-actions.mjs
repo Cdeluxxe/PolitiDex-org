@@ -80,10 +80,12 @@ ok(multi.tags.length >= 2, `multi-topic bill keeps several tags (got ${multi.tag
 ok(multi.tags.includes("border_security"), "border_security tagged");
 ok(multi.tags.some((t) => /drug|health/.test(t)), "a health/drug key tagged");
 ok(multi.tags.every((t) => reg.has(t)), "every tag is a register key");
-ok(multi.detail.every((d) => d.signals.length && !("confidence" in d) && !("weight" in d) && !("rank" in d)), "every tag carries its signals and no score");
+ok(multi.detail.every((d) => d.signals.length && !("weight" in d) && !("rank" in d)), "every tag carries its signals, no weight or rank");
+ok(multi.detail.every((d) => (d.impactTier === "high" || d.impactTier === "low") && typeof d.confidence === "number" && Array.isArray(d.tierReasons)), "every tag carries an impact tier");
+eq([...multi.highTags, ...multi.lowTags].sort(), multi.tags, "high + low tiers together are the full tag list");
 eq(multi.tags, multi.detail.map((d) => d.key), "every matched key is a tag (no threshold)");
 eq(multi.tags, [...multi.tags].sort(), "tags are unranked (alphabetical)");
-ok(!("MAX_TAGS" in C) && !("TAG_FLOOR" in C) && !("SIGNAL" in C), "no cap, threshold or weights exported");
+ok(!("MAX_TAGS" in C) && !("TAG_FLOOR" in C) && !("SIGNAL" in C), "no cap or cutoff threshold exported");
 // A single weak signal is enough: one subject term, no title/summary match.
 const one = C.tagMeasure({ measureType: "bill", title: "To amend title 5", subjects: ["Veterans' education, employment, rehabilitation"] });
 ok(one.tags.includes("veterans"), `one subject term alone tags a key (got ${one.tags.join(",")})`);
@@ -98,6 +100,36 @@ ok(big.tags.length > 6, `a large bill carries more than six tags (got ${big.tags
 eq(big.tags, big.detail.map((d) => d.key), "large bill: every matched key stored");
 ok(big.multiTopic, "large bill flagged multi-topic");
 ok(big.tags.every((t) => reg.has(t)), "large bill: every tag is a register key");
+eq(big.lowTags, [], "large appropriations bill: every tag is high tier");
+ok(big.highTags.length > 6, `large bill: more than six high-tier tags (got ${big.highTags.length})`);
+ok(big.detail.every((d) => d.tierReasons.includes("major-bill:appropriations")), "appropriations recognised as a major bill");
+
+section("impact tiers");
+// A post-office rename whose only match is the address's "Main Street".
+const po = C.tagMeasure({ measureType: "bill", title: "To designate the facility of the United States Postal Service located at 1 Main Street in Springfield, Ohio, as the \"Jane Doe Post Office\"." });
+ok(po.tags.length >= 1, `rename bill still stores its incidental tag (got ${po.tags.join(",")})`);
+eq([po.highTags, po.lowTags], [[], po.tags], "rename bill: incidental match is low tier");
+eq(po.billImpact.minorBill, "facility_rename", "rename bill detected");
+// Same incidental keyword, no rename shape: low on confidence alone.
+const inc = C.tagMeasure({ measureType: "bill", title: "To amend the Main Street Parity Act regarding filing deadlines" });
+ok(inc.tags.length && inc.detail.every((d) => d.confidence < C.HIGH_TIER_MIN_CONFIDENCE && d.impactTier === "low"), `single incidental keyword is low tier (${JSON.stringify(inc.detail.map((d) => [d.key, d.confidence]))})`);
+// A private relief bill is low even with a subject term.
+const priv = C.tagMeasure({ measureType: "bill", title: "For the relief of John Doe", subjects: ["Immigration status and procedures"] });
+ok(priv.tags.length === 0 || priv.lowTags.length === priv.tags.length, "private bill: every tag low tier");
+// Buried matches promoted by a subject term or by scale language.
+const buried = C.tagMeasure({ measureType: "bill", title: "To amend title 38", subjects: ["Veterans' medical care"] });
+ok(buried.highTags.includes("veterans") && buried.detail.find((d) => d.key === "veterans").tierReasons.includes("subject-term"), "buried subject-term match is high tier");
+const scaled = C.tagMeasure({ measureType: "bill", title: "To amend the Internal Revenue Code", summary: "Among other provisions, the bill makes a technical change affecting small business filers in all states." });
+const sd = scaled.detail.find((d) => d.key === "econ_smallbiz");
+ok(sd && sd.impactTier === "high" && sd.tierReasons.some((r) => r.startsWith("scale-language:")), `buried match + scale language is high tier (${JSON.stringify(sd)})`);
+const dollars = C.tagMeasure({ measureType: "bill", title: "To amend the Internal Revenue Code", summary: "Provides $250 million for a small business loan program." });
+ok(dollars.detail.find((d) => d.key === "econ_smallbiz")?.tierReasons.some((r) => r.startsWith("dollar-amount:")), "≥ $10 million figure is a scale signal");
+eq(C.largestDollarAmount("$5,000,000 and $1.2 billion"), 1.2e9, "dollar parsing");
+eq(C.scaleSignal("$9 million"), null, "under $10 million is not scale");
+eq(C.scaleSignal("reports every 2 years"), null, "'every' in an interval phrase is not scale");
+ok(C.scaleSignal("available nationwide"), "nationwide is scale");
+eq(["Department of Defense Appropriations Act, 2027", "National Defense Authorization Act for Fiscal Year 2027", "Providing for reconciliation pursuant to title II", "Coast Guard Authorization Act of 2025", "Major Richard Star Act"].map(C.majorBillKind), ["appropriations", "ndaa", "reconciliation", "major_authorization", null], "major bill kinds");
+ok([po, inc, buried, scaled, dollars].every((r) => r.detail.every((d) => d.signals.every((x) => /^(pattern|keyword|vocab|subject):/.test(x)))), "tier cases: every tag still comes from the bill's own text");
 // Only the bill's own text: curated keys and policy area are not signals.
 const nocur = C.tagMeasure({ measureType: "bill", title: "To designate a post office", curatedKeys: ["gov_transparency"], policyArea: "Immigration" });
 eq(nocur.tags, [], "curated keys / policy area do not create tags");

@@ -47,7 +47,7 @@ import { RELATED_ISSUE_KEYS } from "./related-issue-keys.mjs";
 import coreCategories from "../../db/issue-core-categories.json" with { type: "json" };
 
 // ── Knobs ────────────────────────────────────────────────────────────────────
-export const TAGGER_VERSION = "va-tagger-v3"; // v2: no tag-count cap · v3: presence-only, no scores
+export const TAGGER_VERSION = "va-tagger-v4"; // v2: no tag-count cap · v3: presence-only · v4: high / low impact tiers
 export const STATE_STORE_NAME = "vote-actions-state";
 export const STATE_KEY = "state.json";
 export const RUN_BUDGET_MS = 22_000;          // scheduled functions stop at ~30 s
@@ -121,8 +121,13 @@ export type BillMeta = {
   metaSource: "congress_gov" | "senate_xml" | "vote_feed";
   parentBillKey?: string | null;
 };
-export type TagDetail = { key: string; category: string | null; signals: string[] };
-export type TagResult = { tags: string[]; detail: TagDetail[]; multiTopic: boolean; version: string; untagged?: string };
+export type ImpactTier = "high" | "low";
+// confidence is used ONLY to pick the tier; it never drops or ranks a tag.
+export type TagDetail = { key: string; category: string | null; signals: string[]; confidence: number; impactTier: ImpactTier; tierReasons: string[] };
+export type TagResult = {
+  tags: string[]; highTags: string[]; lowTags: string[]; detail: TagDetail[]; multiTopic: boolean; version: string; untagged?: string;
+  billImpact: { majorBill: string | null; scale: string | null; minorBill: string | null };
+};
 export type BillRow = {
   billKey: string; congress: number; measureType: string; billType: string; number: string | null;
   parentBillKey: string | null; title: string; shortTitle: string | null; summary: string; policyArea: string | null;
@@ -381,7 +386,8 @@ export function lisIndexFrom(legislators: any[]): Record<string, string> {
 
 // ── The topic sorter ─────────────────────────────────────────────────────────
 // PRESENCE ONLY. A key is a tag when any content signal in the bill's own text
-// matches it — no score, no weighting, no ranking, no threshold, no tag cap.
+// matches it — no threshold, no ranking, no tag cap. Each tag is then given an
+// impact tier (high / low, see "Impact tiers" below); the tier never drops a tag.
 // Signals (and only these):
 //   pattern  — the bill-key patterns (subject + instrument (+ facet), not ceded)
 //              read over the title / short title / summary
@@ -427,11 +433,99 @@ export type TagInput = {
   policyArea?: string | null; subjects?: string[] | null;
 };
 
-// Every key any signal matches becomes a tag; detail lists the signals per key.
-// Tags that span 3+ topic categories mark the bill multi_topic.
+// ── Impact tiers ─────────────────────────────────────────────────────────────
+// Every matched key is still a tag (topic_tags holds them all and vote rows copy
+// the full list). The tier only says how prominently a later surface should show
+// it. A tag is HIGH when ANY of these holds, otherwise LOW:
+//   1. its confidence is at or above HIGH_TIER_MIN_CONFIDENCE (25)
+//   2. the bill is an appropriations / NDAA / reconciliation / major authorization bill
+//   3. the bill's text carries large-scale language or a dollar figure ≥ $10 million
+//   4. one of its signals is an official legislative subject term
+// Exception: a private relief bill or a single-facility naming bill is LOW
+// whatever else matched — those are the incidental-noise shape the tiers exist for.
+//
+// Confidence (tiering only — never a filter, never a rank). The strongest signal:
+//   pattern over the title 40 · pattern over title + summary 30 · keyword over the
+//   title 20 · keyword over title + summary 15 · vocabulary mention in the title 15
+//   · vocabulary mention in the summary 10 · a subject term 30
+// plus 10 for each further text LOCATION (title / summary / subjects) that names
+// the key. Two matchers reading the same word in the same place are one piece of
+// evidence, so they add nothing.
+export const HIGH_TIER_MIN_CONFIDENCE = 25;
+export const SIGNAL_POINTS: Record<string, number> = {
+  "pattern:title": 40, "pattern:text": 30, "keyword:title": 20, "keyword:text": 15,
+  "vocab:title": 15, "vocab:summary": 10, subject: 30,
+};
+export const EXTRA_LOCATION_POINTS = 10;
+export const SCALE_DOLLARS_MIN = 10_000_000;
+
+const signalKind = (sig: string) => (sig.startsWith("subject:") ? "subject" : sig);
+const signalLocations = (sig: string): string[] => {
+  if (sig.startsWith("subject:")) return ["subjects"];
+  if (sig.endsWith(":title")) return ["title"];
+  if (sig === "vocab:summary") return ["summary"];
+  return ["title", "summary"]; // pattern:text / keyword:text read both
+};
+export function signalConfidence(signals: string[]): number {
+  let best = 0;
+  const locs = new Set<string>();
+  for (const sig of signals) {
+    best = Math.max(best, SIGNAL_POINTS[signalKind(sig)] || 0);
+    // A text-wide match only proves a location when it is the only reading there.
+    if (sig === "pattern:text" || sig === "keyword:text") locs.add("text"); else signalLocations(sig).forEach((l) => locs.add(l));
+  }
+  if (locs.has("text")) { locs.delete("text"); if (!locs.has("title") && !locs.has("summary")) locs.add("summary"); }
+  return Math.min(100, best + EXTRA_LOCATION_POINTS * Math.max(0, locs.size - 1));
+}
+
+export const MAJOR_BILL = [
+  { kind: "appropriations", re: /\bappropriations?\b|\bcontinuing resolution\b|\bminibus\b|\bomnibus\b/i },
+  { kind: "ndaa", re: /\bnational defense authorization\b|\bNDAA\b/i },
+  { kind: "reconciliation", re: /\breconciliation\b|\bOne Big Beautiful Bill\b/i },
+  { kind: "major_authorization", re: /\b(?:re)?authorization act\b|\bfarm bill\b|\bagriculture improvement act\b|\bsurface transportation\b|\bwater resources development act\b/i },
+];
+export function majorBillKind(title: string): string | null {
+  for (const m of MAJOR_BILL) if (m.re.test(title)) return m.kind;
+  return null;
+}
+
+// "every" counts as scale language except in a time / interval phrase ("every 2 years").
+export const SCALE_LANGUAGE =
+  /\b(?:nationwide|nation-wide|national(?:ly)? in scope|all (?:50 )?states|each state|every (?:state|american|individual|person|household|family|citizen|resident|taxpayer|county|community|school|worker|employer)s?|every(?:one|body)|every\b(?!\s+(?:\d|one\b|two\b|three\b|four\b|five\b|ten\b|other\b|year|month|week|day|fiscal|quarter|calendar|session|congress))|all (?:individuals|americans|persons|people|citizens|residents|taxpayers|households|workers|employers|eligible)|throughout the united states|across the (?:country|nation|united states))\b/i;
+
+export function largestDollarAmount(text: string): number {
+  let max = 0;
+  const re = /\$\s?(\d{1,3}(?:,\d{3})+|\d+(?:\.\d+)?)\s*(thousand|million|billion|trillion|[mbt]n?)?\b/gi;
+  for (const m of String(text || "").matchAll(re)) {
+    const n = Number(m[1].replace(/,/g, ""));
+    const u = String(m[2] || "").toLowerCase();
+    const mult = u === "thousand" ? 1e3 : u.startsWith("m") ? 1e6 : u.startsWith("b") ? 1e9 : u.startsWith("t") ? 1e12 : 1;
+    if (Number.isFinite(n)) max = Math.max(max, n * mult);
+  }
+  return max;
+}
+export function scaleSignal(text: string): string | null {
+  const m = String(text || "").match(SCALE_LANGUAGE);
+  if (m) return `scale-language:${m[0].toLowerCase()}`;
+  const d = largestDollarAmount(text);
+  return d >= SCALE_DOLLARS_MIN ? `dollar-amount:${d}` : null;
+}
+
+export const MINOR_BILL = [
+  { kind: "private_bill", re: /^\s*(?:a bill )?for the relief of\b/i },
+  { kind: "facility_rename", re: /\b(?:to )?(?:designate|rename|redesignate)\b[^.]{0,160}\b(?:post office|postal (?:service )?facility|facility of the united states postal service|courthouse|federal building|(?:va |veterans affairs )?(?:clinic|medical center|outpatient clinic)|community[- ]based outpatient clinic|station|highway|bridge|building)\b|\bas the [^.]{0,80}\b(?:post office|clinic|courthouse|federal building)\b/i },
+];
+export function minorBillKind(title: string): string | null {
+  for (const m of MINOR_BILL) if (m.re.test(title)) return m.kind;
+  return null;
+}
+
+// Every key any signal matches becomes a tag; detail lists the signals per key,
+// a confidence and the impact tier. Tags that span 3+ topic categories mark the
+// bill multi_topic (unchanged — counted over all tags).
 export function tagMeasure(m: TagInput): TagResult {
   const base = { version: TAGGER_VERSION };
-  if (m.measureType === "nomination") return { ...base, tags: [], detail: [], multiTopic: false, untagged: "nomination" };
+  if (m.measureType === "nomination") return { ...base, tags: [], highTags: [], lowTags: [], detail: [], multiTopic: false, billImpact: { majorBill: null, scale: null, minorBill: null }, untagged: "nomination" };
   const found = new Map<string, Set<string>>();
   const hit = (key: string | null, signal: string) => {
     if (!key || !TAG_KEYS.has(key)) return;
@@ -461,10 +555,28 @@ export function tagMeasure(m: TagInput): TagResult {
   }
 
   const tags = [...found.keys()].sort();
-  const detail: TagDetail[] = tags.map((key) => ({ key, category: CATEGORY_OF[key] || null, signals: [...found.get(key)!] }));
+  const majorBill = majorBillKind(title);
+  const scale = scaleSignal(full);
+  const minorBill = minorBillKind(title);
+  const detail: TagDetail[] = tags.map((key) => {
+    const signals = [...found.get(key)!];
+    const confidence = signalConfidence(signals);
+    const reasons: string[] = [];
+    if (confidence >= HIGH_TIER_MIN_CONFIDENCE) reasons.push(`confidence:${confidence}`);
+    if (majorBill) reasons.push(`major-bill:${majorBill}`);
+    if (scale) reasons.push(scale);
+    if (signals.some((x) => x.startsWith("subject:"))) reasons.push("subject-term");
+    const impactTier: ImpactTier = !minorBill && reasons.length ? "high" : "low";
+    if (minorBill) reasons.unshift(`minor-bill:${minorBill}`);
+    return { key, category: CATEGORY_OF[key] || null, signals, confidence, impactTier, tierReasons: reasons };
+  });
   const cats = new Set(detail.map((d) => d.category).filter(Boolean));
   return {
-    ...base, tags, detail, multiTopic: cats.size >= MULTI_TOPIC_CATEGORIES,
+    ...base, tags,
+    highTags: detail.filter((d) => d.impactTier === "high").map((d) => d.key),
+    lowTags: detail.filter((d) => d.impactTier === "low").map((d) => d.key),
+    detail, multiTopic: cats.size >= MULTI_TOPIC_CATEGORIES,
+    billImpact: { majorBill, scale, minorBill },
     ...(tags.length ? {} : { untagged: title || summary || (m.subjects || []).length ? "no-signal" : "no-text" }),
   };
 }
@@ -748,7 +860,7 @@ export async function runVoteActions(deps: RunDeps): Promise<{ report: RunReport
         bill = buildBillRow(rec.congress, rec.measure, meta, tags, null, now);
         await deps.repo.upsertBill(bill);
         tags.tags.length ? report.billsTagged++ : report.billsUntagged++;
-        log(`vote-actions: BILL ${bill.billKey} ${bill.number || ""} — tags [${tags.tags.join(", ")}]${tags.untagged ? ` (untagged: ${tags.untagged})` : ""}${tags.multiTopic ? " multi-topic" : ""} · ${meta.metaSource}`);
+        log(`vote-actions: BILL ${bill.billKey} ${bill.number || ""} — tags high [${tags.highTags.join(", ")}] low [${tags.lowTags.join(", ")}]${tags.untagged ? ` (untagged: ${tags.untagged})` : ""}${tags.multiTopic ? " multi-topic" : ""} · ${meta.metaSource}`);
       }
       if (rec.voteKind === "passage" && isRuleResolution(bill.billType, bill.title)) { rec.voteKind = "rule"; rec.isProcedural = true; }
       const { rows, unmapped } = buildVoteRows(rec, bill, { memberMap: deps.memberMap, lis });
