@@ -147,7 +147,8 @@ export async function pullProbeFirst(sources, pull, { log = console.log } = {}) 
   const results = new Array(sources.length);
   const groups = new Map();
   sources.forEach((s, i) => {
-    const key = s.source_class === "youtube" ? `#yt${i}` : (hostOf(s.url) || `#${i}`);
+    // YouTube sources (channel feeds, cited own-channel videos) never probe each other.
+    const key = /^youtube/.test(s.source_class || "") ? `#yt${i}` : (hostOf(s.url) || `#${i}`);
     (groups.get(key) || groups.set(key, []).get(key)).push(i);
   });
   await Promise.all([...groups.entries()].map(async ([host, idx]) => {
