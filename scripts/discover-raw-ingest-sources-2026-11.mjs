@@ -16,7 +16,11 @@
 //   1. FEC — federal candidates: the candidate's principal campaign
 //      committee's own `website` field (api.open.fec.gov, FEC_API_KEY).
 //      Matched on office + state (+ House district) + name, exactly one FEC
-//      candidate.
+//      candidate. While that committee is open, its FEC money summary (total
+//      receipts, total disbursements, cash on hand, coverage end of the last
+//      report) is kept too and written to the FTM_FEC_SUMMARY block of
+//      ftm-data.js — only for people with no newer money figure on their
+//      profile (netlify/lib/fec-money-summary.mjs).
 //   2. Open States — state legislators and statewide officials: the person's
 //      current record (github.com/openstates/people, open data). Links that
 //      are not legislature / government / social pages are own-site
@@ -42,6 +46,7 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import vm from "node:vm";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = path.join(root, "db/raw-ingest-discovered-2026-11.json");
@@ -61,6 +66,8 @@ process.env.PDX_RAW_INGEST_NO_DISCOVERED = "1";
 const core = await import(pathToFileURL(path.join(root, "netlify/lib/raw-ingest-core.mjs")).href);
 const R = await import(pathToFileURL(path.join(root, "netlify/lib/raw-ingest-resolve.mjs")).href);
 const D = await import(pathToFileURL(path.join(root, "netlify/lib/raw-ingest-discovery.mjs")).href);
+const M = await import(pathToFileURL(path.join(root, "netlify/lib/fec-money-summary.mjs")).href);
+const FTM = path.join(root, "ftm-data.js");
 const PEOPLE = core.RESOLVER_PEOPLE;
 const ALIAS = JSON.parse(fs.readFileSync(path.join(root, "db/share-index.json"), "utf8")).personAliases || {};
 const canon = (p) => ALIAS[p] || p;
@@ -189,10 +196,13 @@ async function expandOwnSite(pid, home) {
 }
 
 // ── 1. FEC ──────────────────────────────────────────────────────────────────
-const stats = { rows: rows.length, skipped_homonym: 0, fec_candidates_read: 0, fec_matched: 0, open_states_records: 0, open_states_matched: 0, searches: 0, search_errors: 0 };
+const stats = { rows: rows.length, skipped_homonym: 0, fec_candidates_read: 0, fec_matched: 0, fec_money_summaries: 0, open_states_records: 0, open_states_matched: 0, searches: 0, search_errors: 0 };
 const live = rows.filter((r) => { const id = ids.get(r.politician_id); if (!id) return false; if (homonymOf(r.politician_id, id.name)) { stats.skipped_homonym++; refuse(r.politician_id, "", "another politician on the site shares this name", "roster"); return false; } return true; });
-const federal = live.filter((r) => /\bU\.S\.\s+(?:House|Senate)|\bU\.S\. (?:Representative|Senator)|\bCongress/i.test(ids.get(r.politician_id).office));
+const federal = live.filter((r) => M.isFederalOffice(ids.get(r.politician_id).office));
+const fecMoney = new Map(); // pid → the FEC money summary of their principal committee
+let fecRan = false;
 if (federal.length && process.env.FEC_API_KEY) {
+  fecRan = true;
   const fecList = [];
   for (const office of ["H", "S"]) {
     for (let page = 1; page < 200; page++) {
@@ -215,17 +225,39 @@ if (federal.length && process.env.FEC_API_KEY) {
     stats.fec_matched++;
     const cq = `https://api.open.fec.gov/v1/candidate/${cand.candidate_id}/committees/?designation=P&per_page=5`;
     const cj = await getJson(`${cq}&api_key=${process.env.FEC_API_KEY}`, {}, cq);
+    const sums = [];
     for (const pc of (cj?.results || []).slice(0, 2)) {
       const q = `https://api.open.fec.gov/v1/committee/${pc.committee_id}/`;
       const j = await getJson(`${q}?api_key=${process.env.FEC_API_KEY}`, {}, q);
+      // The committee's money summary: the FEC's totals for this same committee,
+      // latest cycle first, read alongside the committee record.
+      const tq = `https://api.open.fec.gov/v1/committee/${pc.committee_id}/totals/?sort=-cycle&per_page=1`;
+      const tj = await getJson(`${tq}&api_key=${process.env.FEC_API_KEY}`, {}, tq);
+      sums.push(M.fecMoneySummary({ ...(j?.results?.[0] || {}), ...(tj?.results?.[0] || {}) }, { committeeId: pc.committee_id, candidateId: cand.candidate_id }));
       const web = D.websiteUrl(j?.results?.[0]?.website);
       if (!web) continue;
       const got = await judgePage(pid, web, "fec", { listed: true, detail: `FEC candidate ${cand.candidate_id}, committee ${pc.committee_id}`,
         because: [`website listed in the FEC filing of ${cand.name}'s principal campaign committee ${pc.committee_id} (candidate ${cand.candidate_id})`] });
       if (got?.entry.source_class === "own_site") await expandOwnSite(pid, got);
     }
+    const best = M.latestSummary(sums);
+    if (best) { fecMoney.set(pid, { ...best, name: id.name, office: id.office }); stats.fec_money_summaries++; }
   });
 } else if (federal.length) console.error("FEC_API_KEY not set — FEC stage skipped");
+
+// The hand-verified filing already on a person's profile, read from the shipped
+// ftm-data.js with its FEC block emptied (so an earlier FEC row is not mistaken
+// for one).
+function handFilings() {
+  const src = M.replaceFecSummaryBlock(fs.readFileSync(FTM, "utf8"), {});
+  const at = src.indexOf("    var FTM_DATA = ["), end = src.indexOf("    // Small escapers so the funding UI is safe", at);
+  const win = {};
+  win.window = win;
+  vm.runInContext(src.slice(at, end), vm.createContext(win), { filename: "ftm-data.js#accessors" });
+  return (pid) => win._pdxFinanceFiling(pid);
+}
+const fecMerge = fecRan ? M.mergeFecSummaries(M.readFecSummaryBlock(fs.readFileSync(FTM, "utf8")), fecMoney, handFilings()) : null;
+if (fecMerge) Object.assign(stats, { fec_money_attached: fecMerge.outcome.attached.length, fec_money_kept_existing: fecMerge.outcome.kept_existing.length });
 
 // ── 2. Open States ──────────────────────────────────────────────────────────
 const stateRows = live.filter((r) => { const id = ids.get(r.politician_id); return id.state && (id.state_legislator || id.statewide); });
@@ -349,9 +381,10 @@ const doc = {
   politicians,
 };
 if (ONLY || LIMIT !== Infinity) {
-  console.log(JSON.stringify({ summary: doc.summary, politicians, refused: doc.refused, refused_sample: refusedSample.slice(0, 120) }, null, 1));
+  console.log(JSON.stringify({ summary: doc.summary, politicians, refused: doc.refused, refused_sample: refusedSample.slice(0, 120), ...(fecMerge ? { fec_money: { ...fecMerge.outcome, rows: Object.fromEntries(fecMerge.outcome.attached.map((p) => [p, fecMerge.table[p]])) } } : {}) }, null, 1));
   console.log("(--only / --limit: nothing written)");
 } else {
   fs.writeFileSync(OUT, JSON.stringify(doc, null, 1) + "\n");
+  if (fecMerge) fs.writeFileSync(FTM, M.replaceFecSummaryBlock(fs.readFileSync(FTM, "utf8"), fecMerge.table));
   console.log(`discovered: ${JSON.stringify(doc.summary)} → ${path.relative(root, OUT)}`);
 }
