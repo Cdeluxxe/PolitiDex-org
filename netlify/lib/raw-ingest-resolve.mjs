@@ -96,7 +96,7 @@ const STATEWIDE = [
   { re: /^Attorney General\b/i, kind: "attorney_general", hosts: /^(?:ag|oag|doj|attorneygeneral)\.|^[a-z]*(?:attorneygeneral|ag)\.gov$/ },
   { re: /^Secretary of State\b/i, kind: "secretary_of_state", hosts: /^(?:sos|sec|secretaryofstate)\.|^[a-z]*sos\.gov$/ },
 ];
-const STATE_LEGISLATOR = /\bState (?:Senator|Representative|Assembly ?(?:member|woman|man)|Delegate)\b|\b(?:Assembly ?(?:member|woman|man)|Delegate)\b|^UT State|\bState (?:House|Senate) (?:Speaker|President|Majority|Minority)\b|^Speaker of the [A-Z][a-z]+ House\b/;
+const STATE_LEGISLATOR = /\bState (?:Senator|Representative|Assembly ?(?:[Mm]ember|[Ww]oman|[Mm]an)|Delegate)\b|\b(?:Assembly ?(?:[Mm]ember|[Ww]oman|[Mm]an)|Delegate)\b|^UT State|\bState (?:House|Senate) (?:Speaker|President|Majority|Minority)\b|^Speaker of the [A-Z][a-z]+ House\b/;
 
 /** The politician's identity from the site roster entry ({ n, o, s }). */
 export function identityOf(pid, person) {

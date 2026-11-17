@@ -1299,8 +1299,13 @@ await t('full roster: a politician previously absent is now present and tier 3; 
   for (const r of added) {
     assert.ok(!base.has(r.politician_id), `${r.politician_id} was absent before`);
     assert.equal(r.tier, 3, `${r.politician_id} is tier 3`);
-    assert.ok(SHARE.people[r.politician_id], `${r.politician_id} is on the site roster`);
-    assert.equal(r.name, SHARE.people[r.politician_id].n);
+    // Board-seat rows are the sitting holders of legislative seats with a
+    // district board (SEAT_HOLDERS), checked in test-raw-ingest-board-holders.mjs.
+    if (r.board_seat) { assert.equal(seatHolders.SEAT_HOLDERS[r.board_seat]?.pid, r.politician_id, `${r.politician_id} holds ${r.board_seat}`); }
+    else {
+      assert.ok(SHARE.people[r.politician_id], `${r.politician_id} is on the site roster`);
+      assert.equal(r.name, SHARE.people[r.politician_id].n);
+    }
     // No page is guessed: a full-roster row carries only pages the URL resolver
     // attached on a clean official match (raw-ingest-resolve.mjs).
     assert.ok(r.sources.every((s) => s.resolved_by), 'no configured page; resolved pages only');

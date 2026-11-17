@@ -19,6 +19,14 @@ After the site roster changes, regenerate the file with
 `node scripts/build-raw-ingest-full-roster-2026-11.mjs`. Run it with `--check` to
 verify the file is current.
 
+The same file adds the **sitting holder of every legislative seat with a district
+board** who was not rotating yet. These rows are tier 3, have no pages, and carry
+`board_seat`. Each also carries `state`, `chamber`, `district` and the `office` and
+`state_listed` text of the member's site record in `cmp-data.js`. That identity lets
+the URL resolvers below match them. Only the seat's sitting holder is added: no board
+is opened and no candidate is added. Regenerate the file after the seat holders
+change, or after `node scripts/gen-seat-holders.mjs` runs.
+
 ### Official URL resolution (tier 3)
 
 When the roster is built, the engine resolves official pages for any **tier-3** row
@@ -214,6 +222,8 @@ planned. In addition:
   types, caps, shared hosts and unknown keys are handled.
 - `node scripts/test-raw-ingest-resolve.mjs` covers official URL resolution, and
   `node scripts/test-raw-ingest-legislature.mjs` covers the state legislature directory step.
+- `node scripts/test-raw-ingest-board-holders.mjs` covers the board-seat holders on the
+  rotation roster.
 - `scripts/test-raw-ingest.mjs`, `test-stated-positions.mjs` and
   `test-stated-positions-backfill.mjs` cover the earlier behaviour.
 - **No migration.** The frontier and seen ledger are Blobs documents, and
