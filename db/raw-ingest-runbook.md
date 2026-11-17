@@ -8,6 +8,17 @@ scores every page against every issue key. Clear reads go to the Evidence Locker
 `netlify/lib/raw-ingest-*.mjs`, `stance-score-core.mjs`, `evidence-locker-core.mjs`
 and `stated-positions-core.mjs`.
 
+## Roster and tiers
+
+Every politician on the PolitiDex roster (`db/share-index.json` people) is in the
+rotation roster. Configured rows and the pool expansion keep their tiers (tier 1 first,
+then tier 2). Everyone else joins as **tier 3** from
+`db/raw-ingest-full-roster-2026-11.json`. These rows start with no pages, and the planner
+skips a row with nothing to pull until a page for that politician is configured.
+After the site roster changes, regenerate the file with
+`node scripts/build-raw-ingest-full-roster-2026-11.mjs`. Run it with `--check` to
+verify the file is current.
+
 This page covers the **fresh evidence pass** (`netlify/lib/raw-ingest-fresh.mjs`).
 That pass stopped the cycle from re-reading the same homepages and press indexes and
 logging "0 new items" on every run.
