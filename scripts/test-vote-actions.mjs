@@ -213,8 +213,8 @@ const repo = memRepo();
 const memberMap = { A000055: "robert_aderholt", A000148: "jake_auchincloss" };
 const lines = [];
 let { report, state } = await C.runVoteActions({ fetch: fakeFetch, repo, memberMap, apiKey: "k", now: () => NOW, log: (l) => lines.push(l), maxRolls: 20 });
-eq(report.candidates, { house: 4, senate: 1 }, "window keeps recent roll calls only (2025 roll + June senate vote out)");
-eq([report.done, report.unsupported, report.incomplete], [3, 1, 1], "3 done, Speaker vote unsupported, empty roll retried");
+eq(report.candidates, { house: 5, senate: 2 }, "discovery reads the whole sitting Congress (the 2025 roll and the June senate vote are found too)");
+eq([report.done, report.unsupported, report.incomplete], [3, 1, 3], "3 done, Speaker vote unsupported, empty roll + two rolls with no detail retried");
 eq(repo.bills.size, 3, "one bill row per measure (bill, amendment, nomination)");
 const hr = repo.bills.get("us-119-hr-5000");
 ok(hr && hr.topicTags.includes("border_security"), "H.R. 5000 tagged border_security");
@@ -281,7 +281,7 @@ eq(C.RAW_VOTES_STORE_NAME, "raw-ingest-votes", "sibling store, not a prefix in t
 const rs = memStore(), rr = memRepo();
 const rawLines = [];
 const rRun = await C.runVoteActions({ fetch: fakeFetch, repo: rr, memberMap, apiKey: "secret-key", now: () => NOW, log: (l) => rawLines.push(l), maxRolls: 20, rawStore: rs });
-eq([rRun.report.done, rRun.report.unsupported, rRun.report.incomplete], [3, 1, 1], "same outcome with a raw store attached");
+eq([rRun.report.done, rRun.report.unsupported, rRun.report.incomplete], [3, 1, 3], "same outcome with a raw store attached");
 const rawKeys = [...rs.m.keys()].sort();
 const tsPart = NOW.toISOString().replace(/[:.]/g, "-");
 ok(rawKeys.includes(`house/119/2/roll-00300/${tsPart}.json`), "House roll payload stored under house/<c>/<s>/roll-<n>/<ts>.json");
@@ -334,7 +334,7 @@ eq([keep.ok && keep.billRebuilt, keep.ok && keep.bill.title], [false, "Curated t
 // Store write failure: logged, run completes, rows written with raw_ref NULL.
 const fs = memStore({ failWrites: true }), fr = memRepo(), failLines = [];
 const fRun = await C.runVoteActions({ fetch: fakeFetch, repo: fr, memberMap, apiKey: "k", now: () => NOW, log: (l) => failLines.push(l), maxRolls: 20, rawStore: fs });
-eq([fRun.report.done, fRun.report.unsupported, fRun.report.incomplete, fRun.report.errors.length], [3, 1, 1, 0], "run completes unchanged when every store write fails");
+eq([fRun.report.done, fRun.report.unsupported, fRun.report.incomplete, fRun.report.errors.length], [3, 1, 3, 0], "run completes unchanged when every store write fails");
 ok(fs.writes > 0 && fs.m.size === 0, "writes were attempted and failed");
 ok(failLines.some((l) => l.includes("RAW STORE WRITE FAILED")), "store failure is logged");
 eq(pick([...fr.votes.values()].map((r) => ({ ...r, rawRef: "x" }))), pick(rv.map((r) => ({ ...r, rawRef: "x" }))), "same vote rows as with a working store");

@@ -2,9 +2,26 @@
 // Action layer v1 — bill topic sorter + raw vote mapping generator
 // ─────────────────────────────────────────────────────────────────────────────
 // Runs PARALLEL to the stance generator (raw-ingest-cron), never inside it. The
-// stance generator reads what politicians SAY; this reads what they DID: recent
-// federal roll calls, each voted-on measure tagged with the issue keys it touches,
-// and one raw record per member per roll call. A later pass can compare the two.
+// stance generator reads what politicians SAY; this reads what they DID: federal
+// roll calls, each voted-on measure tagged with the issue keys it touches, one
+// raw record per member per roll call, and a public bill page per measure.
+//
+// WHICH ROLL CALLS — CONGRESS BY CONGRESS, RE-DISCOVERED EVERY RUN. Each run
+// lists EVERY roll call of the target Congress (Congress.gov's House vote list,
+// senate.gov's per-session Senate menus) and works the ones the ledger does not
+// hold as final, newest first. The sitting Congress (119th now) is always first,
+// because new roll calls land there. When it has nothing left, the run moves to
+// the newest ended Congress that is not complete (118th, then 117th …, down to
+// FLOOR_CONGRESS). An ended Congress whose lists were read in full, whose every
+// roll call is final and whose every bill has a current page is marked
+// "complete" (state.congresses) and never queried again. Progress per Congress
+// lives in the Blobs state doc — no table.
+//
+// THE BILL PAGE. After a bill's tags and votes are written, its page record
+// (vote-actions-pages.ts — the db/bill-docs.json shape the /b/ template already
+// renders) is built from that bill row plus its official Congress.gov record and
+// stored in Blobs "bill-pages". A bill whose page is current (same signature) or
+// that the build-time snapshot already pages is skipped.
 //
 // WHAT IT WRITES (pdx_action_bills, pdx_vote_actions — see db/schema.ts):
 //   • one bill row per voted-on measure: raw title / summary / official subjects
@@ -13,8 +30,9 @@
 //   • one vote row per member per roll call: politician, bill, vote
 //     (yes / no / present / not_voting), date, source, question, vote kind and
 //     the bill's topic tags
+//   • one page record per bill (Blobs "bill-pages"), read by the /b/ document
 // WHAT IT NEVER DOES: score, pick a support/oppose direction, flag a
-// contradiction, or write any table / store a public read uses (vr_*, packs,
+// contradiction, or write any other table / store a public read uses (vr_*, packs,
 // pdx_stated_positions, curated stance files). Tags come from the bill's own
 // text only — no vote-derived signal and no curated mapping is read.
 //
@@ -45,6 +63,7 @@ import { ISSUE_KEYS, suggestIssue, mapActionType, canonicalMeasureNumber } from 
 import { ISSUE_TOPIC_VOCAB, DIRECTIONAL_TOPIC_VOCAB, buildTopicRules, buildDirectionalTopicRules } from "./stance-topic-vocab.mjs";
 import { RELATED_ISSUE_KEYS } from "./related-issue-keys.mjs";
 import { runQuality, pctText } from "./vote-actions-quality.js";
+import { type PageBill, PAGES_PER_RUN, PAGE_REFRESH_DAYS, PAGE_MAX_ATTEMPTS, buildBillPage, pageSignature, pageStoreKey, billPageUrl, docKey, wantsPage } from "./vote-actions-pages.js";
 import coreCategories from "../../db/issue-core-categories.json" with { type: "json" };
 
 // ── Knobs ────────────────────────────────────────────────────────────────────
@@ -54,7 +73,7 @@ export const STATE_KEY = "state.json";
 export const RUN_BUDGET_MS = 22_000;          // scheduled functions stop at ~30 s
 export const FETCH_TIMEOUT_MS = 8_000;
 export const MAX_ROLLS_PER_RUN = 12;          // detail fetches per run (both chambers)
-export const LOOKBACK_DAYS = 120;             // "recent": roll calls newer than this
+export const LOOKBACK_DAYS = 120;             // retired: discovery reads the whole target Congress
 export const MAX_ATTEMPTS = 6;                // empty / failed detail fetches before "incomplete"
 export const META_REFRESH_PER_RUN = 3;        // bills refetched for a late summary per run
 export const META_REFRESH_AFTER_DAYS = 3;
@@ -160,6 +179,9 @@ export interface VoteActionsRepo {
   // politician_id IS NULL are touched — the value a fresh ingest would write.
   unmappedBioguides?(): Promise<string[]>;
   mapMembers?(pairs: Array<[string, string]>): Promise<number>;
+  // Every stored bill of one Congress, for its page (vote-actions-pages.ts).
+  // Absent → no page is generated and no Congress is marked complete.
+  billsForPages?(congress: number): Promise<PageBill[]>;
 }
 
 // ── Small helpers ────────────────────────────────────────────────────────────
@@ -922,17 +944,51 @@ export async function replayRawRolls(deps: {
 // ── Run state (Blobs) ────────────────────────────────────────────────────────
 // ledger: "<chamber>|<congress>|<session>|<roll>" → { status, attempts, date, at }
 //   status: done | incomplete (retrying) | parked (gave up) | unsupported | no_measure
+// congresses: "<congress>" → that Congress's progress (see CongressProgress)
+// pages: bill key → the page last generated for it (signature, time, address)
 export type LedgerEntry = { status: string; attempts: number; date: string; at: string; note?: string };
-export type RunState = { ledger: Record<string, LedgerEntry>; lis?: { at: string; map: Record<string, string> } | null; lastRun?: any };
+// status: active (work left) · caught_up (the sitting Congress, nothing left
+// right now — re-queried every run) · complete (an ended Congress with every roll
+// call final and every page generated; never queried again)
+export type CongressProgress = {
+  status: "active" | "caught_up" | "complete";
+  listed: boolean;                       // every roll-call list read this time
+  discovered: { house: number; senate: number };
+  rollsPending: number;                  // roll calls not yet final
+  bills: number; pagesDone: number; pagesPending: number; pagesExisting: number;
+  checkedAt: string; completedAt?: string | null;
+  rollsFinal?: number;                   // kept after the ledger rows of a complete Congress are dropped
+};
+export type PageEntry = { sig: string; at: string; url: string; attempts?: number; failed?: boolean; note?: string };
+export type RunState = {
+  ledger: Record<string, LedgerEntry>;
+  lis?: { at: string; map: Record<string, string> } | null;
+  lastRun?: any;
+  congresses: Record<string, CongressProgress>;
+  pages: Record<string, PageEntry>;
+};
 export function normaliseState(doc: any): RunState {
   const d = doc && typeof doc === "object" ? doc : {};
-  return { ledger: d.ledger && typeof d.ledger === "object" ? d.ledger : {}, lis: d.lis || null, lastRun: d.lastRun || null };
+  const obj = (x: any) => (x && typeof x === "object" ? x : {});
+  return { ledger: obj(d.ledger), lis: d.lis || null, lastRun: d.lastRun || null, congresses: obj(d.congresses), pages: obj(d.pages) };
 }
 // The number part of a bill key ("us-119-pn-12-3" → "12-3").
 export const billNumFromKey = (b: { billKey: string; congress: number; billType: string }) =>
   b.billKey.slice(`us-${b.congress}-${b.billType}-`.length);
 export const rollKey = (chamber: string, c: number, s: number, roll: number) => `${chamber}|${c}|${s}|${roll}`;
 const FINAL = new Set(["done", "parked", "unsupported", "no_measure"]);
+
+// Oldest Congress the job walks back to: senate.gov's LIS roll-call XML starts
+// with the 101st. Congress.gov's House roll-call list covers fewer; a Congress it
+// answers with no rows (or a 400 / 404) simply has no House roll calls to read.
+export const FLOOR_CONGRESS = 101;
+export const MAX_CONGRESSES_PER_RUN = 3;   // Congresses discovered in one run
+
+// ── Page store (Blobs "bill-pages") ──────────────────────────────────────────
+// The generated bill page records (vote-actions-pages.ts), keyed
+// "us/<congress>/<number>". share-target.ts reads them for /b/ addresses the
+// build-time snapshot does not hold.
+export interface PageStore { setJSON(key: string, value: unknown): Promise<unknown> }
 
 // ── The run ──────────────────────────────────────────────────────────────────
 export type RunDeps = {
@@ -945,56 +1001,80 @@ export type RunDeps = {
   log?: (l: string) => void;
   budgetMs?: number;
   maxRolls?: number;
+  maxPages?: number;
+  // Retired: discovery now reads every roll call of the target Congress. Kept so
+  // an old caller still type-checks; it no longer filters anything.
   lookbackDays?: number;
   chambers?: Array<"house" | "senate">;
   clock?: () => number;
   rawStore?: RawStore | null;        // Blobs "raw-ingest-votes"; absent → nothing stored, raw_ref NULL
+  pageStore?: PageStore | null;      // Blobs "bill-pages"; absent → no page is generated (and no Congress completes)
+  existingPages?: Set<string> | null; // "<congress>|<number>" already paged by the build-time snapshot
+  floorCongress?: number;
+};
+export type CongressRun = {
+  congress: number; listed: boolean; discovered: { house: number; senate: number }; pendingRolls: number;
+  processed: number; pagesGenerated: number; pagesPending: number; status: CongressProgress["status"];
 };
 export type RunReport = {
-  congress: number; candidates: { house: number; senate: number }; processed: number;
+  congress: number;          // the sitting Congress (where every run starts)
+  targetCongress: number;    // the last Congress this run worked on
+  congresses: CongressRun[];
+  candidates: { house: number; senate: number }; processed: number;
   done: number; incomplete: number; parked: number; unsupported: number; noMeasure: number;
   billsTagged: number; billsUntagged: number; votesInserted: number; votesRevised: number; membersUnmapped: number;
   // Report-only (summary-line rates): rows built this run, and of them how many
   // had a known kind and how many of those were procedural.
   votesWritten: number; votesKindKnown: number; votesProcedural: number;
   membersRemapped: number;   // rows given a politician by the roster catch-up
+  pagesGenerated: number; pagesFailed: number; pagesRefreshed: number;
   metaRefreshed: number; retagged: number; rateLimited: boolean; budgetHit: boolean; errors: string[];
   tagCounts: Record<string, number>; houseConfigured: boolean;
 };
 
-async function houseCandidates(deps: RunDeps, congress: number, cutoff: number, ledger: Record<string, LedgerEntry>) {
+type Cand = { chamber: "house" | "senate"; congress: number; session: number; roll: number; date: string; row?: any };
+type Listing = { cands: Cand[]; listed: boolean; total: number };
+
+// Every House roll call of one Congress (Congress.gov), not yet final. `listed`
+// is false when a page could not be read — the Congress is then never marked
+// complete on this run. 400 / 404 = Congress.gov holds no House votes for it.
+async function houseCandidates(deps: RunDeps, congress: number, ledger: Record<string, LedgerEntry>): Promise<Listing> {
   const rows: any[] = [];
-  let offset = 0, total = Infinity;
+  let offset = 0, total = Infinity, listed = true;
   while (offset < total && offset < 5000) {
-    const d = await getJson(deps.fetch, withKey(`${CONGRESS_API}/house-vote/${congress}?limit=250&offset=${offset}`, deps.apiKey!));
+    const r = await fetchRaw(deps.fetch, withKey(`${CONGRESS_API}/house-vote/${congress}?limit=250&offset=${offset}`, deps.apiKey!), JSON_ACCEPT);
+    if (!r.ok) { if (r.status !== 404 && r.status !== 400) listed = false; break; }
+    const d = JSON.parse(r.body as string);
     const page = houseVoteListRows(d);
     if (!page.length) break;
     rows.push(...page);
     offset += page.length;
     total = Number(d?.pagination?.count ?? offset);
   }
-  return rows
+  const all = rows
     .map((row) => ({ row, session: Number(row.sessionNumber), roll: Number(row.rollCallNumber), date: new Date(row.startDate || row.date || 0) }))
-    .filter((x) => Number.isFinite(x.session) && Number.isFinite(x.roll) && x.date.getTime() >= cutoff)
+    .filter((x) => Number.isFinite(x.session) && Number.isFinite(x.roll) && !Number.isNaN(x.date.getTime()));
+  const cands = all
     .filter((x) => !FINAL.has(ledger[rollKey("house", congress, x.session, x.roll)]?.status || ""))
     .map((x) => ({ chamber: "house" as const, congress, session: x.session, roll: x.roll, date: x.date.toISOString(), row: x.row }));
+  return { cands, listed, total: all.length };
 }
 
-async function senateCandidates(deps: RunDeps, congress: number, cutoff: number, now: Date, ledger: Record<string, LedgerEntry>) {
-  const sessions = new Set<number>([sessionForDate(now)]);
-  const cut = new Date(cutoff);
-  if (congressForDate(cut) === congress) sessions.add(sessionForDate(cut));
-  const out: any[] = [];
+// Every Senate roll call of one Congress (senate.gov LIS vote menus, one per
+// session — for the sitting Congress, only sessions that have begun).
+async function senateCandidates(deps: RunDeps, congress: number, sessions: number[], ledger: Record<string, LedgerEntry>): Promise<Listing> {
+  const cands: Cand[] = [];
+  let listed = true, total = 0;
   for (const s of sessions) {
-    const xml = await getText(deps.fetch, senateMenuUrl(congress, s));
-    if (!xml) continue;
-    for (const v of parseSenateMenu(xml, congress, s)) {
-      if (new Date(v.date).getTime() < cutoff) continue;
+    const r = await fetchRaw(deps.fetch, senateMenuUrl(congress, s), XML_ACCEPT);
+    if (!r.ok || !r.body) { if (r.status !== 404) listed = false; continue; }
+    for (const v of parseSenateMenu(r.body, congress, s)) {
+      total++;
       if (FINAL.has(ledger[rollKey("senate", congress, s, v.roll)]?.status || "")) continue;
-      out.push({ chamber: "senate" as const, congress, session: s, roll: v.roll, date: v.date });
+      cands.push({ chamber: "senate" as const, congress, session: s, roll: v.roll, date: v.date });
     }
   }
-  return out;
+  return { cands, listed, total };
 }
 
 async function ensureLisIndex(deps: RunDeps, state: RunState, now: Date, log: (l: string) => void): Promise<Record<string, string>> {
@@ -1015,6 +1095,52 @@ async function ensureLisIndex(deps: RunDeps, state: RunState, now: Date, log: (l
   return state.lis?.map || {};
 }
 
+// The bill's Congress.gov object (bill or amendment) and its action list, for its
+// page. The object comes from the payload the run already stored for the bill
+// when there is one; the action list is fetched (one page of 250, the key actions
+// are a handful) and stored unmodified under bill-record/<bill_key>/.
+async function pageSources(deps: RunDeps, b: PageBill, at: string, log: (l: string) => void): Promise<{ main: any; actions: any[] | null; keyed: boolean }> {
+  if (!deps.apiKey) return { main: null, actions: null, keyed: false };
+  const part = b.measureType === "amendment" ? "amendment" : "bill";
+  const fromBody = (body: string | null | undefined) => { try { return body ? JSON.parse(body)?.[part] || null : null; } catch { return null; } };
+  let main: any = null;
+  if (b.rawRef && deps.rawStore) {
+    try {
+      const env = (await deps.rawStore.get(b.rawRef, { type: "json" })) as BillEnvelope | null;
+      const r = env?.responses?.find((x) => x.part === part && x.http_status && x.http_status >= 200 && x.http_status < 300);
+      main = fromBody(r?.body);
+    } catch { main = null; }
+  }
+  const num = billNumFromKey(b);
+  const base = part === "amendment" ? `${CONGRESS_API}/amendment/${b.congress}/${b.billType}/${num}` : `${CONGRESS_API}/bill/${b.congress}/${b.billType}/${num}`;
+  const responses: RawResponse[] = [];
+  const pull = async (p: string, url: string) => {
+    const full = withKey(url, deps.apiKey!);
+    const r = await fetchRaw(deps.fetch, full, JSON_ACCEPT);
+    responses.push({ part: p, url: publicUrl(full), http_status: r.status, content_type: r.contentType, body: r.body });
+    return r;
+  };
+  // A read that failed (not a 404) is retried on a later run rather than turned
+  // into a page with a status guessed from missing actions.
+  if (!main) {
+    const r = await pull(part, base);
+    if (!r.ok && r.status !== 404) throw new Error(`${part} record unavailable (HTTP ${r.status})`);
+    main = fromBody(r.body);
+  }
+  let actions: any[] | null = null;
+  if (main) {
+    const r = await pull("actions", `${base}/actions?limit=250`);
+    if (!r.ok && r.status !== 404) throw new Error(`action list unavailable (HTTP ${r.status})`);
+    try { actions = r.ok && r.body ? JSON.parse(r.body)?.actions || [] : []; } catch { throw new Error("action list unparseable"); }
+  }
+  if (responses.length) {
+    await putRaw(deps.rawStore, `bill-record/${b.billKey}/${at.replace(/[:.]/g, "-")}.json`, {
+      kind: "bill_record", bill_key: b.billKey, congress: b.congress, fetched_at: at, source_type: "Congress.gov bill record", responses,
+    }, log);
+  }
+  return { main, actions, keyed: true };
+}
+
 export async function runVoteActions(deps: RunDeps): Promise<{ report: RunReport; state: RunState }> {
   const now = (deps.now || (() => new Date()))();
   const clock = deps.clock || (() => Date.now());
@@ -1023,125 +1149,244 @@ export async function runVoteActions(deps: RunDeps): Promise<{ report: RunReport
   const overBudget = () => clock() - started > budget;
   const log = deps.log || ((l: string) => console.log(l));
   const state = normaliseState(deps.state);
-  const congress = congressForDate(now);
-  const cutoff = now.getTime() - (deps.lookbackDays ?? LOOKBACK_DAYS) * DAY;
+  const current = congressForDate(now);
+  const floor = Math.max(1, deps.floorCongress ?? FLOOR_CONGRESS);
   const chambers = deps.chambers || ["house", "senate"];
+  const maxRolls = deps.maxRolls ?? MAX_ROLLS_PER_RUN;
+  const maxPages = deps.maxPages ?? PAGES_PER_RUN;
   const report: RunReport = {
-    congress, candidates: { house: 0, senate: 0 }, processed: 0, done: 0, incomplete: 0, parked: 0, unsupported: 0, noMeasure: 0,
-    billsTagged: 0, billsUntagged: 0, votesInserted: 0, votesRevised: 0, membersUnmapped: 0, votesWritten: 0, votesKindKnown: 0, votesProcedural: 0, membersRemapped: 0, metaRefreshed: 0, retagged: 0,
+    congress: current, targetCongress: current, congresses: [],
+    candidates: { house: 0, senate: 0 }, processed: 0, done: 0, incomplete: 0, parked: 0, unsupported: 0, noMeasure: 0,
+    billsTagged: 0, billsUntagged: 0, votesInserted: 0, votesRevised: 0, membersUnmapped: 0, votesWritten: 0, votesKindKnown: 0, votesProcedural: 0, membersRemapped: 0,
+    pagesGenerated: 0, pagesFailed: 0, pagesRefreshed: 0, metaRefreshed: 0, retagged: 0,
     rateLimited: false, budgetHit: false, errors: [], tagCounts: {}, houseConfigured: !!deps.apiKey,
   };
   const ledgerSet = (key: string, status: string, date: string, note?: string) => {
     const prev = state.ledger[key];
     state.ledger[key] = { status, attempts: (prev?.attempts || 0) + (status === "done" ? 0 : 1), date, at: now.toISOString(), ...(note ? { note } : {}) };
   };
+  let lis: Record<string, string> | null = null;
+  const pagesUsed = () => report.pagesGenerated + report.pagesFailed + report.pagesRefreshed;
 
-  try {
-    // 1. Candidates: every roll call in the window not yet final, newest first.
-    let cands: any[] = [];
+  // One roll call: detail → measure → bill tags → vote rows (unchanged logic).
+  async function processRoll(c: Cand): Promise<void> {
+    report.processed++;
+    const key = rollKey(c.chamber, c.congress, c.session, c.roll);
+    let rec: RollRecord | null = null;
+    let rollRef: string | null = null;
+    // One fetch time per roll call: its payload, its new bill's payload and
+    // that bill row's meta_fetched_at all carry it, so a replay is identical.
+    const fetchedAt = (deps.now || (() => new Date()))().toISOString();
+    try {
+      const house = c.chamber === "house";
+      const url = house ? withKey(`${CONGRESS_API}/house-vote/${c.congress}/${c.session}/${c.roll}/members`, deps.apiKey!) : senateXmlUrl(c.congress, c.session, c.roll);
+      const r = await fetchRaw(deps.fetch, url, house ? JSON_ACCEPT : XML_ACCEPT);
+      if (r.ok && r.body) {
+        // Stored unmodified BEFORE parsing; a failed write never stops the run.
+        const env: RollEnvelope = {
+          kind: house ? "house_vote" : "senate_vote", chamber: c.chamber, congress: c.congress, session: c.session, roll: c.roll,
+          url: publicUrl(url), fetched_at: fetchedAt, source_type: house ? "Congress.gov house-vote member votes" : "senate.gov LIS roll call vote XML",
+          http_status: r.status, content_type: r.contentType, body_chars: r.body.length, body: r.body,
+          ...(house ? { list_row: c.row } : {}),
+        };
+        rollRef = await putRaw(deps.rawStore, rollRawKey(c.chamber, c.congress, c.session, c.roll, fetchedAt), env, log);
+        rec = rollFromEnvelope(env);
+      }
+    } catch (e: any) {
+      if (e instanceof RateLimited) throw e;
+      report.errors.push(`${key}: ${e?.message || e}`);
+    }
+    const attempts = (state.ledger[key]?.attempts || 0) + 1;
+    if (!rec || !rec.members.length) {
+      if (rec && rec.unsupported.length) { ledgerSet(key, "unsupported", c.date, rec.unsupported.slice(0, 3).join(", ")); report.unsupported++; return; }
+      const parked = attempts >= MAX_ATTEMPTS;
+      ledgerSet(key, parked ? "parked" : "incomplete", c.date, rec ? "no member positions yet" : "detail unavailable");
+      parked ? report.parked++ : report.incomplete++;
+      log(`vote-actions: ${parked ? "PARKED" : "RETRY LATER"} ${key} — ${rec ? "no member positions yet" : "detail unavailable"} (attempt ${attempts})`);
+      return;
+    }
+    if (rec.unsupported.length) {
+      // A mixed vocabulary (Speaker election ballots, "Guilty") is never flattened.
+      ledgerSet(key, "unsupported", c.date, rec.unsupported.slice(0, 3).join(", "));
+      report.unsupported++;
+      log(`vote-actions: UNSUPPORTED ${key} — vote words ${[...new Set(rec.unsupported)].slice(0, 3).join(", ")}`);
+      return;
+    }
+    if (!rec.measure) { ledgerSet(key, "no_measure", c.date, rec.question || ""); report.noMeasure++; return; }
+
+    // One roll call's bill / tag / write step failing must not end the run:
+    // it is retried on later runs like a missing member list, then parked.
+    try {
+      let bill = await deps.repo.getBill(rec.measure.billKey);
+      if (!bill) {
+        const responses = await fetchBillMetaRaw(deps.fetch, deps.apiKey, rec.congress, rec.measure);
+        const metaRef = responses
+          ? await putRaw(deps.rawStore, billRawKey(rec.measure.billKey, fetchedAt), {
+              kind: "bill_meta", bill_key: rec.measure.billKey, congress: rec.congress, measure: { ...rec.measure },
+              fetched_at: fetchedAt, source_type: "Congress.gov bill metadata", responses,
+            } satisfies BillEnvelope, log)
+          : null;
+        const meta = billMetaFromResponses(responses, rec.congress, rec.measure);
+        const built = billFromMeta(rec, meta, new Date(fetchedAt), metaRef);
+        const tags = built.tags;
+        bill = built.bill;
+        await deps.repo.upsertBill(bill);
+        tags.tags.length ? report.billsTagged++ : report.billsUntagged++;
+        log(`vote-actions: BILL ${bill.billKey} ${bill.number || ""} — tags high [${tags.highTags.join(", ")}] low [${tags.lowTags.join(", ")}]${tags.untagged ? ` (untagged: ${tags.untagged})` : ""}${tags.multiTopic ? " multi-topic" : ""} · ${meta.metaSource}`);
+      }
+      const { rows, unmapped } = rowsForRoll(rec, bill, { memberMap: deps.memberMap, lis: lis || {} }, rollRef);
+      const w = await deps.repo.upsertVotes(rows);
+      report.votesInserted += w.inserted;
+      report.votesRevised += w.revised;
+      report.membersUnmapped += unmapped;
+      report.votesWritten += rows.length;
+      if (rec.isProcedural !== null) { report.votesKindKnown += rows.length; if (rec.isProcedural) report.votesProcedural += rows.length; }
+      for (const t of bill.topicTags) report.tagCounts[t] = (report.tagCounts[t] || 0) + 1;
+      ledgerSet(key, "done", c.date);
+      report.done++;
+    } catch (e: any) {
+      if (e instanceof RateLimited) throw e;
+      const msg = String(e?.message || e).slice(0, 160);
+      const parked = attempts >= MAX_ATTEMPTS;
+      ledgerSet(key, parked ? "parked" : "incomplete", c.date, `processing error: ${msg}`);
+      parked ? report.parked++ : report.incomplete++;
+      report.errors.push(`${key}: ${msg}`);
+      log(`vote-actions: ${parked ? "PARKED" : "RETRY LATER"} ${key} — processing error: ${msg} (attempt ${attempts})`);
+    }
+  }
+
+  // A bill's page: built from the bill row just written (+ its official record)
+  // and stored. A failure is retried on later runs, then given up on.
+  const keyed = !!deps.apiKey;
+  type PageState = "done" | "existing" | "pending" | "stale" | "none";
+  const pageState = (b: PageBill): PageState => {
+    if (!wantsPage(b)) return "none";
+    if (deps.existingPages?.has(docKey(b.congress, b.number!))) return "existing";
+    const e = state.pages[b.billKey];
+    const sig = pageSignature(b, keyed);
+    if (!e || e.sig !== sig) return "pending";
+    if (e.failed) return (e.attempts || 0) >= PAGE_MAX_ATTEMPTS ? "done" : "pending";
+    const age = now.getTime() - new Date(e.at).getTime();
+    return b.congress === current && age > PAGE_REFRESH_DAYS * DAY ? "stale" : "done";
+  };
+  async function generatePage(b: PageBill, refresh = false): Promise<boolean> {
+    const at = (deps.now || (() => new Date()))().toISOString();
+    const sig = pageSignature(b, keyed);
+    const prev = state.pages[b.billKey];
+    try {
+      const src = await pageSources(deps, b, at, log);
+      const page = buildBillPage(b, src, deps.memberMap, new Date(at));
+      await deps.pageStore!.setJSON(pageStoreKey(b.congress, b.number!), page);
+      state.pages[b.billKey] = { sig, at, url: page.url };
+      refresh ? report.pagesRefreshed++ : report.pagesGenerated++;
+      log(`vote-actions: PAGE ${page.url} — ${b.billKey} · issues [${(page.doc.m || []).map((x) => x.k).join(", ")}]${page.doc.sl ? ` · ${page.doc.sl}` : ""}`);
+      return true;
+    } catch (e: any) {
+      if (e instanceof RateLimited) throw e;
+      const msg = String(e?.message || e).slice(0, 160);
+      const attempts = (prev?.sig === sig ? prev.attempts || 0 : 0) + 1;
+      // A refresh that fails keeps the page that is already published.
+      state.pages[b.billKey] = refresh && prev && !prev.failed
+        ? { ...prev, at, note: `refresh failed: ${msg}` }
+        : { sig, at, url: billPageUrl(b.congress, b.number!), attempts, failed: true, note: msg };
+      report.pagesFailed++;
+      report.errors.push(`page ${b.billKey}: ${msg}`);
+      log(`vote-actions: PAGE ${attempts >= PAGE_MAX_ATTEMPTS ? "GAVE UP" : "RETRY LATER"} ${b.billKey} — ${msg} (attempt ${attempts})`);
+      return false;
+    }
+  }
+
+  // One Congress: discover → roll calls → pages → progress. True when nothing is
+  // left to do in it right now (so the run may move to the one before).
+  async function workCongress(congress: number): Promise<boolean> {
+    const sitting = congress === current;
+    const run: CongressRun = { congress, listed: true, discovered: { house: 0, senate: 0 }, pendingRolls: 0, processed: 0, pagesGenerated: 0, pagesPending: 0, status: "active" };
+    report.congresses.push(run);
+    report.targetCongress = congress;
+    let cands: Cand[] = [];
+    // 1. Discovery — re-queried every run, the whole Congress.
     if (chambers.includes("house")) {
       if (deps.apiKey) {
-        try { const h = await houseCandidates(deps, congress, cutoff, state.ledger); report.candidates.house = h.length; cands.push(...h); }
-        catch (e: any) { if (e instanceof RateLimited) throw e; report.errors.push(`house list: ${e?.message || e}`); }
-      } else log("vote-actions: CONGRESS_GOV_API_KEY not set — House side skipped this run.");
+        try {
+          const h = await houseCandidates(deps, congress, state.ledger);
+          run.discovered.house = h.total; run.listed &&= h.listed; cands.push(...h.cands);
+          report.candidates.house += h.cands.length;
+        } catch (e: any) { if (e instanceof RateLimited) throw e; run.listed = false; report.errors.push(`house list ${congress}: ${e?.message || e}`); }
+      } else { run.listed = false; if (sitting) log("vote-actions: CONGRESS_GOV_API_KEY not set — House side skipped this run."); }
     }
     if (chambers.includes("senate")) {
-      try { const s = await senateCandidates(deps, congress, cutoff, now, state.ledger); report.candidates.senate = s.length; cands.push(...s); }
-      catch (e: any) { if (e instanceof RateLimited) throw e; report.errors.push(`senate menu: ${e?.message || e}`); }
+      const sessions = sitting ? Array.from({ length: Math.max(1, sessionForDate(now)) }, (_, i) => i + 1) : [1, 2];
+      try {
+        const s = await senateCandidates(deps, congress, sessions, state.ledger);
+        run.discovered.senate = s.total; run.listed &&= s.listed; cands.push(...s.cands);
+        report.candidates.senate += s.cands.length;
+      } catch (e: any) { if (e instanceof RateLimited) throw e; run.listed = false; report.errors.push(`senate menu ${congress}: ${e?.message || e}`); }
     }
     cands.sort((a, b) => b.date.localeCompare(a.date) || a.chamber.localeCompare(b.chamber) || b.roll - a.roll);
-    const lis = cands.some((c) => c.chamber === "senate") ? await ensureLisIndex(deps, state, now, log) : (state.lis?.map || {});
+    if (cands.some((c) => c.chamber === "senate") && !lis) lis = await ensureLisIndex(deps, state, now, log);
 
-    // 2. Each roll call: detail → measure → bill tags → vote rows.
+    // 2. Roll calls, newest first, inside the run's shared cap and time budget.
     for (const c of cands) {
-      if (report.processed >= (deps.maxRolls ?? MAX_ROLLS_PER_RUN)) break;
+      if (report.processed >= maxRolls) break;
       if (overBudget()) { report.budgetHit = true; break; }
-      report.processed++;
-      const key = rollKey(c.chamber, c.congress, c.session, c.roll);
-      let rec: RollRecord | null = null;
-      let rollRef: string | null = null;
-      // One fetch time per roll call: its payload, its new bill's payload and
-      // that bill row's meta_fetched_at all carry it, so a replay is identical.
-      const fetchedAt = (deps.now || (() => new Date()))().toISOString();
-      try {
-        const house = c.chamber === "house";
-        const url = house ? withKey(`${CONGRESS_API}/house-vote/${c.congress}/${c.session}/${c.roll}/members`, deps.apiKey!) : senateXmlUrl(c.congress, c.session, c.roll);
-        const r = await fetchRaw(deps.fetch, url, house ? JSON_ACCEPT : XML_ACCEPT);
-        if (r.ok && r.body) {
-          // Stored unmodified BEFORE parsing; a failed write never stops the run.
-          const env: RollEnvelope = {
-            kind: house ? "house_vote" : "senate_vote", chamber: c.chamber, congress: c.congress, session: c.session, roll: c.roll,
-            url: publicUrl(url), fetched_at: fetchedAt, source_type: house ? "Congress.gov house-vote member votes" : "senate.gov LIS roll call vote XML",
-            http_status: r.status, content_type: r.contentType, body_chars: r.body.length, body: r.body,
-            ...(house ? { list_row: c.row } : {}),
-          };
-          rollRef = await putRaw(deps.rawStore, rollRawKey(c.chamber, c.congress, c.session, c.roll, fetchedAt), env, log);
-          rec = rollFromEnvelope(env);
-        }
-      } catch (e: any) {
-        if (e instanceof RateLimited) throw e;
-        report.errors.push(`${key}: ${e?.message || e}`);
-      }
-      const attempts = (state.ledger[key]?.attempts || 0) + 1;
-      if (!rec || !rec.members.length) {
-        if (rec && rec.unsupported.length) { ledgerSet(key, "unsupported", c.date, rec.unsupported.slice(0, 3).join(", ")); report.unsupported++; continue; }
-        const parked = attempts >= MAX_ATTEMPTS;
-        ledgerSet(key, parked ? "parked" : "incomplete", c.date, rec ? "no member positions yet" : "detail unavailable");
-        parked ? report.parked++ : report.incomplete++;
-        log(`vote-actions: ${parked ? "PARKED" : "RETRY LATER"} ${key} — ${rec ? "no member positions yet" : "detail unavailable"} (attempt ${attempts})`);
-        continue;
-      }
-      if (rec.unsupported.length) {
-        // A mixed vocabulary (Speaker election ballots, "Guilty") is never flattened.
-        ledgerSet(key, "unsupported", c.date, rec.unsupported.slice(0, 3).join(", "));
-        report.unsupported++;
-        log(`vote-actions: UNSUPPORTED ${key} — vote words ${[...new Set(rec.unsupported)].slice(0, 3).join(", ")}`);
-        continue;
-      }
-      if (!rec.measure) { ledgerSet(key, "no_measure", c.date, rec.question || ""); report.noMeasure++; continue; }
+      await processRoll(c);
+      run.processed++;
+    }
+    run.pendingRolls = cands.filter((c) => !FINAL.has(state.ledger[rollKey(c.chamber, c.congress, c.session, c.roll)]?.status || "")).length;
 
-      // One roll call's bill / tag / write step failing must not end the run:
-      // it is retried on later runs like a missing member list, then parked.
-      try {
-        let bill = await deps.repo.getBill(rec.measure.billKey);
-        if (!bill) {
-          const responses = await fetchBillMetaRaw(deps.fetch, deps.apiKey, rec.congress, rec.measure);
-          const metaRef = responses
-            ? await putRaw(deps.rawStore, billRawKey(rec.measure.billKey, fetchedAt), {
-                kind: "bill_meta", bill_key: rec.measure.billKey, congress: rec.congress, measure: { ...rec.measure },
-                fetched_at: fetchedAt, source_type: "Congress.gov bill metadata", responses,
-              } satisfies BillEnvelope, log)
-            : null;
-          const meta = billMetaFromResponses(responses, rec.congress, rec.measure);
-          const built = billFromMeta(rec, meta, new Date(fetchedAt), metaRef);
-          const tags = built.tags;
-          bill = built.bill;
-          await deps.repo.upsertBill(bill);
-          tags.tags.length ? report.billsTagged++ : report.billsUntagged++;
-          log(`vote-actions: BILL ${bill.billKey} ${bill.number || ""} — tags high [${tags.highTags.join(", ")}] low [${tags.lowTags.join(", ")}]${tags.untagged ? ` (untagged: ${tags.untagged})` : ""}${tags.multiTopic ? " multi-topic" : ""} · ${meta.metaSource}`);
-        }
-        const { rows, unmapped } = rowsForRoll(rec, bill, { memberMap: deps.memberMap, lis }, rollRef);
-        const w = await deps.repo.upsertVotes(rows);
-        report.votesInserted += w.inserted;
-        report.votesRevised += w.revised;
-        report.membersUnmapped += unmapped;
-        report.votesWritten += rows.length;
-        if (rec.isProcedural !== null) { report.votesKindKnown += rows.length; if (rec.isProcedural) report.votesProcedural += rows.length; }
-        for (const t of bill.topicTags) report.tagCounts[t] = (report.tagCounts[t] || 0) + 1;
-        ledgerSet(key, "done", c.date);
-        report.done++;
-      } catch (e: any) {
-        if (e instanceof RateLimited) throw e;
-        const msg = String(e?.message || e).slice(0, 160);
-        const parked = attempts >= MAX_ATTEMPTS;
-        ledgerSet(key, parked ? "parked" : "incomplete", c.date, `processing error: ${msg}`);
-        parked ? report.parked++ : report.incomplete++;
-        report.errors.push(`${key}: ${msg}`);
-        log(`vote-actions: ${parked ? "PARKED" : "RETRY LATER"} ${key} — processing error: ${msg} (attempt ${attempts})`);
+    // 3. Pages for the Congress's bills that lack a current one — the bills just
+    //    written first (they sort with the rest by key; all pending are taken).
+    let bills: PageBill[] | null = null;
+    if (deps.repo.billsForPages && deps.pageStore) {
+      try { bills = await deps.repo.billsForPages(congress); }
+      catch (e: any) { report.errors.push(`bills ${congress}: ${e?.message || e}`); }
+    }
+    if (bills) {
+      for (const b of bills) {
+        if (pageState(b) !== "pending") continue;
+        if (pagesUsed() >= maxPages) break;
+        if (overBudget()) { report.budgetHit = true; break; }
+        if (await generatePage(b)) run.pagesGenerated++;
       }
     }
+    const states = (bills || []).map(pageState);
+    run.pagesPending = bills ? states.filter((s) => s === "pending").length : -1;
 
-    // 3. Late summaries: refetch a few bills read without one, then re-tag.
+    // 4. Progress.
+    const settled = run.listed && run.pendingRolls === 0 && run.pagesPending === 0;
+    run.status = settled ? (sitting ? "caught_up" : "complete") : "active";
+    const prev = state.congresses[String(congress)];
+    state.congresses[String(congress)] = {
+      status: run.status, listed: run.listed, discovered: run.discovered, rollsPending: run.pendingRolls,
+      bills: (bills || []).length, pagesDone: states.filter((s) => s === "done" || s === "stale").length,
+      pagesPending: Math.max(0, run.pagesPending), pagesExisting: states.filter((s) => s === "existing").length,
+      checkedAt: now.toISOString(), completedAt: run.status === "complete" ? now.toISOString() : prev?.completedAt ?? null,
+    };
+    log(`vote-actions: CONGRESS ${congress} — ${run.status} · rolls house ${run.discovered.house} senate ${run.discovered.senate} · pending ${run.pendingRolls} · processed ${run.processed} · pages new ${run.pagesGenerated} pending ${Math.max(0, run.pagesPending)}${run.listed ? "" : " · lists incomplete"}`);
+    if (run.status === "complete") {
+      // An ended Congress, fully processed: it is never queried again, so its
+      // ledger rows are folded into a count.
+      let n = 0;
+      for (const k of Object.keys(state.ledger)) if (k.split("|")[1] === String(congress)) { delete state.ledger[k]; n++; }
+      state.congresses[String(congress)].rollsFinal = n;
+      log(`vote-actions: CONGRESS ${congress} COMPLETE — moving to the ${congress - 1}th`);
+    }
+    return settled;
+  }
+
+  try {
+    // 1–4 per Congress: the sitting one first (new roll calls land there), then
+    // the newest ended Congress that is not complete, then the one before…
+    let visited = 0;
+    for (let c = current; c >= floor && visited < MAX_CONGRESSES_PER_RUN; c--) {
+      if (c !== current && state.congresses[String(c)]?.status === "complete") continue;
+      if (overBudget()) { report.budgetHit = true; break; }
+      visited++;
+      const settled = await workCongress(c);
+      if (!settled || report.processed >= maxRolls || pagesUsed() >= maxPages) break;
+    }
+
+    // 5. Late summaries: refetch a few bills read without one, then re-tag.
     if (deps.apiKey && !overBudget()) {
       const stale = await deps.repo.billsNeedingMeta({ olderThan: new Date(now.getTime() - META_REFRESH_AFTER_DAYS * DAY).toISOString(), maxAttempts: META_MAX_ATTEMPTS, limit: META_REFRESH_PER_RUN });
       for (const b of stale) {
@@ -1168,7 +1413,7 @@ export async function runVoteActions(deps: RunDeps): Promise<{ report: RunReport
       }
     }
 
-    // 4. Tagger version bump: re-tag stored bills from their stored text (no fetch).
+    // 6. Tagger version bump: re-tag stored bills from their stored text (no fetch).
     if (!overBudget()) {
       for (const b of await deps.repo.billsWithStaleTags(TAGGER_VERSION, RETAG_PER_RUN)) {
         const tags = tagMeasure({ measureType: b.measureType, title: b.title, shortTitle: b.shortTitle, summary: b.summary, policyArea: b.policyArea, subjects: b.officialSubjects });
@@ -1178,7 +1423,7 @@ export async function runVoteActions(deps: RunDeps): Promise<{ report: RunReport
       }
     }
 
-    // 5. Roster catch-up: a member added to the roster after their roll calls were
+    // 7. Roster catch-up: a member added to the roster after their roll calls were
     //    read (and marked done) gets their politician on those rows now, so the
     //    publish gate re-evaluates the bill with no manual step and no refetch.
     if (!overBudget() && deps.repo.unmappedBioguides && deps.repo.mapMembers) {
@@ -1189,14 +1434,22 @@ export async function runVoteActions(deps: RunDeps): Promise<{ report: RunReport
         log(`vote-actions: ROSTER CATCH-UP — ${pairs.length} member(s) now mapped, ${report.membersRemapped} row(s) filled`);
       }
     }
+
+    // 8. Leftover page budget: rebuild the sitting Congress's oldest pages, whose
+    //    status and history move while it sits. Never blocks moving on.
+    if (deps.repo.billsForPages && deps.pageStore && pagesUsed() < maxPages && !overBudget()) {
+      const stale = (await deps.repo.billsForPages(current)).filter((b) => pageState(b) === "stale")
+        .sort((a, b) => state.pages[a.billKey].at.localeCompare(state.pages[b.billKey].at));
+      for (const b of stale) {
+        if (pagesUsed() >= maxPages || overBudget()) break;
+        await generatePage(b, true);
+      }
+    }
   } catch (e: any) {
     if (e instanceof RateLimited) { report.rateLimited = true; log(`vote-actions: RATE LIMITED — ${e.message}; stopping this run`); }
     else report.errors.push(e?.message || String(e));
   }
 
-  // Keep the ledger bounded to the window (+30 days of slack).
-  const keepAfter = cutoff - 30 * DAY;
-  for (const [k, v] of Object.entries(state.ledger)) if (new Date(v.date).getTime() < keepAfter) delete state.ledger[k];
   state.lastRun = { at: now.toISOString(), ms: clock() - started, ...report, tagCounts: undefined };
   return { report, state };
 }
@@ -1204,5 +1457,6 @@ export async function runVoteActions(deps: RunDeps): Promise<{ report: RunReport
 export function summaryLine(r: RunReport): string {
   const q = runQuality(r);
   const top = Object.entries(r.tagCounts).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([k, n]) => `${k}:${n}`).join(" ");
-  return `vote-actions: run — congress ${r.congress} · candidates house ${r.candidates.house} senate ${r.candidates.senate} · processed ${r.processed} (done ${r.done}, retry ${r.incomplete}, parked ${r.parked}, unsupported ${r.unsupported}, no measure ${r.noMeasure}) · bills tagged ${r.billsTagged} untagged ${r.billsUntagged} · votes new ${r.votesInserted} revised ${r.votesRevised} · off-roster members ${r.membersUnmapped} · late summaries ${r.metaRefreshed} · retagged ${r.retagged}${r.membersRemapped ? ` · remapped ${r.membersRemapped}` : ""} · rates no-politician ${pctText(q.noPolitician)} untagged-bills ${pctText(q.untaggedBills)} procedural ${pctText(q.procedural)} done ${pctText(q.done)}${r.rateLimited ? " · RATE LIMITED" : ""}${r.budgetHit ? " · budget reached" : ""}${r.houseConfigured ? "" : " · house skipped (no key)"}${top ? ` · tags ${top}` : ""}${r.errors.length ? ` · errors ${r.errors.length}` : ""}`;
+  const cg = (r.congresses || []).map((c) => `${c.congress}:${c.status}${c.pendingRolls ? `/${c.pendingRolls} rolls left` : ""}${c.pagesPending > 0 ? `/${c.pagesPending} pages left` : ""}`).join(" ");
+  return `vote-actions: run — congress ${r.congress}${r.targetCongress !== r.congress ? ` → target ${r.targetCongress}` : ""}${cg ? ` [${cg}]` : ""} · candidates house ${r.candidates.house} senate ${r.candidates.senate} · processed ${r.processed} (done ${r.done}, retry ${r.incomplete}, parked ${r.parked}, unsupported ${r.unsupported}, no measure ${r.noMeasure}) · bills tagged ${r.billsTagged} untagged ${r.billsUntagged} · votes new ${r.votesInserted} revised ${r.votesRevised} · off-roster members ${r.membersUnmapped} · late summaries ${r.metaRefreshed} · retagged ${r.retagged} · pages new ${r.pagesGenerated || 0} refreshed ${r.pagesRefreshed || 0} failed ${r.pagesFailed || 0}${r.membersRemapped ? ` · remapped ${r.membersRemapped}` : ""} · rates no-politician ${pctText(q.noPolitician)} untagged-bills ${pctText(q.untaggedBills)} procedural ${pctText(q.procedural)} done ${pctText(q.done)}${r.rateLimited ? " · RATE LIMITED" : ""}${r.budgetHit ? " · budget reached" : ""}${r.houseConfigured ? "" : " · house skipped (no key)"}${top ? ` · tags ${top}` : ""}${r.errors.length ? ` · errors ${r.errors.length}` : ""}`;
 }

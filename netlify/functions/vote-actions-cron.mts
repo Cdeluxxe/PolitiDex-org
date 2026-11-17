@@ -4,22 +4,34 @@
 // Hourly, at :23. Runs PARALLEL to the stance generator (raw-ingest-cron, every
 // minute) and shares none of its caps, rotation, Locker or promotion: the cost
 // here is per roll call (one member list covers every politician on it), so the
-// limit is roll calls per run (MAX_ROLLS_PER_RUN) inside a time budget, not
-// politicians per run. Logic: netlify/lib/vote-actions-core.ts.
+// limit is roll calls per run (MAX_ROLLS_PER_RUN) and pages per run
+// (PAGES_PER_RUN) inside a time budget, not politicians per run.
+// Logic: netlify/lib/vote-actions-core.ts.
 //
-// Writes only pdx_action_bills / pdx_vote_actions (+ its own Blobs ledger,
-// "vote-actions-state", and the unmodified source payloads, "raw-ingest-votes"). Nothing public reads them; no score, no direction, no
-// contradiction flag, no curated card or stance store is touched.
+// Every run re-discovers the target Congress's roll calls (the sitting 119th
+// first, then each older Congress once the newer one is complete), tags each
+// voted-on bill, stores its vote rows and generates its public bill page.
 //
-// Without CONGRESS_GOV_API_KEY the House side is skipped (logged) and the Senate
-// side still runs from senate.gov with vote-document titles only.
+// Writes only pdx_action_bills / pdx_vote_actions (+ its own Blobs ledger and
+// per-Congress progress, "vote-actions-state"; the unmodified source payloads,
+// "raw-ingest-votes"; and the generated bill page records, "bill-pages", which
+// the /b/ document reads). No score, no direction, no contradiction flag, no
+// curated card or stance store is touched.
+//
+// Without CONGRESS_GOV_API_KEY the House side is skipped (logged), the Senate
+// side still runs from senate.gov with vote-document titles only, and no
+// Congress is marked complete (Congress.gov is the record of what exists).
 //   VOTE_ACTIONS_DISABLED=1   — turn the job off without a deploy
-//   VOTE_ACTIONS_LOOKBACK_DAYS — "recent" window (default 120)
 import type { Config } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
-import { runVoteActions, summaryLine, STATE_STORE_NAME, STATE_KEY, LOOKBACK_DAYS, RAW_VOTES_STORE_NAME } from "../lib/vote-actions-core.js";
+import { runVoteActions, summaryLine, STATE_STORE_NAME, STATE_KEY, RAW_VOTES_STORE_NAME } from "../lib/vote-actions-core.js";
+import { BILL_PAGES_STORE_NAME } from "../lib/vote-actions-pages.js";
 import { voteActionsRepo } from "../lib/vote-actions-db.js";
 import { loadMemberMap } from "../lib/vr-ingest.js";
+import billDocsFile from "../../db/bill-docs.json" with { type: "json" };
+
+// Bills the build-time snapshot already gives a page: "<sitting>|<number>".
+const SNAPSHOT_PAGES = new Set(Object.keys((billDocsFile as any).docs || {}));
 
 export default async (): Promise<void> => {
   if (process.env.VOTE_ACTIONS_DISABLED === "1") {
@@ -36,16 +48,19 @@ export default async (): Promise<void> => {
   let rawStore: any = null;
   try { rawStore = getStore(RAW_VOTES_STORE_NAME); }
   catch (e: any) { console.log(`vote-actions: raw store unavailable — rows only this run (${e?.message || e})`); }
+  let pageStore: any = null;
+  try { pageStore = getStore(BILL_PAGES_STORE_NAME); }
+  catch (e: any) { console.log(`vote-actions: page store unavailable — no pages this run (${e?.message || e})`); }
 
-  const lookback = Number(process.env.VOTE_ACTIONS_LOOKBACK_DAYS);
   const { report, state } = await runVoteActions({
     fetch,
     repo: voteActionsRepo,
     state: doc,
     memberMap: await loadMemberMap(),
     rawStore,
+    pageStore,
+    existingPages: SNAPSHOT_PAGES,
     apiKey: process.env.CONGRESS_GOV_API_KEY || null,
-    lookbackDays: Number.isFinite(lookback) && lookback > 0 ? Math.min(lookback, 730) : LOOKBACK_DAYS,
   });
   try { await store.setJSON(STATE_KEY, state); }
   catch (e: any) { console.log(`vote-actions: state not saved — ${e?.message || e}`); }

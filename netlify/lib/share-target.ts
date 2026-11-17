@@ -194,6 +194,40 @@ export function billDocFor(sitting: string, number: string): BillDoc | null {
   return hits.length === 1 ? billDocOf(hits[0]) : null;
 }
 
+// ── Generated bill pages (Blobs "bill-pages") ────────────────────────────────
+// The vote-actions job (netlify/lib/vote-actions-pages.ts) writes one record per
+// federal bill it tags and stores votes for, keyed "us/<congress>/<number>", in
+// the same shape as a db/bill-docs.json entry — so a bill newer than (or older
+// than) the snapshot prints the same blocks through the same template. Issue keys
+// arrive bare and are labelled here from the share index, exactly as the live
+// mapping overlay labels them; a key with no label is not printed.
+// The store is read through an injected reader (the edge functions set it), so
+// this module stays free of any Blobs import and every failure is soft: no
+// reader, a timeout or a bad record all fall through to the database lookup.
+export type GeneratedBillPageReader = (key: string) => Promise<any | null>;
+let _pageReader: GeneratedBillPageReader | null = null;
+export function setGeneratedBillPageReader(r: GeneratedBillPageReader | null): void { _pageReader = r; }
+export const GENERATED_PAGE_TIMEOUT_MS = 1500;
+export async function generatedBillDoc(sitting: string, number: string): Promise<BillDoc | null> {
+  const s = String(sitting || "").trim();
+  const n = String(number || "").replace(/\s+/g, " ").trim();
+  if (!_pageReader || !/^\d{1,3}$/.test(s) || !n) return null;
+  let rec: any = null;
+  try {
+    rec = await Promise.race([
+      _pageReader(`us/${s}/${encodeURIComponent(n)}`),
+      new Promise((resolve) => setTimeout(() => resolve(null), GENERATED_PAGE_TIMEOUT_MS)),
+    ]);
+  } catch { return null; }
+  const d = rec && rec.doc;
+  if (!d || String(d.s) !== s || String(d.n) !== n) return null;
+  const m = (Array.isArray(d.m) ? d.m : [])
+    .map((x: any) => (x && typeof x.k === "string" && /^[A-Za-z0-9_]+$/.test(x.k) ? { i: stripEmoji(INDEX.issues[x.k] || ""), k: x.k } : null))
+    .filter((x: any) => x && x.i)
+    .sort((p: any, q: any) => p.i.localeCompare(q.i));
+  return billDocOf({ ...d, s, n, m });
+}
+
 // The address a bill document lives at — /b/<sitting>/<number>, both segments
 // percent-encoded, the same form canonicalPath() and share-links.js write.
 export function billDocPath(d: { sitting: string; number: string }): string {
@@ -902,6 +936,8 @@ export async function resolveTarget(
     // Only a miss asks the database, for a row the live ingest added after the
     // snapshot was cut.
     let doc = billDocFor(t.congress, t.number);
+    // Then a page the vote-actions job generated for a bill it processed.
+    if (!doc) doc = await generatedBillDoc(t.congress, t.number);
     if (!doc) {
       const res = await apiGet(
         origin,

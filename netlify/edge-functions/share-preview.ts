@@ -40,6 +40,11 @@ import {
   type RecordLine,
   type BillDoc,
 } from "../lib/share-target.ts";
+import { installBillPagesReader } from "../lib/bill-pages-reader.ts";
+
+// /b/ addresses the snapshot does not hold are also looked up among the bill
+// pages the scheduled bill job generates (Blobs "bill-pages").
+installBillPagesReader();
 
 // A person file's own address. Only this shape gets a crawl block: /p/<pid> is the
 // canonical person address, and the ?p= form is a query on some other surface.

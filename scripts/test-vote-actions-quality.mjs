@@ -163,7 +163,7 @@ const oldNotDone = Object.entries(ledger).filter(([, v]) => v.status !== "done")
 const { unmappedMembers: _u, ...oldStatus } = fixtureStatus;
 const previous = { lastRun: stateDoc.lastRun, ledger: oldLedger, notDone: oldNotDone, ...oldStatus };
 for (const k of Object.keys(previous)) eq(body[k], previous[k], `previous field "${k}" unchanged`);
-eq(Object.keys(body).sort(), [...Object.keys(previous), "quality", "unmappedMembers"].sort(), "body = previous fields + quality + unmappedMembers");
+eq(Object.keys(body).sort(), [...Object.keys(previous), "quality", "unmappedMembers", "congresses"].sort(), "body = previous fields + quality + unmappedMembers + per-Congress progress");
 eq(body.quality.tables.votesNoPolitician.text, "100 / 1000 (10.0%)", "endpoint rates computed from the table counts");
 eq(body.quality.ledger.retryBacklog.rolls, 2, "endpoint ledger backlog");
 eq(body.unmappedMembers[0].member_id, "S999", "unmapped-member to-do list returned");
