@@ -4,6 +4,11 @@ import { EXTRA_SOURCES, NEW_STATE_LEGISLATORS, SOURCE_CLASSES, NEW_SOCIAL_ROSTER
 import { pullYouTube, pullYouTubeVideo, isSocial, SOCIAL_CLASSES } from "./raw-ingest-social.mjs";
 import POOL_EXPANSION from "../../db/raw-ingest-pool-expansion-2026-11.json" with { type: "json" };
 import FULL_ROSTER from "../../db/raw-ingest-full-roster-2026-11.json" with { type: "json" };
+import OFFICIAL_CITED from "../../db/raw-ingest-official-cited-2026-11.json" with { type: "json" };
+import SHARE_INDEX from "../../db/share-index.json" with { type: "json" };
+import MEMBER_MAP from "../../db/vr-member-map.json" with { type: "json" };
+import { RETIRED_SOURCES } from "./raw-ingest-retired.mjs";
+import { resolveRoster } from "./raw-ingest-resolve.mjs";
 
 export { EXTRA_SOURCES, SOURCE_CLASSES, SOCIAL_SOURCES, SOCIAL_CLASSES, isSocial };
 
@@ -570,6 +575,28 @@ if (FULL_ROSTER_APPLIED) {
     have.add(person.politician_id);
   }
 }
+
+// Official URL resolution (raw-ingest-resolve.mjs): a TIER-3 row with no pages
+// (or only weak ones) gets official pages the engine resolves itself from data
+// the repo already trusts — first its Congress.gov member page (name + state +
+// chamber against db/vr-member-map.json, one clean match only), else pages
+// already cited for it on the site that are clearly its own official or
+// campaign page (db/raw-ingest-official-cited-2026-11.json). No URL is fetched,
+// searched for or guessed; no clean match → the row keeps no pages and is
+// skipped as before. Rows that already have pages, and every tier-1 / tier-2
+// row, are untouched. Once attached, a resolved page is an ordinary page to the
+// planner, the pull path, the scorer and the Locker (none of which read the
+// resolver). RESOLUTION is the report ("raw-ingest: url resolution …").
+export const URL_RESOLUTION_APPLIED = FULL_ROSTER_APPLIED && !(typeof process !== "undefined" && process.env?.PDX_RAW_INGEST_NO_RESOLVE);
+export const RESOLUTION = URL_RESOLUTION_APPLIED
+  ? resolveRoster(ROSTER, {
+    people: SHARE_INDEX.people || {},
+    aliases: SHARE_INDEX.personAliases || {},
+    members: MEMBER_MAP.members || [],
+    cited: OFFICIAL_CITED,
+    retired: RETIRED_SOURCES.map((s) => s.url),
+  })
+  : null;
 
 // The 13 politicians the rotation covered before the roster-priority pass.
 export const PREVIOUS_ROSTER = [

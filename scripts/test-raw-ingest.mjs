@@ -536,9 +536,15 @@ await t('roster: priority flags are true to the data, and prioritised people com
   for (const r of core.ROSTER) {
     assert.equal(r.has_board, hasBoard(r.politician_id), `${r.politician_id}: has_board matches SEAT_HOLDERS`);
     assert.equal(r.has_stances, hasStances(r.politician_id), `${r.politician_id}: has_stances matches the stance data`);
-    // Full-roster rows (every other politician on the site) are tier 3 with no
-    // pages, whatever their flags; checked in detail by the full-roster test.
-    if (r.full_roster) { assert.equal(r.tier, 3, `${r.politician_id}: full-roster row is tier 3`); assert.equal(r.sources.length, 0); assert.ok(!r.official); continue; }
+    // Full-roster rows (every other politician on the site) are tier 3 and
+    // carry no configured pages, whatever their flags — only pages the URL
+    // resolver attached (resolved_by; test-raw-ingest-resolve.mjs); checked in
+    // detail by the full-roster test.
+    if (r.full_roster) {
+      assert.equal(r.tier, 3, `${r.politician_id}: full-roster row is tier 3`);
+      assert.ok(r.sources.every((s) => s.resolved_by && s.politician_id === r.politician_id && locker.isCampaignOrOfficial(s.source_type, s.url) && SCORED.has(s.topic)), `${r.politician_id}: only resolved campaign/official pages`);
+      assert.ok(!r.official); continue;
+    }
     const want = r.has_board && stanceCount(r.politician_id) >= core.SEVERAL_STANCES ? 1 : (r.has_board || r.has_stances) ? 2 : 3;
     assert.equal(r.tier, want, `${r.politician_id}: tier ${r.tier} should be ${want} (${stanceCount(r.politician_id)} stated positions)`);
     if (r.tier === 3) assert.ok(PREVIOUS.has(r.politician_id) || REQUESTED.has(r.politician_id), `${r.politician_id}: a configured tier-3 row is only kept from the previous 13`);
@@ -1295,7 +1301,9 @@ await t('full roster: a politician previously absent is now present and tier 3; 
     assert.equal(r.tier, 3, `${r.politician_id} is tier 3`);
     assert.ok(SHARE.people[r.politician_id], `${r.politician_id} is on the site roster`);
     assert.equal(r.name, SHARE.people[r.politician_id].n);
-    assert.deepEqual(r.sources, [], 'no page is guessed');
+    // No page is guessed: a full-roster row carries only pages the URL resolver
+    // attached on a clean official match (raw-ingest-resolve.mjs).
+    assert.ok(r.sources.every((s) => s.resolved_by), 'no configured page; resolved pages only');
     assert.equal(r.has_board, hasBoard(r.politician_id), `${r.politician_id}: has_board matches SEAT_HOLDERS`);
     assert.equal(r.has_stances, hasStances(r.politician_id), `${r.politician_id}: has_stances matches the stance data`);
   }
@@ -1321,8 +1329,9 @@ await t('full roster: the planner still prefers tier 1, then tier 2, then tier 3
   const first = core.planRun({}, { counts: {} });
   assert.ok(first.politicians.length, 'a run is planned');
   assert.ok(first.politicians.every((p) => core.ROSTER.find((r) => r.politician_id === p).tier === 1), 'the first run of a cycle is tier 1 only');
-  // Rows without pages are skipped exactly as before; the active order is unchanged.
-  assert.deepEqual(core.priorityOrder(ACTIVE_ROSTER, {}).filter((x) => x.open.length || x.filled.length).map((x) => x.r.politician_id),
+  // Rows without pages are skipped exactly as before; the active order is
+  // unchanged for every row that had pages before the URL resolver.
+  assert.deepEqual(core.priorityOrder(ACTIVE_ROSTER.filter((r) => !r.full_roster), {}).filter((x) => x.open.length || x.filled.length).map((x) => x.r.politician_id),
     baseCore.priorityOrder(baseCore.ROSTER, {}).filter((x) => x.open.length || x.filled.length).map((x) => x.r.politician_id), 'planned order unchanged for rows with pages');
   // A full-roster row that gains a page is planned — after tier 1 and tier 2.
   const page = (pid, n) => ({ politician_id: pid, topic: 'cost_living', source_type: 'campaign issues page', source_id: `p${n}`, url: `https://example-${pid}.org/issues` });

@@ -19,6 +19,33 @@ After the site roster changes, regenerate the file with
 `node scripts/build-raw-ingest-full-roster-2026-11.mjs`. Run it with `--check` to
 verify the file is current.
 
+### Official URL resolution (tier 3)
+
+When the roster is built, the engine resolves official pages for any **tier-3** row
+that has no pages, or only weak ones (`netlify/lib/raw-ingest-resolve.mjs`). It tries
+two steps in order:
+
+1. **Congress.gov member page.** The politician's sitting federal office and state
+   from the site roster are matched against the committed Congress member roster
+   (`db/vr-member-map.json`). The engine stores the page only on one clean match:
+   same chamber, state and surname, a compatible first name, and no other roster row
+   claiming that bioguide ID. It skips retired Congress.gov pages.
+2. **Other official sources.** These are pages already cited for the politician on the
+   site, kept only when they are clearly the politician's own. That means their
+   House or Senate office site, a legislature member page that names them, the
+   statewide office host for the office they hold, or a campaign host carrying their
+   surname. Shared hosts, news sites and retired URLs are dropped. The inputs come
+   from `db/raw-ingest-official-cited-2026-11.json`. After the stance or spotlight
+   data changes, regenerate it with
+   `node scripts/build-raw-ingest-official-cited-2026-11.mjs`. Use `--check` to
+   verify the file is current.
+
+Nothing is fetched or guessed. A row with no clean match keeps no pages and is still
+skipped. Tier-1 and tier-2 rows, and rows that already have pages, are never touched.
+Resolved pages carry `resolved_by`. Each rotation run logs
+`raw-ingest: url resolution — …`. Set `PDX_RAW_INGEST_NO_RESOLVE=1` to build the
+roster without this step.
+
 This page covers the **fresh evidence pass** (`netlify/lib/raw-ingest-fresh.mjs`).
 That pass stopped the cycle from re-reading the same homepages and press indexes and
 logging "0 new items" on every run.
@@ -169,6 +196,7 @@ planned. In addition:
   new item and a stated-position change, discovery adds at least 1 URL, strong items
   are left unchanged, curated and reviewed rows are held, and targeting, source
   types, caps, shared hosts and unknown keys are handled.
+- `node scripts/test-raw-ingest-resolve.mjs` covers official URL resolution.
 - `scripts/test-raw-ingest.mjs`, `test-stated-positions.mjs` and
   `test-stated-positions-backfill.mjs` cover the earlier behaviour.
 - **No migration.** The frontier and seen ledger are Blobs documents, and
