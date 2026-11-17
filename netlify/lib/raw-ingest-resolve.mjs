@@ -44,12 +44,16 @@
 //      their own campaign / personal site, a caucus page naming them, their own
 //      YouTube channel or video, or an interview / statement naming them. See
 //      recognizeDirect and resolveDirect below.
+//   5. DISCOVERED SOURCES, only for rows still without pages after steps 1–4:
+//      pages an OFFLINE job found (FEC filings, Open States, search) and
+//      verified, committed with the reasons each was accepted. See
+//      resolveDiscovered below; the rules are in raw-ingest-discovery.mjs.
 //   Anything without a clean match stays without pages and is still skipped.
 //
 // Resolved pages are ordinary roster pages: the planner, the pull path, the
 // scorer and the Evidence Locker treat them like every other page, and none of
 // those modules reads this file. Each carries `resolved_by` ("congress_gov",
-// "cited_official", "legislature_directory" or "direct_source") so a resolved page can always
+// "cited_official", "legislature_directory", "direct_source" or "discovered") so a resolved page can always
 // be told apart.
 
 export const RESOLVE_TIER = 3;
@@ -58,7 +62,7 @@ export const RESOLVE_TIER = 3;
 export const MAX_RESOLVED_PAGES = 3;
 export const DEFAULT_TOPIC = "cost_living";
 
-const STATES = {
+export const STATES = {
   alabama: "AL", alaska: "AK", arizona: "AZ", arkansas: "AR", california: "CA", colorado: "CO", connecticut: "CT",
   delaware: "DE", florida: "FL", georgia: "GA", hawaii: "HI", idaho: "ID", illinois: "IL", indiana: "IN", iowa: "IA",
   kansas: "KS", kentucky: "KY", louisiana: "LA", maine: "ME", maryland: "MD", massachusetts: "MA", michigan: "MI",
@@ -199,20 +203,20 @@ export function resolveCongressGov(id, { members = [], aliases = {}, rosterIds =
 }
 
 // ── Step 2: other official sources ─────────────────────────────────────────
-const hostOf = (u) => { try { return new URL(u).hostname.toLowerCase().replace(/^www\./, ""); } catch { return ""; } };
+export const hostOf = (u) => { try { return new URL(u).hostname.toLowerCase().replace(/^www\./, ""); } catch { return ""; } };
 export const normUrl = (u) => {
   try { const x = new URL(u); x.hash = ""; return (x.origin + x.pathname.replace(/\/+$/, "") + x.search).toLowerCase(); }
   catch { return String(u || "").toLowerCase(); }
 };
 // Hosts that are never the politician's own page (same allowlist spirit as the
 // pool builder: news, reference, aggregators, archives, social, chamber tools).
-const THIRD_PARTY = /(?:^|\.)(?:ballotpedia\.org|wikipedia\.org|vote411\.org|votesmart\.org|opensecrets\.org|followthemoney\.org|govtrack\.us|youtube\.com|youtu\.be|x\.com|twitter\.com|facebook\.com|instagram\.com|tiktok\.com|linkedin\.com|medium\.com|substack\.com|apnews\.com|reuters\.com|npr\.org|pbs\.org|c-span\.org|archive\.org|google\.com|bit\.ly|linktr\.ee)$|news|times|post|tribune|herald|gazette|journal|daily|politico|axios|thehill|cnn|foxnews|nbc|cbs|abc|msnbc|bloomberg|wsj|guardian|courier|observer|chronicle|sentinel|register|examiner|patch\.com|kff|brookings|heritage|cato|voterguide|guide|messenger|press|radio|tv\b|online|kuer|kpcw|ksl|kutv|fox\d|deseret|sltrib|standard\.net|dispatch|insider|advance|examiner|independent/;
+export const THIRD_PARTY = /(?:^|\.)(?:ballotpedia\.org|wikipedia\.org|vote411\.org|votesmart\.org|opensecrets\.org|followthemoney\.org|govtrack\.us|youtube\.com|youtu\.be|x\.com|twitter\.com|facebook\.com|instagram\.com|tiktok\.com|linkedin\.com|medium\.com|substack\.com|apnews\.com|reuters\.com|npr\.org|pbs\.org|c-span\.org|archive\.org|google\.com|bit\.ly|linktr\.ee)$|news|times|post|tribune|herald|gazette|journal|daily|politico|axios|thehill|cnn|foxnews|nbc|cbs|abc|msnbc|bloomberg|wsj|guardian|courier|observer|chronicle|sentinel|register|examiner|patch\.com|kff|brookings|heritage|cato|voterguide|guide|messenger|press|radio|tv\b|online|kuer|kpcw|ksl|kutv|fox\d|deseret|sltrib|standard\.net|dispatch|insider|advance|examiner|independent/;
 const NOT_OWN_GOV = /^(?:clerk|budget|appropriations|judiciary|finance|foreign|armed-?services|energy|commerce|help|rules|oversight|homeland|intelligence|democrats|republicans|gop|dems|majorityleader|minorityleader|democraticleader|republicanleader|speaker|whip|history|bioguide|crsreports|www|docs|live|media|library)\./;
-const GENERAL_GOV = /(?:^|\.)(?:congress\.gov|govinfo\.gov|federalregister\.gov|archives\.gov|loc\.gov|usa\.gov|whitehouse\.gov|state\.gov|defense\.gov|hhs\.gov|medicare\.gov|senate\.gov|house\.gov)$/;
-const MEMBER_OFFICE_HOST = /^([a-z0-9-]+)\.(house|senate)\.gov$/;
-const STATE_LEGIS_HOST = /(?:^|\.)(?:[a-z]*leg[a-z]*|legislature|house|senate|assembly|nyassembly|nysenate)\.(?:state\.)?(?:[a-z]{2}\.us|[a-z]+\.gov)$|^(?:[a-z]+\.)?(?:le|leg|legis|legislature)\.[a-z]+\.gov$|^(?:house|senate)\.[a-z]+\.gov$|^[a-z]*(?:legislature|leg|assembly|senate|house)\.gov$|^(?:house|senate)\.utleg\.gov$/;
-const GOV_HOST = /\.(?:gov|mil)$|\.state\.[a-z]{2}\.us$/;
-const CAMPAIGN_WORD = /(?:for|elect|vote|campaign|team|friends|20\d\d)/;
+export const GENERAL_GOV = /(?:^|\.)(?:congress\.gov|govinfo\.gov|federalregister\.gov|archives\.gov|loc\.gov|usa\.gov|whitehouse\.gov|state\.gov|defense\.gov|hhs\.gov|medicare\.gov|senate\.gov|house\.gov)$/;
+export const MEMBER_OFFICE_HOST = /^([a-z0-9-]+)\.(house|senate)\.gov$/;
+export const STATE_LEGIS_HOST = /(?:^|\.)(?:[a-z]*leg[a-z]*|legislature|house|senate|assembly|nyassembly|nysenate)\.(?:state\.)?(?:[a-z]{2}\.us|[a-z]+\.gov)$|^(?:[a-z]+\.)?(?:le|leg|legis|legislature)\.[a-z]+\.gov$|^(?:house|senate)\.[a-z]+\.gov$|^[a-z]*(?:legislature|leg|assembly|senate|house)\.gov$|^(?:house|senate)\.utleg\.gov$/;
+export const GOV_HOST = /\.(?:gov|mil)$|\.state\.[a-z]{2}\.us$/;
+export const CAMPAIGN_WORD = /(?:for|elect|vote|campaign|team|friends|20\d\d)/;
 
 /** Surname fragments used to tie a host or path to the politician (≥ 4 letters). */
 function surnameKeys(name) {
@@ -224,7 +228,7 @@ function surnameKeys(name) {
   if (last.length >= 6) keys.add(last.slice(0, 5));
   return [...keys].filter((k) => k.length >= 4);
 }
-const letters = (s) => String(s || "").toLowerCase().replace(/[^a-z]/g, "");
+export const letters = (s) => String(s || "").toLowerCase().replace(/[^a-z]/g, "");
 
 /**
  * Is `url` clearly this politician's own official (or campaign) page?
@@ -374,18 +378,18 @@ export const DIRECT_CLASSES = {
   direct_statement: "interview, Q&A, candidate questionnaire, candidate statement, op-ed or podcast that names them",
 };
 // Reference, aggregator and social hosts: never a direct source.
-const REFERENCE = /(?:^|\.)(?:wikipedia\.org|ballotpedia\.org|vote411\.org|votesmart\.org|opensecrets\.org|followthemoney\.org|govtrack\.us|fec\.gov|archive\.org|google\.com|bit\.ly|linktr\.ee|x\.com|twitter\.com|facebook\.com|instagram\.com|tiktok\.com|linkedin\.com|threads\.net|bsky\.app|ballotready\.org|politifact\.com|realclearpolling\.com|termlimits\.com|isidewith\.com|yahoo\.com|aol\.com|msn\.com)$/;
+export const REFERENCE = /(?:^|\.)(?:wikipedia\.org|ballotpedia\.org|vote411\.org|votesmart\.org|opensecrets\.org|followthemoney\.org|govtrack\.us|fec\.gov|archive\.org|google\.com|bit\.ly|linktr\.ee|x\.com|twitter\.com|facebook\.com|instagram\.com|tiktok\.com|linkedin\.com|threads\.net|bsky\.app|ballotready\.org|politifact\.com|realclearpolling\.com|termlimits\.com|isidewith\.com|yahoo\.com|aol\.com|msn\.com)$/;
 // Hosts that serve many candidates: an address there is never someone's own site.
-const PLATFORM = /(?:^|\.)(?:goodparty\.org|actblue\.com|winred\.com|nationbuilder\.com|crowdpac\.com|candidate\.vote|ballotready\.org)$/;
+export const PLATFORM = /(?:^|\.)(?:goodparty\.org|actblue\.com|winred\.com|nationbuilder\.com|crowdpac\.com|candidate\.vote|ballotready\.org)$/;
 // Blog / site-builder platforms where the subdomain is the site.
-const BLOG_PLATFORM = /^([a-z0-9-]+)\.(?:wordpress\.com|blogspot\.com|wixsite\.com|weebly\.com|godaddysites\.com)$/;
-const CAUCUS_HOST = /(?:senate|house|assembly)(?:gop|dems?|democrats?|republicans?)|(?:gop|dems?|democrats?|republicans?)(?:senate|house|assembly)/;
+export const BLOG_PLATFORM = /^([a-z0-9-]+)\.(?:wordpress\.com|blogspot\.com|wixsite\.com|weebly\.com|godaddysites\.com)$/;
+export const CAUCUS_HOST = /(?:senate|house|assembly)(?:gop|dems?|democrats?|republicans?)|(?:gop|dems?|democrats?|republicans?)(?:senate|house|assembly)/;
 const CAUCUS_LABEL = /\b(?:Senate|House|Assembly)\s+(?:Democrats|Republicans|GOP|Democratic Caucus|Republican Caucus)\b/;
 const DIRECT_KIND = /\binterview\b|\bq\s*&\s*a\b|(?:^|[\/-])q-?a(?:[\/-]|$)|questionnaire|candidate statement|\bpodcast\b|\bop-?ed\b|why-you-should-vote-for-me|in-(?:his|her|their)-own-words/i;
-const MULTI = /\bdebates?\b|\bforums?\b|\bpanels?\b|roundtable|town[\s-]?hall|\bcandidates\b|\d+-others|\band-others\b|\bvs\.?\b|versus|\bfaces\b|\bchallenges?\b|\bsurvey\b|meet-the-candidates/i;
+export const MULTI = /\bdebates?\b|\bforums?\b|\bpanels?\b|roundtable|town[\s-]?hall|\bcandidates\b|\d+-others|\band-others\b|\bvs\.?\b|versus|\bfaces\b|\bchallenges?\b|\bsurvey\b|meet-the-candidates/i;
 // Address words that mark a piece about several people ("shaheen-and-budd-pen …").
 const MULTI_PATH = /-and-|-with-[a-z]+-[a-z]+-/i;
-const NOT_OWN_CHANNEL = /\b(?:interview|debate|panel|podcast|featuring|news|pbs|c-span|radio|tv|media|report)\b|\b(?:senate|house|legislature|assembly|council|commission|chamber)(?:['’]s)?\s+(?:own\s+)?(?:official\s+)?channel\b/i;
+export const NOT_OWN_CHANNEL = /\b(?:interview|debate|panel|podcast|featuring|news|pbs|c-span|radio|tv|media|report)\b|\b(?:senate|house|legislature|assembly|council|commission|chamber)(?:['’]s)?\s+(?:own\s+)?(?:official\s+)?channel\b/i;
 const YT_VIDEO = /^https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:[^#]*&)?v=|shorts\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/;
 const YT_CHANNEL = /^https?:\/\/(?:www\.)?youtube\.com\/channel\/(UC[A-Za-z0-9_-]{22})\/?(?:videos\/?)?$/;
 const YT_HOST = /(?:^|\.)(?:youtube\.com|youtu\.be)$/;
@@ -403,7 +407,7 @@ export function directKeys(name) {
 }
 
 // Office words an address or label can carry, and whether they fit the office.
-function officeConflict(text, office) {
+export function officeConflict(text, office) {
   const s = letters(text), o = String(office || "");
   const federal = /\bU\.S\.|\bCongress|\bFederal\b/i.test(o), state = /\bState\b|\bAssembly|\bDelegate\b/i.test(o) && !federal;
   const senate = /\bSenat/i.test(o), house = /\bHouse\b|\bRepresentative|\bAssembly|\bDelegate\b|\bCongressman|\bCongresswoman/i.test(o);
@@ -550,10 +554,12 @@ const slugOf = (url) => { try { const u = new URL(url); return ((u.hostname.repl
  *   legislature    — state legislature directories ({ states: { XX: { member_page, members } } }); step 3
  *   direct         — pages cited for each politician that may be their own site or a directly tied
  *                    source ({ politicians: { pid: [{ url, label, keys }] }, shared_hosts, shared_urls }); step 4
+ *   discovered     — sources the offline discovery job found and verified
+ *                    ({ politicians: { pid: { urls: [{ url, source_class, source_type, accepted_because, … }] } } }); step 5
  * Returns { resolved: [{ politician_id, via, url, … }], unresolved: [{ politician_id, why }], eligible }.
  */
 export function resolveRoster(roster, data = {}) {
-  const { people = {}, aliases = {}, members = [], cited = {}, retired = [], scored = null, legislature = null, direct = null } = data;
+  const { people = {}, aliases = {}, members = [], cited = {}, retired = [], scored = null, legislature = null, direct = null, discovered = null } = data;
   const retiredSet = new Set(retired.map(normUrl));
   const retiredBioguides = new Set(retired.map(bioguideOf).filter(Boolean));
   const rosterIds = new Set(roster.map((r) => r.politician_id));
@@ -684,12 +690,78 @@ export function resolveRoster(roster, data = {}) {
     }
     for (let i = unresolved.length - 1; i >= 0; i--) if (unresolved[i].resolved) unresolved.splice(i, 1);
   }
+  // Step 5: sources DISCOVERED by the offline job, for rows still page-less.
+  // Runs after steps 1–4 so it can never change what they resolved.
+  if (discovered?.politicians) resolveDiscovered({ roster, unresolved, resolved, ids, people, aliases, known, hostRows, retiredSet, discovered,
+    shared: new Set([...(direct?.shared_urls || []), ...(cited.shared_urls || [])].map(normUrl)) });
   return { eligible: eligible.length, resolved, unresolved };
+}
+
+// ── Step 5: discovered sources ──────────────────────────────────────────────
+// The offline job (scripts/discover-raw-ingest-sources-2026-11.mjs, rules in
+// netlify/lib/raw-ingest-discovery.mjs) found and verified these pages and
+// committed them to db/raw-ingest-discovered-2026-11.json with the reasons
+// each was accepted. On roster build the engine re-checks what can change
+// since: the row is still page-less; nobody else on the site shares the name;
+// the URL (or, for an own site, the host) is not on another row, not shared,
+// not retired and not claimed for two rows; the class is a discovery class;
+// at most MAX_RESOLVED_PAGES pages, own site first. Nothing is fetched here.
+// Short stable hash so two long addresses on one host never share a source id.
+const shortHash = (s) => { let h = 2166136261; for (const c of String(s)) h = Math.imul(h ^ c.codePointAt(0), 16777619) >>> 0; return h.toString(36); };
+export const DISCOVERED_CLASSES = ["own_site", "youtube", "youtube_video", "direct_statement"];
+function resolveDiscovered({ roster, unresolved, resolved, ids, people, aliases, known, hostRows, retiredSet, discovered, shared }) {
+  const canon = (p) => aliases[p] || p;
+  const byLast = new Map();
+  for (const [p, v] of Object.entries(people)) { const t = nameTokens(v?.n); if (t.length >= 2) (byLast.get(t[t.length - 1]) || byLast.set(t[t.length - 1], []).get(t[t.length - 1])).push([p, v.n]); }
+  const homonymOf = (id) => { const t = nameTokens(id.name); return (byLast.get(t[t.length - 1]) || []).find(([p, n]) => canon(p) !== canon(id.politician_id) && sameName(n, id.name))?.[0] || null; };
+  const tag = (e) => (e.source_class === "own_site" ? `host ${hostOf(e.url)}` : normUrl(e.url));
+  const first = new Map();
+  for (const u of unresolved) {
+    const pid = u.politician_id, id = ids.get(pid), rec = discovered.politicians[pid];
+    if (!id || !rec?.urls?.length) continue;
+    const why = [];
+    const homonym = homonymOf(id);
+    if (homonym) { first.set(pid, { pages: [], why: [`${homonym} shares the name ${id.name}`] }); continue; }
+    const pages = [];
+    for (const e of rec.urls) {
+      const n = normUrl(e.url), h = hostOf(e.url);
+      if (!DISCOVERED_CLASSES.includes(e.source_class) || !/^https?:\/\//.test(String(e.url)) || !(e.accepted_because || []).length || !e.source_type) { why.push(`${e.url}: not a reviewable discovery entry`); continue; }
+      if (retiredSet.has(n)) { why.push(`${e.url} retired`); continue; }
+      if (shared.has(n)) { why.push(`${e.url} is cited for another politician`); continue; }
+      if (known.has(n) && known.get(n) !== pid) { why.push(`${e.url} is on ${known.get(n)}'s row`); continue; }
+      if (e.source_class === "own_site" && [...(hostRows.get(h) || [])].some((p) => p !== pid)) { why.push(`${h} is on another politician's row`); continue; }
+      if (pages.some((p) => normUrl(p.url) === n)) continue;
+      pages.push(e);
+    }
+    pages.sort((a, b) => DISCOVERED_CLASSES.indexOf(a.source_class) - DISCOVERED_CLASSES.indexOf(b.source_class));
+    first.set(pid, { pages: pages.slice(0, MAX_RESOLVED_PAGES), why });
+  }
+  // A URL (or own-site host) discovered for two rows resolves for neither.
+  // (Counted by row: one person's home page and issues page share a host.)
+  const owners = new Map();
+  for (const [pid, r] of first) for (const e of r.pages) (owners.get(tag(e)) || owners.set(tag(e), new Set()).get(tag(e))).add(pid);
+  const count = new Map([...owners].map(([k, v]) => [k, v.size]));
+  for (const u of unresolved) {
+    const pid = u.politician_id, r = first.get(pid);
+    if (!r) continue;
+    const pages = r.pages.filter((e) => count.get(tag(e)) === 1);
+    if (!pages.length) { const w = [...r.why, ...r.pages.map((e) => `${e.url} was discovered for more than one row`)]; if (w.length) u.why = `${u.why}; discovered: ${w.slice(0, 2).join("; ")}`; continue; }
+    const row = roster.find((x) => x.politician_id === pid);
+    const added = pages.map((e) => ({ politician_id: pid, topic: DEFAULT_TOPIC, source_type: e.source_type, source_class: e.source_class,
+      source_tier: Number(e.source_tier) === 2 ? 2 : 1, source_id: `discovered-${slugOf(e.channel_url || e.url)}-${shortHash(e.url)}`, url: e.url, resolved_by: "discovered",
+      discovered_kind: e.kind, found_by: e.found_by, accepted_because: e.accepted_because, discovered_on: e.checked?.fetched_on || discovered.run_on,
+      ...(e.channel_id ? { channel_id: e.channel_id } : {}) }));
+    row.sources = [...(row.sources || []), ...added];
+    for (const p of added) known.set(normUrl(p.url), pid);
+    resolved.push({ politician_id: pid, via: "discovered", url: added[0].url, urls: added.map((p) => p.url), classes: [...new Set(added.map((p) => p.source_class))], found_by: [...new Set(added.map((p) => p.found_by))] });
+    u.resolved = true;
+  }
+  for (let i = unresolved.length - 1; i >= 0; i--) if (unresolved[i].resolved) unresolved.splice(i, 1);
 }
 
 /** One run-log line for a resolution report. */
 export function resolutionLine(rep) {
   if (!rep) return "raw-ingest: url resolution — not run";
   const by = (v) => rep.resolved.filter((x) => x.via === v).length;
-  return `raw-ingest: url resolution — ${rep.eligible} tier-3 row(s) without pages checked · ${rep.resolved.length} resolved (${by("congress_gov")} Congress.gov member page(s), ${by("cited_official")} other official / campaign page(s), ${by("legislature_directory")} state legislature member page(s), ${by("direct_source")} own-site / direct source(s)) · ${rep.unresolved.length} left without a page (no clean official match)`;
+  return `raw-ingest: url resolution — ${rep.eligible} tier-3 row(s) without pages checked · ${rep.resolved.length} resolved (${by("congress_gov")} Congress.gov member page(s), ${by("cited_official")} other official / campaign page(s), ${by("legislature_directory")} state legislature member page(s), ${by("direct_source")} own-site / direct source(s), ${by("discovered")} discovered) · ${rep.unresolved.length} left without a page (no clean official match)`;
 }

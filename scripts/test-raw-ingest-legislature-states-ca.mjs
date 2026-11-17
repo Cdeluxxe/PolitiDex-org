@@ -29,6 +29,8 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+// Steps 1–4 only: step 5 (discovered sources) has its own suite, test-raw-ingest-discovery.mjs.
+process.env.PDX_RAW_INGEST_NO_DISCOVERED = "1";
 const corePath = path.join(root, "netlify/lib/raw-ingest-core.mjs");
 const BUILD = path.join(root, "scripts/build-raw-ingest-legislature-directory-2026-11.mjs");
 const R = await import("../netlify/lib/raw-ingest-resolve.mjs");

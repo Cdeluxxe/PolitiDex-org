@@ -109,6 +109,44 @@ three steps in order:
    Locker's unchanged campaign/official rule decides what reaches it. After the
    stance, spotlight or roster data changes, rebuild the file.
 
+5. **Discovered sources.** This step runs only for tier-3 rows still without pages after
+   steps 1 to 4. Its inputs come from an **offline job**,
+   `node scripts/discover-raw-ingest-sources-2026-11.mjs`, which needs `FEC_API_KEY` and
+   `TAVILY_API_KEY`. The job is never imported by the cron, the planner or the pull path.
+   It writes `db/raw-ingest-discovered-2026-11.json`, and the roster build only reads that
+   file. The job looks, in this order, at:
+   - **FEC filings:** the website field of a federal candidate's principal campaign
+     committee;
+   - **Open States:** a state legislator's or statewide official's current record,
+     covering its non-government links and its YouTube account;
+   - **their verified own site:** its issues or priorities page and the YouTube channel it
+     links;
+   - **Tavily search:** one query per person, only when no own site has been found yet.
+
+   Every candidate page is fetched and checked against `netlify/lib/raw-ingest-discovery.mjs`.
+   It must name the politician in full and mention their office and state. It must not be
+   parked or a housekeeping page. It must not be a social, reference, government or
+   legislature host, a shared platform (party sites, ActBlue, goodparty, podcast hosts),
+   a news outlet (by host or by its own NewsArticle markup), an election guide or
+   endorsement list, or a debate or forum. Its title must not name another politician. A
+   site that only search found must also present itself as a campaign or name their
+   office, so a business or namesake's page is refused.
+
+   YouTube counts only as the politician's own channel: its ID is read from the channel
+   page and the channel must be named for them. Interviews on other channels are refused.
+   A person whose name another politician shares is skipped. A URL or own-site host found
+   for two people is dropped. Two different "own" sites for one person are refused unless
+   their FEC filing or Open States record settles which is theirs.
+
+   Each person gets at most two own-site pages (home page, then issues page) and at most
+   three URLs, in this order: own site, channel, interview. Each URL is recorded with its
+   source type, `found_by` and `accepted_because`; counts and a sample of refusals are
+   kept for review. On roster build the engine re-checks name conflicts, rows and hosts
+   already taken, retired URLs and uniqueness. Pages carry `resolved_by: "discovered"`.
+   Set `PDX_RAW_INGEST_NO_DISCOVERED=1` to build without this step. Re-run the job to
+   refresh: fetches and searches are cached in the OS temp directory, and `--fresh`
+   clears the cache.
+
 Nothing is fetched or guessed. A row with no clean match keeps no pages and is still
 skipped. Tier-1 and tier-2 rows, and rows that already have pages, are never touched.
 Resolved pages carry `resolved_by`. Each rotation run logs
@@ -270,6 +308,7 @@ planned. In addition:
 - `node scripts/test-raw-ingest-legislature-states.mjs` covers the directories beyond Utah.
 - `node scripts/test-raw-ingest-legislature-states-ca.mjs` covers the California Senate directory.
 - `node scripts/test-raw-ingest-direct-sources.mjs` covers own sites and directly tied sources (step 4).
+- `node scripts/test-raw-ingest-discovery.mjs` covers discovered sources (step 5) and checks the cron never runs discovery.
 - `node scripts/test-raw-ingest-board-holders.mjs` covers the board-seat holders on the
   rotation roster.
 - `scripts/test-raw-ingest.mjs`, `test-stated-positions.mjs` and

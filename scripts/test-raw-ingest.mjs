@@ -547,7 +547,10 @@ await t('roster: priority flags are true to the data, and prioritised people com
       // may attach an interview or caucus page typed as what it is; the Locker
       // applies its own campaign/official gate to those, unchanged.
       assert.ok(r.sources.every((s) => s.resolved_by && s.politician_id === r.politician_id && SCORED.has(s.topic)
-        && (s.resolved_by === "direct_source" ? s.source_class in resolveMod.DIRECT_CLASSES : locker.isCampaignOrOfficial(s.source_type, s.url))), `${r.politician_id}: only resolved campaign/official pages (or step-4 own / direct sources)`);
+        && (s.resolved_by === "direct_source" ? s.source_class in resolveMod.DIRECT_CLASSES
+          // Step 5 (discovered, test-raw-ingest-discovery.mjs): a reviewable entry of a discovery class.
+          : s.resolved_by === "discovered" ? resolveMod.DISCOVERED_CLASSES.includes(s.source_class) && s.accepted_because?.length > 0
+          : locker.isCampaignOrOfficial(s.source_type, s.url))), `${r.politician_id}: only resolved campaign/official pages (or step-4 / step-5 sources)`);
       assert.ok(!r.official); continue;
     }
     const want = r.has_board && stanceCount(r.politician_id) >= core.SEVERAL_STANCES ? 1 : (r.has_board || r.has_stances) ? 2 : 3;
@@ -917,7 +920,8 @@ await t('requested national expansion: all 212 unique names, known URLs or expli
       const retired = RETIRED_URLS_BY_PID.get(person.politician_id);
       // A retired page leaves whatever other (non-failing) sources the row has.
       if (retired) assert.ok(![...row.sources, row.official].some((s) => s && retired.has(s.url)), `${person.name}: retired page is gone`);
-      else assert.equal(row.sources.length, 0);
+      // Only the offline discovery step (resolver step 5) may give such a row pages.
+      else assert.ok(row.sources.every((s) => s.resolved_by === "discovered"), `${person.name}: no page but discovered ones`);
     }
   }
   const noSourceIds = core.ROSTER.filter((r) => !r.sources.length && !r.official).map((r) => r.politician_id);
@@ -1011,7 +1015,9 @@ await t('extra source types: one of each is configured for a test politician who
 await t('extra source types: a planner dry-run over the real roster pulls every new type, under the existing caps', () => {
   const seen = new Set(); const extraUrls = new Set();
   let state = {}; let runs = 0;
-  for (; runs < 400; runs++) {
+  // A simulation budget, not a product cap: with every discovered politician
+  // eligible (step 5) a cycle is ~280 runs, so six cycles need ~1,700.
+  for (; runs < 3000; runs++) {
     const plan = core.planRun(state);
     assert.ok(plan.politicians.length <= core.MAX_POLITICIANS_PER_RUN, 'politician cap');
     assert.ok(plan.size <= core.MAX_SOURCES_PER_RUN, `run cap (${plan.size})`);
@@ -1284,7 +1290,10 @@ await t('full roster: every politician already in tier 1 or tier 2 keeps that ti
     assert.ok(r, `${b.politician_id} is still in the roster`);
     assert.equal(r.tier, b.tier, `${b.politician_id}: tier ${b.tier} unchanged`);
     assert.ok(!r.full_roster, `${b.politician_id} is not a full-roster row`);
-    assert.deepEqual(r.sources.map((s) => s.url), b.sources.map((s) => s.url), `${b.politician_id}: pages unchanged`);
+    // A page-less tier-3 row may gain discovered pages (resolver step 5); nothing else changes.
+    const kept = b.sources.length ? r.sources : r.sources.filter((s) => s.resolved_by !== "discovered");
+    if (r.sources.some((s) => s.resolved_by === "discovered")) assert.ok(b.tier === 3 && !b.sources.length && !b.official, `${b.politician_id}: only a page-less tier-3 row gains discovered pages`);
+    assert.deepEqual(kept.map((s) => s.url), b.sources.map((s) => s.url), `${b.politician_id}: pages unchanged`);
     assert.equal(r.official?.url, b.official?.url, `${b.politician_id}: official pattern unchanged`);
     assert.equal(core.ROSTER[i].politician_id, b.politician_id, 'configured rows keep their roster order, full-roster rows follow');
   }
@@ -1341,7 +1350,9 @@ await t('full roster: the planner still prefers tier 1, then tier 2, then tier 3
   assert.ok(first.politicians.every((p) => core.ROSTER.find((r) => r.politician_id === p).tier === 1), 'the first run of a cycle is tier 1 only');
   // Rows without pages are skipped exactly as before; the active order is
   // unchanged for every row that had pages before the URL resolver.
-  assert.deepEqual(core.priorityOrder(ACTIVE_ROSTER.filter((r) => !r.full_roster), {}).filter((x) => x.open.length || x.filled.length).map((x) => x.r.politician_id),
+  // (Rows that only discovery gave pages to are left out: they had none before.)
+  const discoveredOnly = new Set(core.ROSTER.filter((r) => r.sources.length && r.sources.every((s) => s.resolved_by === "discovered")).map((r) => r.politician_id));
+  assert.deepEqual(core.priorityOrder(ACTIVE_ROSTER.filter((r) => !r.full_roster), {}).filter((x) => (x.open.length || x.filled.length) && !discoveredOnly.has(x.r.politician_id)).map((x) => x.r.politician_id),
     baseCore.priorityOrder(baseCore.ROSTER, {}).filter((x) => x.open.length || x.filled.length).map((x) => x.r.politician_id), 'planned order unchanged for rows with pages');
   // A full-roster row that gains a page is planned — after tier 1 and tier 2.
   const page = (pid, n) => ({ politician_id: pid, topic: 'cost_living', source_type: 'campaign issues page', source_id: `p${n}`, url: `https://example-${pid}.org/issues` });

@@ -22,6 +22,8 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+// Steps 1–4 only: step 5 (discovered sources) has its own suite, test-raw-ingest-discovery.mjs.
+process.env.PDX_RAW_INGEST_NO_DISCOVERED = "1";
 const coreUrl = pathToFileURL(path.join(root, "netlify/lib/raw-ingest-core.mjs")).href;
 const R = await import("../netlify/lib/raw-ingest-resolve.mjs");
 // Baseline: the same roster build without step 4 (a separate module instance).
@@ -200,7 +202,7 @@ await t("every previously resolved row is unchanged", () => {
   }
   for (const k of ["MAX_SOURCES_PER_RUN", "MAX_POLITICIANS_PER_RUN", "MAX_SOURCES_PER_POLITICIAN", "BASELINE_STRONG", "BASELINE_WEAK", "POOL_VERSION"]) assert.equal(core[k], before[k]);
   assert.ok(core.planRun({}, { counts: {} }).politicians.every((p) => rowOf(core.ROSTER, p).tier === 1), "tier order unchanged");
-  assert.match(R.resolutionLine(core.RESOLUTION), / \d+ own-site \/ direct source\(s\)\)/);
+  assert.match(R.resolutionLine(core.RESOLUTION), / \d+ own-site \/ direct source\(s\)[,)]/);
 });
 
 await t("scoring and Evidence Locker code do not reference the new step", () => {
