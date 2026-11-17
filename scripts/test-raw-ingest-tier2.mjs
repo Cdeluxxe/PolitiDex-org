@@ -71,7 +71,9 @@ console.log("raw-ingest tier 2 (official government + own YouTube):");
 
 // ── 1. Congress.gov + own YouTube enter the pool as tier 2 ──────────────────
 await t("cited Congress.gov pages enter the rotation pool, tagged tier 2", () => {
-  const cg = ALL.filter((s) => host(s.url) === "congress.gov");
+  // Pool pages only: member pages the engine resolves itself (resolved_by,
+  // raw-ingest-resolve.mjs) are covered by test-raw-ingest-resolve.mjs.
+  const cg = ALL.filter((s) => host(s.url) === "congress.gov" && !s.resolved_by);
   assert.ok(cg.length >= 10, `Congress.gov pages in the roster (${cg.length})`);
   for (const s of cg) {
     assert.equal(s.source_tier, 2, `${s.url} is tier 2`);

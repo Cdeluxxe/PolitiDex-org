@@ -1,0 +1,2362 @@
+{
+ "_note": "Sitting members read from each legislature's own member listing (sources) by scripts/fetch-legislature-listings-2026-11.mjs: legislature member ID, printed name and chamber. Input to scripts/build-raw-ingest-legislature-directory-2026-11.mjs. Re-run the fetch to refresh; never edited by hand.",
+ "fetched_on": "2026-11-17",
+ "listings": {
+  "FL": {
+   "sources": [
+    "https://www.flsenate.gov/Senators/"
+   ],
+   "members": [
+    {
+     "id": "S1",
+     "chamber": "senate",
+     "name": "Sen. Gaetz, Don",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S2",
+     "chamber": "senate",
+     "name": "Sen. Trumbull, Jay",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S3",
+     "chamber": "senate",
+     "name": "Sen. Simon, Corey",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S4",
+     "chamber": "senate",
+     "name": "Sen. Yarborough, Clay",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S5",
+     "chamber": "senate",
+     "name": "Sen. Davis, Tracie",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S6",
+     "chamber": "senate",
+     "name": "Sen. Bradley, Jennifer",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S7",
+     "chamber": "senate",
+     "name": "Sen. Leek, Thomas J. \"Tom\"",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S8",
+     "chamber": "senate",
+     "name": "Sen. Johansson, Jake",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S9",
+     "chamber": "senate",
+     "name": "Sen. McClain, Stan",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S10",
+     "chamber": "senate",
+     "name": "Sen. Lowndes, John",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S11",
+     "chamber": "senate",
+     "name": "Sen. Massullo, Ralph E., Jr.",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S12",
+     "chamber": "senate",
+     "name": "Sen. Burton, Colleen",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S13",
+     "chamber": "senate",
+     "name": "Sen. Truenow, Keith L.",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S14",
+     "chamber": "senate",
+     "name": "Sen. Nathan, Brian",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S15",
+     "chamber": "senate",
+     "name": "Sen. Bracy Davis, LaVon",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S16",
+     "chamber": "senate",
+     "name": "Sen. Driskell, Fentrice",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S17",
+     "chamber": "senate",
+     "name": "Sen. Smith, Carlos Guillermo",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S18",
+     "chamber": "senate",
+     "name": "Sen. DiCeglie, Nick",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S19",
+     "chamber": "senate",
+     "name": "Sen. Mayfield, Debbie",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S20",
+     "chamber": "senate",
+     "name": "Sen. Boyd, Jim",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S21",
+     "chamber": "senate",
+     "name": "Sen. Nocco, Chris",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S22",
+     "chamber": "senate",
+     "name": "Sen. Buchanan, James",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S23",
+     "chamber": "senate",
+     "name": "Sen. Burgess, Danny",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S24",
+     "chamber": "senate",
+     "name": "Sen. Bernard, Mack",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S25",
+     "chamber": "senate",
+     "name": "Sen. Arrington, Kristen Aston",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S26",
+     "chamber": "senate",
+     "name": "Sen. Silvers, David",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S27",
+     "chamber": "senate",
+     "name": "Sen. Albritton, Ben",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S28",
+     "chamber": "senate",
+     "name": "Sen. Melo, Lauren Uhlich",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S29",
+     "chamber": "senate",
+     "name": "Sen. Grall, Erin",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S30",
+     "chamber": "senate",
+     "name": "Sen. Book, Lauren",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S31",
+     "chamber": "senate",
+     "name": "Sen. Harrell, Gayle",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S32",
+     "chamber": "senate",
+     "name": "Sen. Osgood, Rosalind",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S33",
+     "chamber": "senate",
+     "name": "Sen. Martin, Jonathan",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S34",
+     "chamber": "senate",
+     "name": "Sen. Gantt, Ashley Viola",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S35",
+     "chamber": "senate",
+     "name": "Sen. Sharief, Barbara",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S36",
+     "chamber": "senate",
+     "name": "Sen. Garcia, Ileana",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S37",
+     "chamber": "senate",
+     "name": "Sen. Pizzo, Jason W. B.",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S38",
+     "chamber": "senate",
+     "name": "Sen. Calatayud, Alexis",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S39",
+     "chamber": "senate",
+     "name": "Sen. Vacant",
+     "term": "2026-2028"
+    },
+    {
+     "id": "S40",
+     "chamber": "senate",
+     "name": "Sen. Rodriguez, Ana Maria",
+     "term": "2026-2028"
+    }
+   ]
+  },
+  "NY": {
+   "sources": [
+    "https://nyassembly.gov/mem/"
+   ],
+   "members": [
+    {
+     "id": "Al-Stirpe",
+     "chamber": "house",
+     "name": "Al Stirpe",
+     "district": "127"
+    },
+    {
+     "id": "Al-Taylor",
+     "chamber": "house",
+     "name": "Al Taylor",
+     "district": "71"
+    },
+    {
+     "id": "Alec-Brook-Krasny",
+     "chamber": "house",
+     "name": "Alec Brook-Krasny",
+     "district": "46"
+    },
+    {
+     "id": "Alex-Bores",
+     "chamber": "house",
+     "name": "Alex Bores",
+     "district": "73"
+    },
+    {
+     "id": "Alicia-Hyndman",
+     "chamber": "house",
+     "name": "Alicia Hyndman",
+     "district": "29"
+    },
+    {
+     "id": "Amanda-Septimo",
+     "chamber": "house",
+     "name": "Amanda Septimo",
+     "district": "84"
+    },
+    {
+     "id": "Amy-Paulin",
+     "chamber": "house",
+     "name": "Amy Paulin",
+     "district": "88"
+    },
+    {
+     "id": "Andrea-K-Bailey",
+     "chamber": "house",
+     "name": "Andrea K. Bailey",
+     "district": "133"
+    },
+    {
+     "id": "Andrew-Hevesi",
+     "chamber": "house",
+     "name": "Andrew Hevesi",
+     "district": "28"
+    },
+    {
+     "id": "Andrew-M-Molitor",
+     "chamber": "house",
+     "name": "Andrew M. Molitor",
+     "district": "150"
+    },
+    {
+     "id": "Angelo-J-Morinello",
+     "chamber": "house",
+     "name": "Angelo J. Morinello",
+     "district": "145"
+    },
+    {
+     "id": "Angelo-Santabarbara",
+     "chamber": "house",
+     "name": "Angelo Santabarbara",
+     "district": "111"
+    },
+    {
+     "id": "Anil-Beephan-Jr",
+     "chamber": "house",
+     "name": "Anil Beephan, Jr.",
+     "district": "105"
+    },
+    {
+     "id": "Anna-R-Kelles",
+     "chamber": "house",
+     "name": "Dr. Anna R. Kelles",
+     "district": "125"
+    },
+    {
+     "id": "Ari-Brown",
+     "chamber": "house",
+     "name": "Ari Brown",
+     "district": "20"
+    },
+    {
+     "id": "Aron-Wieder",
+     "chamber": "house",
+     "name": "Aron Wieder",
+     "district": "97"
+    },
+    {
+     "id": "Brian-Cunningham",
+     "chamber": "house",
+     "name": "Brian Cunningham",
+     "district": "43"
+    },
+    {
+     "id": "Brian-D-Miller",
+     "chamber": "house",
+     "name": "Brian D. Miller",
+     "district": "122"
+    },
+    {
+     "id": "Brian-Maher",
+     "chamber": "house",
+     "name": "Brian Maher",
+     "district": "101"
+    },
+    {
+     "id": "Brian-Manktelow",
+     "chamber": "house",
+     "name": "Brian Manktelow",
+     "district": "130"
+    },
+    {
+     "id": "Carl-E-Heastie",
+     "chamber": "house",
+     "name": "Carl E. Heastie",
+     "district": "83"
+    },
+    {
+     "id": "Carrie-Woerner",
+     "chamber": "house",
+     "name": "Carrie Woerner",
+     "district": "113"
+    },
+    {
+     "id": "Catalina-Cruz",
+     "chamber": "house",
+     "name": "Catalina Cruz",
+     "district": "39"
+    },
+    {
+     "id": "Chantel-Jackson",
+     "chamber": "house",
+     "name": "Chantel Jackson",
+     "district": "79"
+    },
+    {
+     "id": "Charles-D-Fall",
+     "chamber": "house",
+     "name": "Charles D. Fall",
+     "district": "61"
+    },
+    {
+     "id": "Charles-D-Lavine",
+     "chamber": "house",
+     "name": "Charles D. Lavine",
+     "district": "13"
+    },
+    {
+     "id": "Chris-Burdick",
+     "chamber": "house",
+     "name": "Chris Burdick",
+     "district": "93"
+    },
+    {
+     "id": "Chris-Eachus",
+     "chamber": "house",
+     "name": "Chris Eachus",
+     "district": "99"
+    },
+    {
+     "id": "Chris-Tague",
+     "chamber": "house",
+     "name": "Chris Tague",
+     "district": "102"
+    },
+    {
+     "id": "Christopher-S-Friend",
+     "chamber": "house",
+     "name": "Christopher S. Friend",
+     "district": "124"
+    },
+    {
+     "id": "Claire-Valdez",
+     "chamber": "house",
+     "name": "Claire Valdez",
+     "district": "37"
+    },
+    {
+     "id": "Clyde-Vanel",
+     "chamber": "house",
+     "name": "Clyde Vanel",
+     "district": "33"
+    },
+    {
+     "id": "Crystal-D-Peoples-Stokes",
+     "chamber": "house",
+     "name": "Crystal D. Peoples-Stokes",
+     "district": "141"
+    },
+    {
+     "id": "Dana-Levenberg",
+     "chamber": "house",
+     "name": "Dana Levenberg",
+     "district": "95"
+    },
+    {
+     "id": "Daniel-J-Norber",
+     "chamber": "house",
+     "name": "Daniel J. Norber",
+     "district": "16"
+    },
+    {
+     "id": "David-DiPietro",
+     "chamber": "house",
+     "name": "David DiPietro",
+     "district": "147"
+    },
+    {
+     "id": "David-G-McDonough",
+     "chamber": "house",
+     "name": "David G. McDonough",
+     "district": "14"
+    },
+    {
+     "id": "David-I-Weprin",
+     "chamber": "house",
+     "name": "David I. Weprin",
+     "district": "24"
+    },
+    {
+     "id": "Deborah-J-Glick",
+     "chamber": "house",
+     "name": "Deborah J. Glick",
+     "district": "66"
+    },
+    {
+     "id": "Demond-Meeks",
+     "chamber": "house",
+     "name": "Demond Meeks",
+     "district": "137"
+    },
+    {
+     "id": "Diana-C-Moreno",
+     "chamber": "house",
+     "name": "Diana C. Moreno",
+     "district": "36"
+    },
+    {
+     "id": "Didi-Barrett",
+     "chamber": "house",
+     "name": "Didi Barrett",
+     "district": "106"
+    },
+    {
+     "id": "Donna-A-Lupardo",
+     "chamber": "house",
+     "name": "Donna A. Lupardo",
+     "district": "123"
+    },
+    {
+     "id": "Doug-Smith",
+     "chamber": "house",
+     "name": "Doug Smith",
+     "district": "5"
+    },
+    {
+     "id": "Edward-C-Braunstein",
+     "chamber": "house",
+     "name": "Edward C. Braunstein",
+     "district": "26"
+    },
+    {
+     "id": "Edward-Gibbs",
+     "chamber": "house",
+     "name": "Edward Gibbs",
+     "district": "68"
+    },
+    {
+     "id": "Edward-P-Ra",
+     "chamber": "house",
+     "name": "Edward P. Ra",
+     "district": "19"
+    },
+    {
+     "id": "Emerita-Torres",
+     "chamber": "house",
+     "name": "Emérita Torres",
+     "district": "85"
+    },
+    {
+     "id": "Emily-Gallagher",
+     "chamber": "house",
+     "name": "Emily Gallagher",
+     "district": "50"
+    },
+    {
+     "id": "Erik-M-Dilan",
+     "chamber": "house",
+     "name": "Erik M. Dilan",
+     "district": "54"
+    },
+    {
+     "id": "Gabriella-A-Romero",
+     "chamber": "house",
+     "name": "Gabriella A. Romero",
+     "district": "109"
+    },
+    {
+     "id": "George-Alvarez",
+     "chamber": "house",
+     "name": "George Alvarez",
+     "district": "78"
+    },
+    {
+     "id": "Grace-Lee",
+     "chamber": "house",
+     "name": "Grace Lee",
+     "district": "65"
+    },
+    {
+     "id": "Harry-B-Bronson",
+     "chamber": "house",
+     "name": "Harry B. Bronson",
+     "district": "138"
+    },
+    {
+     "id": "J-Gary-Pretlow",
+     "chamber": "house",
+     "name": "J. Gary Pretlow",
+     "district": "89"
+    },
+    {
+     "id": "Jaime-R-Williams",
+     "chamber": "house",
+     "name": "Jaime R. Williams",
+     "district": "59"
+    },
+    {
+     "id": "Jake-Blumencranz",
+     "chamber": "house",
+     "name": "Jake Blumencranz",
+     "district": "15"
+    },
+    {
+     "id": "Jarett-Gandolfo",
+     "chamber": "house",
+     "name": "Jarett Gandolfo",
+     "district": "7"
+    },
+    {
+     "id": "Jeff-Gallahan",
+     "chamber": "house",
+     "name": "Jeff Gallahan",
+     "district": "131"
+    },
+    {
+     "id": "Jeffrey-Dinowitz",
+     "chamber": "house",
+     "name": "Jeffrey Dinowitz",
+     "district": "81"
+    },
+    {
+     "id": "Jen-Lunsford",
+     "chamber": "house",
+     "name": "Jen Lunsford",
+     "district": "135"
+    },
+    {
+     "id": "Jenifer-Rajkumar",
+     "chamber": "house",
+     "name": "Jenifer Rajkumar",
+     "district": "38"
+    },
+    {
+     "id": "Jessica-Gonzalez-Rojas",
+     "chamber": "house",
+     "name": "Jessica González-Rojas",
+     "district": "34"
+    },
+    {
+     "id": "Jo-Anne-Simon",
+     "chamber": "house",
+     "name": "Jo Anne Simon",
+     "district": "52"
+    },
+    {
+     "id": "Jodi-Giglio",
+     "chamber": "house",
+     "name": "Jodi Giglio",
+     "district": "2"
+    },
+    {
+     "id": "Joe-Angelino",
+     "chamber": "house",
+     "name": "Joe Angelino",
+     "district": "121"
+    },
+    {
+     "id": "Joe-DeStefano",
+     "chamber": "house",
+     "name": "Joe DeStefano",
+     "district": "3"
+    },
+    {
+     "id": "Joe-Sempolinski",
+     "chamber": "house",
+     "name": "Joe Sempolinski",
+     "district": "148"
+    },
+    {
+     "id": "John-K-Mikulin",
+     "chamber": "house",
+     "name": "John K. Mikulin",
+     "district": "17"
+    },
+    {
+     "id": "John-Lemondes",
+     "chamber": "house",
+     "name": "John Lemondes",
+     "district": "126"
+    },
+    {
+     "id": "John-T-McDonald-III",
+     "chamber": "house",
+     "name": "John T. McDonald III",
+     "district": "108"
+    },
+    {
+     "id": "John-Zaccaro-Jr",
+     "chamber": "house",
+     "name": "John Zaccaro, Jr.",
+     "district": "80"
+    },
+    {
+     "id": "Jonathan-G-Jacobson",
+     "chamber": "house",
+     "name": "Jonathan G. Jacobson",
+     "district": "104"
+    },
+    {
+     "id": "Jonathan-Rivera",
+     "chamber": "house",
+     "name": "Jonathan Rivera",
+     "district": "149"
+    },
+    {
+     "id": "Josh-Jensen",
+     "chamber": "house",
+     "name": "Josh Jensen",
+     "district": "134"
+    },
+    {
+     "id": "Judy-Griffin",
+     "chamber": "house",
+     "name": "Judy Griffin",
+     "district": "21"
+    },
+    {
+     "id": "Kalman-Yeger",
+     "chamber": "house",
+     "name": "Kalman Yeger",
+     "district": "41"
+    },
+    {
+     "id": "Karen-McMahon",
+     "chamber": "house",
+     "name": "Karen McMahon",
+     "district": "146"
+    },
+    {
+     "id": "Karines-Reyes",
+     "chamber": "house",
+     "name": "Karines Reyes",
+     "district": "87"
+    },
+    {
+     "id": "Karl-Brabenec",
+     "chamber": "house",
+     "name": "Karl Brabenec",
+     "district": "98"
+    },
+    {
+     "id": "Keith-P-Brown",
+     "chamber": "house",
+     "name": "Keith P. Brown",
+     "district": "12"
+    },
+    {
+     "id": "Keith-Powers",
+     "chamber": "house",
+     "name": "Keith Powers",
+     "district": "74"
+    },
+    {
+     "id": "Ken-Blankenbush",
+     "chamber": "house",
+     "name": "Ken Blankenbush",
+     "district": "117"
+    },
+    {
+     "id": "Khaleel-M-Anderson",
+     "chamber": "house",
+     "name": "Khaleel M. Anderson",
+     "district": "31"
+    },
+    {
+     "id": "Landon-C-Dais",
+     "chamber": "house",
+     "name": "Landon C. Dais",
+     "district": "77"
+    },
+    {
+     "id": "Larinda-C-Hooks",
+     "chamber": "house",
+     "name": "Larinda C. Hooks",
+     "district": "35"
+    },
+    {
+     "id": "Latrice-M-Walker",
+     "chamber": "house",
+     "name": "Latrice M. Walker",
+     "district": "55"
+    },
+    {
+     "id": "Lester-Chang",
+     "chamber": "house",
+     "name": "Lester Chang",
+     "district": "49"
+    },
+    {
+     "id": "Linda-B-Rosenthal",
+     "chamber": "house",
+     "name": "Linda B. Rosenthal",
+     "district": "67"
+    },
+    {
+     "id": "Manny-De-Los-Santos",
+     "chamber": "house",
+     "name": "Manny De Los Santos",
+     "district": "72"
+    },
+    {
+     "id": "Marcela-Mitaynes",
+     "chamber": "house",
+     "name": "Marcela Mitaynes",
+     "district": "51"
+    },
+    {
+     "id": "Marianne-Buttenschon",
+     "chamber": "house",
+     "name": "Marianne Buttenschon",
+     "district": "119"
+    },
+    {
+     "id": "Maritza-Davila",
+     "chamber": "house",
+     "name": "Maritza Davila",
+     "district": "53"
+    },
+    {
+     "id": "Mary-Beth-Walsh",
+     "chamber": "house",
+     "name": "Mary Beth Walsh",
+     "district": "112"
+    },
+    {
+     "id": "MaryJane-Shimsky",
+     "chamber": "house",
+     "name": "MaryJane Shimsky",
+     "district": "92"
+    },
+    {
+     "id": "Matt-Slater",
+     "chamber": "house",
+     "name": "Matt Slater",
+     "district": "94"
+    },
+    {
+     "id": "Matthew-Simpson",
+     "chamber": "house",
+     "name": "Matthew Simpson",
+     "district": "114"
+    },
+    {
+     "id": "Micah-C-Lasher",
+     "chamber": "house",
+     "name": "Micah C. Lasher",
+     "district": "69"
+    },
+    {
+     "id": "Michael-Benedetto",
+     "chamber": "house",
+     "name": "Michael Benedetto",
+     "district": "82"
+    },
+    {
+     "id": "Michael-Durso",
+     "chamber": "house",
+     "name": "Michael Durso",
+     "district": "9"
+    },
+    {
+     "id": "Michael-J-Fitzpatrick",
+     "chamber": "house",
+     "name": "Michael J. Fitzpatrick",
+     "district": "8"
+    },
+    {
+     "id": "Michael-Novakhov",
+     "chamber": "house",
+     "name": "Michael Novakhov",
+     "district": "45"
+    },
+    {
+     "id": "Michael-Reilly",
+     "chamber": "house",
+     "name": "Michael Reilly",
+     "district": "62"
+    },
+    {
+     "id": "Michael-S-Cashman",
+     "chamber": "house",
+     "name": "Michael S. Cashman",
+     "district": "115"
+    },
+    {
+     "id": "Michael-Tannousis",
+     "chamber": "house",
+     "name": "Michael Tannousis",
+     "district": "64"
+    },
+    {
+     "id": "Michaelle-C-Solages",
+     "chamber": "house",
+     "name": "Michaelle C. Solages",
+     "district": "22"
+    },
+    {
+     "id": "Monique-Chandler-Waterman",
+     "chamber": "house",
+     "name": "Monique Chandler-Waterman",
+     "district": "58"
+    },
+    {
+     "id": "Nader-J-Sayegh",
+     "chamber": "house",
+     "name": "Nader J. Sayegh",
+     "district": "90"
+    },
+    {
+     "id": "Nikki-Lucas",
+     "chamber": "house",
+     "name": "Nikki Lucas",
+     "district": "60"
+    },
+    {
+     "id": "Nily-Rozic",
+     "chamber": "house",
+     "name": "Nily Rozic",
+     "district": "25"
+    },
+    {
+     "id": "Noah-Burroughs",
+     "chamber": "house",
+     "name": "Noah Burroughs",
+     "district": "18"
+    },
+    {
+     "id": "Pamela-J-Hunter",
+     "chamber": "house",
+     "name": "Pamela J. Hunter",
+     "district": "128"
+    },
+    {
+     "id": "Patrick-Burke",
+     "chamber": "house",
+     "name": "Patrick Burke",
+     "district": "142"
+    },
+    {
+     "id": "Patrick-J-Carroll",
+     "chamber": "house",
+     "name": "Patrick J. Carroll",
+     "district": "96"
+    },
+    {
+     "id": "Patrick-J-Chludzinski",
+     "chamber": "house",
+     "name": "Patrick J. Chludzinski",
+     "district": "143"
+    },
+    {
+     "id": "Paul-A-Bologna",
+     "chamber": "house",
+     "name": "Paul A. Bologna",
+     "district": "144"
+    },
+    {
+     "id": "Paula-Elaine-Kay",
+     "chamber": "house",
+     "name": "Paula Elaine Kay",
+     "district": "100"
+    },
+    {
+     "id": "Phara-Souffrant-Forrest",
+     "chamber": "house",
+     "name": "Phara Souffrant Forrest",
+     "district": "57"
+    },
+    {
+     "id": "Phil-Ramos",
+     "chamber": "house",
+     "name": "Phil Ramos",
+     "district": "6"
+    },
+    {
+     "id": "Phil-Steck",
+     "chamber": "house",
+     "name": "Phil Steck",
+     "district": "110"
+    },
+    {
+     "id": "Philip-A-Palmesano",
+     "chamber": "house",
+     "name": "Philip A. Palmesano",
+     "district": "132"
+    },
+    {
+     "id": "Rebecca-A-Seawright",
+     "chamber": "house",
+     "name": "Rebecca A. Seawright",
+     "district": "76"
+    },
+    {
+     "id": "Rebecca-Kassay",
+     "chamber": "house",
+     "name": "Rebecca Kassay",
+     "district": "4"
+    },
+    {
+     "id": "Robert-C-Carroll",
+     "chamber": "house",
+     "name": "Robert C. Carroll",
+     "district": "44"
+    },
+    {
+     "id": "Robert-Smullen",
+     "chamber": "house",
+     "name": "Robert Smullen",
+     "district": "118"
+    },
+    {
+     "id": "Rodneyse-Bichotte-Hermelyn",
+     "chamber": "house",
+     "name": "Rodneyse Bichotte Hermelyn",
+     "district": "42"
+    },
+    {
+     "id": "Ron-Kim",
+     "chamber": "house",
+     "name": "Ron Kim",
+     "district": "40"
+    },
+    {
+     "id": "Sam-Berger",
+     "chamber": "house",
+     "name": "Sam Berger",
+     "district": "27"
+    },
+    {
+     "id": "Sam-Pirozzolo",
+     "chamber": "house",
+     "name": "Sam Pirozzolo",
+     "district": "63"
+    },
+    {
+     "id": "Sarah-Clark",
+     "chamber": "house",
+     "name": "Sarah Clark",
+     "district": "136"
+    },
+    {
+     "id": "Sarahana-Shrestha",
+     "chamber": "house",
+     "name": "Sarahana Shrestha",
+     "district": "103"
+    },
+    {
+     "id": "Scott-Bendett",
+     "chamber": "house",
+     "name": "Scott Bendett",
+     "district": "107"
+    },
+    {
+     "id": "Scott-Gray",
+     "chamber": "house",
+     "name": "Scott Gray",
+     "district": "116"
+    },
+    {
+     "id": "Simcha-Eichenstein",
+     "chamber": "house",
+     "name": "Simcha Eichenstein",
+     "district": "48"
+    },
+    {
+     "id": "Stacey-Pheffer-Amato",
+     "chamber": "house",
+     "name": "Stacey Pheffer Amato",
+     "district": "23"
+    },
+    {
+     "id": "Stefani-Zinerman",
+     "chamber": "house",
+     "name": "Stefani Zinerman",
+     "district": "56"
+    },
+    {
+     "id": "Stephen-Hawley",
+     "chamber": "house",
+     "name": "Stephen Hawley",
+     "district": "139"
+    },
+    {
+     "id": "Steve-Stern",
+     "chamber": "house",
+     "name": "Steve Stern",
+     "district": "10"
+    },
+    {
+     "id": "Steven-Otis",
+     "chamber": "house",
+     "name": "Steven Otis",
+     "district": "91"
+    },
+    {
+     "id": "Steven-Raga",
+     "chamber": "house",
+     "name": "Steven Raga",
+     "district": "30"
+    },
+    {
+     "id": "Tommy-John-Schiavoni",
+     "chamber": "house",
+     "name": "Tommy John Schiavoni",
+     "district": "1"
+    },
+    {
+     "id": "Tony-Simone",
+     "chamber": "house",
+     "name": "Tony Simone",
+     "district": "75"
+    },
+    {
+     "id": "Vivian-E-Cook",
+     "chamber": "house",
+     "name": "Vivian E. Cook",
+     "district": "32"
+    },
+    {
+     "id": "William-A-Barclay",
+     "chamber": "house",
+     "name": "William A. Barclay",
+     "district": "120"
+    },
+    {
+     "id": "William-B-Magnarelli",
+     "chamber": "house",
+     "name": "William B. Magnarelli",
+     "district": "129"
+    },
+    {
+     "id": "William-Colton",
+     "chamber": "house",
+     "name": "William Colton",
+     "district": "47"
+    },
+    {
+     "id": "William-Conrad",
+     "chamber": "house",
+     "name": "William Conrad",
+     "district": "140"
+    },
+    {
+     "id": "Yudelka-Tapia",
+     "chamber": "house",
+     "name": "Yudelka Tapia",
+     "district": "86"
+    }
+   ]
+  },
+  "PA": {
+   "sources": [
+    "https://www.palegis.us/senate/members"
+   ],
+   "members": [
+    {
+     "id": "69",
+     "chamber": "senate",
+     "name": "David G. Argall",
+     "url": "https://www.palegis.us/senate/members/bio/69/sen-argall"
+    },
+    {
+     "id": "152",
+     "chamber": "senate",
+     "name": "Vincent J. Hughes",
+     "url": "https://www.palegis.us/senate/members/bio/152/sen-hughes"
+    },
+    {
+     "id": "153",
+     "chamber": "senate",
+     "name": "Anthony H. Williams",
+     "url": "https://www.palegis.us/senate/members/bio/153/sen-a-williams"
+    },
+    {
+     "id": "179",
+     "chamber": "senate",
+     "name": "Lisa M. Boscola",
+     "url": "https://www.palegis.us/senate/members/bio/179/sen-boscola"
+    },
+    {
+     "id": "254",
+     "chamber": "senate",
+     "name": "Jay Costa",
+     "url": "https://www.palegis.us/senate/members/bio/254/sen-costa"
+    },
+    {
+     "id": "277",
+     "chamber": "senate",
+     "name": "Christine M. Tartaglione",
+     "url": "https://www.palegis.us/senate/members/bio/277/sen-tartaglione"
+    },
+    {
+     "id": "1041",
+     "chamber": "senate",
+     "name": "Wayne D. Fontana",
+     "url": "https://www.palegis.us/senate/members/bio/1041/sen-fontana"
+    },
+    {
+     "id": "1077",
+     "chamber": "senate",
+     "name": "Lisa Baker",
+     "url": "https://www.palegis.us/senate/members/bio/1077/sen-baker"
+    },
+    {
+     "id": "1087",
+     "chamber": "senate",
+     "name": "Michele Brooks",
+     "url": "https://www.palegis.us/senate/members/bio/1087/sen-brooks"
+    },
+    {
+     "id": "1169",
+     "chamber": "senate",
+     "name": "Frank A. Farry",
+     "url": "https://www.palegis.us/senate/members/bio/1169/sen-farry"
+    },
+    {
+     "id": "1179",
+     "chamber": "senate",
+     "name": "Steven J. Santarsiero",
+     "url": "https://www.palegis.us/senate/members/bio/1179/sen-santarsiero"
+    },
+    {
+     "id": "1186",
+     "chamber": "senate",
+     "name": "Gene Yaw",
+     "url": "https://www.palegis.us/senate/members/bio/1186/sen-yaw"
+    },
+    {
+     "id": "1188",
+     "chamber": "senate",
+     "name": "Kim L. Ward",
+     "url": "https://www.palegis.us/senate/members/bio/1188/sen-k-ward"
+    },
+    {
+     "id": "1189",
+     "chamber": "senate",
+     "name": "Elder A. Vogel",
+     "url": "https://www.palegis.us/senate/members/bio/1189/sen-vogel"
+    },
+    {
+     "id": "1200",
+     "chamber": "senate",
+     "name": "Rosemary M. Brown",
+     "url": "https://www.palegis.us/senate/members/bio/1200/sen-brown"
+    },
+    {
+     "id": "1202",
+     "chamber": "senate",
+     "name": "Lynda Schlegel Culver",
+     "url": "https://www.palegis.us/senate/members/bio/1202/sen-culver"
+    },
+    {
+     "id": "1234",
+     "chamber": "senate",
+     "name": "Judith L. Schwank",
+     "url": "https://www.palegis.us/senate/members/bio/1234/sen-schwank"
+    },
+    {
+     "id": "1626",
+     "chamber": "senate",
+     "name": "Marty Flynn",
+     "url": "https://www.palegis.us/senate/members/bio/1626/sen-flynn"
+    },
+    {
+     "id": "1629",
+     "chamber": "senate",
+     "name": "Scott E. Hutchinson",
+     "url": "https://www.palegis.us/senate/members/bio/1629/sen-hutchinson"
+    },
+    {
+     "id": "1636",
+     "chamber": "senate",
+     "name": "Patty Kim",
+     "url": "https://www.palegis.us/senate/members/bio/1636/sen-kim"
+    },
+    {
+     "id": "1683",
+     "chamber": "senate",
+     "name": "Judy Ward",
+     "url": "https://www.palegis.us/senate/members/bio/1683/sen-j-ward"
+    },
+    {
+     "id": "1687",
+     "chamber": "senate",
+     "name": "Cris Dush",
+     "url": "https://www.palegis.us/senate/members/bio/1687/sen-dush"
+    },
+    {
+     "id": "1689",
+     "chamber": "senate",
+     "name": "Art Haywood",
+     "url": "https://www.palegis.us/senate/members/bio/1689/sen-haywood"
+    },
+    {
+     "id": "1697",
+     "chamber": "senate",
+     "name": "Patrick J. Stefano",
+     "url": "https://www.palegis.us/senate/members/bio/1697/sen-stefano"
+    },
+    {
+     "id": "1698",
+     "chamber": "senate",
+     "name": "Camera Bartolotta",
+     "url": "https://www.palegis.us/senate/members/bio/1698/sen-bartolotta"
+    },
+    {
+     "id": "1733",
+     "chamber": "senate",
+     "name": "Greg Rothman",
+     "url": "https://www.palegis.us/senate/members/bio/1733/sen-rothman"
+    },
+    {
+     "id": "1748",
+     "chamber": "senate",
+     "name": "Dawn W. Keefer",
+     "url": "https://www.palegis.us/senate/members/bio/1748/sen-keefer"
+    },
+    {
+     "id": "1763",
+     "chamber": "senate",
+     "name": "Scott Martin",
+     "url": "https://www.palegis.us/senate/members/bio/1763/sen-martin"
+    },
+    {
+     "id": "1764",
+     "chamber": "senate",
+     "name": "Wayne Langerholc",
+     "url": "https://www.palegis.us/senate/members/bio/1764/sen-langerholc"
+    },
+    {
+     "id": "1766",
+     "chamber": "senate",
+     "name": "Daniel Laughlin",
+     "url": "https://www.palegis.us/senate/members/bio/1766/sen-laughlin"
+    },
+    {
+     "id": "1767",
+     "chamber": "senate",
+     "name": "Sharif Street",
+     "url": "https://www.palegis.us/senate/members/bio/1767/sen-street"
+    },
+    {
+     "id": "1790",
+     "chamber": "senate",
+     "name": "Carolyn T. Comitta",
+     "url": "https://www.palegis.us/senate/members/bio/1790/sen-comitta"
+    },
+    {
+     "id": "1799",
+     "chamber": "senate",
+     "name": "Maria Collett",
+     "url": "https://www.palegis.us/senate/members/bio/1799/sen-collett"
+    },
+    {
+     "id": "1800",
+     "chamber": "senate",
+     "name": "Timothy P. Kearney",
+     "url": "https://www.palegis.us/senate/members/bio/1800/sen-kearney"
+    },
+    {
+     "id": "1801",
+     "chamber": "senate",
+     "name": "Kristin Phillips-Hill",
+     "url": "https://www.palegis.us/senate/members/bio/1801/sen-phillips-hill"
+    },
+    {
+     "id": "1802",
+     "chamber": "senate",
+     "name": "Katie J. Muth",
+     "url": "https://www.palegis.us/senate/members/bio/1802/sen-muth"
+    },
+    {
+     "id": "1803",
+     "chamber": "senate",
+     "name": "Lindsey M. Williams",
+     "url": "https://www.palegis.us/senate/members/bio/1803/sen-l-williams"
+    },
+    {
+     "id": "1869",
+     "chamber": "senate",
+     "name": "Doug Mastriano",
+     "url": "https://www.palegis.us/senate/members/bio/1869/sen-mastriano"
+    },
+    {
+     "id": "1870",
+     "chamber": "senate",
+     "name": "Joe Pittman",
+     "url": "https://www.palegis.us/senate/members/bio/1870/sen-pittman"
+    },
+    {
+     "id": "1900",
+     "chamber": "senate",
+     "name": "Nick Pisciottano",
+     "url": "https://www.palegis.us/senate/members/bio/1900/sen-pisciottano"
+    },
+    {
+     "id": "1912",
+     "chamber": "senate",
+     "name": "Tracy Pennycuick",
+     "url": "https://www.palegis.us/senate/members/bio/1912/sen-pennycuick"
+    },
+    {
+     "id": "1921",
+     "chamber": "senate",
+     "name": "Nikil Saval",
+     "url": "https://www.palegis.us/senate/members/bio/1921/sen-saval"
+    },
+    {
+     "id": "1923",
+     "chamber": "senate",
+     "name": "Amanda M. Cappelletti",
+     "url": "https://www.palegis.us/senate/members/bio/1923/sen-cappelletti"
+    },
+    {
+     "id": "1924",
+     "chamber": "senate",
+     "name": "Devlin J. Robinson",
+     "url": "https://www.palegis.us/senate/members/bio/1924/sen-robinson"
+    },
+    {
+     "id": "1925",
+     "chamber": "senate",
+     "name": "John I. Kane",
+     "url": "https://www.palegis.us/senate/members/bio/1925/sen-kane"
+    },
+    {
+     "id": "1928",
+     "chamber": "senate",
+     "name": "Chris Gebhard",
+     "url": "https://www.palegis.us/senate/members/bio/1928/sen-gebhard"
+    },
+    {
+     "id": "2008",
+     "chamber": "senate",
+     "name": "Jarrett Coleman",
+     "url": "https://www.palegis.us/senate/members/bio/2008/sen-coleman"
+    },
+    {
+     "id": "2009",
+     "chamber": "senate",
+     "name": "Nick Miller",
+     "url": "https://www.palegis.us/senate/members/bio/2009/sen-miller"
+    },
+    {
+     "id": "2036",
+     "chamber": "senate",
+     "name": "Joe Picozzi",
+     "url": "https://www.palegis.us/senate/members/bio/2036/sen-picozzi"
+    },
+    {
+     "id": "2061",
+     "chamber": "senate",
+     "name": "James Andrew Malone",
+     "url": "https://www.palegis.us/senate/members/bio/2061/sen-malone"
+    }
+   ]
+  },
+  "VT": {
+   "sources": [
+    "https://legislature.vermont.gov/people/loadAll/2026"
+   ],
+   "members": [
+    {
+     "id": "14512",
+     "chamber": "house",
+     "name": "Rep. Emmons, Alice M. M"
+    },
+    {
+     "id": "14523",
+     "chamber": "house",
+     "name": "Rep. Masland, James W"
+    },
+    {
+     "id": "14525",
+     "chamber": "house",
+     "name": "Rep. Morrissey, Mary A. A"
+    },
+    {
+     "id": "14546",
+     "chamber": "house",
+     "name": "Rep. Corcoran, Timothy R. R II"
+    },
+    {
+     "id": "14557",
+     "chamber": "house",
+     "name": "Rep. Donahue, Anne B. B"
+    },
+    {
+     "id": "14568",
+     "chamber": "house",
+     "name": "Rep. Marcotte, Michael J"
+    },
+    {
+     "id": "14569",
+     "chamber": "house",
+     "name": "Rep. Canfield, William P"
+    },
+    {
+     "id": "14598",
+     "chamber": "house",
+     "name": "Rep. Mrowicki, Michael"
+    },
+    {
+     "id": "14677",
+     "chamber": "house",
+     "name": "Rep. Dickinson, Eileen G"
+    },
+    {
+     "id": "14681",
+     "chamber": "house",
+     "name": "Rep. Higley, Mark A"
+    },
+    {
+     "id": "14689",
+     "chamber": "house",
+     "name": "Rep. Stevens, Thomas S"
+    },
+    {
+     "id": "14690",
+     "chamber": "house",
+     "name": "Rep. Burke, Mollie S. S"
+    },
+    {
+     "id": "15769",
+     "chamber": "house",
+     "name": "Rep. Bartholomew, John L"
+    },
+    {
+     "id": "15771",
+     "chamber": "house",
+     "name": "Rep. Burditt, Thomas B"
+    },
+    {
+     "id": "15774",
+     "chamber": "house",
+     "name": "Rep. Christie, Kevin \"Coach\" B"
+    },
+    {
+     "id": "19342",
+     "chamber": "house",
+     "name": "Rep. Krowinski, Jill L"
+    },
+    {
+     "id": "20375",
+     "chamber": "house",
+     "name": "Rep. Feltus, Martha A"
+    },
+    {
+     "id": "20377",
+     "chamber": "house",
+     "name": "Rep. Rachelson, Barbara"
+    },
+    {
+     "id": "24010",
+     "chamber": "house",
+     "name": "Rep. LaLonde, Martin J"
+    },
+    {
+     "id": "24012",
+     "chamber": "house",
+     "name": "Rep. Long, Emily J"
+    },
+    {
+     "id": "24015",
+     "chamber": "house",
+     "name": "Rep. McCoy, Patricia A"
+    },
+    {
+     "id": "24022",
+     "chamber": "house",
+     "name": "Rep. Sheldon, Amy D"
+    },
+    {
+     "id": "24023",
+     "chamber": "house",
+     "name": "Rep. Sibilia, Laura H"
+    },
+    {
+     "id": "25699",
+     "chamber": "house",
+     "name": "Rep. Wood, Theresa A"
+    },
+    {
+     "id": "27154",
+     "chamber": "house",
+     "name": "Rep. Scheu, Robin P"
+    },
+    {
+     "id": "27155",
+     "chamber": "house",
+     "name": "Rep. Conlon, Peter C"
+    },
+    {
+     "id": "27159",
+     "chamber": "house",
+     "name": "Rep. Squirrell, Trevor J"
+    },
+    {
+     "id": "27161",
+     "chamber": "house",
+     "name": "Rep. Ode, Carol"
+    },
+    {
+     "id": "27162",
+     "chamber": "house",
+     "name": "Rep. Cina, Brian J"
+    },
+    {
+     "id": "27166",
+     "chamber": "house",
+     "name": "Rep. Houghton, Lori"
+    },
+    {
+     "id": "27171",
+     "chamber": "house",
+     "name": "Rep. Noyes, Daniel A"
+    },
+    {
+     "id": "27172",
+     "chamber": "house",
+     "name": "Rep. Yacovone, David W"
+    },
+    {
+     "id": "27174",
+     "chamber": "house",
+     "name": "Rep. Hooper, Philip Jay J"
+    },
+    {
+     "id": "27177",
+     "chamber": "house",
+     "name": "Rep. Howard, Mary E. E"
+    },
+    {
+     "id": "27184",
+     "chamber": "house",
+     "name": "Rep. Kimbell, Charles A"
+    },
+    {
+     "id": "30938",
+     "chamber": "house",
+     "name": "Rep. Birong, Matthew J"
+    },
+    {
+     "id": "30944",
+     "chamber": "house",
+     "name": "Rep. Durfee, David K"
+    },
+    {
+     "id": "30945",
+     "chamber": "house",
+     "name": "Rep. James, Kathleen C"
+    },
+    {
+     "id": "30946",
+     "chamber": "house",
+     "name": "Rep. Campbell, R. Scott"
+    },
+    {
+     "id": "30952",
+     "chamber": "house",
+     "name": "Rep. Austin, Sarah \"Sarita\" C"
+    },
+    {
+     "id": "30958",
+     "chamber": "house",
+     "name": "Rep. Gregoire, James A"
+    },
+    {
+     "id": "30960",
+     "chamber": "house",
+     "name": "Rep. Morgan, Leland J"
+    },
+    {
+     "id": "30964",
+     "chamber": "house",
+     "name": "Rep. Page, Woodman H"
+    },
+    {
+     "id": "30968",
+     "chamber": "house",
+     "name": "Rep. Goslant, Kenneth W"
+    },
+    {
+     "id": "30972",
+     "chamber": "house",
+     "name": "Rep. Kornheiser, Emilie K"
+    },
+    {
+     "id": "30977",
+     "chamber": "house",
+     "name": "Rep. O'Brien, John K"
+    },
+    {
+     "id": "31854",
+     "chamber": "house",
+     "name": "Rep. Hango, Lisa A"
+    },
+    {
+     "id": "33012",
+     "chamber": "house",
+     "name": "Rep. Morris, Kristi C"
+    },
+    {
+     "id": "34693",
+     "chamber": "house",
+     "name": "Rep. Morgan, Michael R"
+    },
+    {
+     "id": "34694",
+     "chamber": "house",
+     "name": "Rep. White, Kirk"
+    },
+    {
+     "id": "34698",
+     "chamber": "house",
+     "name": "Rep. Goldman, Leslie"
+    },
+    {
+     "id": "34699",
+     "chamber": "house",
+     "name": "Rep. Bos-Lun, Michelle"
+    },
+    {
+     "id": "34703",
+     "chamber": "house",
+     "name": "Rep. Satcowitz, Larry"
+    },
+    {
+     "id": "34708",
+     "chamber": "house",
+     "name": "Rep. Dolan, Karen N"
+    },
+    {
+     "id": "34710",
+     "chamber": "house",
+     "name": "Rep. Black, Alyssa"
+    },
+    {
+     "id": "34714",
+     "chamber": "house",
+     "name": "Rep. Nigro, Michael"
+    },
+    {
+     "id": "34716",
+     "chamber": "house",
+     "name": "Rep. Brown, Jana"
+    },
+    {
+     "id": "34718",
+     "chamber": "house",
+     "name": "Rep. Parsons, Joseph"
+    },
+    {
+     "id": "34720",
+     "chamber": "house",
+     "name": "Rep. Bluemle, Tiffany"
+    },
+    {
+     "id": "34722",
+     "chamber": "house",
+     "name": "Rep. Burrows, Elizabeth L"
+    },
+    {
+     "id": "34740",
+     "chamber": "house",
+     "name": "Rep. Brady, Erin"
+    },
+    {
+     "id": "36152",
+     "chamber": "house",
+     "name": "Rep. Labor, Larry"
+    },
+    {
+     "id": "36257",
+     "chamber": "house",
+     "name": "Rep. Garofano, Golrang \"Rey\""
+    },
+    {
+     "id": "36564",
+     "chamber": "house",
+     "name": "Rep. Walker, Matt E"
+    },
+    {
+     "id": "36828",
+     "chamber": "house",
+     "name": "Rep. Laroche, Wayne A"
+    },
+    {
+     "id": "36986",
+     "chamber": "house",
+     "name": "Rep. Kascenska, John"
+    },
+    {
+     "id": "37355",
+     "chamber": "house",
+     "name": "Rep. McGill, Jubilee"
+    },
+    {
+     "id": "37362",
+     "chamber": "house",
+     "name": "Rep. Arsenault, Angela"
+    },
+    {
+     "id": "37363",
+     "chamber": "house",
+     "name": "Rep. Graning, Edye"
+    },
+    {
+     "id": "37365",
+     "chamber": "house",
+     "name": "Rep. Pouech, Phil"
+    },
+    {
+     "id": "37366",
+     "chamber": "house",
+     "name": "Rep. Holcombe, Rebecca"
+    },
+    {
+     "id": "37367",
+     "chamber": "house",
+     "name": "Rep. Waters Evans, Chea"
+    },
+    {
+     "id": "37368",
+     "chamber": "house",
+     "name": "Rep. Cole, Esme"
+    },
+    {
+     "id": "37370",
+     "chamber": "house",
+     "name": "Rep. Lalley, Kate"
+    },
+    {
+     "id": "37372",
+     "chamber": "house",
+     "name": "Rep. Galfetti, Gina M"
+    },
+    {
+     "id": "37373",
+     "chamber": "house",
+     "name": "Rep. Mihaly, Marc B"
+    },
+    {
+     "id": "37374",
+     "chamber": "house",
+     "name": "Rep. Chapin, Ela"
+    },
+    {
+     "id": "37375",
+     "chamber": "house",
+     "name": "Rep. McCann, Kate"
+    },
+    {
+     "id": "37376",
+     "chamber": "house",
+     "name": "Rep. Casey, Conor"
+    },
+    {
+     "id": "37378",
+     "chamber": "house",
+     "name": "Rep. Torre, Dara"
+    },
+    {
+     "id": "37379",
+     "chamber": "house",
+     "name": "Rep. Maguire, Eric"
+    },
+    {
+     "id": "37382",
+     "chamber": "house",
+     "name": "Rep. Priestley, Monique"
+    },
+    {
+     "id": "37383",
+     "chamber": "house",
+     "name": "Rep. LaMont, Saudia"
+    },
+    {
+     "id": "37384",
+     "chamber": "house",
+     "name": "Rep. Boyden, Lucy"
+    },
+    {
+     "id": "37385",
+     "chamber": "house",
+     "name": "Rep. Lipsky, Jed"
+    },
+    {
+     "id": "37386",
+     "chamber": "house",
+     "name": "Rep. Demar, Allen \"Penny\" R"
+    },
+    {
+     "id": "37387",
+     "chamber": "house",
+     "name": "Rep. Oliver, Thomas"
+    },
+    {
+     "id": "37388",
+     "chamber": "house",
+     "name": "Rep. Branagan, Carolyn W"
+    },
+    {
+     "id": "37389",
+     "chamber": "house",
+     "name": "Rep. Bartley, Ashley R"
+    },
+    {
+     "id": "37390",
+     "chamber": "house",
+     "name": "Rep. Dodge, Leonora"
+    },
+    {
+     "id": "37391",
+     "chamber": "house",
+     "name": "Rep. Berbeco, Daisy"
+    },
+    {
+     "id": "37392",
+     "chamber": "house",
+     "name": "Rep. Headrick, Troy"
+    },
+    {
+     "id": "37394",
+     "chamber": "house",
+     "name": "Rep. Krasnow, Emilie"
+    },
+    {
+     "id": "37395",
+     "chamber": "house",
+     "name": "Rep. Stone, Mary-Katherine A"
+    },
+    {
+     "id": "37396",
+     "chamber": "house",
+     "name": "Rep. Minier, Brian"
+    },
+    {
+     "id": "37397",
+     "chamber": "house",
+     "name": "Rep. Nugent, Kate"
+    },
+    {
+     "id": "37405",
+     "chamber": "house",
+     "name": "Rep. Logan, Kate"
+    },
+    {
+     "id": "39966",
+     "chamber": "house",
+     "name": "Rep. Quimby, Beth M"
+    },
+    {
+     "id": "40324",
+     "chamber": "house",
+     "name": "Rep. Duke, Abbey"
+    },
+    {
+     "id": "40396",
+     "chamber": "house",
+     "name": "Rep. North, Rob"
+    },
+    {
+     "id": "40397",
+     "chamber": "house",
+     "name": "Rep. Olson, Herb"
+    },
+    {
+     "id": "40398",
+     "chamber": "house",
+     "name": "Rep. Casey, James \"Jim\""
+    },
+    {
+     "id": "40399",
+     "chamber": "house",
+     "name": "Rep. Cooper, Jonathan"
+    },
+    {
+     "id": "40400",
+     "chamber": "house",
+     "name": "Rep. Greer, William \"Will\""
+    },
+    {
+     "id": "40401",
+     "chamber": "house",
+     "name": "Rep. Hunter, Robert"
+    },
+    {
+     "id": "40402",
+     "chamber": "house",
+     "name": "Rep. Pinsonault, Sandra \"Sandy\" H"
+    },
+    {
+     "id": "40403",
+     "chamber": "house",
+     "name": "Rep. Powers, Debra L"
+    },
+    {
+     "id": "40404",
+     "chamber": "house",
+     "name": "Rep. Southworth, Michael \"Mike\""
+    },
+    {
+     "id": "40405",
+     "chamber": "house",
+     "name": "Rep. Dolgin, Deborah \"Debbie\" C"
+    },
+    {
+     "id": "40406",
+     "chamber": "house",
+     "name": "Rep. Burtt, Gregory \"Greg\""
+    },
+    {
+     "id": "40407",
+     "chamber": "house",
+     "name": "Rep. Sweeney, Shawn"
+    },
+    {
+     "id": "40408",
+     "chamber": "house",
+     "name": "Rep. Burkhardt, Bridget M"
+    },
+    {
+     "id": "40409",
+     "chamber": "house",
+     "name": "Rep. Kleppner, Bram"
+    },
+    {
+     "id": "40410",
+     "chamber": "house",
+     "name": "Rep. Critchlow, Wendy A"
+    },
+    {
+     "id": "40411",
+     "chamber": "house",
+     "name": "Rep. Bishop, Doug"
+    },
+    {
+     "id": "40412",
+     "chamber": "house",
+     "name": "Rep. Pezzo, Gayle S"
+    },
+    {
+     "id": "40413",
+     "chamber": "house",
+     "name": "Rep. Tomlinson, Chloe"
+    },
+    {
+     "id": "40414",
+     "chamber": "house",
+     "name": "Rep. Steady, Brenda"
+    },
+    {
+     "id": "40415",
+     "chamber": "house",
+     "name": "Rep. Micklus, Anthony \"Tony\""
+    },
+    {
+     "id": "40416",
+     "chamber": "house",
+     "name": "Rep. Luneau, Joseph \"Joe\""
+    },
+    {
+     "id": "40417",
+     "chamber": "house",
+     "name": "Rep. Bailey, Richard J"
+    },
+    {
+     "id": "40418",
+     "chamber": "house",
+     "name": "Rep. Tagliavia, Michael \"Mike\""
+    },
+    {
+     "id": "40419",
+     "chamber": "house",
+     "name": "Rep. Dobrovich, Joshua"
+    },
+    {
+     "id": "40420",
+     "chamber": "house",
+     "name": "Rep. Nelson, Richard M"
+    },
+    {
+     "id": "40421",
+     "chamber": "house",
+     "name": "Rep. Wells, Kenneth \"Ken\" L"
+    },
+    {
+     "id": "40422",
+     "chamber": "house",
+     "name": "Rep. Harple, Leanne"
+    },
+    {
+     "id": "40423",
+     "chamber": "house",
+     "name": "Rep. Bosch, David \"Dave\""
+    },
+    {
+     "id": "40425",
+     "chamber": "house",
+     "name": "Rep. Howland, Christopher"
+    },
+    {
+     "id": "40426",
+     "chamber": "house",
+     "name": "Rep. Keyser, Chris"
+    },
+    {
+     "id": "40427",
+     "chamber": "house",
+     "name": "Rep. Malay, Alicia"
+    },
+    {
+     "id": "40428",
+     "chamber": "house",
+     "name": "Rep. Nielsen, Todd"
+    },
+    {
+     "id": "40429",
+     "chamber": "house",
+     "name": "Rep. Pritchard, Christopher \"Chris\" A"
+    },
+    {
+     "id": "40430",
+     "chamber": "house",
+     "name": "Rep. Winter, Kevin C"
+    },
+    {
+     "id": "40431",
+     "chamber": "house",
+     "name": "Rep. White, Candice"
+    },
+    {
+     "id": "40432",
+     "chamber": "house",
+     "name": "Rep. Boutin, Michael"
+    },
+    {
+     "id": "40433",
+     "chamber": "house",
+     "name": "Rep. Waszazak, Edward \"Teddy\""
+    },
+    {
+     "id": "40434",
+     "chamber": "house",
+     "name": "Rep. Eastes, Zon"
+    },
+    {
+     "id": "40435",
+     "chamber": "house",
+     "name": "Rep. Carris Duncan, Emily"
+    },
+    {
+     "id": "40436",
+     "chamber": "house",
+     "name": "Rep. Goodnow, Ian"
+    },
+    {
+     "id": "40437",
+     "chamber": "house",
+     "name": "Rep. Morrow, Christopher"
+    },
+    {
+     "id": "40438",
+     "chamber": "house",
+     "name": "Rep. Coffin, VL L IV"
+    },
+    {
+     "id": "40439",
+     "chamber": "house",
+     "name": "Rep. Charlton, Thomas \"Tom\" F"
+    },
+    {
+     "id": "40459",
+     "chamber": "house",
+     "name": "Rep. Harvey, Zachary J"
+    },
+    {
+     "id": "41827",
+     "chamber": "house",
+     "name": "Rep. Lueders, Karen"
+    },
+    {
+     "id": "41882",
+     "chamber": "house",
+     "name": "Rep. Hoyt, Michael N"
+    },
+    {
+     "id": "41956",
+     "chamber": "house",
+     "name": "Rep. Taylor, Valorie"
+    },
+    {
+     "id": "43013",
+     "chamber": "house",
+     "name": "Rep. Brigham, Jack H"
+    },
+    {
+     "id": "43336",
+     "chamber": "house",
+     "name": "Rep. Long, Kumulia \"Kase\" C"
+    },
+    {
+     "id": "43427",
+     "chamber": "house",
+     "name": "Rep. Soucy, David J"
+    },
+    {
+     "id": "43533",
+     "chamber": "house",
+     "name": "Rep. Scully, Kevin P"
+    },
+    {
+     "id": "14604",
+     "chamber": "senate",
+     "name": "Sen. Cummings, Ann E"
+    },
+    {
+     "id": "14616",
+     "chamber": "senate",
+     "name": "Sen. Lyons, Virginia \"Ginny\" V"
+    },
+    {
+     "id": "15791",
+     "chamber": "senate",
+     "name": "Sen. Baruth, Philip E"
+    },
+    {
+     "id": "15796",
+     "chamber": "senate",
+     "name": "Sen. Westman, Richard A"
+    },
+    {
+     "id": "24031",
+     "chamber": "senate",
+     "name": "Sen. Collamore, Brian P"
+    },
+    {
+     "id": "27152",
+     "chamber": "senate",
+     "name": "Sen. Clarkson, Alison"
+    },
+    {
+     "id": "29338",
+     "chamber": "senate",
+     "name": "Sen. Brock, Randy D"
+    },
+    {
+     "id": "30978",
+     "chamber": "senate",
+     "name": "Sen. Hardy, Ruth E"
+    },
+    {
+     "id": "30982",
+     "chamber": "senate",
+     "name": "Sen. Perchlik, Andrew J"
+    },
+    {
+     "id": "34724",
+     "chamber": "senate",
+     "name": "Sen. Chittenden, Thomas I"
+    },
+    {
+     "id": "34725",
+     "chamber": "senate",
+     "name": "Sen. Ingalls, Russ H"
+    },
+    {
+     "id": "34727",
+     "chamber": "senate",
+     "name": "Sen. Ram Hinsdale, Kesha K"
+    },
+    {
+     "id": "37406",
+     "chamber": "senate",
+     "name": "Sen. Harrison, Wendy K"
+    },
+    {
+     "id": "37407",
+     "chamber": "senate",
+     "name": "Sen. Hashim, Nader A"
+    },
+    {
+     "id": "37408",
+     "chamber": "senate",
+     "name": "Sen. Gulick, Martine Larocque L"
+    },
+    {
+     "id": "37409",
+     "chamber": "senate",
+     "name": "Sen. Norris, Robert W"
+    },
+    {
+     "id": "37410",
+     "chamber": "senate",
+     "name": "Sen. Vyhovsky, Tanya C"
+    },
+    {
+     "id": "37411",
+     "chamber": "senate",
+     "name": "Sen. Watson, Anne E"
+    },
+    {
+     "id": "37412",
+     "chamber": "senate",
+     "name": "Sen. Weeks, David H"
+    },
+    {
+     "id": "37413",
+     "chamber": "senate",
+     "name": "Sen. Williams, Terry K"
+    },
+    {
+     "id": "37414",
+     "chamber": "senate",
+     "name": "Sen. White, Rebecca \"Becca\" E"
+    },
+    {
+     "id": "40387",
+     "chamber": "senate",
+     "name": "Sen. Heffernan, Steven"
+    },
+    {
+     "id": "40388",
+     "chamber": "senate",
+     "name": "Sen. Bongartz, Seth"
+    },
+    {
+     "id": "40389",
+     "chamber": "senate",
+     "name": "Sen. Plunkett, Robert"
+    },
+    {
+     "id": "40390",
+     "chamber": "senate",
+     "name": "Sen. Beck, Scott L"
+    },
+    {
+     "id": "40391",
+     "chamber": "senate",
+     "name": "Sen. Mattos, Christopher P"
+    },
+    {
+     "id": "40392",
+     "chamber": "senate",
+     "name": "Sen. Brennan, Patrick \"Pat\" M"
+    },
+    {
+     "id": "40395",
+     "chamber": "senate",
+     "name": "Sen. Major, Joseph \"Joe\" D"
+    },
+    {
+     "id": "41884",
+     "chamber": "senate",
+     "name": "Sen. Morley, John S III"
+    },
+    {
+     "id": "41940",
+     "chamber": "senate",
+     "name": "Sen. Benson, John"
+    }
+   ]
+  }
+ }
+}

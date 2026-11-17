@@ -192,6 +192,24 @@
 //   Locker thresholds, W1–W6 (never replacing a strong item, review flags,
 //   cross-topic conflicts) and cross-topic scoring are unchanged.
 
+// Official URL resolution pass (raw-ingest-resolve.mjs, applied when the
+// roster is built in raw-ingest-core.mjs):
+//   · A tier-3 row with no pages (or only weak ones) gets official pages the
+//     engine resolves itself: its Congress.gov member page on one clean name +
+//     state + chamber match against the committed Congress member roster, else
+//     pages already cited for it on the site that are clearly its own official
+//     or campaign page. Nothing is fetched, searched for or guessed; no clean
+//     match → no page, skipped as before. Rows with pages and every tier-1 /
+//     tier-2 row are untouched.
+//   · Resolved pages go through the unchanged planner, pull path, scorer and
+//     Locker writer. Caps, tier order and thresholds are unchanged.
+//   · STEP 3 — a row still page-less after both steps, held by a sitting state
+//     legislator, is matched against the legislature's own member directory
+//     (state + chamber + surname + compatible first name, one member only) and
+//     gets that member's page on the legislature's site (Utah today).
+//   · RUN LOG — "raw-ingest: url resolution — …" after the roster line; the
+//     report carries the same under `url_resolution`.
+
 import type { Config } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
 import {
@@ -199,7 +217,9 @@ import {
   rosterSummary, baselineLine, isFilled, ROSTER, BASELINE_STRONG, BASELINE_WEAK,
   RAW_STORE_NAME, SOURCES, ROTATION_STORE_NAME, ROTATION_KEY, MAX_SOURCES_PER_RUN,
   MAX_POLITICIANS_PER_RUN, MAX_SOURCES_PER_POLITICIAN, RUN_BUDGET_MS, POOL_VERSION, rotationStateForPool, sourceTierOf,
+  RESOLUTION,
 } from "../lib/raw-ingest-core.mjs";
+import { resolutionLine } from "../lib/raw-ingest-resolve.mjs";
 import { logCandidateStances, SCORED_TOPICS } from "../lib/stance-score-core.mjs";
 import { maybeWriteLockerItem, loadReviewFlags, lockerBaselineCounts, LOCKER_STORE_NAME } from "../lib/evidence-locker-core.mjs";
 import { appendRunSuggestions, SUGGESTIONS_STORE_NAME } from "../lib/raw-ingest-suggestions.mjs";
@@ -334,6 +354,8 @@ export async function run(deps: {
     const rs = rosterSummary(roster, counts);
     const tierOf = new Map(roster.map((r: any) => [r.politician_id, r.tier]));
     log(`raw-ingest: roster — ${rs.size} politician(s) (${Object.entries(rs.tiers).map(([t, n]) => `tier ${t}: ${n}`).join(", ")}) · ${rs.reached.length} politician + issue pair(s) filled`);
+    // Official URL resolution happened when the roster was built (see header).
+    if (RESOLUTION && !ro.roster) log(resolutionLine(RESOLUTION));
     const dep = new Set(plan.deprioritised);
     const who = plan.politicians.map((p: string) => `${p} (t${tierOf.get(p)}${dep.has(p) ? ", deprioritised: every issue filled" : ""})`);
     const skip = plan.skipped.length ? ` · not chased (filled): ${plan.skipped.map((x: any) => `${x.politician_id}|${x.topic}`).join(", ")}` : "";
@@ -478,6 +500,10 @@ export async function run(deps: {
     ...included,
     sources: sources.map((s: any) => ({ politician_id: s.politician_id, topic: s.topic, url: s.url, source_type: s.source_type, kind: sourceKind(s), ...(s.source_class ? { source_class: s.source_class } : {}) })),
   };
+  if (plan && RESOLUTION && !(typeof deps.rotate === "object" && deps.rotate.roster)) {
+    const by = (v: string) => RESOLUTION.resolved.filter((x: any) => x.via === v).length;
+    report.url_resolution = { eligible: RESOLUTION.eligible, resolved: RESOLUTION.resolved.length, congress_gov: by("congress_gov"), cited_official: by("cited_official"), legislature_directory: by("legislature_directory"), unresolved: RESOLUTION.unresolved.length };
+  }
   if (plan) report.plan = { cycle: plan.cycle, classes: plan.classes, politicians: plan.politicians, deprioritised: plan.deprioritised, skipped: plan.skipped, remaining_in_cycle: plan.remaining_in_cycle, planned_size: plan.size, roster_size: roster.length, state: plan.state };
   report.locker_writes = lockerWrites;
   // Which topics produced candidates / items this run.

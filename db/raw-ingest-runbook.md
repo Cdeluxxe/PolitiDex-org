@@ -19,6 +19,66 @@ After the site roster changes, regenerate the file with
 `node scripts/build-raw-ingest-full-roster-2026-11.mjs`. Run it with `--check` to
 verify the file is current.
 
+The same file adds the **sitting holder of every legislative seat with a district
+board** who was not rotating yet. These rows are tier 3, have no pages, and carry
+`board_seat`. Each also carries `state`, `chamber`, `district` and the `office` and
+`state_listed` text of the member's site record in `cmp-data.js`. That identity lets
+the URL resolvers below match them. Only the seat's sitting holder is added: no board
+is opened and no candidate is added. Regenerate the file after the seat holders
+change, or after `node scripts/gen-seat-holders.mjs` runs.
+
+### Official URL resolution (tier 3)
+
+When the roster is built, the engine resolves official pages for any **tier-3** row
+that has no pages, or only weak ones (`netlify/lib/raw-ingest-resolve.mjs`). It tries
+three steps in order:
+
+1. **Congress.gov member page.** The politician's sitting federal office and state
+   from the site roster are matched against the committed Congress member roster
+   (`db/vr-member-map.json`). The engine stores the page only on one clean match:
+   same chamber, state and surname, a compatible first name, and no other roster row
+   claiming that bioguide ID. It skips retired Congress.gov pages.
+2. **Other official sources.** These are pages already cited for the politician on the
+   site, kept only when they are clearly the politician's own. That means their
+   House or Senate office site, a legislature member page that names them, the
+   statewide office host for the office they hold, or a campaign host carrying their
+   surname. Shared hosts, news sites and retired URLs are dropped. The inputs come
+   from `db/raw-ingest-official-cited-2026-11.json`. After the stance or spotlight
+   data changes, regenerate it with
+   `node scripts/build-raw-ingest-official-cited-2026-11.mjs`. Use `--check` to
+   verify the file is current.
+
+3. **State legislature member page.** This step runs only for rows still without pages
+   after steps 1 and 2. A sitting state legislator is matched against the legislature's
+   own member directory (`db/raw-ingest-legislature-directory-2026-11.json`). The match
+   needs the same state, chamber and surname, a compatible first name, and exactly one
+   member. The member's page must not already be on another row or matched by one, and
+   must not be retired. Where the site shows the politician's official legislature
+   portrait, its member ID must agree with the match. Today the directory covers
+   **Utah** only, from the sponsor IDs le.utah.gov prints on its bill pages (in
+   `db/bill-record.json`). A chamber's member-page pattern is accepted only when member
+   pages on it are already cited on the site and agree with the directory. The other
+   board states are listed under `skipped` with the reason. Utah's members come from
+   its bill records. The other covered states come from each legislature's own member
+   listing, saved in `db/legislature-listings-2026-11.json` by
+   `node scripts/fetch-legislature-listings-2026-11.mjs`. That script is the only step
+   that touches the network, and it never runs in the cron. Coverage today: the
+   Vermont Senate, the New York Assembly and the Pennsylvania Senate. A cited page
+   confirms a pattern only when the listed member at its ID is the person the site
+   cites it for. That is why the Florida Senate is refused: its seat-numbered IDs moved
+   with the new term. A Pennsylvania address is the listing's own link, never built.
+   Refresh the listings and rebuild after an election or a session change. After the bill record or the
+   roster changes, regenerate the file with
+   `node scripts/build-raw-ingest-legislature-directory-2026-11.mjs`. Use `--check` to
+   verify the file is current. Set `PDX_RAW_INGEST_NO_LEGISLATURE_DIRECTORY=1` to build
+   the roster without this step.
+
+Nothing is fetched or guessed. A row with no clean match keeps no pages and is still
+skipped. Tier-1 and tier-2 rows, and rows that already have pages, are never touched.
+Resolved pages carry `resolved_by`. Each rotation run logs
+`raw-ingest: url resolution — …`. Set `PDX_RAW_INGEST_NO_RESOLVE=1` to build the
+roster without this step.
+
 This page covers the **fresh evidence pass** (`netlify/lib/raw-ingest-fresh.mjs`).
 That pass stopped the cycle from re-reading the same homepages and press indexes and
 logging "0 new items" on every run.
@@ -169,6 +229,11 @@ planned. In addition:
   new item and a stated-position change, discovery adds at least 1 URL, strong items
   are left unchanged, curated and reviewed rows are held, and targeting, source
   types, caps, shared hosts and unknown keys are handled.
+- `node scripts/test-raw-ingest-resolve.mjs` covers official URL resolution, and
+  `node scripts/test-raw-ingest-legislature.mjs` covers the state legislature directory step.
+- `node scripts/test-raw-ingest-legislature-states.mjs` covers the directories beyond Utah.
+- `node scripts/test-raw-ingest-board-holders.mjs` covers the board-seat holders on the
+  rotation roster.
 - `scripts/test-raw-ingest.mjs`, `test-stated-positions.mjs` and
   `test-stated-positions-backfill.mjs` cover the earlier behaviour.
 - **No migration.** The frontier and seen ledger are Blobs documents, and

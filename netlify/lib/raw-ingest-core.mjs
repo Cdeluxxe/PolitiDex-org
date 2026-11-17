@@ -4,6 +4,12 @@ import { EXTRA_SOURCES, NEW_STATE_LEGISLATORS, SOURCE_CLASSES, NEW_SOCIAL_ROSTER
 import { pullYouTube, pullYouTubeVideo, isSocial, SOCIAL_CLASSES } from "./raw-ingest-social.mjs";
 import POOL_EXPANSION from "../../db/raw-ingest-pool-expansion-2026-11.json" with { type: "json" };
 import FULL_ROSTER from "../../db/raw-ingest-full-roster-2026-11.json" with { type: "json" };
+import OFFICIAL_CITED from "../../db/raw-ingest-official-cited-2026-11.json" with { type: "json" };
+import LEGISLATURE_DIRECTORY from "../../db/raw-ingest-legislature-directory-2026-11.json" with { type: "json" };
+import SHARE_INDEX from "../../db/share-index.json" with { type: "json" };
+import MEMBER_MAP from "../../db/vr-member-map.json" with { type: "json" };
+import { RETIRED_SOURCES } from "./raw-ingest-retired.mjs";
+import { resolveRoster } from "./raw-ingest-resolve.mjs";
 
 export { EXTRA_SOURCES, SOURCE_CLASSES, SOCIAL_SOURCES, SOCIAL_CLASSES, isSocial };
 
@@ -560,6 +566,9 @@ if (POOL_EXPANSION_APPLIED) {
 // it always has, until a page for that politician is configured. Caps,
 // discovery limits, scoring and the Locker are unchanged. Applied only with the
 // pool expansion; the build scripts read the roster without it.
+// The same file also adds the SITTING HOLDER of every legislative seat with a
+// district board who was not rotating yet (`board_seat`, tier 3, no pages),
+// so the URL resolvers below can reach them.
 export const FULL_ROSTER_APPLIED = POOL_EXPANSION_APPLIED && !(typeof process !== "undefined" && process.env?.PDX_RAW_INGEST_NO_FULL_ROSTER);
 export const FULL_ROSTER_TIER = 3;
 if (FULL_ROSTER_APPLIED) {
@@ -570,6 +579,45 @@ if (FULL_ROSTER_APPLIED) {
     have.add(person.politician_id);
   }
 }
+
+// Official URL resolution (raw-ingest-resolve.mjs): a TIER-3 row with no pages
+// (or only weak ones) gets official pages the engine resolves itself from data
+// the repo already trusts — first its Congress.gov member page (name + state +
+// chamber against db/vr-member-map.json, one clean match only), else pages
+// already cited for it on the site that are clearly its own official or
+// campaign page (db/raw-ingest-official-cited-2026-11.json). No URL is fetched,
+// searched for or guessed; no clean match → the row keeps no pages and is
+// skipped as before. Rows that already have pages, and every tier-1 / tier-2
+// row, are untouched. Once attached, a resolved page is an ordinary page to the
+// planner, the pull path, the scorer and the Locker (none of which read the
+// resolver). RESOLUTION is the report ("raw-ingest: url resolution …").
+// Step 3 — rows still page-less after the two steps above: a sitting state
+// legislator matched (state + chamber + surname + first name, one member only)
+// against the legislature's own member directory
+// (db/raw-ingest-legislature-directory-2026-11.json; Utah today) gets that
+// member's page on the legislature's site. PDX_RAW_INGEST_NO_LEGISLATURE_DIRECTORY
+// builds the roster without step 3.
+// Identity the resolvers match on: the site roster (share-index), plus — for
+// the board-seat holders the full roster adds (`board_seat`), who have no
+// share-index entry — the office and state text of their site record, carried
+// on the row. A share-index entry always wins.
+const RESOLVER_PEOPLE = { ...(SHARE_INDEX.people || {}) };
+for (const r of ROSTER) {
+  if (!r.board_seat || RESOLVER_PEOPLE[r.politician_id]) continue;
+  RESOLVER_PEOPLE[r.politician_id] = { n: r.name, o: r.office, s: r.state_listed || r.state };
+}
+export const LEGISLATURE_DIRECTORY_APPLIED = !(typeof process !== "undefined" && process.env?.PDX_RAW_INGEST_NO_LEGISLATURE_DIRECTORY);
+export const URL_RESOLUTION_APPLIED = FULL_ROSTER_APPLIED && !(typeof process !== "undefined" && process.env?.PDX_RAW_INGEST_NO_RESOLVE);
+export const RESOLUTION = URL_RESOLUTION_APPLIED
+  ? resolveRoster(ROSTER, {
+    people: RESOLVER_PEOPLE,
+    aliases: SHARE_INDEX.personAliases || {},
+    members: MEMBER_MAP.members || [],
+    cited: OFFICIAL_CITED,
+    retired: RETIRED_SOURCES.map((s) => s.url),
+    ...(LEGISLATURE_DIRECTORY_APPLIED ? { legislature: LEGISLATURE_DIRECTORY } : {}),
+  })
+  : null;
 
 // The 13 politicians the rotation covered before the roster-priority pass.
 export const PREVIOUS_ROSTER = [
