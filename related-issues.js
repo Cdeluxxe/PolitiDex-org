@@ -737,7 +737,9 @@
   //           recent one conflicts (the note still appears, naming that vote)
   //   cutoff  hard limit: votes older than it are never used (null = none)
   // Within whichever tier is used, the most recent vote is named; a same-day tie
-  // goes to the publishable raw roll call. A vote with no date counts as older,
+  // goes to the publishable raw roll call. A fallback (older) vote is named
+  // with a short cue — "an older vote", or "a vote from an earlier Congress"
+  // under 'congress' — and a recent one with none. A vote with no date counts as older,
   // and never passes a hard cutoff. `now` is the clock (a test seam).
   var WVA_WINDOW = { recent: 24, cutoff: null, now: function () { return Date.now(); } };
   function wvaSince(v, now) {
@@ -753,7 +755,9 @@
     if (!(m > 0)) return null;
     return Date.UTC(d.getUTCFullYear(), d.getUTCMonth() - m, d.getUTCDate(), d.getUTCHours(), d.getUTCMinutes());
   }
-  // The vote a note names, from the acts that cut against the stated side.
+  // The vote a note names, from the acts that cut against the stated side:
+  // { act, older }. `older` is true when the named vote is the fallback — the
+  // window has a `recent` limit and no conflicting vote fell inside it.
   function wvaPick(acts) {
     var now = Number((WVA_WINDOW.now || Date.now)());
     var recent = wvaSince(WVA_WINDOW.recent, now), cutoff = wvaSince(WVA_WINDOW.cutoff, now);
@@ -761,14 +765,15 @@
       .filter(function (x) { return cutoff == null || (x.t != null && x.t >= cutoff); });
     if (!dated.length) return null;
     var inside = recent == null ? dated : dated.filter(function (x) { return x.t != null && x.t >= recent; });
-    var pool = inside.length ? inside : dated;
+    var older = recent != null && !inside.length;
+    var pool = older ? dated : inside;
     var day = function (x) { return x.t == null ? '' : new Date(x.t).toISOString().slice(0, 10); };
     pool.sort(function (x, y) {
       return day(y).localeCompare(day(x)) ||
         ((x.a.from === 'raw' ? 0 : 1) - (y.a.from === 'raw' ? 0 : 1)) ||
         ((y.t == null ? -Infinity : y.t) - (x.t == null ? -Infinity : x.t)) || 0;
     });
-    return pool[0].a;
+    return { act: pool[0].a, older: older };
   }
   var WVA_SAID = { support: 'they state they support it', oppose: 'they state they oppose it' };
   function wvaSide(pid, pm, key, label, mine) {
@@ -780,8 +785,11 @@
     var against = said === 'support' ? 'opposes' : 'advances';
     var acts = (CS.wordsVsActionsActs(pid, key) || []).filter(function (a) { return a && a.dir === against; });
     if (!acts.length) return null;
-    var act = wvaPick(acts);
-    return act ? { key: key, label: label, you: you, said: said, act: act } : null;
+    var pick = wvaPick(acts);
+    if (!pick) return null;
+    var side = { key: key, label: label, you: you, said: said, act: pick.act };
+    if (pick.older) side.older = true;
+    return side;
   }
   function wordsVsActionsFor(pid, p, key, mine) {
     mine = mine || readerSides();
@@ -799,17 +807,24 @@
     });
     return out;
   }
+  // THE OLDER-VOTE CUE. A note naming the fallback vote (nothing inside the
+  // window conflicts) says so, in a few plain words, right after the date. A
+  // vote inside the window carries no cue, so its note is unchanged.
+  function wvaOlderCue() {
+    return WVA_WINDOW.recent === 'congress' ? 'a vote from an earlier Congress' : 'an older vote';
+  }
   function wvaText(n) {
     var s = n.side, a = s.act;
     return n.a + ' and ' + n.b + ': on ' + s.label + ' ' + WVA_SAID[s.said] + ', but voted ' + a.word +
       (a.ident ? ' on ' + a.ident : '') + (a.date ? ' (' + String(a.date).slice(0, 10) + ')' : '') +
+      (s.older ? ', ' + wvaOlderCue() : '') +
       (a.procedural ? ', a procedural vote' : '') + ', which ran against it; you ' + YOU_WORD[s.you] + '.';
   }
   // One note's line — the drawer's and the person-file section's, the same markup.
   function wvaItemHtml(n) {
     var a = n.side.act;
     return '<li class="pdxri-wva-item" data-pdxri-wva-pair="' + esc(n.bKey) + '" data-pdxri-wva-key="' + esc(n.side.key) +
-      '" data-pdxri-wva-from="' + esc(a.from) + '">' + esc(wvaText(n)) +
+      '" data-pdxri-wva-from="' + esc(a.from) + '"' + (n.side.older ? ' data-pdxri-wva-older="1"' : '') + '>' + esc(wvaText(n)) +
       (a.url ? ' <a href="' + esc(a.url) + '" target="_blank" rel="noopener">official record</a>' : '') + '</li>';
   }
   function wordsVsActionsHtml(pid, p, key) {

@@ -12298,7 +12298,16 @@
 //     so the shell moves; the precache list is unchanged. No stored reader
 //     state is written or rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v576';
+// v577 - AN OLDER-VOTE CUE IN WORDS AND VOTES. When a note names the fallback
+//     vote (nothing inside the recency window conflicts), related-issues.js
+//     adds a short cue after its date — "an older vote", or "a vote from an
+//     earlier Congress" under the 'congress' window — in the one note function
+//     the drawers and the person-file section share. A vote inside the window
+//     prints exactly as before. Selection is unchanged. No route, gate, tally,
+//     chip or verdict changes. A precached file changed, so the shell moves;
+//     the precache list is unchanged. Nothing stored is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v577';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
