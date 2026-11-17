@@ -116,6 +116,21 @@ export const voteActionsRepo: VoteActionsRepo = {
     return n;
   },
 
+  // Page inputs for every stored bill of one Congress — the columns the page
+  // reads only (no summary text), so a full Congress is a light read.
+  async billsForPages(congress) {
+    const rows = await db.select({
+      billKey: pdxActionBills.billKey, congress: pdxActionBills.congress, measureType: pdxActionBills.measureType,
+      billType: pdxActionBills.billType, number: pdxActionBills.number, title: pdxActionBills.title,
+      topicTags: pdxActionBills.topicTags, tagDetail: pdxActionBills.tagDetail, taggerVersion: pdxActionBills.taggerVersion,
+      hasSummary: pdxActionBills.hasSummary, sourceUrl: pdxActionBills.sourceUrl, rawRef: pdxActionBills.rawRef,
+    }).from(pdxActionBills).where(eq(pdxActionBills.congress, congress)).orderBy(pdxActionBills.billKey);
+    return rows.map((r: any) => ({
+      ...r, congress: Number(r.congress), topicTags: r.topicTags || [], tagDetail: Array.isArray(r.tagDetail) ? r.tagDetail : [],
+      hasSummary: !!r.hasSummary, rawRef: r.rawRef ?? null,
+    }));
+  },
+
   async billsWithStaleTags(version, limit) {
     const rows = await db.select().from(pdxActionBills).where(ne(pdxActionBills.taggerVersion, version)).limit(limit);
     return rows.map(toBill);

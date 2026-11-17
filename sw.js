@@ -14125,6 +14125,11 @@ async function handleStatic(req) {
 // from the network; offline, it falls back to the precached or runtime copy, so
 // the shell still boots with no network.
 const FRESH_FIRST = new Set(['/first-visit-coach.js']);
+// bill-pages.js too: the edge appends the bill pages generated since the file
+// was written (netlify/edge-functions/bill-pages-client.ts), so the precached
+// shell copy would hide every page added after install. Offline, the cached
+// copy still boots the drawer.
+FRESH_FIRST.add('/bill-pages.js');
 async function handleFresh(req) {
   const cache = await caches.open(RUNTIME_CACHE);
   try {

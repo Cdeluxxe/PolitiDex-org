@@ -60,6 +60,12 @@
 //   · No measure the migrations do not carry. Rows the live ingest added at
 //     runtime are missing from the bill list, and that is the honest cost of not
 //     reading the database at build time: it loses a crawl, not the truth.
+//     The bill pages the scheduled bill job GENERATES at runtime are the one
+//     exception, and they are not added here: they live in Blobs "bill-pages",
+//     which this script cannot read, so the edge adds them to this file when
+//     /sitemap.xml is served (netlify/edge-functions/sitemap-bill-pages.ts),
+//     at the same /b/<congress>/<number> address and leaving every line
+//     written here unchanged.
 //   · No /me and no /ballot. Both resolve and both are one page, but they are
 //     workspaces over the reader's own localStorage, not records, and this file
 //     lists records — a crawler that followed either would index an empty desk.

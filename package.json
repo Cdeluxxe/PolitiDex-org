@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.0",
+    "@netlify/blobs": "^10.1.0",
     "@netlify/database": "^1.0.0",
     "@netlify/functions": "^4.2.4",
     "drizzle-orm": "beta"

@@ -22,7 +22,9 @@ export default async (req: Request): Promise<Response> => {
   try {
     // Same fields as before (lastRun, ledger, notDone, bills, votes, tags) plus
     // quality rates and the unmapped-member to-do list, all recomputed per read.
-    return json(200, buildStatusBody({ lastRun: state.lastRun, ledger: state.ledger, status: await voteActionsStatus(), publish: publishSummary }));
+    // `congresses`: per-Congress progress of the discovery walk (sitting Congress
+    // first, then each older one until complete) and its generated pages.
+    return json(200, { ...buildStatusBody({ lastRun: state.lastRun, ledger: state.ledger, status: await voteActionsStatus(), publish: publishSummary }), congresses: state.congresses });
   } catch (e: any) {
     return json(500, { error: "status unavailable", detail: e?.message || String(e) });
   }

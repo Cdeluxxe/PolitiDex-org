@@ -71,10 +71,13 @@ function kindOf(number) {
 // ── Status ──────────────────────────────────────────────────────────────────
 // Returns { st, why } — st is the status key, why the plain clause after the
 // dash in the label ("died in committee"). Both come from the actions alone.
-export function deriveStatus(sitting, number, rec) {
+// `endedOn` (optional) names the day the sitting ended for a sitting
+// SITTING_ENDED does not list — the vote-actions job passes it for an older
+// Congress it generates a page for. Omitted, SITTING_ENDED alone decides.
+export function deriveStatus(sitting, number, rec, endedOn) {
   const a = (rec && rec.a) || [];
   const has = (s, c) => a.some((x) => x.s === s && (c == null || x.c === c));
-  const ended = !!SITTING_ENDED[sitting];
+  const ended = !!(SITTING_ENDED[sitting] || endedOn);
   const utah = isUtah(sitting);
   const kind = kindOf(number);
   const origin = rec && rec.ch;
@@ -185,13 +188,13 @@ export function stageLabel(s, c, sitting, origin) {
 
 const sittingName = (s) => (/^\d+$/.test(s) ? `${s}th Congress` : `${String(s).slice(0, 4)} General Session`);
 
-export function historyRows(sitting, number, rec, status) {
+export function historyRows(sitting, number, rec, status, endedOn) {
   const rows = ((rec && rec.a) || []).map((x) => ({ d: x.d, s: x.s, a: stageLabel(x.s, x.c, sitting, rec.ch), x: x.x }))
     .filter((r) => r.a);
   // An ended sitting with no final action on the record: one dated row saying
   // the sitting closed. Utah records already carry their own "filed" action.
   const final = new Set(["law", "signed", "vetoed", "filed", "confirmed", "rejected", "withdrawn", "returned"]);
-  const ended = SITTING_ENDED[sitting];
+  const ended = SITTING_ENDED[sitting] || endedOn;
   if (ended && status.st === "failed" && !rows.some((r) => final.has(r.s)) && !(kindOf(number) === "amendment" && rows.some((r) => r.s === "failed_vote"))) {
     if (!(kindOf(number) === "simple_res" && rows.some((r) => r.s === "failed_vote"))) {
       rows.push({ d: ended, s: "died", a: stageLabel("died"), x: `The ${sittingName(sitting)} ended with no further action on this measure.` });

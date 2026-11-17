@@ -27,6 +27,11 @@
 // CDN (?fm=png) so scrapers that insist on a raster still get one.
 import type { Config } from "@netlify/edge-functions";
 import { parseTarget, resolveTarget, prettyDate, type Resolved } from "../lib/share-target.ts";
+import { installBillPagesReader } from "../lib/bill-pages-reader.ts";
+
+// /b/ addresses the snapshot does not hold are also looked up among the bill
+// pages the scheduled bill job generates (Blobs "bill-pages").
+installBillPagesReader();
 
 function esc(s: string): string {
   return String(s == null ? "" : s)
