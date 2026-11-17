@@ -536,9 +536,12 @@ await t('roster: priority flags are true to the data, and prioritised people com
   for (const r of core.ROSTER) {
     assert.equal(r.has_board, hasBoard(r.politician_id), `${r.politician_id}: has_board matches SEAT_HOLDERS`);
     assert.equal(r.has_stances, hasStances(r.politician_id), `${r.politician_id}: has_stances matches the stance data`);
+    // Full-roster rows (every other politician on the site) are tier 3 with no
+    // pages, whatever their flags; checked in detail by the full-roster test.
+    if (r.full_roster) { assert.equal(r.tier, 3, `${r.politician_id}: full-roster row is tier 3`); assert.equal(r.sources.length, 0); assert.ok(!r.official); continue; }
     const want = r.has_board && stanceCount(r.politician_id) >= core.SEVERAL_STANCES ? 1 : (r.has_board || r.has_stances) ? 2 : 3;
     assert.equal(r.tier, want, `${r.politician_id}: tier ${r.tier} should be ${want} (${stanceCount(r.politician_id)} stated positions)`);
-    if (r.tier === 3) assert.ok(PREVIOUS.has(r.politician_id) || REQUESTED.has(r.politician_id), `${r.politician_id}: a tier-3 row is only kept from the previous 13`);
+    if (r.tier === 3) assert.ok(PREVIOUS.has(r.politician_id) || REQUESTED.has(r.politician_id), `${r.politician_id}: a configured tier-3 row is only kept from the previous 13`);
     if (!PREVIOUS.has(r.politician_id) && !REQUESTED.has(r.politician_id)) assert.ok(r.has_board || r.has_stances, `${r.politician_id}: a new roster row has a board or stated positions`);
     for (const s of r.sources) {
       assert.equal(s.politician_id, r.politician_id);
@@ -699,7 +702,7 @@ await t('a rotated run includes politicians beyond the original five and at leas
 await t('successive runs rotate through the whole roster, and every run respects the cap', async () => {
   const rot = memStore(); const seen = new Set(); const sets = [];
   rot.data.set(core.ROTATION_KEY, { cursor: 4 }); // an older cursor doc starts a fresh cycle
-  for (let i = 0; i < core.ROSTER.length * 2; i++) {
+  for (let i = 0; i < ACTIVE_ROSTER.length * 2; i++) {
     const { value: res } = await quiet(() => fn.run({ fetch: fakeFetch(200, LONG_HTML), store: fakeStore(), now: NOW,
       rotate: { counts: {} }, rotationStore: rot, log: () => {} }));
     const r = await res.json();
@@ -1252,6 +1255,106 @@ await t('locker W6: a cross-topic read never writes a stance that conflicts with
   assert.equal(c.written, true, 'on-topic scoring is not gated');
   // A store that cannot be listed never blocks a write.
   assert.equal(await locker.heldConflict(cand('cost_living', ECON, 'support'), 'k', { store: { async list() { throw new Error('down'); } } }), null);
+});
+
+// ── Full roster: every politician on the site is eligible, existing tiers kept ──
+process.env.PDX_RAW_INGEST_NO_FULL_ROSTER = '1';
+const baseCore = await import(pathToFileURL(corePath).href + '?no-full-roster');
+delete process.env.PDX_RAW_INGEST_NO_FULL_ROSTER;
+const FULL = JSON.parse(readFileSync(path.join(root, 'db/raw-ingest-full-roster-2026-11.json'), 'utf8'));
+const SHARE = JSON.parse(readFileSync(path.join(root, 'db/share-index.json'), 'utf8'));
+
+await t('full roster: every politician already in tier 1 or tier 2 keeps that tier, pages and position', () => {
+  assert.equal(core.FULL_ROSTER_APPLIED, true);
+  assert.equal(baseCore.FULL_ROSTER_APPLIED, false);
+  const byId = new Map(core.ROSTER.map((r) => [r.politician_id, r]));
+  for (const [i, b] of baseCore.ROSTER.entries()) {
+    const r = byId.get(b.politician_id);
+    assert.ok(r, `${b.politician_id} is still in the roster`);
+    assert.equal(r.tier, b.tier, `${b.politician_id}: tier ${b.tier} unchanged`);
+    assert.ok(!r.full_roster, `${b.politician_id} is not a full-roster row`);
+    assert.deepEqual(r.sources.map((s) => s.url), b.sources.map((s) => s.url), `${b.politician_id}: pages unchanged`);
+    assert.equal(r.official?.url, b.official?.url, `${b.politician_id}: official pattern unchanged`);
+    assert.equal(core.ROSTER[i].politician_id, b.politician_id, 'configured rows keep their roster order, full-roster rows follow');
+  }
+  const tiers = (ros, t) => ros.filter((r) => r.tier === t).length;
+  assert.equal(tiers(core.ROSTER, 1), tiers(baseCore.ROSTER, 1), 'no tier-1 row added or removed');
+  assert.equal(tiers(core.ROSTER, 2), tiers(baseCore.ROSTER, 2), 'no tier-2 row added or removed');
+  for (const pid of ['greg_abbott', 'aoc', 'cox']) assert.equal(byId.get(pid).tier, 1, `${pid} stays tier 1`);
+  for (const pid of ['james_talarico', 'ken_paxton', 'dan_patrick']) assert.equal(byId.get(pid).tier, 2, `${pid} stays tier 2`);
+  assert.equal(byId.get('gina_hinojosa').tier, 3, 'the configured tier-3 row stays tier 3');
+});
+
+await t('full roster: a politician previously absent is now present and tier 3; the whole site roster is covered', () => {
+  const base = new Set(baseCore.ROSTER.map((r) => r.politician_id));
+  const added = core.ROSTER.filter((r) => r.full_roster);
+  assert.ok(added.length > 1000, `the rest of the site roster joined (${added.length})`);
+  assert.equal(added.length, FULL.politicians.length);
+  for (const r of added) {
+    assert.ok(!base.has(r.politician_id), `${r.politician_id} was absent before`);
+    assert.equal(r.tier, 3, `${r.politician_id} is tier 3`);
+    assert.ok(SHARE.people[r.politician_id], `${r.politician_id} is on the site roster`);
+    assert.equal(r.name, SHARE.people[r.politician_id].n);
+    assert.deepEqual(r.sources, [], 'no page is guessed');
+    assert.equal(r.has_board, hasBoard(r.politician_id), `${r.politician_id}: has_board matches SEAT_HOLDERS`);
+    assert.equal(r.has_stances, hasStances(r.politician_id), `${r.politician_id}: has_stances matches the stance data`);
+  }
+  // Named examples: a sitting U.S. Representative and Alabama's Mike Rogers
+  // (the rotating "mike_rogers" row is Michigan's, so the alias does not cover him).
+  for (const pid of ['aaron_bean', 'mike_rogers_al']) {
+    assert.ok(!base.has(pid), `${pid} was absent`);
+    const r = core.ROSTER.find((x) => x.politician_id === pid);
+    assert.ok(r && r.tier === 3 && r.full_roster, `${pid} is present and tier 3`);
+  }
+  // Every site politician is in the rotation — under their own id, or (for an
+  // old slug already rotating) under the id that resolves to them. Nobody twice.
+  const ids = new Set(core.ROSTER.map((r) => r.politician_id));
+  assert.equal(ids.size, core.ROSTER.length, 'one roster row per politician');
+  const viaAlias = new Set(core.ROSTER.filter((r) => r.politician_id !== 'mike_rogers').map((r) => SHARE.personAliases[r.politician_id]).filter(Boolean));
+  for (const pid of Object.keys(SHARE.people)) assert.ok(ids.has(pid) || viaAlias.has(pid), `${pid} is eligible`);
+  for (const r of added) assert.ok(!viaAlias.has(r.politician_id), `${r.politician_id} is not already rotating under an alias`);
+});
+
+await t('full roster: the planner still prefers tier 1, then tier 2, then tier 3', () => {
+  const order = core.rotationOrder().map((r) => r.tier);
+  assert.deepEqual(order, [...order].sort((a, b) => a - b), 'rotation order is by tier');
+  const first = core.planRun({}, { counts: {} });
+  assert.ok(first.politicians.length, 'a run is planned');
+  assert.ok(first.politicians.every((p) => core.ROSTER.find((r) => r.politician_id === p).tier === 1), 'the first run of a cycle is tier 1 only');
+  // Rows without pages are skipped exactly as before; the active order is unchanged.
+  assert.deepEqual(core.priorityOrder(ACTIVE_ROSTER, {}).filter((x) => x.open.length || x.filled.length).map((x) => x.r.politician_id),
+    baseCore.priorityOrder(baseCore.ROSTER, {}).filter((x) => x.open.length || x.filled.length).map((x) => x.r.politician_id), 'planned order unchanged for rows with pages');
+  // A full-roster row that gains a page is planned — after tier 1 and tier 2.
+  const page = (pid, n) => ({ politician_id: pid, topic: 'cost_living', source_type: 'campaign issues page', source_id: `p${n}`, url: `https://example-${pid}.org/issues` });
+  const t3 = { ...core.ROSTER.find((r) => r.politician_id === 'aaron_bean'), sources: [page('aaron_bean', 1)] };
+  const roster = [t3, { politician_id: 'two', tier: 2, sources: [page('two', 2)] }, { politician_id: 'one', tier: 1, sources: [page('one', 3)] }];
+  const p = core.planRun({}, { roster, counts: {}, max: 36 });
+  assert.deepEqual(p.politicians, ['one', 'two', 'aaron_bean'], 'tier 1, then tier 2, then the tier-3 full-roster politician');
+  const tight = core.planRun({}, { roster, counts: {}, max: 2 });
+  assert.deepEqual(tight.politicians, ['one', 'two'], 'under the cap the tier-3 row waits for a later run');
+  assert.deepEqual(core.planRun(tight.state, { roster, counts: {}, max: 2 }).politicians, ['aaron_bean'], 'and is reached next run in the same cycle');
+});
+
+await t('full roster: caps, scoring and the evidence locker are untouched', async () => {
+  assert.equal(core.MAX_SOURCES_PER_RUN, baseCore.MAX_SOURCES_PER_RUN);
+  assert.equal(core.MAX_POLITICIANS_PER_RUN, baseCore.MAX_POLITICIANS_PER_RUN);
+  assert.equal(core.MAX_SOURCES_PER_POLITICIAN, baseCore.MAX_SOURCES_PER_POLITICIAN);
+  assert.equal(core.BASELINE_STRONG, baseCore.BASELINE_STRONG);
+  assert.equal(core.BASELINE_WEAK, baseCore.BASELINE_WEAK);
+  for (const f of ['netlify/lib/stance-score-core.mjs', 'netlify/lib/evidence-locker-core.mjs']) {
+    assert.doesNotMatch(readFileSync(path.join(root, f), 'utf8'), /full_roster|FULL_ROSTER/, `${f} does not read the full roster`);
+  }
+  // A full-roster politician with a page is pulled into a raw record like anyone else: no score fields.
+  const roster = [{ ...core.ROSTER.find((r) => r.politician_id === 'aaron_bean'),
+    sources: [{ politician_id: 'aaron_bean', topic: 'cost_living', source_type: 'campaign issues page', source_id: 'p1', url: 'https://example-bean.org/issues' }] }];
+  const plan = core.planRun({}, { roster, counts: {} });
+  const store = fakeStore();
+  const { value: rep } = await quiet(() => core.runRawIngest({ fetch: fakeFetch(200, LONG_HTML), store, now: NOW }, plan.sources));
+  assert.equal(rep.ok, true);
+  const recs = [...store.data.values()];
+  assert.equal(recs.length, 1);
+  assert.equal(recs[0].politician_id, 'aaron_bean');
+  for (const k of FORBIDDEN) assert.ok(!(k in recs[0]), `raw record has no ${k}`);
 });
 
 if (failures) { console.error(`${failures} failing`); process.exit(1); }

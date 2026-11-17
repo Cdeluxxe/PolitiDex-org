@@ -3,6 +3,7 @@ import { describeFetchError, pullProbeFirst } from "./raw-ingest-hosts.mjs";
 import { EXTRA_SOURCES, NEW_STATE_LEGISLATORS, SOURCE_CLASSES, NEW_SOCIAL_ROSTER, SOCIAL_SOURCES } from "./raw-ingest-source-types.mjs";
 import { pullYouTube, pullYouTubeVideo, isSocial, SOCIAL_CLASSES } from "./raw-ingest-social.mjs";
 import POOL_EXPANSION from "../../db/raw-ingest-pool-expansion-2026-11.json" with { type: "json" };
+import FULL_ROSTER from "../../db/raw-ingest-full-roster-2026-11.json" with { type: "json" };
 
 export { EXTRA_SOURCES, SOURCE_CLASSES, SOCIAL_SOURCES, SOCIAL_CLASSES, isSocial };
 
@@ -252,7 +253,8 @@ export async function runRawIngest(deps, sources = SOURCES) {
 // on file (ISSUE_STANCE_DATA). Tier 1 = a sitting member with a board AND
 // several (≥ SEVERAL_STANCES) stated positions; tier 2 = a board or stated
 // positions; tier 3 = the rest of the previous 13-politician roster, kept so
-// nobody already rotating drops out.
+// nobody already rotating drops out, plus every other politician on the site
+// roster (the full-roster rows below, `full_roster: true`).
 //
 // BASELINE (per issue). A politician + issue is FILLED once the Locker holds
 // 1 strong item or 3 weak items for it (any mix of the same weight; mentions
@@ -545,6 +547,27 @@ if (POOL_EXPANSION_APPLIED) {
         .filter((k, i, a) => k !== s.topic && a.indexOf(k) === i);
       if (extra.length) s.issue_pairs = extra;
     }
+  }
+}
+
+// Full roster (db/raw-ingest-full-roster-2026-11.json, built by
+// scripts/build-raw-ingest-full-roster-2026-11.mjs): every politician on the
+// PolitiDex roster who is not rotating yet joins as TIER 3, after everyone
+// above — so every politician on the site is eligible for page discovery and
+// stance scoring while tier 1, then tier 2, are still planned first. Rows
+// already present keep their tier and pages untouched. These rows carry no
+// pages (no URL is guessed): the planner skips a row with nothing to pull, as
+// it always has, until a page for that politician is configured. Caps,
+// discovery limits, scoring and the Locker are unchanged. Applied only with the
+// pool expansion; the build scripts read the roster without it.
+export const FULL_ROSTER_APPLIED = POOL_EXPANSION_APPLIED && !(typeof process !== "undefined" && process.env?.PDX_RAW_INGEST_NO_FULL_ROSTER);
+export const FULL_ROSTER_TIER = 3;
+if (FULL_ROSTER_APPLIED) {
+  const have = new Set(ROSTER.map((r) => r.politician_id));
+  for (const person of FULL_ROSTER.politicians || []) {
+    if (have.has(person.politician_id)) continue;
+    ROSTER.push({ ...person, tier: FULL_ROSTER_TIER, full_roster: true, sources: [] });
+    have.add(person.politician_id);
   }
 }
 
