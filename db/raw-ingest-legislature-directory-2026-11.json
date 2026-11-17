@@ -30,6 +30,14 @@
   "WI"
  ],
  "summary": {
+  "CA": {
+   "members": 39,
+   "house": 0,
+   "senate": 39,
+   "chambers_with_pages": [
+    "senate"
+   ]
+  },
   "FL": {
    "members": 40,
    "house": 0,
@@ -73,8 +81,9 @@
  "skipped": {
   "AK": "board seats exist, but the site cites no member page on this legislature's own host, so no member-page pattern can be confirmed",
   "AZ": "board seats exist, but the site cites no member page on this legislature's own host, so no member-page pattern can be confirmed",
-  "CA": "board seats exist, but the site cites no member page on this legislature's own host, so no member-page pattern can be confirmed",
+  "CA house": "no California Assembly member page is cited on the site (only the Assembly's home page and member listing)",
   "CO": "board seats exist, but the site cites no member page on this legislature's own host, so no member-page pattern can be confirmed",
+  "FL house": "the only Florida House member page cited on the site (myfloridahouse.gov …details.aspx?MemberId=4801) is for a member who is not in the House's 2026–2028 member listing, so no cited page can confirm the pattern",
   "FL senate": "cited member page(s) disagree with the directory: https://www.flsenate.gov/Senators/S26 is cited for ben_albritton but the directory lists Sen. Silvers, David (senate)",
   "FL": "no chamber's member-page pattern could be confirmed",
   "GA": "board seats exist, but the site cites no member page on this legislature's own host, so no member-page pattern can be confirmed",
@@ -100,6 +109,294 @@
   "WI": "board seats exist, but the site cites no member page on this legislature's own host, so no member-page pattern can be confirmed"
  },
  "states": {
+  "CA": {
+   "source": "https://www.senate.ca.gov/senators — the legislature's own member listing, read 2026-11-17 (db/legislature-listings-2026-11.json)",
+   "member_page": {
+    "senate": "https://{id}.senate.ca.gov/"
+   },
+   "confirmed_by": {
+    "senate": [
+     "https://sd11.senate.ca.gov/",
+     "https://sd27.senate.ca.gov/biography",
+     "https://sd34.senate.ca.gov/biography"
+    ]
+   },
+   "members": [
+    {
+     "id": "sd02",
+     "name": "Sen. McGuire, Mike",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sd02.senate.ca.gov/"
+    },
+    {
+     "id": "sd03",
+     "name": "Sen. Cabaldon, Christopher",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sd03.senate.ca.gov/"
+    },
+    {
+     "id": "sd05",
+     "name": "Sen. McNerney, Jerry",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sd05.senate.ca.gov/"
+    },
+    {
+     "id": "sd07",
+     "name": "Sen. Arreguín, Jesse",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sd07.senate.ca.gov/"
+    },
+    {
+     "id": "sd08",
+     "name": "Sen. Ashby, Angelique V.",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sd08.senate.ca.gov/"
+    },
+    {
+     "id": "sd09",
+     "name": "Sen. Grayson, Timothy S.",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sd09.senate.ca.gov/"
+    },
+    {
+     "id": "sd11",
+     "name": "Sen. Wiener, Scott D.",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sd11.senate.ca.gov/"
+    },
+    {
+     "id": "sd13",
+     "name": "Sen. Becker, Josh",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sd13.senate.ca.gov/"
+    },
+    {
+     "id": "sd14",
+     "name": "Sen. Caballero, Anna M.",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sd14.senate.ca.gov/"
+    },
+    {
+     "id": "sd15",
+     "name": "Sen. Cortese, Dave",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sd15.senate.ca.gov/"
+    },
+    {
+     "id": "sd16",
+     "name": "Sen. Hurtado, Melissa",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sd16.senate.ca.gov/"
+    },
+    {
+     "id": "sd17",
+     "name": "Sen. Laird, John",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sd17.senate.ca.gov/"
+    },
+    {
+     "id": "sd18",
+     "name": "Sen. Padilla, Stephen C.",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sd18.senate.ca.gov/"
+    },
+    {
+     "id": "sd20",
+     "name": "Sen. Menjivar, Caroline",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sd20.senate.ca.gov/"
+    },
+    {
+     "id": "sd21",
+     "name": "Sen. Limón, Monique",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sd21.senate.ca.gov/"
+    },
+    {
+     "id": "sd22",
+     "name": "Sen. Rubio, Susan",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sd22.senate.ca.gov/"
+    },
+    {
+     "id": "sd24",
+     "name": "Sen. Allen, Benjamin",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sd24.senate.ca.gov/"
+    },
+    {
+     "id": "sd25",
+     "name": "Sen. Pérez, Sasha Renée",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sd25.senate.ca.gov/"
+    },
+    {
+     "id": "sd26",
+     "name": "Sen. Durazo, María Elena",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sd26.senate.ca.gov/"
+    },
+    {
+     "id": "sd27",
+     "name": "Sen. Stern, Henry I.",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sd27.senate.ca.gov/"
+    },
+    {
+     "id": "sd28",
+     "name": "Sen. Smallwood-Cuevas, Lola",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sd28.senate.ca.gov/"
+    },
+    {
+     "id": "sd29",
+     "name": "Sen. Reyes, Eloise Gómez",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sd29.senate.ca.gov/"
+    },
+    {
+     "id": "sd30",
+     "name": "Sen. Archuleta, Bob",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sd30.senate.ca.gov/"
+    },
+    {
+     "id": "sd31",
+     "name": "Sen. Cervantes, Sabrina",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sd31.senate.ca.gov/"
+    },
+    {
+     "id": "sd33",
+     "name": "Sen. Gonzalez, Lena A.",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sd33.senate.ca.gov/"
+    },
+    {
+     "id": "sd34",
+     "name": "Sen. Umberg, Thomas J.",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sd34.senate.ca.gov/"
+    },
+    {
+     "id": "sd35",
+     "name": "Sen. Richardson, Laura",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sd35.senate.ca.gov/"
+    },
+    {
+     "id": "sd38",
+     "name": "Sen. Blakespear, Catherine S.",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sd38.senate.ca.gov/"
+    },
+    {
+     "id": "sd39",
+     "name": "Sen. Weber Pierson, Akilah",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sd39.senate.ca.gov/"
+    },
+    {
+     "id": "sr01",
+     "name": "Sen. Dahle, Megan",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sr01.senate.ca.gov/"
+    },
+    {
+     "id": "sr04",
+     "name": "Sen. Alvarado-Gil, Marie",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sr04.senate.ca.gov/"
+    },
+    {
+     "id": "sr06",
+     "name": "Sen. Niello, Roger W.",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sr06.senate.ca.gov/"
+    },
+    {
+     "id": "sr12",
+     "name": "Sen. Grove, Shannon",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sr12.senate.ca.gov/"
+    },
+    {
+     "id": "sr19",
+     "name": "Sen. Ochoa Bogh, Rosilicie",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sr19.senate.ca.gov/"
+    },
+    {
+     "id": "sr23",
+     "name": "Sen. Valladares, Suzette Martinez",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sr23.senate.ca.gov/"
+    },
+    {
+     "id": "sr32",
+     "name": "Sen. Seyarto, Kelly",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sr32.senate.ca.gov/"
+    },
+    {
+     "id": "sr36",
+     "name": "Sen. Strickland, Tony",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sr36.senate.ca.gov/"
+    },
+    {
+     "id": "sr37",
+     "name": "Sen. Choi, Steven S.",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sr37.senate.ca.gov/"
+    },
+    {
+     "id": "sr40",
+     "name": "Sen. Jones, Brian W.",
+     "chamber": "senate",
+     "session": "2026-11-17",
+     "url": "https://sr40.senate.ca.gov/"
+    }
+   ]
+  },
   "FL": {
    "source": "https://www.flsenate.gov/Senators/ — the legislature's own member listing, read 2026-11-17 (db/legislature-listings-2026-11.json)",
    "member_page": {},

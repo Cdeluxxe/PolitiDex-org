@@ -24,6 +24,8 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+// Steps 1–4 only: step 5 (discovered sources) has its own suite, test-raw-ingest-discovery.mjs.
+process.env.PDX_RAW_INGEST_NO_DISCOVERED = "1";
 const corePath = path.join(root, "netlify/lib/raw-ingest-core.mjs");
 const R = await import("../netlify/lib/raw-ingest-resolve.mjs");
 const core = await import(pathToFileURL(corePath).href);
@@ -51,7 +53,9 @@ const pagesOf = (r) => [...(r.sources || []), ...(r.official ? [r.official] : []
 const rowOf = (ros, pid) => ros.find((r) => r.politician_id === pid);
 const plain = (x) => JSON.parse(JSON.stringify(x));
 const host = (u) => new URL(u).hostname.replace(/^www\./, "");
-const OWN_HOST = { VT: "legislature.vermont.gov", NY: "nyassembly.gov", PA: "palegis.us", FL: "flsenate.gov" };
+const OWN_HOST = { VT: "legislature.vermont.gov", NY: "nyassembly.gov", PA: "palegis.us", FL: "flsenate.gov", CA: "senate.ca.gov" };
+// On the legislature's own host, or a member host under it (sd11.senate.ca.gov).
+const onHost = (u, st) => host(u) === OWN_HOST[st] || host(u).endsWith(`.${OWN_HOST[st]}`);
 const siteText = ["politician-stances.js", "politician-stances-core.js", "politician-stances-ext.js", "spotlight-cards-data.js", "acct-spotlight-data.js", "cmp-data.js",
   ...fs.readdirSync(root).filter((f) => /^state-senate-stances(?:-w\d+)?\.js$/.test(f))].map((f) => fs.readFileSync(path.join(root, f), "utf8")).join("\n");
 const newlyResolved = core.RESOLUTION.resolved.filter((x) => x.via === "legislature_directory" && x.state !== "UT");
@@ -64,25 +68,25 @@ await t("each new directory is limited to board states, read from the legislatur
     const d = DIR.states[st];
     assert.ok(boards.has(st), `${st} has legislative district boards`);
     // Source: the legislature's own listing; every listed member page on its own host.
-    assert.ok(LIST.listings[st]?.sources.length && LIST.listings[st].sources.every((u) => host(u) === OWN_HOST[st]), `${st}: listing is on ${OWN_HOST[st]}`);
+    assert.ok(LIST.listings[st]?.sources.length && LIST.listings[st].sources.every((u) => onHost(u, st)), `${st}: listing is on ${OWN_HOST[st]}`);
     assert.equal(d.members.length, LIST.listings[st].members.length, `${st}: directory = the listing`);
     for (const m of d.members) {
       assert.ok(["house", "senate"].includes(m.chamber) && m.id && m.name);
-      if (m.url) assert.equal(host(m.url), OWN_HOST[st], `${m.url} on the legislature's host`);
+      if (m.url) assert.ok(onHost(m.url, st), `${m.url} on the legislature's host`);
     }
     for (const [ch, tpl] of Object.entries(d.member_page)) {
       const conf = d.confirmed_by[ch] || [];
       assert.ok(conf.length, `${st} ${ch}: confirmed by cited pages`);
       for (const u of conf) {
         assert.ok(siteText.includes(u), `${u} is cited on the site`);
-        assert.equal(host(u), OWN_HOST[st]);
-        const seg = new URL(u).pathname.split("/").filter(Boolean);
+        assert.ok(onHost(u, st), `${u} on ${OWN_HOST[st]}`);
+        const seg = [new URL(u).hostname.split(".")[0], ...new URL(u).pathname.split("/").filter(Boolean)];
         assert.ok(d.members.some((m) => m.chamber === ch && seg.includes(m.id)), `${u} names a listed ${ch} member`);
       }
       // Every address the directory can produce is on the legislature's own host.
       for (const m of d.members.filter((x) => x.chamber === ch)) {
         const u = R.legislatureMemberUrl(m, d);
-        assert.ok(u && host(u) === OWN_HOST[st], `${st} ${m.id}: ${u}`);
+        assert.ok(u && onHost(u, st), `${st} ${m.id}: ${u}`);
       }
     }
   }

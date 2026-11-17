@@ -23,8 +23,13 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+// Steps 1–4 only: step 5 (discovered sources) has its own suite, test-raw-ingest-discovery.mjs.
+process.env.PDX_RAW_INGEST_NO_DISCOVERED = "1";
 const corePath = path.join(root, "netlify/lib/raw-ingest-core.mjs");
 const R = await import("../netlify/lib/raw-ingest-resolve.mjs");
+// Steps 1–3 only: step 4 (own sites / direct sources) has its own suite,
+// test-raw-ingest-direct-sources.mjs, which checks steps 1–3 are unchanged by it.
+process.env.PDX_RAW_INGEST_NO_DIRECT_SOURCES = "1";
 const core = await import(pathToFileURL(corePath).href);
 process.env.PDX_RAW_INGEST_NO_LEGISLATURE_DIRECTORY = "1";
 const before = await import(pathToFileURL(corePath).href + "?no-legislature-directory");
@@ -200,8 +205,10 @@ await t("the directory is current, scoped to board states, and its page patterns
   const site = ["politician-stances.js", "politician-stances-core.js", "politician-stances-ext.js", "spotlight-cards-data.js", "acct-spotlight-data.js", "cmp-data.js", "netlify/lib/raw-ingest-source-types.mjs",
     ...fs.readdirSync(root).filter((f) => /^state-senate-stances(?:-w\d+)?\.js$/.test(f))]
     .map((f) => fs.readFileSync(path.join(root, f), "utf8")).join("\n");
-  // A confirmed page names a member of that chamber by ID: as a whole path segment.
-  const segs = (u) => new URL(u).pathname.split("/").filter(Boolean);
+  // A confirmed page names a member of that chamber by ID: as a whole path
+  // segment, or as the host label where each member has their own host
+  // (California Senate: sd11.senate.ca.gov).
+  const segs = (u) => [new URL(u).hostname.split(".")[0], ...new URL(u).pathname.split("/").filter(Boolean)];
   for (const [st, d] of Object.entries(DIR.states)) {
     assert.ok(boards.has(st), `${st} has legislative district boards`);
     for (const [ch, tpl] of Object.entries(d.member_page)) {
