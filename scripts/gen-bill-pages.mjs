@@ -24,6 +24,11 @@
 // scripts/test-internal-hops.mjs holds every key here to a /b/ line already in
 // sitemap.xml.
 //
+// THE GENERATED PAGES. Bill pages the scheduled bill job writes at runtime live
+// in Blobs "bill-pages", which this script cannot read. They are added when
+// /bill-pages.js is served (netlify/edge-functions/bill-pages-client.ts), with
+// the same "<congress>/<number>" keys, leaving every line written here as is.
+//
 // USAGE
 //   node scripts/gen-bill-pages.mjs           # write bill-pages.js
 //   node scripts/gen-bill-pages.mjs --check   # exit 1 if it is stale

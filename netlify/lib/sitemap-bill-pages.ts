@@ -1,5 +1,6 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// sitemap-bill-pages — the generated bill pages, added to sitemap.xml
+// sitemap-bill-pages — the generated bill pages, added to sitemap.xml and to
+// the client's bill-page list (bill-pages.js)
 // ─────────────────────────────────────────────────────────────────────────────
 // sitemap.xml is a committed file written by scripts/gen-sitemap.mjs from the
 // migrations and the build-time bill snapshot. The scheduled bill job also
@@ -55,4 +56,44 @@ export function mergeBillPages(xml: string, keys: string[], origin = SITEMAP_ORI
   }
   if (!lines.length) return { xml, added: 0 };
   return { xml: xml.slice(0, end) + lines.join("") + xml.slice(end), added: lines.length };
+}
+
+// ── The client list (bill-pages.js) ─────────────────────────────────────────
+// bill-pages.js is the committed window.PDX_BILL_PAGES list, written by
+// scripts/gen-bill-pages.mjs from the sitemap's snapshot bills, keyed
+// "<congress>/<number>" — the key the person-page issue drawer looks up
+// (_billPageDoor in consistency.js) before printing a "Bill page" link. The
+// edge (netlify/edge-functions/bill-pages-client.ts) serves that file unchanged
+// and appends one statement adding the generated pages it does not already list,
+// with the same key spelling, so the drawer links them with no change of its own.
+
+// "us/119/H.R.%207000" → "119/H.R. 7000"; null for any other key.
+export function clientKeyFromKey(key: string): string | null {
+  const path = billPagePathFromKey(key);
+  if (!path) return null;
+  const [, , c, n] = path.split("/");
+  return `${decodeURIComponent(c)}/${decodeURIComponent(n)}`;
+}
+
+// The keys bill-pages.js already lists ("  "119/H.R. 1": 1," lines).
+export function listedClientKeys(js: string): Set<string> {
+  const out = new Set<string>();
+  for (const m of js.matchAll(/^\s*("(?:[^"\\]|\\.)*")\s*:\s*1\s*,?\s*$/gm)) {
+    try { out.add(JSON.parse(m[1])); } catch { /* not a key line */ }
+  }
+  return out;
+}
+
+// The file with one appended statement for the stored pages it does not list.
+// Nothing above it changes, and no statement is added when there is nothing new.
+export function mergeClientBillPages(js: string, keys: string[]): { js: string; added: string[] } {
+  const have = listedClientKeys(js);
+  const added = [...new Set(keys.map(clientKeyFromKey).filter((k): k is string => !!k && !have.has(k)))].sort();
+  if (!added.length) return { js, added };
+  const body = added.map((k) => `  ${JSON.stringify(k)}: 1`).join(",\n");
+  const tail =
+    `// Added when served: bill pages the scheduled bill job generated after this\n` +
+    `// file was written (Blobs "bill-pages"), keyed the same way.\n` +
+    `window.PDX_BILL_PAGES = Object.assign(window.PDX_BILL_PAGES || {}, {\n${body}\n});\n`;
+  return { js: (js.endsWith("\n") ? js : js + "\n") + tail, added };
 }
