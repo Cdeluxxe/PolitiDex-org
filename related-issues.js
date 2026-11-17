@@ -805,11 +805,37 @@
       if (!side && openSide && !openUsed) { side = openSide; openUsed = true; }
       if (side) out.push({ a: open.label, b: it.label, bKey: it.key, side: side });
     });
+    // The reader's device preference: hide notes naming an older (fallback)
+    // vote. Dropped AFTER the pairs are laid out, so every recent note keeps
+    // the exact place and words it has with the preference off.
+    if (wvaHideOlder()) out = out.filter(function (n) { return !n.side.older; });
     return out;
   }
   // THE OLDER-VOTE CUE. A note naming the fallback vote (nothing inside the
   // window conflicts) says so, in a few plain words, right after the date. A
   // vote inside the window carries no cue, so its note is unchanged.
+  // THE HIDE-OLDER PREFERENCE. Device-only (localStorage, no account), off by
+  // default: with it on, notes that name an older fallback vote are omitted;
+  // notes naming a vote inside the window are unchanged. Read here, in the one
+  // note function every drawer and the person-file section call.
+  var WVA_HIDE_OLDER_KEY = 'pdx_wva_hide_older_v1';
+  function wvaHideOlder() {
+    try { return !!(window.localStorage && window.localStorage.getItem(WVA_HIDE_OLDER_KEY) === '1'); } catch (e) { return false; }
+  }
+  function setWvaHideOlder(on) {
+    try {
+      if (!window.localStorage) return false;
+      if (on) window.localStorage.setItem(WVA_HIDE_OLDER_KEY, '1'); else window.localStorage.removeItem(WVA_HIDE_OLDER_KEY);
+      return true;
+    } catch (e) { return false; }
+  }
+  // The preferred window in words, for the control that sets the preference.
+  function wvaRecentWords() {
+    var r = WVA_WINDOW.recent;
+    if (r === 'congress') return 'the current Congress';
+    var m = Number(r);
+    return m > 0 ? 'the last ' + m + ' months' : '';
+  }
   function wvaOlderCue() {
     return WVA_WINDOW.recent === 'congress' ? 'a vote from an earlier Congress' : 'an older vote';
   }
@@ -902,6 +928,10 @@
     wordsVsActionsText: wvaText,
     WVA_HD: WVA_HD,
     WVA_WINDOW: WVA_WINDOW,
+    WVA_HIDE_OLDER_KEY: WVA_HIDE_OLDER_KEY,
+    wvaHideOlder: wvaHideOlder,
+    setWvaHideOlder: setWvaHideOlder,
+    wvaRecentWords: wvaRecentWords,
     RELATED_SHOWN: RELATED_SHOWN,
     MORE_CSS: MORE_CSS,
     CONFLICTS_SHOWN: CONFLICTS_SHOWN,

@@ -12307,7 +12307,17 @@
 //     chip or verdict changes. A precached file changed, so the shell moves;
 //     the precache list is unchanged. Nothing stored is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v577';
+// v578 - HIDE OLDER-VOTE NOTES, A DEVICE PREFERENCE. related-issues.js reads
+//     one localStorage key (pdx_wva_hide_older_v1) in wordsVsActionsFor, the
+//     note function every drawer and the person-file section call: on, notes
+//     naming an older fallback vote are omitted; recent notes are unchanged.
+//     Off (the default, no key) prints every note exactly as before. The
+//     switch is a plain toggle on /my-stances, which now loads
+//     related-issues.js. Nothing is synced, scored or routed. Precached files
+//     changed, so the shell moves; the precache list is unchanged. No existing
+//     stored state is rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v578';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
