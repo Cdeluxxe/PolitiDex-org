@@ -63,7 +63,13 @@ three steps in order:
    listing, saved in `db/legislature-listings-2026-11.json` by
    `node scripts/fetch-legislature-listings-2026-11.mjs`. That script is the only step
    that touches the network, and it never runs in the cron. Coverage today: the
-   Vermont Senate, the New York Assembly and the Pennsylvania Senate. A cited page
+   Vermont Senate, the New York Assembly, the Pennsylvania Senate and the California
+   Senate. California senators each have their own Senate host (`sd<NN>` or
+   `sr<NN>.senate.ca.gov`); the host label is the member ID, and the built address
+   must equal the listing's own link. To add a chamber without refreshing the others,
+   run the fetch with `--only XX`; that listing records its own `fetched_on`. Board
+   chambers still not covered, such as the Florida House, the Texas House, the New
+   York Senate and the Rhode Island Senate, are listed under `skipped` with the reason. A cited page
    confirms a pattern only when the listed member at its ID is the person the site
    cites it for. That is why the Florida Senate is refused: its seat-numbered IDs moved
    with the new term. A Pennsylvania address is the listing's own link, never built.
@@ -232,6 +238,7 @@ planned. In addition:
 - `node scripts/test-raw-ingest-resolve.mjs` covers official URL resolution, and
   `node scripts/test-raw-ingest-legislature.mjs` covers the state legislature directory step.
 - `node scripts/test-raw-ingest-legislature-states.mjs` covers the directories beyond Utah.
+- `node scripts/test-raw-ingest-legislature-states-ca.mjs` covers the California Senate directory.
 - `node scripts/test-raw-ingest-board-holders.mjs` covers the board-seat holders on the
   rotation roster.
 - `scripts/test-raw-ingest.mjs`, `test-stated-positions.mjs` and

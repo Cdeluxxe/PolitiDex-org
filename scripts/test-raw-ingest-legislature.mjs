@@ -200,8 +200,10 @@ await t("the directory is current, scoped to board states, and its page patterns
   const site = ["politician-stances.js", "politician-stances-core.js", "politician-stances-ext.js", "spotlight-cards-data.js", "acct-spotlight-data.js", "cmp-data.js", "netlify/lib/raw-ingest-source-types.mjs",
     ...fs.readdirSync(root).filter((f) => /^state-senate-stances(?:-w\d+)?\.js$/.test(f))]
     .map((f) => fs.readFileSync(path.join(root, f), "utf8")).join("\n");
-  // A confirmed page names a member of that chamber by ID: as a whole path segment.
-  const segs = (u) => new URL(u).pathname.split("/").filter(Boolean);
+  // A confirmed page names a member of that chamber by ID: as a whole path
+  // segment, or as the host label where each member has their own host
+  // (California Senate: sd11.senate.ca.gov).
+  const segs = (u) => [new URL(u).hostname.split(".")[0], ...new URL(u).pathname.split("/").filter(Boolean)];
   for (const [st, d] of Object.entries(DIR.states)) {
     assert.ok(boards.has(st), `${st} has legislative district boards`);
     for (const [ch, tpl] of Object.entries(d.member_page)) {

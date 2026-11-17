@@ -15,7 +15,11 @@
 // pages the site never cites are not fetched; the directory build records why
 // each board state is or is not covered.
 //
-//   node scripts/fetch-legislature-listings-2026-11.mjs
+// `--only XX[,YY]` fetches just those states and keeps every other listing
+// in the committed file exactly as it is (so adding a chamber never refreshes
+// the ones already covered). Such listings carry their own `fetched_on`.
+//
+//   node scripts/fetch-legislature-listings-2026-11.mjs [--only CA]
 // ═══════════════════════════════════════════════════════════════════════════
 import fs from "node:fs";
 import path from "node:path";
@@ -61,10 +65,40 @@ const LISTINGS = [
     }
     return out;
   } },
+  // California Senate: the Senate's member listing. Each card links the
+  // senator's own Senate homepage (https://sd<NN>.senate.ca.gov/, or
+  // https://sr<NN>.senate.ca.gov/ for some Republican members), kept as `url`;
+  // its host label (sd11, sr04) is the member ID.
+  { state: "CA", url: "https://www.senate.ca.gov/senators", parse(body) {
+    const out = [];
+    for (const card of body.split('<div class="page-members__member"').slice(1)) {
+      const sur = /^\s*data-name="([^"]+)"/.exec(card);
+      const dist = /data-district="(\d+)"/.exec(card);
+      const full = /<h3 class="member__name"[^>]*>([^<]+)<\/h3>/.exec(card);
+      const home = /<a class="member__link" href="(https:\/\/(s[dr]\d{2})\.senate\.ca\.gov)\/?"[^>]*>Homepage<\/a>/.exec(card);
+      if (!sur || !dist || !full || !home) throw new Error(`CA Senate: unreadable member card ${card.slice(0, 120)}`);
+      // A vacant seat (data-party="V", "Member Vacant") has no member.
+      if (/data-party="V"/.test(card.slice(0, 200)) || /^vacant$/i.test(decode(sur[1]))) continue;
+      // Degree suffixes the listing prints after the surname ("Choi Ph.D.") are not part of it.
+      const DEGREE = /,?\s+(?:M\.D\.|Ph\.D\.|J\.D\.|Ed\.D\.|D\.O\.)$/;
+      const last = decode(sur[1]).replace(DEGREE, ""), name = decode(full[1]).replace(DEGREE, "");
+      // "Sen. Wiener, Scott D." — the listing's surname, then the rest of its printed name.
+      const first = name.endsWith(` ${last}`) ? name.slice(0, -last.length - 1).trim() : "";
+      if (!first) throw new Error(`CA Senate: printed name "${name}" does not end in the listed surname "${last}"`);
+      out.push({ id: home[2], chamber: "senate", name: `Sen. ${last}, ${first}`, district: String(Number(dist[1])), url: `${home[1]}/` });
+    }
+    return out;
+  } },
 ];
+
+const onlyArg = process.argv.indexOf("--only");
+const ONLY = onlyArg > 0 ? new Set(String(process.argv[onlyArg + 1] || "").split(",").map((s) => s.trim().toUpperCase()).filter(Boolean)) : null;
+const today = new Date().toISOString().slice(0, 10);
+const PREV = ONLY && fs.existsSync(OUT) ? JSON.parse(fs.readFileSync(OUT, "utf8")) : null;
 
 const listings = {};
 for (const l of LISTINGS) {
+  if (ONLY && !ONLY.has(l.state)) continue;
   const res = await fetch(l.url, { headers: { "user-agent": UA, accept: "text/html,application/json,*/*" }, signal: AbortSignal.timeout(30_000) });
   if (!res.ok) throw new Error(`${l.url} — HTTP ${res.status}`);
   const members = l.parse(await res.text());
@@ -76,11 +110,12 @@ for (const l of LISTINGS) {
   listings[l.state].members.push(...members);
   console.log(`${l.state}: ${members.length} member(s) from ${l.url}`);
 }
+for (const st of Object.values(listings)) { if (PREV) st.fetched_on = today; }
 for (const st of Object.values(listings)) st.members.sort((a, b) => a.chamber.localeCompare(b.chamber) || a.id.localeCompare(b.id, "en", { numeric: true }));
 const doc = {
   _note: "Sitting members read from each legislature's own member listing (sources) by scripts/fetch-legislature-listings-2026-11.mjs: legislature member ID, printed name and chamber. Input to scripts/build-raw-ingest-legislature-directory-2026-11.mjs. Re-run the fetch to refresh; never edited by hand.",
-  fetched_on: new Date().toISOString().slice(0, 10),
-  listings: Object.fromEntries(Object.entries(listings).sort(([a], [b]) => a.localeCompare(b))),
+  fetched_on: PREV?.fetched_on || today,
+  listings: Object.fromEntries(Object.entries({ ...(PREV?.listings || {}), ...listings }).sort(([a], [b]) => a.localeCompare(b))),
 };
 fs.writeFileSync(OUT, JSON.stringify(doc, null, 1) + "\n");
 console.log(`→ ${path.relative(root, OUT)}`);

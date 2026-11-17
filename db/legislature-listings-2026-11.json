@@ -2,6 +2,287 @@
  "_note": "Sitting members read from each legislature's own member listing (sources) by scripts/fetch-legislature-listings-2026-11.mjs: legislature member ID, printed name and chamber. Input to scripts/build-raw-ingest-legislature-directory-2026-11.mjs. Re-run the fetch to refresh; never edited by hand.",
  "fetched_on": "2026-11-17",
  "listings": {
+  "CA": {
+   "sources": [
+    "https://www.senate.ca.gov/senators"
+   ],
+   "members": [
+    {
+     "id": "sd02",
+     "chamber": "senate",
+     "name": "Sen. McGuire, Mike",
+     "district": "2",
+     "url": "https://sd02.senate.ca.gov/"
+    },
+    {
+     "id": "sd03",
+     "chamber": "senate",
+     "name": "Sen. Cabaldon, Christopher",
+     "district": "3",
+     "url": "https://sd03.senate.ca.gov/"
+    },
+    {
+     "id": "sd05",
+     "chamber": "senate",
+     "name": "Sen. McNerney, Jerry",
+     "district": "5",
+     "url": "https://sd05.senate.ca.gov/"
+    },
+    {
+     "id": "sd07",
+     "chamber": "senate",
+     "name": "Sen. Arreguín, Jesse",
+     "district": "7",
+     "url": "https://sd07.senate.ca.gov/"
+    },
+    {
+     "id": "sd08",
+     "chamber": "senate",
+     "name": "Sen. Ashby, Angelique V.",
+     "district": "8",
+     "url": "https://sd08.senate.ca.gov/"
+    },
+    {
+     "id": "sd09",
+     "chamber": "senate",
+     "name": "Sen. Grayson, Timothy S.",
+     "district": "9",
+     "url": "https://sd09.senate.ca.gov/"
+    },
+    {
+     "id": "sd11",
+     "chamber": "senate",
+     "name": "Sen. Wiener, Scott D.",
+     "district": "11",
+     "url": "https://sd11.senate.ca.gov/"
+    },
+    {
+     "id": "sd13",
+     "chamber": "senate",
+     "name": "Sen. Becker, Josh",
+     "district": "13",
+     "url": "https://sd13.senate.ca.gov/"
+    },
+    {
+     "id": "sd14",
+     "chamber": "senate",
+     "name": "Sen. Caballero, Anna M.",
+     "district": "14",
+     "url": "https://sd14.senate.ca.gov/"
+    },
+    {
+     "id": "sd15",
+     "chamber": "senate",
+     "name": "Sen. Cortese, Dave",
+     "district": "15",
+     "url": "https://sd15.senate.ca.gov/"
+    },
+    {
+     "id": "sd16",
+     "chamber": "senate",
+     "name": "Sen. Hurtado, Melissa",
+     "district": "16",
+     "url": "https://sd16.senate.ca.gov/"
+    },
+    {
+     "id": "sd17",
+     "chamber": "senate",
+     "name": "Sen. Laird, John",
+     "district": "17",
+     "url": "https://sd17.senate.ca.gov/"
+    },
+    {
+     "id": "sd18",
+     "chamber": "senate",
+     "name": "Sen. Padilla, Stephen C.",
+     "district": "18",
+     "url": "https://sd18.senate.ca.gov/"
+    },
+    {
+     "id": "sd20",
+     "chamber": "senate",
+     "name": "Sen. Menjivar, Caroline",
+     "district": "20",
+     "url": "https://sd20.senate.ca.gov/"
+    },
+    {
+     "id": "sd21",
+     "chamber": "senate",
+     "name": "Sen. Limón, Monique",
+     "district": "21",
+     "url": "https://sd21.senate.ca.gov/"
+    },
+    {
+     "id": "sd22",
+     "chamber": "senate",
+     "name": "Sen. Rubio, Susan",
+     "district": "22",
+     "url": "https://sd22.senate.ca.gov/"
+    },
+    {
+     "id": "sd24",
+     "chamber": "senate",
+     "name": "Sen. Allen, Benjamin",
+     "district": "24",
+     "url": "https://sd24.senate.ca.gov/"
+    },
+    {
+     "id": "sd25",
+     "chamber": "senate",
+     "name": "Sen. Pérez, Sasha Renée",
+     "district": "25",
+     "url": "https://sd25.senate.ca.gov/"
+    },
+    {
+     "id": "sd26",
+     "chamber": "senate",
+     "name": "Sen. Durazo, María Elena",
+     "district": "26",
+     "url": "https://sd26.senate.ca.gov/"
+    },
+    {
+     "id": "sd27",
+     "chamber": "senate",
+     "name": "Sen. Stern, Henry I.",
+     "district": "27",
+     "url": "https://sd27.senate.ca.gov/"
+    },
+    {
+     "id": "sd28",
+     "chamber": "senate",
+     "name": "Sen. Smallwood-Cuevas, Lola",
+     "district": "28",
+     "url": "https://sd28.senate.ca.gov/"
+    },
+    {
+     "id": "sd29",
+     "chamber": "senate",
+     "name": "Sen. Reyes, Eloise Gómez",
+     "district": "29",
+     "url": "https://sd29.senate.ca.gov/"
+    },
+    {
+     "id": "sd30",
+     "chamber": "senate",
+     "name": "Sen. Archuleta, Bob",
+     "district": "30",
+     "url": "https://sd30.senate.ca.gov/"
+    },
+    {
+     "id": "sd31",
+     "chamber": "senate",
+     "name": "Sen. Cervantes, Sabrina",
+     "district": "31",
+     "url": "https://sd31.senate.ca.gov/"
+    },
+    {
+     "id": "sd33",
+     "chamber": "senate",
+     "name": "Sen. Gonzalez, Lena A.",
+     "district": "33",
+     "url": "https://sd33.senate.ca.gov/"
+    },
+    {
+     "id": "sd34",
+     "chamber": "senate",
+     "name": "Sen. Umberg, Thomas J.",
+     "district": "34",
+     "url": "https://sd34.senate.ca.gov/"
+    },
+    {
+     "id": "sd35",
+     "chamber": "senate",
+     "name": "Sen. Richardson, Laura",
+     "district": "35",
+     "url": "https://sd35.senate.ca.gov/"
+    },
+    {
+     "id": "sd38",
+     "chamber": "senate",
+     "name": "Sen. Blakespear, Catherine S.",
+     "district": "38",
+     "url": "https://sd38.senate.ca.gov/"
+    },
+    {
+     "id": "sd39",
+     "chamber": "senate",
+     "name": "Sen. Weber Pierson, Akilah",
+     "district": "39",
+     "url": "https://sd39.senate.ca.gov/"
+    },
+    {
+     "id": "sr01",
+     "chamber": "senate",
+     "name": "Sen. Dahle, Megan",
+     "district": "1",
+     "url": "https://sr01.senate.ca.gov/"
+    },
+    {
+     "id": "sr04",
+     "chamber": "senate",
+     "name": "Sen. Alvarado-Gil, Marie",
+     "district": "4",
+     "url": "https://sr04.senate.ca.gov/"
+    },
+    {
+     "id": "sr06",
+     "chamber": "senate",
+     "name": "Sen. Niello, Roger W.",
+     "district": "6",
+     "url": "https://sr06.senate.ca.gov/"
+    },
+    {
+     "id": "sr12",
+     "chamber": "senate",
+     "name": "Sen. Grove, Shannon",
+     "district": "12",
+     "url": "https://sr12.senate.ca.gov/"
+    },
+    {
+     "id": "sr19",
+     "chamber": "senate",
+     "name": "Sen. Ochoa Bogh, Rosilicie",
+     "district": "19",
+     "url": "https://sr19.senate.ca.gov/"
+    },
+    {
+     "id": "sr23",
+     "chamber": "senate",
+     "name": "Sen. Valladares, Suzette Martinez",
+     "district": "23",
+     "url": "https://sr23.senate.ca.gov/"
+    },
+    {
+     "id": "sr32",
+     "chamber": "senate",
+     "name": "Sen. Seyarto, Kelly",
+     "district": "32",
+     "url": "https://sr32.senate.ca.gov/"
+    },
+    {
+     "id": "sr36",
+     "chamber": "senate",
+     "name": "Sen. Strickland, Tony",
+     "district": "36",
+     "url": "https://sr36.senate.ca.gov/"
+    },
+    {
+     "id": "sr37",
+     "chamber": "senate",
+     "name": "Sen. Choi, Steven S.",
+     "district": "37",
+     "url": "https://sr37.senate.ca.gov/"
+    },
+    {
+     "id": "sr40",
+     "chamber": "senate",
+     "name": "Sen. Jones, Brian W.",
+     "district": "40",
+     "url": "https://sr40.senate.ca.gov/"
+    }
+   ],
+   "fetched_on": "2026-11-17"
+  },
   "FL": {
    "sources": [
     "https://www.flsenate.gov/Senators/"

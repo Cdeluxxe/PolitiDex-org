@@ -31,6 +31,8 @@
 // directory ID differs from it; it never resolves anyone from a portrait.
 //
 // `--check` exits non-zero when the committed file is out of date.
+// `--listings <file> --out <file>` builds from another listings file into
+// another output (tests use it to show a contradicted pattern is refused).
 //
 //   node scripts/build-raw-ingest-legislature-directory-2026-11.mjs [--check]
 // ═══════════════════════════════════════════════════════════════════════════
@@ -43,7 +45,9 @@ import { sameName, directoryName } from "../netlify/lib/raw-ingest-resolve.mjs";
 import { EXTRA_SOURCES, NEW_SOCIAL_ROSTER } from "../netlify/lib/raw-ingest-source-types.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const OUT = path.join(root, "db/raw-ingest-legislature-directory-2026-11.json");
+const argOf = (k) => { const i = process.argv.indexOf(k); return i > 0 ? path.resolve(process.argv[i + 1]) : null; };
+const OUT = argOf("--out") || path.join(root, "db/raw-ingest-legislature-directory-2026-11.json");
+const LISTINGS_FILE = argOf("--listings") || path.join(root, "db/legislature-listings-2026-11.json");
 const read = (f) => JSON.parse(fs.readFileSync(path.join(root, f), "utf8"));
 
 // Site files that cite member pages (searched verbatim for the patterns below).
@@ -96,15 +100,19 @@ function utahMembers() {
 
 // Members read from the legislature's own listing (db/legislature-listings-2026-11.json,
 // written by scripts/fetch-legislature-listings-2026-11.mjs).
-const LISTINGS = fs.existsSync(path.join(root, "db/legislature-listings-2026-11.json")) ? read("db/legislature-listings-2026-11.json") : { listings: {} };
-const listed = (st) => () => (LISTINGS.listings[st]?.members || []).map(({ id, name, chamber, url }) => ({ id, name, chamber, session: LISTINGS.fetched_on, ...(url ? { url } : {}) }));
-const listedSource = (st) => `${(LISTINGS.listings[st]?.sources || []).join(", ")} — the legislature's own member listing, read ${LISTINGS.fetched_on} (db/legislature-listings-2026-11.json)`;
+const LISTINGS = fs.existsSync(LISTINGS_FILE) ? JSON.parse(fs.readFileSync(LISTINGS_FILE, "utf8")) : { listings: {} };
+// A listing added later (fetch --only) carries its own read date.
+const readOn = (st) => LISTINGS.listings[st]?.fetched_on || LISTINGS.fetched_on;
+const listed = (st) => () => (LISTINGS.listings[st]?.members || []).map(({ id, name, chamber, url }) => ({ id, name, chamber, session: readOn(st), ...(url ? { url } : {}) }));
+const listedSource = (st) => `${(LISTINGS.listings[st]?.sources || []).join(", ")} — the legislature's own member listing, read ${readOn(st)} (db/legislature-listings-2026-11.json)`;
 
 // Why a board state has no directory (recorded under `skipped`).
 const NO_DIRECTORY = {
   TX: "the Texas House member listing (house.texas.gov/members) is rendered by script, so no member links can be read from it; no Texas Senate member page is cited on the site",
   NY_senate: "the New York Senate member listing (nysenate.gov) refuses automated requests (HTTP 403)",
   PA_house: "no Pennsylvania House member page is cited on the site",
+  CA_house: "no California Assembly member page is cited on the site (only the Assembly's home page and member listing)",
+  FL_house: "the only Florida House member page cited on the site (myfloridahouse.gov …details.aspx?MemberId=4801) is for a member who is not in the House's 2026–2028 member listing, so no cited page can confirm the pattern",
   RI: "the Rhode Island Senate member listing (rilegislature.gov/senators) is rendered by script, so no member links can be read from it; no Rhode Island House member page is cited on the site",
 };
 const NOT_CITED = "board seats exist, but the site cites no member page on this legislature's own host, so no member-page pattern can be confirmed";
@@ -149,6 +157,18 @@ const DIRECTORIES = {
       senate: { template: "{url}", re: /https:\/\/www\.palegis\.us\/senate\/members\/bio\/(\d+)\/[a-z0-9-]+/ },
     },
   },
+  CA: {
+    source: listedSource("CA"),
+    members: listed("CA"),
+    // The listing links each senator's own Senate homepage, one host per
+    // member: https://sd<NN>.senate.ca.gov/ (some Republican members
+    // sr<NN>). The host label is the member ID, so the address below is the
+    // listing's own link (checked against `url` for every member). The site
+    // cites senators' homepages / biography pages on those hosts.
+    member_page: {
+      senate: { template: "https://{id}.senate.ca.gov/", re: /https:\/\/(s[dr]\d{2})\.senate\.ca\.gov\/(?:biography)?(?=["'\s)\]]|$)/ },
+    },
+  },
   FL: {
     source: listedSource("FL"),
     members: listed("FL"),
@@ -167,6 +187,11 @@ for (const st of boardStates) {
   for (const ch of ["house", "senate"]) if (NO_DIRECTORY[`${st}_${ch}`]) skipped[`${st} ${ch}`] = NO_DIRECTORY[`${st}_${ch}`];
   const members = cfg.members();
   const byId = new Map(members.map((m) => [m.id, m]));
+  // A built address must be exactly the listing's own link for that member.
+  for (const m of members) {
+    const tpl = cfg.member_page[m.chamber]?.template;
+    if (m.url && tpl && tpl.includes("{id}") && tpl.replace("{id}", m.id) !== m.url) problems.push(`${st} ${m.id}: built ${tpl.replace("{id}", m.id)} ≠ listing link ${m.url}`);
+  }
   const member_page = {}, confirmed_by = {};
   for (const [chamber, p] of Object.entries(cfg.member_page)) {
     const cited = [...new Set([...SITE_TEXT.matchAll(new RegExp(p.re.source, "g"))].map((m) => m[0]))].sort();
