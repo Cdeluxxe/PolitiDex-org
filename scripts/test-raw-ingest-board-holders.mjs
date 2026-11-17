@@ -106,12 +106,19 @@ await t("previously existing roster rows are unchanged", () => {
   for (const k of ["MAX_SOURCES_PER_RUN", "MAX_POLITICIANS_PER_RUN", "MAX_SOURCES_PER_POLITICIAN", "BASELINE_STRONG", "BASELINE_WEAK", "POOL_VERSION"]) assert.equal(core[k], before[k], `${k} unchanged`);
   // Planned order for rows that had pages is unchanged.
   const order = (c) => c.priorityOrder(c.ROSTER, {}).filter((x) => x.open.length || x.filled.length).map((x) => x.r.politician_id);
-  assert.deepEqual(order(core), order(before));
+  // Board-seat rows that gained a directory page join after every existing row.
+  const boardIds = new Set(boardRows.map((r) => r.politician_id));
+  const o = order(core);
+  assert.deepEqual(o.filter((p) => !boardIds.has(p)), order(before));
+  assert.ok(o.findIndex((p) => boardIds.has(p)) === -1 || o.slice(o.findIndex((p) => boardIds.has(p))).every((p) => boardIds.has(p) || core.ROSTER.find((r) => r.politician_id === p).tier === 3), "new rows never ahead of tier 1 / tier 2");
 });
 
 await t("the Congress.gov and state-legislature directory resolvers still only store pages on clean matches", () => {
   const key = (x) => `${x.politician_id} ${x.via} ${x.url}`;
-  assert.deepEqual(core.RESOLUTION.resolved.map(key), before.RESOLUTION.resolved.map(key), "earlier resolutions identical");
+  // Rows that existed before resolve exactly as they did; board-seat rows add
+  // only their own (directory) resolutions.
+  const boardIds = new Set(boardRows.map((r) => r.politician_id));
+  assert.deepEqual(core.RESOLUTION.resolved.filter((x) => !boardIds.has(x.politician_id)).map(key), before.RESOLUTION.resolved.map(key), "earlier resolutions identical");
   const byPid = new Map(core.RESOLUTION.resolved.map((x) => [x.politician_id, x]));
   for (const r of boardRows) {
     const x = byPid.get(r.politician_id);

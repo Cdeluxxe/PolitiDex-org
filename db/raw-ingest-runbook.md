@@ -58,7 +58,16 @@ three steps in order:
    **Utah** only, from the sponsor IDs le.utah.gov prints on its bill pages (in
    `db/bill-record.json`). A chamber's member-page pattern is accepted only when member
    pages on it are already cited on the site and agree with the directory. The other
-   board states are listed under `skipped` with the reason. After the bill record or the
+   board states are listed under `skipped` with the reason. Utah's members come from
+   its bill records. The other covered states come from each legislature's own member
+   listing, saved in `db/legislature-listings-2026-11.json` by
+   `node scripts/fetch-legislature-listings-2026-11.mjs`. That script is the only step
+   that touches the network, and it never runs in the cron. Coverage today: the
+   Vermont Senate, the New York Assembly and the Pennsylvania Senate. A cited page
+   confirms a pattern only when the listed member at its ID is the person the site
+   cites it for. That is why the Florida Senate is refused: its seat-numbered IDs moved
+   with the new term. A Pennsylvania address is the listing's own link, never built.
+   Refresh the listings and rebuild after an election or a session change. After the bill record or the
    roster changes, regenerate the file with
    `node scripts/build-raw-ingest-legislature-directory-2026-11.mjs`. Use `--check` to
    verify the file is current. Set `PDX_RAW_INGEST_NO_LEGISLATURE_DIRECTORY=1` to build
@@ -222,6 +231,7 @@ planned. In addition:
   types, caps, shared hosts and unknown keys are handled.
 - `node scripts/test-raw-ingest-resolve.mjs` covers official URL resolution, and
   `node scripts/test-raw-ingest-legislature.mjs` covers the state legislature directory step.
+- `node scripts/test-raw-ingest-legislature-states.mjs` covers the directories beyond Utah.
 - `node scripts/test-raw-ingest-board-holders.mjs` covers the board-seat holders on the
   rotation roster.
 - `scripts/test-raw-ingest.mjs`, `test-stated-positions.mjs` and

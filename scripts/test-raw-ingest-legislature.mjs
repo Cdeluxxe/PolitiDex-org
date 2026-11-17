@@ -197,17 +197,19 @@ await t("scoring and Evidence Locker code do not reference the new resolver; cap
 await t("the directory is current, scoped to board states, and its page patterns are confirmed by cited pages", () => {
   execFileSync(process.execPath, [path.join(root, "scripts/build-raw-ingest-legislature-directory-2026-11.mjs"), "--check"], { stdio: "pipe" });
   const boards = new Set(Object.keys(SEAT_HOLDERS).filter((k) => /-state(?:house|senate)-/.test(k)).map((k) => k.split("-")[0].toUpperCase()));
-  const site = ["politician-stances.js", "politician-stances-core.js", "politician-stances-ext.js", "spotlight-cards-data.js", "acct-spotlight-data.js", "cmp-data.js", "netlify/lib/raw-ingest-source-types.mjs"]
+  const site = ["politician-stances.js", "politician-stances-core.js", "politician-stances-ext.js", "spotlight-cards-data.js", "acct-spotlight-data.js", "cmp-data.js", "netlify/lib/raw-ingest-source-types.mjs",
+    ...fs.readdirSync(root).filter((f) => /^state-senate-stances(?:-w\d+)?\.js$/.test(f))]
     .map((f) => fs.readFileSync(path.join(root, f), "utf8")).join("\n");
+  // A confirmed page names a member of that chamber by ID: as a whole path segment.
+  const segs = (u) => new URL(u).pathname.split("/").filter(Boolean);
   for (const [st, d] of Object.entries(DIR.states)) {
     assert.ok(boards.has(st), `${st} has legislative district boards`);
     for (const [ch, tpl] of Object.entries(d.member_page)) {
       assert.ok(d.confirmed_by[ch]?.length, `${st} ${ch}: pattern confirmed by cited pages`);
+      assert.ok(tpl === "{url}" || tpl.includes("{id}"), `${st} ${ch}: an {id} pattern or the listing's own address`);
       for (const u of d.confirmed_by[ch]) {
         assert.ok(site.includes(u), `${u} is cited on the site`);
-        const idx = tpl.indexOf("{id}");
-        const id = u.slice(idx, u.length - (tpl.length - idx - 4));
-        assert.equal(d.members.find((m) => m.id === id)?.chamber, ch, `${u} names a ${ch} member`);
+        assert.ok(d.members.some((m) => m.chamber === ch && segs(u).includes(m.id)), `${u} names a ${ch} member`);
       }
     }
   }
@@ -215,8 +217,9 @@ await t("the directory is current, scoped to board states, and its page patterns
   // Every page resolved by step 3 is on a confirmed pattern and names a directory member of the right chamber.
   for (const x of core.RESOLUTION.resolved.filter((y) => y.via === "legislature_directory")) {
     const d = DIR.states[x.state];
-    assert.equal(x.url, d.member_page[x.chamber].replace("{id}", x.member_id));
-    assert.equal(d.members.find((m) => m.id === x.member_id).chamber, x.chamber);
+    const m = d.members.find((y) => y.id === x.member_id && y.chamber === x.chamber);
+    assert.ok(m, `${x.politician_id}: ${x.member_id} is a ${x.chamber} member`);
+    assert.equal(x.url, R.legislatureMemberUrl(m, d));
   }
 });
 

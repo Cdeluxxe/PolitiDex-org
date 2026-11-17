@@ -291,9 +291,17 @@ export function directoryName(printed) {
 }
 
 /** The member page for a directory entry, from its state's chamber pattern. */
+// `member_page[chamber]` is either an address pattern with `{id}` or "{url}":
+// the member's own address exactly as the legislature's listing links it
+// (entry.url), accepted only on the host of the chamber's confirmed pages.
 export function legislatureMemberUrl(entry, stateDir) {
   const tpl = stateDir?.member_page?.[entry?.chamber];
   if (!tpl || !/^[A-Za-z0-9_-]+$/.test(String(entry?.id || ""))) return null;
+  if (tpl === "{url}") {
+    const confirmed = (stateDir.confirmed_by?.[entry.chamber] || []).map(hostOf);
+    const u = String(entry.url || "");
+    return /^https:\/\/[^\s]+$/.test(u) && confirmed.length && confirmed.every((h) => h === hostOf(u)) ? u : null;
+  }
   return tpl.replace("{id}", entry.id);
 }
 
