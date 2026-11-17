@@ -203,6 +203,10 @@
 //     tier-2 row are untouched.
 //   · Resolved pages go through the unchanged planner, pull path, scorer and
 //     Locker writer. Caps, tier order and thresholds are unchanged.
+//   · STEP 3 — a row still page-less after both steps, held by a sitting state
+//     legislator, is matched against the legislature's own member directory
+//     (state + chamber + surname + compatible first name, one member only) and
+//     gets that member's page on the legislature's site (Utah today).
 //   · RUN LOG — "raw-ingest: url resolution — …" after the roster line; the
 //     report carries the same under `url_resolution`.
 
@@ -498,7 +502,7 @@ export async function run(deps: {
   };
   if (plan && RESOLUTION && !(typeof deps.rotate === "object" && deps.rotate.roster)) {
     const by = (v: string) => RESOLUTION.resolved.filter((x: any) => x.via === v).length;
-    report.url_resolution = { eligible: RESOLUTION.eligible, resolved: RESOLUTION.resolved.length, congress_gov: by("congress_gov"), cited_official: by("cited_official"), unresolved: RESOLUTION.unresolved.length };
+    report.url_resolution = { eligible: RESOLUTION.eligible, resolved: RESOLUTION.resolved.length, congress_gov: by("congress_gov"), cited_official: by("cited_official"), legislature_directory: by("legislature_directory"), unresolved: RESOLUTION.unresolved.length };
   }
   if (plan) report.plan = { cycle: plan.cycle, classes: plan.classes, politicians: plan.politicians, deprioritised: plan.deprioritised, skipped: plan.skipped, remaining_in_cycle: plan.remaining_in_cycle, planned_size: plan.size, roster_size: roster.length, state: plan.state };
   report.locker_writes = lockerWrites;

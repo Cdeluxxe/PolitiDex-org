@@ -23,7 +23,7 @@ verify the file is current.
 
 When the roster is built, the engine resolves official pages for any **tier-3** row
 that has no pages, or only weak ones (`netlify/lib/raw-ingest-resolve.mjs`). It tries
-two steps in order:
+three steps in order:
 
 1. **Congress.gov member page.** The politician's sitting federal office and state
    from the site roster are matched against the committed Congress member roster
@@ -39,6 +39,22 @@ two steps in order:
    data changes, regenerate it with
    `node scripts/build-raw-ingest-official-cited-2026-11.mjs`. Use `--check` to
    verify the file is current.
+
+3. **State legislature member page.** This step runs only for rows still without pages
+   after steps 1 and 2. A sitting state legislator is matched against the legislature's
+   own member directory (`db/raw-ingest-legislature-directory-2026-11.json`). The match
+   needs the same state, chamber and surname, a compatible first name, and exactly one
+   member. The member's page must not already be on another row or matched by one, and
+   must not be retired. Where the site shows the politician's official legislature
+   portrait, its member ID must agree with the match. Today the directory covers
+   **Utah** only, from the sponsor IDs le.utah.gov prints on its bill pages (in
+   `db/bill-record.json`). A chamber's member-page pattern is accepted only when member
+   pages on it are already cited on the site and agree with the directory. The other
+   board states are listed under `skipped` with the reason. After the bill record or the
+   roster changes, regenerate the file with
+   `node scripts/build-raw-ingest-legislature-directory-2026-11.mjs`. Use `--check` to
+   verify the file is current. Set `PDX_RAW_INGEST_NO_LEGISLATURE_DIRECTORY=1` to build
+   the roster without this step.
 
 Nothing is fetched or guessed. A row with no clean match keeps no pages and is still
 skipped. Tier-1 and tier-2 rows, and rows that already have pages, are never touched.
@@ -196,7 +212,8 @@ planned. In addition:
   new item and a stated-position change, discovery adds at least 1 URL, strong items
   are left unchanged, curated and reviewed rows are held, and targeting, source
   types, caps, shared hosts and unknown keys are handled.
-- `node scripts/test-raw-ingest-resolve.mjs` covers official URL resolution.
+- `node scripts/test-raw-ingest-resolve.mjs` covers official URL resolution, and
+  `node scripts/test-raw-ingest-legislature.mjs` covers the state legislature directory step.
 - `scripts/test-raw-ingest.mjs`, `test-stated-positions.mjs` and
   `test-stated-positions-backfill.mjs` cover the earlier behaviour.
 - **No migration.** The frontier and seen ledger are Blobs documents, and

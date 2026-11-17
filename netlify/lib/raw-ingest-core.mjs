@@ -5,6 +5,7 @@ import { pullYouTube, pullYouTubeVideo, isSocial, SOCIAL_CLASSES } from "./raw-i
 import POOL_EXPANSION from "../../db/raw-ingest-pool-expansion-2026-11.json" with { type: "json" };
 import FULL_ROSTER from "../../db/raw-ingest-full-roster-2026-11.json" with { type: "json" };
 import OFFICIAL_CITED from "../../db/raw-ingest-official-cited-2026-11.json" with { type: "json" };
+import LEGISLATURE_DIRECTORY from "../../db/raw-ingest-legislature-directory-2026-11.json" with { type: "json" };
 import SHARE_INDEX from "../../db/share-index.json" with { type: "json" };
 import MEMBER_MAP from "../../db/vr-member-map.json" with { type: "json" };
 import { RETIRED_SOURCES } from "./raw-ingest-retired.mjs";
@@ -587,6 +588,13 @@ if (FULL_ROSTER_APPLIED) {
 // row, are untouched. Once attached, a resolved page is an ordinary page to the
 // planner, the pull path, the scorer and the Locker (none of which read the
 // resolver). RESOLUTION is the report ("raw-ingest: url resolution …").
+// Step 3 — rows still page-less after the two steps above: a sitting state
+// legislator matched (state + chamber + surname + first name, one member only)
+// against the legislature's own member directory
+// (db/raw-ingest-legislature-directory-2026-11.json; Utah today) gets that
+// member's page on the legislature's site. PDX_RAW_INGEST_NO_LEGISLATURE_DIRECTORY
+// builds the roster without step 3.
+export const LEGISLATURE_DIRECTORY_APPLIED = !(typeof process !== "undefined" && process.env?.PDX_RAW_INGEST_NO_LEGISLATURE_DIRECTORY);
 export const URL_RESOLUTION_APPLIED = FULL_ROSTER_APPLIED && !(typeof process !== "undefined" && process.env?.PDX_RAW_INGEST_NO_RESOLVE);
 export const RESOLUTION = URL_RESOLUTION_APPLIED
   ? resolveRoster(ROSTER, {
@@ -595,6 +603,7 @@ export const RESOLUTION = URL_RESOLUTION_APPLIED
     members: MEMBER_MAP.members || [],
     cited: OFFICIAL_CITED,
     retired: RETIRED_SOURCES.map((s) => s.url),
+    ...(LEGISLATURE_DIRECTORY_APPLIED ? { legislature: LEGISLATURE_DIRECTORY } : {}),
   })
   : null;
 

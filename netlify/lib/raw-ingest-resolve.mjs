@@ -34,12 +34,18 @@
 //      hosts, retired URLs, hosts (or, on a legislature host, pages) cited for
 //      more than one politician, and URLs already on another row are all
 //      dropped. Links are never followed.
+//   3. STATE LEGISLATURE MEMBER PAGE, only for rows still without pages after
+//      steps 1 and 2. A sitting state legislator is matched against the
+//      legislature's own member directory (state + chamber + surname +
+//      compatible first name, one member only) and given that member's page on
+//      the legislature's own site. See resolveLegislature below.
 //   Anything without a clean match stays without pages and is still skipped.
 //
 // Resolved pages are ordinary roster pages: the planner, the pull path, the
 // scorer and the Evidence Locker treat them like every other page, and none of
-// those modules reads this file. Each carries `resolved_by` ("congress_gov" or
-// "cited_official") so a resolved page can always be told apart.
+// those modules reads this file. Each carries `resolved_by` ("congress_gov",
+// "cited_official" or "legislature_directory") so a resolved page can always
+// be told apart.
 
 export const RESOLVE_TIER = 3;
 // Pages a row receives from step 2 at most (the planner's per-politician cap
@@ -255,6 +261,66 @@ export function recognizeOfficial(url, id) {
   return null;
 }
 
+// ── Step 3: state legislature member directories ───────────────────────────
+// Only for rows still without pages after steps 1 and 2. The directory
+// (db/raw-ingest-legislature-directory-2026-11.json, built by
+// scripts/build-raw-ingest-legislature-directory-2026-11.mjs) holds, per state,
+// the legislature's own member IDs with the printed name and chamber the
+// legislature gives them, plus the member-page address pattern per chamber —
+// a pattern the build only accepts when member pages on it are already cited
+// on the site and agree with the directory. Same clean-match rule as step 1:
+// same state, same chamber, same surname, compatible first name, exactly one
+// member, and the member's page not already on (or matched by) another row.
+// Where the site shows the politician's official legislature portrait, its
+// member ID must agree with the directory match (portrait_ids).
+
+/** "house" | "senate" | null for a sitting state legislator's office. */
+export function legislativeChamber(office) {
+  const o = String(office || "");
+  if (!o || NOT_SITTING.test(o) || !STATE_LEGISLATOR.test(o)) return null;
+  if (/\bSenat/i.test(o)) return "senate";
+  if (/\b(?:Representative|Assembly|Delegate|House)\b/i.test(o)) return "house";
+  return null;
+}
+
+/** "Carl R. Albrecht" from a legislature's printed "Rep. Albrecht, Carl R.". */
+export function directoryName(printed) {
+  const t = String(printed || "").replace(/^\s*(?:Rep|Sen|Del|Asm|Assemblymember|Senator|Representative)\.?\s+/i, "").replace(/\[[^\]]*\]/g, "").trim();
+  const [last, first] = t.split(",").map((x) => x.trim());
+  return first ? `${first} ${last}` : last || "";
+}
+
+/** The member page for a directory entry, from its state's chamber pattern. */
+export function legislatureMemberUrl(entry, stateDir) {
+  const tpl = stateDir?.member_page?.[entry?.chamber];
+  if (!tpl || !/^[A-Za-z0-9_-]+$/.test(String(entry?.id || ""))) return null;
+  return tpl.replace("{id}", entry.id);
+}
+
+/**
+ * Step 3 for one identity. Returns { ok: true, entry, url } or { ok: false, why }.
+ * `contested` = member IDs matched by more than one page-less row.
+ */
+export function resolveLegislature(id, { directory = {}, retired = new Set(), contested = new Set() } = {}) {
+  const chamber = legislativeChamber(id?.office);
+  if (!chamber) return { ok: false, why: "no sitting state legislative office on the site roster" };
+  if (!id.state) return { ok: false, why: "no state on the site roster" };
+  const dir = directory.states?.[id.state];
+  if (!dir) return { ok: false, why: `no ${id.state} legislature directory` };
+  const named = (dir.members || []).filter((m) => sameName(directoryName(m.name), id.name));
+  const hits = named.filter((m) => m.chamber === chamber);
+  if (!hits.length) return { ok: false, why: named.length ? `${id.name} is listed in the ${id.state} ${named[0].chamber}, not the ${chamber}` : `no ${id.state} ${chamber} member named ${id.name}` };
+  if (hits.length > 1) return { ok: false, why: `${hits.length} ${id.state} ${chamber} members match ${id.name}` };
+  const m = hits[0];
+  if (contested.has(`${id.state}|${m.id}`)) return { ok: false, why: `${id.state} member ${m.id} matches more than one roster row` };
+  const portrait = dir.portrait_ids?.[id.politician_id];
+  if (portrait && portrait !== m.id) return { ok: false, why: `the site's official portrait for ${id.politician_id} names member ${portrait}, the directory match is ${m.id}` };
+  const url = legislatureMemberUrl(m, dir);
+  if (!url) return { ok: false, why: `no ${chamber} member-page pattern for ${id.state}` };
+  if (retired.has(normUrl(url))) return { ok: false, why: `${url} was retired` };
+  return { ok: true, entry: m, url, chamber };
+}
+
 // ── The roster pass ─────────────────────────────────────────────────────────
 const WEAK = new Set(["youtube"]);
 /** Pages the planner can pull for this row other than weak ones (social feeds, retired URLs). */
@@ -278,10 +344,11 @@ const slugOf = (url) => { try { const u = new URL(url); return ((u.hostname.repl
  *   cited          — { politicians: { pid: [{ url, label, keys }] }, shared_hosts: [], shared_urls: [], congress_member_urls: { bioguide: url } }
  *   retired        — retired source URLs (raw-ingest-retired.mjs)
  *   scored         — scored issue keys (pages keep a cited key only when scored)
+ *   legislature    — state legislature directories ({ states: { XX: { member_page, members } } }); step 3
  * Returns { resolved: [{ politician_id, via, url, … }], unresolved: [{ politician_id, why }], eligible }.
  */
 export function resolveRoster(roster, data = {}) {
-  const { people = {}, aliases = {}, members = [], cited = {}, retired = [], scored = null } = data;
+  const { people = {}, aliases = {}, members = [], cited = {}, retired = [], scored = null, legislature = null } = data;
   const retiredSet = new Set(retired.map(normUrl));
   const retiredBioguides = new Set(retired.map(bioguideOf).filter(Boolean));
   const rosterIds = new Set(roster.map((r) => r.politician_id));
@@ -353,6 +420,29 @@ export function resolveRoster(roster, data = {}) {
     }
     unresolved.push({ politician_id: pid, why: [res?.why, ...why.slice(0, 2)].filter(Boolean).join("; ") || "no clean official match" });
   }
+  // Step 3: state legislature member directories, for rows still page-less.
+  // Runs after steps 1 and 2 so it can never change what they resolved.
+  if (legislature?.states) {
+    const tries = unresolved.filter((u) => ids.get(u.politician_id)).map((u) => ({ u, id: ids.get(u.politician_id) }));
+    const first = new Map(tries.map(({ u, id }) => [u.politician_id, resolveLegislature(id, { directory: legislature, retired: retiredSet })]));
+    const count = new Map();
+    for (const { u, id } of tries) { const r = first.get(u.politician_id); if (r.ok) { const k = `${id.state}|${r.entry.id}`; count.set(k, (count.get(k) || 0) + 1); } }
+    const contested = new Set([...count].filter(([, n]) => n > 1).map(([k]) => k));
+    for (const { u, id } of tries) {
+      let r = first.get(u.politician_id);
+      if (r.ok && contested.size) r = resolveLegislature(id, { directory: legislature, retired: retiredSet, contested });
+      if (r.ok && known.has(normUrl(r.url)) && known.get(normUrl(r.url)) !== u.politician_id) r = { ok: false, why: `${r.url} is already on ${known.get(normUrl(r.url))}'s row` };
+      if (!r.ok) { if (id.state_legislator) u.why = `${u.why}; legislature directory: ${r.why}`; continue; }
+      const row = roster.find((x) => x.politician_id === u.politician_id);
+      row.sources = [...(row.sources || []), { politician_id: u.politician_id, topic: DEFAULT_TOPIC,
+        source_type: "official state legislature member page", source_class: "state_legislature", source_tier: 1,
+        source_id: "official-resolved-legislature", url: r.url, resolved_by: "legislature_directory", member_id: r.entry.id }];
+      known.set(normUrl(r.url), u.politician_id);
+      resolved.push({ politician_id: u.politician_id, via: "legislature_directory", url: r.url, member_id: r.entry.id, chamber: r.chamber, state: id.state });
+      u.resolved = true;
+    }
+    for (let i = unresolved.length - 1; i >= 0; i--) if (unresolved[i].resolved) unresolved.splice(i, 1);
+  }
   return { eligible: eligible.length, resolved, unresolved };
 }
 
@@ -360,5 +450,5 @@ export function resolveRoster(roster, data = {}) {
 export function resolutionLine(rep) {
   if (!rep) return "raw-ingest: url resolution — not run";
   const by = (v) => rep.resolved.filter((x) => x.via === v).length;
-  return `raw-ingest: url resolution — ${rep.eligible} tier-3 row(s) without pages checked · ${rep.resolved.length} resolved (${by("congress_gov")} Congress.gov member page(s), ${by("cited_official")} other official / campaign page(s)) · ${rep.unresolved.length} left without a page (no clean official match)`;
+  return `raw-ingest: url resolution — ${rep.eligible} tier-3 row(s) without pages checked · ${rep.resolved.length} resolved (${by("congress_gov")} Congress.gov member page(s), ${by("cited_official")} other official / campaign page(s), ${by("legislature_directory")} state legislature member page(s)) · ${rep.unresolved.length} left without a page (no clean official match)`;
 }
