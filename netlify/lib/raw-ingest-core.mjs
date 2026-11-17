@@ -6,6 +6,7 @@ import POOL_EXPANSION from "../../db/raw-ingest-pool-expansion-2026-11.json" wit
 import FULL_ROSTER from "../../db/raw-ingest-full-roster-2026-11.json" with { type: "json" };
 import OFFICIAL_CITED from "../../db/raw-ingest-official-cited-2026-11.json" with { type: "json" };
 import LEGISLATURE_DIRECTORY from "../../db/raw-ingest-legislature-directory-2026-11.json" with { type: "json" };
+import DIRECT_CITED from "../../db/raw-ingest-direct-cited-2026-11.json" with { type: "json" };
 import SHARE_INDEX from "../../db/share-index.json" with { type: "json" };
 import MEMBER_MAP from "../../db/vr-member-map.json" with { type: "json" };
 import { RETIRED_SOURCES } from "./raw-ingest-retired.mjs";
@@ -597,6 +598,11 @@ if (FULL_ROSTER_APPLIED) {
 // (db/raw-ingest-legislature-directory-2026-11.json; Utah today) gets that
 // member's page on the legislature's site. PDX_RAW_INGEST_NO_LEGISLATURE_DIRECTORY
 // builds the roster without step 3.
+// Step 4 — rows still page-less after steps 1–3: a page already cited for that
+// one politician that is their own campaign / personal site, a caucus page
+// naming them, their own YouTube channel or video, or an interview / statement
+// naming them (db/raw-ingest-direct-cited-2026-11.json), on a single clean
+// match only. PDX_RAW_INGEST_NO_DIRECT_SOURCES builds the roster without step 4.
 // Identity the resolvers match on: the site roster (share-index), plus — for
 // the board-seat holders the full roster adds (`board_seat`), who have no
 // share-index entry — the office and state text of their site record, carried
@@ -606,6 +612,7 @@ for (const r of ROSTER) {
   if (!r.board_seat || RESOLVER_PEOPLE[r.politician_id]) continue;
   RESOLVER_PEOPLE[r.politician_id] = { n: r.name, o: r.office, s: r.state_listed || r.state };
 }
+export const DIRECT_SOURCES_APPLIED = !(typeof process !== "undefined" && process.env?.PDX_RAW_INGEST_NO_DIRECT_SOURCES);
 export const LEGISLATURE_DIRECTORY_APPLIED = !(typeof process !== "undefined" && process.env?.PDX_RAW_INGEST_NO_LEGISLATURE_DIRECTORY);
 export const URL_RESOLUTION_APPLIED = FULL_ROSTER_APPLIED && !(typeof process !== "undefined" && process.env?.PDX_RAW_INGEST_NO_RESOLVE);
 export const RESOLUTION = URL_RESOLUTION_APPLIED
@@ -616,6 +623,7 @@ export const RESOLUTION = URL_RESOLUTION_APPLIED
     cited: OFFICIAL_CITED,
     retired: RETIRED_SOURCES.map((s) => s.url),
     ...(LEGISLATURE_DIRECTORY_APPLIED ? { legislature: LEGISLATURE_DIRECTORY } : {}),
+    ...(DIRECT_SOURCES_APPLIED ? { direct: DIRECT_CITED } : {}),
   })
   : null;
 

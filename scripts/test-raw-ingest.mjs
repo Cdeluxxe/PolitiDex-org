@@ -207,6 +207,7 @@ await t('a failed source gets no candidate; a failing scorer hook never blocks s
 const lockerPath = path.join(root, 'netlify/lib/evidence-locker-core.mjs');
 const itemsFnPath = path.join(root, 'netlify/functions/evidence-locker-items.mts');
 const locker = await import(pathToFileURL(lockerPath).href);
+const resolveMod = await import(pathToFileURL(path.join(root, "netlify/lib/raw-ingest-resolve.mjs")).href);
 const gt = JSON.parse(readFileSync(gtPath, 'utf8'));
 const lockerFakeStore = () => {
   const data = new Map();
@@ -542,7 +543,11 @@ await t('roster: priority flags are true to the data, and prioritised people com
     // detail by the full-roster test.
     if (r.full_roster) {
       assert.equal(r.tier, 3, `${r.politician_id}: full-roster row is tier 3`);
-      assert.ok(r.sources.every((s) => s.resolved_by && s.politician_id === r.politician_id && locker.isCampaignOrOfficial(s.source_type, s.url) && SCORED.has(s.topic)), `${r.politician_id}: only resolved campaign/official pages`);
+      // Step 4 (own sites / direct sources, test-raw-ingest-direct-sources.mjs)
+      // may attach an interview or caucus page typed as what it is; the Locker
+      // applies its own campaign/official gate to those, unchanged.
+      assert.ok(r.sources.every((s) => s.resolved_by && s.politician_id === r.politician_id && SCORED.has(s.topic)
+        && (s.resolved_by === "direct_source" ? s.source_class in resolveMod.DIRECT_CLASSES : locker.isCampaignOrOfficial(s.source_type, s.url))), `${r.politician_id}: only resolved campaign/official pages (or step-4 own / direct sources)`);
       assert.ok(!r.official); continue;
     }
     const want = r.has_board && stanceCount(r.politician_id) >= core.SEVERAL_STANCES ? 1 : (r.has_board || r.has_stances) ? 2 : 3;

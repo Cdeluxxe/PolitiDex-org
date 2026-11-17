@@ -79,6 +79,36 @@ three steps in order:
    verify the file is current. Set `PDX_RAW_INGEST_NO_LEGISLATURE_DIRECTORY=1` to build
    the roster without this step.
 
+4. **Own sites and directly tied sources.** This step runs only for rows still without
+   pages after steps 1 to 3. Its inputs are pages the site already cites for that one
+   politician (stance sources, spotlight items and accountability items), saved in
+   `db/raw-ingest-direct-cited-2026-11.json` by
+   `node scripts/build-raw-ingest-direct-cited-2026-11.mjs` (use `--check` to verify it is
+   current). A cited page is attached when it is one of these:
+   - their own campaign or personal site, whose host carries their surname, full name,
+     or the nickname the roster prints in quotes (class `own_site`, tier 1);
+   - a caucus page naming a sitting state legislator in its path (`caucus_member`, tier 1);
+   - a video from their own YouTube channel, or a `/channel/UC…` address cited as their
+     own channel (`youtube_video` / `youtube`, tier 2). An interview on someone else's
+     channel is refused, because the Locker credits YouTube items to the politician's own
+     channel;
+   - an interview, Q&A, candidate questionnaire, candidate statement, op-ed or podcast whose
+     address names them (`direct_statement`, tier 2).
+
+   Each one must also be a clean match. Nobody else on the site may share their name. The
+   URL may not be cited for another politician or sit on another row; for an own site,
+   neither may the host. No office word in the address or label may contradict their
+   office, and the URL may not be retired. Hosts that serve many candidates (goodparty.org,
+   ActBlue …), reference and social hosts, YouTube `@handles`, debates, forums, town halls
+   and pieces that name another politician are refused. Government and legislature hosts
+   are left to steps 1 and 2. The repo holds no uncited site or channel for anyone, so a
+   politician with nothing cited gets nothing here: no domain is guessed and no channel is
+   looked up. Pages carry `resolved_by: "direct_source"` and `direct_kind`. Set
+   `PDX_RAW_INGEST_NO_DIRECT_SOURCES=1` to build the roster without this step. Source types
+   say what each page is (campaign site, personal site, caucus page, interview), so the
+   Locker's unchanged campaign/official rule decides what reaches it. After the
+   stance, spotlight or roster data changes, rebuild the file.
+
 Nothing is fetched or guessed. A row with no clean match keeps no pages and is still
 skipped. Tier-1 and tier-2 rows, and rows that already have pages, are never touched.
 Resolved pages carry `resolved_by`. Each rotation run logs
@@ -239,6 +269,7 @@ planned. In addition:
   `node scripts/test-raw-ingest-legislature.mjs` covers the state legislature directory step.
 - `node scripts/test-raw-ingest-legislature-states.mjs` covers the directories beyond Utah.
 - `node scripts/test-raw-ingest-legislature-states-ca.mjs` covers the California Senate directory.
+- `node scripts/test-raw-ingest-direct-sources.mjs` covers own sites and directly tied sources (step 4).
 - `node scripts/test-raw-ingest-board-holders.mjs` covers the board-seat holders on the
   rotation roster.
 - `scripts/test-raw-ingest.mjs`, `test-stated-positions.mjs` and

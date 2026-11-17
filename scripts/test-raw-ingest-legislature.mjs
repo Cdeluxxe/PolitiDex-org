@@ -25,6 +25,9 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const corePath = path.join(root, "netlify/lib/raw-ingest-core.mjs");
 const R = await import("../netlify/lib/raw-ingest-resolve.mjs");
+// Steps 1–3 only: step 4 (own sites / direct sources) has its own suite,
+// test-raw-ingest-direct-sources.mjs, which checks steps 1–3 are unchanged by it.
+process.env.PDX_RAW_INGEST_NO_DIRECT_SOURCES = "1";
 const core = await import(pathToFileURL(corePath).href);
 process.env.PDX_RAW_INGEST_NO_LEGISLATURE_DIRECTORY = "1";
 const before = await import(pathToFileURL(corePath).href + "?no-legislature-directory");

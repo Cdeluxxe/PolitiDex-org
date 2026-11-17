@@ -39,12 +39,17 @@
 //      legislature's own member directory (state + chamber + surname +
 //      compatible first name, one member only) and given that member's page on
 //      the legislature's own site. See resolveLegislature below.
+//   4. OWN SITES AND DIRECTLY TIED SOURCES, only for rows still without pages
+//      after steps 1–3: a page already cited for that one politician that is
+//      their own campaign / personal site, a caucus page naming them, their own
+//      YouTube channel or video, or an interview / statement naming them. See
+//      recognizeDirect and resolveDirect below.
 //   Anything without a clean match stays without pages and is still skipped.
 //
 // Resolved pages are ordinary roster pages: the planner, the pull path, the
 // scorer and the Evidence Locker treat them like every other page, and none of
 // those modules reads this file. Each carries `resolved_by` ("congress_gov",
-// "cited_official" or "legislature_directory") so a resolved page can always
+// "cited_official", "legislature_directory" or "direct_source") so a resolved page can always
 // be told apart.
 
 export const RESOLVE_TIER = 3;
@@ -329,6 +334,196 @@ export function resolveLegislature(id, { directory = {}, retired = new Set(), co
   return { ok: true, entry: m, url, chamber };
 }
 
+// ── Step 4: the politician's own sites and directly tied sources ───────────
+// Only for rows still without pages after steps 1–3. The inputs are pages the
+// site ALREADY cites for that one politician (curated stance sources, spotlight
+// items and accountability items, collected by
+// scripts/build-raw-ingest-direct-cited-2026-11.mjs into
+// db/raw-ingest-direct-cited-2026-11.json). Nothing is fetched, searched or
+// built: a domain is never guessed and a channel never looked up. The repo
+// holds no uncited site or channel for anyone, so a politician with nothing
+// cited gets nothing here.
+//
+// A cited page is attached only when recognizeDirect() reads it as one of:
+//   own_site         their own campaign or personal site — the host (or, on a
+//                    blog platform, the subdomain) carries their surname, full
+//                    name, or the nickname the roster prints in quotes, in a
+//                    campaign shape ("garydye2020", "senatorbarcy"). Hosts that
+//                    serve many candidates (goodparty.org, ActBlue …) never.
+//   caucus_member    a legislative caucus page that names a sitting state
+//                    legislator in its path (senatedemocrats.wa.gov/pedersen/).
+//   youtube_video    a video cited from their OWN channel (label names the
+//                    channel as theirs). Watch URL only. Interviews on other
+//                    channels are refused.
+//   youtube          a /channel/UC… address cited as their own channel (the
+//                    channel ID is in the cited URL; @handles are refused).
+//   direct_statement an interview, Q&A, candidate questionnaire, candidate
+//                    statement, op-ed or podcast whose URL names them.
+// and every clean-match check passes: no other politician on the site shares
+// their name; the URL (and, for an own site, the host) is cited for no other
+// politician and is not on another row; no office word in the address or
+// label contradicts their office; the URL is not retired; debates, forums,
+// panels and pieces with several authors are refused. At most
+// MAX_RESOLVED_PAGES pages, own sites first.
+
+export const DIRECT_CLASSES = {
+  own_site: "the politician's own campaign or personal site (host carries their name)",
+  caucus_member: "legislative caucus page naming the member (member page or caucus statement)",
+  youtube_video: "video from the politician's own YouTube channel",
+  youtube: "the politician's own YouTube channel (channel ID in the cited URL)",
+  direct_statement: "interview, Q&A, candidate questionnaire, candidate statement, op-ed or podcast that names them",
+};
+// Reference, aggregator and social hosts: never a direct source.
+const REFERENCE = /(?:^|\.)(?:wikipedia\.org|ballotpedia\.org|vote411\.org|votesmart\.org|opensecrets\.org|followthemoney\.org|govtrack\.us|fec\.gov|archive\.org|google\.com|bit\.ly|linktr\.ee|x\.com|twitter\.com|facebook\.com|instagram\.com|tiktok\.com|linkedin\.com|threads\.net|bsky\.app|ballotready\.org|politifact\.com|realclearpolling\.com|termlimits\.com|isidewith\.com|yahoo\.com|aol\.com|msn\.com)$/;
+// Hosts that serve many candidates: an address there is never someone's own site.
+const PLATFORM = /(?:^|\.)(?:goodparty\.org|actblue\.com|winred\.com|nationbuilder\.com|crowdpac\.com|candidate\.vote|ballotready\.org)$/;
+// Blog / site-builder platforms where the subdomain is the site.
+const BLOG_PLATFORM = /^([a-z0-9-]+)\.(?:wordpress\.com|blogspot\.com|wixsite\.com|weebly\.com|godaddysites\.com)$/;
+const CAUCUS_HOST = /(?:senate|house|assembly)(?:gop|dems?|democrats?|republicans?)|(?:gop|dems?|democrats?|republicans?)(?:senate|house|assembly)/;
+const CAUCUS_LABEL = /\b(?:Senate|House|Assembly)\s+(?:Democrats|Republicans|GOP|Democratic Caucus|Republican Caucus)\b/;
+const DIRECT_KIND = /\binterview\b|\bq\s*&\s*a\b|(?:^|[\/-])q-?a(?:[\/-]|$)|questionnaire|candidate statement|\bpodcast\b|\bop-?ed\b|why-you-should-vote-for-me|in-(?:his|her|their)-own-words/i;
+const MULTI = /\bdebates?\b|\bforums?\b|\bpanels?\b|roundtable|town[\s-]?hall|\bcandidates\b|\d+-others|\band-others\b|\bvs\.?\b|versus|\bfaces\b|\bchallenges?\b|\bsurvey\b|meet-the-candidates/i;
+// Address words that mark a piece about several people ("shaheen-and-budd-pen …").
+const MULTI_PATH = /-and-|-with-[a-z]+-[a-z]+-/i;
+const NOT_OWN_CHANNEL = /\b(?:interview|debate|panel|podcast|featuring|news|pbs|c-span|radio|tv|media|report)\b|\b(?:senate|house|legislature|assembly|council|commission|chamber)(?:['’]s)?\s+(?:own\s+)?(?:official\s+)?channel\b/i;
+const YT_VIDEO = /^https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:[^#]*&)?v=|shorts\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/;
+const YT_CHANNEL = /^https?:\/\/(?:www\.)?youtube\.com\/channel\/(UC[A-Za-z0-9_-]{22})\/?(?:videos\/?)?$/;
+const YT_HOST = /(?:^|\.)(?:youtube\.com|youtu\.be)$/;
+
+/** Name keys a host, path or label can carry: { sur, full, nick } (lowercase letters). */
+export function directKeys(name) {
+  const t = nameTokens(name);
+  if (t.length < 2) return { sur: [], full: [], nick: [] };
+  const last = t[t.length - 1];
+  const sur = [last, ...(t.length > 2 ? [t[t.length - 2] + last] : [])].filter((k) => k.length >= 4);
+  const firsts = [t[0], ...(NICKS.get(t[0]) || [])];
+  const full = firsts.map((f) => f + last);
+  const nick = [...String(name).matchAll(/["“”]([^"“”]+)["“”]/g)].map((m) => letters(m[1])).filter((k) => k.length >= 4);
+  return { sur, full, nick };
+}
+
+// Office words an address or label can carry, and whether they fit the office.
+function officeConflict(text, office) {
+  const s = letters(text), o = String(office || "");
+  const federal = /\bU\.S\.|\bCongress|\bFederal\b/i.test(o), state = /\bState\b|\bAssembly|\bDelegate\b/i.test(o) && !federal;
+  const senate = /\bSenat/i.test(o), house = /\bHouse\b|\bRepresentative|\bAssembly|\bDelegate\b|\bCongressman|\bCongresswoman/i.test(o);
+  if (s.includes("congress") && (state || /\b(?:Governor|Mayor|Sheriff|Council|Commission|Judge|Attorney General|Secretary of State)\b/i.test(o)) && !federal) return "congress";
+  if (/senat/.test(s) && house && !senate) return "senate";
+  if (/(?:for|4)(?:house|assembly|delegate)|assembly/.test(s) && senate && !house) return "house";
+  for (const w of ["governor", "mayor", "sheriff", "council", "judge"]) if (s.includes(w) && !o.toLowerCase().includes(w)) return w;
+  return null;
+}
+
+/**
+ * Is this cited page one of the politician's own sites or a source directly
+ * tied to them? `c` = { url, label, tags?, interview? } as collected for them.
+ * Returns { kind, source_class, source_type, source_tier, url, channel_id? } or
+ * null. Pure; no fetch. Clean-match checks across the roster are in resolveDirect.
+ */
+export function recognizeDirect(c, id) {
+  const url = String(c?.url || "");
+  if (!id || !/^https?:\/\//i.test(url)) return null;
+  const h = hostOf(url);
+  if (!h || REFERENCE.test(h)) return null;
+  let u;
+  try { u = new URL(url); } catch { return null; }
+  const label = String(c.label || "");
+  const keys = directKeys(id.name);
+  if (!keys.sur.length && !keys.full.length) return null;
+  const pathL = letters(decodeURIComponent(u.pathname + u.search));
+  const has = (s, list) => list.some((k) => s.includes(k));
+  const labelL = letters(label);
+  const fullInLabel = has(labelL, keys.full) || keys.nick.some((n) => labelL.includes(n + keys.sur[0]));
+  const interviewish = DIRECT_KIND.test(label) || DIRECT_KIND.test(u.pathname) || (c.tags || []).includes("Long-Form Interview") || !!c.interview;
+
+  // YouTube: own-channel video, interview with them alone, or own channel.
+  if (YT_HOST.test(h)) {
+    const v = YT_VIDEO.exec(url)?.[1];
+    if (v) {
+      const watch = `https://www.youtube.com/watch?v=${v}`;
+      const poss = /([A-Za-z'’-]+?)['’]s\s+(?:own\s+)?(?:official\s+)?(?:campaign\s+)?(?:YouTube\s+)?channel\b/i.exec(label);
+      const own = !NOT_OWN_CHANNEL.test(label) && ((poss && keys.sur.includes(letters(poss[1]))) || /\b(?:his|her|their)\s+own\s+(?:official\s+)?(?:campaign\s+)?(?:YouTube\s+)?channel\b/i.test(label));
+      if (own) return { kind: "own_channel_video", source_class: "youtube_video", source_type: "official YouTube video (own channel)", source_tier: 2, url: watch };
+      // An interview on someone else's channel is not their channel: the
+      // youtube_video class (and the Locker's "own YouTube channel" credit) is
+      // for their own uploads only.
+      return null;
+    }
+    const ch = YT_CHANNEL.exec(url)?.[1];
+    const ownCh = /\b(?:official|campaign|own)\b[^.]*\bchannel\b|\bchannel\b[^.]*\b(?:official|own)\b/i.test(label) && !NOT_OWN_CHANNEL.test(label) && (fullInLabel || has(labelL, keys.sur));
+    if (ch && ownCh) return { kind: "own_channel", source_class: "youtube", source_type: "official YouTube channel", source_tier: 2, url: `https://www.youtube.com/feeds/videos.xml?channel_id=${ch}`, channel_id: ch };
+    return null; // @handles, /c/ and /user/ addresses would need a lookup
+  }
+
+  // Their own campaign or personal site.
+  if (!PLATFORM.test(h)) {
+    const blog = BLOG_PLATFORM.exec(h);
+    const site = letters(blog ? blog[1] : h.split(".").slice(0, -1).join("."));
+    const tied = has(site, keys.full) || has(site, keys.nick) || has(site, keys.sur);
+    const shaped = CAMPAIGN_WORD.test(site) || /senator|rep|4|for|elect/.test(site)
+      || [...keys.sur, ...keys.nick, ...keys.full].some((k) => site.startsWith(k) || site.endsWith(k));
+    if (tied && shaped && !CAUCUS_HOST.test(site) && !STATE_LEGIS_HOST.test(h) && !GOV_HOST.test(h) && !THIRD_PARTY.test(blog ? blog[1] : h)) {
+      if (officeConflict(`${site} ${label}`, id.office)) return null;
+      const campaign = /campaign|for|elect|vote|20\d\d|4/.test(`${site} ${label.toLowerCase()}`);
+      return { kind: campaign ? "campaign_site" : "personal_site", source_class: "own_site",
+        source_type: campaign ? "campaign site (the politician's own)" : "the politician's own personal site", source_tier: 1, url };
+    }
+  }
+
+  // A legislative caucus page naming a sitting state legislator.
+  const hostLabel = letters(h.split(".").slice(0, -1).join("."));
+  if ((CAUCUS_HOST.test(hostLabel) || CAUCUS_LABEL.test(label)) && !THIRD_PARTY.test(h)) {
+    if (!id.state_legislator || !u.pathname.replace(/\/+$/, "") || !has(pathL, keys.sur)) return null;
+    if (officeConflict(hostLabel, id.office)) return null;
+    return { kind: "caucus_page", source_class: "caucus_member", source_type: "legislative caucus page naming the member", source_tier: 1, url };
+  }
+
+  // An interview, Q&A, questionnaire, candidate statement, op-ed or podcast that names them.
+  // Government, legislature and member-office hosts are steps 1–2's to judge.
+  if (GOV_HOST.test(h) || STATE_LEGIS_HOST.test(h) || MEMBER_OFFICE_HOST.test(h) || GENERAL_GOV.test(h)) return null;
+  if (interviewish && !PLATFORM.test(h) && u.pathname.replace(/\/+$/, "") && (has(pathL, keys.sur) || has(pathL, keys.full))) {
+    if (MULTI.test(label) || MULTI.test(u.pathname) || MULTI_PATH.test(u.pathname)) return null;
+    if (officeConflict(label, id.office)) return null;
+    return { kind: "statement", source_class: "direct_statement", source_type: "interview / candidate statement cited for the politician", source_tier: 2, url };
+  }
+  return null;
+}
+
+const DIRECT_ORDER = ["own_site", "caucus_member", "youtube", "youtube_video", "direct_statement"];
+
+/**
+ * Step 4 for one identity: the cited pages that pass recognizeDirect and every
+ * clean-match check. Returns { pages: [{ url, rec, keys }], why: [] }.
+ */
+export function resolveDirect(id, entries = [], { retired = new Set(), sharedHosts = new Set(), sharedUrls = new Set(), known = new Map(), hostRows = new Map(), homonym = null, surnames = new Set() } = {}) {
+  const own = new Set(nameTokens(id?.name));
+  const why = [];
+  if (!id) return { pages: [], why: ["not on the site roster"] };
+  const recs = [];
+  for (const c of entries) {
+    const rec = recognizeDirect(c, id);
+    if (!rec) continue;
+    const n = normUrl(rec.url), h = hostOf(rec.url);
+    if (homonym) { why.push(`${rec.url}: ${homonym} shares the name ${id.name}`); continue; }
+    // A statement whose address names another politician on the site is about several people.
+    if (rec.source_class === "direct_statement") {
+      let path = "";
+      try { path = decodeURIComponent(new URL(rec.url).pathname).toLowerCase(); } catch { /* unreadable → no tokens */ }
+      const other = path.split(/[^a-z]+/).find((t) => t.length >= 4 && !own.has(t) && surnames.has(t));
+      if (other) { why.push(`${rec.url} also names "${other}", another politician's surname`); continue; }
+    }
+    if (retired.has(n) || retired.has(normUrl(c.url))) { why.push(`${c.url} retired`); continue; }
+    if (sharedUrls.has(normUrl(c.url))) { why.push(`${c.url} is cited for another politician`); continue; }
+    if (known.has(n) && known.get(n) !== id.politician_id) { why.push(`${rec.url} is on ${known.get(n)}'s row`); continue; }
+    // An own site is told apart by host; every other kind by URL.
+    if (rec.source_class === "own_site" && (sharedHosts.has(h) || [...(hostRows.get(h) || [])].some((p) => p !== id.politician_id))) { why.push(`${h} is shared with another politician`); continue; }
+    if (recs.some((x) => normUrl(x.rec.url) === n)) continue;
+    recs.push({ url: rec.url, rec, keys: c.keys || [] });
+  }
+  recs.sort((a, b) => DIRECT_ORDER.indexOf(a.rec.source_class) - DIRECT_ORDER.indexOf(b.rec.source_class));
+  return { pages: recs.slice(0, MAX_RESOLVED_PAGES), why };
+}
+
 // ── The roster pass ─────────────────────────────────────────────────────────
 const WEAK = new Set(["youtube"]);
 /** Pages the planner can pull for this row other than weak ones (social feeds, retired URLs). */
@@ -353,10 +548,12 @@ const slugOf = (url) => { try { const u = new URL(url); return ((u.hostname.repl
  *   retired        — retired source URLs (raw-ingest-retired.mjs)
  *   scored         — scored issue keys (pages keep a cited key only when scored)
  *   legislature    — state legislature directories ({ states: { XX: { member_page, members } } }); step 3
+ *   direct         — pages cited for each politician that may be their own site or a directly tied
+ *                    source ({ politicians: { pid: [{ url, label, keys }] }, shared_hosts, shared_urls }); step 4
  * Returns { resolved: [{ politician_id, via, url, … }], unresolved: [{ politician_id, why }], eligible }.
  */
 export function resolveRoster(roster, data = {}) {
-  const { people = {}, aliases = {}, members = [], cited = {}, retired = [], scored = null, legislature = null } = data;
+  const { people = {}, aliases = {}, members = [], cited = {}, retired = [], scored = null, legislature = null, direct = null } = data;
   const retiredSet = new Set(retired.map(normUrl));
   const retiredBioguides = new Set(retired.map(bioguideOf).filter(Boolean));
   const rosterIds = new Set(roster.map((r) => r.politician_id));
@@ -451,6 +648,42 @@ export function resolveRoster(roster, data = {}) {
     }
     for (let i = unresolved.length - 1; i >= 0; i--) if (unresolved[i].resolved) unresolved.splice(i, 1);
   }
+  // Step 4: their own sites and directly tied sources, for rows still page-less.
+  // Runs after steps 1–3 so it can never change what they resolved.
+  if (direct?.politicians) {
+    const sharedHosts = new Set(direct.shared_hosts || []);
+    const sharedDirect = new Set([...(direct.shared_urls || []), ...(cited.shared_urls || [])].map(normUrl));
+    // Another politician on the site with the same name makes any name tie ambiguous.
+    const canon = (p) => aliases[p] || p;
+    const byLast = new Map();
+    for (const [p, v] of Object.entries(people)) { const t = nameTokens(v?.n); if (t.length >= 2) (byLast.get(t[t.length - 1]) || byLast.set(t[t.length - 1], []).get(t[t.length - 1])).push([p, v.n]); }
+    const homonymOf = (id) => { const t = nameTokens(id.name); return (byLast.get(t[t.length - 1]) || []).find(([p, n]) => canon(p) !== canon(id.politician_id) && sameName(n, id.name))?.[0] || null; };
+    const tries = unresolved.filter((u) => ids.get(u.politician_id) && (direct.politicians[u.politician_id] || []).length);
+    const first = new Map(tries.map((u) => { const id = ids.get(u.politician_id);
+      return [u.politician_id, resolveDirect(id, direct.politicians[u.politician_id], { retired: retiredSet, sharedHosts, sharedUrls: sharedDirect, known, hostRows, homonym: homonymOf(id), surnames: new Set(byLast.keys()) })]; }));
+    // A URL (or own-site host) picked for two rows resolves for neither.
+    const count = new Map();
+    const tag = (p) => (p.rec.source_class === "own_site" ? `host ${hostOf(p.url)}` : normUrl(p.url));
+    for (const r of first.values()) for (const p of r.pages) count.set(tag(p), (count.get(tag(p)) || 0) + 1);
+    for (const u of tries) {
+      const pid = u.politician_id;
+      const r = first.get(pid);
+      const pages = r.pages.filter((p) => count.get(tag(p)) === 1 && !(known.has(normUrl(p.url)) && known.get(normUrl(p.url)) !== pid));
+      if (!pages.length) { const w = [...r.why, ...r.pages.map((p) => `${p.url} matches more than one roster row`)]; if (w.length) u.why = `${u.why}; own / direct sources: ${w.slice(0, 2).join("; ")}`; continue; }
+      const row = roster.find((x) => x.politician_id === pid);
+      const added = pages.map((p) => {
+        const keys = (p.keys || []).filter(isScored);
+        return { politician_id: pid, topic: keys[0] || DEFAULT_TOPIC, source_type: p.rec.source_type, source_class: p.rec.source_class,
+          source_tier: p.rec.source_tier, source_id: `resolved-direct-${slugOf(p.url)}`, url: p.url, resolved_by: "direct_source", direct_kind: p.rec.kind,
+          ...(p.rec.channel_id ? { channel_id: p.rec.channel_id } : {}), ...(keys.length > 1 ? { issue_pairs: keys.slice(1) } : {}) };
+      });
+      row.sources = [...(row.sources || []), ...added];
+      for (const p of added) known.set(normUrl(p.url), pid);
+      resolved.push({ politician_id: pid, via: "direct_source", url: added[0].url, urls: added.map((p) => p.url), kinds: added.map((p) => p.direct_kind), classes: [...new Set(added.map((p) => p.source_class))] });
+      u.resolved = true;
+    }
+    for (let i = unresolved.length - 1; i >= 0; i--) if (unresolved[i].resolved) unresolved.splice(i, 1);
+  }
   return { eligible: eligible.length, resolved, unresolved };
 }
 
@@ -458,5 +691,5 @@ export function resolveRoster(roster, data = {}) {
 export function resolutionLine(rep) {
   if (!rep) return "raw-ingest: url resolution — not run";
   const by = (v) => rep.resolved.filter((x) => x.via === v).length;
-  return `raw-ingest: url resolution — ${rep.eligible} tier-3 row(s) without pages checked · ${rep.resolved.length} resolved (${by("congress_gov")} Congress.gov member page(s), ${by("cited_official")} other official / campaign page(s), ${by("legislature_directory")} state legislature member page(s)) · ${rep.unresolved.length} left without a page (no clean official match)`;
+  return `raw-ingest: url resolution — ${rep.eligible} tier-3 row(s) without pages checked · ${rep.resolved.length} resolved (${by("congress_gov")} Congress.gov member page(s), ${by("cited_official")} other official / campaign page(s), ${by("legislature_directory")} state legislature member page(s), ${by("direct_source")} own-site / direct source(s)) · ${rep.unresolved.length} left without a page (no clean official match)`;
 }
