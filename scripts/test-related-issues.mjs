@@ -332,9 +332,12 @@ const LBL = (k) => String(IM[k].label).replace(/^[^A-Za-z0-9]+/, "").trim();
   const mod = R("related-issues.js");
   // The one read of consistency.js allowed is the drawer ledger's tally.
   const code = mod.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
-  const rest = code.replace("var LG = window.PDXConsistency;", "");
+  // …and, for the Words and votes note, the vote list and the publishable-vote
+  // feed the drawers ask for — neither is a score.
+  const rest = code.replace("var LG = window.PDXConsistency;", "").split("var CS = window.PDXConsistency;").join("");
   ok(!/PDXConsistency|_issueVerdict|directionMatch|_DOS_EFFECT/.test(rest) &&
-     [...rest.matchAll(/\bLG\.(\w+)/g)].every((m) => m[1] === "drawerTally"),
+     [...rest.matchAll(/\bLG\.(\w+)/g)].every((m) => m[1] === "drawerTally") &&
+     [...rest.matchAll(/\bCS\.(\w+)/g)].every((m) => m[1] === "wordsVsActionsActs" || m[1] === "loadVoteActionLinks"),
      "module reads no scoring or effect engine");
 }
 

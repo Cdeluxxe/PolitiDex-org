@@ -11,6 +11,9 @@
 //   4. 'congress' measures from Jan 3 of the current Congress
 //   5. the real record: the named vote is the newest conflicting vote in the
 //      window, else the newest overall; the window is defined once
+//   6. the older-vote cue: a recent vote's note is byte-identical to the note
+//      before the cue; a fallback vote says "an older vote" (or "a vote from
+//      an earlier Congress" under 'congress'); selection is unchanged
 //
 //   node scripts/test-words-vs-actions-recency.mjs   (no database, no network)
 
@@ -121,6 +124,39 @@ function at(iso, acts, w) {
 }
 ok(/H\.R\. 63/.test(at("2027-01-02T12:00:00Z", [act("H.R. 63", "2025-06-01T00:00:00Z")], { recent: "congress", cutoff: "congress" })), "on Jan 2 2027 the 119th Congress still sits");
 ok(!/pdxri-wva/.test(at("2027-01-05T12:00:00Z", [act("H.R. 64", "2025-06-01T00:00:00Z")], { recent: "congress", cutoff: "congress" })), "after Jan 3 2027 the new Congress starts the window");
+
+// ── 6 · the older-vote cue ───────────────────────────────────────────────────
+// The note as it was printed before the cue existed, built from its parts.
+const escH = (x) => String(x).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+function legacyLi(li) {
+  const pair = (/data-pdxri-wva-pair="([^"]*)"/.exec(li) || [])[1], from = (/data-pdxri-wva-from="(\w+)"/.exec(li) || [])[1];
+  const text = (/>([^<]*)(?: <a |<\/li>)/.exec(li) || [])[1];
+  const href = (/<a href="([^"]*)"/.exec(li) || [])[1];
+  return `<li class="pdxri-wva-item" data-pdxri-wva-pair="${pair}" data-pdxri-wva-key="${fx.k}" data-pdxri-wva-from="${from}">${text}` +
+    (href ? ` <a href="${href}" target="_blank" rel="noopener">official record</a>` : "") + "</li>";
+}
+r = drawer([act("H.R. 70", "2026-05-01T00:00:00Z"), act("H.R. 71", "2019-03-01T00:00:00Z")]);
+ok(!/older vote|earlier Congress|data-pdxri-wva-older/.test(r.li), "a recent vote carries no cue");
+eq(r.li, legacyLi(r.li), "a recent vote's note is byte-identical to the note before the cue");
+ok(/\(2026-05-01\), which ran against it; you /.test(r.li), "a recent vote's sentence is unchanged");
+r = drawer([act("H.R. 72", "2026-05-01T00:00:00Z", AGAINST, "raw", "Aye")]);
+ok(!/older vote/.test(r.li) && r.li === legacyLi(r.li), "a recent raw vote: no cue, unchanged markup");
+r = drawer([act("H.R. 73", "2021-09-01T00:00:00Z"), act("H.R. 74", "2018-01-01T00:00:00Z")]);
+eq(r.named, "H.R. 73 2021-09-01", "the fallback still names the newest older vote (selection unchanged)");
+ok(/\(2021-09-01\), an older vote, which ran against it/.test(r.li), "an older fallback vote is named with the cue");
+ok(/data-pdxri-wva-older="1"/.test(r.li), "the older note is marked in its markup");
+r = drawer([act("H.R. 76", "")]);
+ok(/on H\.R\. 76, an older vote, which ran against it/.test(r.li), "an undated vote counts as older and is cued");
+r = drawer([act("H.R. 77", "2019-01-01T00:00:00Z")], { recent: null });
+ok(!/older vote/.test(r.li) && r.li === legacyLi(r.li), "no window at all → nothing is a fallback, no cue");
+r = drawer([act("H.R. 78", "2024-06-01T00:00:00Z")], { recent: "congress" });
+ok(/\(2024-06-01\), a vote from an earlier Congress, which ran against it/.test(r.li), "'congress' window → the cue names an earlier Congress");
+r = drawer([act("H.R. 79", "2025-06-01T00:00:00Z")], { recent: "congress" });
+ok(!/earlier Congress/.test(r.li), "'congress' window, vote in the current Congress → no cue");
+r = drawer([{ ...act("H.R. 80", "2020-02-02T00:00:00Z"), procedural: true }]);
+ok(/\(2020-02-02\), an older vote, a procedural vote, which ran against it/.test(r.li), "cue and procedural label together");
+ok(/function wvaOlderCue\(\)/.test(R("related-issues.js")) && (R("related-issues.js").match(/an older vote'/g) || []).length === 1, "the cue is worded once, in the note function");
+for (const f of ["consistency.js", "profiles-full.js", "word-action.js"]) ok(!/older vote|wvaOlder/.test(R(f)), `${f} adds no second cue`);
 
 // ── 5 · the real record, and one window ──────────────────────────────────────
 Object.assign(W, DEFAULT, { now: () => NOW });

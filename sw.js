@@ -12286,7 +12286,38 @@
 //     the precache list is unchanged. No stored reader state is written or
 //     rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v575';
+// v576 - WORDS AND VOTES IN THE PERSON-FILE RELATED ISSUES SECTION. Each
+//     related line is a pair (the issue whose list brought it in, and the line),
+//     and the drawer of that issue lists the same pair; when that drawer prints
+//     a Words and votes note for it, the line carries the very same note, from
+//     the same generator, window and words, at most one per line. The section
+//     asks the same publishable-vote feed the drawers ask (a second asker while
+//     the ask is in flight is now handed the answer too) and repaints in place
+//     only when its notes change. With no note the section is byte-identical.
+//     No route, gate, tally, chip or verdict changes. Precached files changed,
+//     so the shell moves; the precache list is unchanged. No stored reader
+//     state is written or rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+// v577 - AN OLDER-VOTE CUE IN WORDS AND VOTES. When a note names the fallback
+//     vote (nothing inside the recency window conflicts), related-issues.js
+//     adds a short cue after its date — "an older vote", or "a vote from an
+//     earlier Congress" under the 'congress' window — in the one note function
+//     the drawers and the person-file section share. A vote inside the window
+//     prints exactly as before. Selection is unchanged. No route, gate, tally,
+//     chip or verdict changes. A precached file changed, so the shell moves;
+//     the precache list is unchanged. Nothing stored is migrated.
+//     MIGRATION COST: none.
+// v578 - HIDE OLDER-VOTE NOTES, A DEVICE PREFERENCE. related-issues.js reads
+//     one localStorage key (pdx_wva_hide_older_v1) in wordsVsActionsFor, the
+//     note function every drawer and the person-file section call: on, notes
+//     naming an older fallback vote are omitted; recent notes are unchanged.
+//     Off (the default, no key) prints every note exactly as before. The
+//     switch is a plain toggle on /my-stances, which now loads
+//     related-issues.js. Nothing is synced, scored or routed. Precached files
+//     changed, so the shell moves; the precache list is unchanged. No existing
+//     stored state is rewritten, so nothing is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v578';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

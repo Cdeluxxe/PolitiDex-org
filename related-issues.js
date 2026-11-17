@@ -100,6 +100,13 @@
      once: an issue already on the list is not printed again, and the new
      related issues of an issue already printed join its block, right after
      it, instead of opening a repeat block. The drawer block is not collapsed.
+     WORDS AND VOTES on a related line: each related line is a pair — the
+     issue whose related list brought it in and the line itself — and that
+     issue's drawer lists the same pair. When that drawer prints a "Words and
+     votes" note for the pair, the line carries the very same note (same
+     generator, rules, recency window and words), at most one per line. The
+     section asks for the same publishable-vote feed the drawers do and is
+     repainted in place only when its notes change. No note: byte-identical.
 
    · DRAWER. drawerHtml(pid, p, key): the lines of every issue related to
      `key`. The open issue itself is not repeated — the drawer's own header
@@ -452,9 +459,13 @@
   // the map is symmetric, every issue with a line and a related line still
   // appears exactly once, and every related line sits in the block of an issue
   // the map relates it to (its lead, or the line it follows).
-  function groupsFor(pid, p) {
+  function groupsFor(pid, p) { return groupsVia(pid, p).groups; }
+  // The same walk, also naming for each related line the issue whose related
+  // list brought it in (`via`): the lead of its block, or the printed line it
+  // follows. That issue's drawer is the one that lists the pair.
+  function groupsVia(pid, p) {
     var pm = positionMap(pid, p);
-    var out = [], blockOf = {};
+    var out = [], blockOf = {}, via = {};
     Object.keys(MAP).forEach(function (k) {
       var anchor = itemOf(pid, pm, k);
       if (!anchor) return;
@@ -472,9 +483,9 @@
         for (var i = 0; i < g.related.length; i++) if (g.related[i].key === k) { at = i + 1; break; }
         Array.prototype.splice.apply(g.related, [at, 0].concat(items));
       }
-      items.forEach(function (it) { blockOf[it.key] = g; });
+      items.forEach(function (it) { blockOf[it.key] = g; via[it.key] = k; });
     });
-    return out;
+    return { groups: out, via: via };
   }
 
   // The two parts of one issue's line, stated first.
@@ -530,14 +541,21 @@
 
   // The person-file section, or '' when no issue has a related line.
   function sectionHtml(pid, p) {
-    var groups = groupsFor(pid, p);
+    var gv = groupsVia(pid, p), groups = gv.groups;
     if (!groups.length) return '';
+    var notes = sectionNotes(pid, p, gv.via);
+    armSection(pid, p);
     return '<div id="pdxsec-related-issues" class="modal-section pdxri" data-pid="' + esc(pid) + '">' +
       '<div class="modal-section-title">Related issues</div>' +
       '<ul class="pdxri-groups">' + groups.map(function (g) {
         return '<li class="pdxri-group" data-pdxri-issue="' + esc(g.issue.key) + '">' +
           linesHtml(pid, g.issue, null, 'pdxri-anchor', 'div') +
-          '<ul class="pdxri-list">' + g.related.map(function (it) { return linesHtml(pid, it, null, 'pdxri-item', 'li'); }).join('') + '</ul>' +
+          '<ul class="pdxri-list">' + g.related.map(function (it) {
+            var li = linesHtml(pid, it, null, 'pdxri-item', 'li');
+            var n = notes && notes[it.key];
+            // The note sits inside the related line, before it closes.
+            return n ? li.slice(0, -5) + wvaSectionNoteHtml(pid, n) + '</li>' : li;
+          }).join('') + '</ul>' +
         '</li>';
       }).join('') + '</ul>' +
     '</div>';
@@ -719,7 +737,9 @@
   //           recent one conflicts (the note still appears, naming that vote)
   //   cutoff  hard limit: votes older than it are never used (null = none)
   // Within whichever tier is used, the most recent vote is named; a same-day tie
-  // goes to the publishable raw roll call. A vote with no date counts as older,
+  // goes to the publishable raw roll call. A fallback (older) vote is named
+  // with a short cue — "an older vote", or "a vote from an earlier Congress"
+  // under 'congress' — and a recent one with none. A vote with no date counts as older,
   // and never passes a hard cutoff. `now` is the clock (a test seam).
   var WVA_WINDOW = { recent: 24, cutoff: null, now: function () { return Date.now(); } };
   function wvaSince(v, now) {
@@ -735,7 +755,9 @@
     if (!(m > 0)) return null;
     return Date.UTC(d.getUTCFullYear(), d.getUTCMonth() - m, d.getUTCDate(), d.getUTCHours(), d.getUTCMinutes());
   }
-  // The vote a note names, from the acts that cut against the stated side.
+  // The vote a note names, from the acts that cut against the stated side:
+  // { act, older }. `older` is true when the named vote is the fallback — the
+  // window has a `recent` limit and no conflicting vote fell inside it.
   function wvaPick(acts) {
     var now = Number((WVA_WINDOW.now || Date.now)());
     var recent = wvaSince(WVA_WINDOW.recent, now), cutoff = wvaSince(WVA_WINDOW.cutoff, now);
@@ -743,14 +765,15 @@
       .filter(function (x) { return cutoff == null || (x.t != null && x.t >= cutoff); });
     if (!dated.length) return null;
     var inside = recent == null ? dated : dated.filter(function (x) { return x.t != null && x.t >= recent; });
-    var pool = inside.length ? inside : dated;
+    var older = recent != null && !inside.length;
+    var pool = older ? dated : inside;
     var day = function (x) { return x.t == null ? '' : new Date(x.t).toISOString().slice(0, 10); };
     pool.sort(function (x, y) {
       return day(y).localeCompare(day(x)) ||
         ((x.a.from === 'raw' ? 0 : 1) - (y.a.from === 'raw' ? 0 : 1)) ||
         ((y.t == null ? -Infinity : y.t) - (x.t == null ? -Infinity : x.t)) || 0;
     });
-    return pool[0].a;
+    return { act: pool[0].a, older: older };
   }
   var WVA_SAID = { support: 'they state they support it', oppose: 'they state they oppose it' };
   function wvaSide(pid, pm, key, label, mine) {
@@ -762,8 +785,11 @@
     var against = said === 'support' ? 'opposes' : 'advances';
     var acts = (CS.wordsVsActionsActs(pid, key) || []).filter(function (a) { return a && a.dir === against; });
     if (!acts.length) return null;
-    var act = wvaPick(acts);
-    return act ? { key: key, label: label, you: you, said: said, act: act } : null;
+    var pick = wvaPick(acts);
+    if (!pick) return null;
+    var side = { key: key, label: label, you: you, said: said, act: pick.act };
+    if (pick.older) side.older = true;
+    return side;
   }
   function wordsVsActionsFor(pid, p, key, mine) {
     mine = mine || readerSides();
@@ -779,25 +805,121 @@
       if (!side && openSide && !openUsed) { side = openSide; openUsed = true; }
       if (side) out.push({ a: open.label, b: it.label, bKey: it.key, side: side });
     });
+    // The reader's device preference: hide notes naming an older (fallback)
+    // vote. Dropped AFTER the pairs are laid out, so every recent note keeps
+    // the exact place and words it has with the preference off.
+    if (wvaHideOlder()) out = out.filter(function (n) { return !n.side.older; });
     return out;
+  }
+  // THE OLDER-VOTE CUE. A note naming the fallback vote (nothing inside the
+  // window conflicts) says so, in a few plain words, right after the date. A
+  // vote inside the window carries no cue, so its note is unchanged.
+  // THE HIDE-OLDER PREFERENCE. Device-only (localStorage, no account), off by
+  // default: with it on, notes that name an older fallback vote are omitted;
+  // notes naming a vote inside the window are unchanged. Read here, in the one
+  // note function every drawer and the person-file section call.
+  var WVA_HIDE_OLDER_KEY = 'pdx_wva_hide_older_v1';
+  function wvaHideOlder() {
+    try { return !!(window.localStorage && window.localStorage.getItem(WVA_HIDE_OLDER_KEY) === '1'); } catch (e) { return false; }
+  }
+  function setWvaHideOlder(on) {
+    try {
+      if (!window.localStorage) return false;
+      if (on) window.localStorage.setItem(WVA_HIDE_OLDER_KEY, '1'); else window.localStorage.removeItem(WVA_HIDE_OLDER_KEY);
+      return true;
+    } catch (e) { return false; }
+  }
+  // The preferred window in words, for the control that sets the preference.
+  function wvaRecentWords() {
+    var r = WVA_WINDOW.recent;
+    if (r === 'congress') return 'the current Congress';
+    var m = Number(r);
+    return m > 0 ? 'the last ' + m + ' months' : '';
+  }
+  function wvaOlderCue() {
+    return WVA_WINDOW.recent === 'congress' ? 'a vote from an earlier Congress' : 'an older vote';
   }
   function wvaText(n) {
     var s = n.side, a = s.act;
     return n.a + ' and ' + n.b + ': on ' + s.label + ' ' + WVA_SAID[s.said] + ', but voted ' + a.word +
       (a.ident ? ' on ' + a.ident : '') + (a.date ? ' (' + String(a.date).slice(0, 10) + ')' : '') +
+      (s.older ? ', ' + wvaOlderCue() : '') +
       (a.procedural ? ', a procedural vote' : '') + ', which ran against it; you ' + YOU_WORD[s.you] + '.';
+  }
+  // One note's line — the drawer's and the person-file section's, the same markup.
+  function wvaItemHtml(n) {
+    var a = n.side.act;
+    return '<li class="pdxri-wva-item" data-pdxri-wva-pair="' + esc(n.bKey) + '" data-pdxri-wva-key="' + esc(n.side.key) +
+      '" data-pdxri-wva-from="' + esc(a.from) + '"' + (n.side.older ? ' data-pdxri-wva-older="1"' : '') + '>' + esc(wvaText(n)) +
+      (a.url ? ' <a href="' + esc(a.url) + '" target="_blank" rel="noopener">official record</a>' : '') + '</li>';
   }
   function wordsVsActionsHtml(pid, p, key) {
     var list = wordsVsActionsFor(pid, p, key);
     if (!list || !list.length) return '';
     return '<div class="pdxri-wva" data-pdxri-wva="' + esc(key) + '" data-pid="' + esc(pid) + '" style="margin:8px 0;font-size:0.85rem;">' +
       '<div class="pdxri-wva-h" style="font-weight:700;">' + esc(WVA_HD) + '</div>' +
-      '<ul class="pdxri-wva-list" style="margin:4px 0 0;padding-left:18px;">' + list.map(function (n) {
-        var a = n.side.act;
-        return '<li class="pdxri-wva-item" data-pdxri-wva-pair="' + esc(n.bKey) + '" data-pdxri-wva-key="' + esc(n.side.key) +
-          '" data-pdxri-wva-from="' + esc(a.from) + '">' + esc(wvaText(n)) +
-          (a.url ? ' <a href="' + esc(a.url) + '" target="_blank" rel="noopener">official record</a>' : '') + '</li>';
-      }).join('') + '</ul></div>';
+      '<ul class="pdxri-wva-list" style="margin:4px 0 0;padding-left:18px;">' + list.map(wvaItemHtml).join('') + '</ul></div>';
+  }
+
+  // ── WORDS AND VOTES IN THE PERSON-FILE SECTION ────────────────────────────
+  // Each related line of the person-file section is one pair: the issue whose
+  // related list brought it in (`via`) and the line itself. That issue's drawer
+  // lists the same pair, so the line takes the very note that drawer prints for
+  // it — wordsVsActionsFor over `via`, the note whose pair is this line — and
+  // nothing else: one note per related line at most, same rules, same window,
+  // same words. No such note: the line, and the section, are unchanged.
+  function sectionNotes(pid, p, via) {
+    var mine = readerSides();
+    if (!mine) return null;
+    var out = {}, byVia = {}, n = 0;
+    Object.keys(via).forEach(function (k) {
+      var v = via[k];
+      if (!(v in byVia)) { try { byVia[v] = wordsVsActionsFor(pid, p, v, mine) || []; } catch (e) { byVia[v] = []; } }
+      for (var i = 0; i < byVia[v].length; i++) {
+        if (byVia[v][i].bKey === k) { var w = byVia[v][i]; out[k] = { a: w.a, b: w.b, bKey: w.bKey, side: w.side, via: v }; n++; break; }
+      }
+    });
+    return n ? out : null;
+  }
+  function wvaSectionNoteHtml(pid, n) {
+    return '<div class="pdxri-wva pdxri-wva-line" data-pdxri-wva="' + esc(n.via || '') + '" data-pid="' + esc(pid) + '" style="margin:4px 0 6px;font-size:0.85rem;">' +
+      '<div class="pdxri-wva-h" style="font-weight:700;">' + esc(WVA_HD) + '</div>' +
+      '<ul class="pdxri-wva-list" style="margin:4px 0 0;padding-left:18px;">' + wvaItemHtml(n) + '</ul></div>';
+  }
+  // The section is painted once, as markup. The drawers' notes read the
+  // member's votes and the publishable raw roll calls, both of which arrive
+  // after first paint; the section asks for the same publishable-vote feed the
+  // drawers ask for (PDXConsistency.loadVoteActionLinks, once per person) and
+  // hears the same votes-arrived event, and is repainted in place ONLY when its
+  // notes changed. A section with no note stays exactly as painted.
+  var _armed = {};
+  function noteSig(h) { return (String(h || '').match(/<div class="pdxri-wva[\s\S]*?<\/ul><\/div>/g) || []).join('\n'); }
+  function repaintSection(pid, p) {
+    try {
+      var el = document.getElementById('pdxsec-related-issues');
+      if (!el || el.getAttribute('data-pid') !== String(pid)) return;
+      var now = sectionHtml(pid, p);
+      if (!now || noteSig(now) === noteSig(el.outerHTML)) return;
+      el.outerHTML = now;
+    } catch (e) { /* the painted section stays */ }
+  }
+  function armSection(pid, p) {
+    try {
+      if (_armed[pid] || typeof document === 'undefined' || !document || typeof document.getElementById !== 'function') return;
+      if (!readerSides()) return;
+      _armed[pid] = 1;
+      var again = function () { repaintSection(pid, p); };
+      setTimeout(function () {
+        var CS = window.PDXConsistency;
+        if (CS && typeof CS.loadVoteActionLinks === 'function') { try { CS.loadVoteActionLinks(pid, again); } catch (e) { /* no feed */ } }
+      }, 0);
+      if (typeof window.addEventListener === 'function') {
+        window.addEventListener('pdx-consistency-warm', function (ev) {
+          if (ev && ev.detail && ev.detail.pid && String(ev.detail.pid) !== String(pid)) return;
+          again();
+        });
+      }
+    } catch (e) { /* markup only */ }
   }
 
   window.PDXRelatedIssues = {
@@ -806,6 +928,10 @@
     wordsVsActionsText: wvaText,
     WVA_HD: WVA_HD,
     WVA_WINDOW: WVA_WINDOW,
+    WVA_HIDE_OLDER_KEY: WVA_HIDE_OLDER_KEY,
+    wvaHideOlder: wvaHideOlder,
+    setWvaHideOlder: setWvaHideOlder,
+    wvaRecentWords: wvaRecentWords,
     RELATED_SHOWN: RELATED_SHOWN,
     MORE_CSS: MORE_CSS,
     CONFLICTS_SHOWN: CONFLICTS_SHOWN,

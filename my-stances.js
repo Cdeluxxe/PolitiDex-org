@@ -928,6 +928,7 @@
     html += renderSummary(s, items);
     html += renderStarNudge(s, items);
     html += renderShowcase(s, items);
+    html += renderWvaPref();
     html += renderBrowse(s, byKey);
     html += '</div>';
     mount.innerHTML = html;
@@ -1053,6 +1054,33 @@
     }
 
     return '<div class="ms-showcase' + (on ? ' is-on' : '') + '">' + toggleRow + preview + '</div>';
+  }
+
+  // WORDS AND VOTES · OLDER VOTES. A device-only reading preference for the
+  // "Words and votes" notes in issue drawers and on person files: show or hide
+  // the notes that name an older vote (one outside the preferred window). The
+  // preference itself lives in related-issues.js, which reads it; this is only
+  // its switch. Checked = shown (the default). Nothing here is synced or scored.
+  function renderWvaPref() {
+    var RI = window.PDXRelatedIssues;
+    if (!RI || typeof RI.wvaHideOlder !== 'function' || typeof RI.setWvaHideOlder !== 'function') return '';
+    var show = !RI.wvaHideOlder();
+    var win = (typeof RI.wvaRecentWords === 'function' && RI.wvaRecentWords()) || 'the preferred window';
+    return '<div class="ms-showcase ms-wva-pref" data-ms-wva-pref="1">' +
+      '<div class="ms-show-row">' +
+      '<div class="ms-show-main">' +
+      '<div class="ms-show-title">Words and votes: older votes ' + (show ? 'shown' : 'hidden') + '</div>' +
+      '<div class="ms-show-desc">' + (show
+        ? 'Notes where a vote ran against a stated position you share include older votes, marked “an older vote”, when nothing from ' + esc(win) + ' conflicts. Turn this off to see only notes from ' + esc(win) + '.'
+        : 'Only notes about votes from ' + esc(win) + ' are shown. Notes that name an older vote are hidden.') +
+      ' Saved on this device only.</div>' +
+      '</div>' +
+      '<label class="ms-toggle" title="Show Words and votes notes that name an older vote">' +
+      '<input type="checkbox" data-ms-wva-older="1"' + (show ? ' checked' : '') + ' aria-label="Show notes that name an older vote" />' +
+      '<span class="ms-toggle-track"><span class="ms-toggle-thumb"></span></span>' +
+      '</label>' +
+      '</div>' +
+      '</div>';
   }
 
   // Shared, read-only renderer for a set of public stances. Used both for the
@@ -1345,6 +1373,11 @@
   function onChange(e) {
     var t = e.target;
     if (!t) return;
+    if (t.matches && t.matches('[data-ms-wva-older]')) {
+      var RIx = window.PDXRelatedIssues;
+      if (RIx && typeof RIx.setWvaHideOlder === 'function') RIx.setWvaHideOlder(!t.checked);
+      render(); return;
+    }
     if (t.matches && t.matches('[data-ms-public]')) { setPublic(t.checked); render(); return; }
   }
 
