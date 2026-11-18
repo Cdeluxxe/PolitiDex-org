@@ -529,7 +529,7 @@ eq(JSON.stringify(navAssets), JSON.stringify(LOGOS),
   `the bar loads exactly the one official wordmark <img> and no other asset (found ${JSON.stringify(navAssets)})`);
 ok(navAssets.every(a => a.startsWith('/assets/')), 'and it is root-anchored, so no nested address 404s the brand');
 const navSources = [...NAV.matchAll(/\ssrcset="([^"]*)"/g)].map(m => m[1]);
-eq(JSON.stringify(navSources), JSON.stringify(['/assets/pdx-mark-header.png']),
+eq(JSON.stringify(navSources), JSON.stringify(['/assets/pdx-mark-192.png']),
   `and the only <source> is the phone PDX mark, so the bar shows one mark at any width (found ${JSON.stringify(navSources)})`);
 eq((NAV.match(/<picture\b/g) || []).length, 1, 'and the brand is a single <picture> — never a tile beside a wordmark');
 eq((NAV.match(/url\(/g) || []).length, 0, 'and no stylesheet url() inside the markup either');

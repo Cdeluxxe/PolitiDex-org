@@ -12349,7 +12349,15 @@
 //     clean readable text (binary and PDF stream junk is dropped). Precached
 //     files changed, so the shell moves; the precache list is unchanged.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v582';
+// v583 - THE SHARE-CARD PDX MARK IN EVERY HEADER. The top-left mark on the
+//     front page (phones), person, issue, ballot, bill, district and shell bars
+//     now draws /assets/pdx-mark-192.png — the same black-tile PDX mark the
+//     share card carries — instead of the transparent header cutout, at the
+//     same 2rem size. Precached files changed, so the shell moves; the
+//     precache list is unchanged. No route or markup structure changes;
+//     no location key is touched and nothing stored is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v583';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

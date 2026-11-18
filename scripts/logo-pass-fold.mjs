@@ -8,6 +8,17 @@
 // HEAD folds these edits back with foldLogoPass() first, so it keeps pinning
 // every other byte. Each pair is [what the document says now, what it said].
 export const LOGO_PASS_EDITS = [
+  // The share-card mark pass (sw v583) swapped the header cutout for the same
+  // black-tile PDX mark the share card carries. Folded first, so the logo
+  // pass pairs below still see what they replaced.
+  [
+    "<img src=\"/assets/pdx-mark-192.png\" alt=\"PolitiDex\" width=\"32\" height=\"32\" decoding=\"async\" style=\"display:block;width:2rem;height:2rem;max-width:none\" />",
+    "<img src=\"/assets/pdx-mark-header.png\" alt=\"PolitiDex\" width=\"32\" height=\"32\" decoding=\"async\" style=\"display:block;width:2rem;height:2rem;max-width:none\" />"
+  ],
+  [
+    "<source media=\"(max-width: 639px)\" srcset=\"/assets/pdx-mark-192.png\" width=\"32\" height=\"32\" />",
+    "<source media=\"(max-width: 639px)\" srcset=\"/assets/pdx-mark-header.png\" width=\"32\" height=\"32\" />"
+  ],
   [
     "  <meta property=\"og:image\" content=\"https://politidex.fyi/assets/og-image.png\" />",
     "  <meta property=\"og:image\" content=\"https://politidex.fyi/.netlify/images?url=%2Fassets%2Fog-default.svg&fm=png&w=1200&h=630&fit=cover\" />"
