@@ -12342,7 +12342,14 @@
 //     foot-of-page signature it replaces is removed. Precached files changed,
 //     so the shell moves. No route or markup structure changes.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v581';
+// v582 - PERSON PAGE CLEANUP. The 🕑 Activity badge reads the newest evidence
+//     item or pipeline mention on the person (never "months ago" for something
+//     from this month), the Evidence tab's weaker signals collapse by topic in
+//     the issue tree's colours and icons, and weak / mention excerpts show only
+//     clean readable text (binary and PDF stream junk is dropped). Precached
+//     files changed, so the shell moves; the precache list is unchanged.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v582';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

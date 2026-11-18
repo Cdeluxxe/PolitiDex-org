@@ -118,6 +118,92 @@ function trimExcerpt(s) {
   return t.length > EXCERPT_MAX ? t.slice(0, EXCERPT_MAX - 1).trimEnd() + "…" : t;
 }
 
+// ── Readable-text gate for weaker signals and mentions ──────────────────
+// A page the pipeline fetched can be a PDF or other binary read as text, and
+// the excerpt it scored is then stream data ("stream x\u009c…endstream",
+// "/FlateDecode", "12 0 obj") or replacement glyphs, not words. This keeps
+// only clean readable text: PDF structure and control / replacement / private
+// characters are cut, and every word that is not a plausible word is dropped.
+// Where junk was cut, only runs of at least four consecutive clean words
+// survive, so no stray fragments of a stream are left behind. Returns '' when
+// nothing readable is left — the caller drops the item. Strong stances never
+// pass through here. Kept identical in profile-locker.js and
+// netlify/lib/evidence-locker-core.mjs.
+var RT_ALLOWED = /^[\p{L}\p{M}\p{N}_'’\-–.,\/&%$@:#+]+$/u;
+var RT_EDGE = /^[\p{P}\p{S}]+|[\p{P}\p{S}]+$/gu;
+// Control, C1, replacement, BOM, zero-width, line-separator, private-use and
+// lone-surrogate code units, tested by number so no literal of them sits here.
+function rtBadUnit(c, next, prev) {
+  if (c < 32) return c !== 9 && c !== 10 && c !== 13;
+  if (c >= 0x7F && c <= 0x9F) return true;
+  if (c === 0xFFFD || c === 0xFFFE || c === 0xFFFF || c === 0xFEFF) return true;
+  if (c >= 0x200B && c <= 0x200F) return true;
+  if (c === 0x2028 || c === 0x2029) return true;
+  if (c >= 0xE000 && c <= 0xF8FF) return true;
+  if (c >= 0xD800 && c <= 0xDBFF) return !(next >= 0xDC00 && next <= 0xDFFF);
+  if (c >= 0xDC00 && c <= 0xDFFF) return !(prev >= 0xD800 && prev <= 0xDBFF);
+  return false;
+}
+function rtStripBad(t) {
+  var out = '';
+  for (var i = 0; i < t.length; i++) {
+    var c = t.charCodeAt(i);
+    out += rtBadUnit(c, t.charCodeAt(i + 1), t.charCodeAt(i - 1)) ? ' ' : t.charAt(i);
+  }
+  return out;
+}
+function rtWordOk(w, cut) {
+  if (/^(?:https?:\/\/|www\.)\S+$/i.test(w) && w.length <= 200) return true;
+  var core = w.replace(RT_EDGE, '');
+  if (!core) return w.length <= 3 && /^[—–\-&+=…"'“”‘’()]+$/.test(w);
+  if (core.length > 30) return false;
+  // In text that had junk cut out, a lone letter is a stream fragment.
+  if (cut && core.length === 1 && /\p{L}/u.test(core) && !/^[aAI]$/.test(core)) return false;
+  if (!RT_ALLOWED.test(core)) return false;
+  var letters = core.match(/\p{L}/gu) || [];
+  var ext = core.match(/[^\x00-\x7F]/g) || [];
+  if (letters.length && ext.length * 2 > core.length && /[A-Za-z]/.test(core)) return false;
+  // Bytes read as Latin-1 ("ÿØÿà", a lone "ÿ"): real words in Latin-script
+  // languages always carry plain ASCII letters alongside their accents.
+  if (/^[\u00A0-\u00FF]+$/.test(core)) return false;
+  if (letters.length >= 6 && letters.length === core.length && !/[aeiouyAEIOUYÀ-ɏ]/.test(core)) return false;
+  if ((core.match(/[a-z][A-Z]/g) || []).length > 1) return false;
+  if ((core.match(/[A-Za-z]\d|\d[A-Za-z]/g) || []).length > 2) return false;
+  return true;
+}
+export function cleanReadableText(s) {
+  var raw = String(s == null ? '' : s);
+  if (!raw) return '';
+  var t = rtStripBad(raw);
+  // Two or more junk code units means the text was not clean to begin with.
+  var cut = (t.match(/ /g) || []).length - (raw.match(/ /g) || []).length >= 2;
+  var before = t;
+  t = t
+    .replace(/\bstream\b[\s\S]*?\bendstream\b/g, ' ')
+    .replace(/<<[\s\S]*?>>/g, ' ')
+    .replace(/%PDF-\d(?:\.\d)?|%%EOF/g, ' ')
+    .replace(/\b\d+\s+\d+\s+(?:obj|R)\b/g, ' ')
+    .replace(/\b(?:endobj|endstream|startxref|xref|trailer)\b/g, ' ')
+    .replace(/(^|\s)\/[A-Za-z][A-Za-z0-9#]*/g, '$1 ');
+  if (t !== before) cut = true;
+  var words = t.split(/\s+/).filter(Boolean);
+  if (!words.length) return '';
+  var keep = words.map(function (w) { return rtWordOk(w, cut); });
+  var dropped = cut || keep.some(function (k) { return !k; });
+  var runs = [], cur = [];
+  for (var i = 0; i <= words.length; i++) {
+    if (i < words.length && keep[i]) { cur.push(words[i]); continue; }
+    if (cur.length && (!dropped || cur.length >= 4)) runs.push(cur.join(' '));
+    cur = [];
+  }
+  var out = runs.join(' … ').trim();
+  var real = (out.match(/\p{L}{2,}/gu) || []).filter(function (x) { return /[aeiouyAEIOUYÀ-ɏ]/.test(x); });
+  if (real.length < 2) return '';
+  var lettersN = (out.match(/\p{L}/gu) || []).length;
+  if (lettersN < out.replace(/\s/g, '').length * 0.5) return '';
+  return out;
+}
+
 /** Stable, link-derived key: one Locker item per politician · topic · page. */
 export function lockerKey({ politician_id, topic, link }) {
   const h = createHash("sha256").update(String(link)).digest("hex").slice(0, 16);
@@ -141,12 +227,17 @@ export function lockerStrength(candidate) {
   const c = numOr(candidate?.confidence, 0);
   const clear = isClear(candidate?.position);
   if (clear && c >= LOCKER_MIN_CONFIDENCE) return { strength: "strong", reason: `clear ${candidate.position} at confidence ${c} ≥ ${LOCKER_MIN_CONFIDENCE}` };
-  if (clear && c >= LOCKER_WEAK_MIN_CONFIDENCE) return { strength: "weak", reason: `clear ${candidate.position} at confidence ${c} (${LOCKER_WEAK_MIN_CONFIDENCE}–${LOCKER_MIN_CONFIDENCE})` };
+  if (clear && c >= LOCKER_WEAK_MIN_CONFIDENCE) {
+    const raw = String(candidate?.sources?.[0]?.excerpt || "").trim();
+    if (raw && !cleanReadableText(raw)) return { strength: null, reason: `clear ${candidate.position} at confidence ${c}, but the excerpt has no readable text (binary / PDF data)` };
+    return { strength: "weak", reason: `clear ${candidate.position} at confidence ${c} (${LOCKER_WEAK_MIN_CONFIDENCE}–${LOCKER_MIN_CONFIDENCE})` };
+  }
   const why = clear ? `confidence ${c} < ${LOCKER_WEAK_MIN_CONFIDENCE}` : `position "${candidate?.position}" is not clear`;
   const mentions = topicMentionCount(candidate);
   const excerpt = String(candidate?.sources?.[0]?.excerpt || "").trim();
   if (!mentions) return { strength: null, reason: `${why} and no topic mentions` };
   if (!excerpt) return { strength: null, reason: `${why} and no excerpt to show` };
+  if (!cleanReadableText(excerpt)) return { strength: null, reason: `${why} and the excerpt has no readable text (binary / PDF data)` };
   return { strength: "mention", reason: `${why}; ${mentions} topic mention(s) with an excerpt` };
 }
 
@@ -193,6 +284,20 @@ export function lockerDecision(candidate, raw, gt = null) {
 export const sourceTierOf = (x) => (Number(x?.source_tier) === 2 ? 2 : 1);
 export const SOURCE_TIER_LABELS = { 1: "tier 1 · first-party page", 2: "tier 2 · official government source / own YouTube channel" };
 
+/**
+ * Serve-time gate for a stored item: a weak signal or mention whose excerpt
+ * is binary / PDF junk is cleaned to its readable text, or dropped (null) when
+ * none is left. Strong items are returned untouched, as stored.
+ */
+export function readableWeakerItem(doc) {
+  if (!doc || storedStrength(doc) === "strong") return doc;
+  const raw = String(doc.excerpt || "");
+  if (!raw.trim()) return doc;
+  const clean = cleanReadableText(raw);
+  if (!clean) return null;
+  return clean === raw ? doc : { ...doc, excerpt: trimExcerpt(clean) };
+}
+
 /** The finished Locker item for a candidate + the raw record it came from. */
 export function buildLockerItem(candidate, raw, strength = lockerStrength(candidate).strength) {
   const src = candidate.sources?.[0] || {};
@@ -206,7 +311,9 @@ export function buildLockerItem(candidate, raw, strength = lockerStrength(candid
     confidence: candidate.confidence,
     source_type,
     link,
-    excerpt: trimExcerpt(src.excerpt),
+    // A weak signal or mention keeps only its clean readable text; a strong
+    // stance's excerpt is stored exactly as before.
+    excerpt: strength === "strong" ? trimExcerpt(src.excerpt) : trimExcerpt(cleanReadableText(src.excerpt)),
     date,
     attribution: attributionFor(source_type, link),
     strength,

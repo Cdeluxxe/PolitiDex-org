@@ -26,7 +26,7 @@
 
 import type { Config } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
-import { LOCKER_STORE_NAME, toSpotlightEntry, loadReviewFlags, reviewFor, regradeStatedPosition, collapseRestatedItems } from "../lib/evidence-locker-core.mjs";
+import { LOCKER_STORE_NAME, toSpotlightEntry, loadReviewFlags, reviewFor, regradeStatedPosition, collapseRestatedItems, readableWeakerItem } from "../lib/evidence-locker-core.mjs";
 import { readLockerDocs } from "../lib/locker-read.mjs";
 import reviewFile from "../../db/evidence-locker-review.json" with { type: "json" };
 import { recordFlag, FLAG_STORE_NAME } from "../lib/dirkey-flag-core.mjs";
@@ -35,14 +35,18 @@ export async function listLockerEntries(store: any, flagsDoc: any = reviewFile) 
   const flags = loadReviewFlags(flagsDoc);
   const { blobs } = await store.list();
   const items: Record<string, any[]> = {};
-  let count = 0, hidden = 0;
+  let count = 0, hidden = 0, unreadable = 0;
   const docs: any[] = await readLockerDocs(store, blobs.map((b: any) => b.key));
   const rows: any[] = [];
   for (const { key, doc } of docs) {
     if (!doc || !doc.politician_id || !doc.link) continue;
     const review = reviewFor(doc, key, flags);
     if (review?.status === "hidden") { hidden++; continue; }
-    rows.push({ key, doc: regradeStatedPosition(doc), review });
+    // Weak signals and mentions are served as clean readable text only; one
+    // with nothing readable left (binary / PDF stream data) is not served.
+    const served = readableWeakerItem(regradeStatedPosition(doc));
+    if (!served) { unreadable++; continue; }
+    rows.push({ key, doc: served, review });
   }
   const kept = collapseRestatedItems(rows);
   const restated = rows.length - kept.length;
@@ -50,7 +54,7 @@ export async function listLockerEntries(store: any, flagsDoc: any = reviewFile) 
     (items[doc.politician_id] ||= []).push(toSpotlightEntry(doc, { key, review }));
     count++;
   }
-  return { items, count, hidden, ...(restated ? { restated } : {}) };
+  return { items, count, hidden, ...(restated ? { restated } : {}), ...(unreadable ? { unreadable } : {}) };
 }
 
 async function flag(req: Request): Promise<Response> {
