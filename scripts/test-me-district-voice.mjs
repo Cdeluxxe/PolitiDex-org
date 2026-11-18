@@ -799,7 +799,14 @@ const VERIFIED_OPTS = { uid: "u_7", loc: { state: "Utah", city: "Layton", county
     // The "Read a record" strip is generated from stance coverage
     // (scripts/gen-hero-showcase.mjs) and moves when a stance pass lifts someone
     // into the showcase. It is a list of person links, not money markup.
-    .replace(/<!-- pdx:hero-crawl:begin -->[\s\S]*?<!-- pdx:hero-crawl:end -->/, "<HERO-CRAWL>");
+    .replace(/<!-- pdx:hero-crawl:begin -->[\s\S]*?<!-- pdx:hero-crawl:end -->/, "<HERO-CRAWL>")
+    // The FEC money summary table the offline discovery job writes into
+    // ftm-data.js, and the resolver that reads it (scripts/test-fec-money-summary.mjs
+    // pins both). It is finance data, not pill markup: the chips' words are unchanged.
+    .replace(" — except FTM_FEC_SUMMARY, a block of\n//     FEC committee money summaries (receipts, disbursements, cash on hand,\n//     coverage end) that the OFFLINE discovery job writes between its markers.\n//     That job is never run by the cron and the browser never calls the FEC.", ".")
+    .replace(/\n\n    \/\/ ── FEC MONEY SUMMARIES, SAVED BY THE OFFLINE DISCOVERY JOB[\s\S]*?\/\/ ── END FTM_FEC_SUMMARY ──\n/, "\n")
+    .replace(/    function _ftmHandRecord\(pid\) \{[\s\S]*?\n    function _ftmRecord\(pid\) \{[\s\S]*?\n    \}\n/, "    function _ftmRecord(pid) {\n      if (!pid) return null;\n      var direct = _FTM_BY_ID[pid];\n      if (direct) return direct;\n      var key = FTM_ID_ALIAS[pid];\n      return (key && _FTM_BY_ID[key]) ? _FTM_BY_ID[key] : null;\n    }\n")
+    .replace("        fecSummary: p.fecSummary ? Object.assign({}, p.fecSummary) : null,\n", "");
   for (const f of MONEY) {
     const src = R(f);
     if (head) eq(sansAlias(src) === sansAlias(head(f)), true, `${f}: money markup changed in this pass`);
