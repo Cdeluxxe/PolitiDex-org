@@ -482,6 +482,17 @@ const SEED_SLUGS = {
   carol_miller:              "M001205", // Carol D. Miller — R-WV-01
   riley_moore:               "M001235", // Riley M. Moore — R-WV-02
   harriet_hageman:           "H001096", // Harriet M. Hageman — R-WY-AL
+
+  // ── The senator seated mid-term (vote-actions Senate gap, Nov 2026) ─────────
+  // Darline Graham took South Carolina's Senate seat on 2026-07-14, after Lindsey
+  // Graham left it, and every Senate roll call since carries her — 70-odd roll
+  // calls the raw vote feed could not publish because no row of hers had a
+  // politician. Her roster file has no congressional portrait, so no Bioguide
+  // could be read out of a URL. Verified two ways: name + state against
+  // legislators-current.json (G000608, sen, SC, from 2026-07-14), and the
+  // `<lis_member_id>` S441 the Senate's own roll XML prints for her, matched to
+  // `id.lis` in the same record.
+  darline_graham:            "G000608", // Darline Graham — Sen, SC
 };
 
 // ── The official-record name for a slug the app publishes no name for ─────────
@@ -808,6 +819,11 @@ function checkNamesAgree(slugToBio, admitted, byBio, names) {
       continue;
     }
     if (auth.last && normName(app).includes(normName(auth.last))) continue;
+    // The whole official name, exactly, is agreement too — stricter than the surname
+    // compare above, and the only one that holds when the dataset's `last` field is
+    // longer than the name the record prints ("Graham Nordone" for the senator whose
+    // official_full is "Darline Graham").
+    if (auth.name && normName(app) === normName(auth.name)) continue;
     const row = `${slug} → ${bio} is ${auth.name} (${auth.chamber}, ${auth.state}), but the app profiles "${app}"`;
     (admitted.has(slug) ? errors : warnings).push(row);
   }

@@ -63,8 +63,9 @@
    does not answer in time the row prints the snapshot's tags exactly. A key with
    no label in ISSUE_MAP is not printed. See netlify/lib/bill-live-issues.ts.
 
-   COMPANION. It also loads person-directional-keys.js once (loadCompanion),
-   which places its own section; nothing in the bills list depends on it.
+   COMPANION. It also loads person-directional-keys.js and
+   person-recorded-votes.js once (loadCompanion); each places its own section,
+   and nothing in the bills list depends on either.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -411,16 +412,21 @@
   // person-directional-keys.js mounts its own #pdx-dirkeys section (see that
   // file). It is loaded from here, once, so the person shell and its precache
   // list stay as they are; it is fetched at runtime like its data table.
-  function loadCompanion() {
+  function loadScript(src, flag, present) {
     try {
-      if (window.PDXPersonDirectionalKeys || !document.createElement || !document.head) return;
-      if (document.querySelector && document.querySelector('script[data-pdx-dirkeys-loader]')) return;
+      if (present || !document.createElement || !document.head) return;
+      if (document.querySelector && document.querySelector('script[' + flag + ']')) return;
       var sc = document.createElement('script');
-      sc.src = '/person-directional-keys.js';
+      sc.src = src;
       sc.defer = true;
-      sc.setAttribute('data-pdx-dirkeys-loader', '');
+      sc.setAttribute(flag, '');
       document.head.appendChild(sc);
     } catch (e) { /* the bills list does not depend on it */ }
+  }
+  function loadCompanion() {
+    loadScript('/person-directional-keys.js', 'data-pdx-dirkeys-loader', !!window.PDXPersonDirectionalKeys);
+    // The raw "Recorded votes" section, which places itself after this one.
+    loadScript('/person-recorded-votes.js', 'data-pdx-recorded-votes-loader', !!window.PDXRecordedVotes);
   }
 
   function boot() {

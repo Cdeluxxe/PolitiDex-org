@@ -712,9 +712,12 @@ at('person-bills.js loads the module once; person.html and the precache list are
   vm.createContext(ctx);
   vm.runInContext(`var window = this.window; ${R('person-bills.js')}`, ctx);
   ctx.window.PDXPersonBills.scan();
-  const scripts = appended.filter((n) => n.tagName === 'script');
+  // person-bills.js also loads person-recorded-votes.js as a second companion;
+  // what is pinned here is that THIS module gets exactly one tag.
+  const scripts = appended.filter((n) => n.tagName === 'script' && n.src === '/person-directional-keys.js');
   assert.equal(scripts.length, 1);
   assert.equal(scripts[0].src, '/person-directional-keys.js');
+  assert.equal(appended.filter((n) => n.tagName === 'script' && n.src === '/person-recorded-votes.js').length, 1);
   const sw = R('sw.js');
   const precache = (src) => (/const SHELL_ASSETS = \[([\s\S]*?)\];/.exec(src) || [])[1]?.split('\n').filter((l) => /^\s*'/.test(l)).join('\n');
   assert.ok(!sw.includes("'/person-directional-keys.js'") && !sw.includes("'/person-directional-keys.json'"), 'the module and its table are fetched at runtime');

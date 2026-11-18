@@ -293,7 +293,7 @@ for (const f of ["netlify/lib/vote-actions-core.ts", "netlify/lib/vote-actions-p
   ok(!/from ["'][^"']*(@netlify\/blobs|db\/(index|schema))/.test(read(f)), `${f} touches no Blobs or database itself`);
 }
 const vaFns = readdirSync(join(ROOT, "netlify/functions")).filter((f) => f.startsWith("vote-actions"));
-eq(vaFns.sort(), ["vote-actions-cron.mts", "vote-actions-cross-links.mts", "vote-actions-published.mts", "vote-actions-reparse.mts", "vote-actions-status.mts"], "no new vote-actions route");
+eq(vaFns.sort(), ["vote-actions-bill.mts", "vote-actions-cron.mts", "vote-actions-cross-links.mts", "vote-actions-published.mts", "vote-actions-reparse.mts", "vote-actions-status.mts"], "no vote-actions route beyond the public bill read");
 ok(!/bill-pages|generatedBillDoc/.test(read("netlify/functions/voting-record.mts")), "the voting-record API is untouched");
 eq(P.pageStoreKey(119, "H.R. 7000"), "us/119/H.R.%207000", "page key spelling");
 eq(P.congressEndedOn(119, NOW), null, "the 119th has not ended");

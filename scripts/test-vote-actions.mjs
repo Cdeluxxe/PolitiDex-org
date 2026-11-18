@@ -390,18 +390,25 @@ const edge = readdirSync(join(ROOT, "netlify/edge-functions")).filter((f) => /vo
 eq(edge, [], "no edge function reads the action tables");
 ok(/path: "\/api\/admin\/vote-actions"/.test(read("netlify/functions/vote-actions-status.mts")) && /requireAdmin/.test(read("netlify/functions/vote-actions-status.mts")), "status endpoint is curator-only");
 // THE PUBLISH GATE IS THE ONLY PUBLIC DOOR. Every vote-actions function is the
-// cron, a curator endpoint, or the one public read — and that read reaches the
-// tables only through publishedForPolitician (vote-actions-publish.ts), which
-// drops every row on a bill that fails a rule (behaviour: test-vote-actions-publish.mjs).
+// cron, a curator endpoint, or one of the two public reads — the person read and
+// the bill read — and each reaches the tables only through the gate
+// (vote-actions-publish.ts: publishedForPolitician / publishedForBill), which
+// drops every row on a roll call that fails a rule (behaviour:
+// test-vote-actions-publish.mjs and test-vote-actions-recorded-votes.mjs).
 const vaFns = readdirSync(join(ROOT, "netlify/functions")).filter((f) => f.startsWith("vote-actions"));
 const publicFns = vaFns.filter((f) => { const s = read(`netlify/functions/${f}`); return !/schedule:\s*"/.test(s) && !/requireAdmin\(req\)/.test(s); });
-eq(publicFns, ["vote-actions-published.mts"], "the only public vote-actions function is the publish-gated read");
+eq(publicFns.sort(), ["vote-actions-bill.mts", "vote-actions-published.mts"], "the only public vote-actions functions are the two publish-gated reads");
 const pubFn = read("netlify/functions/vote-actions-published.mts");
 eq(importsOf(pubFn).sort(), ["../lib/vote-actions-db.js", "../lib/vote-actions-publish.js", "@netlify/functions"].sort(), "public read imports only the gate and its data deps");
 ok(/publishedForPolitician\(pid, publishDeps\)/.test(pubFn) && !/voteActionsForPolitician|curatorLinksForPolitician|billPublishStats|rawRef|db\.select|sql`/.test(pubFn), "public read goes through publishedForPolitician only");
+const billFn = read("netlify/functions/vote-actions-bill.mts");
+eq(importsOf(billFn).sort(), ["../lib/vote-actions-db.js", "../lib/vote-actions-publish.js", "@netlify/functions"].sort(), "public bill read imports only the gate and its data deps");
+ok(/publishedForBill\(key, publishDeps\)/.test(billFn) && !/voteActionsForBill|curatorLinksForPolitician|billPublishStats|rawRef|db\.select|sql`/.test(billFn), "public bill read goes through publishedForBill only");
 const gate = read("netlify/lib/vote-actions-publish.ts");
-const pubBody = gate.slice(gate.indexOf("export async function publishedForPolitician"), gate.indexOf("export async function curatorLinksForPolitician"));
-ok(/if \(!evaluateBill\(r\.billKey, byKey\.get\(r\.billKey\)\)\.publishable\) continue;/.test(pubBody) && !/rawRef|memberId|politicianId/.test(pubBody), "public rows are gated per bill and carry no raw key or member id");
+const pubBody = gate.slice(gate.indexOf("export async function publishedForPolitician"), gate.indexOf("export async function publishedForBill"));
+ok(/if \(!g \|\| !g\.rollPublic\(r\)\) continue;/.test(pubBody) && !/rawRef|memberId|politicianId/.test(pubBody), "public rows are gated per roll call and carry no raw key or member id");
+const billBody = gate.slice(gate.indexOf("export async function publishedForBill"), gate.indexOf("export async function curatorLinksForPolitician"));
+ok(/if \(!g\.rollPublic\(r\)\) continue;/.test(billBody) && !/rawRef|memberId|bioguide/i.test(billBody), "public bill rows are gated per roll call and carry no raw key or member id");
 
 rmSync(dir, { recursive: true, force: true });
 if (failures.length) {
