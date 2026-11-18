@@ -12357,7 +12357,18 @@
 //     precache list is unchanged. No route or markup structure changes;
 //     no location key is touched and nothing stored is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v583';
+// v584 - RECORDED VOTES ON THE PERSON FILE, ROLL CALLS ON THE BILL PAGE. The
+//     raw vote feed (pdx_vote_actions) is now shown where it was only noted:
+//     person-bills.js loads person-recorded-votes.js, a "Recorded votes" section
+//     in the Official record stage, and bill.html loads bill-roll-calls.js, a
+//     "Roll calls on the record" section after the bill document. Both read only
+//     the publish-gated public reads, now judged per roll call, and both are
+//     labelled as the raw record. Precached files changed, so the shell moves;
+//     the two new modules are fetched at runtime, so the precache list is
+//     unchanged. No stance, tally, chip or verdict changes; no location key is
+//     touched and nothing stored is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v584';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

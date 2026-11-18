@@ -1,7 +1,7 @@
 {
   "_comment": "bioguide -> roster slug for the Voting Record ingest. Regenerate with scripts/vr-gen-member-map.mjs. The ingest reads `map`; `members` is for human review only. Roster scope is db/vr-roster-admitted.json.",
-  "count": 539,
-  "serving119": 530,
+  "count": 540,
+  "serving119": 531,
   "annotated": true,
   "unadmittedPortraits": 0,
   "map": {
@@ -207,6 +207,7 @@
     "G000605": "adam_gray",
     "G000606": "adelita_grijalva",
     "G000607": "james_gallagher",
+    "G000608": "darline_graham",
     "H000273": "hickenlooper",
     "H000601": "hagerty",
     "H000874": "steny_hoyer",
@@ -1569,6 +1570,15 @@
       "name": "Darin LaHood",
       "chamber": "house",
       "state": "IL",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "G000608",
+      "slug": "darline_graham",
+      "name": "Darline Graham",
+      "chamber": "senate",
+      "state": "SC",
       "party": "Republican",
       "serving119": true
     },

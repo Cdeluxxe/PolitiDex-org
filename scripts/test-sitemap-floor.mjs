@@ -79,7 +79,9 @@ ctx.globalThis = ctx;
 // wrong reason: the sandbox floor would see zero formal measures, reject the
 // 50 person files that clear on formal acts alone, and report the SITEMAP as
 // wrong when the sitemap was right and the harness was blind.
-for (const f of ["cmp-data.js", "politician-stances-core.js", "politician-stances-ext.js", "formal-index.js", "publication-floor.js"]) {
+// state-senate-stances.js is here for the same reason: gen-sitemap.mjs loads it,
+// and the state senators whose positions live only there clear on it.
+for (const f of ["cmp-data.js", "politician-stances-core.js", "politician-stances-ext.js", "state-senate-stances.js", "formal-index.js", "publication-floor.js"]) {
   new vm.Script(R(f), { filename: f }).runInContext(ctx);
 }
 const FLOOR = ctx.window.PDXPublicationFloor;

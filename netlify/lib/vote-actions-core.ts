@@ -179,6 +179,11 @@ export interface VoteActionsRepo {
   // politician_id IS NULL are touched — the value a fresh ingest would write.
   unmappedBioguides?(): Promise<string[]>;
   mapMembers?(pairs: Array<[string, string]>): Promise<number>;
+  // LIS catch-up (optional): Senate LIS ids on rows that never got a bioguide id,
+  // and a fill of bioguide_id (+ politician_id when the member map knows it) for
+  // the ones the LIS index now resolves. Only rows whose bioguide_id IS NULL are touched.
+  unresolvedLisIds?(): Promise<string[]>;
+  resolveLisMembers?(triples: Array<[string, string, string | null]>): Promise<number>;
   // Every stored bill of one Congress, for its page (vote-actions-pages.ts).
   // Absent → no page is generated and no Congress is marked complete.
   billsForPages?(congress: number): Promise<PageBill[]>;
@@ -417,6 +422,20 @@ export function parseSenateVote(xml: string, congress: number, session: number, 
     measure, members, unsupported,
   };
 }
+
+// LIS ids the current-legislators file no longer carries. That file lists
+// SITTING senators only, so a senator who leaves drops out of it — and any of
+// their roll calls stored while the index was missing them keep an LIS id with
+// no bioguide forever, which holds every roll call they voted on. Each pair was
+// checked against legislators-historical.json (id.lis → id.bioguide) and against
+// the member name the Senate's own roll-call XML prints on the stored rows.
+// The index merged below also keeps every senator an earlier refresh resolved,
+// so a departure never un-resolves an id again; this seed covers the two that
+// had already fallen out before that.
+export const LIS_SEED: Record<string, string> = {
+  S293: "G000359", // Lindsey Graham — Sen, SC (left 2026-07-11)
+  S419: "M001190", // Markwayne Mullin — Sen, OK (left 2026-03-23)
+};
 
 // LIS id → bioguide, from the public congress-legislators dataset.
 export function lisIndexFrom(legislators: any[]): Record<string, string> {
@@ -1079,20 +1098,22 @@ async function senateCandidates(deps: RunDeps, congress: number, sessions: numbe
 
 async function ensureLisIndex(deps: RunDeps, state: RunState, now: Date, log: (l: string) => void): Promise<Record<string, string>> {
   const fresh = state.lis && now.getTime() - new Date(state.lis.at).getTime() < LIS_INDEX_MAX_AGE_DAYS * DAY;
-  if (fresh && state.lis) return state.lis.map;
+  if (fresh && state.lis) return { ...LIS_SEED, ...state.lis.map };
   try {
     const d = await getJson(deps.fetch, LEGISLATORS_URL);
-    const map = Array.isArray(d) ? lisIndexFrom(d) : {};
-    if (Object.keys(map).length) {
+    const current = Array.isArray(d) ? lisIndexFrom(d) : {};
+    if (Object.keys(current).length) {
+      // Merge, never replace: a senator who has left keeps their resolution.
+      const map = { ...LIS_SEED, ...(state.lis?.map || {}), ...current };
       state.lis = { at: now.toISOString(), map };
-      log(`vote-actions: LIS → bioguide index refreshed (${Object.keys(map).length} senators)`);
+      log(`vote-actions: LIS → bioguide index refreshed (${Object.keys(current).length} sitting senators, ${Object.keys(map).length} ids kept)`);
       return map;
     }
   } catch (e: any) {
     if (e instanceof RateLimited) throw e;
     log(`vote-actions: LIS index unavailable — ${e?.message || e}`);
   }
-  return state.lis?.map || {};
+  return { ...LIS_SEED, ...(state.lis?.map || {}) };
 }
 
 // The bill's Congress.gov object (bill or amendment) and its action list, for its
@@ -1426,11 +1447,26 @@ export async function runVoteActions(deps: RunDeps): Promise<{ report: RunReport
     // 7. Roster catch-up: a member added to the roster after their roll calls were
     //    read (and marked done) gets their politician on those rows now, so the
     //    publish gate re-evaluates the bill with no manual step and no refetch.
+    //    First the Senate rows whose LIS id never resolved: give them their
+    //    bioguide id (and politician) now that the LIS index knows them, so the
+    //    publish gate stops holding every roll call those senators voted on.
+    if (!overBudget() && deps.repo.unresolvedLisIds && deps.repo.resolveLisMembers && chambers.includes("senate")) {
+      const ids = await deps.repo.unresolvedLisIds();
+      if (ids.length) {
+        if (!lis) lis = await ensureLisIndex(deps, state, now, log);
+        const triples = ids.filter((id) => lis![id]).map((id) => [id, lis![id], deps.memberMap[lis![id]] || null] as [string, string, string | null]);
+        if (triples.length) {
+          const n = await deps.repo.resolveLisMembers(triples);
+          report.membersRemapped += n;
+          log(`vote-actions: LIS CATCH-UP — ${triples.length} senator id(s) resolved, ${n} row(s) filled`);
+        }
+      }
+    }
     if (!overBudget() && deps.repo.unmappedBioguides && deps.repo.mapMembers) {
       const pairs = (await deps.repo.unmappedBioguides())
         .filter((b) => deps.memberMap[b]).map((b) => [b, deps.memberMap[b]] as [string, string]);
       if (pairs.length) {
-        report.membersRemapped = await deps.repo.mapMembers(pairs);
+        report.membersRemapped += await deps.repo.mapMembers(pairs);
         log(`vote-actions: ROSTER CATCH-UP — ${pairs.length} member(s) now mapped, ${report.membersRemapped} row(s) filled`);
       }
     }

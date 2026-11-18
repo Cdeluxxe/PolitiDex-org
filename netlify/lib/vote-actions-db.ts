@@ -116,6 +116,28 @@ export const voteActionsRepo: VoteActionsRepo = {
     return n;
   },
 
+  // Senate rows stored with an LIS id that did not resolve to a bioguide id at
+  // the time (the LIS index was missing that senator), for the LIS catch-up.
+  async unresolvedLisIds() {
+    const rows = await db.selectDistinct({ id: pdxVoteActions.memberId }).from(pdxVoteActions)
+      .where(and(eq(pdxVoteActions.memberIdScheme, "lis"), isNull(pdxVoteActions.bioguideId)));
+    return rows.map((r) => r.id as string);
+  },
+
+  // Fill the bioguide id (and the politician, when the member map has one) on
+  // those rows. Only rows with no bioguide yet are touched; nothing is overwritten.
+  async resolveLisMembers(triples) {
+    let n = 0;
+    for (const [lis, bioguide, pid] of triples) {
+      const res: any = await db.update(pdxVoteActions)
+        .set({ bioguideId: bioguide, ...(pid ? { politicianId: pid } : {}), updatedAt: new Date() })
+        .where(and(eq(pdxVoteActions.memberIdScheme, "lis"), eq(pdxVoteActions.memberId, lis), isNull(pdxVoteActions.bioguideId)))
+        .returning({ id: pdxVoteActions.id });
+      n += res.length;
+    }
+    return n;
+  },
+
   // Page inputs for every stored bill of one Congress — the columns the page
   // reads only (no summary text), so a full Congress is a light read.
   async billsForPages(congress) {
@@ -184,7 +206,7 @@ export async function voteActionsStatus() {
      GROUP BY member_id_scheme, member_id, bioguide_id
      ORDER BY (bioguide_id IS NULL) DESC, count(*) DESC, member_id
      LIMIT 25`));
-  return { bills, votes, tags, unmappedMembers, publishStats: await billPublishStats() };
+  return { bills, votes, tags, unmappedMembers, publishStats: await billPublishStats(), publishRollStats: await rollPublishStats() };
 }
 
 // Curator-only cross-links (GET /api/admin/vote-actions/cross-links): one
@@ -215,6 +237,7 @@ export async function billPublishStats(billKeys?: string[]) {
     SELECT b.bill_key, b.measure_type, cardinality(b.topic_tags)::int AS tag_count,
            count(v.id)::int AS rows,
            count(v.id) FILTER (WHERE v.politician_id IS NULL)::int AS unmapped_rows,
+           count(v.id) FILTER (WHERE v.politician_id IS NULL AND v.bioguide_id IS NULL)::int AS unresolved_rows,
            count(v.id) FILTER (WHERE v.vote_kind = 'unknown' OR v.is_procedural IS NULL)::int AS unknown_kind_rows,
            count(v.id) FILTER (WHERE v.raw_ref IS NULL)::int AS missing_raw_rows,
            count(v.id) FILTER (WHERE v.is_procedural IS TRUE)::int AS procedural_rows,
@@ -225,13 +248,71 @@ export async function billPublishStats(billKeys?: string[]) {
      GROUP BY b.bill_key, b.measure_type, b.topic_tags`));
   return res.map((r) => ({
     billKey: r.bill_key, measureType: r.measure_type, tagCount: Number(r.tag_count) || 0, rows: Number(r.rows) || 0,
-    unmappedRows: Number(r.unmapped_rows) || 0, unknownKindRows: Number(r.unknown_kind_rows) || 0,
+    unmappedRows: Number(r.unmapped_rows) || 0, unresolvedRows: Number(r.unresolved_rows) || 0, unknownKindRows: Number(r.unknown_kind_rows) || 0,
     missingRawRows: Number(r.missing_raw_rows) || 0, proceduralRows: Number(r.procedural_rows) || 0, rolls: Number(r.rolls) || 0,
   }));
+}
+
+// The same counts per ROLL CALL (the gate judges each roll call on its own; see
+// vote-actions-publish.ts). One row per (bill, chamber, congress, session, roll)
+// that has vote rows; the bill's kind and tag count ride along. Read-only,
+// recomputed on every call. `billKeys` omitted = every bill.
+export async function rollPublishStats(billKeys?: string[]) {
+  if (billKeys && !billKeys.length) return [];
+  const rowsOf = (res: any) => (Array.isArray(res) ? res : res?.rows ?? []);
+  const where = billKeys ? sql`WHERE v.bill_key IN (${sql.join(billKeys.map((k) => sql`${k}`), sql`, `)})` : sql``;
+  const res: any[] = rowsOf(await db.execute(sql`
+    SELECT v.bill_key, v.chamber, v.congress, v.session, v.roll_number,
+           max(b.measure_type) AS measure_type, max(cardinality(b.topic_tags))::int AS tag_count,
+           count(v.id)::int AS rows,
+           count(v.id) FILTER (WHERE v.politician_id IS NULL)::int AS unmapped_rows,
+           count(v.id) FILTER (WHERE v.politician_id IS NULL AND v.bioguide_id IS NULL)::int AS unresolved_rows,
+           count(v.id) FILTER (WHERE v.vote_kind = 'unknown' OR v.is_procedural IS NULL)::int AS unknown_kind_rows,
+           count(v.id) FILTER (WHERE v.raw_ref IS NULL)::int AS missing_raw_rows,
+           count(v.id) FILTER (WHERE v.is_procedural IS TRUE)::int AS procedural_rows
+      FROM pdx_vote_actions v
+      LEFT JOIN pdx_action_bills b ON b.bill_key = v.bill_key
+      ${where}
+     GROUP BY v.bill_key, v.chamber, v.congress, v.session, v.roll_number`));
+  return res.map((r) => ({
+    billKey: r.bill_key, chamber: r.chamber, congress: Number(r.congress), session: Number(r.session), rollNumber: Number(r.roll_number),
+    measureType: r.measure_type ?? null, tagCount: Number(r.tag_count) || 0, rows: Number(r.rows) || 0,
+    unmappedRows: Number(r.unmapped_rows) || 0, unresolvedRows: Number(r.unresolved_rows) || 0, unknownKindRows: Number(r.unknown_kind_rows) || 0,
+    missingRawRows: Number(r.missing_raw_rows) || 0, proceduralRows: Number(r.procedural_rows) || 0, rolls: 1,
+  }));
+}
+
+// Every vote row on one bill, every member, for the public bill read
+// (publishedForBill). The gate decides what leaves; member ids never do.
+export async function voteActionsForBill(billKey: string, limit = 20000) {
+  return db.select({
+    billKey: pdxVoteActions.billKey, chamber: pdxVoteActions.chamber, congress: pdxVoteActions.congress,
+    session: pdxVoteActions.session, rollNumber: pdxVoteActions.rollNumber, voteDate: pdxVoteActions.voteDate,
+    vote: pdxVoteActions.vote, voteRaw: pdxVoteActions.voteRaw, voteKind: pdxVoteActions.voteKind,
+    isProcedural: pdxVoteActions.isProcedural, question: pdxVoteActions.question, result: pdxVoteActions.result,
+    sourceUrl: pdxVoteActions.sourceUrl, sourceLabel: pdxVoteActions.sourceLabel,
+    politicianId: pdxVoteActions.politicianId, memberName: pdxVoteActions.memberName, party: pdxVoteActions.party, state: pdxVoteActions.state,
+  }).from(pdxVoteActions)
+    .where(eq(pdxVoteActions.billKey, billKey))
+    .orderBy(pdxVoteActions.voteDate, pdxVoteActions.rollNumber)
+    .limit(limit);
+}
+
+// Number, title and kind per bill key, for the public lists that name a bill.
+export async function billInfoFor(billKeys: string[]) {
+  if (!billKeys.length) return [];
+  const rows = await db.select({
+    billKey: pdxActionBills.billKey, congress: pdxActionBills.congress, measureType: pdxActionBills.measureType,
+    number: pdxActionBills.number, title: pdxActionBills.title, shortTitle: pdxActionBills.shortTitle,
+  }).from(pdxActionBills).where(inArray(pdxActionBills.billKey, billKeys));
+  return rows.map((r: any) => ({ ...r, congress: r.congress == null ? null : Number(r.congress) }));
 }
 
 // The gate's data deps, wired to the tables.
 export const publishDeps = {
   rowsForPolitician: (pid: string) => voteActionsForPolitician(pid),
   statsForBills: (keys: string[]) => billPublishStats(keys),
+  statsForRolls: (keys: string[]) => rollPublishStats(keys),
+  rowsForBill: (billKey: string) => voteActionsForBill(billKey),
+  billInfo: (keys: string[]) => billInfoFor(keys),
 };

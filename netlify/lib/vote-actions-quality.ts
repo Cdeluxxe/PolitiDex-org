@@ -124,19 +124,20 @@ export const pctText = (x: Rate) => (x.pct === null ? "n/a" : `${x.pct.toFixed(1
 
 // The full status body: every field the endpoint returned before, plus quality.
 export function buildStatusBody(input: {
-  lastRun: any; ledger: LedgerLike; status: { bills: any; votes: any; tags: any; unmappedMembers?: any[]; publishStats?: any[] | null };
-  publish?: (stats: any[]) => unknown;
+  lastRun: any; ledger: LedgerLike; status: { bills: any; votes: any; tags: any; unmappedMembers?: any[]; publishStats?: any[] | null; publishRollStats?: any[] | null };
+  publish?: (stats: any[], rollStats?: any[] | null) => unknown;
 }) {
   const ledgerCounts: Record<string, number> = {};
   for (const v of Object.values(input.ledger)) ledgerCounts[v.status] = (ledgerCounts[v.status] || 0) + 1;
   const notDone = Object.entries(input.ledger).filter(([, v]) => v.status !== "done").slice(0, 50).map(([k, v]) => ({ roll: k, ...v }));
-  const { unmappedMembers = [], publishStats = null, ...status } = input.status;
+  const { unmappedMembers = [], publishStats = null, publishRollStats = null, ...status } = input.status;
   return {
     lastRun: input.lastRun, ledger: ledgerCounts, notDone, ...status,
     quality: {
       tables: tableQuality(status.bills, status.votes), ledger: ledgerQuality(input.ledger),
-      // The automatic publish gate over every bill (vote-actions-publish.ts publishSummary).
-      ...(input.publish && publishStats ? { publish: input.publish(publishStats) } : {}),
+      // The automatic publish gate over every bill and, when the per-roll counts
+      // came with them, every roll call (vote-actions-publish.ts publishSummary).
+      ...(input.publish && publishStats ? { publish: publishRollStats ? input.publish(publishStats, publishRollStats) : input.publish(publishStats) } : {}),
     },
     unmappedMembers,
   };
