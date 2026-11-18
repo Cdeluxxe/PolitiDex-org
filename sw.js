@@ -12336,7 +12336,13 @@
 //     precache list is unchanged. No route, gate, tally, chip or verdict
 //     changes. Nothing stored is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v580';
+// v581 - THE PDX MARK SIGNS EVERY INNER PAGE. Inner-page and shell bars now
+//     paint the compact PDX mark top-left at every width (the full wordmark
+//     stays on the front page's hero, footer and desktop bar); the faint
+//     foot-of-page signature it replaces is removed. Precached files changed,
+//     so the shell moves. No route or markup structure changes.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v581';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

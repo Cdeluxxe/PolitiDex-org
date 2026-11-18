@@ -191,38 +191,18 @@ body { overflow-x: clip; }
 
 /* ── THE OFFICIAL LOGO ──────────────────────────────────────────────────────
    The wordmark link keeps its markup — a plain <a href="/"> reading POLITIDEX,
-   which is still its accessible name — and paints ONE official mark over it:
-   the full scales-of-justice wordmark with BOUND BY TRUTH from 640px up, and
-   the compact PDX mark on phones, where the full lockup is too small to read.
-   Root-anchored, so a nested address resolves it the same as the front page.
-   Last in the sheet so it outranks the narrow-screen font-size step above. */
+   which is still its accessible name — and paints the compact PDX mark over it
+   at every width: the signature in the top-left corner of every inner page.
+   The full wordmark belongs to the front page (its hero, footer and desktop
+   bar), so an inner bar never carries two marks. Root-anchored, so a nested
+   address resolves it the same as the front page. Last in the sheet so it
+   outranks the narrow-screen font-size step above. */
 .pdx-sh-wordmark {
   display: block;
   flex-shrink: 0;
-  width: 4.57rem; height: 2.5rem;
-  background: url("/assets/politidex-wordmark-360.png") left center / contain no-repeat;
+  width: 2.25rem; height: 2.25rem;
+  background: url("/assets/pdx-mark-header.png") center / contain no-repeat;
   font-size: 0; line-height: 0; letter-spacing: 0;
   color: transparent; overflow: hidden;
 }
 .pdx-sh-wordmark span { color: transparent; }
-@media (max-width: 639px) {
-  .pdx-sh-wordmark {
-    width: 2.25rem; height: 2.25rem;
-    background-image: url("/assets/pdx-mark-header.png");
-    background-position: center;
-  }
-}
-
-/* ── THE PDX SIGNATURE ──────────────────────────────────────────────────────
-   A small compact PDX mark at the very end of every page that wears this bar,
-   the way a document is signed. Purely decorative: a pseudo-element, so it has
-   no accessible name, takes no clicks and adds nothing to the markup. */
-body::after {
-  content: "";
-  display: block;
-  width: 2.5rem; height: 2.5rem;
-  margin: 2rem auto calc(1.5rem + env(safe-area-inset-bottom, 0px));
-  background: url("/assets/pdx-mark-header.png") center / contain no-repeat;
-  opacity: 0.55;
-  pointer-events: none;
-}
