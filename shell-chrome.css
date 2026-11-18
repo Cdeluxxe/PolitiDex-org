@@ -191,23 +191,18 @@ body { overflow-x: clip; }
 
 /* ── THE OFFICIAL LOGO ──────────────────────────────────────────────────────
    The wordmark link keeps its markup — a plain <a href="/"> reading POLITIDEX,
-   which is still its accessible name — and paints the official logo over it:
-   the scales-of-justice wordmark with BOUND BY TRUTH from 640px up, and the
-   compact PDX mark on phones, where the full lockup is too wide to read at
-   bar height. Both are root-anchored, so a nested address resolves them the
-   same as the front page. Last in the sheet so it outranks the narrow-screen
-   font-size step above. */
+   which is still its accessible name — and paints the compact PDX mark over it
+   at every width: the signature in the top-left corner of every inner page.
+   The full wordmark belongs to the front page (its hero, footer and desktop
+   bar), so an inner bar never carries two marks. Root-anchored, so a nested
+   address resolves it the same as the front page. Last in the sheet so it
+   outranks the narrow-screen font-size step above. */
 .pdx-sh-wordmark {
   display: block;
-  width: 3.66rem; height: 2rem;
-  background: url("/assets/politidex-wordmark-360.png") left center / contain no-repeat;
+  flex-shrink: 0;
+  width: 2.25rem; height: 2.25rem;
+  background: url("/assets/pdx-mark-header.png") center / contain no-repeat;
   font-size: 0; line-height: 0; letter-spacing: 0;
   color: transparent; overflow: hidden;
 }
 .pdx-sh-wordmark span { color: transparent; }
-@media (max-width: 639px) {
-  .pdx-sh-wordmark {
-    width: 2rem;
-    background-image: url("/assets/pdx-mark-header.png");
-  }
-}

@@ -263,17 +263,17 @@ const overhangs = [...stackMarkup.matchAll(/class="([^"]*)"/g)]
   .flatMap((m) => m[1].split(/\s+/))
   .filter((c) => /^-top-/.test(c))
   .map((c) => ({ cls: c, px: twOffset(c) }));
-must(overhangs.length > 0,
-     "no negatively-offset child found inside .hero-stack-top — the LIVE pill used to be " +
-     "`-top-2 -right-2` and this file exists because that overhang was not being counted. If the " +
-     "pill is genuinely gone, delete this block; do not weaken it.");
+// The one-mark pass (sw v580) retired the PDX badge and its LIVE pill, so the
+// stack top is now the wordmark lockup itself and nothing in it is offset above
+// its own box: no -top-* class means no overhang, and OVERHANG is 0. Any
+// negative top offset that comes back is still read from tailwind.css and
+// counted.
 must(overhangs.every((o) => o.px !== null),
      "a -top-* class inside .hero-stack-top has no value in css/tailwind.css: " +
      JSON.stringify(overhangs));
-const OVERHANG = Math.max(...overhangs.map((o) => -o.px));
-ok(OVERHANG > 0,
-   "hero overhang: the badge stack's negative top offsets read as " + OVERHANG + "px, which cannot be " +
-   "right — the LIVE pill hangs above the badge tile and that distance is part of the clearance");
+const OVERHANG = overhangs.length ? Math.max(...overhangs.map((o) => -o.px)) : 0;
+ok(OVERHANG >= 0,
+   "hero overhang: the stack's negative top offsets read as " + OVERHANG + "px, which cannot be right");
 
 // (b) The float. THE ONE THE HERO ACTUALLY RUNS, which is app.css's override and
 // not the utility's default. This is the assertion the old harness did not make
@@ -298,7 +298,9 @@ ok(HERO_FLOAT >= TW_FLOAT,
 // (c) What no rect reports. The pill's glow and the wordmark's drop shadow.
 const glow = /shadow-\[0_0_(\d+)px_rgba\(217,26,49/.exec(stackMarkup);
 const GLOW = glow ? parseInt(glow[1], 10) : 0;
-ok(GLOW > 0,
+// With the pill retired (sw v580) there is no glow to read; the bleed budget
+// below still has to be positive for the wordmark's own drop shadow.
+ok(GLOW > 0 || overhangs.length === 0,
    "hero bleed: the LIVE pill's `shadow-[0_0_Npx_rgba(217,26,49,…)]` glow is no longer readable in the " +
    "badge markup. It is the part of the hero that no getBoundingClientRect() reports, and budgeting " +
    "zero for it is how the ghosted mark under the bar survived three clearance passes.");

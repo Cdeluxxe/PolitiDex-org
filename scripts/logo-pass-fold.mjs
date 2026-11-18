@@ -2,7 +2,7 @@
 //
 // The logo pass retired the hero's BETA tag and swapped the drawn PX tiles and
 // the text POLITIDEX wordmarks on the front page and the person file for the
-// official logo images, and pointed the favicon, the touch icon and the default
+// official logo images (the headers now carry the compact PDX mark alone), and pointed the favicon, the touch icon and the default
 // share image at the new PDX mark. It touched no other byte of either document.
 // A suite that pins "this pass did not change index.html / person.html" against
 // HEAD folds these edits back with foldLogoPass() first, so it keeps pinning
@@ -25,7 +25,7 @@ export const LOGO_PASS_EDITS = [
     "  <link rel=\"apple-touch-icon\" href=\"/assets/icon.svg\" />"
   ],
   [
-    "          <div class=\"pdx-brand-mark w-8 h-8 flex items-center justify-center transition-transform duration-200 group-hover:scale-110\"><img src=\"/assets/pdx-mark-header.png\" alt=\"\" width=\"32\" height=\"32\" decoding=\"async\" /></div>\n          <span class=\"pdx-brand-wordmark\"><img src=\"/assets/politidex-wordmark-360.png\" alt=\"PolitiDex — Bound by Truth\" width=\"360\" height=\"197\" decoding=\"async\" /></span>",
+    "          <div class=\"pdx-brand-mark w-8 h-8 flex items-center justify-center transition-transform duration-200 group-hover:scale-110\"><img src=\"/assets/pdx-mark-header.png\" alt=\"PolitiDex\" width=\"32\" height=\"32\" decoding=\"async\" /></div>",
     "          <div class=\"w-8 h-8 rounded-lg bg-crimson-600 flex items-center justify-center text-sm shadow-lg shadow-crimson-600/20 transition-transform duration-200 group-hover:scale-110\">🏠</div>\n          <span class=\"font-display text-xl tracking-wider text-white\">POLITI<span class=\"text-crimson-400\">DEX</span></span>"
   ],
   [
@@ -45,7 +45,7 @@ export const LOGO_PASS_EDITS = [
     "            <div class=\"w-10 h-10 rounded-lg bg-crimson-600 flex items-center justify-center font-display text-sm shadow-lg\" style=\"box-shadow:0 4px 16px rgba(192,21,42,0.3);\">PX</div>\n            <span class=\"font-display text-2xl tracking-wider\">POLITI<span class=\"text-crimson-400\">DEX</span><sup style=\"font-size:0.45em;vertical-align:super;opacity:0.7;\">™</sup></span>"
   ],
   [
-    "    <a href=\"/\" class=\"pdx-person-wordmark\" aria-label=\"PolitiDex home\"><picture style=\"display:block;line-height:0\"><source media=\"(max-width: 639px)\" srcset=\"/assets/pdx-mark-header.png\" width=\"32\" height=\"32\" /><img src=\"/assets/politidex-wordmark-360.png\" alt=\"PolitiDex — Bound by Truth\" width=\"360\" height=\"197\" decoding=\"async\" style=\"display:block;height:2rem;width:auto;max-width:none\" /></picture></a>",
+    "    <a href=\"/\" class=\"pdx-person-wordmark\" aria-label=\"PolitiDex home\"><img src=\"/assets/pdx-mark-header.png\" alt=\"PolitiDex\" width=\"32\" height=\"32\" decoding=\"async\" style=\"display:block;width:2rem;height:2rem;max-width:none\" /></a>",
     "    <a href=\"/\" class=\"pdx-person-wordmark\" aria-label=\"PolitiDex home\">POLITI<span>DEX</span></a>"
   ]
 ];
