@@ -23,6 +23,7 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
 import * as S from '../netlify/lib/stance-score-core.mjs';
+import { foldLogoPass } from "./logo-pass-fold.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const R = (p) => fs.readFileSync(path.join(root, p), 'utf8');
@@ -718,7 +719,8 @@ at('person-bills.js loads the module once; person.html and the precache list are
   const precache = (src) => (/const SHELL_ASSETS = \[([\s\S]*?)\];/.exec(src) || [])[1]?.split('\n').filter((l) => /^\s*'/.test(l)).join('\n');
   assert.ok(!sw.includes("'/person-directional-keys.js'") && !sw.includes("'/person-directional-keys.json'"), 'the module and its table are fetched at runtime');
   const headSw = git('sw.js'), headPerson = git('person.html');
-  if (headPerson) assert.equal(R('person.html'), headPerson, 'person.html is unchanged');
+  // The logo pass (sw v579) swapped person.html's brand marks; folded back first.
+  if (headPerson) assert.equal(foldLogoPass(R('person.html')), headPerson, 'person.html is unchanged');
   if (headSw && headSw !== sw) {
     assert.equal(precache(sw), precache(headSw), 'the precache list is unchanged');
     assert.equal(Number(/const CACHE_VERSION = 'v(\d+)';/.exec(sw)[1]), Number(/const CACHE_VERSION = 'v(\d+)';/.exec(headSw)[1]) + 1);

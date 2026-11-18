@@ -517,8 +517,16 @@ ok(tightestAt <= 344, 'and the tightest screen is one of the sub-345px outliers,
    / and on /p/<pid>, which is exactly the property being demanded. So the pin now
    says what it always meant: nothing in the bar inherits the reader's directory.
    A `href="ballot"` or `href="../ballot"` still fails, which is the hazard. */
+/* THE LOGO PASS (sw v579) PUT THE OFFICIAL MARKS IN THE BAR: the brand tile is
+   the compact PDX mark and the wordmark is the scales-of-justice lockup, both as
+   images. That is the one exception, and it is held to the rule this pin exists
+   for — each is a root-anchored /assets/ path, which resolves the same on / and
+   on /p/<pid>. Anything else that loads an image here still fails. */
 const navAssets = [...NAV.matchAll(/\ssrc="([^"]*)"/g)].map(m => m[1]);
-eq(navAssets.length, 0, `the bar loads no image assets at all (found ${JSON.stringify(navAssets)})`);
+const LOGOS = ['/assets/pdx-mark-header.png', '/assets/politidex-wordmark-360.png'];
+eq(JSON.stringify(navAssets), JSON.stringify(LOGOS),
+  `the bar loads exactly the two official logo images and no other asset (found ${JSON.stringify(navAssets)})`);
+ok(navAssets.every(a => a.startsWith('/assets/')), 'and both are root-anchored, so no nested address 404s the brand');
 eq((NAV.match(/url\(/g) || []).length, 0, 'and no stylesheet url() inside the markup either');
 for (const blk of [CSS, strip(HTML.slice(HTML.indexOf('<style id="pdx-topnav-weight">'), HTML.indexOf('</style>', HTML.indexOf('<style id="pdx-topnav-weight">'))))]) {
   eq((blk.match(/url\(/g) || []).length, 0, 'neither nav style block references an external asset by path');

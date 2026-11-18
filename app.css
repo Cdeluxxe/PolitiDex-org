@@ -19681,3 +19681,21 @@ button, [role="button"], a, .btn, summary, label[for] { touch-action: manipulati
      and the bottom of the screen. */
   #modal-content { padding-bottom: 0.6rem !important; }
 }
+
+/* ── OFFICIAL LOGOS (homepage top bar and hero) ─────────────────────────────
+   The top bar's brand link keeps its two children — the square tile and the
+   wordmark — and the pdx-topnav-layout block in index.html still sizes them.
+   The tile carries the compact PDX mark; the wordmark is the official
+   scales-of-justice lockup with BOUND BY TRUTH. At bar height the lockup is
+   unreadable on a phone, so phones show the PDX mark and 640px and up show the
+   full wordmark. The hero lockup under the badge is the same wordmark. */
+.hero-brand-logo { display: block; margin: 0 auto; width: auto; max-width: 100%; height: 4.5rem; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.55)); }
+@media (min-width: 640px) { .hero-brand-logo { height: 6.5rem; } }
+@media (min-width: 768px) { .hero-brand-logo { height: 8rem; } }
+#pdx-topnav .pdx-brand-mark img { display: block; width: 100%; height: 100%; object-fit: contain; }
+#pdx-topnav .pdx-brand-wordmark { display: none; line-height: 0; }
+#pdx-topnav .pdx-brand-wordmark img { display: block; height: 2.25rem; width: auto; max-width: none; }
+@media (min-width: 640px) {
+  #pdx-topnav .pdx-brand-mark { display: none; }
+  #pdx-topnav .pdx-brand-wordmark { display: block; }
+}
