@@ -810,8 +810,8 @@ const VERIFIED_OPTS = { uid: "u_7", loc: { state: "Utah", city: "Layton", county
     .replace("        fecSummary: p.fecSummary ? Object.assign({}, p.fecSummary) : null,\n", "");
   for (const f of MONEY) {
     const src = R(f);
-    // The logo pass (sw v579) swapped the front page's brand marks; folded back first.
-    if (head) eq(sansAlias(foldLogoPass(src)) === sansAlias(head(f)), true, `${f}: money markup changed in this pass`);
+    // The logo pass (sw v579) swapped the front page's brand marks; folded out of both sides.
+    if (head) eq(sansAlias(foldLogoPass(src)) === sansAlias(foldLogoPass(head(f))), true, `${f}: money markup changed in this pass`);
     if (f !== "index.html") lacks(src, "pdxhv-", `${f}: a money surface wears the Voice door's classes`);
   }
   const INDEX = R("index.html");

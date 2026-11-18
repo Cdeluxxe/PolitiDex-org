@@ -201,7 +201,7 @@ body { overflow-x: clip; }
   display: block;
   flex-shrink: 0;
   width: 2.25rem; height: 2.25rem;
-  background: url("/assets/pdx-mark-header.png") center / contain no-repeat;
+  background: url("/assets/pdx-mark-192.png") center / contain no-repeat;
   font-size: 0; line-height: 0; letter-spacing: 0;
   color: transparent; overflow: hidden;
 }
