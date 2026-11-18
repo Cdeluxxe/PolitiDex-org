@@ -7,13 +7,13 @@
   'use strict';
   var T = window.PDX_SEAT_ROSTER = window.PDX_SEAT_ROSTER || {};
   var rows = {
-    "clyburn": {"name":"Jim Clyburn","office":"U.S. Representative","state":"South Carolina","party":"D"},
+    "clyburn": {"name":"Jim Clyburn","office":"U.S. Representative","state":"South Carolina","district":"SC-6","party":"D"},
     "graham": {"name":"Lindsey Graham","office":"Senate Budget Committee Chair","state":"South Carolina","party":"R"},
     "henry_mcmaster": {"name":"Henry McMaster","office":"Governor","state":"South Carolina","party":"R"},
     "joe_wilson": {"name":"Joe Wilson","office":"U.S. Representative","state":"South Carolina · SC-02","party":"R"},
     "margie_bright_matthews": {"name":"Margie Bright Matthews","office":"South Carolina State Senator","state":"South Carolina","district":"SD 45","party":"D"},
     "murrell_smith": {"name":"Murrell Smith","office":"State House Speaker","state":"South Carolina","party":"R"},
-    "nancy_mace": {"name":"Nancy Mace","office":"U.S. Representative","state":"South Carolina","party":"R"},
+    "nancy_mace": {"name":"Nancy Mace","office":"U.S. Representative","state":"South Carolina","district":"SC-1","party":"R"},
     "ralph_norman": {"name":"Ralph Norman","office":"U.S. Representative","state":"South Carolina · SC-05","party":"R"},
     "russell_fry": {"name":"Russell Fry","office":"U.S. Representative","state":"South Carolina · SC-07","party":"R"},
     "shane_massey": {"name":"Shane Massey","office":"South Carolina State Senator","state":"South Carolina","district":"SD 25","party":"R"},

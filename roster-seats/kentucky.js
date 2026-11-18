@@ -9,9 +9,9 @@
   var rows = {
     "andy_barr": {"name":"Andy Barr","office":"U.S. Representative","state":"Kentucky · KY-06","party":"R"},
     "andy_beshear": {"name":"Andy Beshear","office":"Governor","state":"Kentucky","party":"D"},
-    "comer": {"name":"James Comer","office":"House Oversight Committee Chair","state":"Kentucky","party":"R"},
+    "comer": {"name":"James Comer","office":"House Oversight Committee Chair","state":"Kentucky","district":"KY-1","party":"R"},
     "gerald_neal": {"name":"Gerald Neal","office":"Kentucky State Senator","state":"Kentucky","district":"SD 33","party":"D"},
-    "guthrie": {"name":"Brett Guthrie","office":"House Energy & Commerce Committee Chair","state":"Kentucky","party":"R"},
+    "guthrie": {"name":"Brett Guthrie","office":"House Energy & Commerce Committee Chair","state":"Kentucky","district":"KY-2","party":"R"},
     "hal_rogers": {"name":"Harold Rogers","office":"U.S. Representative","state":"Kentucky · KY-05","party":"R"},
     "max_wise": {"name":"Max Wise","office":"Kentucky State Senator","state":"Kentucky","district":"SD 16","party":"R"},
     "mcconnell": {"name":"Mitch McConnell","office":"U.S. Senator","state":"Kentucky","party":"R"},

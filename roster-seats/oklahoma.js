@@ -10,11 +10,11 @@
     "alan_armstrong": {"name":"Alan Armstrong","office":"U.S. Senator","state":"Oklahoma","party":"R"},
     "frank_lucas": {"name":"Frank Lucas","office":"U.S. Representative","state":"Oklahoma · OK-03","party":"R"},
     "josh_brecheen": {"name":"Josh Brecheen","office":"U.S. Representative","state":"Oklahoma · OK-02","party":"R"},
-    "kevin_hern": {"name":"Kevin Hern","office":"U.S. Representative","state":"Oklahoma","party":"R"},
+    "kevin_hern": {"name":"Kevin Hern","office":"U.S. Representative","state":"Oklahoma","district":"OK-1","party":"R"},
     "kevin_stitt": {"name":"Kevin Stitt","office":"Governor","state":"Oklahoma","party":"R"},
     "lankford": {"name":"James Lankford","office":"U.S. Senator","state":"Oklahoma","party":"R"},
     "stephanie_bice": {"name":"Stephanie Bice","office":"U.S. Representative","state":"Oklahoma · OK-05","party":"R"},
-    "tom_cole": {"name":"Tom Cole","office":"House Appropriations Committee Chair","state":"Oklahoma","party":"R"}
+    "tom_cole": {"name":"Tom Cole","office":"House Appropriations Committee Chair","state":"Oklahoma","district":"OK-4","party":"R"}
   };
   for (var k in rows) { if (Object.prototype.hasOwnProperty.call(rows, k) && !T[k]) T[k] = rows[k]; }
   var L = window.PDX_SEAT_ROSTER_STATES = window.PDX_SEAT_ROSTER_STATES || {};

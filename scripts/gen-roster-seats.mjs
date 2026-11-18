@@ -30,7 +30,8 @@
 // a document that does not load cmp-data.js.
 //
 //   node scripts/gen-roster-seats.mjs           # write roster-seats/*.js
-//   node scripts/gen-roster-seats.mjs --check   # exit 1 if any file is stale
+//   node scripts/gen-roster-seats.mjs --check   # dry run: list the seat rows that would
+//                                               # change, write nothing, exit 1 if stale
 //
 // Re-run after cmp-data.js changes; never hand-edit roster-seats/.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -132,7 +133,34 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     for (const f of readdirSync(join(ROOT, DIR))) if (!files[`${DIR}/${f}`]) stale.push(`${DIR}/${f} (orphan)`);
   }
   if (check) {
-    if (stale.length) { console.error(`✗ roster-seats stale: ${stale.join(", ")} — run node scripts/gen-roster-seats.mjs`); process.exit(1); }
+    if (stale.length) {
+      // Dry run: say which seat rows would move, not just which files.
+      const rowsOf = (src) => {
+        const w = {};
+        try { vm.runInNewContext(src, { window: w }); } catch { return {}; }
+        return w.PDX_SEAT_ROSTER || {};
+      };
+      for (const f of stale) {
+        const p = join(ROOT, f);
+        if (!files[f]) { console.log(`  ${f}`); continue; }
+        const a = existsSync(p) ? rowsOf(readFileSync(p, "utf8")) : {};
+        const b = rowsOf(files[f]);
+        const lines = [];
+        for (const pid of Object.keys(b)) {
+          if (!(pid in a)) lines.push(`    + ${pid}: ${JSON.stringify(b[pid])}`);
+          else if (JSON.stringify(a[pid]) !== JSON.stringify(b[pid])) {
+            const keys = [...new Set([...Object.keys(a[pid]), ...Object.keys(b[pid])])]
+              .filter((k) => JSON.stringify(a[pid][k]) !== JSON.stringify(b[pid][k]));
+            lines.push(`    ~ ${pid}: ${keys.map((k) => `${k} ${JSON.stringify(a[pid][k])} → ${JSON.stringify(b[pid][k])}`).join(", ")}`);
+          }
+        }
+        for (const pid of Object.keys(a)) if (!(pid in b)) lines.push(`    - ${pid}`);
+        console.log(`  ${f}: ${lines.length ? `${lines.length} row(s)` : "header/format only"}`);
+        for (const l of lines) console.log(l);
+      }
+      console.error(`✗ roster-seats stale: ${stale.join(", ")} — run node scripts/gen-roster-seats.mjs`);
+      process.exit(1);
+    }
     console.log(`✓ roster-seats: ${Object.keys(files).length} files current`);
   } else {
     console.log(`wrote ${stale.length} of ${Object.keys(files).length} roster-seats files`);

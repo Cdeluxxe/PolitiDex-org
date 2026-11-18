@@ -15,10 +15,10 @@
     "jeremy_stine": {"name":"Jeremy Stine","office":"Louisiana State Senator","state":"Louisiana","district":"SD 27","party":"R"},
     "julia_letlow": {"name":"Julia Letlow","office":"U.S. Representative","state":"Louisiana · LA-05","party":"R"},
     "kennedy_john": {"name":"John Kennedy","office":"U.S. Senator","state":"Louisiana","party":"R"},
-    "mike_johnson": {"name":"Mike Johnson","office":"Speaker of the U.S. House","state":"Louisiana","party":"R"},
+    "mike_johnson": {"name":"Mike Johnson","office":"Speaker of the U.S. House","state":"Louisiana","district":"LA-4","party":"R"},
     "phillip_devillier": {"name":"Phillip DeVillier","office":"State House Speaker","state":"Louisiana","party":"R"},
     "royce_duplessis": {"name":"Royce Duplessis","office":"Louisiana State Senator","state":"Louisiana","district":"SD 5","party":"D"},
-    "scalise": {"name":"Steve Scalise","office":"House Majority Leader","state":"Louisiana","party":"R"},
+    "scalise": {"name":"Steve Scalise","office":"House Majority Leader","state":"Louisiana","district":"LA-1","party":"R"},
     "troy_carter": {"name":"Troy A. Carter","office":"U.S. Representative","state":"Louisiana · LA-02","party":"D"}
   };
   for (var k in rows) { if (Object.prototype.hasOwnProperty.call(rows, k) && !T[k]) T[k] = rows[k]; }
