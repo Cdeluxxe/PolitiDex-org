@@ -75,7 +75,7 @@
     "fatmi_nc": {"name":"Haseeb Fatmi","office":"North Carolina State Senator","state":"North Carolina","district":"SD 18"},
     "ferguson_nc": {"name":"Anna Ferguson","office":"North Carolina State Representative","state":"North Carolina","district":"HD 119"},
     "ford_nc": {"name":"Carl Ford","office":"North Carolina State Senator","state":"North Carolina","district":"SD 33"},
-    "foxx": {"name":"Virginia Foxx","office":"House Rules Committee Chair","state":"North Carolina","party":"R"},
+    "foxx": {"name":"Virginia Foxx","office":"House Rules Committee Chair","state":"North Carolina","district":"NC-5","party":"R"},
     "gable_nc": {"name":"Wyatt Gable","office":"North Carolina State Representative","state":"North Carolina","district":"HD 14"},
     "galey_nc": {"name":"Amy S. Galey","office":"North Carolina State Senator","state":"North Carolina","district":"SD 25"},
     "garland_pierce_nc": {"name":"Garland E. Pierce","office":"North Carolina State Representative","state":"North Carolina","district":"HD 48"},

@@ -67,11 +67,14 @@
 //
 // Run it whenever the roster, the Spotlights, the stance data, or the issue
 // vocabulary change:
-//   node scripts/gen-share-index.mjs
+//   node scripts/gen-share-index.mjs           # write db/share-index.json + db/share-stances.json
+//   node scripts/gen-share-index.mjs --check   # dry run: report what would change, write nothing
 // Output is sorted and carries no timestamp, so re-running only changes the file
-// when the underlying content actually changed.
+// when the underlying content actually changed. --check lists the entries each
+// table would add, remove or change and exits 1 if either file is stale (the same
+// convention as gen-roster-seats.mjs and gen-seat-holders.mjs --check).
 
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
@@ -460,8 +463,74 @@ const stancePayload = {
   stances,
 };
 
-writeFileSync(OUT, JSON.stringify(payload) + "\n", "utf8");
-writeFileSync(OUT_STANCES, JSON.stringify(stancePayload) + "\n", "utf8");
+const nextIndex = JSON.stringify(payload) + "\n";
+const nextStances = JSON.stringify(stancePayload) + "\n";
+
+// ── --check: a dry run ───────────────────────────────────────────────────────
+// Everything above is pure (it only reads), so a dry run is just "compare and
+// report instead of write". Each table is diffed by key, so the report names the
+// people, aliases, issue keys and (person, issue) pairs that would move rather
+// than saying only that a 1 MB file differs.
+if (process.argv.includes("--check")) {
+  const readJson = (p) => {
+    if (!existsSync(p)) return null;
+    try { return JSON.parse(readFileSync(p, "utf8")); } catch { return null; }
+  };
+  const SAMPLE = 25;
+  const diffTable = (label, cur, next) => {
+    const a = (cur && typeof cur === "object") ? cur : {};
+    const b = next || {};
+    const added = Object.keys(b).filter((k) => !Object.prototype.hasOwnProperty.call(a, k)).sort();
+    const removed = Object.keys(a).filter((k) => !Object.prototype.hasOwnProperty.call(b, k)).sort();
+    const changed = Object.keys(b)
+      .filter((k) => Object.prototype.hasOwnProperty.call(a, k) && JSON.stringify(a[k]) !== JSON.stringify(b[k]))
+      .sort();
+    const n = added.length + removed.length + changed.length;
+    if (!n) { console.log(`  ${label}: no change`); return 0; }
+    console.log(`  ${label}: +${added.length} added, -${removed.length} removed, ~${changed.length} changed`);
+    for (const [sign, list] of [["+", added], ["-", removed], ["~", changed]]) {
+      if (!list.length) continue;
+      const shown = list.slice(0, SAMPLE).join(", ");
+      console.log(`    ${sign} ${shown}${list.length > SAMPLE ? `, … (${list.length - SAMPLE} more)` : ""}`);
+    }
+    return n;
+  };
+  const curIndexSrc = existsSync(OUT) ? readFileSync(OUT, "utf8") : null;
+  const curStancesSrc = existsSync(OUT_STANCES) ? readFileSync(OUT_STANCES, "utf8") : null;
+  const curIndex = readJson(OUT) || {};
+  const curStances = readJson(OUT_STANCES) || {};
+  const staleIndex = curIndexSrc !== nextIndex;
+  const staleStances = curStancesSrc !== nextStances;
+
+  console.log(`--check (dry run, nothing written)`);
+  console.log(`db/share-index.json: ${staleIndex ? "WOULD CHANGE" : "current"}`);
+  if (staleIndex) {
+    for (const t of ["people", "personAliases", "spotlights", "cores", "issues", "personRecord"]) {
+      diffTable(t, curIndex[t], payload[t]);
+    }
+  }
+  console.log(`db/share-stances.json: ${staleStances ? "WOULD CHANGE" : "current"}`);
+  if (staleStances) {
+    diffTable("stances", curStances.stances, stancePayload.stances);
+    const before = new Set(Object.keys(curStances.stances || {}).map((k) => k.split("|")[0]));
+    const gained = [...new Set(Object.keys(stancePayload.stances).map((k) => k.split("|")[0]))]
+      .filter((id) => !before.has(id))
+      .sort();
+    if (gained.length) {
+      console.log(`  people gaining a stated position: ${gained.length}`);
+      console.log(`    ${gained.slice(0, SAMPLE).join(", ")}${gained.length > SAMPLE ? `, … (${gained.length - SAMPLE} more)` : ""}`);
+    }
+  }
+  if (staleIndex || staleStances) {
+    console.error(`✗ share index stale — run node scripts/gen-share-index.mjs`);
+    process.exit(1);
+  }
+  console.log(`✓ share index current`);
+  process.exit(0);
+}
+
+writeFileSync(OUT, nextIndex, "utf8");
+writeFileSync(OUT_STANCES, nextStances, "utf8");
 console.log(
   `Wrote share index to ${OUT} — ` +
     `${payload.counts.people} people (+${payload.counts.personAliases} id aliases), ` +

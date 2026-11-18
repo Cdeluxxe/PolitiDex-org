@@ -17,7 +17,7 @@
     "ben_cline": {"name":"Ben Cline","office":"U.S. Representative","state":"Virginia · VA-06","party":"R"},
     "bennett_parker_va": {"name":"Elizabeth Bennett-Parker","office":"Virginia State Senator","state":"Virginia","district":"SD 39"},
     "bloxom_va": {"name":"Robert S., Jr. Bloxom","office":"Virginia State House Delegate","state":"Virginia","district":"HD 100"},
-    "bobby_scott": {"name":"Bobby Scott","office":"House Education & Workforce Ranking Member","state":"Virginia","party":"D"},
+    "bobby_scott": {"name":"Bobby Scott","office":"House Education & Workforce Ranking Member","state":"Virginia","district":"VA-3","party":"D"},
     "boysko_va": {"name":"Jennifer B. Boysko","office":"Virginia State Senator","state":"Virginia","district":"SD 38"},
     "bulova_va": {"name":"Gretchen M. Bulova","office":"Virginia State House Delegate","state":"Virginia","district":"HD 11"},
     "callsen_va": {"name":"Katrina E. Callsen","office":"Virginia State House Delegate","state":"Virginia","district":"HD 54"},

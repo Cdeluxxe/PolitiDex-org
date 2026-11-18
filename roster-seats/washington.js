@@ -7,7 +7,7 @@
   'use strict';
   var T = window.PDX_SEAT_ROSTER = window.PDX_SEAT_ROSTER || {};
   var rows = {
-    "adam_smith": {"name":"Adam Smith","office":"House Armed Services Ranking Member","state":"Washington","party":"D"},
+    "adam_smith": {"name":"Adam Smith","office":"House Armed Services Ranking Member","state":"Washington","district":"WA-9","party":"D"},
     "adison_richards_wa": {"name":"Adison Richards","office":"Washington State Representative","state":"Washington","district":"LD 26","position":1},
     "alvarado_wa": {"name":"Emily Alvarado","office":"Washington State Senator","state":"Washington","district":"LD 34"},
     "bateman_wa": {"name":"Jessica Bateman","office":"Washington State Senator","state":"Washington","district":"LD 22"},
@@ -34,7 +34,7 @@
     "holy_wa": {"name":"Jeff Holy","office":"Washington State Senator","state":"Washington","district":"LD 6"},
     "hunt_wa": {"name":"Victoria Hunt","office":"Washington State Senator","state":"Washington","district":"LD 5"},
     "jamie_pedersen": {"name":"Jamie Pedersen","office":"Washington State Senator","state":"Washington","district":"LD 43","party":"D"},
-    "jayapal": {"name":"Pramila Jayapal","office":"U.S. Representative","state":"Washington","party":"D"},
+    "jayapal": {"name":"Pramila Jayapal","office":"U.S. Representative","state":"Washington","district":"WA-7","party":"D"},
     "john_braun": {"name":"John Braun","office":"Washington State Senator","state":"Washington","district":"LD 20","party":"R"},
     "kauffman_wa": {"name":"Claudia Kauffman","office":"Washington State Senator","state":"Washington","district":"LD 47"},
     "kevin_waters_wa": {"name":"Kevin Waters","office":"Washington State Representative","state":"Washington","district":"LD 17","position":1},
@@ -48,7 +48,7 @@
     "lovick_wa": {"name":"John Lovick","office":"Washington State Senator","state":"Washington","district":"LD 44"},
     "macewen_wa": {"name":"Drew MacEwen","office":"Washington State Senator","state":"Washington","district":"LD 35"},
     "manka_dhingra": {"name":"Manka Dhingra","office":"Washington State Senator","state":"Washington","district":"LD 45","party":"D"},
-    "marie_gluesenkamp_perez": {"name":"Marie Gluesenkamp Perez","office":"U.S. Representative","state":"Washington","party":"D"},
+    "marie_gluesenkamp_perez": {"name":"Marie Gluesenkamp Perez","office":"U.S. Representative","state":"Washington","district":"WA-3","party":"D"},
     "marilyn_strickland": {"name":"Marilyn Strickland","office":"U.S. Representative","state":"Washington · WA-10","party":"D"},
     "mcclintock_wa": {"name":"Stephanie McClintock","office":"Washington State Representative","state":"Washington","district":"LD 18","position":1},
     "mccune_wa": {"name":"Jim McCune","office":"Washington State Senator","state":"Washington","district":"LD 2"},
@@ -58,7 +58,7 @@
     "nobles_wa": {"name":"T'wina Nobles","office":"Washington State Senator","state":"Washington","district":"LD 28"},
     "orwall_wa": {"name":"Tina Orwall","office":"Washington State Senator","state":"Washington","district":"LD 33"},
     "riccelli_wa": {"name":"Marcus Riccelli","office":"Washington State Senator","state":"Washington","district":"LD 3"},
-    "rick_larsen": {"name":"Rick Larsen","office":"U.S. Representative","state":"Washington","party":"D"},
+    "rick_larsen": {"name":"Rick Larsen","office":"U.S. Representative","state":"Washington","district":"WA-2","party":"D"},
     "robinson_wa": {"name":"June Robinson","office":"Washington State Senator","state":"Washington","district":"LD 38"},
     "saldana_wa": {"name":"Rebecca Saldaña","office":"Washington State Senator","state":"Washington","district":"LD 37"},
     "salomon_wa": {"name":"Jesse Salomon","office":"Washington State Senator","state":"Washington","district":"LD 32"},

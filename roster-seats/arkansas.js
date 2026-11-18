@@ -10,7 +10,7 @@
     "boozman": {"name":"John Boozman","office":"Senate Agriculture Chair","state":"Arkansas","party":"R"},
     "bruce_westerman": {"name":"Bruce Westerman","office":"U.S. Representative","state":"Arkansas · AR-04","party":"R"},
     "cotton": {"name":"Tom Cotton","office":"Senate Intelligence Committee Chair","state":"Arkansas","party":"R"},
-    "french_hill": {"name":"French Hill","office":"House Financial Services Committee Chair","state":"Arkansas","party":"R"},
+    "french_hill": {"name":"French Hill","office":"House Financial Services Committee Chair","state":"Arkansas","district":"AR-2","party":"R"},
     "rick_crawford": {"name":"Rick Crawford","office":"U.S. Representative","state":"Arkansas · AR-01","party":"R"},
     "sarah_huckabee_sanders": {"name":"Sarah Huckabee Sanders","office":"Governor","state":"Arkansas","party":"R"},
     "steve_womack": {"name":"Steve Womack","office":"U.S. Representative","state":"Arkansas · AR-03","party":"R"}

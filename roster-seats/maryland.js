@@ -8,16 +8,16 @@
   var T = window.PDX_SEAT_ROSTER = window.PDX_SEAT_ROSTER || {};
   var rows = {
     "alsobrooks": {"name":"Angela Alsobrooks","office":"U.S. Senator","state":"Maryland","party":"D"},
-    "andy_harris": {"name":"Andy Harris","office":"House Freedom Caucus Chair","state":"Maryland","party":"R"},
+    "andy_harris": {"name":"Andy Harris","office":"House Freedom Caucus Chair","state":"Maryland","district":"MD-1","party":"R"},
     "april_mcclain_delaney": {"name":"April McClain Delaney","office":"U.S. Representative","state":"Maryland · MD-06","party":"D"},
     "bill_ferguson": {"name":"Bill Ferguson","office":"State Senate President","state":"Maryland","party":"D"},
     "glenn_ivey": {"name":"Glenn Ivey","office":"U.S. Representative","state":"Maryland · MD-04","party":"D"},
     "johnny_olszewski": {"name":"Johnny Olszewski, Jr.","office":"U.S. Representative","state":"Maryland · MD-02","party":"D"},
     "kweisi_mfume": {"name":"Kweisi Mfume","office":"U.S. Representative","state":"Maryland · MD-07","party":"D"},
     "nancy_king": {"name":"Nancy King","office":"Maryland State Senator","state":"Maryland","district":"SD 39","party":"D"},
-    "raskin": {"name":"Jamie Raskin","office":"House Judiciary Ranking Member","state":"Maryland","party":"D"},
+    "raskin": {"name":"Jamie Raskin","office":"House Judiciary Ranking Member","state":"Maryland","district":"MD-8","party":"D"},
     "sarah_elfreth": {"name":"Sarah Elfreth","office":"U.S. Representative","state":"Maryland · MD-03","party":"D"},
-    "steny_hoyer": {"name":"Steny Hoyer","office":"U.S. Representative","state":"Maryland","party":"D"},
+    "steny_hoyer": {"name":"Steny Hoyer","office":"U.S. Representative","state":"Maryland","district":"MD-5","party":"D"},
     "steve_hershey": {"name":"Steve Hershey","office":"Maryland State Senator","state":"Maryland","district":"SD 36","party":"R"},
     "van_hollen": {"name":"Chris Van Hollen","office":"U.S. Senator","state":"Maryland","party":"D"},
     "wes_moore": {"name":"Wes Moore","office":"Governor","state":"Maryland","party":"D"}

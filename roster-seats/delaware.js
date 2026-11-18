@@ -10,7 +10,7 @@
     "blunt_rochester": {"name":"Lisa Blunt Rochester","office":"U.S. Senator","state":"Delaware","party":"D"},
     "coons": {"name":"Chris Coons","office":"U.S. Senator","state":"Delaware","party":"D"},
     "matt_meyer": {"name":"Matt Meyer","office":"Governor","state":"Delaware","party":"D"},
-    "sarah_mcbride": {"name":"Sarah McBride","office":"U.S. Representative","state":"Delaware","party":"D"}
+    "sarah_mcbride": {"name":"Sarah McBride","office":"U.S. Representative","state":"Delaware","district":"DE-AL","party":"D"}
   };
   for (var k in rows) { if (Object.prototype.hasOwnProperty.call(rows, k) && !T[k]) T[k] = rows[k]; }
   var L = window.PDX_SEAT_ROSTER_STATES = window.PDX_SEAT_ROSTER_STATES || {};

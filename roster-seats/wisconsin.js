@@ -7,7 +7,7 @@
   'use strict';
   var T = window.PDX_SEAT_ROSTER = window.PDX_SEAT_ROSTER || {};
   var rows = {
-    "bryan_steil": {"name":"Bryan Steil","office":"House Administration Chair","state":"Wisconsin","party":"R"},
+    "bryan_steil": {"name":"Bryan Steil","office":"House Administration Chair","state":"Wisconsin","district":"WI-1","party":"R"},
     "derrick_van_orden": {"name":"Derrick Van Orden","office":"U.S. Representative","state":"Wisconsin · WI-03","party":"R"},
     "devin_lemahieu": {"name":"Devin LeMahieu","office":"Wisconsin State Senator","state":"Wisconsin","district":"SD 9","party":"R"},
     "dianne_hesselbein": {"name":"Dianne Hesselbein","office":"Wisconsin State Senator","state":"Wisconsin","district":"SD 27","party":"D"},
