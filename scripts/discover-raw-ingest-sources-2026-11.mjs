@@ -105,12 +105,18 @@ async function getPage(url) {
     } catch (e) { return { url, final_url: url, status: 0, content_type: "", html: "", error: String(e?.message || e).slice(0, 120), transient: true }; }
   });
 }
+// The FEC key allows about 60 requests a minute: FEC calls are spaced out one
+// at a time, and a 429 waits out the window instead of giving up after seconds.
+let fecNext = 0;
+const fecSlot = async () => { const now = Date.now(), at = Math.max(now, fecNext); fecNext = at + 1100; if (at > now) await new Promise((r) => setTimeout(r, at - now)); };
 async function getJson(url, init = {}, label = url) {
   return cached(`json ${label}`, async () => {
-    for (let attempt = 0; attempt < 4; attempt++) {
+    const fec = /^https:\/\/api\.open\.fec\.gov\//.test(url);
+    for (let attempt = 0; attempt < (fec ? 8 : 4); attempt++) {
+      if (fec) await fecSlot();
       const res = await fetch(url, { ...init, headers: { accept: "application/json", ...(init.headers || {}) }, signal: AbortSignal.timeout(30_000) }).catch((e) => ({ ok: false, status: 0, e }));
       if (res.ok) return res.json();
-      if (res.status === 429 || res.status === 0 || res.status >= 500) { await new Promise((r) => setTimeout(r, 2000 * (attempt + 1))); continue; }
+      if (res.status === 429 || res.status === 0 || res.status >= 500) { await new Promise((r) => setTimeout(r, fec && res.status === 429 ? 65_000 : 2000 * (attempt + 1))); continue; }
       return { transient: true, error: `HTTP ${res.status}`, status: res.status };
     }
     return { transient: true, error: "gave up after retries" };
