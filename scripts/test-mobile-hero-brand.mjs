@@ -89,27 +89,29 @@ const ABOVE = HTML.slice(heroStart, h1Start);      // everything before the head
 // The logo pass (sw v579) retired the BETA tag — the site is out of beta — and
 // swapped the drawn PX badge and the text POLITIDEX lockup for the official
 // marks: the compact PDX mark in the badge, and the full wordmark, whose image
-// carries BOUND BY TRUTH, as the lockup.
+// carries BOUND BY TRUTH, as the lockup. The one-mark pass (sw v580) then retired
+// the badge and its LIVE pill: the hero carries one mark, the full wordmark, and
+// the lockup inherits .hero-stack-top from the badge it replaced.
 const INVENTORY = [
-  { id: "PDX mark badge",     re: /<img[^>]*src="\/assets\/pdx-mark-512\.png"/ },
-  { id: "LIVE pill",          re: />\s*LIVE\s*</ },
   { id: "PolitiDex wordmark", re: /<img[^>]*src="\/assets\/politidex-wordmark\.png"/ },
   { id: "BOUND BY TRUTH eyebrow", re: /alt="PolitiDex — Bound by Truth"/ },
 ];
 ok(!/\bbeta\b/i.test(ABOVE.replace(/<!--[\s\S]*?-->/g, "")),
    "INVENTORY: the hero still prints a BETA tag — the site is out of beta and the tag was retired");
+ok(!/pdx-mark-512\.png/.test(ABOVE),
+   "INVENTORY: the retired PDX badge is back in the hero — the hero carries the full wordmark alone");
 for (const item of INVENTORY) {
   ok(item.re.test(ABOVE),
      "INVENTORY: the " + item.id + " is no longer in #hero above the <h1>. The four things a reader is " +
-     "supposed to meet before the headline are the PDX mark badge, its LIVE pill, the PolitiDex wordmark " +
-     "and the BOUND BY TRUTH eyebrow. If one is genuinely being retired, retire it here too — do not " +
+     "supposed to meet before the headline are the PolitiDex wordmark " +
+     "and the BOUND BY TRUTH it carries. If one is genuinely being retired, retire it here too — do not " +
      "let this file keep asserting a lockup the page no longer has.");
 }
 // The two flow children that carry them, in this order.
 const iStack = ABOVE.indexOf("hero-stack-top");
 const iBrand = ABOVE.indexOf("hero-brand");
-ok(iStack > 0 && iBrand > iStack,
-   "INVENTORY: #hero no longer holds .hero-stack-top followed by .hero-brand above the headline. Every " +
+ok(iStack > 0 && iBrand > 0,
+   "INVENTORY: #hero no longer holds .hero-stack-top and .hero-brand above the headline. Every " +
    "rule in the phone blocks, and the runtime audit's element search, is anchored to those two class " +
    "names.");
 
@@ -575,6 +577,6 @@ if (failures.length) {
   process.exit(1);
 }
 console.log("✓ mobile hero brand: all " + passed +
-  " assertions passed — the PX/LIVE badge and the POLITIDEX / BOUND BY TRUTH lockup render at every " +
+  " assertions passed — the PolitiDex / BOUND BY TRUTH wordmark lockup renders at every " +
   "phone size, carry no float or transform there, and land more than " + GATE +
   "px below the measured bottom of .pdx-eye-row at scroll 0");

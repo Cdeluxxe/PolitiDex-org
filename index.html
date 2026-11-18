@@ -3806,8 +3806,7 @@ window.PDXLazy = (function () {
       <!-- ── LEFT: brand + core voter tools ─────────────────── -->
       <div class="flex items-center gap-3 lg:gap-5 min-w-0">
         <a href="#hero" onclick="event.preventDefault();document.getElementById('hero').scrollIntoView({behavior:'smooth'})" class="flex items-center gap-2.5 no-underline cursor-pointer group flex-shrink-0">
-          <div class="pdx-brand-mark w-8 h-8 flex items-center justify-center transition-transform duration-200 group-hover:scale-110"><img src="/assets/pdx-mark-header.png" alt="" width="32" height="32" decoding="async" /></div>
-          <span class="pdx-brand-wordmark"><img src="/assets/politidex-wordmark-360.png" alt="PolitiDex — Bound by Truth" width="360" height="197" decoding="async" /></span>
+          <picture class="pdx-brand-logo transition-transform duration-200 group-hover:scale-105"><source media="(max-width: 639px)" srcset="/assets/pdx-mark-header.png" width="32" height="32" /><img src="/assets/politidex-wordmark-360.png" alt="PolitiDex — Bound by Truth" width="360" height="197" decoding="async" /></picture>
         </a>
         <!-- TWO DOORS, ONE FRONT STEP. (Landmark: this comment was headed
              "THREE PILLS, TWO DOORS." through Phase 2.)
@@ -5142,24 +5141,25 @@ window.PDXLazy = (function () {
       <div class="absolute bottom-28 right-[11%] text-3xl text-gold-300 opacity-20 animate-float" style="animation-delay:1.2s">★</div>
     </div>
 
-    <!-- Logo badge with high visual polish.
-         Sized down on phones (16 → 24 → 32) as part of the fold budget: the ⚖️ Word
-         vs Action verdict on the record card below has to clear the first screen on
-         a handset, and every pixel spent on chrome above it is a pixel the proof
-         does not get. Unchanged from md: up, where the fold was never in question. -->
-    <div class="relative mb-5 md:mb-8 animate-float hero-stack-top">
-      <div class="w-16 h-16 sm:w-24 sm:h-24 md:w-32 md:h-32 mx-auto rounded-2xl overflow-hidden bg-black border-2 border-gold-400/60 shadow-[0_20px_50px_rgba(192,21,42,0.4),0_0_35px_rgba(245,200,66,0.2)] flex flex-col items-center justify-center transition-all duration-300 hover:scale-105 hover:border-gold-400">
-        <!-- The compact PDX mark — the official badge. The site is out of beta. -->
-        <img src="/assets/pdx-mark-512.png" alt="PDX" width="512" height="512" decoding="async" style="display:block;width:100%;height:100%;object-fit:cover;" />
-      </div>
-      <!-- Live badge with improved glowing pulse -->
-      <div class="absolute -top-2 -right-2 bg-gradient-to-r from-crimson-600 to-crimson-500 text-white text-[10px] md:text-xs font-condensed font-900 px-3 py-1 rounded-full tracking-widest uppercase badge-live shadow-[0_0_14px_rgba(217,26,49,0.85)]">LIVE</div>
-    </div>
+    <!-- The hero opens on the full wordmark. The compact PDX badge that used to
+         float above it is retired — the PDX mark now serves the phone top bar and
+         the small signature on inner pages, so the hero carries one mark, not two.
+         The lockup inherits the badge's stack-top class (the column's top auto
+         margin and the first-brand-element measurement) from the badge it replaces.
 
+         One mark per place, as the brand sheet sets it out:
+           · the full wordmark (scales, PolitiDex, BOUND BY TRUTH) — this hero
+             lockup, the footer, and the top bar from 640px up;
+           · the compact PDX mark — the phone top bar, the favicon and app icons,
+             the share image, and the small signature at the foot of inner pages.
+         The top bar's brand link is one <picture>, so it can paint only one of
+         the two at any width. This note is sized on purpose: several suites
+         pin blocks lower in this file by line number, so the line count above
+         them is held where it was before the badge came out. -->
     <!-- Brand lockup — the official PolitiDex wordmark, which carries the standing
          tagline "Bound by Truth" inside the mark. Kept compact and prominent so it
-         reads as the brand signature under the badge, with the headline below. -->
-    <div class="mb-5 md:mb-8 animate-fadeUp select-none hero-brand">
+         reads as the brand signature at the top of the hero, headline below. -->
+    <div class="mb-5 md:mb-8 animate-fadeUp select-none hero-stack-top hero-brand">
       <img class="hero-brand-logo"
            src="/assets/politidex-wordmark.png"
            alt="PolitiDex — Bound by Truth"

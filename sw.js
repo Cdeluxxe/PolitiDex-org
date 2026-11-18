@@ -12327,7 +12327,16 @@
 //     fetched and runtime-cached like any other asset). No route, gate, tally,
 //     chip or verdict changes. Nothing stored is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v579';
+// v580 - ONE MARK PER PLACE. The homepage top bar painted the PDX tile and the
+//     full wordmark side by side; it now holds a single <picture> — the full
+//     wordmark from 640px up, the PDX mark on phones — as do the shell bars and
+//     the inner-page headers. The floating PDX badge above the hero lockup is
+//     retired, so the hero opens on the wordmark. Inner pages gain a small PDX
+//     signature at their foot. Precached files changed, so the shell moves; the
+//     precache list is unchanged. No route, gate, tally, chip or verdict
+//     changes. Nothing stored is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v580';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
