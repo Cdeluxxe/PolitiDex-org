@@ -13,7 +13,10 @@
 // everyday words (Hill, King, White …). Those count only as part of a full name ("Ronny Jackson’s") or after a
 // title ("Mayor Jackson’s") — never bare — so "Austin’s NPR station" and
 // "Capitol Hill’s" stay what they are. Re-run after the people index changes:
-//   node scripts/gen-stance-person-names.mjs
+//   node scripts/gen-stance-person-names.mjs           # write the file
+//   node scripts/gen-stance-person-names.mjs --check   # dry run: report what would change, write nothing
+// --check exits 1 when the committed file is stale (the same convention as the
+// other generators' --check) and lists the names each set would gain or lose.
 // ═══════════════════════════════════════════════════════════════════════════
 import fs from "node:fs";
 import path from "node:path";
@@ -62,5 +65,39 @@ export const PLACE_SURNAMES = new Set(${JSON.stringify(fullOnly)});
 /** Full names ("First Last") for the place-name surnames above. */
 export const PLACE_SURNAME_FULL_NAMES = new Set(${JSON.stringify(full)});
 `;
-fs.writeFileSync(path.join(root, "netlify/lib/stance-person-names.mjs"), out);
+const OUT = path.join(root, "netlify/lib/stance-person-names.mjs");
+
+// ── --check: a dry run ───────────────────────────────────────────────────────
+// Everything above only reads, so a dry run compares instead of writing. Each
+// set is diffed by name so the report says which names would move, not only
+// that the file differs.
+if (process.argv.includes("--check")) {
+  const cur = fs.existsSync(OUT) ? fs.readFileSync(OUT, "utf8") : null;
+  if (cur === out) {
+    console.log(`✓ netlify/lib/stance-person-names.mjs is current (${bare.length} surnames, ${fullOnly.length} place-name surnames, ${full.length} full names)`);
+    process.exit(0);
+  }
+  const setOf = (src, name) => {
+    const m = src && src.match(new RegExp(`export const ${name} = new Set\\((\\[.*?\\])\\);`));
+    try { return new Set(m ? JSON.parse(m[1]) : []); } catch { return new Set(); }
+  };
+  const SAMPLE = 25;
+  console.log(`--check (dry run, nothing written)`);
+  for (const [name, next] of [["PERSON_SURNAMES", bare], ["PLACE_SURNAMES", fullOnly], ["PLACE_SURNAME_FULL_NAMES", full]]) {
+    const before = setOf(cur, name);
+    const after = new Set(next);
+    const added = next.filter((x) => !before.has(x));
+    const removed = [...before].filter((x) => !after.has(x)).sort();
+    if (!added.length && !removed.length) { console.log(`  ${name}: no change`); continue; }
+    console.log(`  ${name}: +${added.length} added, -${removed.length} removed (${before.size} → ${after.size})`);
+    for (const [sign, list] of [["+", added], ["-", removed]]) {
+      if (!list.length) continue;
+      console.log(`    ${sign} ${list.slice(0, SAMPLE).join(", ")}${list.length > SAMPLE ? `, … (${list.length - SAMPLE} more)` : ""}`);
+    }
+  }
+  console.error(`✗ netlify/lib/stance-person-names.mjs is stale — run node scripts/gen-stance-person-names.mjs`);
+  process.exit(1);
+}
+
+fs.writeFileSync(OUT, out);
 console.log(`person names: ${bare.length} surnames, ${fullOnly.length} place-name surnames (${fullOnly.join(", ")}), ${full.length} full names for them`);
