@@ -3820,7 +3820,11 @@
       var m = Math.floor(s / 60); if (m < 60) return m + 'm ago';
       var h = Math.floor(m / 60); if (h < 24) return h + 'h ago';
       var dd = Math.floor(h / 24); if (dd < 7) return dd + 'd ago';
-      if (dd < 30) return Math.floor(dd / 7) + 'w ago';
+      // Something from THIS calendar month is never "months ago": on the 31st a
+      // receipt from the 1st is 30 days old, and "1mo ago" would read as last month.
+      var now = new Date();
+      var sameMonth = d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+      if (dd < 30 || sameMonth) return Math.floor(dd / 7) + 'w ago';
       if (dd < 365) return Math.floor(dd / 30) + 'mo ago';
       return Math.floor(dd / 365) + 'y ago';
     } catch (e) { return ''; }
@@ -3990,6 +3994,67 @@
     } catch (e) { return 0; }
     return n;
   };
+  // The newest evidence item or pipeline mention on file for a person, as epoch
+  // ms (0 when nothing on file carries a usable date). Reads every receipt the
+  // evidence count reads — pledge sources, the evidence map (which already holds
+  // the Locker's strong items) — plus the Locker's weak signals and topic
+  // mentions, which never reach the evidence map but are still the freshest sign
+  // the pipeline has looked at this person. A date is read at the precision it
+  // was written at: a day is that day, a month is its 1st, a bare year is 1 Jan.
+  // Anything in the future (a typo, a scheduled date) is ignored.
+  window._pdxNewestEvidenceTs = function (id, p) {
+    var best = 0;
+    var limit = Date.now() + 36e5 * 24;
+    function take(v) {
+      if (v == null || v === '') return;
+      var t = 0;
+      if (typeof v === 'number') t = v;
+      else if (typeof v === 'object' && typeof v.seconds === 'number') t = v.seconds * 1000;
+      else {
+        var s = String(v).trim();
+        if (!s || /present|ongoing/i.test(s)) return;
+        var r = s.match(/^\d{4}\s*[–-]\s*(\d{4})$/);
+        if (r) s = r[1];
+        var m = s.match(/^(\d{4})(?:-(\d{1,2})(?:-(\d{1,2}))?)?$/);
+        if (m) t = new Date(+m[1], m[2] ? +m[2] - 1 : 0, m[3] ? +m[3] : 1).getTime();
+        else t = Date.parse(s);
+      }
+      if (!isFinite(t) || t <= 0 || t > limit) return;
+      if (new Date(t).getFullYear() < 1900) return;
+      if (t > best) best = t;
+    }
+    try {
+      ((p && p.promises) || []).forEach(function (pr) {
+        (pr && Array.isArray(pr.sources) ? pr.sources : []).forEach(function (s) { if (s) take(s.date); });
+      });
+      var ev = (typeof window._issueEvidenceMap === 'function') ? (window._issueEvidenceMap(id, p) || {}) : {};
+      Object.keys(ev).forEach(function (k) {
+        ((ev[k] && ev[k].spotlight) || []).forEach(function (it) {
+          if (!it) return;
+          take((it.pipeline && it.pipeline.captured) || it.date);
+        });
+      });
+      // The Locker's own hook (profile-locker.js): the capture dates of every
+      // item it holds for this person, weak signals and mentions included.
+      if (typeof window._pdxLockerItemDates === 'function') {
+        (window._pdxLockerItemDates(id) || []).forEach(take);
+      }
+    } catch (e) {}
+    return best;
+  };
+  // The 🕑 Activity value: "Updated 2d ago" off the newest evidence item or
+  // pipeline mention. Only a person with no dated receipt at all falls back to
+  // the profile document's own timestamp. Returns the relative string ('' when
+  // nothing is dated).
+  window._pdxActivityRel = function (id, p) {
+    if (typeof window._pdxRelTime !== 'function') return '';
+    try {
+      var ts = window._pdxNewestEvidenceTs(id, p);
+      if (ts) return window._pdxRelTime(ts);
+      var st = p && (p.updatedAt || p.createdAt);
+      return st ? window._pdxRelTime(st) : '';
+    } catch (e) { return ''; }
+  };
   window._pdxNavChips = function (id, p) {
     p = p || (window.PROFILES && window.PROFILES[id]) ||
         ((typeof CMP_DATA !== 'undefined' && CMP_DATA[id]) ? CMP_DATA[id] : null) || {};
@@ -4098,6 +4163,14 @@
             note: (of.scored || 'issues the formal record scored') + ', out of ' +
               (of.onRecord || 'issues with a formal record on file') };
     }
+    // 🕑 Activity — when the newest evidence item or pipeline mention landed.
+    try {
+      var rel = window._pdxActivityRel(id, p);
+      if (rel) {
+        out.activity = { value: 'Updated ' + rel, color: '#9fb4d4', pending: false,
+          note: 'newest evidence item or pipeline mention on file' };
+      }
+    } catch (e) {}
     // 🔗 Evidence — receipts, not issues, and it says so.
     var ev = window._pdxNavEvidenceCount(id, p);
     if (ev > 0) {
@@ -5341,11 +5414,10 @@
     // helper the live repaint reads — see window._pdxNavEvidenceCount.
     const _navEvidenceCount = window._pdxNavEvidenceCount(id, p);
 
+    // Freshness is the newest evidence item or pipeline mention, not the profile
+    // document's own (often stale) timestamp — see window._pdxActivityRel.
     let _navActivityRel = '';
-    try {
-      const _ats = p.updatedAt || p.createdAt;
-      if (_ats && typeof window._pdxRelTime === 'function') _navActivityRel = window._pdxRelTime(_ats);
-    } catch (e) { _navActivityRel = ''; }
+    try { _navActivityRel = window._pdxActivityRel(id, p) || ''; } catch (e) { _navActivityRel = ''; }
     const _navActivityHas = !!(_navActivityRel || (p.promises && p.promises.length) || _navEvidenceCount || window._pdxKeyIssues(p).length);
     const _navActivityVal = _navActivityRel ? ('Updated ' + _navActivityRel)
       : ((p.promises && p.promises.length) ? (p.promises.length + ' tracked')
@@ -5490,7 +5562,8 @@
     } catch (e) {}
     // Activity — freshness / how much is tracked.
     if (_navActivityHas) {
-      _navItems.push({ target: 'pdxsec-activity', icon: '🕑', label: 'Activity', value: _navActivityVal, color: '#9fb4d4' });
+      _navItems.push({ target: 'pdxsec-activity', icon: '🕑', label: 'Activity', value: _navActivityVal, color: '#9fb4d4',
+        live: _navActivityRel ? 'activity' : undefined });
     }
 
     // The rail order is the spine order. Sorting here rather than trusting the push

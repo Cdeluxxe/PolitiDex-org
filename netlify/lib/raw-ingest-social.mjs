@@ -31,6 +31,8 @@
 // stance in the video becomes a weak or clear item exactly as on a page, tagged
 // source_tier 2.
 
+import { cleanReadableText } from "./evidence-locker-core.mjs";
+
 export const SOCIAL_CLASSES = {
   youtube: "official YouTube channel — recent videos (transcript, else description)",
   youtube_video: "video already cited from the politician's own YouTube channel — transcript (else description), scored as tier-2 evidence",
@@ -70,7 +72,8 @@ export function parseYouTubeFeed(xml) {
 }
 
 export function trimExcerpt(s, max = SOCIAL_EXCERPT_MAX) {
-  const t = String(s || "").replace(/\s+/g, " ").trim();
+  // A mention excerpt keeps only clean readable text (see cleanReadableText).
+  const t = cleanReadableText(String(s || "")).replace(/\s+/g, " ").trim();
   return t.length > max ? t.slice(0, max - 1).trimEnd() + "…" : t;
 }
 

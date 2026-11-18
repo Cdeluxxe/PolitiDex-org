@@ -127,6 +127,92 @@
     try { if (id && typeof window.PDXProfilePid === 'function') return String(window.PDXProfilePid(id) || id); } catch (e) {}
     return id;
   }
+  // ── Readable-text gate for weaker signals and mentions ──────────────────
+  // A page the pipeline fetched can be a PDF or other binary read as text, and
+  // the excerpt it scored is then stream data ("stream x\u009c…endstream",
+  // "/FlateDecode", "12 0 obj") or replacement glyphs, not words. This keeps
+  // only clean readable text: PDF structure and control / replacement / private
+  // characters are cut, and every word that is not a plausible word is dropped.
+  // Where junk was cut, only runs of at least four consecutive clean words
+  // survive, so no stray fragments of a stream are left behind. Returns '' when
+  // nothing readable is left — the caller drops the item. Strong stances never
+  // pass through here. Kept identical in profile-locker.js and
+  // netlify/lib/evidence-locker-core.mjs.
+  var RT_ALLOWED = /^[\p{L}\p{M}\p{N}_'’\-–.,\/&%$@:#+]+$/u;
+  var RT_EDGE = /^[\p{P}\p{S}]+|[\p{P}\p{S}]+$/gu;
+  // Control, C1, replacement, BOM, zero-width, line-separator, private-use and
+  // lone-surrogate code units, tested by number so no literal of them sits here.
+  function rtBadUnit(c, next, prev) {
+    if (c < 32) return c !== 9 && c !== 10 && c !== 13;
+    if (c >= 0x7F && c <= 0x9F) return true;
+    if (c === 0xFFFD || c === 0xFFFE || c === 0xFFFF || c === 0xFEFF) return true;
+    if (c >= 0x200B && c <= 0x200F) return true;
+    if (c === 0x2028 || c === 0x2029) return true;
+    if (c >= 0xE000 && c <= 0xF8FF) return true;
+    if (c >= 0xD800 && c <= 0xDBFF) return !(next >= 0xDC00 && next <= 0xDFFF);
+    if (c >= 0xDC00 && c <= 0xDFFF) return !(prev >= 0xD800 && prev <= 0xDBFF);
+    return false;
+  }
+  function rtStripBad(t) {
+    var out = '';
+    for (var i = 0; i < t.length; i++) {
+      var c = t.charCodeAt(i);
+      out += rtBadUnit(c, t.charCodeAt(i + 1), t.charCodeAt(i - 1)) ? ' ' : t.charAt(i);
+    }
+    return out;
+  }
+  function rtWordOk(w, cut) {
+    if (/^(?:https?:\/\/|www\.)\S+$/i.test(w) && w.length <= 200) return true;
+    var core = w.replace(RT_EDGE, '');
+    if (!core) return w.length <= 3 && /^[—–\-&+=…"'“”‘’()]+$/.test(w);
+    if (core.length > 30) return false;
+    // In text that had junk cut out, a lone letter is a stream fragment.
+    if (cut && core.length === 1 && /\p{L}/u.test(core) && !/^[aAI]$/.test(core)) return false;
+    if (!RT_ALLOWED.test(core)) return false;
+    var letters = core.match(/\p{L}/gu) || [];
+    var ext = core.match(/[^\x00-\x7F]/g) || [];
+    if (letters.length && ext.length * 2 > core.length && /[A-Za-z]/.test(core)) return false;
+    // Bytes read as Latin-1 ("ÿØÿà", a lone "ÿ"): real words in Latin-script
+    // languages always carry plain ASCII letters alongside their accents.
+    if (/^[\u00A0-\u00FF]+$/.test(core)) return false;
+    if (letters.length >= 6 && letters.length === core.length && !/[aeiouyAEIOUYÀ-ɏ]/.test(core)) return false;
+    if ((core.match(/[a-z][A-Z]/g) || []).length > 1) return false;
+    if ((core.match(/[A-Za-z]\d|\d[A-Za-z]/g) || []).length > 2) return false;
+    return true;
+  }
+  function cleanReadableText(s) {
+    var raw = String(s == null ? '' : s);
+    if (!raw) return '';
+    var t = rtStripBad(raw);
+    // Two or more junk code units means the text was not clean to begin with.
+    var cut = (t.match(/ /g) || []).length - (raw.match(/ /g) || []).length >= 2;
+    var before = t;
+    t = t
+      .replace(/\bstream\b[\s\S]*?\bendstream\b/g, ' ')
+      .replace(/<<[\s\S]*?>>/g, ' ')
+      .replace(/%PDF-\d(?:\.\d)?|%%EOF/g, ' ')
+      .replace(/\b\d+\s+\d+\s+(?:obj|R)\b/g, ' ')
+      .replace(/\b(?:endobj|endstream|startxref|xref|trailer)\b/g, ' ')
+      .replace(/(^|\s)\/[A-Za-z][A-Za-z0-9#]*/g, '$1 ');
+    if (t !== before) cut = true;
+    var words = t.split(/\s+/).filter(Boolean);
+    if (!words.length) return '';
+    var keep = words.map(function (w) { return rtWordOk(w, cut); });
+    var dropped = cut || keep.some(function (k) { return !k; });
+    var runs = [], cur = [];
+    for (var i = 0; i <= words.length; i++) {
+      if (i < words.length && keep[i]) { cur.push(words[i]); continue; }
+      if (cur.length && (!dropped || cur.length >= 4)) runs.push(cur.join(' '));
+      cur = [];
+    }
+    var out = runs.join(' … ').trim();
+    var real = (out.match(/\p{L}{2,}/gu) || []).filter(function (x) { return /[aeiouyAEIOUYÀ-ɏ]/.test(x); });
+    if (real.length < 2) return '';
+    var lettersN = (out.match(/\p{L}/gu) || []).length;
+    if (lettersN < out.replace(/\s/g, '').length * 0.5) return '';
+    return out;
+  }
+
   function hk(it) { return String((it && it.headline) || '').toLowerCase().replace(/\s+/g, ' ').trim(); }
 
   // 'strong' | 'weak' | 'mention' | null (nothing to show).
@@ -165,6 +251,26 @@
     return !!(it && it.headline && it.issueKey && it.source && /^https?:\/\//.test(String(it.source.url || '')));
   }
 
+  // A weak signal or mention shows only clean readable text: its excerpt is
+  // cleaned, and the item is dropped (null) when nothing readable is left. A
+  // strong item is returned exactly as served.
+  function readableWeaker(it) {
+    if (strengthOf(it) === 'strong') return it;
+    var pl = it.pipeline || {};
+    var raw = String(pl.excerpt || '');
+    if (!raw.trim()) return it;
+    var clean = cleanReadableText(raw);
+    if (!clean) return null;
+    if (clean === raw) return it;
+    var copy = {};
+    Object.keys(it).forEach(function (k) { copy[k] = it[k]; });
+    var pc = {};
+    Object.keys(pl).forEach(function (k) { pc[k] = pl[k]; });
+    pc.excerpt = clean;
+    copy.pipeline = pc;
+    return strengthOf(copy) ? copy : null;
+  }
+
   function pushUnique(list, it, key) {
     key = key || hk;
     var h = key(it);
@@ -188,6 +294,8 @@
       var gained = false;
       arr.forEach(function (it) {
         if (!isEntry(it) || !strengthOf(it) || isHidden(it)) return;
+        it = readableWeaker(it);
+        if (!it) return;
         var mine = byPid[id] || (byPid[id] = []);
         if (!pushUnique(mine, it, ik)) return;
         gained = true; out.added++;
@@ -787,6 +895,77 @@
       '<div class="evd-spot-head"><span class="evd-spot-impact neutral" aria-hidden="true">•</span>' + head + '</div>' +
       body + link + '</div>';
   }
+  // ── Weaker signals, collapsed by topic ──────────────────────────────────
+  // The block used to be one long scroll of issue cards. It is now grouped by
+  // the same topics All Issues by Topic files issues under (CORE_NATIONAL_ISSUES,
+  // in its order, then "Other tracked issues"), each topic wearing the same
+  // colour (PDXIssueColors) and icon (the topic's own label) and the same branch
+  // face. Every topic starts closed with a short count on its face; opening one
+  // opens only that one. A topic a reader opened stays open across an in-place
+  // repaint of the same profile.
+  var weakOpen = {};
+  function weakCoreOf(key) {
+    try {
+      var F = window.PDXIssueFamily;
+      if (F && typeof F.coreOf === 'function') { var id = F.coreOf(key); if (id) return id; }
+    } catch (e) {}
+    try {
+      var IC = window.PDXIssueColors;
+      if (IC && typeof IC.coreKeyFor === 'function') { var k = IC.coreKeyFor(key); if (k) return k; }
+    } catch (e) {}
+    try {
+      var c = (typeof window.coreIssueForKey === 'function') ? window.coreIssueForKey(key) : null;
+      if (c && c.key) return c.key;
+    } catch (e) {}
+    return '';
+  }
+  function weakTopics() {
+    var out = [];
+    try {
+      var T = window.PDXStanceTree;
+      if (T && typeof T.TOPICS === 'function') out = T.TOPICS() || [];
+    } catch (e) { out = []; }
+    if (!out.length) {
+      try {
+        (window.CORE_NATIONAL_ISSUES || []).forEach(function (c) {
+          if (c && c.key) out.push({ key: c.key, label: c.label || c.key });
+        });
+      } catch (e) {}
+      out.push({ key: '', label: '🗂 Other tracked issues' });
+    }
+    return out;
+  }
+  function weakSkin(coreKey) {
+    try {
+      var IC = window.PDXIssueColors;
+      if (!IC || typeof IC.styleFor !== 'function') return { on: false, style: '' };
+      var on = coreKey && typeof IC.isCore === 'function' ? !!IC.isCore(coreKey) : false;
+      return { on: on, style: IC.styleFor(coreKey || '') || '' };
+    } catch (e) { return { on: false, style: '' }; }
+  }
+  function weakCountText(list) {
+    var w = 0, m = 0;
+    list.forEach(function (it) { if (strengthOf(it) === 'weak') w++; else m++; });
+    var bits = [];
+    if (w) bits.push(w + ' weak signal' + (w === 1 ? '' : 's'));
+    if (m) bits.push(m + ' mention' + (m === 1 ? '' : 's'));
+    return bits.join(' \u00b7 ');
+  }
+  function weakSlug(s) { return String(s || 'other').replace(/[^A-Za-z0-9_-]/g, '_'); }
+  // One topic opens or closes; no other topic is touched.
+  window._pdxEvdWeakToggle = function (btn) {
+    try {
+      var br = btn && btn.closest ? btn.closest('[data-evd-weak-topic]') : null;
+      if (!br) return;
+      var open = br.getAttribute('data-pdxtree-open') !== '1';
+      br.setAttribute('data-pdxtree-open', open ? '1' : '0');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      var panel = document.getElementById(btn.getAttribute('aria-controls') || '');
+      if (panel) { if (open) panel.removeAttribute('hidden'); else panel.setAttribute('hidden', ''); }
+      var mk = br.getAttribute('data-evd-weak-mem') || '';
+      if (mk) { if (open) weakOpen[mk] = 1; else delete weakOpen[mk]; }
+    } catch (e) {}
+  };
   function evdWeakHtml(pid, skip, promoBy) {
     var rest = weaker(pid).filter(function (it) { return !skip || skip.indexOf(it) === -1; });
     if (!rest.length) return '';
@@ -795,18 +974,63 @@
       if (!byKey[it.issueKey]) { byKey[it.issueKey] = []; order.push(it.issueKey); }
       byKey[it.issueKey].push(it);
     });
+    // Issue keys → topics, in the tree's topic order.
+    var byTopic = {};
+    order.forEach(function (k) {
+      var t = weakCoreOf(k);
+      (byTopic[t] || (byTopic[t] = [])).push(k);
+    });
+    var topics = weakTopics();
+    var known = {};
+    topics.forEach(function (t) { known[t.key] = 1; });
+    // A core key the topic list does not carry is filed under Other.
+    Object.keys(byTopic).forEach(function (t) {
+      if (t && !known[t]) {
+        byTopic[''] = (byTopic[''] || []).concat(byTopic[t]);
+        delete byTopic[t];
+      }
+    });
+    var pslug = weakSlug(canon(pid));
+    var issueCard = function (k) {
+      var ps = promoBy && promoBy[k];
+      if (ps) delete promoBy[k];
+      return '<div class="evd-card" data-evd-locker-grp="' + esc(k) + '">' +
+        '<div class="evd-head"><span class="evd-head-label">' + esc(issueLabel(k)) + '</span></div>' +
+        (ps ? saidLineHtml(ps, 'div', 'evd-locker-said', { style: 'margin:0.2rem 0 0.3rem;' }) : '') +
+        byKey[k].map(evdWeakCardHtml).join('') +
+      '</div>';
+    };
+    var faces = topics.filter(function (t) { return byTopic[t.key] && byTopic[t.key].length; }).map(function (t) {
+      var keys = byTopic[t.key];
+      var list = [];
+      keys.forEach(function (k) { list = list.concat(byKey[k]); });
+      var skin = weakSkin(t.key);
+      var mem = canon(pid) + '|' + (t.key || '__other');
+      var open = !!weakOpen[mem];
+      var panel = 'evd-weak-' + pslug + '-' + weakSlug(t.key || '__other');
+      var n = weakCountText(list);
+      return '<div class="pdxtree-branch evd-weak-topic' + (skin.on ? ' pdxtree-ic' : '') + '"' +
+          (skin.style ? ' style="' + esc(skin.style) + '"' : '') +
+          ' data-evd-weak-topic="' + esc(t.key || '__other') + '"' +
+          ' data-evd-weak-mem="' + esc(mem) + '"' +
+          ' data-pdxtree-open="' + (open ? '1' : '0') + '">' +
+          '<button type="button" class="pdxtree-bface evd-weak-face"' +
+            ' aria-expanded="' + (open ? 'true' : 'false') + '" aria-controls="' + esc(panel) + '"' +
+            ' title="' + esc(t.label + ' \u00b7 ' + n) + '"' +
+            ' onclick="window._pdxEvdWeakToggle && window._pdxEvdWeakToggle(this)">' +
+            '<span class="pdxtree-caret" aria-hidden="true">\u25b8</span>' +
+            '<span class="pdxtree-btitle">' + esc(t.label) + '</span>' +
+            '<span class="pdxtree-bn">' + esc(n) + '</span>' +
+          '</button>' +
+          '<div class="pdxtree-panel evd-weak-panel" id="' + esc(panel) + '"' + (open ? '' : ' hidden') + '>' +
+            keys.map(issueCard).join('') +
+          '</div>' +
+        '</div>';
+    });
     return '<div class="modal-section evd-locker-weak" data-evd-locker-weakblock="1">' +
       '<div class="modal-section-title">' + esc(EVD_HEAD) + '</div>' +
       '<p class="evd-foot-note" style="margin-top:0;">' + esc(EVD_NOTE) + '</p>' +
-      order.map(function (k) {
-        var ps = promoBy && promoBy[k];
-        if (ps) delete promoBy[k];
-        return '<div class="evd-card" data-evd-locker-grp="' + esc(k) + '">' +
-          '<div class="evd-head"><span class="evd-head-label">' + esc(issueLabel(k)) + '</span></div>' +
-          (ps ? saidLineHtml(ps, 'div', 'evd-locker-said', { style: 'margin:0.2rem 0 0.3rem;' }) : '') +
-          byKey[k].map(evdWeakCardHtml).join('') +
-        '</div>';
-      }).join('') +
+      '<div class="evd-weak-topics" style="display:flex;flex-direction:column;gap:0.4rem;">' + faces.join('') + '</div>' +
     '</div>';
   }
   // The issue card's "📌 Stated stance" lane prints "No curated stance written
@@ -1170,6 +1394,7 @@
     waMatches: waMatches, waHtml: waHtml,
     STRONG_MIN: STRONG_MIN, WEAK_MIN: WEAK_MIN, WEAK_BADGE: WEAK_BADGE, MENTION_LABEL: MENTION_LABEL,
     strengthOf: strengthOf, weaker: weaker, evdWeakHtml: evdWeakHtml,
+    cleanReadableText: cleanReadableText, readableWeaker: readableWeaker,
     conflictOf: conflictOf, conflictText: conflictText, conflictHtml: conflictHtml,
     decorateEvidence: decorateEvidence, wrap: wrap,
     pledgeMatches: pledgeMatches, pledgesFor: pledgesFor, decorateGaps: decorateGaps,
@@ -1184,6 +1409,17 @@
     formalMatch: formalMatch, formalMatches: formalMatches, measureNamedIn: measureNamedIn,
     // Test seam: forget everything ingested (does not touch SPOTLIGHT_DATA).
     _reset: function () { byPid = {}; loading = null; }
+  };
+
+  // The 🕑 Activity badge's hook (profiles-full.js _pdxNewestEvidenceTs): the
+  // capture date of every item held for a person — strong, weak and mention —
+  // so freshness reflects the newest pipeline read, not a static timestamp.
+  window._pdxLockerItemDates = function (pid) {
+    try {
+      return items(pid).map(function (it) {
+        return (it.pipeline && it.pipeline.captured) || it.date || '';
+      }).filter(Boolean);
+    } catch (e) { return []; }
   };
 
   // Word vs Action's formal-record hook (word-action.js wordLedger): the
