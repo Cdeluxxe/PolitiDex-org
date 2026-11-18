@@ -72,6 +72,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { HAND_SEATS, planBoards } from "./gen-district-boards.mjs";
+import { foldLogoPass } from "./logo-pass-fold.mjs";
 
 import {
   VOICE_STATES,
@@ -809,7 +810,8 @@ const VERIFIED_OPTS = { uid: "u_7", loc: { state: "Utah", city: "Layton", county
     .replace("        fecSummary: p.fecSummary ? Object.assign({}, p.fecSummary) : null,\n", "");
   for (const f of MONEY) {
     const src = R(f);
-    if (head) eq(sansAlias(src) === sansAlias(head(f)), true, `${f}: money markup changed in this pass`);
+    // The logo pass (sw v579) swapped the front page's brand marks; folded back first.
+    if (head) eq(sansAlias(foldLogoPass(src)) === sansAlias(head(f)), true, `${f}: money markup changed in this pass`);
     if (f !== "index.html") lacks(src, "pdxhv-", `${f}: a money surface wears the Voice door's classes`);
   }
   const INDEX = R("index.html");

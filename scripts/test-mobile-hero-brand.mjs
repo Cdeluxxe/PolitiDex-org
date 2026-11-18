@@ -86,17 +86,22 @@ must(h1Start > heroStart, "#hero no longer contains an <h1> — 'WHAT THEY SAID'
      "this whole file measures against");
 const ABOVE = HTML.slice(heroStart, h1Start);      // everything before the headline
 
+// The logo pass (sw v579) retired the BETA tag — the site is out of beta — and
+// swapped the drawn PX badge and the text POLITIDEX lockup for the official
+// marks: the compact PDX mark in the badge, and the full wordmark, whose image
+// carries BOUND BY TRUTH, as the lockup.
 const INVENTORY = [
-  { id: "PX wordmark",        re: />\s*PX\s*</ },
-  { id: "BETA tag",           re: />\s*BETA\s*</ },
+  { id: "PDX mark badge",     re: /<img[^>]*src="\/assets\/pdx-mark-512\.png"/ },
   { id: "LIVE pill",          re: />\s*LIVE\s*</ },
-  { id: "POLITIDEX wordmark", re: /POLITI<span[^>]*>DEX<\/span>/ },
-  { id: "BOUND BY TRUTH eyebrow", re: /Bound by Truth/i },
+  { id: "PolitiDex wordmark", re: /<img[^>]*src="\/assets\/politidex-wordmark\.png"/ },
+  { id: "BOUND BY TRUTH eyebrow", re: /alt="PolitiDex — Bound by Truth"/ },
 ];
+ok(!/\bbeta\b/i.test(ABOVE.replace(/<!--[\s\S]*?-->/g, "")),
+   "INVENTORY: the hero still prints a BETA tag — the site is out of beta and the tag was retired");
 for (const item of INVENTORY) {
   ok(item.re.test(ABOVE),
      "INVENTORY: the " + item.id + " is no longer in #hero above the <h1>. The four things a reader is " +
-     "supposed to meet before the headline are the PX/BETA badge, its LIVE pill, the POLITIDEX wordmark " +
+     "supposed to meet before the headline are the PDX mark badge, its LIVE pill, the PolitiDex wordmark " +
      "and the BOUND BY TRUTH eyebrow. If one is genuinely being retired, retire it here too — do not " +
      "let this file keep asserting a lockup the page no longer has.");
 }

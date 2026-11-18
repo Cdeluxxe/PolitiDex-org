@@ -12317,7 +12317,17 @@
 //     changed, so the shell moves; the precache list is unchanged. No existing
 //     stored state is rewritten, so nothing is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v578';
+// v579 - THE OFFICIAL LOGOS, AND THE BETA TAG RETIRED. The site is out of
+//     beta: the hero badge no longer prints BETA. The top bar, the hero lockup,
+//     the footer and every shell bar now carry the official PolitiDex wordmark
+//     (scales of justice, BOUND BY TRUTH), with the compact PDX mark on phones,
+//     as the favicon, the app icons and the default share image. icon.svg and
+//     icon-maskable.svg are now the PDX mark. Precached files changed, so the
+//     shell moves; the precache list is unchanged (the new logo images are
+//     fetched and runtime-cached like any other asset). No route, gate, tally,
+//     chip or verdict changes. Nothing stored is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v579';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
