@@ -719,8 +719,10 @@ at('person-bills.js loads the module once; person.html and the precache list are
   const precache = (src) => (/const SHELL_ASSETS = \[([\s\S]*?)\];/.exec(src) || [])[1]?.split('\n').filter((l) => /^\s*'/.test(l)).join('\n');
   assert.ok(!sw.includes("'/person-directional-keys.js'") && !sw.includes("'/person-directional-keys.json'"), 'the module and its table are fetched at runtime');
   const headSw = git('sw.js'), headPerson = git('person.html');
-  // The logo pass (sw v579) swapped person.html's brand marks; folded back first.
-  if (headPerson) assert.equal(foldLogoPass(R('person.html')), headPerson, 'person.html is unchanged');
+  // The logo pass (sw v579) swapped person.html's brand marks. HEAD now carries
+  // those marks too, so both sides fold back: the pin holds every other byte
+  // whether the baseline predates the logo pass or already includes it.
+  if (headPerson) assert.equal(foldLogoPass(R('person.html')), foldLogoPass(headPerson), 'person.html is unchanged');
   if (headSw && headSw !== sw) {
     assert.equal(precache(sw), precache(headSw), 'the precache list is unchanged');
     assert.equal(Number(/const CACHE_VERSION = 'v(\d+)';/.exec(sw)[1]), Number(/const CACHE_VERSION = 'v(\d+)';/.exec(headSw)[1]) + 1);
