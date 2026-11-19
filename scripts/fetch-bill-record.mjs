@@ -56,7 +56,8 @@ import url from "node:url";
 import { measureAddresses } from "./vr-measure-addresses.mjs";
 // The action classifiers are shared with the vote-actions job, which builds the
 // same record for bill pages it generates (netlify/lib/vote-actions-pages.ts).
-import { clean, day, chamberOf, billStage, amendmentStage, pickActions } from "../netlify/lib/bill-record-stages.mjs";
+import { clean, day, pickActions } from "../netlify/lib/bill-record-stages.mjs";
+import { NOMINATION_PN, federalReader, renderBillRecord } from "../netlify/lib/bill-record-federal.mjs";
 
 const ROOT = path.resolve(path.dirname(url.fileURLToPath(import.meta.url)), "..");
 const OUT = path.join(ROOT, "db", "bill-record.json");
@@ -67,25 +68,10 @@ const ONLY = opt("--only");
 const KEY = process.env.CONGRESS_GOV_API_KEY || "";
 const API = "https://api.congress.gov/v3";
 
-// The nominations on file are printed under a short label ("Bondi — AG"), not
-// under their PN citation. Each label → the citation Congress.gov files it under,
-// checked against the nomination's own description on Congress.gov.
-export const NOMINATION_PN = {
-  "Bondi — AG": "11-2",
-  "Gabbard — DNI": "11-16",
-  "Kennedy — HHS": "11-8",
-  "McMahon — ED": "11-10",
-  "Patel — FBI": "12-35",
-  "PN11-7": "11-7",
-  "Rubio — State": "11-13",
-  "Vought — OMB": "11-22",
-};
-
-const FED_TYPES = {
-  "H.R.": "hr", "S.": "s", "H.J.Res.": "hjres", "S.J.Res.": "sjres",
-  "H.Con.Res.": "hconres", "S.Con.Res.": "sconres", "H.Res.": "hres", "S.Res.": "sres",
-};
-const AMDT_TYPES = { "H.Amdt.": "hamdt", "S.Amdt.": "samdt" };
+// The federal reads (bills, resolutions, amendments, nominations) live in
+// netlify/lib/bill-record-federal.mjs, shared with the scheduled bill-record
+// job (netlify/functions/congress-sync-bill-record.mts).
+export { NOMINATION_PN };
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -105,102 +91,9 @@ async function getJson(u, cacheName) {
   throw new Error(`could not read ${u.replace(/api_key=[^&]+/, "api_key=…")}`);
 }
 
-const cg = (p, extra = "") => `${API}/${p}?format=json&limit=250${extra}&api_key=${KEY}`;
-async function cgAll(p, field, cacheName) {
-  const out = [];
-  for (let offset = 0; offset < 5000; offset += 250) {
-    const j = await getJson(cg(p, `&offset=${offset}`), `${cacheName}-${offset}`);
-    const rows = (j && j[field]) || [];
-    out.push(...rows);
-    if (rows.length < 250) break;
-  }
-  return out;
-}
-
-const person = (p, r) => ({
-  r,
-  id: String(p.bioguideId || ""),
-  n: clean(p.fullName || [p.firstName, p.lastName].filter(Boolean).join(" ")),
-  h: /^Sen\./.test(p.fullName || "") ? "S" : "H",
-});
-
-// ── Federal bills and resolutions ───────────────────────────────────────────
-async function federalBill(sitting, number) {
-  const [pre, num] = number.split(" ");
-  const t = FED_TYPES[pre];
-  const base = `bill/${sitting}/${t}/${num}`;
-  const b = ((await getJson(cg(base), base)) || {}).bill;
-  if (!b) return null;
-  const cos = await cgAll(`${base}/cosponsors`, "cosponsors", `${base}/cosponsors`);
-  const acts = (await cgAll(`${base}/actions`, "actions", `${base}/actions`))
-    .filter((a) => !a.sourceSystem || String(a.sourceSystem.code) === "9" || a.sourceSystem.name === "Senate");
-  const typeWord = { hr: "house-bill", s: "senate-bill", hjres: "house-joint-resolution", sjres: "senate-joint-resolution",
-    hconres: "house-concurrent-resolution", sconres: "senate-concurrent-resolution", hres: "house-resolution", sres: "senate-resolution" }[t];
-  return {
-    src: `https://www.congress.gov/bill/${sitting}th-congress/${typeWord}/${num}`,
-    ch: chamberOf(b.originChamber),
-    in: day(b.introducedDate),
-    sp: [
-      ...(b.sponsors || []).map((p) => person(p, "sponsor")),
-      ...cos.filter((p) => !p.sponsorshipWithdrawnDate).map((p) => person(p, "cosponsor")),
-    ],
-    a: pickActions(acts, billStage),
-  };
-}
-
-// ── Amendments ──────────────────────────────────────────────────────────────
-async function federalAmendment(sitting, number) {
-  const [pre, num] = number.split(" ");
-  const t = AMDT_TYPES[pre];
-  const base = `amendment/${sitting}/${t}/${num}`;
-  const am = ((await getJson(cg(base), base)) || {}).amendment;
-  if (!am) return null;
-  const cos = await cgAll(`${base}/cosponsors`, "cosponsors", `${base}/cosponsors`).catch(() => []);
-  const acts = await cgAll(`${base}/actions`, "actions", `${base}/actions`);
-  const ch = chamberOf(am.chamber);
-  const a = pickActions(acts, amendmentStage).map((x) => ({ ...x, c: ch }));
-  const when = day(am.submittedDate || am.proposedDate || (acts[acts.length - 1] || {}).actionDate);
-  return {
-    src: `https://www.congress.gov/amendment/${sitting}th-congress/${t === "hamdt" ? "house-amendment" : "senate-amendment"}/${num}`,
-    ch,
-    in: when,
-    sp: [
-      ...(am.sponsors || []).map((p) => person(p, "sponsor")),
-      ...cos.filter((p) => !p.sponsorshipWithdrawnDate).map((p) => person(p, "cosponsor")),
-    ],
-    // Same-day steps in the order they happen: offered, then decided.
-    a: a.map((x, i) => ({ x, i })).sort((p, q) => p.x.d.localeCompare(q.x.d) || (p.x.s === "offered" ? -1 : 0) - (q.x.s === "offered" ? -1 : 0) || p.i - q.i).map((o) => o.x),
-  };
-}
-
-// ── Nominations ─────────────────────────────────────────────────────────────
-function nominationStage(a) {
-  const t = clean(a.text);
-  if (/^Received in the Senate/i.test(t)) return ["received", "senate", t];
-  if (/^Committee on .* Reported|Reported by Senator/i.test(t)) return ["reported", "senate", t];
-  if (/^Confirmed by the Senate/i.test(t)) return ["confirmed", "senate", t];
-  if (/^(Rejected|Not confirmed)/i.test(t)) return ["rejected", "senate", t];
-  if (/withdrawal of nomination/i.test(t)) return ["withdrawn", "senate", t];
-  if (/^Returned to the President/i.test(t)) return ["returned", "senate", t];
-  return null;
-}
-
-async function nomination(sitting, number) {
-  const pn = NOMINATION_PN[number];
-  if (!pn) return null;
-  const base = `nomination/${sitting}/${pn}`;
-  const n = ((await getJson(cg(base), base)) || {}).nomination;
-  if (!n) return null;
-  const acts = await cgAll(`${base}/actions`, "actions", `${base}/actions`);
-  const [num, part] = pn.split("-");
-  return {
-    src: `https://www.congress.gov/nomination/${sitting}th-congress/${num}${part ? "/" + part : ""}`,
-    ch: "senate",
-    in: day(n.receivedDate),
-    sp: [],
-    a: pickActions(acts, nominationStage),
-  };
-}
+// api.congress.gov/v3 `path` → JSON | null (404); the shared federal reader
+// pages through lists by handing in `&offset=`.
+const readFederal = federalReader((p, cacheName, extra) => getJson(`${API}/${p}?format=json&limit=250${extra || ""}&api_key=${KEY}`, cacheName));
 
 // ── Utah ────────────────────────────────────────────────────────────────────
 // le.utah.gov's action codes and descriptions. The description is the text the
@@ -295,11 +188,7 @@ export function recordTargets(root) {
 
 async function one(t) {
   if (/GS$/i.test(t.sitting)) return utahBill(t.sitting, t.number);
-  if (t.type === "nomination" || NOMINATION_PN[t.number]) return nomination(t.sitting, t.number);
-  const pre = t.number.split(" ")[0];
-  if (AMDT_TYPES[pre]) return federalAmendment(t.sitting, t.number);
-  if (FED_TYPES[pre]) return federalBill(t.sitting, t.number);
-  return null;
+  return readFederal(t);
 }
 
 if (import.meta.url === url.pathToFileURL(process.argv[1]).href) {
@@ -315,11 +204,7 @@ if (import.meta.url === url.pathToFileURL(process.argv[1]).href) {
     if (r) records[k] = r; else missing.push(k);
     if (++i % 25 === 0) console.log(`  … ${i}/${targets.length}`);
   }
-  const sorted = Object.fromEntries(Object.keys(records).sort((a, b) => a.localeCompare(b, undefined, { numeric: true })).map((k) => [k, records[k]]));
-  fs.writeFileSync(OUT, JSON.stringify({
-    _comment: "GENERATED by scripts/fetch-bill-record.mjs from the official record (Congress.gov API for federal measures, le.utah.gov bill files for Utah) — do not edit by hand. Per bill document: the record page (src), chamber of origin (ch), date introduced (in), sponsors and co-sponsors as the record names them (sp), and the key actions with their dates and the record's own text (a). Roster ids and status are derived from this file by scripts/gen-bill-docs.mjs.",
-    fetchedOn: new Date().toISOString().slice(0, 10),
-    records: sorted,
-  }, null, 1) + "\n");
+  fs.writeFileSync(OUT, renderBillRecord(records, new Date().toISOString().slice(0, 10)));
+  const sorted = records;
   console.log(`wrote db/bill-record.json (${Object.keys(sorted).length} records${missing.length ? `; no record for ${missing.length}: ${missing.join(", ")}` : ""})`);
 }

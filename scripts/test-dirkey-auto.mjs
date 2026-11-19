@@ -317,7 +317,11 @@ t('no migration, no new function, and the worker precache list is untouched', ()
     // read and the public "what changed" feed (all read-only).
     'netlify/functions/vote-page.mts',
     'netlify/functions/person-coverage.mts',
-    'netlify/functions/changes-feed.mts'];
+    'netlify/functions/changes-feed.mts',
+    // Phase 7: the three scheduled Congress.gov / chamber-file pulls.
+    'netlify/functions/congress-sync-bill-record.mts',
+    'netlify/functions/congress-sync-cosponsorships.mts',
+    'netlify/functions/congress-sync-committees.mts'];
   if (added != null) assert.deepEqual(added.split('\n').filter((l) => /^(?:\?\?|A)/.test(l) && !LATER.some((f) => l.endsWith(' ' + f))), [], 'no new function or migration file');
   const sw = R('sw.js');
   for (const f of ['person-directional-keys.js', 'person-directional-keys-auto.json', 'person-directional-keys.json']) assert.ok(!sw.includes(`'/${f}'`), `${f} is not precached`);
