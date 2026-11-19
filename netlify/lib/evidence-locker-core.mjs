@@ -34,6 +34,14 @@
 //       is written as before. So two issue pages scored onto one topic cannot
 //       leave a support and an oppose record for it.
 //
+// CITATIONS. A clear-position item (support / oppose, strong or weak) must come
+// from the politician's own page (isOwnPage) and quote at least one verbatim
+// excerpt the scorer used (citationExcerpts); it is stored with `issue_key`,
+// `excerpts`, `own_page` and a `citation` record (politician_id, issue_key,
+// stated_position, confidence, source_type, source_date, url, excerpts,
+// attribution, own_page). A "no clear position" / "mixed" read never carries a
+// citation or a stance; it can only be the citation-free mention tier.
+//
 // STATED LAYER ONLY. Every item is what a politician SAID (layer "stated",
 // formal_record false). An explicit claim on a primary source (scorer R8 —
 // campaign/official pages, floor speeches, press releases, co-sponsor
@@ -253,6 +261,48 @@ export function storedStrength(item) {
 }
 
 /**
+ * Is the candidate's source the politician's OWN page? A campaign or official
+ * page (W3), or a first-party primary source the scorer read as the
+ * candidate's own stated position (R8 floor speech / release / co-sponsor
+ * statement).
+ */
+export function isOwnPage(candidate, raw) {
+  const src = candidate?.sources?.[0] || {};
+  const link = raw?.final_url || raw?.url || src.link;
+  if (candidate?.stated_position === true && Boolean(KIND_LABELS[candidate?.primary_kind])) return true;
+  return isCampaignOrOfficial(raw?.source_type ?? src.type, link);
+}
+
+const CITATION_EXCERPTS_MAX = 3;
+
+/**
+ * The verbatim excerpts the scorer used for a clear-position read: the
+ * candidate's own explicit statements for the winning side first, then its
+ * implications for that side, then the scorer's single excerpt. Text is kept
+ * exactly as the scorer recorded it (no re-trim); excerpts with no readable
+ * text (binary / PDF data) and quotes of other speakers are left out. At most
+ * CITATION_EXCERPTS_MAX, de-duplicated, in page order within each kind.
+ */
+export function citationExcerpts(candidate) {
+  const src = candidate?.sources?.[0] || {};
+  const side = candidate?.position;
+  const st = Array.isArray(src.statements) ? src.statements : [];
+  const own = (s) => s && s.side === side && s.quoted_speaker !== "other" && typeof s.text === "string";
+  const picked = [
+    ...st.filter((s) => s.kind === "clear" && own(s)).map((s) => s.text),
+    ...st.filter((s) => s.kind === "implication" && own(s)).map((s) => s.text),
+    ...(typeof src.excerpt === "string" ? [src.excerpt] : []),
+  ];
+  const out = [];
+  for (const t of picked) {
+    if (!t.trim() || !cleanReadableText(t) || out.includes(t)) continue;
+    out.push(t);
+    if (out.length >= CITATION_EXCERPTS_MAX) break;
+  }
+  return out;
+}
+
+/**
  * Should this candidate become a Locker item?
  * `gt` is the ground-truth record (or null). Returns { write, strength?, reason }.
  */
@@ -265,18 +315,20 @@ export function lockerDecision(candidate, raw, gt = null) {
   const isGtPair = gt && candidate.politician_id === gt.politician_id && candidate.topic === gt.topic;
   if (isGtPair) {
     if (strength === "mention") return { write: true, strength, reason: `${reason}; ground-truth pair, mention carries no position` };
-    return candidate.position === gt.position
-      ? { write: true, strength, reason: `${reason}; matches ground-truth position (${gt.position})` }
-      : { write: false, reason: `position ${candidate.position} does not match ground truth (${gt.position})` };
+    if (candidate.position !== gt.position) return { write: false, reason: `position ${candidate.position} does not match ground truth (${gt.position})` };
+    if (!isOwnPage(candidate, raw)) return { write: false, reason: `source "${raw?.source_type ?? src.type}" is not the politician's own campaign/official page` };
+    if (!citationExcerpts(candidate).length) return { write: false, reason: "no verbatim excerpt to cite" };
+    return { write: true, strength, reason: `${reason}; matches ground-truth position (${gt.position})` };
   }
-  const link = raw?.final_url || raw?.url || src.link;
   // A floor speech, press release or co-sponsor statement that the scorer read
   // as a stated position (R8, phase8-v2) is the candidate's own first-party
   // words too; any other read from those sources stays out, as before.
-  const statedPrimary = candidate.stated_position === true && Boolean(KIND_LABELS[candidate.primary_kind]);
-  if (!statedPrimary && !isCampaignOrOfficial(raw?.source_type ?? src.type, link)) {
+  if (!isOwnPage(candidate, raw)) {
     return { write: false, reason: `source "${raw?.source_type ?? src.type}" is not a campaign/official page` };
   }
+  // A clear-position item is a citation: it needs at least one verbatim
+  // excerpt the scorer used.
+  if (strength !== "mention" && !citationExcerpts(candidate).length) return { write: false, reason: "no verbatim excerpt to cite" };
   return { write: true, strength, reason: `${reason} on a campaign/official page` };
 }
 
@@ -336,6 +388,34 @@ export function buildLockerItem(candidate, raw, strength = lockerStrength(candid
     source_tier: sourceTierOf(raw),
     // Scored from a page filed under another topic (multi-topic pass).
     ...(candidate.page_topic && candidate.page_topic !== candidate.topic ? { page_topic: candidate.page_topic } : {}),
+    // Clear-position items (support / oppose) carry a full citation record.
+    // Mentions ("no clear position" / "mixed" / low confidence) do not.
+    ...(isClear(candidate.position) ? citationFields(candidate, raw, { link, source_type, date }) : {}),
+  };
+}
+
+/**
+ * Citation record for a clear-position item: who, which issue, what stance at
+ * what scorer confidence, the source (type, date, direct URL), the verbatim
+ * excerpts the scorer used, and that the source is the politician's own page.
+ */
+function citationFields(candidate, raw, { link, source_type, date }) {
+  return {
+    issue_key: candidate.topic,
+    excerpts: citationExcerpts(candidate),
+    own_page: isOwnPage(candidate, raw),
+    citation: {
+      politician_id: candidate.politician_id,
+      issue_key: candidate.topic,
+      stated_position: candidate.position,
+      confidence: candidate.confidence,
+      source_type,
+      source_date: date,
+      url: link,
+      excerpts: citationExcerpts(candidate),
+      attribution: `${attributionFor(source_type, link)} — the politician's own page`,
+      own_page: isOwnPage(candidate, raw),
+    },
   };
 }
 
