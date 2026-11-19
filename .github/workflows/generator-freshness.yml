@@ -1,0 +1,108 @@
+# NOT ACTIVE HERE. GitHub only runs workflows from .github/workflows/. This file
+# lives in scripts/ci/ because the Netlify agent runner cannot push files under
+# .github/workflows/. To turn the schedule on, copy it to
+# .github/workflows/generator-freshness.yml in a commit of your own.
+#
+# Generator freshness — runs every generator's --check on a schedule and, when
+# any is stale, regenerates it and opens (or updates) a pull request.
+#
+# The generators themselves are unchanged; the list and the loop live in
+# scripts/generators.mjs and scripts/check-generators.mjs. This workflow only
+# supplies the schedule and the commit-and-PR step.
+#
+# Why GitHub Actions and not a Netlify scheduled function: a scheduled function
+# runs against the deployed bundle, with no checkout of the repo and no way to
+# push. Fixing drift means writing files and committing them, and that needs a
+# checkout.
+#
+# The PR goes to a fixed branch (automation/generator-freshness), so a second
+# run before the first PR merges updates that PR instead of opening another.
+# Merging it to main is what deploys the regenerated files, through the usual
+# Netlify deploy preview → production path.
+name: Generator freshness
+
+on:
+  schedule:
+    # Daily at 09:17 UTC (off the hour, after the 07:00 vote ingest).
+    - cron: "17 9 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: generator-freshness
+  cancel-in-progress: false
+
+jobs:
+  freshness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      BRANCH: automation/generator-freshness
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # No npm install: every generator in scripts/generators.mjs (and the
+      # roster generator) imports Node built-ins and repo files only.
+
+      - name: Check and regenerate
+        id: fix
+        run: |
+          set +e
+          node scripts/check-generators.mjs --fix --test --json freshness.json --summary freshness.md
+          code=$?
+          set -e
+          echo "exit=$code" >> "$GITHUB_OUTPUT"
+          cat freshness.md >> "$GITHUB_STEP_SUMMARY"
+          # Report files are not part of the change.
+          if node -e 'const r=require("./freshness.json");process.exit((r.tests||[]).some(t=>!t.ok)?0:1)'; then
+            echo "title=Regenerate stale generator output (related tests FAIL — review)" >> "$GITHUB_OUTPUT"
+          else
+            echo "title=Regenerate stale generator output" >> "$GITHUB_OUTPUT"
+          fi
+          mv freshness.json freshness.md "$RUNNER_TEMP/"
+          if git diff --quiet && [ -z "$(git ls-files --others --exclude-standard)" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Roster drift report (official sources; report only, never applied)
+        continue-on-error: true
+        run: |
+          node scripts/gen-roster-official.mjs --check --report "$RUNNER_TEMP/roster-drift.md" || true
+          # --check writes nothing: the live roster and the committed candidate stay as they are.
+          if [ -f "$RUNNER_TEMP/roster-drift.md" ]; then cat "$RUNNER_TEMP/roster-drift.md" >> "$GITHUB_STEP_SUMMARY"; fi
+
+      - name: Commit and open / update the pull request
+        if: steps.fix.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$BRANCH"
+          git add -A
+          git commit -m "${{ steps.fix.outputs.title }}" -m "$(cat "$RUNNER_TEMP/freshness.md")"
+          git push --force origin "$BRANCH"
+          if gh pr view "$BRANCH" --json state -q .state 2>/dev/null | grep -q OPEN; then
+            gh pr edit "$BRANCH" --title "${{ steps.fix.outputs.title }}" --body-file "$RUNNER_TEMP/freshness.md"
+          else
+            gh pr create --base main --head "$BRANCH" \
+              --title "${{ steps.fix.outputs.title }}" \
+              --body-file "$RUNNER_TEMP/freshness.md"
+          fi
+
+      - name: Fail on generator errors
+        if: steps.fix.outputs.exit == '2'
+        run: |
+          echo "A generator errored or --fix did not converge; see the summary." >&2
+          exit 1
