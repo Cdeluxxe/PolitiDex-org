@@ -1,4 +1,19 @@
 {
   "_readme": "Manual review flags for Evidence Locker items. Each row: { key | politician_id + link (+ topic), status: reviewed | needs_edit | hidden, note?, by?, date? }. The key is the item's store key, served as pipeline.key by /api/evidence-locker/items. hidden = never served or shown on a profile; reviewed = profiles show a small Reviewed note; needs_edit = still shown, flagged for an editor. The raw-ingest cron never overwrites a flagged item.",
-  "items": []
+  "items": [
+    {
+      "key": "heinrich/datacenter_growth/19dd310cc72d452c.json",
+      "status": "hidden",
+      "note": "Misfiled: moved to heinrich/datacenter_power/19dd310cc72d452c.json (statement is about data centers paying their own energy costs). Flag keeps the ingest cron from recreating the old key.",
+      "by": "manual review",
+      "date": "2026-11-19"
+    },
+    {
+      "key": "heinrich/datacenter_growth/29063d8011949cbb.json",
+      "status": "hidden",
+      "note": "Misfiled: moved to heinrich/datacenter_power/29063d8011949cbb.json (statement is about data centers paying their own energy costs). Flag keeps the ingest cron from recreating the old key.",
+      "by": "manual review",
+      "date": "2026-11-19"
+    }
+  ]
 }
