@@ -1,0 +1,35 @@
+{
+  "stance_id": "gina_hinojosa|cost_living|gt-085",
+  "politician_id": "gina_hinojosa",
+  "topic": "cost_living",
+  "position": "support",
+  "position_on": "direct household relief and cost-of-living measures (a $1,500 household refund, a residential utility-rate freeze, property-tax cuts)",
+  "confidence": 0.8,
+  "confidence_reason": "Her campaign's 'Money in Your Pocket' priority page commits to specific relief measures (a $1,500 refund check for every household, freezing residential utility rates, cutting property taxes); held at 0.8 because that page is the only clear-position source, it was only partly readable (collapsed sections, no direct page access), it has no date, and her victory remarks only mention the topic.",
+  "sources": [
+    {
+      "type": "campaign priority page",
+      "date": null,
+      "link": "https://ginafortexas.com/priority/an-affordable-texas-that-works-for-everyone/",
+      "excerpt": "\"As Governor, Gina will direct the legislature to deliver a bill to her desk to\" ... \"issue one-time $1,500 refund checks to every household in Texas.\" ... \"Gina will direct the Public Utility Commission to freeze the rates residential customers pay\" ... \"We must end these corporate subsidies and use the savings to cut property taxes, with the end goal of eliminating residential property taxes.\"",
+      "page_fully_readable": false,
+      "weight": "strong",
+      "note": "Read on 2026-11-19, but only partly: the site blocked a direct download, so the text came through a page reader that returned only short exact fragments. The fragments are joined with ellipses where words between them were not returned. The page's policy sections ($1500 Corruption Tax Refund, Lower Your Grocery Bill, Freeze the Rates, Make Homeownership a Reality, Lower Healthcare Costs, Cut Property Taxes) are collapsible and may contain more text. No date on page (the page metadata gives published 2025-10-14, modified 2026-09-22). Page title: 'Money in Your Pocket'. This is the same URL the raw-ingest pipeline uses for this politician and topic.",
+      "takes_clear_position": true
+    },
+    {
+      "type": "speech (victory remarks transcript, campaign site)",
+      "date": "2026-11-03",
+      "link": "https://ginafortexas.com/2026/11/remarks-governor-elect-hinojosa-declares-victory-in-texas-governors-race/",
+      "excerpt": "\"The days of treating our tax dollars like your personal piggy bank are over.\" ... \"It is a victory for taxpayers who work too hard to see their money handed out to donors and special interests.\"",
+      "page_fully_readable": true,
+      "weight": "mention",
+      "note": "Read on 2026-11-19 through the same page reader; the transcript appeared complete. Her own remarks as posted by her campaign; the page metadata timestamp is 2026-11-04 UTC, which is election night (Nov 3) in Texas. The speech talks about taxpayers' money and working families but does not propose or commit to any cost-of-living measure. Recorded for completeness and given no weight in the position.",
+      "takes_clear_position": false
+    }
+  ],
+  "last_updated": "2026-11-19",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-19"
+}

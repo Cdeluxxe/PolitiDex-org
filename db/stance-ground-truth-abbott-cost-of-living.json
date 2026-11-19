@@ -1,0 +1,35 @@
+{
+  "stance_id": "greg_abbott|cost_living|gt-084",
+  "politician_id": "greg_abbott",
+  "topic": "cost_living",
+  "position": "support",
+  "position_on": "government action that lowers the cost of living, mainly by cutting property taxes, capping appraisal growth and expanding housing supply",
+  "confidence": 0.85,
+  "confidence_reason": "His campaign policy page and his campaign newsletter both commit to specific cost-cutting measures (ending school property taxes on homesteads, a 3% appraisal cap, faster homebuilding) and call affordability his top priority; held below 0.9 because all evidence is campaign messaging from the same campaign, the two sources repeat one agenda, and the policy page shows no date.",
+  "sources": [
+    {
+      "type": "campaign policy page",
+      "date": null,
+      "link": "https://www.gregabbott.com/policy/",
+      "excerpt": "\"Under Governor Abbott's plan, voters will have the right to decide - through a constitutional amendment - to eliminate school district property taxes on homeowners.\" ... \"Governor Abbott's plan will lower the homestead appraisal cap from 10% to 3%, providing homeowners with the help they need.\" ... \"Governor Abbott will lower costs for Texans by prohibiting rogue cities from setting such regulations and withhold local sales tax from cities that undermine the law.\"",
+      "page_fully_readable": true,
+      "weight": "strong",
+      "note": "Read directly on 2026-11-19; the full page text was readable. No date on page (the page metadata gives 2026-10-01). The page states a position under the headings Property Tax Reform and Housing Costs: end school district property taxes on homesteads by constitutional amendment, appraise every five years, lower the homestead appraisal cap to 3% and extend it to all properties, petition-triggered rollback elections, local spending limits, two-thirds voter approval for local tax increases, and housing-supply measures (third-party inspections, 10-day occupancy decisions, pre-approved designs, by-right additions). The page also covers healthcare, insurance and energy costs.",
+      "takes_clear_position": true
+    },
+    {
+      "type": "campaign newsletter post",
+      "date": "2026-10-16",
+      "link": "https://govgregabbott.substack.com/p/the-path-to-number-one-governor-abbotts",
+      "excerpt": "\"That’s why he has made affordability his number one priority heading into the 2027 Texas Legislative Session.\" ... \"Governor Abbott’s proposal will increase housing supply and save Texans nearly $10,000 on new home construction\"",
+      "page_fully_readable": true,
+      "weight": "strong",
+      "note": "Read directly on 2026-11-19; the full post text was readable. 'The Path to Number One: Governor Abbott’s Comprehensive Plan to Keep Texas Affordable', posted on his own newsletter, which is marked 'Pol. Ad. paid for by Texans for Greg Abbott'. The date is the post date. It sets out the 'Abbott Affordability Agenda', including the five-point property-tax plan (spending limits, two-thirds voter approval, voter rollbacks, appraisal caps, ending school property taxes for homeowners) and the housing-supply measures. It repeats the policy page, so it supports that page rather than standing as independent evidence.",
+      "takes_clear_position": true
+    }
+  ],
+  "last_updated": "2026-11-19",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-19"
+}
