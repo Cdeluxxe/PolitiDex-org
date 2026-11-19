@@ -433,6 +433,19 @@
   status = 200
   force = true
 
+# THE COMMITTEE PAGE. /committee/<code> (AG00, SSFI00, a subcommittee's AG15) is
+# a page of its own, rendered by netlify/functions/committee-page.mts from the
+# committed db/person-committees.json: the committee's name, its members with a
+# PolitiDex file (linked to /p/<pid>) and its subcommittees. An unknown code is
+# an honest 404 page. No other rule takes /committee/, so the order is not
+# load-bearing; it sits beside the roll-call page because both are Phase 5
+# record pages served the same way.
+[[redirects]]
+  from = "/committee/:code"
+  to = "/api/committee-page/:code"
+  status = 200
+  force = true
+
 [[redirects]]
   from = "/vote/*"
   to = "/index.html"

@@ -158,7 +158,13 @@ await t("ambiguous, wrong-chamber, non-matching and unconfirmed cases stay witho
 
 await t("Utah resolutions and all previously resolved rows are unchanged", () => {
   const key = (x) => `${x.politician_id} ${x.via} ${x.url}`;
-  const prev = before.RESOLUTION.resolved.map(key);
+  // A row the full build resolves through one of the new directories is
+  // compared by the directory checks above, not here: the directory outranks a
+  // later step (a direct source), so a row that has both — niello_ca, rotating
+  // since the share-index refresh, has its own CA Senate page and a cited
+  // direct source — resolves differently without the directory, by design.
+  const viaNew = new Set(core.RESOLUTION.resolved.filter((x) => x.via === "legislature_directory" && x.state !== "UT").map((x) => x.politician_id));
+  const prev = before.RESOLUTION.resolved.filter((x) => !viaNew.has(x.politician_id)).map(key);
   assert.deepEqual(core.RESOLUTION.resolved.filter((x) => !(x.via === "legislature_directory" && x.state !== "UT")).map(key), prev, "every earlier resolution identical (Congress.gov, cited, Utah)");
   assert.equal(core.RESOLUTION.resolved.filter((x) => x.via === "legislature_directory" && x.state === "UT").length, 3);
   const added = new Set(newlyResolved.map((x) => x.politician_id));
@@ -167,7 +173,8 @@ await t("Utah resolutions and all previously resolved rows are unchanged", () =>
     const r = core.ROSTER[i];
     assert.equal(r.politician_id, b.politician_id);
     if (!added.has(b.politician_id)) { assert.deepEqual(plain(r), plain(b), `${b.politician_id} unchanged`); continue; }
-    assert.equal(pagesOf(b).length, 0, `${b.politician_id} had no pages`);
+    // No pages before — or only a direct source, which the directory outranks.
+    assert.ok(pagesOf(b).every((x) => x.resolved_by === "direct_source"), `${b.politician_id} had no pages (or only a direct source)`);
     assert.equal(r.tier, b.tier);
     assert.ok(r.sources.length === 1 && r.sources[0].resolved_by === "legislature_directory");
   }

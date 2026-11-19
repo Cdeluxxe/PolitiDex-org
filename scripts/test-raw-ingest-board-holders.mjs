@@ -62,12 +62,41 @@ const ids = new Set(core.ROSTER.map((r) => r.politician_id));
 const aliasTargets = new Set(core.ROSTER.map((r) => SHARE.personAliases?.[r.politician_id]).filter(Boolean));
 const onRoster = (pid) => ids.has(pid) || ids.has(SHARE.personAliases?.[pid]) || aliasTargets.has(pid);
 const boardRows = core.ROSTER.filter((r) => r.board_seat);
+// Every full-roster row for a legislative seat holder, whichever way it came in:
+// as a `board_seat` row (identity copied from cmp-data.js, for a holder the
+// share index did not list yet) or as a plain share-index row. Once
+// db/share-index.json lists every holder — it does from the 8,000-person
+// refresh on — the builder adds no `board_seat` rows at all, and the holders
+// arrive as plain rows whose identity the resolver reads from the share index.
+const SEAT_OF = new Map(LEG_SEATS.map(([k, h]) => [h.pid, k]));
+const holderRows = core.ROSTER.filter((r) => r.full_roster && SEAT_OF.has(r.politician_id)).map((r) => {
+  const seat = r.board_seat || SEAT_OF.get(r.politician_id);
+  const [, st, ch, d] = /^([a-z]{2})-state(house|senate)-(.+)$/.exec(seat);
+  const p = core.RESOLVER_PEOPLE[r.politician_id] || {};
+  return { ...r, board_seat: seat, state: st.toUpperCase(), chamber: ch, district: d, name: r.name || p.n, office: r.office || p.o || "", state_listed: r.state_listed || p.s || "" };
+});
 
 await t("every legislative board seat's sitting member is present on the rotation roster", () => {
   assert.ok(LEG_SEATS.length >= 1954, `legislative board seats (${LEG_SEATS.length})`);
   for (const [seat, h] of LEG_SEATS) assert.ok(h?.pid && onRoster(h.pid), `${seat}: ${h?.pid} is on the roster`);
   assert.equal(new Set(core.ROSTER.map((r) => r.politician_id)).size, core.ROSTER.length, "one row per politician");
-  assert.ok(boardRows.length > 1500, `board holders added (${boardRows.length})`);
+  assert.ok(holderRows.length > 1500, `board holders on the full roster (${holderRows.length}; ${boardRows.length} as board_seat rows)`);
+  // A holder that arrives as a plain share-index row still reads, to the
+  // resolver, as a sitting legislator of the seat's own state (and chamber,
+  // where the office names one — "Utah Senate President" does not).
+  // A chamber leader listed by title ("Utah Senate President" — sadams, a plain
+  // row since before the board-holder pass) is not read as a rank-and-file
+  // legislator by the resolver and was never resolved through a directory.
+  const LEADER = /\b(?:President|Speaker)\b/;
+  for (const r of holderRows.filter((x) => !boardRows.includes(x))) {
+    assert.equal(r.has_board, true, `${r.politician_id} has_board`);
+    if (LEADER.test(r.office)) continue;
+    const id = R.identityOf(r.politician_id, { n: r.name, o: r.office, s: r.state_listed });
+    assert.ok(id.state_legislator, `${r.politician_id} (${r.office}) reads as a sitting legislator`);
+    assert.equal(id.state, r.state, `${r.politician_id}: state`);
+    const ch = R.legislativeChamber(r.office);
+    if (ch) assert.equal(ch, r.chamber, `${r.politician_id}: chamber from office`);
+  }
   for (const r of boardRows) {
     const [, st, ch, d] = /^([a-z]{2})-state(house|senate)-(.+)$/.exec(r.board_seat);
     assert.equal(SEAT_HOLDERS[r.board_seat].pid, r.politician_id, `${r.politician_id} is the sitting holder of ${r.board_seat}`);
@@ -137,9 +166,9 @@ await t("the Congress.gov and state-legislature directory resolvers still only s
   const plan = core.planRun({}, { roster: pageless.slice(0, 50), counts: {} });
   assert.equal(plan.politicians.length, 0, "nothing to pull → not planned");
   // With a directory for their state, a board-seat row resolves on a clean match only.
-  const pick = boardRows.find((r) => r.state === "VT" && r.chamber === "house");
-  const twin = boardRows.find((r) => r.state === "VT" && r.chamber === "senate");
-  const roster = [pick, twin, boardRows.find((r) => r.state === "MN")].map((r) => ({ ...r, sources: [] }));
+  const pick = holderRows.find((r) => r.state === "VT" && r.chamber === "house");
+  const twin = holderRows.find((r) => r.state === "VT" && r.chamber === "senate");
+  const roster = [pick, twin, holderRows.find((r) => r.state === "MN")].map((r) => ({ ...r, sources: [] }));
   const people = Object.fromEntries(roster.map((r) => [r.politician_id, { n: r.name, o: r.office, s: r.state_listed }]));
   const tok = R.nameTokens(pick.name);
   const legislature = { states: { VT: { member_page: { house: "https://legislature.vermont.gov/people/single/2026/{id}" },

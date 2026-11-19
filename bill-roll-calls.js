@@ -13,7 +13,8 @@
    section is added after it, as its own <section>.
 
    THE RAW RECORD. The question put, the result the record states, the totals
-   and each listed member's vote, with a link to the official record. No verdict
+   and each listed member's vote, with a link to the official record and to the
+   roll call's own page (/vote/<congress>/<chamber>/<session>/<roll>). No verdict
    and no comparison with any stated position. Totals count every recorded vote;
    a member with no PolitiDex file (a delegate, a member the roster does not
    carry) is counted there and not named, and the section says how many.
@@ -40,6 +41,17 @@
     });
   }
   function httpUrl(u) { return /^https?:\/\//.test(String(u || '')) ? String(u) : ''; }
+  // The roll call's own page, /vote/<congress>/<chamber>/<session>/<roll> — the
+  // same address rollPagePath (netlify/lib/vote-actions-publish.ts) gives it and
+  // netlify/functions/vote-page.mts serves. Every roll call in this list has
+  // passed the publish gate, so every one has a page. '' for a row that does not
+  // carry the four parts.
+  function rollPage(r) {
+    if (!r || !/^(house|senate)$/.test(String(r.chamber)) || !/^\d+$/.test(String(r.congress)) ||
+      !/^\d+$/.test(String(r.session)) || !/^\d+$/.test(String(r.roll))) return '';
+    return '/vote/' + encodeURIComponent(String(r.congress)) + '/' + encodeURIComponent(String(r.chamber)) + '/' +
+      encodeURIComponent(String(r.session)) + '/' + encodeURIComponent(String(r.roll));
+  }
 
   function billKey(sitting, number) {
     var c = parseInt(String(sitting || ''), 10);
@@ -69,6 +81,7 @@
     var tally = GROUPS.filter(function (g) { return (t[g.v] || 0) > 0 || g.v === 'yes' || g.v === 'no'; })
       .map(function (g) { return g.t + ' ' + (t[g.v] || 0); }).join(' · ');
     var src = httpUrl(r.sourceUrl);
+    var page = rollPage(r);
     var members = r.members || [];
     var groups = GROUPS.map(function (g) {
       var list = members.filter(function (x) { return x.vote === g.v; });
@@ -77,14 +90,18 @@
         '<ul>' + list.map(memberHtml).join('') + '</ul></div>';
     }).join('');
     return '<li class="pdx-bill-rolls-r" data-pdx-bill-roll="' + esc(r.chamber + '|' + r.congress + '|' + r.session + '|' + r.roll) + '">' +
-      '<time>' + esc(String(r.date || '').slice(0, 10)) + ' · ' + esc(ch) + ' roll ' + esc(r.roll) + (r.procedural ? ' · procedural' : '') + '</time>' +
+      '<time>' + esc(String(r.date || '').slice(0, 10)) + ' · ' +
+        (page ? '<a href="' + esc(page) + '" data-pdx-bill-roll-page>' + esc(ch) + ' roll ' + esc(r.roll) + '</a>' : esc(ch) + ' roll ' + esc(r.roll)) +
+        (r.procedural ? ' · procedural' : '') + '</time>' +
       (r.question ? '<span class="pdx-bill-rolls-q">' + esc(r.question) + '</span>' : '') +
       '<span class="pdx-bill-rolls-t">' + (r.result ? esc(r.result) + ' · ' : '') + esc(tally) + '</span>' +
       (members.length ? '<details><summary>How members voted</summary>' + groups +
         (r.unlisted ? '<p class="pdx-bill-rolls-u">' + esc(r.unlisted) + ' recorded vote' + (r.unlisted === 1 ? '' : 's') +
           ' from members with no PolitiDex file ' + (r.unlisted === 1 ? 'is' : 'are') + ' counted above and not listed.</p>' : '') +
         '</details>' : '') +
-      (src ? '<span class="pdx-bill-rolls-src"><a href="' + esc(src) + '" target="_blank" rel="noopener">Official record</a></span>' : '') +
+      (page || src ? '<span class="pdx-bill-rolls-src">' +
+        (page ? '<a href="' + esc(page) + '">Roll-call page</a>' : '') + (page && src ? ' · ' : '') +
+        (src ? '<a href="' + esc(src) + '" target="_blank" rel="noopener">Official record</a>' : '') + '</span>' : '') +
       '</li>';
   }
 
@@ -107,6 +124,7 @@
       '.pdx-bill-rolls p{color:#9fb4d4;line-height:1.6;}' +
       '.pdx-bill-rolls ol{margin:0;padding:0;list-style:none;}' +
       '.pdx-bill-rolls-r{margin:0 0 0.6rem;padding:0.6rem 0.75rem;border:1px solid rgba(159,180,212,0.16);border-radius:10px;background:rgba(127,180,255,0.04);color:#dbe6f7;line-height:1.5;}' +
+      '.pdx-bill-rolls-r time a{color:inherit;text-decoration:underline;text-decoration-color:rgba(159,219,255,0.5);}' +
       '.pdx-bill-rolls-r time{display:block;font-family:"Barlow Condensed",sans-serif;font-size:0.75rem;letter-spacing:0.06em;text-transform:uppercase;color:#9fb4d4;}' +
       '.pdx-bill-rolls-q{display:block;}' +
       '.pdx-bill-rolls-t{display:block;color:#c9d8f2;font-size:0.88rem;}' +
@@ -158,7 +176,7 @@
       .catch(function () { /* no section: the page is as it was */ });
   }
 
-  window.PDXBillRollCalls = { billKey: billKey, keyFromPath: keyFromPath, html: html };
+  window.PDXBillRollCalls = { billKey: billKey, keyFromPath: keyFromPath, html: html, rollPage: rollPage };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
 })();

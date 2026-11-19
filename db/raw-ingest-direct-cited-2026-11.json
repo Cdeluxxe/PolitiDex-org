@@ -24,16 +24,57 @@
   "acct-spotlight-data.js"
  ],
  "summary": {
-  "politicians": 117,
-  "pages": 167,
+  "politicians": 192,
+  "pages": 244,
   "shared_hosts": 0,
-  "shared_urls": 1
+  "shared_urls": 2
  },
  "shared_hosts": [],
  "shared_urls": [
+  "https://www.illinoissenatedemocrats.com/caucus-news/46-senator-ram-villivalam-news",
   "https://www.kaxe.org/2026-09-25/senate-flanagan-tafoya-whiting-simonetti-mn-2026-election-guide"
  ],
  "politicians": {
+  "adam_bair": [
+   {
+    "url": "https://adambairsouthdakota.com/issues/",
+    "label": "Adam Bair For South Dakota District 10 — Issues",
+    "keys": [
+     "housing_build",
+     "housing_first_time",
+     "public_schools",
+     "datacenter_growth",
+     "lands_keep_public"
+    ]
+   }
+  ],
+  "adam_cleveland": [
+   {
+    "url": "https://www.adamcleveland.com/priorities",
+    "label": "Adam Cleveland — Priorities",
+    "keys": [
+     "healthcare",
+     "pro_choice",
+     "school_choice",
+     "public_schools",
+     "gun_safety",
+     "housing_build"
+    ]
+   }
+  ],
+  "adam_hamilton": [
+   {
+    "url": "https://hamiltonforkansas.com/issues/",
+    "label": "Adam Hamilton for Kansas — Issues",
+    "keys": [
+     "tariffs_prices",
+     "energy_production",
+     "healthcare",
+     "stock_trading_ban",
+     "rural_ag"
+    ]
+   }
+  ],
   "adonis_hooslyn": [
    {
     "url": "https://www.hooslynforhouse.com/",
@@ -53,6 +94,32 @@
      "public_schools",
      "transit",
      "climate_action"
+    ]
+   }
+  ],
+  "alex_hawkins": [
+   {
+    "url": "https://www.alexhawkins.org/issues",
+    "label": "Alex Hawkins for State Representative — The Issues",
+    "keys": [
+     "public_schools",
+     "health_mental",
+     "cost_living",
+     "gov_transparency"
+    ]
+   }
+  ],
+  "amy_slavensky": [
+   {
+    "url": "https://www.amyslavensky.com/",
+    "label": "Amy Slavensky for Assembly 2026 — What I Stand For",
+    "keys": [
+     "cost_living",
+     "child_care",
+     "housing_build",
+     "housing_support",
+     "healthcare_costs",
+     "public_schools"
     ]
    }
   ],
@@ -133,6 +200,77 @@
     ]
    }
   ],
+  "ben_brist": [
+   {
+    "url": "https://www.bristforassembly.com/issues",
+    "label": "Brist for Assembly — Issues",
+    "keys": [
+     "cost_living",
+     "healthcare_costs",
+     "public_schools",
+     "datacenter_power",
+     "econ_workers",
+     "property_tax"
+    ]
+   }
+  ],
+  "ben_christly": [
+   {
+    "url": "https://www.electbenchristly.com/values",
+    "label": "Elect Ben Christly — My Values",
+    "keys": [
+     "public_schools",
+     "edu_college_cost",
+     "healthcare",
+     "cost_living",
+     "econ_smallbiz",
+     "tax_middle_class",
+     "housing"
+    ]
+   }
+  ],
+  "ben_gruber": [
+   {
+    "url": "https://www.ben-gruber.com/issues",
+    "label": "Ben Gruber for State Assembly — Issues",
+    "keys": [
+     "public_schools",
+     "property_tax",
+     "health_rural",
+     "rural_ag",
+     "lands_preserve",
+     "econ_workers"
+    ]
+   }
+  ],
+  "ben_mcadams_il": [
+   {
+    "url": "https://www.mcadamsforil.com/platform",
+    "label": "Ben McAdams for IL State Senate 24 — The Platform",
+    "keys": [
+     "healthcare",
+     "campaign_finance",
+     "property_tax",
+     "econ_corp_account",
+     "datacenter_power",
+     "climate_action"
+    ]
+   }
+  ],
+  "beth_fuller": [
+   {
+    "url": "https://www.bethfullerforgeorgia.com/policy-priorities",
+    "label": "Beth Fuller for Georgia — Policy Priorities",
+    "keys": [
+     "pro_choice",
+     "public_schools",
+     "school_choice",
+     "gun_safety",
+     "housing_support",
+     "datacenter_power"
+    ]
+   }
+  ],
   "bill_hill": [
    {
     "url": "https://billhillforalaskans.com/bills-platform/",
@@ -171,6 +309,18 @@
     ]
    }
   ],
+  "brent_reinke": [
+   {
+    "url": "https://reinkeforidaho.com/",
+    "label": "Brent Reinke for State Senate — Priorities",
+    "keys": [
+     "cost_living",
+     "lower_taxes",
+     "back_police",
+     "border_security"
+    ]
+   }
+  ],
   "brian_bengs": [
    {
     "url": "https://bengsforsouthdakota.com/policy-positions/",
@@ -197,6 +347,18 @@
     ]
    }
   ],
+  "bryan_allen": [
+   {
+    "url": "https://www.bryanallenforpa.com/issues",
+    "label": "Bryan Allen for PA — Platform",
+    "keys": [
+     "datacenter_power",
+     "climate_action",
+     "econ_workers",
+     "public_schools"
+    ]
+   }
+  ],
   "cabot_nelson": [
    {
     "url": "https://votecabotnelson.com/",
@@ -218,6 +380,20 @@
     ]
    }
   ],
+  "casey_swensen": [
+   {
+    "url": "https://swensenforidaho.com/",
+    "label": "Casey Swensen for Idaho State Senate — Priorities",
+    "keys": [
+     "econ_smallbiz",
+     "lower_taxes",
+     "back_police",
+     "border_security",
+     "housing",
+     "cost_living"
+    ]
+   }
+  ],
   "catherine_whitson": [
    {
     "url": "https://senatorbarcy.org/about",
@@ -227,6 +403,33 @@
      "edu_college_cost",
      "transit",
      "child_care"
+    ]
+   }
+  ],
+  "chloe_pierce": [
+   {
+    "url": "https://www.chloepierce.com/",
+    "label": "Chloe Pierce — Issues",
+    "keys": [
+     "cost_living",
+     "housing",
+     "public_schools",
+     "child_care",
+     "econ_smallbiz",
+     "lands_preserve"
+    ]
+   }
+  ],
+  "chris_ford": [
+   {
+    "url": "https://www.chrisfordformn.com/priorities",
+    "label": "Chris Ford for MN — Priorities",
+    "keys": [
+     "gov_transparency",
+     "housing",
+     "healthcare_costs",
+     "health_drug_prices",
+     "public_schools"
     ]
    }
   ],
@@ -261,6 +464,20 @@
     ]
    }
   ],
+  "chris_jimenez": [
+   {
+    "url": "https://chrisjimenezforhd52.com/priorities",
+    "label": "Chris Jimenez for Texas House District 52 — Priorities",
+    "keys": [
+     "property_tax",
+     "school_choice",
+     "housing_build",
+     "healthcare",
+     "back_police",
+     "datacenter_water"
+    ]
+   }
+  ],
   "chris_jones": [
    {
     "url": "https://chrisjonesforcongress.com/",
@@ -268,6 +485,34 @@
     "keys": [
      "public_schools",
      "voting_access"
+    ]
+   }
+  ],
+  "chris_mccreight": [
+   {
+    "url": "https://www.chrismccreight.com/issues",
+    "label": "Chris McCreight — Issues",
+    "keys": [
+     "datacenter_power",
+     "tax_middle_class",
+     "child_care",
+     "transit",
+     "justice_reform",
+     "gun_safety"
+    ]
+   }
+  ],
+  "chris_thomas_pa": [
+   {
+    "url": "https://christhomas.vote/platform",
+    "label": "Chris Thomas for PA Senate — Platform",
+    "keys": [
+     "campaign_finance",
+     "stock_trading_ban",
+     "datacenter_power",
+     "healthcare_costs",
+     "econ_workers",
+     "public_schools"
     ]
    }
   ],
@@ -296,6 +541,33 @@
     "keys": [
      "america_first_fp",
      "privacy_rights"
+    ]
+   }
+  ],
+  "cindy_johnson": [
+   {
+    "url": "https://cindyjohnsonforne.com/priorities",
+    "label": "Cindy Johnson For Nebraska — Priorities",
+    "keys": [
+     "health_drug_prices",
+     "healthcare",
+     "child_care",
+     "cost_living",
+     "public_schools",
+     "econ_workers"
+    ]
+   }
+  ],
+  "connie_casha": [
+   {
+    "url": "https://conniecasha4tndistrict-49.com/issues.html",
+    "label": "Connie Casha for Tennessee — Our Priorities",
+    "keys": [
+     "public_schools",
+     "child_care",
+     "healthcare",
+     "health_drug_prices",
+     "health_mental"
     ]
    }
   ],
@@ -449,6 +721,17 @@
     ]
    }
   ],
+  "eileen_eady": [
+   {
+    "url": "https://eadyfornevada.com/",
+    "label": "Eady for Nevada — Issues",
+    "keys": [
+     "housing_support",
+     "public_schools",
+     "healthcare"
+    ]
+   }
+  ],
   "elias_montgomery": [
    {
     "url": "https://www.eliasmontgomery.com/",
@@ -462,12 +745,39 @@
     ]
    }
   ],
+  "elizabeth_moro": [
+   {
+    "url": "https://elizabethmoro.com/issues/",
+    "label": "Elizabeth Moro — Issues",
+    "keys": [
+     "health_drug_prices",
+     "health_mental",
+     "datacenter_power",
+     "property_tax",
+     "child_care",
+     "gun_safety"
+    ]
+   }
+  ],
   "emendenhall": [
    {
     "url": "https://erinmendenhall.com/biography/",
     "label": "erinmendenhall.com",
     "keys": [
      "climate_action"
+    ]
+   }
+  ],
+  "eric_gray": [
+   {
+    "url": "https://www.ericgrayforflorida.com/issues/",
+    "label": "Eric Gray for State Representative District 35 — Issues",
+    "keys": [
+     "housing_build",
+     "transit",
+     "infrastructure",
+     "water",
+     "public_schools"
     ]
    }
   ],
@@ -520,6 +830,15 @@
     ]
    }
   ],
+  "grall_fl": [
+   {
+    "url": "https://www.eringrall.com/post/florida-senate-passes-six-week-abortion-ban",
+    "label": "Erin Grall",
+    "keys": [
+     "school_choice"
+    ]
+   }
+  ],
   "grant_miller": [
    {
     "url": "https://www.utahhousedemocrats.utleg.gov/grant-miller",
@@ -542,6 +861,19 @@
      "lower_taxes",
      "water",
      "edu_balance"
+    ]
+   }
+  ],
+  "hannah_sessions": [
+   {
+    "url": "https://hannahsessionsforvt.com/issues/",
+    "label": "Hannah Sessions for Vermont Senate — Issues",
+    "keys": [
+     "prop_tax",
+     "housing_build",
+     "healthcare",
+     "public_schools",
+     "pro_choice"
     ]
    }
   ],
@@ -606,6 +938,19 @@
     ]
    }
   ],
+  "jaime_churches": [
+   {
+    "url": "https://www.jaimechurches.com/priorities",
+    "label": "Jaime Churches for State Representative — Priorities",
+    "keys": [
+     "infrastructure",
+     "public_schools",
+     "econ_workers",
+     "econ_smallbiz",
+     "pro_choice"
+    ]
+   }
+  ],
   "james_russell": [
    {
     "url": "https://russellforar.com/about-james",
@@ -641,6 +986,19 @@
     "keys": [
      "lgbtq_rights",
      "housing_build"
+    ]
+   }
+  ],
+  "jan_maino": [
+   {
+    "url": "https://mainoformichigan.com/priorities/",
+    "label": "Jan Maino for Michigan — Priorities",
+    "keys": [
+     "cost_living",
+     "housing_support",
+     "public_schools",
+     "econ_workers",
+     "health_mental"
     ]
    }
   ],
@@ -706,6 +1064,32 @@
     ]
    }
   ],
+  "jeff_haylon": [
+   {
+    "url": "https://jeffhaylon.com/policies/",
+    "label": "Jeff Haylon for State Representative — Policies",
+    "keys": [
+     "healthcare",
+     "healthcare_costs",
+     "public_schools",
+     "pro_choice",
+     "econ_smallbiz"
+    ]
+   }
+  ],
+  "jeff_livingston": [
+   {
+    "url": "https://jefflivingstonforcolorado.com/",
+    "label": "Jeff Livingston for Colorado — Putting Colorado Families First",
+    "keys": [
+     "housing_support",
+     "econ_corp_account",
+     "econ_workers",
+     "public_schools",
+     "econ_smallbiz"
+    ]
+   }
+  ],
   "jeff_wadlin": [
    {
     "url": "https://www.jeffwadlin.com/issues",
@@ -715,6 +1099,20 @@
      "national_debt",
      "gun_rights",
      "restraint"
+    ]
+   }
+  ],
+  "jeff_warren_pa": [
+   {
+    "url": "https://www.jeffwarrenforpa.com/issues",
+    "label": "Jeff Warren for PA — Issues",
+    "keys": [
+     "public_schools",
+     "lands_preserve",
+     "back_police",
+     "econ_corp_account",
+     "housing",
+     "econ_workers"
     ]
    }
   ],
@@ -747,6 +1145,19 @@
      "public_schools",
      "social_security",
      "gov_transparency"
+    ]
+   }
+  ],
+  "jeremiah_fredrickson": [
+   {
+    "url": "https://www.jeremiahfredricksonforstateassembly.com/issues",
+    "label": "Fredrickson for State Assembly — Issues",
+    "keys": [
+     "public_schools",
+     "lands_preserve",
+     "health_drug_prices",
+     "health_rural",
+     "cost_living"
     ]
    }
   ],
@@ -818,6 +1229,20 @@
     ]
    }
   ],
+  "jessica_bichler": [
+   {
+    "url": "https://www.jessicabichler.com/issues",
+    "label": "Jessica Bichler — Issues",
+    "keys": [
+     "public_schools",
+     "school_choice",
+     "econ_workers",
+     "econ_corp_account",
+     "datacenter_power",
+     "back_police"
+    ]
+   }
+  ],
   "jim_mcdermott": [
    {
     "url": "https://jamesmcdermott.org/issues",
@@ -840,6 +1265,19 @@
     ]
    }
   ],
+  "jim_riley": [
+   {
+    "url": "https://www.jimrileyforhd6.com/",
+    "label": "Jim Riley for HD 6 — Campaign Pillars (home page)",
+    "keys": [
+     "school_choice",
+     "edu_parental",
+     "lower_taxes",
+     "gov_regulation",
+     "gun_rights"
+    ]
+   }
+  ],
   "joanne_kuniansky": [
    {
     "url": "https://shorthillssentinel.com/articles/kuniansky-seeks-u-s-senate-seat-on-socialist-workers-ticket-mv14yjij",
@@ -849,6 +1287,20 @@
      "immigration_reform",
      "restraint",
      "israel_support"
+    ]
+   }
+  ],
+  "joe_rand": [
+   {
+    "url": "https://joerand.com/",
+    "label": "Joe Rand For Rockland — Priorities",
+    "keys": [
+     "healthcare_costs",
+     "cost_living",
+     "infrastructure",
+     "transit",
+     "back_police",
+     "public_schools"
     ]
    }
   ],
@@ -868,6 +1320,46 @@
     "keys": [
      "lower_taxes",
      "america_first_fp"
+    ]
+   }
+  ],
+  "john_kroll": [
+   {
+    "url": "https://www.krollforwi.com/issues",
+    "label": "John Kroll for Assembly — Issues",
+    "keys": [
+     "public_schools",
+     "cost_living",
+     "health_drug_prices",
+     "datacenter_power",
+     "water"
+    ]
+   }
+  ],
+  "john_lowndes": [
+   {
+    "url": "https://www.johnlowndesforflorida.com/priorities",
+    "label": "John Lowndes For Florida Senate — Priorities",
+    "keys": [
+     "gov_transparency",
+     "cost_living",
+     "lands_preserve",
+     "school_choice",
+     "public_schools"
+    ]
+   }
+  ],
+  "joseph_mcclusky": [
+   {
+    "url": "https://www.mccluskyformi.com/platform",
+    "label": "Joseph McClusky for State Representative — Platform",
+    "keys": [
+     "housing_support",
+     "healthcare_costs",
+     "econ_workers",
+     "campaign_finance",
+     "gov_transparency",
+     "transit"
     ]
    }
   ],
@@ -929,6 +1421,19 @@
     ]
    }
   ],
+  "kathy_simpler": [
+   {
+    "url": "https://www.simplerforstatehouse.com/priorities",
+    "label": "Simpler for State House — Priorities",
+    "keys": [
+     "public_schools",
+     "healthcare_costs",
+     "health_rural",
+     "child_care",
+     "transit"
+    ]
+   }
+  ],
   "kedner_maxime": [
    {
     "url": "https://www.maximeforcongress.com/education",
@@ -966,6 +1471,79 @@
     ]
    }
   ],
+  "ken_mccool": [
+   {
+    "url": "https://www.kenmccool.com/priorities",
+    "label": "McCool for NC — Priorities",
+    "keys": [
+     "school_choice",
+     "public_schools",
+     "gov_services",
+     "property_tax",
+     "back_police"
+    ]
+   }
+  ],
+  "kevin_knoke": [
+   {
+    "url": "https://www.kevinknoke.com/issues",
+    "label": "Kevin Knoke for Assembly — Issues",
+    "keys": [
+     "housing",
+     "health_rural",
+     "public_schools",
+     "tax_middle_class",
+     "veterans",
+     "lands_preserve"
+    ]
+   }
+  ],
+  "kim_gleason": [
+   {
+    "url": "https://www.kimgleasonforvt.org/priorities",
+    "label": "Kim Gleason for Vermont Senate — Kim's Priorities",
+    "keys": [
+     "healthcare",
+     "health_rural",
+     "housing_build",
+     "public_schools",
+     "gov_transparency"
+    ]
+   }
+  ],
+  "kristin_egan": [
+   {
+    "url": "https://www.kristineganforpa.com/priorities",
+    "label": "Kristin Egan for PA State Representative — Priorities",
+    "keys": [
+     "cost_living",
+     "public_schools",
+     "infrastructure"
+    ]
+   }
+  ],
+  "kristy_janigo": [
+   {
+    "url": "https://kristyjanigoformn.com/priorities/",
+    "label": "Kristy Janigo for Minnesota State Senate 37 — Priorities",
+    "keys": [
+     "cost_living",
+     "healthcare_costs",
+     "public_schools",
+     "gov_transparency",
+     "veterans"
+    ]
+   }
+  ],
+  "krueger_ny": [
+   {
+    "url": "https://www.lizkrueger.com/about/",
+    "label": "State Senator Liz Krueger",
+    "keys": [
+     "econ_corp_account"
+    ]
+   }
+  ],
   "kyle_austin": [
    {
     "url": "https://www.mtpr.org/montana-news/2026-05-06/q-a-kyle-austin-libertarian-u-s-senate-candidate",
@@ -976,6 +1554,34 @@
     ]
    }
   ],
+  "laura_murvartian": [
+   {
+    "url": "https://www.lauramurvartian.com/priorities",
+    "label": "Laura Murvartian — Priorities",
+    "keys": [
+     "healthcare",
+     "pro_choice",
+     "veterans",
+     "public_schools",
+     "voting_access"
+    ]
+   }
+  ],
+  "leila_namvar": [
+   {
+    "url": "https://www.leilanamvar.com/issues",
+    "label": "Leila Namvar for Assembly District 47 — Issues",
+    "keys": [
+     "cost_living",
+     "healthcare_costs",
+     "housing_build",
+     "housing_support",
+     "econ_corp_account",
+     "pro_choice",
+     "datacenter_power"
+    ]
+   }
+  ],
   "lili_bitner": [
    {
     "url": "https://www.votebitner.com/priorities",
@@ -983,6 +1589,42 @@
     "keys": [
      "lower_taxes",
      "gov_transparency"
+    ]
+   }
+  ],
+  "lisa_keller": [
+   {
+    "url": "https://www.lisakellerforalaska.com/",
+    "label": "Lisa Keller for State House District 13 — Home / My Priorities",
+    "keys": [
+     "justice_balance",
+     "public_schools",
+     "gov_waste"
+    ]
+   }
+  ],
+  "lorenza_wilkins": [
+   {
+    "url": "https://www.lorenzawilkinsfornc.com/about-3-1",
+    "label": "Lorenza M Wilkins — Platform",
+    "keys": [
+     "public_schools",
+     "econ_smallbiz",
+     "health_mental",
+     "cost_living"
+    ]
+   }
+  ],
+  "lucia_baez_geller": [
+   {
+    "url": "https://luciabaezgeller.com/",
+    "label": "Lucia Báez-Geller — On The Issues",
+    "keys": [
+     "cost_living",
+     "public_schools",
+     "climate_action",
+     "disaster_resilience",
+     "health_drug_prices"
     ]
    }
   ],
@@ -1025,6 +1667,19 @@
     ]
    }
   ],
+  "margaret_mitchell": [
+   {
+    "url": "https://mitchell406.com/",
+    "label": "Margaret Mitchell for Montana Senate District 10 — Protecting the Montana Dream (Vision)",
+    "keys": [
+     "property_tax",
+     "cost_living",
+     "healthcare_costs",
+     "econ_smallbiz",
+     "lands_preserve"
+    ]
+   }
+  ],
   "marisa_simonetti": [
    {
     "url": "https://www.kaxe.org/2026-09-25/senate-flanagan-tafoya-whiting-simonetti-mn-2026-election-guide",
@@ -1033,6 +1688,33 @@
      "privacy_rights",
      "gov_transparency",
      "econ_corp_account"
+    ]
+   }
+  ],
+  "mark_legvold": [
+   {
+    "url": "https://legvold4mnsenate58.com/policy",
+    "label": "Legvold for MN Senate 58 — Policy",
+    "keys": [
+     "public_schools",
+     "rural_ag",
+     "broadband",
+     "gov_transparency",
+     "econ_smallbiz"
+    ]
+   }
+  ],
+  "mark_pinsley": [
+   {
+    "url": "https://votemarkpinsley.com/issues/",
+    "label": "Mark Pinsley for PA Senate — The Issues",
+    "keys": [
+     "datacenter_growth",
+     "health_drug_prices",
+     "pro_choice",
+     "lgbtq_rights",
+     "property_tax",
+     "public_schools"
     ]
    }
   ],
@@ -1103,6 +1785,43 @@
      "campaign_finance",
      "healthcare_market",
      "rural_ag"
+    ]
+   }
+  ],
+  "michael_scott": [
+   {
+    "url": "https://www.mikescottformaine.com/issues",
+    "label": "Mike Scott for Maine Senate — Issues",
+    "keys": [
+     "public_schools",
+     "back_police",
+     "cost_living"
+    ]
+   }
+  ],
+  "michelle_bianco": [
+   {
+    "url": "https://bianco4mt2026.com/",
+    "label": "Bianco For Montana — What Matters Most (home page)",
+    "keys": [
+     "prop_tax",
+     "lands_energy",
+     "gun_rights",
+     "tough_on_crime",
+     "border_security"
+    ]
+   }
+  ],
+  "michelle_kang": [
+   {
+    "url": "https://michellekangforga.com/2026-platform",
+    "label": "Michelle Kang for Georgia House District 99 — Platform",
+    "keys": [
+     "gun_safety",
+     "housing_support",
+     "child_care",
+     "healthcare",
+     "health_mental"
     ]
    }
   ],
@@ -1208,6 +1927,19 @@
     ]
    }
   ],
+  "nancy_gregory": [
+   {
+    "url": "https://nancygregory4idaho.com/priorities",
+    "label": "Nancy Gregory for Idaho — Priorities",
+    "keys": [
+     "public_schools",
+     "healthcare",
+     "healthcare_costs",
+     "housing",
+     "lands_keep_public"
+    ]
+   }
+  ],
   "natalie_fleming": [
    {
     "url": "https://nataliefleming.info/policy/",
@@ -1216,6 +1948,52 @@
      "immig_balance",
      "privacy_rights",
      "public_schools"
+    ]
+   }
+  ],
+  "niello_ca": [
+   {
+    "url": "https://sr06.senate.ca.gov/content/senate-republican-budget-vice-chair-roger-niello-californias-budget-must-be-about-spending",
+    "label": "Senate Republican Caucus",
+    "keys": [
+     "gov_waste"
+    ]
+   }
+  ],
+  "owen_farnsworth": [
+   {
+    "url": "https://www.owenfarnsworth.com/education",
+    "label": "Owen For State House 34 — Education",
+    "keys": [
+     "public_schools",
+     "school_choice",
+     "edu_college_cost"
+    ]
+   }
+  ],
+  "oziel_ochoa": [
+   {
+    "url": "https://www.ochoafortx37.com/issues",
+    "label": "Oziel Ochoa Jr. — Priorities",
+    "keys": [
+     "property_tax",
+     "econ_workers",
+     "healthcare",
+     "health_mental",
+     "school_choice",
+     "infrastructure"
+    ]
+   }
+  ],
+  "patric_moore": [
+   {
+    "url": "https://www.patricmooreformaine.com/issues",
+    "label": "Patric Moore for Maine Senate — Issues",
+    "keys": [
+     "housing_build",
+     "cost_living",
+     "econ_smallbiz",
+     "healthcare"
     ]
    }
   ],
@@ -1233,6 +2011,22 @@
     "keys": [
      "housing_first_time",
      "lands_keep_public"
+    ]
+   }
+  ],
+  "patrick_leahy": [
+   {
+    "url": "https://leahyfornebraska.com/on-the-issues",
+    "label": "Patrick Leahy for Nebraska — On The Issues",
+    "keys": [
+     "prop_tax",
+     "child_care",
+     "school_choice",
+     "public_schools",
+     "health_drug_prices",
+     "healthcare",
+     "datacenter_water",
+     "gov_services"
     ]
    }
   ],
@@ -1302,6 +2096,15 @@
     "label": "KAXE 2026 candidate questionnaire",
     "keys": [
      "immig_legal"
+    ]
+   }
+  ],
+  "rezin_il": [
+   {
+    "url": "https://senatorrezin.com/2025/06/03/meta-constellation-agreement-reinforces-need-to-lift-illinois-ban-on-new-nuclear-reactors/",
+    "label": "Sen. Sue Rezin",
+    "keys": [
+     "gov_balance"
     ]
    }
   ],
@@ -1422,6 +2225,44 @@
     ]
    }
   ],
+  "salazar_ny": [
+   {
+    "url": "https://www.salazarforsenate.com/",
+    "label": "Salazar for Senate",
+    "keys": [
+     "housing"
+    ]
+   }
+  ],
+  "samantha_wilcox": [
+   {
+    "url": "https://samwilcoxforri.com/posts/",
+    "label": "Samantha Wilcox for State Senate District 34 — Issues",
+    "keys": [
+     "cost_living",
+     "lands_preserve",
+     "gov_transparency",
+     "public_schools",
+     "health_drug_prices",
+     "health_mental",
+     "infrastructure"
+    ]
+   }
+  ],
+  "sarah_pounds": [
+   {
+    "url": "https://www.electsarahpounds.com/priorities",
+    "label": "Elect Sarah Pounds — Priorities",
+    "keys": [
+     "cost_living",
+     "housing_support",
+     "public_schools",
+     "econ_workers",
+     "healthcare_costs",
+     "pro_choice"
+    ]
+   }
+  ],
   "sarah_zabel": [
    {
     "url": "https://www.zabelforcongress.com/what-i-stand-for",
@@ -1435,16 +2276,19 @@
     ]
    }
   ],
-  "sean_mccann": [
+  "schwertner_tx": [
    {
-    "url": "https://seanmccannforcongress.com/issues/",
-    "label": "Sean McCann for Congress — Issues",
+    "url": "https://www.drschwertner.com/",
+    "label": "Dr. Charles Schwertner",
     "keys": [
-     "healthcare_costs",
-     "tariffs_prices",
-     "climate_action",
-     "public_schools",
-     "pro_choice"
+     "healthcare"
+    ]
+   },
+   {
+    "url": "https://www.txoga.org/podcast/ep29-senator-schwertner/",
+    "label": "Texas Oil & Gas Association",
+    "keys": [
+     "cost_living"
     ]
    }
   ],
@@ -1459,6 +2303,20 @@
     ]
    }
   ],
+  "shelby_kimball": [
+   {
+    "url": "https://kimballforohio.com/",
+    "label": "Shelby Kimball for Ohio — Issues",
+    "keys": [
+     "public_schools",
+     "healthcare",
+     "veterans",
+     "child_care",
+     "econ_smallbiz",
+     "cost_living"
+    ]
+   }
+  ],
   "shelly_arnoldi": [
    {
     "url": "https://www.arlnow.com/2026/10/15/shelly-arnoldi-why-you-should-vote-for-me/",
@@ -1468,6 +2326,41 @@
      "term_limits",
      "datacenter_power",
      "econ_smallbiz"
+    ]
+   }
+  ],
+  "sims_il": [
+   {
+    "url": "https://www.illinoissenatedemocrats.com/caucus-news/42-senator-elgie-r-sims-jr-news/6488-sims-the-safe-t-act-is-based-on-risk-not-riches",
+    "label": "Illinois Senate Democrats",
+    "keys": [
+     "justice_reform"
+    ]
+   }
+  ],
+  "stefany_shaheen": [
+   {
+    "url": "https://stefanyshaheen.com/priorities/",
+    "label": "Stefany Shaheen for Congress — Priorities",
+    "keys": [
+     "healthcare",
+     "stock_trading_ban",
+     "housing_build",
+     "climate_action",
+     "pro_choice"
+    ]
+   }
+  ],
+  "steph_vigil": [
+   {
+    "url": "https://www.vigilforcolorado.com/issues",
+    "label": "Vigil for Colorado — On the Issues",
+    "keys": [
+     "housing_build",
+     "transit",
+     "climate_action",
+     "healthcare",
+     "public_schools"
     ]
    }
   ],
@@ -1547,6 +2440,19 @@
     ]
    }
   ],
+  "theresa_brooks": [
+   {
+    "url": "https://www.drbrooksforsenate.com/issues",
+    "label": "Dr. Theresa Brooks for Senate — Priorities",
+    "keys": [
+     "healthcare",
+     "health_drug_prices",
+     "child_care",
+     "public_schools",
+     "pro_choice"
+    ]
+   }
+  ],
   "thomas_laehn": [
    {
     "url": "https://laehn4iowa.org/issues",
@@ -1576,6 +2482,34 @@
      "lands_keep_public",
      "stock_trading_ban",
      "gun_rights"
+    ]
+   }
+  ],
+  "todd_delmay": [
+   {
+    "url": "https://delmayforflorida.com/issues/",
+    "label": "Todd Delmay for Florida — On the Issues",
+    "keys": [
+     "cost_living",
+     "housing_first_time",
+     "healthcare",
+     "infrastructure",
+     "healthcare_costs",
+     "disaster_resilience"
+    ]
+   }
+  ],
+  "tommy_butler": [
+   {
+    "url": "https://www.butlerforhd50.com/on-the-issues-1",
+    "label": "Tommy Butler for House District 50 — On the Issues",
+    "keys": [
+     "housing_support",
+     "public_schools",
+     "infrastructure",
+     "child_care",
+     "homeless",
+     "gov_services"
     ]
    }
   ],
@@ -1664,6 +2598,15 @@
     ]
    }
   ],
+  "villivalam_il": [
+   {
+    "url": "https://www.illinoissenatedemocrats.com/caucus-news/46-senator-ram-villivalam-news",
+    "label": "Illinois Senate Democrats",
+    "keys": [
+     "econ_workers"
+    ]
+   }
+  ],
   "wales_nematollahi": [
    {
     "url": "https://www.sltrib.com/news/politics/2026/10/12/anita-dalrymple-wales-nematollahi/",
@@ -1684,6 +2627,22 @@
      "lower_taxes",
      "gun_rights",
      "energy_production"
+    ]
+   }
+  ],
+  "yaw_pa": [
+   {
+    "url": "https://www.senatorgeneyaw.com/2021/06/14/sen-yaw-region-receives-more-than-27-8-million-in-marcellus-shale-impact-fees/",
+    "label": "Sen. Gene Yaw",
+    "keys": [
+     "rural_ag"
+    ]
+   },
+   {
+    "url": "https://www.senatorgeneyaw.com/2023/11/29/sen-yaw-receives-msc-shale-gas-advocate-award/",
+    "label": "Sen. Gene Yaw",
+    "keys": [
+     "climate_action"
     ]
    }
   ],
@@ -1708,6 +2667,17 @@
      "econ_workers",
      "public_schools",
      "pro_choice"
+    ]
+   }
+  ],
+  "zack_dunn": [
+   {
+    "url": "https://zackdunn.com/",
+    "label": "Zack Dunn — Issues",
+    "keys": [
+     "veterans",
+     "back_police",
+     "public_schools"
     ]
    }
   ]

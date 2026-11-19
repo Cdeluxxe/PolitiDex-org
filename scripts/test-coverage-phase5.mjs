@@ -95,7 +95,9 @@ section("2 · attendance");
 const att = P.attendanceFrom(await P.publishedForPolitician("maloy", deps));
 eq({ rolls: att.rolls, notVoting: att.notVoting }, { rolls: 1, notVoting: 0 }, "a held roll call is not counted (maloy's not-voting roll is held)");
 const att2 = P.attendanceFrom({ billKeys: { a: [{ chamber: "house", congress: 119, session: 1, roll: 1, vote: "yes", date: "2025-01-02" }, { chamber: "house", congress: 119, session: 1, roll: 2, vote: "not_voting", date: "2025-02-02" }, { chamber: "house", congress: 119, session: 1, roll: 3, vote: "present", date: "2025-03-02" }, { chamber: "house", congress: 119, session: 1, roll: 4, vote: "no", date: "2025-04-02" }] } });
-eq(att2, { rolls: 4, voted: 3, notVoting: 1, present: 1, missedPct: 25, first: "2025-01-02", last: "2025-04-02" }, "counts, the missed share and the date span");
+eq(att2, { rolls: 4, voted: 3, notVoting: 1, present: 1, missedPct: 25, first: "2025-01-02", last: "2025-04-02",
+  missed: [{ chamber: "house", congress: 119, session: 1, roll: 2, date: "2025-02-02", question: null, bill: null, page: "/vote/119/house/1/2" }] },
+  "counts, the missed share, the date span and the missed rolls (with their pages)");
 eq(P.attendanceFrom(null).rolls, 0, "no published roll calls → zero, and the section is not drawn");
 
 // The person-file module, in a sandbox.

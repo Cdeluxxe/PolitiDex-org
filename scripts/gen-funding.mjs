@@ -14,7 +14,11 @@
 //     --pas2 <2024 itpas2.txt> --pas2 <2026 itpas2.txt> \
 //     --cm <2024 cm.txt> --cm <2026 cm.txt> \
 //     --legislators <legislators-current.json> --legislators <legislators-historical.json> \
-//     [--check]
+//     [--as-of YYYY-MM-DD] [--check]
+//
+// --as-of is the day the FEC files were downloaded; it is written into the
+// file as `asOf` and printed on the person file ("Data as of …"). Without it a
+// write uses today's date and --check keeps the committed one.
 //
 // Inputs (all public, none committed — like gen-aipac-pac.mjs, this one is left
 // out of scripts/generators.mjs because its --check needs them):
@@ -32,6 +36,8 @@
 // expenditures (super PAC spending is not a contribution), and not a score.
 // Figures are FEC's as reported, summed over the cycles named.
 // ─────────────────────────────────────────────────────────────────────────────
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { ROOT, writeOrCheck } from "./coverage-core.mjs";
 import { rosterBioguide, fecCandidates, netContributions, dropNonPositive, sumCycles, committeeMaster } from "./fec-core.mjs";
 
@@ -65,7 +71,12 @@ export function kindOf(c) {
 }
 const round = (n) => Math.round(n * 100) / 100;
 
-export function build(people, master, roster) {
+// asOf: the day the FEC bulk files were read (YYYY-MM-DD), printed on the
+// person file beside the section. --as-of sets it; without it a write uses
+// today's date (UTC) and --check keeps the committed file's, so a check is still
+// a pure comparison of the figures.
+export const AS_OF = /^\d{4}-\d{2}-\d{2}$/;
+export function build(people, master, roster, asOf = null) {
   const committees = {};
   const out = {};
   for (const [pid, p] of [...people].sort(([a], [b]) => (a < b ? -1 : 1))) {
@@ -89,6 +100,7 @@ export function build(people, master, roster) {
     cycles: CYCLES,
     kinds: KINDS,
     source: "https://www.fec.gov/data/browse-data/?tab=bulk-data",
+    ...(asOf ? { asOf } : {}),
     committees: sortedCommittees,
     people: out,
   };
@@ -99,6 +111,11 @@ async function main() {
   const many = (flag) => args.flatMap((a, i) => (a === flag ? [args[i + 1]] : []));
   const pas2 = many("--pas2"), cms = many("--cm"), legs = many("--legislators");
   const check = args.includes("--check");
+  const asOfArg = args[args.indexOf("--as-of") + 1];
+  let asOf = args.includes("--as-of") ? asOfArg : null;
+  if (asOf != null && !AS_OF.test(String(asOf))) { console.error("--as-of takes YYYY-MM-DD"); process.exit(2); }
+  if (!asOf && check) { try { asOf = JSON.parse(readFileSync(join(ROOT, OUT), "utf8")).asOf || null; } catch { asOf = null; } }
+  if (!asOf && !check) asOf = new Date().toISOString().slice(0, 10);
   if (pas2.length !== CYCLES.length || cms.length < 1 || !legs.length) {
     console.error("usage: --pas2 <2024 itpas2.txt> --pas2 <2026 itpas2.txt> --cm <cm.txt> [--cm …] --legislators <json> [...] [--check]");
     process.exit(2);
@@ -106,7 +123,7 @@ async function main() {
   const { rosterIds } = await import("./coverage-core.mjs");
   const fecPid = fecCandidates(legs, rosterBioguide(ROOT));
   const people = dropNonPositive(netContributions(pas2, CYCLES, fecPid, (cmte) => cmte));
-  const out = build(people, committeeMaster(cms), rosterIds());
+  const out = build(people, committeeMaster(cms), rosterIds(), asOf);
   const okNow = writeOrCheck(OUT, JSON.stringify(out) + "\n", { check });
   if (!check) console.error(`${Object.keys(out.people).length} roster people, ${Object.keys(out.committees).length} committees named`);
   process.exit(okNow ? 0 : 1);
