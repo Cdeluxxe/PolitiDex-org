@@ -12368,7 +12368,21 @@
 //     unchanged. No stance, tally, chip or verdict changes; no location key is
 //     touched and nothing stored is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v584';
+// v585 - ONE TRUTH ACROSS EVERY SURFACE. The publication floor
+//     (/publication-floor.js, precached) counts pipeline positions — stance
+//     cards promoted from Evidence Locker items — as stated positions, on the
+//     page's own terms (one per issue key the curated list does not carry), so
+//     a file the page fills with them clears the floor in the kicker the way the
+//     sitemap now lists it. /bill-search-index.js and /person-bills.json are
+//     now served with the generated bill pages appended at the edge (site
+//     search and the sponsored-bills list); neither is precached, and the
+//     worker code is unchanged, so they keep the stale-while-revalidate
+//     runtime policy (a page generated since the last visit shows on the next).
+//     Precached files changed, so the shell moves; the precache list is
+//     unchanged. No route or markup structure changes; no location key is
+//     touched and nothing stored is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v585';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

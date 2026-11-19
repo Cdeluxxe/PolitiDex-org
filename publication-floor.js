@@ -57,6 +57,15 @@
       acts, because "two documented positions" has always meant two subjects and
       never one subject voted on twice.
 
+   PIPELINE POSITIONS COUNT AS STATED POSITIONS. The stance cards the
+   raw-ingest cron promotes from Evidence Locker items (provenance 'pipeline')
+   carry a followable source and render on the file as stance cards, so they
+   count toward the cited-position door on the page's own terms — one per issue
+   key the curated list does not already carry. Same door, same number. They
+   live in the database, so the browser reads them from PDXPipelineStances once
+   they load, and the sitemap — written offline — publishes them through the
+   edge (see pipelineNeed below and netlify/lib/sitemap-person-pipeline.ts).
+
    The threshold is two rather than one because the product already has a word
    for one item, and it is "thin": word-action.js prints "this row rests on one
    item" and marks it pdxwa-row-thin. Publishing an address for a record the app
@@ -107,7 +116,13 @@
       // The stance-key alias table, when a runtime has one. Same defensive
       // shape: missing it costs two hops of the resolution chain below and
       // never a thrown decision.
-      aliases: src.aliases || root.STANCE_ALIASES || {}
+      aliases: src.aliases || root.STANCE_ALIASES || {},
+      // PIPELINE POSITIONS: the stance cards the raw-ingest cron promotes from
+      // Evidence Locker items (GET /api/stated-positions, provenance 'pipeline').
+      // In the browser this is stance-helpers.js's PDXPipelineStances; a caller
+      // may hand in either that shape ({ cards(pid, rec) }) or a plain
+      // { pid: [card] } table. Absent costs this source and nothing else.
+      pipeline: src.pipeline || root.PDXPipelineStances || null
     };
   }
 
@@ -165,6 +180,42 @@
     return out;
   }
 
+  // ── Pipeline positions ─────────────────────────────────────────────────
+  // THE FOURTH SOURCE IS THE SAME DOOR AS THE FIRST. A promoted pipeline card is
+  // a stated position with a followable source (stance-helpers.js refuses one
+  // without an http(s) url), and the person file renders it as a stance card
+  // like any other. So it counts toward the cited-position door — not a new
+  // door, and not a lower number. It counts on the page's own terms: curated
+  // always wins, so a pipeline card on an issue key the curated list already
+  // carries (any side) is not shown and is not counted, and one card per key.
+  function pipelineCards(pid, src) {
+    var P = sources(src).pipeline;
+    if (!P || !pid) return [];
+    var d = sources(src).roster[pid];
+    var list = null;
+    try {
+      if (typeof P.cards === 'function') list = P.cards(pid, d);
+      else if (P[pid] && typeof P[pid].length === 'number') list = P[pid];
+    } catch (e) { list = null; }
+    return list && typeof list.length === 'number' ? list : [];
+  }
+  function pipelinePositions(pid, src) {
+    var cards = pipelineCards(pid, src);
+    if (!cards.length) return [];
+    var taken = {};
+    var curated = stanceList(pid, src) || [];
+    for (var i = 0; i < curated.length; i++) if (curated[i] && curated[i].issueKey) taken[curated[i].issueKey] = 1;
+    var out = [];
+    for (var j = 0; j < cards.length; j++) {
+      var c = cards[j];
+      if (!c || !c.issueKey || taken[c.issueKey]) continue;
+      if (!c.source || !/^https?:\/\//.test(String(c.source.url || ''))) continue;
+      taken[c.issueKey] = 1;
+      out.push(c);
+    }
+    return out;
+  }
+
   // Promise counts as the roster carries them. Read defensively: this field is
   // absent on most records and must never throw a floor decision.
   function promiseCount(pid, src) {
@@ -200,13 +251,22 @@
     return { pid: pid, name: name, office: office, state: state };
   }
 
+  // THE RULE, once. `stated` is every cited stated position the file shows —
+  // curated cards with a source url plus pipeline cards on keys the curated
+  // list does not carry.
+  function contentClears(stated, promises, formal) {
+    return stated >= MIN_CITED_POSITIONS ||
+           (stated >= 1 && promises > 0) ||
+           formal >= MIN_CITED_POSITIONS;
+  }
+
   // The whole decision, with its reasons. Callers that need to explain a blank
   // — the sitemap report, a test that wants to say WHY an id was excluded —
   // read `reasons`; callers that just need a gate read `publishable`.
   function read(pid, src) {
     var out = {
       pid: pid, publishable: false, reasons: [],
-      identity: null, cited: 0, promises: 0, formal: 0
+      identity: null, cited: 0, pipeline: 0, promises: 0, formal: 0
     };
     if (!isPid(pid)) { out.reasons.push('pid-shape'); return out; }
     out.identity = identity(pid, src);
@@ -214,22 +274,39 @@
     out.cited = citedPositions(pid, src).length;
     out.promises = promiseCount(pid, src);
     out.formal = formalMeasures(pid, src);
-    var contentOk = out.cited >= MIN_CITED_POSITIONS ||
-                    (out.cited >= 1 && out.promises > 0) ||
-                    out.formal >= MIN_CITED_POSITIONS;
+    out.pipeline = pipelinePositions(pid, src).length;
+    var stated = out.cited + out.pipeline;
+    var contentOk = contentClears(stated, out.promises, out.formal);
     // A promise total is not content. It can only ever TOP UP one cited
     // position, and on its own it does not open a door — which is why a file
     // with twenty-five tracked promises, no cited stance and no formal act
     // still fails, and why the reason it fails says "no cited record" rather
     // than pretending the promises were the near miss.
     if (!contentOk) {
-      out.reasons.push((out.cited === 0 && out.formal === 0) ? 'no-cited-record' : 'thin-record');
+      out.reasons.push((stated === 0 && out.formal === 0) ? 'no-cited-record' : 'thin-record');
     }
     out.publishable = !!out.identity && contentOk;
     return out;
   }
 
   function clears(pid, src) { return read(pid, src).publishable; }
+
+  // How many MORE pipeline positions (on keys the curated list does not carry)
+  // would carry this file over the floor: 0 when it already clears, null when
+  // it never can (no identity, or a pid the URL scheme cannot carry). Asked by
+  // scripts/gen-sitemap.mjs, which cannot see the database, so the edge that
+  // serves /sitemap.xml compares an integer instead of holding a second copy of
+  // the rule (netlify/lib/sitemap-person-pipeline.ts).
+  function pipelineNeed(pid, src) {
+    var r = read(pid, src);
+    if (r.publishable) return 0;
+    if (!r.identity) return null;
+    var stated = r.cited + r.pipeline;
+    for (var n = 1; n <= MIN_CITED_POSITIONS; n++) {
+      if (contentClears(stated + n, r.promises, r.formal)) return n;
+    }
+    return null;
+  }
 
   // Every publishable id, sorted, for the generator. Sorted rather than
   // insertion-ordered so two runs over unchanged data produce byte-identical
@@ -248,6 +325,9 @@
     read: read,
     clears: clears,
     publishable: publishable,
+    pipelineNeed: pipelineNeed,
+    contentClears: contentClears,
+    _pipelinePositions: pipelinePositions,
     _citedPositions: citedPositions,
     _stanceList: stanceList,
     _promiseCount: promiseCount,

@@ -74,6 +74,7 @@
 // table would add, remove or change and exits 1 if either file is stale (the same
 // convention as gen-roster-seats.mjs and gen-seat-holders.mjs --check).
 
+import { STANCE_FILES } from "./stance-bundle-files.mjs";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -86,15 +87,8 @@ const OUT = join(ROOT, "db", "share-index.json");
 const OUT_STANCES = join(ROOT, "db", "share-stances.json");
 
 // The stance bundle, in the exact set and order index.html loads it with `defer`.
-// politician-stances.js is deliberately ABSENT: it is the retired ~1.1 MB monolith
-// that scripts/split-stances.mjs divided into the two chunks below, and reading it
-// here would ship stale positions the app itself no longer serves.
-const STANCE_FILES = [
-  "politician-stances-core.js",
-  "politician-stances-ext.js",
-  "state-senate-stances.js",
-  ...Array.from({ length: 15 }, (_, i) => `state-senate-stances-w${i + 2}.js`),
-];
+// One list for every generator (scripts/stance-bundle-files.mjs), so the share
+// index, the sitemap and the floor test read the same stances the page does.
 
 // ── Reading the plain-data bundles ───────────────────────────────────────────
 // cmp-data.js and spotlights-data.js are pure `Object.assign(window.X, {…})`
@@ -455,12 +449,41 @@ for (const id of Object.keys(roster).sort()) {
   if (got) stancePeople++;
 }
 
+// ── positions on file (the page's own count) ─────────────────────────────────
+// The person file says "N positions": the length of the list _resolveStanceList
+// hands back, which is the curated cards plus the pipeline cards (promoted from
+// Evidence Locker items, in the database) on issue keys the curated list does not
+// carry. The curated half is counted here, from the same resolved list; the
+// pipeline half is counted live at the edge (netlify/lib/pipeline-positions.ts),
+// which is why `k` — every issue key the curated list carries — is kept: a
+// pipeline card on one of those keys is not shown, so it is not counted.
+//   n  curated positions on the page    k  their issue keys, sorted
+//   a  the other ids a pipeline card may be filed under (STANCE_ALIASES hops),
+//      only where they exist; the edge adds the display-name slug itself
+const positions = {};
+for (const id of Object.keys(roster).sort()) {
+  const list = resolveStanceList(id, roster[id]);
+  const rec = {};
+  if (Array.isArray(list) && list.length) {
+    rec.n = list.length;
+    rec.k = [...new Set(list.map((x) => x && x.issueKey).filter(Boolean))].sort();
+  }
+  const alts = [];
+  const ns = roster[id] && roster[id].name ? stanceSlug(roster[id].name) : "";
+  for (const x of [stanceAliases[id], stanceAliases[ns]]) if (x && x !== id && !alts.includes(x)) alts.push(x);
+  if (alts.length) rec.a = alts;
+  if (Object.keys(rec).length) positions[id] = rec;
+}
+
 const stancePayload = {
   _generatedBy: `scripts/gen-share-index.mjs (from cmp-data.js and ${STANCE_FILES.length} stance bundles)`,
   _note:
     "The SAID half of a Word-vs-Action share preview: a politician's stated position on one issue, keyed '<rosterId>|<issueKey>'. Facts only — the sourced position and who reported it. No verdict, no score: the DID half is fetched live from the voting-record API at preview time and the reader draws the conclusion. Fields: t=position text, w=support/oppose/mixed, h=topic headline, s=source label. There is no date field because the stance data has none; do not synthesise one.",
-  counts: { people: stancePeople, pairs: Object.keys(stances).length },
+  counts: { people: stancePeople, pairs: Object.keys(stances).length, positions: Object.keys(positions).length },
   stances,
+  _positionsNote:
+    "positions: roster id → the curated half of the person file's own position count. n = curated positions the page lists, k = their issue keys (a pipeline position on one of these is not shown, so the edge does not count it), a = other ids a pipeline card may be filed under. The edge adds the pipeline positions live (GET /api/stated-positions?view=keys) so a share card and the crawl block print the count the page prints.",
+  positions,
 };
 
 const nextIndex = JSON.stringify(payload) + "\n";
@@ -512,6 +535,7 @@ if (process.argv.includes("--check")) {
   console.log(`db/share-stances.json: ${staleStances ? "WOULD CHANGE" : "current"}`);
   if (staleStances) {
     diffTable("stances", curStances.stances, stancePayload.stances);
+    diffTable("positions", curStances.positions, stancePayload.positions);
     const before = new Set(Object.keys(curStances.stances || {}).map((k) => k.split("|")[0]));
     const gained = [...new Set(Object.keys(stancePayload.stances).map((k) => k.split("|")[0]))]
       .filter((id) => !before.has(id))

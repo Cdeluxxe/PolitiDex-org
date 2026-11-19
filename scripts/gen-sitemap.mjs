@@ -9,6 +9,10 @@
 //                 /b/<sitting>/<number> entry per bill that has an address the
 //                 app can actually open, and one /i/<key> entry per issue key
 //                 that has something on file to read
+//   db/sitemap-floor-pending.json
+//                 the person files below the floor that pipeline positions
+//                 would publish, and how many each needs — the edge reads it
+//                 to add them when /sitemap.xml is served (PIPELINE_PENDING)
 //   robots.txt    points crawlers at that sitemap and at nothing else — one
 //                 Sitemap: line, which is why the bills ride in this file rather
 //                 than in a second one nothing links to
@@ -77,6 +81,18 @@
 //   · No per-judge address. /courts is listed; the judges on it are not. A judge
 //     is a person, so their address is /p/<pid> and it is gated by the same floor
 //     as everybody else's; /courts/<judge> is not a document this repo serves.
+//   · No /district/<seat> boards. Decided, not missed. There are ~2,500 board
+//     documents, rendered from one template (scripts/gen-district-boards.mjs),
+//     and everything that tells one from another — the sitting member, the room
+//     count, the poll, the residents' comments — is painted at runtime from the
+//     API. A crawler reads ~2,500 copies of the same shell under different
+//     titles, which is exactly the duplicate-document failure the /p/ crawl
+//     block was built to undo, and listing them would invite the search engine
+//     to treat the whole site as template. The records a board is about are
+//     already here: the seated member at /p/<pid>, through the floor, and the
+//     district file at /d/<seat> where one ships. A board's address still works
+//     and still carries its own canonical; it is simply not recommended until
+//     its document carries something of its own for a crawler to read.
 //   · No lastmod dates. This script has no honest source for when a record last
 //     changed — the roster carries no timestamp — and a lastmod that is really
 //     "when the generator last ran" is a fabricated freshness signal.
@@ -99,6 +115,7 @@ import url from "node:url";
 import vm from "node:vm";
 import { measureAddresses, billPath } from "./vr-measure-addresses.mjs";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { STANCE_FILES } from "./stance-bundle-files.mjs";
 
 const ROOT = path.resolve(path.dirname(url.fileURLToPath(import.meta.url)), "..");
 const CHECK = process.argv.includes("--check");
@@ -167,15 +184,26 @@ const MAX_BYTES = 50 * 1024 * 1024;
 // whose cited positions live only in that file cleared the floor in the browser
 // but were missing here, so the sitemap was smaller than the kicker's view.
 // It is pure data with no DOM, so the bare `window` below is enough to load it.
+//
+// AND SO ARE THE FIFTEEN WAVE FILES AFTER IT (state-senate-stances-w2…w16.js).
+// The note above fixed one chunk and left fifteen: person.html loads all
+// eighteen, so 118 state senators cleared the floor on the page and were still
+// missing here. The list is now scripts/stance-bundle-files.mjs, the one the
+// share index reads too, so the sitemap cannot read fewer stances than the page.
+//
+// PIPELINE POSITIONS ARE NOT IN THIS SANDBOX, because they are not in the repo:
+// the raw-ingest cron promotes them into the database at runtime. The floor
+// counts them (see publication-floor.js), so for every file it turns away here
+// this script writes how many pipeline positions would carry it over, and the
+// edge that serves /sitemap.xml adds the ones that now have them. See
+// PIPELINE_PENDING below.
 function loadApp() {
   const sandbox = { window: {}, console };
   sandbox.window.window = sandbox.window;
   const ctx = vm.createContext(sandbox);
   for (const f of [
     "cmp-data.js",
-    "politician-stances-core.js",
-    "politician-stances-ext.js",
-    "state-senate-stances.js",
+    ...STANCE_FILES,
     "formal-index.js",
     "publication-floor.js",
   ]) {
@@ -185,7 +213,73 @@ function loadApp() {
   }
   const F = sandbox.window.PDXPublicationFloor;
   if (!F) throw new Error("gen-sitemap: publication-floor.js did not export PDXPublicationFloor");
-  return { floor: F, roster: sandbox.window.CMP_DATA || {}, stances: sandbox.window.ISSUE_STANCE_DATA || {} };
+  return { floor: F, roster: sandbox.window.CMP_DATA || {}, stances: sandbox.window.ISSUE_STANCE_DATA || {}, aliases: stanceAliases() };
+}
+
+// STANCE_ALIASES lives inside stance-helpers.js's DOM-coupled IIFE, so it is read
+// as a literal, the way gen-share-index.mjs reads it. Used only to name the other
+// ids a pipeline card may be filed under (see pendingTable below).
+function stanceAliases() {
+  const src = fs.readFileSync(path.join(ROOT, "stance-helpers.js"), "utf8");
+  const m = /var\s+STANCE_ALIASES\s*=\s*\{/.exec(src);
+  if (!m) return {};
+  let depth = 0, i = m.index + m[0].length - 1;
+  for (let j = i; j < src.length; j++) {
+    if (src[j] === "{") depth++;
+    else if (src[j] === "}" && --depth === 0) {
+      try { return new vm.Script("(" + src.slice(i, j + 1) + ")").runInNewContext({}); } catch { return {}; }
+    }
+  }
+  return {};
+}
+
+// ── PIPELINE_PENDING — the files a pipeline position would publish ──────────
+// db/sitemap-floor-pending.json. One row per roster file that has an identity,
+// fails the floor here, and would clear it with pipeline positions:
+//
+//   n   how many pipeline positions it needs — the floor's own pipelineNeed(),
+//       so the edge compares an integer and holds no second copy of the rule
+//   k   the issue keys the curated list already carries. A pipeline card on one
+//       of these is not shown on the page (curated always wins), so it does not
+//       count; the edge drops it the same way the floor does
+//   a   the other ids a pipeline card can be filed under, in stance-helpers.js's
+//       order (alias, display-name slug), only where they differ from the pid
+//
+// netlify/edge-functions/sitemap-bill-pages.ts reads it with the live pipeline
+// keys (GET /api/stated-positions?view=keys) and adds a /p/<pid> line for each
+// row that now has enough. A file below the floor with no identity is not here:
+// no number of positions gives an address to nobody.
+const PENDING = path.join(ROOT, "db", "sitemap-floor-pending.json");
+function slug(s) {
+  return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+}
+function pendingTable(floor, roster, aliases, ids) {
+  const pending = {};
+  for (const pid of ids.slice().sort()) {
+    if (!pid || /^(?:null|undefined|nan)$/i.test(pid)) continue;
+    const need = floor.pipelineNeed(pid);
+    if (!need) continue;
+    const keys = [...new Set((floor._stanceList(pid) || []).map((x) => x && x.issueKey).filter(Boolean))].sort();
+    const row = { n: need };
+    if (keys.length) row.k = keys;
+    const alts = [];
+    const add = (x) => { if (x && x !== pid && !alts.includes(x)) alts.push(x); };
+    add(aliases[pid]);
+    const ns = roster[pid] && roster[pid].name ? slug(roster[pid].name) : "";
+    add(ns);
+    add(aliases[ns]);
+    if (alts.length) row.a = alts;
+    pending[pid] = row;
+  }
+  return pending;
+}
+function buildPending(pending) {
+  return JSON.stringify({
+    _comment:
+      "GENERATED by scripts/gen-sitemap.mjs — do not edit by hand. Person files that fail the publication floor on the repo's data alone and would clear it with pipeline positions (stance cards promoted from Evidence Locker items, served by /api/stated-positions). n = pipeline positions needed (PDXPublicationFloor.pipelineNeed), k = issue keys the curated list already carries (a pipeline card there does not count), a = other ids a pipeline card may be filed under. Read by netlify/edge-functions/sitemap-bill-pages.ts, which adds /p/<pid> to /sitemap.xml for each row that has enough.",
+    count: Object.keys(pending).length,
+    pending,
+  }) + "\n";
 }
 
 // ── The issue keys, and which of them have an address worth advertising ─────
@@ -414,10 +508,12 @@ function buildRobots() {
 }
 
 // ── Run ─────────────────────────────────────────────────────────────────────
-const { floor, roster } = loadApp();
+const { floor, roster, aliases } = loadApp();
 const ids = Object.keys(roster);
 const publishable = floor.publishable();
 const excluded = ids.filter((id) => !floor.clears(id));
+const pending = pendingTable(floor, roster, aliases, excluded);
+const pendingDoc = buildPending(pending);
 
 const bills = measureAddresses(ROOT);
 const issues = issueAddresses(bills.issueKeys);
@@ -568,6 +664,9 @@ if (REPORT) {
            !(r.cited >= 1 && r.promises > 0);
   });
   console.log(`  via formal only   ${byFormal.length}`);
+  const byNeed = {};
+  for (const r of Object.values(pending)) byNeed[r.n] = (byNeed[r.n] || 0) + 1;
+  console.log(`pipeline pending  ${Object.keys(pending).length}  by positions needed ${JSON.stringify(byNeed)}`);
 
   const bySitting = {};
   for (const a of bills.published) bySitting[a.sitting] = (bySitting[a.sitting] || 0) + 1;
@@ -593,13 +692,15 @@ if (CHECK) {
   const stale = [];
   if (!fs.existsSync(SITEMAP) || fs.readFileSync(SITEMAP, "utf8") !== sitemap) stale.push("sitemap.xml");
   if (!fs.existsSync(ROBOTS) || fs.readFileSync(ROBOTS, "utf8") !== robots) stale.push("robots.txt");
+  if (!fs.existsSync(PENDING) || fs.readFileSync(PENDING, "utf8") !== pendingDoc) stale.push("db/sitemap-floor-pending.json");
   if (stale.length) {
     console.error(`stale: ${stale.join(", ")} — run: node scripts/gen-sitemap.mjs`);
     process.exit(1);
   }
-  console.log(`sitemap.xml and robots.txt are current (${urls.length} urls)`);
+  console.log(`sitemap.xml, robots.txt and db/sitemap-floor-pending.json are current (${urls.length} urls, ${Object.keys(pending).length} pending)`);
 } else if (!REPORT) {
   fs.writeFileSync(SITEMAP, sitemap);
   fs.writeFileSync(ROBOTS, robots);
-  console.log(`wrote sitemap.xml (${urls.length} urls) and robots.txt`);
+  fs.writeFileSync(PENDING, pendingDoc);
+  console.log(`wrote sitemap.xml (${urls.length} urls), robots.txt and db/sitemap-floor-pending.json (${Object.keys(pending).length} pending)`);
 }

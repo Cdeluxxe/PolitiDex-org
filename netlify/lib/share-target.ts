@@ -37,6 +37,7 @@ import shareIndex from "../../db/share-index.json" with { type: "json" };
 import shareStances from "../../db/share-stances.json" with { type: "json" };
 import billDocsFile from "../../db/bill-docs.json" with { type: "json" };
 import { liveKeysFor, mergeDocIssues, type LiveBillIssues } from "./bill-live-issues.ts";
+import { pipelineKeys, pipelineFill, type PipelineKeys } from "./pipeline-positions.ts";
 
 // ── The generated index (see scripts/gen-share-index.mjs) ────────────────────
 type PersonRec = { n: string; o?: string; s?: string; p?: string };
@@ -241,6 +242,30 @@ export function billDocPath(d: { sitting: string; number: string }): string {
 type SaidRec = { t: string; w?: string; h?: string; s?: string };
 const SAID = (shareStances as unknown as { stances: Record<string, SaidRec> }).stances || {};
 
+// ── Positions on file: the count the person file prints ──────────────────────
+// The page says "N positions": the curated cards plus one pipeline card (promoted
+// from Evidence Locker items, served by /api/stated-positions) per issue key the
+// curated list does not carry. The curated half is baked by gen-share-index.mjs
+// (positions: n, k, a); the pipeline half is the live key list, read through
+// pipeline-positions.ts with a short timeout. If the live read fails the count is
+// the curated half alone — never a guess.
+type PositionsRec = { n?: number; k?: string[]; a?: string[] };
+const POSITIONS: Record<string, PositionsRec> =
+  (shareStances as unknown as { positions?: Record<string, PositionsRec> }).positions || {};
+function nameSlug(s: string): string {
+  return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+}
+export function positionsOnFile(pid: string, name: string, keys: PipelineKeys | null): number {
+  const rec = POSITIONS[pid] || {};
+  const curated = Number(rec.n) > 0 ? Number(rec.n) : 0;
+  const ids = [pid, ...(rec.a || []), nameSlug(name)];
+  return curated + pipelineFill(keys, ids, rec.k || []).length;
+}
+// "12 documented positions on file" — the page's own noun, or "" for none.
+export function positionsPhrase(n: number): string {
+  return n > 0 ? `${n} documented position${n === 1 ? "" : "s"} on file` : "";
+}
+
 export type TargetKind =
   | "profile"
   | "spotlight"
@@ -333,6 +358,10 @@ export type Resolved = {
   // wall the rest of this file keeps.
   person?: {
     pid: string;
+    // Positions on file, counted as the page counts them (positionsOnFile):
+    // curated cards plus pipeline cards on keys the curated list lacks. 0 when
+    // none — callers print nothing then.
+    positions?: number;
     name: string;
     office: string;
     state: string;
@@ -783,16 +812,18 @@ export async function resolveTarget(
     const rec = INDEX.people[t.id];
     if (!rec) return null; // unknown id — fall back to the site card, don't guess
     const sub = personLine(rec);
+    const positions = positionsOnFile(t.id, rec.n, await pipelineKeys(origin).catch(() => null));
+    const said = positionsPhrase(positions);
     return {
       kind: t.kind,
       ...chrome,
       title: rec.n,
       subtitle: sub,
       description: squeeze(
-        `${rec.n}${sub ? ` — ${sub}` : ""}. Their promises, their votes and their money on PolitiDex, each one sourced and checkable.`,
+        `${rec.n}${sub ? ` — ${sub}` : ""}.${said ? ` ${said}.` : ""} Their promises, their votes and their money on PolitiDex, each one sourced and checkable.`,
         200
       ),
-      footnote: "Every claim on the profile links to its source.",
+      footnote: said ? `${said} · every claim links to its source.` : "Every claim on the profile links to its source.",
       ogQuery: `kind=profile&id=${encodeURIComponent(t.id)}`,
       // t.id is already the canonical roster id — parseTarget resolved it — so the
       // crawl header, the canonical and the card all name the same person by the
@@ -809,6 +840,7 @@ export async function resolveTarget(
         // difference is what tells the caller to omit the section instead of
         // rendering an empty one.
         record: PERSON_RECORD[t.id] && PERSON_RECORD[t.id].length ? PERSON_RECORD[t.id] : undefined,
+        positions,
       },
     };
   }

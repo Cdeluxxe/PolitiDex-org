@@ -308,7 +308,11 @@ t('no migration, no new function, and the worker precache list is untouched', ()
     // The promoted pipeline stances pass: its read route and its table.
     'netlify/functions/stated-positions.mts',
     'netlify/database/migrations/20261206000000_create_pdx_stated_positions/migration.sql',
-    'netlify/database/migrations/20261206000000_create_pdx_stated_positions/snapshot.json'];
+    'netlify/database/migrations/20261206000000_create_pdx_stated_positions/snapshot.json',
+    // Generator cleanup phase 3: the serve-time merges that add generated bill
+    // pages to site search and to the person file's sponsored-bills list.
+    'netlify/edge-functions/bill-search-index-client.ts',
+    'netlify/edge-functions/person-bills-client.ts'];
   if (added != null) assert.deepEqual(added.split('\n').filter((l) => /^(?:\?\?|A)/.test(l) && !LATER.some((f) => l.endsWith(' ' + f))), [], 'no new function or migration file');
   const sw = R('sw.js');
   for (const f of ['person-directional-keys.js', 'person-directional-keys-auto.json', 'person-directional-keys.json']) assert.ok(!sw.includes(`'/${f}'`), `${f} is not precached`);

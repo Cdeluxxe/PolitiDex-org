@@ -291,6 +291,26 @@ export function cardsBody(rows, labels = {}, { hiddenKey = () => false } = {}) {
   return { cards, count, version: STATED_POSITIONS_VERSION };
 }
 
+/**
+ * The same served set, reduced to issue keys: { keys: { pid: [issueKey] }, count }.
+ * GET /api/stated-positions?view=keys. Read by the edge — the sitemap's floor
+ * merge and the person share preview / crawl block — which need to know which
+ * pipeline positions a file shows, not their words. Built FROM cardsBody, so a
+ * key is listed exactly when the client would be handed that card.
+ */
+export function keysBody(body) {
+  const keys = {};
+  let count = 0;
+  const cards = (body && body.cards) || {};
+  for (const pid of Object.keys(cards).sort()) {
+    const ks = [...new Set((cards[pid] || []).map((c) => c && c.issueKey).filter(Boolean))].sort();
+    if (!ks.length) continue;
+    keys[pid] = ks;
+    count += ks.length;
+  }
+  return { keys, count, version: (body && body.version) || STATED_POSITIONS_VERSION };
+}
+
 /** The production adapter over drizzle (db + table passed in). */
 export function dbAdapter(db, table, { eq, and, inArray }) {
   return {
