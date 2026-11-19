@@ -8,9 +8,9 @@
 //
 // What must stay true (offline; no network):
 //
-//   1. THE REFERENCE PASSES. 0 errors. Its only warnings are the declined
-//      property_rights key (runs both ways, a split candidate) and the
-//      not-in-text abandoned-mine claim with no one on either side.
+//   1. THE REFERENCE PASSES. 0 errors. Its only warnings are the not-in-text
+//      abandoned-mine claim with no one on either side. tribal_consultation
+//      and property_rights are each split one row per direction.
 //   2. EVERY LEDGER ON DISK PASSES.
 //   3. THE RULES BITE. Each mutation of the reference fails: a collapsed
 //      "mixed" row, a split key with two rows the same direction or one shared
@@ -45,12 +45,13 @@ const eq = (a, b, m) => ok(JSON.stringify(a) === JSON.stringify(b), `${m}\n     
   const { errors, warnings } = S.validateLedger(REF, ctx);
   eq(errors, [], "1: the reference has no errors");
   eq(warnings.map((w) => w.split(":")[0]), [
-    "considered property_rights",
     "claims[5] abandoned-mine-reclamation",
     "claims[5] abandoned-mine-reclamation",
   ], "1: the reference's warnings are the known three");
-  const tc = REF.issues.filter((r) => r.issueKey === "tribal_consultation");
-  eq(tc.map((r) => r.supportMeaning).sort(), ["yea_opposes", "yea_supports"], "1: tribal_consultation is split one row per direction");
+  for (const k of ["tribal_consultation", "property_rights"]) {
+    eq(REF.issues.filter((r) => r.issueKey === k).map((r) => r.supportMeaning).sort(), ["yea_opposes", "yea_supports"], `1: ${k} is split one row per direction`);
+    ok(!REF.considered.some((c) => c.issueKey === k), `1: ${k} is not also declined`);
+  }
   ok(REF.completeness.E_issue_mapping.note.startsWith(S.mappingCountNote(REF.issues, REF.considered).replace(/\.$/, "")), "1: the E note opens with the counts the lists give");
 }
 
@@ -74,7 +75,7 @@ const MUTATIONS = {
   "invented field": (L) => { L.provisions[0].severity = "high"; },
   "non-primary URL": (L) => { L.provisions[0].sourceUrl = "https://example-news.com/story"; },
   "false considered count": (L) => { L.considered.pop(); },
-  "false row count": (L) => { L.completeness.E_issue_mapping.note = L.completeness.E_issue_mapping.note.replace("in 14 rows", "in 13 rows"); },
+  "false row count": (L) => { L.completeness.E_issue_mapping.note = L.completeness.E_issue_mapping.note.replace(/in (\d+) rows/, (m, n) => `in ${+n - 1} rows`); },
   "dangling citation": (L) => { L.issues[0].quoteRef = "Div. Z, Sec. 9999"; },
   "provision missing its key": (L) => { L.provisions.find((p) => p.ref === L.issues[0].quoteRef).issueKeys = ["infrastructure"]; },
   "totals disagree with members": (L) => { L.votes.rollcalls[0].members[0].vote = L.votes.rollcalls[0].members[0].vote === "Yea" ? "Nay" : "Yea"; },
