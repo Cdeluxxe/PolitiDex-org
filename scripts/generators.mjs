@@ -19,6 +19,10 @@
 // e.g. FEC bulk downloads or a saved listing page):
 //   gen-aipac-pac.mjs       --pas2 <itpas2.txt> --legislators <json>
 //   gen-aipac-tracker.mjs   --listing <html> --as-of YYYY-MM-DD
+//   gen-funding.mjs         --pas2 … --cm … --legislators … (the same FEC files)
+// The pull stages of gen-committees.mjs and gen-cosponsorships.mjs (--fetch)
+// read the network and are not run here; their derive stages ARE registered,
+// because those read only committed files.
 // And generators with no --check mode at all (gen-hero-*, gen-issue-keys, …):
 // there is no way to ask them "stale?" without writing, so they are not run.
 //
@@ -40,10 +44,15 @@ export const GENERATORS = [
   { script: "gen-aipac-tracker-pages.mjs" },
   // Roster → seat files → boards → seat holders.
   { script: "gen-roster-seats.mjs" },
+  // Logs what the seat files changed (the /changes feed's roster lane).
+  { script: "gen-roster-changes.mjs" },
   { script: "gen-roster-names.mjs" },
   { script: "gen-district-boards.mjs" },
   { script: "gen-seat-holders.mjs" },
   { script: "gen-pdx-return.mjs" },
+  // Person-file coverage tables (derive stages; read the roster and db/).
+  { script: "gen-committees.mjs" },
+  { script: "gen-cosponsorships.mjs" },
   // Raw-ingest rotation inputs (read seat-holders and the roster).
   { script: "build-raw-ingest-pool-expansion-2026-11.mjs" },
   { script: "build-raw-ingest-official-cited-2026-11.mjs" },

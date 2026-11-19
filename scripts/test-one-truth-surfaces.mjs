@@ -275,7 +275,8 @@ for (const f of untouched) {
 }
 if (compared) ok(headOk, `the stance engine, Evidence Locker, activity badge and recorded-votes files are byte-identical to HEAD (${compared})`);
 const SW = read("sw.js");
-ok(/const CACHE_VERSION = 'v585';/.test(SW), "the service worker moved (a precached script — publication-floor.js — changed)");
+// At least v585 (this pass's bump); a later pass may move it again.
+ok(Number((/const CACHE_VERSION = 'v(\d+)';/.exec(SW) || [])[1]) >= 585, "the service worker moved (a precached script — publication-floor.js — changed)");
 ok(!/'\/bill-search-index\.js'|'\/person-bills\.json'/.test(SW), "the two merged files are not precached (runtime cache only), so the worker code did not move");
 eq(otherFetches, 0, "no network call other than the pipeline keys fixture");
 

@@ -308,6 +308,37 @@ export async function billInfoFor(billKeys: string[]) {
   return rows.map((r: any) => ({ ...r, congress: r.congress == null ? null : Number(r.congress) }));
 }
 
+// The bill a single roll call belongs to (every row of one roll call carries
+// the same bill key), for the public roll-call page. Read-only.
+export async function billKeyForRoll(r: { chamber: string; congress: number; session: number; roll: number }) {
+  const rows = await db.select({ billKey: pdxVoteActions.billKey }).from(pdxVoteActions)
+    .where(and(
+      eq(pdxVoteActions.chamber, r.chamber), eq(pdxVoteActions.congress, r.congress),
+      eq(pdxVoteActions.session, r.session), eq(pdxVoteActions.rollNumber, r.roll),
+    )).limit(1);
+  return rows.length ? String(rows[0].billKey) : null;
+}
+
+// The most recent roll calls on file (newest vote first), one row per roll call,
+// for the public "what changed" feed. The gate is applied by the caller.
+export async function recentRolls(limit = 120) {
+  const rowsOf = (res: any) => (Array.isArray(res) ? res : res?.rows ?? []);
+  const res: any[] = rowsOf(await db.execute(sql`
+    SELECT bill_key, chamber, congress, session, roll_number,
+           max(vote_date) AS vote_date, max(question) AS question, max(result) AS result,
+           max(source_url) AS source_url, max(source_label) AS source_label,
+           bool_or(is_procedural IS TRUE) AS procedural, max(ingested_at) AS ingested_at
+      FROM pdx_vote_actions
+     GROUP BY bill_key, chamber, congress, session, roll_number
+     ORDER BY max(vote_date) DESC, roll_number DESC
+     LIMIT ${Math.max(1, Math.min(500, Math.floor(limit)))}`));
+  return res.map((r) => ({
+    billKey: r.bill_key, chamber: r.chamber, congress: Number(r.congress), session: Number(r.session), rollNumber: Number(r.roll_number),
+    voteDate: r.vote_date, question: r.question ?? null, result: r.result ?? null, sourceUrl: r.source_url, sourceLabel: r.source_label ?? null,
+    procedural: !!r.procedural, ingestedAt: r.ingested_at,
+  }));
+}
+
 // The gate's data deps, wired to the tables.
 export const publishDeps = {
   rowsForPolitician: (pid: string) => voteActionsForPolitician(pid),
@@ -315,4 +346,6 @@ export const publishDeps = {
   statsForRolls: (keys: string[]) => rollPublishStats(keys),
   rowsForBill: (billKey: string) => voteActionsForBill(billKey),
   billInfo: (keys: string[]) => billInfoFor(keys),
+  billKeyForRoll: (r: { chamber: string; congress: number; session: number; roll: number }) => billKeyForRoll(r),
+  recentRolls: (limit: number) => recentRolls(limit),
 };

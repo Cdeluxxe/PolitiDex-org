@@ -419,6 +419,20 @@
 # one we hold. Lookup failures other than a definitive 404 still fall through to
 # this rewrite, so a slow database degrades to the old behaviour rather than to a
 # broken link.
+# THE ROLL-CALL PAGE. /vote/<congress>/<chamber>/<session>/<roll> — four
+# segments — is a page of its own, rendered by netlify/functions/vote-page.mts
+# for a roll call that passes the automatic publish gate (vote-actions-publish.ts)
+# and an honest 404 for any other. The session is in the address because House
+# and Senate roll numbers restart each session. It MUST sit above /vote/*, which
+# would otherwise match first and serve index.html. The older three-segment
+# /vote/<congress>/<chamber>/<roll> address is untouched: it still falls through
+# to the rewrite below and opens the curated measure in the app.
+[[redirects]]
+  from = "/vote/:congress/:chamber/:session/:roll"
+  to = "/api/vote-page/:congress/:chamber/:session/:roll"
+  status = 200
+  force = true
+
 [[redirects]]
   from = "/vote/*"
   to = "/index.html"
