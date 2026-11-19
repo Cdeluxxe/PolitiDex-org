@@ -708,13 +708,14 @@
    "textQuote": "``(2) Authority.--A right-of-way granted under paragraph (1) shall not require the approval of the Secretary of the Interior or a grant by the Secretary of the Interior under section 1 if the right-of-way granted under that paragraph is executed in accordance with a Tribal regulation approved by",
    "quoteFrom": "S. 5653 (is)",
    "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
-   "issueKeys": [],
+   "issueKeys": [
+    "tribal_consultation"
+   ],
    "presentIn": [
     "S. 5653",
     "S.Amdt. 6883"
    ],
-   "amendmentHistory": "S.Amdt. 6883 retitles it \"Modification of Tribal Leases and Rights-of-Way Across Indian Land\" and adds Long-Term Leasing Act changes for land held in trust for any federally recognized Tribe.",
-   "whyUnmapped": "Tribal land and Tribal self-governance have no key in the vocabulary (see considered: tribal_sovereignty gap). Tribal land is not the federal estate, so the lands keys do not fit."
+   "amendmentHistory": "S.Amdt. 6883 retitles it \"Modification of Tribal Leases and Rights-of-Way Across Indian Land\" and adds Long-Term Leasing Act changes for land held in trust for any federally recognized Tribe."
   },
   {
    "ref": "Div. B, Title II, Sec. 2213",
@@ -832,7 +833,8 @@
    "quoteFrom": "S. 5653 (is)",
    "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
    "issueKeys": [
-    "permitting_reform"
+    "permitting_reform",
+    "tribal_consultation"
    ],
    "presentIn": [
     "S. 5653",
@@ -847,12 +849,13 @@
    "textQuote": "``(1) Definition of property of traditional religious or cultural importance.--In this subsection, the term `property of traditional religious or cultural importance' means an identifiable geographic location or feature at which an event of continuing religious or cultural significance to a living",
    "quoteFrom": "S. 5653 (is)",
    "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
-   "issueKeys": [],
+   "issueKeys": [
+    "tribal_consultation"
+   ],
    "presentIn": [
     "S. 5653",
     "S.Amdt. 6883"
-   ],
-   "whyUnmapped": "Tribal consultation and cultural property have no key in the vocabulary (see considered)."
+   ]
   },
   {
    "ref": "Div. B, Title III, Sec. 2302",
@@ -862,7 +865,8 @@
    "quoteFrom": "S. 5653 (is)",
    "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
    "issueKeys": [
-    "enviro_balance"
+    "enviro_balance",
+    "tribal_consultation"
    ],
    "presentIn": [
     "S. 5653",
@@ -1009,6 +1013,22 @@
    "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
   },
   {
+   "issueKey": "tribal_consultation",
+   "weight": 35,
+   "primaryLabel": false,
+   "supportMeaning": "yea_supports",
+   "provisionRefs": [
+    "Div. B, Title II, Sec. 2212",
+    "Div. B, Title III, Sec. 2301 (Tribal property definition)",
+    "Div. B, Title III, Sec. 2302",
+    "Div. B, Title III, Sec. 2301"
+   ],
+   "quote": "``(1) Definition of property of traditional religious or cultural importance.--In this subsection, the term `property of traditional religious or cultural importance' means an identifiable geographic location or feature at which an event of continuing religious or cultural significance to a living",
+   "quoteRef": "Div. B, Title III, Sec. 2301 (Tribal property definition)",
+   "rationale": "Scope: government-to-government consultation, Tribal sovereignty, and protection of Tribal land, resources and cultural sites. Sec. 2212 lets a Tribe grant rights-of-way over its own land without Interior approval, Sec. 2301 writes a definition of property of traditional religious or cultural importance into law, and Sec. 2302 creates grants for Tribal Historic Preservation Officers. These run with the key. Sec. 2301 also narrows what counts as an \"adverse effect\" and lets Interior suspend Tribal preservation programs that miss its timelines, which runs against it; the substitute adds that agencies keep their duty to consult Tribes under section 302706(b). The read is mixed and disputed (see claim tribal-consultation), so it carries a middle weight, not the primary label.",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+  },
+  {
    "issueKey": "cost_living",
    "weight": 30,
    "primaryLabel": false,
@@ -1130,10 +1150,6 @@
   {
    "issueKey": "national_debt",
    "whyNot": "CBO's preliminary estimate is under $1 billion over 2027-2036. That is not a net fiscal direction large enough to read as a deficit vote, and it is shown as the scorekeeper finding instead."
-  },
-  {
-   "issueKey": "(gap) Tribal consultation / Tribal sovereignty",
-   "whyNot": "Vocabulary gap. Secs. 2212, 2301 and 2302 change Tribal rights-of-way, Tribal historic-preservation programs and how cultural property is defined, and this is the most disputed part of the bill (see claims). No issue key covers it. Recorded here so it is not silently dropped; adding a key is a separate decision."
   },
   {
    "issueKey": "(not in text) abandoned-mine reclamation",
@@ -5472,7 +5488,7 @@
   },
   "E_issue_mapping": {
    "mark": "present",
-   "note": "12 keys mapped, 18 considered and declined (including a vocabulary gap for Tribal consultation)."
+   "note": "13 keys mapped, 17 considered and declined. Tribal consultation, listed as a vocabulary gap in the first pass, is now mapped to tribal_consultation (added to the register 2026-11-19)."
   },
   "F_positions": {
    "mark": "partial",
