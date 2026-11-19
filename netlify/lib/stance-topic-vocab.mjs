@@ -4,7 +4,7 @@
 // The scorer (stance-score-core.mjs) keeps its hand-calibrated rules for
 // cost_living (the Talarico ground truth) and healthcare_costs. Every OTHER key
 // in the issue register (ISSUE_MAP in alignment-tool.js → db/issue-keys.json,
-// the same 135 keys the related-issues map relates) gets its rules from the
+// the same 136 keys the related-issues map relates) gets its rules from the
 // compact spec below. The rule engine is unchanged: R1–R6 and WEIGHTS apply to
 // every topic alike; a topic only supplies what counts as a mention, an
 // explicit statement and an implication.
@@ -790,6 +790,13 @@ export const ISSUE_TOPIC_VOCAB = {
     terms: String.raw`filibuster|60-vote (?:threshold|rule)|cloture rule`,
     up: [String.raw`(?:the )?(?:senate )?filibuster`, String.raw`(?:the )?60-vote (?:threshold|rule)`],
     downCon: [String.raw`(?:the )?(?:senate )?filibuster`, String.raw`(?:the )?60-vote (?:threshold|rule)`] },
+  // The tribal consultation key pass (Nov 2026): one key added to the register,
+  // no position seeded. Terms are kept narrow so the neighbouring keys' reads
+  // (lands_preserve, lands_local, permitting_reform, states_federal_power) do not move.
+  tribal_consultation: { label: "Tribal Consultation & Rights", pos: "Government-to-government consultation, tribal sovereignty, and protection of tribal land, resources, and cultural sites",
+    terms: String.raw`tribal consultation|consult(?:ation|ing)? with (?:indian )?tribes|government-to-government (?:consultation|relationship)|tribal sovereignty|tribal (?:lands?|nations?|self-governance)|sacred sites?|tribal historic preservation`,
+    up: [String.raw`(?:meaningful )?tribal consultation`, String.raw`(?:the )?government-to-government (?:consultation|relationship)`, String.raw`(?:the )?tribal sovereignty`, String.raw`(?:tribal |native american )?sacred sites?`, String.raw`(?:tribal )?self-governance`],
+    downCon: [String.raw`(?:meaningful )?tribal consultation`, String.raw`(?:the )?tribal sovereignty`] },
   checks_balances: { label: "Congress as a Check on the Executive", pos: "Keep Congress and the courts as a real check on executive power, whoever is president",
     terms: String.raw`checks and balances|separation of powers|executive overreach|executive power|article I`,
     up: [String.raw`(?:our )?(?:system of )?checks and balances`, String.raw`(?:the )?separation of powers`, String.raw`(?:congress'?s? )?(?:article I|constitutional) (?:authority|powers?|role)`],

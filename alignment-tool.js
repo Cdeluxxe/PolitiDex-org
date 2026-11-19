@@ -112,6 +112,18 @@
       lands_preserve:     { label: '🏔 Protect Public Lands', chip: 'Protect public lands & wild places for future generations', cat: 'land', lean: 'D', stanceKeys: [], keywords: ['public land','public lands','land protection','land ownership','conservation','wilderness','national park','national monument','climate','air quality','recreation','great salt lake','blm','forest','environment'] },
       lands_balance:      { label: '⚖️ Balanced Land Use', chip: 'Allow grazing, recreation and limited energy on public land while protecting core wild areas', cat: 'land', stanceKeys: ['dataCenters'], keywords: ['public land','conservation','multiple use','responsible development','recreation','stewardship','grazing','forest','water','land management','balance'] },
       lands_local:        { label: '🤠 Local Land Control', chip: 'Transfer more federal land decisions to states and county governments', cat: 'land', stanceKeys: [], keywords: ['state land','land rights','local control','federal land','transfer','county','public land','grazing','states rights'] },
+      // TRIBAL CONSULTATION KEY PASS (Nov 2026; key only — no position is seeded, no bill is mapped).
+      // SCOPE (tribal_consultation): government-to-government consultation between
+      // federal agencies and Tribal nations, Tribal sovereignty and self-governance,
+      // and protection of Tribal land, resources and cultural sites — Tribal
+      // historic-preservation programs, rights-of-way across Tribal land, and how
+      // property of traditional religious or cultural importance is defined. Beside
+      // Protect Public Lands and Local Land Control, replacing neither: those are about
+      // the federal estate and state or county control, this is about Tribal nations
+      // and Tribal land. POLARITY: 'support' = strengthen consultation and protect
+      // Tribal sovereignty, land and cultural sites; 'oppose' = narrow or bypass them.
+      // No `lean`.
+      tribal_consultation: { label: '🪶 Tribal Consultation & Rights', chip: 'Government-to-government consultation, tribal sovereignty, and protection of tribal land, resources, and cultural sites', cat: 'land', stanceKeys: [], keywords: ['tribal consultation','government-to-government consultation','tribal sovereignty','tribal land','tribal historic preservation','sacred sites'] },
       lands_keep_public:  { label: '🏞 Keep Public Lands Public', chip: 'Keep public lands in public hands — oppose selling or transferring federal land to states or developers', cat: 'land', stanceKeys: [], keywords: ['public land','public lands','keep public lands','land sale','sell public land','land transfer','dispose of land','public access','hunting','fishing','recreation','blm','national forest','federal land'] },
       lands_energy:       { label: '⛏ Energy & Resource Development', chip: 'Expand domestic energy, mining & resource development', cat: 'land', lean: 'R', stanceKeys: ['dataCenters'], keywords: ['energy','oil','gas','drilling','mining','public land','state land','land rights','development','data center','grid','nuclear','fossil','extraction','growth','infrastructure'] },
       // SCOPE (property_rights): what a government may do to a parcel its owner holds —
@@ -1373,7 +1385,7 @@
         keys: ['gun_rights','gun_balance','gun_safety'] },
       { key: 'climate_energy', label: '🌱 Climate, Energy & Land',
         blurb: 'Climate action, clean and domestic energy, water, disaster resilience, who owns and may use the public estate, and what a government may do to a parcel its owner holds.',
-        keys: ['climate_action','enviro_energy','enviro_balance','lands_energy','lands_preserve','lands_keep_public','lands_balance','lands_local','property_rights','datacenter_growth','datacenter_water','datacenter_power','disaster_resilience','water','water_storage','energy_production','permitting_reform'] },
+        keys: ['climate_action','enviro_energy','enviro_balance','lands_energy','lands_preserve','lands_keep_public','lands_balance','lands_local','property_rights','datacenter_growth','datacenter_water','datacenter_power','disaster_resilience','water','water_storage','energy_production','permitting_reform','tribal_consultation'] },
       { key: 'crime_safety', label: '👮 Crime & Public Safety',
         blurb: 'Policing, violent crime, sentencing and justice reform, and public safety.',
         keys: ['back_police','justice_balance','justice_reform','cannabis_reform','tough_on_crime'] },

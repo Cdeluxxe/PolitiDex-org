@@ -1,6 +1,6 @@
 {
   "_generatedBy": "scripts/gen-issue-core-categories.mjs (from CORE_NATIONAL_ISSUES in issue-map.js)",
-  "count": 135,
+  "count": 136,
   "categoryOf": {
     "america_first": "foreign_policy_defense",
     "america_first_fp": "foreign_policy_defense",
@@ -127,6 +127,7 @@
     "tobacco_nicotine": "healthcare",
     "tough_on_crime": "crime_safety",
     "transit": "economy_cost_of_living",
+    "tribal_consultation": "climate_energy",
     "ukraine_policy": "foreign_policy_defense",
     "venezuela_policy": "foreign_policy_defense",
     "veterans": "foreign_policy_defense",

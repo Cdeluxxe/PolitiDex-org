@@ -58,6 +58,13 @@
      Powers and Peace Through Strength. Each new key is last in the existing
      keys' lists and has its own list at the end of the map.
 
+   · TRIBAL CONSULTATION PAIRS (Nov 2026). Tribal Consultation & Rights joined
+     the register with no position seeded and no bill mapped, paired both ways
+     with the existing keys whose ground it shares: Protect Public Lands, Local
+     Land Control, Faster Permits & Reviews and Whose Rule Governs: State or
+     Federal. It is last in those keys' lists and has its own list at the end
+     of the map.
+
    · ONE MAP. MAP below is the only place that decides what is related: issue
      key → the keys that share its ground. It is symmetric (if A lists B, B
      lists A) and names only keys in the issue register. Nothing is derived from
@@ -151,14 +158,14 @@
 
   // Issue key → related issue keys. Order here is print order.
   var MAP = {
-    lands_preserve: ['lands_keep_public', 'energy_production', 'gov_regulation', 'lands_local', 'lands_balance', 'lands_energy', 'property_rights', 'permitting_reform', 'water', 'water_storage', 'datacenter_water', 'disaster_resilience', 'climate_action'],
+    lands_preserve: ['lands_keep_public', 'energy_production', 'gov_regulation', 'lands_local', 'lands_balance', 'lands_energy', 'property_rights', 'permitting_reform', 'water', 'water_storage', 'datacenter_water', 'disaster_resilience', 'climate_action', 'tribal_consultation'],
     lands_keep_public: ['lands_preserve', 'energy_production', 'gov_regulation', 'lands_local', 'lands_balance', 'lands_energy', 'property_rights', 'permitting_reform', 'water', 'water_storage', 'datacenter_water', 'housing_build'],
-    lands_local: ['lands_preserve', 'lands_keep_public', 'lands_balance', 'lands_energy', 'property_rights', 'disaster_resilience', 'climate_action', 'states_federal_power', 'state_standing', 'guard_authority', 'housing_build'],
+    lands_local: ['lands_preserve', 'lands_keep_public', 'lands_balance', 'lands_energy', 'property_rights', 'disaster_resilience', 'climate_action', 'states_federal_power', 'state_standing', 'guard_authority', 'housing_build', 'tribal_consultation'],
     lands_balance: ['lands_preserve', 'lands_keep_public', 'lands_local', 'lands_energy', 'property_rights', 'disaster_resilience', 'climate_action'],
     lands_energy: ['lands_preserve', 'lands_keep_public', 'lands_local', 'lands_balance', 'property_rights', 'energy_production', 'permitting_reform', 'gov_regulation', 'enviro_energy', 'climate_action', 'enviro_balance', 'datacenter_power'],
     property_rights: ['lands_preserve', 'lands_keep_public', 'lands_local', 'lands_balance', 'lands_energy'],
     energy_production: ['lands_preserve', 'lands_keep_public', 'lands_energy', 'permitting_reform', 'gov_regulation', 'enviro_energy', 'climate_action', 'enviro_balance', 'datacenter_power', 'cost_living', 'econ_growth'],
-    permitting_reform: ['lands_preserve', 'lands_keep_public', 'lands_energy', 'energy_production', 'gov_regulation', 'enviro_energy', 'climate_action', 'enviro_balance', 'datacenter_power', 'econ_growth', 'infrastructure', 'broadband', 'transit', 'water_storage', 'housing_build'],
+    permitting_reform: ['lands_preserve', 'lands_keep_public', 'lands_energy', 'energy_production', 'gov_regulation', 'enviro_energy', 'climate_action', 'enviro_balance', 'datacenter_power', 'econ_growth', 'infrastructure', 'broadband', 'transit', 'water_storage', 'housing_build', 'tribal_consultation'],
     gov_regulation: ['lands_preserve', 'lands_keep_public', 'lands_energy', 'energy_production', 'permitting_reform', 'climate_action', 'enviro_balance', 'econ_growth', 'econ_smallbiz', 'econ_balance', 'econ_workers', 'econ_corp_account', 'lower_taxes', 'civil_service_control', 'gov_waste', 'housing_build', 'public_health_vs_chemical_liability'],
     water: ['water_storage', 'datacenter_water', 'lands_preserve', 'lands_keep_public', 'datacenter_growth', 'datacenter_power', 'tech_innovation', 'rural_ag', 'health_rural', 'broadband'],
     water_storage: ['water', 'datacenter_water', 'lands_preserve', 'lands_keep_public', 'rural_ag', 'health_rural', 'broadband', 'infrastructure', 'transit', 'permitting_reform'],
@@ -273,7 +280,7 @@
     judicial_check: ['checks_balances', 'war_powers', 'power_of_purse', 'congress_oversight', 'tariffs_authority', 'civil_service_control', 'scotus_reform', 'birthright_citizenship'],
     civil_service_control: ['checks_balances', 'war_powers', 'judicial_check', 'power_of_purse', 'congress_oversight', 'tariffs_authority', 'scotus_reform', 'gov_waste', 'gov_regulation'],
     scotus_reform: ['checks_balances', 'war_powers', 'judicial_check', 'power_of_purse', 'congress_oversight', 'tariffs_authority', 'civil_service_control', 'redistricting_gerrymandering'],
-    states_federal_power: ['state_standing', 'guard_authority', 'lands_local'],
+    states_federal_power: ['state_standing', 'guard_authority', 'lands_local', 'tribal_consultation'],
     state_standing: ['states_federal_power', 'guard_authority', 'lands_local'],
     guard_authority: ['states_federal_power', 'state_standing', 'lands_local', 'war_powers', 'checks_balances'],
     public_health_vs_chemical_liability: ['cost_living', 'gov_regulation', 'healthcare'],
@@ -285,7 +292,8 @@
     birthright_citizenship: ['deportations', 'immigration_reform', 'judicial_check', 'immig_balance'],
     safety_net_work_requirements: ['healthcare', 'health_rural', 'cut_spending', 'family_support'],
     fed_independence: ['audit_spending', 'cost_living', 'checks_balances', 'sound_money'],
-    senate_filibuster: ['checks_balances', 'power_of_purse', 'voting_access', 'term_limits']
+    senate_filibuster: ['checks_balances', 'power_of_purse', 'voting_access', 'term_limits'],
+    tribal_consultation: ['lands_preserve', 'lands_local', 'permitting_reform', 'states_federal_power']
   };
 
   var WORD = { support: 'supports', oppose: 'opposes' };

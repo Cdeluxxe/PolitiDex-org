@@ -1,6 +1,6 @@
 {
   "_generatedBy": "scripts/gen-issue-keys.mjs (from ISSUE_MAP in alignment-tool.js)",
-  "count": 135,
+  "count": 136,
   "keys": [
     "america_first",
     "america_first_fp",
@@ -127,6 +127,7 @@
     "tobacco_nicotine",
     "tough_on_crime",
     "transit",
+    "tribal_consultation",
     "ukraine_policy",
     "venezuela_policy",
     "veterans",
@@ -1854,6 +1855,14 @@
       "infrastructure",
       "mobility",
       "high-speed rail"
+    ],
+    "tribal_consultation": [
+      "tribal consultation",
+      "government-to-government consultation",
+      "tribal sovereignty",
+      "tribal land",
+      "tribal historic preservation",
+      "sacred sites"
     ],
     "ukraine_policy": [
       "ukraine",
