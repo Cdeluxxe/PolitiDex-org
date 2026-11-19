@@ -193,7 +193,7 @@ export function committeeNotFoundHtml(code: string | null): string {
 
 // ── the "what changed" feed ────────────────────────────────────────────────
 export type ChangeItem = {
-  kind: "vote" | "position" | "seat";
+  kind: "vote" | "position" | "seat" | "committee" | "cosponsor" | "status";
   date: string;               // YYYY-MM-DD
   title: string;
   detail?: string;
@@ -205,7 +205,16 @@ export const SOURCE_LABELS = {
   vote: "Official roll call (House Clerk / Senate), published after PolitiDex's automatic checks",
   position: "Stated-positions pipeline (promoted from sourced Evidence Locker items)",
   seat: "Roster seat files (generated from the PolitiDex roster)",
+  committee: "Official committee membership files (House Clerk MemberData.xml / Senate LIS), compared with the previous pull",
+  cosponsor: "Congress.gov co-sponsored legislation, compared with the previous pull",
+  status: "Congress.gov bill record (bill status), compared with the previous pull",
 };
+
+const COMMITTEE_SOURCE_URL: Record<string, string> = {
+  house: "https://clerk.house.gov/xml/lists/MemberData.xml",
+  senate: "https://www.senate.gov/legislative/LIS_MEMBER/cvc_member_data.xml",
+};
+const billPage = (congress: unknown, number: unknown) => `/b/${encodeURIComponent(String(congress))}/${encodeURIComponent(String(number))}`;
 
 // Published rolls (recentPublishedRolls) → feed items.
 export function voteItems(rolls: any[]): ChangeItem[] {
@@ -263,22 +272,79 @@ export function seatItems(log: { changes?: any[] } | null, limit = 30): ChangeIt
   });
 }
 
-export function feedBody(lanes: { votes: ChangeItem[]; positions: ChangeItem[]; seats: ChangeItem[] }, generatedAt: string, errors: string[] = []) {
-  const items = [...lanes.votes, ...lanes.positions, ...lanes.seats]
+// db/congress-changes.json → feed items, one builder per lane.
+export function committeeItems(log: { committees?: any[] } | null, limit = 30): ChangeItem[] {
+  return (log?.committees || []).slice(0, limit).map((c) => {
+    const who = c.name || c.pid;
+    const where = c.parentCode ? `the ${c.committee} subcommittee (${c.parent || c.parentCode})` : `the ${c.committee}`;
+    const title = c.change === "joined" ? `${who} joined ${where}`
+      : c.change === "left" ? `${who} left ${where}`
+      : `${who}'s title on ${where} changed`;
+    const detail = c.change === "title"
+      ? `${c.before || "no title"} → ${c.after || "no title"}`
+      : [c.title, c.code].filter(Boolean).join(" · ");
+    return {
+      kind: "committee" as const,
+      date: String(c.date || ""),
+      title,
+      detail,
+      link: c.change === "left" ? committeePath(c.code) : `/p/${encodeURIComponent(c.pid)}`,
+      source: { label: SOURCE_LABELS.committee, url: COMMITTEE_SOURCE_URL[c.chamber] || null },
+    };
+  });
+}
+
+export function cosponsorItems(log: { cosponsorships?: any[] } | null, limit = 30): ChangeItem[] {
+  return (log?.cosponsorships || []).slice(0, limit).map((c) => {
+    const who = c.name || c.pid;
+    const bills: any[] = c.bills || [];
+    const n = Number(c.count || bills.length);
+    const one = n === 1 && bills[0];
+    const what = one ? `${bills[0][0]}${bills[0][1] ? ` — ${bills[0][1]}` : ""}` : `${n} measures`;
+    const title = c.change === "removed" ? `${who} no longer listed as a co-sponsor of ${what}` : `${who} added as a co-sponsor of ${what}`;
+    const listed = one ? "" : bills.map((b) => b[0]).join(", ") + (n > bills.length ? `, and ${n - bills.length} more` : "");
+    return {
+      kind: "cosponsor" as const,
+      date: String(c.date || ""),
+      title,
+      detail: [c.congress ? `${c.congress}th Congress` : "", listed].filter(Boolean).join(" · "),
+      link: one && bills[0][3] ? billPage(c.congress, bills[0][0]) : `/p/${encodeURIComponent(c.pid)}`,
+      source: { label: SOURCE_LABELS.cosponsor, url: (one && httpUrl(bills[0][2])) || null },
+    };
+  });
+}
+
+export function statusItems(log: { status?: any[] } | null, limit = 30): ChangeItem[] {
+  return (log?.status || []).slice(0, limit).map((c) => {
+    const label = c.after?.sl || c.after?.st || "";
+    return {
+      kind: "status" as const,
+      date: String(c.date || ""),
+      title: `${c.number}${c.title ? ` — ${c.title}` : ""}: ${c.change === "tracked" ? "now on file" : "status changed"}${label ? ` (${label})` : ""}`,
+      detail: [c.sitting ? `${c.sitting}th Congress` : "", c.before ? `was: ${c.before.sl || c.before.st}` : ""].filter(Boolean).join(" · "),
+      link: billPage(c.sitting, c.number),
+      source: { label: SOURCE_LABELS.status, url: httpUrl(c.src) || null },
+    };
+  });
+}
+
+export function feedBody(lanes: { votes: ChangeItem[]; positions: ChangeItem[]; seats: ChangeItem[]; committees?: ChangeItem[]; cosponsorships?: ChangeItem[]; statuses?: ChangeItem[] }, generatedAt: string, errors: string[] = []) {
+  const committees = lanes.committees || [], cosponsorships = lanes.cosponsorships || [], statuses = lanes.statuses || [];
+  const items = [...lanes.votes, ...lanes.positions, ...lanes.seats, ...committees, ...cosponsorships, ...statuses]
     .filter((i) => i.date)
     .sort((a, b) => b.date.localeCompare(a.date) || a.kind.localeCompare(b.kind) || a.title.localeCompare(b.title));
   return {
     generatedAt,
     readOnly: true,
-    note: "Recent changes PolitiDex has published: roll calls that passed the automatic publish checks, stated positions the pipeline promoted, and roster seat changes. Each item names its source.",
+    note: "Recent changes PolitiDex has published: roll calls that passed the automatic publish checks, stated positions the pipeline promoted, roster seat changes, and committee, co-sponsorship and bill-status changes between pulls of the official record. Each item names its source.",
     sources: SOURCE_LABELS,
-    counts: { votes: lanes.votes.length, positions: lanes.positions.length, seats: lanes.seats.length },
+    counts: { votes: lanes.votes.length, positions: lanes.positions.length, seats: lanes.seats.length, committees: committees.length, cosponsorships: cosponsorships.length, statuses: statuses.length },
     ...(errors.length ? { unavailable: errors } : {}),
     items,
   };
 }
 
-const KIND_WORD = { vote: "Published vote", position: "Stated position", seat: "Roster seat" };
+const KIND_WORD = { vote: "Published vote", position: "Stated position", seat: "Roster seat", committee: "Committee", cosponsor: "Co-sponsorship", status: "Bill status" };
 export function changesPageHtml(feed: ReturnType<typeof feedBody>): string {
   const rows = feed.items.map((i) => `<li data-pdx-change="${attr(i.kind)}">
 <span class="k">${text(KIND_WORD[i.kind])}</span> <span class="when">${text(i.date)}</span><br />
@@ -290,7 +356,7 @@ ${i.detail ? `<br /><span>${text(i.detail)}</span>` : ""}
     ? `<p class="note">Not available right now: ${text((feed as any).unavailable.join(", "))}. The rest of the feed is shown.</p>` : "";
   return page({
     title: "What changed on PolitiDex · PolitiDex",
-    description: "Recent published roll calls, stated positions and roster seat changes on PolitiDex, each with its source.",
+    description: "Recent published roll calls, stated positions, roster seat, committee, co-sponsorship and bill-status changes on PolitiDex, each with its source.",
     canonical: ORIGIN + "/changes",
     eyebrow: "What changed",
     body: `<h1>What changed recently</h1>

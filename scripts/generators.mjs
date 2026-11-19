@@ -64,6 +64,9 @@ export const GENERATORS = [
   // Person-file coverage tables (derive stages; read the roster and db/).
   { script: "gen-committees.mjs" },
   { script: "gen-cosponsorships.mjs" },
+  // Logs what the committee, co-sponsorship and bill-status files changed
+  // (the /changes feed's committee, co-sponsorship and bill-status lanes).
+  { script: "gen-congress-changes.mjs" },
   // Raw-ingest rotation inputs (read seat-holders and the roster).
   { script: "build-raw-ingest-pool-expansion-2026-11.mjs" },
   { script: "build-raw-ingest-official-cited-2026-11.mjs" },
