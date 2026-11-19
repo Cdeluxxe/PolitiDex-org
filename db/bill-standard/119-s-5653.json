@@ -1,0 +1,5495 @@
+{
+ "standardVersion": "bill-gt-v1",
+ "verifiedOn": "2026-11-19",
+ "verifiedBy": "agent pass (read-only); needs human review before any migration",
+ "key": "119|S. 5653",
+ "identity": {
+  "congress": 119,
+  "session": 2,
+  "number": "S. 5653",
+  "billType": "s",
+  "chamber": "senate",
+  "shortTitle": "Bipartisan American Affordability and Jobs Act of 2026",
+  "acronym": "BAAJA",
+  "officialTitle": "A bill to prescribe permitting reform, and for other purposes.",
+  "policyArea": "Environmental Protection",
+  "congressGovUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/5653",
+  "billStatusUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/s/BILLSTATUS-119s5653.xml",
+  "textVersionsRead": [
+   {
+    "version": "is",
+    "label": "Introduced in Senate (2026-09-30)",
+    "textUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+    "why": "The only published version of S. 5653 itself."
+   },
+   {
+    "version": "S.Amdt. 6883 (submitted 2026-11-10)",
+    "label": "Capito substitute amendment to H.R. 2347, as printed in the Congressional Record at S5471-S5520",
+    "textUrl": "https://www.congress.gov/119/crec/2026/11/10/172/169/modified/CREC-2026-11-10-pt1-PgS5471-2.htm",
+    "amendmentUrl": "https://www.congress.gov/amendment/119th-congress/senate-amendment/6883",
+    "why": "The Senate is moving BAAJA as this full-text substitute on the vehicle H.R. 2347. It was agreed to 69-27 on 2026-11-18 (record vote 267), so it is the text senators are voting on."
+   }
+  ],
+  "companions": {
+   "relatedBillsOnRecord": [],
+   "note": "Congress.gov lists no related bills for S. 5653 (read 2026-11-19) and no House companion."
+  },
+  "floorVehicle": {
+   "number": "H.R. 2347",
+   "congress": 119,
+   "title": "Survivor Justice Tax Prevention Act",
+   "congressGovUrl": "https://www.congress.gov/bill/119th-congress/house-bill/2347",
+   "billStatusUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr2347.xml",
+   "substituteAmendment": "S.Amdt. 6883 (Sen. Capito; proposed by Sen. Thune for Sen. Capito on 2026-11-10)",
+   "note": "H.R. 2347 passed the House by voice vote on 2026-04-27 as a one-section tax bill. S.Amdt. 6883 strikes everything after the enacting clause and inserts BAAJA (Divisions A and B) and keeps the tax provision as Division C, Sec. 3001."
+  },
+  "sponsor": {
+   "politicianId": "capito",
+   "bioguideId": "C001047",
+   "recordName": "Sen. Capito, Shelley Moore [R-WV]"
+  },
+  "nameNote": "The request named the bill the \"Brownfield American Autonomy and Jobs Act\". The official record has no such title: every title on file for S. 5653 is \"Bipartisan American Affordability and Jobs Act of 2026\" (Congress.gov titles, read 2026-11-19). The acronym BAAJA matches. Brownfields appear only in the floor substitute, as Sec. 1602."
+ },
+ "status": {
+  "statusWords": "introduced · in_committee · reported · passed_house · passed_senate · passed_both · resolving_differences · to_president · enacted · vetoed · veto_overridden · failed",
+  "statusAsOf": "2026-11-19",
+  "S5653": {
+   "status": "in_committee",
+   "lastAction": {
+    "date": "2026-09-30",
+    "text": "Read twice and referred to the Committee on Energy and Natural Resources.",
+    "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/5653/all-actions"
+   }
+  },
+  "vehicle_HR2347": {
+   "status": "passed_house",
+   "statusNote": "Passed the House on 2026-04-27 in its original tax-only form. In the Senate, the BAAJA substitute was agreed to and cloture on the bill was invoked on 2026-11-18. As of 2026-11-19 the record shows no Senate passage vote.",
+   "lastAction": {
+    "date": "2026-11-18",
+    "text": "Cloture on the measure invoked in Senate by Yea-Nay Vote. 65 - 31. Record Vote Number: 268. (CR S5736)",
+    "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/2347/all-actions"
+   }
+  },
+  "timeline": [
+   {
+    "date": "2025-03-25",
+    "measure": "H.R. 2347",
+    "stage": "introduced",
+    "text": "Introduced in House (vehicle; original tax-only text).",
+    "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/2347/all-actions"
+   },
+   {
+    "date": "2026-04-09",
+    "measure": "H.R. 2347",
+    "stage": "reported",
+    "text": "Reported (Amended) by the Committee on Ways and Means. H. Rept. 119-599.",
+    "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/2347/all-actions"
+   },
+   {
+    "date": "2026-04-27",
+    "measure": "H.R. 2347",
+    "stage": "passed_house",
+    "text": "On motion to suspend the rules and pass the bill, as amended Agreed to by voice vote.",
+    "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/2347/all-actions"
+   },
+   {
+    "date": "2026-09-30",
+    "measure": "S. 5653",
+    "stage": "introduced",
+    "text": "Introduced in Senate",
+    "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/5653/all-actions"
+   },
+   {
+    "date": "2026-09-30",
+    "measure": "S. 5653",
+    "stage": "in_committee",
+    "text": "Read twice and referred to the Committee on Energy and Natural Resources.",
+    "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/5653/all-actions"
+   },
+   {
+    "date": "2026-11-09",
+    "measure": "H.R. 2347",
+    "stage": "other",
+    "text": "Cloture on the motion to proceed invoked, 73-25 (record vote 257).",
+    "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00257.htm"
+   },
+   {
+    "date": "2026-11-10",
+    "measure": "H.R. 2347",
+    "stage": "other",
+    "text": "Motion to proceed agreed to, 62-21 (record vote 258).",
+    "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00258.htm"
+   },
+   {
+    "date": "2026-11-10",
+    "measure": "S.Amdt. 6883",
+    "stage": "other",
+    "text": "Amendment SA 6883 proposed by Senator Thune for Senator Capito. In the nature of a substitute.",
+    "sourceUrl": "https://www.congress.gov/amendment/119th-congress/senate-amendment/6883"
+   },
+   {
+    "date": "2026-11-16",
+    "measure": "S.Amdt. 6883",
+    "stage": "other",
+    "text": "Cloture on amendment SA 6883 invoked, 70-27 (record vote 264).",
+    "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00264.htm"
+   },
+   {
+    "date": "2026-11-18",
+    "measure": "H.R. 2347",
+    "stage": "other",
+    "text": "Motion to waive all applicable budgetary discipline agreed to, 70-26 (record vote 266).",
+    "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00266.htm"
+   },
+   {
+    "date": "2026-11-18",
+    "measure": "S.Amdt. 6883",
+    "stage": "other",
+    "text": "Amendment SA 6883 agreed to, 69-27 (record vote 267).",
+    "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00267.htm"
+   },
+   {
+    "date": "2026-11-18",
+    "measure": "H.R. 2347",
+    "stage": "other",
+    "text": "Cloture on the measure invoked, 65-31 (record vote 268).",
+    "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00268.htm"
+   }
+  ],
+  "timelineNote": "\"other\" marks a Senate floor step that is not one of the status stages; no floor step is recorded as a passage stage."
+ },
+ "overview": {
+  "plainSummary": "This bill changes how the federal government reviews and approves energy, mining and other building projects. It sets deadlines for environmental reviews, gives people 150 days to sue over a permit, and limits when agencies can cancel a permit already granted. It narrows parts of the Clean Water Act, Endangered Species Act and historic-preservation reviews, including how Tribes take part. It makes large data centers pay the grid costs they cause instead of other customers. The Congressional Budget Office’s preliminary estimate says the Senate version would add less than $1 billion to deficits over 2027-2036. S. 5653 is in committee; its text is moving as a Senate amendment to H.R. 2347, adopted 69-27 on November 18, 2026.",
+  "wordCount": 117,
+  "summarySources": [
+   {
+    "label": "CRS summary, Introduced in Senate (2026-09-30)",
+    "url": "https://www.congress.gov/bill/119th-congress/senate-bill/5653"
+   },
+   {
+    "label": "CBO preliminary estimate, 2026-11-13",
+    "url": "https://www.cbo.gov/publication/62908"
+   },
+   {
+    "label": "Senate record vote 267",
+    "url": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00267.htm"
+   }
+  ],
+  "valueWordCheck": "No value words (sweeping, historic, radical, landmark, gutting) used."
+ },
+ "provisions": [
+  {
+   "ref": "Div. A, Title I, Sec. 1101",
+   "label": "NEPA is a procedure, not an outcome",
+   "plain": "States that NEPA sets a procedure that produces an informational document and does not require any particular decision.",
+   "textQuote": "``(c) Savings Provision.--Nothing in this Act mandates a particular outcome as a result of the use of the procedure described in subsection (b).''.",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "permitting_reform"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ]
+  },
+  {
+   "ref": "Div. A, Title I, Sec. 1102",
+   "label": "Narrower \"major Federal action\"",
+   "plain": "Redefines which federal actions trigger NEPA review; non-federal projects with minimal federal money or control, or only a federal loan or loan guarantee, are excluded.",
+   "textQuote": "``(B) Exclusions.--The term `major Federal action' does not include-- ``(i) a proposed agency action associated with a non-Federal project or undertaking-- ``(I) with no or minimal Federal funding; ``(II) with no or minimal Federal involvement where a Federal agency cannot control the outcome of",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "permitting_reform"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ]
+  },
+  {
+   "ref": "Div. A, Title I, Sec. 1105",
+   "label": "Fewer reviews when another review already happened",
+   "plain": "Lets an agency skip a NEPA document when a State or Tribal environmental review, or another federal law, serves a similar function.",
+   "textQuote": "``(5) the proposed agency action relates to a project or action that has been reviewed pursuant to a State environmental review statute or a Tribal environmental review statute, ordinance, resolution, regulation, or formally adopted policy and the lead agency determines that the review serves a",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "permitting_reform"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ]
+  },
+  {
+   "ref": "Div. A, Title I, Sec. 1106",
+   "label": "Review deadlines and permit-decision deadlines",
+   "plain": "Requires an environmental impact statement within 2 years and an environmental assessment within 1 year, then sets deadlines for agencies to decide on the permits that follow.",
+   "textQuote": "the lead agency shall publish an environmental impact statement, if applicable, not later than the date that is 2 years after the earlier of, as applicable-- ``(I) the date on which the lead agency determines that section 102(2)(C) requires the issuance of an environmental impact statement with",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "permitting_reform"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ]
+  },
+  {
+   "ref": "Div. A, Title I, Sec. 1110",
+   "label": "150-day window to sue; remand instead of vacatur",
+   "plain": "Bars NEPA lawsuits filed more than 150 days after a permit is published, and limits a court that finds a violation to sending it back to the agency, generally without voiding it.",
+   "textQuote": "``(5) Remedy.-- ``(A) In general.--Except as provided in subparagraph (B) and notwithstanding any other provision of law, if a court determines that an authorization does not comply with the requirements of this Act, the only remedy the court may order to redress that violation is to remand,",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "permitting_reform",
+    "judicial_check"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ]
+  },
+  {
+   "ref": "Div. A, Title I, Sec. 1121",
+   "label": "CEQ permitting technology",
+   "plain": "Replaces NEPA section 209 with an \"ENEPA technologies\" program at the Council on Environmental Quality, building shared permitting data systems; authorizes $5 million a year.",
+   "textQuote": "``SEC. 210. AUTHORIZATION OF APPROPRIATIONS. ``There is authorized to be appropriated to carry out this Act $5,000,000 for each fiscal year.''. (b) Technical Amendment.--Section 202 of the National Environmental Policy Act of 1969 (42 U.S.C. 4342) is amended, in the first sentence, by striking",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "permitting_reform",
+    "gov_transparency"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ]
+  },
+  {
+   "ref": "Div. A, Title I, Sec. 1132",
+   "label": "Public permitting tracker",
+   "plain": "Sets up an Environmental Review and Permitting Tracker showing where project reviews stand.",
+   "textQuote": "SEC. 1132. ENVIRONMENTAL REVIEW AND PERMITTING TRACKER. (a) In General.--The Chairman, in coordination with the General Services Administration, shall maintain an online database, to be known as the",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "gov_transparency"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ]
+  },
+  {
+   "ref": "Div. A, Title I, Sec. 1133",
+   "label": "Permitting Improvement Fund",
+   "plain": "Authorizes $20 million a year for fiscal years 2027-2033 for a fund that helps agencies process permits.",
+   "textQuote": "(f) Authorization of Appropriation.--There is authorized to be appropriated to the Fund $20,000,000 for each of fiscal years 2027 through 2033. TITLE II--CLEAN WATER ACT",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "permitting_reform"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ]
+  },
+  {
+   "ref": "Div. A, Title I, Sec. 1134 (substitute only)",
+   "label": "Shorter FAST-41 lawsuit window",
+   "plain": "Cuts the deadline to sue over a FAST-41 covered project from 2 years to 150 days.",
+   "textQuote": "SEC. 1134. LIMITATION ON CLAIMS FOR FAST-41 COVERED PROJECTS. (a) In General.--Section 41007(a) of the FAST Act (42 U.S.C. 4370m-6(a)) is amended-- (1) in paragraph (1)(A), by striking ``2 years'' and inserting ``150 days''; and (2) in paragraph (2)(B), by striking ``2 years'' and inserting ``150",
+   "quoteFrom": "S.Amdt. 6883",
+   "sourceUrl": "https://www.congress.gov/119/crec/2026/11/10/172/169/modified/CREC-2026-11-10-pt1-PgS5471-2.htm",
+   "issueKeys": [
+    "permitting_reform"
+   ],
+   "presentIn": [
+    "S.Amdt. 6883"
+   ],
+   "amendmentHistory": "Added by S.Amdt. 6883; not in S. 5653 as introduced."
+  },
+  {
+   "ref": "Div. A, Title II, Sec. 1202",
+   "label": "State water-quality certification narrowed",
+   "plain": "Limits a State (or a Tribe treated as a State) reviewing a Clean Water Act section 401 certification to water-quality requirements, and to denials or conditions backed by clear and convincing evidence.",
+   "textQuote": "``(2) Scope of certification.-- ``(A) In general.--The scope of a certification provided under this section shall be limited to ensuring compliance with water quality requirements. ``(B) Prohibition.--In reviewing a certification application, no certifying authority may-- ``(i) deny certification",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "permitting_reform",
+    "states_federal_power"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ]
+  },
+  {
+   "ref": "Div. A, Title II, Sec. 1203",
+   "label": "Longer discharge permits",
+   "plain": "Extends the maximum term of a Clean Water Act discharge (NPDES) permit from 5 years to 10 years.",
+   "textQuote": "Section 402(b)(1)(B) of the Federal Water Pollution Control Act (33 U.S.C. 1342(b)(1)(B)) is amended by striking ``five years'' and inserting ``10 years''.",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "permitting_reform"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ]
+  },
+  {
+   "ref": "Div. A, Title II, Sec. 1204",
+   "label": "Limits EPA veto window on dredge-and-fill sites",
+   "plain": "Lets EPA block a disposal site under section 404(c) only between a complete application and the permit being issued.",
+   "textQuote": "``(2) Period of prohibition.--The period during which the Administrator may prohibit the specification (including the withdrawal of specification) of any defined area as a disposal site, or deny or restrict the use of any defined area for specification (including the withdrawal of specification) as",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "permitting_reform"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ]
+  },
+  {
+   "ref": "Div. A, Title II, Sec. 1205",
+   "label": "150-day window for Clean Water Act permit suits",
+   "plain": "Sets a 150-day deadline to sue over certain Clean Water Act permit approvals.",
+   "textQuote": "the Administrator of a State permit program pursuant to this section shall be filed not later than the date that is 150 days after the date on which the approval was issued, unless a shorter time period is otherwise provided for by law; ``(B) an action seeking judicial review, under subchapter II",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "permitting_reform"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ]
+  },
+  {
+   "ref": "Div. A, Title III, Sec. 1302",
+   "label": "Shorter endangered-species consultations",
+   "plain": "Shortens Endangered Species Act section 7 consultations from 90 to 60 days, and the outer limit from 150 to 100 days.",
+   "textQuote": "Section 7(b)(1) of the Endangered Species Act of 1973 (16 U.S.C. 1536(b)(1)) is amended-- (1) in subparagraph (A), by striking ``90-day'' and inserting ``60-day''; (2) in subparagraph (B)-- (A) in the matter preceding clause (i)-- (i) by striking ``90 days'' and inserting ``60 days''; and (ii) by",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "permitting_reform",
+    "lands_preserve"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ]
+  },
+  {
+   "ref": "Div. A, Title III, Sec. 1304",
+   "label": "States may take over ESA consultation",
+   "plain": "Creates a program letting the Interior Secretary assign Endangered Species Act consultation duties to a State agency.",
+   "textQuote": "``(b) Program.-- ``(1) In general.--Except as provided in this subsection, the Secretary shall carry out a program under which the Secretary may assign the consultation responsibilities of the Secretary described in paragraph (4)(A) to States. ``(2) Limitations on assumptions.-- ``(A) In",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "permitting_reform"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ]
+  },
+  {
+   "ref": "Div. A, Title III, Sec. 1305",
+   "label": "150-day window for ESA opinion suits",
+   "plain": "Requires challenges to a biological opinion to be filed in the D.C. Circuit within 150 days of its publication.",
+   "textQuote": "in the United States Court of Appeals for the District of Columbia Circuit by filing in such court not later than 150 days after the date on which the opinion is made public a written petition for review. ``(3) Definition of made public.--In this subsection, the term `made public', with respect to",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "permitting_reform"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ]
+  },
+  {
+   "ref": "Div. A, Title III, Sec. 1306",
+   "label": "State data in listing decisions",
+   "plain": "Requires the Secretary to use State-collected data in species listing decisions when it meets the best-available-science standard.",
+   "textQuote": "``(j) State Data.--In making a determination to list, or delist, a species as a threatened species or an endangered species under this section, the Secretary shall accept and integrate State-collected data, subject to the condition that the State-collected data meets the",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "lands_preserve"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ]
+  },
+  {
+   "ref": "Div. A, Title III, Secs. 1307-1308",
+   "label": "ESA and coastal funding authorizations",
+   "plain": "Authorizes $150 million a year (FY2027-2031) for ESA consultation and State programs, and $50 million a year (FY2028-2032) for a coastal State grant fund.",
+   "textQuote": "There is authorized to be appropriated $150,000,000 for each of fiscal years 2027 through 2031-- (1) to carry out section 7 of the Endangered Species Act of 1973 (16 U.S.C. 1536); and (2) to support State participation in the program under section 7A of that Act.",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "lands_preserve",
+    "enviro_balance"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ]
+  },
+  {
+   "ref": "Div. A, Title III, Sec. 1309 (substitute only)",
+   "label": "State Wildlife Action Plan deadlines",
+   "plain": "Requires Interior to act on State wildlife action plans within 180 days.",
+   "textQuote": "by inserting ``, not later than 180 days after the date on which the State submitted the comprehensive plan,'' after ``, the Secretary''; and (B) by striking ``, as redesignated''; and (3) by adding at the end the following: ``(B) Upon submission of a comprehensive plan by a State under paragraph",
+   "quoteFrom": "S.Amdt. 6883",
+   "sourceUrl": "https://www.congress.gov/119/crec/2026/11/10/172/169/modified/CREC-2026-11-10-pt1-PgS5471-2.htm",
+   "issueKeys": [
+    "lands_preserve"
+   ],
+   "presentIn": [
+    "S.Amdt. 6883"
+   ],
+   "amendmentHistory": "Added by S.Amdt. 6883."
+  },
+  {
+   "ref": "Div. A, Title IV, Sec. 1401",
+   "label": "Limits on revoking an issued permit",
+   "plain": "Bars agencies from revoking, suspending or altering a permit in effect on or after September 16, 2026, except for court orders, violations, fraud, urgent new harms, or the holder's request.",
+   "textQuote": "a Federal department or agency shall not take any new action that would revoke, rescind, withdraw, terminate, suspend, amend, or alter a Federal authorization or permit in effect on or after September 16, 2026, or take any other action to interfere with or prevent the construction or operation at",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "permitting_reform",
+    "energy_production"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ],
+   "amendmentHistory": "S.Amdt. 6883 adds \"human health, the environment\" to the urgent-harm exception and a new exception for action \"taken pursuant to any applicable law or regulation\"."
+  },
+  {
+   "ref": "Div. A, Title IV, Sec. 1402",
+   "label": "Equal treatment for project types",
+   "plain": "Lets an applicant sue if a type of energy project (onshore or offshore wind, solar, storage, coal, and others) shows a pattern of deliberate federal permit delay.",
+   "textQuote": "(4) Specific type of covered project.--The term ``specific type of covered project'' means 1 of the following types of projects: (A) A project to produce electricity from onshore wind. (B) A project to produce electricity from offshore wind. (C) A project to produce electricity from solar. (D) An",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "permitting_reform",
+    "energy_production"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ]
+  },
+  {
+   "ref": "Div. A, Title IV, Sec. 1403",
+   "label": "Right to sue over missed deadlines",
+   "plain": "Lets an applicant go to federal district court when an agency misses a permit deadline for a project that needs no EIS or EA.",
+   "textQuote": "(b) Right To Petition.--An applicant seeking a Federal authorization or permit for which an environmental impact statement or environmental assessment (as those terms are defined in section 3 of the National Environmental Policy Act of 1969) is not required may obtain judicial review of the",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "permitting_reform"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ]
+  },
+  {
+   "ref": "Div. A, Title V, Secs. 1501-1504 (substitute only)",
+   "label": "Nuclear licensing changes",
+   "plain": "Lets the NRC issue reactor licenses without a hearing when no one asks for one, allows building uranium enrichment plants before licensing, and applies the new review deadlines to certain nuclear facilities.",
+   "textQuote": "``(ii) The Commission may, in the absence of a request for a hearing by any person whose interest may be affected, issue a construction permit, an operating license, a combined construction permit and operating license, an amendment to a construction permit, an amendment to an operating license, or",
+   "quoteFrom": "S.Amdt. 6883",
+   "sourceUrl": "https://www.congress.gov/119/crec/2026/11/10/172/169/modified/CREC-2026-11-10-pt1-PgS5471-2.htm",
+   "issueKeys": [
+    "energy_production",
+    "permitting_reform"
+   ],
+   "presentIn": [
+    "S.Amdt. 6883"
+   ],
+   "amendmentHistory": "Title V added by S.Amdt. 6883."
+  },
+  {
+   "ref": "Div. A, Title VI, Sec. 1601 (substitute only)",
+   "label": "Prescribed fire and air-quality data",
+   "plain": "Treats prescribed fires, including Tribal cultural burning, as \"exceptional events\" that EPA may exclude from air-quality compliance data.",
+   "textQuote": "``(ii) Inclusion.--The term `prescribed fire' includes cultural burning activities, as determined by an Indian tribe.''; (B) in paragraph (2), by striking subparagraph (B) and inserting the following: ``(B) Revision of regulations.-- ``(i) Proposed revisions.--Not later than 270 days after the date",
+   "quoteFrom": "S.Amdt. 6883",
+   "sourceUrl": "https://www.congress.gov/119/crec/2026/11/10/172/169/modified/CREC-2026-11-10-pt1-PgS5471-2.htm",
+   "issueKeys": [
+    "disaster_resilience"
+   ],
+   "presentIn": [
+    "S.Amdt. 6883"
+   ],
+   "amendmentHistory": "Added by S.Amdt. 6883."
+  },
+  {
+   "ref": "Div. A, Title VI, Sec. 1602 (substitute only)",
+   "label": "Brownfields cleanup grants",
+   "plain": "Raises EPA brownfield cleanup grant caps, waives local matches for small or disadvantaged communities, and authorizes $200 million a year for fiscal years 2027-2031.",
+   "textQuote": "``(A) In general.--There is authorized to be appropriated to carry out this subsection $200,000,000 for each of fiscal years 2027 through 2031. ``(B) Funding for oversight.--Of the amounts made available under this paragraph for each fiscal year, 0.5 percent shall be available to carry out",
+   "quoteFrom": "S.Amdt. 6883",
+   "sourceUrl": "https://www.congress.gov/119/crec/2026/11/10/172/169/modified/CREC-2026-11-10-pt1-PgS5471-2.htm",
+   "issueKeys": [
+    "enviro_balance"
+   ],
+   "presentIn": [
+    "S.Amdt. 6883"
+   ],
+   "amendmentHistory": "Added by S.Amdt. 6883 (Blunt Rochester says it carries her Brownfields Reauthorization Act of 2025). This is the only brownfield text in either version."
+  },
+  {
+   "ref": "Div. B, Title I, Sec. 2101",
+   "label": "FERC transmission siting permits",
+   "plain": "Requires FERC, after notice and at least 45 days of comment, to issue construction permits for interstate transmission lines it finds in the national interest.",
+   "textQuote": "the Commission shall, after notice and an opportunity for hearing, including a public comment period of at least 45 days, issue one or more permits to individual or joint applicants for the construction or modification of electric transmission facilities necessary in the national interest if the",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "infrastructure",
+    "states_federal_power",
+    "permitting_reform"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ]
+  },
+  {
+   "ref": "Div. B, Title I, Secs. 2102-2106, 2109-2110",
+   "label": "Grid planning and upgrades",
+   "plain": "Creates a categorical exclusion for reconductoring in existing rights-of-way, requires DOE transmission studies and regional planning rules, bans federal right-of-first-refusal, and promotes advanced transmission technologies.",
+   "textQuote": "``Notwithstanding any rule or order of the Federal Energy Regulatory Commission in effect as of the date of enactment of this section, a Federal right of first refusal is prohibited with respect to a transmission facility selected in a regional or interregional transmission plan for the purposes of",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "infrastructure"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ]
+  },
+  {
+   "ref": "Div. B, Title I, Sec. 2107",
+   "label": "Data centers pay their grid costs",
+   "plain": "Requires FERC to make data centers pay the full transmission costs they cause, and bars utilities from recovering a data center's incremental costs from other customers.",
+   "textQuote": "(B) transmission service costs should be fully assigned to computational load owners and computational load operators so as to minimize or avoid the cost burden on other customers; and (C) computational load owners and computational load operators should incur the full cost of the transmission",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "datacenter_power",
+    "cost_living"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ],
+   "amendmentHistory": "S. 5653 applies the retail cost floor (new FPA Sec. 228) to loads of 20 megawatts or more. S.Amdt. 6883 rewrites it as FPA Sec. 229, applying to any \"computational load site\", with no 20 MW floor in the definitions."
+  },
+  {
+   "ref": "Div. B, Title I, Sec. 2107 (FPA Sec. 229, substitute)",
+   "label": "Retail cost floor, as amended",
+   "plain": "In the substitute, no retail incremental cost of serving a data center may be charged to any other customer.",
+   "textQuote": "``(1) No subsidy of data centers.--No portion of the retail incremental cost may be allocated to, or recovered in the rates of, any customer other than a computational load owner or a computational load operator. ``(2) Surplus permitted.--Paragraph (1) does not limit the authority of a State under",
+   "quoteFrom": "S.Amdt. 6883",
+   "sourceUrl": "https://www.congress.gov/119/crec/2026/11/10/172/169/modified/CREC-2026-11-10-pt1-PgS5471-2.htm",
+   "issueKeys": [
+    "datacenter_power",
+    "cost_living"
+   ],
+   "presentIn": [
+    "S.Amdt. 6883"
+   ],
+   "amendmentHistory": "Rewritten by S.Amdt. 6883."
+  },
+  {
+   "ref": "Div. B, Title I, Sec. 2108",
+   "label": "Behind-the-meter resources in markets",
+   "plain": "Requires grid operators to let aggregations of dispatchable behind-the-meter resources (batteries, fuel cells, generators) take part in wholesale markets after 18 months.",
+   "textQuote": "it shall not be just and reasonable within the meaning of sections 205 and 206 for any Transmission Organization to maintain rates, terms, or conditions of service that, by their terms and to the extent that such rates, terms, and conditions directly affect wholesale rates, prevent the",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "energy_production"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ]
+  },
+  {
+   "ref": "Div. B, Title I, Secs. 2111, 2114",
+   "label": "Grid and data-center load data",
+   "plain": "Requires access to grid interconnection study data and has EIA add data-center load to its utility survey (Form 861).",
+   "textQuote": "the Administrator of the Energy Information Administration shall revise Form 861 of the Energy Information Administration to include load from data center entities.",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "gov_transparency"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ]
+  },
+  {
+   "ref": "Div. B, Title I, Sec. 2117 (substitute only)",
+   "label": "Data Center Community Assistance Program",
+   "plain": "Has DOE give State, local and Tribal governments, on request, technical information on a proposed data center's power, water, cost and job impacts.",
+   "textQuote": "the Secretary shall provide State, local, and Tribal governments, on request, with objective and technically sound information, resources, and technical assistance regarding the potential energy, water, infrastructure, economic, and other community impacts associated with computational load site",
+   "quoteFrom": "S.Amdt. 6883",
+   "sourceUrl": "https://www.congress.gov/119/crec/2026/11/10/172/169/modified/CREC-2026-11-10-pt1-PgS5471-2.htm",
+   "issueKeys": [],
+   "presentIn": [
+    "S.Amdt. 6883"
+   ],
+   "amendmentHistory": "Added by S.Amdt. 6883 (Blunt Rochester's Data Center Community Empowerment Act, per her release).",
+   "whyUnmapped": "Information and technical assistance only; it sets no requirement on a data center, so it does not meet datacenter_water's or datacenter_power's \"require\" chip."
+  },
+  {
+   "ref": "Div. B, Title II, Sec. 2201",
+   "label": "150-day window for energy-project suits",
+   "plain": "Bars lawsuits over a federal energy-project authorization filed more than 150 days after it is made public.",
+   "textQuote": "(b) Statute of Limitations.--Notwithstanding any other provision of law, a civil action arising under Federal law seeking judicial review of a final agency action granting or denying an authorization shall be barred unless the civil action is filed by the date that is 150 days after the date on",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "permitting_reform"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ]
+  },
+  {
+   "ref": "Div. B, Title II, Sec. 2211",
+   "label": "No federal drilling permit on mostly non-federal units",
+   "plain": "Interior may not require a federal drilling permit for wells on non-federal land where the federal government owns under half the minerals in the unit, subject to State and Tribal rules.",
+   "textQuote": "the Secretary of the Interior shall not require a permit to drill for an oil and gas lease under the Mineral Leasing Act (30 U.S.C. 181 et seq.) for an action occurring within an oil and gas drilling or spacing unit if-- (1) the well is located on non-Federal land and the Federal Government owns",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "energy_production"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ]
+  },
+  {
+   "ref": "Div. B, Title II, Sec. 2212",
+   "label": "Tribes grant rights-of-way on Tribal land",
+   "plain": "Lets a Tribe grant rights-of-way over its own land without Interior approval once Interior approves the Tribe's rules, and exempts that approval from NEPA, NHPA and ESA review.",
+   "textQuote": "``(2) Authority.--A right-of-way granted under paragraph (1) shall not require the approval of the Secretary of the Interior or a grant by the Secretary of the Interior under section 1 if the right-of-way granted under that paragraph is executed in accordance with a Tribal regulation approved by",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ],
+   "amendmentHistory": "S.Amdt. 6883 retitles it \"Modification of Tribal Leases and Rights-of-Way Across Indian Land\" and adds Long-Term Leasing Act changes for land held in trust for any federally recognized Tribe.",
+   "whyUnmapped": "Tribal land and Tribal self-governance have no key in the vocabulary (see considered: tribal_sovereignty gap). Tribal land is not the federal estate, so the lands keys do not fit."
+  },
+  {
+   "ref": "Div. B, Title II, Sec. 2213",
+   "label": "Renewable rights-of-way deadlines",
+   "plain": "Sets deadlines (30 days to check completeness) for Interior and Agriculture to act on right-of-way applications for renewable projects on federal land.",
+   "textQuote": "(1) Completeness of review.-- (A) In general.--Not later than 30 days after the date on which the Secretary of the Interior or the Secretary of Agriculture, as applicable, receives an application for a right-of-way under section 501 of the Federal Land Policy and Management Act of 1976 (43 U.S.C.",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "lands_energy",
+    "permitting_reform"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ]
+  },
+  {
+   "ref": "Div. B, Title II, Sec. 2215",
+   "label": "Hardrock mining mill sites",
+   "plain": "Lets a mining claimant locate as many mill sites (up to 5 acres each) on public land as reasonably needed for waste rock, tailings and other operations.",
+   "textQuote": "the proprietor may-- ``(A) locate and include within the plan of operations as many mill site claims under this subsection as are reasonably necessary for its operations; and ``(B) use or occupy public land in accordance with an approved plan of operations. ``(3) Mill sites convey no mineral",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "lands_energy"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ]
+  },
+  {
+   "ref": "Div. B, Title II, Subtitle C, Secs. 2221-2229",
+   "label": "Geothermal leasing and permits",
+   "plain": "Requires annual geothermal lease sales, sets permit deadlines, drops federal permits on mostly non-federal geothermal estates, and removes NEPA review for certain lease activities.",
+   "textQuote": "by striking ``2 years'' and inserting ``year''; and (2) by adding at the end the following: ``(5) Replacement sales.--If a lease sale under paragraph (1) for a year is cancelled or delayed, the Secretary shall conduct a replacement sale during the same year.''. (b) Deadlines for Consideration of",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "lands_energy",
+    "energy_production",
+    "permitting_reform"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ]
+  },
+  {
+   "ref": "Div. B, Title II, Subtitle D, Secs. 2231-2234",
+   "label": "Hydropower licensing",
+   "plain": "Limits license conditions to those \"reasonably related to the effects of the project,\" eases approvals for small alterations, and creates a licensing path for micro hydrokinetic projects up to 5 MW.",
+   "textQuote": "Section 4(e) of the Federal Power Act (16 U.S.C. 797(e)) is amended, in the first proviso, by inserting ``and are reasonably related to the effects of the project'' after ``of such reservation''.",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "energy_production"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ]
+  },
+  {
+   "ref": "Div. B, Title II, Subtitle E, Secs. 2241-2243",
+   "label": "FERC staffing",
+   "plain": "Changes FERC hiring certification rules, and in S. 5653 adds personnel-safety and Northwest Power Council provisions.",
+   "textQuote": "SEC. 2241. FEDERAL ENERGY REGULATORY COMMISSION STAFFING. (a) Consultation Requirement.--Section 401(k) of the Department of Energy Organization Act (42 U.S.C. 7171(k)) is amended-- (1) by striking",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ],
+   "amendmentHistory": "S.Amdt. 6883 renumbers this subtitle; S. 5653 Sec. 2243 is absent from the substitute as a separate section.",
+   "whyUnmapped": "Agency staffing rules; no key covers agency hiring outside civil-service classification."
+  },
+  {
+   "ref": "Div. B, Title II, Subtitle F, Sec. 2251",
+   "label": "Offshore rights-of-way in protected areas",
+   "plain": "Keeps the offshore leasing bar for national parks, refuges, marine sanctuaries and monuments, but lets Interior, after consulting Commerce, grant rights-of-way within them.",
+   "textQuote": "``(B) Exception.--Notwithstanding subparagraph (A), the Secretary, in consultation with the Secretary of Commerce under section 304(d) of the National Marine Sanctuaries Act (16 U.S.C. 1434(d)), may grant rights- of-way on the outer Continental Shelf within units of the National Marine Sanctuary",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "lands_preserve"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ]
+  },
+  {
+   "ref": "Div. B, Title II, Sec. 2261 (substitute only)",
+   "label": "DOE nuclear safety announcements",
+   "plain": "Requires DOE to post within 72 hours any change to a safety directive or standard for covered DOE nuclear facilities.",
+   "textQuote": "(1) Public announcement.--Not later than 72 hours after altering a directive or safety standard relating to covered DOE nuclear facilities, the Secretary of Energy shall post, on a publicly accessible website of the Department of Energy, an announcement regarding such alteration. (2)",
+   "quoteFrom": "S.Amdt. 6883",
+   "sourceUrl": "https://www.congress.gov/119/crec/2026/11/10/172/169/modified/CREC-2026-11-10-pt1-PgS5471-2.htm",
+   "issueKeys": [
+    "gov_transparency"
+   ],
+   "presentIn": [
+    "S.Amdt. 6883"
+   ],
+   "amendmentHistory": "Added by S.Amdt. 6883."
+  },
+  {
+   "ref": "Div. B, Title III, Sec. 2301",
+   "label": "Historic-preservation review narrowed",
+   "plain": "Redefines \"adverse effect\" so visual, atmospheric or audible effects generally do not count, sets review timelines, and lets Interior suspend State and Tribal preservation programs that miss them.",
+   "textQuote": "does not include-- ``(i) any visual, atmospheric, or audible element, unless the visual, atmospheric, or audible element would have a direct impact on a historic property that would significantly diminish the eligible characteristics of the historic property; ``(ii) any temporary alteration to a",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "permitting_reform"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ],
+   "amendmentHistory": "S.Amdt. 6883 adds: \"Nothing in this subsection ... relieves a Federal agency of the obligation to consult with an Indian tribe under section 302706(b).\""
+  },
+  {
+   "ref": "Div. B, Title III, Sec. 2301 (Tribal property definition)",
+   "label": "Defines Tribal religious and cultural property",
+   "plain": "Adds a statutory definition of \"property of traditional religious or cultural importance\" to the National Register eligibility section.",
+   "textQuote": "``(1) Definition of property of traditional religious or cultural importance.--In this subsection, the term `property of traditional religious or cultural importance' means an identifiable geographic location or feature at which an event of continuing religious or cultural significance to a living",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ],
+   "whyUnmapped": "Tribal consultation and cultural property have no key in the vocabulary (see considered)."
+  },
+  {
+   "ref": "Div. B, Title III, Sec. 2302",
+   "label": "Historic Preservation Fund",
+   "plain": "Authorizes $200 million a year (FY2027-2036) for the Historic Preservation Fund, available without further appropriation, and creates grants for Tribal Historic Preservation Officers.",
+   "textQuote": "``There is authorized to be appropriated for deposit in the Historic Preservation Fund $200,000,000 for each of fiscal years 2027 through 2036.''. (b) Use and Availability.--Section 303103 of title 54, United States Code, is amended to read as follows: ``SEC. 303103. USE AND AVAILABILITY. ``Any",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "enviro_balance"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ]
+  },
+  {
+   "ref": "Div. C, Sec. 3001 (substitute only)",
+   "label": "Tax exclusion for sexual-abuse damages (vehicle bill text)",
+   "plain": "Excludes from taxable income non-punitive damages received on account of a sexual act or sexual contact, with or without medical records. This is H.R. 2347's original content.",
+   "textQuote": "Section 104(a)(2) of the Internal Revenue Code of 1986 is amended by striking ``on account of personal physical injuries or physical sickness;'' and inserting ``on account of-- ``(A) personal physical injuries or physical sickness, or ``(B) any sexual act (as defined in paragraph (2) of section",
+   "quoteFrom": "S.Amdt. 6883",
+   "sourceUrl": "https://www.congress.gov/119/crec/2026/11/10/172/169/modified/CREC-2026-11-10-pt1-PgS5471-2.htm",
+   "issueKeys": [],
+   "presentIn": [
+    "S.Amdt. 6883"
+   ],
+   "amendmentHistory": "Kept as Division C by S.Amdt. 6883; not in S. 5653.",
+   "whyUnmapped": "A narrow income-tax exclusion for one class of damages. lower_taxes is written as cutting tax rates to shrink government, and no key covers survivors' tax treatment. Shown here as a rider, not hidden."
+  }
+ ],
+ "issues": [
+  {
+   "issueKey": "permitting_reform",
+   "weight": 100,
+   "primaryLabel": true,
+   "supportMeaning": "yea_supports",
+   "provisionRefs": [
+    "Div. A, Title I, Sec. 1106",
+    "Div. A, Title I, Sec. 1110",
+    "Div. A, Title I, Sec. 1102",
+    "Div. A, Title II, Sec. 1202",
+    "Div. A, Title III, Sec. 1302",
+    "Div. B, Title II, Sec. 2201",
+    "Div. B, Title III, Sec. 2301"
+   ],
+   "quote": "the lead agency shall publish an environmental impact statement, if applicable, not later than the date that is 2 years after the earlier of, as applicable-- ``(I) the date on which the lead agency determines that section 102(2)(C) requires the issuance of an environmental impact statement with",
+   "quoteRef": "Div. A, Title I, Sec. 1106",
+   "rationale": "The key's scope is \"how long a federal review of a project takes and who may challenge it\". The bill sets 2-year and 1-year NEPA deadlines (1106), a 150-day window to sue (1110, 1205, 1305, 2201, and 1134 in the substitute), narrows what triggers review (1102, 2301), and shortens ESA consultation (1302). Advanced = narrower review and firm deadlines.",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+  },
+  {
+   "issueKey": "datacenter_power",
+   "weight": 70,
+   "primaryLabel": false,
+   "supportMeaning": "yea_supports",
+   "provisionRefs": [
+    "Div. B, Title I, Sec. 2107",
+    "Div. B, Title I, Sec. 2107 (FPA Sec. 229, substitute)"
+   ],
+   "quote": "(B) transmission service costs should be fully assigned to computational load owners and computational load operators so as to minimize or avoid the cost burden on other customers; and (C) computational load owners and computational load operators should incur the full cost of the transmission",
+   "quoteRef": "Div. B, Title I, Sec. 2107",
+   "rationale": "Chip: \"Make data centers ... pay their own way, so they don't raise family utility bills.\" Sec. 2107 assigns transmission costs fully to data-center owners and operators, and bars recovering their incremental costs from other customers.",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+  },
+  {
+   "issueKey": "energy_production",
+   "weight": 50,
+   "primaryLabel": false,
+   "supportMeaning": "yea_supports",
+   "provisionRefs": [
+    "Div. B, Title II, Sec. 2211",
+    "Div. A, Title IV, Sec. 1401",
+    "Div. B, Title I, Sec. 2108",
+    "Div. B, Title II, Subtitle D, Secs. 2231-2234",
+    "Div. A, Title V, Secs. 1501-1504 (substitute only)"
+   ],
+   "quote": "the Secretary of the Interior shall not require a permit to drill for an oil and gas lease under the Mineral Leasing Act (30 U.S.C. 181 et seq.) for an action occurring within an oil and gas drilling or spacing unit if-- (1) the well is located on non-Federal land and the Federal Government owns",
+   "quoteRef": "Div. B, Title II, Sec. 2211",
+   "rationale": "Scope includes supply and \"firm generating capacity\". The bill drops federal drilling permits on mostly non-federal units (2211), keeps issued permits in place (1401), opens markets to dispatchable behind-the-meter resources (2108), eases hydropower licensing, and in the substitute eases nuclear licensing (1501-1503).",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+  },
+  {
+   "issueKey": "lands_energy",
+   "weight": 45,
+   "primaryLabel": false,
+   "supportMeaning": "yea_supports",
+   "provisionRefs": [
+    "Div. B, Title II, Sec. 2215",
+    "Div. B, Title II, Subtitle C, Secs. 2221-2229",
+    "Div. B, Title II, Sec. 2213"
+   ],
+   "quote": "the proprietor may-- ``(A) locate and include within the plan of operations as many mill site claims under this subsection as are reasonably necessary for its operations; and ``(B) use or occupy public land in accordance with an approved plan of operations. ``(3) Mill sites convey no mineral",
+   "quoteRef": "Div. B, Title II, Sec. 2215",
+   "rationale": "Scope names \"hardrock mining and the ground a claimant may occupy to work a claim\" and leasing availability on federal acreage. Sec. 2215 lets a claimant locate as many mill sites as reasonably necessary; Sec. 2223 moves geothermal lease sales from every 2 years to every year.",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+  },
+  {
+   "issueKey": "lands_preserve",
+   "weight": 35,
+   "primaryLabel": false,
+   "supportMeaning": "yea_opposes",
+   "provisionRefs": [
+    "Div. A, Title III, Sec. 1302",
+    "Div. B, Title II, Subtitle F, Sec. 2251",
+    "Div. A, Title III, Sec. 1306",
+    "Div. A, Title III, Secs. 1307-1308",
+    "Div. A, Title III, Sec. 1309 (substitute only)"
+   ],
+   "quote": "``(B) Exception.--Notwithstanding subparagraph (A), the Secretary, in consultation with the Secretary of Commerce under section 304(d) of the National Marine Sanctuaries Act (16 U.S.C. 1434(d)), may grant rights- of-way on the outer Continental Shelf within units of the National Marine Sanctuary",
+   "quoteRef": "Div. B, Title II, Subtitle F, Sec. 2251",
+   "rationale": "Scope files endangered-species and protected-area measures here. Operative changes cut against protection: shorter ESA consultation (1302) and new authority to grant offshore rights-of-way inside sanctuaries and monuments (2251). On the other side are authorizations of appropriations ($150M a year for ESA, $50M a year for a coastal fund) and wildlife-plan deadlines; authorizations spend nothing until appropriated. Read as yea_opposes with that counterweight stated. Contested: see claims.",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+  },
+  {
+   "issueKey": "states_federal_power",
+   "weight": 35,
+   "primaryLabel": false,
+   "supportMeaning": "yea_opposes",
+   "provisionRefs": [
+    "Div. A, Title II, Sec. 1202",
+    "Div. B, Title I, Sec. 2101"
+   ],
+   "quote": "``(2) Scope of certification.-- ``(A) In general.--The scope of a certification provided under this section shall be limited to ensuring compliance with water quality requirements. ``(B) Prohibition.--In reviewing a certification application, no certifying authority may-- ``(i) deny certification",
+   "quoteRef": "Div. A, Title II, Sec. 1202",
+   "rationale": "Chip: \"let the state's choice stand.\" Sec. 1202 limits what a State may weigh or condition in a section 401 certification, and Sec. 2101 widens FERC's power to permit interstate lines over State siting. Both make the federal rule govern. The State roles in Secs. 1105(a)(5), 1304 and 1306 are delegations of federal work, not preemption, so they do not reverse this.",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+  },
+  {
+   "issueKey": "judicial_check",
+   "weight": 35,
+   "primaryLabel": false,
+   "supportMeaning": "yea_opposes",
+   "provisionRefs": [
+    "Div. A, Title I, Sec. 1110"
+   ],
+   "quote": "``(5) Remedy.-- ``(A) In general.--Except as provided in subparagraph (B) and notwithstanding any other provision of law, if a court determines that an authorization does not comply with the requirements of this Act, the only remedy the court may order to redress that violation is to remand,",
+   "quoteRef": "Div. A, Title I, Sec. 1110",
+   "rationale": "Scope: \"the reach of a court's order against the executive branch ... equitable relief.\" Sec. 1110(5) makes remand \"without vacatur or issuance of an injunction\" the only remedy for a NEPA violation, with a narrow preliminary-injunction exception. Chip: \"Let federal courts halt unlawful executive action.\"",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+  },
+  {
+   "issueKey": "infrastructure",
+   "weight": 35,
+   "primaryLabel": false,
+   "supportMeaning": "yea_supports",
+   "provisionRefs": [
+    "Div. B, Title I, Sec. 2101",
+    "Div. B, Title I, Secs. 2102-2106, 2109-2110"
+   ],
+   "quote": "the Commission shall, after notice and an opportunity for hearing, including a public comment period of at least 45 days, issue one or more permits to individual or joint applicants for the construction or modification of electric transmission facilities necessary in the national interest if the",
+   "quoteRef": "Div. B, Title I, Sec. 2101",
+   "rationale": "Chip names \"the power grid.\" Title I widens FERC transmission siting (2101), speeds reconductoring, and requires regional and interregional planning. The mechanism is siting and planning authority, not new federal money.",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+  },
+  {
+   "issueKey": "cost_living",
+   "weight": 30,
+   "primaryLabel": false,
+   "supportMeaning": "yea_supports",
+   "provisionRefs": [
+    "Div. B, Title I, Sec. 2107"
+   ],
+   "quote": "(B) transmission service costs should be fully assigned to computational load owners and computational load operators so as to minimize or avoid the cost burden on other customers; and (C) computational load owners and computational load operators should incur the full cost of the transmission",
+   "quoteRef": "Div. B, Title I, Sec. 2107",
+   "rationale": "Chip names utility prices. Sec. 2107 keeps data-center grid costs off other customers' rates. Supporters' household-savings figures are modeling, not text, and are not relied on here.",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+  },
+  {
+   "issueKey": "enviro_balance",
+   "weight": 20,
+   "primaryLabel": false,
+   "supportMeaning": "yea_supports",
+   "provisionRefs": [
+    "Div. A, Title VI, Sec. 1602 (substitute only)",
+    "Div. B, Title III, Sec. 2302",
+    "Div. A, Title III, Secs. 1307-1308"
+   ],
+   "quote": "``(A) In general.--There is authorized to be appropriated to carry out this subsection $200,000,000 for each of fiscal years 2027 through 2031. ``(B) Funding for oversight.--Of the amounts made available under this paragraph for each fiscal year, 0.5 percent shall be available to carry out",
+   "quoteRef": "Div. A, Title VI, Sec. 1602 (substitute only)",
+   "rationale": "Chip: \"Protect clean air and water while keeping responsible jobs.\" Brownfield cleanup-and-reuse grants (1602, substitute only) are the clearest fit, alongside the conservation and preservation fund authorizations. Precedent: H.R. 7567 conservation programs on this key.",
+   "sourceUrl": "https://www.congress.gov/119/crec/2026/11/10/172/169/modified/CREC-2026-11-10-pt1-PgS5471-2.htm"
+  },
+  {
+   "issueKey": "gov_transparency",
+   "weight": 15,
+   "primaryLabel": false,
+   "supportMeaning": "yea_supports",
+   "provisionRefs": [
+    "Div. A, Title I, Sec. 1132",
+    "Div. B, Title I, Secs. 2111, 2114",
+    "Div. B, Title II, Sec. 2261 (substitute only)",
+    "Div. A, Title I, Sec. 1121"
+   ],
+   "quote": "(1) Public announcement.--Not later than 72 hours after altering a directive or safety standard relating to covered DOE nuclear facilities, the Secretary of Energy shall post, on a publicly accessible website of the Department of Energy, an announcement regarding such alteration. (2)",
+   "quoteRef": "Div. B, Title II, Sec. 2261 (substitute only)",
+   "rationale": "Scope includes publishing the basis for decisions. A public permitting tracker (1132), EIA data-center load reporting (2114), and a 72-hour DOE notice of nuclear safety-standard changes (2261) all require more disclosure. These are narrow links at the floor weight.",
+   "sourceUrl": "https://www.congress.gov/119/crec/2026/11/10/172/169/modified/CREC-2026-11-10-pt1-PgS5471-2.htm"
+  },
+  {
+   "issueKey": "disaster_resilience",
+   "weight": 10,
+   "primaryLabel": false,
+   "supportMeaning": "yea_supports",
+   "provisionRefs": [
+    "Div. A, Title VI, Sec. 1601 (substitute only)"
+   ],
+   "quote": "``(ii) Inclusion.--The term `prescribed fire' includes cultural burning activities, as determined by an Indian tribe.''; (B) in paragraph (2), by striking subparagraph (B) and inserting the following: ``(B) Revision of regulations.-- ``(i) Proposed revisions.--Not later than 270 days after the date",
+   "quoteRef": "Div. A, Title VI, Sec. 1601 (substitute only)",
+   "rationale": "Chip: \"Prepare for wildfires.\" Sec. 1601 (substitute only) makes prescribed fire, including Tribal cultural burning, an exceptional event for air-quality data, easing fuel-reduction burns. One section, at the floor weight.",
+   "sourceUrl": "https://www.congress.gov/119/crec/2026/11/10/172/169/modified/CREC-2026-11-10-pt1-PgS5471-2.htm"
+  }
+ ],
+ "considered": [
+  {
+   "issueKey": "climate_action",
+   "whyNot": "Its written scope is emissions programmes, subsidies and rules, and it names \"how long a project review takes\" as out. The bill speeds wind, solar and transmission through permitting, which is permitting_reform. Emissions reductions claimed by supporters (RFF, 1.8 gigatons) are modeling, not text."
+  },
+  {
+   "issueKey": "datacenter_growth",
+   "whyNot": "Chip: welcome data-center investment for jobs and tax base. No section offers an incentive. The text places costs on data centers (2107) and gives communities information (2117). The Evidence Locker's Heinrich items filed here are a pipeline read, not a text mapping."
+  },
+  {
+   "issueKey": "datacenter_water",
+   "whyNot": "Sec. 2117 (substitute) only has DOE inform communities about projected water use. It imposes no requirement, and the chip asks to \"require\"."
+  },
+  {
+   "issueKey": "water",
+   "whyNot": "Demand-side conservation key. The Clean Water Act changes (1202-1205) are permit scope and timing, held on permitting_reform."
+  },
+  {
+   "issueKey": "water_storage",
+   "whyNot": "Hydropower provisions concern generation licensing, not water-supply storage."
+  },
+  {
+   "issueKey": "property_rights",
+   "whyNot": "Runs both ways. Sec. 2211 removes a federal permit for owners drilling on non-federal land, strengthening the owner. Sec. 2101 widens FERC transmission permits, which carry existing Federal Power Act sec. 216(e) eminent domain, strengthening the government's hand. One support_meaning cannot hold both."
+  },
+  {
+   "issueKey": "gov_regulation",
+   "whyNot": "Its scope sends federal environmental review of projects to permitting_reform. Nothing changes general rulemaking procedure."
+  },
+  {
+   "issueKey": "lands_keep_public",
+   "whyNot": "No federal land is sold or transferred."
+  },
+  {
+   "issueKey": "lands_local",
+   "whyNot": "Sec. 1304 delegates ESA consultation to States but transfers no land-management decision. Sec. 2212 concerns Tribal, not federal, land."
+  },
+  {
+   "issueKey": "state_standing",
+   "whyNot": "No new State cause of action against the federal government."
+  },
+  {
+   "issueKey": "crypto_cbdc",
+   "whyNot": "Cryptocurrency mining is one listed use of a computational load in 2107. The rule is about the load's grid costs, not digital-asset rules."
+  },
+  {
+   "issueKey": "econ_corp_account",
+   "whyNot": "Data-center cost assignment is held by datacenter_power, its dedicated key. Filing it twice would double-count one provision."
+  },
+  {
+   "issueKey": "tech_innovation",
+   "whyNot": "Sec. 2110 has FERC consider AI tools in interconnection queues, a utility process rule, not tech regulation."
+  },
+  {
+   "issueKey": "econ_workers",
+   "whyNot": "Neither text has wage, prevailing-wage, apprenticeship or labor-standard clauses (searched both). Labor endorsements are not text."
+  },
+  {
+   "issueKey": "lower_taxes",
+   "whyNot": "Div. C Sec. 3001 (substitute) is a narrow exclusion for damages on account of sexual acts, not a rate cut. Listed as an unmapped rider in provisions."
+  },
+  {
+   "issueKey": "national_debt",
+   "whyNot": "CBO's preliminary estimate is under $1 billion over 2027-2036. That is not a net fiscal direction large enough to read as a deficit vote, and it is shown as the scorekeeper finding instead."
+  },
+  {
+   "issueKey": "(gap) Tribal consultation / Tribal sovereignty",
+   "whyNot": "Vocabulary gap. Secs. 2212, 2301 and 2302 change Tribal rights-of-way, Tribal historic-preservation programs and how cultural property is defined, and this is the most disputed part of the bill (see claims). No issue key covers it. Recorded here so it is not silently dropped; adding a key is a separate decision."
+  },
+  {
+   "issueKey": "(not in text) abandoned-mine reclamation",
+   "whyNot": "Neither S. 5653 nor S.Amdt. 6883 contains an abandoned-mine reclamation provision (\"abandoned\" appears 0 times in S. 5653 and only in unrelated contexts in the substitute). The nearest text is Sec. 2215's mill sites for waste rock and tailings, and Sec. 1602 brownfields."
+  }
+ ],
+ "primaryLabelNote": "Primary is a display label only. It carries no scoring weight and does not decide what is shown. One label is used (permitting_reform, from the official title \"To prescribe permitting reform\"). Weights describe how central the issue is to the text.",
+ "sponsors": [
+  {
+   "politicianId": "capito",
+   "bioguideId": "C001047",
+   "recordName": "Sen. Capito, Shelley Moore [R-WV]",
+   "role": "sponsor",
+   "original": true,
+   "joinedOn": "2026-09-30",
+   "profile": "/p/capito"
+  },
+  {
+   "politicianId": "lee",
+   "bioguideId": "L000577",
+   "recordName": "Sen. Lee, Mike [R-UT]",
+   "role": "cosponsor",
+   "original": true,
+   "joinedOn": "2026-09-30",
+   "profile": "/p/lee"
+  },
+  {
+   "politicianId": "whitehouse",
+   "bioguideId": "W000802",
+   "recordName": "Sen. Whitehouse, Sheldon [D-RI]",
+   "role": "cosponsor",
+   "original": true,
+   "joinedOn": "2026-09-30",
+   "profile": "/p/whitehouse"
+  },
+  {
+   "politicianId": "heinrich",
+   "bioguideId": "H001046",
+   "recordName": "Sen. Heinrich, Martin [D-NM]",
+   "role": "cosponsor",
+   "original": true,
+   "joinedOn": "2026-09-30",
+   "profile": "/p/heinrich"
+  }
+ ],
+ "sponsorNote": "Congress.gov lists 1 sponsor and 3 original cosponsors, none withdrawn (read 2026-11-19). All four are on the PolitiDex roster. S.Amdt. 6883 is sponsored by Sen. Capito alone.",
+ "statedOnBill": [
+  {
+   "politicianId": "capito",
+   "stance": "support",
+   "excerpt": "The environmental permitting and review processes should be tools for informed decision-making, not reasons that decisions can’t be made.",
+   "date": "2026-11-09",
+   "venue": "Senate floor remarks as prepared (EPW Committee release)",
+   "sourceUrl": "https://www.epw.senate.gov/public/index.cfm/press-releases-republican?ID=CCD27C16-CBA8-4E56-BFAE-C30D16E0AE61",
+   "lockerItemId": "capito/permitting_reform/6e7c59a9b33da744.json",
+   "note": "The Locker item's link is the press-release index page; the statement itself is the EPW release linked here. Date taken from the 73-25 vote the release reports (record vote 257, 2026-11-09)."
+  },
+  {
+   "politicianId": "capito",
+   "stance": "support",
+   "excerpt": "This substitute amendment preserves the foundation of the Bipartisan American Affordability and Jobs Act, while making targeted changes based on feedback from our members and stakeholders to further build support.",
+   "date": "2026-11-07",
+   "venue": "Joint press release (EPW)",
+   "sourceUrl": "https://www.epw.senate.gov/public/index.cfm/press-releases-republican?ID=A5C872F2-36F3-4BAA-A277-B65DB95940C8",
+   "lockerItemId": null,
+   "note": "Date from the page's datePublished metadata."
+  },
+  {
+   "politicianId": "lee",
+   "stance": "support",
+   "excerpt": "America still has the resources and the talent, but what too often stands in the way is a permitting system that takes too long and costs too much.",
+   "date": "2026-09-30",
+   "venue": "Joint introduction press release (ENR Committee)",
+   "sourceUrl": "https://www.energy.senate.gov/press/rep/lee-capito-heinrich-and-whitehouse-introduce-bipartisan-american-affordability-and-jobs-act-of-2026/",
+   "lockerItemId": null,
+   "note": "No Evidence Locker item for Sen. Lee mentions this bill (6 Lee items checked 2026-11-19). The statement is from the primary source and has not been through the Locker."
+  },
+  {
+   "politicianId": "lee",
+   "stance": "support",
+   "excerpt": "Our permitting system takes too long, costs too much, and leaves too much uncertainty for the people trying to build what our country needs.",
+   "date": "2026-11-07",
+   "venue": "Joint press release (EPW)",
+   "sourceUrl": "https://www.epw.senate.gov/public/index.cfm/press-releases-republican?ID=A5C872F2-36F3-4BAA-A277-B65DB95940C8",
+   "lockerItemId": null
+  },
+  {
+   "politicianId": "whitehouse",
+   "stance": "support",
+   "excerpt": "Passing this bipartisan bill will flood the grid with clean, affordable energy, make sure data centers start paying their fair share, and provide regulatory certainty to small businesses.",
+   "date": "2026-11-02",
+   "venue": "Press release (roundtable in Pawtucket, RI)",
+   "sourceUrl": "https://www.whitehouse.senate.gov/news/release/whitehouse-nam-convene-roundtable-with-ri-manufacturing-labor-and-business-leaders-to-support-permitting-reform/",
+   "lockerItemId": "whitehouse/cost_living/4e05b581f0f1f69d.json"
+  },
+  {
+   "politicianId": "whitehouse",
+   "stance": "support",
+   "excerpt": "Like all major pieces of bipartisan legislation, this bill is a compromise.",
+   "date": "2026-09-30",
+   "venue": "Joint introduction press release (ENR Committee)",
+   "sourceUrl": "https://www.energy.senate.gov/press/rep/lee-capito-heinrich-and-whitehouse-introduce-bipartisan-american-affordability-and-jobs-act-of-2026/",
+   "lockerItemId": null
+  },
+  {
+   "politicianId": "heinrich",
+   "stance": "support",
+   "excerpt": "If we have any hope of making energy cheaper and making data centers pay for their own energy costs, then we need to pass our Bipartisan American Affordability and Jobs Act into law,",
+   "date": "2026-11-10",
+   "venue": "Press release (ENR Committee, minority)",
+   "sourceUrl": "https://www.energy.senate.gov/press/dem/heinrichs-bipartisan-american-affordability-and-jobs-act-passes-key-senate-vote/",
+   "lockerItemId": "heinrich/cost_living/29063d8011949cbb.json"
+  },
+  {
+   "politicianId": "heinrich",
+   "stance": "support",
+   "excerpt": "does not remove environmental considerations, the ability to litigate projects or the ability for local communities to comment… But it does make these reviews a standardized part of a predictable process.",
+   "date": "2026-11-16",
+   "venue": "Op-ed in The Economist (republished by ENR Committee)",
+   "sourceUrl": "https://www.energy.senate.gov/press/dem/heinrich-op-ed-a-plan-to-end-americas-most-expensive-bottleneck/",
+   "lockerItemId": "heinrich/cost_living/19dd310cc72d452c.json"
+  }
+ ],
+ "statedCheck": {
+  "checkedOn": "2026-11-19",
+  "method": "Every Evidence Locker item under each sponsor's prefix was read and filtered for \"5653\", \"Affordability and Jobs\" or \"BAAJA\"; each hit's primary page was then fetched and the excerpt matched word for word.",
+  "counts": {
+   "capito": "2 Locker items mention the bill (one press-release index page)",
+   "lee": "no Evidence Locker item mentions the bill as of 2026-11-19 (primary statements recorded above)",
+   "whitehouse": "4 Locker items mention the bill",
+   "heinrich": "10 Locker items mention the bill"
+  },
+  "lockerQualityNotes": [
+   "Locker \"date\" fields are capture dates, not statement dates (e.g. the Whitehouse roundtable release is dated 2026-11-02 on the page, but the Locker records 2026-11-16). Dates above come from the pages.",
+   "The Locker files blunt_rochester/permitting_reform/652aded9ed9d1994.json as \"support\". The page is titled \"Senator Blunt Rochester Opposes Senate Permitting Reform Bill\" and says \"I can’t support this iteration\". Flag for review.",
+   "The Locker files two Heinrich items under datacenter_growth from statements about making data centers pay their costs. That reads the opposite way from that key's chip."
+  ]
+ },
+ "votes": {
+  "onS5653Itself": "None. S. 5653 has had no floor or committee vote (Congress.gov actions, read 2026-11-19).",
+  "rollcalls": [
+   {
+    "chamber": "senate",
+    "congress": 119,
+    "session": 2,
+    "roll": 257,
+    "date": "2026-11-09",
+    "measure": "H.R. 2347",
+    "question": "On Cloture on the Motion to Proceed H.R. 2347",
+    "actionType": "cloture",
+    "procedural": true,
+    "result": "Cloture on the Motion to Proceed Agreed to (73-25, 3/5 majority required)",
+    "requiredMajority": "3/5",
+    "totals": {
+     "yea": 73,
+     "nay": 25,
+     "notVoting": 2
+    },
+    "byParty": {
+     "D": {
+      "Nay": 23,
+      "Yea": 21,
+      "Not Voting": 1
+     },
+     "R": {
+      "Yea": 51,
+      "Nay": 1,
+      "Not Voting": 1
+     },
+     "I": {
+      "Yea": 1,
+      "Nay": 1
+     }
+    },
+    "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00257.htm",
+    "rosterLinked": "100 of 100",
+    "members": [
+     {
+      "politicianId": "alsobrooks",
+      "lis": "S428",
+      "name": "Alsobrooks (D-MD)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "alan_armstrong",
+      "lis": "S440",
+      "name": "Armstrong (R-OK)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "tammy_baldwin",
+      "lis": "S354",
+      "name": "Baldwin (D-WI)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "banks",
+      "lis": "S429",
+      "name": "Banks (R-IN)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "barrasso",
+      "lis": "S317",
+      "name": "Barrasso (R-WY)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "bennet",
+      "lis": "S330",
+      "name": "Bennet (D-CO)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "blackburn",
+      "lis": "S396",
+      "name": "Blackburn (R-TN)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "blumenthal",
+      "lis": "S341",
+      "name": "Blumenthal (D-CT)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "blunt_rochester",
+      "lis": "S430",
+      "name": "Blunt Rochester (D-DE)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "booker",
+      "lis": "S370",
+      "name": "Booker (D-NJ)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "boozman",
+      "lis": "S343",
+      "name": "Boozman (R-AR)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "britt",
+      "lis": "S416",
+      "name": "Britt (R-AL)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "ted_budd",
+      "lis": "S417",
+      "name": "Budd (R-NC)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "cantwell",
+      "lis": "S275",
+      "name": "Cantwell (D-WA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "capito",
+      "lis": "S372",
+      "name": "Capito (R-WV)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "cassidy",
+      "lis": "S373",
+      "name": "Cassidy (R-LA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "collins",
+      "lis": "S252",
+      "name": "Collins (R-ME)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "coons",
+      "lis": "S337",
+      "name": "Coons (D-DE)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "john_cornyn",
+      "lis": "S287",
+      "name": "Cornyn (R-TX)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "cortez_masto",
+      "lis": "S385",
+      "name": "Cortez Masto (D-NV)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "cotton",
+      "lis": "S374",
+      "name": "Cotton (R-AR)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "kevin_cramer",
+      "lis": "S398",
+      "name": "Cramer (R-ND)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "crapo",
+      "lis": "S266",
+      "name": "Crapo (R-ID)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "cruz",
+      "lis": "S355",
+      "name": "Cruz (R-TX)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "curtis",
+      "lis": "S431",
+      "name": "Curtis (R-UT)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "daines",
+      "lis": "S375",
+      "name": "Daines (R-MT)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "duckworth",
+      "lis": "S386",
+      "name": "Duckworth (D-IL)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "durbin",
+      "lis": "S253",
+      "name": "Durbin (D-IL)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "ernst",
+      "lis": "S376",
+      "name": "Ernst (R-IA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "fetterman",
+      "lis": "S418",
+      "name": "Fetterman (D-PA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "deb_fischer",
+      "lis": "S357",
+      "name": "Fischer (R-NE)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "gallego",
+      "lis": "S432",
+      "name": "Gallego (D-AZ)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "gillibrand",
+      "lis": "S331",
+      "name": "Gillibrand (D-NY)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "darline_graham",
+      "lis": "S441",
+      "name": "Graham (R-SC)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "grassley",
+      "lis": "S153",
+      "name": "Grassley (R-IA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "hagerty",
+      "lis": "S407",
+      "name": "Hagerty (R-TN)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "maggie_hassan",
+      "lis": "S388",
+      "name": "Hassan (D-NH)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "hawley",
+      "lis": "S399",
+      "name": "Hawley (R-MO)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "heinrich",
+      "lis": "S359",
+      "name": "Heinrich (D-NM)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "hickenlooper",
+      "lis": "S408",
+      "name": "Hickenlooper (D-CO)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "hirono",
+      "lis": "S361",
+      "name": "Hirono (D-HI)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "hoeven",
+      "lis": "S344",
+      "name": "Hoeven (R-ND)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "jon_husted",
+      "lis": "S438",
+      "name": "Husted (R-OH)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "hyde_smith",
+      "lis": "S395",
+      "name": "Hyde-Smith (R-MS)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "ron_johnson",
+      "lis": "S345",
+      "name": "Johnson (R-WI)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "jim_justice",
+      "lis": "S437",
+      "name": "Justice (R-WV)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "kaine",
+      "lis": "S362",
+      "name": "Kaine (D-VA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "mark_kelly",
+      "lis": "S406",
+      "name": "Kelly (D-AZ)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "kennedy_john",
+      "lis": "S389",
+      "name": "Kennedy (R-LA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "andy_kim",
+      "lis": "S426",
+      "name": "Kim (D-NJ)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "angus_king",
+      "lis": "S363",
+      "name": "King (I-ME)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "klobuchar",
+      "lis": "S311",
+      "name": "Klobuchar (D-MN)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "lankford",
+      "lis": "S378",
+      "name": "Lankford (R-OK)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "lee",
+      "lis": "S346",
+      "name": "Lee (R-UT)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "lujan",
+      "lis": "S409",
+      "name": "Lujan (D-NM)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "lummis",
+      "lis": "S410",
+      "name": "Lummis (R-WY)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "markey",
+      "lis": "S369",
+      "name": "Markey (D-MA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "roger_marshall",
+      "lis": "S411",
+      "name": "Marshall (R-KS)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "mcconnell",
+      "lis": "S174",
+      "name": "McConnell (R-KY)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "mccormick",
+      "lis": "S433",
+      "name": "McCormick (R-PA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "merkley",
+      "lis": "S322",
+      "name": "Merkley (D-OR)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "ashley_moody",
+      "lis": "S439",
+      "name": "Moody (R-FL)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "jerry_moran",
+      "lis": "S347",
+      "name": "Moran (R-KS)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "moreno",
+      "lis": "S434",
+      "name": "Moreno (R-OH)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "murkowski",
+      "lis": "S288",
+      "name": "Murkowski (R-AK)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "chris_murphy",
+      "lis": "S364",
+      "name": "Murphy (D-CT)",
+      "vote": "Not Voting"
+     },
+     {
+      "politicianId": "murray",
+      "lis": "S229",
+      "name": "Murray (D-WA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "jon_ossoff",
+      "lis": "S414",
+      "name": "Ossoff (D-GA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "padilla",
+      "lis": "S413",
+      "name": "Padilla (D-CA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "rand_paul",
+      "lis": "S348",
+      "name": "Paul (R-KY)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "peters",
+      "lis": "S380",
+      "name": "Peters (D-MI)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "reed",
+      "lis": "S259",
+      "name": "Reed (D-RI)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "ricketts",
+      "lis": "S423",
+      "name": "Ricketts (R-NE)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "risch",
+      "lis": "S323",
+      "name": "Risch (R-ID)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "rosen",
+      "lis": "S402",
+      "name": "Rosen (D-NV)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "mike_rounds",
+      "lis": "S381",
+      "name": "Rounds (R-SD)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "sanders",
+      "lis": "S313",
+      "name": "Sanders (I-VT)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "schatz",
+      "lis": "S353",
+      "name": "Schatz (D-HI)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "schiff",
+      "lis": "S427",
+      "name": "Schiff (D-CA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "schmitt",
+      "lis": "S420",
+      "name": "Schmitt (R-MO)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "schumer",
+      "lis": "S270",
+      "name": "Schumer (D-NY)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "rick_scott",
+      "lis": "S404",
+      "name": "Scott (R-FL)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "tim_scott",
+      "lis": "S365",
+      "name": "Scott (R-SC)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "shaheen",
+      "lis": "S324",
+      "name": "Shaheen (D-NH)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "sheehy",
+      "lis": "S435",
+      "name": "Sheehy (R-MT)",
+      "vote": "Not Voting"
+     },
+     {
+      "politicianId": "slotkin",
+      "lis": "S436",
+      "name": "Slotkin (D-MI)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "tina_smith",
+      "lis": "S394",
+      "name": "Smith (D-MN)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "dan_sullivan",
+      "lis": "S383",
+      "name": "Sullivan (R-AK)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "thune",
+      "lis": "S303",
+      "name": "Thune (R-SD)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "tillis",
+      "lis": "S384",
+      "name": "Tillis (R-NC)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "tommy_tuberville",
+      "lis": "S412",
+      "name": "Tuberville (R-AL)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "van_hollen",
+      "lis": "S390",
+      "name": "Van Hollen (D-MD)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "warner",
+      "lis": "S327",
+      "name": "Warner (D-VA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "warnock",
+      "lis": "S415",
+      "name": "Warnock (D-GA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "warren",
+      "lis": "S366",
+      "name": "Warren (D-MA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "welch",
+      "lis": "S422",
+      "name": "Welch (D-VT)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "whitehouse",
+      "lis": "S316",
+      "name": "Whitehouse (D-RI)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "wicker",
+      "lis": "S318",
+      "name": "Wicker (R-MS)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "wyden",
+      "lis": "S247",
+      "name": "Wyden (D-OR)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "todd_young",
+      "lis": "S391",
+      "name": "Young (R-IN)",
+      "vote": "Yea"
+     }
+    ]
+   },
+   {
+    "chamber": "senate",
+    "congress": 119,
+    "session": 2,
+    "roll": 258,
+    "date": "2026-11-10",
+    "measure": "H.R. 2347",
+    "question": "On the Motion to Proceed H.R. 2347",
+    "actionType": "motion",
+    "procedural": true,
+    "result": "Motion to Proceed Agreed to (62-21)",
+    "requiredMajority": "1/2",
+    "totals": {
+     "yea": 62,
+     "nay": 21,
+     "notVoting": 17
+    },
+    "byParty": {
+     "D": {
+      "Nay": 19,
+      "Yea": 15,
+      "Not Voting": 11
+     },
+     "R": {
+      "Yea": 46,
+      "Not Voting": 6,
+      "Nay": 1
+     },
+     "I": {
+      "Yea": 1,
+      "Nay": 1
+     }
+    },
+    "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00258.htm",
+    "rosterLinked": "100 of 100",
+    "members": [
+     {
+      "politicianId": "alsobrooks",
+      "lis": "S428",
+      "name": "Alsobrooks (D-MD)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "alan_armstrong",
+      "lis": "S440",
+      "name": "Armstrong (R-OK)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "tammy_baldwin",
+      "lis": "S354",
+      "name": "Baldwin (D-WI)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "banks",
+      "lis": "S429",
+      "name": "Banks (R-IN)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "barrasso",
+      "lis": "S317",
+      "name": "Barrasso (R-WY)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "bennet",
+      "lis": "S330",
+      "name": "Bennet (D-CO)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "blackburn",
+      "lis": "S396",
+      "name": "Blackburn (R-TN)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "blumenthal",
+      "lis": "S341",
+      "name": "Blumenthal (D-CT)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "blunt_rochester",
+      "lis": "S430",
+      "name": "Blunt Rochester (D-DE)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "booker",
+      "lis": "S370",
+      "name": "Booker (D-NJ)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "boozman",
+      "lis": "S343",
+      "name": "Boozman (R-AR)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "britt",
+      "lis": "S416",
+      "name": "Britt (R-AL)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "ted_budd",
+      "lis": "S417",
+      "name": "Budd (R-NC)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "cantwell",
+      "lis": "S275",
+      "name": "Cantwell (D-WA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "capito",
+      "lis": "S372",
+      "name": "Capito (R-WV)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "cassidy",
+      "lis": "S373",
+      "name": "Cassidy (R-LA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "collins",
+      "lis": "S252",
+      "name": "Collins (R-ME)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "coons",
+      "lis": "S337",
+      "name": "Coons (D-DE)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "john_cornyn",
+      "lis": "S287",
+      "name": "Cornyn (R-TX)",
+      "vote": "Not Voting"
+     },
+     {
+      "politicianId": "cortez_masto",
+      "lis": "S385",
+      "name": "Cortez Masto (D-NV)",
+      "vote": "Not Voting"
+     },
+     {
+      "politicianId": "cotton",
+      "lis": "S374",
+      "name": "Cotton (R-AR)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "kevin_cramer",
+      "lis": "S398",
+      "name": "Cramer (R-ND)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "crapo",
+      "lis": "S266",
+      "name": "Crapo (R-ID)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "cruz",
+      "lis": "S355",
+      "name": "Cruz (R-TX)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "curtis",
+      "lis": "S431",
+      "name": "Curtis (R-UT)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "daines",
+      "lis": "S375",
+      "name": "Daines (R-MT)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "duckworth",
+      "lis": "S386",
+      "name": "Duckworth (D-IL)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "durbin",
+      "lis": "S253",
+      "name": "Durbin (D-IL)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "ernst",
+      "lis": "S376",
+      "name": "Ernst (R-IA)",
+      "vote": "Not Voting"
+     },
+     {
+      "politicianId": "fetterman",
+      "lis": "S418",
+      "name": "Fetterman (D-PA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "deb_fischer",
+      "lis": "S357",
+      "name": "Fischer (R-NE)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "gallego",
+      "lis": "S432",
+      "name": "Gallego (D-AZ)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "gillibrand",
+      "lis": "S331",
+      "name": "Gillibrand (D-NY)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "darline_graham",
+      "lis": "S441",
+      "name": "Graham (R-SC)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "grassley",
+      "lis": "S153",
+      "name": "Grassley (R-IA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "hagerty",
+      "lis": "S407",
+      "name": "Hagerty (R-TN)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "maggie_hassan",
+      "lis": "S388",
+      "name": "Hassan (D-NH)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "hawley",
+      "lis": "S399",
+      "name": "Hawley (R-MO)",
+      "vote": "Not Voting"
+     },
+     {
+      "politicianId": "heinrich",
+      "lis": "S359",
+      "name": "Heinrich (D-NM)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "hickenlooper",
+      "lis": "S408",
+      "name": "Hickenlooper (D-CO)",
+      "vote": "Not Voting"
+     },
+     {
+      "politicianId": "hirono",
+      "lis": "S361",
+      "name": "Hirono (D-HI)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "hoeven",
+      "lis": "S344",
+      "name": "Hoeven (R-ND)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "jon_husted",
+      "lis": "S438",
+      "name": "Husted (R-OH)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "hyde_smith",
+      "lis": "S395",
+      "name": "Hyde-Smith (R-MS)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "ron_johnson",
+      "lis": "S345",
+      "name": "Johnson (R-WI)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "jim_justice",
+      "lis": "S437",
+      "name": "Justice (R-WV)",
+      "vote": "Not Voting"
+     },
+     {
+      "politicianId": "kaine",
+      "lis": "S362",
+      "name": "Kaine (D-VA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "mark_kelly",
+      "lis": "S406",
+      "name": "Kelly (D-AZ)",
+      "vote": "Not Voting"
+     },
+     {
+      "politicianId": "kennedy_john",
+      "lis": "S389",
+      "name": "Kennedy (R-LA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "andy_kim",
+      "lis": "S426",
+      "name": "Kim (D-NJ)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "angus_king",
+      "lis": "S363",
+      "name": "King (I-ME)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "klobuchar",
+      "lis": "S311",
+      "name": "Klobuchar (D-MN)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "lankford",
+      "lis": "S378",
+      "name": "Lankford (R-OK)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "lee",
+      "lis": "S346",
+      "name": "Lee (R-UT)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "lujan",
+      "lis": "S409",
+      "name": "Lujan (D-NM)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "lummis",
+      "lis": "S410",
+      "name": "Lummis (R-WY)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "markey",
+      "lis": "S369",
+      "name": "Markey (D-MA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "roger_marshall",
+      "lis": "S411",
+      "name": "Marshall (R-KS)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "mcconnell",
+      "lis": "S174",
+      "name": "McConnell (R-KY)",
+      "vote": "Not Voting"
+     },
+     {
+      "politicianId": "mccormick",
+      "lis": "S433",
+      "name": "McCormick (R-PA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "merkley",
+      "lis": "S322",
+      "name": "Merkley (D-OR)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "ashley_moody",
+      "lis": "S439",
+      "name": "Moody (R-FL)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "jerry_moran",
+      "lis": "S347",
+      "name": "Moran (R-KS)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "moreno",
+      "lis": "S434",
+      "name": "Moreno (R-OH)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "murkowski",
+      "lis": "S288",
+      "name": "Murkowski (R-AK)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "chris_murphy",
+      "lis": "S364",
+      "name": "Murphy (D-CT)",
+      "vote": "Not Voting"
+     },
+     {
+      "politicianId": "murray",
+      "lis": "S229",
+      "name": "Murray (D-WA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "jon_ossoff",
+      "lis": "S414",
+      "name": "Ossoff (D-GA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "padilla",
+      "lis": "S413",
+      "name": "Padilla (D-CA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "rand_paul",
+      "lis": "S348",
+      "name": "Paul (R-KY)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "peters",
+      "lis": "S380",
+      "name": "Peters (D-MI)",
+      "vote": "Not Voting"
+     },
+     {
+      "politicianId": "reed",
+      "lis": "S259",
+      "name": "Reed (D-RI)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "ricketts",
+      "lis": "S423",
+      "name": "Ricketts (R-NE)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "risch",
+      "lis": "S323",
+      "name": "Risch (R-ID)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "rosen",
+      "lis": "S402",
+      "name": "Rosen (D-NV)",
+      "vote": "Not Voting"
+     },
+     {
+      "politicianId": "mike_rounds",
+      "lis": "S381",
+      "name": "Rounds (R-SD)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "sanders",
+      "lis": "S313",
+      "name": "Sanders (I-VT)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "schatz",
+      "lis": "S353",
+      "name": "Schatz (D-HI)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "schiff",
+      "lis": "S427",
+      "name": "Schiff (D-CA)",
+      "vote": "Not Voting"
+     },
+     {
+      "politicianId": "schmitt",
+      "lis": "S420",
+      "name": "Schmitt (R-MO)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "schumer",
+      "lis": "S270",
+      "name": "Schumer (D-NY)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "rick_scott",
+      "lis": "S404",
+      "name": "Scott (R-FL)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "tim_scott",
+      "lis": "S365",
+      "name": "Scott (R-SC)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "shaheen",
+      "lis": "S324",
+      "name": "Shaheen (D-NH)",
+      "vote": "Not Voting"
+     },
+     {
+      "politicianId": "sheehy",
+      "lis": "S435",
+      "name": "Sheehy (R-MT)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "slotkin",
+      "lis": "S436",
+      "name": "Slotkin (D-MI)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "tina_smith",
+      "lis": "S394",
+      "name": "Smith (D-MN)",
+      "vote": "Not Voting"
+     },
+     {
+      "politicianId": "dan_sullivan",
+      "lis": "S383",
+      "name": "Sullivan (R-AK)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "thune",
+      "lis": "S303",
+      "name": "Thune (R-SD)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "tillis",
+      "lis": "S384",
+      "name": "Tillis (R-NC)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "tommy_tuberville",
+      "lis": "S412",
+      "name": "Tuberville (R-AL)",
+      "vote": "Not Voting"
+     },
+     {
+      "politicianId": "van_hollen",
+      "lis": "S390",
+      "name": "Van Hollen (D-MD)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "warner",
+      "lis": "S327",
+      "name": "Warner (D-VA)",
+      "vote": "Not Voting"
+     },
+     {
+      "politicianId": "warnock",
+      "lis": "S415",
+      "name": "Warnock (D-GA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "warren",
+      "lis": "S366",
+      "name": "Warren (D-MA)",
+      "vote": "Not Voting"
+     },
+     {
+      "politicianId": "welch",
+      "lis": "S422",
+      "name": "Welch (D-VT)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "whitehouse",
+      "lis": "S316",
+      "name": "Whitehouse (D-RI)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "wicker",
+      "lis": "S318",
+      "name": "Wicker (R-MS)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "wyden",
+      "lis": "S247",
+      "name": "Wyden (D-OR)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "todd_young",
+      "lis": "S391",
+      "name": "Young (R-IN)",
+      "vote": "Yea"
+     }
+    ]
+   },
+   {
+    "chamber": "senate",
+    "congress": 119,
+    "session": 2,
+    "roll": 264,
+    "date": "2026-11-16",
+    "measure": "S.Amdt. 6883",
+    "question": "On the Cloture Motion S.Amdt. 6883 to H.R. 2347 (No short title on file)",
+    "actionType": "cloture",
+    "procedural": true,
+    "result": "Cloture Motion Agreed to (70-27, 3/5 majority required)",
+    "requiredMajority": "3/5",
+    "totals": {
+     "yea": 70,
+     "nay": 27,
+     "notVoting": 3
+    },
+    "byParty": {
+     "D": {
+      "Nay": 24,
+      "Yea": 20,
+      "Not Voting": 1
+     },
+     "R": {
+      "Yea": 49,
+      "Nay": 2,
+      "Not Voting": 2
+     },
+     "I": {
+      "Yea": 1,
+      "Nay": 1
+     }
+    },
+    "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00264.htm",
+    "rosterLinked": "100 of 100",
+    "members": [
+     {
+      "politicianId": "alsobrooks",
+      "lis": "S428",
+      "name": "Alsobrooks (D-MD)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "alan_armstrong",
+      "lis": "S440",
+      "name": "Armstrong (R-OK)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "tammy_baldwin",
+      "lis": "S354",
+      "name": "Baldwin (D-WI)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "banks",
+      "lis": "S429",
+      "name": "Banks (R-IN)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "barrasso",
+      "lis": "S317",
+      "name": "Barrasso (R-WY)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "bennet",
+      "lis": "S330",
+      "name": "Bennet (D-CO)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "blackburn",
+      "lis": "S396",
+      "name": "Blackburn (R-TN)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "blumenthal",
+      "lis": "S341",
+      "name": "Blumenthal (D-CT)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "blunt_rochester",
+      "lis": "S430",
+      "name": "Blunt Rochester (D-DE)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "booker",
+      "lis": "S370",
+      "name": "Booker (D-NJ)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "boozman",
+      "lis": "S343",
+      "name": "Boozman (R-AR)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "britt",
+      "lis": "S416",
+      "name": "Britt (R-AL)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "ted_budd",
+      "lis": "S417",
+      "name": "Budd (R-NC)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "cantwell",
+      "lis": "S275",
+      "name": "Cantwell (D-WA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "capito",
+      "lis": "S372",
+      "name": "Capito (R-WV)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "cassidy",
+      "lis": "S373",
+      "name": "Cassidy (R-LA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "collins",
+      "lis": "S252",
+      "name": "Collins (R-ME)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "coons",
+      "lis": "S337",
+      "name": "Coons (D-DE)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "john_cornyn",
+      "lis": "S287",
+      "name": "Cornyn (R-TX)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "cortez_masto",
+      "lis": "S385",
+      "name": "Cortez Masto (D-NV)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "cotton",
+      "lis": "S374",
+      "name": "Cotton (R-AR)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "kevin_cramer",
+      "lis": "S398",
+      "name": "Cramer (R-ND)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "crapo",
+      "lis": "S266",
+      "name": "Crapo (R-ID)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "cruz",
+      "lis": "S355",
+      "name": "Cruz (R-TX)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "curtis",
+      "lis": "S431",
+      "name": "Curtis (R-UT)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "daines",
+      "lis": "S375",
+      "name": "Daines (R-MT)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "duckworth",
+      "lis": "S386",
+      "name": "Duckworth (D-IL)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "durbin",
+      "lis": "S253",
+      "name": "Durbin (D-IL)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "ernst",
+      "lis": "S376",
+      "name": "Ernst (R-IA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "fetterman",
+      "lis": "S418",
+      "name": "Fetterman (D-PA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "deb_fischer",
+      "lis": "S357",
+      "name": "Fischer (R-NE)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "gallego",
+      "lis": "S432",
+      "name": "Gallego (D-AZ)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "gillibrand",
+      "lis": "S331",
+      "name": "Gillibrand (D-NY)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "darline_graham",
+      "lis": "S441",
+      "name": "Graham (R-SC)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "grassley",
+      "lis": "S153",
+      "name": "Grassley (R-IA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "hagerty",
+      "lis": "S407",
+      "name": "Hagerty (R-TN)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "maggie_hassan",
+      "lis": "S388",
+      "name": "Hassan (D-NH)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "hawley",
+      "lis": "S399",
+      "name": "Hawley (R-MO)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "heinrich",
+      "lis": "S359",
+      "name": "Heinrich (D-NM)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "hickenlooper",
+      "lis": "S408",
+      "name": "Hickenlooper (D-CO)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "hirono",
+      "lis": "S361",
+      "name": "Hirono (D-HI)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "hoeven",
+      "lis": "S344",
+      "name": "Hoeven (R-ND)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "jon_husted",
+      "lis": "S438",
+      "name": "Husted (R-OH)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "hyde_smith",
+      "lis": "S395",
+      "name": "Hyde-Smith (R-MS)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "ron_johnson",
+      "lis": "S345",
+      "name": "Johnson (R-WI)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "jim_justice",
+      "lis": "S437",
+      "name": "Justice (R-WV)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "kaine",
+      "lis": "S362",
+      "name": "Kaine (D-VA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "mark_kelly",
+      "lis": "S406",
+      "name": "Kelly (D-AZ)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "kennedy_john",
+      "lis": "S389",
+      "name": "Kennedy (R-LA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "andy_kim",
+      "lis": "S426",
+      "name": "Kim (D-NJ)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "angus_king",
+      "lis": "S363",
+      "name": "King (I-ME)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "klobuchar",
+      "lis": "S311",
+      "name": "Klobuchar (D-MN)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "lankford",
+      "lis": "S378",
+      "name": "Lankford (R-OK)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "lee",
+      "lis": "S346",
+      "name": "Lee (R-UT)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "lujan",
+      "lis": "S409",
+      "name": "Lujan (D-NM)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "lummis",
+      "lis": "S410",
+      "name": "Lummis (R-WY)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "markey",
+      "lis": "S369",
+      "name": "Markey (D-MA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "roger_marshall",
+      "lis": "S411",
+      "name": "Marshall (R-KS)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "mcconnell",
+      "lis": "S174",
+      "name": "McConnell (R-KY)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "mccormick",
+      "lis": "S433",
+      "name": "McCormick (R-PA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "merkley",
+      "lis": "S322",
+      "name": "Merkley (D-OR)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "ashley_moody",
+      "lis": "S439",
+      "name": "Moody (R-FL)",
+      "vote": "Not Voting"
+     },
+     {
+      "politicianId": "jerry_moran",
+      "lis": "S347",
+      "name": "Moran (R-KS)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "moreno",
+      "lis": "S434",
+      "name": "Moreno (R-OH)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "murkowski",
+      "lis": "S288",
+      "name": "Murkowski (R-AK)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "chris_murphy",
+      "lis": "S364",
+      "name": "Murphy (D-CT)",
+      "vote": "Not Voting"
+     },
+     {
+      "politicianId": "murray",
+      "lis": "S229",
+      "name": "Murray (D-WA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "jon_ossoff",
+      "lis": "S414",
+      "name": "Ossoff (D-GA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "padilla",
+      "lis": "S413",
+      "name": "Padilla (D-CA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "rand_paul",
+      "lis": "S348",
+      "name": "Paul (R-KY)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "peters",
+      "lis": "S380",
+      "name": "Peters (D-MI)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "reed",
+      "lis": "S259",
+      "name": "Reed (D-RI)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "ricketts",
+      "lis": "S423",
+      "name": "Ricketts (R-NE)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "risch",
+      "lis": "S323",
+      "name": "Risch (R-ID)",
+      "vote": "Not Voting"
+     },
+     {
+      "politicianId": "rosen",
+      "lis": "S402",
+      "name": "Rosen (D-NV)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "mike_rounds",
+      "lis": "S381",
+      "name": "Rounds (R-SD)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "sanders",
+      "lis": "S313",
+      "name": "Sanders (I-VT)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "schatz",
+      "lis": "S353",
+      "name": "Schatz (D-HI)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "schiff",
+      "lis": "S427",
+      "name": "Schiff (D-CA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "schmitt",
+      "lis": "S420",
+      "name": "Schmitt (R-MO)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "schumer",
+      "lis": "S270",
+      "name": "Schumer (D-NY)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "rick_scott",
+      "lis": "S404",
+      "name": "Scott (R-FL)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "tim_scott",
+      "lis": "S365",
+      "name": "Scott (R-SC)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "shaheen",
+      "lis": "S324",
+      "name": "Shaheen (D-NH)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "sheehy",
+      "lis": "S435",
+      "name": "Sheehy (R-MT)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "slotkin",
+      "lis": "S436",
+      "name": "Slotkin (D-MI)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "tina_smith",
+      "lis": "S394",
+      "name": "Smith (D-MN)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "dan_sullivan",
+      "lis": "S383",
+      "name": "Sullivan (R-AK)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "thune",
+      "lis": "S303",
+      "name": "Thune (R-SD)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "tillis",
+      "lis": "S384",
+      "name": "Tillis (R-NC)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "tommy_tuberville",
+      "lis": "S412",
+      "name": "Tuberville (R-AL)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "van_hollen",
+      "lis": "S390",
+      "name": "Van Hollen (D-MD)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "warner",
+      "lis": "S327",
+      "name": "Warner (D-VA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "warnock",
+      "lis": "S415",
+      "name": "Warnock (D-GA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "warren",
+      "lis": "S366",
+      "name": "Warren (D-MA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "welch",
+      "lis": "S422",
+      "name": "Welch (D-VT)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "whitehouse",
+      "lis": "S316",
+      "name": "Whitehouse (D-RI)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "wicker",
+      "lis": "S318",
+      "name": "Wicker (R-MS)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "wyden",
+      "lis": "S247",
+      "name": "Wyden (D-OR)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "todd_young",
+      "lis": "S391",
+      "name": "Young (R-IN)",
+      "vote": "Yea"
+     }
+    ]
+   },
+   {
+    "chamber": "senate",
+    "congress": 119,
+    "session": 2,
+    "roll": 266,
+    "date": "2026-11-18",
+    "measure": "H.R. 2347",
+    "question": "On the Motion (Motion to Waive All Applicable Budgetary Discipline Re: H.R. 2347)",
+    "actionType": "procedural",
+    "procedural": true,
+    "result": "Motion Agreed to (70-26, 3/5 majority required)",
+    "requiredMajority": "3/5",
+    "totals": {
+     "yea": 70,
+     "nay": 26,
+     "notVoting": 4
+    },
+    "byParty": {
+     "D": {
+      "Nay": 24,
+      "Yea": 18,
+      "Not Voting": 3
+     },
+     "R": {
+      "Yea": 51,
+      "Not Voting": 1,
+      "Nay": 1
+     },
+     "I": {
+      "Yea": 1,
+      "Nay": 1
+     }
+    },
+    "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00266.htm",
+    "rosterLinked": "100 of 100",
+    "members": [
+     {
+      "politicianId": "alsobrooks",
+      "lis": "S428",
+      "name": "Alsobrooks (D-MD)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "alan_armstrong",
+      "lis": "S440",
+      "name": "Armstrong (R-OK)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "tammy_baldwin",
+      "lis": "S354",
+      "name": "Baldwin (D-WI)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "banks",
+      "lis": "S429",
+      "name": "Banks (R-IN)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "barrasso",
+      "lis": "S317",
+      "name": "Barrasso (R-WY)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "bennet",
+      "lis": "S330",
+      "name": "Bennet (D-CO)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "blackburn",
+      "lis": "S396",
+      "name": "Blackburn (R-TN)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "blumenthal",
+      "lis": "S341",
+      "name": "Blumenthal (D-CT)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "blunt_rochester",
+      "lis": "S430",
+      "name": "Blunt Rochester (D-DE)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "booker",
+      "lis": "S370",
+      "name": "Booker (D-NJ)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "boozman",
+      "lis": "S343",
+      "name": "Boozman (R-AR)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "britt",
+      "lis": "S416",
+      "name": "Britt (R-AL)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "ted_budd",
+      "lis": "S417",
+      "name": "Budd (R-NC)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "cantwell",
+      "lis": "S275",
+      "name": "Cantwell (D-WA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "capito",
+      "lis": "S372",
+      "name": "Capito (R-WV)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "cassidy",
+      "lis": "S373",
+      "name": "Cassidy (R-LA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "collins",
+      "lis": "S252",
+      "name": "Collins (R-ME)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "coons",
+      "lis": "S337",
+      "name": "Coons (D-DE)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "john_cornyn",
+      "lis": "S287",
+      "name": "Cornyn (R-TX)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "cortez_masto",
+      "lis": "S385",
+      "name": "Cortez Masto (D-NV)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "cotton",
+      "lis": "S374",
+      "name": "Cotton (R-AR)",
+      "vote": "Not Voting"
+     },
+     {
+      "politicianId": "kevin_cramer",
+      "lis": "S398",
+      "name": "Cramer (R-ND)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "crapo",
+      "lis": "S266",
+      "name": "Crapo (R-ID)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "cruz",
+      "lis": "S355",
+      "name": "Cruz (R-TX)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "curtis",
+      "lis": "S431",
+      "name": "Curtis (R-UT)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "daines",
+      "lis": "S375",
+      "name": "Daines (R-MT)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "duckworth",
+      "lis": "S386",
+      "name": "Duckworth (D-IL)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "durbin",
+      "lis": "S253",
+      "name": "Durbin (D-IL)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "ernst",
+      "lis": "S376",
+      "name": "Ernst (R-IA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "fetterman",
+      "lis": "S418",
+      "name": "Fetterman (D-PA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "deb_fischer",
+      "lis": "S357",
+      "name": "Fischer (R-NE)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "gallego",
+      "lis": "S432",
+      "name": "Gallego (D-AZ)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "gillibrand",
+      "lis": "S331",
+      "name": "Gillibrand (D-NY)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "darline_graham",
+      "lis": "S441",
+      "name": "Graham (R-SC)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "grassley",
+      "lis": "S153",
+      "name": "Grassley (R-IA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "hagerty",
+      "lis": "S407",
+      "name": "Hagerty (R-TN)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "maggie_hassan",
+      "lis": "S388",
+      "name": "Hassan (D-NH)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "hawley",
+      "lis": "S399",
+      "name": "Hawley (R-MO)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "heinrich",
+      "lis": "S359",
+      "name": "Heinrich (D-NM)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "hickenlooper",
+      "lis": "S408",
+      "name": "Hickenlooper (D-CO)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "hirono",
+      "lis": "S361",
+      "name": "Hirono (D-HI)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "hoeven",
+      "lis": "S344",
+      "name": "Hoeven (R-ND)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "jon_husted",
+      "lis": "S438",
+      "name": "Husted (R-OH)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "hyde_smith",
+      "lis": "S395",
+      "name": "Hyde-Smith (R-MS)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "ron_johnson",
+      "lis": "S345",
+      "name": "Johnson (R-WI)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "jim_justice",
+      "lis": "S437",
+      "name": "Justice (R-WV)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "kaine",
+      "lis": "S362",
+      "name": "Kaine (D-VA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "mark_kelly",
+      "lis": "S406",
+      "name": "Kelly (D-AZ)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "kennedy_john",
+      "lis": "S389",
+      "name": "Kennedy (R-LA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "andy_kim",
+      "lis": "S426",
+      "name": "Kim (D-NJ)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "angus_king",
+      "lis": "S363",
+      "name": "King (I-ME)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "klobuchar",
+      "lis": "S311",
+      "name": "Klobuchar (D-MN)",
+      "vote": "Not Voting"
+     },
+     {
+      "politicianId": "lankford",
+      "lis": "S378",
+      "name": "Lankford (R-OK)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "lee",
+      "lis": "S346",
+      "name": "Lee (R-UT)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "lujan",
+      "lis": "S409",
+      "name": "Lujan (D-NM)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "lummis",
+      "lis": "S410",
+      "name": "Lummis (R-WY)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "markey",
+      "lis": "S369",
+      "name": "Markey (D-MA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "roger_marshall",
+      "lis": "S411",
+      "name": "Marshall (R-KS)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "mcconnell",
+      "lis": "S174",
+      "name": "McConnell (R-KY)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "mccormick",
+      "lis": "S433",
+      "name": "McCormick (R-PA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "merkley",
+      "lis": "S322",
+      "name": "Merkley (D-OR)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "ashley_moody",
+      "lis": "S439",
+      "name": "Moody (R-FL)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "jerry_moran",
+      "lis": "S347",
+      "name": "Moran (R-KS)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "moreno",
+      "lis": "S434",
+      "name": "Moreno (R-OH)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "murkowski",
+      "lis": "S288",
+      "name": "Murkowski (R-AK)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "chris_murphy",
+      "lis": "S364",
+      "name": "Murphy (D-CT)",
+      "vote": "Not Voting"
+     },
+     {
+      "politicianId": "murray",
+      "lis": "S229",
+      "name": "Murray (D-WA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "jon_ossoff",
+      "lis": "S414",
+      "name": "Ossoff (D-GA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "padilla",
+      "lis": "S413",
+      "name": "Padilla (D-CA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "rand_paul",
+      "lis": "S348",
+      "name": "Paul (R-KY)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "peters",
+      "lis": "S380",
+      "name": "Peters (D-MI)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "reed",
+      "lis": "S259",
+      "name": "Reed (D-RI)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "ricketts",
+      "lis": "S423",
+      "name": "Ricketts (R-NE)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "risch",
+      "lis": "S323",
+      "name": "Risch (R-ID)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "rosen",
+      "lis": "S402",
+      "name": "Rosen (D-NV)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "mike_rounds",
+      "lis": "S381",
+      "name": "Rounds (R-SD)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "sanders",
+      "lis": "S313",
+      "name": "Sanders (I-VT)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "schatz",
+      "lis": "S353",
+      "name": "Schatz (D-HI)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "schiff",
+      "lis": "S427",
+      "name": "Schiff (D-CA)",
+      "vote": "Not Voting"
+     },
+     {
+      "politicianId": "schmitt",
+      "lis": "S420",
+      "name": "Schmitt (R-MO)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "schumer",
+      "lis": "S270",
+      "name": "Schumer (D-NY)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "rick_scott",
+      "lis": "S404",
+      "name": "Scott (R-FL)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "tim_scott",
+      "lis": "S365",
+      "name": "Scott (R-SC)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "shaheen",
+      "lis": "S324",
+      "name": "Shaheen (D-NH)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "sheehy",
+      "lis": "S435",
+      "name": "Sheehy (R-MT)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "slotkin",
+      "lis": "S436",
+      "name": "Slotkin (D-MI)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "tina_smith",
+      "lis": "S394",
+      "name": "Smith (D-MN)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "dan_sullivan",
+      "lis": "S383",
+      "name": "Sullivan (R-AK)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "thune",
+      "lis": "S303",
+      "name": "Thune (R-SD)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "tillis",
+      "lis": "S384",
+      "name": "Tillis (R-NC)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "tommy_tuberville",
+      "lis": "S412",
+      "name": "Tuberville (R-AL)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "van_hollen",
+      "lis": "S390",
+      "name": "Van Hollen (D-MD)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "warner",
+      "lis": "S327",
+      "name": "Warner (D-VA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "warnock",
+      "lis": "S415",
+      "name": "Warnock (D-GA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "warren",
+      "lis": "S366",
+      "name": "Warren (D-MA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "welch",
+      "lis": "S422",
+      "name": "Welch (D-VT)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "whitehouse",
+      "lis": "S316",
+      "name": "Whitehouse (D-RI)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "wicker",
+      "lis": "S318",
+      "name": "Wicker (R-MS)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "wyden",
+      "lis": "S247",
+      "name": "Wyden (D-OR)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "todd_young",
+      "lis": "S391",
+      "name": "Young (R-IN)",
+      "vote": "Yea"
+     }
+    ]
+   },
+   {
+    "chamber": "senate",
+    "congress": 119,
+    "session": 2,
+    "roll": 267,
+    "date": "2026-11-18",
+    "measure": "S.Amdt. 6883",
+    "question": "On the Amendment S.Amdt. 6883 to H.R. 2347 (No short title on file)",
+    "actionType": "amendment",
+    "procedural": false,
+    "result": "Amendment Agreed to (69-27)",
+    "requiredMajority": "1/2",
+    "totals": {
+     "yea": 69,
+     "nay": 27,
+     "notVoting": 4
+    },
+    "byParty": {
+     "D": {
+      "Nay": 25,
+      "Yea": 17,
+      "Not Voting": 3
+     },
+     "R": {
+      "Yea": 51,
+      "Not Voting": 1,
+      "Nay": 1
+     },
+     "I": {
+      "Yea": 1,
+      "Nay": 1
+     }
+    },
+    "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00267.htm",
+    "rosterLinked": "100 of 100",
+    "members": [
+     {
+      "politicianId": "alsobrooks",
+      "lis": "S428",
+      "name": "Alsobrooks (D-MD)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "alan_armstrong",
+      "lis": "S440",
+      "name": "Armstrong (R-OK)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "tammy_baldwin",
+      "lis": "S354",
+      "name": "Baldwin (D-WI)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "banks",
+      "lis": "S429",
+      "name": "Banks (R-IN)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "barrasso",
+      "lis": "S317",
+      "name": "Barrasso (R-WY)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "bennet",
+      "lis": "S330",
+      "name": "Bennet (D-CO)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "blackburn",
+      "lis": "S396",
+      "name": "Blackburn (R-TN)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "blumenthal",
+      "lis": "S341",
+      "name": "Blumenthal (D-CT)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "blunt_rochester",
+      "lis": "S430",
+      "name": "Blunt Rochester (D-DE)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "booker",
+      "lis": "S370",
+      "name": "Booker (D-NJ)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "boozman",
+      "lis": "S343",
+      "name": "Boozman (R-AR)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "britt",
+      "lis": "S416",
+      "name": "Britt (R-AL)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "ted_budd",
+      "lis": "S417",
+      "name": "Budd (R-NC)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "cantwell",
+      "lis": "S275",
+      "name": "Cantwell (D-WA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "capito",
+      "lis": "S372",
+      "name": "Capito (R-WV)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "cassidy",
+      "lis": "S373",
+      "name": "Cassidy (R-LA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "collins",
+      "lis": "S252",
+      "name": "Collins (R-ME)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "coons",
+      "lis": "S337",
+      "name": "Coons (D-DE)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "john_cornyn",
+      "lis": "S287",
+      "name": "Cornyn (R-TX)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "cortez_masto",
+      "lis": "S385",
+      "name": "Cortez Masto (D-NV)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "cotton",
+      "lis": "S374",
+      "name": "Cotton (R-AR)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "kevin_cramer",
+      "lis": "S398",
+      "name": "Cramer (R-ND)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "crapo",
+      "lis": "S266",
+      "name": "Crapo (R-ID)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "cruz",
+      "lis": "S355",
+      "name": "Cruz (R-TX)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "curtis",
+      "lis": "S431",
+      "name": "Curtis (R-UT)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "daines",
+      "lis": "S375",
+      "name": "Daines (R-MT)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "duckworth",
+      "lis": "S386",
+      "name": "Duckworth (D-IL)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "durbin",
+      "lis": "S253",
+      "name": "Durbin (D-IL)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "ernst",
+      "lis": "S376",
+      "name": "Ernst (R-IA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "fetterman",
+      "lis": "S418",
+      "name": "Fetterman (D-PA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "deb_fischer",
+      "lis": "S357",
+      "name": "Fischer (R-NE)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "gallego",
+      "lis": "S432",
+      "name": "Gallego (D-AZ)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "gillibrand",
+      "lis": "S331",
+      "name": "Gillibrand (D-NY)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "darline_graham",
+      "lis": "S441",
+      "name": "Graham (R-SC)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "grassley",
+      "lis": "S153",
+      "name": "Grassley (R-IA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "hagerty",
+      "lis": "S407",
+      "name": "Hagerty (R-TN)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "maggie_hassan",
+      "lis": "S388",
+      "name": "Hassan (D-NH)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "hawley",
+      "lis": "S399",
+      "name": "Hawley (R-MO)",
+      "vote": "Not Voting"
+     },
+     {
+      "politicianId": "heinrich",
+      "lis": "S359",
+      "name": "Heinrich (D-NM)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "hickenlooper",
+      "lis": "S408",
+      "name": "Hickenlooper (D-CO)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "hirono",
+      "lis": "S361",
+      "name": "Hirono (D-HI)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "hoeven",
+      "lis": "S344",
+      "name": "Hoeven (R-ND)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "jon_husted",
+      "lis": "S438",
+      "name": "Husted (R-OH)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "hyde_smith",
+      "lis": "S395",
+      "name": "Hyde-Smith (R-MS)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "ron_johnson",
+      "lis": "S345",
+      "name": "Johnson (R-WI)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "jim_justice",
+      "lis": "S437",
+      "name": "Justice (R-WV)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "kaine",
+      "lis": "S362",
+      "name": "Kaine (D-VA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "mark_kelly",
+      "lis": "S406",
+      "name": "Kelly (D-AZ)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "kennedy_john",
+      "lis": "S389",
+      "name": "Kennedy (R-LA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "andy_kim",
+      "lis": "S426",
+      "name": "Kim (D-NJ)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "angus_king",
+      "lis": "S363",
+      "name": "King (I-ME)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "klobuchar",
+      "lis": "S311",
+      "name": "Klobuchar (D-MN)",
+      "vote": "Not Voting"
+     },
+     {
+      "politicianId": "lankford",
+      "lis": "S378",
+      "name": "Lankford (R-OK)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "lee",
+      "lis": "S346",
+      "name": "Lee (R-UT)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "lujan",
+      "lis": "S409",
+      "name": "Lujan (D-NM)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "lummis",
+      "lis": "S410",
+      "name": "Lummis (R-WY)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "markey",
+      "lis": "S369",
+      "name": "Markey (D-MA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "roger_marshall",
+      "lis": "S411",
+      "name": "Marshall (R-KS)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "mcconnell",
+      "lis": "S174",
+      "name": "McConnell (R-KY)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "mccormick",
+      "lis": "S433",
+      "name": "McCormick (R-PA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "merkley",
+      "lis": "S322",
+      "name": "Merkley (D-OR)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "ashley_moody",
+      "lis": "S439",
+      "name": "Moody (R-FL)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "jerry_moran",
+      "lis": "S347",
+      "name": "Moran (R-KS)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "moreno",
+      "lis": "S434",
+      "name": "Moreno (R-OH)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "murkowski",
+      "lis": "S288",
+      "name": "Murkowski (R-AK)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "chris_murphy",
+      "lis": "S364",
+      "name": "Murphy (D-CT)",
+      "vote": "Not Voting"
+     },
+     {
+      "politicianId": "murray",
+      "lis": "S229",
+      "name": "Murray (D-WA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "jon_ossoff",
+      "lis": "S414",
+      "name": "Ossoff (D-GA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "padilla",
+      "lis": "S413",
+      "name": "Padilla (D-CA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "rand_paul",
+      "lis": "S348",
+      "name": "Paul (R-KY)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "peters",
+      "lis": "S380",
+      "name": "Peters (D-MI)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "reed",
+      "lis": "S259",
+      "name": "Reed (D-RI)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "ricketts",
+      "lis": "S423",
+      "name": "Ricketts (R-NE)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "risch",
+      "lis": "S323",
+      "name": "Risch (R-ID)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "rosen",
+      "lis": "S402",
+      "name": "Rosen (D-NV)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "mike_rounds",
+      "lis": "S381",
+      "name": "Rounds (R-SD)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "sanders",
+      "lis": "S313",
+      "name": "Sanders (I-VT)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "schatz",
+      "lis": "S353",
+      "name": "Schatz (D-HI)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "schiff",
+      "lis": "S427",
+      "name": "Schiff (D-CA)",
+      "vote": "Not Voting"
+     },
+     {
+      "politicianId": "schmitt",
+      "lis": "S420",
+      "name": "Schmitt (R-MO)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "schumer",
+      "lis": "S270",
+      "name": "Schumer (D-NY)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "rick_scott",
+      "lis": "S404",
+      "name": "Scott (R-FL)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "tim_scott",
+      "lis": "S365",
+      "name": "Scott (R-SC)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "shaheen",
+      "lis": "S324",
+      "name": "Shaheen (D-NH)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "sheehy",
+      "lis": "S435",
+      "name": "Sheehy (R-MT)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "slotkin",
+      "lis": "S436",
+      "name": "Slotkin (D-MI)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "tina_smith",
+      "lis": "S394",
+      "name": "Smith (D-MN)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "dan_sullivan",
+      "lis": "S383",
+      "name": "Sullivan (R-AK)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "thune",
+      "lis": "S303",
+      "name": "Thune (R-SD)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "tillis",
+      "lis": "S384",
+      "name": "Tillis (R-NC)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "tommy_tuberville",
+      "lis": "S412",
+      "name": "Tuberville (R-AL)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "van_hollen",
+      "lis": "S390",
+      "name": "Van Hollen (D-MD)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "warner",
+      "lis": "S327",
+      "name": "Warner (D-VA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "warnock",
+      "lis": "S415",
+      "name": "Warnock (D-GA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "warren",
+      "lis": "S366",
+      "name": "Warren (D-MA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "welch",
+      "lis": "S422",
+      "name": "Welch (D-VT)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "whitehouse",
+      "lis": "S316",
+      "name": "Whitehouse (D-RI)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "wicker",
+      "lis": "S318",
+      "name": "Wicker (R-MS)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "wyden",
+      "lis": "S247",
+      "name": "Wyden (D-OR)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "todd_young",
+      "lis": "S391",
+      "name": "Young (R-IN)",
+      "vote": "Yea"
+     }
+    ]
+   },
+   {
+    "chamber": "senate",
+    "congress": 119,
+    "session": 2,
+    "roll": 268,
+    "date": "2026-11-18",
+    "measure": "H.R. 2347",
+    "question": "On the Cloture Motion H.R. 2347",
+    "actionType": "cloture",
+    "procedural": true,
+    "result": "Cloture Motion Agreed to (65-31, 3/5 majority required)",
+    "requiredMajority": "3/5",
+    "totals": {
+     "yea": 65,
+     "nay": 31,
+     "notVoting": 4
+    },
+    "byParty": {
+     "D": {
+      "Nay": 28,
+      "Yea": 14,
+      "Not Voting": 3
+     },
+     "R": {
+      "Yea": 50,
+      "Nay": 2,
+      "Not Voting": 1
+     },
+     "I": {
+      "Yea": 1,
+      "Nay": 1
+     }
+    },
+    "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00268.htm",
+    "rosterLinked": "100 of 100",
+    "members": [
+     {
+      "politicianId": "alsobrooks",
+      "lis": "S428",
+      "name": "Alsobrooks (D-MD)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "alan_armstrong",
+      "lis": "S440",
+      "name": "Armstrong (R-OK)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "tammy_baldwin",
+      "lis": "S354",
+      "name": "Baldwin (D-WI)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "banks",
+      "lis": "S429",
+      "name": "Banks (R-IN)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "barrasso",
+      "lis": "S317",
+      "name": "Barrasso (R-WY)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "bennet",
+      "lis": "S330",
+      "name": "Bennet (D-CO)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "blackburn",
+      "lis": "S396",
+      "name": "Blackburn (R-TN)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "blumenthal",
+      "lis": "S341",
+      "name": "Blumenthal (D-CT)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "blunt_rochester",
+      "lis": "S430",
+      "name": "Blunt Rochester (D-DE)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "booker",
+      "lis": "S370",
+      "name": "Booker (D-NJ)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "boozman",
+      "lis": "S343",
+      "name": "Boozman (R-AR)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "britt",
+      "lis": "S416",
+      "name": "Britt (R-AL)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "ted_budd",
+      "lis": "S417",
+      "name": "Budd (R-NC)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "cantwell",
+      "lis": "S275",
+      "name": "Cantwell (D-WA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "capito",
+      "lis": "S372",
+      "name": "Capito (R-WV)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "cassidy",
+      "lis": "S373",
+      "name": "Cassidy (R-LA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "collins",
+      "lis": "S252",
+      "name": "Collins (R-ME)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "coons",
+      "lis": "S337",
+      "name": "Coons (D-DE)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "john_cornyn",
+      "lis": "S287",
+      "name": "Cornyn (R-TX)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "cortez_masto",
+      "lis": "S385",
+      "name": "Cortez Masto (D-NV)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "cotton",
+      "lis": "S374",
+      "name": "Cotton (R-AR)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "kevin_cramer",
+      "lis": "S398",
+      "name": "Cramer (R-ND)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "crapo",
+      "lis": "S266",
+      "name": "Crapo (R-ID)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "cruz",
+      "lis": "S355",
+      "name": "Cruz (R-TX)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "curtis",
+      "lis": "S431",
+      "name": "Curtis (R-UT)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "daines",
+      "lis": "S375",
+      "name": "Daines (R-MT)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "duckworth",
+      "lis": "S386",
+      "name": "Duckworth (D-IL)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "durbin",
+      "lis": "S253",
+      "name": "Durbin (D-IL)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "ernst",
+      "lis": "S376",
+      "name": "Ernst (R-IA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "fetterman",
+      "lis": "S418",
+      "name": "Fetterman (D-PA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "deb_fischer",
+      "lis": "S357",
+      "name": "Fischer (R-NE)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "gallego",
+      "lis": "S432",
+      "name": "Gallego (D-AZ)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "gillibrand",
+      "lis": "S331",
+      "name": "Gillibrand (D-NY)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "darline_graham",
+      "lis": "S441",
+      "name": "Graham (R-SC)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "grassley",
+      "lis": "S153",
+      "name": "Grassley (R-IA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "hagerty",
+      "lis": "S407",
+      "name": "Hagerty (R-TN)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "maggie_hassan",
+      "lis": "S388",
+      "name": "Hassan (D-NH)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "hawley",
+      "lis": "S399",
+      "name": "Hawley (R-MO)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "heinrich",
+      "lis": "S359",
+      "name": "Heinrich (D-NM)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "hickenlooper",
+      "lis": "S408",
+      "name": "Hickenlooper (D-CO)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "hirono",
+      "lis": "S361",
+      "name": "Hirono (D-HI)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "hoeven",
+      "lis": "S344",
+      "name": "Hoeven (R-ND)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "jon_husted",
+      "lis": "S438",
+      "name": "Husted (R-OH)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "hyde_smith",
+      "lis": "S395",
+      "name": "Hyde-Smith (R-MS)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "ron_johnson",
+      "lis": "S345",
+      "name": "Johnson (R-WI)",
+      "vote": "Not Voting"
+     },
+     {
+      "politicianId": "jim_justice",
+      "lis": "S437",
+      "name": "Justice (R-WV)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "kaine",
+      "lis": "S362",
+      "name": "Kaine (D-VA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "mark_kelly",
+      "lis": "S406",
+      "name": "Kelly (D-AZ)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "kennedy_john",
+      "lis": "S389",
+      "name": "Kennedy (R-LA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "andy_kim",
+      "lis": "S426",
+      "name": "Kim (D-NJ)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "angus_king",
+      "lis": "S363",
+      "name": "King (I-ME)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "klobuchar",
+      "lis": "S311",
+      "name": "Klobuchar (D-MN)",
+      "vote": "Not Voting"
+     },
+     {
+      "politicianId": "lankford",
+      "lis": "S378",
+      "name": "Lankford (R-OK)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "lee",
+      "lis": "S346",
+      "name": "Lee (R-UT)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "lujan",
+      "lis": "S409",
+      "name": "Lujan (D-NM)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "lummis",
+      "lis": "S410",
+      "name": "Lummis (R-WY)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "markey",
+      "lis": "S369",
+      "name": "Markey (D-MA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "roger_marshall",
+      "lis": "S411",
+      "name": "Marshall (R-KS)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "mcconnell",
+      "lis": "S174",
+      "name": "McConnell (R-KY)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "mccormick",
+      "lis": "S433",
+      "name": "McCormick (R-PA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "merkley",
+      "lis": "S322",
+      "name": "Merkley (D-OR)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "ashley_moody",
+      "lis": "S439",
+      "name": "Moody (R-FL)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "jerry_moran",
+      "lis": "S347",
+      "name": "Moran (R-KS)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "moreno",
+      "lis": "S434",
+      "name": "Moreno (R-OH)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "murkowski",
+      "lis": "S288",
+      "name": "Murkowski (R-AK)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "chris_murphy",
+      "lis": "S364",
+      "name": "Murphy (D-CT)",
+      "vote": "Not Voting"
+     },
+     {
+      "politicianId": "murray",
+      "lis": "S229",
+      "name": "Murray (D-WA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "jon_ossoff",
+      "lis": "S414",
+      "name": "Ossoff (D-GA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "padilla",
+      "lis": "S413",
+      "name": "Padilla (D-CA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "rand_paul",
+      "lis": "S348",
+      "name": "Paul (R-KY)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "peters",
+      "lis": "S380",
+      "name": "Peters (D-MI)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "reed",
+      "lis": "S259",
+      "name": "Reed (D-RI)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "ricketts",
+      "lis": "S423",
+      "name": "Ricketts (R-NE)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "risch",
+      "lis": "S323",
+      "name": "Risch (R-ID)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "rosen",
+      "lis": "S402",
+      "name": "Rosen (D-NV)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "mike_rounds",
+      "lis": "S381",
+      "name": "Rounds (R-SD)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "sanders",
+      "lis": "S313",
+      "name": "Sanders (I-VT)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "schatz",
+      "lis": "S353",
+      "name": "Schatz (D-HI)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "schiff",
+      "lis": "S427",
+      "name": "Schiff (D-CA)",
+      "vote": "Not Voting"
+     },
+     {
+      "politicianId": "schmitt",
+      "lis": "S420",
+      "name": "Schmitt (R-MO)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "schumer",
+      "lis": "S270",
+      "name": "Schumer (D-NY)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "rick_scott",
+      "lis": "S404",
+      "name": "Scott (R-FL)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "tim_scott",
+      "lis": "S365",
+      "name": "Scott (R-SC)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "shaheen",
+      "lis": "S324",
+      "name": "Shaheen (D-NH)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "sheehy",
+      "lis": "S435",
+      "name": "Sheehy (R-MT)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "slotkin",
+      "lis": "S436",
+      "name": "Slotkin (D-MI)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "tina_smith",
+      "lis": "S394",
+      "name": "Smith (D-MN)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "dan_sullivan",
+      "lis": "S383",
+      "name": "Sullivan (R-AK)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "thune",
+      "lis": "S303",
+      "name": "Thune (R-SD)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "tillis",
+      "lis": "S384",
+      "name": "Tillis (R-NC)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "tommy_tuberville",
+      "lis": "S412",
+      "name": "Tuberville (R-AL)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "van_hollen",
+      "lis": "S390",
+      "name": "Van Hollen (D-MD)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "warner",
+      "lis": "S327",
+      "name": "Warner (D-VA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "warnock",
+      "lis": "S415",
+      "name": "Warnock (D-GA)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "warren",
+      "lis": "S366",
+      "name": "Warren (D-MA)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "welch",
+      "lis": "S422",
+      "name": "Welch (D-VT)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "whitehouse",
+      "lis": "S316",
+      "name": "Whitehouse (D-RI)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "wicker",
+      "lis": "S318",
+      "name": "Wicker (R-MS)",
+      "vote": "Yea"
+     },
+     {
+      "politicianId": "wyden",
+      "lis": "S247",
+      "name": "Wyden (D-OR)",
+      "vote": "Nay"
+     },
+     {
+      "politicianId": "todd_young",
+      "lis": "S391",
+      "name": "Young (R-IN)",
+      "vote": "Yea"
+     }
+    ]
+   }
+  ],
+  "substantiveVote": "Record vote 267 (S.Amdt. 6883 agreed to, 69-27) is the one vote on the BAAJA text itself. The other five are procedural (cloture, motion to proceed, budget waiver).",
+  "sponsorVotes": "Capito, Lee, Whitehouse and Heinrich voted Yea on all six.",
+  "noRecordedVote": [
+   {
+    "date": "2026-11-18",
+    "item": "SA 6884 and SA 6886 (to improve the bill)",
+    "outcome": "Motions to table agreed to by voice vote; SA 6885 and SA 6887 fell with them.",
+    "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/2347/amendments"
+   },
+   {
+    "date": "2026-11-16",
+    "item": "Thune motion to commit to Finance with instructions (SA 6888), with SA 6889 and SA 6890",
+    "outcome": "Fell when cloture was invoked on SA 6883; no vote.",
+    "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/2347/all-actions"
+   },
+   {
+    "date": "2026-04-27",
+    "item": "House passage of H.R. 2347 (original tax-only text, before BAAJA was attached)",
+    "outcome": "Voice vote; not a vote on BAAJA.",
+    "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/2347/all-actions"
+   }
+  ],
+  "rosterLinking": "Each senator was linked through the LIS member id to the roster id already used by the raw vote-action layer. All 100 senators on each roll call are linked."
+ },
+ "claims": [
+  {
+   "id": "tribal-consultation",
+   "question": "Does the bill weaken or strengthen Tribal consultation on federal projects?",
+   "provisionRefs": [
+    "Div. B, Title III, Sec. 2301",
+    "Div. B, Title III, Sec. 2301 (Tribal property definition)",
+    "Div. B, Title II, Sec. 2212",
+    "Div. B, Title III, Sec. 2302"
+   ],
+   "supportersSay": [
+    {
+     "who": "heinrich",
+     "text": "Our Bipartisan American Affordability and Jobs Act will help us get to ‘yes’ or ‘no’ on energy projects faster, while protecting important environmental safeguards and protecting the ability of Tribes to formally consult during these processes.",
+     "sourceUrl": "https://www.energy.senate.gov/press/rep/lee-capito-heinrich-and-whitehouse-introduce-bipartisan-american-affordability-and-jobs-act-of-2026/",
+     "date": "2026-09-30"
+    },
+    {
+     "who": "heinrich",
+     "text": "The Bipartisan American Affordability and Jobs Act will help lower energy costs, strengthen Tribal consultation, and create more good-paying jobs.",
+     "sourceUrl": "https://www.epw.senate.gov/public/index.cfm/press-releases-republican?ID=A5C872F2-36F3-4BAA-A277-B65DB95940C8",
+     "date": "2026-11-07"
+    }
+   ],
+   "opponentsSay": [
+    {
+     "who": "cortez_masto",
+     "text": "The changes to the National Historic Preservation Act were made without their input, and these changes violate the federal government’s responsibility to engage in government-to-government Tribal consultation.",
+     "sourceUrl": "https://www.cortezmasto.senate.gov/news/press-releases/cortez-masto-statement-on-permitting-reform-bill/",
+     "date": "2026-11-09"
+    },
+    {
+     "who": "markey",
+     "text": "the sacrifices of weakened clean water protections, intrusion on sovereign Tribal rights, and limits on the ability to be heard and considered during federal approval of projects",
+     "sourceUrl": "https://www.markey.senate.gov/news/press-releases/senator-markey-statement-on-permitting-reform-deal",
+     "date": "2026-11-09"
+    },
+    {
+     "who": "lujan",
+     "text": "I share the serious concerns raised by New Mexicans across the state, particularly our Pueblo and environmental leaders, and believe they must be addressed.",
+     "sourceUrl": "https://www.lujan.senate.gov/newsroom/press-releases/lujan-statement-on-vote-against-advancing-permitting-reform-legislation/",
+     "date": "2026-11-09"
+    }
+   ],
+   "whatTheTextSays": [
+    {
+     "ref": "Div. B, Title III, Sec. 2301",
+     "quote": "does not include-- ``(i) any visual, atmospheric, or audible element, unless the visual, atmospheric, or audible element would have a direct impact on a historic property that would significantly diminish the eligible characteristics of the historic property; ``(ii) any temporary alteration to a",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+    },
+    {
+     "ref": "Div. B, Title III, Sec. 2301 (Tribal property definition)",
+     "quote": "``(1) Definition of property of traditional religious or cultural importance.--In this subsection, the term `property of traditional religious or cultural importance' means an identifiable geographic location or feature at which an event of continuing religious or cultural significance to a living",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+    },
+    {
+     "ref": "Div. B, Title III, Sec. 2301 (substitute savings clause)",
+     "quote": "``(6) Savings provision.--Nothing in this subsection-- ``(A) authorizes the Secretary to consult on behalf of an Indian tribe; or ``(B) relieves a Federal agency of the obligation to consult with an Indian tribe under section 302706(b). ``(c) Oversight.-- ``(1) In general.--The Secretary, in",
+     "sourceUrl": "https://www.congress.gov/119/crec/2026/11/10/172/169/modified/CREC-2026-11-10-pt1-PgS5471-2.htm"
+    }
+   ],
+   "plainRead": "Both sides point at the same title. It adds a statutory definition of Tribal cultural property and Tribal preservation grants. It also narrows what counts as an \"adverse effect\" and lets Interior suspend Tribal programs that miss timelines. The substitute adds that agencies keep their duty to consult Tribes under section 302706(b). Cortez Masto said she would vote against final passage if Title III stays; it remained in the text agreed to on 2026-11-18.",
+   "independentRead": null
+  },
+  {
+   "id": "data-center-costs",
+   "question": "Will data centers pay the full grid costs they cause, or can those costs still reach household bills?",
+   "provisionRefs": [
+    "Div. B, Title I, Sec. 2107",
+    "Div. B, Title I, Sec. 2107 (FPA Sec. 229, substitute)"
+   ],
+   "supportersSay": [
+    {
+     "who": "whitehouse",
+     "text": "Passing this bipartisan bill will flood the grid with clean, affordable energy, make sure data centers start paying their fair share, and provide regulatory certainty to small businesses.",
+     "sourceUrl": "https://www.whitehouse.senate.gov/news/release/whitehouse-nam-convene-roundtable-with-ri-manufacturing-labor-and-business-leaders-to-support-permitting-reform/",
+     "date": "2026-11-02"
+    },
+    {
+     "who": "heinrich",
+     "text": "Require data centers to pay for increased grid and energy costs they create, estimated at $55 billion in the next 10 years;",
+     "sourceUrl": "https://www.energy.senate.gov/press/dem/heinrichs-bipartisan-american-affordability-and-jobs-act-passes-key-senate-vote/",
+     "date": "2026-11-10"
+    }
+   ],
+   "opponentsSay": [
+    {
+     "who": "duckworth",
+     "text": "I’m also skeptical that we’ll be successful in lowering costs for the American people by passing a bill that is supported by data centers and utility corporations who are jacking up their costs.",
+     "sourceUrl": "https://www.duckworth.senate.gov/news/press-releases/duckworth-to-vote-against-permitting-reform-bill",
+     "date": "2026-11-09"
+    },
+    {
+     "who": "markey",
+     "text": "this bill attempts to address these goals by asking communities to trade the benefits of interstate transmission and the ability to make data centers pay more for grid power for the sacrifices of weakened clean water protections",
+     "sourceUrl": "https://www.markey.senate.gov/news/press-releases/senator-markey-statement-on-permitting-reform-deal",
+     "date": "2026-11-09"
+    }
+   ],
+   "whatTheTextSays": [
+    {
+     "ref": "Div. B, Title I, Sec. 2107",
+     "quote": "(B) transmission service costs should be fully assigned to computational load owners and computational load operators so as to minimize or avoid the cost burden on other customers; and (C) computational load owners and computational load operators should incur the full cost of the transmission",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+    },
+    {
+     "ref": "Div. B, Title I, Sec. 2107 (FPA Sec. 229, substitute)",
+     "quote": "``(1) No subsidy of data centers.--No portion of the retail incremental cost may be allocated to, or recovered in the rates of, any customer other than a computational load owner or a computational load operator. ``(2) Surplus permitted.--Paragraph (1) does not limit the authority of a State under",
+     "sourceUrl": "https://www.congress.gov/119/crec/2026/11/10/172/169/modified/CREC-2026-11-10-pt1-PgS5471-2.htm"
+    }
+   ],
+   "plainRead": "The text bars charging a data center's incremental costs to other customers. FERC must revise its transmission pricing within 270 days and then write a rule; retail rates stay with State commissions. The $55 billion figure is from unnamed \"independent analyses\" in Heinrich's release, not CBO.",
+   "independentRead": null
+  },
+  {
+   "id": "nepa-timelines-litigation",
+   "question": "Do the new review deadlines and the 150-day window to sue speed up projects, or cut off public challenges?",
+   "provisionRefs": [
+    "Div. A, Title I, Sec. 1106",
+    "Div. A, Title I, Sec. 1110",
+    "Div. B, Title II, Sec. 2201",
+    "Div. A, Title I, Sec. 1134 (substitute only)"
+   ],
+   "supportersSay": [
+    {
+     "who": "capito",
+     "text": "The environmental permitting and review processes should be tools for informed decision-making, not reasons that decisions can’t be made.",
+     "sourceUrl": "https://www.epw.senate.gov/public/index.cfm/press-releases-republican?ID=CCD27C16-CBA8-4E56-BFAE-C30D16E0AE61",
+     "date": "2026-11-09"
+    },
+    {
+     "who": "heinrich",
+     "text": "does not remove environmental considerations, the ability to litigate projects or the ability for local communities to comment… But it does make these reviews a standardized part of a predictable process.",
+     "sourceUrl": "https://www.energy.senate.gov/press/dem/heinrich-op-ed-a-plan-to-end-americas-most-expensive-bottleneck/",
+     "date": "2026-11-16"
+    }
+   ],
+   "opponentsSay": [
+    {
+     "who": "alsobrooks",
+     "text": "But we should not do it at the expense of clean water and community engagement.",
+     "sourceUrl": "https://www.alsobrooks.senate.gov/news/press-releases/alsobrooks-votes-no-on-bipartisan-american-affordability-and-jobs-act/",
+     "date": "2026-11-09"
+    },
+    {
+     "who": "markey",
+     "text": "limits on the ability to be heard and considered during federal approval of projects ranging from hyperscale data centers to petrochemical plants",
+     "sourceUrl": "https://www.markey.senate.gov/news/press-releases/senator-markey-statement-on-permitting-reform-deal",
+     "date": "2026-11-09"
+    }
+   ],
+   "whatTheTextSays": [
+    {
+     "ref": "Div. A, Title I, Sec. 1106",
+     "quote": "the lead agency shall publish an environmental impact statement, if applicable, not later than the date that is 2 years after the earlier of, as applicable-- ``(I) the date on which the lead agency determines that section 102(2)(C) requires the issuance of an environmental impact statement with",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+    },
+    {
+     "ref": "Div. A, Title I, Sec. 1110",
+     "quote": "``(5) Remedy.-- ``(A) In general.--Except as provided in subparagraph (B) and notwithstanding any other provision of law, if a court determines that an authorization does not comply with the requirements of this Act, the only remedy the court may order to redress that violation is to remand,",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+    }
+   ],
+   "plainRead": "Lawsuits remain possible but must be filed within 150 days. A court that finds a NEPA violation generally sends the permit back for a fix (within 180 days) instead of voiding it. A preliminary injunction is still available in narrow cases.",
+   "independentRead": {
+    "scorekeeper": "CBO and JCT",
+    "finding": "Preliminary estimate: the substitute would increase deficits by less than $1 billion over 2027-2036. CBO also expects more private investment and GDP growth from earlier infrastructure investment.",
+    "sourceUrl": "https://www.cbo.gov/publication/62908",
+    "date": "2026-11-13",
+    "verification": "partial: cbo.gov refuses automated requests (HTTP 403 and a captcha). This finding is the publication's own summary as surfaced by search, not read word for word from the letter. Confirm against the PDF (https://www.cbo.gov/system/files/2026-11/62908-Johnson-Letter-BAAJA.pdf) before publishing."
+   }
+  },
+  {
+   "id": "project-certainty",
+   "question": "Does Sec. 1401 stop politically motivated permit cancellations, or lock in permits against future protections?",
+   "provisionRefs": [
+    "Div. A, Title IV, Sec. 1401"
+   ],
+   "supportersSay": [
+    {
+     "who": "heinrich",
+     "text": "The legislation provides greater certainty for projects that have already been permitted and financed, including by preventing future administrations from arbitrarily blocking entire classes of energy projects",
+     "sourceUrl": "https://www.energy.senate.gov/press/dem/what-theyre-saying-heinrichs-bipartisan-permitting-reform-deal-will-deliver-cheaper-energy-more-jobs-responsible-growth/",
+     "date": "2026-10-09"
+    }
+   ],
+   "opponentsSay": [
+    {
+     "who": "markey",
+     "text": "Legal experts have also raised serious concerns about the potential unintended effects of provisions that are meant to prevent Trump’s misuse of the permitting process but could impair environmental protections into the future at taxpayers’ expense.",
+     "sourceUrl": "https://www.markey.senate.gov/news/press-releases/senator-markey-statement-on-permitting-reform-deal",
+     "date": "2026-11-09"
+    },
+    {
+     "who": "wyden",
+     "text": "I cannot support a bill that relies on a handshake promise from the same administration that’s spent the last two years waging a war on new clean energy projects to hold up its end of the bargain",
+     "sourceUrl": "https://www.wyden.senate.gov/news/press-releases/wyden-statement-on-permitting-reform",
+     "date": "2026-11-06"
+    }
+   ],
+   "whatTheTextSays": [
+    {
+     "ref": "Div. A, Title IV, Sec. 1401",
+     "quote": "a Federal department or agency shall not take any new action that would revoke, rescind, withdraw, terminate, suspend, amend, or alter a Federal authorization or permit in effect on or after September 16, 2026, or take any other action to interfere with or prevent the construction or operation at",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+    }
+   ],
+   "plainRead": "Agencies may still act on court orders, violations, fraud, urgent new harms or the holder's request. The substitute adds \"human health, the environment\" to the harm exception and allows action \"pursuant to any applicable law or regulation\". Wyden's \"handshake promise\" concerns the administration's conduct, which is not in the text.",
+   "independentRead": null
+  },
+  {
+   "id": "clean-water",
+   "question": "Does narrowing State water-quality certification and lengthening discharge permits weaken clean-water protection?",
+   "provisionRefs": [
+    "Div. A, Title II, Sec. 1202",
+    "Div. A, Title II, Sec. 1203",
+    "Div. A, Title II, Sec. 1204"
+   ],
+   "supportersSay": [
+    {
+     "who": "capito",
+     "text": "The bipartisan reforms we secured in this deal will transform our nation’s ability to power our economy and fuel future growth, while continuing to protect the land, water, and wildlife we all cherish.",
+     "sourceUrl": "https://www.energy.senate.gov/press/rep/lee-capito-heinrich-and-whitehouse-introduce-bipartisan-american-affordability-and-jobs-act-of-2026/",
+     "date": "2026-09-30"
+    }
+   ],
+   "opponentsSay": [
+    {
+     "who": "van_hollen",
+     "text": "What’s more, this bill undermines critical provisions that protect the Chesapeake Bay and its tributaries – an economic and environmental lifeline for folks across our state.",
+     "sourceUrl": "https://www.vanhollen.senate.gov/news/press-releases/van-hollen-statement-on-current-opposition-to-moving-forward-with-permitting-reform-legislation",
+     "date": "2026-11-09"
+    },
+    {
+     "who": "blunt_rochester",
+     "text": "I’m especially concerned about provisions in this package that will actively weaken environmental protections .",
+     "sourceUrl": "https://www.bluntrochester.senate.gov/news/press-releases/statement-senator-blunt-rochester-opposes-senate-permitting-reform-bill/",
+     "date": "2026-11-09"
+    }
+   ],
+   "whatTheTextSays": [
+    {
+     "ref": "Div. A, Title II, Sec. 1202",
+     "quote": "``(2) Scope of certification.-- ``(A) In general.--The scope of a certification provided under this section shall be limited to ensuring compliance with water quality requirements. ``(B) Prohibition.--In reviewing a certification application, no certifying authority may-- ``(i) deny certification",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+    },
+    {
+     "ref": "Div. A, Title II, Sec. 1203",
+     "quote": "Section 402(b)(1)(B) of the Federal Water Pollution Control Act (33 U.S.C. 1342(b)(1)(B)) is amended by striking ``five years'' and inserting ``10 years''.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+    }
+   ],
+   "plainRead": "States keep certification authority but may weigh only water-quality requirements, and must deny or condition only on clear and convincing evidence. Discharge permits may last 10 years instead of 5.",
+   "independentRead": null
+  },
+  {
+   "id": "abandoned-mine-reclamation",
+   "question": "Does the bill fund or change abandoned-mine reclamation?",
+   "provisionRefs": [
+    "Div. B, Title II, Sec. 2215",
+    "Div. A, Title VI, Sec. 1602 (substitute only)"
+   ],
+   "supportersSay": [],
+   "opponentsSay": [],
+   "whatTheTextSays": [
+    {
+     "ref": "Div. B, Title II, Sec. 2215",
+     "quote": "the proprietor may-- ``(A) locate and include within the plan of operations as many mill site claims under this subsection as are reasonably necessary for its operations; and ``(B) use or occupy public land in accordance with an approved plan of operations. ``(3) Mill sites convey no mineral",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+    }
+   ],
+   "plainRead": "Not a live claim on this text. Neither version contains an abandoned-mine reclamation program, and no sponsor or opponent statement found raises one (checked 2026-11-19). The closest provisions are mill sites for waste rock and tailings on public land (2215) and brownfield cleanup grants (1602, substitute only). Kept so the requested topic is answered, not dropped.",
+   "independentRead": null
+  }
+ ],
+ "scorekeepers": [
+  {
+   "scorekeeper": "CBO and JCT",
+   "finding": "Preliminary estimate: the substitute would increase deficits by less than $1 billion over 2027-2036. CBO also expects more private investment and GDP growth from earlier infrastructure investment.",
+   "sourceUrl": "https://www.cbo.gov/publication/62908",
+   "date": "2026-11-13",
+   "verification": "partial: cbo.gov refuses automated requests (HTTP 403 and a captcha). This finding is the publication's own summary as surfaced by search, not read word for word from the letter. Confirm against the PDF (https://www.cbo.gov/system/files/2026-11/62908-Johnson-Letter-BAAJA.pdf) before publishing."
+  }
+ ],
+ "secondarySources": [
+  {
+   "label": "Third-party estimates quoted by sponsors (RFF CO2 modeling; Employ America 105,600 jobs; SEIA 37.4% wind and solar share; the unnamed $55 billion and $19 billion estimates)",
+   "type": "secondary",
+   "pairedPrimary": "https://www.energy.senate.gov/press/dem/heinrichs-bipartisan-american-affordability-and-jobs-act-passes-key-senate-vote/",
+   "use": "Shown only as what supporters say; never stated as fact or used for any mapping."
+  },
+  {
+   "label": "New York Times and Washington Post editorials; 17 State attorneys general (cited by Blunt Rochester)",
+   "type": "secondary",
+   "pairedPrimary": "https://www.bluntrochester.senate.gov/news/press-releases/statement-senator-blunt-rochester-opposes-senate-permitting-reform-bill/",
+   "use": "Context only; not used."
+  }
+ ],
+ "textDelta_S5653_to_SA6883": {
+  "addedSections": [
+   "1134",
+   "1309",
+   "1501",
+   "1502",
+   "1503",
+   "1504",
+   "1601",
+   "1602",
+   "2116",
+   "2117",
+   "2118",
+   "2261",
+   "3001"
+  ],
+  "removedSections": [
+   "2243 (FERC personnel safety, as a separate section; the substitute renumbers Subtitle E)"
+  ],
+  "materiallyChanged": [
+   "1401 (new exceptions)",
+   "2107 (cost floor rewritten as FPA Sec. 229; no 20 MW threshold)",
+   "2212 (adds Long-Term Leasing Act changes)",
+   "2301 (adds Tribal consultation savings clause)"
+  ],
+  "method": "Section-by-section comparison of the GovInfo S. 5653 text with the Congressional Record text of SA 6883 (S5471-S5520). 56 of 71 shared sections differ in some wording; the list above is the material changes read."
+ },
+ "completeness": {
+  "A_identity": {
+   "mark": "present",
+   "note": "Both text versions identified; no companion on record."
+  },
+  "B_status": {
+   "mark": "present",
+   "note": "Official record only; every timeline row is dated; vehicle status shown separately."
+  },
+  "C_overview": {
+   "mark": "present",
+   "note": "117 words."
+  },
+  "D_provisions": {
+   "mark": "present",
+   "note": "Every title in both versions, plus every mapped section. Section anchors are not available in GovInfo HTML."
+  },
+  "E_issue_mapping": {
+   "mark": "present",
+   "note": "12 keys mapped, 18 considered and declined (including a vocabulary gap for Tribal consultation)."
+  },
+  "F_positions": {
+   "mark": "partial",
+   "note": "All 4 sponsors have verbatim statements. Sen. Lee's are from the primary source with no Evidence Locker item behind them."
+  },
+  "G_votes": {
+   "mark": "present",
+   "note": "6 Senate roll calls on the vehicle and substitute; all 100 senators linked on each; voice votes noted. No vote on S. 5653 itself."
+  },
+  "H_contested_claims": {
+   "mark": "present",
+   "note": "5 claims with both sides and the text; the abandoned-mine topic recorded as not in the text."
+  },
+  "I_citations": {
+   "mark": "partial",
+   "note": "All primary, except the CBO finding, which cannot be checked word for word by automated reads (cbo.gov blocks them)."
+  }
+ },
+ "doesNotDo": "No live page, data row, migration or service worker is changed by this file. No vote, position or mapping is written to the database."
+}
