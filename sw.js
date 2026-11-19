@@ -12382,7 +12382,19 @@
 //     unchanged. No route or markup structure changes; no location key is
 //     touched and nothing stored is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v585';
+// v586 - COVERAGE: ROLL-CALL PAGES, ATTENDANCE, CO-SPONSORSHIPS, COMMITTEES,
+//     COMMITTEE MONEY, WHAT CHANGED. person-bills.js (precached) now also loads
+//     person-coverage.js, as it loads person-recorded-votes.js, and bill.html
+//     (precached) loads bill-cosponsors.js;
+//     both modules are fetched at runtime and read /api/* routes the worker
+//     never intercepts, so the precache list is unchanged. The new pages
+//     (/vote/<congress>/<chamber>/<session>/<roll> and /changes) are
+//     server-rendered navigations under the existing navigate policy.
+//     Precached files changed, so the shell moves. No stance, chip, gate or
+//     Recorded votes change; no location key is touched and nothing stored is
+//     migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v586';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

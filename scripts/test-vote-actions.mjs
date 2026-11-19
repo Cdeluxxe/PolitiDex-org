@@ -389,7 +389,14 @@ const readers = readdirSync(join(ROOT, "netlify/functions")).filter((f) => !f.st
 // for member positions and the vr ingest READS it (overlay + reconcile), through
 // netlify/lib/vr-vote-source-db.ts only. Those two functions are the only other
 // readers, and nothing outside vote-actions writes the action tables.
-eq(readers, ["vr-ingest-cron.mts", "vr-ingest.mts"], "only the vr ingest reads the action tables (Phase 4 join)");
+// Phase 5 added three PUBLIC readers, each only through the publish gate
+// (vote-actions-publish.ts with the read-only publishDeps): the roll-call page,
+// the person-file coverage read (attendance) and the "what changed" feed.
+eq(readers, ["changes-feed.mts", "person-coverage.mts", "vote-page.mts", "vr-ingest-cron.mts", "vr-ingest.mts"], "only the vr ingest and the Phase 5 publish-gated reads read the action tables");
+for (const f of ["changes-feed.mts", "person-coverage.mts", "vote-page.mts"]) {
+  const src = read(`netlify/functions/${f}`);
+  ok(/vote-actions-publish/.test(src) && !/pdxVoteActions|pdxActionBills|pdx_vote_actions/.test(src), `${f} reads the action tables only through the publish gate`);
+}
 for (const f of readers) ok(!/pdxVoteActions|pdxActionBills/.test(read(`netlify/functions/${f}`)), `${f} reaches the action tables only through vr-vote-source-db`);
 const bridge = read("netlify/lib/vr-vote-source-db.ts").replace(/^\/\/.*$/gm, "");
 ok(!/\.(insert|update|delete)\(\s*pdx(VoteActions|ActionBills)/.test(bridge) && !/(INSERT INTO|UPDATE|DELETE FROM)\s+pdx_/i.test(bridge), "the bridge never writes the action tables");

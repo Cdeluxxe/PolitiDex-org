@@ -192,6 +192,13 @@ export type PublishDeps = {
   rowsForBill?: (billKey: string) => Promise<BillVoteRow[]>;
   // Number, title and kind of each bill, so a list of rolls can name its bill.
   billInfo?: (billKeys: string[]) => Promise<BillInfo[]>;
+  // The roll-call page and the "what changed" feed (read-only lookups).
+  billKeyForRoll?: (r: { chamber: string; congress: number; session: number; roll: number }) => Promise<string | null>;
+  recentRolls?: (limit: number) => Promise<RecentRoll[]>;
+};
+export type RecentRoll = {
+  billKey: string; chamber: string; congress: number; session: number; rollNumber: number; voteDate: string | Date | null;
+  question?: string | null; result?: string | null; sourceUrl?: string | null; sourceLabel?: string | null; procedural?: boolean;
 };
 export type BillInfo = { billKey: string; congress: number | null; measureType: string; number: string | null; title: string; shortTitle?: string | null };
 
@@ -309,4 +316,69 @@ export async function curatorLinksForPolitician(pid: string, deps: PublishDeps) 
     });
   }
   return { pid, rulesVersion: PUBLISH_RULES_VERSION, bills: Object.keys(billKeys).length, billKeys, publish };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Phase 5 reads. None of them changes a rule: each one goes through the same
+// gate (gatesFor / publishedForBill) the person and bill reads use.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// The public address of one roll call's page.
+export const rollPagePath = (r: { chamber: string; congress: number | string; session: number | string; roll?: number | string; rollNumber?: number | string }) =>
+  `/vote/${encodeURIComponent(String(r.congress))}/${encodeURIComponent(String(r.chamber))}/${encodeURIComponent(String(r.session))}/${encodeURIComponent(String(r.roll ?? r.rollNumber))}`;
+
+// THE PUBLIC ROLL-CALL READ: one roll call, only when it passes the gate, with
+// its bill and member votes exactly as publishedForBill returns them. null = no
+// such roll call on file, or it is held.
+export async function publishedRollCall(r: { chamber: string; congress: number; session: number; roll: number }, deps: PublishDeps) {
+  if (!deps.billKeyForRoll) return null;
+  const billKey = await deps.billKeyForRoll(r);
+  if (!billKey) return null;
+  const bill = await publishedForBill(billKey, deps);
+  const roll = (bill.rolls || []).find((x: any) =>
+    x.chamber === r.chamber && Number(x.congress) === r.congress && Number(x.session) === r.session && Number(x.roll) === r.roll);
+  if (!roll) return null;
+  return { billKey, rulesVersion: PUBLISH_RULES_VERSION, info: (bill as any).info || null, roll, page: rollPagePath(roll) };
+}
+
+// The newest published roll calls, newest first: the "what changed" feed's
+// vote lane. Rolls are read newest first and filtered through the gate.
+export async function recentPublishedRolls(deps: PublishDeps, limit = 30) {
+  if (!deps.recentRolls) return [];
+  const rows = await deps.recentRolls(limit * 4);
+  const keys = [...new Set(rows.map((r) => r.billKey).filter(Boolean))];
+  const gates = await gatesFor(keys, deps);
+  const out = rows.filter((r) => { const g = gates.get(r.billKey); return !!(g && g.rollPublic(r)); }).slice(0, limit);
+  const info: Record<string, any> = {};
+  if (deps.billInfo && out.length) for (const b of await deps.billInfo([...new Set(out.map((r) => r.billKey))])) info[b.billKey] = infoOut(b);
+  return out.map((r) => ({
+    chamber: r.chamber, congress: r.congress, session: r.session, roll: r.rollNumber, date: iso(r.voteDate),
+    question: r.question ?? null, result: r.result ?? null, procedural: r.procedural === true,
+    sourceUrl: /^https?:\/\//.test(String(r.sourceUrl || "")) ? r.sourceUrl : null, sourceLabel: r.sourceLabel ?? null,
+    bill: info[r.billKey] || null, page: rollPagePath(r),
+  }));
+}
+
+// Attendance over one person's PUBLISHED roll calls (publishedForPolitician's
+// output): how many they were recorded on, and how many of those list them as
+// not voting. A count of the roll calls on this site, not an official score:
+// it covers only the roll calls that have passed the gate.
+export function attendanceFrom(published: { billKeys?: Record<string, any[]> } | null | undefined) {
+  const out = { rolls: 0, voted: 0, notVoting: 0, present: 0, missedPct: null as number | null, first: null as string | null, last: null as string | null };
+  const seen = new Set<string>();
+  for (const list of Object.values(published?.billKeys || {})) {
+    for (const r of list || []) {
+      const k = `${r.chamber}|${r.congress}|${r.session}|${r.roll}`;
+      if (seen.has(k)) continue;
+      seen.add(k);
+      out.rolls++;
+      if (r.vote === "not_voting") out.notVoting++;
+      else { out.voted++; if (r.vote === "present") out.present++; }
+      const d = r.date ? String(r.date).slice(0, 10) : null;
+      if (d && (!out.first || d < out.first)) out.first = d;
+      if (d && (!out.last || d > out.last)) out.last = d;
+    }
+  }
+  if (out.rolls) out.missedPct = Math.round((out.notVoting / out.rolls) * 1000) / 10;
+  return out;
 }

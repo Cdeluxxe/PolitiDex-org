@@ -312,7 +312,12 @@ t('no migration, no new function, and the worker precache list is untouched', ()
     // Generator cleanup phase 3: the serve-time merges that add generated bill
     // pages to site search and to the person file's sponsored-bills list.
     'netlify/edge-functions/bill-search-index-client.ts',
-    'netlify/edge-functions/person-bills-client.ts'];
+    'netlify/edge-functions/person-bills-client.ts',
+    // Generator cleanup phase 5: the roll-call page, the person-file coverage
+    // read and the public "what changed" feed (all read-only).
+    'netlify/functions/vote-page.mts',
+    'netlify/functions/person-coverage.mts',
+    'netlify/functions/changes-feed.mts'];
   if (added != null) assert.deepEqual(added.split('\n').filter((l) => /^(?:\?\?|A)/.test(l) && !LATER.some((f) => l.endsWith(' ' + f))), [], 'no new function or migration file');
   const sw = R('sw.js');
   for (const f of ['person-directional-keys.js', 'person-directional-keys-auto.json', 'person-directional-keys.json']) assert.ok(!sw.includes(`'/${f}'`), `${f} is not precached`);

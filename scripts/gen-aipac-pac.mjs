@@ -37,12 +37,12 @@
 // here: it is a super PAC, and every row it files is an independent
 // expenditure (24E / 24A), never a contribution.
 
-import { readFileSync, writeFileSync, readdirSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
+import { rosterBioguide, fecCandidates, netContributions, dropNonPositive } from "./fec-core.mjs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const R = (f) => readFileSync(join(ROOT, f), "utf8");
 const COMMITTEES = {
   C00797670: "aipac",      // American Israel Public Affairs Committee PAC
   C00247403: "norpac",     // NORPAC
@@ -62,60 +62,13 @@ if (pas2.length !== CYCLES.length || !legs.length) {
   process.exit(2);
 }
 
-// ── roster: pid → bioguide ──────────────────────────────────────────────────
-const pidBg = new Map();
-const addPair = (pid, bg) => {
-  const had = pidBg.get(pid);
-  if (had && had !== bg) throw new Error(`${pid} maps to two bioguide ids: ${had}, ${bg}`);
-  pidBg.set(pid, bg);
-};
-{
-  const src = R("cmp-data.js");
-  const heads = [...src.matchAll(/\n\s*"([a-z0-9_]+)":\s*\{/g)];
-  heads.forEach((m, i) => {
-    const block = src.slice(m.index, i + 1 < heads.length ? heads[i + 1].index : src.length);
-    const ph = /congress\/450x550\/([A-Z]\d{6})\.jpg/.exec(block);
-    if (ph) addPair(m[1], ph[1]);
-  });
-  for (const f of readdirSafe(join(ROOT, "db"))) {
-    if (!f.endsWith(".json")) continue;
-    const s = R("db/" + f);
-    for (const m of s.matchAll(/"bioguideId":\s*"([A-Z]\d{6})",\s*"politicianId":\s*"([a-z0-9_]+)"/g)) addPair(m[2], m[1]);
-  }
-}
-function readdirSafe(d) { try { return readdirSync(d); } catch (e) { return []; } }
-
-// ── bioguide → FEC candidate ids ────────────────────────────────────────────
-const fecPid = new Map();
-const bgPid = new Map([...pidBg].map(([p, b]) => [b, p]));
-for (const f of legs) {
-  for (const L of JSON.parse(readFileSync(f, "utf8"))) {
-    const pid = bgPid.get(L.id && L.id.bioguide);
-    if (!pid) continue;
-    for (const c of L.id.fec || []) fecPid.set(c, pid);
-  }
-}
-
-// ── each committee's own 24K rows, netted per person per committee ──────────
-const people = new Map();
-const sum = (o) => Object.values(o).reduce((a, b) => a + b, 0);
-pas2.forEach((file, i) => {
-  const cycle = CYCLES[i];
-  for (const line of readFileSync(file, "latin1").split("\n")) {
-    const f = line.split("|");
-    const key = COMMITTEES[f[0]];
-    if (!key || f[5] !== "24K" || f[19] === "X") continue;
-    if (/EARMARK|ERMK/i.test(f[20] || "")) continue;
-    const pid = fecPid.get(f[16]);
-    if (!pid) continue;
-    const p = people.get(pid) || { fec: f[16], pacs: {} };
-    const c = (p.pacs[key] ||= {});
-    c[cycle] = Math.round(((c[cycle] || 0) + Number(f[14] || 0)) * 100) / 100;
-    people.set(pid, p);
-  }
-});
+// ── roster → bioguide → FEC ids, then each committee's own 24K rows, netted
+// per person per committee. The reading rules live in fec-core.mjs, shared with
+// gen-funding.mjs, so both lanes count FEC's rows the same way.
+const fecPid = fecCandidates(legs, rosterBioguide(ROOT));
+const people = netContributions(pas2, CYCLES, fecPid, (cmte) => COMMITTEES[cmte] || null);
 // Drop every committee whose net is not above zero, then every person left with none.
-for (const p of people.values()) for (const k of Object.keys(p.pacs)) if (!(sum(p.pacs[k]) > 0)) delete p.pacs[k];
+dropNonPositive(people);
 const onFile = [...people].filter(([, p]) => Object.keys(p.pacs).length)
   .sort(([a], [b]) => (a < b ? -1 : 1));
 const byPac = Object.fromEntries(Object.values(COMMITTEES).map((k) => [k, onFile.filter(([, p]) => p.pacs[k]).length]));

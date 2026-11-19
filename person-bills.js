@@ -64,7 +64,8 @@
    no label in ISSUE_MAP is not printed. See netlify/lib/bill-live-issues.ts.
 
    COMPANION. It also loads person-directional-keys.js and
-   person-recorded-votes.js once (loadCompanion); each places its own section,
+   person-recorded-votes.js and person-coverage.js once (loadCompanion); each
+   places its own section,
    and nothing in the bills list depends on either.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
@@ -427,6 +428,9 @@
     loadScript('/person-directional-keys.js', 'data-pdx-dirkeys-loader', !!window.PDXPersonDirectionalKeys);
     // The raw "Recorded votes" section, which places itself after this one.
     loadScript('/person-recorded-votes.js', 'data-pdx-recorded-votes-loader', !!window.PDXRecordedVotes);
+    // Attendance, committees, bills co-sponsored and committee money (FEC):
+    // their own sections (person-coverage.js). Nothing in this list reads them.
+    loadScript('/person-coverage.js', 'data-pdx-coverage-loader', !!window.PDXPersonCoverage);
   }
 
   function boot() {
