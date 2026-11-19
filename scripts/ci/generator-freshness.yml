@@ -50,8 +50,28 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      # No npm install: every generator in scripts/generators.mjs (and the
-      # roster generator) imports Node built-ins and repo files only.
+      # No npm install for the generators: every generator in
+      # scripts/generators.mjs (and the roster generator) imports Node
+      # built-ins and repo files only.
+
+      # Phase 7: the scheduled functions (netlify/functions/congress-sync-*.mts)
+      # publish fresh Congress.gov / chamber-file pulls to Netlify Blobs between
+      # 04:40 and 06:50 UTC. Copy the finished ones into db/ here; the next
+      # step's --fix re-derives everything downstream and this PR carries it.
+      # Needs repository secrets NETLIFY_SITE_ID and NETLIFY_AUTH_TOKEN; without
+      # them the step says so and the run continues as before.
+      - name: Pull the scheduled Congress.gov snapshots
+        continue-on-error: true
+        env:
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        run: |
+          if [ -z "$NETLIFY_SITE_ID" ] || [ -z "$NETLIFY_AUTH_TOKEN" ]; then
+            echo "NETLIFY_SITE_ID / NETLIFY_AUTH_TOKEN not set; skipping the snapshot pull."
+            exit 0
+          fi
+          npm ci --ignore-scripts --no-audit --no-fund
+          node scripts/sync-congress-snapshots.mjs --no-regen || echo "some jobs had no finished pass; see above"
 
       - name: Check and regenerate
         id: fix
