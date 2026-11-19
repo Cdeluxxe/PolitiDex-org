@@ -93,6 +93,20 @@
 //   · Social slots are filled last (after every official / campaign page), so
 //     the caps and the priority of official pages are unchanged.
 
+// Video transcript pass:
+//   · The watch-page caption scrape is gone (YouTube answers server fetches
+//     with a bot check). Transcripts come from the background transcriber
+//     (netlify/functions/video-transcribe.mts → video-transcripts.mjs: Gemini
+//     via the Netlify AI Gateway, cached once per video id in the
+//     "video-transcripts" store). This cron only reads that cache.
+//   · A channel video or cited own-channel video WITH a cached transcript in
+//     which the politician speaks is a page-shaped record and goes through
+//     onRecord (scorer + Locker writer); its items link to watch?v=ID&t=NNs.
+//     Without one, it stays a mention (channel) or is skipped (cited video)
+//     and is queued; when this run queued any, the cron wakes the transcriber.
+//   · RUN LOG — "raw-ingest: youtube — …" adds "queued for the background
+//     transcriber"; report.youtube.queued.
+
 // Tier-2 evidence pass (pool v2):
 //   · The rotation pool (db/raw-ingest-pool-expansion-2026-11.json) opens to
 //     official government sources — Congress.gov member / measure pages and
@@ -235,6 +249,7 @@ import {
   readHostHealth, saveHostHealth, normaliseHostHealth, skippedHosts, filterSkippedHosts, recordHostResults, HOST_LEVEL,
 } from "../lib/raw-ingest-hosts.mjs";
 import { retiredSourcesLine, RETIRED_VERSION, RETIRED_LOG_KEY } from "../lib/raw-ingest-retired.mjs";
+import { TRANSCRIPT_STORE_NAME, lockerRawFor } from "../lib/video-transcripts.mjs";
 import groundTruth from "../../db/stance-ground-truth-talarico-cost-of-living.json" with { type: "json" };
 import reviewFile from "../../db/evidence-locker-review.json" with { type: "json" };
 
@@ -445,7 +460,8 @@ export async function run(deps: {
       return;
     }
     for (const candidate of candidates) {
-      const w = await maybeWriteLockerItem(candidate, rec, { store: deps.lockerStore, gt, log, flags });
+      // A transcribed video links to the second the cited words are spoken.
+      const w = await maybeWriteLockerItem(candidate, lockerRawFor(candidate, rec), { store: deps.lockerStore, gt, log, flags });
       if (oc) { if (w.written) oc.written.push(`${candidate.topic} ${w.item?.strength}`); else oc.reasons.push(`${candidate.topic}: ${w.reason || "not written"}`); }
       if (w.written) lockerWrites.push({ key: w.key, politician_id: candidate.politician_id, topic: candidate.topic, strength: w.item?.strength, source_tier: sourceTierOf(w.item), confidence: w.item?.confidence, ...(candidate.topic !== rec.topic ? { page_topic: rec.topic } : {}) });
     }
@@ -491,9 +507,9 @@ export async function run(deps: {
   const yt = report.results.filter((r: any) => r.youtube);
   if (yt.length) {
     const sum = (k: string) => yt.reduce((n: number, r: any) => n + (r.youtube[k] || 0), 0);
-    report.youtube = { channels: yt.length, videos: sum("videos"), stored: sum("stored"), already_stored: sum("seen"), transcript: sum("transcript"), description_fallback: sum("fallback") };
+    report.youtube = { channels: yt.length, videos: sum("videos"), stored: sum("stored"), already_stored: sum("seen"), transcript: sum("transcript"), description_fallback: sum("fallback"), queued: sum("queued") };
     const tried = report.youtube.transcript + report.youtube.description_fallback;
-    log(`raw-ingest: youtube — ${yt.length} channel(s), ${report.youtube.stored} new video record(s) · transcript ${report.youtube.transcript}/${tried}, description fallback ${report.youtube.description_fallback}/${tried} · ${report.youtube.already_stored} already stored`);
+    log(`raw-ingest: youtube — ${yt.length} channel(s), ${report.youtube.stored} new video record(s) · transcript ${report.youtube.transcript}/${tried}, description fallback ${report.youtube.description_fallback}/${tried} · ${report.youtube.queued} queued for the background transcriber · ${report.youtube.already_stored} already stored`);
   }
   report.discovered = discovered.map((s: any) => ({ politician_id: s.politician_id, topic: s.topic, url: s.url, kind: sourceKind(s), ...(s.official_kind ? { official_kind: s.official_kind } : {}) }));
   report.included = {
@@ -594,15 +610,16 @@ export async function run(deps: {
 // lines it already logs (still printed to the function log as before) and,
 // after the run, hands them and the report to the suggestions log
 // (raw-ingest-suggestions.mjs). A suggestions failure never touches the run.
-export async function scheduled(deps: { run?: typeof run; suggestionsStore?: any; now?: () => Date; [k: string]: any } = {}): Promise<Response> {
+export async function scheduled(deps: { run?: typeof run; suggestionsStore?: any; now?: () => Date; triggerTranscriber?: () => Promise<void>; [k: string]: any } = {}): Promise<Response> {
   const lines: string[] = [];
   const log = (l: string) => { lines.push(l); console.log(l); };
-  const { run: runFn = run, suggestionsStore, now, ...rest } = deps;
+  const { run: runFn = run, suggestionsStore, now, triggerTranscriber, ...rest } = deps;
   // The production stores, built only when a caller (a test) has not injected all three.
   const productionStores = () => ({
     store: getStore(RAW_STORE_NAME),
     lockerStore: getStore(LOCKER_STORE_NAME),
     rotationStore: getStore(ROTATION_STORE_NAME),
+    transcriptStore: getStore(TRANSCRIPT_STORE_NAME),
   });
   const injected = !!(rest.store && rest.lockerStore && rest.rotationStore);
   // The promotion step's database adapter, built only in production (loaded
@@ -618,6 +635,14 @@ export async function scheduled(deps: { run?: typeof run; suggestionsStore?: any
     ...rest,
     log,
   } as any);
+  // Videos queued this run: wake the background transcriber (video-transcribe.mts).
+  // It answers 202 at once and holds a worker lock, so an extra wake is harmless.
+  try {
+    const report = await res.clone().json();
+    if (report?.youtube?.queued > 0) await (triggerTranscriber ?? wakeTranscriber)();
+  } catch (e: any) {
+    log(`video-transcribe: not woken — ${e?.message || e}`);
+  }
   try {
     const report = await res.clone().json();
     await appendRunSuggestions(suggestionsStore ?? getStore(SUGGESTIONS_STORE_NAME), { lines, report, now: (now ?? (() => new Date()))() });
@@ -625,6 +650,12 @@ export async function scheduled(deps: { run?: typeof run; suggestionsStore?: any
     console.log(`raw-ingest-suggestions: not written — ${e?.message || e}`);
   }
   return res;
+}
+
+export async function wakeTranscriber(): Promise<void> {
+  const origin = process.env.URL || "https://politidex.fyi";
+  const r = await fetch(`${origin}/.netlify/functions/video-transcribe`, { method: "POST", signal: AbortSignal.timeout(4_000) });
+  console.log(`video-transcribe: woken (HTTP ${r.status})`);
 }
 
 async function productionStatedDb(log: (l: string) => void): Promise<any> {

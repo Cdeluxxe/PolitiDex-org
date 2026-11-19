@@ -1065,24 +1065,18 @@ await t('extra source types: a rotated run stores them as plain raw records (loc
   for (const rec of store.data.values()) if (/(?:^|\.)congress\.gov$/.test(new URL(rec.url).hostname)) assert.equal(rec.source_tier, 2, `${rec.url}: Congress.gov pages are tier 2`);
 });
 
-// ── Official social sources: YouTube (transcript first, description fallback) ──
+// ── Official social sources: YouTube (cached transcript scored, else description mention + queue) ──
 const social = await import('../netlify/lib/raw-ingest-social.mjs');
+const vtx = await import('../netlify/lib/video-transcripts.mjs');
 const SOCIAL_ITEM_FIELDS = ['type', 'date', 'link', 'excerpt', 'weight', 'politician_id', 'topic', 'source_type', 'source_id', 'url', 'fetched_at'];
 const FEED = (pid) => `<?xml version="1.0"?><feed>${[1, 2, 3, 4].map((i) => `<entry><yt:videoId>${pid.slice(0, 6).padEnd(6, 'x')}vid0${i}</yt:videoId><title>Video ${i} &amp; more</title><published>2026-11-0${i}T12:00:00+00:00</published><media:group><media:description>Description of video ${i}: lowering costs for Utah families.</media:description></media:group></entry>`).join('')}</feed>`;
-const ytFetch = ({ captions = true } = {}) => async (url) => {
+const ytFetch = ({ watched = [] } = {}) => async (url) => {
   const res = (status, body, ct = 'text/html') => ({ ok: status >= 200 && status < 300, status, url, headers: new Map([['content-type', ct]]), text: async () => body });
   if (url.includes('/feeds/videos.xml')) return res(200, FEED(new URL(url).searchParams.get('channel_id').toLowerCase()), 'application/atom+xml');
-  if (url.includes('/watch?v=')) {
-    const id = new URL(url).searchParams.get('v');
-    // Videos 3 and 4 carry an auto-generated English track; 1 and 2 have none.
-    if (!captions || !/[34]$/.test(id)) return res(200, '<html>no captions here</html>'.repeat(20));
-    const tracks = JSON.stringify([{ baseUrl: `https://www.youtube.com/api/timedtext?v=${id}&lang=en`, name: { runs: [{ text: 'English (auto-generated)' }] }, languageCode: 'en', kind: 'asr' }]);
-    return res(200, `<html><script>var x = {"captions":{"playerCaptionsTracklistRenderer":{"captionTracks":${tracks},"audioTracks":[]}}};</script></html>`);
-  }
-  if (url.includes('/api/timedtext')) return res(200, JSON.stringify({ events: [{ segs: [{ utf8: 'Transcript words ' }, { utf8: 'about water and schools.' }] }] }), 'application/json');
+  if (url.includes('/watch?v=')) { watched.push(url); return res(200, '<html>bot check</html>'); }
   return res(200, LONG_HTML);
 };
-const memGetStore = () => { const data = new Map(); return { data, async get(k) { return data.has(k) ? JSON.stringify(data.get(k)) : null; }, async setJSON(k, v) { data.set(k, JSON.parse(JSON.stringify(v))); } }; };
+const memGetStore = () => { const data = new Map(); return { data, async get(k) { return data.has(k) ? JSON.stringify(data.get(k)) : null; }, async setJSON(k, v, o = {}) { if (o.onlyIfNew && data.has(k)) return { modified: false }; data.set(k, JSON.parse(JSON.stringify(v))); return { modified: true }; } }; };
 
 await t('social: official YouTube channels are configured only from videos the site already cites on the politician\'s own channel; no X / Facebook', () => {
   assert.deepEqual(Object.keys(social.SOCIAL_CLASSES), ['youtube', 'youtube_video']);
@@ -1148,10 +1142,10 @@ const ytSource = (pid, channel_id) => ({ politician_id: pid, topic: 'cost_living
 const YT_FIXTURE = [ytSource('curtis', 'UCaaaaaaFixtureChannel01'), ytSource('hoang_nguyen', 'UCbbbbbbFixtureChannel02')];
 const ytRow = (src) => ({ ...rowOf(src.politician_id), sources: [src] });
 
-await t('social: a YouTube pull writes one locked-shape item per new video — transcript first, description fallback logged, no scoring', async () => {
+await t('social: a YouTube pull with no cached transcript writes one locked-shape mention per new video (description), queues it, and never scores or fetches the watch page', async () => {
   const roster = YT_FIXTURE.map(ytRow);
-  const store = memGetStore(); const logs = []; const hooked = [];
-  const { value: res, lines } = await quiet(() => fn.run({ fetch: ytFetch(), store, now: NOW, rotate: { roster, state: {}, counts: {} }, log: (l) => logs.push(l) }));
+  const store = memGetStore(); const ts = memGetStore(); const logs = []; const watched = [];
+  const { value: res, lines } = await quiet(() => fn.run({ fetch: ytFetch({ watched }), store, transcriptStore: ts, now: NOW, rotate: { roster, state: {}, counts: {} }, log: (l) => logs.push(l) }));
   const r = await res.json();
   const items = [...store.data.entries()].filter(([, v]) => v.type === 'video');
   assert.equal(items.length, 2 * social.YOUTUBE_MAX_VIDEOS, 'the 3 most recent videos per channel');
@@ -1161,44 +1155,58 @@ await t('social: a YouTube pull writes one locked-shape item per new video — t
     assert.match(v.date, /^20\d\d-\d\d-\d\d$/);
     assert.match(v.link, /^https:\/\/www\.youtube\.com\/watch\?v=[A-Za-z0-9_-]{11}$/);
     assert.equal(v.weight, 'mention');
+    assert.ok(v.excerpt.startsWith('Description of video'), 'the description is the excerpt');
     assert.ok(v.excerpt.length > 0 && v.excerpt.length <= social.SOCIAL_EXCERPT_MAX);
     assert.ok(k.endsWith(`/${new URL(v.link).searchParams.get('v')}.json`), 'keyed by video id');
   }
   assert.ok(!items.some(([, v]) => /vid01/.test(v.link)), 'only the most recent videos (the oldest is left out)');
-  const byTranscript = items.filter(([, v]) => v.excerpt.startsWith('Transcript words'));
-  const byDescription = items.filter(([, v]) => v.excerpt.startsWith('Description of video'));
-  assert.equal(byTranscript.length, 4, 'videos 3 and 4 use the transcript');
-  assert.equal(byDescription.length, 2, 'video 2 falls back to the description');
-  assert.equal(logs.filter((l) => l.startsWith('raw-ingest: TRANSCRIPT FALLBACK ')).length, 2, 'every fallback is logged');
-  assert.ok(logs.some((l) => /^raw-ingest: youtube — 2 channel\(s\), 6 new video record\(s\) · transcript 4\/6, description fallback 2\/6/.test(l)), 'the run logs the transcript vs. fallback tally');
-  assert.deepEqual({ t: r.youtube.transcript, f: r.youtube.description_fallback }, { t: 4, f: 2 });
-  assert.ok(!lines.concat(logs).some((l) => /stance-score: .*vid0/.test(l)), 'no scoring on social items');
-  // Next run: already-stored videos are skipped before any transcript fetch.
-  const seenUrls = [];
-  const countingFetch = async (u, o) => { seenUrls.push(u); return ytFetch()(u, o); };
-  const { value: res2 } = await quiet(() => fn.run({ fetch: countingFetch, store, now: NOW, rotate: { roster, state: {}, counts: {} }, log: () => {} }));
+  assert.equal(watched.length, 0, 'the watch page is never fetched (it is a bot check to servers)');
+  assert.equal([...ts.data.keys()].filter((k) => k.startsWith('queue/')).length, 6, 'every new video is queued for the background transcriber');
+  assert.equal(logs.filter((l) => l.startsWith('raw-ingest: TRANSCRIPT FALLBACK ') && l.includes('queued')).length, 6, 'every fallback is logged');
+  assert.ok(logs.some((l) => /^raw-ingest: youtube — 2 channel\(s\), 6 new video record\(s\) · transcript 0\/6, description fallback 6\/6 · 6 queued/.test(l)), 'the run logs the tally');
+  assert.deepEqual({ t: r.youtube.transcript, f: r.youtube.description_fallback, q: r.youtube.queued }, { t: 0, f: 6, q: 6 });
+  assert.ok(!lines.concat(logs).some((l) => /stance-score: .*vid0/.test(l)), 'no scoring on mention items');
+  // Next run: already-stored videos are skipped and not queued again.
+  const { value: res2 } = await quiet(() => fn.run({ fetch: ytFetch(), store, transcriptStore: ts, now: NOW, rotate: { roster, state: {}, counts: {} }, log: () => {} }));
   const r2 = await res2.json();
   assert.equal(r2.youtube.stored, 0);
   assert.equal(r2.youtube.already_stored, 6);
-  assert.ok(!seenUrls.some((u) => u.includes('/watch?v=')), 'no transcript fetch for stored videos');
-  // No captions anywhere → everything falls back, nothing fails.
+  assert.equal(r2.youtube.queued, 0);
+  // No transcript store at all → mentions only, nothing fails.
   const st3 = memGetStore(); const l3 = [];
-  await quiet(() => fn.run({ fetch: ytFetch({ captions: false }), store: st3, now: NOW, rotate: { roster, state: {}, counts: {} }, log: (l) => l3.push(l) }));
+  await quiet(() => fn.run({ fetch: ytFetch(), store: st3, now: NOW, rotate: { roster, state: {}, counts: {} }, log: (l) => l3.push(l) }));
   assert.equal([...st3.data.values()].filter((v) => v.type === 'video' && v.excerpt.startsWith('Description')).length, 6);
-  assert.equal(l3.filter((l) => l.startsWith('raw-ingest: TRANSCRIPT FALLBACK ')).length, 6);
   // A broken feed fails only that source.
   const bad = await quiet(() => social.pullYouTube(YT_FIXTURE[0], { fetch: fakeFetch(500, 'x'), store: memGetStore(), now: NOW, log: () => {} }));
   assert.equal(bad.value.ok, false);
 });
 
-await t('social: transcript helpers parse caption tracks and bodies', () => {
-  const html = `x "captionTracks":[{"baseUrl":"https://y/t?a=1\\u0026lang=en","name":{"runs":[{"text":"English"}]},"languageCode":"en"},{"baseUrl":"https://y/t2","languageCode":"en","kind":"asr"}],"z":1`;
-  const tracks = social.extractCaptionTracks(html);
-  assert.equal(tracks.length, 2);
-  assert.equal(social.pickCaptionTrack(tracks).kind, 'asr', 'auto-generated English preferred');
-  assert.equal(social.captionText('<transcript><text start="0">Hello &amp;amp; welcome</text><text>to Utah</text></transcript>'), 'Hello &amp; welcome to Utah'.replace('&amp;', '&'));
-  assert.equal(social.captionText(''), '');
-  assert.equal(social.extractCaptionTracks('<html></html>'), null);
+await t('social: a channel video with a cached transcript is a page-shaped tier-2 record that goes through the scorer hook; one with no speech stays a mention', async () => {
+  const src = YT_FIXTURE[1];
+  const pid6 = src.channel_id.toLowerCase().slice(0, 6).padEnd(6, 'x'); // FEED ids come from the channel id
+  const ts = memGetStore();
+  ts.data.set(vtx.cacheKey(`${pid6}vid04`), { video_id: `${pid6}vid04`, status: 'ok', provider: 'gemini', segments: [{ t: 3, text: 'Welcome, everyone.', own: false }, { t: 9, text: 'I will fight to lower costs for Utah families.', own: true }] });
+  ts.data.set(vtx.cacheKey(`${pid6}vid03`), { video_id: `${pid6}vid03`, status: 'empty', provider: 'gemini', segments: [] });
+  const store = memGetStore(); const hooked = [];
+  const { value } = await quiet(() => social.pullYouTube(src, { fetch: ytFetch(), store, transcriptStore: ts, now: NOW, log: () => {}, onRecord: async (rec) => hooked.push(rec) }));
+  assert.equal(value.ok, true);
+  assert.equal(hooked.length, 1, 'only the transcribed video is scored');
+  const rec = hooked[0];
+  assert.equal(rec.type, 'video'); assert.equal(rec.source_tier, 2);
+  assert.equal(rec.body, 'I will fight to lower costs for Utah families.', 'the politician\'s own words only');
+  assert.equal(rec.title, 'Video 4 & more');
+  assert.ok(!rec.body.includes('Welcome, everyone'), 'another speaker\'s words are left out');
+  assert.deepEqual(rec.segments, [{ t: 9, at: 0 }]);
+  assert.equal(store.data.get(rec.key).body, rec.body, 'stored under the video key');
+  const v3 = [...store.data.values()].find((v) => v.link?.endsWith('vid03'));
+  assert.equal(v3.weight, 'mention', 'a video with no speech stays a mention');
+  assert.ok(!ts.data.has(vtx.queueKey(`${pid6}vid03`)), 'an already-transcribed video is never queued again');
+  assert.ok(ts.data.has(vtx.queueKey(`${pid6}vid02`)), 'an untranscribed one is');
+  assert.deepEqual({ t: value.youtube.transcript, f: value.youtube.fallback, q: value.youtube.queued }, { t: 1, f: 2, q: 1 });
+});
+
+await t('social: the watch-page caption scrape is gone; the feed parser stays', () => {
+  for (const gone of ['fetchTranscript', 'extractCaptionTracks', 'pickCaptionTrack', 'captionText', 'watchPageMeta']) assert.ok(!(gone in social), `${gone} removed`);
   assert.equal(social.parseYouTubeFeed(FEED('abcdef'))[0].published.slice(0, 10), '2026-11-04');
 });
 

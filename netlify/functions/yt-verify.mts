@@ -18,23 +18,13 @@ import type { Config, Context } from '@netlify/functions'
 // anything — the interview exception stays an explicit, author/moderator decision.
 // This is read-only public metadata, so responses are cached aggressively.
 
-// Accepts youtube.com/watch?v=, youtu.be/, /embed/, /shorts/, or a bare id.
-const YT_ID_RE =
-  /(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|v\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/
+import { videoIdOf, fetchOEmbed } from '../lib/youtube-oembed.mjs'
 
 function jsonError(status: number, error: string): Response {
   return new Response(JSON.stringify({ ok: false, error }), {
     status,
     headers: { 'content-type': 'application/json' },
   })
-}
-
-// Pull the 11-character video id out of any supported form, or '' if none.
-function videoIdOf(raw: string): string {
-  const s = raw.trim()
-  if (/^[A-Za-z0-9_-]{11}$/.test(s)) return s
-  const m = s.match(YT_ID_RE)
-  return m ? m[1] : ''
 }
 
 export default async (req: Request, _context: Context): Promise<Response> => {
@@ -44,49 +34,31 @@ export default async (req: Request, _context: Context): Promise<Response> => {
   const videoId = videoIdOf(raw)
   if (!videoId) return jsonError(400, 'That does not look like a YouTube video URL.')
 
-  // Canonical watch URL is what oEmbed expects — rebuild it from the id so a
-  // messy or tracking-laden input can never reach YouTube verbatim.
-  const watchUrl = 'https://www.youtube.com/watch?v=' + videoId
-  const oembed =
-    'https://www.youtube.com/oembed?format=json&url=' + encodeURIComponent(watchUrl)
-
-  let res: Response
-  try {
-    res = await fetch(oembed, {
-      headers: { accept: 'application/json' },
-      signal: AbortSignal.timeout(8000),
-    })
-  } catch {
-    return jsonError(502, 'Could not reach YouTube to verify this video.')
-  }
+  // The oEmbed lookup is shared with the raw-ingest video pullers
+  // (netlify/lib/youtube-oembed.mjs); it rebuilds the canonical watch URL from
+  // the id, so a messy input never reaches YouTube verbatim.
+  const o: any = await fetchOEmbed(videoId)
 
   // oEmbed returns 401/403/404 for a video that is private, deleted, or does not
   // exist — surface that as "not verifiable" rather than a server error.
-  if (res.status === 404 || res.status === 401 || res.status === 403) {
+  if (!o.ok && o.missing) {
     return Response.json(
-      { ok: false, videoId, error: 'This video is private, removed, or does not exist.' },
+      { ok: false, videoId, error: o.error },
       { headers: { 'cache-control': 'public, max-age=3600' } }
     )
   }
-  if (!res.ok) return jsonError(502, 'YouTube did not confirm this video.')
-
-  let data: any
-  try {
-    data = await res.json()
-  } catch {
-    return jsonError(502, 'YouTube returned an unreadable response.')
-  }
+  if (!o.ok) return jsonError(502, o.error)
 
   return Response.json(
     {
       ok: true,
       videoId,
       // The REAL values, straight from YouTube — the basis for judging attribution.
-      title: String(data.title || ''),
-      channel: String(data.author_name || ''),
-      channelUrl: String(data.author_url || ''),
-      thumbnail: String(data.thumbnail_url || ''),
-      watchUrl,
+      title: o.title,
+      channel: o.channel,
+      channelUrl: o.channelUrl,
+      thumbnail: o.thumbnail,
+      watchUrl: o.watchUrl,
     },
     {
       headers: {
